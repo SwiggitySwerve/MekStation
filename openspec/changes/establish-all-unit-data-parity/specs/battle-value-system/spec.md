@@ -1,5 +1,31 @@
 ## ADDED Requirements
 
+### Requirement: Native machine gun array critical links
+
+The shared equipment BV owner SHALL link each array in mounted order to at
+most four unused, matching-caliber guns at its physical location, following
+pinned MegaMek 48fcb2f64 MekFileParser.java:894-945. Ordered Mech critical
+slots SHALL skip initial nonqualifying or used mounts, then stop at the first
+nonqualifying slot after linking begins. Only an empty critical selection
+SHALL fall back to the existing weapon-list search. Array BV SHALL be the
+unrounded linked base sum times 0.67, additional to the individual guns
+(BVCalculator.java:807-816). Family-specific admission, overrides, guards,
+modifiers and no-critical fallback policies SHALL be preserved.
+
+#### Scenario: Two distinct three-gun runs
+
+- **GIVEN** two arrays and six matching guns in two three-gun critical runs at one location, as on Black Lanner F LA and Linebacker I LA/RA
+- **WHEN** array links and BV are computed
+- **THEN** both arrays SHALL contribute 10.05, with location sum 20.1
+- **AND** matching the location total with a 13.4/6.7 partition SHALL NOT count as mount parity
+
+#### Scenario: No qualifying critical selection
+
+- **GIVEN** an array with no qualifying critical guns and six matching weapon-list guns at its location
+- **WHEN** it and a second array are linked
+- **THEN** the unchanged fallback SHALL link four and two guns for 13.4 and 6.7
+- **AND** a critical run containing a zero-BV gun SHALL count as a selection and SHALL NOT trigger fallback merely because its sum is zero
+
 ### Requirement: DropShip mount valuation
 
 The aerospace BV owner SHALL resolve represented DropShip mounts into six-arc

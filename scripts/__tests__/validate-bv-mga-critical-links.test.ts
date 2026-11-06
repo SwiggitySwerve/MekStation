@@ -43,6 +43,50 @@ it.each([
   expect(result?.weaponBV).toBe(50.1);
 });
 
+// Native pin 48fcb2f64, MekFileParser.java:894-945; BVCalculator.java:807-816.
+// Black Lanner F LA and Linebacker I LA/RA each contain two three-gun runs.
+it.each([
+  ['light-machine-gun', 'cllmga', 'CLLightMG (omnipod)', 'LEFT_ARM'],
+  ['machine-gun', 'clmga', 'CLMG', 'LEFT_ARM'],
+  ['machine-gun', 'clmga', 'CLMG', 'RIGHT_ARM'],
+])(
+  'links native three-gun runs for %s / %s / %s / %s',
+  (gun, array, crit, location) => {
+    const equipment = [gun, gun, gun, array, gun, gun, gun, array].map(
+      (id) => ({
+        id,
+        location,
+      }),
+    );
+    const source = { ...unit, equipment };
+    const fallback = calculateUnitBV(source).breakdown;
+    const linked = calculateUnitBV({
+      ...source,
+      criticalSlots: {
+        [location]: [
+          'Shoulder',
+          crit,
+          crit,
+          crit,
+          array,
+          crit,
+          crit,
+          crit,
+          array,
+        ],
+      },
+    }).breakdown;
+    const values = linked?.weaponMountBV
+      ?.filter((w) => /mga/.test(w.name))
+      .map((w) => w.bv);
+    expect(values).toEqual([10.05, 10.05]);
+    expect(values?.reduce((sum, value) => sum + value, 0)).toBe(20.1);
+    // Repartitioning preserves the mathematical total; binary addition may vary.
+    expect(linked?.weaponBV).toBeCloseTo(fallback!.weaponBV, 12);
+    expect(linked?.offensiveBV).toBeCloseTo(fallback!.offensiveBV, 12);
+  },
+);
+
 it.each<[number, number[]]>([
   [0, []],
   [-5, []],

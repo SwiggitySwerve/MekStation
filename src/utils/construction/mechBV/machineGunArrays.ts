@@ -1,6 +1,10 @@
 import type { WeaponEntry } from '../../../../scripts/validate-bv-calculator-weapons';
 import type { UnitData } from '../../../../scripts/validate-bv-types';
 
+import {
+  normalizeCritName,
+  toMechLoc,
+} from '../../../../scripts/validate-bv-normalizers';
 import { getMachineGunArrayBVGroup } from '../battleValueAmmo';
 import {
   linkMachineGunArrayBVWeapons,
@@ -100,7 +104,42 @@ export function applyMechMachineGunArrays(
       arrayGroup: getMachineGunArrayBVGroup(policy.typeId),
     });
   }
-  linkMachineGunArrayBVWeapons([...guns, ...arrays]);
+  const criticalSlots = new Map<
+    string,
+    (IMachineGunArrayBVWeapon<string> | undefined)[]
+  >();
+  for (const array of arrays) {
+    if (criticalSlots.has(array.location)) continue;
+    const slots = Object.entries(unit.criticalSlots ?? {}).find(
+      ([location]) =>
+        location.toUpperCase() === array.location ||
+        (toMechLoc(array.location) !== null &&
+          toMechLoc(location) === toMechLoc(array.location)),
+    )?.[1];
+    if (!slots) continue;
+    const assigned = new Set<IMachineGunArrayBVWeapon<string>>();
+    criticalSlots.set(
+      array.location,
+      slots.map((slot) => {
+        if (!slot) return undefined;
+        const name = normalizeCritName(slot);
+        const policy = COMPATIBILITY_GROUPS.find((p) =>
+          p.guns.some((alias) => normalizeCritName(alias) === name),
+        );
+        if (!policy) return undefined;
+        const group = getMachineGunArrayBVGroup(policy.typeId);
+        const gun = guns.find(
+          (mount) =>
+            mount.location === array.location &&
+            mount.ammoGroup === group &&
+            !assigned.has(mount),
+        );
+        if (gun) assigned.add(gun);
+        return gun;
+      }),
+    );
+  }
+  linkMachineGunArrayBVWeapons([...guns, ...arrays], criticalSlots);
   for (const array of arrays) {
     if (!((array.linkedBaseBV ?? 0) > 0)) continue;
     weapons.push({

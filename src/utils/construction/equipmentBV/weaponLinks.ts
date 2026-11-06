@@ -44,27 +44,42 @@ export interface IMachineGunArrayBVWeapon<Location> {
   linkedBaseBV?: number;
 }
 
-/** No-critical-slot fallback: MekFileParser.java:928-944; BVCalculator.java:807-816. */
+/** Native critical order and fallback: MekFileParser.java:894-945 (48fcb2f64).
+ * Optional slots reference these same mounts; undefined entries retain blockers.
+ * BVCalculator.java:807-816 applies unrounded 0.67 to the linked base sum.
+ */
 export function linkMachineGunArrayBVWeapons<Location>(
   weapons: IMachineGunArrayBVWeapon<Location>[],
+  criticalSlots?: ReadonlyMap<
+    Location,
+    readonly (IMachineGunArrayBVWeapon<Location> | undefined)[]
+  >,
 ): void {
   const used = new Set<(typeof weapons)[number]>();
   for (const array of weapons) {
     const group = array.arrayGroup;
     if (!group) continue;
     let base = 0;
-    for (let i = 0; i < 4; i++) {
-      const unmatched = linkBVWeapons(
-        weapons,
-        [array],
-        (w) => !used.has(w) && w.ammoGroup === group && !w.arrayGroup,
-        (w) => {
-          used.add(w);
-          base += w.baseBV;
-        },
-      );
-      if (unmatched.length) break;
+    let count = 0;
+    const eligible = (w: IMachineGunArrayBVWeapon<Location>) =>
+      !used.has(w) && w.ammoGroup === group && !w.arrayGroup;
+    const assign = (w: IMachineGunArrayBVWeapon<Location>) => {
+      used.add(w);
+      base += w.baseBV;
+      count++;
+    };
+    for (const mount of criticalSlots?.get(array.location) ?? []) {
+      if (mount && mount.location === array.location && eligible(mount)) {
+        assign(mount);
+        if (count >= 4) break;
+      } else if (count > 0) break;
     }
+    // Native fallback applies only when critical scanning linked no guns.
+    if (count === 0)
+      for (let i = 0; i < 4; i++) {
+        const unmatched = linkBVWeapons(weapons, [array], eligible, assign);
+        if (unmatched.length) break;
+      }
     array.linkedBaseBV = base;
     array.bv = base * 0.67;
   }
