@@ -4,6 +4,8 @@
  * Internal type definitions for record sheet service.
  */
 
+import type { IRecordSheetMechCrew } from '@/types/printing';
+
 /**
  * Unit configuration interface (simplified for service)
  */
@@ -21,6 +23,7 @@ export interface IBaseRecordSheetUnitConfig {
 }
 
 export interface IUnitConfig extends IBaseRecordSheetUnitConfig {
+  crew?: IRecordSheetMechCrew;
   role?: string;
   configuration: string;
   engine: {
