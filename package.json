@@ -38,6 +38,7 @@
     "test:roadmap": "node scripts/jest/run-jest-lane.mjs roadmap",
     "test:durations": "node scripts/jest/update-test-durations.mjs",
     "test:cached": "node scripts/jest/cached-tests.js",
+    "test:seed": "node scripts/jest/seed-tests.js",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:e2e": "node scripts/playwright/run-playwright.mjs test",
