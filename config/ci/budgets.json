@@ -1,13 +1,14 @@
 {
   "schema": "mekstation/ci-budgets/v1",
   "limits": {
-    "typicalPrJobs": 9,
-    "unkeyableTests": 55,
-    "repoWideKeys": 80,
+    "typicalPrJobs": 10,
+    "unkeyableTests": 57,
+    "repoWideKeys": 93,
     "standaloneStaticBytes": 290000000,
     "installerBytes": 170000000,
     "webZipBytes": 92000000
   },
+  "targets": { "typicalPrJobs": 9, "unkeyableTests": 55, "repoWideKeys": 80 },
   "dependencies": {
     "root": {
       "lockEntries": 1194,

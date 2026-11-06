@@ -31,12 +31,20 @@ function integer(value, context, minimum = 0) {
 export function validateBudgets(config) {
   exactKeys(
     config,
-    ['schema', 'limits', 'dependencies', 'profiles', 'timeouts'],
+    ['schema', 'limits', 'targets', 'dependencies', 'profiles', 'timeouts'],
     'budget',
   );
   if (config.schema !== BUDGET_SCHEMA) throw new Error('Unknown budget schema');
   exactKeys(config.limits, Object.keys(LIMIT_UNITS), 'limits');
   for (const [id, value] of Object.entries(config.limits)) integer(value, id);
+  exactKeys(
+    config.targets,
+    ['typicalPrJobs', 'unkeyableTests', 'repoWideKeys'],
+    'targets',
+  );
+  for (const [id, value] of Object.entries(config.targets)) {
+    integer(value, `target ${id}`);
+  }
   exactKeys(config.dependencies, ['root', 'desktop'], 'dependencies');
   for (const [scope, values] of Object.entries(config.dependencies)) {
     exactKeys(values, ['lockEntries', 'directDependencies'], scope);
@@ -121,6 +129,31 @@ export function budgetDescriptors(config) {
   }));
 }
 
+/** Policy gaps remain visible even when observed telemetry is unavailable. */
+export function budgetTargetGaps(config, observedValues = null) {
+  validateBudgets(config);
+  if (
+    observedValues !== null &&
+    (typeof observedValues !== 'object' || Array.isArray(observedValues))
+  )
+    throw new Error('Observed budget values must be an object or null');
+  return Object.entries(config.targets).map(([key, target]) => {
+    const id = `limits.${key}`,
+      observed = observedValues?.[id] ?? null;
+    if (observed !== null && (!Number.isFinite(observed) || observed < 0))
+      throw new Error(`Invalid observed budget value: ${id}`);
+    return {
+      id,
+      unit: LIMIT_UNITS[key],
+      enforced: config.limits[key],
+      target,
+      observed,
+      gapToTarget: observed === null ? null : Math.max(0, observed - target),
+      configuredGap: config.limits[key] - target,
+    };
+  });
+}
+
 /** Canonical numeric IDs consumed by approval and ratchet adapters. */
 export function budgetValues(config) {
   validateBudgets(config);
@@ -144,12 +177,24 @@ export function budgetValues(config) {
 
 /** Invalid additions/removals fail closed rather than disappearing from a delta. */
 export function budgetRaises(base, head) {
+  if (base === null) {
+    if (head !== null) validateBudgets(head);
+    return []; // Initial baseline: no previously enforced cap exists.
+  }
   const before = budgetValues(base),
     after = budgetValues(head);
   const raises = [];
   for (const id of new Set([...Object.keys(before), ...Object.keys(after)])) {
     if (!(id in after) || !(id in before) || after[id] > before[id])
       raises.push({ id, before: before[id] ?? null, after: after[id] ?? null });
+  }
+  for (const [id, value] of Object.entries(head.targets)) {
+    if (value > base.targets[id])
+      raises.push({
+        id: `targets.${id}`,
+        before: base.targets[id],
+        after: value,
+      });
   }
   // Dropping a typical profile is also a budget bypass requiring approval.
   for (const profile of base.profiles.filter((p) => p.typical)) {

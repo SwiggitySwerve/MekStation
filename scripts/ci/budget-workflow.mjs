@@ -5,16 +5,26 @@ import { parseDocument } from 'yaml';
 
 import { decide } from './ci-changes.mjs';
 
-export function readWorkflow(root) {
-  const document = parseDocument(
-    fs.readFileSync(path.join(root, '.github/workflows/pr-checks.yml'), 'utf8'),
-    { uniqueKeys: true },
-  );
+function parseWorkflowSource(text) {
+  if (typeof text !== 'string')
+    throw new TypeError('Workflow source must be text');
+  const document = parseDocument(text, { uniqueKeys: true });
   if (document.errors.length) throw document.errors[0];
   const workflow = document.toJS();
   if (!workflow?.jobs || !Object.keys(workflow.jobs).length)
     throw new Error('Workflow jobs missing');
   return workflow;
+}
+
+export function readWorkflow(root) {
+  return parseWorkflowSource(
+    fs.readFileSync(path.join(root, '.github/workflows/pr-checks.yml'), 'utf8'),
+  );
+}
+
+/** Parse immutable source JSON/base64 payloads without executing workflow code. */
+export function workflowGraphFromSource(text) {
+  return workflowGraphContract(parseWorkflowSource(text));
 }
 
 function readAllWorkflows(root) {
@@ -23,12 +33,9 @@ function readAllWorkflows(root) {
     .filter((name) => /\.ya?ml$/.test(name))
     .sort()
     .map((file) => {
-      const document = parseDocument(
+      const value = parseWorkflowSource(
         fs.readFileSync(path.join(root, '.github/workflows', file), 'utf8'),
-        { uniqueKeys: true },
       );
-      if (document.errors.length) throw document.errors[0];
-      const value = document.toJS();
       if (
         typeof value.name !== 'string' ||
         !value.on ||

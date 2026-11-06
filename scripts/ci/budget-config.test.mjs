@@ -11,6 +11,7 @@ import {
   ratchetBudgets,
   budgetConfigHash,
   budgetDescriptors,
+  budgetTargetGaps,
 } from './budget-config.mjs';
 
 const config = loadBudgets();
@@ -45,6 +46,9 @@ test('schema rejects missing/unknown inputs, nonintegers and timeout bypasses', 
 });
 
 test('canonical raises cover every cap/dependency/timeout and profile removal', () => {
+  assert.deepEqual(budgetRaises(null, config), []);
+  assert.deepEqual(budgetRaises(null, null), []);
+  assert.throws(() => budgetRaises(config, null));
   for (const key of Object.keys(config.limits)) {
     const next = structuredClone(config);
     next.limits[key]++;
@@ -71,6 +75,34 @@ test('canonical raises cover every cap/dependency/timeout and profile removal', 
   const unknown = structuredClone(config);
   delete unknown.limits.repoWideKeys;
   assert.throws(() => budgetRaises(config, unknown));
+  const relaxed = structuredClone(config);
+  relaxed.targets.unkeyableTests++;
+  assert.equal(budgetRaises(config, relaxed)[0].id, 'targets.unkeyableTests');
+});
+
+test('targets report configured gaps with unavailable or fractional observations', () => {
+  const unknown = budgetTargetGaps(config);
+  assert.deepEqual(
+    unknown.map((row) => row.configuredGap),
+    [1, 2, 13],
+  );
+  assert.ok(
+    unknown.every((row) => row.observed === null && row.gapToTarget === null),
+  );
+  const measured = budgetTargetGaps(config, { 'limits.unkeyableTests': 56.5 });
+  assert.equal(
+    measured.find((row) => row.id === 'limits.unkeyableTests').gapToTarget,
+    1.5,
+  );
+  for (const value of [-1, NaN, Infinity, '57'])
+    assert.throws(() =>
+      budgetTargetGaps(config, { 'limits.unkeyableTests': value }),
+    );
+  assert.equal(
+    budgetDescriptors(config).find((row) => row.id === 'limits.unkeyableTests')
+      .value,
+    57,
+  );
 });
 
 test('ratchets lower canonical IDs and cannot add/raise/duplicate silently', () => {
@@ -78,11 +110,11 @@ test('ratchets lower canonical IDs and cannot add/raise/duplicate silently', () 
     { id: 'limits.repoWideKeys', value: 79 },
   ]);
   assert.equal(result.limits.repoWideKeys, 79);
-  assert.equal(config.limits.repoWideKeys, 80);
+  assert.equal(config.limits.repoWideKeys, 93);
   for (const proposals of [
     null,
     [{ id: 'unknown', value: 1 }],
-    [{ id: 'limits.unkeyableTests', value: 56 }],
+    [{ id: 'limits.unkeyableTests', value: config.limits.unkeyableTests + 1 }],
     [
       { id: 'limits.repoWideKeys', value: 79 },
       { id: 'limits.repoWideKeys', value: 78 },

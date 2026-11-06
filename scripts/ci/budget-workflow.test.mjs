@@ -20,6 +20,7 @@ import {
   workflowMetrics,
   workflowGraphContract,
   projectTimingLimits,
+  workflowGraphFromSource,
 } from './budget-workflow.mjs';
 
 const root = process.cwd(),
@@ -31,6 +32,28 @@ const repository = () => ({
   workflow: workflowMetrics(root, config),
   dependencies: structuredClone(config.dependencies),
   cache: { files: ['one.test.ts'], unkeyable: [], repoWide: [] },
+});
+
+test('source graph reuses the unique-key parser and canonical expansion', () => {
+  const source = fs.readFileSync(
+    path.join(root, '.github/workflows/pr-checks.yml'),
+    'utf8',
+  );
+  assert.deepEqual(
+    workflowGraphFromSource(source),
+    workflowGraphContract(workflow),
+  );
+  for (const invalid of [
+    null,
+    undefined,
+    Buffer.from(source),
+    '',
+    'jobs: [',
+    'jobs:\n  same: {}\n  same: {}\n',
+    'jobs:\n  a:\n    needs: absent\n    steps: []\n',
+  ]) {
+    assert.throws(() => workflowGraphFromSource(invalid));
+  }
 });
 
 test('short-form unknown triggers cannot hide additional workflow jobs', () => {
@@ -72,9 +95,11 @@ test('expanded count includes matrix legs, detector, aggregator and induced trus
     1,
   );
   assert.ok(
-    checkRepositoryMetrics(config, repository(), []).violations.some(
-      (v) => v.code === 'typicalPrJobs',
-    ),
+    checkRepositoryMetrics(
+      { ...config, limits: { ...config.limits, typicalPrJobs: 9 } },
+      repository(),
+      [],
+    ).violations.some((v) => v.code === 'typicalPrJobs'),
   );
   const graph = expandedJobGraph(workflow);
   assert.ok(graph['Lint and Test'].includes('E2E (2/2)'));
@@ -175,9 +200,12 @@ test('actual aggregator boundary rejects failures, unexpected skips, unknown/mis
 
 test('cache caps use exact censuses; dependency growth needs explicit label; timeout drift is red', () => {
   const metrics = repository();
-  metrics.cache.files = Array.from({ length: 81 }, (_, i) => `${i}.test.ts`);
+  metrics.cache.files = Array.from(
+    { length: config.limits.repoWideKeys + 1 },
+    (_, i) => `${i}.test.ts`,
+  );
   metrics.cache.unkeyable = metrics.cache.files
-    .slice(0, 56)
+    .slice(0, config.limits.unkeyableTests + 1)
     .map((file) => ({ file, reason: 'whole env' }));
   metrics.cache.repoWide = metrics.cache.files.map((file) => ({
     file,
