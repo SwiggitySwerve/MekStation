@@ -1,0 +1,271 @@
+{
+  "schema": "mekstation/ci-budgets/v1",
+  "limits": {
+    "typicalPrJobs": 10,
+    "unkeyableTests": 57,
+    "repoWideKeys": 93,
+    "standaloneStaticBytes": 290000000,
+    "installerBytes": 170000000,
+    "webZipBytes": 92000000
+  },
+  "targets": {
+    "typicalPrJobs": 9,
+    "unkeyableTests": 55,
+    "repoWideKeys": 80
+  },
+  "dependencies": {
+    "root": {
+      "lockEntries": 1194,
+      "directDependencies": 68
+    },
+    "desktop": {
+      "lockEntries": 596,
+      "directDependencies": 15
+    }
+  },
+  "profiles": [
+    {
+      "id": "docs",
+      "paths": ["docs/README.md"],
+      "typical": true,
+      "reason": "Documentation-only PR; always-running jobs still count."
+    },
+    {
+      "id": "source",
+      "paths": ["src/utils/uuid.ts"],
+      "typical": true,
+      "reason": "Ordinary application source; both E2E shards and simulation run."
+    },
+    {
+      "id": "data",
+      "paths": ["public/data/units/vehicles/example.json"],
+      "typical": true,
+      "reason": "Corpus/equipment checks remain steps in existing jobs."
+    },
+    {
+      "id": "browser",
+      "paths": ["e2e/customizer.spec.ts"],
+      "typical": true,
+      "reason": "Browser-only change; E2E jobs run, code-only simulation is gated."
+    },
+    {
+      "id": "desktop",
+      "paths": ["desktop/src/main.ts"],
+      "typical": false,
+      "reason": "Declared packaging exception: adds Windows and macOS jobs."
+    },
+    {
+      "id": "ci",
+      "paths": [".github/workflows/pr-checks.yml"],
+      "typical": false,
+      "reason": "CI/global configuration change turns on every gate including desktop packaging."
+    },
+    {
+      "id": "budgets",
+      "paths": ["config/ci/budgets.json"],
+      "typical": false,
+      "reason": "Budget-change PR: approval workflow and its trusted event jobs must be included when adopted; explicit exceptional profile."
+    },
+    {
+      "id": "bootstrap",
+      "paths": ["config/ci/budgets.json", ".github/workflows/pr-checks.yml"],
+      "typical": false,
+      "reason": "Explicit initial budget and CI wiring profile: all packaging legs plus trusted budget approval are counted."
+    },
+    {
+      "id": "dependency",
+      "paths": ["package-lock.json"],
+      "typical": false,
+      "reason": "Dependency/global change: all packaging legs plus trusted dependency-label approval are counted."
+    }
+  ],
+  "timeouts": {
+    "detect-changes": {
+      "minutes": 1,
+      "samples": [
+        {
+          "runId": 42171496788,
+          "job": "Detect Changes",
+          "seconds": 16
+        },
+        {
+          "runId": 42171314907,
+          "job": "Detect Changes",
+          "seconds": 16
+        },
+        {
+          "runId": 42168139279,
+          "job": "Detect Changes",
+          "seconds": 15
+        }
+      ],
+      "medianSeconds": 16
+    },
+    "static-checks": {
+      "minutes": 13,
+      "samples": [
+        {
+          "runId": 42171496788,
+          "job": "Static Checks",
+          "seconds": 367
+        },
+        {
+          "runId": 42171314907,
+          "job": "Static Checks",
+          "seconds": 246
+        },
+        {
+          "runId": 42168139279,
+          "job": "Static Checks",
+          "seconds": 401
+        }
+      ],
+      "medianSeconds": 367
+    },
+    "simulation-checks": {
+      "minutes": 14,
+      "samples": [
+        {
+          "runId": 42171496788,
+          "job": "Simulation Checks and Linux Pack",
+          "seconds": 434
+        },
+        {
+          "runId": 42171314907,
+          "job": "Simulation Checks and Linux Pack",
+          "seconds": 264
+        },
+        {
+          "runId": 42168139279,
+          "job": "Simulation Checks and Linux Pack",
+          "seconds": 419
+        }
+      ],
+      "medianSeconds": 419
+    },
+    "unit-test-shards": {
+      "minutes": 12,
+      "samples": [
+        {
+          "runId": 42171496788,
+          "job": "Unit Tests (2/3)",
+          "seconds": 264
+        },
+        {
+          "runId": 42171496788,
+          "job": "Unit Tests (3/3)",
+          "seconds": 373
+        },
+        {
+          "runId": 42171496788,
+          "job": "Unit Tests (1/3)",
+          "seconds": 305
+        },
+        {
+          "runId": 42171314907,
+          "job": "Unit Tests (1/3)",
+          "seconds": 403
+        },
+        {
+          "runId": 42171314907,
+          "job": "Unit Tests (3/3)",
+          "seconds": 359
+        },
+        {
+          "runId": 42171314907,
+          "job": "Unit Tests (2/3)",
+          "seconds": 345
+        },
+        {
+          "runId": 42168139279,
+          "job": "Unit Tests (3/3)",
+          "seconds": 215
+        },
+        {
+          "runId": 42168139279,
+          "job": "Unit Tests (2/3)",
+          "seconds": 419
+        },
+        {
+          "runId": 42168139279,
+          "job": "Unit Tests (1/3)",
+          "seconds": 413
+        }
+      ],
+      "medianSeconds": 359
+    },
+    "e2e": {
+      "minutes": 15,
+      "samples": [
+        {
+          "runId": 42171496788,
+          "job": "E2E (2/2)",
+          "seconds": 460
+        },
+        {
+          "runId": 42171496788,
+          "job": "E2E (1/2)",
+          "seconds": 436
+        },
+        {
+          "runId": 42171314907,
+          "job": "E2E (1/2)",
+          "seconds": 426
+        },
+        {
+          "runId": 42171314907,
+          "job": "E2E (2/2)",
+          "seconds": 436
+        },
+        {
+          "runId": 42168139279,
+          "job": "E2E (2/2)",
+          "seconds": 498
+        },
+        {
+          "runId": 42168139279,
+          "job": "E2E (1/2)",
+          "seconds": 485
+        }
+      ],
+      "medianSeconds": 448
+    },
+    "lint-and-test": {
+      "minutes": 1,
+      "samples": [
+        {
+          "runId": 42171496788,
+          "job": "Lint and Test",
+          "seconds": 2
+        },
+        {
+          "runId": 42171314907,
+          "job": "Lint and Test",
+          "seconds": 4
+        },
+        {
+          "runId": 42168139279,
+          "job": "Lint and Test",
+          "seconds": 4
+        }
+      ],
+      "medianSeconds": 4
+    },
+    "build-test": {
+      "minutes": 5,
+      "samples": [
+        {
+          "runId": 42157791564,
+          "job": "Build Test / win",
+          "seconds": 172
+        },
+        {
+          "runId": 42157791564,
+          "job": "Build Test / mac",
+          "seconds": 99
+        }
+      ],
+      "medianSeconds": 135.5
+    }
+  }
+}
