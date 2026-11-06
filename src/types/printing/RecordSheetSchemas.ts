@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+import {
+  getMechCrewRoles,
+  MECH_CREW_ROLES,
+  MECH_CREW_TYPES,
+} from '@/types/pilot/MechCrewType';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import {
@@ -123,6 +128,40 @@ export const RecordSheetSPAEntrySchema = z.object({
   xpSpent: z.number().optional(),
 });
 
+export const MechRecordSheetCrewSchema = z
+  .object({
+    crewType: z.enum(MECH_CREW_TYPES),
+    slots: z.array(
+      z
+        .object({
+          slotIndex: z.number().int().nonnegative(),
+          role: z.enum(MECH_CREW_ROLES),
+          pilot: RecordSheetPilotSchema.strict().optional(),
+        })
+        .strict(),
+    ),
+  })
+  .strict()
+  .superRefine((crew, ctx) => {
+    const expected = getMechCrewRoles(crew.crewType);
+    if (crew.slots.length !== expected.length) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['slots'],
+        message: 'Crew roster must contain every native slot',
+      });
+    }
+    crew.slots.forEach((slot, index) => {
+      if (slot.slotIndex !== index || slot.role !== expected[index]) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['slots', index],
+          message: 'Crew index and role must match native roster order',
+        });
+      }
+    });
+  });
+
 export const MechRecordSheetDataSchema = z.object({
   unitType: z.literal('mech'),
   header: RecordSheetHeaderSchema,
@@ -133,6 +172,7 @@ export const MechRecordSheetDataSchema = z.object({
   heatSinks: RecordSheetHeatSinksSchema,
   criticals: z.array(LocationCriticalsSchema),
   pilot: RecordSheetPilotSchema.optional(),
+  crew: MechRecordSheetCrewSchema.optional(),
   specialAbilities: z.array(RecordSheetSPAEntrySchema).optional(),
   mechType: z.enum(['biped', 'quad', 'tripod', 'lam', 'quadvee']),
 });

@@ -11,3 +11,4 @@ export * from './SpecialAbilities';
 export * from './IModifierBase';
 export * from './pilot-mech-card';
 export * from './SPADesignation';
+export * from './MechCrewType';

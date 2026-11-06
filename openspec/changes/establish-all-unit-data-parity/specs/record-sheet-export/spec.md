@@ -170,3 +170,24 @@ selection, float dimensions and unbounded space-delimiter wrapping.
 - **WHEN** the sheet is rendered
 - **THEN** this LAM-only correction preserves existing biped/quad output and other routes
 - **AND** tripod/QuadVee support remains a required deferred gap until Q-PILOT supplies the pinned crew-slot contract; the one-pilot payload does not establish that identity
+
+### Requirement: Explicit native multi-crew print identity
+
+Mech print extraction SHALL retain an explicitly supplied complete native crew roster: TRIPOD has indexed Pilot/Gunner slots, SUPERHEAVY_TRIPOD adds Tech Officer, and QUADVEE has Pilot/Gunner slots. The runtime schema SHALL reject count, order, index or role mismatches. Unassigned pilots SHALL remain absent, and existing top-level SPAs SHALL remain crew-global rather than copied to slots.
+
+#### Scenario: Explicit native roster survives extraction
+
+- **GIVEN** an explicit native crew type, indexed roles and distinct or identically named pilot records
+- **WHEN** public sheet extraction and runtime validation run
+- **THEN** each slot retains its own supplied pilot values and unassigned slots remain unassigned
+- **AND** all other extracted figures remain unchanged
+
+#### Scenario: Invalid or absent assignments
+
+- **GIVEN** an incomplete, reordered, duplicated, out-of-range or mislabelled roster
+- **WHEN** extraction or runtime validation runs
+- **THEN** the boundary rejects it rather than assigning people or roles
+- **GIVEN** no crew roster
+- **WHEN** a legacy caller extracts any Mech configuration
+- **THEN** no roster is inferred from configuration or tonnage
+- **AND** multi-slot rendering, editor authoring and persistence remain required follow-up work under rows 4.1/4.3
