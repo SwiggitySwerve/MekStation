@@ -16,7 +16,7 @@
       "ammoPerTon": 45,
       "costCBills": 75000,
       "battleValue": 37,
-      "introductionYear": 2300
+      "introductionYear": 2290
     },
     {
       "id": "ac-5",
@@ -88,7 +88,7 @@
       "ammoPerTon": 45,
       "costCBills": 120000,
       "battleValue": 56,
-      "introductionYear": 3057,
+      "introductionYear": 3050,
       "special": ["Can fire twice"]
     },
     {
@@ -107,7 +107,7 @@
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 112,
-      "introductionYear": 2640,
+      "introductionYear": 2630,
       "special": ["Can fire twice"],
       "extinctionYear": 2915,
       "reintroductionYear": 3035
@@ -128,7 +128,7 @@
       "ammoPerTon": 10,
       "costCBills": 320000,
       "battleValue": 210,
-      "introductionYear": 3057,
+      "introductionYear": 3050,
       "special": ["Can fire twice"]
     },
     {
@@ -147,7 +147,7 @@
       "ammoPerTon": 5,
       "costCBills": 480000,
       "battleValue": 281,
-      "introductionYear": 3060,
+      "introductionYear": 3052,
       "special": ["Can fire twice"]
     },
     {
@@ -166,7 +166,7 @@
       "ammoPerTon": 45,
       "costCBills": 120000,
       "battleValue": 62,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     },
     {
@@ -185,7 +185,7 @@
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 122,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     },
     {
@@ -204,7 +204,7 @@
       "ammoPerTon": 10,
       "costCBills": 320000,
       "battleValue": 210,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     },
     {
@@ -223,7 +223,7 @@
       "ammoPerTon": 5,
       "costCBills": 480000,
       "battleValue": 335,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     },
     {
@@ -242,7 +242,7 @@
       "ammoPerTon": 45,
       "costCBills": 150000,
       "battleValue": 42,
-      "introductionYear": 3058,
+      "introductionYear": 3050,
       "special": ["Cluster ammo available"]
     },
     {
@@ -261,7 +261,7 @@
       "ammoPerTon": 20,
       "costCBills": 250000,
       "battleValue": 83,
-      "introductionYear": 3058,
+      "introductionYear": 3050,
       "special": ["Cluster ammo available"]
     },
     {
@@ -279,7 +279,7 @@
       "ammoPerTon": 10,
       "costCBills": 400000,
       "battleValue": 148,
-      "introductionYear": 2595,
+      "introductionYear": 2590,
       "special": ["Cluster ammo available"],
       "extinctionYear": 2840,
       "reintroductionYear": 3035
@@ -300,7 +300,7 @@
       "ammoPerTon": 5,
       "costCBills": 600000,
       "battleValue": 237,
-      "introductionYear": 3058,
+      "introductionYear": 3050,
       "special": ["Cluster ammo available"]
     },
     {
@@ -319,7 +319,7 @@
       "ammoPerTon": 45,
       "costCBills": 150000,
       "battleValue": 47,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     },
     {
@@ -338,7 +338,7 @@
       "ammoPerTon": 20,
       "costCBills": 250000,
       "battleValue": 93,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     },
     {
@@ -357,7 +357,7 @@
       "ammoPerTon": 10,
       "costCBills": 400000,
       "battleValue": 148,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     },
     {
@@ -376,7 +376,7 @@
       "ammoPerTon": 5,
       "costCBills": 600000,
       "battleValue": 237,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     },
     {
@@ -395,7 +395,7 @@
       "ammoPerTon": 45,
       "costCBills": 175000,
       "battleValue": 118,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": ["Can fire 1-6 shots"]
     },
     {
@@ -414,7 +414,7 @@
       "ammoPerTon": 20,
       "costCBills": 275000,
       "battleValue": 247,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": ["Can fire 1-6 shots"]
     },
     {
@@ -471,7 +471,7 @@
       "ammoPerTon": 45,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 3068
+      "introductionYear": 3057
     },
     {
       "id": "lac-5",
@@ -640,7 +640,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 100000,
       "battleValue": 53,
-      "introductionYear": 3079,
+      "introductionYear": 3059,
       "special": []
     },
     {
@@ -664,7 +664,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 4 },
       "costCBills": 160000,
       "battleValue": 109,
-      "introductionYear": 3079,
+      "introductionYear": 3059,
       "special": []
     }
   ],

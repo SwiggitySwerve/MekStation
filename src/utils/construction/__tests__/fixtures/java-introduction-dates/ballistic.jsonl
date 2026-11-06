@@ -1,0 +1,87 @@
+{"file":"weapons/ballistic-autocannon.json","id":"clan-lb-2-x-ac","year":2819,"java":"CLLBXAC2","citation":"weapons/autoCannons/clan/CLLB2XAC.java:59,88-89"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-lb-5-x-ac","year":2819,"java":"CLLBXAC5","citation":"weapons/autoCannons/clan/CLLB5XAC.java:59,87-88"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-lb-10-x-ac","year":2819,"java":"CLLBXAC10","citation":"weapons/autoCannons/clan/CLLB10XAC.java:60,85-86"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-lb-20-x-ac","year":2819,"java":"CLLBXAC20","citation":"weapons/autoCannons/clan/CLLB20XAC.java:60,86-87"}
+{"file":"weapons/ballistic-other.json","id":"ams","year":2608,"java":"ISAntiMissileSystem","citation":"weapons/other/innerSphere/ISAMS.java:59,92-93"}
+{"file":"weapons/ballistic-other.json","id":"clan-ams","year":2819,"java":"CLAntiMissileSystem","citation":"weapons/other/clan/CLAMS.java:60,93-94"}
+{"file":"weapons/ballistic-autocannon.json","id":"ac-2","year":2290,"java":"Autocannon/2","citation":"weapons/autoCannons/innerSphere/ISAC2.java:60,96-99"}
+{"file":"weapons/ballistic-autocannon.json","id":"uac-2","year":3050,"java":"ISUltraAC2","citation":"weapons/autoCannons/innerSphere/ISUAC2.java:57,87-88"}
+{"file":"weapons/ballistic-autocannon.json","id":"uac-5","year":2630,"java":"ISUltraAC5","citation":"weapons/autoCannons/innerSphere/ISUAC5.java:57,85-86"}
+{"file":"weapons/ballistic-autocannon.json","id":"uac-10","year":3050,"java":"ISUltraAC10","citation":"weapons/autoCannons/innerSphere/ISUAC10.java:57,83-84"}
+{"file":"weapons/ballistic-autocannon.json","id":"uac-20","year":3052,"java":"ISUltraAC20","citation":"weapons/autoCannons/innerSphere/ISUAC20.java:57,83-84"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-uac-2","year":2820,"java":"CLUltraAC2","citation":"weapons/autoCannons/clan/CLUAC2.java:59,89-90"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-uac-5","year":2820,"java":"CLUltraAC5","citation":"weapons/autoCannons/clan/CLUAC5.java:57,86-87"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-uac-10","year":2820,"java":"CLUltraAC10","citation":"weapons/autoCannons/clan/CLUAC10.java:58,84-85"}
+{"file":"weapons/ballistic-autocannon.json","id":"clan-uac-20","year":2820,"java":"CLUltraAC20","citation":"weapons/autoCannons/clan/CLUAC20.java:58,85-86"}
+{"file":"weapons/ballistic-autocannon.json","id":"lb-2-x-ac","year":3050,"java":"ISLBXAC2","citation":"weapons/autoCannons/innerSphere/ISLB2XAC.java:59,88-89"}
+{"file":"weapons/ballistic-autocannon.json","id":"lb-5-x-ac","year":3050,"java":"ISLBXAC5","citation":"weapons/autoCannons/innerSphere/ISLB5XAC.java:59,87-88"}
+{"file":"weapons/ballistic-autocannon.json","id":"lb-10-x-ac","year":2590,"java":"ISLBXAC10","citation":"weapons/autoCannons/innerSphere/ISLB10XAC.java:59,84-85"}
+{"file":"weapons/ballistic-autocannon.json","id":"lb-20-x-ac","year":3050,"java":"ISLBXAC20","citation":"weapons/autoCannons/innerSphere/ISLB20XAC.java:59,84-85"}
+{"file":"weapons/ballistic-autocannon.json","id":"rac-2","year":3055,"java":"ISRotaryAC2","citation":"weapons/autoCannons/innerSphere/ISRAC2.java:58,86-87"}
+{"file":"weapons/ballistic-autocannon.json","id":"rac-5","year":3055,"java":"ISRotaryAC5","citation":"weapons/autoCannons/innerSphere/ISRAC5.java:58,86-87"}
+{"file":"weapons/ballistic-autocannon.json","id":"lac-2","year":3057,"java":"Light Auto Cannon/2","citation":"weapons/autoCannons/innerSphere/ISLAC2.java:56,85-86"}
+{"file":"weapons/ballistic-autocannon.json","id":"hyper-velocity-auto-cannon-2","year":3059,"java":"Hyper Velocity Auto Cannon/2","citation":"weapons/autoCannons/innerSphere/ISHVAC2.java:58,86-86"}
+{"file":"weapons/ballistic-autocannon.json","id":"hyper-velocity-auto-cannon-5","year":3059,"java":"Hyper Velocity Auto Cannon/5","citation":"weapons/autoCannons/innerSphere/ISHVAC5.java:58,85-85"}
+{"file":"weapons/ballistic-gauss.json","id":"gauss-rifle","year":2587,"java":"ISGaussRifle","citation":"weapons/gaussRifles/innerSphere/ISGaussRifle.java:70,100-101"}
+{"file":"weapons/ballistic-gauss.json","id":"light-gauss-rifle","year":3044,"java":"ISLightGaussRifle","citation":"weapons/gaussRifles/innerSphere/ISLGaussRifle.java:68,98-99"}
+{"file":"weapons/ballistic-gauss.json","id":"heavy-gauss-rifle","year":3046,"java":"ISHeavyGaussRifle","citation":"weapons/gaussRifles/innerSphere/ISHGaussRifle.java:71,103-104"}
+{"file":"weapons/ballistic-gauss.json","id":"ap-gauss-rifle","year":3060,"java":"CLAPGaussRifle","citation":"weapons/gaussRifles/clan/CLAPGaussRifle.java:59,88-89"}
+{"file":"weapons/ballistic-gauss.json","id":"clan-gauss-rifle","year":2817,"java":"CLGaussRifle","citation":"weapons/gaussRifles/clan/CLGaussRifle.java:69,98-99"}
+{"file":"weapons/ballistic-gauss.json","id":"baapgaussrifle","year":3061,"java":"CLBAAPGaussRifle","citation":"weapons/battleArmor/clan/CLBAAPGaussRifle.java:59,79-80"}
+{"file":"weapons/ballistic-gauss.json","id":"badavidlightgaussrifle","year":3053,"java":"BADavidLightGaussRifle","citation":"weapons/battleArmor/innerSphere/gaussRifle/ISBAGaussRifleDavidLight.java:58,76-77"}
+{"file":"weapons/ballistic-gauss.json","id":"bagrandmaulergausscannon","year":3050,"java":"ISBAGrandMaulerGaussCannon","citation":"weapons/battleArmor/innerSphere/gaussRifle/ISBAGaussRifleGrandMauler.java:58,83-84"}
+{"file":"weapons/ballistic-gauss.json","id":"bakingdavidlightgaussrifle","year":3053,"java":"ISBAKingDavidLightGaussRifle","citation":"weapons/battleArmor/innerSphere/gaussRifle/ISBAGaussRifleKingDavidLight.java:59,78-79"}
+{"file":"weapons/ballistic-gauss.json","id":"batsunamiheavygaussrifle","year":3049,"java":"ISBATsunamiHeavyGaussRifle","citation":"weapons/battleArmor/innerSphere/gaussRifle/ISBAGaussRifleTsunami.java:58,87-88"}
+{"file":"weapons/ballistic-gauss.json","id":"naval-gauss-heavy","year":2435,"java":"Naval Gauss (Heavy)","citation":"weapons/capitalWeapons/naval/NGaussWeaponHeavy.java:56,82-85"}
+{"file":"weapons/ballistic-gauss.json","id":"naval-gauss-light","year":2435,"java":"Naval Gauss (Light)","citation":"weapons/capitalWeapons/naval/NGaussWeaponLight.java:56,82-85"}
+{"file":"weapons/ballistic-gauss.json","id":"naval-gauss-medium","year":2435,"java":"Naval Gauss (Medium)","citation":"weapons/capitalWeapons/naval/NGaussWeaponMedium.java:56,82-85"}
+{"file":"weapons/ballistic-gauss.json","id":"improved-gauss-rifle","year":2813,"java":"Improved Gauss Rifle","citation":"weapons/gaussRifles/clan/CLImprovedGaussRifle.java:68,92-93"}
+{"file":"weapons/ballistic-gauss.json","id":"sbgr","year":3051,"java":"ISSBGR","citation":"weapons/gaussRifles/innerSphere/ISSilverBulletGauss.java:74,106-106"}
+{"file":"weapons/ballistic-machinegun.json","id":"light-machine-gun","year":3059,"java":"Light Machine Gun","citation":"weapons/mgs/innerSphere/ISLightMG.java:58,87-88"}
+{"file":"weapons/ballistic-machinegun.json","id":"bamg","year":1950,"java":"CLBAMG","citation":"weapons/battleArmor/clan/mg/CLBAMG.java:58,83-86"}
+{"file":"weapons/ballistic-machinegun.json","id":"machine-gun-bearhunter-ac","year":3055,"java":"Machine Gun (Bearhunter AC)","citation":"weapons/battleArmor/clan/mg/CLBAMGBearhunterSuperheavy.java:58,80-81"}
+{"file":"weapons/ballistic-machinegun.json","id":"machine-gun-bearhunter-aci","year":3055,"java":"Machine Gun (Bearhunter ACi)","citation":"weapons/battleArmor/clan/mg/CLBAMGBearhunterSuperheavyACi.java:60,84-85"}
+{"file":"weapons/ballistic-machinegun.json","id":"baheavymg","year":3050,"java":"CLBAHeavyMG","citation":"weapons/battleArmor/clan/mg/CLBAMGHeavy.java:58,78-81"}
+{"file":"weapons/ballistic-other.json","id":"nail-rivet-gun","year":2304,"java":"Nail/Rivet Gun","citation":"weapons/autoCannons/innerSphere/ISNailAndRivetGun.java:56,75-78"}
+{"file":"weapons/ballistic-other.json","id":"baheavy-recoilless-rifle","year":3057,"java":"CLBAHeavy Recoilless Rifle","citation":"weapons/battleArmor/clan/CLBARecoillessRifleHeavy.java:59,91-94"}
+{"file":"weapons/ballistic-other.json","id":"balight-recoilless-rifle","year":3057,"java":"CLBALight Recoilless Rifle","citation":"weapons/battleArmor/clan/CLBARecoillessRifleLight.java:59,91-94"}
+{"file":"weapons/ballistic-other.json","id":"bamedium-recoilless-rifle","year":3057,"java":"CLBAMedium Recoilless Rifle","citation":"weapons/battleArmor/clan/CLBARecoillessRifleMedium.java:59,93-96"}
+{"file":"weapons/ballistic-other.json","id":"smg-awa-starling-mk7","year":2795,"java":"SMG (AWA Starling Mk7)","citation":"weapons/infantry/smg/InfantrySMGAWAStarlingMk7.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-awa-starling-mk7-lb","year":2795,"java":"SMG (AWA Starling Mk7-LB)","citation":"weapons/infantry/smg/InfantrySMGAWAStarlingMk7LB.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-awa-starling-mk7-sf","year":2795,"java":"SMG (AWA Starling Mk7-SF)","citation":"weapons/infantry/smg/InfantrySMGAWAStarlingMk7SF.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-blackfield-scorpion-mk-65","year":2795,"java":"SMG (Blackfield Scorpion Mk 65)","citation":"weapons/infantry/smg/InfantrySMGBlackfieldScorpionMk65.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-boudicca-4","year":2525,"java":"SMG (Boudicca-4)","citation":"weapons/infantry/smg/InfantrySMGBoudicca4.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-boudicca-5","year":2795,"java":"SMG (Boudicca-5)","citation":"weapons/infantry/smg/InfantrySMGBoudicca5.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-boudicca-7","year":3045,"java":"SMG (Boudicca-7)","citation":"weapons/infantry/smg/InfantrySMGBoudicca7.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-dsk-largo-sga","year":2795,"java":"SMG (DSK Largo SGA)","citation":"weapons/infantry/smg/InfantrySMGDSKLargoSGA.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-dsk-largo-sgb","year":3045,"java":"SMG (DSK Largo SGB)","citation":"weapons/infantry/smg/InfantrySMGDSKLargoSGB.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-houwei","year":2095,"java":"SMG (Houwei)","citation":"weapons/infantry/smg/InfantrySMGHouwei.java:62,81-82"}
+{"file":"weapons/ballistic-other.json","id":"smg-hunkle-v","year":2330,"java":"SMG (Hunkle V)","citation":"weapons/infantry/smg/InfantrySMGHunkleV.java:61,80-81"}
+{"file":"weapons/ballistic-other.json","id":"smg-j-15-hagel","year":3045,"java":"SMG (J-15 Hagel)","citation":"weapons/infantry/smg/InfantrySMGJ15Hagel.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-j-17-hagel","year":3045,"java":"SMG (J-17 Hagel)","citation":"weapons/infantry/smg/InfantrySMGJ17Hagel.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-jinse-yanjingshe-ap-rounds","year":3045,"java":"SMG (Jinse Yanjingshe (AP Rounds))","citation":"weapons/infantry/smg/InfantrySMGJinseYanjingsheAPRounds.java:64,83-84"}
+{"file":"weapons/ballistic-other.json","id":"smg-jinse-yanjingshe-standard","year":3045,"java":"SMG (Jinse Yanjingshe (Standard))","citation":"weapons/infantry/smg/InfantrySMGJinseYanjingsheStandard.java:64,83-84"}
+{"file":"weapons/ballistic-other.json","id":"smg-nambu-type-s-124","year":2795,"java":"SMG (Nambu Type S-124)","citation":"weapons/infantry/smg/InfantrySMGNambuTypeS124.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-rfw-bedivere","year":2312,"java":"SMG (RFW Bedivere)","citation":"weapons/infantry/smg/InfantrySMGRFWBedivere.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-spartacus","year":2915,"java":"SMG (Spartacus)","citation":"weapons/infantry/smg/InfantrySMGSpartacus.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-sturm-hornet-mk-iii","year":3045,"java":"SMG (Sturm Hornet Mk III)","citation":"weapons/infantry/smg/InfantrySMGSturmHornetMkIII.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-supekuta","year":2314,"java":"SMG (Supekuta)","citation":"weapons/infantry/smg/InfantrySMGSupekuta.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-tiberius","year":2915,"java":"SMG (Tiberius)","citation":"weapons/infantry/smg/InfantrySMGTiberius.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-wc-2","year":2095,"java":"SMG (WC-2)","citation":"weapons/infantry/smg/InfantrySMGWC2.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-wc-6","year":2825,"java":"SMG (WC-6)","citation":"weapons/infantry/smg/InfantrySMGWC6.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"smg-wolf-barron-a7","year":3045,"java":"SMG (Wolf-Barron A7)","citation":"weapons/infantry/smg/InfantrySMGWolfBarronA7.java:59,78-79"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-barton-amr-anti-armor","year":2795,"java":"Sniper Rifle (Barton AMR (Anti-Armor))","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleBartonAMRAntiArmor.java:68,87-88"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-barton-amr-standard","year":2795,"java":"Sniper Rifle (Barton AMR (Standard))","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleBartonAMRStandard.java:68,87-88"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-fnf-j12-dark-caste","year":2830,"java":"Sniper Rifle (FNF-J12 (Dark Caste))","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleFNFJ12DarkCaste.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-fnf-j12-sldf","year":2760,"java":"Sniper Rifle (FNF-J12 (SLDF))","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleFNFJ12SLDF.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-hammel-marksman","year":2095,"java":"Sniper Rifle (Hammel Marksman)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleHammelMarksman.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-lancelot-mk-v","year":2095,"java":"Sniper Rifle (Lancelot Mk V)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleLancelotMkV.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-lrs-53-sniper-rifle","year":2795,"java":"Sniper Rifle (LRS-53 Sniper Rifle)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleLRS53SniperRifle.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-praetorian-s-3","year":2915,"java":"Sniper Rifle (Praetorian S-3)","citation":"weapons/infantry/sniperRifle/InfantrySniperRiflePraetorianS3.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-praetorian-s-5","year":2915,"java":"Sniper Rifle (Praetorian S-5)","citation":"weapons/infantry/sniperRifle/InfantrySniperRiflePraetorianS5.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-sairentosutomu","year":2795,"java":"Sniper Rifle (Sairentosutomu)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleSairentosutomu.java:63,82-83"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-wilimton-rs-14","year":2790,"java":"Sniper Rifle (Wilimton RS-14)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleWilimtonRS14.java:57,76-77"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-wilimton-rs-17-stripped","year":3075,"java":"Sniper Rifle (Wilimton RS-17 (Stripped))","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleWilimtonRS17Stripped.java:57,76-77"}
+{"file":"weapons/ballistic-other.json","id":"sniper-rifle-yuan-ling","year":2795,"java":"Sniper Rifle (Yuan Ling)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleYuanLing.java:57,76-77"}
+{"file":"weapons/ballistic-other.json","id":"arrow-iv-launcher","year":2593,"java":"ISArrowIV","citation":"weapons/artillery/ISArrowIV.java:52,66-67"}
+{"file":"weapons/ballistic-other.json","id":"clan-mech-mortar-4","year":2830,"java":"Clan Mech Mortar-4","citation":"weapons/mortars/clan/CLMekMortar4.java:58,77-78"}

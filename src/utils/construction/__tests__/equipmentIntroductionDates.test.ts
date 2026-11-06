@@ -5,6 +5,7 @@
  * Each fixture under fixtures/java-introduction-dates lists one batch: the catalog record, the
  * date the pinned-Java EquipmentDateProbe reports for its side, the Java type and its source lines.
  */
+import { hash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -33,7 +34,10 @@ const batches = new Map<string, IntroductionDate[]>(
 const rows = [...batches.values()].flat();
 
 // Each batch corrects exactly the records it lists, once each.
-const EXPECTED_BATCH_SIZES: Record<string, number> = { 'missiles.jsonl': 156 };
+const EXPECTED_BATCH_SIZES: Record<string, number> = {
+  'missiles.jsonl': 156,
+  'ballistic.jsonl': 87,
+};
 it.each(Object.entries(EXPECTED_BATCH_SIZES))(
   '%s lists exactly %s distinct records',
   (file, size) => {
@@ -62,5 +66,14 @@ it.each(
   expect(copies.length).toBeGreaterThan(0);
   expect(copies.map((item) => item.introductionYear)).toEqual(
     copies.map(() => year),
+  );
+});
+
+it('ballistic probe fixture lists exactly the audited record identities', () => {
+  const keys = (batches.get('ballistic.jsonl') ?? [])
+    .map((row) => `${row.file}:${row.id}`)
+    .sort();
+  expect(hash('sha256', JSON.stringify(keys))).toBe(
+    '19ee6d893c836c7f07e4486f355ddcecc2ddda28a7257626569d863cd1cfecd6',
   );
 });
