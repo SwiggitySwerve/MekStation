@@ -64,20 +64,21 @@ def export(mekfiles: Path, out_dir: Path) -> dict:
 
 
 
-def export_strict(mekfiles: Path, out_dir: Path) -> None:
+def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> None:
     """All in-scope MTF/BLK sources, hashed independently of the oracle."""
     import hashlib
     import blk_capital_converter as capital
     from mtf_converter import MTFParser, dataclass_to_dict
     from strict_provenance import write_source_manifest
 
+    families = json.loads((Path(__file__).parent / "strict-families.json").read_text(encoding="utf-8"))
+    if family is not None and family not in families:
+        raise ValueError(f"Unknown strict family: {family}")
+    folders = families[family] if family is not None else [folder for group in families.values() for folder in group]
     _require_scratch(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger("strict_bv_export")
     parser = MTFParser()
-    folders = ("meks", "vehicles", "fighters", "convfighter", "smallcraft",
-               "dropships", "jumpships", "warship", "spacestation",
-               "battlearmor", "infantry", "protomeks")
     with (out_dir / "sources.ndjson").open("w", encoding="utf-8", newline="\n") as handle:
         for folder in folders:
             extension = "*.mtf" if folder == "meks" else "*.blk"
@@ -106,7 +107,14 @@ def export_strict(mekfiles: Path, out_dir: Path) -> None:
 
 if __name__ == "__main__":
     if len(sys.argv) > 3 and sys.argv[3] == "--strict":
-        export_strict(Path(sys.argv[1]), Path(sys.argv[2]))
+        import argparse
+        args = argparse.ArgumentParser()
+        args.add_argument("mekfiles", type=Path)
+        args.add_argument("out", type=Path)
+        args.add_argument("--strict", action="store_true")
+        args.add_argument("--family")
+        options = args.parse_args()
+        export_strict(options.mekfiles, options.out, family=options.family)
     else:
         result = export(Path(sys.argv[1]), Path(sys.argv[2]))
         print({family: (info["converted"], len(info["skipped"])) for family, info in result.items()})

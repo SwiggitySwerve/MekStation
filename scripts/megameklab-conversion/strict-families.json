@@ -1,0 +1,9 @@
+{
+  "battlemechs": ["meks"],
+  "vehicles": ["vehicles"],
+  "aerospace": ["fighters", "convfighter", "smallcraft"],
+  "capital": ["dropships", "jumpships", "warship", "spacestation"],
+  "battlearmor": ["battlearmor"],
+  "infantry": ["infantry"],
+  "protomeks": ["protomeks"]
+}
