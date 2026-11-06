@@ -1,7 +1,7 @@
 /**
  * Campaign PUT genesis through the live item route (U35's admission row
  * (a), pinned by U35d). Journal authority is on in production with no
- * override, so with no MEKSTATION_E2E_* key in the environment a create at
+ * override, so with campaign/combat E2E arms disarmed a create at
  * baseVersion 0 appends the genesis snapshot, writes a journal-native
  * marker with no imported baseline and leaves exactly one effective
  * campaign branch row.
@@ -29,6 +29,8 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+
+import { useCampaignE2eEnvironment } from './campaignE2eEnvironment';
 
 type Mocks = ReturnType<typeof createMocks<NextApiRequest, NextApiResponse>>;
 
@@ -100,10 +102,8 @@ function effectiveCampaignBranchRows(campaignId: string): number {
 }
 
 describe('campaign PUT genesis', () => {
+  useCampaignE2eEnvironment();
   beforeEach(() => {
-    for (const key of Object.keys(process.env)) {
-      if (key.startsWith('MEKSTATION_E2E_')) delete process.env[key];
-    }
     resetSQLiteService();
     getSQLiteService({ path: ':memory:' }).initialize();
   });
