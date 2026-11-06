@@ -134,7 +134,7 @@ jobs:
           PR_LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
         run: |
           node --test scripts/ci/*.test.mjs
-          node scripts/ci/budget-check.mjs --report budget-output/repository.json
+          node scripts/ci/budget-check.mjs --report "$RUNNER_TEMP/budget-output/repository.json"
 
       - name: Test BV converted-input provenance gate
         if: ${{ !cancelled() }}
@@ -148,7 +148,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-repository
-          path: budget-output/repository.json
+          path: ${{ runner.temp }}/budget-output/repository.json
           if-no-files-found: error
           retention-days: 7
 
@@ -164,7 +164,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-inputs
-          path: budget-output/inputs.json
+          path: ${{ runner.temp }}/budget-output/inputs.json
           if-no-files-found: warn
           retention-days: 7
 
@@ -173,7 +173,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-report-proof
-          path: budget-output/report-dry-run.json
+          path: ${{ runner.temp }}/budget-output/report-dry-run.json
           if-no-files-found: warn
           retention-days: 7
 
@@ -468,14 +468,14 @@ jobs:
 
       - name: Enforce complete web artifact byte budgets
         if: ${{ !cancelled() }}
-        run: node scripts/ci/budget-artifacts.mjs --kind web --report budget-output/web.json
+        run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
 
       - name: Upload complete package census
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-web
-          path: budget-output/web.json
+          path: ${{ runner.temp }}/budget-output/web.json
           if-no-files-found: error
           retention-days: 7
 
@@ -513,20 +513,24 @@ jobs:
         working-directory: desktop
         run: test -d release/linux-unpacked
 
-      - name: Enforce complete Linux installer byte budget
+      - name: Prepare complete Linux installer inventory
         if: ${{ !cancelled() }}
         shell: bash
         run: |
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
-          node scripts/ci/budget-artifacts.mjs --kind installers --report budget-output/installers.json
+
+      - name: Enforce complete Linux installer byte budget
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
 
       - name: Upload complete installer census
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-installers
-          path: budget-output/installers.json
+          path: ${{ runner.temp }}/budget-output/installers.json
           if-no-files-found: error
           retention-days: 7
 

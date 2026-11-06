@@ -219,6 +219,39 @@ test('trusted writers use default code without dependency installs and labels ca
   );
 });
 
+test('budget workflow outputs stay under runner temp instead of polluting workspace checks or cache keys', () => {
+  for (const name of [
+    'pr-checks',
+    'release',
+    'ci-garden',
+    'lint-and-test-guard',
+  ]) {
+    const workflow = parse(
+      fs.readFileSync(`.github/workflows/${name}.yml`, 'utf8'),
+    );
+    for (const job of Object.values(workflow.jobs)) {
+      for (const step of job.steps ?? []) {
+        if (
+          /node scripts\/ci\/budget-(?:check|artifacts)\.mjs/.test(
+            step.run ?? '',
+          )
+        ) {
+          assert.match(
+            step.run,
+            /--report "\$RUNNER_TEMP\/budget-output\/[\w-]+\.json"/,
+          );
+          assert.doesNotMatch(step.run, /--report (?:budget-output|\.?\/)/);
+        }
+        if (step.with?.path?.includes('budget-output/')) {
+          assert.ok(
+            step.with.path.startsWith('${{ runner.temp }}/budget-output/'),
+          );
+        }
+      }
+    }
+  }
+});
+
 test('trusted reporter imports from its sparse contract with no node_modules', () => {
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-trusted-'));
   try {

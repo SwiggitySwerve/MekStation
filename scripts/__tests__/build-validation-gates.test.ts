@@ -54,9 +54,12 @@ describe('artifact validation boundaries', () => {
     expect(dependencies(aggregator)).toContain('static-checks');
     expect(pr.jobs['static-checks'].if).toBeUndefined();
     expect(pr.jobs['static-checks']['continue-on-error']).toBeUndefined();
-    const assertion = aggregator.steps[0];
-    expect(assertion.run).toContain('.value.result != "success"');
-    expect(assertion.run).toContain('exit 1');
+    const assertion = command(
+      aggregator,
+      'node scripts/ci/budget-aggregate.mjs',
+    );
+    expect(assertion.env?.NEEDS_JSON).toBe('${{ toJSON(needs) }}');
+    expect(assertion.env?.GATES_JSON).toBeDefined();
     expect(assertion.if).toBeUndefined();
     expect(assertion['continue-on-error']).toBeUndefined();
   });
@@ -131,35 +134,43 @@ describe('artifact validation boundaries', () => {
 describe('Lint and Test aggregator', () => {
   const pr = workflow('pr-checks.yml');
   const aggregator = pr.jobs['lint-and-test'];
-  const assertion = aggregator.steps[0];
-  const gates = JSON.parse(assertion.env?.GATES ?? 'null') as Record<
+  const assertion = command(aggregator, 'node scripts/ci/budget-aggregate.mjs');
+  const gates = JSON.parse(assertion.env?.GATES_JSON ?? 'null') as Record<
     string,
-    string[]
+    string
   >;
-  // The jq program the step runs, exactly as written in the workflow.
-  const filter = /--argjson gates "\$GATES" '([^']*)'/.exec(
-    assertion.run ?? '',
-  )?.[1];
-  const hasJq = spawnSync('jq', ['--version']).status === 0;
-  // CI runners always have jq; a local checkout without it skips.
-  const itJq = hasJq || process.env.CI ? it : it.skip;
+  const passedNeeds = () =>
+    Object.fromEntries(
+      dependencies(aggregator).map((id) => [id, { result: 'success' }]),
+    );
 
   const detect = (outputs: Record<string, string>) => ({
     'detect-changes': { result: 'success', outputs },
   });
-  const blocking = (needs: Record<string, unknown>): string[] => {
-    const out = spawnSync(
-      'jq',
-      ['-r', '--argjson', 'gates', JSON.stringify(gates), filter ?? ''],
-      { input: JSON.stringify(needs), encoding: 'utf8' },
-    );
-    expect(out.status).toBe(0);
-    return out.stdout.split(/\r?\n/).filter(Boolean);
-  };
+  // Execute the owning boundary selected by the workflow, including its actual
+  // gate map. A complete needs census prevents an omitted job looking green.
+  const invoke = (needs: Record<string, unknown>) =>
+    spawnSync(process.execPath, [assertion.run!.slice('node '.length)], {
+      cwd: root,
+      encoding: 'utf8',
+      timeout: 10000,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: {
+        ...process.env,
+        NEEDS_JSON: JSON.stringify(needs),
+        GATES_JSON: JSON.stringify(gates),
+      },
+    });
+  const status = (overrides: Record<string, unknown>) =>
+    invoke({ ...passedNeeds(), ...overrides }).status;
 
   it('needs every job, and every gated job declares its gates', () => {
-    expect(filter).toBeDefined();
     const needs = dependencies(aggregator);
+    expect([...needs].sort()).toEqual(
+      Object.keys(pr.jobs)
+        .filter((id) => id !== 'lint-and-test')
+        .sort(),
+    );
     const outputs = Object.keys(
       (pr.jobs['detect-changes'] as Job & { outputs: Record<string, string> })
         .outputs,
@@ -168,103 +179,99 @@ describe('Lint and Test aggregator', () => {
       if (id === 'lint-and-test') continue;
       expect(needs).toContain(id);
       if (job.if === undefined) {
-        // An ungated job may skip only by depending on a gated job.
-        if (gates[id] !== undefined) {
-          expect(
-            dependencies(job).some(
-              (dep) => JSON.stringify(gates[dep]) === JSON.stringify(gates[id]),
-            ),
-          ).toBe(true);
-        }
+        expect(gates[id]).toBeUndefined();
         continue;
       }
       // A job-level `if` may only test the gates the aggregator accepts a
       // skip for, and every such gate is a detect-changes output.
       expect(gates[id]).toBeDefined();
-      for (const gate of gates[id]) {
-        expect(outputs).toContain(gate);
-        expect(job.if).toContain(`needs.detect-changes.outputs.${gate}`);
-      }
+      const gate = gates[id];
+      expect(outputs).toContain(gate);
+      expect(job.if).toBe(`needs.detect-changes.outputs.${gate} == 'true'`);
     }
   });
 
-  itJq('passes when every needed job succeeded', () => {
-    expect(
-      blocking({
-        ...detect({ code: 'true', combat: 'true' }),
-        'static-checks': { result: 'success' },
-        'simulation-checks': { result: 'success' },
-      }),
-    ).toEqual([]);
+  it('passes when every needed job succeeded', () => {
+    expect(status(detect({ code: 'true', combat: 'true' }))).toBe(0);
   });
 
-  itJq('accepts a skip only when every gate the job names was off', () => {
+  it('accepts a skip only when every gate the job names was off', () => {
     // docs-only PR: the code gate is off, so the simulation/Linux-pack job
     // may skip.
     expect(
-      blocking({
+      status({
         ...detect({ code: 'false', combat: 'false' }),
         'simulation-checks': { result: 'skipped' },
       }),
-    ).toEqual([]);
+    ).toBe(0);
     expect(
-      blocking({
+      status({
         ...detect({ code: 'true', combat: 'false' }),
         'simulation-checks': { result: 'skipped' },
       }),
-    ).toEqual(['simulation-checks=skipped']);
+    ).toBe(1);
     // The unit shards carry the step-gated corpus and combat suites, so they
     // can never be skipped, whatever those gates say.
     expect(
-      blocking({
+      status({
         ...detect({ code: 'false', corpus: 'false', combat: 'false' }),
         'unit-test-shards': { result: 'skipped' },
       }),
-    ).toEqual(['unit-test-shards=skipped']);
-  });
-
-  itJq(
-    'accepts skipped win/mac packs outside a PR, where Desktop Packs runs them',
-    () => {
-      // Main push: every gate is on, but pr-desktop is 'false', so build-test
-      // skips and Lint and Test does not wait on a macOS runner.
+    ).toBe(1);
+    for (const code of [undefined, 'unknown', 'False'])
       expect(
-        blocking({
-          ...detect({ code: 'true', desktop: 'true', 'pr-desktop': 'false' }),
-          'build-test': { result: 'skipped' },
-        }),
-      ).toEqual([]);
-      // A PR whose changes reach packaging inputs cannot skip them.
-      expect(
-        blocking({
-          ...detect({ code: 'true', desktop: 'true', 'pr-desktop': 'true' }),
-          'build-test': { result: 'skipped' },
-        }),
-      ).toEqual(['build-test=skipped']);
-    },
-  );
-
-  itJq(
-    'fails an ungated skip, a failure, a cancellation and a failed detection',
-    () => {
-      expect(
-        blocking({
-          ...detect({ code: 'false' }),
-          'static-checks': { result: 'skipped' },
-          'unit-test-shards': { result: 'failure' },
-          'build-test': { result: 'cancelled' },
-        }),
-      ).toEqual([
-        'static-checks=skipped',
-        'unit-test-shards=failure',
-        'build-test=cancelled',
-      ]);
-      expect(
-        blocking({
-          'detect-changes': { result: 'failure', outputs: {} },
+        status({
+          ...detect(code === undefined ? {} : { code }),
           'simulation-checks': { result: 'skipped' },
         }),
-      ).toEqual(['detect-changes=failure', 'simulation-checks=skipped']);
-    },
-  );
+      ).toBe(1);
+  });
+
+  it('accepts skipped win/mac packs outside a PR, where Desktop Packs runs them', () => {
+    // Main push: every gate is on, but pr-desktop is 'false', so build-test
+    // skips and Lint and Test does not wait on a macOS runner.
+    expect(
+      status({
+        ...detect({ code: 'true', desktop: 'true', 'pr-desktop': 'false' }),
+        'build-test': { result: 'skipped' },
+      }),
+    ).toBe(0);
+    // A PR whose changes reach packaging inputs cannot skip them.
+    expect(
+      status({
+        ...detect({ code: 'true', desktop: 'true', 'pr-desktop': 'true' }),
+        'build-test': { result: 'skipped' },
+      }),
+    ).toBe(1);
+  });
+
+  it('fails an ungated skip, a failure, a cancellation and a failed detection', () => {
+    for (const [id, result] of [
+      ['static-checks', 'skipped'],
+      ['unit-test-shards', 'failure'],
+      ['build-test', 'cancelled'],
+      ['detect-changes', 'failure'],
+    ]) {
+      const out = invoke({
+        ...passedNeeds(),
+        ...detect({ code: 'false' }),
+        [id]: { result },
+      });
+      expect(out.status).toBe(1);
+      expect(out.stderr).toContain(`${id}=${result}`);
+    }
+  });
+
+  it('fails a missing, unknown or empty result census instead of accepting omitted checks', () => {
+    for (const needs of [
+      {},
+      { ...passedNeeds(), ghost: { result: 'success' } },
+    ]) {
+      expect(invoke(needs).status).toBe(1);
+    }
+    const missing = passedNeeds();
+    delete missing['static-checks'];
+    expect(invoke(missing).status).toBe(1);
+    expect(status({ 'static-checks': {} })).toBe(1);
+  });
 });

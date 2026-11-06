@@ -50,7 +50,10 @@ The complete web artifact has exactly four unfiltered input roots:
 `.next/standalone`, `.next/static`, `desktop/dist`, `public/record-sheets`.
 Hidden Next output is required; every source public file must appear with
 identical bytes inside standalone. Both static copies count. The ZIP uses those
-same complete files and verifies every archived path/hash. Standalone+static
+same complete files and verifies every archived path/hash. In-root symlinks are
+stored as links without following their referents; their encoded target-path
+bytes count as the link's own bytes, and their count/paths are reported separately.
+Escaping links fail. Standalone+static
 counts file bytes under the first two roots; ZIP counts its actual byte length.
 The release installer gate measures every installer in the existing validated
 release-upload inventory; the maximum must fit 170,000,000 bytes. No subset,
@@ -59,6 +62,11 @@ produces its complete tar.gz installer as well as the unpacked application;
 the exact installer bytes and SHA-256 are recorded. Other platform installers
 remain measured by the release gate when produced. No catalog/public byte is
 excluded from the web ZIP or Linux application to meet the limits.
+
+Generated budget reports and the measured web ZIP live under `RUNNER_TEMP`,
+outside the checkout, so formatting, lint and source-cache keys cannot consume
+them. The shared default-output boundary rejects a workspace-local temp root;
+workflow contracts pin report arguments and artifact uploads to runner temp.
 
 G3 owns approval/weekly policy code; G1 owns all workflow wiring. Read-only jobs
 prepare source-head graph JSON and timing/census artifacts. The existing trusted

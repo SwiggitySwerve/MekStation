@@ -144,10 +144,7 @@ test('existing ZIP omission/tampering cannot count as the same complete artifact
   fixture((root) => {
     const result = run(root, ['--kind', 'web', '--report', 'r.json']);
     assert.equal(result.status, 0, result.stderr);
-    fs.writeFileSync(
-      path.join(root, 'budget-output/web-build.zip'),
-      'not a zip',
-    );
+    fs.writeFileSync(path.join(root, 'web-build.zip'), 'not a zip');
     const verify = spawnSync(
       'python',
       [
@@ -156,7 +153,7 @@ test('existing ZIP omission/tampering cannot count as the same complete artifact
         '--root',
         root,
         '--archive',
-        path.join(root, 'budget-output/web-build.zip'),
+        path.join(root, 'web-build.zip'),
         '--report',
         path.join(root, 'verify.json'),
         '--verify-existing',
@@ -164,6 +161,66 @@ test('existing ZIP omission/tampering cannot count as the same complete artifact
       { encoding: 'utf8', timeout: 30000, stdio: ['ignore', 'pipe', 'pipe'] },
     );
     assert.notEqual(verify.status, 0);
+  }));
+
+test('web census records real in-root npm links without following referents and rejects escapes', (context) =>
+  fixture((root, write) => {
+    const relative =
+      '.next/standalone/node_modules/node-abi/node_modules/.bin/semver';
+    const link = path.join(root, relative);
+    const target = '../semver/bin/semver.js';
+    write(
+      '.next/standalone/node_modules/node-abi/node_modules/semver/bin/semver.js',
+      'semver runtime',
+    );
+    fs.mkdirSync(path.dirname(link), { recursive: true });
+    try {
+      fs.symlinkSync(target, link, 'file');
+    } catch (error) {
+      if (process.platform !== 'win32' || error.code !== 'EPERM') throw error;
+      context.skip(
+        'Windows account lacks file-symlink privilege; Linux Static Checks must run the real-link contract',
+      );
+      return;
+    }
+    const result = run(root, ['--kind', 'web', '--report', 'r.json']);
+    assert.equal(result.status, 0, result.stderr);
+    const { metrics } = JSON.parse(fs.readFileSync(path.join(root, 'r.json')));
+    assert.deepEqual(metrics.symlinks.paths, [relative]);
+    assert.equal(metrics.symlinks.count, 1);
+    assert.equal(
+      metrics.files.find((entry) => entry.path === relative).bytes,
+      Buffer.byteLength(target),
+    );
+    assert.equal(
+      metrics.standaloneStaticBytes,
+      22 + Buffer.byteLength('semver runtime') + Buffer.byteLength(target),
+    );
+    fs.unlinkSync(link);
+    write('outside.js', 'outside artifact root');
+    fs.symlinkSync(path.join(root, 'outside.js'), link, 'file');
+    const escaping = run(root, ['--kind', 'web', '--report', 'r.json']);
+    assert.equal(escaping.status, 1);
+    assert.match(escaping.stderr, /Escaping artifact link/);
+  }));
+
+test('web measurement keeps both its report and exact ZIP beside the requested external output', () =>
+  fixture((root) => {
+    const output = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-external-'));
+    try {
+      const report = path.join(output, 'web.json');
+      const result = run(root, ['--kind', 'web', '--report', report]);
+      assert.equal(result.status, 0, result.stderr);
+      assert.equal(
+        JSON.parse(fs.readFileSync(report)).metrics.archive.path,
+        path.join(output, 'web-build.zip'),
+      );
+      assert.ok(fs.existsSync(path.join(output, 'web-build.zip')));
+      assert.ok(!fs.existsSync(path.join(root, 'budget-output')));
+      assert.ok(!fs.existsSync(path.join(root, 'web-build.zip')));
+    } finally {
+      fs.rmSync(output, { recursive: true, force: true });
+    }
   }));
 
 test('installer CLI counts every installer, rejects missing inventory and cannot accept subsets', () =>

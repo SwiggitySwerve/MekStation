@@ -1,9 +1,11 @@
 import { execFileSync } from 'node:child_process';
 // Read-only preparation entry point; publishing uses only garden-publish + JSON.
 import fs from 'node:fs';
+import path from 'node:path';
 
 import * as budgetConfig from './budget-config.mjs';
 import * as budgetMetrics from './budget-metrics.mjs';
+import { budgetOutputDirectory } from './budget-output.mjs';
 import * as budgetWorkflow from './budget-workflow.mjs';
 import * as ciMetrics from './ci-metrics.mjs';
 import * as ciObservation from './ci-observation.mjs';
@@ -14,7 +16,7 @@ import { prepareGarden, projectGardenEvidence } from './garden-prepare.mjs';
 export async function prepareWeekly(
   github,
   { owner, repo },
-  output = 'budget-output/weekly.json',
+  output = path.join(budgetOutputDirectory(), 'weekly.json'),
 ) {
   const api = {
     ...budgetConfig,
@@ -41,7 +43,7 @@ export async function prepareWeekly(
     projectEvidence: (envelope, budgets) =>
       projectGardenEvidence(envelope, budgets, api),
   });
-  fs.mkdirSync('budget-output', { recursive: true });
+  fs.mkdirSync(path.dirname(output), { recursive: true });
   fs.writeFileSync(output, `${JSON.stringify(prepared, null, 2)}\n`);
   return prepared;
 }

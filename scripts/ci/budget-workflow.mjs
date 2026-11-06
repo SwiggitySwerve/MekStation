@@ -251,7 +251,7 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
   );
   if (
     check?.run?.trim() !==
-      'node --test scripts/ci/*.test.mjs\nnode scripts/ci/budget-check.mjs --report budget-output/repository.json' ||
+      'node --test scripts/ci/*.test.mjs\nnode scripts/ci/budget-check.mjs --report "$RUNNER_TEMP/budget-output/repository.json"' ||
     check.if !== '${{ !cancelled() }}' ||
     check['continue-on-error'] ||
     jobs['static-checks']['continue-on-error'] ||
@@ -260,8 +260,8 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
   )
     throw new Error('Deterministic budget gate disabled or bypassed');
   for (const command of [
-    'node scripts/ci/budget-artifacts.mjs --kind web --report budget-output/web.json',
-    'mkdir -p desktop/release-upload\ncp desktop/release/*.tar.gz desktop/release-upload/\nnode scripts/ci/budget-artifacts.mjs --kind installers --report budget-output/installers.json',
+    'node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"',
+    'node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"',
   ]) {
     const packageCheck = jobs['simulation-checks']?.steps?.find(
       (step) => step.run?.trim() === command,

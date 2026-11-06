@@ -39,7 +39,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: ci-garden-prepared
-          path: budget-output/weekly.json
+          path: ${{ runner.temp }}/budget-output/weekly.json
           if-no-files-found: error
           retention-days: 21
 

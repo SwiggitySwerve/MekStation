@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadBudgets, WORKFLOW_INPUT_SCHEMA } from './budget-config.mjs';
+import { budgetOutputDirectory } from './budget-output.mjs';
 import {
   readWorkflow,
   workflowGraphFromSource,
@@ -128,20 +129,23 @@ export async function proveReportReadOnly(
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const output = 'budget-output/inputs.json';
+  const output = budgetOutputDirectory();
   const value = await prepareWorkflowInputs(githubApi, {
     repository: process.env.GITHUB_REPOSITORY,
     runId: Number(process.env.GITHUB_RUN_ID),
     attempt: Number(process.env.GITHUB_RUN_ATTEMPT),
   });
-  fs.mkdirSync(path.dirname(output), { recursive: true });
-  fs.writeFileSync(output, `${JSON.stringify(value, null, 2)}\n`);
+  fs.mkdirSync(output, { recursive: true });
+  fs.writeFileSync(
+    path.join(output, 'inputs.json'),
+    `${JSON.stringify(value, null, 2)}\n`,
+  );
   const proof = await proveReportReadOnly(
     githubApi,
     process.env.GITHUB_REPOSITORY,
   );
   fs.writeFileSync(
-    'budget-output/report-dry-run.json',
+    path.join(output, 'report-dry-run.json'),
     `${JSON.stringify(proof, null, 2)}\n`,
   );
 }

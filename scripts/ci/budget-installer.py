@@ -4,7 +4,7 @@ import json
 from pathlib import Path, PurePosixPath
 import sys
 import tarfile
-from budget_files import digest, verify_public
+from budget_files import digest, link_target, verify_public
 
 
 def verify(archive, unpacked, public):
@@ -14,9 +14,11 @@ def verify(archive, unpacked, public):
     for item in unpacked.rglob('*'):
         name = item.relative_to(unpacked).as_posix()
         if item.is_symlink():
-            expected[name] = ('link', str(item.readlink()))
+            expected[name] = ('link', link_target(item, unpacked))
         elif item.is_file():
             expected[name] = ('file', digest(item))
+        elif not item.is_dir():
+            raise ValueError(f'Unknown unpacked member type: {item}')
     if not expected:
         raise ValueError('Unpacked inventory missing')
     actual = {}

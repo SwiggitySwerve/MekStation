@@ -105,7 +105,7 @@ export function run(argv, root = process.cwd()) {
         '--root',
         root,
         '--archive',
-        path.join(root, 'budget-output/web-build.zip'),
+        path.join(path.dirname(report), 'web-build.zip'),
         '--report',
         report,
       ],
