@@ -1,6 +1,31 @@
 import { blkEngineName } from '@/services/conversion/blkEngineIdentity';
 import { javaArmorIntroduction } from '@/types/construction/ArmorType';
 import { javaEngineIntroduction } from '@/types/construction/EngineType';
+import { techRouteId } from '@/utils/construction/equipmentBVCatalogData';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
+import {
+  equipmentIntroductionErrors,
+  INTRO_YEAR_MARGIN,
+} from '@/utils/construction/equipmentIntroduction';
+
+/** TestEntity.java:1487-1512,1611-1618; both vehicle verifiers call this loop. */
+export function vehicleEquipmentIntroYearErrors(source: {
+  readonly metadata: { readonly year: number };
+  readonly originalBuildYear?: number;
+  readonly equipment: readonly { readonly equipmentId: string }[];
+  readonly techBase: string;
+}): string[] {
+  const clan = /clan/i.test(String(source.techBase));
+  return equipmentIntroductionErrors({
+    equipment: source.equipment.map((mount) => mount.equipmentId),
+    years: [source.metadata.year, source.originalBuildYear].filter(
+      (year): year is number => typeof year === 'number',
+    ),
+    clan,
+    mixed: /mixed/i.test(String(source.techBase)),
+    resolve: (name) => getEquipmentEntry(techRouteId(name, clan) ?? name),
+  });
+}
 
 /**
  * Vehicle intro-year checks: MegaMek 48fcb2f6 TestEntity.hasIncorrectIntroYear
@@ -10,7 +35,6 @@ import { javaEngineIntroduction } from '@/types/construction/EngineType';
  * armor loop (:1512-1552) and the engine part (:1594-1607). Patchwork armor
  * (code 7) is not: no pinned vehicle needs it.
  */
-const INTRO_YEAR_MARGIN = 5;
 /** TechConstants.isClan:394-398 (T_CLAN_TW, ADVANCED, EXPERIMENTAL, UNOFFICIAL, ALL_CLAN). */
 const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
 const PATCHWORK = 7;
