@@ -15,6 +15,11 @@ Consumers call this package instead of maintaining alias maps.
   projection for alias membership. Gameplay keeps its old import as a re-export.
 - Acquisition metadata, designation and recorded XP remain attached to the
   original stored reference. Identity queries do not change any of those values.
+- Unified SPA purchase rejects an existing canonical identity before XP or
+  ability writes, including when the saved row uses a compatibility alias.
+  Successful purchases still store the canonical id. Existing raw rows and
+  unknown saved ids are not migrated. Removal targets the exact stored row id;
+  designation lookup already resolves aliases through this owner.
 
 The native identity for Iron Man is one false-default boolean option:
 [OptionsConstants.java:209](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/options/OptionsConstants.java#L209)

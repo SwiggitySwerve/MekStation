@@ -21,3 +21,18 @@ references, acquisition metadata, designation and recorded XP.
 - **THEN** the query SHALL remain true
 - **AND** unrelated unknown ids SHALL NOT match one another
 - **AND** canonical projection SHALL omit unknown ids without changing its input
+
+#### Scenario: Legacy saved ownership rejects duplicate purchase before writes
+
+- **GIVEN** a pilot owns a unified SPA under a compatibility alias
+- **WHEN** purchase is requested using the alias or its canonical id
+- **THEN** the purchase owner SHALL reject it as already owned before spending
+  or refunding XP or inserting an ability
+- **AND** all saved references and their metadata SHALL remain unchanged
+
+#### Scenario: New alias purchase keeps canonical storage
+
+- **GIVEN** a pilot does not own the requested SPA and purchase guards pass
+- **WHEN** purchase is requested using a recognized compatibility alias
+- **THEN** the existing purchase owner SHALL store its canonical id
+- **AND** unrelated unknown saved references SHALL remain unchanged
