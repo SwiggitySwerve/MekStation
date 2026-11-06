@@ -20,7 +20,7 @@ export function fingerprint(
       if (stat.isSymbolicLink()) throw new Error(`Linked input: ${file}`);
       if (stat.isDirectory()) {
         for (const entry of fs.readdirSync(file).sort()) {
-          if (entry !== '__pycache__') visit(path.join(file, entry));
+          visit(path.join(file, entry));
         }
       } else if (stat.isFile()) {
         hash.update(digest(fs.readFileSync(file)));

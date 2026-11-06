@@ -95,8 +95,9 @@ child stdin, propagates failures and waits for active family work to finish.
 Add `--cache-dir <external-scratch-cache>` to reuse unchanged families. Keys
 hash the complete source-file inventory and bytes for that family, all source
 and script files, equipment/schema data, config, package manifests, TypeScript
-config, the oracle, actual loaded Node dependency files, the Node runtime
-version/platform, Python executable and loaded Python module bytes, and the
+config, the oracle, actual loaded Node dependency packages including binaries,
+the Node executable/version/platform, Python executable and loaded Python
+module/source-cache bytes, and the
 environment (except operational `HEAVY_*` queue metadata). Additions, deletions
 and renames change keys. Unreadable, linked or unknown filesystem inputs or
 unavailable Python runtime identity disable reuse. Corrupt, incompatible or

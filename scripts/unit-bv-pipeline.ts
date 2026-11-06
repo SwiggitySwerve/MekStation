@@ -37,7 +37,7 @@ function runtimeKey(python: string): string | null {
       [
         '-B',
         '-c',
-        "import sys,json,hashlib;from pathlib import Path;sys.path.insert(0,'scripts/megameklab-conversion');import export_vehicle_aero_json,blk_capital_converter,mtf_converter;files=sorted(set([sys.executable]+[m.__file__ for m in list(sys.modules.values()) if getattr(m,'__file__',None)]));print(json.dumps([sys.version,sys.path,[(f,hashlib.sha256(Path(f).read_bytes()).hexdigest()) for f in files]]))",
+        "import sys,json,hashlib;from pathlib import Path;sys.path.insert(0,'scripts/megameklab-conversion');import export_vehicle_aero_json,blk_capital_converter,mtf_converter;files=sorted(set([sys.executable]+[f for m in list(sys.modules.values()) for f in [getattr(m,'__file__',None),getattr(m,'__cached__',None)] if f and Path(f).exists()]));print(json.dumps([sys.version,sys.path,[(f,hashlib.sha256(Path(f).read_bytes()).hexdigest()) for f in files]]))",
       ],
       {
         encoding: 'utf8',
@@ -100,8 +100,18 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
     'tsconfig.json',
     'next.config.ts',
     reference,
-    ...Object.keys(require.cache).filter((file) =>
-      file.includes('node_modules'),
+    process.execPath,
+    ...new Set(
+      Object.keys(require.cache)
+        .filter((file) => file.includes('node_modules'))
+        .map((file) => {
+          // Include package binaries and lazily loaded files as well as loaded JS.
+          const parts = file.split(path.sep);
+          const boundary = parts.lastIndexOf('node_modules') + 1;
+          return parts
+            .slice(0, boundary + (parts[boundary].startsWith('@') ? 2 : 1))
+            .join(path.sep);
+        }),
     ),
   ];
   const sharedKey = pythonIdentity
