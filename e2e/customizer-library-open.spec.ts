@@ -850,6 +850,71 @@ test.describe('keyboard input helper', () => {
     await expect(chassis).toHaveValue('ShiloneFlow Shilone');
     await expect(chassis).toBeFocused();
   });
+
+  test('waits for the initial value before selecting and replacing text', async ({
+    page,
+  }, info) => {
+    await page.setContent(`
+      <label>Chassis Name<input value=""></label>
+      <button>Save</button>
+      <script>
+        const input = document.querySelector('input');
+        window.fillEvents = [];
+        let initialized = false;
+        const record = (event) => window.fillEvents.push({
+          event, value: input.value,
+          start: input.selectionStart, end: input.selectionEnd,
+        });
+        const initialize = () => {
+          if (initialized) return;
+          initialized = true;
+          input.value = 'AA Jump Infantry';
+          record('initial value committed');
+        };
+        input.addEventListener('focus', () => {
+          record('focused before initial value');
+          // Model the dialog's pending controlled-value initialization. It can
+          // commit after selection; no product behavior is changed by this fixture.
+          setTimeout(initialize, 1000);
+        }, { once: true });
+        input.addEventListener('keyup', (event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+            record('select all');
+            initialize();
+          }
+        });
+        input.addEventListener('input', () => record('input'));
+      </script>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    try {
+      await fill(
+        page,
+        chassis,
+        'Flow AA Jump Infantry',
+        true,
+        'AA Jump Infantry',
+      );
+      await expect(chassis).toHaveValue('Flow AA Jump Infantry');
+      await expect(page.getByRole('button', { name: 'Save' })).toBeFocused();
+      const events = await page.evaluate(() =>
+        (
+          window as typeof window & { fillEvents: { event: string }[] }
+        ).fillEvents.map((entry) => entry.event),
+      );
+      expect(events.indexOf('initial value committed')).toBeLessThan(
+        events.indexOf('select all'),
+      );
+    } finally {
+      const events = await page.evaluate(
+        () => (window as typeof window & { fillEvents: unknown[] }).fillEvents,
+      );
+      await info.attach('initial-value-event-order', {
+        body: JSON.stringify(events, null, 2),
+        contentType: 'application/json',
+      });
+    }
+  });
 });
 
 test.describe('library persistence and printing', () => {
@@ -1106,12 +1171,13 @@ test.describe('library persistence and printing', () => {
                 keyboard,
               );
             const input = editInput(page, unit);
-            const original = Number(await input.inputValue());
+            const initialValue = await input.inputValue();
+            const original = Number(initialValue);
             expect(original).toBeGreaterThan(0);
             // Aerospace source armor exceeds the current editor cap. Exercise a
             // concrete legal edit; the cap discrepancy is recorded in HANDBACK.
             const edited = 'edit' in unit ? unit.edit : original - 1;
-            await fill(page, input, String(edited), keyboard);
+            await fill(page, input, String(edited), keyboard, initialValue);
             await expect(input).toHaveValue(String(edited));
             const total =
               unit.family === 'infantry' ? 18 : unit.total - original + edited;
@@ -1138,12 +1204,14 @@ test.describe('library persistence and printing', () => {
               save.getByLabel('Chassis Name'),
               chassis,
               keyboard,
+              unit.chassis,
             );
             await fill(
               page,
               save.getByLabel('Variant Designation'),
               model,
               keyboard,
+              unit.model,
             );
             const button = save.getByRole('button', {
               name: 'Save',
