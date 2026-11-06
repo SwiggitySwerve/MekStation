@@ -2751,6 +2751,36 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // Follow-up 102 / 113: MegaMek 48fcb2f6 CLRocketLauncher10Prototype / 15Prototype are the prototype rocket launchers (PrototypeRL15.java:54-57,77-83; introduced 2095), not production RL/10 / RL/15 (3064). Loader-only techRoutes send the list slug and the crit token to the registry records together; tons and slots are unchanged and BV already scores the prototypes.
+  ...[
+    [
+      'CLRocketLauncher10Prototype',
+      'rl10',
+      'clrocketlauncher10prototype-registry',
+    ],
+    [
+      'CLRocketLauncher15Prototype',
+      'rl15',
+      'clrocketlauncher15prototype-registry',
+    ],
+    [
+      'clrocketlauncher10prototype',
+      'rl10',
+      'clrocketlauncher10prototype-registry',
+    ],
+    [
+      'clrocketlauncher15prototype',
+      'rl15',
+      'clrocketlauncher15prototype-registry',
+    ],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
