@@ -5,7 +5,7 @@
 import { RangeBracket } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
 
-import { UNIT_QUIRK_IDS } from './catalog';
+import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
 
 /**
  * Improved Targeting: -1 at specified range bracket.
@@ -20,19 +20,19 @@ export function calculateTargetingQuirkModifier(
   // Improved Targeting
   if (
     rangeBracket === RangeBracket.Short &&
-    unitQuirks.includes(UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT)
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT)
   ) {
     modifier -= 1;
   }
   if (
     rangeBracket === RangeBracket.Medium &&
-    unitQuirks.includes(UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM)
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM)
   ) {
     modifier -= 1;
   }
   if (
     rangeBracket === RangeBracket.Long &&
-    unitQuirks.includes(UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG)
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG)
   ) {
     modifier -= 1;
   }
@@ -40,19 +40,19 @@ export function calculateTargetingQuirkModifier(
   // Poor Targeting
   if (
     rangeBracket === RangeBracket.Short &&
-    unitQuirks.includes(UNIT_QUIRK_IDS.POOR_TARGETING_SHORT)
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.POOR_TARGETING_SHORT)
   ) {
     modifier += 1;
   }
   if (
     rangeBracket === RangeBracket.Medium &&
-    unitQuirks.includes(UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM)
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM)
   ) {
     modifier += 1;
   }
   if (
     rangeBracket === RangeBracket.Long &&
-    unitQuirks.includes(UNIT_QUIRK_IDS.POOR_TARGETING_LONG)
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.POOR_TARGETING_LONG)
   ) {
     modifier += 1;
   }
@@ -74,7 +74,7 @@ export function calculateTargetingQuirkModifier(
 export function calculateDistractingModifier(
   targetQuirks: readonly string[],
 ): IToHitModifierDetail | null {
-  if (!targetQuirks.includes(UNIT_QUIRK_IDS.DISTRACTING)) return null;
+  if (!hasQuirk(targetQuirks, UNIT_QUIRK_IDS.DISTRACTING)) return null;
 
   return {
     name: 'Distracting',
@@ -89,7 +89,7 @@ export function calculateDistractingModifier(
  * Returns true if the unit has Low Profile quirk — caller handles as partial cover.
  */
 export function hasLowProfile(unitQuirks: readonly string[]): boolean {
-  return unitQuirks.includes(UNIT_QUIRK_IDS.LOW_PROFILE);
+  return hasQuirk(unitQuirks, UNIT_QUIRK_IDS.LOW_PROFILE);
 }
 
 /**
@@ -100,7 +100,7 @@ export function calculateLowProfileModifier(
   targetQuirks: readonly string[],
   alreadyHasPartialCover: boolean,
 ): IToHitModifierDetail | null {
-  if (!targetQuirks.includes(UNIT_QUIRK_IDS.LOW_PROFILE)) return null;
+  if (!hasQuirk(targetQuirks, UNIT_QUIRK_IDS.LOW_PROFILE)) return null;
   if (alreadyHasPartialCover) return null; // Already counted via partial cover
 
   return {
@@ -121,7 +121,7 @@ export function isLowProfileGlancingBlow(
   attackRoll: number,
   toHitNumber: number,
 ): boolean {
-  if (!targetQuirks?.includes(UNIT_QUIRK_IDS.LOW_PROFILE)) return false;
+  if (!hasQuirk(targetQuirks ?? [], UNIT_QUIRK_IDS.LOW_PROFILE)) return false;
   if (!Number.isFinite(attackRoll) || !Number.isFinite(toHitNumber)) {
     return false;
   }
