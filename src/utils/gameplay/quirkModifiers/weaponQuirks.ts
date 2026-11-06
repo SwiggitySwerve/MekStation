@@ -7,6 +7,8 @@ import { IToHitModifierDetail } from '@/types/gameplay';
 
 import { WEAPON_QUIRK_IDS } from './catalog';
 
+const NATIVE_IMPROVED_COOLING_ID = 'imp_cooling';
+
 export {
   parseMtfWeaponQuirkLines as parseWeaponQuirksFromMTF,
   parseBlkWeaponQuirkEntries as parseWeaponQuirksFromBLK,
@@ -65,18 +67,23 @@ export function calculateStableWeaponModifier(
 
 /**
  * Weapon cooling quirk heat modifier.
- * @returns Heat modifier: Improved Cooling floors final heat at 1, Poor Cooling adds 1, No Cooling adds 2.
+ * @returns Heat change after Improved Cooling's floor, then Poor/No Cooling additions.
  */
 export function getWeaponCoolingHeatModifier(
   weaponQuirks: readonly string[],
   baseHeat: number,
 ): number {
-  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.IMPROVED_COOLING)) {
-    return Math.max(1, baseHeat - 1) - baseHeat;
+  // MegaMek 48fcb2f64 WeaponMounted.java:167-178 uses independent checks.
+  let heat = baseHeat;
+  if (
+    weaponQuirks.includes(WEAPON_QUIRK_IDS.IMPROVED_COOLING) ||
+    weaponQuirks.includes(NATIVE_IMPROVED_COOLING_ID)
+  ) {
+    heat = Math.max(1, heat - 1);
   }
-  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.POOR_COOLING)) return 1;
-  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.NO_COOLING)) return 2;
-  return 0;
+  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.POOR_COOLING)) heat += 1;
+  if (weaponQuirks.includes(WEAPON_QUIRK_IDS.NO_COOLING)) heat += 2;
+  return heat - baseHeat;
 }
 
 /**

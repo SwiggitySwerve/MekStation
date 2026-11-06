@@ -337,3 +337,48 @@ equipment, effective ammunition state, native placement or full file bytes.
 - **WHEN** explicit shot and variable-size values are verified
 - **THEN** tests SHALL compare them to actual pinned Java loaded mounts
 - **AND** unknown identities, Body remapping, effective rear/facing state, implicit ammunition, general handler serialization, production import/edit/save flows and complete equipment/BV parity SHALL remain separate required work
+
+### Requirement: Read-only unit detail quirk summaries
+
+Canonical and saved unit detail pages SHALL share read-only quirk presentation. Existing unit badges SHALL retain their raw IDs, ordering, repeats, colors, spacing and empty-state behavior. Optional weapon-quirk maps SHALL use the canonical unit contract and display each nonempty source locator with every stored quirk ID, preserving unknown IDs, distinct locators and repeated entries. Display SHALL NOT infer editor mount identity or certify gameplay effects.
+
+#### Scenario: Committed family maps
+
+- **GIVEN** committed aerospace, capital or vehicle weapon-quirk maps
+- **WHEN** canonical detail or saved detail renders their fields
+- **THEN** every source key is shown verbatim in source order with its complete quirk list
+- **AND** location, slot and weapon-name text is not replaced by a guessed live mount identity
+
+#### Scenario: Unknown IDs and repeated source entries
+
+- **GIVEN** unknown unit or weapon quirk IDs, repeated IDs, distinct source locators or legacy name-only keys
+- **WHEN** the summary renders
+- **THEN** all raw strings and repeated entries remain visible under their original source keys
+
+#### Scenario: Optional saved metadata
+
+- **GIVEN** missing or empty quirk fields, or a malformed optional saved weapon-quirk map
+- **WHEN** saved detail projects those fields
+- **THEN** a missing or empty summary adds no card and a malformed map adds no weapon list
+- **AND** valid unit badges remain unchanged and the persisted payload is not modified
+- **AND** editor retention, mount editing, print output and gameplay effects remain separate obligations
+
+### Requirement: Direct MTF source import API
+
+The unit import API SHALL accept explicit MTF source text, use the existing MTF parser and shared family-aware definition admission, and persist accepted BattleMech definitions as custom units without changing native parser or construction rules. Existing JSON import behavior SHALL remain available.
+
+#### Scenario: Import and reload original source facts
+
+- **GIVEN** a representable MTF source submitted as `sourceFormat: mtf` and `sourceText`
+- **WHEN** the API imports the source
+- **THEN** it SHALL allocate a custom identity and persist the validated definition with its original source text, parsed identity, construction fields, mounts and diagnostics
+- **AND** the saved definition SHALL reload through the existing family-aware contract with an omitted family meaning BattleMech
+- **AND** a name conflict SHALL return 409 without overwriting an existing unit
+
+#### Scenario: Source failure and structural admission
+
+- **WHEN** source text is absent, malformed or contains a fact the existing definition contract cannot represent
+- **THEN** the API SHALL return client diagnostics, retain parser warnings and create no saved unit
+- **AND** successful structural admission SHALL NOT certify construction validity, equipment completeness or numerical parity
+- **AND** malformed request bodies and unsupported source formats SHALL return 400
+- **AND** BLK import, browser file selection and the legacy runtime-object importer SHALL remain separate obligations

@@ -70,5 +70,13 @@
       "COMMUNICATIONS": "Dalban",
       "TARGETING": "Garret"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:ISLargeVSPLaser": [
+      "mod_weapons"
+    ],
+    "TU:1:Machine Gun": [
+      "mod_weapons"
+    ]
   }
 }

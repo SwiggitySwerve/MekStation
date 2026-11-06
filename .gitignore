@@ -54,6 +54,8 @@ scripts/**
 !scripts/unit-bv-parity.ts
 !scripts/unit-bv-parity.md
 !scripts/unit-bv-provenance.ts
+!scripts/unit-bv-reference.ts
+!scripts/unit-construction-validity.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
@@ -101,6 +103,10 @@ scripts/**
 !scripts/megameklab-conversion/mtf_parser_builders.py
 !scripts/megameklab-conversion/java_reference_exporter.py
 !scripts/megameklab-conversion/java_bv_terms.py
+!scripts/megameklab-conversion/java_construction_terms.py
+!scripts/megameklab-conversion/reference_policy.py
+!scripts/megameklab-conversion/reference_policy_sources.py
+!scripts/megameklab-conversion/reference_policy_units.py
 !scripts/megameklab-conversion/export_vehicle_aero_json.py
 !scripts/megameklab-conversion/strict_provenance.py
 !scripts/megameklab-conversion/strict-provenance-inputs.json
@@ -183,6 +189,9 @@ data/
 /public/data/equipment/official/miscellaneous/*
 /public/data/equipment/official/weapons/*
 !/public/data/equipment/official/*/java-registry.json
+# Let hooks traverse electronics to restage tracked catalogs; new files stay ignored.
+!/public/data/equipment/official/electronics/
+/public/data/equipment/official/electronics/*
 !/public/data/equipment/registry-routing.json
 !/public/data/equipment/_schema/
 /public/data/equipment/_schema/*
@@ -194,6 +203,44 @@ data/
 !/public/data/units/vehicles/
 !/public/data/units/aerospace/
 !/public/data/units/capital/
+
+# Traverse only Git-tracked catalog directories; keep all other contents ignored.
+/public/data/custom-units/**
+/public/data/equipment/custom/**
+/public/data/units/battlearmor/**
+/public/data/units/battlemechs/**
+/public/data/units/infantry/**
+/public/data/units/protomechs/**
+!/public/data/custom-units/
+!/public/data/equipment/custom/
+!/public/data/units/battlearmor/
+!/public/data/units/battlemechs/
+!/public/data/units/battlemechs/1-age-of-war/
+!/public/data/units/battlemechs/1-age-of-war/advanced/
+!/public/data/units/battlemechs/1-age-of-war/experimental/
+!/public/data/units/battlemechs/1-age-of-war/standard/
+!/public/data/units/battlemechs/2-star-league/
+!/public/data/units/battlemechs/2-star-league/advanced/
+!/public/data/units/battlemechs/2-star-league/experimental/
+!/public/data/units/battlemechs/2-star-league/standard/
+!/public/data/units/battlemechs/3-succession-wars/
+!/public/data/units/battlemechs/3-succession-wars/advanced/
+!/public/data/units/battlemechs/3-succession-wars/experimental/
+!/public/data/units/battlemechs/3-succession-wars/standard/
+!/public/data/units/battlemechs/4-clan-invasion/
+!/public/data/units/battlemechs/4-clan-invasion/advanced/
+!/public/data/units/battlemechs/4-clan-invasion/experimental/
+!/public/data/units/battlemechs/4-clan-invasion/standard/
+!/public/data/units/battlemechs/5-civil-war/
+!/public/data/units/battlemechs/5-civil-war/advanced/
+!/public/data/units/battlemechs/5-civil-war/experimental/
+!/public/data/units/battlemechs/5-civil-war/standard/
+!/public/data/units/battlemechs/6-dark-age/
+!/public/data/units/battlemechs/6-dark-age/advanced/
+!/public/data/units/battlemechs/6-dark-age/experimental/
+!/public/data/units/battlemechs/6-dark-age/standard/
+!/public/data/units/infantry/
+!/public/data/units/protomechs/
 
 # Electron / Desktop build artifacts
 desktop/dist/

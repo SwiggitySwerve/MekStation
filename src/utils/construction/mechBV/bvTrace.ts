@@ -1,5 +1,7 @@
 import type { ValidationResult } from '../../../../scripts/validate-bv-types';
 
+import { addBVToAmmoCapGroup, calculateAmmoBVPools } from '../battleValueAmmo';
+
 /** MekStation location -> Mek.getLocationAbbr (Mek, QuadMek, TripodMek at 48fcb2f6). */
 const JAVA_LOCATION: Readonly<Record<string, string>> = {
   HEAD: 'HD',
@@ -38,11 +40,27 @@ function weaponMountTerms(
 /** Native ammo pools keyed like the Java trace's ammo.available / ammo.cap. */
 function ammoPoolTerms(
   pools: NonNullable<ValidationResult['breakdown']>['ammoPools'],
+  sourceWeapons?: NonNullable<
+    ValidationResult['breakdown']
+  >['ammoCapProjectionWeapons'],
+  sourceBins?: NonNullable<
+    ValidationResult['breakdown']
+  >['ammoAvailableProjectionBins'],
 ): Record<string, number> {
   const terms: Record<string, number> = {};
-  for (const [key, bv] of Object.entries(pools?.available ?? {}))
+  const available = { ...pools?.available };
+  if (sourceBins) {
+    for (const [key, bv] of Object.entries(
+      calculateAmmoBVPools([], sourceBins).available,
+    ))
+      addBVToAmmoCapGroup(available, key, bv);
+  }
+  for (const [key, bv] of Object.entries(available))
     terms[`ammo.available.${key}`] = bv;
-  for (const [key, bv] of Object.entries(pools?.cap ?? {}))
+  const cap = sourceWeapons
+    ? calculateAmmoBVPools(sourceWeapons, []).cap
+    : pools?.cap;
+  for (const [key, bv] of Object.entries(cap ?? {}))
     terms[`ammo.cap.${key}`] = bv;
   return terms;
 }
@@ -63,7 +81,11 @@ export function mechBVTerms(
   return {
     ...b,
     ...weaponMountTerms(b.weaponMountBV),
-    ...ammoPoolTerms(b.ammoPools),
+    ...ammoPoolTerms(
+      b.ammoPools,
+      b.ammoCapProjectionWeapons,
+      b.ammoAvailableProjectionBins,
+    ),
     armorBV: b.armorBV + b.harjelBonus,
     structureBV: b.structureBV + b.gyroBV,
     defensiveEquipmentBV: b.defEquipBV + b.armoredComponentBV,

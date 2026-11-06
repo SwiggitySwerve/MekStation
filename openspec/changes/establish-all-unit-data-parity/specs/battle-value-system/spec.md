@@ -1,5 +1,172 @@
 ## ADDED Requirements
 
+### Requirement: ProtoMech positive native ammo availability diagnostics
+
+The ProtoMech offensive owner SHALL retain optional source-backed diagnostic
+facts for finite positive bin values already supplied by its existing native
+ammo resolver when the existing public native-group owner recognizes its
+weaponType. Facts SHALL retain source ids, indices, supplied locations and
+native groups in physical order. The trace SHALL aggregate actual available
+values through the existing public addition owner without changing resolution,
+quantities, admission, exact-key caps, arithmetic, old facts or totals. Missing
+and unsupported facts SHALL remain absent; the trace SHALL NOT invent zero,
+identity or a bin from launcher presence.
+
+#### Scenario: Real positive bins and retained arithmetic
+
+- **GIVEN** two real SRM 2 bins with 7 and 3 shots valued by the existing native ammo owner and a publicly recognized SRM 2 weaponType
+- **WHEN** the public ProtoMech breakdown and trace are calculated
+- **THEN** the actual bin values SHALL be retained in physical order and added to `ammo.available.SRM:2` through the existing public owner
+- **AND** original ammunition quantities, cap calculations, source data, weapon/misc facts and numerical results SHALL remain unchanged
+
+#### Scenario: Absent, excluded and unsupported facts
+
+- **GIVEN** a legacy breakdown, launcher without a bin, empty or unresolved bin, generic fallback or unsupported public group
+- **WHEN** positive native ammo availability is projected
+- **THEN** no absent or unsupported fact SHALL become an invented zero-valued availability or identity
+- **AND** the existing unmatched enum-form group limitation SHALL remain absent without changing its original arithmetic
+- **AND** all original scalar terms and existing projections SHALL remain unchanged
+
+### Requirement: ProtoMech native offensive-misc diagnostic projection
+
+The ProtoMech offensive owner SHALL retain optional diagnostic facts only for
+finite positive values already computed by its existing native offensive-misc
+owner. Each fact SHALL retain its actual local source id, index and supplied
+location in mounted order without additional resolution, formulas, quantity
+expansion or modifiers. The trace SHALL render known native location numbers
+and actual ids, preserving native last-put semantics for duplicate keys.
+Absent, zero/fallback or unsupported facts SHALL NOT become invented values or
+locations. Existing admission, arithmetic, weapon facts, source data and totals
+SHALL remain unchanged.
+
+#### Scenario: Actual native miscellaneous values at Torso
+
+- **GIVEN** a represented magnetic clamp valued at 1, electric-discharge equipment valued at 32 or a quad melee system valued at 5 by the existing owner
+- **WHEN** its public ProtoMech breakdown and trace are calculated
+- **THEN** the actual value SHALL appear at its supplied Torso native location 2 and source id
+- **AND** the numeric key component SHALL NOT claim an equipment index
+- **AND** all existing arithmetic and weapon projections SHALL remain unchanged
+
+#### Scenario: Missing facts and repeated native keys
+
+- **GIVEN** a legacy breakdown, excluded zero/fallback fact, unrepresented location or repeated native location/id key
+- **WHEN** its optional diagnostic facts are projected
+- **THEN** absence SHALL remain absent and unrepresented locations SHALL NOT be inferred
+- **AND** repeated keys SHALL retain the final actual fact value in mounted order rather than a new arithmetic sum
+- **AND** original numerical outputs and all individual source facts SHALL remain unchanged
+
+### Requirement: ProtoMech weapon-mount diagnostic projection
+
+The ProtoMech offensive owner SHALL retain optional diagnostic snapshots of
+already-admitted resolved weapon values, in original mounted order with local
+equipment indices, ids and supplied public input locations. The trace SHALL
+format only represented native location abbreviations, preserving each actual
+value without additional resolution, quantity expansion, rounding or modifiers.
+Local mount keys SHALL NOT assert native equipment identity. Existing weapon
+admission, main-gun valuation, ammo policy, scalar terms, aggregates, totals and
+source units SHALL remain unchanged. Absent facts SHALL remain absent; the
+projection SHALL NOT invent zero values or infer unknown/Body locations.
+
+#### Scenario: Actual mounted values and retained order
+
+- **GIVEN** the pinned Minotaur-P2 with arm weapon values 19 and 19 and main-gun value 39
+- **WHEN** its public ProtoMech BV breakdown and trace are calculated
+- **THEN** the trace SHALL expose those actual values at RA, LA and MG with their original local mount indices and ids
+- **AND** the weapon subtotal SHALL remain 77 and all existing arithmetic and source data SHALL remain unchanged
+- **AND** repeated weapons at one location SHALL remain distinct mount facts, allowing comparison of counts and descending values
+
+#### Scenario: Unavailable facts and locations
+
+- **GIVEN** an unarmed or legacy breakdown, excluded non-weapon equipment, or an admitted fact with an unrepresented public location
+- **WHEN** its ProtoMech diagnostic trace is projected
+- **THEN** absent or excluded weapon facts SHALL NOT become zero-valued terms or empty count groups
+- **AND** an unrepresented location SHALL retain its original fact without inventing a native location term
+- **AND** all original scalar terms SHALL remain unchanged
+
+### Requirement: Mech physical NARC availability diagnostics
+
+The Mech trace SHALL expose `ammo.available.NARC:1` and `ammo.available.INARC:1` from actual physical source
+bins recognized by existing public native-bin and ammo-resolution owners.
+Only supported NARC or iNARC bins with positive shots and a genuinely resolved BV of
+zero SHALL supply optional diagnostic facts. The trace SHALL reuse existing
+public grouping and addition owners, preserving original arithmetic ammo lists,
+pools, quantities, explosivity, modifiers, computed values and existing nonzero
+available entries. Missing facts SHALL remain absent; runtime projection SHALL
+NOT obtain values from references or launcher presence. Other ammo groups
+SHALL retain their existing behavior.
+
+#### Scenario: Genuine zero differs from an absent bin
+
+- **GIVEN** an installed physical ISNarc Pods bin whose public owners resolve six shots and BV 0
+- **WHEN** Mech diagnostic availability is projected
+- **THEN** `ammo.available.NARC:1` SHALL be present with the actual resolved value 0
+- **AND** the original arithmetic ammo inputs, pools and calculated BV SHALL remain unchanged
+
+#### Scenario: Unavailable or excluded source facts
+
+- **GIVEN** no physical bin, an unresolved token, an empty bin, or intrinsic one-shot ammo without a physical source bin
+- **WHEN** NARC diagnostic source facts are collected
+- **THEN** none SHALL invent a NARC available value or an optional source fact
+- **AND** an existing nonzero available value SHALL NOT be overwritten by an added genuine zero-valued bin
+
+#### Scenario: iNARC source values and distinct native groups
+
+- **GIVEN** a represented standard or explosive iNARC physical bin whose public owners resolve four shots and BV 0
+- **WHEN** Mech diagnostic availability is projected
+- **THEN** `ammo.available.INARC:1` SHALL expose that actual value through the existing collector and public grouping owner
+- **AND** an ordinary NARC available key SHALL remain absent unless a real ordinary NARC bin supplies it
+- **AND** ordinary NARC facts SHALL retain their subsequence and physical order among added iNARC facts
+- **AND** original arithmetic ammo lists, pools, quantities, explosivity, modifiers and computed BV SHALL remain unchanged
+
+### Requirement: Mech torpedo cap diagnostic identity
+
+The Mech trace SHALL project raw torpedo launcher caps from actual admitted,
+resolved source mounts using the existing public ammo cap owner and its native
+type/rack identity. It SHALL preserve the legacy arithmetic weapon ids, cap
+pools, ammunition values, modifiers and totals. Optional diagnostic source facts
+SHALL follow existing quantity expansion, mount order, one-shot exclusion and
+pre-modifier values. Absent or unresolved facts SHALL NOT become zero values.
+
+#### Scenario: Torpedo source identity and unchanged arithmetic
+
+- **GIVEN** the pinned Javelin JVN-10U with two SRT 6 mounts, each listed at 59 BV
+- **WHEN** native diagnostic terms are projected
+- **THEN** `ammo.cap.SRM_TORPEDO:6` SHALL equal 118 through the existing cap owner
+- **AND** the arithmetic `ammoPools.cap.SRM:6`, available ammo 14 and all computed BV values SHALL remain unchanged
+
+#### Scenario: Mixed sources and optional facts
+
+- **GIVEN** one ordinary SRM 6 and one SRT 6 with listed BV 59 each
+- **WHEN** diagnostic caps are projected
+- **THEN** the native SRM 6 and SRT 6 diagnostic caps SHALL each equal 59 while the existing arithmetic missile pool remains 118
+- **AND** a unit without an admitted resolved torpedo SHALL retain absent diagnostic source facts and its original cap projection
+
+### Requirement: Native machine gun array critical links
+
+The shared equipment BV owner SHALL link each array in mounted order to at
+most four unused, matching-caliber guns at its physical location, following
+pinned MegaMek 48fcb2f64 MekFileParser.java:894-945. Ordered Mech critical
+slots SHALL skip initial nonqualifying or used mounts, then stop at the first
+nonqualifying slot after linking begins. Only an empty critical selection
+SHALL fall back to the existing weapon-list search. Array BV SHALL be the
+unrounded linked base sum times 0.67, additional to the individual guns
+(BVCalculator.java:807-816). Family-specific admission, overrides, guards,
+modifiers and no-critical fallback policies SHALL be preserved.
+
+#### Scenario: Two distinct three-gun runs
+
+- **GIVEN** two arrays and six matching guns in two three-gun critical runs at one location, as on Black Lanner F LA and Linebacker I LA/RA
+- **WHEN** array links and BV are computed
+- **THEN** both arrays SHALL contribute 10.05, with location sum 20.1
+- **AND** matching the location total with a 13.4/6.7 partition SHALL NOT count as mount parity
+
+#### Scenario: No qualifying critical selection
+
+- **GIVEN** an array with no qualifying critical guns and six matching weapon-list guns at its location
+- **WHEN** it and a second array are linked
+- **THEN** the unchanged fallback SHALL link four and two guns for 13.4 and 6.7
+- **AND** a critical run containing a zero-BV gun SHALL count as a selection and SHALL NOT trigger fallback merely because its sum is zero
+
 ### Requirement: DropShip mount valuation
 
 The aerospace BV owner SHALL resolve represented DropShip mounts into six-arc
@@ -247,6 +414,29 @@ numeric output before native identity, quantity or grouping corrections.
 - **THEN** representative output captures and all 86 pinned ProtoMech source calculations SHALL remain unchanged
 - **AND** source fields, serialization and equipment identities SHALL remain unchanged
 - **AND** preservation SHALL NOT establish native ammunition quantity, mount topology or full BV parity
+
+#### Scenario: Native vehicle launcher identities retain distinct ammunition pools
+
+- **GIVEN** a vehicle with regular, light or heavy Gauss launchers and regular Gauss ammunition
+- **WHEN** the shared owner assembles offensive ammunition caps
+- **THEN** original represented native launcher identities SHALL determine their type/rack pools
+- **AND** regular Gauss ammunition SHALL use only the regular Gauss launchers' listed BV cap
+- **AND** duplicate matching launchers SHALL accumulate before the cap, independently of mount order
+- **AND** launchers without represented native identities SHALL retain the existing vehicle fallback policy
+- **AND** an explicit ammunition family override SHALL take precedence over the bin's native identity
+- **AND** synthetic component agreement SHALL NOT establish native quantities, defensive caps or complete source parity
+
+#### Scenario: Mech ammunition caps use listed mounted weapon BV
+
+- **GIVEN** a Mech weapon whose offensive BV receives an Apollo or drone modifier
+- **WHEN** the offensive ammunition cap is assembled
+- **THEN** the cap SHALL use the listed mounted weapon BV captured before those modifiers
+- **AND** weapon-stage modifiers SHALL retain their existing values and operation order
+- **AND** binding ammunition SHALL be capped at that unmodified value
+- **AND** represented one-shot OS/IOS launchers SHALL supply no ammunition cap term
+- **AND** a normal launcher in the same group SHALL retain its own listed-BV cap
+- **AND** callers omitting separate cap inputs SHALL retain their existing policy
+- **AND** unchanged totals from nonbinding source ammunition SHALL NOT establish complete ammunition parity
 
 ## MODIFIED Requirements
 

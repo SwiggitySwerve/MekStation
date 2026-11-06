@@ -76,5 +76,16 @@
       "COMMUNICATIONS": "Dalban",
       "TARGETING": "Garret"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:LRM 5": [
+      "mod_weapons"
+    ],
+    "TU:1:LRM 5": [
+      "mod_weapons"
+    ],
+    "TU:2:LRM 5": [
+      "mod_weapons"
+    ]
   }
 }

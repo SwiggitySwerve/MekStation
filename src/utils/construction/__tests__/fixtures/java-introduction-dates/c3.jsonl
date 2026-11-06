@@ -1,0 +1,8 @@
+{"file":"electronics/c3.json","id":"c3-master","year":3034,"java":"ISC3MasterUnit","citation":"weapons/c3/ISC3M.java:60,90-91"}
+{"file":"electronics/c3.json","id":"c3-slave","year":3034,"java":"ISC3SlaveUnit","citation":"equipment/MiscType.java:4497,4519-4520"}
+{"file":"electronics/c3.json","id":"c3i","year":3047,"java":"ISC3iUnit","citation":"equipment/MiscType.java:4531,4555-4556"}
+{"file":"electronics/c3.json","id":"c3slaveunit","year":3034,"java":"ISC3SlaveUnit","citation":"equipment/MiscType.java:4497,4519-4520"}
+{"file":"electronics/c3.json","id":"c3iunit","year":3047,"java":"ISC3iUnit","citation":"equipment/MiscType.java:4531,4555-4556"}
+{"file":"electronics/c3.json","id":"c3emergencymaster","year":3071,"java":"ISC3EmergencyMaster","citation":"equipment/MiscType.java:4605,4627-4628"}
+{"file":"electronics/c3.json","id":"battlearmorc3","year":3073,"java":"BattleArmorC3","citation":"equipment/MiscType.java:4642,4664-4665"}
+{"file":"electronics/c3.json","id":"bc3i","year":3063,"java":"ISBC3i","citation":"equipment/MiscType.java:4676,4699-4700"}

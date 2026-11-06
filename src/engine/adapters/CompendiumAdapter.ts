@@ -19,6 +19,7 @@ import { hydrateCriticalSlotManifestFromFullUnit } from '@/simulation/runner/Uni
 import { hydrateC3EquipmentFromFullUnit } from '@/simulation/runner/UnitHydrationElectronics';
 import { hydrateInitiativeEquipmentFromFullUnit } from '@/simulation/runner/UnitHydrationInitiative';
 import { hydrateHeatSinksFromFullUnit } from '@/simulation/runner/UnitHydrationMovement';
+import { hydrateDNICockpitModFromFullUnit } from '@/simulation/runner/UnitHydrationNeuralInterface';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
@@ -99,7 +100,10 @@ export function adaptUnitFromData(
   options: IAdaptUnitOptions = {},
 ): IAdaptedUnit {
   const aerospace = tryAdaptAerospaceUnit(fullUnit, options);
-  if (aerospace) return aerospace;
+  const hasDNICockpitMod = hydrateDNICockpitModFromFullUnit(fullUnit);
+  const nativeHardware =
+    hasDNICockpitMod !== undefined ? { hasDNICockpitMod } : {};
+  if (aerospace) return { ...aerospace, ...nativeHardware };
   const side = options.side ?? GameSide.Player;
   const position = options.position ?? { q: 0, r: 0 };
   const facing =
@@ -151,6 +155,7 @@ export function adaptUnitFromData(
   const ammoConstruction = ammoConstructionFromState(ammoState);
 
   const adapted: IAdaptedUnit = {
+    ...nativeHardware,
     id: fullUnit.id,
     unitType: vehicle?.unitType ?? fullUnit.unitType,
     ...(vehicle ? { vehicleInit: vehicle.vehicleInit, bv: vehicle.bv } : {}),

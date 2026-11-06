@@ -95,5 +95,10 @@
       "COMMUNICATIONS": "Dushen Electronics Collective",
       "TARGETING": "Kallon"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:ISSniper": [
+      "accurate"
+    ]
   }
 }

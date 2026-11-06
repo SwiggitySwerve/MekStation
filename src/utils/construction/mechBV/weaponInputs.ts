@@ -1,5 +1,9 @@
 import type { CritScan } from '../../../../scripts/validate-bv-crit-scan';
-import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type {
+  UnitData,
+  ValidationResult,
+} from '../../../../scripts/validate-bv-types';
+import type { OffensiveBVConfig } from '../battleValueOffensiveTypes';
 
 import {
   applyWeaponPostScanModifiers,
@@ -23,12 +27,15 @@ import {
   isWeaponEquip,
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
-import { normalizeWeaponKey } from '../battleValueAmmo';
+import { getNativeAmmoBVGroup, normalizeWeaponKey } from '../battleValueAmmo';
 import {
   hasBVActuatorEnhancement,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
-import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
+import {
+  isOneShotBVWeapon,
+  isOneShotMissileBVWeapon,
+} from '../equipmentBV/weaponHeat';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -36,9 +43,15 @@ export function buildMechBVWeapons(
   unit: UnitData,
   cs: CritScan,
   issues: string[],
-): { weapons: WeaponEntry[]; hasTC: boolean } {
+): {
+  weapons: WeaponEntry[];
+  hasTC: boolean;
+  ammoCapWeapons: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
+  ammoCapProjectionWeapons?: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
+} {
   // Weapons
   const weapons: WeaponEntry[] = [];
+  const torpedoSourceIds = new Map<WeaponEntry, string>();
   const unresolvedWeapons: string[] = [];
   let hasTC = cs.hasTC;
 
@@ -149,7 +162,7 @@ export function buildMechBVWeapons(
 
       const weaponLocUpper = eq.location.split(',')[0].toUpperCase();
       const weaponHasAES = hasBVActuatorEnhancement(cs.aesLocs, weaponLocUpper);
-      weapons.push({
+      const weapon: WeaponEntry = {
         id: normalizeWeaponKey(eq.id),
         name: wid,
         heat: res.heat,
@@ -159,7 +172,12 @@ export function buildMechBVWeapons(
         hasAES: weaponHasAES,
         isDirectFire: isDirectFireBVWeapon(wid),
         location: eq.location,
-      });
+      };
+      weapons.push(weapon);
+      // Diagnostic identity only: retain the compatibility id used by arithmetic.
+      const nativeGroup = getNativeAmmoBVGroup(resolveId);
+      if (res.resolved && /^(?:LRM|SRM)_TORPEDO:/.test(nativeGroup ?? ''))
+        torpedoSourceIds.set(weapon, resolveId);
     }
   }
   // HeatTrackingBVCalculator.java:89-103 (48fcb2f64): active blades share
@@ -182,7 +200,50 @@ export function buildMechBVWeapons(
   if (unresolvedWeapons.length > 0)
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
+  // BVCalculator.java:1230 (48fcb2f64): F_ONE_SHOT weapons supply no ammo cap.
+  const capMounts = weapons.filter(({ name }) => !isOneShotBVWeapon(name));
+  const ammoCapWeapons = capMounts.map(({ id, bv }) => ({ id, bv }));
+  const ammoCapProjectionWeapons = capMounts.some((w) =>
+    torpedoSourceIds.has(w),
+  )
+    ? capMounts.map((w) => ({ id: torpedoSourceIds.get(w) ?? w.id, bv: w.bv }))
+    : undefined;
   applyWeaponPostScanModifiers(unit, cs, weapons, hasTC);
 
-  return { weapons, hasTC };
+  return {
+    weapons,
+    hasTC,
+    ammoCapWeapons,
+    ...(ammoCapProjectionWeapons && { ammoCapProjectionWeapons }),
+  };
+}
+
+/** Plain weapon inputs for the shared offensive calculator. */
+export function buildMechBVOffensiveInputs(
+  unit: UnitData,
+  cs: CritScan,
+  issues: string[],
+): Pick<
+  OffensiveBVConfig,
+  'weapons' | 'ammoCapWeapons' | 'hasTargetingComputer'
+> & {
+  ammoProjection?: Pick<
+    NonNullable<ValidationResult['breakdown']>,
+    'ammoCapProjectionWeapons' | 'ammoAvailableProjectionBins'
+  >;
+} {
+  const { weapons, hasTC, ammoCapWeapons, ammoCapProjectionWeapons } =
+    buildMechBVWeapons(unit, cs, issues);
+  const ammoProjection = {
+    ...(ammoCapProjectionWeapons && { ammoCapProjectionWeapons }),
+    ...(cs.ammoAvailableProjectionBins && {
+      ammoAvailableProjectionBins: cs.ammoAvailableProjectionBins,
+    }),
+  };
+  return {
+    weapons,
+    ammoCapWeapons,
+    hasTargetingComputer: hasTC,
+    ...(Object.keys(ammoProjection).length > 0 && { ammoProjection }),
+  };
 }

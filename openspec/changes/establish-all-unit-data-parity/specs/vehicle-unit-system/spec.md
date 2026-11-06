@@ -44,6 +44,20 @@ The system SHALL manage engine configuration and derive movement points.
 Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Engine.java:409-438`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/Engine.java#L409).
 
+#### Scenario: Support engine validation uses support construction
+
+- **GIVEN** a support vehicle with its current tonnage, motion, cruise MP, engine type and engine technology rating
+- **WHEN** construction validation computes its engine quantities, including through the status bar
+- **THEN** it SHALL use the existing support effective-rating and installed-mass owners
+- **AND** its effective rating SHALL retain fractional tonnage and the support cap of 500 without a combat suspension deduction
+- **AND** the combat 400-rating validation error SHALL NOT apply to a support engine
+- **AND** a 20-ton tracked fusion support vehicle at cruise MP 1 SHALL report 5 tons at technology C and 1.5 tons at technology D
+- **AND** combat engine validation and the separate support structure, controls, heat and complete-weight contracts SHALL retain their existing behavior
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`Engine.java:396-404,453-474,601-603`. These are engine quantities, not a
+claim of complete support construction validity.
+
 ### Requirement: BLK Format Parsing — Combat Vehicles
 
 The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
@@ -473,6 +487,34 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 - **AND** panels SHALL remain readable without horizontal overflow
 
 ## ADDED Requirements
+
+### Requirement: Native vehicle equipment introduction diagnostics
+
+The Tank and ground-support vehicle source handlers SHALL use the shared equipment
+introduction owner and its catalog date facts. The owner SHALL retain the
+existing five-year margin, ammunition exclusion, technology-side guard and
+resolved-identity deduplication. A native construction-invalid design SHALL
+remain loadable and carry its validation diagnostics.
+
+#### Scenario: Early torpedoes remain loadable but invalid
+
+- **GIVEN** the pinned Moray Heavy Attack Submarine (Original) and Silverfin Coastal Cutter sources
+- **WHEN** parsed and validated through their native vehicle handlers
+- **THEN** parsing SHALL succeed and construction validity SHALL be false
+- **AND** validation SHALL report their torpedo introduction dates
+- **AND** a matching final BV SHALL NOT establish construction validity
+
+#### Scenario: Source years preserve the introduction margin
+
+- **GIVEN** a native vehicle mounting SRT 6 introduced in 2660
+- **WHEN** its source year or explicit original build year is 2655
+- **THEN** equipment introduction validation SHALL accept that year
+- **AND** when both applicable years are earlier than 2655 it SHALL report SRT 6 once
+- **AND** the parsed vehicle SHALL retain an explicit original build year
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestEntity.java:1487-1512,1611-1618`, `TestTank.java:426-428` and
+`TestSupportVehicle.java:1221-1223`.
 
 ### Requirement: Shared variable vehicle equipment mass
 

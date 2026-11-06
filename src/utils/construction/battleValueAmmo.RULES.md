@@ -1,5 +1,21 @@
 # Offensive ammunition BV
 
+The Mech weapon-input boundary captures listed mounted weapon BV before
+post-scan Apollo and drone modifiers. The heat-tracking owner passes that
+plain `ammoCapWeapons` list to the existing cap owner; weapon-stage BV keeps
+its modifiers. Callers omitting the optional list retain their existing
+input policy. Pinned `BVCalculator.java:1189-1242` builds caps with
+`WeaponType.getBV(entity)`, independently of drone/Apollo in
+`processWeapon` (:845-847,869-875). Nonbinding source ammo can mask an
+incorrect cap without changing totals. The cap-input boundary excludes
+represented one-shot OS/IOS weapons using the existing source-name classifier,
+before normalization can erase the marker. Pinned
+[BVCalculator.java:1230](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java#L1230)
+excludes `WeaponType.F_ONE_SHOT` in the ammo-cap weapon pass; the weapon stage
+still values those launchers. Binding synthetic cases and mixed normal/OS/IOS
+groups enforce the boundary. Complete native quantities, identities and
+defensive caps do not acquire parity credit from this correction.
+
 `battleValueAmmo.ts` owns grouped accumulation and the offensive ammunition cap.
 Callers resolve equipment and choose keys; `addBVToAmmoCapGroup` accumulates each
 value in encounter order. `sumCappedAmmoBV` iterates ordinary object keys, skips

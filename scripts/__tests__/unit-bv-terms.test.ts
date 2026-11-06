@@ -185,3 +185,138 @@ test('per-mount weapon terms compare by location, not by equipment index or name
     ours: null,
   });
 });
+
+test('reports every term difference after the first, with separate omissions and numeric errors', () => {
+  const result = report(
+    {
+      ...ours,
+      figure: {
+        ...ours.figure,
+        terms: { ...terms, armorBV: 59, structureBV: 1 },
+      },
+    },
+    {
+      ...ref,
+      battleValue: {
+        ...ref.battleValue,
+        terms: { ...terms, 'ammo.available.AC:5': 2 },
+      },
+    },
+  );
+  expect(result.rows[0]).toMatchObject({
+    firstTermDifference: { term: 'armorBV', java: 60, ours: 59 },
+    termDifferences: [
+      { term: 'armorBV', java: 60, ours: 59, issues: ['different'] },
+      { term: 'structureBV', java: 0, ours: 1, issues: ['different'] },
+      {
+        term: 'ammo.available.AC:5',
+        java: 2,
+        ours: null,
+        issues: ['missingLocal'],
+      },
+    ],
+  });
+  expect(result.byFamily.vehicles).toMatchObject({
+    exact: 1,
+    termMatched: 0,
+    termCoverage: {
+      armorBV: { compared: 1, matched: 0, different: 1, missingLocal: 0 },
+      ammoBV: { compared: 1, matched: 1, different: 0 },
+      'ammo.available.AC:5': {
+        compared: 1,
+        matched: 0,
+        missingLocal: 1,
+        different: 0,
+      },
+    },
+  });
+});
+
+test('term coverage preserves both-side omissions and nonfinite causes', () => {
+  const referenceTerms: Record<string, number> = {
+    ...terms,
+    structureBV: Infinity,
+  };
+  delete referenceTerms.armorBV;
+  const result = report(
+    {
+      ...ours,
+      figure: {
+        ...ours.figure,
+        terms: {
+          ...terms,
+          armorBV: undefined,
+          structureBV: NaN,
+          ammoBV: Infinity,
+        },
+      },
+    },
+    {
+      ...ref,
+      battleValue: { ...ref.battleValue, terms: referenceTerms },
+    },
+  );
+  expect(result.rows[0].termDifferences).toEqual([
+    {
+      term: 'armorBV',
+      java: null,
+      ours: null,
+      issues: ['missingReference', 'missingLocal'],
+    },
+    {
+      term: 'structureBV',
+      java: Infinity,
+      ours: NaN,
+      issues: ['nonfiniteReference', 'nonfiniteLocal'],
+    },
+    { term: 'ammoBV', java: 0, ours: Infinity, issues: ['nonfiniteLocal'] },
+  ]);
+  expect(result.byFamily.vehicles.termCoverage).toMatchObject({
+    armorBV: { compared: 1, matched: 0, missingReference: 1, missingLocal: 1 },
+    structureBV: {
+      compared: 1,
+      matched: 0,
+      nonfiniteReference: 1,
+      nonfiniteLocal: 1,
+    },
+  });
+});
+
+test('term census excludes unjoined rows, retains missing figures and is opt-in', () => {
+  const unjoined = { ...ours, sha256: 'b'.repeat(64) };
+  expect(report(unjoined).rows[0].termDifferences).toEqual([]);
+  expect(report(unjoined).byFamily.vehicles.termCoverage).toEqual({});
+  const missing = report({ path: ours.path, sha256: ours.sha256 });
+  expect(missing.byFamily.vehicles).toMatchObject({
+    termMatched: 0,
+    termCoverage: { armorBV: { compared: 1, matched: 0, missingLocal: 1 } },
+  });
+  expect(report().rows[0].termDifferences).toEqual([]);
+  expect(report(ours, ref, false).rows[0]).not.toHaveProperty(
+    'termDifferences',
+  );
+  expect(report(ours, ref, false).byFamily.vehicles).not.toHaveProperty(
+    'termCoverage',
+  );
+  const paths = ['vehicles/a.blk', 'vehicles/b.blk', 'vehicles/c.blk'];
+  const census = buildDeltaReport(
+    paths.map((path, index) => ({
+      ...ours,
+      path,
+      sha256: index === 2 ? 'b'.repeat(64) : ours.sha256,
+      figure: {
+        ...ours.figure,
+        terms: { ...terms, armorBV: index === 1 ? 59 : terms.armorBV },
+      },
+    })),
+    paths.map((path) => ({ ...ref, path })),
+    ['vehicles'],
+    true,
+  );
+  expect(census.byFamily.vehicles).toMatchObject({
+    rows: 3,
+    joined: 2,
+    termMatched: 1,
+    termCoverage: { armorBV: { compared: 2, matched: 1, different: 1 } },
+  });
+});

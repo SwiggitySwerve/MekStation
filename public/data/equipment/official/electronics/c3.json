@@ -15,7 +15,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 1500000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3034,
       "special": ["Coordinates up to 3 C3 slaves", "Shares targeting data"]
     },
     {
@@ -29,7 +29,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3034,
       "special": ["Links to C3 Master", "Shares targeting data"]
     },
     {
@@ -43,7 +43,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 750000,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": ["No master required", "Links up to 6 units"],
       "extinctionYear": 3085
     },
@@ -85,7 +85,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3034,
       "special": []
     },
     {
@@ -99,7 +99,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 750000,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": [],
       "extinctionYear": 3085
     },
@@ -128,7 +128,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 2800000,
       "battleValue": 0,
-      "introductionYear": 3099,
+      "introductionYear": 3071,
       "special": []
     },
     {
@@ -142,7 +142,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 62500,
       "battleValue": 0,
-      "introductionYear": 3095,
+      "introductionYear": 3073,
       "special": []
     },
     {
@@ -156,7 +156,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 125000,
       "battleValue": 0,
-      "introductionYear": 3095,
+      "introductionYear": 3063,
       "special": []
     }
   ]

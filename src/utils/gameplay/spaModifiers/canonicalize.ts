@@ -13,17 +13,4 @@
  * legacy-alias table.
  */
 
-import { canonicalizeSPAIds } from '@/lib/spa';
-
-/**
- * True iff `abilities` (either canonical or legacy ids) contains the
- * canonical ability id after legacy-alias resolution.
- */
-export function hasSPA(
-  abilities: readonly string[],
-  canonicalId: string,
-): boolean {
-  if (abilities.includes(canonicalId)) return true;
-  const canonicalized = canonicalizeSPAIds(abilities);
-  return canonicalized.includes(canonicalId);
-}
+export { hasSPA } from '@/lib/spa';

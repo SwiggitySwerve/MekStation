@@ -210,7 +210,7 @@ test('an invalid baseline does not suppress a later valid copy of the same attem
   assert.equal(mainMedians([wrongRepository], o).included.length, 0);
 });
 
-test('test comparison uses strict 20%/20s thresholds and needs full baseline for new files', () => {
+test('one-sample comparisons stay within noise and absent file evidence stays missing', () => {
   const o = sample();
   const current = testObservation({
     observation: o,
@@ -226,8 +226,13 @@ test('test comparison uses strict 20%/20s thresholds and needs full baseline for
   });
   assert.deepEqual(
     compareTestFiles(current, [base]).breaches.map((x) => x.file),
-    ['growth', 'newSlow'],
+    [],
   );
+  assert.equal(
+    compareTestFiles(current, [base]).files[0].status,
+    'within noise',
+  );
+  assert.equal(compareTestFiles(current, [base]).files[2].status, 'missing');
   assert.equal(
     compareTestFiles(current, [{ ...base, complete: false }]).breaches.length,
     0,
@@ -264,7 +269,7 @@ test('soft budgets distinguish breach, within and missing and render all measure
   assert.equal(within.complete, true);
   const breach = evaluateReport({
     observation,
-    limits: { ...limits, criticalPathMs: 44999 },
+    limits: { ...limits, jobsMs: { ...limits.jobsMs, detect: 9999 } },
   });
   assert.equal(breach.status, 'review');
   assert.equal(breach.breach, true);

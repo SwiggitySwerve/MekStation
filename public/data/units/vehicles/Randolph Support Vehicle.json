@@ -90,5 +90,16 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:Machine Gun": [
+      "mod_weapons"
+    ],
+    "RS:0:Machine Gun": [
+      "mod_weapons"
+    ],
+    "LS:0:Machine Gun": [
+      "mod_weapons"
+    ]
   }
 }

@@ -21,6 +21,7 @@ import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
 import { renderInfantrySVG } from './infantryRenderer';
+import { renderNativeMechSPASection } from './nativeMechSPA';
 import { renderProtoMechSVG } from './protoMechRenderer';
 import { renderSPASection } from './spaSection';
 import { fillStructurePips } from './structure';
@@ -73,6 +74,7 @@ export class SVGRecordSheetRenderer {
   ): Promise<void> => {
     await this.core.loadTemplate(templatePath);
     addDocumentMargins(this.core.root, paperSize);
+    await this.core.awaitFontsReady();
   };
 
   fillTemplate = (data: IMechRecordSheetData): void => {
@@ -109,7 +111,13 @@ export class SVGRecordSheetRenderer {
     // Phase 5 Wave 3 — render the Special Abilities block when present.
     // Helper skips when there are no resolvable entries.
     if (data.specialAbilities && data.specialAbilities.length > 0) {
-      renderSPASection(svgDoc, {
+      const renderAbilities =
+        data.mechType === 'biped' ||
+        data.mechType === 'quad' ||
+        data.mechType === 'lam'
+          ? renderNativeMechSPASection
+          : renderSPASection;
+      renderAbilities(svgDoc, {
         entries: data.specialAbilities,
         hasContent: true,
       });
