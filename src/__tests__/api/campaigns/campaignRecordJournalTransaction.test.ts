@@ -1,8 +1,7 @@
 /**
  * The journal owns the campaign record's transaction (roadmap unit U35b,
  * under OD-mvp-hard-cutover). Real SQLite on a temp file, the live item
- * route through node-mocks-http, and no MEKSTATION_E2E_* key in the
- * environment.
+ * route through node-mocks-http, with campaign/combat E2E arms disarmed.
  *
  * - (g3) An accepted whole-envelope PUT on a journal-native campaign
  *   appends a CampaignSnapshotPublished checkpoint of the stored record, so
@@ -66,6 +65,8 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+
+import { useCampaignE2eEnvironment } from './campaignE2eEnvironment';
 
 const mockCreateSwitch = jest.fn(() => false);
 
@@ -265,12 +266,10 @@ function injectFailureAfterExtension(): jest.SpyInstance {
 }
 
 describe('U35b the journal owns the campaign record transaction', () => {
+  useCampaignE2eEnvironment();
   let dir: string;
 
   beforeEach(async () => {
-    for (const key of Object.keys(process.env)) {
-      if (key.startsWith('MEKSTATION_E2E_')) delete process.env[key];
-    }
     mockCreateSwitch.mockReturnValue(false);
     dir = await mkdtemp(path.join(tmpdir(), 'u35b-record-'));
     resetSQLiteService();

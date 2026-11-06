@@ -415,14 +415,40 @@ export function calculateGroundPathMpCost(
   toFacing: Facing,
   movementContext?: IMovementCostContext,
 ): number {
-  return (
-    calculatePathMovementCost(grid, path, movementType, movementContext) +
+  return prepareGroundPathMpCost(
+    grid,
+    path,
+    movementType,
+    fromFacing,
+    movementContext,
+  )(toFacing);
+}
+
+/**
+ * Price the path's entries once, then apply each requested final facing.
+ * Use only while this path, grid and movement context remain unchanged.
+ * Every preparation reads fresh costs; nothing is cached across calls.
+ */
+export function prepareGroundPathMpCost(
+  grid: IHexGrid,
+  path: readonly IHexCoordinate[],
+  movementType: UnitMovementType,
+  fromFacing: Facing,
+  movementContext?: IMovementCostContext,
+): (toFacing: Facing) => number {
+  const pathCost = calculatePathMovementCost(
+    grid,
+    path,
+    movementType,
+    movementContext,
+  );
+  return (toFacing) =>
+    pathCost +
     calculateGroundPathTurningMpCost({
       path,
       fromFacing,
       toFacing,
-    })
-  );
+    });
 }
 
 /**

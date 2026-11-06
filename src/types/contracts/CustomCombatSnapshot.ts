@@ -66,6 +66,8 @@ export const customCombatSnapshotSchema = mech
     mulId: true,
     role: true,
     sourceDefinition: true,
+    // Portable metadata must not silently widen the recorded combat protocol.
+    weaponQuirks: true,
     // BLK source qualifiers (UL-06a) share the unit schema but are not part of
     // a recorded BattleMech construction; keep recorded snapshots unchanged.
     isOmni: true,
@@ -128,6 +130,7 @@ const nativeSnapshot = native
     mulId: true,
     role: true,
     sourceDefinition: true,
+    weaponQuirks: true,
     componentTechBases: true,
     configuration: true,
     gyro: true,

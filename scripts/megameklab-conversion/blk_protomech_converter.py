@@ -44,7 +44,7 @@ from blk_common import (
     remove_comments,
 )
 
-from blk_unit_fields import parse_location_equipment, parse_qualifier_number
+from blk_unit_fields import parse_location_equipment, parse_qualifier_number, parse_quirk_fields
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -161,8 +161,6 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks_raw = get_string(tags, "quirks")
-    quirks = [q.strip() for q in quirks_raw.splitlines() if q.strip()] if quirks_raw else []
 
     # --- Interface cockpit ---
     interface_cockpit_raw = get_string(tags, "interface_cockpit")
@@ -203,8 +201,7 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         output["role"] = role
     if source:
         output["source"] = source
-    if quirks:
-        output["quirks"] = quirks
+    output.update(parse_quirk_fields(tags))
     if fluff:
         output["fluff"] = fluff
 

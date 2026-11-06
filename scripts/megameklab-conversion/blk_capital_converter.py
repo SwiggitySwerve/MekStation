@@ -53,7 +53,7 @@ from blk_conversion_runner import (
     run_blk_conversion,
     run_manifest_range_parity,
 )
-from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields
 
 # Tags BLKDropshipFile.java throws on when absent (:71-74, :100-103, :105-108, :131-135, :141-143, :146-148, :152-154, :159-162).
 # A silent 0 would be a lie for these, so a missing one rejects the source like Java does.
@@ -204,9 +204,7 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
     for key, value in (("role", get_string(tags, "role")), ("source", get_string(tags, "source"))):
         if value:
             output[key] = value
-    quirks = parse_quirks(tags)
-    if quirks:
-        output["quirks"] = quirks
+    output.update(parse_quirk_fields(tags))
     fluff = parse_fluff(tags)
     if fluff:
         output["fluff"] = fluff
