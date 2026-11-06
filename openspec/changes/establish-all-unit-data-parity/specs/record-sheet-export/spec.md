@@ -60,3 +60,20 @@ Vehicle SVG bindings SHALL map primary `Turret` to the rear turret (`armorPipsTU
 - **GIVEN** explicit `Dual` configuration and `VTOL` motion type
 - **WHEN** extraction or template selection is requested
 - **THEN** a clear unsupported dual-turret VTOL error is thrown instead of selecting a single-turret template
+
+### Requirement: Supplied ProtoMech pilot abilities reach fallback SVG output
+
+ProtoMech record-sheet extraction SHALL forward the existing SPA owner's entries for explicitly supplied pilot abilities into `specialAbilities`. The existing fallback SVG renderer SHALL display their formatted headlines, including designations. This requirement does not certify SPA visibility in canonical template or PDF output.
+
+#### Scenario: Explicit designated pilot ability
+
+- **GIVEN** a ProtoMech point and an explicitly supplied Weapon Specialist ability designated for PPC
+- **WHEN** RecordSheetService extracts the sheet and the fallback SVG renderer renders it
+- **THEN** the actual SVG contains `Weapon Specialist (PPC)`
+- **AND** all other extracted sheet data remains unchanged
+
+#### Scenario: Legacy caller without abilities
+
+- **GIVEN** a ProtoMech caller supplying no pilot abilities or an empty list
+- **WHEN** its sheet is extracted and rendered through the fallback SVG renderer
+- **THEN** no SPA block is supplied and both calls produce identical SVG output
