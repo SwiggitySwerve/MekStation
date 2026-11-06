@@ -151,6 +151,8 @@ const INTRO_YEARS = [
   ['talons', 3072, 'equipment/MiscType.java:4307-4331'],
   ['heavy-machine-gun', 3058, 'weapons/mgs/innerSphere/ISHeavyMG.java:89-90'],
   ['sniper-cannon', 3012, 'weapons/artillery/SniperCannon.java:90-93'],
+  // IS production 3050, approximate (TechAdvancement.java:720-734 less five).
+  ['claw', 3045, 'equipment/MiscType.java:4002-4003'],
 ] as const;
 const CATALOG = join(process.cwd(), 'public/data/equipment/official');
 const catalogCopies = (id: string) =>
