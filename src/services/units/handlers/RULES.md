@@ -19,6 +19,14 @@ Zero movement remains a source fact. Common parsing still requires positive
 tonnage and a chassis name. No source clamp or construction minimum may replace
 a value merely to make a design load.
 
+`aerospaceUnitHandlerShared.parseAerospaceBasics` retains every explicit
+heat-sink count, including zero. Only an omitted count uses the caller's legacy
+fallback (fighters: 10; conventional fighters: 0). This compatibility fallback
+does not establish native omitted-tag support: MegaMek 48fcb2f6
+`BLKAeroSpaceFighterFile.java:91-95` and `BLKConvFighterFile.java:86-89` require
+the tag and load its stated value. A zero-sink fighter remains loadable, with
+the existing minimum-sink construction diagnostic; no source count is repaired.
+
 Authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `megamek/src/megamek/common/loaders/BLKVTOLFile.java` lines 74–115 and
 `BLKSmallCraftFile.java` lines 72–75, 149–152 load source weight/movement separately
