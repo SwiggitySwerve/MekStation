@@ -16,6 +16,36 @@ def _path(value):
     return value
 
 
+def validate_source_exclusions(exclusions):
+    """Validate the owner-maintained source scope without interpreting loads."""
+    if not isinstance(exclusions, (list, tuple)):
+        raise ValueError('Exclusions must be a list')
+    for rule in exclusions:
+        if not isinstance(rule, dict) or set(rule) - {'path', 'prefix', 'format', 'status', 'reason', 'entityClass'}:
+            raise ValueError(f'Invalid exclusion: {rule}')
+        if (rule.get('status') not in ('excluded', 'pending') or not rule.get('reason') or
+                not any(rule.get(k) for k in ('path', 'prefix', 'format'))):
+            raise ValueError(f'Invalid exclusion: {rule}')
+        if rule.get('path'):
+            _path(rule['path'])
+        if rule.get('prefix'):
+            if not rule['prefix'].endswith('/') or rule['prefix'].startswith(ROOT):
+                raise ValueError('Exclusion prefix must be source-relative and end in /')
+            _path(rule['prefix'].removesuffix('/'))
+
+
+def find_source_exclusion(path, exclusions):
+    """Return the unique (index, rule) from an already validated scope table."""
+    path = _path(path)
+    matches = [(i, r) for i, r in enumerate(exclusions)
+               if ('path' not in r or path == _path(r['path']))
+               and ('prefix' not in r or path.startswith(r['prefix']))
+               and ('format' not in r or path.rsplit('.', 1)[-1].lower() == r['format'])]
+    if len(matches) > 1:
+        raise ValueError(f'Overlapping exclusions: {path}')
+    return matches[0] if matches else None
+
+
 def reconcile_inventory(inventory, loads, exclusions=()):
     """Count exact [class, chassis, model] identities, preserving all source rows.
 
@@ -43,31 +73,13 @@ def reconcile_inventory(inventory, loads, exclusions=()):
         if row['status'] == 'failed' and not row.get('failure'):
             raise ValueError(f'Missing failure reason: {path}')
         indexed[path] = row
-    if not isinstance(exclusions, (list, tuple)):
-        raise ValueError('Exclusions must be a list')
-    for rule in exclusions:
-        if not isinstance(rule, dict) or set(rule) - {'path', 'prefix', 'format', 'status', 'reason', 'entityClass'}:
-            raise ValueError(f'Invalid exclusion: {rule}')
-        if (rule.get('status') not in ('excluded', 'pending') or not rule.get('reason') or
-                not any(rule.get(k) for k in ('path', 'prefix', 'format'))):
-            raise ValueError(f'Invalid exclusion: {rule}')
-        if rule.get('path'):
-            _path(rule['path'])
-        if rule.get('prefix'):
-            if not rule['prefix'].endswith('/') or rule['prefix'].startswith(ROOT):
-                raise ValueError('Exclusion prefix must be source-relative and end in /')
-            _path(rule['prefix'].removesuffix('/'))
+    validate_source_exclusions(exclusions)
 
     def exclusion(path):
-        matches = [(i, r) for i, r in enumerate(exclusions)
-                   if ('path' not in r or path == _path(r['path']))
-                   and ('prefix' not in r or path.startswith(r['prefix']))
-                   and ('format' not in r or path.rsplit('.', 1)[-1].lower() == r['format'])]
-        if len(matches) > 1:
-            raise ValueError(f'Overlapping exclusions: {path}')
-        if not matches:
+        match = find_source_exclusion(path, exclusions)
+        if match is None:
             return None
-        i, rule = matches[0]
+        i, rule = match
         used.add(i)
         return rule
 
