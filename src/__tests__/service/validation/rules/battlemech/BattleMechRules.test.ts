@@ -57,8 +57,8 @@ describe('BattleMechRules', () => {
   });
 
   describe('BATTLEMECH_RULES array', () => {
-    it('should contain all 10 BattleMech-specific rules', () => {
-      expect(BATTLEMECH_RULES).toHaveLength(10);
+    it('should contain all 11 BattleMech-specific rules', () => {
+      expect(BATTLEMECH_RULES).toHaveLength(11);
     });
 
     it('should have rules in priority order', () => {

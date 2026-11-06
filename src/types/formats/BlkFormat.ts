@@ -235,7 +235,7 @@ export interface IBlkDocument {
   // ===== Quirks =====
   /** Unit quirks */
   readonly quirks?: readonly string[];
-  /** Weapon-specific quirks: weapon name → quirk IDs */
+  /** Native LOCATION:SLOT:WEAPON_NAME → quirk IDs; legacy name keys remain readable. */
   readonly weaponQuirks?: Readonly<Record<string, readonly string[]>>;
 
   // ===== Raw Data =====

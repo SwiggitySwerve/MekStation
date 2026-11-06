@@ -79,6 +79,7 @@ export interface ISerializedUnit {
 
   // Optional
   readonly quirks?: string[];
+  /** Native LOCATION:SLOT:WEAPON_NAME keys; legacy name keys remain readable. */
   readonly weaponQuirks?: Record<string, string[]>;
   readonly fluff?: ISerializedFluff;
 
