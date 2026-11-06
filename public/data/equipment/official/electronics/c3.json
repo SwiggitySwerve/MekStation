@@ -71,7 +71,7 @@
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 3100,
+      "introductionYear": 3073,
       "special": ["Links to C3 Master", "Extended range"]
     },
     {
@@ -114,7 +114,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 3100,
+      "introductionYear": 3073,
       "special": []
     },
     {

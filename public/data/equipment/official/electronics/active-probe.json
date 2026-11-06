@@ -31,7 +31,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 500000,
       "battleValue": 25,
-      "introductionYear": 3082,
+      "introductionYear": 3058,
       "special": [
         "8 hex detection range",
         "Detects hidden units",

@@ -7505,7 +7505,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 84,
     "id": "enhanced-lrm-10",
-    "sha256": "31a9a79d195882a22e27af57ce4eaa303f193465130f207e62b63b64a518288f",
+    "sha256": "8b092f650ef84dcc57e0aa3f2d0199a5c88867b1d766a78854f2f16483fde785",
     "item": {
       "id": "enhanced-lrm-10",
       "name": "Enhanced LRM 10",
@@ -7531,7 +7531,7 @@
       "ammoPerTon": 12,
       "costCBills": 125000,
       "battleValue": 104,
-      "introductionYear": 3082,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -9025,7 +9025,7 @@
     "file": "weapons/missile-other.json",
     "index": 8,
     "id": "cruisemissile50",
-    "sha256": "4471f97b41d817c283c00b4560aaacb028d0afe6063d1bac4499c4aaf23b95bf",
+    "sha256": "216764e103750183313af7d0f13ba11388e6549a3b19d5d59bce9196f042a81c",
     "item": {
       "id": "cruisemissile50",
       "name": "Cruise Missile/50",
@@ -9050,7 +9050,7 @@
       },
       "costCBills": 900000,
       "battleValue": 601,
-      "introductionYear": 3095,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -22504,7 +22504,7 @@
     "file": "electronics/active-probe.json",
     "index": 1,
     "id": "bloodhound-active-probe",
-    "sha256": "da04fd497286348c2a261d153163d0db7a1fc34ab8315726e00a0532c412775e",
+    "sha256": "684bf5dd982d77be54eaafae5e2df07213935432d359c59397e3e4c2bdbdcf28",
     "item": {
       "id": "bloodhound-active-probe",
       "name": "Bloodhound Active Probe",
@@ -22519,7 +22519,7 @@
       },
       "costCBills": 500000,
       "battleValue": 25,
-      "introductionYear": 3082,
+      "introductionYear": 3058,
       "special": [
         "8 hex detection range",
         "Detects hidden units",
@@ -22830,7 +22830,7 @@
     "file": "electronics/c3.json",
     "index": 4,
     "id": "c3-boosted-slave",
-    "sha256": "945fa95ca52b57ce2758626f4cd31c6ea022e3e10323e19a2a020fb4ab71166a",
+    "sha256": "af1f10da1696b2c3b8b67d62711ddfbe91b7372105d18b8d3987986972f7ad0b",
     "item": {
       "id": "c3-boosted-slave",
       "name": "C3 Boosted Slave",
@@ -22841,7 +22841,7 @@
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 3100,
+      "introductionYear": 3073,
       "special": ["Links to C3 Master", "Extended range"]
     }
   },
@@ -22896,7 +22896,7 @@
     "file": "electronics/c3.json",
     "index": 7,
     "id": "c3boostedsystemslaveunit",
-    "sha256": "963d9639b236cff38f6b06855b16df31f38e2beeb2883a6aa85edc97f5f34d9a",
+    "sha256": "caca48a55ad154a149036c2fa975298620a13af23a272ed05b64c2620e201027",
     "item": {
       "id": "c3boostedsystemslaveunit",
       "name": "C3 Boosted System (Slave)",
@@ -22911,7 +22911,7 @@
       },
       "costCBills": 500000,
       "battleValue": 0,
-      "introductionYear": 3100,
+      "introductionYear": 3073,
       "special": []
     }
   },
@@ -25346,7 +25346,7 @@
     "file": "miscellaneous/other.json",
     "index": 67,
     "id": "armoredmotivesystem",
-    "sha256": "0c6757f8ca9a8e26d7f3e6fd4622e510e71b9b5a7e02e626f7e267138ad08d5d",
+    "sha256": "823ace1ff5f183ed9e0b9d01e9ee257ad6de48fd750551c0e5127df5211a49df",
     "item": {
       "id": "armoredmotivesystem",
       "name": "Armored Motive System",
@@ -25365,7 +25365,7 @@
       },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3083,
+      "introductionYear": 3071,
       "special": ["Variable weight"]
     }
   },
@@ -26443,7 +26443,7 @@
     "file": "miscellaneous/other.json",
     "index": 110,
     "id": "combatvehicleescapepod",
-    "sha256": "69906ead3710a8ce1e492047ab9bcf289f92fe5dd3fed2e5d6d09dfb9c5d38f3",
+    "sha256": "53a12682223c3735a8ea6a354b469c5da9972661dedd13b14b7d4e3959d15402",
     "item": {
       "id": "combatvehicleescapepod",
       "name": "Combat Vehicle Escape Pod",
@@ -26458,7 +26458,7 @@
       },
       "costCBills": 10000,
       "battleValue": 0,
-      "introductionYear": 3079,
+      "introductionYear": 3038,
       "special": []
     }
   },
@@ -26654,7 +26654,7 @@
     "file": "miscellaneous/other.json",
     "index": 117,
     "id": "remotesensordispenser",
-    "sha256": "0360c5f85b90dc695b0dde975f12c4658a9dc2a6587e532fbc7b5ae4ba72fbed",
+    "sha256": "b828aa1ed01a01b02bae146ad2dc3956eb2e5894e66d36c3b8d01017eb186834",
     "item": {
       "id": "remotesensordispenser",
       "name": "Remote Sensors/Dispenser",
@@ -26669,7 +26669,7 @@
       },
       "costCBills": 51000,
       "battleValue": 0,
-      "introductionYear": 2590,
+      "introductionYear": 2586,
       "special": []
     }
   },
@@ -28606,7 +28606,7 @@
     "file": "miscellaneous/other.json",
     "index": 188,
     "id": "mobilefieldbase",
-    "sha256": "8280f36b59c64c88adfdb8ca05a46afc54052b9593c4b54a0a3fe4402a146ad3",
+    "sha256": "b95ad0d216ef2f1b016741c0c3c666860051420f2cc7767fee5516a8978a9e40",
     "item": {
       "id": "mobilefieldbase",
       "name": "Mobile Field Base",
@@ -28621,7 +28621,7 @@
       },
       "costCBills": 150000,
       "battleValue": 0,
-      "introductionYear": 3059,
+      "introductionYear": 2535,
       "special": []
     }
   },
@@ -30116,7 +30116,7 @@
     "file": "miscellaneous/other.json",
     "index": 243,
     "id": "vehicular-sponson-turret",
-    "sha256": "e3e0fd242d5b4df43e96934ab94204abda02e461363355a8ca5f6de0555692b1",
+    "sha256": "09f2e3c120de1a96517d578b429819e985d931935285b327d8587ac79dfa6d01",
     "item": {
       "id": "vehicular-sponson-turret",
       "name": "Vehicular Sponson Turret",
@@ -30131,7 +30131,7 @@
       },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3079,
+      "introductionYear": 1950,
       "special": ["Variable weight"]
     }
   },
