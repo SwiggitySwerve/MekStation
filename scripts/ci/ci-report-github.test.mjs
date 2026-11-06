@@ -165,14 +165,33 @@ test('complete no-breach clears only the review label; missing data retains it',
     breach: false,
     complete: true,
     status: 'within',
+    labelComplete: true,
   };
   await s.publish({ report: within });
   assert.equal(s.labels.length, 0);
   s.labels.push({ name: REVIEW_LABEL });
   await s.publish({
-    report: { ...within, complete: false, status: 'missing' },
+    report: {
+      ...within,
+      complete: false,
+      labelComplete: false,
+      status: 'missing',
+    },
   });
   assert.equal(s.labels.length, 1);
+  await s.publish({
+    report: {
+      ...within,
+      complete: false,
+      labelComplete: true,
+      status: 'missing',
+    },
+  });
+  assert.equal(
+    s.labels.length,
+    0,
+    'missing informational files cannot preserve an obsolete label',
+  );
 });
 
 test('cross-head, changed attempt, unrelated PR, wrong workflow and closed PR never write', async () => {

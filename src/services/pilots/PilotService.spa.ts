@@ -4,7 +4,7 @@ import type {
   ISPADesignation,
 } from '@/types/pilot';
 
-import { getSPADefinition, resolveSPAId } from '@/lib/spa';
+import { getSPADefinition, hasSPA, resolveSPAId } from '@/lib/spa';
 import {
   SPA_DESIGNATION_SCHEMA,
   catalogDesignationToKind,
@@ -34,7 +34,12 @@ export function purchasePilotSPA(
     return validationError(`Unknown SPA: ${spaId}`);
   }
 
-  if (pilot.abilities.some((a) => a.abilityId === spa.id)) {
+  if (
+    hasSPA(
+      pilot.abilities.map((a) => a.abilityId),
+      spa.id,
+    )
+  ) {
     return validationError(`Pilot already has SPA: ${spa.displayName}`);
   }
 

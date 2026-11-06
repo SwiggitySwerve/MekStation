@@ -621,6 +621,57 @@ for (const viewport of VIEWPORTS) {
           });
         }
 
+        if (unit.shell === 'aerospace-customizer') {
+          await section(page, 'Velocity');
+          const velocity = shell.getByTestId('aerospace-velocity-tab');
+          const thrust = velocity.getByTestId('aerospace-safe-thrust-input');
+          const editedThrust = String(Number(await thrust.inputValue()) + 1);
+          await activate(
+            page,
+            velocity.getByTestId('aerospace-thrust-increase'),
+            true,
+          );
+          await expect(thrust).toHaveValue(editedThrust);
+          const maximum = await velocity
+            .getByTestId('aerospace-max-thrust')
+            .innerText();
+          await fill(
+            page,
+            velocity.getByTestId('aerospace-fuel-tons-input'),
+            '2.5',
+            true,
+          );
+          const fuelPoints = await velocity
+            .getByText(/fuel points \(/)
+            .innerText();
+          await section(page, 'Structure');
+          await expect(
+            shell.getByTestId('aerospace-safe-thrust-input'),
+          ).toHaveValue(editedThrust);
+          await expect(shell.getByTestId('aerospace-max-thrust')).toHaveText(
+            maximum,
+          );
+          await expect(
+            shell.getByTestId('aerospace-fuel-tons-input'),
+          ).toHaveValue('2.5');
+          await expect(
+            shell.getByText(fuelPoints, { exact: true }),
+          ).toBeVisible();
+          await section(page, 'Velocity');
+          await expect(thrust).toHaveValue(editedThrust);
+          expect(
+            await velocity.evaluate(
+              (element) => element.scrollWidth <= element.clientWidth,
+            ),
+          ).toBe(true);
+          await velocity.screenshot({
+            path: testInfo.outputPath(
+              `velocity-${unit.label.replace(/ /g, '-')}-${viewport.name}.png`,
+            ),
+            animations: 'disabled',
+          });
+        }
+
         await page.screenshot({
           path: testInfo.outputPath(
             `${unit.label.replace(/ /g, '-')}-${viewport.name}.png`,

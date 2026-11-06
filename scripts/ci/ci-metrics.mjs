@@ -1,9 +1,10 @@
 // Pure timing normalization. A sample always describes one GitHub run attempt.
 import { createHash } from 'node:crypto';
 
-import { median } from '../lib/statistics.mjs';
+import { quantile } from '../lib/statistics.mjs';
 
-export { median } from '../lib/statistics.mjs';
+export { median, quantile } from '../lib/statistics.mjs';
+export const TIMING_GROWTH_RATIO = 1.2;
 
 const timestamp = (value) =>
   typeof value === 'string' && Number.isFinite(Date.parse(value))
@@ -290,13 +291,36 @@ export function mainMedians(observations, current) {
         (job) => Number.isFinite(job.durationMs) && job.durationMs >= 0,
       ),
   );
-  const value = (values) =>
+  const value = (values, probability = 0.5) =>
     values.length && values.every((n) => Number.isFinite(n) && n >= 0)
-      ? median(values)
+      ? quantile(values, probability)
       : null;
   return {
     included: included.map((sample) => sample.identity),
     excluded,
+    p75: {
+      metrics: Object.fromEntries(
+        Object.keys(current.metrics).map((key) => [
+          key,
+          value(
+            included.map((sample) => sample.metrics[key]),
+            0.75,
+          ),
+        ]),
+      ),
+      jobs: Object.fromEntries(
+        current.jobs.map(({ name }) => [
+          name,
+          value(
+            included.map(
+              (sample) =>
+                sample.jobs.find((job) => job.name === name)?.durationMs,
+            ),
+            0.75,
+          ),
+        ]),
+      ),
+    },
     metrics: Object.fromEntries(
       Object.keys(current.metrics).map((key) => [
         key,

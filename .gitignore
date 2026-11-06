@@ -183,6 +183,9 @@ data/
 /public/data/equipment/official/miscellaneous/*
 /public/data/equipment/official/weapons/*
 !/public/data/equipment/official/*/java-registry.json
+# Let hooks traverse electronics to restage tracked catalogs; new files stay ignored.
+!/public/data/equipment/official/electronics/
+/public/data/equipment/official/electronics/*
 !/public/data/equipment/registry-routing.json
 !/public/data/equipment/_schema/
 /public/data/equipment/_schema/*

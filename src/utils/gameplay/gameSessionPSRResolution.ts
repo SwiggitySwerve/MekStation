@@ -185,6 +185,8 @@ function resolveBatchedPsr(
       pilotAbilities:
         context.unitState.abilities ?? context.unit.abilities ?? [],
       neuralInterfaceActive: context.unitState.neuralInterfaceActive,
+      neuralInterfaceMode: context.unitState.neuralInterfaceMode,
+      hasDNICockpitMod: context.unitState.hasDNICockpitMod,
       isQuadMek: context.unitState.isQuad ?? context.unit.isQuad ?? false,
       unitType: context.unitState.unitType ?? context.unit.unitType,
     },
