@@ -189,5 +189,13 @@
   },
   "mulId": 161,
   "role": "Brawler",
-  "source": "TR:3058U,TR:CI"
+  "source": "TR:3058U,TR:CI",
+  "weaponQuirks": {
+    "CT:10:Medium Laser": [
+      "stable_weapon"
+    ],
+    "CT:11:Medium Laser": [
+      "stable_weapon"
+    ]
+  }
 }

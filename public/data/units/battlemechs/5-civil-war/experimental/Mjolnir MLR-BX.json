@@ -175,5 +175,10 @@
   },
   "mulId": 2195,
   "role": "Striker",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "LA:4:Mace": [
+      "accurate"
+    ]
+  }
 }

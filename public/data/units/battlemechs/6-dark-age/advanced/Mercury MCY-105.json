@@ -182,5 +182,19 @@
   },
   "mulId": 8305,
   "role": "Scout",
-  "source": "RG19"
+  "source": "RG19",
+  "weaponQuirks": {
+    "RA:4:ISERMediumLaser": [
+      "mod_weapons"
+    ],
+    "LT:3:ISERMediumLaser": [
+      "mod_weapons"
+    ],
+    "CT:10:ISERSmallLaser": [
+      "mod_weapons"
+    ],
+    "HD:3:ISERSmallLaser": [
+      "mod_weapons"
+    ]
+  }
 }

@@ -178,5 +178,12 @@
   },
   "mulId": 391,
   "role": "Striker",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "RA:2:ISRotaryAC5": [
+      "exposed_linkage",
+      "static_feed",
+      "mod_weapons"
+    ]
+  }
 }

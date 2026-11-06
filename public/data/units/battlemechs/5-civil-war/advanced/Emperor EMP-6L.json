@@ -191,5 +191,10 @@
   },
   "mulId": 967,
   "role": "Juggernaut",
-  "source": "TR:3058U,TR:SW"
+  "source": "TR:3058U,TR:SW",
+  "weaponQuirks": {
+    "LA:3:ISERPPC": [
+      "imp_cooling"
+    ]
+  }
 }

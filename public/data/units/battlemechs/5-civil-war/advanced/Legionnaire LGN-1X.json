@@ -178,5 +178,10 @@
   },
   "mulId": 1862,
   "role": "Striker",
-  "source": "TR:3075,TR:J"
+  "source": "TR:3075,TR:J",
+  "weaponQuirks": {
+    "RT:3:ISRotaryAC2": [
+      "exposed_linkage"
+    ]
+  }
 }

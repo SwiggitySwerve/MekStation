@@ -178,5 +178,10 @@
   },
   "mulId": 6627,
   "role": "Skirmisher",
-  "source": "TR:3145:LC,TR:DA"
+  "source": "TR:3145:LC,TR:DA",
+  "weaponQuirks": {
+    "RT:3:ISRotaryAC2": [
+      "exposed_linkage"
+    ]
+  }
 }

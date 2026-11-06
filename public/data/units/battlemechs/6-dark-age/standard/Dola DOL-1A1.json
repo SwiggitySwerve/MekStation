@@ -174,5 +174,10 @@
   },
   "mulId": 4086,
   "role": "Scout",
-  "source": "TR:Proto,TR:DA"
+  "source": "TR:Proto,TR:DA",
+  "weaponQuirks": {
+    "RA:4:Sword": [
+      "jettison_capable"
+    ]
+  }
 }

@@ -171,5 +171,10 @@
   },
   "mulId": 6905,
   "role": "Striker",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "weaponQuirks": {
+    "RT:6:ISERPPC": [
+      "exposed_linkage"
+    ]
+  }
 }

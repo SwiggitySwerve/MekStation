@@ -197,5 +197,19 @@
   },
   "mulId": 9580,
   "role": "Juggernaut",
-  "source": "RG33"
+  "source": "RG33",
+  "weaponQuirks": {
+    "LT:5:Light Auto Cannon/5": [
+      "stable_weapon"
+    ],
+    "LT:7:Light Auto Cannon/5": [
+      "stable_weapon"
+    ],
+    "RT:5:Light Auto Cannon/5": [
+      "stable_weapon"
+    ],
+    "RT:7:Light Auto Cannon/5": [
+      "stable_weapon"
+    ]
+  }
 }

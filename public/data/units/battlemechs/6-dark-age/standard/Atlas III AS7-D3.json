@@ -194,5 +194,10 @@
   },
   "mulId": 6358,
   "role": "Juggernaut",
-  "source": "TR:3145:FS,TR:DA"
+  "source": "TR:3145:FS,TR:DA",
+  "weaponQuirks": {
+    "RA:4:ISRotaryAC2": [
+      "jettison_capable"
+    ]
+  }
 }

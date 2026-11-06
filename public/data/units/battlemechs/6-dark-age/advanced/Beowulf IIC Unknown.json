@@ -183,5 +183,16 @@
   },
   "mulId": 3818,
   "role": "Scout",
-  "source": "TR:Proto"
+  "source": "TR:Proto",
+  "weaponQuirks": {
+    "LA:4:CLERMediumPulseLaser": [
+      "em_interference"
+    ],
+    "LA:6:CLERMediumPulseLaser": [
+      "em_interference"
+    ],
+    "RA:4:CLERLargePulseLaser": [
+      "em_interference"
+    ]
+  }
 }

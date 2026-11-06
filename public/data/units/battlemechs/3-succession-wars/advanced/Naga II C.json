@@ -206,5 +206,37 @@
   },
   "mulId": 9325,
   "role": "Brawler",
-  "source": "RG26"
+  "source": "RG26",
+  "weaponQuirks": {
+    "LA:2:CLStreakSRM6": [
+      "stable_weapon"
+    ],
+    "LA:4:CLLargePulseLaser": [
+      "stable_weapon"
+    ],
+    "LA:6:CLMediumPulseLaser": [
+      "stable_weapon"
+    ],
+    "RA:2:CLUltraAC5": [
+      "stable_weapon"
+    ],
+    "RA:5:CLMediumPulseLaser": [
+      "stable_weapon"
+    ],
+    "LT:2:CLLRM15": [
+      "stable_weapon"
+    ],
+    "LT:4:CLMG": [
+      "stable_weapon"
+    ],
+    "LT:5:CLMG": [
+      "stable_weapon"
+    ],
+    "RT:4:CLMG": [
+      "stable_weapon"
+    ],
+    "RT:5:CLMG": [
+      "stable_weapon"
+    ]
+  }
 }

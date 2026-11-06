@@ -190,5 +190,10 @@
     }
   },
   "role": "Brawler",
-  "source": "TR:3025C"
+  "source": "TR:3025C",
+  "weaponQuirks": {
+    "RT:1:Autocannon/20": [
+      "exposed_linkage"
+    ]
+  }
 }

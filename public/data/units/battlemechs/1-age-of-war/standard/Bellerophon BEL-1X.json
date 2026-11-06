@@ -178,5 +178,9 @@
   },
   "mulId": 3817,
   "role": "Brawler",
-  "source": "XTR:Primitives III"
+  "source": "XTR:Primitives III",
+  "weaponQuirks": {
+    "RA:3:Large Laser": ["em_interference"],
+    "RA:5:Large Laser": ["em_interference"]
+  }
 }

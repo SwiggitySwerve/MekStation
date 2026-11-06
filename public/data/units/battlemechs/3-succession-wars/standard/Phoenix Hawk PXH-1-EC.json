@@ -183,5 +183,10 @@
   },
   "mulId": 7678,
   "role": "Skirmisher",
-  "source": "TR:GC"
+  "source": "TR:GC",
+  "weaponQuirks": {
+    "RA:4:Improved Large Laser": [
+      "jettison_capable"
+    ]
+  }
 }

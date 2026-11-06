@@ -183,5 +183,19 @@
   },
   "mulId": 2512,
   "role": "Missile Boat",
-  "source": "RG15,RGv1"
+  "source": "RG15,RGv1",
+  "weaponQuirks": {
+    "LT:4:CLLRM20": [
+      "fast_reload"
+    ],
+    "LT:8:CLLRM20": [
+      "fast_reload"
+    ],
+    "RT:4:CLLRM20": [
+      "fast_reload"
+    ],
+    "RT:8:CLLRM20": [
+      "fast_reload"
+    ]
+  }
 }

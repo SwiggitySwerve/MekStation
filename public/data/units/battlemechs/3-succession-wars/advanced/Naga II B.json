@@ -190,5 +190,25 @@
   },
   "mulId": 9324,
   "role": "Missile Boat",
-  "source": "RG26"
+  "source": "RG26",
+  "weaponQuirks": {
+    "LA:2:CLLRM20": [
+      "stable_weapon"
+    ],
+    "LA:6:CLLRM20": [
+      "stable_weapon"
+    ],
+    "RA:2:CLLRM20": [
+      "stable_weapon"
+    ],
+    "RA:6:CLLRM20": [
+      "stable_weapon"
+    ],
+    "LT:2:CLAntiMissileSystem": [
+      "stable_weapon"
+    ],
+    "RT:2:CLNarcBeacon": [
+      "stable_weapon"
+    ]
+  }
 }

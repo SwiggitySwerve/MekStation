@@ -191,5 +191,10 @@
   },
   "mulId": 7528,
   "role": "Sniper",
-  "source": "RG06,RGv1"
+  "source": "RG06,RGv1",
+  "weaponQuirks": {
+    "RT:3:ISLBXAC5": [
+      "exposed_linkage"
+    ]
+  }
 }

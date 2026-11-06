@@ -185,5 +185,10 @@
   },
   "mulId": 1300,
   "role": "Sniper",
-  "source": "TR:3085,RGv1"
+  "source": "TR:3085,RGv1",
+  "weaponQuirks": {
+    "RA:7:ISERPPC": [
+      "jettison_capable"
+    ]
+  }
 }

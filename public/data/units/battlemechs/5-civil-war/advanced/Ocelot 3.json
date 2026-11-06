@@ -178,5 +178,13 @@
   },
   "mulId": 2315,
   "role": "Striker",
-  "source": "TR:3075,TR:J"
+  "source": "TR:3075,TR:J",
+  "weaponQuirks": {
+    "RA:4:CLHeavyMediumLaser": [
+      "jettison_capable"
+    ],
+    "RA:6:CLHeavyMediumLaser": [
+      "jettison_capable"
+    ]
+  }
 }

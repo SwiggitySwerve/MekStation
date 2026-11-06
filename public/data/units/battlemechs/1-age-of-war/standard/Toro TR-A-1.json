@@ -178,5 +178,8 @@
   },
   "mulId": 3276,
   "role": "Brawler",
-  "source": "XTR:Primitives IV"
+  "source": "XTR:Primitives IV",
+  "weaponQuirks": {
+    "LA:3:Large Laser": ["poor_cooling"]
+  }
 }

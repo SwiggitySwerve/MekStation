@@ -186,5 +186,10 @@
   },
   "mulId": 3150,
   "role": "Sniper",
-  "source": "TR:3060,TR:J"
+  "source": "TR:3060,TR:J",
+  "weaponQuirks": {
+    "RT:0:ISUltraAC10": [
+      "stable_weapon"
+    ]
+  }
 }

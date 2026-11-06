@@ -178,5 +178,10 @@
   },
   "mulId": 3299,
   "role": "Sniper",
-  "source": "TR:3039,TR:SW"
+  "source": "TR:3039,TR:SW",
+  "weaponQuirks": {
+    "LT:0:Autocannon/5": [
+      "fast_reload"
+    ]
+  }
 }

@@ -183,5 +183,10 @@
   },
   "mulId": 1415,
   "role": "Skirmisher",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "RT:3:ISRotaryAC5": [
+      "fast_reload"
+    ]
+  }
 }

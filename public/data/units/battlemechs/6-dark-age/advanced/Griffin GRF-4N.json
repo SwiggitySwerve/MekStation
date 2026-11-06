@@ -189,5 +189,10 @@
   },
   "mulId": 1301,
   "role": "Striker",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "RA:4:ISPlasmaRifle": [
+      "jettison_capable"
+    ]
+  }
 }

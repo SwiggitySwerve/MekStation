@@ -179,5 +179,10 @@
   },
   "mulId": 6888,
   "role": "Skirmisher",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "weaponQuirks": {
+    "HD:3:CLERLargeLaser": [
+      "accurate"
+    ]
+  }
 }

@@ -191,5 +191,13 @@
   },
   "mulId": 969,
   "role": "Juggernaut",
-  "source": "JTP:Atreus"
+  "source": "JTP:Atreus",
+  "weaponQuirks": {
+    "LA:10:ISSNPPC": [
+      "imp_cooling"
+    ],
+    "RA:10:ISSNPPC": [
+      "imp_cooling"
+    ]
+  }
 }

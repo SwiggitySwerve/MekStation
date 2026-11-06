@@ -207,5 +207,10 @@
   },
   "mulId": 3581,
   "role": "Skirmisher",
-  "source": "TR:3085,BattleCorps"
+  "source": "TR:3085,BattleCorps",
+  "weaponQuirks": {
+    "RA:4:ISSNPPC": [
+      "jettison_capable"
+    ]
+  }
 }

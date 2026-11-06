@@ -194,5 +194,10 @@
   },
   "mulId": 5540,
   "role": "Striker",
-  "source": "DTP:Vega,TR:3085"
+  "source": "DTP:Vega,TR:3085",
+  "weaponQuirks": {
+    "RT:5:CLSRM6": [
+      "stable_weapon"
+    ]
+  }
 }

@@ -189,5 +189,15 @@
   },
   "mulId": 782,
   "role": "Brawler",
-  "source": "TR:3075,TR:J"
+  "source": "TR:3075,TR:J",
+  "weaponQuirks": {
+    "LA:2:CLHAG40": [
+      "exposed_linkage",
+      "static_feed"
+    ],
+    "RA:2:CLHAG40": [
+      "exposed_linkage",
+      "static_feed"
+    ]
+  }
 }

@@ -186,5 +186,10 @@
   },
   "mulId": 7715,
   "role": "Brawler",
-  "source": "RG09"
+  "source": "RG09",
+  "weaponQuirks": {
+    "CT:8:Heavy PPC": [
+      "em_interference"
+    ]
+  }
 }

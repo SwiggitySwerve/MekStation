@@ -191,5 +191,10 @@
   },
   "mulId": 2497,
   "role": "Striker",
-  "source": "RG11,RGv1"
+  "source": "RG11,RGv1",
+  "weaponQuirks": {
+    "RA:6:Medium Laser": [
+      "jettison_capable"
+    ]
+  }
 }

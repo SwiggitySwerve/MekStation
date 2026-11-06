@@ -178,5 +178,10 @@
   },
   "mulId": 4906,
   "role": "Striker",
-  "source": "TR:3067,TR:J"
+  "source": "TR:3067,TR:J",
+  "weaponQuirks": {
+    "HD:3:ISTAG": [
+      "accurate"
+    ]
+  }
 }

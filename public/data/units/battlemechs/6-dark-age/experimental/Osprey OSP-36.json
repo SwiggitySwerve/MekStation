@@ -191,5 +191,13 @@
   },
   "mulId": 7377,
   "role": "Sniper",
-  "source": "XTR:RotS 3"
+  "source": "XTR:RotS 3",
+  "weaponQuirks": {
+    "LA:5:ISERMediumLaser": [
+      "inaccurate"
+    ],
+    "RA:5:ISERMediumLaser": [
+      "inaccurate"
+    ]
+  }
 }

@@ -185,5 +185,10 @@
   },
   "mulId": 1303,
   "role": "Missile Boat",
-  "source": "TR:3085,BattleCorps"
+  "source": "TR:3085,BattleCorps",
+  "weaponQuirks": {
+    "RT:8:LRM 10": [
+      "jettison_capable"
+    ]
+  }
 }

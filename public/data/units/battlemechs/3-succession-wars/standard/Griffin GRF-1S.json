@@ -189,5 +189,10 @@
   },
   "mulId": 1298,
   "role": "Skirmisher",
-  "source": "TR:3039,TR:SW"
+  "source": "TR:3039,TR:SW",
+  "weaponQuirks": {
+    "RA:4:Large Laser": [
+      "jettison_capable"
+    ]
+  }
 }

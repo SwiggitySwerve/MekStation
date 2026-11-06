@@ -201,5 +201,31 @@
   },
   "mulId": 6861,
   "role": "Skirmisher",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "weaponQuirks": {
+    "LA:2:CLATM9": [
+      "stable_weapon"
+    ],
+    "LA:6:TSEMP Cannon": [
+      "stable_weapon"
+    ],
+    "RA:2:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "RA:3:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "RA:4:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "RA:5:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "RA:6:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "RA:7:CLERMediumLaser": [
+      "stable_weapon"
+    ]
+  }
 }

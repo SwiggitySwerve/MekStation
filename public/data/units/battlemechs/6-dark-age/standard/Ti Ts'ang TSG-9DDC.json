@@ -209,5 +209,10 @@
   },
   "mulId": 5242,
   "role": "Skirmisher",
-  "source": "TR:Proto,XTR:Liao"
+  "source": "TR:Proto,XTR:Liao",
+  "weaponQuirks": {
+    "RA:4:IS Lance": [
+      "jettison_capable"
+    ]
+  }
 }

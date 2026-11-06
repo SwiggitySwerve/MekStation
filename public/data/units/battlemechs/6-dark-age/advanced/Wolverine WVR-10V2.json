@@ -183,5 +183,10 @@
   },
   "mulId": 8257,
   "role": "Sniper",
-  "source": "RG18,RGv1"
+  "source": "RG18,RGv1",
+  "weaponQuirks": {
+    "RA:4:ISGaussRifle": [
+      "jettison_capable"
+    ]
+  }
 }

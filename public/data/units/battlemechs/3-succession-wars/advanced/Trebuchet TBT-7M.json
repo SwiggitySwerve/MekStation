@@ -191,5 +191,13 @@
   },
   "mulId": 3300,
   "role": "Missile Boat",
-  "source": "TR:3050,TR:SW"
+  "source": "TR:3050,TR:SW",
+  "weaponQuirks": {
+    "LT:3:ISNarcBeacon": [
+      "fast_reload"
+    ],
+    "RT:3:LRM 15": [
+      "fast_reload"
+    ]
+  }
 }

@@ -194,5 +194,13 @@
   },
   "mulId": 1122,
   "role": "Striker",
-  "source": "TR:3055U"
+  "source": "TR:3055U",
+  "weaponQuirks": {
+    "LA:8:IS Fluid Gun": [
+      "mod_weapons"
+    ],
+    "RA:7:IS Fluid Gun": [
+      "mod_weapons"
+    ]
+  }
 }

@@ -178,5 +178,16 @@
   },
   "mulId": 701,
   "role": "Brawler",
-  "source": "TR:3060"
+  "source": "TR:3060",
+  "weaponQuirks": {
+    "LA:4:CLHeavyMediumLaser": [
+      "mod_weapons"
+    ],
+    "LA:6:CLHeavyMediumLaser": [
+      "mod_weapons"
+    ],
+    "RA:3:CLHAG20": [
+      "mod_weapons"
+    ]
+  }
 }

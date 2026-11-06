@@ -179,5 +179,10 @@
   },
   "mulId": 982,
   "role": "Sniper",
-  "source": "TR:3060,TR:CI"
+  "source": "TR:3060,TR:CI",
+  "weaponQuirks": {
+    "RA:3:ISUltraAC10": [
+      "fast_reload"
+    ]
+  }
 }

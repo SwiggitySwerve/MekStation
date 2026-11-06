@@ -190,5 +190,13 @@
   },
   "mulId": 757,
   "role": "Missile Boat",
-  "source": "TR:3085,TR:3050"
+  "source": "TR:3085,TR:3050",
+  "weaponQuirks": {
+    "LL:5:ISStreakSRM2": [
+      "stable_weapon"
+    ],
+    "RL:5:ISStreakSRM2": [
+      "stable_weapon"
+    ]
+  }
 }

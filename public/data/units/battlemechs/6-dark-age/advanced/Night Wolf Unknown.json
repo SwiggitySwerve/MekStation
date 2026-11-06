@@ -191,5 +191,10 @@
   },
   "mulId": 2273,
   "role": "Skirmisher",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "HD:3:CLAntiMissileSystem": [
+      "direct_torso_mount"
+    ]
+  }
 }

@@ -194,5 +194,19 @@
   },
   "mulId": 4795,
   "role": "Ambusher",
-  "source": "TR:Proto"
+  "source": "TR:Proto",
+  "weaponQuirks": {
+    "LA:4:Light Machine Gun": [
+      "ammo_feed_problems"
+    ],
+    "LA:5:Light Machine Gun": [
+      "ammo_feed_problems"
+    ],
+    "RA:4:Light Machine Gun": [
+      "ammo_feed_problems"
+    ],
+    "RA:5:Light Machine Gun": [
+      "ammo_feed_problems"
+    ]
+  }
 }

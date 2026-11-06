@@ -175,5 +175,10 @@
   },
   "mulId": 2194,
   "role": "Scout",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "LA:4:Mace": [
+      "accurate"
+    ]
+  }
 }

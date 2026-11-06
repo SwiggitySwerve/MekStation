@@ -191,5 +191,19 @@
   },
   "mulId": 2517,
   "role": "Skirmisher",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "LT:6:CLLBXAC10": [
+      "fast_reload"
+    ],
+    "RT:6:CLLBXAC10": [
+      "fast_reload"
+    ],
+    "CT:10:CLStreakSRM4": [
+      "fast_reload"
+    ],
+    "CT:11:CLStreakSRM4": [
+      "fast_reload"
+    ]
+  }
 }

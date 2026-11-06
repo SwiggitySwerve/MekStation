@@ -186,5 +186,10 @@
   },
   "mulId": 251,
   "role": "Skirmisher",
-  "source": "XTR:Kurita"
+  "source": "XTR:Kurita",
+  "weaponQuirks": {
+    "RA:4:CLLargePulseLaser": [
+      "stable_weapon"
+    ]
+  }
 }

@@ -169,5 +169,13 @@
   },
   "mulId": 6614,
   "role": "Scout",
-  "source": "TR:3145:LC,TR:DA"
+  "source": "TR:3145:LC,TR:DA",
+  "weaponQuirks": {
+    "LA:4:ISRotaryAC2": [
+      "jettison_capable"
+    ],
+    "RA:4:Mace": [
+      "jettison_capable"
+    ]
+  }
 }

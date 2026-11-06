@@ -190,5 +190,10 @@
   },
   "mulId": 450,
   "role": "Skirmisher",
-  "source": "TR:3058U,TR:CI"
+  "source": "TR:3058U,TR:CI",
+  "weaponQuirks": {
+    "CT:10:ISERLargeLaser": [
+      "stable_weapon"
+    ]
+  }
 }

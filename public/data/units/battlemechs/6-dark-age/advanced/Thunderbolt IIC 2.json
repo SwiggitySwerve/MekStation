@@ -191,5 +191,25 @@
   },
   "mulId": 5240,
   "role": "Skirmisher",
-  "source": "TR:Proto"
+  "source": "TR:Proto",
+  "weaponQuirks": {
+    "LA:6:CLSmallPulseLaser": [
+      "mod_weapons"
+    ],
+    "RA:4:CLERLargePulseLaser": [
+      "mod_weapons"
+    ],
+    "LT:4:CLMediumPulseLaser": [
+      "mod_weapons"
+    ],
+    "LT:5:CLMediumPulseLaser": [
+      "mod_weapons"
+    ],
+    "LT:6:CLMediumPulseLaser": [
+      "mod_weapons"
+    ],
+    "RT:4:CLImprovedHeavyLargeLaser": [
+      "mod_weapons"
+    ]
+  }
 }

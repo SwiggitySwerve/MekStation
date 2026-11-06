@@ -191,5 +191,8 @@
   },
   "mulId": 2492,
   "role": "Skirmisher",
-  "source": "TR:3075"
+  "source": "TR:3075",
+  "weaponQuirks": {
+    "RA:4:ISERPPC": ["jettison_capable"]
+  }
 }

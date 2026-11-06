@@ -187,5 +187,10 @@
   },
   "mulId": 3578,
   "role": "Skirmisher",
-  "source": "TR:3085S,TR:CI"
+  "source": "TR:3085S,TR:CI",
+  "weaponQuirks": {
+    "RA:4:ISRotaryAC2": [
+      "jettison_capable"
+    ]
+  }
 }

@@ -179,5 +179,16 @@
   },
   "mulId": 7294,
   "role": "Striker",
-  "source": "XTR:RotS 1"
+  "source": "XTR:RotS 1",
+  "weaponQuirks": {
+    "LA:4:CLERMediumPulseLaser": [
+      "em_interference"
+    ],
+    "LA:6:CLERMediumPulseLaser": [
+      "em_interference"
+    ],
+    "RA:4:CLERLargeLaser": [
+      "em_interference"
+    ]
+  }
 }

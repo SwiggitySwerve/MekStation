@@ -187,5 +187,10 @@
   },
   "mulId": 8256,
   "role": "Skirmisher",
-  "source": "RG18,RGv1"
+  "source": "RG18,RGv1",
+  "weaponQuirks": {
+    "RA:4:ISSNPPC": [
+      "jettison_capable"
+    ]
+  }
 }

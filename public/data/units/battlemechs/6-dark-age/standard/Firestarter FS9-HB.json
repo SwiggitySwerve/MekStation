@@ -178,5 +178,13 @@
     "capabilities": "<p>Retains the Firestarter's signature speed and jump mobility, making it ideal for hit-and-run harassment. The blazers extend effective engagement range beyond flamer distance, allowing pilots to soften targets before closing. Heat accumulation is the primary tactical concern, as sustained fire will force shutdowns. Experienced pilots cycle between dazzle mode and full power shots to maintain pressure without cooking themselves.</p>"
   },
   "role": "Scout",
-  "source": "Gothic"
+  "source": "Gothic",
+  "weaponQuirks": {
+    "LA:5:Flamer": [
+      "exposed_linkage"
+    ],
+    "RA:5:Flamer": [
+      "exposed_linkage"
+    ]
+  }
 }

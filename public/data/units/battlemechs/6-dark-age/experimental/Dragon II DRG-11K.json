@@ -178,5 +178,10 @@
   },
   "mulId": 6414,
   "role": "Missile Boat",
-  "source": "TR:3145:DC,TR:DA"
+  "source": "TR:3145:DC,TR:DA",
+  "weaponQuirks": {
+    "RA:3:ISERPPC": [
+      "poor_cooling"
+    ]
+  }
 }

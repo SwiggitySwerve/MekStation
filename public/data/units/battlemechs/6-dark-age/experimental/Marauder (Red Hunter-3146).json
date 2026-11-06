@@ -191,5 +191,10 @@
   },
   "mulId": 7536,
   "role": "Juggernaut",
-  "source": "RG06,RGv1"
+  "source": "RG06,RGv1",
+  "weaponQuirks": {
+    "RT:3:CLUltraAC10": [
+      "exposed_linkage"
+    ]
+  }
 }

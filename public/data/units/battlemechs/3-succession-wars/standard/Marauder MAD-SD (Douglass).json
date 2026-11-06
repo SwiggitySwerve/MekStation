@@ -195,5 +195,13 @@
   },
   "mulId": 2052,
   "role": "Brawler",
-  "source": "HTP:Galtor"
+  "source": "HTP:Galtor",
+  "weaponQuirks": {
+    "RT:0:SRM 4": [
+      "exposed_linkage"
+    ],
+    "RT:1:SRM 4": [
+      "exposed_linkage"
+    ]
+  }
 }

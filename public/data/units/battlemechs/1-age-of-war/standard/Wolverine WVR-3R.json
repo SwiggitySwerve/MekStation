@@ -187,5 +187,8 @@
   },
   "mulId": 7408,
   "role": "Skirmisher",
-  "source": "XTR:Primitives V"
+  "source": "XTR:Primitives V",
+  "weaponQuirks": {
+    "RA:3:Autocannon/5": ["jettison_capable"]
+  }
 }

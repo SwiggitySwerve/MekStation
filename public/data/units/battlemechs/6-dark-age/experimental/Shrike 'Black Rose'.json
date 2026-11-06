@@ -187,5 +187,13 @@
   },
   "mulId": 9215,
   "role": "Sniper",
-  "source": "TR:DA"
+  "source": "TR:DA",
+  "weaponQuirks": {
+    "LA:7:CLERPPC": [
+      "exposed_linkage"
+    ],
+    "LA:9:CLERPPC": [
+      "exposed_linkage"
+    ]
+  }
 }

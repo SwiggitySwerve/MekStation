@@ -182,5 +182,23 @@
   },
   "mulId": 7345,
   "role": "Sniper",
-  "source": "XTR:RotS 2"
+  "source": "XTR:RotS 2",
+  "weaponQuirks": {
+    "LA:3:Light PPC": [
+      "mod_weapons"
+    ],
+    "LA:5:Light Auto Cannon/2": [
+      "exposed_linkage",
+      "static_feed",
+      "mod_weapons"
+    ],
+    "RA:3:Light PPC": [
+      "mod_weapons"
+    ],
+    "RA:5:Light Auto Cannon/2": [
+      "exposed_linkage",
+      "static_feed",
+      "mod_weapons"
+    ]
+  }
 }

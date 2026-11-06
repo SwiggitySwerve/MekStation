@@ -178,5 +178,18 @@
   },
   "mulId": 393,
   "role": "Striker",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "RA:2:ISLBXAC10": [
+      "exposed_linkage",
+      "static_feed",
+      "mod_weapons"
+    ],
+    "RA:8:ISERMediumLaser": [
+      "mod_weapons"
+    ],
+    "RA:9:ISERMediumLaser": [
+      "mod_weapons"
+    ]
+  }
 }

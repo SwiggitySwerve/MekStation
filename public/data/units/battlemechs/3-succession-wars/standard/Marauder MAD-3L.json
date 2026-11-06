@@ -191,5 +191,10 @@
   },
   "mulId": 2036,
   "role": "Brawler",
-  "source": "TR:3039"
+  "source": "TR:3039",
+  "weaponQuirks": {
+    "RT:0:Autocannon/5": [
+      "exposed_linkage"
+    ]
+  }
 }

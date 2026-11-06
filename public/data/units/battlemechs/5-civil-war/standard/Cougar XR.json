@@ -179,5 +179,16 @@
   },
   "mulId": 4013,
   "role": "Missile Boat",
-  "source": "XTR:Clans"
+  "source": "XTR:Clans",
+  "weaponQuirks": {
+    "RA:5:CLERMediumPulseLaser": [
+      "mod_weapons"
+    ],
+    "LT:2:CLLRM15": [
+      "mod_weapons"
+    ],
+    "RT:2:CLLRM15": [
+      "mod_weapons"
+    ]
+  }
 }

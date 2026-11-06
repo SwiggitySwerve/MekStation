@@ -194,5 +194,10 @@
   },
   "mulId": 426,
   "role": "Skirmisher",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "RT:7:Light Auto Cannon/5": [
+      "stable_weapon"
+    ]
+  }
 }

@@ -191,5 +191,10 @@
   },
   "mulId": 4764,
   "role": "Striker",
-  "source": "TR:3067,TR:J"
+  "source": "TR:3067,TR:J",
+  "weaponQuirks": {
+    "CT:10:ISERMediumLaser": [
+      "direct_torso_mount"
+    ]
+  }
 }

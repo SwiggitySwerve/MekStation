@@ -186,5 +186,10 @@
   },
   "mulId": 8006,
   "role": "Skirmisher",
-  "source": "TR:3150"
+  "source": "TR:3150",
+  "weaponQuirks": {
+    "HD:3:Medium Laser": [
+      "direct_torso_mount"
+    ]
+  }
 }

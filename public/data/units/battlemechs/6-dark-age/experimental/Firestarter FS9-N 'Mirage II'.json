@@ -199,5 +199,13 @@
   },
   "mulId": 9374,
   "role": "Striker",
-  "source": "RG28"
+  "source": "RG28",
+  "weaponQuirks": {
+    "LA:4:Flamer": [
+      "exposed_linkage"
+    ],
+    "RA:4:Flamer": [
+      "exposed_linkage"
+    ]
+  }
 }

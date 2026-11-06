@@ -195,5 +195,10 @@
   },
   "mulId": 2049,
   "role": "Sniper",
-  "source": "TR:3085,TR:CI"
+  "source": "TR:3085,TR:CI",
+  "weaponQuirks": {
+    "RT:2:ISLBXAC10": [
+      "exposed_linkage"
+    ]
+  }
 }

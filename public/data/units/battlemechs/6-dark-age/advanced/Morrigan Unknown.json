@@ -182,5 +182,10 @@
   },
   "mulId": 2231,
   "role": "Striker",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "RA:3:CLHeavyLargeLaser": [
+      "stable_weapon"
+    ]
+  }
 }

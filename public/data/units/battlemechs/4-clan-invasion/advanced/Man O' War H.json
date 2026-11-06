@@ -185,5 +185,19 @@
   },
   "mulId": 2008,
   "role": "Skirmisher",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "weaponQuirks": {
+    "LA:4:CLHeavyLargeLaser": [
+      "stable_weapon"
+    ],
+    "LA:7:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "LA:8:CLERMediumLaser": [
+      "stable_weapon"
+    ],
+    "RA:2:CLUltraAC10": [
+      "stable_weapon"
+    ]
+  }
 }

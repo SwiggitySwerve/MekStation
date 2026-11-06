@@ -183,5 +183,10 @@
   },
   "mulId": 1417,
   "role": "Brawler",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "RT:2:ISLBXAC10": [
+      "fast_reload"
+    ]
+  }
 }

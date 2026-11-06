@@ -187,5 +187,10 @@
   },
   "mulId": 7751,
   "role": "Striker",
-  "source": "RG11,RGv1"
+  "source": "RG11,RGv1",
+  "weaponQuirks": {
+    "RA:7:ISLargeXPulseLaser": [
+      "jettison_capable"
+    ]
+  }
 }

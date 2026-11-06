@@ -175,5 +175,8 @@
   },
   "mulId": 7185,
   "role": "Sniper",
-  "source": "XTR:Primitives IV"
+  "source": "XTR:Primitives IV",
+  "weaponQuirks": {
+    "RA:3:Primitive Prototype PPC": ["imp_cooling"]
+  }
 }

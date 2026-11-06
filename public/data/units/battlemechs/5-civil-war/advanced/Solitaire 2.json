@@ -178,5 +178,11 @@
   },
   "mulId": 5655,
   "role": "Striker",
-  "source": "TR:J"
+  "source": "TR:J",
+  "weaponQuirks": {
+    "RT:2:CLHeavyLargeLaser": [
+      "imp_cooling",
+      "stable_weapon"
+    ]
+  }
 }

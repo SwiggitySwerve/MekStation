@@ -191,5 +191,10 @@
   },
   "mulId": 2035,
   "role": "Brawler",
-  "source": "TR:3039"
+  "source": "TR:3039",
+  "weaponQuirks": {
+    "RT:0:Large Laser": [
+      "exposed_linkage"
+    ]
+  }
 }

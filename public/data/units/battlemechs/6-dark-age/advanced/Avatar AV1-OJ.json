@@ -181,5 +181,13 @@
   },
   "mulId": 6874,
   "role": "Sniper",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "weaponQuirks": {
+    "CT:10:Medium Laser": [
+      "stable_weapon"
+    ],
+    "CT:11:Medium Laser": [
+      "stable_weapon"
+    ]
+  }
 }

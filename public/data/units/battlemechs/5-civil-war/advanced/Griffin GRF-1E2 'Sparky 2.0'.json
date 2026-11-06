@@ -197,5 +197,10 @@
   },
   "mulId": 1296,
   "role": "Skirmisher",
-  "source": "JTP:NewAvalon"
+  "source": "JTP:NewAvalon",
+  "weaponQuirks": {
+    "RA:4:ISERPPC": [
+      "jettison_capable"
+    ]
+  }
 }

@@ -191,5 +191,11 @@
   },
   "mulId": 7407,
   "role": "Scout",
-  "source": "XTR:Primitives V"
+  "source": "XTR:Primitives V",
+  "weaponQuirks": {
+    "LA:2:Small Laser": ["mod_weapons"],
+    "LA:3:Small Laser": ["mod_weapons"],
+    "RA:2:Machine Gun": ["mod_weapons"],
+    "CT:10:Flamer": ["mod_weapons"]
+  }
 }

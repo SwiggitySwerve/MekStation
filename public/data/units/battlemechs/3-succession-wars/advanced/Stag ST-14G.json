@@ -186,5 +186,10 @@
   },
   "mulId": 3033,
   "role": "Striker",
-  "source": "JSBD"
+  "source": "JSBD",
+  "weaponQuirks": {
+    "RA:3:ISERLargeLaser": [
+      "stable_weapon"
+    ]
+  }
 }

@@ -175,5 +175,10 @@
   },
   "mulId": 985,
   "role": "Sniper",
-  "source": "TR:3050,TR:CI"
+  "source": "TR:3050,TR:CI",
+  "weaponQuirks": {
+    "RA:3:ISGaussRifle": [
+      "fast_reload"
+    ]
+  }
 }

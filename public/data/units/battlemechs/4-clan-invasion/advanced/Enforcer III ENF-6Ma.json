@@ -179,5 +179,10 @@
   },
   "mulId": 983,
   "role": "Skirmisher",
-  "source": "TR:3085S,TR:CI"
+  "source": "TR:3085S,TR:CI",
+  "weaponQuirks": {
+    "RA:3:Autocannon/10": [
+      "fast_reload"
+    ]
+  }
 }

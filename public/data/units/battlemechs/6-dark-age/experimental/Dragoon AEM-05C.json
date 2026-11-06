@@ -183,5 +183,19 @@
   },
   "mulId": 7399,
   "role": "Brawler",
-  "source": "TP:EE"
+  "source": "TP:EE",
+  "weaponQuirks": {
+    "LA:2:ISPlasmaRifle": [
+      "mod_weapons"
+    ],
+    "LA:4:ISMediumXPulseLaser": [
+      "mod_weapons"
+    ],
+    "LA:5:ISMediumXPulseLaser": [
+      "mod_weapons"
+    ],
+    "RA:2:ISLBXAC10": [
+      "mod_weapons"
+    ]
+  }
 }

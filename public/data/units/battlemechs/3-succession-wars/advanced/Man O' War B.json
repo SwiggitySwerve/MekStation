@@ -177,5 +177,16 @@
   },
   "mulId": 2003,
   "role": "Sniper",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "weaponQuirks": {
+    "LA:4:CLLRM10": [
+      "stable_weapon"
+    ],
+    "LA:6:CLSRM4": [
+      "stable_weapon"
+    ],
+    "RA:2:CLGaussRifle": [
+      "stable_weapon"
+    ]
+  }
 }

@@ -230,5 +230,10 @@
   },
   "mulId": 1020,
   "role": "Juggernaut",
-  "source": "JTP:Tharkad"
+  "source": "JTP:Tharkad",
+  "weaponQuirks": {
+    "RT:1:ISHeavyGaussRifle": [
+      "stable_weapon"
+    ]
+  }
 }

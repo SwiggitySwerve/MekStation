@@ -185,5 +185,10 @@
   },
   "mulId": 5108,
   "role": "Striker",
-  "source": "TR:3067"
+  "source": "TR:3067",
+  "weaponQuirks": {
+    "RA:4:CLStreakSRM4": [
+      "jettison_capable"
+    ]
+  }
 }

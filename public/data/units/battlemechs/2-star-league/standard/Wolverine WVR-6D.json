@@ -183,5 +183,10 @@
   },
   "mulId": 7430,
   "role": "Skirmisher",
-  "source": "TR:SW"
+  "source": "TR:SW",
+  "weaponQuirks": {
+    "RA:4:Autocannon/10": [
+      "jettison_capable"
+    ]
+  }
 }

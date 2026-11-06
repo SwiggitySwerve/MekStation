@@ -178,5 +178,10 @@
   },
   "mulId": 1864,
   "role": "Striker",
-  "source": "XTR:Davion"
+  "source": "XTR:Davion",
+  "weaponQuirks": {
+    "RT:4:CLRotaryAC5": [
+      "exposed_linkage"
+    ]
+  }
 }

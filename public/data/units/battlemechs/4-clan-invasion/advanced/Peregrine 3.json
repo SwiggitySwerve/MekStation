@@ -194,5 +194,10 @@
   },
   "mulId": 2474,
   "role": "Sniper",
-  "source": "RG11,RGv1"
+  "source": "RG11,RGv1",
+  "weaponQuirks": {
+    "CT:10:CLERPPC": [
+      "stable_weapon"
+    ]
+  }
 }

@@ -185,5 +185,10 @@
   },
   "mulId": 7296,
   "role": "Sniper",
-  "source": "XTR:RotS 1,TR:DA"
+  "source": "XTR:RotS 1,TR:DA",
+  "weaponQuirks": {
+    "RA:3:ISLBXAC10": [
+      "fast_reload"
+    ]
+  }
 }

@@ -190,5 +190,13 @@
   },
   "mulId": 1174,
   "role": "Missile Boat",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "RA:10:ISMediumXPulseLaser": [
+      "stable_weapon"
+    ],
+    "RA:11:ISMediumXPulseLaser": [
+      "stable_weapon"
+    ]
+  }
 }

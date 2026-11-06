@@ -195,5 +195,10 @@
   },
   "mulId": 3575,
   "role": "Skirmisher",
-  "source": "RG18,RGv1"
+  "source": "RG18,RGv1",
+  "weaponQuirks": {
+    "RA:4:ISLargePulseLaser": [
+      "jettison_capable"
+    ]
+  }
 }

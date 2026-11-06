@@ -170,5 +170,10 @@
   },
   "mulId": 2397,
   "role": "Striker",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "weaponQuirks": {
+    "RT:7:CLERPPC": [
+      "stable_weapon"
+    ]
+  }
 }

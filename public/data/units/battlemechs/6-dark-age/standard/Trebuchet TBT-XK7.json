@@ -186,5 +186,13 @@
   },
   "mulId": 5563,
   "role": "Skirmisher",
-  "source": "XTR:Periphery"
+  "source": "XTR:Periphery",
+  "weaponQuirks": {
+    "RA:4:Chain Whip": [
+      "jettison_capable"
+    ],
+    "RT:3:ISStreakSRM6": [
+      "fast_reload"
+    ]
+  }
 }

@@ -178,5 +178,10 @@
   },
   "mulId": 2857,
   "role": "Scout",
-  "source": "TR:3039,TR:SW"
+  "source": "TR:3039,TR:SW",
+  "weaponQuirks": {
+    "RT:0:SRM 2": [
+      "ammo_feed_problems"
+    ]
+  }
 }

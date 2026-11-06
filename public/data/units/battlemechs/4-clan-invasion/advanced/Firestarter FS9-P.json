@@ -207,5 +207,13 @@
   },
   "mulId": 1095,
   "role": "Striker",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "LA:6:Flamer": [
+      "exposed_linkage"
+    ],
+    "RA:6:Flamer": [
+      "exposed_linkage"
+    ]
+  }
 }

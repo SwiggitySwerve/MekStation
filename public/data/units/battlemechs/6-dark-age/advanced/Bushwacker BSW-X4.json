@@ -190,5 +190,10 @@
   },
   "mulId": 7454,
   "role": "Sniper",
-  "source": "RG02"
+  "source": "RG02",
+  "weaponQuirks": {
+    "CT:10:ISERLargeLaser": [
+      "stable_weapon"
+    ]
+  }
 }
