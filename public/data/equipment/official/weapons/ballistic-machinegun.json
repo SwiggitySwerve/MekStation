@@ -34,7 +34,7 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 3068
+      "introductionYear": 3059
     },
     {
       "id": "heavy-machine-gun",
@@ -93,7 +93,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 2868,
+      "introductionYear": 1950,
       "special": []
     },
     {
@@ -117,7 +117,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 0,
       "battleValue": 4,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": []
     },
     {
@@ -141,7 +141,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 0,
       "battleValue": 9,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": []
     },
     {
@@ -165,7 +165,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 7500,
       "battleValue": 6,
-      "introductionYear": 3059,
+      "introductionYear": 3050,
       "special": []
     },
     {
