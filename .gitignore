@@ -86,6 +86,8 @@ scripts/**
 !scripts/megameklab-conversion/blk_conversion_runner.py
 !scripts/megameklab-conversion/blk_schema_writers.py
 !scripts/megameklab-conversion/blk_unit_fields.py
+!scripts/megameklab-conversion/weapon_quirks.py
+!scripts/megameklab-conversion/weapon_quirks.RULES.md
 !scripts/megameklab-conversion/blk_vehicle_tables.py
 !scripts/megameklab-conversion/data_converter_blk.py
 !scripts/megameklab-conversion/data_converter_mtf.py
