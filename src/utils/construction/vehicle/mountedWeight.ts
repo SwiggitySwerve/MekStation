@@ -14,6 +14,7 @@ import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
+import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
@@ -31,8 +32,12 @@ import {
   computeTurretEquipmentWeight,
   getVehicleSourceIdentity,
 } from './equipmentMounts';
+import { isVehicleArmorEquipment } from './itemSlots';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
-import { getVehicleTurretMechanismFigures } from './turret';
+import {
+  computeVehicleSponsonMechanismWeight,
+  getVehicleTurretMechanismFigures,
+} from './turret';
 import {
   resolveVehicleAccessoryMass,
   resolveVehicleVariableMass,
@@ -210,6 +215,11 @@ export function computeVehicleMountedWeightFigures(
           getMountedBVLinkType(equipmentId) === 'risc'),
       heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
+      sponsonPayload:
+        mount.isSponsonMounted &&
+        item?.category !== EquipmentCategory.AMMUNITION &&
+        !HEAT_SINK_EQUIPMENT_IDS.includes(item?.id ?? mount.equipmentId) &&
+        !isVehicleArmorEquipment(item?.id ?? mount.equipmentId),
       // An unresolved definition has unknown classification as well as mass.
       needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
       inSecondaryTurret: mount.location === VehicleLocation.TURRET_2,
@@ -270,6 +280,28 @@ export function computeVehicleMountedWeightFigures(
                 VARIABLE_EQUIPMENT_FORMULAS[mount.computerFormula].weight,
                 { directFireWeaponTonnage },
               );
+  }
+  const sponsons = mounted.filter((m) => m.id === 'vehicular-sponson-turret');
+  if (sponsons.length) {
+    const weight = computeVehicleSponsonMechanismWeight({
+      equipmentWeight: sum(
+        mounted.filter((m) => m.sponsonPayload),
+        'Sponson basis',
+      ),
+      count: sponsons.length,
+      isOmni: state.isOmni,
+      baseChassisWeight: state.baseChassisSponsonPintleWeight,
+      kilograms:
+        state.unitType === UnitType.SUPPORT_VEHICLE &&
+        state.tonnage !== undefined &&
+        state.tonnage < 5,
+    });
+    for (const mount of sponsons) {
+      mount.weight = weight;
+      if (weight === null) unresolvedMountIds.push(mount.instanceId);
+    }
+    if (weight === null)
+      issues.push('Sponson mechanism mass is unavailable or invalid');
   }
   const equipment = sum(mounted, 'Equipment');
   linkLaserInsulatorWeapons(

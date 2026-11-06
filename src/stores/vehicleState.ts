@@ -461,6 +461,7 @@ export function createDefaultVehicleState(
     isOmni: options.isOmni ?? false,
     baseChassisTurretWeight: options.baseChassisTurretWeight,
     baseChassisSecondaryTurretWeight: options.baseChassisSecondaryTurretWeight,
+    baseChassisSponsonPintleWeight: options.baseChassisSponsonPintleWeight,
     hasNoControlSystems: options.hasNoControlSystems ?? false,
 
     // Engine & Movement
