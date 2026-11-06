@@ -77,3 +77,39 @@ ProtoMech record-sheet extraction SHALL forward the existing SPA owner's entries
 - **GIVEN** a ProtoMech caller supplying no pilot abilities or an empty list
 - **WHEN** its sheet is extracted and rendered through the fallback SVG renderer
 - **THEN** no SPA block is supplied and both calls produce identical SVG output
+
+### Requirement: Native single-pilot biped SPA placement and fitting
+
+Single-pilot biped Mech canonical output SHALL place its explicitly supplied,
+owner-formatted SPA headlines in the existing `spas0` rectangle's parent, using
+that rectangle's coordinates and the pinned MML 62bf193 fitting algorithm. This
+native list SHALL use `Abilities: ` plus comma-separated formatted headlines,
+preserving designations. It SHALL replace the fixed-coordinate legacy block
+only for this configuration, without changing the extracted SPA entries.
+
+#### Scenario: Designated abilities on Letter and A4
+
+- **GIVEN** a single-pilot biped and explicitly supplied Weapon Specialist (PPC)
+- **WHEN** its canonical Letter or A4 SVG and PDF are generated
+- **THEN** the list appears beside the native `spas0` rectangle in its transformed parent
+- **AND** fitting starts at medium font size 6.76 times 0.9, switches once to rectangle height divided by 2.4 when normal text width exceeds the rectangle width, and wraps with italic metrics and line height font size times 1.2
+- **AND** non-SPA sheet figures remain unchanged
+
+#### Scenario: Native long-list and unbroken-token overflow
+
+- **GIVEN** a long supported SPA list or an overwide unbroken designation
+- **WHEN** the native list is rendered
+- **THEN** the MML space-delimiter wrapping algorithm retains all formatted headlines and delimiter spaces, with no clipping, truncation, line cap or additional shrink
+- **AND** vertical or horizontal overflow SHALL remain visible as native behavior, without a containment claim
+
+#### Scenario: Empty abilities or missing native region
+
+- **GIVEN** no resolved abilities or no native `spas0` rectangle
+- **WHEN** the biped is rendered
+- **THEN** no native SPA list or fixed-coordinate substitute is emitted
+
+#### Scenario: Other configurations and families retain their routes
+
+- **GIVEN** another Mech configuration or a non-Mech sheet
+- **WHEN** it is rendered
+- **THEN** this biped-only correction does not change its SPA output, canonical omissions, fallback renderer or infantry notes route
