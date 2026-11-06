@@ -1122,7 +1122,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": null },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": ["Variable weight", "Variable critical slots"]
     },
     {
