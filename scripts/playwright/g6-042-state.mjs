@@ -323,6 +323,48 @@ export function contract() {
   return result;
 }
 
+export async function drainNativeChild(
+  child,
+  log,
+  kill,
+  { timeoutMs = 600000, output = process.stdout } = {},
+) {
+  for (const pipe of [child.stdout, child.stderr])
+    pipe.on('data', (chunk) => {
+      fs.writeSync(log, chunk);
+      output.write(chunk);
+    });
+  const timer = setTimeout(kill, timeoutMs);
+  const interrupted = () => kill();
+  process.once('SIGTERM', interrupted);
+  process.once('SIGINT', interrupted);
+  try {
+    return await new Promise((resolve, reject) => {
+      let exit, failure;
+      child.once('exit', (code, signal) => {
+        exit = { code, signal };
+      });
+      child.once('error', (error) => {
+        failure = error;
+      });
+      // close follows stdio drainage; exit alone can precede final crash bytes.
+      child.once('close', (code, signal) => {
+        if (failure) reject(failure);
+        else
+          resolve({
+            code: exit ? exit.code : code,
+            signal: exit?.signal ?? signal,
+          });
+      });
+    });
+  } finally {
+    clearTimeout(timer);
+    process.removeListener('SIGTERM', interrupted);
+    process.removeListener('SIGINT', interrupted);
+    fs.closeSync(log);
+  }
+}
+
 async function capture() {
   const root = outputRoot(),
     proof = JSON.parse(fs.readFileSync(path.join(root, 'contract.json')));
@@ -369,11 +411,6 @@ async function capture() {
       PLAYWRIGHT_HTML_OUTPUT_DIR: path.join(root, 'html'),
     },
   });
-  for (const pipe of [child.stdout, child.stderr])
-    pipe.on('data', (chunk) => {
-      fs.writeSync(log, chunk);
-      process.stdout.write(chunk);
-    });
   const kill = () => {
     if (process.platform === 'win32')
       spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F']);
@@ -385,22 +422,7 @@ async function capture() {
       }
     }
   };
-  const timer = setTimeout(kill, 600000);
-  const interrupted = () => kill();
-  process.once('SIGTERM', interrupted);
-  process.once('SIGINT', interrupted);
-  let nativeExit;
-  try {
-    nativeExit = await new Promise((resolve, reject) => {
-      child.once('error', reject);
-      child.once('exit', (code, signal) => resolve({ code, signal }));
-    });
-  } finally {
-    clearTimeout(timer);
-    process.removeListener('SIGTERM', interrupted);
-    process.removeListener('SIGINT', interrupted);
-    fs.closeSync(log);
-  }
+  const nativeExit = await drainNativeChild(child, log, kill);
   writeJSON(path.join(root, 'native-exit.json'), nativeExit);
   const kernels = fs.readdirSync(path.join(root, 'kernel')).map((file) => {
     assert.match(file, /^gates-\d+\.jsonl$/, 'Unknown kernel receipt identity');

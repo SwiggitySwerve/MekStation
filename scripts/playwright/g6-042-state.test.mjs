@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -14,6 +14,7 @@ import {
   rosterAst,
   sameListing,
   writeBrowserWrapper,
+  drainNativeChild,
 } from './g6-042-state.mjs';
 
 test('raw native signal wins over JSON zero; unknown and contradictory data fail closed', () => {
@@ -34,6 +35,112 @@ test('raw native signal wins over JSON zero; unknown and contradictory data fail
   ])
     assert.throws(() => parseKernelReceipt(text));
 });
+
+for (const outcome of [0, 23, 'SIGTERM']) {
+  test(
+    `native log drains delayed stdout/stderr after exit (${outcome}) before fd/timeout/cancel cleanup`,
+    { timeout: 10000 },
+    async () => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'g6-drain-'));
+      const file = path.join(root, 'native.log');
+      const log = fs.openSync(file, 'w');
+      const source = `process.stdout.write(Buffer.alloc(8192,97)); process.stderr.write(Buffer.alloc(1024,98)); ${typeof outcome === 'number' ? `process.exit(${outcome});` : "process.send('ready'); setInterval(()=>{},1000);"}`;
+      const child = spawn(process.execPath, ['-e', source], {
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      });
+      let settled = false,
+        kills = 0;
+      const beforeTerm = process.listenerCount('SIGTERM');
+      const beforeInt = process.listenerCount('SIGINT');
+      const collected = drainNativeChild(
+        child,
+        log,
+        () => {
+          kills++;
+        },
+        { timeoutMs: 2000, output: { write() {} } },
+      );
+      void collected.then(
+        () => {
+          settled = true;
+        },
+        () => {
+          settled = true;
+        },
+      );
+      const release = [child.stdout, child.stderr].map((pipe) => {
+        const resume = pipe.resume;
+        pipe.pause();
+        // Node flushStdio also calls resume after exit. Hold that delivery until
+        // this test explicitly releases it; the process itself is a real child.
+        pipe.resume = () => pipe;
+        return () => {
+          pipe.resume = resume;
+          pipe.resume();
+        };
+      });
+      if (typeof outcome === 'string')
+        child.once('message', () => child.kill(outcome));
+      const closed = new Promise((resolve) =>
+        child.once('close', (code, signal) => resolve({ code, signal })),
+      );
+      try {
+        const exited = await new Promise((resolve) =>
+          child.once('exit', (code, signal) => resolve({ code, signal })),
+        );
+        await new Promise((resolve) => setImmediate(resolve));
+        assert.equal(settled, false, 'exit is not stdio completion');
+        assert.equal(
+          fs.statSync(file).size,
+          0,
+          'controlled delayed stream delivery',
+        );
+        assert.equal(process.listenerCount('SIGTERM'), beforeTerm + 1);
+        assert.equal(process.listenerCount('SIGINT'), beforeInt + 1);
+        process.emit('SIGTERM');
+        assert.equal(kills, 1, 'cancellation remains armed after exit');
+        if (outcome === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 2100));
+          assert.equal(
+            kills,
+            2,
+            'timeout remains armed while stdio is held after exit',
+          );
+        }
+        for (const resume of release) resume();
+        const result = await collected;
+        const closeResult = await closed;
+        assert.deepEqual(result, {
+          code: exited.code,
+          signal: exited.signal ?? closeResult.signal,
+        });
+        if (typeof outcome === 'number') assert.equal(result.code, outcome);
+        else assert.equal(result.signal, outcome);
+        assert.equal(child.stdout.readableEnded, true);
+        assert.equal(child.stderr.readableEnded, true);
+        const bytes = fs.readFileSync(file);
+        assert.equal(bytes.length, 9216);
+        assert.equal([...bytes].filter((byte) => byte === 97).length, 8192);
+        assert.equal([...bytes].filter((byte) => byte === 98).length, 1024);
+        assert.equal(process.listenerCount('SIGTERM'), beforeTerm);
+        assert.equal(process.listenerCount('SIGINT'), beforeInt);
+        assert.throws(() => fs.fstatSync(log), { code: 'EBADF' });
+      } finally {
+        // On the old boundary, detach its data listeners before releasing paused
+        // buffers so the deliberate red assertion cannot create a stray EBADF.
+        if (settled && !child.stdout.readableEnded) {
+          child.stdout.removeAllListeners('data');
+          child.stderr.removeAllListeners('data');
+        }
+        for (const resume of release) resume();
+        await closed;
+        await collected.catch(() => {});
+        assert.ok(root.startsWith(path.resolve(os.tmpdir()) + path.sep));
+        fs.rmSync(root, { recursive: true, force: true });
+      }
+    },
+  );
+}
 
 const renderer = {
   pid: 7,
