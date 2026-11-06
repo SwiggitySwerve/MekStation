@@ -1,4 +1,4 @@
-# Combat-vehicle construction rules
+﻿# Combat-vehicle construction rules
 
 ## Computer mass and shared reactive armor
 
@@ -672,3 +672,11 @@ standard structure doubles; Endo-Steel follows its native superheavy rule,
 and Composite retains its existing multiplier. This changes structure mass
 only. The Tank layout classifier, rotor locations and BV structure points
 remain independent of this mass threshold.
+
+## Support ammunition accounting
+
+`supportPayload.ts` classifies ammunition before weapon categories. Artillery
+ammunition uses the Artillery category but enters only the ammo sum, excluding
+weapon-dependent fire-control, heat and amplifier bases. Pin48fcb2f6:
+TestEntity.java:716-724,753-769. Existing support validity consumes this total;
+the combat-vehicle overweight reservation is unchanged.
