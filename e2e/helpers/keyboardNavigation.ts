@@ -24,9 +24,13 @@ export async function fill(
   target: Locator,
   value: string,
   keyboard: boolean,
+  initialValue?: string,
 ): Promise<void> {
   if (!keyboard) return target.fill(value);
   await tabTo(page, target);
+  // Focus can precede the dialog's controlled-value initialization.
+  if (initialValue !== undefined)
+    await expect(target).toHaveValue(initialValue);
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText(value);
   await expect(target).toHaveValue(value);
