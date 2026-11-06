@@ -342,6 +342,14 @@ project plain mount facts into this one owner; the previous aircraft export
 is a compatibility alias. Tests: equipmentBV.machineGunArrayLinks,
 aerospaceBV.machineGunArrays and vehicleBV.machineGunArrays (Puma PAT-007).
 
+The Mech projection in `mechBV/machineGunArrays.ts` retains its closed legacy
+array/gun aliases, quantity-prefix handling and location comparison. It calls
+the same selection/value owner before drone and other weapon modifiers.
+`linkedBaseBV` preserves its positive-base admission guard; other callers keep
+their own zero/negative/nonfinite policy. Accumulation order and unrounded
+0.67 scaling remain in the shared owner. The consolidation does not establish
+native Mech critical-slot linking; that correction requires separate proof.
+
 ## One-shot BV heat
 
 `weaponHeat.ts` owns one-shot identity projection and heat /4. The shared

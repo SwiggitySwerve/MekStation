@@ -34,15 +34,19 @@ export function linkArtemisBVWeapons<
   );
 }
 
+export interface IMachineGunArrayBVWeapon<Location> {
+  location: Location;
+  baseBV: number;
+  bv: number;
+  ammoGroup?: string;
+  arrayGroup?: string;
+  /** Unscaled linked sum, retained for caller-specific admission guards. */
+  linkedBaseBV?: number;
+}
+
 /** No-critical-slot fallback: MekFileParser.java:928-944; BVCalculator.java:807-816. */
 export function linkMachineGunArrayBVWeapons<Location>(
-  weapons: {
-    location: Location;
-    baseBV: number;
-    bv: number;
-    ammoGroup?: string;
-    arrayGroup?: string;
-  }[],
+  weapons: IMachineGunArrayBVWeapon<Location>[],
 ): void {
   const used = new Set<(typeof weapons)[number]>();
   for (const array of weapons) {
@@ -61,6 +65,7 @@ export function linkMachineGunArrayBVWeapons<Location>(
       );
       if (unmatched.length) break;
     }
+    array.linkedBaseBV = base;
     array.bv = base * 0.67;
   }
 }

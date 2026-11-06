@@ -3,6 +3,7 @@ import type { UnitData } from './validate-bv-types';
 
 import { applyWeaponBVModifiers } from '../src/utils/construction/battleValueHeatTracking';
 import { getWeaponLinkBVMultiplier } from '../src/utils/construction/equipmentBV/resolution';
+import { applyMechMachineGunArrays } from '../src/utils/construction/mechBV/machineGunArrays';
 import { toMechLoc } from './validate-bv-normalizers';
 import { isArmLoc } from './validate-bv-unit-derived';
 
@@ -26,94 +27,7 @@ export function applyWeaponPostScanModifiers(
   weapons: WeaponEntry[],
   hasTC: boolean,
 ): void {
-  // Machine Gun Array (MGA): MegaMek counts individual MGs at full BV, then adds
-  // MGA bonus = sum(linked MG BVs) × 0.67 as a separate weapon entry with heat=0.
-  // MGA links to up to 4 MGs of matching type at the same location.
-  // Track consumed MGs so each MG is only linked to one MGA.
-  const mgaConsumed = new Set<number>(); // indices of weapons already linked to an MGA
-  for (const eq of unit.equipment) {
-    // Strip quantity prefix (e.g., "1-islmga" → "islmga")
-    const rawId = eq.id.toLowerCase().replace(/^\d+-/, '');
-    let mgType: string | null = null;
-    if (
-      rawId === 'machine-gun-array' ||
-      rawId === 'ismga' ||
-      rawId === 'clmga' ||
-      rawId.endsWith('-mga')
-    )
-      mgType = 'machine-gun';
-    else if (
-      rawId === 'light-machine-gun-array' ||
-      rawId === 'islmga' ||
-      rawId === 'cllmga' ||
-      rawId.endsWith('-lmga') ||
-      rawId === 'islightmga' ||
-      rawId === 'cllightmga'
-    )
-      mgType = 'light-machine-gun';
-    else if (
-      rawId === 'heavy-machine-gun-array' ||
-      rawId === 'ishmga' ||
-      rawId === 'clhmga' ||
-      rawId.endsWith('-hmga') ||
-      rawId === 'isheavymga' ||
-      rawId === 'clheavymga'
-    )
-      mgType = 'heavy-machine-gun';
-    if (!mgType) continue;
-
-    const mgLoc = eq.location.split(',')[0].toUpperCase();
-    // Link up to 4 unconsumed MGs of matching type at the same location
-    let linkedMGBV = 0;
-    let linkedCount = 0;
-    for (let wi = 0; wi < weapons.length; wi++) {
-      if (linkedCount >= 4) break;
-      if (mgaConsumed.has(wi)) continue;
-      const w = weapons[wi];
-      const wLoc = w.location.split(',')[0].toUpperCase();
-      if (wLoc !== mgLoc) continue;
-      const wid = w.name.replace(/^\d+-/, '');
-      const isMatch =
-        (mgType === 'machine-gun' &&
-          (wid === 'machine-gun' ||
-            wid === 'clmg' ||
-            wid === 'ismg' ||
-            wid === 'ismachine-gun' ||
-            wid === 'clmachine-gun')) ||
-        (mgType === 'light-machine-gun' &&
-          (wid === 'light-machine-gun' ||
-            wid === 'islightmg' ||
-            wid === 'cllightmg' ||
-            wid === 'islmg' ||
-            wid === 'islightmachine-gun' ||
-            wid === 'cllightmachine-gun')) ||
-        (mgType === 'heavy-machine-gun' &&
-          (wid === 'heavy-machine-gun' ||
-            wid === 'isheavymg' ||
-            wid === 'clheavymg' ||
-            wid === 'clhmg' ||
-            wid === 'isheavymachine-gun' ||
-            wid === 'clheavymachine-gun'));
-      if (isMatch) {
-        linkedMGBV += w.bv;
-        linkedCount++;
-        mgaConsumed.add(wi);
-      }
-    }
-    if (linkedMGBV > 0) {
-      const mgaBV = linkedMGBV * 0.67;
-      weapons.push({
-        id: 'mga-bonus',
-        name: rawId,
-        heat: 0,
-        bv: mgaBV,
-        rear: false,
-        hasAES: false,
-        isDirectFire: false,
-        location: eq.location,
-      });
-    }
-  }
+  applyMechMachineGunArrays(unit, weapons);
 
   // Drone Operating System: all weapon BVs × 0.8 (MegaMek processWeapons dBV *= 0.8)
   if (cs.detectedDroneOS) {
@@ -239,11 +153,6 @@ export function applyWeaponPostScanModifiers(
       laserInLoc.riscLPMApplied = true;
     }
   }
-
-  // MGA: MegaMek documentation says MGA replaces individual MGs with sum(BV) × 0.67, but
-  // MUL reference BVs do NOT apply this reduction — they use full individual MG BV.
-  // Applying ×0.67 causes massive regression (units drop 5-10% further below reference).
-  // Keep individual MGs at full BV with no MGA reduction to match MUL reference values.
 
   // determineFront compares modified BV before rear weighting (Java:690-699,764-765).
   // Turret-mounted weapons are excluded from front/rear comparison per MegaMek
