@@ -1,5 +1,33 @@
 ## ADDED Requirements
 
+### Requirement: ProtoMech weapon-mount diagnostic projection
+
+The ProtoMech offensive owner SHALL retain optional diagnostic snapshots of
+already-admitted resolved weapon values, in original mounted order with local
+equipment indices, ids and supplied public input locations. The trace SHALL
+format only represented native location abbreviations, preserving each actual
+value without additional resolution, quantity expansion, rounding or modifiers.
+Local mount keys SHALL NOT assert native equipment identity. Existing weapon
+admission, main-gun valuation, ammo policy, scalar terms, aggregates, totals and
+source units SHALL remain unchanged. Absent facts SHALL remain absent; the
+projection SHALL NOT invent zero values or infer unknown/Body locations.
+
+#### Scenario: Actual mounted values and retained order
+
+- **GIVEN** the pinned Minotaur-P2 with arm weapon values 19 and 19 and main-gun value 39
+- **WHEN** its public ProtoMech BV breakdown and trace are calculated
+- **THEN** the trace SHALL expose those actual values at RA, LA and MG with their original local mount indices and ids
+- **AND** the weapon subtotal SHALL remain 77 and all existing arithmetic and source data SHALL remain unchanged
+- **AND** repeated weapons at one location SHALL remain distinct mount facts, allowing comparison of counts and descending values
+
+#### Scenario: Unavailable facts and locations
+
+- **GIVEN** an unarmed or legacy breakdown, excluded non-weapon equipment, or an admitted fact with an unrepresented public location
+- **WHEN** its ProtoMech diagnostic trace is projected
+- **THEN** absent or excluded weapon facts SHALL NOT become zero-valued terms or empty count groups
+- **AND** an unrepresented location SHALL retain its original fact without inventing a native location term
+- **AND** all original scalar terms SHALL remain unchanged
+
 ### Requirement: Mech physical NARC availability diagnostics
 
 The Mech trace SHALL expose `ammo.available.NARC:1` and `ammo.available.INARC:1` from actual physical source
