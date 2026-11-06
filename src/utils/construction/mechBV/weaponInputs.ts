@@ -1,5 +1,6 @@
 import type { CritScan } from '../../../../scripts/validate-bv-crit-scan';
 import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type { OffensiveBVConfig } from '../battleValueOffensiveTypes';
 
 import {
   applyWeaponPostScanModifiers,
@@ -28,7 +29,10 @@ import {
   hasBVActuatorEnhancement,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
-import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
+import {
+  isOneShotBVWeapon,
+  isOneShotMissileBVWeapon,
+} from '../equipmentBV/weaponHeat';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -36,7 +40,11 @@ export function buildMechBVWeapons(
   unit: UnitData,
   cs: CritScan,
   issues: string[],
-): { weapons: WeaponEntry[]; hasTC: boolean } {
+): {
+  weapons: WeaponEntry[];
+  hasTC: boolean;
+  ammoCapWeapons: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
+} {
   // Weapons
   const weapons: WeaponEntry[] = [];
   const unresolvedWeapons: string[] = [];
@@ -182,7 +190,28 @@ export function buildMechBVWeapons(
   if (unresolvedWeapons.length > 0)
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
+  // BVCalculator.java:1230 (48fcb2f64): F_ONE_SHOT weapons supply no ammo cap.
+  const ammoCapWeapons = weapons
+    .filter(({ name }) => !isOneShotBVWeapon(name))
+    .map(({ id, bv }) => ({ id, bv }));
   applyWeaponPostScanModifiers(unit, cs, weapons, hasTC);
 
-  return { weapons, hasTC };
+  return { weapons, hasTC, ammoCapWeapons };
+}
+
+/** Plain weapon inputs for the shared offensive calculator. */
+export function buildMechBVOffensiveInputs(
+  unit: UnitData,
+  cs: CritScan,
+  issues: string[],
+): Pick<
+  OffensiveBVConfig,
+  'weapons' | 'ammoCapWeapons' | 'hasTargetingComputer'
+> {
+  const { weapons, hasTC, ammoCapWeapons } = buildMechBVWeapons(
+    unit,
+    cs,
+    issues,
+  );
+  return { weapons, ammoCapWeapons, hasTargetingComputer: hasTC };
 }
