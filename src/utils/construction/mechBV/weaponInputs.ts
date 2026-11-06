@@ -192,3 +192,20 @@ export function buildMechBVWeapons(
 
   return { weapons, hasTC, ammoCapWeapons };
 }
+
+/** Plain weapon inputs for the shared offensive calculator. */
+export function buildMechBVOffensiveInputs(
+  unit: UnitData,
+  cs: CritScan,
+  issues: string[],
+): Pick<
+  OffensiveBVConfig,
+  'weapons' | 'ammoCapWeapons' | 'hasTargetingComputer'
+> {
+  const { weapons, hasTC, ammoCapWeapons } = buildMechBVWeapons(
+    unit,
+    cs,
+    issues,
+  );
+  return { weapons, ammoCapWeapons, hasTargetingComputer: hasTC };
+}
