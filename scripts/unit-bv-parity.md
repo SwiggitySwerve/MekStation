@@ -6,8 +6,20 @@ The oracle remains outside the repository. From the repository root:
 
 ```text
 python -B scripts/megameklab-conversion/export_vehicle_aero_json.py <mekfiles> <scratch> --strict
-node node_modules/tsx/dist/cli.mjs scripts/vehicle-aero-bv-delta.ts --converted <scratch>/sources.ndjson --mekfiles <mekfiles> --reference <oracle.jsonl> --reference-policy <approved-policy.json> --out <report-dir>
+node node_modules/tsx/dist/cli.mjs scripts/vehicle-aero-bv-delta.ts --converted <scratch>/sources.ndjson --mekfiles <mekfiles> --reference <reference-full.jsonl> --reference-trust blocking --reference-policy config/reference-policy/expected-reference-policy.json --out <report-dir>
 ```
+
+For proof, `<reference-full.jsonl>` must be the accepted P1 `run-1/full.jsonl`
+with SHA-256
+`4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87`,
+or a byte-identical retained copy. The original is under
+`E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/normal-work/P1-reference/`.
+The accepted proof copy is `expected-policy/default-correction/proof-d0c8c9e74/reference-full.jsonl`
+under that same report root, with its adjacent
+`reference-full.jsonl.provenance.json`. Supply the independently derived actual
+sidecar at `<reference-full.jsonl>.provenance.json`; it binds retained native
+runtime/build/config/invocation evidence to the exact reference bytes. Do not
+derive it from the expected policy.
 
 The exporter independently walks every in-scope MTF/BLK source. The runner
 rechecks source hashes, then joins path plus SHA-256. Like the pinned Java
@@ -30,24 +42,27 @@ completeness and parity. A passing native conversion is separate from proof
 of the committed catalog.
 
 Both external comparison entrypoints audit `--reference-policy` and a separate
-`<oracle.jsonl>.provenance.json` actual-evidence sidecar before numerical work.
+`<reference-full.jsonl>.provenance.json` actual-evidence sidecar before numerical work.
 The expected policy must be approved independently of the supplied reference.
-Default trust mode is **report-only**: missing evidence and other trust
-violations are recorded and printed while BV proofs and CI retain their
-numerical result. The trust report still has `ok:false` when violations exist;
+The Zod/code default stays **report-only**, available for diagnostics only:
+missing evidence and other trust violations are recorded and printed without
+changing the numerical result. The trust report still has `ok:false` when
+violations exist;
 a green BV result is not trust acceptance. There is no default policy,
 expectation discovery, or command to bless saved output. Conversion receipts
 do not establish oracle runtime/settings.
 
-The single enforcement toggle is `--reference-trust blocking` (pipeline API
-`referenceTrust: 'blocking'`). After the approved policy covers all 9,815 units
-and is on main, add that flag to proof/CI invocations to reject violations
-before numerical work. Enforcement never activates from policy presence.
+Proofs must use `--reference-trust blocking --reference-policy config/reference-policy/expected-reference-policy.json`,
+as shown above, to reject violations before numerical work (pipeline API
+`referenceTrust: 'blocking'`). No CI job runs this comparator: blocking is
+enforced by the documented proof command, not by CI or the code default.
+Enforcement never activates from policy presence.
 `--reference-trust report-only` explicitly names the default. These are the only
 modes; there is no other legacy bypass. Source hashes, conversion receipts and
-numerical failures remain enforced in both modes. Report-only can audit an
-all-family policy before activation, but its proof must independently assert
-zero trust violations rather than rely on a successful BV exit.
+numerical failures remain enforced in both modes. Report-only diagnostics do
+not replace the required blocking proof command. Any policy or pin change must
+regenerate the policy in the same PR using the independently pinned inputs and
+the [policy generator instructions](../config/reference-policy/README.md).
 
 Both version-1 JSON documents contain `runtime`, `crew`, `network` and
 `bvOverrides`. Runtime records `megamekCommit`, `megameklabCommit`, `mmDataCommit`
@@ -80,9 +95,13 @@ calculation, cache work, or numerical report publication. Accepted
 trust leaves the existing source-hash, completeness, numeric and construction
 checks intact; it is not a parity result. Existing native exports can be used
 with their retained provenance and an approved policy without Java re-execution.
-No independently approved full-corpus policy accompanied this implementation.
-Fixed independent tests prove both modes. P1 separately owns the all-9,815
-policy; live policy adoption remains unproved and belongs to the policy owner.
+[The accepted #2958 proof](https://github.com/SwiggitySwerve/MekStation/pull/2958#issuecomment-6694990810)
+audited the independently approved full policy against the reference above:
+`trust.ok === true`, **0 violations**, **9,815 sources in scope**. That audit
+ran in report-only mode and independently asserted those trust results;
+subsequent proofs must use the blocking command documented here. Fixed
+independent tests cover both modes. Trust acceptance does not establish full
+numerical or per-term parity.
 Actual manifests and native output must not be promoted into expectations.
 Independently undocumented values may be recorded as explicit `null` in a
 proposed policy, with their explanation in the policy owner's companion
@@ -187,7 +206,7 @@ and strict report with 1–4 isolated family workers (default 2). Use one heavy
 queue ticket for the whole command when measuring locally:
 
 ```text
-node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <oracle.jsonl> --reference-policy <approved-policy.json> --out <scratch> --workers 2
+node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <reference-full.jsonl> --reference-trust blocking --reference-policy config/reference-policy/expected-reference-policy.json --out <scratch> --workers 2
 ```
 
 The original two-command path above remains the fresh serial reference.
