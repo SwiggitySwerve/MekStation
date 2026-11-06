@@ -176,6 +176,16 @@ on weight, heat or BV. Legacy inconsistent turret configurations, primary
 Dual versus the separate secondary toggle, and full mount-state validation
 remain separate work. No catalog data is migrated or regenerated.
 
+## Vehicle-flamer amplifier eligibility
+
+At pin 48fcb2f64 TestTank.java:744-750 excludes VehicleFlamerWeapon from
+the power-amplifier basis, independently of display Requires-ammo metadata.
+Its three native classes are ISVehicleFlamer.java:52, ISHeavyFlamer.java:54
+and CLHeavyFlamer.java:54. The amplifier owner classifies their resolved IDs;
+heat-only inputs without IDs use the native type name. Thermal and support
+consumers call that same classifier. Ordinary and infantry flamers retain
+their separate classification. No catalog values change.
+
 ## Offensive BV mass contribution
 
 `vehicleBVOffensive.ts:calculateVehicleOffensiveBV` owns the offensive mass
@@ -395,6 +405,13 @@ The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
 handler approximations remain separate tracked defects; they are not actual
 Omni mechanism allowances. No catalog data or BV arithmetic changes here.
 
+## Standard smart robotic control mass
+
+The shared vehicle variable resolver charges standard SRCS at rounded 5% of
+unit tonnage from 10 t upward, and zero below 10 t. It owns the formula for
+the editor and support consumers; the catalog sentinel stays zero. Improved
+and shielded variants are separate rules. Pin 48fcb2f64: MiscType.java:745-767.
+
 ## Base flank movement
 
 `engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
@@ -434,6 +451,13 @@ ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
 Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
+
+## Sized liquid-storage mass
+
+Liquid storage shares the existing sized cargo/communications rule in the
+variable-mass resolver. Charge component-rounded source size, including
+kilogram rounding for small support. No second formula or catalog value is
+introduced. Pin 48fcb2f64: MiscType.java:839-840; RoundWeight.java:58-68.
 
 ## Support construction weight
 
@@ -564,6 +588,15 @@ Dual turrets use Tank.java:127-130: Turret is rear, Turret 2 front.
 Body and uninstalled turrets. Six-side controls use the existing tank/support
 global armor limit owners; legacy ordinary editor limits remain unchanged.
 The four-side auto-allocation action is not exposed for a six-side layout.
+
+## Native miscellaneous heat-neutral load
+
+At pin 48fcb2f64, TestEntity.java:971-979 adds MiscType.getHeat() after all
+weapon and linked-equipment heat. MiscType.java:1423-1435 returns 20 for the
+ground-mobile HPG and 12 for either RISC viral jammer. The mounted thermal
+owner applies these native identities after the weapon running-total guard,
+then the existing engine allowance decides paid sinks. These are native code
+rules; no equipment catalog heat or weight values are edited.
 
 ## Linked PPC capacitors
 

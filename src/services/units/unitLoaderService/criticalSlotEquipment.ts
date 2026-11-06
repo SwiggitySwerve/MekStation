@@ -30,6 +30,7 @@ import {
   parseCriticalSlotToken,
   resolveEquipmentId,
 } from './equipmentResolution';
+import { mountedDefinitionFields } from './mountedDefinitionFields';
 
 export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
@@ -78,12 +79,13 @@ function resolveSlotIdentity(
   unitTechBaseMode: TechBaseMode,
   entries: ReadonlyArray<string | null>,
 ): Pick<IResolvedCriticalSlot, 'equipmentDef' | 'equipmentId'> {
-  const resolved = resolveEquipmentId(
+  // A crit token names its own mount (MtfFile.java:1052, 48fcb2f6), so its own
+  // Clan/IS marker comes before a neighbour's: ISERMediumLaser beside
+  // CLERMediumLaser stays IS. Unmarked tokens still read the location.
+  const resolved = resolveEquipmentId(token, unitTechBase, unitTechBaseMode, [
     token,
-    unitTechBase,
-    unitTechBaseMode,
-    entries,
-  );
+    ...entries,
+  ]);
   const registryId = resolveRegistryEquipmentId(token);
   const equipmentDef =
     resolved.equipmentDef ??
@@ -192,6 +194,29 @@ function claim(
   slots: readonly IResolvedCriticalSlot[],
 ): void {
   slots.forEach((slot) => claimed.add(slot.index));
+}
+
+/**
+ * A mixed-tech list entry whose own id has no free crit slot takes the free
+ * slots of its other-tech twin (er-medium-laser / clan-er-medium-laser) and
+ * that slot's identity: MegaMek builds the mount from the crit token.
+ */
+function takeTechTwinSlots(
+  slots: readonly IResolvedCriticalSlot[],
+  claimed: ReadonlySet<number>,
+  equipmentId: string,
+  entries: (count: number) => number,
+): readonly IResolvedCriticalSlot[] {
+  const twinId = equipmentId.startsWith('clan-')
+    ? equipmentId.slice(5)
+    : `clan-${equipmentId}`;
+  const twinDef = slots.find(
+    (slot) => slot.equipmentId === twinId,
+  )?.equipmentDef;
+  if (!twinDef) return [];
+  const count = entries(twinDef.criticalSlots);
+  const twin = takeMatchingSlots(slots, claimed, twinId, count);
+  return twin.length === count ? twin : [];
 }
 
 /** Mek.getInnerLocation (Mek.java:489-496); quad legs map like arms. */
@@ -341,6 +366,27 @@ export function restoreCriticalSlotEquipment(
       }
       return item;
     }
+    const twin =
+      matching.length === 0 && unitTechBaseMode === TechBaseMode.MIXED
+        ? takeTechTwinSlots(
+            resolvedByLocation.get(item.location) ?? [],
+            claimedAtLocation,
+            item.equipmentId,
+            entries,
+          )
+        : [];
+    const twinDef = twin[0]?.equipmentDef;
+    if (twinDef) {
+      claim(claimedAtLocation, twin);
+      return {
+        ...item,
+        ...mountedDefinitionFields(twinDef),
+        criticalSlots: twin.length,
+        slots: twin.map((slot) => slot.index),
+        isRearMounted:
+          source.isRearMounted ?? twin.some((slot) => slot.isRearMounted),
+      };
+    }
     if (matching.length !== item.criticalSlots) return item;
 
     claim(claimedAtLocation, matching);
@@ -449,7 +495,9 @@ export function restoreCriticalSlotEquipment(
           claimedAtLocation,
           slot.equipmentId,
           count,
-          true,
+          // Bomb bays are miscellaneous, not ammunition: match each slot by its
+          // own category so the ammo/launcher join (#2837) cannot drop them.
+          slot.equipmentDef.category === EquipmentCategory.AMMUNITION,
         );
         if (matching.length !== count) continue;
         claim(claimedAtLocation, matching);

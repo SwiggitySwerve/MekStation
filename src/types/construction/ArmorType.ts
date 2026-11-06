@@ -9,6 +9,9 @@
 import { RulesLevel } from '../enums/RulesLevel';
 import { TechBase } from '../enums/TechBase';
 
+// 48fcb2f64 ArmorType.java:487-510: prototype 3056, approximate by five years.
+const HEAVY_FERRO_INTRODUCTION_YEAR = 3051;
+
 /**
  * Armor type enumeration
  */
@@ -24,13 +27,18 @@ export enum ArmorTypeEnum {
   HARDENED = 'Hardened',
   FERRO_LAMELLOR = 'Ferro-Lamellor',
   BALLISTIC_REINFORCED = 'Ballistic-Reinforced',
+  COMMERCIAL = 'Commercial',
 }
+
+export const COMMERCIAL_ARMOR_SOURCE_TAG = 'COMMERCIAL';
 
 /**
  * Armor definition with all characteristics
  */
 export interface ArmorDefinition {
   readonly type: ArmorTypeEnum;
+  /** Native tag for identities absent from legacy mapper aliases. */
+  readonly sourceTag?: string;
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -104,7 +112,7 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     pointsPerTon: 19.84,
     criticalSlots: 21,
     costMultiplier: 2.0,
-    introductionYear: 3069,
+    introductionYear: HEAVY_FERRO_INTRODUCTION_YEAR,
     isSpecial: false,
   },
   {
@@ -177,7 +185,28 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     introductionYear: 3120,
     isSpecial: true,
   },
+  {
+    // 48fcb2f64 ArmorType.java:669-688: 16 * 1.5 points/t; 2290 approximate.
+    type: ArmorTypeEnum.COMMERCIAL,
+    sourceTag: COMMERCIAL_ARMOR_SOURCE_TAG,
+    name: 'Commercial',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    pointsPerTon: 24,
+    criticalSlots: 0,
+    costMultiplier: 0.3,
+    introductionYear: 2285,
+    isSpecial: false,
+  },
 ] as const;
+
+/** Shared native identity; legacy exact and fuzzy mappings retain precedence. */
+export function getNativeArmorType(source: string): ArmorTypeEnum | undefined {
+  const normalized = source.trim().toUpperCase();
+  return ARMOR_DEFINITIONS.find(
+    (definition) => definition.sourceTag === normalized,
+  )?.type;
+}
 
 /**
  * Get armor definition by type
@@ -217,7 +246,7 @@ const JAVA_ARMOR_INTRODUCTION: Readonly<
   '4': { is: 3047, clan: 3061 }, // IS Hardened :939-941
   '4:clan': { is: 3047, clan: 3061 }, // "Clan Hardened" lookup, same type
   '5': { is: 3050 }, // Light Ferro-Fibrous :477 (3055, approximate)
-  '6': { is: 3051 }, // Heavy Ferro-Fibrous :508 (3056, approximate)
+  '6': { is: HEAVY_FERRO_INTRODUCTION_YEAR },
   '8': { is: 3046 }, // Mek Stealth :977 (3051, approximate)
   '16:clan': { clan: 3070 }, // Clan Ferro-Lamellor :1038
   '22': { is: 3067 }, // Vehicular Stealth :1008 (production; no prototype)

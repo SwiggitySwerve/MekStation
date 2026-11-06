@@ -57,6 +57,13 @@ const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
   EquipmentCategory.CAPITAL_WEAPON,
 ];
 
+/** Native MiscType.getHeat(), not weapon heat metadata. 48fcb2f6:1423-1435. */
+const MISC_HEAT = new Map([
+  ['groundmobilehpg', 20],
+  ['risc-viral-jammer-decoy', 12],
+  ['risc-viral-jammer-homing', 12],
+]);
+
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
  * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
  * plasma weapons still contribute. Non-weapon plasma-named items do not.
@@ -67,9 +74,7 @@ export function getVehicleHeatNeutralWeaponHeat(
   const weapon = WEAPON_CATEGORIES.includes(item.category);
   // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
   // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
-  const excludedEnergy = /tsemp|taser|(?:heavy|vehicle)\s*flamer/i.test(
-    item.name,
-  );
+  const excludedEnergy = /tsemp|taser/i.test(item.name);
   return (isPowerAmplifierEnergyWeapon(item) && !excludedEnergy) ||
     (weapon && /plasma/i.test(item.name))
     ? item.heat !== undefined && isValidWeight(item.heat)
@@ -334,6 +339,16 @@ export function computeVehicleMountedWeightFigures(
     }
     return heat + (mount.capacitor ? 5 : 0);
   }, 0);
+  // TestEntity.java:971-979 adds miscellaneous heat after all linked weapons;
+  // including it in that running total would change the insulator zero guard.
+  const miscellaneousHeat = mounted.reduce(
+    (total, mount) =>
+      total +
+      (mount.item?.category === EquipmentCategory.MISC_EQUIPMENT
+        ? (MISC_HEAT.get(mount.id) ?? 0)
+        : 0),
+    0,
+  );
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');
@@ -377,7 +392,8 @@ export function computeVehicleMountedWeightFigures(
     ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
   );
   return {
-    rawWeaponHeat,
+    rawWeaponHeat:
+      rawWeaponHeat === null ? null : rawWeaponHeat + miscellaneousHeat,
     equipment,
     turretEquipment,
     secondaryTurretEquipment,
