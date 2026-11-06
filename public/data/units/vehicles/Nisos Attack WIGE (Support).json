@@ -77,5 +77,16 @@
       "COMMUNICATIONS": "Endicott",
       "TARGETING": "Dwyerson"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:ISERMediumLaser": [
+      "mod_weapons"
+    ],
+    "TU:1:ISERMediumLaser": [
+      "mod_weapons"
+    ],
+    "TU:2:Extended LRM 10": [
+      "mod_weapons"
+    ]
   }
 }

@@ -732,6 +732,12 @@
       "location": "coordinator-archive",
       "sha256": "b19e51c7a36b3b67094e6e44aa18a174212abc2af3dc365c840b67255cbde5c9",
       "bytes": 539
+    },
+    "2937-root-merge-event": {
+      "path": "normal-work/G6-flake-register/2937-keyboard-guard-merge/root-merge-event.json",
+      "location": "coordinator-archive",
+      "sha256": "fd9ea3aaafbcc4b29eb85edf4e2794a9fb065a393cae0ddc8cc37f62355a4f79",
+      "bytes": 1275
     }
   },
   "entries": [
@@ -1857,12 +1863,12 @@
     {
       "id": "G6-041",
       "classification": "confirmed-intermittent",
-      "state": "open; confirmed same-head failure/pass; P7 robustness follow-up pending",
+      "state": "guard merged; confirmed intermittent; probable cause, not proven; no stability clearance",
       "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
       "environment": "2932-chromium",
-      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass.",
+      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass. Root reports keyboard guard PR#2937 merged as2f0c45eeb93e99dcba53db75f08b1785efb5e9fd with hosted E2E1/2 and2/2 passing on a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf. PROBABLE cause: stale input prefix accepted by keyboard fill; guarded. Original trace unavailable; causal mechanism remains unproved.",
       "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
-      "nextStep": "P7 owns behavior-preserving keyboard helper extraction, then an exact-value guard after keyboard insertText before blur with a bounded DOM fault regression reproducing appended prefix. Scope only library spec and e2e/helpers/keyboardNavigation.ts; no direct click/focus, timeout/bound increase,retry,suppression or product-semantics change. Root performed the confirming rerun and retains publication/merge disposition; G6 records evidence only. Same-head pass confirms intermittency, not a completed fix.",
+      "nextStep": "Retain merged keyboard-guard proof and PROBABLE qualification. P7 owns any further diagnosis only if separately routed by Root. Preserve original capture and exact same-head failure/pass observations. No incident downloads, new browser/hosted run, implementation or stability clearance authorized by this update.",
       "observations": [
         {
           "runId": 42201733032,
@@ -1905,12 +1911,14 @@
         "2932-context",
         "2932-p7-findings",
         "2932-attempt2-jobs",
-        "2932-root-rerun"
+        "2932-root-rerun",
+        "2937-root-merge-event"
       ],
       "missingEvidence": [
         "No trace was attached by the failed native result or found in the three retained artifacts.",
         "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6.",
-        "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction."
+        "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction.",
+        "Guard hosted E2E passes are Root-reported at exact proof head; run/job/attempt IDs were not supplied and were not fetched. Original trace remains unavailable, so probable cause is not proven."
       ],
       "diagnosticFinding": {
         "recordedAtUtc": "2026-11-06T10:44:22.651721+00:00",
@@ -1943,6 +1951,31 @@
         "reportedBy": "Root; independently checked one bounded exact attempt2 metadata response",
         "cause": "not established",
         "fixComplete": false
+      },
+      "probableCause": {
+        "classification": "PROBABLE",
+        "statement": "stale input prefix accepted by keyboard fill; guarded.",
+        "source": "2937-root-merge-event",
+        "attribution": "Root merge-event instruction after P7 guard merged",
+        "limitation": "Original trace unavailable; exact lost-selection/form-event mechanism is not proven."
+      },
+      "mergedGuard": {
+        "pr": 2937,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/2937",
+        "mergeCommit": "2f0c45eeb93e99dcba53db75f08b1785efb5e9fd",
+        "proofHead": "a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf",
+        "source": "2937-root-merge-event",
+        "hostedE2E": {
+          "reportedBy": "Root",
+          "E2E (1/2)": "passed",
+          "E2E (2/2)": "passed",
+          "runId": null,
+          "workflowAttempt": null,
+          "jobIds": null
+        },
+        "scope": "Merged keyboard-fill value guard; this records guard publication, not a proven causal diagnosis or general stability clearance.",
+        "historicalStatusScope": "Original rerunConfirmation.fixComplete=false and planned diagnostic fields above retain their pre-merge evidence scope; this mergedGuard object records the later merge event.",
+        "stabilityClearance": false
       }
     },
     {
@@ -2131,6 +2164,12 @@
       "incident": "G6-042",
       "scope": "Root process-context refinement: wrapper3051 versus timed browser-main3052; renderer3346 not proven victim; roster retry0 passed with own SEGV stderr. Historical #2868/a5 identity only POSSIBLE. Treatment canceled; C low-priority follow-up, P7 separate. Reused/hashed local sealed process-context addendum only.",
       "priorReceipts": "Original capture/audit seals and G6 verification/history unchanged; additive refinement receipts under42205390500-green-job-segv/process-refinement/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:36:11.263882+00:00",
+      "incident": "G6-041",
+      "scope": "Root releases bounded follow-up after#2937 merge: record PROBABLE stale-input-prefix cause and merged guard with Root-reported E2E1/2+2/2 PASS at exact proof head. Fresh current-main branch;#2939 frozen. No incident query/download, browser/hosted rerun, implementation or stability clearance.",
+      "priorReceipts": "All original same-head observations, diagnostic/rerun evidence, prior entries and sealed capture/history receipts preserved. New event/verification under normal-work/G6-flake-register/2937-keyboard-guard-merge/."
     }
   ]
 }

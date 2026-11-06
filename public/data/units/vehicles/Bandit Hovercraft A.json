@@ -61,5 +61,10 @@
       "COMMUNICATIONS": "Dalban",
       "TARGETING": "Garret"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:PPC": [
+      "mod_weapons"
+    ]
   }
 }

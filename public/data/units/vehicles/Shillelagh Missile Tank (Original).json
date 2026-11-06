@@ -80,5 +80,10 @@
       "COMMUNICATIONS": "Sipher",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:LRM 15": [
+      "accurate"
+    ]
   }
 }
