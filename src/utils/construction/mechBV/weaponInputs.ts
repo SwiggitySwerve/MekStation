@@ -6,12 +6,18 @@ import {
   type WeaponEntry,
 } from '../../../../scripts/validate-bv-calculator-weapons';
 import { consumeCritWeaponMount } from '../../../../scripts/validate-bv-crit-weapon-mounts';
-import { isRearLoc } from '../../../../scripts/validate-bv-normalizers';
+import {
+  isRearLoc,
+  normalizeEquipId,
+} from '../../../../scripts/validate-bv-normalizers';
 import {
   calculatePhysicalWeaponBV,
   getPhysicalWeaponBVHeat,
 } from '../../../../scripts/validate-bv-physical-weapons';
-import { isClanEquipAtLocation } from '../../../../scripts/validate-bv-unit-derived';
+import {
+  countISEquipTokensAtLocation,
+  isClanEquipAtLocation,
+} from '../../../../scripts/validate-bv-unit-derived';
 import {
   isDefEquip,
   isWeaponEquip,
@@ -23,6 +29,7 @@ import {
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
 import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
+import { getEquipmentEntry } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
 export function buildMechBVWeapons(
@@ -53,6 +60,7 @@ export function buildMechBVWeapons(
     consumeCritWeaponMount(locRearMap, eq.id);
   }
 
+  const isMountsLeft = new Map<string, number>();
   for (const eq of unit.equipment) {
     // Strip numeric prefix from equipment ID (e.g., "1-iseherppc" → "iseherppc")
     const qtyMatch = eq.id.match(/^(\d+)-/);
@@ -90,6 +98,23 @@ export function buildMechBVWeapons(
           }
         }
       }
+    }
+    // MtfFile.java:1052 (48fcb2f6) builds one mount per crit token, so a location
+    // that also names the IS side (ISERMediumLaser beside CLERMediumLaser) keeps
+    // that many of its list entries IS.
+    if (clanDetected) {
+      const key = `${eq.location}|${normalizeEquipId(resolveId)}`;
+      const isMounts =
+        isMountsLeft.get(key) ??
+        Math.floor(
+          countISEquipTokensAtLocation(
+            resolveId,
+            eq.location,
+            unit.criticalSlots,
+          ) / (getEquipmentEntry(resolveId)?.criticalSlots || 1),
+        );
+      if (isMounts > 0) clanDetected = false;
+      isMountsLeft.set(key, Math.max(0, isMounts - 1));
     }
     const res = resolveWeaponForUnit(resolveId, unit.techBase, clanDetected);
     if (!res.resolved || res.battleValue === 0) unresolvedWeapons.push(eq.id);

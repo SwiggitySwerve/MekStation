@@ -186,6 +186,12 @@ registry owns their accepted contract discriminators and available store mapper.
 
 Armored source critical lookup removes the outer `(ARMORED)` marker before the OmniPod and rear markers, as MtfFile.java:952-956,1010-1020 do. Identity qualifiers such as `(OS)` stay part of the name. Established raw decorated identities and explicit assignments keep precedence. This lookup step does not model armored component mass or BV.
 
+Primitive Industrial cockpit tags retain their own definition through both
+loader paths and custom save/reload. CockpitType owns the native identity,
+five-ton mass and 2295 introduction date (MegaMek 48fcb2f64
+TestMek.java:238-242; Mek.java:3785-3793). Standard and Industrial cockpits are
+not substitutes; source unit catalog data already preserves the distinct tag.
+
 `CockpitType.getCockpitSystemSlots` owns cockpit head and auxiliary system positions, and cockpit slot counts must match it. Slot validation receives the selected cockpit, so small and torso-mounted cockpits never inherit standard head occupancy. The four canon exceptions and intro-year behaviour are unchanged.
 
 A weapon of eight or more critical slots (WeaponType.java:2619-2621) whose own location holds only part of its source slots continues into one adjacent location: its inner location, or a location whose inner location is its own (MtfFile.java:1086-1124, Mek.java:489-496). The second part is `splitSlots`. Assignment counts and overlap checks include both parts (TestMek.java:462-477), and the free-slot query and slot usage treat the second part as occupied. Superheavy two-per-slot packing and splittable misc equipment are not modelled here.
@@ -194,6 +200,18 @@ Critical lookup also removes a trailing Mek turret marker `(T)` after the OmniPo
 
 Flail and Wrecking Ball use the shared formula owner for fixed mass and slots
 (MiscType.java:4017-4021,7869-7878, pin 48fcb2f64).
+
+Native `claw` keeps its catalog identity and is classified as physical at the
+equipment lookup boundary (MiscType.java:3982-3992). It shares one sizing formula
+with legacy `claws`: ceil(T/15) mass and nominal criticals, ceil(T\*200) cost
+(688-689,1000-1001,1259-1260; pin 48fcb2f64). Public physical sizing helpers use
+that owner. Crit-only Claws reuse ordinary physical recovery and the shared
+superheavy consumed-entry conversion; existing mounts are reserved first.
+The critical-slot join treats native `claw` and legacy `claws` as that same Java
+type, while retaining the already mounted ID and its exact-ID sizing override.
+The shared recovery branch passes the recovered item's actual ammo category to
+the slot join. LAM bomb bays are miscellaneous mounts (MiscType.java:12413-12420),
+so they must retain the non-ammo side of that join.
 
 Talons sizing is one ceil(T/15) mass with four biped or eight quad criticals
 (MiscType.java:688-689,1256-1258,4314; pin 48fcb2f64). Recovery must preserve one
@@ -209,14 +227,8 @@ already represented Talons are sized in place rather than duplicated.
 Mounted critical-part traversal is owned by slotOperations/parts. Placement
 re-exports its public helper; spreadable recovery must reuse that owner.
 
-Native `claw` keeps its catalog identity and is classified as physical at the
-equipment lookup boundary (MiscType.java:3982-3992). It shares one sizing formula
-with legacy `claws`: ceil(T/15) mass and nominal criticals, ceil(T\*200) cost
-(688-689,1000-1001,1259-1260; pin 48fcb2f64). Public physical sizing helpers use
-that owner. Crit-only Claws reuse ordinary physical recovery and the shared
-superheavy consumed-entry conversion; existing mounts are reserved first.
-The critical-slot join treats native `claw` and legacy `claws` as that same Java
-type, while retaining the already mounted ID and its exact-ID sizing override.
-The shared recovery branch passes the recovered item's actual ammo category to
-the slot join. LAM bomb bays are miscellaneous mounts (MiscType.java:12413-12420),
-so they must retain the non-ammo side of that join.
+Commercial armor retains its native identity through both loaders and custom
+saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
+(MegaMek 48fcb2f64 ArmorType.java:669-688); BlkArmorCodes owns code 10
+(EquipmentType.java:95). Do not replace Commercial with Standard or lower
+Standard introduction dates to accommodate industrial source units.

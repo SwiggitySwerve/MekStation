@@ -75,6 +75,7 @@ export const COCKPIT_COSTS: Record<CockpitType, number> = {
   [CockpitType.SUPER_HEAVY]: 300000,
   [CockpitType.INTERFACE]: 200000, // MekCostCalculator.java:54-77 (default).
   [CockpitType.VRRP]: 1250000, // 48fcb2f64 MekCostCalculator.java:65.
+  [CockpitType.PRIMITIVE_INDUSTRIAL]: 100000, // 48fcb2f64 MekCostCalculator.java:66.
 };
 
 /**

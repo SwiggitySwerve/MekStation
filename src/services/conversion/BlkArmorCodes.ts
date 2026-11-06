@@ -20,6 +20,7 @@ const BLK_ARMOR_CODES: Readonly<Record<ArmorTypeEnum, number>> = {
   [ArmorTypeEnum.FERRO_LAMELLOR]: 16,
   [ArmorTypeEnum.STEALTH]: 22,
   [ArmorTypeEnum.BALLISTIC_REINFORCED]: 26,
+  [ArmorTypeEnum.COMMERCIAL]: 10, // 48fcb2f64 EquipmentType.java:95.
 };
 
 /** The BLK `armor_type` code for an editor armor type (Standard if unknown). */
