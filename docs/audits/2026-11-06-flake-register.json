@@ -12,7 +12,8 @@
     "windows-ci": "Windows runner; exact image/Node per cited archive only",
     "local-windows": "Windows local archived runs; per-run Node/head only where recorded",
     "ci-unspecified": "CI platform/Node not recovered from this receipt",
-    "source-described": "Exact environment is in source diagnostic; no cross-incident inference"
+    "source-described": "Exact environment is in source diagnostic; no cross-incident inference",
+    "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -549,6 +550,24 @@
       "location": "coordinator-archive",
       "sha256": "bc8d919f266c3b2e573b4047b79b77c30ee9abab3e1bd0ecd35c98c86f5ab9a6",
       "bytes": 5794879
+    },
+    "u89-log": {
+      "path": "phase-g/G6/u89-followup/failed-job.log",
+      "location": "coordinator-archive",
+      "sha256": "45f32f1a38de3aa7e19dc9dd62c2efb06d8c9a9b83f3618a179b97dea26df87b",
+      "bytes": 839305
+    },
+    "u89-job": {
+      "path": "phase-g/G6/u89-followup/failed-job.json",
+      "location": "coordinator-archive",
+      "sha256": "5711e0ccebd00a84b558de978b269cbbb5d611ec47754b056914a365abd21d15",
+      "bytes": 3778
+    },
+    "u89-context": {
+      "path": "phase-g/G6/u89-followup/context.json",
+      "location": "coordinator-archive",
+      "sha256": "ba0cd01dd720a55268479df410bd16f2374c9da3d245f068b1c5699e13b5eef7",
+      "bytes": 1017
     }
   },
   "entries": [
@@ -1608,6 +1627,56 @@
       "missingEvidence": [
         "Exact test identity, run/attempt, failing and passing head/environment."
       ]
+    },
+    {
+      "id": "G6-040",
+      "classification": "observed-wall-clock-growth-failure; intermittency-unconfirmed",
+      "state": "open; remediation deferred until after Phase G",
+      "test": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts:187 — U89: the grant wake and the replica ingest do not grow with the log",
+      "environment": "u89-unit-ci",
+      "summary": "Raw job log confirms replicaIngest short2.0907269999988785ms versus long5.136500000000524ms triggered the existing growth assertion. Root reports it unrelated to PR2908's three scripts/ci files and reran the failed job. CI contention is a hypothesis, not demonstrated by the timing row; no passing rerun result has been collected.",
+      "owner": "unassigned; needsowner — Root schedules multiplayer/performance remediation after Phase G; G6 owns inventory only",
+      "nextStep": "After Phase G, use the #2630/#2691 pattern: retain correctness assertions in ordinary unit shards and assert timing growth only where SIMULATION_PERF_ASSERTIONS pins a perf lane. Root assigns an implementation owner and supplies existing rerun completion evidence. No assertion, timeout, retry, test-selection or workflow fix during Phase G.",
+      "observations": [
+        {
+          "runId": 42169915133,
+          "workflowAttempt": 1,
+          "head": "ff0922cf87f27b36db58e0b18c14e6d80b5a5c5a",
+          "result": "failed",
+          "source": "u89-log",
+          "jobId": 127735157809,
+          "jobName": "Unit Tests (2/3)",
+          "testRetry": null,
+          "sourceLines": [3004, 3005, 3016, 3017, 3018, 3030, 6167, 6168],
+          "measuredStep": "replicaIngest",
+          "shortMs": 2.0907269999988785,
+          "longMs": 5.136500000000524,
+          "unitSuiteSummary": "1 failed,151 passed,152 total suites;1 failed,49 skipped,2604 passed tests"
+        },
+        {
+          "runId": 42169915133,
+          "workflowAttempt": null,
+          "head": "ff0922cf87f27b36db58e0b18c14e6d80b5a5c5a",
+          "result": "Root reports failed-job rerun submitted; outcome uncollected",
+          "source": "u89-context",
+          "jobId": null
+        }
+      ],
+      "sources": ["u89-log", "u89-job", "u89-context"],
+      "missingEvidence": [
+        "Exact rerun attempt/job ID and completion result; no G6 watcher or status polling.",
+        "Direct contention/resource evidence and same-head failure/pass comparison; one failure alone does not prove an intermittent cause.",
+        "Remediation owner assignment after Phase G."
+      ]
+    }
+  ],
+  "addenda": [
+    {
+      "addedAtUtc": "2026-11-06T05:52:22.972243+00:00",
+      "incident": "G6-040",
+      "scope": "One PR evidence snapshot, exact failed-job metadata/raw log and failing-head source. Root rerun outcome remains uncollected.",
+      "priorAsOfRetained": true,
+      "priorReceipts": "Original phase-g/G6 receipt, evidence-manifest and cleanup/G6.md/json are unchanged. This addendum and its validation/cleanup live in u89-followup."
     }
   ]
 }
