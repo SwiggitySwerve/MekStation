@@ -45,6 +45,7 @@ import { determineArc } from './firingArcs';
 import { isGroundToGroundTokenAttack } from './groundToGround';
 import { hexDistance } from './hexMath';
 import { isRepresentedVehicleAttacker } from './hullDownRestrictions';
+import { terrainFeaturesFromString } from './terrainEncoding';
 import { calculateTargetTerrainModifierFromHex } from './toHit';
 
 interface IPreparedProjectionInput extends ICombatProjectionInput {
@@ -268,6 +269,9 @@ function buildCombatRangeHex(
   const targetTerrainModifier = calculateTargetTerrainModifierFromHex(
     targetTerrainHex(grid, hex),
   );
+  const targetAirborneTerrainFeatures = terrainFeaturesFromString(
+    targetTerrainHex(grid, hex)?.terrain ?? '',
+  );
   const toHitProjection = attackable
     ? deriveToHitProjection({
         attacker,
@@ -281,6 +285,7 @@ function buildCombatRangeHex(
         distance: rangeArc.distance,
         weapons: availableWeaponState.availableWeapons,
         targetPartialCover: targetCoverState.targetCover.partialCover,
+        targetAirborneTerrainFeatures,
         targetTerrainModifier,
         interveningTerrainEffects: toHitInterveningTerrainEffects,
         indirectFire,
@@ -302,6 +307,7 @@ function buildCombatRangeHex(
     distance: rangeArc.distance,
     weapons: availableWeaponState.availableWeapons,
     targetPartialCover: targetCoverState.targetCover.partialCover,
+    targetAirborneTerrainFeatures,
     targetTerrainModifier,
     interveningTerrainEffects: toHitInterveningTerrainEffects,
     indirectFire,

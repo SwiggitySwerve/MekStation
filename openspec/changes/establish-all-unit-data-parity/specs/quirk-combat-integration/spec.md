@@ -44,6 +44,40 @@ PSR reason, terrain and base-piloting eligibility rules.
 - **THEN** Hard Pilot SHALL add no penalty and Easy Pilot relief SHALL remain
 - **AND** the represented legacy flag SHALL remain independent of native activity
 
+### Requirement: Native Target Airborne Prerequisite
+
+Weapon-attack target hydration SHALL derive the native airborne disjunction
+from transported combat state and existing target-hex terrain, replacing the
+independent represented flag. Pinned MegaMek `48fcb2f64`
+`Entity.java:14126-14148,15944-15948` and `IAero.java:945-979` SHALL determine
+the supported aerospace and VTOL/WiGE behavior. This prerequisite SHALL NOT
+add the Anti-Air quirk modifier or infer flight for other families.
+
+#### Scenario: Aerospace flight mode survives zero altitude and destruction
+
+- **GIVEN** a transported aerospace lifecycle in flight mode
+- **WHEN** altitude is zero, including the native liftOff(0) case
+- **THEN** the target SHALL remain airborne through session and serialized replay
+- **AND** destruction SHALL gate positive altitude only, preserving the independent flight-mode branch
+- **WHEN** lifecycle is grounded and altitude is zero
+- **THEN** the derived target SHALL be grounded regardless of a represented true flag
+
+#### Scenario: VTOL and WiGE elevation respects roof and bridge heights
+
+- **GIVEN** a nondestroyed VTOL or WiGE at positive relative elevation
+- **WHEN** the target hex has a building or bridge level at least that elevation
+- **THEN** the derived target SHALL be grounded
+- **OTHERWISE** the derived target SHALL be airborne
+- **AND** destruction SHALL make this VTOL/WiGE predicate false
+
+#### Scenario: Existing terrain reaches declaration and projection
+
+- **GIVEN** target terrain already recorded in GameCreated or a subsequent terrain override
+- **WHEN** an attack is declared, projected per volley or per weapon, or reconstructed from serialized events
+- **THEN** target hydration SHALL use the current terrain for the native airborne fact
+- **AND** unrelated SPA terrain consumers SHALL retain their existing input contract
+- **AND** absent native state SHALL NOT be replaced with the represented flag
+
 ## MODIFIED Requirements
 
 ### Requirement: Piloting Quirk — Hard to Pilot
