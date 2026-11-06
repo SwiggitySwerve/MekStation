@@ -50,13 +50,19 @@ function loadDurations(
  */
 const SHARD_PRELOAD_MS = { 'unit/3': [295000, 380000, 935000] };
 
-/** The preload for a project's shard plan, or undefined for an even plan. */
-function preloadFor(displayName, shardCount) {
-  const name =
-    displayName && typeof displayName === 'object'
-      ? displayName.name
-      : displayName;
-  const preload = SHARD_PRELOAD_MS[`${name}/${shardCount}`];
+/**
+ * The preload for a shard plan over tests of the given projects (their display
+ * names, one per test), or undefined for an even plan. Only a plan over ONE project
+ * is loaded: a run that mixes projects (a local `jest --shard 1/3`) lists them in an
+ * order that can differ between shard processes, and a plan that depended on it
+ * could run a file twice or never.
+ */
+function preloadFor(displayNames, shardCount) {
+  const names = new Set(
+    displayNames.map((d) => (d && typeof d === 'object' ? d.name : d)),
+  );
+  if (names.size !== 1) return undefined;
+  const preload = SHARD_PRELOAD_MS[`${[...names][0]}/${shardCount}`];
   return Array.isArray(preload) && preload.length === shardCount
     ? preload
     : undefined;
