@@ -248,6 +248,17 @@ numeric output before native identity, quantity or grouping corrections.
 - **AND** source fields, serialization and equipment identities SHALL remain unchanged
 - **AND** preservation SHALL NOT establish native ammunition quantity, mount topology or full BV parity
 
+#### Scenario: Native vehicle launcher identities retain distinct ammunition pools
+
+- **GIVEN** a vehicle with regular, light or heavy Gauss launchers and regular Gauss ammunition
+- **WHEN** the shared owner assembles offensive ammunition caps
+- **THEN** original represented native launcher identities SHALL determine their type/rack pools
+- **AND** regular Gauss ammunition SHALL use only the regular Gauss launchers' listed BV cap
+- **AND** duplicate matching launchers SHALL accumulate before the cap, independently of mount order
+- **AND** launchers without represented native identities SHALL retain the existing vehicle fallback policy
+- **AND** an explicit ammunition family override SHALL take precedence over the bin's native identity
+- **AND** synthetic component agreement SHALL NOT establish native quantities, defensive caps or complete source parity
+
 ## MODIFIED Requirements
 
 ### Requirement: Infantry Per-Trooper BV
