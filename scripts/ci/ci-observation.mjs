@@ -8,6 +8,46 @@ const fail = (field) => {
 const sha = (value) =>
   typeof value === 'string' && /^[a-f\d]{40}$/i.test(value);
 
+export const OBSERVATION_PRODUCER_SCHEMA =
+  'mekstation/ci-observation-producer/v1';
+
+/** The uploader is distinct from the PR Checks run whose metrics it reports. */
+export function validateObservationProducer(producer, source) {
+  const fields = [
+    'schema',
+    'repository',
+    'runId',
+    'attempt',
+    'headSha',
+    'sourceRunId',
+    'sourceAttempt',
+  ];
+  if (
+    !record(producer) ||
+    Object.keys(producer).length !== fields.length ||
+    fields.some((key) => !Object.hasOwn(producer, key))
+  )
+    fail('producer fields');
+  if (
+    !record(source) ||
+    producer.schema !== OBSERVATION_PRODUCER_SCHEMA ||
+    !/^[\w.-]+\/[\w.-]+$/.test(producer.repository) ||
+    producer.repository !== source.repository ||
+    ![
+      producer.runId,
+      producer.attempt,
+      producer.sourceRunId,
+      producer.sourceAttempt,
+    ].every((n) => Number.isSafeInteger(n) && n > 0) ||
+    typeof producer.headSha !== 'string' ||
+    !/^[a-f\d]{40}$/.test(producer.headSha) ||
+    producer.sourceRunId !== source.runId ||
+    producer.sourceAttempt !== source.attempt
+  )
+    fail('producer/source identity mismatch');
+  return producer;
+}
+
 export function validateTestFiles(files, complete = false) {
   if (!record(files) || (complete && !Object.keys(files).length))
     fail('tests.files');
@@ -51,6 +91,9 @@ export function validateObservation(envelope) {
       !Number.isFinite(Date.parse(id.completedAt)))
   )
     fail('identity.completedAt');
+  // Older v1 artifacts have no producer stamp and remain explicitly unverified.
+  if (envelope.producer !== undefined && envelope.producer !== null)
+    validateObservationProducer(envelope.producer, id);
   if (
     typeof o.comparableKey !== 'string' ||
     !/^[a-f\d]{64}$/.test(o.comparableKey) ||
@@ -165,6 +208,7 @@ export function observationEnvelope(observation, extra = {}) {
   return validateObservation({
     schemaVersion: 1,
     observation,
+    producer: null,
     tests: null,
     repositoryMetrics: null,
     packages: null,
