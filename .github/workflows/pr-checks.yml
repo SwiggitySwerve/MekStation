@@ -163,9 +163,23 @@ jobs:
         if: ${{ !cancelled() }}
         run: npm run lint
 
+      - name: Generate Next.js route types
+        if: ${{ !cancelled() }}
+        run: npx next typegen
+
+      # Format and typecheck are independent. Keep separate result steps so
+      # either (or both) can fail, with its own complete log and exit code.
+      - name: Start Format Check in the background
+        if: ${{ !cancelled() }}
+        run: node scripts/ci/background-step.mjs start format -- npm run format:check
+
+      - name: Type Check
+        if: ${{ !cancelled() }}
+        run: npm run typecheck
+
       - name: Format Check
         if: ${{ !cancelled() }}
-        run: npm run format:check
+        run: node scripts/ci/background-step.mjs wait format
 
       - name: Check generated work list after formatting
         if: ${{ !cancelled() }}
@@ -199,14 +213,6 @@ jobs:
       - name: Audit Math.random() in combat pipeline
         if: ${{ !cancelled() }}
         run: node scripts/qc/audit-combat-determinism.mjs
-
-      - name: Generate Next.js route types
-        if: ${{ !cancelled() }}
-        run: npx next typegen
-
-      - name: Type Check
-        if: ${{ !cancelled() }}
-        run: npm run typecheck
 
       - name: Desktop Type Check
         if: ${{ !cancelled() }}
