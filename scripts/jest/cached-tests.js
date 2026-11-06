@@ -1223,6 +1223,7 @@ function createJestExecutor({
   baseArgs,
   spawn = spawnSync,
   limit = ARGV_LIMIT,
+  onReport,
 }) {
   const jestBin = path.join(root, 'node_modules', 'jest', 'bin', 'jest.js');
   const withoutShard = baseArgs.filter((a) => !a.startsWith('--shard'));
@@ -1260,6 +1261,12 @@ function createJestExecutor({
               toPosix(path.relative(root, test.name)),
               test.status === 'passed' ? 'passed' : 'failed',
             );
+          }
+          // Advisory timing collection cannot change test/cache results.
+          try {
+            onReport?.(report);
+          } catch {
+            /* reporting stays soft */
           }
         } catch {
           // no readable report: nothing is recorded, exit code still decides
@@ -1339,6 +1346,19 @@ async function main(argv) {
   );
   const store = createStore(path.resolve(root, values['cache-dir']));
   const started = Date.now();
+  const timingFiles = {};
+  // This CommonJS CLI consumes G2's ESM extractor only at runtime; no cycle.
+  let onReport;
+  try {
+    const { measureJestFiles, mergeFileDurations } =
+      await import('./test-file-durations.mjs');
+    onReport = (raw) =>
+      mergeFileDurations(timingFiles, measureJestFiles(raw, root).durations);
+  } catch (error) {
+    console.error(
+      `[test:cached] advisory timing unavailable: ${error.message}`,
+    );
+  }
   let report;
   try {
     const cacheRel =
@@ -1353,7 +1373,7 @@ async function main(argv) {
       files,
       keyer,
       store,
-      execute: createJestExecutor({ root, baseArgs }),
+      execute: createJestExecutor({ root, baseArgs, onReport }),
       mode,
       verifyHits,
       seed: `${process.env.GITHUB_RUN_ID || 'local'}:${process.env.GITHUB_RUN_ATTEMPT || '1'}`,
@@ -1369,6 +1389,8 @@ async function main(argv) {
   }
   store.prune(Number(values['prune-days']));
   report.elapsedMs = Date.now() - started;
+  report.testFiles = files;
+  report.timingFiles = timingFiles;
   console.log(
     `[test:cached] mode=${report.mode} files=${report.files} cache-hits=${report.hits} executed=${report.executed} ` +
       `verified=${report.verified.length} stale=${report.stale.length} exit=${report.exitCode}`,

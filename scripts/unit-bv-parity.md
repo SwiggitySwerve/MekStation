@@ -15,6 +15,34 @@ exporter, hashing removes CR only when followed by LF. No other bytes change.
 Folders `ge`, `advancedbuildings`, `handheld`, `battlefieldsupport` and BFS files
 are outside this oracle's scope. There are no per-unit exclusions.
 
+Strict export also writes `sources.ndjson.manifest.json`. The external
+`--converted` CLI requires this receipt before calculating anything: exact
+payload SHA-256, source count, full scope, and hashes of the current converter
+and its data inputs must match. Native source hashes alone cannot detect an
+older converter's saved unit payload. Missing or stale receipts require a
+fresh export; there is no legacy bypass or command to bless old output.
+Converter inputs are conservatively inventoried by
+`megameklab-conversion/strict-provenance-inputs.json`; fingerprints normalize
+CRLF to LF for portable receipts. Changes to any inventoried helper invalidate
+old receipts even if that particular helper did not affect a row.
+The receipt establishes conversion provenance; the oracle still owns corpus
+completeness and parity. A passing native conversion is separate from proof
+of the committed catalog.
+
+Family exports carry their declared family and ordered source folders from
+`strict-families.json`. The pipeline stores each producer's receipt alongside
+its cached source/computed bytes, with a separate receipt integrity hash.
+Before counting a cache hit or sampling `--verify-hits`, it checks the receipt
+through the same verifier against the payload, current converter inputs and
+expected family/folders. Missing or invalid cached receipts run fresh; failed
+fresh production or validation still fails the run. Byte verification includes
+the receipt and retains the existing source/computed checks.
+The combined publication uses the same Python receipt writer as serial and
+family exports. Both writer and verifier use the selected pipeline `--python`.
+Receipts establish validity under unchanged inputs, not physical freshness;
+`execution.json` retains `hit`/`verified` and explicitly labels each family's
+`production` as `fresh` or `cached`.
+
 Mechs use `validate-bv-calculator.calculateUnitBV`; `bvAdapter` runtime totals
 and exact counts are separate fields. ProtoMechs use the handler's existing
 BV breakdown. Vehicle, aerospace and capital contracts use the real dispatcher.

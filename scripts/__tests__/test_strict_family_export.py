@@ -26,6 +26,10 @@ class StrictFamilyExportTest(unittest.TestCase):
             pieces = []
             for family in families:
                 export_strict(mekfiles, root / family, family=family)
+                receipt = json.loads((root / family / 'sources.ndjson.manifest.json').read_text())
+                self.assertEqual(receipt['scope'], family)
+                self.assertEqual(receipt['folders'], families[family])
+                self.assertEqual(receipt['sourceCount'], 2 * len(families[family]))
                 pieces.append((root / family / 'sources.ndjson').read_bytes())
             self.assertEqual(b''.join(pieces), (root / 'serial/sources.ndjson').read_bytes())
             rows = [json.loads(line) for line in b''.join(pieces).splitlines()]

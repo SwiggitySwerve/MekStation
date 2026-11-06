@@ -9,6 +9,10 @@ import { decodeComputedRows } from './unit-bv-artifacts';
 import { boundedMap, fingerprint, runCachedFamily } from './unit-bv-execution';
 import { runCommand } from './unit-bv-family-worker';
 import {
+  validateSourceManifest,
+  writeSourceManifest,
+} from './unit-bv-provenance';
+import {
   buildDeltaReport,
   FAMILIES,
   JavaReference,
@@ -154,6 +158,16 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
           family,
           key,
           verify,
+          validate: ({ sources, manifest }) => {
+            if (!manifest) throw new Error(`Missing family receipt: ${family}`);
+            validateSourceManifest(
+              'cached-family',
+              sources,
+              family,
+              python,
+              manifest,
+            );
+          },
           produce: async () => {
             const familyOut = path.join(working, family);
             await runCommand(
@@ -172,6 +186,9 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
             return {
               sources: fs.readFileSync(path.join(familyOut, 'sources.ndjson')),
               computed: fs.readFileSync(path.join(familyOut, 'computed.bin')),
+              manifest: fs.readFileSync(
+                path.join(familyOut, 'sources.ndjson.manifest.json'),
+              ),
             };
           },
         });
@@ -214,6 +231,13 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
         throw new Error(`Invalid computed family: ${result.family}`);
       return rows as IComputedRow[];
     });
+    writeSourceManifest(
+      path.join(out, 'sources.ndjson'),
+      sources,
+      Object.values(families).flat(),
+      'full',
+      python,
+    );
     const report = buildDeltaReport(computed, refs, undefined, options.perTerm);
     writeDeltaReport(report, out);
     fs.writeFileSync(
@@ -227,6 +251,7 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
             family,
             hit,
             verified,
+            production: hit && !verified ? 'cached' : 'fresh',
           })),
         },
         null,

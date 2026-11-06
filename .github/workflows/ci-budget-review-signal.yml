@@ -1,0 +1,21 @@
+name: CI Budget Review Signal
+
+on:
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+# This event uses the PR workflow revision. It deliberately has no write token,
+# secrets, checkout, dependency installation, or artifact handoff.
+permissions: {}
+
+concurrency:
+  group: ci-budget-review-signal-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  signal:
+    if: github.event.review.author_association == 'OWNER'
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - run: echo 'Trusted workflow_run verifier reads live reviews independently.'

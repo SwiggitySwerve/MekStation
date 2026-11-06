@@ -29,6 +29,7 @@ import {
   type IComputedRow,
   type IFigure,
 } from './unit-bv-parity';
+import { validateSourceManifest } from './unit-bv-provenance';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
@@ -254,6 +255,8 @@ export function main(): void {
       throw new Error(`Missing ${name}`);
     return process.argv[index + 1];
   };
+  const convertedFile = arg('--converted');
+  validateSourceManifest(convertedFile, fs.readFileSync(convertedFile));
   const converted = calculateSources(
     readJsonLines(arg('--converted')),
     path.resolve(arg('--mekfiles')),

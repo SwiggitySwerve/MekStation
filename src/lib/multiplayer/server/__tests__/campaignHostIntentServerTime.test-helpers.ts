@@ -78,6 +78,15 @@ export const MEASURED: readonly ('SpendFunds' | 'AdvanceDay')[] = [
 ];
 export const PUTS = 3;
 
+// Functional callers keep the same scenario and ingest synchronization without
+// reading the performance clock. Only the pinned perf lanes collect timings.
+export const PERF_ASSERTIONS =
+  process.env.SIMULATION_PERF_ASSERTIONS === 'true';
+
+function clock(): number {
+  return PERF_ASSERTIONS ? performance.now() : 0;
+}
+
 export type Steps = Record<string, number>;
 
 /** The command being measured; wrappers add into its steps. */
@@ -89,7 +98,7 @@ let ingests = 0;
 
 /** Adds `ms` to `step` of the command being measured, if any. */
 function add(step: string, start: number): void {
-  const end = performance.now();
+  const end = clock();
   if (current === null) return;
   current.steps[step] = (current.steps[step] ?? 0) + (end - start);
   current.lastEnd = Math.max(current.lastEnd, end);
@@ -100,7 +109,7 @@ async function timed<T>(
   step: () => string,
   work: () => Promise<T>,
 ): Promise<T> {
-  const start = performance.now();
+  const start = clock();
   const label = step();
   try {
     return await work();
@@ -130,7 +139,7 @@ class RowSocket extends EventEmitter {
   send(data: string): void {
     this.sent.push({
       frame: JSON.parse(data) as IServerMessage,
-      at: performance.now(),
+      at: clock(),
     });
   }
   close(): void {
@@ -222,6 +231,22 @@ export async function seed(
 
 /** Installs the step wrappers on the prototypes and on this entry's instances. */
 export function instrument(entry: ICampaignHostRegistryEntry): void {
+  const replica = SQLiteCampaignReplicaStore.prototype;
+  const origIngest = replica.ingest;
+  jest.spyOn(replica, 'ingest').mockImplementation(function (
+    this: SQLiteCampaignReplicaStore,
+    ...args
+  ) {
+    const ingest = () => origIngest.apply(this, args);
+    const pending = PERF_ASSERTIONS
+      ? timed(() => 'replicaIngest', ingest)
+      : ingest();
+    return pending.finally(() => {
+      ingests += 1;
+    });
+  });
+  if (!PERF_ASSERTIONS) return;
+
   const log = CampaignEventLog.prototype;
   const origRead = log.getCampaignEvents;
   const origNext = log.nextSequence;
@@ -263,22 +288,9 @@ export function instrument(entry: ICampaignHostRegistryEntry): void {
     this: unknown,
     event: ICampaignEvent,
   ) {
-    const start = performance.now();
+    const start = clock();
     origPublish.call(this, event);
     add('publish', start);
-  });
-  const replica = SQLiteCampaignReplicaStore.prototype;
-  const origIngest = replica.ingest;
-  jest.spyOn(replica, 'ingest').mockImplementation(function (
-    this: SQLiteCampaignReplicaStore,
-    ...args
-  ) {
-    return timed(
-      () => 'replicaIngest',
-      () => origIngest.apply(this, args),
-    ).finally(() => {
-      ingests += 1;
-    });
   });
   // The grant wake's host-log adapter (its class is module-private, so its
   // prototype is reached through an instance) and the delivery epoch's
@@ -308,7 +320,7 @@ export function instrument(entry: ICampaignHostRegistryEntry): void {
     this: SQLiteDeliveryEpochStore,
     ...args
   ) {
-    const start = performance.now();
+    const start = clock();
     try {
       return origAssign.apply(this, args);
     } finally {
@@ -329,7 +341,7 @@ export function instrument(entry: ICampaignHostRegistryEntry): void {
   const origRewrite = store.rewriteRecordAfterCommand;
   if (origRewrite !== undefined) {
     store.rewriteRecordAfterCommand = (db, campaignId) => {
-      const start = performance.now();
+      const start = clock();
       origRewrite(db, campaignId);
       add('recordRewrite', start);
     };
@@ -357,9 +369,10 @@ export async function command(
   index: number,
 ): Promise<Steps> {
   const g0 = guest.sent.length;
+  const gm0 = gm.sent.length;
   const ingested = ingests;
   current = { steps: {}, intentStarted: false, lastEnd: 0 };
-  const t0 = performance.now();
+  const t0 = clock();
   gm.inbound({
     kind: 'CampaignHostIntent',
     matchId: MATCH_ID,
@@ -376,19 +389,24 @@ export async function command(
   await until(() => eventSequences(guest, g0).length > 0 && ingests > ingested);
   await new Promise((resolve) => setTimeout(resolve, 20));
   const delivered = eventSequences(guest, g0);
-  const refused = gm.sent.some(
-    ({ frame, at }) => at >= t0 && frame.kind === 'Error',
-  );
+  const refused = gm.sent
+    .slice(gm0)
+    .some(({ frame }) => frame.kind === 'Error');
   const steps: Steps = {
-    ...current.steps,
-    appendWithoutRecordRewrite:
-      (current.steps.appendCommandBatch ?? Number.NaN) -
-      (current.steps.recordRewrite ?? 0),
-    deliverToGuest: (delivered[0]?.at ?? Number.NaN) - t0,
-    serverTotal: current.lastEnd - t0,
-    serverTotalWithoutRecordRewrite:
-      current.lastEnd - t0 - (current.steps.recordRewrite ?? 0),
     refused: refused ? 1 : 0,
+    deliveredEvents: delivered.length,
+    ...(PERF_ASSERTIONS
+      ? {
+          ...current.steps,
+          appendWithoutRecordRewrite:
+            (current.steps.appendCommandBatch ?? Number.NaN) -
+            (current.steps.recordRewrite ?? 0),
+          deliverToGuest: (delivered[0]?.at ?? Number.NaN) - t0,
+          serverTotal: current.lastEnd - t0,
+          serverTotalWithoutRecordRewrite:
+            current.lastEnd - t0 - (current.steps.recordRewrite ?? 0),
+        }
+      : {}),
   };
   current = null;
   const head = delivered.at(-1)?.sequence;
@@ -412,7 +430,7 @@ export async function hostPut(campaignId: string): Promise<Steps> {
   if (read.kind !== 'ok') throw new Error(read.kind);
   const record = read.record;
   current = { steps: {}, intentStarted: false, lastEnd: 0 };
-  const t0 = performance.now();
+  const t0 = clock();
   const wire = encodeTokenForWire(await issuePlayerToken(HOST_IDENTITY));
   const put = await callId(
     'PUT',
@@ -431,9 +449,8 @@ export async function hostPut(campaignId: string): Promise<Steps> {
     wire,
   );
   const steps: Steps = {
-    ...current.steps,
-    putRoute: performance.now() - t0,
     putStatus: put.status,
+    ...(PERF_ASSERTIONS ? { ...current.steps, putRoute: clock() - t0 } : {}),
   };
   current = null;
   await new Promise((resolve) => setTimeout(resolve, 50));
