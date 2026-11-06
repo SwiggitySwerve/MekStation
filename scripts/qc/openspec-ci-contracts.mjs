@@ -32,7 +32,6 @@ export const requiredAggregatorNeeds = [
   'unit-test-shards',
   'simulation-checks',
   'build-test',
-  'e2e-build',
   'e2e',
 ];
 
@@ -123,10 +122,19 @@ const E2E_CHANGE_GATE_IF =
 export const requiredWorkflowJobContracts = [
   {
     id: 'e2e-production-build',
-    jobId: 'e2e-build',
-    jobName: 'E2E Build',
+    jobId: 'simulation-checks',
+    jobName: 'Simulation Checks and Linux Pack',
     requiredNeeds: ['detect-changes'],
-    timeoutMinutes: 25,
+    timeoutMinutes: budgets.timeouts['simulation-checks'].minutes,
+    stepNames: [
+      'Skip (no code or e2e changes)',
+      'Checkout code',
+      'Setup Node + caches + install deps',
+      'Validate record-sheet assets',
+      'Build production app',
+      'Archive E2E production build',
+      'Upload E2E production build',
+    ],
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
@@ -153,7 +161,7 @@ export const requiredWorkflowJobContracts = [
     id: 'customizer-regressions-gate',
     jobId: 'e2e',
     jobName: 'E2E (${{ matrix.shard }}/2)',
-    requiredNeeds: ['detect-changes', 'e2e-build'],
+    requiredNeeds: ['detect-changes', 'simulation-checks'],
     timeoutMinutes: budgets.timeouts.e2e.minutes,
     matrixShards: [1, 2],
     skipIf:

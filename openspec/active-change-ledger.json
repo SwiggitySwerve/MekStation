@@ -1,6 +1,12 @@
 {
   "allowedActiveChanges": [
     {
+      "name": "share-e2e-production-build",
+      "status": "in-progress",
+      "reason": "Root-authorized #2890 shared harness build inside the existing simulation job; retain ten-job cap, release separation, native census and hosted failure/performance acceptance. No readiness claim before matched proof.",
+      "lastReviewed": "2026-11-06"
+    },
+    {
       "name": "align-ci-budget-workflow-contracts",
       "status": "in-progress",
       "reason": "Root-authorized Phase G workflow contract alignment: preserve aggregation/browser/desktop/advisory guarantees while consuming canonical measured timeout budgets. Hosted proof and canonical sync/archive remain pending.",

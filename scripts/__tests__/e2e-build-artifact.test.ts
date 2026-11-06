@@ -11,10 +11,12 @@ interface Step {
   uses?: string;
   with?: Record<string, unknown>;
   env?: Record<string, string>;
+  if?: string;
 }
 interface Job {
   needs?: string | string[];
   strategy?: unknown;
+  if?: string;
   steps: Step[];
 }
 const root = path.resolve(__dirname, '../..');
@@ -23,7 +25,7 @@ const jobs = (
     fs.readFileSync(path.join(root, '.github/workflows/pr-checks.yml'), 'utf8'),
   ) as { jobs: Record<string, Job> }
 ).jobs;
-const producer = jobs['e2e-build'];
+const producer = jobs['simulation-checks'];
 const consumer = jobs.e2e;
 const step = (job: Job, name: string): Step => {
   const found = job?.steps.find((entry) => entry.name === name);
@@ -48,7 +50,8 @@ describe('shared E2E production artifact', () => {
         )
         .map(() => id),
     );
-    expect(builds).toEqual(['e2e-build']);
+    expect(builds).toEqual(['simulation-checks']);
+    expect(jobs['e2e-build']).toBeUndefined();
     expect(
       jobs['simulation-checks'].steps.find(
         (entry) => entry.run === 'npm run build' && entry.env === undefined,
@@ -63,8 +66,23 @@ describe('shared E2E production artifact', () => {
     expect(step(consumer, 'Download E2E production build').with?.name).toBe(
       'e2e-build',
     );
-    expect(consumer.needs).toEqual(['detect-changes', 'e2e-build']);
-    expect(jobs['lint-and-test'].needs).toContain('e2e-build');
+    expect(consumer.needs).toEqual(['detect-changes', 'simulation-checks']);
+    expect(jobs['lint-and-test'].needs).toContain('simulation-checks');
+    expect(producer.if).toBeUndefined();
+    expect(
+      producer.steps.indexOf(step(producer, 'Upload E2E production build')),
+    ).toBeLessThan(
+      producer.steps.indexOf(
+        step(producer, 'Run CI-sized perf-sensitive simulation tests'),
+      ),
+    );
+    expect(
+      step(producer, 'Run CI-sized perf-sensitive simulation tests').if,
+    ).toBe("needs.detect-changes.outputs.code == 'true'");
+    expect(step(producer, 'Build Next.js application').env).toBeUndefined();
+    expect(step(producer, 'Build Next.js application').if).toBe(
+      "${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}",
+    );
   });
 
   it.each(['intact', 'corrupt', 'mismatched', 'missing'] as const)(

@@ -356,33 +356,69 @@ jobs:
         run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
 
   # ---------------------------------------------------------------
-  # simulation-checks runs the simulation wall-clock, coverage and
-  # statistical-proof lanes one after another on one runner (never
-  # alongside other work, so the perf budgets measure an idle runner),
-  # then builds the production app and packs the Linux Electron app from
-  # that build (folded in from Build and Linux Pack, CI-SPEED round 2; it
-  # runs after the budgets, so they still measure an idle runner). It
-  # uploads `web-build` only when win/mac pack too. Code-only; the
-  # 100-game proof runs only outside pull requests.
+  # simulation-checks first builds/uploads the harness-only E2E artifact,
+  # then runs the simulation wall-clock, coverage and statistical-proof
+  # lanes one after another (never alongside other work), keeping perf
+  # work on an idle runner. The later plain build alone feeds release packs.
+  # E2E consumers wait for this ENTIRE job, including packaging, to complete;
+  # uploading the artifact does not release their needs dependency.
+  # Simulation/package steps remain code-only; browser-only PRs build only
+  # the harness, and docs-only PRs no-op. The 100-game proof remains full
+  # outside pull requests. `web-build` uploads only when win/mac pack too.
   # ---------------------------------------------------------------
   simulation-checks:
     name: Simulation Checks and Linux Pack
     needs: detect-changes
-    if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 14
 
     steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping production builds and simulation checks."
+
       - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
           fetch-assets: 'true'
 
+      - name: Validate record-sheet assets
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: npm run validate:assets:strict
+
+      - name: Build production app
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        env:
+          NEXT_PUBLIC_E2E_MODE: 'true'
+          NEXT_PUBLIC_E2E_TEST: 'true'
+        run: npm run build
+
+      - name: Archive E2E production build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: |
+          tar -cf e2e-build.tar .next/standalone
+          sha256sum e2e-build.tar > e2e-build.sha256
+
+      - name: Upload E2E production build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-build
+          path: |
+            e2e-build.tar
+            e2e-build.sha256
+          compression-level: 1
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Run CI-sized perf-sensitive simulation tests
+        if: needs.detect-changes.outputs.code == 'true'
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/integration.test.ts
@@ -404,7 +440,7 @@ jobs:
           SWARM_THROUGHPUT_TIME_BUDGET_MS: '15000'
 
       - name: Run simulation wall-clock budgets
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/simulation.test.ts
@@ -417,7 +453,7 @@ jobs:
           SIMULATION_COUNT: '10'
 
       - name: Generate combat/simulation coverage summary
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: >-
           npx jest --selectProjects unit --ci --coverage
           --coverageDirectory=coverage/combat-simulation
@@ -436,13 +472,13 @@ jobs:
           SIMULATION_COUNT: '5'
 
       - name: Enforce combat/simulation coverage floors
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
 
       # simulation-system "Statistical Validation": the 100-game proof runs on
       # every main push and nightly (and on demand), not on pull requests.
       - name: Run 100-game statistical combat proofs
-        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' && github.event_name != 'pull_request' }}
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/integration.test.ts
@@ -454,24 +490,24 @@ jobs:
           SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
 
       - name: Validate assets
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run validate:assets:strict
 
       - name: Build Next.js application
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run build
 
       - name: Build Electron TypeScript
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         working-directory: desktop
         run: npm run build
 
       - name: Enforce complete web artifact byte budgets
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
 
       - name: Upload complete package census
-        if: ${{ always() }}
+        if: ${{ always() && needs.detect-changes.outputs.code == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-web
@@ -480,7 +516,7 @@ jobs:
           retention-days: 7
 
       - name: Upload web build artifacts
-        if: ${{ !cancelled() && needs.detect-changes.outputs.pr-desktop == 'true' }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' && needs.detect-changes.outputs.pr-desktop == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: web-build
@@ -495,12 +531,12 @@ jobs:
           include-hidden-files: true
 
       - name: Rebuild native modules for Linux
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         working-directory: desktop
         run: npm run rebuild:next-standalone
 
       - name: Build complete Linux installer and unpacked application
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         working-directory: desktop
         run: npx electron-builder --linux tar.gz --publish never
         env:
@@ -509,24 +545,24 @@ jobs:
           ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
 
       - name: Verify linux build output
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         working-directory: desktop
         run: test -d release/linux-unpacked
 
       - name: Prepare complete Linux installer inventory
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         shell: bash
         run: |
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
 
       - name: Enforce complete Linux installer byte budget
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
 
       - name: Upload complete installer census
-        if: ${{ always() }}
+        if: ${{ always() && needs.detect-changes.outputs.code == 'true' }}
         uses: actions/upload-artifact@v7
         with:
           name: ci-budget-installers
@@ -692,63 +728,6 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
-  # e2e-build produces one harness-enabled production build for all shards.
-  # Keep it separate from simulation-checks/web-build: Electron and release
-  # artifacts must never contain the E2E harness. The tar preserves hidden
-  # Next files, runtime links and permissions; each consumer verifies it.
-  # Step gating keeps docs- and openspec-only PRs green.
-  # ---------------------------------------------------------------
-  e2e-build:
-    name: E2E Build
-    needs: detect-changes
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Skip (no code or e2e changes)
-        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping E2E build."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          fetch-assets: 'true'
-
-      - name: Validate record-sheet assets
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npm run validate:assets:strict
-
-      - name: Build production app
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        env:
-          NEXT_PUBLIC_E2E_MODE: 'true'
-          NEXT_PUBLIC_E2E_TEST: 'true'
-        run: npm run build
-
-      - name: Archive E2E production build
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: |
-          tar -cf e2e-build.tar .next/standalone
-          sha256sum e2e-build.tar > e2e-build.sha256
-
-      - name: Upload E2E production build
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-build
-          path: |
-            e2e-build.tar
-            e2e-build.sha256
-          compression-level: 1
-          if-no-files-found: error
-          retention-days: 1
-
-  # ---------------------------------------------------------------
   # e2e runs every per-PR Playwright gate in 2 shards. Each shard
   # fetches and strictly validates the record-sheet assets in its own
   # checkout (a missing template fails here instead of degrading to the
@@ -778,7 +757,7 @@ jobs:
   # ---------------------------------------------------------------
   e2e:
     name: E2E (${{ matrix.shard }}/2)
-    needs: [detect-changes, e2e-build]
+    needs: [detect-changes, simulation-checks]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -930,7 +909,6 @@ jobs:
         unit-test-shards,
         simulation-checks,
         build-test,
-        e2e-build,
         e2e,
       ]
     runs-on: ubuntu-latest
@@ -945,7 +923,7 @@ jobs:
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           # Job id -> the detect-changes gates whose all-'false' allows a skip.
-          GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
+          GATES_JSON: '{"build-test":"pr-desktop"}'
         run: node scripts/ci/budget-aggregate.mjs
 
       - name: Enforce budget-raise approval with read-only live inputs

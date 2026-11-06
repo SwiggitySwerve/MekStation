@@ -121,7 +121,11 @@ export function validateJobTokens(workflowJobs, contract, errors) {
   if (isUnsafeRunShell(jobShell))
     invalidSteps.push('job defaults.run.shell must be absent or literal bash');
 
-  const steps = Array.isArray(job.steps) ? job.steps : [];
+  // The shared producer lives alongside the simulation/release checks.
+  // Pin its prerequisites here; those other steps retain their own contracts.
+  const steps = (Array.isArray(job.steps) ? job.steps : []).filter(
+    (step) => !contract.stepNames || contract.stepNames.includes(step?.name),
+  );
   const skipStep = steps.find(
     (step) => step?.name === 'Skip (no code or e2e changes)',
   );

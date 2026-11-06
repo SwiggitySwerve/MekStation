@@ -268,7 +268,8 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
     );
     if (
       !packageCheck ||
-      packageCheck.if !== '${{ !cancelled() }}' ||
+      packageCheck.if !==
+        "${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}" ||
       packageCheck['continue-on-error']
     )
       throw new Error('Complete package budget gate disabled or bypassed');

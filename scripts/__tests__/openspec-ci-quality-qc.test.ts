@@ -17,12 +17,12 @@ const e2eTimeoutMinutes: number = JSON.parse(
 /**
  * The per-PR browser gates live in the `e2e` shard matrix: each shard
  * validates its record-sheet assets and runs the exact gate invocation below
- * against the artifact from the separate E2E-mode production build job. The
+ * against the artifact built first in the simulation job. The
  * validator scopes each contract to its job, so mutations that move or weaken
  * a prerequisite still fail.
  */
 const GATE_JOB = 'e2e';
-const BUILD_JOB = 'e2e-build';
+const BUILD_JOB = 'simulation-checks';
 const CHANGE_GATE_IF =
   "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
 const GATE_COMMAND =
@@ -392,7 +392,7 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    needs: [detect-changes, e2e-build]',
+            '    needs: [detect-changes, simulation-checks]',
             '    needs: []',
           ),
         'workflow-job-token-missing',

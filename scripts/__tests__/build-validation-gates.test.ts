@@ -198,28 +198,28 @@ describe('Lint and Test aggregator', () => {
     expect(
       status({
         ...detect({ code: 'true', e2e: 'true' }),
-        'e2e-build': { result: 'failure' },
+        'simulation-checks': { result: 'failure' },
         e2e: { result: 'skipped' },
       }),
     ).toBe(1);
     expect(
       status({
         ...detect({ code: 'true', e2e: 'true' }),
-        'e2e-build': { result: 'success' },
+        'simulation-checks': { result: 'success' },
         e2e: { result: 'failure' },
       }),
     ).toBe(1);
   });
 
   it('accepts a skip only when every gate the job names was off', () => {
-    // docs-only PR: the code gate is off, so the simulation/Linux-pack job
-    // may skip.
+    // The shared producer is step-gated, so even docs-only PRs must report
+    // its successful no-op; an unexplained job skip is always a failure.
     expect(
       status({
         ...detect({ code: 'false', combat: 'false' }),
         'simulation-checks': { result: 'skipped' },
       }),
-    ).toBe(0);
+    ).toBe(1);
     expect(
       status({
         ...detect({ code: 'true', combat: 'false' }),
