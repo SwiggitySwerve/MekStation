@@ -286,6 +286,18 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
       JSON.stringify(gates)
   )
     throw new Error('Aggregator command or gate inputs bypassed');
+  const approval = aggregator.steps?.find(
+    (s) =>
+      s.name === 'Enforce budget-raise approval with read-only live inputs',
+  );
+  if (
+    approval?.uses !== 'actions/github-script@v8' ||
+    approval.if !== "github.event_name == 'pull_request'" ||
+    approval['continue-on-error'] ||
+    !approval.with?.script.includes('checkBudgetPolicy') ||
+    !approval.with.script.includes('if (!result.allowed) throw')
+  )
+    throw new Error('Budget approval gate disabled or bypassed');
   const expanded = Object.entries(jobs).flatMap(([id, job]) =>
     expandJob(id, job),
   );

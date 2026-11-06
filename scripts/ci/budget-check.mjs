@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { exactKeys, loadBudgets, METRICS_SCHEMA } from './budget-config.mjs';
+import { loadBudgets, METRICS_SCHEMA } from './budget-config.mjs';
+import { dependencyViolations } from './budget-dependencies.mjs';
 import {
   collectRepositoryMetrics,
   validateRepositoryMetrics,
@@ -38,26 +39,9 @@ export function checkRepositoryMetrics(config, metrics, labels) {
     if (census.length > config.limits[id])
       fail(id, `${census.length} > ${config.limits[id]}`);
   }
-  for (const scope of ['root', 'desktop']) {
-    exactKeys(
-      metrics.dependencies[scope],
-      ['lockEntries', 'directDependencies'],
-      `dependencies ${scope}`,
-    );
-    for (const id of ['lockEntries', 'directDependencies']) {
-      const actual = metrics.dependencies[scope][id];
-      if (!Number.isSafeInteger(actual) || actual < 0)
-        throw new Error(`Unknown dependency count: ${scope}.${id}`);
-      if (
-        actual > config.dependencies[scope][id] &&
-        !labels.includes('ci-dependency-growth')
-      )
-        fail(
-          'dependencyGrowth',
-          `${scope}.${id}: ${actual} > ${config.dependencies[scope][id]}; requires ci-dependency-growth`,
-        );
-    }
-  }
+  violations.push(
+    ...dependencyViolations(config, metrics.dependencies, labels),
+  );
   return { schema: METRICS_SCHEMA, metrics, violations };
 }
 

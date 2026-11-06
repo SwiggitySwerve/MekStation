@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,9 +42,34 @@ export function installerMetrics(root) {
       !/\.(exe|msi|dmg|zip|AppImage|deb|rpm|tar\.gz|yml|blockmap)$/.test(name)
     )
       throw new Error(`Unknown installer member: ${name}`);
+    const verification = name.endsWith('.tar.gz')
+      ? JSON.parse(
+          execFileSync(
+            'python',
+            [
+              '-B',
+              'scripts/ci/budget-installer.py',
+              path.join(directory, name),
+              path.join(root, 'desktop/release/linux-unpacked'),
+              path.join(root, 'public'),
+            ],
+            {
+              cwd: root,
+              encoding: 'utf8',
+              stdio: ['ignore', 'pipe', 'pipe'],
+              timeout: 180000,
+              windowsHide: true,
+            },
+          ),
+        )
+      : null;
     return {
       path: `desktop/release-upload/${name}`,
       bytes: stat.size,
+      verification,
+      sha256: createHash('sha256')
+        .update(fs.readFileSync(path.join(directory, name)))
+        .digest('hex'),
       installer: !/\.(yml|blockmap)$/.test(name),
     };
   });

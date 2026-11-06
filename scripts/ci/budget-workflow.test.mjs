@@ -135,13 +135,19 @@ test('dynamic/unknown matrices, conditions and aggregator bypasses fail closed',
       w.jobs['lint-and-test'].if = 'success()';
     },
     (w) => {
-      w.jobs['lint-and-test'].steps.at(-1).run = 'echo pass';
+      w.jobs['lint-and-test'].steps.find((s) =>
+        s.run?.includes('budget-aggregate.mjs'),
+      ).run = 'echo pass';
     },
     (w) => {
-      w.jobs['lint-and-test'].steps.at(-1)['continue-on-error'] = true;
+      w.jobs['lint-and-test'].steps.find((s) =>
+        s.run?.includes('budget-aggregate.mjs'),
+      )['continue-on-error'] = true;
     },
     (w) => {
-      w.jobs['lint-and-test'].steps.at(-1).env.GATES_JSON = '{}';
+      w.jobs['lint-and-test'].steps.find((s) =>
+        s.run?.includes('budget-aggregate.mjs'),
+      ).env.GATES_JSON = '{}';
     },
     (w) => {
       w.jobs['static-checks'].steps.find((s) =>

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+    types: [opened, synchronize, reopened, ready_for_review]
   # Pushes to main, the nightly schedule and manual runs check everything,
   # including the checks pull requests path-gate or leave to main
   # (scripts/ci/ci-changes.mjs turns every gate on outside pull requests).
@@ -101,6 +101,8 @@ jobs:
     # runs a pinned third-party compiler.
     permissions:
       contents: read
+      actions: read
+      pull-requests: read
 
     steps:
       - name: Checkout code
@@ -148,6 +150,31 @@ jobs:
           name: ci-budget-repository
           path: budget-output/repository.json
           if-no-files-found: error
+          retention-days: 7
+
+      - name: Prepare source-head graphs and prove advisory reporting read-only
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/budget-github.mjs
+
+      - name: Upload canonical reporter inputs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-inputs
+          path: budget-output/inputs.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload in-Actions reporter dry-run proof
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-report-proof
+          path: budget-output/report-dry-run.json
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Setup Python for Schema Bridge
@@ -471,10 +498,10 @@ jobs:
         working-directory: desktop
         run: npm run rebuild:next-standalone
 
-      - name: Test Electron build (linux pack mode)
+      - name: Build complete Linux installer and unpacked application
         if: ${{ !cancelled() }}
         working-directory: desktop
-        run: npx electron-builder --dir --publish never
+        run: npx electron-builder --linux tar.gz --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
@@ -484,6 +511,23 @@ jobs:
         if: ${{ !cancelled() }}
         working-directory: desktop
         run: test -d release/linux-unpacked
+
+      - name: Enforce complete Linux installer byte budget
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          mkdir -p desktop/release-upload
+          cp desktop/release/*.tar.gz desktop/release-upload/
+          node scripts/ci/budget-artifacts.mjs --kind installers --report budget-output/installers.json
+
+      - name: Upload complete installer census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-installers
+          path: budget-output/installers.json
+          if-no-files-found: error
+          retention-days: 7
 
   # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
   # JEST_SPLIT_CORPUS moves the whole-catalog suites to the `corpus` project
@@ -632,6 +676,15 @@ jobs:
       - name: Validate Combat Suite
         if: ${{ !cancelled() && matrix.shard == 3 && needs.detect-changes.outputs.combat == 'true' }}
         run: npm run validate:combat
+
+      - name: Upload actual Jest timing and cache observations
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-jest-${{ matrix.shard }}
+          path: jest-results-*.json
+          if-no-files-found: warn
+          retention-days: 7
 
   # ---------------------------------------------------------------
   # e2e runs every per-PR Playwright gate in 2 shards. Each shard
@@ -811,6 +864,9 @@ jobs:
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout aggregator contract
         uses: actions/checkout@v6
@@ -820,6 +876,17 @@ jobs:
           # Job id -> the detect-changes gates whose all-'false' allows a skip.
           GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
         run: node scripts/ci/budget-aggregate.mjs
+
+      - name: Enforce budget-raise approval with read-only live inputs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const result = await checkBudgetPolicy({ github, ...context.repo,
+              number: context.payload.pull_request.number, publish: false });
+            core.info(JSON.stringify(result));
+            if (!result.allowed) throw new Error(result.message);
 
   # build-test packs Windows and macOS (native module rebuild, the slowest
   # legs) on a pull request whose changes reach desktop packaging inputs;

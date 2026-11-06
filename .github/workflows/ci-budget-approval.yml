@@ -1,0 +1,64 @@
+name: CI Budget Approval
+
+on:
+  pull_request_target:
+    branches: [main]
+    paths: ['config/ci/budgets.json', 'package.json', 'package-lock.json', 'desktop/package.json', 'desktop/package-lock.json']
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited, ready_for_review]
+  workflow_run:
+    workflows: [CI Budget Review Signal]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Pull request number to reevaluate
+        required: true
+        type: number
+
+permissions: {}
+
+concurrency:
+  group: ci-budget-approval
+  cancel-in-progress: false
+
+jobs:
+  approval:
+    # Manual dispatch cannot grant write privileges to arbitrary branch code.
+    if: github.event_name != 'workflow_dispatch' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/github-script@v8
+        env:
+          REQUESTED_PR: ${{ inputs.pull_request }}
+        with:
+          script: |
+            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const { owner, repo } = context.repo;
+            let numbers;
+            if (context.eventName === 'workflow_run') {
+              // The signal supplies no data or code. GitHub's commit association
+              // selects candidates; the adapter rereads current PR heads/reviews.
+              const signal = context.payload.workflow_run;
+              if (signal.event !== 'pull_request_review') throw new Error('Unexpected review signal event');
+              const associated = await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
+                owner, repo, commit_sha: signal.head_sha, per_page: 100,
+              });
+              numbers = associated.filter(pr => pr.state === 'open' && pr.base.repo.full_name === context.payload.repository.full_name).map(pr => pr.number);
+            } else {
+              numbers = [context.payload.pull_request?.number ?? Number(process.env.REQUESTED_PR)];
+            }
+            if (numbers.some(number => !Number.isSafeInteger(number) || number < 1)) throw new Error('Invalid PR number');
+            for (const number of [...new Set(numbers)]) {
+              const result = await checkBudgetPolicy({ github, owner, repo, number });
+              core.info(JSON.stringify({ number, ...result }));
+              if (!result.allowed) core.setFailed(result.message);
+            }

@@ -8,6 +8,7 @@ import {
   budgetConfigHash,
   loadBudgets,
 } from './budget-config.mjs';
+import { dependencyCounts } from './budget-dependencies.mjs';
 import { workflowMetrics } from './budget-workflow.mjs';
 
 export function dependencyMetrics(root) {
@@ -20,30 +21,7 @@ export function dependencyMetrics(root) {
       const lock = JSON.parse(
         fs.readFileSync(path.join(prefix, 'package-lock.json'), 'utf8'),
       );
-      if (lock.lockfileVersion !== 3 || !lock.packages?.[''])
-        throw new Error(`${scope}: unknown lockfile shape`);
-      const sections = [
-        'dependencies',
-        'devDependencies',
-        'optionalDependencies',
-        'peerDependencies',
-      ];
-      for (const key of sections) {
-        if (
-          JSON.stringify(manifest[key] ?? {}) !==
-          JSON.stringify(lock.packages[''][key] ?? {})
-        )
-          throw new Error(`${scope}: manifest and lockfile disagree (${key})`);
-      }
-      return [
-        scope,
-        {
-          lockEntries: Object.keys(lock.packages).length - 1,
-          directDependencies: new Set(
-            sections.flatMap((key) => Object.keys(manifest[key] ?? {})),
-          ).size,
-        },
-      ];
+      return [scope, dependencyCounts(manifest, lock, scope)];
     }),
   );
 }
@@ -130,4 +108,6 @@ export {
   validateRepositoryMetrics,
   observedBudgetValues,
   packageContributors,
+  validateObservationProducer,
+  observationProducer,
 } from './budget-observation.mjs';

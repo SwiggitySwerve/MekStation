@@ -8,7 +8,11 @@
     "installerBytes": 170000000,
     "webZipBytes": 92000000
   },
-  "targets": { "typicalPrJobs": 9, "unkeyableTests": 55, "repoWideKeys": 80 },
+  "targets": {
+    "typicalPrJobs": 9,
+    "unkeyableTests": 55,
+    "repoWideKeys": 80
+  },
   "dependencies": {
     "root": {
       "lockEntries": 1194,
@@ -61,6 +65,18 @@
       "paths": ["config/ci/budgets.json"],
       "typical": false,
       "reason": "Budget-change PR: approval workflow and its trusted event jobs must be included when adopted; explicit exceptional profile."
+    },
+    {
+      "id": "bootstrap",
+      "paths": ["config/ci/budgets.json", ".github/workflows/pr-checks.yml"],
+      "typical": false,
+      "reason": "Explicit initial budget and CI wiring profile: all packaging legs plus trusted budget approval are counted."
+    },
+    {
+      "id": "dependency",
+      "paths": ["package-lock.json"],
+      "typical": false,
+      "reason": "Dependency/global change: all packaging legs plus trusted dependency-label approval are counted."
     }
   ],
   "timeouts": {

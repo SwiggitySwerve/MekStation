@@ -22,6 +22,8 @@ function fixture(fn) {
       'scripts/ci/budget-package.py',
       fs.readFileSync('scripts/ci/budget-package.py'),
     );
+    for (const file of ['budget_files.py', 'budget-installer.py'])
+      write(`scripts/ci/${file}`, fs.readFileSync(`scripts/ci/${file}`));
     write('.next/standalone/server.js', 'server');
     write('.next/standalone/.next/BUILD_ID', 'build');
     write('.next/static/hidden.js', 'static');
@@ -45,6 +47,59 @@ function run(root, args = []) {
     },
   );
 }
+
+test('Linux installer must include every unpacked member and identical public bytes', () =>
+  fixture((root, write) => {
+    const unpacked = path.join(root, 'desktop/release/linux-unpacked');
+    write(
+      'desktop/release/linux-unpacked/resources/next-standalone/server.js',
+      'server',
+    );
+    write(
+      'desktop/release/linux-unpacked/resources/next-standalone/public/record-sheets/sheet.svg',
+      'sheet',
+    );
+    write('desktop/release/linux-unpacked/MekStation', 'complete runtime');
+    write('desktop/release-upload/MekStation.tar.gz', 'placeholder');
+    const archive = path.join(root, 'desktop/release-upload/MekStation.tar.gz');
+    const create = () => {
+      const result = spawnSync(
+        'python',
+        [
+          '-B',
+          '-c',
+          'import sys,tarfile;t=tarfile.open(sys.argv[1],"w:gz");t.add(sys.argv[2],arcname="MekStation");t.close()',
+          archive,
+          unpacked,
+        ],
+        { stdio: ['ignore', 'pipe', 'pipe'] },
+      );
+      assert.equal(result.status, 0);
+    };
+    create();
+    assert.equal(
+      run(root, ['--kind', 'installers', '--report', 'r.json']).status,
+      0,
+    );
+    write(
+      'desktop/release/linux-unpacked/MekStation',
+      'omitted changed runtime',
+    );
+    assert.equal(
+      run(root, ['--kind', 'installers', '--report', 'r.json']).status,
+      1,
+    );
+    create();
+    write(
+      'desktop/release/linux-unpacked/resources/next-standalone/public/record-sheets/sheet.svg',
+      'wrong public',
+    );
+    create();
+    assert.equal(
+      run(root, ['--kind', 'installers', '--report', 'r.json']).status,
+      1,
+    );
+  }));
 
 test('real web CLI counts complete hidden artifact and proves standalone and ZIP red paths', () =>
   fixture((root, write) => {

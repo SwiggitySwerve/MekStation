@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import zipfile
+from budget_files import verify_public
 
 ROOTS = ('.next/standalone', '.next/static', 'desktop/dist', 'public/record-sheets')
 
@@ -35,14 +36,7 @@ def census(root):
             raise ValueError(f'Missing packaged runtime: {sentinel}')
     # Every public file must survive hydration with the same bytes. Incomplete
     # old artifacts that dropped hidden .next output or public assets fail.
-    public = root / 'public'
-    for source in public.rglob('*'):
-        if source.is_symlink():
-            raise ValueError(f'Linked public input: {source}')
-        if source.is_file():
-            target = root / '.next/standalone/public' / source.relative_to(public)
-            if not target.is_file() or hashlib.sha256(source.read_bytes()).digest() != hashlib.sha256(target.read_bytes()).digest():
-                raise ValueError(f'Packaged public byte mismatch: {source}')
+    verify_public(root / 'public', root / '.next/standalone/public')
     return sorted(files, key=lambda entry: entry['path'])
 
 

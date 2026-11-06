@@ -5,6 +5,49 @@ import {
   budgetDescriptors,
 } from './budget-config.mjs';
 
+export function validateObservationProducer(producer, source) {
+  exactKeys(
+    producer,
+    [
+      'schema',
+      'repository',
+      'runId',
+      'attempt',
+      'headSha',
+      'sourceRunId',
+      'sourceAttempt',
+    ],
+    'observation producer',
+  );
+  if (
+    producer.schema !== 'mekstation/ci-observation-producer/v1' ||
+    producer.repository !== source.repository ||
+    ![
+      producer.runId,
+      producer.attempt,
+      producer.sourceRunId,
+      producer.sourceAttempt,
+    ].every((n) => Number.isSafeInteger(n) && n > 0) ||
+    !/^[a-f\d]{40}$/.test(producer.headSha) ||
+    producer.sourceRunId !== source.runId ||
+    producer.sourceAttempt !== source.attempt
+  )
+    throw new Error('Observation producer/source identity mismatch');
+  return producer;
+}
+
+export function observationProducer(producerRun, source) {
+  return validateObservationProducer(
+    {
+      schema: 'mekstation/ci-observation-producer/v1',
+      ...producerRun,
+      sourceRunId: source.runId,
+      sourceAttempt: source.attempt,
+    },
+    source,
+  );
+}
+
 export function validateRepositoryMetrics(metrics) {
   exactKeys(
     metrics,
