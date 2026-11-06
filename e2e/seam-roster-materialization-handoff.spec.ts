@@ -22,8 +22,12 @@
  * @tags @campaign @seam
  */
 
-import { test, expect, type APIResponse, type Page } from '@playwright/test';
-
+import {
+  test,
+  expect,
+  type APIResponse,
+  type Page,
+} from './fixtures/g6-042-causal-state';
 import {
   createSeamMaterializedRowTracker,
   createUniqueSeamCampaign,
