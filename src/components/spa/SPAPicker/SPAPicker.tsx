@@ -6,7 +6,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 
 import type { ISPADefinition, SPASource } from '@/types/spa/SPADefinition';
 
-import { getAllSPAs } from '@/lib/spa';
+import { canonicalizeSPAIds, getAllSPAs } from '@/lib/spa';
 
 import { CategoryTabs, type CategoryTabId } from './CategoryTabs';
 import { SearchInput } from './SearchInput';
@@ -213,7 +213,7 @@ export function SPAPicker({
     [allowedSources],
   );
   const excludedSet = useMemo(
-    () => new Set<string>(excludedIds ?? []),
+    () => new Set<string>(canonicalizeSPAIds(excludedIds ?? [])),
     [excludedIds],
   );
 

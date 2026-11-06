@@ -18,6 +18,14 @@ After the data-readiness contract is satisfied, each source subtype SHALL open t
 - **THEN** it SHALL expose the loading or unsupported state clearly
 - **AND** it SHALL NOT display placeholder calculations as final rules results
 
+#### Scenario: Aerospace Velocity uses the working movement form
+
+- **GIVEN** an editable aerospace fighter or small craft
+- **WHEN** its existing Velocity tab opens
+- **THEN** it SHALL expose the same engine, safe thrust and fuel controls as Structure rather than a placeholder
+- **AND** maximum thrust, engine rating and fuel points SHALL display the stored domain results after edits
+- **AND** read-only mode SHALL disable every mutation control
+
 ### Requirement: Subtype workflow acceptance
 
 Each subtype SHALL support a real source-load, edit, save, reopen and print flow with identical domain figures across forms, status displays and the selected record sheet. Acceptance SHALL verify structural and behavioral fidelity to the pinned MegaMekLab editor, narrow/wide layouts and keyboard use; numerical tolerance SHALL NOT be used as a visual-similarity measure.

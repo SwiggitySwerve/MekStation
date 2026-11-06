@@ -13430,7 +13430,7 @@
     "file": "weapons/energy-laser.json",
     "index": 0,
     "id": "small-laser",
-    "sha256": "927e0ebdff7539f3682f7ed5a6bb28ab184f7c48a70482e22243c27cb0d34d1f",
+    "sha256": "da44ae8bc80ef20452fb62c4be5075d6a800cff59a3a4c3a2fb5417295d82922",
     "item": {
       "id": "small-laser",
       "name": "Small Laser",
@@ -13454,14 +13454,14 @@
       },
       "costCBills": 11250,
       "battleValue": 9,
-      "introductionYear": 2300
+      "introductionYear": 2290
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 1,
     "id": "medium-laser",
-    "sha256": "851c5af943c26adefd7b076a650c0659852fce8295898a8ac035e64804035a17",
+    "sha256": "5bf38fc3701101ae2e894fbc1e00e7f8a3a0b88c32ec5989ab8723644b7d2343",
     "item": {
       "id": "medium-laser",
       "name": "Medium Laser",
@@ -13485,7 +13485,7 @@
       },
       "costCBills": 40000,
       "battleValue": 46,
-      "introductionYear": 2300
+      "introductionYear": 2290
     }
   },
   {
@@ -13523,7 +13523,7 @@
     "file": "weapons/energy-laser.json",
     "index": 3,
     "id": "er-small-laser",
-    "sha256": "ad103d9a73eb07223c0cb775be1680c5ed740091295ec55546620a0e21ecfa27",
+    "sha256": "94c73fe041b38b75467e335a8595d95fb520900f64bb81ff831a53872724c55d",
     "item": {
       "id": "er-small-laser",
       "name": "ER Small Laser",
@@ -13547,14 +13547,14 @@
       },
       "costCBills": 11250,
       "battleValue": 17,
-      "introductionYear": 3058
+      "introductionYear": 3052
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 4,
     "id": "er-medium-laser",
-    "sha256": "01b2ff754a62ef079b0412a46659125c7f208399239cdae1be7d0a893cf5ea6d",
+    "sha256": "b3d4f8033b1b428303ebd0692c7b5b000a3a0aaefd30a596a0f5de6659dcf7e5",
     "item": {
       "id": "er-medium-laser",
       "name": "ER Medium Laser",
@@ -13578,14 +13578,14 @@
       },
       "costCBills": 80000,
       "battleValue": 62,
-      "introductionYear": 3058
+      "introductionYear": 3052
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 5,
     "id": "er-large-laser",
-    "sha256": "f050e585d17c1e9e04057bf7849c50abeea904b873abcd4529668362c94a7a26",
+    "sha256": "6904d3f81b107df8b7d0a6854a218ddc1cffb959bcaff3edfe1866b26a5cdbeb",
     "item": {
       "id": "er-large-laser",
       "name": "ER Large Laser",
@@ -13609,7 +13609,7 @@
       },
       "costCBills": 200000,
       "battleValue": 163,
-      "introductionYear": 2620,
+      "introductionYear": 2605,
       "extinctionYear": 2950,
       "reintroductionYear": 3037
     }
@@ -13650,7 +13650,7 @@
     "file": "weapons/energy-laser.json",
     "index": 7,
     "id": "clan-er-small-laser",
-    "sha256": "45c04a8b2df94c6f8a6d8c06cffb88daf390cd1d630179491972dd7b1c098759",
+    "sha256": "f11763f891837ad82c8b5515c3359d15a9d3907921981467cd4babaa8d8cbe03",
     "item": {
       "id": "clan-er-small-laser",
       "name": "ER Small Laser (Clan)",
@@ -13674,14 +13674,14 @@
       },
       "costCBills": 11250,
       "battleValue": 31,
-      "introductionYear": 2825
+      "introductionYear": 2817
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 8,
     "id": "clan-er-medium-laser",
-    "sha256": "0a47e763ae45a65026d61d91c30c6f2600ab1395511782d1afd9e41c36892dc4",
+    "sha256": "10a2add72314beab3113bfb00398f2f3cd9c45ba0d1348db83d2524dcfb95ba6",
     "item": {
       "id": "clan-er-medium-laser",
       "name": "ER Medium Laser (Clan)",
@@ -13705,14 +13705,14 @@
       },
       "costCBills": 80000,
       "battleValue": 108,
-      "introductionYear": 2824
+      "introductionYear": 2817
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 9,
     "id": "clan-er-large-laser",
-    "sha256": "4bb84ae8cb392ea17f08e2f69c64296dba2591fdc97f1980c1c22f03b75bcf9e",
+    "sha256": "3cc26685129a5659b318fc557a7d8ed33d6889c56c46f5f90b2d9d9d3225b43d",
     "item": {
       "id": "clan-er-large-laser",
       "name": "ER Large Laser (Clan)",
@@ -13736,14 +13736,14 @@
       },
       "costCBills": 200000,
       "battleValue": 248,
-      "introductionYear": 2825
+      "introductionYear": 2815
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 10,
     "id": "small-pulse-laser",
-    "sha256": "bc9efef522ab7795942b298c360ee78bfceabe2e1f0564125e9afd15103c30e0",
+    "sha256": "2fd59ca1252189d619c15599b896218ae0e5b956645b64be8a18e00c60bffa7e",
     "item": {
       "id": "small-pulse-laser",
       "name": "Small Pulse Laser",
@@ -13767,7 +13767,7 @@
       },
       "costCBills": 16000,
       "battleValue": 12,
-      "introductionYear": 2609,
+      "introductionYear": 2595,
       "special": ["-2 to-hit modifier"],
       "extinctionYear": 2950,
       "reintroductionYear": 3037
@@ -13777,7 +13777,7 @@
     "file": "weapons/energy-laser.json",
     "index": 11,
     "id": "medium-pulse-laser",
-    "sha256": "9694f732205c47fcae50425a7794cd2cf13572206573e9b9f576d05ff87896f9",
+    "sha256": "f796947f87039902011fbf4a6f30687eff6217e2b5cfb0942394fa9b80aafa10",
     "item": {
       "id": "medium-pulse-laser",
       "name": "Medium Pulse Laser",
@@ -13801,7 +13801,7 @@
       },
       "costCBills": 60000,
       "battleValue": 48,
-      "introductionYear": 2609,
+      "introductionYear": 2595,
       "special": ["-2 to-hit modifier"],
       "extinctionYear": 2950,
       "reintroductionYear": 3037
@@ -13811,7 +13811,7 @@
     "file": "weapons/energy-laser.json",
     "index": 12,
     "id": "large-pulse-laser",
-    "sha256": "6c61927e34813075a8d49d32f2c16e656c88db0fd6fd874f26305d41768b370c",
+    "sha256": "7d248222372f141d5ca20b7dfc19c5a0cd96f1231869170d66650aa6a03774b2",
     "item": {
       "id": "large-pulse-laser",
       "name": "Large Pulse Laser",
@@ -13835,7 +13835,7 @@
       },
       "costCBills": 175000,
       "battleValue": 119,
-      "introductionYear": 2609,
+      "introductionYear": 2595,
       "special": ["-2 to-hit modifier"],
       "extinctionYear": 2950,
       "reintroductionYear": 3037
@@ -13845,7 +13845,7 @@
     "file": "weapons/energy-laser.json",
     "index": 13,
     "id": "clan-micro-pulse-laser",
-    "sha256": "5e1385cbbf9ebd2b812880733f877bb6ce94b0af99794d685bcd1204042039b8",
+    "sha256": "4d6f489358a50b4bbeb05bb9341a7a135ba580b4245966ef483218f519ddcb7f",
     "item": {
       "id": "clan-micro-pulse-laser",
       "name": "Micro Pulse Laser (Clan)",
@@ -13869,7 +13869,7 @@
       },
       "costCBills": 12500,
       "battleValue": 12,
-      "introductionYear": 3060,
+      "introductionYear": 3054,
       "special": ["-2 to-hit modifier"]
     }
   },
@@ -13877,7 +13877,7 @@
     "file": "weapons/energy-laser.json",
     "index": 14,
     "id": "clan-small-pulse-laser",
-    "sha256": "233f51451d927214a310e86284c472c84b22242127bc888f43aa8fd793ccaaf2",
+    "sha256": "66e62a92b1ae715ee00dedc79fefb04e8178d86fa994e8f691d9006bde1f007d",
     "item": {
       "id": "clan-small-pulse-laser",
       "name": "Small Pulse Laser (Clan)",
@@ -13901,7 +13901,7 @@
       },
       "costCBills": 16000,
       "battleValue": 24,
-      "introductionYear": 2829,
+      "introductionYear": 2820,
       "special": ["-2 to-hit modifier"]
     }
   },
@@ -13909,7 +13909,7 @@
     "file": "weapons/energy-laser.json",
     "index": 15,
     "id": "clan-medium-pulse-laser",
-    "sha256": "da288f72dea01a55dcf948233c01ef1cc0424284cdfafe9b4f81f782cfa8493d",
+    "sha256": "6a30c26732d550660db002256c722ace4d87eb0174c6be4e5abb0c3ecfc2731d",
     "item": {
       "id": "clan-medium-pulse-laser",
       "name": "Medium Pulse Laser (Clan)",
@@ -13933,7 +13933,7 @@
       },
       "costCBills": 60000,
       "battleValue": 111,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["-2 to-hit modifier"]
     }
   },
@@ -13941,7 +13941,7 @@
     "file": "weapons/energy-laser.json",
     "index": 16,
     "id": "clan-large-pulse-laser",
-    "sha256": "570298f65d26e1011b1e6447362111b0ff3ac238e52bee711a679c23ac8a1ab4",
+    "sha256": "3612674f017f0167936fed32c1d72f60d8c90cf2b46a920bfb864d404b3bccca",
     "item": {
       "id": "clan-large-pulse-laser",
       "name": "Large Pulse Laser (Clan)",
@@ -13965,7 +13965,7 @@
       },
       "costCBills": 175000,
       "battleValue": 265,
-      "introductionYear": 2824,
+      "introductionYear": 2820,
       "special": ["-2 to-hit modifier"]
     }
   },
@@ -14165,7 +14165,7 @@
     "file": "weapons/energy-laser.json",
     "index": 23,
     "id": "small-vsp-laser",
-    "sha256": "b3af35731f61cc65ce73e6a0c472cddab9cd7a7edfdfce71aff8e0da3c476f08",
+    "sha256": "287b9d641d53acd0e0573d681433b7a1e5ecaf603895f9e8a263d6f74b76ebd0",
     "item": {
       "id": "small-vsp-laser",
       "name": "Small Variable Speed Pulse Laser",
@@ -14189,7 +14189,7 @@
       },
       "costCBills": 60000,
       "battleValue": 22,
-      "introductionYear": 3072,
+      "introductionYear": 3070,
       "special": ["variable damage (5/4/3)"]
     }
   },
@@ -14197,7 +14197,7 @@
     "file": "weapons/energy-laser.json",
     "index": 24,
     "id": "medium-vsp-laser",
-    "sha256": "c70b9a77aa403af111511eeae2aaf8bfc7f754c0fc7ae851350a509f6b9f4598",
+    "sha256": "c4ffb1b7abf30679986e64455f06bdc8bfcf55eacf245f77a14df6ad2c076892",
     "item": {
       "id": "medium-vsp-laser",
       "name": "Medium Variable Speed Pulse Laser",
@@ -14221,7 +14221,7 @@
       },
       "costCBills": 200000,
       "battleValue": 56,
-      "introductionYear": 3072,
+      "introductionYear": 3070,
       "special": ["variable damage (9/7/5)"]
     }
   },
@@ -14229,7 +14229,7 @@
     "file": "weapons/energy-laser.json",
     "index": 25,
     "id": "large-vsp-laser",
-    "sha256": "0461f529d83e07bd0e3f6183501ba67eec5ace44d9d58e93a83df22c936bfa09",
+    "sha256": "2efc1fcccb2a199398b960e49140a40e92e3ae372bc25e9180170ca14074c6e7",
     "item": {
       "id": "large-vsp-laser",
       "name": "Large Variable Speed Pulse Laser",
@@ -14253,7 +14253,7 @@
       },
       "costCBills": 465000,
       "battleValue": 123,
-      "introductionYear": 3072,
+      "introductionYear": 3070,
       "special": ["variable damage (11/9/7)"]
     }
   },
@@ -14292,7 +14292,7 @@
     "file": "weapons/energy-laser.json",
     "index": 27,
     "id": "small-heavy-laser",
-    "sha256": "8c4931f569299de42e6af34d32f9cb5ad6d7eb288e0c26ee3ec5200fe08e567d",
+    "sha256": "8a2e870b8fd47e42a2097cf85f8cf3db1e0b8a5f90d9c6f985b38b1dd8f18327",
     "item": {
       "id": "small-heavy-laser",
       "name": "Small Heavy Laser (Clan)",
@@ -14316,7 +14316,7 @@
       },
       "costCBills": 20000,
       "battleValue": 15,
-      "introductionYear": 3058,
+      "introductionYear": 3057,
       "special": ["+1 to-hit modifier"]
     }
   },
@@ -14324,7 +14324,7 @@
     "file": "weapons/energy-laser.json",
     "index": 28,
     "id": "medium-heavy-laser",
-    "sha256": "b6593eea979c4409f147dbfa1f4bf796788c1b0681bbd28d7d18df2a9c4759ba",
+    "sha256": "411050da0535c8e95d2712444a3c6cc73851f9b78d34677cbc4dcf9ce3529c83",
     "item": {
       "id": "medium-heavy-laser",
       "name": "Medium Heavy Laser (Clan)",
@@ -14348,7 +14348,7 @@
       },
       "costCBills": 100000,
       "battleValue": 76,
-      "introductionYear": 3058,
+      "introductionYear": 3057,
       "special": ["+1 to-hit modifier"]
     }
   },
@@ -14356,7 +14356,7 @@
     "file": "weapons/energy-laser.json",
     "index": 29,
     "id": "large-heavy-laser",
-    "sha256": "27aeea89bdadcf0c75dd558edc9d15c3727813dafb8df85c3fac3918affe6ab8",
+    "sha256": "5681bd6258f8a39ca3a56d3ff5fc44e88341024f7988462eafd4a5c67d50a30b",
     "item": {
       "id": "large-heavy-laser",
       "name": "Large Heavy Laser (Clan)",
@@ -14380,7 +14380,7 @@
       },
       "costCBills": 250000,
       "battleValue": 244,
-      "introductionYear": 3058,
+      "introductionYear": 3057,
       "special": ["+1 to-hit modifier"]
     }
   },
@@ -14487,7 +14487,7 @@
     "file": "weapons/energy-laser.json",
     "index": 33,
     "id": "basmallvsplaser",
-    "sha256": "8094ba07f32f6a33ba05addf3fc75d9a29ae848b562925299903e824b3592480",
+    "sha256": "38e43fe9aafda1c410cc6121bbbc83a74946e709aa422a7eeab552f63f2ad7fd",
     "item": {
       "id": "basmallvsplaser",
       "name": "Small VSP Laser",
@@ -14512,7 +14512,7 @@
       },
       "costCBills": 60000,
       "battleValue": 22,
-      "introductionYear": 3072,
+      "introductionYear": 3070,
       "special": [],
       "allowedUnitTypes": ["Battle Armor"]
     }
@@ -14677,7 +14677,7 @@
     "file": "weapons/energy-laser.json",
     "index": 39,
     "id": "improved-large-laser",
-    "sha256": "36722088da5c9c1d4e021832975b63f70527eaea0b0edc86d27c0003fc1527f9",
+    "sha256": "1587d202a67184c8ddf33bbc5be9397c48f8a2b663b34a295b4d491c20ff6ec3",
     "item": {
       "id": "improved-large-laser",
       "name": "Improved Large Laser",
@@ -14701,7 +14701,7 @@
       },
       "costCBills": 100000,
       "battleValue": 123,
-      "introductionYear": 2815,
+      "introductionYear": 2807,
       "extinctionYear": 2830,
       "reintroductionYear": 3080
     }
@@ -14865,7 +14865,7 @@
     "file": "weapons/energy-ppc.json",
     "index": 1,
     "id": "er-ppc",
-    "sha256": "d0e727c5bc0d0cbb974e0d9024b1794438eb1728e37f9ce086f1aba10660edb5",
+    "sha256": "c4bb1a9e8d8c573c3b725f16f550c8eac3f022e98112dc4126c0713b58192bcc",
     "item": {
       "id": "er-ppc",
       "name": "ER PPC",
@@ -14889,7 +14889,7 @@
       },
       "costCBills": 300000,
       "battleValue": 229,
-      "introductionYear": 2751,
+      "introductionYear": 2735,
       "extinctionYear": 2860,
       "reintroductionYear": 3037
     }
@@ -14993,7 +14993,7 @@
     "file": "weapons/energy-ppc.json",
     "index": 5,
     "id": "clan-er-ppc",
-    "sha256": "eff4413b5b7628c5607040f265caba67ee706bcefd9beaf3feeffb4d065883f4",
+    "sha256": "c7ff3c9afdded0e23adece31986d066e63d98ae90fd485d1b4afb6d3561e7978",
     "item": {
       "id": "clan-er-ppc",
       "name": "ER PPC (Clan)",
@@ -15017,14 +15017,14 @@
       },
       "costCBills": 300000,
       "battleValue": 412,
-      "introductionYear": 2826
+      "introductionYear": 2818
     }
   },
   {
     "file": "weapons/energy-ppc.json",
     "index": 6,
     "id": "enhanced-er-ppc",
-    "sha256": "400de5e1490df74a612ada5f420d07715b043e5673f4774fd3c772aacf736d5d",
+    "sha256": "6046a3bc5a86cbf59a78bc002490600ac58bf8bb2d8bf8032395b5ed66361742",
     "item": {
       "id": "enhanced-er-ppc",
       "name": "Enhanced ER PPC",
@@ -15048,7 +15048,7 @@
       },
       "costCBills": 300000,
       "battleValue": 329,
-      "introductionYear": 2823,
+      "introductionYear": 2817,
       "extinctionYear": 2831,
       "reintroductionYear": 3080
     }
@@ -15057,7 +15057,7 @@
     "file": "weapons/energy-other.json",
     "index": 0,
     "id": "plasma-rifle",
-    "sha256": "7e58b281691ced13aa41a07bccfe21a895b816f14e920b449fa4353a61f2ca5d",
+    "sha256": "74d19aa86d4cf3c9301f879f5c4ac233ed6c07bf639609e5dbc31fe096314dac",
     "item": {
       "id": "plasma-rifle",
       "name": "Plasma Rifle",
@@ -15081,7 +15081,7 @@
       },
       "costCBills": 260000,
       "battleValue": 210,
-      "introductionYear": 3068
+      "introductionYear": 3056
     }
   },
   {
@@ -15151,7 +15151,7 @@
     "file": "weapons/energy-other.json",
     "index": 3,
     "id": "er-flamer",
-    "sha256": "a571ae126486b7edd0d72a46f9a2f74b8981809af977e14a9687dd1a451fcd78",
+    "sha256": "ba43ab233d9b732fe1875562bfc45dbe016dfeedeeba157c536f5d7843fbcf32",
     "item": {
       "id": "er-flamer",
       "name": "ER Flamer",
@@ -15175,7 +15175,7 @@
       },
       "costCBills": 15000,
       "battleValue": 16,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": ["Causes 2 heat to target"]
     }
   },
@@ -15376,7 +15376,7 @@
     "file": "weapons/energy-other.json",
     "index": 10,
     "id": "clan-plasma-cannon",
-    "sha256": "e0cc74c24c4ebe5f05d12e9be1d569d30359a14fcb18bae2a1405e0319a4a09f",
+    "sha256": "d2c8362744b5b730576052e0addd25226e65f9bf45ce9f1b7bb4e1b93bed2255",
     "item": {
       "id": "clan-plasma-cannon",
       "name": "Plasma Cannon (Clan)",
@@ -15401,7 +15401,7 @@
       "ammoPerTon": 10,
       "costCBills": 320000,
       "battleValue": 170,
-      "introductionYear": 3069,
+      "introductionYear": 3063,
       "special": ["Causes heat to target"]
     }
   },

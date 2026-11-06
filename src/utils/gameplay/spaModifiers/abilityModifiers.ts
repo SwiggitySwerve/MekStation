@@ -4,6 +4,7 @@
  * Tactical Genius, Iron Man, Hot Dog, Cluster Hitter, and related abilities.
  */
 
+import { hasRepresentedActiveDNI } from '@/lib/spa/neuralInterface';
 import { MovementType } from '@/types/gameplay';
 import { IToHitModifierDetail } from '@/types/gameplay';
 import {
@@ -214,7 +215,7 @@ export function calculateVdniRangedToHitModifier(
   abilities: readonly string[],
   neuralInterfaceActive = true,
 ): IToHitModifierDetail | null {
-  if (!neuralInterfaceActive) return null;
+  if (!hasRepresentedActiveDNI(abilities, neuralInterfaceActive)) return null;
   if (hasSPA(abilities, 'proto_dni')) {
     return {
       name: 'Prototype DNI',
@@ -445,7 +446,7 @@ export function calculateNeuralInterfacePilotingModifier(
   unitType?: string,
   neuralInterfaceActive = true,
 ): INeuralInterfacePilotingModifier | null {
-  if (!neuralInterfaceActive) return null;
+  if (!hasRepresentedActiveDNI(abilities, neuralInterfaceActive)) return null;
   if (!isMekTargetUnitType(unitType)) return null;
   if (hasSPA(abilities, 'proto_dni')) {
     return { name: 'Prototype DNI', value: -3 };
