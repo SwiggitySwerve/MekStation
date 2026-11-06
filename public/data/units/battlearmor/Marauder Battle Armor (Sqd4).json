@@ -103,5 +103,8 @@
     "history": "<p>The Marauder grew out of the Marian Hegemony's expanding battle armor program, which began with Dr. Dafyyd Rou's development of the Ravager on Horatius in the mid-3080s. Building on lessons learned from their first suit, Marian Arms engineers pursued a lighter design that prioritized offensive capability over raw durability. The result entered service in 3110, drawing its name and weapon configuration from the iconic Marauder BattleMech.</p><p>The suit saw its first major combat deployment during the Landfall rebellion of 3117, when Free Leaguer dissidents seized large portions of the planet. II Legio deployed Marauder squads during the bloody street fighting in New Erewhon, where the suits proved decisive against rebel BattleMechs. The capture of the rebel leader during that engagement was broadcast across the Hegemony, bringing the Marauder to widespread public attention.</p><p>Marian Arms licensed the design to Pinard Protectorates Limited in the Taurian Concordat, and both nations sell the suit freely to mercenaries in their employ.</p>",
     "manufacturer": "Marian Arms, Inc.|Pinard Protectorates Limited",
     "primaryFactory": "Horatius|Macleod's Land"
+  },
+  "weaponQuirks": {
+    "Squad:2:CLBALight Recoilless Rifle": ["accurate"]
   }
 }

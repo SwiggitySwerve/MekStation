@@ -119,5 +119,8 @@
     "history": "<p>General Motors began manufacturing the Fusilier at their Salem plant in the early 3120s, producing a suit that filled no particular gap in the AFFS order of battle. The Department of the Quartermaster however procured the design, and GM continued production for over a decade before introducing an upgraded variant after the Blackout. The Fusilier drew on design elements from both the Grenadier and the Sea Fox, producing a competent if unremarkable assault suit that earned a reputation for solid construction rather than any defining tactical specialty.</p><p>Capellan March Militia units developed a marked preference for the original model over the upgrade. A 3139 raid conducted by a New Syrtis CMM detachment on the training world of Nihal demonstrated the reason clearly: when both variants came under fire inside a collapsing structure, the upgraded suits crumpled under falling debris while the original models completed the mission and escaped. The incident reinforced a broader reluctance among frontline units to adopt the newer variant. Warrior House Ijori also acquired captured Fusiliers and employed them on raids across formerly Davion worlds, proving the suit capable even in Capellan hands.</p>",
     "manufacturer": "General Motors",
     "primaryFactory": "Salem"
+  },
+  "weaponQuirks": {
+    "Squad:1:CLBALightMG": ["accurate"]
   }
 }

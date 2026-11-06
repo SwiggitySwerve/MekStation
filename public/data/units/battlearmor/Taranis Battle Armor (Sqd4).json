@@ -127,5 +127,9 @@
     "history": "<p>Krupp Armament Works on Terra developed the Taranis for the Republic Armed Forces, introducing the heavy battlesuit in 3123. The design emerged from the Republic's emphasis on combined arms doctrine, filling a need for a heavyweight infantry platform capable of operating alongside OmniMech formations. Production at Krupp's Terran facilities supplied the suit in company-strength batches to front-line formations, with the Hastati Sentinels and Principes Guards receiving priority allocations.</p><p>The Taranis earned its reputation in several engagements during the Republic's turbulent later years. On Markab in 3134, troopers attached to the Third Principes Guards helped defeat a Spirit Cat force that had been terrorizing local militia. The battle armor's firepower pinned the Clan warriors in place while the rest of the Third maneuvered behind them, shattering what little unit cohesion remained. The suit saw heavier fighting on Epsilon Eridani in 3141, where Taranis troopers of the Fourteenth Hastati Sentinels deployed via combat drop directly onto renegade Com Guard positions. The assault captured a key artillery outpost, though the close-quarters fighting exacted a steep toll on the attackers.</p>",
     "manufacturer": "Krupp Armament Works",
     "primaryFactory": "Terra"
+  },
+  "weaponQuirks": {
+    "Squad:2:CLBAHeavy Recoilless Rifle": ["mod_weapons"],
+    "Squad:4:ISBAMediumLaser": ["mod_weapons"]
   }
 }

@@ -72,5 +72,11 @@
     "history": "<p>Hellespont Industrials developed the Shen Long on Sian, introducing the suit in 3092 to fulfill a Capellan Confederation Armed Forces requirement for a heavy battle armor platform built around ambush and interdiction tactics. Hellespont drew on existing expertise in advanced armor and modular weapon systems to deliver a quad-chassis suit that sacrificed manipulators for raw speed and a turret-mounted weapon platform. The name, meaning \"Divine Dragon\" in Chinese, reflected the aggressive doctrine the design was intended to enable.</p><p>The suit first proved itself during the Victoria War, when Menke Home Guard units paired Shen Long squads with Fa Shih minelaying teams to ambush a Davion BattleMech lance. The combined force lured the overconfident MechWarriors into a prepared minefield, then used multiple configurations to overwhelm and deceive the disoriented enemy, capturing an assault BattleMech in the process. On Yuris in 3103, Shen Long troopers harassed a Davion task force during weeks of fighting, though ammunition shortages forced several teams to surrender when reinforcements closed in.</p><p>The Magistracy of Canopus adopted the design with enthusiasm. Magistracy Armed Forces commanders prize Shen Long assignments as a mark of distinction, though the honor carries high casualty rates and routine exposure to difficult engagements.</p>",
     "manufacturer": "Hellespont Industrials",
     "primaryFactory": "Sian"
+  },
+  "weaponQuirks": {
+    "Squad:0:CLBAMG": ["mod_weapons"],
+    "Squad:1:CLBAMG": ["mod_weapons"],
+    "Squad:2:CLBAMG": ["mod_weapons"],
+    "Squad:3:CLBAMG": ["mod_weapons"]
   }
 }
