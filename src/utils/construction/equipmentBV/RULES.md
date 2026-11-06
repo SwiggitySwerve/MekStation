@@ -329,18 +329,36 @@ identity, and the pinned corpus comparison checks Mech BV regression.
 
 ## Shared machine-gun-array links
 
-`linkMachineGunArrayBVWeapons` owns the native no-critical-slot fallback for
-all families: up to four unused
+`linkMachineGunArrayBVWeapons` owns native critical-slot selection and the
+no-critical-slot fallback for all families: up to four unused
 same-location/same-rack MGs in source order. Gun rack identity reuses the native
 ammo-group owner with raw source spelling, falling back to resolved gun name.
 Array BV is 0.67 times linked gun base BV, in addition to the guns themselves;
 the catalog array base zero remains valid. Arrays lack F_DIRECT_FIRE and do
-not gain aircraft TC. Mech critical-slot assignment stays outside this input
-contract. Source: pin 48fcb2f64, MekFileParser.java:928-944,
+not gain aircraft TC. Optional ordered critical references point to the same
+plain gun mounts; undefined entries preserve blockers. For each array, scanning
+starts at slot zero, skips initial nonqualifying/used mounts, and stops at the
+first nonqualifying slot after linking begins or after four guns. No linked
+guns triggers the unchanged weapon-list fallback, regardless of BV sum.
+Source: pin 48fcb2f64, MekFileParser.java:894-945,
 BVCalculator.java:807-816, CLMGA.java:74-88. Aircraft and vehicle consumers
 project plain mount facts into this one owner; the previous aircraft export
 is a compatibility alias. Tests: equipmentBV.machineGunArrayLinks,
 aerospaceBV.machineGunArrays and vehicleBV.machineGunArrays (Puma PAT-007).
+
+The Mech projection in `mechBV/machineGunArrays.ts` retains its closed legacy
+array/gun aliases, quantity-prefix handling and location comparison. It calls
+the same selection/value owner before drone and other weapon modifiers.
+`linkedBaseBV` preserves its positive-base admission guard; other callers keep
+their own zero/negative/nonfinite policy. Accumulation order and unrounded
+0.67 scaling remain in the shared owner. It projects Mech critical spellings
+through the existing critical-name normalizer and closed gun groups, assigning
+each admitted one-slot gun once. Other families continue using the unchanged
+fallback; their projection, overrides, TC and arc policies remain distinct.
+Black Lanner F LA and Linebacker I LA/RA now link three guns to each array:
+10.05/10.05 instead of 13.4/6.7. Both have the same mathematical location sum
+20.1; totals alone cannot establish mount parity. Repartitioning may change
+binary floating-point addition at the last bit; no rounding/clamp is added.
 
 ## One-shot BV heat
 
