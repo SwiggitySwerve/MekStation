@@ -198,5 +198,8 @@
   },
   "mulId": 6349,
   "role": "Brawler",
-  "source": "TR:3145:FS,TR:DA"
+  "source": "TR:3145:FS,TR:DA",
+  "weaponQuirks": {
+    "LA:3:ISERPPC": ["accurate"]
+  }
 }

@@ -199,5 +199,9 @@
   },
   "mulId": 1112,
   "role": "Scout",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "LA:3:Flamer": ["exposed_linkage"],
+    "RA:3:Flamer": ["exposed_linkage"]
+  }
 }

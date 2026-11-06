@@ -179,5 +179,8 @@
   },
   "mulId": 2505,
   "role": "Skirmisher",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "RA:4:ISPlasmaRifle": ["jettison_capable"]
+  }
 }

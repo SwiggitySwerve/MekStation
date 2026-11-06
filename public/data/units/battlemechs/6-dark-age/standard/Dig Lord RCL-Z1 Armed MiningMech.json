@@ -173,5 +173,8 @@
   },
   "mulId": 5565,
   "role": "Ambusher",
-  "source": "XTR:Periphery"
+  "source": "XTR:Periphery",
+  "weaponQuirks": {
+    "RA:7:ISMediumVibroblade": ["jettison_capable"]
+  }
 }

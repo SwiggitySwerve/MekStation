@@ -182,5 +182,8 @@
   },
   "mulId": 9352,
   "role": "Striker",
-  "source": "RG27"
+  "source": "RG27",
+  "weaponQuirks": {
+    "RA:4:Hatchet": ["mod_weapons"]
+  }
 }

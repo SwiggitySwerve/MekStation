@@ -182,5 +182,11 @@
   },
   "mulId": 4624,
   "role": "Scout",
-  "source": "TR:3039,TR:3025r"
+  "source": "TR:3039,TR:3025r",
+  "weaponQuirks": {
+    "RA:4:Medium Laser": ["mod_weapons"],
+    "LT:0:Medium Laser": ["mod_weapons"],
+    "CT:10:Small Laser": ["mod_weapons"],
+    "HD:3:Small Laser": ["mod_weapons"]
+  }
 }

@@ -186,5 +186,8 @@
   },
   "mulId": 2475,
   "role": "Striker",
-  "source": "TR:3055U"
+  "source": "TR:3055U",
+  "weaponQuirks": {
+    "CT:10:CLERMediumLaser": ["stable_weapon"]
+  }
 }

@@ -179,5 +179,8 @@
   },
   "mulId": 978,
   "role": "Skirmisher",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "RA:3:ISLBXAC10": ["imp_cooling", "ammo_feed_problems", "fast_reload"]
+  }
 }

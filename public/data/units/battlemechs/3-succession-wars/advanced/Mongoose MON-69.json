@@ -186,5 +186,9 @@
   },
   "mulId": 4656,
   "role": "Striker",
-  "source": "TR:3050,TR:SW"
+  "source": "TR:3050,TR:SW",
+  "weaponQuirks": {
+    "CT:10:Medium Laser": ["stable_weapon"],
+    "HD:3:Small Laser": ["stable_weapon"]
+  }
 }

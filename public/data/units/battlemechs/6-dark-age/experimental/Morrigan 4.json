@@ -210,5 +210,8 @@
   },
   "mulId": 6927,
   "role": "Striker",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "weaponQuirks": {
+    "RA:3:TSEMP Cannon": ["stable_weapon"]
+  }
 }

@@ -182,5 +182,8 @@
   },
   "mulId": 7647,
   "role": "Brawler",
-  "source": "TR:GC"
+  "source": "TR:GC",
+  "weaponQuirks": {
+    "RT:3:CLWERPPC": ["accurate"]
+  }
 }

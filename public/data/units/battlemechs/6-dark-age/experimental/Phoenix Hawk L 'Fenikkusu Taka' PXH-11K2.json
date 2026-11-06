@@ -183,5 +183,8 @@
   },
   "mulId": 6391,
   "role": "Striker",
-  "source": "TR:3145:DC,TR:3150"
+  "source": "TR:3145:DC,TR:3150",
+  "weaponQuirks": {
+    "RA:4:ISSNPPC": ["accurate"]
+  }
 }

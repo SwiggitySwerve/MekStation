@@ -199,5 +199,9 @@
   },
   "mulId": 968,
   "role": "Sniper",
-  "source": "TR:3058U,TR:SW"
+  "source": "TR:3058U,TR:SW",
+  "weaponQuirks": {
+    "LA:8:ISERLargeLaser": ["imp_cooling"],
+    "RA:8:ISERLargeLaser": ["imp_cooling"]
+  }
 }

@@ -178,5 +178,8 @@
   },
   "mulId": 6264,
   "role": "Sniper",
-  "source": "TR:3145:C,TR:DA"
+  "source": "TR:3145:C,TR:DA",
+  "weaponQuirks": {
+    "LA:5:CLERPPC": ["exposed_linkage"]
+  }
 }

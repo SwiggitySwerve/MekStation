@@ -175,5 +175,8 @@
   },
   "mulId": 7375,
   "role": "Striker",
-  "source": "XTR:RotS 3"
+  "source": "XTR:RotS 3",
+  "weaponQuirks": {
+    "RA:4:CLLargePulseLaser": ["jettison_capable"]
+  }
 }

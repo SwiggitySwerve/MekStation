@@ -178,5 +178,8 @@
   },
   "mulId": 4755,
   "role": "Brawler",
-  "source": "XTR:Primitives V"
+  "source": "XTR:Primitives V",
+  "weaponQuirks": {
+    "RT:0:Autocannon/5": ["ammo_feed_problems"]
+  }
 }

@@ -182,5 +182,8 @@
   },
   "mulId": 7648,
   "role": "Sniper",
-  "source": "TR:GC"
+  "source": "TR:GC",
+  "weaponQuirks": {
+    "RT:2:CLERPPC": ["accurate"]
+  }
 }

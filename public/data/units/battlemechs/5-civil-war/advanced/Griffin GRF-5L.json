@@ -193,5 +193,8 @@
   },
   "mulId": 1304,
   "role": "Skirmisher",
-  "source": "TR:3085,BattleCorps"
+  "source": "TR:3085,BattleCorps",
+  "weaponQuirks": {
+    "RA:7:ISPlasmaRifle": ["jettison_capable"]
+  }
 }

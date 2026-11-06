@@ -182,5 +182,9 @@
   },
   "mulId": 9577,
   "role": "Juggernaut",
-  "source": "RG33"
+  "source": "RG33",
+  "weaponQuirks": {
+    "LT:6:SRM 6": ["mod_weapons"],
+    "RT:6:SRM 6": ["mod_weapons"]
+  }
 }

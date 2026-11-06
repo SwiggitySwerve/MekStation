@@ -194,5 +194,8 @@
   },
   "mulId": 4528,
   "role": "Striker",
-  "source": "TR:3067"
+  "source": "TR:3067",
+  "weaponQuirks": {
+    "HD:3:CLAntiMissileSystem": ["direct_torso_mount"]
+  }
 }

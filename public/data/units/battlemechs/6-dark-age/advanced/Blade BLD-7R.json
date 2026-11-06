@@ -178,5 +178,10 @@
   },
   "mulId": 6929,
   "role": "Striker",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "weaponQuirks": {
+    "RA:2:ISRotaryAC5": ["exposed_linkage", "static_feed", "mod_weapons"],
+    "RA:8:ISERMediumLaser": ["mod_weapons"],
+    "RA:9:ISERSmallLaser": ["mod_weapons"]
+  }
 }

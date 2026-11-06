@@ -186,5 +186,12 @@
   },
   "mulId": 9327,
   "role": "Sniper",
-  "source": "RG26"
+  "source": "RG26",
+  "weaponQuirks": {
+    "LA:2:CLRotaryAC5": ["stable_weapon"],
+    "RA:2:CLERPPC": ["stable_weapon"],
+    "LT:4:CLERMediumLaser": ["stable_weapon"],
+    "RT:2:CLStreakLRM15": ["stable_weapon"],
+    "CT:10:CLERSmallLaser": ["stable_weapon"]
+  }
 }

@@ -179,5 +179,9 @@
   },
   "mulId": 5078,
   "role": "Skirmisher",
-  "source": "XTR:Steiner"
+  "source": "XTR:Steiner",
+  "weaponQuirks": {
+    "LA:4:ISLargeShield": ["jettison_capable"],
+    "RA:3:CLHeavyLargeLaser": ["stable_weapon"]
+  }
 }

@@ -215,5 +215,8 @@
   },
   "mulId": 7347,
   "role": "Juggernaut",
-  "source": "XTR:RotS 2"
+  "source": "XTR:RotS 2",
+  "weaponQuirks": {
+    "RA:3:Bombast Laser": ["em_interference"]
+  }
 }

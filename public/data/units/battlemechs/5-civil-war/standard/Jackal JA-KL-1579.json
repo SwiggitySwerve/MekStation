@@ -174,5 +174,8 @@
   },
   "mulId": 1654,
   "role": "Scout",
-  "source": "XTR:Marik"
+  "source": "XTR:Marik",
+  "weaponQuirks": {
+    "RT:3:ISERPPC": ["imp_cooling"]
+  }
 }

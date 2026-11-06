@@ -185,5 +185,8 @@
   },
   "mulId": 6767,
   "role": "Skirmisher",
-  "source": "His:OK"
+  "source": "His:OK",
+  "weaponQuirks": {
+    "RA:4:PPC": ["jettison_capable"]
+  }
 }

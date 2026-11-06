@@ -205,5 +205,11 @@
   },
   "mulId": 9545,
   "role": "Juggernaut",
-  "source": "Shrap15"
+  "source": "Shrap15",
+  "weaponQuirks": {
+    "LT:3:Autocannon/2": ["stable_weapon"],
+    "LT:4:Autocannon/2": ["stable_weapon"],
+    "RT:3:Autocannon/2": ["stable_weapon"],
+    "RT:4:Autocannon/2": ["stable_weapon"]
+  }
 }

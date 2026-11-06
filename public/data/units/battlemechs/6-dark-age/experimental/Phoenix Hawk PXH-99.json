@@ -186,5 +186,8 @@
   },
   "mulId": 8106,
   "role": "Juggernaut",
-  "source": "XTR:Caveat"
+  "source": "XTR:Caveat",
+  "weaponQuirks": {
+    "RA:7:ISLargeXPulseLaser": ["jettison_capable"]
+  }
 }

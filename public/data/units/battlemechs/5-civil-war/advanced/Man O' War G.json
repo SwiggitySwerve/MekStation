@@ -197,5 +197,11 @@
   },
   "mulId": 2007,
   "role": "Skirmisher",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "weaponQuirks": {
+    "LA:2:CLAPGaussRifle": ["stable_weapon"],
+    "LA:3:CLAPGaussRifle": ["stable_weapon"],
+    "LA:4:CLAPGaussRifle": ["stable_weapon"],
+    "RA:2:CLLBXAC20": ["stable_weapon"]
+  }
 }

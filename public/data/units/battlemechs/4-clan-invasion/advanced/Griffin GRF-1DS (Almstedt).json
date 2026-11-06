@@ -181,5 +181,8 @@
   },
   "mulId": 8289,
   "role": "Skirmisher",
-  "source": "CM:Kurita,FM:Kurita"
+  "source": "CM:Kurita,FM:Kurita",
+  "weaponQuirks": {
+    "RA:7:ISLargePulseLaser": ["jettison_capable"]
+  }
 }

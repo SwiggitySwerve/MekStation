@@ -195,5 +195,8 @@
   },
   "mulId": 2500,
   "role": "Striker",
-  "source": "TR:3085,Ideal War"
+  "source": "TR:3085,Ideal War",
+  "weaponQuirks": {
+    "RA:4:ISERLargeLaser": ["jettison_capable"]
+  }
 }

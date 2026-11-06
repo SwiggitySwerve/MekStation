@@ -185,5 +185,8 @@
   },
   "mulId": 2488,
   "role": "Brawler",
-  "source": "XTR:Primitives V"
+  "source": "XTR:Primitives V",
+  "weaponQuirks": {
+    "RA:2:PPC": ["em_interference"]
+  }
 }

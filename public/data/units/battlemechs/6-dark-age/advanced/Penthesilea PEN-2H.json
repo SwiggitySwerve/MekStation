@@ -191,5 +191,10 @@
   },
   "mulId": 2470,
   "role": "Brawler",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "CT:9:ISERMediumLaser": ["stable_weapon"],
+    "CT:10:ISERMediumLaser": ["stable_weapon"],
+    "CT:11:ISERMediumLaser": ["stable_weapon"]
+  }
 }

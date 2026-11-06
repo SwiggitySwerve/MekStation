@@ -170,5 +170,8 @@
   },
   "mulId": 6935,
   "role": "Sniper",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "weaponQuirks": {
+    "RT:7:CLERPPC": ["stable_weapon"]
+  }
 }

@@ -191,5 +191,8 @@
   },
   "mulId": 2040,
   "role": "Sniper",
-  "source": "TR:3085S,TR:CI"
+  "source": "TR:3085S,TR:CI",
+  "weaponQuirks": {
+    "RT:6:ISERPPC": ["exposed_linkage"]
+  }
 }

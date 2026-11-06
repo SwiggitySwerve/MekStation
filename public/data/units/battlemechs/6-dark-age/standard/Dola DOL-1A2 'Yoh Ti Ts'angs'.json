@@ -178,5 +178,8 @@
   },
   "mulId": 4087,
   "role": "Scout",
-  "source": "TR:Proto,TR:DA"
+  "source": "TR:Proto,TR:DA",
+  "weaponQuirks": {
+    "RA:4:ISSmallVibroblade": ["jettison_capable"]
+  }
 }

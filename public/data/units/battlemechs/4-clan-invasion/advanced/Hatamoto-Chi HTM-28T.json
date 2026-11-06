@@ -190,5 +190,9 @@
   },
   "mulId": 1401,
   "role": "Sniper",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "LT:7:ISStreakSRM6": ["mod_weapons"],
+    "RT:7:ISStreakSRM6": ["mod_weapons"]
+  }
 }

@@ -7,6 +7,8 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
+import tempfile
 
 from quirk_json import QUIRK_FIELDS, assert_quirk_only_change, patch_quirk_fields
 from source_inventory import build_inventory
@@ -126,7 +128,40 @@ def verify_tree(before: Path, after: Path, *, identical=False):
         assert_quirk_only_change(old, new)
 
 
-def write_family(baseline: Path, output: Path, plan: dict[str, bytes]):
+def format_family(output: Path, files, repo: Path, family: str):
+    """Run the installed formatter in an exact copy of native path/ignore context."""
+    if family not in FAMILIES:
+        raise ValueError('Known canonical family required')
+    names = sorted(files)
+    if any(Path(name).is_absolute() or '..' in Path(name).parts or not (output / name).is_file()
+           for name in names):
+        raise ValueError('Formatter inputs must be existing family files')
+    policy = ('.oxfmtrc.json', '.gitignore', '.prettierignore')
+    executable = repo / 'node_modules/oxfmt/bin/oxfmt'
+    with tempfile.TemporaryDirectory(prefix='quirk-format-', dir=output.parent) as temporary:
+        stage = Path(temporary)
+        for name in policy:
+            shutil.copyfile(repo / name, stage / name)
+        native = Path('public/data/units') / family
+        for name in names:
+            target = stage / native / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(output / name, target)
+        # Keep Windows command lines bounded, as lint-staged does for the hook.
+        for index in range(0, len(names), 40):
+            subprocess.run(['node', str(executable), '--write', '--no-error-on-unmatched-pattern',
+                            *[str(native / name) for name in names[index:index + 40]]],
+                           cwd=stage, stdin=subprocess.DEVNULL, capture_output=True,
+                           check=True, timeout=60)
+        for name in names:
+            shutil.copyfile(stage / native / name, output / name)
+    return {'version': subprocess.check_output(['node', str(executable), '--version'], text=True).strip(),
+            'policySha256': {name: hashlib.sha256((repo / name).read_bytes()).hexdigest()
+                             for name in policy},
+            'lockSha256': hashlib.sha256((repo / 'package-lock.json').read_bytes()).hexdigest()}
+
+
+def write_family(baseline: Path, output: Path, plan: dict[str, bytes], *, formatter_repo=None):
     if output.exists() or baseline.resolve().is_relative_to(output.resolve()) or output.resolve().is_relative_to(baseline.resolve()):
         raise ValueError('Output must be a new directory outside the baseline')
     if any(Path(key).is_absolute() or '..' in Path(key).parts or not (baseline / key).is_file() for key in plan):
@@ -134,7 +169,9 @@ def write_family(baseline: Path, output: Path, plan: dict[str, bytes]):
     shutil.copytree(baseline, output)
     for relative, raw in plan.items():
         (output / relative).write_bytes(raw)
+    formatter = format_family(output, plan, formatter_repo, baseline.name) if formatter_repo else None
     verify_tree(baseline, output)
+    return formatter
 
 
 def apply_family(baseline: Path, first: Path, second: Path):
@@ -168,8 +205,9 @@ def main():
         apply_family(args.baseline, args.first, args.second)
     else:
         plan, report = plan_family(args.baseline, args.family, source_records(args.repo, args.extracted))
-        write_family(args.baseline / args.family, args.output, plan)
-        args.report.write_text(json.dumps({'mmDataPin': PIN, **report}, indent=2) + '\n')
+        formatter = write_family(args.baseline / args.family, args.output, plan,
+                                 formatter_repo=Path(__file__).resolve().parents[2])
+        args.report.write_text(json.dumps({'mmDataPin': PIN, 'formatter': formatter, **report}, indent=2) + '\n')
         print(json.dumps(report))
 
 

@@ -179,5 +179,10 @@
   },
   "mulId": 6780,
   "role": "Sniper",
-  "source": "His:LoT2"
+  "source": "His:LoT2",
+  "weaponQuirks": {
+    "LA:2:ISLBXAC10": ["mod_weapons"],
+    "RA:2:ISERPPC": ["mod_weapons"],
+    "RA:5:ISLBXAC10": ["mod_weapons"]
+  }
 }

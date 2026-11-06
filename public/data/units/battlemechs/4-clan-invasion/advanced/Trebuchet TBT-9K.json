@@ -187,5 +187,8 @@
   },
   "mulId": 3302,
   "role": "Striker",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "RT:3:MRM 20": ["fast_reload"]
+  }
 }

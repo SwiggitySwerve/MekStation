@@ -191,5 +191,10 @@
   },
   "mulId": 5275,
   "role": "Skirmisher",
-  "source": "TR:Proto"
+  "source": "TR:Proto",
+  "weaponQuirks": {
+    "LA:5:Mek Taser": ["exposed_linkage"],
+    "RA:4:Chain Whip": ["jettison_capable"],
+    "RT:2:ISStreakSRM6": ["fast_reload"]
+  }
 }

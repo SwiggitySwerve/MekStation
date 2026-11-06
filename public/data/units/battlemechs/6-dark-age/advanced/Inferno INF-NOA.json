@@ -182,5 +182,8 @@
   },
   "mulId": 7716,
   "role": "Brawler",
-  "source": "RG09"
+  "source": "RG09",
+  "weaponQuirks": {
+    "CT:8:ISERPPC": ["em_interference"]
+  }
 }

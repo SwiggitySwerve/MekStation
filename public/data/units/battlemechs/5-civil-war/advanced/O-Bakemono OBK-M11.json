@@ -186,5 +186,12 @@
   },
   "mulId": 2311,
   "role": "Juggernaut",
-  "source": "TR:3058U,TR:CI"
+  "source": "TR:3058U,TR:CI",
+  "weaponQuirks": {
+    "LA:5:MRM 40": ["mod_weapons"],
+    "RA:5:MRM 40": ["mod_weapons"],
+    "CT:10:Medium Laser": ["mod_weapons"],
+    "CT:11:Medium Laser": ["mod_weapons"],
+    "HD:3:Small Laser": ["mod_weapons"]
+  }
 }
