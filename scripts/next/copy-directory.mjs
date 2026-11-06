@@ -29,7 +29,12 @@ export async function copyDirectory(source, target, { filter } = {}) {
   // Leave link and special-file semantics to the existing copier. The entire
   // scan finishes before writes, so fallback never merges partially copied data.
   if (!scan(source, target)) {
-    fs.cpSync(source, target, { recursive: true, force: true, filter });
+    fs.cpSync(source, target, {
+      recursive: true,
+      force: true,
+      filter,
+      verbatimSymlinks: true,
+    });
     return;
   }
   // Node 22's no-filter cpSync uses default mkdir permissions, not source modes.
