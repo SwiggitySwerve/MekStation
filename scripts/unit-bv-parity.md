@@ -74,6 +74,45 @@ values fail, even when totals match. Existing MekStation breakdowns expose only
 some terms; those omissions remain failures rather than inferred neutral values.
 Aggregate mode remains available without the flag.
 
+## Bounded full-corpus execution
+
+`unit-bv-pipeline.ts` runs the same conversion, source validation, calculations
+and strict report with 1–4 isolated family workers (default 2). Use one heavy
+queue ticket for the whole command when measuring locally:
+
+```text
+node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <oracle.jsonl> --out <scratch> --workers 2
+```
+
+The original two-command path above remains the fresh serial reference.
+`strict-families.json` owns source-folder order for both paths. Family outputs
+are concatenated in that order, independently of worker completion order.
+Missing, failed and extra sources still reach the single strict comparator;
+no family summary or worker exit can replace its full-corpus coverage gate.
+The runner bounds command execution to a shared 13-minute deadline, closes
+child stdin, propagates failures and waits for active family work to finish.
+
+Add `--cache-dir <external-scratch-cache>` to reuse unchanged families. Keys
+hash the complete source-file inventory and bytes for that family, all source
+and script files, equipment/schema data, config, package manifests, TypeScript
+config, the oracle, actual loaded Node dependency files, the Node runtime
+version/platform, Python executable and loaded Python module bytes, and the
+environment (except operational `HEAVY_*` queue metadata). Additions, deletions
+and renames change keys. Unreadable, linked or unknown filesystem inputs or
+unavailable Python runtime identity disable reuse. Corrupt, incompatible or
+mismatched cache entries run fresh; unavailable cache writes preserve the
+fresh result. Source and computed artifacts have independent integrity hashes.
+Binary artifacts retain nonfinite numbers and undefined fields for the strict
+comparator's existing invalid-row diagnostics.
+
+`--verify-hits N` recalculates the first N actual hits and compares both
+artifacts byte for byte. A disagreement evicts that entry and fails the run.
+`--uncached` disables reads and writes; main push and scheduled runs always
+disable them even if a cache directory is supplied. Cache use never skips the
+final strict report. `sources.ndjson`, `delta-report.json` and `delta-rows.jsonl`
+retain the serial formats and deterministic bytes; `execution.json` separately
+records worker and cache state.
+
 In term mode each family also reports `termMatched` (joined rows with every
 required stage and oracle detail matching) and `firstTermDifferences` (counts
 by first failing key). These counts do not replace the aggregate gates. Rows
