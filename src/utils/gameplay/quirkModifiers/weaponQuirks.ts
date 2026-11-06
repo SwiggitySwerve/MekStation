@@ -7,6 +7,11 @@ import { IToHitModifierDetail } from '@/types/gameplay';
 
 import { WEAPON_QUIRK_IDS } from './catalog';
 
+export {
+  parseMtfWeaponQuirkLines as parseWeaponQuirksFromMTF,
+  parseBlkWeaponQuirkEntries as parseWeaponQuirksFromBLK,
+} from '@/utils/serialization/weaponQuirkParsing';
+
 /**
  * Accurate weapon: -1 to-hit.
  */
@@ -83,64 +88,4 @@ export function getWeaponQuirks(
 ): readonly string[] {
   if (!weaponQuirks) return [];
   return weaponQuirks[weaponId] ?? [];
-}
-
-/**
- * Parse weapon quirk lines from MTF format.
- * MegaMek format: `weapon_quirk:quirk_name:weapon_name:location`
- * @param lines - All lines from the MTF file
- * @returns Record mapping weapon name to array of quirk IDs
- */
-export function parseWeaponQuirksFromMTF(
-  lines: readonly string[],
-): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-
-  for (const line of lines) {
-    if (!line.startsWith('weapon_quirk:')) continue;
-
-    const parts = line.substring('weapon_quirk:'.length).split(':');
-    if (parts.length < 2) continue;
-
-    const quirkName = parts[0].trim();
-    const weaponName = parts[1].trim();
-
-    if (!quirkName || !weaponName) continue;
-
-    if (!result[weaponName]) {
-      result[weaponName] = [];
-    }
-    result[weaponName].push(quirkName);
-  }
-
-  return result;
-}
-
-/**
- * Parse weapon quirk tags from BLK format.
- * BLK format uses XML-like tags: `<weapon_quirks>` containing `quirk_name:weapon_name` lines.
- * @param rawQuirkEntries - Array of weapon quirk entries from BLK parser
- * @returns Record mapping weapon name to array of quirk IDs
- */
-export function parseWeaponQuirksFromBLK(
-  rawQuirkEntries: readonly string[],
-): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-
-  for (const entry of rawQuirkEntries) {
-    const colonIdx = entry.indexOf(':');
-    if (colonIdx < 0) continue;
-
-    const quirkName = entry.substring(0, colonIdx).trim();
-    const weaponName = entry.substring(colonIdx + 1).trim();
-
-    if (!quirkName || !weaponName) continue;
-
-    if (!result[weaponName]) {
-      result[weaponName] = [];
-    }
-    result[weaponName].push(quirkName);
-  }
-
-  return result;
 }

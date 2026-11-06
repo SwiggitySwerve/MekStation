@@ -169,7 +169,9 @@ export class BlkParserService {
         primaryFactory: getBlkString(rawTags['primaryFactory']),
         // Quirks
         quirks: parseBlkLineList(rawTags['quirks']),
-        weaponQuirks: parseBlkWeaponQuirks(rawTags['weapon_quirks']),
+        weaponQuirks: parseBlkWeaponQuirks(
+          rawTags['weaponQuirks'] ?? rawTags['weapon_quirks'],
+        ),
         // Raw tags for debugging
         rawTags,
       };

@@ -21,6 +21,7 @@ export {
   generateUnitId,
 } from './MTFParser.mapping';
 export { parseField } from './MTFParser.types';
+export { parseMtfWeaponQuirkLines as parseWeaponQuirks } from '@/utils/serialization/weaponQuirkParsing';
 
 const LOCATION_HEADERS: Record<string, string> = {
   'Left Arm:': 'LEFT_ARM',
@@ -237,29 +238,6 @@ export function parseQuirks(lines: string[]): string[] {
   }
 
   return quirks;
-}
-
-export function parseWeaponQuirks(lines: string[]): Record<string, string[]> {
-  const result: Record<string, string[]> = {};
-
-  for (const line of lines) {
-    if (!line.startsWith('weapon_quirk:')) continue;
-
-    const parts = line.substring('weapon_quirk:'.length).split(':');
-    if (parts.length < 2) continue;
-
-    const quirkName = parts[0].trim();
-    const weaponName = parts[1].trim();
-
-    if (!quirkName || !weaponName) continue;
-
-    if (!result[weaponName]) {
-      result[weaponName] = [];
-    }
-    result[weaponName].push(quirkName);
-  }
-
-  return result;
 }
 
 export function parseFluff(lines: string[]): ISerializedFluff {
