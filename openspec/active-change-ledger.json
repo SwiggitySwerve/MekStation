@@ -1,6 +1,12 @@
 {
   "allowedActiveChanges": [
     {
+      "name": "fix-per-turn-movement-reset",
+      "status": "in-progress",
+      "reason": "Root-approved C8: share movement and MASC/supercharger turn reset between reducer and runner, with unchanged replay fixtures and golden digests required.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
       "name": "fix-campaign-outcome-ledgers",
       "status": "in-progress",
       "reason": "Root-approved K3 battle-outcome hydration, campaign isolation, salvage dedupe, and partial-error surfacing; existing persisted formats and event payloads stay unchanged. Hosted proof and Root merge are pending.",
