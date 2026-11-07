@@ -1,6 +1,12 @@
 {
   "allowedActiveChanges": [
     {
+      "name": "fix-per-turn-movement-reset",
+      "status": "in-progress",
+      "reason": "Root-approved C8: share movement and MASC/supercharger turn reset between reducer and runner, with unchanged replay fixtures and golden digests required.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
       "name": "align-ci-budget-workflow-contracts",
       "status": "in-progress",
       "reason": "Root-authorized Phase G workflow contract alignment: preserve aggregation/browser/desktop/advisory guarantees while consuming canonical measured timeout budgets. Hosted proof and canonical sync/archive remain pending.",

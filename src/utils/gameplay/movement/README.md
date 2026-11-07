@@ -1,4 +1,25 @@
-# Ground path pricing
+# Movement rules
+
+## Per-turn state
+
+`resetPerTurnMovementState` owns movement-mode cleanup and MASC/supercharger
+prior-use advancement for the reducer and runner. It clears movement and
+pending conversion/altitude MP accounting without changing position, posture,
+or accumulated heat. Optional inactive sprint state can remain absent so an
+otherwise unchanged unit does not acquire a new serialized flag.
+
+Turn boundaries advance each booster's counter from the previous activation,
+then clear activation. Movement entry uses `advanceBoosterCounters: false`
+because the reducer already advanced counters at Initiative. The runner calls
+the helper once from `resetTurnState`. Normalization and the represented
+maximum of six preserve the runner's existing contract.
+
+The escalation and idle decay follow MegaMek commit `48fcb2f64`,
+`megamek/src/megamek/common/units/Entity.java:16388–16414`, called by
+`megamek/src/megamek/common/units/Mek.java:1240`. The first idle turn after an
+escalation removes two levels; later idle turns remove one, bounded at zero.
+
+## Ground path pricing
 
 This movement module owns ground path MP arithmetic. The construction and
 movement rules are specified in [movement-system](../../../../openspec/specs/movement-system/spec.md).
