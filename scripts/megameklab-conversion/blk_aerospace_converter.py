@@ -207,6 +207,11 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     ):
         raise ValueError(f"{blk_path.name}: missing required <heatsinks> tag")
     heatsinks = int(parse_number(get_string(tags, "heatsinks", "Heatsinks")) or 0)
+    # Both fighter loaders also require sink_type; retain the existing alias.
+    if sub_type in ("AerospaceFighter", "ConventionalFighter") and not any(
+        tag in tags for tag in ("sink_type", "heat_sinks")
+    ):
+        raise ValueError(f"{blk_path.name}: missing required <sink_type> tag")
     sink_type = int(parse_number(get_string(tags, "sink_type", "heat_sinks")) or 0)
     hs_type_str = "DOUBLE" if sink_type == 1 else "SINGLE"
 

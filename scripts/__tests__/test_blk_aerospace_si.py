@@ -17,6 +17,7 @@ class AerospaceStructuralIntegrityTest(unittest.TestCase):
                 f'<UnitType>\n{unit_type}\n</UnitType>\n<Name>\nSI Fixture\n</Name>\n'
                 f'<year>\n3050\n</year>\n<tonnage>\n{tons}\n</tonnage>\n'
                 '<heatsinks>0</heatsinks>\n'
+                '<sink_type>0</sink_type>\n'
                 f'<SafeThrust>\n{thrust}\n</SafeThrust>\n{extra}',
                 encoding='utf-8',
             )
