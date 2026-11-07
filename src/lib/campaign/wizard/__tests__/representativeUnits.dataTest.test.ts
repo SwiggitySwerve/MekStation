@@ -13,8 +13,11 @@ describe('wizard representative units', () => {
   it('keeps one resolvable canonical unit with positive BV per standard weight class', async () => {
     const service = new NodeCanonicalUnitService(PROJECT_ROOT);
     const catalog = await service.getIndex();
+    const representativeRefs = new Set(
+      WIZARD_REPRESENTATIVE_UNITS.map((unit) => unit.unitRef),
+    );
     const prewarmed = await prewarmCatalogBV(
-      catalog,
+      catalog.filter((entry) => representativeRefs.has(entry.id)),
       service,
       service.getCatalogVersion(),
       { skipCache: true },
