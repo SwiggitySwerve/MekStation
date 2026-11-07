@@ -1,7 +1,7 @@
 # Native Mech crew and SPA placement
 
 `nativeMechSPA` owns presentation fitting for the existing single-pilot biped,
-quad and LAM payloads, plus explicit ordinary/superheavy tripod crew payloads.
+quad and LAM payloads, plus explicit ordinary/superheavy tripod and QuadVee crew payloads.
 `recordsheet/spaSection.buildSPASection` remains the sole ability
 resolver, sorter and designation formatter. The native list uses those formatted
 headlines; it does not implement Java PilotOptions, strip local designations, or
@@ -32,8 +32,8 @@ Pinned MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`:
   `spas0` has y76 on Letter/A4, while biped/quad use y52; the fitter reads the
   actual rectangle and parent transform rather than sharing coordinates. LAM
   support here remains single-pilot only. Tripod uses the explicit crew contract
-  landed by #2974; QuadVee rendering remains a required separate slice under
-  rows4.1/4.3. No slots are inferred from the one-pilot payload.
+  landed by #2974; QuadVee uses that same explicit roster contract and renderer
+  owner. No slots are inferred from the one-pilot payload.
 - [PrintRecordSheet.java:1411-1423](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintRecordSheet.java#L1411):
   normal vs italic width measurement matters. Browser output uses actual canvas
   font metrics and the same typeface for its SVG text. Java/browser glyph metrics
@@ -54,7 +54,7 @@ Java font-metric parity.
 
 `nativeMechCrew` owns indexed name/skill presentation, native role-label offsets
 and crew-field/frame visibility for explicit `TRIPOD`/`SUPERHEAVY_TRIPOD` rosters
-on a tripod sheet. It consumes `getMechCrewRoles`; schemas/extraction remain the
+on a tripod sheet and `QUADVEE` on a QuadVee sheet. It consumes `getMechCrewRoles`; schemas/extraction remain the
 crew-contract owner's responsibility. Unassigned seats have blank names/skills
 and visible blank lines; no person or option is invented. Edge/SPAs remain global.
 
@@ -84,5 +84,15 @@ and visible blank lines; no person or option is invented. Edge/SPAs remain globa
 native visibility/offsets, repeated global SPA placement/overflow and rejected
 missing/swapped rendered-field mutations on both papers. Separate real-template
 SVG/PDF pixel proof must accompany the PR. Legacy/no-crew and other-family output
-remain unchanged. Authoring/persistence and QuadVee rendering are required later
-work, not established by this renderer slice.
+remain unchanged. Authoring/persistence remain required later work, not
+established by these renderer slices.
+
+QuadVee reuses this owner and fitter without changing either implementation.
+Pinned PrintMek112-131 selects `mek_quadvee_default.svg`; its actual Letter/A4
+templates have two Pilot/Gunner seats and no third seat/frame. Both use spas1
+x0/y104/h13.5, width142.60001 Letter/138.067 A4, with pilot-panel translations
+(234.366,87.857)/(226.600,86.359). Name baselines12/64 and skill baselines24/76
+retain measured role offsets. Emit the same crew-global SPA list twice at spas1,
+including unassigned seats; retain native overflow and explicit blank-seat
+behavior. Root's bounded project Playwright1.57/Chromium143 SVG/PDF/pixel proof
+is separate from mocked DOM metrics; no shared-preview pixel acceptance is used.

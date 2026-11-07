@@ -392,3 +392,13 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **THEN** the API SHALL allocate a new custom identity with that trimmed variant in both the saved model and variant fields, retaining the original source text and existing saved unit unchanged
 - **AND** invalid alternate variants SHALL return 400 without persistence
 - **AND** BLK and legacy runtime-object import SHALL remain open work
+
+#### Scenario: ProtoMech-only BLK source API import
+
+- **WHEN** BLK source text is submitted to the existing unit import API
+- **THEN** only ProtoMechs SHALL be admitted through the existing BLK parser, ProtoMech handler and shared family-aware structural validation
+- **AND** other BLK families SHALL receive explicit unsupported-type diagnostics without persistence
+- **AND** an admitted record SHALL retain family, custom identity, armor, movement and ordered mounts through API persistence and reload, with original text, parsed document and full handler facts retained in its source snapshot
+- **AND** construction-invalid but structurally loadable records SHALL retain their facts and diagnostics without a new validity gate, and native blank model names SHALL remain blank
+- **AND** malformed source SHALL fail with diagnostics without persistence; existing MTF/JSON behavior SHALL remain available
+- **AND** other BLK families, browser BLK selection, native numerical parity and the legacy runtime-object importer SHALL remain separate obligations

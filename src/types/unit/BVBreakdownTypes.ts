@@ -69,6 +69,8 @@ export interface IProtoMechBVBreakdown {
   readonly weaponMountBV?: readonly IProtoMechBVWeaponMount[];
   readonly ammoBV: number;
   readonly ammoAvailableMountBV?: readonly IProtoMechBVAmmoMount[];
+  /** Existing native cap-owner values for real positive-bin groups only. */
+  readonly ammoCapBVByGroup?: Readonly<Record<string, number>>;
   /** Always zero: ProtoMech offense has no weight-only contribution. */
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;

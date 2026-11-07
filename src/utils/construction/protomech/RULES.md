@@ -81,8 +81,21 @@ weapon matching. An unmatched real bin therefore retains availability even
 when its arithmetic weaponType remains the enum-form fallback such as `SRM:2`;
 no launcher or cap is invented.
 
+The optional readonly `ammoCapBVByGroup` map transports the existing public
+`calculateAmmoBVPools(weaponsForAmmo, []).cap` values. Only its cap output is
+used; its total and matching policy never replace ProtoMech's exact-key
+calculation. The owner receives already-admitted weapon values without a
+second value resolution. Retain only finite positive caps whose native group
+has a real positive native bin. Unmatched bins retain availability without a
+cap; launcher-only, excluded-bin and legacy inputs invent neither cap nor zero.
+The trace formats `ammo.cap.<nativeGroup>` directly from the optional map,
+without arithmetic or identity inference. Shared-group weapon accumulation
+belongs to the existing public pool owner; repeated bins do not repeat caps.
+Pinned `BVCalculator.java:1212-1238` at `48fcb2f64` owns the native raw weapon
+cap pass. This diagnostic does not establish general native admission policy.
+
 The represented 79 positive bins on 61 pinned sources supply 71 availability
-terms through these public owners. This scope does not establish native caps,
+and 71 raw-cap terms through these public owners. This scope does not establish
 general effective-quantity/admission rules, defensive ammo or complete ammo,
 construction, validity, weight or settings parity. Native equipment indices and
 the separately deferred Sprite 3 order remain outside this projection.

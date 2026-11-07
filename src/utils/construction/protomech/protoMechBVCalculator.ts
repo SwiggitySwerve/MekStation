@@ -107,6 +107,9 @@ export function calculateProtoMechBV(
     ...(offensive.ammoAvailableMountBV === undefined
       ? {}
       : { ammoAvailableMountBV: offensive.ammoAvailableMountBV }),
+    ...(offensive.ammoCapBVByGroup === undefined
+      ? {}
+      : { ammoCapBVByGroup: offensive.ammoCapBVByGroup }),
     physicalWeaponBV: offensive.physicalWeaponBV,
     offensiveEquipmentBV: offensive.offensiveEquipmentBV,
     ...(offensive.offensiveEquipmentMountBV === undefined

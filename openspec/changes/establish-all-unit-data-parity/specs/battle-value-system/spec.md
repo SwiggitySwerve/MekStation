@@ -12,6 +12,20 @@ quantities, admission, exact-key caps, arithmetic, old facts or totals. Missing
 and unsupported facts SHALL remain absent; the trace SHALL NOT invent zero,
 identity or a bin from launcher presence.
 
+The owner SHALL optionally retain finite positive raw cap values from the
+existing public native pool owner for groups represented by real positive
+native bins. Its native cap output SHALL remain diagnostic only; the
+ProtoMech exact-key arithmetic, matching, quantities and all old numerical
+outputs SHALL remain unchanged. The trace SHALL format these retained values
+as `ammo.cap.<nativeGroup>` without computing caps or inferring identities.
+
+#### Scenario: Source-backed native raw cap and shared-group accumulation
+
+- **GIVEN** two admitted SRM 2 weapons valued at 21 each and repeated real positive SRM 2 bins
+- **WHEN** the public ProtoMech breakdown and trace are calculated
+- **THEN** the existing native pool owner's accumulated cap SHALL appear once as `ammo.cap.SRM:2` with value 42, independently of the number of bins
+- **AND** all original source quantities, exact-key capped ammo, scalar values, modifiers and totals SHALL remain unchanged
+
 #### Scenario: Real positive bins and retained arithmetic
 
 - **GIVEN** two real SRM 2 bins with 7 and 3 shots valued by the existing native ammo owner with registry group SRM:2
@@ -31,6 +45,7 @@ identity or a bin from launcher presence.
 - **GIVEN** a legacy breakdown, launcher without a bin, empty or unresolved bin, generic fallback or unsupported public group
 - **WHEN** positive native ammo availability is projected
 - **THEN** no absent or unsupported fact SHALL become an invented zero-valued availability or identity
+- **AND** launcher-only, unmatched-bin and legacy inputs without cap facts SHALL NOT acquire an inferred cap
 - **AND** all original scalar terms and existing projections SHALL remain unchanged
 
 ### Requirement: ProtoMech native offensive-misc diagnostic projection

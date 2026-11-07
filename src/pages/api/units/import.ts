@@ -1,7 +1,7 @@
 /**
- * Unit Import API - Import Unit from JSON or MTF source
+ * Unit Import API - Import JSON, MTF or ProtoMech BLK source
  *
- * POST /api/units/import - Import JSON or { sourceFormat: 'mtf', sourceText }
+ * POST /api/units/import - Import JSON or { sourceFormat: 'mtf' | 'blk', sourceText }
  *
  * @spec openspec/specs/unit-services/spec.md
  */
@@ -13,6 +13,7 @@ import {
   rejectUnexpectedMethod,
   type ApiErrorResponse,
 } from '@/pages-modules/api/routeHelpers';
+import { importBLKDefinition } from '@/services/units/importBLKDefinition';
 import { importMTFDefinition } from '@/services/units/importMTFDefinition';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
@@ -59,13 +60,15 @@ export default async function handler(
     let notes = 'Imported from JSON file';
 
     if ('sourceFormat' in body) {
-      if (body.sourceFormat !== 'mtf') {
+      if (body.sourceFormat !== 'mtf' && body.sourceFormat !== 'blk') {
         return res.status(400).json({
           success: false,
-          error: { message: 'Unsupported source format; expected mtf' },
+          error: { message: 'Unsupported source format; expected mtf or blk' },
         });
       }
-      const imported = await importMTFDefinition(
+      const importDefinition =
+        body.sourceFormat === 'blk' ? importBLKDefinition : importMTFDefinition;
+      const imported = await importDefinition(
         'sourceText' in body ? body.sourceText : undefined,
       );
       if (!imported.success) return res.status(400).json(imported);
@@ -81,7 +84,7 @@ export default async function handler(
         unitData = { ...unitData, model: variant, variant };
       }
       sourceWarnings = imported.data.warnings;
-      notes = 'Imported from MTF file';
+      notes = `Imported from ${body.sourceFormat.toUpperCase()} file`;
     } else if ('formatVersion' in body && 'unit' in body) {
       // This is an envelope
       const envelope = body as ISerializedUnitEnvelope;
@@ -111,7 +114,14 @@ export default async function handler(
 
     // Accept either 'variant' or 'model' for compatibility
     const variant = (unitData.variant || unitData.model) as string | undefined;
-    if (!variant) {
+    if (
+      !variant &&
+      !(
+        'sourceFormat' in body &&
+        body.sourceFormat === 'blk' &&
+        unitData.model === ''
+      )
+    ) {
       validationErrors.push('Missing field: variant or model');
     }
 
