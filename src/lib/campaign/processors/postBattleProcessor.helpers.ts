@@ -293,11 +293,16 @@ export function applyContractDelta(
     return null;
   }
 
+  const previousStatus = mission.status;
+  // Later battles must not reopen a settled contract or trigger another payment.
+  if (isTerminalMissionStatus(previousStatus)) {
+    return { contract: mission, previousStatus, flippedToTerminal: false };
+  }
+
   // Only flip status on terminal end reasons. Withdrawal leaves the
   // contract Active for now — the player can re-engage. TurnLimit is a
   // soft terminal: flip to PARTIAL so downstream payout logic treats
   // it as a draw outcome rather than leaving the mission Active.
-  const previousStatus = mission.status;
   let nextStatus = previousStatus;
   if (outcome.endReason === CombatEndReason.ObjectiveMet) {
     nextStatus = playerWon(outcome)
