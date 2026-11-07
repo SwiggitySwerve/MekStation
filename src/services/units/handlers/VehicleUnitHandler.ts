@@ -74,7 +74,10 @@ import {
   getBooleanFromRawTags,
   hasVehicleEquipmentFeature,
 } from './vehicleFeatureTags';
-import { rejectIncompleteCombatVehicleWeight } from './vehicleHandlerWeight';
+import {
+  withNativeTankWeight,
+  rejectIncompleteCombatVehicleWeight,
+} from './vehicleHandlerWeight';
 
 // ============================================================================
 // Constants
@@ -256,7 +259,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // Internal structure type
     const internalStructureType = document.internalType || 0;
 
-    return {
+    return withNativeTankWeight(document, {
       unitType: UnitType.VEHICLE,
       originalBuildYear: document.originalBuildYear,
       ...turretSource.facts,
@@ -290,7 +293,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       transporters: document.transporters ?? [],
       errors,
       warnings,
-    };
+    } satisfies Partial<IVehicle> & UnitFieldParseMessages);
   }
 
   /**
@@ -368,15 +371,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IVehicle>,
   ): IVehicle {
-    // Determine weight class
-    const weightClass = getVehicleWeightClass(commonFields.tonnage);
-
     const unit = combineCommonUnitFields<IVehicle>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'vehicle',
       unitType: UnitType.VEHICLE,
-      weightClass,
+      weightClass: getVehicleWeightClass(commonFields.tonnage),
     });
     return withConstructionDiagnostics(unit, this.validate(unit));
   }

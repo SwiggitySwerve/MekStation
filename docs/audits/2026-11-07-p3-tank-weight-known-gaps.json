@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "scope": "Root accepts ONLY these 22 frozen negative Tank weight gaps as row 2.2/2.3 follow-ups; no general fidelity waiver",
+  "integratedMain": "61145e3e11295cfa1d8ba74605a7bfd73d2b2946",
+  "referenceSha256": "4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87",
+  "historicalProofHead": "9f0f855545d3c86e082a7bdecd5ab5e2ec3f864f",
+  "acceptance": "Post-fix mismatch membership, source hashes, totals and deltas must equal this set exactly; every delta strictly negative; every local validity must equal Java. Any new/missing/changed mismatch or validity disagreement fails. All other cohort/BV/trust/load gates remain unchanged. Rows 2.2/2.3 remain open.",
+  "rows": [
+    {
+      "path": "vehicles/3085u/Cutting Edge/Chalchiuhtotolin Support Tank (Bombast Laser).blk",
+      "sourceSha256": "15e95ecc1896e779a65c7a012f0b36f260daadd5f27cf0129b7de9b406e4396e",
+      "localTotal": 49.5,
+      "javaTotal": 50,
+      "delta": -0.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "armor allocation/density"
+    },
+    {
+      "path": "vehicles/3085u/Cutting Edge/Chalchiuhtotolin Support Tank.blk",
+      "sourceSha256": "7b5608817af8e292074353a535f1b3cbfdd2444acc4a4ad5f9a40cad1125fe6d",
+      "localTotal": 49.5,
+      "javaTotal": 50,
+      "delta": -0.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "armor allocation/density"
+    },
+    {
+      "path": "vehicles/3085u/Cutting Edge/Prowler Multi-Terrain Vehicle (Sealed).blk",
+      "sourceSha256": "75633152921c8465950d6e4ab31e5c09151743a9720b531917f4dc57692c115d",
+      "localTotal": 49.5,
+      "javaTotal": 55,
+      "delta": -5.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Ajax Assault Tank (Sealed).blk",
+      "sourceSha256": "9229b42ea69140f44886835e34273b0dff5d850939a533107ee1b191fc78949b",
+      "localTotal": 81,
+      "javaTotal": 90,
+      "delta": -9,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Beagle (Sealed).blk",
+      "sourceSha256": "6db887addcb64ab1180fa8af163e4d8a6a791257bd9b0f086ad7205e04d377d1",
+      "localTotal": 13.5,
+      "javaTotal": 15,
+      "delta": -1.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Challenger XIVs MBT.blk",
+      "sourceSha256": "99320def39471a0cb0bbd08e216190f3518f78e85f4dbc2f1a054a0698d37374",
+      "localTotal": 81,
+      "javaTotal": 90,
+      "delta": -9,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Drillson Heavy Hover Tank (Sealed).blk",
+      "sourceSha256": "3dc57fcc9c7e3bedb11594b8a62d262d1cf805415e4b4e0a2a4f72152b8297a3",
+      "localTotal": 45,
+      "javaTotal": 50,
+      "delta": -5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Goblin Infantry Support Vehicle (Sealed).blk",
+      "sourceSha256": "c49c628fb949af8ebe93c7958085b558c0fa0f32416f2e63d8b7fbd55f655ec1",
+      "localTotal": 40.5,
+      "javaTotal": 45,
+      "delta": -4.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Hetzer Wheeled Assault Gun (Sealed).blk",
+      "sourceSha256": "ac4d5681e19e8703295c37dce22c04f0dd533f167096a8941cdb6f715ca797b3",
+      "localTotal": 36,
+      "javaTotal": 40,
+      "delta": -4,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Ontos Heavy Tank (Sealed).blk",
+      "sourceSha256": "cc86c0076bc5d1189a312a49876d2189c5fd86749cf522491ccafc32771acb61",
+      "localTotal": 85.5,
+      "javaTotal": 95,
+      "delta": -9.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Pegasus Scout Hover Tank (Sealed).blk",
+      "sourceSha256": "cef55398592f5ea125d4e2336280ead109ec9dd77067b8edddfca09f98714bf4",
+      "localTotal": 31.5,
+      "javaTotal": 35,
+      "delta": -3.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Plainsman Medium Hovertank (Sealed).blk",
+      "sourceSha256": "953f5e87693111fc9493d8ba66bf10a10db828ab390eb5528983328642514b7d",
+      "localTotal": 31.5,
+      "javaTotal": 35,
+      "delta": -3.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Rommel Tank (Sealed).blk",
+      "sourceSha256": "ede7699a13b14949f28ad78fb47b113b1c4e7bf321161d80d758cafdc29ea8d7",
+      "localTotal": 58.5,
+      "javaTotal": 65,
+      "delta": -6.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/3085u/ONN/Striker Light Tank (Sealed).blk",
+      "sourceSha256": "390954af4e74c17f4e941d282d537a505a69dd601178dff89a8c0563c31028da",
+      "localTotal": 31.5,
+      "javaTotal": 35,
+      "delta": -3.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/ProtoTypes/Hiryo Armored Infantry Transport BloodHound.blk",
+      "sourceSha256": "d30feb0af5dfbcadef11cc19c684a418cc979642a56a5ea2b2c30297a3b6b78a",
+      "localTotal": 36,
+      "javaTotal": 40,
+      "delta": -4,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/ProtoTypes/Ontos Heavy Tank Heat.blk",
+      "sourceSha256": "cbeb90a74673acf71d07a354e00183acff27c701fc7dcc8f0c8f562d5dfa31d1",
+      "localTotal": 85.5,
+      "javaTotal": 95,
+      "delta": -9.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/XTRs/Corporations/Partisan Hull Defense.blk",
+      "sourceSha256": "122d2185356726ecb0491d7a2ea5ad6884a4367dd7d08bcb584c0ecaf359e088",
+      "localTotal": 72,
+      "javaTotal": 80,
+      "delta": -8,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/XTRs/Kurita/Hiryo Armored Infantry Transport Hound.blk",
+      "sourceSha256": "8d5c971f4c7a1bbce268e40dc8aca781fadb8ae3e2f64366d92ffd1d2cd9d6ea",
+      "localTotal": 36,
+      "javaTotal": 40,
+      "delta": -4,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/XTRs/Periphery/Patton Tank SB.blk",
+      "sourceSha256": "7b4204814d67bd3a0366fbeab86a174071a2f148ec54fe5d4b681245f6ce0c04",
+      "localTotal": 58.5,
+      "javaTotal": 65,
+      "delta": -6.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/XTRs/Phantoms/Packrat Gespenst.blk",
+      "sourceSha256": "7bf7d29550b85dc23e377b4df393b0c4729df514f09984d2b05ce0d711b74a8d",
+      "localTotal": 18,
+      "javaTotal": 20,
+      "delta": -2,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    },
+    {
+      "path": "vehicles/XTRs/Pirates/Myrmidon Medium Tank P (Tate).blk",
+      "sourceSha256": "6cf423c1382bd1433a6658a0804f6522690af689ac272decd211ad2a5eff013f",
+      "localTotal": 39.5,
+      "javaTotal": 40,
+      "delta": -0.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "miscellaneous equipment: sponson turret mechanism"
+    },
+    {
+      "path": "vehicles/XTRs/Pirates/Ontos Heavy Tank X.blk",
+      "sourceSha256": "c8b9a919285839a1ff5903c08e510d1a455bbf2a864f42aa96e78349a9a6ec25",
+      "localTotal": 85.5,
+      "javaTotal": 95,
+      "delta": -9.5,
+      "localValid": true,
+      "javaValid": true,
+      "suspectedComponent": "mounted equipment: environmental sealing"
+    }
+  ]
+}

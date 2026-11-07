@@ -488,6 +488,52 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 
 ## ADDED Requirements
 
+### Requirement: Native Tank complete-weight validation transport
+
+The Tank source handler SHALL reuse the existing construction weight owner and
+transport only complete finite native weight into construction validation.
+It SHALL preserve source loadability independently of construction validity.
+
+#### Scenario: Complete genuine overweight source
+
+- **GIVEN** a native Tank whose supported source facts resolve to a complete weight
+- **WHEN** the handler parses and validates it
+- **THEN** total and remaining weight SHALL reflect the shared construction result
+- **AND** an overweight design SHALL load successfully with the existing construction error
+- **AND** Ajax C, Lightning CX-3 and SturmFeur Kalki SHALL retain independently correct component quantities and totals of 92.5, 39 and 137.5 tons
+
+#### Scenario: Unavailable native mass is not a subtotal
+
+- **GIVEN** an unresolved mount or unsupported native construction fact
+- **WHEN** native construction weight is requested
+- **THEN** its complete result SHALL remain unavailable rather than zero or a partial total
+- **AND** the source SHALL remain loadable for inspection
+- **AND** the legacy number-only combat handler weight API SHALL retain its unavailable error
+
+#### Scenario: Explicit armor technology overrides chassis side
+
+- **GIVEN** a mixed-tech IS-chassis Tank with explicit Clan armor technology
+- **WHEN** native weight is transported to the existing construction owner
+- **THEN** the existing parsed armor technology SHALL select armor side independently of chassis
+- **AND** concrete Clan levels 2, 6, 8 and 10 SHALL use Clan armor; absent or unknown (-1) SHALL fall back to chassis
+- **AND** explicit IS armor technology SHALL retain IS armor even on a Clan chassis
+- **AND** pinned Zephyr EC and Tokugawa Yumi SHALL retain 7.5 and 8.5 tons of armor and remain valid at 40 and 60 tons
+- **AND** armor formulas, catalogs and unrelated technology-side consumers SHALL remain unchanged
+
+#### Scenario: No-controls source presence
+
+- **GIVEN** a native Tank with the hasNoControlSystems tag
+- **WHEN** construction facts are transported
+- **THEN** the existing controls owner SHALL receive tag presence independently of its payload
+
+#### Scenario: Cohort safety before enabling rejection
+
+- **GIVEN** fresh guarded pinned inputs on the committed integrated candidate
+- **WHEN** the full vehicle cohort and all-family BV are compared against the integrated-main baseline
+- **THEN** only the three known genuine overweight validity corrections SHALL occur
+- **AND** no native-valid source SHALL newly fail construction and no source SHALL lose loadability
+- **AND** all 9815 BV report rows SHALL remain byte-identical under the approved blocking-trust invocation
+
 ### Requirement: Native vehicle equipment introduction diagnostics
 
 The Tank and ground-support vehicle source handlers SHALL use the shared equipment

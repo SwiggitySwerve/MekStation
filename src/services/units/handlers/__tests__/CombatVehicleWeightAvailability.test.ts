@@ -2,6 +2,7 @@ import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
+import { computeNativeTankWeight } from '../vehicleHandlerWeight';
 import { VehicleUnitHandler } from '../VehicleUnitHandler';
 import { VTOLUnitHandler } from '../VTOLUnitHandler';
 
@@ -28,6 +29,9 @@ describe('combat handler total availability', () => {
     const loaded = handler.parse(doc('Tank'));
     expect(loaded.success).toBe(true);
     if (!loaded.success) throw new Error(JSON.stringify(loaded.error));
+    expect(
+      computeNativeTankWeight(doc('Tank'), loaded.data.unit),
+    ).toBeUndefined();
     expect(() => handler.calculateWeight(loaded.data.unit)).toThrow(
       /weight.*incomplete.*resolved equipment/i,
     );

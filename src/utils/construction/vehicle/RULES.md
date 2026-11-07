@@ -1,5 +1,36 @@
 ﻿# Combat-vehicle construction rules
 
+## Native Tank complete-weight transport
+
+`vehicleHandlerWeight.ts` projects parsed Tank construction facts into the
+existing `weightComposition.ts` owner. It uses the public BLK armor/engine
+decoders and equipment resolver; no component formula or catalog override is
+duplicated. Resolved mounts retain native identity/size and ammunition kind.
+The existing parsed `armorTechLevel` selects armor side independently of chassis:
+levels 2, 6, 8 and 10 select Clan; absent or unknown (-1) falls back to chassis.
+This follows `Entity.isClanArmor:1985-1999`, whose concrete-level test differs
+from `TechConstants.isClan` used for introduction/slot diagnostics (which also
+accepts ALL_CLAN=12). Those separate native contracts are unchanged. Mixed IS
+Zephyr EC/Yumi therefore use the existing Clan ferro density of 19.2 points/t,
+yielding 7.5/8.5 t armor; no formula, catalog, parser or type changes are needed.
+The `hasNoControlSystems` tag transports presence, including a false payload
+(MegaMek48fcb2f6 BLKTankFile.java:268-269).
+
+Only a complete finite result replaces the common declared-tonnage placeholder
+and populates remaining tonnage before the existing overweight validator runs.
+Unsupported native structure/armor, rejected armor layout and unresolved mass
+remain unavailable, with no fabricated zero or partial total. The legacy
+number-only combat-weight API retains its explicit unavailable error; VTOL and
+support handlers are unchanged. Construction-invalid Tanks still parse for
+inspection. Complete native family mass parity is a separate claim.
+
+The validation correction requires paired pinned-source acceptance: exactly the
+three known genuine overweight corrections, no new native-valid rejection or
+lost load, and byte-identical all-family BV under blocking reference trust.
+Additional rejection or unsupported weight fidelity stops the slice rather than
+being tuned away. MegaMek48fcb2f6 TestTank/TestEntity component quantities and the
+original source hashes are retained in `VehicleWeightValidity.pinned.test.ts`.
+
 ## Native equipment introduction validation
 
 `equipmentIntroduction.ts` owns the existing shared five-year margin and
