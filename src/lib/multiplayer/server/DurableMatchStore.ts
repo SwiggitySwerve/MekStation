@@ -1591,6 +1591,17 @@ export class DurableMatchStore
     };
   };
 
+  listPendingOutcomeMatchIds = async (): Promise<readonly string[]> => {
+    const rows = this.db
+      .prepare(
+        `SELECT o.match_id
+       FROM mp_matches m JOIN mp_combat_outcome_outbox o ON o.match_id = m.match_id
+       WHERE m.status = 'completed' AND o.published_at IS NULL`,
+      )
+      .all() as { readonly match_id: string }[];
+    return rows.map((row) => row.match_id);
+  };
+
   markCombatOutcomePublished = async (
     matchId: string,
     outcomeId: string,

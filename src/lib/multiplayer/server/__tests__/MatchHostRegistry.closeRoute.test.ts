@@ -199,4 +199,31 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
     );
     expect(socketGraph.getMatchHostRegistry().get(MATCH_ID)).toBeNull();
   });
+
+  it('completes a hostless match durably and accepts a repeated DELETE', async () => {
+    authMock.mockResolvedValue({
+      ok: true,
+      playerId: HOST_PLAYER_ID,
+      publicKey: 'pk',
+      token: {},
+    });
+    const registry = loadRegistryModuleInNewGraph().getMatchHostRegistry();
+    const handler = loadCloseRouteInNewGraph();
+    expect(registry.get(MATCH_ID)).toBeNull();
+
+    expect(await deleteMatch(handler)).toEqual({
+      statusCode: 200,
+      body: { ok: true },
+    });
+    const completed = await getDefaultMatchStore().getMatchMeta(MATCH_ID);
+    expect(completed.status).toBe('completed');
+    expect(registry.get(MATCH_ID)).toBeNull();
+    expect(await deleteMatch(handler)).toEqual({
+      statusCode: 200,
+      body: { ok: true },
+    });
+    expect(await getDefaultMatchStore().getMatchMeta(MATCH_ID)).toEqual(
+      completed,
+    );
+  });
 });

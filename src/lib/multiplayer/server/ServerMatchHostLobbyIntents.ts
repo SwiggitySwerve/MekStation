@@ -24,6 +24,7 @@ import {
   setHumanSlot,
   setReady,
 } from './lobby/lobbyStateMachine';
+import { markMatchCompleted } from './matchCompletion';
 import { sideOfPlayer } from './sideAssignments';
 
 export interface IServerMatchHostLobbyContext extends IServerMatchHostCaptureContext {
@@ -273,6 +274,7 @@ async function handleForfeitMatch(
     await ctx.broadcastEvent(envelopeOut);
     out.push(envelopeOut);
   }
+  await markMatchCompleted(ctx.store, ctx.matchId, newEvents);
   return out;
 }
 

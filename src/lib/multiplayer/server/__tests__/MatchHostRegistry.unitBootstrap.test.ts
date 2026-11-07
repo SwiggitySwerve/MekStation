@@ -102,6 +102,22 @@ async function flushInitialEventPersist(): Promise<void> {
 }
 
 describe('MatchHostRegistry unit bootstrap', () => {
+  it('does not bootstrap a completed match', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    const meta = matchMeta({ status: 'completed' });
+    await store.createMatch(meta);
+    const registry = new MatchHostRegistry({ store });
+    const create = jest.spyOn(ServerMatchHost, 'create');
+    try {
+      expect(await registry.getOrCreate(meta.matchId)).toBeNull();
+      expect(create).not.toHaveBeenCalled();
+      expect(registry.size()).toBe(0);
+    } finally {
+      registry._reset();
+      create.mockRestore();
+    }
+  });
+
   it('1v1 bootstrap seeds two playing units and none for a spectator host', () => {
     const bootstrap = buildDefaultMatchUnitBootstrap('1v1', 6);
     expect(bootstrap).toHaveLength(2);

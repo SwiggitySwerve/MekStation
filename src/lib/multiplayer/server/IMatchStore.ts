@@ -657,6 +657,8 @@ export interface IMatchStore
     matchId: string,
     outcomeId: string,
   ): Promise<void>;
+  /** Pending completed-match outcomes can be retried without recovering hosts. */
+  listPendingOutcomeMatchIds?(): Promise<readonly string[]>;
 
   /**
    * Per-viewer delivery mapping (leaf 3.1). OPTIONAL like the outbox

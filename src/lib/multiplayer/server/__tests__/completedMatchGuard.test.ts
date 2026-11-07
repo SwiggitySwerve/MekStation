@@ -16,11 +16,19 @@
  * rather than a command on a finished match.
  */
 
+import {
+  _resetCombatOutcomeBus,
+  subscribeToCombatOutcome,
+} from '@/engine/combatOutcomeBus';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 
+import {
+  COMPLETED_MATCH_RETENTION_MS,
+  DurableMatchStore,
+} from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost } from '../ServerMatchHost';
 
@@ -39,8 +47,12 @@ function unit(id: string, side: GameSide): IGameUnit {
 }
 
 /** One side only, so the game genuinely ends on the first advance. */
-async function completedHost(): Promise<ServerMatchHost> {
-  const store = new InMemoryMatchStore({ quiet: true });
+async function completedHost(
+  store: InMemoryMatchStore | DurableMatchStore = new InMemoryMatchStore({
+    quiet: true,
+  }),
+  twoSided = false,
+): Promise<ServerMatchHost> {
   const now = '2026-06-30T12:00:00.000Z';
   await store.createMatch({
     matchId: MATCH_ID,
@@ -59,7 +71,10 @@ async function completedHost(): Promise<ServerMatchHost> {
     grid: createMinimalGrid(4),
     playerUnits: [],
     opponentUnits: [],
-    gameUnits: [unit('solo-player', GameSide.Player)],
+    gameUnits: [
+      unit('solo-player', GameSide.Player),
+      ...(twoSided ? [unit('opponent', GameSide.Opponent)] : []),
+    ],
     diceSeed: 42,
   });
   await Promise.resolve();
@@ -79,6 +94,87 @@ function intent(intentId: string): IIntent {
 }
 
 describe('completed-match intent guard', () => {
+  it.each(['memory', 'sqlite'] as const)(
+    '%s persists completion for a natural win, concede, and host forfeit without republishing',
+    async (adapter) => {
+      for (const ending of ['win', 'concede', 'forfeit'] as const) {
+        const store =
+          adapter === 'sqlite'
+            ? new DurableMatchStore({ path: ':memory:' })
+            : new InMemoryMatchStore({ quiet: true });
+        _resetCombatOutcomeBus();
+        const published = jest.fn();
+        const stop = subscribeToCombatOutcome(published);
+        const host = await completedHost(store);
+        try {
+          const command = intent(ending);
+          const frames = await host.handleIntent({
+            ...command,
+            intent:
+              ending === 'concede'
+                ? { kind: 'Concede', side: GameSide.Player }
+                : ending === 'forfeit'
+                  ? { kind: 'ForfeitMatch' }
+                  : command.intent,
+          });
+          expect(frames.some((frame) => frame.kind === 'Error')).toBe(false);
+          expect((await store.getEvents(MATCH_ID)).at(-1)?.type).toBe(
+            'game_ended',
+          );
+          expect((await store.getMatchMeta(MATCH_ID)).status).toBe('completed');
+          expect(await store.listActiveMatches()).toEqual([]);
+          expect(published).toHaveBeenCalledTimes(1);
+          await host.closeMatch();
+          await host.closeMatch();
+          expect(published).toHaveBeenCalledTimes(1);
+        } finally {
+          stop();
+          _resetCombatOutcomeBus();
+          if (store instanceof DurableMatchStore) store.close();
+        }
+      }
+    },
+  );
+
+  it('keeps an unfinished match active', async () => {
+    const store = new InMemoryMatchStore({ quiet: true });
+    const host = await completedHost(store, true);
+    await host.handleIntent(intent('unfinished'));
+    expect((await store.getMatchMeta(MATCH_ID)).status).toBe('active');
+  });
+
+  it('prunes a naturally completed match after retention while keeping an active control', async () => {
+    const store = new DurableMatchStore({ path: ':memory:' });
+    try {
+      const host = await completedHost(store);
+      await host.handleIntent(intent('win'));
+      const meta = await store.getMatchMeta(MATCH_ID);
+      await store.createMatch({
+        ...meta,
+        matchId: 'unfinished-control',
+        status: 'active',
+      });
+      expect(
+        store.pruneExpiredMatches(
+          Date.parse(meta.updatedAt) + COMPLETED_MATCH_RETENTION_MS,
+        ),
+      ).toBe(0);
+      expect(
+        store.pruneExpiredMatches(
+          Date.parse(meta.updatedAt) + COMPLETED_MATCH_RETENTION_MS + 1,
+        ),
+      ).toBe(1);
+      await expect(store.getMatchMeta(MATCH_ID)).rejects.toThrow(
+        'Match not found',
+      );
+      expect((await store.getMatchMeta('unfinished-control')).status).toBe(
+        'active',
+      );
+    } finally {
+      store.close();
+    }
+  });
+
   it('refuses an engine-mutating intent after the game ended', async () => {
     const host = await completedHost();
 

@@ -50,7 +50,6 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
-import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   type IGameSessionChannel,
@@ -89,7 +88,6 @@ import {
 } from './fogMatchAdmission';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import {
-  hasCombatOutcomeOutbox,
   hasPublicationOutbox,
   hasViewerDeliveryAcknowledgementStore,
   hasViewerDeliveryStore,
@@ -130,6 +128,7 @@ import {
   recoverServerInteractiveSession,
 } from './matchUnitBootstrap';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
+import { publishDurableCombatOutcome } from './publishDurableCombatOutcome';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
   bindCampaignGmHostProbe,
@@ -1202,16 +1201,9 @@ export class ServerMatchHost {
    * event-at-a-time commits have no terminal transaction to join.
    */
   private publishDurableCombatOutcome = async (): Promise<void> => {
-    if (!hasCombatOutcomeOutbox(this.store)) return;
-    const record = await this.store.getCombatOutcomeOutbox(this.matchId);
-    if (record == null || record.publishedAt != null) return;
-    const consumed = publishCombatOutcome({
-      matchId: record.matchId,
-      outcome: record.outcome,
-    });
-    if (!consumed) return;
-    await this.store.markCombatOutcomePublished(this.matchId, record.outcomeId);
-    this.outcomePublisher.markPublishedFromDurableOutbox();
+    if (await publishDurableCombatOutcome(this.store, this.matchId)) {
+      this.outcomePublisher.markPublishedFromDurableOutbox();
+    }
   };
 
   /** Test/observability: number of currently-connected sockets. */

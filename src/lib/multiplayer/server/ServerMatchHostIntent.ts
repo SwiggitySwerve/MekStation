@@ -39,6 +39,7 @@ import {
   shadowAudienceInput,
 } from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import { markMatchCompleted } from './matchCompletion';
 import {
   refuseDuringHistoryRebuild,
   refuseLiveBranchFromIntent,
@@ -187,9 +188,7 @@ export async function handleIntent(
     envelope,
     verifiedPrincipalId,
   );
-  if (principalMismatch) {
-    return principalMismatch;
-  }
+  if (principalMismatch) return principalMismatch;
 
   // M3 (add-matchmaking-and-spectator) design D5 — a spectator can
   // never produce an `Intent`. The spectator surface renders no intent
@@ -390,6 +389,7 @@ export async function handleIntent(
   broadcasts.push(...published.messages);
   if (!published.committed) return broadcasts;
 
+  await markMatchCompleted(ctx.store, ctx.matchId, newEvents);
   ctx.tryPublishOutcome();
   return broadcasts;
 }

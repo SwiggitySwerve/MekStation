@@ -23,6 +23,7 @@ import type {
 } from './ServerMatchHostIntent';
 
 import { hasPublicationOutbox } from './IMatchStore';
+import { markMatchCompleted } from './matchCompletion';
 import * as matchJournalAuthority from './matchJournalAuthority';
 import {
   digestCommandPostState,
@@ -88,6 +89,7 @@ async function resumeCommittedCommand(
     return persistenceFailure(ctx, journal, envelope, reason);
   }
   if (result.kind === 'duplicate-command') {
+    await markMatchCompleted(ctx.store, ctx.matchId, events);
     const resumed = hasPublicationOutbox(ctx.store)
       ? await resumePendingPublications({
           matchId: ctx.matchId,
@@ -291,6 +293,7 @@ export async function commitJournalAuthorityCommand(
   journal.replaceSession(appliedSession);
   journal.setLastBroadcastSeq(last.sequence);
 
+  await markMatchCompleted(ctx.store, ctx.matchId, events);
   if (matchJournalAuthority._shouldSkipPublishForTests()) {
     return finish(journal, [], null);
   }

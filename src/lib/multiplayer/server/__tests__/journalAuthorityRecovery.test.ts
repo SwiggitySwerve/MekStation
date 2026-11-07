@@ -28,7 +28,10 @@ import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import * as matchJournalAuthority from '../matchJournalAuthority';
 import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
-import { rebuildSessionFromEvents } from '../MatchRecovery';
+import {
+  rebuildSessionFromEvents,
+  recoverActiveMatches,
+} from '../MatchRecovery';
 import { selectMatchRollbackReader } from '../matchRollbackReaderSelection';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 import { digestCommandPostState } from '../ServerMatchHostDecision';
@@ -473,6 +476,8 @@ describe('combat journal-authority recovery', () => {
     try {
       await host.handleIntent(concedeIntent('terminal-command', host.matchId));
 
+      expect((await store.getMatchMeta(host.matchId)).status).toBe('completed');
+
       const row = await store.getCombatOutcomeOutbox(host.matchId);
       expect(row).toEqual(
         expect.objectContaining({
@@ -489,6 +494,12 @@ describe('combat journal-authority recovery', () => {
       ]);
 
       await host.closeMatch();
+      expect(published).toHaveLength(1);
+
+      // Restart publication reads the persisted receipt, not a host-local flag.
+      await rebuildHost(store, host.matchId);
+      await rebuildHost(store, host.matchId);
+      expect(await store.getCombatOutcomeOutbox(host.matchId)).toEqual(row);
       expect(published).toHaveLength(1);
     } finally {
       unsubscribe();
@@ -546,6 +557,72 @@ describe('combat journal-authority recovery', () => {
         }
       } finally {
         unsubscribe();
+      }
+    },
+  );
+
+  it.each(['memory', 'sqlite'] as const)(
+    'COMPLETED OUTCOME: %s restarts retry pending outcomes without hosts and never repeat a consumed outcome',
+    async (adapter) => {
+      const matchId = `completed-pending-${adapter}`;
+      const fixture =
+        adapter === 'sqlite'
+          ? await makeJournalledHost({ matchId })
+          : await makeHost({ matchId });
+      let store = fixture.store;
+      const construct = jest.spyOn(ServerMatchHost, 'recover');
+      let stop = () => {};
+      try {
+        await fixture.host.handleIntent(
+          concedeIntent('terminal-command', matchId),
+        );
+        expect((await store.getMatchMeta(matchId)).status).toBe('completed');
+        const pending = await store.getCombatOutcomeOutbox(matchId);
+        expect(pending?.publishedAt).toBeNull();
+
+        const restart = async () => {
+          if ('reopenStore' in fixture) store = fixture.reopenStore();
+          const result = await recoverActiveMatches(store);
+          expect(result.failed).toEqual([]);
+          expect(result.hosts.size).toBe(0);
+          expect(construct).not.toHaveBeenCalled();
+        };
+        await restart();
+        expect(await store.getCombatOutcomeOutbox(matchId)).toEqual(pending);
+
+        const throwing = jest.fn(() => {
+          throw new Error('consumer unavailable');
+        });
+        stop = subscribeToCombatOutcome(throwing);
+        await restart();
+        expect(throwing).toHaveBeenCalledTimes(1);
+        expect(await store.getCombatOutcomeOutbox(matchId)).toEqual(pending);
+        stop();
+
+        const published = jest.fn();
+        stop = subscribeToCombatOutcome(published);
+        await restart();
+        expect(published).toHaveBeenCalledTimes(1);
+        expect(published).toHaveBeenCalledWith({
+          matchId,
+          outcome: pending?.outcome,
+        });
+        const delivered = await store.getCombatOutcomeOutbox(matchId);
+        expect(delivered).toEqual({
+          ...pending,
+          publishedAt: expect.any(String),
+        });
+        for (let attempt = 0; attempt < 3; attempt++) {
+          await restart();
+          expect(await store.getCombatOutcomeOutbox(matchId)).toEqual(
+            delivered,
+          );
+          expect(published).toHaveBeenCalledTimes(1);
+        }
+      } finally {
+        stop();
+        construct.mockRestore();
+        if ('cleanup' in fixture) await fixture.cleanup();
       }
     },
   );
