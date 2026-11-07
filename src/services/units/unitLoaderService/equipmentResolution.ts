@@ -239,27 +239,6 @@ function ownTechSide(
   return null;
 }
 
-function resolveUnitPreferredVariant(
-  candidates: IEquipmentVariantCandidates,
-  unitTechBaseMode: TechBaseMode,
-): IResolvedEquipment | null {
-  const preferredTechBase =
-    unitTechBaseMode === TechBaseMode.CLAN
-      ? TechBase.CLAN
-      : TechBase.INNER_SPHERE;
-
-  return resolveVariantByTechBase(candidates, preferredTechBase);
-}
-
-function resolveAnyVariant(
-  candidates: IEquipmentVariantCandidates,
-): IResolvedEquipment | null {
-  return (
-    resolveCandidate(candidates.isDef, candidates.isId) ??
-    resolveCandidate(candidates.clanDef, candidates.clanId)
-  );
-}
-
 function resolveRegistryLookupToken(token: string): IResolvedEquipment | null {
   const lookupResult = getEquipmentRegistry().lookup(token);
 
@@ -501,8 +480,14 @@ function resolveLegacyEquipmentId(
       unitTechBaseMode,
       locationCriticalSlots,
     ) ??
-    resolveUnitPreferredVariant(candidates, unitTechBaseMode) ??
-    resolveAnyVariant(candidates) ??
+    resolveVariantByTechBase(
+      candidates,
+      unitTechBaseMode === TechBaseMode.CLAN
+        ? TechBase.CLAN
+        : TechBase.INNER_SPHERE,
+    ) ??
+    resolveCandidate(candidates.isDef, candidates.isId) ??
+    resolveCandidate(candidates.clanDef, candidates.clanId) ??
     resolveRegistryAlias(id, normalizedId) ?? {
       equipmentDef: undefined,
       resolvedId: normalizedId,
