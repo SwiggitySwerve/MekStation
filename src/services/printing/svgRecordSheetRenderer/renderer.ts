@@ -104,16 +104,17 @@ export class SVGRecordSheetRenderer {
     });
 
     fixCopyrightYear(svgDoc);
-    const tripodCrew =
-      data.mechType === 'tripod' &&
-      (data.crew?.crewType === 'TRIPOD' ||
-        data.crew?.crewType === 'SUPERHEAVY_TRIPOD')
+    const nativeCrew =
+      (data.mechType === 'tripod' &&
+        (data.crew?.crewType === 'TRIPOD' ||
+          data.crew?.crewType === 'SUPERHEAVY_TRIPOD')) ||
+      (data.mechType === 'quadvee' && data.crew?.crewType === 'QUADVEE')
         ? data.crew
         : undefined;
-    if (tripodCrew) {
+    if (nativeCrew) {
       this.core.mount();
       try {
-        renderNativeMechCrew(this.core.root, tripodCrew);
+        renderNativeMechCrew(this.core.root, nativeCrew);
       } finally {
         this.core.unmount();
       }
@@ -128,13 +129,13 @@ export class SVGRecordSheetRenderer {
     // Helper skips when there are no resolvable entries.
     if (data.specialAbilities && data.specialAbilities.length > 0) {
       const block = { entries: data.specialAbilities, hasContent: true };
-      if (tripodCrew) {
+      if (nativeCrew) {
         // PrintEntity:495-550 deliberately overdraws one global list per seat.
-        for (const slot of tripodCrew.slots) {
+        for (const slot of nativeCrew.slots) {
           renderNativeMechSPASection(
             svgDoc,
             block,
-            `spas${tripodCrew.slots.length - 1}`,
+            `spas${nativeCrew.slots.length - 1}`,
             `specialAbilitiesBlock${slot.slotIndex}`,
           );
         }
