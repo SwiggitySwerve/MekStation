@@ -65,7 +65,7 @@ complete construction validity/weight remain separate.
 The existing native ammo resolver owns registry identity, kg-per-shot valuation
 and the equipment-id shot count (`ProtoMekBVCalculator.java:50-52` and
 `AmmoType.java:17103-17105`, pin `48fcb2f64`). Its positive finite result and
-existing publicly recognized weaponType group supply optional
+existing registry native group supply optional
 `ammoAvailableMountBV` facts. The indexed ammo worklist retains actual mount
 references/order without changing admission, resolution, quantities or caps.
 No extra resolver call, parser, formula or identity table is introduced.
@@ -76,9 +76,10 @@ The facts never feed arithmetic inputs or alter the Proto exact-key cap policy.
 All old weapon/misc facts, scalar values, modifiers and totals remain intact.
 Missing, nonpositive, nonfinite, unresolved, generic fallback or unsupported
 public-group facts remain absent; no zero or launcher-derived bin is invented.
-In particular, the resolver's unmatched enum-form fallback such as `SRM:2`
-is not recognized by the current shared equipment-identity lookup and remains
-unprojected. That separate identity gap is not repaired or counted as parity.
+The resolver transports its already-resolved registry group independently of
+weapon matching. An unmatched real bin therefore retains availability even
+when its arithmetic weaponType remains the enum-form fallback such as `SRM:2`;
+no launcher or cap is invented.
 
 The represented 79 positive bins on 61 pinned sources supply 71 availability
 terms through these public owners. This scope does not establish native caps,
