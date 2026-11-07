@@ -186,6 +186,8 @@ export type CampaignPersistenceSaveResult =
 interface CampaignPersistenceState {
   campaignId: string | null;
   dirty: boolean;
+  /** Transient mutation counter; save acknowledgements only cover their snapshot. */
+  editSeq: number;
   saveState: CampaignSaveState;
   metadata: ICampaignSaveMetadata;
   baseVersion: number;
@@ -303,6 +305,7 @@ const INITIAL_METADATA: ICampaignSaveMetadata = {
 const INITIAL_STATE: CampaignPersistenceState = {
   campaignId: null,
   dirty: false,
+  editSeq: 0,
   saveState: 'idle',
   metadata: INITIAL_METADATA,
   baseVersion: 0,
@@ -798,6 +801,7 @@ function fetchCampaignRecord(id: string): Promise<Response> {
 function applySavedRecord(
   set: PersistenceSet,
   record: SerializedCampaign,
+  savedEditSeq?: number,
 ): void {
   // An acknowledged record supersedes whatever a best-effort flush may
   // have written: there is nothing left for a later visible transition to
@@ -805,16 +809,20 @@ function applySavedRecord(
   issuedFlush = null;
   const persistedCampaign = deserializeCampaignRecord(record);
   writeCachedCampaignKey(record);
-  set({
-    campaignId: record.campaignId,
-    saveState: 'saved',
-    dirty: false,
-    baseVersion: record.version,
-    conflictServerRecord: null,
-    errorMessage: null,
-    metadata: metadataFrom(record),
-    lastPersistedCampaign: persistedCampaign,
-    sourceReplayFence: fenceOf(record),
+  set((state) => {
+    const dirty = savedEditSeq !== undefined && state.editSeq !== savedEditSeq;
+    return {
+      campaignId: record.campaignId,
+      saveState: dirty ? 'idle' : 'saved',
+      dirty,
+      baseVersion: record.version,
+      conflictServerRecord: null,
+      saveConflict: null,
+      errorMessage: null,
+      metadata: metadataFrom(record),
+      lastPersistedCampaign: persistedCampaign,
+      sourceReplayFence: fenceOf(record),
+    };
   });
 }
 
@@ -913,6 +921,7 @@ async function runSave(
     return { status: 'skipped' };
   }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
+  const savedEditSeq = get().editSeq;
   set({ saveState: 'saving', errorMessage: null, saveRefusal: null });
 
   try {
@@ -943,10 +952,10 @@ async function runSave(
         held.campaignId === attempt.record.campaignId &&
         held.baseVersion > attempt.record.version
       ) {
-        set({ saveState: 'saved', errorMessage: null });
+        set({ saveState: held.dirty ? 'idle' : 'saved', errorMessage: null });
         return { status: 'saved', record: attempt.record };
       }
-      applySavedRecord(set, attempt.record);
+      applySavedRecord(set, attempt.record, savedEditSeq);
       return { status: 'saved', record: attempt.record };
     }
 
@@ -1121,6 +1130,7 @@ async function runLoad(
         saveState: 'saved',
         baseVersion: migrated.version,
         conflictServerRecord: null,
+        saveConflict: null,
         errorMessage: null,
         metadata: metadataFrom(migrated),
         lastPersistedCampaign: loadedCampaign,
@@ -1569,6 +1579,7 @@ function markDirtyAction(
     pendingFlushIssued = false;
     set((state) => ({
       dirty: true,
+      editSeq: state.editSeq + 1,
       campaignId: state.campaignId ?? liveId,
       saveState: state.saveState === 'conflict' ? 'conflict' : state.saveState,
     }));

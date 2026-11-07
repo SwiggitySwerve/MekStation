@@ -7,19 +7,82 @@
  * discarding whatever the other writer committed. These rows pin what
  * replaced it - the server's typed reason, and exactly one action.
  *
- * The launch-conflict block shares this card and is deliberately NOT
- * touched here; it has its own rows and its own action.
+ * The launch-conflict rows also pin when resync may clear its banner.
  */
 
-import { render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react';
 import React from 'react';
 
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 
 import { CampaignSaveStatusCard } from '../CampaignSaveStatusCard';
 
+describe('CampaignSaveStatusCard launch resync', () => {
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+    useCampaignPersistenceStore.getState().reset();
+  });
+
+  it.each([false, true])(
+    'clears the launch banner only when resync succeeds (result: %s)',
+    async (adopted) => {
+      useCampaignPersistenceStore.getState().reportLaunchConflict({
+        code: 'STALE_REVISION',
+        reason: 'The campaign moved on',
+        activeHead: { branchId: 'main', revision: 7, effectiveGeneration: 1 },
+        resyncAction: 'resync-to-active-head',
+      });
+      const resolve = jest
+        .spyOn(
+          useCampaignPersistenceStore.getState(),
+          'resolveConflictTakeServer',
+        )
+        .mockResolvedValue(adopted);
+      render(<CampaignSaveStatusCard />);
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Resync to Current' }),
+        );
+      });
+
+      expect(resolve).toHaveBeenCalledTimes(1);
+      if (adopted) {
+        expect(
+          screen.queryByTestId('campaign-launch-conflict'),
+        ).not.toBeInTheDocument();
+        expect(
+          useCampaignPersistenceStore.getState().launchConflict,
+        ).toBeNull();
+      } else {
+        expect(
+          screen.getByTestId('campaign-launch-conflict'),
+        ).toHaveTextContent('STALE_REVISION');
+        expect(
+          useCampaignPersistenceStore.getState().launchConflict,
+        ).not.toBeNull();
+      }
+    },
+  );
+
+  it('shows unsaved changes for a pending edit after an earlier save completed', () => {
+    useCampaignPersistenceStore.setState({ dirty: true, saveState: 'idle' });
+    render(<CampaignSaveStatusCard />);
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
+  });
+});
+
 describe('CampaignSaveStatusCard conflict block', () => {
   afterEach(() => {
+    cleanup();
     useCampaignPersistenceStore.getState().reset();
   });
 
@@ -88,6 +151,7 @@ describe('CampaignSaveStatusCard conflict block', () => {
 
 describe('CampaignSaveStatusCard refusal block (CAMPAIGN-LIVE-WRITE-1)', () => {
   afterEach(() => {
+    cleanup();
     useCampaignPersistenceStore.getState().reset();
   });
 

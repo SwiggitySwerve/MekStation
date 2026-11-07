@@ -27,6 +27,7 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { sourceCampaignAuthority } from '@/lib/campaign/authority/campaignAuthority';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
+import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 
 import {
@@ -430,6 +431,49 @@ describe('the document-discard events that drive the flush', () => {
 
     expect(captured).toHaveLength(1);
     expect(captured[0].init.keepalive).toBe(true);
+  });
+
+  it('flushes an edit made during a save when pagehide follows the acknowledgement', async () => {
+    const acceptedRecord = buildSerializedCampaign(
+      campaign,
+      'device-x',
+      BASE_VERSION + 1,
+    );
+    let resolveSave!: (response: Response) => void;
+    jest.mocked(globalThis.fetch).mockImplementationOnce((input, init) => {
+      captured.push({ url: String(input), init: init ?? {} });
+      return new Promise<Response>((resolve) => {
+        resolveSave = resolve;
+      });
+    });
+    // Installing the real wiring subscribes this live store to markDirty.
+    const liveStore = makeMockCampaignStore(campaign);
+    uninstallCampaignPersistenceWiring();
+    registerCampaignStoreAccessor(
+      () => liveStore as unknown as ReturnType<MockAccessor>,
+    );
+    installCampaignPersistenceWiring();
+    const saving = useCampaignPersistenceStore.getState().saveCampaign();
+    await drainMicrotasks();
+    liveStore
+      .getState()
+      .updateCampaign({ name: 'Edit the first save did not contain' });
+    resolveSave({
+      ok: true,
+      status: 200,
+      json: async () => acceptedRecord,
+    } as Response);
+    await saving;
+
+    firePagehide();
+
+    expect(putRequests()).toHaveLength(2);
+    expect(putRequests()[1].init.keepalive).toBe(true);
+    expect(parseFlushBody(putRequests()[1])).toMatchObject({
+      baseVersion: BASE_VERSION + 1,
+      envelope: { body: { name: 'Edit the first save did not contain' } },
+    });
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
   });
 
   it('flushes on a hidden visibility transition', () => {
