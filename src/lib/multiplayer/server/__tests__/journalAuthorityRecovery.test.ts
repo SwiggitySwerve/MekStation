@@ -490,6 +490,12 @@ describe('combat journal-authority recovery', () => {
 
       await host.closeMatch();
       expect(published).toHaveLength(1);
+
+      // Restart publication reads the persisted receipt, not a host-local flag.
+      await rebuildHost(store, host.matchId);
+      await rebuildHost(store, host.matchId);
+      expect(await store.getCombatOutcomeOutbox(host.matchId)).toEqual(row);
+      expect(published).toHaveLength(1);
     } finally {
       unsubscribe();
     }
