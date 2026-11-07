@@ -278,7 +278,7 @@ test('scratch workflow can consume only one bounded read-only manual job and alw
   assert.deepEqual(workflow.permissions, { contents: 'read' });
   assert.deepEqual(Object.keys(workflow.jobs), ['capture']);
   const job = workflow.jobs.capture;
-  assert.equal(job['runs-on'], 'ubuntu-latest');
+  assert.equal(job['runs-on'], 'ubuntu-24.04');
   assert.equal(job['timeout-minutes'], 15);
   assert.equal(job.strategy, undefined);
   assert.equal(

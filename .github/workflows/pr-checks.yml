@@ -12,7 +12,7 @@ env:
 jobs:
   capture:
     name: G6-042 single capture
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
       MEKSTATION_G6_042: '1'
@@ -27,10 +27,11 @@ jobs:
           fetch-depth: 8
       - name: Install existing pinned dependencies and assets
         id: install
-        uses: ./.github/actions/setup-node-and-install
+        uses: SwiggitySwerve/MekStation/.github/actions/setup-node-and-install@8a8f1b3f8fcb8305a8aa12c85d9b7636cb4d0247
         with:
           node-version: '22'
           fetch-assets: 'true'
+          verify-native-modules: 'true'
       - name: Test diagnostic guards before browser work
         run: timeout 120s node --test scripts/playwright/g6-042-state.test.mjs scripts/playwright/ci-e2e-plan.test.mjs
       - name: Record frozen source and runner
@@ -61,7 +62,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.browser-version.outputs.version }}
+          key: ${{ steps.install.outputs.cache-platform }}-playwright-${{ steps.browser-version.outputs.version }}
       - name: Install browser
         if: steps.browser-cache.outputs.cache-hit != 'true'
         run: timeout 180s npx playwright install --with-deps chromium
