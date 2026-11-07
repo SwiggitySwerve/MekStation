@@ -14,6 +14,20 @@ Reference: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `Entity.java` base `getRunMP` and `Aero.java` `getRunMP`.
 Regression coverage: `scripts/__tests__/test_blk_aerospace_si.py`.
 
+## Fighter heat-sink source block
+
+`blk_aerospace_converter.py` requires a heat-sink block for `Aero`,
+`AeroSpaceFighter` and `ConvFighter`. A missing block raises `ValueError`
+with the source filename and `<heatsinks>` tag. Explicit zero and supplied
+counts retain their existing parsing; the existing `Heatsinks` alias remains
+accepted. FixedWingSupport and SmallCraft policies are unchanged.
+
+Authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`BLKAeroSpaceFighterFile.java:91-95` and `BLKConvFighterFile.java:86-89`.
+Both native loaders reject a missing block with
+`Could not find heatsinks block.` Regression coverage:
+`scripts/__tests__/test_blk_aerospace_heatsinks.py`.
+
 ## DropShip input and motion (the DropShip converter arrives with #2444)
 
 After family recognition, missing identity, year, tonnage or type is an error.
