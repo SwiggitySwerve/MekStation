@@ -501,11 +501,19 @@ export const useTabManagerStore = create<TabManagerState>()(
             (t) => t.id === sanitizedActiveId,
           );
           if (activeTab) {
-            hydrateOrCreateUnit(activeTab.id, {
-              name: activeTab.name,
-              tonnage: activeTab.tonnage,
-              techBase: activeTab.techBase,
-            });
+            try {
+              hydrateOrCreateUnit(activeTab.id, {
+                name: activeTab.name,
+                tonnage: activeTab.tonnage,
+                techBase: activeTab.techBase,
+              });
+            } catch (error) {
+              logger.error(
+                `[TabManager] Error hydrating active unit "${activeTab.id}":`,
+                error,
+              );
+              useTabManagerStore.setState({ activeTabId: null });
+            }
           }
         } catch (error) {
           hydrationFailed = true;

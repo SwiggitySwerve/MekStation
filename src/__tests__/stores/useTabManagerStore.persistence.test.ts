@@ -1,6 +1,10 @@
 import { act } from '@testing-library/react';
 
-import { clearAllStores, getUnitStore } from '@/stores/unitStoreRegistry';
+import {
+  clearAllStores,
+  getUnitStore,
+  hydrateOrCreateUnit,
+} from '@/stores/unitStoreRegistry';
 import {
   UNIT_TEMPLATES,
   useTabManagerStore,
@@ -9,6 +13,16 @@ import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 const TAB_ID = '550e8400-e29b-41d4-a716-446655440000';
+
+jest.mock('@/stores/unitStoreRegistry', () => {
+  const actual = jest.requireActual<
+    typeof import('@/stores/unitStoreRegistry')
+  >('@/stores/unitStoreRegistry');
+  return {
+    ...actual,
+    hydrateOrCreateUnit: jest.fn(actual.hydrateOrCreateUnit),
+  };
+});
 
 describe('useTabManagerStore persistence', () => {
   beforeEach(() => {
@@ -23,6 +37,7 @@ describe('useTabManagerStore persistence', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     clearAllStores(true);
     localStorage.clear();
   });
@@ -102,6 +117,59 @@ describe('useTabManagerStore persistence', () => {
       isLoading: false,
     });
     expect(getUnitStore(TAB_ID)?.getState().name).toBe('Surviving Mek');
+  });
+
+  it('preserves tabs and storage when hydrating the active unit throws', async () => {
+    const tabs = [
+      {
+        id: TAB_ID,
+        name: 'Bad Draft',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
+        unitType: UnitType.BATTLEMECH,
+      },
+      {
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        name: 'Healthy Draft',
+        tonnage: 75,
+        techBase: TechBase.CLAN,
+        unitType: UnitType.BATTLEMECH,
+      },
+    ];
+    localStorage.setItem(
+      'megamek-tab-manager',
+      JSON.stringify({ state: { tabs, activeTabId: TAB_ID }, version: 0 }),
+    );
+    const hydrateUnit = jest
+      .mocked(hydrateOrCreateUnit)
+      .mockImplementationOnce(() => {
+        throw new Error('Corrupt active unit draft');
+      });
+    const removeItem = jest.spyOn(Storage.prototype, 'removeItem');
+
+    await useTabManagerStore.persist.rehydrate();
+
+    expect(hydrateUnit).toHaveBeenCalledWith(TAB_ID, {
+      name: 'Bad Draft',
+      tonnage: 50,
+      techBase: TechBase.INNER_SPHERE,
+    });
+    expect(useTabManagerStore.getState()).toMatchObject({
+      tabs,
+      activeTabId: null,
+      isLoading: false,
+    });
+    expect(removeItem).not.toHaveBeenCalledWith('megamek-tab-manager');
+    expect(
+      JSON.parse(localStorage.getItem('megamek-tab-manager') ?? 'null'),
+    ).toEqual({
+      state: { tabs, activeTabId: null },
+      version: 0,
+    });
+
+    useTabManagerStore.getState().selectTab(tabs[1].id);
+    expect(useTabManagerStore.getState().activeTabId).toBe(tabs[1].id);
+    expect(getUnitStore(tabs[1].id)).toBeDefined();
   });
 
   it('finishes hydration when there is no saved entry', async () => {
