@@ -442,43 +442,6 @@ test.describe('Game Replay Page @game', () => {
       replayPageVisible || errorHeading || noEventsText || loadingSpinner,
     ).toBe(true);
   });
-
-  // Skipped: replay controls need a match log with events. The demo
-  // session fixture has genesis events, but `/gameplay/games/[id]/replay`
-  // loads via `/api/matches/${gameId}` + `useGameTimeline` — not the
-  // demo fixture store. Seed a match-log (see active-session-recovery
-  // patterns) before unpinning. Controls themselves exist
-  // (`replay-btn-play-pause`, step/skip testids).
-  test.skip('replay page shows controls when events exist', async () => {
-    await replayPage.navigate('demo');
-    await replayPage.waitForReplayLoaded();
-
-    const controlsVisible = await replayPage.read.areControlsVisible();
-    expect(controlsVisible).toBe(true);
-  });
-
-  test.skip('replay controls include play button', async ({ page }) => {
-    await replayPage.navigate('demo');
-    await replayPage.waitForReplayLoaded();
-
-    await expect(page.getByTestId('replay-btn-play-pause')).toBeVisible();
-  });
-
-  test.skip('replay controls include step buttons', async ({ page }) => {
-    await replayPage.navigate('demo');
-    await replayPage.waitForReplayLoaded();
-
-    await expect(page.getByTestId('replay-btn-step-forward')).toBeVisible();
-    await expect(page.getByTestId('replay-btn-step-back')).toBeVisible();
-  });
-
-  test.skip('replay controls include skip buttons', async ({ page }) => {
-    await replayPage.navigate('demo');
-    await replayPage.waitForReplayLoaded();
-
-    await expect(page.getByTestId('replay-btn-skip-forward')).toBeVisible();
-    await expect(page.getByTestId('replay-btn-skip-back')).toBeVisible();
-  });
 });
 
 // =============================================================================
