@@ -277,7 +277,6 @@ const SERVER_MESSAGE_HANDLERS: Record<
         deliverySequence,
         'replay',
       )) {
-        rememberApplied(state, admitted, deliverySequence);
         state.replayBuffer.push({
           event: admitted,
           ...(deliverySequence !== undefined ? { deliverySequence } : {}),
@@ -359,7 +358,6 @@ const SERVER_MESSAGE_HANDLERS: Record<
         state,
         (event as { payload?: { intentId?: unknown } }).payload?.intentId,
       );
-      rememberApplied(state, event, eventMessage.deliverySequence);
       if (!state.ready) {
         state.pendingLiveEvents.push({
           event,
@@ -386,10 +384,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
       });
     }
     if (!wasBlocked && state.blockedBySequenceCollision) {
-      emit('error', {
-        code: 'PROTOCOL_VIOLATION',
-        reason: 'sequence-collision',
-      });
+      emitSequenceCollision(emit);
     }
   },
   Heartbeat: () => {
@@ -478,8 +473,8 @@ interface IApplyQueuedEventsContext {
 /**
  * Dispatch queued projected events and receipt only successful reducer
  * applications. A listener is the client projection boundary: if it
- * throws, the delivery reservation is released and the existing
- * SessionJoin-tail recovery path is requested without an acknowledgement.
+ * throws, the existing SessionJoin-tail recovery path is requested
+ * without remembering or acknowledging the failed application.
  */
 function applyQueuedEvents({
   state,
@@ -491,9 +486,18 @@ function applyQueuedEvents({
 }: IApplyQueuedEventsContext): boolean {
   for (let index = 0; index < queued.length; index += 1) {
     const current = queued[index];
+    if (state.blockedBySequenceCollision) return false;
+    // Replay and live queues may overlap. Check again at application,
+    // after earlier items have actually reached the projection.
+    if (isAlreadyApplied(state, current.event, current.deliverySequence)) {
+      if (state.blockedBySequenceCollision) {
+        emitSequenceCollision(emit);
+        return false;
+      }
+      continue;
+    }
     const outbound = withLocalSequence(current.event, current.deliverySequence);
     if (!emit('event', outbound)) {
-      releaseQueuedReservations(state, queued.slice(index));
       emit('error', {
         code: 'PROTOCOL_VIOLATION',
         reason: 'delivery-apply-failed',
@@ -504,6 +508,7 @@ function applyQueuedEvents({
       }
       return false;
     }
+    rememberApplied(state, current.event, current.deliverySequence);
     updateLastSeq(current.event);
     completeDeliveryApplication({
       state,
@@ -517,21 +522,11 @@ function applyQueuedEvents({
   return true;
 }
 
-function releaseQueuedReservations(
-  state: IClientState,
-  queued: readonly IQueuedInboundEvent[],
-): void {
-  for (const item of queued) {
-    const identity = identityOf(item.event);
-    if (typeof item.deliverySequence === 'number') {
-      if (
-        state.appliedIdentityByDelivery.get(item.deliverySequence) === identity
-      ) {
-        state.appliedIdentityByDelivery.delete(item.deliverySequence);
-      }
-    }
-    if (identity.length > 0) state.appliedIdentities.delete(identity);
-  }
+function emitSequenceCollision(emit: ClientEmit): void {
+  emit('error', {
+    code: 'PROTOCOL_VIOLATION',
+    reason: 'sequence-collision',
+  });
 }
 
 function completeDeliveryApplication({
@@ -730,10 +725,15 @@ function openSocket(runtime: IClientRuntime): void {
     startHeartbeat(runtime, socket);
     armLiveness(runtime, socket);
   };
-  socket.onmessage = (ev: { data: unknown }) =>
+  socket.onmessage = (ev: { data: unknown }) => {
+    if (runtime.state.socket !== socket) return;
     handleSocketMessage(runtime, ev);
+  };
   socket.onerror = (e: unknown) => emitClientEvent(runtime, 'error', e);
-  socket.onclose = () => handleSocketClose(runtime);
+  socket.onclose = () => {
+    if (runtime.state.socket !== socket) return;
+    handleSocketClose(runtime);
+  };
 }
 
 function sendSessionJoin(
@@ -811,6 +811,12 @@ function handleSocketMessage(
 }
 
 function handleSocketClose(runtime: IClientRuntime): void {
+  runtime.state.socket = null;
+  runtime.state.ready = false;
+  // The replacement socket replays from the last applied cursor. Neither
+  // an unfinished replay nor live traffic queued behind it has applied.
+  runtime.state.replayBuffer = [];
+  runtime.state.pendingLiveEvents = [];
   stopHeartbeat(runtime);
   stopLiveness(runtime);
   if (runtime.state.suppressNextSocketCloseEvent) {
@@ -892,10 +898,27 @@ function admitLiveEvent(
   source: 'live' | 'replay' = 'live',
 ): readonly unknown[] {
   if (state.blockedBySequenceCollision) return [];
+  if (isAlreadyApplied(state, event, deliverySequence)) return [];
   if (typeof deliverySequence === 'number') {
     return admitByDelivery(state, event, deliverySequence);
   }
   return admitByIdentity(state, event, source);
+}
+
+/** Check applied identities without rejecting an admitted gap-recovery item. */
+function isAlreadyApplied(
+  state: IClientState,
+  event: unknown,
+  deliverySequence?: number,
+): boolean {
+  const identity = identityOf(event);
+  if (typeof deliverySequence === 'number') {
+    const known = state.appliedIdentityByDelivery.get(deliverySequence);
+    if (known === undefined) return false;
+    if (known !== identity) state.blockedBySequenceCollision = true;
+    return true;
+  }
+  return identity.length > 0 && state.appliedIdentities.has(identity);
 }
 
 function admitByDelivery(
@@ -903,13 +926,7 @@ function admitByDelivery(
   event: unknown,
   deliverySequence: number,
 ): readonly unknown[] {
-  const identity = identityOf(event);
   if (deliverySequence <= state.lastAppliedDelivery) {
-    const known = state.appliedIdentityByDelivery.get(deliverySequence);
-    if (known !== undefined) {
-      if (known !== identity) state.blockedBySequenceCollision = true;
-      return [];
-    }
     if (!state.recoveringFromGap) return [];
     if (
       state.lastAppliedDelivery - deliverySequence >=
@@ -930,9 +947,6 @@ function admitByIdentity(
   // span, not individual items, so arrival order in the chunk is the
   // ordering and identity is the exactly-once key.
   const identity = identityOf(event);
-  if (identity.length > 0 && state.appliedIdentities.has(identity)) {
-    return [];
-  }
   // Conservative arm for an UNSTAMPED, id-less replay item arriving
   // after this client already holds numbered frames: under fog the
   // viewer's authority stream is legitimately sparse, so such an item
@@ -1200,6 +1214,10 @@ function updateLastSeq(state: IClientState, event: unknown): void {
 }
 
 function scheduleReconnect(runtime: IClientRuntime): void {
+  if (runtime.state.reconnectTimer !== null) {
+    clearTimeout(runtime.state.reconnectTimer);
+    runtime.state.reconnectTimer = null;
+  }
   const nextAttempt = runtime.state.reconnectAttempt + 1;
   const maxAttempts = runtime.options.maxReconnectAttempts;
   if (maxAttempts != null && nextAttempt > maxAttempts) {
