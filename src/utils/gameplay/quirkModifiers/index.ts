@@ -30,6 +30,7 @@ export {
 export {
   getBattleFistPunchToHitModifier,
   getPrototypeCriticalHitModifier,
+  getWeakLegsCriticalLocations,
   hasNoArms,
   isLowArmsRestricted,
   calculateInitiativeQuirkModifier,
@@ -38,4 +39,5 @@ export {
   getRuggedMaintenanceMultiplier,
   getAntiMekActuatorTargetModifier,
 } from './defensiveQuirks';
+export type { IWeakLegsCriticalContext } from './defensiveQuirks';
 export { calculateAttackerQuirkModifiers, hasQuirk } from './aggregation';

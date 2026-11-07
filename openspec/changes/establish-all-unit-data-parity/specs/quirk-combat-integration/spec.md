@@ -131,6 +131,38 @@ Other families and physical attacks SHALL remain outside this bounded slice.
 - **THEN** Prototype SHALL NOT introduce a new determination roll or extra hits
 - **AND** outputs without Prototype SHALL retain their existing values
 
+### Requirement: Native Weak Legs Physical Critical Checks
+
+The unit-quirk owner SHALL supply extra normal critical determinations for
+native `weak_legs` following MegaMek `48fcb2f64`
+`TWGameManager.java:12869-12872,17207-17217`. Session and runner physical
+resolution SHALL consume the same requests after the relevant damage,
+reusing the existing critical and event owners.
+
+#### Scenario: A successful kick checks the actual location through intact armor
+
+- **GIVEN** a kicked BattleMech has native Weak Legs
+- **WHEN** the kick hits, even when its damage leaves armor intact
+- **THEN** one extra normal critical determination SHALL use the actual hit location
+- **AND** a determination below the critical threshold SHALL produce no critical
+- **AND** an attacker-side Weak Legs flag SHALL NOT give the target a check
+
+#### Scenario: Successful DFA checks all native attacker leg locations in order
+
+- **GIVEN** a successful DFA attacker has native Weak Legs
+- **THEN** extra normal determinations SHALL check left leg then right leg
+- **AND** a quad SHALL additionally check left arm then right arm, in that order
+- **WHEN** the DFA misses or only the target has Weak Legs
+- **THEN** this rule SHALL add no checks
+
+#### Scenario: Critical state survives serialization without changing controls
+
+- **WHEN** existing source metadata reaches the physical critical checks
+- **THEN** resolved component effects and critical limb loss SHALL survive session serialization and replay
+- **AND** duplicate native flags SHALL NOT multiply requests or near ids match
+- **AND** existing forced-single callers and outputs without Weak Legs SHALL remain unchanged
+- **AND** broader critical-system and ammunition-consequence parity SHALL remain separate
+
 ## MODIFIED Requirements
 
 ### Requirement: Piloting Quirk — Hard to Pilot

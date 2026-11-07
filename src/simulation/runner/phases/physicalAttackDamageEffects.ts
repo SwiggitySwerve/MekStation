@@ -3,6 +3,7 @@ import {
   isZweihanderPhysicalAttackType,
   splitPhysicalDamageIntoClusters,
 } from '@/utils/gameplay/physicalAttacks';
+import { getWeakLegsCriticalLocations } from '@/utils/gameplay/quirkModifiers';
 
 import type { PhysicalAttackResolutionOptions } from './physicalAttackResolutionTypes';
 
@@ -26,6 +27,10 @@ export function applyPhysicalDamageEffects(
   },
 ): IGameState {
   let currentState = applyTargetPhysicalDamage(options);
+  currentState = applyWeakLegsChecks(
+    { ...options, state: currentState },
+    'target',
+  );
   currentState = applyBrushOffHitEffects({ ...options, state: currentState });
   currentState = applyGrappleHitEffects({ ...options, state: currentState });
   currentState = applyTwoHandedZweihanderCriticals({
@@ -37,9 +42,38 @@ export function applyPhysicalDamageEffects(
     state: currentState,
   });
   currentState = applyChargeAttackerDamage({ ...options, state: currentState });
-  return applyDfaAttackerLegDamageEffects({
+  currentState = applyDfaAttackerLegDamageEffects({
     ...options,
     state: currentState,
+  });
+  return applyWeakLegsChecks({ ...options, state: currentState }, 'attacker');
+}
+
+function applyWeakLegsChecks(
+  options: PhysicalAttackResolutionOptions,
+  role: 'attacker' | 'target',
+): IGameState {
+  const unitId = role === 'target' ? options.target.id : options.unitId;
+  const unit = options.state.units[unitId];
+  const locations = getWeakLegsCriticalLocations(unit?.unitQuirks, {
+    attackType: options.attackType,
+    hit: options.result.hit,
+    hitLocation: options.result.hitLocation,
+    role,
+    isQuad: unit?.isQuad,
+    unitType: unit?.unitType,
+  });
+  return applyPhysicalCriticalHits({
+    state: options.state,
+    events: options.events,
+    gameId: options.gameId,
+    unitId,
+    sourceUnitId: options.unitId,
+    locations,
+    rollNumber: true,
+    d6Roller: options.d6Roller,
+    optionalRules: options.optionalRules,
+    manifestsByUnit: options.manifestsByUnit,
   });
 }
 

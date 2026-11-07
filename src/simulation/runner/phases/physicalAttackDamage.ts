@@ -1,14 +1,22 @@
 import {
   CombatLocation,
+  GamePhase,
   IGameEvent,
   IGameState,
   IUnitGameState,
 } from '@/types/gameplay';
 import {
   resolveCriticalHits,
+  buildDefaultCriticalSlotManifest,
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
+import { createUnitDestroyedEvent } from '@/utils/gameplay/gameEvents';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
+import {
+  physicalCriticalLocationEvents,
+  retainPhysicalCriticalPayloads,
+} from '@/utils/gameplay/gameSessionPhysicalCriticals';
+import { applyEvent } from '@/utils/gameplay/gameState';
 import {
   determinePhysicalHitLocation,
   type IPhysicalDamageCluster,
@@ -63,6 +71,8 @@ export function applyPhysicalCriticalHits(options: {
   gameId: string;
   unitId: string;
   locations: readonly CombatLocation[];
+  /** Omitted preserves existing forced-single callers; true rolls the table. */
+  rollNumber?: boolean;
   d6Roller: () => number;
   optionalRules?: readonly string[];
   sourceUnitId?: string;
@@ -74,10 +84,14 @@ export function applyPhysicalCriticalHits(options: {
     const unitBefore = currentState.units[options.unitId];
     if (!unitBefore || unitBefore.destroyed) continue;
 
-    const manifest = getOrSeedPhysicalCriticalManifest(
-      options.manifestsByUnit,
-      options.unitId,
-    );
+    const manifest = options.rollNumber
+      ? (options.manifestsByUnit?.get(options.unitId) ??
+        unitBefore.criticalSlotManifest ??
+        buildDefaultCriticalSlotManifest())
+      : getOrSeedPhysicalCriticalManifest(
+          options.manifestsByUnit,
+          options.unitId,
+        );
     if (!manifest) continue;
 
     const criticalResult = resolveCriticalHits(
@@ -86,7 +100,7 @@ export function applyPhysicalCriticalHits(options: {
       manifest,
       unitBefore.componentDamage ?? buildDefaultComponentDamageState(),
       options.d6Roller,
-      1,
+      options.rollNumber ? undefined : 1,
       undefined,
       {
         optionalRules: options.optionalRules,
@@ -101,6 +115,54 @@ export function applyPhysicalCriticalHits(options: {
       options.unitId,
       criticalResult.updatedManifest,
     );
+
+    const eventStart = options.events.length;
+    emitPhysicalCriticalEvents({
+      events: options.events,
+      gameId: options.gameId,
+      turn: currentState.turn,
+      attackerId: options.sourceUnitId ?? options.unitId,
+      targetId: options.unitId,
+      critEvents: criticalResult.events,
+      targetPilotingSkill: unitBefore.piloting,
+    });
+    if (options.rollNumber) {
+      const resolvedEvents = retainPhysicalCriticalPayloads(
+        options.events.slice(eventStart),
+        criticalResult.events,
+      );
+      options.events.splice(
+        eventStart,
+        resolvedEvents.length,
+        ...resolvedEvents,
+      );
+      options.events.push(
+        ...physicalCriticalLocationEvents({
+          gameId: options.gameId,
+          sequence: options.events.length,
+          turn: currentState.turn,
+          unitId: options.unitId,
+          location,
+          result: criticalResult,
+        }),
+      );
+      if (criticalResult.unitDestroyed && criticalResult.destructionCause) {
+        options.events.push(
+          createUnitDestroyedEvent(
+            options.gameId,
+            options.events.length,
+            currentState.turn,
+            GamePhase.PhysicalAttack,
+            options.unitId,
+            criticalResult.destructionCause,
+          ),
+        );
+      }
+      currentState = options.events
+        .slice(eventStart)
+        .reduce(applyEvent, currentState);
+      continue;
+    }
 
     let unitAfterCritical: IUnitGameState = {
       ...unitBefore,
@@ -125,16 +187,6 @@ export function applyPhysicalCriticalHits(options: {
       currentState,
       criticalResult.events,
     );
-
-    emitPhysicalCriticalEvents({
-      events: options.events,
-      gameId: options.gameId,
-      turn: currentState.turn,
-      attackerId: options.sourceUnitId ?? options.unitId,
-      targetId: options.unitId,
-      critEvents: criticalResult.events,
-      targetPilotingSkill: unitBefore.piloting,
-    });
   }
 
   return currentState;

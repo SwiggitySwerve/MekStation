@@ -63,6 +63,35 @@ ids, change heat sinks/firing modes, regenerate catalogs or establish complete
 weapon-quirk parity. Those source/runtime and other modifier paths remain
 separate from this bounded cooling correction.
 
+## Native Weak Legs
+
+`getWeakLegsCriticalLocations` owns native `weak_legs` membership and the
+extra critical-check requests. At the same pin,
+[TWGameManager.java:12869-12872](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L12869-L12872)
+requests a normal critical determination after kick damage, at the actual
+kicked location even if armor remains. This is neither a critical modifier
+nor a forced hit. A low determination roll can produce no critical.
+
+[TWGameManager.java:17207-17217](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L17207-L17217)
+checks a successful DFA attacker's left leg, then right leg. A quad also
+checks left arm, then right arm: all four checks, in that order. The miss
+branch returns before these checks. Source metadata, family and `isQuad`
+already travel in GameCreated and replay; no construction inference is added.
+The target owns the kick quirk and the attacker owns the DFA quirk. Duplicate
+ids do not stack; unknown or differently cased ids do not match.
+
+Session and runner consume this owner after the relevant damage. Normal
+determinations reuse the critical resolver, existing component/event owners,
+and injected dice. The runner's omitted `rollNumber` option preserves the
+existing forced-single path. Critical limb/head loss uses one shared event
+adapter so the zero-damage location removal also survives replay; the extra
+check does not invent another physical damage amount.
+
+This slice adds the check requests and represented critical consequences.
+Existing broader physical critical-system and ammunition-explosion consequence
+gaps remain separate; this is not full critical-system or quirk parity.
+It changes no catalog data, parser, regeneration, construction or BV rule.
+
 ## Native Prototype: BattleMech ranged critical determination
 
 At the same pin, `Quirks.java:168` and `OptionsConstants.java:139` register
