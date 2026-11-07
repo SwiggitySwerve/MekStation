@@ -22,6 +22,7 @@ export const UNIT_QUIRK_IDS = {
   // Defensive quirks
   DISTRACTING: 'distracting',
   LOW_PROFILE: 'low_profile',
+  PROTOTYPE: 'prototype',
 
   // Piloting quirks
   EASY_TO_PILOT: 'easy_to_pilot',
@@ -71,6 +72,15 @@ export const WEAPON_QUIRK_IDS = {
  * Complete quirk catalog — all unit and weapon quirks with combat effects.
  */
 export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
+  [UNIT_QUIRK_IDS.PROTOTYPE]: {
+    id: UNIT_QUIRK_IDS.PROTOTYPE,
+    name: 'Prototype',
+    category: 'crit',
+    pipelines: ['crit'],
+    combatEffect:
+      '+2 BattleMech ranged critical determination; other paths remain open',
+    isPositive: false,
+  },
   // Targeting quirks
   [UNIT_QUIRK_IDS.ANTI_AIR]: {
     id: UNIT_QUIRK_IDS.ANTI_AIR,

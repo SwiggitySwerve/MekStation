@@ -30,6 +30,7 @@ import {
   MEGAMEK_INITIATIVE_QUIRK_SOURCE_REFS,
   MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
   MEGAMEK_MULTI_TRAC_SOURCE_REFS,
+  MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS,
   MEKSTATION_DISTRACTING_TO_HIT_DEVIATION_SOURCE_REFS,
   MEKSTATION_LOW_PROFILE_TO_HIT_DEVIATION_SOURCE_REFS,
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
@@ -42,6 +43,11 @@ import {
 const ANTI_AIR_MEGAMEK_PIN = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 
 export const QUIRK_COMBAT_SUPPORT = {
+  prototype: integrated(
+    'prototype',
+    'getPrototypeCriticalHitModifier adds +2 once to the existing BattleMech ranged critical determination in session and runner, additive with Low Profile; forced-single criticals retain their count. Other families and physical attacks remain open.',
+    MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS,
+  ),
   anti_air: integrated(
     'anti_air',
     'calculateAntiAirQuirkModifier consumes the shared native target airborne fact through calculateToHit, session declaration and serialized replay; adds -2 once for explicit native anti_air against represented airborne aerospace/VTOL/WiGE targets, preserving unknown flight state as unqualified',

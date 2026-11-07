@@ -6,7 +6,11 @@ import type {
 
 import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
-import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
+import {
+  addBVToAmmoCapGroup,
+  calculateAmmoBVPools,
+  sumCappedAmmoBV,
+} from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import {
   normalizeEquipmentId,
@@ -36,6 +40,7 @@ interface OffensivePieces {
   readonly weaponMountBV?: readonly IProtoMechBVWeaponMount[];
   readonly ammoBV: number;
   readonly ammoAvailableMountBV?: readonly IProtoMechBVAmmoMount[];
+  readonly ammoCapBVByGroup?: Readonly<Record<string, number>>;
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;
   readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
@@ -163,6 +168,22 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
     ammoBV = sumCappedAmmoBV(ammoBVByType, (type) => weaponBVByType[type]);
   }
 
+  // Reuse the public native cap owner for diagnostics only. Its matching/total
+  // policy never replaces the ProtoMech exact-key calculation above.
+  const availableGroups = new Set(
+    ammoAvailableMountBV.map((fact) => fact.nativeGroup),
+  );
+  const nativeCaps =
+    availableGroups.size > 0
+      ? calculateAmmoBVPools(weaponsForAmmo, []).cap
+      : {};
+  const ammoCapBVByGroup = Object.fromEntries(
+    Object.entries(nativeCaps).filter(
+      ([group, value]) =>
+        availableGroups.has(group) && Number.isFinite(value) && value > 0,
+    ),
+  );
+
   // Pinned ProtoMekBVCalculator inherits the empty processWeight method.
   // Keep the public breakdown field without inventing weight-only offense.
   const physicalWeaponBV = 0;
@@ -178,6 +199,7 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
     ...(weaponMountBV.length > 0 ? { weaponMountBV } : {}),
     ammoBV,
     ...(ammoAvailableMountBV.length > 0 ? { ammoAvailableMountBV } : {}),
+    ...(Object.keys(ammoCapBVByGroup).length > 0 ? { ammoCapBVByGroup } : {}),
     physicalWeaponBV,
     offensiveEquipmentBV,
     ...(offensiveEquipmentMountBV.length > 0

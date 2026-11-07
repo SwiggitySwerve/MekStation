@@ -21,7 +21,7 @@ const nativeLocations = new Map<
  * Read-only baseline trace adapter. RULES.md documents the inherited empty
  * type/weight stages at MegaMek 48fcb2f6; the local summary has no chassis
  * adjustment. Mount keys retain local input identities; consumers compare
- * values within known native locations. Ammo groups remain unavailable here.
+ * values within known native locations. Ammo terms transport optional owner facts.
  */
 export function protoMechBVTerms(
   b: IProtoMechBVBreakdown,
@@ -33,7 +33,7 @@ export function protoMechBVTerms(
   adjustment: number;
 } & Record<`weapon.${number}.${string}.${string}`, number> &
   Record<`equipment.native.${number}.${string}`, number> &
-  Record<`ammo.available.${string}`, number> {
+  Record<`ammo.${'available' | 'cap'}.${string}`, number> {
   const weaponTerms: Record<`weapon.${number}.${string}.${string}`, number> =
     {};
   for (const fact of b.weaponMountBV ?? []) {
@@ -57,9 +57,12 @@ export function protoMechBVTerms(
   for (const fact of b.ammoAvailableMountBV ?? []) {
     addBVToAmmoCapGroup(available, fact.nativeGroup, fact.battleValue);
   }
-  const ammoTerms: Record<`ammo.available.${string}`, number> = {};
+  const ammoTerms: Record<`ammo.${'available' | 'cap'}.${string}`, number> = {};
   for (const [group, value] of Object.entries(available)) {
     ammoTerms[`ammo.available.${group}`] = value;
+  }
+  for (const [group, value] of Object.entries(b.ammoCapBVByGroup ?? {})) {
+    ammoTerms[`ammo.cap.${group}`] = value;
   }
   return {
     ...b,

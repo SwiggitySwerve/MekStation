@@ -27,9 +27,12 @@ const papers = [
   },
 ];
 const cases = papers.flatMap((paper) =>
-  (['TRIPOD', 'SUPERHEAVY_TRIPOD'] as const).map((crewType) => ({
+  (['TRIPOD', 'SUPERHEAVY_TRIPOD', 'QUADVEE'] as const).map((crewType) => ({
     ...paper,
     crewType,
+    configuration:
+      crewType === 'QUADVEE' ? ('quadvee' as const) : ('tripod' as const),
+    nativeSlots: crewType === 'QUADVEE' ? 2 : 3,
   })),
 );
 const abilities = buildSPASection([
@@ -112,7 +115,7 @@ function expectCrew(doc: Document, crew: IRecordSheetMechCrew): void {
   }
 }
 
-describe('explicit tripod crew canonical rendering', () => {
+describe('explicit native Mech crew canonical rendering', () => {
   const originalBBox = Object.getOwnPropertyDescriptor(
     SVGElement.prototype,
     'getBBox',
@@ -176,11 +179,11 @@ describe('explicit tripod crew canonical rendering', () => {
     crew = roster(paper.crewType),
     entries = abilities,
   ): Promise<Document> {
-    const fields = Array.from({ length: 3 }, (_, i) => {
+    const fields = Array.from({ length: paper.nativeSlots }, (_, i) => {
       const hidden = i === 2 ? ' visibility="hidden"' : '';
       return `<g id="crewDamage${i}"${hidden}/><text id="crewName${i}" x="3" y="${12 + 52 * i}"${hidden}>Name:</text><text id="pilotName${i}" x="25.228" y="${12 + 52 * i}"${hidden}>Lorem Ipsum</text><path id="blankCrewName${i}" d="M 25.228,${13 + 52 * i} H 139.6"${hidden}/><text id="gunnerySkill${i}"${hidden}>0</text><path id="blankGunnerySkill${i}"${hidden}/><text id="gunnerySkillText${i}"${hidden}>Gunnery:</text><text id="pilotingSkill${i}"${hidden}>0</text><path id="blankPilotingSkill${i}"${hidden}/><text id="pilotingSkillText${i}"${hidden}>Piloting:</text><rect id="spas${i}" x="0" y="${52 + 52 * i}" width="${paper.spaWidth}" height="13.5"/>`;
     }).join('');
-    const template = `<svg xmlns="http://www.w3.org/2000/svg" width="${paper.width}" height="${paper.height}"><text id="type"/><text id="bv"/><g id="warriorDataSingle"/><g id="warriorDataDual"/><g id="warriorDataTriple" visibility="hidden"/><g id="pilot-panel" transform="${paper.transform}">${fields}</g></svg>`;
+    const template = `<svg xmlns="http://www.w3.org/2000/svg" width="${paper.width}" height="${paper.height}"><text id="type"/><text id="bv"/><g id="warriorDataSingle"/><g id="warriorDataDual"/>${paper.nativeSlots === 3 ? '<g id="warriorDataTriple" visibility="hidden"/>' : ''}<g id="pilot-panel" transform="${paper.transform}">${fields}</g></svg>`;
     jest.spyOn(global, 'fetch').mockResolvedValue({
       ok: true,
       text: async () => template,
@@ -188,10 +191,15 @@ describe('explicit tripod crew canonical rendering', () => {
     } as Response);
     const renderer = new SVGRecordSheetRenderer();
     await renderer.loadTemplate(
-      '/record-sheets/native-tripod.svg',
+      `/record-sheets/native-${paper.configuration}.svg`,
       paper.paper,
     );
-    renderer.fillTemplate({ ...data, crew, specialAbilities: entries });
+    renderer.fillTemplate({
+      ...data,
+      mechType: paper.configuration,
+      crew,
+      specialAbilities: entries,
+    });
     return new DOMParser().parseFromString(
       renderer.getSVGString(),
       'image/svg+xml',
@@ -205,7 +213,7 @@ describe('explicit tripod crew canonical rendering', () => {
         doc = await render(paper, crew);
       expectCrew(doc, crew);
       expect(doc.getElementById('bv')?.textContent).toBe('1,897');
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < paper.nativeSlots; i++) {
         const active = i < crew.slots.length;
         expect(
           doc.getElementById(`crewDamage${i}`)?.getAttribute('visibility'),
@@ -232,6 +240,10 @@ describe('explicit tripod crew canonical rendering', () => {
       expect(
         doc.getElementById('warriorDataSingle')?.getAttribute('visibility'),
       ).toBe('hidden');
+      if (paper.crewType === 'QUADVEE') {
+        expect(doc.getElementById('crewName2')).toBeNull();
+        expect(doc.getElementById('warriorDataTriple')).toBeNull();
+      }
     },
   );
   it.each(cases)(
