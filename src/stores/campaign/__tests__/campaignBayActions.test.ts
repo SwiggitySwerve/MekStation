@@ -13,8 +13,17 @@ import type { IForce } from '@/types/campaign/Force';
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { ISalvageAllocation } from '@/types/campaign/Salvage';
 
+import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { prepareSalvageUnitRecovery } from '@/lib/campaign/salvage/salvageUnitRecovery';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { mapRawIndexEntry } from '@/services/units/unitIndexMapper';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { DamageLevel } from '@/types/campaign/Salvage';
+import {
+  UnitFinalStatus,
+  PilotFinalStatus,
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   reorderRepairTicketPriority,
@@ -23,7 +32,10 @@ import {
 import { selectRepairBay, selectSalvageBay } from '../campaignBaySelectors';
 import { useCampaignPersistenceStore } from '../useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '../useCampaignRosterStore';
-import { resetCampaignStore, useCampaignStore } from '../useCampaignStore';
+import {
+  resetCampaignStore,
+  useCampaignStore as getCampaignStore,
+} from '../useCampaignStore';
 
 // =============================================================================
 // Fixtures
@@ -64,6 +76,30 @@ function makeForce(id: string): IForce {
 function makeAllocation(): ISalvageAllocation {
   const candidate = {
     source: 'unit' as const,
+    recovery: prepareSalvageUnitRecovery(
+      {
+        unitId: 'enemy-atlas',
+        unitRef: 'atlas-as7-d',
+        unitSource: 'canonical',
+        side: GameSide.Opponent,
+        destroyed: true,
+        finalStatus: UnitFinalStatus.Destroyed,
+        armorRemaining: { CT: 0 },
+        internalsRemaining: { CT: 0 },
+        destroyedLocations: ['CT'],
+        destroyedComponents: [],
+        heatEnd: 0,
+        ammoRemaining: {},
+        pilotState: {
+          conscious: true,
+          wounds: 0,
+          killed: false,
+          finalStatus: PilotFinalStatus.Active,
+        },
+      },
+      'match-1',
+      '2026-11-07T00:00:00Z',
+    ),
     unitId: 'enemy-atlas',
     designation: 'Atlas AS7-D',
     destroyedFromBattle: 'match-1',
@@ -149,10 +185,11 @@ function makePartAllocation(): ISalvageAllocation {
  * and a salvage allocation.
  */
 function seedCampaign(): ICampaign {
-  const store = useCampaignStore();
+  const store = getCampaignStore();
   store.getState().createCampaign('Test', 'mercenary');
   const base = store.getState().getCampaign();
   if (!base) throw new Error('campaign not created');
+  useCampaignRosterStore.getState().initRoster(base.id);
 
   const seeded = {
     ...base,
@@ -168,7 +205,7 @@ function seedCampaign(): ICampaign {
     },
   } as Partial<ICampaign>;
 
-  store.getState().updateCampaign(seeded);
+  store.getState().switchCampaign({ ...base, ...seeded });
   return store.getState().getCampaign() as ICampaign;
 }
 
@@ -183,9 +220,31 @@ describe('campaignBayActions', () => {
     resetCampaignStore();
     useCampaignRosterStore.getState().reset();
     useCampaignPersistenceStore.getState().reset();
+    jest.spyOn(getCanonicalUnitService(), 'getIndex').mockResolvedValue([
+      mapRawIndexEntry({
+        id: 'atlas-as7-d',
+        chassis: 'Atlas',
+        model: 'AS7-D',
+        tonnage: 100,
+        techBase: 'INNER_SPHERE',
+        path: 'fixture.json',
+      }),
+    ]);
+    jest
+      .spyOn(useCampaignPersistenceStore.getState(), 'saveCampaign')
+      .mockImplementation(async () => ({
+        status: 'saved',
+        record: buildSerializedCampaign(
+          getCampaignStore().getState().campaign!,
+          'test-device',
+          1,
+        ),
+      }));
   });
 
   afterEach(() => {
+    useCampaignPersistenceStore.getState().reset();
+    jest.restoreAllMocks();
     jest.useRealTimers();
     resetCampaignStore();
   });
@@ -200,7 +259,7 @@ describe('campaignBayActions', () => {
       ]);
       expect(result.applied).toBe(true);
 
-      const campaign = useCampaignStore()
+      const campaign = getCampaignStore()
         .getState()
         .getCampaign() as ICampaign & {
         repairQueue?: readonly IRepairTicket[];
@@ -224,7 +283,7 @@ describe('campaignBayActions', () => {
       seedCampaign();
       reorderRepairTicketPriority(['ticket-2', 'ticket-1']);
       const repairBay = selectRepairBay(
-        useCampaignStore().getState().getCampaign(),
+        getCampaignStore().getState().getCampaign(),
       );
       // The projected bay still carries every ticket's original content.
       const ticket1 = repairBay.find((t) => t.ticketId === 'ticket-1');
@@ -239,13 +298,13 @@ describe('campaignBayActions', () => {
   });
 
   describe('setSalvageItemStatus', () => {
-    it('flips a pending candidate to accepted on the salvage state', () => {
+    it('flips a pending candidate to accepted on the salvage state', async () => {
       seedCampaign();
-      const result = setSalvageItemStatus('salvage-atlas', 'accepted');
+      const result = await setSalvageItemStatus('salvage-atlas', 'accepted');
       expect(result.applied).toBe(true);
 
       const salvageBay = selectSalvageBay(
-        useCampaignStore().getState().getCampaign(),
+        getCampaignStore().getState().getCampaign(),
       );
       const item = salvageBay.find((s) => s.partId === 'salvage-atlas');
       expect(item?.status).toBe('accepted');
@@ -255,29 +314,32 @@ describe('campaignBayActions', () => {
       seedCampaign();
       setSalvageItemStatus('salvage-atlas', 'declined');
       const salvageBay = selectSalvageBay(
-        useCampaignStore().getState().getCampaign(),
+        getCampaignStore().getState().getCampaign(),
       );
       expect(salvageBay.find((s) => s.partId === 'salvage-atlas')?.status).toBe(
         'declined',
       );
     });
 
-    it('marks the campaign dirty so the persistence store auto-saves', () => {
+    it('marks the campaign dirty before saving enrollment', async () => {
       seedCampaign();
       expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
-      setSalvageItemStatus('salvage-atlas', 'accepted');
+      await setSalvageItemStatus('salvage-atlas', 'accepted');
       expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
     });
 
-    it('adds an accepted salvage unit to the root force exactly once', () => {
+    it('adds an accepted salvage unit to the root force exactly once', async () => {
       seedCampaign();
 
-      setSalvageItemStatus('salvage-atlas', 'accepted');
-      setSalvageItemStatus('salvage-atlas', 'accepted');
+      await setSalvageItemStatus('salvage-atlas', 'accepted');
+      await setSalvageItemStatus('salvage-atlas', 'accepted');
 
-      const campaign = useCampaignStore().getState().getCampaign() as ICampaign;
+      const campaign = getCampaignStore().getState().getCampaign() as ICampaign;
       const rootForce = campaign.forces.get(campaign.rootForceId);
       expect(rootForce?.unitIds).toEqual(['enemy-atlas']);
+      expect(
+        useCampaignRosterStore.getState().units.map((unit) => unit.unitId),
+      ).toEqual(['enemy-atlas']);
     });
 
     it('adds an accepted salvage part into partsInventory', () => {
@@ -285,7 +347,7 @@ describe('campaignBayActions', () => {
 
       setSalvageItemStatus('ac20', 'accepted');
 
-      const campaign = useCampaignStore()
+      const campaign = getCampaignStore()
         .getState()
         .getCampaign() as ICampaign & {
         readonly partsInventory?: readonly {
@@ -307,33 +369,33 @@ describe('campaignBayActions', () => {
       ]);
     });
 
-    it('re-projects the inventory so the bay reflects the change immediately', () => {
+    it('re-projects the inventory so the bay reflects the change immediately', async () => {
       seedCampaign();
       // Before: no inventory has been attached yet, but the render-facing
       // selector re-projects from persisted salvage state so a reload still
       // shows the bay.
       let salvageBay = selectSalvageBay(
-        useCampaignStore().getState().getCampaign(),
+        getCampaignStore().getState().getCampaign(),
       );
       expect(salvageBay.find((s) => s.partId === 'salvage-atlas')?.status).toBe(
         'pending',
       );
 
-      setSalvageItemStatus('salvage-atlas', 'accepted');
+      await setSalvageItemStatus('salvage-atlas', 'accepted');
 
       // After: the bay action re-projects the inventory off the mutated
       // salvage state — the candidate now shows as accepted without
       // waiting for the next day advancement (design D5).
       salvageBay = selectSalvageBay(
-        useCampaignStore().getState().getCampaign(),
+        getCampaignStore().getState().getCampaign(),
       );
       expect(salvageBay.find((s) => s.partId === 'salvage-atlas')?.status).toBe(
         'accepted',
       );
     });
 
-    it('reports applied=false when no campaign is loaded', () => {
-      const result = setSalvageItemStatus('salvage-atlas', 'accepted');
+    it('reports applied=false when no campaign is loaded', async () => {
+      const result = await setSalvageItemStatus('salvage-atlas', 'accepted');
       expect(result.applied).toBe(false);
     });
   });

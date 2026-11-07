@@ -29,6 +29,8 @@ export default function SalvagePage(): React.ReactElement {
   const shell = CampaignShell.useCampaignPageShell('Salvage');
   const loadStatus = CampaignShell.useCampaignLoadStatus();
   const [, setDecisionTick] = useState(0);
+  const [decisionError, setDecisionError] = useState<string | null>(null);
+  const [deciding, setDeciding] = useState(false);
 
   const pendingPage = CampaignShell.renderPendingCampaignPage(
     shell,
@@ -49,17 +51,41 @@ export default function SalvagePage(): React.ReactElement {
   );
 
   const handleDecide = (partId: string, decision: SalvageDecision): void => {
-    setSalvageItemStatus(partId, decision);
-    setDecisionTick((tick) => tick + 1);
+    setDeciding(true);
+    setDecisionError(null);
+    void Promise.resolve(setSalvageItemStatus(partId, decision))
+      .then((result) => {
+        if (!result.applied)
+          setDecisionError(
+            result.reason ?? 'The salvage decision could not be saved.',
+          );
+        setDecisionTick((tick) => tick + 1);
+      })
+      .catch((error: unknown) => {
+        setDecisionError(
+          error instanceof Error
+            ? error.message
+            : 'The salvage decision failed.',
+        );
+      })
+      .finally(() => setDeciding(false));
   };
 
   return (
     <CampaignShell.CampaignPageFrameFromShell shell={shell} frame={frame}>
+      {decisionError && <p role="alert">{decisionError}</p>}
+      {deciding && <p role="status">Saving salvage decision...</p>}
       {saveError ?? (
-        <SalvageAcceptancePanel
-          salvageBay={salvageBay}
-          onDecide={handleDecide}
-        />
+        <fieldset
+          disabled={deciding}
+          aria-label="Salvage decisions"
+          className="min-w-0 border-0 p-0"
+        >
+          <SalvageAcceptancePanel
+            salvageBay={salvageBay}
+            onDecide={handleDecide}
+          />
+        </fieldset>
       )}
     </CampaignShell.CampaignPageFrameFromShell>
   );

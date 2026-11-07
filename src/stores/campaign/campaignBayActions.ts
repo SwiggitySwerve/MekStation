@@ -10,10 +10,9 @@
  *     (`pending → accepted | declined`) on the campaign's
  *     `salvageAllocations` mercenary award (design D5).
  *
- * Per design D6 every mutation routes through `useCampaignStore.updateCampaign`
- * (which writes the live `ICampaign`) and then marks the campaign dirty via
- * `useCampaignPersistenceStore.markDirty()` so the debounced auto-save (CP0)
- * picks it up. No bay surface writes to the server directly.
+ * Ordinary decisions update campaign state and mark it dirty. Whole-unit
+ * acceptance additionally prepares recovery and awaits the owning campaign's
+ * roster/force commit and acknowledged persistence result.
  *
  * These actions do NOT add business logic — the repair / salvage engines
  * compute ticket content and recovered value; this module only records the
@@ -35,7 +34,13 @@ import type {
 import { projectCampaignInventory } from '@/lib/campaign/inventory/projectCampaignInventory';
 import { addInventoryItem } from '@/lib/campaign/partsInventory';
 
+import type { MaybePromise } from './useCampaignStore.types';
+
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+import {
+  enrollSalvageUnit,
+  type ISalvageEnrollmentResult,
+} from './salvageUnitEnrollment';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 // Importing the campaign-store module registers the store accessor as a
@@ -160,10 +165,7 @@ export type SalvageDecision = 'accepted' | 'declined';
 /**
  * Result of a salvage accept/decline request.
  */
-export interface ISalvageDecisionResult {
-  /** True when the decision was applied (campaign loaded, candidate found). */
-  readonly applied: boolean;
-}
+export type ISalvageDecisionResult = ISalvageEnrollmentResult;
 
 /**
  * Map the bay UI's `accepted | declined` decision onto the engine's
@@ -193,23 +195,10 @@ function salvageInventoryItem(
   };
 }
 
-function addUnitToRootForce(
-  campaign: ICampaign,
-  unitId: string,
-): ICampaign['forces'] {
-  const rootForce = campaign.forces.get(campaign.rootForceId);
-  if (!rootForce || rootForce.unitIds.includes(unitId)) {
-    return campaign.forces;
-  }
-
-  const nextForces = new Map(campaign.forces);
-  nextForces.set(rootForce.id, {
-    ...rootForce,
-    unitIds: [...rootForce.unitIds, unitId],
-    updatedAt: new Date().toISOString(),
-  });
-  return nextForces;
-}
+const pendingSalvageDecisions = new Map<
+  string,
+  Promise<ISalvageDecisionResult>
+>();
 
 /**
  * Record the player's accept/decline decision on a salvage candidate.
@@ -228,15 +217,36 @@ function addUnitToRootForce(
 export function setSalvageItemStatus(
   partId: string,
   decision: SalvageDecision,
-): ISalvageDecisionResult {
+): MaybePromise<ISalvageDecisionResult> {
   let applied = false;
   const nextStatus = decisionToCandidateStatus(decision);
+  const campaign = getCampaignStoreForRoster()?.getState().campaign;
+  if (!campaign) return { applied: false, reason: 'No campaign is loaded.' };
+  if (campaign.coopSession?.mode === 'guest')
+    return {
+      applied: false,
+      reason: 'Only the campaign host may decide salvage.',
+    };
+  const matches = Object.values(campaign.salvageAllocations ?? {}).flatMap(
+    (allocation) =>
+      allocation.mercenaryAward.candidates.filter(
+        (candidate) => (candidate.partId ?? candidate.unitId) === partId,
+      ),
+  );
+  if (matches.length !== 1)
+    return {
+      applied: false,
+      reason: 'The salvage identity is missing or ambiguous.',
+    };
+  const candidate = matches[0];
+  const key = `${campaign.id}\0${partId}`;
+  const pending = pendingSalvageDecisions.get(key);
+  if (pending) return pending;
 
-  applyCampaignMutation((campaign) => {
+  const mutate = (campaign: ICampaignWithBays): Partial<ICampaign> => {
     const allocations = campaign.salvageAllocations ?? {};
     const nextAllocations: Record<string, ISalvageAllocation> = {};
     let nextPartsInventory = campaign.partsInventory ?? [];
-    let nextForces = campaign.forces;
 
     for (const [battleId, allocation] of Object.entries(allocations)) {
       const nextCandidates = allocation.mercenaryAward.candidates.map(
@@ -252,11 +262,6 @@ export function setSalvageItemStatus(
               nextPartsInventory = addInventoryItem(
                 nextPartsInventory,
                 salvageInventoryItem(candidate),
-              );
-            } else {
-              nextForces = addUnitToRootForce(
-                { ...campaign, forces: nextForces },
-                candidate.unitId,
               );
             }
           }
@@ -275,10 +280,25 @@ export function setSalvageItemStatus(
 
     return {
       salvageAllocations: nextAllocations,
-      forces: nextForces,
       partsInventory: nextPartsInventory,
     } as Partial<ICampaign>;
-  });
+  };
+
+  if (decision === 'accepted' && candidate.source === 'unit') {
+    const updates = mutate(campaign);
+    const campaignInventory = projectCampaignInventory(
+      { ...campaign, ...updates },
+      useCampaignRosterStore.getState().pilots,
+      new Date().toISOString(),
+    );
+    const result = enrollSalvageUnit(campaign, candidate, {
+      ...updates,
+      campaignInventory,
+    } as Partial<ICampaign>).finally(() => pendingSalvageDecisions.delete(key));
+    pendingSalvageDecisions.set(key, result);
+    return result;
+  }
+  applyCampaignMutation(mutate);
 
   return { applied };
 }
