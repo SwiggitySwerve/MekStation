@@ -347,7 +347,6 @@
   "src/__tests__/unit/types/validation/CriticalHitSystem.regression.test.ts",
   "src/__tests__/unit/types/validation/HeatManagement.test.ts",
   "src/__tests__/unit/utils/colors/equipmentColors.test.ts",
-  "src/__tests__/unit/utils/colors/index.test.ts",
   "src/__tests__/unit/utils/colors/slotColors.test.ts",
   "src/__tests__/unit/utils/colors/statusColors.test.ts",
   "src/__tests__/unit/utils/colors/techBaseColors.test.ts",
