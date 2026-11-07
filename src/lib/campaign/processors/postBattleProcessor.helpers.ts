@@ -6,7 +6,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { MissionStatus } from '@/types/campaign/enums';
+import { isTerminalMissionStatus, MissionStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 import {
@@ -293,11 +293,16 @@ export function applyContractDelta(
     return null;
   }
 
+  const previousStatus = mission.status;
+  // Later battles must not reopen a settled contract or trigger another payment.
+  if (isTerminalMissionStatus(previousStatus)) {
+    return { contract: mission, previousStatus, flippedToTerminal: false };
+  }
+
   // Only flip status on terminal end reasons. Withdrawal leaves the
   // contract Active for now — the player can re-engage. TurnLimit is a
   // soft terminal: flip to PARTIAL so downstream payout logic treats
   // it as a draw outcome rather than leaving the mission Active.
-  const previousStatus = mission.status;
   let nextStatus = previousStatus;
   if (outcome.endReason === CombatEndReason.ObjectiveMet) {
     nextStatus = playerWon(outcome)
@@ -331,10 +336,7 @@ export function applyContractDelta(
   // (Success / Partial / Failed) signals contract fulfillment.
   // Status that didn't change at all does NOT publish — re-runs are
   // a no-op for the bus.
-  const isTerminal =
-    nextStatus === MissionStatus.SUCCESS ||
-    nextStatus === MissionStatus.PARTIAL ||
-    nextStatus === MissionStatus.FAILED;
+  const isTerminal = isTerminalMissionStatus(nextStatus);
   const flippedToTerminal = isTerminal && previousStatus !== nextStatus;
 
   return { contract: updated, previousStatus, flippedToTerminal };

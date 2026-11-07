@@ -9,6 +9,7 @@
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
+import { processContracts } from '@/lib/campaign/contractProcessing';
 import { _resetDayPipeline, getDayPipeline } from '@/lib/campaign/dayPipeline';
 import {
   _resetBuiltinRegistration,
@@ -16,6 +17,7 @@ import {
 } from '@/lib/campaign/processors';
 import { BASE_BATTLE_CHANCE } from '@/lib/campaign/scenario/battleChance';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { CombatRole } from '@/types/campaign/scenario/scenarioTypes';
 import { EncounterStatus } from '@/types/encounter';
 
@@ -143,13 +145,34 @@ describe('buildFastForwardFixture', () => {
     },
   );
 
-  it('bounds the contract window so no scenario can generate after the covered Monday', () => {
+  it.each([1, 2])(
+    'keeps the contract ACTIVE on application day %i after Monday',
+    (daysAfterMonday) => {
+      const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });
+      const campaign = {
+        ...fixture.campaign,
+        currentDate: new Date(
+          fixture.campaign.currentDate.getTime() +
+            daysAfterMonday * 24 * 60 * 60 * 1000,
+        ),
+      };
+
+      const result = processContracts(campaign);
+
+      expect(result.missions.get(fixture.contractId)?.status).toBe(
+        MissionStatus.ACTIVE,
+      );
+      expect(result.events).toHaveLength(0);
+    },
+  );
+
+  it('expires outside the one-day fight deferral window and before the next Monday', () => {
     registerBuiltinProcessors();
     const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });
     const contract = fixture.campaign.missions.get(fixture.contractId);
     expect(contract?.endDate).toBeDefined();
     expect(new Date(contract!.endDate!).getTime()).toBeGreaterThan(
-      fixture.campaign.currentDate.getTime(),
+      fixture.campaign.currentDate.getTime() + 2 * 24 * 60 * 60 * 1000,
     );
     // Exactly one live Monday: the contract expires before the following
     // Monday (7 days later).
