@@ -34,7 +34,7 @@ async function post(body: unknown) {
 beforeEach(() => getSQLiteService({ path: ':memory:' }).initialize());
 afterEach(() => resetSQLiteService());
 
-it('imports pinned MTF through the API, persists source facts and reloads its custom identity', async () => {
+it('imports pinned MTF, renames a conflict and reloads its custom identity without rewriting source', async () => {
   expect(createHash('sha256').update(text).digest('hex')).toBe(source.sha256);
   const res = await post({ sourceFormat: 'mtf', sourceText: text });
   expect(res._getStatusCode()).toBe(201);
@@ -50,11 +50,12 @@ it('imports pinned MTF through the API, persists source facts and reloads its cu
   expect(savedDefinition).toHaveProperty('mtfSource.text', text);
   const originalFetch = global.fetch;
   global.fetch = jest.fn(async (input) => {
-    expect(String(input)).toBe(`/api/units/custom/${id}`);
+    expect(String(input)).toMatch(/^\/api\/units\/custom\/custom-/);
+    const requestedId = String(input).split('/').pop();
     const { req, res: response } = createMocks<NextApiRequest, NextApiResponse>(
       {
         method: 'GET',
-        query: { id },
+        query: { id: requestedId },
       },
     );
     await customHandler(req, response);
@@ -79,13 +80,43 @@ it('imports pinned MTF through the API, persists source facts and reloads its cu
         },
       },
     );
+    const duplicate = await post({ sourceFormat: 'mtf', sourceText: text });
+    expect(duplicate._getStatusCode()).toBe(409);
+    expect(parseImportResponse(duplicate).error?.suggestedName).toBe(
+      'ANH-3A-Custom-1',
+    );
+    expect(getUnitRepository().list()).toHaveLength(1);
+    expect(getUnitRepository().getById(id)?.data).toBe(saved.data);
+    const renamed = await post({
+      sourceFormat: 'mtf',
+      sourceText: text,
+      variant: '  ANH-3A-Renamed  ',
+    });
+    expect(renamed._getStatusCode()).toBe(201);
+    const renamedId = parseImportResponse(renamed).data?.unitId;
+    if (!renamedId) throw new Error('Expected renamed custom identity');
+    expect(renamedId).not.toBe(id);
+    const renamedUnit = getUnitRepository().getById(renamedId);
+    expect(renamedUnit?.variant).toBe('ANH-3A-Renamed');
+    const renamedDefinition = await loadUnitDefinition(
+      'battlemechs',
+      renamedId,
+      'custom',
+    );
+    expect(renamedDefinition).toMatchObject({
+      success: true,
+      reference: { source: 'custom', id: renamedId, version: 1 },
+      definition: {
+        id: renamedId,
+        model: 'ANH-3A-Renamed',
+        variant: 'ANH-3A-Renamed',
+        mtfSource: { text },
+      },
+    });
+    expect(getUnitRepository().getById(id)?.data).toBe(saved.data);
   } finally {
     global.fetch = originalFetch;
   }
-  const duplicate = await post({ sourceFormat: 'mtf', sourceText: text });
-  expect(duplicate._getStatusCode()).toBe(409);
-  expect(getUnitRepository().list()).toHaveLength(1);
-  expect(getUnitRepository().getById(id)?.data).toBe(saved.data);
 });
 
 it.each([
@@ -99,6 +130,14 @@ it.each([
   ['unknown format', { sourceFormat: 'bfs', sourceText: text }],
   ['primitive body', 42],
   ['array body', []],
+  [
+    'empty MTF variant',
+    { sourceFormat: 'mtf', sourceText: text, variant: ' ' },
+  ],
+  [
+    'non-string MTF variant',
+    { sourceFormat: 'mtf', sourceText: text, variant: 42 },
+  ],
 ])(
   'rejects %s with client diagnostics and no persisted unit',
   async (_name, body) => {
