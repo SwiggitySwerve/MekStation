@@ -134,20 +134,6 @@ export {
   type E2EGameplayState,
 } from './game';
 
-// Repair fixtures
-export {
-  initializeRepairStore,
-  getRepairJobs,
-  getRepairJob,
-  selectRepairJob,
-  startRepairJob,
-  cancelRepairJob,
-  toggleRepairItem,
-  getSelectedJobId,
-  type TestRepairJobOptions,
-  type TestRepairItemOptions,
-} from './repair';
-
 // Customizer fixtures
 export {
   waitForTabManagerStoreReady,

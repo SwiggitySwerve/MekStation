@@ -18,7 +18,6 @@ import { useForceStore } from '@/stores/useForceStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
-import { useRepairStore } from '@/stores/useRepairStore';
 import {
   useTabManagerStore,
   UNIT_TEMPLATES,
@@ -46,7 +45,6 @@ export function exposeStoresForE2E(): void {
     encounter: useEncounterStore,
     gameplay: useGameplayStore,
     quickGame: useQuickGameStore,
-    repair: useRepairStore,
     award: useAwardStore,
     tabManager: useTabManagerStore,
   };
