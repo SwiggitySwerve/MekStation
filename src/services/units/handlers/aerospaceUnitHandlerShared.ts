@@ -1,5 +1,6 @@
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import armorOrder from '@/types/formats/blk-aerospace-armor.json';
+import cockpitCodes from '@/types/formats/blk-aerospace-cockpit.json';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   AerospaceCockpitType,
@@ -33,8 +34,23 @@ const AEROSPACE_LOCATION_ENTRIES: readonly (readonly [
 
 const AEROSPACE_LOCATION_MAP = Object.fromEntries(AEROSPACE_LOCATION_ENTRIES);
 
-const COCKPIT_TYPE_BY_CODE: Record<number, AerospaceCockpitType> = {
-  1: AerospaceCockpitType.SMALL,
+const COCKPIT_TYPE_BY_CODE: Readonly<Record<number, AerospaceCockpitType>> =
+  Object.fromEntries(
+    Object.entries(cockpitCodes).map(([code, name]) => {
+      const type = Object.entries(AerospaceCockpitType).find(
+        ([key]) => key === name,
+      )?.[1];
+      if (type === undefined)
+        throw new Error(`Unknown shared aerospace cockpit identity: ${name}`);
+      return [Number(code), type];
+    }),
+  );
+
+// Preserve the existing ASF behavior during extraction; corrected separately.
+const LEGACY_ASF_COCKPIT_TYPE_BY_CODE: Readonly<
+  Record<number, AerospaceCockpitType>
+> = {
+  ...COCKPIT_TYPE_BY_CODE,
   2: AerospaceCockpitType.PRIMITIVE,
   3: AerospaceCockpitType.COMMAND_CONSOLE,
 };
@@ -94,7 +110,7 @@ export function parseAerospaceCockpitType(
   document: IBlkDocument,
 ): AerospaceCockpitType {
   return (
-    COCKPIT_TYPE_BY_CODE[document.cockpitType || 0] ||
+    LEGACY_ASF_COCKPIT_TYPE_BY_CODE[document.cockpitType || 0] ||
     AerospaceCockpitType.STANDARD
   );
 }
