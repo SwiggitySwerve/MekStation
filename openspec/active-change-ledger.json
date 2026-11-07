@@ -115,6 +115,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "remove-legacy-campaign-overview",
+      "status": "proposed",
+      "reason": "Owner ruling 2026-11-07 D1: delete the unmounted legacy campaign overview stack (CampaignOverviewTab, MissionTreeView, CampaignStatusHelpers, legacy CampaignStatus/ICampaign types), ContextPanel, RefitLaunchPanel and ImportUnitDialog; DeleteCampaignDialog is kept and moved. REMOVED requirement delta only; canonical sync/archive pending PR merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "remove-standalone-repair",
       "status": "proposed",
       "reason": "Owner ruling 2026-11-07 D1: delete the unlinked standalone repair bay (/gameplay/repair, RepairBayPage, useRepairStore, src/types/repair, src/components/repair) and its e2e exposure/spec/fixtures; the campaign RepairTicket system is kept. REMOVED requirement deltas only; canonical sync/archive pending PR merge.",
