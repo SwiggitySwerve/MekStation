@@ -77,7 +77,6 @@ export const XP_VALUES = {
 
 /**
  * Calculate XP for a pilot based on mission performance.
- * This matches the existing calculateMissionXp from CampaignInterfaces.
  */
 export function calculateMissionXP(input: IXPCalculationInput): number {
   const breakdown = calculateXPBreakdown(input);

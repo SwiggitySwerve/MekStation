@@ -46,6 +46,21 @@ export const ALL_MISSION_STATUSES: readonly MissionStatus[] = Object.freeze([
   MissionStatus.ABORTED,
 ]);
 
+/** Whether a mission has reached a final outcome. */
+export function isTerminalMissionStatus(status: MissionStatus): boolean {
+  switch (status) {
+    case MissionStatus.SUCCESS:
+    case MissionStatus.PARTIAL:
+    case MissionStatus.FAILED:
+    case MissionStatus.BREACH:
+    case MissionStatus.CANCELLED:
+    case MissionStatus.ABORTED:
+      return true;
+    default:
+      return false;
+  }
+}
+
 /**
  * Check if a value is a valid MissionStatus
  */

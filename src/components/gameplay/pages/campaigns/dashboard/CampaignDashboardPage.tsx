@@ -5,10 +5,10 @@ import { useStore } from 'zustand';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
-import { DeleteCampaignDialog } from '@/components/campaign/CampaignOverviewTab.sections';
 import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
+import { DeleteCampaignDialog } from '@/components/campaign/DeleteCampaignDialog';
 import { CampaignSharePanelConnected } from '@/components/campaign/share';
 import { Button, PageLayout } from '@/components/ui';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';

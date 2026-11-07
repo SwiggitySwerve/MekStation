@@ -1,8 +1,7 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IMission } from '@/types/campaign/Mission';
 import type { IStarSystem } from '@/types/starmap/StarSystem';
 
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { isTerminalMissionStatus } from '@/types/campaign/enums/MissionStatus';
 
 import { findSystemById, loadInnerSphereSeed } from './loadInnerSphereSeed';
 import { distanceBetweenSystems } from './starmapTravelRoute';
@@ -47,7 +46,8 @@ export function buildStarmapSystemLenses(
         : Math.max(1, Math.ceil(directDistanceLy / rules.maxJumpDistanceLy));
     const contracts = Array.from(campaign.missions.values()).filter(
       (mission) =>
-        mission.systemId === system.id && !isTerminalMission(mission),
+        mission.systemId === system.id &&
+        !isTerminalMissionStatus(mission.status),
     );
     const nearestDeadlineDate = contracts
       .map((mission) => mission.endDate)
@@ -106,15 +106,4 @@ function riskLevelFor(
     return 'low';
   }
   return system.faction === 'Independent' ? 'medium' : 'high';
-}
-
-function isTerminalMission(mission: IMission): boolean {
-  return [
-    MissionStatus.SUCCESS,
-    MissionStatus.PARTIAL,
-    MissionStatus.FAILED,
-    MissionStatus.BREACH,
-    MissionStatus.CANCELLED,
-    MissionStatus.ABORTED,
-  ].includes(mission.status);
 }

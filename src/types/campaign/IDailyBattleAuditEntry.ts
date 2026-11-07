@@ -20,7 +20,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import { CombatEndReason } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
-import { MissionStatus } from './enums/MissionStatus';
+import { isTerminalMissionStatus } from './enums/MissionStatus';
 import { isContract, type IMission } from './Mission';
 
 // =============================================================================
@@ -138,19 +138,6 @@ function endReasonLabel(reason: CombatEndReason): string {
 // =============================================================================
 
 /**
- * Terminal mission statuses we treat as "closed" for audit purposes.
- * Subset of {@link MissionStatus} excluding ACTIVE/PENDING.
- */
-const CLOSED_STATUSES: ReadonlySet<MissionStatus> = new Set([
-  MissionStatus.SUCCESS,
-  MissionStatus.PARTIAL,
-  MissionStatus.FAILED,
-  MissionStatus.BREACH,
-  MissionStatus.CANCELLED,
-  MissionStatus.ABORTED,
-]);
-
-/**
  * Return the ids of contract missions that ended in a terminal status
  * during the just-applied day. Used by the audit builder to surface
  * "contract closed" rows on the dashboard.
@@ -165,7 +152,7 @@ export function findClosedContractIds(
     const previous = beforeMissions.get(id);
     if (!previous || !isContract(previous)) continue;
     if (previous.status === mission.status) continue;
-    if (CLOSED_STATUSES.has(mission.status)) {
+    if (isTerminalMissionStatus(mission.status)) {
       closed.push(id);
     }
   }

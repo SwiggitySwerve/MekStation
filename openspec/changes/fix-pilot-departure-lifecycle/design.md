@@ -94,3 +94,18 @@ failed at native-module loading (ABI 127 versus 137). No shared binding was
 rebuilt. Logs are in the local audit scratch directory as `K1-red.log`,
 `K1-green-initial.log`, `K1-mutant.log`, `K1-green-final.log`, and `K1-*.log`.
 Hosted CI remains pending; this evidence does not claim hosted completion.
+
+## Main merge verification
+
+Merged `6065c5b333a76d32beb06faf40560b49c4c5dd25`, including K2, K3,
+and the legacy campaign overview deletion. Only the append-only OpenSpec
+ledger conflicted; all 21 entries were retained. No code conflicts occurred.
+
+The merged tree passed 493 tests across 24 suites, including turnover, both
+payroll paths, readiness, persistence round trips and crash-window coverage,
+all three fastForward integration suites, K2's terminal-contract regression,
+K10 loan-servicing regressions, and the unit-lint Jest suite. Both tsc configs,
+unit lint (17078/17085 within every per-path ceiling), root lint (63 warnings,
+zero errors), oxfmt, all 242 strict OpenSpec items, and OpenSpec CI accounting
+passed. The CI budget passed at 57 unkeyable tests with no newly unkeyable
+graphs. Logs use the `K1-main6065-` prefix in the local audit scratch directory.
