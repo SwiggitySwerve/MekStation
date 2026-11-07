@@ -1205,10 +1205,11 @@ export class ServerMatchHost {
     if (!hasCombatOutcomeOutbox(this.store)) return;
     const record = await this.store.getCombatOutcomeOutbox(this.matchId);
     if (record == null || record.publishedAt != null) return;
-    publishCombatOutcome({
+    const consumed = publishCombatOutcome({
       matchId: record.matchId,
       outcome: record.outcome,
     });
+    if (!consumed) return;
     await this.store.markCombatOutcomePublished(this.matchId, record.outcomeId);
     this.outcomePublisher.markPublishedFromDurableOutbox();
   };
