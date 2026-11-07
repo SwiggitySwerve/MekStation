@@ -24,6 +24,7 @@ import {
   getShareLinkRepository,
   ShareLinkRepository,
 } from './ShareLinkRepository';
+import { isVaultExpiryValid, normalizeVaultExpiry } from './vaultExpiry';
 
 // =============================================================================
 // Types
@@ -126,17 +127,9 @@ export class ShareLinkService {
         };
       }
 
-      // Validate expiry date format
-      if (options.expiresAt) {
-        const date = new Date(options.expiresAt);
-        if (isNaN(date.getTime())) {
-          return { success: false, error: 'Invalid expiry date format' };
-        }
-      }
-
       const linkOptions: IShareLinkOptions = {
         level: options.level,
-        expiresAt: options.expiresAt,
+        expiresAt: normalizeVaultExpiry(options.expiresAt || null),
         maxUses: options.maxUses,
         label: options.label,
       };
@@ -325,7 +318,10 @@ export class ShareLinkService {
     expiresAt: string | null,
   ): Promise<IShareLinkOperationResult> => {
     try {
-      const updated = await this.repository.updateExpiry(linkId, expiresAt);
+      const updated = await this.repository.updateExpiry(
+        linkId,
+        normalizeVaultExpiry(expiresAt),
+      );
       if (!updated) {
         return { success: false, error: 'Share link not found' };
       }
@@ -397,13 +393,7 @@ export class ShareLinkService {
       return false;
     }
 
-    if (link.expiresAt) {
-      const now = new Date();
-      const expiry = new Date(link.expiresAt);
-      if (now > expiry) {
-        return false;
-      }
-    }
+    if (!isVaultExpiryValid(link.expiresAt)) return false;
 
     if (link.maxUses !== null && link.useCount >= link.maxUses) {
       return false;

@@ -354,9 +354,9 @@ describe('ShareLinkRepository', () => {
 
       expect(result).toBe(true);
       expect(mockDb.prepare).toHaveBeenCalledWith(
-        'UPDATE vault_share_links SET max_uses = ? WHERE id = ?',
+        'UPDATE vault_share_links SET max_uses = ? WHERE id = ? AND (? IS NULL OR ? >= use_count)',
       );
-      expect(mockStatement.run).toHaveBeenCalledWith(20, 'link-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(20, 'link-123', 20, 20);
     });
 
     it('should remove max uses limit with null', async () => {
@@ -365,7 +365,12 @@ describe('ShareLinkRepository', () => {
       const result = await repository.updateMaxUses('link-123', null);
 
       expect(result).toBe(true);
-      expect(mockStatement.run).toHaveBeenCalledWith(null, 'link-123');
+      expect(mockStatement.run).toHaveBeenCalledWith(
+        null,
+        'link-123',
+        null,
+        null,
+      );
     });
 
     it('should return false when link does not exist', async () => {
