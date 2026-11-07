@@ -191,3 +191,33 @@ Mech print extraction SHALL retain an explicitly supplied complete native crew r
 - **WHEN** a legacy caller extracts any Mech configuration
 - **THEN** no roster is inferred from configuration or tonnage
 - **AND** multi-slot rendering, editor authoring and persistence remain required follow-up work under rows 4.1/4.3
+
+### Requirement: Explicit native tripod crew rendering
+
+Canonical ordinary and superheavy tripod sheets SHALL render the supplied
+validated crew roster in native indexed name/skill fields and select the native
+two-/three-seat panel on Letter and A4. Rendering SHALL consume native role
+identities without deriving assignments, crew type or per-seat pilot options.
+
+#### Scenario: Indexed identities and unassigned seats
+
+- **GIVEN** an explicit ordinary or superheavy tripod roster with repeated names, unequal skills or an unassigned seat
+- **WHEN** canonical SVG and PDF are exported
+- **THEN** assigned names and skills retain their slot identity and native role-label offsets
+- **AND** unassigned names/skills remain blank, unused fields stay hidden and the matching native crew frame is visible
+
+#### Scenario: Shared native SPA rectangle and repeated overdraw
+
+- **GIVEN** supplied crew-global abilities on an explicit tripod roster
+- **WHEN** the sheet is rendered
+- **THEN** the same list is emitted once per native crew slot at spas1 for two seats or spas2 for three seats
+- **AND** each paper uses its actual native rectangle/parent with existing pinned MML fitting and unbounded overflow
+- **AND** no per-seat option list is created or global Edge rendered as a per-seat option
+
+#### Scenario: Rendered location acceptance and preserved routes
+
+- **GIVEN** missing/swapped rendered crew fields or a legacy/no-crew or other-configuration payload
+- **WHEN** the focused rendering acceptance is executed
+- **THEN** missing/swapped fields fail the identity assertions
+- **AND** legacy/no-crew, single-pilot biped/quad/LAM and other-family output remain unchanged
+- **AND** QuadVee rendering, roster authoring and persistence remain required separate work

@@ -11,9 +11,11 @@ import { SVG_NS } from './constants';
 export function renderNativeMechSPASection(
   svgDoc: Document,
   block: ISPASectionData,
+  regionId = 'spas0',
+  groupId = 'specialAbilitiesBlock',
 ): void {
   if (!block.hasContent || !block.entries.length) return;
-  const region = svgDoc.getElementById('spas0');
+  const region = svgDoc.getElementById(regionId);
   if (region?.localName !== 'rect' || !region.parentNode) return;
 
   // SVGRect.baseVal and getRectBBox's Rectangle2D.Float use float coordinates.
@@ -39,7 +41,7 @@ export function renderNativeMechSPASection(
   const lineHeight = fontSize * 1.2;
   let baseline = y + lineHeight;
   const group = svgDoc.createElementNS(SVG_NS, 'g');
-  group.setAttribute('id', 'specialAbilitiesBlock');
+  group.setAttribute('id', groupId);
   group.setAttribute('class', 'abilities');
   region.parentNode.appendChild(group);
 
