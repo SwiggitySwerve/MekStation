@@ -26,6 +26,7 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { ISalvageAllocation } from '@/types/campaign/Salvage';
 
+import { isRosterPilotDeparted } from '@/lib/campaign/personnel/statusRules';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 
 // =============================================================================
@@ -203,7 +204,11 @@ export function projectMedicalBay(
 ): readonly IMedicalBayItem[] {
   const items: IMedicalBayItem[] = [];
   for (const entry of rosterPilots) {
-    if (entry.status === CampaignPilotStatus.Active) continue;
+    if (
+      entry.status === CampaignPilotStatus.Active ||
+      isRosterPilotDeparted(entry)
+    )
+      continue;
 
     let injuryLevel = mapInjuryLevel(entry.status);
     // Escalate a heavily-wounded pilot from light to serious.

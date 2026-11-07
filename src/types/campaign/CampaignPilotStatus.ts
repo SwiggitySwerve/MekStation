@@ -15,4 +15,8 @@ export enum CampaignPilotStatus {
   MIA = 'mia',
   /** Killed in action */
   KIA = 'kia',
+  /** Retired from campaign service */
+  Retired = 'retired',
+  /** Deserted from campaign service */
+  Deserted = 'deserted',
 }

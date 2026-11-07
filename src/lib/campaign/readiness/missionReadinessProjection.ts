@@ -4,11 +4,11 @@ import type { IMission } from '@/types/campaign/Mission';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { ParsedRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
+import { isRosterPilotDeployable } from '@/lib/campaign/personnel/statusRules';
 import {
   type CanonicalCombatCatalogSnapshot,
   admitCanonicalExactReference,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
-import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
 export type MissionReadinessReasonSeverity = 'blocker' | 'warning' | 'info';
@@ -89,12 +89,6 @@ function pilotAssignmentHref(
   return `${baseCampaignHref}/personnel?intent=assign-pilot&unit=${encodeURIComponent(unitId)}`;
 }
 
-function isPilotDeployable(
-  status: ICampaignRosterEntry['status'],
-): status is CampaignPilotStatus.Active {
-  return status === CampaignPilotStatus.Active;
-}
-
 function statusFromReasons(
   reasons: readonly IMissionReadinessReason[],
 ): MissionReadinessUnitStatus {
@@ -170,12 +164,12 @@ function buildUnitProjection({
         subjectId: unit.unitId,
         message: `Assigned pilot ${unit.pilotId} is missing from the campaign roster.`,
       });
-    } else if (!isPilotDeployable(pilot.status)) {
+    } else if (!isRosterPilotDeployable(pilot)) {
       reasons.push({
         code: 'pilot_unavailable',
         severity: 'blocker',
         subjectId: unit.unitId,
-        message: `${pilot.pilotName} is ${pilot.status} and cannot deploy.`,
+        message: `${pilot.pilotName} is ${pilot.departureReason ?? pilot.status} and cannot deploy.`,
       });
     }
   } else {

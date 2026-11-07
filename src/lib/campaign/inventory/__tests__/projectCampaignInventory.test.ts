@@ -307,3 +307,20 @@ describe('projectCampaignInventory', () => {
     expect(inventory.medicalBay[0].status).toBe('ready');
   });
 });
+
+it('excludes terminal and legacy departures from the medical return-to-duty projection', () => {
+  const inventory = projectCampaignInventory(
+    makeCampaign(),
+    [
+      makeRosterEntry({ status: CampaignPilotStatus.Retired }),
+      makeRosterEntry({ status: CampaignPilotStatus.Deserted }),
+      makeRosterEntry({
+        status: CampaignPilotStatus.Wounded,
+        departureReason: 'retired',
+      }),
+    ],
+    GENERATED_AT,
+  );
+  expect(inventory.medicalBay).toEqual([]);
+  expect(inventory.summary.pilotsInMedical).toBe(0);
+});

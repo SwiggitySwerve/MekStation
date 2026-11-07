@@ -16,6 +16,8 @@ import {
 } from '@/components/campaign/command/__fixtures__/commandFixtures';
 import { createCampaign } from '@/types/campaign/Campaign';
 import { createCampaignLoan } from '@/types/campaign/CampaignLoan';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 
@@ -23,6 +25,7 @@ import {
   selectActiveLoanDailyRepayment,
   selectActiveLoans,
   selectBalance,
+  selectBillablePilotCount,
   selectDailyCostProjection,
   selectLoans,
   selectPersonnelMarket,
@@ -164,4 +167,29 @@ describe('campaignCommandSelectors', () => {
       expect(selectActiveLoans(campaign)[0].id).toBe('loan-active');
     });
   });
+});
+
+it('excludes terminal and legacy departures from the billable pilot projection', () => {
+  const entry = {
+    pilotId: 'p1',
+    pilotName: 'Pilot',
+    status: CampaignPilotStatus.Active,
+    wounds: 0,
+    recoveryTime: 0,
+    xp: 0,
+    campaignXpEarned: 0,
+    campaignKills: 0,
+    campaignMissions: 0,
+    primaryRole: CampaignPersonnelRole.PILOT,
+    rankIndex: 0,
+    hireDate: new Date('3025-01-01'),
+  };
+  expect(
+    selectBillablePilotCount([
+      entry,
+      { ...entry, status: CampaignPilotStatus.Retired },
+      { ...entry, status: CampaignPilotStatus.Deserted },
+      { ...entry, departureReason: 'retired' },
+    ]),
+  ).toBe(1);
 });

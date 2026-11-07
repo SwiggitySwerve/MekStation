@@ -197,3 +197,27 @@ describe('buildMissionReadinessProjection', () => {
     ]);
   });
 });
+
+describe('departed pilot launch exclusion', () => {
+  it.each([
+    { status: CampaignPilotStatus.Retired },
+    { status: CampaignPilotStatus.Deserted },
+    { departureReason: 'retired' },
+    { departureReason: 'deserted' },
+    { departureReason: 'unknown-legacy-reason' },
+  ])('blocks an assigned departed pilot: %j', (departure) => {
+    const projection = buildMissionReadinessProjection({
+      campaignId: 'campaign-1',
+      mission,
+      catalog: readyCatalog,
+      units: [makeUnit()],
+      pilots: [makePilot(departure)],
+      selectedRosterUnitIds: ['unit-ready'],
+    });
+    expect(projection.canLaunch).toBe(false);
+    expect(projection.blockedUnitIds).toEqual(['unit-ready']);
+    expect(
+      projection.unresolvedBlockers.map((reason) => reason.code),
+    ).toContain('pilot_unavailable');
+  });
+});

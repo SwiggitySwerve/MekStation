@@ -589,3 +589,27 @@ describe('processDailyCosts', () => {
     expect(result.finances.balance.isNegative()).toBe(true);
   });
 });
+
+describe('departed daily payroll exclusion', () => {
+  afterEach(() => clearStores());
+  it('pays only serving pilots, preserving wounded/critical/MIA eligibility', () => {
+    useCampaignRosterStore.setState({
+      pilots: [
+        makeRosterEntry('active'),
+        makeRosterEntry('wounded', { status: CampaignPilotStatus.Wounded }),
+        makeRosterEntry('critical', { status: CampaignPilotStatus.Critical }),
+        makeRosterEntry('mia', { status: CampaignPilotStatus.MIA }),
+        makeRosterEntry('kia', { status: CampaignPilotStatus.KIA }),
+        makeRosterEntry('retired', { status: CampaignPilotStatus.Retired }),
+        makeRosterEntry('deserted', { status: CampaignPilotStatus.Deserted }),
+        makeRosterEntry('legacy', { departureReason: 'retired' }),
+        makeRosterEntry('unknown', {
+          departureReason: 'unknown-legacy-reason',
+        }),
+      ],
+    });
+    const result = processDailyCosts(createTestCampaign());
+    expect(result.costs.personnelCount).toBe(4);
+    expect(result.costs.salaries.amount).toBe(DEFAULT_DAILY_SALARY * 4);
+  });
+});

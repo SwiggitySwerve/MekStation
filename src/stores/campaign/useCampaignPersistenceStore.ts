@@ -37,6 +37,7 @@ import {
   campaignCacheKeyOf,
   evaluateCampaignCache,
 } from '@/lib/campaign/persistence/campaignCacheKey';
+import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
@@ -586,7 +587,9 @@ function restoreRosterProjection(
   useCampaignRosterStore.setState({
     campaignId,
     units: units ?? rosterUnitsOf(campaignId, rosterProjection),
-    pilots: rosterProjection.pilots.map(deserializeRosterEntry),
+    pilots: rosterProjection.pilots.map((entry) =>
+      normalizeRosterPilotDeparture(deserializeRosterEntry(entry)),
+    ),
     missions: rosterProjection.missions.map((mission) => ({
       ...mission,
       deployedUnitIds: [...mission.deployedUnitIds],
