@@ -341,6 +341,15 @@ export class InMemoryMatchStore
     return rec.combatOutcome;
   };
 
+  listPendingOutcomeMatchIds = async (): Promise<readonly string[]> => {
+    return Array.from(this.records.values()).flatMap(
+      ({ meta, combatOutcome }) =>
+        meta.status === 'completed' && combatOutcome?.publishedAt === null
+          ? [meta.matchId]
+          : [],
+    );
+  };
+
   markCombatOutcomePublished = async (
     matchId: string,
     outcomeId: string,
@@ -516,9 +525,7 @@ export class InMemoryMatchStore
   // Test/observability helpers — not part of the IMatchStore contract.
 
   /** Number of matches currently tracked. */
-  size = (): number => {
-    return this.records.size;
-  };
+  size = (): number => this.records.size;
 
   /** Drop everything. Used by tests for isolation. */
   _reset = (): void => {

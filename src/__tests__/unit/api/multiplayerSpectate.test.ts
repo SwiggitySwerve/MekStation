@@ -12,11 +12,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
+import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import {
   _resetDefaultMatchStore,
   getDefaultMatchStore,
 } from '@/lib/multiplayer/server/getDefaultMatchStore';
+import { ServerMatchHost } from '@/lib/multiplayer/server/ServerMatchHost';
 import handler from '@/pages/api/multiplayer/matches/[id]/spectate';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 
 const authMock = jest.fn();
@@ -77,6 +80,42 @@ async function seedMatch(
 }
 
 describe('POST /api/multiplayer/matches/:id/spectate', () => {
+  it('refuses a match completed through gameplay without adding a spectator', async () => {
+    await seedMatch('finished-game', 'active');
+    const store = getDefaultMatchStore();
+    const host = ServerMatchHost.create('finished-game', store, {
+      mapRadius: 8,
+      turnLimit: 20,
+      random: new SeededRandom(42),
+      grid: createMinimalGrid(8),
+      playerUnits: [],
+      opponentUnits: [],
+      gameUnits: [],
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: 'finished-game',
+      ts: new Date().toISOString(),
+      playerId: HOST.playerId,
+      intent: { kind: 'ForfeitMatch' },
+    });
+    const before = await store.getMatchMeta('finished-game');
+    authMock.mockResolvedValue({
+      ok: true,
+      playerId: 'pid_watcher',
+      publicKey: 'pk',
+      token: {},
+    });
+    const { req, res, result } = mockReqRes({ id: 'finished-game' });
+    await handler(req, res);
+    expect(result.statusCode).toBe(409);
+    expect((await store.getMatchMeta('finished-game')).seats).toEqual(
+      before.seats,
+    );
+  });
+
   beforeEach(() => {
     _resetDefaultMatchStore();
     authMock.mockReset();

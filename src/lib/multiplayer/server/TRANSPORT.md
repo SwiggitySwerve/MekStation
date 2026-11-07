@@ -16,6 +16,29 @@ rate-limits and replay-protects every inbound intent.
 Intents and events flow over the server WebSocket. A match's
 correctness **never depends on a y-webrtc peer connection**.
 
+## Finished match lifecycle
+
+`matchCompletion.ts` owns the rule that a committed `GameEnded` completes
+match metadata. Command handlers call it only after their events are durable.
+Completion uses the store's idempotent `closeMatch`; it does not tear down
+the host or invoke either outcome publisher. Attached players can receive the
+terminal events, while completed metadata refuses new spectators and fresh
+host construction.
+
+Boot recovery excludes completed rows. When a validated effective history
+proves that an old `active` row already ended, recovery completes that row,
+logs its match id once, and skips session and host construction. A rewind is
+checked against its effective branch, not its superseded terminal tail.
+
+Pending durable combat outcomes on completed matches are retried separately,
+without creating hosts. `publishDurableCombatOutcome.ts` owns the shared
+read/publish/receipt sequence: stamp `publishedAt` only after a listener
+consumes the outcome; skip already-published rows on every later restart.
+The existing seven-day completed-match retention remains in force.
+
+General metadata and lobby transition validation is a follow-up; completion
+does not introduce a transition guard for every metadata patch.
+
 ## y-webrtc / peer-to-peer is a non-authoritative fallback
 
 The y-webrtc / P2P stack (`src/lib/p2p/`) is a **non-authoritative

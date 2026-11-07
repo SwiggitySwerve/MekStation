@@ -39,11 +39,13 @@ import {
 } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 
 import { revisionForMatchSequence } from './history/matchStoreBranchSegmentReader';
 import { matchStoreHistoryReader } from './MatchCheckpointHistory';
+import { markMatchCompleted } from './matchCompletion';
 import { consultMatchRecoveryJournalHead } from './MatchRecoveryJournalHead';
 import {
   createMatchSessionProjector,
@@ -51,6 +53,7 @@ import {
   matchAuthoritativePipeline,
 } from './MatchSessionProjector';
 import { recoverServerInteractiveSession } from './matchUnitBootstrap';
+import { publishDurableCombatOutcome } from './publishDurableCombatOutcome';
 import { ServerMatchHost } from './ServerMatchHost';
 import { tryFoldActivatedRewindBranch } from './ServerMatchHostRewindRebuild';
 
@@ -135,11 +138,23 @@ async function registerRecoveredHost(
   matchId: string,
   state: IGameSession,
 ): Promise<void> {
+  if (await repairCompletedMatch(store, matchId, state)) return;
   const session = await recoverServerInteractiveSession(state);
   const host = await ServerMatchHost.recover(matchId, store, session);
   await host.restorePersistedViewerDeliveries();
   await host.resumePendingEventPublications();
   hosts.set(matchId, host);
+}
+
+/** Only validated effective history may repair stale lifecycle metadata. */
+async function repairCompletedMatch(
+  store: IMatchStore,
+  matchId: string,
+  state: IGameSession,
+): Promise<boolean> {
+  if (!(await markMatchCompleted(store, matchId, state.events))) return false;
+  logger.info(`[MatchRecovery] repaired completed match ${matchId}`);
+  return true;
 }
 
 /**
@@ -187,6 +202,8 @@ export async function recoverActiveMatches(
       // that path here — the store log is still the untruncated line.
       const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId);
       if (rewound !== null) {
+        if (await repairCompletedMatch(store, meta.matchId, rewound.session))
+          continue;
         const session = await recoverServerInteractiveSession(rewound.session);
         const host = await ServerMatchHost.recover(
           meta.matchId,
@@ -379,5 +396,30 @@ export async function recoverActiveMatches(
     }
   }
 
+  // Completing a match must not orphan an unconsumed campaign handoff. Retry
+  // only pending rows, without constructing sessions or hosts for finished games.
+  if (store.listPendingOutcomeMatchIds) {
+    let pending: readonly string[] = [];
+    try {
+      pending = await store.listPendingOutcomeMatchIds();
+    } catch (error) {
+      logger.warn(
+        '[MatchRecovery] failed to enumerate pending completed outcomes',
+        error,
+      );
+    }
+    for (const pendingMatchId of pending) {
+      if (matchId !== undefined && pendingMatchId !== matchId) continue;
+      try {
+        await publishDurableCombatOutcome(store, pendingMatchId);
+      } catch (error) {
+        logger.warn(
+          `[MatchRecovery] failed to publish completed outcome ${pendingMatchId}`,
+          error,
+        );
+        failed.push(pendingMatchId);
+      }
+    }
+  }
   return { hosts, failed, blocked };
 }

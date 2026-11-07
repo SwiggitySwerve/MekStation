@@ -164,6 +164,7 @@ export class MatchHostRegistry {
       return null;
     }
     if (generation !== this.generation) return null;
+    if (meta.status === 'completed') return null;
 
     let host: ServerMatchHost;
     if (meta.coopMission) {
