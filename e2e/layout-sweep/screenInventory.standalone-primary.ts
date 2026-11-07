@@ -346,20 +346,4 @@ export const standalonePrimaryEntries: readonly SweptScreenEntry[] = [
     ],
     quarantine: [],
   },
-  {
-    id: 'gameplay-repair',
-    class: 'standalone',
-    label: 'repair bay',
-    manifestPaths: ['/gameplay/repair'],
-    goto: '/gameplay/repair',
-    primaryAffordances: [
-      affordance({ label: 'field repair action', testId: 'repair-field-btn' }),
-    ],
-    overlapTargets: [
-      affordance({ label: 'repair search', testId: 'repair-search-input' }),
-      affordance({ label: 'repair stats', testId: 'repair-stats' }),
-      affordance({ label: 'field repair action', testId: 'repair-field-btn' }),
-    ],
-    quarantine: [],
-  },
 ];

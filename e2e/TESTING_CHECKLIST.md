@@ -167,14 +167,6 @@ const campaignId = await page.evaluate(() => {
 - [x] Ammo explosion handling (@combat @slow)
 - [x] Unit destruction state (@combat)
 
-### Repair System (Implemented - `repair.spec.ts` - PR #146)
-
-- [x] Navigate to repair bay (@smoke)
-- [x] View damaged unit options
-- [x] Repair cost calculation
-- [x] Queue repair job
-- [x] Repair progress tracking
-
 ### Awards System (Implemented - `awards.spec.ts` - 13 tests)
 
 - [x] View pilot awards (store-level)

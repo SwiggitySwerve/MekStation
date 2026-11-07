@@ -157,21 +157,6 @@ const routeProofs: readonly RouteProof[] = [
     ],
   },
   {
-    path: '/gameplay/repair',
-    label: 'repair bay',
-    pageTitle: 'Repair Bay',
-    affordances: [
-      { label: 'repair search', testId: 'repair-search-input' },
-      { label: 'repair stats', testId: 'repair-stats' },
-      { label: 'field repair action', testId: 'repair-field-btn' },
-    ],
-    stateAffordances: [
-      { label: 'all operational state', testId: 'repair-all-operational' },
-      { label: 'repair empty state', testId: 'repair-empty-state' },
-      { label: 'repair workspace', testId: 'repair-unit-list' },
-    ],
-  },
-  {
     path: '/compendium',
     label: 'compendium',
     heading: 'COMPENDIUM',

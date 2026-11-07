@@ -24,7 +24,6 @@
         "/gameplay/encounters",
         "/gameplay/encounters/create",
         "/gameplay/games",
-        "/gameplay/repair",
         "/compendium",
         "/compendium/units",
         "/compendium/equipment",
