@@ -186,6 +186,8 @@ export function MultiUnitTabs({
     restoreHistoryVersion,
   } = useMultiUnitTabsController();
 
+  const activeUnitType = tabs.find((tab) => tab.id === activeTabId)?.unitType;
+
   const createBlankUnit = (): void => {
     createNewUnit(50);
     closeLoadDialog();
@@ -242,6 +244,7 @@ export function MultiUnitTabs({
             !librarySaveDisabledReason && (
               <UnitSaveAction
                 unitId={activeTabId}
+                unitType={activeUnitType}
                 disabledReason={librarySaveDisabledReason}
                 onSave={openSaveDialog}
               />
@@ -260,7 +263,7 @@ export function MultiUnitTabs({
         ) : (
           <div className="border-border-theme-subtle bg-surface-base flex min-h-11 min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-b px-2 py-1">
             <UnitEditControls unitId={activeTabId} />
-            <UnitSaveSummary unitId={activeTabId} />
+            <UnitSaveSummary unitId={activeTabId} unitType={activeUnitType} />
           </div>
         ))}
 
