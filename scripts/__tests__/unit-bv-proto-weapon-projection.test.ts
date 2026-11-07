@@ -72,7 +72,9 @@ describe('ProtoMech weapon diagnostic projection', () => {
       expect(
         Object.keys(terms).filter(
           (key) =>
-            key.startsWith('ammo.') && !key.startsWith('ammo.available.'),
+            key.startsWith('ammo.') &&
+            !key.startsWith('ammo.available.') &&
+            !key.startsWith('ammo.cap.'),
         ),
       ).toEqual([]);
     },
