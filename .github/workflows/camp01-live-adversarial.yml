@@ -28,12 +28,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-24.04, windows-latest]
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node-and-install
+      - id: setup
+        uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          verify-native-modules: ${{ runner.os == 'Linux' }}
       # Same key as pr-checks.yml: caches saved on main are readable by every
       # PR, so PR browser lanes stop re-downloading chromium per PR.
       - name: Resolve Playwright version for browser cache key
@@ -47,7 +49,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+          key: ${{ steps.setup.outputs.cache-platform }}-playwright-${{ steps.playwright-version.outputs.version }}
       - name: Install Chromium and Linux browser dependencies
         if: runner.os == 'Linux' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
