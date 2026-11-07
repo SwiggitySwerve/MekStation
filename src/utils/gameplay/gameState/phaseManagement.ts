@@ -6,8 +6,8 @@ import {
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   LockState,
-  MovementType,
 } from '@/types/gameplay';
+import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -30,13 +30,9 @@ export function applyPhaseChanged(
   if (payload.toPhase === GamePhase.Movement) {
     for (const unitId of Object.keys(units)) {
       units[unitId] = {
-        ...units[unitId],
-        movementThisTurn: MovementType.Stationary,
-        hexesMovedThisTurn: 0,
-        movedBackwardThisTurn: false,
-        usedMechanicalJumpBoosterThisTurn: false,
-        isEvading: false,
-        evasionBonus: undefined,
+        ...resetPerTurnMovementState(units[unitId], {
+          advanceBoosterCounters: false,
+        }),
         isSpotting: false,
         spotTargetId: undefined,
       };
@@ -77,7 +73,7 @@ export function applyTurnStarted(
       Math.trunc(units[unitId].empShutdownTurns ?? 0) - 1,
     );
     units[unitId] = {
-      ...units[unitId],
+      ...resetPerTurnMovementState(units[unitId]),
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       isLoadingOrUnloadingCargo: false,

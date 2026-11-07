@@ -2,6 +2,10 @@ import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { Transaction } from '@/types/campaign/Transaction';
 
+import {
+  isRosterPilotDeparted,
+  rosterStatusForDeparture,
+} from '@/lib/campaign/personnel/statusRules';
 import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -51,12 +55,8 @@ export function shouldRunTurnover(
 /**
  * Apply turnover results to the roster store + campaign finances.
  *
- * Per PR4 of `wire-iperson-hard-cutover`: writes departure markers as
- * roster patches via `applyPilotPatches` (no personnel Map). Departure
- * is signalled via `departureReason` since `CampaignPilotStatus` has no
- * Retired/Deserted variants — downstream filters on `departureReason !=
- * null` to identify departed personnel. Finance side (transactions +
- * balance) stays on the campaign object as before.
+ * A departure changes roster status and settles its payout once. Legacy
+ * departure markers also prevent settlement, regardless of their saved status.
  */
 export function applyTurnoverResults(
   campaign: ICampaign,
@@ -71,9 +71,22 @@ export function applyTurnoverResults(
 
   const newTransactions: Transaction[] = [];
   const patches = new Map<string, Partial<ICampaignRosterEntry>>();
+  const entries = new Map(
+    useCampaignRosterStore
+      .getState()
+      .pilots.map((entry) => [entry.pilotId, entry]),
+  );
 
   for (const departure of departures) {
+    const entry = entries.get(departure.personId);
+    if (
+      !entry ||
+      isRosterPilotDeparted(entry) ||
+      patches.has(departure.personId)
+    )
+      continue;
     patches.set(departure.personId, {
+      status: rosterStatusForDeparture(departure.departureType!),
       departureReason: departure.departureType!,
     });
 
@@ -88,9 +101,8 @@ export function applyTurnoverResults(
     }
   }
 
-  if (patches.size > 0) {
-    useCampaignRosterStore.getState().applyPilotPatches(patches);
-  }
+  if (patches.size === 0) return campaign;
+  useCampaignRosterStore.getState().applyPilotPatches(patches);
 
   let updatedBalance = campaign.finances.balance;
   for (const tx of newTransactions) {

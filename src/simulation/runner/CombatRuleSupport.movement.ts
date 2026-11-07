@@ -95,7 +95,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation applyMovementEvent marks committed go-prone movement prone and clears hullDown on go-prone steps.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L397-L434',
+        'L364-L385',
       ),
     ],
   ),
@@ -129,7 +129,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation runner applyMovementEvent clears infernoBurning when a GO_PRONE movement step is committed.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L411-L433',
+        'L382-L384',
       ),
       mekstationDeviationSourceRef(
         'MekStation interactive applyMovementDeclared clears infernoBurning for GO_PRONE movement events.',

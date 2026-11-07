@@ -1,4 +1,52 @@
+import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
+
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
+
+type RosterStatus = Pick<ICampaignRosterEntry, 'status' | 'departureReason'>;
+
+/** Employment departure, including legacy markers whose status stayed Active. */
+export function isRosterPilotDeparted(entry: RosterStatus): boolean {
+  return (
+    entry.departureReason != null ||
+    entry.status === CampaignPilotStatus.Retired ||
+    entry.status === CampaignPilotStatus.Deserted
+  );
+}
+
+/** Preserve existing injury/MIA salary rules; exclude deaths and departures. */
+export function isRosterPilotSalaryEligible(entry: RosterStatus): boolean {
+  return (
+    entry.status !== CampaignPilotStatus.KIA && !isRosterPilotDeparted(entry)
+  );
+}
+
+export function isRosterPilotDeployable(entry: RosterStatus): boolean {
+  return (
+    entry.status === CampaignPilotStatus.Active && !isRosterPilotDeparted(entry)
+  );
+}
+
+export function rosterStatusForDeparture(
+  reason: 'retired' | 'deserted',
+): CampaignPilotStatus {
+  return reason === 'retired'
+    ? CampaignPilotStatus.Retired
+    : CampaignPilotStatus.Deserted;
+}
+
+/** Correct known legacy Active departures without changing other saved statuses. */
+export function normalizeRosterPilotDeparture(
+  entry: ICampaignRosterEntry,
+): ICampaignRosterEntry {
+  const reason = entry.departureReason;
+  if (
+    entry.status !== CampaignPilotStatus.Active ||
+    (reason !== 'retired' && reason !== 'deserted')
+  )
+    return entry;
+  return { ...entry, status: rosterStatusForDeparture(reason) };
+}
 
 const ABSENT_STATUSES = new Set([
   PersonnelStatus.MIA,

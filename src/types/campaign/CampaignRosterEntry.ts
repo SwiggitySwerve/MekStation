@@ -131,7 +131,8 @@ export interface ICampaignRosterEntry {
   readonly salary?: Money;
 
   /**
-   * Reason for departure (populated when `status` transitions to `Departed`).
+   * Reason for departure (normally accompanies Retired or Deserted status).
+   * Any non-null reason also marks legacy roster entries as departed.
    * Used by the turnover processor for narrative + ledger entries.
    */
   readonly departureReason?: string;

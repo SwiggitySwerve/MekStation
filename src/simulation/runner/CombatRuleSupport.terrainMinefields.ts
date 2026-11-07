@@ -344,7 +344,7 @@ export const TERRAIN_MINEFIELD_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation runner applyMovementEvent clears infernoBurning when a GO_PRONE movement step is committed.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L420-L459',
+        'L382-L384',
       ),
       mekstationDeviationSourceRef(
         'MekStation interactive movement reducer clears infernoBurning for GO_PRONE movement events.',

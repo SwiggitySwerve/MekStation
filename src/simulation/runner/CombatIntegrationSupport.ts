@@ -52,7 +52,7 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunnerState.isGameOver consults evaluateObjectiveOutcome before survivor-count game-over checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L588-L631',
+    'L543-L560',
   ),
   mekstationDeviationSourceRef(
     'MekStation GameOutcomeCalculator consults evaluateObjectiveOutcome before elimination, mutual destruction, and turn-limit outcome branches.',
@@ -65,12 +65,12 @@ const PSR_QUEUE_LIFECYCLE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation applyPhaseChanged resets lock/action state and deliberately preserves pendingPSRs across intra-turn phase transitions.',
     'src/utils/gameplay/gameState/phaseManagement.ts',
-    'L11-L43',
+    'L12-L51',
   ),
   mekstationDeviationSourceRef(
     'MekStation applyTurnStarted clears stale pendingPSRs at the next turn boundary.',
     'src/utils/gameplay/gameState/phaseManagement.ts',
-    'L45-L73',
+    'L53-L98',
   ),
   mekstationDeviationSourceRef(
     'MekStation phaseManagement regression tests prove applyPhaseChanged preserves pendingPSRs and applyTurnStarted clears them.',

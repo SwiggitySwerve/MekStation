@@ -317,6 +317,47 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
   });
 
+  it.each(['retired', 'deserted'])(
+    'normalizes a legacy Active %s on durable restore without paying or refunding',
+    async (departureReason) => {
+      seedRosterProjection(campaign.id);
+      const roster = useCampaignRosterStore.getState();
+      const entry = roster.pilots[0];
+      const envelope = buildSerializedCampaign(campaign, 'device-y', 3, {
+        campaignId: campaign.id,
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        pilots: [
+          {
+            ...entry,
+            salary: entry.salary?.amount,
+            lastPromotionDate: entry.lastPromotionDate?.toISOString(),
+            status: CampaignPilotStatus.Active,
+            departureReason,
+            hireDate: entry.hireDate.toISOString(),
+          },
+        ],
+      });
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(jsonResponse(200, envelope));
+      const before = mockStore.getState().campaign!.finances;
+      const ok = await useCampaignPersistenceStore
+        .getState()
+        .loadCampaign(campaign.id);
+      expect(ok).toBe(true);
+      expect(useCampaignRosterStore.getState().pilots[0]).toMatchObject({
+        status: departureReason,
+        departureReason,
+      });
+      expect(mockStore.getState().campaign!.finances).toEqual(before);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock.mock.calls[0][1]?.method).toBeUndefined();
+    },
+  );
+
   it('loadCampaign rehydrates the server roster projection', async () => {
     const envelope = buildSerializedCampaign(campaign, 'device-y', 3, {
       campaignId: campaign.id,

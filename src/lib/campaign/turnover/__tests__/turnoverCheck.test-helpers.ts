@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
@@ -574,4 +574,26 @@ describe('runTurnoverChecks', () => {
     expect(report.results[0].personId).toBe('npc-001');
     expect(report.results[0].passed).toBe(true);
   });
+});
+
+describe('departed roster turnover exclusion', () => {
+  it.each(['retired', 'deserted', 'unknown-legacy-reason', ''])(
+    'does not roll for an Active pilot with departureReason=%s',
+    (departureReason) => {
+      const random = jest.fn(() => 0);
+      const result = checkTurnover(
+        createTestEntry({ departureReason }),
+        null,
+        createTestCampaign(),
+        random,
+      );
+      expect(random).not.toHaveBeenCalled();
+      expect(result).toMatchObject({
+        passed: true,
+        roll: 0,
+        departureType: null,
+      });
+      expect(result.payout.amount).toBe(0);
+    },
+  );
 });
