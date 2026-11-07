@@ -164,7 +164,7 @@ export async function selectEnvelopeAnchor({
       ]);
       anchorSource = 'merge-base';
     }
-    await anchor(candidate(), { fetchedMainOid });
+    await sessionAnchor(candidate(), { fetchedMainOid });
   }
   return { anchorSha, anchorTreeSha, anchorSource };
 }
