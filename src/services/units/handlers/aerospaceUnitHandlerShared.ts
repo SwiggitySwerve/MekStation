@@ -46,15 +46,6 @@ const COCKPIT_TYPE_BY_CODE: Readonly<Record<number, AerospaceCockpitType>> =
     }),
   );
 
-// Preserve the existing ASF behavior during extraction; corrected separately.
-const LEGACY_ASF_COCKPIT_TYPE_BY_CODE: Readonly<
-  Record<number, AerospaceCockpitType>
-> = {
-  ...COCKPIT_TYPE_BY_CODE,
-  2: AerospaceCockpitType.PRIMITIVE,
-  3: AerospaceCockpitType.COMMAND_CONSOLE,
-};
-
 const FIGHTER_COCKPIT_TYPE_BY_CODE: Record<number, AerospaceCockpitType> = {
   1: AerospaceCockpitType.SMALL,
   2: AerospaceCockpitType.PRIMITIVE,
@@ -110,7 +101,7 @@ export function parseAerospaceCockpitType(
   document: IBlkDocument,
 ): AerospaceCockpitType {
   return (
-    LEGACY_ASF_COCKPIT_TYPE_BY_CODE[document.cockpitType || 0] ||
+    COCKPIT_TYPE_BY_CODE[document.cockpitType || 0] ||
     AerospaceCockpitType.STANDARD
   );
 }
