@@ -31,6 +31,7 @@ it('separates pure helper support from missing runner/application plumbing', () 
     supportIdsByLevel(PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT, 'integrated'),
   ).toEqual(
     [
+      'battlemech-ranged-critical-determination',
       'called-shot-application',
       'bvdni-critical-hit-neural-feedback-application',
       'cluster-hitter-application',

@@ -2,7 +2,25 @@
  * Defensive and critical hit quirk modifiers.
  */
 
+import { isMechUnit } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
 import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
+
+/**
+ * Prototype: +2 to a BattleMech ranged critical determination roll.
+ * MegaMek48fcb2f64 TWGameManager.java:23257-23258,23290-23308.
+ * Missing family follows the existing legacy BattleMech contract.
+ */
+export function getPrototypeCriticalHitModifier(
+  unitQuirks: readonly string[] | undefined,
+  unitType?: string,
+): 0 | 2 {
+  return isMechUnit({ unitType: unitType ?? UnitType.BATTLEMECH }) &&
+    hasQuirk(unitQuirks ?? [], UNIT_QUIRK_IDS.PROTOTYPE)
+    ? 2
+    : 0;
+}
 
 /**
  * Battle Fist: -1 punch to-hit for equipped arm.

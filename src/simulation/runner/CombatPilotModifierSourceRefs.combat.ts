@@ -7,6 +7,19 @@ import {
 const MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION =
   '55584ec7529b944fca3216965697e9fa1115dced';
 
+export const MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS = [
+  pilotCombatMegamekRef(
+    'Native Prototype adds +2 before the critical determination ladder; this slice integrates BattleMech ranged checks only.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23257-L23258',
+    '48fcb2f64a1b3f2d575707ce5653dad64927b587',
+  ),
+  pilotCombatMegamekRef(
+    'criticalEntity applies critMod to the rolled determination before the critical table; forced single criticals bypass that roll.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23280-L23308',
+    '48fcb2f64a1b3f2d575707ce5653dad64927b587',
+  ),
+];
+
 function currentMegamekImplantRef(
   citation: string,
   pathWithLines: string,

@@ -35,6 +35,7 @@ import {
   MEGAMEK_DISTRACTING_QUIRK_SOURCE_REFS,
   MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
   MEGAMEK_MULTI_TRAC_SOURCE_REFS,
+  MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS,
   MEKSTATION_DEFENSIVE_QUIRK_TO_HIT_DEVIATION_SOURCE_REFS,
   MEGAMEK_SANDBLASTER_SOURCE_REFS,
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
@@ -49,6 +50,11 @@ import {
 } from './CombatPilotModifierSourceRefs';
 
 export const PILOT_MODIFIER_RESOLVER_RANGED_PHYSICAL_SUPPORT = {
+  'battlemech-ranged-critical-determination': integrated(
+    'battlemech-ranged-critical-determination',
+    'Session and runner weapon-hit consumers add the public Prototype owner delta to the existing BattleMech ranged critical modifier; no other-family or physical-attack integration is claimed.',
+    MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS,
+  ),
   'ranged-to-hit-calculation': integrated(
     'ranged-to-hit-calculation',
     'calculateToHit calls calculateAttackerSPAModifiers and calculateAttackerQuirkModifiers when attacker/target state includes abilities, target terrain features, airborne state, or unit quirks',

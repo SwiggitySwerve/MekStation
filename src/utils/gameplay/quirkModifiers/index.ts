@@ -29,6 +29,7 @@ export {
 } from './weaponQuirks';
 export {
   getBattleFistPunchToHitModifier,
+  getPrototypeCriticalHitModifier,
   hasNoArms,
   isLowArmsRestricted,
   calculateInitiativeQuirkModifier,

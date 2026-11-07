@@ -63,6 +63,28 @@ ids, change heat sinks/firing modes, regenerate catalogs or establish complete
 weapon-quirk parity. Those source/runtime and other modifier paths remain
 separate from this bounded cooling correction.
 
+## Native Prototype: BattleMech ranged critical determination
+
+At the same pin, `Quirks.java:168` and `OptionsConstants.java:139` register
+`prototype`. [TWGameManager.java:23257-23258](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L23257-L23258)
+adds +2 to `critMod` for the damaged unit. Lines 23290-23308 add that modifier
+to the rolled critical determination before applying the critical table.
+`getPrototypeCriticalHitModifier` owns this +2 once through exact native
+membership; duplicate ids do not stack and near ids are not aliases.
+
+The two ranged consumers add its result to the existing Low Profile modifier.
+Low Profile glancing damage stays halved; its -2 critical-table modifier
+cancels Prototype's +2. The critical owner still decides the count and slot
+effects. Forced-single checks, including the existing armored TAC path,
+bypass the determination roll and retain their count.
+
+The family gate reuses public `isMechUnit`; absent family retains the existing
+legacy BattleMech convention. Explicit other or unknown families receive no
+new modifier. Existing source hydration, GameCreated, session and serialized
+replay carry the native quirk, family and resolved critical events. This slice
+changes no construction, BV, catalog data or input producer. Other families,
+physical attacks and broader critical-system parity remain open.
+
 ## Native Anti-Air
 
 At the same pin, `Quirks.java:75` registers `anti_air`
