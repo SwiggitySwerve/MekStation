@@ -412,12 +412,26 @@ test.describe('Encounter Flow - Auto-Resolve', () => {
 
       await page.getByTestId('auto-resolve-btn').click();
 
-      await page.waitForURL(/\/gameplay\/games\/[^/?]+$/, {
+      await page.waitForURL(/\/gameplay\/games\/[^/?]+\/victory$/, {
         timeout: 30000,
       });
-      await expect(page.getByTestId('game-completed')).toBeVisible({
+      const victoryScreen = page.getByTestId('victory-screen');
+      await expect(victoryScreen).toBeVisible({
         timeout: 20000,
       });
+      await expect(victoryScreen.getByTestId('victory-outcome')).toHaveText(
+        /^(VICTORY|DEFEAT|DRAW)$/,
+      );
+      await expect(victoryScreen.getByTestId('victory-reason')).toHaveText(
+        /^(Turn limit reached|Last side standing|Objective complete)$/,
+      );
+
+      const state = await readGameplaySessionProof(page);
+      expect(new URL(page.url()).pathname).toBe(
+        `/gameplay/games/${state.session?.id}/victory`,
+      );
+      expect(state.session?.currentState.status).toBe('completed');
+      expect(state.session?.currentState.result).toBeDefined();
     },
   );
 });

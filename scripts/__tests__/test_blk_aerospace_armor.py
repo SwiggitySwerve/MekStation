@@ -20,6 +20,7 @@ class AerospaceArmorTest(unittest.TestCase):
             source.write_text(
                 f'<UnitType>{unit_type}</UnitType>\n<Name>Armor fixture</Name>\n'
                 '<year>3050</year>\n<tonnage>100</tonnage>\n<SafeThrust>4</SafeThrust>\n'
+                '<heatsinks>0</heatsinks>\n'
                 '<armor>\n100\n201\n302\n400\n</armor>\n' + armor_type + extra,
                 encoding='utf-8',
             )

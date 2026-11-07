@@ -239,27 +239,6 @@ function ownTechSide(
   return null;
 }
 
-function resolveUnitPreferredVariant(
-  candidates: IEquipmentVariantCandidates,
-  unitTechBaseMode: TechBaseMode,
-): IResolvedEquipment | null {
-  const preferredTechBase =
-    unitTechBaseMode === TechBaseMode.CLAN
-      ? TechBase.CLAN
-      : TechBase.INNER_SPHERE;
-
-  return resolveVariantByTechBase(candidates, preferredTechBase);
-}
-
-function resolveAnyVariant(
-  candidates: IEquipmentVariantCandidates,
-): IResolvedEquipment | null {
-  return (
-    resolveCandidate(candidates.isDef, candidates.isId) ??
-    resolveCandidate(candidates.clanDef, candidates.clanId)
-  );
-}
-
 function resolveRegistryLookupToken(token: string): IResolvedEquipment | null {
   const lookupResult = getEquipmentRegistry().lookup(token);
 
@@ -415,6 +394,7 @@ export function resolveEquipmentId(
   unitTechBase: TechBase,
   mode: TechBaseMode,
   slots: ReadonlyArray<string | null> | undefined,
+  sourceName?: string,
 ): IResolvedEquipment {
   const routed = resolveTechRoutedEquipment(id, unitTechBase, mode, slots);
   if (routed) return routed;
@@ -423,9 +403,21 @@ export function resolveEquipmentId(
   const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
   const target = normalizeCatalogEquipmentId(id);
   const lookup = getEquipmentLookupService();
-  const added = isRegistryEquipment(target)
-    ? lookup.getById(target)
-    : undefined;
+  // Converted slugs can lose native punctuation. The retained name may recover
+  // a generated definition without replacing an existing ID or ammo identity.
+  const namedTarget =
+    !previous.equipmentDef &&
+    !isRegistryEquipment(target) &&
+    sourceName &&
+    !isAmmunitionEquipmentId(id) &&
+    !isAmmunitionEquipmentId(sourceName)
+      ? normalizeCatalogEquipmentId(sourceName)
+      : undefined;
+  const added =
+    (isRegistryEquipment(target) ? lookup.getById(target) : undefined) ??
+    (namedTarget && isRegistryEquipment(namedTarget)
+      ? lookup.getById(namedTarget)
+      : undefined);
   // Recovery must retain the legacy ammo/category boundary and exclude imports.
   const registryId =
     nativeIdentityId(id.replaceAll('-', ' ')) ??
@@ -488,8 +480,14 @@ function resolveLegacyEquipmentId(
       unitTechBaseMode,
       locationCriticalSlots,
     ) ??
-    resolveUnitPreferredVariant(candidates, unitTechBaseMode) ??
-    resolveAnyVariant(candidates) ??
+    resolveVariantByTechBase(
+      candidates,
+      unitTechBaseMode === TechBaseMode.CLAN
+        ? TechBase.CLAN
+        : TechBase.INNER_SPHERE,
+    ) ??
+    resolveCandidate(candidates.isDef, candidates.isId) ??
+    resolveCandidate(candidates.clanDef, candidates.clanId) ??
     resolveRegistryAlias(id, normalizedId) ?? {
       equipmentDef: undefined,
       resolvedId: normalizedId,

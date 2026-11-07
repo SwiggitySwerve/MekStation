@@ -6,11 +6,7 @@ import type {
 
 import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
-import {
-  addBVToAmmoCapGroup,
-  getNativeAmmoBVGroup,
-  sumCappedAmmoBV,
-} from '../battleValueAmmo';
+import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import {
   normalizeEquipmentId,
@@ -123,18 +119,13 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
         bv: protoAmmo.battleValue,
         weaponType: protoAmmo.weaponType,
       });
-      const nativeGroup = getNativeAmmoBVGroup(protoAmmo.weaponType);
-      if (
-        nativeGroup !== undefined &&
-        Number.isFinite(protoAmmo.battleValue) &&
-        protoAmmo.battleValue > 0
-      ) {
+      if (Number.isFinite(protoAmmo.battleValue) && protoAmmo.battleValue > 0) {
         ammoAvailableMountBV.push({
           equipmentIndex,
           equipmentId,
           location: mount.location,
           battleValue: protoAmmo.battleValue,
-          nativeGroup,
+          nativeGroup: protoAmmo.nativeGroup,
         });
       }
       continue;

@@ -382,3 +382,13 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **AND** successful structural admission SHALL NOT certify construction validity, equipment completeness or numerical parity
 - **AND** malformed request bodies and unsupported source formats SHALL return 400
 - **AND** BLK import, browser file selection and the legacy runtime-object importer SHALL remain separate obligations
+
+#### Scenario: Browser MTF selection, drop and conflict rename
+
+- **WHEN** a user selects or drops a `.mtf` file in the existing import dialog
+- **THEN** the dialog SHALL use `importMTFDefinition` and the source import API, retain source diagnostics and warnings, and clear an earlier preview if the next file is rejected
+- **AND** existing JSON selection, drop and import behavior SHALL remain available
+- **WHEN** a name conflict is retried with a nonempty alternate variant
+- **THEN** the API SHALL allocate a new custom identity with that trimmed variant in both the saved model and variant fields, retaining the original source text and existing saved unit unchanged
+- **AND** invalid alternate variants SHALL return 400 without persistence
+- **AND** BLK and legacy runtime-object import SHALL remain open work

@@ -114,6 +114,36 @@ beforeEach(() => {
 // =============================================================================
 
 describe('PilotAbilitiesPanel', () => {
+  it.each([true, false])(
+    'disables an owned SPA with ample remaining XP (creation flow: %s)',
+    (isCreationFlow) => {
+      const owned: IPilotAbilityRef = {
+        abilityId: 'foot_cav',
+        acquiredDate: new Date().toISOString(),
+        xpSpent: 15,
+      };
+      render(
+        <PilotAbilitiesPanel
+          pilot={makePilot({ xp: 1000, abilities: [owned] })}
+          isCreationFlow={isCreationFlow}
+        />,
+      );
+      fireEvent.click(screen.getByTestId('add-ability-btn'));
+
+      const ownedRow = screen.getByTestId('spa-item-foot_cav');
+      expect(ownedRow).toBeVisible();
+      const ownedAction = within(ownedRow).getByRole('button', {
+        name: 'Already owned',
+      });
+      expect(ownedAction).toBeVisible();
+      expect(ownedAction).toBeDisabled();
+      expect(ownedRow.querySelector('button:enabled')).toBeNull();
+
+      fireEvent.click(ownedAction);
+      expect(mockPurchaseSPA).not.toHaveBeenCalled();
+    },
+  );
+
   it('offers an origin-only implant during creation and submits it through the pilot store', async () => {
     render(<PilotAbilitiesPanel pilot={makePilot()} isCreationFlow />);
     fireEvent.click(screen.getByTestId('add-ability-btn'));

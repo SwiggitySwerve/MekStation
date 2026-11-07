@@ -60,6 +60,41 @@ const state: VehicleMountedWeightState = {
   secondaryTurret: config,
 };
 const resolved = (id: string) => item(id, 2.5);
+it('uses a resolved launcher mass and keeps a missing registry record unknown', () => {
+  const launcher = {
+    ...mount(
+      'launcher',
+      VehicleLocation.FRONT,
+      'wire-guided-missile-launcher-registry',
+    ),
+    sourceIdentity: {
+      sourceId: 'wire-guided-missile-launcher:size:1.0',
+      resolvedId: 'wire-guided-missile-launcher-registry',
+    },
+  };
+  const input: VehicleMountedWeightState = {
+    equipment: [launcher],
+    turret: null,
+    secondaryTurret: null,
+  };
+  // InfantrySupportWireGuidedMissileWeapon.java:63 at MegaMek48fcb2f6.
+  expect(
+    computeVehicleMountedWeightBreakdown(input, (id) =>
+      item(id, 0.095, EquipmentCategory.MISSILE_WEAPON),
+    ),
+  ).toMatchObject({
+    equipment: 0.095,
+    energyWeapons: 0,
+    unresolvedMountIds: [],
+  });
+  expect(
+    computeVehicleMountedWeightBreakdown(input, () => undefined),
+  ).toMatchObject({
+    equipment: null,
+    energyWeapons: null,
+    unresolvedMountIds: ['launcher'],
+  });
+});
 it('uses resolved mass independently and ignores obsolete capacity/usage estimates', () => {
   expect(computeVehicleMountedWeightBreakdown(state, resolved)).toMatchObject({
     equipment: 5,

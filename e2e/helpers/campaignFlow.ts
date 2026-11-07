@@ -176,29 +176,62 @@ export async function submitCampaignWizard(page: Page): Promise<void> {
     /\/gameplay\/campaigns\/(?!create(?:[/?#]|$))[^/?#]+\/?(?:[?#].*)?$/,
     { timeout: 30_000 },
   );
-  const wizardError = page
-    .getByTestId('name-error')
-    .waitFor({
-      state: 'visible',
-      timeout: 30_000,
-    })
-    .then(async () => {
-      // Once a PUT starts, its status/body owns the diagnostic. The inline
-      // error can render before response.text() finishes reading that body.
-      if (saveStarted) await saved;
-      throw new Error(
-        `Campaign create failed: ${await page.getByTestId('name-error').innerText()}`,
-      );
-    });
+  const errorLocator = page.getByTestId('name-error');
+  const validationDeadline = Date.now() + 30_000;
+  let stopped = false;
+  let wakeProbe: (() => void) | undefined;
+  const wizardError = (async () => {
+    while (!stopped) {
+      const visible = await errorLocator.isVisible();
+      if (stopped) return;
+      if (visible) {
+        // Once a PUT starts, its status/body owns the diagnostic. The inline
+        // error can render before response.text() finishes reading that body.
+        if (saveStarted) await saved;
+        if (stopped) return;
+        const message = await errorLocator.innerText();
+        if (stopped) return;
+        throw new Error(`Campaign create failed: ${message}`);
+      }
+      const remaining = validationDeadline - Date.now();
+      if (remaining <= 0) {
+        throw new Error('Campaign create validation timed out after 30000ms');
+      }
+      // Locator.waitFor has no abort option. Own the pause so the losing
+      // validation branch can stop before fixture context teardown.
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, Math.min(100, remaining));
+        wakeProbe = () => {
+          clearTimeout(timer);
+          resolve();
+        };
+      });
+      wakeProbe = undefined;
+    }
+  })();
   // Install all rejection handlers before clicking: a fast failed PUT must
   // surface its status/body, and a local save error may precede any request.
+  const completed = Promise.race([
+    Promise.all([saved, dashboard]),
+    wizardError,
+  ]);
+  let clicked: Promise<void> | undefined;
   try {
-    await Promise.all([
-      Promise.race([Promise.all([saved, dashboard]), wizardError]),
-      page.getByTestId('wizard-submit-btn').click(),
-    ]);
+    clicked = page.getByTestId('wizard-submit-btn').click();
+    await Promise.all([completed, clicked]);
   } finally {
+    stopped = true;
+    wakeProbe?.();
     page.off('request', onRequest);
+    // Failure can leave save/dashboard/click work in flight too. Keep their
+    // existing deadlines, and preserve the original failure while draining.
+    await Promise.allSettled([
+      saved,
+      dashboard,
+      wizardError,
+      completed,
+      clicked,
+    ]);
   }
 }
 

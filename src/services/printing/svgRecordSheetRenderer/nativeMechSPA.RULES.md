@@ -1,7 +1,8 @@
-# Native single-pilot biped, quad and LAM SPA placement
+# Native Mech crew and SPA placement
 
 `nativeMechSPA` owns presentation fitting for the existing single-pilot biped,
-quad and LAM payloads only. `recordsheet/spaSection.buildSPASection` remains the sole ability
+quad and LAM payloads, plus explicit ordinary/superheavy tripod crew payloads.
+`recordsheet/spaSection.buildSPASection` remains the sole ability
 resolver, sorter and designation formatter. The native list uses those formatted
 headlines; it does not implement Java PilotOptions, strip local designations, or
 change assignment/persistence. Other Mech configurations retain their legacy
@@ -30,9 +31,9 @@ Pinned MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`:
 - The same PrintMek selector chooses `mek_lam_default.svg` for LAM. Its native
   `spas0` has y76 on Letter/A4, while biped/quad use y52; the fitter reads the
   actual rectangle and parent transform rather than sharing coordinates. LAM
-  support here remains single-pilot only. Tripod/QuadVee stay required gaps under
-  rows4.1/4.3 until Q-PILOT supplies genuine native crew-slot identity; no slots
-  are inferred from the one-pilot payload.
+  support here remains single-pilot only. Tripod uses the explicit crew contract
+  landed by #2974; QuadVee rendering remains a required separate slice under
+  rows4.1/4.3. No slots are inferred from the one-pilot payload.
 - [PrintRecordSheet.java:1411-1423](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintRecordSheet.java#L1411):
   normal vs italic width measurement matters. Browser output uses actual canvas
   font metrics and the same typeface for its SVG text. Java/browser glyph metrics
@@ -48,3 +49,40 @@ formats, designated headlines, unchanged sheet fields, native long-list/token
 overflow, missing/empty inputs and legacy configuration behavior. Full-template
 Chromium/PDF proof is recorded separately; DOM tests do not establish pixel or
 Java font-metric parity.
+
+## Explicit tripod crew
+
+`nativeMechCrew` owns indexed name/skill presentation, native role-label offsets
+and crew-field/frame visibility for explicit `TRIPOD`/`SUPERHEAVY_TRIPOD` rosters
+on a tripod sheet. It consumes `getMechCrewRoles`; schemas/extraction remain the
+crew-contract owner's responsibility. Unassigned seats have blank names/skills
+and visible blank lines; no person or option is invented. Edge/SPAs remain global.
+
+- [PrintMek.java:112-131](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintMek.java#L112-L131)
+  selects the native tripod template. Its
+  [343-348](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintMek.java#L343-L348)
+  selects `warriorDataSingle/Dual/Triple` by roster size.
+- [PrintEntity.java:495-550](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintEntity.java#L495-L550)
+  measures the old label's computed text length, replaces it with the native
+  role, then offsets the name by new label bbox width minus old length. Measure
+  against the shared mounted SVG; restore the document before SPA insertion.
+  [595-616](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintEntity.java#L595-L616)
+  controls indexed fields/damage panels/blanks. For an unassigned local seat,
+  use the blank-field branch rather than fabricating native default skills.
+- The SPA code is inside the native crew loop: repeat the same crew-global list
+  once for every roster slot at `spas(slotCount-1)`, including unassigned seats.
+  Root explicitly approved this native repeated overdraw; do not deduplicate or
+  create per-seat ability lists. Unique SVG group IDs preserve a valid document.
+  Two-seat tripod uses spas1 y104; three-seat uses spas2 y156. Both are13.5 high,
+  widths142.60001 Letter/138.067 A4, in each template's actual transformed parent.
+  The fitter's float arithmetic, metrics, unbounded wrapping/overflow are unchanged.
+- Native crew fields in the configured default tripod templates have no
+  `mml-field-width` fitting metadata. Retain their native text styling and offset;
+  no new wrapping, truncation, clipping or font policy is introduced.
+
+`mechCrewRendering.test.ts` enforces unequal skills, repeated names, blank seats,
+native visibility/offsets, repeated global SPA placement/overflow and rejected
+missing/swapped rendered-field mutations on both papers. Separate real-template
+SVG/PDF pixel proof must accompany the PR. Legacy/no-crew and other-family output
+remain unchanged. Authoring/persistence and QuadVee rendering are required later
+work, not established by this renderer slice.

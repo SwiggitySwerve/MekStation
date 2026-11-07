@@ -64,6 +64,7 @@ describe('ProtoMech ammo worklist preservation', () => {
     expect(resolveProtoAmmoBV('Clan Ammo SRM-2 (10)', ['CLSRM2'])).toEqual({
       battleValue: 0.6000000000000001,
       weaponType: 'clan-srm-2',
+      nativeGroup: 'SRM:2',
     });
     expect(
       resolveProtoAmmoBV('Clan Ammo SRM-2 (1000)', ['CLSRM2'])?.battleValue,
@@ -161,8 +162,9 @@ describe('ProtoMech positive native ammo availability', () => {
     expect(JSON.stringify(unit)).toBe(original);
   });
 
-  test('an unmatched bin with unsupported public group remains unprojected without an invented cap', () => {
-    expect(resolveProtoAmmoBV('Clan Ammo SRM-2 (10)', [])).toEqual({
+  test('an unmatched native bin exposes its registry group and availability without an invented cap', () => {
+    const resolved = resolveProtoAmmoBV('Clan Ammo SRM-2 (10)', []);
+    expect(resolved).toMatchObject({
       battleValue: 0.6000000000000001,
       weaponType: 'SRM:2',
     });
@@ -173,8 +175,23 @@ describe('ProtoMech positive native ammo availability', () => {
       }),
     );
     expect(b.ammoBV).toBe(0);
-    expect(b).not.toHaveProperty('ammoAvailableMountBV');
-    expect(protoMechBVTerms(b)['ammo.available.SRM:2']).toBeUndefined();
+    const terms = protoMechBVTerms(b);
+    expect(terms['ammo.available.SRM:2']).toBe(0.6000000000000001);
+    expect(resolved?.nativeGroup).toBe('SRM:2');
+    expect(b.ammoAvailableMountBV).toEqual([
+      {
+        equipmentIndex: 0,
+        equipmentId: 'Clan Ammo SRM-2 (10)',
+        location: ProtoLocation.TORSO,
+        battleValue: 0.6000000000000001,
+        nativeGroup: 'SRM:2',
+      },
+    ]);
+    expect(
+      Object.keys(terms).filter((key) => key.startsWith('ammo.cap.')),
+    ).toEqual([]);
+    expect(b.weaponBV).toBe(0);
+    expect(b.offensiveBV).toBe(0);
   });
 
   test.each([

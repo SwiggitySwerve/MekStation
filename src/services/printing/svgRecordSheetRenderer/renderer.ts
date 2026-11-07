@@ -21,6 +21,7 @@ import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
 import { renderInfantrySVG } from './infantryRenderer';
+import { renderNativeMechCrew } from './nativeMechCrew';
 import { renderNativeMechSPASection } from './nativeMechSPA';
 import { renderProtoMechSVG } from './protoMechRenderer';
 import { renderSPASection } from './spaSection';
@@ -103,7 +104,22 @@ export class SVGRecordSheetRenderer {
     });
 
     fixCopyrightYear(svgDoc);
-    hideSecondCrewPanel(svgDoc);
+    const tripodCrew =
+      data.mechType === 'tripod' &&
+      (data.crew?.crewType === 'TRIPOD' ||
+        data.crew?.crewType === 'SUPERHEAVY_TRIPOD')
+        ? data.crew
+        : undefined;
+    if (tripodCrew) {
+      this.core.mount();
+      try {
+        renderNativeMechCrew(this.core.root, tripodCrew);
+      } finally {
+        this.core.unmount();
+      }
+    } else {
+      hideSecondCrewPanel(svgDoc);
+    }
 
     renderEquipmentTable(svgDoc, data.equipment);
     renderCriticalSlots(svgDoc, data.criticals);
@@ -111,16 +127,26 @@ export class SVGRecordSheetRenderer {
     // Phase 5 Wave 3 — render the Special Abilities block when present.
     // Helper skips when there are no resolvable entries.
     if (data.specialAbilities && data.specialAbilities.length > 0) {
+      const block = { entries: data.specialAbilities, hasContent: true };
+      if (tripodCrew) {
+        // PrintEntity:495-550 deliberately overdraws one global list per seat.
+        for (const slot of tripodCrew.slots) {
+          renderNativeMechSPASection(
+            svgDoc,
+            block,
+            `spas${tripodCrew.slots.length - 1}`,
+            `specialAbilitiesBlock${slot.slotIndex}`,
+          );
+        }
+        return;
+      }
       const renderAbilities =
         data.mechType === 'biped' ||
         data.mechType === 'quad' ||
         data.mechType === 'lam'
           ? renderNativeMechSPASection
           : renderSPASection;
-      renderAbilities(svgDoc, {
-        entries: data.specialAbilities,
-        hasContent: true,
-      });
+      renderAbilities(svgDoc, block);
     }
   };
 
