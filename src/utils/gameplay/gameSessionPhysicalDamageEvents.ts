@@ -7,11 +7,13 @@ import { type D6Roller } from './diceTypes';
 import { createDamageAppliedEvent } from './gameEvents';
 import { buildDamageStateFromUnit } from './gameSessionAttackResolutionHelpers';
 import { appendEvent } from './gameSessionCore';
+import { appendPhysicalCriticalChecks } from './gameSessionPhysicalCriticals';
 import {
   determinePhysicalHitLocation,
   type IPhysicalAttackResult,
   splitPhysicalDamageIntoClusters,
 } from './physicalAttacks';
+import { getWeakLegsCriticalLocations } from './quirkModifiers';
 
 type SessionUnitState = IGameSession['currentState']['units'][string];
 
@@ -198,6 +200,10 @@ export function appendPhysicalAttackDamageEvents(
   options: IAppendPhysicalAttackDamageEventsOptions,
 ): IGameSession {
   let currentSession = appendTargetPhysicalDamageEvents(options);
+  currentSession = appendWeakLegsChecks(
+    { ...options, session: currentSession },
+    'target',
+  );
   currentSession = appendBrushOffAttackerDamageEvents({
     ...options,
     session: currentSession,
@@ -206,8 +212,34 @@ export function appendPhysicalAttackDamageEvents(
     ...options,
     session: currentSession,
   });
+  currentSession = appendWeakLegsChecks(
+    { ...options, session: currentSession },
+    'attacker',
+  );
   return appendChargeAttackerDamageEvents({
     ...options,
     session: currentSession,
+  });
+}
+
+function appendWeakLegsChecks(
+  options: IAppendPhysicalAttackDamageEventsOptions,
+  role: 'attacker' | 'target',
+): IGameSession {
+  const unitId =
+    role === 'target' ? options.payload.targetId : options.payload.attackerId;
+  const unit = options.session.currentState.units[unitId];
+  return appendPhysicalCriticalChecks(options.session, {
+    unitId,
+    sourceUnitId: options.payload.attackerId,
+    d6Roller: options.d6Roller,
+    locations: getWeakLegsCriticalLocations(unit?.unitQuirks, {
+      attackType: options.payload.attackType,
+      hit: options.result.hit,
+      hitLocation: options.result.hitLocation,
+      role,
+      isQuad: unit?.isQuad,
+      unitType: unit?.unitType,
+    }),
   });
 }

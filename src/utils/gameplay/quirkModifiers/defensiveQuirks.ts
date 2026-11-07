@@ -2,10 +2,45 @@
  * Defensive and critical hit quirk modifiers.
  */
 
+import type { CombatLocation } from '@/types/gameplay';
+
 import { isMechUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import type { PhysicalAttackType } from '../physicalAttacks';
+
 import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
+
+export interface IWeakLegsCriticalContext {
+  readonly attackType: PhysicalAttackType;
+  readonly role: 'attacker' | 'target';
+  readonly hit: boolean;
+  readonly hitLocation?: CombatLocation;
+  readonly isQuad?: boolean;
+  readonly unitType?: string;
+}
+
+/** MegaMek48fcb2f64 TWGameManager.java:12869-12872,17207-17217. */
+export function getWeakLegsCriticalLocations(
+  unitQuirks: readonly string[] | undefined,
+  context: IWeakLegsCriticalContext,
+): readonly CombatLocation[] {
+  if (
+    !context.hit ||
+    !hasQuirk(unitQuirks ?? [], UNIT_QUIRK_IDS.WEAK_LEGS) ||
+    !isMechUnit({ unitType: context.unitType ?? UnitType.BATTLEMECH })
+  )
+    return [];
+  if (context.role === 'target' && context.attackType === 'kick') {
+    return context.hitLocation === undefined ? [] : [context.hitLocation];
+  }
+  if (context.role === 'attacker' && context.attackType === 'dfa') {
+    return context.isQuad
+      ? ['left_leg', 'right_leg', 'left_arm', 'right_arm']
+      : ['left_leg', 'right_leg'];
+  }
+  return [];
+}
 
 /**
  * Prototype: +2 to a BattleMech ranged critical determination roll.

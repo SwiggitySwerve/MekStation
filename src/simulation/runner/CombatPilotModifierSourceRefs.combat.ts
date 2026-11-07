@@ -7,6 +7,19 @@ import {
 const MEGAMEK_CURRENT_IMPLANT_SOURCE_VERSION =
   '55584ec7529b944fca3216965697e9fa1115dced';
 
+export const MEGAMEK_WEAK_LEGS_SOURCE_REFS = [
+  pilotCombatMegamekRef(
+    'Weak Legs requests an extra normal critical determination at the actual kicked location after kick damage, even with armor intact.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L12869-L12872',
+    '48fcb2f64a1b3f2d575707ce5653dad64927b587',
+  ),
+  pilotCombatMegamekRef(
+    'After a successful DFA, Weak Legs checks left leg then right leg; QuadMek additionally checks left arm then right arm.',
+    'megamek/src/megamek/server/totalWarfare/TWGameManager.java#L17207-L17217',
+    '48fcb2f64a1b3f2d575707ce5653dad64927b587',
+  ),
+];
+
 export const MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS = [
   pilotCombatMegamekRef(
     'Native Prototype adds +2 before the critical determination ladder; this slice integrates BattleMech ranged checks only.',

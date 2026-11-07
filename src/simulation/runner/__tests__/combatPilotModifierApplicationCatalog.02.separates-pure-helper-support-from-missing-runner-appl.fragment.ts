@@ -32,6 +32,7 @@ it('separates pure helper support from missing runner/application plumbing', () 
   ).toEqual(
     [
       'battlemech-ranged-critical-determination',
+      'weak-legs-physical-critical-application',
       'called-shot-application',
       'bvdni-critical-hit-neural-feedback-application',
       'cluster-hitter-application',

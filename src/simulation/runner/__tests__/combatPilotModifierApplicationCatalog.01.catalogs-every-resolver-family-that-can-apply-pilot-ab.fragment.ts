@@ -32,6 +32,7 @@ it('catalogs every resolver family that can apply pilot abilities or quirks', ()
       'anti-mek-actuator-application',
       'aerospace-maneuvering-ace-movement-application',
       'battlemech-ranged-critical-determination',
+      'weak-legs-physical-critical-application',
       'bvdni-critical-hit-neural-feedback-application',
       'called-shot-application',
       'campaign-maintenance-application',

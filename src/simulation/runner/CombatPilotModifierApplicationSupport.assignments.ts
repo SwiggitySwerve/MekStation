@@ -30,6 +30,10 @@ const RANGED_TO_HIT_QUIRK_IDS = [
 ] as const;
 
 export const PILOT_MODIFIER_RESOLVER_ASSIGNMENTS = {
+  'weak-legs-physical-critical-application': {
+    spaIds: [],
+    quirkIds: ['weak_legs'],
+  },
   'battlemech-ranged-critical-determination': {
     spaIds: [],
     quirkIds: ['prototype'],

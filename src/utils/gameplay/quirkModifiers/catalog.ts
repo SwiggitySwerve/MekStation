@@ -23,6 +23,7 @@ export const UNIT_QUIRK_IDS = {
   DISTRACTING: 'distracting',
   LOW_PROFILE: 'low_profile',
   PROTOTYPE: 'prototype',
+  WEAK_LEGS: 'weak_legs',
 
   // Piloting quirks
   EASY_TO_PILOT: 'easy_to_pilot',
@@ -72,6 +73,14 @@ export const WEAPON_QUIRK_IDS = {
  * Complete quirk catalog — all unit and weapon quirks with combat effects.
  */
 export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
+  [UNIT_QUIRK_IDS.WEAK_LEGS]: {
+    id: UNIT_QUIRK_IDS.WEAK_LEGS,
+    name: 'Weak Legs',
+    category: 'crit',
+    pipelines: ['physical', 'crit'],
+    combatEffect: 'Extra normal critical checks after a kick or successful DFA',
+    isPositive: false,
+  },
   [UNIT_QUIRK_IDS.PROTOTYPE]: {
     id: UNIT_QUIRK_IDS.PROTOTYPE,
     name: 'Prototype',

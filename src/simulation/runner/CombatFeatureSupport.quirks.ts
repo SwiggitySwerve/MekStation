@@ -31,6 +31,7 @@ import {
   MEGAMEK_LOW_PROFILE_GLANCING_SOURCE_REFS,
   MEGAMEK_MULTI_TRAC_SOURCE_REFS,
   MEGAMEK_PROTOTYPE_CRITICAL_SOURCE_REFS,
+  MEGAMEK_WEAK_LEGS_SOURCE_REFS,
   MEKSTATION_DISTRACTING_TO_HIT_DEVIATION_SOURCE_REFS,
   MEKSTATION_LOW_PROFILE_TO_HIT_DEVIATION_SOURCE_REFS,
   MEGAMEK_SENSOR_GHOSTS_TO_HIT_SOURCE_REFS,
@@ -43,6 +44,11 @@ import {
 const ANTI_AIR_MEGAMEK_PIN = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 
 export const QUIRK_COMBAT_SUPPORT = {
+  weak_legs: integrated(
+    'weak_legs',
+    'The shared Weak Legs owner supplies extra normal physical critical checks to session and runner: actual kicked location, or successful DFA attacker legs in native biped/quad order. Existing critical/component and replay event contracts apply; broader critical-system and ammunition-consequence parity remain separate.',
+    MEGAMEK_WEAK_LEGS_SOURCE_REFS,
+  ),
   prototype: integrated(
     'prototype',
     'getPrototypeCriticalHitModifier adds +2 once to the existing BattleMech ranged critical determination in session and runner, additive with Low Profile; forced-single criticals retain their count. Other families and physical attacks remain open.',
