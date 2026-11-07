@@ -344,6 +344,7 @@ export function mapVehicleEquipment(
       techBase,
       techBaseMode,
       undefined,
+      item.name,
     );
     const identity = equipmentDef
       ? createVehicleMountedEquipment(equipmentDef, `mount-${index}`)
