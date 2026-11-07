@@ -336,13 +336,10 @@ export const financialProcessor: IDayProcessor = {
   displayName: 'Financial Processing',
 
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
-    // Per audit finding D-2 (2026-06-09): mirror of dailyCostsProcessor's
-    // double-deduction gate. The role-based financial processor and the
-    // legacy flat-rate dailyCosts processor are mutually exclusive
-    // finance paths — dailyCosts no-ops when `useRoleBasedSalaries` is
-    // true, this processor no-ops when it is false — so a default-options
-    // campaign is never double-charged for salaries or maintenance now
-    // that both are registered in production.
+    // Salary and maintenance use mutually exclusive paths: this processor
+    // handles role-based costs, while dailyCosts skips its flat costs in
+    // that mode. Daily campaign-loan servicing always runs in dailyCosts;
+    // the monthly amortized loans below belong to the separate finances ledger.
     if (!campaign.options.useRoleBasedSalaries) {
       return { events: [], campaign };
     }

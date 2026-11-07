@@ -86,9 +86,11 @@ function applyLoanRepayments(loans: readonly ICampaignLoan[] | undefined): {
  * Process daily costs for the campaign.
  *
  * Calculates:
- * - Salary: DEFAULT_DAILY_SALARY * salaryMultiplier per active person
- * - Maintenance: DEFAULT_DAILY_MAINTENANCE * maintenanceCostMultiplier per unit
+ * - Flat salary and maintenance when role-based salaries are disabled
  * - Loan repayment: sum of every active loan's `dailyRepayment` (design D4)
+ *
+ * Role-based salaries and their maintenance are charged by financialProcessor;
+ * campaign loans are serviced here regardless of the salary mode.
  *
  * Deducts from campaign balance and records transactions.
  *
@@ -96,7 +98,7 @@ function applyLoanRepayments(loans: readonly ICampaignLoan[] | undefined): {
  * @returns Updated finances, the updated loan ledger, and a cost breakdown
  */
 export function processDailyCosts(campaign: ICampaign): {
-  finances: { transactions: Transaction[]; balance: Money };
+  finances: ICampaign['finances'];
   loans: readonly ICampaignLoan[];
   costs: DailyCostBreakdown;
 } {
@@ -115,7 +117,11 @@ export function processDailyCosts(campaign: ICampaign): {
 
   // Calculate salary costs
   let salaries = Money.ZERO;
-  if (options.payForSalaries && personnelCount > 0) {
+  if (
+    !options.useRoleBasedSalaries &&
+    options.payForSalaries &&
+    personnelCount > 0
+  ) {
     const dailySalaryPerPerson = new Money(
       DEFAULT_DAILY_SALARY * options.salaryMultiplier,
     );
@@ -142,7 +148,11 @@ export function processDailyCosts(campaign: ICampaign): {
 
   // Calculate maintenance costs
   let maintenance = Money.ZERO;
-  if (options.payForMaintenance && unitCount > 0) {
+  if (
+    !options.useRoleBasedSalaries &&
+    options.payForMaintenance &&
+    unitCount > 0
+  ) {
     const dailyMaintenancePerUnit = new Money(
       DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier,
     );
@@ -184,6 +194,7 @@ export function processDailyCosts(campaign: ICampaign): {
 
   return {
     finances: {
+      ...campaign.finances,
       transactions: newTransactions,
       balance: currentBalance,
     },
