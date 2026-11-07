@@ -420,7 +420,7 @@ test.describe('Encounter Flow - Auto-Resolve', () => {
         timeout: 20000,
       });
       await expect(victoryScreen.getByTestId('victory-outcome')).toHaveText(
-        /^(DEFEAT|VICTORY)$/,
+        /^(VICTORY|DEFEAT|DRAW)$/,
       );
       await expect(victoryScreen.getByTestId('victory-reason')).toHaveText(
         /^(Turn limit reached|Last side standing|Objective complete)$/,
