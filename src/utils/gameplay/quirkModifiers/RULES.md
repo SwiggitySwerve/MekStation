@@ -62,3 +62,27 @@ weapon summation. This does not bind source critical slots to runtime mount
 ids, change heat sinks/firing modes, regenerate catalogs or establish complete
 weapon-quirk parity. Those source/runtime and other modifier paths remain
 separate from this bounded cooling correction.
+
+## Native Anti-Air
+
+At the same pin, `Quirks.java:75` registers `anti_air`
+(`OptionsConstants.java:44`).
+[ComputeAbilityMods.java:64-68](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L64-L68)
+adds -2 when the attacking unit has that quirk and the Entity target satisfies
+`isAirborneVTOLorWIGE() || isAirborne()`. `calculateAntiAirQuirkModifier` owns
+that numerical effect. Membership is boolean: repeated ids apply it once;
+unknown, differently cased and near-match ids do not create new aliases.
+The target's own Anti-Air quirk does not grant the attacker a benefit.
+
+The modifier consumes `target.isAirborne` from the shared native
+`combatAirborne.ts` owner merged in #2972. That owner interprets transported
+flight lifecycle, altitude/elevation, destruction and existing building/bridge
+terrain; see `../combatAirborne.RULES.md`. No quirk helper duplicates those
+predicates or infers flight from chassis/family. Missing native state remains
+unqualified. Direct public to-hit callers must supply that established fact.
+Normal range/movement, other unit/weapon quirks and outer to-hit clamping stay
+unchanged. Real converted Orion metadata reaches the effect through the
+existing source hydration owner and GameCreated/session/replay paths.
+
+This slice adds no parser, generated/catalog data, producer, BV or additional
+quirk effect. Other family airborne mappings and other quirk gaps remain open.

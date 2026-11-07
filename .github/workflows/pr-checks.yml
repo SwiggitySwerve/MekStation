@@ -726,7 +726,7 @@ jobs:
   e2e:
     name: E2E (${{ matrix.shard }}/2)
     needs: detect-changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -744,9 +744,11 @@ jobs:
 
       - name: Setup Node + caches + install deps
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: setup
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          verify-native-modules: 'true'
           fetch-assets: 'true'
 
       - name: Test E2E shard planning and coverage guards
@@ -776,7 +778,7 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+          key: ${{ steps.setup.outputs.cache-platform }}-playwright-${{ steps.playwright-version.outputs.version }}
 
       - name: Install Playwright chromium browser
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
