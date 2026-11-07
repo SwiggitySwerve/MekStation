@@ -90,6 +90,12 @@ export interface CampaignRosterActions {
   /** Add a unit to the roster */
   addUnit: (unit: IRosterUnitProjection) => void;
 
+  /** Replace a bound roster atomically; refuse wrong campaigns or duplicate ids. */
+  replaceUnitsForCampaign: (
+    campaignId: string,
+    units: IRosterUnitProjection[],
+  ) => boolean;
+
   /** Remove a unit from the roster */
   removeUnit: (unitId: string) => void;
 

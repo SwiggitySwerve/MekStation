@@ -7,6 +7,7 @@ import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { ICoopSession } from '@/types/campaign/CoopSession';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import type { ForcesStore } from './useForcesStore';
@@ -111,6 +112,12 @@ export interface CampaignActions {
   advanceDays: (count: number) => MaybePromise<DayReport[] | null>;
   getCampaign: () => ICampaign | null;
   updateCampaign: (updates: Partial<ICampaign>) => MaybePromise<void>;
+  /** Commit prepared roster/force/damage changes together, rolling back a refused save. */
+  commitRosterEnrollment: (
+    expectedCampaign: ICampaign,
+    unit: IRosterUnitProjection,
+    updates: Partial<ICampaign>,
+  ) => Promise<CampaignCommitResult>;
   getForcesStore: () => StoreApi<ForcesStore> | null;
   getMissionsStore: () => StoreApi<MissionsStore> | null;
   enqueueOutcome: (outcome: ICombatOutcome) => void;

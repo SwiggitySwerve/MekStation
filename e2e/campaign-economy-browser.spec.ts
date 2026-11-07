@@ -137,7 +137,7 @@ async function readCampaignEconomySnapshot(
 async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
   await waitForCampaignStoresReady(page);
 
-  const seeded = await page.evaluate(() => {
+  const seeded = await page.evaluate(async () => {
     type StoreApi = {
       getState: () => Record<string, any>;
       setState?: (state: Record<string, any>) => void;
@@ -220,31 +220,89 @@ async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
         status: 'queued',
       },
     ];
-    const salvageCandidate = {
-      source: 'unit',
-      unitId: 'enemy-atlas',
-      designation: 'Atlas AS7-D',
-      destroyedFromBattle: 'match-economy-1',
-      finalStatus: 'destroyed',
-      damageLevel: 'heavy',
-      originalValue: 8_000_000,
-      recoveredValue: 2_000_000,
-      recoveryPercentage: 0.25,
-      repairCostEstimate: 500_000,
-      partId: 'salvage-atlas',
-      disposition: 'mercenary',
-      status: 'pending',
-    };
-    const salvageBay = [
-      {
-        partId: 'salvage-atlas',
-        sourceUnitId: 'enemy-atlas',
-        designation: 'Atlas AS7-D',
-        recoveredValue: 2_000_000,
-        disposition: 'mercenary',
-        status: 'pending',
+    // Feed recorded battle facts through the production day/salvage pipeline.
+    // Never pre-enroll the enemy or construct a recovery payload in this spec.
+    stores.campaignRoster.getState().initRoster(campaignId);
+    const zero = baseCampaign.finances.balance.subtract(
+      baseCampaign.finances.balance,
+    );
+    const contract = {
+      id: 'contract-economy-1',
+      name: 'E2E Salvage Contract',
+      type: 'contract',
+      status: 'Active',
+      systemId: 'e2e-ridge',
+      scenarioIds: [],
+      employerId: 'lyran-commonwealth',
+      targetId: 'pirates',
+      salvageRights: 'Integrated',
+      salvagePercent: 100,
+      commandRights: 'House',
+      createdAt: currentDate,
+      updatedAt: currentDate,
+      paymentTerms: {
+        basePayment: zero,
+        successPayment: zero,
+        partialPayment: zero,
+        failurePayment: zero,
+        transportPayment: zero,
+        supportPayment: zero,
+        salvagePercent: 100,
       },
-    ];
+    };
+    campaignState.getMissionsStore().getState().addMission(contract);
+    campaignState.updateCampaign({
+      currentDate: new Date(currentDate),
+      missions: new Map([[contract.id, contract]]),
+    });
+    campaignState.enqueueOutcome({
+      version: 1,
+      matchId: 'match-economy-1',
+      contractId: contract.id,
+      scenarioId: null,
+      endReason: 'withdrawal',
+      capturedAt: currentDate,
+      report: {
+        version: 1,
+        matchId: 'match-economy-1',
+        winner: 'player',
+        reason: 'concede',
+        turnCount: 5,
+        units: [],
+        mvpUnitId: null,
+        log: [],
+      },
+      unitDeltas: [
+        {
+          unitId: 'enemy-atlas',
+          unitRef: 'atlas-as7-d',
+          side: 'opponent',
+          destroyed: false,
+          finalStatus: 'crippled',
+          armorRemaining: { CT: 3, LT: 0 },
+          internalsRemaining: { CT: 7, LT: 0 },
+          destroyedLocations: ['LT'],
+          destroyedComponents: ['Medium Laser'],
+          heatEnd: 8,
+          ammoRemaining: { ac20: 2 },
+          pilotState: {
+            conscious: true,
+            wounds: 0,
+            killed: false,
+            finalStatus: 'active',
+          },
+        },
+      ],
+    });
+    await campaignState.advanceDay();
+    const produced = campaignState.getCampaign();
+    const salvageCandidate =
+      produced.salvageAllocations?.['match-economy-1']?.mercenaryAward
+        .candidates[0];
+    if (!salvageCandidate?.recovery)
+      throw new Error(
+        'Production salvage pipeline did not preserve recovery facts',
+      );
     const activityLog = [
       {
         id: 'activity-battle-economy-1',
@@ -311,6 +369,7 @@ async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
 
     campaignState.updateCampaign({
       currentDate: new Date(currentDate),
+      finances: baseCampaign.finances,
       activeContract: {
         id: 'contract-economy-1',
         name: 'E2E Garrison Contract',
@@ -321,49 +380,27 @@ async function seedPostBattleCampaign(page: Page): Promise<SeededCampaign> {
       },
       repairQueue: repairTickets,
       repairBay: { tickets: repairTickets },
-      salvageAllocations: {
-        'match-economy-1': {
-          pool: {
-            battleId: 'match-economy-1',
-            contractId: 'contract-economy-1',
-            candidates: [salvageCandidate],
-            totalEstimatedValue: 2_000_000,
-            hostileTerritory: false,
-          },
-          employerAward: {
-            side: 'employer',
-            candidates: [],
-            totalValue: 0,
-            estimatedRepairCost: 0,
-          },
-          mercenaryAward: {
-            side: 'mercenary',
-            candidates: [salvageCandidate],
-            totalValue: 2_000_000,
-            estimatedRepairCost: 500_000,
-          },
-          splitMethod: 'contract',
-          processed: false,
-        },
-      },
-      salvageReports: {
-        'match-economy-1': {
-          battleId: 'match-economy-1',
-          contractId: 'contract-economy-1',
-          totalCandidates: 1,
-          totalValue: 2_000_000,
-        },
-      },
+      salvageAllocations: produced.salvageAllocations,
+      salvageReports: produced.salvageReports,
       campaignInventory: {
         campaignId,
         generatedAt: currentDate,
         repairBay,
-        salvageBay,
+        salvageBay: [
+          {
+            partId: salvageCandidate.unitId,
+            sourceUnitId: salvageCandidate.unitId,
+            designation: salvageCandidate.designation,
+            recoveredValue: salvageCandidate.recoveredValue,
+            disposition: salvageCandidate.disposition,
+            status: 'accepted',
+          },
+        ],
         medicalBay: [],
         summary: {
           repairTicketCount: 2,
           totalRepairHours: 18,
-          salvageValueTotal: 2_000_000,
+          salvageValueTotal: salvageCandidate.recoveredValue,
           pilotsInMedical: 0,
         },
       },
@@ -453,32 +490,68 @@ test.describe('Campaign economy browser proof', () => {
         await page.goto(`/gameplay/campaigns/${seeded.campaignId}/salvage`);
         await waitForLoadedCampaign(page, seeded.campaignId);
         await expect(page.getByTestId('salvage-panel')).toBeVisible();
-        await expect(
-          page.getByTestId('salvage-row-salvage-atlas'),
-        ).toContainText('Atlas AS7-D');
+        await expect(page.getByTestId('salvage-row-enemy-atlas')).toContainText(
+          'Unknown Mech',
+        );
+        // The allocator awards candidates before the player enrolls them.
+        // Decline then accept exercises the real enrollment decision.
+        await page.getByTestId('salvage-decline-enemy-atlas').click();
         await expect(page.getByTestId('salvage-value-total')).toContainText(
           '0 C-Bills',
         );
-        await page.getByTestId('salvage-accept-salvage-atlas').click();
+        await page.getByTestId('salvage-accept-enemy-atlas').click();
         await expect(page.getByTestId('salvage-value-total')).toContainText(
-          '2,000,000 C-Bills',
+          '625,000 C-Bills',
         );
         const salvageSnapshot = await readCampaignEconomySnapshot(page);
         expect(salvageSnapshot).toMatchObject({
-          acceptedSalvageValue: 2_000_000,
-          salvageStatuses: [['salvage-atlas', 'accepted']],
+          acceptedSalvageValue: 625_000,
+          salvageStatuses: [['enemy-atlas', 'accepted']],
         });
+        await expect
+          .poll(() =>
+            page.evaluate(() => {
+              const stores = (
+                window as unknown as {
+                  __ZUSTAND_STORES__: {
+                    campaignRoster: {
+                      getState: () => {
+                        units: Array<{
+                          unitId: string;
+                          unitRef?: string;
+                          pilotId?: string;
+                        }>;
+                      };
+                    };
+                  };
+                }
+              ).__ZUSTAND_STORES__;
+              return stores.campaignRoster.getState().units.map((unit) => ({
+                unitId: unit.unitId,
+                unitRef: unit.unitRef,
+                pilotId: unit.pilotId ?? null,
+              }));
+            }),
+          )
+          .toEqual([
+            {
+              unitId: 'unit-atlas',
+              unitRef: 'atlas-as7-d',
+              pilotId: 'pilot-atlas',
+            },
+            { unitId: 'enemy-atlas', unitRef: 'atlas-as7-d', pilotId: null },
+          ]);
 
         await saveCampaignInContext(page);
         await page.reload({ waitUntil: 'networkidle' });
         await waitForLoadedCampaign(page, seeded.campaignId);
         await expect(page.getByTestId('salvage-panel')).toBeVisible();
         await expect(page.getByTestId('salvage-value-total')).toContainText(
-          '2,000,000 C-Bills',
+          '625,000 C-Bills',
         );
         await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
-          acceptedSalvageValue: 2_000_000,
-          salvageStatuses: [['salvage-atlas', 'accepted']],
+          acceptedSalvageValue: 625_000,
+          salvageStatuses: [['enemy-atlas', 'accepted']],
         });
 
         await page.goto(`/gameplay/campaigns/${seeded.campaignId}/finances`);
@@ -539,12 +612,12 @@ test.describe('Campaign economy browser proof', () => {
           '3025-01-02',
         );
         await expect(readCampaignEconomySnapshot(page)).resolves.toMatchObject({
-          acceptedSalvageValue: 2_000_000,
+          acceptedSalvageValue: 625_000,
           balance: advancedSnapshot.balance,
           currentDate: '3025-01-02',
           loanCount: 1,
           repairPriorities,
-          salvageStatuses: [['salvage-atlas', 'accepted']],
+          salvageStatuses: [['enemy-atlas', 'accepted']],
         });
       }),
   );
