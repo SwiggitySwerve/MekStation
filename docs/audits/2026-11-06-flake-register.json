@@ -17,7 +17,9 @@
     "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone.",
     "42205390500-control-chromium": "Two-shard diagnostic control/baseline, GitHub-hosted Linux x64, 4 CPUs, runner image20261101.186.1, Node22.23.4, cached Chromium headless-shell143.0.7499.4/revision1200. Browser binary SHA25620ffc88be1c6f7dc8351bebfaca965ff9a07617bddf696f0b67ef85e5868b29a. Exact environment is from the retained completed audit.",
     "42219240827-chromium": "GitHub-hosted E2E2/2, ubuntu-26.04 image20261101.186.1, Node22.23.4 (raw job log lines17/18/190), Playwright1.57.0, actualWorkers1 (retained native library report). Failed result retry0; no cross-incident environment inference.",
-    "42295033204-chromium": "GitHub-hosted Chromium E2E1/2 and2/2, Ubuntu26.04 image20261101.186.1, Node22.23.4 (retained raw G2 logs). Exact workflow attempt and native retry index not recovered here; null is unknown. Do not infer hosted event order from controlled local reproduction."
+    "42295033204-chromium": "GitHub-hosted Chromium E2E1/2 and2/2, Ubuntu26.04 image20261101.186.1, Node22.23.4 (retained raw G2 logs). Exact workflow attempt and native retry index not recovered here; null is unknown. Do not infer hosted event order from controlled local reproduction.",
+    "nightly-feature-42307733912": "SEPARATE workflow_dispatch on fix/ci-browser-ubuntu24-20261106 at ef5fa86739208e376262400f89dd442ab69108ef, attempt1. Retained logs: Ubuntu24.04 image20261101.360.1, Node22.23.4. This feature diagnostic is not scheduled main42254293879; no runner or causal equivalence inferred.",
+    "nightly-main-42254293879": "Scheduled main at e86866ba2de11bbcc032a6a1a06087863d2bc37b, attempt1, created2026-11-06T16:38:35Z. Existing run metadata confirms workflow failure; exact jobs/runtime/native reports not located here. Do not borrow feature diagnostic environment."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -926,6 +928,84 @@
       "location": "coordinator-archive",
       "sha256": "73cee18109fa87d7c6b06f5ca56e526ec65a5473531fb011d329e200977bb183",
       "bytes": 66533
+    },
+    "nightly-cited-main-meta": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/cited-main-metadata.json",
+      "location": "coordinator-archive",
+      "sha256": "affd7b15e54fad101f34b2ba53cef98364bf10620c455f55ea011ddea472eeb8",
+      "bytes": 926
+    },
+    "nightly-feature-excerpts": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/retained-feature-excerpts.json",
+      "location": "coordinator-archive",
+      "sha256": "e27e39de99137bf3142108174ac27146499e6d3048c4fb1126ed89ac97e6c784",
+      "bytes": 8642
+    },
+    "nightly-feature-full-log": {
+      "path": "normal-work/CI-browser-ubuntu24-20261106/hosted/nightly-job-128201640801.log",
+      "location": "coordinator-archive",
+      "sha256": "c0e095d6c526685300c813329dfaca251ca8562d8f048e9f024af11aec983d82",
+      "bytes": 577526
+    },
+    "nightly-feature-experience-log": {
+      "path": "normal-work/CI-browser-ubuntu24-20261106/hosted/nightly-job-128201640900.log",
+      "location": "coordinator-archive",
+      "sha256": "a64c5a943f5da738269413093b654412aa452f3803393b51fc45e1f70d1baf8b",
+      "bytes": 99533
+    },
+    "nightly-feature-run": {
+      "path": "normal-work/CI-browser-ubuntu24-20261106/hosted/nightly-run.json",
+      "location": "coordinator-archive",
+      "sha256": "caada90e7ec084ca122d626188ea6c04a11cf7eeb13bdbfd97ea58713d83c9f6",
+      "bytes": 13352
+    },
+    "nightly-feature-jobs": {
+      "path": "normal-work/CI-browser-ubuntu24-20261106/hosted/nightly-jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "2d7a5a3084099e8e7150cc088519a33f0560bf1f999f11070835286e0920284f",
+      "bytes": 33995
+    },
+    "nightly-xp-spec": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/xp-spec-feature-head.txt",
+      "location": "coordinator-archive",
+      "sha256": "97238ca19a1fc2640e0ed6327ad602becba489d8bb23b67a9a133d14faa20a80",
+      "bytes": 6954
+    },
+    "nightly-xp-order": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/xp-assertion-order.json",
+      "location": "coordinator-archive",
+      "sha256": "ac491c88aa289fed5a3f9c7f4d3c299716589aa4de50c8c99457347771e705e1",
+      "bytes": 592
+    },
+    "nightly-97-history": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/historical-97-context.json",
+      "location": "coordinator-archive",
+      "sha256": "814b8aed85c68ed3cad9dc3c99f10d96670887cc0841527587e2b745be02408b",
+      "bytes": 2493
+    },
+    "nightly-s4-appendix": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/s4-appendix.md.snapshot",
+      "location": "coordinator-archive",
+      "sha256": "6187ecada274f9126313e705e2f25479c064c837f7d9f2b930fc669d6fb207f3",
+      "bytes": 7212
+    },
+    "nightly-s4-decomposition": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/s4-decomposition.md.snapshot",
+      "location": "coordinator-archive",
+      "sha256": "ffe92cd5710d83a8fee97e14285a63b392981e0ed6b61aa5b3d1921f08b3be03",
+      "bytes": 11110
+    },
+    "nightly-root-comparison": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/ci-nightly-proof.snapshot.md",
+      "location": "coordinator-archive",
+      "sha256": "9f47874295113475cce0d47a4123c9c7fc7e2a3657ea025651be22e23f96de3a",
+      "bytes": 3772
+    },
+    "nightly-root-request": {
+      "path": "normal-work/G6-flake-register/nightly-main-42254293879/root-request.json",
+      "location": "coordinator-archive",
+      "sha256": "c77fd648000a0b9c73d88007004fc33f916b2759dd2f27a0d441f302638bf57e",
+      "bytes": 1139
     }
   },
   "entries": [
@@ -1048,12 +1128,12 @@
     {
       "id": "G6-005",
       "classification": "observed-intermittent",
-      "state": "open",
+      "state": "open; historical retry-pass confirmed; current main cause/result mapping unclassified",
       "test": "e2e/encounter-flow.spec.ts:390:7",
       "environment": "nightly-chromium",
-      "summary": "Encounter Flow - Auto-Resolve › should auto-resolve encounter when launched @encounter @smoke; reporter explicitly classified this case as flaky.",
-      "owner": "unassigned; needsowner",
-      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "summary": "Encounter Flow - Auto-Resolve › should auto-resolve encounter when launched @encounter @smoke; reporter explicitly classified this case as flaky. Historical reporter-flaky classification remains supported by run39436917307. Root reports recent main intermittence; exact encounter outcome/retry mapping for42254293879 is uncollected. Root/G2 comparison says encounter passes on separate feature42307733912, an attributed observation only; main1flaky summary is not independently mapped to this test here.",
+      "owner": "S4 campaign/economy/personnel surface lead: read-only diagnosis/ownership proposal; Root alone authorizes remediation; G6 inventory",
+      "nextStep": "S4/Root correlate existing failed/passed encounter evidence and obtain exact cited-main native mapping through retained custody. A reporter-flaky historical retry does not prove a benign flake or rule out product regression. No worker watcher, rerun or capture.",
       "observations": [
         {
           "runId": 39436917307,
@@ -1065,10 +1145,26 @@
           "testRetry": null
         }
       ],
-      "sources": ["nightly-39436917307"],
+      "sources": [
+        "nightly-39436917307",
+        "nightly-root-request",
+        "nightly-root-comparison",
+        "nightly-cited-main-meta"
+      ],
       "missingEvidence": [
-        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
-      ]
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary.",
+        "Current cited-main native test/job/retry evidence unlocated; Root-reported recent intermittence does not establish the same mechanism as historical39436917307."
+      ],
+      "currentMainAssessment": {
+        "source": "nightly-root-request",
+        "citedRun": 42254293879,
+        "head": "e86866ba2de11bbcc032a6a1a06087863d2bc37b",
+        "classification": "UNCLASSIFIED current cause/outcome mapping; historical intermittency preserved",
+        "jobId": null,
+        "testRetry": null,
+        "rootComparison": "Main has1flaky in Root-attributed summary; exact mapping not recovered. Feature encounter pass reported by Root/G2, not substituted as same-head proof.",
+        "productRegressionRuledOut": false
+      }
     },
     {
       "id": "G6-006",
@@ -1739,13 +1835,13 @@
     },
     {
       "id": "G6-029",
-      "classification": "deterministic-product-failure",
-      "state": "open-blocking",
+      "classification": "UNCLASSIFIED",
+      "state": "persistent main failure reported; historical product defect retained; current mechanism unverified",
       "test": "e2e/campaign-economy-browser.spec.ts:382",
       "environment": "nightly-chromium",
-      "summary": "Salvage adds absent enemy-atlas to a force without a roster unit; authority checkpoint rejects later save. Latest nightly retries0/1/2 all fail in-context save.",
-      "owner": "Root (follow-up97 owner decision)",
-      "nextStep": "Root decides how salvaged Meks materialize as roster units and assigns campaign-economy implementation; G5 keeps acceptance blocked.",
+      "summary": "Root reports persistent campaign-economy failure on main, including cited42254293879/a1/e86866ba. Exact current native/HTTP/trace evidence not located, so current cause is UNCLASSIFIED. Historical97 is a known absent enemy-atlas roster/save500 product bug. Separate feature42307733912/a1 repeats fixture174/economy472 save-status error on0/1/2; matching symptom/callsite does not establish latest main mechanism.",
+      "owner": "S4 campaign/economy/personnel surface lead: read-only diagnosis/ownership proposal; Root alone authorizes remediation; G6 inventory",
+      "nextStep": "Coordinate existing S4 proposal and retained custody. Establish exact cited-main failure/HTTP response before equating it to historical97 or proposing remediation. No automatic flake label, fixes, reruns or capture.",
       "observations": [
         {
           "runId": 42072283514,
@@ -1755,10 +1851,55 @@
           "source": "latest-log",
           "jobId": 127403628676,
           "testRetries": [0, 1, 2]
+        },
+        {
+          "runId": 42254293879,
+          "workflowAttempt": 1,
+          "head": "e86866ba2de11bbcc032a6a1a06087863d2bc37b",
+          "jobId": null,
+          "jobName": "Full E2E Suite (chromium)",
+          "source": "nightly-root-request",
+          "metadataSource": "nightly-cited-main-meta",
+          "result": "Root-reported persistent test failure; retained metadata independently confirms workflow red only.",
+          "scope": "Exact cited-main native result/job ID/log/trace unlocated; no substitution from historical or feature runs."
+        },
+        {
+          "runId": 42307733912,
+          "workflowAttempt": 1,
+          "head": "ef5fa86739208e376262400f89dd442ab69108ef",
+          "branch": "fix/ci-browser-ubuntu24-20261106",
+          "jobId": 128201640801,
+          "jobName": "Full E2E Suite (chromium)",
+          "source": "nightly-feature-full-log",
+          "sourceLines": [4193, 4195, 4197, 4207, 4230, 4273],
+          "testRetries": [0, 1, 2],
+          "result": "failed0/1/2 at saveCampaignInContext174/economy472",
+          "scope": "Feature diagnostic only; no absent-roster/500 body found in raw log; causal match to97 unverified."
         }
       ],
-      "sources": ["check5", "latest-run", "latest-log"],
-      "missingEvidence": []
+      "sources": [
+        "check5",
+        "latest-run",
+        "latest-log",
+        "nightly-cited-main-meta",
+        "nightly-root-request",
+        "nightly-root-comparison",
+        "nightly-feature-full-log",
+        "nightly-feature-excerpts",
+        "nightly-97-history",
+        "nightly-s4-appendix"
+      ],
+      "missingEvidence": [
+        "Exact jobs/log/native report/request-response/trace for cited main42254293879 unlocated; current97 causal match unverified.",
+        "Since2026-11-04 persistence is Root-reported, not an exhaustive per-test history audit. Separate feature result cannot fill main job IDs or cause."
+      ],
+      "historicalDiagnosis": {
+        "classification": "deterministic-product-failure",
+        "summary": "Salvage adds absent enemy-atlas to a force without a roster unit; authority checkpoint rejects later save. Latest nightly retries0/1/2 all fail in-context save.",
+        "owner": "Root (follow-up97 owner decision)",
+        "nextStep": "Root decides how salvaged Meks materialize as roster units and assigns campaign-economy implementation; G5 keeps acceptance blocked.",
+        "scope": "Historical follow-up97/LSC-SALVAGE-1 and run42072283514/head73b1d16460ae075f6f6d5d7cc73fc5c616e77a22; retained original observation below. Not verified as cause of42254293879."
+      }
     },
     {
       "id": "G6-030",
@@ -2550,6 +2691,94 @@
       ],
       "relatedHistoricalRisk": "G6-037: earlier proximity-to-budget risk remains a preserved historical record, not a count of this observed timeout.",
       "stabilityClearance": false
+    },
+    {
+      "id": "G6-044",
+      "classification": "UNCLASSIFIED",
+      "state": "reported persistent main assertion failure; one XP incident across two lanes; no confirmed flake",
+      "test": "e2e/playtest-subsystem-xp-purchase.spec.ts:69 — front-door SPA purchase debits pilot XP by exactly the cost @subsystem:experience",
+      "environment": "nightly-main-42254293879",
+      "summary": "Root reports XP failure in FullE2E and experience on cited main42254293879. Treat both as one incident with distinct lane executions. Separate retained feature42307733912/a1 shows foot_cav owned-item visibility assertion167 fails all0/1/2 attempts in both jobs; source exact-XP-cost assertion155 precedes that failure. Product-vs-test-contract cause and latest main mechanism remain UNCLASSIFIED; no failed XP-debit assertion or intermittent recovery is established here.",
+      "owner": "S4 campaign/economy/personnel surface lead: read-only diagnosis/ownership proposal; Root alone authorizes remediation; G6 inventory; exact XP subowner pending S4 ownership check",
+      "nextStep": "S4 verifies experience/personnel ownership and sends Root a read-only diagnosis proposal using retained evidence. Correlate both lanes, preserve attempts, and inspect exact main result before causal/remediation claims. No fixes, rerun, watcher or duplicate capture.",
+      "observations": [
+        {
+          "runId": 42254293879,
+          "workflowAttempt": 1,
+          "head": "e86866ba2de11bbcc032a6a1a06087863d2bc37b",
+          "jobId": null,
+          "source": "nightly-root-request",
+          "metadataSource": "nightly-cited-main-meta",
+          "result": "Root reports same XP test persistent in both main lanes; exact main job IDs/native outcomes uncollected.",
+          "scope": "Exact cited-main native result/job ID/log/trace unlocated; no substitution from historical or feature runs.",
+          "jobNames": [
+            "Full E2E Suite (chromium)",
+            "Subsystem Lane (experience)"
+          ]
+        },
+        {
+          "runId": 42307733912,
+          "workflowAttempt": 1,
+          "head": "ef5fa86739208e376262400f89dd442ab69108ef",
+          "branch": "fix/ci-browser-ubuntu24-20261106",
+          "jobId": 128201640801,
+          "jobName": "Full E2E Suite (chromium)",
+          "source": "nightly-feature-full-log",
+          "sourceLines": [4307, 4309, 4313, 4314, 4315, 4327, 4332, 4340, 4385],
+          "testRetries": [0, 1, 2],
+          "failureLocation": "e2e/playtest-subsystem-xp-purchase.spec.ts:167",
+          "result": "owned spa-item-foot_cav expected hidden, remained visible; failed0/1/2",
+          "scope": "Separate feature diagnostic, not cited main."
+        },
+        {
+          "runId": 42307733912,
+          "workflowAttempt": 1,
+          "head": "ef5fa86739208e376262400f89dd442ab69108ef",
+          "branch": "fix/ci-browser-ubuntu24-20261106",
+          "jobId": 128201640900,
+          "jobName": "Subsystem Lane (experience)",
+          "source": "nightly-feature-experience-log",
+          "sourceLines": [834, 836, 867, 912, 945, 947],
+          "testRetries": [0, 1, 2],
+          "failureLocation": "e2e/playtest-subsystem-xp-purchase.spec.ts:167",
+          "result": "same owned-item hidden assertion fails0/1/2;1failed/14passed",
+          "scope": "Second lane execution of SAME incident; annotation reprints are not additional attempts."
+        }
+      ],
+      "sources": [
+        "nightly-cited-main-meta",
+        "nightly-root-request",
+        "nightly-root-comparison",
+        "nightly-feature-full-log",
+        "nightly-feature-experience-log",
+        "nightly-feature-run",
+        "nightly-feature-jobs",
+        "nightly-feature-excerpts",
+        "nightly-xp-spec",
+        "nightly-xp-order",
+        "nightly-s4-decomposition"
+      ],
+      "missingEvidence": [
+        "Exact cited-main job IDs/logs/native reports and root cause unlocated.",
+        "No same-head passing recovery is shown for this XP failure; repeated non-recovering assertions do not establish flakiness or global determinism.",
+        "Owned picker visibility may reflect product behavior or test contract drift; S4 proposal/XP subowner pending. Current evidence does not prove an XP math regression."
+      ],
+      "correlation": {
+        "incidentCount": 1,
+        "retainedFeatureLaneExecutions": 2,
+        "nativeAttemptsPerExecution": 3,
+        "duplicateAnnotationsNotExtraExecutions": true,
+        "mainExecutions": "Root-reported two lanes; exact identities unlocated and not fabricated."
+      },
+      "assertionOrder": {
+        "source": "nightly-xp-order",
+        "ownedSpaVisible": "146-149",
+        "exactXpCost": "151-155",
+        "failedOwnedPickerHidden": "164-167",
+        "scope": "Exact feature head only; not a direct main runtime assertion."
+      },
+      "productRegressionRuledOut": false,
+      "stabilityClearance": false
     }
   ],
   "addenda": [
@@ -2611,6 +2840,13 @@
       "incidents": ["G6-041", "G6-043"],
       "scope": "Root-authorized small docs/data follow-up: pointer readiness bypass/#2971 controlled proof and separate UNCLASSIFIED candidate PDF flake from same run. Local P7/G2 evidence reuse only; no source fixes/downloads/reruns/watchers or stability clearance.",
       "priorReceipts": "All older entries except current G6-041 status/evidence additions preserved. Earlier prefix probabilities, same-head evidence, G6-037 risk, G6-001 intake and sealed receipts unchanged. New evidence under normal-work/G6-flake-register/2971-pointer-and-pdf/."
+    },
+    {
+      "addedAtUtc": "2026-11-07T00:21:29.589482+00:00",
+      "incidents": ["G6-005", "G6-029", "G6-044"],
+      "scope": "Root requests evidence-based main Nightly classification. Existing run metadata verifies42254293879/a1/main/e86866ba/workflow failure only; current native/job custody missing. Historical97 and encounter retry-pass preserved; separate feature42307733912 exact two-lane XP evidence correlated. No automatic flake/causal label, runtime test, rerun, hosted action, watcher, delegate or duplicate capture.",
+      "ownerCoordination": "Existing S4 campaign/economy/personnel lead notified of exact custody paths and evidence distinctions; XP subowner refinement pending.",
+      "priorReceipts": "Prior entries/receipts/raw evidence preserved; new snapshots/excerpts/hashes under normal-work/G6-flake-register/nightly-main-42254293879/."
     }
   ]
 }
