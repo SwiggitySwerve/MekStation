@@ -70,6 +70,16 @@ export default async function handler(
       );
       if (!imported.success) return res.status(400).json(imported);
       unitData = imported.data.definition;
+      if ('variant' in body) {
+        if (typeof body.variant !== 'string' || !body.variant.trim()) {
+          return res.status(400).json({
+            success: false,
+            error: { message: 'Missing or invalid field: variant' },
+          });
+        }
+        const variant = body.variant.trim();
+        unitData = { ...unitData, model: variant, variant };
+      }
       sourceWarnings = imported.data.warnings;
       notes = 'Imported from MTF file';
     } else if ('formatVersion' in body && 'unit' in body) {
@@ -125,7 +135,10 @@ export default async function handler(
         success: false,
         error: {
           message: `Unit "${chassis} ${variant}" already exists`,
-          suggestedName: `${suggestion.chassis} ${suggestion.suggestedVariant}`,
+          suggestedName:
+            'sourceFormat' in body
+              ? suggestion.suggestedVariant
+              : `${suggestion.chassis} ${suggestion.suggestedVariant}`,
         },
       });
     }
