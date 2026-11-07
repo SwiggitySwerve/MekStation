@@ -221,3 +221,32 @@ identities without deriving assignments, crew type or per-seat pilot options.
 - **THEN** missing/swapped fields fail the identity assertions
 - **AND** legacy/no-crew, single-pilot biped/quad/LAM and other-family output remain unchanged
 - **AND** QuadVee rendering, roster authoring and persistence remain required separate work
+
+### Requirement: Explicit native QuadVee crew rendering
+
+Canonical QuadVee sheets SHALL render an explicit QUADVEE roster through the
+existing native Mech crew owner on Letter and A4, using native Pilot and Gunner
+labels and the supplied indexed names/skills. Unassigned seats SHALL stay blank;
+rendering SHALL not infer assignments, add a third seat or distribute global options.
+
+#### Scenario: Native two-seat geometry and identity
+
+- **GIVEN** an explicit QuadVee roster with repeated names, unequal skills or an unassigned seat
+- **WHEN** canonical SVG and PDF are exported on either paper
+- **THEN** the two native seats retain their identities, measured role offsets and matching field/frame visibility
+- **AND** missing/swapped rendered fields fail the focused identity acceptance
+
+#### Scenario: Shared QuadVee SPA overdraw and overflow
+
+- **GIVEN** supplied crew-global abilities and an explicit QUADVEE roster
+- **WHEN** the sheet is rendered
+- **THEN** the same list is emitted twice at the template's native spas1 rectangle and parent
+- **AND** native fitting, unbounded overflow and blank-seat behavior remain unchanged
+- **AND** no per-seat Edge or ability list is created
+
+#### Scenario: Existing rendering controls remain unchanged
+
+- **GIVEN** ordinary/superheavy tripod, single-pilot biped/quad/LAM or a payload without an explicit QuadVee roster
+- **WHEN** the sheet is exported
+- **THEN** existing output remains unchanged
+- **AND** crew-roster authoring and persistence remain required separate work
