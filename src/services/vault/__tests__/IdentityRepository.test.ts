@@ -47,6 +47,9 @@ const createMockStatement = (
 const mockDb = {
   exec: jest.fn(),
   prepare: jest.fn(),
+  transaction: jest.fn((callback: () => void) => ({
+    immediate: jest.fn(callback),
+  })),
 };
 
 const mockSQLiteService = {
@@ -423,6 +426,10 @@ describe('IdentityRepository', () => {
         'UPDATE vault_identities SET is_active = 1 WHERE id = ?',
       );
       expect(mockStatement.run).toHaveBeenCalledWith('identity-123');
+      expect(mockDb.transaction).toHaveBeenCalledTimes(1);
+      expect(
+        mockDb.transaction.mock.results[0].value.immediate,
+      ).toHaveBeenCalledTimes(1);
     });
 
     it('should initialize before setting active', async () => {
