@@ -26,6 +26,7 @@ import {
   splitByAuction,
   splitByContract,
 } from './salvageEngine.allocation';
+import { prepareSalvageUnitRecovery } from './salvageUnitRecovery';
 export {
   applyHostileTerritoryModifier,
   resolveSalvagePercent,
@@ -36,6 +37,9 @@ export interface IUnitValueMetadata {
   readonly designation: string;
   readonly tonnage: number;
   readonly battleValue: number;
+  /** Exact reference and source confirmed by the metadata lookup, if known. */
+  readonly unitRef?: string;
+  readonly unitSource?: IUnitCombatDelta['unitSource'];
 }
 export type UnitMetadataLookup = (unitId: string) => IUnitValueMetadata | null;
 const DEFAULT_LOOKUP: UnitMetadataLookup = () => null;
@@ -217,8 +221,15 @@ export function aggregateSalvageCandidates(
     const originalValue = estimateUnitValue(meta);
     const recoveredValue = Math.round(originalValue * recoveryPercentage);
     const repairCost = estimateRepairCost(meta, damageLevel);
+    const recovery = prepareSalvageUnitRecovery(
+      delta,
+      outcome.matchId,
+      outcome.capturedAt,
+      meta?.unitSource === 'canonical' ? meta.unitRef : undefined,
+    );
     candidates.push({
       source: 'unit',
+      ...(recovery !== undefined ? { recovery } : {}),
       unitId: delta.unitId,
       designation,
       destroyedFromBattle: outcome.matchId,

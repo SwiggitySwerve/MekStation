@@ -152,6 +152,13 @@ function unitToDelta(
 
   return {
     unitId: unit.id,
+    unitRef: unit.unitRef,
+    // A recorded custom construction establishes custom origin, but does
+    // not carry a historical library version. Never infer either fact
+    // from the absence of that construction on older sessions.
+    ...(unit.customUnitDefinition !== undefined
+      ? { unitSource: 'custom' as const }
+      : {}),
     // Design D9 (`add-campaign-fast-forward-api`): populate the pilot
     // linkage from the unit already in hand at derivation time —
     // `IGameUnit.pilotRef` carries the vault pilot id through the launch

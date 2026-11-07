@@ -9,6 +9,9 @@
  * @spec openspec/changes/add-salvage-rules-engine/specs/salvage-rules/spec.md
  */
 
+import { createHash } from 'node:crypto';
+
+import { applyUnitDelta } from '@/lib/campaign/processors/postBattleProcessor.helpers';
 import { createContract } from '@/types/campaign/Mission';
 import {
   CBILLS_PER_BATTLE_VALUE,
@@ -39,6 +42,7 @@ import {
   splitByAuction,
   splitByContract,
 } from '../salvageEngine';
+import { validateSalvageUnitRecovery } from '../salvageUnitRecovery';
 
 // =============================================================================
 // Fixture helpers
@@ -99,6 +103,215 @@ const baselineStructure: Readonly<Record<string, number>> = {
   RL: 7,
   HD: 3,
 };
+
+describe('salvage compatibility bytes', () => {
+  it('preserves the existing candidate fixture set outside recovery payloads', () => {
+    const fixtures = Object.values(UnitFinalStatus).map((finalStatus) => {
+      const outcome = makeOutcome({
+        unitDeltas: [
+          makeDelta({
+            unitRef: 'marauder-mad-3r',
+            finalStatus,
+            destroyedComponents: ['Medium Laser'],
+          }),
+        ],
+      });
+      return aggregateSalvageCandidates(outcome, {
+        lookup: () => ({
+          designation: 'Marauder MAD-3R',
+          tonnage: 75,
+          battleValue: 1363,
+        }),
+      });
+    });
+    const bytes = JSON.stringify(fixtures, (key, value: unknown) =>
+      key === 'recovery' ? undefined : value,
+    );
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+      '6224f3213bbed376211f2495045b24f786f618369896cbd29de9af465dff0881',
+    );
+  });
+});
+
+describe('whole-unit recovery payload', () => {
+  function recoveredCandidate(overrides: Partial<IUnitCombatDelta> = {}) {
+    const delta = makeDelta({
+      unitRef: 'marauder-mad-3r',
+      unitSource: 'canonical',
+      armorRemaining: { CT: 3, LT: 0 },
+      internalsRemaining: { CT: 7, LT: 0 },
+      destroyedLocations: ['LT'],
+      destroyedComponents: ['Medium Laser'],
+      heatEnd: 8,
+      ammoRemaining: { 'bin-ac5': 4 },
+      ...overrides,
+    });
+    const outcome = makeOutcome({ unitDeltas: [delta] });
+    const candidate = aggregateSalvageCandidates(outcome).candidates[0];
+    return { candidate, delta, outcome };
+  }
+
+  it('carries the canonical reference, explicit source and recovered damage', () => {
+    const { candidate, delta, outcome } = recoveredCandidate();
+    expect(candidate.recovery).toEqual({
+      unitRef: delta.unitRef,
+      unitSource: 'canonical',
+      combatState: applyUnitDelta(
+        undefined,
+        delta,
+        outcome.matchId,
+        outcome.capturedAt,
+      ),
+    });
+    expect(candidate.recovery?.combatState.currentArmorPerLocation).toEqual({
+      CT: 3,
+      LT: 0,
+    });
+    expect(validateSalvageUnitRecovery(candidate).kind).toBe('ready');
+    expect(candidate.recovery).not.toHaveProperty('pilotRef');
+    expect(candidate.recovery).not.toHaveProperty('sourceVersion');
+  });
+
+  it('preserves a custom historical version only when the outcome recorded it', () => {
+    const pinned = recoveredCandidate({
+      unitRef: 'custom-marauder',
+      unitSource: 'custom',
+      sourceVersion: 3,
+    }).candidate;
+    expect(pinned.recovery).toMatchObject({
+      unitRef: 'custom-marauder',
+      unitSource: 'custom',
+      sourceVersion: 3,
+    });
+    expect(validateSalvageUnitRecovery(pinned).kind).toBe('ready');
+    const unpinned = recoveredCandidate({
+      unitRef: 'custom-marauder',
+      unitSource: 'custom',
+    }).candidate;
+    expect(unpinned.recovery).not.toHaveProperty('sourceVersion');
+    expect(validateSalvageUnitRecovery(unpinned).kind).toBe('refused');
+  });
+
+  it('does not assume canonical source; confirmation must name the exact preserved ref', () => {
+    const { candidate } = recoveredCandidate({ unitSource: undefined });
+    expect(candidate.recovery).not.toHaveProperty('unitSource');
+    expect(validateSalvageUnitRecovery(candidate).kind).toBe('refused');
+    expect(validateSalvageUnitRecovery(candidate, 'different-ref').kind).toBe(
+      'refused',
+    );
+    expect(
+      validateSalvageUnitRecovery(candidate, 'marauder-mad-3r'),
+    ).toMatchObject({
+      kind: 'ready',
+      recovery: { unitSource: 'canonical' },
+    });
+  });
+
+  it('accepts source confirmation from metadata only for the exact preserved reference', () => {
+    const delta = makeDelta({ unitRef: 'marauder-mad-3r' });
+    for (const unitRef of ['marauder-mad-3r', 'wrong-ref']) {
+      const candidate = aggregateSalvageCandidates(
+        makeOutcome({ unitDeltas: [delta] }),
+        {
+          lookup: () => ({
+            designation: 'Marauder',
+            tonnage: 75,
+            battleValue: 1363,
+            unitRef,
+            unitSource: 'canonical',
+          }),
+        },
+      ).candidates[0];
+      expect(candidate.recovery?.unitSource).toBe(
+        unitRef === delta.unitRef ? 'canonical' : undefined,
+      );
+    }
+  });
+
+  it('leaves legacy candidates without a fabricated recovery payload', () => {
+    const candidate = aggregateSalvageCandidates(
+      makeOutcome({ unitDeltas: [makeDelta()] }),
+    ).candidates[0];
+    expect(candidate).not.toHaveProperty('recovery');
+    expect(validateSalvageUnitRecovery(candidate).kind).toBe('refused');
+  });
+
+  it('never attaches whole-unit recovery to parts or heals a destroyed unit', () => {
+    const delta = makeDelta({
+      unitRef: 'marauder-mad-3r',
+      unitSource: 'canonical',
+      destroyed: true,
+      finalStatus: UnitFinalStatus.Destroyed,
+      internalsRemaining: { CT: 0 },
+      destroyedComponents: ['Medium Laser'],
+    });
+    const candidates = aggregateSalvageCandidates(
+      makeOutcome({ unitDeltas: [delta] }),
+    ).candidates;
+    expect(candidates[0].recovery?.combatState.combatReady).toBe(false);
+    expect(
+      candidates[0].recovery?.combatState.currentStructurePerLocation,
+    ).toEqual({ CT: 0 });
+    expect(
+      candidates.filter((candidate) => candidate.source === 'part').length,
+    ).toBeGreaterThan(0);
+    expect(
+      candidates
+        .filter((candidate) => candidate.source === 'part')
+        .every((candidate) => !candidate.recovery),
+    ).toBe(true);
+  });
+
+  it('rejects malformed persisted payloads without canonical confirmation overriding bad source facts', () => {
+    const { candidate } = recoveredCandidate();
+    const recovery = candidate.recovery!;
+    const malformed: unknown[] = [
+      null,
+      {},
+      { ...candidate, source: 'part' },
+      { ...candidate, unitId: 'different-instance' },
+      { ...candidate, destroyedFromBattle: 'different-battle' },
+      ...[
+        null,
+        { ...recovery, unitRef: '' },
+        { ...recovery, unitSource: 'invalid' },
+        { ...recovery, unitSource: 'custom', sourceVersion: 0 },
+        { ...recovery, unitSource: 'custom', sourceVersion: 1.5 },
+        { ...recovery, unitSource: 'custom', sourceVersion: undefined },
+        {
+          ...recovery,
+          combatState: {
+            ...recovery.combatState,
+            currentArmorPerLocation: { CT: -1 },
+          },
+        },
+        {
+          ...recovery,
+          combatState: {
+            ...recovery.combatState,
+            currentStructurePerLocation: {},
+          },
+        },
+        {
+          ...recovery,
+          combatState: { ...recovery.combatState, heatEnd: Infinity },
+        },
+        {
+          ...recovery,
+          combatState: {
+            ...recovery.combatState,
+            destroyedComponents: ['Laser'],
+          },
+        },
+      ].map((recovery) => ({ ...candidate, recovery })),
+    ];
+    for (const invalid of malformed) {
+      expect(validateSalvageUnitRecovery(invalid, 'marauder-mad-3r').kind).toBe(
+        'refused',
+      );
+    }
+  });
+});
 
 // =============================================================================
 // Damage classification

@@ -16,6 +16,7 @@
  * @spec openspec/changes/add-combat-outcome-model/specs/after-combat-report/spec.md
  */
 
+import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
 import type { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
 
@@ -81,6 +82,12 @@ export enum PilotFinalStatus {
 export interface IUnitCombatDelta {
   /** Stable unit identifier from `IGameUnit.id`. */
   readonly unitId: string;
+  /** Design reference preserved from the session unit, never its instance id. */
+  readonly unitRef?: string;
+  /** Recorded source, when known; absence does not establish canonical origin. */
+  readonly unitSource?: RosterUnitSource;
+  /** Historical custom-design version, only when recorded with this outcome. */
+  readonly sourceVersion?: number;
   /**
    * Pilot linkage — the session unit's `IGameUnit.pilotRef` (vault pilot
    * id), populated at derivation by `unitToDelta`. Additive per
