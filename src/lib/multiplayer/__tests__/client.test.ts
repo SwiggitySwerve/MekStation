@@ -13,7 +13,11 @@ import type { IVaultIdentity } from '@/types/vault';
 
 import { generateKeyPair } from '@/services/vault/IdentityService';
 import { decodeTokenFromWire } from '@/types/multiplayer/Player';
-import { HEARTBEAT_TIMEOUT_MS } from '@/types/multiplayer/Protocol';
+import {
+  HEARTBEAT_INTERVAL_MS,
+  HEARTBEAT_TIMEOUT_MS,
+  RECONNECT_INITIAL_MS,
+} from '@/types/multiplayer/Protocol';
 
 import { connect, type IClientWebSocket } from '../client';
 import { issuePlayerToken } from '../client/issuePlayerToken';
@@ -1121,6 +1125,277 @@ describe('multiplayer client', () => {
     });
 
     expect(events.map((event) => event.id)).toEqual(['same', 'next']);
+  });
+
+  it.each([
+    { numbered: true, appliedPrefix: false },
+    { numbered: true, appliedPrefix: true },
+    { numbered: false, appliedPrefix: false },
+    { numbered: false, appliedPrefix: true },
+  ])(
+    'recovers an interrupted replay exactly once in order (numbered=$numbered, appliedPrefix=$appliedPrefix)',
+    ({ numbered, appliedPrefix }) => {
+      const f = makeMockSocketFactory();
+      const applied: string[] = [];
+      const client = connect(
+        'ws://localhost/x',
+        'm1',
+        { playerId: 'p1', token: 'tok' },
+        { socketFactory: f.factory },
+      );
+      client.on('event', (event) => applied.push((event as { id: string }).id));
+      const first = f.lastSocket();
+      first.fireOpen();
+      const ts = nowIsoForTest();
+      const events = [
+        'prefix',
+        'chunk-1',
+        'chunk-2',
+        'queued-live',
+        'tail',
+      ].map((id) => ({ id, type: 'phase_changed' }));
+      if (appliedPrefix) {
+        finishReplay(f);
+        first.inject({
+          kind: 'Event',
+          matchId: 'm1',
+          ts,
+          event: events[0],
+          ...(numbered ? { deliverySequence: 0 } : {}),
+        });
+      }
+      const prefix = appliedPrefix ? ['prefix'] : [];
+      const start = {
+        kind: 'ReplayStart',
+        matchId: 'm1',
+        ts,
+        fromSeq: 0,
+        totalEvents: 5,
+      };
+      first.inject(start);
+      for (const index of [1, 2]) {
+        first.inject({
+          kind: 'ReplayChunk',
+          matchId: 'm1',
+          ts,
+          events: [events[index]],
+          ...(numbered ? { deliverySequences: [index] } : {}),
+        });
+      }
+      first.inject({
+        kind: 'Event',
+        matchId: 'm1',
+        ts,
+        event: events[3],
+        ...(numbered ? { deliverySequence: 3 } : {}),
+      });
+      expect(applied).toEqual(prefix);
+      expect(deliveryAcksOn(first)).toEqual(
+        numbered && appliedPrefix ? [0] : [],
+      );
+      first.fireClose();
+      jest.advanceTimersByTime(RECONNECT_INITIAL_MS);
+      expect(f.socketsCreated).toBe(2);
+      const second = f.lastSocket();
+      second.fireOpen();
+      const join = JSON.parse(second.sentRaw[0]) as { deliveryCursor?: number };
+      expect(join.deliveryCursor).toBe(
+        numbered && appliedPrefix ? 0 : undefined,
+      );
+      second.inject(start);
+      const replayed = appliedPrefix ? events : events.slice(1);
+      second.inject({
+        kind: 'ReplayChunk',
+        matchId: 'm1',
+        ts,
+        events: replayed,
+        ...(numbered
+          ? {
+              deliverySequences: replayed.map((event) => events.indexOf(event)),
+            }
+          : {}),
+      });
+      expect(applied).toEqual(prefix);
+      second.inject({ kind: 'ReplayEnd', matchId: 'm1', ts, toSeq: 4 });
+      expect(applied).toEqual([
+        ...prefix,
+        'chunk-1',
+        'chunk-2',
+        'queued-live',
+        'tail',
+      ]);
+      expect(client.isReady()).toBe(true);
+      expect(client.lifecycle().blockedBySequenceCollision).toBe(false);
+      client.close();
+    },
+  );
+
+  it('marks a disconnected ready client unready until the replacement replay ends', () => {
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory },
+    );
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    expect(client.isReady()).toBe(true);
+    f.lastSocket().fireClose();
+    expect(client.isReady()).toBe(false);
+    jest.advanceTimersByTime(RECONNECT_INITIAL_MS);
+    f.lastSocket().fireOpen();
+    expect(client.isReady()).toBe(false);
+    finishReplay(f);
+    expect(client.isReady()).toBe(true);
+    client.close();
+  });
+
+  it('ignores messages from a closed socket before and after its replacement opens', () => {
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory },
+    );
+    client.on('event', (event) => applied.push(event));
+    const old = f.lastSocket();
+    old.fireOpen();
+    finishReplay(f);
+    old.fireClose();
+    const closedState = client.lifecycle();
+    old.inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      deliverySequence: 0,
+      event: { id: 'stale' },
+    });
+    expect(applied).toEqual([]);
+    expect(client.lifecycle()).toEqual(closedState);
+    jest.advanceTimersByTime(RECONNECT_INITIAL_MS);
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    const readyState = client.lifecycle();
+    old.inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      fromSeq: 0,
+      totalEvents: 0,
+    });
+    old.inject({
+      kind: 'Close',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      code: 'INTERNAL_ERROR',
+    });
+    expect(client.lifecycle()).toEqual(readyState);
+    liveDeliveredEvent(f, 0, 0, 'current');
+    expect(applied).toEqual([expect.objectContaining({ id: 'current' })]);
+    client.close();
+  });
+
+  it('ignores repeated and stale closes without replacing a healthy socket or stopping its heartbeat', () => {
+    const f = makeMockSocketFactory();
+    const reconnects: unknown[] = [];
+    const closes: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory },
+    );
+    client.on('reconnect', (info) => reconnects.push(info));
+    client.on('close', (info) => closes.push(info));
+    const old = f.lastSocket();
+    old.fireOpen();
+    old.fireClose();
+    old.fireClose();
+    jest.advanceTimersByTime(RECONNECT_INITIAL_MS);
+    const current = f.lastSocket();
+    current.fireOpen();
+    finishReplay(f);
+    old.fireClose();
+    expect(reconnects).toHaveLength(1);
+    expect(closes).toHaveLength(1);
+    expect(client.isReady()).toBe(true);
+    expect(client.lifecycle().reconnectScheduled).toBe(false);
+    jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS);
+    expect(f.socketsCreated).toBe(2);
+    expect(
+      current.sentRaw.map((raw) => JSON.parse(raw) as { kind: string }),
+    ).toContainEqual(expect.objectContaining({ kind: 'Heartbeat' }));
+    client.close();
+  });
+
+  it('deduplicates repeated chunks and blocks conflicting queued deliveries when replay drains', () => {
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const errors: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (event) => applied.push(event));
+    client.on('error', (error) => errors.push(error));
+    f.lastSocket().fireOpen();
+    const ts = nowIsoForTest();
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts,
+      fromSeq: 0,
+      totalEvents: 3,
+    });
+    for (const id of ['original', 'original', 'conflict']) {
+      f.lastSocket().inject({
+        kind: 'ReplayChunk',
+        matchId: 'm1',
+        ts,
+        events: [{ id }],
+        deliverySequences: [0],
+      });
+    }
+    f.lastSocket().inject({ kind: 'ReplayEnd', matchId: 'm1', ts, toSeq: 0 });
+    expect(applied).toEqual([expect.objectContaining({ id: 'original' })]);
+    expect(client.lifecycle().blockedBySequenceCollision).toBe(true);
+    expect(client.isReady()).toBe(false);
+    expect(errors).toContainEqual({
+      code: 'PROTOCOL_VIOLATION',
+      reason: 'sequence-collision',
+    });
+    client.close();
+  });
+
+  it('retries a failed replay application without repeating its successful prefix', () => {
+    const f = makeMockSocketFactory();
+    const applied: string[] = [];
+    let rejectTail = true;
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (event) => {
+      const { id } = event as { id: string };
+      if (id === 'tail' && rejectTail) throw new Error('projection failed');
+      applied.push(id);
+    });
+    f.lastSocket().fireOpen();
+    injectReplay(f, ['prefix', 'tail']);
+    expect(applied).toEqual(['prefix']);
+    expect(deliveryAcksOn(f.lastSocket())).toEqual([0]);
+    rejectTail = false;
+    injectReplay(f, ['prefix', 'tail']);
+    expect(applied).toEqual(['prefix', 'tail']);
+    expect(deliveryAcksOn(f.lastSocket())).toEqual([0, 1]);
+    client.close();
   });
 
   it('schedules a reconnect on close (exponential backoff)', () => {

@@ -256,18 +256,25 @@ function advanceDayLocally(
     auditEntry,
   );
   const pendingOutcomes = [...(postPipeline.pendingBattleOutcomes ?? [])];
+  const previousErrors = get().outcomeApplyErrors;
+  const outcomeApplyErrors = collectOutcomeErrors(
+    pipelineResult.events,
+    previousErrors,
+    pendingOutcomes,
+  );
   set({
     campaign: campaignWithAudit,
     pendingBattleOutcomes: pendingOutcomes,
     processedBattleIds: [
       ...(postPipeline.processedBattleIds ?? processedBattleIds),
     ],
-    outcomeApplyErrors: collectOutcomeErrors(
-      pipelineResult.events,
-      get().outcomeApplyErrors,
-      pendingOutcomes,
-    ),
+    outcomeApplyErrors,
   });
+  for (const [matchId, error] of Object.entries(outcomeApplyErrors)) {
+    if (error !== previousErrors[matchId]) {
+      toast({ message: `Battle ${matchId}: ${error}`, variant: 'error' });
+    }
+  }
   syncReportMissions(get, report.campaign);
   emitDailyActivityEntries(get, report, postPipeline, pipelineResult.events);
   const committedReport = { ...report, campaign: campaignWithAudit };

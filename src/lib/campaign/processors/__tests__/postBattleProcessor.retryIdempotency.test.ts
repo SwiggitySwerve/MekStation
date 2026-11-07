@@ -49,6 +49,14 @@ import {
   postBattleProcessor,
   type ICampaignWithBattleState,
 } from '../postBattleProcessor';
+import * as battleHelpers from '../postBattleProcessor.helpers';
+
+jest.mock('../postBattleProcessor.helpers', () => {
+  const actual = jest.requireActual<
+    typeof import('../postBattleProcessor.helpers')
+  >('../postBattleProcessor.helpers');
+  return { ...actual, applyUnitDelta: jest.fn(actual.applyUnitDelta) };
+});
 
 // The prestige step runs AFTER pilot patches in the pre-fix ordering, so
 // mocking it to throw once reproduces the audit's "partial failure" shape:
@@ -244,8 +252,41 @@ function rosterEntry(pilotId: string): ICampaignRosterEntry {
 
 describe('postBattleProcessor retry idempotency (D-5)', () => {
   afterEach(() => {
+    jest.restoreAllMocks();
     clearStores();
     prestigeMock.mockClear();
+  });
+
+  it('reports partial unit failures as existing failure events while retaining the applied ledger', () => {
+    seedRosterEntry('unit-A');
+    jest.spyOn(battleHelpers, 'applyUnitDelta').mockImplementationOnce(() => {
+      throw new Error('unit data unavailable');
+    });
+    const outcome = createOutcome('match-partial-unit');
+    const result = postBattleProcessor.process(
+      createTestCampaign({ pendingBattleOutcomes: [outcome] }),
+      new Date('3025-06-15T00:00:00Z'),
+    );
+    expect(result.events).toContainEqual(
+      expect.objectContaining({
+        type: 'post_battle_apply_failed',
+        data: {
+          matchId: outcome.matchId,
+          contractId: outcome.contractId,
+          error: 'unit unit-A: unit data unavailable',
+        },
+      }),
+    );
+    expect(
+      (result.campaign as ICampaignWithBattleState).processedBattleIds,
+    ).toContain(outcome.matchId);
+    expect(rosterEntry('unit-A').campaignMissions).toBe(1);
+    const again = postBattleProcessor.process(
+      result.campaign!,
+      new Date('3025-06-16T00:00:00Z'),
+    );
+    expect(again.events).toEqual([]);
+    expect(rosterEntry('unit-A').campaignMissions).toBe(1);
   });
 
   it('a failed apply leaves no pilot XP behind and the retry applies exactly once', () => {

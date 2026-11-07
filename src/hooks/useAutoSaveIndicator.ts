@@ -1,48 +1,15 @@
 import { useEffect } from 'react';
 
 import { DRAFT_LABEL } from '@/components/customizer/shared/BrowserDraftStatus';
+import {
+  getCustomizerDraftStorageKey,
+  type CustomizerDraftTarget as AutoSaveIndicatorTarget,
+} from '@/components/customizer/shared/customizerDraftStorage';
 import { useToast } from '@/components/shared/Toast';
 import { subscribeToStorageWriteReceipts } from '@/stores/utils/clientSafeStorage';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-export interface AutoSaveIndicatorTarget {
-  readonly unitId: string;
-  readonly unitType: UnitType;
-}
-
-function getDraftStoragePrefix(unitType: UnitType): string {
-  switch (unitType) {
-    case UnitType.BATTLEMECH:
-    case UnitType.OMNIMECH:
-    case UnitType.INDUSTRIALMECH:
-      return 'megamek-unit';
-    case UnitType.VEHICLE:
-    case UnitType.VTOL:
-    case UnitType.SUPPORT_VEHICLE:
-      return 'megamek-vehicle';
-    case UnitType.AEROSPACE:
-    case UnitType.CONVENTIONAL_FIGHTER:
-    case UnitType.SMALL_CRAFT:
-    case UnitType.DROPSHIP:
-    case UnitType.JUMPSHIP:
-    case UnitType.WARSHIP:
-    case UnitType.SPACE_STATION:
-      return 'megamek-aerospace';
-    case UnitType.BATTLE_ARMOR:
-      return 'megamek-battlearmor';
-    case UnitType.INFANTRY:
-      return 'megamek-infantry';
-    case UnitType.PROTOMECH:
-      return 'megamek-protomech';
-  }
-}
-
-export function getCustomizerDraftStorageKey({
-  unitId,
-  unitType,
-}: AutoSaveIndicatorTarget): string {
-  return `${getDraftStoragePrefix(unitType)}-${unitId}`;
-}
+export { getCustomizerDraftStorageKey } from '@/components/customizer/shared/customizerDraftStorage';
+export type { CustomizerDraftTarget as AutoSaveIndicatorTarget } from '@/components/customizer/shared/customizerDraftStorage';
 
 /**
  * Reports failed browser-draft writes for the active customizer unit.

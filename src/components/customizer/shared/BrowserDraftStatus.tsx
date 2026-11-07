@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
-import { getUnitStore } from '@/stores/unitStoreRegistry';
 import {
   getLatestStorageWriteReceipt,
   safeGetItem,
   subscribeToStorageWriteReceipts,
 } from '@/stores/utils/clientSafeStorage';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import { getLibrarySaveStore } from '../tabs/MultiUnitTabsUnitState';
+import { getCustomizerDraftStorageKey } from './customizerDraftStorage';
 
 export type DraftState = 'pending' | 'saved' | 'failed';
 
@@ -31,18 +34,14 @@ export const DRAFT_SHORT_LABEL: Record<DraftState, string> = {
   failed: 'Browser Draft Not Saved',
 };
 
-function draftStorageKey(unitId: string): string {
-  return `megamek-unit-${unitId}`;
-}
-
 function receiptForUnit(
-  unitId: string,
-): { unitId: string; failed: boolean } | null {
-  const latest = getLatestStorageWriteReceipt(draftStorageKey(unitId));
-  if (latest) return { unitId, failed: latest.status === 'failed' };
+  storageKey: string,
+): { storageKey: string; failed: boolean } | null {
+  const latest = getLatestStorageWriteReceipt(storageKey);
+  if (latest) return { storageKey, failed: latest.status === 'failed' };
   try {
-    return safeGetItem(draftStorageKey(unitId)) !== null
-      ? { unitId, failed: false }
+    return safeGetItem(storageKey) !== null
+      ? { storageKey, failed: false }
       : null;
   } catch {
     // An unavailable read cannot establish that a draft was saved.
@@ -51,22 +50,26 @@ function receiptForUnit(
 }
 
 /** Existing browser drafts count as saved; newer write receipts take priority. */
-export function useBrowserDraftState(unitId: string): DraftState {
+export function useBrowserDraftState(
+  unitId: string,
+  unitType: UnitType = UnitType.BATTLEMECH,
+): DraftState {
+  const storageKey = getCustomizerDraftStorageKey({ unitId, unitType });
   const [receipt, setReceipt] = useState<{
-    unitId: string;
+    storageKey: string;
     failed: boolean;
   } | null>(null);
 
   useEffect(() => {
-    setReceipt(receiptForUnit(unitId));
+    setReceipt(receiptForUnit(storageKey));
     return subscribeToStorageWriteReceipts((next) => {
-      if (next.key === draftStorageKey(unitId)) {
-        setReceipt({ unitId, failed: next.status === 'failed' });
+      if (next.key === storageKey) {
+        setReceipt({ storageKey, failed: next.status === 'failed' });
       }
     });
-  }, [unitId]);
+  }, [storageKey]);
 
-  const current = receipt?.unitId === unitId ? receipt : null;
+  const current = receipt?.storageKey === storageKey ? receipt : null;
   if (current?.failed) return 'failed';
   return current ? 'saved' : 'pending';
 }
@@ -78,44 +81,50 @@ export const DRAFT_SAVE_PULSE_MS = 1500;
  * True for a moment after a draft write for this unit succeeds, so the header
  * save state can confirm each automatic save in place of a toast.
  */
-export function useDraftSavePulse(unitId: string): boolean {
-  const [pulseUnitId, setPulseUnitId] = useState<string | null>(null);
+export function useDraftSavePulse(
+  unitId: string,
+  unitType: UnitType = UnitType.BATTLEMECH,
+): boolean {
+  const storageKey = getCustomizerDraftStorageKey({ unitId, unitType });
+  const [pulseStorageKey, setPulseStorageKey] = useState<string | null>(null);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | null = null;
     const unsubscribe = subscribeToStorageWriteReceipts((next) => {
-      if (next.key !== draftStorageKey(unitId) || next.status === 'failed')
-        return;
-      setPulseUnitId(unitId);
+      if (next.key !== storageKey || next.status === 'failed') return;
+      setPulseStorageKey(storageKey);
       if (timer) clearTimeout(timer);
-      timer = setTimeout(() => setPulseUnitId(null), DRAFT_SAVE_PULSE_MS);
+      timer = setTimeout(() => setPulseStorageKey(null), DRAFT_SAVE_PULSE_MS);
     });
     return () => {
       unsubscribe();
       if (timer) clearTimeout(timer);
       // A pulse cut short by a unit switch must not be left on for later.
-      setPulseUnitId(null);
+      setPulseStorageKey(null);
     };
-  }, [unitId]);
+  }, [storageKey]);
 
-  return pulseUnitId === unitId;
+  return pulseStorageKey === storageKey;
 }
 
 /** Show only completed writes for the active draft, separately from library save. */
 export function BrowserDraftStatus({
   unitId,
+  unitType = UnitType.BATTLEMECH,
   compact = false,
   onlyWhenFailed = false,
   className = '',
 }: {
   unitId: string;
+  unitType?: UnitType;
   /** Short visible wording; the full wording stays in the accessible text. */
   compact?: boolean;
   /** Render nothing until a draft write fails (for bands without room). */
   onlyWhenFailed?: boolean;
   className?: string;
 }): React.ReactElement | null {
-  const state = useBrowserDraftState(unitId);
+  const state = useBrowserDraftState(unitId, unitType);
+  const draftStore = getLibrarySaveStore(unitId, unitType);
   const failed = state === 'failed';
   if (onlyWhenFailed && !failed) return null;
   const label = DRAFT_LABEL[state];
@@ -140,17 +149,15 @@ export function BrowserDraftStatus({
       ) : (
         <span data-status-label>{label}</span>
       )}
-      {failed && getUnitStore(unitId) && compact && (
-        <span aria-hidden="true">·</span>
-      )}
-      {failed && getUnitStore(unitId) && (
+      {failed && draftStore && compact && <span aria-hidden="true">·</span>}
+      {failed && draftStore && (
         <button
           type="button"
           aria-label="Retry Browser Draft"
           className="-ml-1 min-h-11 px-1 underline underline-offset-2"
           onClick={() => {
             try {
-              getUnitStore(unitId)?.setState({});
+              draftStore.setState({});
             } catch {
               /* The failed write receipt keeps the error visible. */
             }

@@ -19,7 +19,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { ISalvageReport } from '@/types/campaign/Salvage';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -34,6 +33,7 @@ import {
 } from '@/components/gameplay/post-battle';
 import { Button } from '@/components/ui/Button';
 import { applyPostBattle } from '@/lib/campaign/processors/postBattleProcessor';
+import { isOutcomeApplied } from '@/stores/campaign/campaignBattleOutcomeState';
 import { appendContractPaymentActivityEntries } from '@/stores/campaign/contractPaymentActivity';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
@@ -132,7 +132,7 @@ export function PostBattleReviewScreen({
             role="alert"
           >
             <p className="text-sm font-medium text-red-200">
-              Outcome failed to apply on the last day-advance.
+              Outcome application reported errors.
             </p>
             <p
               className="mt-1 font-mono text-xs text-red-100/80"
@@ -272,7 +272,7 @@ export default function PostBattleReviewPage(): React.ReactElement {
     setIsApplying(true);
     try {
       const state = store.getState();
-      const campaign = state.campaign as ICampaign | null;
+      const campaign = state.campaign;
       if (!campaign) {
         // No campaign loaded — fall back to just marking reviewed so
         // the user isn't stuck. Real-world this branch is unreachable
@@ -282,6 +282,7 @@ export default function PostBattleReviewPage(): React.ReactElement {
         setApplied(true);
         return;
       }
+      if (isOutcomeApplied(state, campaign, outcome.matchId)) return;
       const result = applyPostBattle(outcome, campaign);
       state.updateCampaign(result.campaign);
       appendContractPaymentActivityEntries(
@@ -290,6 +291,17 @@ export default function PostBattleReviewPage(): React.ReactElement {
         result.events,
       );
       state.markBattleReviewed(outcome.matchId);
+      if (result.summary.errors.length > 0) {
+        const error = result.summary.errors.join('; ');
+        store.setState({
+          outcomeApplyErrors: {
+            ...store.getState().outcomeApplyErrors,
+            [outcome.matchId]: error,
+          },
+        });
+        setRetryFailureMessage(error);
+        return;
+      }
       setApplied(true);
       // Per `wire-encounter-to-campaign-round-trip` Wave 5 (task 4.3):
       // navigate to the campaign dashboard with `?pendingBattle=<matchId>`
@@ -340,6 +352,11 @@ export default function PostBattleReviewPage(): React.ReactElement {
     store.getState().getOutcomeApplyErrors()[outcome.matchId] ??
     retryFailureMessage ??
     null;
+  const outcomeApplied = isOutcomeApplied(
+    store.getState(),
+    store.getState().campaign,
+    outcome.matchId,
+  );
 
   return (
     <>
@@ -351,9 +368,9 @@ export default function PostBattleReviewPage(): React.ReactElement {
         playerSide={GameSide.Player}
         onApply={handleApply}
         isApplying={isApplying}
-        applyDisabled={applied}
+        applyDisabled={applied || outcomeApplied}
         applyError={applyError}
-        onRetry={handleRetry}
+        onRetry={outcomeApplied ? undefined : handleRetry}
         isRetrying={isRetrying}
       />
     </>

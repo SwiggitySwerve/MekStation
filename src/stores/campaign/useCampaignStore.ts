@@ -24,6 +24,7 @@ import {
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import { hydrateCampaignBattleState } from './campaignBattleOutcomeState';
 import { registerCampaignStoreAccessor } from './campaignStoreAccessor';
 import { createCampaignStoreActions } from './useCampaignStore.actions';
 import {
@@ -134,6 +135,10 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             return {
               ...current,
               campaign: null,
+              pendingBattleOutcomes: [],
+              processedBattleIds: [],
+              reviewedBattleIds: {},
+              outcomeApplyErrors: {},
               rehydratedCampaignId: null,
               cachedCampaignKey: null,
               forcesStore: null,
@@ -149,12 +154,9 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           );
           return {
             ...current,
-            campaign,
+            ...hydrateCampaignBattleState(campaign, current),
             rehydratedCampaignId: campaign.id,
             cachedCampaignKey,
-            pendingBattleOutcomes: serialized.pendingBattleOutcomes,
-            processedBattleIds: serialized.processedBattleIds,
-            reviewedBattleIds: serialized.reviewedBattleIds,
             forcesStore: null,
             missionsStore: null,
             activityLog,

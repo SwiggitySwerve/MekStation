@@ -7,6 +7,12 @@
       "lastReviewed": "2026-11-07"
     },
     {
+      "name": "fix-campaign-outcome-ledgers",
+      "status": "in-progress",
+      "reason": "Root-approved K3 battle-outcome hydration, campaign isolation, salvage dedupe, and partial-error surfacing; existing persisted formats and event payloads stay unchanged. Hosted proof and Root merge are pending.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
       "name": "align-ci-budget-workflow-contracts",
       "status": "in-progress",
       "reason": "Root-authorized Phase G workflow contract alignment: preserve aggregation/browser/desktop/advisory guarantees while consuming canonical measured timeout budgets. Hosted proof and canonical sync/archive remain pending.",
@@ -107,6 +113,12 @@
       "status": "in-progress",
       "reason": "L-VAL-MECH native cockpit topology and armored critical marker: slot validation uses the selected cockpit through CockpitType.getCockpitSystemSlots. Editor grid, auto-fill, loadout and preview consumers follow. Full validity parity remains open.",
       "lastReviewed": "2026-11-03"
+    },
+    {
+      "name": "remove-dead-ui-hooks",
+      "status": "proposed",
+      "reason": "Owner ruling 2026-11-07 D1: delete unused hooks and the mobile placement adapter (useAsync, useOfflineStatus, useGameStatePersistence, useScreenReaderAnnouncer, EquipmentAssignmentAdapter, TacticalAccessibility). REMOVED requirement deltas only; canonical sync/archive pending PR merge.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }

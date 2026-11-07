@@ -56,6 +56,7 @@ import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 
+import { mergeBattleOutcomeState } from './campaignBattleOutcomeState';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 
 /**
@@ -184,8 +185,10 @@ export function withBattleQueueAttached(
 ): ICampaign {
   return {
     ...campaign,
-    pendingBattleOutcomes: pending,
-    processedBattleIds: processed,
+    ...mergeBattleOutcomeState(campaign, {
+      pendingBattleOutcomes: pending,
+      processedBattleIds: processed,
+    }),
   } as ICampaign & {
     readonly pendingBattleOutcomes: readonly ICombatOutcome[];
     readonly processedBattleIds: readonly string[];
@@ -220,6 +223,11 @@ export function serializeCampaign(
   processedBattleIds: readonly string[] = [],
   reviewedBattleIds: Record<string, number> = {},
 ): SerializedCampaignState {
+  const battleState = mergeBattleOutcomeState(campaign, {
+    pendingBattleOutcomes,
+    processedBattleIds,
+    reviewedBattleIds,
+  });
   const audit =
     (
       campaign as ICampaign & {
@@ -275,9 +283,7 @@ export function serializeCampaign(
     campaignStartDate: startDate.toISOString(),
     description: campaign.description,
     iconUrl: campaign.iconUrl,
-    pendingBattleOutcomes: [...pendingBattleOutcomes],
-    processedBattleIds: [...processedBattleIds],
-    reviewedBattleIds: { ...reviewedBattleIds },
+    ...battleState,
     dailyBattleAudit: [...audit],
     // D-1 fix (2026-06-09 audit): unit battle damage is canonical state —
     // dropping it here was the audit's headline data-loss finding. The map
@@ -371,6 +377,7 @@ export function deserializeCampaign(
     iconUrl: serialized.iconUrl,
     createdAt: serialized.createdAt,
     updatedAt: serialized.updatedAt,
+    ...mergeBattleOutcomeState(null, serialized),
     // D-1 fix (2026-06-09 audit): rehydrate unit battle damage instead of
     // hard-resetting it. Pre-fix snapshots lack the field — default to the
     // fresh-campaign empty map, which is the old (lossy) behavior for
