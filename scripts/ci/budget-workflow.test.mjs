@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { parse } from 'yaml';
 
 import { assertJobResults } from './budget-aggregate.mjs';
 import { checkRepositoryMetrics } from './budget-check.mjs';
@@ -22,6 +23,7 @@ import {
   projectTimingLimits,
   workflowGraphFromSource,
 } from './budget-workflow.mjs';
+import { AGGREGATOR } from './lint-and-test-guard.mjs';
 
 const root = process.cwd(),
   config = loadBudgets(),
@@ -32,6 +34,106 @@ const repository = () => ({
   workflow: workflowMetrics(root, config),
   dependencies: structuredClone(config.dependencies),
   cache: { files: ['one.test.ts'], unkeyable: [], repoWide: [] },
+});
+
+test('draft and ready PR pushes run the same checks without a duplicate ready transition', () => {
+  const workflow = readWorkflow(root);
+  assert.deepEqual(workflow.on.pull_request.types, [
+    'opened',
+    'synchronize',
+    'reopened',
+  ]);
+  assert.deepEqual(workflow.on.pull_request.branches, ['main']);
+  for (const [id, job] of Object.entries(workflow.jobs)) {
+    assert.doesNotMatch(job.if ?? '', /draft|ready_for_review/, id);
+    for (const step of job.steps ?? [])
+      assert.doesNotMatch(
+        step.if ?? '',
+        /draft|ready_for_review/,
+        `${id}/${step.name}`,
+      );
+  }
+  assert.equal(workflow.jobs['lint-and-test'].name, AGGREGATOR);
+  assert.equal(workflow.jobs['lint-and-test'].if, 'always()');
+});
+
+test('completed source runs still drive head-bound Guard, approval and budget publishing', () => {
+  const guard = parse(
+    fs.readFileSync(
+      path.join(root, '.github/workflows/lint-and-test-guard.yml'),
+      'utf8',
+    ),
+  );
+  assert.deepEqual(guard.on, {
+    workflow_run: { workflows: ['PR Checks'], types: ['completed'] },
+  });
+  const steps = guard.jobs.guard.steps;
+  assert.equal(
+    steps.find((step) => step.run?.includes('lint-and-test-guard.mjs')).env
+      .HEAD_SHA,
+    '${{ github.event.workflow_run.head_sha }}',
+  );
+  assert.ok(
+    steps.some((step) => step.with?.script?.includes('checkBudgetPolicy')),
+  );
+  assert.ok(
+    steps.some((step) => step.run === 'node scripts/ci/budget-report.mjs'),
+  );
+  for (const step of steps)
+    assert.doesNotMatch(step.if ?? '', /draft|ready_for_review/);
+});
+
+test('only the separate budget approval safety reevaluation retains the ready listener', () => {
+  const listeners = fs
+    .readdirSync(path.join(root, '.github/workflows'))
+    .filter((file) => /\.ya?ml$/.test(file))
+    .filter((file) => {
+      const workflow = parse(
+        fs.readFileSync(path.join(root, '.github/workflows', file), 'utf8'),
+      );
+      return Object.values(workflow.on ?? {}).some((trigger) =>
+        trigger?.types?.includes('ready_for_review'),
+      );
+    });
+  assert.deepEqual(listeners, ['ci-budget-approval.yml']);
+});
+
+test('pre-install Guard tests run without the repository dependency installation', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'guard-preinstall-'));
+  try {
+    for (const file of [
+      'lint-and-test-guard.mjs',
+      'lint-and-test-guard.test.mjs',
+    ]) {
+      fs.copyFileSync(
+        path.join(root, 'scripts/ci', file),
+        path.join(fixture, file),
+      );
+    }
+    const env = { ...process.env, NODE_PATH: '' };
+    delete env.NODE_TEST_CONTEXT;
+    const result = spawnSync(
+      process.execPath,
+      ['--test', '--test-reporter=tap', 'lint-and-test-guard.test.mjs'],
+      {
+        cwd: fixture,
+        encoding: 'utf8',
+        timeout: 30000,
+        env,
+      },
+    );
+    assert.equal(
+      result.status,
+      0,
+      `${result.error ?? ''}\n${result.stdout}\n${result.stderr}`,
+    );
+    assert.match(
+      result.stdout,
+      /ok \d+ - a run without the aggregator job is reported as failed/,
+    );
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
 });
 
 test('source graph reuses the unique-key parser and canonical expansion', () => {
