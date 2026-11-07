@@ -146,23 +146,37 @@ it('settles FAILED once and ignores a later SUCCESS result with no second paymen
   }
 });
 
-it('keeps expiry as SUCCESS without paying at expiry or after a later battle', () => {
-  const contract = testContract();
-  const campaign = campaignFor(contract);
-  const expired = contractProcessor.process(campaign, campaign.currentDate);
-  expect(expired.campaign.missions.get(contract.id)?.status).toBe(
-    MissionStatus.SUCCESS,
-  );
-  expect(expired.campaign.finances.balance.amount).toBe(0);
-  expect(expired.campaign.finances.transactions).toHaveLength(0);
+it.each([
+  [GameSide.Player, CombatEndReason.Destruction],
+  [GameSide.Opponent, CombatEndReason.Destruction],
+  [GameSide.Opponent, CombatEndReason.TurnLimit],
+] as const)(
+  'keeps expired SUCCESS unpaid after a %s battle ending in %s',
+  (winner, endReason) => {
+    const contract = testContract();
+    const campaign = campaignFor(contract);
+    const expired = contractProcessor.process(campaign, campaign.currentDate);
+    expect(expired.campaign.missions.get(contract.id)?.status).toBe(
+      MissionStatus.SUCCESS,
+    );
+    expect(expired.campaign.finances.balance.amount).toBe(0);
+    expect(expired.campaign.finances.transactions).toHaveLength(0);
 
-  const laterBattle = applyPostBattle(
-    outcome('match-after-expiry'),
-    expired.campaign,
-  );
-  expect(laterBattle.campaign.missions.get(contract.id)).toBe(
-    expired.campaign.missions.get(contract.id),
-  );
-  expect(laterBattle.campaign.finances).toBe(expired.campaign.finances);
-  expect(laterBattle.campaign.finances.transactions).toHaveLength(0);
-});
+    const laterBattle = applyPostBattle(
+      outcome('match-after-expiry', winner, endReason),
+      expired.campaign,
+    );
+    expect(laterBattle.campaign.missions.get(contract.id)).toBe(
+      expired.campaign.missions.get(contract.id),
+    );
+    expect(laterBattle.campaign.finances).toBe(expired.campaign.finances);
+    expect(laterBattle.campaign.missions.get(contract.id)?.status).toBe(
+      MissionStatus.SUCCESS,
+    );
+    expect(laterBattle.campaign.finances.balance.amount).toBe(0);
+    expect(laterBattle.campaign.finances.transactions).toHaveLength(0);
+    expect(laterBattle.events.map((event) => event.type)).toEqual([
+      'post_battle_applied',
+    ]);
+  },
+);
