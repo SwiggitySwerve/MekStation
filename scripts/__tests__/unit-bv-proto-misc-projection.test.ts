@@ -76,7 +76,9 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
       expect(
         Object.keys(terms).filter(
           (key) =>
-            key.startsWith('ammo.') && !key.startsWith('ammo.available.'),
+            key.startsWith('ammo.') &&
+            !key.startsWith('ammo.available.') &&
+            !key.startsWith('ammo.cap.'),
         ),
       ).toEqual([]);
       for (const fact of b.weaponMountBV ?? []) {

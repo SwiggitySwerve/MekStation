@@ -76,6 +76,21 @@ describe('ProtoMech ammo worklist preservation', () => {
 });
 
 describe('ProtoMech positive native ammo availability', () => {
+  // BVCalculator.java:1233-1237, pinned48fcb2f6 raw weapon caps.
+  const pinnedCaps: Record<string, Record<string, number>> = {
+    'Cecerops 5.blk': { 'ammo.cap.APGAUSS:0': 21 },
+    'Gorgon 5.blk': { 'ammo.cap.LRM_STREAK:5': 86 },
+    'Minotaur-P2.blk': { 'ammo.cap.SRM:4': 39 },
+    'Basilisk ProtoMech (Quad) B.blk': {},
+    'Basilisk ProtoMech (Quad).blk': { 'ammo.cap.SRM:4': 39 },
+    'Centaur Z.blk': { 'ammo.cap.LRM:4': 46 },
+    'Hobgoblin Ultraheavy ProtoMech 2.blk': { 'ammo.cap.APGAUSS:0': 84 },
+    'Hobgoblin Ultraheavy ProtoMech.blk': { 'ammo.cap.APGAUSS:0': 21 },
+    'Minotaur Z.blk': {},
+    'Procyon Z.blk': { 'ammo.cap.SRM:1': 15 },
+    'Roc Z.blk': { 'ammo.cap.CHEMICAL_LASER:5': 37 },
+    'Sprite 3.blk': { 'ammo.cap.CHEMICAL_LASER:5': 74 },
+  };
   // Pinned48fcb2f6 values; only tests consume reference observations.
   const pinned: Record<string, Record<string, number>> = {
     'Cecerops 5.blk': { 'ammo.available.APGAUSS:0': 0.8999999999999999 },
@@ -126,8 +141,10 @@ describe('ProtoMech positive native ammo availability', () => {
         expect(actual[`ammo.available.${fact.nativeGroup}`]).toBeDefined();
       }
       expect(
-        Object.keys(terms).filter((key) => key.startsWith('ammo.cap.')),
-      ).toEqual([]);
+        Object.fromEntries(
+          Object.entries(terms).filter(([key]) => key.startsWith('ammo.cap.')),
+        ),
+      ).toEqual(pinnedCaps[source.path.split('/').at(-1) ?? '']);
       expect(b.final).toBe(source.javaTotal);
       expect(JSON.stringify(parsed.data.unit)).toBe(original);
     },
@@ -175,6 +192,7 @@ describe('ProtoMech positive native ammo availability', () => {
       }),
     );
     expect(b.ammoBV).toBe(0);
+    expect(b).not.toHaveProperty('ammoCapBVByGroup');
     const terms = protoMechBVTerms(b);
     expect(terms['ammo.available.SRM:2']).toBe(0.6000000000000001);
     expect(resolved?.nativeGroup).toBe('SRM:2');
@@ -212,6 +230,7 @@ describe('ProtoMech positive native ammo availability', () => {
         }),
       );
       expect(b).not.toHaveProperty('ammoAvailableMountBV');
+      expect(b).not.toHaveProperty('ammoCapBVByGroup');
       expect(
         Object.keys(protoMechBVTerms(b)).filter((key) =>
           key.startsWith('ammo.available.'),
@@ -228,6 +247,12 @@ describe('ProtoMech positive native ammo availability', () => {
       }),
     );
     expect(launcher).not.toHaveProperty('ammoAvailableMountBV');
+    expect(launcher).not.toHaveProperty('ammoCapBVByGroup');
+    expect(
+      Object.keys(protoMechBVTerms(launcher)).filter((key) =>
+        key.startsWith('ammo.cap.'),
+      ),
+    ).toEqual([]);
     const { ammoAvailableMountBV: _facts, ...legacy } = calculateProtoMechBV(
       buildProto({
         tonnage: 5,
@@ -246,5 +271,76 @@ describe('ProtoMech positive native ammo availability', () => {
     expect(
       Object.keys(terms).filter((key) => key.startsWith('ammo.available.')),
     ).toEqual([]);
+  });
+});
+
+describe('ProtoMech raw offensive ammo caps', () => {
+  test('projects the actual raw cap without changing the ammo contribution', () => {
+    const unit = buildProto({
+      tonnage: 5,
+      runMP: 5,
+      equipment: [
+        mount('CLSRM2', ProtoLocation.TORSO),
+        mount('Clan Ammo SRM-2 (10)', ProtoLocation.LEFT_ARM),
+      ],
+    });
+    const original = JSON.stringify(unit);
+    const b = calculateProtoMechBV(unit);
+    expect(protoMechBVTerms(b)['ammo.cap.SRM:2']).toBe(21);
+    expect(b.ammoCapBVByGroup).toEqual({ 'SRM:2': 21 });
+    expect(b.weaponBV).toBe(21);
+    expect(b.ammoBV).toBe(0.6000000000000001);
+    expect(JSON.stringify(unit)).toBe(original);
+  });
+
+  test('accumulates actual weapons in a shared native group once, independently of repeated bins', () => {
+    const unit = buildProto({
+      tonnage: 5,
+      runMP: 5,
+      equipment: [
+        mount('Clan Ammo SRM-2 (7)', ProtoLocation.LEFT_ARM),
+        mount('CLSRM2', ProtoLocation.TORSO),
+        mount('CLSRM2', ProtoLocation.MAIN_GUN),
+        mount('Clan Ammo SRM-2 (3)', ProtoLocation.RIGHT_ARM),
+        mount('Clan Ammo SRM-1 (4)', ProtoLocation.TORSO),
+      ],
+    });
+    const original = JSON.stringify(unit);
+    const b = calculateProtoMechBV(unit);
+    const terms = protoMechBVTerms(b);
+    expect(
+      Object.fromEntries(
+        Object.entries(terms).filter(([key]) => key.startsWith('ammo.cap.')),
+      ),
+    ).toEqual({ 'ammo.cap.SRM:2': 42 });
+    expect(terms['ammo.available.SRM:2']).toBeCloseTo(0.6, 12);
+    expect(terms['ammo.available.SRM:1']).toBe(0.08);
+    expect(b.weaponBV).toBe(42);
+    expect(b.ammoBV).toBeCloseTo(0.6, 12);
+    expect(b.ammoAvailableMountBV?.map((fact) => fact.equipmentIndex)).toEqual([
+      0, 3, 4,
+    ]);
+    expect(JSON.stringify(unit)).toBe(original);
+  });
+
+  test('legacy breakdowns do not infer a cap from available ammo or weapons', () => {
+    const b = calculateProtoMechBV(
+      buildProto({
+        tonnage: 5,
+        equipment: [
+          mount('CLSRM2', ProtoLocation.TORSO),
+          mount('Clan Ammo SRM-2 (10)', ProtoLocation.LEFT_ARM),
+        ],
+      }),
+    );
+    const { ammoCapBVByGroup: _cap, ...legacy } = b;
+    expect(
+      Object.keys(protoMechBVTerms(legacy)).filter((key) =>
+        key.startsWith('ammo.cap.'),
+      ),
+    ).toEqual([]);
+    expect(protoMechBVTerms(legacy)['ammo.available.SRM:2']).toBe(
+      0.6000000000000001,
+    );
   });
 });
