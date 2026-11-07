@@ -145,10 +145,13 @@ export class IdentityRepository {
     await this.initialize();
     const database = getSQLiteService().getDatabase();
 
-    database.exec('UPDATE vault_identities SET is_active = 0');
-    database
-      .prepare('UPDATE vault_identities SET is_active = 1 WHERE id = ?')
-      .run(id);
+    const activate = database.transaction(() => {
+      database.exec('UPDATE vault_identities SET is_active = 0');
+      database
+        .prepare('UPDATE vault_identities SET is_active = 1 WHERE id = ?')
+        .run(id);
+    });
+    activate.immediate();
   };
 
   /**
