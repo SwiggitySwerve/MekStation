@@ -5,6 +5,10 @@ import { join } from 'node:path';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import {
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
 
 import { computeNativeTankWeight } from '../vehicleHandlerWeight';
 import { VehicleUnitHandler } from '../VehicleUnitHandler';
@@ -233,3 +237,86 @@ it('transports no-controls tag presence without interpreting its payload', () =>
   expect(computeNativeTankWeight(document, result.data.unit)?.controls).toBe(0);
   expect(result.data.unit.totalWeight).toBe(37);
 });
+
+// Entity.isClanArmor:1985-1999; densities from native ArmorType / TestTank.
+const mixedArmorFixtures = [
+  {
+    path: 'vehicles/Golden Century/Zephyr Hovertank EC.blk',
+    sha256: '91ed969286c16af3ba2f7549f0dbbc418e18f102839f1c8450496fb6e58c7904',
+    level: 6,
+    points: 144,
+    density: 19.2,
+    armor: 7.5,
+    total: 40,
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e8f3-730a-9f62-35f07d3a1549\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nZephyr Hovertank\n</Name>\n\n<Model>\nEC\n</Model>\n\n<mul id:>\n7674\n</mul id:>\n\n<year>\n2820\n</year>\n\n<type>\nMixed (IS Chassis) Experimental\n</type>\n\n<role>\nScout\n</role>\n\n<motion_type>\nHover\n</motion_type>\n\n<cruiseMP>\n9\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n1\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n6\n</armor_tech_level>\n\n<armor>\n35\n28\n28\n18\n35\n</armor>\n\n<Body Equipment>\nISGuardianECMSuite\nCLImpAmmoSRM6\nCLImpAmmoSRM6\n</Body Equipment>\n\n<Front Equipment>\nImproved SRM 6\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nISTAG\nCLERMediumLaserPrototype\nCLERMediumLaserPrototype\n</Turret Equipment>\n\n<capabilities>\n<p>The Zephyr's tactical value derives primarily from its Guardian ECM suite and the speed to deploy it effectively. The GM 185 fusion engine provides a cruising speed of 97 kilometers per hour and a flank speed exceeding 150 kilometers per hour, allowing the vehicle to reposition rapidly and maintain the ECM umbrella where it is most needed. Seven tons of Grumman CRT ferro-fibrous armor give the Zephyr above-average protection for its weight, sufficient to absorb glancing fire and permit high-speed disengagement when engagements turn unfavorable.</p><p>Armament is deliberately secondary to the support mission. Three medium lasers and the Alloran target acquisition gear occupy the turret, providing reliable fire support without generating significant heat. A nose-mounted SRM-6 with two tons of reloads adds short-range punch, and a rear-facing small laser discourages pursuit. Clan Invasion-era production models use Bowie Electronics lasers, a Thor SRM-6, and a Bundesweyth TAG, performing identically to their Star League predecessors with different component branding.</p><p>The Zephyr's limitations stem from its support focus. It carries no jump jets, relying on hover speed to evade threats. Against dedicated anti-vehicle platforms or sustained fire, its armor and weapons cannot sustain extended engagements. Crews train to establish the ECM umbrella, contribute fire support from medium range, and withdraw before the vehicle absorbs critical damage.</p>\n</capabilities>\n\n<overview>\n<p>Developed by Clan Blood Spirit during the Golden Century, the EC variant represents the Clan's effort to modernize the inherited Star League Zephyr design using improved early Clan technology. Beginning production around 2820, the variant was built entirely within Blood Spirit facilities, using the same 40-ton hover chassis as its Inner Sphere ancestor while integrating weapons and armor suited to the Clan's emerging tactical standards.</p><p>Unlike the original Grumman design, which prioritized electronic warfare and support roles, the EC variant takes a more direct combat approach. The replacement of the ECM suite with improved offensive weapons reflects Blood Spirit doctrine that valued self-reliant aggression over the subtle support functions that defined the Inner Sphere design. The vehicle retained the original chassis's impressive speed and fundamental reliability, qualities the Blood Spirits found too valuable to abandon in their redesign.</p>\n</overview>\n\n<deployment>\n<p>The EC variant is found almost exclusively within Clan Blood Spirit's toumans and garrison forces. Its distribution beyond Blood Spirit territory is negligible, limited to rare examples acquired through isorla by other Clans or recovered in peripheral salvage operations. The type is most commonly encountered in accounts of Blood Spirit internal exercises and the Clan's defensive operations during periods of inter-Clan conflict during the Golden Century.</p>\n</deployment>\n\n<history>\n<p>The Blood Spirit EC variant emerged from the Golden Century's tradition of Clan engineers refining inherited Star League technology. When the Blood Spirits gained access to Zephyr chassis through salvage and wartime acquisition, they recognized the vehicle's underlying quality while finding its Star League weapons suite increasingly dated against the improving standards of early Clan technology. Beginning around 2820, Blood Spirit technicians replaced the original weapons and electronics with Clan-spec systems, transitioning the design from an ECM-focused support platform to a direct-combat vehicle.</p><p>The ferro-fibrous armor upgrade was treated as essential given the more exposed role the Blood Spirits envisioned, and the shift away from Guardian ECM reflected a broader doctrinal preference for decisive engagement over indirect support. The EC variant served in Blood Spirit sibko training units before graduating to garrison and second-line toumans, where it provided a reliable if aging complement to purpose-built Clan designs. Distribution beyond Blood Spirit territory remained negligible, and the variant's presence in any other Clan's inventory resulted from the occasional isorla or peripheral exchange.</p>\n</history>\n\n<manufacturer>\nUnknown\n</manufacturer>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:GC\n</source>\n\n<published>\nTR:GC\n</published>\n\n<tonnage>\n40.0\n</tonnage>\n\n",
+  },
+  {
+    path: 'vehicles/XTRs/Kurita/Tokugawa Heavy Tank Yumi.blk',
+    sha256: 'cb55d8b4634bca57468b01742c8051c3bef51cebec4ceb13c57cc0279f4fc5a8',
+    level: 2,
+    points: 163,
+    density: 19.2,
+    armor: 8.5,
+    total: 60,
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-ebeb-7f2a-9e05-f9bfb10b45b9\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nTokugawa Heavy Tank\n</Name>\n\n<Model>\nYumi\n</Model>\n\n<mul id:>\n3267\n</mul id:>\n\n<year>\n3067\n</year>\n\n<type>\nMixed (IS Chassis) Experimental\n</type>\n\n<role>\nMissile Boat\n</role>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n5\n</cruiseMP>\n\n<engine_type>\n3\n</engine_type>\n\n<armor_type>\n1\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n2\n</armor_tech_level>\n\n<armor>\n36\n33\n33\n30\n31\n</armor>\n\n<Body Equipment>\nIS Ammo Extended LRM-15\nIS Ammo Extended LRM-15\nIS Ammo HVAC/10\nIS Ammo HVAC/10\nISC3SlaveUnit\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nExtended LRM 15\nHyper Velocity Auto Cannon/10\n</Turret Equipment>\n\n<capabilities>\n<p>The Tokugawa is built around a turreted Imperator Code Red LB 10-X Autocannon carrying three tons of ammunition. The LB-X system allows crews to switch between solid slugs and cluster munitions, providing genuine flexibility against armored vehicles and dispersed infantry with the same weapon. The turret also mounts an Ayukawa \"Slapper\" SRM-6 launcher paired with an Artemis IV fire control system, significantly improving missile accuracy. Two Diverse Optics Type 20P Medium Pulse Lasers are hull-mounted in the forward arc and can be triggered independently by either the gunner or the driver, giving the crew a secondary defensive option without requiring turret traverse.</p><p>The Nissan 220 fusion engine delivers reliable power output for a vehicle of its weight, and the wheeled drive train performs well on firm, prepared surfaces. StarSlab/2 armor provides a solid defensive foundation, though the Tokugawa carries no supplemental defensive systems such as anti-missile protection. The Sipher CommSys 1 and TargiTrack 717 electronics suite is competent and well-supported across Combine logistics networks.</p><p>The design's primary weakness is its vulnerability to fast-moving aerial threats. Its weapon systems have limited elevation and tracking speed against aerospace fighters, a vulnerability that proved costly in several engagements during the Clan Invasion. The wheeled chassis, while reliable on roads and urban terrain, can also become a liability in soft ground conditions, reducing the vehicle's tactical flexibility compared to tracked alternatives.</p>\n</capabilities>\n\n<overview>\n<p>The Tokugawa Heavy Tank is a wheeled heavy combat vehicle developed for the Draconis Combine's armored forces during the First Succession War. Designed by the DCMS Procurement Division to serve as a general combat and urban assault platform, the Tokugawa was initially produced at multiple facilities across the Combine. The attrition of the Succession Wars steadily reduced that production base until only Buda Imperial Vehicles on Luthien maintained a limited line. Following the War of 3039, Gunji-no-Kanrei Theodore Kurita commissioned Bulldog Enterprises on Proserpina to resume large-scale production. The revitalized design entered broad Combine service in 3053, armed with a mixed weapons suite combining ballistic, missile, and energy systems, and quickly established itself as one of the most capable and widely deployed vehicles in the Draconis Combine Mustered Soldiery.</p>\n</overview>\n\n<deployment>\n<p>The Yumi was a one-off experimental testbed commissioned by the DCMS to evaluate Extended LRM technology and hyper-velocity autocannon integration on the proven Tokugawa platform. The prototype mounts a turreted 15-tube Extended LRM launcher and a Hyper-Velocity AC/10, with a C3 slave computer allowing fire coordination with networked lancemates. A 280-rated XXL fusion engine increases the vehicle's top speed considerably over the standard model, and Clan ferro-fibrous armor provides protection commensurate with the experimental equipment aboard. Operational range of the ELRM system exceeds one kilometer, but persistent accuracy issues at extreme range necessitate either C3 network support or a direct field of fire. The prototype was rediscovered in the mid-3070s after the chaos of the Jihad and retained by the DCMS as an active testbed rather than advanced to any production program.</p>\n</deployment>\n\n<history>\n<p>The Tokugawa traces its origins to the First Succession War, when the DCMS Procurement Division commissioned a heavy wheeled platform capable of combined-arms support across varied Combine terrain. Initial production spread across multiple factories throughout the Draconis Combine, and the design entered service equipped with whatever propulsion and armament the constrained industrial base could supply. The vehicle that emerged from those early lines was durable and adaptable, if technically modest, and it found a stable role in DCMS garrison and front-line armored formations alike.</p><p>The successive waves of Succession War devastation eroded the Tokugawa's production base factory by factory. By the close of the Fourth Succession War, only Buda Imperial Vehicles on Luthien maintained any meaningful output, and even that line operated at limited capacity. The design survived more through the durability of existing vehicles than through fresh production, and older models were progressively downgraded to planetary militia as attrition and parts shortages took their toll.</p><p>The vehicle's revival came at the direct initiative of Gunji-no-Kanrei Theodore Kurita. Following the War of 3039, Kurita directed Bulldog Enterprises on Proserpina to bring the design back into full-scale production. Bulldog's first vehicles reached frontline units in 3046, and a fully modernized variant incorporating a fusion powerplant, LB-X autocannon, and advanced electronics entered service in 3053. The new Tokugawa first proved itself with the 1st Amphigean Light Assault Group on Kilmarnock, where Tokugawa crews contained Clan Nova Cat Elemental infantry during a border incursion.</p><p>Operation Bulldog in 3059 demonstrated the design's value on a larger scale. Tokugawas served as defensive anchors on Combine worlds threatened by Clan Smoke Jaguar reprisals and participated in offensive operations on Outer Volta, supporting BattleMech assault forces as they drove into Jaguar-held territory. The Battle of Luthien underscored the vehicle's persistent vulnerability to aerospace attack, with multiple Tokugawa elements sustaining heavy losses to fast-moving Clan fighters. That lesson informed several of the field modifications that followed.</p><p>The Tokugawa served across the FedCom Civil War on Combine-aligned fronts and saw renewed combat during the Jihad, primarily against Clan Snow Raven incursions from the Outworlds Alliance. The Jihad was especially damaging to the design's production base: the Buda Imperial Vehicles complex in Luthien's Skytower City suffered significant damage in the attacks on the Combine capital, and the facility's Yumi prototype program nearly died in the chaos. Buda's Luthien plant was restored to full production by mid-3081. Bulldog Enterprises on Proserpina continued production uninterrupted through the Jihad, and the Proserpina line remained the primary source of Tokugawa vehicles through the Dark Age and into the ilClan era, sustaining the design's presence in Combine arsenals across multiple generations of conflict.</p>\n</history>\n\n<manufacturer>\nBuda Imperial Vehicles\n</manufacturer>\n\n<primaryFactory>\nLuthien\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Sipher\nTARGETING:TargiTrack\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown (XXL 280)\nARMOR:Unknown (Clan ferro-fibrous)\nCOMMUNICATIONS:CommSys 1\nTARGETING:Unknown\n</systemModels>\n\n<source>\nXTR:Kurita\n</source>\n\n<published>\nXTR:Kurita\n</published>\n\n<tonnage>\n60.0\n</tonnage>\n\n",
+  },
+];
+
+it.each(mixedArmorFixtures)(
+  '$path uses explicit Clan armor technology on its IS chassis and remains valid',
+  (row) => {
+    expect(createHash('sha256').update(row.content).digest('hex')).toBe(
+      row.sha256,
+    );
+    const { document, unit } = load(row.content);
+    expect(document.type).toMatch(/^Mixed \(IS Chassis\)/);
+    expect(document.armorType).toBe(1);
+    expect(unit.armorTechLevel).toBe(row.level);
+    expect(unit.totalArmorPoints).toBe(row.points);
+    expect(
+      getArmorDefinition(ArmorTypeEnum.FERRO_FIBROUS_CLAN)?.pointsPerTon,
+    ).toBe(row.density);
+    expect(computeNativeTankWeight(document, unit)?.armor).toBe(row.armor);
+    expect(unit.totalWeight).toBe(row.total);
+    expect(unit.remainingTonnage).toBe(0);
+    expect(unit.isValid).toBe(true);
+    expect(handler.validate(unit).errors).toEqual([]);
+  },
+);
+
+it.each([
+  { chassis: 'Mixed (IS Chassis)', level: 1, armor: 8.5 },
+  { chassis: 'Mixed (Clan Chassis)', level: 1, armor: 8.5 },
+  { chassis: 'Mixed (IS Chassis)', level: undefined, armor: 8.5 },
+  { chassis: 'Mixed (Clan Chassis)', level: undefined, armor: 7.5 },
+  { chassis: 'Mixed (IS Chassis)', level: -1, armor: 8.5 },
+  { chassis: 'Mixed (Clan Chassis)', level: -1, armor: 7.5 },
+  { chassis: 'Mixed (IS Chassis)', level: 2, armor: 7.5 },
+  { chassis: 'Mixed (IS Chassis)', level: 6, armor: 7.5 },
+  { chassis: 'Mixed (IS Chassis)', level: 8, armor: 7.5 },
+  { chassis: 'Mixed (IS Chassis)', level: 10, armor: 7.5 },
+  // Entity.isClanArmor uses four concrete levels, unlike TechConstants.isClan.
+  { chassis: 'Mixed (Clan Chassis)', level: 4, armor: 8.5 },
+  { chassis: 'Mixed (Clan Chassis)', level: 12, armor: 8.5 },
+])(
+  'selects armor side from $level on $chassis',
+  ({ chassis, level, armor }) => {
+    const content = mixedArmorFixtures[0].content
+      .replace(/<type>\n[^\n]+\n<\/type>/, '<type>\n' + chassis + '\n</type>')
+      .replace(
+        /<armor_tech_level>\n6\n<\/armor_tech_level>/,
+        level === undefined
+          ? ''
+          : '<armor_tech_level>\n' + level + '\n</armor_tech_level>',
+      );
+    const { document, unit } = load(content);
+    expect(document.type).toBe(chassis);
+    expect(unit.armorTechLevel).toBe(level);
+    expect(
+      getArmorDefinition(ArmorTypeEnum.FERRO_FIBROUS_IS)?.pointsPerTon,
+    ).toBe(17.92);
+    expect(computeNativeTankWeight(document, unit)?.armor).toBe(armor);
+  },
+);
