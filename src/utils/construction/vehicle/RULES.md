@@ -6,6 +6,13 @@
 existing `weightComposition.ts` owner. It uses the public BLK armor/engine
 decoders and equipment resolver; no component formula or catalog override is
 duplicated. Resolved mounts retain native identity/size and ammunition kind.
+The existing parsed `armorTechLevel` selects armor side independently of chassis:
+levels 2, 6, 8 and 10 select Clan; absent or unknown (-1) falls back to chassis.
+This follows `Entity.isClanArmor:1985-1999`, whose concrete-level test differs
+from `TechConstants.isClan` used for introduction/slot diagnostics (which also
+accepts ALL_CLAN=12). Those separate native contracts are unchanged. Mixed IS
+Zephyr EC/Yumi therefore use the existing Clan ferro density of 19.2 points/t,
+yielding 7.5/8.5 t armor; no formula, catalog, parser or type changes are needed.
 The `hasNoControlSystems` tag transports presence, including a false payload
 (MegaMek48fcb2f6 BLKTankFile.java:268-269).
 

@@ -510,6 +510,16 @@ It SHALL preserve source loadability independently of construction validity.
 - **AND** the source SHALL remain loadable for inspection
 - **AND** the legacy number-only combat handler weight API SHALL retain its unavailable error
 
+#### Scenario: Explicit armor technology overrides chassis side
+
+- **GIVEN** a mixed-tech IS-chassis Tank with explicit Clan armor technology
+- **WHEN** native weight is transported to the existing construction owner
+- **THEN** the existing parsed armor technology SHALL select armor side independently of chassis
+- **AND** concrete Clan levels 2, 6, 8 and 10 SHALL use Clan armor; absent or unknown (-1) SHALL fall back to chassis
+- **AND** explicit IS armor technology SHALL retain IS armor even on a Clan chassis
+- **AND** pinned Zephyr EC and Tokugawa Yumi SHALL retain 7.5 and 8.5 tons of armor and remain valid at 40 and 60 tons
+- **AND** armor formulas, catalogs and unrelated technology-side consumers SHALL remain unchanged
+
 #### Scenario: No-controls source presence
 
 - **GIVEN** a native Tank with the hasNoControlSystems tag

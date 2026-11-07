@@ -26,6 +26,7 @@ type NativeTankWeightUnit = Pick<
   | 'engineRating'
   | 'motionType'
   | 'armorType'
+  | 'armorTechLevel'
   | 'armorLayoutError'
   | 'totalArmorPoints'
   | 'internalStructureType'
@@ -48,7 +49,12 @@ export function computeNativeTankWeight(
   )
     return undefined;
   const clan = isClanSourceChassis(source.type);
-  const armorType = decodeBlkArmorType(unit.armorType, clan);
+  // Entity.isClanArmor:1985-1999; unlike TechConstants.isClan, excludes ALL_CLAN.
+  const clanArmor =
+    unit.armorTechLevel === undefined || unit.armorTechLevel === -1
+      ? clan
+      : [2, 6, 8, 10].includes(unit.armorTechLevel);
+  const armorType = decodeBlkArmorType(unit.armorType, clanArmor);
   if (armorType === undefined) return undefined;
   const techBase = clan ? TechBase.CLAN : TechBase.INNER_SPHERE;
   const mode = clan ? TechBaseMode.CLAN : TechBaseMode.INNER_SPHERE;
