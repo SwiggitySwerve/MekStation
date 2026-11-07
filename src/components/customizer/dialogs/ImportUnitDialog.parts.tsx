@@ -5,6 +5,7 @@ import {
   customUnitApiService,
   type ISaveResult,
 } from '@/services/units/CustomUnitApiService';
+import { importMTFDefinition } from '@/services/units/importMTFDefinition';
 import { ISerializedUnitEnvelope } from '@/types/persistence/UnitPersistence';
 
 import { customizerStyles as cs } from '../styles';
@@ -27,6 +28,7 @@ export interface ParsedUnit {
   chassis: string;
   variant: string;
   data: ISerializedUnitEnvelope | Record<string, unknown>;
+  warnings?: readonly string[];
 }
 
 function getUnitData(
@@ -59,11 +61,31 @@ function getImportData(
 }
 
 export async function parseImportedFile(file: File): Promise<ParsedUnit> {
+  if (!/\.(json|mtf)$/i.test(file.name)) {
+    throw new Error('Please select a JSON or MTF file');
+  }
   const text = await file.text();
-  const data = JSON.parse(text) as
-    | ISerializedUnitEnvelope
-    | Record<string, unknown>;
-  const unitData = getUnitData(data);
+  let data: ParsedUnit['data'];
+  let unitData: Record<string, unknown>;
+  let warnings: readonly string[] = [];
+  if (/\.mtf$/i.test(file.name)) {
+    const imported = await importMTFDefinition(text);
+    if (!imported.success) {
+      throw new Error(
+        [
+          imported.error.message,
+          ...(imported.error.validationErrors ?? []),
+          ...(imported.error.warnings ?? []),
+        ].join('\n'),
+      );
+    }
+    unitData = imported.data.definition;
+    warnings = imported.data.warnings;
+    data = { sourceFormat: 'mtf', sourceText: text };
+  } else {
+    data = JSON.parse(text) as ParsedUnit['data'];
+    unitData = getUnitData(data);
+  }
   const chassis = unitData.chassis as string | undefined;
   const variant = (unitData.variant || unitData.model) as string | undefined;
 
@@ -74,7 +96,7 @@ export async function parseImportedFile(file: File): Promise<ParsedUnit> {
     throw new Error('Missing required field: variant or model');
   }
 
-  return { chassis, variant, data };
+  return { chassis, variant, data, warnings };
 }
 
 export async function importParsedUnit(
@@ -189,7 +211,8 @@ function DropZone({
     >
       <input
         type="file"
-        accept=".json"
+        accept=".json,.mtf"
+        aria-label="Import unit file"
         onChange={onFileSelect}
         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       />
@@ -200,11 +223,11 @@ function DropZone({
         aria-hidden="true"
       />
       <p className="text-text-theme-secondary">
-        Drag and drop a JSON file here, or{' '}
+        Drag and drop a JSON or MTF file here, or{' '}
         <span className="text-blue-400 underline">click to browse</span>
       </p>
       <p className="text-text-theme-muted mt-1 text-sm">
-        Supports .json files exported from this editor
+        Supports .json exports and MegaMek .mtf files
       </p>
     </div>
   );
@@ -224,6 +247,14 @@ function ParsedUnitInfo({ parsedUnit }: { parsedUnit: ParsedUnit }) {
         </div>
         <CheckIcon size="toolbar" className="text-green-400" />
       </div>
+      {!!parsedUnit.warnings?.length && (
+        <p
+          role="status"
+          className="text-accent mt-2 break-words whitespace-pre-wrap"
+        >
+          {parsedUnit.warnings.join('\n')}
+        </p>
+      )}
     </div>
   );
 }

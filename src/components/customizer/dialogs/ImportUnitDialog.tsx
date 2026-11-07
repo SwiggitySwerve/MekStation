@@ -1,7 +1,7 @@
 /**
  * Import Unit Dialog Component
  *
- * Dialog for importing units from JSON files.
+ * Dialog for importing units from JSON or MTF files.
  * Handles file selection, validation, and conflict resolution.
  *
  * @spec openspec/specs/unit-services/spec.md
@@ -70,6 +70,10 @@ export function ImportUnitDialog({
   const parseFile = useCallback(async (file: File) => {
     setState('validating');
     setError(null);
+    setParsedUnit(null);
+    setSuggestedName(null);
+    setUseAlternateName(false);
+    setAlternateName('');
 
     try {
       const importedUnit = await parseImportedFile(file);
@@ -120,11 +124,6 @@ export function ImportUnitDialog({
 
       const file = e.dataTransfer.files?.[0];
       if (!file) return;
-
-      if (!file.name.endsWith('.json')) {
-        setError('Please drop a JSON file');
-        return;
-      }
 
       await parseFile(file);
     },
