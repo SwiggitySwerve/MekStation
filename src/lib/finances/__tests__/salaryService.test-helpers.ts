@@ -782,3 +782,33 @@ describe('XP_LEVEL_THRESHOLDS', () => {
     expect(ultraGreen?.minXp).toBe(0);
   });
 });
+
+describe('departed payroll exclusion', () => {
+  it.each(['retired', 'deserted', 'unknown-legacy-reason', ''])(
+    'excludes legacy Active departureReason=%s from monthly payroll',
+    (departureReason) => {
+      const entry = makeRosterEntry({ departureReason });
+      expect(isEligibleForSalary(entry)).toBe(false);
+      const breakdown = calculateTotalMonthlySalary(
+        [entry],
+        new Map(),
+        createDefaultCampaignOptions(),
+      );
+      expect(breakdown.personnelCount).toBe(0);
+      expect(breakdown.total.amount).toBe(0);
+      expect(breakdown.entries.size).toBe(0);
+    },
+  );
+  it.each([CampaignPilotStatus.Retired, CampaignPilotStatus.Deserted])(
+    'excludes terminal status %s without requiring a reason',
+    (status) => {
+      const breakdown = calculateTotalMonthlySalary(
+        [makeRosterEntry({ status })],
+        new Map(),
+        createDefaultCampaignOptions(),
+      );
+      expect(breakdown.personnelCount).toBe(0);
+      expect(breakdown.total.amount).toBe(0);
+    },
+  );
+});

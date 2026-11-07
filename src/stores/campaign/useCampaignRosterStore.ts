@@ -39,6 +39,7 @@ import {
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
+import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -319,6 +320,20 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
       // (matches the old hardcoded bridge value, so behavior is preserved
       // until the user sets a real rank).
       version: CAMPAIGN_ROSTER_STORE_VERSION,
+      // Merge runs for current-version saves too; a version migration alone
+      // would leave existing v3 Active departures unchanged.
+      merge: (persistedState, currentState) => {
+        const state = persistedState as
+          | Partial<CampaignRosterState>
+          | undefined;
+        return {
+          ...currentState,
+          ...state,
+          pilots: (state?.pilots ?? currentState.pilots).map(
+            normalizeRosterPilotDeparture,
+          ),
+        };
+      },
       migrate: (persistedState, version) => {
         if (!persistedState) return persistedState;
         const state = persistedState as Partial<CampaignRosterState>;

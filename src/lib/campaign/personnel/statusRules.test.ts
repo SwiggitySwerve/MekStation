@@ -3,10 +3,14 @@
  * Verifies helper functions for determining personnel status properties
  */
 
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { PersonnelStatus } from '@/types/campaign/enums/PersonnelStatus';
 
 import {
   isAbsent,
+  isRosterPilotDeparted,
+  isRosterPilotSalaryEligible,
+  isRosterPilotDeployable,
   isSalaryEligible,
   isDead,
   isDepartedUnit,
@@ -410,4 +414,31 @@ describe('Status Behavioral Rules', () => {
       );
     });
   });
+});
+
+describe('campaign roster status rules', () => {
+  it.each([
+    [CampaignPilotStatus.Active, true, true],
+    [CampaignPilotStatus.Wounded, true, false],
+    [CampaignPilotStatus.Critical, true, false],
+    [CampaignPilotStatus.MIA, true, false],
+    [CampaignPilotStatus.KIA, false, false],
+    [CampaignPilotStatus.Retired, false, false],
+    [CampaignPilotStatus.Deserted, false, false],
+  ] as const)(
+    'preserves salary and deployment rules for %s',
+    (status, salary, deployable) => {
+      expect(isRosterPilotSalaryEligible({ status })).toBe(salary);
+      expect(isRosterPilotDeployable({ status })).toBe(deployable);
+    },
+  );
+  it.each(['retired', 'deserted', 'unknown', ''])(
+    'treats every non-null legacy reason as departure: %s',
+    (departureReason) => {
+      const entry = { status: CampaignPilotStatus.Active, departureReason };
+      expect(isRosterPilotDeparted(entry)).toBe(true);
+      expect(isRosterPilotSalaryEligible(entry)).toBe(false);
+      expect(isRosterPilotDeployable(entry)).toBe(false);
+    },
+  );
 });

@@ -31,7 +31,7 @@ import {
   DEFAULT_DAILY_MAINTENANCE,
   DEFAULT_DAILY_SALARY,
 } from '@/lib/campaign/dayReportTypes';
-import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { isRosterPilotSalaryEligible } from '@/lib/campaign/personnel/statusRules';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
 import { isContract } from '@/types/campaign/Mission';
@@ -128,8 +128,7 @@ export interface IDailyCostProjection {
 export function selectBillablePilotCount(
   pilots: readonly ICampaignRosterEntry[],
 ): number {
-  return pilots.filter((pilot) => pilot.status !== CampaignPilotStatus.KIA)
-    .length;
+  return pilots.filter(isRosterPilotSalaryEligible).length;
 }
 
 /**

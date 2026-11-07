@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { TurnoverFrequency } from '@/types/campaign/Campaign';
@@ -13,6 +13,7 @@ import { Money } from '@/types/campaign/Money';
 import type { TurnoverReport } from '../../turnover/turnoverCheck';
 
 import { DayPhase, _resetDayPipeline, getDayPipeline } from '../../dayPipeline';
+import { runTurnoverChecks } from '../../turnover/turnoverCheck';
 import {
   turnoverProcessor,
   shouldRunTurnover,
@@ -159,6 +160,7 @@ describe('shouldRunTurnover', () => {
 });
 
 describe('applyTurnoverResults', () => {
+  beforeEach(() => seedRoster('p1'));
   it('should mark departed personnel with departureReason=retired', () => {
     seedRoster('p1');
     const campaign = createTestCampaign({});
@@ -188,8 +190,7 @@ describe('applyTurnoverResults', () => {
       .getState()
       .pilots.find((p) => p.pilotId === 'p1');
     expect(person).toBeDefined();
-    // Per PR4: CampaignPilotStatus has no Retired/Deserted variants — the
-    // status is preserved (Active here) and departureReason is the marker.
+    expect(person!.status).toBe('retired');
     expect(person!.departureReason).toBe('retired');
   });
 
@@ -222,6 +223,8 @@ describe('applyTurnoverResults', () => {
       .getState()
       .pilots.find((p) => p.pilotId === 'p1');
     expect(person!.departureReason).toBe('deserted');
+    expect(person!.status).toBe('deserted');
+    expect(updated.finances).toEqual(campaign.finances);
   });
 
   it('should record payout as financial transaction', () => {
@@ -342,6 +345,98 @@ describe('applyTurnoverResults', () => {
     const date = new Date('3025-06-15T00:00:00Z');
     const updated = applyTurnoverResults(campaign, report, date);
     expect(updated.finances.transactions.length).toBe(0);
+  });
+});
+
+describe('departure settlement lifecycle', () => {
+  const date = new Date('3025-07-01T00:00:00Z');
+  const nextMonth = new Date('3025-08-01T00:00:00Z');
+  const departure: TurnoverReport['results'][number] = {
+    personId: 'p1',
+    personName: 'Alice',
+    roll: 2,
+    targetNumber: 5,
+    modifiers: [],
+    passed: false,
+    departureType: 'retired',
+    payout: new Money(12000),
+  };
+  const report: TurnoverReport = {
+    results: [departure],
+    totalChecked: 1,
+    totalDepartures: 1,
+    totalPayout: departure.payout,
+  };
+
+  beforeEach(() => seedRoster('p1'));
+
+  it('does not pay again when the original departure report is replayed', () => {
+    const settled = applyTurnoverResults(createTestCampaign(), report, date);
+    const replayed = applyTurnoverResults(settled, report, nextMonth);
+    expect(replayed.finances.transactions).toHaveLength(1);
+    expect(replayed.finances.balance.amount).toBe(988000);
+  });
+
+  it('settles duplicate entries in one report once', () => {
+    const settled = applyTurnoverResults(
+      createTestCampaign(),
+      {
+        ...report,
+        results: [departure, departure],
+      },
+      date,
+    );
+    expect(settled.finances.transactions).toHaveLength(1);
+    expect(settled.finances.balance.amount).toBe(988000);
+  });
+
+  it('ignores a missing roster entry', () => {
+    useCampaignRosterStore.getState().removePilot('p1');
+    const campaign = createTestCampaign();
+    expect(applyTurnoverResults(campaign, report, date)).toBe(campaign);
+  });
+
+  it.each(['retired', 'deserted'] as const)(
+    'does not roll, emit a departure, or pay again the next month after %s',
+    (departureType) => {
+      const settled = applyTurnoverResults(
+        createTestCampaign(),
+        {
+          ...report,
+          results: [
+            {
+              ...departure,
+              departureType,
+              payout:
+                departureType === 'retired' ? departure.payout : Money.ZERO,
+            },
+          ],
+        },
+        date,
+      );
+      const random = jest.fn(() => 0);
+      const nextReport = runTurnoverChecks(
+        useCampaignRosterStore.getState().pilots,
+        new Map(),
+        settled,
+        random,
+      );
+      expect(random).not.toHaveBeenCalled();
+      expect(nextReport.totalChecked).toBe(0);
+      expect(nextReport.totalDepartures).toBe(0);
+      expect(nextReport.totalPayout.amount).toBe(0);
+      const next = turnoverProcessor.process(settled, nextMonth);
+      expect(next.events).toEqual([]);
+      expect(next.campaign.finances).toEqual(settled.finances);
+    },
+  );
+
+  it('does not settle a legacy Active departure again', () => {
+    useCampaignRosterStore
+      .getState()
+      .applyPilotPatches(new Map([['p1', { departureReason: 'retired' }]]));
+    const campaign = createTestCampaign();
+    expect(applyTurnoverResults(campaign, report, date)).toBe(campaign);
   });
 });
 
