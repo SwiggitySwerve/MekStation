@@ -74,7 +74,10 @@ import {
   getBooleanFromRawTags,
   hasVehicleEquipmentFeature,
 } from './vehicleFeatureTags';
-import { rejectIncompleteCombatVehicleWeight } from './vehicleHandlerWeight';
+import {
+  withNativeTankWeight,
+  rejectIncompleteCombatVehicleWeight,
+} from './vehicleHandlerWeight';
 
 // ============================================================================
 // Constants
@@ -256,7 +259,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // Internal structure type
     const internalStructureType = document.internalType || 0;
 
-    return {
+    return withNativeTankWeight(document, {
       unitType: UnitType.VEHICLE,
       originalBuildYear: document.originalBuildYear,
       ...turretSource.facts,
@@ -290,7 +293,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       transporters: document.transporters ?? [],
       errors,
       warnings,
-    };
+    } satisfies Partial<IVehicle> & UnitFieldParseMessages);
   }
 
   /**

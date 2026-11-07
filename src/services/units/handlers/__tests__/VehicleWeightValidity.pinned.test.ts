@@ -208,3 +208,28 @@ it('keeps unresolved mounted mass unavailable without turning loading into rejec
       .errors.filter((x) => x.startsWith('Total weight')),
   ).toEqual([]);
 });
+
+it.each([{ armorType: 7 }, { internalType: 5 }])(
+  'does not approximate unsupported native construction %o',
+  (patch) => {
+    const parsed = new BlkParserService().parse(fixtures[0].content);
+    if (!parsed.success) throw Error(JSON.stringify(parsed.error));
+    const document = { ...parsed.data.document, ...patch };
+    const result = handler.parse(document);
+    if (!result.success) throw Error(JSON.stringify(result.error));
+    expect(computeNativeTankWeight(document, result.data.unit)).toBeUndefined();
+  },
+);
+
+it('transports no-controls tag presence without interpreting its payload', () => {
+  const parsed = new BlkParserService().parse(fixtures[1].content);
+  if (!parsed.success) throw Error(JSON.stringify(parsed.error));
+  const document = {
+    ...parsed.data.document,
+    rawTags: { ...parsed.data.document.rawTags, hasNoControlSystems: 'false' },
+  };
+  const result = handler.parse(document);
+  if (!result.success) throw Error(JSON.stringify(result.error));
+  expect(computeNativeTankWeight(document, result.data.unit)?.controls).toBe(0);
+  expect(result.data.unit.totalWeight).toBe(37);
+});
