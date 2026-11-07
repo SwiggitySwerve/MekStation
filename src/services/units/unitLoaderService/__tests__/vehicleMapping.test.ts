@@ -14,7 +14,7 @@ import { VTOLUnitHandler } from '@/services/units/handlers/VTOLUnitHandler';
 import { createVehicleStore } from '@/stores/useVehicleStore';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { VehicleOnlyEngineType } from '@/types/construction/EngineType';
-import { Era } from '@/types/temporal/Era';
+import { Era, getEraForYear } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeVehicleWeightBreakdown } from '@/utils/construction/vehicle/weightComposition';
@@ -529,6 +529,18 @@ describe('pinned Dune Buggy source equipment identity', () => {
         lookup.getMountedById(id, isAmmo === true),
       ),
     ).toMatchObject({ isComplete: true, unresolvedMountIds: [] });
+    const saved = serializeCustomVehicleState(state, {
+      id: 'dune-buggy-identity-roundtrip',
+      chassis: state.chassis,
+      variant: state.model,
+      era: getEraForYear(state.year),
+    });
+    const reopened = mapToVehicleState(JSON.parse(JSON.stringify(saved)));
+    expect(
+      reopened.equipment.find(
+        (mount) => mount.equipmentId === launcher?.equipmentId,
+      )?.sourceIdentity,
+    ).toEqual(launcher?.sourceIdentity);
   });
 
   it('retains a missing mount as unknown rather than filling its mass', () => {
@@ -551,5 +563,36 @@ describe('pinned Dune Buggy source equipment identity', () => {
       isComplete: false,
     });
     expect(weights.unresolvedMountIds).toHaveLength(1);
+  });
+
+  it('does not replace a resolved ID with a different source name', () => {
+    const state = mapToVehicleState({
+      ...duneBuggyPinned.definition,
+      equipment: [
+        {
+          id: 'medium-laser',
+          name: 'Wire-Guided Missile Launcher:SIZE:1.0',
+          location: 'FRONT',
+        },
+      ],
+    });
+    expect(state.equipment[0].equipmentId).toBe('medium-laser');
+  });
+
+  it('does not recover missing ammunition through a weapon source name', () => {
+    const state = mapToVehicleState({
+      ...duneBuggyPinned.definition,
+      equipment: [
+        {
+          id: 'unavailable-ammo:size:1.0',
+          name: 'Wire-Guided Missile Launcher:SIZE:1.0',
+          location: 'FRONT',
+        },
+      ],
+    });
+    expect(state.equipment[0]).toMatchObject({
+      equipmentId: 'unavailable-ammo:size:1.0',
+      resolutionWarning: { code: 'unresolved-equipment' },
+    });
   });
 });
