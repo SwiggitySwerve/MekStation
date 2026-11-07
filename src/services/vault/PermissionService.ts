@@ -19,6 +19,7 @@ import {
   getPermissionRepository,
   PermissionRepository,
 } from './PermissionRepository';
+import { normalizeVaultExpiry } from './vaultExpiry';
 
 // =============================================================================
 // Types
@@ -116,21 +117,13 @@ export class PermissionService {
         };
       }
 
-      // Validate expiry date format
-      if (options.expiresAt) {
-        const date = new Date(options.expiresAt);
-        if (isNaN(date.getTime())) {
-          return { success: false, error: 'Invalid expiry date format' };
-        }
-      }
-
       const grant = await this.repository.create({
         granteeId: options.granteeId,
         scopeType: options.scopeType,
         scopeId: options.scopeId || null,
         scopeCategory: options.scopeCategory || null,
         level: options.level,
-        expiresAt: options.expiresAt || null,
+        expiresAt: normalizeVaultExpiry(options.expiresAt || null),
         granteeName: options.granteeName,
       });
 
@@ -278,7 +271,7 @@ export class PermissionService {
     try {
       const updated = await this.repository.updateExpiry(
         permissionId,
-        expiresAt,
+        normalizeVaultExpiry(expiresAt),
       );
       if (!updated) {
         return { success: false, error: 'Permission not found' };

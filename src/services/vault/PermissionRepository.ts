@@ -21,6 +21,7 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { ICrudRepository } from '../core/ICrudRepository';
+import { VALID_VAULT_EXPIRY_SQL } from './vaultExpiry';
 
 // =============================================================================
 // Repository
@@ -220,7 +221,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
         .prepare(`
           SELECT level FROM vault_permissions 
           WHERE grantee_id = ? AND scope_type = 'item' AND scope_id = ?
-          AND (expires_at IS NULL OR expires_at > ?)
+          AND ${VALID_VAULT_EXPIRY_SQL}
         `)
         .get(granteeId, scopeId, now) as { level: PermissionLevel } | undefined;
 
@@ -233,7 +234,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
         .prepare(`
           SELECT level FROM vault_permissions 
           WHERE grantee_id = ? AND scope_type = 'category' AND scope_category = ?
-          AND (expires_at IS NULL OR expires_at > ?)
+          AND ${VALID_VAULT_EXPIRY_SQL}
         `)
         .get(granteeId, category, now) as
         | { level: PermissionLevel }
@@ -247,7 +248,7 @@ export class PermissionRepository implements ICrudRepository<IPermissionGrant> {
       .prepare(`
         SELECT level FROM vault_permissions 
         WHERE grantee_id = ? AND scope_type = 'all'
-        AND (expires_at IS NULL OR expires_at > ?)
+        AND ${VALID_VAULT_EXPIRY_SQL}
       `)
       .get(granteeId, now) as { level: PermissionLevel } | undefined;
 
