@@ -61,9 +61,10 @@ describe('IdentityRepository active identity transaction', () => {
       END;
     `);
 
-    await expect(repository.setActive('next')).rejects.toThrow(
-      'activation failed',
-    );
+    await expect(repository.setActive('next')).rejects.toMatchObject({
+      message: 'activation failed',
+      code: 'SQLITE_CONSTRAINT_TRIGGER',
+    });
 
     expect((await repository.getActive())?.id).toBe('previous');
     expect(

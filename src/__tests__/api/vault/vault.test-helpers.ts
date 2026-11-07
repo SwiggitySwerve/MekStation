@@ -1773,14 +1773,13 @@ describe('Vault Sign API', () => {
   const mockRepository = {
     getActive: jest.fn(),
   };
+  let previousE2EMode: string | undefined;
 
   beforeEach(() => {
     jest.clearAllMocks();
     resetApiRateLimitersForTests();
-    jest.replaceProperty(process, 'env', {
-      ...process.env,
-      NEXT_PUBLIC_E2E_MODE: 'false',
-    });
+    previousE2EMode = process.env.NEXT_PUBLIC_E2E_MODE;
+    process.env.NEXT_PUBLIC_E2E_MODE = 'false';
     (getIdentityRepository as jest.Mock).mockReturnValue(mockRepository);
     (unlockIdentity as jest.Mock).mockResolvedValue(mockUnlockedIdentity);
     (signMessage as jest.Mock).mockResolvedValue('mock-signature-base64');
@@ -1790,6 +1789,11 @@ describe('Vault Sign API', () => {
   afterEach(() => {
     jest.restoreAllMocks();
     resetApiRateLimitersForTests();
+    if (previousE2EMode === undefined) {
+      delete process.env.NEXT_PUBLIC_E2E_MODE;
+    } else {
+      process.env.NEXT_PUBLIC_E2E_MODE = previousE2EMode;
+    }
   });
 
   describe('POST /api/vault/sign', () => {

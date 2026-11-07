@@ -11,6 +11,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { createMocks } from 'node-mocks-http';
 
+import { resetApiRateLimitersForTests } from '@/lib/api/security';
 import handler from '@/pages/api/vault/sign';
 
 import { parseApiResponse, parseErrorResponse } from '../../helpers';
@@ -79,16 +80,78 @@ const mockUnits = [
 // =============================================================================
 
 describe('/api/vault/sign', () => {
+  let previousE2EMode: string | undefined;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    resetApiRateLimitersForTests();
+    previousE2EMode = process.env.NEXT_PUBLIC_E2E_MODE;
+    process.env.NEXT_PUBLIC_E2E_MODE = 'false';
     mockGetPublicIdentity.mockReturnValue(mockPublicIdentity);
     mockSignMessage.mockResolvedValue('mock-signature-base64');
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    resetApiRateLimitersForTests();
+    if (previousE2EMode === undefined) {
+      delete process.env.NEXT_PUBLIC_E2E_MODE;
+    } else {
+      process.env.NEXT_PUBLIC_E2E_MODE = previousE2EMode;
+    }
+  });
+
+  describe('Request security', () => {
+    it('rejects a cross-host request before checking the password', async () => {
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        headers: { host: 'foreign.example', origin: 'https://foreign.example' },
+        body: { password: 'password', contentType: 'unit', items: mockUnits },
+      });
+
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(403);
+      expect(parseErrorResponse(res).error).toBe('Same-host requests only');
+      expect(mockGetActive).not.toHaveBeenCalled();
+      expect(mockUnlockIdentity).not.toHaveBeenCalled();
+      expect(mockSignMessage).not.toHaveBeenCalled();
+    });
+
+    it('refuses the sixth sign in a minute without checking its password', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(1_800_000_000_000);
+      mockGetActive.mockResolvedValue(mockStoredIdentity);
+      mockUnlockIdentity.mockResolvedValue(mockUnlockedIdentity);
+      const request = () =>
+        createMocks<NextApiRequest, NextApiResponse>({
+          method: 'POST',
+          headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
+          body: { password: 'password', contentType: 'unit', items: mockUnits },
+        });
+
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const { req, res } = request();
+        await handler(req, res);
+        expect(res._getStatusCode()).toBe(200);
+      }
+
+      const { req, res } = request();
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(429);
+      expect(parseErrorResponse(res).error).toBe('Too many requests');
+      expect(res.getHeader('Retry-After')).toBe('60');
+      expect(mockGetActive).toHaveBeenCalledTimes(5);
+      expect(mockUnlockIdentity).toHaveBeenCalledTimes(5);
+      expect(mockSignMessage).toHaveBeenCalledTimes(5);
+    });
   });
 
   describe('Method Validation', () => {
     it('should reject GET requests', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'GET',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
       });
 
       await handler(req, res);
@@ -101,6 +164,7 @@ describe('/api/vault/sign', () => {
     it('should set Allow header for 405 responses', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'PUT',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
       });
 
       await handler(req, res);
@@ -117,6 +181,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'correctPassword',
           contentType: 'unit',
@@ -162,6 +227,7 @@ describe('/api/vault/sign', () => {
     it('should reject missing password', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           contentType: 'unit',
           items: mockUnits,
@@ -178,6 +244,7 @@ describe('/api/vault/sign', () => {
     it('should reject invalid content type', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'invalid',
@@ -201,6 +268,7 @@ describe('/api/vault/sign', () => {
       for (const contentType of contentTypes) {
         const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
           method: 'POST',
+          headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
           body: {
             password: 'password',
             contentType,
@@ -217,6 +285,7 @@ describe('/api/vault/sign', () => {
     it('should reject empty items array', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -234,6 +303,7 @@ describe('/api/vault/sign', () => {
     it('should reject missing items', async () => {
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -252,6 +322,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -272,6 +343,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'wrongPassword',
           contentType: 'unit',
@@ -292,6 +364,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -312,6 +385,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -332,6 +406,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -357,6 +432,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
@@ -377,6 +453,7 @@ describe('/api/vault/sign', () => {
 
       const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
         method: 'POST',
+        headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
         body: {
           password: 'password',
           contentType: 'unit',
