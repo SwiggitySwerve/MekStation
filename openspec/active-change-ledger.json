@@ -131,6 +131,12 @@
       "status": "in-progress",
       "reason": "Root-approved K1 departure lifecycle: terminal roster statuses, shared payroll and deployment exclusions, settlement-once guards, and legacy normalization on both load paths. Red/green and a killed settlement mutant are recorded; local gates and draft PR verification precede canonical sync/archive. No turnover classification parity, bulk migration, refunds, or Critical/MIA healing is claimed.",
       "lastReviewed": "2026-11-07"
+    },
+    {
+      "name": "fix-c6a-psr-and-fall-posture",
+      "status": "in-progress",
+      "reason": "Root-approved C6a only: remove duplicate interactive phase-damage PSR and clear hull-down on reducer and runner falls; no schema changes, stuck recovery, or fixture regeneration.",
+      "lastReviewed": "2026-11-07"
     }
   ]
 }

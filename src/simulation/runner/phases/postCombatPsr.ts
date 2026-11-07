@@ -14,6 +14,7 @@ import {
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
 
 import { SeededRandom } from '../../core/SeededRandom';
 import {
@@ -198,8 +199,7 @@ function applyPsrFallResult(options: {
     units: {
       ...state.units,
       [unitId]: {
-        ...currentUnit,
-        prone: true,
+        ...applyFallPosture(currentUnit),
         pilotWounds: newPilotWounds,
         pilotConscious,
         edgePointsRemaining:

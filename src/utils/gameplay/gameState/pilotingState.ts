@@ -8,6 +8,7 @@ import {
   type IUnitStoodPayload,
   type IUnitStuckPayload,
 } from '@/types/gameplay';
+import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
 
 import { updateUnitState } from './unitStatePatch';
 
@@ -56,8 +57,7 @@ export function applyUnitFell(
   payload: IUnitFellPayload,
 ): IGameState {
   return updateUnitState(state, payload.unitId, (unit) => ({
-    ...unit,
-    prone: true,
+    ...applyFallPosture(unit),
     facing: payload.newFacing,
     pendingPSRs: [],
   }));

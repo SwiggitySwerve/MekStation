@@ -207,7 +207,7 @@ const PSR_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs with per-unit piloting, emits PSRResolved, and applies first-failure fallout.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L272-L323',
+    'L271-L323',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
