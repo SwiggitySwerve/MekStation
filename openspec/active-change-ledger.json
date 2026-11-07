@@ -133,6 +133,12 @@
       "lastReviewed": "2026-11-07"
     },
     {
+      "name": "fix-c6a-psr-and-fall-posture",
+      "status": "in-progress",
+      "reason": "Root-approved C6a only: remove duplicate interactive phase-damage PSR and clear hull-down on reducer and runner falls; no schema changes, stuck recovery, or fixture regeneration.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
       "name": "remove-standalone-repair",
       "status": "proposed",
       "reason": "Owner ruling 2026-11-07 D1: delete the unlinked standalone repair bay (/gameplay/repair, RepairBayPage, useRepairStore, src/types/repair, src/components/repair) and its e2e exposure/spec/fixtures; the campaign RepairTicket system is kept. REMOVED requirement deltas only; canonical sync/archive pending PR merge.",

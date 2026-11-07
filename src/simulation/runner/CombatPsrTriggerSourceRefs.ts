@@ -82,7 +82,7 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runPSRPhase routes failed MASCFailure and SuperchargerFailure resolution through movement-enhancement failure critical-damage helpers.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L111-L155',
+    'L116-L160',
   ),
   mekstationDeviationRef(
     'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',

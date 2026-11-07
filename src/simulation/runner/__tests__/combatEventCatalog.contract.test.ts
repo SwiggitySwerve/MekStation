@@ -179,7 +179,7 @@ describe('BattleMech combat event support catalog', () => {
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L210',
         'src/utils/gameplay/gameSessionPSRResolution.ts#L54-L410',
-        'src/simulation/runner/phases/postCombatPsr.ts#L70-L230',
+        'src/simulation/runner/phases/postCombatPsr.ts#L75-L236',
       ]),
     );
   });

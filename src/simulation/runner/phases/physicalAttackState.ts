@@ -5,6 +5,7 @@ import {
   IGameState,
 } from '@/types/gameplay';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
 import { translateHex } from '@/utils/gameplay/physicalAttacks';
 
 import { LETHAL_PILOT_WOUNDS } from '../SimulationRunnerConstants';
@@ -125,8 +126,7 @@ export function markUnitFallenAfterDfaMiss(
     units: {
       ...state.units,
       [unitId]: {
-        ...unit,
-        prone: true,
+        ...applyFallPosture(unit),
         facing: newFacing,
         pendingPSRs: [],
       },

@@ -1,8 +1,11 @@
 import type {
   IGameSession,
   IMovementCapability,
+  IPSRTriggeredPayload,
   StandUpMode,
 } from '@/types/gameplay';
+
+import { GameEventType, PSRTrigger } from '@/types/gameplay';
 
 import { type DiceRoller } from './diceTypes';
 import {
@@ -26,6 +29,29 @@ export function checkAndQueueDamagePSRs(session: IGameSession): IGameSession {
 
     const damagePSR = checkPhaseDamagePSR(unitState);
     if (damagePSR) {
+      const hasPendingDamagePSR = unitState.pendingPSRs?.some(
+        (psr) => psr.reasonCode === PSRTrigger.PhaseDamage20Plus,
+      );
+      // Pending entries have no phase metadata. Use their trigger envelopes
+      // so a pending weapon-phase PSR cannot suppress a physical-phase PSR.
+      if (
+        hasPendingDamagePSR &&
+        currentSession.events.some((event) => {
+          if (
+            event.type !== GameEventType.PSRTriggered ||
+            event.turn !== turn ||
+            event.phase !== phase
+          )
+            return false;
+          const payload = event.payload as IPSRTriggeredPayload;
+          return (
+            payload.unitId === unitId &&
+            payload.reasonCode === PSRTrigger.PhaseDamage20Plus
+          );
+        })
+      )
+        continue;
+
       const sequence = currentSession.events.length;
       // Per `denormalize-event-envelope-and-close-emission-contract-gaps`
       // (piloting-skill-rolls delta): carry the unit's base piloting
