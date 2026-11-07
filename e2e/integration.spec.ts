@@ -232,35 +232,6 @@ test.describe('Compendium Integration @integration @compendium', () => {
 });
 
 // =============================================================================
-// Repair System Integration
-// =============================================================================
-
-test.describe('Repair System Integration @integration @repair', () => {
-  test('repair page accessible', async ({ page }) => {
-    await page.goto('/gameplay/repair');
-    await waitForHydration(page);
-
-    // Should load repair page or redirect
-    const url = page.url();
-    expect(url).toMatch(/repair|gameplay/);
-  });
-
-  test('repair integrates with campaigns', async ({ page }) => {
-    // Navigate to campaigns first
-    await page.goto('/gameplay/campaigns');
-    await waitForHydration(page);
-
-    // Then try repair
-    await page.goto('/gameplay/repair');
-    await waitForHydration(page);
-
-    // Both should be accessible
-    const url = page.url();
-    expect(url).toMatch(/repair|gameplay/);
-  });
-});
-
-// =============================================================================
 // Navigation Integration
 // =============================================================================
 

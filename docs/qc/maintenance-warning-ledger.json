@@ -33,7 +33,7 @@
       "follow-up": 0
     },
     "design-violation": {
-      "fixed": 27,
+      "fixed": 26,
       "accepted": 0,
       "follow-up": 0
     }
@@ -513,20 +513,6 @@
       "rationale": "Game replay helpers were split into replay navigation, read-only assertions, transport controls, and timeline jump controls.",
       "fixedEvidence": [
         "2026-06-27 `npm.cmd run maintain:scan -- --scope=e2e/pages/game.page.ts --json` reported no findings.",
-        "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
-        "2026-06-27 affected Chromium `npx.cmd playwright test e2e/game.spec.ts e2e/combat.spec.ts e2e/repair.spec.ts e2e/gameplay-layout-slots.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium --workers=1` passed 121 checks."
-      ]
-    },
-    {
-      "key": "design-violation|critical|e2e/pages/repair.page.ts|class has 44 public methods",
-      "category": "design-violation",
-      "severity": "critical",
-      "file": "e2e/pages/repair.page.ts",
-      "message": "class has 44 public methods",
-      "status": "fixed",
-      "rationale": "Repair bay helpers were split into stats, filters, list, assessment, item selection, cost, queue, header, and error roles while preserving repair E2E coverage.",
-      "fixedEvidence": [
-        "2026-06-27 `npm.cmd run maintain:scan -- --scope=e2e/pages/repair.page.ts --json` reported no findings.",
         "2026-06-27 `npx.cmd tsc --noEmit --pretty false --project tsconfig.json` passed.",
         "2026-06-27 affected Chromium `npx.cmd playwright test e2e/game.spec.ts e2e/combat.spec.ts e2e/repair.spec.ts e2e/gameplay-layout-slots.spec.ts e2e/tactical-action-menu.spec.ts --project=chromium --workers=1` passed 121 checks."
       ]
