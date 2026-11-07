@@ -257,7 +257,10 @@ export class MatchHostRegistry {
     // A delete/shutdown arriving during bootstrap must close its result.
     await this.inFlight.get(matchId)?.catch(() => null);
     const host = this.hosts.get(matchId);
-    if (!host) return;
+    if (!host) {
+      await this.store.closeMatch(matchId);
+      return;
+    }
     await host.closeMatch();
     this.hosts.delete(matchId);
   };
