@@ -4,6 +4,7 @@ import type {
   IAttackDeclaredPayload,
   IGameEvent,
   IGameSession,
+  IGameState,
   IWeaponAttack,
 } from '@/types/gameplay';
 
@@ -173,7 +174,7 @@ export function runnerPrototypeHit(
   roll: number,
   glancing = false,
   tac = false,
-) {
+): { state: IGameState; events: IGameEvent[] } {
   const events: IGameEvent[] = [];
   const weapon: IWeapon = {
     id: 'medium-laser',
@@ -217,7 +218,7 @@ export function runnerPrototypeHit(
   return { state, events };
 }
 
-export function criticalEvents(events: readonly IGameEvent[]) {
+export function criticalEvents(events: readonly IGameEvent[]): IGameEvent[] {
   return events.filter(
     (event) => event.type === GameEventType.CriticalHitResolved,
   );
