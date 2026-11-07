@@ -13,7 +13,7 @@ import type { AtBContractType } from './contracts/contractTypes';
 import type { IScenario } from './Scenario';
 import type { AtBMoraleLevel } from './scenario/scenarioTypes';
 
-import { MissionStatus } from './enums/MissionStatus';
+import { isTerminalMissionStatus, MissionStatus } from './enums/MissionStatus';
 import { ScenarioStatus } from './enums/ScenarioStatus';
 import { Money } from './Money';
 import {
@@ -329,15 +329,7 @@ export function getScenarioCount(mission: IMission): number {
  * @returns true if the mission is in a terminal state
  */
 export function isTerminalStatus(mission: IMission): boolean {
-  const terminalStatuses: MissionStatus[] = [
-    MissionStatus.SUCCESS,
-    MissionStatus.PARTIAL,
-    MissionStatus.FAILED,
-    MissionStatus.BREACH,
-    MissionStatus.CANCELLED,
-    MissionStatus.ABORTED,
-  ];
-  return terminalStatuses.includes(mission.status);
+  return isTerminalMissionStatus(mission.status);
 }
 
 // =============================================================================

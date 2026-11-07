@@ -6,7 +6,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
-import { MissionStatus } from '@/types/campaign/enums';
+import { isTerminalMissionStatus, MissionStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 import {
@@ -331,10 +331,7 @@ export function applyContractDelta(
   // (Success / Partial / Failed) signals contract fulfillment.
   // Status that didn't change at all does NOT publish — re-runs are
   // a no-op for the bus.
-  const isTerminal =
-    nextStatus === MissionStatus.SUCCESS ||
-    nextStatus === MissionStatus.PARTIAL ||
-    nextStatus === MissionStatus.FAILED;
+  const isTerminal = isTerminalMissionStatus(nextStatus);
   const flippedToTerminal = isTerminal && previousStatus !== nextStatus;
 
   return { contract: updated, previousStatus, flippedToTerminal };

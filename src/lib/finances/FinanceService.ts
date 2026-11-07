@@ -16,7 +16,7 @@
 import { ICampaign } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { isTerminalMissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
 import { IFinances } from '@/types/campaign/IFinances';
@@ -229,16 +229,7 @@ export function processContractPayment(
   contract: IContract,
 ): IFinances {
   // Only process terminal contracts
-  const terminalStatuses: MissionStatus[] = [
-    MissionStatus.SUCCESS,
-    MissionStatus.PARTIAL,
-    MissionStatus.FAILED,
-    MissionStatus.BREACH,
-    MissionStatus.CANCELLED,
-    MissionStatus.ABORTED,
-  ];
-
-  if (!terminalStatuses.includes(contract.status)) {
+  if (!isTerminalMissionStatus(contract.status)) {
     return campaign.finances;
   }
 
