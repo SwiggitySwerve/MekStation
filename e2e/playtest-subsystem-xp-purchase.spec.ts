@@ -27,8 +27,7 @@
  *   - `owned-spa-foot_cav` renders after the purchase
  *   - the pilot's XP decremented by exactly the ability's cost (15) — the
  *     same math `spaAcquisition.test.ts` proves headlessly
- *   - repeat purchase of the same SPA is not offered (the picker excludes
- *     owned ids)
+ *   - owned SPAs remain visible with a disabled "Already owned" action
  */
 
 import { test, expect } from '@playwright/test';
@@ -155,16 +154,23 @@ test.describe(
       ).toBe(SPA_COST);
 
       // ------------------------------------------------------------------
-      // Repeat purchase is not offered: the picker excludes owned ids.
+      // Owned rows stay visible, but cannot be selected or purchased again.
       // ------------------------------------------------------------------
       await addAbility.click();
       await expect(page.getByTestId('spa-picker')).toBeVisible({
         timeout: 10_000,
       });
+      const ownedRow = page.getByTestId(`spa-item-${SPA_ID}`);
+      await expect(ownedRow).toBeVisible();
+      const ownedAction = ownedRow.getByRole('button', {
+        name: 'Already owned',
+      });
+      await expect(ownedAction).toBeVisible();
+      await expect(ownedAction).toBeDisabled();
       await expect(
-        page.getByTestId(`spa-item-${SPA_ID}`),
-        'an owned SPA SHALL NOT be offered again',
-      ).toBeHidden();
+        ownedRow.locator('button:enabled'),
+        'an owned SPA SHALL NOT offer an enabled select or purchase action',
+      ).toHaveCount(0);
     });
   },
 );
