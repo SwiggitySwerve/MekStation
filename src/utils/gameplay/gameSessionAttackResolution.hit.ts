@@ -30,6 +30,7 @@ import { determineHitLocationFromRoll } from './hitLocation';
 import {
   applyLowProfileGlancingDamage,
   getLowProfileGlancingCriticalHitModifier,
+  getPrototypeCriticalHitModifier,
   isLowProfileGlancingBlow,
 } from './quirkModifiers';
 
@@ -184,7 +185,12 @@ export function resolveWeaponHit(input: IResolveWeaponHitInput): IGameSession {
       edgePointsRemaining: targetForCritical.edgePointsRemaining,
       turn: input.turn,
       unitId: input.targetId,
-      criticalHitModifier: lowProfileCriticalHitModifier,
+      criticalHitModifier:
+        lowProfileCriticalHitModifier +
+        getPrototypeCriticalHitModifier(
+          targetForCritical.unitQuirks,
+          targetForCritical.unitType,
+        ),
       optionalRules: currentSession.config.optionalRules,
     };
   };

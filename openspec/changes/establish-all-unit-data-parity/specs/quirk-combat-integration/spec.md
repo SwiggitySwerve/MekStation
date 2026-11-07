@@ -107,6 +107,30 @@ isAirborneVTOLorWIGE OR isAirborne result without duplicating its predicates.
 - **THEN** those modifiers and existing to-hit clamping SHALL retain their behavior
 - **AND** attacks without native Anti-Air SHALL retain their existing numerical outputs
 
+### Requirement: Native Prototype BattleMech Ranged Critical Determination
+
+BattleMech ranged damage resolution SHALL add +2 to the critical determination
+roll when the damaged unit has native `prototype`, following pinned MegaMek
+`48fcb2f64` `TWGameManager.java:23257-23258,23290-23308`. The shared quirk
+owner SHALL define the penalty once. Duplicate ids SHALL NOT multiply it.
+Other families and physical attacks SHALL remain outside this bounded slice.
+
+#### Scenario: Source identity reaches session and replay critical checks
+
+- **GIVEN** native Prototype metadata retained by the existing hydration owner
+- **WHEN** BattleMech ranged damage makes a normal critical determination
+- **THEN** a raw roll of 6 SHALL determine one critical, 8 two and 10 three
+- **AND** session, runner and serialized replay SHALL retain the resulting effects
+- **AND** the penalty SHALL belong to the damaged unit, not the attacker
+
+#### Scenario: Existing modifiers and forced checks preserve their contracts
+
+- **WHEN** a Prototype target also receives a Low Profile glancing blow
+- **THEN** its +2 SHALL add to Low Profile's -2 without undoing half damage
+- **WHEN** a forced single critical or the existing armored TAC path resolves
+- **THEN** Prototype SHALL NOT introduce a new determination roll or extra hits
+- **AND** outputs without Prototype SHALL retain their existing values
+
 ## MODIFIED Requirements
 
 ### Requirement: Piloting Quirk — Hard to Pilot

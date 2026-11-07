@@ -14,6 +14,7 @@ import {
 import { resolveDamage } from '@/utils/gameplay/damage';
 import { buildDefaultComponentDamageState } from '@/utils/gameplay/gameSessionAttackResolutionHelpers';
 import { determineHitLocation } from '@/utils/gameplay/hitLocation';
+import { getPrototypeCriticalHitModifier } from '@/utils/gameplay/quirkModifiers';
 
 import type { IWeapon } from '../../ai/types';
 
@@ -211,7 +212,12 @@ export function resolveWeaponHit(options: {
       unitId: targetId,
       manifest: targetManifest,
       componentDamage: targetComponentDamage,
-      criticalHitModifier: lowProfileCriticalHitModifier,
+      criticalHitModifier:
+        lowProfileCriticalHitModifier +
+        getPrototypeCriticalHitModifier(
+          targetBefore.unitQuirks,
+          targetBefore.unitType,
+        ),
       optionalRules,
     },
   };
