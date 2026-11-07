@@ -57,6 +57,7 @@ class BlkUnitVocabularyTest(unittest.TestCase):
             convert_aerospace_blk,
             f'<UnitType>{unit_type}</UnitType>\n<Name>{unit_type} fixture</Name>\n<year>3060</year>\n'
             '<tonnage>50</tonnage>\n<SafeThrust>5</SafeThrust>\n<structural_integrity>5</structural_integrity>\n'
+            '<heatsinks>0</heatsinks>\n'
             '<armor>\n10\n10\n10\n10\n</armor>\n',
         )
 
@@ -133,6 +134,7 @@ class BlkUnitVocabularyTest(unittest.TestCase):
                 convert_aerospace_blk,
                 f'<UnitType>{unit_type}</UnitType>\n<Name>{unit_type} bar</Name>\n<year>3060</year>\n'
                 '<tonnage>50</tonnage>\n<SafeThrust>5</SafeThrust>\n<structural_integrity>5</structural_integrity>\n'
+                '<heatsinks>0</heatsinks>\n'
                 '<armor_type>47</armor_type>\n<barrating>\n6\n</barrating>\n<armor>\n10\n10\n10\n10\n</armor>\n',
             )['armor']
         fighter = aircraft('AeroSpaceFighter')
