@@ -64,8 +64,9 @@ settlement guard and prove the replay regression fails, then restore green.
 
 ## Local evidence (2026-11-07)
 
-Base updated to `f525ea047b334762df6561e157f8c3f016a60c50`, including K4
-PR #3012, before the final gates. The persistence-store diff is limited to the
+Base updated to `7f10c0d85e378ff920cd6afaefb624d9a662851f`, including
+PRs #3012, #3018, and #3019, before repeating the final gates. The ledger
+append conflict was resolved by retaining every entry. The persistence-store diff is limited to the
 normalization import and call during roster restoration.
 
 - Red, unchanged implementation: 28 failed / 198 passed, 10 suites.
@@ -78,7 +79,7 @@ normalization import and call during roster restoration.
   suite, processor-registration and finance suites, and K10 loan-servicing
   integration/daily-cost regressions.
 - `npm run typecheck`: both root and scripts configurations passed.
-- `npm run lint:units`: 17084/17085; every per-path ceiling passed.
+- `npm run lint:units`: 17078/17085; every per-path ceiling passed.
 - `npm run lint`: 63 warnings, zero errors.
 - `npx oxfmt` and `npm run format:check`: passed. OpenSpec files were also
   formatted explicitly with `--ignore-path .gitignore` because the default
