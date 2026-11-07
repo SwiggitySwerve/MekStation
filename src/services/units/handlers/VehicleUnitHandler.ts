@@ -371,15 +371,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IVehicle>,
   ): IVehicle {
-    // Determine weight class
-    const weightClass = getVehicleWeightClass(commonFields.tonnage);
-
     const unit = combineCommonUnitFields<IVehicle>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'vehicle',
       unitType: UnitType.VEHICLE,
-      weightClass,
+      weightClass: getVehicleWeightClass(commonFields.tonnage),
     });
     return withConstructionDiagnostics(unit, this.validate(unit));
   }
