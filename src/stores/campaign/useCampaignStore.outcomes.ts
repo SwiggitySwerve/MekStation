@@ -1,13 +1,14 @@
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import { reconcileCoopOutcomeForCampaign } from '@/lib/campaign/coop/coopHostRegistry';
-import {
-  applyPostBattle,
-  type ICampaignWithBattleState,
-} from '@/lib/campaign/processors/postBattleProcessor';
+import { applyPostBattle } from '@/lib/campaign/processors/postBattleProcessor';
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import {
+  isOutcomeApplied,
+  mergeBattleOutcomeState,
+} from './campaignBattleOutcomeState';
 import { appendContractPaymentActivityEntries } from './contractPaymentActivity';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 import {
@@ -47,9 +48,14 @@ export function enqueueCampaignOutcome(
     reviewedBattleIds,
   } = get();
   if (pendingBattleOutcomes.some((o) => o.matchId === outcome.matchId)) return;
-  if (processedBattleIds.includes(outcome.matchId)) return;
+  if (isOutcomeApplied(get(), campaign, outcome.matchId)) return;
   const nextPending = [...pendingBattleOutcomes, outcome];
-  set({ pendingBattleOutcomes: nextPending });
+  set({
+    pendingBattleOutcomes: nextPending,
+    campaign: campaign
+      ? { ...campaign, pendingBattleOutcomes: nextPending }
+      : null,
+  });
   if (campaign) {
     persistCampaignRecord(
       campaign,
@@ -98,10 +104,19 @@ export function dequeueCampaignOutcome(
   } = get();
   const next = pendingBattleOutcomes.filter((o) => o.matchId !== matchId);
   if (next.length === pendingBattleOutcomes.length) return false;
-  set({ pendingBattleOutcomes: next });
-  if (campaign) {
+  const nextCampaign = campaign
+    ? { ...campaign, pendingBattleOutcomes: next }
+    : null;
+  const nextErrors = { ...get().outcomeApplyErrors };
+  delete nextErrors[matchId];
+  set({
+    pendingBattleOutcomes: next,
+    campaign: nextCampaign,
+    outcomeApplyErrors: nextErrors,
+  });
+  if (nextCampaign) {
     persistCampaignRecord(
-      campaign,
+      nextCampaign,
       next,
       processedBattleIds,
       reviewedBattleIds,
@@ -116,37 +131,33 @@ export function markCampaignBattleReviewed(
   matchId: string,
 ): void {
   if (!matchId) return;
-  const { campaign, pendingBattleOutcomes, processedBattleIds } = get();
+  const { campaign } = get();
+  const ledgers = mergeBattleOutcomeState(campaign, get());
   const reviewedBattleIds = {
-    ...get().reviewedBattleIds,
+    ...ledgers.reviewedBattleIds,
     [matchId]: Date.now(),
   };
-  const nextPending = pendingBattleOutcomes.filter(
+  const nextPending = ledgers.pendingBattleOutcomes.filter(
     (o) => o.matchId !== matchId,
   );
-  // D-6 remediation (2026-06-09 audit): the review page's Apply runs
-  // `applyPostBattle` (which stamps the matchId onto the CAMPAIGN-embedded
-  // processedBattleIds ledger) and then calls this action. Pre-fix the
-  // STORE-level ledger — the one advanceDay rebuilds the campaign from,
-  // persistCampaignRecord writes, and the enqueue dedup guard reads —
-  // never learned about the applied battle, so the next advanceDay erased
-  // the dedup and a re-published outcome could double-apply. Union the
-  // campaign-embedded ledger into the store ledger here so every
-  // downstream reader agrees. For a reviewed-but-never-applied battle the
-  // campaign ledger lacks the id and the union is a no-op.
-  const campaignLedger =
-    (campaign as ICampaignWithBattleState | null)?.processedBattleIds ?? [];
-  const nextProcessed = Array.from(
-    new Set([...processedBattleIds, ...campaignLedger]),
-  );
-  set({
-    reviewedBattleIds,
+  // Reviewing is acknowledgement, not evidence that battle effects ran.
+  const nextProcessed = ledgers.processedBattleIds;
+  const nextLedgers = {
     pendingBattleOutcomes: nextPending,
     processedBattleIds: nextProcessed,
+    reviewedBattleIds,
+  };
+  const nextErrors = { ...get().outcomeApplyErrors };
+  delete nextErrors[matchId];
+  const nextCampaign = campaign ? { ...campaign, ...nextLedgers } : null;
+  set({
+    ...nextLedgers,
+    campaign: nextCampaign,
+    outcomeApplyErrors: nextErrors,
   });
-  if (campaign) {
+  if (nextCampaign) {
     persistCampaignRecord(
-      campaign,
+      nextCampaign,
       nextPending,
       nextProcessed,
       reviewedBattleIds,
@@ -162,14 +173,15 @@ export function retryCampaignOutcomeApplication(
   if (!matchId) return false;
   const { campaign, pendingBattleOutcomes, outcomeApplyErrors } = get();
   if (!campaign) return false;
+  if (isOutcomeApplied(get(), campaign, matchId)) return false;
   const outcome = pendingBattleOutcomes.find((o) => o.matchId === matchId);
   if (!outcome) return false;
 
   try {
-    const result = applyPostBattle(
-      outcome,
-      campaign as ICampaignWithBattleState,
-    );
+    const result = applyPostBattle(outcome, {
+      ...campaign,
+      ...mergeBattleOutcomeState(campaign, get()),
+    });
     const remaining = pendingBattleOutcomes.filter(
       (o) => o.matchId !== matchId,
     );
@@ -177,10 +189,14 @@ export function retryCampaignOutcomeApplication(
     for (const [key, value] of Object.entries(outcomeApplyErrors)) {
       if (key !== matchId) nextErrors[key] = value;
     }
+    if (result.summary.errors.length > 0) {
+      nextErrors[matchId] = result.summary.errors.join('; ');
+    }
     set({
       campaign: result.campaign,
       pendingBattleOutcomes: remaining,
-      processedBattleIds: [...get().processedBattleIds, matchId],
+      processedBattleIds: mergeBattleOutcomeState(result.campaign, get())
+        .processedBattleIds,
       outcomeApplyErrors: nextErrors,
     });
     appendContractPaymentActivityEntries(
@@ -189,7 +205,7 @@ export function retryCampaignOutcomeApplication(
       result.events,
     );
     get().saveCampaign();
-    return true;
+    return result.summary.errors.length === 0;
   } catch (err) {
     set({
       outcomeApplyErrors: {

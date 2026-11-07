@@ -19,7 +19,6 @@
 
 - `GlobalStyleProvider.tsx`: Zustand appearance/accessibility state to CSS variables/classes.
 - `../styles/globals.css`: Tailwind v4 tokens, global colors, forms, scrollbars, print hooks.
-- `gameplay/TacticalAccessibility/`: live regions and tactical focus order.
 - `customizer/styles.ts`: shared class bundles for editor panels/forms/dialogs.
 
 ## CONVENTIONS
@@ -28,7 +27,6 @@
 - Use semantic Tailwind tokens (`bg-surface-*`, `text-text-theme-*`, `border-border-theme*`).
 - Preserve 44px minimum touch targets and visible focus rings on interactive controls.
 - Keep accessibility behavior explicit: labels, keyboard order, `aria-*`, live regions, focus handling.
-- Keep tactical announcements under `gameplay/TacticalAccessibility/`; mount once in the tactical shell.
 - Keep customizer class bundles in `customizer/styles.ts` or an existing local style helper.
 - Add focused tests beside behavior; add a Storybook story when a component is a reusable visual primitive.
 - Follow existing domain folder and filename patterns; split large components into adjacent `.parts`, `.helpers`, or `.model` files.

@@ -12,6 +12,7 @@ import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
+import * as battleHelpers from '@/lib/campaign/processors/postBattleProcessor.helpers';
 import PostBattleReviewPage from '@/pages/gameplay/games/[id]/review';
 import {
   resetCampaignStore,
@@ -25,6 +26,13 @@ import {
   UnitFinalStatus,
 } from '@/types/combat/CombatOutcome';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+
+jest.mock('@/lib/campaign/processors/postBattleProcessor.helpers', () => {
+  const actual = jest.requireActual<
+    typeof import('@/lib/campaign/processors/postBattleProcessor.helpers')
+  >('@/lib/campaign/processors/postBattleProcessor.helpers');
+  return { ...actual, applyUnitDelta: jest.fn(actual.applyUnitDelta) };
+});
 
 const routerPush = jest.fn();
 
@@ -77,9 +85,41 @@ function makeOutcome(): ICombatOutcome {
 }
 
 describe('PostBattleReviewPage — Return to Campaign CTA', () => {
+  afterEach(() => jest.restoreAllMocks());
   beforeEach(() => {
+    localStorage.clear();
     resetCampaignStore();
     routerPush.mockReset();
+  });
+
+  it('does not apply a stale review outcome already recorded in the store ledger', () => {
+    const store = useCampaignStore();
+    store.getState().createCampaign('Review', 'mercenary');
+    store.getState().enqueueOutcome(makeOutcome());
+    store.setState({ processedBattleIds: ['match-001'] });
+    render(<PostBattleReviewPage />);
+    fireEvent.click(screen.getByTestId('apply-outcome-cta'));
+    expect(store.getState().campaign?.unitCombatStates).toEqual({});
+  });
+
+  it('shows per-unit failures without navigating away or offering to repeat committed effects', () => {
+    const store = useCampaignStore();
+    store.getState().createCampaign('Review Failure', 'mercenary');
+    store.getState().enqueueOutcome(makeOutcome());
+    jest.spyOn(battleHelpers, 'applyUnitDelta').mockImplementationOnce(() => {
+      throw new Error('unit data unavailable');
+    });
+    render(<PostBattleReviewPage />);
+    fireEvent.click(screen.getByTestId('apply-outcome-cta'));
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'unit unit-1: unit data unavailable',
+    );
+    expect(routerPush).not.toHaveBeenCalled();
+    expect(store.getState().processedBattleIds).toContain('match-001');
+    expect(screen.getByTestId('apply-outcome-cta')).toBeDisabled();
+    expect(
+      screen.queryByTestId('retry-application-cta'),
+    ).not.toBeInTheDocument();
   });
 
   it('marks the battle reviewed and drains the pending queue when no campaign is loaded', () => {

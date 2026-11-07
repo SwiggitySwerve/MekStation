@@ -4,6 +4,7 @@ import type { TabInfo } from '@/stores/useTabManagerStore';
 
 import { getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
+import { createNewUnitStore } from '@/stores/useUnitStore';
 import { getVehicleStore } from '@/stores/vehicleStoreRegistry';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
@@ -11,6 +12,7 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   getTabDisplayState,
+  isTabModified,
   subscribeToTabDisplayState,
 } from '../MultiUnitTabsUnitState';
 
@@ -75,6 +77,84 @@ describe('MultiUnitTabsUnitState family dispatch', () => {
     expect(getAerospaceStore).toHaveBeenCalledWith(UNIT_ID);
     expect(getUnitStore).not.toHaveBeenCalled();
   });
+});
+
+describe('closing unregistered drafts', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    localStorage.clear();
+  });
+  afterEach(() => jest.restoreAllMocks());
+
+  it.each([
+    [UnitType.BATTLEMECH, 'megamek-unit'],
+    [UnitType.VEHICLE, 'megamek-vehicle'],
+    [UnitType.AEROSPACE, 'megamek-aerospace'],
+    [UnitType.BATTLE_ARMOR, 'megamek-battlearmor'],
+    [UnitType.INFANTRY, 'megamek-infantry'],
+    [UnitType.PROTOMECH, 'megamek-protomech'],
+  ])(
+    'reads the persisted dirty flag for %s without registering a store',
+    (unitType, prefix) => {
+      const key = `${prefix}-${UNIT_ID}`;
+      localStorage.setItem(
+        key,
+        JSON.stringify({ state: { isModified: true } }),
+      );
+      const write = jest.spyOn(Storage.prototype, 'setItem');
+      expect(isTabModified(UNIT_ID, unitType)).toBe(true);
+      localStorage.setItem(
+        key,
+        JSON.stringify({ state: { isModified: false } }),
+      );
+      write.mockClear();
+      expect(isTabModified(UNIT_ID, unitType)).toBe(false);
+      expect(write).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    '{broken',
+    'null',
+    '{}',
+    '{"state":null}',
+    '{"state":{"isModified":"false"}}',
+  ])('protects an unreadable or ambiguous draft: %s', (raw) => {
+    localStorage.setItem(`megamek-unit-${UNIT_ID}`, raw);
+    expect(isTabModified(UNIT_ID)).toBe(true);
+  });
+
+  it('protects the tab when storage access throws', () => {
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('unavailable');
+    });
+    expect(isTabModified(UNIT_ID)).toBe(true);
+  });
+
+  it('allows closing a tab with no stored draft', () => {
+    expect(isTabModified(UNIT_ID)).toBe(false);
+  });
+
+  it.each([true, false])(
+    'trusts the live dirty flag %s over stale storage',
+    (isModified) => {
+      const store = createNewUnitStore({
+        id: UNIT_ID,
+        name: 'Live draft',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
+      });
+      store.setState({ isModified });
+      localStorage.setItem(
+        `megamek-unit-${UNIT_ID}`,
+        JSON.stringify({ state: { isModified: !isModified } }),
+      );
+      jest.mocked(getUnitStore).mockReturnValue(store);
+      const read = jest.spyOn(Storage.prototype, 'getItem');
+      expect(isTabModified(UNIT_ID)).toBe(isModified);
+      expect(read).not.toHaveBeenCalled();
+    },
+  );
 });
 
 it('updates open-unit identity for edits and releases its subscription', () => {

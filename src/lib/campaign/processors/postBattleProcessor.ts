@@ -306,6 +306,19 @@ export function applyPostBattle(
     events: result.events,
   };
 }
+
+function battleApplicationErrorEvent(
+  outcome: ICombatOutcome,
+  error: string,
+): IDayEvent {
+  return {
+    type: 'post_battle_apply_failed',
+    description: `Battle ${outcome.matchId} application reported errors: ${error}`,
+    severity: 'critical',
+    data: { matchId: outcome.matchId, contractId: outcome.contractId, error },
+  };
+}
+
 export const postBattleProcessor: IDayProcessor = {
   id: 'post-battle',
   phase: DayPhase.MISSIONS - 50,
@@ -323,22 +336,21 @@ export const postBattleProcessor: IDayProcessor = {
         const result = applyOutcome(working, outcome);
         working = result.campaign;
         events.push(...result.events);
+        if (result.summary.errors.length > 0) {
+          events.push(
+            battleApplicationErrorEvent(
+              outcome,
+              result.summary.errors.join('; '),
+            ),
+          );
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         logger.error(
           `[postBattleProcessor] Failed to apply outcome ${outcome.matchId}; keeping in queue for retry:`,
           err,
         );
-        events.push({
-          type: 'post_battle_apply_failed',
-          description: `Post-battle apply failed for match ${outcome.matchId}: ${message}`,
-          severity: 'critical',
-          data: {
-            matchId: outcome.matchId,
-            contractId: outcome.contractId,
-            error: message,
-          },
-        });
+        events.push(battleApplicationErrorEvent(outcome, message));
       }
     }
     return { events, campaign: working };

@@ -24,6 +24,10 @@ import type {
 
 import { clientSafeStorage } from '../utils/clientSafeStorage';
 import {
+  hydrateCampaignBattleState,
+  mergeBattleOutcomeState,
+} from './campaignBattleOutcomeState';
+import {
   useCampaignPersistenceStore,
   type CampaignPersistenceSaveResult,
 } from './useCampaignPersistenceStore';
@@ -109,7 +113,9 @@ function createCampaignAction(
       rootForce,
     );
     set({
-      campaign: withRootForce(campaign, rootForce, coopOpts?.coopSession),
+      ...hydrateCampaignBattleState(
+        withRootForce(campaign, rootForce, coopOpts?.coopSession),
+      ),
       forcesStore,
       missionsStore,
     });
@@ -141,12 +147,14 @@ function createGuestMirrorCampaignAction(
       guestSession,
     );
     set({
-      campaign: snapshot.authoritativeState
-        ? applyAuthoritativeStateToGuestCampaign(
-            mirror,
-            snapshot.authoritativeState,
-          )
-        : mirror,
+      ...hydrateCampaignBattleState(
+        snapshot.authoritativeState
+          ? applyAuthoritativeStateToGuestCampaign(
+              mirror,
+              snapshot.authoritativeState,
+            )
+          : mirror,
+      ),
       forcesStore,
       missionsStore,
     });
@@ -178,10 +186,9 @@ function loadCampaignAction(set: CampaignSet): CampaignStore['loadCampaign'] {
           .map((m) => [m.id, m]),
       );
       set({
-        campaign: deserializeCampaign(serialized, forces, missions),
-        pendingBattleOutcomes: serialized.pendingBattleOutcomes,
-        processedBattleIds: serialized.processedBattleIds,
-        reviewedBattleIds: serialized.reviewedBattleIds,
+        ...hydrateCampaignBattleState(
+          deserializeCampaign(serialized, forces, missions),
+        ),
         forcesStore,
         missionsStore,
       });
@@ -194,11 +201,16 @@ function loadCampaignAction(set: CampaignSet): CampaignStore['loadCampaign'] {
 
 function switchCampaignAction(
   set: CampaignSet,
+  get: CampaignGet,
 ): CampaignStore['switchCampaign'] {
   return (campaign) => {
     const { forcesStore, missionsStore } =
       initializeChildStoresFromCampaign(campaign);
-    set({ campaign, forcesStore, missionsStore });
+    set({
+      ...hydrateCampaignBattleState(campaign, get()),
+      forcesStore,
+      missionsStore,
+    });
   };
 }
 
@@ -244,13 +256,15 @@ function saveCampaignAction(
       get,
       campaign,
     );
+    const battleState = mergeBattleOutcomeState(campaign, get());
     const updatedCampaign: ICampaign = {
       ...campaign,
+      ...battleState,
       forces,
       missions,
       updatedAt: new Date().toISOString(),
     };
-    set({ campaign: updatedCampaign });
+    set({ campaign: updatedCampaign, ...battleState });
     persistCampaignRecord(
       updatedCampaign,
       pendingBattleOutcomes,
@@ -332,7 +346,7 @@ export function createCampaignStoreActions(
     createCampaign: createCampaignAction(set),
     createGuestMirrorCampaign: createGuestMirrorCampaignAction(set),
     loadCampaign: loadCampaignAction(set),
-    switchCampaign: switchCampaignAction(set),
+    switchCampaign: switchCampaignAction(set, get),
     saveCampaign: saveCampaignAction(set, get),
     ...createCampaignDayActions(set, get),
     updateCampaign: updateCampaignAction(set, get),

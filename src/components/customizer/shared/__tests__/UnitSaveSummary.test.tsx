@@ -5,6 +5,7 @@ import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { createNewUnitStore } from '@/stores/useUnitStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { BrowserDraftStatus, DRAFT_SAVE_PULSE_MS } from '../BrowserDraftStatus';
 import {
@@ -26,6 +27,44 @@ const mockGetUnitStore = getUnitStore as jest.MockedFunction<
 >;
 
 describe('UnitSaveSummary', () => {
+  it('threads a non-mech family through saved, pulse, and failure states', () => {
+    jest.useFakeTimers();
+    try {
+      mockGetUnitStore.mockReturnValue(undefined);
+      render(
+        <UnitSaveSummary
+          unitId="summary-vehicle"
+          unitType={UnitType.VEHICLE}
+          showOnDesktop
+        />,
+      );
+      act(() =>
+        clientSafeStorage.setItem('megamek-vehicle-summary-vehicle', '{}'),
+      );
+      expect(screen.getByText('Draft Saved')).toHaveAttribute(
+        'data-draft-pulse',
+        'true',
+      );
+      act(() => jest.advanceTimersByTime(DRAFT_SAVE_PULSE_MS));
+      expect(screen.getByText('Draft Saved')).not.toHaveAttribute(
+        'data-draft-pulse',
+      );
+      jest.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+        throw new Error('full');
+      });
+      act(() => {
+        expect(() =>
+          clientSafeStorage.setItem('megamek-vehicle-summary-vehicle', '{}'),
+        ).toThrow('full');
+      });
+      expect(screen.getByRole('status')).toHaveAttribute(
+        'data-state',
+        'failed',
+      );
+    } finally {
+      jest.useRealTimers();
+    }
+  });
   afterEach(() => {
     jest.restoreAllMocks();
     localStorage.clear();

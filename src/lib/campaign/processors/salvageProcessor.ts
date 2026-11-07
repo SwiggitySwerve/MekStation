@@ -98,7 +98,10 @@ function processOutcome(
   events: IDayEvent[];
 } {
   const reported = campaign.salvageReportedBattleIds ?? [];
-  if (reported.includes(outcome.matchId)) {
+  if (
+    reported.includes(outcome.matchId) ||
+    campaign.salvageAllocations?.[outcome.matchId]?.processed
+  ) {
     return {
       campaign,
       summary: {
