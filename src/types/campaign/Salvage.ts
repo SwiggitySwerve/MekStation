@@ -21,6 +21,9 @@
  * @module types/campaign/Salvage
  */
 
+import type { RosterUnitSource } from './RosterUnitSource';
+import type { IUnitCombatState } from './UnitCombatState';
+
 // =============================================================================
 // Enums
 // =============================================================================
@@ -122,6 +125,14 @@ export const CBILLS_PER_BATTLE_VALUE = 2_500;
 // Candidates
 // =============================================================================
 
+/** Recorded whole-unit recovery facts; unknown source facts stay absent. */
+export interface ISalvageUnitRecovery {
+  readonly unitRef: string;
+  readonly unitSource?: RosterUnitSource;
+  readonly sourceVersion?: number;
+  readonly combatState: IUnitCombatState;
+}
+
 /**
  * One salvageable item from a battle. Either a complete enemy unit (with
  * `source = 'unit'`) or a single part (`source = 'part'`) recovered from
@@ -136,6 +147,8 @@ export const CBILLS_PER_BATTLE_VALUE = 2_500;
 export interface ISalvageCandidate {
   /** Source classification. */
   readonly source: SalvageCandidateSource;
+  /** Whole-unit recovery only. Legacy candidates may have no recorded facts. */
+  readonly recovery?: ISalvageUnitRecovery;
   /** Stable identifier for the unit this candidate came from. */
   readonly unitId: string;
   /** Display designation (e.g. "Atlas AS7-D") for UI / reports. */

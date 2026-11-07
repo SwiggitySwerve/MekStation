@@ -13,7 +13,10 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
+import { createHash } from 'node:crypto';
 
+import { aggregateSalvageCandidates } from '@/lib/campaign/salvage/salvageEngine';
+import { validateSalvageUnitRecovery } from '@/lib/campaign/salvage/salvageUnitRecovery';
 import {
   COMBAT_OUTCOME_VERSION,
   CombatEndReason,
@@ -22,6 +25,7 @@ import {
   UnsupportedCombatOutcomeVersionError,
   assertCombatOutcomeCurrent,
 } from '@/types/combat/CombatOutcome';
+import { projectCustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
 import {
   GameEventType,
   GameSide,
@@ -38,6 +42,7 @@ import { endGame } from '@/utils/gameplay/gameSessionCore';
 import { deriveState } from '@/utils/gameplay/gameState';
 import { derivePostBattleReport } from '@/utils/gameplay/postBattleReport';
 
+import atlas from '../../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
 import { deriveCombatOutcome, isSessionCompleted } from '../combatOutcome';
 
 const config: IGameConfig = {
@@ -78,6 +83,112 @@ function buildCompletedSession(): IGameSession {
   session = endGame(session, GameSide.Player, 'destruction');
   return session;
 }
+
+describe('outcome compatibility bytes', () => {
+  it('preserves completed-session fixture outputs outside provenance', () => {
+    const session = buildCompletedSession();
+    const fixtures = [
+      session,
+      injectKillEvents(session, 'attacker', 'target', 50, true),
+    ].map((fixture) =>
+      deriveCombatOutcome(
+        {
+          ...fixture,
+          id: 'compatibility-match',
+          events: fixture.events.map((event, index) => ({
+            ...event,
+            id: `event-${index}`,
+            gameId: 'compatibility-match',
+            timestamp: '2026-11-07T00:00:00Z',
+          })),
+        },
+        { capturedAt: '2026-11-07T00:00:00Z' },
+      ),
+    );
+    const bytes = JSON.stringify(
+      fixtures.map((outcome) => ({
+        ...outcome,
+        unitDeltas: outcome.unitDeltas.map((delta) =>
+          Object.fromEntries(
+            Object.entries(delta).filter(
+              ([key]) =>
+                !['unitRef', 'unitSource', 'sourceVersion'].includes(key),
+            ),
+          ),
+        ),
+      })),
+    );
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+      '3e69855f1db48ccb358c1df0f2197ba8a604c841ff95dbc8e785f6d2b8d0b610',
+    );
+  });
+});
+
+describe('outcome salvage provenance', () => {
+  it('preserves the session design ref independently of the instance id and display name', () => {
+    const session = buildCompletedSession();
+    const outcome = deriveCombatOutcome(session);
+    expect(outcome.unitDeltas.map((delta) => delta.unitRef)).toEqual(
+      session.units.map((unit) => unit.unitRef),
+    );
+    expect(outcome.unitDeltas[1].unitRef).toBe('mad-3r');
+    expect(outcome.unitDeltas[1]).not.toHaveProperty('unitSource');
+    expect(outcome.unitDeltas[1]).not.toHaveProperty('sourceVersion');
+  });
+
+  it('preserves recorded custom origin without inventing a historical version', () => {
+    const customUnitDefinition = projectCustomCombatSnapshot({
+      ...atlas,
+      id: 'custom-atlas',
+    });
+    if (!customUnitDefinition)
+      throw new Error('Expected a valid custom construction fixture');
+    const session = buildCompletedSession();
+    const customUnit: IGameUnit = {
+      ...session.units[1],
+      unitRef: 'custom-atlas',
+      customUnitDefinition,
+    };
+    const outcome = deriveCombatOutcome({
+      ...session,
+      units: [session.units[0], customUnit],
+    });
+    expect(outcome.unitDeltas[1]).toMatchObject({
+      unitRef: 'custom-atlas',
+      unitSource: 'custom',
+    });
+    expect(outcome.unitDeltas[1]).not.toHaveProperty('sourceVersion');
+  });
+
+  it('carries real session damage into a recovery that requires canonical confirmation', () => {
+    const session = injectKillEvents(
+      buildCompletedSession(),
+      'attacker',
+      'target',
+      50,
+      true,
+    );
+    const outcome = deriveCombatOutcome(session, {
+      capturedAt: '2026-11-07T00:00:00Z',
+    });
+    const candidate = aggregateSalvageCandidates(outcome).candidates.find(
+      (candidate) => candidate.source === 'unit',
+    );
+    expect(candidate?.unitId).toBe('target');
+    expect(candidate?.recovery).toMatchObject({
+      unitRef: 'mad-3r',
+      combatState: {
+        combatReady: false,
+        currentStructurePerLocation: { center_torso: 0 },
+      },
+    });
+    expect(validateSalvageUnitRecovery(candidate).kind).toBe('refused');
+    expect(validateSalvageUnitRecovery(candidate, 'mad-3r')).toMatchObject({
+      kind: 'ready',
+      recovery: { unitSource: 'canonical' },
+    });
+  });
+});
 
 describe('deriveCombatOutcome — schema', () => {
   it('stamps the current version', () => {
