@@ -1,9 +1,34 @@
+import { NodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
 import { calculateVehicleBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
-describe('Named canonical vehicles (smoke)', () => {
+// P1 full.jsonl SHA-256 4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87.
+// Each row below cites battleValue.total under expected-reference-policy.json:
+// MegaMek 48fcb2f64, MML 62bf193, mm-data 50f7efe; ignore C3/skill/TAG.
+describe('Canonical vehicles (pinned MegaMek BV)', () => {
+  const catalog = new NodeCanonicalUnitService(process.cwd());
+  it.each([
+    // Row 8283: vehicles/3039u/Demolisher Heavy Tank (Mk. I).blk
+    ['demolisher-heavy-tank-mk-i', 981],
+    // Row 8334: vehicles/3039u/Manticore Heavy Tank.blk
+    ['manticore-heavy-tank', 993],
+    // Row 8375: vehicles/3039u/Savannah Master Hovercraft.blk
+    ['savannah-master-hovercraft', 215],
+    // Row 8403: vehicles/3039u/Warrior H-7 Attack Helicopter.blk
+    ['warrior-attack-helicopter-h-7', 295],
+    // Row 8330: vehicles/3039u/LRM Carrier.blk
+    ['lrm-carrier', 833],
+  ] as const)('%s matches its pinned reference BV', (id, expectedBV) => {
+    const unit = catalog.getByIdSync(id, { family: 'vehicles', strict: true });
+    if (!unit) throw new Error(`Missing canonical vehicle ${id}`);
+    expect(calculateUnitBV(unit)).toBe(expectedBV);
+  });
+});
+
+describe('Synthetic vehicle rule scenarios', () => {
   it('Demolisher: tracked + single turret -> neutral turret mod, positive BV', () => {
     const bv = calculateVehicleBV(
       baseInput({

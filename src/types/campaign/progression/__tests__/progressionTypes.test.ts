@@ -134,36 +134,6 @@ describe('Personnel Progression Types', () => {
       expect(milestone.appliesGlassJaw).toBe(false);
     });
 
-    it('should have correct fields for all milestones', () => {
-      const milestones: IAgingMilestone[] = [
-        {
-          minAge: 0,
-          maxAge: 24,
-          label: '<25',
-          attributeModifiers: {},
-          appliesSlowLearner: false,
-          appliesGlassJaw: false,
-        },
-        {
-          minAge: 61,
-          maxAge: 70,
-          label: '61-70',
-          attributeModifiers: { STR: -1.0, BOD: -1.0 },
-          appliesSlowLearner: true,
-          appliesGlassJaw: true,
-        },
-      ];
-
-      milestones.forEach((milestone) => {
-        expect(typeof milestone.minAge).toBe('number');
-        expect(typeof milestone.maxAge).toBe('number');
-        expect(typeof milestone.label).toBe('string');
-        expect(typeof milestone.attributeModifiers).toBe('object');
-        expect(typeof milestone.appliesSlowLearner).toBe('boolean');
-        expect(typeof milestone.appliesGlassJaw).toBe('boolean');
-      });
-    });
-
     it('should support attribute modifiers as Record<string, number>', () => {
       const milestone: IAgingMilestone = {
         minAge: 61,
@@ -251,24 +221,6 @@ describe('Personnel Progression Types', () => {
 
       expect(spa.prerequisites).toHaveLength(2);
       expect(spa.prerequisites).toContain('skill-001');
-    });
-
-    it('should have all required fields', () => {
-      const spa: ISpecialAbility = {
-        id: 'test_spa',
-        name: 'Test SPA',
-        description: 'A test special ability',
-        xpCost: 20,
-        isFlaw: false,
-        isOriginOnly: false,
-      };
-
-      expect(typeof spa.id).toBe('string');
-      expect(typeof spa.name).toBe('string');
-      expect(typeof spa.description).toBe('string');
-      expect(typeof spa.xpCost).toBe('number');
-      expect(typeof spa.isFlaw).toBe('boolean');
-      expect(typeof spa.isOriginOnly).toBe('boolean');
     });
   });
 

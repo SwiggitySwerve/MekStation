@@ -28,6 +28,20 @@ Both native loaders reject a missing block with
 `Could not find heatsinks block.` Regression coverage:
 `scripts/__tests__/test_blk_aerospace_heatsinks.py`.
 
+The same three fighter spellings require a sink-type block. Missing both
+`sink_type` and its existing `heat_sinks` compatibility alias raises `ValueError`
+with the source filename and `<sink_type>` tag. Explicit 0/1, heat-sink counts,
+existing type interpretation, and FixedWingSupport/SmallCraft omission policies
+remain unchanged. This is source admission, not construction-validity evidence.
+
+Authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`BLKAeroSpaceFighterFile.java:99-102` and `BLKConvFighterFile.java:90-93`.
+Both require `sink_type`; conventional-fighter heat-type interpretation is a
+separate concern. MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`
+`UnitUtil.java:2004` delegates to `BLKFile.getBlock`, whose lines 903-904
+write both heat-sink blocks. The tests above cover the missing-block guard,
+zero/positive counts, both explicit types, the alias and excluded families.
+
 ## DropShip input and motion (the DropShip converter arrives with #2444)
 
 After family recognition, missing identity, year, tonnage or type is an error.

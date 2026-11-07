@@ -46,6 +46,7 @@ class BlkEngineCodeTest(unittest.TestCase):
                 '<type>Clan Level 2</type>\n<motion_type>Biped</motion_type>\n'
                 '<cruiseMP>5</cruiseMP>\n<SafeThrust>5</SafeThrust>\n'
                 '<heatsinks>0</heatsinks>\n'
+                '<sink_type>0</sink_type>\n'
                 + engine_tag + f'\n<armor>\n{armor}\n</armor>\n',
                 encoding='utf-8',
             )

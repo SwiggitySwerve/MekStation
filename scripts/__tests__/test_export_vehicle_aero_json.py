@@ -26,6 +26,7 @@ TANK = (
 FIGHTER = (
     '<UnitType>AeroSpaceFighter</UnitType>\n<Name>Export Fighter</Name>\n<year>3060</year>\n'
     '<heatsinks>0</heatsinks>\n'
+    '<sink_type>0</sink_type>\n'
     '<tonnage>50</tonnage>\n<SafeThrust>5</SafeThrust>\n<armor>\n10\n10\n10\n10\n</armor>\n'
 )
 # The vehicle converter hands a FixedWingSupport under vehicles/ to another converter (9 pinned
