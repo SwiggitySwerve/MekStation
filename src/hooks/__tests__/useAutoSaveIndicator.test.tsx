@@ -1,6 +1,9 @@
 import { act, renderHook } from '@testing-library/react';
 
-import { useAutoSaveIndicator } from '@/hooks/useAutoSaveIndicator';
+import {
+  getCustomizerDraftStorageKey,
+  useAutoSaveIndicator,
+} from '@/hooks/useAutoSaveIndicator';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -26,6 +29,28 @@ afterEach(() => {
 });
 
 describe('useAutoSaveIndicator', () => {
+  it.each([
+    [UnitType.BATTLEMECH, 'megamek-unit'],
+    [UnitType.OMNIMECH, 'megamek-unit'],
+    [UnitType.INDUSTRIALMECH, 'megamek-unit'],
+    [UnitType.VEHICLE, 'megamek-vehicle'],
+    [UnitType.VTOL, 'megamek-vehicle'],
+    [UnitType.SUPPORT_VEHICLE, 'megamek-vehicle'],
+    [UnitType.AEROSPACE, 'megamek-aerospace'],
+    [UnitType.CONVENTIONAL_FIGHTER, 'megamek-aerospace'],
+    [UnitType.SMALL_CRAFT, 'megamek-aerospace'],
+    [UnitType.DROPSHIP, 'megamek-aerospace'],
+    [UnitType.JUMPSHIP, 'megamek-aerospace'],
+    [UnitType.WARSHIP, 'megamek-aerospace'],
+    [UnitType.SPACE_STATION, 'megamek-aerospace'],
+    [UnitType.BATTLE_ARMOR, 'megamek-battlearmor'],
+    [UnitType.INFANTRY, 'megamek-infantry'],
+    [UnitType.PROTOMECH, 'megamek-protomech'],
+  ])('keeps the public draft resolver for %s', (unitType, prefix) => {
+    expect(getCustomizerDraftStorageKey({ unitId: MECH_ID, unitType })).toBe(
+      `${prefix}-${MECH_ID}`,
+    );
+  });
   it('does not report a save without an active customizer unit', () => {
     renderHook(() => useAutoSaveIndicator(null));
 

@@ -21,6 +21,8 @@ import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
 import type { TabDisplayInfo } from './tabTypes';
 
+import { isStoredCustomizerDraftModified } from '../shared/customizerDraftStorage';
+
 interface UnitStoreStateLike {
   name?: string;
   isModified?: boolean;
@@ -157,7 +159,13 @@ export function subscribeToTabDisplayState(
 }
 
 export function isTabModified(tabId: string, unitType?: UnitType): boolean {
-  return getUnitStoreState(tabId, unitType)?.isModified ?? false;
+  return (
+    getUnitStoreState(tabId, unitType)?.isModified ??
+    isStoredCustomizerDraftModified({
+      unitId: tabId,
+      unitType: unitType ?? UnitType.BATTLEMECH,
+    })
+  );
 }
 
 export function getTabDisplayState(
