@@ -337,9 +337,13 @@ export default function CustomizerWithRouter(): React.ReactElement {
     // (the old behavior) let the URL<->state sync effects below run against
     // the pre-rehydration store, which redirected valid full-page deep
     // links to the index or another unit (e2e triage RC15).
-    void Promise.resolve(useTabManagerStore.persist.rehydrate()).then(() => {
-      setIsHydrated(true);
-    });
+    void Promise.resolve(useTabManagerStore.persist.rehydrate())
+      .catch((error: unknown) => {
+        logger.error('[CustomizerWithRouter] Error during rehydration:', error);
+      })
+      .finally(() => {
+        setIsHydrated(true);
+      });
   }, []);
 
   // ==========================================================================
