@@ -4,8 +4,8 @@
 
 The ProtoMech offensive owner SHALL retain optional source-backed diagnostic
 facts for finite positive bin values already supplied by its existing native
-ammo resolver when the existing public native-group owner recognizes its
-weaponType. Facts SHALL retain source ids, indices, supplied locations and
+ammo resolver with its existing registry native group, independently of weapon
+matching. Facts SHALL retain source ids, indices, supplied locations and
 native groups in physical order. The trace SHALL aggregate actual available
 values through the existing public addition owner without changing resolution,
 quantities, admission, exact-key caps, arithmetic, old facts or totals. Missing
@@ -14,17 +14,23 @@ identity or a bin from launcher presence.
 
 #### Scenario: Real positive bins and retained arithmetic
 
-- **GIVEN** two real SRM 2 bins with 7 and 3 shots valued by the existing native ammo owner and a publicly recognized SRM 2 weaponType
+- **GIVEN** two real SRM 2 bins with 7 and 3 shots valued by the existing native ammo owner with registry group SRM:2
 - **WHEN** the public ProtoMech breakdown and trace are calculated
 - **THEN** the actual bin values SHALL be retained in physical order and added to `ammo.available.SRM:2` through the existing public owner
 - **AND** original ammunition quantities, cap calculations, source data, weapon/misc facts and numerical results SHALL remain unchanged
+
+#### Scenario: Unmatched native bin retains availability
+
+- **GIVEN** a real positive SRM 2 bin resolved by the existing native ammo owner without a matching weapon
+- **WHEN** the public ProtoMech breakdown and trace are calculated
+- **THEN** its actual value SHALL appear in `ammo.available.SRM:2` using the resolver's existing registry group
+- **AND** its enum-form arithmetic weaponType and original BV SHALL remain unchanged with no invented cap
 
 #### Scenario: Absent, excluded and unsupported facts
 
 - **GIVEN** a legacy breakdown, launcher without a bin, empty or unresolved bin, generic fallback or unsupported public group
 - **WHEN** positive native ammo availability is projected
 - **THEN** no absent or unsupported fact SHALL become an invented zero-valued availability or identity
-- **AND** the existing unmatched enum-form group limitation SHALL remain absent without changing its original arithmetic
 - **AND** all original scalar terms and existing projections SHALL remain unchanged
 
 ### Requirement: ProtoMech native offensive-misc diagnostic projection

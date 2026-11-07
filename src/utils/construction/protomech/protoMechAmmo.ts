@@ -53,7 +53,9 @@ export function getProtoAmmo(name: string): ProtoAmmo | undefined {
 export function resolveProtoAmmoBV(
   equipmentId: string,
   weaponIds: readonly string[],
-): { battleValue: number; weaponType: string } | undefined {
+):
+  | { battleValue: number; weaponType: string; readonly nativeGroup: string }
+  | undefined {
   const match = /^(.*?)\s*\((\d+)\)$/.exec(equipmentId.trim());
   const ammo = match ? getProtoAmmo(match[1]) : undefined;
   if (!match || !ammo) return undefined;
@@ -64,5 +66,6 @@ export function resolveProtoAmmoBV(
     battleValue:
       ((ammo.kgPerShot * Number(match[2])) / 1000) * ammo.battleValue,
     weaponType: weapon ? normalizeEquipmentId(weapon) : ammo.group,
+    nativeGroup: ammo.group,
   };
 }
