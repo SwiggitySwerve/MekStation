@@ -191,6 +191,7 @@ Mech print extraction SHALL retain an explicitly supplied complete native crew r
 - **WHEN** a legacy caller extracts any Mech configuration
 - **THEN** no roster is inferred from configuration or tonnage
 - **AND** multi-slot rendering, editor authoring and persistence remain required follow-up work under rows 4.1/4.3
+
 ### Requirement: Explicit native tripod crew rendering
 
 Canonical ordinary and superheavy tripod sheets SHALL render the supplied
@@ -220,4 +221,3 @@ identities without deriving assignments, crew type or per-seat pilot options.
 - **THEN** missing/swapped fields fail the identity assertions
 - **AND** legacy/no-crew, single-pilot biped/quad/LAM and other-family output remain unchanged
 - **AND** QuadVee rendering, roster authoring and persistence remain required separate work
-
