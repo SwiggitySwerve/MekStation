@@ -1,43 +1,18 @@
+import { NodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { calculateUnitBV, type UnitData } from '@/utils/construction/bvAdapter';
+import { resolveEquipmentBV } from '@/utils/construction/equipmentBVResolver';
 
-function createStalkerUnitData(): UnitData {
-  return {
-    id: 'stalker-ii-stk-9a',
-    chassis: 'Stalker II',
-    model: 'STK-9A',
-    unitType: 'BattleMech',
-    tonnage: 85,
-    techBase: 'INNER_SPHERE',
-    engine: { type: 'FUSION', rating: 255 },
-    gyro: { type: 'COMPACT' },
-    cockpit: 'TORSO_MOUNTED',
-    structure: { type: 'ENDO_STEEL' },
-    armor: {
-      type: 'HARDENED',
-      allocation: {
-        HEAD: 9,
-        CENTER_TORSO: { front: 36, rear: 11 },
-        LEFT_TORSO: { front: 25, rear: 7 },
-        RIGHT_TORSO: { front: 25, rear: 7 },
-        LEFT_ARM: 23,
-        RIGHT_ARM: 23,
-        LEFT_LEG: 25,
-        RIGHT_LEG: 25,
-      },
-    },
-    heatSinks: { type: 'DOUBLE', count: 10 },
-    movement: { walk: 3, jump: 0 },
-    equipment: [
-      { id: 'medium-laser', location: 'LEFT_ARM' },
-      { id: 'medium-laser', location: 'LEFT_ARM' },
-      { id: 'medium-laser', location: 'RIGHT_ARM' },
-      { id: 'medium-laser', location: 'RIGHT_ARM' },
-      { id: 'medium-laser', location: 'CENTER_TORSO' },
-      { id: 'medium-laser', location: 'CENTER_TORSO' },
-      { id: 'medium-laser', location: 'HEAD' },
-      { id: 'medium-laser', location: 'HEAD' },
-    ],
-  };
+// P1 full.jsonl (SHA-256 4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87),
+// row 6260: meks/3145/Marik/Stalker II STK-9A.mtf, battleValue.total.
+// Policy: config/reference-policy/expected-reference-policy.json;
+// MegaMek 48fcb2f64, MML 62bf193, mm-data 50f7efe.
+const STALKER_REFERENCE_BV = 2261;
+const catalog = new NodeCanonicalUnitService(process.cwd());
+
+function createStalkerUnitData() {
+  const unit = catalog.getByIdSync('stalker-ii-stk-9a', { strict: true });
+  if (!unit) throw new Error('Missing canonical Stalker II STK-9A');
+  return unit;
 }
 
 function createMinimalBattleMech(): UnitData {
@@ -66,9 +41,9 @@ function createMinimalBattleMech(): UnitData {
 
 describe('bvAdapter', () => {
   describe('calculateUnitBV', () => {
-    it('returns a positive BV for a valid BattleMech', () => {
+    it('matches the pinned BV for the canonical Stalker II STK-9A', () => {
       const result = calculateUnitBV(createStalkerUnitData());
-      expect(result).toBeGreaterThan(0);
+      expect(result).toBe(STALKER_REFERENCE_BV);
     });
 
     it('rejects a vehicle without its family BV inputs', () => {
@@ -120,11 +95,23 @@ describe('bvAdapter', () => {
         ],
       });
       expect(withWeapons).toBeGreaterThan(withoutWeapons);
+
+      // BVCalculator.processWeapons/processOffensiveType: a front medium laser
+      // stays below the heat limit here and receives no arc/heat penalty.
+      // The documented speed formula for walk 6/run 9 gives 1.50. Its BV delta
+      // is integral, so rounding final BV preserves the delta exactly.
+      const withMediumLaser = calculateUnitBV({
+        ...createMinimalBattleMech(),
+        equipment: [{ id: 'medium-laser', location: 'LEFT_ARM' }],
+      });
+      expect(withMediumLaser - withoutWeapons).toBe(
+        resolveEquipmentBV('medium-laser').battleValue * 1.5,
+      );
     });
 
-    it('returns integer BV values', () => {
+    it('retains the pinned rounded BV for the canonical Stalker II STK-9A', () => {
       const result = calculateUnitBV(createStalkerUnitData());
-      expect(Number.isInteger(result)).toBe(true);
+      expect(result).toBe(STALKER_REFERENCE_BV);
     });
   });
 });
