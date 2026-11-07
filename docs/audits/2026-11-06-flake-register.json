@@ -1049,6 +1049,12 @@
       "location": "coordinator-archive",
       "sha256": "bb424a677d71e1115686be17701e8fe844cafbc507172ef2a412dd045b4b95f9",
       "bytes": 9608
+    },
+    "2980-root-g2-approval": {
+      "path": "normal-work/G6-flake-register/g6-042-capture-42319145535-register/g2-approved-correction/root-g2-approval.json",
+      "location": "coordinator-archive",
+      "sha256": "0eb6ee8cb9ec24aeac7d9e0261e706da6675c280e7f0bbb0fd2fe30d1a9d5a7f",
+      "bytes": 994
     }
   },
   "entries": [
@@ -1844,12 +1850,12 @@
     {
       "id": "G6-028",
       "classification": "branch-context-limitation-not-flake",
-      "state": "G2 follow-up assigned by Root; no fix or additional proof authorized",
+      "state": "G2 local reproduction/test-first regression/narrow implementation approved by Root; no hosted dispatch",
       "test": "CAMP-01 proof6a2-envelope-anchor-production",
       "environment": "windows-ci",
-      "summary": "Two separate mechanisms: Windows Git version outside allowlist and main advancing beyond shallow checkout anchor. #2429 repair reported; retain capability error separately from anchor race. Root accepted current42317001736/a1 Windows anchor failure on divergent depth1 branch as branch-dispatch context limitation, NOT a flake. Browser pin#2977 merged8a8f1b3f8fcb8305a8aa12c85d9b7636cb4d0247. G2 now explicitly owns follow-up; assignment grants no fix/proof authorization.",
-      "owner": "G2: CAMP Git-anchor follow-up explicitly assigned by Root; supersedes prior unnamed contact gap. Root retains fix/proof authorization.",
-      "nextStep": "G2 retains CAMP Git-anchor follow-up under Root assignment. Any fix or additional proof requires separate authorization; preserve authoritative Git/main/tree checks. No rerun or flaky label. Earlier unnamed contact gap is superseded.",
+      "summary": "Two separate mechanisms: Windows Git version outside allowlist and main advancing beyond shallow checkout anchor. #2429 repair reported; retain capability error separately from anchor race. Root accepted current42317001736/a1 Windows anchor failure on divergent depth1 branch as branch-dispatch context limitation, NOT a flake. Browser pin#2977 merged8a8f1b3f8fcb8305a8aa12c85d9b7636cb4d0247. Earlier G2 assignment alone granted no fix/proof authorization. Later Root directly approved G2 local reproduction, test-first regression and a narrow two-file sessionAnchor fallback switch; no hosted dispatch. This register grants no authority itself.",
+      "owner": "G2: CAMP Git-anchor follow-up assigned and local proposal approved directly by Root. Root alone merges; G6 records chronology only.",
+      "nextStep": "G2 proceeds only with directly Root-approved local reproduction, test-first regression and narrow two-file sessionAnchor fallback switch; draft PR and Root-only merge. No hosted dispatch. Root said no G6 task relay is needed. This docs PR records separate authority, grants no implementation/proof authorization itself, and authorizes no G6 runtime/source work.",
       "observations": [
         {
           "runId": 41144678804,
@@ -1890,11 +1896,12 @@
         "camp",
         "camp-repair",
         "camp-42317001736-routing",
-        "42319145535-register-authorization"
+        "42319145535-register-authorization",
+        "2980-root-g2-approval"
       ],
       "missingEvidence": [
         "Exact attempts/heads and current recurrence status.",
-        "Current branch limitation: failed anchor SHA/raw Git stderr omitted by caught-error artifact. Ten main passes do not exercise divergent fallback. No additional proof authorized."
+        "Current branch limitation: failed anchor SHA/raw Git stderr omitted by caught-error artifact. Ten main passes do not exercise divergent fallback. No additional proof was authorized at the earlier routing event; later direct Root approval permits local test-first proof only, with no hosted dispatch."
       ],
       "historicalClassification": {
         "classification": "environment-capability-and-race",
@@ -1903,15 +1910,26 @@
         "scope": "Original Git capability/anchor-race and reported#2429 repair; original observations retained. Separate from current branch-dispatch limitation."
       },
       "branchDispatchFollowup": {
-        "source": "42319145535-register-authorization",
+        "source": "2980-root-g2-approval",
         "owner": "G2, explicitly assigned by Root",
         "browserPinMerge": "8a8f1b3f8fcb8305a8aa12c85d9b7636cb4d0247",
         "owningSeam": "run-camp01-live-adversarial.mjs selectEnvelopeAnchor / camp01-anchor-authority.mjs createAnchorAuthority",
         "sourceBoundary": "Fallback reads selected main/tree in fully fetched session but invokes authority bound to shallow initiatingRoot.",
         "classification": "branch-context limitation, NOT a flake",
         "contactGap": "Earlier unnamed-contact receipt remains historical; G2 assignment supersedes it.",
-        "fixAuthorized": false,
-        "additionalProofAuthorized": false
+        "fixAuthorized": true,
+        "additionalProofAuthorized": true,
+        "earlierRoutingAuthorization": {
+          "source": "42319145535-register-authorization",
+          "fixAuthorized": false,
+          "additionalProofAuthorized": false,
+          "scope": "Earlier routing event only; accurately no approval then, superseded as current status by later direct Root approval."
+        },
+        "proofScope": "Local reproduction and test-first regression only, plus narrow two-file sessionAnchor fallback switch. No hosted dispatch.",
+        "hostedDispatchAuthorized": false,
+        "registerGrantsAuthorization": false,
+        "taskRelayNeeded": false,
+        "authorizationSource": "Root directly approved PROPOSAL.md to G2; G6 relays no new task and claims no implementation complete."
       }
     },
     {
@@ -3005,6 +3023,12 @@
       "incidents": ["G6-042", "G6-028"],
       "scope": "New explicit Root docs-only PR authorization supersedes custody-only relay. Register one consumed no-SIGSEGV observation without clearing historical crash; late wait LEAD/proposal only. Record browser pin merge and G2 CAMP branch-context ownership, not flake. No runtime/source fix/replay/download/delegate/watch or merge authorized.",
       "priorEvidence": "Historical136/Ubuntu26.04/prior failure seals and all earlier observations retained; C owns57raw audit, G6 cites3file hashes/Aseal only."
+    },
+    {
+      "addedAtUtc": "2026-11-07T00:59:28.027680+00:00",
+      "incident": "G6-028",
+      "scope": "Chronology correction inside existing#2980 docs authorization. Earlier no-fix/proof assignment remains historical; later direct Root PROPOSAL approval now permits G2 local reproduction/test-first/narrow two-file switch. No hosted dispatch; no task relay to G2. This register grants no authority and G6 gains no runtime/source scope.",
+      "priorProof": "Initial227ca4881 proof and source receipts retained in place; superseding head gets fresh light gates. G6-042 observation and all failure/classification limits unchanged."
     }
   ]
 }
