@@ -276,9 +276,9 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/__tests__/unitStateExtension.test.ts#L927-L944':
     'src/utils/gameplay/__tests__/unitStateExtension.04.fragment.ts#L251-L266',
   'src/utils/gameplay/gameSessionAttackResolution.ts#L226-L357':
-    'src/utils/gameplay/gameSessionAttackResolution.hit.ts#L56-L241',
+    'src/utils/gameplay/gameSessionAttackResolution.hit.ts#L56-L244',
   'src/utils/gameplay/gameSessionAttackResolution.ts#L256-L474':
-    'src/utils/gameplay/gameSessionAttackResolution.damageEvents.ts#L77-L323',
+    'src/utils/gameplay/gameSessionAttackResolution.damageEvents.ts#L77-L344',
   'src/utils/gameplay/gameSessionCore.ts#L494-L545':
     'src/utils/gameplay/gameSessionCore.attackToHit.ts#L120-L137',
   'src/utils/gameplay/gameSessionCore.ts#L504-L528':

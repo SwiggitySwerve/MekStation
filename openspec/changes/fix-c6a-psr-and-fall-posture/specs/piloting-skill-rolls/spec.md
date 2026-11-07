@@ -1,12 +1,14 @@
 ## ADDED Requirements
 
-### Requirement: Single Phase Damage PSR Producer
+### Requirement: Idempotent Phase Damage PSR Queueing
 
-The interactive phase-close pass SHALL be the sole producer of the 20+
-damage PSR for each eligible unit in that phase. Inline weapon damage
-resolution SHALL NOT also queue that trigger. Separate qualifying weapon
-and physical phases SHALL retain separate PSRs. The existing runner
-threshold deduplication SHALL remain unchanged.
+The interactive phase-close pass SHALL NOT duplicate a canonical damage PSR
+already pending for that unit in the same turn and phase. Both the inline
+and phase-close producers SHALL use PSRTrigger.PhaseDamage20Plus as their
+reasonCode. Existing trigger-event envelopes SHALL identify the phase of
+pending entries without adding persisted fields. Separate qualifying weapon
+and physical phases SHALL retain separate PSRs. The existing inline producer
+and runner threshold deduplication SHALL remain unchanged.
 
 #### Scenario: Weapon damage crosses the threshold
 
@@ -14,6 +16,19 @@ threshold deduplication SHALL remain unchanged.
 - **WHEN** the weapon phase damage-PSR pass runs
 - **THEN** exactly one damage-threshold PSR SHALL be queued for that unit
 - **AND** resolving that queue SHALL roll that PSR exactly once
+
+#### Scenario: Auto-resolve preserves inline threshold emission
+
+- **GIVEN** runToCompletion resolves a hit that crosses 20 phase damage
+- **WHEN** the engine advances without a phase-close damage-PSR scan
+- **THEN** the inline producer SHALL emit exactly one damage-threshold trigger
+- **AND** auto-resolve phase orchestration SHALL remain unchanged
+
+#### Scenario: Repeated phase checks are idempotent
+
+- **GIVEN** a unit already has a canonical damage PSR pending for this phase
+- **WHEN** the phase-close producer runs again
+- **THEN** no additional damage-threshold trigger SHALL be emitted
 
 #### Scenario: Independent phases and controls
 

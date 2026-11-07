@@ -237,6 +237,7 @@ export function emitDamageCriticalEvents(input: {
 export function emitDamagePsrEvents(input: {
   readonly session: IGameSession;
   readonly damageResult: AttackDamageResult;
+  readonly preAttackDamageThisPhase: number;
   readonly turn: number;
   readonly targetId: string;
 }): IGameSession {
@@ -267,6 +268,26 @@ export function emitDamagePsrEvents(input: {
       );
       break;
     }
+  }
+
+  const postAttackDamageThisPhase =
+    currentSession.currentState.units[input.targetId]?.damageThisPhase ?? 0;
+  if (input.preAttackDamageThisPhase < 20 && postAttackDamageThisPhase >= 20) {
+    currentSession = appendEvent(
+      currentSession,
+      createPSRTriggeredEvent(
+        currentSession.id,
+        currentSession.events.length,
+        input.turn,
+        GamePhase.WeaponAttack,
+        input.targetId,
+        '20+ damage this phase',
+        0,
+        'phase_damage_20_plus',
+        targetUnit?.piloting,
+        PSRTrigger.PhaseDamage20Plus,
+      ),
+    );
   }
 
   return currentSession;

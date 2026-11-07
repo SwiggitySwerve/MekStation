@@ -18,10 +18,13 @@ import {
   GameStatus,
   GamePhase,
   GameEventType,
+  type IAttackResolvedPayload,
+  type IPSRTriggeredPayload,
   type IGameEndedPayload,
   LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { PSRTrigger } from '@/types/gameplay/PSRTriggerCodes';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
 import { Era } from '@/types/temporal/Era';
@@ -137,6 +140,67 @@ describe('GameEngine', () => {
   });
 
   describe('runToCompletion', () => {
+    it('retains exactly one inline damage-threshold trigger when auto-resolve crosses 20 damage', () => {
+      const attacker = {
+        ...createTestUnit('player-1', GameSide.Player),
+        walkMP: 0,
+        runMP: 0,
+        jumpMP: 0,
+        weapons: [
+          {
+            ...createTestWeapon('heavy-laser'),
+            name: 'Large Laser',
+            damage: 20,
+            heat: 0,
+            shortRange: 20,
+            mediumRange: 30,
+            longRange: 40,
+          },
+        ],
+      };
+      const target = {
+        ...createTestUnit('opponent-1', GameSide.Opponent),
+        walkMP: 0,
+        runMP: 0,
+        jumpMP: 0,
+        weapons: [],
+      };
+      const session = new GameEngine({
+        seed: 42,
+        turnLimit: 1,
+        mapRadius: 7,
+      }).runToCompletion(
+        [attacker],
+        [target],
+        [
+          { ...createGameUnit('player-1', GameSide.Player), gunnery: 0 },
+          createGameUnit('opponent-1', GameSide.Opponent),
+        ],
+      );
+      const hits = session.events.filter(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).hit &&
+          (event.payload as IAttackResolvedPayload).damage === 20,
+      );
+      expect(hits).toHaveLength(1);
+      const triggers = session.events.filter(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          (event.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.PhaseDamage20Plus,
+      );
+      expect(triggers).toHaveLength(1);
+      expect(triggers[0]).toMatchObject({
+        turn: hits[0].turn,
+        phase: GamePhase.WeaponAttack,
+        payload: {
+          unitId: 'opponent-1',
+          triggerSource: 'phase_damage_20_plus',
+        },
+      });
+    });
+
     it('should return a completed game session', () => {
       const engine = new GameEngine({
         seed: 12345,

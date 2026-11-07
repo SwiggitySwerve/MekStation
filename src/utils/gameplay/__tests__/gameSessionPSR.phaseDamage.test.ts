@@ -148,11 +148,19 @@ describe('phase damage PSR ownership', () => {
     session = advancePhase(session);
     expect(session.currentState.phase).toBe(GamePhase.PhysicalAttack);
     session = checkAndQueueDamagePSRs(damage(session, 'target', 20));
+    session = checkAndQueueDamagePSRs(session);
     expect(thresholds(session).map((event) => event.phase)).toEqual([
       GamePhase.WeaponAttack,
       GamePhase.PhysicalAttack,
     ]);
     expect(session.currentState.units.target.pendingPSRs).toHaveLength(2);
+  });
+
+  it('does not requeue a pending threshold PSR when the same phase is checked twice', () => {
+    let session = checkAndQueueDamagePSRs(damage(weaponPhase(), 'target', 20));
+    session = checkAndQueueDamagePSRs(session);
+    expect(thresholds(session)).toHaveLength(1);
+    expect(session.currentState.units.target.pendingPSRs).toHaveLength(1);
   });
 
   it('preserves under-threshold, other-unit, and unrelated-PSR controls', () => {

@@ -173,6 +173,8 @@ export function resolveWeaponHit(input: IResolveWeaponHitInput): IGameSession {
     ),
   );
 
+  const preAttackDamageThisPhase =
+    currentSession.currentState.units[input.targetId]?.damageThisPhase ?? 0;
   const targetStateForDamage =
     currentSession.currentState.units[input.targetId] ?? input.targetState;
   const buildTargetCriticalEdgeOptions = () => {
@@ -229,6 +231,7 @@ export function resolveWeaponHit(input: IResolveWeaponHitInput): IGameSession {
   currentSession = emitDamagePsrEvents({
     session: currentSession,
     damageResult,
+    preAttackDamageThisPhase,
     turn: input.turn,
     targetId: input.targetId,
   });
