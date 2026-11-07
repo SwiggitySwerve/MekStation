@@ -19,7 +19,8 @@
     "42219240827-chromium": "GitHub-hosted E2E2/2, ubuntu-26.04 image20261101.186.1, Node22.23.4 (raw job log lines17/18/190), Playwright1.57.0, actualWorkers1 (retained native library report). Failed result retry0; no cross-incident environment inference.",
     "42295033204-chromium": "GitHub-hosted Chromium E2E1/2 and2/2, Ubuntu26.04 image20261101.186.1, Node22.23.4 (retained raw G2 logs). Exact workflow attempt and native retry index not recovered here; null is unknown. Do not infer hosted event order from controlled local reproduction.",
     "nightly-feature-42307733912": "SEPARATE workflow_dispatch on fix/ci-browser-ubuntu24-20261106 at ef5fa86739208e376262400f89dd442ab69108ef, attempt1. Retained logs: Ubuntu24.04 image20261101.360.1, Node22.23.4. This feature diagnostic is not scheduled main42254293879; no runner or causal equivalence inferred.",
-    "nightly-main-42254293879": "Scheduled main at e86866ba2de11bbcc032a6a1a06087863d2bc37b, attempt1, created2026-11-06T16:38:35Z. Existing run metadata confirms workflow failure; exact jobs/runtime/native reports not located here. Do not borrow feature diagnostic environment."
+    "nightly-main-42254293879": "Scheduled main at e86866ba2de11bbcc032a6a1a06087863d2bc37b, attempt1, created2026-11-06T16:38:35Z. Existing run metadata confirms workflow failure; exact jobs/runtime/native reports not located here. Do not borrow feature diagnostic environment.",
+    "42319145535-ubuntu24-capture": "One instrumented Ubuntu24.04.5/image20261101.360.1/Node22.23.4/4CPU capture; Chromium143.0.7499.4/rev1200. C reports exact primary native/browser cache hits, native SQLite load/SELECT42 PASS and actual launch. Seven selected shard2 gates executed, six preceding;139 is full listing only. Separate from historical136/Ubuntu26.04 cohorts."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -1006,6 +1007,54 @@
       "location": "coordinator-archive",
       "sha256": "c77fd648000a0b9c73d88007004fc33f916b2759dd2f27a0d441f302638bf57e",
       "bytes": 1139
+    },
+    "42319145535-c-handback": {
+      "path": "normal-work/S-stability/g6-042-causal-state/capture-42319145535-a1/HANDBACK.md",
+      "location": "coordinator-archive",
+      "sha256": "1b91892c263f1e0a1698e5102849d3b2db890192de74f76078601f9916e302ad",
+      "bytes": 6609
+    },
+    "42319145535-c-interpretation": {
+      "path": "normal-work/S-stability/g6-042-causal-state/capture-42319145535-a1/INTERPRETATION.json",
+      "location": "coordinator-archive",
+      "sha256": "4c0c02add8231af3ad7cfaf30f8fcb2a6caebd6643fd9522fb2ea9590f9f3abb",
+      "bytes": 49950
+    },
+    "42319145535-c-receipt": {
+      "path": "normal-work/S-stability/g6-042-causal-state/capture-42319145535-a1/RECEIPT.json",
+      "location": "coordinator-archive",
+      "sha256": "661e0e61171a6d0b66af0dc5f5e0c217b294a136ba827e43883b3d6932114e26",
+      "bytes": 1289
+    },
+    "42319145535-a-seal": {
+      "path": "normal-work/S-sharedbuild/g6-042-captures/42319145535-a1/CAPTURE-COMPLETE.json",
+      "location": "coordinator-archive",
+      "sha256": "0e7167f790967310ca30e1d7ac9feb37a95712c968cdfde29b95a4ff66030ad8",
+      "bytes": 12728
+    },
+    "42319145535-register-authorization": {
+      "path": "normal-work/G6-flake-register/g6-042-capture-42319145535-register/root-authorization.json",
+      "location": "coordinator-archive",
+      "sha256": "51ae5ac36d33fc3b2b91882e4ebd3fda4085cff27f85e3f35879adf81f581f80",
+      "bytes": 1199
+    },
+    "42319145535-register-verification": {
+      "path": "normal-work/G6-flake-register/g6-042-capture-42319145535-register/verification.json",
+      "location": "coordinator-archive",
+      "sha256": "1b49e8476ef3863ae1c0ce2d72626286c801b03203da8a8bbe1f52d37ab98793",
+      "bytes": 1746
+    },
+    "camp-42317001736-routing": {
+      "path": "normal-work/G6-flake-register/CAMP-anchor-owner-routing-42317001736/routing-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "bb424a677d71e1115686be17701e8fe844cafbc507172ef2a412dd045b4b95f9",
+      "bytes": 9608
+    },
+    "2980-root-g2-approval": {
+      "path": "normal-work/G6-flake-register/g6-042-capture-42319145535-register/g2-approved-correction/root-g2-approval.json",
+      "location": "coordinator-archive",
+      "sha256": "0eb6ee8cb9ec24aeac7d9e0261e706da6675c280e7f0bbb0fd2fe30d1a9d5a7f",
+      "bytes": 994
     }
   },
   "entries": [
@@ -1800,13 +1849,13 @@
     },
     {
       "id": "G6-028",
-      "classification": "environment-capability-and-race",
-      "state": "historical-repair-reported",
+      "classification": "branch-context-limitation-not-flake",
+      "state": "G2 local reproduction/test-first regression/narrow implementation approved by Root; no hosted dispatch",
       "test": "CAMP-01 proof6a2-envelope-anchor-production",
       "environment": "windows-ci",
-      "summary": "Two separate mechanisms: Windows Git version outside allowlist and main advancing beyond shallow checkout anchor. #2429 repair reported; retain capability error separately from anchor race.",
-      "owner": "unassigned; needsowner",
-      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "summary": "Two separate mechanisms: Windows Git version outside allowlist and main advancing beyond shallow checkout anchor. #2429 repair reported; retain capability error separately from anchor race. Root accepted current42317001736/a1 Windows anchor failure on divergent depth1 branch as branch-dispatch context limitation, NOT a flake. Browser pin#2977 merged8a8f1b3f8fcb8305a8aa12c85d9b7636cb4d0247. Earlier G2 assignment alone granted no fix/proof authorization. Later Root directly approved G2 local reproduction, test-first regression and a narrow two-file sessionAnchor fallback switch; no hosted dispatch. This register grants no authority itself.",
+      "owner": "G2: CAMP Git-anchor follow-up assigned and local proposal approved directly by Root. Root alone merges; G6 records chronology only.",
+      "nextStep": "G2 proceeds only with directly Root-approved local reproduction, test-first regression and narrow two-file sessionAnchor fallback switch; draft PR and Root-only merge. No hosted dispatch. Root said no G6 task relay is needed. This docs PR records separate authority, grants no implementation/proof authorization itself, and authorizes no G6 runtime/source work.",
       "observations": [
         {
           "runId": 41144678804,
@@ -1828,10 +1877,60 @@
           "head": null,
           "result": "anchor commit unresolvable",
           "source": "camp"
+        },
+        {
+          "runId": 42317001736,
+          "workflowAttempt": 1,
+          "head": "ef5fa86739208e376262400f89dd442ab69108ef",
+          "jobId": 128231964362,
+          "artifactId": 13550514289,
+          "probe": "proof6a2-envelope-anchor-production",
+          "result": "PROBE_FAILED: CAMP01_FACTS_INVALID: anchor commit unresolvable",
+          "classification": "Root-accepted branch-dispatch context limitation, NOT a flake",
+          "failedAnchorSha": null,
+          "rawGitStderr": null,
+          "source": "camp-42317001736-routing"
         }
       ],
-      "sources": ["camp", "camp-repair"],
-      "missingEvidence": ["Exact attempts/heads and current recurrence status."]
+      "sources": [
+        "camp",
+        "camp-repair",
+        "camp-42317001736-routing",
+        "42319145535-register-authorization",
+        "2980-root-g2-approval"
+      ],
+      "missingEvidence": [
+        "Exact attempts/heads and current recurrence status.",
+        "Current branch limitation: failed anchor SHA/raw Git stderr omitted by caught-error artifact. Ten main passes do not exercise divergent fallback. No additional proof was authorized at the earlier routing event; later direct Root approval permits local test-first proof only, with no hosted dispatch."
+      ],
+      "historicalClassification": {
+        "classification": "environment-capability-and-race",
+        "state": "historical-repair-reported",
+        "owner": "unassigned; needsowner",
+        "scope": "Original Git capability/anchor-race and reported#2429 repair; original observations retained. Separate from current branch-dispatch limitation."
+      },
+      "branchDispatchFollowup": {
+        "source": "2980-root-g2-approval",
+        "owner": "G2, explicitly assigned by Root",
+        "browserPinMerge": "8a8f1b3f8fcb8305a8aa12c85d9b7636cb4d0247",
+        "owningSeam": "run-camp01-live-adversarial.mjs selectEnvelopeAnchor / camp01-anchor-authority.mjs createAnchorAuthority",
+        "sourceBoundary": "Fallback reads selected main/tree in fully fetched session but invokes authority bound to shallow initiatingRoot.",
+        "classification": "branch-context limitation, NOT a flake",
+        "contactGap": "Earlier unnamed-contact receipt remains historical; G2 assignment supersedes it.",
+        "fixAuthorized": true,
+        "additionalProofAuthorized": true,
+        "earlierRoutingAuthorization": {
+          "source": "42319145535-register-authorization",
+          "fixAuthorized": false,
+          "additionalProofAuthorized": false,
+          "scope": "Earlier routing event only; accurately no approval then, superseded as current status by later direct Root approval."
+        },
+        "proofScope": "Local reproduction and test-first regression only, plus narrow two-file sessionAnchor fallback switch. No hosted dispatch.",
+        "hostedDispatchAuthorized": false,
+        "registerGrantsAuthorization": false,
+        "taskRelayNeeded": false,
+        "authorizationSource": "Root directly approved PROPOSAL.md to G2; G6 relays no new task and claims no implementation complete."
+      }
     },
     {
       "id": "G6-029",
@@ -2501,12 +2600,12 @@
     {
       "id": "G6-042",
       "classification": "confirmed-native-crash-with-successful-job",
-      "state": "open; confirmed teardown crash; C low-priority normal-work follow-up; treatment canceled by Root",
+      "state": "UNRESOLVED / NOT REPRODUCED in one capture; capture CONSUMED; no stability clearance",
       "test": "Chromium SIGSEGV during browser-context teardown, job stays green; seam-roster-materialization-handoff.spec.ts:113 passed/retry0 with SEGV in its own stderr",
       "environment": "42205390500-control-chromium",
-      "summary": "Two-shard control run42205390500/a1 on PR#2924 head2a094a3c322662a1d146f8ba64c3d7711b2c8c5b: job127850608699 E2E(1/2) succeeded, but timed browser-main3052 terminated by signal11 during roster browser-context teardown. Log prefix3051 is GNU time wrapper, which later exits139; observed renderer3346 is not a proven victim. Native roster test113 passed/retry0/errors[] and includes SEGV in its own stderr after assertions completed. GNU-time raw signal11 contradicts JSON exitStatus0;136/136 census passed. Exact CDP context/faulting thread, cause and test impact remain unknown.",
+      "summary": "Two-shard control run42205390500/a1 on PR#2924 head2a094a3c322662a1d146f8ba64c3d7711b2c8c5b: job127850608699 E2E(1/2) succeeded, but timed browser-main3052 terminated by signal11 during roster browser-context teardown. Log prefix3051 is GNU time wrapper, which later exits139; observed renderer3346 is not a proven victim. Native roster test113 passed/retry0/errors[] and includes SEGV in its own stderr after assertions completed. GNU-time raw signal11 contradicts JSON exitStatus0;136/136 census passed. Exact CDP context/faulting thread, cause and test impact remain unknown. Later instrumented#2970 run42319145535/a1 headc9fc97f734a202d44313b9ad71d9e35c7fac31a2 on Ubuntu24.04.5/Chromium143 passed7selected shard2 gates first attempt. Literal finding: no SIGSEGV observed in this single capture. Historical crash remains unresolved;139 is listing only. Exact target-renderer/thread mapping and teardown peak/status remain unknown.",
       "owner": "C: low-priority normal-work diagnosis/parser follow-up; A+C: sealed capture/timeline custody; Root: treatment cancellation and PR closure disposition; G6: register only. P7 keyboard remediation is separate.",
-      "nextStep": "C assesses context.close/browser flags or Playwright/Chromium version and whether teardown could overlap retry0 seam/gate assertions. Keep diagnostic parser fix on its branch. Root cancels treatment and closes #2868/#2924; no new run or source fix authorized here. Preserve uncertainty about cause, OOM, historical crash identity and three-shard risk.",
+      "nextStep": "Capture CONSUMED; no second capture requested. Root alone decides any future discriminating investigation. S-stability is proposing a test-only hygiene fix for a pending losing Promise.race wait; it is a LEAD, not an implemented change or proved crash cause. This register authorizes no source/runtime/replay work. #2970 remains DRAFT/DO NOT MERGE.",
       "observations": [
         {
           "runId": 42205390500,
@@ -2577,6 +2676,29 @@
             "exactCdpContext": null,
             "faultingThread": null
           }
+        },
+        {
+          "runId": 42319145535,
+          "workflowAttempt": 1,
+          "head": "c9fc97f734a202d44313b9ad71d9e35c7fac31a2",
+          "pr": 2970,
+          "jobId": 128239150610,
+          "environment": "42319145535-ubuntu24-capture",
+          "source": "42319145535-c-handback",
+          "literalFinding": "no SIGSEGV observed in this single capture",
+          "executedGates": 7,
+          "precedingGates": 6,
+          "testAttempts": "first attempt;0skips/0retries",
+          "listingOnlyCount": 139,
+          "wrapperPid": 3651,
+          "browserMainPid": 3652,
+          "observedRendererPid": 3842,
+          "wrapperExit": 0,
+          "rawKernelExit": 0,
+          "nativeRunnerExit": 0,
+          "rawSignalObserved": false,
+          "captureStatus": "CONSUMED",
+          "stabilityClearance": false
         }
       ],
       "sources": [
@@ -2594,13 +2716,20 @@
         "42205390500-process-mapping-md",
         "42205390500-process-receipt",
         "42205390500-root-refinement",
-        "42205390500-process-verification"
+        "42205390500-process-verification",
+        "42319145535-c-handback",
+        "42319145535-c-interpretation",
+        "42319145535-c-receipt",
+        "42319145535-a-seal",
+        "42319145535-register-authorization",
+        "42319145535-register-verification"
       ],
       "missingEvidence": [
         "Cause and test impact are unresolved; passing native census and hosted job do not establish runtime stability.",
         "No renderer teardown-exit peak or simultaneous process-tree RSS; browser-main maxrss is not renderer peak. Shard2 renderer samples are absent and memory metrics remain null, not zero. No memory/OOM cause or memory equivalence established.",
         "A single baseline crash does not establish recurrence frequency or baseline-versus-three-shard causation; historical attempts are not independent ordinary PRs.",
-        "Exact CDP context/page-to-renderer mapping and faulting thread are absent. Historical #2868/a5 crash identity and overlap with retry0 seam/gate assertions are unresolved; no three-shard-risk inference."
+        "Exact CDP context/page-to-renderer mapping and faulting thread are absent. Historical #2868/a5 crash identity and overlap with retry0 seam/gate assertions are unresolved; no three-shard-risk inference.",
+        "Single Ubuntu24 capture: exact public target-to-OS-renderer mapping and faulting thread unknown; no renderer samples during close00:39:05.701-.739, so actual teardown-exit peak/status unknown. No cure, OOM cause/exclusion, shard-causality or stability proof; historical136/Ubuntu26.04 cohorts remain separate."
       ],
       "captureCustody": {
         "owner": "A+C",
@@ -2640,7 +2769,48 @@
         "followUpPriority": "low-priority normal work",
         "keyboardRemediation": "P7 separate; G6-041 unchanged"
       },
-      "treatmentStatus": "canceled by Root"
+      "treatmentStatus": "canceled by Root",
+      "singleCaptureOutcome": {
+        "source": "42319145535-c-interpretation",
+        "historicalStatus": "UNRESOLVED / NOT REPRODUCED",
+        "literalFinding": "no SIGSEGV observed in this single capture",
+        "custody": {
+          "AArchive": "normal-work/S-sharedbuild/g6-042-captures/42319145535-a1/",
+          "CReport": "normal-work/S-stability/g6-042-causal-state/capture-42319145535-a1/",
+          "auditAttribution": "C independently reverified57raw hashes against A seal0e7167f790967310ca30e1d7ac9feb37a95712c968cdfde29b95a4ff66030ad8 plus A audit/receipt/log/ZIP digests.",
+          "G6Verification": "Verified3provided C file hashes and A seal metadata only; no duplicate57raw audit or offline replay."
+        },
+        "ancestry": "renderer3842 -> zygote3655 -> browser3652 -> time3651 -> worker3637 -> runner3599",
+        "publicPageContextIdsObserved": true,
+        "exactTargetToRenderer": null,
+        "faultingThread": null,
+        "rendererMemory": {
+          "lastObservedAt": "2026-11-07T00:39:04.660Z",
+          "sampleVmHWMBytes": 495120384,
+          "sampleRssBytes": 494088192,
+          "closeBracket": "2026-11-07T00:39:05.701Z through00:39:05.739Z",
+          "rendererRowsDuringClose": 0,
+          "teardownExitPeakBytes": null,
+          "rendererExitStatus": null,
+          "scope": "VmHWM is lifetime high-water at sampling; absent rows are not zero memory or measured exit."
+        },
+        "lead": {
+          "classification": "LEAD, NOT established cause",
+          "source": "e2e/helpers/campaignFlow.ts:180-203 losing Promise.race wait",
+          "bodyApiEndMarkers": 41,
+          "beforeTeardown": 40,
+          "lateMarkerAt": "2026-11-07T00:39:05.728Z",
+          "lateMarker": "name-error wait pending during context close",
+          "owner": "S-stability",
+          "proposal": "test-only hygiene fix being proposed",
+          "implemented": false,
+          "provedCausal": false
+        },
+        "captureConsumed": true,
+        "secondCaptureRequested": false,
+        "heldPr": "2970 DRAFT/DO NOT MERGE",
+        "stabilityClearance": false
+      }
     },
     {
       "id": "G6-043",
@@ -2847,6 +3017,18 @@
       "scope": "Root requests evidence-based main Nightly classification. Existing run metadata verifies42254293879/a1/main/e86866ba/workflow failure only; current native/job custody missing. Historical97 and encounter retry-pass preserved; separate feature42307733912 exact two-lane XP evidence correlated. No automatic flake/causal label, runtime test, rerun, hosted action, watcher, delegate or duplicate capture.",
       "ownerCoordination": "Existing S4 campaign/economy/personnel lead notified of exact custody paths and evidence distinctions; XP subowner refinement pending.",
       "priorReceipts": "Prior entries/receipts/raw evidence preserved; new snapshots/excerpts/hashes under normal-work/G6-flake-register/nightly-main-42254293879/."
+    },
+    {
+      "addedAtUtc": "2026-11-07T00:55:19.403971+00:00",
+      "incidents": ["G6-042", "G6-028"],
+      "scope": "New explicit Root docs-only PR authorization supersedes custody-only relay. Register one consumed no-SIGSEGV observation without clearing historical crash; late wait LEAD/proposal only. Record browser pin merge and G2 CAMP branch-context ownership, not flake. No runtime/source fix/replay/download/delegate/watch or merge authorized.",
+      "priorEvidence": "Historical136/Ubuntu26.04/prior failure seals and all earlier observations retained; C owns57raw audit, G6 cites3file hashes/Aseal only."
+    },
+    {
+      "addedAtUtc": "2026-11-07T00:59:28.027680+00:00",
+      "incident": "G6-028",
+      "scope": "Chronology correction inside existing#2980 docs authorization. Earlier no-fix/proof assignment remains historical; later direct Root PROPOSAL approval now permits G2 local reproduction/test-first/narrow two-file switch. No hosted dispatch; no task relay to G2. This register grants no authority and G6 gains no runtime/source scope.",
+      "priorProof": "Initial227ca4881 proof and source receipts retained in place; superseding head gets fresh light gates. G6-042 observation and all failure/classification limits unchanged."
     }
   ]
 }
