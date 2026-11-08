@@ -1,8 +1,11 @@
 import React from 'react';
 import { useStore } from 'zustand';
 
+import type { IMissionReadinessUnitProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
+
 import { Badge, Button, Card, EmptyState, PageLayout } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { UnitReadinessReasons } from '@/pages-modules/gameplay/campaigns/missionLaunchReadinessPanel';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -107,6 +110,8 @@ interface CampaignHeaderContentProps {
   onAdvanceDay: () => void;
   onAdvanceWeek: () => void;
   onAdvanceMonth: () => void;
+  /** A day advance is in flight: all three buttons are disabled. */
+  isAdvancing?: boolean;
 }
 
 export function CampaignHeaderContent({
@@ -114,6 +119,7 @@ export function CampaignHeaderContent({
   onAdvanceDay,
   onAdvanceWeek,
   onAdvanceMonth,
+  isAdvancing = false,
 }: CampaignHeaderContentProps): React.ReactElement {
   return (
     <div className="flex items-center gap-4">
@@ -127,6 +133,7 @@ export function CampaignHeaderContent({
         <Button
           variant="primary"
           onClick={onAdvanceDay}
+          disabled={isAdvancing}
           data-testid="advance-day-btn"
         >
           Advance Day
@@ -134,6 +141,7 @@ export function CampaignHeaderContent({
         <Button
           variant="secondary"
           onClick={onAdvanceWeek}
+          disabled={isAdvancing}
           data-testid="advance-week-btn"
         >
           Advance Week
@@ -141,6 +149,7 @@ export function CampaignHeaderContent({
         <Button
           variant="secondary"
           onClick={onAdvanceMonth}
+          disabled={isAdvancing}
           data-testid="advance-month-btn"
         >
           Advance Month
@@ -295,6 +304,7 @@ export function CampaignOperationsCard({
 
 interface CampaignRosterCardProps {
   units: CampaignRosterUnit[];
+  readinessByUnitId?: ReadonlyMap<string, IMissionReadinessUnitProjection>;
 }
 
 /**
@@ -331,6 +341,7 @@ function DashboardRosterUnitDamageBar({
 
 export function CampaignRosterCard({
   units,
+  readinessByUnitId,
 }: CampaignRosterCardProps): React.ReactElement {
   return (
     <Card className="mb-6">
@@ -359,6 +370,10 @@ export function CampaignRosterCard({
                   {unit.readiness}
                 </Badge>
               </div>
+              <UnitReadinessReasons
+                unitId={unit.unitId}
+                reasons={readinessByUnitId?.get(unit.unitId)?.reasons ?? []}
+              />
               {unit.readiness === 'Damaged' && (
                 <DashboardRosterUnitDamageBar unitId={unit.unitId} />
               )}

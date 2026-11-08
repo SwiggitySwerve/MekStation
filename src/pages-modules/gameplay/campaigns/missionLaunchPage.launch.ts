@@ -23,10 +23,12 @@ import {
 } from '@/lib/campaign/encounter/requestLaunchAuthority';
 import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { selectedRosterUnitsForLaunch } from '@/lib/campaign/readiness/missionReadinessProjection';
+import { selectUnitReadiness } from '@/lib/campaign/readiness/selectUnitReadiness';
 import {
   type CampaignPersistenceSaveResult,
   useCampaignPersistenceStore,
 } from '@/stores/campaign/useCampaignPersistenceStore';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 
 import {
   buildLaunchEncounter,
@@ -239,6 +241,30 @@ async function launchCoopMissionFromPage({
       sessionId: matchId,
     });
     assertOwnedForcesCurrent(ownedForces);
+    const roster = useCampaignRosterStore.getState();
+    const byId = new Map(roster.units.map((unit) => [unit.unitId, unit]));
+    for (const contribution of contributions.filter(
+      (entry) => entry.participation === 'deploy',
+    )) {
+      for (const unitId of contribution.force.unitIds) {
+        const unit = byId.get(unitId);
+        if (!unit)
+          throw new Error(
+            'Deploying unit is missing from the campaign roster.',
+          );
+        const readiness = selectUnitReadiness({
+          unit,
+          campaign,
+          pilots: roster.pilots,
+          authority: launchHead.readinessAuthority,
+        });
+        const blocker = readiness.reasons.find(
+          (reason) => reason.severity === 'blocker',
+        );
+        if (blocker) throw new Error(blocker.message);
+      }
+    }
+
     const revision = catalogRevisionFromLaunchHead(launchHead);
     const result = await launchCoopMission(
       buildLaunchEncounter(campaign, missionKey),
@@ -277,7 +303,11 @@ async function launchCoopMissionFromPage({
       },
     );
     if (!result.ok) {
-      setLaunchError(result.error);
+      setLaunchError(
+        result.error.includes('COOP_MISSION_UNIT_NOT_READY')
+          ? 'A deploying unit is not ready.'
+          : result.error,
+      );
       return;
     }
 
@@ -332,6 +362,12 @@ async function launchSinglePlayerMissionFromPage({
       campaign,
       missionId: missionKey,
       rosterUnits,
+      readinessContext: {
+        campaign,
+        pilots: useCampaignRosterStore.getState().pilots,
+        rosterUnits: useCampaignRosterStore.getState().units,
+        authority: launchHead.readinessAuthority,
+      },
       catalog,
       ...(ownedForces === undefined ? {} : { ownedForces }),
     });

@@ -2,17 +2,25 @@ import { createHash } from 'node:crypto';
 
 import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
 
+import { resolveCampaignAuthorityMode } from '@/lib/campaign/authority/campaignAuthorityMode';
 import {
   campaignLaunchHeadPorts,
   resolveCampaignLaunchHead,
 } from '@/lib/campaign/authority/campaignLaunchHead';
+import { readCampaignJournalState } from '@/lib/campaign/authority/campaignRecordJournalState';
 import { selectOpponentUnits } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits';
+import {
+  selectUnitReadiness,
+  projectReadinessAuthority,
+} from '@/lib/campaign/readiness/selectUnitReadiness';
+import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { listCampaignSessionForceClaims } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
 import {
   activeCampaignSessionMembership,
   listActiveCampaignSessionParticipants,
 } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 import type { ICampaignHostRegistryEntry } from './CampaignHostRegistry';
 import type {
@@ -24,8 +32,9 @@ export class CoopMissionRefusal extends Error {
   constructor(
     readonly status: 400 | 403 | 409,
     readonly code: string,
+    message: string = code,
   ) {
-    super(code);
+    super(message);
     this.name = 'CoopMissionRefusal';
   }
 }
@@ -135,6 +144,46 @@ export function admitCoopMission(
       body.unitBootstrap.length
   ) {
     throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_UNITS');
+  }
+  const marker = readCampaignMigrationMarker(mission.campaignId);
+  const mode = resolveCampaignAuthorityMode({
+    marker: marker.kind === 'ok' ? marker.marker : null,
+    markerUnreadable: marker.kind === 'corrupt',
+    journalHasStream: current.kind === 'head',
+  });
+  const authority = projectReadinessAuthority(
+    mode,
+    mode.kind === 'journal'
+      ? readCampaignJournalState(
+          getSQLiteService().getDatabase(),
+          mission.campaignId,
+        ).rosterUnits
+      : undefined,
+  );
+  const storedRoster = campaign.record.body.rosterProjection;
+  for (const unitId of owners.keys()) {
+    const unit = storedRoster?.units.find((entry) => entry.unitId === unitId);
+    if (!unit)
+      throw new CoopMissionRefusal(
+        409,
+        'COOP_MISSION_UNIT_NOT_READY',
+        'Deploying unit is missing from the campaign roster.',
+      );
+    const readiness = selectUnitReadiness({
+      unit,
+      campaign: campaign.record.body,
+      pilots: storedRoster?.pilots,
+      authority,
+    });
+    const blocker = readiness.reasons.find(
+      (reason) => reason.severity === 'blocker',
+    );
+    if (blocker)
+      throw new CoopMissionRefusal(
+        409,
+        'COOP_MISSION_UNIT_NOT_READY',
+        blocker.message,
+      );
   }
   const playerUnits = body.unitBootstrap
     .filter((unit) => unit.side === 'player')

@@ -18,6 +18,7 @@ import {
   ForceErrorCode,
   type IForceOperationResult,
 } from './ForceRepository.types';
+import { INVALID_FORCE_STATUS_ERROR, parseForceStatus } from './forceStatus';
 
 export function createForceOperation(
   request: ICreateForceRequest,
@@ -71,6 +72,13 @@ export function updateForceOperation(
   id: string,
   request: IUpdateForceRequest,
 ): IForceOperationResult {
+  if ('status' in request && parseForceStatus(request.status) === null) {
+    return {
+      success: false,
+      error: INVALID_FORCE_STATUS_ERROR,
+      errorCode: ForceErrorCode.ValidationError,
+    };
+  }
   const db = getSQLiteService().getDatabase();
   const now = new Date().toISOString();
 

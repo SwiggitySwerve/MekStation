@@ -96,6 +96,35 @@ describe('RosterUnitCard damage bar', () => {
     mockCampaignStore = createCampaignStore();
   });
 
+  it('refreshes a damaged badge after repair without rewriting the roster cache', () => {
+    const cached = projection({ readiness: 'Damaged' });
+    const maxima = maxState();
+    seedCampaign({
+      unitCombatStates: {
+        [UNIT_ID]: combatState({
+          currentArmorPerLocation: { center_torso: 5, left_torso: 8 },
+          currentStructurePerLocation: maxima.maxStructurePerLocation,
+        }),
+      },
+      unitMaxStates: { [UNIT_ID]: maxima },
+    });
+    render(<RosterUnitCard unit={cached} />);
+    expect(screen.getByText('Damaged')).toBeInTheDocument();
+    act(() => {
+      mockCampaignStore.getState().updateCampaign({
+        unitCombatStates: {
+          [UNIT_ID]: combatState({
+            currentArmorPerLocation: maxima.maxArmorPerLocation,
+            currentStructurePerLocation: maxima.maxStructurePerLocation,
+          }),
+        },
+      });
+    });
+    expect(screen.getByText('Ready')).toBeInTheDocument();
+    expect(screen.queryByText('Needs Repair')).toBeNull();
+    expect(cached.readiness).toBe('Damaged');
+  });
+
   it('derives the damage figure from current armor/structure against construction maxima when nothing is destroyed', () => {
     // 37 armor points lost (50 -> 13) + 4 structure points lost (18 -> 14)
     // = 41 of 68 construction points = 60%.

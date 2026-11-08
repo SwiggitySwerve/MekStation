@@ -23,6 +23,7 @@ import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjectio
 
 import { CampaignListCard } from '@/components/campaign/CampaignListCard';
 import { Badge } from '@/components/ui';
+import { UnitReadinessReasons } from '@/pages-modules/gameplay/campaigns/missionLaunchReadinessPanel';
 
 import { BayEmpty } from './BayStates';
 
@@ -152,18 +153,15 @@ export function MechBayRow({
                   ? ` (${readiness.blockingRepairTicketCount} blocking repair)`
                   : ''}
               </p>
-              {readiness.reasons.slice(0, 2).map((reason) => (
-                <p
-                  key={reason.code}
-                  className={
-                    reason.severity === 'blocker'
-                      ? 'text-xs text-rose-300'
-                      : 'text-xs text-amber-300'
-                  }
-                >
-                  {reason.message}
-                </p>
-              ))}
+              <UnitReadinessReasons
+                unitId={unit.unitId}
+                reasons={readiness.reasons}
+                actionTestId={(reason) =>
+                  reason === fixAction
+                    ? `mech-bay-fix-${unit.unitId}`
+                    : `mech-bay-fix-${unit.unitId}-${reason.code}`
+                }
+              />
             </div>
           ) : null}
         </>
@@ -206,16 +204,6 @@ export function MechBayRow({
             >
               Refit
             </button>
-          ) : null}
-
-          {fixAction?.actionHref ? (
-            <Link
-              href={fixAction.actionHref}
-              className="text-accent hover:text-accent/80 text-sm font-medium transition-colors"
-              data-testid={`mech-bay-fix-${unit.unitId}`}
-            >
-              {fixAction.actionLabel ?? 'Fix blocker'}
-            </Link>
           ) : null}
 
           <Link

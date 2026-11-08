@@ -7,6 +7,8 @@ import type {
   IDayAdvanceSummary,
 } from '@/lib/campaign/hooks/useCampaignDashboardSummary';
 
+import { disabledButtonClasses } from '@/components/ui/Button';
+
 import { DashboardCard } from './CampaignDashboardCardShell';
 
 export { ActivityLogCard } from './CampaignDashboardActivityLogCard';
@@ -126,12 +128,15 @@ export interface IDayAdvanceCardProps {
   readonly summary: IDayAdvanceSummary;
   readonly onAdvanceDay: () => void;
   readonly onAdvanceWeek: () => void;
+  /** A day advance is in flight: both buttons are disabled. */
+  readonly isAdvancing?: boolean;
 }
 
 export function DayAdvanceCard({
   summary,
   onAdvanceDay,
   onAdvanceWeek,
+  isAdvancing = false,
 }: IDayAdvanceCardProps): React.ReactElement {
   const dateLabel = summary.currentDate.toISOString().slice(0, 10);
   return (
@@ -147,7 +152,8 @@ export function DayAdvanceCard({
           type="button"
           data-testid="day-advance-one-day"
           onClick={onAdvanceDay}
-          className="rounded border border-sky-600 px-3 py-1 text-sm text-sky-200 hover:bg-sky-900/30"
+          disabled={isAdvancing}
+          className={`rounded border border-sky-600 px-3 py-1 text-sm text-sky-200 hover:bg-sky-900/30 ${disabledButtonClasses}`}
         >
           Advance one day
         </button>
@@ -155,7 +161,8 @@ export function DayAdvanceCard({
           type="button"
           data-testid="day-advance-one-week"
           onClick={onAdvanceWeek}
-          className="border-border-theme text-text-theme-primary hover:bg-surface-base rounded border px-3 py-1 text-sm"
+          disabled={isAdvancing}
+          className={`border-border-theme text-text-theme-primary hover:bg-surface-base rounded border px-3 py-1 text-sm ${disabledButtonClasses}`}
         >
           Advance one week
         </button>

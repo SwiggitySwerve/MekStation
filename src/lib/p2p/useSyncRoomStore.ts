@@ -52,6 +52,10 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
         syncProvider.onSyncEvent((event) => {
           switch (event.type) {
             case 'connected':
+              // Connected always means "connected to the room we hold". A
+              // late event for a room we left (or never held) must not
+              // flip the UI to Connected with no room behind it.
+              if (get().activeRoom?.roomCode !== event.roomCode) break;
               set({
                 connectionState: ConnectionState.Connected,
                 localPeerId: syncProvider.getLocalPeerId(),
@@ -67,6 +71,13 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
                 peers: [],
                 localPeerId: null,
               });
+              break;
+
+            case 'reconnecting':
+              // A retry keeps the room; only the connection is in flux.
+              if (get().activeRoom) {
+                set({ connectionState: ConnectionState.Connecting });
+              }
               break;
 
             case 'peer-joined':
@@ -157,7 +168,10 @@ export const useSyncRoomStore = create<SyncRoomStore>()(
         },
 
         leaveRoom: () => {
-          if (get().activeRoom) {
+          // The provider can hold a room the store has already forgotten, so
+          // leaving must not depend on the store's copy. Skip only when the
+          // provider module was never loaded (nothing to leave).
+          if (get().activeRoom || syncProviderPromise) {
             void ensureSyncProvider()
               .then((syncProvider) => syncProvider.leaveCurrentRoom())
               .catch((error: unknown) => {

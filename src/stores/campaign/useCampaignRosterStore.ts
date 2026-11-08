@@ -1,3 +1,4 @@
+import { create } from 'zustand';
 /**
  * Campaign Roster Store
  *
@@ -29,8 +30,6 @@
  * @see ./campaignRosterStore.types.ts
  * @see ./campaignRosterStore.helpers.ts
  */
-
-import { create } from 'zustand';
 import {
   persist,
   createJSONStorage,
@@ -40,6 +39,7 @@ import {
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
 import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
+import { selectUnitReadiness } from '@/lib/campaign/readiness/selectUnitReadiness';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -174,18 +174,27 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
       getUnitReadiness: (unitId) => {
         const unit = get().units.find((u) => u.unitId === unitId);
         if (!unit) return 'Destroyed';
-        return unit.readiness;
+        const campaign = getCampaignStoreForRoster()?.getState().campaign;
+        return selectUnitReadiness({ unit, campaign, pilots: get().pilots })
+          .readiness;
       },
 
       getUnitsWithReadiness: () => {
-        // The projection already carries `readiness`; surface as-is so
-        // legacy callers that destructured `{ readiness, ...unit }` keep
-        // working unchanged.
-        return get().units;
+        const campaign = getCampaignStoreForRoster()?.getState().campaign;
+        return get().units.map(
+          (unit) =>
+            selectUnitReadiness({ unit, campaign, pilots: get().pilots }).unit,
+        );
       },
 
       getDeployableUnits: () => {
-        return get().units.filter((u) => u.readiness !== 'Destroyed');
+        const campaign = getCampaignStoreForRoster()?.getState().campaign;
+        return get()
+          .units.map((unit) =>
+            selectUnitReadiness({ unit, campaign, pilots: get().pilots }),
+          )
+          .filter((entry) => entry.status !== 'blocked')
+          .map((entry) => entry.unit);
       },
 
       // ===================================================================

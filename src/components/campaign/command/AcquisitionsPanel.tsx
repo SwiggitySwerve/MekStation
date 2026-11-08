@@ -25,6 +25,8 @@ interface AcquisitionsPanelProps {
   readonly onAddRequest: (values: AcquisitionFormValues) => void;
   readonly onRemoveRequest: (requestId: string) => void;
   readonly onAdvanceDay: () => void;
+  /** A day advance is in flight: the advance button is disabled. */
+  readonly isAdvancing?: boolean;
   readonly actionError?: string | null;
 }
 
@@ -128,6 +130,7 @@ function InventoryRow({
 export function AcquisitionsPanel({
   actionError,
   currentDate,
+  isAdvancing = false,
   onAddRequest,
   onAdvanceDay,
   onRemoveRequest,
@@ -269,6 +272,7 @@ export function AcquisitionsPanel({
           type="button"
           variant="secondary"
           onClick={onAdvanceDay}
+          disabled={isAdvancing}
           data-testid="acquisitions-advance-day"
         >
           Process next day

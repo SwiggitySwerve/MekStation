@@ -23,6 +23,7 @@ import type { MaybePromise } from '@/stores/campaign/useCampaignStore.types';
 import { displayRowsFromCampaignActivityFeed } from '@/lib/campaign/activity/campaignActivityDisplay';
 import { useCampaignActivityFeed } from '@/lib/campaign/hooks/useCampaignActivityFeed';
 import { useCampaignDashboardSummary } from '@/lib/campaign/hooks/useCampaignDashboardSummary';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import {
@@ -50,6 +51,7 @@ export function CampaignDashboard({
 }: ICampaignDashboardProps = {}): React.ReactElement | null {
   const summary = useCampaignDashboardSummary();
   const store = useCampaignStore();
+  const isAdvancing = useDayAdvanceInFlight();
   // Feed is the activity contract. The summary no longer carries the
   // browser FIFO, so a seated pair cannot compile local leftovers into
   // the card even by accident.
@@ -98,6 +100,7 @@ export function CampaignDashboard({
         summary={summary.dayAdvance}
         onAdvanceDay={handleAdvanceDay}
         onAdvanceWeek={handleAdvanceWeek}
+        isAdvancing={isAdvancing}
       />
       <ActivityLogCard
         campaignId={summary.campaignId}

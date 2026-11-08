@@ -420,6 +420,60 @@ describe('Forces API Routes', () => {
   });
 
   describe('PATCH /api/forces/[id]', () => {
+    it.each(
+      [undefined, null, 1, false, 'active', []].map((body) => ({ body })),
+    )(
+      'rejects a malformed update body $body before mutation',
+      async ({ body }) => {
+        const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+          method: 'PATCH',
+          query: { id: 'force-1' },
+        });
+        req.body = body;
+        await idHandler(req, res);
+        expect(res._getStatusCode()).toBe(400);
+        expect(parseErrorResponse(res).error).toBe('Invalid force update.');
+        expect(mockForceService.updateForce).not.toHaveBeenCalled();
+      },
+    );
+    it.each(
+      [null, '', 'Active', 'retired', 'kia', 1, false, {}, [], ['active']].map(
+        (status) => ({ status }),
+      ),
+    )('rejects invalid status $status before mutation', async ({ status }) => {
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'PATCH',
+        query: { id: 'force-1' },
+        body: { name: 'Must not change', status },
+      });
+
+      await idHandler(req, res);
+
+      expect(res._getStatusCode()).toBe(400);
+      expect(parseErrorResponse(res).error).toBe('Invalid force status.');
+      expect(mockForceService.updateForce).not.toHaveBeenCalled();
+    });
+
+    it.each(Object.values(ForceStatus))(
+      'accepts exact status %s',
+      async (status) => {
+        mockForceService.updateForce.mockReturnValue({ success: true });
+        mockForceService.getForce.mockReturnValue({ ...mockForce, status });
+        const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+          method: 'PATCH',
+          query: { id: 'force-1' },
+          body: { status },
+        });
+
+        await idHandler(req, res);
+
+        expect(res._getStatusCode()).toBe(200);
+        expect(mockForceService.updateForce).toHaveBeenCalledWith('force-1', {
+          status,
+        });
+      },
+    );
+
     it('should update a force', async () => {
       mockForceService.updateForce.mockReturnValue({
         success: true,
