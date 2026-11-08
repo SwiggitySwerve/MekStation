@@ -88,6 +88,8 @@ function describeProposalEffect(proposal: IGuestProposal): string {
       return `Spend ${intent.payload.amount.toLocaleString()} C-bills - ${intent.payload.reason}`;
     case 'HirePilot':
       return `Hire pilot ${intent.payload.pilot.name}`;
+    case 'HireOffer':
+      return `Hire market offer ${intent.payload.offerId}`;
     case 'AcceptContract':
       return `Accept contract ${intent.payload.contract.name}`;
     case 'AllocateSalvage':

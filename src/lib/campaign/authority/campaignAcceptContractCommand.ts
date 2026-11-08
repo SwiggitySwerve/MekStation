@@ -143,7 +143,9 @@ interface ICampaignSourceMarketRead {
   readonly storedMissions: readonly StoredMissionEntry[];
 }
 
-function asRecord(value: unknown): Readonly<Record<string, unknown>> | null {
+export function asRecord(
+  value: unknown,
+): Readonly<Record<string, unknown>> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
     ? (value as Readonly<Record<string, unknown>>)
     : null;
@@ -179,7 +181,7 @@ function storedMissionsOf(
  * authority it writes; this command only reads, so it declines to invent a
  * verdict about a record that never claimed one.
  */
-function storedRecordIsNotSource(
+export function storedRecordIsNotSource(
   storedRecord: Readonly<Record<string, unknown>>,
 ): boolean {
   const parsed = parseCampaignAuthority(storedRecord.authority);
@@ -396,7 +398,7 @@ type PreparedCampaignJournal = IEventJournal<ICampaignJournalEnvelope> &
     'appendPreparedWithExtension'
   >;
 
-function preparedJournalOf(
+export function preparedJournalOf(
   journal: IEventJournal<ICampaignJournalEnvelope>,
 ): PreparedCampaignJournal | null {
   const candidate = journal as Partial<PreparedCampaignJournal>;

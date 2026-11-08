@@ -42,10 +42,12 @@ import {
   disjointCampaign,
   envelopeOf,
   eventTypes,
+  fixtureOffer,
   flushMeasurements,
   intentOf,
   journal,
   ledgerOf,
+  marketOf,
   NOW,
   openCoopHost,
   replayed,
@@ -61,12 +63,12 @@ describe('U35e record rewrite and checkpoint guards', () => {
 
   it('(g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot', async () => {
     const other = await createJournalNative('u35e-g-other');
-    const host = await openCoopHost(other.record);
+    const host = await openCoopHost(
+      other.record,
+      marketOf([fixtureOffer('offer-g', 'Elsewhere')]),
+    );
     const hire = await host.applyHostIntent(
-      intentOf('u35e-g-other', 'intent-g', 'HirePilot', {
-        pilot: { pilotId: 'pilot-g', name: 'Elsewhere' },
-        cost: 12_000,
-      }),
+      intentOf('u35e-g-other', 'intent-g', 'HireOffer', { offerId: 'offer-g' }),
     );
     const id = 'u35e-g';
     const genesis = await saveCampaignRecordThroughJournal(journal(), {
@@ -151,17 +153,17 @@ describe('U35e record rewrite and checkpoint guards', () => {
   it('(t) a record rewrite that fails rolls the co-op command append back', async () => {
     const id = 'u35e-atomic';
     const { record } = await createJournalNative(id);
-    const host = await openCoopHost(record);
+    const host = await openCoopHost(
+      record,
+      marketOf([fixtureOffer('offer-t', 'Rolled Back')]),
+    );
     const typesBefore = eventTypes(id);
     const rowBefore = storedRow(id);
     jest.spyOn(campaignRecordRow, 'write').mockImplementation(() => {
       throw new Error(INJECTED);
     });
     const hire = host.applyHostIntent(
-      intentOf(id, 'intent-t', 'HirePilot', {
-        pilot: { pilotId: 'pilot-t', name: 'Rolled Back' },
-        cost: 12_000,
-      }),
+      intentOf(id, 'intent-t', 'HireOffer', { offerId: 'offer-t' }),
     );
     let failure: string | null = null;
     await hire.then(

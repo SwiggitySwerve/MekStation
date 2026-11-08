@@ -12,6 +12,10 @@
 
 import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
+  IAuthoritativePersonnelOffer,
+  ICampaignIntentContext,
+} from '@/lib/multiplayer/server/CampaignMatchHostIntent';
+import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
 } from '@/types/campaign/CampaignSync';
@@ -29,7 +33,28 @@ function stateWith(
   return { ...createEmptyCampaignState(CAMPAIGN_ID), ...patch };
 }
 
-function makeHost(initialState: ICampaignAuthoritativeState): {
+/** The market's record of one recruit, as the authoritative source holds it. */
+const AUTHORITATIVE_OFFER: IAuthoritativePersonnelOffer = {
+  offerId: 'offer-1',
+  name: 'Pilot One',
+  hireCost: 75_000,
+  expirationDate: '3025-01-10',
+  campaignDate: '3025-01-03',
+};
+
+function hireOffer(offerId: string) {
+  return {
+    kind: 'HireOffer' as const,
+    campaignId: CAMPAIGN_ID,
+    intentId: `intent-hire-${offerId}`,
+    payload: { offerId },
+  };
+}
+
+function makeHost(
+  initialState: ICampaignAuthoritativeState,
+  intentContext?: ICampaignIntentContext,
+): {
   host: CampaignMatchHost;
   received: ICampaignEvent[];
 } {
@@ -38,6 +63,7 @@ function makeHost(initialState: ICampaignAuthoritativeState): {
     hostPlayerId: HOST_ID,
     eventStore: new InMemoryCampaignEventStore(),
     initialState,
+    ...(intentContext === undefined ? {} : { intentContext }),
   });
   const received: ICampaignEvent[] = [];
   host.subscribe((event) => received.push(event));
@@ -112,27 +138,128 @@ describe('CampaignMatchHost — valid intent', () => {
     expect(host.getState().balance).toBe(500_000);
   });
 
-  it('a hire commits FundsChanged + PilotHired in order', async () => {
-    const { host, received } = makeHost(stateWith({ balance: 600_000 }));
+  it('a hire commits FundsChanged + PilotHired in order, derived from the authoritative offer', async () => {
+    const { host, received } = makeHost(stateWith({ balance: 600_000 }), {
+      personnelOffer: (offerId) =>
+        offerId === 'offer-1' ? AUTHORITATIVE_OFFER : null,
+    });
     await host.open();
     received.length = 0;
 
     const result = await host.handleIntent({
-      kind: 'HirePilot',
+      kind: 'HireOffer',
       campaignId: CAMPAIGN_ID,
       intentId: 'intent-hire',
-      payload: {
-        pilot: { pilotId: 'p1', name: 'Pilot One' },
-        cost: 75_000,
-      },
+      payload: { offerId: 'offer-1' },
     });
 
     expect(result.ok).toBe(true);
     expect(received.map((e) => e.type)).toEqual(['FundsChanged', 'PilotHired']);
     // Consecutive gap-free sequences.
     expect(received[1].sequence - received[0].sequence).toBe(1);
+    expect(received[1].payload).toStrictEqual({
+      pilot: { pilotId: 'hired-offer-1', name: 'Pilot One' },
+      cost: 75_000,
+    });
     expect(host.getState().balance).toBe(525_000);
-    expect(host.getState().pilots.p1).toBeDefined();
+    expect(host.getState().pilots['hired-offer-1']).toBeDefined();
+  });
+
+  // K14b: the guest used to invent the recruit and its cost. A HirePilot
+  // names both, so it is refused on every path, never trusted.
+  it('refuses a HirePilot outright, committing nothing', async () => {
+    const { host, received } = makeHost(stateWith({ balance: 600_000 }), {
+      personnelOffer: () => AUTHORITATIVE_OFFER,
+    });
+    await host.open();
+    received.length = 0;
+
+    const result = await host.handleIntent({
+      kind: 'HirePilot',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'intent-forged-hire',
+      payload: { pilot: { pilotId: 'p1', name: 'Forged' }, cost: 0 },
+    });
+
+    expect(result).toStrictEqual({
+      ok: false,
+      code: 'INVALID_CAMPAIGN_INTENT',
+      reason: 'hire-requires-market-offer',
+    });
+    expect(received).toHaveLength(0);
+    expect(host.getState().balance).toBe(600_000);
+  });
+
+  it('refuses a HireOffer when the host has no authoritative market to read', async () => {
+    const { host, received } = makeHost(stateWith({ balance: 600_000 }));
+    await host.open();
+    received.length = 0;
+
+    const result = await host.handleIntent(hireOffer('offer-1'));
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: 'offer-source-unavailable',
+    });
+    expect(received).toHaveLength(0);
+  });
+
+  it.each([
+    ['an unknown offer', 'offer-404', 600_000, 'offer-not-found'],
+    ['an expired offer', 'offer-expired', 600_000, 'offer-expired'],
+    ['an unaffordable offer', 'offer-1', 74_999, 'insufficient-funds'],
+  ])(
+    'refuses %s, committing nothing',
+    async (_label, offerId, balance, reason) => {
+      const { host, received } = makeHost(stateWith({ balance }), {
+        personnelOffer: (id) =>
+          id === 'offer-1'
+            ? AUTHORITATIVE_OFFER
+            : id === 'offer-expired'
+              ? {
+                  ...AUTHORITATIVE_OFFER,
+                  offerId: id,
+                  expirationDate: '3025-01-02',
+                }
+              : null,
+      });
+      await host.open();
+      received.length = 0;
+
+      const result = await host.handleIntent(hireOffer(offerId));
+
+      expect(result).toMatchObject({ ok: false, reason });
+      expect(received).toHaveLength(0);
+      expect(host.getState().balance).toBe(balance);
+    },
+  );
+
+  it('hires an offer on its last day', async () => {
+    const { host } = makeHost(stateWith({ balance: 600_000 }), {
+      personnelOffer: () => ({
+        ...AUTHORITATIVE_OFFER,
+        expirationDate: '3025-01-03',
+      }),
+    });
+    await host.open();
+
+    expect((await host.handleIntent(hireOffer('offer-1'))).ok).toBe(true);
+  });
+
+  it('refuses a second hire of a consumed offer', async () => {
+    const { host } = makeHost(stateWith({ balance: 600_000 }), {
+      personnelOffer: () => AUTHORITATIVE_OFFER,
+    });
+    await host.open();
+    expect((await host.handleIntent(hireOffer('offer-1'))).ok).toBe(true);
+
+    const second = await host.handleIntent({
+      ...hireOffer('offer-1'),
+      intentId: 'intent-hire-again',
+    });
+
+    expect(second).toMatchObject({ ok: false, reason: 'offer-consumed' });
+    expect(host.getState().balance).toBe(525_000);
   });
 
   it('AdvanceDay commits a CampaignDayAdvanced event', async () => {

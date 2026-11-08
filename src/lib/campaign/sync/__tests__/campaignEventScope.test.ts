@@ -132,10 +132,10 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
       payload: { amount: 10, reason: 'ammo' },
     },
     {
-      kind: 'HirePilot',
+      kind: 'HireOffer',
       campaignId: CAMPAIGN_ID,
       intentId: 'i-hire',
-      payload: { pilot: { pilotId: 'p1', name: 'Natasha' }, cost: 20 },
+      payload: { offerId: 'offer-1' },
     },
     {
       kind: 'AcceptContract',
@@ -171,8 +171,9 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
 
   it('covers every intent kind that produces events', () => {
     const kinds = new Set(intents.map((intent) => intent.kind));
+    // HirePilot is retired (K14b) and derives no events.
     const expected: CampaignIntentKind[] = [
-      'HirePilot',
+      'HireOffer',
       'AcceptContract',
       'SpendFunds',
       'AllocateSalvage',
@@ -191,6 +192,15 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
         'pid-host',
         NOW,
         'pid-host',
+        {
+          personnelOffer: () => ({
+            offerId: 'offer-1',
+            name: 'Natasha',
+            hireCost: 20,
+            expirationDate: '3025-12-31',
+            campaignDate: '3025-01-01',
+          }),
+        },
       );
       expect(result.ok).toBe(true);
       return result.ok ? result.events : [];
