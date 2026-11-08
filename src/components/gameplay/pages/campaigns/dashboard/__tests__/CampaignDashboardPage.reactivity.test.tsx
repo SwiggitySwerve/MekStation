@@ -44,10 +44,12 @@ jest.mock(
 jest.mock('@/lib/campaign/readiness/missionReadinessProjection', () => ({
   buildMissionReadinessProjection: (input?: {
     readonly catalog?: { readonly status?: string };
+    readonly units?: readonly unknown[];
   }) => {
     const catalogReady = input?.catalog?.status === 'ready';
     const canLaunch = mockReadinessCanLaunch && catalogReady;
     return {
+      units: (input?.units ?? []).map((unit) => ({ unit })),
       canLaunch,
       selectedUnits: mockSelectedRosterUnits,
       unresolvedBlockers: canLaunch
@@ -178,6 +180,7 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
 });
 
 const mockRosterState = {
+  units: [],
   pilots: [],
   missionCount: 0,
   createMission: mockRosterCreateMission,

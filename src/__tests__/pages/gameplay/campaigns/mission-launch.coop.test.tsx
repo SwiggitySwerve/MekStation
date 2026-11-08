@@ -1,3 +1,4 @@
+import { act, render, screen, waitFor } from '@testing-library/react';
 /**
  * Co-op mission launch route probes for the staged multiplayer/co-op work.
  *
@@ -8,8 +9,6 @@
  *
  * @spec openspec/specs/coop-campaign-sync/spec.md
  */
-
-import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignSyncWebSocket } from '@/lib/campaign/coop/campaignSyncTransport';
@@ -27,6 +26,7 @@ import {
   publishCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { createCampaign, createMission } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
@@ -48,6 +48,10 @@ let mockRosterUnits: IRosterUnitProjection[] = [
     readiness: 'Ready' as const,
   },
 ];
+
+jest.mock('@/lib/campaign/readiness/useReadinessAuthority', () => ({
+  useReadinessAuthority: () => ({ kind: 'snapshot' }),
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -125,7 +129,18 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
 });
 
 const mockRosterState = {
-  pilots: [],
+  get units() {
+    return mockRosterUnits;
+  },
+  get pilots() {
+    return mockRosterUnits
+      .filter((unit) => unit.pilotId)
+      .map((unit) => ({
+        pilotId: unit.pilotId,
+        pilotName: unit.unitName,
+        status: CampaignPilotStatus.Active,
+      }));
+  },
   getUnitsWithReadiness: () => mockRosterUnits,
   getDeployableUnits: () => mockRosterUnits,
 };
@@ -160,6 +175,17 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
 import CoopMissionLaunchPage from '@/pages/gameplay/campaigns/[id]/missions/[missionId]/launch';
 
 function makeForce(id: string, unitIds: string[]): IForce {
+  for (const unitId of unitIds) {
+    if (!mockRosterUnits.some((unit) => unit.unitId === unitId))
+      mockRosterUnits.push({
+        unitId,
+        unitRef: 'atlas-as7-d',
+        unitName: unitId,
+        chassisVariant: 'AS7-D',
+        readiness: 'Ready',
+        pilotId: `pilot-${unitId}`,
+      });
+  }
   return {
     id,
     name: `Force ${id}`,
@@ -220,6 +246,7 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         unitName: 'Atlas',
         chassisVariant: 'AS7-D',
         readiness: 'Ready',
+        pilotId: 'pilot-atlas',
       },
     ];
     mockCanonicalUnitRefs = ['atlas-as7-d'];
@@ -508,6 +535,15 @@ interface ICoopRosterUnitFixture {
 
 /** A co-op runtime whose host projection carries the given roster rows. */
 function coopRuntimeWithRoster(units: readonly ICoopRosterUnitFixture[]) {
+  mockRosterUnits = units.map((unit) => ({
+    unitId: unit.unitId,
+    unitRef: unit.unitRef,
+    unitName: unit.designation,
+    chassisVariant: 'Fixture',
+    readiness: 'Ready',
+    pilotId: `pilot-${unit.unitId}`,
+    unitSource: unit.unitSource as IRosterUnitProjection['unitSource'],
+  }));
   const rosterUnits = Object.fromEntries(
     units.map((unit) => [unit.unitId, unit]),
   );

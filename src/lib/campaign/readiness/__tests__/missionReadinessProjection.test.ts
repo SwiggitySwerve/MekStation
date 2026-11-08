@@ -91,7 +91,7 @@ describe('buildMissionReadinessProjection', () => {
         makeUnit({
           unitId: 'unit-damaged',
           unitName: 'Centurion',
-          pilotId: undefined,
+          pilotId: 'pilot-ready',
           readiness: 'Damaged',
         }),
         makeUnit({
@@ -113,15 +113,9 @@ describe('buildMissionReadinessProjection', () => {
     expect(projection.blockedUnitIds).toEqual(['unit-destroyed']);
     expect(projection.warnings.map((reason) => reason.code)).toEqual([
       'unit_damaged',
-      'pilot_unassigned',
     ]);
     expect(projection.launchConsequences).toContain('Deploy 2 selected units');
     expect(projection.launchConsequences).toContain('Ready to launch');
-    expect(projection.warnings[1]).toMatchObject({
-      actionLabel: 'Assign pilot',
-      actionHref:
-        '/gameplay/campaigns/campaign-1/personnel?intent=assign-pilot&unit=unit-damaged',
-    });
   });
 
   it('blocks launch when the selected unit is destroyed or under blocking repair', () => {
@@ -152,6 +146,7 @@ describe('buildMissionReadinessProjection', () => {
     expect(projection.canLaunch).toBe(false);
     expect(projection.unresolvedBlockers.map((reason) => reason.code)).toEqual([
       'unit_destroyed',
+      'pilot_unassigned',
       'repair_blocking',
     ]);
     expect(projection.units[0]?.reasons[0]?.actionHref).toBe(

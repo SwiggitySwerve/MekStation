@@ -16,6 +16,8 @@ import {
   readinessStatusFromReasons,
   type IMissionReadinessReason,
   type MissionReadinessUnitStatus,
+  type ReadinessCampaignFacts,
+  type ReadinessAuthority,
 } from './selectUnitReadiness';
 export type {
   IMissionReadinessReason,
@@ -60,6 +62,8 @@ export interface BuildMissionReadinessProjectionInput {
   readonly repairBay?: readonly IRepairBayItem[];
   readonly selectedRosterUnitIds?: readonly string[];
   readonly catalog?: CanonicalCombatCatalogSnapshot;
+  readonly campaign?: ReadinessCampaignFacts | null;
+  readonly authority?: ReadinessAuthority;
   readonly minUnits?: number;
   readonly maxUnits?: number;
   readonly baseCampaignHref?: string;
@@ -79,6 +83,8 @@ function buildUnitProjection({
   repairTickets,
   catalog,
   baseCampaignHref,
+  campaign,
+  authority,
 }: {
   readonly unit: IRosterUnitProjection;
   readonly selected: boolean;
@@ -86,6 +92,8 @@ function buildUnitProjection({
   readonly repairTickets: readonly IRepairBayItem[];
   readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly baseCampaignHref: string | undefined;
+  readonly campaign?: ReadinessCampaignFacts | null;
+  readonly authority?: ReadinessAuthority;
 }): IMissionReadinessUnitProjection {
   const reasons: IMissionReadinessReason[] = [];
   const parsedSource = parseRosterUnitSource(unit.unitSource);
@@ -102,11 +110,13 @@ function buildUnitProjection({
     pilot,
     repairTickets,
     baseCampaignHref,
+    campaign,
+    authority,
   });
   reasons.push(...readiness.reasons);
 
   return {
-    unit,
+    unit: readiness.unit,
     selected,
     parsedSource,
     pilotName: pilot?.pilotName,
@@ -124,6 +134,8 @@ export function buildMissionReadinessProjection({
   units,
   pilots = [],
   repairBay = [],
+  campaign,
+  authority,
   selectedRosterUnitIds,
   catalog,
   minUnits = DEFAULT_MIN_UNITS,
@@ -141,25 +153,30 @@ export function buildMissionReadinessProjection({
     }
   }
 
-  const selectedIds =
-    selectedRosterUnitIds === undefined
-      ? units
-          .filter((unit) => unit.readiness !== 'Destroyed')
-          .slice(0, maxUnits)
-          .map((unit) => unit.unitId)
-      : uniqueIds(selectedRosterUnitIds);
-  const selectedIdSet = new Set(selectedIds);
-
-  const unitProjections = units.map((unit) =>
+  const projected = units.map((unit) =>
     buildUnitProjection({
       unit,
-      selected: selectedIdSet.has(unit.unitId),
+      selected: false,
       pilot: unit.pilotId ? pilotById.get(unit.pilotId) : undefined,
       repairTickets: repairTicketsByUnit.get(unit.unitId) ?? [],
       catalog,
       baseCampaignHref,
+      campaign,
+      authority,
     }),
   );
+  const selectedIds =
+    selectedRosterUnitIds === undefined
+      ? projected
+          .filter((unit) => unit.status !== 'blocked')
+          .slice(0, maxUnits)
+          .map((unit) => unit.unit.unitId)
+      : uniqueIds(selectedRosterUnitIds);
+  const selectedIdSet = new Set(selectedIds);
+  const unitProjections = projected.map((unit) => ({
+    ...unit,
+    selected: selectedIdSet.has(unit.unit.unitId),
+  }));
   const unitById = new Map(
     unitProjections.map((projection) => [projection.unit.unitId, projection]),
   );

@@ -1,6 +1,6 @@
 {
   "name": "derive-campaign-unit-readiness",
   "status": "in-progress",
-  "reason": "Root-approved K6 readiness consolidation and derived launch admission; runtime verification pending.",
+  "reason": "K6 implemented and locally verified; pre-existing repo-wide cache budget failure (94/93) documented; draft PR and hosted checks pending.",
   "lastReviewed": "2026-11-08"
 }
