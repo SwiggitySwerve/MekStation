@@ -19,6 +19,9 @@ import {
   getPendingRequests,
   getInTransitRequests,
   getDeliveredRequests,
+  normalizeShoppingList,
+  canAttemptAcquisition,
+  ACQUISITION_RETRY_WAIT_DAYS,
 } from '../shoppingList';
 
 describe('Shopping List Queue Management', () => {
@@ -38,6 +41,64 @@ describe('Shopping List Queue Management', () => {
   });
 
   describe('createShoppingList', () => {
+    it('uses seven campaign days across DST for retry eligibility', () => {
+      expect(ACQUISITION_RETRY_WAIT_DAYS).toBe(7);
+      const request = createTestRequest({
+        attempts: 2,
+        lastAttemptDate: new Date(2026, 9, 28, 12).toISOString(),
+      });
+      expect(canAttemptAcquisition(request, new Date(2026, 10, 3, 12))).toBe(
+        false,
+      );
+      expect(canAttemptAcquisition(request, new Date(2026, 10, 4, 12))).toBe(
+        true,
+      );
+      expect(
+        canAttemptAcquisition(
+          { ...request, status: 'delivered' },
+          new Date(2026, 10, 4, 12),
+        ),
+      ).toBe(false);
+    });
+
+    it('normalizes legacy duplicates deterministically and idempotently without losing rows', () => {
+      const date = new Date('3025-01-15T00:00:00.000Z');
+      const list = {
+        items: [
+          createTestRequest({ id: 'same', status: 'failed', attempts: 2 }),
+          createTestRequest({ id: 'same', status: 'delivered', quantity: 3 }),
+          createTestRequest({ id: 'same-legacy-1' }),
+          createTestRequest({ id: 'same', status: 'in_transit', quantity: 4 }),
+        ],
+      };
+      const inventory = [
+        {
+          inventoryId: 'acquisition-same',
+          partId: 'part-1',
+          partName: 'Test Part',
+          quantity: 3,
+          source: 'acquisition' as const,
+          acquiredAt: date.toISOString(),
+        },
+      ];
+      const normalized = normalizeShoppingList(list, date, inventory);
+      expect(normalized?.items).toHaveLength(4);
+      expect(new Set(normalized?.items.map((item) => item.id)).size).toBe(4);
+      expect(normalized?.items[1]).toEqual(list.items[1]);
+      expect(normalized?.items[0]).toMatchObject({
+        status: 'pending',
+        attempts: 2,
+        lastAttemptDate: date.toISOString(),
+      });
+      expect(normalized?.items.map((item) => item.quantity)).toEqual([
+        1, 3, 1, 4,
+      ]);
+      expect(normalizeShoppingList(list, date, inventory)).toEqual(normalized);
+      expect(
+        normalizeShoppingList(normalized, new Date('3025-02-01'), inventory),
+      ).toEqual(normalized);
+      expect(list.items[0].status).toBe('failed');
+    });
     it('should return an empty shopping list', () => {
       const list = createShoppingList();
       expect(list.items).toEqual([]);
@@ -53,6 +114,14 @@ describe('Shopping List Queue Management', () => {
   });
 
   describe('addRequest', () => {
+    it('rejects duplicate IDs instead of introducing an ambiguous update target', () => {
+      const request = createTestRequest();
+      const list = addRequest(createShoppingList(), request);
+      expect(() => addRequest(list, request)).toThrow(
+        'Acquisition request ID already exists',
+      );
+      expect(list.items).toEqual([request]);
+    });
     it('should add a request to an empty list', () => {
       const list = createShoppingList();
       const request = createTestRequest();

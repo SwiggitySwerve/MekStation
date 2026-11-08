@@ -173,6 +173,12 @@
       "status": "in-progress",
       "reason": "Root-approved C17 only: classify runner termination from the effective configured limit bounded by the ceiling, critical halt and resolved objective winner; make the engine reason adapter exhaustive with all existing mappings preserved. No schema changes or fixture regeneration; wider end-reason consolidation deferred.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-acquisition-request-identity-and-retry",
+      "status": "in-progress",
+      "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }

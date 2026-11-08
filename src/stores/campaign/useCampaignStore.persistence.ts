@@ -45,6 +45,7 @@ import type {
 } from '@/types/interventions';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import { normalizeShoppingList } from '@/lib/campaign/acquisition/shoppingList';
 import {
   rehydrateCampaignMission,
   rehydrateContractMarket,
@@ -368,7 +369,11 @@ export function deserializeCampaign(
       ),
     },
     factionStandings: serialized.factionStandings,
-    shoppingList: serialized.shoppingList,
+    shoppingList: normalizeShoppingList(
+      serialized.shoppingList,
+      serialized.currentDate,
+      serialized.partsInventory,
+    ),
     options: serialized.options,
     campaignType: serialized.campaignType as CampaignType,
     activePreset: serialized.activePreset,

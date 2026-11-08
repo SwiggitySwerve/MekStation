@@ -41,13 +41,12 @@ import type { IContract, IMission } from '@/types/campaign/Mission';
 import {
   addRequest,
   removeRequest,
+  createAcquisitionRequest,
+  normalizeShoppingList,
 } from '@/lib/campaign/acquisition/shoppingList';
 import { acceptContract as acceptContractEngine } from '@/lib/campaign/contractMarket';
 import { hirePerson } from '@/lib/campaign/markets/personnelMarket';
-import {
-  AvailabilityRating,
-  type IAcquisitionRequest,
-} from '@/types/campaign/acquisition/acquisitionTypes';
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { createCampaignLoan } from '@/types/campaign/CampaignLoan';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
@@ -161,25 +160,6 @@ function isAvailabilityRating(value: unknown): value is AvailabilityRating {
   );
 }
 
-function createAcquisitionRequest(
-  campaign: ICampaign,
-  params: IAddAcquisitionRequestParams,
-): IAcquisitionRequest {
-  const partId = params.partId?.trim() || slugPartName(params.partName);
-  const sequence = campaign.shoppingList?.items.length ?? 0;
-  const requestId = `req-${campaign.id}-${partId}-${sequence}`;
-  return {
-    id: requestId,
-    partId,
-    partName: params.partName.trim(),
-    quantity: params.quantity,
-    availability: params.availability,
-    isConsumable: params.isConsumable,
-    status: 'pending',
-    attempts: 0,
-  };
-}
-
 /**
  * Add a player-requested part acquisition to the shopping list.
  *
@@ -207,13 +187,23 @@ export function addAcquisitionRequest(
   };
 
   applyCampaignMutation((campaign) => {
-    const request = createAcquisitionRequest(campaign, {
-      ...params,
+    const request = createAcquisitionRequest({
+      partId: params.partId?.trim() || slugPartName(partName),
       partName,
+      quantity: params.quantity,
+      availability: params.availability,
+      isConsumable: params.isConsumable,
     });
     result = { applied: true, requestId: request.id };
     return {
-      shoppingList: addRequest(campaign.shoppingList ?? { items: [] }, request),
+      shoppingList: addRequest(
+        normalizeShoppingList(
+          campaign.shoppingList,
+          campaign.currentDate,
+          campaign.partsInventory,
+        ) ?? { items: [] },
+        request,
+      ),
     } as Partial<ICampaign>;
   });
 
@@ -240,7 +230,11 @@ export function removeAcquisitionRequest(
   };
 
   applyCampaignMutation((campaign) => {
-    const shoppingList = campaign.shoppingList ?? { items: [] };
+    const shoppingList = normalizeShoppingList(
+      campaign.shoppingList,
+      campaign.currentDate,
+      campaign.partsInventory,
+    ) ?? { items: [] };
     if (!shoppingList.items.some((item) => item.id === requestId)) {
       result = { applied: false, reason: 'Acquisition request not found' };
       return null;
