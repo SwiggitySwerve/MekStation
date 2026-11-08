@@ -35,6 +35,7 @@ import {
   purchasePilotSPA,
   removePilotSPA,
 } from './PilotService.spa';
+import { canTransitionPilotStatus } from './pilotStatus';
 export type { IPilotService } from './PilotService.types';
 export class PilotService implements IPilotService {
   private repo = getPilotRepository();
@@ -267,7 +268,7 @@ export class PilotService implements IPilotService {
         errorCode: PilotErrorCode.NotFound,
       };
     }
-    if (pilot.status === PilotStatus.KIA) {
+    if (!canTransitionPilotStatus(pilot.status, PilotStatus.Active)) {
       return {
         success: false,
         error: 'Cannot heal a KIA pilot',

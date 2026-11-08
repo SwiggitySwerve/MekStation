@@ -11,6 +11,7 @@
  * implementation — only the call site moved.
  */
 
+import { canTransitionPilotStatus } from '@/services/pilots/pilotStatus';
 import { IPilotAbilityDesignation, PilotStatus } from '@/types/pilot';
 
 import type {
@@ -126,9 +127,8 @@ export async function applyWoundLogic(
 }
 
 /**
- * Heal a pilot back to Active. Refuses to heal a KIA pilot (matches the
- * MekHQ rule that KIA is permanent). Routes through `updatePilot` so the
- * persistence flow is a single endpoint.
+ * Heal a pilot back to Active. Normal vault healing cannot revive KIA.
+ * Routes through `updatePilot` so persistence uses a single endpoint.
  */
 export async function healWoundsLogic(
   pilotId: string,
@@ -144,7 +144,7 @@ export async function healWoundsLogic(
       return false;
     }
 
-    if (pilot.status === PilotStatus.KIA) {
+    if (!canTransitionPilotStatus(pilot.status, PilotStatus.Active)) {
       set({ error: 'Cannot heal a KIA pilot' });
       return false;
     }
