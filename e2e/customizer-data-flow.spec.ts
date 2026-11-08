@@ -475,7 +475,7 @@ test('failed catalog load stays recoverable and never substitutes a chassis @cus
   await page.getByText('AS7-D', { exact: true }).click();
   await page.getByRole('button', { name: 'Load Unit', exact: true }).click();
   await expect(
-    page.getByText("Couldn't read Atlas AS7-D, so try again.", {
+    page.getByText("Couldn't read Atlas AS7-D; try again.", {
       exact: true,
     }),
   ).toBeVisible();

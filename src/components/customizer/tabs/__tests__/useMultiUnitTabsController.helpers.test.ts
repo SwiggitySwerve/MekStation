@@ -15,7 +15,10 @@ jest.mock('@/stores/unitStoreRegistry', () => ({
 }));
 jest.mock('@/utils/logger', () => ({ logger: { error: jest.fn() } }));
 
-async function toastFor(errorCode: string): Promise<string> {
+async function toastFor(
+  errorCode: string,
+  source: 'canonical' | 'custom' = 'canonical',
+): Promise<string> {
   jest.clearAllMocks();
   jest.mocked(unitLoaderService.loadUnit).mockResolvedValue({
     success: false,
@@ -28,7 +31,7 @@ async function toastFor(errorCode: string): Promise<string> {
       chassis: 'Atlas',
       variant: 'AS7-D',
     } as IUnitIndexEntry,
-    source: 'canonical',
+    source,
     createTab: jest.fn(),
     navigateToTab: jest.fn(),
     setIsLoadDialogOpen: jest.fn(),
@@ -43,14 +46,20 @@ async function toastFor(errorCode: string): Promise<string> {
 }
 
 it.each([
-  ['not-found', 'Atlas AS7-D is no longer in the library.'],
-  ['read-failed', "Couldn't read Atlas AS7-D, so try again."],
+  ['not-found', 'Atlas AS7-D is no longer in the catalog.'],
+  ['read-failed', "Couldn't read Atlas AS7-D; try again."],
   [
     'family-not-found',
     'The catalog for this unit family is unavailable right now.',
   ],
 ] as const)('gives %s its own message', async (errorCode, message) => {
   expect(await toastFor(errorCode)).toBe(message);
+});
+
+it('names the user library, not the catalog, when a saved design is gone', async () => {
+  expect(await toastFor('not-found', 'custom')).toBe(
+    'Atlas AS7-D is no longer in the library.',
+  );
 });
 
 it('tells not-found, read-failed and family-not-found apart', async () => {

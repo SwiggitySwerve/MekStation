@@ -120,11 +120,12 @@ function loadFailureMessage(
       // permanent and does not tell the user to give up on the family.
       return 'The catalog for this unit family is unavailable right now.';
     case 'not-found':
-      // Retrying cannot help: the entry is gone.
-      return `${name} is no longer in the library.`;
+      // Retrying cannot help: the entry is gone. A bundled unit left the
+      // catalog; a saved design left the user's library.
+      return `${name} is no longer in the ${source === 'custom' ? 'library' : 'catalog'}.`;
     case 'read-failed':
       // The entry exists but its source could not be read; a retry may work.
-      return `Couldn't read ${name}, so try again.`;
+      return `Couldn't read ${name}; try again.`;
     default:
       return `Failed to load ${unit.chassis} ${unit.variant}. Please try again.`;
   }
