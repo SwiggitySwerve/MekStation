@@ -438,7 +438,17 @@ export default function CampaignDashboardPage(): React.ReactElement {
         </p>
       )}
 
-      <CampaignRosterCard units={units} />
+      <CampaignRosterCard
+        units={units}
+        readinessByUnitId={
+          new Map(
+            missionReadinessProjection.units.map((entry) => [
+              entry.unit.unitId,
+              entry,
+            ]),
+          )
+        }
+      />
       <CampaignMissionHistoryCard missions={missions} />
 
       <CampaignQuickActionsCard

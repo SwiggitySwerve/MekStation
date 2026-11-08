@@ -210,6 +210,7 @@ jest.mock('@/stores/campaign/useCampaignStore', () => {
 import { createCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import CampaignDashboardPage from '../CampaignDashboardPage';
+import { CampaignRosterCard } from '../CampaignDashboardPage.sections';
 
 async function waitForLaunchReady() {
   await waitFor(() =>
@@ -253,6 +254,44 @@ describe('CampaignDashboardPage reactivity', () => {
 
   afterEach(() => {
     global.fetch = originalFetch;
+  });
+
+  it('shows an unassigned pilot blocker and its assignment link on the roster card', () => {
+    const { buildMissionReadinessProjection } = jest.requireActual<
+      typeof import('@/lib/campaign/readiness/missionReadinessProjection')
+    >('@/lib/campaign/readiness/missionReadinessProjection');
+    const units = [
+      {
+        unitId: 'unit-light',
+        unitRef: 'locust-lct-1v',
+        unitName: 'Locust',
+        chassisVariant: 'LCT-1V',
+        readiness: 'Ready' as const,
+      },
+    ];
+    const projection = buildMissionReadinessProjection({
+      campaignId: 'campaign-roster',
+      mission: undefined,
+      units,
+      baseCampaignHref: '/gameplay/campaigns/campaign-roster',
+    });
+    render(
+      <CampaignRosterCard
+        units={units}
+        readinessByUnitId={
+          new Map(projection.units.map((entry) => [entry.unit.unitId, entry]))
+        }
+      />,
+    );
+    expect(
+      screen.getAllByText('No pilot assigned. Assign one before launch.'),
+    ).toHaveLength(1);
+    const link = screen.getByRole('link', { name: 'Assign pilot' });
+    expect(link).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-roster/personnel?intent=assign-pilot&unit=unit-light',
+    );
+    expect(link.closest('[role="alert"]')).toBeInTheDocument();
   });
 
   it('re-renders when the active campaign changes in the store', async () => {

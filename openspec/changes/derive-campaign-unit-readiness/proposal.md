@@ -24,8 +24,9 @@ checks differ from single-player checks.
 
 ### Modified Capabilities
 
-- None. The new capability composes the existing combat-state, repair,
-  personnel, and journal-authority contracts.
+- `campaign-management`: explicitly replace the wizard unassigned-pilot warning
+  requirement with a blocker that retains the assignment action; preserve fresh
+  assigned-unit eligibility and distinguish pending readiness reads.
 
 ## Impact
 

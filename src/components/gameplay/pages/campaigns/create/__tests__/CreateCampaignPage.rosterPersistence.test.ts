@@ -286,7 +286,7 @@ describe('CreateCampaignPage submit roster persistence', () => {
     );
   });
 
-  it('leaves multi-unit assignment explicit and preserves the readiness warning', async () => {
+  it('leaves multi-unit assignment explicit and preserves the readiness blocker', async () => {
     await submitWizardRoster({
       selectedUnits: [lightMech, mediumMech],
       selectedPilots: [pilotOne],
@@ -308,14 +308,65 @@ describe('CreateCampaignPage submit roster persistence', () => {
       baseCampaignHref: '/gameplay/campaigns/campaign-roster',
     });
 
-    expect(projection.warnings).toContainEqual(
-      expect.objectContaining({
+    const missingPilot = projection.unresolvedBlockers.filter(
+      (reason) => reason.code === 'pilot_unassigned',
+    );
+    expect(missingPilot).toEqual([
+      {
         code: 'pilot_unassigned',
+        severity: 'blocker',
+        subjectId: 'unit-light',
+        message: 'No pilot assigned. Assign one before launch.',
         actionLabel: 'Assign pilot',
         actionHref:
           '/gameplay/campaigns/campaign-roster/personnel?intent=assign-pilot&unit=unit-light',
-      }),
-    );
+      },
+    ]);
+    expect(
+      projection.units[0].reasons.filter(
+        (reason) => reason.code === 'pilot_unassigned',
+      ),
+    ).toEqual(missingPilot);
+    expect(
+      projection.warnings.some((reason) => reason.code === 'pilot_unassigned'),
+    ).toBe(false);
+    expect(projection.canLaunch).toBe(false);
+  });
+
+  it('keeps a freshly constructed mirrored roster eligible before any deployment', async () => {
+    await submitWizardRoster({
+      selectedUnits: [lightMech, { ...lightMech, id: 'unit-mirrored' }],
+      selectedPilots: [pilotOne, { id: 'pilot-two', name: 'MechWarrior 2' }],
+      pilotAssignments: {
+        'unit-light': 'pilot-one',
+        'unit-mirrored': 'pilot-two',
+      },
+    });
+    const roster = useCampaignRosterStore.getState();
+    const campaign = useCampaignStore().getState().campaign;
+    expect(campaign?.unitCombatStates).toEqual({});
+    const projection = buildMissionReadinessProjection({
+      campaignId: campaign!.id,
+      mission: undefined,
+      campaign,
+      units: roster.units,
+      pilots: roster.pilots,
+      authority: { kind: 'snapshot' },
+    });
+    expect(
+      projection.units.map((unit) => ({
+        status: unit.status,
+        reasons: unit.reasons,
+      })),
+    ).toEqual([
+      { status: 'eligible', reasons: [] },
+      { status: 'eligible', reasons: [] },
+    ]);
+    expect(projection.selectedRosterUnitIds).toEqual([
+      'unit-light',
+      'unit-mirrored',
+    ]);
+    expect(projection.canLaunch).toBe(true);
   });
 
   it('registers multiple wizard pilots with vault ids and distinct submit-time names', async () => {

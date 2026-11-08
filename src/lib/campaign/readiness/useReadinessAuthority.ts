@@ -8,8 +8,7 @@ import {
 } from './selectUnitReadiness';
 
 const LOADING: ReadinessAuthority = Object.freeze({
-  kind: 'blocked',
-  reason: 'Readiness authority is loading.',
+  kind: 'loading',
 });
 
 /** Read-only authority, refreshed when the owning campaign snapshot changes. */

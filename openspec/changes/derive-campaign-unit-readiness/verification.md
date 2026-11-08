@@ -67,3 +67,74 @@ Raw local command logs are retained in
 `E:/Projects/Personal/_scratch/sm-audit-reports/k6-evidence/`.
 Hosted checks and draft PR delivery follow the behavior commit; Root owns
 review and merging.
+
+## Hosted CI follow-up for #3053
+
+The failing unit contract was confirmed: `pilot_unassigned` moved from warnings
+into blockers. Canonical `campaign-management` / ?Creation Wizard Roster
+Persistence? explicitly required a warning. The change now has a MODIFIED delta
+for that whole requirement, citing pinned MekHQ `Unit.checkDeployment()` lines
+1660?1691, which rejects a unit with no required pilot. The creation regression
+asserts the reason exactly once in blockers, absent from warnings, retaining its
+code, message, ?Assign pilot? label and exact personnel deep link.
+
+The hosted fresh-construction trace from run `42466752480`, job `128687991462`,
+shows `catalog_loading` and the pending authority read incorrectly presented as
+`readiness_authority_unavailable`. Both checkboxes were disabled and unchecked
+when `selectAllRosterUnits` inspected them. The captured final page subsequently
+shows two assigned pilots, two eligible checked units and ?Launch ready?. There
+was no missing-pilot, destroyed-unit or missing-journal-roster refusal.
+
+The hook now distinguishes client loading from unavailable authority. The
+projection exposes loading, admission stays blocked while facts are pending,
+and the selection panel appears after both reads settle. This preserves stored
+snapshot/journal authority and the existing full-health construction rule; no
+E2E assertion, seed, fixture or outcome was changed.
+
+Regression evidence includes the actual wizard submit path creating two distinct
+instances of the same canonical design with assigned vault pilots and no combat
+states; both are eligible and selected. Projection tests cover both absent and
+pinned construction maxima. The route regression covers pending authority,
+then two enabled checked units. Projection tests independently cover pending
+catalog reads, and hook tests cover old-response snapshot fallback and failed
+reads settling to unavailable.
+
+A shared reason display now preserves every reason and its action in dashboard
+roster cards, Mech Bay and launch. Component regressions assert the unchanged
+pilot message and assignment href, including a Mech Bay row whose third reason
+was previously truncated. The existing first-fix test id is retained.
+
+Local browser attempt: the unchanged requested E2E spec could not reach the
+wizard. This worktree's `node_modules` junction points to another drive.
+Turbopack refused the junction as outside its filesystem root; a Webpack retry
+failed resolving `./E:/Projects/Personal/MekStation/node_modules/next/dist/client/next-dev.js`
+and served HTTP 500 before campaign creation. This is not a passing browser
+result. The unit/component regressions reproduce the actual submit facts and
+pending-to-ready selection sequence; the hosted E2E rerun remains required.
+
+Follow-up gate evidence:
+
+| Check | Result |
+| --- | --- |
+| Red route regression | Completed panel incorrectly visible while authority pending |
+| Red dashboard and Mech Bay regressions | Assignment action absent / pilot reason truncated |
+| Full directory run, including all campaign pages | 597 suites, 6,742 tests passed; 35 skipped |
+| Both TypeScript configurations | Passed |
+| Whole-repository formatting | Passed |
+| Root lint | 63 warnings, zero errors |
+| lint-units and its Jest suite | Passed, 17,082/17,085 |
+| `npm run validate:combat` | Passed: 79 suites, 2,107 tests, gap checks and strict spec validation |
+| OpenSpec strict / CI quality | 257 passed; zero quality errors |
+| Budget | 57 unkeyable unchanged; known repository-wide failure 94/93 remains |
+
+Both required mutants were rerun and restored. Forcing cached readiness was
+killed by ?uses repaired combat facts instead of a stale destroyed roster cache?
+in `selectUnitReadiness.test.ts`. Removing server admission was killed by
+?refuses a direct mission request when stored repair work blocks a deploying
+unit? in `coopMissionCreate.refusals.test.ts`.
+
+Fast-forward live parity, fast-forward determinism, campaign-combat-loop,
+engine golden/recovery, runner, replay and both digest suites pass with unchanged
+fixtures. No admission-driven seeded outcome changed. The prior hosted Linux
+pack failure was also inspected: Electron download HTTP 504, matching Root's
+reported external outage; the aggregator failure follows the failed jobs.

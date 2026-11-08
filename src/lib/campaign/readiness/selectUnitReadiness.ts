@@ -35,6 +35,7 @@ export type ReadinessPilot = Pick<
 
 export type ReadinessAuthority =
   | { readonly kind: 'snapshot' }
+  | { readonly kind: 'loading' }
   | {
       readonly kind: 'journal';
       readonly units: Readonly<Record<string, ICampaignRosterUnit['status']>>;
@@ -168,6 +169,13 @@ export function selectUnitReadiness({
   const repairTickets = bay.filter(
     (ticket) => ticket.unitId === unit.unitId && isActiveRepairTicket(ticket),
   );
+  if (authority.kind === 'loading')
+    reasons.push({
+      code: 'readiness_authority_loading',
+      severity: 'blocker',
+      subjectId: unit.unitId,
+      message: 'Readiness authority is loading.',
+    });
   if (authority.kind === 'blocked')
     reasons.push({
       code: 'readiness_authority_unavailable',

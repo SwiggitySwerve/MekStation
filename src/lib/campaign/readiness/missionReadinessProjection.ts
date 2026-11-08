@@ -50,6 +50,7 @@ export interface IMissionReadinessProjection {
   readonly unresolvedBlockers: readonly IMissionReadinessReason[];
   readonly warnings: readonly IMissionReadinessReason[];
   readonly canLaunch: boolean;
+  readonly loading?: boolean;
   readonly catalogStatus?: CanonicalCombatCatalogSnapshot['status'];
   readonly launchConsequences: readonly string[];
 }
@@ -250,6 +251,7 @@ export function buildMissionReadinessProjection({
     unresolvedBlockers,
     warnings,
     canLaunch,
+    loading: catalog?.status === 'loading' || authority?.kind === 'loading',
     catalogStatus: catalog?.status,
     launchConsequences: [
       `Deploy ${selectedUnits.length} selected unit${

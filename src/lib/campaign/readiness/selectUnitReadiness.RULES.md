@@ -39,6 +39,13 @@ authority is refused; transport failures remain unavailable.
 
 Campaign UI subscribes to current roster and campaign facts. The shared
 `useReadinessAuthority` hook drops obsolete responses on replacement/unmount.
+Its client-only loading state blocks admission without claiming an authority
+failure or unit destruction. Mission readiness exposes pending catalog/authority
+reads separately; the selection panel appears once both reads have settled.
+Fresh assigned wizard units remain eligible with no deployment combat state,
+whether construction maxima have already been pinned or are absent.
+All readiness surfaces retain each reason and its remediation link when pilot
+assignment is classified as a blocker.
 Launch adapters pass current readiness facts to materialization; co-op checks
 actual deploying contributions and excludes HQ-only contributions. Owned-force
 materialization still resolves authority and ownership through its existing

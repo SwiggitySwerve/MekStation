@@ -67,6 +67,75 @@ const mission = createMission({
 const readyCatalog = readyCanonicalCatalog(['atlas-as7-d']);
 
 describe('buildMissionReadinessProjection', () => {
+  it.each([false, true])(
+    'admits never-deployed mirrored wizard units with maxima=%s',
+    (hasMaxima) => {
+      const units = [1, 2].map((index) =>
+        makeUnit({
+          unitId: `unit-${index}`,
+          pilotId: `vault-pilot-${index}`,
+          sourceVersion: 1,
+        }),
+      );
+      const pilots = units.map((unit, index) =>
+        makePilot({
+          pilotId: unit.pilotId,
+          pilotName: `MechWarrior ${index + 1}`,
+          assignedUnitId: unit.unitId,
+        }),
+      );
+      const projection = buildMissionReadinessProjection({
+        campaignId: 'campaign-fresh',
+        mission,
+        units,
+        pilots,
+        catalog: readyCatalog,
+        authority: { kind: 'snapshot' },
+        campaign: {
+          unitCombatStates: {},
+          repairQueue: [],
+          unitMaxStates: hasMaxima
+            ? Object.fromEntries(
+                units.map((unit) => [
+                  unit.unitId,
+                  {
+                    unitId: unit.unitId,
+                    maxArmorPerLocation: { CT: 30, HD: 9 },
+                    maxStructurePerLocation: { CT: 20, HD: 3 },
+                    maxAmmoPerBin: {},
+                  },
+                ]),
+              )
+            : {},
+        },
+      });
+      expect(projection.eligibleUnitIds).toEqual(['unit-1', 'unit-2']);
+      expect(projection.selectedRosterUnitIds).toEqual(['unit-1', 'unit-2']);
+      expect(projection.units.every((unit) => unit.reasons.length === 0)).toBe(
+        true,
+      );
+      expect(projection.canLaunch).toBe(true);
+      expect(projection.loading).toBe(false);
+    },
+  );
+
+  it.each(['catalog', 'authority'] as const)(
+    'keeps a pending %s read distinct from a completed readiness decision',
+    (pending) => {
+      const projection = buildMissionReadinessProjection({
+        campaignId: 'campaign-fresh',
+        mission,
+        units: [makeUnit()],
+        pilots: [makePilot()],
+        catalog: pending === 'catalog' ? { status: 'loading' } : readyCatalog,
+        authority:
+          pending === 'authority' ? { kind: 'loading' } : { kind: 'snapshot' },
+      });
+      expect(projection.loading).toBe(true);
+      expect(projection.canLaunch).toBe(false);
+    },
+  );
+
   it('excludes done tickets from readiness counts and queued warnings', () => {
     const projection = buildMissionReadinessProjection({
       campaignId: 'campaign-1',

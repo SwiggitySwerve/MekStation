@@ -15,8 +15,23 @@ describe('useReadinessAuthority', () => {
   it('uses snapshot authority when an older successful reader result omits the field', async () => {
     readHead.mockResolvedValue({ kind: 'no-authoritative-stream' });
     const { result } = renderHook(() => useReadinessAuthority('campaign-1'));
-    expect(result.current.kind).toBe('blocked');
+    expect(result.current.kind).toBe('loading');
     await waitFor(() => expect(result.current).toEqual({ kind: 'snapshot' }));
+  });
+
+  it('settles a failed read as unavailable instead of leaving readiness loading', async () => {
+    readHead.mockResolvedValue({
+      kind: 'unavailable',
+      reason: 'Network failure',
+    });
+    const { result } = renderHook(() => useReadinessAuthority('campaign-1'));
+    expect(result.current.kind).toBe('loading');
+    await waitFor(() =>
+      expect(result.current).toEqual({
+        kind: 'blocked',
+        reason: 'Readiness authority is unavailable.',
+      }),
+    );
   });
 
   it('never carries another campaign’s journal status into a replacement', async () => {
@@ -34,7 +49,7 @@ describe('useReadinessAuthority', () => {
     await waitFor(() => expect(result.current.kind).toBe('journal'));
     readHead.mockResolvedValueOnce({ kind: 'no-authoritative-stream' });
     rerender({ id: 'campaign-2' });
-    expect(result.current.kind).toBe('blocked');
+    expect(result.current.kind).toBe('loading');
     await waitFor(() => expect(result.current.kind).toBe('snapshot'));
   });
 
@@ -52,6 +67,6 @@ describe('useReadinessAuthority', () => {
     );
     unmount();
     await act(async () => resolve?.({ kind: 'no-authoritative-stream' }));
-    expect(result.current.kind).toBe('blocked');
+    expect(result.current.kind).toBe('loading');
   });
 });
