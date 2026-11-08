@@ -33,9 +33,20 @@ import {
 } from '@/lib/starmap/starmapTravelPreview';
 import { ICampaign } from '@/types/campaign/Campaign';
 
-import type { CampaignStore, MaybePromise } from './useCampaignStore.types';
+import type { IDayAdvanceSnapshot } from './dayAdvanceSnapshot';
+import type {
+  CampaignCommitResult,
+  CampaignStore,
+  MaybePromise,
+} from './useCampaignStore.types';
 
 import { appendContractPaymentActivityEntries } from './contractPaymentActivity';
+import {
+  captureDayAdvanceSnapshot,
+  recordPipelineWrites,
+  recordStoredCampaign,
+  rollbackDayAdvance,
+} from './dayAdvanceSnapshot';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 import {
   snapshotRosterPilots,
@@ -277,17 +288,91 @@ function advanceOneDay(
   });
 }
 
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
+/**
+ * Tell the player a day or a jump was not saved and what became of the
+ * stores: `restoreFailure` is the message of the first restore that failed.
+ */
+function toastNotSaved(
+  what: string,
+  reason: string,
+  restoreFailure: string | null,
+): void {
+  toast({
+    message: restoreFailure
+      ? `The ${what} was not saved (${reason}), and restoring the campaign failed (${restoreFailure}). Reload the campaign before you go on.`
+      : `The ${what} was not saved (${reason}). The campaign was restored; try again.`,
+    variant: 'error',
+    duration: 7000,
+  });
+}
+
+/** What the day wrote to the stores, ready to be committed or rolled back. */
+interface IAppliedDay {
+  readonly committedReport: DayReport;
+  /** Outcome-apply errors that are new this day; toasted once it is saved. */
+  readonly outcomeErrorToasts: readonly string[];
+}
+
 /**
  * Run one day of `campaign` through the day pipeline, store the result
  * (campaign, battle queue, outcome errors, missions, activity entries) and
  * save it. Returns the day report once the save committed, or null when it
  * did not; a promise when the save is asynchronous (a co-op campaign).
+ *
+ * A day that is not saved - the save refused, or a throw anywhere after the
+ * stores were first written - is rolled back (dayAdvanceSnapshot) and
+ * reported with a toast, so the player can retry it.
  */
 function advanceDayLocally(
   set: CampaignSet,
   get: CampaignGet,
   campaign: ICampaign,
 ): MaybePromise<DayReport | null> {
+  const snapshot = captureDayAdvanceSnapshot(get, campaign);
+  const fail = (reason: string): null => {
+    toastNotSaved(
+      'day advance',
+      reason,
+      rollbackDayAdvance(set, get, snapshot),
+    );
+    return null;
+  };
+  let day: IAppliedDay;
+  let saveResult: MaybePromise<CampaignCommitResult>;
+  try {
+    day = applyDayToStores(set, get, campaign, snapshot);
+    try {
+      saveResult = get().saveCampaign();
+    } finally {
+      recordStoredCampaign(snapshot, get().campaign);
+    }
+  } catch (error) {
+    return fail(errorMessage(error));
+  }
+  const settle = (result: CampaignCommitResult): DayReport | null => {
+    if (!result.committed) {
+      return fail(result.reason ?? 'the save was refused');
+    }
+    day.outcomeErrorToasts.forEach((message) =>
+      toast({ message, variant: 'error' }),
+    );
+    return day.committedReport;
+  };
+  return isPromiseLike(saveResult)
+    ? saveResult.then(settle, (error) => fail(errorMessage(error)))
+    : settle(saveResult);
+}
+
+/** Run the pipeline and write its result to the stores, up to the save. */
+function applyDayToStores(
+  set: CampaignSet,
+  get: CampaignGet,
+  campaign: ICampaign,
+  snapshot: IDayAdvanceSnapshot,
+): IAppliedDay {
   const { pendingBattleOutcomes, processedBattleIds } = get();
   registerBuiltinProcessors();
   const campaignWithOutcomes = withBattleQueueAttached(
@@ -298,6 +383,7 @@ function advanceDayLocally(
   const beforeRosterPilots = snapshotRosterPilots();
   const pipelineResult = getDayPipeline().processDay(campaignWithOutcomes);
   const report = convertToLegacyDayReport(pipelineResult);
+  recordPipelineWrites(snapshot, report.campaign.missions);
   const postPipeline = report.campaign as ICampaign & {
     readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
     readonly processedBattleIds?: readonly string[];
@@ -336,24 +422,16 @@ function advanceDayLocally(
     ],
     outcomeApplyErrors,
   });
-  for (const [matchId, error] of Object.entries(outcomeApplyErrors)) {
-    if (error !== previousErrors[matchId]) {
-      toast({ message: `Battle ${matchId}: ${error}`, variant: 'error' });
-    }
-  }
+  recordStoredCampaign(snapshot, campaignWithAudit);
+  const outcomeErrorToasts = Object.entries(outcomeApplyErrors)
+    .filter(([matchId, error]) => error !== previousErrors[matchId])
+    .map(([matchId, error]) => `Battle ${matchId}: ${error}`);
   syncReportMissions(get, report.campaign);
   emitDailyActivityEntries(get, report, postPipeline, pipelineResult.events);
-  const committedReport = { ...report, campaign: campaignWithAudit };
-  const saveResult = get().saveCampaign();
-  if (isPromiseLike(saveResult)) {
-    return saveResult.then((committed) =>
-      committed.committed ? committedReport : null,
-    );
-  }
-  if (!saveResult.committed) {
-    return null;
-  }
-  return committedReport;
+  return {
+    committedReport: { ...report, campaign: campaignWithAudit },
+    outcomeErrorToasts,
+  };
 }
 
 /**
@@ -581,14 +659,38 @@ function travelToSystemAction(
         logTravelInvalidAction(get().campaign, systemId, preview);
         return false;
       }
-      set({ campaign: preview.afterCampaign });
-      emitTravelActivityEntries(get, preview);
-      const saveResult = get().saveCampaign();
-      logTravelCommitSucceeded(preview);
-      if (isPromiseLike(saveResult)) {
-        return saveResult.then((result) => result.committed);
+      // A jump that is not saved is undone like a day (dayAdvanceSnapshot).
+      const snapshot = captureDayAdvanceSnapshot(
+        get,
+        get().campaign as ICampaign,
+      );
+      const fail = (reason: string): false => {
+        toastNotSaved('jump', reason, rollbackDayAdvance(set, get, snapshot));
+        return false;
+      };
+      let saveResult: MaybePromise<CampaignCommitResult>;
+      try {
+        set({ campaign: preview.afterCampaign });
+        recordStoredCampaign(snapshot, preview.afterCampaign);
+        emitTravelActivityEntries(get, preview);
+        try {
+          saveResult = get().saveCampaign();
+        } finally {
+          recordStoredCampaign(snapshot, get().campaign);
+        }
+      } catch (error) {
+        return fail(errorMessage(error));
       }
-      return saveResult.committed;
+      const settle = (result: CampaignCommitResult): boolean => {
+        if (!result.committed) {
+          return fail(result.reason ?? 'the save was refused');
+        }
+        logTravelCommitSucceeded(preview);
+        return true;
+      };
+      return isPromiseLike(saveResult)
+        ? saveResult.then(settle, (error) => fail(errorMessage(error)))
+        : settle(saveResult);
     });
 }
 
