@@ -181,6 +181,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-combat-unit-exit-outcomes",
+      "status": "in-progress",
+      "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-m-h2-lobby-seat-lifecycle",
       "status": "in-progress",
       "reason": "Root-approved M-H2: lobby status policy, pending-human AI recovery exception, queued spectator detach cleanup with identity cursor retention, and shared intent classification. No schema changes; CAS and unattached/crash leftovers deferred.",
