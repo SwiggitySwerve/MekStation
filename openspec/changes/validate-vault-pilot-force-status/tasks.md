@@ -12,7 +12,7 @@
 
 - [x] 3.1 Run full API, vault, pilot, force, store, and integration test directories.
 - [x] 3.2 Run both tsc configs, lint, lint:units and its suite, oxfmt, OpenSpec validation, and the budget check.
-- [ ] 3.3 Inspect final diff, document data cleanup and upstream/follow-up decisions, and open one draft PR; never merge.
+- [x] 3.3 Inspect final diff, document data cleanup and upstream/follow-up decisions, and open one draft PR; never merge.
 
 ## Evidence
 
@@ -36,4 +36,6 @@ Budget check was run on the lane and on untouched base `05257e185c87aaa1d4141b58
 
 The first combined full-directory process exited with Windows code `0xC0000409` after three passing suites and no Jest summary. The same full directories passed with two workers and a 512 MB worker recycling limit: **221 suites passed; 4100 tests passed, 32 skipped, 4132 total; zero snapshots**. Command: `node --max-old-space-size=4096 node_modules/jest/bin/jest.js --maxWorkers=2 --workerIdleMemoryLimit=512MB src/__tests__/api src/services/vault/__tests__ src/services/pilots/__tests__ src/services/forces/__tests__ src/stores/__tests__ src/__tests__/integration`. Log: `.review/s4-s6/full-tests-recycled.log`.
 
-No user-data inspection or cleanup was performed. The invalid-row fixtures exist only in isolated in-memory test databases. No replay fixtures, event shapes, schema packs, or persisted formats changed. No affected line citations were found in the runner source catalogs. Final draft PR/hosted CI status is pending publication; Root owns monitoring and merging.
+No user-data inspection or cleanup was performed. The invalid-row fixtures exist only in isolated in-memory test databases. No replay fixtures, event shapes, schema packs, or persisted formats changed. No affected line citations were found in the runner source catalogs.
+
+Published draft [PR #3051](https://github.com/SwiggitySwerve/MekStation/pull/3051). Implementation commit: `72170339e4aad5f017b9ed304f5fd2bd32adb604`, following the separate behavior-preserving consolidation commit. The initial hosted snapshot showed Detect Changes in progress and no review decision. This evidence-only update does not change tested code. Root owns monitoring and merging; the lane never merges or marks the PR ready while checks are pending.
