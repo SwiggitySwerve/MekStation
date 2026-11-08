@@ -104,7 +104,7 @@ export function defaultSetHostPending(): void {
 }
 
 export function defaultSetLive(): void {
-  useGameplayStore.getState().resetLocalMatchStatus();
+  useGameplayStore.getState().setLocalMatchStatus('live');
 }
 
 export function defaultRedirectToLobby(matchId: string, reason: string): void {

@@ -161,6 +161,12 @@
       "status": "in-progress",
       "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-client-match-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved M-M2/M3: sticky client abort, guarded WS/P2P recovery, coupled pause cleanup and teardown reset; M-H3 server broadcasts remain a dependency.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }
