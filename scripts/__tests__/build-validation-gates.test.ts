@@ -136,6 +136,11 @@ describe('artifact validation boundaries', () => {
 describe('Electron download caches', () => {
   const pr = workflow('pr-checks.yml');
 
+  it('rejects runner context in job-level environments', () => {
+    for (const job of Object.values(pr.jobs))
+      expect(JSON.stringify(job.env ?? {})).not.toMatch(/\brunner\s*\./);
+  });
+
   it.each(['simulation-checks', 'build-test'])(
     '%s restores before installation and saves each download before later checks',
     (id) => {
@@ -145,8 +150,9 @@ describe('Electron download caches', () => {
       );
       expect(setupIndex).toBeGreaterThan(0);
       expect(job.env).toMatchObject({
-        electron_config_cache: '${{ runner.temp }}/electron',
-        ELECTRON_BUILDER_CACHE: '${{ runner.temp }}/electron-builder',
+        electron_config_cache: '${{ github.workspace }}/.cache/electron',
+        ELECTRON_BUILDER_CACHE:
+          '${{ github.workspace }}/.cache/electron-builder',
       });
 
       for (const [cacheId, cacheEnv, download] of [
