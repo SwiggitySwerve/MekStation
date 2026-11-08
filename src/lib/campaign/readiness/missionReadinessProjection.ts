@@ -4,7 +4,6 @@ import type { IMission } from '@/types/campaign/Mission';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { ParsedRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
-import { isRosterPilotDeployable } from '@/lib/campaign/personnel/statusRules';
 import {
   type CanonicalCombatCatalogSnapshot,
   admitCanonicalExactReference,
@@ -12,17 +11,17 @@ import {
 import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
-export type MissionReadinessReasonSeverity = 'blocker' | 'warning' | 'info';
-export type MissionReadinessUnitStatus = 'eligible' | 'risky' | 'blocked';
-
-export interface IMissionReadinessReason {
-  readonly code: string;
-  readonly message: string;
-  readonly severity: MissionReadinessReasonSeverity;
-  readonly subjectId?: string;
-  readonly actionLabel?: string;
-  readonly actionHref?: string;
-}
+import {
+  selectUnitReadiness,
+  readinessStatusFromReasons,
+  type IMissionReadinessReason,
+  type MissionReadinessUnitStatus,
+} from './selectUnitReadiness';
+export type {
+  IMissionReadinessReason,
+  MissionReadinessUnitStatus,
+  MissionReadinessReasonSeverity,
+} from './selectUnitReadiness';
 
 export interface IMissionReadinessUnitProjection {
   readonly unit: IRosterUnitProjection;
@@ -69,39 +68,6 @@ export interface BuildMissionReadinessProjectionInput {
 const DEFAULT_MIN_UNITS = 1;
 const DEFAULT_MAX_UNITS = 4;
 
-const BLOCKING_REPAIR_STATUSES = new Set<IRepairBayItem['status']>([
-  'in-progress',
-  'parts-needed',
-]);
-
-function repairDetailHref(
-  baseCampaignHref: string | undefined,
-  unitId: string,
-): string | undefined {
-  if (!baseCampaignHref) return undefined;
-  return `${baseCampaignHref}/repair-bay?unit=${encodeURIComponent(unitId)}`;
-}
-
-function pilotAssignmentHref(
-  baseCampaignHref: string | undefined,
-  unitId: string,
-): string | undefined {
-  if (!baseCampaignHref) return undefined;
-  return `${baseCampaignHref}/personnel?intent=assign-pilot&unit=${encodeURIComponent(unitId)}`;
-}
-
-function statusFromReasons(
-  reasons: readonly IMissionReadinessReason[],
-): MissionReadinessUnitStatus {
-  if (reasons.some((reason) => reason.severity === 'blocker')) {
-    return 'blocked';
-  }
-  if (reasons.some((reason) => reason.severity === 'warning')) {
-    return 'risky';
-  }
-  return 'eligible';
-}
-
 function uniqueIds(ids: readonly string[]): readonly string[] {
   return Array.from(new Set(ids));
 }
@@ -130,85 +96,14 @@ function buildUnitProjection({
     unitId: unit.unitId,
     unitName: unit.unitName,
   });
-  const blockingRepairTickets = repairTickets.filter((ticket) =>
-    BLOCKING_REPAIR_STATUSES.has(ticket.status),
-  );
-  if (!admission.admitted) {
-    reasons.push(admission.blocker);
-  }
-
-  if (unit.readiness === 'Destroyed') {
-    reasons.push({
-      code: 'unit_destroyed',
-      severity: 'blocker',
-      subjectId: unit.unitId,
-      message: 'Unit is destroyed and cannot deploy.',
-      actionLabel: 'Open repair detail',
-      actionHref: repairDetailHref(baseCampaignHref, unit.unitId),
-    });
-  } else if (unit.readiness === 'Damaged') {
-    reasons.push({
-      code: 'unit_damaged',
-      severity: 'warning',
-      subjectId: unit.unitId,
-      message: 'Unit is damaged; launch is allowed but carries risk.',
-      actionLabel: 'Review repair detail',
-      actionHref: repairDetailHref(baseCampaignHref, unit.unitId),
-    });
-  }
-
-  if (unit.pilotId) {
-    if (!pilot) {
-      reasons.push({
-        code: 'pilot_record_missing',
-        severity: 'blocker',
-        subjectId: unit.unitId,
-        message: `Assigned pilot ${unit.pilotId} is missing from the campaign roster.`,
-      });
-    } else if (!isRosterPilotDeployable(pilot)) {
-      reasons.push({
-        code: 'pilot_unavailable',
-        severity: 'blocker',
-        subjectId: unit.unitId,
-        message: `${pilot.pilotName} is ${pilot.departureReason ?? pilot.status} and cannot deploy.`,
-      });
-    }
-  } else {
-    reasons.push({
-      code: 'pilot_unassigned',
-      severity: 'warning',
-      subjectId: unit.unitId,
-      // Direct imperative — the old "if pilot rules apply" hedge read as the
-      // app being unsure of its own rules (re-audit DC-06).
-      message: 'No pilot assigned. Assign one before launch.',
-      actionLabel: 'Assign pilot',
-      actionHref: pilotAssignmentHref(baseCampaignHref, unit.unitId),
-    });
-  }
-
-  if (blockingRepairTickets.length > 0) {
-    reasons.push({
-      code: 'repair_blocking',
-      severity: 'blocker',
-      subjectId: unit.unitId,
-      message: `${blockingRepairTickets.length} repair ticket${
-        blockingRepairTickets.length === 1 ? '' : 's'
-      } must be resolved before deployment.`,
-      actionLabel: 'Open repair detail',
-      actionHref: repairDetailHref(baseCampaignHref, unit.unitId),
-    });
-  } else if (repairTickets.length > 0) {
-    reasons.push({
-      code: 'repair_queued',
-      severity: 'warning',
-      subjectId: unit.unitId,
-      message: `${repairTickets.length} repair ticket${
-        repairTickets.length === 1 ? '' : 's'
-      } remain queued for this unit.`,
-      actionLabel: 'Review repair detail',
-      actionHref: repairDetailHref(baseCampaignHref, unit.unitId),
-    });
-  }
+  if (!admission.admitted) reasons.push(admission.blocker);
+  const readiness = selectUnitReadiness({
+    unit,
+    pilot,
+    repairTickets,
+    baseCampaignHref,
+  });
+  reasons.push(...readiness.reasons);
 
   return {
     unit,
@@ -216,10 +111,10 @@ function buildUnitProjection({
     parsedSource,
     pilotName: pilot?.pilotName,
     pilotStatus: pilot?.status,
-    repairTicketCount: repairTickets.length,
-    blockingRepairTicketCount: blockingRepairTickets.length,
+    repairTicketCount: readiness.repairTicketCount,
+    blockingRepairTicketCount: readiness.blockingRepairTicketCount,
     reasons,
-    status: statusFromReasons(reasons),
+    status: readinessStatusFromReasons(reasons),
   };
 }
 
