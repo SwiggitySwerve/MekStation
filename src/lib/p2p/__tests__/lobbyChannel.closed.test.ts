@@ -52,7 +52,10 @@ describe('lobbyChannel closed lobby', () => {
     guest.updateLoadout('guest', makeLoadout('guest-1'));
     host.setReady('host-peer', true);
     guest.setReady('guest-peer', true);
-    const closed: ILobbyState = { ...readLobbyState({ lobbyMap })!, closed: true };
+    const closed: ILobbyState = {
+      ...readLobbyState({ lobbyMap })!,
+      closed: true,
+    };
     lobbyMap.set(LOBBY_STATE_KEY, closed);
     return closed;
   }
@@ -76,7 +79,11 @@ describe('lobbyChannel closed lobby', () => {
   });
 
   it.each([
-    ['setReady', (c: ReturnType<typeof createLobbyChannel>) => c.setReady('guest-peer', false)],
+    [
+      'setReady',
+      (c: ReturnType<typeof createLobbyChannel>) =>
+        c.setReady('guest-peer', false),
+    ],
     [
       'updateLoadout',
       (c: ReturnType<typeof createLobbyChannel>) =>
@@ -103,16 +110,19 @@ describe('lobbyChannel closed lobby', () => {
       'setHostSide',
       (c: ReturnType<typeof createLobbyChannel>) => c.setHostSide('opponent'),
     ],
-  ])('rejects host-only %s on a closed lobby without changing it', (_name, act) => {
-    const before = seedReadyClosedLobby();
-    const host = createLobbyChannel({ localPeerId: 'host-peer', lobbyMap });
+  ])(
+    'rejects host-only %s on a closed lobby without changing it',
+    (_name, act) => {
+      const before = seedReadyClosedLobby();
+      const host = createLobbyChannel({ localPeerId: 'host-peer', lobbyMap });
 
-    const result = act(host);
+      const result = act(host);
 
-    expect(result.ok).toBe(false);
-    expect(result.reason).toBe('lobby-closed');
-    expect(readLobbyState({ lobbyMap })).toEqual(before);
-  });
+      expect(result.ok).toBe(false);
+      expect(result.reason).toBe('lobby-closed');
+      expect(readLobbyState({ lobbyMap })).toEqual(before);
+    },
+  );
 
   it('does not let a new guest join a closed lobby', () => {
     const host = createLobbyChannel({ localPeerId: 'host-peer', lobbyMap });

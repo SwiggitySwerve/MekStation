@@ -112,9 +112,7 @@ describe('useLobbyStore', () => {
       useLobbyStore.getState().setLocalReady(true);
     });
 
-    expect(useLobbyStore.getState().lastRejection?.reason).toBe(
-      'lobby-closed',
-    );
+    expect(useLobbyStore.getState().lastRejection?.reason).toBe('lobby-closed');
     expect(useLobbyStore.getState().error).toBe('This lobby is closed');
   });
 });
