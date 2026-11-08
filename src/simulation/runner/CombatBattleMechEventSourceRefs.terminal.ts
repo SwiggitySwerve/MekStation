@@ -21,7 +21,7 @@ export const BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation ejection reducer removes ejected units from active targeting and action participation while preserving damage state.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L58-L72',
+    'L60-L75',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -34,12 +34,12 @@ export const BATTLEMECH_NEURAL_INTERFACE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation unit-exit replay reducer replays NeuralInterfaceStateChanged by updating only the target unit neuralInterfaceActive flag.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L74-L86',
+    'L77-L89',
   ),
   mekstationDeviationSourceRef(
     'MekStation event dispatch routes NeuralInterfaceStateChanged events into the neural-interface replay helper.',
     'src/utils/gameplay/gameState/eventDispatch.ts',
-    'L272-L275',
+    'L271-L274',
   ),
   mekstationDeviationSourceRef(
     'MekStation unit-state extension coverage proves VDNI, Buffered VDNI, Prototype DNI, and unknown-unit NeuralInterfaceStateChanged replay behavior.',
@@ -75,7 +75,7 @@ export const BATTLEMECH_MORALE_WITHDRAWAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation withdrawal integration tests assert player WithdrawalDeclared and UnitRetreated event behavior.',
     'src/engine/__tests__/InteractiveSession.withdrawal.test.ts',
-    'L129-L163',
+    'L130-L164',
   ),
   mekstationDeviationSourceRef(
     'MekStation withdrawal processing tests assert ForcedWithdrawalTriggered event behavior.',

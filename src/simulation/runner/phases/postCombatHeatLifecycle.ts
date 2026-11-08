@@ -6,6 +6,7 @@ import {
   type IGameState,
   type IUnitGameState,
 } from '@/types/gameplay';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import {
   buildDefaultCriticalSlotManifest,
   type CriticalHitEvent,
@@ -300,5 +301,8 @@ export function commitHeatPhaseUnit(options: {
     },
   };
 
-  return applyCriticalPSRTriggers(nextState, criticalEvents);
+  return applyCriticalPSRTriggers(
+    clearAttackLinks(nextState, unitId),
+    criticalEvents,
+  );
 }

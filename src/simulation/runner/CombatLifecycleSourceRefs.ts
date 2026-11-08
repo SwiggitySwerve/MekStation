@@ -68,7 +68,7 @@ const LOCAL_RETREATED_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyUnitRetreated latches hasRetreated without marking the unit destroyed.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L44-L56',
+    'L45-L58',
   ),
   mekstationDeviationRef(
     'MekStation GameEngine movement phase emits UnitRetreated once a withdrawing unit reaches its retreat edge.',
@@ -86,7 +86,7 @@ export const LOCAL_EJECTION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyUnitEjected latches hasEjected, resolves the action, and preserves the existing armor, structure, destroyed, and pilotConscious state.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L58-L72',
+    'L60-L75',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -109,7 +109,7 @@ export const LOCAL_SURVIVOR_COUNT_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runner isUnitOperable and isGameOver exclude destroyed, retreated, ejected, and unconscious units from terminal survivor checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L540-L561',
+    'L544-L565',
   ),
   mekstationDeviationRef(
     'MekStation terminal GameEnded event survivor checks exclude destroyed, retreated, ejected, and unconscious units.',

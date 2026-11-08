@@ -12,6 +12,7 @@ import {
   type MoraleLevel,
 } from '@/types/gameplay';
 
+import { clearAttackLinks } from '../attackLinks';
 import { getUnitOperability } from '../unitOperability';
 import { updateUnitState } from './unitStatePatch';
 
@@ -45,7 +46,7 @@ export function applyUnitRetreated(
   state: IGameState,
   payload: IUnitRetreatedPayload,
 ): IGameState {
-  return updateUnitState(state, payload.unitId, (unit) =>
+  const next = updateUnitState(state, payload.unitId, (unit) =>
     hasLeftBattle(unit)
       ? undefined
       : {
@@ -53,13 +54,14 @@ export function applyUnitRetreated(
           hasRetreated: true,
         },
   );
+  return next === state ? state : clearAttackLinks(next, payload.unitId);
 }
 
 export function applyUnitEjected(
   state: IGameState,
   payload: IUnitEjectedPayload,
 ): IGameState {
-  return updateUnitState(state, payload.unitId, (unit) =>
+  const next = updateUnitState(state, payload.unitId, (unit) =>
     hasLeftBattle(unit)
       ? undefined
       : {
@@ -69,6 +71,7 @@ export function applyUnitEjected(
           pendingAction: undefined,
         },
   );
+  return next === state ? state : clearAttackLinks(next, payload.unitId);
 }
 
 export function applyNeuralInterfaceStateChanged(

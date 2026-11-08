@@ -93,7 +93,7 @@ const MEKSTATION_PHYSICAL_PILOTING_SOURCE_REFS = [
 const MEKSTATION_PSR_PILOTING_SOURCE_REFS = [
   mekstationRef(
     'MekStation runPSRPhase resolves each unit pending PSRs with the unit piloting skill before emitting PSRResolved and fall aftermath events.',
-    'src/simulation/runner/phases/postCombatPsr.ts#L300-L313',
+    'src/simulation/runner/phases/postCombatPsr.ts#L301-L314',
   ),
   mekstationRef(
     'MekStation resolvePSR and resolveAllPSRs compute PSR target numbers from pilotingSkill plus accumulated modifiers.',

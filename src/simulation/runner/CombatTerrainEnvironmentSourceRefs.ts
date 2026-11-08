@@ -314,7 +314,7 @@ const MEKSTATION_SWAMP_BOG_DOWN_ELIGIBILITY_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation applyPsrStuckResult records canUnstickByJumping on the unit and UnitStuck payload only for a failed movement-step bog-down.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L76-L121',
+    'L77-L122',
   );
 
 export const SWAMP_UNSTUCK_PSR_SOURCE_REFS = [
