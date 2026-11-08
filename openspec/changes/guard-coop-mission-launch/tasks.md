@@ -10,4 +10,4 @@
 - [x] 2.4 Preserve guest participation and join routing without guest writes.
 - [x] 2.5 Prove one durable mission encounter id for double click, lost remote response and checkpoint retry.
 - [x] 2.6 Kill both approved mutants and record the killing tests.
-- [ ] 2.7 Run all LANE-BRIEF gates, document limits, and open one draft PR without merging.
+- [x] 2.7 Run all LANE-BRIEF gates, document limits, and open one draft PR without merging.
