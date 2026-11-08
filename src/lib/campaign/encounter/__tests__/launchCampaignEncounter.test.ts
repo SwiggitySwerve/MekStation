@@ -128,6 +128,32 @@ function makeFakeService(): {
 // ---------------------------------------------------------------------------
 
 describe('launchCampaignEncounter', () => {
+  it('retains and reuses the configured encounter after a failed launch', async () => {
+    const { service, calls } = makeFakeService();
+    const progress: { encounterId?: string } = {};
+    const launch = jest
+      .fn(service.launchEncounter)
+      .mockResolvedValueOnce({ success: false, error: 'launch failed' });
+    const retryService = { ...service, launchEncounter: launch };
+    await launchCampaignEncounter(
+      makeCampaignEncounter(),
+      retryService,
+      progress,
+    );
+    expect(progress.encounterId).toBe('encounter-repo-1');
+    expect(
+      (
+        await launchCampaignEncounter(
+          makeCampaignEncounter(),
+          retryService,
+          progress,
+        )
+      ).success,
+    ).toBe(true);
+    expect(calls.created).toHaveLength(1);
+    expect(launch).toHaveBeenCalledTimes(2);
+  });
+
   it.each([
     'createEncounter',
     'updateEncounter',

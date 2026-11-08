@@ -41,6 +41,13 @@ The host SHALL acquire a synchronous guard before the first asynchronous launch 
 
 Guests SHALL retain participation choices and SHALL join the host-recorded encounter without creating encounters or saving campaign mutations. The guest surface SHALL explain that the host starts the mission. Button labels SHALL use Title Case.
 
+#### Scenario: Guest bypasses the launch UI
+
+- **GIVEN** an authenticated guest in a co-op campaign
+- **WHEN** the guest posts a mission-create request, including a retry for an existing match
+- **THEN** the server SHALL refuse it with `403 COOP_MISSION_HOST_REQUIRED` before durable writes
+- **AND** guest participation and tactical command permissions SHALL remain unchanged
+
 #### Scenario: Deploying guest joins
 
 - **GIVEN** the host has checkpointed the encounter id

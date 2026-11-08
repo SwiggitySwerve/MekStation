@@ -1,7 +1,6 @@
 import type { NextRouter } from 'next/router';
 
 import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSession';
-import type { CampaignLaunchHeadRead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import type { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -9,13 +8,14 @@ import type { CoopParticipationChoice } from '@/types/campaign/CoopCampaign';
 import type { IForce } from '@/types/campaign/Force';
 
 import {
-  getCoopLocalPlayerId,
-  getCoopMatchId,
-  getCoopOtherPlayerId,
-  getCoopRuntimeSessionByMatch,
-} from '@/lib/campaign/coop/coopRuntimeSession';
+  CoopMissionCheckpointConflict,
+  CoopMissionLaunchRefusal,
+  runCoopMissionLaunch,
+  hasCoopSession,
+  type CoopCampaign,
+} from '@/lib/campaign/coop/coopMissionLaunchAttempt';
+import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
-import { assertOwnedForcesCurrent } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.ownedForces';
 import { readCampaignLaunchHead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 import {
   classifyLaunchFailure,
@@ -23,7 +23,6 @@ import {
 } from '@/lib/campaign/encounter/requestLaunchAuthority';
 import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { selectedRosterUnitsForLaunch } from '@/lib/campaign/readiness/missionReadinessProjection';
-import { selectUnitReadiness } from '@/lib/campaign/readiness/selectUnitReadiness';
 import {
   type CampaignPersistenceSaveResult,
   useCampaignPersistenceStore,
@@ -31,29 +30,28 @@ import {
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 
 import {
-  buildLaunchEncounter,
+  coopDestination,
+  joinRecordedCoopMission,
+  prepareCoopMission,
+} from './missionLaunchPage.coop';
+import {
   campaignEncounterHref,
   withMissionScenario,
 } from './missionLaunchPage.helpers';
 
 export type CampaignPageStore = ReturnType<typeof useCampaignStore>;
-export type CoopCampaign = ICampaign & {
-  readonly coopSession: NonNullable<ICampaign['coopSession']>;
-};
-
-export interface ICoopIdentity {
-  readonly matchId: string | null;
-  readonly localPlayerId: string;
-  readonly otherPlayerId: string;
-}
-
-export interface ICoopLaunchReadiness {
-  readonly bothChosen: boolean;
-  readonly noDeploy: boolean;
-  readonly canLaunch: boolean;
-}
-
-interface ILaunchMissionInput {
+export {
+  hasCoopSession,
+  coopIdentity,
+  defaultParticipationChoice,
+  coopLaunchReadiness,
+} from '@/lib/campaign/coop/coopMissionLaunchAttempt';
+export type {
+  CoopCampaign,
+  ICoopIdentity,
+  ICoopLaunchReadiness,
+} from '@/lib/campaign/coop/coopMissionLaunchAttempt';
+export interface ILaunchMissionInput {
   readonly campaign: ICampaign | null;
   readonly campaignKey: string | null;
   readonly missionKey: string | null;
@@ -69,7 +67,7 @@ interface ILaunchMissionInput {
   readonly setIsLaunching: (isLaunching: boolean) => void;
 }
 
-interface ICoopLaunchMissionInput extends ILaunchMissionInput {
+export interface ICoopLaunchMissionInput extends ILaunchMissionInput {
   readonly campaign: CoopCampaign;
   readonly missionKey: string;
   readonly matchId: string;
@@ -91,6 +89,12 @@ export async function launchMissionFromPage(
   }
 
   if (hasCoopSession(input.campaign)) {
+    if (input.campaign.coopSession.mode === 'guest') {
+      await joinRecordedCoopMission(input).catch((error: unknown) =>
+        surfacePageLaunchFailure(error, input.setLaunchError),
+      );
+      return;
+    }
     if (!input.matchId || !input.localForce || !input.otherRecord) {
       return;
     }
@@ -117,32 +121,11 @@ export async function launchMissionFromPage(
   });
 }
 
-export function hasCoopSession(
-  campaign: ICampaign | null,
-): campaign is CoopCampaign {
-  return Boolean(campaign?.coopSession);
-}
-
-export function coopIdentity(campaign: ICampaign | null): ICoopIdentity {
-  const coopSession = campaign?.coopSession;
-  return {
-    matchId: getCoopMatchId(coopSession) ?? null,
-    localPlayerId: coopSession ? getCoopLocalPlayerId(coopSession) : 'host',
-    otherPlayerId: coopSession ? getCoopOtherPlayerId(coopSession) : 'guest',
-  };
-}
-
 export function missionForCampaign(
   campaign: ICampaign | null,
   missionKey: string | null,
 ): ReturnType<ICampaign['missions']['get']> {
   return campaign && missionKey ? campaign.missions.get(missionKey) : undefined;
-}
-
-export function defaultParticipationChoice(
-  campaign: ICampaign | null,
-): CoopParticipationChoice {
-  return campaign?.coopSession?.mode === 'host' ? 'deploy' : 'command-hq';
 }
 
 export function nextRosterUnitSelection(
@@ -152,29 +135,6 @@ export function nextRosterUnitSelection(
   return selected.includes(unitId)
     ? selected.filter((candidate) => candidate !== unitId)
     : [...selected, unitId];
-}
-
-export function coopLaunchReadiness(
-  localChoice: CoopParticipationChoice,
-  otherChoice: CoopParticipationChoice | undefined,
-): ICoopLaunchReadiness {
-  const bothChosen = otherChoice !== undefined;
-  const noDeploy =
-    bothChosen && localChoice !== 'deploy' && otherChoice !== 'deploy';
-  return { bothChosen, noDeploy, canLaunch: bothChosen && !noDeploy };
-}
-
-/**
- * Name the journal revision the server head reported, or omit it.
- *
- * Why: sequence N lives at journal revision N+1, so a runtime-derived
- * revision is reliably one too low. Only a `head` answer is a number
- * this launch may send.
- */
-function catalogRevisionFromLaunchHead(
-  launchHead: CampaignLaunchHeadRead,
-): number | undefined {
-  return launchHead.kind === 'head' ? launchHead.revision : undefined;
 }
 
 /**
@@ -201,129 +161,83 @@ function surfacePageLaunchFailure(
   setLaunchError(failure.message);
 }
 
-async function launchCoopMissionFromPage({
-  campaign,
-  localChoice,
-  localForce,
-  localPlayerId,
-  matchId,
-  missionKey,
-  otherRecord,
-  router,
-  setLaunchError,
-}: ICoopLaunchMissionInput): Promise<void> {
-  const localRecord: ICoopParticipationRecord = {
+async function launchCoopMissionFromPage(
+  input: ICoopLaunchMissionInput,
+): Promise<void> {
+  const {
+    campaign,
+    missionKey,
     matchId,
-    missionId: missionKey,
-    playerId: localPlayerId,
-    role: campaign.coopSession.mode,
-    choice: localChoice,
-    force: localForce,
-  };
-  const contributions = [localRecord, otherRecord].map((entry) => ({
-    playerId: entry.playerId,
-    role: entry.role,
-    force: entry.force,
-    participation: entry.choice,
-  }));
-
-  try {
-    const { launchCoopMission } =
-      await import('@/lib/campaign/coop/launchCoopMission');
-    const catalog = await fetchCanonicalCatalogSnapshot();
-    const runtime = getCoopRuntimeSessionByMatch(matchId);
-    useCampaignPersistenceStore.getState().clearLaunchConflict();
-    const launchHead = await readCampaignLaunchHead(campaign.id);
-    const ownedForces = await resolveLaunchForces({
-      campaignId: campaign.id,
-      missionId: missionKey,
-      launchHead,
-      sessionId: matchId,
-    });
-    assertOwnedForcesCurrent(ownedForces);
-    const roster = useCampaignRosterStore.getState();
-    const byId = new Map(roster.units.map((unit) => [unit.unitId, unit]));
-    for (const contribution of contributions.filter(
-      (entry) => entry.participation === 'deploy',
-    )) {
-      for (const unitId of contribution.force.unitIds) {
-        const unit = byId.get(unitId);
-        if (!unit)
-          throw new Error(
-            'Deploying unit is missing from the campaign roster.',
-          );
-        const readiness = selectUnitReadiness({
-          unit,
-          campaign,
-          pilots: roster.pilots,
-          authority: launchHead.readinessAuthority,
-        });
-        const blocker = readiness.reasons.find(
-          (reason) => reason.severity === 'blocker',
-        );
-        if (blocker) throw new Error(blocker.message);
-      }
-    }
-
-    const revision = catalogRevisionFromLaunchHead(launchHead);
-    const result = await launchCoopMission(
-      buildLaunchEncounter(campaign, missionKey),
-      contributions,
-      undefined,
-      {
-        snapshot: {
-          campaignId: campaign.id,
-          matchId,
-          revision,
-          catalog,
-        },
-        expected: { campaignId: campaign.id, matchId, revision },
-        selectedUnits: Object.values(
-          runtime?.host.getState().rosterUnits ?? {},
-        ).map((unit) => ({
-          unitId: unit.unitId,
-          unitName: unit.designation,
-          unitRef: unit.unitRef,
-          unitSource: unit.unitSource,
-        })),
-        ...(launchHead.kind === 'head'
-          ? {
-              mission: {
-                campaignId: campaign.id,
-                sessionId: matchId,
-                missionId: missionKey,
-                expectedHead: {
-                  branchId: launchHead.branchId,
-                  revision: launchHead.revision,
-                  effectiveGeneration: launchHead.effectiveGeneration,
-                },
-              },
-            }
-          : {}),
-      },
-    );
-    if (!result.ok) {
-      setLaunchError(
-        result.error.includes('COOP_MISSION_UNIT_NOT_READY')
-          ? 'A deploying unit is not ready.'
-          : result.error,
-      );
-      return;
-    }
-
-    setLaunchError(null);
-    const destination =
-      localChoice === 'deploy'
-        ? campaignEncounterHref({
-            encounterId: result.encounterId ?? missionKey,
-            campaignId: campaign.id,
-            missionId: missionKey,
-          })
-        : `/gameplay/campaigns/${campaign.id}`;
-    void router.push(destination);
-  } catch (error) {
-    surfacePageLaunchFailure(error, setLaunchError);
+    store,
+    setLaunchError,
+    setIsLaunching,
+    router,
+    localChoice,
+  } = input;
+  if (store.getState().dayAdvanceInFlight) {
+    setLaunchError('The campaign clock is advancing. Try again in a moment.');
+    return;
   }
+  const outcome = await runCoopMissionLaunch({
+    owner: store,
+    key: [campaign.id, matchId, missionKey],
+    prepare: () => prepareCoopMission(input),
+    setIsLaunching,
+    checkpoint: async (receipt, resync) => {
+      if (!receipt.encounterId)
+        throw new Error('Mission launch returned no encounter id.');
+      if (
+        !(await useCampaignPersistenceStore
+          .getState()
+          .loadCampaign(campaign.id))
+      ) {
+        throw new CoopMissionCheckpointConflict(
+          resync
+            ? 'Campaign resync failed. Resync and retry the checkpoint.'
+            : 'Could not refresh the campaign. Retry the checkpoint.',
+        );
+      }
+      const current = store.getState().campaign;
+      if (
+        !current ||
+        current.id !== campaign.id ||
+        current.coopSession?.mode !== 'host' ||
+        getCoopMatchId(current.coopSession) !== matchId
+      ) {
+        throw new Error(
+          'The campaign session changed. Return to this mission before retrying.',
+        );
+      }
+      try {
+        await syncLaunchedMission(
+          current,
+          missionKey,
+          receipt.encounterId,
+          store,
+        );
+      } catch (error) {
+        if (useCampaignPersistenceStore.getState().saveState === 'conflict') {
+          throw new CoopMissionCheckpointConflict(
+            'Campaign changed on another client. Resync and retry the checkpoint; the mission will not launch again.',
+          );
+        }
+        throw error;
+      }
+    },
+    navigate: (receipt) =>
+      router.push(
+        coopDestination(campaign.id, missionKey, localChoice, receipt),
+      ),
+  });
+  if (outcome.kind === 'failed') {
+    if (outcome.error instanceof CoopMissionLaunchRefusal) {
+      setLaunchError(
+        outcome.error.message.includes('COOP_MISSION_UNIT_NOT_READY')
+          ? 'A deploying unit is not ready.'
+          : outcome.error.message,
+      );
+    } else surfacePageLaunchFailure(outcome.error, setLaunchError);
+  } else if (outcome.kind === 'complete') setLaunchError(null);
 }
 
 async function launchSinglePlayerMissionFromPage({
@@ -393,21 +307,41 @@ export function syncLaunchedMission(
   store: CampaignPageStore,
 ): Promise<void> {
   const mission = campaign.missions.get(missionKey);
-  if (!mission) return Promise.resolve();
+  if (!mission) {
+    if (campaign.coopSession)
+      throw new Error(
+        'The mission is no longer available. Resync the campaign before retrying the checkpoint.',
+      );
+    return Promise.resolve();
+  }
 
   const nextMission = withMissionScenario(mission, encounterId);
   const missions = new Map(campaign.missions);
   missions.set(missionKey, nextMission);
+  if (campaign.coopSession) {
+    if (campaign.coopSession.mode !== 'host') {
+      throw new Error('Only the host can checkpoint a mission.');
+    }
+    // updateCampaign auto-saves co-op. Install both child-store projections
+    // through the store's public switch operation, then save exactly once.
+    store.getState().switchCampaign({ ...campaign, missions });
+    return persistLaunchedMission(store, true);
+  }
   store.getState().updateCampaign({ missions });
   store.getState().getMissionsStore()?.getState().addMission(nextMission);
-  return persistLaunchedMission(store);
+  return persistLaunchedMission(store, false);
 }
 
-async function persistLaunchedMission(store: CampaignPageStore): Promise<void> {
+async function persistLaunchedMission(
+  store: CampaignPageStore,
+  coop: boolean,
+): Promise<void> {
   const localCommit = await store.getState().saveCampaign();
   if (!localCommit.committed) {
     throw new Error(localCommit.reason ?? 'Campaign checkpoint failed');
   }
+
+  if (coop) return;
 
   const durableCommit = await useCampaignPersistenceStore
     .getState()

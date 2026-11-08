@@ -19,9 +19,9 @@
  */
 
 import type { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
-import type { IEncounter } from '@/types/encounter';
 
 import { getEncounterService } from '@/services/encounter/EncounterService';
+import { EncounterStatus, type IEncounter } from '@/types/encounter';
 
 // =============================================================================
 // Result
@@ -39,6 +39,10 @@ export interface ILaunchCampaignEncounterResult {
   readonly encounterId?: string;
   /** Human-readable failure reason, when `success` is false. */
   readonly error?: string;
+}
+
+export interface ICampaignEncounterLaunchProgress {
+  encounterId?: string;
 }
 
 // =============================================================================
@@ -105,6 +109,7 @@ export interface ICampaignEncounterLauncherService {
 export async function launchCampaignEncounter(
   encounter: IEncounter,
   service: ICampaignEncounterLauncherService = getEncounterService(),
+  progress?: ICampaignEncounterLaunchProgress,
 ): Promise<ILaunchCampaignEncounterResult> {
   const meta = encounter.campaignMeta;
   if (!meta) {
@@ -114,7 +119,27 @@ export async function launchCampaignEncounter(
     };
   }
 
-  const configured = configureCampaignEncounter(encounter, service);
+  if (progress?.encounterId) {
+    const existing = service.getEncounter(progress.encounterId);
+    if (!existing)
+      return {
+        success: false,
+        encounterId: progress.encounterId,
+        error:
+          'The pending encounter is unavailable. Resync the campaign before retrying.',
+      };
+    if (
+      existing.status === EncounterStatus.Launched &&
+      existing.gameSessionId
+    ) {
+      return {
+        success: true,
+        encounterId: existing.id,
+        gameSessionId: existing.gameSessionId,
+      };
+    }
+  }
+  const configured = configureCampaignEncounter(encounter, service, progress);
   if (!configured.success || !configured.id) {
     return {
       success: false,
@@ -149,11 +174,14 @@ export async function launchCampaignEncounter(
 function configureCampaignEncounter(
   encounter: IEncounter,
   service: ICampaignEncounterLauncherService,
+  progress?: ICampaignEncounterLaunchProgress,
 ): IEncounterOperationResult {
-  const created = service.createEncounter({
-    name: encounter.name,
-    description: encounter.description,
-  });
+  const created = progress?.encounterId
+    ? { success: true, id: progress.encounterId }
+    : service.createEncounter({
+        name: encounter.name,
+        description: encounter.description,
+      });
   if (!created.success || !created.id) {
     return {
       success: false,
@@ -161,6 +189,7 @@ function configureCampaignEncounter(
     };
   }
   const repoEncounterId = created.id;
+  if (progress) progress.encounterId = repoEncounterId;
 
   // 2. Copy the generated configuration onto the repository encounter.
   const configResult = service.updateEncounter(repoEncounterId, {
