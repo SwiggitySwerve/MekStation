@@ -12,6 +12,7 @@ import {
   resolvePendingPSRs,
   rollInitiative,
 } from '@/utils/gameplay/gameSession';
+import { rollSessionStuckRecovery } from '@/utils/gameplay/gameSessionStuckRecovery';
 import { getGridTerrainHeatEffect } from '@/utils/gameplay/heat';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
@@ -27,6 +28,7 @@ export function runInteractivePhaseAdvance(
   if (phase === GamePhase.Initiative) {
     updatedSession = rollInitiative(updatedSession);
     updatedSession = advancePhase(updatedSession);
+    updatedSession = rollSessionStuckRecovery(updatedSession, grid);
     return updatedSession;
   }
 

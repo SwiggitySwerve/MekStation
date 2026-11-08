@@ -43,7 +43,7 @@ function cannotAttemptRecovery(unit: IUnitGameState): boolean {
 
 /** The recovery PSR for a stuck unit at its current hex. */
 export function createStuckRecoveryPSR(
-  grid: IHexGrid,
+  grid: IHexGrid | undefined,
   unitId: string,
   unit: IUnitGameState,
 ): IPendingPSR {
@@ -80,10 +80,10 @@ export function rollStuckRecoveryPSR(options: {
 }
 
 function swampLevelAt(
-  grid: IHexGrid,
+  grid: IHexGrid | undefined,
   position: IUnitGameState['position'],
 ): number | undefined {
-  const terrain = grid.hexes.get(coordToKey(position))?.terrain;
+  const terrain = grid?.hexes.get(coordToKey(position))?.terrain;
   if (!terrain) return undefined;
   const swamp = parseTerrainFeatures(terrain).find(
     (feature) => feature.type === TerrainType.Swamp && feature.level > 0,

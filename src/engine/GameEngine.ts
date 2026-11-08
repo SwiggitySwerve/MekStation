@@ -36,6 +36,7 @@ import {
   endGame,
 } from '@/utils/gameplay/gameSession';
 import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
+import { rollSessionStuckRecovery } from '@/utils/gameplay/gameSessionStuckRecovery';
 import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
@@ -188,6 +189,7 @@ export class GameEngine {
     for (let turn = 0; turn < autoResolveTurnLimit; turn++) {
       session = rollInitiative(session, undefined, d6Roller);
       session = advancePhase(session);
+      session = rollSessionStuckRecovery(session, this.grid, d6Roller);
 
       session = runMovementPhase(
         session,
