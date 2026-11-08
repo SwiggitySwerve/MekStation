@@ -175,6 +175,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-acquisition-request-identity-and-retry",
+      "status": "in-progress",
+      "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-c10-emp-startup-gating",
       "status": "in-progress",
       "reason": "Root-approved C10: extract unchanged startup/countdown rules first, then gate EMP startup, advance runner shutdown rounds, skip redundant shutdown checks, and auto-fail KO rolled startup. Preserve recorded startup outcomes and stop on committed fixture, digest, seeded snapshot, or exact-roll seeded expectation changes.",
