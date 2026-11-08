@@ -258,34 +258,39 @@ describe('GameEngine', () => {
             JSON.parse(JSON.stringify(session.currentState.units)) as unknown,
           ),
         };
-        // Captured twice on origin/main bfbf2b239 before the declaration guards.
+        // Captured twice on origin/main bfbf2b239 before the declaration guards;
+        // rebaselined for the runToCompletion End-phase PSR drain (terrain PR5).
+        // To rebaseline after an approved rule change, on a clean tree run
+        //   npx jest src/engine/__tests__/GameEngine.test.ts -t "C4 auto-resolve baseline" --no-color
+        // and copy the Received values from the toEqual diff. Capture twice; both
+        // runs must print identical values. Never compute or edit a digest by hand.
         expect(actual).toEqual(
           {
             '42': {
               seed: 42,
               declarations: 4,
               events:
-                'e5c9305acc86e9790ca2777b7510a5f92ce92f2830ee0801116f874bd44b7b88',
+                '2e6518e7722bb8fedc5212f0a83b0b67f4568ab56326e54266cc2d94608c0de1',
               outcome: {
                 winner: 'player',
                 reason: 'destruction',
                 turns: 8,
               },
               units:
-                'e50a4252ad23bf82affabf4cbe829c8bceb35dbf5af927a23ebc7670c15b8612',
+                '46bfa4fe3634d27bfa20d25d67df4c78ffedced150cf7cfe5e1b4f013448d7e6',
             },
             '12345': {
               seed: 12345,
-              declarations: 4,
+              declarations: 12,
               events:
-                '5afb81a8afe52937d99ca4aeeeb1ce2c41fa24fd7bfaab9059de8b871bdb60af',
+                'b0d824117f9c7cdff7f78ff4a1d9aa54d1a6139a5557a85b7bb31f55c3f9399a',
               outcome: {
-                winner: 'player',
+                winner: 'opponent',
                 reason: 'turn_limit',
                 turns: 20,
               },
               units:
-                '8441014ec195325ea3a1aab56fddb13edd3b0f99debd4562229b6056da9c9035',
+                'ef7ae9e28848ca2c199e1aa6522b9c20d1619117c260caad3eee8e274b4f2943',
             },
           }[seed],
         );
