@@ -10,6 +10,12 @@
  * retry would otherwise patch the same pilots a second time, or, with the
  * ledgers restored but not the roster, lose a battle's outcome.
  *
+ * Only a rejection is rolled back. A save the server refused for want of a
+ * credential it will accept (a typed live co-op refusal, surfaced as
+ * `CampaignCommitResult.recoverable`) is not: the persistence layer keeps
+ * that change pending so a save after the host token is renewed persists it
+ * (CAMPAIGN-LIVE-WRITE-1), and the day stands with it.
+ *
  * Not restorable, and not tried: the host's committed AdvanceDay (a retry
  * sends the same intent id, so the host replays its receipt), the vault's
  * fire-and-forget award PUT (it sends the full awards array, so the retry's
@@ -37,6 +43,7 @@ import { usePilotStore } from '@/stores/usePilotStore';
 
 import type { CampaignStore } from './useCampaignStore.types';
 
+import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { persistCampaignRecord } from './useCampaignStore.persistence';
 
@@ -135,6 +142,11 @@ export function rollbackDayAdvance(
       failure ??= error instanceof Error ? error.message : String(error);
     }
   };
+  // The persistence wiring marks the campaign dirty on every campaign change,
+  // restoring included. After a co-op rejection the persistence layer has
+  // just cleared it, and the restored campaign is the saved one, so it is
+  // put back below rather than left showing "Unsaved changes".
+  const wasDirty = useCampaignPersistenceStore.getState().dirty;
   const ledgers = {
     pendingBattleOutcomes: snapshot.pendingBattleOutcomes,
     processedBattleIds: snapshot.processedBattleIds,
@@ -166,6 +178,9 @@ export function rollbackDayAdvance(
       snapshot.reviewedBattleIds,
     ),
   );
+  if (!wasDirty && useCampaignPersistenceStore.getState().dirty) {
+    useCampaignPersistenceStore.setState({ dirty: false });
+  }
   return failure;
 }
 

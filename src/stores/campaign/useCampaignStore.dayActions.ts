@@ -353,13 +353,17 @@ function advanceDayLocally(
     return fail(errorMessage(error));
   }
   const settle = (result: CampaignCommitResult): DayReport | null => {
-    if (!result.committed) {
+    // A recoverable refusal (no credential the server accepts) is not a
+    // rejection: the persistence layer keeps the change, pending, for a later
+    // save once the player renews it, so the day stands. It is not committed,
+    // so no report is returned.
+    if (!result.committed && !result.recoverable) {
       return fail(result.reason ?? 'the save was refused');
     }
     day.outcomeErrorToasts.forEach((message) =>
       toast({ message, variant: 'error' }),
     );
-    return day.committedReport;
+    return result.committed ? day.committedReport : null;
   };
   return isPromiseLike(saveResult)
     ? saveResult.then(settle, (error) => fail(errorMessage(error)))
@@ -682,8 +686,11 @@ function travelToSystemAction(
         return fail(errorMessage(error));
       }
       const settle = (result: CampaignCommitResult): boolean => {
+        // A recoverable refusal keeps the jump pending (see the day's settle).
         if (!result.committed) {
-          return fail(result.reason ?? 'the save was refused');
+          return result.recoverable
+            ? false
+            : fail(result.reason ?? 'the save was refused');
         }
         logTravelCommitSucceeded(preview);
         return true;

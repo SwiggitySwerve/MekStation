@@ -33,6 +33,10 @@ import {
   registerBuiltinProcessors,
   _resetBuiltinRegistration,
 } from '@/lib/campaign/processors';
+import {
+  installCampaignPersistenceWiring,
+  uninstallCampaignPersistenceWiring,
+} from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
@@ -69,7 +73,9 @@ const VAULT_ID = 'v1';
 interface IFakeServer {
   record: SerializedCampaign | null;
   /** 'fail' refuses every PUT; 'gate' holds PUTs until released, then refuses. */
-  putMode: 'ok' | 'fail' | 'gate';
+  putMode: 'ok' | 'fail' | 'gate' | 'respond';
+  /** What 'respond' answers every PUT with; 'network' makes fetch reject. */
+  putResponse: { status: number; body: unknown } | 'network' | null;
   /** PUTs currently held by the gate. */
   heldPuts: number;
   releaseGate: () => void;
@@ -107,6 +113,15 @@ function stubServer(server: IFakeServer): void {
         }
         if (server.putMode === 'fail') {
           return jsonResponse(500, { error: 'refused' });
+        }
+        if (server.putMode === 'respond' && server.putResponse) {
+          if (server.putResponse === 'network') {
+            throw new TypeError('network down');
+          }
+          return jsonResponse(
+            server.putResponse.status,
+            server.putResponse.body,
+          );
         }
         const body = JSON.parse(init.body ?? '{}') as {
           envelope: SerializedCampaign;
@@ -289,6 +304,7 @@ function installStubProcessors(extra: readonly IDayProcessor[] = []): void {
 function resetWorld(): void {
   jest.useRealTimers();
   jest.restoreAllMocks();
+  uninstallCampaignPersistenceWiring();
   resetCampaignStore();
   useCampaignPersistenceStore.getState().reset();
   _resetCampaignSyncTransportsForTest();
@@ -339,6 +355,7 @@ async function buildWorld(
   const server: IFakeServer = {
     record: null,
     putMode: 'ok',
+    putResponse: null,
     heldPuts: 0,
     releaseGate: () => undefined,
   };
@@ -606,6 +623,254 @@ describe('K13 rollback of an unsaved day', () => {
     expect(currentPilot().xp).toBe(10);
     expect(world.store.getState().processedBattleIds).toEqual(['m-1']);
     expect(toastMessages().join('\n')).not.toMatch(/not saved/i);
+  });
+});
+
+// =============================================================================
+// Which refusals roll back
+//
+// The persistence layer already draws this line for a co-op save: a TYPED
+// live-write refusal (401/403 `kind: 'refused'` with a code - no credential
+// the server accepts) is "NOT a conflict: nothing was newer on the server ...
+// and the unsaved changes stay" (ICampaignSaveRefusal, runSave); everything
+// else it rolls back itself ("Your local change was rolled back"). The day
+// follows the same line, so the roster and ledgers never disagree with the
+// campaign the persistence layer left in the store.
+// =============================================================================
+
+const typedRefusal = (
+  status: 401 | 403,
+  code: string,
+  reason: string,
+): { status: number; body: unknown } => ({
+  status,
+  body: { error: 'refused', kind: 'refused', code, reason, matchId: MATCH_ID },
+});
+
+describe('K13 a recoverable refusal keeps the day', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
+
+  it.each([
+    [
+      'no host token (401)',
+      typedRefusal(401, 'HOST_SESSION_REQUIRED', 'malformed'),
+    ],
+    [
+      'an expired host token (401)',
+      typedRefusal(401, 'HOST_SESSION_EXPIRED', 'expired'),
+    ],
+    [
+      'a changed live session (403)',
+      typedRefusal(403, 'HOST_SESSION_REQUIRED', 'live-session-changed'),
+    ],
+  ])(
+    '(R10) %s: the day stays, stays pending, and saving after renewal persists it once',
+    async (_name, refusal) => {
+      const world = await buildWorld(true);
+      const before = observe(world);
+      world.server.putMode = 'respond';
+      world.server.putResponse = refusal;
+
+      const report = await world.store.getState().advanceDay();
+
+      // Not committed, so no report; but nothing was undone.
+      expect(report).toBeNull();
+      const day = before.campaign!.currentDate.getTime() + DAY_MS;
+      expect(world.store.getState().campaign!.currentDate.getTime()).toBe(day);
+      expect(currentPilot().xp).toBe(10);
+      expect(currentPilot().campaignMissions).toBe(1);
+      expect(usePilotStore.getState().pilots[0].awards).toHaveLength(1);
+      expect(world.store.getState().processedBattleIds).toEqual(['m-1']);
+      expect(
+        world.store.getState().pendingBattleOutcomes.map((o) => o.matchId),
+      ).toEqual(['m-bad']);
+      expect([
+        ...(world.store.getState().missionsStore?.getState().missions.keys() ??
+          []),
+      ]).toEqual(['mission-new']);
+      expect(world.store.getState().activityLog).not.toBe(before.activityLog);
+      expect(world.store.getState().dayAdvanceInFlight).toBe(false);
+      const persistence = useCampaignPersistenceStore.getState();
+      expect(persistence.saveState).toBe('error');
+      expect(persistence.saveRefusal?.code).toBe(
+        (refusal.body as { code: string }).code,
+      );
+      // The day's outcome error is announced; nothing says it was undone.
+      expect(toastMessages()).toContain('Battle m-bad: boom');
+      expect(toastMessages().join('\n')).not.toMatch(/not saved|restored/i);
+      expect(world.server.record?.version).toBe(2);
+
+      // The token is renewed; the save persists the day, applied once.
+      world.server.putMode = 'ok';
+      const saved = await useCampaignPersistenceStore.getState().saveCampaign();
+
+      expect(saved.status).toBe('saved');
+      expect(world.server.record?.body.currentDate).toBe(
+        new Date(day).toISOString(),
+      );
+      expect(currentPilot().xp).toBe(10);
+      expect(usePilotStore.getState().pilots[0].awards).toHaveLength(1);
+      expect(world.store.getState().processedBattleIds).toEqual(['m-1']);
+    },
+  );
+
+  it('(R10b) a jump refused for want of a token is kept pending too', async () => {
+    const world = await buildWorld(true);
+    const destination = [
+      'terra',
+      'tharkad',
+      'luthien',
+      'new-avalon',
+      'sian',
+      'atreus',
+      'outreach',
+      'galatea',
+      'hesperus-ii',
+    ].find((systemId) => {
+      const preview = world.store.getState().previewTravelToSystem(systemId);
+      return preview?.status === 'ready' && preview.afterCampaign;
+    });
+    expect(destination).toBeDefined();
+    const before = observe(world);
+    world.server.putMode = 'respond';
+    world.server.putResponse = typedRefusal(
+      401,
+      'HOST_SESSION_REQUIRED',
+      'malformed',
+    );
+
+    expect(await world.store.getState().travelToSystem(destination!)).toBe(
+      false,
+    );
+
+    expect(
+      world.store.getState().campaign!.currentDate.getTime(),
+    ).toBeGreaterThan(before.campaign!.currentDate.getTime());
+    expect(world.store.getState().activityLog).not.toBe(before.activityLog);
+    expect(toastMessages().join('\n')).not.toMatch(/not saved|restored/i);
+  });
+});
+
+describe('K13 an authoritative rejection rolls the day back', () => {
+  beforeEach(resetWorld);
+  afterEach(resetWorld);
+
+  const conflictBody = (reason: string, record: unknown) => ({
+    kind: 'conflict',
+    reason,
+    recoveryAction: 'resync',
+    conflictingFields: [],
+    currentVersion: 1,
+    current: record,
+  });
+
+  const rejections: ReadonlyArray<
+    readonly [
+      string,
+      (world: IWorld) => { status: number; body: unknown } | 'network',
+    ]
+  > = [
+    [
+      'a stale write (409 base-state-unavailable)',
+      (world) => ({
+        status: 409,
+        body: conflictBody('base-state-unavailable', world.server.record),
+      }),
+    ],
+    [
+      'a non-host member write (409 live-coop-session)',
+      (world) => ({
+        status: 409,
+        body: conflictBody('live-coop-session', world.server.record),
+      }),
+    ],
+    [
+      'blocked campaign authority (409 blocked)',
+      () => ({
+        status: 409,
+        body: {
+          error: 'campaign authority is blocked',
+          kind: 'blocked',
+          reason: 'journal-stream-missing',
+        },
+      }),
+    ],
+    [
+      'a replica instance (403 refused, no code)',
+      () => ({
+        status: 403,
+        body: {
+          error: 'replica instance cannot accept local mutation',
+          kind: 'refused',
+          reason: 'replica-not-source',
+        },
+      }),
+    ],
+    [
+      'a 401 with no typed refusal',
+      () => ({ status: 401, body: { error: 'unauthorized' } }),
+    ],
+    [
+      'an invalid campaign authority (422)',
+      () => ({
+        status: 422,
+        body: {
+          error: 'campaign authority is invalid',
+          kind: 'failed',
+          reason: 'unknown-role',
+        },
+      }),
+    ],
+    [
+      'a server error (500)',
+      () => ({ status: 500, body: { error: 'failed to persist campaign' } }),
+    ],
+    ['a network failure', () => 'network' as const],
+  ];
+
+  it.each(rejections)(
+    '(R11) %s: rolled back, reported, and a retry applies the day once',
+    async (_name, respond) => {
+      const world = await buildWorld(true);
+      const before = observe(world);
+      world.server.putMode = 'respond';
+      world.server.putResponse = respond(world);
+
+      const report = await world.store.getState().advanceDay();
+
+      expect(report).toBeNull();
+      expect(world.store.getState().campaign!.currentDate.getTime()).toBe(
+        before.campaign!.currentDate.getTime(),
+      );
+      expect(currentPilot().xp).toBe(0);
+      expect(currentPilot().campaignMissions).toBe(0);
+      expect(usePilotStore.getState().pilots[0].awards).toHaveLength(0);
+      expect(world.store.getState().processedBattleIds).toEqual([]);
+      expect(
+        world.store.getState().pendingBattleOutcomes.map((o) => o.matchId),
+      ).toEqual(['m-1', 'm-bad']);
+      expect(toastMessages().join('\n')).toMatch(/not saved/i);
+      expect(world.store.getState().dayAdvanceInFlight).toBe(false);
+
+      world.server.putMode = 'ok';
+      const retry = await world.store.getState().advanceDay();
+
+      expect(retry).not.toBeNull();
+      expect(currentPilot().xp).toBe(10);
+      expect(usePilotStore.getState().pilots[0].awards).toHaveLength(1);
+      expect(world.store.getState().processedBattleIds).toEqual(['m-1']);
+    },
+  );
+
+  it('(R11b) after a rejection the campaign is not left marked as unsaved', async () => {
+    const world = await buildWorld(true);
+    installCampaignPersistenceWiring();
+    world.server.putMode = 'fail';
+
+    await world.store.getState().advanceDay();
+
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
   });
 });
 
