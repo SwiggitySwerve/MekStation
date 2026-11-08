@@ -2,6 +2,7 @@ import {
   GameSide,
   LockState,
   type IGameState,
+  type IUnitGameState,
   type IMoraleShiftedPayload,
   type INeuralInterfaceStateChangedPayload,
   type IRetreatTriggeredPayload,
@@ -11,19 +12,31 @@ import {
   type MoraleLevel,
 } from '@/types/gameplay';
 
+import { getUnitOperability } from '../unitOperability';
 import { updateUnitState } from './unitStatePatch';
+
+/**
+ * A unit leaves the battle once: destroyed, ejected or retreated, whichever
+ * event lands first. Later exit or latch events for it are ignored here, so
+ * emitters that do not guard (P2P translation, the store eject) cannot
+ * stack exits.
+ */
+const hasLeftBattle = (unit: IUnitGameState): boolean =>
+  !getUnitOperability(unit).onField;
 
 export function applyRetreatTriggered(
   state: IGameState,
   payload: IRetreatTriggeredPayload,
 ): IGameState {
   return updateUnitState(state, payload.unitId, (unit) =>
-    unit.isRetreating
+    unit.isRetreating || hasLeftBattle(unit)
       ? undefined
       : {
           ...unit,
           isRetreating: true,
-          retreatTargetEdge: payload.edge,
+          // The retreat and withdrawal latches share one edge; the first
+          // latch to arrive keeps it.
+          retreatTargetEdge: unit.retreatTargetEdge ?? payload.edge,
         },
   );
 }
@@ -33,7 +46,7 @@ export function applyUnitRetreated(
   payload: IUnitRetreatedPayload,
 ): IGameState {
   return updateUnitState(state, payload.unitId, (unit) =>
-    unit.hasRetreated
+    hasLeftBattle(unit)
       ? undefined
       : {
           ...unit,
@@ -47,7 +60,7 @@ export function applyUnitEjected(
   payload: IUnitEjectedPayload,
 ): IGameState {
   return updateUnitState(state, payload.unitId, (unit) =>
-    unit.hasEjected
+    hasLeftBattle(unit)
       ? undefined
       : {
           ...unit,
@@ -96,12 +109,12 @@ export function applyWithdrawalDeclared(
   payload: IWithdrawalDeclaredPayload,
 ): IGameState {
   return updateUnitState(state, payload.unitId, (unit) =>
-    unit.isWithdrawing
+    unit.isWithdrawing || hasLeftBattle(unit)
       ? undefined
       : {
           ...unit,
           isWithdrawing: true,
-          retreatTargetEdge: payload.edge,
+          retreatTargetEdge: unit.retreatTargetEdge ?? payload.edge,
         },
   );
 }
