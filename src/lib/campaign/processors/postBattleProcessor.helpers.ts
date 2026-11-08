@@ -5,6 +5,7 @@ import type { IUnitCombatDelta } from '@/types/combat/CombatOutcome';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { readDeltaExitReason } from '@/lib/combat/outcome/deltaExitReason';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { isTerminalMissionStatus, MissionStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
@@ -172,12 +173,16 @@ export function applyPilotDelta(context: {
 /**
  * Merge a single delta into the persisted combat state for the unit.
  * Always returns a fresh state object — never mutates inputs.
+ *
+ * `lostOnField` marks a unit left behind as a wreck the player does not
+ * recover (see `isLostOnField`); it is no longer combat ready.
  */
 export function applyUnitDelta(
   existing: IUnitCombatState | undefined,
   delta: IUnitCombatDelta,
   matchId: string,
   nowIso: string,
+  lostOnField = false,
 ): IUnitCombatState {
   const base: IUnitCombatState =
     existing ??
@@ -239,10 +244,30 @@ export function applyUnitDelta(
     combatReady:
       base.combatReady &&
       delta.finalStatus !== UnitFinalStatus.Destroyed &&
-      !delta.destroyed,
+      !delta.destroyed &&
+      !lostOnField,
     lastCombatOutcomeId: matchId,
     lastUpdated: nowIso,
   };
+}
+
+/**
+ * A player unit whose pilot ejected is a wreck left on the field. MekHQ
+ * recovers it only when the player controls the field
+ * (`assignFoundEntity(wreck, !control)`, ResolveScenarioTracker.java:637);
+ * the post-battle winner stands in for control here. A unit that retreated
+ * is never lost (ResolveScenarioTracker.java:595).
+ */
+export function isLostOnField(
+  outcome: ICombatOutcome,
+  delta: IUnitCombatDelta,
+  wonByPlayer: boolean,
+): boolean {
+  return (
+    delta.side === GameSide.Player &&
+    !wonByPlayer &&
+    readDeltaExitReason(outcome, delta) === 'ejected'
+  );
 }
 
 // =============================================================================

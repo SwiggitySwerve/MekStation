@@ -506,6 +506,33 @@ describe('combat journal-authority recovery', () => {
     }
   });
 
+  it('OUTCOME EXIT: the durable outcome records an ejected unit and survives the JSON column', async () => {
+    const { host, store } = await makeHost({
+      matchId: 'match-terminal-outcome-eject',
+    });
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: host.matchId,
+      ts: nowIso(),
+      playerId: 'host-player',
+      intentId: 'eject-command',
+      intent: { kind: 'Eject', unitId: 'lock-player' },
+    } as unknown as IIntent);
+    await host.handleIntent(concedeIntent('terminal-command', host.matchId));
+
+    const outcome = (await store.getCombatOutcomeOutbox(host.matchId))?.outcome;
+    const exits = outcome?.unitDeltas.map((delta) => [
+      delta.unitId,
+      delta.exitReason ?? null,
+    ]);
+    expect(exits).toEqual([
+      ['lock-player', 'ejected'],
+      ['lock-opponent', null],
+    ]);
+    // DurableMatchStore persists the outcome as JSON text.
+    expect(JSON.parse(JSON.stringify(outcome))).toEqual(outcome);
+  });
+
   it.each(['no listener', 'throwing listener'] as const)(
     'OUTCOME RETRY: %s leaves the row pending until recovery consumes it',
     async (listenerMode) => {
