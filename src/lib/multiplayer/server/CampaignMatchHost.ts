@@ -63,7 +63,10 @@ import type {
   ICampaignRosterUnitChange,
 } from './campaignHostDoors';
 import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
-import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
+import type {
+  ICampaignIntentContext,
+  UnsequencedCampaignEvent,
+} from './CampaignMatchHostIntent';
 import type { IMatchMeta } from './IMatchStore';
 
 import {
@@ -111,6 +114,11 @@ export interface ICampaignMatchHostOptions {
    * log always begins with a replayable baseline.
    */
   readonly initialState: ICampaignAuthoritativeState;
+  /**
+   * The authority's market reader (K14b). Absent means this host holds no
+   * market, and every `HireOffer` is refused `offer-source-unavailable`.
+   */
+  readonly intentContext?: ICampaignIntentContext;
 }
 
 export class CampaignMissionLaunchRefusal extends Error {
@@ -132,6 +140,7 @@ export class CampaignMatchHost {
   private readonly hostPlayerId: string;
   private readonly log: CampaignEventLog;
   private readonly eventStore: ICampaignEventStore;
+  private readonly intentContext: ICampaignIntentContext | undefined;
   /** The host's authoritative campaign state — the single source of truth. */
   private state: ICampaignAuthoritativeState;
   private readonly subscribers = new Set<CampaignEventSubscriber>();
@@ -170,6 +179,7 @@ export class CampaignMatchHost {
     this.campaignId = options.campaignId;
     this.hostPlayerId = options.hostPlayerId;
     this.eventStore = options.eventStore;
+    this.intentContext = options.intentContext;
     this.log = new CampaignEventLog(options.campaignId, options.eventStore);
     this.state = options.initialState;
   }
@@ -222,6 +232,7 @@ export class CampaignMatchHost {
       campaignId: this.campaignId,
       hostPlayerId: this.hostPlayerId,
       eventStore: this.eventStore,
+      intentContext: this.intentContext,
       isOpened: () => this.opened,
       isClosed: () => this.closed,
       markOpened: () => {
@@ -308,6 +319,11 @@ export class CampaignMatchHost {
    */
   getState = (): ICampaignAuthoritativeState => {
     return this.state;
+  };
+
+  /** The market reader this host validates a `HireOffer` with, if any. */
+  getIntentContext = (): ICampaignIntentContext | undefined => {
+    return this.intentContext;
   };
 
   getHostPlayerId = (): string => {

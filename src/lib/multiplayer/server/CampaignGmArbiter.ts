@@ -488,11 +488,15 @@ export class CampaignGmArbiter {
     proposal: IGuestProposal,
     state: ICampaignAuthoritativeState,
   ): ICampaignMechanicalRejection | { ok: true } {
+    // The host's own market reader, so the pre-check judges a HireOffer
+    // against the same offer the commit will.
     const validation = validateCampaignIntent(
       proposal.intent,
       state,
       proposal.proposingPlayerId,
       proposal.ts,
+      undefined,
+      this.host.getIntentContext(),
     );
     if (validation.ok) return { ok: true };
     // `validateCampaignIntent` touches no head, so it cannot produce a
@@ -687,6 +691,9 @@ export function describeProposalEffect(proposal: IGuestProposal): string {
       return `Hire pilot ${intent.payload.pilot.name} for ${formatCbills(
         intent.payload.cost,
       )}`;
+    case 'HireOffer':
+      // The offer, not a price: the authority prices it at commit.
+      return `Hire market offer ${intent.payload.offerId}`;
     case 'AcceptContract':
       return `Accept contract ${intent.payload.contract.name}`;
     case 'SpendFunds':

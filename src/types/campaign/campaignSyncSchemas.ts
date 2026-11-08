@@ -61,6 +61,18 @@ const hirePilotIntentSchema = z.object({
   }),
 });
 
+/**
+ * A hire names the offer and NOTHING else. `.strict()` refuses a payload
+ * that also carries a recruit or a price, so a forged fact is rejected at
+ * the boundary instead of silently dropped (K14b).
+ */
+const hireOfferIntentSchema = z.object({
+  kind: z.literal('HireOffer'),
+  campaignId: z.string().min(1),
+  intentId: z.string().min(1),
+  payload: z.object({ offerId: z.string().min(1) }).strict(),
+});
+
 const acceptContractIntentSchema = z.object({
   kind: z.literal('AcceptContract'),
   campaignId: z.string().min(1),
@@ -117,6 +129,7 @@ const removeParticipantIntentSchema = z.object({
  */
 export const CampaignIntentSchema = z.discriminatedUnion('kind', [
   hirePilotIntentSchema,
+  hireOfferIntentSchema,
   acceptContractIntentSchema,
   spendFundsIntentSchema,
   allocateSalvageIntentSchema,

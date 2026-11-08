@@ -34,6 +34,7 @@ import type {
   ICampaignEventPayloadMap,
 } from '@/types/campaign/CampaignSync';
 
+import { hiredPilotId } from '@/lib/campaign/markets/offerLifecycle';
 import {
   freezeCampaignEvent,
   resolveCampaignEventScope,
@@ -68,6 +69,37 @@ interface IValidatedIntent {
 export type CampaignIntentValidation =
   | IValidatedIntent
   | Extract<CampaignIntentResult, { ok: false }>;
+
+/**
+ * One personnel-market offer as the AUTHORITY holds it - the only place a
+ * hire's recruit and price may come from (K14b). Every field is a fact the
+ * authority read, already checked to be present and usable.
+ */
+export interface IAuthoritativePersonnelOffer {
+  readonly offerId: string;
+  /** The recruit's display name; becomes the hired pilot's name. */
+  readonly name: string;
+  /** Finite, non-negative C-bill cost; becomes the debit. */
+  readonly hireCost: number;
+  /** `YYYY-MM-DD` the offer is last valid on. */
+  readonly expirationDate: string;
+  /** The authority's campaign date the offer is judged against. */
+  readonly campaignDate: string;
+}
+
+/**
+ * Authoritative facts an intent may need beyond the ledger state.
+ *
+ * `ICampaignAuthoritativeState` carries no market, so a `HireOffer` cannot be
+ * judged from it. Each authority supplies the reader for the market IT holds;
+ * an authority that supplies none refuses every `HireOffer`
+ * (`offer-source-unavailable`) rather than trusting the intent.
+ */
+export interface ICampaignIntentContext {
+  readonly personnelOffer?: (
+    offerId: string,
+  ) => IAuthoritativePersonnelOffer | null;
+}
 
 /** Helper — build a typed rejection. */
 function reject(
@@ -125,6 +157,8 @@ function event<T extends CampaignEventType>(
  * @param hostPlayerId verified GM identity. Required only for the audited
  *                    participant-removal command; omitted callers cannot
  *                    accidentally authorize it.
+ * @param context     the authority's market reader. Required only for a
+ *                    `HireOffer`; omitted callers refuse it.
  */
 export function validateCampaignIntent(
   intent: CampaignHostCommand,
@@ -132,6 +166,7 @@ export function validateCampaignIntent(
   authorPlayerId: string,
   ts: string,
   hostPlayerId?: string,
+  context?: ICampaignIntentContext,
 ): CampaignIntentValidation {
   // The intent must target the campaign this host owns.
   if (intent.campaignId !== state.campaignId) {
@@ -165,13 +200,35 @@ export function validateCampaignIntent(
       };
     }
 
-    case 'HirePilot': {
-      const { pilot, cost } = intent.payload;
-      // Hiring spends C-bills — the same balance invariant applies.
+    case 'HirePilot':
+      // Retired (K14b): it names its own recruit and price, which is how a
+      // co-op guest hired an invented pilot for an invented cost.
+      return reject('hire-requires-market-offer');
+
+    case 'HireOffer': {
+      if (context?.personnelOffer === undefined) {
+        return reject('offer-source-unavailable');
+      }
+      const offer = context.personnelOffer(intent.payload.offerId);
+      if (offer === null || offer.offerId !== intent.payload.offerId) {
+        return reject('offer-not-found');
+      }
+      const pilotId = hiredPilotId(offer.offerId);
+      // The pilot id is derived from the offer, so a hired offer stays
+      // spent in the ledger even when a stale save restores the offer.
+      if (state.pilots[pilotId] !== undefined) {
+        return reject('offer-consumed');
+      }
+      if (offer.expirationDate.slice(0, 10) < offer.campaignDate.slice(0, 10)) {
+        return reject('offer-expired');
+      }
+      const cost = offer.hireCost;
+      // MekHQ debits FIRST and enrols nobody when the debit fails
+      // (ForceHumanResources.recruitPerson, e7adc2c).
       if (cost > state.balance) {
         return reject('insufficient-funds');
       }
-      const newBalance = state.balance - cost;
+      const pilot = { pilotId, name: offer.name };
       // A hire produces TWO events: the funds debit and the roster
       // change. Both go through the host's single append path so the
       // log stays totally ordered (design risk-mitigation "two events
@@ -182,7 +239,7 @@ export function validateCampaignIntent(
           mk('FundsChanged', {
             delta: -cost,
             reason: `Hired pilot ${pilot.name}`,
-            balance: newBalance,
+            balance: state.balance - cost,
           }),
           mk('PilotHired', { pilot, cost }),
         ],

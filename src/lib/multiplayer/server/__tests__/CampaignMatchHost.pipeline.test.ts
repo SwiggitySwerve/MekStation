@@ -103,6 +103,15 @@ describe('CampaignMatchHost over a batch-capable journal store', () => {
       hostPlayerId: 'pid-host',
       eventStore: store,
       initialState: initialState('campaign-pipeline'),
+      intentContext: {
+        personnelOffer: (offerId) => ({
+          offerId,
+          name: offerId === 'offer-2' ? 'Natasha' : 'Kai',
+          hireCost: offerId === 'offer-2' ? 100_000 : 150_000,
+          expirationDate: '3025-12-31',
+          campaignDate: '3025-01-03',
+        }),
+      },
     });
     broadcasts = [];
     host.subscribe((event) =>
@@ -125,8 +134,8 @@ describe('CampaignMatchHost over a batch-capable journal store', () => {
     const result = await host.applyHostIntent({
       intentId: 'intent-hire-1',
       campaignId: 'campaign-pipeline',
-      kind: 'HirePilot',
-      payload: { pilot: { pilotId: 'pilot-1', name: 'Kai' }, cost: 150_000 },
+      kind: 'HireOffer',
+      payload: { offerId: 'offer-1' },
     } as never);
 
     expect(result.ok).toBe(true);
@@ -189,11 +198,8 @@ describe('CampaignMatchHost over a batch-capable journal store', () => {
     await host.applyHostIntent({
       intentId: 'intent-hire-2',
       campaignId: 'campaign-pipeline',
-      kind: 'HirePilot',
-      payload: {
-        pilot: { pilotId: 'pilot-2', name: 'Natasha' },
-        cost: 100_000,
-      },
+      kind: 'HireOffer',
+      payload: { offerId: 'offer-2' },
     } as never);
     await host.applyHostIntent({
       intentId: 'intent-day',
