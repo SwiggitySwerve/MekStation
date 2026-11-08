@@ -7,12 +7,13 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
-
-// The service validates a unit before caching it, so unit payloads must be
-// valid catalog units; each test overrides only the fields it cares about.
+// The service guards a unit's shape before caching it, so a unit payload needs
+// at least these fields; each test overrides only what it cares about.
 const catalogUnit = (overrides: Record<string, unknown>): unknown => ({
-  ...atlas,
+  id: 'atlas-as7-d',
+  chassis: 'Atlas',
+  unitType: 'BattleMech',
+  tonnage: 50,
   ...overrides,
 });
 
