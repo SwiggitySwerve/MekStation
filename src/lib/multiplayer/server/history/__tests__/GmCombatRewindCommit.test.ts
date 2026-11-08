@@ -29,6 +29,7 @@ import type { IGmAuthorityContext } from '@/types/interventions';
 
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { journalBranchSegmentReader } from '@/lib/events/journal/EventHistoryBranchResolver';
+import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
@@ -445,6 +446,137 @@ describe('commitGmCombatRewind', () => {
         .all() as Array<{ readonly status: string }>
     ).map((row) => row.status);
     expect(statuses.every((status) => status !== 'effective')).toBe(true);
+  });
+
+  describe('M-H4 failed and stranded candidates move to blocked', () => {
+    function candidateStatuses(): Array<{
+      readonly branchId: string;
+      readonly status: string;
+    }> {
+      return branches()
+        .listBranches(STREAM)
+        .filter((branch) => branch.branchId !== 'root')
+        .map(({ branchId, status }) => ({ branchId, status }));
+    }
+
+    it('a failed verification leaves its candidate blocked', async () => {
+      const result = await commitGmCombatRewind(
+        deps({ reader: flappingReader() }),
+        gmAuthority(),
+        request(),
+      );
+
+      expect(result).toMatchObject({
+        kind: 'refused',
+        reason: 'candidate-verification-failed',
+      });
+      expect(candidateStatuses()).toEqual([
+        { branchId: expect.any(String), status: 'blocked' },
+      ]);
+      expect(leases().readLiveLease(STREAM)).toBeNull();
+    });
+
+    it('a failure after the candidate exists leaves it blocked and the error unchanged', async () => {
+      let held = 0;
+      await expect(
+        commitGmCombatRewind(
+          deps({
+            onLeaseHeld: () => {
+              held += 1;
+              // The second call sits just before activation.
+              if (held === 2) throw new Error('injected: activation failed');
+            },
+          }),
+          gmAuthority(),
+          request(),
+        ),
+      ).rejects.toThrow('injected: activation failed');
+
+      expect(candidateStatuses()).toEqual([
+        { branchId: expect.any(String), status: 'blocked' },
+      ]);
+      expect(effectiveHead().branchId).toBe('root');
+      expect(leases().readLiveLease(STREAM)).toBeNull();
+    });
+
+    it('a candidate stranded by an earlier lease is blocked by the next commit, which still activates', async () => {
+      const stranded = strandCandidate();
+
+      const result = await commitGmCombatRewind(
+        deps(),
+        gmAuthority(),
+        request(),
+      );
+
+      expect(result.kind).toBe('committed');
+      if (result.kind !== 'committed') return;
+      expect(branches().requireBranch(STREAM, stranded).status).toBe('blocked');
+      expect(
+        branches().requireBranch(STREAM, result.activatedBranchId).status,
+      ).toBe('effective');
+    });
+
+    it('the sweep never touches the candidate the current commit builds', async () => {
+      const stranded = strandCandidate();
+      const seenBeforeActivation: Array<{
+        readonly branchId: string;
+        readonly status: string;
+      }> = [];
+      let held = 0;
+
+      const result = await commitGmCombatRewind(
+        deps({
+          onLeaseHeld: () => {
+            held += 1;
+            if (held === 2) seenBeforeActivation.push(...candidateStatuses());
+          },
+        }),
+        gmAuthority(),
+        request(),
+      );
+
+      expect(result.kind).toBe('committed');
+      if (result.kind !== 'committed') return;
+      expect(seenBeforeActivation).toEqual(
+        expect.arrayContaining([
+          { branchId: stranded, status: 'blocked' },
+          { branchId: result.activatedBranchId, status: 'building' },
+        ]),
+      );
+      expect(seenBeforeActivation).toHaveLength(2);
+    });
+
+    /**
+     * A candidate whose lease was released before activation, as a
+     * crashed or abandoned correction leaves it.
+     */
+    function strandCandidate(): string {
+      const lease = leases().acquireCorrectionLease({
+        ...STREAM,
+        owner: 'crashed-host',
+        actor: 'gm-1',
+        reason: 'abandoned correction',
+        ttlMs: TTL_MS,
+        expectedBranchId: 'root',
+        expectedRevision: HEAD_REVISION,
+        expectedDigest: headDigest(HEAD_REVISION),
+        expectedGeneration: 1,
+      });
+      const candidate = createCorrectionCandidateBranch(db, leases(), {
+        ...STREAM,
+        leaseId: lease.leaseId,
+        owner: lease.owner,
+        fencingEpoch: lease.fencingEpoch,
+        baseRevision: TARGET_REVISION,
+        createdAt: AT,
+      });
+      leases().releaseCorrectionLease(STREAM, {
+        leaseId: lease.leaseId,
+        owner: lease.owner,
+      });
+      expect(candidate.status).toBe('building');
+      return candidate.branchId;
+    }
   });
 
   it.each([
