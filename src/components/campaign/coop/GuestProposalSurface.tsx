@@ -39,14 +39,25 @@ import { CampaignSyncStateBanner } from './CampaignSyncStateBanner';
 // =============================================================================
 
 /** One campaign action the guest can propose. */
-export interface IGuestActionDescriptor {
-  /** The intent kind this action raises. */
-  readonly kind: ICampaignIntent['kind'];
-  /** Button label, e.g. "Hire Pilot". */
-  readonly label: string;
-  /** Builds the concrete intent when the action is clicked. */
-  readonly buildIntent: () => ICampaignIntent;
-}
+export type IGuestActionDescriptor =
+  | {
+      /** The intent kind this action raises. */
+      readonly kind: ICampaignIntent['kind'];
+      /** Button label, e.g. "Hire Pilot". */
+      readonly label: string;
+      /** Builds the concrete intent when the action is clicked. */
+      readonly buildIntent: () => ICampaignIntent;
+    }
+  | {
+      readonly kind: ICampaignIntent['kind'];
+      readonly label: string;
+      /**
+       * Why this action cannot be proposed at all (K14b: a guest names no
+       * real market offer). Shown beside the disabled control; there is no
+       * intent to build.
+       */
+      readonly disabledReason: string;
+    };
 
 export interface GuestProposalSurfaceProps {
   /** The guest-proposal lifecycle API (from `useGuestProposals`). */
@@ -252,6 +263,29 @@ export function GuestProposalSurface({
           // its shipped name for the readers already walking it.
           const blockedByPosture =
             syncPosture !== undefined && !syncPosture.commandsEnabled;
+          if ('disabledReason' in action) {
+            const reasonId = `guest-action-${action.kind}-reason`;
+            return (
+              <span key={action.kind} className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  data-testid={`guest-action-${action.kind}`}
+                  disabled
+                  aria-describedby={reasonId}
+                  className="border-border-theme bg-surface-base text-text-theme-muted cursor-not-allowed rounded-lg border px-3 py-2 text-sm font-medium"
+                >
+                  {action.label}
+                </button>
+                <span
+                  id={reasonId}
+                  data-testid={reasonId}
+                  className="text-text-theme-muted max-w-xs text-xs"
+                >
+                  {action.disabledReason}
+                </span>
+              </span>
+            );
+          }
           const unavailable = pending || blockedByPosture;
           return (
             <button

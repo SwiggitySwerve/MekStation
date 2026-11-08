@@ -44,9 +44,19 @@ below are relative to `MekHQ/src/mekhq/`):
 - `gui/panes/UnitMarketPane.java:490-576` checks funds, debits UNIT_PURCHASE,
   acquires units and removes their offers.
 
-## K14b boundary
+## Co-op authority (K14b)
 
-The source-authoritative acceptance path still ignores declined IDs. Co-op hire
-proposals still contain a synthetic recruit and 12,000 cost, trusted by host
-validation. K14a blocks local bypasses; K14b must bind proposals to source offers,
-validate prices and consume them atomically. No proposal controls change here.
+Every authority derives a hire or an acceptance from the market it holds, via
+`authoritativeOffers.ts`: a `HireOffer` names only the offer id, and an
+`AcceptContract` only names the contract. `HirePilot` is refused everywhere.
+The durable commands read the source row in their own transaction; the server
+co-op host reads the saved row at each intent; the in-browser host reads its
+live campaign. Declined, ended, consumed and unaffordable offers are refused.
+
+- The co-op host's Hire and Accept send `HireOffer` / `AcceptContract` to
+  the campaign host and write nothing locally. The ledger projection and the
+  record rewrite both drop offers the ledger has consumed.
+- A guest's Hire and Accept are disabled: guests do not receive the market.
+- Co-op Decline is disabled: there is no host-authoritative decline command.
+- A new co-op campaign has no market until its first day advance: first-open
+  seeding stays refused in co-op (K14a).
