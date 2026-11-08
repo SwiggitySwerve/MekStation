@@ -139,6 +139,29 @@ function makeAllocation(): ISalvageAllocation {
 // ---------------------------------------------------------------------------
 
 describe('projectCampaignInventory', () => {
+  it('projects a processed mercenary award as pending until enrollment', () => {
+    const allocation = makeAllocation();
+    const awarded = {
+      ...allocation,
+      mercenaryAward: {
+        ...allocation.mercenaryAward,
+        candidates: allocation.mercenaryAward.candidates.map((candidate) => ({
+          ...candidate,
+          status: 'awarded' as const,
+        })),
+      },
+    };
+    const inventory = projectCampaignInventory(
+      makeCampaign({ salvageAllocations: { 'match-1': awarded } }),
+      [],
+      GENERATED_AT,
+    );
+    expect(inventory.salvageBay[0].status).toBe('pending');
+    expect(inventory.summary.salvageValueTotal).toBe(100_000);
+    expect(awarded.processed).toBe(true);
+    expect(awarded.mercenaryAward.candidates[0].status).toBe('awarded');
+  });
+
   it('an empty campaign yields an empty inventory with zeroed summary', () => {
     const inventory = projectCampaignInventory(
       makeCampaign(),
