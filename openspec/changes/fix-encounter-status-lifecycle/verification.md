@@ -116,3 +116,57 @@ Merged fetched main 447803027ede2f9067bda0f252e60a08dde1f209 (merge
 
 The CampaignDashboardPage.advanceButtons failure belongs to main and is handled
 by #3059, per Root. No dashboard files were changed for this follow-up.
+
+## Explicit restart ruling after hosted E2E failure
+
+Root reported run 42479354495 at head ffc46970f: the second manual launch of
+the same encounter was refused as an unintended reassignment. Root explicitly
+allows pre-battle restarts of Launched encounters and requires visible refusal
+feedback. The E2E's same-encounter semantics remain unchanged.
+
+Fetched and fast-forwarded Root's branch head before work, then merged fetched
+main 240e3bf6cff974918bc6a415afc95e30571f0287 (merge
+b0d6b1883fab42ee8eb4e44380c5d54bc75f765d). No rebase or force push.
+
+- Restart regression tests were red before implementation: 5 failed, 82 passed.
+- Real-SQLite coverage now proves launch A -> explicit restart B -> completion A
+  refused -> completion B succeeds; Completed cannot restart. Failed restart
+  writes roll back to A. Ordinary/default links still refuse reassignment.
+- API replay coverage proves an abandoned A is refused before replay writing
+  or completion, while B can persist and complete. Client/API tests pin explicit
+  boolean intent and ensure generic links and completion never opt in.
+- The requested `npx playwright test e2e/seam-fresh-construction-no-instant-defeat.spec.ts`
+  passed both scenarios. The original still materializes once and launches the
+  SAME encounter twice with seed 1337, comparing equal outcome markers. The
+  added refusal scenario asserts an inline alert is visible and in the viewport,
+  the manual button becomes enabled again, and navigation does not occur.
+- Local E2E used isolated port 3619 and `node server.js` through the existing
+  server-command override. Initial Turbopack/Webpack attempts could not compile
+  across the shared cross-drive dependency junction. Materialized a local copy
+  of the same installed dependencies, including the existing native TypeScript
+  toolchain; no dependency manifest, lockfile, version, application bundler
+  configuration or test timeout changed. The final run used normal Turbopack
+  and passed in 36.9 seconds.
+- Full affected directories (encounter services/hooks/pages, all API tests,
+  campaign encounter/co-op tests), full integration and simulation runner,
+  replay/digest/golden after-run and lint-units Jest suite: 369 suites /
+  5,484 tests passed, 32 skipped. Entire stores directory: 81 suites /
+  1,305 tests passed. These groups overlap; do not sum them.
+- Replay/digest/golden before-run: 69 suites / 1,046 tests passed. No committed
+  fixtures, digests, replay schema packs or payload formats changed.
+- Exact `npm run validate:combat`: exit 0, 79 suites / 2,107 tests passed plus
+  the script's catalog/gap/OpenSpec checks.
+- Both TypeScript configurations passed. Root lint: 63 warnings / 0 errors.
+  lint:units: 17,074 / 17,085; no ceilings raised.
+- Budget: 3,080 indexed tests, 57 unkeyable / 57 allowed, 92 repository-wide keys.
+- Strict OpenSpec: 263 passed / 0 failed; CI accounting 42 / 42, purpose lint passed.
+
+See relaunch-audit.md for all callers, including the pinned #3063 resume path
+that returns its recorded session without invoking launch/reassignment. The
+only new opt-ins are the pre-battle force and skirmish hooks. Existing persisted
+encounters are not migrated or automatically repaired.
+
+Rule 4 source re-anchor: CombatConsciousnessSourceRefs.ts now cites the actual
+applyPilotToSelection-through-createInteractiveSkirmishSession region. Checked
+that both the assigned rpgToughness snapshot and pilotToughness transfer remain
+inside the cited content; full runner/catalog checks pass.

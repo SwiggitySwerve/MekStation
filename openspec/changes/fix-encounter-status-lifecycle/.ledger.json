@@ -1,6 +1,6 @@
 {
   "name": "fix-encounter-status-lifecycle",
   "status": "implemented",
-  "reason": "Root-approved S1a implemented and locally verified; draft review pending. Fast-forward and multiplayer deferred to S1b.",
+  "reason": "Root-approved S1a with explicit pre-battle restart and visible refusal feedback implemented; S1b remains deferred.",
   "lastReviewed": "2026-11-08"
 }

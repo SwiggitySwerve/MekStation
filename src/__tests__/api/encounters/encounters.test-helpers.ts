@@ -1584,7 +1584,12 @@ describe('encounter session API', () => {
         method === 'POST'
           ? mockEncounterService.linkGameSession
           : mockEncounterService.completeEncounter,
-      ).toHaveBeenCalledWith('enc-1', 'game-a', events);
+      ).toHaveBeenCalledWith(
+        'enc-1',
+        'game-a',
+        events,
+        ...(method === 'POST' ? [{ restart: false }] : []),
+      );
     },
   );
   it.each([
@@ -1621,6 +1626,36 @@ describe('encounter session API', () => {
     expect(res.json).toHaveBeenCalledWith(
       expect.objectContaining({ errorCode: EncounterErrorCode.InvalidStatus }),
     );
+  });
+  it('passes only an explicit boolean restart intent on POST', () => {
+    const res = createMockResponse();
+    const events = history();
+    sessionHandler(
+      sessionRequest({
+        method: 'POST',
+        query: { id: 'enc-1' },
+        body: { gameId: 'game-a', events, restart: true },
+      }),
+      res,
+    );
+    expect(mockEncounterService.linkGameSession).toHaveBeenCalledWith(
+      'enc-1',
+      'game-a',
+      events,
+      { restart: true },
+    );
+    const invalid = createMockResponse();
+    mockEncounterService.linkGameSession.mockClear();
+    sessionHandler(
+      sessionRequest({
+        method: 'POST',
+        query: { id: 'enc-1' },
+        body: { gameId: 'game-a', events, restart: 'true' },
+      }),
+      invalid,
+    );
+    expect(invalid.status).toHaveBeenCalledWith(400);
+    expect(mockEncounterService.linkGameSession).not.toHaveBeenCalled();
   });
   it.each(['GET', 'DELETE'])('rejects unsupported %s', (method) => {
     const res = createMockResponse();

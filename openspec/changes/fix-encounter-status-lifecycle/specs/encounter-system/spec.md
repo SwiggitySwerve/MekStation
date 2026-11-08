@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Guarded Encounter Lifecycle Writes
-The encounter repository SHALL enforce one transition table: Draft to Ready or Launched; Ready to Draft or Launched; Launched to Completed; Completed has no outgoing transitions. The existing force-deletion exception SHALL allow Launched to Draft only when both force slots have been cleared, and SHALL clear session linkage. Missing rows and invalid transitions SHALL fail without mutations. Repeated linking/completion for the same session SHALL be idempotent.
+The encounter repository SHALL enforce one transition table: Draft to Ready or Launched; Ready to Draft or Launched; Launched to Completed; Completed has no outgoing transitions. The existing force-deletion exception SHALL allow Launched to Draft only when both force slots have been cleared, and SHALL clear session linkage. Missing rows and invalid transitions SHALL fail without mutations. Repeated linking/completion for the same session SHALL be idempotent. A pre-battle launch SHALL be allowed to explicitly restart a Launched encounter by atomically replacing its session linkage; default link operations SHALL continue refusing reassignment. Completed SHALL remain terminal.
 
 #### Scenario: Terminal state cannot reopen
 - **GIVEN** a Completed encounter linked to game A
@@ -41,3 +41,29 @@ Existing encounters SHALL remain unchanged on reads, including inconsistent stat
 - **GIVEN** a Draft encounter retaining an old gameSessionId
 - **WHEN** it is read
 - **THEN** its status and linkage SHALL remain unchanged
+
+### Requirement: Explicit Restart and Visible Launch Refusal
+Only explicit pre-battle force or skirmish launch intent SHALL replace a Launched encounter's linked session. Completion and replay persistence SHALL reject an abandoned session after that replacement. Every pre-battle launch refusal SHALL display a visible error and restore the launch control to its enabled state. Existing same-seed runs SHALL continue using the same encounter.
+
+#### Scenario: Explicit restart abandons the prior session
+- **GIVEN** an encounter launched with game A
+- **WHEN** pre-battle explicitly launches game B
+- **THEN** the persisted link SHALL atomically become B
+- **AND** completion or replay submission for A SHALL be refused
+- **AND** matching terminal completion for B SHALL succeed
+
+#### Scenario: Implicit reassignment is refused
+- **GIVEN** a Launched encounter linked to A
+- **WHEN** a caller links B without explicit pre-battle restart intent
+- **THEN** the operation SHALL fail without changing A
+
+#### Scenario: Completed encounters remain terminal
+- **GIVEN** a Completed encounter
+- **WHEN** a caller supplies explicit restart intent
+- **THEN** launch SHALL be refused and the stored link SHALL remain unchanged
+
+#### Scenario: Launch refusal is visible and retryable
+- **GIVEN** the pre-battle page and an enabled launch button
+- **WHEN** the session-link request is refused
+- **THEN** an inline alert SHALL display the refusal
+- **AND** the button SHALL become enabled again without navigation

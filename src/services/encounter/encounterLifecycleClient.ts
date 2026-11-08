@@ -1,5 +1,7 @@
 import type { IGameSession } from '@/types/gameplay';
 
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
+
 // Shared encounter transport limit: launch and completion carry event histories.
 const ENCOUNTER_SESSION_MIB = 16;
 export const ENCOUNTER_SESSION_BODY_LIMIT = `${ENCOUNTER_SESSION_MIB}mb`;
@@ -9,6 +11,7 @@ export const ENCOUNTER_SESSION_MAX_BYTES = ENCOUNTER_SESSION_MIB * 1024 * 1024;
 async function writeEncounterSession(
   session: IGameSession,
   method: 'POST' | 'PATCH',
+  options: IEncounterSessionLinkOptions = {},
 ): Promise<void> {
   const encounterId = session.config.encounterId;
   if (!encounterId) return;
@@ -17,7 +20,11 @@ async function writeEncounterSession(
     {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ gameId: session.id, events: session.events }),
+      body: JSON.stringify({
+        gameId: session.id,
+        events: session.events,
+        ...(options.restart ? { restart: true } : {}),
+      }),
     },
   );
   const result: unknown = await response.json();
@@ -39,8 +46,11 @@ async function writeEncounterSession(
   }
 }
 
-export function linkEncounterSession(session: IGameSession): Promise<void> {
-  return writeEncounterSession(session, 'POST');
+export function linkEncounterSession(
+  session: IGameSession,
+  options: IEncounterSessionLinkOptions = {},
+): Promise<void> {
+  return writeEncounterSession(session, 'POST', options);
 }
 
 export function completeEncounterSession(session: IGameSession): Promise<void> {

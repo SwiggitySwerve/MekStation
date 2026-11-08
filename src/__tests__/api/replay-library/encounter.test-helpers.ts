@@ -412,6 +412,28 @@ describe('POST /api/replay-library/encounter', () => {
     expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
   });
 
+  it('refuses the abandoned game replay after a restart and completes the current game', async () => {
+    const current = validBody('game-b');
+    mockGetEncounter.mockReturnValue({
+      id: 'enc-row-1',
+      status: 'launched',
+      gameSessionId: 'game-b',
+    });
+    const abandoned = createMockResponse();
+    await handler(createMockRequest({ body: validBody('game-a') }), abandoned);
+    expect(abandoned.status).toHaveBeenCalledWith(409);
+    expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
+    expect(mockCompleteEncounter).not.toHaveBeenCalled();
+    const accepted = createMockResponse();
+    await handler(createMockRequest({ body: current }), accepted);
+    expect(accepted.status).toHaveBeenCalledWith(200);
+    expect(mockCompleteEncounter).toHaveBeenCalledWith(
+      'enc-row-1',
+      'game-b',
+      current.events,
+    );
+  });
+
   it('surfaces a failed dedup completion and permits a later retry without another replay write', async () => {
     const gameId = 'dedup-completion-retry';
     const reports = path.join(tmpDir, 'simulation-reports');

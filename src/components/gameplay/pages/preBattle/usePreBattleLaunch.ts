@@ -217,7 +217,7 @@ export function usePreBattleLaunch({
             gameUnits,
             linkage,
           );
-          await linkEncounterSession(session);
+          await linkEncounterSession(session, { restart: true });
           await completeEncounterSession(session);
           const outcomePublished = publishAutoResolvedCampaignOutcome(
             session,
@@ -253,7 +253,7 @@ export function usePreBattleLaunch({
 
         if (mode === 'interactive') {
           await persistInteractiveLaunchRecoveryLog(session);
-          await linkEncounterSession(session);
+          await linkEncounterSession(session, { restart: true });
           setInteractiveSession(interactiveSession);
           logger.info('Interactive session created', { sessionId: session.id });
           showToast({
@@ -265,7 +265,7 @@ export function usePreBattleLaunch({
           return;
         }
 
-        await linkEncounterSession(session);
+        await linkEncounterSession(session, { restart: true });
         setSpectatorMode(interactiveSession, {
           enabled: true,
           playing: true,

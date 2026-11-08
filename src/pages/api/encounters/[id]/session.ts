@@ -55,6 +55,14 @@ export default function handler(
     });
     return;
   }
+  if ('restart' in body && typeof body.restart !== 'boolean') {
+    res
+      .status(400)
+      .json({ success: false, error: 'Restart intent must be a boolean' });
+    return;
+  }
+  const restart =
+    req.method === 'POST' && 'restart' in body && body.restart === true;
   const error = encounterSessionEvidenceError(
     id,
     body.gameId,
@@ -70,7 +78,7 @@ export default function handler(
     const service = getEncounterService();
     const result =
       req.method === 'POST'
-        ? service.linkGameSession(id, body.gameId, body.events)
+        ? service.linkGameSession(id, body.gameId, body.events, { restart })
         : service.completeEncounter(id, body.gameId, body.events);
     if (!result.success) {
       sendOperationFailure(res, result, 'Encounter session update failed');

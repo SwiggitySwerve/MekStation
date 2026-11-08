@@ -16,6 +16,7 @@ import type { IForce } from '@/types/force';
 import type { IPilot } from '@/types/pilot';
 import type { IForceSummary } from '@/utils/gameplay/forceSummary';
 
+import { InlineErrorMessage } from '@/components/common/InlineErrorMessage';
 import { ForceComparisonPanel } from '@/components/gameplay/ForceComparisonPanel';
 import { buildPreBattleLaunchLinkage } from '@/components/gameplay/pages/preBattle/preBattleLaunchLinkage';
 import {
@@ -180,6 +181,14 @@ export default function PreBattlePage(): React.ReactElement {
   const { encounterId, campaignId, missionId } =
     encounterRouteIdentityFromRouter(router);
   const { showToast } = useToast();
+  const [launchError, setLaunchError] = useState<string | null>(null);
+  const showLaunchToast = useCallback(
+    (toast: { message: string; variant: 'success' | 'error' }) => {
+      setLaunchError(toast.variant === 'error' ? toast.message : null);
+      showToast(toast);
+    },
+    [showToast],
+  );
   const seedOverride = parseSeedOverride(seed);
 
   const getEncounter = useEncounterSelector((state) => state.getEncounter);
@@ -240,7 +249,7 @@ export default function PreBattlePage(): React.ReactElement {
     encounter,
     router,
     setInteractiveSession,
-    showToast,
+    showToast: showLaunchToast,
     seedOverride,
   });
 
@@ -262,7 +271,7 @@ export default function PreBattlePage(): React.ReactElement {
     setInteractiveSession,
     setSpectatorMode,
     setIsResolving,
-    showToast,
+    showToast: showLaunchToast,
     seedOverride,
   });
 
@@ -407,6 +416,11 @@ export default function PreBattlePage(): React.ReactElement {
           />
         </div>
 
+        {launchError && (
+          <div role="alert" data-testid="pre-battle-launch-error">
+            <InlineErrorMessage message={launchError} />
+          </div>
+        )}
         {hasBothForces && (
           <div className="mb-6">
             <ModeSelection

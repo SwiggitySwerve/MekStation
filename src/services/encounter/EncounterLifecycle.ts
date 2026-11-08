@@ -8,6 +8,11 @@ import {
   type IGameConfig,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+/** Only an explicit pre-battle launch opts into replacing an active session. */
+export interface IEncounterSessionLinkOptions {
+  readonly restart?: boolean;
+}
+
 const TRANSITIONS: Readonly<
   Record<EncounterStatus, readonly EncounterStatus[]>
 > = {
@@ -26,11 +31,16 @@ export function encounterTransitionError(
   next: EncounterStatus,
   sessionId: string | undefined = current.gameSessionId,
   forceDeletion = false,
+  restart = false,
 ): string | null {
   if (!Object.hasOwn(TRANSITIONS, current.status))
     return 'Unknown encounter status';
   if (current.status === next) {
-    return sessionId === current.gameSessionId
+    if (sessionId === current.gameSessionId) return null;
+    return restart &&
+      current.status === EncounterStatus.Launched &&
+      !!current.gameSessionId?.trim() &&
+      !!sessionId?.trim()
       ? null
       : 'Cannot reassign encounter session';
   }

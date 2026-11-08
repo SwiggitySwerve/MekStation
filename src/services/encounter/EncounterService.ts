@@ -1,3 +1,4 @@
+import type { IGameEvent } from '@/types/gameplay';
 /**
  * Encounter Service
  *
@@ -6,8 +7,6 @@
  *
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
-
-import type { IGameEvent } from '@/types/gameplay';
 import type { IGameUnit } from '@/types/gameplay/GameSessionUnitTypes';
 
 import { deriveCombatSeededGameUnits } from '@/engine/combatSeedDerivation';
@@ -27,6 +26,8 @@ import {
 } from '@/types/encounter';
 import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 import { logger } from '@/utils/logger';
+
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
 
 import {
   createSingleton,
@@ -386,6 +387,7 @@ export class EncounterService {
     id: string,
     gameSessionId: string,
     events: readonly IGameEvent[],
+    options: IEncounterSessionLinkOptions = {},
   ): IEncounterOperationResult => {
     const error = encounterSessionEvidenceError(
       id,
@@ -395,7 +397,7 @@ export class EncounterService {
     );
     return error
       ? { success: false, error }
-      : this.repository.linkGameSession(id, gameSessionId);
+      : this.repository.linkGameSession(id, gameSessionId, options);
   };
 
   completeEncounter = (

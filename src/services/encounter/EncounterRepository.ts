@@ -8,6 +8,8 @@ import type {
 
 import { EncounterStatus } from '@/types/encounter';
 
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
+
 import {
   createSingleton,
   type SingletonFactory,
@@ -213,6 +215,7 @@ export class EncounterRepository implements IEncounterRepository {
   linkGameSession = (
     encounterId: string,
     gameSessionId: string,
+    options: IEncounterSessionLinkOptions = {},
   ): IEncounterOperationResult => {
     if (!gameSessionId.trim())
       return this.invalidStatus('Game session ID is required');
@@ -220,6 +223,8 @@ export class EncounterRepository implements IEncounterRepository {
       encounterId,
       EncounterStatus.Launched,
       gameSessionId,
+      false,
+      options.restart === true,
     );
   };
 
@@ -241,6 +246,7 @@ export class EncounterRepository implements IEncounterRepository {
     status: EncounterStatus,
     gameSessionId?: string,
     forceDeletion = false,
+    restart = false,
   ): IEncounterOperationResult {
     this.initialize();
     const db = getSQLiteService().getDatabase();
@@ -254,9 +260,14 @@ export class EncounterRepository implements IEncounterRepository {
           status,
           nextSessionId,
           forceDeletion,
+          restart,
         );
         if (error) return this.invalidStatus(error);
-        if (existing.status === status) return { success: true, id };
+        if (
+          existing.status === status &&
+          nextSessionId === existing.gameSessionId
+        )
+          return { success: true, id };
         const demoted =
           existing.status === EncounterStatus.Launched &&
           status === EncounterStatus.Draft;

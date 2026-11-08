@@ -307,6 +307,31 @@ describe('local lifecycle client', () => {
       global.fetch = original;
     }
   });
+  it('sends restart intent only for explicit pre-battle linking, never completion', async () => {
+    const original = global.fetch;
+    const request = jest
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => ({ success: true }) });
+    global.fetch = request;
+    try {
+      const session = makeEncounterSession();
+      await linkEncounterSession(session);
+      await linkEncounterSession(session, { restart: true });
+      await completeEncounterSession(session);
+      expect(JSON.parse(request.mock.calls[0][1].body)).not.toHaveProperty(
+        'restart',
+      );
+      expect(JSON.parse(request.mock.calls[1][1].body)).toHaveProperty(
+        'restart',
+        true,
+      );
+      expect(JSON.parse(request.mock.calls[2][1].body)).not.toHaveProperty(
+        'restart',
+      );
+    } finally {
+      global.fetch = original;
+    }
+  });
   it('surfaces an unsuccessful response even if HTTP status is OK', async () => {
     const original = global.fetch;
     const request = jest.fn().mockResolvedValue({

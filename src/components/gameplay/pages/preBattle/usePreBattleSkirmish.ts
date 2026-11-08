@@ -108,11 +108,8 @@ function ensureEncounterCanLaunch(
   encounter: IEncounter | undefined,
 ): string | null {
   if (!encounter) return 'Encounter not loaded';
-  if (
-    encounter.status === EncounterStatus.Launched ||
-    encounter.status === EncounterStatus.Completed
-  ) {
-    return 'Encounter already launched - return to the encounter page to continue.';
+  if (encounter.status === EncounterStatus.Completed) {
+    return 'Encounter is already completed';
   }
   return null;
 }
@@ -273,7 +270,7 @@ export function usePreBattleSkirmish({
         const liveSession = interactiveSession.getSession();
 
         await persistInteractiveLaunchRecoveryLog(liveSession);
-        await linkEncounterSession(liveSession);
+        await linkEncounterSession(liveSession, { restart: true });
         setInteractiveSession(interactiveSession);
         logger.info('Skirmish session launched', {
           sessionId: liveSession.id,

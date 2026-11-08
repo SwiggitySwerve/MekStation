@@ -21,7 +21,8 @@ jest.mock('@/components/gameplay/pages/preBattleSessionBuilder', () => ({
 }));
 const mockLinkEncounterSession = jest.fn();
 jest.mock('@/services/encounter/encounterLifecycleClient', () => ({
-  linkEncounterSession: (session: unknown) => mockLinkEncounterSession(session),
+  linkEncounterSession: (session: unknown, options: unknown) =>
+    mockLinkEncounterSession(session, options),
   completeEncounterSession: (session: unknown) =>
     mockCompleteEncounterSession(session),
 }));
@@ -210,6 +211,10 @@ describe('usePreBattleSkirmish recovery persistence', () => {
       expect.stringMatching(/^\/gameplay\/games\//),
     );
     expect(calls).toEqual(['persist', 'link', 'set', 'push']);
+    expect(mockLinkEncounterSession).toHaveBeenCalledWith(
+      expect.objectContaining({ id: expect.any(String) }),
+      { restart: true },
+    );
   });
 
   it('does not expose or navigate to a skirmish whose recovery log failed', async () => {
@@ -392,6 +397,9 @@ describe('S1a force-based launch modes', () => {
       await act(async () => h.result.current(mode));
       const linked = mockLinkEncounterSession.mock.calls[0][0];
       expect(linked.config.encounterId).toBe('enc-skirmish');
+      expect(mockLinkEncounterSession).toHaveBeenCalledWith(linked, {
+        restart: true,
+      });
       expect(h.router.push).toHaveBeenCalledWith(
         `/gameplay/games/${linked.id}`,
       );

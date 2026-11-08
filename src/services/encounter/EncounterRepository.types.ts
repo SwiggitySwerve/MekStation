@@ -5,6 +5,8 @@ import type {
   EncounterStatus,
 } from '@/types/encounter';
 
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
+
 export enum EncounterErrorCode {
   NotFound = 'NOT_FOUND',
   DuplicateName = 'DUPLICATE_NAME',
@@ -48,6 +50,7 @@ export interface IEncounterRepository {
   linkGameSession(
     encounterId: string,
     gameSessionId: string,
+    options?: IEncounterSessionLinkOptions,
   ): IEncounterOperationResult;
   completeEncounter(
     encounterId: string,

@@ -945,6 +945,35 @@ describe('S1a guarded encounter persistence', () => {
     expect(repo.getEncounterById(id)).toEqual(completed);
     expect(repo.deleteEncounter(id).success).toBe(true);
   });
+  it('allows only an explicit restart and completes only its current session', () => {
+    const id = repo.createEncounter({ name: 'Explicit restart' }).id!;
+    expect(repo.linkGameSession(id, 'game-a').success).toBe(true);
+    expect(repo.linkGameSession(id, 'accidental').success).toBe(false);
+    expect(repo.linkGameSession(id, 'game-b', { restart: true }).success).toBe(
+      true,
+    );
+    expect(repo.getEncounterById(id)?.gameSessionId).toBe('game-b');
+    expect(repo.completeEncounter(id, 'game-a').success).toBe(false);
+    expect(repo.getEncounterById(id)?.status).toBe(EncounterStatus.Launched);
+    expect(repo.completeEncounter(id, 'game-b').success).toBe(true);
+    expect(repo.linkGameSession(id, 'game-c', { restart: true }).success).toBe(
+      false,
+    );
+    expect(repo.getEncounterById(id)?.gameSessionId).toBe('game-b');
+  });
+  it('rolls back a failed explicit restart without abandoning its existing game', () => {
+    const id = repo.createEncounter({ name: 'Restart rollback' }).id!;
+    repo.linkGameSession(id, 'game-a');
+    getSQLiteService()
+      .getDatabase()
+      .exec(
+        `CREATE TRIGGER reject_restart BEFORE UPDATE ON encounters BEGIN SELECT RAISE(ABORT, 'test rejection'); END`,
+      );
+    expect(repo.linkGameSession(id, 'game-b', { restart: true }).success).toBe(
+      false,
+    );
+    expect(repo.getEncounterById(id)?.gameSessionId).toBe('game-a');
+  });
   it('acknowledges same-game retries without rewriting timestamps', () => {
     const id = repo.createEncounter({ name: 'Retry' }).id!;
     repo.linkGameSession(id, 'game-a');
