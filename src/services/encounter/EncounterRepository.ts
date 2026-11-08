@@ -1,4 +1,4 @@
-﻿import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 import type {
   ICreateEncounterInput,
@@ -8,12 +8,15 @@ import type {
 
 import { EncounterStatus } from '@/types/encounter';
 
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
+
 import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
 import { setEncounterCascadeHook } from '../forces/ForceRepository.cascade';
 import { getSQLiteService } from '../persistence/SQLiteService';
+import { encounterTransitionError } from './EncounterLifecycle';
 import {
   buildEncounterUpdateParts,
   clearEncounterForceReferenceRows,
@@ -158,11 +161,13 @@ export class EncounterRepository implements IEncounterRepository {
         now,
       );
       params.push(id);
-      getSQLiteService()
-        .getDatabase()
-        .prepare(`UPDATE encounters SET ${updates.join(', ')} WHERE id = ?`)
-        .run(...params);
-      this.recalculateStatus(id);
+      const db = getSQLiteService().getDatabase();
+      db.transaction(() => {
+        db.prepare(
+          `UPDATE encounters SET ${updates.join(', ')} WHERE id = ?`,
+        ).run(...params);
+        this.recalculateStatus(id);
+      })();
       return { success: true, id };
     } catch (error) {
       return this.databaseError(error);
@@ -196,39 +201,98 @@ export class EncounterRepository implements IEncounterRepository {
     id: string,
     status: EncounterStatus,
   ): IEncounterOperationResult => {
-    this.initialize();
-    const now = new Date().toISOString();
-    try {
-      getSQLiteService()
-        .getDatabase()
-        .prepare(
-          'UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?',
-        )
-        .run(status, now, id);
-      return { success: true, id };
-    } catch (error) {
-      return this.databaseError(error);
+    if (
+      status === EncounterStatus.Launched ||
+      status === EncounterStatus.Completed
+    ) {
+      return this.invalidStatus(
+        'Use session linking or completion for game status',
+      );
     }
+    return this.transitionStatus(id, status);
   };
 
   linkGameSession = (
     encounterId: string,
     gameSessionId: string,
+    options: IEncounterSessionLinkOptions = {},
   ): IEncounterOperationResult => {
+    if (!gameSessionId.trim())
+      return this.invalidStatus('Game session ID is required');
+    return this.transitionStatus(
+      encounterId,
+      EncounterStatus.Launched,
+      gameSessionId,
+      false,
+      options.restart === true,
+    );
+  };
+
+  completeEncounter = (
+    encounterId: string,
+    gameSessionId: string,
+  ): IEncounterOperationResult => {
+    if (!gameSessionId.trim())
+      return this.invalidStatus('Game session ID is required');
+    return this.transitionStatus(
+      encounterId,
+      EncounterStatus.Completed,
+      gameSessionId,
+    );
+  };
+
+  private transitionStatus(
+    id: string,
+    status: EncounterStatus,
+    gameSessionId?: string,
+    forceDeletion = false,
+    restart = false,
+  ): IEncounterOperationResult {
     this.initialize();
-    const now = new Date().toISOString();
+    const db = getSQLiteService().getDatabase();
     try {
-      getSQLiteService()
-        .getDatabase()
-        .prepare(
-          'UPDATE encounters SET game_session_id = ?, status = ?, updated_at = ? WHERE id = ?',
+      return db.transaction((): IEncounterOperationResult => {
+        const existing = this.getEncounterById(id);
+        if (!existing) return this.notFound();
+        const nextSessionId = gameSessionId ?? existing.gameSessionId;
+        const error = encounterTransitionError(
+          existing,
+          status,
+          nextSessionId,
+          forceDeletion,
+          restart,
+        );
+        if (error) return this.invalidStatus(error);
+        if (
+          existing.status === status &&
+          nextSessionId === existing.gameSessionId
         )
-        .run(gameSessionId, EncounterStatus.Launched, now, encounterId);
-      return { success: true, id: encounterId };
+          return { success: true, id };
+        const demoted =
+          existing.status === EncounterStatus.Launched &&
+          status === EncounterStatus.Draft;
+        db.prepare(
+          'UPDATE encounters SET status = ?, game_session_id = ?, updated_at = ? WHERE id = ?',
+        ).run(
+          status,
+          demoted ? null : (nextSessionId ?? null),
+          new Date().toISOString(),
+          id,
+        );
+        return { success: true, id };
+      })();
     } catch (error) {
       return this.databaseError(error);
     }
-  };
+  }
+
+  private invalidStatus(error: string): IEncounterOperationResult {
+    return {
+      success: false,
+      error,
+      errorCode: EncounterErrorCode.InvalidStatus,
+    };
+  }
 
   clearForceReference = (
     forceId: string,
@@ -259,8 +323,18 @@ export class EncounterRepository implements IEncounterRepository {
   }
 
   private recalculateStatus(id: string): void {
-    recalculateEncounterStatus(id, (encounterId) =>
-      this.getEncounterById(encounterId),
+    recalculateEncounterStatus(
+      id,
+      (encounterId) => this.getEncounterById(encounterId),
+      (encounterId, status) => {
+        const result = this.transitionStatus(
+          encounterId,
+          status,
+          undefined,
+          true,
+        );
+        if (!result.success) throw new Error(result.error);
+      },
     );
   }
 

@@ -71,6 +71,7 @@ describe('K15 durable mission launch checkpoint', () => {
     'double click',
     'lost remote response',
     'checkpoint conflict',
+    'lost local response after guarded link',
   ] as const)(
     'records exactly one encounter after %s and a cold read',
     async (fault) => {
@@ -79,9 +80,27 @@ describe('K15 durable mission launch checkpoint', () => {
       resetCampaignStore();
       useCampaignPersistenceStore.getState().reset();
       const repository = new EncounterRepository();
-      const launched = jest.fn(async (id: string) =>
-        repository.linkGameSession(id, `session:${id}`),
-      );
+      let linkAttempt = 0;
+      let localResponseLost = false;
+      const launched = jest.fn(async (id: string) => {
+        const result = repository.linkGameSession(
+          id,
+          `session:${id}:${++linkAttempt}`,
+        );
+        if (
+          fault === 'lost local response after guarded link' &&
+          result.success &&
+          !localResponseLost
+        ) {
+          localResponseLost = true;
+          return {
+            success: false,
+            error:
+              'Local launch response lost after its guarded session link committed',
+          };
+        }
+        return result;
+      });
       mockEncounterService = {
         createEncounter: repository.createEncounter,
         updateEncounter: repository.updateEncounter,
@@ -256,6 +275,12 @@ describe('K15 durable mission launch checkpoint', () => {
           expect(remoteBodies[1]).toBe(remoteBodies[0]);
         const encounters = repository.getAllEncounters();
         expect(encounters).toHaveLength(1);
+        expect(encounters[0].gameSessionId).toBe(
+          `session:${encounters[0].id}:1`,
+        );
+        expect(input.setLaunchError.mock.calls.flat().join(' ')).not.toContain(
+          'Cannot reassign encounter session',
+        );
         const cold = new Database(path.join(fixture.root, 'campaign.db'), {
           readonly: true,
         });
@@ -286,6 +311,9 @@ describe('K15 durable mission launch checkpoint', () => {
           store: { ...store },
         });
         expect(repository.getAllEncounters()).toHaveLength(1);
+        expect(
+          repository.getEncounterById(encounters[0].id)?.gameSessionId,
+        ).toBe(encounters[0].gameSessionId);
         expect(launched).toHaveBeenCalledTimes(1);
         expect(remoteBodies).toHaveLength(
           fault === 'lost remote response' ? 2 : 1,

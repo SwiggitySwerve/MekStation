@@ -22,6 +22,10 @@ import { GameEngine } from '@/engine/GameEngine';
 import { createGridFromTerrainPreset } from '@/engine/GameEngine.helpers';
 import { persistInteractiveLaunchRecoveryLog } from '@/engine/InteractiveSession.persistence';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
+import {
+  linkEncounterSession,
+  completeEncounterSession,
+} from '@/services/encounter/encounterLifecycleClient';
 import { logger } from '@/utils/logger';
 
 export type BattleMode = 'auto' | 'interactive' | 'spectator';
@@ -213,6 +217,8 @@ export function usePreBattleLaunch({
             gameUnits,
             linkage,
           );
+          await linkEncounterSession(session, { restart: true });
+          await completeEncounterSession(session);
           const outcomePublished = publishAutoResolvedCampaignOutcome(
             session,
             linkage,
@@ -247,6 +253,7 @@ export function usePreBattleLaunch({
 
         if (mode === 'interactive') {
           await persistInteractiveLaunchRecoveryLog(session);
+          await linkEncounterSession(session, { restart: true });
           setInteractiveSession(interactiveSession);
           logger.info('Interactive session created', { sessionId: session.id });
           showToast({
@@ -258,6 +265,7 @@ export function usePreBattleLaunch({
           return;
         }
 
+        await linkEncounterSession(session, { restart: true });
         setSpectatorMode(interactiveSession, {
           enabled: true,
           playing: true,
