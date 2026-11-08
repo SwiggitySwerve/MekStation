@@ -1,6 +1,6 @@
 {
   "name": "add-coop-hire-offer-authority",
   "status": "in-progress",
-  "reason": "Root-approved K14b (state-machine audit Wave 2): hires derive recruit and price from the authority's personnel market via a new HireOffer intent; HirePilot retired with hire-requires-market-offer; durable campaignHireOfferCommand; strict intent parse at the commands endpoint. Four sequential PRs (PR1 #3065 durable declined/expired acceptance). No new event type, no event payload or schema-pack change.",
+  "reason": "Root-approved K14b (state-machine audit Wave 2): hires derive recruit and price from the authority's personnel market via a new HireOffer intent; HirePilot retired with hire-requires-market-offer; durable campaignHireOfferCommand; strict intent parse at the commands endpoint. Four sequential PRs (PR1 #3065 durable declined/expired acceptance, PR2 #3068 HireOffer and the durable command; PR3 binds the co-op markets and derives co-op AcceptContract). No new event type, no event payload or schema-pack change.",
   "lastReviewed": "2026-11-08"
 }

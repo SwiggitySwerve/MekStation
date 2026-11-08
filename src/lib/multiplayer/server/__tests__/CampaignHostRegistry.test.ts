@@ -51,6 +51,101 @@ function snapshot() {
   };
 }
 
+/**
+ * Store the campaign's saved row holding a personnel offer and two contract
+ * offers (one declined), as the host's whole-envelope save leaves it.
+ */
+function seedMarketRow(): void {
+  const body = {
+    name: 'Registry Campaign',
+    factionId: 'mercenary',
+    currentDate: '3025-01-03T00:00:00.000Z',
+    finances: { balance: 1_000_000, transactions: [] },
+    missions: [],
+    personnelMarket: [
+      {
+        id: 'offer-row',
+        name: 'Row Recruit',
+        role: 'Pilot',
+        experienceLevel: 'regular',
+        skills: {},
+        hireCost: 90_000,
+        expirationDate: '3025-01-31',
+      },
+    ],
+    contractMarket: {
+      offers: ['contract-row', 'contract-declined'].map((id) => ({
+        id,
+        name: `Stored ${id}`,
+        status: 'Active',
+        type: 'contract',
+        systemId: 'galatea',
+        scenarioIds: [],
+        createdAt: '3025-01-01T00:00:00.000Z',
+        updatedAt: '3025-01-01T00:00:00.000Z',
+        employerId: 'house-davion',
+        targetId: 'house-liao',
+        paymentTerms: {
+          basePayment: 1_000_000,
+          successPayment: 0,
+          partialPayment: 0,
+          failurePayment: 0,
+          transportPayment: 0,
+          supportPayment: 0,
+          salvagePercent: 30,
+        },
+        salvageRights: 'Integrated',
+        commandRights: 'Independent',
+      })),
+      declinedOfferIds: ['contract-declined'],
+    },
+  };
+  getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `INSERT OR REPLACE INTO campaigns
+         (id, version, schema_version, name, faction_id, campaign_date,
+          balance, saved_at, origin_device_id, payload)
+       VALUES (?, 3, 1, ?, 'mercenary', ?, 1000000, ?, 'device-1', ?)`,
+    )
+    .run(
+      'campaign-registry',
+      body.name,
+      body.currentDate,
+      body.currentDate,
+      JSON.stringify({
+        campaignId: 'campaign-registry',
+        version: 3,
+        schemaVersion: 1,
+        body,
+        savedAt: body.currentDate,
+        originDeviceId: 'device-1',
+      }),
+    );
+}
+
+function hostIntent(kind: 'HireOffer' | 'AcceptContract', id: string) {
+  return kind === 'HireOffer'
+    ? {
+        kind,
+        campaignId: 'campaign-registry',
+        intentId: `intent-${id}`,
+        payload: { offerId: id },
+      }
+    : {
+        kind,
+        campaignId: 'campaign-registry',
+        intentId: `intent-${id}`,
+        payload: {
+          contract: {
+            contractId: id,
+            name: 'CALLER SUPPLIED NAME',
+            employerFactionId: 'caller-supplied-employer',
+          },
+        },
+      };
+}
+
 function matchMeta(): IMatchMeta {
   const now = '2026-07-06T00:00:00.000Z';
   const snap = snapshot();
@@ -477,6 +572,22 @@ describe('CampaignHostRegistry', () => {
     expect(entry.eventStoreDurability).toBe('ephemeral');
   });
 
+  // K14b PR3: with no campaign database there is no saved market to read,
+  // so a hire is refused rather than priced by the caller.
+  it('refuses a hire on a database-free host, which holds no market', async () => {
+    const registry = new CampaignHostRegistry();
+    const entry = await registry.register('match-campaign', snapshot());
+
+    const result = await entry.host.applyHostIntent(
+      hostIntent('HireOffer', 'offer-row'),
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: 'offer-source-unavailable',
+    });
+  });
+
   it('exposes a resettable process singleton', async () => {
     const registry = getCampaignHostRegistry();
     await registry.register('match-campaign', snapshot());
@@ -563,6 +674,56 @@ describe('CampaignHostRegistry', () => {
       const entry = await registry.register('match-campaign', snapshot());
 
       expect(entry.eventStoreDurability).toBe('journal');
+    });
+
+    // K14b PR3: the server co-op host reads the market from the campaign's
+    // saved row AT COMMAND TIME - the row is seeded after registration -
+    // and takes the recruit, the price and the contract from it.
+    it('binds the co-op host to the market the saved campaign row holds', async () => {
+      const registry = new CampaignHostRegistry();
+      const entry = await registry.register('match-campaign', snapshot());
+      seedMarketRow();
+
+      const hired = await entry.host.applyHostIntent(
+        hostIntent('HireOffer', 'offer-row'),
+      );
+      const accepted = await entry.host.applyHostIntent(
+        hostIntent('AcceptContract', 'contract-row'),
+      );
+      const declined = await entry.host.applyHostIntent(
+        hostIntent('AcceptContract', 'contract-declined'),
+      );
+
+      expect(hired.ok).toBe(true);
+      if (hired.ok) {
+        expect(hired.events[1].payload).toStrictEqual({
+          pilot: { pilotId: 'hired-offer-row', name: 'Row Recruit' },
+          cost: 90_000,
+        });
+      }
+      expect(accepted.ok).toBe(true);
+      if (accepted.ok) {
+        expect(accepted.events[0].payload).toStrictEqual({
+          contract: {
+            contractId: 'contract-row',
+            name: 'Stored contract-row',
+            employerFactionId: 'house-davion',
+          },
+        });
+      }
+      expect(declined).toMatchObject({ ok: false, reason: 'offer-declined' });
+    });
+
+    it('refuses a hire when the saved row holds no such offer', async () => {
+      const registry = new CampaignHostRegistry();
+      const entry = await registry.register('match-campaign', snapshot());
+      seedMarketRow();
+
+      const result = await entry.host.applyHostIntent(
+        hostIntent('HireOffer', 'offer-forged'),
+      );
+
+      expect(result).toMatchObject({ ok: false, reason: 'offer-not-found' });
     });
 
     it('starts a fresh session at revision 0 with the genesis branch', async () => {
