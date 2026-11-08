@@ -16,7 +16,7 @@ const MOVEMENT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation GameEngine.runMovementPhase validates bot movement through validateMovement before MovementDeclared emission.',
     'src/engine/GameEngine.phases.ts',
-    'L102-L243',
+    'L103-L250',
   ),
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession movement actions use the same validateMovement, event-path, declareMovement, and lockMovement flow.',
@@ -68,7 +68,7 @@ const WEAPON_INDIRECT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation GameEngine.runAttackPhase precomputes computeIndirectFireContext before bot AttackDeclared emission.',
     'src/engine/GameEngine.phases.ts',
-    'L245-L343',
+    'L252-L350',
   ),
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession attack actions precompute computeIndirectFireContext before declareAttack.',
@@ -212,7 +212,7 @@ const PSR_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
     'src/utils/gameplay/gameSessionPSRResolution.ts',
-    'L54-L410',
+    'L55-L417',
   ),
   mekstationDeviationSourceRef(
     'MekStation resolveAllPSRs applies the shared first-failure batch contract for queued piloting skill rolls.',

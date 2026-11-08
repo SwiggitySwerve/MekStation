@@ -136,12 +136,12 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation unit-state status-check factories create UnitFell, UnitStuck, and UnitStood payloads.',
     'src/utils/gameplay/gameEvents/statusChecksUnitState.ts',
-    'L1-L210',
+    'L1-L215',
   ),
   mekstationDeviationSourceRef(
     'MekStation interactive PSR resolver emits PSRResolved, UnitFell, UnitStuck, PilotHit, UnitDestroyed, and UnitStood paths.',
     'src/utils/gameplay/gameSessionPSRResolution.ts',
-    'L54-L410',
+    'L55-L417',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner PSR event helpers emit PSRResolved, UnitFell, and fall-sourced PilotHit events.',
