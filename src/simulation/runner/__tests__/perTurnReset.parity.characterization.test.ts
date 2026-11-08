@@ -38,6 +38,7 @@ import {
   runtimeMovementUnit,
   stateWithUnit,
 } from '@/utils/gameplay/gameState/__tests__/runtimeMovementState.helpers';
+import { stunnedVehicleSession } from '@/utils/gameplay/gameState/__tests__/vehicleCrewStun.helpers';
 import { checkPhaseDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 
 import type { IViolation } from '../../invariants/types';
@@ -267,6 +268,34 @@ describe('per-turn reset parity: runner resetTurnState vs reducer boundary', () 
       }
     },
   );
+});
+
+describe('per-turn reset parity: vehicle crewStunnedPhases (C14)', () => {
+  // MegaMek 48fcb2f64 Tank.java:1112-1121 decrements the stun once per round.
+  // C14 added advanceVehicleCrewStun at both boundary sites as its own step.
+  it('decrements once per boundary on both paths and clamps at zero', () => {
+    const start = stunnedVehicleSession().currentState;
+    const asVehicle = (state: IGameState): number => {
+      const combat = state.units.target.combatState;
+      if (combat?.kind !== 'vehicle') throw new Error('Expected a vehicle');
+      return combat.state.motive.crewStunnedPhases;
+    };
+    let reducer: IGameState = { ...start, phase: GamePhase.End };
+    let runner = reducer;
+    const seen: number[][] = [];
+    for (const turn of [start.turn + 1, start.turn + 2, start.turn + 3]) {
+      reducer = phaseChange(reducer, turn, GamePhase.End, GamePhase.Initiative);
+      runner = resetTurnState({ ...runner, turn });
+      seen.push([asVehicle(reducer), asVehicle(runner)]);
+      reducer = { ...reducer, phase: GamePhase.End };
+      runner = { ...runner, phase: GamePhase.End };
+    }
+    expect(seen).toEqual([
+      [1, 1],
+      [0, 0],
+      [0, 0],
+    ]);
+  });
 });
 
 describe('per-turn reset parity: pinned divergences', () => {
