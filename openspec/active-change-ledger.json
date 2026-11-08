@@ -175,6 +175,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-acquisition-request-identity-and-retry",
+      "status": "in-progress",
+      "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-sqlite-initialization-retry",
       "status": "in-progress",
       "reason": "Root-approved S13 only: propagate migration-version read errors and clear/close failed initialization handles for same-instance retry. Never delete, truncate or recreate the user database; no schema or persisted-format changes. Hosted proof and Root merge are pending.",
