@@ -6,6 +6,11 @@ import type {
   ScenarioTemplateType,
 } from '@/types/encounter';
 
+import {
+  linkEncounterSession,
+  completeEncounterSession,
+} from '@/services/encounter/encounterLifecycleClient';
+
 import type {
   EncounterResponse,
   EncounterStore,
@@ -366,8 +371,30 @@ export function createEncounterApiActions(
   | 'validateEncounter'
   | 'launchEncounter'
   | 'cloneEncounter'
+  | 'linkSession'
+  | 'completeSession'
 > {
   return {
+    linkSession: (session) =>
+      runLoadingStoreAction(
+        loadingSetter(set),
+        async () => {
+          await linkEncounterSession(session);
+          await get().loadEncounters();
+          return true;
+        },
+        false,
+      ),
+    completeSession: (session) =>
+      runLoadingStoreAction(
+        loadingSetter(set),
+        async () => {
+          await completeEncounterSession(session);
+          await get().loadEncounters();
+          return true;
+        },
+        false,
+      ),
     loadEncounters: loadEncountersAction(set),
     createEncounter: createEncounterAction(set, get),
     updateEncounter: updateEncounterAction(set, get),

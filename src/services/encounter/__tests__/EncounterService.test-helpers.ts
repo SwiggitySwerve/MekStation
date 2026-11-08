@@ -1,3 +1,4 @@
+import { parseCustomCombatDefinition } from '@/services/units/customCombatDefinition';
 /**
  * Encounter Service Tests
  *
@@ -5,8 +6,6 @@
  *
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
-
-import { parseCustomCombatDefinition } from '@/services/units/customCombatDefinition';
 import {
   IEncounter,
   ICreateEncounterInput,
@@ -21,6 +20,7 @@ import {
   SCENARIO_TEMPLATES,
 } from '@/types/encounter';
 import { IForce, ForceType, ForcePosition, ForceStatus } from '@/types/force';
+import { GameEventType, GamePhase, type IGameEvent } from '@/types/gameplay';
 import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 
 import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
@@ -247,8 +247,10 @@ function updateMockEncounter(
 // Mock Encounter Repository
 // =============================================================================
 
+const mockCompleteEncounter = jest.fn();
 jest.mock('../EncounterRepository', () => ({
   getEncounterRepository: () => ({
+    completeEncounter: mockCompleteEncounter,
     createEncounter: jest.fn(createMockEncounter),
     getEncounterById: (id: string) => mockEncounters.get(id) ?? null,
     getAllEncounters: () => Array.from(mockEncounters.values()),
@@ -1250,6 +1252,91 @@ describe('EncounterService', () => {
 
       const encounter = service.getEncounter(createResult.id!);
       expect(encounter?.playerForce).toBeNull();
+    });
+  });
+
+  describe('S1a service lifecycle', () => {
+    function history(id: string, terminal: boolean): IGameEvent[] {
+      const created: IGameEvent = {
+        id: 'evt-0',
+        gameId: 'game-a',
+        sequence: 0,
+        timestamp: '2026-11-08T00:00:00Z',
+        type: GameEventType.GameCreated,
+        turn: 0,
+        phase: GamePhase.Initiative,
+        payload: {
+          units: [],
+          config: {
+            encounterId: id,
+            mapRadius: 6,
+            turnLimit: 10,
+            victoryConditions: [],
+            optionalRules: [],
+          },
+        },
+      };
+      return [
+        created,
+        ...(terminal
+          ? [
+              {
+                ...created,
+                id: 'evt-1',
+                sequence: 1,
+                type: GameEventType.GameEnded,
+                payload: {},
+              },
+            ]
+          : []),
+      ];
+    }
+    it('validates history before passing completion to the repository', () => {
+      const id = service.createEncounter({ name: 'Terminal' }).id!;
+      mockCompleteEncounter.mockReset().mockReturnValue({ success: true, id });
+      expect(
+        service.completeEncounter(id, 'game-a', history(id, false)).success,
+      ).toBe(false);
+      expect(
+        service.completeEncounter(id, 'game-b', history(id, true)).success,
+      ).toBe(false);
+      expect(
+        service.completeEncounter(
+          'wrong-encounter',
+          'game-a',
+          history(id, true),
+        ).success,
+      ).toBe(false);
+      expect(mockCompleteEncounter).not.toHaveBeenCalled();
+      expect(
+        service.completeEncounter(id, 'game-a', history(id, true)).success,
+      ).toBe(true);
+      expect(mockCompleteEncounter).toHaveBeenCalledWith(id, 'game-a');
+    });
+    it('clones completed encounters without terminal status or linkage and rejects template edits', () => {
+      const id = service.createEncounter({
+        name: 'Original',
+        template: ScenarioTemplateType.Duel,
+      }).id!;
+      const original = mockEncounters.get(id)!;
+      mockEncounters.set(id, {
+        ...original,
+        status: EncounterStatus.Completed,
+        gameSessionId: 'game-a',
+      });
+      const cloned = service.cloneEncounter(id, 'Fresh clone');
+      expect(cloned.success).toBe(true);
+      expect(service.getEncounter(cloned.id!)?.status).toBe(
+        EncounterStatus.Draft,
+      );
+      expect(service.getEncounter(cloned.id!)?.gameSessionId).toBeUndefined();
+      expect(
+        service.applyTemplate(id, ScenarioTemplateType.Battle).success,
+      ).toBe(false);
+      expect(service.getEncounter(id)).toMatchObject({
+        status: EncounterStatus.Completed,
+        gameSessionId: 'game-a',
+      });
     });
   });
 

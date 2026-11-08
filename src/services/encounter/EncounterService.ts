@@ -1,3 +1,4 @@
+import type { IGameEvent } from '@/types/gameplay';
 /**
  * Encounter Service
  *
@@ -6,7 +7,6 @@
  *
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
-
 import type { IGameUnit } from '@/types/gameplay/GameSessionUnitTypes';
 
 import { deriveCombatSeededGameUnits } from '@/engine/combatSeedDerivation';
@@ -27,12 +27,19 @@ import {
 import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 import { logger } from '@/utils/logger';
 
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
+
 import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getForceRepository } from '../forces/ForceRepository';
 import { getPilotService } from '../pilots/PilotService';
+import {
+  encounterSessionEvidenceError,
+  normalizeLaunchId,
+  validateContractLaunchLinkage,
+} from './EncounterLifecycle';
 import {
   getEncounterRepository,
   EncounterRepository,
@@ -71,10 +78,6 @@ export interface ILaunchEncounterOptions {
   readonly readCustom?: ReadCustomCombatDefinition;
 }
 
-function hasLaunchId(value: string | null | undefined): value is string {
-  return typeof value === 'string' && value.trim().length > 0;
-}
-
 const deriveSeededGameUnits = deriveCombatSeededGameUnits;
 
 async function resolveEncounterCustomCombatReader(
@@ -91,82 +94,18 @@ async function resolveEncounterCustomCombatReader(
   return readServerCustomCombatDefinition;
 }
 
-function normalizeLaunchId(value: string | null | undefined): string | null {
-  return hasLaunchId(value) ? value : null;
-}
-
-function validateContractLaunchLinkage(
-  options: ILaunchEncounterOptions,
-): string | null {
-  if (options.contractId === undefined || options.contractId === null) {
-    return null;
-  }
-
-  const missing: string[] = [];
-  if (!hasLaunchId(options.campaignId)) missing.push('campaignId');
-  if (!hasLaunchId(options.contractId)) missing.push('contractId');
-  if (!hasLaunchId(options.scenarioId)) missing.push('scenarioId');
-
-  if (missing.length === 0) {
-    return null;
-  }
-
-  return `Cannot launch contract encounter without ${missing.join(', ')}`;
-}
-
 // =============================================================================
 // Service Interface
 // =============================================================================
 
-export interface IEncounterService {
-  // Encounter CRUD
-  createEncounter(input: ICreateEncounterInput): IEncounterOperationResult;
-  getEncounter(id: string): IEncounter | null;
-  getAllEncounters(): readonly IEncounter[];
-  getReadyEncounters(): readonly IEncounter[];
-  getDraftEncounters(): readonly IEncounter[];
-  updateEncounter(
-    id: string,
-    input: IUpdateEncounterInput,
-  ): IEncounterOperationResult;
-  deleteEncounter(id: string): IEncounterOperationResult;
-
-  // Configuration
-  setPlayerForce(
-    encounterId: string,
-    forceId: string,
-  ): IEncounterOperationResult;
-  setOpponentForce(
-    encounterId: string,
-    forceId: string,
-  ): IEncounterOperationResult;
-  clearOpponentForce(encounterId: string): IEncounterOperationResult;
-  applyTemplate(
-    encounterId: string,
-    template: ScenarioTemplateType,
-  ): IEncounterOperationResult;
-
-  // Validation
-  validateEncounter(id: string): IEncounterValidationResult;
-  canLaunch(id: string): boolean;
-
-  // Launch — async per `extend-combat-seed-to-all-session-producers`:
-  // launch adapts each unit's catalog data to seed armor/structure before
-  // the GameCreated payload forms.
-  launchEncounter(
-    id: string,
-    options?: ILaunchEncounterOptions,
-  ): Promise<IEncounterOperationResult>;
-
-  // Cloning
-  cloneEncounter(id: string, newName: string): IEncounterOperationResult;
-}
+/** Public service contract; private hydration/persistence details stay hidden. */
+export type IEncounterService = Pick<EncounterService, keyof EncounterService>;
 
 // =============================================================================
 // Service Implementation
 // =============================================================================
 
-export class EncounterService implements IEncounterService {
+export class EncounterService {
   private readonly repository: EncounterRepository;
 
   constructor() {
@@ -442,6 +381,39 @@ export class EncounterService implements IEncounterService {
 
     const session = createGameSession(config, recordedUnits, { encounterMeta });
     return this.repository.linkGameSession(id, session.id);
+  };
+
+  linkGameSession = (
+    id: string,
+    gameSessionId: string,
+    events: readonly IGameEvent[],
+    options: IEncounterSessionLinkOptions = {},
+  ): IEncounterOperationResult => {
+    const error = encounterSessionEvidenceError(
+      id,
+      gameSessionId,
+      events,
+      false,
+    );
+    return error
+      ? { success: false, error }
+      : this.repository.linkGameSession(id, gameSessionId, options);
+  };
+
+  completeEncounter = (
+    id: string,
+    gameSessionId: string,
+    events: readonly IGameEvent[],
+  ): IEncounterOperationResult => {
+    const error = encounterSessionEvidenceError(
+      id,
+      gameSessionId,
+      events,
+      true,
+    );
+    return error
+      ? { success: false, error }
+      : this.repository.completeEncounter(id, gameSessionId);
   };
 
   // ===========================================================================

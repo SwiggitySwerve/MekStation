@@ -2,10 +2,10 @@
  * API-SAME-HOST-1: the same-host guard covers every API route and the
  * WebSocket upgrade, proven three ways.
  *
- *  1. A route census pins the 98 route files under src/pages/api, so a new
+ *  1. A route census pins the 99 route files under src/pages/api, so a new
  *     route fails here until a reviewer has looked at it against the guard.
- *  2. The credential handlers refuse a bad Host, Origin or fetch site
- *     before they parse a body or run a KDF (direct-handler rows).
+ *  2. Credential and encounter-session handlers refuse a bad Host, Origin
+ *     or fetch site before body parsing or KDF work (direct-handler rows).
  *  3. The REAL server.js is spawned with `next` and the multiplayer
  *     runtime stubbed (no build, no database): requests of every route
  *     class and every upgrade are judged before Next or the bearer check,
@@ -42,6 +42,7 @@ jest.mock('@/services/vault/IdentityService', () => ({
 
 import { derivePlayerId } from '@/lib/multiplayer/server/playerIdFromPublicKey';
 import { credentialProtocols } from '@/lib/multiplayer/socketCredentialProtocol';
+import encounterSessionHandler from '@/pages/api/encounters/[id]/session';
 import localSeatsHandler from '@/pages/api/multiplayer/auth/local-seats';
 import tokenHandler from '@/pages/api/multiplayer/auth/token';
 import unlockHandler from '@/pages/api/vault/identity/unlock';
@@ -81,6 +82,7 @@ const PINNED_ROUTE_URLS: readonly string[] = [
   '/api/encounters/[id]/launch',
   '/api/encounters/[id]/opponent-force',
   '/api/encounters/[id]/player-force',
+  '/api/encounters/[id]/session',
   '/api/encounters/[id]/template',
   '/api/encounters/[id]/validate',
   '/api/encounters/seed-samples',
@@ -187,26 +189,31 @@ function concreteTarget(url: string): string {
 describe('API route census', () => {
   it('pins every route file so a new route is reviewed against the guard', () => {
     const found = listRouteUrls();
-    expect(found).toHaveLength(98);
+    expect(found).toHaveLength(99);
     expect(found).toEqual([...PINNED_ROUTE_URLS].sort());
   });
 });
 
 // =============================================================================
-// 2. Credential routes refuse before body parsing and KDF
+// 2. Direct guarded handlers refuse before body parsing and KDF
 // =============================================================================
 
-type Handler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+type Handler = (
+  req: NextApiRequest,
+  res: NextApiResponse,
+) => void | Promise<void>;
 
-const CREDENTIAL_ROUTES: ReadonlyArray<readonly [string, Handler, string]> = [
-  ['auth/token', tokenHandler as Handler, REFUSAL],
-  ['identity/unlock', unlockHandler as Handler, REFUSAL],
+const DIRECT_GUARDED_ROUTES: ReadonlyArray<readonly [string, Handler, string]> =
   [
-    'auth/local-seats',
-    localSeatsHandler as Handler,
-    'Local seats are same-host only',
-  ],
-];
+    ['encounter/session', encounterSessionHandler, REFUSAL],
+    ['auth/token', tokenHandler as Handler, REFUSAL],
+    ['identity/unlock', unlockHandler as Handler, REFUSAL],
+    [
+      'auth/local-seats',
+      localSeatsHandler as Handler,
+      'Local seats are same-host only',
+    ],
+  ];
 
 const CROSS_SITE_HEADERS: ReadonlyArray<
   readonly [string, Record<string, string>]
@@ -231,7 +238,7 @@ const CROSS_SITE_HEADERS: ReadonlyArray<
   ['a missing host', {}],
 ];
 
-describe('credential routes', () => {
+describe('guarded direct handlers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetActive.mockResolvedValue(null);
@@ -251,7 +258,7 @@ describe('credential routes', () => {
     ['a wrong method', 'DELETE', undefined],
   ];
 
-  describe.each(CREDENTIAL_ROUTES)('%s', (_name, handler, refusal) => {
+  describe.each(DIRECT_GUARDED_ROUTES)('%s', (_name, handler, refusal) => {
     describe.each(REQUEST_SHAPES)('%s', (_shape, method, body) => {
       it.each(CROSS_SITE_HEADERS)(
         'refuses %s before the body, the method check or any KDF work',
@@ -574,6 +581,8 @@ const ROUTE_CLASSES: ReadonlyArray<readonly [string, string, string]> = [
   ['campaign read', 'GET', '/api/campaigns/abc'],
   ['form write', 'POST', '/api/vault/identity'],
   ['pilot write', 'POST', '/api/pilots/abc/purchase-ability'],
+  ['encounter session launch', 'POST', '/api/encounters/abc/session'],
+  ['encounter session completion', 'PATCH', '/api/encounters/abc/session'],
   ['campaign write', 'PUT', '/api/campaigns/abc'],
   ['delete', 'DELETE', '/api/forces/abc'],
   ['token credential', 'POST', '/api/multiplayer/auth/token'],

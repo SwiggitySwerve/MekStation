@@ -25,6 +25,7 @@ import type {
 } from '@/types/campaign/CampaignSync';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { contractExpired } from '@/lib/campaign/markets/offerLifecycle';
 import { rehydrateContractMarket } from '@/lib/campaign/persistence/missionSerialization';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
@@ -232,6 +233,19 @@ function isStoredContractOffer(offer: StoredOffer): boolean {
     typeof terms.salvagePercent === 'number' &&
     STORED_PAYMENT_AMOUNT_FIELDS.every((field) => isStoredMoney(terms[field]))
   );
+}
+
+/**
+ * The source record's campaign clock, or `null` when its body holds no
+ * readable `currentDate`. Expiry is judged against THIS date - the one the
+ * source saved - never against the server's wall clock or the caller's.
+ */
+function storedCampaignDate(
+  body: Readonly<Record<string, unknown>>,
+): Date | null {
+  if (typeof body.currentDate !== 'string') return null;
+  const date = new Date(body.currentDate);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 /**
@@ -483,6 +497,35 @@ export async function appendDurableAcceptContract(
         !isStoredContractOffer(storedOffer)
       ) {
         return { kind: 'refused', result: notDurable('offer-absent') };
+      }
+      // K14b: the same offer rules the local store applies
+      // (`contractOfferRefusal`). MekHQ removes a declined offer from the
+      // board (ChaosContractMarketDialog.java:686-695 at e7adc2c), so a
+      // declined offer is never signable. Both are RULES refusals, not
+      // durability ones: no retry makes them acceptable.
+      if (source.market.declinedOfferIds.includes(contractId)) {
+        return {
+          kind: 'refused',
+          result: refuseAccept({ kind: 'rejected', reason: 'offer-declined' }),
+        };
+      }
+      if (offer.endDate) {
+        const sourceDate = storedCampaignDate(source.storedBody);
+        // A dated offer against a row with no readable clock cannot be
+        // judged, and guessing "not expired" would sign a contract the
+        // source may consider finished.
+        if (sourceDate === null) {
+          return {
+            kind: 'refused',
+            result: notDurable('source-record-absent'),
+          };
+        }
+        if (contractExpired(offer.endDate, sourceDate)) {
+          return {
+            kind: 'refused',
+            result: refuseAccept({ kind: 'rejected', reason: 'offer-expired' }),
+          };
+        }
       }
 
       // Validation runs against the SERVER-DERIVED compact fact, so the

@@ -356,6 +356,47 @@ async function driveAdvancesAndCaptureMarkers(
   return markers;
 }
 
+async function materializeFreshEncounter(
+  page: Page,
+): Promise<{ encounterId: string; expectedUnitIdentities: number }> {
+  // --- Materialize ONCE: wizard (mirrored roster) -> contract -> briefing -> select ALL -> launch to pre-battle ---
+  const campaign = await createUniqueSeamCampaignWithMirroredRoster(page);
+  tracker.campaignIds.add(campaign.campaignId);
+
+  await openSeamMissionLaunchBriefing(page, campaign.campaignId);
+
+  const selectedUnitCount = await selectAllRosterUnits(page);
+  expect(
+    selectedUnitCount,
+    'expected the full mirrored-ref roster to be ready and selectable',
+  ).toBe(MIRRORED_ROSTER_SIZE);
+
+  const launch = await launchSelectedRosterToPreBattle(page);
+  tracker.encounterIds.add(launch.encounterId);
+
+  // Resolve the materialized force ids for cleanup as early as possible,
+  // mirroring `e2e/seam-roster-materialization-handoff.spec.ts` — a
+  // failure below still leaves both forces tracked.
+  const encounterResponse = await page.request.get(
+    `/api/encounters/${encodeURIComponent(launch.encounterId)}`,
+  );
+  expect(
+    encounterResponse.ok(),
+    `GET encounter returned ${encounterResponse.status()}`,
+  ).toBeTruthy();
+  const encounterBody =
+    (await encounterResponse.json()) as EncounterGetResponse;
+  const playerForceId = encounterBody.encounter.playerForce?.forceId;
+  const opponentForceId = encounterBody.encounter.opponentForce?.forceId;
+  if (playerForceId) tracker.forceIds.add(playerForceId);
+  if (opponentForceId) tracker.forceIds.add(opponentForceId);
+
+  return {
+    encounterId: launch.encounterId,
+    expectedUnitIdentities: selectedUnitCount * 2,
+  };
+}
+
 test.describe('Fresh Construction No-Instant-Defeat Trust Anchor', () => {
   test('seeded construction yields distinct identities, no instant defeat, and same-seed marker equality', async ({
     page,
@@ -366,42 +407,8 @@ test.describe('Fresh Construction No-Instant-Defeat Trust Anchor', () => {
     // before any navigation — precedent: `e2e/active-session-recovery.spec.ts`.
     page.on('dialog', (dialog) => dialog.accept());
 
-    // --- Materialize ONCE: wizard (mirrored roster) -> contract -> briefing -> select ALL -> launch to pre-battle ---
-    const campaign = await createUniqueSeamCampaignWithMirroredRoster(page);
-    tracker.campaignIds.add(campaign.campaignId);
-
-    await openSeamMissionLaunchBriefing(page, campaign.campaignId);
-
-    const selectedUnitCount = await selectAllRosterUnits(page);
-    expect(
-      selectedUnitCount,
-      'expected the full mirrored-ref roster to be ready and selectable',
-    ).toBe(MIRRORED_ROSTER_SIZE);
-
-    const launch = await launchSelectedRosterToPreBattle(page);
-    tracker.encounterIds.add(launch.encounterId);
-
-    // Resolve the materialized force ids for cleanup as early as possible,
-    // mirroring `e2e/seam-roster-materialization-handoff.spec.ts` — a
-    // failure below still leaves both forces tracked.
-    const encounterResponse = await page.request.get(
-      `/api/encounters/${encodeURIComponent(launch.encounterId)}`,
-    );
-    expect(
-      encounterResponse.ok(),
-      `GET encounter returned ${encounterResponse.status()}`,
-    ).toBeTruthy();
-    const encounterBody =
-      (await encounterResponse.json()) as EncounterGetResponse;
-    const playerForceId = encounterBody.encounter.playerForce?.forceId;
-    const opponentForceId = encounterBody.encounter.opponentForce?.forceId;
-    if (playerForceId) tracker.forceIds.add(playerForceId);
-    if (opponentForceId) tracker.forceIds.add(opponentForceId);
-
-    // OpFor selection mirrors the player roster's SIZE only
-    // (`selectOpponentUnits({ count: rosterUnits.length, ... })`), so the
-    // mounted battle carries exactly 2N per-instance unit identities.
-    const expectedUnitIdentities = selectedUnitCount * 2;
+    const launch = await materializeFreshEncounter(page);
+    const expectedUnitIdentities = launch.expectedUnitIdentities;
 
     // --- Seeded launch #1: independent page load of the pre-battle route with ?seed=1337 ---
     // (spec scenario "Seeded launch constructs a full battle with distinct unit identities")
@@ -423,5 +430,36 @@ test.describe('Fresh Construction No-Instant-Defeat Trust Anchor', () => {
 
     // Run-to-run equality only — never a pinned literal value (design D5).
     expect(secondRunMarkers).toEqual(firstRunMarkers);
+  });
+  test('a refused manual launch shows a visible error and enables retry', async ({
+    page,
+  }) => {
+    const launch = await materializeFreshEncounter(page);
+    await page.goto(
+      `/gameplay/encounters/${encodeURIComponent(launch.encounterId)}/pre-battle?seed=${SEED}`,
+    );
+    const button = page.getByTestId('play-manually-btn');
+    await expect(button).toBeEnabled();
+    await page.route('**/api/encounters/*/session', async (route) => {
+      await route.fulfill({
+        status: 400,
+        json: {
+          success: false,
+          error: 'Launch refused: encounter is completed',
+        },
+      });
+    });
+    await button.click();
+    await expect(page.getByTestId('pre-battle-launch-error')).toBeVisible();
+    await expect(page.getByTestId('pre-battle-launch-error')).toBeInViewport();
+    await expect(page.getByTestId('pre-battle-launch-error')).toHaveText(
+      'Launch refused: encounter is completed',
+    );
+    await expect(page.getByTestId('pre-battle-launch-error')).toHaveAttribute(
+      'role',
+      'alert',
+    );
+    await expect(button).toBeEnabled();
+    await expect(page).toHaveURL(/\/pre-battle\?seed=1337$/);
   });
 });

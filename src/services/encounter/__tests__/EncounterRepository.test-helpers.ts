@@ -498,7 +498,7 @@ describe('EncounterRepository', () => {
       const createResult = repository.createEncounter({
         name: 'Launched Test',
       });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
+      repository.linkGameSession(createResult.id!, 'fixture-game');
 
       const result = repository.updateEncounter(createResult.id!, {
         name: 'New Name',
@@ -513,10 +513,8 @@ describe('EncounterRepository', () => {
       const createResult = repository.createEncounter({
         name: 'Completed Test',
       });
-      repository.setEncounterStatus(
-        createResult.id!,
-        EncounterStatus.Completed,
-      );
+      repository.linkGameSession(createResult.id!, 'fixture-game');
+      repository.completeEncounter(createResult.id!, 'fixture-game');
 
       const result = repository.updateEncounter(createResult.id!, {
         name: 'New Name',
@@ -553,7 +551,7 @@ describe('EncounterRepository', () => {
       const createResult = repository.createEncounter({
         name: 'Launched Delete Test',
       });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
+      repository.linkGameSession(createResult.id!, 'fixture-game');
 
       const result = repository.deleteEncounter(createResult.id!);
 
@@ -582,10 +580,8 @@ describe('EncounterRepository', () => {
       const createResult = repository.createEncounter({
         name: 'Completed Delete',
       });
-      repository.setEncounterStatus(
-        createResult.id!,
-        EncounterStatus.Completed,
-      );
+      repository.linkGameSession(createResult.id!, 'fixture-game');
+      repository.completeEncounter(createResult.id!, 'fixture-game');
 
       const result = repository.deleteEncounter(createResult.id!);
 
@@ -612,24 +608,22 @@ describe('EncounterRepository', () => {
       expect(encounter?.status).toBe(EncounterStatus.Ready);
     });
 
-    it('should set status to Launched', () => {
+    it('should link before setting status to Launched', () => {
       const createResult = repository.createEncounter({
         name: 'Status Launched Test',
       });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
+      repository.linkGameSession(createResult.id!, 'fixture-game');
 
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.status).toBe(EncounterStatus.Launched);
     });
 
-    it('should set status to Completed', () => {
+    it('should launch before completing', () => {
       const createResult = repository.createEncounter({
         name: 'Status Completed Test',
       });
-      repository.setEncounterStatus(
-        createResult.id!,
-        EncounterStatus.Completed,
-      );
+      repository.linkGameSession(createResult.id!, 'fixture-game');
+      repository.completeEncounter(createResult.id!, 'fixture-game');
 
       const encounter = repository.getEncounterById(createResult.id!);
       expect(encounter?.status).toBe(EncounterStatus.Completed);
@@ -772,7 +766,7 @@ describe('EncounterRepository', () => {
       const createResult = repository.createEncounter({
         name: 'Recalc Launched Test',
       });
-      repository.setEncounterStatus(createResult.id!, EncounterStatus.Launched);
+      repository.linkGameSession(createResult.id!, 'fixture-game');
 
       // This should not change status since we can't update launched encounters
       const result = repository.updateEncounter(createResult.id!, {
@@ -788,10 +782,8 @@ describe('EncounterRepository', () => {
       const createResult = repository.createEncounter({
         name: 'Recalc Completed Test',
       });
-      repository.setEncounterStatus(
-        createResult.id!,
-        EncounterStatus.Completed,
-      );
+      repository.linkGameSession(createResult.id!, 'fixture-game');
+      repository.completeEncounter(createResult.id!, 'fixture-game');
 
       const result = repository.updateEncounter(createResult.id!, {
         name: 'New Name',
@@ -908,5 +900,123 @@ describe('EncounterRepository', () => {
 
       expect(repo1).toBe(repo2);
     });
+  });
+});
+
+describe('S1a guarded encounter persistence', () => {
+  let repo: EncounterRepository;
+  beforeEach(() => {
+    resetSQLiteService();
+    getSQLiteService({ path: ':memory:' }).initialize();
+    repo = new EncounterRepository();
+    repo.initialize();
+  });
+  afterEach(() => resetSQLiteService());
+
+  it('rejects missing rows instead of reporting a successful link/status write', () => {
+    expect(repo.linkGameSession('missing', 'game-a').success).toBe(false);
+    expect(
+      repo.setEncounterStatus('missing', EncounterStatus.Ready).success,
+    ).toBe(false);
+    const id = repo.createEncounter({ name: 'No bypass' }).id!;
+    expect(repo.setEncounterStatus(id, EncounterStatus.Launched).success).toBe(
+      false,
+    );
+    expect(repo.setEncounterStatus(id, EncounterStatus.Completed).success).toBe(
+      false,
+    );
+  });
+  it('does not reassign a launched session or reopen terminal history', () => {
+    const id = repo.createEncounter({ name: 'Guarded' }).id!;
+    expect(repo.linkGameSession(id, 'game-a').success).toBe(true);
+    const launched = repo.getEncounterById(id);
+    expect(repo.linkGameSession(id, 'game-b').success).toBe(false);
+    expect(repo.setEncounterStatus(id, EncounterStatus.Draft).success).toBe(
+      false,
+    );
+    expect(repo.getEncounterById(id)).toEqual(launched);
+    expect(repo.completeEncounter(id, 'game-b').success).toBe(false);
+    expect(repo.completeEncounter(id, 'game-a').success).toBe(true);
+    const completed = repo.getEncounterById(id);
+    expect(repo.linkGameSession(id, 'game-b').success).toBe(false);
+    expect(repo.setEncounterStatus(id, EncounterStatus.Ready).success).toBe(
+      false,
+    );
+    expect(repo.getEncounterById(id)).toEqual(completed);
+    expect(repo.deleteEncounter(id).success).toBe(true);
+  });
+  it('allows only an explicit restart and completes only its current session', () => {
+    const id = repo.createEncounter({ name: 'Explicit restart' }).id!;
+    expect(repo.linkGameSession(id, 'game-a').success).toBe(true);
+    expect(repo.linkGameSession(id, 'accidental').success).toBe(false);
+    expect(repo.linkGameSession(id, 'game-b', { restart: true }).success).toBe(
+      true,
+    );
+    expect(repo.getEncounterById(id)?.gameSessionId).toBe('game-b');
+    expect(repo.completeEncounter(id, 'game-a').success).toBe(false);
+    expect(repo.getEncounterById(id)?.status).toBe(EncounterStatus.Launched);
+    expect(repo.completeEncounter(id, 'game-b').success).toBe(true);
+    expect(repo.linkGameSession(id, 'game-c', { restart: true }).success).toBe(
+      false,
+    );
+    expect(repo.getEncounterById(id)?.gameSessionId).toBe('game-b');
+  });
+  it('rolls back a failed explicit restart without abandoning its existing game', () => {
+    const id = repo.createEncounter({ name: 'Restart rollback' }).id!;
+    repo.linkGameSession(id, 'game-a');
+    getSQLiteService()
+      .getDatabase()
+      .exec(
+        `CREATE TRIGGER reject_restart BEFORE UPDATE ON encounters BEGIN SELECT RAISE(ABORT, 'test rejection'); END`,
+      );
+    expect(repo.linkGameSession(id, 'game-b', { restart: true }).success).toBe(
+      false,
+    );
+    expect(repo.getEncounterById(id)?.gameSessionId).toBe('game-a');
+  });
+  it('acknowledges same-game retries without rewriting timestamps', () => {
+    const id = repo.createEncounter({ name: 'Retry' }).id!;
+    repo.linkGameSession(id, 'game-a');
+    const launched = repo.getEncounterById(id);
+    expect(repo.linkGameSession(id, 'game-a').success).toBe(true);
+    expect(repo.getEncounterById(id)).toEqual(launched);
+    repo.completeEncounter(id, 'game-a');
+    const completed = repo.getEncounterById(id);
+    expect(repo.completeEncounter(id, 'game-a').success).toBe(true);
+    expect(repo.getEncounterById(id)).toEqual(completed);
+  });
+  it('rejects blank session IDs and legacy stale linkage without adopting it', () => {
+    const id = repo.createEncounter({ name: 'Legacy' }).id!;
+    expect(repo.linkGameSession(id, ' ').success).toBe(false);
+    const db = getSQLiteService().getDatabase();
+    db.prepare('UPDATE encounters SET game_session_id = ? WHERE id = ?').run(
+      'stale',
+      id,
+    );
+    const legacy = repo.getEncounterById(id);
+    expect(repo.getAllEncounters()[0]).toEqual(legacy);
+    expect(repo.linkGameSession(id, 'new-game').success).toBe(false);
+    expect(repo.getEncounterById(id)).toEqual(legacy);
+  });
+  it('clears linkage only on the guarded last-force cascade', () => {
+    const id = repo.createEncounter({ name: 'Cascade' }).id!;
+    repo.updateEncounter(id, { playerForceId: 'force-a' });
+    repo.linkGameSession(id, 'game-a');
+    repo.clearForceReference('force-a');
+    expect(repo.getEncounterById(id)).toMatchObject({
+      status: EncounterStatus.Draft,
+    });
+    expect(repo.getEncounterById(id)?.gameSessionId).toBeUndefined();
+  });
+  it('rolls back a failed status/link write', () => {
+    const id = repo.createEncounter({ name: 'Rollback' }).id!;
+    const before = repo.getEncounterById(id);
+    getSQLiteService()
+      .getDatabase()
+      .exec(
+        `CREATE TRIGGER reject_encounter_update BEFORE UPDATE ON encounters BEGIN SELECT RAISE(ABORT, 'test rejection'); END`,
+      );
+    expect(repo.linkGameSession(id, 'game-a').success).toBe(false);
+    expect(repo.getEncounterById(id)).toEqual(before);
   });
 });

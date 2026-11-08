@@ -103,7 +103,7 @@ export const MEKSTATION_RPG_TOUGHNESS_PREBATTLE_SOURCE_REFS = [
   ),
   consciousnessMekStationRef(
     'MekStation pre-battle skirmish launch copies assigned IPilot.rpgToughness into the skirmish pilot snapshot and preserves pilotToughness when creating engine game units.',
-    'src/components/gameplay/pages/preBattle/usePreBattleSkirmish.ts#L77-L216',
+    'src/components/gameplay/pages/preBattle/usePreBattleSkirmish.ts#L62-L194',
   ),
   consciousnessMekStationRef(
     'MekStation force-assignment pre-battle session tests prove numeric rpgToughness reaches session unit state and legacy toughness ability aliases do not imply pilotToughness.',

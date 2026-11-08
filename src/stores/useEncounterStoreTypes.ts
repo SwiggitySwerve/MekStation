@@ -6,6 +6,7 @@ import type {
   EncounterStatus,
   ScenarioTemplateType,
 } from '@/types/encounter';
+import type { IGameSession } from '@/types/gameplay';
 
 // =============================================================================
 // API Response Types
@@ -157,6 +158,8 @@ export interface EncounterStoreActions {
     id: string,
     options?: LaunchEncounterOptions,
   ) => Promise<string | null>;
+  linkSession: (session: IGameSession) => Promise<boolean>;
+  completeSession: (session: IGameSession) => Promise<boolean>;
   /** Clone an encounter */
   cloneEncounter: (id: string, newName: string) => Promise<string | null>;
   /** Set status filter */

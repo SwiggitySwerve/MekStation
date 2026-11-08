@@ -45,7 +45,10 @@ export function marketFundsRefusal(
     : undefined;
 }
 
-function contractExpired(endDate: string | undefined, date: Date): boolean {
+export function contractExpired(
+  endDate: string | undefined,
+  date: Date,
+): boolean {
   return !!endDate && endDate.slice(0, 10) < date.toISOString().split('T')[0];
 }
 
