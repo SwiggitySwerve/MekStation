@@ -1,0 +1,6 @@
+{
+  "name": "align-runner-phase-damage-and-heat-psr",
+  "status": "in-progress",
+  "reason": "Root-approved C7 PR3: make the runner follow MegaMek 48fcb2f64 for per-phase damageThisPhase (including physical-attack damage), empInterferenceTurns decrement, and resolving the heat-shutdown PSR in the phase it is queued; zero damageThisPhase on a bare TurnStarted in the reducer. Declines D5 (turn-1 reset).",
+  "lastReviewed": "2026-11-09"
+}
