@@ -1,0 +1,6 @@
+{
+  "name": "fix-campaign-outcome-ledgers",
+  "status": "in-progress",
+  "reason": "Root-approved K3 battle-outcome hydration, campaign isolation, salvage dedupe, and partial-error surfacing; existing persisted formats and event payloads stay unchanged. Hosted proof and Root merge are pending.",
+  "lastReviewed": "2026-11-07"
+}

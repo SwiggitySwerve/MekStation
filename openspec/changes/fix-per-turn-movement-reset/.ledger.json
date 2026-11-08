@@ -1,0 +1,6 @@
+{
+  "name": "fix-per-turn-movement-reset",
+  "status": "in-progress",
+  "reason": "Root-approved C8: share movement and MASC/supercharger turn reset between reducer and runner, with unchanged replay fixtures and golden digests required.",
+  "lastReviewed": "2026-11-07"
+}

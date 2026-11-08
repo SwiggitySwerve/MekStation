@@ -11,7 +11,8 @@
 - `changes/<kebab-name>/`: proposal, design, delta specs, and tasks for in-flight work.
 - `changes/archive/YYYY-MM-DD-<name>/`: completed history, excluded from live terminology scope.
 - `scripts/`: purpose, terminology, and quality validators.
-- `active-change-ledger.json`: allowed active-change inventory.
+- `changes/<name>/.ledger.json`: accounting metadata for each new active change.
+- `active-change-ledger.json`: legacy inventory, still read for in-flight PRs.
 
 ## WHERE TO LOOK
 
@@ -24,6 +25,16 @@
 
 - Keep capability names and active change names kebab-case; link proposals/designs to affected canonical specs.
 - Create new work with `openspec new change "<name>"`; preserve the generated package shape.
+- New changes write only their own `.ledger.json`, never append to the legacy
+  ledger. Use an object with `name` matching the directory, nonblank string
+  `status` and `reason`, and `lastReviewed` as a real `YYYY-MM-DD` calendar date.
+  `../scripts/qc/openspec-active-change-ledger.mjs` owns the format rules.
+- During compatibility reads, identical entries across formats count once;
+  conflicting metadata, duplicate legacy names, malformed metadata and legacy
+  entries for archived/missing changes fail. When changing metadata already in
+  both formats, keep both copies identical or deliberately remove its legacy row.
+  On archive, remove any legacy row; the colocated file moves with the package
+  and is excluded from active discovery. Preserve dated evidence references.
 - Synchronize canonical specs after implementation lands, then archive only after required verification is recorded.
 - Treat validator exclusions and strict-mode behavior as contracts; record unresolved gaps explicitly.
 - Preserve `.sessions/`; update the glossary deliberately when terminology changes.

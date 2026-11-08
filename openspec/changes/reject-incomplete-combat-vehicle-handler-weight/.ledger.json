@@ -1,0 +1,6 @@
+{
+  "name": "reject-incomplete-combat-vehicle-handler-weight",
+  "status": "in-progress",
+  "reason": "Documents the S11 (#2549) explicit combat-handler incomplete-weight boundary. The existing parity requirement is moved unchanged, not duplicated. Parsing and support-weight ownership are preserved. Complete authoritative combat total calculation and full numerical parity remain outside this slice; canonical sync/archive is not claimed.",
+  "lastReviewed": "2026-11-02"
+}
