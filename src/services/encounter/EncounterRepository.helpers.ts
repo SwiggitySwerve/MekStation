@@ -13,6 +13,7 @@ import {
 } from '@/types/encounter';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
+import { recalculateEncounterLifecycleStatus } from './EncounterLifecycle';
 
 interface EncounterRow {
   id: string;
@@ -268,23 +269,7 @@ export function recalculateEncounterStatus(
 ): void {
   const encounter = getEncounterById(id);
   if (!encounter) return;
-  if (encounter.status === EncounterStatus.Completed) return;
-
-  if (encounter.status === EncounterStatus.Launched) {
-    if (!encounter.playerForce && !encounter.opponentForce) {
-      updateEncounterStatus(id, EncounterStatus.Draft);
-    }
-    return;
-  }
-
-  const hasPlayerForce = !!encounter.playerForce;
-  const hasOpponent = !!encounter.opponentForce || !!encounter.opForConfig;
-  const hasVictoryConditions =
-    encounter.victoryConditions && encounter.victoryConditions.length > 0;
-  const newStatus =
-    hasPlayerForce && hasOpponent && hasVictoryConditions
-      ? EncounterStatus.Ready
-      : EncounterStatus.Draft;
+  const newStatus = recalculateEncounterLifecycleStatus(encounter);
 
   if (newStatus !== encounter.status) {
     updateEncounterStatus(id, newStatus);
