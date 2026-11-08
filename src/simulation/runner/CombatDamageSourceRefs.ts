@@ -48,7 +48,7 @@ export const MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation applyDamageResultToState persists armor, rear armor, structure, destroyed locations, pilot state, component damage, and destruction cause onto runner unit state.',
-    'src/simulation/runner/SimulationRunnerState.ts#L449-L533',
+    'src/simulation/runner/SimulationRunnerState.ts#L450-L534',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -89,7 +89,7 @@ export const MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation applyDamageResultToState preserves canonical destructionCause on IUnitGameState snapshots.',
-    'src/simulation/runner/SimulationRunnerState.ts#L499-L515',
+    'src/simulation/runner/SimulationRunnerState.ts#L500-L516',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
