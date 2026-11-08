@@ -13,9 +13,9 @@
 
 ## PR3: co-op authority bindings
 
-- [ ] 8. Bind the market reader for the server host registry (source row) and the in-browser co-op host (local campaign).
-- [ ] 9. Derive the match host's `AcceptContract` (id, employer, terms) from the authoritative contract market, refusing declined and expired offers.
-- [ ] 10. Drop consumed personnel offers from the saved record when a co-op command rewrites it.
+- [x] 8. Bind the market reader for the server host registry (source row) and the in-browser co-op host (local campaign).
+- [x] 9. Derive the match host's `AcceptContract` (id, employer, terms) from the authoritative contract market, refusing declined and expired offers.
+- [x] 10. Drop consumed personnel and contract offers from the saved record when a co-op command rewrites it.
 
 ## PR4: co-op UI
 
