@@ -6,7 +6,7 @@ Initial base: origin/main eba8969f30cf120d848dbab2f53fb22eedcccfbf. Final valida
 
 - Before implementation: 4 suites failed; 10 tests failed, 26 passed. Existing code retained codes on create/transition/close and the first boot read returned STALE2. Retry/migration modules were absent.
 - The initial missing-native-binding setup failure was infrastructure, not counted as a behavioral red. Installed the Node 22 prebuild and confirmed a real in-memory SQLite connection.
-- Behavior-preserving patch extraction: 2 suites passed, 3 existing updateMatchMeta tests passed (39 unrelated tests skipped). The independently applicable refactor.patch records the extraction before behavior changes; git apply --check --cached verifies it against the unmodified base index (use --ignore-space-change if a checkout converts the patch to CRLF).
+- The extraction was verified behavior-preserving before adding the lifecycle changes: 2 suites passed, with 3 existing updateMatchMeta tests passed (39 unrelated tests skipped).
 - First fixed focused run: 4 suites passed, 40 tests passed.
 - Added a POST regression with an actual competing insert into SQLite. Before restoring retry wiring, it failed with expected 201 / received 500 (1 failed, 30 skipped).
 - The first whole-directory run was intentionally interrupted after origin/main advanced; its partial passes are not counted as final validation.
@@ -43,7 +43,7 @@ The completed merged-tree gate reported 1 failed / 277 passed suites, with 1 fai
 - PASS: `npx oxfmt --check .` (9,179 files); the later one-line fixture correction was formatted and checked separately.
 - PASS: `npx openspec validate --all --strict`, 273 items; `npm run qc:openspec-ci:validate`, zero errors.
 - PASS: `node scripts/ci/budget-check.mjs`, 57 unkeyable / 92 repo-wide keys.
-- PASS: `git diff --check` and independently applicable `refactor.patch` check.
+- PASS: `git diff --check`.
 - PASS: commit-hook tasks via `npx lint-staged --diff HEAD^..HEAD` (13 TypeScript files). Restored only the ignored generated Husky launcher; Git configuration was not changed. The first hook task resolved bash to WSL and failed looking for the Linux TypeScript binary; placing Git Bash first on this process PATH fixed it.
 
 ## Pipeline-health evidence
