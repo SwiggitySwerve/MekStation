@@ -326,6 +326,63 @@ describe('U92 ApplyGmIntervention through the live co-op host', () => {
     expect(refused.hostLiveBalance).toBe(before - 1500);
   }, 30000);
 
+  it('(K11 retry) a refused intent retried under the same intent id commits once funds suffice: exactly one FundsChanged', async () => {
+    const id = 'u92-retry';
+    const { entry, host, guest, before } = await liveSession(id);
+    const overdraw = -(before + 1000);
+    const retried = gmIntervention(id, HOST, 'gm-retry-1', overdraw, 'Retry.');
+
+    const h0 = host.sent.length;
+    host.inbound(retried);
+    await until(() => host.sent.length > h0);
+    const refusal = framesFrom(host, h0);
+
+    const g1 = guest.sent.length;
+    host.inbound(gmIntervention(id, HOST, 'gm-retry-funding', 2000, 'Fund.'));
+    await until(() => fundsFrames(guest, g1) >= 1);
+
+    const g2 = guest.sent.length;
+    host.inbound({ ...retried, ts: nowIso() });
+    await until(() => fundsFrames(guest, g2) >= 1);
+    const g3 = guest.sent.length;
+    const h3 = host.sent.length;
+    host.inbound({ ...retried, ts: nowIso() });
+    await until(() => host.sent.length > h3);
+    const retryFunds = guest.sent.slice(g2).filter(
+      (f) =>
+        f.kind === 'CampaignEvent' &&
+        (
+          f as unknown as {
+            event: { type: string; payload: { delta: number } };
+          }
+        ).event.type === 'FundsChanged' &&
+        (f as unknown as { event: { payload: { delta: number } } }).event
+          .payload.delta === overdraw,
+    ).length;
+    measurements.K11retry = {
+      before,
+      overdraw,
+      refusal,
+      retryFunds,
+      afterResendGuestFunds: fundsFrames(guest, g3),
+      hostLiveBalance: entry.host.getState().balance,
+      journalBalance: (await replayed(id)).balance,
+    };
+
+    expect(refusal).toEqual([
+      {
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        reason: 'insufficient-funds',
+        intentId: 'gm-intervention-gm-retry-1',
+      },
+    ]);
+    expect(retryFunds).toBe(1);
+    expect(fundsFrames(guest, g3)).toBe(0);
+    expect(entry.host.getState().balance).toBe(before + 2000 + overdraw);
+    expect((await replayed(id)).balance).toBe(before + 2000 + overdraw);
+  }, 30000);
+
   it('(R2) the same intent from the guest is refused host-only and commits nothing; a guest proposal carrying it commits nothing', async () => {
     const id = 'u92-guest';
     const { entry, host, guest, before } = await liveSession(id);

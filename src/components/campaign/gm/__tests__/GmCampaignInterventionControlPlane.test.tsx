@@ -563,6 +563,220 @@ describe('GmCampaignInterventionControlPlane', () => {
   });
 });
 
+describe('GmCampaignInterventionControlPlane control state (K11)', () => {
+  beforeEach(() => {
+    useCampaignRosterStore.getState().reset();
+  });
+
+  const playerRowCount = (): number =>
+    screen
+      .getByTestId('gm-ledger-player-log')
+      .querySelectorAll('[data-testid^="gm-ledger-player-row-"]').length;
+
+  /** An apply callback whose answer the test releases later. */
+  function deferredApply(): {
+    readonly apply: jest.Mock;
+    readonly answer: (value?: string | null) => Promise<void>;
+  } {
+    let resolve: (value: string | null) => void = () => undefined;
+    const apply = jest.fn(
+      () =>
+        new Promise<string | null>((done) => {
+          resolve = done;
+        }),
+    );
+    return {
+      apply,
+      answer: async (value = null) => {
+        await act(async () => {
+          resolve(value);
+          for (let i = 0; i < 10; i += 1) await Promise.resolve();
+        });
+      },
+    };
+  }
+
+  it('locks generate and approve while an approve is in flight, so an old answer never latches a new preview', async () => {
+    const { apply, answer } = deferredApply();
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={createCampaign('K11 In Flight', 'mercenary', {
+          startingFunds: 1_000_000,
+        })}
+        onApplyCampaignUpdate={apply}
+        now={fixedNow}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('gm-ledger-preview-btn'));
+    // Two clicks in one turn: the second runs with the same render's handler,
+    // so only the reducer's synchronous dispatch can refuse it.
+    const approve = screen.getByTestId('gm-ledger-approve-btn');
+    act(() => {
+      approve.click();
+      approve.click();
+    });
+
+    expect(apply).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('gm-ledger-preview-btn')).toBeDisabled();
+    expect(screen.getByTestId('gm-ledger-approve-btn')).toBeDisabled();
+    // A generate click that slips through is refused too.
+    generateCorrection('repair');
+    expect(screen.getByTestId('gm-ledger-preview-summary')).toHaveTextContent(
+      'Merchant charge corrected',
+    );
+
+    await answer(null);
+
+    expect(apply).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+      'Approved and applied to campaign state.',
+    );
+    expect(screen.getByTestId('gm-ledger-preview-btn')).not.toBeDisabled();
+    expect(playerRowCount()).toBe(1);
+  });
+
+  it('disables manual takeover once it is recorded', () => {
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={createCampaign('K11 Manual', 'mercenary', {
+          startingFunds: 1_000_000,
+        })}
+        onApplyCampaignUpdate={jest.fn()}
+        now={fixedNow}
+      />,
+    );
+
+    generateCorrection('merchant-conflict');
+    // Two clicks in one turn: the second runs with the same render's handler,
+    // so only the reducer's synchronous dispatch can refuse it.
+    const manual = screen.getByTestId('gm-ledger-manual-btn');
+    act(() => {
+      manual.click();
+      manual.click();
+    });
+
+    expect(screen.getByTestId('gm-ledger-manual-btn')).toBeDisabled();
+    fireEvent.click(screen.getByTestId('gm-ledger-manual-btn'));
+    expect(playerRowCount()).toBe(1);
+    expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+      'Manual takeover recorded.',
+    );
+  });
+
+  it('keeps persisted rows after the first action and merges a persisted row with its session row', async () => {
+    const base = createCampaign('K11 Rows', 'mercenary', {
+      startingFunds: 1_000_000,
+    });
+    const persisted = {
+      ...base,
+      id: 'campaign-k11-rows',
+      gmInterventionEvents: [
+        {
+          type: 'gm.campaign.funds_transaction_corrected',
+          domain: 'economy',
+          family: 'funds-transaction',
+          interventionId: 'gm-ledger-merchant-reversal-old',
+          transactionId: 'gm-ledger-merchant-reversal-old',
+          changedStateRefs: ['campaign:campaign-k11-rows:finances'],
+          publicSummary: 'Earlier correction from the saved campaign.',
+          before: { balanceCents: 99_000_000, transactionIds: [] },
+          after: {
+            balanceCents: 100_000_000,
+            transaction: {
+              id: 'gm-ledger-merchant-reversal-old',
+              type: TransactionType.Miscellaneous,
+              amountCents: 1_000_000,
+              date: '3025-01-01T00:00:00.000Z',
+              description: 'Earlier correction',
+            },
+          },
+        } satisfies IGmCampaignProjectedEffect,
+      ],
+    };
+    const onApplyCampaignUpdate = jest.fn();
+    const { rerender } = render(
+      <GmCampaignInterventionControlPlane
+        campaign={persisted}
+        onApplyCampaignUpdate={onApplyCampaignUpdate}
+        now={fixedNow}
+      />,
+    );
+    expect(playerRowCount()).toBe(1);
+
+    fireEvent.click(screen.getByTestId('gm-ledger-preview-btn'));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+      for (let i = 0; i < 10; i += 1) await Promise.resolve();
+    });
+
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Earlier correction from the saved campaign.',
+    );
+    expect(playerRowCount()).toBe(2);
+
+    // The store writes the approval's effect back; its persisted row and the
+    // session row are one intervention, shown once, with the GM-private text.
+    const updates = onApplyCampaignUpdate.mock.calls[0][0];
+    rerender(
+      <GmCampaignInterventionControlPlane
+        campaign={{ ...persisted, ...updates }}
+        onApplyCampaignUpdate={onApplyCampaignUpdate}
+        now={fixedNow}
+      />,
+    );
+
+    expect(playerRowCount()).toBe(2);
+    expect(screen.getByTestId('gm-ledger-private-log')).toHaveTextContent(
+      'Hidden campaign merchant reversal',
+    );
+    expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
+      'Earlier correction from the saved campaign.',
+    );
+  });
+
+  it('shows a throwing apply as failed, records nothing, and leaves no unhandled rejection', async () => {
+    const rejections: unknown[] = [];
+    const onRejection = (reason: unknown): void => {
+      rejections.push(reason);
+    };
+    process.on('unhandledRejection', onRejection);
+    try {
+      render(
+        <GmCampaignInterventionControlPlane
+          campaign={createCampaign('K11 Throw', 'mercenary', {
+            startingFunds: 1_000_000,
+          })}
+          onApplyCampaignUpdate={jest.fn(async () => {
+            throw new Error('disk full');
+          })}
+          now={fixedNow}
+        />,
+      );
+
+      fireEvent.click(screen.getByTestId('gm-ledger-preview-btn'));
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+        for (let i = 0; i < 10; i += 1) await Promise.resolve();
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+        'Apply failed.',
+      );
+      expect(screen.getByTestId('gm-ledger-approval-reason')).toHaveTextContent(
+        'disk full',
+      );
+      expect(screen.getByTestId('gm-ledger-approve-btn')).toBeDisabled();
+      expect(playerRowCount()).toBe(0);
+      expect(rejections).toEqual([]);
+    } finally {
+      process.off('unhandledRejection', onRejection);
+    }
+  });
+});
+
 function makeRosterEntry(
   overrides: Partial<ICampaignRosterEntry> = {},
 ): ICampaignRosterEntry {
