@@ -45,6 +45,51 @@ import {
 type CampaignSet = Parameters<StateCreator<CampaignStore>>[0];
 type CampaignGet = Parameters<StateCreator<CampaignStore>>[1];
 
+/**
+ * How long the co-op host has to answer an AdvanceDay intent. The host's own
+ * commit is a local journal append; half a minute is past any healthy answer.
+ * Expiry is safe to retry: the intent id derives from the campaign's current
+ * date, so a retry is the same command and the host replays its receipt
+ * rather than committing a second day.
+ */
+export const COOP_ADVANCE_TIMEOUT_MS = 30_000;
+
+/**
+ * Run `run` as the only clock-moving action (day advance, multi-day advance,
+ * travel) in flight on this store, holding `dayAdvanceInFlight` until its
+ * result settles. A call made meanwhile changes nothing, toasts once and
+ * returns `busy`. Releases on a throw as well as on a result.
+ */
+function runExclusive<T>(
+  set: CampaignSet,
+  get: CampaignGet,
+  busy: T,
+  run: () => MaybePromise<T>,
+): MaybePromise<T> {
+  if (get().dayAdvanceInFlight) {
+    toast({
+      message:
+        'The campaign clock is already advancing. Try again in a moment.',
+      variant: 'warning',
+    });
+    return busy;
+  }
+  set({ dayAdvanceInFlight: true });
+  const release = (): void => set({ dayAdvanceInFlight: false });
+  let result: MaybePromise<T>;
+  try {
+    result = run();
+  } catch (error) {
+    release();
+    throw error;
+  }
+  if (!isPromiseLike(result)) {
+    release();
+    return result;
+  }
+  return result.finally(release);
+}
+
 function collectOutcomeErrors(
   events: readonly { readonly type: string; readonly data?: unknown }[],
   previousErrors: Record<string, string>,
@@ -181,34 +226,55 @@ function emitDailyCostEntry(
 }
 
 /**
- * Advance the campaign one day. A co-op campaign whose host transport is
- * active advances through the host first (advanceCoopDayThroughHost). Any
- * other campaign runs the day locally and saves it; a co-op campaign without
- * an active host transport (a guest, or a host whose socket is not up) then
- * warns that guests may need to refetch once the save committed.
+ * Advance the campaign one day, as the only clock action in flight
+ * (runExclusive). See advanceOneDay for what the day itself does.
  */
 function advanceDayAction(
   set: CampaignSet,
   get: CampaignGet,
 ): CampaignStore['advanceDay'] {
-  return () => {
-    const { campaign } = get();
-    if (!campaign) {
-      return null;
-    }
-    const transport = coopHostTransport(campaign);
-    if (transport) {
-      return advanceCoopDayThroughHost(set, get, transport, campaign);
-    }
-    const report = advanceDayLocally(set, get, campaign);
-    if (!isPromiseLike(report)) {
-      return report;
-    }
-    return report.then((committed) => {
-      if (committed) warnCoopDayAdvanceWithoutHost(campaign);
-      return committed;
+  return () =>
+    runExclusive<DayReport | null>(set, get, null, () =>
+      advanceOneDay(set, get),
+    );
+}
+
+/**
+ * One day's advance, with the clock lock already held by the caller. A guest
+ * mirror refuses: it cannot save, and the host's clock is the only one, so
+ * running the pipeline there would only diverge the mirror from the host. A
+ * co-op campaign whose host transport is active advances through the host
+ * first (advanceCoopDayThroughHost). Any other campaign runs the day locally
+ * and saves it; a co-op host whose socket is not up then warns that guests
+ * may need to refetch once the save committed.
+ */
+function advanceOneDay(
+  set: CampaignSet,
+  get: CampaignGet,
+): MaybePromise<DayReport | null> {
+  const { campaign } = get();
+  if (!campaign) {
+    return null;
+  }
+  if (campaign.coopSession?.mode === 'guest') {
+    toast({
+      message: 'Only the host can advance the day.',
+      variant: 'warning',
     });
-  };
+    return null;
+  }
+  const transport = coopHostTransport(campaign);
+  if (transport) {
+    return advanceCoopDayThroughHost(set, get, transport, campaign);
+  }
+  const report = advanceDayLocally(set, get, campaign);
+  if (!isPromiseLike(report)) {
+    return report;
+  }
+  return report.then((committed) => {
+    if (committed) warnCoopDayAdvanceWithoutHost(campaign);
+    return committed;
+  });
 }
 
 /**
@@ -290,22 +356,38 @@ function advanceDayLocally(
   return committedReport;
 }
 
-function advanceDaysAction(get: CampaignGet): CampaignStore['advanceDays'] {
-  return (count: number) => {
-    if (!get().campaign) {
-      return null;
-    }
-    const reports: DayReport[] = [];
-    for (let i = 0; i < count; i++) {
-      const report = get().advanceDay();
-      if (isPromiseLike(report)) {
-        return finishAsyncAdvanceDays(get, report, reports, i + 1, count);
+/**
+ * Advance `count` days holding the clock lock for the whole run, so nothing
+ * moves the clock between two of its days. Each day is advanced by
+ * advanceOneDay, not the public action, which would find the lock taken.
+ */
+function advanceDaysAction(
+  set: CampaignSet,
+  get: CampaignGet,
+): CampaignStore['advanceDays'] {
+  return (count: number) =>
+    runExclusive<DayReport[] | null>(set, get, null, () => {
+      if (!get().campaign) {
+        return null;
       }
-      if (!report) break;
-      reports.push(report);
-    }
-    return reports.length > 0 ? reports : null;
-  };
+      const reports: DayReport[] = [];
+      for (let i = 0; i < count; i++) {
+        const report = advanceOneDay(set, get);
+        if (isPromiseLike(report)) {
+          return finishAsyncAdvanceDays(
+            set,
+            get,
+            report,
+            reports,
+            i + 1,
+            count,
+          );
+        }
+        if (!report) break;
+        reports.push(report);
+      }
+      return reports.length > 0 ? reports : null;
+    });
 }
 
 function campaignDayFor(campaign: ICampaign): number {
@@ -323,6 +405,7 @@ function isPromiseLike<T>(value: MaybePromise<T>): value is Promise<T> {
 }
 
 async function finishAsyncAdvanceDays(
+  set: CampaignSet,
   get: CampaignGet,
   firstPending: Promise<DayReport | null>,
   reports: DayReport[],
@@ -334,7 +417,7 @@ async function finishAsyncAdvanceDays(
     reports.push(firstReport);
   }
   for (let i = nextIndex; i < count; i++) {
-    const report = await get().advanceDay();
+    const report = await advanceOneDay(set, get);
     if (!report) break;
     reports.push(report);
   }
@@ -366,46 +449,75 @@ async function advanceCoopDayThroughHost(
   transport: ICampaignSyncTransport,
   campaign: ICampaign,
 ): Promise<DayReport | null> {
-  const refusal = await sendAdvanceDay(transport, campaign);
-  if (refusal !== null) {
+  const answer = await sendAdvanceDay(transport, campaign);
+  if (answer.kind === 'timeout') {
     toast({
-      message: `Co-op day advance was refused by the host: ${refusal}. Nothing was saved.`,
+      message:
+        "The host didn't answer the day advance in time. Nothing was saved. Retrying is safe.",
       variant: 'error',
       duration: 7000,
     });
+    return null;
+  }
+  if (answer.kind === 'refused') {
+    toast({
+      message: `Co-op day advance was refused by the host: ${answer.reason}. Nothing was saved.`,
+      variant: 'error',
+      duration: 7000,
+    });
+    return null;
+  }
+  // The awaits above and below are windows in which the player can switch
+  // campaigns; the day belongs to the campaign it was started on.
+  if (get().campaign?.id !== campaign.id) {
     return null;
   }
   await useCampaignPersistenceStore.getState().refreshAfterCommittedCommand({
     kind: 'committed',
     state: { campaignId: campaign.id },
   });
+  if (get().campaign?.id !== campaign.id) {
+    return null;
+  }
   set({ campaign });
   return advanceDayLocally(set, get, campaign);
 }
 
+/** The host's answer to an AdvanceDay intent, or its absence. */
+type AdvanceDayAnswer =
+  | { readonly kind: 'committed' }
+  | { readonly kind: 'refused'; readonly reason: string }
+  | { readonly kind: 'timeout' };
+
 /**
  * Send the AdvanceDay host intent for the day `campaign` is on and resolve
- * with the host's answer on `transport`: null when a CampaignDayAdvanced
- * event of the campaign arrives, the reason (or, without one, the code) of
- * the Error frame carrying the intent's id, or the message of a transport
- * error or of a send that threw.
- * There is no timeout: an unanswered intent leaves it pending.
+ * with the host's answer on `transport`: committed when a CampaignDayAdvanced
+ * event of the campaign arrives, refused with the reason (or, without one,
+ * the code) of the Error frame carrying the intent's id or with the message
+ * of a transport error or of a send that threw, or timeout when nothing
+ * answered within COOP_ADVANCE_TIMEOUT_MS. The listeners and the timer are
+ * dropped on the first answer, so a frame that arrives later is ignored.
  */
 function sendAdvanceDay(
   transport: ICampaignSyncTransport,
   campaign: ICampaign,
-): Promise<string | null> {
+): Promise<AdvanceDayAnswer> {
   const intentId = `host-advance-day-${campaign.id}-${campaign.currentDate.toISOString()}`;
   return new Promise((resolve) => {
     const stops: (() => void)[] = [];
-    const answer = (refusal: string | null): void => {
+    let settled = false;
+    const answer = (result: AdvanceDayAnswer): void => {
+      if (settled) return;
+      settled = true;
       stops.forEach((stop) => stop());
-      resolve(refusal);
+      resolve(result);
     };
+    const refuse = (reason: string): void =>
+      answer({ kind: 'refused', reason });
     stops.push(
       transport.onFrame((message) => {
         if (message.kind === 'Error' && message.intentId === intentId) {
-          answer(message.reason ?? message.code);
+          refuse(message.reason ?? message.code);
           return;
         }
         const event =
@@ -416,13 +528,18 @@ function sendAdvanceDay(
           event?.type === 'CampaignDayAdvanced' &&
           event.campaignId === campaign.id
         ) {
-          answer(null);
+          answer({ kind: 'committed' });
         }
       }),
       transport.onError((error) =>
-        answer(error instanceof Error ? error.message : 'campaign sync error'),
+        refuse(error instanceof Error ? error.message : 'campaign sync error'),
       ),
     );
+    const timer = setTimeout(
+      () => answer({ kind: 'timeout' }),
+      COOP_ADVANCE_TIMEOUT_MS,
+    );
+    stops.push(() => clearTimeout(timer));
     try {
       transport.sendHostIntent({
         kind: 'AdvanceDay',
@@ -431,7 +548,7 @@ function sendAdvanceDay(
         payload: { days: 1 },
       });
     } catch (error) {
-      answer(error instanceof Error ? error.message : 'co-op push failed');
+      refuse(error instanceof Error ? error.message : 'co-op push failed');
     }
   });
 }
@@ -457,21 +574,22 @@ function travelToSystemAction(
   set: CampaignSet,
   get: CampaignGet,
 ): CampaignStore['travelToSystem'] {
-  return (systemId: string) => {
-    const preview = get().previewTravelToSystem(systemId);
-    if (!preview || preview.status !== 'ready' || !preview.afterCampaign) {
-      logTravelInvalidAction(get().campaign, systemId, preview);
-      return false;
-    }
-    set({ campaign: preview.afterCampaign });
-    emitTravelActivityEntries(get, preview);
-    const saveResult = get().saveCampaign();
-    logTravelCommitSucceeded(preview);
-    if (isPromiseLike(saveResult)) {
-      return saveResult.then((result) => result.committed);
-    }
-    return saveResult.committed;
-  };
+  return (systemId: string) =>
+    runExclusive<boolean>(set, get, false, () => {
+      const preview = get().previewTravelToSystem(systemId);
+      if (!preview || preview.status !== 'ready' || !preview.afterCampaign) {
+        logTravelInvalidAction(get().campaign, systemId, preview);
+        return false;
+      }
+      set({ campaign: preview.afterCampaign });
+      emitTravelActivityEntries(get, preview);
+      const saveResult = get().saveCampaign();
+      logTravelCommitSucceeded(preview);
+      if (isPromiseLike(saveResult)) {
+        return saveResult.then((result) => result.committed);
+      }
+      return saveResult.committed;
+    });
 }
 
 function previewTravelToSystemAction(
@@ -579,7 +697,7 @@ export function createCampaignDayActions(
 > {
   return {
     advanceDay: advanceDayAction(set, get),
-    advanceDays: advanceDaysAction(get),
+    advanceDays: advanceDaysAction(set, get),
     previewTravelToSystem: previewTravelToSystemAction(get),
     travelToSystem: travelToSystemAction(set, get),
   };
