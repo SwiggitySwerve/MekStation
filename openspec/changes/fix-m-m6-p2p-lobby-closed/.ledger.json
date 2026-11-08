@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-m6-p2p-lobby-closed",
+  "status": "in-progress",
+  "reason": "Root-approved M-M6: closed P2P lobbies cannot ready, edit or launch, peers never close on their own absence, and a host route replaces a closed unlaunched lobby. No wire, schema or persisted-format changes.",
+  "lastReviewed": "2026-11-08"
+}

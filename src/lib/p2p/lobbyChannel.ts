@@ -27,6 +27,7 @@ export type LobbyRejectionReason =
   | 'invalid-state'
   | 'invalid-loadout'
   | 'lobby-full'
+  | 'lobby-closed'
   | 'match-started'
   | 'not-ready'
   | 'unknown-peer';
@@ -188,6 +189,8 @@ function joinLobbyGuest(
   const state = readLobbyState(runtime.options);
   if (!state)
     return rejectLobbyIntent(runtime, 'lobby:joinGuest', 'invalid-state');
+  if (state.closed)
+    return rejectLobbyIntent(runtime, 'lobby:joinGuest', 'lobby-closed');
 
   const peerId = guestPeerId ?? currentPeerId(runtime);
   if (state.hostPeerId === peerId) return { ok: true, state };
@@ -222,6 +225,13 @@ function updateLobbyLoadout(
       'match-started',
     );
   }
+  if (state.closed) {
+    return rejectLobbyIntent(
+      runtime,
+      `lobby:updateLoadout:${side}`,
+      'lobby-closed',
+    );
+  }
 
   const ownerPeerId = getLobbyOwnerForSide(state, side);
   if (!ownerPeerId || ownerPeerId !== currentPeerId(runtime)) {
@@ -251,6 +261,9 @@ function updateLobbyMapConfig(
   if (state.matchId) {
     return rejectLobbyIntent(runtime, 'lobby:updateMapConfig', 'match-started');
   }
+  if (state.closed) {
+    return rejectLobbyIntent(runtime, 'lobby:updateMapConfig', 'lobby-closed');
+  }
   if (state.hostPeerId !== currentPeerId(runtime)) {
     return rejectLobbyIntent(runtime, 'lobby:updateMapConfig', 'host-only');
   }
@@ -272,6 +285,8 @@ function setLobbyReady(
     return rejectLobbyIntent(runtime, 'lobby:setReady', 'invalid-state');
   if (state.matchId)
     return rejectLobbyIntent(runtime, 'lobby:setReady', 'match-started');
+  if (state.closed)
+    return rejectLobbyIntent(runtime, 'lobby:setReady', 'lobby-closed');
   if (peerId !== currentPeerId(runtime)) {
     return rejectLobbyIntent(runtime, 'lobby:setReady', 'unauthorized-slot');
   }
@@ -299,6 +314,8 @@ function setLobbyHostSide(
     return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'invalid-state');
   if (state.matchId)
     return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'match-started');
+  if (state.closed)
+    return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'lobby-closed');
   if (state.hostPeerId !== currentPeerId(runtime)) {
     return rejectLobbyIntent(runtime, 'lobby:setHostSide', 'host-only');
   }
@@ -318,6 +335,8 @@ function launchLobby(
   if (!state)
     return rejectLobbyIntent(runtime, 'lobby:launch', 'invalid-state');
   if (state.matchId) return { ok: true, state };
+  if (state.closed)
+    return rejectLobbyIntent(runtime, 'lobby:launch', 'lobby-closed');
   if (state.hostPeerId !== currentPeerId(runtime)) {
     return rejectLobbyIntent(runtime, 'lobby:launch', 'host-only');
   }
@@ -343,6 +362,10 @@ function handleLobbyPeerDisconnect(
     );
   }
   if (state.matchId) return { ok: true, state };
+  // A closed lobby has nothing left to clean up, and a peer that only sees
+  // *itself* missing from awareness must never close the shared lobby.
+  const localPeerId = runtime.options.localPeerId ?? getLocalPeerId();
+  if (state.closed || peerId === localPeerId) return { ok: true, state };
 
   const isHost = state.hostPeerId === peerId;
   const isGuest = state.guestPeerId === peerId;

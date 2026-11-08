@@ -97,4 +97,24 @@ describe('useLobbyStore', () => {
       'Only the host can change that lobby setting',
     );
   });
+
+  it('surfaces a closed lobby as a clear rejection', () => {
+    const host = createLobbyChannel({ localPeerId: 'host-peer', lobbyMap });
+    host.initializeHost();
+    const guest = createLobbyChannel({ localPeerId: 'guest-peer', lobbyMap });
+    guest.handlePeerDisconnect('host-peer');
+    expect(host.getState()?.closed).toBe(true);
+
+    act(() => {
+      useLobbyStore
+        .getState()
+        .bindChannel(host, { localPeerId: 'host-peer', roomCode: 'ABC123' });
+      useLobbyStore.getState().setLocalReady(true);
+    });
+
+    expect(useLobbyStore.getState().lastRejection?.reason).toBe(
+      'lobby-closed',
+    );
+    expect(useLobbyStore.getState().error).toBe('This lobby is closed');
+  });
 });
