@@ -1,5 +1,4 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -143,7 +142,8 @@ function roundTrip(state: ICampaign): ICampaign {
 
 describe('campaign repair lifecycle persistence', () => {
   it('loads an old save with many terminal tickets, prunes and saves without replaying repairs', () => {
-    const directory = mkdtempSync(join(tmpdir(), 'mekstation-k7-'));
+    // Keep file reads scoped to this test directory for the Jest cache key.
+    const directory = mkdtempSync(join(__dirname, 'mekstation-k7-'));
     try {
       const path = join(directory, 'campaign.json');
       const old = campaign({

@@ -25,7 +25,6 @@
 import Database from 'better-sqlite3';
 import { readFileSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import {
@@ -39,7 +38,8 @@ describe('SQLiteService migrations', () => {
   const failedConnections: Database.Database[] = [];
 
   beforeEach(async () => {
-    dir = await mkdtemp(path.join(tmpdir(), 'sqlite-migrations-test-'));
+    // Keep file reads scoped to this test directory for the Jest cache key.
+    dir = await mkdtemp(path.join(__dirname, 'sqlite-migrations-test-'));
     dbPath = path.join(dir, 'test.db');
     resetSQLiteService();
   });
