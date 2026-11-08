@@ -70,6 +70,12 @@ export type GmCombatRewindCommitResult =
       readonly priorBranchId: string;
       readonly effectiveGeneration: number;
       readonly invalidations: readonly IAffectedArtifact[];
+      /**
+       * Set only by the commit route (M-H4): the rewind is committed, but
+       * the live host still serves the superseded session. It retries on
+       * its next command or join; a restart folds the branch on boot.
+       */
+      readonly rebuildPending?: true;
     }
   | {
       readonly kind: 'refused';

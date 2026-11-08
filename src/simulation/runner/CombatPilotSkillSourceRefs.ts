@@ -101,7 +101,7 @@ const MEKSTATION_PSR_PILOTING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation resolvePendingPSRs mirrors interactive PSR resolution through resolveAllPSRs with the unit piloting skill.',
-    'src/utils/gameplay/gameSessionPSRResolution.ts#L173-L191',
+    'src/utils/gameplay/gameSessionPSRResolution.ts#L174-L192',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -164,7 +164,7 @@ const MEKSTATION_PSR_WOUND_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation resolvePendingPSRs threads interactive unit pilotWounds into resolveAllPSRs.',
-    'src/utils/gameplay/gameSessionPSRResolution.ts#L173-L191',
+    'src/utils/gameplay/gameSessionPSRResolution.ts#L174-L192',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
