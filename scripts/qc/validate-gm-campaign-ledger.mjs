@@ -167,8 +167,19 @@ const defaultSourceAnchors = [
       // Prepared, applied, then recorded: the ledger rows follow the apply.
       'prepareGmCascadeApproval',
       'recordGmCascadeApproval',
-      'requires-manual-takeover',
+      'useGmControlPlane',
       'No campaign state changed',
+    ],
+  },
+  {
+    // K11: preview, approve and manual takeover are one token-guarded state;
+    // manual control is offered only for a requires-manual-takeover preview.
+    id: 'campaign-gm-ledger-control-state',
+    path: 'src/components/campaign/gm/gmControlPlaneState.ts',
+    tokens: [
+      'GM_CONTROL_TRANSITIONS',
+      'reduceGmControlPlane',
+      'requires-manual-takeover',
     ],
   },
   {

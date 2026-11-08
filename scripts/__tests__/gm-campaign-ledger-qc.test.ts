@@ -79,11 +79,12 @@ describe('GM campaign ledger QC validator', () => {
       'inventory-lot',
       'base-unit-state',
     ]);
-    expect(manifest.anchors).toHaveLength(17);
+    expect(manifest.anchors).toHaveLength(18);
     expect(manifest.anchors.map((anchor) => anchor.id)).toEqual(
       expect.arrayContaining([
         'campaign-gm-ledger-authority-helper',
         'campaign-gm-ledger-actions',
+        'campaign-gm-ledger-control-state',
         'campaign-gm-ledger-player-view',
       ]),
     );
