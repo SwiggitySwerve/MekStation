@@ -5,6 +5,7 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   ILobbyUpdated,
+  IMatchPaused,
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
@@ -59,7 +60,10 @@ export interface IServerMatchHostReplayContext {
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
   readonly safeSend: (socket: IMatchSocket, message: IServerMessage) => void;
-  readonly maybeResume: () => void;
+  /** Lifts a peer pause; true when it broadcast a pause transition. */
+  readonly maybeResume: () => boolean;
+  /** M-H3: the current pause snapshot, or null when the match runs. */
+  readonly pauseSnapshot: () => IMatchPaused | null;
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
   /**
@@ -383,7 +387,16 @@ export async function handleSessionJoin(
     }
   }
 
-  ctx.maybeResume();
+  // M-H3: a joiner learns a pause that is still in force. When the
+  // resume above broadcast a transition, this socket already has it.
+  const snapshot = ctx.maybeResume() ? null : ctx.pauseSnapshot();
+  if (snapshot) {
+    const guardedPause = MATCH_WIRE_PUBLICATION_BOUNDARY.guardBaseline(
+      viewer,
+      snapshot,
+    );
+    if (guardedPause.kind === 'send') ctx.safeSend(socket, guardedPause.value);
+  }
   return true;
 }
 

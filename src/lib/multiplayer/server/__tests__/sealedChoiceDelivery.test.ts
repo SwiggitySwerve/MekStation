@@ -1040,6 +1040,7 @@ describe('concession side selection compatibility', () => {
           closed();
         },
         tryPublishOutcome: jest.fn(),
+        pauseSnapshot: () => null,
         installFreshCapture: jest.fn(),
         drainNewEvents: () => [],
         stampRollsOnNewEvents: (e) => e,

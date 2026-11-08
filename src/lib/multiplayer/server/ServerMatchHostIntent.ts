@@ -100,6 +100,8 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
   readonly session: InteractiveSession;
   readonly closed: boolean;
   readonly isPaused: boolean;
+  /** M-H3: refusal text naming the active pause cause. */
+  readonly pauseRefusal?: string;
   readonly broadcast: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   /** Undelivered-only broadcast for the outbox resume pass (7.1); optional for test contexts, production always supplies it. */
@@ -290,7 +292,7 @@ export async function handleIntent(
       envelope,
       viewer,
       'MATCH_PAUSED',
-      'Match is paused waiting for a peer to reconnect',
+      ctx.pauseRefusal ?? 'Match is paused waiting for a peer to reconnect',
     );
   }
 

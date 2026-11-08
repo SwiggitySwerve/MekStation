@@ -1,0 +1,6 @@
+{
+  "name": "guard-coop-mission-launch",
+  "status": "in-progress",
+  "reason": "K15: host-only co-op launch, synchronous mission guard and resumable encounter checkpoint.",
+  "lastReviewed": "2026-11-08"
+}
