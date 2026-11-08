@@ -55,6 +55,14 @@ BattleMech-like unit that is not prone rolls them. Water entry also skips
 hover, VTOL, naval, hydrofoil, submarine, UMU, swim and WiGE motive modes, so
 callers pass the unit's motive mode when they know it.
 
+The runner applies the effects in `queueMovementTerrainPSRs`. Interactive paths
+(the session, its AI, `GameEngine` movement and P2P host translation) apply them
+through `gameSessionMovementTerrain`, right after `MovementDeclared` and before
+the movement is locked; the End-phase PSR drain resolves them. Interactive
+steps come from the canonical decomposition of the declared path, so
+`movement-step:<n>` matches the runner's numbering without adding steps to the
+declared payload.
+
 `stuckRecovery.ts` owns the movement-start recovery roll: which stuck units may
 roll, the `swamp_unstuck` PSR for the unit's hex, and the roll itself. Event
 emission and state changes stay with the caller.

@@ -177,8 +177,8 @@ describe('BattleMech combat event support catalog', () => {
     );
     expect(urlsFor(GameEventType.UnitStuck)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L210',
-        'src/utils/gameplay/gameSessionPSRResolution.ts#L54-L410',
+        'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L215',
+        'src/utils/gameplay/gameSessionPSRResolution.ts#L55-L417',
         'src/simulation/runner/phases/postCombatPsr.ts#L77-L244',
       ]),
     );

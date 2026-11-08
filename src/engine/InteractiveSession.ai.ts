@@ -32,6 +32,7 @@ import {
   canActInPhysicalAttack,
   lockPhysicalAttack,
 } from '@/utils/gameplay/gameSessionCore';
+import { appendInteractiveMovementTerrainEffects } from '@/utils/gameplay/gameSessionMovementTerrain';
 import {
   buildMovementEventPath,
   maxMovementCostForCapability,
@@ -216,6 +217,14 @@ function runInteractiveSessionMovementAI(
           validation.heatGenerated,
           eventPath,
         ),
+      );
+      setSession(
+        appendInteractiveMovementTerrainEffects(session, {
+          grid: occupiedGrid,
+          unitId,
+          fromFacing: refreshedUnit.facing,
+          capability: cap,
+        }),
       );
     }
     setSession(lockMovement(session, unitId));

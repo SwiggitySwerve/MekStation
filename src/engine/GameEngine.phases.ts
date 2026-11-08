@@ -34,6 +34,7 @@ import {
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { isActivationComplete } from '@/utils/gameplay/gameSessionActivation';
+import { appendInteractiveMovementTerrainEffects } from '@/utils/gameplay/gameSessionMovementTerrain';
 import {
   canUnitGoProne,
   getGoProneMpCost,
@@ -202,6 +203,12 @@ export function runMovementPhase(
         validation.heatGenerated,
         eventPath,
       );
+      updatedSession = appendInteractiveMovementTerrainEffects(updatedSession, {
+        grid,
+        unitId,
+        fromFacing: unit.facing,
+        capability: cap,
+      });
     }
     updatedSession = lockMovement(updatedSession, unitId);
 

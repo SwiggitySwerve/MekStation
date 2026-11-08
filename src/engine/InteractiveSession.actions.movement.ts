@@ -21,6 +21,7 @@ import {
   lockMovement,
 } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSession';
+import { appendInteractiveMovementTerrainEffects } from '@/utils/gameplay/gameSessionMovementTerrain';
 import {
   calculateMovementHeat,
   gridWithUnitOccupants,
@@ -278,6 +279,12 @@ export function applyInteractiveSessionMovement(
       altitudeControlMpCost: pendingAltitudeControl.mpCost,
     },
   );
+  session = appendInteractiveMovementTerrainEffects(session, {
+    grid: input.grid,
+    unitId: input.unitId,
+    fromFacing: unit.facing,
+    capability: movementCapability,
+  });
   const automaticLandingPatch = automaticWigeLandingRuntimePatch(
     unit,
     input.movementType,

@@ -19,10 +19,10 @@
 
 ## 3. PR3: interactive wiring
 
-- [ ] Record failing session, AI, engine, P2P and once-only tests.
-- [ ] Apply the shared producer at every interactive commit site.
-- [ ] Grant jump eligibility on a failed interactive ground bog-down.
-- [ ] Kill the wiring mutants.
+- [x] Record failing session, AI, engine, P2P and once-only tests.
+- [x] Apply the shared producer at every interactive commit site.
+- [x] Grant jump eligibility on a failed interactive ground bog-down.
+- [x] Kill the wiring mutants.
 
 ## 4. PR4: session and engine recovery roll
 

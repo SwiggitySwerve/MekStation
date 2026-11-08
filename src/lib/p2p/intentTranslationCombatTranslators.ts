@@ -1,6 +1,7 @@
 import type {
   IGameIntent,
   IGameSession,
+  IMovementDeclaredPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
@@ -18,6 +19,8 @@ import {
   COMMITTED_DECLARATION_REASON,
   isActivationComplete,
 } from '@/utils/gameplay/gameSessionActivation';
+import { buildInteractiveMovementTerrainEvents } from '@/utils/gameplay/gameSessionMovementTerrain';
+import { applyEvent } from '@/utils/gameplay/gameState';
 import { hexEquals } from '@/utils/gameplay/hexMath';
 import {
   buildMovementEventPath,
@@ -135,14 +138,25 @@ export function translateDeclareMovement(
     validation.heatGenerated,
     eventPath,
   );
+  const terrain = buildInteractiveMovementTerrainEvents(
+    session,
+    {
+      grid,
+      declared: declared.payload as IMovementDeclaredPayload,
+      fromFacing: unit.facing,
+      mover: applyEvent(session.currentState, declared).units[payload.unitId],
+      capability,
+    },
+    baseSeq + 1,
+  );
   const locked = createMovementLockedEvent(
     session.id,
-    baseSeq + 1,
+    baseSeq + 1 + terrain.length,
     session.currentState.turn,
     payload.unitId,
   );
 
-  return { ok: true, events: [declared, locked] };
+  return { ok: true, events: [declared, ...terrain, locked] };
 }
 
 export function translateDeclareAttack(

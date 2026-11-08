@@ -32,7 +32,7 @@ const P2P_DECLARE_MOVEMENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes declareMovement into MovementDeclared and MovementLocked host events after phase and ownership validation.',
     'src/lib/p2p/intentTranslationCombatTranslators.ts',
-    'L39-L146',
+    'L42-L160',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -87,7 +87,7 @@ const P2P_DECLARE_ATTACK_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes declareAttack into AttackDeclared and AttackLocked host events after phase and ownership validation.',
     'src/lib/p2p/intentTranslationCombatTranslators.ts',
-    'L148-L230',
+    'L162-L244',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

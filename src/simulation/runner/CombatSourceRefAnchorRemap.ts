@@ -4,7 +4,7 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/engine/adapters/CompendiumAdapter.ts#L185-L208':
     'src/engine/adapters/CompendiumAdapter.weapons.ts#L33-L68',
   'src/engine/GameEngine.phases.ts#L388-L479':
-    'src/engine/GameEngine.phases.ts#L346-L448',
+    'src/engine/GameEngine.phases.ts#L353-L455',
   'src/engine/InteractiveSession.actions.ts#L1-L1634':
     'src/engine/InteractiveSession.actions.attackProjection.ts#L22-L60',
   'src/engine/InteractiveSession.actions.ts#L192-L235':
@@ -12,7 +12,7 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/engine/InteractiveSession.actions.ts#L326-L397':
     'src/engine/InteractiveSession.actions.battleArmor.ts#L119-L145',
   'src/engine/InteractiveSession.actions.ts#L80-L132':
-    'src/engine/InteractiveSession.actions.movement.ts#L90-L161',
+    'src/engine/InteractiveSession.actions.movement.ts#L91-L162',
   'src/lib/p2p/intentTranslation.ts#L187-L444':
     'src/lib/p2p/intentTranslation.ts#L285-L349',
   'src/lib/p2p/intentTranslation.ts#L189-L468':
