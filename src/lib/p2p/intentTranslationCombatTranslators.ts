@@ -89,6 +89,9 @@ export function translateDeclareMovement(
       facing: unit.facing,
       prone: unit.prone ?? false,
       isStuck: unit.isStuck ?? false,
+      ...(unit.canUnstickByJumping === true
+        ? { canUnstickByJumping: true }
+        : {}),
     },
     payload.to,
     payload.facing,

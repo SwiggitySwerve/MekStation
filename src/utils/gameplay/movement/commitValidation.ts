@@ -138,6 +138,10 @@ export function validateCommittedMovement(
       coord: from,
       facing: input.unit.facing,
       prone: input.unit.prone ?? false,
+      isStuck: input.unit.isStuck ?? false,
+      ...(input.unit.canUnstickByJumping === true
+        ? { canUnstickByJumping: true }
+        : {}),
     },
     input.to,
     input.facing,

@@ -62,6 +62,7 @@ const PRESERVED_OVERLAY_FIELDS = [
   'damageThisPhase',
   'prone',
   'isStuck',
+  'canUnstickByJumping',
   'hullDown',
   'shutdown',
   'pendingPSRs',

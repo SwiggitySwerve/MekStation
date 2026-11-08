@@ -4,7 +4,7 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/engine/adapters/CompendiumAdapter.ts#L185-L208':
     'src/engine/adapters/CompendiumAdapter.weapons.ts#L33-L68',
   'src/engine/GameEngine.phases.ts#L388-L479':
-    'src/engine/GameEngine.phases.ts#L343-L445',
+    'src/engine/GameEngine.phases.ts#L346-L448',
   'src/engine/InteractiveSession.actions.ts#L1-L1634':
     'src/engine/InteractiveSession.actions.attackProjection.ts#L22-L60',
   'src/engine/InteractiveSession.actions.ts#L192-L235':

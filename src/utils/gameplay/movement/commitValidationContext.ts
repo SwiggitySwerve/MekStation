@@ -1,6 +1,7 @@
 import type {
   IMovementCapability,
   IUnitGameState,
+  MovementType,
   StandUpMode,
 } from '@/types/gameplay';
 import type { IMovementInvalidPayload } from '@/types/gameplay/GameSessionMovementEvents';
@@ -20,6 +21,7 @@ import {
 import { movementDeclarationLockInvalidState } from './declarationEligibility';
 import { getHullDownExitCost } from './hullDownExit';
 import { resolveRuntimeMovementCapability } from './runtimeCapability';
+import { isStuckMovementBlocked } from './stuckState';
 import { getStandingCost } from './validation';
 
 export interface ICommittedMovementContext {
@@ -43,6 +45,7 @@ export type CommitReadinessFailure = {
 
 export function validateCommitReadiness(input: {
   readonly unit: IUnitGameState;
+  readonly movementType: MovementType;
 }): CommitReadinessFailure | null {
   const alreadyMoved = movementDeclarationLockInvalidState(
     input.unit.lockState,
@@ -57,7 +60,13 @@ export function validateCommitReadiness(input: {
     };
   }
 
-  const immobileReason = representedUnitImmobileReason(input.unit);
+  // Checked before the reachability projection, which commit treats as the
+  // canonical authority: a stuck unit may only make an eligible jump.
+  const immobileReason =
+    representedUnitImmobileReason(input.unit) ??
+    (isStuckMovementBlocked(input.unit, input.movementType)
+      ? 'Unit is stuck'
+      : null);
   if (!immobileReason) return null;
   return {
     valid: false,

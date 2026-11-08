@@ -163,6 +163,9 @@ export function runMovementPhase(
           facing: unit.facing,
           prone: unit.prone ?? false,
           isStuck: unit.isStuck ?? false,
+          ...(unit.canUnstickByJumping === true
+            ? { canUnstickByJumping: true }
+            : {}),
         },
         moveEvt.payload.to,
         moveEvt.payload.facing as Facing,

@@ -16,7 +16,7 @@ const MOVEMENT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation GameEngine.runMovementPhase validates bot movement through validateMovement before MovementDeclared emission.',
     'src/engine/GameEngine.phases.ts',
-    'L102-L240',
+    'L102-L243',
   ),
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession movement actions use the same validateMovement, event-path, declareMovement, and lockMovement flow.',
@@ -68,7 +68,7 @@ const WEAPON_INDIRECT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation GameEngine.runAttackPhase precomputes computeIndirectFireContext before bot AttackDeclared emission.',
     'src/engine/GameEngine.phases.ts',
-    'L242-L340',
+    'L245-L343',
   ),
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession attack actions precompute computeIndirectFireContext before declareAttack.',
