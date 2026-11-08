@@ -258,7 +258,6 @@ export async function submitCampaignCreation({
         return;
       }
 
-      pendingCreatedCampaignId = campaignId;
       updateCampaignDescription(store, description);
       useCampaignRosterStore.getState().initRoster(campaignId);
       const registeredPilots = await registerWizardPilots(namedPilots);
@@ -291,6 +290,7 @@ export async function submitCampaignCreation({
           pilotAssignments: resolvedPilotAssignments,
         });
       }
+      pendingCreatedCampaignId = campaignId;
     }
 
     if (!campaignId) return;

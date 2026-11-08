@@ -157,6 +157,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-campaign-creation-recovery",
+      "status": "in-progress",
+      "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-acquisition-request-identity-and-retry",
       "status": "in-progress",
       "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
