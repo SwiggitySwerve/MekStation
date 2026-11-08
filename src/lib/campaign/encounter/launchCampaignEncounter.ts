@@ -114,7 +114,42 @@ export async function launchCampaignEncounter(
     };
   }
 
-  // 1. Materialise the encounter into the encounter repository.
+  const configured = configureCampaignEncounter(encounter, service);
+  if (!configured.success || !configured.id) {
+    return {
+      success: false,
+      ...(configured.id ? { encounterId: configured.id } : {}),
+      error: configured.error,
+    };
+  }
+  const repoEncounterId = configured.id;
+
+  const launched = await service.launchEncounter(repoEncounterId, {
+    campaignId: meta.campaignId,
+    contractId: meta.contractId,
+    scenarioId: meta.scenarioId,
+  });
+  if (!launched.success) {
+    return {
+      success: false,
+      encounterId: repoEncounterId,
+      error: launched.error ?? 'Failed to launch encounter',
+    };
+  }
+
+  const launchedEncounter = service.getEncounter(repoEncounterId);
+  return {
+    success: true,
+    encounterId: repoEncounterId,
+    gameSessionId: launchedEncounter?.gameSessionId,
+  };
+}
+
+/** Materialization is separate from session launch so each failure keeps its id. */
+function configureCampaignEncounter(
+  encounter: IEncounter,
+  service: ICampaignEncounterLauncherService,
+): IEncounterOperationResult {
   const created = service.createEncounter({
     name: encounter.name,
     description: encounter.description,
@@ -137,7 +172,7 @@ export async function launchCampaignEncounter(
   if (!configResult.success) {
     return {
       success: false,
-      encounterId: repoEncounterId,
+      id: repoEncounterId,
       error: configResult.error ?? 'Failed to configure encounter',
     };
   }
@@ -151,33 +186,11 @@ export async function launchCampaignEncounter(
     if (!forceResult.success) {
       return {
         success: false,
-        encounterId: repoEncounterId,
+        id: repoEncounterId,
         error: forceResult.error ?? 'Failed to set player force',
       };
     }
   }
 
-  // 4. Launch with campaign linkage (D6 — reuses the existing launch
-  //    snapshot; the campaign only supplies the linkage fields).
-  const launched = await service.launchEncounter(repoEncounterId, {
-    campaignId: meta.campaignId,
-    contractId: meta.contractId,
-    scenarioId: meta.scenarioId,
-  });
-  if (!launched.success) {
-    return {
-      success: false,
-      encounterId: repoEncounterId,
-      error: launched.error ?? 'Failed to launch encounter',
-    };
-  }
-
-  // The repository stamps `game_session_id` on the encounter row at
-  // launch; read it back so the caller gets the session handle.
-  const launchedEncounter = service.getEncounter(repoEncounterId);
-  return {
-    success: true,
-    encounterId: repoEncounterId,
-    gameSessionId: launchedEncounter?.gameSessionId,
-  };
+  return { success: true, id: repoEncounterId };
 }

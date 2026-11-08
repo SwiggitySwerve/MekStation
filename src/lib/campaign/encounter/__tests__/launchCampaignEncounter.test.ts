@@ -128,6 +128,28 @@ function makeFakeService(): {
 // ---------------------------------------------------------------------------
 
 describe('launchCampaignEncounter', () => {
+  it.each([
+    'createEncounter',
+    'updateEncounter',
+    'setPlayerForce',
+    'launchEncounter',
+  ] as const)('preserves the id and error when %s fails', async (operation) => {
+    const { service, calls } = makeFakeService();
+    const failure = { success: false, error: `${operation} failed` };
+    const failing = { ...service, [operation]: () => failure };
+    const result = await launchCampaignEncounter(
+      makeCampaignEncounter(),
+      failing,
+    );
+    expect(result).toEqual({
+      ...failure,
+      ...(operation === 'createEncounter'
+        ? {}
+        : { encounterId: 'encounter-repo-1' }),
+    });
+    expect(calls.launched).toHaveLength(0);
+  });
+
   it('launching a generated encounter produces a campaign-linked session', async () => {
     const { service, calls } = makeFakeService();
     const result = await launchCampaignEncounter(
