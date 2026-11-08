@@ -6,6 +6,10 @@
  * shared function to match them on a matrix of units, including which keys are
  * present. The copies are deleted when a later change deliberately moves the
  * runner onto the reducer's behaviour (D2-D4 in the C7 characterization).
+ *
+ * C7 PR 3 deliberately changed two things, and only these two: D8 (reducer
+ * shape zeroes damageThisPhase) and D2 (runner shape decrements
+ * empInterferenceTurns when carried). They are the `intended*` helpers below.
  */
 
 import {
@@ -121,25 +125,74 @@ function legacyRunnerReset(unit: IUnitGameState): IUnitGameState {
   });
 }
 
+/**
+ * C7 PR 3 / D8: the reducer shape now also zeroes damageThisPhase on a bare
+ * TurnStarted (MegaMek 48fcb2f64 TWGameManager.java:1572-1573). This is the only
+ * intended difference from the frozen reducer reset above.
+ */
+function intendedReducerReset(unit: IUnitGameState): IUnitGameState {
+  return { ...legacyReducerReset(unit), damageThisPhase: 0 };
+}
+
+/**
+ * C7 PR 3 / D2: the runner shape now also decrements empInterferenceTurns when
+ * the unit carries it (MegaMek 48fcb2f64 Entity.newRound, empInterferenceRounds--).
+ * This is the only intended difference from the frozen runner reset above.
+ */
+function intendedRunnerReset(unit: IUnitGameState): IUnitGameState {
+  const legacy = legacyRunnerReset(unit);
+  return unit.empInterferenceTurns === undefined
+    ? legacy
+    : {
+        ...legacy,
+        empInterferenceTurns: Math.max(
+          0,
+          Math.trunc(unit.empInterferenceTurns) - 1,
+        ),
+      };
+}
+
 function sortedKeys(unit: IUnitGameState): string[] {
   return Object.keys(unit).sort();
 }
 
 describe('resetPerTurnUnitFields', () => {
   describe.each(Object.entries(MATRIX))('%s', (_label, unit) => {
-    it("explicit presence matches the reducer's old inline reset, key for key and in order", () => {
+    it("explicit presence matches the reducer's old inline reset plus damageThisPhase (D8), key for key and in order", () => {
       const reset = resetPerTurnUnitFields(unit, { presence: 'explicit' });
-      expect(reset).toStrictEqual(legacyReducerReset(unit));
+      expect(reset).toStrictEqual(intendedReducerReset(unit));
       expect(JSON.stringify(reset)).toBe(
-        JSON.stringify(legacyReducerReset(unit)),
+        JSON.stringify(intendedReducerReset(unit)),
       );
     });
 
-    it("sparse presence matches the runner's old inline reset, including which keys exist", () => {
+    it("sparse presence matches the runner's old inline reset plus the EMP interference decrement (D2), including which keys exist", () => {
       const reset = resetPerTurnUnitFields(unit, { presence: 'sparse' });
-      expect(reset).toStrictEqual(legacyRunnerReset(unit));
-      expect(sortedKeys(reset)).toEqual(sortedKeys(legacyRunnerReset(unit)));
+      expect(reset).toStrictEqual(intendedRunnerReset(unit));
+      expect(sortedKeys(reset)).toEqual(sortedKeys(intendedRunnerReset(unit)));
     });
+  });
+
+  it('D2: sparse decrements empInterferenceTurns only when carried, clamped at zero', () => {
+    const decremented = (empInterferenceTurns: number) =>
+      resetPerTurnUnitFields(
+        runtimeMovementUnit({ id: 'u', empInterferenceTurns }),
+        { presence: 'sparse' },
+      ).empInterferenceTurns;
+    expect(decremented(3)).toBe(2);
+    expect(decremented(1)).toBe(0);
+    expect(decremented(0)).toBe(0);
+    expect(decremented(1.9)).toBe(0);
+  });
+
+  it('D8: explicit zeroes damageThisPhase; sparse leaves it to the runner caller', () => {
+    const damaged = runtimeMovementUnit({ id: 'u', damageThisPhase: 9 });
+    expect(
+      resetPerTurnUnitFields(damaged, { presence: 'explicit' }).damageThisPhase,
+    ).toBe(0);
+    expect(
+      resetPerTurnUnitFields(damaged, { presence: 'sparse' }).damageThisPhase,
+    ).toBe(9);
   });
 
   it('sparse never materializes a field the unit did not carry', () => {
@@ -192,7 +245,7 @@ describe('resetPerTurnUnitFields', () => {
     }
   });
 
-  it('only the reducer shape clears spotting and cargo and decrements EMP interference (D2-D4, pending a ruling)', () => {
+  it('only the reducer shape clears spotting and cargo (D3-D4, still pending a ruling); both decrement EMP interference (D2)', () => {
     const dirty = MATRIX['fully dirtied unit'];
     expect(
       resetPerTurnUnitFields(dirty, { presence: 'explicit' }),
@@ -206,7 +259,7 @@ describe('resetPerTurnUnitFields', () => {
         isSpotting: true,
         spotTargetId: 'opponent-1',
         isLoadingOrUnloadingCargo: true,
-        empInterferenceTurns: 3,
+        empInterferenceTurns: 2,
       },
     );
   });
@@ -222,7 +275,6 @@ describe('resetPerTurnUnitFields', () => {
       isRetreating: true,
       pilotWounds: 2,
       narcedBy: [GameSide.Opponent],
-      damageThisPhase: 9,
       lockState: LockState.Locked,
       pendingAction: { kind: 'declared' },
     });
@@ -236,7 +288,6 @@ describe('resetPerTurnUnitFields', () => {
         isRetreating: true,
         pilotWounds: 2,
         narcedBy: [GameSide.Opponent],
-        damageThisPhase: 9,
         lockState: LockState.Locked,
         pendingAction: { kind: 'declared' },
       });

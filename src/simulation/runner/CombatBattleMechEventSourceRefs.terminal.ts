@@ -62,7 +62,7 @@ export const BATTLEMECH_OBJECTIVE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner runs the objective control event pass at the End phase before terminal checks.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L381-L394',
+    'L391-L404',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

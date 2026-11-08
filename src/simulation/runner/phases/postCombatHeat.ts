@@ -25,6 +25,7 @@ import {
   type CriticalSlotManifestsByUnit,
   wakePilotIfConsciousnessReturns,
 } from './postCombatHeatLifecycle';
+import { resetPhaseDamage } from './utils';
 
 export function runHeatPhase(options: {
   state: IGameState;
@@ -51,7 +52,7 @@ export function runHeatPhase(options: {
     state,
     weaponsByUnit,
   } = options;
-  let currentState = { ...state };
+  let currentState = { ...resetPhaseDamage(state) };
   const emission = createHeatEmissionContext(options);
 
   for (const unitId of Object.keys(currentState.units)) {

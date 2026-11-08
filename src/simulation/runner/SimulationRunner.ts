@@ -369,6 +369,16 @@ export class SimulationRunner {
         manifestsByUnit,
       });
 
+      // MegaMek 48fcb2f64 resolves the heat-shutdown PSR in the phase it is
+      // queued; without this the next resetTurnState drops it unrolled.
+      currentState = runPSRPhase({
+        state: currentState,
+        events,
+        gameId,
+        random: this.random,
+        manifestsByUnit,
+      });
+
       currentState = { ...currentState, phase: GamePhase.End };
       currentState = synchronizeNativeRunnerHeat(currentState);
       violations.push(...this.invariantRunner.runAll(currentState));

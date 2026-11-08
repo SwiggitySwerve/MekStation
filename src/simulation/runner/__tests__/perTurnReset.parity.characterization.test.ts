@@ -137,6 +137,7 @@ const AGREEING_FIELDS: readonly (keyof IUnitGameState)[] = [
   'externalHeatThisTurn',
   'pendingExternalHeat',
   'empShutdownTurns',
+  'empInterferenceTurns',
 ];
 
 interface IBoundarySnapshot {
@@ -301,15 +302,15 @@ describe('per-turn reset parity: vehicle crewStunnedPhases (C14)', () => {
 describe('per-turn reset parity: pinned divergences', () => {
   const [turn2, turn3] = SNAPSHOTS;
 
-  // MegaMek 48fcb2f64 Entity.newRound (Entity.java:~8240) decrements
-  // empInterferenceRounds every round. The reducer follows it
-  // (phaseManagement.ts applyTurnStarted); the runner never decrements, though
-  // it sets the counter (movementMineDamage.ts).
-  it('DIVERGENCE D2: runner never decrements empInterferenceTurns', () => {
+  // D2, FIXED in C7 PR3. MegaMek 48fcb2f64 Entity.newRound (Entity.java:~8240)
+  // decrements empInterferenceRounds every round. The reducer already did; the
+  // runner set the counter (movementMineDamage.ts) but never decremented it
+  // (it stayed at 3 on both boundaries).
+  it('D2 (fixed): both paths decrement empInterferenceTurns each boundary', () => {
     expect(turn2.reducer.empInterferenceTurns).toBe(2);
     expect(turn3.reducer.empInterferenceTurns).toBe(1);
-    expect(turn2.runner.empInterferenceTurns).toBe(3);
-    expect(turn3.runner.empInterferenceTurns).toBe(3);
+    expect(turn2.runner.empInterferenceTurns).toBe(2);
+    expect(turn3.runner.empInterferenceTurns).toBe(1);
   });
 
   // MegaMek Entity.newRound: setSpotting(false); spotTargetId = NONE.
@@ -369,14 +370,15 @@ describe('per-turn reset parity: pinned divergences', () => {
   });
 });
 
-describe('per-phase damage: DIVERGENCE D1', () => {
+describe('per-phase damage: D1 (fixed in C7 PR3)', () => {
   // MegaMek 48fcb2f64 TWGameManager.resetEntityPhase zeroes damageThisPhase at
   // the start of EVERY phase (TWGameManager.java:1572-1573, called per phase by
   // TWPhasePreparationManager). The 20+ damage PSR reads it per phase
   // (TWGameManager.java:17850-17856). The reducer zeroes it on every
-  // PhaseChanged (phaseManagement.ts:27). The runner zeroes it only at turn
-  // start, so damage taken in the Movement phase (mines) counts toward the 20+
-  // threshold of the weapon phase.
+  // PhaseChanged (phaseManagement.ts:27). The runner used to zero it only at
+  // turn start, so Movement-phase mine damage counted toward the weapon
+  // phase's 20+ threshold; it now zeroes it as each later phase begins
+  // (perPhaseDamage.test.ts covers the pooling itself).
   const MOVEMENT_PHASE_DAMAGE = 12;
   const WEAPON_HIT = 10;
 
@@ -399,7 +401,7 @@ describe('per-phase damage: DIVERGENCE D1', () => {
     expect(checkPhaseDamagePSR(afterHit)).toBeNull();
   });
 
-  it('runner: Movement-phase damage is still present after movement, attack and physical phases', () => {
+  it('runner: Movement-phase damage survives the Movement phase but is zeroed as the attack and physical phases begin', () => {
     const botPlayer = new StandStillAIPlayer();
     const invariantRunner = new InvariantRunner();
     const violations: IViolation[] = [];
@@ -419,6 +421,7 @@ describe('per-phase damage: DIVERGENCE D1', () => {
       gameId: GAME_ID,
       random,
     });
+    expect(state.units['player-1'].damageThisPhase).toBe(MOVEMENT_PHASE_DAMAGE);
     state = runAttackPhase({
       state,
       botPlayer,
@@ -429,6 +432,14 @@ describe('per-phase damage: DIVERGENCE D1', () => {
       gameId: GAME_ID,
       random,
     });
+    expect(state.units['player-1'].damageThisPhase).toBe(0);
+    state = {
+      ...state,
+      units: {
+        ...state.units,
+        'player-1': { ...state.units['player-1'], damageThisPhase: WEAPON_HIT },
+      },
+    };
     state = runPhysicalAttackPhase({
       state,
       botPlayer,
@@ -439,31 +450,46 @@ describe('per-phase damage: DIVERGENCE D1', () => {
       gameId: GAME_ID,
       random,
     });
-    expect(state.units['player-1'].damageThisPhase).toBe(MOVEMENT_PHASE_DAMAGE);
-  });
-
-  it('runner: 12 carried from Movement + one 10-point hit queues a 20+ damage PSR the reducer would not', () => {
-    const carried = createRunnerUnit({
-      damageThisPhase: MOVEMENT_PHASE_DAMAGE + WEAPON_HIT,
-    });
-    const state = applyDamageThresholdPSR(
-      createRunnerHeatState(carried),
-      carried.id,
-    );
-    expect(
-      state.units[carried.id].pendingPSRs?.map((psr) => psr.triggerSource),
-    ).toEqual(['20+_damage']);
+    expect(state.units['player-1'].damageThisPhase).toBe(0);
   });
 });
 
-describe('runner Heat-phase PSRs: DIVERGENCE (suspected, unrolled)', () => {
+describe('bare TurnStarted: D8 (fixed in C7 PR3)', () => {
+  // MegaMek zeroes damageThisPhase at the start of every phase, the first of a
+  // round included (TWGameManager.java:1572-1573). The runner's log carries
+  // TurnStarted but no PhaseChanged, so the reducer's TurnStarted handler must
+  // zero it itself or a replayed runner log keeps stale damage across turns.
+  it('zeroes damageThisPhase without a PhaseChanged', () => {
+    const state = {
+      ...stateWithUnit(
+        runtimeMovementUnit({ id: UNIT_ID, damageThisPhase: 15 }),
+      ),
+      turn: 1,
+      phase: GamePhase.End,
+    };
+    const next = applyEvent(state, {
+      ...createPhaseChangedEvent(
+        GAME_ID,
+        1,
+        2,
+        GamePhase.End,
+        GamePhase.Initiative,
+      ),
+      type: GameEventType.TurnStarted,
+      payload: {},
+    });
+    expect(next.turn).toBe(2);
+    expect(next.units[UNIT_ID].damageThisPhase).toBe(0);
+  });
+});
+
+describe('Heat-phase shutdown PSR: interactive reference (runner fixed in C7 PR3)', () => {
   // Interactive path: Heat queues the shutdown PSR
   // (gameSessionHeat.effects.ts:82-101) and the End-phase resolvePendingPSRs
-  // rolls it. Runner path: runHeatPhase queues it (heatShutdownPsr.ts) but
-  // SimulationRunner.run has no PSR phase after the Heat phase (run order:
-  // movement, attack, PSR, physical, PSR, heat, End), so the next turn's
-  // resetTurnState clears it unrolled. MegaMek resolves it in the same phase
-  // (CombatLifecycleSupport.psrTriggers.ts:131 notes this).
+  // rolls it. The runner used to queue it in runHeatPhase (heatShutdownPsr.ts)
+  // with no PSR phase after Heat, so the next resetTurnState cleared it
+  // unrolled; SimulationRunner.run now runs runPSRPhase after the Heat phase
+  // (heatShutdownPsr.resolution.test.ts asserts the PSRResolved).
   const SHUTDOWN_HEAT = 40; // >= HEAT_THRESHOLDS.AUTO_SHUTDOWN
 
   it('interactive: the shutdown PSR queued in Heat is rolled in the End phase', () => {
@@ -480,31 +506,5 @@ describe('runner Heat-phase PSRs: DIVERGENCE (suspected, unrolled)', () => {
     expect(
       session.events.some((event) => event.type === GameEventType.PSRResolved),
     ).toBe(true);
-  });
-
-  it('runner: the shutdown PSR queued in Heat is dropped by the next turn reset with no PSRResolved', () => {
-    const events: IGameEvent[] = [];
-    const afterHeat = runHeatPhase({
-      state: createRunnerHeatState(createRunnerUnit({ heat: SHUTDOWN_HEAT })),
-      events,
-      gameId: GAME_ID,
-      random: new SeededRandom(321),
-    });
-    expect(afterHeat.units['player-1'].pendingPSRs).toHaveLength(1);
-
-    const nextTurn = resetTurnState({ ...afterHeat, turn: 2 });
-    expect(nextTurn.units['player-1'].pendingPSRs).toEqual([]);
-    expect(
-      events.some((event) => event.type === GameEventType.PSRResolved),
-    ).toBe(false);
-    // A PSR phase run BEFORE the reset would have rolled it; the run loop has
-    // none after Heat.
-    const rolled = runPSRPhase({
-      state: afterHeat,
-      events: [],
-      gameId: GAME_ID,
-      random: new SeededRandom(7),
-    });
-    expect(rolled.units['player-1'].pendingPSRs).toEqual([]);
   });
 });

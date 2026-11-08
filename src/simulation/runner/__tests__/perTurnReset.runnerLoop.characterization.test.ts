@@ -8,15 +8,25 @@
  *     (TWPhasePreparationManager.java:77-84), so `Entity.newRound` runs before
  *     round 1. The runner resets before turn 1; the reducer has no turn-1
  *     boundary and first resets at turn 2.
- *   - The stretch goal: replaying a runner event log through the reducer
- *     (`deriveState`) and comparing per-turn unit fields with the runner's own
- *     end-of-turn state.
+ *   - A WEAK replay smoke check: a stand-still runner log folds through the
+ *     reducer (`deriveState`) without error and lands on cleared per-turn
+ *     fields. It proves the log is replayable. It does NOT prove replay
+ *     fidelity, because with `StandStillAIPlayer` nothing is ever dirtied, so
+ *     every field is cleared on both sides by construction.
+ *
+ * Known gap, deliberately not asserted here: with a real bot a replayed runner
+ * log does NOT match the runner's own end-of-turn state. In an 8-seed
+ * measurement (before C7 PR3) the replay differed on `weaponsFiredThisTurn`
+ * (replay `[]`, runner non-empty), on `damageThisPhase` (replay often larger
+ * than the runner's, e.g. 51 vs 10), and on explicit-versus-absent keys such as
+ * `activeMASC` and the EMP counters. The causes were not investigated; closing
+ * the gap is a separate change.
  *
  * The runner is driven by `StandStillAIPlayer`, so nothing but the reset
- * itself touches per-turn fields; this is an ordering and replay test, not a
- * combat test. Full trajectory equality with `GameEngine.runToCompletion` is
- * deliberately not asserted: `InteractiveSession` isolates its AI RNG from the
- * dice roller (engine/AGENTS.md), so one seed gives different actions.
+ * itself touches per-turn fields; this is an ordering and replay-smoke test,
+ * not a combat test. Full trajectory equality with `GameEngine.runToCompletion`
+ * is deliberately not asserted: `InteractiveSession` isolates its AI RNG from
+ * the dice roller (engine/AGENTS.md), so one seed gives different actions.
  */
 
 import {
@@ -157,7 +167,7 @@ describe('runner turn loop vs reducer: DIVERGENCE D5 (turn-1 reset)', () => {
   });
 });
 
-describe('runner event log replayed through the reducer (stretch goal)', () => {
+describe('runner event log replayed through the reducer (weak smoke check, stand-still units only)', () => {
   it('emits TurnStarted for turns 1-3, which the reducer maps to applyTurnStarted', () => {
     const { result } = runThreeStandStillTurns();
     const turns = result.events
@@ -166,7 +176,7 @@ describe('runner event log replayed through the reducer (stretch goal)', () => {
     expect(turns).toEqual([1, 2, 3]);
   });
 
-  it('deriveState(runner log) agrees with the runner on every per-turn unit field at the end of turn 3', () => {
+  it('a stand-still runner log replays through deriveState to the same (all-cleared) per-turn fields; says nothing about dirtied units', () => {
     const { result, endOfTurnStates } = runThreeStandStillTurns();
     const runnerEnd = endOfTurnStates[endOfTurnStates.length - 1];
     const derived = deriveState(`sim-${CONFIG.seed}`, result.events);

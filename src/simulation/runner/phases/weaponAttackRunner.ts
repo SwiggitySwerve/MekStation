@@ -15,7 +15,7 @@ import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { toAIUnitState } from '../SimulationRunnerSupport';
-import { createD6Roller } from './utils';
+import { createD6Roller, resetPhaseDamage } from './utils';
 import { createWeaponAttackManifestResolver } from './weaponAttackManifest';
 import { runWeaponAttackForUnit } from './weaponAttackUnit';
 
@@ -77,7 +77,10 @@ export function runAttackPhase(options: {
     environmentalConditions,
     optionalRules,
   } = options;
-  let currentState = { ...state, phase: GamePhase.WeaponAttack };
+  let currentState = {
+    ...resetPhaseDamage(state),
+    phase: GamePhase.WeaponAttack,
+  };
   violations.push(...invariantRunner.runAll(currentState));
 
   const getOrSeedManifest = createWeaponAttackManifestResolver(manifestsByUnit);
