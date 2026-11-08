@@ -149,6 +149,12 @@
       "status": "in-progress",
       "reason": "Root-approved C6b, two sequential PRs: (1) widen the combat physical replay schemas in place at v1 for swamp_unstuck and UnitStuck canUnstickByJumping with revised schema ids, plus the runner movement-start recovery roll, jump eligibility and jump unstick with matching reducer transitions; (2) interactive commit, projection and validator consistency. No fixture regeneration.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-sqlite-initialization-retry",
+      "status": "in-progress",
+      "reason": "Root-approved S13 only: propagate migration-version read errors and clear/close failed initialization handles for same-instance retry. Never delete, truncate or recreate the user database; no schema or persisted-format changes. Hosted proof and Root merge are pending.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }
