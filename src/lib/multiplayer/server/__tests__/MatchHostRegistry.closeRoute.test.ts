@@ -133,6 +133,7 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
       createdAt: now,
       updatedAt: now,
       config: { mapRadius: 4, turnLimit: 5 },
+      roomCode: 'ABC234',
       layout: '1v1',
       seats: defaultSeats('1v1'),
     });
@@ -217,6 +218,16 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
     });
     const completed = await getDefaultMatchStore().getMatchMeta(MATCH_ID);
     expect(completed.status).toBe('completed');
+    expect(completed.roomCode).toBeUndefined();
+    expect(
+      await getDefaultMatchStore().getMatchByRoomCode('ABC234'),
+    ).toBeNull();
+    await getDefaultMatchStore().createMatch({
+      ...completed,
+      matchId: 'reuse-invite',
+      status: 'lobby',
+      roomCode: 'ABC234',
+    });
     expect(registry.get(MATCH_ID)).toBeNull();
     expect(await deleteMatch(handler)).toEqual({
       statusCode: 200,
@@ -225,5 +236,8 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
     expect(await getDefaultMatchStore().getMatchMeta(MATCH_ID)).toEqual(
       completed,
     );
+    expect(
+      (await getDefaultMatchStore().getMatchByRoomCode('ABC234'))?.matchId,
+    ).toBe('reuse-invite');
   });
 });

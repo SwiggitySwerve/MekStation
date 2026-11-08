@@ -20,7 +20,7 @@
  * of a control that calls the server and says nothing. A caller whose
  * handlers answer nothing - the `/e2e/networked-command-proof` harness,
  * whose stubs return `void` and render their own text - sets no status
- * and gets exactly the DOM it had before.
+ * and gets no status line. Approval eligibility comes from the producer.
  *
  * ONE PRESS, ONE REQUEST (U36). Each button ignores a press while the
  * request its previous press started is still pending, and renders
@@ -56,6 +56,7 @@ export type GmCorrectionApproveHandler =
   () => void | Promise<GmCombatRewindCommitResult | void>;
 
 export interface INetworkedHostGmControlsProps {
+  readonly canApprove?: boolean;
   readonly onPreview: GmCorrectionPreviewHandler;
   readonly onApprove: GmCorrectionApproveHandler;
   /**
@@ -92,12 +93,14 @@ function describeCorrectionCommit(result: GmCombatRewindCommitResult): string {
 }
 
 /**
- * Renders Preview GM Fix and Approve GM Fix, each disabled while its own
- * request is pending, the private-reason field (only when
+ * Renders Preview GM Fix and Approve GM Fix, disabled during either request.
+ * Approve also requires a current successful preview from the producer.
+ * Renders the private-reason field (only when
  * `onPrivateReasonChange` is supplied, capped at the route's bound), and
  * the status line once a handler has answered.
  */
 export function NetworkedHostGmControls({
+  canApprove = false,
   onPreview,
   onApprove,
   onPrivateReasonChange,
@@ -119,8 +122,9 @@ export function NetworkedHostGmControls({
    * rejected); the answer, if any, becomes the status line.
    */
   const askForPreview = useCallback((): void => {
-    if (previewInFlightRef.current) return;
+    if (previewInFlightRef.current || approveInFlightRef.current) return;
     previewInFlightRef.current = true;
+    setStatus(null);
     setPreviewPending(true);
     void (async () => {
       let outcome: GmRewindPreviewOutcome | void;
@@ -150,7 +154,8 @@ export function NetworkedHostGmControls({
    * when its promise settles; the answer, if any, becomes the status line.
    */
   const applyCorrection = useCallback((): void => {
-    if (approveInFlightRef.current) return;
+    if (!canApprove || previewInFlightRef.current || approveInFlightRef.current)
+      return;
     approveInFlightRef.current = true;
     setApprovePending(true);
     void (async () => {
@@ -167,7 +172,7 @@ export function NetworkedHostGmControls({
       if (result === undefined) return;
       setStatus(describeCorrectionCommit(result));
     })();
-  }, [onApprove]);
+  }, [canApprove, onApprove]);
 
   return (
     <div
@@ -178,7 +183,7 @@ export function NetworkedHostGmControls({
         type="button"
         data-testid="networked-gm-preview-btn"
         onClick={askForPreview}
-        disabled={previewPending}
+        disabled={previewPending || approvePending}
         className="rounded border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Preview GM Fix
@@ -187,7 +192,7 @@ export function NetworkedHostGmControls({
         type="button"
         data-testid="networked-gm-approve-btn"
         onClick={applyCorrection}
-        disabled={approvePending}
+        disabled={!canApprove || previewPending || approvePending}
         className="rounded border border-violet-500/50 bg-violet-600/20 px-3 py-1.5 text-sm font-medium text-violet-200 hover:bg-violet-600/30 disabled:cursor-not-allowed disabled:opacity-50"
       >
         Approve GM Fix

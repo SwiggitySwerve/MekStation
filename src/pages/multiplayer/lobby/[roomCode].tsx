@@ -323,6 +323,7 @@ export default function LobbyPage(): React.ReactElement {
     onPreviewHostGmCorrection,
     setPrivateReason,
     onApproveHostGmCorrection,
+    canApproveHostGmCorrection,
   } = useGmCorrectionProducers({
     matchId: resolution?.matchId ?? null,
     wireToken: tokenState?.wireToken ?? null,
@@ -414,6 +415,7 @@ export default function LobbyPage(): React.ReactElement {
           onSendGameIntent={session.sendGameIntent}
           onPreviewHostGmCorrection={onPreviewHostGmCorrection}
           onApproveHostGmCorrection={onApproveHostGmCorrection}
+          canApproveHostGmCorrection={canApproveHostGmCorrection}
           onPrivateReasonChange={setPrivateReason}
           onPreviewRewind={onPreviewRewind}
           onConfirmRewind={onConfirmRewind}

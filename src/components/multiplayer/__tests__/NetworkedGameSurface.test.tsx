@@ -12,7 +12,7 @@
  */
 
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import type { IMatchPausedInfo } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
@@ -143,6 +143,7 @@ interface IRenderOptions {
   readonly hostPlayerId?: string | null;
   readonly onPreviewHostGmCorrection?: jest.Mock;
   readonly onApproveHostGmCorrection?: jest.Mock;
+  readonly canApproveHostGmCorrection?: boolean;
   readonly clientLifecycle?: IClientLifecycleState;
 }
 
@@ -169,6 +170,7 @@ function renderSurface(opts: IRenderOptions = {}) {
       onSendGameIntent={onSendGameIntent}
       onPreviewHostGmCorrection={opts.onPreviewHostGmCorrection}
       onApproveHostGmCorrection={opts.onApproveHostGmCorrection}
+      canApproveHostGmCorrection={opts.canApproveHostGmCorrection}
       clientLifecycle={opts.clientLifecycle}
     />,
   );
@@ -278,14 +280,22 @@ describe('NetworkedGameSurface — turn-ownership gate', () => {
 // =============================================================================
 
 describe('NetworkedGameSurface — command authority projection', () => {
-  it('shows host GM authority controls for the match host', () => {
-    const onPreviewHostGmCorrection = jest.fn();
+  it('shows host GM authority controls for the match host', async () => {
+    const onPreviewHostGmCorrection = jest.fn(async () => ({
+      kind: 'preview' as const,
+      matchId: 'match-fixture',
+      targetRevision: 0,
+      priorHead: { branchId: 'root', revision: 0, effectiveGeneration: 0 },
+      changedViewerIds: [],
+      entries: [],
+    }));
     const onApproveHostGmCorrection = jest.fn();
     renderSurface({
       playerId: 'pid_host',
       hostPlayerId: 'pid_host',
       onPreviewHostGmCorrection,
       onApproveHostGmCorrection,
+      canApproveHostGmCorrection: true,
     });
 
     expect(
@@ -298,7 +308,9 @@ describe('NetworkedGameSurface — command authority projection', () => {
       screen.getByTestId('networked-host-gm-controls'),
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    });
     fireEvent.click(screen.getByTestId('networked-gm-approve-btn'));
 
     expect(onPreviewHostGmCorrection).toHaveBeenCalledTimes(1);

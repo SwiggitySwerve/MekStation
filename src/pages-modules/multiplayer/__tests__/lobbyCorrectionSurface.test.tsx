@@ -215,6 +215,17 @@ function activeSession(): IUseMultiplayerSessionResult {
 function mockFetch(): void {
   global.fetch = jest.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
+    if (url === '/api/matches/match-1/head') {
+      return {
+        status: 200,
+        json: async () => ({
+          branchId: 'root',
+          revision: 4,
+          effectiveGeneration: 1,
+          digest: '4'.repeat(64),
+        }),
+      } as Response;
+    }
     if (url.includes('/api/multiplayer/invites/')) {
       return {
         ok: true,
@@ -273,6 +284,35 @@ describe('multiplayer lobby page - the host GM correction surface', () => {
     for (const testId of CORRECTION_TESTIDS) {
       expect(screen.getByTestId(testId)).toBeInTheDocument();
     }
+  });
+
+  it('enables approval only for a successful current preview and consumes it on approval', async () => {
+    seedIdentity(HOST_ID, 'Host');
+    mockSession = activeSession();
+    mockedPreview.mockResolvedValueOnce({
+      kind: 'preview',
+      matchId: 'match-1',
+      targetRevision: 3,
+      priorHead: { branchId: 'root', revision: 4, effectiveGeneration: 1 },
+      changedViewerIds: [],
+      entries: [],
+    });
+    render(<LobbyPage />);
+    const approve = await screen.findByTestId('networked-gm-approve-btn');
+    expect(approve).toBeDisabled();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    });
+    expect(approve).toBeEnabled();
+    await act(async () => {
+      fireEvent.click(approve);
+    });
+    expect(mockedCommit).toHaveBeenCalledTimes(1);
+    expect(approve).toBeDisabled();
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    });
+    expect(approve).toBeDisabled();
   });
 
   it('gives the private-reason input an accessible name that says who can read it', async () => {

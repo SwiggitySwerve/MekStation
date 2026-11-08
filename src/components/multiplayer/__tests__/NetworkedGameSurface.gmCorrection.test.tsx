@@ -102,11 +102,74 @@ describe('the rewind-commit route reason bound', () => {
 // =============================================================================
 
 describe('Approve GM Fix', () => {
+  it('starts disabled until the producer has a successful current preview', () => {
+    const onApprove = jest.fn();
+    const { rerender } = render(
+      <NetworkedHostGmControls onPreview={jest.fn()} onApprove={onApprove} />,
+    );
+    const approve = screen.getByTestId('networked-gm-approve-btn');
+    expect(approve).toBeDisabled();
+    fireEvent.click(approve);
+    expect(onApprove).not.toHaveBeenCalled();
+    rerender(
+      <NetworkedHostGmControls
+        canApprove
+        onPreview={jest.fn()}
+        onApprove={onApprove}
+      />,
+    );
+    expect(approve).toBeEnabled();
+    rerender(
+      <NetworkedHostGmControls
+        canApprove={false}
+        onPreview={jest.fn()}
+        onApprove={onApprove}
+      />,
+    );
+    expect(approve).toBeDisabled();
+  });
+
+  it('blocks approval and clears the old status while another preview is pending', async () => {
+    const preview = deferred<GmRewindPreviewOutcome>();
+    const onPreview = jest
+      .fn()
+      .mockResolvedValueOnce(UNAVAILABLE)
+      .mockReturnValueOnce(preview.promise);
+    const onApprove = jest.fn();
+    render(
+      <NetworkedHostGmControls
+        canApprove
+        onPreview={onPreview}
+        onApprove={onApprove}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    });
+    expect(
+      screen.getByTestId('networked-gm-correction-status'),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('networked-gm-preview-btn'));
+    expect(screen.getByTestId('networked-gm-approve-btn')).toBeDisabled();
+    expect(
+      screen.queryByTestId('networked-gm-correction-status'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('networked-gm-approve-btn'));
+    expect(onApprove).not.toHaveBeenCalled();
+    await act(async () => {
+      preview.resolve(UNAVAILABLE);
+    });
+  });
+
   it('sends one commit for a double press', async () => {
     const commit = deferred<GmCombatRewindCommitResult>();
     const onApprove = jest.fn(() => commit.promise);
     render(
-      <NetworkedHostGmControls onPreview={jest.fn()} onApprove={onApprove} />,
+      <NetworkedHostGmControls
+        canApprove
+        onPreview={jest.fn()}
+        onApprove={onApprove}
+      />,
     );
 
     doublePress(screen.getByTestId('networked-gm-approve-btn'));
@@ -124,7 +187,11 @@ describe('Approve GM Fix', () => {
       .mockReturnValueOnce(first.promise)
       .mockResolvedValueOnce(COMMITTED);
     render(
-      <NetworkedHostGmControls onPreview={jest.fn()} onApprove={onApprove} />,
+      <NetworkedHostGmControls
+        canApprove
+        onPreview={jest.fn()}
+        onApprove={onApprove}
+      />,
     );
     const approve = screen.getByTestId('networked-gm-approve-btn');
 
@@ -152,7 +219,11 @@ describe('Approve GM Fix', () => {
     const commit = deferred<GmCombatRewindCommitResult>();
     const onApprove = jest.fn(() => commit.promise);
     render(
-      <NetworkedHostGmControls onPreview={jest.fn()} onApprove={onApprove} />,
+      <NetworkedHostGmControls
+        canApprove
+        onPreview={jest.fn()}
+        onApprove={onApprove}
+      />,
     );
     const approve = screen.getByTestId('networked-gm-approve-btn');
 
@@ -170,7 +241,11 @@ describe('Approve GM Fix', () => {
   it('keeps working for a caller whose handler answers nothing', async () => {
     const onApprove = jest.fn();
     render(
-      <NetworkedHostGmControls onPreview={jest.fn()} onApprove={onApprove} />,
+      <NetworkedHostGmControls
+        canApprove
+        onPreview={jest.fn()}
+        onApprove={onApprove}
+      />,
     );
     const approve = screen.getByTestId('networked-gm-approve-btn');
 

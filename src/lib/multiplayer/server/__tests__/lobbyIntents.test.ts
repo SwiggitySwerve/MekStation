@@ -350,6 +350,7 @@ describe('ServerMatchHost lobby intents', () => {
     }
     const meta = await store.getMatchMeta(matchId);
     expect(meta.status).toBe('active');
+    expect(meta.roomCode).toBeUndefined();
     // Invite code should no longer resolve once launched.
     const resolved = await store.getMatchByRoomCode('ABCDEF');
     expect(resolved).toBeNull();
