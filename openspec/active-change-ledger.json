@@ -179,6 +179,12 @@
       "status": "in-progress",
       "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-combat-unit-exit-outcomes",
+      "status": "in-progress",
+      "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }

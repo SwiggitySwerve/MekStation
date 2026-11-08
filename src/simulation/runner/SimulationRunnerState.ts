@@ -31,6 +31,7 @@ import {
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 import { hasSPA } from '@/utils/gameplay/spaModifiers';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -533,12 +534,7 @@ export function applyDamageResultToState(
 }
 
 export function isUnitOperable(unit: IUnitGameState): boolean {
-  return (
-    !unit.destroyed &&
-    !unit.hasRetreated &&
-    !unit.hasEjected &&
-    unit.pilotConscious !== false
-  );
+  return getUnitOperability(unit).crewActive;
 }
 
 export function isGameOver(state: IGameState, turnLimit = 0): boolean {

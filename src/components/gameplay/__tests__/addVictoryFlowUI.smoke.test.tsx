@@ -369,6 +369,36 @@ describe('add-victory-flow-ui — smoke test', () => {
       render(<VictoryScreen session={session} playerSide={GameSide.Player} />);
       expect(screen.getByTestId('victory-outcome')).toHaveTextContent('DRAW');
     });
+
+    it('lists retreated and ejected units by how they left, not as Operational', () => {
+      const base = buildCompletedSession({
+        winner: 'draw',
+        reason: 'turn_limit',
+      });
+      const units = base.currentState.units;
+      const session = {
+        ...base,
+        currentState: {
+          ...base.currentState,
+          units: {
+            'unit-player-1': { ...units['unit-player-1'], hasRetreated: true },
+            'unit-opponent-1': {
+              ...units['unit-opponent-1'],
+              destroyed: false,
+              destroyedLocations: [],
+              hasEjected: true,
+            },
+          },
+        },
+      } as IGameSession;
+      render(<VictoryScreen session={session} playerSide={GameSide.Player} />);
+      expect(
+        screen.getByTestId('victory-unit-row-unit-player-1'),
+      ).toHaveTextContent(/Retreated$/);
+      expect(
+        screen.getByTestId('victory-unit-row-unit-opponent-1'),
+      ).toHaveTextContent(/Ejected$/);
+    });
   });
 
   describe('EventLogDisplay damage-feedback wiring', () => {

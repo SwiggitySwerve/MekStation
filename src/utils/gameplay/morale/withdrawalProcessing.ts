@@ -181,7 +181,8 @@ export function applyWithdrawalEdgeExits(session: IGameSession): IGameSession {
  *   - the unit id is unknown,
  *   - the unit is destroyed or has already retreated,
  *   - the unit is already withdrawing (the declaration is sticky — the
- *     player cannot re-declare or cancel).
+ *     player cannot re-declare or cancel),
+ *   - the unit is already retreating (its edge is already locked).
  */
 export function declarePlayerWithdrawal(
   session: IGameSession,
@@ -191,7 +192,7 @@ export function declarePlayerWithdrawal(
   const unit = session.currentState.units[unitId];
   if (!unit) return session;
   if (unit.destroyed || unit.hasRetreated || unit.hasEjected) return session;
-  if (unit.isWithdrawing) return session;
+  if (unit.isWithdrawing || unit.isRetreating) return session;
 
   const { turn, phase } = session.currentState;
   return appendEvent(
