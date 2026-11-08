@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-m5-p2p-reconnect-timeout",
+  "status": "in-progress",
+  "reason": "Root-approved M-M5: guest-side replay wait after the reconnect request, replay-chain .catch, wrong-match peer-rejected handling. No wire changes; answerReconnectRequest untouched.",
+  "lastReviewed": "2026-11-08"
+}
