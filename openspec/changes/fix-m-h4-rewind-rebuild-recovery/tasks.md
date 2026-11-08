@@ -9,10 +9,10 @@
 
 ## PR2: failed and stranded candidates move to blocked
 
-- [ ] 7. Record failing regressions: verification refusal, sealing or activation failure, and a stranded candidate all end `blocked`; the current commit's candidate is never swept.
-- [ ] 8. Move the rewind's own candidate to `blocked` on every refusal or failure after it exists, while the lease is held.
-- [ ] 9. After acquiring the lease, move every other `building` candidate on the same stream to `blocked`.
-- [ ] 10. Kill the block and sweep mutants; run the full affected directories and gates.
+- [x] 7. Record failing regressions: verification refusal, sealing or activation failure, and a stranded candidate all end `blocked`; the current commit's candidate is never swept.
+- [x] 8. Move the rewind's own candidate to `blocked` on every refusal or failure after it exists, while the lease is held.
+- [x] 9. After acquiring the lease, move every other `building` candidate on the same stream to `blocked`.
+- [x] 10. Kill the block and sweep mutants; run the full affected directories and gates.
 
 ## Follow-up (not in this change)
 

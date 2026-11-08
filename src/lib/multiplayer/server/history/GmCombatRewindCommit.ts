@@ -141,6 +141,7 @@ async function runCorrection<TState>(
   stream: IEventHistoryStreamRef,
 ): Promise<GmCombatRewindCommitResult> {
   let held: IHeldCorrectionLease | null = null;
+  let candidateBranchId: string | null = null;
   try {
     const lease = deps.leases.acquireCorrectionLease({
       ...stream,
@@ -158,6 +159,7 @@ async function runCorrection<TState>(
       owner: lease.owner,
       fencingEpoch: lease.fencingEpoch,
     };
+    blockStrandedCandidates(deps, stream);
     await deps.onLeaseHeld?.(lease);
 
     const now = deps.nowIso();
@@ -167,6 +169,7 @@ async function runCorrection<TState>(
       baseRevision: request.targetRevision,
       createdAt: now,
     });
+    candidateBranchId = candidate.branchId;
 
     try {
       await verifyCandidatePath(
@@ -180,6 +183,7 @@ async function runCorrection<TState>(
         deps.verification,
       );
     } catch (error) {
+      blockFailedCandidate(deps, stream, candidate.branchId);
       return refuseCommit(
         'candidate-verification-failed',
         error instanceof Error
@@ -222,6 +226,9 @@ async function runCorrection<TState>(
       invalidations: activated.invalidations,
     });
   } catch (error) {
+    if (candidateBranchId !== null) {
+      blockFailedCandidate(deps, stream, candidateBranchId);
+    }
     return mapCommitCaught(error);
   } finally {
     if (held !== null) {
@@ -235,5 +242,43 @@ async function runCorrection<TState>(
         // by its new owner. Swallow so the domain result is what returns.
       }
     }
+  }
+}
+
+/**
+ * M-H4: under a freshly acquired lease, no earlier `building` candidate
+ * on this stream can still be authorized — the partial unique index
+ * allows one active lease, and it is ours. Block them so an abandoned
+ * correction stops sitting in limbo. Runs before this commit builds its
+ * own candidate, so that one is never swept.
+ */
+function blockStrandedCandidates<TState>(
+  deps: IGmCombatRewindCommitDeps<TState>,
+  stream: IEventHistoryStreamRef,
+): void {
+  for (const branch of deps.branches.listBranches(stream)) {
+    if (branch.status === 'building') {
+      deps.branches.transitionBranchStatus(stream, branch.branchId, 'blocked');
+    }
+  }
+}
+
+/**
+ * M-H4: a candidate this commit built and could not activate is
+ * terminal. Blocked while the lease is still held. A failure to block
+ * must not replace the refusal or error the caller is owed; the next
+ * commit's stranded sweep retries it.
+ */
+function blockFailedCandidate<TState>(
+  deps: IGmCombatRewindCommitDeps<TState>,
+  stream: IEventHistoryStreamRef,
+  branchId: string,
+): void {
+  try {
+    if (deps.branches.readBranch(stream, branchId)?.status === 'building') {
+      deps.branches.transitionBranchStatus(stream, branchId, 'blocked');
+    }
+  } catch {
+    // Left `building`; the next commit's sweep blocks it.
   }
 }
