@@ -9,3 +9,9 @@
 - [x] Run whole-directory tests, both TypeScript configs, lint, lint:units and
       its Jest suite, formatting, OpenSpec checks and the budget check.
 - [x] Open one draft PR and report evidence to Root without merging.
+
+## Hosted privacy-fixture follow-up
+
+- [x] Reproduce the five hosted metadata privacy failures and correct only non-lobby fixtures.
+- [x] Audit roomCode: fixtures across the requested paths and run every containing directory, recording browser failures and incomplete coverage explicitly.
+- [x] Preserve privacy assertions and rerun both TypeScript configs, lint gates, formatting, OpenSpec and the unchanged budget.
