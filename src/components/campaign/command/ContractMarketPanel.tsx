@@ -58,6 +58,8 @@ interface OfferCardProps {
   /** True while an action for this offer is in flight. */
   readonly isBusy: boolean;
   readonly blockedReason?: string;
+  /** Why Decline alone is unavailable; defaults to `blockedReason`. */
+  readonly declineBlockedReason?: string;
 }
 
 /**
@@ -70,6 +72,7 @@ export function OfferCard({
   onDecline,
   isBusy,
   blockedReason,
+  declineBlockedReason = blockedReason,
 }: OfferCardProps): React.ReactElement {
   return (
     <CampaignListCard
@@ -123,8 +126,8 @@ export function OfferCard({
             <button
               type="button"
               onClick={() => onDecline(offer.id)}
-              disabled={isBusy || !!blockedReason}
-              title={blockedReason}
+              disabled={isBusy || !!declineBlockedReason}
+              title={declineBlockedReason}
               className="bg-surface-raised hover:bg-border-theme text-text-theme-primary rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               data-testid={`offer-decline-${offer.id}`}
             >
@@ -151,6 +154,8 @@ export interface ContractMarketPanelProps {
   /** Offer id of an action currently in flight, if any. */
   readonly busyOfferId?: string | null;
   readonly blockedReason?: string;
+  /** Why Decline alone is unavailable; defaults to `blockedReason`. */
+  readonly declineBlockedReason?: string;
 }
 
 /**
@@ -164,6 +169,7 @@ export function ContractMarketPanel({
   onDecline,
   busyOfferId,
   blockedReason,
+  declineBlockedReason,
 }: ContractMarketPanelProps): React.ReactElement {
   if (offers.length === 0) {
     return (
@@ -184,6 +190,7 @@ export function ContractMarketPanel({
           onDecline={onDecline}
           isBusy={busyOfferId === offer.id}
           blockedReason={blockedReason}
+          declineBlockedReason={declineBlockedReason ?? blockedReason}
         />
       ))}
     </div>
