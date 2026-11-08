@@ -1,5 +1,9 @@
+import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { IGuestProposal } from '@/types/campaign/CoopCampaign';
 import type { IForce } from '@/types/campaign/Force';
+import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
+import type { IContract } from '@/types/campaign/Mission';
 
 import { createCampaign } from '@/types/campaign/Campaign';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
@@ -13,6 +17,7 @@ import {
   openCoopRuntimeSession,
   publishCoopParticipation,
   getCoopParticipationRecords,
+  getCoopRuntimeSessionByMatch,
   submitGuestProposalToHost,
 } from '../coopRuntimeSession';
 
@@ -248,5 +253,130 @@ describe('coopRuntimeSession', () => {
         force,
       }),
     ]);
+  });
+});
+
+// K14b PR3: the in-browser co-op host is the host's own campaign, so its
+// market is the authority a hire or an acceptance is judged against - read
+// live, so an offer the market gains after the session opened counts.
+describe('coopRuntimeSession - host market binding', () => {
+  beforeEach(() => {
+    _resetCoopRuntimeSessions();
+  });
+
+  function recruit(id: string, hireCost: number): IPersonnelMarketOffer {
+    return {
+      id,
+      name: `Recruit ${id}`,
+      hireCost,
+      expirationDate: '3999-12-31',
+    } as IPersonnelMarketOffer;
+  }
+
+  function contract(id: string): IContract {
+    return {
+      id,
+      name: `Stored ${id}`,
+      employerId: 'house-davion',
+    } as IContract;
+  }
+
+  async function openWithMarket(read: () => ICampaign | null) {
+    await openCoopRuntimeSession(makeHostCampaign(), {
+      matchId: 'match-runtime-1',
+      roomCode: 'ABC234',
+      hostPlayerId: 'host',
+      arbitrationMode: 'auto-approve',
+      readCampaign: read,
+    });
+    const runtime = getCoopRuntimeSessionByMatch('match-runtime-1');
+    if (runtime === null) throw new Error('no runtime');
+    return runtime.host;
+  }
+
+  it('hires and accepts from the live host campaign market', async () => {
+    let live: ICampaignWithCommand = {
+      ...makeHostCampaign(),
+      personnelMarket: [recruit('offer-a', 40_000)],
+      contractMarket: {
+        offers: [contract('contract-a'), contract('contract-x')],
+        declinedOfferIds: ['contract-x'],
+      },
+    };
+    const host = await openWithMarket(() => live);
+    // A refresh after the session opened.
+    live = {
+      ...live,
+      personnelMarket: [
+        ...(live.personnelMarket ?? []),
+        recruit('offer-b', 60_000),
+      ],
+    };
+
+    const hired = await host.applyHostIntent({
+      kind: 'HireOffer',
+      campaignId: 'campaign-runtime',
+      intentId: 'intent-hire-b',
+      payload: { offerId: 'offer-b' },
+    });
+    const accepted = await host.applyHostIntent({
+      kind: 'AcceptContract',
+      campaignId: 'campaign-runtime',
+      intentId: 'intent-accept-a',
+      payload: {
+        contract: {
+          contractId: 'contract-a',
+          name: 'CALLER SUPPLIED NAME',
+          employerFactionId: 'caller-supplied-employer',
+        },
+      },
+    });
+    const declined = await host.applyHostIntent({
+      kind: 'AcceptContract',
+      campaignId: 'campaign-runtime',
+      intentId: 'intent-accept-x',
+      payload: {
+        contract: {
+          contractId: 'contract-x',
+          name: 'x',
+          employerFactionId: 'house-davion',
+        },
+      },
+    });
+
+    expect(hired).toMatchObject({ ok: true });
+    if (hired.ok) {
+      expect(hired.events[1].payload).toStrictEqual({
+        pilot: { pilotId: 'hired-offer-b', name: 'Recruit offer-b' },
+        cost: 60_000,
+      });
+    }
+    expect(accepted).toMatchObject({ ok: true });
+    if (accepted.ok) {
+      expect(accepted.events[0].payload).toStrictEqual({
+        contract: {
+          contractId: 'contract-a',
+          name: 'Stored contract-a',
+          employerFactionId: 'house-davion',
+        },
+      });
+    }
+    expect(declined).toMatchObject({ ok: false, reason: 'offer-declined' });
+  });
+
+  it('refuses a hire when the live campaign is another campaign or gone', async () => {
+    const host = await openWithMarket(() => null);
+
+    const result = await host.applyHostIntent({
+      kind: 'HireOffer',
+      campaignId: 'campaign-runtime',
+      intentId: 'intent-hire-gone',
+      payload: { offerId: 'offer-a' },
+    });
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: 'offer-source-unavailable',
+    });
   });
 });

@@ -95,10 +95,38 @@ export interface IAuthoritativePersonnelOffer {
  * an authority that supplies none refuses every `HireOffer`
  * (`offer-source-unavailable`) rather than trusting the intent.
  */
+/**
+ * One contract-market offer as the AUTHORITY holds it - the only place an
+ * acceptance's contract id, name and employer may come from (K14b).
+ */
+export interface IAuthoritativeContractOffer {
+  readonly contractId: string;
+  readonly name: string;
+  /** The exact opaque `IContract.employerId`; drives the standing gate. */
+  readonly employerFactionId: string;
+  /** The offer is in the market's `declinedOfferIds`. */
+  readonly declined: boolean;
+  /** The contract's end date, when it has one. */
+  readonly endDate?: string;
+  /** The authority's campaign date; required to judge a dated offer. */
+  readonly campaignDate?: string;
+}
+
+/**
+ * A reader's answer: the offer, `null` when the market holds no usable offer
+ * under that id, or `'source-unavailable'` when the authority cannot read a
+ * market at all right now (no saved row, an unreadable one, a host whose
+ * campaign is gone). The last is not the same fact as an absent offer.
+ */
+export type AuthoritativeOfferLookup<T> = T | null | 'source-unavailable';
+
 export interface ICampaignIntentContext {
   readonly personnelOffer?: (
     offerId: string,
-  ) => IAuthoritativePersonnelOffer | null;
+  ) => AuthoritativeOfferLookup<IAuthoritativePersonnelOffer>;
+  readonly contractOffer?: (
+    contractId: string,
+  ) => AuthoritativeOfferLookup<IAuthoritativeContractOffer>;
 }
 
 /** Helper — build a typed rejection. */
@@ -210,6 +238,9 @@ export function validateCampaignIntent(
         return reject('offer-source-unavailable');
       }
       const offer = context.personnelOffer(intent.payload.offerId);
+      if (offer === 'source-unavailable') {
+        return reject('offer-source-unavailable');
+      }
       if (offer === null || offer.offerId !== intent.payload.offerId) {
         return reject('offer-not-found');
       }
@@ -247,13 +278,44 @@ export function validateCampaignIntent(
     }
 
     case 'AcceptContract': {
-      const { contract } = intent.payload;
+      // K14b: the intent only NAMES the contract. Its id, name and employer
+      // come from the authority's market; a caller-described contract is
+      // how a co-op guest had an invented contract committed.
+      if (context?.contractOffer === undefined) {
+        return reject('offer-source-unavailable');
+      }
+      const contractId = intent.payload.contract.contractId;
+      const offer = context.contractOffer(contractId);
+      if (offer === 'source-unavailable') {
+        return reject('offer-source-unavailable');
+      }
+      if (offer === null || offer.contractId !== contractId) {
+        return reject('offer-not-found');
+      }
+      if (state.contracts[contractId] !== undefined) {
+        return reject('offer-consumed');
+      }
+      // MekHQ removes a declined offer from the board (e7adc2c
+      // ChaosContractMarketDialog.java:686-695): never signable.
+      if (offer.declined) return reject('offer-declined');
+      if (offer.endDate) {
+        if (!offer.campaignDate) return reject('offer-source-unavailable');
+        if (offer.endDate.slice(0, 10) < offer.campaignDate.slice(0, 10)) {
+          return reject('offer-expired');
+        }
+      }
       // Faction-standing gate — the campaign analogue of the combat
-      // "unit ownership" validation (design D4 step 3).
-      const standing = state.factionStanding[contract.employerFactionId] ?? 0;
+      // "unit ownership" validation (design D4 step 3) - judged on the
+      // employer the market stored.
+      const standing = state.factionStanding[offer.employerFactionId] ?? 0;
       if (standing < CONTRACT_MIN_STANDING) {
         return reject('insufficient-standing');
       }
+      const contract = {
+        contractId,
+        name: offer.name,
+        employerFactionId: offer.employerFactionId,
+      };
       return {
         ok: true,
         events: [mk('ContractAccepted', { contract })],

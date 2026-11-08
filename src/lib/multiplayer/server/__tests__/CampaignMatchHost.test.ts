@@ -12,6 +12,7 @@
 
 import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
+  IAuthoritativeContractOffer,
   IAuthoritativePersonnelOffer,
   ICampaignIntentContext,
 } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
@@ -41,6 +42,45 @@ const AUTHORITATIVE_OFFER: IAuthoritativePersonnelOffer = {
   expirationDate: '3025-01-10',
   campaignDate: '3025-01-03',
 };
+
+/** The market's record of one contract, as the authoritative source holds it. */
+const AUTHORITATIVE_CONTRACT: IAuthoritativeContractOffer = {
+  contractId: 'contract-1',
+  name: 'Garrison Duty',
+  employerFactionId: 'davion',
+  declined: false,
+  endDate: '3025-06-30',
+  campaignDate: '3025-01-03',
+};
+
+/** A host market holding exactly `contracts`. */
+function contractMarket(
+  ...contracts: IAuthoritativeContractOffer[]
+): ICampaignIntentContext {
+  return {
+    contractOffer: (contractId) =>
+      contracts.find((one) => one.contractId === contractId) ?? null,
+  };
+}
+
+/**
+ * An AcceptContract whose payload describes a DIFFERENT contract than the
+ * market holds, so anything derived from the payload is visible.
+ */
+function acceptContract(contractId: string) {
+  return {
+    kind: 'AcceptContract' as const,
+    campaignId: CAMPAIGN_ID,
+    intentId: `intent-accept-${contractId}`,
+    payload: {
+      contract: {
+        contractId,
+        name: 'CALLER SUPPLIED NAME',
+        employerFactionId: 'caller-supplied-employer',
+      },
+    },
+  };
+}
 
 function hireOffer(offerId: string) {
   return {
@@ -443,20 +483,17 @@ describe('CampaignMatchHost — rejected intent', () => {
   });
 
   it('a contract intent is rejected when standing is below the minimum', async () => {
-    const { host } = makeHost(stateWith({ factionStanding: { kurita: -5 } }));
+    // The standing gate judges the employer the MARKET stored. The payload
+    // names a caller-supplied employer with no standing record at all.
+    const { host } = makeHost(
+      stateWith({ factionStanding: { kurita: -5 } }),
+      contractMarket({
+        ...AUTHORITATIVE_CONTRACT,
+        employerFactionId: 'kurita',
+      }),
+    );
     await host.open();
-    const result = await host.handleIntent({
-      kind: 'AcceptContract',
-      campaignId: CAMPAIGN_ID,
-      intentId: 'intent-contract',
-      payload: {
-        contract: {
-          contractId: 'c1',
-          name: 'Hostile contract',
-          employerFactionId: 'kurita',
-        },
-      },
-    });
+    const result = await host.handleIntent(acceptContract('contract-1'));
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toBe('insufficient-standing');
@@ -570,5 +607,116 @@ describe('CampaignMatchHost — campaign mismatch', () => {
     if (!result.ok) {
       expect(result.reason).toBe('campaign-mismatch');
     }
+  });
+});
+
+// K14b PR3: the match host took the contract a guest described - id,
+// name and employer - and committed it after a GM approval. Every fact now
+// comes from the host's contract market.
+describe('CampaignMatchHost - contract acceptance from the market', () => {
+  it('commits the contract the market holds, not the one the intent describes', async () => {
+    const { host, received } = makeHost(
+      stateWith({}),
+      contractMarket(AUTHORITATIVE_CONTRACT),
+    );
+    await host.open();
+    received.length = 0;
+
+    const result = await host.handleIntent(acceptContract('contract-1'));
+
+    expect(result.ok).toBe(true);
+    expect(received.map((event) => event.payload)).toStrictEqual([
+      {
+        contract: {
+          contractId: 'contract-1',
+          name: 'Garrison Duty',
+          employerFactionId: 'davion',
+        },
+      },
+    ]);
+  });
+
+  it('refuses an acceptance when the host has no contract market to read', async () => {
+    const { host, received } = makeHost(stateWith({}));
+    await host.open();
+    received.length = 0;
+
+    const result = await host.handleIntent(acceptContract('contract-1'));
+
+    expect(result).toMatchObject({
+      ok: false,
+      reason: 'offer-source-unavailable',
+    });
+    expect(received).toHaveLength(0);
+  });
+
+  it.each([
+    ['an unknown contract', 'contract-404', 'offer-not-found'],
+    ['a declined contract', 'contract-declined', 'offer-declined'],
+    ['an ended contract', 'contract-ended', 'offer-expired'],
+  ])('refuses %s, committing nothing', async (_label, contractId, reason) => {
+    const { host, received } = makeHost(
+      stateWith({}),
+      contractMarket(
+        AUTHORITATIVE_CONTRACT,
+        {
+          ...AUTHORITATIVE_CONTRACT,
+          contractId: 'contract-declined',
+          declined: true,
+        },
+        {
+          ...AUTHORITATIVE_CONTRACT,
+          contractId: 'contract-ended',
+          endDate: '3025-01-02',
+        },
+      ),
+    );
+    await host.open();
+    received.length = 0;
+
+    const result = await host.handleIntent(acceptContract(contractId));
+
+    expect(result).toMatchObject({ ok: false, reason });
+    expect(received).toHaveLength(0);
+  });
+
+  it('accepts a contract on its end date and one with no end date', async () => {
+    const { host } = makeHost(
+      stateWith({}),
+      contractMarket(
+        { ...AUTHORITATIVE_CONTRACT, endDate: '3025-01-03' },
+        {
+          ...AUTHORITATIVE_CONTRACT,
+          contractId: 'contract-open',
+          endDate: undefined,
+        },
+      ),
+    );
+    await host.open();
+
+    expect((await host.handleIntent(acceptContract('contract-1'))).ok).toBe(
+      true,
+    );
+    expect((await host.handleIntent(acceptContract('contract-open'))).ok).toBe(
+      true,
+    );
+  });
+
+  it('refuses a second acceptance of the same contract', async () => {
+    const { host } = makeHost(
+      stateWith({}),
+      contractMarket(AUTHORITATIVE_CONTRACT),
+    );
+    await host.open();
+    expect((await host.handleIntent(acceptContract('contract-1'))).ok).toBe(
+      true,
+    );
+
+    const second = await host.handleIntent({
+      ...acceptContract('contract-1'),
+      intentId: 'intent-accept-again',
+    });
+
+    expect(second).toMatchObject({ ok: false, reason: 'offer-consumed' });
   });
 });

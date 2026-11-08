@@ -31,6 +31,7 @@ import {
   disjointCampaign,
   envelopeOf,
   eventTypes,
+  fixtureContract,
   fixtureOffer,
   flushMeasurements,
   intentOf,
@@ -72,10 +73,9 @@ async function routeCommandThenSaves(
   payload: unknown,
   personnelMarket?: readonly IPersonnelMarketOffer[],
 ) {
-  const { record, genesisBy } = await createJournalNative(
-    campaignId,
+  const { record, genesisBy } = await createJournalNative(campaignId, {
     personnelMarket,
-  );
+  });
   const wire = await seatedCaller(campaignId);
   const command = await postCommand(
     campaignId,
@@ -246,7 +246,10 @@ describe('U35e journal-only campaign effects survive a whole-envelope save', () 
   it('(c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save', async () => {
     const id = 'u35e-coop-contract';
     const { record, genesisBy } = await createJournalNative(id);
-    const host = await openCoopHost(record);
+    const host = await openCoopHost(
+      record,
+      marketOf([], [fixtureContract('contract-c2', 'faction-c2')]),
+    );
     const accept = await host.applyHostIntent(
       intentOf(id, 'intent-c2-accept', 'AcceptContract', {
         contract: {
