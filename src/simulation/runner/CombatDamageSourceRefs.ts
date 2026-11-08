@@ -62,11 +62,11 @@ export const MEKSTATION_DAMAGE_EVENT_SOURCE_REFS = [
 export const MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS = [
   damageMekStationRef(
     'MekStation runner heat cookoffs empty the selected ammo bin, apply CASE-adjusted internal damage, emit damage/transfer/destruction events, and mark fatal cascades as ammo_explosion.',
-    'src/simulation/runner/phases/heatAmmoExplosions.ts#L150-L288',
+    'src/simulation/runner/phases/heatAmmoExplosions.ts#L156-L334',
   ),
   damageMekStationRef(
     'MekStation crit-induced ammo explosions share the same internal-only cascade, CASE adjustment, pilot damage, and ammo_explosion cause propagation.',
-    'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L53-L287',
+    'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L72-L317',
   ),
   damageMekStationRef(
     'MekStation event-sourced heat resolution routes heat ammo cookoff through the same damage, pilot-hit, and destruction event contracts.',

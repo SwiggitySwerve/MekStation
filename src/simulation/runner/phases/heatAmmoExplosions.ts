@@ -225,6 +225,20 @@ export function applyHeatInducedAmmoExplosions(
         unitId,
       ),
     );
+    appendHeatEvent({
+      events,
+      gameId,
+      turn: currentState.turn,
+      unitId,
+      eventType: GameEventType.AmmoConsumed,
+      payload: {
+        unitId,
+        binId: bin.binId,
+        weaponType: bin.weaponType,
+        roundsConsumed: bin.remainingRounds,
+        roundsRemaining: 0,
+      },
+    });
 
     const emptiedAmmoState = {
       ...(unit.ammoState ?? {}),
