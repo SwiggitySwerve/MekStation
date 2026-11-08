@@ -26,7 +26,7 @@ export const MEKSTATION_CHARGED_CAPACITOR_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS 
     ),
     explosiveEquipmentMekStationRef(
       'MekStation runner critical explosion handling cascades represented equipment explosion damage through AmmoExplosion and DamageApplied events.',
-      'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L53-L287',
+      'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L72-L317',
     ),
     explosiveEquipmentMekStationRef(
       'MekStation tests prove represented PPC Capacitor criticals emit explosion payloads and runner damage cascades without claiming broader linked-capacitor lifecycle parity.',
@@ -195,7 +195,7 @@ export const MEKSTATION_PROTOTYPE_IMPROVED_JUMP_JET_EQUIPMENT_CRITICAL_EFFECT_SO
     ),
     explosiveEquipmentMekStationRef(
       'MekStation runner critical explosion handling cascades represented equipment explosion damage through AmmoExplosion and DamageApplied events.',
-      'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L53-L287',
+      'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L72-L317',
     ),
     explosiveEquipmentMekStationRef(
       'MekStation critical-hit resolution tests prove represented Prototype Improved Jump Jet criticals explode only when secondary effects are enabled.',
@@ -226,7 +226,7 @@ export const MEKSTATION_REPRESENTED_EXPLOSIVE_EQUIPMENT_CRITICAL_EFFECT_SOURCE_R
     ),
     explosiveEquipmentMekStationRef(
       'MekStation runner critical explosion handling cascades represented equipment explosion damage through AmmoExplosion and DamageApplied events.',
-      'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L53-L287',
+      'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L72-L317',
     ),
     explosiveEquipmentMekStationRef(
       'MekStation runner tests prove represented equipment explosion payloads emit equipment AmmoExplosion events without ammo-bin fallback fields.',
