@@ -535,15 +535,46 @@ export class ServerMatchHost {
   }
 
   /**
-   * Reload persisted delivery slots into the in-memory mapping. A store
-   * without the port, or a load error, leaves the mapping empty so
-   * SessionJoin falls back to a full replay.
+   * Reload persisted delivery slots and their applied receipts. A store
+   * without the delivery port, or a slot load error, leaves the mapping
+   * empty so SessionJoin falls back to a full replay. Missing/unreadable
+   * receipts leave only that viewer's restored slots unacked.
    */
   restorePersistedViewerDeliveries = async (): Promise<void> => {
     if (!hasViewerDeliveryStore(this.store)) return;
     try {
       const rows = await this.store.listViewerDeliveryRecords(this.matchId);
       this.deliveryCursors.loadFromRecords(rows);
+      if (!hasViewerDeliveryAcknowledgementStore(this.store)) return;
+      for (const playerId of Array.from(
+        new Set(rows.map((row) => row.playerId)),
+      )) {
+        const issued = this.deliveryCursors.issued(playerId);
+        // Noncontiguous records were rejected: their receipt cannot name
+        // any slot in this restored stream either.
+        if (issued === 0) continue;
+        try {
+          const ack = await this.store.getViewerDeliveryAcknowledgement(
+            this.matchId,
+            playerId,
+          );
+          if (
+            ack !== null &&
+            ack.matchId === this.matchId &&
+            ack.playerId === playerId &&
+            Number.isSafeInteger(ack.deliverySequence) &&
+            ack.deliverySequence >= 0 &&
+            ack.deliverySequence < issued
+          ) {
+            this.deliveryCursors.acknowledge(playerId, ack.deliverySequence);
+          }
+        } catch (error) {
+          logger.warn(
+            '[ServerMatchHost] viewer ack restore failed; this viewer remains unacked',
+            error,
+          );
+        }
+      }
     } catch (error) {
       logger.warn(
         '[ServerMatchHost] viewer delivery restore failed; resume will fall back to a full replay',

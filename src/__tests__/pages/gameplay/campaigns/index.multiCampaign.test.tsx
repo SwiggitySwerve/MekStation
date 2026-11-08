@@ -67,6 +67,7 @@ jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
 
 const mockLoadCampaign = jest.fn<Promise<boolean>, [string]>(async () => true);
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: {
     getState: () => ({ loadCampaign: mockLoadCampaign }),
   },

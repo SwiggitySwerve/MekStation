@@ -39,6 +39,21 @@ The existing seven-day completed-match retention remains in force.
 General metadata and lobby transition validation is a follow-up; completion
 does not introduce a transition guard for every metadata patch.
 
+## Viewer delivery recovery and rewind
+
+Active-match recovery restores contiguous per-viewer delivery records and
+their persisted acknowledgements before draining pending publications.
+Each receipt must identify that match and viewer and name an issued delivery
+slot. Missing, unreadable, or out-of-range receipts leave that viewer's
+restored frames unacked; one viewer's read failure does not block another.
+Stores without acknowledgement support retain unacked accounting.
+
+A live rewind discards in-memory delivery records, acknowledgements,
+isolation, and refused-event resume markers before replaying the rebuilt stream.
+Restart recovery on an activated rewind skips the superseded delivery
+records and their acknowledgements. Both paths start the rebuilt stream
+with its own delivery numbers and acknowledgement window.
+
 ## y-webrtc / peer-to-peer is a non-authoritative fallback
 
 The y-webrtc / P2P stack (`src/lib/p2p/`) is a **non-authoritative

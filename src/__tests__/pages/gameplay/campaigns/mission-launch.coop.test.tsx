@@ -115,6 +115,7 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     reportLaunchConflict: () => {},
   };
   return {
+    hasUnsettledCampaignPersistence: () => false,
     useCampaignPersistenceStore: Object.assign(
       (selector: (state: typeof persistenceState) => unknown) =>
         selector(persistenceState),
