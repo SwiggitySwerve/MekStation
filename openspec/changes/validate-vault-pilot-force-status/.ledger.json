@@ -1,6 +1,6 @@
 {
   "name": "validate-vault-pilot-force-status",
-  "status": "in-progress",
-  "reason": "Approved Wave 2 item 41: validate vault pilot and force statuses, prevent normal KIA revival, and refuse unknown pilot availability.",
+  "status": "implemented-awaiting-ci",
+  "reason": "Wave 2 item 41 implemented; 221 full-directory suites pass and three mutants are killed. The repository-wide-key budget failure is identical on untouched base; draft CI and Root review remain pending.",
   "lastReviewed": "2026-11-08"
 }

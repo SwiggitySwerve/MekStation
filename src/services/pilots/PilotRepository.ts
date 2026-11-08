@@ -35,6 +35,12 @@ import {
   PilotErrorCode,
   type IPilotOperationResult,
 } from './PilotRepository.types';
+import {
+  canTransitionPilotStatus,
+  INVALID_PILOT_STATUS_ERROR,
+  parsePilotStatus,
+  PILOT_REVIVAL_ERROR,
+} from './pilotStatus';
 
 // =============================================================================
 // Result Types
@@ -172,6 +178,24 @@ export class PilotRepository implements IPilotRepository {
     }
 
     try {
+      if ('status' in updates) {
+        const status = parsePilotStatus(updates.status);
+        if (status === null) {
+          return {
+            success: false,
+            error: INVALID_PILOT_STATUS_ERROR,
+            errorCode: PilotErrorCode.ValidationError,
+          };
+        }
+        const pilot = this.getById(id);
+        if (pilot && !canTransitionPilotStatus(pilot.status, status)) {
+          return {
+            success: false,
+            error: PILOT_REVIVAL_ERROR,
+            errorCode: PilotErrorCode.ValidationError,
+          };
+        }
+      }
       const { fields, values } = buildUpdateQuery(updates, now);
 
       if (fields.length === 0) {
