@@ -33,19 +33,29 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { CampaignLaunchHeadResult } from '@/lib/campaign/authority/campaignLaunchHead';
 
+import { resolveCampaignAuthorityMode } from '@/lib/campaign/authority/campaignAuthorityMode';
 import {
   campaignLaunchHeadPorts,
   resolveCampaignLaunchHead,
 } from '@/lib/campaign/authority/campaignLaunchHead';
+import { readCampaignJournalState } from '@/lib/campaign/authority/campaignRecordJournalState';
+import {
+  projectReadinessAuthority,
+  type ReadinessAuthority,
+} from '@/lib/campaign/readiness/selectUnitReadiness';
 import {
   initializeApiDatabase,
   rejectMissingQueryString,
   rejectUnexpectedMethod,
   sendCaughtApiError,
 } from '@/pages-modules/api/routeHelpers';
+import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ResponseBody =
-  | Exclude<CampaignLaunchHeadResult, { kind: 'campaign-not-found' }>
+  | (Exclude<CampaignLaunchHeadResult, { kind: 'campaign-not-found' }> & {
+      readonly readinessAuthority?: ReadinessAuthority;
+    })
   | { readonly error: string };
 
 export default function handler(
@@ -69,7 +79,20 @@ export default function handler(
       res.status(404).json({ error: 'not found' });
       return;
     }
-    res.status(200).json(result);
+    const marker = readCampaignMigrationMarker(id);
+    const mode = resolveCampaignAuthorityMode({
+      marker: marker.kind === 'ok' ? marker.marker : null,
+      markerUnreadable: marker.kind === 'corrupt',
+      journalHasStream: result.kind === 'head',
+    });
+    const readinessAuthority = projectReadinessAuthority(
+      mode,
+      mode.kind === 'journal'
+        ? readCampaignJournalState(getSQLiteService().getDatabase(), id)
+            .rosterUnits
+        : undefined,
+    );
+    res.status(200).json({ ...result, readinessAuthority });
   } catch (error) {
     sendCaughtApiError(res, error, 'failed to read campaign head');
   }

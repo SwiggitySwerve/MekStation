@@ -26,6 +26,7 @@ import path from 'node:path';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 
+import { createLegacyMarker } from '@/lib/campaign/authority/campaignAuthorityMigration';
 import { appendCampaignGenesis } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
@@ -33,6 +34,7 @@ import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventSt
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import handler from '@/pages-modules/api/campaignLaunchHeadRoute';
+import { writeCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import {
   getSQLiteService,
@@ -171,6 +173,20 @@ describe('GET /api/campaigns/:id/head', () => {
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
+  it('reports snapshot readiness authority for a shadowing campaign with a journal stream', async () => {
+    const seeded = await seedCampaignWithJournal();
+    writeCampaignMigrationMarker({
+      ...createLegacyMarker(seeded.campaign.id),
+      state: 'shadowing',
+    });
+    const { req, res, result } = mockReqRes(seeded.campaign.id);
+    await handler(req, res);
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toHaveProperty('readinessAuthority', {
+      kind: 'snapshot',
+    });
+  });
+
   it('answers the effective branch and the JOURNAL revision', async () => {
     const seeded = await seedCampaignWithJournal();
     const { req, res, result } = mockReqRes(seeded.campaign.id);
@@ -226,7 +242,10 @@ describe('GET /api/campaigns/:id/head', () => {
     // 200, not 404: the campaign exists and the journal holds no event
     // for it, so there is no head to name (OD-launch-head-gate).
     expect(result.statusCode).toBe(200);
-    expect(result.body).toEqual({ kind: 'no-authoritative-stream' });
+    expect(result.body).toEqual({
+      kind: 'no-authoritative-stream',
+      readinessAuthority: { kind: 'snapshot' },
+    });
   });
 
   it('never invents a branch for a stream that has no head', async () => {

@@ -19,16 +19,55 @@
  */
 
 import type { ICampaignLaunchHead } from '@/lib/campaign/authority/campaignLaunchHead';
+import type { ICampaignRosterUnit } from '@/types/campaign/CampaignSync';
+
+import {
+  SNAPSHOT_READINESS_AUTHORITY,
+  type ReadinessAuthority,
+} from '@/lib/campaign/readiness/selectUnitReadiness';
+import { rosterUnitSchema } from '@/types/campaign/campaignSyncSchemas';
 
 /** Injected in tests; the browser passes nothing and gets `fetch`. */
 export type LaunchHeadFetch = typeof fetch;
 
-export type CampaignLaunchHeadRead =
+export type CampaignLaunchHeadRead = (
   | ICampaignLaunchHead
   /** The campaign has no journal stream - launch proceeds ungated. */
   | { readonly kind: 'no-authoritative-stream' }
   /** The head could not be established. The caller must not invent one. */
-  | { readonly kind: 'unavailable'; readonly reason: string };
+  | { readonly kind: 'unavailable'; readonly reason: string }
+) & {
+  readonly readinessAuthority?: ReadinessAuthority;
+};
+
+function parseReadinessAuthority(value: unknown): ReadinessAuthority | null {
+  if (value === undefined) return SNAPSHOT_READINESS_AUTHORITY;
+  if (typeof value !== 'object' || value === null || !('kind' in value))
+    return null;
+  if (value.kind === 'snapshot') return SNAPSHOT_READINESS_AUTHORITY;
+  if (
+    value.kind === 'blocked' &&
+    'reason' in value &&
+    typeof value.reason === 'string'
+  ) {
+    return { kind: 'blocked', reason: value.reason };
+  }
+  if (
+    value.kind !== 'journal' ||
+    !('units' in value) ||
+    typeof value.units !== 'object' ||
+    value.units === null ||
+    Array.isArray(value.units)
+  )
+    return null;
+  const units: Record<string, ICampaignRosterUnit['status']> = {};
+  for (const [id, status] of Object.entries(value.units)) {
+    const parsed = rosterUnitSchema.shape.status.safeParse(status);
+    if (!parsed.success) return null;
+    Object.defineProperty(units, id, { value: parsed.data, enumerable: true });
+  }
+  return { kind: 'journal', units };
+}
 
 function unavailable(reason: string): CampaignLaunchHeadRead {
   return { kind: 'unavailable', reason };
@@ -54,8 +93,10 @@ function unavailable(reason: string): CampaignLaunchHeadRead {
 function parseLaunchHead(payload: unknown): CampaignLaunchHeadRead | null {
   if (typeof payload !== 'object' || payload === null) return null;
   const body = payload as Record<string, unknown>;
+  const readinessAuthority = parseReadinessAuthority(body.readinessAuthority);
+  if (!readinessAuthority) return null;
   if (body.kind === 'no-authoritative-stream') {
-    return { kind: 'no-authoritative-stream' };
+    return { kind: 'no-authoritative-stream', readinessAuthority };
   }
   if (body.kind !== 'head') return null;
   const { branchId, revision, effectiveGeneration } = body;
@@ -67,7 +108,13 @@ function parseLaunchHead(payload: unknown): CampaignLaunchHeadRead | null {
   ) {
     return null;
   }
-  return { kind: 'head', branchId, revision, effectiveGeneration };
+  return {
+    kind: 'head',
+    branchId,
+    revision,
+    effectiveGeneration,
+    readinessAuthority,
+  };
 }
 
 /**

@@ -23,6 +23,7 @@ import {
   buildMissionReadinessProjection,
   selectedRosterUnitsForLaunch,
 } from '@/lib/campaign/readiness/missionReadinessProjection';
+import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuthority';
 import { useCampaignRouteLoader } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { syncLaunchedMission } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.launch';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
@@ -81,8 +82,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
     store,
     (state) => state.campaign as CampaignDashboardCampaign | null,
   );
-  const units = rosterStore(
-    (state) => state.getUnitsWithReadiness() as CampaignRosterUnit[],
+  const rosterUnits = rosterStore(
+    (state) => state.units as CampaignRosterUnit[],
   );
   const pilots = rosterStore((state) => state.pilots);
   const missions = rosterStore(
@@ -104,6 +105,8 @@ export default function CampaignDashboardPage(): React.ReactElement {
     rehydratedCampaignId,
   });
   const campaign = routeLoader.campaign as CampaignDashboardCampaign | null;
+
+  const readinessAuthority = useReadinessAuthority(campaign?.id, campaign);
 
   // Install the campaign-store -> persistence-store dirty bridge once the
   // client is hydrated. Idempotent — a remount is a no-op. This is what
@@ -148,8 +151,10 @@ export default function CampaignDashboardPage(): React.ReactElement {
       buildMissionReadinessProjection({
         campaignId: campaign?.id ?? 'campaign-pending',
         mission: undefined,
-        units,
+        units: rosterUnits,
         pilots,
+        campaign: campaign as ICampaign | null,
+        authority: readinessAuthority,
         repairBay: selectRepairBay(campaign as ICampaign | null),
         catalog,
         maxUnits: 4,
@@ -157,8 +162,9 @@ export default function CampaignDashboardPage(): React.ReactElement {
           ? `/gameplay/campaigns/${encodeURIComponent(campaign.id)}`
           : undefined,
       }),
-    [campaign, catalog, pilots, units],
+    [campaign, catalog, pilots, rosterUnits, readinessAuthority],
   );
+  const units = missionReadinessProjection.units.map((entry) => entry.unit);
   const missionReadinessSummary = missionReadinessProjection.canLaunch
     ? `${missionReadinessProjection.selectedUnits.length} roster unit${
         missionReadinessProjection.selectedUnits.length === 1 ? '' : 's'
@@ -231,6 +237,12 @@ export default function CampaignDashboardPage(): React.ReactElement {
         campaign: launchCampaign,
         missionId,
         rosterUnits: deployableUnits,
+        readinessContext: {
+          campaign: currentCampaign,
+          pilots: rosterStore.getState().pilots,
+          rosterUnits: rosterStore.getState().units,
+          authority: readinessAuthority,
+        },
         catalog,
         ...(ownedForces === undefined ? {} : { ownedForces }),
       });
@@ -268,6 +280,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
     launchHead,
     missionCount,
     missionReadinessProjection,
+    readinessAuthority,
     reportLaunchConflict,
     rosterStore,
     router,
@@ -428,7 +441,17 @@ export default function CampaignDashboardPage(): React.ReactElement {
         </p>
       )}
 
-      <CampaignRosterCard units={units} />
+      <CampaignRosterCard
+        units={units}
+        readinessByUnitId={
+          new Map(
+            missionReadinessProjection.units.map((entry) => [
+              entry.unit.unitId,
+              entry,
+            ]),
+          )
+        }
+      />
       <CampaignMissionHistoryCard missions={missions} />
 
       <CampaignQuickActionsCard
