@@ -275,6 +275,9 @@ export class ViewerDeliveryCursors {
    */
   discardAll(): void {
     this.delivered.clear();
+    this.lastAcked.clear();
+    this.isolated.clear();
+    this.isolationResume.clear();
   }
 }
 

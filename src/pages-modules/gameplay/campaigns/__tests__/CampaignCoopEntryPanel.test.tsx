@@ -64,6 +64,7 @@ const mockSaveCampaign = jest.fn(async () => ({
 }));
 
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: {
     getState: () => ({ saveCampaign: mockSaveCampaign }),
   },
@@ -399,6 +400,33 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
       }),
     ).not.toBeInTheDocument();
   });
+
+  it('surfaces an unsettled-campaign create refusal without saving or registering a match', async () => {
+    const message =
+      'Your current campaign is still saving. Try again in a moment.';
+    mockCreateCampaign.mockImplementationOnce(() => {
+      throw new Error(message);
+    });
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => mintBody('Host'),
+    });
+    render(<CampaignCoopEntryPanel />);
+    fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+      target: { value: 'vault-password' },
+    });
+    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+
+    expect(
+      await screen.findByTestId('create-coop-unavailable'),
+    ).toHaveTextContent(message);
+    expect(mockSaveCampaign).not.toHaveBeenCalled();
+    expect(
+      mockFetch.mock.calls.some(([url]) => url === '/api/multiplayer/matches'),
+    ).toBe(false);
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
 });
 
 describe('CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1)', () => {
@@ -556,6 +584,25 @@ describe('CampaignCoopEntryPanel guest creator binding (P2CG1G2, G2-BOOT-1)', ()
       MATCH,
       expect.objectContaining({ campaignId: CAMPAIGN }),
     );
+  });
+
+  it('surfaces an unsettled-campaign guest refusal and closes its join transport', async () => {
+    const message =
+      'Your current campaign is still saving. Try again in a moment.';
+    mockCreateGuestMirrorCampaign.mockImplementationOnce(() => {
+      throw new Error(message);
+    });
+    respond(identity);
+    await submitJoin();
+    await waitFor(() => expect(mockEntrySockets).toHaveLength(1));
+
+    await act(async () => mockEntrySockets[0].inject(snapshot()));
+
+    expect(await screen.findByTestId('join-coop-error')).toHaveTextContent(
+      message,
+    );
+    expect(mockEntrySockets[0].readyState).toBe(3);
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
   it.each<[string, unknown]>([

@@ -151,6 +151,18 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-salvage-acceptance-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-campaign-creation-recovery",
+      "status": "in-progress",
+      "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-combat-unit-exit-outcomes",
       "status": "in-progress",
       "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
