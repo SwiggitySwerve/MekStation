@@ -29,6 +29,10 @@ import type { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHo
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import {
+  isSalvageEligibleAfterExit,
+  readDeltaExitReason,
+} from '@/lib/combat/outcome/deltaExitReason';
 import { UnitFinalStatus } from '@/types/combat/CombatOutcome';
 
 // =============================================================================
@@ -297,8 +301,14 @@ export function deriveCoopBattleConsequences(input: {
             ? 'destroyed'
             : 'damaged',
       });
-    } else if (delta.destroyed) {
-      // A destroyed OpFor unit yields salvage.
+    } else if (
+      isSalvageEligibleAfterExit(
+        readDeltaExitReason(outcome, delta),
+        delta.destroyed,
+      )
+    ) {
+      // A destroyed OpFor unit, or one abandoned by ejection, yields
+      // salvage; one that retreated does not.
       salvageValue += PER_WRECK_SALVAGE;
     }
   }

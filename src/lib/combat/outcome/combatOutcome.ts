@@ -30,7 +30,9 @@ import {
   type IGameUnit,
   type IUnitGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
 import { derivePostBattleReport } from '@/utils/gameplay/postBattleReport';
+import { getUnitExitReason } from '@/utils/gameplay/unitOperability';
 
 /** Options consumed by `deriveCombatOutcome`. */
 export interface IDeriveCombatOutcomeOptions {
@@ -122,13 +124,28 @@ function computeUnitFinalStatus(state: IUnitGameState): UnitFinalStatus {
 }
 
 /**
- * Pilot status from the per-unit state. KIA when unit was destroyed and
- * pilot is not conscious (proxy for "no successful ejection"); WOUNDED
- * for any pilot wounds; otherwise ACTIVE. CAPTURED / MIA / UNCONSCIOUS
- * remain Wave 5 territory.
+ * A pilot is dead at 6 hits, as in MekHQ (`PersonStatus.setHits`/`isDead`,
+ * ResolveScenarioTracker.java:2615-2645). MegaMek sets the hits to 6 when
+ * the crew is killed or doomed (Crew.java:1201-1215, 1252-1258), as a
+ * destroyed head does (TWGameManager.java:23879-23880), and never once the
+ * crew has ejected. A knocked-out pilot in a destroyed unit is not dead.
+ */
+function isPilotKilled(state: IUnitGameState): boolean {
+  if (state.hasEjected === true) return false;
+  return (
+    state.pilotWounds >= PILOT_DEATH_WOUND_THRESHOLD ||
+    state.destructionCause === 'pilot_death' ||
+    state.destructionCause === 'head_destroyed'
+  );
+}
+
+/**
+ * Pilot status from the per-unit state: KIA per `isPilotKilled`, then
+ * UNCONSCIOUS, WOUNDED for any wounds, otherwise ACTIVE. CAPTURED / MIA
+ * need battlefield control, which the outcome does not record yet.
  */
 function computePilotFinalStatus(state: IUnitGameState): PilotFinalStatus {
-  if (state.destroyed && !state.pilotConscious) return PilotFinalStatus.KIA;
+  if (isPilotKilled(state)) return PilotFinalStatus.KIA;
   if (!state.pilotConscious) return PilotFinalStatus.Unconscious;
   if ((state.pilotWounds ?? 0) > 0) return PilotFinalStatus.Wounded;
   return PilotFinalStatus.Active;
@@ -145,6 +162,7 @@ function unitToDelta(
   const armor = state?.armor ?? {};
   const structure = state?.structure ?? {};
   const ammoState = state?.ammoState ?? {};
+  const exitReason = state ? getUnitExitReason(state) : null;
   const ammoRemaining: Record<string, number> = {};
   for (const [binId, slot] of Object.entries(ammoState)) {
     ammoRemaining[binId] = slot.remainingRounds;
@@ -171,6 +189,9 @@ function unitToDelta(
     pilotRef: unit.pilotRef,
     side: unit.side,
     destroyed: state?.destroyed ?? false,
+    // Omitted for a unit that stayed so outcomes without exits keep
+    // their persisted bytes.
+    ...(exitReason !== null ? { exitReason } : {}),
     finalStatus: state ? computeUnitFinalStatus(state) : UnitFinalStatus.Intact,
     armorRemaining: { ...armor },
     internalsRemaining: { ...structure },
@@ -181,7 +202,7 @@ function unitToDelta(
     pilotState: {
       conscious: state?.pilotConscious ?? true,
       wounds: state?.pilotWounds ?? 0,
-      killed: (state?.destroyed ?? false) && !(state?.pilotConscious ?? true),
+      killed: state ? isPilotKilled(state) : false,
       finalStatus: state
         ? computePilotFinalStatus(state)
         : PilotFinalStatus.Active,

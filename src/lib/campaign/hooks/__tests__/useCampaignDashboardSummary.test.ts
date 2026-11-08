@@ -244,3 +244,27 @@ describe('campaign dashboard active-contract summary', () => {
     unmount();
   });
 });
+
+it('counts only active tickets in the dashboard depth', () => {
+  const ticket = {
+    ticketId: 't',
+    unitId: 'u',
+    kind: 'armor' as const,
+    expectedHours: 1,
+    partsRequired: [],
+    source: 'combat' as const,
+    matchId: 'm',
+    createdAt: '3025-01-01',
+    status: 'queued' as const,
+  };
+  expect(
+    extractForceSnapshot({
+      ...createCampaign('Repair count', 'mercenary'),
+      repairQueue: [
+        ticket,
+        { ...ticket, ticketId: 'done', status: 'completed' },
+        { ...ticket, ticketId: 'cancelled', status: 'cancelled' },
+      ],
+    }).repairQueueDepth,
+  ).toBe(1);
+});

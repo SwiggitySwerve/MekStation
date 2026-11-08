@@ -27,6 +27,10 @@ import {
   type IGameUnit,
 } from '@/types/gameplay';
 import { defaultSeats, type IMatchSeat } from '@/types/multiplayer/Lobby';
+import {
+  HEARTBEAT_INTERVAL_MS,
+  HEARTBEAT_TIMEOUT_MS,
+} from '@/types/multiplayer/Protocol';
 
 import { MatchSeatMembershipSource } from '../authorization/MatchSeatMembershipSource';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
@@ -210,6 +214,132 @@ function broadcast(host: ServerMatchHost, event: IGameEvent): Promise<void> {
 }
 
 describe('ServerMatchHost spectator connection — design D5', () => {
+  async function drainDrop(host: ServerMatchHost, matchId: string) {
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId,
+      playerId: 'pid_host',
+      ts: '2026-05-01T00:00:00.000Z',
+      intent: { kind: 'SetReady', slotId: 'missing', ready: true },
+    });
+  }
+
+  it('removes a spectator after the last detach and preserves playing membership', async () => {
+    const { host, store, matchId } = await makeHostWithSpectator(false);
+    const first = makeSocket();
+    const second = makeSocket();
+    await host.admitSocket(first, 'pid_watcher');
+    await host.admitSocket(second, 'pid_watcher');
+    const before = await store.getMatchMeta(matchId);
+    host.detachSocket(first);
+    await drainDrop(host, matchId);
+    expect((await store.getMatchMeta(matchId)).seats).toEqual(before.seats);
+    host.detachSocket(second);
+    await drainDrop(host, matchId);
+    const after = await store.getMatchMeta(matchId);
+    expect(after.seats).toEqual(
+      before.seats?.filter((seat) => seat.kind !== 'spectator'),
+    );
+    expect(after.playerIds).toEqual(before.playerIds);
+    expect(after.sideAssignments).toEqual(before.sideAssignments);
+    expect(host.getPendingPeersForTests()).toHaveLength(0);
+    expect(await host.admitSocket(makeSocket(), 'pid_watcher')).toBeNull();
+    await host.closeMatch();
+  });
+
+  it('preserves the spectator seat when a socket reattaches during the removal metadata read', async () => {
+    const { host, store, matchId } = await makeHostWithSpectator(false);
+    const socket = makeSocket();
+    await host.admitSocket(socket, 'pid_watcher');
+    const readMeta = store.getMatchMeta.bind(store);
+    let release = () => {};
+    let entered = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const reading = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    jest.spyOn(store, 'getMatchMeta').mockImplementationOnce(async (id) => {
+      const meta = await readMeta(id);
+      entered();
+      await gate;
+      return meta;
+    });
+    host.detachSocket(socket);
+    await reading;
+    try {
+      expect(
+        await host.admitSocket(makeSocket(), 'pid_watcher'),
+      ).not.toBeNull();
+    } finally {
+      release();
+    }
+    await drainDrop(host, matchId);
+    expect(
+      (await store.getMatchMeta(matchId)).seats?.some(
+        (seat) => seat.occupant?.playerId === 'pid_watcher',
+      ),
+    ).toBe(true);
+    await host.closeMatch();
+  });
+
+  it('removes an idle spectator through heartbeat detach', async () => {
+    jest.useFakeTimers();
+    try {
+      const { host, store, matchId } = await makeHostWithSpectator(false);
+      await host.admitSocket(makeSocket(), 'pid_watcher');
+      jest.advanceTimersByTime(HEARTBEAT_TIMEOUT_MS + HEARTBEAT_INTERVAL_MS);
+      await drainDrop(host, matchId);
+      expect(
+        (await store.getMatchMeta(matchId)).seats?.some(
+          (seat) => seat.kind === 'spectator',
+        ),
+      ).toBe(false);
+      await host.closeMatch();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('queues spectator removal behind an in-flight host intent', async () => {
+    const { host, store, matchId } = await makeHostWithSpectator(false);
+    const socket = makeSocket();
+    await host.admitSocket(socket, 'pid_watcher');
+    const readMeta = store.getMatchMeta.bind(store);
+    let release = () => {};
+    let entered = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const reading = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    jest.spyOn(store, 'getMatchMeta').mockImplementationOnce(async (id) => {
+      const meta = await readMeta(id);
+      entered();
+      await gate;
+      return meta;
+    });
+    const command = drainDrop(host, matchId);
+    await reading;
+    const writes = jest.spyOn(store, 'updateMatchMeta');
+    host.detachSocket(socket);
+    await Promise.resolve();
+    await Promise.resolve();
+    const parkedWrites = writes.mock.calls.length;
+    release();
+    await command;
+    await drainDrop(host, matchId);
+    expect(parkedWrites).toBe(0);
+    expect(
+      (await store.getMatchMeta(matchId)).seats?.some(
+        (seat) => seat.kind === 'spectator',
+      ),
+    ).toBe(false);
+    await host.closeMatch();
+  });
+
   it('streams the replay then live events to a connecting spectator', async () => {
     // Scenario: Spectator joins and receives the stream.
     const { host } = await makeHostWithSpectator(false);

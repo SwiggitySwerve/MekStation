@@ -182,6 +182,12 @@ export type CampaignPersistenceSaveResult =
   | {
       readonly status: 'error';
       readonly errorMessage: string;
+      /**
+       * Present when the server refused a live co-op write with a typed
+       * refusal: the changes were NOT rolled back and stay pending, so a
+       * later save can still persist them. Absent for every other error.
+       */
+      readonly refusal?: ICampaignSaveRefusal;
     };
 
 interface CampaignPersistenceState {
@@ -957,7 +963,11 @@ async function runSave(
         errorMessage: attempt.refusal.message,
         saveRefusal: attempt.refusal,
       });
-      return { status: 'error', errorMessage: attempt.refusal.message };
+      return {
+        status: 'error',
+        errorMessage: attempt.refusal.message,
+        refusal: attempt.refusal,
+      };
     }
     if (attempt.status === 'saved') {
       // A read that adopted a NEWER row while this write was in flight (a

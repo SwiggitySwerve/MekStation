@@ -303,3 +303,13 @@ describe('campaignBaySelectors', () => {
     });
   });
 });
+
+it('ignores old cached repair rows when the canonical ticket is completed', () => {
+  const campaign = {
+    ...populatedCampaign(),
+    repairQueue: [{ ...makeRepairTicket(), status: 'completed' as const }],
+  };
+  expect(selectRepairBay(campaign)).toEqual([]);
+  expect(selectInventorySummary(campaign).repairTicketCount).toBe(0);
+  expect(selectInventorySummary(campaign).totalRepairHours).toBe(0);
+});

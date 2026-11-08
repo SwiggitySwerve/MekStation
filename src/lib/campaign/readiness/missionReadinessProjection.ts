@@ -9,6 +9,7 @@ import {
   type CanonicalCombatCatalogSnapshot,
   admitCanonicalExactReference,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
+import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
 export type MissionReadinessReasonSeverity = 'blocker' | 'warning' | 'info';
@@ -236,7 +237,7 @@ export function buildMissionReadinessProjection({
 }: BuildMissionReadinessProjectionInput): IMissionReadinessProjection {
   const pilotById = new Map(pilots.map((pilot) => [pilot.pilotId, pilot]));
   const repairTicketsByUnit = new Map<string, IRepairBayItem[]>();
-  for (const ticket of repairBay) {
+  for (const ticket of repairBay.filter(isActiveRepairTicket)) {
     const bucket = repairTicketsByUnit.get(ticket.unitId);
     if (bucket) {
       bucket.push(ticket);

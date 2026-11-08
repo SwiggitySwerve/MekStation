@@ -77,16 +77,31 @@ export class SQLiteService implements ISQLiteService {
     }
 
     // Open database
-    this.db = new Database(this.config.path);
+    const db = new Database(this.config.path);
+    this.db = db;
 
-    // Enable WAL mode for better concurrency
-    this.db.pragma('journal_mode = WAL');
+    try {
+      // Enable WAL mode for better concurrency
+      db.pragma('journal_mode = WAL');
 
-    // Enable foreign keys
-    this.db.pragma('foreign_keys = ON');
+      // Enable foreign keys
+      db.pragma('foreign_keys = ON');
 
-    // Run migrations
-    this.runMigrations();
+      // Run migrations
+      this.runMigrations();
+    } catch (error) {
+      // Reset only the in-process handle. Never replace or remove the user's file.
+      this.db = null;
+      try {
+        db.close();
+      } catch (closeError) {
+        logger.error(
+          '[SQLiteService] Failed to close database after initialization failure:',
+          closeError,
+        );
+      }
+      throw error;
+    }
   };
 
   /**
@@ -185,7 +200,7 @@ export class SQLiteService implements ISQLiteService {
         '[SQLiteService] Failed to get current migration version:',
         error,
       );
-      return 0;
+      throw error;
     }
   }
 

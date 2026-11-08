@@ -40,6 +40,7 @@ import {
 } from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { markMatchCompleted } from './matchCompletion';
+import { isLobbyIntentKind } from './matchIntentKinds';
 import {
   refuseDuringHistoryRebuild,
   refuseLiveBranchFromIntent,
@@ -52,7 +53,6 @@ import {
   readActorUnitId,
 } from './ServerMatchHostIntentClaims';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
-import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
 import {
   commitThenPublish,
   errorMessage,

@@ -20,9 +20,18 @@ import {
   setHumanSlot,
   setReady,
 } from '../lobby/lobbyStateMachine';
+import { addSpectatorSeat } from '../lobby/spectatorSeats';
 
 const ALICE: IPlayerRef = { playerId: 'pid_alice', displayName: 'Alice' };
 const BOB: IPlayerRef = { playerId: 'pid_bob', displayName: 'Bob' };
+
+it('setAiSlot rejects a spectator instead of evicting its occupant', () => {
+  const seats = addSpectatorSeat(defaultSeats('1v1'), ALICE);
+  expect(() => setAiSlot(seats, 'spectator-1')).toThrow(LobbyStateError);
+  expect(seats.find((seat) => seat.slotId === 'spectator-1')?.occupant).toEqual(
+    ALICE,
+  );
+});
 
 describe('occupySeat', () => {
   it('seats the player into an empty human slot', () => {
