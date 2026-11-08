@@ -32,10 +32,10 @@
 
 ## 5. PR5: auto-resolve PSR drain
 
-- [ ] Drain pending PSRs at the End phase of `runToCompletion`.
-- [ ] List every changed assertion with old and new values; update the C4
+- [x] Drain pending PSRs at the End phase of `runToCompletion`.
+- [x] List every changed assertion with old and new values; update the C4
       digest in its own commit.
-- [ ] Summarise seeded QuickResolve, fast-forward and campaign deltas.
+- [x] Summarise seeded QuickResolve, fast-forward and campaign deltas.
 
 ## 6. Verification
 
