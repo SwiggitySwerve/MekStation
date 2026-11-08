@@ -7,6 +7,7 @@ import {
   type IGameState,
 } from '@/types/gameplay';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import { createGameEvent } from './phases/utils';
 
@@ -20,12 +21,7 @@ function toGameEndedWinner(winner: RunnerWinner): GameSide | 'draw' {
 
 function hasOperableUnit(state: IGameState, side: GameSide): boolean {
   return Object.values(state.units).some(
-    (unit) =>
-      unit.side === side &&
-      !unit.destroyed &&
-      !unit.hasRetreated &&
-      !unit.hasEjected &&
-      unit.pilotConscious !== false,
+    (unit) => unit.side === side && getUnitOperability(unit).crewActive,
   );
 }
 

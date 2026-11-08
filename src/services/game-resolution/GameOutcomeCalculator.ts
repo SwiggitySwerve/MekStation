@@ -22,6 +22,7 @@ import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import { isTurnLimitDraw } from '@/utils/gameplay/gameSessionCore';
 import { deriveState } from '@/utils/gameplay/gameState';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 // =============================================================================
 // Types
@@ -90,7 +91,7 @@ export interface IOutcomeCalculationInput {
 
 function countSurvivingUnits(state: IGameState, side: GameSide): number {
   return Object.values(state.units).filter(
-    (u) => !u.destroyed && !u.hasRetreated && !u.hasEjected && u.side === side,
+    (u) => u.side === side && getUnitOperability(u).onField,
   ).length;
 }
 

@@ -36,6 +36,7 @@ import {
   endGame,
 } from '@/utils/gameplay/gameSession';
 import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
@@ -283,7 +284,7 @@ export class GameEngine {
 
   private determineWinnerFromState(state: IGameState): GameSide | 'draw' {
     const remainsInForce = (u: IGameState['units'][string]): boolean =>
-      !u.destroyed && !u.hasRetreated && !u.hasEjected;
+      getUnitOperability(u).onField;
 
     const playerAlive = Object.values(state.units).some(
       (u) => u.side === GameSide.Player && remainsInForce(u),
