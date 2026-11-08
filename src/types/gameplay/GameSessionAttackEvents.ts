@@ -596,6 +596,13 @@ export interface IUnitStuckPayload {
   readonly unitId: string;
   readonly reason?: string;
   readonly reasonCode?: PSRTrigger;
+  /**
+   * Present (and true) only when the unit may later free itself by jumping:
+   * MegaMek grants this for a failed bog-down roll during ground movement,
+   * not for jumping into or being displaced into the swamp. Absent on
+   * every other stuck event, so the reducer never writes a false key.
+   */
+  readonly canUnstickByJumping?: boolean;
 }
 
 /**

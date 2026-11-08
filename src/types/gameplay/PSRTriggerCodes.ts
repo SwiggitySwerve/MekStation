@@ -54,6 +54,7 @@ export enum PSRTrigger {
   ExitingWater = 'exiting_water',
   Skidding = 'skidding',
   SwampBogDown = 'swamp_bog_down',
+  SwampUnstuck = 'swamp_unstuck',
   AirMekLanding = 'airmek_landing',
 
   // Movement with damage triggers

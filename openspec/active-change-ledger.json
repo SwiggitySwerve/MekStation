@@ -143,6 +143,12 @@
       "status": "proposed",
       "reason": "Owner ruling 2026-11-07 D1: delete the unlinked standalone repair bay (/gameplay/repair, RepairBayPage, useRepairStore, src/types/repair, src/components/repair) and its e2e exposure/spec/fixtures; the campaign RepairTicket system is kept. REMOVED requirement deltas only; canonical sync/archive pending PR merge.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-c6b-stuck-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved C6b, three sequential PRs: (1) widen the combat physical replay schemas in place at v1 for swamp_unstuck and UnitStuck canUnstickByJumping with revised schema ids, no behaviour change; (2) runner movement-start recovery roll, jump eligibility and jump unstick with matching reducer transitions; (3) interactive commit, projection and validator consistency. No fixture regeneration.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }

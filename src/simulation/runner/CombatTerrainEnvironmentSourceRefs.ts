@@ -246,6 +246,52 @@ export const LOCAL_TERRAIN_PSR_SOURCE_REFS = [
   MEKSTATION_TERRAIN_PSR_SPA_SOURCE_REF,
 ];
 
+const MEGAMEK_SWAMP_UNSTUCK_MOVEMENT_START_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek TWPhasePreparationManager runs doTryUnstuck when the movement phase is prepared.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWPhasePreparationManager.java#L180`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SWAMP_UNSTUCK_ROLL_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek TWGameManager.doTryUnstuck rolls base piloting plus terrain and unstuck modifiers for every stuck unit; success clears stuck and jump eligibility, failure leaves the unit stuck with no fall.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L28059-L28110`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SWAMP_UNSTUCK_MODIFIER_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek Terrain.getUnstuckModifier adds 0 for swamp and +3 for quicksand at ground elevation.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/common/units/Terrain.java#L656-L682`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEGAMEK_SWAMP_UNSTICK_BY_JUMPING_SOURCE_REF = {
+  kind: 'megamek-source',
+  citation:
+    'MegaMek MovePathHandler clears stuck on a jump only when canUnstickByJumping is set, and sets that eligibility only for a failed bog-down roll during ground movement.',
+  url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_TERRAIN_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L2441-L2446`,
+  sourceVersion: MEGAMEK_TERRAIN_SOURCE_VERSION,
+} satisfies ICombatFeatureSourceReference;
+
+const MEKSTATION_SWAMP_UNSTUCK_CODE_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation PSRTrigger.SwampUnstuck is the reason code the combat physical replay schemas accept for the movement-start swamp recovery roll.',
+  'src/types/gameplay/PSRTriggerCodes.ts',
+  'L57',
+);
+
+export const SWAMP_UNSTUCK_PSR_SOURCE_REFS = [
+  MEGAMEK_SWAMP_UNSTUCK_MOVEMENT_START_SOURCE_REF,
+  MEGAMEK_SWAMP_UNSTUCK_ROLL_SOURCE_REF,
+  MEGAMEK_SWAMP_UNSTUCK_MODIFIER_SOURCE_REF,
+  MEGAMEK_SWAMP_UNSTICK_BY_JUMPING_SOURCE_REF,
+  MEKSTATION_SWAMP_UNSTUCK_CODE_SOURCE_REF,
+];
+
 export function terrainLosSourceRefs(
   terrain: TerrainType,
 ): readonly ICombatFeatureSourceReference[] {

@@ -1,6 +1,6 @@
 /**
  * Tests for `getPSRReasonCategory` — the bucket helper that partitions
- * the 34-code `PSRTrigger` taxonomy into the four `PSRReasonCategory`
+ * the 35-code `PSRTrigger` taxonomy into the four `PSRReasonCategory`
  * buckets (movement / damage / heat / recovery).
  *
  * @spec openspec/changes/structure-psr-reason-as-discriminated-code/specs/piloting-skill-rolls/spec.md
@@ -25,9 +25,13 @@ describe('getPSRReasonCategory', () => {
     it('maps StandingUp to recovery', () => {
       expect(getPSRReasonCategory(PSRTrigger.StandingUp)).toBe('recovery');
     });
+
+    it('maps SwampUnstuck (movement-start swamp recovery) to recovery', () => {
+      expect(getPSRReasonCategory(PSRTrigger.SwampUnstuck)).toBe('recovery');
+    });
   });
 
-  describe('exhaustive partitioning over all 34 codes', () => {
+  describe('exhaustive partitioning over all 35 codes', () => {
     const allTriggers = Object.values(PSRTrigger) as readonly PSRTrigger[];
 
     it('enumerates the canonical PSRTrigger codes', () => {
@@ -38,11 +42,11 @@ describe('getPSRReasonCategory', () => {
       // family) and a source-backed domino-effect physical displacement
       // PSR, plus AirMek landing, swamp bog-down, represented
       // controlled-sideslip checks, represented flanking-and-turning
-      // pending checks, and represented out-of-control movement checks,
-      // for a total of 34. These counts
+      // pending checks, represented out-of-control movement checks, and
+      // the movement-start swamp recovery roll, for a total of 35. These counts
       // are stable; if either changes the
       // test fails and forces a spec / enum reconciliation.
-      expect(allTriggers).toHaveLength(34);
+      expect(allTriggers).toHaveLength(35);
     });
 
     it('every PSRTrigger value maps to exactly one of the four buckets', () => {
@@ -75,7 +79,7 @@ describe('getPSRReasonCategory', () => {
     });
 
     it('matches the canonical partition documented in the spec', () => {
-      // 24 movement + 8 damage + 1 heat + 1 recovery = 34
+      // 24 movement + 8 damage + 1 heat + 2 recovery = 35
       // (8 + 21 + 1 + 1; the spec text mentions 27 but the enum carries
       // 32 — the bucket helper treats every enum member, regardless).
       const buckets: Record<PSRReasonCategory, number> = {
@@ -90,7 +94,7 @@ describe('getPSRReasonCategory', () => {
       expect(buckets.damage).toBe(8);
       expect(buckets.movement).toBe(24);
       expect(buckets.heat).toBe(1);
-      expect(buckets.recovery).toBe(1);
+      expect(buckets.recovery).toBe(2);
     });
   });
 

@@ -36,6 +36,7 @@ import {
 } from './CombatPsrTriggerSourceRefs';
 import {
   LOCAL_TERRAIN_PSR_SOURCE_REFS,
+  SWAMP_UNSTUCK_PSR_SOURCE_REFS,
   terrainPsrSourceRefs,
 } from './CombatTerrainEnvironmentSourceRefs';
 
@@ -169,6 +170,12 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     PSRTrigger.SwampBogDown,
     'movementTerrainPsr queues createSwampBogDownPSR for non-jump BattleMech swamp entry and emits UnitStuck immediately for jump entry; failed swamp bog-down PSRs set isStuck instead of UnitFell/PilotHit',
     terrainPsrSourceRefs(TerrainType.Swamp),
+  ),
+  [PSRTrigger.SwampUnstuck]: outOfScope(
+    PSRTrigger.SwampUnstuck,
+    'PSRTrigger.SwampUnstuck and the combat physical replay schemas accept the movement-start swamp recovery roll and UnitStuck jump eligibility; no runner phase emits them yet',
+    'Schema-only row until the C6b stuck lifecycle lands: MegaMek doTryUnstuck rolls every stuck unit free at movement-phase preparation, and a failed ground-movement bog-down lets the unit jump free; that change wires the runner recovery roll and jump unstick and promotes this row to integrated',
+    SWAMP_UNSTUCK_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.AirMekLanding]: integrated(
     PSRTrigger.AirMekLanding,
