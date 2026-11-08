@@ -62,3 +62,34 @@ Run the whole-directory and replay/combat gates required by LANE-BRIEF.
 
 Pricing/debits and historical stock reconstruction remain separate follow-ups.
 Unique IDs prevent future aliasing; the shared inventory merge rule remains intact.
+
+## Deliberate regression checks
+
+- Restoring terminal `failed` after a roll is killed by
+  `acquisitionProcessor.test-helpers.ts`:
+  `retains failed requests and retries on day seven without a retry limit`.
+  The assertion receives `failed` instead of `pending` on the first attempt.
+- Restoring queue-length IDs is killed by `campaignCommandActions.test.ts`:
+  `does not reuse request IDs after removing and adding the same part` and
+  `does not reuse the identity of a removed delivered request`. Both fail.
+- Final review also preserved the processor's existing missing-`items` guard.
+  Its new regression was recorded red before restoring that compatibility path.
+
+Both deliberate mutants were removed after their failing runs; no mutation is
+part of the implementation.
+
+## Broader validation limits
+
+The full Chromium directory was attempted on its required port 3600 with four
+workers and fail-fast enabled. It stopped at the unchanged
+`e2e/audit-capture.spec.ts:68` because the Windows screenshot baseline
+`home-chromium-win32.png` is absent from main: 71 passed, one failed, three
+interrupted, 924 unrun. The automatically emitted image was retained only as a
+local diagnostic, outside the snapshot directory. No baseline was accepted or
+committed. This gate needs a separate Root decision; fixture generation is outside
+K9 and prohibited by the lane brief. The acquisition browser proof passes on its
+own.
+
+The additional strict terminology check reports 13 errors and one warning in six
+untouched files, all identical to main. It reports no K9 finding. Pricing/debits
+and historical quantity reconstruction remain the two acquisition follow-ups.
