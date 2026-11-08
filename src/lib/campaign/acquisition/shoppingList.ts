@@ -58,7 +58,7 @@ export function normalizeShoppingList(
   currentDate: Date | string,
   inventory: readonly IPartsInventoryItem[] = [],
 ): IShoppingList | undefined {
-  if (!list) return list;
+  if (!list?.items) return list;
   const reserved = new Set(list.items.map((item) => item.id));
   const inventoryIds = new Set(inventory.map((item) => item.inventoryId));
   const isReserved = (id: string): boolean =>

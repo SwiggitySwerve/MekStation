@@ -105,6 +105,21 @@ function createInTransitRequest(
 // =============================================================================
 
 describe('acquisitionProcessor', () => {
+  it('preserves the legacy missing-items guard without consuming random values', () => {
+    const shoppingList = createShoppingList();
+    Reflect.deleteProperty(shoppingList, 'items');
+    const campaign = createTestCampaign({ shoppingList });
+    const random = jest.fn(() => 0);
+    const result = acquisitionProcessor.process(
+      campaign,
+      campaign.currentDate,
+      random,
+    );
+    expect(result.campaign).toBe(campaign);
+    expect(result.events).toEqual([]);
+    expect(random).not.toHaveBeenCalled();
+  });
+
   it('retains failed requests and retries on day seven without a retry limit', () => {
     const start = new Date(3025, 0, 15);
     let campaign = createTestCampaign({
