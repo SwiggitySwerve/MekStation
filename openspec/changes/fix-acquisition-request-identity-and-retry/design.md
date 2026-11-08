@@ -78,6 +78,27 @@ Unique IDs prevent future aliasing; the shared inventory merge rule remains inta
 Both deliberate mutants were removed after their failing runs; no mutation is
 part of the implementation.
 
+## Local verification records
+
+The branch includes main through `39e10ab9cf7e05090f9cef49be1082cf98f6e975`,
+including K16. The combined whole-directory run covers acquisition, processors,
+persistence, campaign stores, integration, the full simulation runner, the
+lint-units Jest suite, and every replay/digest/golden suite: 333 suites passed,
+4,087 tests passed, 32 existing skips. The final run uses `TZ=America/Denver`.
+The replay/digest/golden baseline before runtime changes passed 67 suites and
+1,015 tests. No committed fixture or digest was changed.
+
+The acquisition Chromium proof passes after the K16 merge: add, discover the
+created request ID, reload, deliver, persist, reload and remove. The direct
+legacy-loader tests prove server/local equality and repeated-load idempotence.
+`npm run validate:combat` also passed. The broad Chromium exception below remains
+open; these records do not claim that the full browser directory is green.
+
+Both TypeScript configurations, root lint (63 warnings, zero errors),
+`lint:units` and its Jest suite, formatting, strict OpenSpec validation and its
+quality validator passed. The final CI budget check reports 57 unkeyable tests;
+no ceiling was raised.
+
 ## Broader validation limits
 
 The full Chromium directory was attempted on its required port 3600 with four
