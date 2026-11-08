@@ -14,11 +14,15 @@
 
 ## 2. PR 2: combat outcome
 
-- [ ] Additive `IUnitCombatDelta.exitReason`, omitted when the unit did not exit.
-- [ ] KIA only for lethal wounds or a pilot-killing destruction, never once ejected.
-- [ ] Salvage and co-op salvage share one eligibility helper: retreated
+- [x] Record failing outcome, legacy-reader, salvage, co-op, `combatReady`,
+      casualty-panel and producer tests.
+- [x] Additive `IUnitCombatDelta.exitReason`, omitted when the unit did not exit.
+- [x] KIA only for lethal wounds or a pilot-killing destruction, never once ejected.
+- [x] Salvage and co-op salvage share one eligibility helper: retreated
       enemies excluded, ejected enemies included.
-- [ ] Ejected player unit loses `combatReady` when the player did not win.
-- [ ] Legacy reader: `exitReason`, then `report.log`, then null.
-- [ ] Interactive, fast-forward and multiplayer producers carry the field.
-- [ ] Kill the KIA, salvage and legacy-fallback mutants.
+- [x] Ejected player unit loses `combatReady` when the player did not win.
+- [x] Legacy reader: `exitReason`, then `report.log`, then null.
+- [x] Interactive and multiplayer producers carry the field; fast-forward and
+      pre-battle auto-resolve share `deriveCombatOutcome`.
+- [x] Kill the KIA, salvage and legacy-fallback mutants.
+- [x] Replay, checkpoint, digest and golden suites unchanged before and after.

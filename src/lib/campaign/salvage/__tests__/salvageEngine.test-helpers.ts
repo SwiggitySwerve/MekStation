@@ -86,7 +86,8 @@ function makeOutcome(overrides?: Partial<ICombatOutcome>): ICombatOutcome {
     contractId: 'contract-1',
     scenarioId: null,
     endReason: CombatEndReason.ObjectiveMet,
-    report: {} as ICombatOutcome['report'],
+    // Every persisted outcome carries the session log; exits are read from it.
+    report: { log: [] } as unknown as ICombatOutcome['report'],
     unitDeltas: [],
     capturedAt: '2026-04-17T00:00:00Z',
     ...overrides,

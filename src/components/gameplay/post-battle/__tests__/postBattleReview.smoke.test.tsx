@@ -209,6 +209,44 @@ describe('Post-battle review panels', () => {
     expect(screen.getByTestId('casualty-empty')).toBeInTheDocument();
   });
 
+  it('CasualtyPanel lists an undamaged unit that ejected or retreated, with how it left', () => {
+    const intact = (unitId: string, exitReason: 'ejected' | 'retreated') => ({
+      unitId,
+      side: GameSide.Player,
+      destroyed: false,
+      exitReason,
+      finalStatus: UnitFinalStatus.Intact,
+      armorRemaining: {},
+      internalsRemaining: {},
+      destroyedLocations: [],
+      destroyedComponents: [],
+      heatEnd: 0,
+      ammoRemaining: {},
+      pilotState: {
+        conscious: true,
+        wounds: 0,
+        killed: false,
+        finalStatus: PilotFinalStatus.Active,
+      },
+    });
+    render(
+      <CasualtyPanel
+        outcome={makeOutcome({
+          unitDeltas: [
+            intact('unit-player-1', 'ejected'),
+            intact('unit-player-2', 'retreated'),
+          ],
+        })}
+      />,
+    );
+    expect(screen.getByTestId('casualty-exit-unit-player-1')).toHaveTextContent(
+      'Ejected',
+    );
+    expect(screen.getByTestId('casualty-exit-unit-player-2')).toHaveTextContent(
+      'Retreated',
+    );
+  });
+
   it('PilotXpPanel renders pilot status and an XP estimate', () => {
     render(
       <PilotXpPanel
