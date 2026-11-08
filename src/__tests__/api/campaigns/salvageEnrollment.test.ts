@@ -18,6 +18,7 @@ import { readCampaign } from '@/services/campaignPersistence/CampaignPersistence
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { mapRawIndexEntry } from '@/services/units/unitIndexMapper';
 import { setSalvageItemStatus } from '@/stores/campaign/campaignBayActions';
+import { selectSalvageBay } from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
@@ -174,7 +175,7 @@ async function seed(coop = false): Promise<ICampaign> {
     .getState()
     .createCampaign('Salvage regression', 'mercenary');
   const base = store.getState().campaign!;
-  const candidate = candidateForBattle();
+  const candidate = { ...candidateForBattle(), status: 'awarded' as const };
   const award = {
     side: 'mercenary' as const,
     candidates: [candidate],
@@ -279,6 +280,65 @@ it('accepts into a nonempty roster, saves through the live PUT route, and reload
     getCampaignStore().getState().campaign?.unitCombatStates['enemy-atlas'],
   ).toEqual(candidateForBattle().recovery?.combatState);
 });
+
+it.each([false, true])(
+  'keeps awarded salvage reviewable until acceptance and refuses decline after reload (co-op: %s)',
+  async (coop) => {
+    const campaign = await seed(coop);
+    expect(
+      selectSalvageBay(getCampaignStore().getState().campaign)[0].status,
+    ).toBe('pending');
+    expect(
+      (await setSalvageItemStatus('enemy-atlas', 'accepted')).applied,
+    ).toBe(true);
+    expect(
+      selectSalvageBay(getCampaignStore().getState().campaign)[0].status,
+    ).toBe('accepted');
+    window.localStorage.clear();
+    resetCampaignStore();
+    useCampaignRosterStore.getState().reset();
+    useCampaignPersistenceStore.getState().reset();
+    expect(
+      await useCampaignPersistenceStore.getState().loadCampaign(campaign.id),
+    ).toBe(true);
+    const before = getCampaignStore().getState().campaign;
+    const requests = statuses.length;
+    expect(await setSalvageItemStatus('enemy-atlas', 'declined')).toMatchObject(
+      { applied: false, reason: expect.any(String) },
+    );
+    expect(getCampaignStore().getState().campaign).toBe(before);
+    expect(statuses).toHaveLength(requests);
+    expect(selectSalvageBay(before)[0].status).toBe('accepted');
+    expect(
+      (await replayed(campaign.id)).forceUnits?.[campaign.rootForceId],
+    ).toContain('enemy-atlas');
+  },
+);
+
+it.each(['accepted', 'declined'] as const)(
+  'refuses a guest %s decision without a save',
+  async (decision) => {
+    const campaign = await seed();
+    getCampaignStore()
+      .getState()
+      .switchCampaign({
+        ...campaign,
+        coopSession: {
+          mode: 'guest',
+          roomCode: 'SALVAGE',
+          hostMatchId: 'host-match',
+        },
+      });
+    const before = getCampaignStore().getState().campaign;
+    const requests = statuses.length;
+    expect(await setSalvageItemStatus('enemy-atlas', decision)).toMatchObject({
+      applied: false,
+      reason: expect.any(String),
+    });
+    expect(getCampaignStore().getState().campaign).toBe(before);
+    expect(statuses).toHaveLength(requests);
+  },
+);
 
 it.each([false, true])(
   'co-op acceptance retains force membership (reload without child store: %s)',

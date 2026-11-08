@@ -8,6 +8,7 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ISalvageCandidate } from '@/types/campaign/Salvage';
 
+import { isSalvageUnitEnrolled } from '@/lib/campaign/salvage/salvageAcceptance';
 import { validateSalvageUnitRecovery } from '@/lib/campaign/salvage/salvageUnitRecovery';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
@@ -89,11 +90,7 @@ export async function enrollSalvageUnit(
       'This unit identity is already enrolled with conflicting provenance or force membership.',
     );
   }
-  if (
-    Array.from(campaign.forces.values()).some((force) =>
-      force.unitIds.includes(candidate.unitId),
-    )
-  )
+  if (isSalvageUnitEnrolled(campaign, candidate))
     return refuse(
       'This unit already belongs to a force without matching roster enrollment.',
     );

@@ -27,6 +27,7 @@ import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { ISalvageAllocation } from '@/types/campaign/Salvage';
 
 import { isRosterPilotDeparted } from '@/lib/campaign/personnel/statusRules';
+import { salvageAcceptanceStatus } from '@/lib/campaign/salvage/salvageAcceptance';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 
 // =============================================================================
@@ -113,24 +114,6 @@ function mapSalvageDisposition(
 }
 
 /**
- * Map an `ISalvageCandidate` status onto the frozen bay status. The
- * engine's `awarded` / `auctioned` collapse onto `accepted`; `declined`
- * stays declined; everything else is `pending`.
- */
-function mapSalvageStatus(status: string): ISalvageBayItem['status'] {
-  switch (status) {
-    case 'awarded':
-    case 'auctioned':
-      return 'accepted';
-    case 'declined':
-      return 'declined';
-    case 'pending':
-    default:
-      return 'pending';
-  }
-}
-
-/**
  * Project every salvage allocation into frozen `ISalvageBayItem`s.
  *
  * Only the mercenary award's candidates land in the bay — the bay
@@ -138,6 +121,7 @@ function mapSalvageStatus(status: string): ISalvageBayItem['status'] {
  * `salvageValueTotal` is the mercenary-share total (design.md D4).
  */
 function projectSalvageBay(
+  campaign: ICampaign,
   allocations: Readonly<Record<string, ISalvageAllocation>>,
 ): readonly ISalvageBayItem[] {
   const items: ISalvageBayItem[] = [];
@@ -152,7 +136,7 @@ function projectSalvageBay(
         designation: candidate.designation,
         recoveredValue: candidate.recoveredValue,
         disposition: mapSalvageDisposition(candidate.disposition),
-        status: mapSalvageStatus(candidate.status),
+        status: salvageAcceptanceStatus(campaign, candidate),
       });
     }
   }
@@ -285,7 +269,10 @@ export function projectCampaignInventory(
   const extended = campaign as ICampaignForInventory;
 
   const repairBay = projectRepairBay(extended.repairQueue ?? []);
-  const salvageBay = projectSalvageBay(extended.salvageAllocations ?? {});
+  const salvageBay = projectSalvageBay(
+    campaign,
+    extended.salvageAllocations ?? {},
+  );
   const medicalBay = projectMedicalBay(rosterPilots);
 
   return {

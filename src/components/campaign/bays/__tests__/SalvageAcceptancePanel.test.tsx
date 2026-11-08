@@ -14,10 +14,89 @@ import React from 'react';
 
 import type { ISalvageBayItem } from '@/types/campaign/CampaignInventory';
 
+import { projectCampaignInventory } from '@/lib/campaign/inventory/projectCampaignInventory';
+import { createCampaign } from '@/types/campaign/Campaign';
+import { DamageLevel } from '@/types/campaign/Salvage';
+
 import { SAMPLE_SALVAGE_BAY } from '../__fixtures__/bayFixtures';
 import { SalvageAcceptancePanel } from '../SalvageAcceptancePanel';
 
 describe('SalvageAcceptancePanel', () => {
+  it('allows accepting an awarded unit before enrollment', () => {
+    const candidate = {
+      source: 'unit' as const,
+      unitId: 'awarded-atlas',
+      designation: 'Atlas AS7-D',
+      destroyedFromBattle: 'battle-award',
+      finalStatus: 'crippled' as const,
+      damageLevel: DamageLevel.Heavy,
+      originalValue: 400_000,
+      recoveredValue: 100_000,
+      recoveryPercentage: 0.25,
+      repairCostEstimate: 300_000,
+      disposition: 'mercenary' as const,
+      status: 'awarded' as const,
+    };
+    const campaign = {
+      ...createCampaign('Awarded salvage', 'mercenary'),
+      salvageAllocations: {
+        'battle-award': {
+          pool: {
+            battleId: 'battle-award',
+            contractId: null,
+            candidates: [candidate],
+            totalEstimatedValue: 100_000,
+            hostileTerritory: false,
+          },
+          mercenaryAward: {
+            side: 'mercenary' as const,
+            candidates: [candidate],
+            totalValue: 100_000,
+            estimatedRepairCost: 300_000,
+          },
+          employerAward: {
+            side: 'employer' as const,
+            candidates: [],
+            totalValue: 0,
+            estimatedRepairCost: 0,
+          },
+          splitMethod: 'contract' as const,
+          processed: true,
+        },
+      },
+    };
+    const onDecide = jest.fn();
+    render(
+      <SalvageAcceptancePanel
+        salvageBay={
+          projectCampaignInventory(campaign, [], '2026-11-08T00:00:00Z')
+            .salvageBay
+        }
+        onDecide={onDecide}
+      />,
+    );
+    expect(screen.getByTestId('salvage-accept-awarded-atlas')).toBeEnabled();
+    expect(screen.getByTestId('salvage-value-total')).toHaveTextContent(
+      '0 C-Bills',
+    );
+    fireEvent.click(screen.getByTestId('salvage-accept-awarded-atlas'));
+    expect(onDecide).toHaveBeenCalledWith('awarded-atlas', 'accepted');
+  });
+
+  it('disables both decisions for accepted salvage', () => {
+    const onDecide = jest.fn();
+    render(
+      <SalvageAcceptancePanel
+        salvageBay={[{ ...SAMPLE_SALVAGE_BAY[0], status: 'accepted' }]}
+        onDecide={onDecide}
+      />,
+    );
+    expect(screen.getByTestId('salvage-accept-salvage-atlas')).toBeDisabled();
+    expect(screen.getByTestId('salvage-decline-salvage-atlas')).toBeDisabled();
+    fireEvent.click(screen.getByTestId('salvage-decline-salvage-atlas'));
+    expect(onDecide).not.toHaveBeenCalled();
+  });
+
   it('renders a row for every salvage candidate', () => {
     render(
       <SalvageAcceptancePanel
