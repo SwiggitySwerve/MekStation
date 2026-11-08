@@ -185,12 +185,6 @@
       "status": "in-progress",
       "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
       "lastReviewed": "2026-11-08"
-    },
-    {
-      "name": "fix-sqlite-initialization-retry",
-      "status": "in-progress",
-      "reason": "Root-approved S13 only: propagate migration-version read errors and clear/close failed initialization handles for same-instance retry. Never delete, truncate or recreate the user database; no schema or persisted-format changes. Hosted proof and Root merge are pending.",
-      "lastReviewed": "2026-11-08"
     }
   ]
 }
