@@ -567,9 +567,9 @@ async function postureState(page: Page): Promise<string> {
  * the overlay's arm, not the banner's (NetworkedGameSurface.tsx:234-242).
  * The host's banner is the signal that carries the rejoin: it renders only
  * once the host's new socket has replayed. The overlay alone is not one -
- * MatchPaused is broadcast once, when the seat drops, so a guest that
- * rejoined after the host dropped never shows it (measured: the overlay
- * stayed absent for 30 s with the host held away).
+ * a guest that rejoins while the host is held away receives the pause
+ * snapshot on join and shows the overlay until the host's rejoin
+ * broadcasts MatchResumed.
  */
 async function waitForRejoin(hostPage: Page, guestPage: Page): Promise<void> {
   await expect
