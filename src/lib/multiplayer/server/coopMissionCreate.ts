@@ -239,6 +239,9 @@ async function runCoopMissionCreate(
   ) {
     throw new CoopMissionRefusal(400, 'COOP_MISSION_INVALID_SESSION');
   }
+  if (actorId !== entry.hostPlayerId) {
+    throw new CoopMissionRefusal(403, 'COOP_MISSION_HOST_REQUIRED');
+  }
   const store = getDefaultMatchStore();
   const matchId =
     'coop-' +

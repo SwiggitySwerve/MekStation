@@ -34,6 +34,8 @@ interface ISinglePlayerMissionLaunchSurfaceProps {
 
 interface ICoopMissionLaunchSurfaceProps {
   readonly breadcrumbs: BreadcrumbItem[];
+  readonly isLaunching: boolean;
+  readonly dayAdvanceInFlight: boolean;
   readonly launchError: string | null;
   readonly loadedCampaign: CoopCampaign;
   readonly localChoice: CoopParticipationChoice;
@@ -192,6 +194,8 @@ export function SinglePlayerMissionLaunchSurface({
 
 export function CoopMissionLaunchSurface({
   breadcrumbs,
+  isLaunching,
+  dayAdvanceInFlight,
   launchError,
   loadedCampaign,
   localChoice,
@@ -208,6 +212,9 @@ export function CoopMissionLaunchSurface({
   const localPlayerName = localPlayerNameForMode(
     loadedCampaign.coopSession.mode,
   );
+  const guest = loadedCampaign.coopSession.mode === 'guest';
+  const disabled =
+    isLaunching || (!guest && (!canLaunch || dayAdvanceInFlight));
 
   return (
     <PageLayout
@@ -263,18 +270,35 @@ export function CoopMissionLaunchSurface({
           </p>
         ) : null}
 
+        {guest ? (
+          <p className="text-text-theme-secondary text-sm">
+            The host starts this mission.
+          </p>
+        ) : null}
+        {dayAdvanceInFlight && !guest ? (
+          <p role="status" className="text-text-theme-secondary text-sm">
+            The campaign clock is advancing.
+          </p>
+        ) : null}
         <button
           type="button"
-          data-testid="coop-launch-mission"
-          disabled={!canLaunch}
+          data-testid={guest ? 'coop-join-mission' : 'coop-launch-mission'}
+          disabled={disabled}
+          aria-busy={isLaunching}
           onClick={onLaunch}
           className={
-            canLaunch
+            !disabled
               ? 'rounded-lg border border-sky-500/60 bg-sky-600/20 px-4 py-2 font-semibold text-sky-100'
               : 'border-border-theme bg-surface-deep/40 text-text-theme-muted cursor-not-allowed rounded-lg border px-4 py-2 font-semibold'
           }
         >
-          Launch mission
+          {isLaunching
+            ? guest
+              ? 'Joining Mission...'
+              : 'Launching Mission...'
+            : guest
+              ? 'Join Mission'
+              : 'Launch Mission'}
         </button>
       </div>
     </PageLayout>

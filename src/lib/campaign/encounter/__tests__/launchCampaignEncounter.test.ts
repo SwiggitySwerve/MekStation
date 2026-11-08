@@ -128,6 +128,54 @@ function makeFakeService(): {
 // ---------------------------------------------------------------------------
 
 describe('launchCampaignEncounter', () => {
+  it('retains and reuses the configured encounter after a failed launch', async () => {
+    const { service, calls } = makeFakeService();
+    const progress: { encounterId?: string } = {};
+    const launch = jest
+      .fn(service.launchEncounter)
+      .mockResolvedValueOnce({ success: false, error: 'launch failed' });
+    const retryService = { ...service, launchEncounter: launch };
+    await launchCampaignEncounter(
+      makeCampaignEncounter(),
+      retryService,
+      progress,
+    );
+    expect(progress.encounterId).toBe('encounter-repo-1');
+    expect(
+      (
+        await launchCampaignEncounter(
+          makeCampaignEncounter(),
+          retryService,
+          progress,
+        )
+      ).success,
+    ).toBe(true);
+    expect(calls.created).toHaveLength(1);
+    expect(launch).toHaveBeenCalledTimes(2);
+  });
+
+  it.each([
+    'createEncounter',
+    'updateEncounter',
+    'setPlayerForce',
+    'launchEncounter',
+  ] as const)('preserves the id and error when %s fails', async (operation) => {
+    const { service, calls } = makeFakeService();
+    const failure = { success: false, error: `${operation} failed` };
+    const failing = { ...service, [operation]: () => failure };
+    const result = await launchCampaignEncounter(
+      makeCampaignEncounter(),
+      failing,
+    );
+    expect(result).toEqual({
+      ...failure,
+      ...(operation === 'createEncounter'
+        ? {}
+        : { encounterId: 'encounter-repo-1' }),
+    });
+    expect(calls.launched).toHaveLength(0);
+  });
+
   it('launching a generated encounter produces a campaign-linked session', async () => {
     const { service, calls } = makeFakeService();
     const result = await launchCampaignEncounter(

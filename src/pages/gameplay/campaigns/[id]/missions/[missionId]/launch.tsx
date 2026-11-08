@@ -42,6 +42,7 @@ import {
   publishCoopParticipation,
   subscribeCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { useCombatCatalog } from '@/lib/campaign/readiness/useCombatCatalog';
 import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuthority';
@@ -88,6 +89,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   const customizerResult = customizerResultFromRouter(router);
 
   const store = shell.store;
+  const dayAdvanceInFlight = useDayAdvanceInFlight();
   const campaign = shell.campaign;
   const readinessAuthority = useReadinessAuthority(campaign?.id, campaign);
   const { localPlayerId, matchId, otherPlayerId } = coopIdentity(campaign);
@@ -318,6 +320,8 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   return (
     <CoopMissionLaunchSurface
       breadcrumbs={shell.breadcrumbs}
+      isLaunching={isLaunching}
+      dayAdvanceInFlight={dayAdvanceInFlight}
       launchError={launchError}
       loadedCampaign={loadedCampaign}
       localChoice={localChoice}
