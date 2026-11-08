@@ -8,6 +8,7 @@ import type {
 } from '@/types/campaign/CoopCampaign';
 import type { IForce } from '@/types/campaign/Force';
 
+import { sourceRowMarketIntentContext } from '@/lib/campaign/authority/campaignSourceMarketContext';
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
 import {
   readCampaignSessionState,
@@ -348,6 +349,17 @@ export class CampaignHostRegistry {
       hostPlayerId: snapshot.hostPlayerId,
       eventStore: eventStore.store,
       initialState: snapshot.state,
+      // K14b: hires and acceptances are judged against the market the
+      // campaign's saved row holds. With no database there is no saved
+      // market, and the host refuses both rather than trust the caller.
+      ...(sqliteReady()
+        ? {
+            intentContext: sourceRowMarketIntentContext(
+              snapshot.campaignId,
+              () => getSQLiteService().getDatabase(),
+            ),
+          }
+        : {}),
     });
     const syncSession = new CampaignSyncSession(host, {
       matchId,

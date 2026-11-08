@@ -627,7 +627,9 @@ export type CampaignIntentRejectionReason =
   /** The offer was already hired: its deterministic pilot is enrolled. */
   | 'offer-consumed'
   /** The offer lapsed before the authoritative campaign date. */
-  | 'offer-expired';
+  | 'offer-expired'
+  /** The player declined this contract offer; it cannot be signed. */
+  | 'offer-declined';
 
 /**
  * The result of validating one campaign intent against authoritative
