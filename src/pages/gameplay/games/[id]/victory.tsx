@@ -29,6 +29,7 @@ import {
   derivePostBattleReport,
   victoryReasonLabel,
 } from '@/utils/gameplay/postBattleReport';
+import { getUnitExitReason } from '@/utils/gameplay/unitOperability';
 
 // =============================================================================
 // Presentational Screen
@@ -146,14 +147,19 @@ export function VictoryScreen({
             <tbody className="text-text-theme-primary">
               {report.units.map((unit) => {
                 const state = session.currentState.units[unit.unitId];
+                const exitReason = state ? getUnitExitReason(state) : null;
                 const status = state?.destroyed
                   ? 'Destroyed'
-                  : state?.shutdown
-                    ? 'Shutdown'
-                    : 'Operational';
+                  : exitReason === 'ejected'
+                    ? 'Ejected'
+                    : exitReason === 'retreated'
+                      ? 'Retreated'
+                      : state?.shutdown
+                        ? 'Shutdown'
+                        : 'Operational';
                 const statusClass = state?.destroyed
                   ? 'text-red-400'
-                  : state?.shutdown
+                  : exitReason !== null || state?.shutdown
                     ? 'text-amber-400'
                     : 'text-emerald-400';
                 return (

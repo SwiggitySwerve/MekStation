@@ -32,7 +32,7 @@ export const CANONICAL_BIOWARE_NEURAL_INTERFACE_SOURCE_REFS = [
   canonicalSpaSourceRef(
     'mekstation-deviation',
     'MekStation game-state replay applies NeuralInterfaceStateChanged events by mutating only the target unit neuralInterfaceActive flag.',
-    'src/utils/gameplay/gameState/unitExitState.ts#L61-L73',
+    'src/utils/gameplay/gameState/unitExitState.ts#L74-L86',
     'MekStation working-tree',
   ),
   canonicalSpaSourceRef(

@@ -1,0 +1,6 @@
+{
+  "name": "establish-all-unit-data-parity",
+  "status": "in-progress",
+  "reason": "Owner-authorized all-source data parity and modern portable unit contract, grounded in the 2026-10-28 upstream cross-check: complete source accounting, faithful typed loading, strict per-unit numerical differences below 1%, semantic round trips, then subtype forms/layouts/sheets. Catalog regeneration still requires owner approval. No runtime parity or UI completion claimed by this entry.",
+  "lastReviewed": "2026-10-28"
+}

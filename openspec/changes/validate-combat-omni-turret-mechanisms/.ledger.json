@@ -1,0 +1,6 @@
+{
+  "name": "validate-combat-omni-turret-mechanisms",
+  "status": "in-progress",
+  "reason": "Bounded S12 explicit combat Omni mechanism charges, raw allowance overload checks and nullable dependent validation; current geometry, support totals and ruling 5 remain with their owners. Composition and UI follow separately.",
+  "lastReviewed": "2026-11-02"
+}
