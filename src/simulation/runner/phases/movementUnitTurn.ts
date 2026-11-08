@@ -124,6 +124,9 @@ export function runMovementUnitTurn(
       facing: unit.facing,
       prone: unit.prone ?? false,
       isStuck: unit.isStuck ?? false,
+      ...(unit.canUnstickByJumping === true
+        ? { canUnstickByJumping: true }
+        : {}),
     },
     moveEvent.payload.to,
     moveEvent.payload.facing as Facing,

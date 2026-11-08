@@ -198,7 +198,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
       sourceRefs: expect.arrayContaining([
         expect.objectContaining({
           kind: 'mekstation-deviation',
-          url: 'src/types/gameplay/GameSessionStateTypes.ts#L720-L748',
+          url: 'src/types/gameplay/GameSessionStateTypes.ts#L726-L754',
         }),
       ]),
     });
@@ -231,7 +231,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         }),
         expect.objectContaining({
           kind: 'mekstation-deviation',
-          url: 'src/types/gameplay/GameSessionStateTypes.ts#L720-L748',
+          url: 'src/types/gameplay/GameSessionStateTypes.ts#L726-L754',
         }),
         expect.objectContaining({
           kind: 'mekstation-deviation',

@@ -207,7 +207,7 @@ export const MEGAMEK_325B_MANEUVERING_ACE_OPTION = combatFeatureSourceRef(
 export const MEKSTATION_MANEUVERING_ACE_LATERAL_SHIFT = combatFeatureSourceRef(
   'mekstation-deviation',
   'MekStation validateMovement, runMovementPhase, and movement step decomposition consume Maneuvering Ace pilot ability state for biped lateral shifts and source-backed QuadMek lateral-step MP relief.',
-  'src/utils/gameplay/movement/validation.ts#L50',
+  'src/utils/gameplay/movement/validation.ts#L51',
   'MekStation working-tree',
 );
 

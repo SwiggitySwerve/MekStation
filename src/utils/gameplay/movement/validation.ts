@@ -40,6 +40,7 @@ import {
 import { movementModeForPath } from './mode';
 import { calculateMovementHeat } from './modifiers';
 import { findPath } from './pathfinding';
+import { isStuckMovementBlocked } from './stuckState';
 
 export interface IValidateMovementInput {
   readonly grid: IHexGrid;
@@ -158,7 +159,7 @@ function normalizeValidateMovementInput(
 function movementPreconditionFailure(
   input: IValidateMovementInput,
 ): IMovementValidation | null {
-  if (input.position.isStuck) {
+  if (isStuckMovementBlocked(input.position, input.movementType)) {
     return invalidMovement('Unit is stuck');
   }
   if (!isInBounds(input.grid, input.destination)) {

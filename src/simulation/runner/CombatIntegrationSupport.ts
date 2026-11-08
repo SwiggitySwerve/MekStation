@@ -52,7 +52,7 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunnerState.isGameOver consults evaluateObjectiveOutcome before survivor-count game-over checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L543-L560',
+    'L544-L561',
   ),
   mekstationDeviationSourceRef(
     'MekStation GameOutcomeCalculator consults evaluateObjectiveOutcome before elimination, mutual destruction, and turn-limit outcome branches.',

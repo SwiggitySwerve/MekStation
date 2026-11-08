@@ -267,6 +267,8 @@ export interface IUnitPosition {
   readonly prone: boolean;
   /** Whether unit is stuck/bogged down and cannot voluntarily move */
   readonly isStuck?: boolean;
+  /** Whether a stuck unit may still jump free (see IUnitGameState) */
+  readonly canUnstickByJumping?: boolean;
 }
 
 /**

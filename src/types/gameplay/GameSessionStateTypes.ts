@@ -528,6 +528,12 @@ export interface IUnitGameState {
   readonly prone?: boolean;
   /** Unit is bogged down or otherwise stuck and cannot voluntarily move. */
   readonly isStuck?: boolean;
+  /**
+   * Present (and true) only while a stuck unit may jump free: a failed
+   * ground-movement bog-down grants it. Cleared with stuck, never written as
+   * false. Persistent; the per-turn movement reset leaves it alone.
+   */
+  readonly canUnstickByJumping?: boolean;
   /** Unit is in a hull-down defensive position. */
   readonly hullDown?: boolean;
   /**
