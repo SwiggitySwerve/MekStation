@@ -96,7 +96,7 @@ const RUNNER_TERMINAL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner derives matchTerminalState from operable survivors before appending the terminal GameEnded event.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L381-L412',
+    'L434-L469',
   ),
   mekstationDeviationSourceRef(
     'MekStation appendRunnerGameEndedEvent maps runner winner/reason/turns into a terminal GameEnded replay event.',
@@ -106,7 +106,7 @@ const RUNNER_TERMINAL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation terminal parity behavior test proves SimulationRunner returns terminal summary fields and appends terminal GameEnded events.',
     'src/simulation/runner/__tests__/simulationRunnerTerminalParity.behavior.test.ts',
-    'L31-L92',
+    'L41-L106',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
