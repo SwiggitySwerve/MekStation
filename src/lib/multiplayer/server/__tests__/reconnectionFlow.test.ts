@@ -508,3 +508,105 @@ describe('Reconnection Flow (Wave 4)', () => {
     expect(host.getPendingPeersForTests().length).toBe(0);
   });
 });
+
+describe('M-H3 pause snapshots and forfeit exits', () => {
+  async function pausedForOpponent() {
+    const active = await makeActiveHost();
+    const hostSock = makeSocket();
+    const oppSock = makeSocket();
+    active.host.attachSocket(hostSock, 'pid_host');
+    active.host.attachSocket(oppSock, 'pid_opp');
+    active.host.detachSocket(oppSock);
+    await flushDrop();
+    expect(active.host.isPausedForReconnect()).toBe(true);
+    return { ...active, hostSock };
+  }
+
+  function kindsOf(sock: ReturnType<typeof makeSocket>): string[] {
+    return sock.sent.map((s) => s.parsed.kind);
+  }
+
+  it('sends a rejoining player the pause snapshot after replay and lobby frames', async () => {
+    const { host } = await pausedForOpponent();
+    const rejoined = makeSocket();
+    host.attachSocket(rejoined, 'pid_host');
+    await host.handleSessionJoin(rejoined, 'pid_host');
+    const kinds = kindsOf(rejoined);
+    const paused = kinds.lastIndexOf('MatchPaused');
+    expect(paused).toBeGreaterThan(kinds.indexOf('ReplayEnd'));
+    expect(paused).toBeGreaterThan(kinds.indexOf('LobbyUpdated'));
+    expect(kinds).not.toContain('MatchResumed');
+    expect(rejoined.sent[paused].parsed).toMatchObject({
+      reason: 'peer-pending',
+      pendingSlots: ['bravo-1'],
+    });
+    await host.closeMatch();
+  });
+
+  it('sends a joining spectator the pause snapshot', async () => {
+    const { host, store, matchId } = await pausedForOpponent();
+    const meta = await store.getMatchMeta(matchId);
+    await store.updateMatchMeta(matchId, {
+      seats: addSpectatorSeat(meta.seats ?? [], {
+        playerId: 'watcher',
+        displayName: 'Watcher',
+      }),
+    });
+    const watcher = makeSocket();
+    host.attachSocket(watcher, 'watcher');
+    await host.handleSessionJoin(watcher, 'watcher');
+    expect(
+      watcher.sent.find((s) => s.parsed.kind === 'MatchPaused')?.parsed,
+    ).toMatchObject({ reason: 'peer-pending', pendingSlots: ['bravo-1'] });
+    expect(host.isPausedForReconnect()).toBe(true);
+    await host.closeMatch();
+  });
+
+  it('broadcasts MatchResumed when the host forfeits a paused match', async () => {
+    const { host, matchId, hostSock } = await pausedForOpponent();
+    hostSock.clear();
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId,
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: { kind: 'ForfeitMatch' },
+    });
+    expect(kindsOf(hostSock)).toContain('MatchResumed');
+    expect(host.isPausedForReconnect()).toBe(false);
+  });
+
+  it('keeps the match paused when a non-host forfeit is refused', async () => {
+    const { host, matchId, store, hostSock } = await pausedForOpponent();
+    hostSock.clear();
+    const refused = await host.handleIntent({
+      kind: 'Intent',
+      matchId,
+      ts: nowIso(),
+      playerId: 'pid_opp',
+      intent: { kind: 'ForfeitMatch' },
+    });
+    expect(refused).toEqual([
+      expect.objectContaining({ kind: 'Error', code: 'AUTH_REJECTED' }),
+    ]);
+    expect(host.isPausedForReconnect()).toBe(true);
+    expect(kindsOf(hostSock)).not.toContain('MatchResumed');
+    const events = await store.getEvents(matchId);
+    const advance = await host.handleIntent({
+      kind: 'Intent',
+      matchId,
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: { kind: 'AdvancePhase' },
+    });
+    expect(advance).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'MATCH_PAUSED',
+        reason: 'Match is paused waiting for a peer to reconnect',
+      }),
+    ]);
+    expect(await store.getEvents(matchId)).toEqual(events);
+    await host.closeMatch();
+  });
+});

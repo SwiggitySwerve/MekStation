@@ -1,7 +1,9 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type {
   IEventMessage,
+  IMatchPaused,
   IServerMessage,
+  MatchPauseReason,
 } from '@/types/multiplayer/Protocol';
 
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
@@ -28,6 +30,55 @@ export interface IServerMatchHostReconnectContext extends IServerMatchHostCaptur
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   readonly closeMatch: () => Promise<void>;
   readonly tryPublishOutcome: () => void;
+  /** Current pause snapshot across every cause; null when none is active. */
+  readonly pauseSnapshot: () => IMatchPaused | null;
+}
+
+export interface IPauseCauses {
+  readonly matchId: string;
+  readonly pending: readonly IPendingPeerEntry[];
+  readonly gmAbsent: boolean;
+  readonly opponentFaulted: boolean;
+}
+
+/**
+ * M-H3: one `MatchPaused` snapshot for every active pause cause. The
+ * reason is the cause with the highest precedence (opponent fault, then
+ * GM absence, then a pending peer); the pending seats are always listed,
+ * and the grace fields ride only with a pending seat.
+ */
+export function buildPauseSnapshot(causes: IPauseCauses): IMatchPaused | null {
+  const reason: MatchPauseReason | null = causes.opponentFaulted
+    ? 'opponent-fault'
+    : causes.gmAbsent
+      ? 'gm-absent'
+      : causes.pending.length > 0
+        ? 'peer-pending'
+        : null;
+  if (reason === null) return null;
+  const paused: IMatchPaused = {
+    kind: 'MatchPaused',
+    matchId: causes.matchId,
+    ts: nowIso(),
+    reason,
+    pendingSlots: causes.pending.map((p) => p.slotId),
+  };
+  if (causes.pending.length === 0) return paused;
+  const nextExpiry = Math.min(...causes.pending.map((p) => p.expiresAt));
+  return {
+    ...paused,
+    graceRemainingMs: Math.max(0, nextExpiry - Date.now()),
+    pendingExpiresAtMs: nextExpiry,
+  };
+}
+
+/** The `MATCH_PAUSED` refusal text for the active cause. */
+export function pauseRefusalReason(reason: MatchPauseReason | null): string {
+  if (reason === 'gm-absent')
+    return 'Match is paused until the campaign GM returns';
+  if (reason === 'opponent-fault')
+    return 'Match is paused after a server opponent fault';
+  return 'Match is paused waiting for a peer to reconnect';
 }
 
 export async function maybeMarkPlayerPending(
@@ -73,40 +124,39 @@ export function handleGraceTimeout(
   void completeExpiredPendingMatch(ctx, entry.playerId);
 }
 
+/**
+ * Lift the peer pause once no seat is pending. Another cause (GM absent,
+ * opponent fault) keeps the match paused, so the broadcast is then a new
+ * snapshot rather than `MatchResumed`. Returns whether it broadcast.
+ */
 export function maybeResume(ctx: {
   readonly matchId: string;
   readonly isPaused: boolean;
   readonly pendingPeers: PendingPeerTracker;
   readonly setPaused: (paused: boolean) => void;
   readonly broadcast: (message: IServerMessage) => void;
-}): void {
-  if (!ctx.isPaused) return;
-  if (ctx.pendingPeers.size() > 0) return;
+  readonly pauseSnapshot: () => IMatchPaused | null;
+}): boolean {
+  if (!ctx.isPaused) return false;
+  if (ctx.pendingPeers.size() > 0) return false;
   ctx.setPaused(false);
-  ctx.broadcast({
-    kind: 'MatchResumed',
-    matchId: ctx.matchId,
-    ts: nowIso(),
-  });
+  ctx.broadcast(
+    ctx.pauseSnapshot() ?? {
+      kind: 'MatchResumed',
+      matchId: ctx.matchId,
+      ts: nowIso(),
+    },
+  );
+  return true;
 }
 
 function broadcastPauseSnapshot(ctx: IServerMatchHostReconnectContext): void {
-  const pending = ctx.pendingPeers.getAllPending();
-  if (pending.length === 0) return;
-  if (!ctx.isPaused) {
-    ctx.setPaused(true);
-  }
-  const nextExpiry = Math.min(...pending.map((p) => p.expiresAt));
-  const remainingMs = Math.max(0, nextExpiry - Date.now());
-  ctx.broadcast({
-    kind: 'MatchPaused',
-    matchId: ctx.matchId,
-    ts: nowIso(),
-    reason: 'peer-pending',
-    pendingSlots: pending.map((p) => p.slotId),
-    graceRemainingMs: remainingMs,
-    pendingExpiresAtMs: nextExpiry,
-  });
+  if (ctx.pendingPeers.size() === 0) return;
+  // The peer pause is its own cause: set it even when the GM or a fault
+  // already pauses the match, so the rejoin can lift exactly this cause.
+  ctx.setPaused(true);
+  const snapshot = ctx.pauseSnapshot();
+  if (snapshot) ctx.broadcast(snapshot);
 }
 
 /**
