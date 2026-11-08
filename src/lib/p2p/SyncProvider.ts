@@ -122,6 +122,14 @@ export function getRetryState(): {
 let activeRoom: ISyncRoom | null = null;
 
 /**
+ * Rooms torn down on purpose. y-webrtc reports `status {connected:false}`
+ * only from an explicit `disconnect()` call (never from network loss), so
+ * our own teardown would otherwise look like a dropped connection and
+ * schedule a retry that revives the room the user just left.
+ */
+const closedRooms = new WeakSet<ISyncRoom>();
+
+/**
  * Get the currently active sync room.
  */
 export function getActiveRoom(): ISyncRoom | null {
@@ -142,7 +150,7 @@ export function hasActiveRoom(): boolean {
 /**
  * Attempt to reconnect with exponential backoff.
  */
-function attemptReconnect(roomCode: string, password?: string): void {
+function attemptReconnect(room: ISyncRoom): void {
   // Check if we've exceeded max attempts
   if (retryState.attempts >= P2P_CONFIG.maxReconnectAttempts) {
     emitEvent({
@@ -164,29 +172,24 @@ function attemptReconnect(roomCode: string, password?: string): void {
   );
 
   emitEvent({
-    type: 'error',
-    message: `Connection lost. Retrying in ${Math.round(delay / 1000)}s (${retryState.attempts}/${P2P_CONFIG.maxReconnectAttempts})...`,
+    type: 'reconnecting',
+    attempt: retryState.attempts,
+    maxAttempts: P2P_CONFIG.maxReconnectAttempts,
+    delayMs: delay,
   });
 
   retryState.timeoutId = setTimeout(() => {
+    retryState.timeoutId = null;
     try {
-      // Clean up current room if exists
-      if (activeRoom) {
-        try {
-          activeRoom.webrtcProvider.disconnect();
-        } catch {
-          // Ignore cleanup errors
-        }
-      }
-
-      // Attempt to reconnect
-      createSyncRoom({ roomCode, password });
+      // Re-arm the SAME provider: the doc, its observers and the caller's
+      // signaling options survive, and no room is destroyed or rebuilt.
+      room.webrtcProvider.connect();
       retryState.isRetrying = false;
     } catch (error) {
       logger.error('[SyncProvider] Reconnect failed:', error);
       retryState.isRetrying = false;
       // Schedule next retry
-      attemptReconnect(roomCode, password);
+      attemptReconnect(room);
     }
   }, delay);
 }
@@ -209,7 +212,7 @@ export function cancelReconnect(): void {
  * @returns The created sync room
  */
 export function createSyncRoom(options: ISyncRoomOptions = {}): ISyncRoom {
-  // Clean up any existing room
+  // Clean up any existing room (this also cancels its pending retry)
   if (activeRoom) {
     destroySyncRoom(activeRoom);
   }
@@ -259,9 +262,14 @@ export function createSyncRoom(options: ISyncRoomOptions = {}): ISyncRoom {
 
   // Handle connection status changes for retry logic
   webrtcProvider.on('status', (event: { connected: boolean }) => {
-    if (!event.connected && activeRoom && !retryState.isRetrying) {
+    if (
+      !event.connected &&
+      activeRoom === room &&
+      !closedRooms.has(room) &&
+      !retryState.isRetrying
+    ) {
       // Connection lost, start retry sequence
-      attemptReconnect(activeRoom.roomCode, activeRoom.password);
+      attemptReconnect(room);
     }
   });
 
@@ -295,6 +303,10 @@ export function joinSyncRoom(roomCode: string, password?: string): ISyncRoom {
  * @param room The room to destroy
  */
 export function destroySyncRoom(room: ISyncRoom): void {
+  closedRooms.add(room);
+  if (activeRoom === room) {
+    cancelReconnect();
+  }
   try {
     room.webrtcProvider.disconnect();
     room.webrtcProvider.destroy();
