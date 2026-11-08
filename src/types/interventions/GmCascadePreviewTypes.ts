@@ -46,6 +46,28 @@ export interface IGmCascadeApprovalResult<TState = unknown> {
   readonly reason?: string;
 }
 
+/**
+ * An approval that passed every check and whose state was derived, but whose
+ * record is not in any ledger yet: the caller applies `state`, then records
+ * `record` only if that apply succeeded.
+ */
+export interface IGmCascadePreparedApproval<TState = unknown> {
+  readonly status: 'prepared';
+  readonly state: TState;
+  readonly record: IInterventionLedgerRecord;
+}
+
+export interface IGmCascadeBlockedApproval<TState = unknown> {
+  readonly status: 'blocked';
+  readonly state: TState;
+  readonly appended: false;
+  readonly reason: string;
+}
+
+export type GmCascadeApprovalPreparation<TState = unknown> =
+  | IGmCascadePreparedApproval<TState>
+  | IGmCascadeBlockedApproval<TState>;
+
 export interface IGmCascadeCancellationResult<TState = unknown> {
   readonly status: 'cancelled';
   readonly state: TState;

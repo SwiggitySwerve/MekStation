@@ -441,6 +441,88 @@ describe('GmCampaignInterventionControlPlane', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('records an approval only once its apply succeeds, so a refusal leaves no row (S14)', async () => {
+    const campaign = createCampaign('GM Ledger Refusal Test', 'mercenary', {
+      startingFunds: 1_000_000,
+    });
+    const onApplyCampaignUpdate = jest
+      .fn()
+      .mockResolvedValueOnce('insufficient-funds')
+      .mockResolvedValueOnce(null);
+
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={campaign}
+        onApplyCampaignUpdate={onApplyCampaignUpdate}
+        now={fixedNow}
+      />,
+    );
+    const playerRows = () =>
+      screen
+        .getByTestId('gm-ledger-player-log')
+        .querySelectorAll('[data-testid^="gm-ledger-player-row-"]').length;
+
+    fireEvent.click(screen.getByTestId('gm-ledger-preview-btn'));
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+        'Not applied to campaign state.',
+      ),
+    );
+    expect(playerRows()).toBe(0);
+
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+        'Approved and applied to campaign state.',
+      ),
+    );
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(2);
+    expect(playerRows()).toBe(1);
+  });
+
+  it('leaves the roster unpatched when a time approval is refused (S14)', async () => {
+    const campaign = {
+      ...createCampaign('GM Roster Refusal Test', 'mercenary', {
+        startingFunds: 1_000_000,
+      }),
+      id: 'campaign-roster-refusal',
+      currentDate: new Date('3025-02-02T00:00:00.000Z'),
+      updatedAt: '2026-06-22T00:00:00.000Z',
+      currentSystemId: 'terra',
+    };
+    const onApplyCampaignUpdate = jest.fn(
+      async () => 'no live host connection',
+    );
+    useCampaignRosterStore.getState().initRoster(campaign.id);
+    useCampaignRosterStore
+      .getState()
+      .addPilot(makeRosterEntry({ pilotId: 'pilot-held', recoveryTime: 2 }));
+
+    render(
+      <GmCampaignInterventionControlPlane
+        campaign={campaign}
+        onApplyCampaignUpdate={onApplyCampaignUpdate}
+        now={fixedNow}
+      />,
+    );
+
+    generateCorrection('time');
+    fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+        'Not applied to campaign state.',
+      ),
+    );
+
+    expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+    expect(
+      useCampaignRosterStore
+        .getState()
+        .pilots.find((pilot) => pilot.pilotId === 'pilot-held'),
+    ).toMatchObject({ status: CampaignPilotStatus.Wounded, recoveryTime: 2 });
+  });
+
   it('blocks conflicted approval and records manual takeover without mutating state', () => {
     const campaign = createCampaign('GM Ledger Manual Test', 'mercenary', {
       startingFunds: 1_000_000,

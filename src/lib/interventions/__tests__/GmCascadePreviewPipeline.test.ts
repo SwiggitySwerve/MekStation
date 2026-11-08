@@ -19,6 +19,8 @@ import {
   approveGmCascadePreview,
   cancelGmCascadePreview,
   createGmCascadePreview,
+  prepareGmCascadeApproval,
+  recordGmCascadeApproval,
 } from '../GmCascadePreviewPipeline';
 import { InterventionLedger } from '../InterventionLedger';
 
@@ -342,6 +344,114 @@ describe('GM cascade preview pipeline', () => {
       'GM-only cascade reason',
     );
     expect(JSON.stringify(gmProjection)).toContain('GM-only cascade reason');
+  });
+
+  it('prepares an approval without appending, then records it after the caller applied it (S14)', () => {
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const state = makeState();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(),
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-two-step',
+    });
+
+    const prepared = prepareGmCascadeApproval({
+      ledger,
+      actionLedger,
+      preview,
+      state,
+      approvedAt: '2026-06-20T00:01:00.000Z',
+    });
+
+    expect(prepared.status).toBe('prepared');
+    if (prepared.status !== 'prepared') return;
+    expect(prepared.state.value).toBe(13);
+    expect(prepared.record).toMatchObject({
+      id: 'gm-int-two-step',
+      status: 'approved',
+    });
+    expect(ledger.getRecords()).toEqual([]);
+    expect(actionLedger.getRecords()).toEqual([]);
+
+    const recorded = recordGmCascadeApproval({
+      ledger,
+      actionLedger,
+      preview,
+      prepared,
+    });
+
+    expect(recorded).toMatchObject({
+      status: 'approved',
+      appended: true,
+      state: prepared.state,
+    });
+    expect(ledger.getRecords().map((record) => record.id)).toEqual([
+      'gm-int-two-step',
+    ]);
+    expect(actionLedger.getRecords().map((record) => record.id)).toEqual([
+      'action:gm-int-two-step',
+    ]);
+  });
+
+  it('refuses to prepare a preview whose intervention id is already recorded (S14)', () => {
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const state = makeState();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(),
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-once',
+    });
+    approveGmCascadePreview({ ledger, actionLedger, preview, state });
+
+    const again = prepareGmCascadeApproval({
+      ledger,
+      actionLedger,
+      preview,
+      state,
+    });
+
+    expect(again).toMatchObject({ status: 'blocked', appended: false, state });
+    expect(again.status === 'blocked' && again.reason).toContain(
+      'already recorded',
+    );
+    expect(ledger.getRecords()).toHaveLength(1);
+    expect(actionLedger.getRecords()).toHaveLength(1);
+  });
+
+  it('refuses to record one prepared approval twice (S14)', () => {
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const state = makeState();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(),
+      state,
+      authority: gmAuthority,
+      interventionId: 'gm-int-raced',
+    });
+    const first = prepareGmCascadeApproval({ ledger, preview, state });
+    const second = prepareGmCascadeApproval({ ledger, preview, state });
+    if (first.status !== 'prepared' || second.status !== 'prepared') {
+      throw new Error('both prepares precede any record');
+    }
+
+    recordGmCascadeApproval({ ledger, actionLedger, preview, prepared: first });
+    const duplicate = recordGmCascadeApproval({
+      ledger,
+      actionLedger,
+      preview,
+      prepared: second,
+    });
+
+    expect(duplicate).toMatchObject({ status: 'blocked', appended: false });
+    expect(ledger.getRecords()).toHaveLength(1);
+    expect(actionLedger.getRecords()).toHaveLength(1);
   });
 
   it('cancels a preview without appending or changing derived state', () => {
