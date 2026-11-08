@@ -124,6 +124,11 @@ export async function openCoopRuntimeSession(
   arbiter.subscribeResolved((result) => {
     resolveGuestProposal(record, result);
   });
+  arbiter.subscribeClosed(() => {
+    for (const proposalId of Array.from(record.resultWaiters.keys())) {
+      resolveGuestProposal(record, sessionClosed(proposalId));
+    }
+  });
 
   runtimeByMatchId.set(matchId, record);
   runtimeByCampaignId.set(campaign.id, record);
@@ -165,13 +170,30 @@ export async function submitGuestProposalToHost(
     return sessionClosed(proposal.proposalId);
   }
 
-  const initial = await runtime.arbiter.submitProposal(proposal);
-  if (initial.status !== 'pending') {
-    return initial;
+  // The arbiter rejects the duplicate; it must never replace the first waiter.
+  if (runtime.resultWaiters.has(proposal.proposalId)) {
+    return runtime.arbiter.submitProposal(proposal);
   }
-
-  return new Promise<GuestProposalResult>((resolve) => {
+  return new Promise<GuestProposalResult>((resolve, reject) => {
+    // Admission can synchronously notify a host that closes or decides. Install
+    // the waiter first so that terminal result cannot fall through the gap.
     runtime.resultWaiters.set(proposal.proposalId, resolve);
+    void runtime.arbiter.submitProposal(proposal).then(
+      (initial) => {
+        if (initial.status !== 'pending') {
+          if (runtime.resultWaiters.get(proposal.proposalId) === resolve) {
+            runtime.resultWaiters.delete(proposal.proposalId);
+          }
+          resolve(initial);
+        }
+      },
+      (error: unknown) => {
+        if (runtime.resultWaiters.get(proposal.proposalId) === resolve) {
+          runtime.resultWaiters.delete(proposal.proposalId);
+        }
+        reject(error);
+      },
+    );
   });
 }
 

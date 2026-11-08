@@ -1,6 +1,6 @@
 {
   "name": "close-campaign-proposal-waiters",
-  "status": "in-progress",
-  "reason": "M-M10 approved by Root; branched from c44603b07 containing #3068; red tests and implementation in progress.",
+  "status": "implemented-awaiting-ci",
+  "reason": "M-M10 implemented on main containing #3068; 282 directory suites pass, seven mutants killed, lint remains 63 warnings, and the new helper test is keyable. Draft CI and Root review remain pending.",
   "lastReviewed": "2026-11-08"
 }

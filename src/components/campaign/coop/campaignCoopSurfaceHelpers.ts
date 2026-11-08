@@ -18,7 +18,12 @@ import type {
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { projectAuthoritativeStateOntoCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
+import {
+  getActiveCampaignSyncTransport,
+  subscribeActiveCampaignSyncTransport,
+} from '@/lib/campaign/coop/campaignSyncTransport';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 
 import type { CampaignCoopRouteSurfaceProps } from './CampaignCoopRouteSurface';
 
@@ -130,35 +135,76 @@ export function refreshSavedRecordAfterCommit(event: ICampaignEvent): void {
   });
 }
 
+// Transport identity bounds ID ownership; reconnect starts a fresh lifetime.
+const submittedProposalIds = new WeakMap<ICampaignSyncTransport, Set<string>>();
+
+function rejectedProposal(
+  proposalId: string,
+  reason: 'malformed-intent' | 'session-closed',
+): GuestProposalResult {
+  return {
+    status: 'mechanically-rejected',
+    proposalId,
+    code: INVALID_CAMPAIGN_INTENT,
+    reason,
+  };
+}
+
 export function submitGuestProposalOverTransport(
   transport: ICampaignSyncTransport,
   proposal: IGuestProposal,
 ): Promise<GuestProposalResult> {
-  return new Promise((resolve, reject) => {
+  const ids = submittedProposalIds.get(transport) ?? new Set<string>();
+  if (ids.has(proposal.proposalId)) {
+    return Promise.resolve(
+      rejectedProposal(proposal.proposalId, 'malformed-intent'),
+    );
+  }
+  ids.add(proposal.proposalId);
+  submittedProposalIds.set(transport, ids);
+  return new Promise((resolve) => {
+    let settled = false;
     let offFrame = (): void => undefined;
     let offError = (): void => undefined;
-    const cleanup = (): void => {
+    let offClose = (): void => undefined;
+    let offActive = (): void => undefined;
+    const finish = (result: GuestProposalResult): void => {
+      if (settled) return;
+      settled = true;
       offFrame();
       offError();
+      offClose();
+      offActive();
+      resolve(result);
     };
-    offFrame = transport.onFrame((message) => {
-      if (
-        message.kind !== 'CampaignDecision' ||
-        message.proposalId !== proposal.proposalId
-      ) {
-        return;
+    const disconnected = (): void => {
+      finish(rejectedProposal(proposal.proposalId, 'session-closed'));
+    };
+    try {
+      offFrame = transport.onFrame((message) => {
+        if (
+          message.kind !== 'CampaignDecision' ||
+          message.proposalId !== proposal.proposalId ||
+          isPendingProposalResult(message.result)
+        )
+          return;
+        finish(message.result as GuestProposalResult);
+      });
+      offError = transport.onError(disconnected);
+      offClose = transport.onClose?.(disconnected) ?? offClose;
+      if (!settled) {
+        offActive = subscribeActiveCampaignSyncTransport(
+          transport.matchId,
+          () => {
+            if (getActiveCampaignSyncTransport(transport.matchId) !== transport)
+              disconnected();
+          },
+        );
       }
-      if (isPendingProposalResult(message.result)) {
-        return;
-      }
-      cleanup();
-      resolve(message.result as GuestProposalResult);
-    });
-    offError = transport.onError((error) => {
-      cleanup();
-      reject(error instanceof Error ? error : new Error('Campaign sync error'));
-    });
-    transport.sendProposal(proposal);
+      if (!settled) transport.sendProposal(proposal);
+    } catch {
+      disconnected();
+    }
   });
 }
 

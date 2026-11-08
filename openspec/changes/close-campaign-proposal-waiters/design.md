@@ -17,3 +17,15 @@ The binder regression was recorded red before this guard: it received duplicate 
 ## Behavior-preserving extraction
 
 Root approved extracting the existing review-context functions into campaignGmProposalContext.ts to keep CampaignGmArbiter under its 400-line lint bound. relevantStandingFor, describeProposalEffect, and its private formatCbills move unchanged; CampaignGmArbiter retains its public describeProposalEffect export. This extraction is verified and committed independently before the lifecycle fix.
+
+## Local evidence (2026-11-08)
+
+- Base: c44603b07, containing #3068. The host.intentContext market-reader seam and HireOffer handling are preserved. Node 22.22.0 was used for SQLite suites.
+- Initial red run: 15 failed / 107 passed across four suites. Binder regression recorded separately red: sender received duplicate CampaignDecision frames. Focused final run: 5 suites / 205 tests passed.
+- Seven deliberate mutants failed assertions: accepting duplicate IDs, dropping queued close results, stranding in-flight approval on arbiter close, registering waiters after admission, suppressing socket-close signals, leaking guest listeners, and broadcasting duplicate decisions. Original sources were restored after each mutant.
+- Behavior-preserving extraction commit c0b6b7b48 passed all 27 existing arbiter tests, both TypeScript configs, and lint at 63 warnings before lifecycle changes were restored.
+- Final whole-directory gate: 282 suites passed; 3,163 tests passed and 35 skipped. Includes src/components/campaign/coop, src/lib/campaign/coop, all src/lib/multiplayer, src/__tests__/integration, and scripts/__tests__/lint-units.test.ts. The earlier run was stopped before the extraction and is not counted as proof.
+- Final static gates: both TypeScript configs passed; root lint 63 warnings / 0 errors; lint:units 17,075 / 17,085; OpenSpec strict validation passed. Formatting uses oxfmt.
+- Budget-check passed: 3,097 test files, 57 unkeyable, 92 repo-wide, no violations. campaignCoopSurfaceHelpers.test.ts is included in the census and is neither unkeyable nor repo-wide-keyed.
+- Exact rejection reason: malformed-intent. Closure result reason: session-closed. The sender-only wire refusal uses existing INVALID_INTENT Error shape; no message schema, event payload, replay, or persisted-format change.
+- Full red, green, mutant, gate, and keyability evidence: E:/Projects/Personal/_scratch/sm-audit-reports/m-m10-evidence/.

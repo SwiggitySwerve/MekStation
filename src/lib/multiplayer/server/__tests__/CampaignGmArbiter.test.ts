@@ -35,6 +35,125 @@ const CAMPAIGN_ID = 'campaign-gm';
 const HOST_ID = 'host-player';
 const GUEST_ID = 'guest-player';
 
+describe('proposal identity and closure', () => {
+  it('keeps the original timeout deadline when an id is reused', async () => {
+    jest.useFakeTimers();
+    const { arbiter } = await makeArbiterWithTimeout(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      500,
+    );
+    try {
+      const resolved = jest.fn();
+      arbiter.subscribeResolved(resolved);
+      await arbiter.submitProposal(spendProposal(50_000, 'timed'));
+      jest.advanceTimersByTime(250);
+      await arbiter.submitProposal(spendProposal(90_000, 'timed'));
+      jest.advanceTimersByTime(250);
+      expect(resolved).toHaveBeenCalledTimes(1);
+      expect(arbiter.getPendingProposals()).toEqual([]);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      arbiter.close();
+      jest.useRealTimers();
+    }
+  });
+  it('reserves the id before an auto-approved commit finishes', async () => {
+    const { arbiter, host } = await makeArbiter(
+      'auto-approve',
+      stateWith({ balance: 600_000 }),
+    );
+    let release!: () => void;
+    const waiting = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const apply = host.applyHostIntent;
+    const commit = jest
+      .spyOn(host, 'applyHostIntent')
+      .mockImplementation(async (...args) => {
+        await waiting;
+        return apply(...args);
+      });
+    try {
+      const first = arbiter.submitProposal(spendProposal(50_000, 'inflight'));
+      const duplicate = arbiter.submitProposal(
+        spendProposal(90_000, 'inflight'),
+      );
+      release();
+      await first;
+      await expect(duplicate).resolves.toMatchObject({
+        reason: 'malformed-intent',
+      });
+      expect(commit).toHaveBeenCalledTimes(1);
+    } finally {
+      release();
+      arbiter.close();
+    }
+  });
+
+  it.each(['host-review', 'auto-approve'] as const)(
+    'rejects reused ids in %s without replacing or committing twice',
+    async (mode) => {
+      const { arbiter, host } = await makeArbiter(
+        mode,
+        stateWith({ balance: 600_000 }),
+      );
+      try {
+        await arbiter.submitProposal(spendProposal(50_000, 'same-id'));
+        await expect(
+          arbiter.submitProposal(spendProposal(90_000, 'same-id')),
+        ).resolves.toMatchObject({
+          status: 'mechanically-rejected',
+          reason: 'malformed-intent',
+          proposalId: 'same-id',
+        });
+        if (mode === 'host-review') {
+          expect(arbiter.getPendingProposals()[0]?.proposal.intent).toEqual(
+            spendProposal(50_000, 'same-id').intent,
+          );
+          await arbiter.decide('same-id', 'approve');
+        }
+        expect(host.getState().balance).toBe(550_000);
+        await expect(
+          arbiter.submitProposal(spendProposal(70_000, 'same-id')),
+        ).resolves.toMatchObject({ reason: 'malformed-intent' });
+      } finally {
+        arbiter.close();
+      }
+    },
+  );
+
+  it('settles every queued proposal once, clears the queue, and refuses submissions after close', async () => {
+    const { arbiter } = await makeArbiter(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+    );
+    const resolved = jest.fn();
+    arbiter.subscribeResolved(resolved);
+    await arbiter.submitProposal(spendProposal(50_000, 'first'));
+    await arbiter.submitProposal(spendProposal(50_000, 'second'));
+    arbiter.close();
+    arbiter.close();
+    expect(resolved.mock.calls.map(([result]) => result)).toEqual([
+      expect.objectContaining({
+        proposalId: 'first',
+        status: 'mechanically-rejected',
+        reason: 'session-closed',
+      }),
+      expect.objectContaining({
+        proposalId: 'second',
+        status: 'mechanically-rejected',
+        reason: 'session-closed',
+      }),
+    ]);
+    expect(arbiter.getPendingProposals()).toEqual([]);
+    await expect(arbiter.decide('first', 'approve')).resolves.toBeNull();
+    await expect(
+      arbiter.submitProposal(spendProposal(50_000, 'third')),
+    ).resolves.toMatchObject({ reason: 'session-closed' });
+  });
+});
+
 function stateWith(
   patch: Partial<ICampaignAuthoritativeState>,
 ): ICampaignAuthoritativeState {

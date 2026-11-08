@@ -8,6 +8,7 @@ import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import {
   _resetCoopRuntimeSessions,
   decideGuestProposal,
+  closeCoopRuntimeSession,
   getCoopPendingProposals,
   openCoopRuntimeSession,
   publishCoopParticipation,
@@ -61,6 +62,107 @@ function spendProposal(
 describe('coopRuntimeSession', () => {
   beforeEach(() => {
     _resetCoopRuntimeSessions();
+  });
+
+  afterEach(() => {
+    _resetCoopRuntimeSessions();
+  });
+
+  it('settles a caller when the arbiter closes during an awaited approval', async () => {
+    const runtime = await openCoopRuntimeSession(makeHostCampaign(), {
+      matchId: 'match-runtime-1',
+    });
+    if (!runtime) throw new Error('missing runtime');
+    let result: unknown;
+    void submitGuestProposalToHost(
+      'match-runtime-1',
+      spendProposal(50_000),
+    ).then((r) => {
+      result = r;
+    });
+    await Promise.resolve();
+    let release!: () => void;
+    const waiting = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const apply = runtime.host.applyHostIntent;
+    jest
+      .spyOn(runtime.host, 'applyHostIntent')
+      .mockImplementation(async (...args) => {
+        await waiting;
+        return apply(...args);
+      });
+    const decision = decideGuestProposal(
+      'match-runtime-1',
+      'proposal-spend',
+      'approve',
+    );
+    try {
+      runtime.arbiter.close();
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(result).toMatchObject({ reason: 'session-closed' });
+    } finally {
+      release();
+      await decision;
+    }
+  });
+
+  it.each(['runtime', 'arbiter', 'reset'] as const)(
+    'settles all waiters on %s close, including a submit still awaiting admission',
+    async (closeKind) => {
+      const runtime = await openCoopRuntimeSession(makeHostCampaign(), {
+        matchId: 'match-runtime-1',
+      });
+      const results: unknown[] = [];
+      void submitGuestProposalToHost(
+        'match-runtime-1',
+        spendProposal(50_000, 'one'),
+      ).then((r) => results.push(r));
+      void submitGuestProposalToHost(
+        'match-runtime-1',
+        spendProposal(50_000, 'two'),
+      ).then((r) => results.push(r));
+      if (closeKind === 'runtime') closeCoopRuntimeSession('match-runtime-1');
+      else if (closeKind === 'arbiter') runtime?.arbiter.close();
+      else _resetCoopRuntimeSessions();
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(results).toHaveLength(2);
+      expect(results).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            proposalId: 'one',
+            reason: 'session-closed',
+          }),
+          expect.objectContaining({
+            proposalId: 'two',
+            reason: 'session-closed',
+          }),
+        ]),
+      );
+    },
+  );
+
+  it('rejects a duplicate without stealing the original waiter', async () => {
+    await openCoopRuntimeSession(makeHostCampaign(), {
+      matchId: 'match-runtime-1',
+    });
+    let original: unknown;
+    void submitGuestProposalToHost(
+      'match-runtime-1',
+      spendProposal(50_000),
+    ).then((r) => {
+      original = r;
+    });
+    await expect(
+      submitGuestProposalToHost('match-runtime-1', spendProposal(90_000)),
+    ).resolves.toMatchObject({ reason: 'malformed-intent' });
+    await decideGuestProposal('match-runtime-1', 'proposal-spend', 'approve');
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(original).toMatchObject({ status: 'committed' });
   });
 
   it('resolves a host-review guest proposal when the host decides', async () => {

@@ -134,6 +134,81 @@ const quietLogger = {
 };
 
 describe('bindCampaignSyncConnection', () => {
+  it('rejects a duplicate only to its sender without broadcasting a decision for the original', async () => {
+    const registry = await makeRegistry('host-review');
+    const guest = new MockWireSocket();
+    const observer = new MockWireSocket();
+    try {
+      for (const socket of [guest, observer]) {
+        await bindCampaignSyncConnection({
+          socket,
+          registry,
+          matchId: 'match-campaign',
+          verifiedPlayerId: 'pid_guest',
+          logger: quietLogger,
+          replicaStore: null,
+        });
+        socket.inbound({
+          kind: 'CampaignJoin',
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_guest',
+          role: 'guest',
+          roomCode: 'ABC234',
+        });
+        await flushAsyncHandlers();
+      }
+      const proposal = {
+        proposalId: 'duplicate-wire',
+        campaignId: 'campaign-sync',
+        proposingPlayerId: 'pid_guest',
+        ts: nowIso(),
+        intent: {
+          kind: 'SpendFunds',
+          campaignId: 'campaign-sync',
+          intentId: 'wire-original',
+          payload: { amount: 1000, reason: 'Ammo' },
+        },
+      };
+      guest.inbound({
+        kind: 'CampaignProposal',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_guest',
+        proposal,
+      });
+      await flushAsyncHandlers();
+      guest.sent.length = 0;
+      observer.sent.length = 0;
+      guest.inbound({
+        kind: 'CampaignProposal',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_guest',
+        proposal: {
+          ...proposal,
+          intent: {
+            ...proposal.intent,
+            payload: { amount: 9000, reason: 'Replacement' },
+          },
+        },
+      });
+      await flushAsyncHandlers();
+      expect(guest.sent).toEqual([
+        expect.objectContaining({ kind: 'Error', reason: 'malformed-intent' }),
+      ]);
+      expect(observer.sent).toEqual([]);
+      expect(
+        registry.get('match-campaign')?.arbiter.getPendingProposals()[0]
+          ?.proposal.intent,
+      ).toEqual(proposal.intent);
+    } finally {
+      guest.close();
+      observer.close();
+      registry._reset();
+    }
+  });
+
   beforeEach(() => {
     quietLogger.error.mockClear();
     quietLogger.log.mockClear();

@@ -81,6 +81,39 @@ function makeSocketFactory(): {
   };
 }
 
+describe('proposal transport closure', () => {
+  afterEach(() => {
+    _resetCampaignSyncTransportsForTest();
+  });
+
+  it.each(['caller', 'socket'] as const)(
+    'announces %s closure once and isolates a fresh transport',
+    (kind) => {
+      const sockets = makeSocketFactory();
+      const options = {
+        matchId: 'close-match',
+        role: 'guest' as const,
+        playerId: 'guest',
+        wireToken: 'token',
+        socketFactory: sockets.factory,
+      };
+      const transport = connectCampaignSyncTransport(options);
+      const socket = sockets.lastSocket();
+      const closed = jest.fn();
+      transport.onClose?.(closed);
+      if (kind === 'caller') transport.close();
+      else socket.close();
+      expect(closed).toHaveBeenCalledTimes(1);
+      socket.onclose?.({});
+      transport.close();
+      expect(closed).toHaveBeenCalledTimes(1);
+      const late = jest.fn();
+      transport.onClose?.(late);
+      expect(late).toHaveBeenCalledTimes(1);
+    },
+  );
+});
+
 describe('P2CD explicit consumer completion', () => {
   const ts = '2026-10-16T00:00:00.000Z';
   const baseline = (): Extract<

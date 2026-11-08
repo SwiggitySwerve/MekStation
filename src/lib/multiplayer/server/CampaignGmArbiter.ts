@@ -188,6 +188,8 @@ export class CampaignGmArbiter {
   }
   /** Proposals awaiting a host decision (`host-review` mode only). */
   private readonly pending = new Map<string, IPendingProposal>();
+  private readonly submittedIds = new Set<string>();
+  private readonly closedListeners = new Set<() => void>();
   private readonly listeners = new Set<PendingProposalListener>();
   private readonly resolvedListeners = new Set<ProposalResolvedListener>();
   /**
@@ -209,6 +211,10 @@ export class CampaignGmArbiter {
     Promise<GuestProposalResult | null>
   >();
   private closed = false;
+
+  /** Transport checks this immediately before submit, without an intervening await. */
+  hasSubmittedProposal = (proposalId: string): boolean =>
+    this.submittedIds.has(proposalId);
 
   constructor(
     host: CampaignMatchHost,
@@ -285,15 +291,42 @@ export class CampaignGmArbiter {
     };
   };
 
+  /** Local callers awaiting admission or commit must also hear closure. */
+  subscribeClosed = (listener: () => void): (() => void) => {
+    if (this.closed) {
+      listener();
+      return () => undefined;
+    }
+    this.closedListeners.add(listener);
+    return () => {
+      this.closedListeners.delete(listener);
+    };
+  };
+
   /**
    * Drop every armed auto-veto timer. A closed host must not leave a
    * timeout handle that keeps the process alive.
    */
   close = (): void => {
+    if (this.closed) return;
     this.closed = true;
+    const pending = this.getPendingProposals();
+    this.pending.clear();
     for (const proposalId of Array.from(this.timers.keys())) {
       this.cancelTimeoutFor(proposalId);
     }
+    this.submittedIds.clear();
+    for (const entry of pending) {
+      this.notifyResolved({
+        status: 'mechanically-rejected',
+        proposalId: entry.proposal.proposalId,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: 'session-closed',
+      });
+    }
+    this.notifyPending();
+    this.closedListeners.forEach((listener) => listener());
+    this.closedListeners.clear();
   };
 
   // ---------------------------------------------------------------------------
@@ -337,6 +370,18 @@ export class CampaignGmArbiter {
         reason: 'malformed-intent',
       };
     }
+
+    if (this.closed || this.submittedIds.has(proposal.proposalId)) {
+      return {
+        status: 'mechanically-rejected',
+        proposalId: proposal.proposalId,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: this.closed ? 'session-closed' : 'malformed-intent',
+      };
+    }
+    // Reserve before an auto-approved/guarded commit can yield. Keep the id
+    // after resolution so a replay cannot commit a different intent under it.
+    this.submittedIds.add(proposal.proposalId);
 
     // Step 2 — CO1 mechanical validation FIRST (design D5 — the floor in
     // BOTH modes). The check runs against the host's CURRENT
