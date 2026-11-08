@@ -61,7 +61,7 @@ export const MEKSTATION_AMMO_EXHAUSTION_CRITICAL_EFFECT_SOURCE_REFS = [
   ...MEGAMEK_EQUIPMENT_CRITICAL_EFFECT_SOURCE_REFS,
   genericEquipmentMekStationRef(
     'MekStation applyCritAmmoExplosions skips AmmoExplosion when a critical resolves against an empty tracked ammo bin or no bin is tracked at that location.',
-    'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L95-L100',
+    'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L88-L93',
   ),
   genericEquipmentMekStationRef(
     'MekStation criticalHitEvents tests prove critical hits target exact ammo bins, empty bins emit no AmmoExplosion, and loaded same-location bins remain untouched.',

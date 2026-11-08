@@ -13,12 +13,12 @@ const LOCAL_CRITICAL_PSR_BRIDGE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation weaponAttackCriticalEvents converts crit-origin psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
     'src/simulation/runner/phases/weaponAttackCriticalEvents.ts',
-    'L153-L186',
+    'L154-L187',
   ),
   mekstationDeviationRef(
     'MekStation heatCriticalDamage converts heat-critical psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
     'src/simulation/runner/phases/heatCriticalDamage.ts',
-    'L145-L169',
+    'L137-L161',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -189,7 +189,7 @@ export const DAMAGE_THRESHOLD_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyDamageThresholdPSR queues createDamagePSR once damageThisPhase reaches the local 20+ threshold and avoids duplicate phase-damage PSRs.',
     'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
-    'L415-L442',
+    'L410-L437',
   ),
   mekstationDeviationRef(
     'MekStation createDamagePSR stamps PhaseDamage20Plus as the reasonCode and triggerSource for the pending PSR.',

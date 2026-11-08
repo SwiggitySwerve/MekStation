@@ -1,0 +1,6 @@
+{
+  "name": "unify-unit-destroyed-causes",
+  "status": "in-progress",
+  "reason": "Root-approved C14 PR1: consolidate the seven serialized UnitDestroyed causes while preserving vehicle mapping, replay schemas and payloads.",
+  "lastReviewed": "2026-11-08"
+}

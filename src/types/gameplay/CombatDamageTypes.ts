@@ -1,3 +1,4 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 /**
  * Combat damage, critical-hit, and pilot-damage result types.
  */
@@ -95,24 +96,12 @@ export interface IDamageResult {
   /**
    * Destruction cause.
    *
-   * Closed snake_case enum kept symmetric with `IUnitDestroyedPayload.cause`
-   * (in `GameSessionInterfaces.ts`) and the `cause` field on
-   * `IDestructionCheckResult` / `destructionCause` field on
-   * `IUnitDamageState` (in `utils/gameplay/damage/types.ts`). All three
-   * MUST contain exactly the same 7 values per the
-   * `add-combat-fidelity-suite` Phase 0.5 reconciliation.
+   * Shared with UnitDestroyed events, damage state and replay validation.
    *
    * Heat shutdown is modeled as lifecycle state rather than a
    * destruction cause.
    */
-  readonly destructionCause?:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'impossible_displacement'
-    | 'ct_destroyed'
-    | 'head_destroyed';
+  readonly destructionCause?: UnitDestroyedCause;
 }
 
 // =============================================================================
