@@ -38,6 +38,7 @@ import {
   runtimeMovementAltitudeControlContext,
   runtimeMovementProjectionBlockedReason,
 } from './runtimeCapability';
+import { isStuckMovementBlocked } from './stuckState';
 import { getStandingCost } from './validation';
 
 export interface IPrePathBlockedRangeHexInput {
@@ -81,7 +82,9 @@ export function derivePrePathBlockedRangeHex(
 function deriveImmobileOrRuntimeBlockedRangeHex(
   input: IPrePathBlockedRangeHexInput,
 ): IMovementRangeHex | null {
-  const immobileReason = representedUnitImmobileReason(input.unit);
+  const immobileReason =
+    representedUnitImmobileReason(input.unit) ??
+    (isStuckMovementBlocked(input.unit, input.mpType) ? 'Unit is stuck' : null);
   if (immobileReason) {
     return input.withReservedProjection(
       immobileMovementRangeHex({

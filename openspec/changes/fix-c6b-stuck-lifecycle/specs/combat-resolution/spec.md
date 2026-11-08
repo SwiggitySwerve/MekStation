@@ -60,3 +60,11 @@ Terrain PSR validation SHALL queue MegaMek's BattleMech swamp bog-down rule as a
 - **GIVEN** the events a runner emitted across bog-down, recovery, and jump
 - **WHEN** the reducer replays them
 - **THEN** it SHALL reach the same `isStuck` and eligibility state at each step
+
+#### Scenario: Interactive commit and projection agree on stuck units
+
+- **GIVEN** a stuck unit in an interactive, engine, multiplayer, or P2P session
+- **WHEN** a movement is committed or its reachability is projected
+- **THEN** commit readiness SHALL refuse it with `UnitImmobile` before the projection runs, unless it is a jump by an eligible unit
+- **AND** the projection SHALL show no reachable destination except eligible jumps
+- **AND** a GM unit reload SHALL preserve `isStuck` and `canUnstickByJumping`

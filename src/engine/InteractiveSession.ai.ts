@@ -175,6 +175,9 @@ function runInteractiveSessionMovementAI(
           facing: refreshedUnit.facing,
           prone: refreshedUnit.prone ?? false,
           isStuck: refreshedUnit.isStuck ?? false,
+          ...(refreshedUnit.canUnstickByJumping === true
+            ? { canUnstickByJumping: true }
+            : {}),
         },
         moveEvt.payload.to,
         moveEvt.payload.facing as Facing,

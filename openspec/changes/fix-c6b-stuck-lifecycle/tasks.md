@@ -26,9 +26,11 @@
 
 ## 3. PR3: interactive consistency
 
-- [ ] Gate commit readiness and the reachability projection on stuck state.
-- [ ] Pass jump eligibility through every validator caller.
-- [ ] Preserve jump eligibility across GM unit reload.
+- [x] Record failing commit, projection, P2P and GM reload tests.
+- [x] Gate commit readiness and the reachability projection on stuck state.
+- [x] Pass jump eligibility through every validator caller.
+- [x] Preserve jump eligibility across GM unit reload.
+- [x] Kill the readiness, projection, P2P and GM reload mutants.
 
 ## 4. Verification
 
