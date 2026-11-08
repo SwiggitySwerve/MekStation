@@ -209,6 +209,90 @@ describe('campaign command pipeline contract-offer durability', () => {
     expect(await journal.getCommandReceipt('cmd-absent')).toBeNull();
   });
 
+  /** The stored row's CAS version and body, to prove a refusal moved nothing. */
+  function storedRow(): { version: number; payload: string } {
+    return getSQLiteService()
+      .getDatabase()
+      .prepare('SELECT version, payload FROM campaigns WHERE id = ?')
+      .get(CAMPAIGN_ID) as { version: number; payload: string };
+  }
+
+  // K14b: MekHQ deletes a declined offer from the board
+  // (ChaosContractMarketDialog.java:686-695 at e7adc2c), so no state exists
+  // in which a declined offer can still be signed. A rules refusal, not a
+  // durability one: retrying cannot make a declined offer acceptable.
+  it('refuses a declined offer the source still lists, moving neither journal nor row', async () => {
+    seedSourceRecord({
+      offers: [offer(STORED_ID)],
+      declinedOfferIds: [STORED_ID],
+    });
+    const before = await readCampaignJournalEvents(journal, CAMPAIGN_ID);
+    const rowBefore = storedRow();
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-declined');
+
+    expect(result).toStrictEqual({
+      kind: 'rejected',
+      reason: 'offer-declined',
+    });
+    expect(await readCampaignJournalEvents(journal, CAMPAIGN_ID)).toHaveLength(
+      before.length,
+    );
+    expect(await journal.getCommandReceipt('cmd-declined')).toBeNull();
+    expect(storedRow()).toStrictEqual(rowBefore);
+  });
+
+  // The same clock K14a's local `contractOfferRefusal` uses: a contract whose
+  // end date is before the source record's current date cannot be signed.
+  it('refuses an offer whose end date is before the source record date', async () => {
+    seedSourceRecord({
+      offers: [{ ...offer(STORED_ID), endDate: '3025-01-02T00:00:00.000Z' }],
+      declinedOfferIds: [],
+    });
+    const rowBefore = storedRow();
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-expired');
+
+    expect(result).toStrictEqual({ kind: 'rejected', reason: 'offer-expired' });
+    expect(await journal.getCommandReceipt('cmd-expired')).toBeNull();
+    expect(storedRow()).toStrictEqual(rowBefore);
+  });
+
+  it('still accepts an offer ending on the source record date', async () => {
+    seedSourceRecord({
+      offers: [{ ...offer(STORED_ID), endDate: '3025-01-03T00:00:00.000Z' }],
+      declinedOfferIds: ['contract-other'],
+    });
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-last-day');
+
+    expect(result.kind).toBe('committed');
+  });
+
+  it('refuses rather than guesses when a dated offer meets a row with no readable clock', async () => {
+    seedSourceRecord({
+      offers: [{ ...offer(STORED_ID), endDate: '3025-01-02T00:00:00.000Z' }],
+      declinedOfferIds: [],
+    });
+    const db = getSQLiteService().getDatabase();
+    const row = storedRow();
+    const record = JSON.parse(row.payload) as { body: Record<string, unknown> };
+    delete record.body.currentDate;
+    db.prepare('UPDATE campaigns SET payload = ? WHERE id = ?').run(
+      JSON.stringify(record),
+      CAMPAIGN_ID,
+    );
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-no-clock');
+
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'source-record-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-no-clock')).toBeNull();
+  });
+
   it('refuses when the campaign has no persisted source record at all', async () => {
     const result = await run(acceptContract(STORED_ID), 'cmd-no-row');
 
