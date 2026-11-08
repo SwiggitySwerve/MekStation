@@ -11,6 +11,10 @@ import type {
 } from '@/types/combat/CombatOutcome';
 
 import {
+  isSalvageEligibleAfterExit,
+  readDeltaExitReason,
+} from '@/lib/combat/outcome/deltaExitReason';
+import {
   CBILLS_PER_BATTLE_VALUE,
   DamageLevel,
   RECOVERY_PERCENTAGE_BY_DAMAGE,
@@ -211,8 +215,11 @@ export function aggregateSalvageCandidates(
   const candidates: ISalvageCandidate[] = [];
   for (const delta of outcome.unitDeltas) {
     if (delta.side !== GameSide.Opponent) continue;
-    if (delta.finalStatus === UnitFinalStatus.Intact) continue;
-    if (delta.finalStatus === UnitFinalStatus.Ejected) continue;
+    const exitReason = readDeltaExitReason(outcome, delta);
+    const stayedEligible =
+      delta.finalStatus !== UnitFinalStatus.Intact &&
+      delta.finalStatus !== UnitFinalStatus.Ejected;
+    if (!isSalvageEligibleAfterExit(exitReason, stayedEligible)) continue;
     const baseline = options?.initialStructure?.get(delta.unitId) ?? null;
     const damageLevel = classifyDamageLevel(delta, baseline);
     const meta = lookup(delta.unitId);
@@ -233,7 +240,8 @@ export function aggregateSalvageCandidates(
       unitId: delta.unitId,
       designation,
       destroyedFromBattle: outcome.matchId,
-      finalStatus: deltaToFinalStatus(delta),
+      finalStatus:
+        exitReason === 'ejected' ? 'ejected' : deltaToFinalStatus(delta),
       damageLevel,
       originalValue,
       recoveredValue,

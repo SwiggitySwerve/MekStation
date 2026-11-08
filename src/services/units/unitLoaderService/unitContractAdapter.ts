@@ -3,38 +3,11 @@ import { UnitContract } from '@/types/contracts';
 import { IRawSerializedUnit } from './types';
 /** Validated compatibility adapter for typed BattleMech configuration mapping. */
 import { unitContractIssues } from './unitContractIssues';
+import { UnitContractParseError } from './unitContractParseError';
 
-/**
- * Thrown when `parseUnit` cannot validate input against `UnitContract`.
- *
- * Carries the Zod issue list (first 5) so test output and CI logs can
- * pinpoint the offending field without re-running the parse.
- */
-export class UnitContractParseError extends Error {
-  /** First 5 Zod issues, preserved verbatim for debugging. */
-  readonly issues: ReadonlyArray<{
-    readonly path: string;
-    readonly message: string;
-  }>;
-
-  constructor(
-    issues: ReadonlyArray<{
-      readonly path: string;
-      readonly message: string;
-    }>,
-    sourceLabel: string,
-  ) {
-    const summary = issues
-      .slice(0, 5)
-      .map((issue) => `  ${issue.path || '<root>'}: ${issue.message}`)
-      .join('\n');
-    super(
-      `parseUnit: UnitContract.safeParse failed for ${sourceLabel}:\n${summary}`,
-    );
-    this.name = 'UnitContractParseError';
-    this.issues = issues;
-  }
-}
+// `parseUnit` throws this when `UnitContract` rejects input; the class lives in
+// its own module so callers needing only the type skip the zod contract.
+export { UnitContractParseError };
 
 /**
  * Parse arbitrary JSON through `UnitContract` and return the

@@ -29,7 +29,12 @@ import type {
 } from '@/types/campaign/CampaignInventory';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
-import { projectCampaignInventory } from '@/lib/campaign/inventory/projectCampaignInventory';
+import {
+  projectCampaignInventory,
+  projectRepairBay,
+  summarizeRepairBay,
+} from '@/lib/campaign/inventory/projectCampaignInventory';
+import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 
 // =============================================================================
 // Empty Projection Constants
@@ -95,7 +100,12 @@ function projectInventoryForDisplay(
 export function selectRepairBay(
   campaign: ICampaign | null,
 ): readonly IRepairBayItem[] {
-  return projectInventoryForDisplay(campaign)?.repairBay ?? EMPTY_REPAIR_BAY;
+  if (campaign?.repairQueue) return projectRepairBay(campaign.repairQueue);
+  return (
+    projectInventoryForDisplay(campaign)?.repairBay.filter(
+      isActiveRepairTicket,
+    ) ?? EMPTY_REPAIR_BAY
+  );
 }
 
 /**
@@ -138,9 +148,13 @@ export function selectInventorySummary(
   campaign: ICampaign | null,
   rosterPilots: readonly ICampaignRosterEntry[] = [],
 ): IInventorySummary {
-  return (
-    projectInventoryForDisplay(campaign, rosterPilots)?.summary ?? EMPTY_SUMMARY
-  );
+  const inventory = projectInventoryForDisplay(campaign, rosterPilots);
+  if (!inventory) return EMPTY_SUMMARY;
+  const repairBay = selectRepairBay(campaign);
+  return {
+    ...inventory.summary,
+    ...summarizeRepairBay(repairBay),
+  };
 }
 
 // =============================================================================

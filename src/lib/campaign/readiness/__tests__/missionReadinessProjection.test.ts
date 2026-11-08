@@ -67,6 +67,20 @@ const mission = createMission({
 const readyCatalog = readyCanonicalCatalog(['atlas-as7-d']);
 
 describe('buildMissionReadinessProjection', () => {
+  it('excludes done tickets from readiness counts and queued warnings', () => {
+    const projection = buildMissionReadinessProjection({
+      campaignId: 'campaign-1',
+      mission,
+      catalog: readyCatalog,
+      units: [makeUnit()],
+      pilots: [makePilot()],
+      repairBay: [makeRepairTicket({ status: 'done' })],
+    });
+    expect(projection.units[0].repairTicketCount).toBe(0);
+    expect(projection.warnings).toEqual([]);
+    expect(projection.canLaunch).toBe(true);
+  });
+
   it('selects a default deployable roster and explains launch consequences', () => {
     const projection = buildMissionReadinessProjection({
       campaignId: 'campaign-1',

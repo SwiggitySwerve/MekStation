@@ -150,7 +150,8 @@ describe('deriveCoopBattleConsequences — from a combat outcome', () => {
       contractId: 'contract-1',
       scenarioId: 'scenario-1',
       endReason: CombatEndReason.Destruction,
-      report: {} as ICombatOutcome['report'],
+      // Every persisted outcome carries the session log; exits are read from it.
+      report: { log: [] } as unknown as ICombatOutcome['report'],
       capturedAt: '2026-05-19T12:00:00.000Z',
       unitDeltas: [
         {

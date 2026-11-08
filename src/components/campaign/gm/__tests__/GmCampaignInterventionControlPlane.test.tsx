@@ -25,6 +25,7 @@ import { createInjury } from '@/types/campaign/Person';
 import { DamageLevel } from '@/types/campaign/Salvage';
 import { TransactionType } from '@/types/campaign/Transaction';
 
+import { buildRepairCompletionCommand } from '../GmCampaignBaseFixCommands';
 import { GmCampaignInterventionControlPlane } from '../GmCampaignInterventionControlPlane';
 import { GmCampaignPlayerLedgerView } from '../GmCampaignPlayerLedgerView';
 
@@ -710,4 +711,19 @@ describe('GmCampaignPlayerLedgerView', () => {
       /Hidden campaign|Hidden time|black-market|GM-only|default outcome/i,
     );
   });
+});
+
+it('targets active repair work after completed and cancelled tickets', () => {
+  const campaign = {
+    ...makeCampaignWithBaseFixes(),
+    repairQueue: [
+      makeRepairTicket({ ticketId: 'done', status: 'completed' }),
+      makeRepairTicket({ ticketId: 'cancelled', status: 'cancelled' }),
+      makeRepairTicket({ ticketId: 'active' }),
+    ],
+  };
+  expect(
+    buildRepairCompletionCommand({ actorId: 'gm', campaign }).payload
+      ?.correction,
+  ).toMatchObject({ ticketId: 'active' });
 });

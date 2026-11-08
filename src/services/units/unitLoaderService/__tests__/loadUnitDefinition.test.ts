@@ -201,4 +201,32 @@ describe('canonical definition retry after an invalid definition (#2457 review)'
       definition: { unitType: 'Infantry' },
     });
   });
+
+  it('reports a service-rejected canonical unit as invalid-definition with its field issues', async () => {
+    const row = {
+      id: atlas.id,
+      chassis: atlas.chassis,
+      model: atlas.model,
+      tonnage: atlas.tonnage,
+      techBase: atlas.techBase,
+      year: 2750,
+      path: '2-star-league/standard/Atlas AS7-D.json',
+    };
+    global.fetch = jest.fn(async (url: string) => ({
+      ok: true,
+      json: async () =>
+        url.endsWith('/index.json')
+          ? { units: [row] }
+          : { ...atlas, tonnage: -50 },
+    })) as unknown as typeof fetch;
+
+    expect(await loadUnitDefinition('battlemechs', atlas.id)).toMatchObject({
+      success: false,
+      code: 'invalid-definition',
+      error: expect.stringContaining('tonnage'),
+      issues: expect.arrayContaining([
+        expect.objectContaining({ path: 'tonnage' }),
+      ]),
+    });
+  });
 });

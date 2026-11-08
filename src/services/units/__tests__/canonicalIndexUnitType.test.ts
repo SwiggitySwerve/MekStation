@@ -170,6 +170,17 @@ describe('canonical index unitType', () => {
     });
 
     it('do not fail a strict browser load of the rows that did map', async () => {
+      // The service guards a unit's shape before caching it: serve a unit file.
+      const unit = {
+        id: 'atlas-as7-d',
+        chassis: 'Atlas',
+        unitType: 'BattleMech',
+        tonnage: 100,
+      };
+      global.fetch = jest.fn(async (url: string) => ({
+        ok: true,
+        json: async () => (url.endsWith('/index.json') ? INDEX : unit),
+      })) as unknown as typeof fetch;
       const service = new CanonicalUnitService();
       expect(await service.getIndex({ strict: true })).toHaveLength(2);
       await expect(

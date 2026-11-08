@@ -96,6 +96,15 @@ export interface CampaignRosterActions {
     units: IRosterUnitProjection[],
   ) => boolean;
 
+  /**
+   * Replace the pilots atomically; refuse wrong campaigns or duplicate ids.
+   * The day-advance rollback's restore, guarded like replaceUnitsForCampaign.
+   */
+  replacePilotsForCampaign: (
+    campaignId: string | null,
+    pilots: ICampaignRosterEntry[],
+  ) => boolean;
+
   /** Remove a unit from the roster */
   removeUnit: (unitId: string) => void;
 

@@ -1,13 +1,15 @@
 /**
  * CasualtyPanel
  *
- * Lists every player-side unit that ended damaged, destroyed, or
- * ejected with a per-unit damage summary: final status badge,
+ * Lists every player-side unit that ended damaged or destroyed, or that
+ * ejected or retreated, with a per-unit damage summary: exit badge, final
+ * status badge,
  * destroyed locations, destroyed components, ammo bins consumed, and
  * final heat reading.
  *
- * Operates entirely on the campaign-facing `IUnitCombatDelta` slice of
- * the outcome — no need to walk the raw event log.
+ * Operates on the campaign-facing `IUnitCombatDelta` slice of the
+ * outcome; exits are read through `readDeltaExitReason`, which consults
+ * the report log only for outcomes stored before `exitReason` existed.
  *
  * @spec openspec/changes/add-post-battle-review-ui § 3 (Casualty Panel)
  * @module components/gameplay/post-battle/CasualtyPanel
@@ -17,6 +19,7 @@ import React from 'react';
 
 import { Badge } from '@/components/ui/Badge';
 import { Card, CardSection } from '@/components/ui/Card';
+import { readDeltaExitReason } from '@/lib/combat/outcome/deltaExitReason';
 import {
   type ICombatOutcome,
   type IUnitCombatDelta,
@@ -60,6 +63,8 @@ function statusLabel(status: UnitFinalStatus): string {
   return status.toUpperCase();
 }
 
+const EXIT_LABEL = { ejected: 'Ejected', retreated: 'Retreated' } as const;
+
 /**
  * Find the human-readable designation for a unit by walking the
  * composed Phase 1 report. The delta only carries the unit id; the
@@ -81,6 +86,7 @@ function CasualtyRow({
   readonly outcome: ICombatOutcome;
   readonly delta: IUnitCombatDelta;
 }): React.ReactElement {
+  const exitReason = readDeltaExitReason(outcome, delta);
   return (
     <li
       className="border-border-theme-subtle border-b py-3 last:border-b-0"
@@ -90,13 +96,24 @@ function CasualtyRow({
         <div className="text-text-theme-primary font-medium">
           {designationFor(outcome, delta.unitId)}
         </div>
-        <Badge
-          variant={statusBadgeVariant(delta.finalStatus)}
-          size="sm"
-          data-testid={`casualty-status-${delta.unitId}`}
-        >
-          {statusLabel(delta.finalStatus)}
-        </Badge>
+        <div className="flex items-center gap-2">
+          {exitReason !== null ? (
+            <Badge
+              variant="sky"
+              size="sm"
+              data-testid={`casualty-exit-${delta.unitId}`}
+            >
+              {EXIT_LABEL[exitReason]}
+            </Badge>
+          ) : null}
+          <Badge
+            variant={statusBadgeVariant(delta.finalStatus)}
+            size="sm"
+            data-testid={`casualty-status-${delta.unitId}`}
+          >
+            {statusLabel(delta.finalStatus)}
+          </Badge>
+        </div>
       </div>
       <div className="text-text-theme-secondary mt-1 text-xs">
         Heat at end: {delta.heatEnd}
@@ -142,10 +159,13 @@ export function CasualtyPanel({
   outcome,
   playerSide = GameSide.Player,
 }: CasualtyPanelProps): React.ReactElement {
-  // Filter to player-side units that took meaningful damage. Intact
-  // units don't belong on a casualty list.
+  // Player-side units that took meaningful damage or left the battle by
+  // ejecting or retreating. Intact units that stayed don't belong here.
   const casualties = outcome.unitDeltas.filter(
-    (d) => d.side === playerSide && d.finalStatus !== UnitFinalStatus.Intact,
+    (d) =>
+      d.side === playerSide &&
+      (d.finalStatus !== UnitFinalStatus.Intact ||
+        readDeltaExitReason(outcome, d) !== null),
   );
 
   return (

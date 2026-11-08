@@ -36,8 +36,39 @@ read/publish/receipt sequence: stamp `publishedAt` only after a listener
 consumes the outcome; skip already-published rows on every later restart.
 The existing seven-day completed-match retention remains in force.
 
-General metadata and lobby transition validation is a follow-up; completion
-does not introduce a transition guard for every metadata patch.
+## Lobby and spectator seat lifecycle
+
+`matchIntentKinds.ts` owns wire intent classification, host-only lobby
+authorization and allowed match statuses. Setup intents (OccupySeat, LeaveSeat,
+ReassignSeat, SetAiSlot, SetHumanSlot, SetReady and LaunchMatch) require `lobby`.
+Completed matches reject all lobby intents. ForfeitMatch retains its lobby/active
+availability and existing outcome/completion path.
+
+MarkSeatAi is the narrow recovery exception: it requires `active` and an occupied
+`human` seat whose player id **and slot id** match a pending disconnected entry.
+Connected humans, empty seats, AI and spectators are refused. This preserves:
+
+- `src/types/multiplayer/Protocol.ts:315-319`, the MarkSeatAi pending-human contract.
+- `src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts:257`, scenario
+  `host MarkSeatAi clears the pending seat and broadcasts MatchResumed`, and
+  `MarkSeatAi rejects %s targets without changing seats or clearing pending`
+  at line 300.
+
+The final socket detach queues spectator removal on the same host executor as
+intents. The queued operation checks for reattachment both before and after its
+metadata read. It removes only the matching spectator seat, persists it, and
+broadcasts LobbyUpdated; it does not change the playing roster, side assignments,
+campaign membership or human-seat grace handling. Registration uses the first
+free spectator slot id so removing a middle viewer cannot duplicate another slot.
+
+Spectator departure retains delivery records, acknowledgements and cursor state
+by authenticated viewer identity, not slot id. A viewer must register again to
+regain membership, then resumes the same delivery numbering across rejoin and
+restart. Rewind still clears the superseded delivery stream as described below.
+
+Follow-ups: seats compare-and-swap across REST and host writers, abrupt-crash
+leftovers, and spectator registrations that never attach. General metadata
+transition validation remains separate from these intent admission rules.
 
 ## Viewer delivery recovery and rewind
 

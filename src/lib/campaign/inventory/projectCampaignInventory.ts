@@ -27,6 +27,7 @@ import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { ISalvageAllocation } from '@/types/campaign/Salvage';
 
 import { isRosterPilotDeparted } from '@/lib/campaign/personnel/statusRules';
+import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 import { salvageAcceptanceStatus } from '@/lib/campaign/salvage/salvageAcceptance';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 
@@ -53,49 +54,19 @@ export type ICampaignForInventory = ICampaign & IInventoryProjectionSources;
 // Repair Bay Projection
 // =============================================================================
 
-/**
- * Map an `IRepairTicket` lifecycle status onto the frozen bay-item
- * status. `IRepairTicket` carries `cancelled` and `completed`; the
- * frozen schema (D4) uses `done` for completed and drops cancelled
- * tickets entirely (see `projectRepairBay`).
- */
-function mapRepairStatus(
-  status: IRepairTicket['status'],
-): IRepairBayItem['status'] {
-  switch (status) {
-    case 'completed':
-      return 'done';
-    case 'in-progress':
-      return 'in-progress';
-    case 'parts-needed':
-      return 'parts-needed';
-    case 'queued':
-    case 'cancelled':
-    default:
-      return 'queued';
-  }
-}
-
-/**
- * Project the repair queue into frozen `IRepairBayItem`s. Cancelled
- * tickets are dropped — they are not active repair work.
- */
-function projectRepairBay(
+/** Terminal tickets stay in history only while their source can still be replayed. */
+export function projectRepairBay(
   tickets: readonly IRepairTicket[],
 ): readonly IRepairBayItem[] {
-  return tickets
-    .filter((ticket) => ticket.status !== 'cancelled')
-    .map((ticket) => ({
-      ticketId: ticket.ticketId,
-      unitId: ticket.unitId,
-      kind: ticket.kind,
-      location: ticket.location ?? null,
-      expectedHours: ticket.expectedHours,
-      // `partsReady` is true when every required part has been matched.
-      // A ticket with no parts (e.g. heat-recovery) is trivially ready.
-      partsReady: ticket.partsRequired.every((part) => part.matched),
-      status: mapRepairStatus(ticket.status),
-    }));
+  return tickets.filter(isActiveRepairTicket).map((ticket) => ({
+    ticketId: ticket.ticketId,
+    unitId: ticket.unitId,
+    kind: ticket.kind,
+    location: ticket.location ?? null,
+    expectedHours: ticket.expectedHours,
+    partsReady: ticket.partsRequired.every((part) => part.matched),
+    status: ticket.status,
+  }));
 }
 
 // =============================================================================
@@ -224,6 +195,19 @@ export function projectMedicalBay(
 // Summary
 // =============================================================================
 
+/** Repair rows and every caller's totals share the same projection owner. */
+export function summarizeRepairBay(
+  repairBay: readonly IRepairBayItem[],
+): Pick<IInventorySummary, 'repairTicketCount' | 'totalRepairHours'> {
+  return {
+    repairTicketCount: repairBay.length,
+    totalRepairHours: repairBay.reduce(
+      (sum, item) => sum + item.expectedHours,
+      0,
+    ),
+  };
+}
+
 /**
  * Build the roll-up summary from the three projected bays.
  */
@@ -233,11 +217,7 @@ function buildSummary(
   medicalBay: readonly IMedicalBayItem[],
 ): IInventorySummary {
   return {
-    repairTicketCount: repairBay.length,
-    totalRepairHours: repairBay.reduce(
-      (sum, item) => sum + item.expectedHours,
-      0,
-    ),
+    ...summarizeRepairBay(repairBay),
     salvageValueTotal: salvageBay.reduce(
       (sum, item) => sum + item.recoveredValue,
       0,
