@@ -151,6 +151,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-salvage-acceptance-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-c10-emp-startup-gating",
       "status": "in-progress",
       "reason": "Root-approved C10: extract unchanged startup/countdown rules first, then gate EMP startup, advance runner shutdown rounds, skip redundant shutdown checks, and auto-fail KO rolled startup. Preserve recorded startup outcomes and stop on committed fixture, digest, seeded snapshot, or exact-roll seeded expectation changes.",
