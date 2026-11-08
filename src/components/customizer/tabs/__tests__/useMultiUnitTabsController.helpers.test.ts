@@ -15,14 +15,69 @@ jest.mock('@/stores/unitStoreRegistry', () => ({
 }));
 jest.mock('@/utils/logger', () => ({ logger: { error: jest.fn() } }));
 
+async function toastFor(errorCode: string): Promise<string> {
+  jest.clearAllMocks();
+  jest.mocked(unitLoaderService.loadUnit).mockResolvedValue({
+    success: false,
+    errorCode,
+  } as never);
+  const showToast = jest.fn();
+  await loadUnitIntoTab({
+    unit: {
+      id: 'atlas-as7-d',
+      chassis: 'Atlas',
+      variant: 'AS7-D',
+    } as IUnitIndexEntry,
+    source: 'canonical',
+    createTab: jest.fn(),
+    navigateToTab: jest.fn(),
+    setIsLoadDialogOpen: jest.fn(),
+    setIsLoadingUnit: jest.fn(),
+    showToast,
+  });
+  expect(showToast).toHaveBeenCalledTimes(1);
+  expect(showToast).toHaveBeenCalledWith(
+    expect.objectContaining({ variant: 'error' }),
+  );
+  return showToast.mock.calls[0][0].message as string;
+}
+
+it.each([
+  ['not-found', 'Atlas AS7-D is no longer in the library.'],
+  ['read-failed', "Couldn't read Atlas AS7-D, so try again."],
+  [
+    'family-not-found',
+    'The catalog for this unit family is unavailable right now.',
+  ],
+] as const)('gives %s its own message', async (errorCode, message) => {
+  expect(await toastFor(errorCode)).toBe(message);
+});
+
+it('tells not-found, read-failed and family-not-found apart', async () => {
+  const messages = [
+    await toastFor('not-found'),
+    await toastFor('read-failed'),
+    await toastFor('family-not-found'),
+  ];
+  expect(new Set(messages).size).toBe(3);
+});
+
+it('keeps the invalid-definition toast', async () => {
+  expect(await toastFor('invalid-definition')).toBe(
+    'This library entry contains invalid unit data. Choose another entry or correct the saved definition.',
+  );
+});
+
+it('keeps the generic failure toast for a code it has no message for', async () => {
+  expect(await toastFor('session-failed')).toBe(
+    'Failed to load Atlas AS7-D. Please try again.',
+  );
+});
+
 it.each([
   [
     'unknown-family',
     'This library entry uses an unknown unit family. Choose another entry or correct the saved definition.',
-  ],
-  [
-    'family-not-found',
-    'The catalog for this unit family is unavailable. Choose an entry from another family.',
   ],
 ] as const)(
   'explains %s without suggesting a retry',

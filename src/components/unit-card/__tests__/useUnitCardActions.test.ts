@@ -122,7 +122,9 @@ describe('useUnitCardActions', () => {
       act(() => result.current.handleDuplicate());
 
       await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('new-id-2'));
-      expect(canonicalService.getById).toHaveBeenCalledWith('canon-id');
+      expect(canonicalService.getById).toHaveBeenCalledWith('canon-id', {
+        strict: true,
+      });
     });
 
     it('reports an error when the source unit cannot be found', async () => {
@@ -140,6 +142,28 @@ describe('useUnitCardActions', () => {
 
       await waitFor(() => expect(onError).toHaveBeenCalled());
       expect(onError.mock.calls[0][0]).toBeInstanceOf(Error);
+      expect(onError.mock.calls[0][0].message).toBe('Unit not found: missing');
+      expect(customService.create).not.toHaveBeenCalled();
+    });
+
+    it('reports a failed read as a read failure, not as a missing unit', async () => {
+      customService.getById.mockResolvedValue(null);
+      const cause = new Error('Canonical source request failed (503)');
+      canonicalService.getById.mockRejectedValue(cause);
+      const onError = jest.fn();
+
+      const { result } = renderHook(() =>
+        useUnitCardActions({
+          unitId: 'flaky',
+          onDuplicateError: onError,
+        }),
+      );
+      act(() => result.current.handleDuplicate());
+
+      await waitFor(() => expect(onError).toHaveBeenCalled());
+      const error: Error = onError.mock.calls[0][0];
+      expect(error.message).toBe('Failed to read unit: flaky');
+      expect(error.cause).toBe(cause);
       expect(customService.create).not.toHaveBeenCalled();
     });
 

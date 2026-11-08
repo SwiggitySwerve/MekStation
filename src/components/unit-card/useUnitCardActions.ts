@@ -74,7 +74,12 @@ function stripIdentity(unit: IFullUnit): Omit<IFullUnit, 'id'> {
 async function loadFullUnit(unitId: string): Promise<IFullUnit | null> {
   const custom = await getCustomUnitService().getById(unitId);
   if (custom) return custom;
-  return getCanonicalUnitService().getById(unitId);
+  // Strict, so a failed read throws instead of looking like a missing unit.
+  try {
+    return await getCanonicalUnitService().getById(unitId, { strict: true });
+  } catch (error) {
+    throw new Error(`Failed to read unit: ${unitId}`, { cause: error });
+  }
 }
 
 /**
