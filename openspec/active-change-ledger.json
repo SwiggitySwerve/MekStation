@@ -151,6 +151,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-salvage-acceptance-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-acquisition-request-identity-and-retry",
       "status": "in-progress",
       "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",

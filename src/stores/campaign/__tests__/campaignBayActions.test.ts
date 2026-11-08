@@ -298,6 +298,75 @@ describe('campaignBayActions', () => {
   });
 
   describe('setSalvageItemStatus', () => {
+    it('refuses decline for a campaign-bound roster entry without force membership', async () => {
+      seedCampaign();
+      useCampaignRosterStore.getState().addUnit({
+        unitId: 'enemy-atlas',
+        unitRef: 'atlas-as7-d',
+        unitSource: 'canonical',
+        unitName: 'Recovered Atlas',
+        chassisVariant: 'AS7-D',
+        readiness: 'Damaged',
+      });
+      const before = getCampaignStore().getState().campaign;
+      expect(
+        await setSalvageItemStatus('salvage-atlas', 'declined'),
+      ).toMatchObject({ applied: false, reason: expect.any(String) });
+      expect(getCampaignStore().getState().campaign).toBe(before);
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+    });
+
+    it('refuses decline after enrollment without mutating or saving', async () => {
+      seedCampaign();
+      expect(
+        (await setSalvageItemStatus('salvage-atlas', 'accepted')).applied,
+      ).toBe(true);
+      const before = getCampaignStore().getState().campaign;
+      const roster = useCampaignRosterStore.getState().units;
+      const save = jest.spyOn(
+        useCampaignPersistenceStore.getState(),
+        'saveCampaign',
+      );
+      save.mockClear();
+      const dirty = jest.spyOn(
+        useCampaignPersistenceStore.getState(),
+        'markDirty',
+      );
+      expect(
+        await setSalvageItemStatus('salvage-atlas', 'declined'),
+      ).toMatchObject({ applied: false, reason: expect.any(String) });
+      expect(getCampaignStore().getState().campaign).toBe(before);
+      expect(useCampaignRosterStore.getState().units).toBe(roster);
+      expect(dirty).not.toHaveBeenCalled();
+      expect(save).not.toHaveBeenCalled();
+      expect(
+        selectSalvageBay(before).find((item) => item.partId === 'salvage-atlas')
+          ?.status,
+      ).toBe('accepted');
+    });
+
+    it('refuses decline while enrollment is in flight', async () => {
+      seedCampaign();
+      let release: (() => void) | undefined;
+      const waiting = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const service = getCanonicalUnitService();
+      const index = await service.getIndex();
+      jest.spyOn(service, 'getIndex').mockImplementationOnce(async () => {
+        await waiting;
+        return index;
+      });
+      const accepting = setSalvageItemStatus('salvage-atlas', 'accepted');
+      const declining = setSalvageItemStatus('salvage-atlas', 'declined');
+      release?.();
+      expect(await declining).toMatchObject({
+        applied: false,
+        reason: expect.any(String),
+      });
+      expect((await accepting).applied).toBe(true);
+    });
+
     it('flips a pending candidate to accepted on the salvage state', async () => {
       seedCampaign();
       const result = await setSalvageItemStatus('salvage-atlas', 'accepted');

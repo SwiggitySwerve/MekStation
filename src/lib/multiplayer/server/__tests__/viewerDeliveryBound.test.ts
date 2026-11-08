@@ -11,6 +11,48 @@ import {
 } from '../projection/ViewerDeliveryCursors';
 
 describe('ViewerDeliveryCursors unacked bound', () => {
+  it('discardAll drops delivered slots from the superseded history', () => {
+    const cursors = new ViewerDeliveryCursors();
+    cursors.assign('p1', 20);
+    cursors.discardAll();
+    expect(cursors.issued('p1')).toBe(0);
+    expect(cursors.deliverySequenceOf('p1', 20)).toBeNull();
+    expect(cursors.assign('p1', 3)).toBe(0);
+  });
+
+  it('discardAll drops acknowledgements so the new stream enforces its own bound', () => {
+    const cursors = new ViewerDeliveryCursors();
+    cursors.assign('p1', 20);
+    cursors.acknowledge('p1', 0);
+    cursors.discardAll();
+    for (let index = 0; index < MAX_VIEWER_UNACKED; index += 1) {
+      cursors.assign('p1', index);
+    }
+    expect(cursors.unacked('p1')).toBe(MAX_VIEWER_UNACKED);
+    expect(cursors.admit('p1', 99)).toBe(false);
+  });
+
+  it('discardAll drops isolation so a rebuilt stream can deliver live frames', () => {
+    const cursors = new ViewerDeliveryCursors();
+    for (let index = 0; index < MAX_VIEWER_UNACKED; index += 1) {
+      cursors.assign('p1', index);
+    }
+    expect(cursors.admit('p1', 99)).toBe(false);
+    cursors.discardAll();
+    expect(cursors.isIsolated('p1')).toBe(false);
+    expect(cursors.admit('p1', 3)).toBe(true);
+  });
+
+  it('discardAll drops the refused-event resume marker from the superseded history', () => {
+    const cursors = new ViewerDeliveryCursors();
+    for (let index = 0; index < MAX_VIEWER_UNACKED; index += 1) {
+      cursors.assign('p1', index);
+    }
+    expect(cursors.admit('p1', 99)).toBe(false);
+    cursors.discardAll();
+    expect(cursors.firstMissedAuthoritySequence('p1', -1)).toBeNull();
+  });
+
   it('unacked counts issued minus acked and trips the bound for that viewer only', () => {
     const cursors = new ViewerDeliveryCursors();
     for (let index = 0; index < 3; index += 1) {
