@@ -7,6 +7,14 @@ import {
   type IUnitGameState,
 } from '@/types/gameplay';
 
+export function isActivationComplete(unit: IUnitGameState): boolean {
+  return (
+    unit.lockState === LockState.Locked ||
+    unit.lockState === LockState.Revealed ||
+    unit.lockState === LockState.Resolved
+  );
+}
+
 export function isPhaseActivationEligible(
   unit: IUnitGameState | undefined,
 ): unit is IUnitGameState {
