@@ -19,6 +19,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { UNIT_DESTROYED_CAUSES } from '@/types/gameplay/UnitDestroyedCause';
+
 import {
   REDACTED_UNIT_DESTROYED_PAYLOAD,
   VALID_COMBAT_DAMAGE_EVENT_PAYLOADS,
@@ -126,6 +128,32 @@ describe('combat damage/heat/critical baseline schema pack', () => {
   const registry = new ReplaySchemaRegistry({
     events: COMBAT_DAMAGE_BASELINE_SCHEMA_PACK,
   });
+
+  it.each(UNIT_DESTROYED_CAUSES)(
+    'preserves UnitDestroyed cause %s at v1',
+    (cause) => {
+      const payload = { unitId: 'target', cause, killerUnitId: 'attacker' };
+      expect(registry.upcast('unit_destroyed', 1, payload).payload).toEqual(
+        payload,
+      );
+    },
+  );
+
+  it.each([
+    'crew_killed',
+    'fuel_tank_explosion',
+    'turret_destroyed',
+    'sinking',
+    'crash',
+    'motive_immobilized',
+  ])(
+    'keeps vehicle-only cause %s outside the UnitDestroyed wire taxonomy',
+    (cause) => {
+      expect(() =>
+        registry.upcast('unit_destroyed', 1, { unitId: 'target', cause }),
+      ).toThrow(UnsupportedReplayHistoryError);
+    },
+  );
 
   it('registers discriminants exactly equal to the frozen PR-7 inventory row', () => {
     const packTypes = [...COMBAT_DAMAGE_EVENT_TYPES].sort();

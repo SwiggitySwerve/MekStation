@@ -300,7 +300,7 @@ describe('BattleMech attack invalidation support catalog', () => {
       ].sourceRefs?.map(({ url }) => url),
     ).toEqual(
       expect.arrayContaining([
-        'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L182-L303',
+        'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L177-L298',
       ]),
     );
 

@@ -1,3 +1,4 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 /**
  * Game session attack, heat, and PSR event payloads
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
@@ -418,14 +419,7 @@ export interface IUnitDestroyedPayload {
    * destruction cause. It is reported by `ShutdownCheck`/heat lifecycle
    * events and should not be encoded as `UnitDestroyed`.
    */
-  readonly cause:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'impossible_displacement'
-    | 'ct_destroyed'
-    | 'head_destroyed';
+  readonly cause: UnitDestroyedCause;
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
   readonly killerUnitId?: string;
 }

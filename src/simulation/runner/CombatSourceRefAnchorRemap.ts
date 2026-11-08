@@ -138,7 +138,7 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/simulation/runner/phases/weaponAttack.ts#L1178-L1229':
     'src/simulation/runner/phases/weaponAttackShots.ts#L123-L192',
   'src/simulation/runner/phases/weaponAttack.ts#L1212-L1221':
-    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L101-L157',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L96-L152',
   'src/simulation/runner/phases/weaponAttack.ts#L1225-L1317':
     'src/simulation/runner/phases/weaponAttackHitResolution.ts#L145-L356',
   'src/simulation/runner/phases/weaponAttack.ts#L1273-L1302':
@@ -298,7 +298,7 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/gameSessionHeat.ts#L1083-L1135':
     'src/utils/gameplay/gameSessionHeat.effects.ts#L254-L374',
   'src/utils/gameplay/gameSessionHeat.ts#L1146-L1163':
-    'src/utils/gameplay/gameSessionHeat.criticalEvents.ts#L69-L168',
+    'src/utils/gameplay/gameSessionHeat.criticalEvents.ts#L55-L154',
   'src/utils/gameplay/gameSessionHeat.ts#L345-L1013':
     'src/utils/gameplay/gameSessionHeat.ts#L23-L70',
   'src/utils/gameplay/gameSessionHeat.ts#L657-L1156':

@@ -1,4 +1,5 @@
 import type { IComponentDamageState } from '@/types/gameplay/GameSessionInterfaces';
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
@@ -61,14 +62,7 @@ export interface IUnitDamageState {
   /** Current turn used when trigger consumers record Edge usage history. */
   readonly turn?: number;
   readonly destroyed: boolean;
-  readonly destructionCause?:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'impossible_displacement'
-    | 'ct_destroyed'
-    | 'head_destroyed';
+  readonly destructionCause?: UnitDestroyedCause;
   /**
    * Per `add-combat-fidelity-suite` Phase 3: when supplied, `resolveDamage`
    * dispatches `resolveCriticalHits` per location where the trigger
@@ -95,14 +89,7 @@ export interface IPilotDamageResultWithState {
 export interface IDestructionCheckResult {
   state: IUnitDamageState;
   destroyed: boolean;
-  cause?:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'impossible_displacement'
-    | 'ct_destroyed'
-    | 'head_destroyed';
+  cause?: UnitDestroyedCause;
 }
 
 export interface IResolveDamageResult {

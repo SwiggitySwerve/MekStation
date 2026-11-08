@@ -33,6 +33,7 @@ import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
 import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 import { hasSPA } from '@/utils/gameplay/spaModifiers';
 import { getUnitOperability } from '@/utils/gameplay/unitOperability';
+import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -336,9 +337,12 @@ export function resetTurnState(state: IGameState): IGameState {
   for (const [id, unit] of Object.entries(state.units)) {
     // damageThisPhase stays here: the runner zeroes it per turn, the reducer per
     // phase (C7 D1). 'sparse' keeps the runner's serialized shape unchanged.
-    updatedUnits[id] = resetPerTurnUnitFields(
-      { ...unit, damageThisPhase: 0 },
-      { presence: 'sparse' },
+    // advanceVehicleCrewStun (C14) is its own once-per-round step.
+    updatedUnits[id] = advanceVehicleCrewStun(
+      resetPerTurnUnitFields(
+        { ...unit, damageThisPhase: 0 },
+        { presence: 'sparse' },
+      ),
     );
   }
 

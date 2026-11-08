@@ -9,6 +9,7 @@ import {
 } from '@/types/gameplay';
 import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
 import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
+import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -65,9 +66,11 @@ export function applyTurnStarted(
     // if a caller advanced past End without resolving, a stale queue
     // would carry into a fresh turn). TW p.52: PSRs do not persist
     // across turn boundaries.
-    units[unitId] = resetPerTurnUnitFields(units[unitId], {
-      presence: 'explicit',
-    });
+    // advanceVehicleCrewStun (C14) is its own once-per-round step, not part of
+    // the shared per-turn unit fields.
+    units[unitId] = advanceVehicleCrewStun(
+      resetPerTurnUnitFields(units[unitId], { presence: 'explicit' }),
+    );
   }
 
   return {

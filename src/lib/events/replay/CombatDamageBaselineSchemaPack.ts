@@ -1,3 +1,4 @@
+import { z } from 'zod';
 /**
  * Combat damage, heat, and critical baseline schema pack (replay-safety
  * PR 7).
@@ -25,9 +26,8 @@
  * @spec openspec/changes/add-replay-schema-and-checkpoint-safety/specs/event-store/spec.md
  */
 
-import { z } from 'zod';
-
 import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
+import { UNIT_DESTROYED_CAUSES } from '@/types/gameplay/UnitDestroyedCause';
 
 import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 
@@ -90,15 +90,7 @@ const heatPayloadSchema = z
 const unitDestroyedPublicSchema = z
   .object({
     unitId: z.string(),
-    cause: z.enum([
-      'damage',
-      'ammo_explosion',
-      'pilot_death',
-      'engine_destroyed',
-      'impossible_displacement',
-      'ct_destroyed',
-      'head_destroyed',
-    ]),
+    cause: z.enum(UNIT_DESTROYED_CAUSES),
     killerUnitId: z.string().optional(),
   })
   .strict();

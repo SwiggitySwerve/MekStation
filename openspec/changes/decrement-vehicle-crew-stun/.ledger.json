@@ -1,0 +1,6 @@
+{
+  "name": "decrement-vehicle-crew-stun",
+  "status": "in-progress",
+  "reason": "Root-approved C14 PR2: expire vehicle crew stun once per Initiative round boundary in reducer and runner, matching MegaMek 48fcb2f64 Tank.newRound. Preserve persisted names and repeated-stun increments.",
+  "lastReviewed": "2026-11-08"
+}
