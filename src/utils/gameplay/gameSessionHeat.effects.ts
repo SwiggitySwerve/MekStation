@@ -3,6 +3,7 @@ import {
   getMaxTechPilotHeatDamageAvoidTN,
   getPilotHeatDamage,
   getShutdownTN,
+  HEAT_THRESHOLDS,
 } from '@/constants/heat';
 import {
   GamePhase,
@@ -34,6 +35,11 @@ import { appendHeatAmmoExplosionEvents } from './gameSessionHeat.ammoExplosion';
 import { emitHeatCriticalEvents } from './gameSessionHeat.criticalEvents';
 import { appendHeatSourcesAndDissipation } from './gameSessionHeat.sources';
 import { resolveMaxTechHeatCriticalDamage } from './heatCriticalDamage';
+import {
+  canAttemptHeatStartup,
+  canRollHeatStartup,
+  getHeatStartupShutdownAction,
+} from './shutdownStartup';
 import { hasSPA } from './spaModifiers';
 
 function appendStartupAttemptIfEligible(
@@ -42,7 +48,7 @@ function appendStartupAttemptIfEligible(
   finalHeat: number,
 ): IGameSession {
   const stateAfterDissipation = session.currentState.units[context.unitId];
-  if (!stateAfterDissipation.shutdown || finalHeat > 29) {
+  if (!canAttemptHeatStartup(stateAfterDissipation, finalHeat)) {
     return session;
   }
 
@@ -51,7 +57,9 @@ function appendStartupAttemptIfEligible(
     context.hotDogTargetNumberModifier,
   );
   const autoRestart = startupTN === 0;
-  const startupRoll = autoRestart ? null : context.diceRoller();
+  const startupRoll = canRollHeatStartup(stateAfterDissipation, startupTN)
+    ? context.diceRoller()
+    : null;
   const startupSuccess = autoRestart
     ? true
     : (startupRoll?.total ?? 0) >= startupTN;
@@ -97,7 +105,7 @@ function appendShutdownCheckEvents(
   context: HeatPhaseUnitContext,
   finalHeat: number,
 ): IGameSession {
-  if (finalHeat >= 30) {
+  if (finalHeat >= HEAT_THRESHOLDS.AUTO_SHUTDOWN) {
     const shutdownSession = appendEvent(
       session,
       createShutdownCheckEvent(
@@ -334,16 +342,23 @@ export function resolveHeatForUnit(
   );
 
   const finalHeat = currentSession.currentState.units[context.unitId].heat;
-  currentSession = appendStartupAttemptIfEligible(
-    currentSession,
-    context,
+  const action = getHeatStartupShutdownAction(
+    currentSession.currentState.units[context.unitId],
     finalHeat,
   );
-  currentSession = appendShutdownCheckEvents(
-    currentSession,
-    context,
-    finalHeat,
-  );
+  if (action === 'startup') {
+    currentSession = appendStartupAttemptIfEligible(
+      currentSession,
+      context,
+      finalHeat,
+    );
+  } else if (action === 'shutdown-check') {
+    currentSession = appendShutdownCheckEvents(
+      currentSession,
+      context,
+      finalHeat,
+    );
+  }
   currentSession = appendHeatAmmoExplosionIfTriggered(
     currentSession,
     context,
