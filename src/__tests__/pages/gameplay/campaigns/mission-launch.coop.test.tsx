@@ -1,3 +1,4 @@
+import { act, render, screen, waitFor } from '@testing-library/react';
 /**
  * Co-op mission launch route probes for the staged multiplayer/co-op work.
  *
@@ -8,11 +9,10 @@
  *
  * @spec openspec/specs/coop-campaign-sync/spec.md
  */
-
-import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignSyncWebSocket } from '@/lib/campaign/coop/campaignSyncTransport';
+import type { ReadinessAuthority } from '@/lib/campaign/readiness/selectUnitReadiness';
 import type { IForce } from '@/types/campaign/Force';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
@@ -27,6 +27,7 @@ import {
   publishCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { createCampaign, createMission } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
@@ -48,6 +49,11 @@ let mockRosterUnits: IRosterUnitProjection[] = [
     readiness: 'Ready' as const,
   },
 ];
+
+let mockReadinessAuthority: ReadinessAuthority = { kind: 'snapshot' };
+jest.mock('@/lib/campaign/readiness/useReadinessAuthority', () => ({
+  useReadinessAuthority: () => mockReadinessAuthority,
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -125,7 +131,18 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
 });
 
 const mockRosterState = {
-  pilots: [],
+  get units() {
+    return mockRosterUnits;
+  },
+  get pilots() {
+    return mockRosterUnits
+      .filter((unit) => unit.pilotId)
+      .map((unit) => ({
+        pilotId: unit.pilotId,
+        pilotName: unit.unitName,
+        status: CampaignPilotStatus.Active,
+      }));
+  },
   getUnitsWithReadiness: () => mockRosterUnits,
   getDeployableUnits: () => mockRosterUnits,
 };
@@ -160,6 +177,17 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
 import CoopMissionLaunchPage from '@/pages/gameplay/campaigns/[id]/missions/[missionId]/launch';
 
 function makeForce(id: string, unitIds: string[]): IForce {
+  for (const unitId of unitIds) {
+    if (!mockRosterUnits.some((unit) => unit.unitId === unitId))
+      mockRosterUnits.push({
+        unitId,
+        unitRef: 'atlas-as7-d',
+        unitName: unitId,
+        chassisVariant: 'AS7-D',
+        readiness: 'Ready',
+        pilotId: `pilot-${unitId}`,
+      });
+  }
   return {
     id,
     name: `Force ${id}`,
@@ -186,6 +214,7 @@ function makeSoloLaunchCampaign(name: string) {
 
 describe('CoopMissionLaunchPage - staged participation sync', () => {
   beforeEach(() => {
+    mockReadinessAuthority = { kind: 'snapshot' };
     mockRouterPush.mockReset();
     mockGetCampaign.mockReset();
     mockMaterializeCampaignMissionEncounter.mockReset().mockResolvedValue({
@@ -220,12 +249,66 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         unitName: 'Atlas',
         chassisVariant: 'AS7-D',
         readiness: 'Ready',
+        pilotId: 'pilot-atlas',
       },
     ];
     mockCanonicalUnitRefs = ['atlas-as7-d'];
     mockCustomCombatRefs = undefined;
     mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);
     _resetCoopRuntimeSessions();
+  });
+
+  it('waits for authority before presenting fresh mirrored units for selection', async () => {
+    mockGetCampaign.mockReturnValue(makeSoloLaunchCampaign('Fresh company'));
+    mockRosterUnits = [1, 2].map((index) => ({
+      unitId: `unit-${index}`,
+      unitRef: 'atlas-as7-d',
+      unitName: 'Atlas',
+      chassisVariant: 'AS7-D',
+      readiness: 'Ready',
+      pilotId: `vault-pilot-${index}`,
+      sourceVersion: 1,
+    }));
+    mockReadinessAuthority = { kind: 'loading' };
+    const view = render(<CoopMissionLaunchPage />);
+    await waitFor(() =>
+      expect(screen.getByTestId('launch-mission-direct')).toBeDisabled(),
+    );
+    expect(
+      screen.queryByTestId('mission-readiness-panel'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Loading readiness...',
+    );
+    mockReadinessAuthority = { kind: 'snapshot' };
+    view.rerender(<CoopMissionLaunchPage />);
+    await waitFor(() =>
+      expect(screen.getAllByRole('checkbox')).toHaveLength(2),
+    );
+    for (const checkbox of screen.getAllByRole('checkbox')) {
+      expect(checkbox).toBeEnabled();
+      expect(checkbox).toBeChecked();
+    }
+    expect(screen.getByTestId('launch-mission-direct')).toBeEnabled();
+  });
+
+  it('shows an unassigned pilot blocker with the unchanged assignment action', async () => {
+    mockGetCampaign.mockReturnValue(
+      makeSoloLaunchCampaign('Unassigned company'),
+    );
+    mockRosterUnits = mockRosterUnits.map(
+      ({ pilotId: _pilotId, ...unit }) => unit,
+    );
+    render(<CoopMissionLaunchPage />);
+    const link = await screen.findByRole('link', { name: 'Assign pilot' });
+    expect(link).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-coop-1/personnel?intent=assign-pilot&unit=atlas-as7-d',
+    );
+    expect(
+      screen.getAllByText('No pilot assigned. Assign one before launch.'),
+    ).toHaveLength(1);
+    expect(link.closest('[role="alert"]')).toBeInTheDocument();
   });
 
   it('keeps co-op launch gated while the other player choice is not synchronized', async () => {
@@ -508,6 +591,15 @@ interface ICoopRosterUnitFixture {
 
 /** A co-op runtime whose host projection carries the given roster rows. */
 function coopRuntimeWithRoster(units: readonly ICoopRosterUnitFixture[]) {
+  mockRosterUnits = units.map((unit) => ({
+    unitId: unit.unitId,
+    unitRef: unit.unitRef,
+    unitName: unit.designation,
+    chassisVariant: 'Fixture',
+    readiness: 'Ready',
+    pilotId: `pilot-${unit.unitId}`,
+    unitSource: unit.unitSource as IRosterUnitProjection['unitSource'],
+  }));
   const rosterUnits = Object.fromEntries(
     units.map((unit) => [unit.unitId, unit]),
   );

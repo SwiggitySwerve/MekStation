@@ -1,0 +1,6 @@
+{
+  "name": "derive-campaign-unit-readiness",
+  "status": "in-progress",
+  "reason": "K6 draft PR #3053; hosted readiness follow-up implemented, local gates and unchanged budget failure documented; hosted rerun pending.",
+  "lastReviewed": "2026-11-08"
+}

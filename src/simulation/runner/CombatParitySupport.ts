@@ -130,7 +130,7 @@ const HEAT_CORE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase processes weapon, movement, engine, terrain/environment heat, heat-sink dissipation, shutdown/startup, ammo explosion, pilot heat damage, and MaxTech heat criticals.',
     'src/simulation/runner/phases/postCombatHeat.ts',
-    'L27-L140',
+    'L29-L149',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase processes heat from movement, AttackDeclared weapon payloads, engine hits, environment, dissipation, startup, shutdown, ammo explosion, and heat effects.',
@@ -184,7 +184,7 @@ const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase applies heat-sourced PilotHit and optional MaxTech heat-scale pilot damage.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L194-L227',
+    'L198-L230',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase emits heat-sourced PilotHit, persists wounds, and applies optional MaxTech heat-scale damage.',
@@ -194,7 +194,7 @@ const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation heat environment parity tests prove default heat pilot wounds in runner and interactive heat resolvers.',
     'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.04.test.ts',
-    'L85-L159',
+    'L88-L161',
   ),
   mekstationDeviationSourceRef(
     'MekStation heat environment parity tests prove optional MaxTech heat pilot wounds and Hot Dog relief in runner and interactive heat resolvers.',

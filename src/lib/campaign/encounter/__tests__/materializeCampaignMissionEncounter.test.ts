@@ -9,8 +9,10 @@ import {
 } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import { readyCanonicalCatalog } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { createContract } from '@/types/campaign/Mission';
+import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 import {
   disableDiagnosticCapture,
   enableDiagnosticCapture,
@@ -165,6 +167,36 @@ function assignmentBodies(calls: readonly FetchCall[]): readonly unknown[] {
 }
 
 describe('materializeCampaignMissionEncounter', () => {
+  it('refuses a cached Ready unit with destroyed structure before creating artifacts', async () => {
+    const roster = makeRoster();
+    const unit = roster[0];
+    const fetchImpl = makeMaterializationFetch([]);
+    const state = createInitialCombatState({
+      unitId: unit.unitId,
+      armorPerLocation: { CT: 30 },
+      structurePerLocation: { CT: 0 },
+    });
+    await expect(
+      materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: roster,
+        catalog: readyCatalog,
+        fetchImpl,
+        readinessContext: {
+          campaign: { unitCombatStates: { [unit.unitId]: state } },
+          pilots: [
+            {
+              pilotId: unit.pilotId ?? '',
+              pilotName: 'Ari',
+              status: CampaignPilotStatus.Active,
+            },
+          ],
+        },
+      }),
+    ).rejects.toThrow('Unit is destroyed and cannot deploy.');
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     enableDiagnosticCapture();
   });

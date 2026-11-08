@@ -1,8 +1,11 @@
 import React from 'react';
 import { useStore } from 'zustand';
 
+import type { IMissionReadinessUnitProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
+
 import { Badge, Button, Card, EmptyState, PageLayout } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { UnitReadinessReasons } from '@/pages-modules/gameplay/campaigns/missionLaunchReadinessPanel';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -301,6 +304,7 @@ export function CampaignOperationsCard({
 
 interface CampaignRosterCardProps {
   units: CampaignRosterUnit[];
+  readinessByUnitId?: ReadonlyMap<string, IMissionReadinessUnitProjection>;
 }
 
 /**
@@ -337,6 +341,7 @@ function DashboardRosterUnitDamageBar({
 
 export function CampaignRosterCard({
   units,
+  readinessByUnitId,
 }: CampaignRosterCardProps): React.ReactElement {
   return (
     <Card className="mb-6">
@@ -365,6 +370,10 @@ export function CampaignRosterCard({
                   {unit.readiness}
                 </Badge>
               </div>
+              <UnitReadinessReasons
+                unitId={unit.unitId}
+                reasons={readinessByUnitId?.get(unit.unitId)?.reasons ?? []}
+              />
               {unit.readiness === 'Damaged' && (
                 <DashboardRosterUnitDamageBar unitId={unit.unitId} />
               )}

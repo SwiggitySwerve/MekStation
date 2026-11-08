@@ -43,6 +43,7 @@ import path from 'node:path';
 import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.types';
 import type { FastForwardBattleRunner } from '@/lib/campaign/fastForward/fastForwardCampaign';
 import type { ICampaignWithBridgeState } from '@/lib/campaign/processors/scenarioEncounterBridgeProcessor';
+import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { IExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { IEncounter } from '@/types/encounter';
@@ -53,6 +54,8 @@ import type { IPilot } from '@/types/pilot';
 import { buildPreparedBattleData } from '@/components/gameplay/pages/preBattleSessionBuilder';
 import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { GameEngine } from '@/engine/GameEngine';
+import { readCampaignJournalState } from '@/lib/campaign/authority/campaignRecordJournalState';
+import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/resolveCampaignAuthorityFromStores';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
   ownedForcesFromAuthority,
@@ -63,8 +66,15 @@ import {
   admitCampaignLaunch,
   snapshotFromNodeCatalogIndex,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
+import {
+  selectUnitReadiness,
+  projectReadinessAuthority,
+} from '@/lib/campaign/readiness/selectUnitReadiness';
 import { resolveCampaignSeed } from '@/lib/campaign/utils/campaignRng';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotRepository } from '@/services/pilots/PilotRepository';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -323,7 +333,38 @@ export async function runFastForwardBattle(
     return null;
   }
 
-  const rosterUnits = resolveTeamRoster(campaign, bridged);
+  const mode = await resolveCampaignAuthorityFromStores(
+    {
+      readMarker: readCampaignMigrationMarker,
+      journal: () =>
+        new SQLiteEventJournal<ICampaignJournalEnvelope>(
+          getSQLiteService().getDatabase(),
+        ),
+    },
+    campaign.id,
+  );
+  const authority = projectReadinessAuthority(
+    mode,
+    mode.kind === 'journal'
+      ? readCampaignJournalState(getSQLiteService().getDatabase(), campaign.id)
+          .rosterUnits
+      : undefined,
+  );
+  const readiness = resolveTeamRoster(campaign, bridged).map((unit) =>
+    selectUnitReadiness({
+      unit,
+      campaign,
+      authority,
+      pilots: useCampaignRosterStore.getState().pilots,
+    }),
+  );
+  const blocked = readiness.find((unit) => unit.status === 'blocked');
+  if (blocked)
+    throw new Error(
+      blocked.reasons.find((reason) => reason.severity === 'blocker')
+        ?.message ?? 'Unit cannot deploy.',
+    );
+  const rosterUnits = readiness.map((unit) => unit.unit);
   const catalog =
     options.catalog ?? snapshotFromNodeCatalogIndex(loadBundledCanonicalIndex);
   const launchGate = admitCampaignLaunch({
@@ -378,6 +419,11 @@ export async function runFastForwardBattle(
     campaign: campaignView,
     missionId,
     rosterUnits: launchRoster,
+    readinessContext: {
+      campaign,
+      authority,
+      pilots: useCampaignRosterStore.getState().pilots,
+    },
     catalog,
     fetchImpl,
     ...(ownedForces === undefined ? {} : { ownedForces }),

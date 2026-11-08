@@ -1,3 +1,6 @@
+import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSession';
+import type { LaunchCoopMissionResult } from '@/lib/campaign/coop/launchCoopMission';
+import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 /**
  * Mission-launch page 10.3 gate: server head, not the in-memory sequence.
  *
@@ -10,10 +13,6 @@
  * - stale refusal becomes the dashboard conflict (RED: swallowed)
  * - single-player with no effective branch still launches (GREEN control)
  */
-
-import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSession';
-import type { LaunchCoopMissionResult } from '@/lib/campaign/coop/launchCoopMission';
-import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import type { IForce } from '@/types/campaign/Force';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { IEncounter } from '@/types/encounter';
@@ -26,9 +25,12 @@ import {
   launchMissionFromPage,
 } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.launch';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { createCampaign } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { createContract } from '@/types/campaign/Mission';
 
@@ -237,6 +239,35 @@ describe('launchMissionFromPage', () => {
   const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-1',
+      units: [
+        {
+          unitId: 'u-1',
+          unitRef: 'atlas-as7-d',
+          unitName: 'Atlas',
+          chassisVariant: 'AS7-D',
+          readiness: 'Ready',
+          pilotId: 'pilot-1',
+        },
+      ],
+      pilots: [
+        {
+          pilotId: 'pilot-1',
+          pilotName: 'Ari',
+          status: CampaignPilotStatus.Active,
+          primaryRole: CampaignPersonnelRole.PILOT,
+          rankIndex: 0,
+          wounds: 0,
+          recoveryTime: 0,
+          xp: 0,
+          campaignXpEarned: 0,
+          campaignKills: 0,
+          campaignMissions: 0,
+          hireDate: new Date('3025-01-01'),
+        },
+      ],
+    });
     useCampaignPersistenceStore.getState().reset();
     launchCoopMissionMock.mockReset();
     launchCoopMissionMock.mockResolvedValue(okCoopLaunch());
@@ -369,6 +400,28 @@ describe('launchMissionFromPage', () => {
     expect(router.push).not.toHaveBeenCalled();
     expect(setLaunchError).toHaveBeenLastCalledWith(
       'Mission creation refused (409 COOP_MISSION_STALE_HEAD)',
+    );
+    launchCoopMissionMock.mockResolvedValueOnce({
+      ok: false,
+      error: 'Mission creation refused (409 COOP_MISSION_UNIT_NOT_READY)',
+    });
+    await launchMissionFromPage({
+      campaign,
+      campaignKey: campaign.id,
+      missionKey: 'mission-1',
+      matchId: 'match-1',
+      localForce: force,
+      otherRecord,
+      localPlayerId: 'host',
+      localChoice: 'deploy',
+      readinessProjection: readyProjection(),
+      router,
+      store: fakeStore(),
+      setLaunchError,
+      setIsLaunching: jest.fn(),
+    });
+    expect(setLaunchError).toHaveBeenLastCalledWith(
+      'A deploying unit is not ready.',
     );
   });
 
@@ -506,6 +559,9 @@ describe('launchMissionFromPage', () => {
     });
     expect(authorityBody.sessionId).toBeUndefined();
     expect(materializeMock.mock.calls[0]?.[0]).toHaveProperty('ownedForces');
+    expect(
+      materializeMock.mock.calls[0]?.[0].readinessContext?.rosterUnits,
+    ).toEqual(useCampaignRosterStore.getState().units);
     expect(router.push).toHaveBeenCalled();
   });
 
