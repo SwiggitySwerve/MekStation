@@ -676,6 +676,38 @@ describe('usePilotStore', () => {
   });
 
   describe('healWounds', () => {
+    it.each(Object.values(PilotStatus))(
+      'preserves healing behavior for %s',
+      async (status) => {
+        const pilot = createMockPilot({
+          id: 'healing-status',
+          status,
+          wounds: 3,
+        });
+        usePilotStore.setState({ pilots: [pilot] });
+        if (status !== PilotStatus.KIA) {
+          mockFetchResponse({ success: true });
+          mockFetchResponse({ pilots: [pilot], count: 1 });
+        }
+
+        const success = await usePilotStore.getState().healWounds(pilot.id);
+
+        expect(success).toBe(status !== PilotStatus.KIA);
+        if (status === PilotStatus.KIA) {
+          expect(usePilotStore.getState().error).toBe(
+            'Cannot heal a KIA pilot',
+          );
+          expect(mockFetch).not.toHaveBeenCalled();
+        } else {
+          expect(mockFetch).toHaveBeenCalledWith(`/api/pilots/${pilot.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wounds: 0, status: PilotStatus.Active }),
+          });
+        }
+      },
+    );
+
     it('should heal wounds and set active status', async () => {
       const injuredPilot = createMockPilot({
         id: 'pilot-injured',
