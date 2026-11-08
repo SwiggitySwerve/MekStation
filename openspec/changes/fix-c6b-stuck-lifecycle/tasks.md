@@ -1,4 +1,4 @@
-## 1. PR1: schema widening (no behaviour change)
+## 1. PR #3026: schema widening (commit 1, no behaviour change)
 
 - [x] Record the replay, digest and fixture baseline before product edits.
 - [x] Record failing schema, fingerprint and reason-category tests.
@@ -6,20 +6,23 @@
 - [x] Add optional `canUnstickByJumping` to the `UnitStuck` payload and schema.
 - [x] Revise the four PSR-coded physical schema ids; prove a pre-widening
       checkpoint is incompatible and untouched histories keep their fingerprint.
-- [x] Register the trigger as a schema-only runner catalog row.
 - [x] Kill the unrevised-schema-id and loosened-field mutants.
 - [x] Pass the replay set after, with no committed fixture or digest change.
 
-## 2. PR2: runner and reducer lifecycle
+## 2. PR #3026: runner and reducer lifecycle
 
-- [ ] List every seeded test whose RNG could shift, from an uncommitted
+- [x] List every seeded test whose RNG could shift, from an uncommitted
       `UnitStuck` emission probe.
-- [ ] Grant jump eligibility only for a failed ground-movement bog-down.
-- [ ] Roll movement-start recovery in the runner; success clears stuck and
+- [x] Record failing reducer and runner lifecycle tests.
+- [x] Grant jump eligibility only for a failed ground-movement bog-down.
+- [x] Roll movement-start recovery in the runner; success clears stuck and
       eligibility, failure changes nothing.
-- [ ] Clear stuck on an eligible jump in the runner and the reducer.
-- [ ] Never write a false key into state.
-- [ ] Promote the runner catalog row to integrated.
+- [x] Clear stuck on an eligible jump in the runner and the reducer.
+- [x] Never write a false key into state.
+- [x] Promote the runner catalog row to integrated; keep every out-of-scope
+      and gap baseline at its main value.
+- [x] Re-anchor shifted catalog citations by content.
+- [x] Kill the lifecycle mutants.
 
 ## 3. PR3: interactive consistency
 
