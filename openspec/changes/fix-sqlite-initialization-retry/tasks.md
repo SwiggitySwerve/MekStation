@@ -51,3 +51,11 @@
   files, 57 unkeyable and 92 repo-wide keys, within the unchanged budgets.
 - All of those gates were rerun successfully after the extra-test approval.
   Hosted CI and merge remain Root's responsibility; the PR stays a draft.
+- After Root's final merge-only instruction, freshly fetched main was merged
+  using the supplied ledger-union helper. All 29 ledger entries were retained.
+  Formatting, all 250 strict OpenSpec items, the 29-change inventory and the
+  budget check passed after that sync (3,049 files, 57 unkeyable, 92 repo-wide).
+  The S13 production-file hash remains unchanged. The supplemental expanded
+  test run was stopped for that handoff and is not claimed as a completed run;
+  the completed 955-suite gate and 24-suite persistence run above remain the
+  recorded runtime proof. Root watches hosted CI; the PR remains a draft.

@@ -5,6 +5,7 @@ import type { IGameSession } from '@/types/gameplay';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { useP2PReconnectSession } from '@/hooks/useP2PReconnectSession';
+import { useGameplayStore } from '@/stores/useGameplayStore';
 import {
   GameEventType,
   GamePhase,
@@ -43,7 +44,7 @@ function makeHydratedSession(): IGameSession {
   };
 }
 
-function makeChannel() {
+function makeChannel(matchId = 'match-1') {
   let replayCallback: Parameters<
     IGameSessionChannel['onReplayStream']
   >[0] = () => undefined;
@@ -71,7 +72,7 @@ function makeChannel() {
     emitReplay: (events: readonly IGameEvent[], done = true) => {
       replayCallback({
         kind: 'replay-stream',
-        matchId: 'match-1',
+        matchId,
         events,
         done,
       });
@@ -88,9 +89,50 @@ const metadata = {
 };
 
 describe('useP2PReconnectSession', () => {
+  beforeEach(() => useGameplayStore.getState().reset());
   afterEach(() => {
+    useGameplayStore.getState().reset();
     jest.useRealTimers();
   });
+
+  it.each(['hostPending', 'aborted'] as const)(
+    'uses the real default live transition after replay from %s',
+    async (status) => {
+      const { channel, emitReplay } = makeChannel('p2p-ROOM01');
+      const setHydratedSession = jest.fn();
+      useGameplayStore.getState().setLocalMatchStatus(status);
+      const { unmount } = renderHook(() =>
+        useP2PReconnectSession('p2p-ROOM01', {
+          getLastSequence: jest.fn().mockResolvedValue(null),
+          getMatchMetadata: jest
+            .fn()
+            .mockResolvedValue({ ...metadata, matchId: 'p2p-ROOM01' }),
+          getEventsForMatch: jest.fn().mockResolvedValue([]),
+          ensureSyncRoom: jest.fn(),
+          getLocalPeerId: () => 'guest-peer',
+          getHostPresent: () => true,
+          createChannel: () => channel,
+          appendReplayEvent: jest.fn().mockResolvedValue(undefined),
+          hydrateFromMatchLog: jest
+            .fn()
+            .mockResolvedValue(makeHydratedSession()),
+          setHydratedSession,
+          redirectToLobby: jest.fn(),
+        }),
+      );
+      await waitFor(() =>
+        expect(channel.broadcastReconnectRequest).toHaveBeenCalled(),
+      );
+      await act(async () => {
+        emitReplay([]);
+      });
+      expect(setHydratedSession).toHaveBeenCalled();
+      expect(useGameplayStore.getState().localMatchStatus).toBe(
+        status === 'aborted' ? 'aborted' : 'live',
+      );
+      unmount();
+    },
+  );
 
   it('sends lastLocalSeq and applies replay events in sequence order', async () => {
     const { channel, emitReplay } = makeChannel();

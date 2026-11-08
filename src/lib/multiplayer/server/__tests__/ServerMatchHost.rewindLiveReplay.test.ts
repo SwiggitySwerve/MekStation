@@ -81,6 +81,7 @@ import {
   getMatchHostRegistry,
 } from '../MatchHostRegistry';
 import { _setCombatJournalAuthorityModeForTests } from '../matchJournalAuthority';
+import { recoverActiveMatches } from '../MatchRecovery';
 import { foldMatchSession } from '../MatchSessionProjector';
 import { SeededDiceRoller } from '../RollCapture';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
@@ -146,6 +147,62 @@ describe('ServerMatchHost rewind reaches connected players', () => {
   });
 
   describe('a player connected at the rewind (admission probe rows)', () => {
+    it('rewind drops old acknowledgements before replay and the next live event', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const guest = await joinedViewer(fixture.host, GUEST);
+      await fixture.host.handleDeliveryAck(
+        GUEST,
+        fixture.host.viewerIssued(GUEST) - 1,
+      );
+      expect(fixture.host.viewerUnacked(GUEST)).toBe(0);
+
+      await rebuild(fixture);
+
+      expect(fixture.host.viewerIssued(GUEST)).toBe(fixture.prefix.length);
+      expect(fixture.host.viewerUnacked(GUEST)).toBe(fixture.prefix.length);
+      await fixture.host.handleIntent(
+        {
+          kind: 'Intent',
+          matchId: fixture.log.matchId,
+          ts: AT,
+          playerId: GM,
+          intent: { kind: 'Concede', side: 'player' },
+        },
+        'conn-reset-rewind',
+      );
+      expect(guest.mirrorEventTypes()).toContain(GameEventType.GameEnded);
+      expect(guest.lifecycle().blockedBySequenceCollision).toBe(false);
+    });
+
+    it('restart on an activated rewind skips superseded delivery records and their acknowledgements', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      await joinedViewer(fixture.host, GUEST);
+      await fixture.host.handleDeliveryAck(
+        GUEST,
+        fixture.host.viewerIssued(GUEST) - 1,
+      );
+      expect(
+        (await store.listViewerDeliveryRecords(fixture.log.matchId)).length,
+      ).toBeGreaterThan(0);
+      const readSlots = jest.spyOn(store, 'listViewerDeliveryRecords');
+      const readAck = jest.spyOn(store, 'getViewerDeliveryAcknowledgement');
+
+      const recovered = (await recoverActiveMatches(store)).hosts.get(
+        fixture.log.matchId,
+      );
+
+      if (!recovered) throw new Error('rewound match was not recovered');
+      expect(readSlots).not.toHaveBeenCalled();
+      expect(readAck).not.toHaveBeenCalled();
+      expect(recovered.viewerIssued(GUEST)).toBe(0);
+      expect(recovered.viewerUnacked(GUEST)).toBe(0);
+      const guest = await joinedViewer(recovered, GUEST);
+      expect(guest.mirrorEventIds()).toEqual(
+        fixture.prefix.map((event) => event.id),
+      );
+      expect(recovered.viewerUnacked(GUEST)).toBe(fixture.prefix.length);
+    });
+
     it('M1 receives the rebuilt replay on its open socket, marked as replacing its stream', async () => {
       const fixture = await standUpCommittedRewind(PLAIN);
       const guest = await joinedViewer(fixture.host, GUEST);
