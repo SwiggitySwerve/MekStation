@@ -5,8 +5,7 @@
  * `add-campaign-command-ui`) performs:
  *
  *  1. `hireCandidate` — hires a personnel-market candidate. A thin
- *     call-through to the existing `personnel-management` hiring logic
- *     (`hirePerson` + roster-store `addPilot`) plus the hire-cost debit
+ *     uses shared market eligibility and roster-store `addPilot` after the debit
  *     (design D2).
  *  2. `takeLoan` — credits the principal via a `campaign-finances`
  *     transaction and appends an `ICampaignLoan` with `dailyRepayment`
@@ -45,7 +44,15 @@ import {
   normalizeShoppingList,
 } from '@/lib/campaign/acquisition/shoppingList';
 import { acceptContract as acceptContractEngine } from '@/lib/campaign/contractMarket';
-import { hirePerson } from '@/lib/campaign/markets/personnelMarket';
+import {
+  contractOfferRefusal,
+  hiredPilotId,
+  hireTransactionId,
+  localMarketRefusal,
+  marketFundsRefusal,
+  personnelOfferRefusal,
+} from '@/lib/campaign/markets/offerLifecycle';
+import { recordTransaction } from '@/lib/finances/FinanceService';
 import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { createCampaignLoan } from '@/types/campaign/CampaignLoan';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
@@ -55,11 +62,8 @@ import { Money } from '@/types/campaign/Money';
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
-// Importing the campaign-store module registers the store accessor as a
-// side effect, so `getCampaignStoreForRoster()` resolves without this
-// module calling the `useCampaignStore` hook (forbidden outside a
-// component). Same pattern as `campaignBayActions`.
-import './useCampaignStore';
+// This public API returns the singleton StoreApi; it is not a React hook.
+import { useCampaignStore as getCampaignStore } from './useCampaignStore';
 
 function syncMissionsStore(missions: Map<string, IMission>): void {
   const store = getCampaignStoreForRoster();
@@ -264,7 +268,7 @@ function offerToRosterEntry(
   hireDate: Date,
 ): ICampaignRosterEntry {
   return {
-    pilotId: `hired-${offer.id}`,
+    pilotId: hiredPilotId(offer.id),
     pilotName: offer.name,
     status: CampaignPilotStatus.Active,
     wounds: 0,
@@ -283,7 +287,7 @@ function offerToRosterEntry(
  * Hire a personnel-market candidate by offer id.
  *
  * Re-reads the live personnel market, resolves the offer through the
- * existing `personnel-management` `hirePerson` logic, debits the hire
+ * shared offer lifecycle rules, debits the hire
  * cost via a `campaign-finances` transaction, adds the recruit to the
  * roster store, and removes the offer from the market. Marks the
  * campaign dirty so the persistence store auto-saves (design D2 / D6).
@@ -294,52 +298,53 @@ function offerToRosterEntry(
  * @returns whether the hire was applied
  */
 export function hireCandidate(offerId: string): ICommandActionResult {
-  let result: ICommandActionResult = {
-    applied: false,
-    reason: 'No campaign loaded',
-  };
-
-  applyCampaignMutation((campaign) => {
-    const market = campaign.personnelMarket ?? [];
-    // Re-read the market at invocation — a stale hire fails gracefully.
-    const { hired, reason } = hirePerson(offerId, market);
-    if (!hired) {
-      result = { applied: false, reason: reason ?? 'Offer not found' };
-      return null;
-    }
-
-    // Debit the hire cost via a campaign-finances transaction (design D2).
-    const cost = new Money(hired.hireCost);
-    const transaction = {
-      id: `tx-hire-${hired.id}`,
+  const store = getCampaignStore();
+  const campaign: ICampaignWithCommand | null = store.getState().campaign;
+  if (!campaign) return { applied: false, reason: 'No campaign loaded' };
+  const blocked = localMarketRefusal(
+    campaign,
+    store.getState().dayAdvanceInFlight,
+  );
+  if (blocked) return { applied: false, reason: blocked };
+  const roster = useCampaignRosterStore.getState();
+  const market = campaign.personnelMarket ?? [];
+  const hired = market.find((offer) => offer.id === offerId);
+  const refusal = personnelOfferRefusal(campaign, hired, roster);
+  if (refusal || !hired)
+    return { applied: false, reason: refusal ?? 'Offer not found' };
+  const cost = new Money(hired.hireCost);
+  const fundsRefusal = marketFundsRefusal(campaign, cost);
+  if (fundsRefusal) return { applied: false, reason: fundsRefusal };
+  const finances = {
+    ...campaign.finances,
+    ...recordTransaction(campaign.finances, {
+      id: hireTransactionId(hired.id),
       type: TransactionType.Expense,
       amount: cost,
       date: campaign.currentDate,
       description: `Hired ${hired.name} (${hired.role})`,
-    };
-    const finances = {
-      transactions: [...campaign.finances.transactions, transaction],
-      balance: campaign.finances.balance.subtract(cost),
-      loans: campaign.finances.loans,
-    };
-
-    // Add the recruit to the roster store (the canonical personnel
-    // source) — this is the existing personnel-management write path.
-    useCampaignRosterStore
-      .getState()
-      .addPilot(offerToRosterEntry(hired, campaign.currentDate));
-
-    // Drop the hired offer from the market pool.
-    const nextMarket = market.filter((offer) => offer.id !== offerId);
-
-    result = { applied: true };
-    return {
+    }),
+  };
+  try {
+    // Commit both first: a reentrant hire sees the consumed offer and payment.
+    store.getState().updateCampaign({
       finances,
-      personnelMarket: nextMarket,
-    } as Partial<ICampaign>;
-  });
-
-  return result;
+      personnelMarket: market.filter((offer) => offer.id !== offerId),
+    } as Partial<ICampaign>);
+    roster.addPilot(offerToRosterEntry(hired, campaign.currentDate));
+  } catch (error) {
+    store.setState({ campaign });
+    useCampaignRosterStore.setState({ pilots: roster.pilots });
+    return {
+      applied: false,
+      reason:
+        error instanceof Error
+          ? error.message
+          : 'Could not enroll the candidate.',
+    };
+  }
+  useCampaignPersistenceStore.getState().markDirty();
+  return { applied: true };
 }
 
 // =============================================================================
@@ -452,16 +457,21 @@ export function acceptContractOffer(contractId: string): ICommandActionResult {
   };
 
   applyCampaignMutation((campaign) => {
+    const refusal =
+      localMarketRefusal(
+        campaign,
+        getCampaignStore().getState().dayAdvanceInFlight,
+      ) ?? contractOfferRefusal(campaign, contractId);
+    if (refusal) {
+      result = { applied: false, reason: refusal };
+      return null;
+    }
     const market = campaign.contractMarket;
     const offers = market?.offers ?? [];
     // Re-read the market at invocation — a stale accept fails gracefully.
     const offer = offers.find((o) => o.id === contractId);
     if (!offer) {
       result = { applied: false, reason: 'Contract offer not found' };
-      return null;
-    }
-    if (campaign.missions.has(offer.id)) {
-      result = { applied: false, reason: 'Contract already accepted' };
       return null;
     }
 
@@ -480,7 +490,9 @@ export function acceptContractOffer(contractId: string): ICommandActionResult {
       missions: accepted.missions,
       contractMarket: {
         offers: nextOffers,
-        declinedOfferIds: market?.declinedOfferIds ?? [],
+        declinedOfferIds: (market?.declinedOfferIds ?? []).filter(
+          (id) => id !== contractId,
+        ),
       },
     } as Partial<ICampaign>;
   });
@@ -507,6 +519,15 @@ export function declineContractOffer(contractId: string): ICommandActionResult {
   };
 
   applyCampaignMutation((campaign) => {
+    const refusal =
+      localMarketRefusal(
+        campaign,
+        getCampaignStore().getState().dayAdvanceInFlight,
+      ) ?? contractOfferRefusal(campaign, contractId);
+    if (refusal) {
+      result = { applied: false, reason: refusal };
+      return null;
+    }
     const market = campaign.contractMarket;
     const offers = market?.offers ?? [];
     const offer = offers.find((o) => o.id === contractId);
@@ -516,11 +537,6 @@ export function declineContractOffer(contractId: string): ICommandActionResult {
     }
 
     const declined = market?.declinedOfferIds ?? [];
-    if (declined.includes(contractId)) {
-      // Already declined — idempotent, nothing to write.
-      result = { applied: false, reason: 'Offer already declined' };
-      return null;
-    }
 
     result = { applied: true };
     return {

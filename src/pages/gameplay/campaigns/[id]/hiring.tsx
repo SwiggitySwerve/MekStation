@@ -20,6 +20,8 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 
 import { HiringPanel } from '@/components/campaign/command/HiringPanel';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
+import { localMarketRefusal } from '@/lib/campaign/markets/offerLifecycle';
 import { generatePersonnelForDay } from '@/lib/campaign/markets/personnelMarket';
 import {
   CampaignPageFrameFromShell,
@@ -40,6 +42,10 @@ const HIRING_LOADING = {
 export default function HiringPage(): React.ReactElement {
   const shell = useCampaignPageShell('Personnel & Hiring');
   const { campaign: shellCampaign, store, isClient } = shell;
+  const dayAdvanceInFlight = useDayAdvanceInFlight();
+  const blockedReason = shellCampaign
+    ? localMarketRefusal(shellCampaign, dayAdvanceInFlight)
+    : undefined;
   const loadStatus = useCampaignLoadStatus();
   // Re-render tick — bumped after a hire so the page re-reads the market.
   const [, setActionTick] = useState(0);
@@ -51,7 +57,12 @@ export default function HiringPage(): React.ReactElement {
   // pool yet (a fresh campaign that has not advanced a day). Uses the
   // existing market engine — no new generation logic.
   useEffect(() => {
-    if (!isClient || !shellCampaign) return;
+    if (
+      !isClient ||
+      !shellCampaign ||
+      localMarketRefusal(shellCampaign, store.getState().dayAdvanceInFlight)
+    )
+      return;
     const extended = shellCampaign as ICampaignWithCommand;
     if (extended.personnelMarket !== undefined) return;
     const offers = generatePersonnelForDay(shellCampaign, Math.random);
@@ -59,7 +70,7 @@ export default function HiringPage(): React.ReactElement {
       .getState()
       .updateCampaign({ personnelMarket: offers } as Partial<ICampaign>);
     setActionTick((tick) => tick + 1);
-  }, [isClient, shellCampaign, store]);
+  }, [isClient, shellCampaign, store, dayAdvanceInFlight]);
 
   const pendingPage = renderPendingCampaignPage(shell, HIRING_LOADING);
   if (pendingPage) return pendingPage;
@@ -95,11 +106,13 @@ export default function HiringPage(): React.ReactElement {
 
   return (
     <CampaignPageFrameFromShell shell={shell} frame={frame}>
+      {blockedReason && <p role="status">{blockedReason}</p>}
       {feedback ?? (
         <HiringPanel
           candidates={candidates}
           onHire={handleHire}
           hiringOfferId={hiringOfferId}
+          blockedReason={blockedReason}
         />
       )}
     </CampaignPageFrameFromShell>

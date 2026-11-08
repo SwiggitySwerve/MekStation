@@ -30,6 +30,7 @@ import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 
 import { normalizeShoppingList } from '../acquisition/shoppingList';
+import { normalizeMarketOffers } from '../markets/offerLifecycle';
 import {
   rehydrateContractMarket,
   rehydrateMissionMap,
@@ -210,7 +211,7 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
 export function deserializeCampaignBody(
   body: SerializedCampaignBody,
 ): ICampaign {
-  return {
+  return normalizeMarketOffers({
     id: body.id,
     name: body.name,
     currentDate: new Date(body.currentDate),
@@ -271,5 +272,5 @@ export function deserializeCampaignBody(
     // from `missions` rather than this compatibility projection.
     activeContract: body.activeContract,
     unitMarket: body.unitMarket,
-  } as ICampaign;
+  } as ICampaign);
 }

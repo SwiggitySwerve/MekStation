@@ -276,6 +276,54 @@ function makePersonnelOffer(
 }
 
 describe('market offers stored on campaign state (D-7)', () => {
+  it('preserves co-op personnel expiry while local recovery leaves source state alone', () => {
+    const campaign: ICampaignWithCommand = {
+      ...createTestCampaign({
+        options: {
+          ...createDefaultCampaignOptions(),
+          personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+        },
+      }),
+      coopSession: { mode: 'host', matchId: 'match' },
+      personnelMarket: [
+        makePersonnelOffer('expired', '3025-06-01'),
+        makePersonnelOffer('keep', '3025-12-31'),
+      ],
+    };
+    const result = personnelMarketProcessor.process(
+      campaign,
+      campaign.currentDate,
+    );
+    const pool =
+      (result.campaign as ICampaignWithCommand).personnelMarket ?? [];
+    expect(pool.some((offer) => offer.id === 'expired')).toBe(false);
+    expect(pool.some((offer) => offer.id === 'keep')).toBe(true);
+  });
+  it('prunes expired carry-over and obsolete declines even when generation is disabled', () => {
+    const campaign: ICampaignWithCommand = {
+      ...createTestCampaign(),
+      personnelMarket: [
+        makePersonnelOffer('expired', '3025-06-01'),
+        makePersonnelOffer('today', '3025-06-15'),
+      ],
+      contractMarket: { offers: [], declinedOfferIds: ['gone'] },
+    };
+    let current = campaign;
+    for (const processor of [
+      unitMarketProcessor,
+      personnelMarketProcessor,
+      contractMarketProcessor,
+    ]) {
+      const result = processor.process(current, campaign.currentDate);
+      expect(result.events).toEqual([]);
+      current = result.campaign;
+    }
+    expect(current.personnelMarket?.map((offer) => offer.id)).toEqual([
+      'today',
+    ]);
+    expect(current.contractMarket?.declinedOfferIds).toEqual([]);
+    expect(current.finances).toBe(campaign.finances);
+  });
   it('unit market refresh stores the generated offers on campaign.unitMarket', () => {
     const campaign = createTestCampaign({
       currentDate: new Date('3025-01-01T00:00:00Z'),
