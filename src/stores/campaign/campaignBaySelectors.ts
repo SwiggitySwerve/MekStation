@@ -105,6 +105,14 @@ export function selectRepairBay(
 export function selectSalvageBay(
   campaign: ICampaign | null,
 ): readonly ISalvageBayItem[] {
+  // Old saved projections treated an award as acceptance. Reuse the domain's
+  // enrollment projection whenever the underlying allocation facts are present.
+  if (campaign?.salvageAllocations)
+    return projectCampaignInventory(
+      campaign,
+      [],
+      campaign.currentDate.toISOString(),
+    ).salvageBay;
   return projectInventoryForDisplay(campaign)?.salvageBay ?? EMPTY_SALVAGE_BAY;
 }
 
