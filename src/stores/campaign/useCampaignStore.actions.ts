@@ -28,6 +28,7 @@ import {
   mergeBattleOutcomeState,
 } from './campaignBattleOutcomeState';
 import {
+  hasUnsettledCampaignPersistence,
   useCampaignPersistenceStore,
   type CampaignPersistenceSaveResult,
 } from './useCampaignPersistenceStore';
@@ -107,6 +108,7 @@ function createCampaignAction(
 ): CampaignStore['createCampaign'] {
   return (name, factionId, options, coopOpts?: ICreateCampaignCoopOpts) => {
     const campaign = createCampaignEntity(name, factionId, options);
+    resetPersistenceForCreatedCampaign(campaign.id);
     const rootForce = createRootForce(campaign.rootForceId, name);
     const { forcesStore, missionsStore } = initializeChildStores(
       campaign.id,
@@ -123,6 +125,17 @@ function createCampaignAction(
   };
 }
 
+function resetPersistenceForCreatedCampaign(campaignId: string): void {
+  // Resetting would discard the previous campaign's pending work and save token.
+  if (hasUnsettledCampaignPersistence()) {
+    throw new Error(
+      'Your current campaign is still saving. Try again in a moment.',
+    );
+  }
+  useCampaignPersistenceStore.getState().reset();
+  useCampaignPersistenceStore.setState({ campaignId });
+}
+
 function createGuestMirrorCampaignAction(
   set: CampaignSet,
 ): CampaignStore['createGuestMirrorCampaign'] {
@@ -136,6 +149,7 @@ function createGuestMirrorCampaignAction(
       snapshot.campaignName,
     );
     const localId = snapshot.campaignId || campaign.id;
+    resetPersistenceForCreatedCampaign(localId);
     const { forcesStore, missionsStore } = initializeChildStores(
       localId,
       rootForce,
