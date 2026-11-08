@@ -6,6 +6,7 @@
  *   - Requirement: Serialized Campaign Envelope (Body is JSON-safe)
  */
 
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { Money } from '@/types/campaign/Money';
 
 import {
@@ -15,6 +16,36 @@ import {
 import { buildPopulatedCampaign } from './campaignFixture';
 
 describe('serializeCampaign / deserializeCampaignBody', () => {
+  it('revives a terminal legacy failure without incrementing attempts or inventing an attempt date', () => {
+    const original = buildPopulatedCampaign();
+    const campaign = {
+      ...original,
+      shoppingList: {
+        items: [
+          {
+            id: 'legacy',
+            partId: 'ppc',
+            partName: 'PPC',
+            quantity: 2,
+            availability: AvailabilityRating.E,
+            isConsumable: false,
+            status: 'failed' as const,
+            attempts: 2,
+            lastAttemptDate: '3025-07-02T00:00:00.000Z',
+          },
+        ],
+      },
+    };
+    const restored = deserializeCampaignBody(serializeCampaign(campaign));
+    expect(restored.shoppingList?.items[0]).toEqual({
+      ...campaign.shoppingList.items[0],
+      status: 'pending',
+    });
+    expect(
+      deserializeCampaignBody(serializeCampaign(restored)).shoppingList,
+    ).toEqual(restored.shoppingList);
+  });
+
   it('round-trips a fully-populated campaign to a deep-equal result', () => {
     const original = buildPopulatedCampaign();
     const restored = deserializeCampaignBody(serializeCampaign(original));

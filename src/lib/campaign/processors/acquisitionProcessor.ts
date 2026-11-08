@@ -17,6 +17,9 @@ import {
   getPendingRequests,
   getInTransitRequests,
   updateRequest,
+  canAttemptAcquisition,
+  normalizeShoppingList,
+  acquisitionInventoryId,
 } from '../acquisition/shoppingList';
 import {
   IDayProcessor,
@@ -78,6 +81,7 @@ function processPendingAcquisitions(
   let updatedList = shoppingList;
 
   for (const request of pending) {
+    if (!canAttemptAcquisition(request, currentDate)) continue;
     const result = performAcquisitionRoll(
       request.id,
       request.availability,
@@ -113,7 +117,7 @@ function processPendingAcquisitions(
       );
     } else {
       updatedList = updateRequest(updatedList, request.id, {
-        status: 'failed',
+        status: 'pending',
         attempts: (request.attempts || 0) + 1,
         lastAttemptDate: currentDate.toISOString(),
       });
@@ -151,7 +155,7 @@ function processDeliveries(
         createAcquisitionEvent('delivery', request, request.deliveryDate),
       );
       deliveredItems.push({
-        inventoryId: `acquisition-${request.id}`,
+        inventoryId: acquisitionInventoryId(request.id),
         partId: request.partId,
         partName: request.partName,
         quantity: request.quantity,
@@ -188,7 +192,11 @@ export const acquisitionProcessor: IDayProcessor & {
     const rolls: RandomFn =
       random ?? createDailyRandom(campaign, date, processorId);
 
-    const shoppingList = campaign.shoppingList;
+    const shoppingList = normalizeShoppingList(
+      campaign.shoppingList,
+      date,
+      campaign.partsInventory,
+    );
     // oxlint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (
       !shoppingList ||
