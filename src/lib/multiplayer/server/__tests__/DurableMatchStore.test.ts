@@ -34,6 +34,7 @@ import {
   _setFailAtHeadUpdateForTests,
 } from '../DurableMatchStore';
 import {
+  RoomCodeCollisionError,
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
@@ -713,4 +714,127 @@ describe('DurableMatchStore prepared create and progression reservation (P2CG1C)
     db.exec('COMMIT');
     expect(committedMatches()).toBe(1);
   });
+});
+
+describe.each(['memory', 'durable'] as const)(
+  '%s room-code ownership',
+  (kind) => {
+    let store: InMemoryMatchStore | DurableMatchStore;
+    beforeEach(() => {
+      store =
+        kind === 'memory'
+          ? new InMemoryMatchStore({ quiet: true })
+          : new DurableMatchStore({ path: ':memory:' });
+    });
+    afterEach(() => {
+      if (store instanceof DurableMatchStore) store.close();
+    });
+
+    it.each(['active', 'completed'] as const)(
+      'clears metadata on creation and transition to %s',
+      async (status) => {
+        await store.createMatch(
+          makeMeta('created', { status, roomCode: 'ABC234' }),
+        );
+        expect((await store.getMatchMeta('created')).roomCode).toBeUndefined();
+        await store.createMatch(makeMeta('changed', { roomCode: 'ABC234' }));
+        await store.updateMatchMeta('changed', { seats: [] });
+        expect((await store.getMatchMeta('changed')).roomCode).toBe('ABC234');
+        await store.updateMatchMeta('changed', { status });
+        expect((await store.getMatchMeta('changed')).roomCode).toBeUndefined();
+        expect(await store.getMatchByRoomCode('ABC234')).toBeNull();
+      },
+    );
+
+    it('rejects normalized duplicate creates and updates without changing either owner', async () => {
+      await store.createMatch(makeMeta('owner', { roomCode: 'ABC234' }));
+      await expect(
+        store.createMatch(makeMeta('duplicate', { roomCode: 'abc-234' })),
+      ).rejects.toBeInstanceOf(RoomCodeCollisionError);
+      await expect(store.getMatchMeta('duplicate')).rejects.toBeInstanceOf(
+        MatchNotFoundError,
+      );
+      await store.createMatch(makeMeta('other', { roomCode: 'DEF567' }));
+      const before = await store.getMatchMeta('other');
+      await expect(
+        store.updateMatchMeta('other', { roomCode: 'abc-234', seats: [] }),
+      ).rejects.toBeInstanceOf(RoomCodeCollisionError);
+      expect(await store.getMatchMeta('other')).toEqual(before);
+      expect((await store.getMatchByRoomCode('ABC234'))?.matchId).toBe('owner');
+      expect((await store.getMatchByRoomCode('DEF567'))?.matchId).toBe('other');
+    });
+
+    it('close clears metadata and cannot orphan a reused code', async () => {
+      await store.createMatch(makeMeta('first', { roomCode: 'ABC234' }));
+      await store.closeMatch('first');
+      expect((await store.getMatchMeta('first')).roomCode).toBeUndefined();
+      await store.createMatch(makeMeta('second', { roomCode: 'ABC234' }));
+      await store.closeMatch('first');
+      expect((await store.getMatchByRoomCode('ABC234'))?.matchId).toBe(
+        'second',
+      );
+    });
+  },
+);
+it('migrates stale metadata and collisions before boot readers receive the store', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'match-room-boot-'));
+  const file = path.join(dir, 'matches.sqlite');
+  try {
+    const seed = new DurableMatchStore({ path: file });
+    await seed.createMatch(makeMeta('running', { status: 'active' }));
+    await seed.createMatch(
+      makeMeta('first', { roomCode: 'ABC234', createdAt: '2026-11-01' }),
+    );
+    const event = makeEvent('second', 0);
+    await seed.createMatch(
+      makeMeta('second', { roomCode: 'DEF567', createdAt: '2026-11-02' }),
+      [event],
+    );
+    seed.close();
+    const raw = new Database(file);
+    raw.exec('DROP INDEX IF EXISTS idx_mp_matches_active_room_code');
+    raw
+      .prepare(
+        'UPDATE mp_matches SET room_code = ?, meta_json = ? WHERE match_id = ?',
+      )
+      .run(
+        'ABC234',
+        JSON.stringify(
+          makeMeta('second', { roomCode: 'ABC234', createdAt: '2026-11-02' }),
+        ),
+        'second',
+      );
+    raw
+      .prepare('UPDATE mp_matches SET meta_json = ? WHERE match_id = ?')
+      .run(
+        JSON.stringify(
+          makeMeta('running', { status: 'active', roomCode: 'STALE2' }),
+        ),
+        'running',
+      );
+    raw.close();
+    for (let open = 0; open < 2; open++) {
+      const recovered = new DurableMatchStore({ path: file });
+      try {
+        // These are the first reads available to MatchRecovery and CampaignHostRegistry.
+        expect(
+          (await recovered.listActiveMatches())[0].roomCode,
+        ).toBeUndefined();
+        expect(
+          (await recovered.getMatchMeta('running')).roomCode,
+        ).toBeUndefined();
+        expect(
+          (await recovered.getMatchMeta('second')).roomCode,
+        ).toBeUndefined();
+        expect(await recovered.getEvents('second')).toEqual([event]);
+        expect((await recovered.getMatchByRoomCode('ABC234'))?.matchId).toBe(
+          'first',
+        );
+      } finally {
+        recovered.close();
+      }
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

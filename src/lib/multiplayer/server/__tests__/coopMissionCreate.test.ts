@@ -87,6 +87,38 @@ describe('co-op mission create through real auth, SQLite and combat hosts', () =
     jest.restoreAllMocks();
   });
 
+  it('retries a real lobby-code collision through POST without changing the code owner', async () => {
+    const insert = fixture.store.createMatch.bind(fixture.store);
+    const create = jest
+      .spyOn(fixture.store, 'createMatch')
+      .mockImplementationOnce(async (meta) => {
+        // Another allocation wins after the route has selected its first code.
+        await insert({ ...meta, matchId: 'collision-owner' });
+        return insert(meta);
+      });
+    const response = await post(
+      { layout: '1v1', config: { mapRadius: 4, turnLimit: 5 } },
+      fixture.host,
+    );
+    expect(response.status).toBe(201);
+    expect(create).toHaveBeenCalledTimes(2);
+    const first = create.mock.calls[0]?.[0];
+    const second = create.mock.calls[1]?.[0];
+    assert.ok(first && second);
+    expect(second).toEqual({ ...first, roomCode: expect.any(String) });
+    expect(second.roomCode).not.toBe(first.roomCode);
+    expect(response.body).toMatchObject({
+      matchId: second.matchId,
+      roomCode: second.roomCode,
+    });
+    expect(
+      (await fixture.store.getMatchByRoomCode(first.roomCode ?? ''))?.matchId,
+    ).toBe('collision-owner');
+    expect(
+      (await fixture.store.getMatchByRoomCode(second.roomCode ?? ''))?.matchId,
+    ).toBe(second.matchId);
+  });
+
   it('creates an owner-bound combat match when both contributors deployed', async () => {
     // Given
     const before = fixture.census();
@@ -193,6 +225,8 @@ describe('co-op mission create through real auth, SQLite and combat hosts', () =
       (await post(fixture.request, fixture.host)).body,
     );
     const meta = await fixture.store.getMatchMeta(created.matchId);
+    expect(meta.status).toBe('active');
+    expect(meta.roomCode).toBeUndefined();
     const events = await fixture.store.getEvents(created.matchId);
     const memory = new InMemoryMatchStore({ quiet: true });
     // When

@@ -108,7 +108,7 @@ async function seed(
     // Full-metadata controls are known-off; fog-on refusal rows are below.
     config: { mapRadius: 8, turnLimit: 20, fogOfWar: false },
     layout: '1v1',
-    roomCode: 'ABCD23',
+    ...(status === 'lobby' ? { roomCode: 'ABCD23' } : {}),
     seats: occupySeat(
       occupySeat(defaultSeats('1v1'), 'alpha-1', host.ref),
       'bravo-1',

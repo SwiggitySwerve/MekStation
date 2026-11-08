@@ -28,6 +28,7 @@ import type {
 
 import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import {
+  RoomCodeCollisionError,
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
@@ -42,6 +43,7 @@ import {
   matchCommandFingerprint,
   matchesCommandFingerprint,
 } from './matchCommandBatch';
+import { lobbyMatchMeta, patchMatchMeta } from './matchRoomCodes';
 
 // =============================================================================
 // Internal record shape
@@ -119,6 +121,8 @@ export class InMemoryMatchStore
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    meta = lobbyMatchMeta(meta);
+    this.assertRoomCodeAvailable(meta);
     const sequences = new Set<number>();
     for (const event of initialEvents) {
       if (sequences.has(event.sequence)) {
@@ -141,7 +145,7 @@ export class InMemoryMatchStore
       importedLegacy: false,
       closed: false,
     });
-    if (meta.roomCode && meta.status === 'lobby') {
+    if (meta.roomCode) {
       this.roomCodeIndex.set(normalizeRoomCode(meta.roomCode), meta.matchId);
     }
     return meta.matchId;
@@ -442,35 +446,28 @@ export class InMemoryMatchStore
     const rec = this.records.get(matchId);
     if (!rec) throw new MatchNotFoundError(matchId);
     const before = rec.meta;
-    // Build the next meta. The patch shape allows `roomCode: null` to
-    // explicitly clear the field (the previous wire was `undefined as
-    // unknown as string`, which type-laundered the same intent). When
-    // we see an explicit `null` we translate to `undefined` so the
-    // stored `IMatchMeta.roomCode` remains `string | undefined` (the
-    // optional-property shape the rest of the system expects).
-    const { roomCode: patchRoomCode, ...restPatch } = patch;
-    const nextRoomCode =
-      patchRoomCode === null ? undefined : (patchRoomCode ?? rec.meta.roomCode);
-    rec.meta = {
-      ...rec.meta,
-      ...restPatch,
-      roomCode: nextRoomCode,
-      updatedAt: new Date().toISOString(),
-    };
+    const nextMeta = patchMatchMeta(before, patch);
+    this.assertRoomCodeAvailable(nextMeta);
+    rec.meta = nextMeta;
     // Wave 3b: keep the roomCode index in sync. Invite codes are valid
     // ONLY while the match is in `lobby` status (per spec 4.4).
     if (before.roomCode && before.roomCode !== rec.meta.roomCode) {
       this.roomCodeIndex.delete(normalizeRoomCode(before.roomCode));
     }
-    if (rec.meta.roomCode && rec.meta.status === 'lobby') {
+    if (rec.meta.roomCode) {
       this.roomCodeIndex.set(
         normalizeRoomCode(rec.meta.roomCode),
         rec.meta.matchId,
       );
-    } else if (before.roomCode && rec.meta.status !== 'lobby') {
-      this.roomCodeIndex.delete(normalizeRoomCode(before.roomCode));
     }
   };
+
+  private assertRoomCodeAvailable(meta: IMatchMeta): void {
+    if (!meta.roomCode) return;
+    const owner = this.roomCodeIndex.get(meta.roomCode);
+    if (owner !== undefined && owner !== meta.matchId)
+      throw new RoomCodeCollisionError(meta.roomCode);
+  }
 
   getMatchByRoomCode = async (roomCode: string): Promise<IMatchMeta | null> => {
     const normalized = normalizeRoomCode(roomCode);
@@ -490,11 +487,7 @@ export class InMemoryMatchStore
     if (rec.meta.roomCode) {
       this.roomCodeIndex.delete(normalizeRoomCode(rec.meta.roomCode));
     }
-    rec.meta = {
-      ...rec.meta,
-      status: 'completed',
-      updatedAt: new Date().toISOString(),
-    };
+    rec.meta = patchMatchMeta(rec.meta, { status: 'completed' });
   };
 
   /**
