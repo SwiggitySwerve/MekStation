@@ -207,7 +207,7 @@ function mekstationComposerMovementModeSourceRefs(
     mekstationDeviationSourceRef(
       `MekStation commitComposedMovement stages the ${mode} declaration and delegates to the legacy commitPlannedMovementLogic path so the authoritative movement declaration and its wire/P2P kinds stay identical to the pre-composer dock move.`,
       'src/stores/useGameplayStore.ts',
-      'L587-L625',
+      'L624-L662',
     ),
   ] satisfies readonly ICombatFeatureSourceReference[];
 }
