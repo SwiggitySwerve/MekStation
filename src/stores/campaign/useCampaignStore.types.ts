@@ -75,6 +75,13 @@ export interface CampaignState {
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;
   outcomeApplyErrors: Record<string, string>;
+  /**
+   * True while a day advance, multi-day advance or travel is in flight. Only
+   * one of them runs at a time; a second call returns without changing
+   * anything. Transient: the explicit `partialize` never persists it, so a
+   * reload starts clear. Controls that move the clock read it to disable.
+   */
+  dayAdvanceInFlight: boolean;
   forcesStore: StoreApi<ForcesStore> | null;
   missionsStore: StoreApi<MissionsStore> | null;
   /**

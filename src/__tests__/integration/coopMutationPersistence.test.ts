@@ -19,6 +19,7 @@ import {
   resetCampaignStore,
   useCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
@@ -181,6 +182,41 @@ afterEach(() => {
 });
 
 describe('co-op host mutation persistence', () => {
+  it('persists failed acquisition retries and their cooldown through co-op saves and guest hydration', async () => {
+    const base = seedHostCampaign('Co-op Acquisition Retry');
+    const campaign = {
+      ...base,
+      options: { ...base.options, useAcquisitionSystem: true },
+      shoppingList: {
+        items: [
+          {
+            id: 'coop-retry',
+            partId: 'rare',
+            partName: 'Rare part',
+            availability: AvailabilityRating.X,
+            isConsumable: false,
+            quantity: 2,
+            attempts: 0,
+            status: 'pending' as const,
+          },
+        ],
+      },
+    };
+    useCampaignStore().setState({ campaign });
+    await seedPersistedServer(campaign);
+    for (let day = 0; day < 8; day += 1) {
+      expect(await useCampaignStore().getState().advanceDay()).not.toBeNull();
+      const fetched = await fetchServerRecord(campaign.id);
+      expect(fetched.body.shoppingList?.items[0]).toMatchObject({
+        status: 'pending',
+        attempts: day === 7 ? 2 : 1,
+      });
+      expect(fetched.body.shoppingList).toEqual(
+        useCampaignStore().getState().campaign?.shoppingList,
+      );
+    }
+  });
+
   it('persists host day advance before the action resolves and a guest fetch sees the new date', async () => {
     const initialCampaign = seedHostCampaign('Co-op Day Persistence');
     const server = await seedPersistedServer(initialCampaign);
@@ -252,7 +288,27 @@ describe('co-op host mutation persistence', () => {
   });
 
   it('pushes host day advance through the real server registry to a connected guest', async () => {
-    const initialCampaign = seedHostCampaign('Co-op Day Push');
+    const base = seedHostCampaign('Co-op Day Push');
+    const initialCampaign = {
+      ...base,
+      options: { ...base.options, useAcquisitionSystem: true },
+      shoppingList: {
+        items: [
+          {
+            id: 'host-cooldown',
+            partId: 'rare',
+            partName: 'Rare part',
+            availability: AvailabilityRating.X,
+            isConsumable: false,
+            quantity: 2,
+            attempts: 2,
+            status: 'pending' as const,
+            lastAttemptDate: '3025-07-05T00:00:00.000Z',
+          },
+        ],
+      },
+    };
+    useCampaignStore().setState({ campaign: initialCampaign });
     await seedPersistedServer(initialCampaign);
     const registry = new CampaignHostRegistry();
     const entry = await registry.register(MATCH_ID, {
@@ -348,6 +404,10 @@ describe('co-op host mutation persistence', () => {
     const pushed = await waitForCampaignDayAdvanced(guestSocket);
 
     const afterCampaign = useCampaignStore().getState().campaign;
+    expect(afterCampaign?.shoppingList).toEqual(initialCampaign.shoppingList);
+    expect(
+      (await fetchServerRecord(initialCampaign.id)).body.shoppingList,
+    ).toEqual(initialCampaign.shoppingList);
     expect(report).not.toBeNull();
     expect(afterCampaign).not.toBeNull();
     expect(beforeLocalDate?.toISOString()).not.toBe(

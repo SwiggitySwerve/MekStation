@@ -79,6 +79,66 @@ describe('campaignCommandActions', () => {
   // ===========================================================================
 
   describe('acquisition requests', () => {
+    it('does not reuse request IDs after removing and adding the same part', () => {
+      seedCampaign();
+      const params = {
+        partName: 'PPC',
+        quantity: 2,
+        availability: AvailabilityRating.E,
+        isConsumable: false,
+      };
+      const first = addAcquisitionRequest(params);
+      const second = addAcquisitionRequest(params);
+      expect(removeAcquisitionRequest(first.requestId ?? '').applied).toBe(
+        true,
+      );
+      const third = addAcquisitionRequest(params);
+      expect(third.requestId).not.toBe(second.requestId);
+      expect(third.requestId).not.toBe(first.requestId);
+      expect(removeAcquisitionRequest(second.requestId ?? '').applied).toBe(
+        true,
+      );
+      expect(
+        currentCampaign().shoppingList?.items.map((item) => item.id),
+      ).toEqual([third.requestId]);
+    });
+
+    it('does not reuse the identity of a removed delivered request', () => {
+      seedCampaign();
+      const params = {
+        partName: 'PPC',
+        quantity: 2,
+        availability: AvailabilityRating.E,
+        isConsumable: false,
+      };
+      const first = addAcquisitionRequest(params);
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          shoppingList: {
+            items: (currentCampaign().shoppingList?.items ?? []).map(
+              (item) => ({ ...item, status: 'delivered' }),
+            ),
+          },
+          partsInventory: [
+            {
+              inventoryId: `acquisition-${first.requestId}`,
+              partId: 'ppc',
+              partName: 'PPC',
+              quantity: 2,
+              source: 'acquisition',
+              acquiredAt: '3025-01-01T00:00:00.000Z',
+            },
+          ],
+        });
+      expect(removeAcquisitionRequest(first.requestId ?? '').applied).toBe(
+        true,
+      );
+      const second = addAcquisitionRequest(params);
+      expect(second.requestId).not.toBe(first.requestId);
+      expect(currentCampaign().partsInventory?.[0].quantity).toBe(2);
+    });
+
     it('adds a pending request to the campaign shopping list', () => {
       seedCampaign();
       const result = addAcquisitionRequest({

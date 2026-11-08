@@ -85,6 +85,7 @@ import {
 } from '@/lib/campaign/fastForward/invariants/xp';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { Money } from '@/types/campaign/Money';
 import { GameSide } from '@/types/gameplay';
 
@@ -104,6 +105,44 @@ jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
 const adaptUnitMock = adaptUnit as jest.MockedFunction<typeof adaptUnit>;
 
 describe('fastForwardCampaign — capstone: full continuous chain, real engine combat, invariants over the end state', () => {
+  it('retries pending acquisitions every seven processed days through the real fast-forward pipeline', async () => {
+    const fixture = buildFastForwardFixture({
+      useRoleBasedSalaries: false,
+      combatTeamCount: 1,
+    });
+    const campaign = {
+      ...fixture.campaign,
+      options: {
+        ...fixture.campaign.options,
+        useAtBScenarios: false,
+        useAcquisitionSystem: true,
+      },
+      shoppingList: {
+        items: [
+          {
+            id: 'fast-forward-retry',
+            partId: 'rare',
+            partName: 'Rare part',
+            availability: AvailabilityRating.X,
+            isConsumable: false,
+            quantity: 1,
+            attempts: 0,
+            status: 'pending' as const,
+          },
+        ],
+      },
+    };
+    const report = await fastForwardCampaign(campaign, { days: 8 });
+    expect(
+      report.dayReports.map(
+        (day) => day.campaign.shoppingList?.items[0].attempts,
+      ),
+    ).toEqual([1, 1, 1, 1, 1, 1, 1, 2]);
+    expect(
+      useCampaignStore().getState().campaign?.shoppingList?.items[0].status,
+    ).toBe('pending');
+  });
+
   beforeEach(() => {
     resetWorld();
     initializeInProcessApiDatabase();

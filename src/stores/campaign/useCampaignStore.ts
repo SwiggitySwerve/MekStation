@@ -71,6 +71,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         processedBattleIds: [],
         reviewedBattleIds: {},
         outcomeApplyErrors: {},
+        dayAdvanceInFlight: false,
         forcesStore: null,
         missionsStore: null,
         activityLog: [],

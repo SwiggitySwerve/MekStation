@@ -23,7 +23,6 @@ interface SeededAcquisitionCampaign {
   readonly campaignId: string;
   readonly dueRequestId: string;
   readonly duePartId: string;
-  readonly addedRequestId: string;
 }
 
 async function waitForCampaignStoresReady(page: Page): Promise<void> {
@@ -100,7 +99,6 @@ async function seedAcquisitionCampaign(
       campaignId,
       dueRequestId,
       duePartId,
-      addedRequestId: `req-${campaignId}-ppc-1`,
     };
   });
 }
@@ -183,11 +181,23 @@ test.describe(
           await page.getByTestId('acquisition-quantity').fill('2');
           await page.getByTestId('acquisition-availability').selectOption('E');
           await page.getByTestId('acquisition-add-request').click();
+          const requestTestId = await page
+            .getByTestId('acquisition-request-list')
+            .locator('[data-testid^="acquisition-request-"]')
+            .filter({
+              has: page.getByRole('heading', { name: 'PPC', exact: true }),
+            })
+            .getAttribute('data-testid');
+          if (!requestTestId) throw new Error('Created PPC request has no ID');
+          const addedRequestId = requestTestId.slice(
+            'acquisition-request-'.length,
+          );
+
           await expect(
-            page.getByTestId(`acquisition-request-${seeded.addedRequestId}`),
+            page.getByTestId(`acquisition-request-${addedRequestId}`),
           ).toContainText('PPC');
           await expect(
-            page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
+            page.getByTestId(`acquisition-status-${addedRequestId}`),
           ).toContainText('pending');
           await expect(
             page.getByTestId('acquisitions-pending-count'),
@@ -200,7 +210,7 @@ test.describe(
             page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
           ).toContainText('in transit');
           await expect(
-            page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
+            page.getByTestId(`acquisition-status-${addedRequestId}`),
           ).toContainText('pending');
 
           const advanceSaved = page.waitForResponse(
