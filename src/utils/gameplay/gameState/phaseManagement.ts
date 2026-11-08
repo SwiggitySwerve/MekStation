@@ -9,6 +9,7 @@ import {
 } from '@/types/gameplay';
 import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
 import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
+import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -73,7 +74,7 @@ export function applyTurnStarted(
       units[unitId].empShutdownTurns,
     );
     units[unitId] = {
-      ...resetPerTurnMovementState(units[unitId]),
+      ...advanceVehicleCrewStun(resetPerTurnMovementState(units[unitId])),
       weaponsFiredThisTurn: [],
       pendingPSRs: [],
       isLoadingOrUnloadingCargo: false,
