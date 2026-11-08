@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-m4-p2p-connection-retry",
+  "status": "in-progress",
+  "reason": "Root-approved M-M4: intentional teardown cancels the P2P retry, a retry reuses the room and reports reconnecting, the store never reads Connected without a room. No wire, schema or persistence changes.",
+  "lastReviewed": "2026-11-08"
+}

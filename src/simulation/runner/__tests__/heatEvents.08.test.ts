@@ -59,6 +59,7 @@ import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { applyHeatInducedAmmoExplosions } from '../phases/heatAmmoExplosions';
+import { applyRunnerStartupAttempt } from '../phases/heatStartup';
 import { runHeatPhase } from '../phases/postCombat';
 import { runAttackPhase } from '../phases/weaponAttack';
 import { applyCritAmmoExplosions } from '../phases/weaponAttackAmmoExplosions';
@@ -77,6 +78,61 @@ import {
   makeMinimalState,
   runAttack,
 } from './heatEvents.test-helpers';
+
+describe('C10 KO startup', () => {
+  it.each([14, 29])(
+    'auto-fails a required startup roll at heat %s without dice',
+    (heat) => {
+      const unit = createUnit(
+        'player-1',
+        GameSide.Player,
+        { q: 0, r: 0 },
+        {
+          shutdown: true,
+          pilotConscious: false,
+        },
+      );
+      const d6Roller = jest.fn(() => 6);
+      const events: IGameEvent[] = [];
+      const result = applyRunnerStartupAttempt({
+        unit,
+        unitId: unit.id,
+        heat,
+        turn: 1,
+        events,
+        gameId: 'c10-ko',
+        d6Roller,
+      });
+      expect(result.shutdown).toBe(true);
+      expect(events).toHaveLength(1);
+      expect(events[0].payload).toMatchObject({ success: false, roll: 0 });
+      expect(d6Roller).not.toHaveBeenCalled();
+    },
+  );
+
+  it('allows automatic startup below heat 14 for a KO pilot', () => {
+    const unit = createUnit(
+      'player-1',
+      GameSide.Player,
+      { q: 0, r: 0 },
+      {
+        shutdown: true,
+        pilotConscious: false,
+      },
+    );
+    const d6Roller = jest.fn(() => 6);
+    expect(
+      applyRunnerStartupAttempt({
+        unit,
+        unitId: unit.id,
+        heat: 13,
+        turn: 1,
+        d6Roller,
+      }).shutdown,
+    ).toBe(false);
+    expect(d6Roller).not.toHaveBeenCalled();
+  });
+});
 
 describe('runAttackPhase ammo + pilot events (Phase 4)', () => {
   it('emits AmmoConsumed when a non-energy weapon fires', () => {
