@@ -24,6 +24,7 @@ import type {
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IForce } from '@/types/campaign/Force';
 
+import { campaignMarketIntentContext } from '@/lib/campaign/markets/authoritativeOffers';
 import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import {
   CampaignGmArbiter,
@@ -45,6 +46,12 @@ export interface IOpenCoopRuntimeOptions {
   readonly roomCode?: string;
   readonly hostPlayerId?: string;
   readonly arbitrationMode?: GmArbitrationMode;
+  /**
+   * The host's live campaign (K14b). Its markets are what a co-op hire or
+   * acceptance is judged against, read at each intent. Defaults to the
+   * campaign the session opened with.
+   */
+  readonly readCampaign?: () => ICampaign | null;
 }
 
 export interface ICoopRuntimeSession {
@@ -100,6 +107,10 @@ export async function openCoopRuntimeSession(
     // the in-memory store whatever CAMPAIGN_JOURNAL_AUTHORITY_ENABLED holds.
     eventStore: createDefaultCampaignEventStore(),
     initialState: buildCampaignAuthoritativeState(campaign),
+    intentContext: campaignMarketIntentContext(
+      campaign.id,
+      options.readCampaign ?? (() => campaign),
+    ),
   });
   const syncSession = new CampaignSyncSession(host);
   await syncSession.open(options.roomCode ?? campaign.coopSession?.roomCode);

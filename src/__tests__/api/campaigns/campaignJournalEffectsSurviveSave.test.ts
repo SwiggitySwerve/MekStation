@@ -3,8 +3,8 @@
  * unit U35e, owner decision OD-u35d-server-and-host-fix, server half).
  *
  * Rows (r1)-(r3) and (c1) are U35d's admission probe rows, carried here:
- * a journal-only command (SpendFunds, AdvanceDay, HirePilot) through the
- * command route, or a HirePilot through the co-op host door, then a
+ * a journal-only command (SpendFunds, AdvanceDay, HireOffer) through the
+ * command route, or a HireOffer through the co-op host door, then a
  * whole-envelope PUT of what the client holds at the pre-command version.
  * Row (c2) does the same for an accepted contract and the salvage pool
  * through the co-op door. Row (s) is a client's own edit saved at the
@@ -19,6 +19,7 @@
  * (U35E_ROWS_DIR). Seeding and the database are in the shared fixture.
  */
 
+import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { applyAuthoritativeStateToGuestCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
@@ -30,8 +31,11 @@ import {
   disjointCampaign,
   envelopeOf,
   eventTypes,
+  fixtureContract,
+  fixtureOffer,
   flushMeasurements,
   intentOf,
+  marketOf,
   ledgerOf,
   openCoopHost,
   postCommand,
@@ -65,10 +69,13 @@ function conflictRecord(json: Record<string, unknown>): {
 async function routeCommandThenSaves(
   row: string,
   campaignId: string,
-  kind: 'SpendFunds' | 'AdvanceDay' | 'HirePilot',
+  kind: 'SpendFunds' | 'AdvanceDay' | 'HireOffer',
   payload: unknown,
+  personnelMarket?: readonly IPersonnelMarketOffer[],
 ) {
-  const { record, genesisBy } = await createJournalNative(campaignId);
+  const { record, genesisBy } = await createJournalNative(campaignId, {
+    personnelMarket,
+  });
   const wire = await seatedCaller(campaignId);
   const command = await postCommand(
     campaignId,
@@ -156,32 +163,35 @@ describe('U35e journal-only campaign effects survive a whole-envelope save', () 
     expect(m.afterCurrentPut.day).toBe(m.afterCommand.day);
   });
 
-  it('(r3) HirePilot through the command route survives a stale and a current whole-envelope PUT', async () => {
-    const m = await routeCommandThenSaves('r3', 'u35e-hire', 'HirePilot', {
-      pilot: { pilotId: 'pilot-r3', name: 'Recruit' },
-      cost: 12_000,
-    });
+  it('(r3) HireOffer through the command route survives a stale and a current whole-envelope PUT', async () => {
+    const m = await routeCommandThenSaves(
+      'r3',
+      'u35e-hire',
+      'HireOffer',
+      { offerId: 'offer-r3' },
+      [fixtureOffer('offer-r3', 'Recruit')],
+    );
     expect(m.commandStatus).toBe(200);
-    expect(m.afterStalePut.pilots).toEqual(['pilot-r3']);
+    expect(m.afterStalePut.pilots).toEqual(['hired-offer-r3']);
     expect(m.stalePutStatus).toBe(409);
     expect(m.stalePutCurrent).toEqual({
       version: m.createdVersion + 1,
       balance: m.afterCommand.balance,
     });
     expect(m.currentPutStatus).toBe(200);
-    expect(m.afterCurrentPut.pilots).toEqual(['pilot-r3']);
+    expect(m.afterCurrentPut.pilots).toEqual(['hired-offer-r3']);
     expect(m.afterCurrentPut.balance).toBe(m.afterCommand.balance);
   });
 
-  it('(c1) HirePilot through the co-op host door survives the host fold save and the current save', async () => {
+  it('(c1) HireOffer through the co-op host door survives the host fold save and the current save', async () => {
     const id = 'u35e-coop';
     const { record, genesisBy } = await createJournalNative(id);
-    const host = await openCoopHost(record);
+    const host = await openCoopHost(
+      record,
+      marketOf([fixtureOffer('offer-c1', 'Co-op Recruit')]),
+    );
     const hire = await host.applyHostIntent(
-      intentOf(id, 'intent-c1', 'HirePilot', {
-        pilot: { pilotId: 'pilot-c1', name: 'Co-op Recruit' },
-        cost: 12_000,
-      }),
+      intentOf(id, 'intent-c1', 'HireOffer', { offerId: 'offer-c1' }),
     );
     const afterHire = ledgerOf(await replayed(id));
     const rowAfterHire = storedRow(id);
@@ -218,14 +228,14 @@ describe('U35e journal-only campaign effects survive a whole-envelope save', () 
     await flushMeasurements('effects', measurements);
 
     expect(hire.ok).toBe(true);
-    expect(afterStalePut.pilots).toEqual(['pilot-c1']);
+    expect(afterStalePut.pilots).toEqual(['hired-offer-c1']);
     expect(stalePut.status).toBe(409);
     expect(conflictRecord(stalePut.json)).toEqual({
       version: record.version + 1,
       balance: afterHire.balance,
     });
     expect(currentPut.status).toBe(200);
-    expect(afterCurrentPut.pilots).toEqual(['pilot-c1']);
+    expect(afterCurrentPut.pilots).toEqual(['hired-offer-c1']);
     expect(spend.ok).toBe(true);
     // The live co-op host and the journal agree after the next command.
     expect(computeCampaignStateDigest(journalAfterSpend)).toBe(
@@ -236,7 +246,10 @@ describe('U35e journal-only campaign effects survive a whole-envelope save', () 
   it('(c2) an accepted contract and the salvage pool through the co-op host door survive the host fold save', async () => {
     const id = 'u35e-coop-contract';
     const { record, genesisBy } = await createJournalNative(id);
-    const host = await openCoopHost(record);
+    const host = await openCoopHost(
+      record,
+      marketOf([], [fixtureContract('contract-c2', 'faction-c2')]),
+    );
     const accept = await host.applyHostIntent(
       intentOf(id, 'intent-c2-accept', 'AcceptContract', {
         contract: {

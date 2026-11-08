@@ -5,7 +5,8 @@
  * POST returns `GmCombatRewindCommitResult` VERBATIM. No envelope: both
  * arms already carry `kind`. Status carries the class, body the answer:
  *
- *   200  committed
+ *   200  committed (plus `rebuildPending: true` when the commit stands
+ *        but the live host could not be rebuilt yet — M-H4)
  *   403  gm-role-required / actor-mismatch / state-not-owned
  *   404  no authoritative history
  *   409  every other typed refusal, including the three commit-only
@@ -32,6 +33,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
+import type { IRewindRebuildRequest } from '@/lib/multiplayer/server/ServerMatchHostRewindRebuild';
 import type { IGmAuthorityContext } from '@/types/interventions';
 
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
@@ -65,6 +67,7 @@ import {
   sendCaughtApiError,
 } from '@/pages-modules/api/routeHelpers';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { logger } from '@/utils/logger';
 
 function refused(
   res: NextApiResponse,
@@ -86,6 +89,31 @@ function statusForRefusal(
     return 403;
   }
   return reason === 'no-authoritative-history' ? 404 : 409;
+}
+
+/**
+ * Rebuild the live host on the activated branch. True means the commit
+ * stands but the host still serves the superseded session: it retries
+ * on its next command or join, and a restart folds the branch on boot.
+ * Look up only — never getOrCreate. An empty registry means nobody is
+ * connected; MatchRecovery folds this branch on boot.
+ */
+async function rebuildLiveHost(
+  matchId: string,
+  input: IRewindRebuildRequest,
+): Promise<boolean> {
+  const liveHost = getMatchHostRegistry().get(matchId);
+  if (liveHost === null) return false;
+  try {
+    await liveHost.rebuildFromActivatedBranch(input);
+    return false;
+  } catch (error) {
+    logger.error(
+      '[rewind-commit] live rebuild failed after commit; the host retries it',
+      error,
+    );
+    return liveHost.servedBranchId() !== input.branchId;
+  }
 }
 
 export default async function handler(
@@ -210,6 +238,14 @@ export default async function handler(
     );
 
     if (result.kind === 'committed') {
+      // Rebuild BEFORE the reason writer: the commit is already durable,
+      // so a later throw must not leave the live host on the superseded
+      // session (M-H4).
+      const rebuildPending = await rebuildLiveHost(matchId, {
+        branchId: result.activatedBranchId,
+        effectiveRevision: body.targetRevision,
+        effectiveGeneration: result.effectiveGeneration,
+      });
       if (body.reason !== undefined) {
         const writer = new GmPrivatePreviewRecordWriter(
           new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
@@ -225,17 +261,9 @@ export default async function handler(
           privateReason: body.reason,
         });
       }
-      // Look up only — never getOrCreate. An empty registry means
-      // nobody is connected; MatchRecovery folds this branch on boot.
-      const liveHost = getMatchHostRegistry().get(matchId);
-      if (liveHost !== null) {
-        await liveHost.rebuildFromActivatedBranch({
-          branchId: result.activatedBranchId,
-          effectiveRevision: body.targetRevision,
-          effectiveGeneration: result.effectiveGeneration,
-        });
-      }
-      res.status(200).json(result);
+      res
+        .status(200)
+        .json(rebuildPending ? { ...result, rebuildPending: true } : result);
       return;
     }
     refused(res, statusForRefusal(result.reason), result);

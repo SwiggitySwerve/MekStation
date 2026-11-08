@@ -234,6 +234,20 @@ describe('InterventionLedger', () => {
     expect(ledger.getRecords()).toEqual([]);
   });
 
+  it('refuses a second record with an id it already holds (S14)', () => {
+    const ledger = new InterventionLedger<CounterState>();
+    const record = makeRecord();
+
+    expect(ledger.hasRecord('gm-int-1')).toBe(false);
+    ledger.appendApprovedRecord(record);
+    expect(ledger.hasRecord('gm-int-1')).toBe(true);
+
+    expect(() => ledger.appendApprovedRecord(makeRecord())).toThrow(
+      /already holds intervention record "gm-int-1"/,
+    );
+    expect(ledger.getRecords()).toHaveLength(1);
+  });
+
   it('projects the same record differently for public and private viewers', () => {
     const ledger = new InterventionLedger<CounterState>().register(
       combatImplementer,

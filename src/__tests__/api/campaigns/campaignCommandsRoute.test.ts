@@ -85,7 +85,10 @@ const COOP_MATCH_ID = 'match-command-route';
  * token must carry off THIS row, so a suite with no row could not tell a
  * record-derived scope from a caller-supplied one.
  */
-function storeCampaignRow(matchId?: string): void {
+function storeCampaignRow(
+  matchId?: string,
+  bodyPatch: Partial<SerializedCampaign['body']> = {},
+): void {
   const base = buildSerializedCampaign(
     { ...buildPopulatedCampaign(), id: CAMPAIGN_ID },
     'device-test',
@@ -95,12 +98,13 @@ function storeCampaignRow(matchId?: string): void {
     ...base,
     instanceId: 'local-host',
     authority: { role: 'source' },
-    body: matchId
-      ? {
-          ...base.body,
-          coopSession: { mode: 'host', roomCode: 'ROOM01', matchId },
-        }
-      : base.body,
+    body: {
+      ...base.body,
+      ...bodyPatch,
+      ...(matchId
+        ? { coopSession: { mode: 'host', roomCode: 'ROOM01', matchId } }
+        : {}),
+    },
   };
   getSQLiteService()
     .getDatabase()
@@ -357,5 +361,120 @@ describe('campaign commands route', () => {
     await commandsHandler(req, res);
 
     expect(res._getStatusCode()).toBe(405);
+  });
+
+  // K14b: a guest seat used to POST a HirePilot naming its own recruit and
+  // price, and it committed with no GM review. The intent is now strictly
+  // parsed, a HirePilot is refused, and a HireOffer takes both facts from
+  // the market offer the source record holds.
+  describe('hiring from the market', () => {
+    const OFFER = {
+      id: 'offer-route',
+      name: 'Stored Recruit',
+      role: 'pilot',
+      experienceLevel: 'regular',
+      skills: { gunnery: 4 },
+      hireCost: 120_000,
+      expirationDate: '3999-12-31',
+    };
+
+    function hireOffer(payload: Record<string, unknown>): ICampaignIntent {
+      return {
+        campaignId: CAMPAIGN_ID,
+        intentId: 'intent-hire-route',
+        kind: 'HireOffer',
+        payload,
+      } as unknown as ICampaignIntent;
+    }
+
+    beforeEach(() => {
+      storeCampaignRow(undefined, {
+        personnelMarket: [
+          OFFER,
+        ] as unknown as SerializedCampaign['body']['personnelMarket'],
+      });
+    });
+
+    it('takes the recruit and the price from the stored offer', async () => {
+      const result = await post(
+        { intent: hireOffer({ offerId: OFFER.id }), commandId: 'cmd-hire' },
+        caller.wire,
+      );
+
+      expect(result.status).toBe(200);
+      const events = result.json.events as Array<{
+        type: string;
+        payload: unknown;
+      }>;
+      expect(events.map((event) => event.type)).toStrictEqual([
+        'FundsChanged',
+        'PilotHired',
+      ]);
+      expect(events[1].payload).toStrictEqual({
+        pilot: { pilotId: 'hired-offer-route', name: 'Stored Recruit' },
+        cost: 120_000,
+      });
+      expect((result.json.state as { balance: number }).balance).toBe(880_000);
+    });
+
+    it('refuses a guest HireOffer carrying a forged recruit and price, before the pipeline', async () => {
+      const result = await post(
+        {
+          intent: hireOffer({
+            offerId: OFFER.id,
+            pilot: { pilotId: 'pilot-forged', name: 'Forged Ace' },
+            cost: 0,
+          }),
+          commandId: 'cmd-forged-offer',
+        },
+        caller.wire,
+      );
+
+      expect(result.status).toBe(400);
+      expect(result.json).toMatchObject({ reason: 'malformed-intent' });
+      const replay = await post(
+        { intent: spend(1), commandId: 'cmd-after-forged' },
+        caller.wire,
+      );
+      // Nothing was hired: the balance only moved by the probe spend.
+      expect((replay.json.state as { balance: number }).balance).toBe(999_999);
+    });
+
+    it('refuses a guest HirePilot naming its own recruit and price', async () => {
+      const result = await post(
+        {
+          intent: {
+            campaignId: CAMPAIGN_ID,
+            intentId: 'intent-forged-hire',
+            kind: 'HirePilot',
+            payload: { pilot: { pilotId: 'p-x', name: 'Forged' }, cost: 0 },
+          },
+          commandId: 'cmd-forged-hire',
+        },
+        caller.wire,
+      );
+
+      expect(result.status).toBe(422);
+      expect(result.json).toStrictEqual({
+        kind: 'rejected',
+        reason: 'hire-requires-market-offer',
+      });
+    });
+
+    it('refuses an intent whose payload is not the declared shape', async () => {
+      const result = await post(
+        {
+          intent: {
+            ...spend(1),
+            payload: { amount: 'all of it', reason: 'repairs' },
+          },
+          commandId: 'cmd-shapeless',
+        },
+        caller.wire,
+      );
+
+      expect(result.status).toBe(400);
+      expect(result.json).toMatchObject({ reason: 'malformed-intent' });
+    });
   });
 });

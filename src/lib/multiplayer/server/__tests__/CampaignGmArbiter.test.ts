@@ -11,6 +11,7 @@
  * @spec openspec/changes/add-coop-campaign-play/specs/coop-campaign-sync/spec.md
  */
 
+import type { ICampaignIntentContext } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
@@ -43,6 +44,7 @@ function stateWith(
 async function makeArbiter(
   mode: 'auto-approve' | 'host-review',
   initialState: ICampaignAuthoritativeState,
+  intentContext?: ICampaignIntentContext,
 ): Promise<{
   arbiter: CampaignGmArbiter;
   host: CampaignMatchHost;
@@ -53,6 +55,7 @@ async function makeArbiter(
     hostPlayerId: HOST_ID,
     eventStore: new InMemoryCampaignEventStore(),
     initialState,
+    ...(intentContext === undefined ? {} : { intentContext }),
   });
   const received: ICampaignEvent[] = [];
   host.subscribe((event) => received.push(event));
@@ -76,17 +79,34 @@ function spendProposal(amount: number, id = 'proposal-1'): IGuestProposal {
   };
 }
 
-function hireProposal(cost: number, id = 'proposal-hire'): IGuestProposal {
+/** The host's market: one recruit at a price the guest never names. */
+const HOST_MARKET: ICampaignIntentContext = {
+  personnelOffer: (offerId) =>
+    offerId === 'offer-1'
+      ? {
+          offerId,
+          name: 'Pilot One',
+          hireCost: 75_000,
+          expirationDate: '3025-12-31',
+          campaignDate: '3025-01-01',
+        }
+      : null,
+};
+
+function hireProposal(
+  offerId = 'offer-1',
+  id = 'proposal-hire',
+): IGuestProposal {
   return {
     proposalId: id,
     campaignId: CAMPAIGN_ID,
     proposingPlayerId: GUEST_ID,
     ts: '2026-05-19T10:00:00.000Z',
     intent: {
-      kind: 'HirePilot',
+      kind: 'HireOffer',
       campaignId: CAMPAIGN_ID,
       intentId: `intent-${id}`,
-      payload: { pilot: { pilotId: 'p1', name: 'Pilot One' }, cost },
+      payload: { offerId },
     },
   };
 }
@@ -265,15 +285,38 @@ describe('CampaignGmArbiter — guest holds no write authority', () => {
     const { arbiter, host } = await makeArbiter(
       'host-review',
       stateWith({ balance: 600_000 }),
+      HOST_MARKET,
     );
-    await arbiter.submitProposal(hireProposal(75_000));
+    await arbiter.submitProposal(hireProposal());
     // Before the host decides, nothing is on the roster.
-    expect(host.getState().pilots.p1).toBeUndefined();
+    expect(host.getState().pilots['hired-offer-1']).toBeUndefined();
 
     await arbiter.decide('proposal-hire', 'approve');
-    // Only after the GM approves does the pilot land.
-    expect(host.getState().pilots.p1).toBeDefined();
+    // Only after the GM approves does the pilot land, at the host's price.
+    expect(host.getState().pilots['hired-offer-1']).toStrictEqual({
+      pilotId: 'hired-offer-1',
+      name: 'Pilot One',
+    });
     expect(host.getState().balance).toBe(525_000);
+  });
+
+  // K14b: the pre-check judges a hire against the HOST's market, so an
+  // offer the host does not hold never reaches the review queue.
+  it('mechanically rejects a guest hire of an offer the host market lacks', async () => {
+    const { arbiter, host } = await makeArbiter(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      HOST_MARKET,
+    );
+
+    const result = await arbiter.submitProposal(hireProposal('offer-forged'));
+
+    expect(result).toMatchObject({
+      status: 'mechanically-rejected',
+      reason: 'offer-not-found',
+    });
+    expect(arbiter.getPendingProposals()).toHaveLength(0);
+    expect(host.getState().balance).toBe(600_000);
   });
 });
 

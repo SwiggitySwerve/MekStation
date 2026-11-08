@@ -1,0 +1,6 @@
+{
+  "name": "complete-encounters-without-page",
+  "status": "implemented",
+  "reason": "Root-approved S1b PR1: fast-forward encounter completion and guarded-close regressions; multiplayer completion deferred by Root ruling (Option B).",
+  "lastReviewed": "2026-11-08"
+}

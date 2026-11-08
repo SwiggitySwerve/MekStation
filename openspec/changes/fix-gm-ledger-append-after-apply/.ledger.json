@@ -1,0 +1,6 @@
+{
+  "name": "fix-gm-ledger-append-after-apply",
+  "status": "in-progress",
+  "reason": "Root-approved S14: GM intervention and action ledger records are appended only after the caller's apply (campaign store, co-op host, live engine) succeeded; a record id already held is refused. PR1 of S14/K11; in-memory ledgers only, no schema, event, wire or persisted-format change.",
+  "lastReviewed": "2026-11-08"
+}

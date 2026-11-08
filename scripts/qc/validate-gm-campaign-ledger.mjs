@@ -111,6 +111,8 @@ const defaultSourceAnchors = [
     path: 'src/lib/interventions/GmCascadePreviewPipeline.ts',
     tokens: [
       'approveGmCascadePreview',
+      'prepareGmCascadeApproval',
+      'recordGmCascadeApproval',
       'appendGmInterventionRecord',
       'requires-manual-takeover',
       'Cannot approve GM cascade preview',
@@ -162,7 +164,9 @@ const defaultSourceAnchors = [
       'GmCampaignInterventionActions',
       'gm-ledger-player-log',
       'createGmCascadePreview',
-      'approveGmCascadePreview',
+      // Prepared, applied, then recorded: the ledger rows follow the apply.
+      'prepareGmCascadeApproval',
+      'recordGmCascadeApproval',
       'requires-manual-takeover',
       'No campaign state changed',
     ],

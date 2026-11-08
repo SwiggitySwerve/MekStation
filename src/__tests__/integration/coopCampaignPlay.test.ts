@@ -10,7 +10,7 @@
  *       rosters on the shared side;
  *   9.2 a co-op mission with one player in command-hq keeps the HQ
  *       player's campaign mirror current with the post-battle events;
- *   9.3 in host-review mode a guest HirePilot proposal is approved and
+ *   9.3 in host-review mode a guest HireOffer proposal is approved and
  *       both campaign views converge; a second proposal is vetoed and
  *       commits nothing;
  *   9.4 in auto-approve mode a valid guest proposal commits with no host
@@ -157,6 +157,19 @@ function harness(
     hostPlayerId: HOST_ID,
     eventStore: new InMemoryCampaignEventStore(),
     initialState: { ...createEmptyCampaignState(CAMPAIGN_ID), balance },
+    // The host's market (K14b): a hire's recruit and price come from here.
+    intentContext: {
+      personnelOffer: (offerId) =>
+        offerId === 'offer-1'
+          ? {
+              offerId,
+              name: 'Pilot One',
+              hireCost: 75_000,
+              expirationDate: '3025-12-31',
+              campaignDate: '3025-01-01',
+            }
+          : null,
+    },
   });
   const session = new CampaignSyncSession(host);
   const arbiter = new CampaignGmArbiter(host, mode);
@@ -316,7 +329,7 @@ describe('9.2 — co-op mission with one player in command-hq', () => {
 });
 
 describe('9.3 — host-review approve and veto', () => {
-  it('an approved HirePilot proposal converges both views; a veto commits nothing', async () => {
+  it('an approved HireOffer proposal converges both views; a veto commits nothing', async () => {
     const { host, session, arbiter, deliverToGuest } = harness(
       'host-review',
       1_000_000,
@@ -331,23 +344,25 @@ describe('9.3 — host-review approve and veto', () => {
       proposingPlayerId: GUEST_ID,
       ts: '2026-05-19T10:00:00.000Z',
       intent: {
-        kind: 'HirePilot',
+        kind: 'HireOffer',
         campaignId: CAMPAIGN_ID,
         intentId: 'intent-hire',
-        payload: { pilot: { pilotId: 'p1', name: 'Pilot One' }, cost: 75_000 },
+        payload: { offerId: 'offer-1' },
       },
     });
     expect(submit.status).toBe('pending');
     expect(
-      useCampaignMirrorStore.getState().campaign?.pilots.p1,
+      useCampaignMirrorStore.getState().campaign?.pilots['hired-offer-1'],
     ).toBeUndefined();
 
     // The host approves — the CO1 events commit and broadcast.
     const approved = await arbiter.decide('prop-hire', 'approve');
     expect(approved?.status).toBe('committed');
     // Both views converge: host state + guest mirror.
-    expect(host.getState().pilots.p1).toBeDefined();
-    expect(useCampaignMirrorStore.getState().campaign?.pilots.p1).toBeDefined();
+    expect(host.getState().pilots['hired-offer-1']).toBeDefined();
+    expect(
+      useCampaignMirrorStore.getState().campaign?.pilots['hired-offer-1'],
+    ).toBeDefined();
     expect(useCampaignMirrorStore.getState().campaign?.balance).toBe(
       host.getState().balance,
     );

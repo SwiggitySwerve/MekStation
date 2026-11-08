@@ -113,6 +113,19 @@ Restart recovery on an activated rewind skips the superseded delivery
 records and their acknowledgements. Both paths start the rebuilt stream
 with its own delivery numbers and acknowledgement window.
 
+`POST /api/matches/:id/rewind-commit` rebuilds the live host before it stores
+the GM's private reason. If the rebuild fails after the commit, the route still
+answers 200 with the committed result. It adds `rebuildPending: true` only when
+the host still serves the superseded session. The host keeps that rebuild
+pending and retries it, inside its command queue, before the next command and
+after the next join. Until a retry succeeds, commands are refused as
+`STALE_BRANCH`. A restart folds the activated branch on boot, so the pending
+state is never persisted. A failure after the host has claimed the branch,
+such as a failed replay to attached sockets, is not pending: the rebuilt
+session is authoritative, and folding it again would drop newer events. The
+rebuild holds only a correction lease it acquired itself and never releases a
+lease another owner holds.
+
 ## y-webrtc / peer-to-peer is a non-authoritative fallback
 
 The y-webrtc / P2P stack (`src/lib/p2p/`) is a **non-authoritative

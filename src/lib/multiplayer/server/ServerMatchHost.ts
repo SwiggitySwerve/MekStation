@@ -183,6 +183,7 @@ import {
   sendReplay,
 } from './ServerMatchHostReplay';
 import {
+  readEffectiveRewindBranchId,
   rebuildHostFromActivatedBranch,
   type IRewindRebuildHost,
   type IRewindRebuildRequest,
@@ -333,6 +334,12 @@ export class ServerMatchHost {
    * this as the live path so post-rewind commands can extend it.
    */
   private liveServedBranchId: string | null = null;
+  /**
+   * M-H4: a committed rewind whose live rebuild failed before the host
+   * claimed the branch. The next command or join retries it; a restart
+   * heals it through the boot fold, so it is never persisted.
+   */
+  private pendingRewindRebuild: IRewindRebuildRequest | null = null;
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -589,17 +596,62 @@ export class ServerMatchHost {
 
   /**
    * Rebuild the live engine from the activated rewind branch. The
-   * commit route calls this after `kind === 'committed'`.
+   * commit route calls this after `kind === 'committed'`. A failure
+   * still rejects; one before the branch claim leaves the rebuild
+   * pending (M-H4).
    */
   rebuildFromActivatedBranch = (
     input: IRewindRebuildRequest,
   ): Promise<void> => {
     this.opponentEpoch += 1;
     return this.queueCommand(async () => {
-      await rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+      await this.runRewindRebuild(input);
       await this.driveOpponent();
     });
   };
+
+  /**
+   * Run one rebuild and record what it left. Pending only when the
+   * host still serves another branch: after the claim the rebuilt
+   * session is authoritative, and folding it again would drop every
+   * event appended since.
+   */
+  private async runRewindRebuild(input: IRewindRebuildRequest): Promise<void> {
+    try {
+      await rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+      this.pendingRewindRebuild = null;
+    } catch (error) {
+      this.pendingRewindRebuild =
+        this.liveServedBranchId === input.branchId ? null : input;
+      throw error;
+    }
+  }
+
+  /**
+   * M-H4: inside the command queue, retry a pending rebuild the same
+   * way the commit route ran it. A pending branch the stream has since
+   * left is dropped (that correction's own rebuild owns it). A failed
+   * retry stays pending and the admission keeps answering STALE_BRANCH.
+   */
+  private async retryPendingRewindRebuild(): Promise<void> {
+    const pending = this.pendingRewindRebuild;
+    if (pending === null || this.closed) return;
+    try {
+      if (readEffectiveRewindBranchId(this.matchId) !== pending.branchId) {
+        this.pendingRewindRebuild = null;
+        return;
+      }
+      this.opponentEpoch += 1;
+      await this.runRewindRebuild(pending);
+    } catch (error) {
+      logger.warn(
+        '[ServerMatchHost] pending rewind rebuild retry failed; commands stay refused until it succeeds',
+        error,
+      );
+      return;
+    }
+    await this.driveOpponent();
+  }
 
   /**
    * Bound ReplayChunk to the activated head after a rewind fold
@@ -1117,6 +1169,7 @@ export class ServerMatchHost {
     if (!joined) this.lifecycle.detach(socket);
     if (joined) {
       await this.queueCommand(async () => {
+        await this.retryPendingRewindRebuild();
         if (socket.readyState !== 1) return;
         // M-H3 fault exit: a seated participant's join retries a faulted
         // opponent once. A spectator's join leaves the fault latched.
@@ -1207,6 +1260,7 @@ export class ServerMatchHost {
     verifiedPrincipalId?: string,
   ): Promise<readonly IServerMessage[]> => {
     return this.queueCommand(async () => {
+      await this.retryPendingRewindRebuild();
       const messages = await handleIntentWithContext(
         buildIntentContext(this.internals()),
         envelope,

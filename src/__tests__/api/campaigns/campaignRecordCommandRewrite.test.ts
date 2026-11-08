@@ -42,10 +42,13 @@ import {
   disjointCampaign,
   envelopeOf,
   eventTypes,
+  fixtureContract,
+  fixtureOffer,
   flushMeasurements,
   intentOf,
   journal,
   ledgerOf,
+  marketOf,
   NOW,
   openCoopHost,
   replayed,
@@ -61,12 +64,12 @@ describe('U35e record rewrite and checkpoint guards', () => {
 
   it('(g) a genesis carries no journal state, even beside a campaign whose journal holds a pilot', async () => {
     const other = await createJournalNative('u35e-g-other');
-    const host = await openCoopHost(other.record);
+    const host = await openCoopHost(
+      other.record,
+      marketOf([fixtureOffer('offer-g', 'Elsewhere')]),
+    );
     const hire = await host.applyHostIntent(
-      intentOf('u35e-g-other', 'intent-g', 'HirePilot', {
-        pilot: { pilotId: 'pilot-g', name: 'Elsewhere' },
-        cost: 12_000,
-      }),
+      intentOf('u35e-g-other', 'intent-g', 'HireOffer', { offerId: 'offer-g' }),
     );
     const id = 'u35e-g';
     const genesis = await saveCampaignRecordThroughJournal(journal(), {
@@ -148,20 +151,75 @@ describe('U35e record rewrite and checkpoint guards', () => {
     expect(storedRow(id)).toEqual(before);
   });
 
+  // K14b PR3: the co-op door used to leave a hired offer and an accepted
+  // contract on the saved market, so the host's page kept offering them.
+  // The record rewrite that follows a co-op command now drops every offer
+  // the journal has consumed, and keeps a decline only beside its offer.
+  it('(m) a co-op hire and acceptance leave the saved markets without the consumed offers', async () => {
+    const id = 'u35e-market';
+    const recruits = [
+      fixtureOffer('offer-m', 'Hired Here'),
+      fixtureOffer('offer-keep', 'Still Offered'),
+    ];
+    const contracts = [
+      fixtureContract('contract-m'),
+      fixtureContract('contract-keep'),
+    ];
+    const { record } = await createJournalNative(id, {
+      personnelMarket: recruits,
+      contractMarket: {
+        offers: contracts,
+        declinedOfferIds: ['contract-keep', 'contract-long-gone'],
+      },
+    });
+    const host = await openCoopHost(record, marketOf(recruits, contracts));
+
+    const hire = await host.applyHostIntent(
+      intentOf(id, 'intent-m-hire', 'HireOffer', { offerId: 'offer-m' }),
+    );
+    const accept = await host.applyHostIntent(
+      intentOf(id, 'intent-m-accept', 'AcceptContract', {
+        contract: {
+          contractId: 'contract-m',
+          name: 'x',
+          employerFactionId: 'x',
+        },
+      }),
+    );
+    const read = readCampaign(id);
+    if (read.kind !== 'ok') throw new Error(read.kind);
+    const body = read.record.body;
+    measurements.m = {
+      hireOk: hire.ok,
+      acceptOk: accept.ok,
+      personnel: body.personnelMarket?.map((one) => one.id),
+      contracts: body.contractMarket?.offers.map((one) => one.id),
+      declined: body.contractMarket?.declinedOfferIds,
+    };
+    await flushMeasurements('guards', measurements);
+
+    expect([hire.ok, accept.ok]).toEqual([true, true]);
+    expect(body.personnelMarket?.map((one) => one.id)).toEqual(['offer-keep']);
+    expect(body.contractMarket?.offers.map((one) => one.id)).toEqual([
+      'contract-keep',
+    ]);
+    expect(body.contractMarket?.declinedOfferIds).toEqual(['contract-keep']);
+  });
+
   it('(t) a record rewrite that fails rolls the co-op command append back', async () => {
     const id = 'u35e-atomic';
     const { record } = await createJournalNative(id);
-    const host = await openCoopHost(record);
+    const host = await openCoopHost(
+      record,
+      marketOf([fixtureOffer('offer-t', 'Rolled Back')]),
+    );
     const typesBefore = eventTypes(id);
     const rowBefore = storedRow(id);
     jest.spyOn(campaignRecordRow, 'write').mockImplementation(() => {
       throw new Error(INJECTED);
     });
     const hire = host.applyHostIntent(
-      intentOf(id, 'intent-t', 'HirePilot', {
-        pilot: { pilotId: 'pilot-t', name: 'Rolled Back' },
-        cost: 12_000,
-      }),
+      intentOf(id, 'intent-t', 'HireOffer', { offerId: 'offer-t' }),
     );
     let failure: string | null = null;
     await hire.then(

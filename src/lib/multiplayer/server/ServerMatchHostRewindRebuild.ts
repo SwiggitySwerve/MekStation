@@ -231,6 +231,27 @@ export async function rebuildHostFromActivatedBranch(
   }
 }
 
+/**
+ * The branch the match stream's effective head names, or null when
+ * the journal is not open or holds no head. A pending rebuild retries
+ * only while this still names its branch.
+ */
+export function readEffectiveRewindBranchId(matchId: string): string | null {
+  const sqlite = getSQLiteService();
+  if (!sqlite.isInitialized()) return null;
+  return (
+    new SQLiteEventHistoryBranchStore(sqlite.getDatabase()).readEffectiveHead(
+      matchStreamRef(matchId),
+    )?.branchId ?? null
+  );
+}
+
+/**
+ * Acquire this rebuild's own lease, or null. Never adopt a live lease
+ * someone else holds: the commit released its lease before the route
+ * called the rebuild, so any live lease here belongs to a concurrent
+ * correction, and releasing it would open that correction's stream.
+ */
 function holdRebuildLease(
   matchId: string,
   input: IRewindRebuildRequest,
@@ -241,10 +262,6 @@ function holdRebuildLease(
   const stream = matchStreamRef(matchId);
   const branches = new SQLiteEventHistoryBranchStore(db);
   const leases = new SQLiteEventHistoryCorrectionLeaseStore(db, branches);
-  const live = leases.readLiveLease(stream);
-  if (live !== null) {
-    return { leaseId: live.leaseId, owner: live.owner };
-  }
   const streamHead = readEffectiveStreamHead(db, branches, stream);
   try {
     const acquired = leases.acquireCorrectionLease({

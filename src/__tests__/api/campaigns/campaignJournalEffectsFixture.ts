@@ -19,11 +19,14 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { ICampaignIntentContext } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type {
   ICampaignAuthoritativeState,
   ICampaignIntent,
 } from '@/types/campaign/CampaignSync';
+import type { IContract } from '@/types/campaign/Mission';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { IVaultIdentity } from '@/types/vault';
 
@@ -59,6 +62,14 @@ import {
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
 import { generateKeyPair } from '@/services/vault/IdentityService';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import {
+  MarketExperienceLevel,
+  type IPersonnelMarketOffer,
+} from '@/types/campaign/markets/marketTypes';
+import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 
 import { useCampaignE2eEnvironment } from './campaignE2eEnvironment';
@@ -294,12 +305,22 @@ export function storedRow(campaignId: string): {
  * under journal authority the create appends the genesis and the marker
  * itself; otherwise the genesis seam is invoked on the created record.
  */
-export async function createJournalNative(campaignId: string): Promise<{
+export async function createJournalNative(
+  campaignId: string,
+  markets: Pick<
+    ICampaignWithCommand,
+    'personnelMarket' | 'contractMarket'
+  > = {},
+): Promise<{
   readonly record: SerializedCampaign;
   readonly genesisBy: string;
 }> {
+  const campaign: ICampaignWithCommand = {
+    ...disjointCampaign(campaignId),
+    ...markets,
+  };
   const created = await callId('PUT', campaignId, {
-    envelope: envelopeOf(disjointCampaign(campaignId), 0),
+    envelope: envelopeOf(campaign, 0),
     baseVersion: 0,
   });
   if (created.status !== 200) {
@@ -325,15 +346,89 @@ export async function createJournalNative(campaignId: string): Promise<{
  */
 export async function openCoopHost(
   record: SerializedCampaign,
+  intentContext?: ICampaignIntentContext,
 ): Promise<CampaignMatchHost> {
   const host = new CampaignMatchHost({
     campaignId: record.campaignId,
     hostPlayerId: 'host',
     eventStore: selectCampaignEventStore().store,
     initialState: authoritativeStateFromSerializedCampaign(record),
+    ...(intentContext === undefined ? {} : { intentContext }),
   });
   await host.open();
   return host;
+}
+
+/** One stored personnel offer the rows hire (K14b: hires name an offer). */
+export function fixtureOffer(id: string, name: string): IPersonnelMarketOffer {
+  return {
+    id,
+    name,
+    role: CampaignPersonnelRole.PILOT,
+    experienceLevel: MarketExperienceLevel.REGULAR,
+    skills: { gunnery: 4 },
+    hireCost: 12_000,
+    expirationDate: '3999-12-31',
+  };
+}
+
+/** One stored contract offer the rows accept. */
+export function fixtureContract(
+  id: string,
+  employerId = 'faction-u35e',
+): IContract {
+  return {
+    id,
+    name: `Contract ${id}`,
+    status: MissionStatus.PENDING,
+    type: 'contract',
+    systemId: 'galatea',
+    scenarioIds: [],
+    createdAt: NOW,
+    updatedAt: NOW,
+    employerId,
+    targetId: 'house-liao',
+    paymentTerms: createPaymentTerms({ basePayment: new Money(1_000_000) }),
+    salvageRights: 'Integrated',
+    commandRights: 'Independent',
+  } as IContract;
+}
+
+/**
+ * A co-op host market holding exactly `offers` and `contracts`, as stored.
+ * The registry binds the saved row's market in production; a row that
+ * drives a bare `openCoopHost` hands it this one.
+ */
+export function marketOf(
+  offers: readonly IPersonnelMarketOffer[],
+  contracts: readonly IContract[] = [],
+): ICampaignIntentContext {
+  return {
+    contractOffer: (contractId) => {
+      const offer = contracts.find((one) => one.id === contractId);
+      return offer === undefined
+        ? null
+        : {
+            contractId: offer.id,
+            name: offer.name,
+            employerFactionId: offer.employerId,
+            declined: false,
+            campaignDate: NOW,
+          };
+    },
+    personnelOffer: (offerId) => {
+      const offer = offers.find((one) => one.id === offerId);
+      return offer === undefined
+        ? null
+        : {
+            offerId: offer.id,
+            name: offer.name,
+            hireCost: offer.hireCost,
+            expirationDate: offer.expirationDate,
+            campaignDate: NOW,
+          };
+    },
+  };
 }
 
 /** A host intent on `campaignId` with a row-scoped intent id. */

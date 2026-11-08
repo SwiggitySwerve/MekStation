@@ -4,6 +4,8 @@ export {
   cancelGmCascadePreview,
   createGmCascadePreview,
   logGmDeferredInterventionAttempt,
+  prepareGmCascadeApproval,
+  recordGmCascadeApproval,
 } from './GmCascadePreviewPipeline';
 export {
   buildGmTacticalCommandIntent,
@@ -19,6 +21,7 @@ export type {
   IApproveGmCascadePreviewInput,
   ICreateGmCascadePreviewInput,
   IGmDeferredInterventionAttemptLog,
+  IRecordGmCascadeApprovalInput,
 } from './GmCascadePreviewPipeline';
 export type {
   GmTacticalCommandId,

@@ -130,7 +130,10 @@ export function CampaignCoopRouteSurfaceConnected({
     }
 
     setRuntimeReady(false);
-    void openCoopRuntimeSession(currentCampaign).then(() => {
+    void openCoopRuntimeSession(currentCampaign, {
+      // The host's live campaign, so a refreshed market is the one judged.
+      readCampaign: () => latestCampaignRef.current,
+    }).then(() => {
       if (!cancelled) {
         setRuntimeReady(true);
       }
