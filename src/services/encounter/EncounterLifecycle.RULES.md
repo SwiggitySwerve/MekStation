@@ -25,4 +25,7 @@ completes on both first-persist and dedup paths. Errors remain visible.
 Persisted formats are unchanged. Reads do not repair inconsistent legacy rows;
 see the change-local legacy audit guide. Configuration updates and cascades
 roll back when a guarded status write fails.
-S1b will cover campaign fast-forward and authoritative multiplayer consumers.
+Campaign fast-forward links and completes its encounter through the session
+route before publishing (S1b). Teardown without a terminal history never
+completes. Authoritative multiplayer completion is deferred; see
+`complete-encounters-without-page` tasks.md.

@@ -74,6 +74,10 @@ import { resolveCampaignSeed } from '@/lib/campaign/utils/campaignRng';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
+import {
+  completeEncounterSession,
+  linkEncounterSession,
+} from '@/services/encounter/encounterLifecycleClient';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { getPilotRepository } from '@/services/pilots/PilotRepository';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -490,6 +494,14 @@ export async function runFastForwardBattle(
   // applied unconditionally to every completed fast-forward battle
   // BEFORE it goes anywhere near the production bus.
   assertSessionInflictedDamage(session, outcome);
+
+  // S1b: no gameplay page ever mounts for this battle, so the runner owns
+  // the encounter lifecycle the page's replay persist would otherwise
+  // drive. Same order as pre-battle auto-resolve (`usePreBattleLaunch.ts`):
+  // link the actual session, complete it, and only then publish. The
+  // materialized encounter is a fresh row, so no restart intent is sent.
+  await linkEncounterSession(session, {}, fetchImpl);
+  await completeEncounterSession(session, fetchImpl);
 
   const delivered = publishCombatOutcome({ matchId: outcome.matchId, outcome });
   if (!delivered) {
