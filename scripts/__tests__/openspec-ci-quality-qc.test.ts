@@ -171,6 +171,155 @@ describe('OpenSpec CI quality QC validator', () => {
     );
   });
 
+  describe('active change accounting across legacy and colocated formats', () => {
+    const entry = {
+      name: 'example-change',
+      status: 'in-progress',
+      reason: 'Awaiting verification.',
+      lastReviewed: '2026-11-08',
+    };
+
+    function accounting(
+      legacyEntries: unknown[],
+      colocated: unknown = entry,
+      directoryName = entry.name,
+    ) {
+      const changesDir = path.join(tempDir, 'changes');
+      const ledgerPath = path.join(tempDir, 'active-change-ledger.json');
+      fs.mkdirSync(path.join(changesDir, directoryName), { recursive: true });
+      writeJson(ledgerPath, { allowedActiveChanges: legacyEntries });
+      if (colocated !== null) {
+        writeJson(
+          path.join(changesDir, directoryName, '.ledger.json'),
+          colocated,
+        );
+      }
+      return runValidator(['--json'], {
+        MEKSTATION_OPENSPEC_CHANGES_DIR: changesDir,
+        MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH: ledgerPath,
+      });
+    }
+
+    it('accepts a colocated-only change without the legacy file', () => {
+      accounting([]);
+      fs.unlinkSync(path.join(tempDir, 'active-change-ledger.json'));
+      const result = runValidator(['--json'], {
+        MEKSTATION_OPENSPEC_CHANGES_DIR: path.join(tempDir, 'changes'),
+        MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH: path.join(
+          tempDir,
+          'active-change-ledger.json',
+        ),
+      });
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout).accountedActiveOpenSpecChanges).toEqual([
+        entry,
+      ]);
+    });
+
+    it('accepts an in-flight legacy-only addition', () => {
+      expect(accounting([entry], null).status).toBe(0);
+    });
+
+    it('counts identical entries from both formats once', () => {
+      const result = accounting([entry]);
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout).accountedActiveOpenSpecChanges).toEqual([
+        entry,
+      ]);
+    });
+
+    it.each(['name', 'status', 'reason', 'lastReviewed'])(
+      'rejects a missing colocated-only %s',
+      (field) => {
+        const incomplete: Record<string, unknown> = { ...entry };
+        delete incomplete[field];
+        const result = accounting([], incomplete);
+        expect(result.status).toBe(1);
+        expect(JSON.parse(result.stdout).errors).toContainEqual(
+          expect.objectContaining({ code: 'active-openspec-ledger-invalid' }),
+        );
+      },
+    );
+
+    it.each(['name', 'status', 'reason', 'lastReviewed'])(
+      'rejects a missing colocated %s even when legacy metadata is valid',
+      (field) => {
+        const incomplete: Record<string, unknown> = { ...entry };
+        delete incomplete[field];
+        const result = accounting([entry], incomplete);
+        expect(result.status).toBe(1);
+        expect(JSON.parse(result.stdout).errors).toContainEqual(
+          expect.objectContaining({ code: 'active-openspec-ledger-invalid' }),
+        );
+      },
+    );
+
+    it.each(['name', 'status', 'reason', 'lastReviewed'])(
+      'rejects missing legacy %s even when colocated metadata is valid',
+      (field) => {
+        const incomplete: Record<string, unknown> = { ...entry };
+        delete incomplete[field];
+        expect(accounting([incomplete]).status).toBe(1);
+      },
+    );
+
+    it('rejects conflicting metadata instead of choosing a format', () => {
+      expect(
+        accounting([{ ...entry, reason: 'Conflicting review.' }]).status,
+      ).toBe(1);
+    });
+
+    it('rejects stale legacy entries for missing or archived changes', () => {
+      const result = accounting([{ ...entry, name: 'archived-change' }]);
+      expect(result.status).toBe(1);
+      expect(JSON.parse(result.stdout).errors).toContainEqual(
+        expect.objectContaining({
+          code: 'stale-active-openspec-ledger-entry',
+          staleAccountedActiveChanges: ['archived-change'],
+        }),
+      );
+    });
+
+    it('excludes archived metadata and accepts two independent new changes', () => {
+      accounting([]);
+      const changesDir = path.join(tempDir, 'changes');
+      const second = { ...entry, name: 'second-change' };
+      writeJson(path.join(changesDir, second.name, '.ledger.json'), second);
+      writeText(
+        path.join(changesDir, 'archive', 'old-change', '.ledger.json'),
+        '{',
+      );
+      const result = runValidator(['--json'], {
+        MEKSTATION_OPENSPEC_CHANGES_DIR: changesDir,
+        MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH: path.join(
+          tempDir,
+          'active-change-ledger.json',
+        ),
+      });
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout).accountedActiveOpenSpecChanges).toEqual([
+        entry,
+        second,
+      ]);
+    });
+
+    it('rejects malformed colocated JSON even when legacy metadata is valid', () => {
+      accounting([entry]);
+      writeText(path.join(tempDir, 'changes', entry.name, '.ledger.json'), '{');
+      const result = runValidator(['--json'], {
+        MEKSTATION_OPENSPEC_CHANGES_DIR: path.join(tempDir, 'changes'),
+        MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH: path.join(
+          tempDir,
+          'active-change-ledger.json',
+        ),
+      });
+      expect(result.status).toBe(1);
+      expect(JSON.parse(result.stdout).errors).toContainEqual(
+        expect.objectContaining({ code: 'active-openspec-ledger-invalid' }),
+      );
+    });
+  });
+
   it('rejects branch protection that drops the required aggregator context', () => {
     const branchProtection = fs
       .readFileSync(
