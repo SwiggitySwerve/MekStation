@@ -101,9 +101,15 @@ export function createGmCampaignInterventionImplementer(
         publicEffect: envelope.publicEffect,
         domainPayload: {
           correction: command.payload.correction,
-          projectedEffects: [projected.effect],
+          projectedEffects: [
+            projected.effect,
+            ...(projected.additionalEffects ?? []),
+          ],
         },
-        projectedEvents: [projected.effect],
+        projectedEvents: [
+          projected.effect,
+          ...(projected.additionalEffects ?? []),
+        ],
         conflicts: normalizeConflicts(command.payload.conflicts),
       };
     },

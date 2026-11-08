@@ -221,12 +221,14 @@ describe('projectCampaignInventory', () => {
     expect(inventory.repairBay.map((i) => i.ticketId)).toEqual(['t-live']);
   });
 
-  it('completed tickets map to status "done"', () => {
+  it('completed tickets leave the active bay and its totals', () => {
     const campaign = makeCampaign({
       repairQueue: [makeRepairTicket({ status: 'completed' })],
     });
     const inventory = projectCampaignInventory(campaign, [], GENERATED_AT);
-    expect(inventory.repairBay[0].status).toBe('done');
+    expect(inventory.repairBay).toEqual([]);
+    expect(inventory.summary.repairTicketCount).toBe(0);
+    expect(inventory.summary.totalRepairHours).toBe(0);
   });
 
   it('projects mercenary salvage candidates as ISalvageBayItems and totals their value', () => {

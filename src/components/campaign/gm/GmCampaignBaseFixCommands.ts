@@ -4,6 +4,8 @@ import type {
   IInterventionLedgerCommand,
 } from '@/types/interventions';
 
+import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
+
 export const REPAIR_COMPLETION_ID = 'gm-ledger-repair-completion';
 export const SALVAGE_PROCESSED_ID = 'gm-ledger-salvage-processed';
 export const UNIT_RELOAD_RECONCILIATION_ID =
@@ -16,7 +18,9 @@ export function buildRepairCompletionCommand({
   readonly actorId: string;
   readonly campaign: ICampaign;
 }): IInterventionLedgerCommand<IGmCampaignInterventionCommandPayload> {
-  const ticketId = campaign.repairQueue?.[0]?.ticketId ?? 'missing-ticket';
+  const ticketId =
+    campaign.repairQueue?.find(isActiveRepairTicket)?.ticketId ??
+    'missing-ticket';
 
   return {
     domain: 'repair',

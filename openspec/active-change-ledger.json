@@ -155,6 +155,12 @@
       "status": "in-progress",
       "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-campaign-repair-ticket-completion",
+      "status": "in-progress",
+      "reason": "Root-approved K7 campaign repair completion, active projections and safe terminal pruning; no schema or wire changes.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }

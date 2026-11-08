@@ -6,10 +6,7 @@ import type {
   IUnitMaxState,
 } from '@/types/campaign/UnitCombatState';
 
-import {
-  consumeRequiredParts,
-  hasRequiredParts,
-} from '@/lib/campaign/partsInventory';
+import { hasRequiredParts } from '@/lib/campaign/partsInventory';
 
 import {
   DayPhase,
@@ -17,7 +14,11 @@ import {
   type IDayProcessor,
   type IDayProcessorResult,
 } from '../dayPipeline';
-import { applyCompletedRepair } from '../repair/repairTicketLifecycle';
+import {
+  completeRepairTicket,
+  isActiveRepairTicket,
+  pruneTerminalRepairTickets,
+} from '../repair/repairTicketLifecycle';
 
 const DEFAULT_DAILY_REPAIR_HOURS = 8;
 
@@ -34,8 +35,9 @@ export const repairProgressProcessor: IDayProcessor = {
 
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
     const extended = campaign as ICampaignWithRepairProgress;
-    const queue = extended.repairQueue ?? [];
-    if (queue.length === 0) {
+    const originalQueue = extended.repairQueue ?? [];
+    const queue = pruneTerminalRepairTickets(extended);
+    if (originalQueue.length === 0) {
       return { events: [], campaign };
     }
 
@@ -45,10 +47,10 @@ export const repairProgressProcessor: IDayProcessor = {
       ...campaign.unitCombatStates,
     };
     const events: IDayEvent[] = [];
-    let changed = false;
+    let changed = queue.length !== originalQueue.length;
 
     const nextQueue = sortQueue(queue).map((ticket) => {
-      if (ticket.status === 'completed' || ticket.status === 'cancelled') {
+      if (!isActiveRepairTicket(ticket)) {
         return ticket;
       }
 
@@ -92,23 +94,24 @@ export const repairProgressProcessor: IDayProcessor = {
         };
       }
 
-      inventory = consumeRequiredParts(inventory, ticket.partsRequired);
-      const state = unitCombatStates[ticket.unitId];
-      if (state) {
-        unitCombatStates[ticket.unitId] = applyCompletedRepair(
-          state,
-          ticket,
-          extended.unitMaxStates?.[ticket.unitId],
-          date.toISOString(),
-        );
-      }
+      const completion = completeRepairTicket(
+        ticket,
+        inventory,
+        unitCombatStates[ticket.unitId],
+        extended.unitMaxStates?.[ticket.unitId],
+        date.toISOString(),
+      );
+      // Parts were checked before allocating work; terminal tickets were skipped.
+      if (completion.kind === 'blocked') return ticket;
+      inventory = completion.inventory;
+      if (completion.state) unitCombatStates[ticket.unitId] = completion.state;
       events.push({
         type: 'repair_completed',
         description: `Repair completed for ${ticket.unitId}`,
         severity: 'info',
         data: { ticketId: ticket.ticketId, unitId: ticket.unitId },
       });
-      return { ...ticket, status: 'completed' as const, remainingHours: 0 };
+      return completion.ticket;
     });
 
     if (!changed) {
