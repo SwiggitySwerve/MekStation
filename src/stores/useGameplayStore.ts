@@ -404,6 +404,8 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   setSpectatorMode: (interactiveSession, spectatorMode) =>
     setSpectatorModeLogic(interactiveSession, spectatorMode, set),
   setLocalMatchStatus: (status, options) => {
+    // Automatic recovery cannot revive a timed-out match; only a session boundary can.
+    if (get().localMatchStatus === 'aborted') return;
     if (status === 'live') {
       set({
         localMatchStatus: 'live',

@@ -157,6 +157,24 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-campaign-creation-recovery",
+      "status": "in-progress",
+      "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-client-match-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved M-M2/M3: sticky client abort, guarded WS/P2P recovery, coupled pause cleanup and teardown reset; M-H3 server broadcasts remain a dependency.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-runner-terminal-state",
+      "status": "in-progress",
+      "reason": "Root-approved C17 only: classify runner termination from the effective configured limit bounded by the ceiling, critical halt and resolved objective winner; make the engine reason adapter exhaustive with all existing mappings preserved. No schema changes or fixture regeneration; wider end-reason consolidation deferred.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-m-h2-lobby-seat-lifecycle",
       "status": "in-progress",
       "reason": "Root-approved M-H2: lobby status policy, pending-human AI recovery exception, queued spectator detach cleanup with identity cursor retention, and shared intent classification. No schema changes; CAS and unattached/crash leftovers deferred.",
