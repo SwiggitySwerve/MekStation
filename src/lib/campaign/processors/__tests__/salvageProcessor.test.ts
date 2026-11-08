@@ -69,7 +69,8 @@ function makeOutcome(overrides?: Partial<ICombatOutcome>): ICombatOutcome {
     contractId: 'contract-1',
     scenarioId: null,
     endReason: CombatEndReason.ObjectiveMet,
-    report: {} as ICombatOutcome['report'],
+    // Every persisted outcome carries the session log; exits are read from it.
+    report: { log: [] } as unknown as ICombatOutcome['report'],
     unitDeltas: [
       makeDelta({ unitId: 'enemy-1', finalStatus: UnitFinalStatus.Damaged }),
       makeDelta({ unitId: 'enemy-2', finalStatus: UnitFinalStatus.Crippled }),
