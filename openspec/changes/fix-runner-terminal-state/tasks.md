@@ -18,14 +18,15 @@
 
 ## Verification evidence
 
-Verified against `origin/main ab42e8b1b06d940b3db4df47cf7bfe5f87999d38`, using Node 22.22.0 to match CI and the installed SQLite native module. Raw logs and outcome captures are in `E:/Projects/Personal/_scratch/sm-audit-reports/c17-evidence/`.
+Baseline: `origin/main ab42e8b1b06d940b3db4df47cf7bfe5f87999d38`, using Node 22.22.0 to match CI and the installed SQLite native module. Then merged C16 from `origin/main 0d53a51c1939e3a1f2e2ef20a3f8e4060b7e6840` into code commit `9aecf995cf05b4658be07d76058f8c13e0f4f5b5` and repeated the gates. C16's three source-anchor catalogs are unchanged relative to that main revision. Raw logs and outcome captures are in `E:/Projects/Personal/_scratch/sm-audit-reports/c17-evidence/`.
 
 - Test-first: `red-node22.log` records 7 failures and 62 passes; `green.log` records all 69 passing. `red-empty-roster.log` records the additional empty-roster regression before its fix.
 - MAX_TURNS mutant: `mutant-max-turns.log` records one failed short-limit test (expected timeout, received draw), eight passes. Restored the effective limit afterward.
 - Exhaustiveness mutant: `mutant-exhaustive.log` records TS2322 at `src/engine/GameEngine.ts:85`: the temporary `c17_unhandled_mutant` reason is not assignable to `never`. Restored the outcome union byte-for-byte afterward.
-- Before replay/digest/golden: 35 suites, 805 tests passed. Broad gates: 284 suites, 3,621 tests passed, 32 existing skips. Final runner/replay run after the empty-roster fix: 184 suites, 2,285 tests passed.
-- `validate:combat`: 79 suites, 2,106 tests passed; gap and OpenSpec checks exited successfully.
-- Seeded QuickResolve and fast-forward: 15 tests passed before and after; all 20 captured engine outcomes match exactly on final code. All 29 tracked fixture hashes match. No fixture or digest literals were regenerated or changed.
+- Before replay/digest/golden: 35 suites, 805 tests passed. Before merging C16, broad gates passed 284 suites/3,621 tests with 32 existing skips, followed by 184 suites/2,285 tests after the empty-roster fix.
+- Final merged gates (`merged-full.log`): 288 suites, 3,659 tests passed, 32 existing skips. Includes all runner subdirectories, engine, integration, replay/digest/golden, seeded auto-resolve consumers, and the lint-units Jest suite.
+- Final merged `validate:combat`: 79 suites, 2,107 tests passed; gap and OpenSpec checks exited successfully.
+- Seeded QuickResolve and fast-forward: 15 tests passed before and after, including after merging C16; all 20 captured engine outcomes match exactly. All 29 tracked fixture hashes match. No fixture or digest literals were regenerated or changed.
 - Both TypeScript configurations pass. Root lint: 63 warnings, zero errors. Unit lint: 17,077/17,085, with its Jest suite passing. Formatting and all 247 OpenSpec items pass. Final cache census: 57 unkeyable tests, matching the 57 limit; no ceilings increased.
 
 The first baseline attempt used Node 24 and hit the existing native-module ABI mismatch; the successful baseline uses Node 22. An oversized baseline including optional throughput tests was stopped and replaced with the explicit gameplay replay/digest/golden baseline. The initial Node 24 budget census timed out; the Node 22 final check passes without changing its timeout.
