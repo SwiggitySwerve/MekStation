@@ -16,6 +16,7 @@ export const CI_SUITES = [
       'customizer-equipment-catalog.spec.ts',
       'customizer-record-sheet-rendering.spec.ts',
       'customizer-edit-recovery.spec.ts',
+      'gm-campaign-ledger-control-plane.spec.ts',
     ],
   },
   {

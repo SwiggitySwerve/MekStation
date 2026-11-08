@@ -70,6 +70,7 @@ type SavedCampaignRecord = {
 };
 
 async function clearLiveCampaignClientState(page: Page): Promise<void> {
+  await waitForCampaignStoreExposure(page);
   await page.evaluate(() => {
     const stores = (
       window as unknown as {
@@ -264,6 +265,7 @@ async function saveCampaignThroughDashboard(
 }
 
 async function stampGuestCoopSession(page: Page): Promise<void> {
+  await waitForCampaignStoreExposure(page);
   await page.evaluate((staleCampaignName) => {
     type CampaignStoreApi = {
       getState: () => {
@@ -314,6 +316,7 @@ async function stampGuestCoopSession(page: Page): Promise<void> {
 }
 
 async function readCampaignTimeState(page: Page): Promise<CampaignTimeState> {
+  await waitForCampaignStoreExposure(page);
   return page.evaluate(() => {
     function toIsoDate(value: unknown): string | null {
       if (value instanceof Date) return value.toISOString();
@@ -898,7 +901,9 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
           unitCombatReady: true,
           unitLastUpdated: expect.any(String),
           gmInterventionEventFamilies: [
+            // Repair emits two effects: GmCampaignInterventionImplementer.test.ts:594.
             'repair-ticket',
+            'base-unit-state',
             'salvage-allocation',
             'base-unit-state',
           ],
@@ -955,6 +960,9 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
         '1,000,000.00 C-bills',
       );
 
+      await expect
+        .poll(async () => (await readCampaignTimeState(page)).currentDate)
+        .not.toBeNull();
       const initialState = await readCampaignTimeState(page);
       if (!initialState.currentDate) {
         throw new Error(

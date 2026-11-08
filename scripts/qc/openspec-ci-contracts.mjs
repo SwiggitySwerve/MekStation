@@ -13,6 +13,9 @@
  *   comment), which is the failure mode the loose form allows.
  */
 import { loadBudgets } from '../ci/budget-config.mjs';
+import { CI_SUITES } from '../playwright/ci-e2e-plan.mjs';
+
+const gates = CI_SUITES.find(({ name }) => name === 'gates');
 
 const budgets = loadBudgets(
   new URL('../../config/ci/budgets.json', import.meta.url),
@@ -164,7 +167,15 @@ export const requiredWorkflowJobContracts = [
       },
       {
         id: 'browser-gates-playwright',
-        run: 'node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates',
+        run: [
+          'node scripts/playwright/run-ci-e2e.mjs test',
+          ...gates.files.map((file) => `e2e/${file}`),
+          '--project=chromium',
+          ...gates.options,
+          `--workers=${gates.workers}`,
+          '--shard=${{ matrix.shard }}/2',
+          '--output=test-results/gates',
+        ].join(' '),
         env: {
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js',
           HOSTNAME: '127.0.0.1',

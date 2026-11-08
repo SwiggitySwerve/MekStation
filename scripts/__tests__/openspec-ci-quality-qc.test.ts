@@ -32,6 +32,7 @@ const GATE_COMMAND =
   'e2e/customizer-equipment-catalog.spec.ts ' +
   'e2e/customizer-record-sheet-rendering.spec.ts ' +
   'e2e/customizer-edit-recovery.spec.ts ' +
+  'e2e/gm-campaign-ledger-control-plane.spec.ts ' +
   '--project=chromium --retries=0 --trace=retain-on-failure ' +
   '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';
 
@@ -456,11 +457,11 @@ describe('OpenSpec CI quality QC validator', () => {
     it('rejects a gate step disabled with if false', () => {
       const disabled = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
-          '      - name: Run seam anchor and customizer regression gates' +
+          '      - name: Run seam anchor, customizer and GM ledger regression gates' +
             String.fromCharCode(10) +
             '        if: ' +
             CHANGE_GATE_IF,
-          '      - name: Run seam anchor and customizer regression gates' +
+          '      - name: Run seam anchor, customizer and GM ledger regression gates' +
             String.fromCharCode(10) +
             '        if: false',
         ),
