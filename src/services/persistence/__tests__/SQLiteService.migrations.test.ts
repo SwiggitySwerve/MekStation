@@ -23,9 +23,8 @@
  */
 
 import Database from 'better-sqlite3';
-import { readFileSync, statSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync, statSync } from 'node:fs';
+import { mkdtemp } from 'node:fs/promises';
 import path from 'node:path';
 
 import {
@@ -39,20 +38,24 @@ describe('SQLiteService migrations', () => {
   const failedConnections: Database.Database[] = [];
 
   beforeEach(async () => {
-    dir = await mkdtemp(path.join(tmpdir(), 'sqlite-migrations-test-'));
+    // Keep file reads scoped to this test directory for the Jest cache key.
+    dir = await mkdtemp(path.join(__dirname, 'sqlite-migrations-test-'));
     dbPath = path.join(dir, 'test.db');
     resetSQLiteService();
   });
 
-  afterEach(async () => {
-    jest.restoreAllMocks();
-    // Close the singleton's handle before deleting the file — Windows
-    // refuses to remove open files.
-    resetSQLiteService();
-    for (const connection of failedConnections.splice(0)) {
-      if (connection.open) connection.close();
+  afterEach(() => {
+    try {
+      jest.restoreAllMocks();
+      // Close the singleton's handle before deleting the file — Windows
+      // refuses to remove open files.
+      resetSQLiteService();
+      for (const connection of failedConnections.splice(0)) {
+        if (connection.open) connection.close();
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
     }
-    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
   /** Read MAX(version) from the migrations table of a closed/raw DB. */
