@@ -214,6 +214,7 @@ const lobbyRejectionMessages: Partial<Record<LobbyRejectionReason, string>> = {
   'unauthorized-slot': "You can only edit your own side's lobby slot",
   'host-only': 'Only the host can change that lobby setting',
   'lobby-full': 'This 1v1 lobby already has two players',
+  'lobby-closed': 'This lobby is closed',
   'invalid-loadout': 'Pick valid matching loadouts before marking ready',
   'match-started': 'This lobby has already launched',
   'not-ready': 'Both players must be ready with valid loadouts before launch',

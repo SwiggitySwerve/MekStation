@@ -63,4 +63,22 @@ describe('buildGameSessionFromLobbyState', () => {
       ],
     });
   });
+
+  it('refuses to build a session from a closed lobby', () => {
+    const lobby: ILobbyState = {
+      mode: '1v1',
+      hostPeerId: 'host-peer',
+      guestPeerId: 'guest-peer',
+      hostLoadout: makeLoadout('host'),
+      guestLoadout: makeLoadout('guest'),
+      mapConfig: { radius: 12, terrainPreset: 'woods', turnLimit: 15 },
+      hostReady: true,
+      guestReady: true,
+      closed: true,
+    };
+
+    expect(() => buildGameSessionFromLobbyState(lobby, 'match-1')).toThrow(
+      'Lobby is not ready to launch',
+    );
+  });
 });

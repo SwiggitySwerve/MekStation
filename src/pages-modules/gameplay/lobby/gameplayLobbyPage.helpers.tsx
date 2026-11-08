@@ -169,6 +169,34 @@ export function useBindLobbyChannel({
   ]);
 }
 
+/**
+ * A closed, unlaunched lobby is dead: a guest saw the host vanish and wrote
+ * `closed` into the shared doc, or y-indexeddb handed a returning host the
+ * previous session's closed state (whose `hostPeerId` is a stale awareness
+ * client id). The host is, by definition, present - so on a host route it
+ * starts a fresh lobby rather than leaving everyone stuck on a closed one.
+ */
+export function useReopenClosedHostLobby({
+  initializeHost,
+  isHostRoute,
+  lobbyState,
+  localPeerId,
+}: {
+  readonly initializeHost: () => ILobbyState | null;
+  readonly isHostRoute: boolean;
+  readonly lobbyState: ILobbyState | null;
+  readonly localPeerId: string | null;
+}): void {
+  const closedAndUnlaunched =
+    lobbyState?.closed === true && !lobbyState.matchId;
+
+  useEffect(() => {
+    if (!isHostRoute || !localPeerId || !closedAndUnlaunched) return;
+    promoteLocalPeerToHost({ localPeerId });
+    initializeHost();
+  }, [closedAndUnlaunched, initializeHost, isHostRoute, localPeerId]);
+}
+
 export function useJoinLobbyGuest({
   isHostRoute,
   joinAsGuest,

@@ -221,4 +221,51 @@ describe('GameplayLobbyPanel', () => {
 
     expect(onLaunch).toHaveBeenCalledTimes(1);
   });
+
+  describe('closed lobby', () => {
+    const closedReady = (): ILobbyState =>
+      makeLobby({ hostReady: true, guestReady: true, closed: true });
+
+    it('says the lobby is closed', () => {
+      renderPanel(closedReady(), 'host-peer');
+
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'This lobby is closed',
+      );
+    });
+
+    it('does not offer an open launch to the host', () => {
+      const onLaunch = jest.fn();
+      renderPanel(closedReady(), 'host-peer', { onLaunch });
+
+      const launchButton = screen.getByRole('button', { name: 'Launch Match' });
+      expect(launchButton).toBeDisabled();
+      fireEvent.click(launchButton);
+      expect(onLaunch).not.toHaveBeenCalled();
+    });
+
+    it('disables ready for either side', () => {
+      renderPanel(closedReady(), 'guest-peer');
+
+      expect(screen.getByRole('button', { name: 'Not Ready' })).toBeDisabled();
+    });
+
+    it('disables loadout and map editing for the host', () => {
+      renderPanel(
+        makeLobby({ hostLoadout: { units: [], pilots: [] }, closed: true }),
+        'host-peer',
+      );
+
+      expect(screen.getByLabelText('Add unit to Host loadout')).toBeDisabled();
+      expect(screen.getByLabelText('Map radius')).toBeDisabled();
+      expect(screen.getByLabelText('Terrain preset')).toBeDisabled();
+      expect(screen.getByLabelText('Turn limit')).toBeDisabled();
+    });
+
+    it('shows no closed notice for an open lobby', () => {
+      renderPanel(makeLobby(), 'host-peer');
+
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+  });
 });
