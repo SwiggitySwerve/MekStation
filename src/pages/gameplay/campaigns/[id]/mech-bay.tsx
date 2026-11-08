@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
 import { MechBay } from '@/components/campaign/bays/MechBay';
+import { RefitOrdersPanel } from '@/components/campaign/bays/RefitOrdersPanel';
 import { resolveMechBayLoadout } from '@/lib/campaign/bays/resolveMechBayUnit';
 import { buildCampaignCustomizerHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
@@ -20,6 +21,8 @@ import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuth
 import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { listCampaignSavedDesigns } from '@/services/units/listCampaignSavedDesigns';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
+import { cancelCampaignRefitOrder } from '@/stores/campaign/campaignRefitActions';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { generateUUID } from '@/utils/uuid';
@@ -217,6 +220,27 @@ export default function MechBayPage(): React.ReactElement {
           />
         </>
       )}
+      <RefitOrdersPanel
+        key={campaign.id}
+        orders={campaign.refitOrders ?? []}
+        readOnly={campaign.coopSession?.mode === 'guest'}
+        onCancel={async (orderId) => {
+          const result = await cancelCampaignRefitOrder(campaign.id, orderId);
+          // A failed local save leaves the cancelled order dirty; Retry Save
+          // persists that same terminal record without another transition.
+          if (!result.applied && result.order?.status !== 'cancelled')
+            return result;
+          const saved = await useCampaignPersistenceStore
+            .getState()
+            .saveCampaign();
+          return saved.status === 'saved'
+            ? { applied: true }
+            : {
+                applied: false,
+                reason: 'Refit cancellation was not saved.',
+              };
+        }}
+      />
     </CampaignShell.CampaignPageFrameFromShell>
   );
 }
