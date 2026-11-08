@@ -26,9 +26,9 @@
 
 ## 4. PR4: session and engine recovery roll
 
-- [ ] Record failing recovery tests for the session and `runToCompletion`.
-- [ ] Roll recovery after advancing into Movement, before any unit moves.
-- [ ] Kill the recovery mutants.
+- [x] Record failing recovery tests for the session and `runToCompletion`.
+- [x] Roll recovery after advancing into Movement, before any unit moves.
+- [x] Kill the recovery mutants.
 
 ## 5. PR5: auto-resolve PSR drain
 

@@ -104,7 +104,7 @@ const PHYSICAL_ATTACK_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession resolves PhysicalAttackDeclared events through resolveAllPhysicalAttacks before advancing phases.',
     'src/engine/InteractiveSession.phases.ts',
-    'L188-L204',
+    'L194-L210',
   ),
   mekstationDeviationSourceRef(
     'MekStation resolveAllPhysicalAttacks consumes shared physical context, lifecycle target filters, physical modifiers, displacement, damage, and PSR outputs.',
@@ -140,7 +140,7 @@ const HEAT_CORE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession heat phase calls resolveHeatPhase with water-depth and environmental heat providers.',
     'src/engine/InteractiveSession.phases.ts',
-    'L205-L218',
+    'L211-L224',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

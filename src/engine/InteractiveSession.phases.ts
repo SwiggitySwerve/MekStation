@@ -41,6 +41,7 @@ import {
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
 import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
+import { rollSessionStuckRecovery } from '@/utils/gameplay/gameSessionStuckRecovery';
 import {
   applyForcedWithdrawalCheck,
   applyMoralePass,
@@ -165,6 +166,11 @@ export function advanceInteractiveSessionPhase(
       context.d6RollerForResolvers(),
     );
     session = advancePhase(session);
+    session = rollSessionStuckRecovery(
+      session,
+      context.grid?.(),
+      context.d6RollerForResolvers(),
+    );
     context.setSession(session);
     return;
   }

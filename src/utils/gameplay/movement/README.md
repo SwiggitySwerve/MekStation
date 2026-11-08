@@ -65,4 +65,7 @@ declared payload.
 
 `stuckRecovery.ts` owns the movement-start recovery roll: which stuck units may
 roll, the `swamp_unstuck` PSR for the unit's hex, and the roll itself. Event
-emission and state changes stay with the caller.
+emission and state changes stay with the caller. The runner rolls it at the
+start of `runMovementPhase`; the interactive session, `runInteractivePhaseAdvance`
+and `GameEngine.runToCompletion` roll it through `rollSessionStuckRecovery`
+right after advancing from Initiative into Movement, with the session's dice.
