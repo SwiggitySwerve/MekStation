@@ -1,7 +1,10 @@
 export type {
+  GmCascadeApprovalPreparation,
   GmCascadePreviewStatus,
   IGmCascadeApprovalResult,
+  IGmCascadeBlockedApproval,
   IGmCascadeCancellationResult,
+  IGmCascadePreparedApproval,
   IGmCascadePreview,
 } from './GmCascadePreviewTypes';
 

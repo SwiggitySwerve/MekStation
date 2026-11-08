@@ -196,6 +196,99 @@ describe('gmTacticalInterventionSurface', () => {
     );
   });
 
+  it('records nothing when the live engine refuses the approved correction (S14)', () => {
+    const session = createDemoSession();
+    const movementSession = {
+      ...session,
+      currentState: { ...session.currentState, phase: GamePhase.Movement },
+    };
+    const setSession = jest.fn();
+    let engineActive = false;
+    const interactiveSession = {
+      advancePhase: jest.fn(() => {
+        if (!engineActive) throw new Error('Game is not active');
+      }),
+      applyCorrectedState: jest.fn(),
+      getSession: () => movementSession,
+    } as unknown as InteractiveSession;
+    const { result } = renderHook(() =>
+      useGmTacticalInterventionSurface({
+        enabled: true,
+        session: movementSession,
+        interactiveSession,
+        setSession,
+      }),
+    );
+    const preview = result.current!.preview({
+      commandId: 'gm.advance-phase',
+      command: makeCommand(),
+      ctx: makeCtx(),
+    });
+
+    let refused: unknown;
+    act(() => {
+      refused = result.current!.approve?.(preview);
+    });
+
+    expect(refused).toMatchObject({
+      status: 'blocked',
+      appended: false,
+      reason: expect.stringContaining('Game is not active'),
+    });
+    expect(setSession).not.toHaveBeenCalled();
+    expect(result.current?.playerLog).toHaveLength(0);
+
+    // The refusal left no record behind, so the same preview still approves
+    // once the engine accepts it.
+    engineActive = true;
+    let approved: unknown;
+    act(() => {
+      approved = result.current!.approve?.(preview);
+    });
+
+    expect(approved).toMatchObject({ status: 'approved', appended: true });
+    expect(result.current?.playerLog).toHaveLength(1);
+  });
+
+  it('applies one tactical preview to the engine once, however often it is approved (S14)', () => {
+    const session = createDemoSession();
+    const movementSession = {
+      ...session,
+      currentState: { ...session.currentState, phase: GamePhase.Movement },
+    };
+    const interactiveSession = {
+      advancePhase: jest.fn(),
+      applyCorrectedState: jest.fn(),
+      getSession: () => movementSession,
+    } as unknown as InteractiveSession;
+    const { result } = renderHook(() =>
+      useGmTacticalInterventionSurface({
+        enabled: true,
+        session: movementSession,
+        interactiveSession,
+        setSession: jest.fn(),
+      }),
+    );
+    const preview = result.current!.preview({
+      commandId: 'gm.advance-phase',
+      command: makeCommand(),
+      ctx: makeCtx(),
+    });
+
+    const approvals: unknown[] = [];
+    act(() => {
+      approvals.push(result.current!.approve?.(preview));
+    });
+    act(() => {
+      approvals.push(result.current!.approve?.(preview));
+    });
+
+    expect(approvals[0]).toMatchObject({ status: 'approved' });
+    expect(approvals[1]).toMatchObject({ status: 'blocked', appended: false });
+    expect(interactiveSession.advancePhase).toHaveBeenCalledTimes(1);
+    expect(result.current?.playerLog).toHaveLength(1);
+  });
+
   it('returns explicit deferred approval for tactical resource grants without appending', () => {
     const session = createDemoSession();
     const setSession = jest.fn();

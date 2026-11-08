@@ -5,6 +5,7 @@ import type {
   IGmCampaignInterventionDomainPayload,
   IGmCampaignInterventionState,
   IGmCampaignPublicEffect,
+  IGmCascadePreparedApproval,
   IGmPrivateMetadata,
   IGmTimeCascadeInterventionDomainPayload,
   IGmTimeCascadeInterventionState,
@@ -14,8 +15,9 @@ import type {
 import { ActionLedger } from '@/lib/interventions/ActionLedger';
 import { registerGmCampaignInterventionImplementers } from '@/lib/interventions/GmCampaignInterventionImplementer';
 import {
-  approveGmCascadePreview,
   createGmCascadePreview,
+  prepareGmCascadeApproval,
+  recordGmCascadeApproval,
 } from '@/lib/interventions/GmCascadePreviewPipeline';
 import { buildRosterRecoveryPatchesFromExternalEffects } from '@/lib/interventions/GmRosterRecoveryProjection';
 import { registerGmTimeCascadeInterventionImplementer } from '@/lib/interventions/GmTimeCascadeInterventionImplementer';
@@ -280,12 +282,38 @@ export function GmCampaignInterventionControlPlane({
     }
   };
 
+  const showBlocked = (reason: string): void => {
+    setApprovalStatus('Approval blocked.');
+    setApprovalReason(reason);
+  };
+
+  /**
+   * Records an approval whose update was applied (S14: never before), then
+   * latches the preview and refreshes the rows from the action ledger.
+   */
+  const recordApplied = <TState,>(
+    ledger: InterventionLedger<TState>,
+    approval: GmLedgerPreview,
+    prepared: IGmCascadePreparedApproval<TState>,
+  ): void => {
+    recordGmCascadeApproval({
+      ledger,
+      actionLedger,
+      preview: approval,
+      prepared,
+    });
+    setApprovedApplied(true);
+    setApprovalStatus('Approved and applied to campaign state.');
+    setApprovalReason(null);
+    refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+  };
+
   /**
    * Approves the current preview under a fresh intervention id (the preview's
    * id, the time in base 36 and six random base-36 characters), so each
-   * approval is its own ledger record and row; applies it through
-   * `applyApproved` and, when applied, latches the preview and refreshes the
-   * rows from the action ledger.
+   * approval is its own ledger record and row. The approval is prepared
+   * without touching any ledger, applied through `applyApproved`, and only
+   * when that applied are the roster patches made and the records appended.
    */
   const handleApprove = async (): Promise<void> => {
     if (!preview) return;
@@ -295,7 +323,7 @@ export function GmCampaignInterventionControlPlane({
       interventionId: `${preview.interventionId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     };
     if (approval.domain === 'time') {
-      const result = approveGmCascadePreview<
+      const prepared = prepareGmCascadeApproval<
         IGmTimeCascadeInterventionState,
         IGmPrivateMetadata,
         IGmTimeCascadePublicEffect,
@@ -308,33 +336,24 @@ export function GmCampaignInterventionControlPlane({
         approvedAt,
         createdAt: approvedAt,
       });
+      if (prepared.status === 'blocked') return showBlocked(prepared.reason);
 
-      if (result.status !== 'approved') {
-        setApprovalStatus('Approval blocked.');
-        setApprovalReason(
-          result.reason ?? 'The time-cascade preview could not be approved.',
-        );
-        return;
-      }
-
-      const timePayload = result.record?.domainPayload as
+      if (!(await applyApproved(prepared.state))) return;
+      const timePayload = prepared.record.domainPayload as
         | IGmTimeCascadeInterventionDomainPayload
         | undefined;
-      const rosterPatches = buildRosterRecoveryPatchesFromExternalEffects(
-        timePayload?.projectedEffects.flatMap(
-          (effect) => effect.externalEffects,
-        ) ?? [],
+      applyPilotPatches(
+        buildRosterRecoveryPatchesFromExternalEffects(
+          timePayload?.projectedEffects.flatMap(
+            (effect) => effect.externalEffects,
+          ) ?? [],
+        ),
       );
-      applyPilotPatches(rosterPatches);
-      if (!(await applyApproved(result.state))) return;
-      setApprovedApplied(true);
-      setApprovalStatus('Approved and applied to campaign state.');
-      setApprovalReason(null);
-      refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+      recordApplied(timeLedger, approval, prepared);
       return;
     }
 
-    const result = approveGmCascadePreview<
+    const prepared = prepareGmCascadeApproval<
       IGmCampaignInterventionState,
       IGmPrivateMetadata,
       IGmCampaignPublicEffect,
@@ -347,28 +366,23 @@ export function GmCampaignInterventionControlPlane({
       approvedAt,
       createdAt: approvedAt,
     });
+    if (prepared.status === 'blocked') return showBlocked(prepared.reason);
 
-    if (result.status !== 'approved') {
-      setApprovalStatus('Approval blocked.');
-      setApprovalReason(result.reason ?? 'The preview could not be approved.');
-      return;
-    }
-
-    if (!(await applyApproved(result.state))) return;
-    setApprovedApplied(true);
-    setApprovalStatus('Approved and applied to campaign state.');
-    setApprovalReason(null);
-    refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+    if (!(await applyApproved(prepared.state))) return;
+    recordApplied(campaignLedger, approval, prepared);
   };
 
   const handleManualTakeover = (): void => {
     if (!preview || !preview.privateMetadata) return;
-    const createdAt = now();
-    const manualPublicEffect = buildManualPublicEffect(preview, campaign);
+    const manualId = `${preview.interventionId}:manual`;
     const targetLedger =
       preview.domain === 'time' ? timeLedger : campaignLedger;
+    // One manual record per preview; a repeat click records nothing.
+    if (targetLedger.hasRecord(manualId)) return;
+    const createdAt = now();
+    const manualPublicEffect = buildManualPublicEffect(preview, campaign);
     const manualRecord = targetLedger.appendApprovedRecord({
-      id: `${preview.interventionId}:manual`,
+      id: manualId,
       domain: preview.domain,
       kind: preview.kind,
       status: 'manual',
