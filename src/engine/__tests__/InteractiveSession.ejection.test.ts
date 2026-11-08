@@ -8,6 +8,10 @@ import {
 } from '@/engine/combatOutcomeBus';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
+  PilotFinalStatus,
+  type ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
+import {
   Facing,
   GameEventType,
   GameSide,
@@ -169,5 +173,44 @@ describe('InteractiveSession.ejectUnit', () => {
     session.ejectUnit('unit-player');
     expect(session.getSession().events).toHaveLength(eventCount);
     expect(publishedMatchIds).toHaveLength(1);
+  });
+
+  it('publishes an outcome that records the ejection and keeps the pilot', () => {
+    const session = makeSession();
+    const outcomes: ICombatOutcome[] = [];
+    subscribeToCombatOutcome((event) => {
+      outcomes.push(event.outcome);
+    });
+
+    session.ejectUnit('unit-player');
+
+    const delta = outcomes[0]?.unitDeltas.find(
+      (entry) => entry.unitId === 'unit-player',
+    );
+    expect(delta?.exitReason).toBe('ejected');
+    expect(delta?.pilotState.finalStatus).toBe(PilotFinalStatus.Active);
+    expect(
+      outcomes[0]?.unitDeltas.find((entry) => entry.unitId === 'unit-opponent'),
+    ).not.toHaveProperty('exitReason');
+  });
+
+  it('publishes an outcome that records a withdrawal off the map edge', () => {
+    const session = makeSession();
+    const outcomes: ICombatOutcome[] = [];
+    subscribeToCombatOutcome((event) => {
+      outcomes.push(event.outcome);
+    });
+
+    // The player unit starts on the north edge (r = MAP_RADIUS); the
+    // edge exit runs at the end of the movement phase.
+    session.declareWithdrawal('unit-player', 'north');
+    session.advancePhase(); // initiative -> movement
+    session.advancePhase(); // movement ends: edge exit
+
+    expect(session.getState().units['unit-player'].hasRetreated).toBe(true);
+    expect(
+      outcomes[0]?.unitDeltas.find((entry) => entry.unitId === 'unit-player')
+        ?.exitReason,
+    ).toBe('retreated');
   });
 });

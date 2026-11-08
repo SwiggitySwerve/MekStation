@@ -19,6 +19,7 @@
 import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
 import type { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPostBattleReport } from '@/utils/gameplay/postBattleReport';
+import type { UnitExitReason } from '@/utils/gameplay/unitOperability';
 
 /**
  * Schema version literal — bump on any breaking change to `ICombatOutcome`
@@ -110,6 +111,15 @@ export interface IUnitCombatDelta {
   readonly side: GameSide;
   /** True if the unit was destroyed during the session. */
   readonly destroyed: boolean;
+  /**
+   * How the unit left the battle without being destroyed, when it did:
+   * `'ejected'` (MegaMek leaves the abandoned unit as a salvageable wreck)
+   * or `'retreated'` (off a map edge). Omitted for a unit that stayed, so
+   * outcomes without exits keep their bytes. Outcomes persisted before
+   * this field existed lack it; read it through `readDeltaExitReason`,
+   * which falls back to the outcome's `report.log`.
+   */
+  readonly exitReason?: UnitExitReason;
   /** Coarse status used by salvage / repair routing. */
   readonly finalStatus: UnitFinalStatus;
   /** Armor remaining per location at end of combat. */
@@ -125,31 +135,10 @@ export interface IUnitCombatDelta {
   /** Ammo bin remaining-rounds, keyed by binId. */
   readonly ammoRemaining: Readonly<Record<string, number>>;
   /**
-   * Pilot state snapshot used by the campaign roster pipeline.
-   *
-   * @remarks
-   * **Wave 4 limitation — `PilotFinalStatus.KIA` is currently unreachable.**
-   *
-   * The KIA derivation lives at `src/lib/combat/outcome/combatOutcome.ts:128-133`
-   * (`computePilotFinalStatus` returns KIA only when `state.destroyed &&
-   * !state.pilotConscious`). However, no engine event in Wave 4 flips
-   * `pilotConscious=false` — the consciousness-roll path was never wired
-   * end-to-end into the session reducer. Consequence: a destroyed unit will
-   * surface `finalStatus: 'INJURED'` (or similar) rather than `'KIA'`, even
-   * when narratively the pilot should be killed.
-   *
-   * Downstream consumers (post-battle-review-ui, repair-queue-integration,
-   * roster processors) MUST plan around this limitation rather than rely on
-   * KIA-driven branching until Wave-5 pilot-event wiring lands.
-   *
-   * **Unblock dependency:** the Wave-5 pilot-event wiring change (folded
-   * into `wire-interactive-psr-integration` if pilot consciousness events
-   * are routed through the PSR queue, otherwise authored as a standalone
-   * `wire-pilot-consciousness-events` change). When that lands, this
-   * `@remarks` block should be removed and the KIA path documented as
-   * fully reachable.
-   *
-   * @see openspec/changes/archive/2026-04-25-tier5-audit-cleanup/specs/combat-resolution/spec.md
+   * Pilot state snapshot used by the campaign roster pipeline. `killed`
+   * and `finalStatus: KIA` mean the pilot reached 6 hits or the unit was
+   * destroyed by a pilot kill or a destroyed head, never after ejecting
+   * (`isPilotKilled` in `src/lib/combat/outcome/combatOutcome.ts`).
    */
   readonly pilotState: {
     readonly conscious: boolean;
