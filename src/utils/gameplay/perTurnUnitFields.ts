@@ -16,11 +16,12 @@ import { advanceEmpShutdownTurns } from './shutdownStartup';
  * same trade (`sprintedThisTurn` stays absent for dormant units); this keeps
  * that precedent rather than choosing a winner.
  *
- * `sparse` also leaves `isSpotting`, `spotTargetId`, `isLoadingOrUnloadingCargo`
- * and `empInterferenceTurns` alone, because the runner does not reset them
- * today (MegaMek `Entity.newRound` does; see the C7 characterization, D2-D4).
- * Those are pending an owner ruling, not a design choice. When the runner is
- * moved onto the reducer's behaviour, delete that branch.
+ * `sparse` also leaves `isSpotting`, `spotTargetId` and
+ * `isLoadingOrUnloadingCargo` alone, because the runner does not reset them
+ * today (MegaMek `Entity.newRound` does; C7 D3-D4). Nothing in the runner sets
+ * those fields, so this is dormant; it is pending an owner ruling, not a design
+ * choice. When the runner is moved onto the reducer's behaviour, delete that
+ * branch.
  */
 export type PerTurnResetPresence = 'explicit' | 'sparse';
 
@@ -32,8 +33,10 @@ export type PerTurnResetPresence = 'explicit' | 'sparse';
  * `resetTurnState` (swarm, batch, validate-combat).
  *
  * Deliberately not owned here:
- * - `damageThisPhase`: it is per phase in the reducer and MegaMek
- *   (`TWGameManager.resetEntityPhase`), per turn in the runner (C7 D1);
+ * - `damageThisPhase` for the `sparse` shape: both paths now zero it per phase
+ *   (MegaMek `TWGameManager.resetEntityPhase`); the runner does it as each phase
+ *   begins (`resetPhaseDamage`) and at its own turn reset. The `explicit` shape
+ *   zeroes it too (C7 D8);
  * - `lockState` / `pendingAction`: the interactive lock protocol, reducer only;
  * - persistent state (stuck, posture, shutdown, wounds, retreat, ...).
  *
@@ -55,16 +58,37 @@ export function resetPerTurnUnitFields(
     pendingExternalHeat: 0,
     ...(explicit
       ? {
-          empInterferenceTurns: Math.max(
-            0,
-            Math.trunc(unit.empInterferenceTurns ?? 0) - 1,
+          empInterferenceTurns: decrementEmpInterference(
+            unit.empInterferenceTurns ?? 0,
           ),
           empShutdownTurns: advanceEmpShutdownTurns(unit.empShutdownTurns),
           isSpotting: false,
           spotTargetId: undefined,
+          // C7 PR3 / D8: a bare TurnStarted (the runner's log has no
+          // PhaseChanged) must not leave damage from the last phase of the
+          // previous turn behind.
+          damageThisPhase: 0,
         }
-      : unit.empShutdownTurns !== undefined
-        ? { empShutdownTurns: advanceEmpShutdownTurns(unit.empShutdownTurns) }
-        : {}),
+      : {
+          ...(unit.empInterferenceTurns !== undefined
+            ? {
+                empInterferenceTurns: decrementEmpInterference(
+                  unit.empInterferenceTurns,
+                ),
+              }
+            : {}),
+          ...(unit.empShutdownTurns !== undefined
+            ? {
+                empShutdownTurns: advanceEmpShutdownTurns(
+                  unit.empShutdownTurns,
+                ),
+              }
+            : {}),
+        }),
   };
+}
+
+/** MegaMek 48fcb2f64 Entity.newRound: `empInterferenceRounds--`, floored at 0. */
+function decrementEmpInterference(remaining: number): number {
+  return Math.max(0, Math.trunc(remaining) - 1);
 }

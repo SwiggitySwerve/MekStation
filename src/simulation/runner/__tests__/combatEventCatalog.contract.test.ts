@@ -131,7 +131,7 @@ describe('BattleMech combat event support catalog', () => {
     expect(urlsFor(GameEventType.GameCreated)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/lifecycle.ts#L72-L180',
-        'src/simulation/runner/SimulationRunner.ts#L235-L469',
+        'src/simulation/runner/SimulationRunner.ts#L235-L479',
       ]),
     );
     expect(urlsFor(GameEventType.AttackResolved)).toEqual(
@@ -150,7 +150,7 @@ describe('BattleMech combat event support catalog', () => {
     expect(urlsFor(GameEventType.ObjectiveCaptured)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/objectives/objectiveEvents.ts#L25-L185',
-        'src/simulation/runner/SimulationRunner.ts#L381-L394',
+        'src/simulation/runner/SimulationRunner.ts#L391-L404',
       ]),
     );
     expect(urlsFor(GameEventType.AttacksRevealed)).toEqual(

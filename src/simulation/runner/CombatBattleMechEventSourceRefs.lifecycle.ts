@@ -16,7 +16,7 @@ export const BATTLEMECH_LIFECYCLE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner emits runner GameCreated and terminal GameEnded events for automated BattleMech combat.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L235-L469',
+    'L235-L479',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

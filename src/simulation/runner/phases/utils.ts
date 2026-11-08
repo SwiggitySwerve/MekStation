@@ -3,6 +3,7 @@ import {
   GamePhase,
   GameSide,
   IGameEvent,
+  type IGameState,
   type IAttackResolvedPayload,
   type IPSRTriggeredPayload,
   type IUnitDestroyedPayload,
@@ -14,6 +15,24 @@ import { SeededRandom } from '../../core/SeededRandom';
 
 export function createD6Roller(random: SeededRandom): D6Roller {
   return () => Math.floor(random.next() * 6) + 1;
+}
+
+/**
+ * Zero every unit's `damageThisPhase` as a phase begins. MegaMek 48fcb2f64
+ * `TWGameManager.resetEntityPhase` does this at the start of every phase
+ * (TWGameManager.java:1572-1573), and the 20+ damage PSR reads it per phase
+ * (:17850-17856). The reducer does it on every `PhaseChanged`. Only a unit that
+ * carries a non-zero value is rewritten, so a unit that never took damage keeps
+ * its serialized shape.
+ */
+export function resetPhaseDamage(state: IGameState): IGameState {
+  let units = state.units;
+  for (const [id, unit] of Object.entries(state.units)) {
+    if ((unit.damageThisPhase ?? 0) === 0) continue;
+    if (units === state.units) units = { ...units };
+    units[id] = { ...unit, damageThisPhase: 0 };
+  }
+  return units === state.units ? state : { ...state, units };
 }
 
 /**

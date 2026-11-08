@@ -14,7 +14,7 @@ import { SeededRandom } from '../../core/SeededRandom';
 import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { runPhysicalAttackForUnit } from './physicalAttackTurn';
-import { createD6Roller } from './utils';
+import { createD6Roller, resetPhaseDamage } from './utils';
 
 export function runPhysicalAttackPhase(options: {
   state: IGameState;
@@ -42,7 +42,10 @@ export function runPhysicalAttackPhase(options: {
     state,
     violations,
   } = options;
-  let currentState = { ...state, phase: GamePhase.PhysicalAttack };
+  let currentState = {
+    ...resetPhaseDamage(state),
+    phase: GamePhase.PhysicalAttack,
+  };
   let physicalGrid = grid;
   violations.push(...invariantRunner.runAll(currentState));
 

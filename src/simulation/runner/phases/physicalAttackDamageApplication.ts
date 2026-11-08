@@ -237,6 +237,22 @@ export function applyPhysicalDamage(
     damageResult.result,
     damageResult.componentDamage,
   );
+  // Physical damage counts toward damageThisPhase like weapon damage does
+  // (weaponAttackHitResolution.ts); the reducer's PhysicalAttackResolved
+  // handler does the same. MegaMek: Entity.damageThisPhase is bumped by every
+  // damage application (TWDamageManager).
+  nextState = {
+    ...nextState,
+    units: {
+      ...nextState.units,
+      [options.unitId]: {
+        ...nextState.units[options.unitId],
+        damageThisPhase:
+          (nextState.units[options.unitId].damageThisPhase ?? 0) +
+          options.damage,
+      },
+    },
+  };
   nextState = applyPhysicalCriticalStateEffects({
     state: nextState,
     unitId: options.unitId,
