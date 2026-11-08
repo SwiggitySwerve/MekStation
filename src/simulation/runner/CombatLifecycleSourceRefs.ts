@@ -68,7 +68,7 @@ const LOCAL_RETREATED_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyUnitRetreated latches hasRetreated without marking the unit destroyed.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L31-L43',
+    'L44-L56',
   ),
   mekstationDeviationRef(
     'MekStation GameEngine movement phase emits UnitRetreated once a withdrawing unit reaches its retreat edge.',
@@ -86,7 +86,7 @@ export const LOCAL_EJECTION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyUnitEjected latches hasEjected, resolves the action, and preserves the existing armor, structure, destroyed, and pilotConscious state.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L45-L59',
+    'L58-L72',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

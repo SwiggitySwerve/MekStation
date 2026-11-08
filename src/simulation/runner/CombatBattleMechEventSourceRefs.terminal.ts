@@ -21,7 +21,7 @@ export const BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation ejection reducer removes ejected units from active targeting and action participation while preserving damage state.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L45-L59',
+    'L58-L72',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -34,7 +34,7 @@ export const BATTLEMECH_NEURAL_INTERFACE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation unit-exit replay reducer replays NeuralInterfaceStateChanged by updating only the target unit neuralInterfaceActive flag.',
     'src/utils/gameplay/gameState/unitExitState.ts',
-    'L61-L73',
+    'L74-L86',
   ),
   mekstationDeviationSourceRef(
     'MekStation event dispatch routes NeuralInterfaceStateChanged events into the neural-interface replay helper.',

@@ -144,7 +144,7 @@ describe('BattleMech combat event support catalog', () => {
     expect(urlsFor(GameEventType.UnitEjected)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/statusPhysical.ts#L267-L364',
-        'src/utils/gameplay/gameState/unitExitState.ts#L45-L59',
+        'src/utils/gameplay/gameState/unitExitState.ts#L58-L72',
       ]),
     );
     expect(urlsFor(GameEventType.ObjectiveCaptured)).toEqual(
