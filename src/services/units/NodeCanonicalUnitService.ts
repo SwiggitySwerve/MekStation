@@ -35,6 +35,7 @@ import { logger } from '@/utils/logger';
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
 import {
+  MISSING_FAMILY_TTL_MS,
   type ICanonicalUnitService,
   type IFullUnit,
 } from './CanonicalUnitService';
@@ -127,8 +128,8 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     ReadonlyMap<string, IUnitIndexEntry>
   >();
 
-  /** Families whose index file is absent (ENOENT); cleared by `clearCache`. */
-  private readonly missingFamilies = new Set<UnitFamily>();
+  /** Families whose index file is absent (ENOENT), with the absence's expiry. */
+  private readonly missingFamilies = new Map<UnitFamily, number>();
 
   /** Cached version stamp from the index file (populated when index loads). */
   private indexVersionCache: string | null = null;
@@ -170,7 +171,11 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   private loadRawIndex(family: UnitFamily): IUnitIndexEntry[] {
     const cached = this.indexCache.get(family);
     if (cached) return cached;
-    if (this.missingFamilies.has(family)) return [];
+    const missingUntil = this.missingFamilies.get(family);
+    if (missingUntil !== undefined) {
+      if (Date.now() < missingUntil) return [];
+      this.missingFamilies.delete(family);
+    }
     let contents: string;
     try {
       contents = fs.readFileSync(
@@ -179,7 +184,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       );
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        this.missingFamilies.add(family);
+        this.missingFamilies.set(family, Date.now() + MISSING_FAMILY_TTL_MS);
         return [];
       }
       throw error;
