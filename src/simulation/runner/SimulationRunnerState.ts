@@ -34,6 +34,7 @@ import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/p
 import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
 import { hasSPA } from '@/utils/gameplay/spaModifiers';
 import { getUnitOperability } from '@/utils/gameplay/unitOperability';
+import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -348,7 +349,9 @@ export function resetTurnState(state: IGameState): IGameState {
         : {}),
     };
 
-    updatedUnits[id] = resetPerTurnMovementState(updatedUnit);
+    updatedUnits[id] = advanceVehicleCrewStun(
+      resetPerTurnMovementState(updatedUnit),
+    );
   }
 
   return { ...state, units: updatedUnits };

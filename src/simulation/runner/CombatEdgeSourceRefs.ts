@@ -125,7 +125,7 @@ export const MEKSTATION_EDGE_TRIGGER_HELPER_SOURCE_REFS = [
   ),
   edgeMekStationRef(
     'MekStation GameCreated synthesis copies hydrated abilities and Edge point state into seed payloads so replay initialization preserves represented Edge state.',
-    'src/simulation/runner/SimulationRunnerState.ts#L290-L309',
+    'src/simulation/runner/SimulationRunnerState.ts#L291-L310',
   ),
   edgeMekStationRef(
     'MekStation hydration tests prove explicit Edge points, generic edge point production, trigger-only non-production, combat-state hydration, and GameCreated seed payload preservation.',
