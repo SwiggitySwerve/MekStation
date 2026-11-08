@@ -35,12 +35,19 @@ jest.mock('../adapters/CompendiumAdapter', () => {
 
 import {
   GameSide,
+  GameEventType,
+  GamePhase,
   LockState,
   type IGameSession,
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { createEventBase } from '@/utils/gameplay/gameEvents/base';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
+import {
+  appendEvent,
+  hydrateGameSessionFromEvents,
+} from '@/utils/gameplay/gameSessionCore';
 
 import { InteractiveSession } from '../InteractiveSession';
 
@@ -418,5 +425,58 @@ describe('InteractiveSession.fromSessionAsync — gap #2 recovery parity', () =>
     expect(mockAdaptUnit).not.toHaveBeenCalled();
     expect(fromBootstrap.getMovementCapability('p1')).not.toBeNull();
     expect(fromBootstrap.getMovementCapability('o1')).not.toBeNull();
+  });
+});
+
+describe('C10 recorded startup recovery', () => {
+  it('preserves an old successful startup while applying the gate to later resolution', () => {
+    let session = makeSessionWith(makeFourUnits());
+    const unitId = session.units[0].id;
+    const add = (type: GameEventType, payload: Record<string, unknown>) => {
+      session = appendEvent(session, {
+        ...createEventBase(
+          session.id,
+          session.events.length,
+          type,
+          session.currentState.turn,
+          GamePhase.Heat,
+          unitId,
+        ),
+        payload,
+      });
+    };
+    add(GameEventType.PhaseChanged, {
+      fromPhase: session.currentState.phase,
+      toPhase: GamePhase.Heat,
+    });
+    add(GameEventType.EmpMinefieldEffectApplied, {
+      unitId,
+      hex: { q: 0, r: 0 },
+      roll: 9,
+      modifier: 0,
+      modifiedRoll: 9,
+      effect: 'shutdown',
+      durationTurns: 2,
+      source: 'minefield',
+    });
+    const blocked = InteractiveSession.fromSession(
+      hydrateGameSessionFromEvents(session.id, session.events),
+    );
+    blocked.advancePhase();
+    expect(blocked.getSession().currentState.units[unitId].shutdown).toBe(true);
+    add(GameEventType.StartupAttempt, {
+      unitId,
+      targetNumber: 0,
+      roll: 0,
+      success: true,
+    });
+    const recovered = InteractiveSession.fromSession(
+      hydrateGameSessionFromEvents(session.id, session.events),
+    );
+    expect(recovered.getSession().currentState.units[unitId]).toMatchObject({
+      shutdown: false,
+      empShutdownTurns: 2,
+    });
+    expect(recovered.getSession().events).toEqual(session.events);
   });
 });
