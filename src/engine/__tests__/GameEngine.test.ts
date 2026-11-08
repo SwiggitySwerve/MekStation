@@ -10,6 +10,7 @@ import {
   calculateGameOutcome,
   calculateCombatStats,
   calculateOutcomeFromEvents,
+  type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { ScenarioGeneratorService } from '@/services/generators/ScenarioGeneratorService';
 import { BotPlayer } from '@/simulation/ai/BotPlayer';
@@ -41,6 +42,16 @@ import {
   createGridFromTerrainPreset,
 } from '../GameEngine.helpers';
 import { runAttackPhase, runPhysicalAttackPhase } from '../GameEngine.phases';
+
+jest.mock('@/services/game-resolution/GameOutcomeCalculator', () => {
+  const actual = jest.requireActual<
+    typeof import('@/services/game-resolution/GameOutcomeCalculator')
+  >('@/services/game-resolution/GameOutcomeCalculator');
+  return {
+    ...actual,
+    calculateGameOutcome: jest.fn(actual.calculateGameOutcome),
+  };
+});
 
 function createTestWeapon(id: string): IWeapon {
   return {
@@ -144,6 +155,36 @@ describe('GameEngine', () => {
   });
 
   describe('runToCompletion', () => {
+    it.each<[IGameOutcome['reason'], IGameEndedPayload['reason']]>([
+      ['concede', 'concede'],
+      ['turn_limit', 'turn_limit'],
+      ['objective', 'objective'],
+      ['elimination', 'destruction'],
+      ['mutual_destruction', 'destruction'],
+      ['aborted', 'destruction'],
+      ['timeout', 'destruction'],
+    ])('preserves the existing %s -> %s reason mapping', (reason, mapped) => {
+      const actual = jest.requireActual<
+        typeof import('@/services/game-resolution/GameOutcomeCalculator')
+      >('@/services/game-resolution/GameOutcomeCalculator');
+      jest.mocked(calculateGameOutcome).mockImplementationOnce((input) => ({
+        ...actual.calculateGameOutcome(input),
+        reason,
+      }));
+      const session = new GameEngine({
+        seed: 42,
+        turnLimit: 1,
+      }).runToCompletion(
+        [createTestUnit('player-1', GameSide.Player)],
+        [createTestUnit('opponent-1', GameSide.Opponent)],
+        [
+          createGameUnit('player-1', GameSide.Player),
+          createGameUnit('opponent-1', GameSide.Opponent),
+        ],
+      );
+      expect(getGameEndedPayload(session).reason).toBe(mapped);
+    });
+
     it.each([42, 12345])(
       'preserves the C4 auto-resolve baseline for seed %i',
       (seed) => {

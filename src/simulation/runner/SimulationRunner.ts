@@ -436,9 +436,9 @@ export class SimulationRunner {
     // Phase 0.5 — engine-layer match terminal state. Survivor counts are
     // derived from the same `isUnitOperable` predicate used by
     // `determineWinner` to keep the two classifications consistent.
-    // Forfeit / withdrawal flags are not yet tracked by the runner —
-    // P1 catalog hydration may surface them; until then we always pass
-    // `false` and rely on survivor counts + turn ceiling.
+    // The existing winner includes objectives; the effective limit and halt
+    // flag distinguish timeouts from unresolved stops. Explicit forfeit and
+    // withdrawal flags are not yet tracked by the runner.
     const allUnits = Object.values(currentState.units);
     const playerUnits = allUnits.filter(
       (unit) => unit.side === GameSide.Player,
@@ -452,7 +452,9 @@ export class SimulationRunner {
       playerRosterSize: playerUnits.length,
       opforRosterSize: opforUnits.length,
       turnsElapsed: currentState.turn,
-      maxTurns: MAX_TURNS,
+      maxTurns: turnLimit,
+      winner,
+      haltedByCriticalAnomaly,
       hadWithdrawal: false,
       hadForfeit: false,
     });

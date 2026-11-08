@@ -74,8 +74,18 @@ function gameOutcomeReasonToGameEndedReason(
       return 'turn_limit';
     case 'objective':
       return 'objective';
-    default:
+    case 'elimination':
+    case 'mutual_destruction':
       return 'destruction';
+    case 'aborted':
+    case 'timeout':
+      // Legacy adapter behavior: these reasons also became destruction.
+      // Correcting their semantics is a follow-up; preserve seeded outcomes.
+      return 'destruction';
+    default: {
+      const exhaustive: never = reason;
+      throw new Error(`Unhandled game outcome reason: ${exhaustive}`);
+    }
   }
 }
 

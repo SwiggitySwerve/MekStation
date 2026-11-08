@@ -16,7 +16,7 @@ export const BATTLEMECH_LIFECYCLE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner emits runner GameCreated and terminal GameEnded events for automated BattleMech combat.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L181-L405',
+    'L235-L469',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -44,7 +44,7 @@ export const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner emits TurnStarted through the runner turn-boundary factory and TurnEnded at the End phase after objective control resolution.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L257-L369',
+    'L289-L405',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

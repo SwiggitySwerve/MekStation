@@ -169,6 +169,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-runner-terminal-state",
+      "status": "in-progress",
+      "reason": "Root-approved C17 only: classify runner termination from the effective configured limit bounded by the ceiling, critical halt and resolved objective winner; make the engine reason adapter exhaustive with all existing mappings preserved. No schema changes or fixture regeneration; wider end-reason consolidation deferred.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-combat-unit-exit-outcomes",
       "status": "in-progress",
       "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
