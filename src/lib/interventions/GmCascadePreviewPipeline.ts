@@ -1,7 +1,10 @@
 import type {
+  GmCascadeApprovalPreparation,
   IGmAuthorityContext,
   IGmCascadeApprovalResult,
+  IGmCascadeBlockedApproval,
   IGmCascadeCancellationResult,
+  IGmCascadePreparedApproval,
   IGmCascadePreview,
   IInterventionLedgerCommand,
   IInterventionLedgerPreview,
@@ -169,6 +172,14 @@ export function logGmDeferredInterventionAttempt(
   return entry;
 }
 
+/**
+ * Approves `preview` when the state the implementer derives IS the applied
+ * change (no caller-side apply follows): prepare, then record at once.
+ * Callers that hand the derived state to something that can still refuse or
+ * throw (a campaign store, a co-op host, a live engine) call
+ * `prepareGmCascadeApproval`, apply, and `recordGmCascadeApproval` only after
+ * that apply succeeded.
+ */
 export function approveGmCascadePreview<
   TState,
   TPrivate,
@@ -182,56 +193,97 @@ export function approveGmCascadePreview<
     TDomainPayload
   >,
 ): IGmCascadeApprovalResult<TState> {
+  const prepared = prepareGmCascadeApproval(input);
+  if (prepared.status === 'blocked') return prepared;
+  return recordGmCascadeApproval({
+    ledger: input.ledger,
+    actionLedger: input.actionLedger,
+    preview: input.preview,
+    prepared,
+  });
+}
+
+/**
+ * Runs every approval check and derives the approved state through the
+ * domain implementer, appending nothing. A preview whose intervention id the
+ * ledger already holds is blocked, so one preview is never applied twice.
+ */
+export function prepareGmCascadeApproval<
+  TState,
+  TPrivate,
+  TPublic,
+  TDomainPayload,
+>(
+  input: IApproveGmCascadePreviewInput<
+    TState,
+    TPrivate,
+    TPublic,
+    TDomainPayload
+  >,
+): GmCascadeApprovalPreparation<TState> {
   const { ledger, preview, state } = input;
+  const blocked = (reason: string): IGmCascadeBlockedApproval<TState> => {
+    logGmCascadeInvalidApproval(preview, reason);
+    return { status: 'blocked', state, appended: false, reason };
+  };
 
   if (preview.status !== 'ready') {
-    const reason = `Cannot approve GM cascade preview with status "${preview.status}".`;
-    logGmCascadeInvalidApproval(preview, reason);
-    return {
-      status: 'blocked',
-      state,
-      appended: false,
-      reason,
-    };
+    return blocked(
+      `Cannot approve GM cascade preview with status "${preview.status}".`,
+    );
   }
 
   if (!preview.privateMetadata || !preview.publicEffect) {
-    const reason =
-      'Cannot approve GM cascade preview without private metadata and public effect.';
-    logGmCascadeInvalidApproval(preview, reason);
-    return {
-      status: 'blocked',
-      state,
-      appended: false,
-      reason,
-    };
+    return blocked(
+      'Cannot approve GM cascade preview without private metadata and public effect.',
+    );
+  }
+
+  if (ledger.hasRecord(preview.interventionId)) {
+    return blocked(alreadyRecordedReason(preview.interventionId));
   }
 
   const freshnessFailure = validatePreviewFreshness(preview, state);
-  if (freshnessFailure) {
-    logGmCascadeInvalidApproval(preview, freshnessFailure);
-    return {
-      status: 'blocked',
-      state,
-      appended: false,
-      reason: freshnessFailure,
-    };
-  }
+  if (freshnessFailure) return blocked(freshnessFailure);
 
   const record = buildApprovedRecord(input);
   const applyResult = ledger.apply(record, state);
 
   if (applyResult.status === 'unsupported') {
-    logGmCascadeInvalidApproval(preview, applyResult.reason);
+    return blocked(applyResult.reason);
+  }
+
+  return { status: 'prepared', state: applyResult.state, record };
+}
+
+export interface IRecordGmCascadeApprovalInput<TState> {
+  readonly ledger: InterventionLedger<TState>;
+  readonly actionLedger?: ActionLedger;
+  readonly preview: IGmCascadePreview;
+  readonly prepared: IGmCascadePreparedApproval<TState>;
+}
+
+/**
+ * Appends a prepared approval to the intervention ledger and the action
+ * ledger. Call it only after the prepared state was applied successfully. A
+ * record id the ledger already holds is blocked and appends nothing.
+ */
+export function recordGmCascadeApproval<TState>(
+  input: IRecordGmCascadeApprovalInput<TState>,
+): IGmCascadeApprovalResult<TState> {
+  const { ledger, preview, prepared } = input;
+  if (ledger.hasRecord(prepared.record.id)) {
+    const reason = alreadyRecordedReason(prepared.record.id);
+    logGmCascadeInvalidApproval(preview, reason);
     return {
       status: 'blocked',
-      state,
+      state: prepared.state,
       appended: false,
-      reason: applyResult.reason,
+      reason,
     };
   }
 
-  const appendedRecord = ledger.appendApprovedRecord(record);
+  const appendedRecord = ledger.appendApprovedRecord(prepared.record);
   const actionLedgerRecord =
     input.actionLedger?.appendGmInterventionRecord(appendedRecord);
   logGmCascadeCommitSucceeded(
@@ -242,11 +294,15 @@ export function approveGmCascadePreview<
 
   return {
     status: 'approved',
-    state: applyResult.state,
+    state: prepared.state,
     appended: true,
     record: appendedRecord,
     actionLedgerRecord,
   };
+}
+
+function alreadyRecordedReason(interventionId: string): string {
+  return `GM intervention "${interventionId}" is already recorded.`;
 }
 
 export function cancelGmCascadePreview<TState>(
