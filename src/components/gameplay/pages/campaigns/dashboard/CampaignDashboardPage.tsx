@@ -13,6 +13,7 @@ import { CampaignSharePanelConnected } from '@/components/campaign/share';
 import { Button, PageLayout } from '@/components/ui';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
 import {
   type CanonicalCombatCatalogSnapshot,
   admitCampaignLaunch,
@@ -88,6 +89,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
     (state) => state.getMissionHistory() as CampaignMissionHistoryItem[],
   );
   const missionCount = rosterStore((state) => state.missionCount);
+  const isAdvancing = useDayAdvanceInFlight();
 
   const isClient = useClientReady();
   const launchHead = useCampaignLaunchHead(liveCampaign?.id);
@@ -340,6 +342,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
           onAdvanceDay={handleAdvanceDay}
           onAdvanceWeek={handleAdvanceWeek}
           onAdvanceMonth={handleAdvanceMonth}
+          isAdvancing={isAdvancing}
         />
       }
     >

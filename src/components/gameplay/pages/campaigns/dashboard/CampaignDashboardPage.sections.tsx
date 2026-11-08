@@ -107,6 +107,8 @@ interface CampaignHeaderContentProps {
   onAdvanceDay: () => void;
   onAdvanceWeek: () => void;
   onAdvanceMonth: () => void;
+  /** A day advance is in flight: all three buttons are disabled. */
+  isAdvancing?: boolean;
 }
 
 export function CampaignHeaderContent({
@@ -114,6 +116,7 @@ export function CampaignHeaderContent({
   onAdvanceDay,
   onAdvanceWeek,
   onAdvanceMonth,
+  isAdvancing = false,
 }: CampaignHeaderContentProps): React.ReactElement {
   return (
     <div className="flex items-center gap-4">
@@ -127,6 +130,7 @@ export function CampaignHeaderContent({
         <Button
           variant="primary"
           onClick={onAdvanceDay}
+          disabled={isAdvancing}
           data-testid="advance-day-btn"
         >
           Advance Day
@@ -134,6 +138,7 @@ export function CampaignHeaderContent({
         <Button
           variant="secondary"
           onClick={onAdvanceWeek}
+          disabled={isAdvancing}
           data-testid="advance-week-btn"
         >
           Advance Week
@@ -141,6 +146,7 @@ export function CampaignHeaderContent({
         <Button
           variant="secondary"
           onClick={onAdvanceMonth}
+          disabled={isAdvancing}
           data-testid="advance-month-btn"
         >
           Advance Month
