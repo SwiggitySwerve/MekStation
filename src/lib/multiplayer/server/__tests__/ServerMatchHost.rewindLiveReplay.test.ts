@@ -74,6 +74,7 @@ import {
 } from '../getDefaultMatchStore';
 import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
+import { GmPrivatePreviewRecordWriter } from '../history/GmPrivatePreviewRecordWriter';
 import { revisionForMatchSequence } from '../history/matchStoreBranchSegmentReader';
 import { MATCH_BASELINE_BRANCH_ID } from '../matchAuthorityBaseline';
 import {
@@ -367,6 +368,8 @@ describe('ServerMatchHost rewind reaches connected players', () => {
       await commitHandler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
+      expect(res._getJSONData()).toMatchObject({ kind: 'committed' });
+      expect(res._getJSONData()).not.toHaveProperty('rebuildPending');
       const records = db
         .prepare(
           'SELECT payload FROM private_record WHERE campaign_session_id = ? AND record_kind = ?',
@@ -386,6 +389,77 @@ describe('ServerMatchHost rewind reaches connected players', () => {
       }
       expect(guestViewer.phase()).toBe(GamePhase.Initiative);
     });
+
+    it('M-H4 a committed rewind whose live rebuild fails answers committed with rebuildPending, not 500', async () => {
+      await getMatchHostRegistry().recoverActiveMatches();
+      const live = getMatchHostRegistry().get(MATCH_ID);
+      expect(live).not.toBeNull();
+      const rebuild = jest
+        .spyOn(live!, 'rebuildFromActivatedBranch')
+        .mockRejectedValueOnce(new Error('injected: live rebuild failed'));
+
+      const res = await postRewindCommit(PRIVATE_REASON);
+
+      expect(rebuild).toHaveBeenCalledTimes(1);
+      expect(res._getStatusCode()).toBe(200);
+      const body = res._getJSONData() as Record<string, unknown>;
+      expect(body).toMatchObject({ kind: 'committed', rebuildPending: true });
+      expect(live!.servedBranchId()).not.toBe(body.activatedBranchId);
+      // The reason writer still runs after a failed rebuild.
+      expect(
+        db
+          .prepare(
+            'SELECT COUNT(*) AS n FROM private_record WHERE campaign_session_id = ? AND record_kind = ?',
+          )
+          .get(MATCH_ID, 'gm-reason'),
+      ).toEqual({ n: 1 });
+      rebuild.mockRestore();
+    });
+
+    it('M-H4 the live host is rebuilt before the private-reason writer runs', async () => {
+      await getMatchHostRegistry().recoverActiveMatches();
+      const live = getMatchHostRegistry().get(MATCH_ID);
+      expect(live).not.toBeNull();
+      const writer = jest
+        .spyOn(GmPrivatePreviewRecordWriter.prototype, 'store')
+        .mockRejectedValueOnce(new Error('injected: reason writer failed'));
+
+      const res = await postRewindCommit(PRIVATE_REASON);
+
+      expect(writer).toHaveBeenCalledTimes(1);
+      // Follow-up row (tasks.md): this 500 after commit is not M-H4's.
+      expect(res._getStatusCode()).toBe(500);
+      expect(live!.servedBranchId()).not.toBeNull();
+      expect(live!.getSessionForTests().currentState.phase).toBe(
+        GamePhase.Initiative,
+      );
+      writer.mockRestore();
+    });
+
+    async function postRewindCommit(
+      reason: string,
+    ): Promise<ReturnType<typeof createMocks>['res']> {
+      const head = readEffectiveStreamHead(
+        db,
+        new SQLiteEventHistoryBranchStore(db),
+        matchStreamRef(MATCH_ID),
+      );
+      const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+        method: 'POST',
+        query: { id: MATCH_ID },
+        headers: { authorization: `Bearer ${host.wire}` },
+        body: {
+          targetRevision: 2,
+          expectedBranchId: MATCH_BASELINE_BRANCH_ID,
+          expectedRevision: head.revision,
+          expectedDigest: head.digest,
+          expectedGeneration: 1,
+          reason,
+        },
+      });
+      await commitHandler(req, res);
+      return res;
+    }
   });
 
   // -------------------------------------------------------------------------

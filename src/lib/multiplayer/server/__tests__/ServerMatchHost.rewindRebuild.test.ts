@@ -241,6 +241,160 @@ describe('ServerMatchHost rewind rebuild', () => {
     replaceSpy.mockRestore();
   });
 
+  describe('M-H4 rebuild lease ownership', () => {
+    it('a live lease held by another owner survives the rebuild untouched', async () => {
+      const { host, result, expectedPhase } = await standUpCommittedRewind();
+      const head = liveHead();
+      const foreign = new SQLiteEventHistoryCorrectionLeaseStore(
+        db,
+        new SQLiteEventHistoryBranchStore(db),
+      ).acquireCorrectionLease({
+        ...STREAM,
+        owner: 'concurrent-correction',
+        actor: 'gm-2',
+        reason: 'a concurrent correction',
+        ttlMs: 60_000,
+        expectedBranchId: head.branchId,
+        expectedRevision: head.revision,
+        expectedDigest: head.digest,
+        expectedGeneration: head.generation,
+      });
+
+      await host.rebuildFromActivatedBranch({
+        branchId: result.activatedBranchId,
+        effectiveRevision: TARGET_REVISION,
+        effectiveGeneration: result.effectiveGeneration,
+      });
+
+      expect(host.getSessionForTests().currentState.phase).toBe(expectedPhase);
+      expect(leaseStore().readLiveLease(STREAM)).toMatchObject({
+        leaseId: foreign.leaseId,
+        owner: 'concurrent-correction',
+        fencingEpoch: foreign.fencingEpoch,
+      });
+    });
+
+    it('a rebuild with no other lease releases only the lease it acquired', async () => {
+      const { host, result } = await standUpCommittedRewind();
+      expect(leaseStore().readLiveLease(STREAM)).toBeNull();
+      const acquire = jest.spyOn(
+        SQLiteEventHistoryCorrectionLeaseStore.prototype,
+        'acquireCorrectionLease',
+      );
+      await host.rebuildFromActivatedBranch({
+        branchId: result.activatedBranchId,
+        effectiveRevision: TARGET_REVISION,
+        effectiveGeneration: result.effectiveGeneration,
+      });
+      expect(acquire).toHaveBeenCalledTimes(1);
+      acquire.mockRestore();
+      expect(leaseStore().readLiveLease(STREAM)).toBeNull();
+    });
+  });
+
+  describe('M-H4 a failed live rebuild is pending, then healed', () => {
+    it('the next intent retries the rebuild and is admitted on the activated branch', async () => {
+      const { host, result } = await standUpCommittedRewind();
+      const port = failRebuildPort(host, 'replaceSession', 1);
+      await expect(
+        host.rebuildFromActivatedBranch({
+          branchId: result.activatedBranchId,
+          effectiveRevision: TARGET_REVISION,
+          effectiveGeneration: result.effectiveGeneration,
+        }),
+      ).rejects.toThrow('injected');
+      expect(host.servedBranchId()).toBeNull();
+
+      const socket = makeSocket();
+      host.attachSocket(socket, 'gm-1');
+      const broadcasts = await host.handleIntent(concede(), 'conn-heal');
+
+      expect(host.servedBranchId()).toBe(result.activatedBranchId);
+      expect(port).toHaveBeenCalledTimes(2);
+      expect(
+        broadcasts.filter((frame) => frame.kind === 'Error'),
+      ).toStrictEqual([]);
+      expect(
+        broadcasts.some(
+          (frame) =>
+            frame.kind === 'Event' &&
+            (frame.event as IGameEvent).type === GameEventType.GameEnded,
+        ),
+      ).toBe(true);
+      port.mockRestore();
+    });
+
+    it('a retry that fails again answers STALE_BRANCH, keeps the rebuild pending, and the next intent heals', async () => {
+      const { host, result } = await standUpCommittedRewind();
+      const port = failRebuildPort(host, 'replaceSession', 2);
+      await expect(
+        host.rebuildFromActivatedBranch({
+          branchId: result.activatedBranchId,
+          effectiveRevision: TARGET_REVISION,
+          effectiveGeneration: result.effectiveGeneration,
+        }),
+      ).rejects.toThrow('injected');
+
+      const refused = await host.handleIntent(concede(), 'conn-refused');
+      expect(refused).toEqual([
+        expect.objectContaining({ kind: 'Error', code: 'STALE_BRANCH' }),
+      ]);
+      expect(host.servedBranchId()).toBeNull();
+
+      const healed = await host.handleIntent(concede(), 'conn-healed');
+      expect(host.servedBranchId()).toBe(result.activatedBranchId);
+      expect(healed.some((frame) => frame.kind === 'Error')).toBe(false);
+      expect(port).toHaveBeenCalledTimes(3);
+      port.mockRestore();
+    });
+
+    it('a seated rejoin heals a pending host without a command', async () => {
+      const { host, result, expectedPhase } = await standUpCommittedRewind();
+      const port = failRebuildPort(host, 'replaceSession', 1);
+      await expect(
+        host.rebuildFromActivatedBranch({
+          branchId: result.activatedBranchId,
+          effectiveRevision: TARGET_REVISION,
+          effectiveGeneration: result.effectiveGeneration,
+        }),
+      ).rejects.toThrow('injected');
+
+      const socket = makeSocket();
+      host.attachSocket(socket, 'player-2');
+      await host.handleSessionJoin(socket, 'player-2');
+
+      expect(host.servedBranchId()).toBe(result.activatedBranchId);
+      expect(host.getSessionForTests().currentState.phase).toBe(expectedPhase);
+      expect(
+        socket.sent.some(
+          (frame) =>
+            frame.parsed.kind === 'ReplayStart' &&
+            (frame.parsed as { readonly replacesStream?: true })
+              .replacesStream === true,
+        ),
+      ).toBe(true);
+      port.mockRestore();
+    });
+
+    it('a failure after the branch is claimed is not pending: the next intent never re-folds', async () => {
+      const { host, result } = await standUpCommittedRewind();
+      const port = failRebuildPort(host, 'replayToAttachedViewers', 1);
+      await expect(
+        host.rebuildFromActivatedBranch({
+          branchId: result.activatedBranchId,
+          effectiveRevision: TARGET_REVISION,
+          effectiveGeneration: result.effectiveGeneration,
+        }),
+      ).rejects.toThrow('injected');
+      expect(host.servedBranchId()).toBe(result.activatedBranchId);
+
+      const broadcasts = await host.handleIntent(concede(), 'conn-claimed');
+      expect(broadcasts.some((frame) => frame.kind === 'Error')).toBe(false);
+      expect(port).toHaveBeenCalledTimes(1);
+      port.mockRestore();
+    });
+  });
+
   it('no live host: commit still answers committed and boot folds the activated branch', async () => {
     const meta = await writePlayLog(store);
     const events = await store.getEvents(MATCH_ID);
@@ -412,6 +566,13 @@ describe('ServerMatchHost rewind rebuild', () => {
     );
   }
 
+  function leaseStore(): SQLiteEventHistoryCorrectionLeaseStore {
+    return new SQLiteEventHistoryCorrectionLeaseStore(
+      db,
+      new SQLiteEventHistoryBranchStore(db),
+    );
+  }
+
   function liveHead(): {
     readonly branchId: string;
     readonly revision: number;
@@ -456,6 +617,44 @@ async function waitUntilFirstCommandDelivered(
     after = await matchStore.getEvents(MATCH_ID);
   }
   return after;
+}
+
+/**
+ * Make one member of the host's rebuild port throw for the first `times`
+ * ports the host hands out; later ports are real. The spy counts every
+ * rebuild attempt, the first one and each retry.
+ */
+function failRebuildPort(
+  host: ServerMatchHost,
+  member: 'replaceSession' | 'replayToAttachedViewers',
+  times: number,
+): jest.SpyInstance {
+  type PortHost = { rewindRebuildPort(): IRewindRebuildHost };
+  const portHost = host as unknown as PortHost;
+  const real = portHost.rewindRebuildPort.bind(portHost);
+  let ports = 0;
+  return jest.spyOn(portHost, 'rewindRebuildPort').mockImplementation(() => {
+    ports += 1;
+    const port = real();
+    if (ports > times) return port;
+    return {
+      ...port,
+      [member]: () => {
+        throw new Error(`injected: ${member} failed`);
+      },
+    };
+  });
+}
+
+/** A legal command on the rebuilt prefix, on the commit/rebuild clock. */
+function concede(): IIntent {
+  return {
+    kind: 'Intent',
+    matchId: MATCH_ID,
+    ts: AT,
+    playerId: 'gm-1',
+    intent: { kind: 'Concede', side: 'player' },
+  };
 }
 
 function makeSocket(): IMatchSocket & { sent: ReplayFrame[] } {
