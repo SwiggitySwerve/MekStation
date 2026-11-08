@@ -118,6 +118,16 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
         return true;
       },
 
+      replacePilotsForCampaign: (campaignId, pilots) => {
+        if (
+          get().campaignId !== campaignId ||
+          new Set(pilots.map((pilot) => pilot.pilotId)).size !== pilots.length
+        )
+          return false;
+        set({ pilots });
+        return true;
+      },
+
       removeUnit: (unitId) => {
         set((state) => ({
           units: state.units.filter((u) => u.unitId !== unitId),

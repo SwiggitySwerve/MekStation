@@ -18,6 +18,13 @@ export type MaybePromise<T> = T | Promise<T>;
 export interface CampaignCommitResult {
   readonly committed: boolean;
   readonly reason?: string;
+  /**
+   * Not committed, but only because the server refused the write for want of
+   * a credential it will accept (a typed live co-op refusal): the change was
+   * kept, stays pending, and a later save can persist it. Every other
+   * uncommitted result is a rejection the persistence layer has rolled back.
+   */
+  readonly recoverable?: boolean;
 }
 
 /**

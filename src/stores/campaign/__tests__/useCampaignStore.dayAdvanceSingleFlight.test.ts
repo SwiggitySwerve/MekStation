@@ -240,7 +240,8 @@ describe('K13 single-flight day advance', () => {
     jest.spyOn(getDayPipeline(), 'processDay').mockImplementation(() => {
       throw new Error('pipeline exploded');
     });
-    expect(() => local.getState().advanceDay()).toThrow('pipeline exploded');
+    // A throw in the day is rolled back and reported, not propagated.
+    expect(local.getState().advanceDay()).toBeNull();
     expect(local.getState().dayAdvanceInFlight).toBe(false);
   });
 
