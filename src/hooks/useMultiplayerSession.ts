@@ -49,6 +49,7 @@ import type {
 import type {
   IIntentPayload,
   ILobbyUpdated,
+  MatchPauseReason,
 } from '@/types/multiplayer/Protocol';
 
 import { toServerIntent } from '@/lib/multiplayer/gameIntentMap';
@@ -87,9 +88,12 @@ export interface IMultiplayerError {
 
 /**
  * The `MatchPaused` payload surfaced to the game surface so it can name
- * the pending seat(s) and render the grace countdown (D6).
+ * why the match is paused, the pending seat(s), and the grace countdown
+ * (D6). `graceRemainingMs` is 0 and `pendingExpiresAtMs` null when no
+ * seat is pending.
  */
 export interface IMatchPausedInfo {
+  readonly reason: MatchPauseReason;
   readonly pendingSlots: readonly string[];
   readonly graceRemainingMs: number;
   readonly pendingExpiresAtMs: number | null;

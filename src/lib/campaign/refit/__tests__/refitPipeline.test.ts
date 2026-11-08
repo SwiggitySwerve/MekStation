@@ -17,7 +17,12 @@ import { InternalStructureType } from '@/types/construction/InternalStructureTyp
 import {
   advanceRefitOrder,
   applyRefitHours,
+  cancelRefitOrder,
   createRefitOrder,
+  getConflictingRefitUnitIds,
+  getOpenRefitOrders,
+  isActiveRefitOrder,
+  isOpenRefitOrder,
 } from '../refitPipeline';
 
 /** A construction-valid 50-ton baseline. */
@@ -39,6 +44,76 @@ const VALID: MechBuildConfig = {
 const INVALID: MechBuildConfig = { ...VALID, engineRating: 9999 };
 
 const CREATED_AT = '3025-02-01T00:00:00.000Z';
+
+describe('refit lifecycle admission and cancellation', () => {
+  const base = () =>
+    createRefitOrder({
+      id: 'refit-lifecycle',
+      unitId: 'unit-1',
+      currentConfiguration: VALID,
+      targetConfiguration: VALID,
+      createdAt: CREATED_AT,
+    });
+
+  it.each(['proposed', 'in-progress', 'completed', 'cancelled'] as const)(
+    'defines open and active for %s without changing K6 readiness',
+    (status) => {
+      const order = { ...base(), status };
+      expect(isActiveRefitOrder(order)).toBe(status === 'in-progress');
+      expect(isOpenRefitOrder(order)).toBe(
+        status === 'proposed' || status === 'in-progress',
+      );
+    },
+  );
+
+  it.each(['proposed', 'in-progress'] as const)(
+    'cancels %s by changing status only',
+    (status) => {
+      const order = {
+        ...base(),
+        status,
+        hoursCompleted: 7,
+        validationErrors: ['Retain history'],
+      };
+      const cancelled = cancelRefitOrder(order);
+      expect(cancelled).toEqual({ ...order, status: 'cancelled' });
+      expect(order.status).toBe(status);
+      expect(applyRefitHours(cancelled, 100).order).toBe(cancelled);
+      expect(advanceRefitOrder(cancelled).order).toBe(cancelled);
+    },
+  );
+
+  it.each(['completed', 'cancelled'] as const)(
+    'leaves terminal %s untouched',
+    (status) => {
+      const order = { ...base(), status };
+      expect(cancelRefitOrder(order)).toBe(order);
+    },
+  );
+
+  it('retains every legacy order while identifying conflicts by unit', () => {
+    const first = base();
+    const duplicate = {
+      ...base(),
+      id: 'duplicate',
+      status: 'in-progress' as const,
+    };
+    const terminal = { ...base(), id: 'old', status: 'completed' as const };
+    const other = { ...base(), id: 'other', unitId: 'unit-2' };
+    const orders = [first, duplicate, terminal, other];
+    expect(getOpenRefitOrders(orders)).toEqual([first, duplicate, other]);
+    expect(getConflictingRefitUnitIds(orders)).toEqual(new Set(['unit-1']));
+    expect(orders).toHaveLength(4);
+    expect(
+      getConflictingRefitUnitIds([
+        cancelRefitOrder(first),
+        duplicate,
+        terminal,
+        other,
+      ]),
+    ).toEqual(new Set());
+  });
+});
 
 describe('createRefitOrder', () => {
   it('creates a proposed order carrying every required field', () => {

@@ -13,6 +13,7 @@ import type {
 
 import { projectRepairBay } from '@/lib/campaign/inventory/projectCampaignInventory';
 import { isRosterPilotDeployable } from '@/lib/campaign/personnel/statusRules';
+import { isActiveRefitOrder } from '@/lib/campaign/refit/refitPipeline';
 import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 import { deriveRosterReadiness } from '@/types/campaign/RosterUnitProjection';
 
@@ -244,7 +245,7 @@ export function selectUnitReadiness({
 
   if (
     campaign?.refitOrders?.some(
-      (order) => order.unitId === unit.unitId && order.status === 'in-progress',
+      (order) => order.unitId === unit.unitId && isActiveRefitOrder(order),
     )
   ) {
     reasons.push({

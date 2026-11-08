@@ -52,6 +52,23 @@ describe('co-op mission create refusals leave durable state unchanged', () => {
     jest.restoreAllMocks();
   });
 
+  it('refuses guest mission creation and retries before any durable write', async () => {
+    const before = fixture.census();
+    const record = readCampaign(fixture.entry.campaignId);
+    const response = await post(fixture.request, fixture.guest);
+    expect(response.status).toBe(403);
+    expect(response.body).toMatchObject({ code: 'COOP_MISSION_HOST_REQUIRED' });
+    expect(fixture.census()).toEqual(before);
+    expect(readCampaign(fixture.entry.campaignId)).toEqual(record);
+    expect((await post(fixture.request, fixture.host)).status).toBe(201);
+    const committed = fixture.census();
+    const committedRecord = readCampaign(fixture.entry.campaignId);
+    const retry = await post(fixture.request, fixture.guest);
+    expect(retry.status).toBe(403);
+    expect(fixture.census()).toEqual(committed);
+    expect(readCampaign(fixture.entry.campaignId)).toEqual(committedRecord);
+  });
+
   it('refuses a direct mission request when stored repair work blocks a deploying unit', async () => {
     const read = readCampaign(fixture.entry.campaignId);
     assert.equal(read.kind, 'ok');

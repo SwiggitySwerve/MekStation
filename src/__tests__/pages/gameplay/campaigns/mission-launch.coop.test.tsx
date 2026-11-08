@@ -28,7 +28,10 @@ import {
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { createCampaign, createMission } from '@/types/campaign/Campaign';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
-import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import {
+  createGuestCoopSession,
+  createHostCoopSession,
+} from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 const mockRouterPush = jest.fn();
@@ -51,6 +54,10 @@ let mockRosterUnits: IRosterUnitProjection[] = [
 ];
 
 let mockReadinessAuthority: ReadinessAuthority = { kind: 'snapshot' };
+let mockDayAdvanceInFlight = false;
+jest.mock('@/lib/campaign/hooks/useDayAdvanceInFlight', () => ({
+  useDayAdvanceInFlight: () => mockDayAdvanceInFlight,
+}));
 jest.mock('@/lib/campaign/readiness/useReadinessAuthority', () => ({
   useReadinessAuthority: () => mockReadinessAuthority,
 }));
@@ -96,6 +103,9 @@ jest.mock('@/components/campaign/CampaignNavigation', () => ({
 }));
 
 jest.mock('@/lib/campaign/coop/launchCoopMission', () => ({
+  ...jest.requireActual<typeof import('@/lib/campaign/coop/launchCoopMission')>(
+    '@/lib/campaign/coop/launchCoopMission',
+  ),
   launchCoopMission: (...args: unknown[]) => mockLaunchCoopMission(...args),
 }));
 
@@ -155,11 +165,12 @@ jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
 }));
 
 const mockGetCampaign = jest.fn();
-const mockCampaignStoreApi = {
+let mockCampaignStoreApi = {
   getState: () => ({
     campaign: mockGetCampaign(),
     getCampaign: mockGetCampaign,
     updateCampaign: mockUpdateCampaign,
+    switchCampaign: mockUpdateCampaign,
     saveCampaign: mockSaveCampaign,
     getMissionsStore: () => ({
       getState: () => ({
@@ -214,6 +225,8 @@ function makeSoloLaunchCampaign(name: string) {
 
 describe('CoopMissionLaunchPage - staged participation sync', () => {
   beforeEach(() => {
+    mockCampaignStoreApi = { ...mockCampaignStoreApi };
+    mockDayAdvanceInFlight = false;
     mockReadinessAuthority = { kind: 'snapshot' };
     mockRouterPush.mockReset();
     mockGetCampaign.mockReset();
@@ -256,6 +269,51 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
     mockCustomCombatRefs = undefined;
     mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);
     _resetCoopRuntimeSessions();
+  });
+
+  it('explains guest launch authority and keeps the participation picker', async () => {
+    mockGetCampaign.mockReturnValue({
+      ...makeSoloLaunchCampaign('Guest launch'),
+      coopSession: createGuestCoopSession('match-launch-1', 'ABC234'),
+    });
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+    expect(
+      screen.getByText('The host starts this mission.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('coop-launch-mission')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Join Mission' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('coop-participation-picker')).toBeInTheDocument();
+    expect(mockLaunchCoopMission).not.toHaveBeenCalled();
+  });
+
+  it('disables co-op launch while the campaign clock advances', async () => {
+    const campaign = makeSoloLaunchCampaign('Advancing');
+    const force = makeForce(campaign.rootForceId, ['u-host-1']);
+    mockGetCampaign.mockReturnValue({
+      ...campaign,
+      forces: new Map([[force.id, force]]),
+      coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
+    });
+    publishCoopParticipation({
+      matchId: 'match-launch-1',
+      missionId: 'mission-alpha',
+      playerId: 'guest',
+      role: 'guest',
+      choice: 'deploy',
+      force: makeForce('guest-force', ['u-guest-1']),
+    });
+    mockDayAdvanceInFlight = true;
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+    expect(
+      screen.getByRole('button', { name: 'Launch Mission' }),
+    ).toBeDisabled();
+    expect(mockLaunchCoopMission).not.toHaveBeenCalled();
   });
 
   it('waits for authority before presenting fresh mirrored units for selection', async () => {
@@ -345,6 +403,12 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
     const rootForce = makeForce(baseCampaign.rootForceId, ['u-host-1']);
     const campaign = {
       ...baseCampaign,
+      missions: new Map([
+        [
+          'mission-alpha',
+          createMission({ id: 'mission-alpha', name: 'Selected mission' }),
+        ],
+      ]),
       id: 'campaign-coop-1',
       forces: new Map([[rootForce.id, rootForce]]),
       coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
@@ -670,6 +734,12 @@ describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
     const rootForce = makeForce(baseCampaign.rootForceId, [HOST_UNIT]);
     mockGetCampaign.mockReturnValue({
       ...baseCampaign,
+      missions: new Map([
+        [
+          'mission-alpha',
+          createMission({ id: 'mission-alpha', name: 'Selected mission' }),
+        ],
+      ]),
       id: 'campaign-coop-1',
       forces: new Map([[rootForce.id, rootForce]]),
       coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
@@ -696,6 +766,7 @@ describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
   }
 
   beforeEach(() => {
+    mockCampaignStoreApi = { ...mockCampaignStoreApi };
     mockRouterPush.mockReset();
     mockGetCampaign.mockReset();
     mockLaunchCoopMission.mockReset();
@@ -894,6 +965,7 @@ describe('CoopMissionLaunchPage - creator binding and reseat (P2CG1G2)', () => {
   }
 
   beforeEach(() => {
+    mockCampaignStoreApi = { ...mockCampaignStoreApi };
     sockets.length = 0;
     mockGetCampaign.mockReset();
     mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);

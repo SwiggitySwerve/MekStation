@@ -10,8 +10,11 @@
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { IUnitMarketOffer } from '@/types/campaign/markets/marketTypes';
 
+import { recordTransaction } from '@/lib/finances/FinanceService';
+import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import {
   UnitMarketRarity,
   UnitMarketType,
@@ -19,6 +22,13 @@ import {
   MARKET_TYPE_QUALITY,
 } from '@/types/campaign/markets/marketTypes';
 import { Money } from '@/types/campaign/Money';
+
+import {
+  localMarketRefusal,
+  marketFundsRefusal,
+  purchaseTransactionId,
+  unitOfferRefusal,
+} from './offerLifecycle';
 
 // =============================================================================
 // Types
@@ -205,6 +215,7 @@ export function purchaseUnit(
   campaign: ICampaign,
   offerId: string,
   unitMarketOffers: readonly IUnitMarketOffer[],
+  dayAdvanceInFlight = false,
 ): {
   success: boolean;
   reason?: string;
@@ -212,26 +223,39 @@ export function purchaseUnit(
   unitId?: string;
   cost?: number;
 } {
-  const offer = unitMarketOffers.find((o) => o.id === offerId);
-  if (!offer) {
-    return { success: false, reason: 'Offer not found' };
-  }
+  const blocked = localMarketRefusal(campaign, dayAdvanceInFlight);
+  if (blocked) return { success: false, reason: blocked };
+  // A stale caller cannot reintroduce an offer into the campaign's live pool.
+  const offers =
+    (campaign as ICampaignWithCommand).unitMarket ?? unitMarketOffers;
+  const offer = offers.find((o) => o.id === offerId);
+  const refusal = unitOfferRefusal(campaign, offer);
+  if (refusal || !offer)
+    return { success: false, reason: refusal ?? 'Offer not found' };
 
   const cost = Math.round((offer.baseCost * offer.pricePercent) / 100);
   const costMoney = new Money(cost);
-  if (campaign.finances.balance.compareTo(costMoney) < 0) {
-    return { success: false, reason: 'Insufficient funds' };
-  }
+  const fundsRefusal = marketFundsRefusal(campaign, costMoney);
+  if (fundsRefusal) return { success: false, reason: fundsRefusal };
 
   const rootForce = campaign.forces.get(campaign.rootForceId);
+  if (!rootForce) return { success: false, reason: 'Root force not found' };
+  const finances = {
+    ...campaign.finances,
+    ...recordTransaction(campaign.finances, {
+      id: purchaseTransactionId(offer.id),
+      type: TransactionType.UnitPurchase,
+      amount: costMoney,
+      date: campaign.currentDate,
+      description: `Purchased ${offer.unitName}`,
+    }),
+  };
   const nextForces = new Map(campaign.forces);
-  if (rootForce && !rootForce.unitIds.includes(offer.unitId)) {
-    nextForces.set(rootForce.id, {
-      ...rootForce,
-      unitIds: [...rootForce.unitIds, offer.unitId],
-      updatedAt: new Date().toISOString(),
-    });
-  }
+  nextForces.set(rootForce.id, {
+    ...rootForce,
+    unitIds: [...rootForce.unitIds, offer.unitId],
+    updatedAt: new Date().toISOString(),
+  });
 
   return {
     success: true,
@@ -240,11 +264,9 @@ export function purchaseUnit(
     campaign: {
       ...campaign,
       forces: nextForces,
-      finances: {
-        ...campaign.finances,
-        balance: campaign.finances.balance.subtract(costMoney),
-      },
+      finances,
+      unitMarket: offers.filter((one) => one.id !== offerId),
       updatedAt: new Date().toISOString(),
-    },
+    } as ICampaignWithCommand,
   };
 }

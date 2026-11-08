@@ -144,7 +144,7 @@ describe('BattleMech combat event support catalog', () => {
     expect(urlsFor(GameEventType.UnitEjected)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/statusPhysical.ts#L267-L364',
-        'src/utils/gameplay/gameState/unitExitState.ts#L58-L72',
+        'src/utils/gameplay/gameState/unitExitState.ts#L60-L75',
       ]),
     );
     expect(urlsFor(GameEventType.ObjectiveCaptured)).toEqual(
@@ -159,7 +159,7 @@ describe('BattleMech combat event support catalog', () => {
         'src/utils/gameplay/gameSessionCore.ts#L398-L430',
         'src/utils/gameplay/gameSessionAttackReveal.ts#L22-L87',
         'src/utils/gameplay/gameState/actionLocking.ts#L158-L206',
-        'src/utils/gameplay/gameState/eventDispatch.ts#L224-L225',
+        'src/utils/gameplay/gameState/eventDispatch.ts#L219-L220',
       ]),
     );
     expect(urlsFor(GameEventType.CommandResultPublished)).toEqual(
@@ -179,7 +179,7 @@ describe('BattleMech combat event support catalog', () => {
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L210',
         'src/utils/gameplay/gameSessionPSRResolution.ts#L54-L410',
-        'src/simulation/runner/phases/postCombatPsr.ts#L76-L243',
+        'src/simulation/runner/phases/postCombatPsr.ts#L77-L244',
       ]),
     );
   });

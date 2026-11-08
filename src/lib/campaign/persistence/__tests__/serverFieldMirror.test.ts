@@ -306,6 +306,19 @@ function roundTrip(campaign: ICampaignWithCommand): ICampaignWithCommand {
 // =============================================================================
 
 describe('T3 — server-side campaign serialization field mirror', () => {
+  it('preserves every legacy duplicate refit and terminal history on repeated reads', () => {
+    const base = buildExtendedCampaign();
+    const first = base.refitOrders![0];
+    const orders = [
+      first,
+      { ...first, id: 'second', status: 'proposed' as const },
+      { ...first, id: 'cancelled', status: 'cancelled' as const },
+    ];
+    const campaign = { ...base, refitOrders: orders };
+    expect(roundTrip(campaign).refitOrders).toEqual(orders);
+    expect(roundTrip(roundTrip(campaign)).refitOrders).toEqual(orders);
+    expect(campaign.refitOrders).toBe(orders);
+  });
   it('every previously-dropped campaign field survives the serialize -> JSON -> deserialize round trip', () => {
     const restored = roundTrip(buildExtendedCampaign());
 

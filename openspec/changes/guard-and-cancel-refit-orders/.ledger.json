@@ -1,0 +1,6 @@
+{
+  "name": "guard-and-cancel-refit-orders",
+  "status": "in-progress",
+  "reason": "K8 draft PR #3061; all mandatory local lane gates pass and both mutants are killed; hosted CI pending Root review.",
+  "lastReviewed": "2026-11-08"
+}

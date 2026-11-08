@@ -19,9 +19,9 @@
  */
 
 import type { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
-import type { IEncounter } from '@/types/encounter';
 
 import { getEncounterService } from '@/services/encounter/EncounterService';
+import { EncounterStatus, type IEncounter } from '@/types/encounter';
 
 // =============================================================================
 // Result
@@ -39,6 +39,10 @@ export interface ILaunchCampaignEncounterResult {
   readonly encounterId?: string;
   /** Human-readable failure reason, when `success` is false. */
   readonly error?: string;
+}
+
+export interface ICampaignEncounterLaunchProgress {
+  encounterId?: string;
 }
 
 // =============================================================================
@@ -105,6 +109,7 @@ export interface ICampaignEncounterLauncherService {
 export async function launchCampaignEncounter(
   encounter: IEncounter,
   service: ICampaignEncounterLauncherService = getEncounterService(),
+  progress?: ICampaignEncounterLaunchProgress,
 ): Promise<ILaunchCampaignEncounterResult> {
   const meta = encounter.campaignMeta;
   if (!meta) {
@@ -114,51 +119,36 @@ export async function launchCampaignEncounter(
     };
   }
 
-  // 1. Materialise the encounter into the encounter repository.
-  const created = service.createEncounter({
-    name: encounter.name,
-    description: encounter.description,
-  });
-  if (!created.success || !created.id) {
-    return {
-      success: false,
-      error: created.error ?? 'Failed to create encounter',
-    };
-  }
-  const repoEncounterId = created.id;
-
-  // 2. Copy the generated configuration onto the repository encounter.
-  const configResult = service.updateEncounter(repoEncounterId, {
-    mapConfig: encounter.mapConfig,
-    victoryConditions: encounter.victoryConditions,
-    opForConfig: encounter.opForConfig,
-    optionalRules: encounter.optionalRules,
-  });
-  if (!configResult.success) {
-    return {
-      success: false,
-      encounterId: repoEncounterId,
-      error: configResult.error ?? 'Failed to configure encounter',
-    };
-  }
-
-  // 3. Attach the player force when the bridge resolved one.
-  if (encounter.playerForce?.forceId) {
-    const forceResult = service.setPlayerForce(
-      repoEncounterId,
-      encounter.playerForce.forceId,
-    );
-    if (!forceResult.success) {
+  if (progress?.encounterId) {
+    const existing = service.getEncounter(progress.encounterId);
+    if (!existing)
       return {
         success: false,
-        encounterId: repoEncounterId,
-        error: forceResult.error ?? 'Failed to set player force',
+        encounterId: progress.encounterId,
+        error:
+          'The pending encounter is unavailable. Resync the campaign before retrying.',
+      };
+    if (
+      existing.status === EncounterStatus.Launched &&
+      existing.gameSessionId
+    ) {
+      return {
+        success: true,
+        encounterId: existing.id,
+        gameSessionId: existing.gameSessionId,
       };
     }
   }
+  const configured = configureCampaignEncounter(encounter, service, progress);
+  if (!configured.success || !configured.id) {
+    return {
+      success: false,
+      ...(configured.id ? { encounterId: configured.id } : {}),
+      error: configured.error,
+    };
+  }
+  const repoEncounterId = configured.id;
 
-  // 4. Launch with campaign linkage (D6 — reuses the existing launch
-  //    snapshot; the campaign only supplies the linkage fields).
   const launched = await service.launchEncounter(repoEncounterId, {
     campaignId: meta.campaignId,
     contractId: meta.contractId,
@@ -172,12 +162,64 @@ export async function launchCampaignEncounter(
     };
   }
 
-  // The repository stamps `game_session_id` on the encounter row at
-  // launch; read it back so the caller gets the session handle.
   const launchedEncounter = service.getEncounter(repoEncounterId);
   return {
     success: true,
     encounterId: repoEncounterId,
     gameSessionId: launchedEncounter?.gameSessionId,
   };
+}
+
+/** Materialization is separate from session launch so each failure keeps its id. */
+function configureCampaignEncounter(
+  encounter: IEncounter,
+  service: ICampaignEncounterLauncherService,
+  progress?: ICampaignEncounterLaunchProgress,
+): IEncounterOperationResult {
+  const created = progress?.encounterId
+    ? { success: true, id: progress.encounterId }
+    : service.createEncounter({
+        name: encounter.name,
+        description: encounter.description,
+      });
+  if (!created.success || !created.id) {
+    return {
+      success: false,
+      error: created.error ?? 'Failed to create encounter',
+    };
+  }
+  const repoEncounterId = created.id;
+  if (progress) progress.encounterId = repoEncounterId;
+
+  // 2. Copy the generated configuration onto the repository encounter.
+  const configResult = service.updateEncounter(repoEncounterId, {
+    mapConfig: encounter.mapConfig,
+    victoryConditions: encounter.victoryConditions,
+    opForConfig: encounter.opForConfig,
+    optionalRules: encounter.optionalRules,
+  });
+  if (!configResult.success) {
+    return {
+      success: false,
+      id: repoEncounterId,
+      error: configResult.error ?? 'Failed to configure encounter',
+    };
+  }
+
+  // 3. Attach the player force when the bridge resolved one.
+  if (encounter.playerForce?.forceId) {
+    const forceResult = service.setPlayerForce(
+      repoEncounterId,
+      encounter.playerForce.forceId,
+    );
+    if (!forceResult.success) {
+      return {
+        success: false,
+        id: repoEncounterId,
+        error: forceResult.error ?? 'Failed to set player force',
+      };
+    }
+  }
+
+  return { success: true, id: repoEncounterId };
 }

@@ -191,6 +191,7 @@ export function getLobbyReadyBlockReason(
 
 export function canLaunchLobby(state: ILobbyState): boolean {
   return (
+    state.closed !== true &&
     state.guestPeerId !== null &&
     state.hostReady &&
     state.guestReady &&

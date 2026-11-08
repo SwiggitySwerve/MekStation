@@ -1,0 +1,6 @@
+{
+  "name": "clear-combat-attack-links",
+  "status": "implemented",
+  "reason": "C9 exit cleanup and C10 heat integration implemented; local gameplay gates pass. Draft PR awaits hosted CI and Root review.",
+  "lastReviewed": "2026-11-08"
+}

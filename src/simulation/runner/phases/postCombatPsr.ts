@@ -9,6 +9,7 @@ import {
   type IUnitGameState,
   PSRTrigger,
 } from '@/types/gameplay';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import {
   buildDefaultCriticalSlotManifest,
   type CriticalSlotManifest,
@@ -239,7 +240,7 @@ function applyPsrFallResult(options: {
     });
   }
 
-  return nextState;
+  return clearAttackLinks(nextState, unitId);
 }
 
 function applyPsrPassResult(

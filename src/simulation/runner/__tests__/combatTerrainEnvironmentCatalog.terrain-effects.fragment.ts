@@ -230,7 +230,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/movement/terrainPsrTriggers.ts#L91-L309',
+            url: 'src/utils/gameplay/movement/terrainPsrTriggers.ts#L113-L342',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',

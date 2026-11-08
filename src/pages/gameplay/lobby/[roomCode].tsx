@@ -16,6 +16,7 @@ import {
   useJoinLobbyGuest,
   useLaunchedMatchNavigation,
   useLobbyUnitOptions,
+  useReopenClosedHostLobby,
 } from '@/pages-modules/gameplay/lobby/gameplayLobbyPage.helpers';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { useLobbySelector } from '@/stores/useLobbyStore';
@@ -41,6 +42,7 @@ export default function GameplayLobbyPage(): React.ReactElement {
   const bindChannel = useLobbySelector((state) => state.bindChannel);
   const unbindChannel = useLobbySelector((state) => state.unbindChannel);
   const joinAsGuest = useLobbySelector((state) => state.joinAsGuest);
+  const initializeHost = useLobbySelector((state) => state.initializeHost);
   const updateLocalLoadout = useLobbySelector(
     (state) => state.updateLocalLoadout,
   );
@@ -71,6 +73,12 @@ export default function GameplayLobbyPage(): React.ReactElement {
     localPeerId,
     routeRoomCode,
     unbindChannel,
+  });
+  useReopenClosedHostLobby({
+    initializeHost,
+    isHostRoute,
+    lobbyState,
+    localPeerId,
   });
   useJoinLobbyGuest({
     isHostRoute,

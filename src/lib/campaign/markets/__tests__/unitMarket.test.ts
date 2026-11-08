@@ -10,11 +10,17 @@
  * - purchaseUnit: offer validation and purchase
  */
 
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
+
 import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
 import { CampaignType } from '@/types/campaign/CampaignType';
+import {
+  createHostCoopSession,
+  createGuestCoopSession,
+} from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IFinances } from '@/types/campaign/IFinances';
 import {
@@ -54,7 +60,21 @@ function createTestCampaign(
     name: 'Test Campaign',
     currentDate: new Date(dateStr),
     factionId: 'mercenary',
-    forces: new Map(),
+    forces: new Map([
+      [
+        'force-root',
+        {
+          id: 'force-root',
+          name: 'Root',
+          subForceIds: [],
+          unitIds: [],
+          forceType: ForceRole.STANDARD,
+          formationLevel: FormationLevel.LANCE,
+          createdAt: dateStr,
+          updatedAt: dateStr,
+        },
+      ],
+    ]),
     rootForceId: 'force-root',
     missions: new Map(),
     finances: {
@@ -401,6 +421,64 @@ describe('Unit Market', () => {
   // purchaseUnit
   // ===========================================================================
   describe('purchaseUnit', () => {
+    it('records one purchase and consumes its offer, even when a stale caller repeats it', () => {
+      const campaign = createTestCampaign();
+      const offers = generateUnitOffers(campaign, createSeededRandom(42));
+      const offer = offers[0];
+      const first = purchaseUnit(
+        { ...campaign, unitMarket: offers } as ICampaignWithCommand,
+        offer.id,
+        offers,
+      );
+      expect(first.success).toBe(true);
+      if (!first.campaign) throw new Error('Expected purchase');
+      expect(first.campaign.finances.transactions).toEqual([
+        expect.objectContaining({
+          id: `tx-purchase-${offer.id}`,
+          amount: new Money(first.cost ?? 0),
+        }),
+      ]);
+      expect(
+        (first.campaign as ICampaignWithCommand).unitMarket?.some(
+          (o) => o.id === offer.id,
+        ),
+      ).toBe(false);
+      expect(purchaseUnit(first.campaign, offer.id, offers).success).toBe(
+        false,
+      );
+      expect(campaign.finances.transactions).toEqual([]);
+    });
+
+    it.each([
+      createHostCoopSession('ABCDEF', 'match'),
+      createGuestCoopSession('match', 'ABCDEF'),
+    ])('refuses local co-op purchases', (coopSession) => {
+      const campaign = { ...createTestCampaign(), coopSession };
+      const offers = generateUnitOffers(campaign, createSeededRandom(42));
+      const before = JSON.stringify(campaign);
+      expect(purchaseUnit(campaign, offers[0].id, offers)).toEqual({
+        success: false,
+        reason: 'Use the co-op proposal controls for market changes.',
+      });
+      expect(JSON.stringify(campaign)).toBe(before);
+    });
+
+    it('refuses an expired offer and a missing root force without charging', () => {
+      const campaign = createTestCampaign();
+      const offers = generateUnitOffers(campaign, createSeededRandom(42));
+      expect(
+        purchaseUnit(
+          { ...campaign, currentDate: new Date('3025-07-01') },
+          offers[0].id,
+          offers,
+        ).success,
+      ).toBe(false);
+      expect(
+        purchaseUnit({ ...campaign, forces: new Map() }, offers[0].id, offers)
+          .success,
+      ).toBe(false);
+      expect(campaign.finances.transactions).toEqual([]);
+    });
     it('should return success when offer exists', () => {
       const campaign = createTestCampaign();
       const offers = generateUnitOffers(campaign, createSeededRandom(42));

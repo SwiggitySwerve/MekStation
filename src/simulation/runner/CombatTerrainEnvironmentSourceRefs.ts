@@ -156,9 +156,9 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
   );
 
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation planMovementTerrainEffects, the shared producer behind the runner queueMovementTerrainPSRs adapter, plans water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and a UnitStuck for jump-entry bog-down.',
+  'MekStation planMovementTerrainEffects, the shared producer behind the runner queueMovementTerrainPSRs adapter, plans water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and a UnitStuck for jump-entry bog-down; water, rubble, skid and ice PSRs are planned only for a BattleMech-like unit that is not prone (MegaMek Mek.canFall), and water entry skips non-walking motive modes.',
   'src/utils/gameplay/movement/terrainPsrTriggers.ts',
-  'L91-L309',
+  'L113-L342',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
@@ -314,7 +314,7 @@ const MEKSTATION_SWAMP_BOG_DOWN_ELIGIBILITY_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation applyPsrStuckResult records canUnstickByJumping on the unit and UnitStuck payload only for a failed movement-step bog-down.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L76-L121',
+    'L77-L122',
   );
 
 export const SWAMP_UNSTUCK_PSR_SOURCE_REFS = [

@@ -11,6 +11,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 
+import type { IMatchPausedInfo } from '@/hooks/useMultiplayerSession';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
@@ -87,7 +88,7 @@ const SEATS: readonly IMatchSeat[] = [
   },
 ];
 
-function renderSpectator() {
+function renderSpectator(pausedInfo: IMatchPausedInfo | null = null) {
   const authoritative = buildSession();
   render(
     <NetworkedGameSurface
@@ -95,8 +96,8 @@ function renderSpectator() {
       mirrorEvents={authoritative.events}
       seats={SEATS}
       playerId="pid_watcher"
-      status="ready"
-      pausedInfo={null}
+      status={pausedInfo ? 'paused' : 'ready'}
+      pausedInfo={pausedInfo}
       closedInfo={null}
       intentError={null}
       onClearIntentError={jest.fn()}
@@ -110,6 +111,21 @@ describe('NetworkedGameSurface — spectator mode', () => {
   it('renders the mirror session board', () => {
     renderSpectator();
     expect(screen.getByTestId('networked-game-surface')).toBeInTheDocument();
+  });
+
+  it('shows a spectator why the match is paused', () => {
+    renderSpectator({
+      reason: 'opponent-fault',
+      pendingSlots: [],
+      graceRemainingMs: 0,
+      pendingExpiresAtMs: null,
+    });
+    expect(screen.getByTestId('match-pause-reason')).toHaveTextContent(
+      'The server opponent hit an error; rejoining the match retries it.',
+    );
+    expect(
+      screen.queryByTestId('match-pause-countdown'),
+    ).not.toBeInTheDocument();
   });
 
   it('shows the spectator indicator', () => {

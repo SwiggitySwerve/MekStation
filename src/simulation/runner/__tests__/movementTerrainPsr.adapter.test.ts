@@ -1,4 +1,5 @@
 import {
+  Facing,
   GameEventType,
   GamePhase,
   GameSide,
@@ -17,6 +18,7 @@ import {
   type TerrainBearingMovementStep,
 } from '@/utils/gameplay/movement/terrainPsrTriggers';
 
+import { commitValidatedMovement } from '../phases/movementCommit';
 import { queueMovementTerrainPSRs } from '../phases/movementTerrainPsr';
 import { createMinimalUnitState } from '../SimulationRunnerSupport';
 
@@ -164,5 +166,62 @@ describe('runner queueMovementTerrainPSRs adapter', () => {
       reason: 'Jumped into bog-down terrain',
       reasonCode: PSRTrigger.SwampBogDown,
     });
+  });
+
+  it('passes the motive mode through, so a swimming Mek entering water does not roll', () => {
+    const water = JSON.stringify([{ type: TerrainType.Water, level: 2 }]);
+    const { grid, state } = setup({ [coordToKey(B)]: water });
+    const run = (movementMode?: 'biped_swim' | 'walk') => {
+      const events: IGameEvent[] = [];
+      const next = queueMovementTerrainPSRs({
+        currentState: state,
+        events,
+        gameId: 'g',
+        grid,
+        unitId: 'm1',
+        movementType: MovementType.Walk,
+        ...(movementMode ? { movementMode } : {}),
+        steps: [{ kind: 'forward', index: 0, from: A, to: B }],
+      });
+      return next.units.m1.pendingPSRs ?? [];
+    };
+
+    expect(run('biped_swim')).toEqual([]);
+    expect(run('walk').map((psr) => psr.reasonCode)).toEqual([
+      PSRTrigger.EnteringWater,
+    ]);
+  });
+
+  it('commitValidatedMovement threads the validated motive mode into the terrain producer', () => {
+    const water = JSON.stringify([{ type: TerrainType.Water, level: 1 }]);
+    const { grid, state } = setup({ [coordToKey(B)]: water });
+    const commit = (movementMode: 'biped_swim' | 'walk') => {
+      const events: IGameEvent[] = [];
+      const next = commitValidatedMovement({
+        currentState: state,
+        events,
+        gameId: 'g',
+        grid,
+        unitId: 'm1',
+        unit: state.units.m1,
+        payload: {
+          unitId: 'm1',
+          from: A,
+          to: B,
+          facing: state.units.m1.facing as Facing,
+          movementType: MovementType.Walk,
+          mpUsed: 1,
+          heatGenerated: 0,
+        },
+        validationCapability: { walkMP: 4, runMP: 6, jumpMP: 0, movementMode },
+        mpCost: 2,
+        heatGenerated: 0,
+        d6Roller: () => 6,
+      });
+      return (next.units.m1.pendingPSRs ?? []).map((psr) => psr.reasonCode);
+    };
+
+    expect(commit('biped_swim')).not.toContain(PSRTrigger.EnteringWater);
+    expect(commit('walk')).toContain(PSRTrigger.EnteringWater);
   });
 });

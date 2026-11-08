@@ -19,6 +19,8 @@ import {
   MovementType,
   type IGameUnit,
 } from '@/types/gameplay';
+import { createPhysicalAttackResolvedEvent } from '@/utils/gameplay/gameEvents/statusPhysical';
+import { deriveState } from '@/utils/gameplay/gameState/gameStateReducer';
 
 import type { IAdaptedUnit } from '../types';
 
@@ -213,4 +215,36 @@ describe('InteractiveSession.ejectUnit', () => {
         ?.exitReason,
     ).toBe('retreated');
   });
+});
+
+// A canonical grapple event supplies replayable relationship state.
+it('releases the live and replayed grapple on ejection', () => {
+  const session = makeSession();
+  const initial = session.getSession();
+  session.appendEvent(
+    createPhysicalAttackResolvedEvent(
+      initial.id,
+      initial.events.length,
+      initial.currentState.turn,
+      'unit-player',
+      'unit-opponent',
+      'grapple',
+      12,
+      2,
+      true,
+      0,
+    ),
+  );
+  expect(session.getState().units['unit-player'].grappledUnitId).toBe(
+    'unit-opponent',
+  );
+  session.ejectUnit('unit-player');
+  expect(session.getState().units['unit-player'].hasEjected).toBe(true);
+  expect(
+    session.getState().units['unit-opponent'].grappledUnitId,
+  ).toBeUndefined();
+  const final = session.getSession();
+  expect(deriveState(final.id, final.events).units).toEqual(
+    final.currentState.units,
+  );
 });

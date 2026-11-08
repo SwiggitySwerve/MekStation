@@ -82,7 +82,7 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runPSRPhase routes failed MASCFailure and SuperchargerFailure resolution through movement-enhancement failure critical-damage helpers.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L123-L167',
+    'L124-L168',
   ),
   mekstationDeviationRef(
     'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
@@ -110,7 +110,7 @@ export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runHeatPhase routes heat shutdown into queueRunnerShutdownPSR after emitting the ShutdownCheck event and before persisting shutdown state.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L97-L159',
+    'L98-L160',
   ),
   mekstationDeviationRef(
     'MekStation queueRunnerShutdownPSR emits PSRTriggered with PSRTrigger.Shutdown and appends the pending createShutdownPSR entry for later PSR phase resolution.',

@@ -5,6 +5,7 @@ import type {
 
 import { removeEquivalentINarcPod } from '@/utils/gameplay/specialWeaponMechanics';
 
+import { removeSquadSwarmState, releasedGrappleState } from '../attackLinks';
 import { hexNeighbor } from '../hexMath';
 
 function facingToward(
@@ -108,15 +109,6 @@ function buildBrushOffTargetState(
   };
 }
 
-function removeSquadSwarmState<
-  T extends NonNullable<IGameState['units'][string]['combatState']>['state'],
->(state: T): T {
-  const { swarmingUnitId: _swarmingUnitId, ...squadState } = state as T & {
-    readonly swarmingUnitId?: string;
-  };
-  return squadState as T;
-}
-
 function applyGrappleResolution(
   units: IGameState['units'],
   payload: IPhysicalAttackResolvedPayload,
@@ -203,15 +195,5 @@ function applyBreakGrappleResolution(
         ? facingToward(target.position, attacker.position, target.facing)
         : target.facing,
     },
-  };
-}
-
-function releasedGrappleState(): Partial<IGameState['units'][string]> {
-  return {
-    grappledUnitId: undefined,
-    isGrappleAttacker: undefined,
-    grappledThisRound: false,
-    grappleSide: undefined,
-    isChainWhipGrappled: false,
   };
 }

@@ -35,6 +35,8 @@ import {
 import {
   DEFAULT_DAILY_REFIT_HOURS,
   applyRefitHours,
+  getConflictingRefitUnitIds,
+  isActiveRefitOrder,
 } from '../refit/refitPipeline';
 
 /**
@@ -54,17 +56,25 @@ export const refitProcessor: IDayProcessor = {
     const orders = campaign.refitOrders ?? [];
 
     // Fast exit — no in-progress refits means nothing to do.
-    const hasActive = orders.some((o) => o.status === 'in-progress');
+    const hasActive = orders.some(isActiveRefitOrder);
     if (!hasActive) {
       return { events: [], campaign };
     }
 
     const events: IDayEvent[] = [];
+    const conflictingUnitIds = getConflictingRefitUnitIds(orders);
+    for (const unitId of conflictingUnitIds) {
+      events.push({
+        type: 'refit-conflict',
+        severity: 'warning',
+        description: `Multiple open refits pause ${unitId} until only one remains.`,
+      });
+    }
     const existingConfigs = campaign.unitConfigurations ?? {};
     const nextConfigs: Record<string, MechBuildConfig> = { ...existingConfigs };
 
     const nextOrders: IRefitOrder[] = orders.map((order) => {
-      if (order.status !== 'in-progress') {
+      if (!isActiveRefitOrder(order) || conflictingUnitIds.has(order.unitId)) {
         return order;
       }
 

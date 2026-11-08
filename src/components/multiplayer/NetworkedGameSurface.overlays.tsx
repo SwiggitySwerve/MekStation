@@ -24,6 +24,7 @@ import type {
 } from '@/hooks/useMultiplayerSession';
 
 import { AppIcon } from '@/components/ui/AppIcon';
+import { MATCH_PAUSE_MESSAGES } from '@/lib/multiplayer/matchPauseCopy';
 
 // =============================================================================
 // Loading state
@@ -136,36 +137,49 @@ export interface IMatchPauseOverlayProps {
 }
 
 /**
- * Blocking overlay rendered on `MatchPaused` (D6). Names every pending
- * seat and shows the grace countdown; covers the surface so intent
- * controls underneath cannot be reached.
+ * Blocking overlay rendered on `MatchPaused` (D6). Names why the match
+ * is paused, every pending seat and, only while a seat is pending, the
+ * grace countdown; covers the surface so intent controls underneath
+ * cannot be reached.
  */
 export function MatchPauseOverlay({
   info,
 }: IMatchPauseOverlayProps): React.ReactElement {
   const seconds = useGraceCountdown(info);
-  const slotLabel =
-    info.pendingSlots.length > 0 ? info.pendingSlots.join(', ') : 'an opponent';
+  const seatsPending = info.pendingSlots.length > 0;
+  const slotLabel = seatsPending ? info.pendingSlots.join(', ') : 'an opponent';
   return (
     <div
       data-testid="match-pause-overlay"
       role="alertdialog"
       aria-modal="true"
-      aria-label="Match paused"
+      aria-label="Match Paused"
       className="bg-surface-deep/80 absolute inset-0 z-20 flex flex-col items-center justify-center p-8 text-center backdrop-blur-sm"
     >
-      <h2 className="text-xl font-semibold text-amber-200">Match paused</h2>
-      <p className="text-text-theme-secondary mt-2 max-w-sm text-sm">
-        Waiting for{' '}
-        <span className="font-mono text-amber-300">{slotLabel}</span> to
-        reconnect.
-      </p>
-      <p
-        data-testid="match-pause-countdown"
-        className="mt-3 font-mono text-2xl text-amber-100"
-      >
-        {seconds}s
-      </p>
+      <h2 className="text-xl font-semibold text-amber-200">Match Paused</h2>
+      {info.reason !== 'peer-pending' && (
+        <p
+          data-testid="match-pause-reason"
+          className="text-text-theme-secondary mt-2 max-w-sm text-sm"
+        >
+          {MATCH_PAUSE_MESSAGES[info.reason]}
+        </p>
+      )}
+      {(seatsPending || info.reason === 'peer-pending') && (
+        <p className="text-text-theme-secondary mt-2 max-w-sm text-sm">
+          Waiting for{' '}
+          <span className="font-mono text-amber-300">{slotLabel}</span> to
+          reconnect.
+        </p>
+      )}
+      {seatsPending && (
+        <p
+          data-testid="match-pause-countdown"
+          className="mt-3 font-mono text-2xl text-amber-100"
+        >
+          {seconds}s
+        </p>
+      )}
       <p className="text-text-theme-muted mt-2 text-xs">
         Controls are disabled until the match resumes.
       </p>

@@ -17,6 +17,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import { buildConservativeC3NetworkStateFromUnits } from '@/utils/gameplay/c3Network';
 import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
 import {
@@ -528,13 +529,16 @@ export function applyDamageResultToState(
       newDestroyedLocations,
     );
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [targetId]: updatedUnit,
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [targetId]: updatedUnit,
+      },
     },
-  };
+    targetId,
+  );
 }
 
 export function isUnitOperable(unit: IUnitGameState): boolean {

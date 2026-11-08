@@ -50,6 +50,10 @@ and explicitly normalizing diagnostic timestamps and elapsed duration.
 movement terrain PSRs. It returns, in step order, the PSRs to queue and any
 jump-entry bog-down that sticks a BattleMech without a roll. Callers apply the
 effects to their own state and event stream; none re-derives the triggers.
+Water, rubble, skid and ice PSRs follow MegaMek `Mek.canFall`: only a
+BattleMech-like unit that is not prone rolls them. Water entry also skips
+hover, VTOL, naval, hydrofoil, submarine, UMU, swim and WiGE motive modes, so
+callers pass the unit's motive mode when they know it.
 
 `stuckRecovery.ts` owns the movement-start recovery roll: which stuck units may
 roll, the `swamp_unstuck` PSR for the unit's hex, and the roll itself. Event
