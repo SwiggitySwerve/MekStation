@@ -1,3 +1,4 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
 /**
  * Replay Library encounter-game persist API route — handler tests.
  *
@@ -25,8 +26,6 @@
  * full handler ↔ reader wiring coverage.
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -36,6 +35,7 @@ import type {
   IReplayManifestEntry,
 } from '@/replay-library/types';
 
+import { ENCOUNTER_SESSION_BODY_LIMIT } from '@/services/encounter/encounterLifecycleClient';
 import { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 import {
   GameEventType,
@@ -49,6 +49,18 @@ import { enableTestMode } from '@/utils/logger';
 // =============================================================================
 // Module mock — must precede the handler import.
 // =============================================================================
+
+const mockCompleteEncounter = jest.fn();
+const mockGetEncounter = jest.fn();
+jest.mock('@/services/encounter/EncounterService', () => ({
+  getEncounterService: () => ({
+    getEncounter: mockGetEncounter,
+    completeEncounter: mockCompleteEncounter,
+  }),
+}));
+jest.mock('@/services/persistence/SQLiteService', () => ({
+  getSQLiteService: () => ({ initialize: jest.fn() }),
+}));
 
 jest.mock('@/components/encounter/persistEncounterGame', () => {
   const actual = jest.requireActual<
@@ -126,6 +138,7 @@ function makeEvents(gameId: string): IGameEvent[] {
       phase: GamePhase.Initiative,
       payload: {
         config: {
+          encounterId: 'enc-row-1',
           mapRadius: 10,
           turnLimit: 10,
           victoryConditions: ['destruction'],
@@ -139,7 +152,7 @@ function makeEvents(gameId: string): IGameEvent[] {
       gameId,
       sequence: 1,
       timestamp: '2026-05-08T00:00:01.000Z',
-      type: GameEventType.TurnStarted,
+      type: GameEventType.GameEnded,
       turn: 1,
       phase: GamePhase.Initiative,
       payload: {},
@@ -158,7 +171,9 @@ interface IValidBody {
   opponentSummary: string;
 }
 
+let currentGameId = '';
 function validBody(gameId = 'encounter-route-1'): IValidBody {
+  currentGameId = gameId;
   return {
     gameId,
     events: makeEvents(gameId),
@@ -210,6 +225,12 @@ describe('POST /api/replay-library/encounter', () => {
   });
 
   beforeEach(async () => {
+    mockCompleteEncounter.mockReset().mockReturnValue({ success: true });
+    mockGetEncounter.mockReset().mockImplementation((id: string) => ({
+      id,
+      status: 'launched',
+      gameSessionId: currentGameId,
+    }));
     jest.clearAllMocks();
     tmpDir = await makeTmpReports();
     cwdSpy = jest.spyOn(process, 'cwd').mockReturnValue(tmpDir);
@@ -232,6 +253,11 @@ describe('POST /api/replay-library/encounter', () => {
 
     await handler(req, res);
 
+    expect(mockCompleteEncounter).toHaveBeenCalledWith(
+      'enc-row-1',
+      'encounter-happy-1',
+      body.events,
+    );
     expect(mockedPersistEncounterGame).toHaveBeenCalledTimes(1);
     expect(mockedPersistEncounterGame).toHaveBeenCalledWith({
       gameId: 'encounter-happy-1',
@@ -286,6 +312,11 @@ describe('POST /api/replay-library/encounter', () => {
 
     await handler(req, res);
 
+    expect(mockCompleteEncounter).toHaveBeenCalledWith(
+      'enc-row-1',
+      'encounter-dup-1',
+      req.body.events,
+    );
     // Critical: persistEncounterGame() MUST NOT be called on a duplicate.
     expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
 
@@ -381,6 +412,29 @@ describe('POST /api/replay-library/encounter', () => {
     expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
   });
 
+  it('surfaces a failed dedup completion and permits a later retry without another replay write', async () => {
+    const gameId = 'dedup-completion-retry';
+    const reports = path.join(tmpDir, 'simulation-reports');
+    await fs.mkdir(reports, { recursive: true });
+    await fs.writeFile(
+      path.join(reports, 'replay-index.json'),
+      JSON.stringify([makeWriteSuccess(gameId).manifestEntry]),
+    );
+    mockCompleteEncounter.mockReturnValueOnce({
+      success: false,
+      error: 'Completion write failed',
+    });
+    const req = createMockRequest({ body: validBody(gameId) });
+    const failed = createMockResponse();
+    await handler(req, failed);
+    expect(failed.status).toHaveBeenCalledWith(409);
+    const retried = createMockResponse();
+    await handler(req, retried);
+    expect(retried.status).toHaveBeenCalledWith(200);
+    expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
+    expect(mockCompleteEncounter).toHaveBeenCalledTimes(2);
+  });
+
   it('returns 400 BAD_EVENTS when events is not an array', async () => {
     const req = createMockRequest({
       body: { ...validBody(), events: 'not-an-array' },
@@ -450,7 +504,9 @@ describe('POST /api/replay-library/encounter', () => {
   // ===========================================================================
 
   it('exports a Next bodyParser sizeLimit of 16mb (real logs already exceed the 1mb default)', () => {
-    expect(routeConfig?.api?.bodyParser?.sizeLimit).toBe('16mb');
+    expect(routeConfig?.api?.bodyParser?.sizeLimit).toBe(
+      ENCOUNTER_SESSION_BODY_LIMIT,
+    );
   });
 
   it('returns 413 PAYLOAD_TOO_LARGE when Content-Length exceeds the ceiling', async () => {
@@ -481,8 +537,10 @@ describe('POST /api/replay-library/encounter', () => {
       ...gameCreated,
       id: `encounter-large-1-evt-${i}`,
       sequence: i,
-      payload: { filler: 'x'.repeat(1000) },
+      type: i === 0 ? GameEventType.GameCreated : GameEventType.TurnStarted,
+      payload: i === 0 ? gameCreated.payload : { filler: 'x'.repeat(1000) },
     }));
+    bigEvents.push({ ...makeEvents('encounter-large-1')[1], sequence: 1500 });
     const body = { ...validBody('encounter-large-1'), events: bigEvents };
     const serializedBytes = JSON.stringify(body).length;
     expect(serializedBytes).toBeGreaterThan(1024 * 1024);
@@ -650,4 +708,39 @@ describe('POST /api/replay-library/encounter', () => {
       code: 'BAD_BODY',
     });
   });
+});
+
+describe('S1a replay completion guards', () => {
+  beforeEach(() => {
+    mockedPersistEncounterGame
+      .mockReset()
+      .mockResolvedValue(makeWriteSuccess('game-a'));
+    mockCompleteEncounter.mockReset().mockReturnValue({ success: true });
+    mockGetEncounter.mockReset().mockReturnValue({
+      id: 'enc-row-1',
+      status: 'launched',
+      gameSessionId: 'game-a',
+    });
+  });
+  it.each(['unfinished', 'wrong-game', 'wrong-encounter', 'wrong-link'])(
+    'rejects %s before any replay or completion write',
+    async (mode) => {
+      const body = validBody('game-a');
+      if (mode === 'unfinished') body.events.pop();
+      if (mode === 'wrong-game')
+        body.events[1] = { ...body.events[1], gameId: 'game-b' };
+      if (mode === 'wrong-encounter') body.encounterId = 'another-encounter';
+      if (mode === 'wrong-link')
+        mockGetEncounter.mockReturnValue({
+          id: 'enc-row-1',
+          status: 'launched',
+          gameSessionId: 'game-b',
+        });
+      const res = createMockResponse();
+      await handler(createMockRequest({ body }), res);
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(mockedPersistEncounterGame).not.toHaveBeenCalled();
+      expect(mockCompleteEncounter).not.toHaveBeenCalled();
+    },
+  );
 });

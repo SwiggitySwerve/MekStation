@@ -14,6 +14,7 @@ import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
 import { createGridFromTerrainPreset } from '@/engine/GameEngine.helpers';
 import { persistInteractiveLaunchRecoveryLog } from '@/engine/InteractiveSession.persistence';
+import { linkEncounterSession } from '@/services/encounter/encounterLifecycleClient';
 import { EncounterStatus, type IEncounter } from '@/types/encounter';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { buildFromSkirmishConfig } from '@/utils/gameplay/preBattleSessionBuilder';
@@ -272,6 +273,7 @@ export function usePreBattleSkirmish({
         const liveSession = interactiveSession.getSession();
 
         await persistInteractiveLaunchRecoveryLog(liveSession);
+        await linkEncounterSession(liveSession);
         setInteractiveSession(interactiveSession);
         logger.info('Skirmish session launched', {
           sessionId: liveSession.id,

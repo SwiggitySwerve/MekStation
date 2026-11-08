@@ -49,6 +49,10 @@ export interface IEncounterRepository {
     encounterId: string,
     gameSessionId: string,
   ): IEncounterOperationResult;
+  completeEncounter(
+    encounterId: string,
+    gameSessionId: string,
+  ): IEncounterOperationResult;
   clearForceReference(forceId: string): {
     affectedEncounterIds: readonly string[];
   };

@@ -266,19 +266,13 @@ export function insertEncounterRow(
 export function recalculateEncounterStatus(
   id: string,
   getEncounterById: (id: string) => IEncounter | null,
+  updateStatus: (id: string, status: EncounterStatus) => void,
 ): void {
   const encounter = getEncounterById(id);
   if (!encounter) return;
   const newStatus = recalculateEncounterLifecycleStatus(encounter);
 
   if (newStatus !== encounter.status) {
-    updateEncounterStatus(id, newStatus);
+    updateStatus(id, newStatus);
   }
-}
-
-function updateEncounterStatus(id: string, status: EncounterStatus): void {
-  const db = getSQLiteService().getDatabase();
-  db.prepare(
-    'UPDATE encounters SET status = ?, updated_at = ? WHERE id = ?',
-  ).run(status, new Date().toISOString(), id);
 }

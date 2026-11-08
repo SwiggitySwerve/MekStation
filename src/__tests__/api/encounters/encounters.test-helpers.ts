@@ -1,3 +1,4 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
 /**
  * Encounters API Routes Tests
  *
@@ -12,17 +13,19 @@
  * - /api/encounters/[id]/opponent-force
  */
 
-import type { NextApiRequest, NextApiResponse } from 'next';
-
 import cloneHandler from '@/pages/api/encounters/[id]/clone';
 import encounterByIdHandler from '@/pages/api/encounters/[id]/index';
 import launchHandler from '@/pages/api/encounters/[id]/launch';
 import opponentForceHandler from '@/pages/api/encounters/[id]/opponent-force';
 import playerForceHandler from '@/pages/api/encounters/[id]/player-force';
+import sessionHandler, {
+  config as sessionConfig,
+} from '@/pages/api/encounters/[id]/session';
 import templateHandler from '@/pages/api/encounters/[id]/template';
 import validateHandler from '@/pages/api/encounters/[id]/validate';
 // Import handlers
 import encountersHandler from '@/pages/api/encounters/index';
+import { ENCOUNTER_SESSION_BODY_LIMIT } from '@/services/encounter/encounterLifecycleClient';
 import {
   IEncounterOperationResult,
   EncounterErrorCode,
@@ -36,6 +39,7 @@ import {
   TerrainPreset,
   VictoryConditionType,
 } from '@/types/encounter';
+import { GameEventType, GamePhase } from '@/types/gameplay';
 
 // =============================================================================
 // Mocks
@@ -50,6 +54,8 @@ jest.mock('@/services/persistence/SQLiteService', () => ({
 
 // Mock Encounter service
 const mockEncounterService = {
+  linkGameSession: jest.fn(),
+  completeEncounter: jest.fn(),
   getAllEncounters: jest.fn(),
   getEncounter: jest.fn(),
   createEncounter: jest.fn(),
@@ -1481,6 +1487,136 @@ describe('Opponent force - missing ID and exceptions', () => {
     await opponentForceHandler(req, res);
 
     expect(res.setHeader).toHaveBeenCalledWith('Allow', ['PUT', 'DELETE']);
+    expect(res.status).toHaveBeenCalledWith(405);
+  });
+});
+
+describe('encounter session API', () => {
+  function history(terminal = false) {
+    return [
+      {
+        id: 'evt-0',
+        gameId: 'game-a',
+        sequence: 0,
+        timestamp: '2026-11-08T00:00:00Z',
+        type: GameEventType.GameCreated,
+        turn: 0,
+        phase: GamePhase.Initiative,
+        payload: { config: { encounterId: 'enc-1' } },
+      },
+      ...(terminal
+        ? [
+            {
+              id: 'evt-1',
+              gameId: 'game-a',
+              sequence: 1,
+              timestamp: '2026-11-08T00:00:01Z',
+              type: GameEventType.GameEnded,
+              turn: 1,
+              phase: GamePhase.Initiative,
+              payload: {},
+            },
+          ]
+        : []),
+    ];
+  }
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockEncounterService.linkGameSession.mockReturnValue(createSuccessResult());
+    mockEncounterService.completeEncounter.mockReturnValue(
+      createSuccessResult(),
+    );
+    mockEncounterService.getEncounter.mockReturnValue(createMockEncounter());
+  });
+  it('accepts replay-sized histories and rejects requests above the common ceiling', () => {
+    expect(sessionConfig.api.bodyParser.sizeLimit).toBe(
+      ENCOUNTER_SESSION_BODY_LIMIT,
+    );
+    const events = history(true);
+    const accepted = createMockResponse();
+    sessionHandler(
+      createMockRequest({
+        method: 'PATCH',
+        query: { id: 'enc-1' },
+        headers: { 'content-length': String(2 * 1024 * 1024) },
+        body: { gameId: 'game-a', events },
+      }),
+      accepted,
+    );
+    expect(accepted.status).toHaveBeenCalledWith(200);
+    const rejected = createMockResponse();
+    mockEncounterService.completeEncounter.mockClear();
+    sessionHandler(
+      createMockRequest({
+        method: 'PATCH',
+        query: { id: 'enc-1' },
+        headers: { 'content-length': String(16 * 1024 * 1024 + 1) },
+        body: { gameId: 'game-a', events },
+      }),
+      rejected,
+    );
+    expect(rejected.status).toHaveBeenCalledWith(413);
+    expect(mockEncounterService.completeEncounter).not.toHaveBeenCalled();
+  });
+  it.each(['POST', 'PATCH'])(
+    'transports validated %s to the service',
+    (method) => {
+      const events = history(method === 'PATCH');
+      const res = createMockResponse();
+      sessionHandler(
+        createMockRequest({
+          method,
+          query: { id: 'enc-1' },
+          body: { gameId: 'game-a', events },
+        }),
+        res,
+      );
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(
+        method === 'POST'
+          ? mockEncounterService.linkGameSession
+          : mockEncounterService.completeEncounter,
+      ).toHaveBeenCalledWith('enc-1', 'game-a', events);
+    },
+  );
+  it.each([
+    {},
+    { gameId: 'game-a', events: [] },
+    { gameId: 'game-a', events: history() },
+    { gameId: 'wrong-game', events: history(true) },
+  ])(
+    'rejects invalid completion evidence before calling the service',
+    (body) => {
+      const res = createMockResponse();
+      sessionHandler(
+        createMockRequest({ method: 'PATCH', query: { id: 'enc-1' }, body }),
+        res,
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(mockEncounterService.completeEncounter).not.toHaveBeenCalled();
+    },
+  );
+  it('preserves failed lifecycle results', () => {
+    mockEncounterService.linkGameSession.mockReturnValue(
+      createErrorResult('Already launched', EncounterErrorCode.InvalidStatus),
+    );
+    const res = createMockResponse();
+    sessionHandler(
+      createMockRequest({
+        method: 'POST',
+        query: { id: 'enc-1' },
+        body: { gameId: 'game-a', events: history() },
+      }),
+      res,
+    );
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ errorCode: EncounterErrorCode.InvalidStatus }),
+    );
+  });
+  it.each(['GET', 'DELETE'])('rejects unsupported %s', (method) => {
+    const res = createMockResponse();
+    sessionHandler(createMockRequest({ method, query: { id: 'enc-1' } }), res);
     expect(res.status).toHaveBeenCalledWith(405);
   });
 });

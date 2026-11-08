@@ -1,3 +1,7 @@
+import {
+  buildEncounterPersistBody,
+  persistEncounterFromSession,
+} from '@/components/encounter/persistEncounterFromSession';
 /**
  * EncounterService persist hook tests.
  *
@@ -21,17 +25,17 @@
  *
  * @spec openspec/changes/link-encounters-to-replays/specs/game-session-management/spec.md
  */
-
-import {
-  buildEncounterPersistBody,
-  persistEncounterFromSession,
-} from '@/components/encounter/persistEncounterFromSession';
 import {
   GamePhase,
   GameSide,
   GameStatus,
   type IGameSession,
 } from '@/types/gameplay';
+
+import {
+  linkEncounterSession,
+  completeEncounterSession,
+} from '../encounterLifecycleClient';
 
 // =============================================================================
 // Test Fixtures
@@ -282,5 +286,40 @@ describe('persistEncounterFromSession', () => {
     });
 
     expect(fetchSpy.mock.calls[0][0]).toBe('/api/test-route');
+  });
+});
+
+describe('local lifecycle client', () => {
+  it('never writes encounter state for an unlinked quick/simulation session', async () => {
+    const original = global.fetch;
+    const request = jest.fn();
+    global.fetch = request;
+    try {
+      const base = makeEncounterSession();
+      const session = {
+        ...base,
+        config: { ...base.config, encounterId: null },
+      };
+      await linkEncounterSession(session);
+      await completeEncounterSession(session);
+      expect(request).not.toHaveBeenCalled();
+    } finally {
+      global.fetch = original;
+    }
+  });
+  it('surfaces an unsuccessful response even if HTTP status is OK', async () => {
+    const original = global.fetch;
+    const request = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: false, error: 'Stale session' }),
+    });
+    global.fetch = request;
+    try {
+      await expect(
+        linkEncounterSession(makeEncounterSession()),
+      ).rejects.toThrow('Stale session');
+    } finally {
+      global.fetch = original;
+    }
   });
 });

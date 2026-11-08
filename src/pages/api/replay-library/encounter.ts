@@ -46,9 +46,17 @@ import {
 } from '@/components/encounter/persistEncounterGame';
 import {
   rejectUnexpectedMethod,
+  initializeApiDatabase,
   type ApiErrorResponse,
 } from '@/pages-modules/api/routeHelpers';
 import { readReplayIndex } from '@/replay-library/index-reader';
+import {
+  encounterSessionEvidenceError,
+  encounterTransitionError,
+} from '@/services/encounter/EncounterLifecycle';
+import { ENCOUNTER_SESSION_MAX_BYTES } from '@/services/encounter/encounterLifecycleClient';
+import { getEncounterService } from '@/services/encounter/EncounterService';
+import { EncounterStatus } from '@/types/encounter';
 import { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { logger } from '@/utils/logger';
@@ -66,7 +74,7 @@ import { logger } from '@/utils/logger';
  * Duplicated in the sibling `quick.ts` route per this directory's
  * copy-not-import convention.
  */
-const MAX_BODY_BYTES = 16 * 1024 * 1024;
+const MAX_BODY_BYTES = ENCOUNTER_SESSION_MAX_BYTES;
 
 /**
  * Next pages-router override: lift the bodyParser limit from the 1MB
@@ -77,6 +85,7 @@ const MAX_BODY_BYTES = 16 * 1024 * 1024;
 export const config = {
   api: {
     bodyParser: {
+      // Next statically extracts this literal; tests pin the shared transport limit.
       sizeLimit: '16mb',
     },
   },
@@ -305,6 +314,61 @@ export default async function handler(
     return;
   }
   const { input } = parsed;
+  const evidenceError = encounterSessionEvidenceError(
+    input.encounterId,
+    input.gameId,
+    input.events,
+    true,
+  );
+  if (evidenceError) {
+    res
+      .status(409)
+      .json({ error: evidenceError, code: 'INVALID_ENCOUNTER_SESSION' });
+    return;
+  }
+  if (!initializeApiDatabase(res)) return;
+  try {
+    const encounter = getEncounterService().getEncounter(input.encounterId);
+    const error = encounter
+      ? encounterTransitionError(
+          encounter,
+          EncounterStatus.Completed,
+          input.gameId,
+        )
+      : 'Encounter not found';
+    if (error) {
+      res.status(409).json({ error, code: 'INVALID_ENCOUNTER_SESSION' });
+      return;
+    }
+  } catch (error) {
+    logger.error('[encounter] completion validation failed', error);
+    res.status(500).json({
+      error: 'Encounter completion validation failed',
+      code: 'COMPLETION_FAILED',
+    });
+    return;
+  }
+  const complete = (): boolean => {
+    try {
+      const result = getEncounterService().completeEncounter(
+        input.encounterId,
+        input.gameId,
+        input.events,
+      );
+      if (result.success) return true;
+      res.status(409).json({
+        error: result.error ?? 'Encounter completion failed',
+        code: 'COMPLETION_FAILED',
+      });
+    } catch (error) {
+      logger.error('[encounter] completion failed', error);
+      res.status(500).json({
+        error: 'Encounter completion failed',
+        code: 'COMPLETION_FAILED',
+      });
+    }
+    return false;
+  };
 
   // Dedup guard. Read the current manifest and short-circuit if `gameId`
   // is already present — `appendManifestEntry` does a blind append, so
@@ -314,6 +378,7 @@ export default async function handler(
   try {
     const existing = await readReplayIndex();
     if (existing.some((entry) => entry.id === input.gameId)) {
+      if (!complete()) return;
       const manifestEntry = buildEncounterManifestEntry(input);
       logger.debug(
         '[replay-library] encounter game already persisted; skipping',
@@ -353,6 +418,7 @@ export default async function handler(
     return;
   }
 
+  if (!complete()) return;
   res.status(200).json({
     persisted: result.persisted,
     alreadyPersisted: false,
