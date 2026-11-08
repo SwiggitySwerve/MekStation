@@ -19,7 +19,6 @@ import {
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import { buildConservativeC3NetworkStateFromUnits } from '@/utils/gameplay/c3Network';
-import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
 import {
   movementStepsUseBackwardMovement,
   movementStepsUseMechanicalJumpBooster,
@@ -30,8 +29,8 @@ import {
   placeObjectives,
 } from '@/utils/gameplay/objectives';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
 import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
-import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
 import { hasSPA } from '@/utils/gameplay/spaModifiers';
 import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
@@ -336,21 +335,14 @@ export function synthesizeGameUnits(
 export function resetTurnState(state: IGameState): IGameState {
   const updatedUnits: Record<string, IUnitGameState> = {};
   for (const [id, unit] of Object.entries(state.units)) {
-    const updatedUnit: IUnitGameState = {
-      ...unit,
-      damageThisPhase: 0,
-      weaponsFiredThisTurn: [],
-      pendingPSRs: [],
-      tagDesignated: false,
-      externalHeatThisTurn: 0,
-      pendingExternalHeat: 0,
-      ...(unit.empShutdownTurns !== undefined
-        ? { empShutdownTurns: advanceEmpShutdownTurns(unit.empShutdownTurns) }
-        : {}),
-    };
-
+    // damageThisPhase stays here: the runner zeroes it per turn, the reducer per
+    // phase (C7 D1). 'sparse' keeps the runner's serialized shape unchanged.
+    // advanceVehicleCrewStun (C14) is its own once-per-round step.
     updatedUnits[id] = advanceVehicleCrewStun(
-      resetPerTurnMovementState(updatedUnit),
+      resetPerTurnUnitFields(
+        { ...unit, damageThisPhase: 0 },
+        { presence: 'sparse' },
+      ),
     );
   }
 

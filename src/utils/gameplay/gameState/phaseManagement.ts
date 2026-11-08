@@ -8,7 +8,7 @@ import {
   LockState,
 } from '@/types/gameplay';
 import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
-import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
+import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
 import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 export function applyPhaseChanged(
@@ -66,26 +66,11 @@ export function applyTurnStarted(
     // if a caller advanced past End without resolving, a stale queue
     // would carry into a fresh turn). TW p.52: PSRs do not persist
     // across turn boundaries.
-    const empInterferenceTurns = Math.max(
-      0,
-      Math.trunc(units[unitId].empInterferenceTurns ?? 0) - 1,
+    // advanceVehicleCrewStun (C14) is its own once-per-round step, not part of
+    // the shared per-turn unit fields.
+    units[unitId] = advanceVehicleCrewStun(
+      resetPerTurnUnitFields(units[unitId], { presence: 'explicit' }),
     );
-    const empShutdownTurns = advanceEmpShutdownTurns(
-      units[unitId].empShutdownTurns,
-    );
-    units[unitId] = {
-      ...advanceVehicleCrewStun(resetPerTurnMovementState(units[unitId])),
-      weaponsFiredThisTurn: [],
-      pendingPSRs: [],
-      isLoadingOrUnloadingCargo: false,
-      tagDesignated: false,
-      externalHeatThisTurn: 0,
-      pendingExternalHeat: 0,
-      empInterferenceTurns,
-      empShutdownTurns,
-      isSpotting: false,
-      spotTargetId: undefined,
-    };
   }
 
   return {

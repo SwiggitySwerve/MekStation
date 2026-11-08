@@ -140,7 +140,7 @@ export const MEKSTATION_ARTEMIS_STEALTH_LIFECYCLE_SOURCE_REFS = [
   ),
   ewArtemisMekStationRef(
     'MekStation createInitialState preserves hydrated ECM modes as operational electronic-warfare suites.',
-    'src/simulation/runner/SimulationRunnerState.ts#L112-L128',
+    'src/simulation/runner/SimulationRunnerState.ts#L111-L127',
   ),
   ewArtemisMekStationRef(
     'MekStation runner tests prove active attacker stealth suppresses Artemis cluster bonuses only when stealth armor has operational own ECM.',
