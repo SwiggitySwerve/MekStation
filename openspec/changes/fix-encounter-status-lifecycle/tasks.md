@@ -6,4 +6,4 @@
 - [x] 2.3 Kill missing-skirmish-link and missing-terminal-validation mutants.
 ## 3. Verification
 - [x] 3.1 Run all lane gates and record evidence; stop on committed fixture/digest changes.
-- [ ] 3.2 Document read-only audit and S1b follow-up, open one draft PR without merging.
+- [x] 3.2 Document read-only audit and S1b follow-up, open one draft PR without merging.

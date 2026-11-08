@@ -77,3 +77,7 @@ The complete runner directory is repeated after that re-anchor.
 
 Post-re-anchor full runner directory: 152 suites / 1,498 tests passed.
 Both TypeScript configurations also passed again after the citation update.
+
+Draft PR: https://github.com/SwiggitySwerve/MekStation/pull/3058.
+S1b findings with file:line evidence are in its body. Hosted checks and Root
+review are pending at handoff; this lane never merges.
