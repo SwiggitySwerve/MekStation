@@ -1,0 +1,6 @@
+{
+  "name": "add-authoritative-history-branches",
+  "status": "in-progress",
+  "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven. Reviewed 2026-09-15 against exact main: PR 1 storage/resolver work is merged and main-verified (tasks 1.1-1.4 checked; PRs #1671 4cf52fe73, #1674 bcc34f7cd, #1681 1f84beef2), so the entry is no longer merely proposed; 1.5 (independent lineage/security review on merged main) and 1.6 (exact-main resolver rerun plus branch/worktree prune) stay open, section 2 activation is blocked on add-cross-stream-effect-receipts, and the 8.1-8.3 deferrals stand verbatim.",
+  "lastReviewed": "2026-09-15"
+}

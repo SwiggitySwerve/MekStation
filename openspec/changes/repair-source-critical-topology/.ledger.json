@@ -1,0 +1,6 @@
+{
+  "name": "repair-source-critical-topology",
+  "status": "in-progress",
+  "reason": "L-VAL-MECH native cockpit topology and armored critical marker: slot validation uses the selected cockpit through CockpitType.getCockpitSystemSlots. Editor grid, auto-fill, loadout and preview consumers follow. Full validity parity remains open.",
+  "lastReviewed": "2026-11-03"
+}
