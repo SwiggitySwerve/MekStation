@@ -1,3 +1,4 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 import type {
   CriticalHitEvent,
   CriticalSlotManifest,
@@ -22,15 +23,6 @@ import {
   appendUnitDestroyedEvent,
   createGameEvent,
 } from './utils';
-
-type UnitDestroyedCause =
-  | 'damage'
-  | 'ammo_explosion'
-  | 'pilot_death'
-  | 'engine_destroyed'
-  | 'impossible_displacement'
-  | 'ct_destroyed'
-  | 'head_destroyed';
 
 export interface IRunnerMaxTechHeatCriticalDamageResult {
   readonly unit: IUnitGameState;

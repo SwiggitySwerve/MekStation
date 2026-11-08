@@ -55,7 +55,7 @@ export const MEKSTATION_DAMAGE_RESOLUTION_SOURCE_REFS = [
 export const MEKSTATION_DAMAGE_EVENT_SOURCE_REFS = [
   damageMekStationRef(
     'MekStation emitDamageChainEvents emits DamageApplied, LocationDestroyed, cascaded arm LocationDestroyed, and TransferDamage events from damage resolver output.',
-    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L182-L303',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L177-L298',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -66,7 +66,7 @@ export const MEKSTATION_HEAT_AMMO_EXPLOSION_DAMAGE_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation crit-induced ammo explosions share the same internal-only cascade, CASE adjustment, pilot damage, and ammo_explosion cause propagation.',
-    'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L72-L317',
+    'src/simulation/runner/phases/weaponAttackAmmoExplosions.ts#L65-L310',
   ),
   damageMekStationRef(
     'MekStation event-sourced heat resolution routes heat ammo cookoff through the same damage, pilot-hit, and destruction event contracts.',
@@ -85,7 +85,7 @@ export const MEKSTATION_DESTRUCTION_CAUSE_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation emitUnitDestroyedEvent emits canonical UnitDestroyed causes from critical or damage resolution output.',
-    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L360-L407',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L355-L402',
   ),
   damageMekStationRef(
     'MekStation applyDamageResultToState preserves canonical destructionCause on IUnitGameState snapshots.',
@@ -104,7 +104,7 @@ export const MEKSTATION_PILOT_DAMAGE_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation emitHeadHitPilotEvent emits PilotHit source=head_hit unless a cockpit critical already emitted the pilot hit.',
-    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L312-L349',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L307-L344',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -115,7 +115,7 @@ export const MEKSTATION_COCKPIT_CRIT_PILOT_DEATH_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation weaponAttackCriticalEvents converts cockpit critical pilot_hit and unit_destroyed events into runner PilotHit and deferred UnitDestroyed payloads.',
-    'src/simulation/runner/phases/weaponAttackCriticalEvents.ts#L188-L267',
+    'src/simulation/runner/phases/weaponAttackCriticalEvents.ts#L189-L264',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -145,7 +145,7 @@ export const MEKSTATION_MAXTECH_HEAT_CRITICAL_SOURCE_REFS = [
   ),
   damageMekStationRef(
     'MekStation runner heat critical-damage handling emits CriticalHit, CriticalHitResolved, ComponentDestroyed, PSRTriggered, PilotHit, and UnitDestroyed events.',
-    'src/simulation/runner/phases/heatCriticalDamage.ts#L91-L210',
+    'src/simulation/runner/phases/heatCriticalDamage.ts#L83-L202',
   ),
   damageMekStationRef(
     'MekStation event-sourced heat resolution applies optional MaxTech heat critical damage through the same critical and terminal event path.',

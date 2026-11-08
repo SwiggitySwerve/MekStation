@@ -201,7 +201,7 @@ export const MEKSTATION_ATTACK_INVALID_AMMO_SUPPRESSION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation consumeWeaponAmmo mutates ammoState and emits AmmoConsumed, so invalid attacks must not reach this helper.',
     'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
-    'L110-L162',
+    'L105-L157',
   ),
   mekstationDeviationRef(
     'MekStation resolveWeaponHit emits AttackResolved and then consumes ammo only for valid hit-resolution paths.',
@@ -224,7 +224,7 @@ export const MEKSTATION_ATTACK_INVALID_DAMAGE_SUPPRESSION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation emitDamageChainEvents is the runner DamageApplied and transfer side-effect boundary, so invalid attacks must not reach it.',
     'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
-    'L182-L303',
+    'L177-L298',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

@@ -1,3 +1,5 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
+
 import {
   GameEventType,
   GamePhase,
@@ -24,14 +26,7 @@ import { weaponTypeFromMountId } from './weaponAttackHelpers';
  * of repeating the shared union at every call site (it appears in
  * both `emitCritEvents` and `applyCritAmmoExplosions` today).
  */
-export type DestructionCause =
-  | 'damage'
-  | 'ammo_explosion'
-  | 'pilot_death'
-  | 'engine_destroyed'
-  | 'impossible_displacement'
-  | 'ct_destroyed'
-  | 'head_destroyed';
+export type DestructionCause = UnitDestroyedCause;
 
 /**
  * The shape returned by `resolveDamage`. Aliased via `ReturnType` so the

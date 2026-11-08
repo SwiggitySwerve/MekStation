@@ -1,3 +1,4 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 import type { CriticalHitEvent } from '@/utils/gameplay/criticalHitResolution/types';
 
 import {
@@ -30,15 +31,7 @@ import {
   findExplodingAmmoBin,
 } from './weaponAttackHelpers';
 
-type DestructionCause =
-  | 'damage'
-  | 'ammo_explosion'
-  | 'pilot_death'
-  | 'engine_destroyed'
-  | 'impossible_displacement'
-  | 'ct_destroyed'
-  | 'head_destroyed'
-  | undefined;
+type DestructionCause = UnitDestroyedCause | undefined;
 
 interface ICriticalExplosion {
   readonly location: string;

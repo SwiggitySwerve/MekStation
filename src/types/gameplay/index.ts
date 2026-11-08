@@ -63,3 +63,5 @@ export * from './BattleArmorCombatInterfaces';
 
 // Per-type combat behavior state envelopes consumed by IUnitGameState.
 export * from './CombatStateTypes';
+
+export * from './UnitDestroyedCause';

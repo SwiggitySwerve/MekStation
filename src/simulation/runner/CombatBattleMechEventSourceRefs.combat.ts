@@ -75,12 +75,12 @@ export const BATTLEMECH_CRITICAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner critical-hit helper emits CriticalHit before CriticalHitResolved and ComponentDestroyed payloads.',
     'src/simulation/runner/phases/weaponAttackCriticalEvents.ts',
-    'L46-L151',
+    'L47-L152',
   ),
   mekstationDeviationSourceRef(
     'MekStation heat critical damage path emits CriticalHit, CriticalHitResolved, ComponentDestroyed, PSRTriggered, PilotHit, and UnitDestroyed chains.',
     'src/simulation/runner/phases/heatCriticalDamage.ts',
-    'L73-L278',
+    'L65-L270',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
