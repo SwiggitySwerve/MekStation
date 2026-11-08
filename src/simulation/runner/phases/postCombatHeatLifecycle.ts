@@ -1,4 +1,4 @@
-import { getShutdownTN } from '@/constants/heat';
+import { getShutdownTN, HEAT_THRESHOLDS } from '@/constants/heat';
 import {
   GameEventType,
   GamePhase,
@@ -106,11 +106,15 @@ export function applyHeatShutdownCheck(options: {
   let shutdown = unit.shutdown ?? false;
   const shutdownTargetNumber = getShutdownTN(heat, hotDogTargetNumberModifier);
 
-  if (!emission || (shutdownTargetNumber <= 0 && heat < 30)) {
+  if (
+    unit.shutdown ||
+    !emission ||
+    (shutdownTargetNumber <= 0 && heat < HEAT_THRESHOLDS.AUTO_SHUTDOWN)
+  ) {
     return { unit, shutdown };
   }
 
-  const automatic = heat >= 30;
+  const automatic = heat >= HEAT_THRESHOLDS.AUTO_SHUTDOWN;
   let roll = 0;
   let shutdownOccurred = automatic;
   if (!automatic) {

@@ -37,6 +37,14 @@ export function useSyncToasts(): void {
           }
           break;
 
+        case 'reconnecting':
+          addToast({
+            message: `Connection lost. Retrying in ${Math.round(event.delayMs / 1000)}s (${event.attempt}/${event.maxAttempts})...`,
+            variant: 'warning',
+            duration: 4000,
+          });
+          break;
+
         case 'peer-joined':
           addToast({
             message: `${event.peer.name || 'A peer'} joined the room`,

@@ -239,6 +239,12 @@ export type SyncEvent =
       localVersion: unknown;
       remoteVersion: unknown;
     }
+  | {
+      type: 'reconnecting';
+      attempt: number;
+      maxAttempts: number;
+      delayMs: number;
+    }
   | { type: 'error'; message: string };
 
 /**

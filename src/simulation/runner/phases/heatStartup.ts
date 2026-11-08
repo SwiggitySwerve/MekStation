@@ -7,6 +7,10 @@ import {
   IGameEvent,
   IUnitGameState,
 } from '@/types/gameplay';
+import {
+  canAttemptHeatStartup,
+  canRollHeatStartup,
+} from '@/utils/gameplay/shutdownStartup';
 
 import { createGameEvent } from './utils';
 
@@ -34,17 +38,18 @@ export function applyRunnerStartupAttempt(
     unit,
     unitId,
   } = options;
-  if (!unit.shutdown || heat > 29) {
+  if (!canAttemptHeatStartup(unit, heat)) {
     return unit;
   }
 
   const targetNumber = getShutdownTN(heat, hotDogTargetNumberModifier);
-  if (targetNumber > 0 && !d6Roller) {
+  const requiresRoll = canRollHeatStartup(unit, targetNumber);
+  if (requiresRoll && !d6Roller) {
     return unit;
   }
 
   const autoRestart = targetNumber === 0;
-  const rolls = autoRestart ? [] : [d6Roller!(), d6Roller!()];
+  const rolls = requiresRoll && d6Roller ? [d6Roller(), d6Roller()] : [];
   const roll = rolls.reduce((total, die) => total + die, 0);
   const success = autoRestart || roll >= targetNumber;
 

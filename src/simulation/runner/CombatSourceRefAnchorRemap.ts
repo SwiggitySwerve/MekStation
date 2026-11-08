@@ -294,9 +294,9 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/gameSessionCore.ts#L667-L679':
     'src/utils/gameplay/gameSessionCore.ts#L398-L430',
   'src/utils/gameplay/gameSessionHeat.ts#L1082-L1148':
-    'src/utils/gameplay/gameSessionHeat.effects.ts#L246-L359',
+    'src/utils/gameplay/gameSessionHeat.effects.ts#L254-L374',
   'src/utils/gameplay/gameSessionHeat.ts#L1083-L1135':
-    'src/utils/gameplay/gameSessionHeat.effects.ts#L246-L359',
+    'src/utils/gameplay/gameSessionHeat.effects.ts#L254-L374',
   'src/utils/gameplay/gameSessionHeat.ts#L1146-L1163':
     'src/utils/gameplay/gameSessionHeat.criticalEvents.ts#L69-L168',
   'src/utils/gameplay/gameSessionHeat.ts#L345-L1013':
