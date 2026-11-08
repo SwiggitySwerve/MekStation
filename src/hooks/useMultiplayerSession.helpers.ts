@@ -79,9 +79,8 @@ export function resetMultiplayerConnectionState(
   >,
 ): void {
   setters.setStatus('connecting');
-  setters.setError(null);
+  clearMatchPause(setters);
   setters.setIntentError(null);
-  setters.setPausedInfo(null);
   setters.setClosedInfo(null);
   // A reconnect re-reads history from the server; whatever rebuild the
   // previous connection was told about is not this connection's fact.
@@ -120,7 +119,7 @@ export function connectMultiplayerSession(
   const mirrorReplacement = { pending: false };
 
   const unsubReady = client.on('ready', () => {
-    params.setStatus('ready');
+    handleMatchResumed(params);
     params.setLastSeq(client.lastSeq());
     // A replace-stream replay that carried no game event still voids
     // the mirror it replaced.
@@ -151,7 +150,9 @@ export function connectMultiplayerSession(
     unsubClose();
     unsubLifecycle();
     unsubStreamReplaced();
+    const ownsConnection = params.clientRef.current === client;
     closeClient(params.clientRef, client);
+    if (ownsConnection) useGameplayStore.getState().resetLocalMatchStatus();
   };
 }
 
@@ -229,13 +230,14 @@ function handleMatchPaused(
   paused: IMatchPaused,
   context: EventHandlerContext,
 ): void {
+  const store = useGameplayStore.getState();
+  if (store.localMatchStatus === 'aborted') return;
   context.setStatus('paused');
   const remainingMs = paused.graceRemainingMs ?? RECONNECT_GRACE_MS;
   const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
   const isHost =
     context.lobbyStateRef.current?.hostPlayerId != null &&
     context.lobbyStateRef.current.hostPlayerId === context.auth.playerId;
-  const store = useGameplayStore.getState();
 
   store.setLocalMatchStatus(isHost ? 'guestPending' : 'hostPending', {
     graceMs: remainingMs,
@@ -255,20 +257,35 @@ function handleMatchPaused(
   });
 }
 
-function handleMatchResumed(context: EventHandlerContext): void {
-  context.setStatus('ready');
-  context.setError(null);
+type MatchLifecycleSetters = Pick<
+  MultiplayerSetters,
+  'setStatus' | 'setError' | 'setPausedInfo'
+>;
+
+function clearMatchPause(
+  context: Pick<MatchLifecycleSetters, 'setError' | 'setPausedInfo'>,
+): void {
   context.setPausedInfo(null);
-  useGameplayStore.getState().resetLocalMatchStatus();
+  context.setError(null);
+}
+
+function handleMatchResumed(context: MatchLifecycleSetters): void {
+  const store = useGameplayStore.getState();
+  if (store.localMatchStatus === 'aborted') return;
+  store.setLocalMatchStatus('live');
+  context.setStatus('ready');
+  clearMatchPause(context);
 }
 
 function handleSeatTimedOut(
   timed: ISeatTimedOut,
   context: EventHandlerContext,
 ): void {
+  context.setStatus('error');
+  clearMatchPause(context);
   context.setError({
     code: 'SEAT_TIMED_OUT',
-    reason: `Seat ${timed.slotId} (player ${timed.playerId}) timed out`,
+    reason: `Seat ${timed.slotId} timed out.`,
   });
   useGameplayStore.getState().setLocalMatchStatus('aborted');
 }
@@ -331,10 +348,11 @@ function handleClientError(
 }
 
 function createClientCloseHandler(
-  setters: Pick<MultiplayerSetters, 'setClosedInfo' | 'setStatus'>,
+  setters: MatchLifecycleSetters & Pick<MultiplayerSetters, 'setClosedInfo'>,
 ): (payload: unknown) => void {
   return (payload) => {
     setters.setStatus('closed');
+    clearMatchPause(setters);
     setters.setClosedInfo(getClosedInfo(payload));
   };
 }

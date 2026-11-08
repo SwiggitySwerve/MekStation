@@ -163,6 +163,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-client-match-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved M-M2/M3: sticky client abort, guarded WS/P2P recovery, coupled pause cleanup and teardown reset; M-H3 server broadcasts remain a dependency.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-acquisition-request-identity-and-retry",
       "status": "in-progress",
       "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
