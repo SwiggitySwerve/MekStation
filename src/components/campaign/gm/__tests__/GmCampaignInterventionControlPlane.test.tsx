@@ -27,6 +27,7 @@ import { TransactionType } from '@/types/campaign/Transaction';
 
 import { buildRepairCompletionCommand } from '../GmCampaignBaseFixCommands';
 import { GmCampaignInterventionControlPlane } from '../GmCampaignInterventionControlPlane';
+import { mergeLedgerRows } from '../GmCampaignInterventionControlPlane.helpers';
 import { GmCampaignPlayerLedgerView } from '../GmCampaignPlayerLedgerView';
 
 function fixedNow(): string {
@@ -734,6 +735,115 @@ describe('GmCampaignInterventionControlPlane control state (K11)', () => {
     expect(screen.getByTestId('gm-ledger-player-log')).toHaveTextContent(
       'Earlier correction from the saved campaign.',
     );
+  });
+
+  it('preserves distinct repair effects when the saved approval meets its session row', async () => {
+    const campaign = makeCampaignWithBaseFixes();
+    const onApplyCampaignUpdate = jest.fn();
+    const errors = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const { rerender, unmount } = render(
+        <GmCampaignInterventionControlPlane
+          campaign={campaign}
+          onApplyCampaignUpdate={onApplyCampaignUpdate}
+          now={fixedNow}
+        />,
+      );
+      generateCorrection('repair');
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+      });
+      expect(onApplyCampaignUpdate).toHaveBeenCalledTimes(1);
+      const saved = { ...campaign, ...onApplyCampaignUpdate.mock.calls[0][0] };
+      expect(saved.gmInterventionEvents).toHaveLength(2);
+      rerender(
+        <GmCampaignInterventionControlPlane
+          campaign={saved}
+          onApplyCampaignUpdate={onApplyCampaignUpdate}
+          now={fixedNow}
+        />,
+      );
+      const assertEffects = (): void => {
+        const playerLog = screen.getByTestId('gm-ledger-player-log');
+        expect(playerRowCount()).toBe(2);
+        expect(playerLog).toHaveTextContent('Repairs - approved');
+        expect(playerLog).toHaveTextContent('Unit readiness - approved');
+        expect(playerLog).not.toHaveTextContent('Hidden repair correction');
+      };
+      assertEffects();
+      const privateRows = screen
+        .getByTestId('gm-ledger-private-log')
+        .querySelectorAll('[data-testid^="gm-ledger-gm-row-"]');
+      expect(privateRows).toHaveLength(2);
+      expect(
+        [...privateRows].filter((row) =>
+          row.textContent?.includes('Hidden repair correction'),
+        ),
+      ).toHaveLength(1);
+      unmount();
+      render(<GmCampaignPlayerLedgerView campaign={saved} />);
+      assertEffects();
+      expect(
+        errors.mock.calls.filter((call) =>
+          call.map(String).join(' ').includes('same key'),
+        ),
+      ).toEqual([]);
+    } finally {
+      errors.mockRestore();
+    }
+  });
+
+  it('keeps unique effect identities, legacy rows and unrelated session approvals', () => {
+    const persisted = [
+      {
+        id: 'legacy',
+        sequence: 1,
+        interventionRecordId: undefined,
+        family: 'legacy',
+      },
+      {
+        id: 'repair-ticket',
+        sequence: 2,
+        interventionRecordId: 'repair',
+        family: 'repair-ticket',
+      },
+      {
+        id: 'repair-unit',
+        sequence: 3,
+        interventionRecordId: 'repair',
+        family: 'base-unit-state',
+      },
+    ];
+    const session = [
+      {
+        id: 'session-repair',
+        sequence: 1,
+        interventionRecordId: 'repair',
+        family: 'repair-ticket',
+      },
+      {
+        id: 'session-other',
+        sequence: 2,
+        interventionRecordId: 'other',
+        family: 'salvage-allocation',
+      },
+    ];
+    const rows = mergeLedgerRows(persisted, session);
+    expect(rows.map((row) => row.id)).toEqual([
+      'legacy',
+      'session-repair',
+      'repair-unit',
+      'session-other',
+    ]);
+    expect(new Set(rows.map((row) => row.id)).size).toBe(rows.length);
+    expect(rows.map((row) => row.family)).toEqual([
+      'legacy',
+      'repair-ticket',
+      'base-unit-state',
+      'salvage-allocation',
+    ]);
+    expect(rows.map((row) => row.sequence)).toEqual([1, 2, 3, 4]);
+    expect(mergeLedgerRows(persisted, [])).toEqual(persisted);
   });
 
   it('shows a throwing apply as failed, records nothing, and leaves no unhandled rejection', async () => {

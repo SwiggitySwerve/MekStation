@@ -259,13 +259,13 @@ export function buildPersistedCampaignEventRows(
 }
 
 /**
- * The rows a GM ledger shows: the persisted rows in order, with a persisted
+ * The rows a GM ledger shows: the persisted rows in order, with the first
  * row replaced by the session row of the same intervention (the session row
  * carries the GM-private metadata the saved effect never holds), then the
  * session rows no persisted row names (a manual takeover, or an approval the
  * campaign has not written back yet). Persisted rows without an intervention
- * id (older saves) are always kept. Sequences are renumbered 1..n so the row
- * test ids stay unique across both sources.
+ * id (older saves) and additional effects of one intervention are always kept.
+ * Sequences are renumbered 1..n so the row test ids stay unique across both sources.
  */
 export function mergeLedgerRows<
   TRow extends {
@@ -284,7 +284,7 @@ export function mergeLedgerRows<
     const match = row.interventionRecordId
       ? sessionByIntervention.get(row.interventionRecordId)
       : undefined;
-    if (!match) return row;
+    if (!match || used.has(match)) return row;
     used.add(match);
     return match;
   });
