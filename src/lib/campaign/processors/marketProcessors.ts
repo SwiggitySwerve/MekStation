@@ -22,6 +22,7 @@
  */
 
 import { generateAtBContracts } from '@/lib/campaign/contractMarket';
+import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import {
   generatePersonnelForDay,
   removeExpiredOffers,
@@ -57,6 +58,7 @@ export const unitMarketProcessor: IDayProcessor = {
   displayName: 'Unit Market Refresh',
 
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
+    campaign = normalizeMarketOffers(campaign, date);
     const method = campaign.options.unitMarketMethod;
     if (!method || method === 'none') {
       return { events: [], campaign };
@@ -106,6 +108,7 @@ export const personnelMarketProcessor: IDayProcessor = {
   displayName: 'Personnel Market Refresh',
 
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
+    campaign = normalizeMarketOffers(campaign, date);
     const style = campaign.options.personnelMarketStyle;
     if (!style || style === 'disabled') {
       return { events: [], campaign };
@@ -128,10 +131,11 @@ export const personnelMarketProcessor: IDayProcessor = {
     // D-7: prune expired carry-over offers, then append the day's new
     // candidates to the pool the hiring page reads.
     const extended = campaign as ICampaignWithCommand;
-    const currentDateKey = campaign.currentDate.toISOString().split('T')[0];
+    // Preserve the existing expiry pass for co-op too: its saved source is
+    // intentionally excluded from local recovery, not from daily expiry.
     const retained = removeExpiredOffers(
       extended.personnelMarket ?? [],
-      currentDateKey,
+      campaign.currentDate.toISOString().split('T')[0],
     );
     const updated: ICampaignWithCommand = {
       ...campaign,
@@ -161,6 +165,7 @@ export const contractMarketProcessor: IDayProcessor = {
   displayName: 'Contract Market Refresh',
 
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
+    campaign = normalizeMarketOffers(campaign, date);
     const method = campaign.options.contractMarketMethod;
     if (!method || method === 'none') {
       return { events: [], campaign };

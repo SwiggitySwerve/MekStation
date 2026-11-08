@@ -10,20 +10,32 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 
+import {
+  SAMPLE_CANDIDATES,
+  SAMPLE_OFFERS,
+} from '@/components/campaign/command/__fixtures__/commandFixtures';
 import AcquisitionsPage from '@/pages/gameplay/campaigns/[id]/acquisitions';
+import ContractMarketPage from '@/pages/gameplay/campaigns/[id]/contract-market';
+import HiringPage from '@/pages/gameplay/campaigns/[id]/hiring';
 import {
   resetCampaignStore,
   useCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { createCampaign } from '@/types/campaign/Campaign';
+import {
+  createHostCoopSession,
+  createGuestCoopSession,
+} from '@/types/campaign/CoopSession';
+import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 
 jest.mock('@/pages-modules/gameplay/campaigns/campaignPageShell', () => ({
   useCampaignPageShell: () => {
     const store = jest
       .requireActual('@/stores/campaign/useCampaignStore')
       .useCampaignStore();
-    return { campaign: store.getState().campaign, store };
+    return { campaign: store.getState().campaign, store, isClient: true };
   },
   useCampaignLoadStatus: () => ({
     saveState: 'idle',
@@ -104,4 +116,95 @@ describe('Acquisitions page day advance', () => {
     await act(async () => settle());
     await waitFor(() => expect(button).toBeEnabled());
   });
+});
+
+describe('market pages local admission (K14a)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    resetCampaignStore();
+  });
+  afterEach(() => resetCampaignStore());
+
+  it.each(['host', 'guest'] as const)(
+    'keeps populated local controls inert for a co-op %s',
+    (mode) => {
+      const store = useCampaignStore();
+      const campaign: ICampaignWithCommand = {
+        ...createCampaign('Market', 'mercenary'),
+        personnelMarket: SAMPLE_CANDIDATES,
+        contractMarket: { offers: SAMPLE_OFFERS, declinedOfferIds: [] },
+        coopSession:
+          mode === 'host'
+            ? createHostCoopSession('ABCDEF', 'match')
+            : createGuestCoopSession('match', 'ABCDEF'),
+      };
+      store.setState({ campaign });
+      const before = store.getState().campaign;
+      for (const Page of [HiringPage, ContractMarketPage]) {
+        const view = render(<Page />);
+        for (const button of screen.getAllByRole('button'))
+          expect(button).toBeDisabled();
+        expect(screen.getByRole('status')).toHaveTextContent(
+          'Use the co-op proposal controls for market changes.',
+        );
+        expect(store.getState().campaign).toBe(before);
+        view.unmount();
+      }
+    },
+  );
+
+  it.each(['host', 'guest', 'advancing'] as const)(
+    'never seeds either market while %s',
+    (mode) => {
+      const store = useCampaignStore();
+      const campaign = createCampaign('Market', 'mercenary', {
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+        contractMarketMethod: 'atb_monthly',
+      });
+      store.setState({
+        campaign: {
+          ...campaign,
+          ...(mode === 'advancing'
+            ? {}
+            : {
+                coopSession:
+                  mode === 'host'
+                    ? createHostCoopSession('ABCDEF', 'match')
+                    : createGuestCoopSession('match', 'ABCDEF'),
+              }),
+        },
+        dayAdvanceInFlight: mode === 'advancing',
+      });
+      const before = store.getState().campaign;
+      const view = render(<HiringPage />);
+      expect(store.getState().campaign).toBe(before);
+      expect(screen.getByRole('status')).toHaveTextContent(
+        mode === 'advancing'
+          ? 'Wait for the campaign clock to finish advancing.'
+          : 'Use the co-op proposal controls for market changes.',
+      );
+      view.unmount();
+      render(<ContractMarketPage />);
+      expect(store.getState().campaign).toBe(before);
+    },
+  );
+
+  it.each([HiringPage, ContractMarketPage])(
+    'disables populated market controls during day advance and releases them afterward',
+    (Page) => {
+      const store = useCampaignStore();
+      const campaign: ICampaignWithCommand = {
+        ...createCampaign('Market', 'mercenary'),
+        personnelMarket: SAMPLE_CANDIDATES,
+        contractMarket: { offers: SAMPLE_OFFERS, declinedOfferIds: [] },
+      };
+      store.setState({ campaign, dayAdvanceInFlight: true });
+      render(<Page />);
+      for (const button of screen.getAllByRole('button'))
+        expect(button).toBeDisabled();
+      act(() => store.setState({ dayAdvanceInFlight: false }));
+      for (const button of screen.getAllByRole('button'))
+        expect(button).toBeEnabled();
+    },
+  );
 });

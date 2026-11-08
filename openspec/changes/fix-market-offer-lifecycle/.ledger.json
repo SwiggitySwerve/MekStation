@@ -1,0 +1,6 @@
+{
+  "name": "fix-market-offer-lifecycle",
+  "status": "verified",
+  "reason": "K14a local gates and mutation proofs passed; draft review remains with Root and co-op authority is deferred to K14b.",
+  "lastReviewed": "2026-11-08"
+}

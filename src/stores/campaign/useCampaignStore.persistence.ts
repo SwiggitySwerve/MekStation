@@ -46,6 +46,7 @@ import type {
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import { normalizeShoppingList } from '@/lib/campaign/acquisition/shoppingList';
+import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import {
   rehydrateCampaignMission,
   rehydrateContractMarket,
@@ -331,7 +332,7 @@ export function deserializeCampaign(
   forces: Map<string, IForce>,
   missions: Map<string, IMission>,
 ): ICampaign {
-  return {
+  return normalizeMarketOffers({
     id: serialized.id,
     name: serialized.name,
     currentDate: new Date(serialized.currentDate),
@@ -419,7 +420,7 @@ export function deserializeCampaign(
     // Per `wire-coop-campaign-route` Wave 6.1: the coopSession field
     // survives reload so every co-op surface remounts on the same campaign.
     coopSession: serialized.coopSession,
-  } as ICampaign;
+  } as ICampaign);
 }
 export function persistCampaignRecord(
   campaign: ICampaign,

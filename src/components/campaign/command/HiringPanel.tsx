@@ -57,6 +57,7 @@ interface CandidateCardProps {
   readonly onHire: (offerId: string) => void;
   /** True while a hire for this candidate is in flight. */
   readonly isHiring: boolean;
+  readonly blockedReason?: string;
 }
 
 /**
@@ -67,6 +68,7 @@ export function CandidateCard({
   offer,
   onHire,
   isHiring,
+  blockedReason,
 }: CandidateCardProps): React.ReactElement {
   // The candidate skill set is a `{ skill: level }` record — flatten it
   // into "gunnery 3 / piloting 4" for display.
@@ -110,7 +112,8 @@ export function CandidateCard({
           <button
             type="button"
             onClick={() => onHire(offer.id)}
-            disabled={isHiring}
+            disabled={isHiring || !!blockedReason}
+            title={blockedReason}
             className="bg-accent text-surface-base hover:bg-accent/90 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             data-testid={`candidate-hire-${offer.id}`}
           >
@@ -133,6 +136,7 @@ export interface HiringPanelProps {
   readonly onHire: (offerId: string) => void;
   /** Offer id of a hire currently in flight, if any. */
   readonly hiringOfferId?: string | null;
+  readonly blockedReason?: string;
 }
 
 /**
@@ -144,6 +148,7 @@ export function HiringPanel({
   candidates,
   onHire,
   hiringOfferId,
+  blockedReason,
 }: HiringPanelProps): React.ReactElement {
   if (candidates.length === 0) {
     return (
@@ -162,6 +167,7 @@ export function HiringPanel({
           offer={offer}
           onHire={onHire}
           isHiring={hiringOfferId === offer.id}
+          blockedReason={blockedReason}
         />
       ))}
     </div>

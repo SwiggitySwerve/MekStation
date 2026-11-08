@@ -31,6 +31,7 @@ import {
   DEFAULT_DAILY_MAINTENANCE,
   DEFAULT_DAILY_SALARY,
 } from '@/lib/campaign/dayReportTypes';
+import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import { isRosterPilotSalaryEligible } from '@/lib/campaign/personnel/statusRules';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
@@ -69,7 +70,7 @@ export function selectPersonnelMarket(
   campaign: ICampaign | null,
 ): readonly IPersonnelMarketOffer[] {
   if (!campaign) return EMPTY_PERSONNEL_OFFERS;
-  const extended = campaign as ICampaignWithCommand;
+  const extended = normalizeMarketOffers(campaign) as ICampaignWithCommand;
   return extended.personnelMarket ?? EMPTY_PERSONNEL_OFFERS;
 }
 
@@ -295,7 +296,7 @@ export function selectContractMarketState(
   campaign: ICampaign | null,
 ): ICampaignContractMarket {
   if (!campaign) return EMPTY_CONTRACT_MARKET;
-  const extended = campaign as ICampaignWithCommand;
+  const extended = normalizeMarketOffers(campaign) as ICampaignWithCommand;
   return extended.contractMarket ?? EMPTY_CONTRACT_MARKET;
 }
 
