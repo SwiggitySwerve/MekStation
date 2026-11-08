@@ -4,6 +4,7 @@ import {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay';
+import { releasedGrappleState } from '@/utils/gameplay/attackLinks';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
 import { translateHex } from '@/utils/gameplay/physicalAttacks';
@@ -89,22 +90,14 @@ export function applyBreakGrappleState(options: {
       ...state.units,
       [attackerId]: {
         ...attacker,
-        grappledUnitId: undefined,
-        isGrappleAttacker: undefined,
-        grappledThisRound: false,
-        grappleSide: undefined,
-        isChainWhipGrappled: false,
+        ...releasedGrappleState(),
         facing: attackerMoved
           ? facingToward(attacker.position, target.position, attacker.facing)
           : attacker.facing,
       },
       [targetId]: {
         ...target,
-        grappledUnitId: undefined,
-        isGrappleAttacker: undefined,
-        grappledThisRound: false,
-        grappleSide: undefined,
-        isChainWhipGrappled: false,
+        ...releasedGrappleState(),
         facing: targetMoved
           ? facingToward(target.position, attacker.position, target.facing)
           : target.facing,
