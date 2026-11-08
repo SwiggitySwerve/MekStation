@@ -930,20 +930,40 @@ export type ILobbyUpdated = z.infer<typeof LobbyUpdatedSchema>;
 // ---------------------------------------------------------------------------
 
 /**
- * MatchPaused — broadcast when at least one human seat enters the
- * `pending` (disconnected, awaiting reconnect) state. While paused, the
- * server rejects engine-mutating intents with `MATCH_PAUSED`. Clients
- * use this to render a "Waiting for X to reconnect" banner.
+ * Why the server paused a match. One code per pause cause:
+ *   - `peer-pending`: a human seat disconnected and is inside its grace
+ *     window.
+ *   - `gm-absent`: the campaign GM of a co-op mission is not connected.
+ *   - `opponent-fault`: the server-driven co-op opponent stopped after
+ *     an error.
+ * A fixed code only: no infrastructure detail ever rides on it.
+ */
+export const MatchPauseReasonSchema = z.enum([
+  'peer-pending',
+  'gm-absent',
+  'opponent-fault',
+]);
+export type MatchPauseReason = z.infer<typeof MatchPauseReasonSchema>;
+
+/**
+ * MatchPaused — a snapshot of why the match is paused. While paused, the
+ * server rejects engine-mutating intents with `MATCH_PAUSED`.
+ *
+ * `reason` is the active cause with the highest precedence
+ * (`opponent-fault`, then `gm-absent`, then `peer-pending`). A later
+ * `MatchPaused` replaces the earlier snapshot; `MatchResumed` follows
+ * only once every cause has cleared.
  *
  * `pendingSlots` enumerates every slotId currently pending so the
  * client can render multi-drop scenarios (e.g., two players lost wifi
- * simultaneously) without inferring from seat colors alone.
+ * simultaneously) without inferring from seat colors alone. It may be
+ * empty for a non-peer cause; the grace fields accompany pending slots.
  */
 export const MatchPausedSchema = z.object({
   kind: z.literal('MatchPaused'),
   matchId: matchIdSchema,
   ts: tsSchema,
-  reason: z.literal('peer-pending'),
+  reason: MatchPauseReasonSchema,
   pendingSlots: z.array(z.string().min(1)),
   graceRemainingMs: z.number().int().nonnegative().optional(),
   pendingExpiresAtMs: z.number().int().nonnegative().optional(),
