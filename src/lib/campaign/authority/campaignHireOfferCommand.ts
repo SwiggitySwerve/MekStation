@@ -28,6 +28,7 @@ import type {
 } from '@/types/campaign/CampaignSync';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { authoritativePersonnelOfferOf } from '@/lib/campaign/markets/authoritativeOffers';
 import { hireTransactionId } from '@/lib/campaign/markets/offerLifecycle';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import { materializeCampaignSourceRow } from '@/services/campaignPersistence/campaignSourceMaterialization';
@@ -56,7 +57,7 @@ import {
 type StoredOffer = Readonly<Record<string, unknown>>;
 
 /** The persisted source record, as one hire's prepare step sees it. */
-interface ICampaignSourcePersonnelRead {
+export interface ICampaignSourcePersonnelRead {
   /** The `campaigns` row `version` the body was read at (the CAS token). */
   readonly sourceRowVersion: number;
   /** The source's campaign clock, verbatim as the body stores it. */
@@ -79,7 +80,7 @@ interface ICampaignSourcePersonnelRead {
  * write could not put back faithfully. An ABSENT market is an empty one:
  * the offer is then simply not found.
  */
-function readCampaignSourcePersonnelMarket(
+export function readCampaignSourcePersonnelMarket(
   db: Database.Database,
   campaignId: string,
 ): ICampaignSourcePersonnelRead | null {
@@ -123,32 +124,6 @@ function readCampaignSourcePersonnelMarket(
     storedTransactions: transactions,
     storedOffers: storedOffers as readonly StoredOffer[],
   };
-}
-
-/**
- * The stored offer as an authoritative hire fact, or `null` when it is not
- * one. Every field the hire commits must be PRESENT in the stored offer: a
- * missing price must never become a free recruit, and a missing name must
- * never become a pilot the market did not offer.
- */
-function authoritativeOfferOf(
-  stored: StoredOffer,
-  campaignDate: string,
-): IAuthoritativePersonnelOffer | null {
-  const { id, name, hireCost, expirationDate } = stored;
-  if (
-    typeof id !== 'string' ||
-    typeof name !== 'string' ||
-    name.length === 0 ||
-    typeof hireCost !== 'number' ||
-    !Number.isFinite(hireCost) ||
-    hireCost < 0 ||
-    typeof expirationDate !== 'string' ||
-    expirationDate.length === 0
-  ) {
-    return null;
-  }
-  return { offerId: id, name, hireCost, expirationDate, campaignDate };
 }
 
 /**
@@ -267,7 +242,7 @@ export async function appendDurableHireOffer(
       const offer =
         stored === null
           ? null
-          : authoritativeOfferOf(stored, source.campaignDate);
+          : authoritativePersonnelOfferOf(stored, source.campaignDate);
 
       // The one validator every authority shares, handed the offer THIS
       // transaction read. An unusable stored offer reads as not found.

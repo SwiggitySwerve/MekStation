@@ -193,6 +193,13 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
         NOW,
         'pid-host',
         {
+          contractOffer: () => ({
+            contractId: 'c1',
+            name: 'Raid',
+            employerFactionId: 'steiner',
+            declined: false,
+            campaignDate: '3025-01-01',
+          }),
           personnelOffer: () => ({
             offerId: 'offer-1',
             name: 'Natasha',
