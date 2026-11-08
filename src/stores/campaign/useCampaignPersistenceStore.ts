@@ -376,6 +376,18 @@ let loadGeneration = 0;
  */
 let saveChain: Promise<unknown> = Promise.resolve();
 
+/** Read-only creation guard; dirty includes edits newer than the last save ACK. */
+export function hasUnsettledCampaignPersistence(): boolean {
+  const state = useCampaignPersistenceStore.getState();
+  return (
+    state.dirty ||
+    state.saveState === 'saving' ||
+    autoSaveTimer !== null ||
+    issuedFlush !== null ||
+    inFlightLoad !== null
+  );
+}
+
 /**
  * Test seam: drop the module-level load/save coordination between cases.
  * Production code never calls this - the guards live for the page's lifetime.

@@ -149,6 +149,12 @@
       "status": "in-progress",
       "reason": "Root-approved C6b, two sequential PRs: (1) widen the combat physical replay schemas in place at v1 for swamp_unstuck and UnitStuck canUnstickByJumping with revised schema ids, plus the runner movement-start recovery roll, jump eligibility and jump unstick with matching reducer transitions; (2) interactive commit, projection and validator consistency. No fixture regeneration.",
       "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-campaign-creation-recovery",
+      "status": "in-progress",
+      "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }
