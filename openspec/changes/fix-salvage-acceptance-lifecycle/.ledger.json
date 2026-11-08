@@ -1,0 +1,6 @@
+{
+  "name": "fix-salvage-acceptance-lifecycle",
+  "status": "in-progress",
+  "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
+  "lastReviewed": "2026-11-08"
+}

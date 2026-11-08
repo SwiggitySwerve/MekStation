@@ -4,6 +4,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  COLOCATED_LEDGER_FILENAME,
+  LEGACY_LEDGER_FILE,
+  parseColocatedLedger,
+  parseLegacyLedger,
+  reconcileLedgerEntries,
+} from './openspec-active-change-ledger.mjs';
+import {
   requiredAggregatorNeeds,
   requiredPackageScripts,
   requiredProtectedContexts,
@@ -32,7 +39,7 @@ const openspecChangesPath =
   path.join(repoRoot, 'openspec', 'changes');
 const activeOpenSpecLedgerPath =
   process.env.MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH ??
-  path.join(repoRoot, 'openspec', 'active-change-ledger.json');
+  path.join(repoRoot, LEGACY_LEDGER_FILE);
 
 function parseArgs(argv) {
   return { json: argv.includes('--json') };
@@ -59,22 +66,29 @@ function activeOpenSpecChanges(changesDir) {
     .sort();
 }
 
-function accountedActiveOpenSpecChanges(ledgerPath) {
-  if (!fs.existsSync(ledgerPath)) return [];
-  const ledger = readJson(ledgerPath);
-  const entries = Array.isArray(ledger.allowedActiveChanges)
-    ? ledger.allowedActiveChanges
-    : [];
-  return entries
-    .filter((entry) => typeof entry?.name === 'string')
-    .map((entry) => ({
-      name: entry.name,
-      status: typeof entry.status === 'string' ? entry.status : 'unknown',
-      reason: typeof entry.reason === 'string' ? entry.reason : '',
-      lastReviewed:
-        typeof entry.lastReviewed === 'string' ? entry.lastReviewed : '',
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+function accountedActiveOpenSpecChanges(activeChanges, errors) {
+  let source = activeOpenSpecLedgerPath;
+  try {
+    const legacy = fs.existsSync(source)
+      ? parseLegacyLedger(readText(source))
+      : [];
+    const colocated = [];
+    for (const name of activeChanges) {
+      source = path.join(openspecChangesPath, name, COLOCATED_LEDGER_FILENAME);
+      if (fs.existsSync(source)) {
+        colocated.push(parseColocatedLedger(readText(source), name));
+      }
+    }
+    source = activeOpenSpecLedgerPath;
+    return reconcileLedgerEntries(legacy, colocated);
+  } catch (error) {
+    errors.push(
+      issue('active-openspec-ledger-invalid', `${source}: ${error.message}`, {
+        source: path.relative(repoRoot, source),
+      }),
+    );
+    return [];
+  }
 }
 
 function validateTokens(text, contract, errors, kind) {
@@ -170,7 +184,8 @@ function main() {
 
   const activeChanges = activeOpenSpecChanges(openspecChangesPath);
   const accountedActiveChanges = accountedActiveOpenSpecChanges(
-    activeOpenSpecLedgerPath,
+    activeChanges,
+    errors,
   );
   const accountedActiveChangeNames = new Set(
     accountedActiveChanges.map((entry) => entry.name),

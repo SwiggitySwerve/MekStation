@@ -1,0 +1,6 @@
+{
+  "name": "remove-standalone-repair",
+  "status": "proposed",
+  "reason": "Owner ruling 2026-11-07 D1: delete the unlinked standalone repair bay (/gameplay/repair, RepairBayPage, useRepairStore, src/types/repair, src/components/repair) and its e2e exposure/spec/fixtures; the campaign RepairTicket system is kept. REMOVED requirement deltas only; canonical sync/archive pending PR merge.",
+  "lastReviewed": "2026-11-08"
+}

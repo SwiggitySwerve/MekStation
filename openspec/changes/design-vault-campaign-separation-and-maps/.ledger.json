@@ -1,0 +1,6 @@
+{
+  "name": "design-vault-campaign-separation-and-maps",
+  "status": "proposed",
+  "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. P1 1.3 landed 2026-09-12 as a bounded identity prerequisite only (the D3 seam in CreateCampaignPage.submit.ts, with the regression assertion); 1.1, 1.2, 1.4 and 1.5 are not started, and 1.3 does not satisfy the exact-main receipt, approval or three-witness gates. Task 1.4 already names the v2->v3 rung, which matches CURRENT_CAMPAIGN_SCHEMA_VERSION = 2 at src/lib/campaign/persistence/campaignMigration.ts:25 on main; no wording change was needed.",
+  "lastReviewed": "2026-09-15"
+}
