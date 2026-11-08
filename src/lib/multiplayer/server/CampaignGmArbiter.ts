@@ -496,7 +496,7 @@ export class CampaignGmArbiter {
       proposal.proposingPlayerId,
       proposal.ts,
       undefined,
-      this.host.getIntentContext(),
+      this.host.intentContext,
     );
     if (validation.ok) return { ok: true };
     // `validateCampaignIntent` touches no head, so it cannot produce a

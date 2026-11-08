@@ -140,7 +140,8 @@ export class CampaignMatchHost {
   private readonly hostPlayerId: string;
   private readonly log: CampaignEventLog;
   private readonly eventStore: ICampaignEventStore;
-  private readonly intentContext: ICampaignIntentContext | undefined;
+  /** The market reader this host validates a `HireOffer` with, if any. */
+  public readonly intentContext: ICampaignIntentContext | undefined;
   /** The host's authoritative campaign state — the single source of truth. */
   private state: ICampaignAuthoritativeState;
   private readonly subscribers = new Set<CampaignEventSubscriber>();
@@ -319,11 +320,6 @@ export class CampaignMatchHost {
    */
   getState = (): ICampaignAuthoritativeState => {
     return this.state;
-  };
-
-  /** The market reader this host validates a `HireOffer` with, if any. */
-  getIntentContext = (): ICampaignIntentContext | undefined => {
-    return this.intentContext;
   };
 
   getHostPlayerId = (): string => {
