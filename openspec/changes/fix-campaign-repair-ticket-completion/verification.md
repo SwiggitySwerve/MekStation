@@ -2,7 +2,7 @@
 
 Base: origin/main 1f3ada8888d9f99a06e4ba0ed3478a9810f848c3. Extraction commit: c3e0b744d5a21a04f87a6994680670f7dd84cf60. One draft PR; Root owns merge.
 
-## Evidence
+## Initial implementation evidence
 
 | Check | Result |
 | --- | --- |
@@ -40,7 +40,7 @@ Both mutants run against copies of the production modules through an external Je
 | Omit the GM base-unit companion effect while retaining ticket completion | GM ledger replay restores units and stock identically across save and reload | Exactly 1 of 4 integration tests fails: armor stays 4 instead of 10 |
 | Remove pending/recent source-reference retention | retains every terminal ticket referenced by pending or recently-applied outcomes | Exactly 1 of 4 integration tests fails: protected ticket IDs disappear |
 
-Normal final production modules pass all four integration tests. Mutant module SHA-256 receipts and full command logs are retained in `E:/Projects/Personal/_scratch/sm-audit-reports/k7-evidence/`.
+The initial production modules passed the original four integration tests; the follow-up below extends the suite to five. Mutant module SHA-256 receipts and full command logs are retained in `E:/Projects/Personal/_scratch/sm-audit-reports/k7-evidence/`.
 
 ## Commands
 
@@ -54,3 +54,36 @@ Jest commands below use `C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe node
 - `npm run lint:units`, `oxlint`, `npx oxfmt --check .`, focused strict OpenSpec validation and `node scripts/ci/budget-check.mjs --report <evidence>/budget.json`.
 
 No source anchors in the runner catalogs reference the changed files. campaignBayActions.ts, K5 salvage acceptance, K6 readiness-cache rules, K8 inventory rules, construction/BV/catalog code, schemas and wire payload shapes are unchanged.
+
+## Hosted CI follow-up: multi-day preview cleanup
+
+Hosted Unit Tests (1/3), job 128662379255, exposed a stale final-queue assertion in `src/lib/starmap/__tests__/starmapTravelPreview.test.ts`. The initial local gate set covered the touched owner directories but omitted this starmap caller directory. The expanded gate now includes the whole `src/lib/starmap` and `src/lib/interventions` directories.
+
+Root's diagnosis is confirmed: a 16-hour ticket progresses on day one, completes on day two and is pruned on day three when no pending/recent outcome references it. Travel to Outreach runs beyond those days.
+
+No production summary change is needed:
+
+- `src/lib/starmap/starmapTravelPreview.ts:175,296` builds the completion count from accumulated `projection.events`.
+- `src/pages/gameplay/campaigns/[id]/starmap.tsx:366-370` renders that event-derived progress summary, rather than counting completed tickets in the final queue.
+- `src/lib/interventions/GmTimeCascadePreview.ts:213-219` accumulates every day's events and summaries. The GM preview panel uses the time effect's date/public summaries; it does not derive repair completions from the final queue. Ledger replay retains the recorded day summaries and repair events after cleanup.
+
+The travel test now asserts the reported completion event/count, the final pruned queue, actual repaired armor and an unchanged input. The GM cascade suite keeps its two-day completion boundary case and adds a three-day completion-then-pruning case with retained events, day summaries, unit state and replay equality. The lifecycle integration suite separately advances the real day pipeline three times and proves one parts debit, retained repair results and persisted cleanup.
+
+Follow-up base: Root merge 774a42996ed45fb4eec8a49a89d431cea456b490, containing freshly fetched origin/main 060409496864a508cd69c58aa0c510b8459f2dbb. Both were merged/confirmed again before the push. All 31 existing ledger entries are unchanged. This follow-up changes three test files and this verification record only; pruning, save formats and runtime summaries are unchanged.
+
+| Follow-up check | Result |
+| --- | --- |
+| Reproduction across whole starmap/interventions directories | 1 failing test, 140 passing tests; exact hosted failure reproduced |
+| Corrected starmap/interventions and lifecycle suite | 18 suites, 147 tests passed |
+| Full owning directories plus whole starmap/interventions and integration | 134 suites, 1,668 tests passed; 32 existing skips |
+| Full simulation runner directory | 151 suites, 1,496 tests passed |
+| Replay/digest/golden before and after | 68 suites, 1,030 tests passed each; no committed fixture/digest changes |
+| Combat validation | `npm run validate:combat` exited 0, including catalog/behavior, unresolved gaps and strict OpenSpec validation |
+| Root and scripts TypeScript configs | Both passed through `npm run typecheck` |
+| Root lint | 63 warnings, 0 errors |
+| Unit lint and its Jest suite | Passed; no ceiling increases |
+| Formatter | `npx oxfmt --check .` passed |
+| Budget | 3,052 test files; 57 unkeyable; 92 repository-wide keys; passed |
+| Both original mutants, refreshed from merged sources | Each fails exactly its designated integration test; the other four pass |
+
+The full-directory Jest command extends the original command above with `src/lib/starmap` and uses the whole `src/lib/interventions` directory. Full logs are retained under `E:/Projects/Personal/_scratch/sm-audit-reports/k7-evidence/travel-followup/`. The PR remains a draft; Root owns the hosted CI wait and merge.

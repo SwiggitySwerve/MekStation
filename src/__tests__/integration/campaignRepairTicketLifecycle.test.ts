@@ -12,6 +12,7 @@ import type {
 } from '@/types/interventions';
 
 import { buildRepairCompletionCommand } from '@/components/campaign/gm/GmCampaignBaseFixCommands';
+import { DayPipelineRegistry } from '@/lib/campaign/dayPipeline';
 import {
   serializeCampaign,
   deserializeCampaignBody,
@@ -226,6 +227,57 @@ describe('campaign repair lifecycle persistence', () => {
     expect(rerun.unitCombatStates).toEqual(pruned.unitCombatStates);
     expect(rerun.partsInventory).toEqual(pruned.partsInventory);
     expect(rerun.processedBattleIds).toEqual(['match-1']);
+  });
+
+  it('reports completion on day two and prunes on day three without repeating repair or parts consumption', () => {
+    const state = campaign({
+      repairQueue: [ticket({ expectedHours: 16, remainingHours: 16 })],
+    });
+    const pipeline = new DayPipelineRegistry();
+    pipeline.register(repairProgressProcessor);
+    const first = pipeline.processDay(state);
+    const second = pipeline.processDay(first.campaign);
+    const third = pipeline.processDay(second.campaign);
+
+    expect(first.campaign.repairQueue?.[0]).toMatchObject({
+      status: 'in-progress',
+      remainingHours: 8,
+    });
+    expect(first.campaign.partsInventory).toEqual(state.partsInventory);
+    expect(second.campaign.repairQueue?.[0]).toMatchObject({
+      status: 'completed',
+      remainingHours: 0,
+    });
+    expect(second.campaign.partsInventory?.[0].quantity).toBe(14);
+    expect(second.campaign.unitCombatStates[unitId]).toMatchObject({
+      currentArmorPerLocation: { CT: 10 },
+      lastUpdated: '3025-03-02T00:00:00.000Z',
+    });
+    expect(third.date.toISOString()).toBe('3025-03-03T00:00:00.000Z');
+    expect(third.campaign.repairQueue).toEqual([]);
+    expect(third.campaign.unitCombatStates).toEqual(
+      second.campaign.unitCombatStates,
+    );
+    expect(third.campaign.partsInventory).toEqual(
+      second.campaign.partsInventory,
+    );
+    expect(third.campaign.processedBattleIds).toEqual(state.processedBattleIds);
+    const completions = [first, second, third].flatMap((report) =>
+      report.events.filter((event) => event.type === 'repair_completed'),
+    );
+    expect(completions).toEqual([
+      expect.objectContaining({
+        data: { ticketId: state.repairQueue?.[0].ticketId, unitId },
+      }),
+    ]);
+    expect(first.events.map((event) => event.type)).toEqual([
+      'repair_progress',
+    ]);
+    expect(second.events.map((event) => event.type)).toEqual([
+      'repair_completed',
+    ]);
+    expect(third.events).toEqual([]);
+    expect(roundTrip(third.campaign).repairQueue).toEqual([]);
   });
 
   it('GM ledger replay restores units and stock identically across save and reload', () => {
