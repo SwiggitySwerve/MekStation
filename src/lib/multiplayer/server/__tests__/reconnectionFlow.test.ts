@@ -29,6 +29,7 @@ import {
 } from '@/types/multiplayer/Protocol';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { addSpectatorSeat } from '../lobby/spectatorSeats';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
 // =============================================================================
@@ -286,6 +287,83 @@ describe('Reconnection Flow (Wave 4)', () => {
     expect(seat?.kind).toBe('ai');
     expect(host.isPausedForReconnect()).toBe(false);
   });
+
+  it.each([
+    'connected',
+    'empty',
+    'ai',
+    'spectator',
+    'wrong-slot',
+    'lobby',
+    'completed',
+  ] as const)(
+    'MarkSeatAi rejects %s targets without changing seats or clearing pending',
+    async (scenario) => {
+      const { host, store, matchId } = await makeActiveHost();
+      host.attachSocket(makeSocket(), 'pid_host');
+      const opponent = makeSocket();
+      host.attachSocket(opponent, 'pid_opp');
+      if (scenario !== 'connected') {
+        host.detachSocket(opponent);
+        await flushDrop();
+      }
+      const meta = await store.getMatchMeta(matchId);
+      const seats =
+        scenario === 'spectator'
+          ? addSpectatorSeat(meta.seats ?? [], {
+              playerId: 'watcher',
+              displayName: 'Watcher',
+            })
+          : meta.seats?.map((seat) =>
+              seat.slotId !== 'bravo-1'
+                ? seat
+                : {
+                    ...seat,
+                    ...(scenario === 'empty' ? { occupant: null } : {}),
+                    ...(scenario === 'ai' ? { kind: 'ai' as const } : {}),
+                    ...(scenario === 'wrong-slot' ? { slotId: 'bravo-2' } : {}),
+                  },
+            );
+      await store.updateMatchMeta(matchId, {
+        seats,
+        status:
+          scenario === 'lobby' || scenario === 'completed'
+            ? scenario
+            : 'active',
+      });
+      const before = await store.getMatchMeta(matchId);
+      const pending = host.getPendingPeersForTests();
+      const events = await store.getEvents(matchId);
+      expect(
+        await host.handleIntent({
+          kind: 'Intent',
+          matchId,
+          playerId: 'pid_host',
+          ts: nowIso(),
+          intentId: 'mark-refusal',
+          intent: {
+            kind: 'MarkSeatAi',
+            slotId:
+              scenario === 'spectator'
+                ? 'spectator-1'
+                : scenario === 'wrong-slot'
+                  ? 'bravo-2'
+                  : 'bravo-1',
+          },
+        }),
+      ).toEqual([
+        expect.objectContaining({
+          kind: 'Error',
+          code: 'INVALID_INTENT',
+          intentId: 'mark-refusal',
+        }),
+      ]);
+      expect(await store.getMatchMeta(matchId)).toEqual(before);
+      expect(await store.getEvents(matchId)).toEqual(events);
+      expect(host.getPendingPeersForTests()).toEqual(pending);
+      await host.closeMatch();
+    },
+  );
 
   it('MarkSeatAi from a non-host is rejected with AUTH_REJECTED', async () => {
     const { host, matchId } = await makeActiveHost();

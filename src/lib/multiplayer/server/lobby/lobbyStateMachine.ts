@@ -205,6 +205,9 @@ export function setAiSlot(
   aiProfile?: string,
 ): IMatchSeat[] {
   const seat = requireSeat(seats, slotId);
+  if (seat.kind === 'spectator') {
+    throw new LobbyStateError(`Slot ${slotId} is not a playing slot`);
+  }
   return replaceSeat(seats, {
     ...seat,
     kind: 'ai',
