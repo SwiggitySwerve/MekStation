@@ -198,6 +198,7 @@ describe('CampaignHostRegistry concurrent first joins', () => {
     await store.createMatch({
       ...other,
       matchId: 'other-session',
+      roomCode: 'DEF567',
       coopCampaign: {
         ...other.coopCampaign!,
         campaignId: 'other-campaign',

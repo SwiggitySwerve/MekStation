@@ -1,0 +1,77 @@
+diff --git a/src/lib/multiplayer/server/DurableMatchStore.ts b/src/lib/multiplayer/server/DurableMatchStore.ts
+index 77f7ed8ef..d28421317 100644
+--- a/src/lib/multiplayer/server/DurableMatchStore.ts
++++ b/src/lib/multiplayer/server/DurableMatchStore.ts
+@@ -59,6 +59,7 @@ import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicaliz
+ import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+ import { rejectPreparedThenable } from '@/lib/events/journal/SQLiteEventJournalWriter';
+ import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
++import { patchMatchMeta } from './matchRoomCodes';
+ import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
+
+ import type { ICapabilityDatabaseHandle } from './durableCapabilityPorts';
+@@ -1670,17 +1671,7 @@ export class DurableMatchStore
+     const row = this.getMatchRow(matchId);
+     if (!row) throw new MatchNotFoundError(matchId);
+     const before = JSON.parse(row.meta_json) as IMatchMeta;
+-    // Mirror `InMemoryMatchStore`: an explicit `roomCode: null` clears
+-    // the field; an absent key leaves it alone.
+-    const { roomCode: patchRoomCode, ...restPatch } = patch;
+-    const nextRoomCode =
+-      patchRoomCode === null ? undefined : (patchRoomCode ?? before.roomCode);
+-    const nextMeta: IMatchMeta = {
+-      ...before,
+-      ...restPatch,
+-      roomCode: nextRoomCode,
+-      updatedAt: new Date().toISOString(),
+-    };
++    const nextMeta = patchMatchMeta(before, patch);
+     // Invite codes resolve ONLY while the match is in `lobby` status.
+     const indexedRoomCode =
+       nextMeta.roomCode && nextMeta.status === 'lobby'
+diff --git a/src/lib/multiplayer/server/InMemoryMatchStore.ts b/src/lib/multiplayer/server/InMemoryMatchStore.ts
+index c1a960c1d..d6e07da27 100644
+--- a/src/lib/multiplayer/server/InMemoryMatchStore.ts
++++ b/src/lib/multiplayer/server/InMemoryMatchStore.ts
+@@ -15,6 +15,7 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+
+ import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
+ import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
++import { patchMatchMeta } from './matchRoomCodes';
+
+ import type {
+   IMatchCommandBatch,
+@@ -442,21 +443,7 @@ export class InMemoryMatchStore
+     const rec = this.records.get(matchId);
+     if (!rec) throw new MatchNotFoundError(matchId);
+     const before = rec.meta;
+-    // Build the next meta. The patch shape allows `roomCode: null` to
+-    // explicitly clear the field (the previous wire was `undefined as
+-    // unknown as string`, which type-laundered the same intent). When
+-    // we see an explicit `null` we translate to `undefined` so the
+-    // stored `IMatchMeta.roomCode` remains `string | undefined` (the
+-    // optional-property shape the rest of the system expects).
+-    const { roomCode: patchRoomCode, ...restPatch } = patch;
+-    const nextRoomCode =
+-      patchRoomCode === null ? undefined : (patchRoomCode ?? rec.meta.roomCode);
+-    rec.meta = {
+-      ...rec.meta,
+-      ...restPatch,
+-      roomCode: nextRoomCode,
+-      updatedAt: new Date().toISOString(),
+-    };
++    rec.meta = patchMatchMeta(before, patch);
+     // Wave 3b: keep the roomCode index in sync. Invite codes are valid
+     // ONLY while the match is in `lobby` status (per spec 4.4).
+     if (before.roomCode && before.roomCode !== rec.meta.roomCode) {
+--- /dev/null
++++ b/src/lib/multiplayer/server/matchRoomCodes.ts
+@@ -0,0 +1,8 @@
++/** Match metadata patch semantics shared by both server stores. */
++import type { IMatchMeta, IMatchMetaPatch } from './IMatchStore';
++
++export function patchMatchMeta(before: IMatchMeta, patch: IMatchMetaPatch): IMatchMeta {
++  const { roomCode: patchRoomCode, ...restPatch } = patch;
++  const roomCode = patchRoomCode === null ? undefined : (patchRoomCode ?? before.roomCode);
++  return { ...before, ...restPatch, roomCode, updatedAt: new Date().toISOString() };
++}
