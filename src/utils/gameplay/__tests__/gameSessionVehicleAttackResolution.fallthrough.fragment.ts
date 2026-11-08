@@ -1,3 +1,5 @@
+import type { IUnitDestroyedPayload } from '@/types/gameplay';
+
 import type {
   IDamageAppliedPayload,
   IAttackResolvedPayload,
@@ -76,6 +78,13 @@ describe('resolveAttack vehicle target dispatch', () => {
         ? resolved.currentState.units.target.combatState.state.destructionCause
         : undefined,
     ).toBe('crew_killed');
+    expect(
+      (
+        resolved.events.find(
+          (event) => event.type === GameEventType.UnitDestroyed,
+        )!.payload as IUnitDestroyedPayload
+      ).cause,
+    ).toBe('damage');
   });
 
   it('uses target weapon availability to fall through front weapon criticals', () => {

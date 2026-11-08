@@ -92,7 +92,7 @@ export const INARC_POD_BRUSH_OFF_REMOVAL_SOURCE_REFS = [
   ),
   designatorMekStationRef(
     'MekStation physical attack events persist selectedINarcPod identity on declared and resolved Brush-Off payloads.',
-    'src/types/gameplay/GameSessionAttackEvents.ts#L674-L722',
+    'src/types/gameplay/GameSessionAttackEvents.ts#L668-L716',
   ),
   designatorMekStationRef(
     'MekStation runner tests prove selected Brush-Off declaration and resolution remove the matching iNarc pod while preserving nonmatching pods.',

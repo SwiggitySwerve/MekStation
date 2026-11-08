@@ -112,7 +112,7 @@ const MEKSTATION_PSR_EVENT_STAMPING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation heatCriticalDamage stamps basePilotingSkill when translating heat-critical PSR trigger events.',
-    'src/simulation/runner/phases/heatCriticalDamage.ts#L159-L160',
+    'src/simulation/runner/phases/heatCriticalDamage.ts#L151-L152',
   ),
   mekstationRef(
     'MekStation movementEnhancementFailureEvents stamps basePilotingSkill for MASC/Supercharger failure PSR trigger events.',
