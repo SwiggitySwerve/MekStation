@@ -46,8 +46,8 @@ encounter sizeLimit literals are pinned by tests to the shared encounter
 transport limit. The quick-game endpoint retains its independent existing limit
 because it is outside encounter transport scope.
 
-Hosted CI has not run yet. Final merged-base gate results are recorded below
-before the draft PR is filed.
+Initial merged-base results are recorded below. The later hosted census
+failure and its correction are recorded in the CI follow-up section.
 
 ## Merged-base gates
 
@@ -81,3 +81,38 @@ Both TypeScript configurations also passed again after the citation update.
 Draft PR: https://github.com/SwiggitySwerve/MekStation/pull/3058.
 S1b findings with file:line evidence are in its body. Hosted checks and Root
 review are pending at handoff; this lane never merges.
+
+## CI follow-up: route census and shared guard
+
+Root reported Unit Tests (1/3), job 128724542991, failed because the new session
+route was missing from the pinned census. Reproduced locally: expected 98 routes,
+found 99 (1 failed / 609 passed). Updated the reviewed URL list and count to 99.
+
+Review confirmed server.js:587 evaluates the shared same-host rule before Next
+handles any API request; its guard loader/evaluator are at server.js:501/508.
+Sibling encounter launch/clone handlers use method checks and no additional
+bearer authentication. The new session handler now also calls the shared
+rejectUnlessSameHost before its method check, request-size check, query/body
+validation or database access, covering direct-handler / next-dev access.
+Existing POST/PATCH method checks and local encounter authorization behavior
+are preserved; no independent authentication system was added.
+
+Added direct-handler coverage to the census's existing Host/Origin/fetch-site
+matrix and explicit POST/PATCH session rows to its real-server development and
+production matrix. Before adding the handler guard, the new direct cases were
+red: 18 failed / 658 passed. Existing session API tests now supply loopback Host
+headers, so valid request and 405 behavior remain exercised behind the guard.
+
+Merged fetched main 447803027ede2f9067bda0f252e60a08dde1f209 (merge
+21c6162453725caa9701bee103b7c00e6e4cc390) before the follow-up verification.
+
+- Entire src/__tests__/api directory: 68 suites / 1,734 tests passed.
+- Entire src/__tests__/integration plus lint-units Jest suite: 53 suites /
+  660 tests passed, 32 skipped.
+- Both TypeScript configurations passed; root lint 63 warnings / 0 errors.
+- lint:units passed at 17,074 / 17,085; no ceilings changed.
+- CI budget check passed: 57 unkeyable / 57 allowed; 92 repository-wide keys.
+- Changed runtime/test files pass oxfmt and git diff --check.
+
+The CampaignDashboardPage.advanceButtons failure belongs to main and is handled
+by #3059, per Root. No dashboard files were changed for this follow-up.

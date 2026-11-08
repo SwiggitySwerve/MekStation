@@ -1492,6 +1492,14 @@ describe('Opponent force - missing ID and exceptions', () => {
 });
 
 describe('encounter session API', () => {
+  function sessionRequest(
+    overrides: Partial<NextApiRequest> = {},
+  ): NextApiRequest {
+    return createMockRequest({
+      ...overrides,
+      headers: { host: '127.0.0.1:3600', ...overrides.headers },
+    });
+  }
   function history(terminal = false) {
     return [
       {
@@ -1535,7 +1543,7 @@ describe('encounter session API', () => {
     const events = history(true);
     const accepted = createMockResponse();
     sessionHandler(
-      createMockRequest({
+      sessionRequest({
         method: 'PATCH',
         query: { id: 'enc-1' },
         headers: { 'content-length': String(2 * 1024 * 1024) },
@@ -1547,7 +1555,7 @@ describe('encounter session API', () => {
     const rejected = createMockResponse();
     mockEncounterService.completeEncounter.mockClear();
     sessionHandler(
-      createMockRequest({
+      sessionRequest({
         method: 'PATCH',
         query: { id: 'enc-1' },
         headers: { 'content-length': String(16 * 1024 * 1024 + 1) },
@@ -1564,7 +1572,7 @@ describe('encounter session API', () => {
       const events = history(method === 'PATCH');
       const res = createMockResponse();
       sessionHandler(
-        createMockRequest({
+        sessionRequest({
           method,
           query: { id: 'enc-1' },
           body: { gameId: 'game-a', events },
@@ -1589,7 +1597,7 @@ describe('encounter session API', () => {
     (body) => {
       const res = createMockResponse();
       sessionHandler(
-        createMockRequest({ method: 'PATCH', query: { id: 'enc-1' }, body }),
+        sessionRequest({ method: 'PATCH', query: { id: 'enc-1' }, body }),
         res,
       );
       expect(res.status).toHaveBeenCalledWith(400);
@@ -1602,7 +1610,7 @@ describe('encounter session API', () => {
     );
     const res = createMockResponse();
     sessionHandler(
-      createMockRequest({
+      sessionRequest({
         method: 'POST',
         query: { id: 'enc-1' },
         body: { gameId: 'game-a', events: history() },
@@ -1616,7 +1624,7 @@ describe('encounter session API', () => {
   });
   it.each(['GET', 'DELETE'])('rejects unsupported %s', (method) => {
     const res = createMockResponse();
-    sessionHandler(createMockRequest({ method, query: { id: 'enc-1' } }), res);
+    sessionHandler(sessionRequest({ method, query: { id: 'enc-1' } }), res);
     expect(res.status).toHaveBeenCalledWith(405);
   });
 });

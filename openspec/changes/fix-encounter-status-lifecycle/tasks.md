@@ -7,3 +7,5 @@
 ## 3. Verification
 - [x] 3.1 Run all lane gates and record evidence; stop on committed fixture/digest changes.
 - [x] 3.2 Document read-only audit and S1b follow-up, open one draft PR without merging.
+
+- [x] 3.3 Review the session route shared guard, pin all 99 API routes, add direct/entry guard assertions and pass the full API directory after hosted CI feedback.

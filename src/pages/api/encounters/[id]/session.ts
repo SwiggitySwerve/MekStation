@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import { rejectUnlessSameHost } from '@/lib/api/sameHostGuard';
 import {
   initializeApiDatabase,
   rejectMissingQueryString,
@@ -21,6 +22,7 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): void {
+  if (rejectUnlessSameHost(req, res)) return;
   if (rejectUnexpectedMethod(req, res, ['POST', 'PATCH'])) return;
   const bytes = Number(req.headers['content-length']);
   if (Number.isFinite(bytes) && bytes > ENCOUNTER_SESSION_MAX_BYTES) {
