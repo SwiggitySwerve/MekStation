@@ -13,14 +13,16 @@
  * terminal classification — both taxonomies coexist.
  */
 
+import type { ISimulationResult } from '../core/types';
+
 /**
  * Closed snake_case set — exactly one value per match.
  *
- *  - `player_victory`       — opfor wiped (destroyed/withdrawn/forfeit) while player has ≥1 operational unit
+ *  - `player_victory`       — player wins by objective or opfor elimination
  *  - `opfor_victory`        — symmetric to player_victory
  *  - `mutual_destruction`   — every unit on both sides destroyed (NOT withdrawn)
- *  - `draw`                 — neither side meets victory conditions and neither voluntarily exits (objective-based)
- *  - `timeout`              — match reached `MAX_TURNS` ceiling with operational units on both sides
+ *  - `draw`                 — unresolved stop, including a critical-anomaly halt
+ *  - `timeout`              — unresolved match reaches the effective configured limit, bounded by the ceiling
  *  - `forfeit`              — a side voluntarily concedes
  *  - `withdrawal`           — a side voluntarily retreats off-map
  */
@@ -34,7 +36,7 @@ export type MatchTerminalState =
   | 'withdrawal';
 
 /**
- * Inputs the determination function consumes. Kept dependency-free so
+ * Inputs the determination function consumes. Kept runtime dependency-free so
  * tests can synthesise fixtures without spinning up an `IGameState`.
  */
 export interface IMatchTerminalStateInputs {
@@ -48,8 +50,12 @@ export interface IMatchTerminalStateInputs {
   readonly opforRosterSize: number;
   /** Turns elapsed at match end. */
   readonly turnsElapsed: number;
-  /** Engine ceiling — defaults to MAX_TURNS=100 from SimulationRunnerConstants. */
+  /** Effective configured turn limit, already bounded by the engine ceiling. */
   readonly maxTurns: number;
+  /** Existing runner winner, including objective victories with both sides alive. */
+  readonly winner?: ISimulationResult['winner'];
+  /** A critical-anomaly halt is an unresolved draw, even at the turn limit. */
+  readonly haltedByCriticalAnomaly?: boolean;
   /** True when at least one unit on either side voluntarily withdrew off-map. */
   readonly hadWithdrawal?: boolean;
   /** True when one side issued a forfeit/concede command. */
@@ -62,12 +68,14 @@ export interface IMatchTerminalStateInputs {
  *  1. forfeit — explicit concede command beats every other classification
  *  2. withdrawal — voluntary retreat takes precedence over destruction
  *     of remaining units
- *  3. mutual_destruction — both sides at zero survivors AND both started
+ *  3. critical-anomaly halt — draw rather than timeout
+ *  4. resolved winner — includes objective victories with both sides alive
+ *  5. mutual_destruction — both sides at zero survivors AND both started
  *     with at least one unit
- *  4. player_victory / opfor_victory — one side eliminated, the other
+ *  6. player_victory / opfor_victory — one side eliminated, the other
  *     still has units
- *  5. timeout — turns reached the ceiling with units alive on both sides
- *  6. draw — fall-through (objective-based scenarios end here)
+ *  7. timeout — turns reached the effective limit with units alive on both sides
+ *  8. draw — unresolved fall-through
  *
  * Pure: no side effects, no event emission. Callers in the runner are
  * responsible for stitching this into `ISimulationRunResult`. Conservation
@@ -84,6 +92,8 @@ export function determineMatchTerminalState(
     opforRosterSize,
     turnsElapsed,
     maxTurns,
+    winner = null,
+    haltedByCriticalAnomaly = false,
     hadWithdrawal = false,
     hadForfeit = false,
   } = inputs;
@@ -100,7 +110,15 @@ export function determineMatchTerminalState(
     return 'withdrawal';
   }
 
-  // 3. Both sides eliminated to zero. Guard against the degenerate case
+  if (haltedByCriticalAnomaly) {
+    return 'draw';
+  }
+
+  // Honor the existing objective-aware winner before survivor/limit fallback.
+  if (winner === 'player') return 'player_victory';
+  if (winner === 'opponent') return 'opfor_victory';
+
+  // Both sides eliminated to zero. Guard against the degenerate case
   //    where one side started empty (treated as a draw, not mutual destruction).
   if (
     playerSurvivors === 0 &&
@@ -111,7 +129,7 @@ export function determineMatchTerminalState(
     return 'mutual_destruction';
   }
 
-  // 4. One-sided eliminations.
+  // One-sided eliminations for callers without a resolved winner.
   if (opforSurvivors === 0 && playerSurvivors > 0) {
     return 'player_victory';
   }
@@ -119,14 +137,11 @@ export function determineMatchTerminalState(
     return 'opfor_victory';
   }
 
-  // 5. Engine turn ceiling reached with operational units on both sides.
-  //    Caller passes `maxTurns` (typically `MAX_TURNS = 100`).
-  if (turnsElapsed >= maxTurns) {
+  // The runner passes its effective configured limit, bounded by MAX_TURNS.
+  if (playerSurvivors > 0 && opforSurvivors > 0 && turnsElapsed >= maxTurns) {
     return 'timeout';
   }
 
-  // 6. Fall-through — neither side eliminated, no timeout, no exit.
-  //    Objective-based scenarios that end on objective resolution land
-  //    here.
+  // Neither side won, no timeout, no exit.
   return 'draw';
 }
