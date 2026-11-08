@@ -5,12 +5,15 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { Faction } from '@/constants/scenario/rats';
+import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
 import {
   calculateGameOutcome,
   calculateCombatStats,
   calculateOutcomeFromEvents,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { ScenarioGeneratorService } from '@/services/generators/ScenarioGeneratorService';
+import { BotPlayer } from '@/simulation/ai/BotPlayer';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { MAX_TURNS } from '@/simulation/runner/SimulationRunnerConstants';
 import { TerrainPreset } from '@/types/encounter';
 import {
@@ -37,6 +40,7 @@ import {
   createGridFromHexTerrain,
   createGridFromTerrainPreset,
 } from '../GameEngine.helpers';
+import { runAttackPhase, runPhysicalAttackPhase } from '../GameEngine.phases';
 
 function createTestWeapon(id: string): IWeapon {
   return {
@@ -140,6 +144,108 @@ describe('GameEngine', () => {
   });
 
   describe('runToCompletion', () => {
+    it.each([42, 12345])(
+      'preserves the C4 auto-resolve baseline for seed %i',
+      (seed) => {
+        const weapons = [
+          {
+            ...createTestWeapon('baseline-laser'),
+            shortRange: 1,
+            mediumRange: 1,
+            longRange: 1,
+            damage: 1,
+            heat: 0,
+          },
+        ];
+        const player = {
+          ...createTestUnit('player-1', GameSide.Player),
+          weapons,
+        };
+        const opponent = {
+          ...createTestUnit('opponent-1', GameSide.Opponent),
+          weapons,
+        };
+        const session = new GameEngine({
+          seed,
+          turnLimit: 20,
+          mapRadius: 7,
+        }).runToCompletion(
+          [player],
+          [opponent],
+          [
+            createGameUnit(player.id, player.side),
+            createGameUnit(opponent.id, opponent.side),
+          ],
+        );
+        const events = session.events.map(
+          ({ type, turn, phase, actorId, payload }) => ({
+            type,
+            turn,
+            phase,
+            actorId: actorId ?? null,
+            payload,
+          }),
+        );
+        const declarations = events.filter(
+          ({ type }) =>
+            type === GameEventType.AttackDeclared ||
+            type === GameEventType.PhysicalAttackDeclared,
+        );
+        expect(
+          declarations.some(
+            ({ type }) => type === GameEventType.AttackDeclared,
+          ),
+        ).toBe(true);
+        expect(
+          declarations.some(
+            ({ type }) => type === GameEventType.PhysicalAttackDeclared,
+          ),
+        ).toBe(true);
+        const actual = {
+          seed,
+          declarations: declarations.length,
+          events: digestReplayCheckpointState(
+            JSON.parse(JSON.stringify(events)) as unknown,
+          ),
+          outcome: getGameEndedPayload(session),
+          units: digestReplayCheckpointState(
+            JSON.parse(JSON.stringify(session.currentState.units)) as unknown,
+          ),
+        };
+        // Captured twice on origin/main bfbf2b239 before the declaration guards.
+        expect(actual).toEqual(
+          {
+            '42': {
+              seed: 42,
+              declarations: 4,
+              events:
+                'e5c9305acc86e9790ca2777b7510a5f92ce92f2830ee0801116f874bd44b7b88',
+              outcome: {
+                winner: 'player',
+                reason: 'destruction',
+                turns: 8,
+              },
+              units:
+                'e50a4252ad23bf82affabf4cbe829c8bceb35dbf5af927a23ebc7670c15b8612',
+            },
+            '12345': {
+              seed: 12345,
+              declarations: 4,
+              events:
+                '5afb81a8afe52937d99ca4aeeeb1ce2c41fa24fd7bfaab9059de8b871bdb60af',
+              outcome: {
+                winner: 'player',
+                reason: 'turn_limit',
+                turns: 20,
+              },
+              units:
+                '8441014ec195325ea3a1aab56fddb13edd3b0f99debd4562229b6056da9c9035',
+            },
+          }[seed],
+        );
+      },
+    );
+
     it('retains exactly one inline damage-threshold trigger when auto-resolve crosses 20 damage', () => {
       const attacker = {
         ...createTestUnit('player-1', GameSide.Player),
@@ -799,4 +905,91 @@ describe('GameEngine', () => {
       expect(actions.validTargets).toHaveLength(0);
     });
   });
+});
+
+it.each([GamePhase.WeaponAttack, GamePhase.PhysicalAttack])(
+  'does not plan or append declarations for committed actors in %s',
+  (phase) => {
+    const engine = new GameEngine({ seed: 42, mapRadius: 7 });
+    const player = createTestUnit('player-1', GameSide.Player);
+    const opponent = createTestUnit('opponent-1', GameSide.Opponent);
+    const interactive = engine.createInteractiveSession(
+      [player],
+      [opponent],
+      [
+        createGameUnit(player.id, player.side),
+        createGameUnit(opponent.id, opponent.side),
+      ],
+    );
+    interactive.advancePhase();
+    interactive.advancePhase();
+    if (phase === GamePhase.PhysicalAttack) interactive.advancePhase();
+    const session = interactive.getSession();
+    for (const [unitId, unit] of Object.entries(session.currentState.units))
+      session.currentState.units[unitId] = {
+        ...unit,
+        lockState: LockState.Locked,
+      };
+    const before = JSON.stringify(session);
+    const bot = new BotPlayer(new SeededRandom(42));
+    const ranged = jest.spyOn(bot, 'playAttackPhase');
+    const physical = jest.spyOn(bot, 'playPhysicalAttackPhase');
+    const weaponsByUnit = new Map([
+      [player.id, player.weapons],
+      [opponent.id, opponent.weapons],
+    ]);
+    const result =
+      phase === GamePhase.WeaponAttack
+        ? runAttackPhase(session, bot, weaponsByUnit, new Map())
+        : runPhysicalAttackPhase({
+            session,
+            botPlayer: bot,
+            weaponsByUnit,
+            gunneryByUnit: new Map(),
+            pilotingByUnit: new Map(),
+            d6Roller: () => 1,
+          });
+    expect(ranged).not.toHaveBeenCalled();
+    expect(physical).not.toHaveBeenCalled();
+    expect(result).toBe(session);
+    expect(JSON.stringify(session)).toBe(before);
+  },
+);
+
+it('refuses a second attack through the public interactive session without changing its journal', () => {
+  const weapons = [
+    {
+      ...createTestWeapon('public-laser'),
+      shortRange: 20,
+      mediumRange: 30,
+      longRange: 40,
+    },
+  ];
+  const player = { ...createTestUnit('player-1', GameSide.Player), weapons };
+  const opponent = createTestUnit('opponent-1', GameSide.Opponent);
+  const session = new GameEngine({
+    seed: 42,
+    mapRadius: 7,
+  }).createInteractiveSession(
+    [player],
+    [opponent],
+    [
+      createGameUnit(player.id, player.side),
+      createGameUnit(opponent.id, opponent.side),
+    ],
+  );
+  session.advancePhase();
+  session.advancePhase();
+  session.applyAttack(player.id, opponent.id, ['public-laser']);
+  const before = session.getSession();
+  expect(
+    before.events.filter(
+      (event) => event.type === GameEventType.AttackDeclared,
+    ),
+  ).toHaveLength(1);
+  const snapshot = JSON.stringify(before);
+  session.applyAttack(player.id, opponent.id, ['public-laser']);
+  session.applyAttack(player.id, 'missing-target', ['public-laser']);
+  expect(session.getSession()).toBe(before);
+  expect(JSON.stringify(session.getSession())).toBe(snapshot);
 });

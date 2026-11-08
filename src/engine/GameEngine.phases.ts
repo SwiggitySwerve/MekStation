@@ -33,6 +33,7 @@ import {
   resolveAllPhysicalAttacks,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { isActivationComplete } from '@/utils/gameplay/gameSessionActivation';
 import {
   canUnitGoProne,
   getGoProneMpCost,
@@ -270,6 +271,7 @@ export function runAttackPhase(
 
   for (const unitId of Object.keys(updatedSession.currentState.units)) {
     const unit = updatedSession.currentState.units[unitId];
+    if (isActivationComplete(unit)) continue;
     if (unit.destroyed) {
       updatedSession = lockAttack(updatedSession, unitId);
       continue;
@@ -369,6 +371,7 @@ export function runPhysicalAttackPhase(input: {
 
   for (const unitId of Object.keys(updatedSession.currentState.units)) {
     const unit = updatedSession.currentState.units[unitId];
+    if (isActivationComplete(unit)) continue;
     if (!canUnitAct(unit)) continue;
 
     const weapons = weaponsByUnit.get(unitId) ?? [];

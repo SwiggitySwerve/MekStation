@@ -9,6 +9,7 @@ import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 import { calculateFiringArc } from '@/utils/gameplay/firingArc';
 import { determineArc } from '@/utils/gameplay/firingArcs';
 import { declareAttack, lockAttack } from '@/utils/gameplay/gameSession';
+import { isActivationComplete } from '@/utils/gameplay/gameSessionActivation';
 import { coordToKey, hexDistance } from '@/utils/gameplay/hexMath';
 import { isRepresentedVehicleAttacker } from '@/utils/gameplay/hullDownRestrictions';
 import {
@@ -59,6 +60,8 @@ export function applyInteractiveSessionAttack(
 export function declareInteractiveSessionAttackGroup(
   input: IApplyAttackInput,
 ): IGameSession {
+  const attacker = input.session.currentState.units[input.attackerId];
+  if (attacker && isActivationComplete(attacker)) return input.session;
   const unitWeapons = input.weaponsByUnit.get(input.attackerId) ?? [];
   const weaponAttacks: IWeaponAttack[] = buildWeaponAttacks(
     input.weaponIds,
@@ -286,6 +289,8 @@ export function applyInteractiveSessionVolley(
   >,
   groups: readonly IVolleyGroup[],
 ): IGameSession {
+  const attacker = base.session.currentState.units[base.attackerId];
+  if (attacker && isActivationComplete(attacker)) return base.session;
   let session = base.session;
   for (const group of groups) {
     const before = session.events.length;

@@ -7,6 +7,8 @@ import {
   type IUnitGameState,
 } from '@/types/gameplay';
 
+export const COMMITTED_DECLARATION_REASON = 'unit-already-committed';
+
 export function isActivationComplete(unit: IUnitGameState): boolean {
   return (
     unit.lockState === LockState.Locked ||

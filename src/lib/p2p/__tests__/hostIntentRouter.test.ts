@@ -7,6 +7,7 @@
 
 import {
   GamePhase,
+  LockState,
   GameSide,
   GameStatus,
   type IGameEvent,
@@ -29,6 +30,8 @@ import {
   buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareMovementIntent,
+  buildDeclareAttackIntent,
+  buildDeclarePhysicalIntent,
   buildEndPhaseIntent,
   buildGoProneIntent,
   buildStandIntent,
@@ -389,3 +392,55 @@ describe('hostIntentRouter', () => {
     expect(harness.appended).toEqual([]);
   });
 });
+
+it.each([false, true])(
+  'refuses committed declarations without appending through the router (buffered=%s)',
+  (buffered) => {
+    for (const phase of [GamePhase.WeaponAttack, GamePhase.PhysicalAttack]) {
+      const initial = fixtureSession();
+      const session = {
+        ...initial,
+        currentState: { ...initial.currentState, phase },
+      };
+      session.currentState.units['guest-0'] = {
+        ...session.currentState.units['guest-0'],
+        lockState: LockState.Locked,
+      };
+      const harness = makeAdapter(session);
+      harness.setGuestPending(buffered);
+      const router = createHostIntentRouter(harness.adapter);
+      const intent =
+        phase === GamePhase.WeaponAttack
+          ? buildDeclareAttackIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              weapons: ['ml-1'],
+              toHitNumber: 7,
+            })
+          : buildDeclarePhysicalIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              attackType: 'punch',
+            });
+      const result = router.handleIntent(intent);
+      if (buffered) {
+        expect(result.outcome).toBe('buffered');
+        harness.setGuestPending(false);
+        expect(router.flushBuffered()).toEqual([
+          expect.objectContaining({
+            outcome: 'rejected',
+            reason: 'unsupported-intent',
+            detail: 'unit-already-committed',
+          }),
+        ]);
+      } else
+        expect(result).toMatchObject({
+          outcome: 'rejected',
+          reason: 'unsupported-intent',
+          detail: 'unit-already-committed',
+        });
+      expect(harness.appended).toEqual([]);
+      expect(harness.adapter.getSession()).toBe(session);
+    }
+  },
+);
