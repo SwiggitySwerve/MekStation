@@ -8,6 +8,7 @@ import {
   LockState,
 } from '@/types/gameplay';
 import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
+import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -68,9 +69,8 @@ export function applyTurnStarted(
       0,
       Math.trunc(units[unitId].empInterferenceTurns ?? 0) - 1,
     );
-    const empShutdownTurns = Math.max(
-      0,
-      Math.trunc(units[unitId].empShutdownTurns ?? 0) - 1,
+    const empShutdownTurns = advanceEmpShutdownTurns(
+      units[unitId].empShutdownTurns,
     );
     units[unitId] = {
       ...resetPerTurnMovementState(units[unitId]),

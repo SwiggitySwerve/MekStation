@@ -382,5 +382,9 @@ desktop/.electron-native-cache/
 # Jest per-file result cache (npm run test:cached)
 .jest-result-cache/
 
+# Temporary directories created by filesystem-backed Jest tests
+src/__tests__/integration/mekstation-k7-*/
+src/services/persistence/__tests__/sqlite-migrations-test-*/
+
 # Per-invocation E2E duration reports and generated shard plans
 e2e-timings/

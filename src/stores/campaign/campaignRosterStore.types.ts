@@ -134,14 +134,14 @@ export interface CampaignRosterActions {
   getUnitReadiness: (unitId: string) => UnitReadiness;
 
   /**
-   * Get all units with their readiness already cached on the projection.
+   * Get all units with condition derived from current campaign facts.
    * Returned shape matches `IRosterUnitProjection` (which itself carries
    * `readiness`) — preserved as a separate accessor for legacy callers
    * that explicitly typed the field as `Array<... & { readiness }>`.
    */
   getUnitsWithReadiness: () => IRosterUnitProjection[];
 
-  /** Get deployable units (Ready or Damaged) */
+  /** Get units with no deployment blockers */
   getDeployableUnits: () => IRosterUnitProjection[];
 
   /** Create a new mission record */

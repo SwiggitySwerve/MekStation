@@ -27,6 +27,54 @@ function fetchReturning(response: Response | (() => Promise<never>)) {
 }
 
 describe('readCampaignLaunchHead', () => {
+  it('falls back to snapshot authority on an older response with no readiness fields', async () => {
+    const result = await readCampaignLaunchHead(
+      'campaign-1',
+      fetchReturning(
+        jsonResponse({
+          kind: 'head',
+          branchId: 'root',
+          revision: 1,
+          effectiveGeneration: 0,
+        }),
+      ),
+    );
+    expect(result).toHaveProperty('readinessAuthority', { kind: 'snapshot' });
+  });
+
+  it('preserves validated journal unit statuses', async () => {
+    const authority = { kind: 'journal', units: { 'unit-1': 'destroyed' } };
+    const result = await readCampaignLaunchHead(
+      'campaign-1',
+      fetchReturning(
+        jsonResponse({
+          kind: 'head',
+          branchId: 'root',
+          revision: 1,
+          effectiveGeneration: 0,
+          readinessAuthority: authority,
+        }),
+      ),
+    );
+    expect(result).toHaveProperty('readinessAuthority', authority);
+  });
+
+  it('refuses malformed readiness authority rather than guessing at journal statuses', async () => {
+    const result = await readCampaignLaunchHead(
+      'campaign-1',
+      fetchReturning(
+        jsonResponse({
+          kind: 'head',
+          branchId: 'root',
+          revision: 1,
+          effectiveGeneration: 0,
+          readinessAuthority: { kind: 'journal', units: { 'unit-1': 'Ready' } },
+        }),
+      ),
+    );
+    expect(result.kind).toBe('unavailable');
+  });
+
   it('returns the head the authority reported', async () => {
     const fetchImpl = fetchReturning(
       jsonResponse({
@@ -46,6 +94,7 @@ describe('readCampaignLaunchHead', () => {
       branchId: 'candidate-7',
       revision: 42,
       effectiveGeneration: 3,
+      readinessAuthority: { kind: 'snapshot' },
     });
   });
 
@@ -69,7 +118,10 @@ describe('readCampaignLaunchHead', () => {
 
     const result = await readCampaignLaunchHead('campaign-1', fetchImpl);
 
-    expect(result).toEqual({ kind: 'no-authoritative-stream' });
+    expect(result).toEqual({
+      kind: 'no-authoritative-stream',
+      readinessAuthority: { kind: 'snapshot' },
+    });
   });
 
   it('is unavailable - never a default head - on a non-OK status', async () => {

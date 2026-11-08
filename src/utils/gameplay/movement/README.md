@@ -43,3 +43,14 @@ The frozen pre-optimization references in the adjacent tests independently
 check the complete prices and ordered AI candidates. Runner equivalence tests
 retain every event and result field, controlling only envelope UUID generation
 and explicitly normalizing diagnostic timestamps and elapsed duration.
+
+## Terrain PSRs and stuck recovery
+
+`planMovementTerrainEffects` (`terrainPsrTriggers.ts`) is the only producer of
+movement terrain PSRs. It returns, in step order, the PSRs to queue and any
+jump-entry bog-down that sticks a BattleMech without a roll. Callers apply the
+effects to their own state and event stream; none re-derives the triggers.
+
+`stuckRecovery.ts` owns the movement-start recovery roll: which stuck units may
+roll, the `swamp_unstuck` PSR for the unit's hex, and the roll itself. Event
+emission and state changes stay with the caller.

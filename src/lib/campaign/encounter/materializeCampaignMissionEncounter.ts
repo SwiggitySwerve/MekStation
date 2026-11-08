@@ -12,6 +12,10 @@ import {
   admitRosterUnitSource,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import {
+  selectUnitReadiness,
+  type ISelectUnitReadinessInput,
+} from '@/lib/campaign/readiness/selectUnitReadiness';
+import {
   refuseCampaignLaunchArtifacts,
   type CampaignArtifactUseConsult,
   type InvalidatedCampaignArtifactRefusal,
@@ -46,6 +50,10 @@ export interface MaterializeCampaignMissionEncounterInput {
   readonly campaign: CampaignMissionSource;
   readonly missionId: string;
   readonly rosterUnits: readonly IRosterUnitProjection[];
+  /** Current facts supplied by campaign launch adapters; omitted by legacy materialization seams. */
+  readonly readinessContext?: Omit<ISelectUnitReadinessInput, 'unit'> & {
+    readonly rosterUnits?: readonly IRosterUnitProjection[];
+  };
   readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly fetchImpl?: FetchImpl;
   /**
@@ -130,6 +138,7 @@ export async function materializeCampaignMissionEncounter({
   campaign,
   missionId,
   rosterUnits,
+  readinessContext,
   catalog,
   fetchImpl = fetch,
   ownedForces,
@@ -146,6 +155,37 @@ export async function materializeCampaignMissionEncounter({
   if (refused) return refused;
   try {
     assertOwnedForcesCurrent(ownedForces);
+    if (readinessContext) {
+      const available = new Map(
+        (readinessContext.rosterUnits ?? rosterUnits).map((unit) => [
+          unit.unitId,
+          unit,
+        ]),
+      );
+      const deploying =
+        ownedForces?.kind === 'materialized'
+          ? ownedForces.slots.flatMap((slot) =>
+              slot.units.map((unit) => {
+                const roster = available.get(unit.reference.unitId);
+                if (!roster)
+                  throw new Error(
+                    'Deploying unit is missing from the campaign roster.',
+                  );
+                return roster;
+              }),
+            )
+          : rosterUnits;
+      const results = deploying.map((unit) =>
+        selectUnitReadiness({ ...readinessContext, unit }),
+      );
+      const blocked = results.find((unit) => unit.status === 'blocked');
+      if (blocked)
+        throw new Error(
+          blocked.reasons.find((reason) => reason.severity === 'blocker')
+            ?.message ?? 'Unit cannot deploy.',
+        );
+      rosterUnits = results.map((unit) => unit.unit);
+    }
     assertSourceCatalogAdmission(rosterUnits, catalog);
     logLaunchRosterPreflightDiagnostics(campaign, missionId, rosterUnits);
     assertLaunchRoster(rosterUnits);

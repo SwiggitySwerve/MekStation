@@ -1,0 +1,6 @@
+{
+  "name": "wire-interactive-terrain-psrs",
+  "status": "in-progress",
+  "reason": "Root-approved parity item, five sequential PRs: (1) extract the shared movement terrain PSR producer and stuck recovery helpers with byte-identical runner events; (2) gate water, rubble, skid and ice PSRs on MegaMek Mek.canFall plus water movement-mode exclusions; (3) wire the producer into every interactive movement commit path with runner-equal jump eligibility; (4) roll movement-start stuck recovery in the session and engine paths; (5) drain pending PSRs at the runToCompletion End phase. No schema or payload change; PR 5 alone may change the committed C4 auto-resolve digest.",
+  "lastReviewed": "2026-11-08"
+}

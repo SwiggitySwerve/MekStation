@@ -156,9 +156,9 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
   );
 
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation queueMovementTerrainPSRs queues water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and emits UnitStuck for jump-entry bog-down.',
-  'src/simulation/runner/phases/movementTerrainPsr.ts',
-  'L75-L325',
+  'MekStation planMovementTerrainEffects, the shared producer behind the runner queueMovementTerrainPSRs adapter, plans water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and a UnitStuck for jump-entry bog-down.',
+  'src/utils/gameplay/movement/terrainPsrTriggers.ts',
+  'L91-L309',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
@@ -294,7 +294,7 @@ const MEKSTATION_SWAMP_UNSTUCK_FACTORY_SOURCE_REF =
 const MEKSTATION_SWAMP_UNSTUCK_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
   'MekStation runStuckRecoveryRolls rolls every stuck unit that can act before runner movement; success clears stuck and jump eligibility, failure changes nothing.',
   'src/simulation/runner/phases/movementStuckRecovery.ts',
-  'L38-L52',
+  'L31-L43',
 );
 
 const MEKSTATION_SWAMP_UNSTUCK_STATE_SOURCE_REF = mekstationDeviationSourceRef(

@@ -24,6 +24,9 @@ import type {
 
 import { Badge } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { selectUnitReadiness } from '@/lib/campaign/readiness/selectUnitReadiness';
+import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuthority';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPilotStatus } from '@/types/campaign';
 
@@ -238,9 +241,18 @@ interface UnitCardProps {
 }
 
 export function RosterUnitCard({
-  unit,
+  unit: rosterUnit,
   onClick,
 }: UnitCardProps): React.ReactElement {
+  const campaign = useStore(useCampaignStore(), (state) => state.campaign);
+  const pilots = useCampaignRosterStore((state) => state.pilots);
+  const authority = useReadinessAuthority(campaign?.id, campaign);
+  const { unit } = selectUnitReadiness({
+    unit: rosterUnit,
+    campaign,
+    pilots,
+    authority,
+  });
   const statusStyles = getReadinessStyles(unit);
   const isDestroyed = unit.readiness === 'Destroyed';
   const damageBar = useDamageBarData(unit.unitId);

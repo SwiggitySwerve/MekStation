@@ -21,7 +21,7 @@ export const MEKSTATION_EAGLE_EYES_ACTIVE_PROBE_RANGE_SOURCE_REFS = [
   pilotModifierApplicationSourceRef(
     'mekstation-deviation',
     'MekStation createInitialState seeds eagleEyesRangeBonus from hydrated fullUnit ability ids for represented active-probe state.',
-    'src/simulation/runner/SimulationRunnerState.ts#L134-L145',
+    'src/simulation/runner/SimulationRunnerState.ts#L135-L146',
     'MekStation working-tree',
   ),
   pilotModifierApplicationSourceRef(

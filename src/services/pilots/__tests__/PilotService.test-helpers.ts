@@ -1022,6 +1022,36 @@ describe('PilotService', () => {
     });
 
     describe('healWounds', () => {
+      it.each(Object.values(PilotStatus))(
+        'preserves healing behavior for %s',
+        (status) => {
+          service.createPilot({
+            identity: createMockIdentity('Healing status'),
+            type: PilotType.Persistent,
+            skills: { gunnery: 4, piloting: 5 },
+          });
+          mockRepository.update('pilot-1', { status, wounds: 3 });
+          mockRepository.update.mockClear();
+
+          const result = service.healWounds('pilot-1');
+
+          if (status === PilotStatus.KIA) {
+            expect(result).toEqual({
+              success: false,
+              error: 'Cannot heal a KIA pilot',
+              errorCode: PilotErrorCode.ValidationError,
+            });
+            expect(mockRepository.update).not.toHaveBeenCalled();
+          } else {
+            expect(result.success).toBe(true);
+            expect(mockRepository.update).toHaveBeenCalledWith('pilot-1', {
+              wounds: 0,
+              status: PilotStatus.Active,
+            });
+          }
+        },
+      );
+
       it('should heal all wounds', () => {
         service.createPilot({
           identity: createMockIdentity('Heal Test'),

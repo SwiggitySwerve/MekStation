@@ -215,6 +215,40 @@ describe('MechBay', () => {
     );
   });
 
+  it('keeps every pilot blocker and assignment link visible alongside other reasons', () => {
+    const units = [
+      {
+        ...SAMPLE_ROSTER_UNITS[0],
+        pilotId: undefined,
+        readiness: 'Damaged' as const,
+        unitRef: undefined,
+      },
+    ];
+    const projection = buildMissionReadinessProjection({
+      campaignId: 'campaign-1',
+      mission: undefined,
+      units,
+      baseCampaignHref: '/gameplay/campaigns/campaign-1',
+    });
+    render(
+      <MechBay
+        units={units}
+        repairBay={[]}
+        campaignId="campaign-1"
+        readinessByUnitId={
+          new Map(projection.units.map((unit) => [unit.unit.unitId, unit]))
+        }
+      />,
+    );
+    expect(
+      screen.getAllByText('No pilot assigned. Assign one before launch.'),
+    ).toHaveLength(1);
+    expect(screen.getByRole('link', { name: 'Assign pilot' })).toHaveAttribute(
+      'href',
+      `/gameplay/campaigns/campaign-1/personnel?intent=assign-pilot&unit=${units[0].unitId}`,
+    );
+  });
+
   it('resolves canonical weight and BV while preserving refit tonnage fallbacks', () => {
     const fixture = makeTempCatalogWithBVReport();
     const units = [

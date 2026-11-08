@@ -31,6 +31,7 @@ import {
 } from '@/utils/gameplay/objectives';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
 import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
+import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
 import { hasSPA } from '@/utils/gameplay/spaModifiers';
 import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
@@ -342,6 +343,9 @@ export function resetTurnState(state: IGameState): IGameState {
       tagDesignated: false,
       externalHeatThisTurn: 0,
       pendingExternalHeat: 0,
+      ...(unit.empShutdownTurns !== undefined
+        ? { empShutdownTurns: advanceEmpShutdownTurns(unit.empShutdownTurns) }
+        : {}),
     };
 
     updatedUnits[id] = resetPerTurnMovementState(updatedUnit);

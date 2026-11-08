@@ -31,6 +31,10 @@ const mockRosterState = {
   getActiveMission: () => null,
 };
 
+jest.mock('@/lib/campaign/readiness/useReadinessAuthority', () => ({
+  useReadinessAuthority: () => ({ kind: 'snapshot' }),
+}));
+
 jest.mock('@/services/units/CanonicalUnitService', () => ({
   getCanonicalUnitService: () => ({
     getIndex: mockRawCanonicalGetIndex,
@@ -48,7 +52,15 @@ jest.mock('@/stores/campaign/campaignBaySelectors', () => ({
 }));
 
 jest.mock('@/lib/campaign/readiness/missionReadinessProjection', () => ({
-  buildMissionReadinessProjection: () => ({ units: [] }),
+  buildMissionReadinessProjection: () => ({
+    units: mockRosterState.units.map((unit) => ({
+      unit,
+      reasons: [],
+      status: 'eligible',
+      repairTicketCount: 0,
+      blockingRepairTicketCount: 0,
+    })),
+  }),
 }));
 
 jest.mock('@/pages-modules/gameplay/campaigns/campaignPageShell', () => ({
