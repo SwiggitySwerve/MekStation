@@ -126,6 +126,7 @@ export interface INetworkedGameSurfaceProps {
    */
   readonly onPreviewHostGmCorrection?: GmCorrectionPreviewHandler;
   readonly onApproveHostGmCorrection?: GmCorrectionApproveHandler;
+  readonly canApproveHostGmCorrection?: boolean;
   /**
    * Carries the GM's private correction reason to the producer that
    * attaches it to the commit. Absent means this caller cannot carry one,
@@ -185,6 +186,7 @@ export function NetworkedGameSurface({
   hostPlayerId,
   onPreviewHostGmCorrection,
   onApproveHostGmCorrection,
+  canApproveHostGmCorrection = false,
   onPrivateReasonChange,
   onPreviewRewind,
   onConfirmRewind,
@@ -426,6 +428,7 @@ export function NetworkedGameSurface({
               <NetworkedHostGmControls
                 onPreview={onPreviewHostGmCorrection}
                 onApprove={onApproveHostGmCorrection}
+                canApprove={canApproveHostGmCorrection}
                 onPrivateReasonChange={onPrivateReasonChange}
               />
             )}

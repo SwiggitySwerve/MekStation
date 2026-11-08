@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { GmRewindPreviewOutcome } from '@/components/multiplayer/gmRewindPreviewPhrasing';
 import type { ICommandCommitResult } from '@/types/command-screen';
 import type {
   IGameEvent,
@@ -61,6 +62,7 @@ export default function NetworkedCommandProofPage(): React.JSX.Element {
   );
   const [intentLog, setIntentLog] = useState<readonly string[]>([]);
   const [previewText, setPreviewText] = useState('No host preview yet.');
+  const [canApproveCorrection, setCanApproveCorrection] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -92,6 +94,7 @@ export default function NetworkedCommandProofPage(): React.JSX.Element {
     setEvents(baseSession.events);
     setIntentLog([]);
     setPreviewText('No host preview yet.');
+    setCanApproveCorrection(false);
   }, [baseSession.events]);
 
   const recordIntent = useCallback(
@@ -102,11 +105,22 @@ export default function NetworkedCommandProofPage(): React.JSX.Element {
     [playerId],
   );
 
-  const previewGmCorrection = useCallback(() => {
-    setPreviewText('Preview ready: Atlas correction will be published.');
-  }, []);
+  const previewGmCorrection =
+    useCallback(async (): Promise<GmRewindPreviewOutcome> => {
+      setPreviewText('Preview ready: Atlas correction will be published.');
+      setCanApproveCorrection(true);
+      return {
+        kind: 'preview',
+        matchId: 'networked-command-proof',
+        targetRevision: 0,
+        priorHead: { branchId: 'root', revision: 0, effectiveGeneration: 0 },
+        changedViewerIds: [],
+        entries: [],
+      };
+    }, []);
 
   const approveGmCorrection = useCallback(() => {
+    setCanApproveCorrection(false);
     setEvents((current) => {
       if (current.some(isProofCommandResultEvent)) return current;
       return current.concat([makeGmCommandResultEvent(current.length)]);
@@ -179,6 +193,7 @@ export default function NetworkedCommandProofPage(): React.JSX.Element {
           onSendGameIntent={recordIntent}
           onPreviewHostGmCorrection={previewGmCorrection}
           onApproveHostGmCorrection={approveGmCorrection}
+          canApproveHostGmCorrection={canApproveCorrection}
         />
 
         <aside className="border-border-theme-subtle bg-surface-deep space-y-3 rounded-lg border p-3 text-sm">

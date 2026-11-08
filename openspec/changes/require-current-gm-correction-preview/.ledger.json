@@ -1,0 +1,6 @@
+{
+  "name": "require-current-gm-correction-preview",
+  "status": "implemented-awaiting-ci",
+  "reason": "M-M11 implemented; 272 full-directory suites and five killed mutants. Local broader screen E2E fails before the harness, also unable to complete on base. Draft CI and Root review remain pending.",
+  "lastReviewed": "2026-11-08"
+}
