@@ -7,6 +7,15 @@ import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
+
+// The service validates a unit before caching it, so unit payloads must be
+// valid catalog units; each test overrides only the fields it cares about.
+const catalogUnit = (overrides: Record<string, unknown>): unknown => ({
+  ...atlas,
+  ...overrides,
+});
+
 // Mock fetch for client-side
 global.fetch = jest.fn();
 
@@ -315,12 +324,7 @@ describe('CanonicalUnitService', () => {
         ],
       };
 
-      const mockUnit = {
-        id: 'atlas-as7-d',
-        chassis: 'Atlas',
-        variant: 'AS7-D',
-        tonnage: 100,
-      };
+      const mockUnit = catalogUnit({ id: 'atlas-as7-d' });
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({
@@ -365,7 +369,7 @@ describe('CanonicalUnitService', () => {
         ],
       };
 
-      const mockUnit = { id: 'test-unit', chassis: 'Test' };
+      const mockUnit = catalogUnit({ id: 'test-unit', chassis: 'Test' });
 
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({
@@ -452,11 +456,11 @@ describe('CanonicalUnitService', () => {
       (global.fetch as jest.Mock)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ id: 'unit-1', chassis: 'Unit1' }),
+          json: async () => catalogUnit({ id: 'unit-1', chassis: 'Unit1' }),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ id: 'unit-2', chassis: 'Unit2' }),
+          json: async () => catalogUnit({ id: 'unit-2', chassis: 'Unit2' }),
         });
 
       const units = await service.getByIds(['unit-1', 'unit-2']);
@@ -491,7 +495,7 @@ describe('CanonicalUnitService', () => {
       // Now set up mocks for individual unit fetches
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ id: 'unit-1', chassis: 'Unit1' }),
+        json: async () => catalogUnit({ id: 'unit-1', chassis: 'Unit1' }),
       });
 
       // 'non-existent' will return null because it's not in the index
@@ -650,7 +654,7 @@ describe('CanonicalUnitService', () => {
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ id: 'test-unit', chassis: 'Test' }),
+          json: async () => catalogUnit({ id: 'test-unit', chassis: 'Test' }),
         });
 
       await service.getById('test-unit');

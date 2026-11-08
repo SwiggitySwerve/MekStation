@@ -23,6 +23,7 @@ import {
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 import { mapRawIndexRows, type RawUnitIndexEntry } from './unitIndexMapper';
+import { parseUnit } from './unitLoaderService/unitContractAdapter';
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -241,6 +242,10 @@ export class CanonicalUnitService implements ICanonicalUnitService {
         if (!unit) {
           return null;
         }
+        // Validate before caching so no reader sees (or keeps) a malformed
+        // payload. Strict callers get the field issues; lenient ones get null.
+        // The raw object is cached, as in the Node service: no coercion.
+        parseUnit(unit, entry.filePath);
         if (this.unitLoads.get(loadKey) === registered.load)
           this.unitCache.set(key, unit);
         return unit;

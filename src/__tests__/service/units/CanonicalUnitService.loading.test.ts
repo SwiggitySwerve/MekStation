@@ -8,6 +8,8 @@
 
 import { CanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
+import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
+
 /** The missing-family TTL agreed for S10 (30 seconds). */
 const MISSING_FAMILY_TTL_MS = 30_000;
 
@@ -20,12 +22,8 @@ const ATLAS_ROW = {
   year: 2750,
   path: 'test/atlas-as7-d.json',
 };
-const ATLAS_UNIT = {
-  id: 'atlas-as7-d',
-  chassis: 'Atlas',
-  variant: 'AS7-D',
-  tonnage: 100,
-};
+// The service validates a unit before caching it, so use a real catalog unit.
+const ATLAS_UNIT = atlas;
 
 interface IFetchResponse {
   readonly ok: boolean;
