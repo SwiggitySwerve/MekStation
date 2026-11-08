@@ -37,9 +37,9 @@ export const BATTLEMECH_TURN_PHASE_EVENT_SOURCE_REFS = [
     'L258-L380',
   ),
   mekstationDeviationSourceRef(
-    'MekStation event dispatch handles GameStarted, PhaseChanged, TurnStarted, InitiativeRolled, and InitiativeOrderSet while treating TurnEnded and reveal events as no-op log entries.',
+    'MekStation event dispatch routes lifecycle and attack-reveal events to replay handlers while treating TurnEnded as a no-op log entry.',
     'src/utils/gameplay/gameState/eventDispatch.ts',
-    'L192-L312',
+    'L187-L307',
   ),
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner emits TurnStarted through the runner turn-boundary factory and TurnEnded at the End phase after objective control resolution.',
@@ -72,7 +72,7 @@ export const BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation event dispatch routes AttacksRevealed events into the action-locking replay helper.',
     'src/utils/gameplay/gameState/eventDispatch.ts',
-    'L224-L225',
+    'L219-L220',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -146,7 +146,7 @@ export const BATTLEMECH_MINEFIELD_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation event dispatch routes MinefieldChanged and EmpMinefieldEffectApplied events into replay reducers.',
     'src/utils/gameplay/gameState/eventDispatch.ts',
-    'L291-L296',
+    'L290-L296',
   ),
   mekstationDeviationSourceRef(
     'MekStation status replay reducer replays EmpMinefieldEffectApplied into EMP interference or shutdown unit state.',

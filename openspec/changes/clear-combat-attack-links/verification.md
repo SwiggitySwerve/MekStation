@@ -1,6 +1,48 @@
 # C9 verification
 
-## Baseline and refactor
+## Current result after C10
+
+C9 implementation is complete. PR #3052 remains a draft pending hosted checks
+and Root review. Main was merged at `0217646cc` (C10), then again at
+`447803027` (P2P retry). Both merges completed without conflicts; no rebase or
+force-push was used. The existing refactor-first commit order is preserved.
+
+The held `commitHeatPhaseUnit` integration now calls `clearAttackLinks` before
+returning critical-PSR updates. C10 startup/shutdown behavior remains intact.
+The held heat test failed before this edit and all six runner C9 tests passed
+afterward (`resume-heat-red.json`, `resume-heat-green.json`).
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Full gameplay, runner, engine, integration and replay/digest/golden set on merged main | 593 suites, 10,540 passed, 32 skipped, zero failures | `final-all.json` |
+| Replay/digest/golden before the held edit | 55 suites, 989 passed | `resume-before.json` |
+| Replay/digest/golden after the edit, including final merged main | 55 suites, 989 passed; final subset also 55/989 | `resume-after.json`, `final-all.json` |
+| Combat validation | 79 suites, 2,107 passed; gap inventory and strict spec checks passed | `final-combat.log` |
+| Both TypeScript configs | PASS | `final-typecheck.log` |
+| Root lint | PASS: 63 warnings, zero errors | `final-lint.log` |
+| lint:units and its complete Jest suite | PASS; 33 Jest tests passed; no ceilings changed | `final-lint-units.log`, `final-lint-units-tests.log` |
+| oxfmt / root format check | PASS | `final-format.log` |
+| Cache budget | PASS: 57/57 unkeyable, 92/93 repository-wide | `final-budget.json` |
+| Strict OpenSpec | 262 items passed | `final-openspec.log` |
+
+No previously committed replay, digest, golden or snapshot fixture changed.
+The earlier repository-wide budget overage is resolved by the merged main;
+C9 changed no ceiling.
+
+The content audit re-anchored 37 citations across 19 catalog/contract files.
+[The source anchor record](source-anchors.md) lists each range and its source
+content. Prior dispatch citations pointing at neighboring events were corrected
+by the named handler. `CombatSourceRefAnchorRemap.ts` has no targets affected by
+C9, so its merged C10 content remains unchanged.
+
+A separate run reproduced the known K6/K13 failure in
+`CampaignDashboardPage.advanceButtons.test.tsx`: all four cases throw
+`Cannot read properties of undefined (reading 'map')` at
+`CampaignDashboardPage.tsx:167`. This is outside the C9 directories and remains
+untouched as Root directed (`resume-known-dashboard.json`). No repository-wide
+all-green claim is made.
+
+## Earlier baseline and refactor
 
 Base: `05257e185c87aaa1d4141b58d7c69b59ab0c6e46` (includes #3045).
 Node 22.22.0 matches the existing SQLite native module. The initial Node 24
@@ -19,7 +61,7 @@ attempt failed with a native ABI mismatch; no dependency was rebuilt.
 - Budget census: **57 unkeyable**, 94 repository-wide keys against limit 93;
   the original main sources also classify 94 tests as repository-wide
   (`baseline-repowide.json`). C9 adds no unkeyable or repository-wide test.
-  No ceiling increased. This remains a failing baseline gate.
+  No ceiling increased. This was a failing baseline gate before the latest main merge.
 
 Raw local logs/JSON: `E:/Projects/Personal/_scratch/sm-audit-reports/c9-lane/`.
 These are supporting output, not ledger entries. The change ledger is only
@@ -67,30 +109,21 @@ test names are recorded in `mutants.json` beside the raw Jest reports.
 | Skip ejected cleanup | `C9 ejected exit releases both grapple participants when a exits` | 8 |
 | Skip retreated cleanup | `C9 retreated exit releases both grapple participants when a exits` | 8 |
 
-## Pending work and continuation
+## C10 hold resolved
 
-At the last read, #3039 is an open, blocked draft. Per Root's instruction,
-`postCombatHeatLifecycle.ts` and combat catalog files remain untouched by C9.
-This draft is incomplete and must remain a draft.
-
-1. After #3039 merges, fetch and **merge** `origin/main` (never force-rebase).
-2. At `commitHeatPhaseUnit`, call `clearAttackLinks` on the committed state
-   before returning the critical-PSR result. Preserve C10 startup/shutdown code.
-3. Re-anchor every affected `Combat*Source*` citation and
-   `CombatSourceRefAnchorRemap.ts` value by matching the cited source content,
-   including shifted reducer, runner and session-test ranges. Update the direct
-   ejection URL expectation in `combatEventCatalog.contract.test.ts` if changed.
-4. Re-run all directories, replay/digest/golden, combat validation and static
-   gates on that final tree. Stop on any historical fixture change.
-5. Resolve the baseline repository-wide cache gate through the owning lane;
-   C9 must not raise its ceiling or add an unkeyable test.
+The initial draft deliberately left the heat commit and catalogs untouched
+while #3039 was open. Root resumed the lane after that PR merged. Heat cleanup,
+content-based citation updates, full directory verification and the cache gate
+are now complete. The initial red runs above remain as test-first evidence.
+Only hosted checks/review and the separately owned dashboard failure remain.
 
 ## Pipeline-health evidence
 
 - **CI at merge:** NOT-RUN — no merge authorized or performed; this is a draft.
 - **Post-merge validation:** NOT-RUN — no merge performed.
-- **Error-log baseline (scope: local C9 validation):** one held heat-commit test
-  failure and one pre-existing repository-wide cache-budget violation — FAIL.
+- **Error-log baseline (scope: required local C9 validation):** zero failures -
+  PASS. The separate known campaign dashboard run has four failing cases - FAIL;
+  no campaign fix is included.
 
 ## Entry paths
 
@@ -108,5 +141,5 @@ This draft is incomplete and must remain a draft.
 ## Stop conditions
 
 Any changed committed replay, digest or golden fixture stops this lane. Do not
-regenerate. Hold heat lifecycle/catalog overlap until #3039 merges, then merge
-origin/main and re-anchor citations by content. Never merge the draft PR.
+regenerate. C10 overlap has been reconciled after merging #3039. Merge any
+required future main updates by content. Never merge the draft PR.

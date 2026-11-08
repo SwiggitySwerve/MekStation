@@ -68,12 +68,12 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation applySwarmDismounted clears isSwarming and swarmingUnitId from replayed swarmer state.',
         'src/utils/gameplay/gameState/eventDispatch.ts',
-        'L151-L188',
+        'L155-L183',
       ),
       mekstationDeviationSourceRef(
         'MekStation event dispatch replays SwarmDismounted through applySwarmDismounted.',
         'src/utils/gameplay/gameState/eventDispatch.ts',
-        'L298-L299',
+        'L297-L298',
       ),
     ],
   ),
@@ -95,7 +95,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation applyMovementEvent marks committed go-prone movement prone and clears hullDown on go-prone steps.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L370-L391',
+        'L371-L392',
       ),
     ],
   ),
@@ -129,7 +129,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation runner applyMovementEvent clears infernoBurning when a GO_PRONE movement step is committed.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L388-L390',
+        'L389-L391',
       ),
       mekstationDeviationSourceRef(
         'MekStation interactive applyMovementDeclared clears infernoBurning for GO_PRONE movement events.',

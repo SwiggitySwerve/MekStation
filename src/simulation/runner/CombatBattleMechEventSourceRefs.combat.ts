@@ -151,12 +151,12 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs, failed falls, failed bog-down stuck outcomes, and pilot-death UnitDestroyed events.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L76-L243',
+    'L77-L244',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner heat lifecycle emits shutdown checks and queues shutdown PSRs after heat shutdown.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L97-L159',
+    'L98-L160',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner stand-up helper emits PSRTriggered, PSRResolved, and UnitStood events.',
@@ -174,7 +174,7 @@ export const BATTLEMECH_PHYSICAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner physical event helpers emit PhysicalAttackDeclared and PhysicalAttackResolved payloads.',
     'src/simulation/runner/phases/physicalAttackEvents.ts',
-    'L17-L72',
+    'L18-L73',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner physical attack phase emits declarations, resolved hits/misses/rejections, displacement, fall, and PSR fallout events.',

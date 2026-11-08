@@ -117,7 +117,7 @@ export const LOCAL_PSR_RESOLUTION_SOURCE_REFS = [
     kind: 'mekstation-deviation',
     citation:
       'MekStation runPSRPhase resolves unit.pendingPSRs, emits PSRResolved/UnitFell/PilotHit/UnitDestroyed, and clears pendingPSRs after resolution.',
-    url: 'src/simulation/runner/phases/postCombatPsr.ts#L278-L330',
+    url: 'src/simulation/runner/phases/postCombatPsr.ts#L279-L331',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
   {

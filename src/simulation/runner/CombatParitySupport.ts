@@ -184,7 +184,7 @@ const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase applies heat-sourced PilotHit and optional MaxTech heat-scale pilot damage.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L198-L230',
+    'L199-L231',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase emits heat-sourced PilotHit, persists wounds, and applies optional MaxTech heat-scale damage.',
@@ -207,7 +207,7 @@ const PSR_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs with per-unit piloting, emits PSRResolved, and applies first-failure fallout.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L278-L330',
+    'L279-L331',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
