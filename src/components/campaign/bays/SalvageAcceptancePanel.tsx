@@ -101,7 +101,9 @@ export function SalvageRow({
             <button
               type="button"
               onClick={() => onDecide(item.partId, 'declined')}
-              disabled={item.status === 'declined'}
+              disabled={
+                item.status === 'declined' || item.status === 'accepted'
+              }
               className="bg-surface-raised hover:bg-border-theme text-text-theme-primary rounded px-3 py-1 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40"
               data-testid={`salvage-decline-${item.partId}`}
             >

@@ -33,6 +33,7 @@ import type {
 
 import { projectCampaignInventory } from '@/lib/campaign/inventory/projectCampaignInventory';
 import { addInventoryItem } from '@/lib/campaign/partsInventory';
+import { isSalvageUnitEnrolled } from '@/lib/campaign/salvage/salvageAcceptance';
 
 import type { MaybePromise } from './useCampaignStore.types';
 
@@ -170,8 +171,8 @@ export type ISalvageDecisionResult = ISalvageEnrollmentResult;
 /**
  * Map the bay UI's `accepted | declined` decision onto the engine's
  * `ISalvageCandidate.status` vocabulary. The engine uses `awarded` for an
- * accepted candidate (`projectCampaignInventory.mapSalvageStatus` collapses
- * `awarded` → `accepted` on the way back out); `declined` is shared.
+ * allocated candidate; the bay derives acceptance from enrollment.
+ * `declined` is shared.
  */
 function decisionToCandidateStatus(
   decision: SalvageDecision,
@@ -241,6 +242,19 @@ export function setSalvageItemStatus(
   const candidate = matches[0];
   const key = `${campaign.id}\0${partId}`;
   const pending = pendingSalvageDecisions.get(key);
+  // K5: decline cannot undo custody or report an in-flight accept as a decline.
+  if (decision === 'declined') {
+    if (pending)
+      return { applied: false, reason: 'Salvage acceptance is still saving.' };
+    if (
+      isSalvageUnitEnrolled(
+        campaign,
+        candidate,
+        useCampaignRosterStore.getState(),
+      )
+    )
+      return { applied: false, reason: 'Enrolled salvage cannot be declined.' };
+  }
   if (pending) return pending;
 
   const mutate = (campaign: ICampaignWithBays): Partial<ICampaign> => {

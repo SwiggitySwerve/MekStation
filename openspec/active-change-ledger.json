@@ -151,6 +151,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-salvage-acceptance-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-runner-terminal-state",
       "status": "in-progress",
       "reason": "Root-approved C17 only: classify runner termination from the effective configured limit bounded by the ceiling, critical halt and resolved objective winner; make the engine reason adapter exhaustive with all existing mappings preserved. No schema changes or fixture regeneration; wider end-reason consolidation deferred.",
