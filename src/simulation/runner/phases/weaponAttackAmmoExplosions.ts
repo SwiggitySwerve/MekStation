@@ -131,6 +131,29 @@ export function applyCritAmmoExplosions(
         unitId,
       ),
     );
+    if (
+      explosion.binId !== undefined &&
+      explosion.weaponType !== undefined &&
+      explosion.roundsDestroyed !== undefined
+    ) {
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.AmmoConsumed,
+          currentState.turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: targetId,
+            binId: explosion.binId,
+            weaponType: explosion.weaponType,
+            roundsConsumed: explosion.roundsDestroyed,
+            roundsRemaining: 0,
+          },
+          unitId,
+        ),
+      );
+    }
     // Empty tracked ammo bins so a subsequent volley in the same turn
     // cannot re-trigger the same bin. Represented equipment explosions
     // have no ammo-state mutation.
