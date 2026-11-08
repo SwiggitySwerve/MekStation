@@ -175,6 +175,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-acquisition-request-identity-and-retry",
+      "status": "in-progress",
+      "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-campaign-repair-ticket-completion",
       "status": "in-progress",
       "reason": "Root-approved K7 campaign repair completion, active projections and safe terminal pruning; no schema or wire changes.",

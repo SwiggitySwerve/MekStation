@@ -13,6 +13,7 @@ import { CampaignType } from '@/types/campaign/CampaignType';
 import { Money } from '@/types/campaign/Money';
 
 import { createShoppingList } from '../../acquisition/shoppingList';
+import { addCampaignDays } from '../../campaignCalendar';
 import { DayPhase, _resetDayPipeline } from '../../dayPipeline';
 import {
   acquisitionProcessor,
@@ -104,6 +105,94 @@ function createInTransitRequest(
 // =============================================================================
 
 describe('acquisitionProcessor', () => {
+  it('preserves the legacy missing-items guard without consuming random values', () => {
+    const shoppingList = createShoppingList();
+    Reflect.deleteProperty(shoppingList, 'items');
+    const campaign = createTestCampaign({ shoppingList });
+    const random = jest.fn(() => 0);
+    const result = acquisitionProcessor.process(
+      campaign,
+      campaign.currentDate,
+      random,
+    );
+    expect(result.campaign).toBe(campaign);
+    expect(result.events).toEqual([]);
+    expect(random).not.toHaveBeenCalled();
+  });
+
+  it('retains failed requests and retries on day seven without a retry limit', () => {
+    const start = new Date(3025, 0, 15);
+    let campaign = createTestCampaign({
+      currentDate: start,
+      shoppingList: { items: [createPendingRequest()] },
+    });
+    for (let cycle = 0; cycle < 12; cycle += 1) {
+      const date = addCampaignDays(start, cycle * 7);
+      const failure = acquisitionProcessor.process(campaign, date, () => 0);
+      expect(failure.campaign.shoppingList?.items[0]).toMatchObject({
+        status: 'pending',
+        attempts: cycle + 1,
+        lastAttemptDate: date.toISOString(),
+      });
+      expect(failure.events).toHaveLength(1);
+      const shoppingList = failure.campaign.shoppingList;
+      if (!shoppingList)
+        throw new Error('acquisition list missing after failure');
+      campaign = { ...failure.campaign, shoppingList };
+      for (let day = 0; day < 7; day += 1) {
+        const random = jest.fn(() => 0.99);
+        const skipped = acquisitionProcessor.process(
+          campaign,
+          addCampaignDays(date, day),
+          random,
+        );
+        expect(random).not.toHaveBeenCalled();
+        expect(skipped.events).toHaveLength(0);
+        expect(skipped.campaign.shoppingList).toEqual(campaign.shoppingList);
+      }
+    }
+    const success = acquisitionProcessor.process(
+      campaign,
+      addCampaignDays(start, 84),
+      () => 0.99,
+    );
+    expect(success.campaign.shoppingList?.items[0]).toMatchObject({
+      status: 'in_transit',
+      attempts: 13,
+    });
+    const deliveryDate = success.campaign.shoppingList?.items[0].deliveryDate;
+    if (!deliveryDate)
+      throw new Error('successful acquisition has no delivery date');
+    const arrival = new Date(deliveryDate);
+    const delivered = acquisitionProcessor.process(success.campaign, arrival);
+    expect(delivered.campaign.partsInventory).toHaveLength(1);
+    expect(
+      acquisitionProcessor.process(delivered.campaign, arrival).events,
+    ).toHaveLength(0);
+  });
+
+  it('repairs colliding in-transit request IDs before independent deliveries', () => {
+    const campaign = createTestCampaign({
+      shoppingList: {
+        items: [
+          createInTransitRequest({ id: 'collision', quantity: 2 }),
+          createInTransitRequest({ id: 'collision', quantity: 3 }),
+        ],
+      },
+    });
+    const result = acquisitionProcessor.process(campaign, campaign.currentDate);
+    expect(
+      new Set(result.campaign.shoppingList?.items.map((item) => item.id)).size,
+    ).toBe(2);
+    expect(
+      result.campaign.partsInventory?.map((item) => item.quantity),
+    ).toEqual([2, 3]);
+    expect(
+      acquisitionProcessor.process(result.campaign, campaign.currentDate)
+        .events,
+    ).toHaveLength(0);
+  });
+
   beforeEach(() => {
     _resetDayPipeline();
   });
@@ -213,9 +302,9 @@ describe('acquisitionProcessor', () => {
         campaign.currentDate,
       );
 
-      // Request should be processed (status changed)
+      // A failed roll stays pending, but still records the attempt.
       const updatedRequest = result.campaign.shoppingList!.items[0];
-      expect(updatedRequest.status).not.toBe('pending');
+      expect(updatedRequest.attempts).toBe(1);
     });
 
     it('should emit event on successful acquisition roll', () => {
@@ -287,7 +376,7 @@ describe('acquisitionProcessor', () => {
       expect(updatedRequest.status).toBe('in_transit');
     });
 
-    it('should set status to failed on failed roll', () => {
+    it('should keep status pending on failed roll', () => {
       const request = createPendingRequest();
       const campaign = createTestCampaign({
         shoppingList: {
@@ -303,7 +392,7 @@ describe('acquisitionProcessor', () => {
       );
 
       const updatedRequest = result.campaign.shoppingList!.items[0];
-      expect(updatedRequest.status).toBe('failed');
+      expect(updatedRequest.status).toBe('pending');
     });
 
     it('should set deliveryDate on successful roll', () => {

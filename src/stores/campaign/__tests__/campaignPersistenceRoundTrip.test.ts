@@ -38,6 +38,11 @@ import type { ILoan } from '@/types/campaign/Loan';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import {
+  deserializeCampaignBody,
+  serializeCampaign as serializeCampaignBody,
+} from '@/lib/campaign/persistence/serializeCampaign';
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
@@ -48,7 +53,7 @@ import { RefitClass } from '@/types/campaign/Refit';
 import { CombatRole } from '@/types/campaign/scenario/scenarioTypes';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 
-import { takeLoan } from '../campaignCommandActions';
+import { addAcquisitionRequest, takeLoan } from '../campaignCommandActions';
 import { useCampaignPersistenceStore } from '../useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '../useCampaignRosterStore';
 import { resetCampaignStore, useCampaignStore } from '../useCampaignStore';
@@ -199,6 +204,89 @@ function currentCampaign(): ICampaignWithCommand {
 // =============================================================================
 
 describe('D-1 — campaign persistence round-trip (save → reload seam)', () => {
+  it('loads legacy acquisitions identically on server and local paths and stays identical after loading twice', () => {
+    const id = seedCampaign();
+    addAcquisitionRequest({
+      partName: 'PPC',
+      quantity: 2,
+      availability: AvailabilityRating.E,
+      isConsumable: false,
+    });
+    const base = currentCampaign();
+    const request = base.shoppingList?.items[0];
+    if (!request) throw new Error('request missing');
+    const legacy = {
+      ...base,
+      currentDate: new Date('3025-01-15T00:00:00.000Z'),
+      shoppingList: {
+        items: [
+          {
+            ...request,
+            id: 'duplicate',
+            status: 'failed' as const,
+            attempts: 3,
+            lastAttemptDate: '3025-01-12T00:00:00.000Z',
+          },
+          {
+            ...request,
+            id: 'duplicate',
+            status: 'failed' as const,
+            attempts: 1,
+            lastAttemptDate: 'invalid-date',
+          },
+          {
+            ...request,
+            id: 'duplicate',
+            status: 'delivered' as const,
+            quantity: 5,
+          },
+          { ...request, id: 'duplicate-legacy-1' },
+        ],
+      },
+      partsInventory: [
+        {
+          inventoryId: 'acquisition-duplicate',
+          partId: 'ppc',
+          partName: 'PPC',
+          quantity: 5,
+          source: 'acquisition' as const,
+          acquiredAt: '3025-01-10T00:00:00.000Z',
+        },
+      ],
+    };
+    useCampaignStore().getState().updateCampaign(legacy);
+    useCampaignStore().getState().saveCampaign();
+    const server = deserializeCampaignBody(serializeCampaignBody(legacy));
+    expect(server.shoppingList?.items.map((item) => item.status)).toEqual([
+      'pending',
+      'pending',
+      'delivered',
+      'pending',
+    ]);
+    expect(
+      new Set(server.shoppingList?.items.map((item) => item.id)).size,
+    ).toBe(4);
+    expect(server.shoppingList?.items[0].lastAttemptDate).toBe(
+      '3025-01-12T00:00:00.000Z',
+    );
+    expect(server.shoppingList?.items[1].lastAttemptDate).toBe(
+      legacy.currentDate.toISOString(),
+    );
+    resetCampaignStore();
+    expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
+    const local = currentCampaign();
+    expect(local.shoppingList).toEqual(server.shoppingList);
+    expect(local.partsInventory).toEqual(legacy.partsInventory);
+    expect(
+      deserializeCampaignBody(serializeCampaignBody(server)).shoppingList,
+    ).toEqual(server.shoppingList);
+    useCampaignStore().getState().saveCampaign();
+    resetCampaignStore();
+    expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
+    expect(currentCampaign().shoppingList).toEqual(local.shoppingList);
+    expect(currentCampaign().partsInventory).toEqual(legacy.partsInventory);
+  });
+
   beforeEach(() => {
     jest.useFakeTimers();
     localStorageMock.clear();
