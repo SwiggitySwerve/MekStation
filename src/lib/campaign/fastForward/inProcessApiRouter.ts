@@ -22,7 +22,8 @@
  * Task 1.1 route inventory — every entry below corresponds to one of
  * `materializeCampaignMissionEncounter`'s five call shapes
  * (`materializeCampaignMissionEncounter.ts:94-285`) plus the fast-forward
- * combat runner's force read-back (design D2, group 3):
+ * combat runner's force read-back (design D2, group 3) and its encounter
+ * session link + completion (S1b):
  *
  * | Method | Path                                | Handler module                                  |
  * |--------|-------------------------------------|--------------------------------------------------|
@@ -35,6 +36,11 @@
  * | PATCH  | /api/encounters/:id                 | src/pages/api/encounters/[id]/index.ts           |
  * | PUT    | /api/encounters/:id/player-force    | src/pages/api/encounters/[id]/player-force.ts    |
  * | PUT    | /api/encounters/:id/opponent-force  | src/pages/api/encounters/[id]/opponent-force.ts  |
+ * | POST   | /api/encounters/:id/session         | src/pages/api/encounters/[id]/session.ts         |
+ * | PATCH  | /api/encounters/:id/session         | src/pages/api/encounters/[id]/session.ts         |
+ *
+ * Every request carries a loopback `Host`: these handlers run in this
+ * process, so the session route's same-host guard sees the truth.
  *
  * @module lib/campaign/fastForward/inProcessApiRouter
  */
@@ -46,6 +52,7 @@ import { createMocks, type RequestMethod } from 'node-mocks-http';
 import encounterByIdHandler from '@/pages/api/encounters/[id]/index';
 import opponentForceHandler from '@/pages/api/encounters/[id]/opponent-force';
 import playerForceHandler from '@/pages/api/encounters/[id]/player-force';
+import encounterSessionHandler from '@/pages/api/encounters/[id]/session';
 import validateEncounterHandler from '@/pages/api/encounters/[id]/validate';
 import encountersHandler from '@/pages/api/encounters/index';
 import forceByIdHandler from '@/pages/api/forces/[id]';
@@ -137,6 +144,18 @@ const ROUTES: readonly RouteDefinition[] = [
     /^\/api\/encounters\/([^/]+)\/opponent-force$/,
     ['id'],
     opponentForceHandler,
+  ),
+  defineRoute(
+    'POST',
+    /^\/api\/encounters\/([^/]+)\/session$/,
+    ['id'],
+    encounterSessionHandler,
+  ),
+  defineRoute(
+    'PATCH',
+    /^\/api\/encounters\/([^/]+)\/session$/,
+    ['id'],
+    encounterSessionHandler,
   ),
 ];
 
@@ -279,6 +298,7 @@ export function createInProcessApiFetch(): typeof fetch {
 
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
       method: method as RequestMethod,
+      headers: { host: 'localhost' },
       query: matched.query,
       body,
     });
