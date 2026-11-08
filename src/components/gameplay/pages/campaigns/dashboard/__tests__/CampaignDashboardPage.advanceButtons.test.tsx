@@ -5,7 +5,10 @@
  * advance is in flight, enabled again when it settles.
  *
  * Mocks follow CampaignDashboardPage.reactivity.test.tsx; the pieces that
- * matter here (the header, the campaign store, the flag hook) are real.
+ * matter here (the header, the campaign store, the flag hook) are real. The
+ * mission-readiness projector is real too, not mocked: the page reads several
+ * fields of its result (K6 added `units`), and a hand-written mock of that
+ * shape drifted the first time the page changed.
  */
 
 import { act, render, screen, waitFor } from '@testing-library/react';
@@ -25,14 +28,6 @@ jest.mock('next/router', () => ({
     query: { id: mockRouteCampaignId },
     events: { on: jest.fn(), off: jest.fn() },
   }),
-}));
-jest.mock('@/lib/campaign/readiness/missionReadinessProjection', () => ({
-  buildMissionReadinessProjection: () => ({
-    canLaunch: false,
-    selectedUnits: [],
-    unresolvedBlockers: [{ message: 'No ready roster unit' }],
-  }),
-  selectedRosterUnitsForLaunch: () => [],
 }));
 jest.mock('@/components/ui', () => ({
   PageLayout: ({
@@ -145,6 +140,7 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
   };
 });
 const mockRosterState = {
+  units: [],
   pilots: [],
   missionCount: 0,
   createMission: jest.fn(),
