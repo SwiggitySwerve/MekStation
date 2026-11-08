@@ -105,7 +105,7 @@ function createPsrUnitResolutionContext(
   };
 }
 
-function createDefaultComponentDamage(): IComponentDamageState {
+export function createDefaultComponentDamage(): IComponentDamageState {
   return {
     engineHits: 0,
     gyroHits: 0,

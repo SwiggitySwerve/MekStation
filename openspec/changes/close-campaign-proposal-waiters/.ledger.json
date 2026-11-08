@@ -1,0 +1,6 @@
+{
+  "name": "close-campaign-proposal-waiters",
+  "status": "implemented-awaiting-ci",
+  "reason": "M-M10 implemented and merged with K14b PR3 (#3072); 282 directory suites pass, seven mutants killed, lint remains 63 warnings, and the new helper test is keyable. Draft CI and Root review remain pending.",
+  "lastReviewed": "2026-11-08"
+}

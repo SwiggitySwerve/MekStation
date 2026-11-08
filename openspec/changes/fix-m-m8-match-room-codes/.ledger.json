@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-m8-match-room-codes",
+  "status": "in-progress",
+  "reason": "Root-approved M-M8 store invitation expiry, uniqueness, retry and legacy backfill; M-M9 regression coverage only.",
+  "lastReviewed": "2026-11-08"
+}

@@ -77,6 +77,8 @@ export interface ICampaignSyncTransport {
   sendParticipation(participation: ICampaignParticipationPayload): void;
   onFrame(handler: CampaignSyncFrameHandler): () => void;
   onError(handler: (error: unknown) => void): () => void;
+  /** Local lifecycle signal; late subscribers are called immediately. */
+  onClose?(handler: () => void): () => void;
   close(): void;
   lastSeq(): number;
 }
@@ -132,6 +134,7 @@ export function connectCampaignSyncTransport(
   options = { ...options };
   const listeners = new Set<CampaignSyncFrameHandler>();
   const errorListeners = new Set<(error: unknown) => void>();
+  const closeListeners = new Set<() => void>();
   const confirmations = new Set<(ack: ICampaignApplicationAck) => void>();
   const pending: { frame: ICampaignApplicationOffer; applied: boolean }[] = [];
   let latest: ICampaignApplicationOffer | null = null;
@@ -153,6 +156,12 @@ export function connectCampaignSyncTransport(
   const pendingOutbound: ICampaignClientMessage[] = [];
   let lastSeq = options.lastSeq ?? -1;
   let closed = false;
+  const notifyClosed = (): void => {
+    if (closed) return;
+    closed = true;
+    [...closeListeners].forEach((listener) => listener());
+    closeListeners.clear();
+  };
   const wireToken = encodeCampaignSocketToken(options.wireToken);
   const socket = (options.socketFactory ?? defaultSocketFactory())(
     buildCampaignSyncSocketUrl(options),
@@ -409,8 +418,18 @@ export function connectCampaignSyncTransport(
         errorListeners.delete(handler);
       };
     },
+    onClose: (handler) => {
+      if (closed) {
+        handler();
+        return () => undefined;
+      }
+      closeListeners.add(handler);
+      return () => {
+        closeListeners.delete(handler);
+      };
+    },
     close: () => {
-      closed = true;
+      notifyClosed();
       pending.length = 0;
       sent = null;
       stopHeartbeat();
@@ -524,7 +543,7 @@ export function connectCampaignSyncTransport(
     // CF12: a receipt-mode close nobody asked for is a recovery signal, once.
     if (!closed && !failed && receiptMode && options.expectedCampaignId)
       recover('socket-closed');
-    closed = true;
+    notifyClosed();
     pending.length = 0;
     sent = null;
     stopHeartbeat();

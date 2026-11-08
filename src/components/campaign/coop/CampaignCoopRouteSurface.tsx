@@ -51,6 +51,7 @@ import {
   deriveGmLifecyclePosture,
   toCampaignLifecyclePosture,
 } from '@/lib/campaign/lifecycle/campaignLifecycleState';
+import { COOP_GUEST_MARKET_REFUSAL } from '@/lib/campaign/markets/offerLifecycle';
 import { campaignSyncPostureFromMirrorStatus } from '@/lib/campaign/replica/campaignSyncUxState';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
@@ -109,20 +110,17 @@ function buildActionsForRoute(
     }) as ICampaignIntent;
 
   switch (routeId) {
+    // K14b: a hire or an acceptance must name an offer from the host's
+    // market, and guests do not receive it - so there is no real offer to
+    // propose. These used to raise an invented recruit at 12,000 C-bills
+    // and an invented contract. Shown disabled, with the reason.
     case 'personnel':
     case 'hiring':
       return [
         {
-          kind: 'HirePilot',
+          kind: 'HireOffer',
           label: 'Propose: Hire Pilot',
-          buildIntent: () =>
-            baseIntent('HirePilot', {
-              pilot: {
-                pilotId: `pilot-coop-${Date.now()}`,
-                name: 'Co-op Recruit',
-              },
-              cost: 12000,
-            }),
+          disabledReason: COOP_GUEST_MARKET_REFUSAL,
         },
       ];
     case 'contract-market':
@@ -130,14 +128,7 @@ function buildActionsForRoute(
         {
           kind: 'AcceptContract',
           label: 'Propose: Accept Contract',
-          buildIntent: () =>
-            baseIntent('AcceptContract', {
-              contract: {
-                contractId: `contract-coop-${Date.now()}`,
-                name: 'Co-op Proposed Contract',
-                employerFactionId: 'mercenary',
-              },
-            }),
+          disabledReason: COOP_GUEST_MARKET_REFUSAL,
         },
       ];
     case 'finances':
