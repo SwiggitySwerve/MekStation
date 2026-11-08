@@ -168,6 +168,7 @@ export function commitValidatedMovement(options: {
     grid,
     unitId,
     movementType: committedPayload.movementType,
+    movementMode: validationCapability.movementMode,
     steps: decomposition.steps,
   });
 }

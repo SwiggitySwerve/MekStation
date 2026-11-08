@@ -7,6 +7,7 @@ import {
   type IHexCoordinate,
   type IHexGrid,
   type IUnitGameState,
+  type MovementMotiveMode,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
@@ -60,6 +61,8 @@ function plan(options: {
   readonly unitType?: string;
   readonly tonnage?: number;
   readonly isStuck?: boolean;
+  readonly prone?: boolean;
+  readonly movementMode?: MovementMotiveMode;
 }): readonly MovementTerrainEffect[] {
   return planMovementTerrainEffects({
     grid: grid(options.terrain),
@@ -68,8 +71,10 @@ function plan(options: {
       unitType: options.unitType ?? 'BattleMech',
       ...(options.tonnage !== undefined ? { tonnage: options.tonnage } : {}),
       ...(options.isStuck ? { isStuck: true } : {}),
+      ...(options.prone ? { prone: true } : {}),
     },
     movementType: options.movementType ?? MovementType.Walk,
+    ...(options.movementMode ? { movementMode: options.movementMode } : {}),
     steps: options.steps,
   });
 }
@@ -304,6 +309,100 @@ describe('planMovementTerrainEffects (shared movement terrain PSR producer)', ()
       PSRTrigger.ExitingWater,
       PSRTrigger.MovingOnIce,
     ]);
+  });
+});
+
+describe('terrain PSR fall eligibility (MegaMek Mek.canFall and checkWaterMove)', () => {
+  const water = JSON.stringify([{ type: TerrainType.Water, level: 1 }]);
+  const enterWater = {
+    terrain: { [coordToKey(B)]: water },
+    steps: [forward(0, A, B)],
+  };
+  const exitWater = {
+    terrain: { [coordToKey(A)]: water },
+    steps: [forward(0, A, B)],
+  };
+  const rubble = {
+    terrain: { [coordToKey(B)]: 'rubble' },
+    steps: [forward(0, A, B)],
+  };
+  const ice = {
+    terrain: { [coordToKey(B)]: 'ice' },
+    steps: [forward(0, A, B)],
+  };
+  const skid = {
+    terrain: { [coordToKey(A)]: 'pavement' },
+    steps: [
+      forward(0, C, C),
+      forward(1, C, C),
+      forward(2, C, C),
+      { kind: 'turn', index: 3, at: A } as TerrainBearingMovementStep,
+    ],
+    movementType: MovementType.Run,
+  };
+  const exemptWaterModes: readonly MovementMotiveMode[] = [
+    'hover',
+    'vtol',
+    'naval',
+    'hydrofoil',
+    'submarine',
+    'umu',
+    'biped_swim',
+    'quad_swim',
+    'wige',
+  ];
+
+  it('T-G1 non-walking water modes never roll water entry, and a Mek exiting water still rolls', () => {
+    for (const movementMode of exemptWaterModes) {
+      expect(plan({ ...enterWater, movementMode })).toEqual([]);
+      expect(codes(plan({ ...exitWater, movementMode }))).toEqual([
+        PSRTrigger.ExitingWater,
+      ]);
+    }
+    expect(
+      plan({ ...enterWater, unitType: 'Tank', movementMode: 'tracked' }),
+    ).toEqual([]);
+  });
+
+  it('T-G2 vehicles never roll water, rubble, skid or ice', () => {
+    for (const unitType of [
+      'Tank',
+      'SupportVehicle',
+      'ProtoMech',
+      'Infantry',
+    ]) {
+      for (const scenario of [enterWater, exitWater, rubble, ice, skid]) {
+        expect(plan({ ...scenario, unitType })).toEqual([]);
+      }
+    }
+  });
+
+  it('T-G3 a standing BattleMech-like unit still rolls every gated trigger', () => {
+    for (const unitType of ['BattleMech', 'OmniMech', 'IndustrialMech']) {
+      const mover = { unitType };
+      expect(codes(plan({ ...enterWater, ...mover }))).toEqual([
+        PSRTrigger.EnteringWater,
+      ]);
+      expect(codes(plan({ ...exitWater, ...mover }))).toEqual([
+        PSRTrigger.ExitingWater,
+      ]);
+      expect(codes(plan({ ...rubble, ...mover }))).toEqual([
+        PSRTrigger.EnteringRubble,
+      ]);
+      expect(codes(plan({ ...ice, ...mover }))).toEqual([
+        PSRTrigger.MovingOnIce,
+      ]);
+      expect(codes(plan({ ...skid, ...mover }))).toEqual([PSRTrigger.Skidding]);
+      expect(
+        codes(plan({ ...enterWater, ...mover, movementMode: 'walk' })),
+      ).toEqual([PSRTrigger.EnteringWater]);
+    }
+  });
+
+  it('T-G4 a prone BattleMech makes none of the fall rolls', () => {
+    for (const scenario of [enterWater, exitWater, rubble, ice, skid]) {
+      expect(plan({ ...scenario, prone: true })).toEqual([]);
+    }
   });
 });
 
