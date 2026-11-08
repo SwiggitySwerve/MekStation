@@ -23,6 +23,7 @@
  */
 
 import Database from 'better-sqlite3';
+import { readFileSync, statSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -35,6 +36,7 @@ import {
 describe('SQLiteService migrations', () => {
   let dir: string;
   let dbPath: string;
+  const failedConnections: Database.Database[] = [];
 
   beforeEach(async () => {
     dir = await mkdtemp(path.join(tmpdir(), 'sqlite-migrations-test-'));
@@ -43,9 +45,13 @@ describe('SQLiteService migrations', () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     // Close the singleton's handle before deleting the file — Windows
     // refuses to remove open files.
     resetSQLiteService();
+    for (const connection of failedConnections.splice(0)) {
+      if (connection.open) connection.close();
+    }
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
@@ -61,6 +67,151 @@ describe('SQLiteService migrations', () => {
     const cols = raw.pragma(`table_info(${table})`) as Array<{ name: string }>;
     return cols.map((c) => c.name);
   }
+
+  it.each([
+    ['table-existence read', /SELECT name FROM sqlite_master/],
+    [
+      'maximum-version read',
+      /SELECT MAX\(version\) as version FROM migrations/,
+    ],
+  ] as const)(
+    'retries a failed %s without replacing or truncating the user database',
+    (_, query) => {
+      getSQLiteService({ path: dbPath, maxMigrationVersion: 31 }).initialize();
+      const seeded = getSQLiteService().getDatabase();
+      seeded.exec('CREATE TABLE s13_user_data (payload BLOB NOT NULL)');
+      const payload = Buffer.from([0, 255, 1, 128, 42]);
+      seeded.prepare('INSERT INTO s13_user_data VALUES (?)').run(payload);
+      const records = seeded
+        .prepare('SELECT * FROM migrations ORDER BY version')
+        .all();
+      resetSQLiteService();
+      const originalFile = statSync(dbPath);
+      const originalBytes = readFileSync(dbPath);
+
+      const service = getSQLiteService({ path: dbPath });
+      const failure = new Error('injected transient version read failure');
+      const prepare = Database.prototype.prepare;
+      const read = jest
+        .spyOn(Database.prototype, 'prepare')
+        .mockImplementation(function (this: Database.Database, sql) {
+          if (query.test(sql)) {
+            failedConnections.push(this);
+            throw failure;
+          }
+          return prepare.call(this, sql);
+        });
+      const transaction = jest.spyOn(Database.prototype, 'transaction');
+      let caught: unknown;
+      try {
+        service.initialize();
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).toBe(failure);
+      expect(transaction).not.toHaveBeenCalled();
+      expect(service.isInitialized()).toBe(false);
+      expect(() => service.getDatabase()).toThrow('Database not initialized');
+      expect(failedConnections[0].open).toBe(false);
+      expect(statSync(dbPath).ino).toBe(originalFile.ino);
+      expect(statSync(dbPath).dev).toBe(originalFile.dev);
+      expect(readFileSync(dbPath)).toEqual(originalBytes);
+      read.mockRestore();
+      transaction.mockRestore();
+
+      // Inspect the existing file before retrying so migrations cannot hide data loss.
+      const raw = new Database(dbPath, { readonly: true, fileMustExist: true });
+      try {
+        expect(raw.prepare('SELECT payload FROM s13_user_data').get()).toEqual({
+          payload,
+        });
+        expect(
+          raw.prepare('SELECT * FROM migrations ORDER BY version').all(),
+        ).toEqual(records);
+        expect(maxRecordedVersion(raw)).toBe(31);
+      } finally {
+        raw.close();
+      }
+
+      service.initialize();
+      expect(getSQLiteService()).toBe(service);
+      expect(service.isInitialized()).toBe(true);
+      const ready = service.getDatabase();
+      expect(ready).not.toBe(failedConnections[0]);
+      expect(ready.prepare('SELECT payload FROM s13_user_data').get()).toEqual({
+        payload,
+      });
+      expect(
+        ready
+          .prepare(
+            'SELECT * FROM migrations WHERE version <= 31 ORDER BY version',
+          )
+          .all(),
+      ).toEqual(records);
+      expect(maxRecordedVersion(ready)).toBeGreaterThan(31);
+      expect(statSync(dbPath).ino).toBe(originalFile.ino);
+      service.initialize();
+      expect(service.getDatabase()).toBe(ready);
+    },
+  );
+
+  it.each(['journal_mode = WAL', 'foreign_keys = ON'])(
+    'closes the failed connection and retries after a %s failure',
+    (statement) => {
+      const service = getSQLiteService({ path: dbPath });
+      const failure = new Error('injected pragma failure');
+      const pragma = Database.prototype.pragma;
+      const fault = jest
+        .spyOn(Database.prototype, 'pragma')
+        .mockImplementation(function (this: Database.Database, sql, options) {
+          if (sql === statement) {
+            failedConnections.push(this);
+            throw failure;
+          }
+          return pragma.call(this, sql, options);
+        });
+      expect(service.initialize).toThrow(failure);
+      expect(service.isInitialized()).toBe(false);
+      expect(() => service.getDatabase()).toThrow('Database not initialized');
+      expect(failedConnections[0].open).toBe(false);
+      fault.mockRestore();
+      service.initialize();
+      expect(service.isInitialized()).toBe(true);
+      expect(maxRecordedVersion(service.getDatabase())).toBeGreaterThan(31);
+    },
+  );
+
+  it('preserves the initialization error and clears the handle when closing also fails', () => {
+    const service = getSQLiteService({ path: dbPath });
+    const failure = new Error('original initialization error');
+    const cleanupFailure = new Error('secondary close error');
+    const read = jest
+      .spyOn(Database.prototype, 'prepare')
+      .mockImplementationOnce(function (this: Database.Database) {
+        failedConnections.push(this);
+        throw failure;
+      });
+    const close = jest
+      .spyOn(Database.prototype, 'close')
+      .mockImplementationOnce(() => {
+        throw cleanupFailure;
+      });
+    let caught: unknown;
+    try {
+      service.initialize();
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBe(failure);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(service.isInitialized()).toBe(false);
+    expect(() => service.getDatabase()).toThrow('Database not initialized');
+    read.mockRestore();
+    close.mockRestore();
+    service.initialize();
+    expect(service.isInitialized()).toBe(true);
+    expect(service.getDatabase()).not.toBe(failedConnections[0]);
+  });
 
   it('creates an empty applied-view table and reapplies without losing accepted bytes', () => {
     getSQLiteService({ path: dbPath }).initialize();
@@ -107,17 +258,38 @@ describe('SQLiteService migrations', () => {
     expect(() => getSQLiteService({ path: dbPath }).initialize()).toThrow(
       'injected migration failure',
     );
-    const failed = getSQLiteService().getDatabase();
-    expect(
-      failed
-        .prepare(
-          "SELECT name FROM sqlite_master WHERE name = 'campaign_public_applied_view'",
-        )
-        .get(),
-    ).toBeUndefined();
-    expect(
-      failed.prepare('SELECT * FROM migrations ORDER BY version').all(),
-    ).toEqual(before);
+    const service = getSQLiteService();
+    expect(service.isInitialized()).toBe(false);
+    expect(() => service.getDatabase()).toThrow('Database not initialized');
+    const failed = new Database(dbPath, {
+      readonly: true,
+      fileMustExist: true,
+    });
+    try {
+      expect(
+        failed
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE name = 'campaign_public_applied_view'",
+          )
+          .get(),
+      ).toBeUndefined();
+      expect(
+        failed.prepare('SELECT * FROM migrations ORDER BY version').all(),
+      ).toEqual(before);
+    } finally {
+      failed.close();
+    }
+    const repair = new Database(dbPath, { fileMustExist: true });
+    try {
+      repair.exec('DROP TRIGGER reject_applied_view_migration');
+    } finally {
+      repair.close();
+    }
+    service.initialize();
+    expect(service.isInitialized()).toBe(true);
+    expect(maxRecordedVersion(service.getDatabase())).toBeGreaterThanOrEqual(
+      32,
+    );
   });
 
   it('fresh initialize renames campaigns.current_date to campaign_date (CURRENT_DATE builtin shadowing)', () => {
