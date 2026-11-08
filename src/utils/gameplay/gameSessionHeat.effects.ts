@@ -34,6 +34,7 @@ import { appendHeatAmmoExplosionEvents } from './gameSessionHeat.ammoExplosion';
 import { emitHeatCriticalEvents } from './gameSessionHeat.criticalEvents';
 import { appendHeatSourcesAndDissipation } from './gameSessionHeat.sources';
 import { resolveMaxTechHeatCriticalDamage } from './heatCriticalDamage';
+import { canAttemptHeatStartup } from './shutdownStartup';
 import { hasSPA } from './spaModifiers';
 
 function appendStartupAttemptIfEligible(
@@ -42,7 +43,7 @@ function appendStartupAttemptIfEligible(
   finalHeat: number,
 ): IGameSession {
   const stateAfterDissipation = session.currentState.units[context.unitId];
-  if (!stateAfterDissipation.shutdown || finalHeat > 29) {
+  if (!canAttemptHeatStartup(stateAfterDissipation, finalHeat)) {
     return session;
   }
 

@@ -7,6 +7,7 @@ import {
   IGameEvent,
   IUnitGameState,
 } from '@/types/gameplay';
+import { canAttemptHeatStartup } from '@/utils/gameplay/shutdownStartup';
 
 import { createGameEvent } from './utils';
 
@@ -34,7 +35,7 @@ export function applyRunnerStartupAttempt(
     unit,
     unitId,
   } = options;
-  if (!unit.shutdown || heat > 29) {
+  if (!canAttemptHeatStartup(unit, heat)) {
     return unit;
   }
 

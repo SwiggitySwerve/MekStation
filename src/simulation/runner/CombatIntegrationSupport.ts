@@ -65,12 +65,12 @@ const PSR_QUEUE_LIFECYCLE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation applyPhaseChanged resets lock/action state and deliberately preserves pendingPSRs across intra-turn phase transitions.',
     'src/utils/gameplay/gameState/phaseManagement.ts',
-    'L12-L51',
+    'L13-L52',
   ),
   mekstationDeviationSourceRef(
     'MekStation applyTurnStarted clears stale pendingPSRs at the next turn boundary.',
     'src/utils/gameplay/gameState/phaseManagement.ts',
-    'L53-L98',
+    'L54-L98',
   ),
   mekstationDeviationSourceRef(
     'MekStation phaseManagement regression tests prove applyPhaseChanged preserves pendingPSRs and applyTurnStarted clears them.',
