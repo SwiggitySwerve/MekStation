@@ -19,6 +19,10 @@ import {
 } from '@/pages-modules/api/routeHelpers';
 import { IForceOperationResult } from '@/services/forces/ForceRepository';
 import { getForceService } from '@/services/forces/ForceService';
+import {
+  INVALID_FORCE_STATUS_ERROR,
+  parseForceStatus,
+} from '@/services/forces/forceStatus';
 import { IForce, IUpdateForceRequest } from '@/types/force';
 
 const FORCES_ID_TS_FAILED_TO_GET_FORCE_1 = 'Failed to get force';
@@ -101,7 +105,14 @@ function handlePatch(
   res: NextApiResponse<UpdateResponse | ApiErrorResponse>,
 ) {
   try {
-    const body = req.body as IUpdateForceRequest;
+    const input: unknown = req.body;
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+      return res.status(400).json({ error: 'Invalid force update.' });
+    }
+    if ('status' in input && parseForceStatus(input.status) === null) {
+      return res.status(400).json({ error: INVALID_FORCE_STATUS_ERROR });
+    }
+    const body = input as IUpdateForceRequest;
     const result = forceService.updateForce(id, body);
 
     if (result.success) {

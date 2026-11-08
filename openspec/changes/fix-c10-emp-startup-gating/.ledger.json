@@ -1,0 +1,6 @@
+{
+  "name": "fix-c10-emp-startup-gating",
+  "status": "in-progress",
+  "reason": "Root-approved C10: extract unchanged startup/countdown rules first, then gate EMP startup, advance runner shutdown rounds, skip redundant shutdown checks, and auto-fail KO rolled startup. Preserve recorded startup outcomes and stop on committed fixture, digest, seeded snapshot, or exact-roll seeded expectation changes.",
+  "lastReviewed": "2026-11-08"
+}

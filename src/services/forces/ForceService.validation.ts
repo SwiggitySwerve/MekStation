@@ -34,7 +34,10 @@ export function validatePilotAvailability(status: PilotStatus): {
         reason: 'Pilot is retired and cannot be assigned',
       };
     default:
-      return { available: true, reason: '' };
+      return {
+        available: false,
+        reason: 'Pilot has an unknown status and cannot be assigned.',
+      };
   }
 }
 

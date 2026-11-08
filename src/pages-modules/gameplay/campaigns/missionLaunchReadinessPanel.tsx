@@ -2,6 +2,7 @@ import Link from 'next/link';
 import React from 'react';
 
 import type {
+  IMissionReadinessReason,
   IMissionReadinessProjection,
   IMissionReadinessUnitProjection,
 } from '@/lib/campaign/readiness/missionReadinessProjection';
@@ -47,6 +48,57 @@ function launchReadinessLabel(projection: IMissionReadinessProjection): string {
   return `Ready with warnings (${projection.warnings.length})`;
 }
 
+/** Shared reason and remediation display for campaign readiness surfaces. */
+export function UnitReadinessReasons({
+  unitId,
+  reasons,
+  actionTestId,
+}: {
+  readonly unitId: string;
+  readonly reasons: readonly IMissionReadinessReason[];
+  readonly actionTestId?: (reason: IMissionReadinessReason) => string;
+}): React.ReactElement | null {
+  return reasons.length > 0 ? (
+    <ul className="mt-2 space-y-1">
+      {reasons.map((reason) => (
+        <li
+          key={`${unitId}-${reason.code}`}
+          // Blockers announce (alert); warnings inform (status) —
+          // and both carry the severity glyph so the message
+          // never reads through color alone.
+          role={reason.severity === 'blocker' ? 'alert' : 'status'}
+          className={
+            reason.severity === 'blocker'
+              ? 'flex flex-wrap items-center gap-2 text-xs text-rose-300'
+              : 'flex flex-wrap items-center gap-2 text-xs text-amber-300'
+          }
+        >
+          <span className="inline-flex items-center gap-1">
+            <AppIcon
+              name={reason.severity === 'blocker' ? 'close' : 'warning'}
+              size="inline"
+              aria-hidden="true"
+            />
+            {reason.message}
+          </span>
+          {reason.actionHref ? (
+            <Link
+              href={reason.actionHref}
+              className="text-accent hover:text-accent/80 font-semibold underline underline-offset-2"
+              data-testid={
+                actionTestId?.(reason) ??
+                `mission-readiness-action-${unitId}-${reason.code}`
+              }
+            >
+              {reason.actionLabel ?? 'Resolve'}
+            </Link>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  ) : null;
+}
+
 export function MissionReadinessPanel({
   buildCustomizeHref,
   projection,
@@ -56,6 +108,13 @@ export function MissionReadinessPanel({
   readonly projection: IMissionReadinessProjection;
   readonly onToggleUnit: (unitId: string) => void;
 }): React.ReactElement {
+  if (projection.loading) {
+    return (
+      <p role="status" className="text-text-theme-secondary text-sm">
+        Loading readiness...
+      </p>
+    );
+  }
   return (
     <section
       className="border-border-theme-subtle bg-surface-base/70 rounded-lg border p-4"
@@ -124,48 +183,10 @@ export function MissionReadinessPanel({
                   {unitProjection.pilotName ?? unit.pilotId ?? 'Unassigned'} |
                   Repairs: {unitProjection.repairTicketCount}
                 </span>
-                {unitProjection.reasons.length > 0 ? (
-                  <ul className="mt-2 space-y-1">
-                    {unitProjection.reasons.map((reason) => (
-                      <li
-                        key={`${unit.unitId}-${reason.code}`}
-                        // Blockers announce (alert); warnings inform (status) —
-                        // and both carry the severity glyph so the message
-                        // never reads through color alone.
-                        role={
-                          reason.severity === 'blocker' ? 'alert' : 'status'
-                        }
-                        className={
-                          reason.severity === 'blocker'
-                            ? 'flex flex-wrap items-center gap-2 text-xs text-rose-300'
-                            : 'flex flex-wrap items-center gap-2 text-xs text-amber-300'
-                        }
-                      >
-                        <span className="inline-flex items-center gap-1">
-                          <AppIcon
-                            name={
-                              reason.severity === 'blocker'
-                                ? 'close'
-                                : 'warning'
-                            }
-                            size="inline"
-                            aria-hidden="true"
-                          />
-                          {reason.message}
-                        </span>
-                        {reason.actionHref ? (
-                          <Link
-                            href={reason.actionHref}
-                            className="text-accent hover:text-accent/80 font-semibold underline underline-offset-2"
-                            data-testid={`mission-readiness-action-${unit.unitId}-${reason.code}`}
-                          >
-                            {reason.actionLabel ?? 'Resolve'}
-                          </Link>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+                <UnitReadinessReasons
+                  unitId={unit.unitId}
+                  reasons={unitProjection.reasons}
+                />
                 {buildCustomizeHref ? (
                   // Real button affordance at AA contrast (re-audit UXF-02:
                   // the old sky-100-on-10%-tint label washed out inside the

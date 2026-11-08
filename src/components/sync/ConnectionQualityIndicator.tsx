@@ -75,11 +75,11 @@ function assessQuality(
     };
   }
 
-  // Connecting
+  // Connecting (a retry keeps the room, so it reads as Connecting + attempts)
   if (connectionState === ConnectionState.Connecting) {
     return {
       quality: 'fair',
-      label: 'Connecting',
+      label: retryAttempts > 0 ? 'Reconnecting' : 'Connecting',
       color: 'text-amber-400',
       bgColor: 'bg-amber-400/30',
       bars: 2,

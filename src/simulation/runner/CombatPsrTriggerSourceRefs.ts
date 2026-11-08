@@ -110,7 +110,7 @@ export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runHeatPhase routes heat shutdown into queueRunnerShutdownPSR after emitting the ShutdownCheck event and before persisting shutdown state.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L97-L155',
+    'L97-L159',
   ),
   mekstationDeviationRef(
     'MekStation queueRunnerShutdownPSR emits PSRTriggered with PSRTrigger.Shutdown and appends the pending createShutdownPSR entry for later PSR phase resolution.',

@@ -156,7 +156,7 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat lifecycle emits shutdown checks and queues shutdown PSRs after heat shutdown.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L97-L155',
+    'L97-L159',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner stand-up helper emits PSRTriggered, PSRResolved, and UnitStood events.',

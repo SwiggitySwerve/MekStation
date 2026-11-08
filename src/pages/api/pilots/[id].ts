@@ -18,6 +18,10 @@ import {
   type ApiErrorResponse,
 } from '@/pages-modules/api/routeHelpers';
 import { getPilotService, IPilotOperationResult } from '@/services/pilots';
+import {
+  INVALID_PILOT_STATUS_ERROR,
+  parsePilotStatus,
+} from '@/services/pilots/pilotStatus';
 import { IPilot } from '@/types/pilot';
 
 const PILOTS_ID_TS_FAILED_TO_GET_PILOT_1 = 'Failed to get pilot';
@@ -102,7 +106,14 @@ function handlePut(
   res: NextApiResponse<UpdateResponse | ApiErrorResponse>,
 ) {
   try {
-    const body = req.body as Partial<IPilot>;
+    const input: unknown = req.body;
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+      return res.status(400).json({ error: 'Invalid pilot update.' });
+    }
+    if ('status' in input && parsePilotStatus(input.status) === null) {
+      return res.status(400).json({ error: INVALID_PILOT_STATUS_ERROR });
+    }
+    const body = input as Partial<IPilot>;
 
     // Don't allow changing ID, type, or createdAt - extract only mutable fields
     const { id: _id, type: _type, createdAt: _createdAt, ...updates } = body;
