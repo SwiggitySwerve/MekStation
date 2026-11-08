@@ -10,9 +10,11 @@ otherwise unchanged unit does not acquire a new serialized flag.
 
 Turn boundaries advance each booster's counter from the previous activation,
 then clear activation. Movement entry uses `advanceBoosterCounters: false`
-because the reducer already advanced counters at Initiative. The runner calls
-the helper once from `resetTurnState`. Normalization and the represented
-maximum of six preserve the runner's existing contract.
+because the reducer already advanced counters at Initiative. Turn boundaries
+reach the helper through `resetPerTurnUnitFields` (`../perTurnUnitFields.ts`),
+which the reducer's `applyTurnStarted` and the runner's `resetTurnState` both
+call; its `presence` option keeps each path's serialized shape. Normalization
+and the represented maximum of six preserve the runner's existing contract.
 
 The escalation and idle decay follow MegaMek commit `48fcb2f64`,
 `megamek/src/megamek/common/units/Entity.java:16388–16414`, called by

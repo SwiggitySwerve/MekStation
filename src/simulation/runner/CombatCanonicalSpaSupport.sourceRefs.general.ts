@@ -59,7 +59,7 @@ export const CANONICAL_EAGLE_EYES_SOURCE_REFS = [
   canonicalSpaSourceRef(
     'mekstation-deviation',
     'MekStation createInitialState seeds eagleEyesRangeBonus from hydrated fullUnit ability ids for represented active-probe state.',
-    'src/simulation/runner/SimulationRunnerState.ts#L136-L147',
+    'src/simulation/runner/SimulationRunnerState.ts#L135-L146',
     'MekStation working-tree',
   ),
   canonicalSpaSourceRef(

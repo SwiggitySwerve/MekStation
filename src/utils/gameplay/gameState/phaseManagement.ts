@@ -8,7 +8,7 @@ import {
   LockState,
 } from '@/types/gameplay';
 import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
-import { advanceEmpShutdownTurns } from '@/utils/gameplay/shutdownStartup';
+import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -65,26 +65,9 @@ export function applyTurnStarted(
     // if a caller advanced past End without resolving, a stale queue
     // would carry into a fresh turn). TW p.52: PSRs do not persist
     // across turn boundaries.
-    const empInterferenceTurns = Math.max(
-      0,
-      Math.trunc(units[unitId].empInterferenceTurns ?? 0) - 1,
-    );
-    const empShutdownTurns = advanceEmpShutdownTurns(
-      units[unitId].empShutdownTurns,
-    );
-    units[unitId] = {
-      ...resetPerTurnMovementState(units[unitId]),
-      weaponsFiredThisTurn: [],
-      pendingPSRs: [],
-      isLoadingOrUnloadingCargo: false,
-      tagDesignated: false,
-      externalHeatThisTurn: 0,
-      pendingExternalHeat: 0,
-      empInterferenceTurns,
-      empShutdownTurns,
-      isSpotting: false,
-      spotTargetId: undefined,
-    };
+    units[unitId] = resetPerTurnUnitFields(units[unitId], {
+      presence: 'explicit',
+    });
   }
 
   return {
