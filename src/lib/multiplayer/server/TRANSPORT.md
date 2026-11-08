@@ -70,6 +70,34 @@ Follow-ups: seats compare-and-swap across REST and host writers, abrupt-crash
 leftovers, and spectator registrations that never attach. General metadata
 transition validation remains separate from these intent admission rules.
 
+## Match pause causes
+
+A match pauses for three independent causes: a human seat inside its reconnect
+grace (`peer-pending`), an absent campaign GM on a co-op mission (`gm-absent`),
+and a faulted server-driven co-op opponent (`opponent-fault`). While any cause
+holds, engine intents are refused with `MATCH_PAUSED` and a reason naming the
+cause.
+
+`MatchPaused` is a snapshot. Its required `reason` is the active cause with
+the highest precedence, from `opponent-fault` down to `peer-pending`;
+`pendingSlots` always lists the pending seats, and the grace fields ride only
+with a pending seat. The host broadcasts a new snapshot whenever the cause set
+changes (peer drop or rejoin, GM leave or return, opponent fault) and
+`MatchResumed` only when no cause remains. Every joining socket, spectators
+included, receives the current snapshot after its replay and `LobbyUpdated`.
+Pause frames are transport-only: never stored, replayed or schema-packed.
+
+The opponent fault exits explicitly. A `SessionJoin` from a seated participant
+(a human player or the GM: `hostPlayerId` or `playerIds`) clears the fault and
+retries the opponent once; the turn identity is deterministic, so the retry
+appends nothing twice, and a repeated failure pauses again. A spectator's join
+never retries. A successful `ForfeitMatch` lifts every cause and broadcasts
+`MatchResumed`; a refused one changes nothing. In a co-op mission the forfeit
+concedes the OpFor side, so the fault overlay does not offer it. Nothing ends
+a faulted match through the legacy abort path. Restart recovery starts with no
+fault; a rebuilt campaign session starts GM-absent, which joiners learn from
+the snapshot.
+
 ## Viewer delivery recovery and rewind
 
 Active-match recovery restores contiguous per-viewer delivery records and

@@ -21,6 +21,7 @@ import type { IPlayerRef } from '@/types/multiplayer/Player';
 import type {
   IEventMessage,
   IIntent,
+  IMatchPaused,
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
@@ -66,8 +67,12 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly broadcastUndeliveredEvent: (message: IEventMessage) => Promise<void>;
   readonly safeSend: (socket: IMatchSocket, message: IServerMessage) => void;
   readonly closeMatch: () => Promise<void>;
-  readonly maybeResume: () => void;
+  readonly maybeResume: () => boolean;
   readonly tryPublishOutcome: () => void;
+  /** M-H3: current pause snapshot across every cause (live, not captured). */
+  readonly pauseSnapshot: () => IMatchPaused | null;
+  /** M-H3: `MATCH_PAUSED` refusal text for the cause active at build time. */
+  readonly pauseRefusal: string;
   readonly handleLobbyIntent: (
     envelope: IIntent,
   ) => Promise<readonly IServerMessage[]>;
@@ -113,6 +118,7 @@ export function buildReconnectContext(
     drainNewEvents: host.drainNewEvents,
     stampRollsOnNewEvents: host.stampRollsOnNewEvents,
     tryPublishOutcome: host.tryPublishOutcome,
+    pauseSnapshot: host.pauseSnapshot,
   };
 }
 
@@ -129,6 +135,7 @@ export function buildReplayContext(
     session: host.session,
     safeSend: host.safeSend,
     maybeResume: host.maybeResume,
+    pauseSnapshot: host.pauseSnapshot,
     viewerResolver: host.viewerResolver,
     deliveryCursors: host.deliveryCursors,
     rewindReplayCeiling: host.rewindReplayCeiling,
@@ -149,6 +156,7 @@ export function buildIntentContext(
     session: host.session,
     closed: host.closed,
     isPaused: host.isPaused,
+    pauseRefusal: host.pauseRefusal,
     broadcast: host.broadcast,
     broadcastEvent: host.broadcastEvent,
     broadcastUndeliveredEvent: host.broadcastUndeliveredEvent,

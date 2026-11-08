@@ -65,6 +65,7 @@ import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   type IIntent,
   type IEventMessage,
+  type IMatchPaused,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
@@ -169,8 +170,10 @@ import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatch
 import { ServerMatchHostOutcomePublisher } from './ServerMatchHostOutcomePublisher';
 import { resumePendingPublications } from './ServerMatchHostPublication';
 import {
+  buildPauseSnapshot,
   maybeMarkPlayerPending,
   maybeResume,
+  pauseRefusalReason,
 } from './ServerMatchHostReconnectLifecycle';
 import {
   bindReconnectChannel,
@@ -938,9 +941,8 @@ export class ServerMatchHost {
   /**
    * Wave 4: resolve the pause when the last pending peer reconnects.
    */
-  private maybeResume(): void {
-    if (this.opponentFaulted) return;
-    maybeResume({
+  private maybeResume(): boolean {
+    return maybeResume({
       matchId: this.matchId,
       isPaused: this.isPaused,
       pendingPeers: this.pendingPeers,
@@ -948,7 +950,43 @@ export class ServerMatchHost {
         this.isPaused = paused;
       },
       broadcast: (message) => this.broadcast(message),
+      pauseSnapshot: this.pauseSnapshot,
     });
+  }
+
+  /**
+   * M-H3: one snapshot across every pause cause - pending peers, an
+   * absent campaign GM, and a faulted server opponent.
+   */
+  private pauseSnapshot = (): IMatchPaused | null =>
+    buildPauseSnapshot({
+      matchId: this.matchId,
+      pending: this.pendingPeers.getAllPending(),
+      gmAbsent: this.campaignPause?.isPaused() === true,
+      opponentFaulted: this.opponentFaulted,
+    });
+
+  /** M-H3: broadcast the snapshot, or `MatchResumed` once no cause remains. */
+  private broadcastPauseState(): void {
+    this.broadcast(
+      this.pauseSnapshot() ?? {
+        kind: 'MatchResumed',
+        matchId: this.matchId,
+        ts: nowIso(),
+      },
+    );
+  }
+
+  /** M-H3: human players and the GM may retry a faulted opponent. */
+  private async isSeatedParticipant(playerId: string): Promise<boolean> {
+    try {
+      const meta = await this.store.getMatchMeta(this.matchId);
+      return (
+        meta.hostPlayerId === playerId || meta.playerIds.includes(playerId)
+      );
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -1079,7 +1117,14 @@ export class ServerMatchHost {
     if (!joined) this.lifecycle.detach(socket);
     if (joined) {
       await this.queueCommand(async () => {
-        if (socket.readyState === 1) await this.driveOpponent();
+        if (socket.readyState !== 1) return;
+        // M-H3 fault exit: a seated participant's join retries a faulted
+        // opponent once. A spectator's join leaves the fault latched.
+        const retry =
+          this.opponentFaulted && (await this.isSeatedParticipant(playerId));
+        if (retry) this.opponentFaulted = false;
+        await this.driveOpponent();
+        if (retry && !this.opponentFaulted) this.broadcastPauseState();
       });
     }
   };
@@ -1129,6 +1174,8 @@ export class ServerMatchHost {
     this.campaignPause = entry.syncSession;
     this.releaseCampaignPause = entry.syncSession.onPauseChanged((paused) => {
       this.opponentEpoch += 1;
+      // M-H3: players learn the GM left or returned.
+      if (!this.closed) this.broadcastPauseState();
       if (!paused)
         void this.queueCommand(() => this.driveOpponent()).catch((error) => {
           logger.error('[ServerMatchHost] opponent resume failed', error);
@@ -1149,7 +1196,7 @@ export class ServerMatchHost {
         this.lifecycle.snapshotConnectedSince().has(playerId),
       halt: () => {
         this.opponentFaulted = true;
-        this.isPaused = true;
+        this.broadcastPauseState();
       },
     });
   };
@@ -1321,7 +1368,9 @@ export class ServerMatchHost {
 
   /** Wave 4 test/observability: is the match currently paused? */
   isPausedForReconnect = (): boolean =>
-    this.isPaused || this.campaignPause?.isPaused() === true;
+    this.isPaused ||
+    this.opponentFaulted ||
+    this.campaignPause?.isPaused() === true;
 
   /** Wave 4 test/observability: snapshot pending peers (slot+player). */
   getPendingPeersForTests = (): ReadonlyArray<PendingPeerSnapshot> =>
@@ -1352,8 +1401,10 @@ export class ServerMatchHost {
       playerRefs: this.playerRefs,
       pendingPeers: this.pendingPeers,
       setPaused: (paused) => {
-        this.isPaused = paused || this.opponentFaulted;
+        this.isPaused = paused;
       },
+      pauseSnapshot: this.pauseSnapshot,
+      pauseRefusal: pauseRefusalReason(this.pauseSnapshot()?.reason ?? null),
       broadcast: (message) => this.broadcast(message),
       broadcastEvent: (message) => this.broadcastEvent(message),
       broadcastUndeliveredEvent: (message) =>
@@ -1603,7 +1654,7 @@ export class ServerMatchHost {
   private async handleLobbyIntent(
     envelope: IIntent,
   ): Promise<readonly IServerMessage[]> {
-    const wasPaused = this.isPaused;
+    const wasPaused = this.isPausedForReconnect();
     const messages = await handleLobbyIntentWithContext(
       buildLobbyContext(this.internals()),
       envelope,
@@ -1612,8 +1663,12 @@ export class ServerMatchHost {
     // lose publication + reconnect access immediately.
     await this.revalidateAttachedViewers();
     if (envelope.intent.kind === 'ForfeitMatch') {
-      if (wasPaused) {
+      // M-H3: only a forfeit that ended the match lifts its pause. A
+      // refused one (non-host, engine refusal) leaves every cause intact.
+      if (!messages.some((message) => message.kind === 'Error')) {
         this.isPaused = false;
+        this.opponentFaulted = false;
+        if (wasPaused) this.broadcastPauseState();
       }
       this.tryPublishOutcome();
     }
