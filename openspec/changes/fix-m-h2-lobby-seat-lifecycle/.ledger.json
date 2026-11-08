@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-h2-lobby-seat-lifecycle",
+  "status": "in-progress",
+  "reason": "Root-approved M-H2: lobby status policy, pending-human AI recovery exception, queued spectator detach cleanup with identity cursor retention, and shared intent classification. No schema changes; CAS and unattached/crash leftovers deferred.",
+  "lastReviewed": "2026-11-08"
+}
