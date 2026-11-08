@@ -12,4 +12,4 @@
 
 - [x] 3.1 Kill both duplicate-admission and conflict-progress mutants and record the exact tests.
 - [x] 3.2 Run all LANE-BRIEF directory, integration, simulation, replay, combat, TypeScript, lint, format, OpenSpec and budget gates.
-- [ ] 3.3 Open one draft PR, record remaining limitations and never merge.
+- [x] 3.3 Open one draft PR, record remaining limitations and never merge.

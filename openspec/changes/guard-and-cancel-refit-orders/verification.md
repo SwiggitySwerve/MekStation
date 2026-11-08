@@ -78,3 +78,7 @@ Refits remain envelope-persisted campaign work rather than dedicated journal com
 - **CI at merge:** NOT-RUN ? the PR remains a draft; this lane never merges.
 - **Post-merge validation:** NOT-RUN ? no merge or deployment was performed.
 - **Error-log baseline (component fixture only):** zero browser errors and zero axe violations; operational service-log baseline NOT-RUN. The fixture is not a production health probe.
+
+## Draft handoff
+
+[Draft PR #3061](https://github.com/SwiggitySwerve/MekStation/pull/3061) is open with screenshots and a component recording. Implementation commit: `a893a502ab1c6c8a0fa0e33c2b49db0ba092d0fd`. Hosted checks are pending at handoff; Root owns CI monitoring and merging. No watch or merge was started by this lane.
