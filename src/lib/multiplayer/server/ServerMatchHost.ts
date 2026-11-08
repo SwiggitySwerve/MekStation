@@ -101,6 +101,7 @@ import {
   type IJournalAuthorityAdmissionRefusal,
   type IJournalAuthorityPrivacyGateWiring,
 } from './journalAuthorityAdmission';
+import { isSpectatorPlayer, removeSpectatorSeat } from './lobby/spectatorSeats';
 import {
   MATCH_BASELINE_BRANCH_ID,
   MATCH_BASELINE_FIRST_GENERATION,
@@ -888,6 +889,27 @@ export class ServerMatchHost {
    * window is authorized against the already-migrated host.
    */
   private async handleSocketDropped(playerId: string): Promise<void> {
+    if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
+      return;
+    const meta = await this.store.getMatchMeta(this.matchId);
+    // Socket admission can run while the queued drop is reading metadata.
+    if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
+      return;
+    if (isSpectatorPlayer(meta.seats ?? [], playerId)) {
+      const seats = removeSpectatorSeat(meta.seats ?? [], playerId);
+      await this.store.updateMatchMeta(this.matchId, { seats });
+      // Keep delivery cursors/acks by viewer identity: a later authenticated
+      // re-registration resumes the same stream (including after restart).
+      this.broadcast({
+        kind: 'LobbyUpdated',
+        matchId: this.matchId,
+        ts: nowIso(),
+        seats,
+        status: meta.status,
+        hostPlayerId: meta.hostPlayerId,
+      });
+      return;
+    }
     await this.migrateHostIfNeeded(playerId);
     await this.maybeMarkPlayerPending(playerId);
   }
