@@ -71,3 +71,14 @@
   default 1,000-run throughput suite and the 100-game simulation integration
   suite. Jest reported a worker teardown warning after the passing sweep and
   exited successfully; the source of that warning was not isolated.
+- Merged main `1f3ada8888d9f99a06e4ba0ed3478a9810f848c3`, retaining all
+  27 OpenSpec ledger entries. The combined tree then passed the same full
+  directory selection: 853 suites, 13,415 passing tests, 35 skipped tests,
+  zero failed tests, and no snapshots updated. The post-merge sweep did not
+  repeat the worker teardown warning.
+- Post-merge replay validation again passed 29 suites and 753 tests. Combat
+  validation again passed 79 suites and 2,095 tests plus every inventory and
+  strict-spec step. Both tsc configs, lint (63 warnings, zero errors), lint:units
+  (17,069/17,085) and its 33-test suite, formatting, strict change validation,
+  and the budget (3,048 files, exactly 57 unkeyable tests) passed again. No
+  protected expectation or persisted format was changed.
