@@ -21,6 +21,7 @@ const mockPersistenceState = {
 };
 
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: (
     selector: (state: {
       loadCampaign: typeof mockLoadCampaign;

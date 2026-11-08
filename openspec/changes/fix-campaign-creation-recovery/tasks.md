@@ -38,3 +38,32 @@
 - `npm run validate:combat` passed: 79 suites and 2,095 tests, with gap inventory
   checks and strict combat spec validation. Full strict OpenSpec validation
   passed all 247 items. Hosted CI and Root handoff remain pending.
+
+## Root review corrections
+
+- Legacy dirty state can remain after `runSave` returns `skipped`
+  (`useCampaignPersistenceStore.ts:938`). Guest dirty state has no autosave
+  (`:1605`) and typed write refusals leave it dirty (`:951-960`); a verified
+  guest's live-session write is rejected by `src/pages/api/campaigns/[id].ts:348`.
+  The guard now excludes only those dirty flags, retaining all active save,
+  debounce, flush and read checks. Co-op hosts retain an explicit save through
+  `CampaignSaveStatusCard.tsx:86` and the accepted host PUT path at `[id].ts:389`.
+- Red-first lockout regressions: six tests failed before the exception and all
+  30 guard tests passed after it. They cover stored-copy preservation for legacy
+  and guest A, and a co-op host's explicit save, for all three creation paths.
+  Reinstating unconditional dirty blocking kills six tests; the original three
+  mutants are also still killed.
+- Reproduced all four hosted dashboard failures, then restored the missing
+  selector export in all nine persistence module mock factories. The dashboard
+  mock also models the public `setState` contract. Its original four assertions
+  pass unchanged. No auto-mock of the persistence module was found.
+- Expanded directory rerun includes all of `src/components/gameplay/pages/campaigns`,
+  campaign stores/libraries including fastForward, page modules, integration,
+  campaign route tests and the campaign customizer: 323 suites and 4,638 tests
+  passed, with 32 existing skips. Runner/replay/digest and unit-lint rerun:
+  181 suites and 2,268 tests passed. The fresh pre-change replay baseline also
+  passed 30 suites and 764 tests. Both TypeScript configs, formatting, root lint
+  (63 warnings), unit lint and CI budgets (57 unkeyable) passed again.
+- Combat validation passed again with 79 suites and 2,095 tests, all gap checks,
+  and strict combat specification validation. Full strict OpenSpec validation
+  passed all 247 items. No committed fixture or digest changed.

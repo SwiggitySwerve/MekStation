@@ -379,8 +379,11 @@ let saveChain: Promise<unknown> = Promise.resolve();
 /** Read-only creation guard; dirty includes edits newer than the last save ACK. */
 export function hasUnsettledCampaignPersistence(): boolean {
   const state = useCampaignPersistenceStore.getState();
+  // Legacy copies and guest mirrors have no ordinary save for their dirty edits.
+  const canSaveDirtyCampaign =
+    !state.legacyUnadopted && readLiveCampaign()?.coopSession?.mode !== 'guest';
   return (
-    state.dirty ||
+    (state.dirty && canSaveDirtyCampaign) ||
     state.saveState === 'saving' ||
     autoSaveTimer !== null ||
     issuedFlush !== null ||

@@ -9,7 +9,9 @@ also reuses that campaign's persistence identity and version.
 
 - Mark the pending wizard campaign reusable only after population completes.
 - Refuse create and guest-mirror replacement while existing persistence has
-  unacknowledged edits, a save, a pending flush, or a reconciliation/load read.
+  unacknowledged edits the client can save, a save, a pending flush, or a
+  reconciliation/load read. Dirty state alone does not block legacy-unadopted copies or guest mirrors,
+  whose ordinary saves cannot preserve those edits.
 - Reset clean persistence and bind it to the new campaign before publishing it.
 - Preserve completed-roster retries, legacy adoption, K3 battle-ledger hydration,
   K4 edit-sequence tracking and K1 roster normalization.

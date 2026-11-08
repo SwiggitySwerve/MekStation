@@ -5,8 +5,8 @@
 Campaign creation SHALL reuse a pending campaign only after its selected units,
 pilots, assignments and construction maxima preparation have completed. Both
 ordinary creation and guest-mirror creation SHALL refuse replacement while the
-persistence owner reports unacknowledged edits, an active save, a pending flush,
-or an outstanding reconciliation/load read. Refusal SHALL leave the current
+persistence owner reports unacknowledged edits the client can save, an active
+save, a pending flush, or an outstanding reconciliation/load read. Refusal SHALL leave the current
 campaign, edit sequence and pending persistence work unchanged. A clean
 replacement SHALL reset persistence and bind the new campaign identity with base
 version zero. Legacy adoption SHALL retain its existing identity and history.
@@ -29,12 +29,22 @@ version zero. Legacy adoption SHALL retain its existing identity and history.
 
 #### Scenario: Existing campaign has pending work
 
-- **GIVEN** campaign A is dirty, saving, awaiting flush reconciliation, or has an
-  outstanding reconciliation/load read
+- **GIVEN** campaign A has dirty edits the client can save, is saving, awaiting
+  flush reconciliation, or has an outstanding reconciliation/load read
 - **WHEN** ordinary creation or guest-mirror creation is requested
 - **THEN** the request SHALL fail through the caller's existing error channel
 - **AND** A, its edit sequence, pending timer and persistence state SHALL remain
   unchanged
+
+#### Scenario: Dirty state has no ordinary save path
+
+- **GIVEN** campaign A is legacy-unadopted or a guest mirror with dirty state
+- **AND** A has no active save, timer, unreconciled flush or outstanding read
+- **WHEN** ordinary creation or guest-mirror creation is requested
+- **THEN** dirty state alone SHALL NOT prevent replacement
+- **AND** A's stored campaign copy SHALL remain unchanged
+- **AND** B SHALL start with fresh persistence
+- **AND** a co-op host's dirty edits SHALL remain guarded until explicitly saved
 
 #### Scenario: Clean campaign is replaced
 

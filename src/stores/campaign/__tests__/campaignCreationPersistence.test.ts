@@ -119,6 +119,131 @@ describe('campaign creation persistence isolation', () => {
       expect(alpha?.name).toBe('Alpha');
     });
 
+    it('allows dirty legacy-unadopted A after its skipped save and preserves its stored copy', async () => {
+      const store = useCampaignStore();
+      const alphaId = store
+        .getState()
+        .createCampaign('Legacy Alpha', 'mercenary');
+      useCampaignPersistenceStore.setState({ legacyUnadopted: true });
+      useCampaignPersistenceStore.getState().markDirty();
+      // A real pending debounce still blocks, even when the dirty flag cannot save.
+      expect(create).toThrow();
+      await store.getState().saveCampaign();
+      expect(
+        await useCampaignPersistenceStore.getState().saveCampaign(),
+      ).toEqual({ status: 'skipped' });
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+      const storedAlpha = localStorage.getItem(`campaign-${alphaId}`);
+      expect(storedAlpha).not.toBeNull();
+      const fetchMock = jest.spyOn(global, 'fetch');
+
+      const bravoId = create();
+
+      expect(store.getState().campaign?.id).toBe(bravoId);
+      expect(useCampaignPersistenceStore.getState()).toMatchObject({
+        campaignId: bravoId,
+        baseVersion: 0,
+        dirty: false,
+        legacyUnadopted: false,
+      });
+      expect(localStorage.getItem(`campaign-${alphaId}`)).toBe(storedAlpha);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('allows dirty guest A after a refused save and preserves its stored copy', async () => {
+      const store = useCampaignStore();
+      const alphaId = store.getState().createGuestMirrorCampaign('match-a', {
+        campaignId: 'host-campaign-a',
+        campaignName: 'Guest Alpha',
+        factionId: 'mercenary',
+        roomCode: 'ROOMAA',
+      });
+      const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: false,
+        status: 401,
+        json: async () => ({
+          kind: 'refused',
+          code: 'COOP_AUTH_REQUIRED',
+          error: 'Guest cannot save',
+        }),
+      } as Response);
+      useCampaignPersistenceStore.getState().markDirty();
+      expect(jest.getTimerCount()).toBe(0);
+      expect((await store.getState().saveCampaign()).committed).toBe(false);
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+      const storedAlpha = localStorage.getItem(`campaign-${alphaId}`);
+      expect(storedAlpha).not.toBeNull();
+      fetchMock.mockClear();
+
+      const bravoId = create();
+
+      expect(store.getState().campaign?.id).toBe(bravoId);
+      expect(useCampaignPersistenceStore.getState()).toMatchObject({
+        campaignId: bravoId,
+        baseVersion: 0,
+        dirty: false,
+      });
+      expect(localStorage.getItem(`campaign-${alphaId}`)).toBe(storedAlpha);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('keeps dirty co-op host A guarded until its reachable explicit save succeeds', async () => {
+      const store = useCampaignStore();
+      store.getState().createCampaign('Host Alpha', 'mercenary', undefined, {
+        coopSession: createHostCoopSession('ROOMAA', 'match-a'),
+      });
+      const record = buildSerializedCampaign(
+        store.getState().campaign!,
+        'device-a',
+        1,
+      );
+      jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => record,
+      } as Response);
+      useCampaignPersistenceStore.getState().markDirty();
+      expect(jest.getTimerCount()).toBe(0);
+      expect(create).toThrow();
+
+      expect(
+        (await useCampaignPersistenceStore.getState().saveCampaign()).status,
+      ).toBe('saved');
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+
+      const bravoId = create();
+      expect(store.getState().campaign?.id).toBe(bravoId);
+      expect(useCampaignPersistenceStore.getState().baseVersion).toBe(0);
+    });
+
+    it.each(['legacy', 'guest'] as const)(
+      'still refuses an active save for dirty %s A',
+      (kind) => {
+        const store = useCampaignStore();
+        if (kind === 'guest') {
+          store.getState().createGuestMirrorCampaign('match-a', {
+            campaignId: 'host-campaign-a',
+            campaignName: 'Guest Alpha',
+            factionId: 'mercenary',
+            roomCode: 'ROOMAA',
+          });
+        } else {
+          store.getState().createCampaign('Legacy Alpha', 'mercenary');
+        }
+        useCampaignPersistenceStore.setState({
+          dirty: true,
+          legacyUnadopted: kind === 'legacy',
+          saveState: 'saving',
+        });
+        const alpha = store.getState();
+        const persistence = useCampaignPersistenceStore.getState();
+
+        expect(create).toThrow();
+        expect(store.getState()).toBe(alpha);
+        expect(useCampaignPersistenceStore.getState()).toBe(persistence);
+      },
+    );
+
     it('refuses an unreconciled discard flush even if dirty is cleared', () => {
       const store = useCampaignStore();
       store.getState().createCampaign('Alpha', 'mercenary');
