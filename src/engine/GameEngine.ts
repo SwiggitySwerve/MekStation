@@ -33,6 +33,7 @@ import {
   rollInitiative,
   resolveAllAttacks,
   resolveHeatPhase,
+  resolvePendingPSRs,
   endGame,
 } from '@/utils/gameplay/gameSession';
 import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
@@ -244,6 +245,10 @@ export class GameEngine {
           createLocationIndexRollerFromD6(d6Roller),
       });
       session = advancePhase(session);
+      // End phase: drain the PSR queue with the seeded dice, as the
+      // interactive session does, before the game-over check and before the
+      // next turn boundary would clear any PSR left unresolved.
+      session = resolvePendingPSRs(session, diceRoller);
 
       if (isGameEnded(session.currentState, gameConfig)) {
         return this.endSessionFromOutcome(session, gameConfig);
