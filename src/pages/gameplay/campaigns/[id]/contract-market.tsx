@@ -16,7 +16,10 @@ import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExten
 import { ContractMarketPanel } from '@/components/campaign/command/ContractMarketPanel';
 import { generateAtBContracts } from '@/lib/campaign/contractMarket';
 import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
-import { localMarketRefusal } from '@/lib/campaign/markets/offerLifecycle';
+import {
+  coopMarketActionRefusal,
+  localMarketRefusal,
+} from '@/lib/campaign/markets/offerLifecycle';
 import {
   CampaignPageFrameFromShell,
   getLoadedCampaign,
@@ -41,7 +44,11 @@ export default function ContractMarketPage(): React.ReactElement {
   const { campaign: shellCampaign, store, isClient } = shell;
   const dayAdvanceInFlight = useDayAdvanceInFlight();
   const blockedReason = shellCampaign
-    ? localMarketRefusal(shellCampaign, dayAdvanceInFlight)
+    ? coopMarketActionRefusal(shellCampaign, 'accept', dayAdvanceInFlight)
+    : undefined;
+  // Decline has its own co-op reason: no host-authoritative decline exists.
+  const declineBlockedReason = shellCampaign
+    ? coopMarketActionRefusal(shellCampaign, 'decline', dayAdvanceInFlight)
     : undefined;
   const loadStatus = useCampaignLoadStatus();
   const [, setActionTick] = useState(0);
@@ -110,6 +117,9 @@ export default function ContractMarketPage(): React.ReactElement {
   return (
     <CampaignPageFrameFromShell shell={shell} frame={frame}>
       {blockedReason && <p role="status">{blockedReason}</p>}
+      {declineBlockedReason && declineBlockedReason !== blockedReason && (
+        <p role="status">{declineBlockedReason}</p>
+      )}
       {feedback ?? (
         <ContractMarketPanel
           offers={offers}
@@ -117,6 +127,7 @@ export default function ContractMarketPage(): React.ReactElement {
           onDecline={handleDecline}
           busyOfferId={busyOfferId}
           blockedReason={blockedReason}
+          declineBlockedReason={declineBlockedReason}
         />
       )}
     </CampaignPageFrameFromShell>

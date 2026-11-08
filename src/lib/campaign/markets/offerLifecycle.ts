@@ -24,6 +24,34 @@ export function localMarketRefusal(
   return undefined;
 }
 
+/** Co-op has no host-authoritative decline command (K14b). */
+export const COOP_DECLINE_REFUSAL =
+  "Declining isn't available in co-op yet — there is no host-authoritative decline.";
+
+/** A co-op guest receives no market, so it has no real offer to name (K14b). */
+export const COOP_GUEST_MARKET_REFUSAL =
+  "Co-op guests can't propose hires or contracts yet — guests don't receive the host's market.";
+
+/**
+ * Why a market page control is unavailable, per action (K14b). A solo
+ * campaign keeps `localMarketRefusal`. In co-op, decline has no authority
+ * at all, a guest names no real offer, and the host's Hire goes to the
+ * campaign host as a `HireOffer` - so it is available unless the clock is
+ * moving. The host's Accept keeps the K14a refusal.
+ */
+export function coopMarketActionRefusal(
+  campaign: Pick<ICampaign, 'coopSession'>,
+  action: 'hire' | 'accept' | 'decline',
+  dayAdvanceInFlight = false,
+): string | undefined {
+  const session = campaign.coopSession;
+  if (!session) return localMarketRefusal(campaign, dayAdvanceInFlight);
+  if (action === 'decline') return COOP_DECLINE_REFUSAL;
+  if (session.mode === 'guest') return COOP_GUEST_MARKET_REFUSAL;
+  if (action === 'accept') return COOP_MARKET_REFUSAL;
+  return localMarketRefusal({}, dayAdvanceInFlight);
+}
+
 export function hiredPilotId(offerId: string): string {
   return `hired-${offerId}`;
 }

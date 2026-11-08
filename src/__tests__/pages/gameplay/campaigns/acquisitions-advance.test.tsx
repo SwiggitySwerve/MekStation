@@ -16,6 +16,11 @@ import {
   SAMPLE_CANDIDATES,
   SAMPLE_OFFERS,
 } from '@/components/campaign/command/__fixtures__/commandFixtures';
+import {
+  COOP_DECLINE_REFUSAL,
+  COOP_GUEST_MARKET_REFUSAL,
+  COOP_MARKET_REFUSAL,
+} from '@/lib/campaign/markets/offerLifecycle';
 import AcquisitionsPage from '@/pages/gameplay/campaigns/[id]/acquisitions';
 import ContractMarketPage from '@/pages/gameplay/campaigns/[id]/contract-market';
 import HiringPage from '@/pages/gameplay/campaigns/[id]/hiring';
@@ -125,9 +130,16 @@ describe('market pages local admission (K14a)', () => {
   });
   afterEach(() => resetCampaignStore());
 
-  it.each(['host', 'guest'] as const)(
+  // K14b PR4 superseded the single co-op refusal: the host's Hire goes to
+  // the campaign host as a HireOffer, a guest names no market offer, and
+  // Decline has no co-op authority. What K14a pinned still holds: no co-op
+  // market control writes the local campaign.
+  it.each([
+    ['host', [COOP_MARKET_REFUSAL, COOP_DECLINE_REFUSAL]],
+    ['guest', [COOP_GUEST_MARKET_REFUSAL, COOP_DECLINE_REFUSAL]],
+  ] as const)(
     'keeps populated local controls inert for a co-op %s',
-    (mode) => {
+    async (mode, contractStatuses) => {
       const store = useCampaignStore();
       const campaign: ICampaignWithCommand = {
         ...createCampaign('Market', 'mercenary'),
@@ -140,16 +152,33 @@ describe('market pages local admission (K14a)', () => {
       };
       store.setState({ campaign });
       const before = store.getState().campaign;
-      for (const Page of [HiringPage, ContractMarketPage]) {
-        const view = render(<Page />);
-        for (const button of screen.getAllByRole('button'))
-          expect(button).toBeDisabled();
+
+      const hiring = render(<HiringPage />);
+      const hire = screen.getByTestId(
+        `candidate-hire-${SAMPLE_CANDIDATES[0].id}`,
+      );
+      if (mode === 'host') {
+        // Sent to the campaign host, never hired locally - with no live
+        // host connection here, the press is refused and writes nothing.
+        expect(hire).toBeEnabled();
+        await userEvent.click(hire);
+        expect(await screen.findByTestId('action-error')).toBeInTheDocument();
+      } else {
+        expect(hire).toBeDisabled();
         expect(screen.getByRole('status')).toHaveTextContent(
-          'Use the co-op proposal controls for market changes.',
+          COOP_GUEST_MARKET_REFUSAL,
         );
-        expect(store.getState().campaign).toBe(before);
-        view.unmount();
       }
+      expect(store.getState().campaign).toBe(before);
+      hiring.unmount();
+
+      render(<ContractMarketPage />);
+      for (const button of screen.getAllByRole('button'))
+        expect(button).toBeDisabled();
+      expect(
+        screen.getAllByRole('status').map((status) => status.textContent),
+      ).toEqual(contractStatuses);
+      expect(store.getState().campaign).toBe(before);
     },
   );
 
@@ -178,11 +207,18 @@ describe('market pages local admission (K14a)', () => {
       const before = store.getState().campaign;
       const view = render(<HiringPage />);
       expect(store.getState().campaign).toBe(before);
-      expect(screen.getByRole('status')).toHaveTextContent(
-        mode === 'advancing'
-          ? 'Wait for the campaign clock to finish advancing.'
-          : 'Use the co-op proposal controls for market changes.',
-      );
+      // The co-op host's Hire is available (it goes to the campaign host),
+      // so its page states no refusal; seeding is still refused.
+      const expected = {
+        advancing: 'Wait for the campaign clock to finish advancing.',
+        guest: COOP_GUEST_MARKET_REFUSAL,
+        host: null,
+      }[mode];
+      if (expected === null) {
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      } else {
+        expect(screen.getByRole('status')).toHaveTextContent(expected);
+      }
       view.unmount();
       render(<ContractMarketPage />);
       expect(store.getState().campaign).toBe(before);
