@@ -163,6 +163,12 @@
       "lastReviewed": "2026-11-08"
     },
     {
+      "name": "fix-client-match-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved M-M2/M3: sticky client abort, guarded WS/P2P recovery, coupled pause cleanup and teardown reset; M-H3 server broadcasts remain a dependency.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
       "name": "fix-runner-terminal-state",
       "status": "in-progress",
       "reason": "Root-approved C17 only: classify runner termination from the effective configured limit bounded by the ceiling, critical halt and resolved objective winner; make the engine reason adapter exhaustive with all existing mappings preserved. No schema changes or fixture regeneration; wider end-reason consolidation deferred.",
