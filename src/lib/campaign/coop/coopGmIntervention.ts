@@ -32,10 +32,13 @@ export const NO_LIVE_HOST = 'no live host connection';
  * approval's effects appended, so the approval's effects are the entries past
  * the length of `campaign.gmInterventionEvents`. The first funds-transaction
  * among them gives the summary (its public summary) and the delta (its
- * after-minus-before balance in cents, divided by 100). Every call mints a new
- * intervention id - the effect's canned id, the time in base 36 and six random
- * base-36 characters - and the intent id is derived from it, so two approvals
- * of one canned correction are two commands while a resend of one is not.
+ * after-minus-before balance in cents, divided by 100). The intervention id is
+ * the effect's own: the GM ledger control plane mints one per approval, so the
+ * host's history entry and the GM's session row name the same intervention
+ * (and merge into one row). The intent id is derived from it, so two approvals
+ * of one canned correction are two commands while a resend of one is not; the
+ * host replays only committed intents by id, so a retry after a refusal still
+ * runs.
  */
 export function gmFundsInterventionIntent(
   campaign: ICampaign,
@@ -48,7 +51,9 @@ export function gmFundsInterventionIntent(
         candidate.family === 'funds-transaction',
     );
   if (!effect) return null;
-  const interventionId = `${effect.interventionId ?? 'gm-intervention'}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const interventionId =
+    effect.interventionId ??
+    `gm-intervention-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   return {
     kind: 'ApplyGmIntervention',
     campaignId: campaign.id,

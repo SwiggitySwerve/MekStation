@@ -38,6 +38,8 @@ const CORRECTION_OPTIONS: ReadonlyArray<{
 ];
 
 interface GmCampaignInterventionActionsProps {
+  /** False while an approval is in flight: no new preview until it answers. */
+  readonly canGenerate: boolean;
   readonly canApprove: boolean;
   readonly canTakeManualControl: boolean;
   readonly onMerchantPreview: (conflicted: boolean) => void;
@@ -50,6 +52,7 @@ interface GmCampaignInterventionActionsProps {
 }
 
 export function GmCampaignInterventionActions({
+  canGenerate,
   canApprove,
   canTakeManualControl,
   onMerchantPreview,
@@ -123,6 +126,7 @@ export function GmCampaignInterventionActions({
             : '!text-text-theme-primary font-bold'
         }
         onClick={handleGenerateCorrection}
+        disabled={!canGenerate}
         data-testid="gm-ledger-preview-btn"
       >
         Generate correction
