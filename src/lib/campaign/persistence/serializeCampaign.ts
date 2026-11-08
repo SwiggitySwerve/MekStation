@@ -29,6 +29,7 @@ import { CampaignType } from '@/types/campaign/CampaignType';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 
+import { normalizeShoppingList } from '../acquisition/shoppingList';
 import {
   rehydrateContractMarket,
   rehydrateMissionMap,
@@ -219,7 +220,11 @@ export function deserializeCampaignBody(
     missions: rehydrateMissionMap(body.missions),
     finances: deserializeFinances(body.finances),
     factionStandings: body.factionStandings,
-    shoppingList: body.shoppingList,
+    shoppingList: normalizeShoppingList(
+      body.shoppingList,
+      body.currentDate,
+      body.partsInventory,
+    ),
     options: body.options,
     campaignType: body.campaignType as CampaignType,
     activePreset: body.activePreset,
