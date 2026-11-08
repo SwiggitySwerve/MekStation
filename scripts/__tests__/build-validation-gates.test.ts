@@ -5,6 +5,7 @@ import path from 'node:path';
 import { parse } from 'yaml';
 
 interface Step {
+  id?: string;
   name?: string;
   run?: string;
   uses?: string;
@@ -19,6 +20,7 @@ interface Job {
   needs?: string | string[];
   if?: string;
   'continue-on-error'?: boolean;
+  env?: Record<string, string>;
   steps: Step[];
 }
 interface Workflow {
@@ -129,6 +131,69 @@ describe('artifact validation boundaries', () => {
       expect.arrayContaining(['build', 'docker-build']),
     );
   });
+});
+
+describe('Electron download caches', () => {
+  const pr = workflow('pr-checks.yml');
+
+  it.each(['simulation-checks', 'build-test'])(
+    '%s restores before installation and saves each download before later checks',
+    (id) => {
+      const job = pr.jobs[id];
+      const setupIndex = job.steps.findIndex(
+        (step) => step.uses === './.github/actions/setup-node-and-install',
+      );
+      expect(setupIndex).toBeGreaterThan(0);
+      expect(job.env).toMatchObject({
+        electron_config_cache: '${{ runner.temp }}/electron',
+        ELECTRON_BUILDER_CACHE: '${{ runner.temp }}/electron-builder',
+      });
+
+      for (const [cacheId, cacheEnv, download] of [
+        [
+          'electron-cache',
+          'electron_config_cache',
+          'npm run rebuild:next-standalone',
+        ],
+        [
+          'electron-builder-cache',
+          'ELECTRON_BUILDER_CACHE',
+          id === 'simulation-checks'
+            ? 'npx electron-builder --linux tar.gz --publish never'
+            : 'npx electron-builder --dir --publish never',
+        ],
+      ]) {
+        const restoreIndex = job.steps.findIndex((step) => step.id === cacheId);
+        expect(restoreIndex).toBeGreaterThan(0);
+        expect(restoreIndex).toBeLessThan(setupIndex);
+        const restore = job.steps[restoreIndex];
+        const cachePath = '${{ env.' + cacheEnv + ' }}';
+        expect(restore.uses).toBe('actions/cache/restore@v5');
+        expect(restore.with).toEqual({
+          path: cachePath,
+          // The lock pins both Electron and electron-builder exactly.
+          key:
+            '${{ runner.os }}-' +
+            cacheId +
+            "-v1-${{ hashFiles('desktop/package-lock.json') }}",
+        });
+
+        const downloadStep = command(job, download, 'desktop');
+        expect(downloadStep.env?.[cacheEnv]).toBeUndefined();
+        const save = job.steps[job.steps.indexOf(downloadStep) + 1];
+        expect(save.uses).toBe('actions/cache/save@v5');
+        expect(save.if).toBe(
+          '${{ !cancelled() && steps.' +
+            cacheId +
+            ".outputs.cache-hit != 'true' }}",
+        );
+        expect(save.with).toEqual({
+          path: cachePath,
+          key: '${{ steps.' + cacheId + '.outputs.cache-primary-key }}',
+        });
+      }
+    },
+  );
 });
 
 describe('Lint and Test aggregator', () => {
