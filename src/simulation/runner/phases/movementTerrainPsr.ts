@@ -4,6 +4,7 @@ import {
   type IGameState,
   type IHexGrid,
   MovementType,
+  type MovementMotiveMode,
 } from '@/types/gameplay';
 import {
   createPSRTriggeredEvent,
@@ -28,15 +29,18 @@ export function queueMovementTerrainPSRs(options: {
   grid: IHexGrid;
   unitId: string;
   movementType: MovementType;
+  movementMode?: MovementMotiveMode;
   steps: readonly TerrainBearingMovementStep[];
 }): IGameState {
-  const { events, gameId, grid, movementType, steps, unitId } = options;
+  const { events, gameId, grid, movementMode, movementType, steps, unitId } =
+    options;
   let currentState = options.currentState;
   const effects = planMovementTerrainEffects({
     grid,
     unitId,
     unit: currentState.units[unitId],
     movementType,
+    movementMode,
     steps,
   });
 

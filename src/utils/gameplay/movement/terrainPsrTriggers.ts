@@ -4,6 +4,7 @@ import {
   type IHexCoordinate,
   type IHexGrid,
   type IPendingPSR,
+  type MovementMotiveMode,
 } from '@/types/gameplay';
 import {
   TerrainType,
@@ -38,6 +39,7 @@ export interface ITerrainPsrMover {
   readonly unitType?: string;
   readonly tonnage?: number;
   readonly isStuck?: boolean;
+  readonly prone?: boolean;
 }
 
 /**
@@ -63,6 +65,8 @@ type TerrainPsrContext = {
   readonly unitId: string;
   readonly unitTonnage?: number;
   readonly unitType?: string;
+  readonly canFall: boolean;
+  readonly movementMode?: MovementMotiveMode;
   readonly enteredFeatures: readonly ITerrainFeature[];
   readonly fromFeatures: readonly ITerrainFeature[];
 };
@@ -80,6 +84,23 @@ const movementBeforeSkidModifiers: readonly {
 ];
 
 /**
+ * Motive modes that never roll for entering water: MegaMek 48fcb2f64
+ * `Entity.checkWaterMove` (L9615-L9641) skips hover, VTOL, naval, hydrofoil,
+ * submarine, UMU, biped/quad swim and WiGE movement.
+ */
+const WATER_ENTRY_EXEMPT_MODES: ReadonlySet<MovementMotiveMode> = new Set([
+  'hover',
+  'vtol',
+  'naval',
+  'hydrofoil',
+  'submarine',
+  'umu',
+  'biped_swim',
+  'quad_swim',
+  'wige',
+]);
+
+/**
  * The single producer of movement terrain PSRs. Both the standalone runner and
  * the interactive session apply these effects; neither re-derives them.
  */
@@ -88,9 +109,11 @@ export function planMovementTerrainEffects(options: {
   readonly unitId: string;
   readonly unit: ITerrainPsrMover | undefined;
   readonly movementType: MovementType;
+  readonly movementMode?: MovementMotiveMode;
   readonly steps: readonly TerrainBearingMovementStep[];
 }): readonly MovementTerrainEffect[] {
-  const { grid, movementType, steps, unit, unitId } = options;
+  const { grid, movementMode, movementType, steps, unit, unitId } = options;
+  const unitCanFall = canFall(unit);
   const effects: MovementTerrainEffect[] = [];
   let stuck = unit?.isStuck === true;
 
@@ -130,6 +153,8 @@ export function planMovementTerrainEffects(options: {
       unitId,
       unitTonnage: unit?.tonnage,
       unitType: unit?.unitType,
+      canFall: unitCanFall,
+      movementMode,
     })) {
       effects.push({ kind: 'psr', psr });
     }
@@ -146,6 +171,8 @@ function terrainPSRsForStep(options: {
   readonly unitId: string;
   readonly unitTonnage?: number;
   readonly unitType?: string;
+  readonly canFall: boolean;
+  readonly movementMode?: MovementMotiveMode;
 }): readonly IPendingPSR[] {
   const context = terrainPsrContext(options);
   return [
@@ -165,6 +192,8 @@ function terrainPsrContext(options: {
   readonly unitId: string;
   readonly unitTonnage?: number;
   readonly unitType?: string;
+  readonly canFall: boolean;
+  readonly movementMode?: MovementMotiveMode;
 }): TerrainPsrContext {
   const { grid, step } = options;
   return {
@@ -179,8 +208,10 @@ function terrainPsrContext(options: {
 function waterTransitionPSRs(
   context: TerrainPsrContext,
 ): readonly IPendingPSR[] {
-  const { enteredFeatures, fromFeatures, step, unitId } = context;
+  const { canFall, enteredFeatures, fromFeatures, movementMode, step, unitId } =
+    context;
   const psrs: IPendingPSR[] = [];
+  if (!canFall) return psrs;
 
   if (
     hasTerrainFeature(fromFeatures, TerrainType.Water) &&
@@ -191,7 +222,8 @@ function waterTransitionPSRs(
 
   if (
     hasTerrainFeature(enteredFeatures, TerrainType.Water) &&
-    !hasTerrainFeature(fromFeatures, TerrainType.Water)
+    !hasTerrainFeature(fromFeatures, TerrainType.Water) &&
+    !(movementMode !== undefined && WATER_ENTRY_EXEMPT_MODES.has(movementMode))
   ) {
     psrs.push(
       createEnteringWaterPSR(unitId, step.index, {
@@ -206,10 +238,10 @@ function waterTransitionPSRs(
 function enteredTerrainPSRs(
   context: TerrainPsrContext,
 ): readonly IPendingPSR[] {
-  const { enteredFeatures, movementType, step, unitId } = context;
+  const { canFall, enteredFeatures, movementType, step, unitId } = context;
   const psrs: IPendingPSR[] = [];
 
-  if (hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
+  if (canFall && hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
     psrs.push(createRubblePSR(unitId, step.index));
   }
 
@@ -220,7 +252,7 @@ function enteredTerrainPSRs(
     psrs.push(createRunningRoughTerrainPSR(unitId, step.index));
   }
 
-  if (hasTerrainFeature(enteredFeatures, TerrainType.Ice)) {
+  if (canFall && hasTerrainFeature(enteredFeatures, TerrainType.Ice)) {
     psrs.push(createIcePSR(unitId, step.index));
   }
 
@@ -263,7 +295,8 @@ function buildingCollapsePSRs(
 }
 
 function skiddingPSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
-  const { grid, movementType, step, steps, unitId } = context;
+  const { canFall, grid, movementType, step, steps, unitId } = context;
+  if (!canFall) return [];
   if (step.kind !== 'turn') return [];
   if (movementModeForPath(movementType) !== 'run') return [];
   if (!isSkidTerrain(terrainFeaturesFromTag(terrainAt(grid, step.at)))) {
@@ -380,6 +413,16 @@ function hasOverloadedBuildingFeature(
   if (!building || building.constructionFactor === undefined) return false;
 
   return unitTonnage > building.constructionFactor;
+}
+
+/**
+ * MegaMek 48fcb2f64 `Mek.canFall` (L2154-L2156): only a Mek that is not prone
+ * makes the fall rolls for water, rubble, skid and ice; other entities inherit
+ * `Entity.canFall() == false`. Vehicle-specific terrain outcomes are not
+ * represented.
+ */
+function canFall(unit: ITerrainPsrMover | undefined): boolean {
+  return isBattleMechLikeUnitType(unit?.unitType) && unit?.prone !== true;
 }
 
 function isBattleMechLikeUnitType(unitType: string | undefined): boolean {

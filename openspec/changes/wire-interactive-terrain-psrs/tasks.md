@@ -12,10 +12,10 @@
 
 ## 2. PR2: MegaMek fall-eligibility gate
 
-- [ ] Record failing gate tests (vehicles, prone Meks, non-walking water modes).
-- [ ] Gate water, rubble, skid and ice PSRs on `Mek.canFall`; exclude the
+- [x] Record failing gate tests (vehicles, prone Meks, non-walking water modes).
+- [x] Gate water, rubble, skid and ice PSRs on `Mek.canFall`; exclude the
       non-falling movement modes from water entry.
-- [ ] Kill the gate mutants.
+- [x] Kill the gate mutants.
 
 ## 3. PR3: interactive wiring
 
