@@ -31,6 +31,7 @@ jest.mock('@/stores/campaign/campaignRefitActions', () => ({
 const mockSaveCampaign = jest.fn();
 
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: {
     getState: () => ({ saveCampaign: mockSaveCampaign }),
   },

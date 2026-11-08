@@ -33,8 +33,12 @@ import {
   type IViewerDeliveryRecord,
 } from '../IMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { addSpectatorSeat } from '../lobby/spectatorSeats';
 import { recoverActiveMatches } from '../MatchRecovery';
-import { ViewerDeliveryCursors } from '../projection/ViewerDeliveryCursors';
+import {
+  MAX_VIEWER_UNACKED,
+  ViewerDeliveryCursors,
+} from '../projection/ViewerDeliveryCursors';
 import { ServerMatchHost } from '../ServerMatchHost';
 
 function adapted(
@@ -178,11 +182,16 @@ function matchMeta(matchId: string, hostPlayerId = 'pA'): IMatchMeta {
   };
 }
 
-async function seatedDurableHost(matchId: string, store: DurableMatchStore) {
-  await store.createMatch(matchMeta(matchId));
+async function seatedDurableHost(
+  matchId: string,
+  store: DurableMatchStore,
+  turnLimit = 5,
+) {
+  const meta = matchMeta(matchId);
+  await store.createMatch({ ...meta, config: { ...meta.config, turnLimit } });
   const host = ServerMatchHost.create(matchId, store, {
     mapRadius: 6,
-    turnLimit: 5,
+    turnLimit,
     random: new SeededRandom(9),
     grid: createMinimalGrid(6),
     playerUnits: [adapted('unit-A', GameSide.Player, { q: 0, r: 0 })],
@@ -214,7 +223,7 @@ async function advance(
       intentId: `adv-${matchId}-${n}`,
       intent: { kind: 'AdvancePhase' },
     } as unknown as IIntent,
-    'conn-a',
+    `conn-a-${n}`,
     'pA',
   );
 }
@@ -246,6 +255,120 @@ describe('durable viewer delivery mapping', () => {
   afterEach(() => {
     store.close();
   });
+
+  it.each(['pA', 'spectator'])(
+    'restores %s acknowledgements before reconnect and the next live event after 64 frames',
+    async (viewerId) => {
+      const matchId = `m-acked-restart-${viewerId}`;
+      const { host } = await seatedDurableHost(matchId, store, 0);
+      const meta = await store.getMatchMeta(matchId);
+      if (viewerId === 'spectator') {
+        await store.updateMatchMeta(matchId, {
+          seats: addSpectatorSeat(meta.seats ?? [], {
+            playerId: viewerId,
+            displayName: 'Watcher',
+          }),
+        });
+      }
+      const socket = makeSocket();
+      expect(await host.admitSocket(socket, viewerId)).not.toBeNull();
+      await host.handleSessionJoin(socket, viewerId);
+      let step = 0;
+      while (host.viewerIssued(viewerId) <= MAX_VIEWER_UNACKED && step < 100) {
+        await host.handleDeliveryAck(viewerId, host.viewerIssued(viewerId) - 1);
+        await advance(host, matchId, step++);
+      }
+      const issued = host.viewerIssued(viewerId);
+      expect(issued).toBeGreaterThan(MAX_VIEWER_UNACKED);
+      const acked = issued - 2;
+      await host.handleDeliveryAck(viewerId, acked);
+      const expectedTail = deliveredEvents(socket).filter(
+        (event) => (event.deliverySequence ?? -1) > acked,
+      );
+
+      const rebuilt = await recoverActiveMatches(store);
+      const recovered = rebuilt.hosts.get(matchId);
+      if (!recovered) throw new Error('active match was not recovered');
+      expect(recovered.viewerUnacked(viewerId)).toBe(1);
+      const resumed = makeSocket();
+      expect(await recovered.admitSocket(resumed, viewerId)).not.toBeNull();
+      await recovered.handleSessionJoin(
+        resumed,
+        viewerId,
+        undefined,
+        matchId,
+        acked,
+      );
+      expect(deliveredEvents(resumed)).toEqual(expectedTail);
+      const before = resumed.sent.length;
+      await advance(recovered, matchId, step);
+      expect(
+        deliveredEvents({ sent: resumed.sent.slice(before) }).length,
+      ).toBeGreaterThan(0);
+      expect(recovered.viewerIsolated(viewerId)).toBe(false);
+    },
+  );
+
+  it.each([
+    'missing',
+    'failed',
+    'out-of-range',
+    'negative',
+    'fractional',
+    'gapped',
+    'no-port',
+  ] as const)(
+    'keeps %s acknowledgements conservative without blocking another viewer',
+    async (scenario) => {
+      const matchId = `m-ack-${scenario}`;
+      const { host } = await seatedDurableHost(matchId, store);
+      for (const playerId of ['pA', 'pB']) {
+        for (let index = 0; index < 3; index += 1) {
+          if (scenario === 'gapped' && playerId === 'pA' && index === 1)
+            continue;
+          await store.appendViewerDeliveryRecord({
+            matchId,
+            playerId,
+            deliverySequence: index,
+            authoritySequence: index + 2,
+          });
+        }
+        if (scenario !== 'missing' || playerId !== 'pA') {
+          await store.acknowledgeViewerDelivery({
+            matchId,
+            playerId,
+            deliverySequence:
+              scenario === 'out-of-range' && playerId === 'pA' ? 3 : 1,
+          });
+        }
+      }
+      const read = store.getViewerDeliveryAcknowledgement.bind(store);
+      if (scenario === 'no-port') {
+        Object.defineProperty(store, 'getViewerDeliveryAcknowledgement', {
+          value: undefined,
+        });
+      } else {
+        jest
+          .spyOn(store, 'getViewerDeliveryAcknowledgement')
+          .mockImplementation(async (id, playerId) => {
+            if (playerId === 'pA') {
+              if (scenario === 'failed') throw new Error('receipt unavailable');
+              if (scenario === 'negative' || scenario === 'fractional')
+                return {
+                  matchId: id,
+                  playerId,
+                  deliverySequence: scenario === 'negative' ? -1 : 0.5,
+                };
+            }
+            return read(id, playerId);
+          });
+      }
+      await host.restorePersistedViewerDeliveries();
+      expect(host.viewerIssued('pA')).toBe(scenario === 'gapped' ? 0 : 3);
+      expect(host.viewerUnacked('pA')).toBe(scenario === 'gapped' ? 0 : 3);
+      expect(host.viewerUnacked('pB')).toBe(scenario === 'no-port' ? 3 : 1);
+    },
+  );
 
   it('replays the first missed frame after a host rebuild, not from zero', async () => {
     const matchId = 'm-durable-resume';
