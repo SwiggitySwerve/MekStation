@@ -181,9 +181,9 @@
       "lastReviewed": "2026-11-08"
     },
     {
-      "name": "fix-c10-emp-startup-gating",
+      "name": "fix-combat-unit-exit-outcomes",
       "status": "in-progress",
-      "reason": "Root-approved C10: extract unchanged startup/countdown rules first, then gate EMP startup, advance runner shutdown rounds, skip redundant shutdown checks, and auto-fail KO rolled startup. Preserve recorded startup outcomes and stop on committed fixture, digest, seeded snapshot, or exact-roll seeded expectation changes.",
+      "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
       "lastReviewed": "2026-11-08"
     }
   ]

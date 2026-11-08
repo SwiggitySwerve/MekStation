@@ -1,6 +1,8 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
+
 import type { IAvailableActions } from './types';
 
 export function getAvailableActionsForState(
@@ -9,14 +11,7 @@ export function getAvailableActionsForState(
   weaponsByUnit: Map<string, readonly IWeapon[]>,
 ): IAvailableActions {
   const unit = state.units[unitId];
-  if (
-    !unit ||
-    unit.destroyed ||
-    unit.shutdown ||
-    unit.hasRetreated ||
-    unit.hasEjected ||
-    !unit.pilotConscious
-  ) {
+  if (!unit || !getUnitOperability(unit).canAct) {
     return { validMoves: [], validTargets: [] };
   }
 
@@ -24,12 +19,7 @@ export function getAvailableActionsForState(
   const validTargets: { unitId: string; weapons: string[] }[] = [];
 
   for (const [uid, candidate] of Object.entries(state.units)) {
-    if (
-      candidate.side !== unit.side &&
-      !candidate.destroyed &&
-      !candidate.hasRetreated &&
-      !candidate.hasEjected
-    ) {
+    if (candidate.side !== unit.side && getUnitOperability(candidate).onField) {
       validTargets.push({
         unitId: uid,
         weapons: weapons.filter((weapon) => !weapon.destroyed).map((w) => w.id),

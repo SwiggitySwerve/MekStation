@@ -42,7 +42,7 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation checkVictoryConditions consults evaluateObjectiveOutcome before destruction and turn-limit fallback winner selection.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L146-L182',
+    'L131-L167',
   ),
   mekstationDeviationSourceRef(
     'MekStation evaluateObjectiveOutcome routes markerless, capture, defend, and breakthrough scenarios through one objective outcome gate.',
@@ -52,12 +52,12 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunnerState.isGameOver consults evaluateObjectiveOutcome before survivor-count game-over checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L548-L565',
+    'L544-L561',
   ),
   mekstationDeviationSourceRef(
     'MekStation GameOutcomeCalculator consults evaluateObjectiveOutcome before elimination, mutual destruction, and turn-limit outcome branches.',
     'src/services/game-resolution/GameOutcomeCalculator.ts',
-    'L178-L225',
+    'L179-L226',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -101,7 +101,7 @@ const RUNNER_TERMINAL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation appendRunnerGameEndedEvent maps runner winner/reason/turns into a terminal GameEnded replay event.',
     'src/simulation/runner/SimulationRunnerTerminalEvent.ts',
-    'L52-L84',
+    'L48-L80',
   ),
   mekstationDeviationSourceRef(
     'MekStation terminal parity behavior test proves SimulationRunner returns terminal summary fields and appends terminal GameEnded events.',
@@ -115,7 +115,7 @@ const TERMINAL_SURVIVOR_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation appendRunnerGameEndedEvent survivor checks exclude destroyed, retreated, ejected, and unconscious units before selecting destruction or turn-limit reasons.',
     'src/simulation/runner/SimulationRunnerTerminalEvent.ts',
-    'L21-L50',
+    'L22-L46',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

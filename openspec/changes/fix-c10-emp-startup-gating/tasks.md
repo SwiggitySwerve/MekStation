@@ -21,7 +21,7 @@
   replay/digest/golden gates before/after. Stop on protected expectation changes.
 - [x] 3.2 Run validate:combat, both tsc configs, lint:units and its Jest suite,
   root lint <=63 warnings, oxfmt, OpenSpec validation, and budget check <=57.
-- [ ] 3.3 Re-anchor shifted runner source citations by content and list every
+- [x] 3.3 Re-anchor shifted runner source citations by content and list every
   edited catalog in the draft PR. Open one draft PR and never merge.
 
 ## Recorded evidence
@@ -82,3 +82,31 @@
   (17,069/17,085) and its 33-test suite, formatting, strict change validation,
   and the budget (3,048 files, exactly 57 unkeyable tests) passed again. No
   protected expectation or persisted format was changed.
+
+## Ledger migration and C1 merge
+
+- Merged fetched main `1ec2f3cee`, including C1 operability/exit-latch changes
+  and the #3043 accounting rule. Resolved each conflicted runner citation by
+  matching surviving source content against the merged tree, including the
+  shorter `isUnitOperable` implementation. No runtime merge conflict remained.
+- Ran Root's `ledger-convert.mjs`: C10 accounting now lives only in this
+  change's `.ledger.json`; the legacy ledger is byte-identical to fetched main.
+  The accounting validator reconciles all 33 active changes with zero errors.
+- Under Node 22.22.0, replay/digest/golden validation passed 29 suites and 760
+  tests unchanged. `validate:combat` passed 79 suites and 2,107 tests, its gap
+  inventory checks, and strict-spec validation. Both tsc configs, lint at 63
+  warnings and zero errors, lint:units at 17,072/17,085, repository formatting,
+  strict C10 validation, and the budget at 57 unkeyable tests (3,054 files)
+  passed. No committed fixture, digest, seeded snapshot, or existing exact-roll
+  expectation was edited.
+- The combined stable directory sweep passed 906 suites and 14,139 tests,
+  with 39 skipped tests and no updated snapshots. It includes the full runner
+  and phase-helper directories plus gameplay, engine, multiplayer, P2P,
+  integration, fast-forward, QuickResolve, hooks, and store consumers. The
+  existing `JEST_EXCLUDE_PERF_SENSITIVE=true` option excludes standalone stress
+  suites from this sweep; earlier full-stress evidence remains recorded above.
+- The entire `scripts/__tests__` directory passed 148 suites and 2,473 tests,
+  with 17 skipped tests and no updated snapshots. This includes the new ledger
+  parser/reconciliation tests, OpenSpec QC compatibility cases, and the
+  33-test lint:units suite. The long roadmap-proof suite completed successfully;
+  no script test was excluded from this run.

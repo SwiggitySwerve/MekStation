@@ -80,7 +80,11 @@ async function seedRepository(child,mode){
   const repairRow={wave:repairWave,commandId:repairWave,childChange:child,runRootTemplate:'.sisyphus/evidence/playtest/'+repairWave+'-<sha>',commandSequence:sequence,canonicalArgvDigest:commandSequenceDigest(sequence),artifacts:['command-result.json','receipt-manifest.json','wave-result.json'],assertions:['repairVerified===true'],predecessors:['proof-02-triage'],sourceDisposition,capSubject:'product-pr',maxFiles:3,maxChangedLines:100,reporterContracts:[]};
   fs.mkdirSync(path.join(work,'openspec','changes',child),{recursive:true}); fs.writeFileSync(path.join(work,'openspec','changes',child,'tasks.md'),'# tasks\\n'); if(mode==='repair'&&request.drift!=='declaration-missing'){const bytes=JSON.stringify({schema:'camp01-repair-row/v1',row:repairRow})+'\\n'; fs.writeFileSync(path.join(work,'openspec','changes',child,'camp01-repair-row.json'),request.drift==='canonical-bytes-drift'?bytes+'\\n':bytes);}
   fs.mkdirSync(path.join(work,'openspec'),{recursive:true}); const ledger=(included)=>JSON.stringify({allowedActiveChanges:included?[{name:child,status:'proposed'}]:[]})+'\\n'; fs.writeFileSync(path.join(work,'openspec','active-change-ledger.json'),ledger(mode!=='unledgered'&&mode!=='post-sha'));
+  const localLedger={name:child,status:'proposed',reason:'Awaiting implementation.',lastReviewed:'2026-11-08'}, localPath=path.join(work,'openspec','changes',child,'.ledger.json'), legacyPath=path.join(work,'openspec','active-change-ledger.json');
+  if(mode.startsWith('colocated-')){fs.unlinkSync(legacyPath); if(mode!=='colocated-post-sha')fs.writeFileSync(localPath,mode==='colocated-malformed'?'{':JSON.stringify(mode==='colocated-invalid'?{name:child}:mode==='colocated-wrong-name'?{...localLedger,name:'other-change'}:localLedger));}
+  if(mode==='dual-conflict'||mode==='legacy-malformed'){fs.writeFileSync(localPath,JSON.stringify(localLedger));fs.writeFileSync(legacyPath,mode==='legacy-malformed'?'{':JSON.stringify({allowedActiveChanges:[{...localLedger,reason:'Conflicting review.'}]}));}
   await run(['add','.']); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','spec']); const specSha=(await run(['rev-parse','HEAD'])).stdout.trim();
+  if(mode==='colocated-post-sha'){fs.writeFileSync(localPath,JSON.stringify(localLedger));await run(['add','.']);await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','ledger-late']);}
   if(mode==='post-sha'){fs.writeFileSync(path.join(work,'openspec','active-change-ledger.json'),ledger(true)); await run(['add','.']); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','ledger-late']);}
   fs.writeFileSync(path.join(work,'product.txt'),'product\\n'); await run(['add','.']); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','product']); const productSha=(await run(['rev-parse','HEAD'])).stdout.trim(), divergentSha=mode==='nonancestor'?(await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit-tree',productSha+'^{tree}','-m','divergent'])).stdout.trim():null;
   await trust.createBareSession({git,directory:remote}); await run(['push',remote,'HEAD:refs/heads/main',...(divergentSha?[divergentSha+':refs/heads/divergent']:[])]); return {git,remote,specSha,productSha,divergentSha,repairRow,cause};
@@ -501,6 +505,12 @@ describe('CAMP-01 GitHub provenance', () => {
   gitIt.each([
     ['unledgered', 'cited spec is not ledger-accounted at merge SHA'],
     ['post-sha', 'cited spec is not ledger-accounted at merge SHA'],
+    ['colocated-post-sha', 'cited spec is not ledger-accounted at merge SHA'],
+    ['colocated-invalid', 'cited spec is not ledger-accounted at merge SHA'],
+    ['colocated-malformed', 'cited spec is not ledger-accounted at merge SHA'],
+    ['colocated-wrong-name', 'cited spec is not ledger-accounted at merge SHA'],
+    ['dual-conflict', 'cited spec is not ledger-accounted at merge SHA'],
+    ['legacy-malformed', 'cited spec is not ledger-accounted at merge SHA'],
     ['nonancestor', 'merge SHA is not an ancestor of verified main'],
   ])('rejects ledger/ancestry case %s exactly', (action, message) => {
     // Given verified API identities but invalid repository history
@@ -508,6 +518,17 @@ describe('CAMP-01 GitHub provenance', () => {
     // When repository proof runs, then no post-SHA or non-ancestor citation is admitted
     expect(result.error).toBe(`CAMP01_PROVENANCE_INVALID: ${message}`);
   });
+
+  gitIt(
+    'accepts colocated metadata from the cited merge SHA without a legacy ledger',
+    () => {
+      expect(
+        invoke({ action: 'colocated-valid', root, git: hostGit }),
+      ).toMatchObject({
+        ok: true,
+      });
+    },
+  );
 
   gitIt(
     'loads a merged repair declaration and returns the controller contract shape',

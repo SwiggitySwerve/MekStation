@@ -1,0 +1,6 @@
+{
+  "name": "fix-client-match-lifecycle",
+  "status": "in-progress",
+  "reason": "Root-approved M-M2/M3: sticky client abort, guarded WS/P2P recovery, coupled pause cleanup and teardown reset; M-H3 server broadcasts remain a dependency.",
+  "lastReviewed": "2026-11-08"
+}
