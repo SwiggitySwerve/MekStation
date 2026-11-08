@@ -19,7 +19,6 @@ import {
 import {
   COOP_DECLINE_REFUSAL,
   COOP_GUEST_MARKET_REFUSAL,
-  COOP_MARKET_REFUSAL,
 } from '@/lib/campaign/markets/offerLifecycle';
 import AcquisitionsPage from '@/pages/gameplay/campaigns/[id]/acquisitions';
 import ContractMarketPage from '@/pages/gameplay/campaigns/[id]/contract-market';
@@ -130,12 +129,12 @@ describe('market pages local admission (K14a)', () => {
   });
   afterEach(() => resetCampaignStore());
 
-  // K14b PR4 superseded the single co-op refusal: the host's Hire goes to
-  // the campaign host as a HireOffer, a guest names no market offer, and
-  // Decline has no co-op authority. What K14a pinned still holds: no co-op
-  // market control writes the local campaign.
+  // K14b PR4 superseded the single co-op refusal: the host's Hire and Accept
+  // go to the campaign host as HireOffer / AcceptContract, a guest names no
+  // market offer, and Decline has no co-op authority. What K14a pinned still
+  // holds: no co-op market control writes the local campaign.
   it.each([
-    ['host', [COOP_MARKET_REFUSAL, COOP_DECLINE_REFUSAL]],
+    ['host', [COOP_DECLINE_REFUSAL]],
     ['guest', [COOP_GUEST_MARKET_REFUSAL, COOP_DECLINE_REFUSAL]],
   ] as const)(
     'keeps populated local controls inert for a co-op %s',
@@ -173,11 +172,20 @@ describe('market pages local admission (K14a)', () => {
       hiring.unmount();
 
       render(<ContractMarketPage />);
-      for (const button of screen.getAllByRole('button'))
-        expect(button).toBeDisabled();
+      const offerId = SAMPLE_OFFERS[0].id;
+      expect(screen.getByTestId(`offer-decline-${offerId}`)).toBeDisabled();
       expect(
         screen.getAllByRole('status').map((status) => status.textContent),
       ).toEqual(contractStatuses);
+      const accept = screen.getByTestId(`offer-accept-${offerId}`);
+      if (mode === 'host') {
+        // Likewise sent to the campaign host, never accepted locally.
+        expect(accept).toBeEnabled();
+        await userEvent.click(accept);
+        expect(await screen.findByTestId('action-error')).toBeInTheDocument();
+      } else {
+        expect(accept).toBeDisabled();
+      }
       expect(store.getState().campaign).toBe(before);
     },
   );

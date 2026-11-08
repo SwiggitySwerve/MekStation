@@ -4,6 +4,9 @@
  * - Host Hire goes to the live campaign host as `HireOffer { offerId }` - the
  *   offer id and nothing else - and writes nothing locally. A committed hire
  *   re-reads the saved record; a refusal is shown in words.
+ * - Host Accept goes to the live campaign host as `AcceptContract` naming the
+ *   listed contract, the same way: nothing local, held until answered, a
+ *   commit re-reads the record, a refusal is shown in words.
  * - A guest's Hire and Accept are disabled with the guest reason: guests do
  *   not receive the host's market.
  * - Decline carries its own co-op reason on host and guest alike: there is
@@ -139,6 +142,34 @@ function pilotHiredAnswer(intent: Record<string, unknown>): IServerMessage {
   } as unknown as IServerMessage;
 }
 
+/** The live host's ContractAccepted answer to an AcceptContract intent. */
+function contractAcceptedAnswer(
+  intent: Record<string, unknown>,
+): IServerMessage {
+  const contractId = (intent.payload as { contract: { contractId: string } })
+    .contract.contractId;
+  return {
+    kind: 'CampaignEvent',
+    matchId: MATCH_ID,
+    ts: '2026-11-08T00:00:00.000Z',
+    event: {
+      type: 'ContractAccepted',
+      sequence: 2,
+      campaignId: CAMPAIGN_ID,
+      ts: '2026-11-08T00:00:00.000Z',
+      authorPlayerId: 'pid_host',
+      scope: 'campaign',
+      payload: {
+        contract: {
+          contractId,
+          name: 'Stored name',
+          employerFactionId: 'stored-employer',
+        },
+      },
+    },
+  } as unknown as IServerMessage;
+}
+
 function refusalAnswer(reason: string) {
   return (intent: Record<string, unknown>): IServerMessage =>
     ({
@@ -254,6 +285,79 @@ describe('co-op market pages (K14b PR4)', () => {
         ),
       ).toBeInTheDocument();
       expect(mockUpdateCampaign).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('host Accept', () => {
+    const OFFER = SAMPLE_OFFERS[0];
+
+    it('sends AcceptContract naming the listed contract, writes nothing locally, and re-reads the saved record', async () => {
+      mockCampaign = campaignOf('host');
+      const sent = fakeHostTransport(contractAcceptedAnswer);
+      render(<ContractMarketPage />);
+
+      const accept = screen.getByTestId(`offer-accept-${OFFER.id}`);
+      expect(accept).toBeEnabled();
+      expect(accept).not.toHaveAttribute('title');
+      fireEvent.click(accept);
+      await settle();
+
+      expect(sent).toHaveLength(1);
+      expect(sent[0]).toMatchObject({
+        kind: 'AcceptContract',
+        campaignId: CAMPAIGN_ID,
+        payload: { contract: { contractId: OFFER.id } },
+      });
+      expect(Object.keys(sent[0].payload as object)).toEqual(['contract']);
+      expect(mockUpdateCampaign).not.toHaveBeenCalled();
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('command-error')).not.toBeInTheDocument();
+    });
+
+    it('holds Accept while the host has not answered and ignores another contract', async () => {
+      mockCampaign = campaignOf('host');
+      const sent = fakeHostTransport((intent) =>
+        contractAcceptedAnswer({
+          ...intent,
+          payload: { contract: { contractId: 'someone-else' } },
+        }),
+      );
+      render(<ContractMarketPage />);
+
+      fireEvent.click(screen.getByTestId(`offer-accept-${OFFER.id}`));
+      await settle();
+      fireEvent.click(screen.getByTestId(`offer-accept-${OFFER.id}`));
+      await settle();
+
+      expect(screen.getByTestId(`offer-accept-${OFFER.id}`)).toBeDisabled();
+      expect(sent).toHaveLength(1);
+      expect(refreshSpy).not.toHaveBeenCalled();
+    });
+
+    it('shows a host refusal in words and refreshes nothing', async () => {
+      mockCampaign = campaignOf('host');
+      fakeHostTransport(refusalAnswer('offer-declined'));
+      render(<ContractMarketPage />);
+
+      fireEvent.click(screen.getByTestId(`offer-accept-${OFFER.id}`));
+      await settle();
+
+      expect(
+        screen.getByText('This contract was declined and cannot be accepted.'),
+      ).toBeInTheDocument();
+      expect(refreshSpy).not.toHaveBeenCalled();
+      expect(mockUpdateCampaign).not.toHaveBeenCalled();
+    });
+
+    it('no longer shows the proposal-controls refusal to a host', () => {
+      mockCampaign = campaignOf('host');
+      render(<ContractMarketPage />);
+
+      expect(
+        screen.queryByText(
+          'Use the co-op proposal controls for market changes.',
+        ),
+      ).not.toBeInTheDocument();
     });
   });
 

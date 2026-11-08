@@ -23,7 +23,7 @@ import { HiringPanel } from '@/components/campaign/command/HiringPanel';
 import {
   coopHireRefusalMessage,
   sendCoopHireOffer,
-} from '@/lib/campaign/coop/coopHireOffer';
+} from '@/lib/campaign/coop/coopMarketCommands';
 import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
 import {
   coopMarketActionRefusal,

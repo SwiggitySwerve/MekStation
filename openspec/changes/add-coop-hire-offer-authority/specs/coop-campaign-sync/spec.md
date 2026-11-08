@@ -67,13 +67,20 @@ A campaign authority SHALL derive every contract acceptance from the contract-ma
 
 ### Requirement: Co-op Market Controls
 
-The co-op market pages SHALL offer only actions an authority can judge. The co-op host's Hire SHALL send `HireOffer` naming only the offer id to the campaign host and SHALL write nothing to the local campaign; the control SHALL stay held until the host answers, and a refusal SHALL be shown as a sentence. Every viewer's ledger projection SHALL drop the personnel offers whose recruit the ledger has enrolled and the contracts it holds as accepted, so a hired recruit is never offered again. A co-op guest's Hire and Accept proposal controls SHALL be disabled with a visible reason, because guests do not receive the host's market. Co-op Decline SHALL be disabled with its own visible reason until a host-authoritative decline command exists.
+The co-op market pages SHALL offer only actions an authority can judge. The co-op host's Hire SHALL send `HireOffer` naming only the offer id, and its Accept SHALL send `AcceptContract` naming the listed contract, to the campaign host; neither SHALL write the local campaign, each control SHALL stay held until the host answers, a commit SHALL re-read the saved record, and a refusal SHALL be shown as a sentence. Every viewer's ledger projection SHALL drop the personnel offers whose recruit the ledger has enrolled and the contracts it holds as accepted, so a hired recruit is never offered again. A co-op guest's Hire and Accept proposal controls SHALL be disabled with a visible reason, because guests do not receive the host's market. Co-op Decline SHALL be disabled with its own visible reason until a host-authoritative decline command exists.
 
 #### Scenario: The host hires through the campaign host
 
 - **GIVEN** a co-op host viewing a recruit on the Personnel & Hiring page
 - **WHEN** the host presses Hire
 - **THEN** the page SHALL send `HireOffer` with that offer id and no other payload field
+- **AND** the local campaign SHALL be unchanged
+
+#### Scenario: The host accepts through the campaign host
+
+- **GIVEN** a co-op host viewing a contract on the Contract Market page
+- **WHEN** the host presses Accept
+- **THEN** the page SHALL send `AcceptContract` naming that contract
 - **AND** the local campaign SHALL be unchanged
 
 #### Scenario: A hired recruit leaves the host's market

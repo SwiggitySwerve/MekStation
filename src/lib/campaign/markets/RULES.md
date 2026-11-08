@@ -53,10 +53,10 @@ The durable commands read the source row in their own transaction; the server
 co-op host reads the saved row at each intent; the in-browser host reads its
 live campaign. Declined, ended, consumed and unaffordable offers are refused.
 
-- The co-op host's Hire sends `HireOffer` to the campaign host and writes
-  nothing locally. The ledger projection and the record rewrite both drop
-  offers the ledger has consumed.
+- The co-op host's Hire and Accept send `HireOffer` / `AcceptContract` to
+  the campaign host and write nothing locally. The ledger projection and the
+  record rewrite both drop offers the ledger has consumed.
 - A guest's Hire and Accept are disabled: guests do not receive the market.
 - Co-op Decline is disabled: there is no host-authoritative decline command.
-- The co-op host's Accept keeps the K14a refusal until it is routed through
-  `AcceptContract`.
+- A new co-op campaign has no market until its first day advance: first-open
+  seeding stays refused in co-op (K14a).

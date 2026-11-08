@@ -35,9 +35,9 @@ export const COOP_GUEST_MARKET_REFUSAL =
 /**
  * Why a market page control is unavailable, per action (K14b). A solo
  * campaign keeps `localMarketRefusal`. In co-op, decline has no authority
- * at all, a guest names no real offer, and the host's Hire goes to the
- * campaign host as a `HireOffer` - so it is available unless the clock is
- * moving. The host's Accept keeps the K14a refusal.
+ * at all and a guest names no real offer. The host's Hire and Accept go to
+ * the campaign host as `HireOffer` / `AcceptContract`, so they are available
+ * unless the clock is moving.
  */
 export function coopMarketActionRefusal(
   campaign: Pick<ICampaign, 'coopSession'>,
@@ -48,7 +48,6 @@ export function coopMarketActionRefusal(
   if (!session) return localMarketRefusal(campaign, dayAdvanceInFlight);
   if (action === 'decline') return COOP_DECLINE_REFUSAL;
   if (session.mode === 'guest') return COOP_GUEST_MARKET_REFUSAL;
-  if (action === 'accept') return COOP_MARKET_REFUSAL;
   return localMarketRefusal({}, dayAdvanceInFlight);
 }
 
