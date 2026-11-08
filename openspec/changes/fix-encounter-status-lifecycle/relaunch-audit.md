@@ -15,7 +15,7 @@ idempotent same-session retry/resume. No persisted format changes are needed.
 | `src/services/encounter/EncounterService.ts:386` / `EncounterRepository.ts:215` | Optional explicit intent defaults off. The guarded read, replacement and write are one SQLite transaction. A failed write preserves the original link. |
 | `src/services/encounter/EncounterService.ts:263` / `src/pages/api/encounters/[id]/launch.ts:81` | No restart opt-in; existing Launched/Completed guards remain. This path does not accidentally replace a recorded session. |
 | `src/lib/campaign/encounter/launchCampaignEncounter.ts:105` on fetched main | Creates/configures a new repository encounter and invokes the ordinary service launch. No restart opt-in. |
-| Co-op #3063 retry/resume | Audited head e2f61155ca368a9ac4e34da63400ecf81b2e8a50: launchCampaignEncounter checks progress.encounterId, reads the recorded encounter and returns its existing linked session when Launched. It does not invoke launch or the session-link endpoint on that resume path. Keep its checkpoint/idempotency behavior; do not turn it into a restart. |
+| Merged co-op #3063 retry/resume | Merged main a9759dfec01e6bfd940284fc48e21cab94b71a4c (same audited source as e2f61155ca368a9ac4e34da63400ecf81b2e8a50): launchCampaignEncounter checks progress.encounterId, reads the recorded encounter and returns its existing linked session when Launched. It does not invoke launch or the session-link endpoint on that resume path. Keep its checkpoint/idempotency behavior; do not turn it into a restart. |
 | Clone/template | Clones create fresh Draft/Ready rows without linkage. Template/configuration edits retain existing terminal guards; neither passes restart intent. |
 | `src/services/encounter/EncounterRepository.ts:258` transition validation | The sole guarded persistence boundary; ordinary reassignment is refused, explicit Launched restart is allowed, and completion must match the current link. |
 | `src/pages/api/replay-library/encounter.ts:333` transition validation | Never opts into restart. It rejects abandoned A before replay persistence or dedup completion once B is the stored link. |
@@ -33,3 +33,27 @@ encounter twice with seed 1337, then compares both marker sequences. Setup was
 extracted for reuse by an additional negative test; neither encounter identity
 nor equality semantics was changed. The new test refuses a session-link request
 and asserts a visible inline alert, no navigation and an enabled manual button.
+
+## Merged K15 checkpoints and authority
+
+- `src/lib/campaign/coop/coopMissionLaunchAttempt.ts:57`:
+  readRecordedCoopEncounter reads stored encounter links; it neither creates a
+  session nor requests a replacement link.
+- `src/lib/campaign/coop/launchCoopMission.ts:357`: the preparation path resolves
+  an already recorded encounter before building another launch operation.
+  Its launch progress at `:171` / `:288` / `:429` retains the remote match and
+  local encounter checkpoint across retry.
+- `src/lib/campaign/encounter/launchCampaignEncounter.ts:122`: progress.encounterId
+  reads the existing Launched row and returns its linked session without calling
+  launchEncounter again. This path deliberately never uses restart intent.
+- `src/lib/multiplayer/server/coopMissionCreate.ts:242`: authenticated actor must
+  match entry.hostPlayerId or creation fails with COOP_MISSION_HOST_REQUIRED.
+  The relaunch fix does not change this authorization boundary.
+
+The added real-SQLite row in coopMissionLaunchCheckpoint.test.ts loses the local
+response only after the guarded session link commits. Retry, cold checkpoint
+read and recorded-encounter resume retain session 1; the launch writer runs only
+once. Each accidental second writer call would use a distinct session ID and
+therefore meet the conservative reassignment guard. UI error history must not
+contain Cannot reassign encounter session. Disabling K15's existing-session
+resume makes this regression fail; the deliberate mutation was restored.

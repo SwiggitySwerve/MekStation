@@ -15,3 +15,5 @@
 - [x] 4.2 Record red restart regressions; allow only explicit pre-battle restart with atomic link replacement and current-session completion/replay protection.
 - [x] 4.3 Render a persistent refusal alert beside launch controls and prove it is in the viewport with retry enabled.
 - [x] 4.4 Run the unchanged same-encounter seed-equality scenario, its added negative UI case and all lane gates; re-anchor the pilot source citation by content.
+
+- [x] 4.5 Merge K15 main and prove that a lost local launch response retries and cold-resumes its recorded encounter without a second link writer.

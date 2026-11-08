@@ -125,8 +125,9 @@ allows pre-battle restarts of Launched encounters and requires visible refusal
 feedback. The E2E's same-encounter semantics remain unchanged.
 
 Fetched and fast-forwarded Root's branch head before work, then merged fetched
-main 240e3bf6cff974918bc6a415afc95e30571f0287 (merge
-b0d6b1883fab42ee8eb4e44380c5d54bc75f765d). No rebase or force push.
+main (merge b0d6b1883fab42ee8eb4e44380c5d54bc75f765d). A later fetch
+advanced origin/main; the subsequent K15 merge and final results are recorded
+below. No rebase or force push.
 
 - Restart regression tests were red before implementation: 5 failed, 82 passed.
 - Real-SQLite coverage now proves launch A -> explicit restart B -> completion A
@@ -170,3 +171,37 @@ Rule 4 source re-anchor: CombatConsciousnessSourceRefs.ts now cites the actual
 applyPilotToSelection-through-createInteractiveSkirmishSession region. Checked
 that both the assigned rpgToughness snapshot and pilotToughness transfer remain
 inside the cited content; full runner/catalog checks pass.
+
+## Merged K15 retry/resume follow-up
+
+At Root's update, merged main a9759dfec01e6bfd940284fc48e21cab94b71a4c into
+the existing branch (70306af74), without rebasing. This includes the actual
+K15 checkpoint paths and the other intervening main changes.
+
+Added a real-SQLite fault row to coopMissionLaunchCheckpoint.test.ts: lose the
+local response after the guarded link commits, then retry and cold-resume the
+recorded encounter. Session ID remains the first one, launch writer runs once,
+and no Cannot reassign encounter session error reaches the page. All four K15
+checkpoint scenarios pass. Disabling launchCampaignEncounter's existing-row
+resume deliberately makes this new test fail; restored the mutation afterward.
+
+Audited readRecordedCoopEncounter, progress through launchCoopMission and
+launchCampaignEncounter, and coopMissionCreate's host-only gate. None needs a
+policy widening or source change; see relaunch-audit.md for file:line evidence.
+The earlier deliberate removal of current-session completion equality also
+failed two encounter tests and was restored.
+
+Final merged-K15 gates:
+
+- Complete affected directories, full API/store/campaign/co-op/integration and
+  simulation runner, replay/digest/golden suites, and lint-units Jest suite:
+  453 suites / 6,841 tests passed, 32 skipped.
+- Requested E2E file on merged main: both scenarios passed in 26.6 seconds.
+- Exact combat command: 79 suites / 2,107 tests passed; script exited 0.
+- Both TypeScript configurations passed after the new co-op regression.
+- Lint: 63 warnings / 0 errors. lint:units: 17,075 / 17,085, all ceilings pass.
+- Budget: 3,089 indexed tests, 57 unkeyable / 57 allowed, 92 repository-wide keys.
+- Whole-tree formatting and git diff --check passed. Strict OpenSpec validation:
+  269 passed / 0 failed; CI ledger accounting 48 / 48.
+- No changes authored in this lane to committed fixtures, digests, replay schema
+  packs, event payload shapes, generated unit data or the legacy active ledger.
