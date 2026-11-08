@@ -109,7 +109,7 @@ export const LOCAL_SURVIVOR_COUNT_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runner isUnitOperable and isGameOver exclude destroyed, retreated, ejected, and unconscious units from terminal survivor checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L535-L561',
+    'L539-L565',
   ),
   mekstationDeviationRef(
     'MekStation terminal GameEnded event survivor checks exclude destroyed, retreated, ejected, and unconscious units.',

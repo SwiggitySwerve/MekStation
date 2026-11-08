@@ -24,6 +24,24 @@ journals replay unchanged because `StartupAttempt.success` is authoritative.
 Any changed committed fixture, digest, seeded snapshot, or exact-roll seeded
 expectation stops the lane for Root's decision; none may be regenerated.
 
+## Entry paths
+
+| Entry | Heat resolution and authority |
+| --- | --- |
+| Session API | resolveHeatPhase -> resolveHeatForUnit |
+| Interactive session | InteractiveSession.advancePhase -> InteractiveSession.phases -> resolveHeatPhase |
+| Engine phase helper | runInteractivePhaseAdvance -> resolveHeatPhase |
+| Complete game | GameEngine.runToCompletion -> resolveHeatPhase |
+| QuickResolve | QuickResolveService -> GameEngine.runToCompletion |
+| Quick game | useQuickGameStore.actions -> GameEngine.runToCompletion |
+| Pre-battle auto-resolve | usePreBattleLaunch -> GameEngine.runToCompletion |
+| Campaign fast-forward | fastForwardCombatRunner -> GameEngine.runToCompletion |
+| AI | InteractiveSession.runAITurn, complete-game and runner phase loops use their shared heat resolver |
+| Multiplayer dispatch | ServerMatchHostEngineDispatch -> InteractiveSession.advancePhase |
+| Multiplayer journal authority | decideCommandBatch hydrates a scratch session, dispatches the command, and commits emitted results; replay applies those recorded results |
+| P2P | translateEndPhase -> host adapter.advancePhase; mirrors apply host events |
+| Standalone simulation | SimulationRunner.run -> resetTurnState and runHeatPhase |
+
 ## Non-goals
 
 Replay migrations, payload/schema-pack changes, EMP presentation, construction,

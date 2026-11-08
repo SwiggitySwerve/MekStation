@@ -30,3 +30,14 @@ describe('EMP shutdown countdown characterization', () => {
     expect(advanceEmpShutdownTurns(remaining)).toBe(expected);
   });
 });
+
+describe('EMP startup gate', () => {
+  it.each([1, 6])(
+    'blocks startup with %s EMP rounds left',
+    (empShutdownTurns) => {
+      expect(
+        canAttemptHeatStartup({ shutdown: true, empShutdownTurns }, 0),
+      ).toBe(false);
+    },
+  );
+});

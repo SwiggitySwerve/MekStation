@@ -5,6 +5,8 @@ import type {
   IHexGrid,
 } from '@/types/gameplay';
 
+import { getHeatStartupShutdownAction } from '@/utils/gameplay/shutdownStartup';
+
 import type { IWeapon } from '../../ai/types';
 
 import { SeededRandom } from '../../core/SeededRandom';
@@ -76,6 +78,10 @@ export function runHeatPhase(options: {
       unit: accounting.unitAfterHeatAccounting,
       emission,
     });
+    const action = getHeatStartupShutdownAction(
+      heatPhaseUnit,
+      accounting.newHeat,
+    );
     heatPhaseUnit = applyHeatStartup({
       unit: heatPhaseUnit,
       unitId,
@@ -85,14 +91,17 @@ export function runHeatPhase(options: {
       emission,
     });
 
-    const shutdownResult = applyHeatShutdownCheck({
-      unit: heatPhaseUnit,
-      unitId,
-      heat: accounting.newHeat,
-      turn: currentState.turn,
-      hotDogTargetNumberModifier: accounting.hotDogTargetNumberModifier,
-      emission,
-    });
+    const shutdownResult =
+      action === 'shutdown-check'
+        ? applyHeatShutdownCheck({
+            unit: heatPhaseUnit,
+            unitId,
+            heat: accounting.newHeat,
+            turn: currentState.turn,
+            hotDogTargetNumberModifier: accounting.hotDogTargetNumberModifier,
+            emission,
+          })
+        : { unit: heatPhaseUnit, shutdown: heatPhaseUnit.shutdown ?? false };
     heatPhaseUnit = shutdownResult.unit;
 
     const ammoResult = applyHeatAmmoExplosions({

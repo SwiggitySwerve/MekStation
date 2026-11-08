@@ -5,10 +5,21 @@ The session resolver and standalone runner own event emission and injected dice.
 The replay reducer applies recorded `StartupAttempt.success` without deriving a
 new startup decision.
 
-The initial extraction preserves existing behavior: startup requires shutdown
-and heat no greater than `HEAT_THRESHOLDS.AUTO_SHUTDOWN - 1`. Session turn-start
-handling decrements EMP shutdown rounds with the existing truncation and zero
-clamp. The approved C10 behavior correction follows in a separate commit.
+Startup requires shutdown, heat no greater than
+`HEAT_THRESHOLDS.AUTO_SHUTDOWN - 1`, and no positive EMP shutdown rounds. Session
+turn-start handling and the runner decrement EMP shutdown rounds with the same
+truncation and zero clamp. Missing runner timers remain absent for compatibility.
+The existing interference countdown remains a separate effect and is unchanged.
+
+Choose startup or shutdown checking once, after dissipation and before startup.
+An already-shut-down unit does not check shutdown again, including after a
+successful restart. A conscious pilot rolls when the startup target is positive;
+a KO pilot emits a failed startup without consuming startup dice. Target zero
+still starts automatically. Existing Hot Dog target-number relief is unchanged.
+
+The first commit extracts the old startup guard and countdown unchanged. The
+second applies these rules. Newly resolved thermal/EMP shutdowns may change RNG
+consumption and outcomes; old event journals retain their recorded outcomes.
 
 Pinned rules: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
 
