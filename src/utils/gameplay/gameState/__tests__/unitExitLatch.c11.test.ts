@@ -1,3 +1,4 @@
+import { translateIntentToEvents } from '@/lib/p2p/intentTranslation';
 /**
  * C11 exit latches. A unit leaves the battle once: destroyed, ejected or
  * retreated, whichever event lands first. The retreat and withdrawal
@@ -5,8 +6,6 @@
  * The reducer enforces this; P2P translation and the non-interactive
  * store eject do not guard, so the reducer is the backstop for them.
  */
-
-import { translateIntentToEvents } from '@/lib/p2p/intentTranslation';
 import {
   buildEjectIntent,
   buildWithdrawIntent,
@@ -25,6 +24,7 @@ import {
   createUnitRetreatedEvent,
   createWithdrawalDeclaredEvent,
 } from '@/utils/gameplay/gameEvents';
+import { createPhysicalAttackResolvedEvent } from '@/utils/gameplay/gameEvents/statusPhysical';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 import { appendEvent } from '@/utils/gameplay/gameSessionCore';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale/withdrawalProcessing';
@@ -220,4 +220,33 @@ describe('C11: unguarded entry paths fall back on the reducer', () => {
     const after = declarePlayerWithdrawal(before, UNIT, 'south');
     expect(after.events).toHaveLength(before.events.length);
   });
+});
+
+it('C9: P2P ejection releases both grapple participants through the canonical fold', () => {
+  let session = newSession();
+  session = appendEvent(
+    session,
+    createPhysicalAttackResolvedEvent(
+      session.id,
+      session.events.length,
+      session.currentState.turn,
+      UNIT,
+      'host-0',
+      'grapple',
+      12,
+      2,
+      true,
+      0,
+    ),
+  );
+  const translated = translateIntentToEvents(
+    buildEjectIntent(GUEST_PEER, { unitId: UNIT }),
+    session,
+  );
+  if (!translated.ok) throw new Error('expected owned eject');
+  session = translated.events.reduce(appendEvent, session);
+  expect(session.currentState.units['host-0'].grappledUnitId).toBeUndefined();
+  expect(deriveState(session.id, session.events).units).toEqual(
+    session.currentState.units,
+  );
 });

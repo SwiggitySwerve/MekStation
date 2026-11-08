@@ -8,6 +8,7 @@ import {
   resolveBattleMechAmmoExplosionPilotDamage,
   type CASEProtectionLevel,
 } from '@/utils/gameplay/ammoTracking';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import { applyPilotDamage } from '@/utils/gameplay/damage';
 
 import { buildDamageState } from '../SimulationRunnerState';
@@ -100,7 +101,7 @@ export function applyAmmoExplosionPilotDamage(
   );
 
   return {
-    currentState: updatedState,
+    currentState: clearAttackLinks(updatedState, targetId),
     pilotDestroyed: pilotDamage.result.dead,
   };
 }

@@ -4,6 +4,7 @@ import {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import { releasedGrappleState } from '@/utils/gameplay/attackLinks';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
@@ -200,18 +201,21 @@ export function applyDfaMissFallPilotDamage(options: {
     });
   }
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [unitId]: {
-        ...unit,
-        pilotWounds: totalWounds,
-        pilotConscious,
-        edgePointsRemaining:
-          consciousnessCheck.edgePointsRemaining ?? unit.edgePointsRemaining,
-        destroyed: pilotKilled ? true : unit.destroyed,
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [unitId]: {
+          ...unit,
+          pilotWounds: totalWounds,
+          pilotConscious,
+          edgePointsRemaining:
+            consciousnessCheck.edgePointsRemaining ?? unit.edgePointsRemaining,
+          destroyed: pilotKilled ? true : unit.destroyed,
+        },
       },
     },
-  };
+    unitId,
+  );
 }

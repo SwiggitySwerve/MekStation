@@ -13,6 +13,7 @@ import {
   type IPhysicalDisplacement,
   type IPhysicalDominoStepOutDecisionPayload,
 } from '@/types/gameplay';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 
 import { appendUnitDestroyedEvent, createGameEvent } from './utils';
 
@@ -120,16 +121,19 @@ function markUnitDestroyed(state: IGameState, unitId: string): IGameState {
   const unit = state.units[unitId];
   if (!unit || unit.destroyed) return state;
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [unitId]: {
-        ...unit,
-        destroyed: true,
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [unitId]: {
+          ...unit,
+          destroyed: true,
+        },
       },
     },
-  };
+    unitId,
+  );
 }
 
 export function applyImpossibleDisplacementDestruction(options: {

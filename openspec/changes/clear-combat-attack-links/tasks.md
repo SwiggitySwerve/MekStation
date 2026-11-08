@@ -2,15 +2,15 @@
 
 - [x] 1.1 Record unchanged-main replay/digest/golden baseline.
 - [x] 1.2 Characterize existing grapple release and squad detach key shapes.
-- [ ] 1.3 Consolidate release helpers, verify unchanged results and commit.
+- [x] 1.3 Consolidate release helpers, verify unchanged results and commit.
 
 ## 2. C9 behavior
 
-- [ ] 2.1 Record failing exit matrix and runner tests before implementing.
-- [ ] 2.2 Clear both outgoing and inbound attack links at accepted exits.
+- [x] 2.1 Record failing exit matrix and runner tests before implementing.
+- [x] 2.2 Clear both outgoing and inbound attack links at accepted exits.
 - [ ] 2.3 Cover direct destruction writes and runner commits with the same owner.
-- [ ] 2.4 Pin grappled withdrawal reachability and document parity follow-ups.
-- [ ] 2.5 Kill inbound, destroyed, ejected and retreated cleanup mutants.
+- [x] 2.4 Pin grappled withdrawal reachability and document parity follow-ups.
+- [x] 2.5 Kill inbound, destroyed, ejected and retreated cleanup mutants.
 
 ## 3. Verification and draft PR
 
