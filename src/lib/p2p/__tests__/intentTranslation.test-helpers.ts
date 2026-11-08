@@ -8,6 +8,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 
 import {
   GamePhase,
+  LockState,
   GameSide,
   GameStatus,
   type IGameEvent,
@@ -895,3 +896,36 @@ it('rejects declareAttack when weaponAttacks contains malformed weapon data', ()
   if (result.ok) return;
   expect(result.reason).toBe('malformed-payload');
 });
+
+it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
+  'refuses committed ranged and physical P2P declarations in %s',
+  (lockState) => {
+    for (const phase of [GamePhase.WeaponAttack, GamePhase.PhysicalAttack]) {
+      const session = withPhase(fixtureSession(), phase);
+      session.currentState.units['guest-0'] = {
+        ...session.currentState.units['guest-0'],
+        lockState,
+      };
+      const before = JSON.stringify(session);
+      const intent =
+        phase === GamePhase.WeaponAttack
+          ? buildDeclareAttackIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              weapons: ['ml-1'],
+              toHitNumber: 7,
+            })
+          : buildDeclarePhysicalIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              attackType: 'punch',
+            });
+      expect(translateIntentToEvents(intent, session, authority())).toEqual({
+        ok: false,
+        reason: 'unsupported-intent',
+        detail: 'unit-already-committed',
+      });
+      expect(JSON.stringify(session)).toBe(before);
+    }
+  },
+);

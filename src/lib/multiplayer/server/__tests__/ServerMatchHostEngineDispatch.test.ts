@@ -1,6 +1,7 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 
-import { MovementType } from '@/types/gameplay';
+import { LockState, GameSide, MovementType } from '@/types/gameplay';
+import { createGameSession } from '@/utils/gameplay/gameSession';
 
 import { dispatchToEngine } from '../ServerMatchHostEngineDispatch';
 
@@ -47,6 +48,7 @@ describe('dispatchToEngine', () => {
   it('routes Physical wire intents to InteractiveSession.applyPhysicalAttack', () => {
     const physicalCalls: Array<readonly [string, string, string]> = [];
     const session = {
+      getSession: () => ({ currentState: { units: {} } }),
       applyPhysicalAttack: (
         attackerId: string,
         targetId: string,
@@ -172,4 +174,39 @@ describe('dispatchToEngine', () => {
 
     expect(withdrawals).toEqual([['player-1', 'north']]);
   });
+});
+
+it('refuses a committed physical actor before dispatch', () => {
+  const state = createGameSession(
+    { mapRadius: 7, turnLimit: 5, victoryConditions: [], optionalRules: [] },
+    [
+      {
+        id: 'player-1',
+        name: 'Player',
+        side: GameSide.Player,
+        unitRef: 'player',
+        pilotRef: 'pilot',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ],
+  );
+  state.currentState.units['player-1'] = {
+    ...state.currentState.units['player-1'],
+    lockState: LockState.Locked,
+  };
+  const applyPhysicalAttack = jest.fn();
+  const session = {
+    getSession: () => state,
+    applyPhysicalAttack,
+  } as unknown as InteractiveSession;
+  expect(() =>
+    dispatchToEngine(session, {
+      kind: 'Physical',
+      attackerId: 'player-1',
+      targetId: 'opponent-1',
+      attackType: 'punch',
+    }),
+  ).toThrow('unit-already-committed');
+  expect(applyPhysicalAttack).not.toHaveBeenCalled();
 });

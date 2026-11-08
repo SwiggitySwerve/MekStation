@@ -9,7 +9,6 @@ import {
   type IGameEvent,
   type IGameSession,
   type IUnitGameState,
-  LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -28,6 +27,7 @@ import {
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
+import { isActivationComplete } from '@/utils/gameplay/gameSessionActivation';
 import {
   canActInPhysicalAttack,
   lockPhysicalAttack,
@@ -278,14 +278,6 @@ function runInteractiveSessionWeaponAI(
     }
     setSession(lockAttack(session, unitId));
   }
-}
-
-function isActivationComplete(unit: IUnitGameState): boolean {
-  return (
-    unit.lockState === LockState.Locked ||
-    unit.lockState === LockState.Revealed ||
-    unit.lockState === LockState.Resolved
-  );
 }
 
 function runInteractiveSessionPhysicalAI(

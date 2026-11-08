@@ -6,6 +6,10 @@ import {
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import {
+  COMMITTED_DECLARATION_REASON,
+  isActivationComplete,
+} from '@/utils/gameplay/gameSessionActivation';
 
 type EngineIntent = Exclude<
   IIntent['intent'],
@@ -57,9 +61,11 @@ const ENGINE_INTENT_HANDLERS: EngineIntentHandlers = {
     session.torsoTwist(intent.unitId, intent.secondaryFacing as Facing);
   },
   Attack: (session, intent) => {
+    assertDeclarationOpen(session, intent.attackerId);
     session.applyAttack(intent.attackerId, intent.targetId, intent.weaponIds);
   },
   Physical: (session, intent) => {
+    assertDeclarationOpen(session, intent.attackerId);
     session.applyPhysicalAttack(
       intent.attackerId,
       intent.targetId,
@@ -84,6 +90,16 @@ const ENGINE_INTENT_HANDLERS: EngineIntentHandlers = {
     session.concede(side);
   },
 };
+
+function assertDeclarationOpen(
+  session: InteractiveSession,
+  unitId: string,
+): void {
+  const unit = session.getSession().currentState.units[unitId];
+  if (unit && isActivationComplete(unit)) {
+    throw new Error(COMMITTED_DECLARATION_REASON);
+  }
+}
 
 const LOBBY_INTENT_KINDS = new Set<IIntent['intent']['kind']>([
   'OccupySeat',

@@ -20,6 +20,7 @@ import {
   createPhysicalAttackDeclaredEvent,
   createPhysicalAttackResolvedEvent,
 } from './gameEvents';
+import { isActivationComplete } from './gameSessionActivation';
 import { appendEvent } from './gameSessionCore';
 import { buildRestrictionEventReason } from './gameSessionPhysicalHelpers';
 import { buildPhysicalAttackInput } from './gameSessionPhysicalInput';
@@ -113,6 +114,7 @@ export function declarePhysicalAttack(
   if (!attackerState || attackerState.destroyed) {
     return session;
   }
+  if (isActivationComplete(attackerState)) return session;
   const targetState = session.currentState.units[targetId];
   if (!isSupportedPhysicalAttackType(attackType)) {
     return session;

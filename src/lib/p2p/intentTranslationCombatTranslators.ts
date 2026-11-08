@@ -14,6 +14,10 @@ import {
   createMovementLockedEvent,
 } from '@/utils/gameplay/gameEvents/movement';
 import { declareAttack } from '@/utils/gameplay/gameSession';
+import {
+  COMMITTED_DECLARATION_REASON,
+  isActivationComplete,
+} from '@/utils/gameplay/gameSessionActivation';
 import { hexEquals } from '@/utils/gameplay/hexMath';
 import {
   buildMovementEventPath,
@@ -156,6 +160,15 @@ export function translateDeclareAttack(
     !canLocalPeerControlUnit(session, intent.authorPeerId, payload.attackerId)
   ) {
     return { ok: false, reason: 'unowned-unit' };
+  }
+
+  const attacker = session.currentState.units[payload.attackerId];
+  if (attacker && isActivationComplete(attacker)) {
+    return {
+      ok: false,
+      reason: 'unsupported-intent',
+      detail: COMMITTED_DECLARATION_REASON,
+    };
   }
 
   const weaponsByUnit = authority?.weaponsByUnit;
