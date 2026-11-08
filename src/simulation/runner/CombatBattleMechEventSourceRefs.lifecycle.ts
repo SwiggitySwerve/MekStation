@@ -67,7 +67,7 @@ export const BATTLEMECH_ATTACK_REVEAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation reducer applies AttacksRevealed by moving locked weapon-phase units to the replayable Revealed lock state.',
     'src/utils/gameplay/gameState/actionLocking.ts',
-    'L157-L205',
+    'L158-L206',
   ),
   mekstationDeviationSourceRef(
     'MekStation event dispatch routes AttacksRevealed events into the action-locking replay helper.',

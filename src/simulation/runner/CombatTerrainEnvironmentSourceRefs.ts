@@ -162,9 +162,9 @@ const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, skidding, and movement-step stamped building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
+  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, swamp unstuck, skidding, and movement-step stamped building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
   'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-  'L94-L245',
+  'L103-L281',
 );
 
 const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
@@ -284,12 +284,50 @@ const MEKSTATION_SWAMP_UNSTUCK_CODE_SOURCE_REF = mekstationDeviationSourceRef(
   'L57',
 );
 
+const MEKSTATION_SWAMP_UNSTUCK_FACTORY_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation createSwampUnstuckPSR adds +1 swamp terrain and +3 quicksand modifiers to the recovery roll; only biped and quad leg profiles are represented.',
+    'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
+    'L239-L264',
+  );
+
+const MEKSTATION_SWAMP_UNSTUCK_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation runStuckRecoveryRolls rolls every stuck unit that can act before runner movement; success clears stuck and jump eligibility, failure changes nothing.',
+  'src/simulation/runner/phases/movementStuckRecovery.ts',
+  'L38-L52',
+);
+
+const MEKSTATION_SWAMP_UNSTUCK_STATE_SOURCE_REF = mekstationDeviationSourceRef(
+  'MekStation stuckState blocks stuck movement except an eligible jump, clears stuck without writing a false eligibility key, frees an eligible unit that jumps, and grants eligibility only for a failed movement-step bog-down.',
+  'src/utils/gameplay/movement/stuckState.ts',
+  'L16-L62',
+);
+
+const MEKSTATION_SWAMP_UNSTUCK_REDUCER_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation applyPSRResolved frees a stuck unit on a passed swamp_unstuck roll so replay matches the runner.',
+    'src/utils/gameplay/gameState/pilotingState.ts',
+    'L45-L62',
+  );
+
+const MEKSTATION_SWAMP_BOG_DOWN_ELIGIBILITY_SOURCE_REF =
+  mekstationDeviationSourceRef(
+    'MekStation applyPsrStuckResult records canUnstickByJumping on the unit and UnitStuck payload only for a failed movement-step bog-down.',
+    'src/simulation/runner/phases/postCombatPsr.ts',
+    'L76-L121',
+  );
+
 export const SWAMP_UNSTUCK_PSR_SOURCE_REFS = [
   MEGAMEK_SWAMP_UNSTUCK_MOVEMENT_START_SOURCE_REF,
   MEGAMEK_SWAMP_UNSTUCK_ROLL_SOURCE_REF,
   MEGAMEK_SWAMP_UNSTUCK_MODIFIER_SOURCE_REF,
   MEGAMEK_SWAMP_UNSTICK_BY_JUMPING_SOURCE_REF,
   MEKSTATION_SWAMP_UNSTUCK_CODE_SOURCE_REF,
+  MEKSTATION_SWAMP_UNSTUCK_FACTORY_SOURCE_REF,
+  MEKSTATION_SWAMP_UNSTUCK_RUNNER_SOURCE_REF,
+  MEKSTATION_SWAMP_UNSTUCK_STATE_SOURCE_REF,
+  MEKSTATION_SWAMP_UNSTUCK_REDUCER_SOURCE_REF,
+  MEKSTATION_SWAMP_BOG_DOWN_ELIGIBILITY_SOURCE_REF,
 ];
 
 export function terrainLosSourceRefs(

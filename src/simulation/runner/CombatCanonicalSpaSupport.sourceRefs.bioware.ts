@@ -20,7 +20,7 @@ export const CANONICAL_BIOWARE_NEURAL_INTERFACE_SOURCE_REFS = [
   canonicalSpaSourceRef(
     'mekstation-deviation',
     'MekStation unit combat state carries explicit neuralInterfaceActive for represented VDNI/BVDNI jack-in state, preserving legacy implicit-active behavior when absent.',
-    'src/types/gameplay/GameSessionStateTypes.ts#L548-L553',
+    'src/types/gameplay/GameSessionStateTypes.ts#L554-L559',
     'MekStation working-tree',
   ),
   canonicalSpaSourceRef(

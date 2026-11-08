@@ -22,7 +22,7 @@ const LOCAL_ACTION_ACTOR_REMOVAL_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runner movement phase skips destroyed, retreated, ejected, shutdown, and unconscious actors before movement planning.',
     'src/simulation/runner/phases/movementUnitTurn.ts',
-    'L169-L177',
+    'L172-L180',
   ),
   mekstationDeviationRef(
     'MekStation runner weapon phase skips destroyed, retreated, ejected, shutdown, and unconscious attackers before target selection.',
@@ -109,7 +109,7 @@ export const LOCAL_SURVIVOR_COUNT_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runner isUnitOperable and isGameOver exclude destroyed, retreated, ejected, and unconscious units from terminal survivor checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L534-L560',
+    'L535-L561',
   ),
   mekstationDeviationRef(
     'MekStation terminal GameEnded event survivor checks exclude destroyed, retreated, ejected, and unconscious units.',

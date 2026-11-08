@@ -15,6 +15,15 @@ interface ISwampBogDownPSROptions {
   readonly swampDepth?: number;
 }
 
+interface ISwampUnstuckPSROptions {
+  readonly swampDepth?: number;
+}
+
+/** MegaMek Terrain.applyPilotingModifier: swamp is +1 for biped and quad Meks. */
+const SWAMP_TERRAIN_PILOTING_MODIFIER = 1;
+/** MegaMek Terrain.getUnstuckModifier: quicksand (swamp level > 1) is +3 at ground elevation. */
+const QUICKSAND_UNSTUCK_MODIFIER = 3;
+
 /**
  * Per `enrich-movement-declared-with-chain-and-displacement` (piloting-skill-rolls
  * delta — Movement-Step PSR Trigger-Source Stamping): when a PSR fires
@@ -224,6 +233,33 @@ export function createSwampBogDownPSR(
       ? { fixedTargetNumber: Number.POSITIVE_INFINITY }
       : {}),
     triggerSource: movementStepSource ?? PSRTrigger.SwampBogDown,
+  };
+}
+
+/**
+ * Create the movement-start roll a stuck unit makes to break free of a swamp
+ * (MegaMek 48fcb2f64 TWGameManager.doTryUnstuck, L31368-L31419): base
+ * piloting, plus the swamp terrain modifier, plus the unstuck modifier (0 for
+ * swamp, +3 for quicksand). MekStation represents only biped and quad leg
+ * profiles, so the swamp terrain modifier is always +1. No Swamp Beast or
+ * difficult-terrain adjustment applies.
+ */
+export function createSwampUnstuckPSR(
+  entityId: string,
+  options: ISwampUnstuckPSROptions = {},
+): IPendingPSR {
+  const swampDepth = normalizeTerrainLevel(options.swampDepth);
+  const inSwamp = swampDepth !== undefined && swampDepth > 0;
+  const inQuicksand = swampDepth !== undefined && swampDepth > 1;
+  return {
+    entityId,
+    reason: 'Break free of swamp',
+    reasonCode: PSRTrigger.SwampUnstuck,
+    additionalModifier:
+      (inSwamp ? SWAMP_TERRAIN_PILOTING_MODIFIER : 0) +
+      (inQuicksand ? QUICKSAND_UNSTUCK_MODIFIER : 0),
+    ...(swampDepth !== undefined ? { terrainLevel: swampDepth } : {}),
+    triggerSource: PSRTrigger.SwampUnstuck,
   };
 }
 

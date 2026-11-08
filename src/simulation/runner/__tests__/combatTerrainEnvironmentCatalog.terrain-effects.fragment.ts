@@ -234,7 +234,7 @@ describe('BattleMech terrain and environment combat support catalog', () => {
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L245',
+            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L103-L281',
           }),
         ]),
       );

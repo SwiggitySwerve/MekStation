@@ -151,7 +151,7 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs, failed falls, failed bog-down stuck outcomes, and pilot-death UnitDestroyed events.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L75-L236',
+    'L76-L243',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner heat lifecycle emits shutdown checks and queues shutdown PSRs after heat shutdown.',

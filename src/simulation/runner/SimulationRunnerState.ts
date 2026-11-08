@@ -23,6 +23,7 @@ import {
   movementStepsUseBackwardMovement,
   movementStepsUseMechanicalJumpBooster,
 } from '@/utils/gameplay/movement/stepPredicates';
+import { applyJumpUnstick } from '@/utils/gameplay/movement/stuckState';
 import {
   deriveObjectivePlacementConfig,
   placeObjectives,
@@ -367,7 +368,7 @@ export function applyMovementEvent(
   const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
-    ...unit,
+    ...applyJumpUnstick(unit, payload.movementType),
     position: payload.to,
     facing: payload.facing,
     movementThisTurn: payload.movementType,

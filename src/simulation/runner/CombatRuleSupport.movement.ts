@@ -58,12 +58,12 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation clearGoProneSwarmers clears attached squad swarm state and emits SwarmDismounted with cause go_prone_dislodgement.',
         'src/simulation/runner/phases/movementUnitTurn.ts',
-        'L300-L351',
+        'L303-L354',
       ),
       mekstationDeviationSourceRef(
         'MekStation GO_PRONE movement calls clearGoProneSwarmers after the BattleMech prone state is committed.',
         'src/simulation/runner/phases/movementUnitTurn.ts',
-        'L230-L267',
+        'L233-L270',
       ),
       mekstationDeviationSourceRef(
         'MekStation applySwarmDismounted clears isSwarming and swarmingUnitId from replayed swarmer state.',
@@ -90,12 +90,12 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation createGoPronePayload records the go-prone MP cost into the MovementDeclared payload and go-prone movement step.',
         'src/simulation/runner/phases/movementUnitTurn.ts',
-        'L270-L298',
+        'L273-L301',
       ),
       mekstationDeviationSourceRef(
         'MekStation applyMovementEvent marks committed go-prone movement prone and clears hullDown on go-prone steps.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L364-L385',
+        'L365-L386',
       ),
     ],
   ),
@@ -107,7 +107,7 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation validateMovement rejects follow-up movement from a start hex occupied by another unit while leaving same-hex posture actions legal.',
         'src/utils/gameplay/movement/validation.ts',
-        'L80-L101',
+        'L81-L102',
       ),
       mekstationDeviationSourceRef(
         'MekStation deriveMovementRangeHexForDestination marks follow-up movement from another-unit occupied start hexes blocked in movement projection.',
@@ -129,12 +129,12 @@ export const MOVEMENT_RULE_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation runner applyMovementEvent clears infernoBurning when a GO_PRONE movement step is committed.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L382-L384',
+        'L383-L385',
       ),
       mekstationDeviationSourceRef(
         'MekStation interactive applyMovementDeclared clears infernoBurning for GO_PRONE movement events.',
         'src/utils/gameplay/gameState/actionLocking.ts',
-        'L29-L82',
+        'L30-L83',
       ),
       mekstationDeviationSourceRef(
         'MekStation runner movement tests prove GO_PRONE clears explicit infernoBurning state while preserving source-backed posture behavior.',

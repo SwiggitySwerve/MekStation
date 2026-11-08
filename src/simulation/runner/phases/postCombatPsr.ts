@@ -15,6 +15,7 @@ import {
 } from '@/utils/gameplay/criticalHitResolution';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
 import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
+import { failedBogDownGrantsJumpUnstick } from '@/utils/gameplay/movement/stuckState';
 
 import { SeededRandom } from '../../core/SeededRandom';
 import {
@@ -80,6 +81,10 @@ function applyPsrStuckResult(options: {
 }): IGameState {
   const { batchResult, runtime, state, unitId } = options;
   const failedPsr = batchResult.failedResult;
+  const eligibility =
+    failedPsr && failedBogDownGrantsJumpUnstick(failedPsr.psr)
+      ? { canUnstickByJumping: true }
+      : {};
   const nextState = {
     ...state,
     units: {
@@ -87,6 +92,7 @@ function applyPsrStuckResult(options: {
       [unitId]: {
         ...batchResult.unit,
         isStuck: true,
+        ...eligibility,
         pendingPSRs: [],
       },
     },
@@ -105,6 +111,7 @@ function applyPsrStuckResult(options: {
         ...(failedPsr?.psr.reasonCode !== undefined
           ? { reasonCode: failedPsr.psr.reasonCode }
           : {}),
+        ...eligibility,
       },
       unitId,
     ),

@@ -119,7 +119,6 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'featureSupport.mechQuirks.rugged_2',
       'lifecycleAndPsr.psrTriggers.charge_miss',
       'lifecycleAndPsr.psrTriggers.dfa_miss',
-      'lifecycleAndPsr.psrTriggers.swamp_unstuck',
       'pilotSkills.pilotModifierResolvers.campaign-maintenance-application',
       'pilotSkills.pilotModifierResolvers.target-priority-application',
       'pilotSkills.pilotModifierResolvers.anti-mek-actuator-application',
@@ -157,7 +156,7 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'actions.wireIntents.SetReady',
     ]),
   );
-  expect(outOfScopeRows).toHaveLength(150);
+  expect(outOfScopeRows).toHaveLength(149);
   expect(
     outOfScopeRows.find(
       (row) =>
@@ -411,7 +410,6 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
   ).toEqual([
     'lifecycleAndPsr.psrTriggers.charge_miss',
     'lifecycleAndPsr.psrTriggers.dfa_miss',
-    'lifecycleAndPsr.psrTriggers.swamp_unstuck',
   ]);
   expect(
     outOfScopeRefs.filter((ref) =>

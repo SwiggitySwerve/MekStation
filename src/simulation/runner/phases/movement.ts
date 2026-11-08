@@ -13,6 +13,7 @@ import type { SeededRandom } from '../../core/SeededRandom';
 import type { InvariantRunner } from '../../invariants/InvariantRunner';
 import type { IViolation } from '../../invariants/types';
 
+import { runStuckRecoveryRolls } from './movementStuckRecovery';
 import { runMovementUnitTurn } from './movementUnitTurn';
 import { createD6Roller } from './utils';
 
@@ -53,6 +54,13 @@ export function runMovementPhase(options: {
   let currentState = { ...state, phase: GamePhase.Movement };
   const d6Roller = random ? createD6Roller(random) : () => 6;
   violations.push(...invariantRunner.runAll(currentState));
+  currentState = runStuckRecoveryRolls({
+    currentState,
+    events,
+    gameId,
+    grid,
+    d6Roller,
+  });
 
   for (const unitId of Object.keys(currentState.units)) {
     currentState = runMovementUnitTurn({
