@@ -14,6 +14,7 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import type { IMatchPausedInfo } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
 import type { ICommandCommitResult } from '@/types/command-screen';
 import type {
@@ -136,11 +137,7 @@ interface IRenderOptions {
   readonly playerId?: string;
   readonly status?: 'connecting' | 'ready' | 'paused' | 'closed' | 'error';
   readonly intentError?: { code?: string; reason?: string } | null;
-  readonly pausedInfo?: {
-    pendingSlots: readonly string[];
-    graceRemainingMs: number;
-    pendingExpiresAtMs: number | null;
-  } | null;
+  readonly pausedInfo?: IMatchPausedInfo | null;
   readonly closedInfo?: { code?: string; reason?: string } | null;
   readonly onSendGameIntent?: jest.Mock;
   readonly hostPlayerId?: string | null;
@@ -414,6 +411,7 @@ describe('NetworkedGameSurface — lifecycle', () => {
     renderSurface({
       status: 'paused',
       pausedInfo: {
+        reason: 'peer-pending',
         pendingSlots: ['bravo-1'],
         graceRemainingMs: 30_000,
         pendingExpiresAtMs: null,
@@ -421,7 +419,60 @@ describe('NetworkedGameSurface — lifecycle', () => {
     });
     const overlay = screen.getByTestId('match-pause-overlay');
     expect(overlay).toBeInTheDocument();
-    expect(overlay).toHaveTextContent('bravo-1');
+    expect(overlay).toHaveAccessibleName('Match Paused');
+    expect(overlay).toHaveTextContent('Waiting for bravo-1 to reconnect.');
+    expect(screen.getByTestId('match-pause-countdown')).toHaveTextContent(
+      '30s',
+    );
+  });
+
+  it.each([
+    ['gm-absent', 'Waiting for the GM to return.'],
+    [
+      'opponent-fault',
+      'The server opponent hit an error; rejoining the match retries it.',
+    ],
+  ] as const)(
+    'names the %s pause in one sentence without a countdown',
+    (reason, message) => {
+      renderSurface({
+        status: 'paused',
+        pausedInfo: {
+          reason,
+          pendingSlots: [],
+          graceRemainingMs: 0,
+          pendingExpiresAtMs: null,
+        },
+      });
+      const overlay = screen.getByTestId('match-pause-overlay');
+      expect(screen.getByTestId('match-pause-reason')).toHaveTextContent(
+        message,
+      );
+      expect(overlay).not.toHaveTextContent(/reconnect\./);
+      expect(overlay).not.toHaveTextContent(/forfeit/i);
+      expect(
+        screen.queryByTestId('match-pause-countdown'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('advance-phase-button')).toBeDisabled();
+    },
+  );
+
+  it('shows the GM wait and the pending seat countdown together', () => {
+    renderSurface({
+      status: 'paused',
+      pausedInfo: {
+        reason: 'gm-absent',
+        pendingSlots: ['bravo-1'],
+        graceRemainingMs: 30_000,
+        pendingExpiresAtMs: null,
+      },
+    });
+    const overlay = screen.getByTestId('match-pause-overlay');
+    expect(overlay).toHaveTextContent('Waiting for the GM to return.');
+    expect(overlay).toHaveTextContent('Waiting for bravo-1 to reconnect.');
+    expect(screen.getByTestId('match-pause-countdown')).toHaveTextContent(
+      '30s',
+    );
   });
 
   it('disables intent controls while paused', () => {
@@ -429,6 +480,7 @@ describe('NetworkedGameSurface — lifecycle', () => {
       playerId: 'pid_host',
       status: 'paused',
       pausedInfo: {
+        reason: 'peer-pending',
         pendingSlots: ['bravo-1'],
         graceRemainingMs: 30_000,
         pendingExpiresAtMs: null,

@@ -183,6 +183,7 @@ export const Paused: Story = {
     playerId: 'pid_host',
     status: 'paused',
     pausedInfo: {
+      reason: 'peer-pending',
       pendingSlots: ['bravo-1'],
       graceRemainingMs: 45_000,
       pendingExpiresAtMs: null,

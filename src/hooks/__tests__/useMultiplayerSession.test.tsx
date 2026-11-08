@@ -186,6 +186,118 @@ describe('useMultiplayerSession terminal lifecycle', () => {
   });
 });
 
+function reasonPause(
+  reason: 'gm-absent' | 'opponent-fault',
+  pendingSlots: readonly string[] = [],
+): IServerMessage {
+  return pendingSlots.length > 0
+    ? {
+        kind: 'MatchPaused',
+        matchId: 'match-1',
+        ts,
+        reason,
+        pendingSlots: [...pendingSlots],
+        graceRemainingMs: 30_000,
+        pendingExpiresAtMs: 40_000,
+      }
+    : { kind: 'MatchPaused', matchId: 'match-1', ts, reason, pendingSlots: [] };
+}
+
+describe('useMultiplayerSession pause reasons', () => {
+  beforeEach(() => useGameplayStore.getState().reset());
+  afterEach(() => useGameplayStore.getState().reset());
+
+  it.each([
+    ['gm-absent', 'Waiting for the GM to return.'],
+    [
+      'opponent-fault',
+      'The server opponent hit an error; rejoining the match retries it.',
+    ],
+  ] as const)(
+    'pauses on %s without inventing a reconnect grace',
+    (reason, message) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(reasonPause(reason)));
+      expect(result.current.status).toBe('paused');
+      expect(result.current.pausedInfo).toEqual({
+        reason,
+        pendingSlots: [],
+        graceRemainingMs: 0,
+        pendingExpiresAtMs: null,
+      });
+      expect(result.current.error).toEqual({
+        code: 'MATCH_PAUSED',
+        reason: message,
+      });
+      expect(useGameplayStore.getState()).toMatchObject({
+        localMatchStatus: 'live',
+        localMatchGraceDeadlineMs: null,
+        localMatchGraceRemainingMs: null,
+      });
+      unmount();
+    },
+  );
+
+  it('drops the peer grace when the snapshot no longer names a pending seat', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    act(() => sockets[0].emit(pauseMessage));
+    expect(useGameplayStore.getState().localMatchStatus).toBe('hostPending');
+    act(() => sockets[0].emit(reasonPause('gm-absent')));
+    expect(result.current.status).toBe('paused');
+    expect(result.current.pausedInfo?.reason).toBe('gm-absent');
+    expect(useGameplayStore.getState()).toMatchObject({
+      localMatchStatus: 'live',
+      localMatchGraceDeadlineMs: null,
+    });
+    unmount();
+  });
+
+  it('keeps the peer grace when a GM-absent snapshot still names a pending seat', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    act(() => sockets[0].emit(reasonPause('gm-absent', ['bravo-1'])));
+    expect(result.current.pausedInfo).toEqual({
+      reason: 'gm-absent',
+      pendingSlots: ['bravo-1'],
+      graceRemainingMs: 30_000,
+      pendingExpiresAtMs: 40_000,
+    });
+    expect(useGameplayStore.getState()).toMatchObject({
+      localMatchStatus: 'hostPending',
+      localMatchGraceDeadlineMs: 40_000,
+    });
+    unmount();
+  });
+
+  it.each(['gm-absent', 'opponent-fault'] as const)(
+    'clears a %s pause on MatchResumed',
+    (reason) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(reasonPause(reason)));
+      act(() =>
+        sockets[0].emit({ kind: 'MatchResumed', matchId: 'match-1', ts }),
+      );
+      expect(result.current.status).toBe('ready');
+      expect(result.current.pausedInfo).toBeNull();
+      expect(result.current.error).toBeNull();
+      unmount();
+    },
+  );
+
+  it.each(['gm-absent', 'opponent-fault'] as const)(
+    'keeps a timed-out match aborted through a %s pause',
+    (reason) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(timeoutMessage));
+      const aborted = useGameplayStore.getState();
+      act(() => sockets[0].emit(reasonPause(reason)));
+      expect(result.current.status).toBe('error');
+      expect(result.current.pausedInfo).toBeNull();
+      expect(useGameplayStore.getState()).toBe(aborted);
+      unmount();
+    },
+  );
+});
+
 describe('useMultiplayerSession reconnect lifecycle', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();

@@ -15,6 +15,7 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { connect } from '@/lib/multiplayer/client';
+import { MATCH_PAUSE_MESSAGES } from '@/lib/multiplayer/matchPauseCopy';
 import { projectionSignalFromServerError } from '@/lib/multiplayer/tacticalLifecycleState';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
@@ -233,27 +234,43 @@ function handleMatchPaused(
   const store = useGameplayStore.getState();
   if (store.localMatchStatus === 'aborted') return;
   context.setStatus('paused');
-  const remainingMs = paused.graceRemainingMs ?? RECONNECT_GRACE_MS;
-  const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
-  const isHost =
-    context.lobbyStateRef.current?.hostPlayerId != null &&
-    context.lobbyStateRef.current.hostPlayerId === context.auth.playerId;
-
-  store.setLocalMatchStatus(isHost ? 'guestPending' : 'hostPending', {
-    graceMs: remainingMs,
-    nowMs: Date.now(),
-  });
-  if (paused.pendingExpiresAtMs != null) {
-    store.setLocalMatchGraceDeadline(paused.pendingExpiresAtMs);
+  // Only a pending seat has a reconnect grace. A GM or opponent-fault
+  // pause with no pending seat must not invent one, and a snapshot that
+  // no longer names a seat drops the earlier peer grace.
+  const peerPending =
+    paused.reason === 'peer-pending' || paused.pendingSlots.length > 0;
+  const remainingMs = peerPending
+    ? (paused.graceRemainingMs ?? RECONNECT_GRACE_MS)
+    : 0;
+  if (peerPending) {
+    const isHost =
+      context.lobbyStateRef.current?.hostPlayerId != null &&
+      context.lobbyStateRef.current.hostPlayerId === context.auth.playerId;
+    store.setLocalMatchStatus(isHost ? 'guestPending' : 'hostPending', {
+      graceMs: remainingMs,
+      nowMs: Date.now(),
+    });
+    if (paused.pendingExpiresAtMs != null) {
+      store.setLocalMatchGraceDeadline(paused.pendingExpiresAtMs);
+    }
+  } else {
+    store.setLocalMatchStatus('live');
   }
   context.setPausedInfo({
+    reason: paused.reason,
     pendingSlots: paused.pendingSlots,
     graceRemainingMs: remainingMs,
-    pendingExpiresAtMs: paused.pendingExpiresAtMs ?? null,
+    pendingExpiresAtMs: peerPending
+      ? (paused.pendingExpiresAtMs ?? null)
+      : null,
   });
+  const remainingSeconds = Math.max(0, Math.ceil(remainingMs / 1000));
   context.setError({
     code: 'MATCH_PAUSED',
-    reason: `Waiting for opponent to reconnect (${remainingSeconds} seconds remaining)...`,
+    reason:
+      paused.reason === 'peer-pending'
+        ? `Waiting for opponent to reconnect (${remainingSeconds} seconds remaining)...`
+        : MATCH_PAUSE_MESSAGES[paused.reason],
   });
 }
 

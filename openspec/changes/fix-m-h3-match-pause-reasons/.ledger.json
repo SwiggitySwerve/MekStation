@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-h3-match-pause-reasons",
+  "status": "in-progress",
+  "reason": "Root-approved M-H3: MatchPaused reason widens to peer-pending, gm-absent and opponent-fault; server broadcasts every pause cause and late-join snapshots; seated rejoin retries a faulted co-op opponent; forfeit unpauses only on success. Two sequential PRs; no persistence or schema-pack changes.",
+  "lastReviewed": "2026-11-08"
+}
