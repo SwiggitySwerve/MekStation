@@ -3,6 +3,7 @@ import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import { createCampaign, createContract } from '@/types/campaign/Campaign';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
+import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 
 import { buildStarmapSystemLenses } from '../starmapTravelLenses';
 import { buildStarmapTravelPreview } from '../starmapTravelPreview';
@@ -81,7 +82,25 @@ describe('starmap travel preview', () => {
       createdAt: '3025-01-01T00:00:00.000Z',
       status: 'queued',
     };
-    const campaign = { ...makeCampaign(), repairQueue: [repairTicket] };
+    const campaign = {
+      ...makeCampaign(),
+      repairQueue: [repairTicket],
+      unitCombatStates: {
+        'atlas-1': createInitialCombatState({
+          unitId: 'atlas-1',
+          armorPerLocation: { RT: 6 },
+          structurePerLocation: { RT: 5 },
+        }),
+      },
+      unitMaxStates: {
+        'atlas-1': {
+          unitId: 'atlas-1',
+          maxArmorPerLocation: { RT: 10 },
+          maxStructurePerLocation: { RT: 5 },
+          maxAmmoPerBin: {},
+        },
+      },
+    };
 
     const preview = buildStarmapTravelPreview(campaign, 'outreach', {
       generatedAt: '3025-01-01T12:00:00.000Z',
@@ -99,11 +118,29 @@ describe('starmap travel preview', () => {
     expect(preview.progressSummary.medicalSummary).not.toContain(
       'GM time cascade',
     );
-    expect(preview.afterCampaign?.repairQueue?.[0]).toMatchObject({
-      ticketId: 'repair-rt',
-      status: 'completed',
-      remainingHours: 0,
+    // Completion is a travel event; the active queue may be pruned on later days.
+    expect(preview.elapsedDays).toBeGreaterThan(2);
+    expect(
+      preview.generatedEvents.filter(
+        (event) => event.type === 'repair_completed',
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        data: { ticketId: 'repair-rt', unitId: 'atlas-1' },
+      }),
+    ]);
+    expect(preview.afterCampaign?.repairQueue).toEqual([]);
+    expect(preview.afterCampaign?.unitCombatStates['atlas-1']).toMatchObject({
+      currentArmorPerLocation: { RT: 10 },
+      lastUpdated: '3025-01-02T00:00:00.000Z',
     });
+    expect(campaign.repairQueue[0]).toMatchObject({
+      status: 'queued',
+      remainingHours: 16,
+    });
+    expect(
+      campaign.unitCombatStates['atlas-1'].currentArmorPerLocation.RT,
+    ).toBe(6);
   });
 
   it('warns when arrival misses a destination contract deadline', () => {

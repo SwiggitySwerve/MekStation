@@ -262,6 +262,54 @@ describe('GM time cascade intervention implementer', () => {
     expect(replayed.timeCascadeEvents).toHaveLength(1);
   });
 
+  it('retains completion events and day summaries after a later cascade day prunes the ticket', () => {
+    const state = makeState();
+    const approved = approveCommand({
+      command: makeCommand(makePayload({ days: 3 })),
+      state,
+      interventionId: 'gm-int-time-complete-then-prune',
+    });
+    const effects = projectTimeCascadeEffectsForRecord(approved.record);
+    const effect = effects[0];
+
+    expect(approved.state.repairQueue).toEqual([]);
+    expect(approved.state.unitCombatStates['unit-1']).toMatchObject({
+      currentArmorPerLocation: { CT: 28 },
+      lastUpdated: '3025-02-03T00:00:00.000Z',
+    });
+    expect(
+      effect.generatedEvents.filter(
+        (event) => event.type === 'repair_completed',
+      ),
+    ).toEqual([
+      expect.objectContaining({
+        data: { ticketId: 'ticket-1', unitId: 'unit-1' },
+      }),
+    ]);
+    expect(effect.daySummaries).toMatchObject([
+      {
+        dayIndex: 1,
+        processedDate: BASE_CURRENT_DATE,
+        eventTypes: expect.arrayContaining(['repair_progress']),
+      },
+      {
+        dayIndex: 2,
+        processedDate: '3025-02-03T00:00:00.000Z',
+        eventTypes: expect.arrayContaining(['repair_completed']),
+      },
+      { dayIndex: 3, processedDate: '3025-02-04T00:00:00.000Z' },
+    ]);
+    expect(effect.daySummaries[2].eventTypes).not.toContain('repair_completed');
+    expect(effect.afterCampaign.repairQueue).toEqual([]);
+    expect(applyGmTimeCascadeProjectedEffects(state, effects)).toEqual(
+      approved.state,
+    );
+    expect(state.repairQueue?.[0]).toMatchObject({
+      status: 'queued',
+      remainingHours: 16,
+    });
+  });
+
   it('stores repeated cascades without recursively nesting prior event history', () => {
     const first = approveCommand({
       command: makeCommand(makePayload({ days: 1 })),
