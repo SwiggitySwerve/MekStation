@@ -24,8 +24,14 @@ Root approved extracting the existing review-context functions into campaignGmPr
 - Initial red run: 15 failed / 107 passed across four suites. Binder regression recorded separately red: sender received duplicate CampaignDecision frames. Focused final run: 5 suites / 205 tests passed.
 - Seven deliberate mutants failed assertions: accepting duplicate IDs, dropping queued close results, stranding in-flight approval on arbiter close, registering waiters after admission, suppressing socket-close signals, leaking guest listeners, and broadcasting duplicate decisions. Original sources were restored after each mutant.
 - Behavior-preserving extraction commit c0b6b7b48 passed all 27 existing arbiter tests, both TypeScript configs, and lint at 63 warnings before lifecycle changes were restored.
-- Final whole-directory gate: 282 suites passed; 3,163 tests passed and 35 skipped. Includes src/components/campaign/coop, src/lib/campaign/coop, all src/lib/multiplayer, src/__tests__/integration, and scripts/__tests__/lint-units.test.ts. The earlier run was stopped before the extraction and is not counted as proof.
+- Before the K14b PR3 merge, the whole-directory gate passed 282 suites; 3,163 tests passed and 35 skipped. Includes src/components/campaign/coop, src/lib/campaign/coop, all src/lib/multiplayer, src/__tests__/integration, and scripts/__tests__/lint-units.test.ts. The earlier run was stopped before the extraction and is not counted as proof.
 - Final static gates: both TypeScript configs passed; root lint 63 warnings / 0 errors; lint:units 17,075 / 17,085; OpenSpec strict validation passed. Formatting uses oxfmt.
 - Budget-check passed: 3,097 test files, 57 unkeyable, 92 repo-wide, no violations. campaignCoopSurfaceHelpers.test.ts is included in the census and is neither unkeyable nor repo-wide-keyed.
 - Exact rejection reason: malformed-intent. Closure result reason: session-closed. The sender-only wire refusal uses existing INVALID_INTENT Error shape; no message schema, event payload, replay, or persisted-format change.
 - Full red, green, mutant, gate, and keyability evidence: E:/Projects/Personal/_scratch/sm-audit-reports/m-m10-evidence/.
+
+## Verification after merging K14b PR3
+
+Merged origin/main 8932a3d11 (#3072) into the lane as 966e374cf without conflicts; no reset or rebase. The authoritative market context and live readCampaign callback in co-op runtime remain intact.
+
+On that combined tree, the same whole-directory gate passed all 282 suites: 3,175 tests passed and 35 skipped. Both TypeScript configs, oxfmt, OpenSpec strict validation, lint (63 warnings / 0 errors), and lint:units (17,075 / 17,085) passed again. Budget-check remained 57 unkeyable / 92 repo-wide; the new helper test remained keyable and not repo-wide-keyed. The postmerge-* logs and postmerge-helper-keyability.json record this final proof.
