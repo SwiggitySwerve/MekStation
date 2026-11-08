@@ -478,6 +478,70 @@ describe('launchCoopMission - authenticated shared mission creation', () => {
   });
 });
 
+describe('launchCoopMission browser HTTP default', () => {
+  it('creates the shared match first and retains distinct encounter and session receipts', async () => {
+    const localFetch = jest.spyOn(global, 'fetch').mockImplementation(
+      async () =>
+        ({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            success: true,
+            id: 'http-encounter-1',
+            encounter: {
+              ...BASE_ENCOUNTER,
+              id: 'http-encounter-1',
+              status: EncounterStatus.Launched,
+              gameSessionId: 'http-session-1',
+            },
+          }),
+        }) as Response,
+    );
+    const progress: { missionMatchId?: string; encounterId?: string } = {};
+    try {
+      expect(
+        await launchCoopMission(
+          BASE_ENCOUNTER,
+          hostDeploy(),
+          undefined,
+          launchAdmission(),
+          progress,
+        ),
+      ).toMatchObject({
+        ok: true,
+        missionMatchId: 'shared-mission-1',
+        encounterId: 'http-encounter-1',
+        gameSessionId: 'http-session-1',
+      });
+      expect(missionFetch.mock.invocationCallOrder[0]).toBeLessThan(
+        localFetch.mock.invocationCallOrder[0],
+      );
+      expect(progress).toEqual({
+        missionMatchId: 'shared-mission-1',
+        encounterId: 'http-encounter-1',
+      });
+      await launchCoopMission(
+        BASE_ENCOUNTER,
+        hostDeploy(),
+        undefined,
+        launchAdmission(),
+        progress,
+      );
+      expect(missionFetch).toHaveBeenCalledTimes(1);
+      expect(localFetch.mock.calls.map(([, init]) => init?.method)).toEqual([
+        'POST',
+        'PATCH',
+        'PUT',
+        'POST',
+        'GET',
+        'GET',
+      ]);
+    } finally {
+      localFetch.mockRestore();
+    }
+  });
+});
+
 describe('launchCoopMission — blocked launch', () => {
   it('blocks a launch where both players chose command-hq and creates no encounter', async () => {
     const { service, launched } = fakeService();
