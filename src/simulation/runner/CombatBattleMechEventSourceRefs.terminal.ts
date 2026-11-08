@@ -11,12 +11,12 @@ export const BATTLEMECH_RETREAT_EJECTION_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation game-engine phases append RetreatTriggered and UnitRetreated events during forced-withdrawal movement.',
     'src/engine/GameEngine.phases.ts',
-    'L123-L270',
+    'L102-L240',
   ),
   mekstationDeviationSourceRef(
     'MekStation AI turn handling appends RetreatTriggered and UnitRetreated events for bot withdrawal behavior.',
     'src/engine/InteractiveSession.ai.ts',
-    'L218-L270',
+    'L360-L421',
   ),
   mekstationDeviationSourceRef(
     'MekStation ejection reducer removes ejected units from active targeting and action participation while preserving damage state.',

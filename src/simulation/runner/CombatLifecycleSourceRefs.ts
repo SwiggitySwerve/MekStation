@@ -73,7 +73,7 @@ const LOCAL_RETREATED_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation GameEngine movement phase emits UnitRetreated once a withdrawing unit reaches its retreat edge.',
     'src/engine/GameEngine.phases.ts',
-    'L236-L274',
+    'L102-L240',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
