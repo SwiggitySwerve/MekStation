@@ -24,6 +24,10 @@ import {
 } from '@/lib/multiplayer/server/__tests__/coopMissionCreate.harness';
 import { launchMissionFromPage } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.launch';
 import campaignHandler from '@/pages/api/campaigns/[id]';
+import createEncounterHandler from '@/pages/api/encounters';
+import encounterHandler from '@/pages/api/encounters/[id]';
+import launchEncounterHandler from '@/pages/api/encounters/[id]/launch';
+import playerForceHandler from '@/pages/api/encounters/[id]/player-force';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { EncounterRepository } from '@/services/encounter/EncounterRepository';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
@@ -141,6 +145,23 @@ describe('K15 durable mission launch checkpoint', () => {
         await campaignHandler(req, res);
         return json(res.statusCode, res._getJSONData());
       }
+      async function encounterRequest(
+        handler:
+          | typeof encounterHandler
+          | typeof createEncounterHandler
+          | typeof launchEncounterHandler
+          | typeof playerForceHandler,
+        init?: RequestInit,
+        encounterId?: string,
+      ) {
+        const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+          query: encounterId === undefined ? {} : { id: encounterId },
+        });
+        req.method = init?.method ?? 'GET';
+        req.body = init?.body ? JSON.parse(String(init.body)) : {};
+        await handler(req, res);
+        return json(res.statusCode, res._getJSONData());
+      }
       let lost = false;
       let conflicted = false;
       const remoteBodies: string[] = [];
@@ -171,11 +192,19 @@ describe('K15 durable mission launch checkpoint', () => {
             head: fixture.request.coopCampaign.expectedHead,
             slots: [],
           });
+        if (url === '/api/encounters')
+          return encounterRequest(createEncounterHandler, init);
         if (url.startsWith('/api/encounters/')) {
-          const encounter = repository.getEncounterById(
-            decodeURIComponent(url.slice('/api/encounters/'.length)),
-          );
-          return json(encounter ? 200 : 404, { encounter });
+          const [encodedId, operation] = url
+            .slice('/api/encounters/'.length)
+            .split('/');
+          const handler =
+            operation === 'launch'
+              ? launchEncounterHandler
+              : operation === 'player-force'
+                ? playerForceHandler
+                : encounterHandler;
+          return encounterRequest(handler, init, decodeURIComponent(encodedId));
         }
         if (url === `/api/campaigns/${id}`) {
           if (init?.method === 'PUT') {

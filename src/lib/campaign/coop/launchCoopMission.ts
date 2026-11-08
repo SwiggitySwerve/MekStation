@@ -46,7 +46,6 @@ import {
   selectUnitReadiness,
   type ISelectUnitReadinessInput,
 } from '@/lib/campaign/readiness/selectUnitReadiness';
-import { getEncounterService } from '@/services/encounter/EncounterService';
 
 import type {
   ICampaignEncounterLauncherService,
@@ -58,6 +57,7 @@ import type {
   ICoopForceContribution,
 } from './composeCoopEncounter';
 
+import { createEncounterApiLauncher } from '../encounter/encounterApiLauncher';
 import { launchCampaignEncounter } from '../encounter/launchCampaignEncounter';
 import { composeCoopEncounter } from './composeCoopEncounter';
 import {
@@ -127,7 +127,7 @@ export type LaunchCoopMissionResult =
  *   (`buildEncounterFromScenario`)
  * @param contributions - one `ICoopForceContribution` per player,
  *   carrying the force and the player's `deploy` / `command-hq` choice
- * @param service - encounter service (injectable; defaults to singleton)
+ * @param service - explicit service (defaults to the browser HTTP adapter)
  */
 export async function launchCoopMission(
   baseEncounter: IEncounter,
@@ -284,7 +284,7 @@ export async function launchCoopMission(
   // payload relies on the route's durable idempotency before trying local again.
   const launched = await launchCampaignEncounter(
     composed.composition.encounter,
-    service ?? getEncounterService(),
+    service ?? createEncounterApiLauncher(),
     progress,
   );
   if (!launched.success) {

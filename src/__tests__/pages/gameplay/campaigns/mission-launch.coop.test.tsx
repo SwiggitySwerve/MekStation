@@ -290,6 +290,56 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
     expect(mockLaunchCoopMission).not.toHaveBeenCalled();
   });
 
+  it.each(['deploy', 'command-hq'] as const)(
+    'guest %s joins without creating or launching an encounter',
+    async (choice) => {
+      const campaign = makeSoloLaunchCampaign('Recorded guest mission');
+      const mission = campaign.missions.get('mission-alpha');
+      if (!mission) throw new Error('Missing mission fixture');
+      mockGetCampaign.mockReturnValue({
+        ...campaign,
+        missions: new Map([
+          [mission.id, { ...mission, scenarioIds: ['recorded-encounter'] }],
+        ]),
+        coopSession: createGuestCoopSession('match-launch-1', 'ABC234'),
+      });
+      const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          encounter: { id: 'recorded-encounter', gameSessionId: 'session-1' },
+        }),
+      } as Response);
+      try {
+        await act(async () => {
+          render(<CoopMissionLaunchPage />);
+        });
+        await act(async () => {
+          screen.getByTestId(`participation-${choice}`).click();
+        });
+        await act(async () => {
+          screen.getByTestId('coop-join-mission').click();
+        });
+        expect(mockLoadPersistedCampaign).toHaveBeenCalledWith(campaign.id);
+        expect(mockRouterPush).toHaveBeenCalledWith(
+          choice === 'deploy'
+            ? '/gameplay/encounters/recorded-encounter?campaignId=campaign-coop-1&missionId=mission-alpha'
+            : '/gameplay/campaigns/campaign-coop-1',
+        );
+        if (choice === 'deploy')
+          expect(fetchMock).toHaveBeenCalledWith(
+            '/api/encounters/recorded-encounter',
+            expect.objectContaining({ signal: expect.anything() }),
+          );
+        else expect(fetchMock).not.toHaveBeenCalled();
+        expect(mockLaunchCoopMission).not.toHaveBeenCalled();
+        expect(mockMaterializeCampaignMissionEncounter).not.toHaveBeenCalled();
+      } finally {
+        fetchMock.mockRestore();
+      }
+    },
+  );
+
   it('disables co-op launch while the campaign clock advances', async () => {
     const campaign = makeSoloLaunchCampaign('Advancing');
     const force = makeForce(campaign.rootForceId, ['u-host-1']);

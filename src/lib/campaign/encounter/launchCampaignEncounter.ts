@@ -20,7 +20,6 @@
 
 import type { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
 
-import { getEncounterService } from '@/services/encounter/EncounterService';
 import { EncounterStatus, type IEncounter } from '@/types/encounter';
 
 // =============================================================================
@@ -54,11 +53,13 @@ export interface ICampaignEncounterLaunchProgress {
  * as an interface so tests can inject a fake without standing up the
  * SQLite repository singleton.
  */
+type Awaitable<T> = T | Promise<T>;
+
 export interface ICampaignEncounterLauncherService {
   createEncounter(input: {
     readonly name: string;
     readonly description?: string;
-  }): IEncounterOperationResult;
+  }): Awaitable<IEncounterOperationResult>;
   updateEncounter(
     id: string,
     input: {
@@ -67,11 +68,11 @@ export interface ICampaignEncounterLauncherService {
       readonly opForConfig?: IEncounter['opForConfig'];
       readonly optionalRules?: readonly string[];
     },
-  ): IEncounterOperationResult;
+  ): Awaitable<IEncounterOperationResult>;
   setPlayerForce(
     encounterId: string,
     forceId: string,
-  ): IEncounterOperationResult;
+  ): Awaitable<IEncounterOperationResult>;
   launchEncounter(
     id: string,
     options?: {
@@ -79,8 +80,8 @@ export interface ICampaignEncounterLauncherService {
       readonly contractId?: string | null;
       readonly scenarioId?: string | null;
     },
-  ): Promise<IEncounterOperationResult>;
-  getEncounter(id: string): IEncounter | null;
+  ): Awaitable<IEncounterOperationResult>;
+  getEncounter(id: string): Awaitable<IEncounter | null>;
 }
 
 // =============================================================================
@@ -104,11 +105,11 @@ export interface ICampaignEncounterLauncherService {
  * Linkage` contract of `game-session-management`.
  *
  * @param encounter - the bridged campaign-generated encounter
- * @param service - encounter service (defaults to the singleton)
+ * @param service - explicit server service or browser HTTP adapter
  */
 export async function launchCampaignEncounter(
   encounter: IEncounter,
-  service: ICampaignEncounterLauncherService = getEncounterService(),
+  service: ICampaignEncounterLauncherService,
   progress?: ICampaignEncounterLaunchProgress,
 ): Promise<ILaunchCampaignEncounterResult> {
   const meta = encounter.campaignMeta;
@@ -120,7 +121,7 @@ export async function launchCampaignEncounter(
   }
 
   if (progress?.encounterId) {
-    const existing = service.getEncounter(progress.encounterId);
+    const existing = await service.getEncounter(progress.encounterId);
     if (!existing)
       return {
         success: false,
@@ -139,7 +140,11 @@ export async function launchCampaignEncounter(
       };
     }
   }
-  const configured = configureCampaignEncounter(encounter, service, progress);
+  const configured = await configureCampaignEncounter(
+    encounter,
+    service,
+    progress,
+  );
   if (!configured.success || !configured.id) {
     return {
       success: false,
@@ -162,7 +167,7 @@ export async function launchCampaignEncounter(
     };
   }
 
-  const launchedEncounter = service.getEncounter(repoEncounterId);
+  const launchedEncounter = await service.getEncounter(repoEncounterId);
   return {
     success: true,
     encounterId: repoEncounterId,
@@ -171,14 +176,14 @@ export async function launchCampaignEncounter(
 }
 
 /** Materialization is separate from session launch so each failure keeps its id. */
-function configureCampaignEncounter(
+async function configureCampaignEncounter(
   encounter: IEncounter,
   service: ICampaignEncounterLauncherService,
   progress?: ICampaignEncounterLaunchProgress,
-): IEncounterOperationResult {
+): Promise<IEncounterOperationResult> {
   const created = progress?.encounterId
     ? { success: true, id: progress.encounterId }
-    : service.createEncounter({
+    : await service.createEncounter({
         name: encounter.name,
         description: encounter.description,
       });
@@ -192,7 +197,7 @@ function configureCampaignEncounter(
   if (progress) progress.encounterId = repoEncounterId;
 
   // 2. Copy the generated configuration onto the repository encounter.
-  const configResult = service.updateEncounter(repoEncounterId, {
+  const configResult = await service.updateEncounter(repoEncounterId, {
     mapConfig: encounter.mapConfig,
     victoryConditions: encounter.victoryConditions,
     opForConfig: encounter.opForConfig,
@@ -208,7 +213,7 @@ function configureCampaignEncounter(
 
   // 3. Attach the player force when the bridge resolved one.
   if (encounter.playerForce?.forceId) {
-    const forceResult = service.setPlayerForce(
+    const forceResult = await service.setPlayerForce(
       repoEncounterId,
       encounter.playerForce.forceId,
     );

@@ -2,8 +2,58 @@ import type { LaunchCoopMissionResult } from '../launchCoopMission';
 
 import {
   CoopMissionCheckpointConflict,
+  readRecordedCoopEncounter,
   runCoopMissionLaunch,
 } from '../coopMissionLaunchAttempt';
+
+describe('recorded co-op encounter reuse', () => {
+  it('skips placeholders and drafts and returns only a recorded session link', async () => {
+    const fetchImpl = jest
+      .fn()
+      .mockResolvedValueOnce({ status: 404 })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ encounter: { id: 'draft' } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          encounter: { id: 'linked', gameSessionId: 'session-1' },
+        }),
+      });
+    expect(
+      await readRecordedCoopEncounter(
+        ['placeholder', 'draft', 'linked', 'unused'],
+        fetchImpl,
+      ),
+    ).toBe('linked');
+    expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual([
+      '/api/encounters/placeholder',
+      '/api/encounters/draft',
+      '/api/encounters/linked',
+    ]);
+  });
+
+  it.each([
+    { ok: false, status: 503 },
+    {
+      ok: true,
+      json: async () => ({
+        encounter: { id: 'foreign', gameSessionId: 'session-1' },
+      }),
+    },
+  ])(
+    'refuses an unavailable or mismatched recorded encounter',
+    async (response) => {
+      await expect(
+        readRecordedCoopEncounter(
+          ['linked'],
+          jest.fn().mockResolvedValue(response),
+        ),
+      ).rejects.toThrow();
+    },
+  );
+});
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
