@@ -24,6 +24,7 @@ const ATLAS_UNIT = {
   id: 'atlas-as7-d',
   chassis: 'Atlas',
   variant: 'AS7-D',
+  unitType: 'BattleMech',
   tonnage: 100,
 };
 
