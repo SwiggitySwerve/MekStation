@@ -8,4 +8,4 @@
 - [x] Demonstrate deliberate mutant failures and restore the implementation.
 - [x] Run whole-directory tests, both TypeScript configs, lint, lint:units and
       its Jest suite, formatting, OpenSpec checks and the budget check.
-- [ ] Open one draft PR and report evidence to Root without merging.
+- [x] Open one draft PR and report evidence to Root without merging.

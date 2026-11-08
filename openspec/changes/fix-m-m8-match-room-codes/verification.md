@@ -59,3 +59,7 @@ Migration runs synchronously after SCHEMA_SQL in the match-file constructor. The
 The environment-reading logger is deliberately absent from the new migration graph. up(db) returns the cleared count as approved. Cache census remains 57 unkeyable and 92 repo-wide keys. No numbered migration is registered against SQLiteService's separate capability file.
 
 No engine, replay/event payload, P2P lifecycle or parity code changed. M-H2 intent classification, M-H3 pause reasons, M-H4 correction leases/blocked recovery and K15 guarded mission creation remain on their existing paths. No simulation source citation referenced the edited modules.
+
+## Draft handoff
+
+PR: https://github.com/SwiggitySwerve/MekStation/pull/3074. Root owns hosted CI watching and merging. The lane leaves it in draft; no merge was performed.
