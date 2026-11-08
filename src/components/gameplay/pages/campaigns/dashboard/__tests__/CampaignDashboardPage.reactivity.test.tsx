@@ -149,6 +149,7 @@ jest.mock('@/stores/campaign/campaignPersistenceWiring', () => ({
 }));
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
   const persistenceState = {
+    campaignId: null as string | null,
     errorMessage: null,
     loadCampaign: (...args: unknown[]) => mockLoadPersistedCampaign(...args),
     reset: (...args: unknown[]) => mockResetPersistence(...args),
@@ -163,10 +164,15 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     clearLaunchConflict: () => undefined,
   };
   return {
+    hasUnsettledCampaignPersistence: () => false,
     useCampaignPersistenceStore: Object.assign(
       (selector: (state: typeof persistenceState) => unknown) =>
         selector(persistenceState),
-      { getState: () => persistenceState },
+      {
+        getState: () => persistenceState,
+        setState: (updates: Partial<typeof persistenceState>) =>
+          Object.assign(persistenceState, updates),
+      },
     ),
   };
 });

@@ -16,7 +16,38 @@ import { act, renderHook } from '@testing-library/react';
 import type { IGameSessionAwarenessState } from '@/lib/p2p/gameSessionRoles';
 
 import { useP2PPeerPresence } from '@/hooks/useP2PPeerPresence';
+import * as sessionRoles from '@/lib/p2p/gameSessionRoles';
+import * as syncProvider from '@/lib/p2p/SyncProvider';
+import { useSyncRoom } from '@/lib/p2p/useSyncRoom';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+
+let mockSyncRoom: {
+  roomCode: string;
+  webrtcProvider: { awareness: object };
+} | null = null;
+jest.mock('@/lib/p2p/gameSessionRoles', () => ({
+  ...jest.requireActual<typeof import('@/lib/p2p/gameSessionRoles')>(
+    '@/lib/p2p/gameSessionRoles',
+  ),
+  getGameSessionAwarenessStates: jest.fn(() => []),
+}));
+jest.mock('@/lib/p2p/SyncProvider', () => ({
+  ...jest.requireActual<typeof import('@/lib/p2p/SyncProvider')>(
+    '@/lib/p2p/SyncProvider',
+  ),
+  getConnectedPeerCount: jest.fn(() => 0),
+}));
+jest.mock('@/lib/p2p/useSyncRoomStore', () => ({
+  ...jest.requireActual<typeof import('@/lib/p2p/useSyncRoomStore')>(
+    '@/lib/p2p/useSyncRoomStore',
+  ),
+  useSyncRoomSelector: (
+    selector: (state: {
+      activeRoom: typeof mockSyncRoom;
+      localPeerId: string;
+    }) => unknown,
+  ) => selector({ activeRoom: mockSyncRoom, localPeerId: 'peer-guest' }),
+}));
 
 const HOST: IGameSessionAwarenessState = {
   peerId: 'peer-host',
@@ -64,6 +95,8 @@ describe('useP2PPeerPresence', () => {
     useGameplayStore.getState().resetLocalMatchStatus();
   });
   afterEach(() => {
+    mockSyncRoom = null;
+    jest.restoreAllMocks();
     jest.useRealTimers();
     useGameplayStore.getState().resetLocalMatchStatus();
   });
@@ -120,6 +153,74 @@ describe('useP2PPeerPresence', () => {
       expect(useGameplayStore.getState().localMatchStatus).not.toBe('aborted');
     }
     unmount();
+  });
+
+  it('cannot revive an aborted match when presence returns or drops again', () => {
+    const { unmount } = mountDetector(
+      P2P_MATCH,
+      [[HOST, GUEST], [GUEST], [HOST, GUEST], [GUEST]],
+      GUEST.peerId,
+    );
+    act(() =>
+      useGameplayStore
+        .getState()
+        .setLocalMatchStatus('aborted', { nowMs: 9_000 }),
+    );
+    const aborted = useGameplayStore.getState();
+    for (let index = 0; index < 3; index += 1) {
+      tick(1000);
+      expect(useGameplayStore.getState()).toBe(aborted);
+    }
+    unmount();
+  });
+
+  it('keeps abort through the exported sync-room awareness polling path', () => {
+    mockSyncRoom = { roomCode: 'ROOM01', webrtcProvider: { awareness: {} } };
+    let peers = [HOST, GUEST];
+    jest
+      .mocked(sessionRoles.getGameSessionAwarenessStates)
+      .mockImplementation(() => peers);
+    jest.mocked(syncProvider.getConnectedPeerCount).mockReturnValue(1);
+    const { unmount } = renderHook(() => useSyncRoom());
+    act(() =>
+      useGameplayStore
+        .getState()
+        .setLocalMatchStatus('aborted', { nowMs: 9_000 }),
+    );
+    peers = [GUEST];
+    tick(1000);
+    expect(useGameplayStore.getState().localMatchStatus).toBe('aborted');
+    peers = [HOST, GUEST];
+    tick(1000);
+    expect(useGameplayStore.getState().localMatchStatus).toBe('aborted');
+    unmount();
+  });
+
+  it('keeps abort through polling dependency changes and resets only at match teardown', () => {
+    const peers = [HOST, GUEST];
+    const { rerender, unmount } = renderHook(
+      ({ pollIntervalMs, matchId }) =>
+        useP2PPeerPresence(matchId, {
+          getPeers: () => peers,
+          getLocalPeerId: () => GUEST.peerId,
+          pollIntervalMs,
+        }),
+      { initialProps: { pollIntervalMs: 1000, matchId: P2P_MATCH } },
+    );
+    act(() =>
+      useGameplayStore
+        .getState()
+        .setLocalMatchStatus('aborted', { nowMs: 9_000 }),
+    );
+    rerender({ pollIntervalMs: 500, matchId: P2P_MATCH });
+    expect(useGameplayStore.getState().localMatchStatus).toBe('aborted');
+    rerender({ pollIntervalMs: 500, matchId: 'p2p-ROOM02' });
+    expect(useGameplayStore.getState().localMatchStatus).toBe('live');
+    act(() => useGameplayStore.getState().setLocalMatchStatus('hostPending'));
+    unmount();
+    expect(useGameplayStore.getState().localMatchStatus).toBe('live');
+    tick(2000);
+    expect(useGameplayStore.getState().localMatchStatus).toBe('live');
   });
 
   it('does nothing for a session that is not a P2P match', () => {

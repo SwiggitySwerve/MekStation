@@ -55,6 +55,14 @@ export function useP2PPeerPresence(
   const getLocalPeerId = options.getLocalPeerId;
   const pollIntervalMs = options.pollIntervalMs ?? PEER_POLL_INTERVAL_MS;
 
+  // Match lifetime is independent of polling callbacks and cadence. Restarting
+  // a poll must never clear a terminal match status.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!matchId || deriveReconnectRoomCode(matchId) === null) return;
+    return () => useGameplayStore.getState().resetLocalMatchStatus();
+  }, [matchId]);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!matchId || deriveReconnectRoomCode(matchId) === null) return;
@@ -74,10 +82,8 @@ export function useP2PPeerPresence(
       // `null` means "the roster says nothing about the local peer" -
       // it is not an answer, and overwriting a real status with a
       // guess is how a gate starts lying.
-      if (status === 'guestPending' || status === 'hostPending') {
+      if (status !== null) {
         useGameplayStore.getState().setLocalMatchStatus(status);
-      } else if (status === 'live') {
-        useGameplayStore.getState().resetLocalMatchStatus();
       }
     };
 
