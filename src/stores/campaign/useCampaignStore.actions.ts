@@ -17,6 +17,7 @@ import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 
 import type {
+  CampaignCommitResult,
   CampaignStore,
   ICreateCampaignCoopOpts,
   IGuestMirrorSnapshot,
@@ -45,15 +46,18 @@ import { createMissionsStore } from './useMissionsStore';
 type CampaignSet = Parameters<StateCreator<CampaignStore>>[0];
 type CampaignGet = Parameters<StateCreator<CampaignStore>>[1];
 
-function commitResultFromPersistence(result: CampaignPersistenceSaveResult): {
-  readonly committed: boolean;
-  readonly reason?: string;
-} {
+function commitResultFromPersistence(
+  result: CampaignPersistenceSaveResult,
+): CampaignCommitResult {
   if (result.status === 'saved' || result.status === 'skipped') {
     return { committed: true };
   }
   if (result.status === 'error') {
-    return { committed: false, reason: result.errorMessage };
+    return {
+      committed: false,
+      reason: result.errorMessage,
+      ...(result.refusal ? { recoverable: true } : {}),
+    };
   }
   return { committed: false, reason: 'campaign save conflict' };
 }

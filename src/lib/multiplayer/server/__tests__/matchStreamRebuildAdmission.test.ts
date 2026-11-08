@@ -15,7 +15,7 @@
  *
  * - **The refusal appends nothing.** A rebuild that still let one command
  *   through would be rebuilding history that is still moving.
- * - **Lobby intents are unaffected.** Seat occupancy, readiness and
+ * - **Admissible lobby intents are unaffected.** Seat occupancy, readiness and
  *   launch are not engine-mutating and route out before every integrity
  *   gate; a rebuild that locked players out of their own seats would turn
  *   a correction into an outage.
@@ -216,10 +216,11 @@ describe('combat commands during a history rebuild', () => {
     expect((await store.getEvents(matchId)).length).toBe(before);
   });
 
-  it('still accepts a lobby intent while the rebuild runs', async () => {
+  it('still accepts lobby-status readiness while the rebuild runs', async () => {
     const matchId = 'rebuild-lobby';
     seedStream(matchId);
     const host = await makeHost(matchId);
+    await store.updateMatchMeta(matchId, { status: 'lobby' });
     acquireLease(matchId);
 
     const frames = await host.handleIntent(unready(matchId));

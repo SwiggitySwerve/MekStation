@@ -20,6 +20,7 @@ import {
   applyContractDelta,
   applyPilotDelta,
   applyUnitDelta,
+  isLostOnField,
   playerWon,
 } from './postBattleProcessor.helpers';
 export interface IPostBattleCampaignExtensions {
@@ -111,6 +112,7 @@ function applyOutcomeDeltas({
         delta,
         outcome.matchId,
         nowIso,
+        isLostOnField(outcome, delta, wonByPlayer),
       );
       unitStates[delta.unitId] = next;
       unitsUpdated.push(delta.unitId);

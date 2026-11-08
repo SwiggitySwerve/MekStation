@@ -12,6 +12,7 @@ import type {
 import { getCanonicalUnitService } from '../CanonicalUnitService';
 import { customUnitApiService } from '../CustomUnitApiService';
 import { isDefinitionForFamily } from './definitionTypes';
+import { UnitContractParseError } from './unitContractAdapter';
 import { unitContractIssues } from './unitContractIssues';
 
 class MissingUnitFamilyError extends Error {}
@@ -89,6 +90,22 @@ export async function loadUnitDefinition(
   return result;
 }
 
+function invalidDefinitionResult(
+  reference: IUnitDefinitionReference,
+  issues: ReadonlyArray<{ readonly path: string; readonly message: string }>,
+): UnitDefinitionLoadResult {
+  return {
+    success: false,
+    reference,
+    code: 'invalid-definition',
+    error: `Invalid unit definition "${reference.id}": ${issues
+      .slice(0, 3)
+      .map((issue) => `${issue.path || '<root>'}: ${issue.message}`)
+      .join('; ')}`,
+    issues,
+  };
+}
+
 async function validateUnitDefinition(
   reader: IUnitDefinitionReader,
   reference: IUnitDefinitionReference,
@@ -106,6 +123,10 @@ async function validateUnitDefinition(
   try {
     payload = await reader.read(reference);
   } catch (error) {
+    // The canonical service validates before caching; its rejection is a bad
+    // definition, not a failed read, and keeps the field issues for the toast.
+    if (error instanceof UnitContractParseError)
+      return invalidDefinitionResult(reference, error.issues);
     return {
       success: false,
       reference,
@@ -147,16 +168,7 @@ async function validateUnitDefinition(
           },
         ]
       : unitContractIssues(parsed.error.issues);
-    return {
-      success: false,
-      reference,
-      code: 'invalid-definition',
-      error: `Invalid unit definition "${reference.id}": ${issues
-        .slice(0, 3)
-        .map((issue) => `${issue.path || '<root>'}: ${issue.message}`)
-        .join('; ')}`,
-      issues,
-    };
+    return invalidDefinitionResult(reference, issues);
   }
   const version = parsed.data.currentVersion;
   return {

@@ -55,7 +55,7 @@ Two sequential PRs.
 
 ## Impact
 
-Affected capabilities: combat-morale-and-withdrawal, after-combat-report.
+Affected capabilities: combat-morale-and-withdrawal, combat-resolution.
 
 Replay: journals with the newly guarded orderings (an exit after another
 exit, or a second latch with a different edge) fold differently. The replay,

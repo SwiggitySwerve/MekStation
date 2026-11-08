@@ -228,6 +228,78 @@ describe('GM campaign intervention implementer', () => {
     expect(JSON.stringify(playerRecord)).not.toContain('Secret employer');
   });
 
+  it('completes GM repairs through unit restoration and consumes warehouse parts once', () => {
+    const state = {
+      ...makeState(),
+      repairQueue: [
+        makeRepairTicket({
+          partsRequired: [
+            { partId: 'medium-laser', quantity: 2, matched: false },
+          ],
+        }),
+      ],
+    };
+    const command = makeCommand(
+      'repair',
+      payload({
+        family: 'repair-ticket',
+        ticketId: 'ticket-1',
+        patch: { status: 'completed' },
+      }),
+    );
+    const before = JSON.parse(JSON.stringify(state.unitCombatStates));
+    const preview = makeLedger().preview(command, state);
+    expect(preview.status).toBe('ready');
+    expect(state.unitCombatStates).toEqual(before);
+    const result = approveCommand(command, state);
+    expect(
+      result.state.unitCombatStates['unit-1'].currentArmorPerLocation.CT,
+    ).toBe(28);
+    expect(result.state.partsInventory?.[0].quantity).toBe(1);
+    expect(result.state.repairQueue?.[0].remainingHours).toBe(0);
+    expect(result.record.publicEffect.changedStateRefs).toEqual(
+      expect.arrayContaining([
+        'campaign:campaign-1:partsInventory',
+        'campaign:campaign-1:unitCombatStates',
+      ]),
+    );
+    const replayed = applyGmCampaignProjectedEffects(
+      state,
+      projectCampaignEffectsForRecord(result.record),
+    );
+    expect(replayed).toEqual(result.state);
+    const repeated = makeLedger().preview(command, result.state);
+    expect(repeated.status).toBe('blocked');
+  });
+
+  it('blocks GM completion with missing stock or a missing unit state', () => {
+    const command = makeCommand(
+      'repair',
+      payload({
+        family: 'repair-ticket',
+        ticketId: 'ticket-1',
+        patch: { status: 'completed' },
+      }),
+    );
+    for (const state of [
+      {
+        ...makeState(),
+        repairQueue: [
+          makeRepairTicket({
+            partsRequired: [{ partId: 'absent', quantity: 1, matched: false }],
+          }),
+        ],
+      },
+      { ...makeState(), unitCombatStates: {} },
+      {
+        ...makeState(),
+        repairQueue: [makeRepairTicket({ status: 'cancelled' })],
+      },
+    ]) {
+      expect(makeLedger().preview(command, state).status).toBe('blocked');
+    }
+  });
+
   it('previews and applies repair ticket corrections', () => {
     const result = approveCommand(
       makeCommand(
@@ -519,7 +591,9 @@ describe('GM campaign intervention implementer', () => {
       );
 
       expect(replayed).toEqual(result.state);
-      expect(replayed.gmInterventionEvents).toHaveLength(1);
+      expect(replayed.gmInterventionEvents).toHaveLength(
+        domain === 'repair' ? 2 : 1,
+      );
     },
   );
 });

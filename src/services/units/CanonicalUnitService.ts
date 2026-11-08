@@ -23,6 +23,7 @@ import {
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 import { mapRawIndexRows, type RawUnitIndexEntry } from './unitIndexMapper';
+import { assertUnitShape } from './unitShapeGuard';
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -241,6 +242,14 @@ export class CanonicalUnitService implements ICanonicalUnitService {
         if (!unit) {
           return null;
         }
+        // Guard the shape before caching so no reader sees (or keeps) a
+        // payload that is not a unit. Strict callers get the field issue;
+        // lenient ones get null. Full contract validation runs in CI.
+        assertUnitShape(
+          unit,
+          { id: entry.id, family: family ?? 'battlemechs' },
+          entry.filePath,
+        );
         if (this.unitLoads.get(loadKey) === registered.load)
           this.unitCache.set(key, unit);
         return unit;

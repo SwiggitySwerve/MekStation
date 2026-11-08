@@ -22,6 +22,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
+import { isActiveRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 import {
   selectActiveContract,
   selectBillablePilotCount,
@@ -273,7 +274,9 @@ export function extractForceSnapshot(
       (pilot) => pilot.status !== CampaignPilotStatus.Active,
     ).length,
     repairQueueDepth:
-      campaign.repairQueue?.length ?? extended.repairBay?.tickets?.length ?? 0,
+      campaign.repairQueue?.filter(isActiveRepairTicket).length ??
+      extended.repairBay?.tickets?.length ??
+      0,
   };
 }
 

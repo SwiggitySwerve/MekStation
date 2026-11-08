@@ -1,0 +1,6 @@
+{
+  "name": "fix-sqlite-initialization-retry",
+  "status": "in-progress",
+  "reason": "Root-approved S13 only: propagate migration-version read errors and clear/close failed initialization handles for same-instance retry. Never delete, truncate or recreate the user database; no schema or persisted-format changes. Hosted proof and Root merge are pending.",
+  "lastReviewed": "2026-11-08"
+}
