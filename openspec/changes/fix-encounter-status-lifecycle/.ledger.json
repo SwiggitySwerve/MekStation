@@ -1,1 +1,6 @@
-{"name":"fix-encounter-status-lifecycle","status":"in-progress","reason":"Root-approved S1a encounter lifecycle; fast-forward and multiplayer deferred to S1b","lastReviewed":"2026-11-08"}
+{
+  "name": "fix-encounter-status-lifecycle",
+  "status": "implemented",
+  "reason": "Root-approved S1a implemented and locally verified; draft review pending. Fast-forward and multiplayer deferred to S1b.",
+  "lastReviewed": "2026-11-08"
+}

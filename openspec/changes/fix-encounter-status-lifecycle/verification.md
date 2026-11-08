@@ -11,7 +11,8 @@ not counted as product evidence. No dependencies were rebuilt or changed.
 - Before behavior implementation, new repository regressions failed on missing-row
   acceptance, reassignment, absent completion, stale linkage and cascade linkage.
 - Before replay completion implementation, all four unfinished/mismatched history
-  regressions failed. The skirmish link assertion then failed on the original hook.
+  regressions failed. The first skirmish run failed to resolve the not-yet-created
+  client module; the later missing-link mutant reproduced the actual hook defect.
 - Replay/digest/golden baseline: 68 suites / 1,030 tests passed.
 
 ## Mutants
@@ -47,3 +48,32 @@ because it is outside encounter transport scope.
 
 Hosted CI has not run yet. Final merged-base gate results are recorded below
 before the draft PR is filed.
+
+## Merged-base gates
+
+Merged fetched origin/main 3e6f6cdc292c76d1e3190a3d84cf5a2ddf1e071c (K6)
+without conflicts; merge commit 0a90f93602686b49deba4fd07d5940e2f1561aa3.
+No fast-forward, multiplayer or K6-owned source files differ from that main.
+
+- Full required directory union repeated on merged main: 369 suites passed,
+  4,848 tests passed, 32 skipped. This includes the complete integration,
+  store and simulation-runner directories, replay/digest/golden suites and
+  `scripts/__tests__/lint-units.test.ts`.
+- Exact `npm run validate:combat`: exit 0; 79 suites / 2,107 tests passed,
+  followed by the script's catalog, gap-report and OpenSpec checks.
+- `npm run typecheck`: root and scripts TypeScript configurations passed.
+- `npm run lint`: 63 warnings / 0 errors.
+- `npm run lint:units`: 17,082 / 17,085; all four path ceilings passed.
+- `node scripts/ci/budget-check.mjs`: 57 unkeyable / 57 allowed,
+  92 repository-wide keys, 3,074 indexed test files.
+- `npm run format:check`: all 9,137 matched files passed.
+- `npx openspec validate --all --strict`: 260 passed / 0 failed.
+  OpenSpec CI accounting: 39 / 39 active changes accounted; purpose lint passed.
+
+Rule 4 required one source-proof re-anchor in CombatConsciousnessSourceRefs.ts.
+The exact old L77-L216 content equals new L78-L217 content; this was checked
+before changing the citation. No combat rule, payload, fixture or digest changed.
+The complete runner directory is repeated after that re-anchor.
+
+Post-re-anchor full runner directory: 152 suites / 1,498 tests passed.
+Both TypeScript configurations also passed again after the citation update.
