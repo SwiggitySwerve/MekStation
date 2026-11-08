@@ -23,8 +23,8 @@
  */
 
 import Database from 'better-sqlite3';
-import { readFileSync, statSync } from 'node:fs';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { readFileSync, rmSync, statSync } from 'node:fs';
+import { mkdtemp } from 'node:fs/promises';
 import path from 'node:path';
 
 import {
@@ -44,15 +44,18 @@ describe('SQLiteService migrations', () => {
     resetSQLiteService();
   });
 
-  afterEach(async () => {
-    jest.restoreAllMocks();
-    // Close the singleton's handle before deleting the file — Windows
-    // refuses to remove open files.
-    resetSQLiteService();
-    for (const connection of failedConnections.splice(0)) {
-      if (connection.open) connection.close();
+  afterEach(() => {
+    try {
+      jest.restoreAllMocks();
+      // Close the singleton's handle before deleting the file — Windows
+      // refuses to remove open files.
+      resetSQLiteService();
+      for (const connection of failedConnections.splice(0)) {
+        if (connection.open) connection.close();
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
     }
-    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
   /** Read MAX(version) from the migrations table of a closed/raw DB. */
