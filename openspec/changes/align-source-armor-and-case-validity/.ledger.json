@@ -1,0 +1,6 @@
+{
+  "name": "align-source-armor-and-case-validity",
+  "status": "in-progress",
+  "reason": "Owner-authorized source parity under L-VAL-MECH: low armor remains advice and native vehicle CASE is body-only. Fixed 9815-source validity/BV evidence and tests are recorded in unit-loading/L-VAL-MECH. Other construction disagreements remain open; canonical sync/archive and full validity parity are not claimed.",
+  "lastReviewed": "2026-11-03"
+}

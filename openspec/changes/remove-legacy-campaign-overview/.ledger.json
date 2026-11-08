@@ -1,0 +1,6 @@
+{
+  "name": "remove-legacy-campaign-overview",
+  "status": "proposed",
+  "reason": "Owner ruling 2026-11-07 D1: delete the unmounted legacy campaign overview stack (CampaignOverviewTab, MissionTreeView, CampaignStatusHelpers, legacy CampaignStatus/ICampaign types), ContextPanel, RefitLaunchPanel and ImportUnitDialog; DeleteCampaignDialog is kept and moved. REMOVED requirement delta only; canonical sync/archive pending PR merge.",
+  "lastReviewed": "2026-11-08"
+}

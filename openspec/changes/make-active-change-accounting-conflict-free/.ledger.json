@@ -1,0 +1,6 @@
+{
+  "name": "make-active-change-accounting-conflict-free",
+  "status": "in-progress",
+  "reason": "Root-approved colocated accounting and compatibility reads, exact migration and strict metadata validation; verification and draft PR precede Root merge. The external lane brief stays with Root.",
+  "lastReviewed": "2026-11-08"
+}

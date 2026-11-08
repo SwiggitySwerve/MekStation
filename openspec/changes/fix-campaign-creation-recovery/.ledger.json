@@ -1,0 +1,6 @@
+{
+  "name": "fix-campaign-creation-recovery",
+  "status": "in-progress",
+  "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
+  "lastReviewed": "2026-11-08"
+}
