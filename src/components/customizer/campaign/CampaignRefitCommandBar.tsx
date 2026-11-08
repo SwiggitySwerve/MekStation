@@ -68,6 +68,7 @@ export function CampaignRefitCommandBar({
   const tonnage = useUnitStore((state) => state.tonnage);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
   const targetConfiguration = useMemo(
     () =>
@@ -114,7 +115,9 @@ export function CampaignRefitCommandBar({
         : 0,
     [session, targetConfiguration],
   );
-  const canSaveRefit = validation.isValid && changeCount > 0 && !isSaving;
+  const canSaveRefit =
+    (pendingOrderId !== null || (validation.isValid && changeCount > 0)) &&
+    !isSaving;
 
   // Single muted context string: campaign, plain campaign date (never raw ISO),
   // budget, rules level, and the refit constraint label. Shown truncated with a
@@ -138,56 +141,72 @@ export function CampaignRefitCommandBar({
   }, [router, session]);
 
   const handleSave = useCallback(async () => {
-    if (!session) return;
+    if (!session || isSaving) return;
     setSaveError(null);
-
-    const latestTarget = extractMechBuildConfigFromUnitState(store.getState());
-    const latestValidation = validateConstruction(latestTarget);
-    if (!latestValidation.isValid) {
-      setSaveError('Resolve construction blockers before saving this refit.');
-      return;
-    }
-    const latestChangeCount = countConfigurationChanges(
-      session.currentConfiguration,
-      latestTarget,
-    );
-    if (latestChangeCount === 0) {
-      setSaveError('Make at least one refit change before saving an order.');
-      return;
-    }
-
-    const result = commitRefitOrder({
-      unitId: session.route.unitId,
-      currentConfiguration: session.currentConfiguration,
-      targetConfiguration: latestTarget,
-    });
-    if (!result.applied) {
-      setSaveError(result.reason ?? 'Campaign refit order could not be saved.');
-      return;
-    }
-
-    // The return page reports the order as saved, so it must be on the
-    // server before we leave. Navigating on the debounced auto-save alone
-    // left only the unacknowledged page-hide flush to carry it.
     setIsSaving(true);
-    const durableSave = await useCampaignPersistenceStore
-      .getState()
-      .saveCampaign();
-    if (durableSave.status !== 'saved') {
+    try {
+      let orderId = pendingOrderId;
+      if (!orderId) {
+        const latestTarget = extractMechBuildConfigFromUnitState(
+          store.getState(),
+        );
+        const latestValidation = validateConstruction(latestTarget);
+        if (!latestValidation.isValid) {
+          setSaveError(
+            'Resolve construction blockers before saving this refit.',
+          );
+          return;
+        }
+        const latestChangeCount = countConfigurationChanges(
+          session.currentConfiguration,
+          latestTarget,
+        );
+        if (latestChangeCount === 0) {
+          setSaveError(
+            'Make at least one refit change before saving an order.',
+          );
+          return;
+        }
+        const result = await commitRefitOrder({
+          campaignId: session.route.campaignId,
+          unitId: session.route.unitId,
+          currentConfiguration: session.currentConfiguration,
+          targetConfiguration: latestTarget,
+        });
+        if (!result.applied || !result.order) {
+          setSaveError(
+            result.reason ?? 'Campaign refit order could not be saved.',
+          );
+          return;
+        }
+        orderId = result.order.id;
+        setPendingOrderId(orderId);
+      }
+      // Retry the same recorded order after a failed save; admission must not
+      // create a duplicate, and navigation requires a durable acknowledgement.
+      const durableSave = await useCampaignPersistenceStore
+        .getState()
+        .saveCampaign();
+      if (durableSave.status !== 'saved') {
+        setSaveError(refitSaveFailureMessage(durableSave));
+        return;
+      }
+      store.getState().markModified(false);
+      navigateToCampaignCustomizerReturn(
+        router,
+        buildCampaignCustomizerReturnHref(session.route, {
+          status: 'saved',
+          refitOrderId: orderId,
+        }),
+      );
+    } catch (error) {
+      setSaveError(
+        error instanceof Error ? error.message : 'Refit order was not saved.',
+      );
+    } finally {
       setIsSaving(false);
-      setSaveError(refitSaveFailureMessage(durableSave));
-      return;
     }
-
-    store.getState().markModified(false);
-    navigateToCampaignCustomizerReturn(
-      router,
-      buildCampaignCustomizerReturnHref(session.route, {
-        status: 'saved',
-        refitOrderId: result.order?.id,
-      }),
-    );
-  }, [router, session, store]);
+  }, [router, session, store, isSaving, pendingOrderId]);
 
   if (!session) return null;
 
@@ -293,7 +312,7 @@ export function CampaignRefitCommandBar({
           }
           data-testid="campaign-refit-save"
         >
-          Save Refit Order
+          {pendingOrderId ? 'Retry Save' : 'Save Refit Order'}
         </button>
       </div>
     </section>

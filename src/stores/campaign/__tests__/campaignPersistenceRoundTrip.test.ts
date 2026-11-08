@@ -42,6 +42,7 @@ import {
   deserializeCampaignBody,
   serializeCampaign as serializeCampaignBody,
 } from '@/lib/campaign/persistence/serializeCampaign';
+import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfiguration';
 import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
@@ -204,6 +205,32 @@ function currentCampaign(): ICampaignWithCommand {
 // =============================================================================
 
 describe('D-1 — campaign persistence round-trip (save → reload seam)', () => {
+  it('keeps duplicate open refits and cancelled history through save and repeated reload', () => {
+    const id = seedCampaign();
+    const first = {
+      id: 'first',
+      unitId: 'unit-a',
+      status: 'in-progress' as const,
+      targetConfiguration: DEFAULT_UNIT_CONFIGURATION,
+      refitClass: RefitClass.EquipmentSwap,
+      estimatedCost: 1000,
+      estimatedHours: 20,
+      hoursCompleted: 7,
+      createdAt: '3025-02-01',
+    };
+    const orders = [
+      first,
+      { ...first, id: 'second', status: 'proposed' as const },
+      { ...first, id: 'old', status: 'cancelled' as const },
+    ];
+    useCampaignStore().getState().updateCampaign({ refitOrders: orders });
+    for (let read = 0; read < 2; read++) {
+      useCampaignStore().getState().saveCampaign();
+      resetCampaignStore();
+      expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
+      expect(currentCampaign().refitOrders).toEqual(orders);
+    }
+  });
   it('loads legacy acquisitions identically on server and local paths and stays identical after loading twice', () => {
     const id = seedCampaign();
     addAcquisitionRequest({

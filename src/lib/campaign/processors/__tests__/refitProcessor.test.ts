@@ -20,6 +20,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 
 import { DayPhase } from '../../dayPipeline';
+import { cancelRefitOrder } from '../../refit/refitPipeline';
 import { refitProcessor } from '../refitProcessor';
 
 const TEST_DATE = new Date('3025-02-01T00:00:00.000Z');
@@ -74,6 +75,58 @@ function makeOrder(overrides: Partial<IRefitOrder> = {}): IRefitOrder {
 }
 
 describe('refitProcessor', () => {
+  it.each(['proposed', 'in-progress'] as const)(
+    'pauses a legacy duplicate %s order without dropping data',
+    (status) => {
+      const first = makeOrder({ id: 'first', estimatedHours: 8 });
+      const duplicate = makeOrder({
+        id: 'duplicate',
+        status,
+        estimatedHours: 8,
+      });
+      const other = makeOrder({
+        id: 'other',
+        unitId: 'unit-2',
+        estimatedHours: 8,
+      });
+      const campaign = makeCampaign([first, duplicate, other]);
+      const result = refitProcessor.process(campaign, TEST_DATE);
+      expect(result.campaign.refitOrders).toHaveLength(3);
+      expect(result.campaign.refitOrders?.slice(0, 2)).toEqual([
+        first,
+        duplicate,
+      ]);
+      expect(result.campaign.unitConfigurations?.['unit-1']).toBeUndefined();
+      expect(result.campaign.refitOrders?.[2].status).toBe('completed');
+      expect(result.events.some((event) => event.severity === 'warning')).toBe(
+        true,
+      );
+
+      const resolved = {
+        ...result.campaign,
+        refitOrders: [
+          first,
+          cancelRefitOrder(duplicate),
+          result.campaign.refitOrders![2],
+        ],
+      };
+      const resumed = refitProcessor.process(resolved, TEST_DATE);
+      expect(resumed.campaign.refitOrders?.[0].status).toBe('completed');
+      expect(resumed.campaign.refitOrders?.[1]).toEqual(
+        cancelRefitOrder(duplicate),
+      );
+    },
+  );
+
+  it('never progresses or applies a cancelled target', () => {
+    const campaign = makeCampaign([
+      makeOrder({ status: 'cancelled', estimatedHours: 8 }),
+    ]);
+    expect(refitProcessor.process(campaign, TEST_DATE)).toEqual({
+      campaign,
+      events: [],
+    });
+  });
   it('registers in the DayPhase.UNITS block', () => {
     expect(refitProcessor.id).toBe('refit');
     expect(refitProcessor.phase).toBe(DayPhase.UNITS);

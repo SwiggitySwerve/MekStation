@@ -1,0 +1,6 @@
+{
+  "name": "guard-and-cancel-refit-orders",
+  "status": "in-progress",
+  "reason": "Root approved K8 cancellation, single open order admission and read-safe legacy conflicts on 2026-11-08.",
+  "lastReviewed": "2026-11-08"
+}
