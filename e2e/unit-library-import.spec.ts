@@ -12,7 +12,7 @@ test('retains unsupported-family, malformed-source and server diagnostics with r
   await page.getByRole('button', { name: 'Import Unit', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Import Unit', exact: true });
   // Handheld weapons are owner-excluded and remain unsupported as BLK families expand.
-  await dialog.getByLabel('Unit file').setInputFiles({
+  await dialog.getByLabel('Unit file', { exact: true }).setInputFiles({
     name: 'unsupported.blk',
     mimeType: 'text/plain',
     buffer: Buffer.from('<UnitType>\nHandheldWeapon\n</UnitType>\n'),
@@ -20,7 +20,7 @@ test('retains unsupported-family, malformed-source and server diagnostics with r
   await dialog.getByRole('button', { name: 'Import', exact: true }).click();
   await expect(dialog.getByRole('alert')).toContainText('HandheldWeapon');
   await dialog.getByRole('button', { name: 'Choose another file' }).click();
-  await dialog.getByLabel('Unit file').setInputFiles({
+  await dialog.getByLabel('Unit file', { exact: true }).setInputFiles({
     name: 'malformed.mtf',
     mimeType: 'text/plain',
     buffer: Buffer.from('not a unit'),
@@ -30,7 +30,7 @@ test('retains unsupported-family, malformed-source and server diagnostics with r
     /pars|missing|invalid/i,
   );
   await dialog.getByRole('button', { name: 'Choose another file' }).click();
-  await dialog.getByLabel('Unit file').setInputFiles({
+  await dialog.getByLabel('Unit file', { exact: true }).setInputFiles({
     name: 'recovery.mtf',
     mimeType: 'text/plain',
     buffer: Buffer.from(fixtures.rows[0].base64, 'base64'),
@@ -98,7 +98,7 @@ test('imports pinned MTF and vehicle BLK into the library and reopens after relo
       ).toBeFocused();
       await page.keyboard.press('Tab');
       await expect(close).toBeFocused();
-      await dialog.getByLabel('Unit file').setInputFiles({
+      await dialog.getByLabel('Unit file', { exact: true }).setInputFiles({
         name: source.path.split('/').pop()!,
         mimeType: 'text/plain',
         buffer,
@@ -137,6 +137,9 @@ test('imports pinned MTF and vehicle BLK into the library and reopens after relo
       page.getByRole('row', { name: /Scorpion Light Tank/ }),
     ).toBeVisible();
     await page.getByRole('link', { name: 'Create Unit' }).first().click();
+    await expect(page).toHaveURL(/\/customizer(?:\/|\?|$)/, {
+      timeout: 60_000,
+    });
     await page
       .getByRole('button', { name: 'Load from Library', exact: true })
       .click();
@@ -150,7 +153,9 @@ test('imports pinned MTF and vehicle BLK into the library and reopens after relo
       .getByRole('button', { name: 'Load Unit', exact: true })
       .click();
     await expect(library).toBeHidden();
-    await expect(page.getByRole('tab', { name: /Mek/ })).toBeVisible();
+    await expect(
+      page.getByRole('tab', { name: 'Locust LCT-1V', exact: true }),
+    ).toHaveAttribute('aria-selected', 'true');
     const readImportedEditor = () =>
       page.evaluate(() => {
         const id = location.pathname.split('/')[2];
@@ -164,7 +169,9 @@ test('imports pinned MTF and vehicle BLK into the library and reopens after relo
       librarySave: { id: ids[0] },
     });
     await page.reload();
-    await expect(page.getByRole('tab', { name: /Mek/ })).toBeVisible();
+    await expect(
+      page.getByRole('tab', { name: 'Locust LCT-1V', exact: true }),
+    ).toHaveAttribute('aria-selected', 'true');
     await expect.poll(readImportedEditor).toMatchObject({
       chassis: 'Locust',
       model: 'LCT-1V',

@@ -121,7 +121,7 @@ export function useUnitImport(
           if (typeof unit.chassis === 'string') {
             const name = await customUnitApiService.suggestCloneName(
               unit.chassis,
-              String(unit.variant ?? unit.model ?? ''),
+              String(unit.variant || unit.model || ''),
             );
             suggestion = name.suggestedVariant;
           }

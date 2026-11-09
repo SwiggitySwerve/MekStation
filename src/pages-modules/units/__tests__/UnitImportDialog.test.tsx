@@ -60,7 +60,7 @@ it('does not attach an old conflict suggestion to a new unit', async () => {
     .mockResolvedValueOnce({
       success: true,
       filename: 'A.json',
-      unit: { chassis: 'A', variant: '1' },
+      unit: { chassis: 'A', variant: '', model: '1' },
     })
     .mockResolvedValueOnce(prepared('B'));
   const suggestion = deferred<{
@@ -88,6 +88,7 @@ it('does not attach an old conflict suggestion to a new unit', async () => {
     pending = result.current.submit();
     await Promise.resolve();
   });
+  expect(customUnitApiService.suggestCloneName).toHaveBeenCalledWith('A', '1');
   await act(async () => {
     await result.current.selectFile(file('B'));
   });
