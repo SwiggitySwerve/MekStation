@@ -9,6 +9,7 @@ interface PilotCreationWizardFooterProps {
   canProceed: boolean;
   currentStep: WizardStep;
   isLoading: boolean;
+  hasCreationFailed: boolean;
   onBack: () => void;
   onClose: () => void;
   onCreate: () => void;
@@ -57,13 +58,19 @@ export function PilotCreationWizardFooter({
   canProceed,
   currentStep,
   isLoading,
+  hasCreationFailed,
   onBack,
   onClose,
   onCreate,
   onNext,
 }: PilotCreationWizardFooterProps): React.ReactElement {
-  const backLabel = currentStep === 'mode' ? 'Cancel' : 'Back';
-  const handleBackClick = currentStep === 'mode' ? onClose : onBack;
+  const backLabel = hasCreationFailed
+    ? 'Return to roster'
+    : currentStep === 'mode'
+      ? 'Cancel'
+      : 'Back';
+  const handleBackClick =
+    hasCreationFailed || currentStep === 'mode' ? onClose : onBack;
 
   return (
     <div className="border-border-theme-subtle bg-surface-deep/50 flex items-center justify-between border-t px-6 py-4">
@@ -77,6 +84,7 @@ export function PilotCreationWizardFooter({
             variant="primary"
             onClick={onCreate}
             isLoading={isLoading}
+            disabled={hasCreationFailed}
             leftIcon={<AddIcon />}
           >
             Create Pilot

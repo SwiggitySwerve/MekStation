@@ -45,6 +45,8 @@ interface CreatePilotBody {
   options?: ICreatePilotOptions;
   // For 'template' mode
   template?: PilotExperienceLevel;
+  // Optional reviewed skills for 'random' mode; validate the JSON shape below.
+  skills?: unknown;
   // For 'template' and 'random' mode
   identity?: {
     name: string;
@@ -153,7 +155,27 @@ function handlePost(
             error: 'Missing required field: identity (for random mode)',
           });
         }
-        result = pilotService.createRandom(body.identity);
+        if (body.skills !== undefined) {
+          const skills = body.skills;
+          if (
+            typeof skills !== 'object' ||
+            skills === null ||
+            !('gunnery' in skills) ||
+            typeof skills.gunnery !== 'number' ||
+            !('piloting' in skills) ||
+            typeof skills.piloting !== 'number'
+          ) {
+            return res.status(400).json({
+              error: 'Invalid skills: expected numeric gunnery and piloting',
+            });
+          }
+          result = pilotService.createRandom(body.identity, undefined, {
+            gunnery: skills.gunnery,
+            piloting: skills.piloting,
+          });
+        } else {
+          result = pilotService.createRandom(body.identity);
+        }
         break;
 
       default:
