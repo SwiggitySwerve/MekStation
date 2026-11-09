@@ -140,34 +140,7 @@ export function mapStructureType(
  * Map cockpit type string to CockpitType enum
  */
 export function mapCockpitType(typeStr: string): CockpitType {
-  const native = getNativeCockpitType(typeStr);
-  if (native) return native;
-  const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-
-  if (normalized === 'SMALL' || normalized === 'SMALLCOCKPIT') {
-    return CockpitType.SMALL;
-  }
-  if (normalized === 'COMMAND' || normalized === 'COMMANDCONSOLE') {
-    return CockpitType.COMMAND_CONSOLE;
-  }
-  if (
-    normalized === 'TORSO' ||
-    normalized === 'TORSOMOUNTED' ||
-    normalized === 'TORSOMOUNTEDCOCKPIT'
-  ) {
-    return CockpitType.TORSO_MOUNTED;
-  }
-  if (normalized === 'PRIMITIVE' || normalized === 'PRIMITIVECOCKPIT') {
-    return CockpitType.PRIMITIVE;
-  }
-  if (normalized === 'INDUSTRIAL' || normalized === 'INDUSTRIALCOCKPIT') {
-    return CockpitType.INDUSTRIAL;
-  }
-  if (normalized === 'SUPERHEAVY' || normalized === 'SUPERHEAVYCOCKPIT') {
-    return CockpitType.SUPER_HEAVY;
-  }
-
-  return CockpitType.STANDARD;
+  return getNativeCockpitType(typeStr) ?? CockpitType.STANDARD;
 }
 
 /**

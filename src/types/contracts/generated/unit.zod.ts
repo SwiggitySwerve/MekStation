@@ -206,6 +206,13 @@ export const UnitContract = z
             'VRRP',
             'QUADVEE',
             'PRIMITIVE_INDUSTRIAL',
+            'DUAL',
+            'TRIPOD',
+            'SUPERHEAVY_INDUSTRIAL',
+            'SUPERHEAVY_COMMAND_CONSOLE',
+            'SMALL_COMMAND_CONSOLE',
+            'TRIPOD_INDUSTRIAL',
+            'SUPERHEAVY_TRIPOD_INDUSTRIAL',
           ])
           .describe('Cockpit type'),
         structure: z
@@ -713,6 +720,13 @@ export const UnitContract = z
             'VRRP',
             'QUADVEE',
             'PRIMITIVE_INDUSTRIAL',
+            'DUAL',
+            'TRIPOD',
+            'SUPERHEAVY_INDUSTRIAL',
+            'SUPERHEAVY_COMMAND_CONSOLE',
+            'SMALL_COMMAND_CONSOLE',
+            'TRIPOD_INDUSTRIAL',
+            'SUPERHEAVY_TRIPOD_INDUSTRIAL',
           ])
           .describe('Cockpit type')
           .optional(),

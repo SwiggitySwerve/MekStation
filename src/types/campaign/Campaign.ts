@@ -227,6 +227,16 @@ export interface ICampaign {
   readonly moraleTransitions?: readonly IMoraleTransition[];
 
   /**
+   * Match ids of the battle outcomes company morale has already counted, so a
+   * victory or defeat moves morale once instead of on each of the 31 days it
+   * stays in `recentlyAppliedOutcomes`. Holds exactly the ids of the outcomes
+   * still in that window after the last morale evaluation. Optional — absent
+   * on older campaigns, where the in-window outcomes are counted once on the
+   * first evaluation after loading.
+   */
+  readonly moraleCountedMatchIds?: readonly string[];
+
+  /**
    * Co-op session metadata (`wire-coop-campaign-route`, Wave 6.1).
    *
    * Absent (the `undefined` case) means single-player — every co-op

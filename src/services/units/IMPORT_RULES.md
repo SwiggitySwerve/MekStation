@@ -46,7 +46,7 @@ encoder/decoder retains its existing supported subset and compatibility aliases.
 ProtoMech import retains its existing `PROTO_ARMOR_CODES` admission subset.
 Shared schema defaults do not certify native mount effects. Blank native model names
 remain blank. This API does not promise new editor admission or native parity;
-capital admission and the legacy importer remain open.
+capital admission remains open.
 
 `importMTFDefinition` owns MTF source-to-definition orchestration. It calls the
 existing MTF parser and `loadUnitDefinition` admission contract; it owns no native
@@ -77,8 +77,7 @@ mounts. The Water Elemental Mining Suit remains loadable with its armor-date
 diagnostic. A separately labelled **synthetic** modular-mount source supplements
 these fixtures: none of the 1,188 pinned sources encodes a modular mount in its
 equipment blocks. This synthetic case makes no claim of pinned modular coverage.
-Capital admission and the legacy `IMTFImporter` runtime-object interface remain
-separate work.
+Capital admission remains separate work.
 
 Fourteen original-byte infantry fixtures cover Clan/IS, foot, jump, motorized,
 tracked, wheeled, hover, native Microcopter, Motorized SCUBA and Submarine,
@@ -88,3 +87,10 @@ and reloads through the saved-unit API/client and shared loader, retaining exact
 source snapshots and platoon composition. The Clan Mechanized Tracked Point
 (Laser) remains loadable with its `Maximum squad count is 4` diagnostic. This
 proves import/persistence preservation, not full native semantics or BV parity.
+
+The legacy `IMTFImporter` runtime-object interface and `MTFImportService` are
+retired under owner ruling O2. Their exports, singleton factories and
+`services.conversion.importer` registry entry are removed. No live caller used
+the service or its JSON helpers. MTF source import uses `importMTFDefinition`
+through `POST /api/units/import`; retirement changes no saved format or native
+import rule.

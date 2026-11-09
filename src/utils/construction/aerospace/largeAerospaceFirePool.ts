@@ -55,6 +55,8 @@ export interface ILargeAerospaceArcBV {
   readonly ammoBVByType?: Readonly<Record<string, number>>;
   /** Unmodified ammo-using weapon type BV, not the modified weaponBV above. */
   readonly weaponBVByAmmoType?: Readonly<Record<string, number>>;
+  /** Native cap entries of defensive launchers; trace-only, never capped against. */
+  readonly nonOffensiveCapBVByAmmoType?: Readonly<Record<string, number>>;
   readonly weaponGroups?: readonly ILargeAerospaceWeaponGroup[];
 }
 

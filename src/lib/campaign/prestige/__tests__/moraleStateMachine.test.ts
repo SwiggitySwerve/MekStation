@@ -76,6 +76,52 @@ describe('evaluateMoraleTransition', () => {
     expect(result.direction).toBe('up');
   });
 
+  describe('a null pay signal (no costs event that day) is neutral', () => {
+    it('holds morale when nothing else happened', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ payMet: null }),
+        OCCURRED_AT,
+      );
+
+      expect(result.direction).toBeNull();
+      expect(result.transition).toBeNull();
+      expect(result.to).toBe(MoraleState.Steady);
+    });
+
+    it('lets a single victory raise morale, and a single defeat lower it', () => {
+      const up = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentVictories: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+      const down = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentDefeats: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+
+      expect(up.to).toBe(MoraleState.High);
+      expect(down.to).toBe(MoraleState.Unhappy);
+    });
+
+    it('does not claim pay was met or missed in the reason', () => {
+      const up = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentVictories: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+      const down = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentDefeats: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+
+      expect(up.transition?.reason).not.toMatch(/pay/);
+      expect(down.transition?.reason).not.toMatch(/pay/);
+    });
+  });
+
   it('cannot step above the maximum state', () => {
     const result = evaluateMoraleTransition(
       MoraleState.Elite,

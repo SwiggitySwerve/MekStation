@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react';
 /**
  * Vehicle Store Factory
  *
@@ -7,8 +8,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
-
-import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -23,11 +22,14 @@ import {
   createUnitStorePersistOptions,
   createUnitIdentityActions,
   modificationPatch,
-  pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { IEquipmentItem } from '@/types/equipment';
 import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
+import {
+  pickPersistedVehicleState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 import {
   VehicleState,
   VehicleStore,
@@ -293,46 +295,9 @@ export function createVehicleStore(
       }),
       createUnitStorePersistOptions(
         `megamek-vehicle-${initialState.id}`,
-        (state: VehicleStore) => ({
-          ...pickPersistedUnitIdentity(state),
-          tonnage: state.tonnage,
-          techBase: state.techBase,
-          unitType: state.unitType,
-          motionType: state.motionType,
-          isOmni: state.isOmni,
-          baseChassisTurretWeight: state.baseChassisTurretWeight,
-          baseChassisSecondaryTurretWeight:
-            state.baseChassisSecondaryTurretWeight,
-          hasNoControlSystems: state.hasNoControlSystems,
-          engineType: state.engineType,
-          engineRating: state.engineRating,
-          engineTechRating: state.engineTechRating,
-          structuralTechRating: state.structuralTechRating,
-          cruiseMP: state.cruiseMP,
-          turret: state.turret,
-          secondaryTurret: state.secondaryTurret,
-          armorType: state.armorType,
-          usesBarArmor: state.usesBarArmor,
-          armorTechRating: state.armorTechRating,
-          armorTonnage: state.armorTonnage,
-          armorAllocation: state.armorAllocation,
-          isSuperheavy: state.isSuperheavy,
-          hasEnvironmentalSealing: state.hasEnvironmentalSealing,
-          hasFlotationHull: state.hasFlotationHull,
-          isAmphibious: state.isAmphibious,
-          hasTrailerHitch: state.hasTrailerHitch,
-          isTrailer: state.isTrailer,
-          structureType: state.structureType,
-          crewSize: state.crewSize,
-          passengerSlots: state.passengerSlots,
-          transporters: state.transporters,
-          barRating: state.barRating,
-          powerAmpWeight: state.powerAmpWeight,
-          equipment: state.equipment,
-          isModified: state.isModified,
-          createdAt: state.createdAt,
-          lastModifiedAt: state.lastModifiedAt,
-        }),
+        withUnitLibraryReceipt((state: VehicleStore) =>
+          pickPersistedVehicleState(state),
+        ),
       ),
     ),
   );

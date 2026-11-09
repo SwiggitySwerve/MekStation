@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "574f6f06f7598318cfd4e9f35f4dc81d92d0a768",
+  "cases": [
+    {
+      "family": "vehicle",
+      "storageKey": "megamek-vehicle-70000000-0000-4000-8000-000000000001",
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000001\",\"name\":\"Legacy vehicle\",\"chassis\":\"Legacy\",\"model\":\"vehicle\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Standard\",\"tonnage\":50,\"techBase\":\"Inner Sphere\",\"unitType\":\"Vehicle\",\"motionType\":\"Tracked\",\"isOmni\":false,\"hasNoControlSystems\":false,\"engineType\":\"Standard Fusion\",\"engineRating\":200,\"cruiseMP\":4,\"turret\":null,\"secondaryTurret\":null,\"armorType\":\"Standard\",\"armorTonnage\":0,\"armorAllocation\":{\"Front\":0,\"Left\":0,\"Right\":0,\"Rear\":0,\"Turret\":0,\"Turret 2\":0,\"Body\":0},\"isSuperheavy\":false,\"hasEnvironmentalSealing\":false,\"hasFlotationHull\":false,\"isAmphibious\":false,\"hasTrailerHitch\":false,\"isTrailer\":false,\"structureType\":\"Standard\",\"crewSize\":0,\"passengerSlots\":0,\"barRating\":null,\"powerAmpWeight\":0,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}"
+    },
+    {
+      "family": "aerospace",
+      "storageKey": "megamek-aerospace-70000000-0000-4000-8000-000000000002",
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000002\",\"name\":\"Legacy aerospace\",\"chassis\":\"Legacy\",\"model\":\"aerospace\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Standard\",\"tonnage\":50,\"techBase\":\"Inner Sphere\",\"unitType\":\"Aerospace\",\"aerospaceSubType\":\"AerospaceFighter\",\"motionType\":\"Aerodyne\",\"isOmni\":false,\"engineType\":\"Standard Fusion\",\"aerospaceEngineType\":\"Fusion\",\"engineRating\":250,\"safeThrust\":5,\"fuelTons\":5,\"structuralIntegrity\":5,\"cockpitType\":\"Standard\",\"heatSinks\":10,\"doubleHeatSinks\":false,\"armorType\":\"Standard\",\"armorTonnage\":0,\"armorAllocation\":{\"Nose\":0,\"Left Wing\":0,\"Right Wing\":0,\"Aft\":0},\"hasBombBay\":false,\"bombCapacity\":0,\"hasReinforcedCockpit\":false,\"hasEjectionSeat\":true,\"crew\":null,\"equipment\":[],\"isModified\":false,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}"
+    },
+    {
+      "family": "infantry",
+      "storageKey": "megamek-infantry-70000000-0000-4000-8000-000000000003",
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000003\",\"name\":\"Legacy infantry\",\"chassis\":\"Legacy\",\"model\":\"infantry\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Introductory\",\"techBase\":\"Inner Sphere\",\"unitType\":\"Infantry\",\"squadSize\":4,\"numberOfSquads\":7,\"motionType\":\"Foot\",\"infantryMotive\":\"Foot\",\"platoonComposition\":{\"squads\":7,\"troopersPerSquad\":4},\"groundMP\":1,\"jumpMP\":0,\"primaryWeapon\":\"Rifle\",\"secondaryWeaponCount\":0,\"armorKit\":\"None\",\"damageDivisor\":1,\"specialization\":\"None\",\"hasAntiMechTraining\":false,\"isAugmented\":false,\"fieldGuns\":[],\"bvBreakdown\":{\"baseBV\":42,\"structureBV\":42,\"defensiveFactor\":1,\"summaryModifier\":1,\"defensiveBV\":42,\"perTrooper\":0,\"motiveMultiplier\":1,\"antiMechMultiplier\":1,\"fieldGunBV\":0,\"platoonBV\":0,\"pilotMultiplier\":1,\"final\":42,\"primaryBV\":0,\"secondaryBV\":0,\"armorKitBV\":0,\"fieldGunWeaponBV\":0,\"fieldGunAmmoBV\":0,\"troopers\":28,\"armorBV\":0,\"defensiveEquipmentBV\":0,\"explosivePenalty\":0,\"typeModifier\":1,\"ammoBV\":0,\"speedFactor\":1,\"offensiveEquipmentBV\":0,\"weightBV\":0,\"offensiveTypeModifier\":1,\"adjustment\":0},\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}"
+    },
+    {
+      "family": "battlearmor",
+      "storageKey": "megamek-battlearmor-70000000-0000-4000-8000-000000000004",
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000004\",\"name\":\"Legacy battlearmor\",\"chassis\":\"Legacy\",\"model\":\"battlearmor\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Standard\",\"techBase\":\"Inner Sphere\",\"unitType\":\"Battle Armor\",\"chassisType\":\"Biped\",\"weightClass\":\"Medium\",\"weightPerTrooper\":1000,\"squadSize\":4,\"motionType\":\"Jump\",\"groundMP\":1,\"jumpMP\":3,\"hasMechanicalJumpBoosters\":false,\"umuMP\":0,\"leftManipulator\":\"Battle\",\"rightManipulator\":\"Battle\",\"armorType\":0,\"baArmorType\":\"Standard BA\",\"armorPerTrooper\":5,\"hasAPMount\":false,\"hasModularMount\":false,\"hasTurretMount\":false,\"hasStealthSystem\":false,\"hasMimeticArmor\":false,\"hasFireResistantArmor\":false,\"equipment\":[],\"isModified\":false,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}"
+    },
+    {
+      "family": "protomech",
+      "storageKey": "megamek-protomech-70000000-0000-4000-8000-000000000005",
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000005\",\"name\":\"Legacy protomech\",\"chassis\":\"Legacy\",\"model\":\"protomech\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Advanced\",\"techBase\":\"Clan\",\"unitType\":\"ProtoMech\",\"tonnage\":5,\"weightClass\":\"Medium\",\"chassisType\":\"Biped\",\"pointSize\":5,\"engineRating\":30,\"walkMP\":4,\"cruiseMP\":4,\"flankMP\":6,\"jumpMP\":0,\"structureByLocation\":{\"Head\":1,\"Torso\":5,\"Left Arm\":1,\"Right Arm\":1,\"Legs\":3,\"Main Gun\":0},\"armorByLocation\":{\"Head\":0,\"Torso\":0,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":0,\"Main Gun\":0},\"armorType\":0,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"glidingWings\":false,\"hasMagneticClamps\":false,\"hasExtendedTorsoTwist\":false,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000,\"bvBreakdown\":{\"defensiveBV\":21.45,\"offensiveBV\":0,\"baseBV\":21,\"chassisMultiplier\":1,\"pilotMultiplier\":1,\"final\":21,\"armorBV\":0,\"structureBV\":16.5,\"defensiveEquipmentBV\":0,\"explosivePenalty\":0,\"defensiveFactor\":1.3,\"weaponBV\":0,\"ammoBV\":0,\"physicalWeaponBV\":0,\"offensiveEquipmentBV\":0,\"speedFactor\":1.12}},\"version\":0}"
+    }
+  ]
+}

@@ -235,8 +235,8 @@ export function selectActiveLoans(
  * Get the contracts eligible for scenario generation.
  *
  * A contract is eligible when its endDate is in the future or undefined.
- * This deliberately does not inspect status because scenario generation
- * historically used only the end-date predicate.
+ * This is the end-date predicate only and does not inspect status; scenario
+ * generation uses `selectActiveContracts`, which adds the ACTIVE status check.
  */
 export function getActiveContracts(campaign: ICampaign): readonly IContract[] {
   const now = campaign.currentDate.getTime();
