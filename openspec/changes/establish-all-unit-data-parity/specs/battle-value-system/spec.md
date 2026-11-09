@@ -262,6 +262,35 @@ defensive-only results SHALL NOT receive weapon terms.
 - **AND** the nose, aft large laser and aft machine gun SHALL appear at NOS, AFT and AFT with values 30.75, 123 and 10
 - **AND** the terms SHALL sum to the weapon fire-pool BV and final BV 919 SHALL remain unchanged
 
+### Requirement: Large aerospace native ammunition diagnostic projection
+
+The complete large aerospace trace SHALL project the native ammunition pools the
+pinned calculator assembles: per BV arc, `ammo.cap` (the unweighted base BV of
+ammo-using weapons) and `ammo.available` (the unweighted ammunition BV with
+multi-ton ratio, omitting depleted bins), keyed `<BV arc index>:<type>:<rack>`;
+and `ammo.arc.<name>` for every arc, the weighted and capped ammunition added
+when that arc is processed, including zero. A screen launcher SHALL keep its
+native `SCREEN_LAUNCHER:0` cap entry as a trace-only fact without becoming an
+offensive weapon or ammunition. Arc names SHALL follow the unit kind (DropShip
+wings `Left Side`, `Left Side (R)` and so on; otherwise `Left Front Side`,
+`Aft Left Side`, and `Left Broadsides` for WarShips). Existing valuation, caps,
+arc selection, aggregates, totals and defensive-only scope SHALL remain
+unchanged, and defensive-only results SHALL NOT receive ammunition terms.
+
+#### Scenario: Pinned WarShip pools and broadsides
+
+- **GIVEN** the pinned Bonaventure Corvette (2317) with LRM-15 launchers in the nose and aft and AC/10 launchers on both broadsides
+- **WHEN** its complete large aerospace trace is calculated
+- **THEN** ammo.cap SHALL equal 272 at arcs 0 and 3 (`LRM:15`) and 246 at arcs 6 and 7 (`AC:10`), and ammo.available SHALL equal 119 and 120 at the same keys
+- **AND** ammo.arc SHALL equal 119 (Nose), 59.5 (Aft) and 30 each for Left and Right Broadsides, with zero for the other four arcs
+- **AND** final BV SHALL remain unchanged
+
+#### Scenario: Screen launcher cap entry
+
+- **GIVEN** nose screen launchers whose pinned-Java cap entry is 480 (the Hamilcar 3084 value, 3 x 160)
+- **WHEN** the trace is projected
+- **THEN** ammo.cap at arc 0 SHALL list `SCREEN_LAUNCHER:0` as 480 with no availability and no offensive BV
+
 ### Requirement: Capital ship defensive BV dispatch
 
 JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
