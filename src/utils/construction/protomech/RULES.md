@@ -510,3 +510,25 @@ the trace formats that value and falls back to the local index for existing
 breakdowns. Sprite 3 therefore renames only raw weapon indices 8/9/10 to
 10/13/14. Source equipment, explicit ammo, quantities, equipment projections,
 classification, caps, arithmetic, validity and persistence are unchanged.
+
+## Movement construction rules
+
+Pinned MegaMek `48fcb2f64` `TestProtoMek.correctMovement` (TestProtoMek.java:445-464)
+and `maxJumpMP` (:84-92) are implemented once in `movementRules.ts`, which source
+validation (`getProtoSourceConstructionErrors`) and the editor rules
+(`validateProtoMP`) both call. A glider must run at least 4 and a quad at least 3
+(exclusive checks, as in Java); jump MP and the UMU count must each be at most the
+original walk MP, or `ceil(1.5 x walk)` when an Extended Jump Jet System is mounted.
+That jet is `S_IMPROVED` (MiscType.java:2054-2060); the equipment catalog has no entry
+or flag for it, so `isProtoExtendedJumpJet` is the one predicate that names it.
+
+The pinned verifier has no weight-class walk or jump cap, no glider weight limit, no
+ban on an ultraheavy jumping and no Myomer Booster weight class. The editor rules that
+claimed them are removed (they had no production caller). Evidence:
+`__tests__/fixtures/movement-java-verdicts.json` (the 86 canonical units plus 20
+synthetic variants, with the probe and pins beside it). Production already agreed with
+Java on all 86 canonical units; the rule adds only findings Java also reports.
+Not changed: the weight-class tables still used as editor input clamps
+(`getProtoMPCaps`, `isMyomerBoosterLegal`, the Structure tab's ultraheavy jump lock),
+which are the editor-limits item; and the weight owner, which counts jump jets and UMU
+as zero mass (separate observation).
