@@ -474,3 +474,19 @@ These diagnostic facts never enter arithmetic, admission, quantities or caps.
 Legacy breakdowns remain supported without inferred zeros. This establishes
 only the represented zero-term projection, without catalog, source-location,
 persistence or general equipment-rule changes.
+
+## Native weapon indices after intrinsic one-shot ammunition
+
+`nativeEquipmentIndices.ts` owns the diagnostic mapping from source mounts to
+native equipment positions. MegaMek `48fcb2f64` `Entity.java:5093-5175`
+appends intrinsic ammo immediately after its launcher; Fusillade inserts two
+mounts through `F_DOUBLE_ONE_SHOT`. `AmmoType.java:2443-2447` excludes weapons
+without an ammo type. The independent generated `nativeOneShotAmmoMounts.ts`
+retains those insertion counts without changing the legacy weapon-flag tables.
+
+Weapon snapshots retain their local `equipmentIndex`, identity, location and
+already-admitted BV. Only a shifted snapshot appends `nativeEquipmentIndex`;
+the trace formats that value and falls back to the local index for existing
+breakdowns. Sprite 3 therefore renames only raw weapon indices 8/9/10 to
+10/13/14. Source equipment, explicit ammo, quantities, equipment projections,
+classification, caps, arithmetic, validity and persistence are unchanged.

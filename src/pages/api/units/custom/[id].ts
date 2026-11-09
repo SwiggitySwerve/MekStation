@@ -111,7 +111,12 @@ function handlePut(
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      const statusCode = result.error.errorCode === 'NOT_FOUND' ? 404 : 400;
+      const statusCode =
+        result.error.errorCode === 'READ_ONLY'
+          ? 403
+          : result.error.errorCode === 'NOT_FOUND'
+            ? 404
+            : 400;
       return res.status(statusCode).json(result);
     }
   } catch (error) {

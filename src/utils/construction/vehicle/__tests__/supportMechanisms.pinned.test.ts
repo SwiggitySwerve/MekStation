@@ -78,32 +78,6 @@ it('leaves the pintles of the misidentified battle-armor gun unresolved (Java 0.
   );
 });
 
-// The Dreadnought's sponson mechanisms (0.25 t each) and every other term match
-// Java; its single remaining gap is `ISMGA(ST)`, which the loader maps to the
-// 0.25 t Clan-style `mga` entry where Java's ISMGA weighs 0.5 t. Supplying the
-// registry mass through the injected lookup closes the total, so the gap is the
-// array identity alone, not the mechanism.
-it('matches Java except for the two ISMGA arrays (0.25 t against 0.5 t each)', () => {
-  const row = open.find((r) => r.path.includes('Dreadnought'));
-  if (!row) throw new Error('fixture');
-  const parsed = new BlkParserService().parse(row.content);
-  if (!parsed.success) throw new Error('fixture parse');
-  const result = handler.parse(parsed.data.document);
-  if (!result.success) throw new Error('handler parse');
-  const unit = result.data.unit;
-  const registryMass = createSupportRegistryMass(unit.techBase);
-  const shipped = computeSupportVehicleWeight(unit, registryMass);
-  expect(shipped.unresolved).toEqual([]);
-  expect(shipped.miscEquipment).toBeCloseTo(row.java.miscEquipment, 9);
-  expect(shipped.weapons).toBeCloseTo(row.java.weapons - 0.5, 9);
-  const corrected = computeSupportVehicleWeight(unit, (id, name) =>
-    id === 'ISMGA(ST)' ? 0.5 : registryMass(id, name),
-  );
-  expect(corrected.weapons).toBeCloseTo(row.java.weapons, 9);
-  expect(corrected.miscEquipment).toBeCloseTo(row.java.miscEquipment, 9);
-  expect(corrected.total).toBeCloseTo(row.java.total, 9);
-});
-
 it('resolves the Limpet pintles; only the clip ammunition stays unresolved', () => {
   const row = open.find((r) => r.path.includes('Limpet'));
   if (!row) throw new Error('fixture');

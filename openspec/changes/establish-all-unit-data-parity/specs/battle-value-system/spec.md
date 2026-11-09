@@ -1475,6 +1475,25 @@ Unresolved fallback zeros and missing or unsupported facts SHALL remain absent.
 - **THEN** no absent or unsupported fact SHALL become an invented zero or native location
 - **AND** existing weapon, positive miscellaneous and ammunition projections SHALL remain unchanged
 
+
+### Requirement: ProtoMech native raw weapon indices
+
+The ProtoMech offensive owner SHALL retain local equipment indices and append
+an optional native weapon index where intrinsic one-shot ammo shifts subsequent
+mount positions. The independent generated insertion counts SHALL account for
+two ammo mounts after each Fusillade. The trace SHALL format the supplied native
+index with a local-index fallback for legacy snapshots. Existing source data,
+equipment identities, ammunition, validity, persistence and BV SHALL remain
+unchanged. Legacy weapon-flag tables SHALL remain unchanged.
+
+#### Scenario: Sprite 3 double one-shot launcher positions
+
+- **GIVEN** pinned Sprite 3 source weapon indices 7, 8, 9 and 10
+- **WHEN** its public breakdown and raw weapon terms are calculated
+- **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
+- **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
+- **AND** all mount values, other terms, source data and BV SHALL remain unchanged
+
 ### Requirement: BA weapon diagnostics
 
 The BA mount owner SHALL retain each counted weapon or claw mount with its full

@@ -55,6 +55,7 @@ function unitLoadErrorMessage(error: unknown, fallback: string): string {
 function mapFamilyState(
   store: FamilyEditorState['store'],
   definition: IUnitContract,
+  reference: IUnitDefinitionReference,
 ): FamilyEditorState {
   if (store === 'infantry') {
     const config = mapInfantryDefinition(definition);
@@ -68,7 +69,10 @@ function mapFamilyState(
   if (store === 'battlearmor')
     return { store, state: mapBattleArmorDefinitionToState(definition) };
   if (store === 'capital') {
-    return { store, state: mapCapitalDefinitionToView(definition, uuidv4()) };
+    return {
+      store,
+      state: mapCapitalDefinitionToView(definition, uuidv4(), reference),
+    };
   }
   if (store === 'vehicle') {
     return { store, state: mapToVehicleState(definition) };
@@ -171,7 +175,11 @@ export class UnitLoaderService {
         await this.ensureEquipmentInitialized();
       }
       if (store !== 'battlemech') {
-        const editor = mapFamilyState(store, loaded.definition);
+        const editor = mapFamilyState(
+          store,
+          loaded.definition,
+          loaded.reference,
+        );
         return {
           success: true,
           familyState:
