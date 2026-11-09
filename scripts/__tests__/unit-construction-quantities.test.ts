@@ -434,6 +434,55 @@ describe('settings: each cell is checked against the local owner of the same rol
       'inapplicable-candidate',
     );
   });
+  test('the support-vehicle armor ceiling is consumed through the inherited patchwork path, so both family cells are missing-local', () => {
+    // TestSupportVehicle.java:773-774 calls super.calculateWeightExact(), which
+    // reaches getWeightAllocatedArmor (TestEntity.java:1017-1018, :600-616) on
+    // patchwork armor. Zero corpus patchwork rows does not remove that path.
+    const rows = [
+      { path: 'vehicles/sv.blk', sha256: 'd'.repeat(64) },
+      { path: 'convfighter/fws.blk', sha256: 'e'.repeat(64) },
+    ];
+    const result = buildQuantityReport(
+      rows.map((row) => local(values(), row)) as never,
+      [
+        reference(
+          JAVA,
+          MEK_SETTINGS,
+          {},
+          rows[0],
+          'SupportTank',
+          'TestSupportVehicle',
+        ),
+        reference(
+          JAVA,
+          MEK_SETTINGS,
+          {},
+          rows[1],
+          'FixedWingSupport',
+          'TestSupportVehicle',
+        ),
+      ] as never,
+      ['vehicles', 'aerospace'],
+    );
+    for (const family of ['vehicles', 'aerospace']) {
+      const item = result.settings.cells
+        .find(
+          (c) =>
+            c.family === family && c.verifierClass === 'TestSupportVehicle',
+        )!
+        .results.find((r) => r.key === 'getWeightCeilingArmor')!;
+      expect(item.status).toBe('missing-local');
+      expect(item.reason).toContain('patchwork');
+      expect(
+        result.settings.inapplicableCandidates.some(
+          (c) =>
+            c.family === family &&
+            c.verifierClass === 'TestSupportVehicle' &&
+            c.key === 'getWeightCeilingArmor',
+        ),
+      ).toBe(false);
+    }
+  });
   test('an absent rule cannot be cited, so skip and showUnderweightEntity stay missing-local', () => {
     const result = buildQuantityReport(
       [local(values())] as never,

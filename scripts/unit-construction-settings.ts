@@ -127,8 +127,10 @@ export const SETTING_SPECS: readonly ISettingSpec[] = [
       TestTank: 'TestEntity.java:600-616 via :1018 (patchwork armor only)',
       TestAero:
         'TestEntity.java:600-616 via TestAero.java:1106 (patchwork armor only)',
+      TestSupportVehicle:
+        'TestEntity.java:600-616 via :1017-1018, inherited through TestSupportVehicle.java:773-774 super.calculateWeightExact() (patchwork armor only; TestSupportVehicle.java:79 extends TestEntity without overriding the getter or getWeightAllocatedArmor; :701 handles patchwork)',
     },
-    note: 'sole consumer is getWeightAllocatedArmor (TestEntity.java:600-616); its only callers are TestEntity.java:1018 and TestAero.java:1106; TestProtoMek.java:176 overrides it without the option',
+    note: 'sole consumer is getWeightAllocatedArmor (TestEntity.java:600-616); its callers are TestEntity.java:1018 (inherited by TestMek, TestTank and TestSupportVehicle via calculateWeightExact) and TestAero.java:1106; TestProtoMek.java:176 overrides it without the option. Zero corpus patchwork rows does not remove a callable numeric path',
   },
   {
     key: 'getWeightCeilingControls',
