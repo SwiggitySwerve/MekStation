@@ -3,10 +3,10 @@ import type { InfantryState } from '@/stores/infantryState';
 import type { ProtoMechState } from '@/stores/protoMechState';
 
 import { projectBattleArmorDefinition } from '@/services/units/unitLoaderService/battleArmorDefinitionProjection';
+import { projectInfantryDefinition } from '@/services/units/unitLoaderService/infantryDefinitionProjection';
 import {
   mapProtoMechDefinitionToState,
   mapBattleArmorDefinitionToState,
-  PROTO_ARMOR_CODES,
 } from '@/services/units/unitLoaderService/smallUnitDefinitionMapper';
 import {
   BattleArmorLocation,
@@ -24,10 +24,8 @@ import {
   infantryEditorSchema,
 } from '@/types/unit/SmallUnitSerialization';
 import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
-import {
-  squadMotionTypeForMotive,
-  totalTroopers,
-} from '@/utils/construction/infantry/platoonComposition';
+import { squadMotionTypeForMotive } from '@/utils/construction/infantry/platoonComposition';
+import { protoArmorContractType } from '@/utils/construction/protomech/armorType';
 
 import type { CustomUnitSaveIdentity } from './CustomUnitSerializer';
 
@@ -78,28 +76,10 @@ export function serializeCustomSmallUnitState(
     techBase: value.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
     rulesLevel: RULES_LEVEL[value.rulesLevel],
     ...(value.unitType === UnitType.INFANTRY
-      ? {
-          platoon: {
-            squadSize: value.squadSize,
-            squadCount: value.numberOfSquads,
-            totalTroopers: totalTroopers(value.platoonComposition),
-          },
-          motionType: value.motionType.toUpperCase(),
+      ? projectInfantryDefinition({
+          ...value,
           motiveType: squadMotionTypeForMotive(value.infantryMotive),
-          primaryWeapon: {
-            id: value.primaryWeaponId ?? value.primaryWeapon,
-            name: value.primaryWeapon,
-          },
-          secondaryWeapon: value.secondaryWeapon
-            ? {
-                id: value.secondaryWeaponId ?? value.secondaryWeapon,
-                name: value.secondaryWeapon,
-                count: value.secondaryWeaponCount,
-              }
-            : undefined,
-          armorKit: value.armorKit,
-          damageDivisor: value.damageDivisor,
-        }
+        })
       : value.unitType === UnitType.PROTOMECH
         ? {
             tonnage: value.tonnage,
@@ -113,11 +93,7 @@ export function serializeCustomSmallUnitState(
             },
             movement: { cruiseMP: value.cruiseMP, jumpMP: value.jumpMP },
             armor: {
-              type: Object.entries(PROTO_ARMOR_CODES).find(
-                ([, code]) =>
-                  code ===
-                  (value.armorType || PROTO_ARMOR_CODES.STANDARD_PROTOMEK),
-              )?.[0],
+              type: protoArmorContractType(value.armorType),
               byLocation: Object.fromEntries(
                 Object.entries(value.armorByLocation).map(([key, points]) => [
                   location(key),

@@ -87,6 +87,8 @@ export const customCombatSnapshotSchema = mech
     omniPodHeatSinks: true,
     // Editor-only Mixed Tech selections; combat reads the components themselves.
     componentTechBases: true,
+    // Editor-only print crew; combat does not read named seats.
+    crewSeats: true,
   })
   .extend({
     unitType: z.literal('BattleMech'),
@@ -132,6 +134,7 @@ const nativeSnapshot = native
     sourceDefinition: true,
     weaponQuirks: true,
     componentTechBases: true,
+    crewSeats: true,
     configuration: true,
     gyro: true,
     criticalSlots: true,

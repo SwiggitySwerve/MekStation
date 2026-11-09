@@ -1,4 +1,4 @@
-﻿# Combat-vehicle construction rules
+# Combat-vehicle construction rules
 
 ## Native Tank complete-weight transport
 
@@ -823,6 +823,37 @@ its source identity. The sweep found no mount with an unresolved heat value, so
 the path loses nothing. Support vehicles are outside this term: Java gives them
 no free sinks (TestSupportVehicle.java:917-931), and the support heat term
 depends on the 2.2-d support weight model.
+
+## Unknown native Tank structure type (pinned)
+
+Fifty-six Tank sources carry `<internal_type>-1</internal_type>`, which is
+MegaMek's `T_STRUCTURE_UNKNOWN` (`EquipmentType.java:138`, 48fcb2f64).
+`BLKTankFile.java:169-172` stores the tag verbatim, and
+`TestTank.getStructure` (:87-95) maps only `1` to Endo Steel. Every other value,
+including `-1`, therefore weighs through the Standard branch of
+`Structure.getWeightStructure` (:65-103): tonnage / 10, rounded up to a half ton.
+
+`computeNativeTankWeight` accepts `0` and `-1` as Standard structure. Any other
+`internal_type` stays unavailable instead of being approximated: Java weighs `1`
+as Endo Steel (a 45 t Bellona: 2.5 t against 4.5 t), and the corpus has no Tank
+with any other value. The 56 rows' totals equal the pinned verifier's
+`calculateWeightExact` with every component equal, and no validity result moves.
+`VehicleStructureUnknown.pinned.test.ts` pins six of them.
+
+## IS Mech Mortar-8 native identity (pinned)
+
+`IS Mech Mortar-8` is the internal name of `ISMekMortar8` (10 t, 5 slots;
+`ISMekMortar8.java`, 48fcb2f64). The general normalizer shortens the name to
+"is mech mortar", which matches nothing, so Mortar Carrier's three front mortars
+had no mass and its complete total was unavailable. The exact-identity table in
+`sourceLookupAliases.ts` now maps it to the catalog record `mech-mortar-8`, which
+holds Java's values. Being an exact identity, it holds on a Clan unit too, where
+unit tech base would otherwise swap the legacy record for the 5 t Clan one.
+
+With it Mortar Carrier weighs 60 t (engine 8.5, structure 6, controls 3, armor
+4.5, equipment 38), equal to the pinned verifier's `calculateWeightExact`.
+`IS Mech Mortar-4` has the same gap, but only owner-excluded `ge` sources use it,
+so it is left unmapped. `VehicleIsMechMortar.pinned.test.ts` pins the unit.
 
 ## Support ammo slot boundary and independent fire-control placement
 

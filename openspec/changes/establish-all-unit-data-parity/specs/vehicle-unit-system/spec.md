@@ -974,6 +974,53 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **THEN** their established targets SHALL remain arrow-iv-launcher, lb-10-x-ac and lb-20-x-ac respectively
 - **AND** the ISLMGA decorator correction SHALL NOT reroute other decorated inputs
 
+### Requirement: Native Tank unknown structure type
+
+Native Tank construction weight SHALL treat an explicit unknown structure type
+(`internal_type` -1, MegaMek `T_STRUCTURE_UNKNOWN`) as Standard structure, as the
+pinned weight verifier does. Any other non-Standard structure type SHALL remain
+unavailable instead of being approximated.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`EquipmentType.java:138`, `BLKTankFile.java:169-172`, `TestTank.java:87-95` and
+`Structure.java:65-103`.
+
+#### Scenario: Unknown structure weighs as Standard
+
+- **GIVEN** a native Tank source with `internal_type` -1
+- **WHEN** native construction weight is calculated
+- **THEN** structure SHALL weigh tonnage / 10 rounded up to a half ton
+- **AND** every component and the complete total SHALL equal the pinned verifier's values
+- **AND** the handler SHALL publish that total without changing validity
+
+#### Scenario: Other structure types stay unavailable
+
+- **GIVEN** a native Tank source with `internal_type` 1 (Endo Steel in the pinned verifier) or any value other than 0 and -1
+- **WHEN** native construction weight is calculated
+- **THEN** no complete total SHALL be published
+
+### Requirement: Native IS Mech Mortar-8 identity
+
+Native equipment resolution SHALL map the Java internal name `IS Mech Mortar-8`
+to the catalog record `mech-mortar-8` (10 t), whatever the unit's tech base, so
+that mounts carrying it have mass.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ISMekMortar8.java`.
+
+#### Scenario: Mortar Carrier complete weight
+
+- **GIVEN** the Mortar Carrier source with three `IS Mech Mortar-8` mounts
+- **WHEN** native construction weight is calculated
+- **THEN** each mortar SHALL weigh 10 tons and the complete total SHALL equal the pinned verifier's 60 tons
+- **AND** the handler SHALL publish that total without changing validity
+
+#### Scenario: Other mech mortar identities are unchanged
+
+- **GIVEN** `IS Mech Mortar-1`, `IS Mech Mortar-2`, `Clan Mech Mortar-4` and `Clan Mech Mortar-8`
+- **WHEN** resolved
+- **THEN** each SHALL resolve to the same record as before
+
 ### Requirement: Support-vehicle heat sink mass
 
 Support-vehicle heat-sink mass SHALL equal the pinned verifier's heat-neutral
