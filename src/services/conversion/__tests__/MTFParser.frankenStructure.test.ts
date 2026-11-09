@@ -1,3 +1,5 @@
+import { UnitContract } from '@/types/contracts';
+
 /**
  * FrankenMek per-location structure tonnage in the in-app MTF importer.
  * Same rule and cases as the converter (scripts/__tests__/test_mtf_franken_structure.py):
@@ -31,6 +33,88 @@ const importStructure = (text: string) => {
 };
 
 describe('MTF importer FrankenMek structure tonnage', () => {
+  it('retains typed donors, including distinct IS and Clan identities', () => {
+    expect(importStructure(GUSTAV.join('\n'))).toMatchObject({
+      typeByLocation: {
+        LEFT_ARM: 'ENDO_STEEL',
+        RIGHT_ARM: 'ENDO_STEEL',
+        RIGHT_TORSO: 'ENDO_STEEL',
+        CENTER_TORSO: 'STANDARD',
+      },
+    });
+    const text = GUSTAV.join('\n').replace(
+      'IS Endo Steel:65',
+      'Clan Endo Steel:65',
+    );
+    expect(importStructure(text)).toMatchObject({
+      typeByLocation: { LEFT_ARM: 'ENDO_STEEL_CLAN' },
+    });
+  });
+
+  it.each(['Unknown Alloy', 'ENDO_STEEL'])(
+    'rejects an unknown native donor spelling %s',
+    (type) => {
+      const parsed = new MTFParserService().parse(
+        GUSTAV.join('\n').replace('IS Endo Steel:65', `${type}:65`),
+      );
+      expect(parsed.success).toBe(false);
+      expect(parsed.errors.join('; ')).toContain(
+        `Unknown structure type for LA: ${type}`,
+      );
+    },
+  );
+
+  it('retains native Standard defaults for missing and scalar Hybrid donors', () => {
+    const text =
+      'chassis:X\nConfig:Biped FrankenMek\nmass:50\nstructure:Hybrid\nLA structure:35';
+    expect(importStructure(text)).toMatchObject({ typeByLocation: {} });
+  });
+
+  it('validates optional donor types and leaves old documents unchanged', () => {
+    const old = new MTFParserService().parse(
+      'chassis:X\nConfig:Biped\nmass:50',
+    ).unit;
+    if (!old) throw new Error('Missing test unit');
+    const legacy = UnitContract.parse(old);
+    expect(legacy.structure).toEqual({ type: 'STANDARD' });
+    const structure = {
+      ...old.structure,
+      typeByLocation: { LEFT_ARM: 'ENDO_COMPOSITE_CLAN' },
+    };
+    expect(UnitContract.parse({ ...old, structure }).structure).toEqual(
+      structure,
+    );
+    for (const typeByLocation of [
+      { LEFT_ARM: 'Unknown Alloy' },
+      { NOT_A_LOCATION: 'STANDARD' },
+    ]) {
+      expect(
+        UnitContract.safeParse({
+          ...old,
+          structure: { ...old.structure, typeByLocation },
+        }).success,
+      ).toBe(false);
+    }
+  });
+
+  it('qualifies unprefixed donor types by chassis while retaining explicit IS types', () => {
+    const text =
+      'chassis:X\nConfig:Biped FrankenMek\nmass:50\ntechbase:Mixed (Clan Chassis)\nstructure:Hybrid\nLA structure:Endo-Composite:50\nRA structure:IS Endo Steel:50';
+    expect(importStructure(text)).toMatchObject({
+      typeByLocation: {
+        LEFT_ARM: 'ENDO_COMPOSITE_CLAN',
+        RIGHT_ARM: 'ENDO_STEEL',
+      },
+    });
+    expect(
+      importStructure(
+        text
+          .replace('structure:Hybrid', 'structure:IS Endo Steel')
+          .replace('LA structure:Endo-Composite:50', 'LA structure:35'),
+      ),
+    ).toMatchObject({ typeByLocation: { LEFT_ARM: 'ENDO_STEEL' } });
+  });
+
   it('keeps each hybrid location tonnage (Schwerer Gustav)', () => {
     expect(importStructure(GUSTAV.join('\n')).locationTonnage).toEqual({
       HEAD: 100,
