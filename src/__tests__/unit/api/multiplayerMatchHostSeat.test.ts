@@ -1,6 +1,7 @@
 /**
- * Pins the assumption behind "a host's spectator seat is not a viewer
- * registration" (`isViewerRegistration`): a normal host holds a PLAYING seat,
+ * Pins the assumption behind "automatic cleanup keeps a live host's own
+ * spectator seat" (`holdsAutoReleasableSpectatorSeat`): a normal host holds a
+ * PLAYING seat,
  * a host holds a spectator seat only when it asks for one (the co-op campaign
  * GM, `hostSeatKind: 'spectator'`), and a player who holds a playing seat can
  * never register as a viewer. If a change breaks any of these, the detach
@@ -14,7 +15,7 @@ import { _resetDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatc
 import { type IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import {
   addSpectatorSeat,
-  isViewerRegistration,
+  holdsAutoReleasableSpectatorSeat,
   SpectatorSeatError,
 } from '@/lib/multiplayer/server/lobby/spectatorSeats';
 import handler from '@/pages/api/multiplayer/matches';
@@ -83,11 +84,11 @@ describe('where a match host sits', () => {
     _resetRateLimitBucketsForTests();
   });
 
-  it('seats a normal host in a playing seat, so it is never a viewer registration', async () => {
+  it('seats a normal host in a playing seat, so it is never an automatically releasable spectator seat', async () => {
     const meta = await createMatch();
 
     expect(hostSeat(meta)?.kind).toBe('human');
-    expect(isViewerRegistration(meta, 'pid_host')).toBe(false);
+    expect(holdsAutoReleasableSpectatorSeat(meta, 'pid_host')).toBe(false);
     // ...and a player holding a playing seat cannot register as a viewer.
     expect(() =>
       addSpectatorSeat(meta.seats ?? [], {
@@ -103,6 +104,6 @@ describe('where a match host sits', () => {
     expect(hostSeat(meta)?.kind).toBe('spectator');
     expect(meta.hostPlayerId).toBe('pid_host');
     // The host's own spectator seat is the GM's seat, not a registration.
-    expect(isViewerRegistration(meta, 'pid_host')).toBe(false);
+    expect(holdsAutoReleasableSpectatorSeat(meta, 'pid_host')).toBe(false);
   });
 });

@@ -21,17 +21,21 @@ const MATCH_ID = 'match-gm-spectator-seat';
 const AT = '2026-11-09T00:00:00.000Z';
 const CAMPAIGN_ID = 'camp-gm-seat';
 
-function makeSocket(): IMatchSocket {
+function makeSocket(): IMatchSocket & { readonly frames: unknown[] } {
   let closed = false;
+  const frames: unknown[] = [];
   return {
-    send() {},
+    send(data: string) {
+      frames.push(JSON.parse(data));
+    },
     close() {
       closed = true;
     },
     get readyState() {
       return closed ? 3 : 1;
     },
-  } as unknown as IMatchSocket;
+    frames,
+  } as unknown as IMatchSocket & { readonly frames: unknown[] };
 }
 
 /** A co-op campaign match: GM in `spectator-1`, two playing seats, optional viewer. */
@@ -155,6 +159,42 @@ describe('a co-op GM in the spectator seat survives its last socket detaching', 
     expect(await occupants(store)).toEqual(['pid_gm']);
     expect(await members.lookupMembership('pid_gm', MATCH_ID)).not.toBeNull();
     await host.closeMatch();
+  });
+
+  it('is exempt only from automatic cleanup: once the match is completed the next detach releases the GM seat', async () => {
+    const { host, store } = await makeCoopMatch('active');
+    const socket = makeSocket();
+    await host.admitSocket(socket, 'pid_gm');
+    // Terminal cleanup: the match ends (what `closeMatch` and DELETE write)...
+    await store.closeMatch(MATCH_ID);
+    expect((await store.getMatchMeta(MATCH_ID)).status).toBe('completed');
+
+    // ...so there is no live membership left to protect.
+    host.detachSocket(socket);
+    await drainDrops(host);
+
+    expect(await occupants(store)).toEqual([]);
+    await host.closeMatch();
+  });
+
+  it('explicit close (the DELETE path) ends the GM access instead of being shielded by the seat', async () => {
+    const { host, store } = await makeCoopMatch('active');
+    const socket = makeSocket();
+    await host.admitSocket(socket, 'pid_gm');
+
+    // DELETE /matches/:id -> registry.closeMatch -> host.closeMatch.
+    await host.closeMatch();
+
+    expect((await store.getMatchMeta(MATCH_ID)).status).toBe('completed');
+    expect(socket.frames).toContainEqual(
+      expect.objectContaining({ kind: 'Close', reason: 'Match closed' }),
+    );
+    // A GM who binds after the close is told the match is gone.
+    const late = makeSocket();
+    host.attachSocket(late, 'pid_gm');
+    expect(late.frames).toContainEqual(
+      expect.objectContaining({ kind: 'Close', code: 'UNKNOWN_MATCH' }),
+    );
   });
 
   it('still releases a registered viewer beside the GM', async () => {

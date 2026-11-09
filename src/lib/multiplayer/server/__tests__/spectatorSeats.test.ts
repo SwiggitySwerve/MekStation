@@ -17,14 +17,16 @@ import {
   SPECTATOR_SIDE,
 } from '@/types/multiplayer/Lobby';
 
+import type { IMatchMeta } from '../IMatchStore';
+
 import { canLaunch, occupySeat, setReady } from '../lobby/lobbyStateMachine';
 import {
   addSpectatorSeat,
   findSpectatorSeat,
   isSpectatorPlayer,
+  holdsAutoReleasableSpectatorSeat,
+  isAutoReleasableSpectatorSeat,
   isSpectatorSeat,
-  isViewerRegistration,
-  isViewerRegistrationSeat,
   MAX_SPECTATORS_PER_MATCH,
   removeSpectatorSeat,
   spectatorSeats,
@@ -145,39 +147,74 @@ describe('spectator classification', () => {
   });
 });
 
-describe('viewer registration classification', () => {
+describe('which spectator seats automatic cleanup may release', () => {
   /** A 1v1 with Alice/Bob playing, the host in a spectator seat and a viewer. */
-  function gmMatch() {
+  function gmMatch(
+    status: IMatchMeta['status'] = 'active',
+    hostPlayerId = 'pid_gm',
+  ) {
     let seats = readyOneVOne();
     seats = addSpectatorSeat(seats, { playerId: 'pid_gm', displayName: 'GM' });
     seats = addSpectatorSeat(seats, WATCHER);
-    return { hostPlayerId: 'pid_gm', seats };
+    return { hostPlayerId, status, seats };
   }
 
-  it('treats a viewer as a registration', () => {
-    expect(isViewerRegistration(gmMatch(), WATCHER.playerId)).toBe(true);
+  it('releases a viewer', () => {
+    expect(holdsAutoReleasableSpectatorSeat(gmMatch(), WATCHER.playerId)).toBe(
+      true,
+    );
   });
 
-  it("never treats the host's own spectator seat as a registration", () => {
-    const match = gmMatch();
-    expect(isViewerRegistration(match, 'pid_gm')).toBe(false);
-    const seat = match.seats.find((s) => s.occupant?.playerId === 'pid_gm');
-    expect(seat && isViewerRegistrationSeat(seat, match.hostPlayerId)).toBe(
-      false,
+  it.each(['lobby', 'active'] as const)(
+    "keeps the host's own spectator seat while the match is %s",
+    (status) => {
+      const match = gmMatch(status);
+      expect(holdsAutoReleasableSpectatorSeat(match, 'pid_gm')).toBe(false);
+      const seat = match.seats.find((s) => s.occupant?.playerId === 'pid_gm');
+      expect(seat && isAutoReleasableSpectatorSeat(seat, match)).toBe(false);
+    },
+  );
+
+  it("releases the GM's seat like any other once the match is completed", () => {
+    const match = gmMatch('completed');
+    expect(holdsAutoReleasableSpectatorSeat(match, 'pid_gm')).toBe(true);
+    expect(holdsAutoReleasableSpectatorSeat(match, WATCHER.playerId)).toBe(
+      true,
     );
+  });
+
+  it('follows the host, not the seat: a former host is an ordinary spectator', () => {
+    expect(
+      holdsAutoReleasableSpectatorSeat(
+        gmMatch('active', 'pid_other'),
+        'pid_gm',
+      ),
+    ).toBe(true);
   });
 
   it('is false for playing occupants and strangers', () => {
     const match = gmMatch();
-    expect(isViewerRegistration(match, ALICE.playerId)).toBe(false);
-    expect(isViewerRegistration(match, 'pid_nobody')).toBe(false);
+    expect(holdsAutoReleasableSpectatorSeat(match, ALICE.playerId)).toBe(false);
+    expect(holdsAutoReleasableSpectatorSeat(match, 'pid_nobody')).toBe(false);
   });
 
-  it('classifies seats, not players: an empty spectator seat is a registration slot', () => {
-    const empty = spectatorSeats(gmMatch().seats)[0];
+  it('classifies seats, not players: an empty spectator seat is releasable', () => {
+    const match = gmMatch();
+    const empty = spectatorSeats(match.seats)[0];
     expect(
-      isViewerRegistrationSeat({ ...empty, occupant: null }, 'pid_gm'),
+      isAutoReleasableSpectatorSeat({ ...empty, occupant: null }, match),
     ).toBe(true);
+  });
+
+  it('is not consulted by deliberate removal: removeSpectatorSeat still removes the GM seat', () => {
+    // The exemption lives only in the automatic-cleanup predicate above, so a
+    // deliberate removal of the host's own spectator seat is unchanged.
+    const match = gmMatch();
+    expect(
+      removeSpectatorSeat(match.seats, 'pid_gm').some(
+        (seat) => seat.occupant?.playerId === 'pid_gm',
+      ),
+    ).toBe(false);
   });
 });
 

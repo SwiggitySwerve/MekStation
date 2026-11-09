@@ -104,7 +104,7 @@ import {
 } from './journalAuthorityAdmission';
 import { updateMatchSeats } from './lobby/seatUpdate';
 import {
-  isViewerRegistration,
+  holdsAutoReleasableSpectatorSeat,
   removeSpectatorSeat,
 } from './lobby/spectatorSeats';
 import {
@@ -966,9 +966,10 @@ export class ServerMatchHost {
     // Socket admission can run while the queued drop is reading metadata.
     if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
       return;
-    // Only a viewer's registration is released; the co-op GM's own spectator
-    // seat is its membership and stays (see `isViewerRegistrationSeat`).
-    if (isViewerRegistration(meta, playerId)) {
+    // Automatic cleanup releases a viewer's seat. The co-op GM's own spectator
+    // seat is its membership while the match is live and stays (see
+    // `isAutoReleasableSpectatorSeat`); a completed match releases it too.
+    if (holdsAutoReleasableSpectatorSeat(meta, playerId)) {
       // Rechecked against the metadata at write time: a REST registration or
       // a reattach may have landed since the read above.
       const removal = await updateMatchSeats(
@@ -976,7 +977,7 @@ export class ServerMatchHost {
         this.matchId,
         (current) =>
           this.lifecycle.snapshotConnectedSince().has(playerId) ||
-          !isViewerRegistration(current, playerId)
+          !holdsAutoReleasableSpectatorSeat(current, playerId)
             ? null
             : { seats: removeSpectatorSeat(current.seats ?? [], playerId) },
       );

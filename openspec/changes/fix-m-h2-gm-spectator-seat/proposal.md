@@ -11,11 +11,17 @@ boot sweep of spectator seats.
 
 ## What Changes
 
-- One shared predicate in `lobby/spectatorSeats.ts`, `isViewerRegistrationSeat` /
-  `isViewerRegistration`: a spectator seat held by `meta.hostPlayerId` is the GM's
-  seat, never a viewer registration.
-- `ServerMatchHost.handleSocketDropped` releases only viewer registrations. A GM
-  drop then follows the normal host path, where migration is refused for a
+- One shared predicate in `lobby/spectatorSeats.ts`,
+  `isAutoReleasableSpectatorSeat` / `holdsAutoReleasableSpectatorSeat`: a spectator
+  seat held by `meta.hostPlayerId` is the GM's seat and automatic cleanup does not
+  release it while the match is live.
+- It applies to automatic cleanup only (the last-socket detach, and later the boot
+  sweep). It grants no general immortality: a completed match releases the GM's
+  seat like any other, the seat primitives (`removeSpectatorSeat`) are unchanged,
+  and explicit close (`DELETE`, `closeMatch`) ends the match rather than editing
+  seats.
+- `ServerMatchHost.handleSocketDropped` releases only what the predicate allows. A
+  GM drop then follows the normal host path, where migration is refused for a
   campaign GM.
 - A test pins the assumption the rule rests on: a normal host holds a playing
   seat, a host holds a spectator seat only when it asks for one, and a player with

@@ -89,13 +89,18 @@ export function isSpectatorPlayer(
 }
 
 /**
- * True iff `seat` is a spectator seat a VIEWER holds: one `POST /spectate`
- * registered, released when the viewer's last socket detaches and swept at boot.
+ * True iff AUTOMATIC cleanup may release `seat`: the last-socket detach and the
+ * boot sweep. Nothing else consults this. `removeSpectatorSeat`, `isSpectatorSeat`
+ * and `isSpectatorPlayer` are unchanged, so any deliberate removal still removes
+ * any spectator seat, the GM's included, and `closeMatch`/DELETE and prune are
+ * not affected (they end the match rather than editing seats).
  *
- * The host's own spectator seat is not one. A co-op campaign creates its GM
- * host in a spectator seat (`hostSeatKind: 'spectator'`), and match membership
- * is derived from owned seats, so releasing that seat locks the GM out of an
- * active match. This is safe to key on `hostPlayerId` because:
+ * A co-op campaign creates its GM host in a spectator seat
+ * (`hostSeatKind: 'spectator'`), and match membership is derived from owned
+ * seats, so while the match is live that seat is the GM's membership and
+ * automatic cleanup must not release it. A completed match has no live
+ * membership left to protect, so there the seat is released like any other.
+ * Keying on `hostPlayerId` is safe because:
  *   - a campaign GM never loses host privilege: host migration is refused for
  *     one (`reconnection/HostMigration.ts` `refuseIfCampaignGm`, and for co-op
  *     missions `meta.coopMission`), so the GM stays `hostPlayerId`;
@@ -104,21 +109,25 @@ export function isSpectatorPlayer(
  *     spectator seat to begin with.
  * `multiplayerMatchHostSeat.test.ts` pins both facts.
  */
-export function isViewerRegistrationSeat(
+export function isAutoReleasableSpectatorSeat(
   seat: IMatchSeat,
-  hostPlayerId: string,
+  meta: Pick<IMatchMeta, 'hostPlayerId' | 'status'>,
 ): boolean {
-  return isSpectatorSeat(seat) && seat.occupant?.playerId !== hostPlayerId;
+  return (
+    isSpectatorSeat(seat) &&
+    (meta.status === 'completed' ||
+      seat.occupant?.playerId !== meta.hostPlayerId)
+  );
 }
 
-/** True iff `playerId` holds a viewer-registration seat in this match. */
-export function isViewerRegistration(
-  meta: Pick<IMatchMeta, 'seats' | 'hostPlayerId'>,
+/** True iff `playerId` holds a seat automatic cleanup may release. */
+export function holdsAutoReleasableSpectatorSeat(
+  meta: Pick<IMatchMeta, 'seats' | 'hostPlayerId' | 'status'>,
   playerId: string,
 ): boolean {
   return (meta.seats ?? []).some(
     (seat) =>
-      isViewerRegistrationSeat(seat, meta.hostPlayerId) &&
+      isAutoReleasableSpectatorSeat(seat, meta) &&
       seat.occupant?.playerId === playerId,
   );
 }
