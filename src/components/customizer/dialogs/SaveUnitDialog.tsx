@@ -40,6 +40,8 @@ import { SaveUnitDialogPreview } from './SaveUnitDialogPreview';
 export interface SaveUnitDialogProps {
   /** Whether dialog is open */
   isOpen: boolean;
+  /** A library save is pending; prevent changes and dismissal until it settles. */
+  isSaving?: boolean;
   /** Initial chassis name */
   initialChassis: string;
   /** Initial variant name */
@@ -82,8 +84,7 @@ function getInputConflictClass(status: ValidationStatus) {
 }
 
 function getSaveButtonClass(status: ValidationStatus, canSave: boolean) {
-  if (!canSave) return cs.dialog.btnPrimary;
-  if (status === 'custom-conflict') return cs.dialog.btnWarning;
+  if (canSave && status === 'custom-conflict') return cs.dialog.btnWarning;
 
   return cs.dialog.btnPrimary;
 }
@@ -139,38 +140,14 @@ function scheduleValidation(
   existingTimeout: NodeJS.Timeout | null,
   validate: () => void,
 ) {
-  if (existingTimeout) {
-    clearTimeout(existingTimeout);
-  }
+  if (existingTimeout) clearTimeout(existingTimeout);
 
   return setTimeout(validate, 300);
 }
 
-function saveUnitName({
-  chassis,
-  onSave,
-  status,
-  validationResult,
-  variant,
-}: {
-  chassis: string;
-  onSave: SaveUnitDialogProps['onSave'];
-  status: ValidationStatus;
-  validationResult: INameValidationResult | null;
-  variant: string;
-}) {
-  if (status === 'canonical-conflict') return;
-
-  if (status === 'custom-conflict' && validationResult?.conflictingUnitId) {
-    onSave(chassis.trim(), variant.trim(), validationResult.conflictingUnitId);
-    return;
-  }
-
-  onSave(chassis.trim(), variant.trim());
-}
-
 function SaveDialogFooter({
   canSave,
+  isSaving,
   handleSave,
   handleSaveAsNew,
   onCancel,
@@ -179,6 +156,7 @@ function SaveDialogFooter({
   validationResult,
 }: {
   canSave: boolean;
+  isSaving: boolean;
   handleSave: () => void;
   handleSaveAsNew: () => void;
   onCancel: () => void;
@@ -188,12 +166,20 @@ function SaveDialogFooter({
 }) {
   return (
     <>
-      <button onClick={onCancel} className={cs.dialog.btnGhost}>
+      <button
+        onClick={onCancel}
+        disabled={isSaving}
+        className={cs.dialog.btnGhost}
+      >
         Cancel
       </button>
 
       {status === 'custom-conflict' && validationResult?.suggestedName && (
-        <button onClick={handleSaveAsNew} className={cs.dialog.btnSecondary}>
+        <button
+          onClick={handleSaveAsNew}
+          disabled={isSaving}
+          className={cs.dialog.btnSecondary}
+        >
           Save As New
         </button>
       )}
@@ -203,7 +189,11 @@ function SaveDialogFooter({
         disabled={!canSave}
         className={`min-w-[100px] ${saveButtonClass}`}
       >
-        {status === 'custom-conflict' ? 'Overwrite' : 'Save'}
+        {isSaving
+          ? 'Saving...'
+          : status === 'custom-conflict'
+            ? 'Overwrite'
+            : 'Save'}
       </button>
     </>
   );
@@ -211,6 +201,7 @@ function SaveDialogFooter({
 
 function SaveDialogFields({
   chassis,
+  isSaving,
   handleAutoSuggest,
   handleChassisChange,
   handleVariantChange,
@@ -219,6 +210,7 @@ function SaveDialogFields({
   variant,
 }: {
   chassis: string;
+  isSaving: boolean;
   handleAutoSuggest: () => void;
   handleChassisChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleVariantChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -239,6 +231,7 @@ function SaveDialogFields({
           id="chassis"
           type="text"
           value={chassis}
+          disabled={isSaving}
           onChange={handleChassisChange}
           placeholder="e.g., Atlas, Timber Wolf"
           className={`${cs.dialog.input} ${inputConflictClass}`}
@@ -257,6 +250,7 @@ function SaveDialogFields({
             id="variant"
             type="text"
             value={variant}
+            disabled={isSaving}
             onChange={handleVariantChange}
             placeholder="e.g., AS7-D, Prime"
             className={`flex-1 ${cs.dialog.input} ${inputConflictClass}`}
@@ -264,6 +258,7 @@ function SaveDialogFields({
           {hasConflict && (
             <button
               onClick={handleAutoSuggest}
+              disabled={isSaving}
               className={cs.dialog.btnSecondary}
               title="Suggest unique name"
             >
@@ -282,6 +277,7 @@ function SaveDialogFields({
 
 export function SaveUnitDialog({
   isOpen,
+  isSaving = false,
   initialChassis,
   initialVariant,
   currentUnitId,
@@ -380,7 +376,15 @@ export function SaveUnitDialog({
   // Handle save action
   const handleSave = () => {
     if (!canSave) return;
-    saveUnitName({ chassis, onSave, status, validationResult, variant });
+    if (status === 'custom-conflict' && validationResult?.conflictingUnitId) {
+      onSave(
+        chassis.trim(),
+        variant.trim(),
+        validationResult.conflictingUnitId,
+      );
+    } else {
+      onSave(chassis.trim(), variant.trim());
+    }
   };
 
   // Handle save as new (different name to avoid conflict)
@@ -413,15 +417,12 @@ export function SaveUnitDialog({
   };
 
   // Determine button states
-  const isValidating = status === 'validating';
-  const isConstructionReady =
+  const canSave =
+    !isSaving &&
+    (status === 'valid' || status === 'custom-conflict') &&
     constructionValidation.isValid &&
     !constructionValidation.isLoading &&
     !constructionValidation.isValidating;
-  const canSave =
-    (status === 'valid' || status === 'custom-conflict') &&
-    !isValidating &&
-    isConstructionReady;
   const hasConflict =
     status === 'custom-conflict' || status === 'canonical-conflict';
 
@@ -432,11 +433,13 @@ export function SaveUnitDialog({
     <DialogTemplate
       isOpen={isOpen}
       onClose={onCancel}
+      preventClose={isSaving}
       title="Save Unit"
       className="mx-4 w-full max-w-lg"
       footer={
         <SaveDialogFooter
           canSave={canSave}
+          isSaving={isSaving}
           handleSave={handleSave}
           handleSaveAsNew={handleSaveAsNew}
           onCancel={onCancel}
@@ -448,6 +451,7 @@ export function SaveUnitDialog({
     >
       <SaveDialogFields
         chassis={chassis}
+        isSaving={isSaving}
         handleAutoSuggest={handleAutoSuggest}
         handleChassisChange={handleChassisChange}
         handleVariantChange={handleVariantChange}
