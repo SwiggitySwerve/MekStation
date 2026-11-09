@@ -202,17 +202,25 @@ export default function ForceDetailPage(): React.ReactElement {
 
   const handleSwapAssignments = useCallback(
     async (firstId: string, secondId: string) => {
-      await swapAssignments(firstId, secondId);
-      await refreshForceDetail({
-        forceId,
-        loadForces,
-        getForce,
-        validateForce,
-        setForce,
-        setValidation,
-      });
+      await handleAssignmentResult(
+        () => swapAssignments(firstId, secondId),
+        () =>
+          refreshForceDetail({
+            forceId,
+            loadForces,
+            getForce,
+            validateForce,
+            setForce,
+            setValidation,
+          }),
+        showToast,
+        {
+          success: 'Assignments swapped successfully',
+          error: 'Failed to swap assignments',
+        },
+      );
     },
-    [swapAssignments, forceId, loadForces, getForce, validateForce],
+    [swapAssignments, forceId, loadForces, getForce, validateForce, showToast],
   );
 
   const handleDelete = useCallback(
