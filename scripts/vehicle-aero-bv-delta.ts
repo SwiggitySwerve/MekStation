@@ -7,6 +7,8 @@ import { z } from 'zod';
 import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
 
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
+import { getEquipmentLookupService } from '../src/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '../src/services/equipment/EquipmentRegistry';
 import { BattleArmorUnitHandler } from '../src/services/units/handlers/BattleArmorUnitHandler';
 import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnitHandler';
 import {
@@ -19,10 +21,6 @@ import {
   UnitTypeRegistry,
 } from '../src/services/units/UnitTypeRegistry';
 import { UnitContract } from '../src/types/contracts/generated/unit.zod';
-import {
-  getUnitCategory,
-  UnitCategory,
-} from '../src/types/unit/UnitTypeHandler';
 import { battleArmorBVTerms } from '../src/utils/construction/battlearmor/battleArmorBV';
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import {
@@ -250,27 +248,26 @@ export function calculateRow(
     return { path: input.path, sha256: input.sha256, reason: String(error) };
   }
 }
-function captureVehicleValidity(
+// Vehicle, aerospace and capital BLK all validate through the public handler
+// the registry selects for the document; a folder name never classifies it.
+function captureBlkValidity(
   bytes: Buffer,
 ): NonNullable<IComputedRow['constructionValidity']> {
   return captureConstructionValidity(() => {
-    let stage = 'vehicle-source-parser';
+    let stage = 'blk-source-parser';
     try {
       const document = new BlkParserService().parse(bytes.toString('utf8'));
       if (!document.success) throw new Error(JSON.stringify(document.error));
-      stage = 'vehicle-handler-unavailable';
+      stage = 'blk-handler-unavailable';
       if (!areHandlersInitialized()) initializeUnitTypeHandlers();
       const handler = getUnitTypeRegistry().getHandlerForDocument(
         document.data.document,
       );
       if (!handler) throw new Error(document.data.document.unitType);
-      stage = 'vehicle-out-of-scope';
-      if (getUnitCategory(handler.unitType) !== UnitCategory.VEHICLE)
-        throw new Error(`Public handler category: ${handler.category}`);
-      stage = 'vehicle-handler-parser';
+      stage = 'blk-handler-parser';
       const parsed = handler.parse(document.data.document);
       if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
-      stage = 'vehicle-validator';
+      stage = 'blk-validator';
       return handler.validate(parsed.data.unit);
     } catch (error) {
       throw new Error(`${stage}: ${String(error)}`);
@@ -301,7 +298,7 @@ export function calculateSources(
     return includeConstruction &&
       computed.constructionValidity === undefined &&
       row.path.endsWith('.blk')
-      ? { ...computed, constructionValidity: captureVehicleValidity(bytes) }
+      ? { ...computed, constructionValidity: captureBlkValidity(bytes) }
       : computed;
   });
 }
@@ -320,6 +317,28 @@ export function writeDeltaReport(
     rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
   );
   process.stdout.write(JSON.stringify(summary.byFamily, null, 2) + '\n');
+}
+/**
+ * Weight validity resolves mounted mass through the equipment catalog. Without
+ * it a design with unresolved mass still loads and validates as if that mass
+ * were absent (Ajax C, Lightning CX-3 and Kalki read as valid), so the catalog
+ * loads before any row is validated, only under the opt-in flag, and a silent
+ * fallback to the hardcoded catalog stops the run instead of changing results.
+ */
+export async function prepareConstructionValidity(
+  argv: readonly string[] = process.argv,
+): Promise<void> {
+  if (!argv.includes('--construction-validity')) return;
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+  const load = getEquipmentLookupService().getLoadResult();
+  if (
+    getEquipmentLookupService().getDataSource() !== 'json' ||
+    !getEquipmentRegistry().isReady() ||
+    !load?.success ||
+    load.itemsLoaded === 0
+  )
+    throw new Error('Equipment catalog unavailable for construction validity');
 }
 export function main(): void {
   const arg = (name: string) => {
@@ -371,10 +390,10 @@ export * from './unit-bv-parity';
 export { readJsonLines } from './unit-bv-provenance';
 
 if (require.main === module) {
-  try {
-    main();
-  } catch (error: unknown) {
-    process.stderr.write(String(error) + '\n');
-    process.exitCode = 1;
-  }
+  prepareConstructionValidity()
+    .then(() => main())
+    .catch((error: unknown) => {
+      process.stderr.write(String(error) + '\n');
+      process.exitCode = 1;
+    });
 }

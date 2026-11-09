@@ -3,6 +3,17 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
+import { resetEquipmentLoader } from '../../src/services/equipment/EquipmentLoaderService';
+import {
+  getEquipmentLookupService,
+  resetEquipmentLookupService,
+} from '../../src/services/equipment/EquipmentLookupService';
+import {
+  getEquipmentRegistry,
+  resetEquipmentRegistry,
+} from '../../src/services/equipment/EquipmentRegistry';
+import aeroCapital from '../../src/services/units/handlers/__tests__/fixtures/aerospace-capital-validity.json';
+import fixedWing from '../../src/services/units/handlers/__tests__/fixtures/fixed-wing-support.json';
 import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
 import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
 import vehicles from '../../src/services/units/handlers/__tests__/fixtures/vehicle-handler-locations.pinned-sources.json';
@@ -25,12 +36,33 @@ import {
   captureConstructionValidity,
   compareFigures,
   FAMILIES,
+  prepareConstructionValidity,
   sourceHash,
   type IFigure,
   type IJavaReferenceRow,
   type IComputedRow,
 } from '../vehicle-aero-bv-delta';
 import fixture from './fixtures/vehicle_aero_contract_bv.json';
+import overweight from './fixtures/vehicle_overweight_pinned.json';
+
+// The equipment catalog reads public/ from disk; the pinned weight tests mock
+// the reader the same way because jsdom has a window and would use fetch.
+let mockCatalogAvailable = true;
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    mockCatalogAvailable
+      ? JSON.parse(
+          jest
+            .requireActual('node:fs')
+            .readFileSync(
+              jest
+                .requireActual('node:path')
+                .join(process.cwd(), 'public/data/equipment/official', file),
+              'utf8',
+            ),
+        )
+      : null,
+}));
 
 jest.mock('../../src/utils/construction/battleValueCalculations', () => {
   const actual = jest.requireActual(
@@ -482,7 +514,7 @@ test('captures a thrown construction-validator failure separately from validity'
   ).toEqual({ failure: 'Error: Validation unavailable' });
 });
 
-describe('opt-in vehicle validity uses actual pinned bytes and public category', () => {
+describe('opt-in BLK validity uses actual pinned bytes and the public handler', () => {
   let root: string;
   const source = (type = 'Tank', tonnage = 20) =>
     `<UnitType>\n${type}\n</UnitType>\n<Name>\nValidity probe\n</Name>\n<tonnage>\n${tonnage}\n</tonnage>\n<type>\nIS Level 2\n</type>\n<year>\n3060\n</year>\n<motion_type>\nTracked\n</motion_type>\n<cruiseMP>\n0\n</cruiseMP>\n<armor>\n1\n1\n1\n1\n0\n</armor>\n`;
@@ -505,10 +537,44 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
   });
   afterEach(() => {
     jest.restoreAllMocks();
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
     resetHandlerInitialization();
     resetUnitTypeRegistry();
     fs.rmSync(root, { recursive: true, force: true });
   });
+  const validity = ['node', 'delta.ts', '--construction-validity'];
+  test('does no catalog work without the validity opt-in', async () => {
+    await prepareConstructionValidity(['node', 'delta.ts']);
+    expect(getEquipmentLookupService().isInitialized()).toBe(false);
+    expect(getEquipmentRegistry().isReady()).toBe(false);
+  });
+  test('loads the JSON equipment catalog under the validity opt-in', async () => {
+    await prepareConstructionValidity(validity);
+    expect(getEquipmentLookupService().getDataSource()).toBe('json');
+    expect(getEquipmentRegistry().isReady()).toBe(true);
+  });
+  test('stops rather than validating against the hardcoded fallback catalog', async () => {
+    mockCatalogAvailable = false;
+    await expect(prepareConstructionValidity(validity)).rejects.toThrow(
+      'Equipment catalog unavailable',
+    );
+  });
+  test.each(overweight)(
+    'rejects the independently known overweight total once the catalog is loaded: $path',
+    async (row) => {
+      const input = write(row.content, row.path);
+      await prepareConstructionValidity(validity);
+      const fact = calculateSources([input], root, true)[0]
+        .constructionValidity;
+      expect(fact).toMatchObject({ isValid: false });
+      expect((fact as { errors: string[] }).errors).toContainEqual(
+        expect.stringMatching(/^Total weight \(\d+\.\d\dt\) exceeds tonnage/),
+      );
+    },
+  );
   test.each(vehicles.rows)(
     'transports the actual public validation for $path',
     (row) => {
@@ -531,6 +597,51 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
       expect(constructionValidity).toBeDefined();
       expect(unchanged).toEqual(plain);
       expect(plain.figure?.total).toBeGreaterThan(0);
+    },
+  );
+  test.each(aeroCapital.rows)(
+    'transports the actual public aerospace/capital validation for $path',
+    (row) => {
+      const input = write(row.content, row.path);
+      const plain = calculateSources([input], root)[0];
+      const projected = calculateSources([input], root, true)[0];
+      const document = new BlkParserService().parse(row.content);
+      if (!document.success) throw new Error('Pinned fixture did not parse');
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error('Public aerospace handler absent');
+      expect(handler.category).toBe(UnitCategory.AEROSPACE);
+      const parsed = handler.parse(document.data.document);
+      if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+      const expected = handler.validate(parsed.data.unit);
+      expect(projected.constructionValidity).toEqual(expected);
+      // The pinned Java verdict is retained in the fixture; agreement here is
+      // the capital/aerospace slice of the full-corpus validity proof.
+      expect(expected.isValid).toBe(row.valid);
+      const { constructionValidity, ...unchanged } = projected;
+      expect(constructionValidity).toBeDefined();
+      expect(unchanged).toEqual(plain);
+    },
+  );
+  test.each(fixedWing.rows.filter((row) => row.path.startsWith('vehicles/')))(
+    'validates FixedWingSupport under vehicles through the aerospace handler: $path',
+    (row) => {
+      const input = write(row.content, row.path);
+      const document = new BlkParserService().parse(row.content);
+      if (!document.success) throw new Error('Pinned fixture did not parse');
+      initializeUnitTypeHandlers();
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error('Public subtype handler absent');
+      expect(handler.category).toBe(UnitCategory.AEROSPACE);
+      const validate = jest.spyOn(handler, 'validate');
+      const fact = calculateSources([input], root, true)[0]
+        .constructionValidity;
+      expect(validate).toHaveBeenCalled();
+      expect(fact).toHaveProperty('isValid', row.valid);
+      expect(fact).not.toHaveProperty('failure');
     },
   );
   test('does no registry/parser work without opt-in', () => {
@@ -574,25 +685,9 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
         .constructionValidity,
     ).toHaveProperty('isValid', false);
   });
-  test('rejects FixedWingSupport under vehicles without invoking aerospace validation', () => {
-    initializeUnitTypeHandlers();
-    const document = new BlkParserService().parse(source('FixedWingSupport'));
-    if (!document.success) throw new Error('Source did not parse');
-    const handler = getUnitTypeRegistry().getHandlerForDocument(
-      document.data.document,
-    );
-    if (!handler) throw new Error('Public subtype handler absent');
-    expect(handler.category).toBe(UnitCategory.AEROSPACE);
-    const validate = jest.spyOn(handler, 'validate');
-    expect(
-      calculateSources([write(source('FixedWingSupport'))], root, true)[0]
-        .constructionValidity,
-    ).toEqual({ failure: expect.stringContaining('vehicle-out-of-scope') });
-    expect(validate).not.toHaveBeenCalled();
-  });
   test.each([
-    ['not a BLK source', 'vehicle-source-parser'],
-    [source('Tank', 0), 'vehicle-handler-parser'],
+    ['not a BLK source', 'blk-source-parser'],
+    [source('Tank', 0), 'blk-handler-parser'],
   ])('retains %s as an explicit staged failure', (content, reason) => {
     expect(
       calculateSources([write(content)], root, true)[0].constructionValidity,
@@ -606,7 +701,7 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
     expect(
       calculateSources([write(source())], root, true)[0].constructionValidity,
     ).toEqual({
-      failure: expect.stringContaining('vehicle-handler-unavailable'),
+      failure: expect.stringContaining('blk-handler-unavailable'),
     });
   });
   test('retains a thrown validator as a distinct failure, not invalidity', () => {
@@ -627,7 +722,7 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
       calculateSources([write(source())], root, true)[0].constructionValidity,
     ).toEqual({
       failure: expect.stringContaining(
-        'vehicle-validator: Error: validator unavailable',
+        'blk-validator: Error: validator unavailable',
       ),
     });
   });
