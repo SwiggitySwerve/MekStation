@@ -306,6 +306,27 @@ describe('usePilotStore', () => {
   // ===========================================================================
 
   describe('createRandom', () => {
+    it('forwards reviewed skills in the random request and returns the refreshed pilot id', async () => {
+      const skills = { gunnery: 2, piloting: 3 };
+      const pilot = createMockPilot({ id: 'reviewed-random', skills });
+      mockFetchResponse({ success: true, id: pilot.id });
+      mockFetchResponse({ pilots: [pilot], count: 1 });
+      const id = await usePilotStore
+        .getState()
+        .createRandom({ name: 'Reviewed Pilot' }, skills);
+      expect(id).toBe(pilot.id);
+      expect(mockFetch).toHaveBeenNthCalledWith(1, '/api/pilots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'random',
+          identity: { name: 'Reviewed Pilot' },
+          skills,
+        }),
+      });
+      expect(usePilotStore.getState().pilots[0].skills).toEqual(skills);
+    });
+
     it('should create random pilot', async () => {
       const newPilot = createMockPilot({
         id: 'random-pilot-1',
