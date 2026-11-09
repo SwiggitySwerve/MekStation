@@ -92,6 +92,21 @@ function baAmmoPool(native: string): string | undefined {
   if (/^Compact\s*Narc/i.test(bare)) return 'NARC:4';
   return getNativeAmmoBVGroup(bare);
 }
+// Pools the Java trace reports as ammo.cap (reporting only; the cap arithmetic
+// still sees every pool). assembleAmmo (BVCalculator.java:1189-1243) caps only
+// ammo-using weapons that are not one-shot or ammoType NA: BA MGs, flamers and
+// the plasma rifle are NA (BAMGWeapon.java:61, BAFlamerWeapon.java:70,
+// ISBAPlasmaRifle.java:64) and the Taser is one-shot (ISBATaser.java:84). The
+// missile families remain (AmmoType.java F_BATTLEARMOR ammo records); the rare
+// BA_MICRO_BOMB/MINE/LRM_TORPEDO_COMBO pools have no corpus weapon to verify.
+const BA_CAP_AMMO_TYPES = new Set([
+  'BA_TUBE',
+  'LRM',
+  'MRM',
+  'NARC',
+  'SRM',
+  'SRM_ADVANCED',
+]);
 const nativeParts = (mount: IBattleArmorMountedEquipment) =>
   mount.equipmentId.split(':');
 
@@ -164,6 +179,8 @@ export function projectBAMounts(
   hasMagneticClamp: boolean;
   defensiveEquipmentBV: number;
   offensiveEquipmentBV: number;
+  ammoAvailableBVByPool: Record<string, number>;
+  ammoCapBVByPool: Record<string, number>;
 } {
   const weapons: BAWeaponBVMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
@@ -305,5 +322,12 @@ export function projectBAMounts(
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
     defensiveEquipmentBV,
     offensiveEquipmentBV,
+    // Pre-cap pools: the Java trace reports ammoMap and weaponsForExcessiveAmmo.
+    ammoAvailableBVByPool: Object.fromEntries(ammoPools),
+    ammoCapBVByPool: Object.fromEntries(
+      [...weaponPools].filter(([pool]) =>
+        BA_CAP_AMMO_TYPES.has(pool.split(':')[0]),
+      ),
+    ),
   };
 }

@@ -185,12 +185,12 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.RunningDamagedHip]: integrated(
     PSRTrigger.RunningDamagedHip,
-    'movementDamagePsr queues createRunningDamagedHipPSR when a unit runs with hip actuator damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
+    'planRunningWithDamagePSR queues one createRunningDamagedHipPSR per Run, Sprint or Evade move when a fall-capable unit has a hip crit on a leg that is not destroyed and no counting gyro damage, in runner, interactive, AI, engine and P2P movement; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
     RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.RunningDamagedGyro]: integrated(
     PSRTrigger.RunningDamagedGyro,
-    'movementDamagePsr queues createRunningDamagedGyroPSR when a unit runs with gyro damage; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
+    'planRunningWithDamagePSR queues one createRunningDamagedGyroPSR per Run, Sprint or Evade move when a fall-capable unit has gyro damage that counts (a heavy-duty gyro ignores its first hit), in runner, interactive, AI, engine and P2P movement; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
     RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.ControlledSideslip]: integrated(
