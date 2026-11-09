@@ -9,6 +9,7 @@ import {
 import { CockpitType } from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import { getUnitEditHistory } from '../unitEditHistory';
 import {
@@ -18,6 +19,7 @@ import {
   getUnitLibraryFingerprint,
   recordUnitLibrarySave,
 } from '../unitEditSnapshot';
+import { createUnitStore } from '../useUnitStore';
 import fixture from './fixtures/unit-save-fingerprints-7c8579e19.json';
 
 beforeEach(() => {
@@ -125,6 +127,64 @@ it('normalizes regenerated equipment IDs and links while retaining exact edit id
       fluff: state.fluff && { ...state.fluff },
     }),
   ).toBe(sample.libraryFingerprint);
+});
+
+it.each(fixture.cases)(
+  'absent crewSeats keeps the literal fingerprint bytes: $name',
+  (sample) => {
+    const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+    const absent = { ...state, crewSeats: undefined };
+    expect(getUnitEditFingerprint(absent)).toBe(sample.editFingerprint);
+    expect(getUnitDraftFingerprint(absent)).toBe(sample.draftFingerprint);
+    expect(getUnitLibraryFingerprint(absent)).toBe(sample.libraryFingerprint);
+  },
+);
+
+it('a crew seat edit changes every shared fingerprint, marks the draft modified, and is clean after save', () => {
+  const sample = fixture.cases[0];
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  const store = createUnitStore({
+    ...state,
+    configuration: MechConfiguration.TRIPOD,
+    tonnage: 100,
+    isModified: false,
+    librarySave: undefined,
+  });
+  recordUnitLibrarySave(
+    store,
+    { id: 'crew-fixture', version: 1 },
+    store.getState(),
+  );
+  const saved = store.getState().librarySave;
+  if (!saved?.draftFingerprint) throw new Error('Missing library receipt');
+  const before = {
+    edit: getUnitEditFingerprint(store.getState()),
+    draft: getUnitDraftFingerprint(store.getState()),
+    library: getUnitLibraryFingerprint(store.getState()),
+  };
+  expect(store.getState().isModified).toBe(false);
+
+  store
+    .getState()
+    .setCrewSeat({ slotIndex: 1, name: 'Gunner Gil', gunnery: 2, piloting: 6 });
+  expect(getUnitEditFingerprint(store.getState())).not.toBe(before.edit);
+  expect(getUnitDraftFingerprint(store.getState())).not.toBe(before.draft);
+  expect(getUnitLibraryFingerprint(store.getState())).not.toBe(before.library);
+  expect(store.getState().isModified).toBe(true);
+
+  recordUnitLibrarySave(
+    store,
+    { id: 'crew-fixture', version: 2 },
+    store.getState(),
+  );
+  expect(store.getState().isModified).toBe(false);
+
+  store
+    .getState()
+    .setCrewSeat({ slotIndex: 1, name: 'Gunner Gus', gunnery: 2, piloting: 6 });
+  expect(store.getState().isModified).toBe(true);
+  getUnitEditHistory(store).getState().undo();
+  expect(store.getState().isModified).toBe(false);
 });
 
 it('adding an optional field that is absent does not change the mech fingerprint', () => {

@@ -7,6 +7,7 @@
  *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D6)
+ * @spec openspec/changes/route-campaign-save-writers/specs/campaign-persistence/spec.md
  */
 
 import { create, type StateCreator } from 'zustand';
@@ -142,6 +143,12 @@ interface CampaignPersistenceActions {
   adoptLegacyCampaign: () => Promise<boolean>;
   saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
+  /** Bind a new id after the caller's reset, retaining the separate notification. */
+  initializeCreatedCampaign: (campaignId: string) => void;
+  /** Clear only dirtiness introduced by rollback's campaign restoration. */
+  restoreDirtyAfterRollback: (wasDirty: boolean) => void;
+  /** Restore captured state after the caller resets and reinstalls its campaign. */
+  restoreAfterFailedCreation: (snapshot: CampaignSaveSnapshot) => void;
   /**
    * Best-effort durable write of the pending envelope, for a document
    * that is about to be discarded. Exposed as an action so the behaviour
@@ -1499,6 +1506,22 @@ function createPersistenceActions(
     loadCampaign: loadCampaignAction(set),
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
+    initializeCreatedCampaign: (campaignId) => {
+      dispatchSaveEvent(set, {
+        type: 'created-campaign-initialized',
+        campaignId,
+      });
+    },
+    restoreDirtyAfterRollback: (wasDirty) => {
+      // No dispatch on the old no-op paths: even a field no-op would notify.
+      if (!wasDirty && get().dirty) {
+        dispatchSaveEvent(set, { type: 'rollback-dirty-restored' });
+      }
+    },
+    restoreAfterFailedCreation: (snapshot) => {
+      // Coordination was reset before campaign installation; do not reset it again.
+      dispatchSaveEvent(set, { type: 'creation-cleanup-restored', snapshot });
+    },
     flushPendingMutations: flushPendingMutationsAction(set, get),
     reconcileAfterDiscardFlush: reconcileAfterDiscardFlushAction(set, get),
     // Called by the co-op host's fold of a committed frame (U35f). The

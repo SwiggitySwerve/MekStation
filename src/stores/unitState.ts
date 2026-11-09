@@ -1,4 +1,5 @@
 import type { IMechBVContext } from '@/services/construction/editableMechProjection';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
 /**
  * Unit State Interface
@@ -176,6 +177,9 @@ export interface UnitState {
   /** Optional descriptive text carried by canonical/custom unit payloads. */
   fluff?: ISerializedFluff;
 
+  /** Authored Tripod/QuadVee crew seats; absent when none were assigned. */
+  crewSeats?: readonly IMechCrewSeat[];
+
   /** Introduction year */
   year: number;
 
@@ -308,6 +312,10 @@ export interface UnitActions {
   setRulesLevel: (rulesLevel: RulesLevel) => void;
   setRole: (role: string) => void;
   updateFluff: (patch: Partial<ISerializedFluff>) => void;
+
+  // Crew seats (Tripod and QuadVee only)
+  setCrewSeat: (seat: IMechCrewSeat) => void;
+  clearCrewSeat: (slotIndex: number) => void;
 
   // Chassis
   setTonnage: (tonnage: number) => void;

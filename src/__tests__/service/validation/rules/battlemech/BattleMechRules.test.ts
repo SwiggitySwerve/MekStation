@@ -1,7 +1,7 @@
 /**
  * Unit tests for BattleMech-Specific Validation Rules
  *
- * Tests VAL-BM-001 through VAL-BM-010 for BattleMech and OmniMech units.
+ * Tests VAL-BM-001 through VAL-BM-012 for BattleMech and OmniMech units.
  */
 
 import {
@@ -57,8 +57,8 @@ describe('BattleMechRules', () => {
   });
 
   describe('BATTLEMECH_RULES array', () => {
-    it('should contain all 11 BattleMech-specific rules', () => {
-      expect(BATTLEMECH_RULES).toHaveLength(11);
+    it('should contain all 12 BattleMech-specific rules', () => {
+      expect(BATTLEMECH_RULES).toHaveLength(12);
     });
 
     it('should have rules in priority order', () => {

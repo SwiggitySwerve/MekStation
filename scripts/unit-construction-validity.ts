@@ -34,6 +34,25 @@ type ValidityFact = NonNullable<IComputedRow['constructionValidity']>;
 const messages = (items: readonly IUnitValidationError[]) =>
   items.map((item) => `${item.ruleId}: ${item.message}`);
 
+/** The editor's own calculation hook, rendered once on the server build of `react-dom`. */
+export function renderMechCalculations(
+  state: ReturnType<UnitLoaderService['mapToUnitState']>,
+): ReturnType<typeof useUnitCalculations> {
+  let calc: ReturnType<typeof useUnitCalculations> | undefined;
+  const Probe = () => {
+    calc = useUnitCalculations(
+      state.tonnage,
+      state,
+      state.armorTonnage,
+      state.configuration,
+    );
+    return null;
+  };
+  renderToStaticMarkup(createElement(Probe));
+  if (!calc) throw new Error('Editor calculations did not render');
+  return calc;
+}
+
 /**
  * A BattleMech has no source handler: the app validates the loaded editor
  * state through the orchestrator, from the editor's own calculation hook.
@@ -69,18 +88,7 @@ export function captureMechValidity(
       })),
     };
     stage = 'mtf-projection';
-    let calc: ReturnType<typeof useUnitCalculations> | undefined;
-    const Probe = () => {
-      calc = useUnitCalculations(
-        state.tonnage,
-        state,
-        state.armorTonnage,
-        state.configuration,
-      );
-      return null;
-    };
-    renderToStaticMarkup(createElement(Probe));
-    if (!calc) throw new Error('Editor calculations did not render');
+    const calc = renderMechCalculations(state);
     stage = 'mtf-validator';
     initializeUnitValidationRules();
     const result = validateUnit({

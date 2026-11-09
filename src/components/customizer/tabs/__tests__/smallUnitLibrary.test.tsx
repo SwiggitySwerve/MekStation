@@ -4,6 +4,7 @@ import path from 'path';
 import React from 'react';
 
 import { UnitTypeRouter } from '@/components/customizer/UnitTypeRouter';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
   resetCanonicalUnitService,
   getCanonicalUnitService,
@@ -25,7 +26,7 @@ import { loadUnitIntoTab } from '../useMultiUnitTabsController.helpers';
 
 const read = (file: string) =>
   JSON.parse(fs.readFileSync(path.join('public', file), 'utf8'));
-beforeEach(() => {
+beforeEach(async () => {
   global.fetch = jest.fn(async (input: RequestInfo | URL) => {
     const url =
       typeof input === 'string'
@@ -38,6 +39,7 @@ beforeEach(() => {
     ).slice(1);
     return { ok: true, json: async () => read(file) } as Response;
   });
+  await getEquipmentRegistry().initialize();
   resetCanonicalUnitService();
 });
 afterEach(() => {
