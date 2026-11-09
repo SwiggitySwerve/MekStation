@@ -13,6 +13,7 @@ import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import { withUnitLibraryReceipt } from '@/stores/unitDraftPersistence';
 import { pickPersistedUnitIdentityWithClanName } from '@/stores/unitStoreIdentityActions';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 
@@ -78,7 +79,7 @@ function unitStorePersistOptions(initialState: UnitState) {
     name: `megamek-unit-${initialState.id}`,
     storage: createJSONStorage(() => clientSafeStorage),
     skipHydration: true,
-    partialize: pickPersistedUnitState,
+    partialize: withUnitLibraryReceipt(pickPersistedUnitState),
   };
 }
 

@@ -14,13 +14,17 @@
  *     fidelity, because with `StandStillAIPlayer` nothing is ever dirtied, so
  *     every field is cleared on both sides by construction.
  *
- * Known gap, deliberately not asserted here: with a real bot a replayed runner
- * log does NOT match the runner's own end-of-turn state. In an 8-seed
- * measurement (before C7 PR3) the replay differed on `weaponsFiredThisTurn`
- * (replay `[]`, runner non-empty), on `damageThisPhase` (replay often larger
- * than the runner's, e.g. 51 vs 10), and on explicit-versus-absent keys such as
- * `activeMASC` and the EMP counters. The causes were not investigated; closing
- * the gap is a separate change.
+ * D-8's real-bot corpus is pinned in SimulationRunner.replayScope.test.ts:
+ * seeds 1-8, four hydrated Atlas units, ten turns, map radius 4. Replay differs
+ * on weaponsFiredThisTurn for 15/32 units and damageThisPhase for 10/32.
+ * Missing PhaseChanged events leave phase damage uncleared within a turn.
+ * Ordinary AttackDeclared/AttackResolved reducers also do not record the
+ * runner's fired-weapon bookkeeping; phase markers alone cannot fix that gap.
+ * All 32 units have sparse runner activeMASC/EMP keys versus explicit replay
+ * defaults. This smoke check normalizes cleared values, so it hides key shape.
+ * Deterministic playback does not establish runner-private state equality or
+ * authoritative resume. Full fidelity remains separate work; these comments
+ * and the scoped contract add no runtime admission fence.
  *
  * The runner is driven by `StandStillAIPlayer`, so nothing but the reset
  * itself touches per-turn fields; this is an ordering and replay-smoke test,

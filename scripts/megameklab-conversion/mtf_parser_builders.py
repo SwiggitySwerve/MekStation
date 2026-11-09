@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from enum_mappings import map_mech_location, normalize_equipment_id
-from mtf_serialized_models import SerializedEquipment
+from enum_mappings import map_mech_location, map_structure_type, normalize_equipment_id
+from mtf_serialized_models import SerializedEquipment, SerializedStructure
 
 CRITICAL_MOUNTED_EQUIPMENT_IDS = {
     'chaff pod': 'chaffpod',
@@ -23,17 +23,20 @@ FRANKEN_STRUCTURE_LOCATIONS = {
 }
 
 
-def franken_structure_tonnage(config: str, structure: str,
-                              values: Dict[str, str]) -> Optional[Dict[str, int]]:
+def build_structure(config: str, structure: str,
+                    values: Dict[str, str], tech_base: str = '') -> SerializedStructure:
     """Per-location structure tonnage of a FrankenMek (MtfFile.java:362-411,669-702).
 
     Hybrid structure, or a value with its own type, is `<type>:<tonnage>`;
     otherwise the value is the tonnage. Other meks have none.
     """
+    structure_type = map_structure_type(structure)
     if 'FrankenMek' not in config:
-        return None
+        return SerializedStructure(type=structure_type)
     hybrid = structure.strip().lower() == 'hybrid'
     tonnage: Dict[str, int] = {}
+    types: Dict[str, str] = {}
+    clan = bool(re.fullmatch(r'(?:Clan|Mixed\s*\(Clan Chassis\))', tech_base.strip(), re.IGNORECASE))
     for code, value in values.items():
         location = FRANKEN_STRUCTURE_LOCATIONS.get(code)
         if location is None or not value.strip():
@@ -43,7 +46,15 @@ def franken_structure_tonnage(config: str, structure: str,
             tonnage[location] = int(raw.strip())
         except ValueError as error:
             raise ValueError(f'Invalid FrankenMek structure tonnage for {code}: {raw}') from error
-    return tonnage or None
+        if ':' in value or not hybrid:
+            name = value.rsplit(':', 1)[0].strip() if ':' in value else structure.strip()
+            types[location] = map_structure_type(name, code, clan)
+    return SerializedStructure(type=structure_type, locationTonnage=tonnage or None, typeByLocation=types)
+
+
+def franken_structure_tonnage(config: str, structure: str,
+                              values: Dict[str, str]) -> Optional[Dict[str, int]]:
+    return build_structure(config, structure, values).locationTonnage
 
 
 def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:

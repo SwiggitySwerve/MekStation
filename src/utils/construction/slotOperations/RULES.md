@@ -23,4 +23,6 @@ BV, cockpit identity and source-format conversion remain with their existing own
   portions from the complete grid. No persisted schema extension is needed.
 
 Cockpit-specific topology is supplied by `CockpitType.ts` through `topology.ts`.
-Adding cockpit identities is a separate coordinated change.
+Grid rendering, placement warnings, fill, compact and sort pass the selected
+cockpit, including their scheduled automatic variants. Callers that omit the
+optional cockpit retain the legacy Standard layout.

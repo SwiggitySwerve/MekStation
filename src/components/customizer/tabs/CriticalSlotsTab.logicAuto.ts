@@ -33,6 +33,7 @@ interface AssignmentActionArgs {
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
   readonly armActuators?: ArmActuatorConfig;
+  readonly cockpitType?: string;
   readonly configuration?: MechConfiguration;
   readonly isOmni?: boolean;
   readonly bulkUpdateEquipmentLocations: BulkUpdateEquipmentLocations;
@@ -80,6 +81,7 @@ export function runFillAction(args: AssignmentActionArgs): void {
       args.gyroType,
       args.configuration,
       args.armActuators,
+      args.cockpitType,
     ),
     args.bulkUpdateEquipmentLocations,
   );
@@ -95,6 +97,7 @@ export function runCompactAction(args: AssignmentActionArgs): void {
       args.configuration,
       args.isOmni,
       args.armActuators,
+      args.cockpitType,
     ),
     args.bulkUpdateEquipmentLocations,
   );
@@ -110,6 +113,7 @@ export function runSortAction(args: AssignmentActionArgs): void {
       args.configuration,
       args.isOmni,
       args.armActuators,
+      args.cockpitType,
     ),
     args.bulkUpdateEquipmentLocations,
   );
@@ -121,6 +125,7 @@ export function scheduleAutoFillUnhittables({
   engineType,
   gyroType,
   armActuators,
+  cockpitType,
   configuration,
   bulkUpdateEquipmentLocations,
   autoModeSettings,
@@ -140,6 +145,7 @@ export function scheduleAutoFillUnhittables({
         gyroType,
         configuration,
         armActuators,
+        cockpitType,
       ),
       bulkUpdateEquipmentLocations,
     );
@@ -158,6 +164,7 @@ function chooseAutoOrganizeResult({
   engineType,
   gyroType,
   armActuators,
+  cockpitType,
   configuration,
   isOmni,
 }: Omit<
@@ -172,6 +179,7 @@ function chooseAutoOrganizeResult({
       configuration,
       isOmni,
       armActuators,
+      cockpitType,
     );
   }
   if (autoModeSettings.autoCompact) {
@@ -182,6 +190,7 @@ function chooseAutoOrganizeResult({
       configuration,
       isOmni,
       armActuators,
+      cockpitType,
     );
   }
   return undefined;
@@ -208,6 +217,7 @@ export function scheduleAutoOrganizeEquipment({
   engineType,
   gyroType,
   armActuators,
+  cockpitType,
   configuration,
   isOmni,
   bulkUpdateEquipmentLocations,
@@ -229,6 +239,7 @@ export function scheduleAutoOrganizeEquipment({
         engineType,
         gyroType,
         armActuators,
+        cockpitType,
         configuration,
         isOmni,
       }),

@@ -14,6 +14,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
+import { blankMechCrew } from '@/types/pilot/MechCrewSeats';
 import {
   IRecordSheetData,
   IMechRecordSheetData,
@@ -280,9 +281,12 @@ export class RecordSheetService {
       ? buildSPASection(pilotAbilities)
       : { entries: [], hasContent: false };
 
+    const mechType = getMechType(unit.configuration);
     const crew =
       unit.crew === undefined
-        ? undefined
+        ? mechType === 'quadvee'
+          ? blankMechCrew('QUADVEE')
+          : undefined
         : MechRecordSheetCrewSchema.parse(unit.crew);
 
     return {
@@ -300,12 +304,7 @@ export class RecordSheetService {
       pilot: undefined,
       ...(crew === undefined ? {} : { crew }),
       specialAbilities: spaBlock.hasContent ? spaBlock.entries : undefined,
-      // getMechType matches 'quad' inside 'QuadVee', and the native QuadVee crew
-      // layout exists only on the QuadVee template (renderer.ts nativeCrew).
-      mechType:
-        crew?.crewType === 'QUADVEE'
-          ? 'quadvee'
-          : getMechType(unit.configuration),
+      mechType,
     };
   }
 

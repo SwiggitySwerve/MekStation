@@ -1,5 +1,10 @@
 import 'fake-indexeddb/auto';
+import type { NextRouter } from 'next/router';
+
+import { act, renderHook } from '@testing-library/react';
 import { IDBFactory } from 'fake-indexeddb';
+
+import type { IForce } from '@/types/force';
 
 import {
   _resetCombatOutcomeBus,
@@ -10,6 +15,7 @@ import {
   INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE,
   persistInteractiveLaunchRecoveryLog,
 } from '@/engine/InteractiveSession.persistence';
+import * as launchPersistence from '@/engine/InteractiveSession.persistence';
 import {
   MatchLogStorage,
   type IMatchMetadataRecord,
@@ -17,7 +23,9 @@ import {
 import {
   GameEventType,
   GameSide,
+  GameStatus,
   type IGameConfig,
+  type IGameSession,
   type IGameUnit,
 } from '@/types/gameplay';
 import {
@@ -29,7 +37,43 @@ import {
 import {
   buildGameSessionRoute,
   publishAutoResolvedCampaignOutcome,
+  usePreBattleLaunch,
 } from '../usePreBattleLaunch';
+
+const mockRunToCompletion = jest.fn();
+const mockLinkEncounterSession = jest.fn();
+const mockCompleteEncounterSession = jest.fn();
+jest.mock('@/engine/InteractiveSession.persistence', () => {
+  const actual = jest.requireActual<
+    typeof import('@/engine/InteractiveSession.persistence')
+  >('@/engine/InteractiveSession.persistence');
+  return {
+    __esModule: true,
+    ...actual,
+    persistInteractiveLaunchRecoveryLog: (
+      ...args: Parameters<typeof actual.persistInteractiveLaunchRecoveryLog>
+    ) => actual.persistInteractiveLaunchRecoveryLog(...args),
+  };
+});
+jest.mock('@/engine/GameEngine', () => ({
+  GameEngine: jest.fn().mockImplementation(() => ({
+    runToCompletion: mockRunToCompletion,
+  })),
+}));
+jest.mock('@/components/gameplay/pages/preBattleSessionBuilder', () => ({
+  getAssignedUnitIds: () => ['unit'],
+  buildPreparedBattleData: async () => ({
+    playerAdapted: [{ id: 'player' }],
+    opponentAdapted: [{ id: 'opponent' }],
+    gameUnits: [],
+  }),
+}));
+jest.mock('@/services/encounter/encounterLifecycleClient', () => ({
+  linkEncounterSession: (session: IGameSession, options: unknown) =>
+    mockLinkEncounterSession(session, options),
+  completeEncounterSession: (session: IGameSession) =>
+    mockCompleteEncounterSession(session),
+}));
 
 if (typeof globalThis.structuredClone === 'undefined') {
   Object.defineProperty(globalThis, 'structuredClone', {
@@ -293,5 +337,158 @@ describe('persistInteractiveLaunchRecoveryLog', () => {
 
     expect(storage.flushPendingWrites).not.toHaveBeenCalled();
     expect(storage.upsertMatchMetadata).not.toHaveBeenCalled();
+  });
+});
+
+describe('auto-resolve navigation recovery', () => {
+  beforeEach(() => {
+    mockRunToCompletion.mockReset();
+    mockLinkEncounterSession.mockReset().mockResolvedValue(undefined);
+    mockCompleteEncounterSession.mockReset().mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  function completedSession(): IGameSession {
+    return endGame(
+      startGame(
+        createGameSession(
+          {
+            ...makeConfig(),
+            encounterId: 'auto-recovery-encounter',
+            seed: 424242,
+          },
+          makeUnits(),
+          {
+            id: 'auto-recovery-session',
+            createdAt: '2026-06-21T00:00:00.000Z',
+          },
+        ),
+        GameSide.Player,
+      ),
+      GameSide.Player,
+      'destruction',
+    );
+  }
+
+  function launchHook(push: NextRouter['push']) {
+    const publish = jest.fn();
+    const showToast = jest.fn();
+    const { result } = renderHook(() =>
+      usePreBattleLaunch({
+        playerForce: { id: 'player' } as IForce,
+        opponentForce: { id: 'opponent' } as IForce,
+        pilots: [],
+        mapConfig: undefined,
+        router: { push } as NextRouter,
+        setSession: publish,
+        setInteractiveSession: jest.fn(),
+        setSpectatorMode: jest.fn(),
+        setIsResolving: jest.fn(),
+        showToast,
+      }),
+    );
+    return { result, publish, showToast };
+  }
+
+  it('commits completed recovery history before a navigation can discard memory', async () => {
+    const session = completedSession();
+    mockRunToCompletion.mockReturnValue(session);
+    const database = new IDBFactory();
+    const options = {
+      dbName: 'auto-resolve-navigation-recovery',
+      indexedDB: database,
+      scheduleFrame: () => undefined,
+    };
+    const writer = new MatchLogStorage(options);
+    const reader = new MatchLogStorage(options);
+    let releaseCommit: () => void = () => undefined;
+    const commitGate = new Promise<void>((resolve) => {
+      releaseCommit = resolve;
+    });
+    const flush = writer.flushPendingWrites;
+    jest.spyOn(writer, 'flushPendingWrites').mockImplementation(async () => {
+      await commitGate;
+      await flush();
+    });
+    const persist = launchPersistence.persistInteractiveLaunchRecoveryLog;
+    let pendingPersistence: Promise<void> | undefined;
+    jest
+      .spyOn(launchPersistence, 'persistInteractiveLaunchRecoveryLog')
+      .mockImplementation((value) => {
+        pendingPersistence = persist(value, writer);
+        return pendingPersistence;
+      });
+    const recovered: IGameSession[] = [];
+    const push = jest.fn(async () => {
+      // A route fallback/reload has lost the launching runtime and its store.
+      recovered.push(
+        await launchPersistence.hydrateRecoverableSessionFromMatchLog(
+          session.id,
+          reader,
+        ),
+      );
+      return true;
+    });
+    const hook = launchHook(push);
+    let launch = Promise.resolve();
+    try {
+      await act(async () => {
+        launch = hook.result.current('auto');
+      });
+
+      expect(await reader.getEventsForMatch(session.id)).toEqual([]);
+      expect(mockLinkEncounterSession).not.toHaveBeenCalled();
+      expect(mockCompleteEncounterSession).not.toHaveBeenCalled();
+      expect(hook.publish).not.toHaveBeenCalled();
+      expect(push).not.toHaveBeenCalled();
+
+      releaseCommit();
+      await act(async () => launch);
+
+      expect(push).toHaveBeenCalledWith(`/gameplay/games/${session.id}`);
+      expect(recovered).toHaveLength(1);
+      expect(recovered[0].currentState).toEqual(session.currentState);
+      expect(recovered[0].currentState.status).toBe(GameStatus.Completed);
+      expect(recovered[0].config).toEqual(session.config);
+      expect(recovered[0].events.map((event) => event.id)).toEqual(
+        session.events.map((event) => event.id),
+      );
+      expect(recovered[0].events.at(-1)?.type).toBe(GameEventType.GameEnded);
+      expect(await reader.getMatchMetadata(session.id)).toMatchObject({
+        matchId: session.id,
+        status: 'completed',
+      });
+    } finally {
+      releaseCommit();
+      await launch;
+      await pendingPersistence;
+      writer.close();
+      reader.close();
+    }
+  });
+
+  it('keeps the encounter launchable when completed history cannot be saved', async () => {
+    mockRunToCompletion.mockReturnValue(completedSession());
+    jest
+      .spyOn(launchPersistence, 'persistInteractiveLaunchRecoveryLog')
+      .mockRejectedValue(
+        new Error(INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE),
+      );
+    const push = jest.fn().mockResolvedValue(true);
+    const hook = launchHook(push);
+
+    await act(async () => hook.result.current('auto'));
+
+    expect(mockLinkEncounterSession).not.toHaveBeenCalled();
+    expect(mockCompleteEncounterSession).not.toHaveBeenCalled();
+    expect(hook.publish).not.toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
+    expect(hook.showToast).toHaveBeenCalledWith({
+      message: INTERACTIVE_SESSION_LAUNCH_STORAGE_UNAVAILABLE_MESSAGE,
+      variant: 'error',
+    });
   });
 });

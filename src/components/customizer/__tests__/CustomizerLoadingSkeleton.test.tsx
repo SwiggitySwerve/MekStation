@@ -29,6 +29,7 @@ import {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { CustomizerConfirmationProvider } from '../dialogs/CustomizerConfirmationProvider';
+import { ArmorDiagramPanel } from '../tabs/ArmorDiagramPanel';
 import { UnitTypeRouter } from '../UnitTypeRouter';
 
 interface LoadingCase {
@@ -151,6 +152,34 @@ const CASES: LoadingCase[] = [
   })),
 ];
 let nextId = 0;
+
+it('preserves the ready diagram root markers captured before the loading fix', () => {
+  render(
+    <ArmorDiagramPanel
+      configuration={MechConfiguration.BIPED}
+      armorDiagramMode="silhouette"
+      armorDiagramVariant="clean-tech"
+      armorData={[]}
+      selectedLocation={null}
+      unallocatedPoints={0}
+      locationIssues={{}}
+      onLocationClick={jest.fn()}
+    />,
+  );
+  const panel = screen.getByTestId('armor-diagram');
+  const root = panel.firstElementChild;
+  if (!root) throw new Error('Ready armor diagram is missing');
+  const markers = Array.from(root.attributes)
+    .filter((attribute) => attribute.name.startsWith('data-'))
+    .map((attribute) => [attribute.name, attribute.value]);
+  expect(markers).toEqual([
+    ['data-armor-variant', 'clean-tech'],
+    ['data-armor-design', 'blueprint'],
+  ]);
+  expect(panel).not.toHaveAttribute('data-armor-loading');
+  expect(root).not.toHaveAttribute('data-armor-loading');
+});
+
 function familyTree(testCase: LoadingCase): React.ReactElement {
   const tab: TabInfo = {
     id: `00000000-0000-4000-8000-${String(++nextId).padStart(12, '0')}`,
@@ -256,7 +285,12 @@ describe('real family shells while the equipment catalog is pending', () => {
       const loading = screen.getByTestId('customizer-loading-skeleton');
       expect(loading).toHaveAttribute('aria-busy', 'true');
       expect(loading).toHaveTextContent(testCase.type);
+      expect(
+        loading.querySelector('[data-armor-variant], [data-armor-design]'),
+      ).toBeNull();
       const diagram = within(loading).getByTestId(testCase.diagram);
+      if (testCase.type === UnitType.BATTLEMECH)
+        expect(diagram).toHaveAttribute('data-armor-loading', 'true');
       expect(diagram).toHaveTextContent(testCase.text);
       if (testCase.type === UnitType.SUPPORT_VEHICLE)
         expect(

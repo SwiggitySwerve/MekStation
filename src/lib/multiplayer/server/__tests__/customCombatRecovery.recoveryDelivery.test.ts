@@ -265,6 +265,15 @@ describe('the recovery delivery stream redacts like the live one', () => {
     const host = recovered.hosts.get(MATCH_ID);
     expect(host).toBeDefined();
 
+    // Boot recovery released the crash-leftover spectator seat; the watcher
+    // registers again (REST spectate) before attaching.
+    await store.updateMatchMeta(MATCH_ID, {
+      seats: addSpectatorSeat(
+        (await store.getMatchMeta(MATCH_ID)).seats ?? [],
+        { playerId: 'watcher', displayName: 'Watcher' },
+      ),
+    });
+
     const recoveredDelivery = await deliveredSnapshotIds(host!);
     expect(recoveredDelivery).toEqual({
       owner: [ownerRef],

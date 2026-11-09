@@ -26,6 +26,7 @@ class SerializedStructure:
     type: str
     # FrankenMek only: structure tonnage per location (MtfFile.java:669-691).
     locationTonnage: Optional[Dict[str, int]] = None
+    typeByLocation: Optional[Dict[str, str]] = None
 
 
 @dataclass

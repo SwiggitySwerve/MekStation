@@ -627,6 +627,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
           occurredAt: '3025-02-01T00:00:00.000Z',
         },
       ],
+      moraleCountedMatchIds: ['match-1', 'match-2'],
       personnelMarket: [
         {
           id: 'pmo-001',
@@ -694,6 +695,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(reloaded.moraleState).toBe(MoraleState.High);
     expect(reloaded.moraleTransitions).toHaveLength(1);
     expect(reloaded.moraleTransitions![0].to).toBe(MoraleState.High);
+    expect(reloaded.moraleCountedMatchIds).toEqual(['match-1', 'match-2']);
     expect(reloaded.personnelMarket).toHaveLength(1);
     expect(reloaded.personnelMarket![0].hireCost).toBe(25_000);
     // K14a: an orphan marker has no offer to hide and is pruned on reload.

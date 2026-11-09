@@ -357,6 +357,8 @@ describe('ServerMatchHost live branch admission', () => {
       getMatchMeta: (id) => inner.getMatchMeta(id),
       getMatchByRoomCode: (code) => inner.getMatchByRoomCode(code),
       updateMatchMeta: (id, patch) => inner.updateMatchMeta(id, patch),
+      updateMatchMetaIf: (id, guard, patch) =>
+        inner.updateMatchMetaIf(id, guard, patch),
       closeMatch: (id) => inner.closeMatch(id),
       listMatches: (filter) => inner.listMatches(filter),
     };
