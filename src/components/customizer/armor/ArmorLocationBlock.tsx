@@ -21,8 +21,8 @@ export interface ArmorLocationBlockProps {
   label: string;
   /** Current armor value */
   current: number;
-  /** Maximum armor value */
-  max: number;
+  /** Maximum armor value; null means there is no individual maximum. */
+  max: number | null;
   /** Pip orientation (default 'row') */
   orientation?: 'row' | 'column';
   /** Pip size in pixels (default 8) */
@@ -55,12 +55,16 @@ export function ArmorLocationBlock({
   accentClass = 'text-cyan-400',
   showPips = true,
 }: ArmorLocationBlockProps): React.ReactElement {
-  const safeMax = Math.max(0, max);
+  const safeMax = max === null ? null : Math.max(0, max);
 
   return (
     <div
       className={`flex flex-col gap-1 ${className}`}
-      aria-label={`${label} armor: ${current} of ${safeMax}`}
+      aria-label={
+        safeMax === null
+          ? `${label} armor: ${current}`
+          : `${label} armor: ${current} of ${safeMax}`
+      }
     >
       {/* Label row */}
       <div className="flex items-baseline justify-between gap-2">
@@ -69,12 +73,14 @@ export function ArmorLocationBlock({
         </span>
         <span className={`font-mono text-xs tabular-nums ${accentClass}`}>
           {current}
-          <span className="text-text-theme-secondary">/{safeMax}</span>
+          {safeMax !== null && (
+            <span className="text-text-theme-secondary">/{safeMax}</span>
+          )}
         </span>
       </div>
 
       {/* Pip strip — delegates to shared primitive */}
-      {!showPips ? null : safeMax > 0 ? (
+      {!showPips || safeMax === null ? null : safeMax > 0 ? (
         <ArmorPipRow
           label={label}
           current={current}

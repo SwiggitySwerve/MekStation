@@ -214,7 +214,7 @@ export function calculateDailyCosts(
  * Income transaction in the finances.
  *
  * Only processes contracts in terminal states (SUCCESS, PARTIAL, FAILED,
- * BREACH, CANCELLED, ABORTED). Active or pending contracts return
+ * BREACH). Active or pending contracts return
  * finances unchanged.
  *
  * @param campaign - The campaign (used for current date)

@@ -78,8 +78,6 @@ describe.each([
   MissionStatus.PARTIAL,
   MissionStatus.FAILED,
   MissionStatus.BREACH,
-  MissionStatus.CANCELLED,
-  MissionStatus.ABORTED,
 ])('a contract already settled as %s', (status) => {
   it.each(Object.values(CombatEndReason))(
     'ignores a later %s result without writing the mission or recording a flip',

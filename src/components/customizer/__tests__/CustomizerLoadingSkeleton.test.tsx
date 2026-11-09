@@ -36,6 +36,7 @@ interface LoadingCase {
   type: UnitType;
   diagram: string;
   text: string;
+  tonnage?: number;
   configuration?: MechConfiguration;
   motion?: GroundMotionType;
   craftMotion?: AerospaceMotionType;
@@ -76,6 +77,8 @@ const CASES: LoadingCase[] = [
   {
     name: 'superheavy',
     type: UnitType.VEHICLE,
+    // Keep native tracked geometry consistent with the shared construction rule.
+    tonnage: 150,
     superheavy: true,
     diagram: 'vehicle-six-side-armor-diagram',
     text: 'Front Left',
@@ -84,11 +87,13 @@ const CASES: LoadingCase[] = [
     name: 'support',
     type: UnitType.SUPPORT_VEHICLE,
     diagram: 'vehicle-armor-diagram',
-    text: 'Body',
+    // MML 62bf193 ArmorAllocationView.java:91-110,321-343 omits Body.
+    text: 'Front',
   },
   {
     name: 'large support',
     type: UnitType.SUPPORT_VEHICLE,
+    tonnage: 150,
     superheavy: true,
     diagram: 'vehicle-six-side-armor-diagram',
     text: 'Rear Left',
@@ -151,7 +156,7 @@ function familyTree(testCase: LoadingCase): React.ReactElement {
     id: `00000000-0000-4000-8000-${String(++nextId).padStart(12, '0')}`,
     name: testCase.name,
     unitType: testCase.type,
-    tonnage: 50,
+    tonnage: testCase.tonnage ?? 50,
     techBase: TechBase.INNER_SPHERE,
   };
   const options = { ...tab, unitType: undefined };
@@ -253,6 +258,10 @@ describe('real family shells while the equipment catalog is pending', () => {
       expect(loading).toHaveTextContent(testCase.type);
       const diagram = within(loading).getByTestId(testCase.diagram);
       expect(diagram).toHaveTextContent(testCase.text);
+      if (testCase.type === UnitType.SUPPORT_VEHICLE)
+        expect(
+          within(loading).queryByTestId('vehicle-armor-input-Body'),
+        ).toBeNull();
       expect(diagram.closest('[inert]')).not.toBeNull();
       if (testCase.type !== UnitType.BATTLEMECH)
         expect(within(loading).queryByTestId('armor-diagram')).toBeNull();
