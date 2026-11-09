@@ -10,6 +10,10 @@ import type {
 } from '@/types/gameplay/HexGridInterfaces';
 import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
+import type {
+  CombatOutcomeJournal,
+  IOutcomePublicationStorage,
+} from './combatOutcomeJournal';
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 
 export interface IInteractiveSessionRuntimeContext {
@@ -26,9 +30,9 @@ export interface IInteractiveSessionRuntimeContext {
   readonly linkage: IInteractiveSessionLinkage;
   readonly getSession: () => IGameSession;
   readonly setSession: (session: IGameSession) => void;
-  readonly getOutcomePublished: () => boolean;
+  readonly outcomeJournal: CombatOutcomeJournal;
+  readonly getOutcomePublicationStorage: () => IOutcomePublicationStorage;
   readonly getSuppressOutcomePublication: () => boolean;
-  readonly setOutcomePublished: (published: boolean) => void;
   readonly markMatchLogDiverged: () => void;
   readonly hasMatchLogDiverged: () => boolean;
 }
