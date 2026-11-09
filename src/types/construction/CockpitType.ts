@@ -81,7 +81,7 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
 export interface CockpitDefinition {
   readonly type: CockpitType;
   /** Native source tag for variants absent from legacy mapper aliases. */
-  readonly sourceTag?: string;
+  readonly sourceTag: string;
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -103,6 +103,7 @@ export interface CockpitDefinition {
 export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   {
     type: CockpitType.STANDARD,
+    sourceTag: 'STANDARD',
     name: 'Standard Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
@@ -113,6 +114,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.SMALL,
+    sourceTag: 'SMALL',
     name: 'Small Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -125,6 +127,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.COMMAND_CONSOLE,
+    sourceTag: 'COMMAND_CONSOLE',
     name: 'Command Console',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -135,6 +138,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.TORSO_MOUNTED,
+    sourceTag: 'TORSO_MOUNTED',
     name: 'Torso-Mounted Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -145,6 +149,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.PRIMITIVE,
+    sourceTag: 'PRIMITIVE',
     name: 'Primitive Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
@@ -155,6 +160,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.INDUSTRIAL,
+    sourceTag: 'INDUSTRIAL',
     name: 'Industrial Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
@@ -165,6 +171,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.SUPER_HEAVY,
+    sourceTag: 'SUPERHEAVY',
     name: 'Superheavy Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -252,6 +259,13 @@ export function getCockpitDefinition(
   type: CockpitType,
 ): CockpitDefinition | undefined {
   return COCKPIT_DEFINITIONS.find((def) => def.type === type);
+}
+
+/** Canonical source identity is owned with the cockpit definition. */
+export function getCockpitSourceTag(type: CockpitType): string {
+  const definition = getCockpitDefinition(type);
+  if (!definition) throw new Error(`Unknown cockpit type: ${type}`);
+  return definition.sourceTag;
 }
 
 /** TestEntity.java:1565-1569: unit side, or earliest introduction for mixed tech. */
