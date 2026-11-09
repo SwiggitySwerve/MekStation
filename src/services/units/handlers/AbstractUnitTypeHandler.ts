@@ -25,6 +25,9 @@ import {
   UnitValidationMessages,
   createParseMessages,
   createValidationMessages,
+  decodeBlkTechnologyHeader,
+  type IBlkHeaderTechnology,
+  UnsupportedBlkTechnologyError,
 } from './unitHandlerShared';
 // ============================================================================
 // Abstract Base Handler
@@ -129,7 +132,13 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     }
 
     // Parse common fields
-    const commonFields = this.parseCommonFields(document);
+    let commonFields: ReturnType<typeof this.parseCommonFields>;
+    try {
+      commonFields = this.parseCommonFields(document);
+    } catch (error) {
+      if (!(error instanceof UnsupportedBlkTechnologyError)) throw error;
+      return { success: false, error: { errors: [error.message], warnings } };
+    }
     errors.push(...commonFields.errors);
     warnings.push(...commonFields.warnings);
 
@@ -182,6 +191,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     model: string;
     tonnage: number;
     techBase: string;
+    technology: IBlkHeaderTechnology;
     era: string;
     year: number;
     source?: string;
@@ -206,6 +216,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
 
     // Tech base from type field (e.g., "IS Level 2", "Clan Level 3")
     const techBase = document.type || 'Inner Sphere';
+    const technology = decodeBlkTechnologyHeader(techBase, this.unitType);
 
     // Year as era indicator
     const year = document.year || 3025;
@@ -220,6 +231,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
       model,
       tonnage,
       techBase,
+      technology,
       era,
       year,
       source,

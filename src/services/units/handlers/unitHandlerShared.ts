@@ -83,6 +83,7 @@ interface CommonFieldSource {
   readonly model: string;
   readonly tonnage: number;
   readonly techBase: string;
+  readonly technology: IBlkHeaderTechnology;
   readonly era: string;
   readonly year: number;
   readonly source?: string;
@@ -94,20 +95,12 @@ interface CommonUnitFieldOptions {
   readonly idPrefix: string;
   readonly unitType: UnitType;
   readonly weightClass: WeightClass;
-  readonly techBase: TechBase;
-  readonly rulesLevel: RulesLevel;
   readonly tonnage?: number;
   readonly totalWeight?: number;
 }
 
-interface CombinedCommonUnitFieldOptions extends Omit<
-  CommonUnitFieldOptions,
-  'techBase' | 'rulesLevel'
-> {
+interface CombinedCommonUnitFieldOptions extends CommonUnitFieldOptions {
   readonly typeSpecificFields: object;
-  readonly techBase?: TechBase;
-  readonly rulesLevel?: RulesLevel;
-  readonly rulesLevelParser?: (typeStr: string) => RulesLevel;
 }
 
 interface CommonUnitFields {
@@ -150,11 +143,10 @@ export function buildCommonUnitFields({
   idPrefix,
   unitType,
   weightClass,
-  techBase,
-  rulesLevel,
   tonnage = commonFields.tonnage,
   totalWeight = tonnage,
 }: CommonUnitFieldOptions): CommonUnitFields {
+  const { techBase, rulesLevel } = commonFields.technology;
   return {
     id: `${idPrefix}-${Date.now()}`,
     name: `${commonFields.chassis} ${commonFields.model}`.trim(),
@@ -186,17 +178,12 @@ export function buildCommonUnitFields({
 export function combineCommonUnitFields<TUnit>({
   commonFields,
   typeSpecificFields,
-  techBase,
-  rulesLevel,
-  rulesLevelParser = parseRulesLevelFromType,
   ...options
 }: CombinedCommonUnitFieldOptions): TUnit {
   return {
     ...buildCommonUnitFields({
       commonFields,
       ...options,
-      techBase: techBase ?? parseInnerSphereOrClan(commonFields.techBase),
-      rulesLevel: rulesLevel ?? rulesLevelParser(commonFields.techBase),
     }),
     ...typeSpecificFields,
   } as TUnit;
@@ -344,18 +331,29 @@ export function getRawTagNumber(
   return value ? parseFloat(value) || 0 : 0;
 }
 
-export function parseInnerSphereOrClan(typeStr: string): TechBase {
-  const lower = typeStr.toLowerCase();
-  return lower.includes('clan') && !lower.includes('mixed')
-    ? TechBase.CLAN
-    : TechBase.INNER_SPHERE;
+/** Binary source facts; unit Mixed mode is outside this import contract. */
+export interface IBlkHeaderTechnology {
+  readonly techBase: TechBase;
+  readonly rulesLevel: RulesLevel;
 }
 
-export function parseRulesLevelFromType(
-  typeStr: string,
-  fallback: RulesLevel = RulesLevel.STANDARD,
-): RulesLevel {
-  const lower = typeStr.toLowerCase();
+export class UnsupportedBlkTechnologyError extends Error {}
+
+/** One lexical owner shared by handler admission and chassis-only consumers. */
+function readBlkTechnologyHeader(type: string) {
+  const lower = type.toLowerCase();
+  const chassis = /mixed\s*\((is|clan) chassis\)/i.exec(type);
+  const nativeClan =
+    /^clan\b/i.test(type) || chassis?.[1].toLowerCase() === 'clan';
+  const legacyClan = lower.includes('clan') && !lower.includes('mixed');
+  return {
+    nativeClan,
+    legacyClan,
+    rulesLevel: readLegacyRulesLevel(lower),
+  };
+}
+
+function readLegacyRulesLevel(lower: string): RulesLevel | undefined {
   if (lower.includes('level 1') || lower.includes('introductory')) {
     return RulesLevel.INTRODUCTORY;
   }
@@ -368,22 +366,50 @@ export function parseRulesLevelFromType(
   if (lower.includes('level 4') || lower.includes('experimental')) {
     return RulesLevel.EXPERIMENTAL;
   }
-  return fallback;
+  return undefined;
 }
 
-export function parseRulesLevelThroughAdvancedFromType(
-  typeStr: string,
-  fallback: RulesLevel = RulesLevel.STANDARD,
-): RulesLevel {
-  const lower = typeStr.toLowerCase();
-  if (lower.includes('level 1') || lower.includes('introductory')) {
-    return RulesLevel.INTRODUCTORY;
-  }
-  if (lower.includes('level 2') || lower.includes('standard')) {
-    return RulesLevel.STANDARD;
-  }
-  if (lower.includes('level 3') || lower.includes('advanced')) {
-    return RulesLevel.ADVANCED;
-  }
-  return fallback;
+/** Preserve the existing pure-source family policies, including Level 5 fallback. */
+function pureRulesPolicy(unitType: UnitType) {
+  const fallback =
+    unitType === UnitType.INFANTRY
+      ? RulesLevel.INTRODUCTORY
+      : unitType === UnitType.PROTOMECH
+        ? RulesLevel.ADVANCED
+        : RulesLevel.STANDARD;
+  const experimental = ![
+    UnitType.BATTLE_ARMOR,
+    UnitType.CONVENTIONAL_FIGHTER,
+    UnitType.SMALL_CRAFT,
+    UnitType.DROPSHIP,
+    UnitType.JUMPSHIP,
+    UnitType.WARSHIP,
+    UnitType.SPACE_STATION,
+    UnitType.INFANTRY,
+  ].includes(unitType);
+  return { fallback, experimental };
+}
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/serialization-formats/spec.md */
+export function decodeBlkTechnologyHeader(
+  type: string,
+  unitType: UnitType,
+): IBlkHeaderTechnology {
+  const header = readBlkTechnologyHeader(type);
+  const policy = pureRulesPolicy(unitType);
+  const clan =
+    unitType === UnitType.BATTLE_ARMOR ? header.nativeClan : header.legacyClan;
+  const level =
+    header.rulesLevel === RulesLevel.EXPERIMENTAL && !policy.experimental
+      ? undefined
+      : header.rulesLevel;
+  return {
+    techBase: clan ? TechBase.CLAN : TechBase.INNER_SPHERE,
+    rulesLevel: level ?? policy.fallback,
+  };
+}
+
+/** Native chassis family only; explicit component flags take precedence at callers. */
+export function isClanSourceChassis(type: string): boolean {
+  return readBlkTechnologyHeader(type).nativeClan;
 }
