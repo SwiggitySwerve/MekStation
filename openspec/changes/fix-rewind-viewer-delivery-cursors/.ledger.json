@@ -1,0 +1,6 @@
+{
+  "name": "fix-rewind-viewer-delivery-cursors",
+  "status": "active",
+  "reason": "Approved bounded fix for durable viewer delivery and acknowledgement rows surviving rewind supersession.",
+  "lastReviewed": "2026-11-09"
+}
