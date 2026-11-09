@@ -1308,3 +1308,29 @@ SHALL remain absent, and legacy inputs omitting ammo SHALL retain their trace.
 - **WHEN** ordinary aerospace ammo diagnostics are projected
 - **THEN** unmatched bins SHALL retain availability without inventing a cap, empty lists SHALL retain real caps without inventing bins, and AMS raw caps SHALL remain outside offensive ammo arithmetic
 - **AND** direction, heat, fire control and speed SHALL NOT scale these diagnostics
+
+### Requirement: Infantry raw weapon-stage diagnostics
+
+The infantry BV owner SHALL supply optional primary, represented secondary,
+anti-Mek repeat and remaining weapon-stage values to the trace. Their
+`infantry.primaryWeaponBV`, `infantry.secondaryWeaponBV`,
+`infantry.antiMekWeaponBV` and `infantry.weaponRemainderBV` projections SHALL
+retain pinned native operation order and floating-point residuals without
+rounding. Existing per-trooper arithmetic, old diagnostics, source inputs,
+aggregates and totals SHALL remain unchanged.
+
+#### Scenario: Native stages retain fractional residuals
+
+- **GIVEN** pinned infantry with primary and optional secondary weapons, anti-Mek training or field guns
+- **WHEN** source weapon-stage diagnostics are projected
+- **THEN** primary and secondary values SHALL use the original shooter counts
+- **AND** anti-Mek weapon repeats SHALL exclude archaic weapons and prosthetic bonuses
+- **AND** the remainder SHALL subtract primary, secondary, field guns and anti-Mek repeats in native order, retaining even tiny nonzero residuals
+
+#### Scenario: Missing facts, zero values and replay compatibility
+
+- **GIVEN** a legacy calculation without source facts, an absent secondary weapon or a represented zero secondary contribution
+- **WHEN** its breakdown is calculated or replayed
+- **THEN** absent source facts and absent secondary weapons SHALL NOT acquire diagnostic keys
+- **AND** represented zero values SHALL remain present and finite
+- **AND** strict replay SHALL accept the optional finite keys and legacy payloads while rejecting nonfinite diagnostics
