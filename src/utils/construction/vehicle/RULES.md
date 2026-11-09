@@ -824,6 +824,28 @@ the path loses nothing. Support vehicles are outside this term: Java gives them
 no free sinks (TestSupportVehicle.java:917-931), and the support heat term
 depends on the 2.2-d support weight model.
 
+## Support ammo slot boundary and independent fire-control placement
+
+At MegaMek `48fcb2f64`, `TestSupportVehicle.getAmmoSlots` (:1618-1640)
+shares ammo with weapons only for small support vehicles. Small means strictly
+below 5 tons (`EntityWeightClass.java:80-97`); at exactly 5 tons, distinct
+non-one-shot ammo types require slots. `itemSlots.ts` starts its existing
+conservative ammo grouping at this boundary. Native ammo identity, armor and
+other lower bounds described by that owner remain separate work.
+
+`TestTank.isValidTankLocation` (:979-980) and `isBodyEquipment` (:1079-1093)
+require Basic and Advanced Fire Control in Body. `vehicleValidation.ts` owns
+this placement check independently of slot accounting. Missing, variable or
+unit-dependent slot costs on another mount cannot suppress a known placement
+error. Equipment identities and names use the public catalog resolver, including
+the native `:OMNI` qualifier. The Tank, VTOL and support handlers retain their
+existing validation entrypoints, CASE checks and motive compatibility checks.
+
+`vehicleEquipmentValidation.pinned.test.ts` loads synthetic BLKs through the real
+handlers for the 5-ton ammo overrun and misplaced fire control beside variable
+cargo. Boundary and placement controls also cover unknown costs, Blue Shield's
+unit-dependent slots, Body placement, CASE and independent motive errors.
+
 ## Correction: miscellaneous heat for RISC, Nova CEWS and Spot Welder
 
 The earlier MiscType citation ending at line 1435 is incomplete. At pin
