@@ -37,12 +37,20 @@ export function aggregatorMissing(jobs) {
 }
 
 /** Only successful/failed runs with no real aggregator need a failure status. */
-export function shouldReportMissing({ conclusion, jobs, allAttemptJobs = [] }) {
+export function shouldReportMissing({
+  conclusion,
+  attempt,
+  jobs,
+  allAttemptJobs = [],
+}) {
   return (
     ['success', 'failure'].includes(conclusion) &&
     aggregatorMissing(jobs) &&
     !allAttemptJobs.some(
-      (job) => isAggregator(job) && job.status === 'completed',
+      (job) =>
+        isAggregator(job) &&
+        job.status === 'completed' &&
+        job.run_attempt >= attempt,
     )
   );
 }
@@ -178,7 +186,7 @@ export async function runGuard(
       const allAttemptJobs = await readJobs(
         `repos/${repo}/actions/runs/${run}/jobs?filter=all`,
       );
-      if (shouldReportMissing({ conclusion, jobs, allAttemptJobs })) {
+      if (shouldReportMissing({ conclusion, attempt, jobs, allAttemptJobs })) {
         await post('failure', failureDescription(run, attempt));
         return;
       }

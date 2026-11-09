@@ -167,6 +167,7 @@ test('the retry decision ignores a completed aggregator from another attempt onl
   assert.equal(
     shouldReportMissing({
       conclusion: 'success',
+      attempt: options.attempt,
       jobs: [],
       allAttemptJobs: [realJob({ run_attempt: 5 })],
     }),
@@ -175,6 +176,7 @@ test('the retry decision ignores a completed aggregator from another attempt onl
   assert.equal(
     shouldReportMissing({
       conclusion: 'success',
+      attempt: options.attempt,
       jobs: [],
       allAttemptJobs: [legacyCheck],
     }),
@@ -238,6 +240,33 @@ test('final all-attempt inspection suppresses failure when a later completed agg
   const f = fixture({ all: [realJob({ run_attempt: 5 })] });
   await f.run();
   assert.deepEqual(f.sleeps, [20000, 40000]);
+  assert.equal(writes(f).length, 0);
+  assert.match(f.logs.join('\n'), /no failure/i);
+});
+
+test('attempt two still needs a failure when only attempt one completed its aggregator', () => {
+  assert.equal(
+    shouldReportMissing({
+      conclusion: 'success',
+      attempt: 2,
+      jobs: [],
+      allAttemptJobs: [realJob({ run_attempt: 1 })],
+    }),
+    true,
+  );
+});
+
+test('a full rerun without an aggregator posts despite an older successful aggregator', async () => {
+  const f = fixture({ all: [realJob({ run_attempt: options.attempt - 1 })] });
+  await f.run();
+  assert.deepEqual(f.sleeps, [20000, 40000]);
+  assert.equal(writes(f).length, 1);
+  assert.equal(writes(f)[0].fields.state, 'failure');
+});
+
+test('final all-attempt inspection suppresses failure for the completed trigger attempt aggregator', async () => {
+  const f = fixture({ all: [realJob({ run_attempt: options.attempt })] });
+  await f.run();
   assert.equal(writes(f).length, 0);
   assert.match(f.logs.join('\n'), /no failure/i);
 });
