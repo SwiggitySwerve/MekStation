@@ -117,8 +117,8 @@ describe('QuadVee record sheet payload', () => {
     );
   });
 
-  it('leaves Quad, Tripod and Biped without an inferred roster', () => {
-    for (const configuration of ['Quad', 'Tripod', 'Biped'])
+  it('leaves Quad and Biped without an inferred roster (a Tripod gets its native one: nativeMechCrewDefault.test.ts)', () => {
+    for (const configuration of ['Quad', 'Biped'])
       expect(
         service.extractData({ ...unit, configuration }),
       ).not.toHaveProperty('crew');
