@@ -451,3 +451,21 @@ MekStation has no unallocated ProtoMech location yet. Its armor edit retains
 all equipment, allows EDP and displays slot overflow instead of unassigning.
 Follow-up: **unallocated ProtoMech mounts and MML's EDP transition**, routed by
 Coordinator 3 with Equipment/Assign Criticals work.
+
+## Glider and Partial Wing jump
+
+Pinned MegaMek `48fcb2f64` `ProtoMek.getJumpMP` (ProtoMek.java:452-492) returns
+the stored jump MP, reduced by torso critical hits, plus the Partial Wing bonus
+(+3 high or very high atmosphere, +2 standard or thin, +1 trace, 0 otherwise;
+ProtoMek.java:470-487, only when weather is not ignored). A glider has no jump
+bonus: it is a WiGE unit that flies on its walk MP, and MML `62bf193`
+`MovementView.java:265-268` fixes its jump spinner at 0. `effectiveJumpMP` is the
+editor's display value (stored jump plus 2 when a Partial Wing is mounted, the
+standard atmosphere, as `MovementView.java:456-465` shows); BV reads the stored
+jump MP because `BV_CALCULATION` ignores weather.
+
+The `glidingWings` store field is a legacy inert field. Earlier MekStation code
+read it as "+2 jump on a glider"; the pin has no such rule. It stays in state,
+saved units and BV cache keys so nothing persisted changes, and nothing reads it
+for a rule. The editor has no control for it. Not implemented: the in-game Partial
+Wing atmosphere bonus (gameplay movement), recorded for its owner.

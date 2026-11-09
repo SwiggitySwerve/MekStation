@@ -60,17 +60,46 @@ export function computeRunMP(
 }
 
 /**
- * Jump MP for a Glider chassis: base jump MP + 2 from Glider Wings.
- * For all other chassis types the jump MP passes through unchanged.
+ * Jump MP the editor shows: the stored jump MP plus the Partial Wing bonus.
+ * Pinned MegaMek 48fcb2f64 ProtoMek.getJumpMP (ProtoMek.java:452-492) adds the
+ * bonus only for a mounted Partial Wing: +2 in a standard or thin atmosphere (+3
+ * high, +1 trace, 0 otherwise, ProtoMek.java:470-487). The editor has no
+ * atmosphere, so it shows the standard +2, as MML 62bf193 MovementView.java
+ * :456-465 does. A glider has no bonus of its own: it is WiGE, uses its walk MP
+ * to fly, and MML pins its jump spinner at 0 (MovementView.java:265-268). The
+ * bonus is a display value only; BV and validation read the stored jump MP
+ * (BV_CALCULATION ignores weather).
  */
 export function effectiveJumpMP(
   baseJumpMP: number,
-  chassisType: ProtoChassis,
+  hasPartialWing: boolean,
 ): number {
-  if (chassisType === ProtoChassis.GLIDER) {
-    return baseJumpMP + 2;
-  }
-  return baseJumpMP;
+  return hasPartialWing ? baseJumpMP + 2 : baseJumpMP;
+}
+
+/**
+ * Whether the editor lets the chassis carry jump MP. Ultraheavy cannot jump; a
+ * glider is WiGE and MML 62bf193 MovementView.java:265-268 pins its jump spinner
+ * at 0. Editor-only: the pinned verifier does not reject a glider's jump MP
+ * (TestProtoMek.java:454-457), so no validation rule reads this.
+ */
+export function protoChassisCanJump(chassisType: ProtoChassis): boolean {
+  return (
+    chassisType !== ProtoChassis.GLIDER &&
+    chassisType !== ProtoChassis.ULTRAHEAVY
+  );
+}
+
+/** A mounted ProtoMech Partial Wing (F_PARTIAL_WING), by BLK name or catalog id. */
+export function hasProtoPartialWing(
+  equipment: readonly { readonly equipmentId: string }[],
+): boolean {
+  return equipment.some((mount) =>
+    mount.equipmentId
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .includes('partialwing'),
+  );
 }
 
 // =============================================================================

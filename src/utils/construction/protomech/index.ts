@@ -37,6 +37,8 @@ export {
   computeProtoWalkMPForRating,
   computeRunMP,
   effectiveJumpMP,
+  hasProtoPartialWing,
+  protoChassisCanJump,
   getProtoMPCaps,
   getProtoEngineWeightError,
   isMyomerBoosterLegal,

@@ -11,6 +11,8 @@ import {
   getProtoArmorErrors,
   getProtoMPCaps,
   getProtoWeightClass,
+  hasProtoPartialWing,
+  protoChassisCanJump,
 } from '@/utils/construction/protomech';
 import {
   PROTO_ARMOR_TYPES,
@@ -70,15 +72,17 @@ export interface ProtoMechMovementControls {
   runMP: number;
   mpCaps: ReturnType<typeof getProtoMPCaps>;
   effectiveWalk: number;
+  /** Stored jump plus the Partial Wing bonus; shown when a wing is mounted. */
   effectiveJump: number;
+  hasPartialWing: boolean;
+  /** False for Ultraheavy and Glider (protoChassisCanJump). */
+  canJump: boolean;
   isUltraheavy: boolean;
   isGliderChassis: boolean;
   hasMyomerBooster: boolean;
-  glidingWings: boolean;
   handleWalkMPChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleJumpMPChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleMyomerBoosterChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleGlidingWingsChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export interface ProtoMechArmorControls {
@@ -220,16 +224,19 @@ export function useProtoMechMovementControls(
   const flankMP = useProtoMechStore((s) => s.flankMP);
   const jumpMP = useProtoMechStore((s) => s.jumpMP);
   const hasMyomerBooster = useProtoMechStore((s) => s.hasMyomerBooster);
-  const glidingWings = useProtoMechStore((s) => s.glidingWings);
+  const equipment = useProtoMechStore((s) => s.equipment);
   const setWalkMP = useProtoMechStore((s) => s.setWalkMP);
   const setJumpMP = useProtoMechStore((s) => s.setJumpMP);
   const setMyomerBooster = useProtoMechStore((s) => s.setMyomerBooster);
-  const setGlidingWings = useProtoMechStore((s) => s.setGlidingWings);
 
   const weightClass = getProtoWeightClass(tonnage);
   const mpCaps = getProtoMPCaps(weightClass);
   const effectiveWalk = walkMP;
-  const effectiveJump = effectiveJumpMP(jumpMP, chassisType);
+  const hasPartialWing = useMemo(
+    () => hasProtoPartialWing(equipment),
+    [equipment],
+  );
+  const effectiveJump = effectiveJumpMP(jumpMP, hasPartialWing);
   const isUltraheavy = chassisType === ProtoChassis.ULTRAHEAVY;
   const isGliderChassis = chassisType === ProtoChassis.GLIDER;
 
@@ -260,15 +267,6 @@ export function useProtoMechMovementControls(
     [readOnly, setMyomerBooster],
   );
 
-  const handleGlidingWingsChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      if (!readOnly) {
-        setGlidingWings(event.target.checked);
-      }
-    },
-    [readOnly, setGlidingWings],
-  );
-
   return {
     walkMP,
     jumpMP,
@@ -276,14 +274,14 @@ export function useProtoMechMovementControls(
     mpCaps,
     effectiveWalk,
     effectiveJump,
+    hasPartialWing,
+    canJump: protoChassisCanJump(chassisType),
     isUltraheavy,
     isGliderChassis,
     hasMyomerBooster,
-    glidingWings,
     handleWalkMPChange,
     handleJumpMPChange,
     handleMyomerBoosterChange,
-    handleGlidingWingsChange,
   };
 }
 

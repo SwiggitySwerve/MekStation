@@ -470,3 +470,31 @@ diagnostics. Tech filtering remains deferred under owner ruling O3.
 - **WHEN** calculating the 86 pinned canonical ProtoMechs
 - **THEN** handler and shared-dispatch BV SHALL each equal the actual pinned Java total
 - **AND** no construction-validity result SHALL move away from the pinned Java verdict
+
+### Requirement: ProtoMech Glider And Partial Wing Jump
+
+The editor SHALL show jump MP as pinned MegaMek `48fcb2f64` `ProtoMek.getJumpMP` (ProtoMek.java:452-492) gives it: the stored jump MP plus the Partial Wing bonus. A glider SHALL have no jump bonus of its own, because it is a WiGE unit that flies on its walk MP; the "gliding wings, +2 jump" rule SHALL NOT exist.
+
+#### Scenario: Partial Wing is the only jump bonus
+
+- **WHEN** a ProtoMech has a mounted Partial Wing
+- **THEN** the effective jump the editor shows SHALL be the stored jump MP plus 2, the standard-atmosphere bonus of ProtoMek.java:470-487, as MML 62bf193 `MovementView.java:456-465` shows
+- **AND** a unit without a Partial Wing SHALL show no effective-jump bonus, glider or not
+- **AND** BV and validation SHALL keep reading the stored jump MP, since the bonus applies only when weather is not ignored and BV ignores it
+
+#### Scenario: Glider jump control
+
+- **WHEN** a ProtoMech is a glider
+- **THEN** the editor's jump control SHALL be fixed at 0, as MML `MovementView.java:265-268` fixes it
+- **AND** changing a unit to a glider SHALL set its stored jump MP to 0
+- **AND** no validation rule SHALL be added, because the pinned verifier does not reject a glider's jump MP above 0 (TestProtoMek.java:454-457)
+
+#### Scenario: Legacy gliding wings field
+
+- **THEN** the `glidingWings` field SHALL remain in state, saved units and BV cache keys as an inert legacy field with no editor control and no rule
+- **AND** no saved format SHALL change
+
+#### Scenario: Recorded residuals
+
+- **THEN** the in-game Partial Wing bonus by atmosphere (+3 high or very high, +2 standard or thin, +1 trace, 0 otherwise) SHALL remain unimplemented in gameplay movement, to be routed to its owner
+- **AND** the weight-class jump caps and the glider weight-class rule SHALL be handled by a separate jump-cap item against `TestProtoMek.maxJumpMP`
