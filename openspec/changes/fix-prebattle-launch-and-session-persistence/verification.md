@@ -37,6 +37,7 @@ Initial base: origin/main c9328a89f82fd0e986c9f4be5c7db931d9db42a2. Refreshed wi
 - OpenSpec change validation: passed strict validation.
 - Budget before and after: 3116 files, 57 unkeyable, 92 repo-wide. No new test files, no ceiling changes.
 - After the main refresh, the corrected campaign API environment-scan suite passed all 4 tests. The final budget scan and units lint passed again without ceiling changes.
+- The fresh worktree lacked Husky's generated wrappers after dependency installation with scripts disabled. Restored only those ignored generated wrappers without changing Git configuration, then replayed the configured lint-staged checks against the implementation commit and ran the staged-parent check. The first replay selected WSL Bash and failed to resolve the Linux TypeScript binary; selecting Git for Windows Bash through the command's PATH corrected it. `hooks-final.log` records passing lint, formatting, and both TypeScript configs on all five changed TypeScript files. No hooks or checks were bypassed with flags.
 - The complete integration directory plus the required units-lint Jest suite: 54 suites passed, 675 tests passed, 32 existing tests skipped.
 - Local `seam-fresh-construction-no-instant-defeat` E2E on port 3648: both tests passed, no retries, no skips, no flaky results. This includes two same-seed launches of one encounter and the visible, retryable refusal. `seam.json`, `seam.log`, and both traces under `e2e/` record the real dev-server run (9.6 minutes, including cold-route warm-up). Port 3600 was not used or stopped.
 
