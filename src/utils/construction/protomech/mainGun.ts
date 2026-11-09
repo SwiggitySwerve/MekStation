@@ -21,6 +21,7 @@ import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 
 import { getEquipmentEntry } from '../equipmentBV';
 import { getProtoArmorDefinition, isProtoEDPArmorMount } from './armorType';
+import { getProtoMountWeight } from './weight';
 import { PROTO_MAX_STANDARD_TONNAGE } from './weightClass';
 
 /** The store and the BV adapter name locations with identical strings. */
@@ -137,17 +138,7 @@ export function protoMountTakesSlot(equipmentId: string): boolean {
   return !NON_SLOT.test(compact(equipmentId));
 }
 
-/**
- * Catalog weight of a mount, or undefined when it cannot be stated: the id is
- * not in the catalog, or the catalog marks the weight as depending on the unit.
- * Such a mount still takes its slot; no weight is invented for it.
- */
-export function getProtoMountWeight(equipmentId: string): number | undefined {
-  const entry = getEquipmentEntry(equipmentId);
-  if (!entry || entry.weight === undefined) return undefined;
-  if (entry.special?.includes('Variable weight')) return undefined;
-  return entry.weight;
-}
+export { getProtoMountWeight } from './weight';
 
 /**
  * True only when the catalog describes the weapon and excludes ProtoMechs

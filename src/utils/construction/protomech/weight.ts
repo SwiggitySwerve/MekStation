@@ -24,6 +24,18 @@ export type ProtoMinimumWeightInput = Pick<
   >[];
 };
 
+/**
+ * Catalog weight of a mount, or undefined when it cannot be stated: the id is
+ * not in the catalog, or the catalog marks the weight as depending on the unit.
+ * Such a mount still takes its slot; no weight is invented for it.
+ */
+export function getProtoMountWeight(equipmentId: string): number | undefined {
+  const entry = getEquipmentEntry(equipmentId);
+  if (!entry || entry.weight === undefined) return undefined;
+  if (entry.special?.includes('Variable weight')) return undefined;
+  return entry.weight;
+}
+
 /** TestProtoMek/TestEntity 48fcb2f6: a lower bound, not a complete mass total.
  * Standard armor, structure, controls, engine, fixed-mass weapons, standard LRMs
  * and known ammo can prove overage. Other missiles/misc/jump/sink mass is omitted.
@@ -129,13 +141,7 @@ export function computeProtoWeight(unit: ProtoMinimumWeightInput): {
       weight = minimumMountWeight(mount.equipmentId);
     else if (entry && /^(?:CL|IS)LRM\d+$/.test(syntax.lookupName))
       weight = minimumMountWeight(mount.equipmentId);
-    else if (
-      entry &&
-      !entry.special?.includes('Variable weight') &&
-      entry.weight !== undefined &&
-      !ammo
-    )
-      weight = entry.weight;
+    else if (!ammo) weight = getProtoMountWeight(syntax.lookupName);
     if (weight === undefined) missingEquipment.push(mount.equipmentId);
     else {
       total += weight - minimumMountWeight(mount.equipmentId);
