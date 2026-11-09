@@ -1,6 +1,6 @@
 import type { ValidationResult } from '../../../../scripts/validate-bv-types';
 
-import { addBVToAmmoCapGroup, calculateAmmoBVPools } from '../battleValueAmmo';
+import { projectMechAmmoBVPools } from '../battleValueAmmo';
 
 /** MekStation location -> Mek.getLocationAbbr (Mek, QuadMek, TripodMek at 48fcb2f6). */
 const JAVA_LOCATION: Readonly<Record<string, string>> = {
@@ -48,18 +48,13 @@ function ammoPoolTerms(
   >['ammoAvailableProjectionBins'],
 ): Record<string, number> {
   const terms: Record<string, number> = {};
-  const available = { ...pools?.available };
-  if (sourceBins) {
-    for (const [key, bv] of Object.entries(
-      calculateAmmoBVPools([], sourceBins).available,
-    ))
-      addBVToAmmoCapGroup(available, key, bv);
-  }
+  const { available, cap } = projectMechAmmoBVPools(
+    pools,
+    sourceWeapons,
+    sourceBins,
+  );
   for (const [key, bv] of Object.entries(available))
     terms[`ammo.available.${key}`] = bv;
-  const cap = sourceWeapons
-    ? calculateAmmoBVPools(sourceWeapons, []).cap
-    : pools?.cap;
   for (const [key, bv] of Object.entries(cap ?? {}))
     terms[`ammo.cap.${key}`] = bv;
   return terms;

@@ -367,6 +367,27 @@ export function calculateAmmoBVWithExcessiveCap(
   return calculateAmmoBVPools(weapons, ammo).total;
 }
 
+/** Existing Mech diagnostic pool policy, separate from arithmetic inputs. */
+export function projectMechAmmoBVPools(
+  pools:
+    | { available: Record<string, number>; cap: Record<string, number> }
+    | undefined,
+  sourceWeapons?: Array<{ id: string; bv: number }>,
+  sourceBins?: Array<{ id: string; bv: number; weaponType: string }>,
+): { available: Record<string, number>; cap: Record<string, number> } {
+  const available = { ...pools?.available };
+  if (sourceBins) {
+    for (const [key, bv] of Object.entries(
+      calculateAmmoBVPools([], sourceBins).available,
+    ))
+      addBVToAmmoCapGroup(available, key, bv);
+  }
+  const cap = sourceWeapons
+    ? calculateAmmoBVPools(sourceWeapons, []).cap
+    : (pools?.cap ?? {});
+  return { available, cap };
+}
+
 /** The capped total plus the uncapped native pools it was built from, keyed
  * AmmoType:rackSize like BVCalculator.assembleAmmo's ammoMap and
  * weaponsForExcessiveAmmo (BVCalculator.java:1189-1242, 48fcb2f64). A bin or
