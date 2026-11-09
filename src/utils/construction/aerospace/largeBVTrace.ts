@@ -4,8 +4,9 @@ import type { ILargeAerospaceBVBreakdown } from './dropShipComplete';
 import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 
 // getLocationAbbr at 48fcb2f64 (Jumpship/Warship; Dropship names its wings
-// LS/RS). It follows the physical location, never the BV arc.
-const SHIP_ABBREVIATION: Readonly<Record<CapitalArc, string>> = {
+// LS/RS). It follows the physical location, never the BV arc. Partial: a
+// non-firing location (e.g. a Hull member of CapitalArc) has no weapon term.
+const SHIP_ABBREVIATION: Readonly<Partial<Record<CapitalArc, string>>> = {
   [CapitalArc.NOSE]: 'NOS',
   [CapitalArc.FRONT_LEFT]: 'FLS',
   [CapitalArc.FRONT_RIGHT]: 'FRS',
@@ -15,7 +16,7 @@ const SHIP_ABBREVIATION: Readonly<Record<CapitalArc, string>> = {
   [CapitalArc.LEFT_BROADSIDE]: 'LBS',
   [CapitalArc.RIGHT_BROADSIDE]: 'RBS',
 };
-const DROPSHIP_ABBREVIATION: Readonly<Record<CapitalArc, string>> = {
+const DROPSHIP_ABBREVIATION: Readonly<Partial<Record<CapitalArc, string>>> = {
   ...SHIP_ABBREVIATION,
   [CapitalArc.FRONT_LEFT]: 'LS',
   [CapitalArc.FRONT_RIGHT]: 'RS',
@@ -48,7 +49,10 @@ function weaponGroupTerms(
     if (weight === undefined)
       throw new Error(`Large aerospace arc ${arc.arc} has no fire-pool weight`);
     for (const group of arc.weaponGroups ?? []) {
-      terms[`weapon.${index++}.${abbreviations[group.location]}.${group.id}`] =
+      const abbreviation = abbreviations[group.location];
+      if (abbreviation === undefined)
+        throw new Error(`Large aerospace weapon at unmapped ${group.location}`);
+      terms[`weapon.${index++}.${abbreviation}.${group.id}`] =
         group.weaponBV * weight + group.capacitorBV;
     }
   }
