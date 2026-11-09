@@ -1823,20 +1823,21 @@ test.describe('library persistence and printing', () => {
       await section(page, 'Equipment');
       const mounted = page.getByTestId('protomech-equipment-mounted');
       await page.getByLabel('Search equipment').fill('Heavy Flamer');
-      await expect(
-        page.getByRole('button', { name: 'Add Heavy Flamer', exact: true }),
-      ).toBeVisible();
-      await page
+      // The catalog has two ProtoMech Heavy Flamers (energy-other and the Java
+      // registry record); either is a legal pick.
+      const addFlamer = page
         .getByRole('button', { name: 'Add Heavy Flamer', exact: true })
-        .click();
+        .first();
+      await expect(addFlamer).toBeVisible();
+      await addFlamer.click();
       const location = mounted.getByLabel('Location of Heavy Flamer');
       await expect(location).toHaveValue('Torso');
       await location.selectOption('Right Arm');
       await expect(location).toHaveValue('Right Arm');
-      // A BattleMech-only weapon is not offered to a ProtoMech.
-      await page.getByLabel('Search equipment').fill('Medium Laser');
+      // A weapon the pin excludes from ProtoMechs is not offered. The pin removes F_PROTO_WEAPON from the Bombast Laser (ISBombastLaser.java:94).
+      await page.getByLabel('Search equipment').fill('Bombast Laser');
       await expect(
-        page.getByRole('button', { name: 'Add Medium Laser', exact: true }),
+        page.getByRole('button', { name: 'Add Bombast Laser', exact: true }),
       ).toHaveCount(0);
 
       await page

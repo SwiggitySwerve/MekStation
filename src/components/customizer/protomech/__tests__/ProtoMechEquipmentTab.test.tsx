@@ -87,9 +87,17 @@ beforeAll(async () => {
   );
   if (!found) throw new Error('catalog has no ProtoMech energy weapon');
   protoLaser = found;
-  const mech = service.getById('medium-laser');
-  if (!mech) throw new Error('catalog has no medium laser');
-  mechLaser = mech;
+  // Pinned ISBombastLaser.java:94 removes F_PROTO_WEAPON from the energy default
+  // that gives every other laser (the Medium Laser included) to ProtoMechs.
+  const excluded = service.getById('bombast-laser');
+  if (
+    !excluded?.allowedUnitTypes ||
+    excluded.allowedUnitTypes.includes('ProtoMech')
+  )
+    throw new Error(
+      'catalog does not exclude the Bombast Laser from ProtoMechs',
+    );
+  mechLaser = excluded;
 });
 
 beforeEach(() => {
@@ -110,7 +118,7 @@ describe('ProtoMechEquipmentTab', () => {
     expect(screen.queryByText(/coming soon/i)).toBeNull();
   });
 
-  it('offers a ProtoMech weapon and not a BattleMech-only one', () => {
+  it('offers a ProtoMech weapon and not one the pin excludes from ProtoMechs', () => {
     renderWith(unit('Centaur.json'));
     expect(
       screen.getByRole('button', { name: `Add ${protoLaser.name}` }),

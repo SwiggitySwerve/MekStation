@@ -66,10 +66,12 @@ it('keeps the catalog unit-type list on every browser weapon that has one', asyn
   }
 });
 
-it('leaves the list off an item the catalog does not describe', async () => {
+// ISBombastLaser.java:94 removes F_PROTO_WEAPON; the list must survive without it.
+it('keeps a list that excludes ProtoMech as it is', async () => {
   const service = getEquipmentLookupService();
   await service.initialize();
-  const medium = service.getById('medium-laser');
-  expect(medium).toBeDefined();
-  expect(medium?.allowedUnitTypes ?? []).not.toContain('ProtoMech');
+  const bombast = service.getById('bombast-laser');
+  expect(bombast?.allowedUnitTypes).toBeDefined();
+  expect(bombast?.allowedUnitTypes).not.toContain('ProtoMech');
+  expect(bombast?.allowedUnitTypes).toContain('BattleMech');
 });
