@@ -8,20 +8,14 @@ import { z } from 'zod';
 import type { IUnitValidationError } from '../src/types/validation/UnitValidationInterfaces';
 
 import { useUnitCalculations } from '../src/hooks/useUnitCalculations';
-import { getEquipmentLookupService } from '../src/services/equipment/EquipmentLookupService';
+import { useMechValidationInput } from '../src/hooks/validation/useMechValidationInput';
 import {
   UnitLoaderService,
   type IRawSerializedUnit,
 } from '../src/services/units/unitLoaderService';
 import { initializeUnitValidationRules } from '../src/services/validation/initializeUnitValidation';
 import { validateUnit } from '../src/services/validation/UnitValidationOrchestrator';
-import { getTotalAllocatedArmor } from '../src/stores/unitState';
-import { getEraForYear } from '../src/types/enums';
-import { getMaxTotalArmor } from '../src/utils/construction/armorCalculations';
-import { getEquipmentSlotIssues } from '../src/utils/construction/slotOperations/placement';
-import { getEquipmentPayloadWeight } from '../src/utils/equipment/equipmentWeightAccounting';
-import { buildArmorByLocation } from '../src/utils/validation/armorValidationUtils';
-import { buildSlotsByLocation } from '../src/utils/validation/slotValidationUtils';
+import { createUnitStore, UnitStoreContext } from '../src/stores/useUnitStore';
 import {
   buildDeltaReport,
   FAMILIES,
@@ -34,28 +28,43 @@ type ValidityFact = NonNullable<IComputedRow['constructionValidity']>;
 const messages = (items: readonly IUnitValidationError[]) =>
   items.map((item) => `${item.ruleId}: ${item.message}`);
 
-/** The editor's own calculation hook, rendered once on the server build of `react-dom`. */
+/** Render editor hooks in one isolated store, shared by weight and validity capture. */
+function renderMechHook<T>(
+  state: ReturnType<UnitLoaderService['mapToUnitState']>,
+  useValue: () => T,
+): T {
+  let rendered: { value: T } | undefined;
+  const Probe = () => {
+    rendered = { value: useValue() };
+    return null;
+  };
+  renderToStaticMarkup(
+    createElement(
+      UnitStoreContext.Provider,
+      { value: createUnitStore(state) },
+      createElement(Probe),
+    ),
+  );
+  if (!rendered) throw new Error('Editor hook did not render');
+  return rendered.value;
+}
+
 export function renderMechCalculations(
   state: ReturnType<UnitLoaderService['mapToUnitState']>,
 ): ReturnType<typeof useUnitCalculations> {
-  let calc: ReturnType<typeof useUnitCalculations> | undefined;
-  const Probe = () => {
-    calc = useUnitCalculations(
+  return renderMechHook(state, function useCalculations() {
+    return useUnitCalculations(
       state.tonnage,
       state,
       state.armorTonnage,
       state.configuration,
     );
-    return null;
-  };
-  renderToStaticMarkup(createElement(Probe));
-  if (!calc) throw new Error('Editor calculations did not render');
-  return calc;
+  });
 }
 
 /**
  * A BattleMech has no source handler: the app validates the loaded editor
- * state through the orchestrator, from the editor's own calculation hook.
+ * state through the orchestrator, using the editor's shared validation projection.
  * That projection runs here on the converted unit, whose bytes `calculateSources`
  * has already hash-checked. Stages are named so a failure never reads as invalid.
  */
@@ -68,74 +77,15 @@ export function captureMechValidity(
     if (unit == null || typeof unit !== 'object')
       throw new Error('Converter produced no unit');
     stage = 'mtf-load';
-    const raw = unit as IRawSerializedUnit;
-    const loaded = new UnitLoaderService().mapToUnitState(raw, true);
-    const ids = new Map(
-      loaded.equipment.map((item, index) => [
-        item.instanceId,
-        `mount-${index}`,
-      ]),
+    const state = new UnitLoaderService().mapToUnitState(
+      unit as IRawSerializedUnit,
+      true,
     );
-    const state = {
-      ...loaded,
-      equipment: loaded.equipment.map((item) => ({
-        ...item,
-        instanceId: ids.get(item.instanceId) ?? item.instanceId,
-        linkedAmmoId:
-          item.linkedAmmoId === undefined
-            ? undefined
-            : (ids.get(item.linkedAmmoId) ?? item.linkedAmmoId),
-      })),
-    };
     stage = 'mtf-projection';
-    const calc = renderMechCalculations(state);
+    const input = renderMechHook(state, useMechValidationInput);
     stage = 'mtf-validator';
     initializeUnitValidationRules();
-    const result = validateUnit({
-      id: label,
-      name: label,
-      unitType: raw.unitType as never,
-      techBase: state.techBase,
-      rulesLevel: state.rulesLevel,
-      introductionYear: state.year,
-      era: getEraForYear(state.year),
-      weight: state.tonnage,
-      cost: 0,
-      battleValue: 0,
-      engineType: state.engineType,
-      gyroType: state.gyroType,
-      cockpitType: state.cockpitType,
-      internalStructureType: state.internalStructureType,
-      heatSinkCount: state.heatSinkCount,
-      heatSinkType: state.heatSinkType,
-      totalArmorPoints: getTotalAllocatedArmor(
-        state.armorAllocation,
-        state.configuration,
-      ),
-      maxArmorPoints: getMaxTotalArmor(state.tonnage, state.configuration),
-      armorByLocation: buildArmorByLocation(
-        state.armorAllocation,
-        state.tonnage,
-        state.configuration,
-      ),
-      allocatedWeight:
-        calc.totalStructuralWeight + getEquipmentPayloadWeight(state.equipment),
-      maxWeight: state.tonnage,
-      slotsByLocation: buildSlotsByLocation(
-        state.equipment,
-        state.configuration,
-      ),
-      equipmentSlotIssues: getEquipmentSlotIssues(
-        state.equipment,
-        state.configuration,
-        state.engineType,
-        state.gyroType,
-        state.armActuators,
-        state.cockpitType,
-      ),
-      mountedEquipment: state.equipment,
-      equipmentCatalog: getEquipmentLookupService().getAllEquipment(),
-    });
+    const result = validateUnit(input);
     return {
       isValid: result.isValid,
       errors: result.results.flatMap((rule) => messages(rule.errors)),
@@ -143,7 +93,7 @@ export function captureMechValidity(
       infos: result.results.flatMap((rule) => messages(rule.infos)),
     };
   } catch (error) {
-    throw new Error(`${stage}: ${String(error)}`);
+    throw new Error(`${stage}: ${label}: ${String(error)}`);
   }
 }
 

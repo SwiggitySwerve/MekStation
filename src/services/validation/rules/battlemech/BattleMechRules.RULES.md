@@ -33,6 +33,12 @@ equipment and structure hooks; consumers do not reproduce their defaults or
 assemble a second validation input. `useUnitValidation` debounces that input
 and retains ownership of validation options and UI result formatting.
 
+`captureMechValidity` renders the same projection under an isolated unit store,
+using the static-render seam shared with `renderMechCalculations`. Source paths
+label capture failures, not the projected unit identity. Capture serializes
+rule IDs and messages only: slot instance IDs appear in structured `field`
+metadata, which it discards, so mount relabeling is unnecessary.
+
 ## Introductory ammunition legality
 
 `BattleMechAmmoTechLevel` owns the ammunition rules-level check for Introductory
