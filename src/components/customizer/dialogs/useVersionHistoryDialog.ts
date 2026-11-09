@@ -89,6 +89,7 @@ export function useVersionHistoryDialog({
     if (!isOpen || !selectedVersion || !unitId) {
       setPreviewData(null);
       setPreviewError(null);
+      setIsLoadingPreview(false);
       return;
     }
 
@@ -175,6 +176,7 @@ export function useVersionHistoryDialog({
     versions,
     selectedVersion,
     setSelectedVersion: (version) => {
+      if (version === selectedVersion) return;
       setSelectedVersion(version);
       setPreviewData(null);
       setIsLoadingPreview(true);
