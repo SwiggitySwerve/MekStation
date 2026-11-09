@@ -25,3 +25,21 @@ mount. A token's own Clan/IS marker comes before a neighbour's
 list entry with no free entry of its own id takes the free entries of its
 other-tech twin (`er-medium-laser` / `clan-er-medium-laser`) and that twin's
 identity, in physical entries like any other mapped mount.
+
+## Shared source mounting facts
+
+`sourceWeaponMounts.ts` owns identity matching, reservations and complete
+per-location physical groups. It takes resolved plain slot facts and leaves
+the caller's claim set unchanged. The loading adapter still owns definition
+lookup, variable sizing, superheavy entry conversion and mounted instances.
+`sourceWeaponMountProfiles.json` records audited physical membership and the
+existing recovery admission; disabled profiles do not admit new equipment.
+Talons retains its existing spread handling and source-location order.
+
+`physicalWeaponFormulas.json` owns the physical formula ASTs used by the
+existing formula registry/evaluator. Fixed sizes and masses remain catalog
+facts. The Claw/Claws aliases share one formula object and native slot identity.
+The legacy enum fallbacks in `PhysicalWeaponTypes.ts` retain their old guards
+and results; source recovery does not call them. BV formulas in
+`scripts/validate-bv-physical-weapons.ts` measure a separate quantity and stay
+with the BV owner. This extraction changes no source admissions or outputs.

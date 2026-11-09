@@ -46,7 +46,7 @@ encoder/decoder retains its existing supported subset and compatibility aliases.
 ProtoMech import retains its existing `PROTO_ARMOR_CODES` admission subset.
 Shared schema defaults do not certify native mount effects. Blank native model names
 remain blank. This API does not promise new editor admission or native parity;
-other BLK families, browser BLK selection and the legacy importer remain open.
+capital admission and the legacy importer remain open.
 
 `importMTFDefinition` owns MTF source-to-definition orchestration. It calls the
 existing MTF parser and `loadUnitDefinition` admission contract; it owns no native
@@ -56,6 +56,8 @@ not establish construction validity. No new construction-validity gate applies.
 `POST /api/units/import` accepts `{ sourceFormat: 'mtf' | 'blk', sourceText: string }`
 alongside existing raw JSON and versioned JSON envelopes. Failed parsing and
 unsupported contract fields return client diagnostics, retaining parser warnings.
+The mounted unit-library import entry reaches this API through `useUnitImport`
+and `CustomUnitApiService.importUnit`; source parsing remains owned by the API.
 Accepted definitions retain source text and parser metadata through repository
 persistence; the repository allocates a distinct custom identity. Existing name
 conflicts return 409 without overwriting saved units.
@@ -75,8 +77,8 @@ mounts. The Water Elemental Mining Suit remains loadable with its armor-date
 diagnostic. A separately labelled **synthetic** modular-mount source supplements
 these fixtures: none of the 1,188 pinned sources encodes a modular mount in its
 equipment blocks. This synthetic case makes no claim of pinned modular coverage.
-Other BLK families, browser BLK selection and the legacy `IMTFImporter` runtime-object
-interface remain separate work.
+Capital admission and the legacy `IMTFImporter` runtime-object interface remain
+separate work.
 
 Fourteen original-byte infantry fixtures cover Clan/IS, foot, jump, motorized,
 tracked, wheeled, hover, native Microcopter, Motorized SCUBA and Submarine,
