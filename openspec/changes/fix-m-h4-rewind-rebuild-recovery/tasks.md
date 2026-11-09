@@ -14,6 +14,13 @@
 - [x] 9. After acquiring the lease, move every other `building` candidate on the same stream to `blocked`.
 - [x] 10. Kill the block and sweep mutants; run the full affected directories and gates.
 
+## Follow-up D-2c: resync marks survive a restart
+
+- [x] 14. Record failing regressions: a recovered rewound match replays the rebuilt head to a seated player quoting a stale `lastSeq`; guards that a spectator, and a never-rewound match, are not marked.
+- [x] 15. Mark the host and the seated players when boot recovery folds an activated rewind branch; no persistence.
+- [x] 16. Kill the no-mark, host-only, every-recovery and spectator mutants; run the full affected directories and gates.
+
 ## Follow-up (not in this change)
 
 - [ ] M-H4 follow-up: private-reason writer throw after commit returns 500; needs a decision on retrying or persisting the reason.
+- [x] M-H4 follow-up: resync marks lost on restart (D-2c, above).

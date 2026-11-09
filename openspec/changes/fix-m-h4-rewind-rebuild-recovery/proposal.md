@@ -35,6 +35,11 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   candidate on the same stream to `blocked`. Under the lease no other candidate
   can still be authorized.
 
+- Boot recovery of a match on an activated rewind branch marks the host and the
+  seated players for resync, as the live rebuild does, so a stale `lastSeq` after
+  a restart cannot resume past the rebuilt head (follow-up D-2c). Spectators are
+  not marked; nothing is persisted.
+
 The activated branch of a failed rebuild is not moved to `blocked`:
 `effective -> blocked` is not a legal transition. A failed rebuild is a host
 state, not a branch status.

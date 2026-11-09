@@ -56,7 +56,11 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { defaultSeats } from '@/types/multiplayer/Lobby';
+import {
+  buildSpectatorSlotId,
+  defaultSeats,
+  SPECTATOR_SIDE,
+} from '@/types/multiplayer/Lobby';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 import {
   advancePhase,
@@ -267,6 +271,89 @@ describe('ServerMatchHost rewind reaches connected players', () => {
 
       expect(guest.lifecycle().blockedBySequenceCollision).toBe(false);
       expect(guest.mirrorEventTypes()).toContain(GameEventType.GameEnded);
+    });
+  });
+
+  describe('D-2c resync marks survive a restart', () => {
+    /** Past any head these play logs reach: a client that held the superseded stream. */
+    const STALE_LAST_SEQ = 50;
+
+    async function recoveredHost(matchId: string): Promise<ServerMatchHost> {
+      const recovered = (await recoverActiveMatches(store)).hosts.get(matchId);
+      if (!recovered) throw new Error(`match ${matchId} was not recovered`);
+      return recovered;
+    }
+
+    async function rejoin(
+      host: ServerMatchHost,
+      playerId: string,
+      lastSeq: number,
+    ): Promise<string[]> {
+      const viewer = wireViewer(host, playerId);
+      opened.push(viewer);
+      await host.handleSessionJoin(viewer.serverSocket, playerId, lastSeq);
+      return replayedIds(viewer.sent);
+    }
+
+    it('replays the rebuilt stream to every seated player who rejoins with a stale lastSeq', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const recovered = await recoveredHost(fixture.log.matchId);
+      const rebuilt = fixture.prefix.map((event) => event.id);
+
+      expect(await rejoin(recovered, GM, STALE_LAST_SEQ)).toEqual(rebuilt);
+      expect(await rejoin(recovered, GUEST, STALE_LAST_SEQ)).toEqual(rebuilt);
+    });
+
+    it('consumes the mark on the first join: a second join resumes from its lastSeq', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const recovered = await recoveredHost(fixture.log.matchId);
+      const lastKept = fixture.prefix[fixture.prefix.length - 1].sequence;
+
+      expect(await rejoin(recovered, GUEST, STALE_LAST_SEQ)).not.toEqual([]);
+      expect(await rejoin(recovered, GUEST, lastKept)).toEqual([]);
+    });
+
+    it('does not mark a spectator, as the live rebuild does not', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const spectator = 'spectator-1';
+      const seats = defaultSeats('1v1').map((seat) => ({
+        ...seat,
+        occupant: {
+          playerId: seat.slotId === 'alpha-1' ? GM : GUEST,
+          displayName: seat.slotId === 'alpha-1' ? 'Host' : 'Guest',
+        },
+        ready: true,
+      }));
+      await store.updateMatchMeta(fixture.log.matchId, {
+        seats: [
+          ...seats,
+          {
+            slotId: buildSpectatorSlotId(1),
+            kind: 'spectator',
+            side: SPECTATOR_SIDE,
+            seatNumber: 1,
+            occupant: { playerId: spectator, displayName: 'Spectator' },
+            ready: true,
+          },
+        ],
+      });
+      const recovered = await recoveredHost(fixture.log.matchId);
+
+      expect(await rejoin(recovered, spectator, STALE_LAST_SEQ)).toEqual([]);
+    });
+
+    it('does not mark a recovered match that was never rewound', async () => {
+      const log: IPlayLog = {
+        matchId: 'u22a-live-never-rewound',
+        fogOfWar: false,
+        targetRevision: 2,
+      };
+      await writePlayLog(store, log, tacticalMeta(log));
+      const events = await store.getEvents(log.matchId);
+      const recovered = await recoveredHost(log.matchId);
+      const last = events[events.length - 1].sequence;
+
+      expect(await rejoin(recovered, GUEST, last)).toEqual([]);
     });
   });
 
