@@ -86,6 +86,30 @@ describe('strict 1% rule', () => {
 });
 
 describe('missing and nonfinite values fail', () => {
+  test('an unsupported armored-component field stays missing with its reason', () => {
+    const gaps = {
+      getArmoredComponentWeight:
+        'computeSupportVehicleWeight has no typed armored-component output',
+    };
+    const fact = {
+      ...terms({ ...WEIGHT_TERMS }),
+      gaps,
+      unresolved: ['unresolved source input'],
+    };
+    const result = run(
+      fact,
+      reference({ ...WEIGHT_TERMS, getArmoredComponentWeight: 0 }),
+    );
+    expect(statuses(result).getArmoredComponentWeight).toBe('missing-local');
+    expect(
+      result.rows[0].terms.find(
+        (entry) => entry.key === 'getArmoredComponentWeight',
+      )?.ours,
+    ).toBeNull();
+    expect(result.rows[0].local).toEqual(fact);
+    expect(result.rows[0].status).toBe('incomplete');
+    expect(result.ok).toBe(false);
+  });
   test('a missing local term is missing-local and fails', () => {
     const result = run(terms({ getWeightEngine: 100 }));
     expect(statuses(result).getWeightStructure).toBe('missing-local');
