@@ -43,3 +43,21 @@ The system SHALL provide validation rules for Vehicle category units (Vehicle, V
 - **AND** SupportVehicle: 0.001 ton (`getVehicleMinTonnage`; `TestSupportVehicle` has no 1-ton
   floor) to the SVType maximum (Wheeled 0.001-160, Rail 0.001-600 tons)
 - **AND** invalid tonnage SHALL produce CRITICAL_ERROR
+
+## ADDED Requirements
+
+### Requirement: Shared BattleMech structure mass
+
+BattleMech construction and weight-validation consumers SHALL obtain structure mass from the construction owner, retaining the existing component multipliers and half-ton ceiling. This consolidation SHALL preserve admission rules, fallback results, critical slots and numerical output.
+
+#### Scenario: Existing structure types retain their mass
+
+- **WHEN** the editor, validation helpers or construction calculator evaluates an existing structure type at ordinary or superheavy tonnage
+- **THEN** each SHALL use the shared structure-mass calculation
+- **AND** every resulting component and total weight SHALL equal its value before consolidation
+
+#### Scenario: Unknown structure admission remains with the caller
+
+- **WHEN** an unknown structure type reaches the construction installation step
+- **THEN** the step SHALL retain its error and zero weight
+- **AND** the other existing mass consumers SHALL retain their Standard-weight fallback

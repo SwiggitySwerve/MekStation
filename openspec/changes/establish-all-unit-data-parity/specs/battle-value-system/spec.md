@@ -1212,6 +1212,48 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
 
+### Requirement: Aerospace weapon diagnostics
+
+The ordinary aerospace calculation owners SHALL retain actual admitted
+per-mount weapon values after existing link, direction, heat and support
+fire-control stages. The trace SHALL format those supplied facts using local
+input identity and known physical locations without recalculating BV or
+inventing native equipment identities. Existing scalar arithmetic, ammo terms,
+modifiers, source inputs and totals SHALL remain unchanged. Missing facts SHALL
+remain absent; ammo, defensive equipment and unresolved mounts SHALL NOT create
+weapon terms.
+
+#### Scenario: Small-craft heat diagnostics preserve aggregate BV
+
+- **GIVEN** the pinned Dragonstar Assault Transport (3060) source
+- **WHEN** its ordinary aerospace breakdown is projected
+- **THEN** the two aft weapon values SHALL be 31 and 15.5
+- **AND** its total SHALL remain 1175 with every previous numerical field unchanged
+
+#### Scenario: Rear mounts retain their physical location
+
+- **GIVEN** two rear-mounted medium lasers physically installed in a fighter's left wing and one forward nose medium laser
+- **WHEN** the rear group dominates without heat discounts
+- **THEN** weapon terms SHALL retain two LWG values of 46 and one NOS value of 23
+- **AND** the trace SHALL preserve multiplicity without treating physical ammo bins as weapons
+
+### Requirement: Supplemental Mech ammunition diagnostic projection
+
+The Mech owner SHALL project source-backed raw AMS/APDS, improved AC/Gauss,
+fluid-gun and primitive-AC caps, and omitted native availability including
+genuinely zero-valued usable coolant pods. Grouping SHALL remain in the ammo
+owner and the trace SHALL format its results. Existing arithmetic inputs,
+defensive ammunition calculations, pools, quantities, modifiers, diagnostic
+facts and totals SHALL remain unchanged; unavailable facts SHALL remain absent.
+
+#### Scenario: Raw defensive launcher caps and real zero-valued bins
+
+- **GIVEN** a represented AMS mount valued at 32, an APDS mount valued at 64 or a usable physical coolant pod valued at zero
+- **WHEN** the Mech breakdown and trace are calculated
+- **THEN** the corresponding source-backed raw cap or availability term SHALL be present under its native type/rack key
+- **AND** repeated source facts SHALL accumulate through the existing ammo owner without overwriting existing pool values
+- **AND** missing, unresolved, empty or intrinsic one-shot facts SHALL NOT invent terms, and all original numerical outputs SHALL remain unchanged
+
 ### Requirement: Infantry raw weapon-stage diagnostics
 
 The infantry BV owner SHALL supply optional primary, represented secondary,

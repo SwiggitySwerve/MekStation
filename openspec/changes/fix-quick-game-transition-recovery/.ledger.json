@@ -1,0 +1,6 @@
+{
+  "name": "fix-quick-game-transition-recovery",
+  "status": "implemented",
+  "reason": "Wave 3 U2 implementation, both mutation checks, and required local gates pass; hosted CI and PR readiness remain pending.",
+  "lastReviewed": "2026-11-08"
+}

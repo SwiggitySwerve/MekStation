@@ -34,10 +34,33 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
 - After acquiring its lease, a combat rewind moves every other `building`
   candidate on the same stream to `blocked`. Under the lease no other candidate
   can still be authorized.
-
 - A failure to store the GM's private reason after the commit is logged and the
   route still answers 200 with the committed result (follow-up D-2a). No
   response field reports it.
+- Boot recovery of a match on an activated rewind branch marks the host and the
+  seated players for resync, as the live rebuild does, so a stale `lastSeq` after
+  a restart cannot resume past the rebuilt head (follow-up D-2c). Spectators are
+  not marked; nothing is persisted.
+- A host that has closed is not rebuilt, and is not reported as pending, whether
+  it closed before the rebuild or while it waited in the queue (follow-up D-2b).
+  Intents, lobby intents and joins were already refused on a closed or completed
+  match; the audit's "no closed-host guard" held only for the rebuild.
+- `waiting-effects` stays reserved for the effect-receipt change; it is documented
+  as such and not removed, because removal is a persisted-format migration
+  (follow-up D-2d).
+
+- A campaign retroactive correction blocks its own candidate on every failure
+  after the candidate exists, and sweeps earlier unsealed `building` candidates
+  after acquiring its lease (follow-up D-3a). Unlike the combat rewind, a sealed
+  campaign candidate stays `building` by design until a later activation, so the
+  sweep never touches a candidate with a sealed manifest. The commit has no
+  production caller yet; this is latent risk, fixed before one exists.
+- The coordinated outcome-correction target blocks its candidate only when it
+  blocks the saga on a non-retryable refusal, and keeps it on a retryable or crash
+  path because a retry reuses the id persisted on the saga. It sweeps earlier
+  `building` candidates that are unsealed and named by no non-blocked saga, and
+  holds and releases its correction lease around the whole record, which it never
+  released before (follow-up D-3b). The saga runner has no production caller yet.
 
 The activated branch of a failed rebuild is not moved to `blocked`:
 `effective -> blocked` is not a legal transition. A failed rebuild is a host

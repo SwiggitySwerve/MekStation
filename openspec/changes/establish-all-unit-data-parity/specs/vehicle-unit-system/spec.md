@@ -900,3 +900,34 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `TestTank.java:178-2
 - **THEN** validation SHALL remain incomplete and invalid while retaining known independent errors
 - **AND** the status boundary SHALL display an unavailable value without arithmetic on null, a false zero, or a synthetic turret capacity denominator
 - **AND** resolved input figures SHALL retain their existing numerical values
+
+### Requirement: Environmental sealing mounted mass identity
+
+The vehicle mounted-equipment mass owner SHALL apply the same environmental
+sealing rule to the legacy catalog identity and its generated registry identity.
+Non-support mounted sealing SHALL weigh one tenth of declared tonnage using
+standard upward half-ton rounding. Support sealing SHALL add zero mounted mass
+because its structure accounts for the chassis modification. Missing context
+SHALL remain unavailable. Native mount identities, catalog values and inherent
+submarine sealing SHALL remain unchanged.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:660-666,10270-10281`, `RoundWeight.java:56-68`,
+`TestEntity.java:631-667`, `Tank.java:1878-1879` and
+`TestTank.java:469-471`.
+
+#### Scenario: Native registry identity reaches mounted mass
+
+- **GIVEN** a 55-ton combat vehicle mounting Environmental Sealed Chassis
+- **WHEN** its native name resolves to environmental-sealed-chassis-registry
+- **THEN** the mounted-equipment owner SHALL charge 5.5 tons
+- **AND** the legacy environmental-sealed-chassis identity SHALL charge the same
+- **AND** a 55.01-ton combat vehicle SHALL charge 6 tons
+
+#### Scenario: Support and unavailable construction context
+
+- **GIVEN** either sealing catalog identity on a 1.3-ton or 55-ton support vehicle
+- **WHEN** mounted mass is resolved with explicit support context
+- **THEN** its mounted sealing mass SHALL be zero
+- **AND** either identity without construction context SHALL remain unavailable
+- **AND** an unmounted inherent submarine sealing capability SHALL NOT add a mount

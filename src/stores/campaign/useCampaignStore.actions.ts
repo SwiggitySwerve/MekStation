@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 
 import { applyAuthoritativeStateToGuestCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
+import { initializePersonnelMarket } from '@/lib/campaign/markets/personnelMarket';
 import {
   ACTIVITY_LOG_MAX_ENTRIES,
   type IActivityLogEntry,
@@ -120,7 +121,9 @@ function createCampaignAction(
     );
     set({
       ...hydrateCampaignBattleState(
-        withRootForce(campaign, rootForce, coopOpts?.coopSession),
+        initializePersonnelMarket(
+          withRootForce(campaign, rootForce, coopOpts?.coopSession),
+        ),
       ),
       forcesStore,
       missionsStore,

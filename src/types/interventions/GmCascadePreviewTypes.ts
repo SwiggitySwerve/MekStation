@@ -15,12 +15,24 @@ export type GmCascadePreviewStatus =
   | 'deferred'
   | 'rejected';
 
+/** Transient source-state token; never part of a canonical record or effect. */
+export type GmCascadePreviewFreshness =
+  | {
+      readonly kind: 'campaign';
+      readonly campaignId: string;
+      readonly updatedAt: string;
+      readonly currentDate: string;
+    }
+  | { readonly kind: 'state'; readonly fingerprint: string };
+
 export interface IGmCascadePreview<
   TPrivate = unknown,
   TPublic = unknown,
   TDomainPayload = unknown,
 > extends IInterventionLedgerMetadata {
   readonly interventionId: string;
+  /** Missing on unavailable previews; a ready approval requires this token. */
+  readonly freshness?: GmCascadePreviewFreshness;
   readonly status: GmCascadePreviewStatus;
   readonly domain: InterventionDomain;
   readonly kind: GmInterventionKind;

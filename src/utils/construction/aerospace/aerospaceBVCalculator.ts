@@ -1,3 +1,5 @@
+import type { IAerospaceBVWeaponMount } from '@/types/unit/BVBreakdownTypes';
+
 import type {
   IAerospaceArcContribution,
   IAerospaceBVBreakdown,
@@ -199,6 +201,7 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
   avgThrust: number;
   speedFactor: number;
   offensive: number;
+  weaponMountBV?: readonly IAerospaceBVWeaponMount[];
 } {
   // BVCalculator.java:1045-1091: ammo is not part of the forward/rear pool.
   // Explicit ammo owns bins separately; omitted ammo retains the legacy flat-input contract.
@@ -261,6 +264,14 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
     avgThrust,
     speedFactor,
     offensive,
+    ...(arcs.weaponMountBV
+      ? {
+          weaponMountBV: arcs.weaponMountBV.map((mount) => ({
+            ...mount,
+            battleValue: mount.battleValue * fireControl,
+          })),
+        }
+      : {}),
   };
 }
 
@@ -357,6 +368,9 @@ export function calculateAerospaceBV(
       final,
     },
     summary,
+    offensive.weaponMountBV
+      ? { subType: input.subType, mounts: offensive.weaponMountBV }
+      : undefined,
   );
 }
 

@@ -1,6 +1,6 @@
 import type { NextRouter } from 'next/router';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.types';
@@ -162,8 +162,10 @@ export function usePreBattleLaunch({
   showToast,
   seedOverride,
 }: UsePreBattleLaunchOptions): (mode: BattleMode) => Promise<void> {
+  const launchInFlightRef = useRef(false);
   return useCallback(
     async (mode: BattleMode) => {
+      if (launchInFlightRef.current) return;
       if (!playerForce || !opponentForce) {
         showToast({
           message: 'Encounter forces not configured',
@@ -172,8 +174,15 @@ export function usePreBattleLaunch({
         return;
       }
 
+      launchInFlightRef.current = true;
       setIsResolving(true);
       try {
+        const navigateToSession = async (sessionId: string): Promise<void> => {
+          const navigated = await router.push(
+            buildGameSessionRoute(sessionId, linkage),
+          );
+          if (navigated === false) throw new Error(getLaunchErrorMessage(mode));
+        };
         const playerUnitIds = getAssignedUnitIds(playerForce);
         const opponentUnitIds = getAssignedUnitIds(opponentForce);
 
@@ -239,7 +248,7 @@ export function usePreBattleLaunch({
             variant: 'success',
           });
 
-          void router.push(buildGameSessionRoute(session.id, linkage));
+          await navigateToSession(session.id);
           return;
         }
 
@@ -261,7 +270,7 @@ export function usePreBattleLaunch({
             variant: 'success',
           });
 
-          void router.push(buildGameSessionRoute(session.id, linkage));
+          await navigateToSession(session.id);
           return;
         }
 
@@ -277,7 +286,7 @@ export function usePreBattleLaunch({
           variant: 'success',
         });
 
-        void router.push(buildGameSessionRoute(session.id, linkage));
+        await navigateToSession(session.id);
       } catch (err) {
         logger.error(getLaunchErrorLogLabel(mode), err);
         showToast({
@@ -286,6 +295,7 @@ export function usePreBattleLaunch({
           variant: 'error',
         });
       } finally {
+        launchInFlightRef.current = false;
         setIsResolving(false);
       }
     },

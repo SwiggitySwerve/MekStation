@@ -1065,7 +1065,7 @@ test.describe('library persistence and printing', () => {
       family: 'ProtoMech',
       chassis: 'Centaur',
       model: '',
-      section: 'Structure',
+      section: 'Armor',
       total: 20,
       sheet: 'armorPipsHD',
     },
@@ -1254,6 +1254,11 @@ test.describe('library persistence and printing', () => {
             const total =
               unit.family === 'infantry' ? 18 : unit.total - original + edited;
             await expect(figure(page, unit)).toContainText(String(total));
+            // The Armor tab's own running total follows the edit.
+            if (unit.family === 'ProtoMech')
+              await expect(
+                page.getByTestId('protomech-armor-total-used'),
+              ).toHaveText(String(total));
             const figures =
               (await figure(page, unit).textContent())
                 ?.replace(/\s+/g, ' ')
@@ -1330,6 +1335,10 @@ test.describe('library persistence and printing', () => {
                 keyboard,
               );
             await expect(editInput(page, unit)).toHaveValue(String(edited));
+            if (unit.family === 'ProtoMech')
+              await expect(
+                page.getByTestId('protomech-armor-total-used'),
+              ).toHaveText(String(total));
             await expect(figure(page, unit)).toHaveText(figures);
             await expect.poll(() => keyFigures(page, unit)).toEqual(metrics);
             await noOverflow(page);

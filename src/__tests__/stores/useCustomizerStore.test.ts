@@ -88,16 +88,26 @@ describe('useCustomizerStore', () => {
       expect(result.current.selectedLocation).toBeNull();
     });
 
-    it('should clear equipment selection', () => {
-      const { result } = renderHook(() => useCustomizerStore());
+    it.each([null, MechLocation.LEFT_ARM])(
+      'should clear equipment and location selection from %s',
+      (location) => {
+        const { result } = renderHook(() => useCustomizerStore());
 
-      act(() => {
-        result.current.selectEquipment(mockEquipment);
-        result.current.selectEquipment(null);
-      });
+        act(() => {
+          result.current.selectEquipment(mockEquipment);
+          result.current.selectLocation(location);
+          result.current.selectEquipment(null);
+        });
 
-      expect(result.current.selectedEquipment).toBeNull();
-    });
+        expect(result.current.selectedEquipment).toBeNull();
+        expect(result.current.selectedLocation).toBeNull();
+
+        act(() => {
+          result.current.selectEquipment(null);
+        });
+        expect(result.current.selectedLocation).toBeNull();
+      },
+    );
 
     it('should handle equipment from browser source', () => {
       const { result } = renderHook(() => useCustomizerStore());

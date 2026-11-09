@@ -1,14 +1,11 @@
 import React from 'react';
 
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 import {
   CHASSIS_LABELS,
-  LOCATION_LABELS,
   MAIN_GUN_WEAPON_OPTIONS,
-  type useProtoMechArmorControls,
   type useProtoMechChassisControls,
   type useProtoMechIdentityControls,
   type useProtoMechMainGunControls,
@@ -21,7 +18,6 @@ type ChassisControls = ReturnType<typeof useProtoMechChassisControls>;
 type TonnageControls = ReturnType<typeof useProtoMechTonnageControls>;
 type MovementControls = ReturnType<typeof useProtoMechMovementControls>;
 type MainGunControls = ReturnType<typeof useProtoMechMainGunControls>;
-type ArmorControls = ReturnType<typeof useProtoMechArmorControls>;
 
 interface ReadOnlyProps {
   readOnly: boolean;
@@ -285,69 +281,6 @@ export function ProtoMechMainGunSection({
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-export function ProtoMechArmorAllocationSection({
-  readOnly,
-  controls,
-}: ReadOnlyProps & {
-  controls: ArmorControls;
-}): React.ReactElement {
-  return (
-    <div className={cs.panel.main}>
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className={cs.text.sectionTitle.replace('mb-4', 'mb-0')}>
-          Armor Allocation
-        </h3>
-        <div className="flex gap-2">
-          <button
-            onClick={controls.handleAutoAllocateArmor}
-            disabled={readOnly}
-            className={cs.button.action}
-          >
-            Auto
-          </button>
-          <button
-            onClick={controls.handleClearAllArmor}
-            disabled={readOnly}
-            className={`${cs.button.action} bg-red-600 hover:bg-red-500`}
-          >
-            Clear
-          </button>
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <span className={cs.text.secondary}>
-          Total Armor:{' '}
-          <span className="text-accent">{controls.totalArmor}</span>
-        </span>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        {controls.armorLocations.map((location: ProtoMechLocation) => (
-          <div key={location}>
-            <label className={cs.text.label}>{LOCATION_LABELS[location]}</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={controls.armorByLocation[location] ?? 0}
-                onChange={(event) =>
-                  controls.handleLocationArmorChange(location, event)
-                }
-                disabled={readOnly}
-                min={0}
-                className={cs.input.full}
-              />
-              <span className={cs.text.secondary}>
-                / {controls.structureByLocation[location] ?? 0}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { isIndirectFireCapable } from '@/utils/gameplay/indirectFire';
 
 import type { GetFn, SetFn } from './useGameplayStore.combatFlowTypes';
 
-import { InteractivePhase } from './useGameplayStore.helpers';
+import { finishCommit } from './useGameplayStore.attackIntent';
 import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
 export function setAttackTargetLogic(unitId: string | null, set: SetFn): void {
@@ -125,25 +125,5 @@ export function commitAttackLogic(get: GetFn, set: SetFn): void {
     get().weaponModesByUnitId[ui.selectedUnitId] ?? {},
   );
 
-  const gameOver = interactiveSession.isGameOver();
-
-  set((state) => ({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
-    attackPlan: {
-      targetUnitId: null,
-      selectedWeapons: [],
-      weaponModeError: null,
-    },
-    validTargetIds: [],
-    hitChance: null,
-    ui: {
-      ...state.ui,
-      selectedUnitId: null,
-      targetUnitId: null,
-      queuedWeaponIds: [],
-    },
-  }));
+  finishCommit(interactiveSession, set);
 }

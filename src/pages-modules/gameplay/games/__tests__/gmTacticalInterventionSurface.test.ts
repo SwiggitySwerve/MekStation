@@ -46,6 +46,54 @@ describe('gmTacticalInterventionSurface', () => {
     expect(resolveGameSessionShellMode({ mode: 'combat' })).toBe('combat');
   });
 
+  it('blocks a tactical preview after state changes without calling the live engine', () => {
+    const base = createDemoSession();
+    let session = {
+      ...base,
+      currentState: { ...base.currentState, phase: GamePhase.Movement },
+    };
+    const advancePhase = jest.fn();
+    const applyCorrectedState = jest.fn();
+    const setSession = jest.fn();
+    const interactiveSession = {
+      advancePhase,
+      applyCorrectedState,
+      getSession: () => session,
+    } as unknown as InteractiveSession;
+    const { result, rerender } = renderHook(() =>
+      useGmTacticalInterventionSurface({
+        enabled: true,
+        session,
+        interactiveSession,
+        setSession,
+      }),
+    );
+    const preview = result.current!.preview({
+      commandId: 'gm.advance-phase',
+      command: makeCommand(),
+      ctx: makeCtx(),
+    });
+    expect(preview.status).toBe('ready');
+    session = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        activationIndex: session.currentState.activationIndex + 1,
+      },
+    };
+    rerender();
+    act(() => {
+      expect(result.current!.approve?.(preview)).toMatchObject({
+        status: 'blocked',
+        appended: false,
+      });
+    });
+    expect(advancePhase).not.toHaveBeenCalled();
+    expect(applyCorrectedState).not.toHaveBeenCalled();
+    expect(setSession).not.toHaveBeenCalled();
+    expect(result.current?.playerLog).toEqual([]);
+  });
+
   it('approves a live tactical GM preview through the combat ledgers and public log', () => {
     const session = createDemoSession();
     const movementSession = {
