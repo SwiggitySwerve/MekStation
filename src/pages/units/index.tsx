@@ -328,8 +328,17 @@ export default function CustomUnitsListPage(): React.ReactElement {
   useEffect(() => {
     async function fetchUnits() {
       try {
-        const entries = await customUnitApiService.list();
-        setUnits([...entries]);
+        const response = await fetch('/api/units/custom');
+        const data = (await response.json()) as {
+          units?: UnitEntry[];
+          error?: string;
+        };
+
+        if (data.units) {
+          setUnits(data.units);
+        } else {
+          setError(data.error || 'Failed to load units');
+        }
       } catch {
         setError('Failed to connect to server');
       } finally {

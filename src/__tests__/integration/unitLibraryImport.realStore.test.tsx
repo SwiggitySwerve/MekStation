@@ -20,6 +20,48 @@ afterEach(() => {
   localStorage.clear();
 });
 
+it.each([
+  [
+    503,
+    { error: 'Unit database is unavailable' },
+    'Unit database is unavailable',
+  ],
+  [
+    200,
+    { error: 'Unit database is unavailable' },
+    'Unit database is unavailable',
+  ],
+  [503, {}, 'Failed to load units'],
+  [200, {}, 'Failed to load units'],
+])(
+  'shows the list response error for HTTP %s and leaves loading',
+  async (status, body, message) => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: status < 400,
+      status,
+      statusText: 'Service Unavailable',
+      json: async () => body,
+    } as Response);
+    render(<LibraryPage />);
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(screen.getByText('Error Loading Units')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Loading custom units...'),
+    ).not.toBeInTheDocument();
+  },
+);
+
+it('shows the connection failure and leaves loading when the list request rejects', async () => {
+  jest
+    .spyOn(global, 'fetch')
+    .mockRejectedValueOnce(new TypeError('Failed to fetch'));
+  render(<LibraryPage />);
+  expect(
+    await screen.findByText('Failed to connect to server'),
+  ).toBeInTheDocument();
+  expect(screen.queryByText('Loading custom units...')).not.toBeInTheDocument();
+});
+
 it('imports from the mounted library through the real client, refreshes, and hydrates a real persisted vehicle store', async () => {
   const row = fixtures.rows[0];
   const id = 'custom-browser-import';
