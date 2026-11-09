@@ -88,6 +88,7 @@ export function useCriticalSlotsTabLogic({
   const equipment = useUnitStore((s) => s.equipment);
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
+  const cockpitType = useUnitStore((s) => s.cockpitType);
   const armActuators = useUnitStore((s) => s.armActuators);
   const isOmni = useUnitStore((s) => s.isOmni);
   const tonnage = useUnitStore((s) => s.tonnage);
@@ -122,6 +123,7 @@ export function useCriticalSlotsTabLogic({
           ? equipment.filter((item) => item.instanceId !== excludedEquipmentId)
           : equipment,
         armActuators,
+        cockpitType,
       );
       return {
         location,
@@ -130,7 +132,14 @@ export function useCriticalSlotsTabLogic({
         isSuperheavy: unitIsSuperheavy,
       };
     },
-    [equipment, engineType, gyroType, armActuators, unitIsSuperheavy],
+    [
+      equipment,
+      engineType,
+      gyroType,
+      armActuators,
+      cockpitType,
+      unitIsSuperheavy,
+    ],
   );
 
   const getAssignableSlots = useCallback(
@@ -216,6 +225,7 @@ export function useCriticalSlotsTabLogic({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -226,6 +236,7 @@ export function useCriticalSlotsTabLogic({
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
     configuration,
     isOmni,
     bulkUpdateEquipmentLocations,
@@ -238,6 +249,7 @@ export function useCriticalSlotsTabLogic({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -248,6 +260,7 @@ export function useCriticalSlotsTabLogic({
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
     configuration,
     isOmni,
     bulkUpdateEquipmentLocations,
@@ -260,6 +273,7 @@ export function useCriticalSlotsTabLogic({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -270,6 +284,7 @@ export function useCriticalSlotsTabLogic({
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
     configuration,
     isOmni,
     bulkUpdateEquipmentLocations,
@@ -289,6 +304,7 @@ export function useCriticalSlotsTabLogic({
         engineType,
         gyroType,
         armActuators,
+        cockpitType,
         configuration,
         isOmni,
         bulkUpdateEquipmentLocations,
@@ -304,6 +320,7 @@ export function useCriticalSlotsTabLogic({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -323,6 +340,7 @@ export function useCriticalSlotsTabLogic({
         engineType,
         gyroType,
         armActuators,
+        cockpitType,
         configuration,
         isOmni,
         bulkUpdateEquipmentLocations,
@@ -337,6 +355,7 @@ export function useCriticalSlotsTabLogic({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
       configuration,
       isOmni,
       bulkUpdateEquipmentLocations,
@@ -367,6 +386,7 @@ export function useCriticalSlotsTabLogic({
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
     getLocationData,
     updateEquipmentLocation,
     clearEquipmentLocation,

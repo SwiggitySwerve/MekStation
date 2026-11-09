@@ -20,12 +20,7 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
-import {
-  CockpitType,
-  INTERFACE_COCKPIT_SOURCE_TAG,
-  VRRP_COCKPIT_SOURCE_TAG,
-  PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG,
-} from '@/types/construction/CockpitType';
+import { getCockpitSourceTag } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
   MechLocation,
@@ -54,6 +49,7 @@ import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology'
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
+import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 
 const GYRO_TYPE = {
@@ -64,19 +60,6 @@ const GYRO_TYPE = {
   [GyroType.SUPERHEAVY]: 'SUPERHEAVY',
   [GyroType.NONE]: NO_GYRO_SOURCE_TAG,
 } as const satisfies Readonly<Record<GyroType, string>>;
-
-const COCKPIT_TYPE = {
-  [CockpitType.STANDARD]: 'STANDARD',
-  [CockpitType.SMALL]: 'SMALL',
-  [CockpitType.COMMAND_CONSOLE]: 'COMMAND_CONSOLE',
-  [CockpitType.TORSO_MOUNTED]: 'TORSO_MOUNTED',
-  [CockpitType.PRIMITIVE]: 'PRIMITIVE',
-  [CockpitType.INDUSTRIAL]: 'INDUSTRIAL',
-  [CockpitType.SUPER_HEAVY]: 'SUPERHEAVY',
-  [CockpitType.INTERFACE]: INTERFACE_COCKPIT_SOURCE_TAG,
-  [CockpitType.VRRP]: VRRP_COCKPIT_SOURCE_TAG,
-  [CockpitType.PRIMITIVE_INDUSTRIAL]: PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG,
-} as const satisfies Readonly<Record<CockpitType, string>>;
 
 const STRUCTURE_TYPE = {
   [InternalStructureType.STANDARD]: 'STANDARD',
@@ -251,7 +234,7 @@ export function serializeCustomUnitState(
       rating: state.engineRating,
     },
     gyro: { type: GYRO_TYPE[state.gyroType] },
-    cockpit: COCKPIT_TYPE[state.cockpitType],
+    cockpit: getCockpitSourceTag(state.cockpitType),
     structure: { type: STRUCTURE_TYPE[state.internalStructureType] },
     armor: serializeArmor(state),
     heatSinks: {
@@ -273,6 +256,7 @@ export function serializeCustomUnitState(
       state.techBaseMode === TechBaseMode.MIXED
         ? serializeComponentTechBases(state.componentTechBases)
         : undefined,
+    ...crewSeatSaveFields(state),
   };
 }
 

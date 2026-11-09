@@ -31,6 +31,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
+import type { MatchStatus } from '@/types/multiplayer/MatchStatus';
 
 import type {
   IMatchCommandBatch,
@@ -44,11 +45,11 @@ import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
 // =============================================================================
 
 /**
- * Match lifecycle states. `lobby` -> `active` -> `completed`. Wave 3b
- * (lobby) extends this slightly (`pending` for awaiting reconnect) but
- * the base set is locked here so Wave 1 stores can be forward-compatible.
+ * Match lifecycle states, `lobby` -> `active` -> `completed`. The union and
+ * the transition table live in `@/types/multiplayer/MatchStatus`; both stores
+ * enforce them in `patchMatchMeta` and on create.
  */
-export type MatchStatus = 'lobby' | 'active' | 'completed';
+export type { MatchStatus };
 
 /**
  * Player <-> side assignment. Wave 1 keeps this simple — Wave 3b's

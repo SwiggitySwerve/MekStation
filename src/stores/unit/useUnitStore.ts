@@ -13,6 +13,7 @@ import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import { withUnitLibraryReceipt } from '@/stores/unitDraftPersistence';
 import { pickPersistedUnitIdentityWithClanName } from '@/stores/unitStoreIdentityActions';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 
@@ -24,6 +25,7 @@ import {
 } from '../unitState';
 import { wrapUnitEditActions } from './unitEditHistory';
 import { createArmorSlice } from './useUnitArmorStore';
+import { createCrewSlice } from './useUnitCrewStore';
 import { createEquipmentSlice } from './useUnitEquipmentStore';
 import { createFluffSlice } from './useUnitFluffStore';
 import { createStructureSlice } from './useUnitStructureStore';
@@ -39,6 +41,7 @@ function pickPersistedUnitState(state: UnitStore) {
     librarySave: state.librarySave,
     role: state.role,
     fluff: state.fluff,
+    crewSeats: state.crewSeats,
     tonnage: state.tonnage,
     techBase: state.techBase,
     unitType: state.unitType,
@@ -76,7 +79,7 @@ function unitStorePersistOptions(initialState: UnitState) {
     name: `megamek-unit-${initialState.id}`,
     storage: createJSONStorage(() => clientSafeStorage),
     skipHydration: true,
-    partialize: pickPersistedUnitState,
+    partialize: withUnitLibraryReceipt(pickPersistedUnitState),
   };
 }
 
@@ -101,6 +104,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           {
             ...createArmorSlice(set, get),
             ...createEquipmentSlice(set, get),
+            ...createCrewSlice(set, get),
             ...createFluffSlice(set),
             ...createStructureSlice(set, get),
             ...createTechBaseSlice(set, get),

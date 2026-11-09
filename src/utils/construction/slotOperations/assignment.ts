@@ -27,6 +27,7 @@ function createLocationAssignments(
   configuration: MechConfiguration,
   isOmni: boolean,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   const totalSlots = getLocationSlotCount(location, configuration);
   const fixedSlots = getFixedSlotIndices(
@@ -34,6 +35,7 @@ function createLocationAssignments(
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
   );
   for (const item of locationEquipment) {
     if (isFixedOmniEquipment(isOmni, item)) {
@@ -83,6 +85,7 @@ function organizeEquipment(
   comparator: EquipmentComparator,
   isOmni: boolean,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
   const unassigned: string[] = [];
@@ -112,6 +115,7 @@ function organizeEquipment(
       configuration,
       isOmni,
       armActuators,
+      cockpitType,
     );
     assignments.push(...result.assignments);
     unassigned.push(...result.unassigned);
@@ -164,6 +168,7 @@ export function compactEquipmentSlots(
   configuration: MechConfiguration = MechConfiguration.BIPED,
   isOmni = false,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   return organizeEquipment(
     equipment,
@@ -177,6 +182,7 @@ export function compactEquipmentSlots(
     },
     isOmni,
     armActuators,
+    cockpitType,
   );
 }
 
@@ -187,6 +193,7 @@ export function sortEquipmentBySize(
   configuration: MechConfiguration = MechConfiguration.BIPED,
   isOmni = false,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   return organizeEquipment(
     equipment,
@@ -201,5 +208,6 @@ export function sortEquipmentBySize(
     },
     isOmni,
     armActuators,
+    cockpitType,
   );
 }

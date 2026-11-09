@@ -32,6 +32,7 @@ import {
 import * as orchestrator from '../../src/services/validation/UnitValidationOrchestrator';
 import { UnitCategory } from '../../src/types/unit/UnitTypeHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
+import { buildWeightReport } from '../unit-construction-weights';
 import {
   buildDeltaReport,
   calculateRow,
@@ -863,5 +864,112 @@ describe('opt-in MTF validity uses the converted mech through the editor project
       'Source hash mismatch',
     );
     expect(load).not.toHaveBeenCalled();
+  });
+});
+
+describe('opt-in construction weights ride along without moving anything else', () => {
+  let root: string;
+  const weights = ['node', 'delta.ts', '--construction-weights'];
+  const puma = () =>
+    vehicles.rows.find((row) =>
+      row.path.endsWith('Puma Assault Tank PAT-001.blk'),
+    )!;
+  // The BV payload is independent: weights use the pinned source bytes.
+  function write() {
+    const row = puma();
+    const relative = row.path.replace('data/mekfiles/', '');
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, row.content);
+    return {
+      path: relative,
+      sha256: sourceHash(Buffer.from(row.content)),
+      unit: null,
+      reason: 'BV payload is independent of the weight capture',
+    };
+  }
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'weights-'));
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+  });
+  afterEach(() => {
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  test('--construction-weights loads the JSON catalog, and stops on the fallback', async () => {
+    await prepareConstructionValidity(weights);
+    expect(getEquipmentLookupService().getDataSource()).toBe('json');
+    expect(getEquipmentRegistry().isReady()).toBe(true);
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    mockCatalogAvailable = false;
+    await expect(prepareConstructionValidity(weights)).rejects.toThrow(
+      'Equipment catalog unavailable',
+    );
+  });
+  test('adds only constructionWeights, byte-identical otherwise, with and without validity', async () => {
+    await prepareConstructionValidity(weights);
+    const raw = write();
+    for (const validity of [false, true]) {
+      const plain = calculateSources([raw], root, validity)[0];
+      const withWeights = calculateSources([raw], root, validity, true)[0];
+      const { constructionWeights, ...unchanged } = withWeights;
+      expect(constructionWeights).toBeDefined();
+      expect(JSON.stringify(unchanged)).toBe(JSON.stringify(plain));
+      expect(plain).not.toHaveProperty('constructionWeights');
+    }
+  });
+  test('the captured fact feeds the comparator end to end', async () => {
+    await prepareConstructionValidity(weights);
+    const raw = write();
+    const row = calculateSources([raw], root, false, true)[0];
+    const report = buildWeightReport(
+      [row],
+      [
+        {
+          path: raw.path,
+          sha256: raw.sha256,
+          concreteFamily: 'Tank',
+          battleValue: {
+            total: 1,
+            aggregates: { defensiveValue: 0, offensiveValue: 0 },
+          },
+          construction: {
+            weightTerms: {
+              getWeightEngine: 25,
+              getWeightStructure: 9.5,
+              getWeightWeapon: 32,
+              getWeightAmmo: 4,
+            },
+            weightTotal: 95,
+          },
+        },
+      ],
+      ['vehicles'],
+    );
+    expect(report.rows[0].terms.map((t) => t.status)).toEqual([
+      'exact',
+      'exact',
+      'grouped:mountedEquipment',
+      'grouped:mountedEquipment',
+    ]);
+    expect(report.rows[0].groups[0]).toMatchObject({
+      java: 36,
+      status: 'exact',
+    });
+  });
+  test('keeps hash rejection before any weight work', () => {
+    const raw = write();
+    fs.appendFileSync(path.join(root, raw.path), 'changed');
+    expect(() => calculateSources([raw], root, false, true)).toThrow(
+      'Source hash mismatch',
+    );
   });
 });

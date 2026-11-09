@@ -318,6 +318,52 @@ for (const viewport of VIEWPORTS) {
   test.describe(`library open, ${viewport.name} layout`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
+    test('edits Ajax armor above the former location limit @customizer', async ({
+      page,
+    }, testInfo) => {
+      const { dialog, row } = await findRow(page, {
+        chassis: 'Ajax Assault Tank',
+        model: 'Prime',
+      });
+      await row.dblclick();
+      await expect(dialog).toBeHidden();
+      const shell = page.getByTestId('vehicle-customizer');
+      await expect(shell).toBeVisible();
+      await section(page, 'Armor');
+      const front = shell.getByRole('spinbutton', {
+        name: 'Front armor allocation',
+        exact: true,
+      });
+      const diagramFront = shell
+        .getByTestId('vehicle-armor-allocation-section')
+        .getByTestId('vehicle-armor-input-Front');
+      await expect(shell.getByTestId('vehicle-armor-summary')).toContainText(
+        '355',
+      );
+      await expect(front).toHaveValue('76');
+      await expect(diagramFront).toHaveValue('76');
+      await expect(front).not.toHaveAttribute('max');
+      await expect(diagramFront).not.toHaveAttribute('max');
+      await fill(page, front, '80', viewport.name === 'narrow', '76');
+      await expect(front).toHaveValue('80');
+      await expect(diagramFront).toHaveValue('80');
+      await fill(page, diagramFront, '82', viewport.name === 'narrow', '80');
+      await expect(front).toHaveValue('82');
+      await expect(diagramFront).toHaveValue('82');
+      await expect(statusItem(shell, 'Armor')).toContainText('310');
+      await expect(statusItem(shell, 'Armor')).toContainText('-6 unalloc');
+      await page.reload();
+      await expect(shell).toBeVisible();
+      await section(page, 'Armor');
+      await expect(front).toHaveValue('82');
+      await expect(diagramFront).toHaveValue('82');
+      await page.screenshot({
+        path: testInfo.outputPath(`ajax-armor-${viewport.name}.png`),
+        fullPage: true,
+        animations: 'disabled',
+      });
+    });
+
     test('waits for cold equipment before opening an Omni vehicle @customizer', async ({
       page,
     }, info) => {

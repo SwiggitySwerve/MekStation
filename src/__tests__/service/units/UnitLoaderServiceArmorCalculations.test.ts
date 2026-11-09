@@ -8,6 +8,7 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 
 function armorAllocationWithPoints(totalPoints: number): IArmorAllocation {
   const allocation = createEmptyArmorAllocation();
@@ -16,6 +17,37 @@ function armorAllocationWithPoints(totalPoints: number): IArmorAllocation {
 }
 
 describe('UnitLoaderService armor calculations', () => {
+  it.each([
+    [MechConfiguration.BIPED, 25],
+    [MechConfiguration.TRIPOD, 28.5],
+    [MechConfiguration.QUAD, 11.5],
+    [MechConfiguration.QUADVEE, 11.5],
+  ] as const)(
+    'counts active %s limbs and excludes dormant locations',
+    (configuration, tons) => {
+      const allocation = createEmptyArmorAllocation();
+      Object.assign(allocation, {
+        [MechLocation.CENTER_TORSO]: 100,
+        [MechLocation.LEFT_ARM]: 80,
+        [MechLocation.RIGHT_ARM]: 80,
+        [MechLocation.LEFT_LEG]: 70,
+        [MechLocation.RIGHT_LEG]: 70,
+        [MechLocation.CENTER_LEG]: 56,
+        [MechLocation.FRONT_LEFT_LEG]: 14,
+        [MechLocation.FRONT_RIGHT_LEG]: 16,
+        [MechLocation.REAR_LEFT_LEG]: 20,
+        [MechLocation.REAR_RIGHT_LEG]: 30,
+      });
+      expect(
+        calculateArmorTonnage(
+          allocation,
+          ArmorTypeEnum.STANDARD,
+          configuration,
+        ),
+      ).toBe(tons);
+    },
+  );
+
   // ArmorType.java:61,226,301-302,788-826 at MegaMek 48fcb2f6:
   // reactive keeps the default 16 points/t; it has no efficiency penalty.
   it('uses the shared 16-point reactive density in construction and loading', () => {

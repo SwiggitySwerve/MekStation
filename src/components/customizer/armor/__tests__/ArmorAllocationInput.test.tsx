@@ -33,6 +33,24 @@ describe('ArmorAllocationInput', () => {
     expect(onChange).toHaveBeenCalledWith(10);
   });
 
+  it('leaves an unlimited location without a max attribute or upper clamp', () => {
+    const onChange = jest.fn();
+    render(
+      <ArmorAllocationInput
+        label="Front"
+        value={76}
+        max={null}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByLabelText('Front armor value');
+    expect(input.getAttribute('max')).toBeNull();
+    fireEvent.change(input, { target: { value: '1000' } });
+    expect(onChange).toHaveBeenLastCalledWith(1000);
+    fireEvent.change(input, { target: { value: '-1' } });
+    expect(onChange).toHaveBeenLastCalledWith(0);
+  });
+
   it('clamps values below min (default 0)', () => {
     const onChange = jest.fn();
     render(

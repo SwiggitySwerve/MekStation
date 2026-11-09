@@ -12,11 +12,11 @@ import React, { useMemo, useState } from 'react';
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useVehicleStore, type VehicleStore } from '@/stores/useVehicleStore';
-import { getTotalVehicleArmor } from '@/stores/vehicleState';
-import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
+import { getVehicleArmorProfile } from '@/utils/construction/vehicle/armorLimits';
+import { getVehicleArmorEditorFigures } from '@/utils/construction/vehicle/editorArmor';
 import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
 import { validateVehicleConstruction } from '@/utils/construction/vehicle/vehicleValidation';
@@ -64,6 +64,8 @@ type VehicleStatusStoreState = Pick<
   | 'baseChassisSecondaryTurretWeight'
   | 'armorType'
   | 'armorTonnage'
+  | 'usesBarArmor'
+  | 'armorTechRating'
   | 'armorAllocation'
   | 'turret'
   | 'secondaryTurret'
@@ -150,23 +152,26 @@ function calculateWeightBreakdown(
 function calculateArmorStats(
   state: Pick<
     VehicleStatusStoreState,
-    'armorAllocation' | 'armorType' | 'armorTonnage'
+    | 'tonnage'
+    | 'unitType'
+    | 'motionType'
+    | 'usesBarArmor'
+    | 'armorTechRating'
+    | 'barRating'
+    | 'armorType'
+    | 'armorTonnage'
+    | 'armorAllocation'
+    | 'turret'
+    | 'secondaryTurret'
   >,
-  hasTurret: boolean,
-  hasSecondaryTurret: boolean,
-) {
-  const allocated = getTotalVehicleArmor(
-    state.armorAllocation,
-    hasTurret,
-    hasSecondaryTurret,
-  );
-  const armorDef = getArmorDefinition(state.armorType);
-  const pointsPerTon = armorDef?.pointsPerTon ?? 16;
-  const available = Math.floor(state.armorTonnage * pointsPerTon);
-
+): { allocated: number; unallocated: number } {
+  const figures = getVehicleArmorEditorFigures({
+    ...state,
+    profile: getVehicleArmorProfile(state),
+  });
   return {
-    allocated,
-    unallocated: available - allocated,
+    allocated: figures.allocatedPoints,
+    unallocated: figures.unallocatedPoints,
   };
 }
 
@@ -295,6 +300,8 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
     turret: useVehicleStore((s) => s.turret),
     secondaryTurret: useVehicleStore((s) => s.secondaryTurret),
     barRating: useVehicleStore((s) => s.barRating),
+    armorTechRating: useVehicleStore((s) => s.armorTechRating),
+    usesBarArmor: useVehicleStore((s) => s.usesBarArmor),
     equipment: useVehicleStore((s) => s.equipment),
     crewSize: useVehicleStore((s) => s.crewSize),
     structureType: useVehicleStore((s) => s.structureType),
@@ -327,14 +334,14 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     turret,
     secondaryTurret,
     barRating,
+    armorTechRating,
+    usesBarArmor,
     equipment,
     crewSize,
     structureType,
     powerAmpWeight,
   } = storeState;
   const { isReady: catalogReady } = useEquipmentRegistry();
-  const hasTurret = turret !== null;
-  const hasSecondaryTurret = secondaryTurret !== null;
 
   const weightBreakdown = useMemo(
     () =>
@@ -394,12 +401,32 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
 
   const armorStats = useMemo(
     () =>
-      calculateArmorStats(
-        { armorAllocation, armorType, armorTonnage },
-        hasTurret,
-        hasSecondaryTurret,
-      ),
-    [armorAllocation, hasTurret, hasSecondaryTurret, armorType, armorTonnage],
+      calculateArmorStats({
+        tonnage,
+        unitType,
+        motionType,
+        usesBarArmor,
+        armorTechRating,
+        barRating,
+        armorType,
+        armorTonnage,
+        armorAllocation,
+        turret,
+        secondaryTurret,
+      }),
+    [
+      tonnage,
+      unitType,
+      motionType,
+      usesBarArmor,
+      armorTechRating,
+      barRating,
+      armorType,
+      armorTonnage,
+      armorAllocation,
+      turret,
+      secondaryTurret,
+    ],
   );
 
   // Compute live Battle Value (defensive/offensive split + pilot-adjusted final)

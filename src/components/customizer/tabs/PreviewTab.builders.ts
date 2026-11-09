@@ -2,6 +2,7 @@ import type { IEditableMech } from '@/services/construction/MechBuilderService';
 import type { IUnitConfig } from '@/services/printing/recordsheet/types';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 
 import {
   buildEditableArmorAllocation,
@@ -14,6 +15,7 @@ import {
   getLocationSlotCount,
 } from '@/types/construction/mechConfigHelpers';
 import { EquipmentCategory } from '@/types/equipment';
+import { buildMechCrew } from '@/types/pilot/MechCrewSeats';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   getFixedSlotNames,
@@ -45,6 +47,7 @@ export interface PreviewUnitState extends Omit<
   jumpMP: number;
   equipment: readonly IMountedEquipmentInstance[];
   armActuators?: ArmActuatorConfig;
+  crewSeats?: readonly IMechCrewSeat[];
 }
 
 type CriticalSlot = {
@@ -75,6 +78,7 @@ export function buildCriticalSlotsFromEquipment(
   engineType: EngineType,
   gyroType: GyroType,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): Record<string, CriticalSlot[]> {
   const result: Record<string, CriticalSlot[]> = {};
 
@@ -82,11 +86,15 @@ export function buildCriticalSlotsFromEquipment(
     const slots = new Array<CriticalSlot>(
       getLocationSlotCount(location, configuration),
     ).fill(null);
-    getFixedSlotNames(location, engineType, gyroType, armActuators).forEach(
-      (name, index) => {
-        slots[index] = { content: name, isSystem: true };
-      },
-    );
+    getFixedSlotNames(
+      location,
+      engineType,
+      gyroType,
+      armActuators,
+      cockpitType,
+    ).forEach((name, index) => {
+      slots[index] = { content: name, isSystem: true };
+    });
     result[location] = slots;
   });
 
@@ -120,8 +128,14 @@ export function buildPreviewUnitConfig(
   battleValue: number,
   cost: number,
 ): IUnitConfig {
+  const crew = buildMechCrew(
+    state.configuration,
+    state.tonnage,
+    state.crewSeats,
+  );
   return {
     ...buildRecordSheetUnitIdentity({ ...state, id: 'preview' }),
+    ...(crew ? { crew } : {}),
     role: state.role,
     configuration: state.configuration,
     engine: {
@@ -165,6 +179,7 @@ export function buildPreviewUnitConfig(
       state.engineType,
       state.gyroType,
       state.armActuators,
+      state.cockpitType,
     ),
     enhancements: state.enhancement ? [state.enhancement] : [],
     battleValue,

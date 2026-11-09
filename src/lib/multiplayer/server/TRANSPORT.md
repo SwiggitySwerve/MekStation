@@ -36,6 +36,17 @@ read/publish/receipt sequence: stamp `publishedAt` only after a listener
 consumes the outcome; skip already-published rows on every later restart.
 The existing seven-day completed-match retention remains in force.
 
+## Match status transitions
+
+`src/types/multiplayer/MatchStatus.ts` owns the three persisted statuses and the
+only legal edges: `lobby -> active | completed`, `active -> completed`, with
+`completed` terminal. `completed` is the one end state for a finished game, a
+DELETE, an expired lobby, a failed create and a reconnect timeout; the data does
+not record which. Both stores enforce the table in `patchMatchMeta` (behind
+`updateMatchMeta` and `closeMatch`), so a stale writer cannot reopen a completed
+match, and `createMatch` accepts only `lobby` and `active`. A same-status write
+is legal. A refused lobby write answers `INVALID_INTENT` and is logged.
+
 ## Lobby and spectator seat lifecycle
 
 `matchIntentKinds.ts` owns wire intent classification, host-only lobby
@@ -52,7 +63,7 @@ Connected humans, empty seats, AI and spectators are refused. This preserves:
 - `src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts:257`, scenario
   `host MarkSeatAi clears the pending seat and broadcasts MatchResumed`, and
   `MarkSeatAi rejects %s targets without changing seats or clearing pending`
-  at line 300.
+  at line 299.
 
 The final socket detach queues spectator removal on the same host executor as
 intents. The queued operation checks for reattachment both before and after its
@@ -67,8 +78,9 @@ regain membership, then resumes the same delivery numbering across rejoin and
 restart. Rewind still clears the superseded delivery stream as described below.
 
 Follow-ups: seats compare-and-swap across REST and host writers, abrupt-crash
-leftovers, and spectator registrations that never attach. General metadata
-transition validation remains separate from these intent admission rules.
+leftovers, and spectator registrations that never attach. Status transition
+validation is the separate table above; these rules decide only which intents a
+status admits.
 
 ## Match pause causes
 

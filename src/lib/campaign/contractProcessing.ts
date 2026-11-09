@@ -13,9 +13,10 @@
 
 import { ICampaign } from '@/types/campaign/Campaign';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
-import { IContract, isContract, IMission } from '@/types/campaign/Mission';
+import { isContract, IMission } from '@/types/campaign/Mission';
 
 import { ExpiredContractEvent } from './dayReportTypes';
+import { transitionMissionStatus } from './missionStatusMachine';
 
 /**
  * Process contract expiration for the campaign.
@@ -42,13 +43,15 @@ export function processContracts(campaign: ICampaign): {
 
     const endDate = new Date(mission.endDate);
     if (currentDate >= endDate) {
-      const updatedContract: IContract = {
-        ...mission,
-        status: MissionStatus.SUCCESS,
-        updatedAt: new Date().toISOString(),
-      };
+      // Owner ruling D5: expiry settles SUCCESS and pays nothing extra.
+      const moved = transitionMissionStatus(
+        mission,
+        MissionStatus.SUCCESS,
+        'expiry',
+      );
+      if (!moved.ok) return;
 
-      updatedMissions.set(id, updatedContract);
+      updatedMissions.set(id, moved.mission);
 
       events.push({
         contractId: id,

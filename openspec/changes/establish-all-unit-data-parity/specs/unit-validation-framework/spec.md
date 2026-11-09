@@ -46,6 +46,38 @@ The system SHALL provide validation rules for Vehicle category units (Vehicle, V
 
 ## ADDED Requirements
 
+### Requirement: Introductory BattleMech ammunition legality
+
+BattleMech validation SHALL reject mounted ammunition whose rules level exceeds
+an Introductory BattleMech or OmniMech's rules level. Each illegal bin SHALL
+produce an error naming the ammunition through the public unit validator.
+Loading SHALL retain the invalid design and its source facts.
+This rule SHALL NOT introduce ammunition restrictions for higher-level units,
+treat non-ammunition as ammunition, or infer legality for missing definitions.
+
+#### Scenario: Javelin box-set ammunition is illegal
+
+- **GIVEN** the pinned Javelin JVN-10U with Introductory rules and two SRT 6 ammo bins
+- **WHEN** the public unit validator validates the design
+- **THEN** `VAL-BM-012` SHALL report an error for each SRT 6 ammo bin
+- **AND** construction validity SHALL be false while the design remains loadable
+
+#### Scenario: Introductory ammunition meets the boundary
+
+- **GIVEN** an Introductory BattleMech or OmniMech with Introductory ammunition
+- **WHEN** the public unit validator validates the design
+- **THEN** `VAL-BM-012` SHALL NOT report an ammunition tech-level error
+
+#### Scenario: Other validation concerns retain their owners
+
+- **GIVEN** a higher-level unit, non-ammunition equipment, an empty loadout, or missing equipment definitions
+- **WHEN** the public unit validator validates the design
+- **THEN** `VAL-BM-012` SHALL NOT add an ammunition tech-level error for those cases
+- **AND** other validation rules SHALL retain their existing behavior
+
+Authority: MegaMek `48fcb2f64` `TestEntity.java:1271-1286`, invoked by
+`TestMek.java:766`; mm-data `50f7efe` Javelin JVN-10U.
+
 ### Requirement: Shared BattleMech structure mass
 
 BattleMech construction and weight-validation consumers SHALL obtain structure mass from the construction owner, retaining the existing component multipliers and half-ton ceiling. This consolidation SHALL preserve admission rules, fallback results, critical slots and numerical output.

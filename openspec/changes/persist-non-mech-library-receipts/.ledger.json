@@ -1,0 +1,6 @@
+{
+  "name": "persist-non-mech-library-receipts",
+  "status": "in-progress",
+  "reason": "Approved U3 PR2: preserve old drafts, add optional non-mech receipts and integrate custom-load metadata after PR1.",
+  "lastReviewed": "2026-11-09"
+}
