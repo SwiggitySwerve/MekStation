@@ -159,7 +159,14 @@
         "INTERFACE",
         "VRRP",
         "QUADVEE",
-        "PRIMITIVE_INDUSTRIAL"
+        "PRIMITIVE_INDUSTRIAL",
+        "DUAL",
+        "TRIPOD",
+        "SUPERHEAVY_INDUSTRIAL",
+        "SUPERHEAVY_COMMAND_CONSOLE",
+        "SMALL_COMMAND_CONSOLE",
+        "TRIPOD_INDUSTRIAL",
+        "SUPERHEAVY_TRIPOD_INDUSTRIAL"
       ],
       "description": "Cockpit type"
     },

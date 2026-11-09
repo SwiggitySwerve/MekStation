@@ -127,6 +127,21 @@ describe('calculateStructureCost', () => {
 });
 
 describe('calculateCockpitCost', () => {
+  // MegaMek 48fcb2f64 MekCostCalculator.java:54-77.
+  it.each([
+    [CockpitType.DUAL, 40_000],
+    [CockpitType.TRIPOD, 400_000],
+    [CockpitType.QUADVEE, 375_000],
+    [CockpitType.SUPER_HEAVY_TRIPOD, 500_000],
+    [CockpitType.SUPER_HEAVY_INDUSTRIAL, 200_000],
+    [CockpitType.SUPER_HEAVY_COMMAND_CONSOLE, 800_000],
+    [CockpitType.SMALL_COMMAND_CONSOLE, 675_000],
+    [CockpitType.TRIPOD_INDUSTRIAL, 300_000],
+    [CockpitType.SUPER_HEAVY_TRIPOD_INDUSTRIAL, 400_000],
+  ])('prices native cockpit %s at %i', (cockpit, expected) => {
+    expect(calculateCockpitCost(cockpit as CockpitType)).toBe(expected);
+  });
+
   it('returns the per-type cost', () => {
     expect(calculateCockpitCost(CockpitType.STANDARD)).toBe(200_000);
     expect(calculateCockpitCost(CockpitType.TORSO_MOUNTED)).toBe(750_000);

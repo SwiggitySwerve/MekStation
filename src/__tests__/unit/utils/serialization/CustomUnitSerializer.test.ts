@@ -7,7 +7,12 @@ import {
   parseUnit,
   UnitLoaderService,
 } from '@/services/units/unitLoaderService';
+import { getUnitLibraryFingerprint } from '@/stores/unit/unitEditSnapshot';
 import { createDefaultUnitState, type UnitState } from '@/stores/unitState';
+import {
+  CockpitType,
+  getCockpitSourceTag,
+} from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -40,32 +45,59 @@ beforeAll(async () => {
   await getEquipmentLookupService().initialize();
 });
 
-it('saves and reopens both King Crab split AC/20 mounts in their original slots', () => {
-  const loader = new UnitLoaderService();
-  const state = loader.mapToUnitState(crab, true);
-  const serialized = serializeCustomUnitState(state, {
-    id: state.id,
-    chassis: state.chassis,
-    variant: state.model,
-    era: Era.LATE_SUCCESSION_WARS,
-  });
-  expect(serialized.criticalSlots[MechLocation.LEFT_ARM]?.slice(4)).toEqual(
-    Array(8).fill('AC/20'),
-  );
-  const reopened = loader.mapToUnitState(parseUnit(serialized), false);
-  const allocations = (unit: UnitState) =>
-    unit.equipment
-      .filter((item) => item.equipmentId === 'ac-20')
-      .map(({ location, slots, splitSlots }) => ({
-        location,
-        slots,
-        splitSlots,
-      }));
-  expect(allocations(reopened)).toEqual(allocations(state));
-  expect(allocations(reopened)).toHaveLength(2);
-});
+it.each(Object.values(CockpitType))(
+  'saves and reopens %s with both split AC/20 mounts intact',
+  (cockpitType) => {
+    const loader = new UnitLoaderService();
+    const state = { ...loader.mapToUnitState(crab, true), cockpitType };
+    const serialized = serializeCustomUnitState(state, {
+      id: state.id,
+      chassis: state.chassis,
+      variant: state.model,
+      era: Era.LATE_SUCCESSION_WARS,
+    });
+    expect(serialized.criticalSlots[MechLocation.LEFT_ARM]?.slice(4)).toEqual(
+      Array(8).fill('AC/20'),
+    );
+    const reopened = loader.mapToUnitState(parseUnit(serialized), false);
+    expect(serialized.cockpit).toBe(getCockpitSourceTag(cockpitType));
+    expect(reopened.cockpitType).toBe(cockpitType);
+    const allocations = (unit: UnitState) =>
+      unit.equipment
+        .filter((item) => item.equipmentId === 'ac-20')
+        .map(({ location, slots, splitSlots }) => ({
+          location,
+          slots,
+          splitSlots,
+        }));
+    expect(allocations(reopened)).toEqual(allocations(state));
+    expect(allocations(reopened)).toHaveLength(2);
+  },
+);
 
 describe('serializeCustomUnitState', () => {
+  it('includes cockpit identity and secondary split cells in the save fingerprint', () => {
+    const state = new UnitLoaderService().mapToUnitState(crab, true);
+    const before = getUnitLibraryFingerprint(state);
+    expect(
+      getUnitLibraryFingerprint({ ...state, cockpitType: CockpitType.SMALL }),
+    ).not.toBe(before);
+    const index = state.equipment.findIndex((item) => item.splitSlots);
+    expect(index).toBeGreaterThanOrEqual(0);
+    const equipment = state.equipment.map((item, candidate) =>
+      candidate === index && item.splitSlots
+        ? {
+            ...item,
+            splitSlots: {
+              ...item.splitSlots,
+              slots: item.splitSlots.slots.map((slot) => slot - 1),
+            },
+          }
+        : item,
+    );
+    expect(getUnitLibraryFingerprint({ ...state, equipment })).not.toBe(before);
+  });
+
   it.each([
     [JumpJetType.IMPROVED, MovementEnhancementType.MASC],
     [JumpJetType.MECHANICAL, MovementEnhancementType.SUPERCHARGER],

@@ -2,6 +2,7 @@ import type { AerospaceStore } from '@/stores/aerospaceState';
 import type { BattleArmorStore } from '@/stores/battleArmorState';
 import type { InfantryStore } from '@/stores/infantryState';
 import type { ProtoMechStore } from '@/stores/protoMechState';
+import type { UnitSaveEditor } from '@/stores/unitSaveStateAdapters';
 import type { UnitStore } from '@/stores/unitState';
 import type { TabInfo } from '@/stores/useTabManagerStore';
 import type { VehicleStore } from '@/stores/vehicleState';
@@ -76,16 +77,33 @@ interface LibrarySaveStore {
     partial: Partial<
       Pick<
         UnitStore,
-        'chassis' | 'model' | 'name' | 'lastModifiedAt' | 'isModified'
+        | 'chassis'
+        | 'model'
+        | 'name'
+        | 'lastModifiedAt'
+        | 'isModified'
+        | 'librarySave'
       >
     >,
   ): void;
 }
 
-export function getLibrarySaveStore(
-  tabId: string,
-  unitType?: UnitType,
-): LibrarySaveStore | undefined {
+/** Translate existing editor shapes once for all save consumers and serializers. */
+export function getLibrarySaveEditor(
+  state: ReturnType<LibrarySaveStore['getState']>,
+): UnitSaveEditor {
+  if ('configuration' in state) return { store: 'battlemech', state };
+  if ('aerospaceSubType' in state) return { store: 'aerospace', state };
+  if (state.unitType === UnitType.PROTOMECH)
+    return { store: 'protomech', state };
+  if (state.unitType === UnitType.BATTLE_ARMOR)
+    return { store: 'battlearmor', state };
+  if (state.unitType === UnitType.INFANTRY) return { store: 'infantry', state };
+  return { store: 'vehicle', state };
+}
+
+function resolveLibrarySaveStore(tabId: string, unitType?: UnitType) {
+  if (!isLibrarySaveSupported(unitType)) return undefined;
   if (unitType === UnitType.PROTOMECH) return getProtoMechStore(tabId);
   if (unitType === UnitType.BATTLE_ARMOR) return getBattleArmorStore(tabId);
   if (unitType === UnitType.INFANTRY) return getInfantryStore(tabId);
@@ -96,28 +114,36 @@ export function getLibrarySaveStore(
     : getUnitStore(tabId);
 }
 
-function getTabStore(tabId: string, unitType?: UnitType) {
-  if (unitType && isVehicleUnitShape({ unitType })) {
-    return getVehicleStore(tabId);
-  }
+export function getLibrarySaveStore(
+  tabId: string,
+  unitType?: UnitType,
+): LibrarySaveStore | undefined {
+  return resolveLibrarySaveStore(tabId, unitType);
+}
 
-  if (unitType && isAerospaceType(unitType)) {
+/** Observe save content without expanding the existing write-store facade. */
+export function subscribeToLibrarySaveState(
+  tabId: string,
+  unitType: UnitType | undefined,
+  onChange: () => void,
+): () => void {
+  return (
+    resolveLibrarySaveStore(tabId, unitType)?.subscribe(onChange) ??
+    (() => undefined)
+  );
+}
+
+function getTabStore(tabId: string, unitType?: UnitType) {
+  // Legacy capital tab display still reads aerospace metadata, while capital
+  // views do not acquire an editable library-save target.
+  if (
+    unitType &&
+    isAerospaceType(unitType) &&
+    !isEditableAerospace({ unitType })
+  ) {
     return getAerospaceStore(tabId);
   }
-
-  if (unitType === UnitType.BATTLE_ARMOR) {
-    return getBattleArmorStore(tabId);
-  }
-
-  if (unitType === UnitType.INFANTRY) {
-    return getInfantryStore(tabId);
-  }
-
-  if (unitType === UnitType.PROTOMECH) {
-    return getProtoMechStore(tabId);
-  }
-
-  return getUnitStore(tabId);
+  return resolveLibrarySaveStore(tabId, unitType);
 }
 
 function getUnitStoreState(
