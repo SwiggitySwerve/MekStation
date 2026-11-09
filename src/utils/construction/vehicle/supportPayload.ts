@@ -14,12 +14,30 @@ import {
 } from './powerAmplifier';
 import { computeTurretWeight } from './turret';
 import { resolveVehicleVariableMass } from './variableEquipmentMass';
+import {
+  isInsulatorLinkableLaser,
+  sumVehicleHeatLoad,
+} from './vehicleHeatLoad';
+
+/**
+ * Pinned mass for a raw BLK mount token that a service-layer owner can identify
+ * as a Java-derived registry entry, or undefined. Injected so this rule stays
+ * pure: the BV catalog matches some raw tokens by name to legacy stubs whose
+ * mass is not pinned (`LRT 10` -> `lrtorpedo10`, 2.5 t against Java 5 t).
+ */
+export type SupportRegistryMass = (
+  equipmentId: string,
+  name?: string,
+) => number | undefined;
 
 /** TestEntity.java:631-667,716-769: sum catalog mount weights by kind.
+ * A non-ammunition mount uses the injected registry mass when it has one,
+ * otherwise its BV catalog entry's.
  */
 export function computeSupportPayloadWeights(
   unit: ISupportVehicle,
   engineWeight: number,
+  registryMassOf?: SupportRegistryMass,
 ): {
   weapons: number;
   ammo: number;
@@ -32,10 +50,19 @@ export function computeSupportPayloadWeights(
   const unresolved: string[] = [];
   const mounts = unit.equipment.map((mount) => {
     const ammo = isAmmunitionEquipmentId(mount.equipmentId);
-    const item = ammo
+    const catalogItem = ammo
       ? getAmmunitionWeightEntry(mount.equipmentId)
       : (getEquipmentEntry(mount.equipmentId) ??
         getEquipmentEntry(mount.equipmentId.replace(/[ /]+/g, '-')));
+    // Ammunition keeps its own path; only a launcher can be a name stub.
+    const registryMass =
+      ammo || !catalogItem
+        ? undefined
+        : registryMassOf?.(mount.equipmentId, mount.name);
+    const item =
+      catalogItem && registryMass !== undefined
+        ? { ...catalogItem, weight: registryMass }
+        : catalogItem;
     if (!item || item.weight === undefined) {
       unresolved.push(mount.equipmentId);
       return {
@@ -45,6 +72,8 @@ export function computeSupportPayloadWeights(
         weight: 0,
         heat: 0,
         energy: false,
+        laser: false,
+        miscHeatExcluded: true,
       };
     }
     // TestEntity.java:716-724,753-769: an artillery ammo category is not a weapon.
@@ -55,7 +84,16 @@ export function computeSupportPayloadWeights(
       );
     if (unit.tonnage < 5 && weapon) {
       unresolved.push(mount.equipmentId);
-      return { ...mount, ammo, weapon, weight: 0, heat: 0, energy: false };
+      return {
+        ...mount,
+        ammo,
+        weapon,
+        weight: 0,
+        heat: 0,
+        energy: false,
+        laser: false,
+        miscHeatExcluded: true,
+      };
     } // Infantry mount/clip metadata is not in this catalog.
     const energy =
       weapon &&
@@ -85,7 +123,17 @@ export function computeSupportPayloadWeights(
               : EquipmentCategory.BALLISTIC_WEAPON,
         }) ?? 0)
       : 0;
-    return { ...mount, ammo, weapon, weight, heat, energy, id: item.id };
+    return {
+      ...mount,
+      ammo,
+      weapon,
+      weight,
+      heat,
+      energy,
+      id: item.id,
+      laser: isInsulatorLinkableLaser(item),
+      miscHeatExcluded: ammo || weapon,
+    };
   });
   const sum = (predicate: (mount: (typeof mounts)[number]) => boolean) =>
     mounts.filter(predicate).reduce((n, m) => n + m.weight, 0);
@@ -110,8 +158,31 @@ export function computeSupportPayloadWeights(
           },
         ) ?? mount.weight;
   const miscEquipment = sum((m) => !m.ammo && !m.weapon);
-  const heatSinks =
-    unit.tonnage < 5 ? 0 : mounts.reduce((n, m) => n + m.heat, 0);
+  // TestSupportVehicle.java:917-931: no free sinks, none for a small vehicle.
+  // The load is the one shared with the combat/editor path (insulators,
+  // capacitors and miscellaneous heat included).
+  const heatLoad =
+    unit.tonnage < 5
+      ? 0
+      : sumVehicleHeatLoad(
+          mounts.map((m, order) => ({
+            id: 'id' in m ? (m.id ?? '') : '',
+            location: m.location,
+            order,
+            laser: m.laser,
+            linked: false,
+            insulated: false,
+            capacitor: false,
+            heat: m.heat,
+            miscHeatExcluded: m.miscHeatExcluded,
+          })),
+          {
+            year: unit.metadata.year,
+            engineType: decodeBlkVehicleEngine(unit.engineType, false),
+          },
+        );
+  if (heatLoad === null) unresolved.push('heat sink load');
+  const heatSinks = heatLoad ?? 0;
   const powerAmplifiers =
     unit.tonnage < 5 ||
     !requiresPowerAmplifiers(decodeBlkVehicleEngine(unit.engineType, false))

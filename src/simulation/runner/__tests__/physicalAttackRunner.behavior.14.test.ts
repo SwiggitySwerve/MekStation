@@ -117,7 +117,15 @@ it('queues represented terrain and building PSR fallout for domino displacement 
   const rubbleHex = hexes.get('1,2');
   const buildingHex = hexes.get('1,3');
   if (rubbleHex) {
-    hexes.set('1,2', { ...rubbleHex, terrain: TerrainType.Rubble });
+    // Water over rubble: the pin's displacement path rolls the water entry
+    // but has no rubble roll (TWGameManager.java:9851-9866).
+    hexes.set('1,2', {
+      ...rubbleHex,
+      terrain: terrainStringFromFeatures([
+        { type: TerrainType.Water, level: 1 },
+        { type: TerrainType.Rubble, level: 1 },
+      ]),
+    });
   }
   if (buildingHex) {
     hexes.set('1,3', {
@@ -170,10 +178,14 @@ it('queues represented terrain and building PSR fallout for domino displacement 
       reason: 'charge',
     },
   ]);
-  expectPendingPSR(result, 'domino-blocker', PSRTrigger.EnteringRubble, {
-    reason: 'Entering rubble',
-    triggerSource: PSRTrigger.EnteringRubble,
+  expectPendingPSR(result, 'domino-blocker', PSRTrigger.EnteringWater, {
+    reason: 'Entering water',
+    additionalModifier: -1,
+    triggerSource: PSRTrigger.EnteringWater,
   });
+  expect(result.units['domino-blocker'].pendingPSRs).not.toContainEqual(
+    expect.objectContaining({ reasonCode: PSRTrigger.EnteringRubble }),
+  );
   expectPendingPSR(result, 'domino-tail', PSRTrigger.BuildingCollapse, {
     reason: 'Building collapse',
     triggerSource: PSRTrigger.BuildingCollapse,
@@ -183,8 +195,14 @@ it('queues represented terrain and building PSR fallout for domino displacement 
   expect(physicalPsrPayloads).toContainEqual(
     expect.objectContaining({
       unitId: 'domino-blocker',
+      reasonCode: PSRTrigger.EnteringWater,
+      triggerSource: PSRTrigger.EnteringWater,
+    }),
+  );
+  expect(physicalPsrPayloads).not.toContainEqual(
+    expect.objectContaining({
+      unitId: 'domino-blocker',
       reasonCode: PSRTrigger.EnteringRubble,
-      triggerSource: PSRTrigger.EnteringRubble,
     }),
   );
   expect(physicalPsrPayloads).toContainEqual(

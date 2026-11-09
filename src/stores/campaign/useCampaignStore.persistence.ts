@@ -170,6 +170,8 @@ export interface SerializedCampaignState {
   moraleState?: MoraleState;
   /** Company morale transition history (D9; D-1 sweep). */
   moraleTransitions?: readonly IMoraleTransition[];
+  /** Match ids of the outcomes company morale has already counted. */
+  moraleCountedMatchIds?: readonly string[];
   /** Starmap "you are here" pin (`wire-starmap-into-campaign`; D-1 sweep). */
   currentSystemId?: string;
   /**
@@ -320,6 +322,7 @@ export function serializeCampaign(
     unitPrestige: campaign.unitPrestige,
     moraleState: campaign.moraleState,
     moraleTransitions: campaign.moraleTransitions,
+    moraleCountedMatchIds: campaign.moraleCountedMatchIds,
     currentSystemId: campaign.currentSystemId,
     // Audit D-10 (W3.4): the replayability seed travels with the campaign.
     rngSeed: campaign.rngSeed,
@@ -418,6 +421,7 @@ export function deserializeCampaign(
     unitPrestige: serialized.unitPrestige,
     moraleState: serialized.moraleState,
     moraleTransitions: serialized.moraleTransitions,
+    moraleCountedMatchIds: serialized.moraleCountedMatchIds,
     currentSystemId: serialized.currentSystemId,
     // Audit D-10 (W3.4): rehydrate the replayability seed. Absent on
     // pre-fix snapshots — daily RNG falls back to an id-derived seed.

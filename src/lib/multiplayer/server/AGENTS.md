@@ -40,7 +40,7 @@
 
 - `MatchHostRegistry` and `CampaignHostRegistry` are process-local active-host registries.
 - Registries are not a shared multi-replica coordinator; preserve sticky/shared-state limitations.
-- `bootstrapMultiplayerServer()` runs once per process and recovers durable active matches at boot.
+- `bootstrapMultiplayerServer()` runs once per process and recovers durable active matches at boot, releasing their crash-leftover spectator seats; a recovery scoped to one match id never does.
 - Keep restart bootstrap metadata sufficient to reconstruct active hosts.
 - `InMemoryPlayerStore` follows the process-global singleton pattern; use its test reset helper.
 - Registry tests must reset hosts, stores, transports, and player state between cases.

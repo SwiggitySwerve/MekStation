@@ -179,4 +179,8 @@ export interface IBABreakdown {
   readonly squadTotal: number;
   readonly pilotMultiplier: number;
   readonly final: number;
+  /** Native `ammoType:rackSize` -> pre-cap per-trooper ammo BV (Java ammoMap). */
+  readonly ammoAvailableBVByPool?: Readonly<Record<string, number>>;
+  /** Native `ammoType:rackSize` -> launcher BV in that pool (Java weaponsForExcessiveAmmo). */
+  readonly ammoCapBVByPool?: Readonly<Record<string, number>>;
 }

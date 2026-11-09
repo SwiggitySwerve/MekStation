@@ -67,20 +67,26 @@ export const BASE_BATTLE_CHANCE: Record<CombatRole, number> = {
  * The modifier is calculated using the formula:
  * `battleTypeMod = 1 + (STALEMATE.ordinal - current.ordinal) × 5`
  *
- * This means:
- * - STALEMATE (0) → 1 (no modifier)
- * - ADVANCING (+1) → 6 (5% increase)
- * - DOMINATING (+2) → 11 (10% increase)
- * - OVERWHELMING (+3) → 16 (15% increase)
- * - WEAKENED (-1) → -4 (5% decrease)
- * - CRITICAL (-2) → -9 (10% decrease)
- * - ROUTED (-3) → -14 (15% decrease)
+ * It is a flat amount added to the scenario-type roll (see
+ * `selectScenarioType`), not a percentage. A higher enemy morale gives a
+ * lower modifier:
+ * - STALEMATE (0) → 1
+ * - ADVANCING (+1) → -4
+ * - DOMINATING (+2) → -9
+ * - OVERWHELMING (+3) → -14
+ * - WEAKENED (-1) → 6
+ * - CRITICAL (-2) → 11
+ * - ROUTED (-3) → 16
+ *
+ * These values are pinned by `battleChance.test.ts`. The pinned MekHQ
+ * (e7adc2c) has no equivalent roll modifier (morale acts through StratCon
+ * scenario odds there), so the direction is not checked against the pin.
  *
  * @param moraleLevel - The current morale level
  * @returns The battle type modifier (can be negative)
  *
  * @example
- * const mod = calculateBattleTypeMod(AtBMoraleLevel.OVERWHELMING); // 16
+ * const mod = calculateBattleTypeMod(AtBMoraleLevel.OVERWHELMING); // -14
  */
 export function calculateBattleTypeMod(moraleLevel: AtBMoraleLevel): number {
   // Get the numeric value for the morale level
