@@ -14,11 +14,11 @@ import {
   createUnitIdentityActions,
   modificationPatch,
 } from '@/stores/unitStoreIdentityActions';
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   allocateProtoArmor,
+  setProtoArmorEquipment,
   computeProtoEngineRating,
   computeRunMP,
   computeProtoStructure,
@@ -275,11 +275,15 @@ export function createProtoMechStore(
           // =================================================================
 
           setArmorType: (armorType) =>
-            set({
+            set((state) => ({
               armorType,
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            }),
+              equipment: setProtoArmorEquipment(
+                armorType,
+                state.equipment,
+                `${state.id}-edp-armor`,
+              ),
+              ...modificationPatch(),
+            })),
 
           setLocationArmor: (location, points) =>
             set((state) => ({
@@ -318,8 +322,7 @@ export function createProtoMechStore(
           clearAllArmor: () =>
             set({
               armorByLocation: createEmptyProtoMechArmorAllocation(),
-              isModified: true,
-              lastModifiedAt: Date.now(),
+              ...modificationPatch(),
             }),
 
           // =================================================================
