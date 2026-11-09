@@ -2,6 +2,7 @@
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { VehicleStructureType } from '../structure';
@@ -219,4 +220,88 @@ it('diagnoses a nonfinite secondary allowance even for an explicitly absent seco
   expect(
     result.errors.some((e) => /Secondary.*allowance/i.test(e.message)),
   ).toBe(true);
+});
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
+describe('pinned vehicle armor diagnostics', () => {
+  const armorErrors = (overrides: Partial<VehicleValidationInput>) =>
+    validateVehicleConstruction(validationInput(overrides)).errors.filter(
+      (error) => error.ruleId.startsWith('VAL-VEHICLE-ARMOR'),
+    );
+
+  it('accepts a concentrated front allocation within the class total', () => {
+    expect(armorErrors({ armorAllocation: { Front: 100 } })).toEqual([]);
+  });
+
+  it.each([
+    [UnitType.VEHICLE, GroundMotionType.TRACKED, 50, 215],
+    [UnitType.VTOL, GroundMotionType.VTOL, 30, 145],
+    [UnitType.VEHICLE, GroundMotionType.TRACKED, 140, 530],
+    [UnitType.SUPPORT_VEHICLE, GroundMotionType.TRACKED, 50, 104],
+    [UnitType.SUPPORT_VEHICLE, GroundMotionType.NAVAL, 301, 19],
+    [UnitType.SUPPORT_VEHICLE, GroundMotionType.SUBMARINE, 2, 4],
+  ] as const)(
+    'checks the class total for %s %s at %s tons',
+    (unitType, motionType, tonnage, maximum) => {
+      const input = { unitType, motionType, tonnage };
+      expect(
+        armorErrors({ ...input, armorAllocation: { Front: maximum } }),
+      ).toEqual([]);
+      expect(
+        armorErrors({ ...input, armorAllocation: { Front: maximum + 1 } }),
+      ).toEqual([
+        expect.objectContaining({
+          ruleId: 'VAL-VEHICLE-ARMOR-TOTAL',
+          maximum,
+          allocated: maximum + 1,
+        }),
+      ]);
+    },
+  );
+
+  it('rejects three rotor armor while accepting two for combat and support VTOLs', () => {
+    for (const unitType of [UnitType.VTOL, UnitType.SUPPORT_VEHICLE] as const) {
+      const input = {
+        unitType,
+        motionType: GroundMotionType.VTOL,
+        tonnage: 30,
+      };
+      expect(armorErrors({ ...input, armorAllocation: { Rotor: 2 } })).toEqual(
+        [],
+      );
+      expect(armorErrors({ ...input, armorAllocation: { Rotor: 3 } })).toEqual([
+        expect.objectContaining({
+          ruleId: 'VAL-VEHICLE-ARMOR-LOC',
+          location: 'Rotor',
+          maximum: 2,
+        }),
+      ]);
+    }
+  });
+
+  it('counts both installed turrets in one budget without separate turret maxima', () => {
+    expect(
+      armorErrors({
+        secondaryTurretType: TurretType.SINGLE,
+        armorAllocation: { Front: 15, Turret: 100, 'Turret 2': 100 },
+      }),
+    ).toEqual([]);
+  });
+
+  it('retains unavailable location guards', () => {
+    expect(
+      armorErrors({
+        turretType: TurretType.NONE,
+        turretEquipmentWeight: 0,
+        turretStructureWeight: 0,
+        armorAllocation: { Turret: 1 },
+      }),
+    ).toEqual([
+      expect.objectContaining({
+        ruleId: 'VAL-VEHICLE-ARMOR-LOC',
+        location: 'Turret',
+        maximum: 0,
+      }),
+    ]);
+  });
 });
