@@ -823,3 +823,27 @@ its source identity. The sweep found no mount with an unresolved heat value, so
 the path loses nothing. Support vehicles are outside this term: Java gives them
 no free sinks (TestSupportVehicle.java:917-931), and the support heat term
 depends on the 2.2-d support weight model.
+
+## Correction: miscellaneous heat for RISC, Nova CEWS and Spot Welder
+
+The earlier MiscType citation ending at line 1435 is incomplete. At pin
+48fcb2f64, `MiscType.getHeat` spans MiscType.java:1423-1441; lines 1436-1439
+return 2 for RISC Laser Pulse Module, Nova CEWS and Spot Welder. Resolve this
+heat by catalog id for non-weapon, non-ammunition items: Nova is cataloged as
+ECM, yet is a native MiscType. Weapon and ammunition categories never receive
+miscellaneous heat, even if their id matches a miscellaneous device.
+
+`TestEntity.java:974-977` skips Spot Welder heat for fusion-class and fission
+engines. Other known engines count its 2 heat. An unknown engine leaves the
+welder heat unresolved rather than guessing an exclusion. Miscellaneous heat
+is still added after linked-weapon heat so the laser-insulator zero guard
+keeps its existing ordering.
+
+Thirty synthetic Scorpion Light Tank BLKs pin six engine types against no
+added item, each individual device and all three together. Fusion, XL, Light
+and fission give counts 0/0/2/2/4 and paid mass 0 throughout. ICE gives counts
+and mass 0/2/2/2/6. Fuel cell gives those same counts and paid mass 0/1/1/1/5.
+Existing catalog masses already match Java (RISC 1 t, Nova 1.5 t, welder 2 t).
+No corpus vehicle mounts these devices; the 1,444-source heat sweep remains
+1,150 matching complete combat weights with the same 294 unavailable. Support
+vehicle sink mass remains the separate 2.2-d obligation.
