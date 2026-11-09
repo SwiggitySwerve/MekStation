@@ -6,6 +6,11 @@ import * as EquipmentLoaderService from '@/services/equipment/EquipmentLoaderSer
 import { TechBase } from '@/types/enums/TechBase';
 
 import { EquipmentNameResolver } from '../EquipmentNameResolver';
+import {
+  normalizeName,
+  normalizeNameWithTechBase,
+  stripQuantityPrefix,
+} from '../EquipmentNameResolverMappings';
 
 jest.mock('@/services/equipment/EquipmentLoaderService', () => ({
   getEquipmentLoader: jest.fn(() => ({
@@ -104,6 +109,34 @@ describe('EquipmentNameResolver loaded mappings', () => {
 
       const result = freshResolver.resolve('Unknown', 'Unknown Weapon');
       expect(result.found).toBe(true);
+    });
+  });
+});
+
+describe('equipment name normalization retains the existing tech prefix', () => {
+  it.each([
+    ['IS CASE II', 'caseii', TechBase.INNER_SPHERE],
+    ['CLCASEII', 'caseii', TechBase.CLAN],
+    ['Clan CASE II', 'caseii', TechBase.CLAN],
+    ['CASEII', 'caseii', undefined],
+    ['ISMediumlaser', 'mediumlaser', TechBase.INNER_SPHERE],
+    ['Medium-Laser', 'mediumlaser', undefined],
+  ] as const)(
+    'preserves the old normalized spelling for %s',
+    (name, normalizedName, techBase) => {
+      expect(normalizeName(name)).toBe(normalizedName);
+      expect(normalizeNameWithTechBase(name)).toEqual({
+        normalizedName,
+        techBase,
+      });
+    },
+  );
+
+  it('uses the existing quantity-prefix owner before reading tech', () => {
+    const { cleanType } = stripQuantityPrefix('2CLCASEII');
+    expect(normalizeNameWithTechBase(cleanType)).toEqual({
+      normalizedName: 'caseii',
+      techBase: TechBase.CLAN,
     });
   });
 });

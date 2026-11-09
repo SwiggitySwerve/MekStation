@@ -6,6 +6,8 @@
  * @spec unit-json.plan.md
  */
 
+import { TechBase } from '@/types/enums/TechBase';
+
 // ============================================================================
 // MEGAMEKLAB ITEM TYPE MAPPINGS
 // ============================================================================
@@ -489,10 +491,25 @@ export function stripQuantityPrefix(itemType: string): {
 /**
  * Normalize a name for fuzzy matching
  */
-export function normalizeName(name: string): string {
+export function normalizeNameWithTechBase(name: string): {
+  normalizedName: string;
+  techBase: TechBase | undefined;
+} {
+  const prefix = NAME_NORMALIZATION_PATTERNS[0].pattern.exec(name)?.[1];
   let result = name;
   for (const { pattern, replacement } of NAME_NORMALIZATION_PATTERNS) {
     result = result.replace(pattern, replacement);
   }
-  return result.toLowerCase();
+  return {
+    normalizedName: result.toLowerCase(),
+    techBase: prefix
+      ? prefix.toUpperCase() === 'IS'
+        ? TechBase.INNER_SPHERE
+        : TechBase.CLAN
+      : undefined,
+  };
+}
+
+export function normalizeName(name: string): string {
+  return normalizeNameWithTechBase(name).normalizedName;
 }
