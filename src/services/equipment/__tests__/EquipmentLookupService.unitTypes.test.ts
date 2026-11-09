@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { EquipmentCategory } from '@/types/equipment';
+
 import { getEquipmentLoader } from '../EquipmentLoaderService';
 import {
   getEquipmentLookupService,
@@ -47,9 +49,17 @@ it('keeps the catalog unit-type list on every browser weapon that has one', asyn
   // 46 Java registry weapons plus the ProtoMech LRM and SRM entries.
   expect(listed.size).toBeGreaterThanOrEqual(60);
 
-  const browser = new Map(service.getAllEquipment().map((e) => [e.id, e]));
+  // Ids are not unique: a launcher's ammunition can share its id (clan-lb-2-x-ac)
+  // and so can another record (clan-ams). Ammo never carries the list, so look at
+  // every non-ammunition record of the id for the one that does.
+  const nonAmmo = service
+    .getAllEquipment()
+    .filter((e) => e.category !== EquipmentCategory.AMMUNITION);
   for (const id of listed.keys()) {
-    expect({ id, types: browser.get(id)?.allowedUnitTypes }).toEqual({
+    const types = nonAmmo
+      .filter((e) => e.id === id)
+      .flatMap((e) => e.allowedUnitTypes ?? []);
+    expect({ id, types }).toEqual({
       id,
       types: expect.arrayContaining(['ProtoMech']),
     });
