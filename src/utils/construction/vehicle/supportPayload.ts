@@ -5,6 +5,7 @@ import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { getAmmunitionWeightEntry } from '@/utils/construction/equipmentBV/resolution';
+import { isFireWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 
 import { getVehicleHeatNeutralWeaponHeat } from './mountedWeight';
 import {
@@ -21,14 +22,6 @@ import {
   isInsulatorLinkableLaser,
   sumVehicleHeatLoad,
 } from './vehicleHeatLoad';
-
-const WEAPON_CATEGORIES = [
-  'Energy',
-  'Ballistic',
-  'Missile',
-  'Artillery',
-  'Capital',
-];
 
 /**
  * Pinned mass for a raw BLK mount token that a service-layer owner can identify
@@ -80,7 +73,7 @@ export function computeSupportPayloadWeights(
     const misidentified =
       item !== undefined &&
       !ammo &&
-      WEAPON_CATEGORIES.includes(item.category) &&
+      isFireWeaponCategory(item.category) &&
       item.allowedUnitTypes !== undefined &&
       !item.allowedUnitTypes.includes('Support Vehicle') &&
       !item.allowedUnitTypes.includes('Infantry');
@@ -102,7 +95,7 @@ export function computeSupportPayloadWeights(
       };
     }
     // TestEntity.java:716-724,753-769: an artillery ammo category is not a weapon.
-    const weapon = !ammo && WEAPON_CATEGORIES.includes(item.category);
+    const weapon = !ammo && isFireWeaponCategory(item.category);
     // TestSupportVehicle.java:980-988: a small vehicle's weapon beyond its first
     // clip adds (size - 1) x the infantry weapon's ammunition weight, a Java
     // constant the catalog does not carry. Report it, never guess it.
