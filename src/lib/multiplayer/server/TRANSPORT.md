@@ -72,6 +72,13 @@ broadcasts LobbyUpdated; it does not change the playing roster, side assignments
 campaign membership or human-seat grace handling. Registration uses the first
 free spectator slot id so removing a middle viewer cannot duplicate another slot.
 
+Only a viewer's registration is released. A co-op campaign seats its GM host in a
+spectator seat (`hostSeatKind: 'spectator'`) and membership comes from owned
+seats, so the seat held by `hostPlayerId` is the GM's membership, not a
+registration (`isViewerRegistrationSeat`): it survives a detach in every match
+status, and the GM's drop then follows the normal host path (migration is refused
+for a campaign GM). A normal host holds a playing seat and is never affected.
+
 Spectator departure retains delivery records, acknowledgements and cursor state
 by authenticated viewer identity, not slot id. A viewer must register again to
 regain membership, then resumes the same delivery numbering across rejoin and

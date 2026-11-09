@@ -23,6 +23,8 @@ import {
   findSpectatorSeat,
   isSpectatorPlayer,
   isSpectatorSeat,
+  isViewerRegistration,
+  isViewerRegistrationSeat,
   MAX_SPECTATORS_PER_MATCH,
   removeSpectatorSeat,
   spectatorSeats,
@@ -140,6 +142,42 @@ describe('spectator classification', () => {
     const seats = addSpectatorSeat(defaultSeats('1v1'), WATCHER);
     expect(seats.filter(isSpectatorSeat)).toHaveLength(1);
     expect(seats.filter((s) => !isSpectatorSeat(s))).toHaveLength(2);
+  });
+});
+
+describe('viewer registration classification', () => {
+  /** A 1v1 with Alice/Bob playing, the host in a spectator seat and a viewer. */
+  function gmMatch() {
+    let seats = readyOneVOne();
+    seats = addSpectatorSeat(seats, { playerId: 'pid_gm', displayName: 'GM' });
+    seats = addSpectatorSeat(seats, WATCHER);
+    return { hostPlayerId: 'pid_gm', seats };
+  }
+
+  it('treats a viewer as a registration', () => {
+    expect(isViewerRegistration(gmMatch(), WATCHER.playerId)).toBe(true);
+  });
+
+  it("never treats the host's own spectator seat as a registration", () => {
+    const match = gmMatch();
+    expect(isViewerRegistration(match, 'pid_gm')).toBe(false);
+    const seat = match.seats.find((s) => s.occupant?.playerId === 'pid_gm');
+    expect(seat && isViewerRegistrationSeat(seat, match.hostPlayerId)).toBe(
+      false,
+    );
+  });
+
+  it('is false for playing occupants and strangers', () => {
+    const match = gmMatch();
+    expect(isViewerRegistration(match, ALICE.playerId)).toBe(false);
+    expect(isViewerRegistration(match, 'pid_nobody')).toBe(false);
+  });
+
+  it('classifies seats, not players: an empty spectator seat is a registration slot', () => {
+    const empty = spectatorSeats(gmMatch().seats)[0];
+    expect(
+      isViewerRegistrationSeat({ ...empty, occupant: null }, 'pid_gm'),
+    ).toBe(true);
   });
 });
 

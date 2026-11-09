@@ -103,7 +103,10 @@ import {
   type IJournalAuthorityPrivacyGateWiring,
 } from './journalAuthorityAdmission';
 import { updateMatchSeats } from './lobby/seatUpdate';
-import { isSpectatorPlayer, removeSpectatorSeat } from './lobby/spectatorSeats';
+import {
+  isViewerRegistration,
+  removeSpectatorSeat,
+} from './lobby/spectatorSeats';
 import {
   MATCH_BASELINE_BRANCH_ID,
   MATCH_BASELINE_FIRST_GENERATION,
@@ -963,7 +966,9 @@ export class ServerMatchHost {
     // Socket admission can run while the queued drop is reading metadata.
     if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
       return;
-    if (isSpectatorPlayer(meta.seats ?? [], playerId)) {
+    // Only a viewer's registration is released; the co-op GM's own spectator
+    // seat is its membership and stays (see `isViewerRegistrationSeat`).
+    if (isViewerRegistration(meta, playerId)) {
       // Rechecked against the metadata at write time: a REST registration or
       // a reattach may have landed since the read above.
       const removal = await updateMatchSeats(
@@ -971,7 +976,7 @@ export class ServerMatchHost {
         this.matchId,
         (current) =>
           this.lifecycle.snapshotConnectedSince().has(playerId) ||
-          !isSpectatorPlayer(current.seats ?? [], playerId)
+          !isViewerRegistration(current, playerId)
             ? null
             : { seats: removeSpectatorSeat(current.seats ?? [], playerId) },
       );

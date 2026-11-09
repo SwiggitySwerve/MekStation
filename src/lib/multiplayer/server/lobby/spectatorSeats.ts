@@ -27,6 +27,8 @@ import {
   type IMatchSeat,
 } from '@/types/multiplayer/Lobby';
 
+import type { IMatchMeta } from '../IMatchStore';
+
 /**
  * A generous per-match spectator cap (design Open-Question resolution).
  * A popular match cannot exhaust server sockets with observers; a join
@@ -84,6 +86,41 @@ export function isSpectatorPlayer(
   playerId: string,
 ): boolean {
   return findSpectatorSeat(seats, playerId) !== null;
+}
+
+/**
+ * True iff `seat` is a spectator seat a VIEWER holds: one `POST /spectate`
+ * registered, released when the viewer's last socket detaches and swept at boot.
+ *
+ * The host's own spectator seat is not one. A co-op campaign creates its GM
+ * host in a spectator seat (`hostSeatKind: 'spectator'`), and match membership
+ * is derived from owned seats, so releasing that seat locks the GM out of an
+ * active match. This is safe to key on `hostPlayerId` because:
+ *   - a campaign GM never loses host privilege: host migration is refused for
+ *     one (`reconnection/HostMigration.ts` `refuseIfCampaignGm`, and for co-op
+ *     missions `meta.coopMission`), so the GM stays `hostPlayerId`;
+ *   - a normal host always holds a PLAYING seat, which `addSpectatorSeat`
+ *     refuses to double as a viewer registration, so its seat is never a
+ *     spectator seat to begin with.
+ * `multiplayerMatchHostSeat.test.ts` pins both facts.
+ */
+export function isViewerRegistrationSeat(
+  seat: IMatchSeat,
+  hostPlayerId: string,
+): boolean {
+  return isSpectatorSeat(seat) && seat.occupant?.playerId !== hostPlayerId;
+}
+
+/** True iff `playerId` holds a viewer-registration seat in this match. */
+export function isViewerRegistration(
+  meta: Pick<IMatchMeta, 'seats' | 'hostPlayerId'>,
+  playerId: string,
+): boolean {
+  return (meta.seats ?? []).some(
+    (seat) =>
+      isViewerRegistrationSeat(seat, meta.hostPlayerId) &&
+      seat.occupant?.playerId === playerId,
+  );
 }
 
 /**
