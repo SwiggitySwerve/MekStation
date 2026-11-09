@@ -20,8 +20,10 @@ import type { IProtoMech } from '@/types/unit/PersonnelInterfaces';
 
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
+import { PROTO_ARMOR_CODES } from './armorType';
 import {
   getProtoPlacementErrors,
+  getProtoArmorSlotErrors,
   type ProtoEquipmentPlacement,
 } from './mainGun';
 import {
@@ -29,7 +31,7 @@ import {
   getProtoMPCaps,
   isMyomerBoosterLegal,
 } from './movementCaps';
-import { getProtoMinimumWeight } from './weight';
+import { computeProtoWeight, getProtoMinimumWeight } from './weight';
 import {
   getProtoWeightClass,
   isChassisLegalForTonnage,
@@ -120,7 +122,18 @@ export function getProtoSourceConstructionErrors(unit: IProtoMech): string[] {
   const errors = validateProtoTonnage({
     tonnage: unit.weightPerUnit,
   }).findings.map((f) => f.message);
-  const minimumWeight = getProtoMinimumWeight(unit);
+  errors.push(
+    ...getProtoArmorSlotErrors(
+      unit.weightPerUnit,
+      unit.chassisType === ProtoChassis.QUAD,
+      unit.armorType,
+      unit.equipment,
+    ),
+  );
+  const minimumWeight =
+    unit.armorType === PROTO_ARMOR_CODES.ELECTRIC_DISCHARGE
+      ? (computeProtoWeight(unit).total ?? getProtoMinimumWeight(unit))
+      : getProtoMinimumWeight(unit);
   if (minimumWeight !== undefined && minimumWeight > unit.weightPerUnit) {
     errors.push(
       `Weight: ${(minimumWeight * 1000).toFixed(1)} kg is greater than ${(unit.weightPerUnit * 1000).toFixed(1)} kg`,

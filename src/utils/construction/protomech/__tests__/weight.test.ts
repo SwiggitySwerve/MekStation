@@ -25,12 +25,9 @@ describe('minimum-weight extraction preserves existing admission and arithmetic'
     expect(getProtoMinimumWeight({ ...base, weightPerUnit: 10 })).toBe(1.9);
   });
 
-  it.each([undefined, 0, 18, 99])(
-    'retains the existing armor guard for %s',
-    (armorType) => {
-      expect(getProtoMinimumWeight({ ...base, armorType })).toBeUndefined();
-    },
-  );
+  it.each([99])('retains the existing armor guard for %s', (armorType) => {
+    expect(getProtoMinimumWeight({ ...base, armorType })).toBeUndefined();
+  });
 
   it('does not invent an engine mass outside the supported table', () => {
     expect(

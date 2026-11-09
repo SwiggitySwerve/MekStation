@@ -20,6 +20,7 @@ import type { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 
 import { getEquipmentEntry } from '../equipmentBV';
+import { getProtoArmorDefinition, isProtoEDPArmorMount } from './armorType';
 import { PROTO_MAX_STANDARD_TONNAGE } from './weightClass';
 
 /** The store and the BV adapter name locations with identical strings. */
@@ -69,9 +70,37 @@ export function getProtoLocationSlotLimit(
   quad: boolean,
   ultra: boolean,
 ): number {
+  if (location === ProtoLocation.TORSO) return (ultra ? 3 : 2) * (quad ? 2 : 1);
   if (location === MAIN_GUN) return quad && ultra ? 2 : 1;
   if (ARMS.includes(location)) return quad ? 0 : 1;
   throw new Error(`Slot limit is not defined for ${location}`);
+}
+
+/** TestProtoMek.java:299-349 excludes ArmorType mounts, then adds armor slots. */
+export function getProtoArmorSlotErrors(
+  tonnage: number,
+  quad: boolean,
+  armorType: number | undefined,
+  placements: readonly ProtoEquipmentPlacement[],
+): string[] {
+  const armor = getProtoArmorDefinition(armorType);
+  if (!armor) return [`Unsupported ProtoMech armor type: ${armorType}`];
+  const used =
+    armor.torsoSlots +
+    placements.filter(
+      (mount) =>
+        mount.location === ProtoLocation.TORSO &&
+        !isProtoEDPArmorMount(mount.equipmentId) &&
+        protoMountTakesSlot(mount.equipmentId),
+    ).length;
+  const limit = getProtoLocationSlotLimit(
+    ProtoLocation.TORSO,
+    quad,
+    isProtoUltraheavyTonnage(tonnage),
+  );
+  return used > limit
+    ? [`Exceeds ${limit} slot limit in Torso (${used} mounted).`]
+    : [];
 }
 
 /**

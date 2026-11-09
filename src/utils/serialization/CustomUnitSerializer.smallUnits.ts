@@ -5,7 +5,6 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 import {
   mapProtoMechDefinitionToState,
   mapBattleArmorDefinitionToState,
-  PROTO_ARMOR_CODES,
 } from '@/services/units/unitLoaderService/smallUnitDefinitionMapper';
 import {
   BattleArmorLocation,
@@ -29,6 +28,7 @@ import {
   squadMotionTypeForMotive,
   totalTroopers,
 } from '@/utils/construction/infantry/platoonComposition';
+import { protoArmorContractType } from '@/utils/construction/protomech/armorType';
 
 import type { CustomUnitSaveIdentity } from './CustomUnitSerializer';
 
@@ -114,11 +114,7 @@ export function serializeCustomSmallUnitState(
             },
             movement: { cruiseMP: value.cruiseMP, jumpMP: value.jumpMP },
             armor: {
-              type: Object.entries(PROTO_ARMOR_CODES).find(
-                ([, code]) =>
-                  code ===
-                  (value.armorType || PROTO_ARMOR_CODES.STANDARD_PROTOMEK),
-              )?.[0],
+              type: protoArmorContractType(value.armorType),
               byLocation: Object.fromEntries(
                 Object.entries(value.armorByLocation).map(([key, points]) => [
                   location(key),
