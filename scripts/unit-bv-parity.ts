@@ -132,7 +132,7 @@ export const AGGREGATE_REL_TOLERANCE = 1e-9;
  * per-mount values as a count plus a descending list.
  */
 const WEAPON_TERM = /^((?:trooper\.\d+\.)?weapon)\.-?\d+\.([^.]+)\./;
-function foldWeaponTerms(terms?: IFigure['terms']): IFigure['terms'] {
+export function foldWeaponTerms(terms?: IFigure['terms']): IFigure['terms'] {
   if (!terms) return terms;
   const folded: NonNullable<IFigure['terms']> = {};
   const groups: Record<string, number[]> = {};
