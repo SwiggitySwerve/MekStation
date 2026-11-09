@@ -4,6 +4,7 @@ import { EquipmentCategory, type IEquipmentItem } from '@/types/equipment';
 
 import type { EquipmentFilters } from '../useEquipmentStore';
 
+import { useEquipmentStore } from '../useEquipmentStore';
 import { filterEquipment } from '../useEquipmentStore.filters';
 
 const FILTERS: EquipmentFilters = {
@@ -41,6 +42,21 @@ const names = (
   sort: Parameters<typeof filterEquipment>[3],
   items: IEquipmentItem[],
 ) => filterEquipment(items, FILTERS, UNIT, sort).map((entry) => entry.name);
+
+it('filters caller-local candidates without replacing or changing the default inventory', () => {
+  const inventory = [item('AC/10'), item('AC/2')];
+  const store = useEquipmentStore.getState();
+  store.clearFilters();
+  store.setUnitContext(null, null, []);
+  store.setEquipment(inventory);
+  expect(store.getFilteredEquipment()).toEqual(
+    store.getFilteredEquipment(inventory),
+  );
+  expect(store.getFilteredEquipment([inventory[0]])).toEqual([inventory[0]]);
+  expect(useEquipmentStore.getState().equipment).toBe(inventory);
+  expect(store.getFilteredEquipment()).toHaveLength(2);
+  expect(store.getFilteredEquipment([])).toEqual([]);
+});
 
 describe('catalog name sort', () => {
   const items = [
