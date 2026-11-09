@@ -98,6 +98,11 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 ## 2. Source semantics and approved vehicle corrections
 
 - [ ] 2.1 Add focused source-format deltas and failing fixtures for serialized engine/armor codes, technology flags, real subtypes, armor ordering and equipment qualifiers. Consolidate duplicate schema facts before changing output. (`unit-entity-model`: Faithful source-unit semantics)
+  - Landed #2982/#3003 require fighter heat-sink count/type source blocks,
+    preserving explicit zero, aliases and existing FixedWingSupport/SmallCraft
+    omission policies. Each PR's guarded conversion proof retained byte-identical
+    output across all 9,815 sources; neither ran a new BV comparison or closes
+    source semantics or validation.
 
   Landed #2956 preserves an explicit zero aerospace heat-sink source count;
   only absence uses the existing fallback. This is a source-boundary slice,
@@ -110,6 +115,19 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
   Complete hydration, equipment qualifiers and row 3.1 remain open.
   - Open: #2532 added the code-side equipment aliases and qualifier parsing, and the owner's 2026-11-02 and 2026-11-03 catalog rulings then let the catalog gaps be filled: #2577, #2592, #2594, #2597 and #2606 corrected values to pinned Java, #2600 and #2603 kept native Java alias identities and explicit custom precedence, and #2580 added 445 pinned-Java registry records, with #2613 running its resolution guard in CI. The UL-C2 real-catalog baseline (`src/services/units/__tests__/fixtures/realCatalog.unresolved.json`, main `a561ee53a`) lists 48 unresolved ids in the committed catalogs (BattleMechs 7, vehicles 5, aerospace 0, capital 10, battle armor 1, infantry 14, ProtoMechs 11), down from 151 at tick 5 (capital 112 to 10 by #2651, BattleMechs 8 to 7). Since then #2652 added the 33 prototype-only weapons, #2680 gave the generated launchers their pinned Java combat damage, #2687 added `kgPerShot` to battle armor ammunition, the follow-up 92 generator slices #2692 and #2719 added the remaining one-shot launchers, the one-offs and the Clan battle armor one-shots, #2714 matched the Clan BA SRM-3 BV to Java, and #2725 added pinned per-item vehicle slots as an additive field nothing reads yet. The rest of follow-up 92 (IS machine gun arrays, Clan Gauss ammo, prototypes) is open. That is a different count from the 1,457 distinct input ids over 1,596 dataset and family rows that tick 3 classified against the pinned registry (`unit-loading/L-EQ3/catalog-gaps.json`), and I did not reconcile the two. The 33 prototype-only records landed in #2652, and #2615 retired the ProtoMech `kgPerShot` and infantry kit-divisor stopgaps. Code-27 prototype ferro-aluminum has no schema name, and the Mixed tech base and `DOUBLE_CLAN` heat sinks are unmapped (follow-up 30). Strict converter tests now exist for battle armor (#2499), infantry (#2500) and ProtoMechs (#2505); their equipment-id resolution is open wherever the catalog lacks the entry.
 - [ ] 2.2 Implement installed vehicle engine rules and suspension in the owning modules and conversion/store callers; run affected BV and construction regressions and produce an in-memory data-impact report. (`battle-value-system`: Strict all-family numerical parity)
+  - Partial #2986 resolves Dune Buggy's launcher through its retained source
+    name without changing resolution precedence. Its editor weight vector becomes
+    complete; all other vectors, BV and validity remain unchanged. Forty native
+    support mass rows remain unresolved. Evidence:
+    `normal-work/P3-vehicle/dune-buggy-20261106/`.
+  - Partial #2994 transports complete native Tank weight into validation and
+    corrects armor-tech selection. Retained proof reports 1,444/1,444 vehicle
+    validity agreements, 9,813/9,815 globally, unchanged loads and exact BV
+    totals/aggregates. Tank mass is 1,007 exact plus 22 frozen underweights among
+    1,029 available totals; 57 remain unavailable. Frozen membership/totals/deltas:
+    `docs/audits/2026-11-07-p3-tank-weight-known-gaps.json`; proof:
+    `normal-work/P3-vehicle/tank-armor-tech-20261107/`. Complete mass parity and
+    the data-impact report remain open.
   - Partial #2870: combat Tank and ground-support equipment introduction
     diagnostics now share the native owner; invalid constructions stay loadable.
     Proof at `2589ff0a1bc1bc4451789891b717c639924e3979` on base `c76abe13a`:
@@ -122,6 +140,10 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
     `normal-work/P3-vehicle/resume-20261106/refresh-c76abe13/HANDBACK.json`.
   - Open: #2485, #2488 and #2508 now cover effective ratings, NONE/STEAM/BATTERY engines, the combat-tank handler's STEAM and BATTERY, the support-rating clamp and the false fusion error (follow-up 65 closed; support engine weight equals pinned Java on 227 of 227). #2520 added the first part of a support-vehicle construction weight model: chassis, structure, armor and fuel, with structure, engine and armor equal to Java on 227 of 227 ground support sources. #2523 then added controls, carrying space, heat sinks, amplifiers, equipment, weapons and ammunition (lane evidence, `unit-loading/L-SVW/part2/`, not re-run here): controls, heat sinks, carrying space and amplifiers equal Java on 227 of 227, but total support weight equals Java on only 172 of 227, with equipment (44 differ), weapons (38), ammunition (17) and misc (6) still wrong, mostly from missing ammo definitions and native aliases. 2 of the 8 recorded overweight disagreements remain (Estevez MBT and Debbie), and the 33 FixedWingSupport sources are outside the model (follow-up 60). The customizer keeps a second tonnage list (follow-up 55), and no data-impact report has been recorded.
 - [ ] 2.3 Implement controls, lift/dive and engine-specific heat sinks; make the true Tamerlane reference pass with independently correct terms. (`battle-value-system`: Strict all-family numerical parity)
+  - #2986/#2994 narrow identity and native Tank weight/validity gaps as recorded
+    under row 2.2. They do not complete engine-specific heat-sink rules, source
+    propagation or independently correct Tamerlane terms; the 22 frozen Tank
+    underweights remain follow-ups.
   - #2870 is partial introduction-diagnostic evidence only (row 2.2). It does
     not discharge engine-specific sinks/source propagation, independent
     controls/lift terms or complete construction proof; this row remains open.
@@ -168,6 +190,21 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 - [x] 2.21 Preserve known missile category independently of capacity metadata at the weapon attack boundary; verify its Gunnery Specialist to-hit effect through real hydration and isolate category-dependent targets in mixed volleys through declaration and serialized resolution, preserving shared context and legacy fallbacks. Complete native categories, multi-SPA precedence, ID/name-dependent volley effects and category propagation through tactical previews and committed human interactive attacks remain open. (`spa-combat-integration`: Gunnery SPA — Gunnery Specialist) Proof: #2412; tests: `src/utils/gameplay/__tests__/declareAttack.gunnerySpecialist.test.ts`, `weaponAttackBuilder.test.ts`; evidence: `2026-10-29/astra-coordinator/root-continuation/missile-category/comparison.json` (2,592 category-context comparisons), `ledger/slice-tests/jest.log`.
 
 - [ ] 2.22 Consolidate offensive ammo grouping/cap arithmetic across shared, ProtoMech and aerospace owners while preserving their distinct policies and all source outputs; then connect native ammunition identity, effective quantities and grouping with independent numerical proof. Defensive caps and incomplete native ammunition receive no parity credit. (`battle-value-system`: Offensive ammunition cap ownership)
+  - Partial #2985 retains native availability diagnostics for unmatched
+    ProtoMech ammunition without inventing caps or changing arithmetic; all 86
+    existing captures remain byte-identical. Its blocking-trust proof reports
+    exact BV for all 9,815 units and no census movement.
+  - Partial #2991 projects raw offensive caps for positive native ammunition
+    bins, closing 71 terms with no other movement. Retained blocking-trust proof
+    reports 4,224 matched / 5,591 diagnostic rows / 109,885 missing-local terms;
+    ProtoMechs remain 0/86/130. Existing capture fields and BV are unchanged.
+    Effective quantities, defensive caps, Sprite 3 indices and other-family
+    ammunition coverage remain open. Evidence:
+    `normal-work/P4-ammo/proto-cap-projection/PROOF.json`.
+  - Owner ruling (2026-11-08), `PARITY-PLAN.md` §9 O1: reproduce every per-term key,
+    including per-trooper battle armor, per-mount weapons, per-bin ammunition and
+    arcs, and infantry sub-terms. Missing projections remain required coverage;
+    total/aggregate equality does not discharge them.
   - Partial #2959 projects positive native ProtoMech ammunition availability:
     79 bins on 61 units close 71 missing terms, preserving old figures and cap
     arithmetic. Guarded proof at `74fdeb9d5bbfac42b7aaf156b259869a44f286d0`
@@ -197,12 +234,30 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 - [x] 3.0 Extend/consolidate existing schema ownership into a documented portable versioned design contract, explicit units/identities/extensions, migrations, examples and independent-consumer conformance tests; keep legacy syntax in adapters. (`unit-entity-model`: Portable versioned unit documents) Proof: #2610 (contract `docs/data/portable-unit-contract.md` and `schemaVersion`), #2612 (migrations and generated examples), #2614 (independent consumer); tests: `src/types/contracts/__tests__/unit.version.contract.test.ts`, `src/types/contracts/__tests__/portable-unit-migration.test.ts` (2 suites, 64 tests pass), `scripts/__tests__/test_portable_unit_reader.py` (10 tests OK), the independent reader CLI `python scripts/portable_unit_reader.py` over the committed catalogs and the seven examples (exit 0) and `scripts/generate-portable-unit-examples.ts --check` (no drift, exit 0); evidence: proven on the merged tree at main `86790ec24`, not on the fixed measurement SHA `4678ec34f`, because #2614 merged after it (`ledger/tick4/row30/`); lane evidence `unit-loading/L-PORT/HANDBACK.md` (r2).
   - Carried: the reader checks the committed documents against the JSON Schema and the contract text alone (no application imports). Legacy document syntax (flat armor, `BAR_N`, cached turret weights) is handled by the explicit migration in `src/utils/serialization/portableUnitDocument.ts`, which the contract describes; I did not audit the BLK and MTF converters for other legacy syntax.
 - [ ] 3.1 Extend existing schemas, family handlers and validators for every inventoried construction family; include invalid-but-loadable designs with explicit diagnostics and preserve unsupported records during rollout. (`unit-entity-model`: Faithful source-unit semantics)
+  - #2982/#3003 tighten fighter source admission only (row 2.1). #2994's
+    retained validity proof reaches 1,444/1,444 vehicles and 9,813/9,815 globally
+    (row 2.2); two nonvehicle disagreements remain. These are lane measurements,
+    not a fresh merged-tree all-family acceptance run.
   - #2956 preserves zero-sink source admission without changing validation.
     #2870's introduction-diagnostic and #2961's public vehicle-validity slices
     are recorded under rows 2.2 and 3.4; neither closes all-family validation.
   - [x] 3.1a Separate VTOL/SmallCraft BLK source loading from construction limits, retain original values and existing validation diagnostics, and reject unusable numeric fields. Verified all 170 pinned rows by source index/path/blob/SHA-256: 160 to 170 loaded, all 10 recovered rows construction-invalid, existing successful data and validation unchanged except unit diagnostic fields; 317 focused handler/parser/construction/BV assertions pass. This closes only this boundary slice; the all-family row, numerical parity and round trips remain open. (`unit-services`: VTOL and SmallCraft source loading diagnostics)
   - Open: vehicle, aerospace and capital converters and catalogs are on main (#2469, #2486). Battle armor and infantry now have strict converters (#2499, #2500) and committed catalogs of 1,188 and 1,820 designs (#2513, #2515), and their handlers accept the pinned sources (#2509). ProtoMechs have a strict converter and a registered family (#2505) and a committed catalog of 86 designs (#2526). Vehicle Java validity agrees for 1,423 of 1,444 designs (follow-up 60). #2568 compared validity per unit with the oracle's `construction.valid` for ProtoMechs, aerospace and capital (`unit-loading/L-VAL/`, lane figures, not re-run here). After it, ProtoMechs agree on all 86 (85 valid and 1 invalid in both; the corpus-load run on main `ac64a3330` also counts 1 invalid, `ledger/tick6/corpus-load/`). Aerospace has 596 valid in both, 6 valid here only, 1 valid in Java only and 17 FixedWingSupport sources with no local result (Java: 14 valid, 3 invalid). Capital has 350 valid in both and 44 valid here only. Mech validity work: #2607, #2608 and #2616 (mech critical slots against the selected cockpit) are on main, and so are #2620 (HVAC explosive penalty), #2622 (split-weapon criticals across adjacent locations), #2633 (13 introduction years) and #2634 (the Mek turret marker stripped from slot names). #2595 added the equipment introduction-year check for aerospace and fixed-wing sources (`AeroIntroYear.test.ts`), and #2647 and #2660 ported Java's armor and engine introduction-year checks for combat vehicles (#2647 flipped Fury CX-17 and #2660 Ground Car and Jeep, all toward Java, by the PR bodies' own guard runs; lane figures, not re-run). #2536 made the battle armor and infantry handlers' `validate` agree with the oracle's `construction.valid` on all 1,188 and all 1,820 sources (4 and 30 invalid, Java's diagnostic kept; `PersonnelValidity.test.ts` and `BattleArmorUnitHandler.validation.test.ts` pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; the corpus-load run counts the same 4 and 30, `ledger/tick6/corpus-load/`). Invalid-but-loadable diagnostics are therefore still unproven for aerospace (7 disagreements and 17 sources with no result) and capital (44 disagreements); vehicle validity was not re-compared here: follow-up 95 records 13 vehicles valid here and invalid in Java after #2635 (21 at #2475; a lane figure, not re-run), which the three flips of #2647 and #2660 would leave at 10 if the lane figures hold, with the Java weight, slot and compatibility checks (follow-up 95 (b) to (e)) still to port.
 - [ ] 3.2 Connect browser/Node canonical discovery and direct source imports to the same domain contract; correct field/discriminator mismatches at the boundary. (`unit-services`: Family-aware loading and persistence)
+  - Historical #2983 added MTF selection/drop and conflict-renaming through
+    the existing import API, with 53 focused tests including real SQLite/API/client
+    reload. `d21c8a55c` later deleted the unmounted `ImportUnitDialog` and its
+    tests; this does not establish a current browser file-import entry. The MTF
+    API survives; browser selection remains open.
+  - Partial #2993 adds ProtoMech BLK API import through the existing parser,
+    handler and shared validator. Seventy-seven tests include real SQLite/API/client
+    reload of 31 pinned fixtures, retained source facts and construction
+    diagnostics. Other BLK families receive explicit unsupported-type diagnostics;
+    their imports and the legacy runtime-object importer remain open.
+  - Owner ruling (2026-11-08), `PARITY-PLAN.md` §9 O2: extend the API to every BLK family
+    (capital read-only), mount a file-import entry on the unit library page, and
+    retire the legacy `IMTFImporter`. These are approved required follow-ups,
+    not implementation or acceptance claims from this intake.
   - Partial #2954: the MTF import API uses the existing parser and shared
     family-aware definition validator, then persists a new custom identity.
     Five focused suites/89 tests cover pinned source, real SQLite persistence
@@ -214,6 +269,20 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 - [x] 3.3 Prove semantic serialization/save/reload for each subtype, with multiplicity, topology and custom/source identities preserved. (`mtf-parity-validation`: All-family semantic round trips) Proof: #2546 (vehicles), #2550 (aerospace and small craft), #2561 (ProtoMechs and battle armor), #2567 (infantry), #2569 (family kept on force, roster and session references), #2518 and #2611 (capital ships: open, view, BV and print, read-only per owner ruling 3, `OWNER-RULINGS-20261030.md` "2026-11-03 (evening): tick-4 owner decisions" item 2); tests: `src/services/units/unitLoaderService/__tests__/vehicleMapping.test.ts`, `aerospaceSave.test.tsx`, `smallUnitSave.test.tsx`, `infantrySave.test.tsx`, `src/services/forces/__tests__/ForceRepository.helpers.test.ts`, `src/components/customizer/capital/__tests__/CapitalShipCustomizer.test.tsx`, `src/__tests__/service/printing/capitalRecordSheets.test.ts`, `capitalTemplated.test.ts`, `recordSheetFigures.test.ts` (all pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; some cases are skipped, see Carried); evidence: `unit-loading/UL-25a/`, `UL-25b/` and `UL-25c/` (lane figures, not re-run: the production mapper, serializer, JSON and mapper compare equal for 1,444 of 1,444 vehicles and 620 of 620 aerospace and small craft, and 86 of 86 ProtoMechs, 1,188 of 1,188 battle armor and 1,820 of 1,820 infantry pass semantic, BV and validity round trips), `ledger/tick6/corpus-load/` and `library-open/` (all 394 capital ships open read-only; the catalog replays open every battle armor, infantry and ProtoMech design), `ledger/tick6/run-1/delta-rows.jsonl` (capital BV: 246 exact, 6 within 1%, 3 farther, 139 defensive-only and labelled so).
   - Carried: the family on force and roster references covers vehicles and aerospace (#2569 rejects unsupported combat families, so battle armor, infantry, ProtoMechs and capital cannot yet be in a force; follow-up 32), and saved non-mech combat snapshots are not in #2569. The vehicle and aerospace proofs are mapper-level and integration cases; the browser journeys for eight families ran on the SHA in the main-push run (`customizer-library-open.spec.ts`, 52 tests passed; rows 4.2 and 4.4). `infantrySave.test.tsx` skips 1 case, `capitalTemplated.test.ts` runs 3 and skips 7 (skip counts as at tick 5, not re-counted): its pinned-mm-data cases need `RECORD_SHEET_PINNED_ASSETS` and the pin under `_scratch/upstream-pins-20261028/mm-data` holds no record sheet images, so only the repository-asset cases ran. Capital BV is complete for 255 of 394 designs (246 exact, 6 within 1%, 3 farther) and defensive-only for 139 (row 3.4).
 - [ ] 3.4 Run complete per-family construction/BV comparisons against matched references. Record per-unit and component differences, upstream failures and justified inapplicable metrics. (`battle-value-system`: Strict all-family numerical parity)
+  - #2985/#2991's retained ammunition proofs update the detailed census as
+    recorded under row 2.22; #2994's retained construction proof is recorded under
+    rows 2.2/3.1. None is a new merged-tree acceptance batch or complete component
+    parity.
+  - Test-only #3000 pins six canonical BV values and verifies the rule-derived
+    medium-laser increase. A temporary +1 BV mutant passed all 13 former adapter
+    tests but failed seven new exact assertions; the unmodified implementation
+    passes all 18 adapter tests. No production calculation or full-corpus proof
+    changed.
+  - Owner ruling (2026-11-08), `PARITY-PLAN.md` §9 O1: reproduce every per-term key,
+    including per-trooper battle armor, per-mount weapons, per-bin ammunition and
+    arcs, and infantry sub-terms. Trace-only omissions are not an accepted
+    substitute for the required projections; the final detailed comparison
+    remains required.
   - Accepted scoped refresh, recorded on main `4c5481001`: #2951 merged as
     `e86866ba2de11bbcc032a6a1a06087863d2bc37b`; its numerical execution was
     `45fc5728bd76b5e27526efa7a4b15c7f6df00a6c` on integrated base
@@ -255,6 +324,14 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 ## 4. Forms, layouts and connected workflows after data readiness
 
 - [ ] 4.1 Map upstream editor fields to local family descriptors; add correct forms, loading skeletons and location diagrams without fallback to unrelated editors. (`customizer-tabs`: Data-ready subtype editors)
+  - #2990/#2992 deliver printing from explicitly supplied tripod/QuadVee crew
+    rosters (row 4.3), superseding the earlier rendering deferral at that scope.
+    Crew-roster authoring and persistence remain open; supplied print identity
+    does not establish an editor workflow.
+  - Owner ruling (2026-11-08), `PARITY-PLAN.md` §9 O3: match the pinned MegaMekLab tabs
+    per family; sibling-editor reuse is acceptable. F4 (Mixed tech outside mechs),
+    F7 (fluff editing) and F11 (capital view fields) are deferred. This defines
+    the required editor scope without asserting that its forms are complete.
   - Deferred gap (Root ruling, 2026-11-06): tripod and QuadVee SPA printing
     remains open because the current print payload has one pilot and no
     crew-slot identity. Q-PILOT owns the required multicrew print-identity
@@ -267,6 +344,19 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 - [x] 4.2 Wire edits to domain calculations/validation and persist them through save/reopen for every family; retain canonical clone protection. (`customizer-tabs`: Data-ready subtype editors) Proof: #2590 (browser journeys for eight real catalog families), #2781 (canonical clone-protection journey), #2791 (mech Mixed Tech per-component tech bases kept through reopen), #2793 (saved aerospace `unitType` follows the Sub-Type), #2794 (ProtoMech tonnage moves into the chassis range on a chassis change), #2763 (Ultraheavy tonnage edit); capital ships under owner ruling 3 by open, view, BV and print (#2518, #2611). Evidence: manual nightly 41961957398 on main `5ae130546` (Full E2E Suite on the production standalone server): `customizer-library-open.spec.ts` passed 52 of 52, including 16 of 16 family journeys, each of which edits a value, checks the recomputed figure, saves to SQLite, reloads, reopens and checks the printed value (spec lines 980-985; three journeys set an explicit `edit:`, the other five edit `original - 1`). The clone journey fails at both widths when the canonical check is disabled (CI run 41977074910 on #2781, 56 of 56). Tests: `e2e/customizer-library-open.spec.ts`, `src/__tests__/unit/utils/serialization/CustomUnitSerializer.test.ts` (#2791 round trip and invalid value), `src/stores/__tests__/useAerospaceStore.subType.test.ts` (#2793 store, saved record and reopen), `src/stores/__tests__/useProtoMechStore.tonnage.test.ts` (#2794 chassis switch), and the store-level save tests `src/components/customizer/tabs/__tests__/openFromLibrary.test.tsx`, `src/services/units/unitLoaderService/__tests__/aerospaceSave.test.tsx`, `smallUnitSave.test.tsx` and `infantrySave.test.tsx`; evidence: `_reports/2026-10-30/claude-coordinator/ledger/rows-4x/` (`HANDBACK.md`, `AUDIT.md`, `nightly/`, `clone/`, `pr2781/`).
   - Carried: Mixed IS/Clan tech outside mechs is not modelled (`AUDIT.md` F4, held for the owner), so nothing of it is lost on save. Combat snapshots omit the new `componentTechBases` field by design. Unallocated mech armor tonnage dropping on reopen matches upstream, because MTF stores per-location points only. Editor completeness, the placeholder tabs and the unmapped fields are row 4.1.
 - [ ] 4.3 Populate/select the right record-sheet assets and verify location identities and figures against the same domain results. (`customizer-tabs`: Subtype workflow acceptance)
+  - Partial #2990/#2992 render explicit ordinary/superheavy tripod and QuadVee
+    crew identities, unequal skills and blank unassigned seats on Letter/A4,
+    retaining native crew-global SPA overdraw/overflow. Proofs retain 40 tripod
+    and 52 QuadVee SVG/PDF exports and unchanged controls. Three tripod preview
+    comparisons retain four isolated outside-mask pixels each, classified by Root
+    as a shared-preview raster artifact after zero-difference project-Chromium
+    diagnostics. Receipts:
+    `normal-work/P7-editors/tripod-native-crew/committed-proof.json` and
+    `normal-work/P7-editors/quadvee-native-crew/committed-proof.json`. Authoring,
+    persistence and other sheet gaps remain open.
+  - #2986 removes only Dune Buggy's final unresolved-equipment sheet residual;
+    all other residuals remain byte-identical. Seven vehicle `BV.source`
+    residuals remain.
   - Partial SPA printing: #2957 selects the native single-pilot quad region
     (16 SVG/PDF cases); #2965 extends this to single-pilot LAM Letter/A4
     (24 actual canonical SVG/PDF exports, prior biped/quad output retained).
@@ -293,6 +383,11 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
   - Accepted unshowable exception [#2545](https://github.com/SwiggitySwerve/MekStation/pull/2545): only adds an explicit return type to `getVehicleBVMovement`, erased at runtime; no tests were added or changed, and no behavior regression is claimed. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2545.md).
   - Accepted unshowable exception [#2547](https://github.com/SwiggitySwerve/MekStation/pull/2547): the PR's `mountedWeight.test.ts` tests also pass on the integration first parent with the test-only overlay; parent and merge each pass all 5 tests and exit 0, so no distinguishing red/green pair was shown. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2547.md). Documentation and validation receipts: `ledger/row51-owner-exceptions/`.
 - [ ] 5.2 Re-run the full source accounting and acceptance on the merged tree, reconcile all gaps, synchronize accepted specs and archive only after verified completion.
+  - Ledger intake records merged #2982, #3003, #2983, #2985, #2991, #2986,
+    #2990, #2992, #2993, #2994 and #3000 under their scoped rows, including the
+    later ImportUnitDialog deletion. All checkbox states remain unchanged.
+    No new corpus run, final acceptance, spec synchronization or archive is
+    claimed.
   - Landed intake at `6621e87bf`: #2953 aggregate CI reporting caps, #2963's
     five-comparable-sample minimum for aggregate review and #2964's flake-register
     update improve reporting; they establish no speed, stability or goal closure.
