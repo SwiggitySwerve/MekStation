@@ -3,6 +3,7 @@ import type { InfantryState } from '@/stores/infantryState';
 import type { ProtoMechState } from '@/stores/protoMechState';
 
 import { projectBattleArmorDefinition } from '@/services/units/unitLoaderService/battleArmorDefinitionProjection';
+import { projectInfantryDefinition } from '@/services/units/unitLoaderService/infantryDefinitionProjection';
 import {
   mapProtoMechDefinitionToState,
   mapBattleArmorDefinitionToState,
@@ -24,10 +25,7 @@ import {
   infantryEditorSchema,
 } from '@/types/unit/SmallUnitSerialization';
 import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
-import {
-  squadMotionTypeForMotive,
-  totalTroopers,
-} from '@/utils/construction/infantry/platoonComposition';
+import { squadMotionTypeForMotive } from '@/utils/construction/infantry/platoonComposition';
 
 import type { CustomUnitSaveIdentity } from './CustomUnitSerializer';
 
@@ -78,28 +76,10 @@ export function serializeCustomSmallUnitState(
     techBase: value.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
     rulesLevel: RULES_LEVEL[value.rulesLevel],
     ...(value.unitType === UnitType.INFANTRY
-      ? {
-          platoon: {
-            squadSize: value.squadSize,
-            squadCount: value.numberOfSquads,
-            totalTroopers: totalTroopers(value.platoonComposition),
-          },
-          motionType: value.motionType.toUpperCase(),
+      ? projectInfantryDefinition({
+          ...value,
           motiveType: squadMotionTypeForMotive(value.infantryMotive),
-          primaryWeapon: {
-            id: value.primaryWeaponId ?? value.primaryWeapon,
-            name: value.primaryWeapon,
-          },
-          secondaryWeapon: value.secondaryWeapon
-            ? {
-                id: value.secondaryWeaponId ?? value.secondaryWeapon,
-                name: value.secondaryWeapon,
-                count: value.secondaryWeaponCount,
-              }
-            : undefined,
-          armorKit: value.armorKit,
-          damageDivisor: value.damageDivisor,
-        }
+        })
       : value.unitType === UnitType.PROTOMECH
         ? {
             tonnage: value.tonnage,
