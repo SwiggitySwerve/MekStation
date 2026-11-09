@@ -6,7 +6,9 @@ weight-class labels, tonnage/MP caps and default-speed choices
 are retained below to keep modified requirements complete; their fidelity is
 not independently established by this slice. Native source projection is specified
 in the unit-services delta. Other component mass, equipment, production serialization and
-complete numerical/BV parity remain open.
+complete numerical/BV parity remain open. The Chassis Variants and Main Gun
+System requirements are modified only to replace the quad main-gun ban with the
+pinned slot limit.
 
 ### Requirement: Weight Classes
 
@@ -195,6 +197,50 @@ summed as points. Construction legality SHALL remain a separate diagnostic.
 - **AND** the duplicate's structure contribution to BV SHALL use those copied points
 - **AND** editing the duplicate's structure SHALL NOT alter the source's structure
 
+### Requirement: Chassis Variants
+
+The system SHALL support biped, quad, and glider ProtoMech configurations.
+
+#### Scenario: Biped (default)
+
+- **WHEN** creating a ProtoMech without specifying chassis variant
+- **THEN** `isQuad` SHALL be `false`
+- **AND** `isGlider` SHALL be `false`
+
+#### Scenario: Quad ProtoMech
+
+- **WHEN** the raw tag `quad` is `"true"` or `"1"` in a BLK document
+- **THEN** `isQuad` SHALL be set to `true`
+- **AND** a quad ProtoMech MAY mount a Main Gun, which SHALL hold one slot-taking mount, or two when the quad is also ultraheavy, as the ProtoMech Main Gun And Arm Placement requirement defines (MegaMek `TestProtoMek.java:594,620-621` at `48fcb2f64`)
+
+#### Scenario: Glider ProtoMech
+
+- **WHEN** the raw tag `glider` is `"true"` or `"1"` in a BLK document
+- **THEN** `isGlider` SHALL be set to `true`
+- **AND** glider ProtoMechs SHALL require at least 2 jump MP
+- **AND** validation SHALL produce an error if jump MP is less than 2: "Glider ProtoMechs require at least 2 jump MP"
+
+### Requirement: Main Gun System
+
+The system SHALL support an optional dedicated main gun mount.
+
+#### Scenario: Enabling main gun
+
+- **WHEN** `hasMainGun` is set to `true`
+- **THEN** the `Main Gun` location SHALL be available for equipment and armor
+- **AND** main gun presence SHALL be detected from equipment location during BLK parsing
+
+#### Scenario: Quad main gun limit
+
+- **WHEN** a quad ProtoMech has main gun equipment
+- **THEN** validation SHALL NOT report an error for the Main Gun's presence
+- **AND** the Main Gun SHALL hold one slot-taking mount, or two when the quad is also ultraheavy (above 9 tons), as the ProtoMech Main Gun And Arm Placement requirement defines (MegaMek `TestProtoMek.java:594,620-621` at `48fcb2f64`)
+
+#### Scenario: Main gun detection during parsing
+
+- **WHEN** parsing a BLK document
+- **THEN** `hasMainGun` SHALL be `true` if any equipment has location `Main Gun`
+
 ## ADDED Requirements
 
 ### Requirement: ProtoMech Engine Mass
@@ -353,4 +399,31 @@ finding SHALL NOT be rules.
 
 - **WHEN** checking torso, head or leg placement
 - **THEN** this requirement SHALL NOT enforce it, because the torso needs the armor slot and variable weights
-- **AND** the live `protomech-unit-system` statement that a quad cannot have a main gun SHALL be reconciled separately, because the pinned corpus contains a quad ultraheavy with one
+- **AND** the former statement that a quad cannot have a main gun is replaced by the Chassis Variants and Main Gun System requirements above, because the pinned verifier gives a quad one Main Gun slot (two when ultraheavy) and the pinned corpus contains a quad ultraheavy with one
+
+### Requirement: ProtoMech Auto Armor Allocation
+
+The construction owner SHALL place armor as MegaMekLab 62bf193 does in
+`PMStructureTab.autoAllocateArmor` and `allocateLeftoverPoints`, using the armor
+limits of the ProtoMech Armor Limits requirement. The proportional MekStation
+policy SHALL NOT remain.
+
+#### Scenario: Proportional pass and leftover order
+
+- **WHEN** allocating a point count to a ProtoMech
+- **THEN** each location SHALL first take its limit times the count over the total cap, truncated and never more than remain, in the order Head, Torso, Right Arm, Left Arm, Legs, Main Gun
+- **AND** a count above the total cap SHALL be treated as the cap
+- **AND** leftover points SHALL go one at a time to the torso, legs, head, then both arms, then the head again when a main gun is mounted
+- **AND** a Quad SHALL start the leftover with the legs and SHALL have no arm step
+
+#### Scenario: Points aimed at a full location
+
+- **WHEN** edited internal structure leaves the location limits unable to hold the count
+- **THEN** a leftover point aimed at a full location SHALL be dropped, as upstream drops it
+- **AND** the placed total SHALL NOT exceed the count or the cap
+
+#### Scenario: Agreement with MegaMekLab
+
+- **WHEN** the owner is run over the pinned table of 2,944 allocations from the original classes
+- **THEN** every location of every case SHALL equal the original result
+- **AND** the editor's Auto action, which passes no count, SHALL place the legal total

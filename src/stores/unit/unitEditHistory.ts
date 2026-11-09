@@ -1,5 +1,7 @@
 import { createStore, type StoreApi } from 'zustand/vanilla';
 
+import { isUnitDraftModified } from '@/stores/unitSaveState';
+
 import type { UnitActions, UnitStore } from '../unitState';
 
 import {
@@ -50,9 +52,7 @@ function createHistory(unit: StoreApi<UnitStore>): IHistoryController {
   const changed = (): boolean => {
     const state = unit.getState();
     const baseline = state.librarySave?.draftFingerprint ?? cleanFingerprint;
-    return (
-      baseline === undefined || getUnitDraftFingerprint(state) !== baseline
-    );
+    return isUnitDraftModified(() => getUnitDraftFingerprint(state), baseline);
   };
   const publish = (): void => {
     const next = {
@@ -99,9 +99,10 @@ function createHistory(unit: StoreApi<UnitStore>): IHistoryController {
       unit.setState({
         ...patch,
         lastModifiedAt: Date.now(),
-        isModified:
-          baseline === undefined ||
-          getUnitDraftFingerprint(restored) !== baseline,
+        isModified: isUnitDraftModified(
+          () => getUnitDraftFingerprint(restored),
+          baseline,
+        ),
       });
     } finally {
       depth--;

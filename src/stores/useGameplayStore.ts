@@ -44,6 +44,7 @@ import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 import { logger } from '@/utils/logger';
 
 import {
+  clearAttackComposerState,
   clearAttackIntentReducer,
   commitComposedVolleyLogic,
   focusTargetReducer,
@@ -65,7 +66,6 @@ import {
   setAttackTargetLogic,
   setPlannedMovementLogic,
   setPlannedWeaponModeLogic,
-  shouldClearAttackPlanOnPhaseChange,
   standActiveUnitLogic,
   togglePlannedWeaponLogic,
   type IAttackPlan,
@@ -234,6 +234,7 @@ interface GameplayActions {
   toggleWeapon: (weaponId: string) => void;
   clearError: () => void;
   reset: () => void;
+  clearComposerState: () => void;
   selectUnitForMovement: (unitId: string) => void;
   moveUnit: (unitId: string, targetHex: { q: number; r: number }) => void;
   selectWeapon: (weaponId: string) => void;
@@ -377,6 +378,18 @@ const initialState: GameplayState = {
   attackIntent: INITIAL_ATTACK_INTENT_STATE,
 };
 
+/** Discard local drafts without changing the session or selected unit. */
+function clearedComposerState(
+  state: Pick<GameplayState, 'ui'>,
+): Partial<GameplayState> {
+  return {
+    ...clearAttackComposerState(state.ui),
+    movementIntent: resetCompositionReducer(),
+    plannedMovement: null,
+    validMovementHexes: [],
+  };
+}
+
 // =============================================================================
 // Store
 // =============================================================================
@@ -463,6 +476,7 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   reset: () => {
     set(initialState);
   },
+  clearComposerState: () => set(clearedComposerState),
 
   // -------------------------------------------------------------------------
   // Interaction actions (delegated to useGameplayStore.interactions)
@@ -490,6 +504,10 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   // Phase / AI / engine handshake (delegated to useGameplayStore.helpers)
   // -------------------------------------------------------------------------
   handleAction: (actionId, payload) => {
+    if (actionId === 'cancel') {
+      get().clearComposerState();
+      return;
+    }
     const { session, ui, interactiveSession } = get();
     handleActionLogic(actionId, session, ui, set, interactiveSession, payload);
   },
@@ -746,32 +764,32 @@ export function useGameplaySelector<T>(
 }
 
 // ---------------------------------------------------------------------------
-// Phase-change side effects (task 1.2)
+// Composer context boundaries
 // ---------------------------------------------------------------------------
 
 /**
- * Per `add-attack-phase-ui` task 1.2: whenever the session's phase
- * transitions away from Weapon Attack, flush any in-progress attack
- * plan. The plan's target + weapon selections are scoped to that
- * phase — carrying them into Heat / End / Movement is meaningless and
- * would leak stale state onto the next attack phase.
- *
- * Implemented as a module-level Zustand subscription so it fires
- * regardless of which mutator drives the phase change (engine-driven
- * phase advance, skipPhase, runAITurn, setSession, etc.). We track
- * the previous phase across runs via a closed-over variable — that's
- * the canonical Zustand pattern for "derived effects on value
- * transitions".
+ * Every store entry path shares this synchronous boundary, including AI,
+ * recovery and phase updates. Same-context refreshes retain the draft.
+ * Selection helpers may already have derived overlays for the new unit;
+ * preserve those replacements while dropping overlays carried from the old unit.
  */
-let previousPhaseForAttackPlan: GamePhase | null = null;
-useGameplayStore.subscribe((state) => {
-  const nextPhase = state.session?.currentState.phase ?? null;
-  if (
-    shouldClearAttackPlanOnPhaseChange(previousPhaseForAttackPlan, nextPhase) &&
-    (state.attackPlan.targetUnitId !== null ||
-      state.attackPlan.selectedWeapons.length > 0)
-  ) {
-    state.clearAttackPlan();
-  }
-  previousPhaseForAttackPlan = nextPhase;
+useGameplayStore.subscribe((state, previous) => {
+  const sessionChanged = state.session?.id !== previous.session?.id;
+  const phaseChanged =
+    state.session?.currentState.phase !== previous.session?.currentState.phase;
+  const unitChanged = state.ui.selectedUnitId !== previous.ui.selectedUnitId;
+  if (!sessionChanged && !phaseChanged && !unitChanged) return;
+
+  const selectingUnit = unitChanged && !sessionChanged && !phaseChanged;
+  useGameplayStore.setState({
+    ...clearedComposerState(state),
+    validMovementHexes:
+      selectingUnit && state.validMovementHexes !== previous.validMovementHexes
+        ? state.validMovementHexes
+        : [],
+    validTargetIds:
+      selectingUnit && state.validTargetIds !== previous.validTargetIds
+        ? state.validTargetIds
+        : [],
+  });
 });

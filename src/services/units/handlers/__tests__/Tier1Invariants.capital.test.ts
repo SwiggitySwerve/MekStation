@@ -86,7 +86,7 @@ describe('DropShipUnitHandler Tier 1 Invariants', () => {
       sinkType: 0,
       engineType: 0,
       armorType: 0,
-      armor: [200, 150, 150, 120, 120, 80], // 820 total
+      armor: [250, 200, 190, 180], // 820 total (four values, BLKDropshipFile.java:192)
       crew: 21,
       officers: 5,
       gunners: 4,
@@ -97,7 +97,7 @@ describe('DropShipUnitHandler Tier 1 Invariants', () => {
       equipmentByLocation: {},
       transporters: ['mechbay:12', 'asfbay:2:1', 'cargobay:75.5:1'],
       rawTags: { dockingcollar: 'true' },
-      designType: 0,
+      designType: 1, // Military (Aero.java:437-438)
       ...overrides,
     };
   }
@@ -125,8 +125,8 @@ describe('DropShipUnitHandler Tier 1 Invariants', () => {
   });
 
   it('military design type costs more than civilian (same hull)', () => {
-    const military = handler.parse(makeDoc({ designType: 0 })); // Military
-    const civilian = handler.parse(makeDoc({ designType: 1 })); // Civilian
+    const military = handler.parse(makeDoc({ designType: 1 })); // Military
+    const civilian = handler.parse(makeDoc({ designType: 0 })); // Civilian
     expect(handler.calculateCost(military.data!.unit)).toBeGreaterThan(
       handler.calculateCost(civilian.data!.unit),
     );

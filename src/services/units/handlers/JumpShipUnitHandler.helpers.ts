@@ -4,22 +4,9 @@ import type { IJumpShip } from './JumpShipUnitHandler.types';
 
 import {
   buildCapitalCrewConfiguration,
-  parseCapitalArmorByArc,
   parseCapitalCrewQuarters,
-  parseCapitalEquipment,
   parseCapitalTransportBays,
 } from './capitalShipHandlerShared';
-
-export function parseArmorByArc(armor: readonly number[]): {
-  nose: number;
-  frontLeftSide: number;
-  frontRightSide: number;
-  aftLeftSide: number;
-  aftRightSide: number;
-  aft: number;
-} {
-  return parseCapitalArmorByArc(armor);
-}
 
 export function parseKFDrive(
   rawTags: Record<string, string | string[]>,
@@ -50,12 +37,6 @@ export function parseQuarters(
   document: IBlkDocument,
 ): ReturnType<typeof parseCapitalCrewQuarters> {
   return parseCapitalCrewQuarters(document);
-}
-
-export function parseEquipment(
-  document: IBlkDocument,
-): ReturnType<typeof parseCapitalEquipment> {
-  return parseCapitalEquipment(document);
 }
 
 export function parseNumericRaw(

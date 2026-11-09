@@ -160,7 +160,8 @@ function serializeEquipment(
   return equipment.map((item) => ({
     id: item.equipmentId,
     location: item.location ?? 'Unallocated',
-    ...(item.slots ? { slots: [...item.slots] } : {}),
+    // Split mounts are reconstructed from the complete critical grid on reopen.
+    ...(item.slots && !item.splitSlots ? { slots: [...item.slots] } : {}),
     isRearMounted: item.isRearMounted,
     isRemovable: item.isRemovable,
     isOmniPodMounted: item.isOmniPodMounted,
@@ -195,11 +196,7 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 
   for (const item of state.equipment) {
     if (!item.location || !item.slots) continue;
-    const parts = getSlotParts(item);
-    // Preserve existing split-weapon serialization while carrying every spreadable part.
-    for (const { location, slots } of item.spreadSlots
-      ? parts
-      : parts.slice(0, 1)) {
+    for (const { location, slots } of getSlotParts(item)) {
       const sourceSlots = getCriticalSlotsForLocation(projected, location);
       const locationSlots =
         result[location] ??

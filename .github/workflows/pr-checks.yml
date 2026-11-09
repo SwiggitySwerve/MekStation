@@ -530,7 +530,23 @@ jobs:
       - name: Build complete Linux installer and unpacked application
         if: ${{ !cancelled() }}
         working-directory: desktop
-        run: npx electron-builder --linux tar.gz --publish never
+        run: |
+          # @electron/get fetches fresh checksums even for cached Electron zips.
+          for attempt in 1 2 3; do
+            echo "Linux packaging attempt $attempt/3"
+            if npx electron-builder --linux tar.gz --publish never; then
+              exit 0
+            else
+              status=$?
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::Linux packaging failed after 3 attempts (exit $status)"
+              exit "$status"
+            fi
+            delay=$((attempt * 15))
+            echo "::warning::Linux packaging failed (exit $status); retrying in ${delay}s"
+            sleep "$delay"
+          done
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'

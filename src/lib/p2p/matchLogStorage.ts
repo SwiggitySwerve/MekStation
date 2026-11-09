@@ -9,17 +9,26 @@
  * @spec openspec/changes/add-game-session-persistence-for-reconnect/specs/multiplayer-sync/spec.md
  */
 
+import type {
+  IOutcomePublicationRecord,
+  IPendingOutcomePublication,
+} from '@/engine/combatOutcomeJournal';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import {
+  acknowledgeOutcomePublicationInDatabase,
+  readOutcomePublication,
+  validateOutcomePublicationIntent,
+} from './matchLogOutcomeJournal';
 import {
   deleteEventsForMatchInDatabase,
   matchSequenceRange,
   mergeMatchMetadata,
   migrateMatchLogDatabase,
   persistBatchInTransaction,
+  purgeOldMatchesInDatabase,
   requestToPromise,
   scheduleNextFrame,
-  shouldPurgeMatch,
   toStorageError,
   type IPendingEventWrite,
 } from './matchLogStorage.helpers';
@@ -93,6 +102,7 @@ export class MatchLogStorage {
   appendEvent = (
     matchId: string,
     event: IGameEvent,
+    outcomePublication?: IPendingOutcomePublication,
   ): Promise<IMatchEventRecord> => {
     const record: IMatchEventRecord = {
       matchId,
@@ -102,10 +112,22 @@ export class MatchLogStorage {
     };
 
     const promise = new Promise<IMatchEventRecord>((resolve, reject) => {
-      this.pendingEventWrites.push({ record, resolve, reject });
+      const pending =
+        outcomePublication === undefined
+          ? undefined
+          : validateOutcomePublicationIntent(
+              matchId,
+              event,
+              outcomePublication,
+            );
+      this.pendingEventWrites.push({
+        record,
+        outcomePublication: pending,
+        resolve,
+        reject,
+      });
+      this.schedulePendingFlush();
     });
-
-    this.schedulePendingFlush();
     return promise;
   };
 
@@ -277,61 +299,30 @@ export class MatchLogStorage {
     });
   };
 
+  getOutcomePublication = async (
+    matchId: string,
+    terminalEventId: string,
+  ): Promise<IOutcomePublicationRecord | undefined> =>
+    readOutcomePublication(await this.openDatabase(), matchId, terminalEventId);
+
+  acknowledgeOutcomePublication = async (
+    matchId: string,
+    terminalEventId: string,
+  ): Promise<void> => {
+    await this.flushPendingWrites();
+    await acknowledgeOutcomePublicationInDatabase(
+      await this.openDatabase(),
+      matchId,
+      terminalEventId,
+      this.now(),
+    );
+  };
+
   purgeOldMatches = async (
     retentionMs = MATCH_LOG_RETENTION_MS,
   ): Promise<IPurgeOldMatchesResult> => {
     const db = await this.openDatabase();
-    const nowMs = Date.parse(this.now());
-    const cutoff = (Number.isFinite(nowMs) ? nowMs : Date.now()) - retentionMs;
-
-    return new Promise<IPurgeOldMatchesResult>((resolve, reject) => {
-      const transaction = db.transaction(
-        [MATCH_LOG_STORES.MATCHES, MATCH_LOG_STORES.MATCH_EVENTS],
-        'readwrite',
-      );
-      const matchesStore = transaction.objectStore(MATCH_LOG_STORES.MATCHES);
-      const eventsStore = transaction.objectStore(
-        MATCH_LOG_STORES.MATCH_EVENTS,
-      );
-      const purgedMatchIds: string[] = [];
-      let purgedEventCount = 0;
-
-      const cursorRequest = matchesStore.openCursor();
-      cursorRequest.onsuccess = () => {
-        const cursor = cursorRequest.result;
-        if (!cursor) {
-          return;
-        }
-
-        const metadata = cursor.value as IMatchMetadataRecord;
-        if (shouldPurgeMatch(metadata, cutoff)) {
-          const range = matchSequenceRange(metadata.matchId);
-          purgedMatchIds.push(metadata.matchId);
-
-          const countRequest = eventsStore.count(range);
-          countRequest.onsuccess = () => {
-            purgedEventCount += countRequest.result;
-            eventsStore.delete(range);
-          };
-
-          cursor.delete();
-        }
-
-        cursor.continue();
-      };
-
-      transaction.oncomplete = () => {
-        resolve({ purgedMatchIds, purgedEventCount });
-      };
-      transaction.onerror = () => {
-        reject(
-          toStorageError('Failed to purge old matches', transaction.error),
-        );
-      };
-      transaction.onabort = () => {
-        reject(toStorageError('Old match purge aborted', transaction.error));
-      };
-    });
+    return purgeOldMatchesInDatabase(db, this.now(), retentionMs);
   };
 
   private async persistEventBatch(batch: IPendingEventWrite[]): Promise<void> {

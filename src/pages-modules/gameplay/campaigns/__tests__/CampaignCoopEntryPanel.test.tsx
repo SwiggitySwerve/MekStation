@@ -19,8 +19,12 @@ import {
   connectCampaignSyncTransport,
   getActiveCampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
+import * as presetService from '@/lib/campaign/presetService';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
+import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { CampaignType } from '@/types/campaign/CampaignType';
+import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 
 import { CampaignCoopEntryPanel } from '../CampaignCoopEntryPanel';
 
@@ -30,6 +34,13 @@ const mockFetch = jest.fn();
 jest.mock('next/router', () => ({
   useRouter: () => ({ push: mockRouterPush }),
 }));
+
+jest.mock('@/lib/campaign/presetService', () => {
+  const actual = jest.requireActual<typeof presetService>(
+    '@/lib/campaign/presetService',
+  );
+  return { ...actual, applyPreset: jest.fn(actual.applyPreset) };
+});
 
 jest.mock('@/components/ui', () => ({
   Button: ({
@@ -378,6 +389,41 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
         credentials: 'same-origin',
       },
     );
+  });
+
+  /** @spec openspec/changes/explain-coop-personnel-market/specs/coop-campaign-sync/spec.md */
+  it('explains that hiring needs an enabled personnel market for the Standard co-op preset', () => {
+    expect(
+      presetService.applyPreset(CampaignPreset.STANDARD, CampaignType.MERCENARY)
+        .personnelMarketStyle,
+    ).toBe(PersonnelMarketStyle.DISABLED);
+    render(<CampaignCoopEntryPanel />);
+
+    expect(
+      screen.getByText(
+        'This preset has no personnel market. Hiring recruits requires a preset with a personnel market enabled.',
+      ),
+    ).toBeVisible();
+    expect(mockCreateCampaign).not.toHaveBeenCalled();
+  });
+
+  it('hides the hiring hint when the resolved co-op preset enables a personnel market', () => {
+    const options = presetService.applyPreset(
+      CampaignPreset.STANDARD,
+      CampaignType.MERCENARY,
+    );
+    jest.mocked(presetService.applyPreset).mockReturnValueOnce({
+      ...options,
+      personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+    });
+    render(<CampaignCoopEntryPanel />);
+
+    expect(
+      screen.queryByText(
+        'This preset has no personnel market. Hiring recruits requires a preset with a personnel market enabled.',
+      ),
+    ).not.toBeInTheDocument();
+    expect(mockCreateCampaign).not.toHaveBeenCalled();
   });
 
   it('discloses the one-click co-op defaults near the create control', () => {

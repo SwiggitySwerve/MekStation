@@ -46,6 +46,8 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 import type { AddEquipmentAtLocationResult } from './unit/catalogEquipmentPlacement';
+import type { UnitEquipmentActions } from './unit/useUnitEquipmentStore';
+import type { ILibrarySaveReceipt } from './unitSaveState';
 
 // =============================================================================
 // Armor Allocation Types
@@ -227,12 +229,7 @@ export interface UnitState {
   readonly sourceDefinition?: IUnitDefinitionReference;
 
   /** Last confirmed library save/load, independent of original provenance. */
-  librarySave?: {
-    readonly id: string;
-    readonly version: number;
-    readonly fingerprint: string;
-    readonly draftFingerprint?: string;
-  };
+  librarySave?: ILibrarySaveReceipt;
 
   /** Combat role metadata carried by canonical/custom unit payloads. */
   role?: string;
@@ -438,18 +435,8 @@ export interface UnitActions {
     location: MechLocation,
   ) => AddEquipmentAtLocationResult;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (
-    instanceId: string,
-    location: MechLocation,
-    slots: readonly number[],
-  ) => void;
-  bulkUpdateEquipmentLocations: (
-    updates: ReadonlyArray<{
-      instanceId: string;
-      location: MechLocation;
-      slots: readonly number[];
-    }>,
-  ) => void;
+  updateEquipmentLocation: UnitEquipmentActions['updateEquipmentLocation'];
+  bulkUpdateEquipmentLocations: UnitEquipmentActions['bulkUpdateEquipmentLocations'];
   clearEquipmentLocation: (instanceId: string) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
   linkAmmo: (
