@@ -8,6 +8,45 @@
 
 ## ADDED Requirements
 
+### Requirement: Non-mech technology identity has one chassis-fact owner
+
+Non-mech runtime states SHALL support optional unit technology mode and chassis
+technology independently of their existing binary editor technology field.
+Absent identity fields SHALL remain absent in legacy drafts and pure-unit
+defaults. Draft persistence and existing duplicate actions SHALL preserve known
+identity without manufacturing defaults. The shared chassis accessor SHALL read
+`clanChassis` for battle armor and `componentTechBases.chassis` for other
+families; it SHALL NOT substitute another family's fact or a binary editor
+fallback for absent chassis evidence. This identity support SHALL NOT add Mixed
+editing controls or change native BLK export headers.
+
+#### Scenario: Battle armor owns its construction chassis flag
+
+- **GIVEN** a battle armor definition with boolean `clanChassis`
+- **WHEN** the shared accessor resolves its chassis technology
+- **THEN** it SHALL return Clan for true and Inner Sphere for false
+- **AND** a component chassis field SHALL NOT override that flag
+
+#### Scenario: A non-BA definition has explicit chassis evidence
+
+- **GIVEN** a non-BA definition with `componentTechBases.chassis`
+- **WHEN** the shared accessor resolves its chassis technology
+- **THEN** it SHALL return the declared binary side
+- **AND** an absent chassis field SHALL remain unknown even if a binary fallback or `clanChassis` is available
+
+#### Scenario: Legacy draft fingerprints retain their original bytes
+
+- **GIVEN** a legacy non-mech draft without technology identity fields
+- **WHEN** its persisted projection and save fingerprints are computed
+- **THEN** its existing literal draft and library fingerprints SHALL remain byte-identical
+- **AND** adding meaningful identity SHALL change the draft fingerprint
+
+#### Scenario: Draft hydration and copies preserve Mixed identity
+
+- **GIVEN** a non-mech state with Mixed mode and a known chassis technology
+- **WHEN** its browser draft is hydrated or its existing duplicate action runs
+- **THEN** both identity fields SHALL be preserved independently of temporary session identity
+
 ### Requirement: Versioned portable unit documents
 
 The canonical unit JSON Schema SHALL own the portable document version and its
