@@ -9,6 +9,7 @@ import {
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { isFixedOmniEquipment } from '@/utils/construction/equipmentMutationPolicy';
 
+import { getSlotParts } from './parts';
 import { getFixedSlotIndices } from './queries';
 import { findContiguousSlotStarts, type ArmActuatorConfig } from './topology';
 import { SlotAssignment, SlotOperationResult } from './types';
@@ -88,9 +89,17 @@ function organizeEquipment(
 
   for (const location of getLocationsForConfig(configuration)) {
     const locationEquipment = equipment
-      .filter(
-        (item) =>
-          item.location === location && item.slots && item.slots.length > 0,
+      .flatMap((item) =>
+        getSlotParts(item)
+          .filter((part) => part.location === location && part.slots.length > 0)
+          .map((part) => ({
+            ...item,
+            ...part,
+            criticalSlots:
+              item.splitSlots || item.spreadSlots
+                ? part.slots.length
+                : item.criticalSlots,
+          })),
       )
       .sort(comparator);
     if (locationEquipment.length === 0) continue;
@@ -108,7 +117,44 @@ function organizeEquipment(
     unassigned.push(...result.unassigned);
   }
 
-  return { assignments, unassigned };
+  const byPart = new Map(
+    assignments.map((part) => [`${part.instanceId}:${part.location}`, part]),
+  );
+  const mounted = new Map(equipment.map((item) => [item.instanceId, item]));
+  // A failed secondary portion must not leave neighbors compacted into the
+  // preserved primary portion. Keep the entire operation atomic in that case.
+  if (
+    unassigned.some(
+      (id) => mounted.get(id)?.splitSlots || mounted.get(id)?.spreadSlots,
+    )
+  )
+    return { assignments: [], unassigned: [...new Set(unassigned)] };
+  const complete = assignments.flatMap((primary) => {
+    const item = mounted.get(primary.instanceId);
+    if (
+      !item ||
+      primary.location !== item.location ||
+      unassigned.includes(item.instanceId)
+    )
+      return [];
+    const movePart = (
+      part: NonNullable<IMountedEquipmentInstance['splitSlots']>,
+    ) => ({
+      location: part.location,
+      slots:
+        byPart.get(`${item.instanceId}:${part.location}`)?.slots ?? part.slots,
+    });
+    return [
+      {
+        ...primary,
+        ...(item.splitSlots ? { splitSlots: movePart(item.splitSlots) } : {}),
+        ...(item.spreadSlots
+          ? { spreadSlots: item.spreadSlots.map(movePart) }
+          : {}),
+      },
+    ];
+  });
+  return { assignments: complete, unassigned: [...new Set(unassigned)] };
 }
 
 export function compactEquipmentSlots(

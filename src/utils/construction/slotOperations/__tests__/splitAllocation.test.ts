@@ -1,10 +1,15 @@
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 import { MechLocation as L } from '@/types/construction';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory as C } from '@/types/equipment';
 
-import { isSplittable, splitPartners } from '../splitAllocation';
+import {
+  findEquipmentSlotAssignment,
+  isSplittable,
+  splitPartners,
+} from '../splitAllocation';
 
 const weapon: IMountedEquipmentInstance = {
   instanceId: 'weapon',
@@ -42,4 +47,69 @@ it('keeps the loader adjacency for arms, torsos and head', () => {
     L.HEAD,
   ]);
   expect(splitPartners(L.HEAD)).toEqual([L.CENTER_TORSO]);
+});
+
+const free = new Map([
+  [L.LEFT_TORSO, [0, 1]],
+  [L.LEFT_ARM, [4, 5, 6, 7, 8, 9, 10, 11]],
+]);
+it('allocates one weapon across two adjacent contiguous portions', () => {
+  expect(findEquipmentSlotAssignment(weapon, L.LEFT_TORSO, free)).toEqual({
+    instanceId: weapon.instanceId,
+    location: L.LEFT_TORSO,
+    slots: [0, 1],
+    splitSlots: { location: L.LEFT_ARM, slots: free.get(L.LEFT_ARM) },
+  });
+});
+it.each([
+  new Map([
+    [L.LEFT_TORSO, [0, 1]],
+    [L.RIGHT_ARM, free.get(L.LEFT_ARM)!],
+  ]),
+  new Map([
+    [L.LEFT_TORSO, [0, 2]],
+    [L.LEFT_ARM, free.get(L.LEFT_ARM)!],
+  ]),
+  new Map([
+    [L.LEFT_TORSO, [0, 1]],
+    [L.LEFT_ARM, [4, 5, 6, 7, 8, 9, 10]],
+  ]),
+])(
+  'rejects non-adjacent, discontiguous or insufficient space (%p)',
+  (slots) => {
+    expect(
+      findEquipmentSlotAssignment(weapon, L.LEFT_TORSO, slots),
+    ).toBeUndefined();
+  },
+);
+it('does not split short weapons, physical weapons, LAMs or legs', () => {
+  expect(
+    findEquipmentSlotAssignment(
+      { ...weapon, criticalSlots: 7 },
+      L.LEFT_TORSO,
+      free,
+    ),
+  ).toBeUndefined();
+  expect(
+    findEquipmentSlotAssignment(
+      { ...weapon, category: C.PHYSICAL_WEAPON },
+      L.LEFT_TORSO,
+      free,
+    ),
+  ).toBeUndefined();
+  expect(
+    findEquipmentSlotAssignment(
+      weapon,
+      L.LEFT_TORSO,
+      free,
+      MechConfiguration.LAM,
+    ),
+  ).toBeUndefined();
+  expect(
+    findEquipmentSlotAssignment(
+      weapon,
+      L.LEFT_LEG,
+      new Map([...free, [L.LEFT_LEG, [4, 5]]]),
+    ),
+  ).toBeUndefined();
 });
