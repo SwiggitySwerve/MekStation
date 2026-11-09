@@ -40,6 +40,13 @@ type NativeTankWeightUnit = Pick<
   | keyof IVehicleTurretSourceContext
 >;
 
+/**
+ * MegaMek T_STRUCTURE_UNKNOWN (EquipmentType.java:138, 48fcb2f64). BLKTankFile
+ * stores a `-1` tag verbatim, and TestTank.getStructure:87-95 maps only `1` to
+ * Endo Steel, so `-1` weighs through Structure.getWeightStructure's Standard branch.
+ */
+const T_STRUCTURE_UNKNOWN = -1;
+
 /** Native-input transport into the shared construction owner. */
 export function computeNativeTankWeight(
   source: IBlkDocument,
@@ -48,7 +55,8 @@ export function computeNativeTankWeight(
   // Do not silently turn an unsupported native structure or armor into Standard.
   if (
     source.cruiseMP === undefined ||
-    unit.internalStructureType !== 0 ||
+    (unit.internalStructureType !== 0 &&
+      unit.internalStructureType !== T_STRUCTURE_UNKNOWN) ||
     unit.armorLayoutError
   )
     return undefined;
