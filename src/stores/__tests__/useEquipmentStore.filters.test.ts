@@ -133,6 +133,30 @@ describe('catalog-compatible ammunition', () => {
     expect(filtered([...catalog, item('AC/15')])).toContain(ac15Ammo.id);
   });
 
+  it.each(['Clan', 'ProtoMech'])(
+    'matches a same-tech fallback bin to a launcher displayed with (%s)',
+    (suffix) => {
+      const launcher = {
+        ...item(`LRM 3 (${suffix})`),
+        techBase: TechBase.CLAN,
+      };
+      const bin = { ...ammo('LRM 3 Ammo'), techBase: TechBase.CLAN };
+      expect(filtered([launcher, bin])).toContain(bin.id);
+      expect(
+        filtered([launcher, { ...bin, techBase: TechBase.INNER_SPHERE }]),
+      ).not.toContain(bin.id);
+      expect(
+        filtered([
+          launcher,
+          { ...bin, compatibleWeaponIds: ['other-launcher'] },
+        ]),
+      ).not.toContain(bin.id);
+      expect(
+        filtered([launcher, { ...bin, compatibleWeaponIds: [launcher.id] }]),
+      ).toContain(bin.id);
+    },
+  );
+
   it('keeps ammo-only search, category, weight and slot browsing independent of weapon presentation', () => {
     expect(
       filtered([ac10, ac10Ammo], {

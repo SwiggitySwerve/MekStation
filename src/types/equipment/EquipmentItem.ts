@@ -36,6 +36,7 @@ export interface IEquipmentItem extends Pick<
    * Unit types the catalog lists for this item (Java F_*_WEAPON and
    * F_*_EQUIPMENT flags). Absent means the catalog does not describe it, not
    * that every unit may mount it.
+   * An explicit empty list admits no unit types and must not become absent.
    */
   readonly allowedUnitTypes?: readonly string[];
   readonly special?: readonly string[];

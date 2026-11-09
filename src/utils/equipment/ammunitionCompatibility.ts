@@ -93,18 +93,31 @@ export function createAmmoWeaponMatcher(
 ): (ammunition: IEquipmentItem) => boolean {
   const mountedIds = new Set(weaponIds);
   const identities = new Set(weaponIds.map(normalizeIdentity));
+  const presentationAliases = new Set<string>();
   for (const item of equipment) {
     if (mountedIds.has(item.id) && isWeaponCategory(item.category)) {
       identities.add(normalizeIdentity(item.name));
+      // These catalog display suffixes are not part of the native bin's name.
+      // Limit added fallback aliases to the same tech base; declared IDs below
+      // remain authoritative, including when their list excludes this weapon.
+      const plainName = item.name.replace(/\s+\((?:Clan|ProtoMech)\)$/i, '');
+      if (plainName !== item.name) {
+        presentationAliases.add(
+          `${item.techBase}:${normalizeIdentity(plainName)}`,
+        );
+      }
     }
   }
   return (ammunition) => {
     if (ammunition.compatibleWeaponIds?.length) {
       return ammunition.compatibleWeaponIds.some((id) => mountedIds.has(id));
     }
-    return (
-      identities.has(ammunitionIdentity(ammunition.id)) ||
-      identities.has(ammunitionIdentity(ammunition.name))
+    return [ammunition.id, ammunition.name].some(
+      (name) =>
+        identities.has(ammunitionIdentity(name)) ||
+        presentationAliases.has(
+          `${ammunition.techBase}:${ammunitionIdentity(name)}`,
+        ),
     );
   };
 }

@@ -19,6 +19,7 @@ import {
   IAmmunition,
 } from '@/types/equipment';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
 import {
   getAllAmmunition as getAllAmmunitionFallback,
@@ -57,6 +58,8 @@ export interface IEquipmentLookupService {
   getAllAmmunition(): IAmmunition[];
   /** Existing BattleMech browser inventory; lookup/search retain additional misc items. */
   getAllEquipment(): IEquipmentItem[];
+  /** Family picker inventory; unknown applicability retains legacy browser membership. */
+  getBrowserEquipment(unitType: UnitType): IEquipmentItem[];
 
   // Source info
   getDataSource(): 'json' | 'fallback';
@@ -218,6 +221,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         id: ammo.id,
         name: ammo.name,
         category: EquipmentCategory.AMMUNITION,
+        allowedUnitTypes: ammo.allowedUnitTypes,
         techBase: ammo.techBase,
         rulesLevel: ammo.rulesLevel,
         weight: ammo.weight,
@@ -435,6 +439,13 @@ export class EquipmentLookupService implements IEquipmentLookupService {
       (item) => !this.lookupOnlyEquipment.has(item),
     ));
   };
+
+  getBrowserEquipment = (unitType: UnitType): IEquipmentItem[] =>
+    this.getEquipment().filter((item) =>
+      item.allowedUnitTypes === undefined
+        ? !this.lookupOnlyEquipment.has(item)
+        : item.allowedUnitTypes.includes(unitType),
+    );
 }
 
 // Singleton instance with lazy initialization
