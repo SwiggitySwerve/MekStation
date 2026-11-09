@@ -70,6 +70,24 @@ class MechConfigurationTest(unittest.TestCase):
         self.assertEqual(map_mech_config('QuadVee OmniMek'), 'QuadVee')
         self.assertEqual(map_mech_config('Quad OmniMek'), 'Quad')
 
+    def test_token_match_is_case_sensitive_like_java_contains(self):
+        # String.contains is case-sensitive, so only the exact token counts. The suffix after it is irrelevant,
+        # which is why `Tripod omnimek` is a Tripod while `tripod omnimek` has no token and is Biped.
+        for source, expected in (
+            ('tripod omnimek', 'Biped'),
+            ('quadvee omnimek', 'Biped'),
+            ('QUADVEE', 'Biped'),
+            ('Tripod omnimek', 'Tripod'),
+            ('QuadVee omnimek', 'QuadVee'),
+        ):
+            with self.subTest(config=source):
+                self.assertEqual(map_mech_config(source), expected)
+
+    def test_lower_case_tripod_omnimek_source_stays_biped(self):
+        unit = MTFParser()._parse_lines(
+            ['chassis:Ares', 'model:Test', 'Config:tripod omnimek', 'mass:135'], 'source.mtf')
+        self.assertEqual(unit.configuration, 'Biped')
+
     def test_unmatched_config_is_biped_like_the_java_else_branch(self):
         # contains() is case-sensitive in Java, so a lower-case token does not match either.
         for source in ('', 'Hexapod', 'tripod', 'quad'):
