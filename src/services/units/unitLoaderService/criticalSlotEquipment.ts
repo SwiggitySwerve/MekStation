@@ -16,6 +16,7 @@ import {
 } from '@/utils/construction/constructionRules/tonnage';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import {
   isSplittable,
   splitPartners,
@@ -470,6 +471,16 @@ export function restoreCriticalSlotEquipment(
         }
         continue;
       }
+      // Legacy saves may reserve more cells than the current entry demand.
+      // Keep that allocation for validation instead of inventing extra mounts.
+      if (
+        getSlotParts(mount).some((part) =>
+          part.slots.some(
+            (index) => claimed.get(part.location)?.has(index) === true,
+          ),
+        )
+      )
+        continue;
       const definition = resolvedByLocation
         .get(mount.location)
         ?.find(

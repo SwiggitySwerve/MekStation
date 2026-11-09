@@ -97,6 +97,27 @@ it('reserves an explicit later mount before recovering an earlier qualified moun
   expect(items[0]).toMatchObject({ slots: [3, 4, 5], isRearMounted: false });
   expect(items[1]).toMatchObject({ slots: [0, 1, 2], isRearMounted: true });
 });
+
+it.each([6, 10])(
+  'reserves every explicit cell of a legacy superheavy allocation (%i)',
+  (count) => {
+    const slots = Array.from({ length: count }, (_, index) => index);
+    const items = mapEquipment(
+      [{ id: 'ac-20', location: 'RIGHT_TORSO', slots, isRearMounted: true }],
+      TechBase.INNER_SPHERE,
+      TechBaseMode.INNER_SPHERE,
+      { RIGHT_TORSO: Array(10).fill('ISAC20 (R)') },
+      105,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      equipmentId: 'ac-20',
+      criticalSlots: 5,
+      slots,
+      isRearMounted: true,
+    });
+  },
+);
 it('joins native and legacy Claw identities without merging their mounts', () => {
   const items = load(
     { LEFT_ARM: ['ISClaw', 'Claws', 'ISClaw', 'Claws', 'ISClaw', 'Claws'] },

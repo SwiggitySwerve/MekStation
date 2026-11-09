@@ -44,6 +44,9 @@ Summary aliases consume one native mount each, including a split mount's inner
 location. Ammo tokens never enter the weapon census even when ids are shared.
 Explicit positions reserve their actual native group before missing groups are
 recovered, including a later same-type mount in the same location.
+Legacy superheavy saves can reserve more cells than the current entry demand.
+Keep those explicit cells for validation; never recover extra weapons over
+cells already reserved by existing equipment.
 Incomplete groups and unknown tokens stay in the critical grid; incomplete
 recognized weapons produce parser warnings. Source mount qualifiers remain
 in the raw grid; rear and Omni flags also use existing serialized fields.
