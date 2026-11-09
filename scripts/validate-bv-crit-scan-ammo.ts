@@ -26,30 +26,26 @@ export function processCritAmmoSlot(args: {
   unitTechBase: string;
 }): void {
   const { r, clean, lo, loc, ml, unitTechBase } = args;
-  const diagnosticId = normalizeMechBVSourceName(clean);
-  if (getMechDiagnosticAmmoBVGroup(diagnosticId)) {
+  // Legacy NARC facts retain raw source ids; supplemental facts use the shared
+  // qualifier cleanup. Both retain the same real, usable, resolved-zero guard.
+  const legacyNarc = ['NARC:1', 'INARC:1'].includes(
+    getNativeAmmoBVGroup(clean) ?? '',
+  );
+  const diagnosticId = legacyNarc ? clean : normalizeMechBVSourceName(clean);
+  if (legacyNarc || getMechDiagnosticAmmoBVGroup(diagnosticId)) {
     const ammo = resolveAmmoBV(diagnosticId);
     const bin = resolveNativeAmmoBin(diagnosticId);
-    if (ammo.resolved && ammo.battleValue === 0 && bin && bin.shots > 0)
-      (r.ammoDiagnosticBins ??= []).push({
+    if (ammo.resolved && ammo.battleValue === 0 && bin && bin.shots > 0) {
+      const fact = {
         id: diagnosticId,
         bv: ammo.battleValue,
         weaponType: ammo.weaponType,
         location: loc,
-      });
-  }
-  // Trace facts only: a real usable NARC/iNARC bin can have a resolved BV0.
-  // Keep the legacy arithmetic ammo admission and explosive handling unchanged.
-  if (['NARC:1', 'INARC:1'].includes(getNativeAmmoBVGroup(clean) ?? '')) {
-    const ammo = resolveAmmoBV(clean);
-    const bin = resolveNativeAmmoBin(clean);
-    if (ammo.resolved && ammo.battleValue === 0 && bin && bin.shots > 0) {
-      (r.ammoAvailableProjectionBins ??= []).push({
-        id: clean,
-        bv: ammo.battleValue,
-        weaponType: ammo.weaponType,
-        location: loc,
-      });
+      };
+      const facts = legacyNarc
+        ? (r.ammoAvailableProjectionBins ??= [])
+        : (r.ammoDiagnosticBins ??= []);
+      facts.push(fact);
     }
   }
   // Ammo
