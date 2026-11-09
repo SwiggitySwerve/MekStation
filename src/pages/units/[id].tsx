@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import type { UnitData } from '@/pages-modules/units/detail.types';
 
+import { loadUnitIntoTab } from '@/components/customizer/tabs/useMultiUnitTabsController.helpers';
 import {
   Badge,
   Button,
@@ -33,11 +34,52 @@ import {
   resolveWeightClass,
   type IParsedUnitFields,
 } from '@/pages-modules/units/detail.parse';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { mapCustomUnitIndexEntry } from '@/services/units/unitIndexMapper';
+import { isReadOnlyUnitDefinition } from '@/services/units/unitLoaderService/definitionTypes';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
 
 type BadgeVariant = React.ComponentProps<typeof Badge>['variant'];
 
 function UnitHeaderActions({ unit }: { readonly unit: UnitData }) {
   const typeDisplay = getUnitTypeDisplay(unit.unitType);
+  const router = useRouter();
+  const [opening, setOpening] = useState(false);
+  const [openError, setOpenError] = useState<string | null>(null);
+  const readOnly = isReadOnlyUnitDefinition({
+    family: unit.parsedData.family,
+    unitType: unit.unitType,
+  });
+  const openReadOnly = () => {
+    setOpenError(null);
+    setOpening(true);
+    void customUnitApiService
+      .list()
+      .then((entries) => {
+        const entry = entries.find((entry) => entry.id === unit.id);
+        if (!entry || !isReadOnlyUnitDefinition(entry))
+          throw new Error('The capital record is no longer in the library.');
+        return loadUnitIntoTab({
+          unit: mapCustomUnitIndexEntry(entry),
+          source: 'custom',
+          createTab: useTabManagerStore.getState().createTab,
+          navigateToTab: (tabId) => {
+            void router.push(`/customizer/${tabId}/overview`);
+          },
+          setIsLoadDialogOpen: () => undefined,
+          setIsLoadingUnit: setOpening,
+          showToast: (config) => {
+            if (config.variant === 'error') setOpenError(config.message);
+          },
+        });
+      })
+      .catch(() => {
+        setOpenError(
+          'Could not open this unit from the library. Please try again.',
+        );
+        setOpening(false);
+      });
+  };
 
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -49,12 +91,30 @@ function UnitHeaderActions({ unit }: { readonly unit: UnitData }) {
         <WeightClassBadge weightClass={resolveWeightClass(unit)} />
         <Badge variant="muted">{unit.rulesLevel.replace(/_/g, ' ')}</Badge>
       </div>
-      <Link href={`/customizer?id=${encodeURIComponent(unit.id)}`}>
-        <Button variant="secondary" size="sm">
-          <EditIcon className="mr-1 h-4 w-4" />
-          Edit
+      {readOnly ? (
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={opening}
+          aria-busy={opening}
+          onClick={openReadOnly}
+        >
+          {opening ? 'Opening…' : 'Open read-only'}
         </Button>
-      </Link>
+      ) : (
+        <Link href={`/customizer?id=${encodeURIComponent(unit.id)}`}>
+          <Button variant="secondary" size="sm">
+            <EditIcon className="mr-1 h-4 w-4" />
+            Edit
+          </Button>
+        </Link>
+      )}
+      {openError && (
+        <p role="alert" className="text-warning w-full">
+          {openError}
+        </p>
+      )}
     </div>
   );
 }
