@@ -25,9 +25,12 @@ import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 import { IInfantry, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
-import { getNativeAmmoBVGroup } from '../battleValueAmmo';
+import {
+  addBVToAmmoCapGroup,
+  calculateAmmoBVPools,
+  getNativeAmmoBVGroup,
+} from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
-import { calculateAmmoBVWithExcessiveCap } from '../battleValueOffensive';
 import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
 import { infantryBVTerms } from './bvTrace';
 import {
@@ -249,6 +252,10 @@ export function getInfantryMotiveMultiplier(motive: InfantryMotive): number {
 export function calculateInfantryFieldGunBV(
   fieldGuns: readonly InfantryFieldGunMount[] | undefined,
   onWeapon?: (battleValue: number, gun: InfantryFieldGunMount) => void,
+  onAmmo?: (pools: {
+    cap: Readonly<Record<string, number>>;
+    available: Readonly<Record<string, number>>;
+  }) => void,
 ): { weaponBV: number; ammoBV: number; total: number } {
   if (!fieldGuns || fieldGuns.length === 0) {
     return { weaponBV: 0, ammoBV: 0, total: 0 };
@@ -256,6 +263,7 @@ export function calculateInfantryFieldGunBV(
 
   const weapons: Array<{ id: string; bv: number }> = [];
   const ammoEntries: Array<{ id: string; bv: number; weaponType: string }> = [];
+  const cap: Record<string, number> = {};
 
   let weaponBV = 0;
   for (const gun of fieldGuns) {
@@ -265,7 +273,9 @@ export function calculateInfantryFieldGunBV(
         : resolveEquipmentBV(gun.id).battleValue;
     weaponBV += gunBV;
     onWeapon?.(gunBV, gun);
-    weapons.push({ id: getNativeAmmoBVGroup(gun.id) ?? gun.id, bv: gunBV });
+    const native = getNativeAmmoBVGroup(gun.id);
+    if (native) addBVToAmmoCapGroup(cap, native, gunBV);
+    weapons.push({ id: native ?? gun.id, bv: gunBV });
 
     for (const bin of gun.ammo ?? []) {
       const resolved = resolveAmmoBV(bin.id);
@@ -284,7 +294,11 @@ export function calculateInfantryFieldGunBV(
     }
   }
 
-  const ammoBV = calculateAmmoBVWithExcessiveCap(weapons, ammoEntries);
+  // Keep the legacy normalized inputs: resolving them again for diagnostic
+  // caps loses native identities. Retain caps at gun resolution instead.
+  const pools = calculateAmmoBVPools(weapons, ammoEntries);
+  const ammoBV = pools.total;
+  onAmmo?.({ cap, available: pools.available });
   return { weaponBV, ammoBV, total: weaponBV + ammoBV };
 }
 

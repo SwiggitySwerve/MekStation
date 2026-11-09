@@ -3,7 +3,10 @@ import personnel from '../../src/services/units/handlers/__tests__/fixtures/pers
 import { INFANTRY_BV_TRACE_FIELDS } from '../../src/types/unit/BVBreakdownTypes';
 import { getEquipmentEntry } from '../../src/utils/construction/equipmentBVResolver';
 import { baseInput } from '../../src/utils/construction/infantry/__tests__/infantryBV.test.helpers';
-import { calculateInfantryBV } from '../../src/utils/construction/infantry/infantryBV';
+import {
+  calculateInfantryBV,
+  calculateInfantryFieldGunBV,
+} from '../../src/utils/construction/infantry/infantryBV';
 import { aggregateDelta } from '../unit-bv-parity';
 import { calculateRow } from '../vehicle-aero-bv-delta';
 
@@ -302,4 +305,94 @@ test('strict replay keeps rejecting enumerable inherited unknown keys', () => {
   const input = { ...calculateInfantryBV(baseInput()) };
   Object.setPrototypeOf(input, { unknownTraceField: 1 });
   expect(schema.safeParse(input).success).toBe(false);
+});
+
+test('field-gun pool observation preserves excessive-ammo arithmetic and legacy shape', () => {
+  const guns = [
+    {
+      id: 'ac5',
+      bvOverride: 70,
+      ammo: [{ id: 'ac5-ammo', bvOverride: 180 }],
+    },
+  ];
+  const before = JSON.stringify(guns);
+  const onWeapon = jest.fn();
+  const onAmmo = jest.fn();
+  const result = calculateInfantryFieldGunBV(guns, onWeapon, onAmmo);
+  expect(result).toEqual({ weaponBV: 70, ammoBV: 70, total: 140 });
+  expect(calculateInfantryFieldGunBV(guns)).toEqual(result);
+  expect(onAmmo).toHaveBeenCalledTimes(1);
+  expect(onAmmo).toHaveBeenCalledWith({
+    cap: { 'AC:5': 70 },
+    available: { 'AC:5': 180 },
+  });
+  expect(onWeapon.mock.invocationCallOrder[0]).toBeLessThan(
+    onAmmo.mock.invocationCallOrder[0],
+  );
+  expect(JSON.stringify(guns)).toBe(before);
+});
+
+test('field-gun observations sum native launchers and bins independently by rack', () => {
+  const onAmmo = jest.fn();
+  expect(
+    calculateInfantryFieldGunBV(
+      [
+        {
+          id: 'ac10',
+          bvOverride: 123,
+          ammo: [{ id: 'ac10-ammo', bvOverride: 15 }],
+        },
+        {
+          id: 'ac10',
+          bvOverride: 123,
+          ammo: [{ id: 'ac10-ammo', bvOverride: 15 }],
+        },
+        { id: 'ac5', bvOverride: 70 },
+      ],
+      undefined,
+      onAmmo,
+    ),
+  ).toEqual({ weaponBV: 316, ammoBV: 30, total: 346 });
+  expect(onAmmo).toHaveBeenCalledWith({
+    cap: { 'AC:10': 246, 'AC:5': 70 },
+    available: { 'AC:10': 30 },
+  });
+});
+
+test('field-gun observations retain represented zeros and omit unknown identities', () => {
+  const onAmmo = jest.fn();
+  calculateInfantryFieldGunBV(
+    [
+      { id: 'ac5', bvOverride: 0, ammo: [{ id: 'ac5-ammo', bvOverride: 0 }] },
+      { id: 'unrepresented-field-gun', bvOverride: 10 },
+    ],
+    undefined,
+    onAmmo,
+  );
+  expect(onAmmo).toHaveBeenCalledWith({
+    cap: { 'AC:5': 0 },
+    available: { 'AC:5': 0 },
+  });
+  onAmmo.mockClear();
+  for (const guns of [undefined, []]) {
+    expect(calculateInfantryFieldGunBV(guns, undefined, onAmmo)).toEqual({
+      weaponBV: 0,
+      ammoBV: 0,
+      total: 0,
+    });
+  }
+  expect(onAmmo).not.toHaveBeenCalled();
+});
+
+test('weapon observer still runs before native gun identity is read', () => {
+  const gun = { id: 'ac5', bvOverride: 70 };
+  const onAmmo = jest.fn();
+  calculateInfantryFieldGunBV(
+    [gun],
+    () => {
+      gun.id = 'ac10';
+    },
+    onAmmo,
+  );
+  expect(onAmmo).toHaveBeenCalledWith({ cap: { 'AC:10': 70 }, available: {} });
 });
