@@ -395,34 +395,39 @@ test.describe('co-op campaign UI audit', () => {
         await hostPage
           .getByTestId('create-coop-password-input')
           .fill(HOST_PASSWORD);
-        const hostTokenResponse = hostPage.waitForResponse(
-          (response) =>
-            response.url().includes('/api/multiplayer/auth/token') &&
-            response.request().method() === 'POST' &&
-            response.status() === 200,
-          { timeout: 30_000 },
-        );
-        const createMatchResponse = hostPage.waitForResponse(
-          (response) =>
-            response.url().endsWith('/api/multiplayer/matches') &&
-            response.request().method() === 'POST' &&
-            response.status() === 201,
-          { timeout: 30_000 },
-        );
-        await Promise.all([
+        // Start body reads as soon as headers arrive: navigation can discard
+        // Chromium's response-body handles before the dashboard is ready.
+        const hostTokenBody = hostPage
+          .waitForResponse(
+            (response) =>
+              response.url().includes('/api/multiplayer/auth/token') &&
+              response.request().method() === 'POST' &&
+              response.status() === 200,
+            { timeout: 30_000 },
+          )
+          .then(async (response) => (await response.json()) as ITokenResponse);
+        const createMatchBody = hostPage
+          .waitForResponse(
+            (response) =>
+              response.url().endsWith('/api/multiplayer/matches') &&
+              response.request().method() === 'POST' &&
+              response.status() === 201,
+            { timeout: 30_000 },
+          )
+          .then(
+            async (response) =>
+              (await response.json()) as ICreateCoopMatchResponse,
+          );
+        const [hostToken, created] = await Promise.all([
+          hostTokenBody,
+          createMatchBody,
           hostPage.waitForURL(/\/gameplay\/campaigns\/[^/]+$/, {
             timeout: 30_000,
           }),
           hostPage.getByTestId('create-coop-campaign-btn').click(),
         ]);
 
-        const hostToken = (await (
-          await hostTokenResponse
-        ).json()) as ITokenResponse;
         hostWireToken = hostToken.token;
-        const created = (await (
-          await createMatchResponse
-        ).json()) as ICreateCoopMatchResponse;
         matchId = created.matchId;
         const roomCode = created.roomCode ?? created.meta.roomCode ?? null;
         expect(roomCode).toMatch(/^[A-Z0-9]{6}$/);
