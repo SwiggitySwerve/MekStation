@@ -118,6 +118,22 @@ describe('MTFExportHelpers', () => {
       expect(() => formatTechBase('MIXED')).toThrow('chassis-tech-context');
     });
 
+    it.each([
+      ['INNER_SPHERE', 'Mixed (IS Chassis)'],
+      ['CLAN', 'Mixed (Clan Chassis)'],
+    ] as const)('formats MIXED with explicit %s chassis', (chassis, header) => {
+      expect(formatTechBase('MIXED', chassis)).toBe(header);
+    });
+
+    it.each([null, '', 'MIXED', 'Clan', 'Inner Sphere', ' CLAN ', 1, {}])(
+      'rejects invalid Mixed chassis context %p',
+      (chassis) => {
+        expect(() =>
+          Reflect.apply(formatTechBase, undefined, ['MIXED', chassis]),
+        ).toThrow('chassis-tech-context');
+      },
+    );
+
     it('formats INNER_SPHERE to "Inner Sphere"', () => {
       expect(formatTechBase('INNER_SPHERE')).toBe('Inner Sphere');
     });
