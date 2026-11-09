@@ -46,7 +46,6 @@ import { type ISerializedStructure } from '@/types/unit/UnitSerialization';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 import ares from '../../../public/data/units/battlemechs/6-dark-age/experimental/Ares ARS-V1 Zeus.json';
-import drizella from "../../../public/data/units/battlemechs/6-dark-age/standard/Hunchback HBK-LGN-Pin 'Drizella'.json";
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
@@ -57,6 +56,19 @@ jest.mock('@/services/equipment/EquipmentFileReader', () => ({
       ),
     ),
 }));
+
+// Keep the named data dependency readable by the Jest cache key scanner.
+const drizella = parseUnit(
+  JSON.parse(
+    readFileSync(
+      join(
+        process.cwd(),
+        "public/data/units/battlemechs/6-dark-age/standard/Hunchback HBK-LGN-Pin 'Drizella'.json",
+      ),
+      'utf8',
+    ),
+  ),
+);
 
 const donorStructure = (): ISerializedStructure => {
   // Native declarations from mm-data 50f7efe Drizella; no catalog regeneration.
