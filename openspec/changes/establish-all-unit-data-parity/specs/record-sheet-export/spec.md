@@ -261,7 +261,8 @@ QuadVee without an explicit roster SHALL extract two unassigned seats
 (`PrintMek.java:343-348` shows the dual-seat panel regardless of names), and
 an explicit or authored roster SHALL print its named seats. The `quadvee` type
 SHALL use the quad armor and structure pip groups, which the QuadVee template carries.
-Tripod, Quad and Biped payloads SHALL NOT have a roster inferred.
+Quad and Biped payloads SHALL NOT have a roster inferred; a Tripod is covered by
+the native Tripod requirement below.
 
 #### Scenario: QuadVee without crew
 
@@ -276,9 +277,27 @@ Tripod, Quad and Biped payloads SHALL NOT have a roster inferred.
 - **WHEN** the unit is reopened and printed
 - **THEN** the named seats print on the QuadVee template
 
-#### Scenario: Tripod without crew remains open
+### Requirement: Native Tripod blank seats
 
-- **GIVEN** a tripod with no explicit roster
+A Tripod without an explicit roster SHALL extract its native crew with every seat
+unassigned: TRIPOD (Pilot, Gunner) at 100 tons or less and SUPERHEAVY_TRIPOD
+(Pilot, Gunner, Tech Officer) above 100 tons. MegaMek 48fcb2f64
+`TripodMek.java:115-117` selects the crew type by `isSuperHeavy()`
+(`Mek.java:7167`, weight > 100), and MegaMekLab 62bf193 `PrintMek.java:343-348`
+shows the dual or triple Warrior Data panel by slot count whether or not names
+are assigned. An explicit or authored roster SHALL print its named seats. The
+default SHALL come from the same single rule as the QuadVee default, and Quad and
+Biped payloads SHALL NOT have a roster inferred.
+
+#### Scenario: Tripod without crew
+
+- **GIVEN** a Tripod payload with no roster at exactly 100 tons, and at 101 tons or more
+- **WHEN** the sheet is extracted and printed on Letter or A4
+- **THEN** 100 tons prints the two-seat panel and above 100 tons the three-seat panel, every seat unassigned
+- **AND** no template placeholder text is printed in a seat
+
+#### Scenario: Legacy Biped-labelled tripod remains open
+
+- **GIVEN** a mech labelled Biped that carries center-leg armor, which the editor projection treats as a tripod
 - **WHEN** the sheet is printed
-- **THEN** it still prints the legacy single-pilot panel, a required gap against MegaMekLab's native two- or three-seat panel
-- **AND** this gap is carried until a seat-less Tripod prints its native seats
+- **THEN** it keeps the biped sheet; whether MegaMek classifies such a unit as a Tripod is not established here and is carried as an open finding
