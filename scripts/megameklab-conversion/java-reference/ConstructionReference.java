@@ -1,6 +1,10 @@
 import java.lang.reflect.Method;
 import java.util.*;
 import megamek.common.battleArmor.BattleArmor;
+import megamek.common.equipment.AmmoMounted;
+import megamek.common.equipment.Mounted;
+import megamek.common.units.ConvInfantry;
+import megamek.common.units.InfantryMount;
 import megamek.common.verifier.*;
 
 /** Read native contributions only; never sum the overlapping legacy weightMethods map. */
@@ -25,6 +29,44 @@ public final class ConstructionReference {
         for (String method : methods) terms.put(method, number(verifier, method));
     }
 
+    /**
+     * Mirrors the static TestInfantry.getWeightExact at MegaMek 48fcb2f6 (TestInfantry.java:565-674). Its terms are
+     * locals with no getter seam, so the formula is repeated from public accessors and the caller's reconstruction
+     * against calculateWeightExact rejects any drift. The half-ton ceiling (:670) is report-only: no rounding term.
+     */
+    static void infantryWeights(Map<String, Double> terms, ConvInfantry infantry) {
+        InfantryMount mount = infantry.getMount();
+        int troopers = Math.max(0, infantry.getInternal(ConvInfantry.LOC_INFANTRY));
+        if (mount != null) { // :584-596; a mounted unit adds no field weapons or ammo
+            if (mount.size().troopsPerCreature > 1) {
+                terms.put("mount.weight", mount.weight() * infantry.getSquadCount());
+                terms.put("mount.trooperGear", 0.2 * infantry.getSquadSize() * infantry.getSquadCount());
+            } else {
+                terms.put("mount.weight", mount.weight() * troopers);
+                terms.put("mount.trooperGear", 0.2 * troopers);
+            }
+            return;
+        }
+        double base = switch (infantry.getBaseMovementMode()) { // :601-629
+            case INF_MOTORIZED -> 0.195;
+            case HOVER, TRACKED, WHEELED -> 1.0;
+            case VTOL -> infantry.hasMicrolite() ? 1.4 : 1.9;
+            case INF_JUMP -> 0.165;
+            case INF_UMU -> infantry.getActiveUMUCount() > 1 ? 0.295 : 0.135;
+            case SUBMARINE -> 0.9;
+            default -> 0.085; // INF_LEG and everything else
+        };
+        terms.put("trooper.base", troopers * base);
+        if (infantry.hasSpecialization(ConvInfantry.COMBAT_ENGINEERS)) terms.put("trooper.combatEngineers", troopers * 0.1);
+        if (infantry.hasSpecialization(ConvInfantry.PARATROOPS)) terms.put("trooper.paratroops", troopers * 0.05);
+        if (infantry.hasSpecialization(ConvInfantry.PARAMEDICS)) terms.put("trooper.paramedics", troopers * 0.05);
+        if (infantry.hasAntiMekGear()) terms.put("trooper.antiMekGear", troopers * 0.015);
+        List<Mounted<?>> fieldWeapons = infantry.activeFieldWeapons(); // :657
+        for (int i = 0; i < fieldWeapons.size(); i++) terms.put("fieldWeapon." + i, fieldWeapons.get(i).getTonnage());
+        List<AmmoMounted> ammo = infantry.getAmmo(); // :658
+        for (int i = 0; i < ammo.size(); i++) terms.put("ammo." + i, ammo.get(i).getTonnage());
+    }
+
     static Map<String, Double> weights(TestEntity verifier) throws Exception {
         Map<String, Double> terms = new LinkedHashMap<>();
         // Audited calculateWeightExact owners at MegaMek 48fcb2f6; no capacity or overlapping subterms.
@@ -43,6 +85,8 @@ public final class ConstructionReference {
                 "getWeightSail", "getWeightControls", "getWeightFuel", "getWeightHeatSinks", "getWeightArmor",
                 "getWeightFireControl", "getWeightMiscEquip", "getWeightWeapon", "getWeightAmmo", "getWeightCarryingSpace",
                 "getWeightHardpoints", "getWeightQuarters", "getWeightGravDecks", "getWeightLifeBoats");
+        } else if (verifier instanceof TestInfantry) {
+            infantryWeights(terms, (ConvInfantry) verifier.getEntity());
         } else if (verifier instanceof TestSmallCraft) {
             put(terms, verifier, "getWeightStructure", "getWeightEngine", "getWeightControls", "getWeightFuel",
                 "getWeightHeatSinks", "getWeightArmor", "getWeightMisc", "getWeightMiscEquip", "getWeightWeapon",
@@ -83,7 +127,6 @@ public final class ConstructionReference {
         try {
             double total = number(verifier, "calculateWeightExact");
             result.put("weightTotal", total);
-            if (verifier instanceof TestInfantry) throw new UnsupportedOperationException("Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending");
             Map<String, Double> terms = weights(verifier);
             if (terms.isEmpty() || terms.values().stream().anyMatch(v -> !Double.isFinite(v))) throw new IllegalStateException("Empty/nonfinite weight terms");
             double remainder = total - terms.values().stream().mapToDouble(Double::doubleValue).sum();

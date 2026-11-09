@@ -1,6 +1,6 @@
 # Unit source import
 
-`importBLKDefinition` admits `protomechs`, `vehicles` and `aerospace` through the existing BLK
+`importBLKDefinition` admits `protomechs`, `vehicles`, `aerospace` and `battlearmor` through the existing BLK
 parser, family handlers and shared definition validator. Vehicles dispatch to the
 combat-vehicle, VTOL or support handler using the parser's discriminator, including
 LargeSupportTank and SupportVTOL. Aerospace uses the fighter, conventional-fighter,
@@ -10,6 +10,14 @@ Aerospace armor retains the handler's arcs in `armor.byArc`, and movement retain
 safe/max thrust. Heat sinks retain their count and use the native BV adapter's
 shared `resolveBlkAerospaceHeatSinkType` mapping for the contract identity.
 Full native facts and construction diagnostics remain in `blkSource`.
+Battle armor uses `BattleArmorUnitHandler` and the shared
+`projectBattleArmorDefinition` projection also consumed by custom editor saves.
+Its contract tonnage is the nominal trooper count, with armor retained both as
+`armorPerTrooper` and `armor.perTrooper`. Squad size, class, chassis, movement,
+manipulators, mount flags and ordered equipment retain the current handler facts;
+original native qualifiers and entity locations remain in the source snapshots.
+Projection does not decode additional native mount effects or replace handler
+movement/manipulator interpretation with converter semantics.
 Other BLK families are explicitly unsupported until their serial slices land.
 Capital remains unsupported in this slice; its eventual import will be read-only
 under owner ruling O2.
@@ -20,7 +28,8 @@ document, the complete handler unit and diagnostics. The definition projects
 armor, movement and ordered equipment into the shared shape; native syntax,
 original mount IDs/blocks and source-only fields remain in the snapshot.
 `src/types/formats/blk-armor-codes.json` owns native armor-code-to-contract tags
-for Python conversion and direct BLK import, including BAR. The editor-specific
+for Python conversion and vehicle/aerospace BLK import, including BAR. Battle armor
+reuses the existing `battleArmorContractArmorType` compatibility mapping. The editor-specific
 encoder/decoder retains its existing supported subset and compatibility aliases.
 ProtoMech import retains its existing `PROTO_ARMOR_CODES` admission subset.
 Shared schema defaults do not certify native mount effects. Blank native model names
@@ -48,6 +57,12 @@ original-byte vehicle fixtures and eight aerospace sources through real SQLite,
 the saved-unit API/client and shared definition reload, including pinned invalid
 designs with retained construction diagnostics. Aerospace covers fighters,
 conventional fighters, aerodyne/spheroid small craft and small/large FixedWingSupport.
+Eight original-byte battle armor sources cover IS/Clan, squad sizes 1/3/4/5/6,
+all five weight classes, biped/quad, jump/ground/UMU/VTOL, manipulators and AP
+mounts. The Water Elemental Mining Suit remains loadable with its armor-date
+diagnostic. A separately labelled **synthetic** modular-mount source supplements
+these fixtures: none of the 1,188 pinned sources encodes a modular mount in its
+equipment blocks. This synthetic case makes no claim of pinned modular coverage.
 Other BLK families and browser BLK selection remain separate work.
 
 The legacy `IMTFImporter` runtime-object interface and `MTFImportService` are
