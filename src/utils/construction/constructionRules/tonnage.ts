@@ -10,15 +10,14 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
-import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
 
 import type { ConstructionStepResult, MechBuildConfig } from './types';
 
-import { ceilToHalfTon } from '../../physical/weightUtils';
 import { calculateArmorWeight } from '../armorCalculations';
 import { calculateEngineWeight } from '../engineCalculations';
 import { calculateGyroWeight } from '../gyroCalculations';
 import { calculateHeatSinkWeight } from '../heatSinkCalculations';
+import { calculateStructureWeight } from '../structureCalculations';
 
 /**
  * Determine if a unit is a Superheavy BattleMech based on tonnage.
@@ -131,10 +130,9 @@ export function calculateArmor(
  * Calculate total weight of structural components
  */
 export function calculateStructuralWeight(config: MechBuildConfig): number {
-  const structureWeight = ceilToHalfTon(
-    config.tonnage *
-      (getInternalStructureDefinition(config.internalStructureType)
-        ?.weightMultiplier ?? 0.1),
+  const structureWeight = calculateStructureWeight(
+    config.tonnage,
+    config.internalStructureType,
   );
   const engineWeight = calculateEngineWeight(
     config.engineRating,

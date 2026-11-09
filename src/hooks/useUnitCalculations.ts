@@ -34,7 +34,7 @@ import {
   calculateJumpJetWeight,
   calculateJumpJetSlots,
 } from '@/utils/construction/movementCalculations';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+import { calculateStructureWeight } from '@/utils/construction/structureCalculations';
 
 // =============================================================================
 // Types
@@ -117,9 +117,10 @@ export function useUnitCalculations(
     );
 
     // Structure weight
-    const structureWeight = structureDef
-      ? ceilToHalfTon(tonnage * structureDef.weightMultiplier)
-      : ceilToHalfTon(tonnage * 0.1);
+    const structureWeight = calculateStructureWeight(
+      tonnage,
+      selections.internalStructureType,
+    );
 
     // Cockpit weight
     const cockpitWeight = cockpitDef?.weight ?? 3;

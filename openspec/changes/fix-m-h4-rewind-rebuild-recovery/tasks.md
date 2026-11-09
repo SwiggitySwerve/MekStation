@@ -26,6 +26,13 @@
 - [x] 15. Mark the host and the seated players when boot recovery folds an activated rewind branch; no persistence.
 - [x] 16. Kill the no-mark, host-only, every-recovery and spectator mutants; run the full affected directories and gates.
 
+## Follow-up D-2b / D-2d: closed-host guard and reserved `waiting-effects`
+
+- [x] 17. Record failing regressions: rebuilding a closed host rewrites its session and claims the branch; the route still calls the rebuild on a closed registered host; a host that closes while the rebuild is queued is rebuilt anyway.
+- [x] 18. Guard `rebuildFromActivatedBranch` inside the command queue and have the route treat a closed host as no live host.
+- [x] 19. Document `waiting-effects` as reserved for the effect-receipt change (contract comment, event-store requirement); no code or schema change (D-2d).
+- [x] 20. Kill the no-host-guard, no-route-guard and call-time-guard mutants; run the full affected directories and gates.
+
 ## Follow-up D-3a: campaign retroactive correction candidates
 
 - [x] 21. Record failing regressions: replay divergence, verification refusal, sealer failure and an escaping error leave the candidate `building`; an unsealed stranded candidate is never swept; guards that a sealed candidate and a lease-less commit leave candidates alone.
@@ -35,5 +42,5 @@
 ## Remaining follow-ups (separate PRs)
 
 - [x] D-2c: resync marks lost on restart (above).
-- [ ] D-2b: closed-host guard on the rebuild; `waiting-effects` (D-2d) is reserved for the effect-receipt change.
+- [x] D-2b and D-2d: closed-host guard on the rebuild; `waiting-effects` is reserved for the effect-receipt change (above).
 - [ ] D-3b: the coordinated-outcome target strands `building` candidates (D-3a, the campaign retro builder, is done above).

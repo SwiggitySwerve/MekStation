@@ -32,6 +32,16 @@ A GM combat rewind SHALL move the correction candidate it built to `blocked` whe
 - **WHEN** a new combat rewind reaches activation
 - **THEN** the stranded candidate SHALL be `blocked` and the new candidate SHALL still be `building`
 
+### Requirement: Waiting-Effects Is Reserved
+
+The `waiting-effects` branch status SHALL stay in the status ladder, the transition table and the storage constraint, and no production writer SHALL set it until the cross-stream effect-receipt change defines the unresolved old-generation effect or delivery that a candidate waits on. A candidate that cannot be activated SHALL move from `building` directly to `blocked`.
+
+#### Scenario: The ladder keeps the reserved status
+
+- **GIVEN** the branch status contract
+- **WHEN** a reader looks for the status that holds a candidate behind an unresolved effect
+- **THEN** `waiting-effects` SHALL be present, documented as reserved, and legal only between `building` and `blocked` or `effective`
+
 ### Requirement: Failed and Stranded Campaign Retroactive Correction Candidates Are Blocked
 
 A campaign retroactive correction SHALL move the candidate it built to `blocked` when replay diverges, verification refuses it, the impact sealer fails, or an unexpected error escapes after the candidate exists, while it still holds the correction lease, and SHALL return the same refusal or rethrow the same error it would have otherwise. A failure to move the candidate SHALL NOT replace that refusal or error. After acquiring its lease and before building its own candidate, a campaign retroactive correction SHALL move every other `building` candidate on the same stream that has no sealed impact manifest to `blocked`. It SHALL NOT change a candidate with a sealed manifest, which awaits activation, SHALL NOT change a branch that is not `building`, and SHALL NOT sweep when it did not acquire the lease.
