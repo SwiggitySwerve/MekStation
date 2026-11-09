@@ -151,10 +151,8 @@ describe('M2 — Active Match Recovery on Startup', () => {
     await makeActiveHost(store, 'recover-a');
     await makeActiveHost(store, 'recover-b');
     // A completed match must NOT be recovered.
-    await store.createMatch({
-      ...activeMeta('done-x'),
-      status: 'completed',
-    });
+    await store.createMatch(activeMeta('done-x'));
+    await store.closeMatch('done-x');
 
     const result = await recoverActiveMatches(store);
     expect(result.hosts.size).toBe(2);

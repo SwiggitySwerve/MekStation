@@ -15,6 +15,7 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { assertMatchCreateStatus } from '@/types/multiplayer/MatchStatus';
 
 import type {
   IMatchCommandBatch,
@@ -121,6 +122,7 @@ export class InMemoryMatchStore
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    assertMatchCreateStatus(meta.status);
     meta = lobbyMatchMeta(meta);
     this.assertRoomCodeAvailable(meta);
     const sequences = new Set<number>();
