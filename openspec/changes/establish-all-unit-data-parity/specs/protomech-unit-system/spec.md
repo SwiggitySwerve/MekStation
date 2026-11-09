@@ -494,3 +494,31 @@ diagnostics. Tech filtering remains deferred under owner ruling O3.
 - **WHEN** calculating the 86 pinned canonical ProtoMechs
 - **THEN** handler and shared-dispatch BV SHALL each equal the actual pinned Java total
 - **AND** no construction-validity result SHALL move away from the pinned Java verdict
+
+### Requirement: ProtoMech Movement Construction Rules
+
+ProtoMech movement validity SHALL be the rules of pinned MegaMek `48fcb2f64` `TestProtoMek.correctMovement` (TestProtoMek.java:445-464) and `maxJumpMP` (TestProtoMek.java:84-92), implemented once in a pure owner that source validation and the editor validation rules both call. The owner SHALL NOT apply the weight-class walk and jump caps, a glider weight limit, a ban on an ultraheavy jumping, or a Myomer Booster weight class, none of which the pinned verifier has.
+
+#### Scenario: Jump and UMU cap
+
+- **WHEN** a ProtoMech's jump MP or UMU count is validated
+- **THEN** each SHALL be at most its original walk MP, or at most 1.5 times that rounded up when an Extended Jump Jet System (`S_IMPROVED`, MiscType.java:2054-2060) is mounted
+- **AND** a violation SHALL read "Exceeds maximum jump MP." or "Exceeds maximum UMU MP."
+- **AND** the Extended Jump Jet System SHALL be recognized by one predicate in the owner, because the equipment catalog has no entry or flag for it
+
+#### Scenario: Glider and quad minimums
+
+- **WHEN** a glider's running MP is below 4, or a quad's is below 3
+- **THEN** validation SHALL report "Glider ProtoMeks have a minimum flanking MP of 4." or "Quad ProtoMeks have a minimum running MP of 3."
+- **AND** the glider and quad checks SHALL be exclusive, as in the verifier
+
+#### Scenario: Agreement with the pinned verifier
+
+- **WHEN** the production handler validates the 86 canonical ProtoMechs and the 20 pinned synthetic variants of `fixtures/movement-java-verdicts.json`
+- **THEN** its movement findings SHALL equal Java's `correctMovement` verdict and message for every one
+- **AND** no validity result of a canonical unit SHALL move, since the 86 already agree with Java
+- **AND** a change that adds a finding SHALL only add one Java also reports
+
+#### Scenario: Scope boundary
+
+- **THEN** the editor's weight-class input clamps, the Structure tab's ultraheavy jump lock and the unwired Myomer weight-class label SHALL remain outside this requirement, for the separate editor-limits item that cites MegaMekLab's own spinner limits
