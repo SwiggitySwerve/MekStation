@@ -44,6 +44,7 @@ function createAvailableSlotsByLocation(
   gyroType: GyroType,
   configuration: MechConfiguration,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): AvailableSlotsByLocation {
   const availableByLocation: AvailableSlotsByLocation = new Map();
   for (const location of getLocationsForConfig(configuration)) {
@@ -56,6 +57,7 @@ function createAvailableSlotsByLocation(
         gyroType,
         equipment,
         armActuators,
+        cockpitType,
       ).filter((index) => index < slotCount),
     );
   }
@@ -166,6 +168,7 @@ export function fillUnhittableSlots(
   gyroType: GyroType,
   configuration: MechConfiguration = MechConfiguration.BIPED,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
 
@@ -180,6 +183,7 @@ export function fillUnhittableSlots(
     gyroType,
     configuration,
     armActuators,
+    cockpitType,
   );
   const pairedIndex = fillPairedLocations(
     unhittables,

@@ -78,6 +78,7 @@ export function buildCriticalSlotsFromEquipment(
   engineType: EngineType,
   gyroType: GyroType,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): Record<string, CriticalSlot[]> {
   const result: Record<string, CriticalSlot[]> = {};
 
@@ -85,11 +86,15 @@ export function buildCriticalSlotsFromEquipment(
     const slots = new Array<CriticalSlot>(
       getLocationSlotCount(location, configuration),
     ).fill(null);
-    getFixedSlotNames(location, engineType, gyroType, armActuators).forEach(
-      (name, index) => {
-        slots[index] = { content: name, isSystem: true };
-      },
-    );
+    getFixedSlotNames(
+      location,
+      engineType,
+      gyroType,
+      armActuators,
+      cockpitType,
+    ).forEach((name, index) => {
+      slots[index] = { content: name, isSystem: true };
+    });
     result[location] = slots;
   });
 
@@ -174,6 +179,7 @@ export function buildPreviewUnitConfig(
       state.engineType,
       state.gyroType,
       state.armActuators,
+      state.cockpitType,
     ),
     enhancements: state.enhancement ? [state.enhancement] : [],
     battleValue,
