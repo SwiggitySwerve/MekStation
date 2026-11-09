@@ -182,6 +182,26 @@ The system SHALL parse aerospace fighters from BLK format documents via the `Aer
 
 ## ADDED Requirements
 
+### Requirement: Small craft armor limits
+
+Small craft SHALL use the aerospace construction owner's whole-craft armor limits from pinned MegaMek `TestSmallCraft.maxArmorWeight` and `maxArmorPoints`, including motion type, structural integrity, armor density, SI bonus and primitive rounding. Their Nose, Left Side, Right Side and Aft locations SHALL have no independent armor maximum, matching MegaMekLab `UnitUtil.getMaxArmor`.
+
+#### Scenario: Side allocation exceeds the former tonnage fraction
+
+- **GIVEN** a 200-ton, SI 8, IS standard-armor aerodyne small craft
+- **WHEN** its armor is edited
+- **THEN** its maximum armor weight SHALL be 36 tons and its whole-craft maximum SHALL be 608 points
+- **AND** neither Side SHALL be disabled or limited to zero or 40 points
+- **AND** allocations exceeding available total armor SHALL produce diagnostics without rewriting loaded locations
+
+#### Scenario: Native armor identity survives save and reopen
+
+- **GIVEN** small craft with standard, ferro-aluminum, heavy ferro-aluminum or primitive aerospace armor
+- **WHEN** the source loads and the editor saves and reopens it
+- **THEN** the existing contract's armor type and Side values SHALL retain their identity
+- **AND** native armor weight SHALL subtract SI bonus and reverse primitive rounding through the shared construction owner
+- **AND** an absent optional native identity in an older draft SHALL remain absent in its save fingerprint
+
 ### Requirement: Aerospace definition to editor state
 
 The system SHALL map a validated aerospace definition from `loadUnitDefinition('aerospace', id)` to the existing `AerospaceState` for aerospace fighters, conventional fighters, FixedWingSupport and small craft.

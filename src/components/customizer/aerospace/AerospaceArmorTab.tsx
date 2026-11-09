@@ -16,6 +16,8 @@ import {
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { smallCraftArmor } from '@/utils/construction/aerospace/armor';
 import {
   maxArcArmorPointsForLocation,
   maxTotalArmorPoints,
@@ -77,6 +79,34 @@ export function AerospaceArmorTab({
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const subType = useAerospaceStore((s) => s.aerospaceSubType);
+  const smallCraftArmorType = useAerospaceStore((s) => s.smallCraftArmorType);
+  const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
+  const motionType = useAerospaceStore((s) => s.motionType);
+  const techBase = useAerospaceStore((s) => s.techBase);
+  const craftArmor = useMemo(
+    () =>
+      subType === AerospaceSubType.SMALL_CRAFT
+        ? smallCraftArmor({
+            tonnage,
+            armorType,
+            armorTonnage,
+            smallCraftArmorType,
+            structuralIntegrity,
+            motionType,
+            techBase,
+          })
+        : undefined,
+    [
+      subType,
+      tonnage,
+      armorType,
+      armorTonnage,
+      smallCraftArmorType,
+      structuralIntegrity,
+      motionType,
+      techBase,
+    ],
+  );
 
   // Get actions
   const setArmorType = useAerospaceStore((s) => s.setArmorType);
@@ -87,22 +117,26 @@ export function AerospaceArmorTab({
 
   // Calculate derived values
   const armorDef = useMemo(() => getArmorDefinition(armorType), [armorType]);
-  const pointsPerTon = armorDef?.pointsPerTon ?? 16;
+  const pointsPerTon = craftArmor?.pointsPerTon ?? armorDef?.pointsPerTon ?? 16;
   const availablePoints = useMemo(
-    () => calculateArmorPoints(armorTonnage, armorType),
-    [armorTonnage, armorType],
+    () =>
+      craftArmor?.availablePoints ??
+      calculateArmorPoints(armorTonnage, armorType),
+    [craftArmor, armorTonnage, armorType],
   );
   const allocatedPoints = useMemo(
     () => getTotalAerospaceArmor(armorAllocation),
     [armorAllocation],
   );
   const maxTotalArmor = useMemo(
-    () => maxTotalArmorPoints(tonnage, subType),
-    [tonnage, subType],
+    () =>
+      craftArmor?.maximumPoints ?? maxTotalArmorPoints(tonnage, subType) ?? 0,
+    [craftArmor, tonnage, subType],
   );
   const maxUsefulTonnage = useMemo(
-    () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
-    [maxTotalArmor, pointsPerTon],
+    () =>
+      craftArmor?.maximumTonnage ?? ceilToHalfTon(maxTotalArmor / pointsPerTon),
+    [craftArmor, maxTotalArmor, pointsPerTon],
   );
 
   const unallocatedPoints = availablePoints - allocatedPoints;
@@ -126,7 +160,10 @@ export function AerospaceArmorTab({
   const handleArcArmorChange = useCallback(
     (arc: AerospaceLocation, points: number) => {
       const max = maxArcArmorPointsForLocation(arc, tonnage, subType);
-      const clamped = Math.max(0, Math.min(max, points));
+      const clamped = Math.max(
+        0,
+        max === null ? points : Math.min(max, points),
+      );
       setArcArmor(arc, clamped);
     },
     [setArcArmor, tonnage, subType],
@@ -150,12 +187,20 @@ export function AerospaceArmorTab({
           <div className="mb-4">
             <label className={cs.text.label}>Armor Type</label>
             <select
-              value={armorType}
+              value={smallCraftArmorType ?? armorType}
               onChange={handleArmorTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
               data-testid="aerospace-armor-type-select"
             >
+              {smallCraftArmorType && (
+                <option value={smallCraftArmorType}>
+                  {smallCraftArmorType
+                    .toLowerCase()
+                    .replaceAll('_', ' ')
+                    .replace(/\b\w/g, (letter) => letter.toUpperCase())}
+                </option>
+              )}
               <SelectOptions options={ARMOR_TYPE_OPTIONS} />
             </select>
           </div>
@@ -290,18 +335,20 @@ export function AerospaceArmorTab({
                   data-testid={`aerospace-arc-row-${arc}`}
                 >
                   <span className={`${cs.text.label} w-24`}>{label}</span>
-                  <input
-                    type="range"
-                    value={currentValue}
-                    onChange={(e) =>
-                      handleArcArmorChange(arc, Number(e.target.value))
-                    }
-                    min={0}
-                    max={maxValue}
-                    disabled={readOnly || maxValue === 0}
-                    className="flex-1"
-                    data-testid={`aerospace-arc-slider-${arc}`}
-                  />
+                  {maxValue !== null && (
+                    <input
+                      type="range"
+                      value={currentValue}
+                      onChange={(e) =>
+                        handleArcArmorChange(arc, Number(e.target.value))
+                      }
+                      min={0}
+                      max={maxValue}
+                      disabled={readOnly || maxValue === 0}
+                      className="flex-1"
+                      data-testid={`aerospace-arc-slider-${arc}`}
+                    />
+                  )}
                   <div className="flex w-20 items-center gap-1">
                     <input
                       type="number"
@@ -310,12 +357,14 @@ export function AerospaceArmorTab({
                         handleArcArmorChange(arc, Number(e.target.value))
                       }
                       min={0}
-                      max={maxValue}
+                      max={maxValue ?? undefined}
                       disabled={readOnly || maxValue === 0}
-                      className={`${cs.input.number} w-12`}
+                      className={`${cs.input.number} ${maxValue === null ? 'w-20' : 'w-12'}`}
                       data-testid={`aerospace-arc-input-${arc}`}
                     />
-                    <span className={cs.text.secondary}>/{maxValue}</span>
+                    {maxValue !== null && (
+                      <span className={cs.text.secondary}>/{maxValue}</span>
+                    )}
                   </div>
                 </div>
               );
