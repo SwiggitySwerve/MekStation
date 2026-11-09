@@ -47,7 +47,7 @@ export default function CampaignActivityLogPage(): React.ReactElement {
   const [search, setSearch] = useState('');
 
   const filtered = useMemo<readonly ICampaignActivityDisplayRow[]>(() => {
-    if (notice) return [];
+    if (notice && !notice.keepsEntries) return [];
     const lowerSearch = search.trim().toLowerCase();
     return rows.filter((entry) => {
       if (category !== 'all' && entry.category !== category) return false;
@@ -67,7 +67,7 @@ export default function CampaignActivityLogPage(): React.ReactElement {
   return (
     <PageLayout
       title="Activity Log"
-      subtitle={`${campaign.name} — ${notice ? 0 : rows.length} entries`}
+      subtitle={`${campaign.name} — ${rows.length} entries`}
       maxWidth="wide"
       breadcrumbs={shell.breadcrumbs}
     >
@@ -86,14 +86,15 @@ export default function CampaignActivityLogPage(): React.ReactElement {
         </p>
       ) : null}
 
-      {notice ? (
+      {notice && (
         <p
           data-testid={notice.testid}
           className="text-text-theme-secondary mt-4 text-sm"
         >
           {notice.message}
         </p>
-      ) : (
+      )}
+      {(!notice || notice.keepsEntries) && (
         <>
           <div className="my-4 flex flex-wrap items-center gap-2">
             <label

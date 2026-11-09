@@ -29,6 +29,8 @@ export interface ICampaignActivityDisplayRow {
 export interface ICampaignActivityFeedNotice {
   readonly testid: string;
   readonly message: string;
+  /** A refresh warning accompanies previously loaded authoritative rows. */
+  readonly keepsEntries?: true;
 }
 
 export const SHARED_ACTIVITY_LOG_LOADING_MESSAGE =
@@ -81,9 +83,8 @@ export function toLocalActivityDisplayRows(
 }
 
 /**
- * Rows only when the feed is actually showing a log. Loading, forbidden,
- * error, and needs-identity yield nothing so a leftover FIFO array cannot
- * paint through a status the server already answered.
+ * Ready rows and same-viewer history retained after a refresh error.
+ * Loading, forbidden, and needs-identity never expose previous rows.
  */
 export function displayRowsFromCampaignActivityFeed(
   feed: CampaignActivityFeedState,
@@ -91,7 +92,10 @@ export function displayRowsFromCampaignActivityFeed(
   if (feed.source === 'local') {
     return toLocalActivityDisplayRows(feed.entries);
   }
-  if (feed.source === 'authoritative' && feed.status === 'ready') {
+  if (
+    feed.source === 'authoritative' &&
+    (feed.status === 'ready' || feed.status === 'error')
+  ) {
     return toCampaignActivityDisplayRows(feed.entries);
   }
   return [];
@@ -131,6 +135,13 @@ export function campaignActivityFeedNotice(
     };
   }
   if (feed.status === 'error') {
+    if (feed.entries.length > 0) {
+      return {
+        testid: 'activity-log-error',
+        message: `The shared campaign log could not be refreshed. Showing previously loaded entries.${feed.message ? ` ${feed.message}` : ''}`,
+        keepsEntries: true,
+      };
+    }
     return {
       testid: 'activity-log-error',
       message: nonBlank(feed.message, SHARED_ACTIVITY_LOG_ERROR_FALLBACK),

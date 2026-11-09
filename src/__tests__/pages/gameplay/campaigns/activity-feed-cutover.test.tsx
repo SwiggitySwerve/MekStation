@@ -151,6 +151,34 @@ function logRowMessages(): string[] {
 }
 
 describe('campaign activity feed UI cutover', () => {
+  it('keeps cached activity visible beside the refresh failure on both surfaces', () => {
+    seedCampaignWithFifo();
+    mockUseCampaignActivityFeed.mockReturnValue({
+      source: 'authoritative',
+      status: 'error',
+      entries: [SERVER_ENTRY],
+      viewerSeat: 'gm',
+      message: 'Refresh unavailable',
+    });
+    const dashboard = render(<CampaignDashboard />);
+    expect(screen.getByTestId('activity-log-entry-0')).toHaveTextContent(
+      SERVER_MESSAGE,
+    );
+    expect(screen.getByTestId('activity-log-error')).toHaveTextContent(
+      'previously loaded',
+    );
+    expect(screen.queryByText(FIFO_MESSAGE)).not.toBeInTheDocument();
+    dashboard.unmount();
+    render(<CampaignActivityLogPage />);
+    expect(screen.getByTestId('activity-log-row-0')).toHaveTextContent(
+      SERVER_MESSAGE,
+    );
+    expect(screen.getByTestId('activity-log-error')).toHaveTextContent(
+      'Refresh unavailable',
+    );
+    expect(screen.queryByText(FIFO_MESSAGE)).not.toBeInTheDocument();
+  });
+
   beforeEach(() => {
     mockUseCampaignActivityFeed.mockReset();
     mockUseCampaignActivityFeed.mockReturnValue(readyFeed([]));
