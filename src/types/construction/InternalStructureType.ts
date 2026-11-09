@@ -151,6 +151,13 @@ export function mapSerializedStructureType(
   return InternalStructureType.STANDARD;
 }
 
+/** Canonical donor identities also admit Clan Endo-Composite; globals keep their fallback. */
+export function mapDonorStructureType(type: string): InternalStructureType {
+  if (type === 'ENDO_COMPOSITE_CLAN')
+    return InternalStructureType.ENDO_COMPOSITE;
+  return mapSerializedStructureType(type, TechBase.INNER_SPHERE);
+}
+
 /**
  * Get internal structure definition by type
  */
