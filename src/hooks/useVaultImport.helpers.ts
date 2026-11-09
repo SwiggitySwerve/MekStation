@@ -156,8 +156,13 @@ function toBundlePreview(preview: PreviewBundleResult): BundlePreview {
 function applyImportResult(
   result: IImportResult,
   setters: Pick<
-    VaultImportSetters,
-    'setConflicts' | 'setError' | 'setImporting' | 'setResult' | 'setStep'
+    ImportContentOptions<unknown>,
+    | 'failureStep'
+    | 'setConflicts'
+    | 'setError'
+    | 'setImporting'
+    | 'setResult'
+    | 'setStep'
   >,
 ): void {
   if (hasImportConflicts(result)) {
@@ -168,7 +173,7 @@ function applyImportResult(
   }
 
   setters.setResult(result);
-  setters.setStep('complete');
+  setters.setStep(result.success ? 'complete' : setters.failureStep);
 
   if (!result.success) {
     setters.setError(result.error.message || 'Import failed');
