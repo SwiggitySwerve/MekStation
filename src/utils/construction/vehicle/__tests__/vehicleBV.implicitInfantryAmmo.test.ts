@@ -96,6 +96,17 @@ describe('implicit infantry ammunition on vehicles (MegaMek 48fcb2f64)', () => {
     expect(resolveVehicleInfantryClip(id, Number.NaN)).toBeUndefined();
   });
 
+  it('initializes the uncatalogued wire-guided launcher from native facts', () => {
+    // Dune Buggy's second weapon: pinned InfantrySupportWireGuidedMissileWeapon.
+    expect(
+      resolveVehicleInfantryClip('wire-guided-missile-launcher:size:1.0', 2010),
+    ).toEqual({
+      group: 'INFANTRY:0',
+      battleValue: 0,
+      usableShots: 1,
+    });
+  });
+
   it('canonical, native and qualified identities initialize the same one-clip facts', () => {
     const expected = { group: 'INFANTRY:0', battleValue: 0, usableShots: 100 };
     for (const id of [

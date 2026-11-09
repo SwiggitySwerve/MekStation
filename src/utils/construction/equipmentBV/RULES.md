@@ -476,7 +476,11 @@ Catalog IDs mrm-1..5 remain ammo. All citations use MegaMek48fcb2f64.
 and `scripts/equipment-catalog/infantry-clip-facts.mjs`. It does not regenerate
 `nativeWeaponFlags.ts`, its generator, equipment catalogs or value baselines.
 The public lookup accepts the existing catalog owner's name and Java subtype;
-ambiguous aliases shared with non-infantry types are omitted.
+ambiguous aliases shared with non-infantry types are omitted. If the catalog
+has no record, the existing `normalizeEquipmentId` owner supplies a normalized
+identity for the independent native facts lookup. This admits Dune Buggy's
+verified wire-guided launcher clip without adding a catalog record or changing
+its existing weapon BV resolution. Identities absent from both owners stay unknown.
 
 Facts retain Java `instanceof InfantryWeapon`, ammo type/rack, native clip shots,
 intrinsic F_ONE_SHOT and native one-shot-ammo admission. The extractor calls

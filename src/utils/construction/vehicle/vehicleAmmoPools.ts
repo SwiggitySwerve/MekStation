@@ -12,7 +12,10 @@ import {
   NATIVE_INFANTRY_CLIP_AMMO,
 } from '../equipmentBV/nativeInfantryClipFacts';
 import { isOneShotBVWeapon } from '../equipmentBV/weaponHeat';
-import { getEquipmentEntry } from '../equipmentBVResolver';
+import {
+  getEquipmentEntry,
+  normalizeEquipmentId,
+} from '../equipmentBVResolver';
 
 interface IVehicleInfantryClip {
   group: string;
@@ -56,7 +59,11 @@ export function resolveVehicleInfantryClip(
     sourceId,
     entry
       ? getNativeInfantryClipFacts(entry.name, entry.subType, year)
-      : undefined,
+      : getNativeInfantryClipFacts(
+          normalizeEquipmentId(sourceId),
+          undefined,
+          year,
+        ),
   );
 }
 
