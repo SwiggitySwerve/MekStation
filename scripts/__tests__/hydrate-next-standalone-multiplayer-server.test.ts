@@ -688,6 +688,32 @@ describe('repository-local runtime inputs', () => {
 });
 
 describe('standalone deployment contents', () => {
+  it('omits Storybook MDX docs while retaining their sources and public assets', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    const image = path.join(root, '.next/standalone');
+    const docs = ['Colors', 'Introduction', 'Spacing', 'Typography'].map(
+      (name) => `src/docs/${name}.mdx`,
+    );
+    const contents = '# Storybook documentation';
+    for (const file of docs) writeFile(path.join(root, file), contents);
+    const publicDoc = 'public/docs/Colors.mdx';
+    const runtimeSource = 'src/docs/runtime.ts';
+    writeFile(path.join(root, publicDoc), contents);
+    writeFile(path.join(root, runtimeSource), 'export {};');
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(0);
+    for (const file of docs) {
+      expect(fs.existsSync(path.join(image, file))).toBe(false);
+      expect(fs.readFileSync(path.join(root, file), 'utf8')).toBe(contents);
+    }
+    expect(fs.readFileSync(path.join(image, publicDoc), 'utf8')).toBe(contents);
+    expect(fs.readFileSync(path.join(image, runtimeSource), 'utf8')).toBe(
+      'export {};',
+    );
+  });
+
   it('keeps public bytes and native runtime files while dropping build inputs', () => {
     const root = makeTempRoot();
     prepareStandaloneFixture(root);
