@@ -45,6 +45,7 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 import type { AddEquipmentAtLocationResult } from './unit/catalogEquipmentPlacement';
+import type { UnitEquipmentActions } from './unit/useUnitEquipmentStore';
 
 // =============================================================================
 // Armor Allocation Types
@@ -430,18 +431,8 @@ export interface UnitActions {
     location: MechLocation,
   ) => AddEquipmentAtLocationResult;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (
-    instanceId: string,
-    location: MechLocation,
-    slots: readonly number[],
-  ) => void;
-  bulkUpdateEquipmentLocations: (
-    updates: ReadonlyArray<{
-      instanceId: string;
-      location: MechLocation;
-      slots: readonly number[];
-    }>,
-  ) => void;
+  updateEquipmentLocation: UnitEquipmentActions['updateEquipmentLocation'];
+  bulkUpdateEquipmentLocations: UnitEquipmentActions['bulkUpdateEquipmentLocations'];
   clearEquipmentLocation: (instanceId: string) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
   linkAmmo: (
