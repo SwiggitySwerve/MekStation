@@ -1,13 +1,26 @@
 import React, { useCallback, useMemo, useSyncExternalStore } from 'react';
 
-import { getUnitLibraryFingerprint } from '@/stores/unit/unitEditSnapshot';
-import { getUnitStore } from '@/stores/unitStoreRegistry';
+import type { SaveState } from '@/stores/unitSaveState';
+import type { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-export type LibraryState = 'none' | 'changed' | 'matched';
+import { getUnitSaveState } from '@/stores/unitSaveState';
+import { getEditorSaveState } from '@/stores/unitSaveStateAdapters';
+
+import {
+  getLibrarySaveEditor,
+  getLibrarySaveStore,
+  subscribeToLibrarySaveState,
+} from '../tabs/MultiUnitTabsUnitState';
+
+export type LibraryState = SaveState['library']['state'];
 
 export interface LibrarySaveState {
   state: LibraryState;
   version?: number;
+}
+
+function unhandledLibraryState(state: never): never {
+  throw new Error(`Unhandled library save state: ${String(state)}`);
 }
 
 /**
@@ -19,10 +32,16 @@ export function librarySaveLabel(
   state: LibraryState,
   version?: number,
 ): string {
-  if (state === 'none') return 'Not in Library';
-  return state === 'changed'
-    ? `Changed Since v${version}`
-    : `In Library v${version}`;
+  switch (state) {
+    case 'none':
+      return 'Not in Library';
+    case 'changed':
+      return `Changed Since v${version}`;
+    case 'matched':
+      return `In Library v${version}`;
+    default:
+      return unhandledLibraryState(state);
+  }
 }
 
 /** Tooltip explaining a library state in a full sentence. */
@@ -30,16 +49,29 @@ export function librarySaveExplanation(
   state: LibraryState,
   version?: number,
 ): string {
-  if (state === 'none')
-    return 'Not in Library: no library save has been recorded for this unit yet.';
-  return state === 'changed'
-    ? `Changed Since v${version}: this unit has edits that are not in its last known library save (v${version}).`
-    : `In Library v${version}: this unit matches its last known library save. This is not a claim that v${version} is the server latest.`;
+  switch (state) {
+    case 'none':
+      return 'Not in Library: no library save has been recorded for this unit yet.';
+    case 'changed':
+      return `Changed Since v${version}: this unit has edits that are not in its last known library save (v${version}).`;
+    case 'matched':
+      return `In Library v${version}: this unit matches its last known library save. This is not a claim that v${version} is the server latest.`;
+    default:
+      return unhandledLibraryState(state);
+  }
 }
 
 /** Library states that call for a Save: never saved, or edited since. */
 export function libraryNeedsSave(state: LibraryState): boolean {
-  return state !== 'matched';
+  switch (state) {
+    case 'none':
+    case 'changed':
+      return true;
+    case 'matched':
+      return false;
+    default:
+      return unhandledLibraryState(state);
+  }
 }
 
 const NO_SUBSCRIPTION = (): (() => void) => () => undefined;
@@ -48,11 +80,17 @@ const NO_SUBSCRIPTION = (): (() => void) => () => undefined;
  * The draft's last known library save and whether the draft still matches
  * it. Snapshots are strings so unrelated store changes do not re-render.
  */
-export function useLibrarySaveState(unitId: string): LibrarySaveState {
-  const store = getUnitStore(unitId);
+export function useLibrarySaveState(
+  unitId: string,
+  unitType?: UnitType,
+): LibrarySaveState {
+  const store = getLibrarySaveStore(unitId, unitType);
   const subscribe = useCallback(
-    (onChange: () => void) => store?.subscribe(onChange) ?? (() => undefined),
-    [store],
+    (onChange: () => void) =>
+      store
+        ? subscribeToLibrarySaveState(unitId, unitType, onChange)
+        : () => undefined,
+    [store, unitId, unitType],
   );
   const snapshot = useSyncExternalStore(
     store ? subscribe : NO_SUBSCRIPTION,
@@ -60,8 +98,18 @@ export function useLibrarySaveState(unitId: string): LibrarySaveState {
       const state = store?.getState();
       const save = state?.librarySave;
       if (!state || !save) return 'none';
-      const changed = getUnitLibraryFingerprint(state) !== save.fingerprint;
-      return `${changed ? 'changed' : 'matched'}:${save.version}`;
+      let library: SaveState['library'];
+      try {
+        library = getEditorSaveState(getLibrarySaveEditor(state)).library;
+      } catch {
+        // Invalid intermediate native drafts cannot match a confirmed design.
+        // Keep classification in the owner without asking a serializer to accept
+        // incomplete editor input. Valid canonical fingerprints are JSON objects.
+        library = getUnitSaveState(state, '').library;
+      }
+      return library.state === 'none'
+        ? 'none'
+        : `${library.state}:${library.receipt.version}`;
     },
     () => 'none',
   );
@@ -99,13 +147,15 @@ function LibraryStatusText({
 /** Visible last-known library receipt, never an invented server-latest claim. */
 export function UnitSaveStatus({
   unitId,
+  unitType,
   compact = false,
 }: {
   unitId: string;
+  unitType?: UnitType;
   /** One-line secondary text for bands; panels show it as a heading line. */
   compact?: boolean;
 }): React.ReactElement {
-  const { state, version } = useLibrarySaveState(unitId);
+  const { state, version } = useLibrarySaveState(unitId, unitType);
   return (
     <LibraryStatusText state={state} version={version} compact={compact} />
   );
