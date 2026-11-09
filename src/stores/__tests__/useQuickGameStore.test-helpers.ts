@@ -715,6 +715,56 @@ describe('useQuickGameStore', () => {
   });
 
   describe('Step Navigation', () => {
+    it.each([
+      QuickGameStep.Review,
+      QuickGameStep.Playing,
+      QuickGameStep.Results,
+      // Session storage can contain a step from an incompatible client.
+      'unknown_step' as QuickGameStep,
+    ])('does not advance or mutate state from %s', (step) => {
+      const game = { ...createQuickGameInstance(), step };
+      act(() => {
+        useQuickGameStore.setState({
+          game,
+          isDirty: false,
+          error: 'Keep error',
+        });
+      });
+      const before = useQuickGameStore.getState();
+
+      act(() => before.nextStep());
+
+      expect(useQuickGameStore.getState()).toBe(before);
+    });
+
+    it('does not advance without a game', () => {
+      act(() => useQuickGameStore.setState({ game: null }));
+      const before = useQuickGameStore.getState();
+
+      act(() => before.nextStep());
+
+      expect(useQuickGameStore.getState()).toBe(before);
+    });
+
+    it('advances from scenario configuration to review', () => {
+      act(() => {
+        useQuickGameStore.setState({
+          game: {
+            ...createQuickGameInstance(),
+            step: QuickGameStep.ConfigureScenario,
+          },
+          error: 'Previous error',
+        });
+      });
+
+      act(() => useQuickGameStore.getState().nextStep());
+
+      expect(useQuickGameStore.getState().game?.step).toBe(
+        QuickGameStep.Review,
+      );
+      expect(useQuickGameStore.getState().error).toBeNull();
+    });
+
     it('should advance to next step', () => {
       const { result } = renderHook(() => useQuickGameStore());
 
