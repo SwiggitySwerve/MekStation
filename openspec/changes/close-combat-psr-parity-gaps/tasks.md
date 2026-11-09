@@ -41,4 +41,4 @@
 - [x] Re-anchor the running-with-damage catalog citations by content.
 - [x] Kill the mutants (drop the `canFall` gate, drop the heavy-duty
       discount, roll per step, roll on a walk, ignore the destroyed-leg rule).
-- [ ] Prove no committed replay, digest or golden moved, or list the movement.
+- [x] Prove no committed replay, digest or golden moved, or list the movement.
