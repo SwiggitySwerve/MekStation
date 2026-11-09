@@ -143,7 +143,8 @@ const AEROSPACE_ARCS: Readonly<Record<string, string>> = {
 
 /** Shared contract arc projection for BV and combat adapters. */
 export function resolveAerospaceContractArc(location: string): string {
-  return lookup(AEROSPACE_ARCS, location, 'aerospace arc');
+  const key = location.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+  return lookup(AEROSPACE_ARCS, key, 'aerospace arc');
 }
 
 function requireFact<T>(value: T | undefined, name: string): T {

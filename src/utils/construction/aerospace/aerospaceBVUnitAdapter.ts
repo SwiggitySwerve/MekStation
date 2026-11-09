@@ -1,3 +1,5 @@
+import type { AerospaceState } from '@/stores/aerospaceState';
+
 import type {
   IAerospace,
   IConventionalFighter,
@@ -304,4 +306,3 @@ export function isAerospaceUnitType(
     t === UnitType.SMALL_CRAFT
   );
 }
-import type { AerospaceState } from '@/stores/aerospaceState';
