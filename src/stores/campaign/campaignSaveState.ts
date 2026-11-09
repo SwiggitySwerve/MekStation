@@ -1,7 +1,8 @@
 /**
- * Pure owner of internal campaign persistence transitions. Effects remain in
+ * Pure owner of campaign persistence transitions. Effects remain in
  * useCampaignPersistenceStore; see campaignSaveState.RULES.md for ordering.
  * @spec openspec/changes/extract-campaign-save-reducer/specs/campaign-persistence/spec.md
+ * @spec openspec/changes/route-campaign-save-writers/specs/campaign-persistence/spec.md
  */
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
@@ -120,6 +121,9 @@ export type CampaignSaveEvent =
   | { type: 'error-cleared' }
   | { type: 'launch-conflict-reported'; conflict: ICampaignLaunchConflict }
   | { type: 'launch-conflict-cleared' }
+  | { type: 'created-campaign-initialized'; campaignId: string }
+  | { type: 'rollback-dirty-restored' }
+  | { type: 'creation-cleanup-restored'; snapshot: CampaignSaveSnapshot }
   | { type: 'reset' };
 
 export const INITIAL_CAMPAIGN_SAVE_STATE: CampaignSaveSnapshot = {
@@ -252,6 +256,7 @@ export function reduceCampaignSaveState(
     case 'coop-rollback-record-installed':
       return { ...state, ...recordEvidence(event.record, event.campaign) };
     case 'coop-rollback-settled':
+    case 'rollback-dirty-restored':
       return { ...state, dirty: false };
     case 'legacy-adopted':
       return { ...state, legacyUnadopted: false };
@@ -274,6 +279,10 @@ export function reduceCampaignSaveState(
       return { ...state, launchConflict: event.conflict };
     case 'launch-conflict-cleared':
       return { ...state, launchConflict: null };
+    case 'created-campaign-initialized':
+      return { ...state, campaignId: event.campaignId };
+    case 'creation-cleanup-restored':
+      return { ...state, ...event.snapshot };
     case 'reset':
       return INITIAL_CAMPAIGN_SAVE_STATE;
     default: {

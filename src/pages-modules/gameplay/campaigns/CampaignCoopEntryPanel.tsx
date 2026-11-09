@@ -181,7 +181,9 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         if (store.getState().getCampaign()?.id === campaignId) {
           useCampaignPersistenceStore.getState().reset();
           store.setState(previousCampaignState);
-          useCampaignPersistenceStore.setState(previousPersistenceState);
+          useCampaignPersistenceStore
+            .getState()
+            .restoreAfterFailedCreation(previousPersistenceState);
         }
       };
       const createdCampaign = store.getState().getCampaign();

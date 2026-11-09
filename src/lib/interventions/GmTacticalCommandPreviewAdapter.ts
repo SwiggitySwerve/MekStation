@@ -1,4 +1,5 @@
 import type {
+  GamePhase,
   ITacticalCommandContext,
   TacticalActionPayload,
 } from '@/types/gameplay';
@@ -12,7 +13,7 @@ import type {
   IInterventionLedgerCommand,
 } from '@/types/interventions';
 
-import { GamePhase } from '@/types/gameplay';
+import { nextPhase } from '@/utils/gameplay/gamePhaseTransitions';
 
 import type { InterventionLedger } from './InterventionLedger';
 
@@ -71,14 +72,6 @@ export interface ICreateGmTacticalCommandPreviewInput<TState> {
   readonly now?: () => string;
 }
 
-const PHASE_ORDER: readonly GamePhase[] = [
-  GamePhase.Initiative,
-  GamePhase.Movement,
-  GamePhase.WeaponAttack,
-  GamePhase.PhysicalAttack,
-  GamePhase.Heat,
-  GamePhase.End,
-];
 const NON_COMBAT_COMMAND_IDS = new Set<GmTacticalCommandId>([
   'gm.reload-unit',
   'gm.grant-resource',
@@ -364,12 +357,4 @@ function isNonCombatCommandId(
   commandId: GmTacticalCommandId,
 ): commandId is Exclude<GmTacticalCommandId, CombatGmTacticalCommandId> {
   return NON_COMBAT_COMMAND_IDS.has(commandId);
-}
-
-function nextPhase(phase: GamePhase): GamePhase {
-  const index = PHASE_ORDER.indexOf(phase);
-  if (index === -1 || index === PHASE_ORDER.length - 1) {
-    return GamePhase.Initiative;
-  }
-  return PHASE_ORDER[index + 1];
 }
