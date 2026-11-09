@@ -62,6 +62,24 @@ export function missionTransitionRefusal(
 }
 
 /**
+ * Two copies of one mission disagree (the child missions store and
+ * `campaign.missions`, or a saved campaign and the separately persisted
+ * missions store). Keep `kept`, the copy that normally wins, unless `other`
+ * is a legal move forward from it: ACTIVE -> SUCCESS takes the settled copy,
+ * while SUCCESS -> ACTIVE is refused, so a stale unsettled copy can never
+ * reopen a settled contract and let a later battle pay it again.
+ */
+export function reconcileMissionCopy<T extends IMission>(
+  kept: T,
+  other: T | undefined,
+): T {
+  if (other === undefined || other.status === kept.status) return kept;
+  return missionTransitionRefusal(kept.status, other.status) === null
+    ? other
+    : kept;
+}
+
+/**
  * Move `mission` to `to` if the table allows it, stamping `updatedAt`.
  * The input is never mutated; on refusal it comes back unchanged.
  */

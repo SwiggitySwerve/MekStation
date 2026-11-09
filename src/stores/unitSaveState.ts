@@ -24,7 +24,7 @@ export type SaveState = {
   readonly library: UnitLibrarySaveState;
 };
 
-interface IUnitSaveMetadata {
+export interface IUnitSaveMetadata {
   readonly isModified?: boolean;
   readonly librarySave?: ILibrarySaveReceipt;
 }
