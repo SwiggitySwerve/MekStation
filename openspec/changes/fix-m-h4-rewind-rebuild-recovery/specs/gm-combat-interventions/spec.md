@@ -2,7 +2,7 @@
 
 ### Requirement: Committed Rewind Survives a Failed Live Rebuild
 
-A GM combat rewind that the journal has committed SHALL be answered as committed even when the live match host cannot be rebuilt. The commit route SHALL rebuild the live host before it stores the GM's private reason. When the rebuild fails, the route SHALL answer 200 with the committed result and SHALL add `rebuildPending: true` only while the host still serves the superseded session. A host whose rebuild failed before it claimed the activated branch SHALL keep that rebuild pending and SHALL retry it, inside its command queue, before its next command and after its next join, until a retry succeeds or the stream's effective head leaves that branch. A failure after the host claimed the branch SHALL NOT leave a rebuild pending. The pending rebuild SHALL NOT be persisted; restart recovery folds the activated branch. A rebuild SHALL NOT adopt, renew or release a correction lease it did not acquire.
+A GM combat rewind that the journal has committed SHALL be answered as committed even when the live match host cannot be rebuilt. The commit route SHALL rebuild the live host before it stores the GM's private reason. When the rebuild fails, the route SHALL answer 200 with the committed result and SHALL add `rebuildPending: true` only while the host still serves the superseded session. A host whose rebuild failed before it claimed the activated branch SHALL keep that rebuild pending and SHALL retry it, inside its command queue, before its next command and after its next join, until a retry succeeds or the stream's effective head leaves that branch. A failure after the host claimed the branch SHALL NOT leave a rebuild pending. The pending rebuild SHALL NOT be persisted; restart recovery folds the activated branch. A rebuild SHALL NOT adopt, renew or release a correction lease it did not acquire. A failure to store the GM's private reason after the commit SHALL be logged and SHALL NOT change the answer: the route SHALL still answer 200 with the committed result, and SHALL add no response field for it.
 
 #### Scenario: Rebuild failure after commit
 
@@ -16,6 +16,13 @@ A GM combat rewind that the journal has committed SHALL be answered as committed
 - **GIVEN** a committed rewind with a private reason
 - **WHEN** storing the reason fails
 - **THEN** the live host SHALL already serve the activated branch
+- **AND** the route SHALL answer 200 with `kind: 'committed'` and SHALL log the failure
+
+#### Scenario: Reason write fails after a failed rebuild
+
+- **GIVEN** a committed rewind with a private reason whose live rebuild failed before the claim
+- **WHEN** storing the reason also fails
+- **THEN** the route SHALL answer 200 with `kind: 'committed'` and `rebuildPending: true`
 
 #### Scenario: Next command heals a pending host
 
@@ -47,3 +54,43 @@ A GM combat rewind that the journal has committed SHALL be answered as committed
 - **GIVEN** another owner holds the live correction lease on the match stream
 - **WHEN** the live host rebuilds on the activated branch
 - **THEN** that lease SHALL remain live with the same id, owner and fencing epoch
+
+### Requirement: Restart Keeps Seated Players Resynced After a Rewind
+
+Boot recovery of a match whose effective head sits on an activated rewind branch SHALL mark the host and every seated player for resync, exactly as the live rebuild does, so that a seated player's next join replays from the rebuilt head regardless of the `lastSeq` it quotes. The mark SHALL be consumed by that join. Boot recovery SHALL NOT mark spectators, and SHALL NOT mark a match whose effective head is on the live path. The mark SHALL NOT be persisted.
+
+#### Scenario: Stale lastSeq after a restart replays the rebuilt head
+
+- **GIVEN** a match rewound before a restart, and a seated player whose client holds events from the superseded stream
+- **WHEN** that player rejoins the recovered host quoting a `lastSeq` past the rebuilt head
+- **THEN** the host SHALL replay the rebuilt stream from its start
+
+#### Scenario: The mark is consumed
+
+- **GIVEN** a seated player who has rejoined the recovered host once
+- **WHEN** the player rejoins quoting the rebuilt head's last sequence
+- **THEN** the host SHALL resume from that sequence and replay nothing
+
+#### Scenario: Spectators and never-rewound matches are not marked
+
+- **GIVEN** a recovered host with a spectator seat, or a recovered match that was never rewound
+- **WHEN** the spectator, or any player, rejoins quoting the last sequence they hold
+- **THEN** the host SHALL resume from that sequence
+
+### Requirement: A Closed Host Is Not Rebuilt
+
+A live host that has closed SHALL NOT be rebuilt from an activated rewind branch. `rebuildFromActivatedBranch` SHALL do nothing for a closed host, including a host that closes while its rebuild waits in the command queue, and SHALL NOT leave a rebuild pending for it. The rewind-commit route SHALL treat a closed host as having no live host and SHALL answer the committed result without `rebuildPending`. Boot recovery folds the activated branch for the match. Intents, lobby intents and joins to a closed or completed match remain refused by the existing guards.
+
+#### Scenario: Rewind on a match whose host already closed
+
+- **GIVEN** a match whose host closed on completion but is still registered
+- **WHEN** a GM rewind commits
+- **THEN** the route SHALL answer 200 `committed` without `rebuildPending`
+- **AND** the closed host SHALL keep its session and served branch
+
+#### Scenario: Host closes while the rebuild is queued
+
+- **GIVEN** a rebuild waiting in a host's command queue
+- **WHEN** the host closes before the rebuild runs
+- **THEN** the rebuild SHALL NOT run
+

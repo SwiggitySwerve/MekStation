@@ -224,6 +224,70 @@ describe('GM cascade preview pipeline', () => {
     );
   });
 
+  it('blocks changed generic state without relying on a domain correction payload', () => {
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const state = makeState();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(),
+      state,
+      authority: gmAuthority,
+    });
+    const current = { ...state, value: 99 };
+    const apply = jest.spyOn(ledger, 'apply');
+    expect(
+      approveGmCascadePreview({
+        ledger,
+        actionLedger,
+        preview,
+        state: current,
+      }),
+    ).toMatchObject({ status: 'blocked', appended: false, state: current });
+    expect(apply).not.toHaveBeenCalled();
+    expect(ledger.getRecords()).toEqual([]);
+    expect(actionLedger.getRecords()).toEqual([]);
+  });
+
+  it('blocks a ready preview whose pipeline freshness was removed', () => {
+    const ledger = makeLedger();
+    const state = makeState();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(),
+      state,
+      authority: gmAuthority,
+    });
+    const unversioned = { ...preview };
+    Reflect.deleteProperty(unversioned, 'freshness');
+    expect(
+      approveGmCascadePreview({ ledger, preview: unversioned, state }),
+    ).toMatchObject({
+      status: 'blocked',
+      appended: false,
+      reason: expect.stringContaining('freshness'),
+    });
+    expect(ledger.getRecords()).toEqual([]);
+  });
+
+  it('accepts equal state reconstructed with a different object key order', () => {
+    const ledger = makeLedger();
+    const state = makeState();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(),
+      state,
+      authority: gmAuthority,
+    });
+    expect(
+      approveGmCascadePreview({
+        ledger,
+        preview,
+        state: { events: [...state.events], value: state.value },
+      }).status,
+    ).toBe('approved');
+  });
+
   it('approves a ready preview by appending a record and deriving state through the implementer', () => {
     const ledger = makeLedger();
     const state = makeState();

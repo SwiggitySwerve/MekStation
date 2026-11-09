@@ -1,0 +1,6 @@
+{
+  "name": "close-combat-psr-parity-gaps",
+  "status": "in-progress",
+  "reason": "Root-approved parity lane found by the terrain-PSR lane, sequential PRs: C-5 runner queues the 20+ damage PSR after the Physical Attack phase; C-2 terrain rules to the pin; C-1 interactive movement damage, control and enhancement PSRs; C-3 per-step rolls that cut the move short; C-4a vehicle bog-down. C-5 changes no schema, payload or committed digest.",
+  "lastReviewed": "2026-11-08"
+}

@@ -31,10 +31,12 @@ interface AnimationQueueState {
   enqueue: (animation: TacticalAnimation) => string;
   complete: (animationId: string) => void;
   onComplete: (callback: AnimationCompleteCallback) => () => void;
+  onReset: (callback: () => void) => () => void;
   reset: () => void;
 }
 
 const completeListeners = new Set<AnimationCompleteCallback>();
+const resetListeners = new Set<() => void>();
 
 const emptyState = {
   queue: [],
@@ -89,9 +91,20 @@ export const useAnimationQueue = create<AnimationQueueState>((set, get) => ({
       completeListeners.delete(callback);
     };
   },
+  onReset: (callback) => {
+    resetListeners.add(callback);
+    return () => {
+      resetListeners.delete(callback);
+    };
+  },
   reset: () => {
+    const listeners = Array.from(resetListeners);
+    resetListeners.clear();
     completeListeners.clear();
     set(emptyState);
+    for (const listener of listeners) {
+      listener();
+    }
   },
 }));
 

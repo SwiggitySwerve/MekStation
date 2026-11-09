@@ -1,0 +1,6 @@
+{
+  "name": "fix-tactical-turn-cleanup",
+  "status": "implemented-awaiting-ci",
+  "reason": "U1 implemented in five store files. Final store/integration run: 134 suites, 2145 passed, 32 existing skips; Jest emitted a worker teardown warning. All three mutants killed, both TypeScript configs pass, root lint stays at 63 warnings, unit-size gates pass, formatting and OpenSpec checks pass, CI budgets remain 57 unkeyable and 92 repo-wide. Hosted CI and Root review remain pending.",
+  "lastReviewed": "2026-11-08"
+}

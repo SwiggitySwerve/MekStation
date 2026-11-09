@@ -100,4 +100,36 @@ describe('useAnimationQueue', () => {
     );
     expect(useAnimationQueue.getState().isActive).toBe(false);
   });
+
+  it('notifies reset subscribers without completing abandoned animations', () => {
+    const completed = jest.fn();
+    const reset = jest.fn(() => {
+      expect(useAnimationQueue.getState().isActive).toBe(false);
+    });
+    useAnimationQueue.getState().enqueue({
+      ...movement('abandoned', 'unit-a', [{ q: 0, r: 0 }]),
+      onComplete: completed,
+    });
+    useAnimationQueue.getState().onComplete(completed);
+    useAnimationQueue.getState().onReset(reset);
+
+    useAnimationQueue.getState().reset();
+    useAnimationQueue.getState().complete('abandoned');
+    useAnimationQueue.getState().reset();
+
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(completed).not.toHaveBeenCalled();
+    expect(useAnimationQueue.getState().active).toEqual([]);
+    expect(useAnimationQueue.getState().queue).toEqual([]);
+  });
+
+  it('allows cancelling a pending reset subscription', () => {
+    const reset = jest.fn();
+    const unsubscribe = useAnimationQueue.getState().onReset(reset);
+
+    unsubscribe();
+    useAnimationQueue.getState().reset();
+
+    expect(reset).not.toHaveBeenCalled();
+  });
 });

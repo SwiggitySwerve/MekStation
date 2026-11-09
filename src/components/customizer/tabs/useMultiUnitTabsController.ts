@@ -50,6 +50,7 @@ interface UseMultiUnitTabsControllerResult {
   isNewTabModalOpen: boolean;
   closeDialog: CloseDialogState;
   saveDialog: SaveDialogState;
+  isSaving: boolean;
   librarySaveDisabledReason: string | null;
   savedHistoryDisabledReason: string | null;
   isLoadDialogOpen: boolean;
@@ -188,6 +189,7 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
   const {
     closeDialog,
     saveDialog,
+    isSaving,
     handleCloseDialogCancel,
     handleCloseDialogDiscard,
     handleCloseDialogSave,
@@ -364,6 +366,7 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
     isNewTabModalOpen,
     closeDialog,
     saveDialog,
+    isSaving,
     librarySaveDisabledReason,
     savedHistoryDisabledReason,
     isLoadDialogOpen,

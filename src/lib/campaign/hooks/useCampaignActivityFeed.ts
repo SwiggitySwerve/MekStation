@@ -244,8 +244,15 @@ export function useCampaignActivityFeed(
   const participantId = identity.kind === 'pair' ? identity.participantId : '';
   const store = useCampaignStore();
   const activityLog = useStore(store, (state) => state.activityLog);
-  const [authoritative, setAuthoritative] =
-    useState<AuthoritativeOutcome | null>(null);
+  const viewerKey = campaignActivityFeedCacheKey(
+    campaignId,
+    sessionId,
+    participantId,
+  );
+  const [authoritative, setAuthoritative] = useState<{
+    readonly key: string;
+    readonly outcome: AuthoritativeOutcome;
+  } | null>(null);
 
   useEffect(() => {
     if (identity.kind !== 'pair') {
@@ -265,11 +272,21 @@ export function useCampaignActivityFeed(
       releaseCurrent = acquired.release;
       void acquired.promise.then((outcome) => {
         if (cancelled || outcome.status === 'aborted') return;
-        setAuthoritative(outcome);
+        setAuthoritative((previous) => ({
+          key: viewerKey,
+          outcome:
+            outcome.status === 'error' && previous?.key === viewerKey
+              ? {
+                  ...outcome,
+                  entries: previous.outcome.entries,
+                  viewerSeat: previous.outcome.viewerSeat,
+                }
+              : outcome,
+        }));
       });
     };
 
-    setAuthoritative(loadingFeed());
+    setAuthoritative({ key: viewerKey, outcome: loadingFeed() });
     run();
 
     const onFocus = (): void => {
@@ -288,9 +305,11 @@ export function useCampaignActivityFeed(
       unsubscribe?.();
       releaseCurrent?.();
     };
-  }, [campaignId, identity.kind, sessionId, participantId]);
+  }, [campaignId, identity.kind, sessionId, participantId, viewerKey]);
 
   if (identity.kind === 'none') return localFeed(activityLog);
   if (identity.kind === 'needs-identity') return needsIdentityFeed();
-  return authoritative ?? loadingFeed();
+  return authoritative?.key === viewerKey
+    ? authoritative.outcome
+    : loadingFeed();
 }

@@ -2,17 +2,16 @@
  * ProtoMech Structure Tab Component
  *
  * Exposes all construction fields: chassis type (radio), tonnage, weight class,
- * walk MP, jump MP, myomer booster, gliding wings, main gun weapon picker,
- * and per-location armor allocation.
+ * walk MP, jump MP, myomer booster, gliding wings and the main gun weapon
+ * picker. Armor type, totals, allocation and the armor diagram live in the
+ * Armor tab (ProtoMechArmorTab).
  *
  * @spec openspec/changes/add-protomech-construction/tasks.md §10.2
  */
 
 import React from 'react';
 
-import { ProtoMechArmorDiagram } from './ProtoMechArmorDiagram';
 import {
-  useProtoMechArmorControls,
   useProtoMechChassisControls,
   useProtoMechIdentityControls,
   useProtoMechMainGunControls,
@@ -20,7 +19,6 @@ import {
   useProtoMechTonnageControls,
 } from './ProtoMechStructureTab.logic';
 import {
-  ProtoMechArmorAllocationSection,
   ProtoMechChassisTypeSection,
   ProtoMechIdentitySection,
   ProtoMechMainGunSection,
@@ -40,7 +38,6 @@ export function ProtoMechStructureTab({
   const tonnageControls = useProtoMechTonnageControls(readOnly);
   const movementControls = useProtoMechMovementControls(readOnly);
   const mainGunControls = useProtoMechMainGunControls(readOnly);
-  const armorControls = useProtoMechArmorControls(readOnly);
 
   return (
     <div className="space-y-6">
@@ -58,14 +55,6 @@ export function ProtoMechStructureTab({
         controls={movementControls}
       />
       <ProtoMechMainGunSection readOnly={readOnly} controls={mainGunControls} />
-      <ProtoMechArmorAllocationSection
-        readOnly={readOnly}
-        controls={armorControls}
-      />
-
-      <div className="flex justify-center">
-        <ProtoMechArmorDiagram />
-      </div>
     </div>
   );
 }

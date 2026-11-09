@@ -5,27 +5,31 @@
  * @spec openspec/changes/add-quick-resolve-monte-carlo/specs/simulation-system/spec.md
  */
 
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  jest,
-} from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { act, renderHook, waitFor } from '@testing-library/react';
 
 import type { IAdaptedUnit } from '@/engine/types';
+import type { IBatchResult } from '@/simulation/batchOutcome';
+import type { IQuickResolveRunOptions } from '@/simulation/QuickResolveService';
 import type {
   IGameSession,
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import * as GameEngineModule from '@/engine/GameEngine';
+import { aggregateBatchOutcomes } from '@/simulation/aggregateBatchOutcomes';
+import * as QuickResolveModule from '@/simulation/QuickResolveService';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 
 import { useQuickResolve } from '../useQuickResolve';
+
+jest.mock('@/simulation/QuickResolveService', () => {
+  const actual = jest.requireActual<typeof QuickResolveModule>(
+    '@/simulation/QuickResolveService',
+  );
+  return { ...actual, runBatch: jest.fn(actual.runBatch) };
+});
 
 // =============================================================================
 // Test fixtures (mirrored from QuickResolveService.test.ts)
@@ -115,12 +119,48 @@ const battleConfig = {
   engineConfig: { mapRadius: 5, turnLimit: 5 },
 };
 
+/** Hold the service boundary open so tests choose the completion order. */
+function queueBatch() {
+  let resolve: (result: IBatchResult) => void = () => {
+    throw new Error('Batch promise not initialized');
+  };
+  let reject: (error: unknown) => void = () => {
+    throw new Error('Batch promise not initialized');
+  };
+  const promise = new Promise<IBatchResult>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  let options: IQuickResolveRunOptions = {};
+  jest.mocked(QuickResolveModule.runBatch).mockImplementationOnce((_, next) => {
+    options = next ?? {};
+    return promise;
+  });
+  return {
+    resolve,
+    reject,
+    get options() {
+      return options;
+    },
+  };
+}
+
+const batchResult = aggregateBatchOutcomes([], 42);
+
 // =============================================================================
 // Tests
 // =============================================================================
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  jest
+    .mocked(QuickResolveModule.runBatch)
+    .mockReset()
+    .mockImplementation(
+      jest.requireActual<typeof QuickResolveModule>(
+        '@/simulation/QuickResolveService',
+      ).runBatch,
+    );
 });
 
 afterEach(() => {
@@ -133,6 +173,7 @@ describe('useQuickResolve', () => {
       const { result } = renderHook(() => useQuickResolve(battleConfig));
 
       expect(result.current.isRunning).toBe(false);
+      expect(result.current.wasCancelled).toBe(false);
       expect(result.current.result).toBeNull();
       expect(result.current.error).toBeNull();
       expect(result.current.partialResult).toBeNull();
@@ -153,6 +194,7 @@ describe('useQuickResolve', () => {
         expect(result.current.isRunning).toBe(false);
       });
       expect(result.current.result).not.toBeNull();
+      expect(result.current.wasCancelled).toBe(false);
       expect(result.current.result!.totalRuns).toBe(3);
       expect(result.current.result!.baseSeed).toBe(42);
       expect(result.current.runsCompleted).toBe(3);
@@ -207,9 +249,7 @@ describe('useQuickResolve', () => {
   });
 
   describe('cancel', () => {
-    it('aborts an in-flight batch and resolves with the partial result', async () => {
-      // Slow each run down so we have time to cancel mid-batch. We use
-      // a tiny artificial delay inside the spy.
+    it('aborts an in-flight batch and exposes partial output without success', async () => {
       const original = GameEngineModule.GameEngine.prototype.runToCompletion;
       let callCount = 0;
       jest
@@ -240,6 +280,228 @@ describe('useQuickResolve', () => {
 
       expect(result.current.isRunning).toBe(false);
       expect(callCount).toBeLessThan(100);
+      expect(result.current.wasCancelled).toBe(true);
+      expect(result.current.result).toBeNull();
+      expect(result.current.error).toBeNull();
+      expect(result.current.partialResult?.totalRuns).toBe(callCount);
+      expect(result.current.runsCompleted).toBe(callCount);
+      expect(result.current.totalRuns).toBe(100);
+    });
+
+    it('ignores progress after cancellation and permits repeated cancel', async () => {
+      const batch = queueBatch();
+      const { result } = renderHook(() => useQuickResolve(battleConfig));
+      let mutation: Promise<void>;
+      act(() => {
+        mutation = result.current.mutate();
+        batch.options.onProgress?.({ runsCompleted: 1, totalRuns: 100 });
+        result.current.cancel();
+        result.current.cancel();
+        batch.options.onProgress?.({ runsCompleted: 2, totalRuns: 100 });
+      });
+      expect(batch.options.signal?.aborted).toBe(true);
+      expect(result.current.runsCompleted).toBe(1);
+
+      await act(async () => {
+        batch.resolve(batchResult);
+        await mutation;
+      });
+      expect(result.current.wasCancelled).toBe(true);
+      expect(result.current.result).toBeNull();
+      expect(result.current.partialResult).toBe(batchResult);
+      const cancelledState = result.current;
+      act(() => result.current.cancel());
+      expect(result.current).toBe(cancelledState);
+    });
+
+    it('does not publish success when cancelled before the continuation runs', async () => {
+      const batch = queueBatch();
+      const { result } = renderHook(() => useQuickResolve(battleConfig));
+      await act(async () => {
+        const mutation = result.current.mutate();
+        batch.resolve(batchResult);
+        result.current.cancel();
+        await mutation;
+      });
+      expect(result.current.isRunning).toBe(false);
+      expect(result.current.wasCancelled).toBe(true);
+      expect(result.current.result).toBeNull();
+      expect(result.current.partialResult).toBe(batchResult);
+    });
+
+    it.each(['ordinary', 'systemic'])(
+      'treats a cancelled %s rejection as cancellation',
+      async (kind) => {
+        const batch = queueBatch();
+        const { result } = renderHook(() => useQuickResolve(battleConfig));
+        await act(async () => {
+          const mutation = result.current.mutate();
+          result.current.cancel();
+          batch.reject(
+            kind === 'systemic'
+              ? new QuickResolveModule.QuickResolveSystemicFailure(
+                  [],
+                  batchResult,
+                )
+              : new Error('Late failure'),
+          );
+          await mutation;
+        });
+        expect(result.current.isRunning).toBe(false);
+        expect(result.current.wasCancelled).toBe(true);
+        expect(result.current.result).toBeNull();
+        expect(result.current.error).toBeNull();
+        expect(result.current.partialResult).toBe(
+          kind === 'systemic' ? batchResult : null,
+        );
+      },
+    );
+
+    it('clears cancellation on reset and on the next mutation', async () => {
+      const { result } = renderHook(() => useQuickResolve(battleConfig));
+      for (const reset of [false, true]) {
+        const batch = queueBatch();
+        await act(async () => {
+          const mutation = result.current.mutate();
+          result.current.cancel();
+          batch.resolve(batchResult);
+          await mutation;
+        });
+        expect(result.current.wasCancelled).toBe(true);
+        if (reset) {
+          act(() => result.current.reset());
+          expect(result.current.wasCancelled).toBe(false);
+          expect(result.current.partialResult).toBeNull();
+        }
+        const next = queueBatch();
+        let mutation: Promise<void>;
+        act(() => {
+          mutation = result.current.mutate();
+        });
+        expect(result.current.wasCancelled).toBe(false);
+        expect(result.current.partialResult).toBeNull();
+        await act(async () => {
+          next.resolve(batchResult);
+          await mutation;
+        });
+        expect(result.current.result).toBe(batchResult);
+      }
+    });
+  });
+
+  describe('stale batches', () => {
+    it.each(['resolve', 'reject', 'systemic'] as const)(
+      'ignores stale progress and %s after reset',
+      async (settlement) => {
+        const batch = queueBatch();
+        const { result } = renderHook(() => useQuickResolve(battleConfig));
+        let mutation: Promise<void>;
+        act(() => {
+          mutation = result.current.mutate();
+        });
+        act(() => result.current.reset());
+        const idleState = result.current;
+        await act(async () => {
+          batch.options.onProgress?.({ runsCompleted: 7, totalRuns: 100 });
+          if (settlement === 'resolve') batch.resolve(batchResult);
+          else
+            batch.reject(
+              settlement === 'systemic'
+                ? new QuickResolveModule.QuickResolveSystemicFailure(
+                    [],
+                    batchResult,
+                  )
+                : new Error('Stale failure'),
+            );
+          await mutation;
+        });
+        expect(batch.options.signal?.aborted).toBe(true);
+        expect(result.current).toBe(idleState);
+      },
+    );
+
+    it.each<
+      [
+        settlement: 'resolve' | 'reject' | 'systemic',
+        finishReplacement: boolean,
+      ]
+    >([
+      ['resolve', false],
+      ['resolve', true],
+      ['reject', false],
+      ['reject', true],
+      ['systemic', false],
+      ['systemic', true],
+    ])(
+      'ignores old %s (replacement finished: %s)',
+      async (settlement, finishReplacement) => {
+        const old = queueBatch();
+        const next = queueBatch();
+        const nextResult = aggregateBatchOutcomes([], 99);
+        const { result } = renderHook(() => useQuickResolve(battleConfig));
+        let oldMutation: Promise<void>;
+        let nextMutation: Promise<void>;
+        act(() => {
+          oldMutation = result.current.mutate();
+        });
+        act(() => {
+          nextMutation = result.current.mutate();
+        });
+        expect(old.options.signal?.aborted).toBe(true);
+        if (finishReplacement) {
+          await act(async () => {
+            next.resolve(nextResult);
+            await nextMutation;
+          });
+        }
+        const nextState = result.current;
+        await act(async () => {
+          old.options.onProgress?.({ runsCompleted: 7, totalRuns: 100 });
+          if (settlement === 'resolve') old.resolve(batchResult);
+          else
+            old.reject(
+              settlement === 'systemic'
+                ? new QuickResolveModule.QuickResolveSystemicFailure(
+                    [],
+                    batchResult,
+                  )
+                : new Error('Stale failure'),
+            );
+          await oldMutation;
+        });
+        expect(result.current).toBe(nextState);
+        if (!finishReplacement) {
+          // Old cleanup must leave the new controller available to cancel.
+          act(() => result.current.cancel());
+          expect(next.options.signal?.aborted).toBe(true);
+          await act(async () => {
+            next.resolve(nextResult);
+            await nextMutation;
+          });
+          expect(result.current.wasCancelled).toBe(true);
+          expect(result.current.result).toBeNull();
+        }
+      },
+    );
+
+    it('aborts on unmount and ignores subsequent progress and settlement', async () => {
+      const batch = queueBatch();
+      const { result, unmount } = renderHook(() =>
+        useQuickResolve(battleConfig),
+      );
+      let mutation: Promise<void>;
+      act(() => {
+        mutation = result.current.mutate();
+      });
+      const lastState = result.current;
+      unmount();
+      await act(async () => {
+        batch.options.onProgress?.({ runsCompleted: 7, totalRuns: 100 });
+        batch.resolve(batchResult);
+        await mutation;
+      });
+      expect(batch.options.signal?.aborted).toBe(true);
+      expect(result.current).toBe(lastState);
     });
   });
 

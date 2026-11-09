@@ -1,0 +1,6 @@
+{
+  "name": "fix-vault-import-failure-state",
+  "status": "in-progress",
+  "reason": "Root-approved Wave 3 U6: returned import failures restore the existing file-preview or string-idle recovery step while preserving the error. No schema or persistence changes.",
+  "lastReviewed": "2026-11-08"
+}

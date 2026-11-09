@@ -6,7 +6,8 @@
  * arms already carry `kind`. Status carries the class, body the answer:
  *
  *   200  committed (plus `rebuildPending: true` when the commit stands
- *        but the live host could not be rebuilt yet — M-H4)
+ *        but the live host could not be rebuilt yet — M-H4). A private
+ *        reason that could not be stored is logged, never a 500 (D-2a).
  *   403  gm-role-required / actor-mismatch / state-not-owned
  *   404  no authoritative history
  *   409  every other typed refusal, including the three commit-only
@@ -95,15 +96,17 @@ function statusForRefusal(
  * Rebuild the live host on the activated branch. True means the commit
  * stands but the host still serves the superseded session: it retries
  * on its next command or join, and a restart folds the branch on boot.
- * Look up only — never getOrCreate. An empty registry means nobody is
- * connected; MatchRecovery folds this branch on boot.
+ * Look up only — never getOrCreate. An empty registry, or a host that
+ * already closed, means nobody is connected; MatchRecovery folds this
+ * branch on boot.
  */
 async function rebuildLiveHost(
   matchId: string,
   input: IRewindRebuildRequest,
 ): Promise<boolean> {
   const liveHost = getMatchHostRegistry().get(matchId);
-  if (liveHost === null) return false;
+  // Completion closes a host without dropping it from the registry.
+  if (liveHost === null || liveHost.isClosed()) return false;
   try {
     await liveHost.rebuildFromActivatedBranch(input);
     return false;
@@ -247,19 +250,28 @@ export default async function handler(
         effectiveGeneration: result.effectiveGeneration,
       });
       if (body.reason !== undefined) {
-        const writer = new GmPrivatePreviewRecordWriter(
-          new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
-        );
-        await writer.store({
-          resolver: new AuthorizedViewerResolver(
-            new HostAsGmMembershipSource(membership, meta.hostPlayerId),
-          ),
-          principalId: viewer.principalId,
-          campaignSessionId: matchId,
-          commandId: null,
-          createdAt: new Date().toISOString(),
-          privateReason: body.reason,
-        });
+        // The commit is durable, so a failed private-reason write is
+        // logged, not a 500 for a rewind that stands (D-2a).
+        try {
+          const writer = new GmPrivatePreviewRecordWriter(
+            new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
+          );
+          await writer.store({
+            resolver: new AuthorizedViewerResolver(
+              new HostAsGmMembershipSource(membership, meta.hostPlayerId),
+            ),
+            principalId: viewer.principalId,
+            campaignSessionId: matchId,
+            commandId: null,
+            createdAt: new Date().toISOString(),
+            privateReason: body.reason,
+          });
+        } catch (error) {
+          logger.error(
+            '[rewind-commit] private reason was not stored after commit; the rewind stands',
+            error,
+          );
+        }
       }
       res
         .status(200)
