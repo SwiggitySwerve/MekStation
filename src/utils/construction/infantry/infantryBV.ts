@@ -298,6 +298,45 @@ export function getInfantryPilotMultiplier(
   return getPilotSkillModifier(gunnery ?? 4, piloting ?? 5);
 }
 
+function infantryWeaponStages(input: InfantryBVInput) {
+  const source = input.sourceOffense;
+  const primary = source
+    ? getInfantryBVWeapon(input.primaryWeapon.id)
+    : undefined;
+  const secondary =
+    source && input.secondaryWeapon
+      ? getInfantryBVWeapon(input.secondaryWeapon.id)
+      : undefined;
+  const ratio = source ? source.secondaryShooters / input.totalTroopers : 0;
+  // InfantryBVCalculator.java:117-158 and BVCalculator.java:805-829 (48fcb2f64):
+  // BV per shooter, not combat damage or incoming armor divisor. Secondary
+  // shooters replace primary shooters; archaic weapons get no anti-mek repeat.
+  const primaryBV = primary
+    ? primary.bv * (1 - ratio)
+    : calculateInfantryPrimaryBV(input.primaryWeapon);
+  const secondaryBV = source
+    ? (secondary?.bv ?? 0) * ratio
+    : calculateInfantrySecondaryBV(input.secondaryWeapon);
+  const armorKitBV = source
+    ? 0
+    : (ARMOR_KIT_PER_TROOPER_BV[input.armorKit] ?? 0);
+  const perTrooper = Math.max(0, primaryBV + secondaryBV + armorKitBV);
+  return { primary, secondary, primaryBV, secondaryBV, armorKitBV, perTrooper };
+}
+
+function infantryWeaponBonuses(
+  source: NonNullable<InfantryBVInput['sourceOffense']>,
+) {
+  return [
+    source.augmentations.includes('gas_effuser_toxin') ? 0.23 : 0,
+    source.augmentations.includes('tsm_implant') ? 0.1 : 0,
+    source.augmentations.includes('suicide_implants') ? 0.12 : 0,
+    source.prostheticDamage ?? 0,
+  ] as const;
+}
+
+const PROSTHETIC_ANTI_MEK_MULTIPLIER = 1.2;
+
 // =============================================================================
 // Top-level calculator
 // =============================================================================
@@ -321,34 +360,15 @@ export function calculateInfantryBV(
   input: InfantryBVInput,
 ): IInfantryBVBreakdown {
   const source = input.sourceOffense;
-  const primary = source
-    ? getInfantryBVWeapon(input.primaryWeapon.id)
-    : undefined;
-  const secondary =
-    source && input.secondaryWeapon
-      ? getInfantryBVWeapon(input.secondaryWeapon.id)
-      : undefined;
-  const ratio = source ? source.secondaryShooters / input.totalTroopers : 0;
-  // InfantryBVCalculator.java:117-158 and BVCalculator.java:805-829 (48fcb2f64):
-  // BV per shooter, not combat damage or incoming armor divisor. Secondary
-  // shooters replace primary shooters; archaic weapons get no anti-mek repeat.
-  const primaryBV = primary
-    ? primary.bv * (1 - ratio)
-    : calculateInfantryPrimaryBV(input.primaryWeapon);
-  const secondaryBV = source
-    ? (secondary?.bv ?? 0) * ratio
-    : calculateInfantrySecondaryBV(input.secondaryWeapon);
-  const armorKitBV = source
-    ? 0
-    : (ARMOR_KIT_PER_TROOPER_BV[input.armorKit] ?? 0);
-  const perTrooper = Math.max(0, primaryBV + secondaryBV + armorKitBV);
+  const { primary, secondary, primaryBV, secondaryBV, armorKitBV, perTrooper } =
+    infantryWeaponStages(input);
 
   const motiveMultiplier = source
     ? calculateOffensiveSpeedFactorForMP(source.mp)
     : getInfantryMotiveMultiplier(input.motive);
   const antiMechMultiplier = source
     ? source.antiMek && !input.fieldGuns?.length
-      ? 1 + (source.prostheticAntiMek ? 1.2 : 1)
+      ? 1 + (source.prostheticAntiMek ? PROSTHETIC_ANTI_MEK_MULTIPLIER : 1)
       : 1
     : input.hasAntiMechTraining
       ? ANTI_MECH_MULTIPLIER
@@ -364,11 +384,8 @@ export function calculateInfantryBV(
         (secondary?.archaic ? 0 : secondaryBV)) *
       (antiMechMultiplier - 1);
     // InfantryBVCalculator.java:170-235; movement max selection :329-331.
-    const bonus =
-      (source.augmentations.includes('gas_effuser_toxin') ? 0.23 : 0) +
-      (source.augmentations.includes('tsm_implant') ? 0.1 : 0) +
-      (source.augmentations.includes('suicide_implants') ? 0.12 : 0) +
-      (source.prostheticDamage ?? 0);
+    const [toxin, tsm, suicide, prosthetic] = infantryWeaponBonuses(source);
+    const bonus = toxin + tsm + suicide + prosthetic;
     sourceCoreWeaponBV = (perTrooper + repeat + bonus) * troopers;
     platoonCore = sourceCoreWeaponBV * motiveMultiplier;
   }
