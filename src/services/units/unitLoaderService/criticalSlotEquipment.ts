@@ -459,6 +459,7 @@ export function restoreCriticalSlotEquipment(
           placed[index] = {
             ...placed[index],
             ...placement,
+            equipmentId: placed[index].equipmentId,
             isRearMounted:
               serialized[index].isRearMounted ?? mount.isRearMounted,
             isOmniPodMounted:
