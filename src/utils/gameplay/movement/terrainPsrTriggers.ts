@@ -421,7 +421,7 @@ function hasOverloadedBuildingFeature(
  * `Entity.canFall() == false`. Vehicle-specific terrain outcomes are not
  * represented.
  */
-function canFall(unit: ITerrainPsrMover | undefined): boolean {
+export function canFall(unit: ITerrainPsrMover | undefined): boolean {
   return isBattleMechLikeUnitType(unit?.unitType) && unit?.prone !== true;
 }
 
