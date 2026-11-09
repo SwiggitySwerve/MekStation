@@ -1023,4 +1023,7 @@ weigh 1/2/3 t. Corpus: Seahorse Cargo Sub 245 to 250 t, Silverfin Coastal Cutter
 
 Residual, left for the catalog lane: the 42 legacy stubs (`lrtorpedo1..20`,
 `srt1..6` and their OS/IOS variants in `weapons/missile-other.json`) keep their
-half weights. No support, combat or editor path reads them by name any more.
+half weights. Registry mass supersedes the applicable stub mass; other stub
+metadata is still read (`supportPayload` still calls `getEquipmentEntry` and
+overrides only the weight of the catalog entry it spreads). The 42 stubs remain a
+catalog residual.
