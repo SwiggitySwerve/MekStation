@@ -89,6 +89,21 @@ export function isDefinitionForFamily<F extends UnitFamily>(
   return types.includes(definition.unitType);
 }
 
+/** Capital definitions may be imported and viewed, but never construction-edited. */
+export function isReadOnlyUnitDefinition(definition: unknown): boolean {
+  if (!definition || typeof definition !== 'object') return false;
+  const { family, unitType } = definition as {
+    family?: unknown;
+    unitType?: unknown;
+  };
+  const capitalTypes: readonly string[] =
+    UNIT_DEFINITION_FAMILIES.capital.unitTypes;
+  return (
+    family === 'capital' ||
+    (typeof unitType === 'string' && capitalTypes.includes(unitType))
+  );
+}
+
 export interface IUnitDefinitionReader {
   read(reference: IUnitDefinitionReference): Promise<unknown | null>;
 }

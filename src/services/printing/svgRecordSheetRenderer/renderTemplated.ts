@@ -316,6 +316,9 @@ export async function renderBattleArmorTemplated(
       bindings.texts,
       (doc) => {
         layoutBattleArmorPipGrid(doc, bindings.pipCounts.troopers);
+        // MML hideElement: unused suit frames are hidden, not left empty.
+        for (const id of bindings.hiddenIds)
+          doc.getElementById(id)?.setAttribute('visibility', 'hidden');
       },
     );
   } catch (error) {

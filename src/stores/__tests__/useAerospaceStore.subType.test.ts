@@ -21,6 +21,27 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { serializeCustomAerospaceState } from '@/utils/serialization/CustomUnitSerializer';
 
 describe('aerospace Sub-Type change', () => {
+  it('clears small-craft-only native armor identity when changing to a fighter', () => {
+    const store = createAerospaceStore({
+      ...createDefaultAerospaceState({
+        id: 'native-armor-subtype',
+        name: 'Native Shuttle',
+        tonnage: 200,
+        techBase: TechBase.INNER_SPHERE,
+        isSmallCraft: true,
+      }),
+      smallCraftArmorType: 'PRIMITIVE_AERO',
+    });
+    store.getState().setAerospaceSubType(AerospaceSubType.AEROSPACE_FIGHTER);
+    expect(store.getState().smallCraftArmorType).toBeUndefined();
+    const saved = serializeCustomAerospaceState(store.getState(), {
+      id: store.getState().id,
+      chassis: 'Native Shuttle',
+      variant: 'Converted',
+      era: Era.DARK_AGE,
+    });
+    expect(saved.armor?.type).toBe('STANDARD');
+  });
   it.each([
     [AerospaceSubType.CONVENTIONAL_FIGHTER, UnitType.CONVENTIONAL_FIGHTER],
     [AerospaceSubType.SMALL_CRAFT, UnitType.SMALL_CRAFT],
