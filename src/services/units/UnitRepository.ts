@@ -31,6 +31,7 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
+import { isReadOnlyUnitDefinition } from './unitLoaderService/definitionTypes';
 
 /**
  * Database row type for custom_units table
@@ -57,6 +58,10 @@ interface CustomUnitRow {
 export interface IUnitRepository {
   create(request: ICreateUnitRequest): IUnitOperationResult;
   update(id: string, request: IUpdateUnitRequest): IUnitOperationResult;
+  checkUpdateAllowed(
+    current: ICustomUnitRecord,
+    proposedData: unknown,
+  ): IUnitOperationResult;
   delete(id: string): IUnitOperationResult;
   getById(id: string): ICustomUnitRecord | null;
   findByName(chassis: string, variant: string): ICustomUnitRecord | null;
@@ -70,6 +75,27 @@ export interface IUnitRepository {
  * Unit Repository implementation
  */
 export class UnitRepository implements IUnitRepository {
+  /** One write-access boundary shared by updates and history reverts. */
+  checkUpdateAllowed = (
+    current: ICustomUnitRecord,
+    proposedData: unknown,
+  ): IUnitOperationResult => {
+    if (
+      isReadOnlyUnitDefinition(current) ||
+      isReadOnlyUnitDefinition(JSON.parse(current.data)) ||
+      isReadOnlyUnitDefinition(proposedData)
+    ) {
+      return {
+        success: false,
+        error: {
+          message: 'Capital ship records are read-only.',
+          errorCode: UnitErrorCode.READ_ONLY,
+        },
+      };
+    }
+    return { success: true, data: { id: current.id } };
+  };
+
   /**
    * Create a new custom unit
    */
@@ -173,6 +199,9 @@ export class UnitRepository implements IUnitRepository {
         },
       };
     }
+
+    const access = this.checkUpdateAllowed(currentUnit, request.data);
+    if (!access.success) return access;
 
     const newVersion = currentUnit.currentVersion + 1;
     const unitData = request.data;

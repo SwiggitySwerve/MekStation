@@ -1,9 +1,8 @@
 /**
  * Aerospace Armor Arc Calculations
  *
- * Per-arc armor maximums based on tonnage and arc-factor table.
- * Total armor must not exceed the sum of arc maxima.
- * Small craft use LeftSide/RightSide instead of LeftWing/RightWing.
+ * Existing fighter caps and the editor location bridge.
+ * Small craft have no independent arc maxima; their total rules live in armor.ts.
  *
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  * Requirement: Armor Allocation per Firing Arc
@@ -21,7 +20,7 @@ import {
 
 /**
  * Per-arc armor factor: multiplied by tonnage to get max armor points.
- * Source: TechManual aerospace armor allocation tables.
+ * Legacy fighter editor factors, unchanged by the small-craft correction.
  * Nose carries the most; Aft the least.
  */
 const ASF_CF_ARC_FACTORS: Record<AerospaceArc, number> = {
@@ -30,16 +29,6 @@ const ASF_CF_ARC_FACTORS: Record<AerospaceArc, number> = {
   [AerospaceArc.RIGHT_WING]: 0.2,
   [AerospaceArc.LEFT_SIDE]: 0,
   [AerospaceArc.RIGHT_SIDE]: 0,
-  [AerospaceArc.AFT]: 0.12,
-  [AerospaceArc.FUSELAGE]: 0,
-};
-
-const SMALL_CRAFT_ARC_FACTORS: Record<AerospaceArc, number> = {
-  [AerospaceArc.NOSE]: 0.28,
-  [AerospaceArc.LEFT_WING]: 0,
-  [AerospaceArc.RIGHT_WING]: 0,
-  [AerospaceArc.LEFT_SIDE]: 0.2,
-  [AerospaceArc.RIGHT_SIDE]: 0.2,
   [AerospaceArc.AFT]: 0.12,
   [AerospaceArc.FUSELAGE]: 0,
 };
@@ -80,31 +69,31 @@ export function getArcsForSubType(
 // ============================================================================
 
 /**
- * Compute maximum armor points for a single arc.
- * maxArcPoints = floor(tonnage × arcFactor)
+ * Fighter arc cap, or null for a small-craft location without an independent cap.
  */
 export function maxArcArmorPoints(
   arc: AerospaceArc,
   tonnage: number,
   subType: AerospaceSubType,
-): number {
-  const factors =
-    subType === AerospaceSubType.SMALL_CRAFT
-      ? SMALL_CRAFT_ARC_FACTORS
-      : ASF_CF_ARC_FACTORS;
-  return Math.floor(tonnage * factors[arc]);
+): number | null {
+  // MML 62bf193 UnitUtil.getMaxArmor:900-917: no location maximum.
+  if (subType === AerospaceSubType.SMALL_CRAFT)
+    return SMALL_CRAFT_ARCS.includes(arc) ? null : 0;
+  return Math.floor(tonnage * ASF_CF_ARC_FACTORS[arc]);
 }
 
 /**
- * Compute the sum of all arc maxima (total maximum armor for the unit).
+ * Tonnage-only fighter total. Small-craft totals require the armor.ts facts.
  */
 export function maxTotalArmorPoints(
   tonnage: number,
   subType: AerospaceSubType,
-): number {
+): number | null {
+  // Small-craft totals require SI, shape and armor identity, not tonnage alone.
+  if (subType === AerospaceSubType.SMALL_CRAFT) return null;
   const arcs = getArcsForSubType(subType);
   return arcs.reduce(
-    (sum, arc) => sum + maxArcArmorPoints(arc, tonnage, subType),
+    (sum, arc) => sum + (maxArcArmorPoints(arc, tonnage, subType) ?? 0),
     0,
   );
 }
@@ -115,9 +104,9 @@ export function maxTotalArmorPoints(
 export function arcMaxMap(
   tonnage: number,
   subType: AerospaceSubType,
-): Record<AerospaceArc, number> {
+): Partial<Record<AerospaceArc, number | null>> {
   const arcs = getArcsForSubType(subType);
-  const result = {} as Record<AerospaceArc, number>;
+  const result: Partial<Record<AerospaceArc, number | null>> = {};
   for (const arc of arcs) {
     result[arc] = maxArcArmorPoints(arc, tonnage, subType);
   }
@@ -132,22 +121,24 @@ export function arcMaxMap(
  * Bridge AerospaceLocation (used by the customizer UI) to AerospaceArc
  * (used by construction-spec calc functions). The two enums carry the
  * same semantic arcs but different string values; the UI's enum is the
- * subset that omits the small-craft-only LEFT_SIDE / RIGHT_SIDE arcs.
- *
- * Returns null for arcs that have no AerospaceArc counterpart (none today;
- * the function is total over AerospaceLocation members but kept as `| null`
- * for future-proofing if non-arc locations are added).
+ * subset that omits the small-craft-only LEFT_SIDE / RIGHT_SIDE arcs. The
+ * subtype resolves those stored Wing keys to their Side identities.
  */
 export function mapAerospaceLocationToArc(
   loc: AerospaceLocation,
+  subType?: AerospaceSubType,
 ): AerospaceArc {
   switch (loc) {
     case AerospaceLocation.NOSE:
       return AerospaceArc.NOSE;
     case AerospaceLocation.LEFT_WING:
-      return AerospaceArc.LEFT_WING;
+      return subType === AerospaceSubType.SMALL_CRAFT
+        ? AerospaceArc.LEFT_SIDE
+        : AerospaceArc.LEFT_WING;
     case AerospaceLocation.RIGHT_WING:
-      return AerospaceArc.RIGHT_WING;
+      return subType === AerospaceSubType.SMALL_CRAFT
+        ? AerospaceArc.RIGHT_SIDE
+        : AerospaceArc.RIGHT_WING;
     case AerospaceLocation.AFT:
       return AerospaceArc.AFT;
     case AerospaceLocation.FUSELAGE:
@@ -163,6 +154,10 @@ export function maxArcArmorPointsForLocation(
   loc: AerospaceLocation,
   tonnage: number,
   subType: AerospaceSubType,
-): number {
-  return maxArcArmorPoints(mapAerospaceLocationToArc(loc), tonnage, subType);
+): number | null {
+  return maxArcArmorPoints(
+    mapAerospaceLocationToArc(loc, subType),
+    tonnage,
+    subType,
+  );
 }

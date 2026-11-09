@@ -29,6 +29,7 @@ import {
   AerospaceEngineType,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import { smallCraftArmor, type ISmallCraftArmorFacts } from './armor';
 import { maxArcArmorPoints } from './armorArcCalculations';
 import { validateBombBays, type IBombBay } from './bombBays';
 import { validateFixedWingSupportTonnage } from './fixedWingSupport';
@@ -184,7 +185,7 @@ export function validateArcArmor(
   ][]) {
     if (points === undefined) continue;
     const max = maxArcArmorPoints(arcKey, tonnage, subType);
-    if (max === 0) continue; // Arc not applicable to this sub-type
+    if (max === 0 || max === null) continue; // Inapplicable or no independent location limit.
     if (points > max) {
       errors.push({
         ruleId: 'VAL-AERO-ARC-MAX',
@@ -237,6 +238,7 @@ export const AERO_VALIDATION_RULE_IDS = [
   'VAL-AERO-SI',
   'VAL-AERO-FUEL',
   'VAL-AERO-ARC-MAX',
+  'VAL-AERO-ARMOR-TOTAL',
   'VAL-AERO-CREW',
   'VAL-AERO-WING-HEAVY',
   'VAL-AERO-BOMB-BAY',
@@ -249,6 +251,9 @@ export type AeroValidationRuleId = (typeof AERO_VALIDATION_RULE_IDS)[number];
 // ============================================================================
 
 export interface AerospaceValidationInput {
+  readonly smallCraftArmor?: ISmallCraftArmorFacts & {
+    readonly armorTonnage: number;
+  };
   readonly isFixedWingSupport?: boolean;
   readonly tonnage: number;
   readonly subType: AerospaceSubType;
@@ -292,6 +297,24 @@ export function validateAerospaceUnit(
     ...validateArcArmor(input.arcArmor, input.tonnage, input.subType),
     ...validateCrew(input.subType, input.quartersTons, input.crewCount),
   ];
+
+  if (input.subType === AerospaceSubType.SMALL_CRAFT && input.smallCraftArmor) {
+    const limits = smallCraftArmor(input.smallCraftArmor);
+    const total = Object.values(input.arcArmor).reduce(
+      (sum, points) => sum + (points ?? 0),
+      0,
+    );
+    if (input.smallCraftArmor.armorTonnage > limits.maximumTonnage)
+      errors.push({
+        ruleId: 'VAL-AERO-ARMOR-TOTAL',
+        message: `Armor tonnage exceeds the small-craft maximum of ${limits.maximumTonnage}t`,
+      });
+    if (total > limits.availablePoints)
+      errors.push({
+        ruleId: 'VAL-AERO-ARMOR-TOTAL',
+        message: `Total armor ${total} exceeds available armor ${limits.availablePoints}`,
+      });
+  }
 
   if (input.wingMounts) {
     errors.push(

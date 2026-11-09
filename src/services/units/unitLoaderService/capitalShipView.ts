@@ -14,6 +14,8 @@ import {
   type IContractBVSource,
 } from '@/utils/construction/contractBVUnitAdapter';
 
+import type { IUnitDefinitionReference } from './definitionTypes';
+
 import { mapTechBase } from './componentMappers';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
@@ -43,6 +45,7 @@ export interface ICapitalShipRow {
 export interface ICapitalShipView {
   readonly id: string;
   readonly sourceId: string;
+  readonly sourceDefinition?: IUnitDefinitionReference;
   readonly name: string;
   readonly unitType: CapitalShipUnitType;
   readonly techBase: TechBase;
@@ -203,6 +206,7 @@ function deepFreeze<T>(value: T): T {
 export function mapCapitalDefinitionToView(
   definition: IUnitContract,
   id: string,
+  sourceDefinition?: IUnitDefinitionReference,
 ): ICapitalShipView {
   const raw = definition as unknown as Record<string, unknown>;
   const movement = (raw.movement ?? {}) as Record<string, unknown>;
@@ -268,6 +272,9 @@ export function mapCapitalDefinitionToView(
   return deepFreeze({
     id,
     sourceId: definition.id,
+    ...(sourceDefinition?.source === 'custom'
+      ? { sourceDefinition: { ...sourceDefinition } }
+      : {}),
     name: [definition.chassis, definition.model].filter(Boolean).join(' '),
     unitType: definition.unitType as CapitalShipUnitType,
     techBase: mapTechBase(String(definition.techBase)),

@@ -21,6 +21,7 @@ import {
   type SingletonFactory,
 } from '../core/createSingleton';
 import { getSQLiteService } from '../persistence/SQLiteService';
+import { getUnitRepository } from './UnitRepository';
 
 /**
  * Database row type for unit_versions table
@@ -143,13 +144,10 @@ export class VersionRepository implements IVersionRepository {
     }
 
     // Get current version number
-    const currentVersionResult = db
-      .prepare(`
-      SELECT current_version FROM custom_units WHERE id = ?
-    `)
-      .get(unitId) as { current_version: number } | undefined;
+    const repository = getUnitRepository();
+    const currentUnit = repository.getById(unitId);
 
-    if (!currentVersionResult) {
+    if (!currentUnit) {
       return {
         success: false,
         error: {
@@ -159,11 +157,17 @@ export class VersionRepository implements IVersionRepository {
       };
     }
 
-    const newVersion = currentVersionResult.current_version + 1;
+    const newVersion = currentUnit.currentVersion + 1;
     const now = new Date().toISOString();
     const revertNotes = notes || `Reverted from version ${targetVersion}`;
 
     try {
+      const access = repository.checkUpdateAllowed(
+        currentUnit,
+        JSON.parse(targetVersionRecord.data),
+      );
+      if (!access.success) return access;
+
       // Create revert in a transaction
       const revertTransaction = db.transaction(() => {
         // Update unit with data from target version
