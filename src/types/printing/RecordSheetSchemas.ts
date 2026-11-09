@@ -212,9 +212,16 @@ export const VehicleRecordSheetDataSchema = z.object({
 });
 
 export const AerospaceArcArmorSchema = z.object({
-  arc: z.enum(['Nose', 'Left Wing', 'Right Wing', 'Aft']),
+  arc: z.enum([
+    'Nose',
+    'Left Wing',
+    'Right Wing',
+    'Left Side',
+    'Right Side',
+    'Aft',
+  ]),
   current: z.number(),
-  maximum: z.number(),
+  maximum: z.number().optional(),
 });
 
 export const AerospaceRecordSheetDataSchema = z.object({
@@ -228,6 +235,7 @@ export const AerospaceRecordSheetDataSchema = z.object({
   maxThrust: z.number(),
   heatSinks: RecordSheetHeatSinksSchema,
   armorType: z.string(),
+  barRating: z.number().optional(),
   armorArcs: z.array(AerospaceArcArmorSchema),
   equipment: z.array(RecordSheetEquipmentSchema),
   bombBaySlots: z.number(),

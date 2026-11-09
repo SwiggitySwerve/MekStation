@@ -71,10 +71,26 @@ export interface IVehicleRecordSheetData {
 /**
  * Aerospace armor per standard 4-arc layout.
  */
+/**
+ * Armor arc labels. Fighters print wings; small craft print sides, per
+ * SmallCraft.java LOCATION_NAMES ("Nose", "Left Side", "Right Side", "Aft").
+ */
+export type RecordSheetAerospaceArc =
+  | 'Nose'
+  | 'Left Wing'
+  | 'Right Wing'
+  | 'Left Side'
+  | 'Right Side'
+  | 'Aft';
+
 export interface IAerospaceArcArmor {
-  readonly arc: 'Nose' | 'Left Wing' | 'Right Wing' | 'Aft';
+  readonly arc: RecordSheetAerospaceArc;
   readonly current: number;
-  readonly maximum: number;
+  /**
+   * Printed only when a caller supplies a real per-arc cap. Aerospace has none
+   * (MML UnitUtil.getMaxArmor returns null), so the builder leaves it absent.
+   */
+  readonly maximum?: number;
 }
 
 /**
@@ -101,6 +117,8 @@ export interface IAerospaceRecordSheetData {
   readonly maxThrust: number;
   readonly heatSinks: IRecordSheetHeatSinks;
   readonly armorType: string;
+  /** BAR rating of a fixed-wing support craft with BAR armor (MML prints "BAR: n"). */
+  readonly barRating?: number;
   readonly armorArcs: readonly IAerospaceArcArmor[];
   readonly equipment: readonly IRecordSheetEquipment[];
   /** Number of bomb bay slots (0 when no bomb bay). */
