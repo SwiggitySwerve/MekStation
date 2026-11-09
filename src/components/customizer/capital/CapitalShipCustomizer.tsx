@@ -25,6 +25,7 @@ import {
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { PaperSize } from '@/types/printing';
 
+import { CustomizerCatalogBoundary } from '../shared/CustomizerCatalogBoundary';
 import { CapitalPreviewTab } from './CapitalPreviewTab';
 
 const CapitalShipViewContext = createContext<ICapitalShipView | null>(null);
@@ -360,7 +361,18 @@ export function CapitalShipShell({
       <CapitalShipViewContext.Provider
         value={getCapitalShipView(activeTab.id) ?? null}
       >
-        <CapitalShipCustomizer />
+        <CustomizerCatalogBoundary
+          family={activeTab.unitType}
+          tabs={CAPITAL_SHIP_TABS}
+          readOnly
+          diagram={
+            <div data-testid="capital-loading-locations">
+              <CapitalArmorPanel />
+            </div>
+          }
+        >
+          <CapitalShipCustomizer />
+        </CustomizerCatalogBoundary>
       </CapitalShipViewContext.Provider>
     </ErrorBoundary>
   );
