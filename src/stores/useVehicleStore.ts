@@ -26,7 +26,10 @@ import {
 import { IEquipmentItem } from '@/types/equipment';
 import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
-import { pickPersistedVehicleState } from './unitDraftPersistence';
+import {
+  pickPersistedVehicleState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 import {
   VehicleState,
   VehicleStore,
@@ -292,7 +295,9 @@ export function createVehicleStore(
       }),
       createUnitStorePersistOptions(
         `megamek-vehicle-${initialState.id}`,
-        (state: VehicleStore) => pickPersistedVehicleState(state),
+        withUnitLibraryReceipt((state: VehicleStore) =>
+          pickPersistedVehicleState(state),
+        ),
       ),
     ),
   );

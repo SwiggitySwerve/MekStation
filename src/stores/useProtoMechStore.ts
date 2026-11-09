@@ -41,7 +41,10 @@ import {
   createProtoMechMountedEquipment,
   createEmptyProtoMechArmorAllocation,
 } from './protoMechState';
-import { pickPersistedProtoMechState } from './unitDraftPersistence';
+import {
+  pickPersistedProtoMechState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 export type { ProtoMechStore } from './protoMechState';
 
@@ -452,7 +455,9 @@ export function createProtoMechStore(
       },
       createUnitStorePersistOptions(
         `megamek-protomech-${initialState.id}`,
-        (state: ProtoMechStore) => pickPersistedProtoMechState(state),
+        withUnitLibraryReceipt((state: ProtoMechStore) =>
+          pickPersistedProtoMechState(state),
+        ),
       ),
     ),
   );

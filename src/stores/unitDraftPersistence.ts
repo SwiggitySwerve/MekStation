@@ -3,6 +3,7 @@ import type { AerospaceState } from './aerospaceState';
 import type { BattleArmorState } from './battleArmorState';
 import type { InfantryState } from './infantryState';
 import type { ProtoMechState } from './protoMechState';
+import type { IUnitSaveMetadata } from './unitSaveState';
 import type { VehicleState } from './vehicleState';
 
 import { pickPersistedUnitIdentity } from './unitStoreIdentityActions';
@@ -17,7 +18,9 @@ function pickStoreFields<TState, const TKey extends keyof TState>(
   >;
 }
 
-export function pickPersistedVehicleState(state: VehicleState) {
+export function pickPersistedVehicleState(
+  state: VehicleState,
+): Partial<VehicleState> {
   return {
     ...pickPersistedUnitIdentity(state),
     tonnage: state.tonnage,
@@ -59,7 +62,9 @@ export function pickPersistedVehicleState(state: VehicleState) {
   };
 }
 
-export function pickPersistedInfantryState(state: InfantryState) {
+export function pickPersistedInfantryState(
+  state: InfantryState,
+): Partial<InfantryState> {
   return {
     ...pickPersistedUnitIdentity(state),
     techBase: state.techBase,
@@ -92,7 +97,9 @@ export function pickPersistedInfantryState(state: InfantryState) {
   };
 }
 
-export function pickPersistedBattleArmorState(state: BattleArmorState) {
+export function pickPersistedBattleArmorState(
+  state: BattleArmorState,
+): Partial<BattleArmorState> {
   return {
     ...pickPersistedUnitIdentity(state),
     librarySource: state.librarySource,
@@ -126,7 +133,9 @@ export function pickPersistedBattleArmorState(state: BattleArmorState) {
   };
 }
 
-export function pickPersistedProtoMechState(state: ProtoMechState) {
+export function pickPersistedProtoMechState(
+  state: ProtoMechState,
+): Partial<ProtoMechState> {
   return {
     ...pickPersistedUnitIdentity(state),
     librarySource: state.librarySource,
@@ -166,9 +175,26 @@ const AEROSPACE_PERSIST_KEYS =
     ' ',
   ) as ReadonlyArray<keyof AerospaceState>;
 
-export function pickPersistedAerospaceState(state: AerospaceState) {
+export function pickPersistedAerospaceState(
+  state: AerospaceState,
+): Partial<AerospaceState> {
   return {
     ...pickPersistedUnitIdentity(state),
     ...pickStoreFields(state, AEROSPACE_PERSIST_KEYS),
+  };
+}
+
+/** Append confirmed metadata only when present; legacy drafts keep their exact field set. */
+export function withUnitLibraryReceipt<
+  TState extends IUnitSaveMetadata,
+  TPersisted extends object,
+>(
+  partialize: (state: TState) => TPersisted,
+): (state: TState) => TPersisted & Pick<IUnitSaveMetadata, 'librarySave'> {
+  return (state) => {
+    const persisted = partialize(state);
+    return state.librarySave === undefined
+      ? persisted
+      : { ...persisted, librarySave: state.librarySave };
   };
 }

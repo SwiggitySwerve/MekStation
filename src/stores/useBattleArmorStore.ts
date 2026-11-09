@@ -32,7 +32,10 @@ import {
   createDefaultBattleArmorState,
   createBattleArmorMountedEquipment,
 } from './battleArmorState';
-import { pickPersistedBattleArmorState } from './unitDraftPersistence';
+import {
+  pickPersistedBattleArmorState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { BattleArmorStore } from './battleArmorState';
@@ -299,7 +302,9 @@ export function createBattleArmorStore(
       },
       createUnitStorePersistOptions(
         `megamek-battlearmor-${initialState.id}`,
-        (state: BattleArmorStore) => pickPersistedBattleArmorState(state),
+        withUnitLibraryReceipt((state: BattleArmorStore) =>
+          pickPersistedBattleArmorState(state),
+        ),
       ),
     ),
   );

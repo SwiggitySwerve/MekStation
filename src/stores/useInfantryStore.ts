@@ -35,7 +35,10 @@ import {
   computeInfantryStateBV,
   normalizeInfantryState,
 } from './infantryState';
-import { pickPersistedInfantryState } from './unitDraftPersistence';
+import {
+  pickPersistedInfantryState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { InfantryStore } from './infantryState';
@@ -316,7 +319,9 @@ export function createInfantryStore(
       },
       createUnitStorePersistOptions(
         `megamek-infantry-${initialState.id}`,
-        (state: InfantryStore) => pickPersistedInfantryState(state),
+        withUnitLibraryReceipt((state: InfantryStore) =>
+          pickPersistedInfantryState(state),
+        ),
       ),
     ),
   );

@@ -43,7 +43,10 @@ import {
   createEmptyAerospaceArmorAllocation,
   unitTypeForAerospaceSubType,
 } from './aerospaceState';
-import { pickPersistedAerospaceState } from './unitDraftPersistence';
+import {
+  pickPersistedAerospaceState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { AerospaceStore } from './aerospaceState';
@@ -279,7 +282,9 @@ const createAerospaceFuelActions = (
 function aerospacePersistOptions(initialState: AerospaceState) {
   return createUnitStorePersistOptions(
     `megamek-aerospace-${initialState.id}`,
-    (state: AerospaceStore) => pickPersistedAerospaceState(state),
+    withUnitLibraryReceipt((state: AerospaceStore) =>
+      pickPersistedAerospaceState(state),
+    ),
   );
 }
 
