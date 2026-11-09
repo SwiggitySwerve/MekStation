@@ -52,6 +52,12 @@ Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 // date, so an outcome stamped from `new Date()` a millisecond after the
 // campaign was created was dropped on some runs. Every test sets this date and
 // stamps its outcome from it.
+//
+// LIMIT: this fixture stamps `capturedAt` with an IN-GAME date. Production
+// stamps it with the WALL CLOCK (`combatOutcome.ts:242`, `new Date()`), so the
+// test below does not prove that a production victory is counted when the
+// campaign date and the wall clock are on different timelines. That question
+// is not answered here; it is covered by PR4c.
 const START = new Date('3025-02-01T00:00:00.000Z');
 const CAPTURED_BEFORE_START = new Date(START.getTime() - 60 * 60 * 1000);
 
