@@ -74,6 +74,13 @@ The entity model SHALL preserve the loaded construction family, subtype, technol
 - **WHEN** the domain entity is constructed
 - **THEN** equipment identity, multiplicity, qualifiers and relationships SHALL match the upstream-loaded entity
 
+#### Scenario: Source mount ownership moves without changing loaded designs
+
+- **GIVEN** existing source equipment with recovered physical mounts, aliases and shared critical entries
+- **WHEN** mount grouping and physical formula facts move to their owning modules
+- **THEN** loaded equipment values, order, positions and qualifiers SHALL remain unchanged
+- **AND** existing admission guards and spread-mount anchoring SHALL remain unchanged until a separately verified behavior change
+
 #### Scenario: Invalid design remains inspectable
 
 - **GIVEN** an upstream-loadable design that fails construction validation

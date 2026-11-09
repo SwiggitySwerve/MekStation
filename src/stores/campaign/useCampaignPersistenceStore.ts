@@ -7,6 +7,7 @@
  *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D6)
+ * @spec openspec/changes/route-campaign-save-writers/specs/campaign-persistence/spec.md
  */
 
 import { create, type StateCreator } from 'zustand';
@@ -14,7 +15,6 @@ import { create, type StateCreator } from 'zustand';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type {
-  ICampaignSaveMetadata,
   ICampaignSourceReplayFence,
   SerializedCampaign,
   SerializedCampaignRosterEntry,
@@ -28,7 +28,6 @@ import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthToken
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import {
   buildSerializedCampaign,
-  CURRENT_CAMPAIGN_SCHEMA_VERSION,
   deserializeCampaignBody,
   getDeviceId,
   migrateSerializedCampaign,
@@ -42,12 +41,34 @@ import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRoster
 import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
+import type {
+  CampaignSaveEvent,
+  CampaignSaveSnapshot,
+  ICampaignLaunchConflict,
+  ICampaignSaveConflict,
+  ICampaignSaveRefusal,
+} from './campaignSaveState';
+
+import {
+  INITIAL_CAMPAIGN_SAVE_STATE as INITIAL_STATE,
+  reduceCampaignSaveState,
+} from './campaignSaveState';
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 import {
   ensureCampaignUnitMaxStates,
   prepareCampaignUnitMaxStates,
 } from './campaignUnitMaxStates';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
+
+// Preserve public import paths while the pure reducer owns these contracts.
+export type {
+  CampaignFlushSkipReason,
+  CampaignSaveState,
+  ICampaignFlushSkip,
+  ICampaignLaunchConflict,
+  ICampaignSaveConflict,
+  ICampaignSaveRefusal,
+} from './campaignSaveState';
 
 export const AUTO_SAVE_DEBOUNCE_MS = 2000;
 
@@ -59,79 +80,6 @@ export const AUTO_SAVE_DEBOUNCE_MS = 2000;
  * refuses to fire a request it knows will be rejected.
  */
 export const KEEPALIVE_FLUSH_BODY_CAP_BYTES = 64 * 1024;
-
-/**
- * Why a discard-time flush declined to write. Named rather than boolean
- * because the whole point is that an over-cap discard is observable: the
- * mechanism cannot distinguish a rejected request from a write that landed.
- */
-export type CampaignFlushSkipReason = 'envelope-over-keepalive-cap';
-
-/** The typed record of a declined discard-time flush. */
-export interface ICampaignFlushSkip {
-  readonly reason: CampaignFlushSkipReason;
-  readonly campaignId: string;
-  /** Serialized request body size, in bytes. */
-  readonly byteLength: number;
-  readonly capBytes: number;
-}
-
-export type CampaignSaveState =
-  | 'idle'
-  | 'saving'
-  | 'saved'
-  | 'error'
-  | 'conflict';
-
-/**
- * A launch the authority refused because the campaign moved under
- * this client.
- *
- * Kept alongside the save conflict rather than folded into it: both
- * are "your view is stale", and since umbrella 8.3 both have the SAME
- * single honest move - resync to what the authority holds. They stay
- * separate because they carry different evidence: a launch refusal
- * names a branch head, a save refusal names a write version, and the
- * two are different numbers.
- */
-export interface ICampaignLaunchConflict {
-  /** STALE_BRANCH / STALE_REVISION / STALE_GENERATION / ownership. */
-  readonly code: string;
-  readonly reason: string;
-  readonly activeHead: {
-    readonly branchId: string;
-    readonly revision: number;
-    readonly effectiveGeneration: number;
-  };
-  readonly resyncAction: string;
-}
-
-/**
- * The server's typed refusal of a stale whole-envelope write (umbrella
- * 8.3/8.4).
- *
- * `currentVersion` is the campaigns-table write counter, NOT a journal
- * revision, and is named so on purpose: the two are different numbers and
- * conflating them is the trap the launch-head route documents.
- */
-export interface ICampaignSaveConflict {
-  readonly reason: string;
-  readonly recoveryAction: string;
-  readonly conflictingFields: readonly string[];
-  readonly currentVersion: number;
-}
-
-/**
- * The server's typed refusal of a write to a campaign a live co-op host
- * holds (`401`/`403`, `kind: 'refused'`): the code, the verifier's reason
- * and the server's own sentence. It is NOT a conflict: nothing was newer on
- * the server, so there is no record to adopt and the unsaved changes stay.
- */
-export interface ICampaignSaveRefusal {
-  readonly code: string;
-  readonly reason: string;
-  readonly message: string;
-}
 
 /**
  * The committed body `/api/campaigns/[id]/commands` answers a source
@@ -190,53 +138,17 @@ export type CampaignPersistenceSaveResult =
       readonly refusal?: ICampaignSaveRefusal;
     };
 
-interface CampaignPersistenceState {
-  campaignId: string | null;
-  dirty: boolean;
-  /** Transient mutation counter; save acknowledgements only cover their snapshot. */
-  editSeq: number;
-  saveState: CampaignSaveState;
-  metadata: ICampaignSaveMetadata;
-  baseVersion: number;
-  errorMessage: string | null;
-  conflictServerRecord: SerializedCampaign | null;
-  /** The server's typed reason and safe recovery for the last 409. */
-  saveConflict: ICampaignSaveConflict | null;
-  /** The server's typed refusal of the last write, or `null`; see `ICampaignSaveRefusal`. */
-  saveRefusal: ICampaignSaveRefusal | null;
-  /** Set when a launch was refused for a stale head or ownership. */
-  launchConflict: ICampaignLaunchConflict | null;
-  lastPersistedCampaign: ICampaign | null;
-  /**
-   * True when the browser holds a campaign this server has never seen and
-   * that arrived by storage rehydration - a legacy copy awaiting adoption
-   * (D8). Such a copy is readable but unshareable, and deliberately does
-   * NOT auto-save: see the guard in `runSave`.
-   */
-  legacyUnadopted: boolean;
-  /**
-   * The last discard-time flush that declined to write, or `null`. Set
-   * only by `flushPendingMutations`; never cleared by a save, because a
-   * skipped flush is a condition someone has to see, not a transient.
-   */
-  flushSkip: ICampaignFlushSkip | null;
-  /**
-   * The source-materialization watermark the last record this client READ
-   * carried, or `null` for a row the source has never materialized.
-   *
-   * Held so the next whole-envelope write can echo it. A client never
-   * mints or advances this - echoing the stored value is how a PUT proves
-   * it has seen the materialization that produced the row it is writing
-   * over, and a PUT that cannot is refused ahead of the compare-and-swap.
-   */
-  sourceReplayFence: ICampaignSourceReplayFence | null;
-}
-
 interface CampaignPersistenceActions {
   loadCampaign: (id: string) => Promise<boolean>;
   adoptLegacyCampaign: () => Promise<boolean>;
   saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
+  /** Bind a new id after the caller's reset, retaining the separate notification. */
+  initializeCreatedCampaign: (campaignId: string) => void;
+  /** Clear only dirtiness introduced by rollback's campaign restoration. */
+  restoreDirtyAfterRollback: (wasDirty: boolean) => void;
+  /** Restore captured state after the caller resets and reinstalls its campaign. */
+  restoreAfterFailedCreation: (snapshot: CampaignSaveSnapshot) => void;
   /**
    * Best-effort durable write of the pending envelope, for a document
    * that is about to be discarded. Exposed as an action so the behaviour
@@ -293,39 +205,8 @@ interface CampaignPersistenceActions {
   reset: () => void;
 }
 
-export type CampaignPersistenceStore = CampaignPersistenceState &
+export type CampaignPersistenceStore = CampaignSaveSnapshot &
   CampaignPersistenceActions;
-
-const INITIAL_METADATA: ICampaignSaveMetadata = {
-  lastSavedAt: null,
-  schemaVersion: CURRENT_CAMPAIGN_SCHEMA_VERSION,
-  originDeviceId: null,
-  version: 0,
-  // Never saved: the hosting instance and its authority are UNKNOWN.
-  // Null rather than a source default - claiming source authority for a
-  // record that was never written is exactly the silent inference D2
-  // forbids.
-  instanceId: null,
-  authority: null,
-};
-
-const INITIAL_STATE: CampaignPersistenceState = {
-  campaignId: null,
-  dirty: false,
-  editSeq: 0,
-  saveState: 'idle',
-  metadata: INITIAL_METADATA,
-  baseVersion: 0,
-  errorMessage: null,
-  conflictServerRecord: null,
-  saveConflict: null,
-  saveRefusal: null,
-  launchConflict: null,
-  lastPersistedCampaign: null,
-  legacyUnadopted: false,
-  flushSkip: null,
-  sourceReplayFence: null,
-};
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -441,6 +322,14 @@ function flushedEnvelopeDigest(envelope: SerializedCampaign): string {
 
 type PersistenceSet = Parameters<StateCreator<CampaignPersistenceStore>>[0];
 type PersistenceGet = Parameters<StateCreator<CampaignPersistenceStore>>[1];
+
+function dispatchSaveEvent(
+  set: PersistenceSet,
+  event: CampaignSaveEvent,
+): void {
+  // A fresh shallow result preserves Zustand notifications even for field no-ops.
+  set((state) => ({ ...reduceCampaignSaveState(state, event) }));
+}
 
 function clearAutoSaveTimer(): void {
   if (autoSaveTimer !== null) {
@@ -621,17 +510,6 @@ function restoreRosterProjection(
 }
 
 /**
- * The materialization watermark a record carries, as a value this store
- * can hold. Normalized to `null` rather than left `undefined` so "never
- * materialized" is a fact the store states, not an absence it infers.
- */
-function fenceOf(
-  record: SerializedCampaign,
-): ICampaignSourceReplayFence | null {
-  return record.sourceReplayFence ?? null;
-}
-
-/**
  * Attach the stored fence to an outgoing envelope.
  *
  * Conditional, never an enumerable `undefined`: a client that has seen no
@@ -644,17 +522,6 @@ function withSourceReplayFence(
   fence: ICampaignSourceReplayFence | null,
 ): SerializedCampaign {
   return fence === null ? envelope : { ...envelope, sourceReplayFence: fence };
-}
-
-function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {
-  return {
-    lastSavedAt: record.savedAt,
-    schemaVersion: record.schemaVersion,
-    originDeviceId: record.originDeviceId,
-    version: record.version,
-    instanceId: record.instanceId,
-    authority: record.authority,
-  };
 }
 
 /**
@@ -833,20 +700,11 @@ function applySavedRecord(
   issuedFlush = null;
   const persistedCampaign = deserializeCampaignRecord(record);
   writeCachedCampaignKey(record);
-  set((state) => {
-    const dirty = savedEditSeq !== undefined && state.editSeq !== savedEditSeq;
-    return {
-      campaignId: record.campaignId,
-      saveState: dirty ? 'idle' : 'saved',
-      dirty,
-      baseVersion: record.version,
-      conflictServerRecord: null,
-      saveConflict: null,
-      errorMessage: null,
-      metadata: metadataFrom(record),
-      lastPersistedCampaign: persistedCampaign,
-      sourceReplayFence: fenceOf(record),
-    };
+  dispatchSaveEvent(set, {
+    type: 'save-acknowledged',
+    record,
+    campaign: persistedCampaign,
+    savedEditSeq,
   });
 }
 
@@ -878,15 +736,14 @@ function rollbackCoopCampaign(
     // judge the copy diverged and replace the live campaign - dropping a
     // co-op effect folded onto it since (U35f).
     writeCachedCampaignKey(migrated);
-    set({
-      baseVersion: migrated.version,
-      metadata: metadataFrom(migrated),
-      lastPersistedCampaign: rollbackCampaign,
-      sourceReplayFence: fenceOf(migrated),
+    dispatchSaveEvent(set, {
+      type: 'coop-rollback-record-installed',
+      record: migrated,
+      campaign: rollbackCampaign,
     });
   }
   clearAutoSaveTimer();
-  set({ dirty: false });
+  dispatchSaveEvent(set, { type: 'coop-rollback-settled' });
 }
 
 function notifyUnresolvedCoopSave(message: string): void {
@@ -946,7 +803,7 @@ async function runSave(
   }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
   const savedEditSeq = get().editSeq;
-  set({ saveState: 'saving', errorMessage: null, saveRefusal: null });
+  dispatchSaveEvent(set, { type: 'operation-started', operation: 'save' });
 
   try {
     const attempt = await putLiveCampaign(
@@ -958,10 +815,9 @@ async function runSave(
       // Not rolled back and not cleared: the server holds nothing newer, so
       // the local change is still the player's and stays pending (dirty) for
       // a window that can save it. The card shows the reason.
-      set({
-        saveState: 'error',
-        errorMessage: attempt.refusal.message,
-        saveRefusal: attempt.refusal,
+      dispatchSaveEvent(set, {
+        type: 'save-refused',
+        refusal: attempt.refusal,
       });
       return {
         status: 'error',
@@ -980,7 +836,7 @@ async function runSave(
         held.campaignId === attempt.record.campaignId &&
         held.baseVersion > attempt.record.version
       ) {
-        set({ saveState: held.dirty ? 'idle' : 'saved', errorMessage: null });
+        dispatchSaveEvent(set, { type: 'older-save-acknowledged' });
         return { status: 'saved', record: attempt.record };
       }
       applySavedRecord(set, attempt.record, savedEditSeq);
@@ -999,10 +855,10 @@ async function runSave(
     // boundary does not know which fields it changed - which is why the
     // server answers `base-state-unavailable` and the one safe move is to
     // take its record.
-    set({
-      saveState: 'conflict',
-      conflictServerRecord: attempt.conflictServerRecord,
-      saveConflict: attempt.conflict,
+    dispatchSaveEvent(set, {
+      type: 'save-conflicted',
+      record: attempt.conflictServerRecord,
+      conflict: attempt.conflict,
     });
     if (isCoopCampaign(campaign)) {
       // On the FIRST refusal now. Waiting for a second attempt used to
@@ -1027,7 +883,11 @@ async function runSave(
         `Co-op campaign save failed: ${message}. Your local change was rolled back.`,
       );
     }
-    set({ saveState: 'error', errorMessage: message });
+    dispatchSaveEvent(set, {
+      type: 'operation-failed',
+      operation: 'save',
+      message,
+    });
     return { status: 'error', errorMessage: message };
   }
 }
@@ -1061,7 +921,8 @@ async function runLoad(
   const current = guard ?? (() => true);
   {
     if (!current()) return false;
-    if (!guard) set({ saveState: 'saving', errorMessage: null });
+    if (!guard)
+      dispatchSaveEvent(set, { type: 'operation-started', operation: 'load' });
     try {
       const response = await fetchCampaignRecord(id);
       if (!current()) return false;
@@ -1077,14 +938,10 @@ async function runLoad(
           serverLookup: 'absent',
         });
         if (offer.kind === 'adoptable') {
-          set({
-            saveState: 'idle',
-            errorMessage: null,
-            legacyUnadopted: true,
-          });
+          dispatchSaveEvent(set, { type: 'record-missing', adoptable: true });
           return false;
         }
-        set({ saveState: 'idle', errorMessage: 'campaign not found' });
+        dispatchSaveEvent(set, { type: 'record-missing', adoptable: false });
         return false;
       }
       if (!response.ok) {
@@ -1152,24 +1009,21 @@ async function runLoad(
       if (!current()) return false;
       writeCachedCampaignKey(migrated);
       if (!current()) return false;
-      set({
+      dispatchSaveEvent(set, {
+        type: 'record-loaded',
         campaignId: id,
-        dirty: false,
-        saveState: 'saved',
-        baseVersion: migrated.version,
-        conflictServerRecord: null,
-        saveConflict: null,
-        errorMessage: null,
-        metadata: metadataFrom(migrated),
-        lastPersistedCampaign: loadedCampaign,
-        legacyUnadopted: false,
-        sourceReplayFence: fenceOf(migrated),
+        record: migrated,
+        campaign: loadedCampaign,
       });
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'load failed';
       if (current()) {
-        set({ saveState: 'error', errorMessage: message, saveRefusal: null });
+        dispatchSaveEvent(set, {
+          type: 'operation-failed',
+          operation: 'load',
+          message,
+        });
       }
       return false;
     }
@@ -1198,7 +1052,7 @@ async function runAdoptLegacyCampaign(
   if (!offered) {
     return false;
   }
-  set({ saveState: 'saving', errorMessage: null });
+  dispatchSaveEvent(set, { type: 'operation-started', operation: 'adopt' });
   try {
     const envelope = buildSerializedCampaign(
       campaign,
@@ -1220,11 +1074,15 @@ async function runAdoptLegacyCampaign(
     const record = (await response.json()) as SerializedCampaign;
     applySavedRecord(set, record);
     // The browser copy is now a cache of a server-held campaign.
-    set({ legacyUnadopted: false });
+    dispatchSaveEvent(set, { type: 'legacy-adopted' });
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'adoption failed';
-    set({ saveState: 'error', errorMessage: message, saveRefusal: null });
+    dispatchSaveEvent(set, {
+      type: 'operation-failed',
+      operation: 'adopt',
+      message,
+    });
     return false;
   }
 }
@@ -1337,8 +1195,9 @@ function flushPendingMutationsAction(
       // Measured, not attempted: an over-cap keepalive request fails as a
       // network error, and this path never reads a response, so firing it
       // would be a silent failure inside the fix for a silent failure.
-      set({
-        flushSkip: {
+      dispatchSaveEvent(set, {
+        type: 'flush-skipped',
+        diagnostic: {
           reason: 'envelope-over-keepalive-cap',
           campaignId,
           byteLength,
@@ -1407,7 +1266,7 @@ async function adoptFlushedRevision(
     // left to write - the spec requires the returning document to reach
     // an ordinary ACKNOWLEDGED save, and the re-armed save is what earns
     // it and clears the pending state.
-    set({ dirty: true });
+    dispatchSaveEvent(set, { type: 'flush-acknowledgement-owed' });
     return true;
   } catch {
     // A read that never answered is not evidence either way.
@@ -1605,12 +1464,7 @@ function markDirtyAction(
     const liveId = readLiveCampaign()?.id ?? null;
     // Genuinely new pending work: a later discard may flush again.
     pendingFlushIssued = false;
-    set((state) => ({
-      dirty: true,
-      editSeq: state.editSeq + 1,
-      campaignId: state.campaignId ?? liveId,
-      saveState: state.saveState === 'conflict' ? 'conflict' : state.saveState,
-    }));
+    dispatchSaveEvent(set, { type: 'edited', liveCampaignId: liveId });
     clearAutoSaveTimer();
     if (isCoopCampaign(readLiveCampaign())) {
       return;
@@ -1635,17 +1489,10 @@ function resolveConflictTakeServerAction(
       migrated.campaignId,
       migrated.body.rosterProjection,
     );
-    set({
-      campaignId: migrated.campaignId,
-      dirty: false,
-      saveState: 'saved',
-      baseVersion: migrated.version,
-      conflictServerRecord: null,
-      saveConflict: null,
-      errorMessage: null,
-      metadata: metadataFrom(migrated),
-      lastPersistedCampaign: serverCampaign,
-      sourceReplayFence: fenceOf(migrated),
+    dispatchSaveEvent(set, {
+      type: 'conflict-record-taken',
+      record: migrated,
+      campaign: serverCampaign,
     });
     return true;
   };
@@ -1659,6 +1506,22 @@ function createPersistenceActions(
     loadCampaign: loadCampaignAction(set),
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
+    initializeCreatedCampaign: (campaignId) => {
+      dispatchSaveEvent(set, {
+        type: 'created-campaign-initialized',
+        campaignId,
+      });
+    },
+    restoreDirtyAfterRollback: (wasDirty) => {
+      // No dispatch on the old no-op paths: even a field no-op would notify.
+      if (!wasDirty && get().dirty) {
+        dispatchSaveEvent(set, { type: 'rollback-dirty-restored' });
+      }
+    },
+    restoreAfterFailedCreation: (snapshot) => {
+      // Coordination was reset before campaign installation; do not reset it again.
+      dispatchSaveEvent(set, { type: 'creation-cleanup-restored', snapshot });
+    },
     flushPendingMutations: flushPendingMutationsAction(set, get),
     reconcileAfterDiscardFlush: reconcileAfterDiscardFlushAction(set, get),
     // Called by the co-op host's fold of a committed frame (U35f). The
@@ -1667,20 +1530,16 @@ function createPersistenceActions(
     adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {
-      set((state) =>
-        state.saveState === 'error'
-          ? { saveState: 'idle', errorMessage: null, saveRefusal: null }
-          : {},
-      );
+      dispatchSaveEvent(set, { type: 'error-cleared' });
     },
     // A launch refusal is recorded, never thrown away into a message
     // string: the code and the active head are what let the surface offer
     // a resync instead of "something went wrong".
     reportLaunchConflict: (conflict) => {
-      set({ launchConflict: conflict });
+      dispatchSaveEvent(set, { type: 'launch-conflict-reported', conflict });
     },
     clearLaunchConflict: () => {
-      set({ launchConflict: null });
+      dispatchSaveEvent(set, { type: 'launch-conflict-cleared' });
     },
     reset: () => {
       clearAutoSaveTimer();
@@ -1689,7 +1548,7 @@ function createPersistenceActions(
       saveChain = Promise.resolve();
       pendingFlushIssued = false;
       issuedFlush = null;
-      set({ ...INITIAL_STATE });
+      dispatchSaveEvent(set, { type: 'reset' });
     },
   };
 }

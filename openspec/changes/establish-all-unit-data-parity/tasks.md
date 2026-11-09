@@ -50,6 +50,10 @@ comparison-rejection scenario still incomplete. This brings the ledger to
 historical. No full requirement, numerical parity, spec sync or archive is
 accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 
+Row 3.3 was reopened on 2026-11-09 (see row 3.3). This brings the ledger to 34
+of 45 top-level rows ticked (36 of 47 checkbox entries); 11 rows remain open:
+2.1, 2.2, 2.3, 2.22, 3.1, 3.2, 3.3, 3.4, 4.1, 4.3 and 5.2.
+
 ## 1. Source and reference foundation
 
 - [x] 1.1 Implement deterministic pinned Git source inventory in `scripts/megameklab-conversion/`, including MTF/BLK/BFS, hashes, explicit other files and nonempty input errors. Test dirty-tree isolation and missing/invalid inputs. (`unit-services`: Immutable source inventory) Proof: #2373; tests: `scripts/__tests__/test_source_inventory.py` (9 pass); evidence: `2026-10-28/upstream-crosscheck/implementation/runtime-reference/corpus/source-verification.json` (10,994 sources: 4,263 MTF, 6,725 BLK, 6 BFS, plus 4 explicit non-source entries), `ledger/slice-tests/py-source-inventory.log`.
@@ -266,8 +270,40 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
     remain open. Evidence: `normal-work/P5-loading/mtf-api/PROOF.json`.
   - [x] 3.2a Native ProtoMek BLK projection: all 86 pinned sources load with chassis, base movement/rating, declared rules level, armor locations and main-gun topology equal to actual pinned Java. All 86 scoped exports reload in Java with those fields unchanged; the test adapter is not a production import-to-store path. Existing construction diagnostics mark 10 designs invalid. At that slice's head all 86 retained internal-structure mismatches, subsequently corrected by 2.6. Equipment resolution, construction-rule fidelity, persistence and complete BV remain open. (`unit-services`: Native ProtoMek source projection)
   - Open: canonical discovery is family-aware (#2432, #2454, #2457, #2452, #2466). #2954 now provides direct MTF API import; BLK import, browser selection and the legacy runtime-object importer remain open; the BFS files are no longer a gap, because the owner excluded all six (#2578). ProtoMechs are a family in `UNIT_FAMILIES` (#2505) with a catalog (#2526), and battle armor and infantry have catalogs and `index.json` (#2513, #2515), and #2529 and #2534 now open ProtoMechs, battle armor and infantry from the library into their existing stores (the catalog replays open 86 of 86, 1,188 of 1,188 and 1,820 of 1,820, `ledger/tick6/library-open/`; `smallUnitLibrary.test.tsx`, `openFromLibrary.test.tsx` and `familyCatalog.test.ts` pass in the main-push unit run 41932845917 on main `ac64a3330`). Per-file counts on main `ac64a3330` (`ledger/tick6/corpus-load/`, identical to tick 5; `ledger/ACCEPTANCE-STATUS.md` check 2): all 9,815 in-scope pinned files open in an editor or viewer (BattleMechs 4,263, vehicles 1,444, aerospace 620, capital 394 read-only, battle armor 1,188, infantry 1,820, ProtoMechs 86). The owner excluded all six BFS files (#2578, ruling 2026-11-02 item 4), so the 5 BFS files that the corpus-load harness still lists as unsupported are no longer a gap (the harness's corpus file predates the ruling). The BattleMech catalog was regenerated from the pin (#2581; 4,263 rows, none missing), so the 74 missing rows of tick 3 are gone; 133 blank-model designs join the catalog only through the `Unknown` model name. The corpus-load harness counts the editor open for battle armor, infantry and ProtoMechs through the catalog replays (`SMALL_CATALOG=1`, `INFANTRY_CATALOG=1`, both exit 0), not by its own bucket. BLK import, browser file selection and the legacy runtime-object importer remain open.
-- [x] 3.3 Prove semantic serialization/save/reload for each subtype, with multiplicity, topology and custom/source identities preserved. (`mtf-parity-validation`: All-family semantic round trips) Proof: #2546 (vehicles), #2550 (aerospace and small craft), #2561 (ProtoMechs and battle armor), #2567 (infantry), #2569 (family kept on force, roster and session references), #2518 and #2611 (capital ships: open, view, BV and print, read-only per owner ruling 3, `OWNER-RULINGS-20261030.md` "2026-11-03 (evening): tick-4 owner decisions" item 2); tests: `src/services/units/unitLoaderService/__tests__/vehicleMapping.test.ts`, `aerospaceSave.test.tsx`, `smallUnitSave.test.tsx`, `infantrySave.test.tsx`, `src/services/forces/__tests__/ForceRepository.helpers.test.ts`, `src/components/customizer/capital/__tests__/CapitalShipCustomizer.test.tsx`, `src/__tests__/service/printing/capitalRecordSheets.test.ts`, `capitalTemplated.test.ts`, `recordSheetFigures.test.ts` (all pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; some cases are skipped, see Carried); evidence: `unit-loading/UL-25a/`, `UL-25b/` and `UL-25c/` (lane figures, not re-run: the production mapper, serializer, JSON and mapper compare equal for 1,444 of 1,444 vehicles and 620 of 620 aerospace and small craft, and 86 of 86 ProtoMechs, 1,188 of 1,188 battle armor and 1,820 of 1,820 infantry pass semantic, BV and validity round trips), `ledger/tick6/corpus-load/` and `library-open/` (all 394 capital ships open read-only; the catalog replays open every battle armor, infantry and ProtoMech design), `ledger/tick6/run-1/delta-rows.jsonl` (capital BV: 246 exact, 6 within 1%, 3 farther, 139 defensive-only and labelled so).
+- [ ] 3.3 Prove semantic serialization/save/reload for each subtype, with multiplicity, topology and custom/source identities preserved. (`mtf-parity-validation`: All-family semantic round trips) Proof: #2546 (vehicles), #2550 (aerospace and small craft), #2561 (ProtoMechs and battle armor), #2567 (infantry), #2569 (family kept on force, roster and session references), #2518 and #2611 (capital ships: open, view, BV and print, read-only per owner ruling 3, `OWNER-RULINGS-20261030.md` "2026-11-03 (evening): tick-4 owner decisions" item 2); tests: `src/services/units/unitLoaderService/__tests__/vehicleMapping.test.ts`, `aerospaceSave.test.tsx`, `smallUnitSave.test.tsx`, `infantrySave.test.tsx`, `src/services/forces/__tests__/ForceRepository.helpers.test.ts`, `src/components/customizer/capital/__tests__/CapitalShipCustomizer.test.tsx`, `src/__tests__/service/printing/capitalRecordSheets.test.ts`, `capitalTemplated.test.ts`, `recordSheetFigures.test.ts` (all pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; some cases are skipped, see Carried); evidence: `unit-loading/UL-25a/`, `UL-25b/` and `UL-25c/` (lane figures, not re-run: the production mapper, serializer, JSON and mapper compare equal for 1,444 of 1,444 vehicles and 620 of 620 aerospace and small craft, and 86 of 86 ProtoMechs, 1,188 of 1,188 battle armor and 1,820 of 1,820 infantry pass semantic, BV and validity round trips), `ledger/tick6/corpus-load/` and `library-open/` (all 394 capital ships open read-only; the catalog replays open every battle armor, infantry and ProtoMech design), `ledger/tick6/run-1/delta-rows.jsonl` (capital BV: 246 exact, 6 within 1%, 3 farther, 139 defensive-only and labelled so).
   - Carried: the family on force and roster references covers vehicles and aerospace (#2569 rejects unsupported combat families, so battle armor, infantry, ProtoMechs and capital cannot yet be in a force; follow-up 32), and saved non-mech combat snapshots are not in #2569. The vehicle and aerospace proofs are mapper-level and integration cases; the browser journeys for eight families ran on the SHA in the main-push run (`customizer-library-open.spec.ts`, 52 tests passed; rows 4.2 and 4.4). `infantrySave.test.tsx` skips 1 case, `capitalTemplated.test.ts` runs 3 and skips 7 (skip counts as at tick 5, not re-counted): its pinned-mm-data cases need `RECORD_SHEET_PINNED_ASSETS` and the pin under `_scratch/upstream-pins-20261028/mm-data` holds no record sheet images, so only the repository-asset cases ran. Capital BV is complete for 255 of 394 designs (246 exact, 6 within 1%, 3 farther) and defensive-only for 139 (row 3.4).
+  - Reopened 2026-11-09 by master ruling (no accepted carve-out): BattleMech
+    custom save/reopen does not preserve Mixed-Tech equipment identity. This
+    invalidates the row's "custom/source identities preserved" claim for
+    BattleMechs only; the family evidence above stands at its stated scope.
+    Evidence: `parity-3.2-x/EDITOR-SELECTIONS.md` (runtime head
+    `f79e7b1a24ab1a1bf3f8abd0e37b0764b00073b0`, catalog base
+    `ca66910a141f06098e358c6bd5b72fec335923bf`). Equipment-ID multisets drift
+    between save and reopen on 16 of 22 sampled units, in 192 of 264 journeys,
+    with or without the chassis overlay. For example, Shadow Hawk C saves
+    `clan-er-medium-laser` and reopens as `er-medium-laser` with Inner Sphere
+    tech. The journeys run in jsdom through the production controls, stores,
+    serializers and API client, with SQLite behind a fixture HTTP adapter;
+    they are not browser or server-route proof. 264 of 264 journeys completing
+    does not mean identity was preserved. The fuller 3.2-y baseline census
+    (`parity-3.2-y/C5-ACCEPTANCE.md`, product
+    `f529838e54b8fd1510e217b47339ca1ecf2dc885`, same jsdom
+    save/API-client/SQLite/custom-reopen path) is failing baseline evidence,
+    not a fix. 505 of 505 journeys completed and every saved ID is correct in
+    SQLite. After reopen, 190 of 505 keep equipment ID and tech. Mixed fails
+    on 315 of 377 (213 of 257 IS-chassis, 102 of 120 Clan-chassis), and all
+    128 sampled pure controls keep ID and tech. Separately, mount category
+    drifts (ammo becomes weapon on shared IDs) in 51 of 377 Mixed units, 1 of
+    64 pure IS and 18 of 64 pure Clan controls. The eleven selection fields
+    and eight component-tech selections pass 505 of 505, which does not
+    establish identity. A fix cannot reconstruct designs already reopened and
+    resaved with the wrong ID. Owner: C3. 3.2-y fixes Mixed equipment identity
+    and 3.2-z fixes mount category drift, as separate PRs. Reclosure gate:
+    both y and z merged, the recorded topology and critical-grid findings
+    resolved, and a fresh semantic identity, multiplicity, category and
+    topology proof on merged main, with unrelated parser or load failures
+    recorded separately. A passing identity result alone does not close the
+    row.
 - [ ] 3.4 Run complete per-family construction/BV comparisons against matched references. Record per-unit and component differences, upstream failures and justified inapplicable metrics. (`battle-value-system`: Strict all-family numerical parity)
   - #2985/#2991's retained ammunition proofs update the detailed census as
     recorded under row 2.22; #2994's retained construction proof is recorded under
@@ -427,17 +463,69 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
     the G6 register is not changed by this ledger update. Classification and
     receipt audit: `normal-work/P8-acceptance/landed-2951/`.
   - Open: depends on every other row, including every remaining clause of the
-    9 other open rows listed above. Acceptance checks 1, 3 and 4 remain open;
+    10 other open rows listed above (row 3.3 reopened 2026-11-09). Acceptance
+    checks 1, 3 and 4 remain open;
     historical aggregate BV equality does not discharge missing detailed terms,
     construction quantities, source semantics or connected workflow proof.
   - Follow-ups: reconcile all 115 items in `followups.md` against merged proof
     or an explicit owner deferral. Item 27 is owner-deferred; item 111 is only
     coordinator-deferred, so it does not satisfy that acceptance condition.
     G5 owns the central external status documents; P8 owns this task ledger.
+  - Single deferral list (2026-11-09, `PARITY-PLAN` §11 "O4 deferral list").
+    The owner deferred the 22 non-parity items below, none of which affects BV
+    totals, construction validity, loading, editors or record sheets. For the
+    items marked "residual", only the stated non-parity residual is deferred;
+    the rest of each item is resolved or tracked elsewhere. FU-27 is carried
+    here from its 2026-11-03 deferral (tick-4 owner decisions, item 3).
+
+    | FU  | Deferred item                                                                | Reason                                                       |
+    | --- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
+    | 5   | Cluster damage preview for UAC/RAC/LB-X                                      | Combat preview only; no BV, validity or loading term         |
+    | 9   | One owner for the missile family                                             | Refactor; behaviour unchanged                                |
+    | 15  | #2424/#2425 Low notes                                                        | Doc note in aerospace RULES.md                               |
+    | 21  | CAMP-01 follow-ups from the #2429 reviews                                    | Comment in CAMP-01 test tooling                              |
+    | 23  | UL-03 (#2431) leftovers (residual)                                           | Schema tie of `barRating`, unused engine-enum values, tests  |
+    | 26  | #2434 (UL-16) exporter test gaps (residual)                                  | All fail closed                                              |
+    | 27  | Date-dependent tests (carried, deferred 2026-11-03)                          | Outside the goal                                             |
+    | 35  | #2449 (UL-07a prep) review items                                             | Schema 250 t bound; no pinned source fails                   |
+    | 36  | #2448 (UL-08b) `.` subtest does not test the allowlist                       | Python test strengthening; code already refuses `.`          |
+    | 37  | Vehicle unit-type aliases that MegaMek rejects                               | No pinned source uses them                                   |
+    | 38  | #2450 (follow-up 33) review items (residual)                                 | Nested pins in the snapshot test                             |
+    | 44  | Generator node test from #2444 is not in CI                                  | One-line CI change; no parity effect                         |
+    | 52  | #2461 (UL-19 first term) notes                                               | Doc wording only                                             |
+    | 73  | UL-14 (#2518) leftovers (residual)                                           | Temp worktree cleanup and PR-size note; capital stays read-only |
+    | 87  | HVAC adjacency (from #2620)                                                  | No pinned source has that layout                             |
+    | 88  | HAG cluster damage (from #2623)                                              | Needs a combat model; catalog damage stays 0                 |
+    | 96  | Follow-up 17 closure notes (residual)                                        | MRM attack preview vs runner hit columns (combat logic)      |
+    | 98  | 375 px settings overflow                                                     | Armor-diagram settings selector layout nit                   |
+    | 105 | Stray scratch files                                                          | Outside the repo; delete by hand                             |
+    | 107 | Untested `isOmniFixedOnly` category branch                                   | Test gap; production behaviour is correct                    |
+    | 113 | FU-93 leftovers (residual)                                                   | LB-X ammo display names; Machine Gun (Light) unrouted by agreement |
+    | 114 | Slow PDF export test                                                         | 17-26 s of a 30 s budget; flake risk, no parity effect       |
+    | 115 | Half MG ammo bins hydrate with the wrong weapon family (from #2872)          | Combat runner family; BV pooling unaffected                  |
+
+  - Not deferred: FU-84 (FrankenMek catalog files) is owner-approved for narrow
+    regeneration (2026-11-09 ruling, `PARITY-PLAN` §11), limited to each file's
+    structure block with a guarded BV proof, and is owned by the 3.1-b worker.
+    FU-111 is still coordinator-deferred, owned by 2.1-b under the standing
+    approval, so it does not satisfy the owner-deferral condition.
+  - FU-97 (salvage roster bug) is closed with evidence; the fix is #2997 and
+    #3004 (both merged 2026-11-07). `e2e/campaign-economy-browser.spec.ts:382`
+    failed in the nightly Full E2E Suite (chromium) in runs 41961957398
+    (2026-11-05, `workflow_dispatch`, head `5ae130546`), 42072283514
+    (2026-11-05, `73b1d1646`), 42254293879 (2026-11-06, `e86866ba2`) and
+    42386769747 (2026-11-07, `09fd1f54a`). It does not fail in run 42496894305
+    (2026-11-08, head `59183c466`, job 128781151938), the first nightly
+    containing both fixes: it is absent from that run's 11 failures (run
+    totals 963 passed, 24 skipped, 11 failed). Ten of those 11 failures are a
+    separate Wave 3 regression (ROADMAP D-11), not FU-97 and not unit data;
+    `campaign-wizard-save-diagnostics` already failed on 2026-11-07.
   - CI acceptance is the PR checks, CAMP-01 and nightly Coverage Thresholds on
     main. The six pre-existing nightly Full E2E failures are owner-deferred
     under the 2026-10-31 ruling; that is not a waiver for other failures. The
-    accepted deployed Guard proof on `0b8ea746c6` establishes Phase G release,
+    owner ruled on 2026-11-09 that the roadmap is not complete until a Full E2E
+    run on main is green (ROADMAP D-11, owned by Coordinator 4); 5.2's final
+    accounting links that green run. The accepted deployed Guard proof on `0b8ea746c6` establishes Phase G release,
     not fresh nightly or full parity acceptance (`phase-g/PHASE-G-COMPLETE.md`).
   - Next: after relevant integrations settle, perform one batched source
     accounting, fresh guarded conversion and all-family acceptance pass on the

@@ -1,4 +1,5 @@
 import type { IMechBVContext } from '@/services/construction/editableMechProjection';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
 /**
  * Unit State Interface
@@ -45,6 +46,8 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 import type { AddEquipmentAtLocationResult } from './unit/catalogEquipmentPlacement';
+import type { UnitEquipmentActions } from './unit/useUnitEquipmentStore';
+import type { ILibrarySaveReceipt } from './unitSaveState';
 
 // =============================================================================
 // Armor Allocation Types
@@ -81,67 +84,7 @@ export function armorResultToAllocation(
   };
 }
 
-/**
- * Calculate total allocated armor points from allocation based on configuration
- * Uses the configuration to determine which locations to include
- */
-export function getTotalAllocatedArmor(
-  allocation: IArmorAllocation,
-  configuration?: MechConfiguration,
-): number {
-  return armorLocationsForConfiguration(configuration).reduce<number>(
-    (total, location) => total + (allocation[location] || 0),
-    0,
-  );
-}
-
-type ArmorLocation = keyof IArmorAllocation;
-
-const CORE_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
-  MechLocation.HEAD,
-  MechLocation.CENTER_TORSO,
-  'centerTorsoRear',
-  MechLocation.LEFT_TORSO,
-  'leftTorsoRear',
-  MechLocation.RIGHT_TORSO,
-  'rightTorsoRear',
-];
-
-const STANDARD_LIMB_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
-  MechLocation.LEFT_ARM,
-  MechLocation.RIGHT_ARM,
-  MechLocation.LEFT_LEG,
-  MechLocation.RIGHT_LEG,
-];
-
-const QUAD_LIMB_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
-  MechLocation.FRONT_LEFT_LEG,
-  MechLocation.FRONT_RIGHT_LEG,
-  MechLocation.REAR_LEFT_LEG,
-  MechLocation.REAR_RIGHT_LEG,
-];
-
-const TRIPOD_LIMB_ARMOR_LOCATIONS: readonly ArmorLocation[] = [
-  ...STANDARD_LIMB_ARMOR_LOCATIONS,
-  MechLocation.CENTER_LEG,
-];
-
-function armorLocationsForConfiguration(
-  configuration?: MechConfiguration,
-): readonly ArmorLocation[] {
-  if (
-    configuration === MechConfiguration.QUAD ||
-    configuration === MechConfiguration.QUADVEE
-  ) {
-    return [...CORE_ARMOR_LOCATIONS, ...QUAD_LIMB_ARMOR_LOCATIONS];
-  }
-
-  if (configuration === MechConfiguration.TRIPOD) {
-    return [...CORE_ARMOR_LOCATIONS, ...TRIPOD_LIMB_ARMOR_LOCATIONS];
-  }
-
-  return [...CORE_ARMOR_LOCATIONS, ...STANDARD_LIMB_ARMOR_LOCATIONS];
-}
+export { getTotalAllocatedArmor } from '@/types/construction/ArmorAllocation';
 
 // =============================================================================
 // Selection Memory Types
@@ -226,18 +169,16 @@ export interface UnitState {
   readonly sourceDefinition?: IUnitDefinitionReference;
 
   /** Last confirmed library save/load, independent of original provenance. */
-  librarySave?: {
-    readonly id: string;
-    readonly version: number;
-    readonly fingerprint: string;
-    readonly draftFingerprint?: string;
-  };
+  librarySave?: ILibrarySaveReceipt;
 
   /** Combat role metadata carried by canonical/custom unit payloads. */
   role?: string;
 
   /** Optional descriptive text carried by canonical/custom unit payloads. */
   fluff?: ISerializedFluff;
+
+  /** Authored Tripod/QuadVee crew seats; absent when none were assigned. */
+  crewSeats?: readonly IMechCrewSeat[];
 
   /** Introduction year */
   year: number;
@@ -372,6 +313,10 @@ export interface UnitActions {
   setRole: (role: string) => void;
   updateFluff: (patch: Partial<ISerializedFluff>) => void;
 
+  // Crew seats (Tripod and QuadVee only)
+  setCrewSeat: (seat: IMechCrewSeat) => void;
+  clearCrewSeat: (slotIndex: number) => void;
+
   // Chassis
   setTonnage: (tonnage: number) => void;
   setConfiguration: (configuration: MechConfiguration) => void;
@@ -430,18 +375,8 @@ export interface UnitActions {
     location: MechLocation,
   ) => AddEquipmentAtLocationResult;
   removeEquipment: (instanceId: string) => void;
-  updateEquipmentLocation: (
-    instanceId: string,
-    location: MechLocation,
-    slots: readonly number[],
-  ) => void;
-  bulkUpdateEquipmentLocations: (
-    updates: ReadonlyArray<{
-      instanceId: string;
-      location: MechLocation;
-      slots: readonly number[];
-    }>,
-  ) => void;
+  updateEquipmentLocation: UnitEquipmentActions['updateEquipmentLocation'];
+  bulkUpdateEquipmentLocations: UnitEquipmentActions['bulkUpdateEquipmentLocations'];
   clearEquipmentLocation: (instanceId: string) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
   linkAmmo: (

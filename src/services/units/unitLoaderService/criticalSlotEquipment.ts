@@ -16,7 +16,10 @@ import {
 } from '@/utils/construction/constructionRules/tonnage';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
-import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
+import {
+  isSplittable,
+  splitPartners,
+} from '@/utils/construction/slotOperations/splitAllocation';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 import {
@@ -31,6 +34,12 @@ import {
   resolveEquipmentId,
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
+import {
+  canRecoverSourcePhysicalWeapon,
+  groupSourcePhysicalMounts,
+  sourceWeaponIdentity as criticalEquipmentId,
+  takeSourceWeaponSlots as takeMatchingSlots,
+} from './sourceWeaponMounts';
 
 export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
@@ -171,30 +180,6 @@ function claimedSlotsFor(
   return created;
 }
 
-/** Native and legacy Claw records join as one Java type; mounted IDs stay intact. */
-function criticalEquipmentId(equipmentId: string): string {
-  return equipmentId === 'claws' ? 'claw' : equipmentId;
-}
-
-function takeMatchingSlots(
-  slots: readonly IResolvedCriticalSlot[],
-  claimed: ReadonlySet<number>,
-  equipmentId: string,
-  count: number,
-  isAmmo = false,
-): readonly IResolvedCriticalSlot[] {
-  const identity = criticalEquipmentId(equipmentId);
-  return slots
-    .filter(
-      (slot) =>
-        !claimed.has(slot.index) &&
-        criticalEquipmentId(slot.equipmentId ?? '') === identity &&
-        (slot.equipmentDef?.category === EquipmentCategory.AMMUNITION) ===
-          isAmmo,
-    )
-    .slice(0, count);
-}
-
 function claim(
   claimed: Set<number>,
   slots: readonly IResolvedCriticalSlot[],
@@ -223,40 +208,6 @@ function takeTechTwinSlots(
   const count = entries(twinDef.criticalSlots);
   const twin = takeMatchingSlots(slots, claimed, twinId, count);
   return twin.length === count ? twin : [];
-}
-
-/** Mek.getInnerLocation (Mek.java:489-496); quad legs map like arms. */
-const INNER_LOCATION: Partial<Record<MechLocation, MechLocation>> = {
-  [MechLocation.LEFT_TORSO]: MechLocation.CENTER_TORSO,
-  [MechLocation.RIGHT_TORSO]: MechLocation.CENTER_TORSO,
-  [MechLocation.CENTER_LEG]: MechLocation.CENTER_TORSO,
-  [MechLocation.LEFT_ARM]: MechLocation.LEFT_TORSO,
-  [MechLocation.LEFT_LEG]: MechLocation.LEFT_TORSO,
-  [MechLocation.FRONT_LEFT_LEG]: MechLocation.LEFT_TORSO,
-  [MechLocation.REAR_LEFT_LEG]: MechLocation.LEFT_TORSO,
-  [MechLocation.RIGHT_ARM]: MechLocation.RIGHT_TORSO,
-  [MechLocation.RIGHT_LEG]: MechLocation.RIGHT_TORSO,
-  [MechLocation.FRONT_RIGHT_LEG]: MechLocation.RIGHT_TORSO,
-  [MechLocation.REAR_RIGHT_LEG]: MechLocation.RIGHT_TORSO,
-  [MechLocation.HEAD]: MechLocation.CENTER_TORSO,
-};
-
-/** Locations a split weapon may continue into (MtfFile.java:1093-1095). */
-function splitPartners(location: MechLocation): MechLocation[] {
-  const inner = INNER_LOCATION[location];
-  const outer = (Object.keys(INNER_LOCATION) as MechLocation[]).filter(
-    (candidate) => INNER_LOCATION[candidate] === location,
-  );
-  return inner ? [inner, ...outer] : outer;
-}
-
-/** WeaponType.isSplittableOverCriticalSlots (WeaponType.java:2619-2621). */
-function isSplittable(item: IMountedEquipmentInstance): boolean {
-  return (
-    item.criticalSlots >= 8 &&
-    item.category !== EquipmentCategory.PHYSICAL_WEAPON &&
-    isWeaponCategory(item.category)
-  );
 }
 
 function restoreSerializedHeatSink(
@@ -431,16 +382,7 @@ export function restoreCriticalSlotEquipment(
       if (
         tonnage !== undefined &&
         slot.equipmentDef?.category === EquipmentCategory.PHYSICAL_WEAPON &&
-        [
-          'mace',
-          'hatchet',
-          'lance',
-          'sword',
-          'retractable-blade',
-          'flail',
-          'wrecking-ball',
-          'claw',
-        ].includes(physicalId)
+        canRecoverSourcePhysicalWeapon(physicalId)
       ) {
         if (handledPhysical.has(physicalId)) continue;
         handledPhysical.add(physicalId);
@@ -450,42 +392,21 @@ export function restoreCriticalSlotEquipment(
         );
         const count = entries(properties.criticalSlots);
         if (count <= 0) continue;
-        const group = slots.filter(
-          (s) => criticalEquipmentId(s.equipmentId ?? '') === physicalId,
-        );
         const existing = placed.filter(
           (item) =>
             criticalEquipmentId(item.equipmentId) === physicalId &&
             (item.location === location ||
               item.splitSlots?.location === location),
         );
-        // Listed variable mounts may have no explicit slot assignment. Reserve
-        // their native groups without changing their established projections.
-        const reserved = group.filter((s) =>
-          claimedAtLocation.has(s.index),
-        ).length;
-        claim(
+        const groups = groupSourcePhysicalMounts(
+          slots,
           claimedAtLocation,
-          takeMatchingSlots(
-            slots,
-            claimedAtLocation,
-            slot.equipmentId,
-            Math.max(0, existing.length * count - reserved),
-          ),
+          slot.equipmentId,
+          count,
+          existing.length,
         );
-        const missing = Math.max(
-          0,
-          Math.floor(group.length / count) - existing.length,
-        );
-        for (let n = 0; n < missing; n++) {
-          const matching = takeMatchingSlots(
-            slots,
-            claimedAtLocation,
-            slot.equipmentId,
-            count,
-          );
-          if (matching.length !== count) break;
-          claim(claimedAtLocation, matching);
+        claim(claimedAtLocation, groups.claimed);
+        for (const matching of groups.mounts) {
           recovered.push({
             ...createMountedEquipment(
               { ...slot.equipmentDef, ...properties, criticalSlots: count },

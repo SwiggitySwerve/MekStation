@@ -109,6 +109,7 @@ export function UnitEditorWithRouting({
     getAvailableLocationsForEquipment,
   } = useUnitEditorLoadout({
     armActuators,
+    cockpitType,
     unitId,
     configuration,
     equipment,
@@ -261,6 +262,7 @@ export function UnitEditorWithRouting({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
     ).length > 0;
   const tabIssueNotice =
     activeTabId === 'overview' ||

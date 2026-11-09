@@ -8,7 +8,8 @@ import type { IVehicleTurretSourceContext } from '@/types/unit/VehicleInterfaces
  *   VAL-VEHICLE-TONNAGE   — tonnage within legal range for motion type
  *   VAL-VEHICLE-ENGINE    — engine rating legal, motion-type exclusions
  *   VAL-VEHICLE-TURRET    — turret mass rule + motion-type eligibility
- *   VAL-VEHICLE-ARMOR-LOC — per-location armor ≤ 2× structure
+ *   VAL-VEHICLE-ARMOR-LOC - rotor and unavailable location limits
+ *   VAL-VEHICLE-ARMOR-TOTAL - separate vehicle-class total
  *   VAL-VEHICLE-CREW      — at least minimum crew for tonnage / motion type
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
@@ -22,6 +23,7 @@ import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
 import { normalizeEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
@@ -41,6 +43,7 @@ import { vehicleMotiveErrors } from './motiveCompatibility';
 import { validatePowerAmplifiers } from './powerAmplifier';
 import {
   computeVehicleStructureWeight,
+  hasSixSideVehicleHull,
   VehicleStructureType,
 } from './structure';
 import {
@@ -59,6 +62,7 @@ export const VEHICLE_VALIDATION_RULE_IDS = [
   'VAL-VEHICLE-ENGINE',
   'VAL-VEHICLE-TURRET',
   'VAL-VEHICLE-ARMOR-LOC',
+  'VAL-VEHICLE-ARMOR-TOTAL',
   'VAL-VEHICLE-CREW',
   'VAL-VEHICLE-POWER-AMP',
 ] as const;
@@ -225,6 +229,18 @@ export function validateVehicleConstruction(
     input.armorAllocation,
     hasTurret,
     isVTOL,
+    {
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret: secondaryTurretType !== TurretType.NONE,
+      isSupport: input.unitType === UnitType.SUPPORT_VEHICLE,
+      motionType: input.motionType,
+      isSuperheavy: hasSixSideVehicleHull({
+        tonnage: input.tonnage,
+        motionType: input.motionType,
+        isSupportVehicle: input.unitType === UnitType.SUPPORT_VEHICLE,
+      }),
+    },
   );
   for (const e of armorLocErrors) {
     errors.push(e);
@@ -325,7 +341,22 @@ export function validateVehicleCaseLocations(
   });
 }
 
-/** Combat vehicles and VTOLs: CASE locations, item slots, motive compatibility. */
+/** TestTank:979-980,1079-1093: placement does not depend on slot completeness. */
+function validateVehicleFireControlLocations(
+  equipment: VehicleSlotUnit['equipment'],
+): string[] {
+  return equipment.flatMap(({ equipmentId, location }) => {
+    if (location === VehicleLocation.BODY) return [];
+    const record = getEquipmentEntry(equipmentId);
+    return record && FIRE_CONTROL.has(record.id)
+      ? [`${record.name} must be mounted in the body.`]
+      : [];
+  });
+}
+
+const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
+
+/** Combat vehicles and VTOLs: body locations, item slots, motive compatibility. */
 export function validateCombatVehicleEquipment(
   unit: VehicleSlotUnit & { readonly motionType: GroundMotionType },
   sideUnknown = false,
@@ -333,17 +364,19 @@ export function validateCombatVehicleEquipment(
   return [
     ...validateVehicleCaseLocations(unit.equipment),
     ...combatVehicleSlotErrors(unit, sideUnknown),
+    ...validateVehicleFireControlLocations(unit.equipment),
     ...vehicleMotiveErrors(unit.equipment, unit.motionType, false),
   ];
 }
 
-/** Support vehicles: CASE locations, item slots, then motive compatibility. */
+/** Support vehicles: body locations, item slots, then motive compatibility. */
 export function validateSupportVehicleEquipment(
   unit: VehicleSlotUnit & { readonly motionType: GroundMotionType },
 ): string[] {
   return [
     ...validateVehicleCaseLocations(unit.equipment),
     ...supportVehicleSlotErrors(unit),
+    ...validateVehicleFireControlLocations(unit.equipment),
     ...vehicleMotiveErrors(unit.equipment, unit.motionType, true),
   ];
 }
