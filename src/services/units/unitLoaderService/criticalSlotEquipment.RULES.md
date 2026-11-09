@@ -28,13 +28,31 @@ identity, in physical entries like any other mapped mount.
 
 ## Shared source mounting facts
 
-`sourceWeaponMounts.ts` owns identity matching, reservations and complete
-per-location physical groups. It takes resolved plain slot facts and leaves
-the caller's claim set unchanged. The loading adapter still owns definition
-lookup, variable sizing, superheavy entry conversion and mounted instances.
-`sourceWeaponMountProfiles.json` records audited physical membership and the
-existing recovery admission; disabled profiles do not admit new equipment.
-Talons retains its existing spread handling and source-location order.
+`sourceWeaponMounts.ts` owns the complete critical weapon census, summary
+identity matching and reservations. The synchronous parser and runtime loader
+consume that owner. Bundled catalog lookups supply fixed mass/counts; the
+existing calculator and entry-conversion owners supply variable physical sizes.
+All audited `sourceWeaponMountProfiles.json` identities are admitted, including
+fixed shields, spikes and industrial tools categorized as miscellaneous. Its
+`recover` flags describe the old PR-A admission and no longer gate recovery.
+Other crit-only miscellaneous equipment remains outside this weapon boundary.
+
+Pinned `MtfFile.java:545-548,1053-1068,1086-1175` loads in reverse native
+location order, shares Talons across legs and joins eligible split weapons.
+The existing slotOperations owner still decides split eligibility/adjacency.
+Summary aliases consume one native mount each, including a split mount's inner
+location. Ammo tokens never enter the weapon census even when ids are shared.
+Explicit positions reserve their actual native group before missing groups are
+recovered, including a later same-type mount in the same location.
+Legacy superheavy saves can reserve more cells than the current entry demand.
+Keep those explicit cells for validation; never recover extra weapons over
+cells already reserved by existing equipment.
+Incomplete groups and unknown tokens stay in the critical grid; incomplete
+recognized weapons produce parser warnings. Source mount qualifiers remain
+in the raw grid; rear and Omni flags also use existing serialized fields.
+Explicit variable physical mounts are sized and reconciled on reload, while
+unrepresented mounts are recovered for legacy saves. No catalog rewrite or
+new persistence fields are required.
 
 `physicalWeaponFormulas.json` owns the physical formula ASTs used by the
 existing formula registry/evaluator. Fixed sizes and masses remain catalog
