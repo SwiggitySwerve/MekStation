@@ -47,6 +47,14 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 Object.defineProperty(global, 'localStorage', { value: localStorageMock });
 
+// A fixed in-game date. `createCampaign` stamps the real clock, and the morale
+// window keeps an outcome only if `capturedAt` is on or before the campaign
+// date, so an outcome stamped from `new Date()` a millisecond after the
+// campaign was created was dropped on some runs. Every test sets this date and
+// stamps its outcome from it.
+const START = new Date('3025-02-01T00:00:00.000Z');
+const CAPTURED_BEFORE_START = new Date(START.getTime() - 60 * 60 * 1000);
+
 function winningOutcome(matchId: string): ICombatOutcome {
   return {
     version: COMBAT_OUTCOME_VERSION,
@@ -54,7 +62,7 @@ function winningOutcome(matchId: string): ICombatOutcome {
     contractId: null,
     scenarioId: null,
     endReason: CombatEndReason.Destruction,
-    capturedAt: new Date().toISOString(),
+    capturedAt: CAPTURED_BEFORE_START.toISOString(),
     report: {
       version: 1,
       matchId,
@@ -115,6 +123,7 @@ describe('company morale across a real campaign save and reload', () => {
     const store = createCampaignStore();
     const id = store.getState().createCampaign('Solvent', 'mercenary');
     store.getState().updateCampaign({
+      currentDate: START,
       finances: { transactions: [], balance: new Money(50_000_000) },
     });
     const before = store.getState().campaign!.finances.balance.amount;
@@ -143,6 +152,7 @@ describe('company morale across a real campaign save and reload', () => {
     const store = createCampaignStore();
     const id = store.getState().createCampaign('One win', 'mercenary');
     store.getState().updateCampaign({
+      currentDate: START,
       finances: { transactions: [], balance: new Money(50_000_000) },
     });
     store.getState().enqueueOutcome(winningOutcome('match-reload-win'));
@@ -170,6 +180,7 @@ describe('company morale across a real campaign save and reload', () => {
     const store = createCampaignStore();
     const id = store.getState().createCampaign('Broke', 'mercenary');
     store.getState().updateCampaign({
+      currentDate: START,
       finances: { transactions: [], balance: new Money(100) },
     });
 
