@@ -43,6 +43,7 @@ import {
   type MechLocation,
 } from '../../../utils/construction/battleValueCalculations';
 import { resolveEquipmentBV } from '../../../utils/construction/equipmentBVResolver';
+import { normalizeMechBVSourceName } from '../battleValueAmmo';
 import {
   getModularArmorBVPoints,
   getNativeArmorBVMultiplier,
@@ -111,10 +112,7 @@ export function calculateUnitBV(
   let amsWeaponBV = 0;
   for (const did of defEquipIds) {
     // Strip "(armored)" and rear-mount "(R)" suffixes so variants resolve to base equipment BV
-    const didClean = did
-      .replace(/\s*\(armored\)/gi, '')
-      .replace(/\s*\(r\)/gi, '')
-      .trim();
+    const didClean = normalizeMechBVSourceName(did);
     const resolvedBV = resolveEquipmentBV(didClean).battleValue;
     defEquipBV += resolvedBV;
     const dlo = did.toLowerCase();
@@ -279,10 +277,7 @@ export function calculateUnitBV(
         capBV = 44;
       }
       // Resolve PPC weapon BV
-      const ppcName = ppcSlotName
-        .replace(/\s*\(armored\)/gi, '')
-        .replace(/\s*\(r\)/gi, '')
-        .trim();
+      const ppcName = normalizeMechBVSourceName(ppcSlotName);
       const ppcResult = resolveWeaponForUnit(
         ppcName,
         unit.techBase || 'INNER_SPHERE',

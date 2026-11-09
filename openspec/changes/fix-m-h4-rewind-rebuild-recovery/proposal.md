@@ -49,6 +49,12 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   as such and not removed, because removal is a persisted-format migration
   (follow-up D-2d).
 
+- A campaign retroactive correction blocks its own candidate on every failure
+  after the candidate exists, and sweeps earlier unsealed `building` candidates
+  after acquiring its lease (follow-up D-3a). Unlike the combat rewind, a sealed
+  campaign candidate stays `building` by design until a later activation, so the
+  sweep never touches a candidate with a sealed manifest. The commit has no
+  production caller yet; this is latent risk, fixed before one exists.
 - The coordinated outcome-correction target blocks its candidate only when it
   blocks the saga on a non-retryable refusal, and keeps it on a retryable or crash
   path because a retry reuses the id persisted on the saga. It sweeps earlier
