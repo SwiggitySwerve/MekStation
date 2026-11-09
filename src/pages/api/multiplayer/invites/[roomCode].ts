@@ -19,13 +19,15 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import type { MatchStatus } from '@/types/multiplayer/MatchStatus';
+
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { isValidRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 
 interface IResolveResponse {
   matchId: string;
-  status: 'lobby' | 'active' | 'completed';
+  status: MatchStatus;
   /** Lowercased layout label so the client can render the lobby grid. */
   layout?: string;
   /** Identity mode only. */

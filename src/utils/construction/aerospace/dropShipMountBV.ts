@@ -125,6 +125,7 @@ export function resolveLargeAerospaceMountBV(
       heat: 0,
       ammoBVByType: {} as Record<string, number>,
       weaponBVByAmmoType: {} as Record<string, number>,
+      nonOffensiveCapBVByAmmoType: {} as Record<string, number>,
       weaponGroups: [] as ILargeAerospaceWeaponGroup[],
     }),
   );
@@ -179,6 +180,22 @@ export function resolveLargeAerospaceMountBV(
           !Number.isSafeInteger(Number(quantity)))
       )
         fail('Invalid defensive ammunition quantity');
+      // assembleAmmo still lists a screen launcher as an ammo-using weapon
+      // (SCREEN_LAUNCHER:0). No ammo bin keys on it, so this is trace-only.
+      const screenEntry =
+        defensiveKind === 'screen' && quantity === undefined
+          ? getEquipmentEntry(id)
+          : undefined;
+      const screen = screenEntry && getCapitalEquipmentBVFacts(screenEntry.id);
+      const screenArc = screen
+        ? arcs.find((a) => a.arc === largeAerospaceMountArc(mount, capitalType))
+        : undefined;
+      if (screen && screenArc)
+        addBVToAmmoCapGroup(
+          screenArc.nonOffensiveCapBVByAmmoType,
+          `${screen.ammoType}:${screen.rackSize}`,
+          resolveEquipmentBV(id).battleValue,
+        );
       return;
     }
     const entry = getEquipmentEntry(id);

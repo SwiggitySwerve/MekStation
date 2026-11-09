@@ -1,6 +1,6 @@
 # Unit source import
 
-`importBLKDefinition` admits `protomechs`, `vehicles`, `aerospace` and `battlearmor` through the existing BLK
+`importBLKDefinition` admits `protomechs`, `vehicles`, `aerospace`, `battlearmor` and `infantry` through the existing BLK
 parser, family handlers and shared definition validator. Vehicles dispatch to the
 combat-vehicle, VTOL or support handler using the parser's discriminator, including
 LargeSupportTank and SupportVTOL. Aerospace uses the fighter, conventional-fighter,
@@ -18,6 +18,18 @@ manipulators, mount flags and ordered equipment retain the current handler facts
 original native qualifiers and entity locations remain in the source snapshots.
 Projection does not decode additional native mount effects or replace handler
 movement/manipulator interpretation with converter semantics.
+Infantry uses `InfantryUnitHandler` and `projectInfantryDefinition`, extracted
+from the infantry editor-save branch without changing its output. Platoon
+composition, primary/secondary weapon declarations and per-squad secondary counts
+use that shared projection. `mapInfantryDefinition` remains the existing reverse
+projection into editor state. Native motive declarations, augmentations,
+specialization masks and effective protection flags remain available alongside
+the handler's normalized facts. Infantry has no general handler equipment array;
+the importer uses the existing line-list parser on retained raw tags to project
+ordered equipment under `TROOPERS` and `FIELD_GUNS` contract locations, including
+repeated guns, ammunition and armor kits.
+It does not call the unimplemented handler deserializer or infer new native
+movement, specialization or anti-Mek rules from the legacy editor enums.
 Other BLK families are explicitly unsupported until their serial slices land.
 Capital remains unsupported in this slice; its eventual import will be read-only
 under owner ruling O2.
@@ -34,7 +46,7 @@ encoder/decoder retains its existing supported subset and compatibility aliases.
 ProtoMech import retains its existing `PROTO_ARMOR_CODES` admission subset.
 Shared schema defaults do not certify native mount effects. Blank native model names
 remain blank. This API does not promise new editor admission or native parity;
-other BLK families, browser BLK selection and the legacy importer remain open.
+capital admission remains open.
 
 `importMTFDefinition` owns MTF source-to-definition orchestration. It calls the
 existing MTF parser and `loadUnitDefinition` admission contract; it owns no native
@@ -44,6 +56,8 @@ not establish construction validity. No new construction-validity gate applies.
 `POST /api/units/import` accepts `{ sourceFormat: 'mtf' | 'blk', sourceText: string }`
 alongside existing raw JSON and versioned JSON envelopes. Failed parsing and
 unsupported contract fields return client diagnostics, retaining parser warnings.
+The mounted unit-library import entry reaches this API through `useUnitImport`
+and `CustomUnitApiService.importUnit`; source parsing remains owned by the API.
 Accepted definitions retain source text and parser metadata through repository
 persistence; the repository allocates a distinct custom identity. Existing name
 conflicts return 409 without overwriting saved units.
@@ -63,5 +77,20 @@ mounts. The Water Elemental Mining Suit remains loadable with its armor-date
 diagnostic. A separately labelled **synthetic** modular-mount source supplements
 these fixtures: none of the 1,188 pinned sources encodes a modular mount in its
 equipment blocks. This synthetic case makes no claim of pinned modular coverage.
-Other BLK families, browser BLK selection and the legacy `IMTFImporter` runtime-object
-interface remain separate work.
+Capital admission remains separate work.
+
+Fourteen original-byte infantry fixtures cover Clan/IS, foot, jump, motorized,
+tracked, wheeled, hover, native Microcopter, Motorized SCUBA and Submarine,
+primary/secondary weapons, field guns/artillery, anti-Mek equipment, paratroops,
+marines, armor kits and augmentations. Every fixture persists through real SQLite
+and reloads through the saved-unit API/client and shared loader, retaining exact
+source snapshots and platoon composition. The Clan Mechanized Tracked Point
+(Laser) remains loadable with its `Maximum squad count is 4` diagnostic. This
+proves import/persistence preservation, not full native semantics or BV parity.
+
+The legacy `IMTFImporter` runtime-object interface and `MTFImportService` are
+retired under owner ruling O2. Their exports, singleton factories and
+`services.conversion.importer` registry entry are removed. No live caller used
+the service or its JSON helpers. MTF source import uses `importMTFDefinition`
+through `POST /api/units/import`; retirement changes no saved format or native
+import rule.

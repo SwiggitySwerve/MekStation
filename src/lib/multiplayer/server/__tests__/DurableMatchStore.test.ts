@@ -461,7 +461,8 @@ describe('DurableMatchStore', () => {
     await store.createMatch(makeMeta('lobby-m', { status: 'lobby' }));
     await store.createMatch(makeMeta('active-1', { status: 'active' }));
     await store.createMatch(makeMeta('active-2', { status: 'active' }));
-    await store.createMatch(makeMeta('done-m', { status: 'completed' }));
+    await store.createMatch(makeMeta('done-m', { status: 'active' }));
+    await store.closeMatch('done-m');
     const active = await store.listActiveMatches();
     expect(active.map((m) => m.matchId).sort()).toEqual([
       'active-1',
@@ -478,10 +479,15 @@ describe('DurableMatchStore', () => {
     const old = new Date(
       now - COMPLETED_MATCH_RETENTION_MS - 60_000,
     ).toISOString();
-    await store.createMatch(
-      makeMeta('stale', { status: 'completed', updatedAt: old }),
-    );
-    await store.createMatch(makeMeta('fresh', { status: 'completed' }));
+    // Setup only (create-status guard): complete through the store, age the row.
+    await store.createMatch(makeMeta('stale', { status: 'active' }));
+    await store.closeMatch('stale');
+    store
+      .getDatabase()
+      .prepare('UPDATE mp_matches SET updated_at = ? WHERE match_id = ?')
+      .run(old, 'stale');
+    await store.createMatch(makeMeta('fresh', { status: 'active' }));
+    await store.closeMatch('fresh');
     await store.createMatch(makeMeta('live', { status: 'active' }));
 
     const pruned = store.pruneExpiredMatches(now);
@@ -733,8 +739,9 @@ describe.each(['memory', 'durable'] as const)(
     it.each(['active', 'completed'] as const)(
       'clears metadata on creation and transition to %s',
       async (status) => {
+        // No path creates a finished match, so creation is always `active`.
         await store.createMatch(
-          makeMeta('created', { status, roomCode: 'ABC234' }),
+          makeMeta('created', { status: 'active', roomCode: 'ABC234' }),
         );
         expect((await store.getMatchMeta('created')).roomCode).toBeUndefined();
         await store.createMatch(makeMeta('changed', { roomCode: 'ABC234' }));
