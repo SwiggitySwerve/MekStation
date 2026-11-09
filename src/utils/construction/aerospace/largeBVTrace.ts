@@ -22,6 +22,27 @@ const DROPSHIP_ABBREVIATION: Readonly<Partial<Record<CapitalArc, string>>> = {
   [CapitalArc.FRONT_RIGHT]: 'RS',
 };
 
+// arcName at 48fcb2f64 (entity.getLocationName; Dropship appends " (R)" for
+// the rear half of each wing). Keyed by BV arc, which is what processAmmo reads.
+const SHIP_ARC_NAME: Readonly<Partial<Record<CapitalArc, string>>> = {
+  [CapitalArc.NOSE]: 'Nose',
+  [CapitalArc.FRONT_LEFT]: 'Left Front Side',
+  [CapitalArc.AFT_LEFT]: 'Aft Left Side',
+  [CapitalArc.AFT]: 'Aft',
+  [CapitalArc.AFT_RIGHT]: 'Aft Right Side',
+  [CapitalArc.FRONT_RIGHT]: 'Right Front Side',
+  [CapitalArc.LEFT_BROADSIDE]: 'Left Broadsides',
+  [CapitalArc.RIGHT_BROADSIDE]: 'Right Broadsides',
+};
+const DROPSHIP_ARC_NAME: Readonly<Partial<Record<CapitalArc, string>>> = {
+  [CapitalArc.NOSE]: 'Nose',
+  [CapitalArc.FRONT_LEFT]: 'Left Side',
+  [CapitalArc.AFT_LEFT]: 'Left Side (R)',
+  [CapitalArc.AFT]: 'Aft',
+  [CapitalArc.AFT_RIGHT]: 'Right Side (R)',
+  [CapitalArc.FRONT_RIGHT]: 'Right Side',
+};
+
 export interface ILargeAerospaceTraceFacts {
   readonly isDropShip: boolean;
   readonly arcs: readonly ILargeAerospaceArcBV[];
@@ -59,6 +80,40 @@ function weaponGroupTerms(
   return terms;
 }
 
+type AmmoTerms = Record<
+  `ammo.${'cap' | 'available'}.${number}:${string}` | `ammo.arc.${string}`,
+  number
+>;
+
+/**
+ * LargeAeroBVCalculator.assembleAmmo pools, keyed "<BV arc index>:<type>:<rack>"
+ * and unweighted (cap is the arc's ammo-using weapon BV, available its ammo
+ * BV), plus processAmmo(location)'s weighted, capped ammo for every arc.
+ */
+function ammoPoolTerms(
+  b: Extract<ILargeAerospaceBVBreakdown, { calculationScope: 'complete' }>,
+  facts: ILargeAerospaceTraceFacts,
+): AmmoTerms {
+  const names = facts.isDropShip ? DROPSHIP_ARC_NAME : SHIP_ARC_NAME;
+  const terms: AmmoTerms = {};
+  facts.arcs.forEach((arc, index) => {
+    for (const [group, bv] of Object.entries({
+      ...arc.weaponBVByAmmoType,
+      ...arc.nonOffensiveCapBVByAmmoType,
+    }))
+      terms[`ammo.cap.${index}:${group}`] = bv;
+    for (const [group, bv] of Object.entries(arc.ammoBVByType ?? {}))
+      terms[`ammo.available.${index}:${group}`] = bv;
+  });
+  for (const contribution of b.arcContributions) {
+    const name = names[contribution.arc];
+    if (name === undefined)
+      throw new Error(`Large aerospace arc ${contribution.arc} has no name`);
+    terms[`ammo.arc.${name}`] = contribution.ammoBV;
+  }
+  return terms;
+}
+
 /** Baseline native names without promoting defensive-only designs to complete.
  * The complete composition has no separate offensive equipment/weight/type
  * additions. Arc weapon totals need no aircraft fuselage term.
@@ -74,11 +129,13 @@ export function largeAerospaceBVTerms(
     offensiveTypeModifier: number;
     adjustment: number;
   }> &
-  Partial<WeaponTerms> {
+  Partial<WeaponTerms> &
+  Partial<AmmoTerms> {
   if (b.calculationScope !== 'complete') return b;
   return {
     ...b,
     ...weaponGroupTerms(b, facts),
+    ...ammoPoolTerms(b, facts),
     weaponBV: b.weaponFirePoolBV,
     offensiveEquipmentBV: 0,
     weightBV: 0,
