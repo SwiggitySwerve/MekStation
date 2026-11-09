@@ -26,7 +26,7 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions } from '../tabs/SelectOptions';
 import { AerospaceArmorDiagram } from './AerospaceArmorDiagram';
-import { AEROSPACE_ARMOR_ARCS as AEROSPACE_ARCS } from './aerospaceLocationLabels';
+import { getAerospaceArmorArcs } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Constants
@@ -275,7 +275,7 @@ export function AerospaceArmorTab({
           <h3 className={cs.text.sectionTitle}>Arc Allocation</h3>
 
           <div className="space-y-3">
-            {AEROSPACE_ARCS.map(({ arc, label }) => {
+            {getAerospaceArmorArcs(subType).map(({ arc, label }) => {
               const currentValue = armorAllocation[arc] ?? 0;
               const maxValue = maxArcArmorPointsForLocation(
                 arc,

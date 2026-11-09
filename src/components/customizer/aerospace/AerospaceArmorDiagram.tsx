@@ -36,12 +36,13 @@ import {
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { maxArcArmorPointsForLocation } from '@/utils/construction/aerospace/armorArcCalculations';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
-import { AEROSPACE_ARMOR_ARCS as ARCS } from './aerospaceLocationLabels';
+import { getAerospaceArmorArcs } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Helpers
@@ -99,6 +100,7 @@ export function AerospaceArmorDiagram({
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
   const armorType = useAerospaceStore((s) => s.armorType);
   const subType = useAerospaceStore((s) => s.aerospaceSubType);
+  const motionType = useAerospaceStore((s) => s.motionType);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const setArcArmor = useAerospaceStore((s) => s.setArcArmor);
 
@@ -214,55 +216,78 @@ export function AerospaceArmorDiagram({
           className="w-full max-w-[140px]"
           aria-hidden="true"
         >
-          {/* Fuselage */}
-          <path
-            d="M 80 15 L 95 55 L 95 145 L 80 160 L 65 145 L 65 55 Z"
-            className="fill-surface-raised stroke-border-theme"
-            strokeWidth="1.5"
-          />
-          {/* Left wing */}
-          <path
-            d="M 65 75 L 15 115 L 22 122 L 65 95"
-            className="fill-surface-raised stroke-border-theme"
-            strokeWidth="1.5"
-          />
-          {/* Right wing */}
-          <path
-            d="M 95 75 L 145 115 L 138 122 L 95 95"
-            className="fill-surface-raised stroke-border-theme"
-            strokeWidth="1.5"
-          />
-          {/* Nose highlight */}
-          <circle
-            cx="80"
-            cy="30"
-            r="6"
-            className="fill-cyan-900/30 stroke-cyan-500"
-            strokeWidth="1.5"
-          />
-          {/* Engine exhaust */}
-          <ellipse
-            cx="75"
-            cy="152"
-            rx="5"
-            ry="3"
-            className="fill-amber-900/30 stroke-amber-500"
-            strokeWidth="1"
-          />
-          <ellipse
-            cx="85"
-            cy="152"
-            rx="5"
-            ry="3"
-            className="fill-amber-900/30 stroke-amber-500"
-            strokeWidth="1"
-          />
+          {subType === AerospaceSubType.SMALL_CRAFT ? (
+            <g data-craft-shape={motionType}>
+              {motionType === AerospaceMotionType.SPHEROID ? (
+                <ellipse
+                  cx="80"
+                  cy="90"
+                  rx="55"
+                  ry="70"
+                  className="fill-surface-raised stroke-border-theme"
+                  strokeWidth="1.5"
+                />
+              ) : (
+                <path
+                  d="M80 15 L125 120 L110 155 L50 155 L35 120 Z"
+                  className="fill-surface-raised stroke-border-theme"
+                  strokeWidth="1.5"
+                />
+              )}
+            </g>
+          ) : (
+            <g>
+              {/* Fuselage */}
+              <path
+                d="M 80 15 L 95 55 L 95 145 L 80 160 L 65 145 L 65 55 Z"
+                className="fill-surface-raised stroke-border-theme"
+                strokeWidth="1.5"
+              />
+              {/* Left wing */}
+              <path
+                d="M 65 75 L 15 115 L 22 122 L 65 95"
+                className="fill-surface-raised stroke-border-theme"
+                strokeWidth="1.5"
+              />
+              {/* Right wing */}
+              <path
+                d="M 95 75 L 145 115 L 138 122 L 95 95"
+                className="fill-surface-raised stroke-border-theme"
+                strokeWidth="1.5"
+              />
+              {/* Nose highlight */}
+              <circle
+                cx="80"
+                cy="30"
+                r="6"
+                className="fill-cyan-900/30 stroke-cyan-500"
+                strokeWidth="1.5"
+              />
+              {/* Engine exhaust */}
+              <ellipse
+                cx="75"
+                cy="152"
+                rx="5"
+                ry="3"
+                className="fill-amber-900/30 stroke-amber-500"
+                strokeWidth="1"
+              />
+              <ellipse
+                cx="85"
+                cy="152"
+                rx="5"
+                ry="3"
+                className="fill-amber-900/30 stroke-amber-500"
+                strokeWidth="1"
+              />
+            </g>
+          )}
         </svg>
       </div>
 
       {/* Arc location blocks */}
       <div className="grid grid-cols-2 gap-3">
-        {ARCS.map(({ arc, label }) => {
+        {getAerospaceArmorArcs(subType).map(({ arc, label }) => {
           const current = (armorAllocation as Record<string, number>)[arc] ?? 0;
           const max = getArcMax(tonnage, subType, arc);
           return (
