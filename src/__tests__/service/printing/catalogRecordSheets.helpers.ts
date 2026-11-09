@@ -235,15 +235,21 @@ export function verifyCatalogUnit(
           .map((a) => a.location),
         [],
       );
-      check(
-        'barRating',
-        data.barRating,
-        source.unitType === 'Support Vehicle'
-          ? source.armor?.barRating
-          : undefined,
-      );
+      // MML PrintEntity.drawArmor: only support vehicles with BAR armor.
+      const expectedBar =
+        source.unitType === 'Support Vehicle' && source.armor?.type === 'BAR'
+          ? source.armor.barRating
+          : undefined;
+      check('barRating', data.barRating, expectedBar);
       checkEquipment(data.equipment, state.equipment, check);
       const bindings = bindVehicle(data);
+      // PrintEntity.drawArmor prints "BAR: <rating>" as the armor type for BAR
+      // support vehicles (PrintTank does not override it).
+      check(
+        'binding.armorType',
+        bindings.texts.armorType,
+        expectedBar !== undefined ? `BAR: ${expectedBar}` : data.armorType,
+      );
       const printedPips: Record<string, number | undefined> = {
         ...bindings.pipCounts,
       };
@@ -801,6 +807,7 @@ export function defineCatalogFamilyParity(
                     (family === 'vehicles' &&
                       (d.field.startsWith('armor.') ||
                         d.field.startsWith('pips.') ||
+                        d.field === 'binding.armorType' ||
                         d.field === 'barRating')) ||
                     (family === 'aerospace' &&
                       (d.field.startsWith('armor.') ||

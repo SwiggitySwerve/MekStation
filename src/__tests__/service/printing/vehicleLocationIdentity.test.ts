@@ -7,6 +7,7 @@ import * as vehicleExtractor from '@/services/printing/recordsheet/dataExtractor
 import * as vehicleBindings from '@/services/printing/svgRecordSheetRenderer/vehicle/bindings';
 import { renderVehicleSVG } from '@/services/printing/svgRecordSheetRenderer/vehicleRenderer';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { UnitContract } from '@/types/contracts';
 
@@ -75,6 +76,7 @@ const identityFields = (rows: { field: string }[]) =>
       (field) =>
         field.startsWith('armor.') ||
         field.startsWith('pips.') ||
+        field === 'binding.armorType' ||
         field === 'barRating',
     )
     .sort();
@@ -242,7 +244,9 @@ describe('Vehicle catalog location identity acceptance', () => {
       ...extractVehicleData(unit, spa),
       barRating: undefined,
     }));
-    expect(fields('apocalypse-world-rover')).toEqual(['barRating']);
+    expect(fields('apocalypse-world-rover')).toEqual(
+      ['barRating', 'binding.armorType'].sort(),
+    );
   });
 
   it('rejects a BAR rating printed on a combat vehicle', () => {
@@ -250,8 +254,38 @@ describe('Vehicle catalog location identity acceptance', () => {
       ...extractVehicleData(unit, spa),
       barRating: 6,
     }));
-    expect(fields('ajax-assault-tank-sealed')).toEqual(['barRating']);
+    expect(fields('ajax-assault-tank-sealed')).toEqual(
+      ['barRating', 'binding.armorType'].sort(),
+    );
   });
+
+  it.each(['apocalypse-world-rover', 'brunel-dump-truck'])(
+    'rejects a BAR support vehicle %s whose armor type omits the rating',
+    (id) => {
+      binder.mockImplementation((data) => {
+        const bindings = bindVehicle(data);
+        return {
+          ...bindings,
+          texts: { ...bindings.texts, armorType: 'Standard' },
+        };
+      });
+      expect(fields(id)).toEqual(['binding.armorType']);
+    },
+  );
+
+  it.each(['air-car', 'ajax-assault-tank-sealed'])(
+    'rejects BAR printed as the armor type of non-BAR %s',
+    (id) => {
+      binder.mockImplementation((data) => {
+        const bindings = bindVehicle(data);
+        return {
+          ...bindings,
+          texts: { ...bindings.texts, armorType: 'BAR: 7' },
+        };
+      });
+      expect(fields(id)).toEqual(['binding.armorType']);
+    },
+  );
 
   it.each(['air-car', 'ajax-assault-tank-sealed', 'aeron-strike-vtol'])(
     'rejects a re-added Body location on %s',
@@ -366,6 +400,66 @@ describe('Vehicle printed layout for editor-built units', () => {
     expect(
       Object.keys(printed('armored-personnel-carrier-wheeled-lrm')).sort(),
     ).toEqual(['Front', 'Left Side', 'Rear', 'Right Side']);
+  });
+});
+
+/**
+ * The editor keeps `barRating` after the armor changes away from BAR
+ * (`setArmorType` only clears `usesBarArmor`), and a new support vehicle
+ * starts at rating 7. Only `usesBarArmor` says the armor really is BAR.
+ */
+describe('Vehicle BAR armor type for editor-built units', () => {
+  const sheet = (state: VehicleState) => {
+    const data = extractVehicleData(buildVehicleUnitObject(state));
+    return { data, armorType: bindVehicle(data).texts.armorType };
+  };
+  const rover = () => {
+    const { source } = load('apocalypse-world-rover');
+    return { source, state: mapToVehicleState(source) };
+  };
+
+  it('prints BAR: <rating> for a support vehicle with BAR armor', () => {
+    const { source, state } = rover();
+    expect(state.usesBarArmor).toBe(true);
+    const { data, armorType } = sheet(state);
+    expect(data.barRating).toBe(source.armor?.barRating);
+    expect(armorType).toBe(`BAR: ${source.armor?.barRating}`);
+  });
+
+  it('prints no BAR after the armor changes away from BAR', () => {
+    const { state } = rover();
+    const changed: VehicleState = {
+      ...state,
+      armorType: ArmorTypeEnum.FERRO_FIBROUS_IS,
+      usesBarArmor: false,
+      // setArmorType leaves the rating behind.
+      barRating: 7,
+    };
+    const { data, armorType } = sheet(changed);
+    expect(data.barRating).toBeUndefined();
+    expect(armorType).toBe(String(ArmorTypeEnum.FERRO_FIBROUS_IS));
+    expect(armorType).not.toMatch(/^BAR/);
+    expect(armorType).not.toBe('undefined');
+  });
+
+  it('prints no BAR for a new support vehicle with ordinary armor', () => {
+    const { state } = rover();
+    const fresh: VehicleState = {
+      ...state,
+      armorType: ArmorTypeEnum.STANDARD,
+      usesBarArmor: undefined,
+      barRating: 7,
+    };
+    const { data, armorType } = sheet(fresh);
+    expect(data.barRating).toBeUndefined();
+    expect(armorType).not.toMatch(/^BAR/);
+  });
+
+  it('prints no BAR for a combat vehicle', () => {
+    const state = mapToVehicleState(load('ajax-assault-tank-sealed').source);
+    const { data, armorType } = sheet(state);
+    expect(data.barRating).toBeUndefined();
+    expect(armorType).not.toMatch(/^BAR/);
   });
 });
 
