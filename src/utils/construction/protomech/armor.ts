@@ -83,12 +83,37 @@ export function getProtoArmorMaxByTonnage(
   };
 }
 
-/** MekStation policy: fill the legal budget proportionally, then in location order. */
+// MegaMekLab 62bf193 walks firstArmorIndex() (LOC_HEAD) up to locations(); the
+// ProtoMek constants run Head, Torso, Right Arm, Left Arm, Legs, Main Gun
+// (MegaMek 48fcb2f6, ProtoMek.java:102-108). Right comes before Left here.
+const AUTO_ALLOCATE_ORDER = [
+  L.HEAD,
+  L.TORSO,
+  L.RIGHT_ARM,
+  L.LEFT_ARM,
+  L.LEGS,
+  L.MAIN_GUN,
+] as const;
+
+/**
+ * MegaMekLab's Auto armor allocation, ported from PMStructureTab.java at
+ * megameklab 62bf193 (`autoAllocateArmor`, `allocateLeftoverPoints`,
+ * `addArmorPoint`).
+ *
+ * `points` is the armor to place, defaulting to the legal total as MegaMekLab's
+ * Maximize does; the total is clamped to the cap. Each location first takes its
+ * limit scaled by points over the total cap (truncated to whole points, never
+ * more than remain). Leftover points go one at a time to the torso, legs, head,
+ * then both arms, then the head again when there is a main gun; a Quad starts
+ * with the legs and has no arm step. A point aimed at a full location is
+ * dropped, as upstream drops it.
+ */
 export function allocateProtoArmor(
   tonnage: number,
   hasMainGun: boolean,
   chassis = ProtoChassis.BIPED,
   structure?: Points,
+  points?: number,
 ): Record<L, number> {
   const { total, byLocation } = computeProtoArmorLimits(
     tonnage,
@@ -96,16 +121,61 @@ export function allocateProtoArmor(
     hasMainGun,
     structure,
   );
-  const capacity = LOCATIONS.reduce((sum, loc) => sum + byLocation[loc], 0);
-  const budget = Math.min(total, capacity);
-  const allocation = { ...byLocation };
-  for (const loc of LOCATIONS)
-    allocation[loc] = Math.floor((budget * byLocation[loc]) / capacity);
-  let remaining =
-    budget - LOCATIONS.reduce((sum, loc) => sum + allocation[loc], 0);
-  for (const loc of LOCATIONS) {
-    if (remaining > 0 && allocation[loc] < byLocation[loc]) {
-      allocation[loc]++;
+  if (points !== undefined && (!Number.isInteger(points) || points < 0)) {
+    throw new Error(
+      'ProtoMech armor allocation requires a nonnegative whole number of points',
+    );
+  }
+  let remaining = Math.min(points ?? total, total);
+  const percent = remaining / total;
+  const allocation = Object.fromEntries(
+    LOCATIONS.map((loc) => [loc, 0]),
+  ) as Record<L, number>;
+
+  for (const loc of AUTO_ALLOCATE_ORDER) {
+    // locations() omits the Main Gun when it is not mounted.
+    if (loc === L.MAIN_GUN && !hasMainGun) continue;
+    const placed = Math.trunc(Math.min(byLocation[loc] * percent, remaining));
+    allocation[loc] = placed;
+    remaining -= placed;
+  }
+
+  const add = (loc: L) => {
+    if (allocation[loc] < byLocation[loc]) allocation[loc]++;
+  };
+  const quad = chassis === ProtoChassis.QUAD;
+  while (remaining >= 1) {
+    if (!quad) {
+      add(L.TORSO);
+      remaining--;
+      if (remaining > 0) {
+        add(L.LEGS);
+        remaining--;
+      }
+      // With exactly two left after the legs, the head is skipped for the arms.
+      if (remaining > 0 && remaining !== 2) {
+        add(L.HEAD);
+        remaining--;
+      }
+      if (remaining >= 2) {
+        add(L.LEFT_ARM);
+        add(L.RIGHT_ARM);
+        remaining -= 2;
+      }
+    } else {
+      add(L.LEGS);
+      remaining--;
+      if (remaining > 0) {
+        add(L.TORSO);
+        remaining--;
+      }
+      if (remaining > 0) {
+        add(L.HEAD);
+        remaining--;
+      }
+    }
+    if (remaining > 0 && hasMainGun) {
+      add(L.HEAD);
       remaining--;
     }
   }
