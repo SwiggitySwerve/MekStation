@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 import type {
   IVersionSnapshot,
@@ -6,10 +6,7 @@ import type {
   ShareableContentType,
 } from '@/types/vault';
 
-import {
-  runBusyErrorOperation,
-  runErrorOperation,
-} from '@/components/common/runUiOperation';
+import { errorMessageFromUnknown } from '@/components/common/runUiOperation';
 
 import type { VersionHistoryPanelProps } from './VersionHistoryTypes';
 
@@ -51,16 +48,6 @@ async function fetchVersionHistory(
   return (await response.json()) as VersionHistoryResponse;
 }
 
-async function refreshVersionHistory(
-  itemId: string,
-  contentType: ShareableContentType,
-): Promise<VersionHistoryResponse | null> {
-  const response = await fetch(versionHistoryUrl(itemId, contentType));
-  return response.ok
-    ? ((await response.json()) as VersionHistoryResponse)
-    : null;
-}
-
 async function rollbackToVersion(
   itemId: string,
   contentType: ShareableContentType,
@@ -95,7 +82,10 @@ export function VersionHistoryPanel({
   const [versions, setVersions] = useState<IVersionSnapshot[]>([]);
   const [summary, setSummary] = useState<IVersionHistorySummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [rollbackError, setRollbackError] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const historyRunId = useRef(0);
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(
     null,
   );
@@ -107,20 +97,39 @@ export function VersionHistoryPanel({
 
   // Fetch version history
   useEffect(() => {
+    const sequence = historyRunId;
+    const runId = ++sequence.current;
+    setIsLoading(true);
+    setLoadError(null);
+    setRollbackError(null);
+    setRefreshError(null);
+    setRollbackVersion(null);
+    setPreviewVersion(null);
+
     async function fetchVersions(): Promise<void> {
-      await runBusyErrorOperation(
-        setIsLoading,
-        setError,
-        'Failed to load version history',
-        async () => {
-          const data = await fetchVersionHistory(itemId, contentType);
+      try {
+        const data = await fetchVersionHistory(itemId, contentType);
+        if (runId === historyRunId.current) {
           setVersions(data.versions);
           setSummary(data.summary);
-        },
-      );
+        }
+      } catch (error) {
+        if (runId === historyRunId.current) {
+          setLoadError(
+            errorMessageFromUnknown(error, 'Failed to load version history'),
+          );
+        }
+      } finally {
+        if (runId === historyRunId.current) {
+          setIsLoading(false);
+        }
+      }
     }
 
-    fetchVersions();
+    void fetchVersions();
+    return () => {
+      sequence.current++;
+    };
   }, [itemId, contentType]);
 
   const handleVersionClick = useCallback(
@@ -136,24 +145,45 @@ export function VersionHistoryPanel({
   }, []);
 
   const handleRollbackRequest = useCallback((version: IVersionSnapshot) => {
+    setRollbackError(null);
     setRollbackVersion(version);
   }, []);
 
   const handleRollbackConfirm = useCallback(
     async (version: IVersionSnapshot) => {
-      await runErrorOperation(setError, 'Failed to rollback', async () => {
-        await rollbackToVersion(itemId, contentType, version.version);
+      const runId = ++historyRunId.current;
+      setRollbackError(null);
 
-        // Refresh the version list
-        const data = await refreshVersionHistory(itemId, contentType);
-        if (data) {
+      try {
+        await rollbackToVersion(itemId, contentType, version.version);
+      } catch (error) {
+        if (runId === historyRunId.current) {
+          setRollbackError(
+            errorMessageFromUnknown(error, 'Failed to rollback'),
+          );
+        }
+        return;
+      }
+
+      if (runId !== historyRunId.current) return;
+      setRollbackVersion(null);
+      setRefreshError(null);
+      onRollback?.(version);
+
+      // A committed rollback remains successful even if the subsequent read fails.
+      try {
+        const data = await fetchVersionHistory(itemId, contentType);
+        if (runId === historyRunId.current) {
           setVersions(data.versions);
           setSummary(data.summary);
         }
-
-        onRollback?.(version);
-        setRollbackVersion(null);
-      });
+      } catch (error) {
+        if (runId === historyRunId.current) {
+          setRefreshError(
+            errorMessageFromUnknown(error, 'Failed to load version history'),
+          );
+        }
+      }
     },
     [itemId, contentType, onRollback],
   );
@@ -162,8 +192,8 @@ export function VersionHistoryPanel({
     return <VersionLoadingCard className={className} />;
   }
 
-  if (error) {
-    return <VersionErrorCard className={className} error={error} />;
+  if (loadError) {
+    return <VersionErrorCard className={className} error={loadError} />;
   }
 
   return (
@@ -178,6 +208,15 @@ export function VersionHistoryPanel({
         onPreview={handlePreview}
         onRollbackRequest={handleRollbackRequest}
       />
+
+      {refreshError && (
+        <p
+          role="alert"
+          className="mt-3 rounded-xl border border-red-500/30 bg-red-900/30 p-4 text-sm text-red-300"
+        >
+          Rollback succeeded, but history could not be refreshed. {refreshError}
+        </p>
+      )}
 
       {/* Preview Modal */}
       <VersionPreview
@@ -197,6 +236,7 @@ export function VersionHistoryPanel({
         version={rollbackVersion}
         currentVersion={summary?.currentVersion ?? 0}
         onConfirm={handleRollbackConfirm}
+        error={rollbackError}
       />
     </>
   );

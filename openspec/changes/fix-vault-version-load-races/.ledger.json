@@ -1,0 +1,6 @@
+{
+  "name": "fix-vault-version-load-races",
+  "status": "implemented-awaiting-ci",
+  "reason": "U9 implemented with 19 reproduced failures and six killed mutants. Required local gates pass: 57 suites, 769 tests passed, 32 skipped; hosted CI and Root review remain pending.",
+  "lastReviewed": "2026-11-08"
+}
