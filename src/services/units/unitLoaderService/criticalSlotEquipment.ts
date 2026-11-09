@@ -439,16 +439,18 @@ export function restoreCriticalSlotEquipment(
       const index = placed.findIndex(
         (item, i) =>
           !consumed.has(i) &&
-          (criticalEquipmentId(item.equipmentId) === mount.equipmentId ||
+          (sourceWeaponSummaryMatches(
+            mount,
+            item.equipmentId,
+            item.location ?? '',
+            serialized[i].slots,
+          ) ||
             sourceWeaponSummaryMatches(
               mount,
               serialized[i].id,
               item.location ?? '',
-            )) &&
-          (item.location === mount.location ||
-            item.splitSlots?.location === mount.location ||
-            mount.splitSlots?.location === item.location ||
-            (mount.equipmentId === 'talons' && item.equipmentId === 'talons')),
+              serialized[i].slots,
+            )),
       );
       if (index >= 0) {
         consumed.add(index);

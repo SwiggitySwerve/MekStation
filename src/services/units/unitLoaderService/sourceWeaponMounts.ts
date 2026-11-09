@@ -102,20 +102,21 @@ export function sourceWeaponSummaryMatches(
   mount: ISourceCriticalWeapon,
   id: string,
   location: string,
+  slots?: readonly number[],
 ): boolean {
   const where = mapMechLocation(location);
+  const part = [mount, mount.splitSlots, ...(mount.spreadSlots ?? [])].find(
+    (p) => p?.location === where,
+  );
   return (
     where !== undefined &&
+    part !== undefined &&
+    (!slots?.length || slots.every((index) => part.slots.includes(index))) &&
     mount.summaryIds.some((alias) =>
       [id, sourceWeaponIdentity(normalizeEquipmentId(id))].some(
         (candidate) => summaryNames.compare(alias, candidate) === 0,
       ),
-    ) &&
-    [
-      mount.location,
-      mount.splitSlots?.location,
-      ...(mount.spreadSlots?.map((p) => p.location) ?? []),
-    ].includes(where)
+    )
   );
 }
 

@@ -24,7 +24,7 @@ export function appendSourceWeapons(
     const index = equipment.findIndex(
       (item, i) =>
         available.has(i) &&
-        sourceWeaponSummaryMatches(mount, item.id, item.location),
+        sourceWeaponSummaryMatches(mount, item.id, item.location, item.slots),
     );
     if (index >= 0) {
       available.delete(index);

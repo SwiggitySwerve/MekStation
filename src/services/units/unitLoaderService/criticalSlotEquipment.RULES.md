@@ -42,6 +42,8 @@ location order, shares Talons across legs and joins eligible split weapons.
 The existing slotOperations owner still decides split eligibility/adjacency.
 Summary aliases consume one native mount each, including a split mount's inner
 location. Ammo tokens never enter the weapon census even when ids are shared.
+Explicit positions reserve their actual native group before missing groups are
+recovered, including a later same-type mount in the same location.
 Incomplete groups and unknown tokens stay in the critical grid; incomplete
 recognized weapons produce parser warnings. Source mount qualifiers remain
 in the raw grid; rear and Omni flags also use existing serialized fields.

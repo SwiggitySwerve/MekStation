@@ -72,6 +72,31 @@ it('keeps repeated mounts and their source order', () => {
     { location: 'Right Arm', slots: [0, 1, 2, 3], weight: 4 },
   ]);
 });
+
+it('reserves an explicit later mount before recovering an earlier qualified mount', () => {
+  const items = mapEquipment(
+    [
+      {
+        id: 'smallshield',
+        location: 'LEFT_ARM',
+        slots: [3, 4, 5],
+        isRearMounted: false,
+      },
+    ],
+    TechBase.INNER_SPHERE,
+    TechBaseMode.INNER_SPHERE,
+    {
+      LEFT_ARM: [
+        ...Array(3).fill('ISSmallShield (R)'),
+        ...Array(3).fill('ISSmallShield'),
+      ],
+    },
+    80,
+  );
+  expect(items).toHaveLength(2);
+  expect(items[0]).toMatchObject({ slots: [3, 4, 5], isRearMounted: false });
+  expect(items[1]).toMatchObject({ slots: [0, 1, 2], isRearMounted: true });
+});
 it('joins native and legacy Claw identities without merging their mounts', () => {
   const items = load(
     { LEFT_ARM: ['ISClaw', 'Claws', 'ISClaw', 'Claws', 'ISClaw', 'Claws'] },
