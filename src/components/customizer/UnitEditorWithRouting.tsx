@@ -109,6 +109,7 @@ export function UnitEditorWithRouting({
     getAvailableLocationsForEquipment,
   } = useUnitEditorLoadout({
     armActuators,
+    cockpitType,
     unitId,
     configuration,
     equipment,
