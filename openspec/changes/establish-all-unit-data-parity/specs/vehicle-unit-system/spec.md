@@ -1138,3 +1138,34 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **THEN** the sink masses SHALL be 5 and 15 tons
 - **AND** an insulated small laser SHALL keep the running-total minimum of one
 - **AND** an insulator in another location SHALL link no laser
+
+### Requirement: Support torpedo launcher mass identity
+
+A support vehicle's torpedo launcher (LRT and SRT) SHALL weigh the pinned launcher
+mass, taken from the Java-derived registry entry the unit loader resolves for the
+BLK token, not from the legacy name stub the BV catalog matches. Only a
+definition that the registry owner identifies as a registry entry SHALL supply
+mass this way; other resolver answers (cargo, flail, wrecking ball) and
+ammunition SHALL keep their existing mass source.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `TestSupportVehicle`
+verifier weapon and ammunition terms.
+
+#### Scenario: Torpedo launchers weigh the Java mass
+
+- **GIVEN** a support chassis mounting LRT 5, 10, 15 or 20, or SRT 2, 4 or 6
+- **WHEN** the construction handler weighs it
+- **THEN** the launchers SHALL weigh 2, 5, 7, 10, 1, 2 and 3 tons respectively
+- **AND** LRT 10, LRT 15, SRT 2 and SRT 4 together SHALL weigh 15 tons
+
+#### Scenario: Corpus torpedo boats equal Java
+
+- **GIVEN** Seahorse Cargo Sub, Silverfin Coastal Cutter and White Tip Submarine
+- **WHEN** their support weight is calculated
+- **THEN** it SHALL equal the pinned verifier's 250, 40 and 249.5 tons
+
+#### Scenario: Non-registry answers keep their mass source
+
+- **GIVEN** a support chassis mounting a wrecking ball, a flail or a sized cargo bay
+- **WHEN** the construction handler weighs it
+- **THEN** they SHALL weigh 4, 5 and 20 tons and the torpedo ammunition bin SHALL weigh 1 ton
