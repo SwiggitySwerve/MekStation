@@ -931,3 +931,45 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **THEN** its mounted sealing mass SHALL be zero
 - **AND** either identity without construction context SHALL remain unavailable
 - **AND** an unmounted inherent submarine sealing capability SHALL NOT add a mount
+
+### Requirement: Native Tank armor technology and decorated array identity
+
+Native Tank construction weight SHALL select armor technology through the shared
+armor owner using the pinned weight verifier's technology-level semantics.
+Only an absent armor technology tag SHALL inherit the chassis side; explicit
+unknown level -1 SHALL select IS density. Native Tank weight transport SHALL
+reuse the guarded lookup-token owner only for ISLMGA(ST) and its :OMNI form,
+retaining original source identity and mount flags. Public equipment lookup
+identities SHALL remain unchanged, including the legacy lmga target for these
+decorated inputs. Existing catalog
+IDs, ammunition namespace guards and unresolved-equipment behavior SHALL remain
+unchanged.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ArmorType.java:96-101`, `TechConstants.java:394-398`,
+`BLKTankFile.java:284-304`, `ISLightMGA.java:67-83` and
+`MiscType.java:563-591`.
+
+#### Scenario: Explicit unknown armor technology differs from an absent tag
+
+- **GIVEN** the base and Bombast Chalchiuhtotolin sources with explicit armor technology -1
+- **WHEN** native construction weight is calculated
+- **THEN** their armor SHALL weigh 7 and 7.5 tons respectively and their complete totals SHALL each equal 50 tons
+- **AND** an absent armor technology tag SHALL retain the chassis-side fallback
+- **AND** explicit Clan levels 2, 6, 8, 10 and 12 SHALL select Clan technology
+
+#### Scenario: Decorated IS arrays retain their technology and sponson charge
+
+- **GIVEN** Myrmidon P (Tate) with two ISLMGA(ST) arrays
+- **WHEN** native Tank construction weight is calculated
+- **THEN** each array SHALL weigh 0.5 tons like ISLMGA and converted islmgast
+- **AND** the existing sponson mechanism SHALL remain 0.5 tons, equipment SHALL total 11.5 tons and complete weight SHALL equal 40 tons
+- **AND** the original source tokens and sponson flags SHALL remain intact
+- **AND** Omni decorators SHALL retain the IS identity and Clan arrays SHALL remain 0.25 tons
+
+#### Scenario: Unrelated body-decorated identities retain their compatibility targets
+
+- **GIVEN** (B) CLArrowIV, (B) CLLBXAC10 and (B) CLLBXAC20
+- **WHEN** resolved through the IS or Mixed unit-loader API
+- **THEN** their established targets SHALL remain arrow-iv-launcher, lb-10-x-ac and lb-20-x-ac respectively
+- **AND** the ISLMGA decorator correction SHALL NOT reroute other decorated inputs

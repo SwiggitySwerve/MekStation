@@ -210,15 +210,22 @@ describe('SpaceStationUnitHandler', () => {
       expect(result.data?.unit?.pressurizedModules).toBe(10);
     });
 
-    it('should parse armor by arc', () => {
+    it('should parse armor by arc in BLK source order', () => {
+      // Nose, Left Front, Right Front, Aft, Aft Left, Aft Right (BLKSpaceStationFile.java:225-230).
       const doc = createMockBlkDocument({
-        armor: [100, 80, 80, 60, 60, 40],
+        armor: [100, 80, 70, 60, 50, 40],
       });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.armorByArc.nose).toBe(100);
-      expect(result.data?.unit?.armorByArc.aft).toBe(40);
+      expect(result.data?.unit?.armorByArc).toStrictEqual({
+        nose: 100,
+        frontLeftSide: 80,
+        frontRightSide: 70,
+        aft: 60,
+        aftLeftSide: 50,
+        aftRightSide: 40,
+      });
     });
 
     it('should calculate total armor points', () => {

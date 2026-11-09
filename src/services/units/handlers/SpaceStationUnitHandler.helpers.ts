@@ -6,9 +6,7 @@
 
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
-  CapitalArc,
   ICapitalCrewConfiguration,
-  ICapitalMountedEquipment,
   ICrewQuarters,
   ITransportBay,
   QuartersType,
@@ -16,45 +14,6 @@ import {
 
 import { SpaceStationType } from './SpaceStationUnitHandler.types';
 import { parseCapitalTransporterString } from './transportBayParsing';
-
-/**
- * Map location strings to CapitalArc enum
- */
-const ARC_MAP: Record<string, CapitalArc> = {
-  nose: CapitalArc.NOSE,
-  'nose equipment': CapitalArc.NOSE,
-  'front left': CapitalArc.FRONT_LEFT,
-  'fl equipment': CapitalArc.FRONT_LEFT,
-  'front right': CapitalArc.FRONT_RIGHT,
-  'fr equipment': CapitalArc.FRONT_RIGHT,
-  'aft left': CapitalArc.AFT_LEFT,
-  'al equipment': CapitalArc.AFT_LEFT,
-  'aft right': CapitalArc.AFT_RIGHT,
-  'ar equipment': CapitalArc.AFT_RIGHT,
-  aft: CapitalArc.AFT,
-  'aft equipment': CapitalArc.AFT,
-};
-
-/**
- * Parse armor values into arc-keyed object
- */
-export function parseArmorByArc(armor: readonly number[]): {
-  nose: number;
-  frontLeftSide: number;
-  frontRightSide: number;
-  aftLeftSide: number;
-  aftRightSide: number;
-  aft: number;
-} {
-  return {
-    nose: armor[0] || 0,
-    frontLeftSide: armor[1] || 0,
-    frontRightSide: armor[2] || 0,
-    aftLeftSide: armor[3] || 0,
-    aftRightSide: armor[4] || 0,
-    aft: armor[5] || 0,
-  };
-}
 
 /**
  * Parse station type from raw tags
@@ -141,54 +100,6 @@ export function parseQuarters(
   }
 
   return quarters;
-}
-
-/**
- * Parse equipment from BLK document
- */
-export function parseEquipment(
-  document: IBlkDocument,
-): readonly ICapitalMountedEquipment[] {
-  const equipment: ICapitalMountedEquipment[] = [];
-  let mountId = 0;
-
-  for (const [locationKey, items] of Object.entries(
-    document.equipmentByLocation,
-  )) {
-    const arc = normalizeArc(locationKey);
-
-    for (const item of items) {
-      equipment.push({
-        id: `mount-${mountId++}`,
-        equipmentId: item,
-        name: item,
-        arc,
-        isCapital: isCapitalWeapon(item),
-      });
-    }
-  }
-
-  return equipment;
-}
-
-/**
- * Normalize location string to CapitalArc enum
- */
-function normalizeArc(locationKey: string): CapitalArc {
-  const normalized = locationKey.toLowerCase();
-  return ARC_MAP[normalized] || CapitalArc.NOSE;
-}
-
-/**
- * Check if weapon is capital-scale
- */
-function isCapitalWeapon(weaponName: string): boolean {
-  const lower = weaponName.toLowerCase();
-  return (
-    lower.includes('naval') ||
-    lower.includes('capital') ||
-    lower.includes('mass driver')
-  );
 }
 
 /**
