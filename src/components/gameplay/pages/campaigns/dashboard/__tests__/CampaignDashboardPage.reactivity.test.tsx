@@ -155,6 +155,9 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     errorMessage: null,
     loadCampaign: (...args: unknown[]) => mockLoadPersistedCampaign(...args),
     reset: (...args: unknown[]) => mockResetPersistence(...args),
+    initializeCreatedCampaign: (campaignId: string): void => {
+      persistenceState.campaignId = campaignId;
+    },
     saveCampaign: (...args: unknown[]) => mockPersistCampaign(...args),
     saveState: 'idle' as const,
     // Umbrella 10.3: the launch clears any prior conflict before it runs
