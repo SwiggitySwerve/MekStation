@@ -151,3 +151,78 @@ describe('PR4 — Critical→Wounded round-trip regression', () => {
     expect(reloaded!.recoveryTime).toBe(35);
   });
 });
+
+describe('legacy departure roster hydration', () => {
+  it.each(['retired', 'deserted'])(
+    'normalizes Active + %s for current-version saves',
+    async (departureReason) => {
+      useCampaignRosterStore.getState().reset();
+      const entry = {
+        ...makeCriticalPilot(),
+        status: CampaignPilotStatus.Active,
+        departureReason,
+      };
+      localStorageMock.setItem(
+        'campaign-roster-store',
+        JSON.stringify({
+          version: 3,
+          state: {
+            campaignId: 'legacy-departure',
+            units: [],
+            pilots: [entry],
+            missions: [],
+            activeMissionId: null,
+            missionCount: 0,
+          },
+        }),
+      );
+      await useCampaignRosterStore.persist.rehydrate();
+      expect(useCampaignRosterStore.getState().pilots[0]).toMatchObject({
+        status: departureReason,
+        departureReason,
+      });
+      expect(typeof useCampaignRosterStore.getState().applyPilotPatches).toBe(
+        'function',
+      );
+    },
+  );
+});
+
+it.each([
+  CampaignPilotStatus.Active,
+  CampaignPilotStatus.Wounded,
+  CampaignPilotStatus.Critical,
+  CampaignPilotStatus.MIA,
+  CampaignPilotStatus.KIA,
+  CampaignPilotStatus.Retired,
+  CampaignPilotStatus.Deserted,
+])(
+  'preserves saved %s status and unknown reasons on roster hydration',
+  async (status) => {
+    useCampaignRosterStore.getState().reset();
+    const entry = {
+      ...makeCriticalPilot(),
+      status,
+      departureReason: 'unknown',
+    };
+    localStorageMock.setItem(
+      'campaign-roster-store',
+      JSON.stringify({
+        version: 3,
+        state: {
+          campaignId: 'legacy-departure',
+          units: [],
+          pilots: [entry],
+          missions: [],
+          activeMissionId: null,
+          missionCount: 0,
+        },
+      }),
+    );
+    await useCampaignRosterStore.persist.rehydrate();
+    expect(useCampaignRosterStore.getState().pilots[0]).toMatchObject({
+      status,
+      departureReason: 'unknown',
+    });
+  },
+);

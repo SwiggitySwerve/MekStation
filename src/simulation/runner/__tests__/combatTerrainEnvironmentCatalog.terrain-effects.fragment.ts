@@ -230,11 +230,11 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/simulation/runner/phases/movementTerrainPsr.ts#L75-L325',
+            url: 'src/utils/gameplay/movement/terrainPsrTriggers.ts#L113-L342',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L94-L245',
+            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L103-L281',
           }),
         ]),
       );

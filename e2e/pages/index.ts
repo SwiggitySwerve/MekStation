@@ -77,21 +77,3 @@ export {
   UnitBrowserPage,
   UnitBrowserReadPage,
 } from './compendium.page';
-
-// Repair pages
-export {
-  RepairActionPage,
-  RepairAssessmentPage,
-  RepairBayPage,
-  RepairCostBreakdownPage,
-  RepairCostSummaryPage,
-  RepairErrorPage,
-  RepairFilterPage,
-  RepairHeaderPage,
-  RepairItemSelectionPage,
-  RepairQueueActionsPage,
-  RepairQueuePage,
-  RepairStatsReadPage,
-  RepairUnitListPage,
-  RepairUnitListStatePage,
-} from './repair.page';

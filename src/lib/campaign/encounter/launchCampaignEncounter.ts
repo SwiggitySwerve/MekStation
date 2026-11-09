@@ -19,9 +19,8 @@
  */
 
 import type { IEncounterOperationResult } from '@/services/encounter/EncounterRepository';
-import type { IEncounter } from '@/types/encounter';
 
-import { getEncounterService } from '@/services/encounter/EncounterService';
+import { EncounterStatus, type IEncounter } from '@/types/encounter';
 
 // =============================================================================
 // Result
@@ -41,6 +40,10 @@ export interface ILaunchCampaignEncounterResult {
   readonly error?: string;
 }
 
+export interface ICampaignEncounterLaunchProgress {
+  encounterId?: string;
+}
+
 // =============================================================================
 // Service Surface (injectable for tests)
 // =============================================================================
@@ -50,11 +53,13 @@ export interface ILaunchCampaignEncounterResult {
  * as an interface so tests can inject a fake without standing up the
  * SQLite repository singleton.
  */
+type Awaitable<T> = T | Promise<T>;
+
 export interface ICampaignEncounterLauncherService {
   createEncounter(input: {
     readonly name: string;
     readonly description?: string;
-  }): IEncounterOperationResult;
+  }): Awaitable<IEncounterOperationResult>;
   updateEncounter(
     id: string,
     input: {
@@ -63,11 +68,11 @@ export interface ICampaignEncounterLauncherService {
       readonly opForConfig?: IEncounter['opForConfig'];
       readonly optionalRules?: readonly string[];
     },
-  ): IEncounterOperationResult;
+  ): Awaitable<IEncounterOperationResult>;
   setPlayerForce(
     encounterId: string,
     forceId: string,
-  ): IEncounterOperationResult;
+  ): Awaitable<IEncounterOperationResult>;
   launchEncounter(
     id: string,
     options?: {
@@ -75,8 +80,8 @@ export interface ICampaignEncounterLauncherService {
       readonly contractId?: string | null;
       readonly scenarioId?: string | null;
     },
-  ): Promise<IEncounterOperationResult>;
-  getEncounter(id: string): IEncounter | null;
+  ): Awaitable<IEncounterOperationResult>;
+  getEncounter(id: string): Awaitable<IEncounter | null>;
 }
 
 // =============================================================================
@@ -100,11 +105,12 @@ export interface ICampaignEncounterLauncherService {
  * Linkage` contract of `game-session-management`.
  *
  * @param encounter - the bridged campaign-generated encounter
- * @param service - encounter service (defaults to the singleton)
+ * @param service - explicit server service or browser HTTP adapter
  */
 export async function launchCampaignEncounter(
   encounter: IEncounter,
-  service: ICampaignEncounterLauncherService = getEncounterService(),
+  service: ICampaignEncounterLauncherService,
+  progress?: ICampaignEncounterLaunchProgress,
 ): Promise<ILaunchCampaignEncounterResult> {
   const meta = encounter.campaignMeta;
   if (!meta) {
@@ -114,51 +120,40 @@ export async function launchCampaignEncounter(
     };
   }
 
-  // 1. Materialise the encounter into the encounter repository.
-  const created = service.createEncounter({
-    name: encounter.name,
-    description: encounter.description,
-  });
-  if (!created.success || !created.id) {
-    return {
-      success: false,
-      error: created.error ?? 'Failed to create encounter',
-    };
-  }
-  const repoEncounterId = created.id;
-
-  // 2. Copy the generated configuration onto the repository encounter.
-  const configResult = service.updateEncounter(repoEncounterId, {
-    mapConfig: encounter.mapConfig,
-    victoryConditions: encounter.victoryConditions,
-    opForConfig: encounter.opForConfig,
-    optionalRules: encounter.optionalRules,
-  });
-  if (!configResult.success) {
-    return {
-      success: false,
-      encounterId: repoEncounterId,
-      error: configResult.error ?? 'Failed to configure encounter',
-    };
-  }
-
-  // 3. Attach the player force when the bridge resolved one.
-  if (encounter.playerForce?.forceId) {
-    const forceResult = service.setPlayerForce(
-      repoEncounterId,
-      encounter.playerForce.forceId,
-    );
-    if (!forceResult.success) {
+  if (progress?.encounterId) {
+    const existing = await service.getEncounter(progress.encounterId);
+    if (!existing)
       return {
         success: false,
-        encounterId: repoEncounterId,
-        error: forceResult.error ?? 'Failed to set player force',
+        encounterId: progress.encounterId,
+        error:
+          'The pending encounter is unavailable. Resync the campaign before retrying.',
+      };
+    if (
+      existing.status === EncounterStatus.Launched &&
+      existing.gameSessionId
+    ) {
+      return {
+        success: true,
+        encounterId: existing.id,
+        gameSessionId: existing.gameSessionId,
       };
     }
   }
+  const configured = await configureCampaignEncounter(
+    encounter,
+    service,
+    progress,
+  );
+  if (!configured.success || !configured.id) {
+    return {
+      success: false,
+      ...(configured.id ? { encounterId: configured.id } : {}),
+      error: configured.error,
+    };
+  }
+  const repoEncounterId = configured.id;
 
-  // 4. Launch with campaign linkage (D6 — reuses the existing launch
-  //    snapshot; the campaign only supplies the linkage fields).
   const launched = await service.launchEncounter(repoEncounterId, {
     campaignId: meta.campaignId,
     contractId: meta.contractId,
@@ -172,12 +167,64 @@ export async function launchCampaignEncounter(
     };
   }
 
-  // The repository stamps `game_session_id` on the encounter row at
-  // launch; read it back so the caller gets the session handle.
-  const launchedEncounter = service.getEncounter(repoEncounterId);
+  const launchedEncounter = await service.getEncounter(repoEncounterId);
   return {
     success: true,
     encounterId: repoEncounterId,
     gameSessionId: launchedEncounter?.gameSessionId,
   };
+}
+
+/** Materialization is separate from session launch so each failure keeps its id. */
+async function configureCampaignEncounter(
+  encounter: IEncounter,
+  service: ICampaignEncounterLauncherService,
+  progress?: ICampaignEncounterLaunchProgress,
+): Promise<IEncounterOperationResult> {
+  const created = progress?.encounterId
+    ? { success: true, id: progress.encounterId }
+    : await service.createEncounter({
+        name: encounter.name,
+        description: encounter.description,
+      });
+  if (!created.success || !created.id) {
+    return {
+      success: false,
+      error: created.error ?? 'Failed to create encounter',
+    };
+  }
+  const repoEncounterId = created.id;
+  if (progress) progress.encounterId = repoEncounterId;
+
+  // 2. Copy the generated configuration onto the repository encounter.
+  const configResult = await service.updateEncounter(repoEncounterId, {
+    mapConfig: encounter.mapConfig,
+    victoryConditions: encounter.victoryConditions,
+    opForConfig: encounter.opForConfig,
+    optionalRules: encounter.optionalRules,
+  });
+  if (!configResult.success) {
+    return {
+      success: false,
+      id: repoEncounterId,
+      error: configResult.error ?? 'Failed to configure encounter',
+    };
+  }
+
+  // 3. Attach the player force when the bridge resolved one.
+  if (encounter.playerForce?.forceId) {
+    const forceResult = await service.setPlayerForce(
+      repoEncounterId,
+      encounter.playerForce.forceId,
+    );
+    if (!forceResult.success) {
+      return {
+        success: false,
+        id: repoEncounterId,
+        error: forceResult.error ?? 'Failed to set player force',
+      };
+    }
+  }
+
+  return { success: true, id: repoEncounterId };
 }

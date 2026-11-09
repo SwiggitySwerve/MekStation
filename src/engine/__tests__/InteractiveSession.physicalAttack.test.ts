@@ -386,3 +386,26 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
     );
   });
 });
+
+it('refuses another physical declaration after a Melee Master explicitly completes early', () => {
+  const session = advanceToAdjacentPlayerPhysicalActivation(
+    makeSession(['melee_master']),
+  );
+  session.applyPhysicalAttack(
+    'unit-player',
+    'unit-opponent',
+    'punch',
+    'leftArm',
+  );
+  session.completePhysicalAttack('unit-player');
+  const before = session.getSession();
+  const snapshot = JSON.stringify(before);
+  session.applyPhysicalAttack(
+    'unit-player',
+    'unit-opponent',
+    'punch',
+    'rightArm',
+  );
+  expect(session.getSession()).toBe(before);
+  expect(JSON.stringify(session.getSession())).toBe(snapshot);
+});

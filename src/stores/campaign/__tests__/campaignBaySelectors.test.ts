@@ -138,6 +138,32 @@ const RELOADED_ROSTER_PILOTS: readonly ICampaignRosterEntry[] = [
 ];
 
 describe('campaignBaySelectors', () => {
+  it('ignores a cached accepted status for an awarded but unenrolled unit', () => {
+    const campaign = postBattleWithoutAttachedInventory();
+    const allocation = campaign.salvageAllocations!['match-reload-1'];
+    const candidate = {
+      ...allocation.mercenaryAward.candidates[0],
+      status: 'awarded' as const,
+    };
+    const reloaded = {
+      ...campaign,
+      campaignInventory: makeInventory(),
+      salvageAllocations: {
+        'match-reload-1': {
+          ...allocation,
+          mercenaryAward: {
+            ...allocation.mercenaryAward,
+            candidates: [candidate],
+          },
+        },
+      },
+    };
+    expect(selectSalvageBay(reloaded)).toMatchObject([
+      { partId: 'salvage-atlas', status: 'pending' },
+    ]);
+    expect(computeAcceptedSalvageValue(selectSalvageBay(reloaded))).toBe(0);
+  });
+
   describe('populated campaign', () => {
     const campaign = populatedCampaign();
 
@@ -276,4 +302,14 @@ describe('campaignBaySelectors', () => {
       expect(computeAcceptedSalvageValue(allDeclined)).toBe(0);
     });
   });
+});
+
+it('ignores old cached repair rows when the canonical ticket is completed', () => {
+  const campaign = {
+    ...populatedCampaign(),
+    repairQueue: [{ ...makeRepairTicket(), status: 'completed' as const }],
+  };
+  expect(selectRepairBay(campaign)).toEqual([]);
+  expect(selectInventorySummary(campaign).repairTicketCount).toBe(0);
+  expect(selectInventorySummary(campaign).totalRepairHours).toBe(0);
 });

@@ -197,7 +197,7 @@ interface SanitizeResult {
  * @returns Sanitized tabs and potentially updated activeTabId
  */
 function sanitizeTabsOnHydration(
-  tabs: TabInfo[] | undefined,
+  tabs: (TabInfo | null)[] | undefined,
   activeTabId: string | null,
 ): SanitizeResult {
   if (!tabs || !Array.isArray(tabs)) {
@@ -207,7 +207,15 @@ function sanitizeTabsOnHydration(
   let repaired = 0;
   const idMap = new Map<string, string>(); // oldId -> newId for active tab tracking
 
-  const sanitizedTabs = tabs.map((tab): TabInfo => {
+  const validTabs = tabs.filter((tab): tab is TabInfo => {
+    if (tab === null) {
+      repaired++;
+      return false;
+    }
+    return true;
+  });
+
+  const sanitizedTabs = validTabs.map((tab): TabInfo => {
     const techBase = parseTechBase(tab.techBase);
 
     // Check if ID is missing or invalid
@@ -242,7 +250,7 @@ function sanitizeTabsOnHydration(
   });
 
   // Update activeTabId if it was repaired
-  let newActiveTabId = activeTabId;
+  let newActiveTabId = sanitizedTabs.length === 0 ? null : activeTabId;
 
   // Check if activeTabId needs to be updated
   // Note: empty string is treated as a value that needs repair
@@ -474,45 +482,50 @@ export const useTabManagerStore = create<TabManagerState>()(
         activeTabId: state.activeTabId,
       }),
       onRehydrateStorage: () => (state, error) => {
-        if (error) {
-          logger.error('[TabManager] Error during rehydration:', error);
-        }
+        let hydrationFailed = false;
+        try {
+          if (error) throw error;
+          if (!state) return;
 
-        if (state) {
           // Sanitize tabs to ensure all have valid UUIDs
-          const {
+          const { tabs: sanitizedTabs, activeTabId: sanitizedActiveId } =
+            sanitizeTabsOnHydration(state.tabs, state.activeTabId);
+
+          useTabManagerStore.setState({
             tabs: sanitizedTabs,
             activeTabId: sanitizedActiveId,
-            repaired,
-          } = sanitizeTabsOnHydration(state.tabs, state.activeTabId);
-
-          // If tabs were repaired, update the store state
-          if (repaired > 0) {
-            // Use internal setState to update without triggering persistence loop
-            useTabManagerStore.setState({
-              tabs: sanitizedTabs,
-              activeTabId: sanitizedActiveId,
-            });
-          }
-
-          // Use sanitized values for hydration
-          const tabsToUse = repaired > 0 ? sanitizedTabs : state.tabs;
-          const activeIdToUse =
-            repaired > 0 ? sanitizedActiveId : state.activeTabId;
+          });
 
           // Hydrate the active unit store if there is one
-          if (tabsToUse && Array.isArray(tabsToUse)) {
-            const activeTab = tabsToUse.find((t) => t.id === activeIdToUse);
-            if (activeTab) {
+          const activeTab = sanitizedTabs.find(
+            (t) => t.id === sanitizedActiveId,
+          );
+          if (activeTab) {
+            try {
               hydrateOrCreateUnit(activeTab.id, {
                 name: activeTab.name,
                 tonnage: activeTab.tonnage,
                 techBase: activeTab.techBase,
               });
+            } catch (error) {
+              logger.error(
+                `[TabManager] Error hydrating active unit "${activeTab.id}":`,
+                error,
+              );
+              useTabManagerStore.setState({ activeTabId: null });
             }
           }
-
-          state.setLoading(false);
+        } catch (error) {
+          hydrationFailed = true;
+          logger.error('[TabManager] Error during rehydration:', error);
+          useTabManagerStore.setState({ tabs: [], activeTabId: null });
+        } finally {
+          try {
+            useTabManagerStore.getState().setLoading(false);
+          } finally {
+            // Loading updates also persist. Remove the failed snapshot last.
+            if (hydrationFailed) useTabManagerStore.persist.clearStorage();
+          }
         }
       },
     },

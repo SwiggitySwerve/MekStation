@@ -53,6 +53,7 @@ import {
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { isActiveCampaignSeat } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
 
 interface CommandBody {
   readonly intent: ICampaignIntent;
@@ -173,6 +174,20 @@ export default async function handler(
     return;
   }
 
+  // The whole intent, payload included, is parsed against the intent schema
+  // before anything reads it (K14b). The guard above checks only the
+  // envelope, so a HireOffer could otherwise carry a forged recruit or price
+  // that a validator might one day read. After identity, like the other
+  // contract complaints, so an anonymous caller learns nothing of the shape.
+  const intent = parseCampaignIntent(body.intent);
+  if (intent === null) {
+    res.status(400).json({
+      error: 'intent does not match its declared kind',
+      reason: 'malformed-intent',
+    });
+    return;
+  }
+
   try {
     const journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
       getSQLiteService().getDatabase(),
@@ -187,7 +202,7 @@ export default async function handler(
       { journal, authority },
       {
         campaignId: id,
-        intent: body.intent,
+        intent,
         authorPlayerId: auth.playerId,
         commandId: body.commandId,
         ts: new Date().toISOString(),

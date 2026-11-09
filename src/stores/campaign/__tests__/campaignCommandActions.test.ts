@@ -12,12 +12,19 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
+import type { ILoan } from '@/types/campaign/Loan';
 
 import {
   SAMPLE_CANDIDATES,
   SAMPLE_OFFERS,
 } from '@/components/campaign/command/__fixtures__/commandFixtures';
+import { createLoan } from '@/lib/finances/loanService';
 import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
+import {
+  createHostCoopSession,
+  createGuestCoopSession,
+} from '@/types/campaign/CoopSession';
+import { Money } from '@/types/campaign/Money';
 
 import {
   acceptContractOffer,
@@ -39,7 +46,9 @@ import { resetCampaignStore, useCampaignStore } from '../useCampaignStore';
 /** Seed the live campaign store with a campaign carrying command state. */
 function seedCampaign(): ICampaign {
   const store = useCampaignStore();
-  store.getState().createCampaign('Test', 'mercenary');
+  store
+    .getState()
+    .createCampaign('Test', 'mercenary', { startingFunds: 1_000_000 });
   const base = store.getState().getCampaign();
   if (!base) throw new Error('campaign not created');
 
@@ -79,6 +88,66 @@ describe('campaignCommandActions', () => {
   // ===========================================================================
 
   describe('acquisition requests', () => {
+    it('does not reuse request IDs after removing and adding the same part', () => {
+      seedCampaign();
+      const params = {
+        partName: 'PPC',
+        quantity: 2,
+        availability: AvailabilityRating.E,
+        isConsumable: false,
+      };
+      const first = addAcquisitionRequest(params);
+      const second = addAcquisitionRequest(params);
+      expect(removeAcquisitionRequest(first.requestId ?? '').applied).toBe(
+        true,
+      );
+      const third = addAcquisitionRequest(params);
+      expect(third.requestId).not.toBe(second.requestId);
+      expect(third.requestId).not.toBe(first.requestId);
+      expect(removeAcquisitionRequest(second.requestId ?? '').applied).toBe(
+        true,
+      );
+      expect(
+        currentCampaign().shoppingList?.items.map((item) => item.id),
+      ).toEqual([third.requestId]);
+    });
+
+    it('does not reuse the identity of a removed delivered request', () => {
+      seedCampaign();
+      const params = {
+        partName: 'PPC',
+        quantity: 2,
+        availability: AvailabilityRating.E,
+        isConsumable: false,
+      };
+      const first = addAcquisitionRequest(params);
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          shoppingList: {
+            items: (currentCampaign().shoppingList?.items ?? []).map(
+              (item) => ({ ...item, status: 'delivered' }),
+            ),
+          },
+          partsInventory: [
+            {
+              inventoryId: `acquisition-${first.requestId}`,
+              partId: 'ppc',
+              partName: 'PPC',
+              quantity: 2,
+              source: 'acquisition',
+              acquiredAt: '3025-01-01T00:00:00.000Z',
+            },
+          ],
+        });
+      expect(removeAcquisitionRequest(first.requestId ?? '').applied).toBe(
+        true,
+      );
+      const second = addAcquisitionRequest(params);
+      expect(second.requestId).not.toBe(first.requestId);
+      expect(currentCampaign().partsInventory?.[0].quantity).toBe(2);
+    });
+
     it('adds a pending request to the campaign shopping list', () => {
       seedCampaign();
       const result = addAcquisitionRequest({
@@ -165,6 +234,122 @@ describe('campaignCommandActions', () => {
   // ===========================================================================
 
   describe('hireCandidate', () => {
+    it.each([-1, NaN, Infinity])(
+      'refuses an invalid hire cost %s without mutation',
+      (hireCost) => {
+        seedCampaign();
+        useCampaignStore()
+          .getState()
+          .updateCampaign({
+            personnelMarket: [{ ...SAMPLE_CANDIDATES[0], hireCost }],
+          } as Partial<ICampaign>);
+        const before = currentCampaign();
+        expect(hireCandidate(SAMPLE_CANDIDATES[0].id)).toEqual({
+          applied: false,
+          reason: 'Invalid offer cost',
+        });
+        expect(currentCampaign()).toBe(before);
+        expect(useCampaignRosterStore.getState().pilots).toEqual([]);
+      },
+    );
+    it('refuses insufficient funds without enrolling or consuming the offer', () => {
+      seedCampaign();
+      const campaign = currentCampaign();
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          finances: { ...campaign.finances, balance: Money.ZERO },
+        });
+      const before = currentCampaign();
+      expect(hireCandidate(SAMPLE_CANDIDATES[0].id)).toEqual({
+        applied: false,
+        reason: 'Insufficient funds',
+      });
+      expect(currentCampaign()).toBe(before);
+      expect(useCampaignRosterStore.getState().pilots).toEqual([]);
+    });
+
+    it('commits payment and consumes the offer before enrollment, preserving loan metadata', () => {
+      seedCampaign();
+      const loans: ILoan[] = [
+        createLoan(new Money(100_000), 0.05, 12, new Date('3025-01-01')),
+      ];
+      useCampaignStore()
+        .getState()
+        .updateCampaign({ finances: { ...currentCampaign().finances, loans } });
+      const offer = SAMPLE_CANDIDATES[0];
+      const before = currentCampaign().finances.balance.amount;
+      const addPilot = useCampaignRosterStore.getState().addPilot;
+      const spy = jest
+        .spyOn(useCampaignRosterStore.getState(), 'addPilot')
+        .mockImplementation((pilot) => {
+          expect(currentCampaign().finances.balance.amount).toBe(
+            before - offer.hireCost,
+          );
+          expect(currentCampaign().finances.transactions.at(-1)?.id).toBe(
+            `tx-hire-${offer.id}`,
+          );
+          expect(currentCampaign().personnelMarket).not.toContainEqual(offer);
+          expect(hireCandidate(offer.id).applied).toBe(false);
+          addPilot(pilot);
+        });
+      try {
+        expect(hireCandidate(offer.id).applied).toBe(true);
+        expect(currentCampaign().finances.loans).toBe(loans);
+        expect(hireCandidate(offer.id).applied).toBe(false);
+        expect(useCampaignRosterStore.getState().pilots).toHaveLength(1);
+      } finally {
+        spy.mockRestore();
+        useCampaignRosterStore.setState({ addPilot });
+      }
+    });
+
+    it('restores the debit, offer and roster when enrollment throws after writing', () => {
+      seedCampaign();
+      const before = currentCampaign();
+      const addPilot = useCampaignRosterStore.getState().addPilot;
+      const spy = jest
+        .spyOn(useCampaignRosterStore.getState(), 'addPilot')
+        .mockImplementation((pilot) => {
+          addPilot(pilot);
+          throw new Error('Enrollment failed');
+        });
+      try {
+        expect(hireCandidate(SAMPLE_CANDIDATES[0].id)).toEqual({
+          applied: false,
+          reason: 'Enrollment failed',
+        });
+        expect(currentCampaign().finances).toEqual(before.finances);
+        expect(currentCampaign().personnelMarket).toEqual(
+          before.personnelMarket,
+        );
+        expect(useCampaignRosterStore.getState().pilots).toEqual([]);
+        expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+      } finally {
+        spy.mockRestore();
+        useCampaignRosterStore.setState({ addPilot });
+      }
+    });
+
+    it('rejects an expired candidate and an old paid offer without charging again', () => {
+      seedCampaign();
+      useCampaignStore()
+        .getState()
+        .updateCampaign({ currentDate: new Date('3025-04-01') });
+      expect(hireCandidate(SAMPLE_CANDIDATES[0].id).applied).toBe(false);
+      useCampaignStore()
+        .getState()
+        .updateCampaign({ currentDate: new Date('3025-01-01') });
+      expect(hireCandidate(SAMPLE_CANDIDATES[0].id).applied).toBe(true);
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          personnelMarket: SAMPLE_CANDIDATES,
+        } as Partial<ICampaign>);
+      const before = currentCampaign();
+      expect(hireCandidate(SAMPLE_CANDIDATES[0].id).applied).toBe(false);
+      expect(currentCampaign()).toBe(before);
+    });
     it('adds the recruit to the roster and removes the offer', () => {
       seedCampaign();
       const offer = SAMPLE_CANDIDATES[0];
@@ -265,6 +450,26 @@ describe('campaignCommandActions', () => {
   // ===========================================================================
 
   describe('acceptContractOffer', () => {
+    it('refuses a declined offer and cannot decline an accepted legacy offer', () => {
+      seedCampaign();
+      const offer = SAMPLE_OFFERS[0];
+      expect(declineContractOffer(offer.id).applied).toBe(true);
+      expect(acceptContractOffer(offer.id).applied).toBe(false);
+      expect(currentCampaign().missions.has(offer.id)).toBe(false);
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          contractMarket: { offers: SAMPLE_OFFERS, declinedOfferIds: [] },
+        } as Partial<ICampaign>);
+      expect(acceptContractOffer(offer.id).applied).toBe(true);
+      useCampaignStore()
+        .getState()
+        .updateCampaign({
+          contractMarket: { offers: SAMPLE_OFFERS, declinedOfferIds: [] },
+        } as Partial<ICampaign>);
+      expect(declineContractOffer(offer.id).applied).toBe(false);
+      expect(acceptContractOffer(offer.id).applied).toBe(false);
+    });
     it('adds the contract to campaign missions and removes the offer', () => {
       seedCampaign();
       const offer = SAMPLE_OFFERS[0];
@@ -332,5 +537,44 @@ describe('campaignCommandActions', () => {
       declineContractOffer(SAMPLE_OFFERS[1].id);
       expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
     });
+  });
+
+  describe('local market admission', () => {
+    it.each(['host', 'guest', 'advancing'] as const)(
+      'refuses hire, accept and decline while %s without changing any state',
+      (mode) => {
+        seedCampaign();
+        const store = useCampaignStore();
+        if (mode === 'advancing') store.setState({ dayAdvanceInFlight: true });
+        else
+          store.setState({
+            campaign: {
+              ...currentCampaign(),
+              coopSession:
+                mode === 'host'
+                  ? createHostCoopSession('ABCDEF', 'match')
+                  : createGuestCoopSession('match', 'ABCDEF'),
+            },
+          });
+        const before = currentCampaign();
+        const roster = useCampaignRosterStore.getState();
+        for (const run of [
+          () => hireCandidate(SAMPLE_CANDIDATES[0].id),
+          () => acceptContractOffer(SAMPLE_OFFERS[0].id),
+          () => declineContractOffer(SAMPLE_OFFERS[0].id),
+        ]) {
+          const result = run();
+          expect(result.applied).toBe(false);
+          expect(result.reason).toBe(
+            mode === 'advancing'
+              ? 'Wait for the campaign clock to finish advancing.'
+              : 'Use the co-op proposal controls for market changes.',
+          );
+          expect(currentCampaign()).toBe(before);
+          expect(useCampaignRosterStore.getState()).toBe(roster);
+          expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+        }
+      },
+    );
   });
 });

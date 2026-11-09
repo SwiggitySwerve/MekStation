@@ -54,6 +54,8 @@ export function GameplayLobbyPanel({
   const [copied, setCopied] = useState(false);
   const localSide = getLobbySideForPeer(lobbyState, localPeerId);
   const isHost = localSide === 'host';
+  const closed = lobbyState.closed === true;
+  const mapLocked = !isHost || closed;
   const localReady = localSide ? getReadyForSide(lobbyState, localSide) : false;
   const readyBlockReason = localSide
     ? getLobbyReadyBlockReason(lobbyState, localSide)
@@ -105,6 +107,15 @@ export function GameplayLobbyPanel({
         </button>
       </header>
 
+      {closed && (
+        <div
+          role="status"
+          className="mb-4 rounded-md border border-amber-800 bg-amber-950 px-4 py-3 text-sm text-amber-100"
+        >
+          This lobby is closed
+        </div>
+      )}
+
       {error && (
         <div
           role="alert"
@@ -120,7 +131,7 @@ export function GameplayLobbyPanel({
           title="Host"
           loadout={lobbyState.hostLoadout}
           ready={lobbyState.hostReady}
-          editable={localSide === 'host'}
+          editable={localSide === 'host' && !closed}
           availableUnits={availableUnits}
           pilots={pilots}
           assignedPilotIds={assignedPilotIds}
@@ -138,7 +149,7 @@ export function GameplayLobbyPanel({
                 min={4}
                 max={30}
                 value={lobbyState.mapConfig.radius}
-                disabled={!isHost}
+                disabled={mapLocked}
                 onChange={(event) =>
                   onMapConfigChange({
                     ...lobbyState.mapConfig,
@@ -153,7 +164,7 @@ export function GameplayLobbyPanel({
               <select
                 aria-label="Terrain preset"
                 value={lobbyState.mapConfig.terrainPreset}
-                disabled={!isHost}
+                disabled={mapLocked}
                 onChange={(event) =>
                   onMapConfigChange({
                     ...lobbyState.mapConfig,
@@ -176,7 +187,7 @@ export function GameplayLobbyPanel({
                 min={0}
                 max={200}
                 value={lobbyState.mapConfig.turnLimit}
-                disabled={!isHost}
+                disabled={mapLocked}
                 onChange={(event) =>
                   onMapConfigChange({
                     ...lobbyState.mapConfig,
@@ -191,7 +202,7 @@ export function GameplayLobbyPanel({
               <select
                 aria-label="Host side"
                 value={hostSide}
-                disabled={!isHost || !onHostSideChange}
+                disabled={mapLocked || !onHostSideChange}
                 onChange={(event) =>
                   onHostSideChange?.(
                     event.target.value === 'opponent' ? 'opponent' : 'player',
@@ -227,7 +238,7 @@ export function GameplayLobbyPanel({
           {localSide && (
             <button
               type="button"
-              disabled={readyBlockReason !== null}
+              disabled={readyBlockReason !== null || closed}
               onClick={() => onReadyChange(!localReady)}
               className="disabled:bg-surface-raised mt-4 w-full rounded-md bg-emerald-700 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600 disabled:cursor-not-allowed"
             >
@@ -258,7 +269,7 @@ export function GameplayLobbyPanel({
           title="Guest"
           loadout={lobbyState.guestLoadout}
           ready={lobbyState.guestReady}
-          editable={localSide === 'guest'}
+          editable={localSide === 'guest' && !closed}
           availableUnits={availableUnits}
           pilots={pilots}
           assignedPilotIds={assignedPilotIds}

@@ -71,6 +71,11 @@ export class InterventionLedger<TState = unknown> {
         `Cannot append intervention record "${record.id}" with status "${record.status}".`,
       );
     }
+    if (this.hasRecord(record.id)) {
+      throw new Error(
+        `Intervention ledger already holds intervention record "${record.id}".`,
+      );
+    }
 
     const immutableRecord = freezeInterventionRecord(record);
     this.records.push(immutableRecord);
@@ -118,6 +123,10 @@ export class InterventionLedger<TState = unknown> {
 
   getRecords(): readonly IInterventionLedgerRecord[] {
     return [...this.records];
+  }
+
+  hasRecord(id: string): boolean {
+    return this.records.some((record) => record.id === id);
   }
 
   private unsupportedReason(domain: InterventionDomain): string {

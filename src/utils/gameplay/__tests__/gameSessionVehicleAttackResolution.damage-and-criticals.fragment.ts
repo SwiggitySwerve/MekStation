@@ -1,3 +1,5 @@
+import type { IUnitDestroyedPayload } from '@/types/gameplay';
+
 import type {
   IDamageAppliedPayload,
   IAttackResolvedPayload,
@@ -239,6 +241,13 @@ describe('resolveAttack vehicle target dispatch', () => {
         ? resolved.currentState.units.target.combatState.state.destructionCause
         : undefined,
     ).toBe('ammo_explosion');
+    expect(
+      (
+        resolved.events.find(
+          (event) => event.type === GameEventType.UnitDestroyed,
+        )!.payload as IUnitDestroyedPayload
+      ).cause,
+    ).toBe('ammo_explosion');
   });
 
   it('falls through turret ammo crits when no explosive ammo is represented', () => {
@@ -289,6 +298,13 @@ describe('resolveAttack vehicle target dispatch', () => {
         ? resolved.currentState.units.target.combatState.state.destructionCause
         : undefined,
     ).toBe('turret_destroyed');
+    expect(
+      (
+        resolved.events.find(
+          (event) => event.type === GameEventType.UnitDestroyed,
+        )!.payload as IUnitDestroyedPayload
+      ).cause,
+    ).toBe('damage');
   });
 
   it('rounds the post-motive-damage flank MP up in the motive penalty event', () => {

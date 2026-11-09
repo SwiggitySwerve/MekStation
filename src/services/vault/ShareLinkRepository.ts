@@ -21,6 +21,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
+import { isVaultExpiryValid, VALID_VAULT_EXPIRY_SQL } from './vaultExpiry';
 
 // =============================================================================
 // Constants
@@ -251,7 +252,7 @@ export class ShareLinkRepository {
       SET use_count = use_count + 1 
       WHERE token = ? 
         AND is_active = 1
-        AND (expires_at IS NULL OR expires_at > ?)
+        AND ${VALID_VAULT_EXPIRY_SQL}
         AND (max_uses IS NULL OR use_count < max_uses)
     `)
       .run(token, now);
@@ -280,7 +281,7 @@ export class ShareLinkRepository {
         };
       }
 
-      if (link.expiresAt && new Date() > new Date(link.expiresAt)) {
+      if (!isVaultExpiryValid(link.expiresAt, new Date(now).getTime())) {
         return {
           success: false,
           error: {
@@ -388,8 +389,14 @@ export class ShareLinkRepository {
     const database = getSQLiteService().getDatabase();
 
     const result = database
-      .prepare('UPDATE vault_share_links SET max_uses = ? WHERE id = ?')
-      .run(maxUses, id);
+      .prepare(
+        'UPDATE vault_share_links SET max_uses = ? WHERE id = ? AND (? IS NULL OR ? >= use_count)',
+      )
+      .run(maxUses, id, maxUses, maxUses);
+
+    if (result.changes === 0 && (await this.getById(id))) {
+      throw new Error('Max uses cannot be less than the current use count');
+    }
 
     return result.changes > 0;
   };

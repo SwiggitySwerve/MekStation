@@ -16,7 +16,7 @@ const MOVEMENT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation GameEngine.runMovementPhase validates bot movement through validateMovement before MovementDeclared emission.',
     'src/engine/GameEngine.phases.ts',
-    'L156-L235',
+    'L103-L250',
   ),
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession movement actions use the same validateMovement, event-path, declareMovement, and lockMovement flow.',
@@ -68,7 +68,7 @@ const WEAPON_INDIRECT_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation GameEngine.runAttackPhase precomputes computeIndirectFireContext before bot AttackDeclared emission.',
     'src/engine/GameEngine.phases.ts',
-    'L338-L365',
+    'L252-L350',
   ),
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession attack actions precompute computeIndirectFireContext before declareAttack.',
@@ -104,7 +104,7 @@ const PHYSICAL_ATTACK_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession resolves PhysicalAttackDeclared events through resolveAllPhysicalAttacks before advancing phases.',
     'src/engine/InteractiveSession.phases.ts',
-    'L188-L204',
+    'L194-L210',
   ),
   mekstationDeviationSourceRef(
     'MekStation resolveAllPhysicalAttacks consumes shared physical context, lifecycle target filters, physical modifiers, displacement, damage, and PSR outputs.',
@@ -130,7 +130,7 @@ const HEAT_CORE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase processes weapon, movement, engine, terrain/environment heat, heat-sink dissipation, shutdown/startup, ammo explosion, pilot heat damage, and MaxTech heat criticals.',
     'src/simulation/runner/phases/postCombatHeat.ts',
-    'L27-L140',
+    'L29-L149',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase processes heat from movement, AttackDeclared weapon payloads, engine hits, environment, dissipation, startup, shutdown, ammo explosion, and heat effects.',
@@ -140,7 +140,7 @@ const HEAT_CORE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation InteractiveSession heat phase calls resolveHeatPhase with water-depth and environmental heat providers.',
     'src/engine/InteractiveSession.phases.ts',
-    'L205-L218',
+    'L211-L224',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -184,7 +184,7 @@ const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner heat phase applies heat-sourced PilotHit and optional MaxTech heat-scale pilot damage.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L194-L227',
+    'L199-L231',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced resolveHeatPhase emits heat-sourced PilotHit, persists wounds, and applies optional MaxTech heat-scale damage.',
@@ -194,7 +194,7 @@ const HEAT_PILOT_DAMAGE_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation heat environment parity tests prove default heat pilot wounds in runner and interactive heat resolvers.',
     'src/simulation/runner/__tests__/heatEnvironmentParity.behavior.04.test.ts',
-    'L85-L159',
+    'L88-L161',
   ),
   mekstationDeviationSourceRef(
     'MekStation heat environment parity tests prove optional MaxTech heat pilot wounds and Hot Dog relief in runner and interactive heat resolvers.',
@@ -207,12 +207,12 @@ const PSR_PARITY_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs with per-unit piloting, emits PSRResolved, and applies first-failure fallout.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L272-L323',
+    'L279-L331',
   ),
   mekstationDeviationSourceRef(
     'MekStation event-sourced End phase resolves pending PSRs with per-unit piloting, component damage, wounds, quirks, abilities, and unit type.',
     'src/utils/gameplay/gameSessionPSRResolution.ts',
-    'L54-L410',
+    'L55-L417',
   ),
   mekstationDeviationSourceRef(
     'MekStation resolveAllPSRs applies the shared first-failure batch contract for queued piloting skill rolls.',

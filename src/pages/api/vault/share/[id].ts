@@ -12,6 +12,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { rejectMissingQueryString } from '@/pages-modules/api/routeHelpers';
 import { getShareLinkService } from '@/services/vault/ShareLinkService';
+import { normalizeVaultExpiry } from '@/services/vault/vaultExpiry';
 
 // =============================================================================
 // Request Body Types
@@ -69,18 +70,16 @@ async function updateExpiryField(
   res: NextApiResponse,
 ): Promise<boolean> {
   if (body.expiresAt === undefined) return true;
-  if (body.expiresAt !== null) {
-    if (typeof body.expiresAt !== 'string') {
-      return sendBadRequest(res, 'expiresAt must be a string or null');
-    }
-    if (Number.isNaN(new Date(body.expiresAt).getTime())) {
-      return sendBadRequest(res, 'expiresAt must be a valid ISO date');
-    }
+  if (body.expiresAt !== null && typeof body.expiresAt !== 'string') {
+    return sendBadRequest(res, 'expiresAt must be a string or null');
   }
-  const result = await service.updateExpiry(
-    id,
-    body.expiresAt as string | null,
-  );
+  let expiresAt: string | null;
+  try {
+    expiresAt = normalizeVaultExpiry(body.expiresAt);
+  } catch {
+    return sendBadRequest(res, 'expiresAt must be a valid ISO date');
+  }
+  const result = await service.updateExpiry(id, expiresAt);
   return sendMutationResult(res, result);
 }
 

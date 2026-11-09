@@ -37,6 +37,7 @@ import {
   campaignCacheKeyOf,
   evaluateCampaignCache,
 } from '@/lib/campaign/persistence/campaignCacheKey';
+import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
@@ -181,11 +182,19 @@ export type CampaignPersistenceSaveResult =
   | {
       readonly status: 'error';
       readonly errorMessage: string;
+      /**
+       * Present when the server refused a live co-op write with a typed
+       * refusal: the changes were NOT rolled back and stay pending, so a
+       * later save can still persist them. Absent for every other error.
+       */
+      readonly refusal?: ICampaignSaveRefusal;
     };
 
 interface CampaignPersistenceState {
   campaignId: string | null;
   dirty: boolean;
+  /** Transient mutation counter; save acknowledgements only cover their snapshot. */
+  editSeq: number;
   saveState: CampaignSaveState;
   metadata: ICampaignSaveMetadata;
   baseVersion: number;
@@ -303,6 +312,7 @@ const INITIAL_METADATA: ICampaignSaveMetadata = {
 const INITIAL_STATE: CampaignPersistenceState = {
   campaignId: null,
   dirty: false,
+  editSeq: 0,
   saveState: 'idle',
   metadata: INITIAL_METADATA,
   baseVersion: 0,
@@ -371,6 +381,21 @@ let loadGeneration = 0;
  * produced.
  */
 let saveChain: Promise<unknown> = Promise.resolve();
+
+/** Read-only creation guard; dirty includes edits newer than the last save ACK. */
+export function hasUnsettledCampaignPersistence(): boolean {
+  const state = useCampaignPersistenceStore.getState();
+  // Legacy copies and guest mirrors have no ordinary save for their dirty edits.
+  const canSaveDirtyCampaign =
+    !state.legacyUnadopted && readLiveCampaign()?.coopSession?.mode !== 'guest';
+  return (
+    (state.dirty && canSaveDirtyCampaign) ||
+    state.saveState === 'saving' ||
+    autoSaveTimer !== null ||
+    issuedFlush !== null ||
+    inFlightLoad !== null
+  );
+}
 
 /**
  * Test seam: drop the module-level load/save coordination between cases.
@@ -583,7 +608,9 @@ function restoreRosterProjection(
   useCampaignRosterStore.setState({
     campaignId,
     units: units ?? rosterUnitsOf(campaignId, rosterProjection),
-    pilots: rosterProjection.pilots.map(deserializeRosterEntry),
+    pilots: rosterProjection.pilots.map((entry) =>
+      normalizeRosterPilotDeparture(deserializeRosterEntry(entry)),
+    ),
     missions: rosterProjection.missions.map((mission) => ({
       ...mission,
       deployedUnitIds: [...mission.deployedUnitIds],
@@ -798,6 +825,7 @@ function fetchCampaignRecord(id: string): Promise<Response> {
 function applySavedRecord(
   set: PersistenceSet,
   record: SerializedCampaign,
+  savedEditSeq?: number,
 ): void {
   // An acknowledged record supersedes whatever a best-effort flush may
   // have written: there is nothing left for a later visible transition to
@@ -805,16 +833,20 @@ function applySavedRecord(
   issuedFlush = null;
   const persistedCampaign = deserializeCampaignRecord(record);
   writeCachedCampaignKey(record);
-  set({
-    campaignId: record.campaignId,
-    saveState: 'saved',
-    dirty: false,
-    baseVersion: record.version,
-    conflictServerRecord: null,
-    errorMessage: null,
-    metadata: metadataFrom(record),
-    lastPersistedCampaign: persistedCampaign,
-    sourceReplayFence: fenceOf(record),
+  set((state) => {
+    const dirty = savedEditSeq !== undefined && state.editSeq !== savedEditSeq;
+    return {
+      campaignId: record.campaignId,
+      saveState: dirty ? 'idle' : 'saved',
+      dirty,
+      baseVersion: record.version,
+      conflictServerRecord: null,
+      saveConflict: null,
+      errorMessage: null,
+      metadata: metadataFrom(record),
+      lastPersistedCampaign: persistedCampaign,
+      sourceReplayFence: fenceOf(record),
+    };
   });
 }
 
@@ -913,6 +945,7 @@ async function runSave(
     return { status: 'skipped' };
   }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
+  const savedEditSeq = get().editSeq;
   set({ saveState: 'saving', errorMessage: null, saveRefusal: null });
 
   try {
@@ -930,7 +963,11 @@ async function runSave(
         errorMessage: attempt.refusal.message,
         saveRefusal: attempt.refusal,
       });
-      return { status: 'error', errorMessage: attempt.refusal.message };
+      return {
+        status: 'error',
+        errorMessage: attempt.refusal.message,
+        refusal: attempt.refusal,
+      };
     }
     if (attempt.status === 'saved') {
       // A read that adopted a NEWER row while this write was in flight (a
@@ -943,10 +980,10 @@ async function runSave(
         held.campaignId === attempt.record.campaignId &&
         held.baseVersion > attempt.record.version
       ) {
-        set({ saveState: 'saved', errorMessage: null });
+        set({ saveState: held.dirty ? 'idle' : 'saved', errorMessage: null });
         return { status: 'saved', record: attempt.record };
       }
-      applySavedRecord(set, attempt.record);
+      applySavedRecord(set, attempt.record, savedEditSeq);
       return { status: 'saved', record: attempt.record };
     }
 
@@ -1121,6 +1158,7 @@ async function runLoad(
         saveState: 'saved',
         baseVersion: migrated.version,
         conflictServerRecord: null,
+        saveConflict: null,
         errorMessage: null,
         metadata: metadataFrom(migrated),
         lastPersistedCampaign: loadedCampaign,
@@ -1569,6 +1607,7 @@ function markDirtyAction(
     pendingFlushIssued = false;
     set((state) => ({
       dirty: true,
+      editSeq: state.editSeq + 1,
       campaignId: state.campaignId ?? liveId,
       saveState: state.saveState === 'conflict' ? 'conflict' : state.saveState,
     }));

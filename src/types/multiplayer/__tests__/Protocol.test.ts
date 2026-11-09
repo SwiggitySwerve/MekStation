@@ -780,6 +780,33 @@ describe('Protocol envelope schemas', () => {
       ).toBe(false);
     });
 
+    it.each(['peer-pending', 'gm-absent', 'opponent-fault'] as const)(
+      'MatchPaused carries the %s reason',
+      (reason) => {
+        const parsed = ServerMessageSchema.safeParse({
+          kind: 'MatchPaused',
+          matchId: 'm',
+          ts: nowIso(),
+          reason,
+          pendingSlots: [],
+        });
+        expect(parsed.success && parsed.data).toMatchObject({ reason });
+      },
+    );
+
+    it('MatchPaused refuses an unknown or missing reason', () => {
+      const paused = {
+        kind: 'MatchPaused' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        pendingSlots: ['bravo-1'],
+      };
+      expect(ServerMessageSchema.safeParse(paused).success).toBe(false);
+      expect(
+        ServerMessageSchema.safeParse({ ...paused, reason: 'gm-away' }).success,
+      ).toBe(false);
+    });
+
     it('rejects Error with unknown code', () => {
       const env = {
         kind: 'Error',

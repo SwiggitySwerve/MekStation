@@ -373,10 +373,29 @@ jobs:
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 14
+    env:
+      electron_config_cache: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      # The desktop lock pins both Electron and electron-builder exactly.
+      # Restore before setup: npm ci can download Electron in its install hook.
+      - name: Restore Electron downloads
+        id: electron-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.electron_config_cache }}
+          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles('desktop/package-lock.json') }}
+
+      - name: Restore electron-builder downloads
+        id: electron-builder-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles('desktop/package-lock.json') }}
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -501,6 +520,13 @@ jobs:
         working-directory: desktop
         run: npm run rebuild:next-standalone
 
+      - name: Save Electron downloads
+        if: ${{ !cancelled() && steps.electron-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.electron_config_cache }}
+          key: ${{ steps.electron-cache.outputs.cache-primary-key }}
+
       - name: Build complete Linux installer and unpacked application
         if: ${{ !cancelled() }}
         working-directory: desktop
@@ -508,7 +534,13 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
-          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
+
+      - name: Save electron-builder downloads
+        if: ${{ !cancelled() && steps.electron-builder-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ steps.electron-builder-cache.outputs.cache-primary-key }}
 
       - name: Verify linux build output
         if: ${{ !cancelled() }}
@@ -788,7 +820,7 @@ jobs:
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Run seam anchor and customizer regression gates
+      - name: Run seam anchor, customizer and GM ledger regression gates
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
@@ -796,7 +828,7 @@ jobs:
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
-        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
@@ -921,10 +953,27 @@ jobs:
           - os: macos-15
             platform: mac
     timeout-minutes: 5
+    env:
+      electron_config_cache: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Restore Electron downloads
+        id: electron-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.electron_config_cache }}
+          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles('desktop/package-lock.json') }}
+
+      - name: Restore electron-builder downloads
+        id: electron-builder-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles('desktop/package-lock.json') }}
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -953,6 +1002,13 @@ jobs:
         shell: bash
         run: npm run rebuild:next-standalone
 
+      - name: Save Electron downloads
+        if: ${{ !cancelled() && steps.electron-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.electron_config_cache }}
+          key: ${{ steps.electron-cache.outputs.cache-primary-key }}
+
       - name: Test Electron build (pack mode)
         working-directory: desktop
         shell: bash
@@ -960,7 +1016,13 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
-          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
+
+      - name: Save electron-builder downloads
+        if: ${{ !cancelled() && steps.electron-builder-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.ELECTRON_BUILDER_CACHE }}
+          key: ${{ steps.electron-builder-cache.outputs.cache-primary-key }}
 
       - name: Verify build output
         working-directory: desktop

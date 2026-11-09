@@ -12,11 +12,18 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
+import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import {
   _resetDefaultMatchStore,
   getDefaultMatchStore,
 } from '@/lib/multiplayer/server/getDefaultMatchStore';
+import {
+  addSpectatorSeat,
+  MAX_SPECTATORS_PER_MATCH,
+} from '@/lib/multiplayer/server/lobby/spectatorSeats';
+import { ServerMatchHost } from '@/lib/multiplayer/server/ServerMatchHost';
 import handler from '@/pages/api/multiplayer/matches/[id]/spectate';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 
 const authMock = jest.fn();
@@ -77,6 +84,93 @@ async function seedMatch(
 }
 
 describe('POST /api/multiplayer/matches/:id/spectate', () => {
+  it('admits a new spectator at the cap after a middle viewer detaches with a unique slot', async () => {
+    await seedMatch('capacity-reuse', 'active');
+    const store = getDefaultMatchStore();
+    const meta = await store.getMatchMeta('capacity-reuse');
+    let seats = [...(meta.seats ?? [])];
+    for (let index = 0; index < MAX_SPECTATORS_PER_MATCH; index++) {
+      seats = addSpectatorSeat(seats, {
+        playerId: `watch-${index}`,
+        displayName: `Watch ${index}`,
+      });
+    }
+    await store.updateMatchMeta(meta.matchId, { seats });
+    const host = ServerMatchHost.create(meta.matchId, store, {
+      mapRadius: 8,
+      turnLimit: 20,
+      random: new SeededRandom(42),
+      grid: createMinimalGrid(8),
+      playerUnits: [],
+      opponentUnits: [],
+      gameUnits: [],
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    authMock.mockResolvedValue({
+      ok: true,
+      playerId: 'new-watcher',
+      publicKey: 'pk',
+      token: {},
+    });
+    const full = mockReqRes({ id: meta.matchId });
+    await handler(full.req, full.res);
+    expect(full.result.statusCode).toBe(409);
+    const socket = { send(_data: string) {}, close() {}, readyState: 1 };
+    expect(await host.admitSocket(socket, 'watch-4')).not.toBeNull();
+    host.detachSocket(socket);
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: meta.matchId,
+      playerId: HOST.playerId,
+      ts: meta.createdAt,
+      intent: { kind: 'SetReady', slotId: 'missing', ready: true },
+    });
+    const next = mockReqRes({ id: meta.matchId });
+    await handler(next.req, next.res);
+    expect(next.result.statusCode).toBe(201);
+    expect(next.result.body).toMatchObject({ slotId: 'spectator-5' });
+    const after = (await store.getMatchMeta(meta.matchId)).seats ?? [];
+    expect(new Set(after.map((seat) => seat.slotId)).size).toBe(after.length);
+    await host.closeMatch();
+  });
+
+  it('refuses a match completed through gameplay without adding a spectator', async () => {
+    await seedMatch('finished-game', 'active');
+    const store = getDefaultMatchStore();
+    const host = ServerMatchHost.create('finished-game', store, {
+      mapRadius: 8,
+      turnLimit: 20,
+      random: new SeededRandom(42),
+      grid: createMinimalGrid(8),
+      playerUnits: [],
+      opponentUnits: [],
+      gameUnits: [],
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: 'finished-game',
+      ts: new Date().toISOString(),
+      playerId: HOST.playerId,
+      intent: { kind: 'ForfeitMatch' },
+    });
+    const before = await store.getMatchMeta('finished-game');
+    authMock.mockResolvedValue({
+      ok: true,
+      playerId: 'pid_watcher',
+      publicKey: 'pk',
+      token: {},
+    });
+    const { req, res, result } = mockReqRes({ id: 'finished-game' });
+    await handler(req, res);
+    expect(result.statusCode).toBe(409);
+    expect((await store.getMatchMeta('finished-game')).seats).toEqual(
+      before.seats,
+    );
+  });
+
   beforeEach(() => {
     _resetDefaultMatchStore();
     authMock.mockReset();

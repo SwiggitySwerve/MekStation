@@ -1,0 +1,6 @@
+{
+  "name": "add-cross-stream-effect-receipts",
+  "status": "proposed",
+  "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
+  "lastReviewed": "2026-07-30"
+}

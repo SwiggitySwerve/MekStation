@@ -72,16 +72,29 @@ describe.each([undefined, '', 'enabled'])(
   },
 );
 
+// Never descend into __tests__: it holds no runtime source, and other suites
+// create and delete temp directories there while this scan runs. A recursive
+// readdirSync throws ENOENT when one vanishes mid-walk.
+function runtimeSourceFiles(dir: string): string[] {
+  const files: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== '__tests__') files.push(...runtimeSourceFiles(full));
+    } else if (
+      /\.[cm]?[jt]sx?$/.test(entry.name) &&
+      !/\.(?:test|spec)\./.test(entry.name)
+    ) {
+      files.push(full);
+    }
+  }
+  return files;
+}
+
 it('fails when runtime source introduces an E2E arm outside the fixture isolation set', () => {
-  const root = path.join(process.cwd(), 'src');
   const names = new Set<string>();
-  for (const file of readdirSync(root, { recursive: true, encoding: 'utf8' })) {
-    if (
-      !/\.[cm]?[jt]sx?$/.test(file) ||
-      /(?:^|[/\\])__tests__[/\\]|\.(?:test|spec)\./.test(file)
-    )
-      continue;
-    const source = readFileSync(path.join(root, file), 'utf8');
+  for (const file of runtimeSourceFiles(path.join(process.cwd(), 'src'))) {
+    const source = readFileSync(file, 'utf8');
     for (const match of source.matchAll(/\bMEKSTATION_E2E_[A-Z0-9_]+\b/g))
       names.add(match[0]);
   }

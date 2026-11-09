@@ -1,3 +1,12 @@
+import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
+import type { IExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
+import type { ICampaign } from '@/types/campaign/Campaign';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
+import type { IEncounter } from '@/types/encounter';
+
+import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import { assertOwnedForcesCurrent } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.ownedForces';
+import { readCampaignLaunchHead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 /**
  * Co-op mission launch path (CO2).
  *
@@ -25,29 +34,36 @@
  * @spec openspec/changes/add-coop-campaign-play/design.md (D1, D2)
  * @module lib/campaign/coop/launchCoopMission
  */
-
-import type { CreateCoopMissionMatchBody } from '@/lib/api/securitySchemas';
-import type { IExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
-import type { IEncounter } from '@/types/encounter';
-
-import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
+import { resolveLaunchForces } from '@/lib/campaign/encounter/requestLaunchAuthority';
+import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import {
   type CampaignLaunchExpectedIdentity,
   type CampaignLaunchSelectionUnit,
   type CampaignLaunchSnapshot,
   admitCampaignLaunch,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
-import { getEncounterService } from '@/services/encounter/EncounterService';
+import {
+  selectUnitReadiness,
+  type ISelectUnitReadinessInput,
+} from '@/lib/campaign/readiness/selectUnitReadiness';
 
-import type { ICampaignEncounterLauncherService } from '../encounter/launchCampaignEncounter';
+import type {
+  ICampaignEncounterLauncherService,
+  ICampaignEncounterLaunchProgress,
+} from '../encounter/launchCampaignEncounter';
 import type {
   CoopCompositionRejection,
   ICoopEncounterComposition,
   ICoopForceContribution,
 } from './composeCoopEncounter';
 
+import { createEncounterApiLauncher } from '../encounter/encounterApiLauncher';
 import { launchCampaignEncounter } from '../encounter/launchCampaignEncounter';
 import { composeCoopEncounter } from './composeCoopEncounter';
+import {
+  readRecordedCoopEncounter,
+  type CoopMissionLaunchOperation,
+} from './coopMissionLaunchAttempt';
 
 export interface LaunchCoopMissionAdmission {
   readonly snapshot: CampaignLaunchSnapshot;
@@ -60,6 +76,11 @@ export interface LaunchCoopMissionAdmission {
     readonly expectedHead: IExpectedBranchHead;
     readonly fetchImpl?: typeof fetch;
   };
+}
+
+/** Transient receipt only: never serialized into a campaign. */
+export interface ICoopMissionLaunchProgress extends ICampaignEncounterLaunchProgress {
+  missionMatchId?: string;
 }
 
 // =============================================================================
@@ -90,6 +111,8 @@ export type LaunchCoopMissionResult =
       readonly compositionRejection?: CoopCompositionRejection;
       /** Human-readable failure reason. */
       readonly error: string;
+      /** An uncertain remote response or local failure can resume the captured request. */
+      readonly retryable?: boolean;
     };
 
 // =============================================================================
@@ -104,13 +127,14 @@ export type LaunchCoopMissionResult =
  *   (`buildEncounterFromScenario`)
  * @param contributions - one `ICoopForceContribution` per player,
  *   carrying the force and the player's `deploy` / `command-hq` choice
- * @param service - encounter service (injectable; defaults to singleton)
+ * @param service - explicit service (defaults to the browser HTTP adapter)
  */
 export async function launchCoopMission(
   baseEncounter: IEncounter,
   contributions: readonly ICoopForceContribution[],
   service?: ICampaignEncounterLauncherService,
   admission?: LaunchCoopMissionAdmission,
+  progress?: ICoopMissionLaunchProgress,
 ): Promise<LaunchCoopMissionResult> {
   const deployingUnitIds = contributions.flatMap((contribution) =>
     contribution.participation === 'deploy' ? contribution.force.unitIds : [],
@@ -144,8 +168,8 @@ export async function launchCoopMission(
   }
 
   const mission = admission?.mission;
-  let missionMatchId: string | undefined;
-  if (mission) {
+  let missionMatchId = progress?.missionMatchId;
+  if (mission && !missionMatchId) {
     const token = readCoopCampaignToken(mission.sessionId);
     if (!token) {
       return {
@@ -202,6 +226,7 @@ export async function launchCoopMission(
         '/api/multiplayer/matches',
         {
           method: 'POST',
+          signal: AbortSignal.timeout(15_000),
           headers: {
             Authorization: `Bearer ${token.wireToken}`,
             'Content-Type': 'application/json',
@@ -212,6 +237,7 @@ export async function launchCoopMission(
     } catch (error) {
       return {
         ok: false,
+        ...(progress ? { retryable: true } : {}),
         error:
           error instanceof Error ? error.message : 'Mission creation failed',
       };
@@ -230,17 +256,20 @@ export async function launchCoopMission(
             : 'Mission creation failed';
       return {
         ok: false,
+        ...(progress ? { retryable: response.status >= 500 } : {}),
         error: `Mission creation refused (${response.status} ${reason})`,
       };
     }
     if (typeof reply.missionMatchId !== 'string') {
       return {
         ok: false,
+        ...(progress ? { retryable: true } : {}),
         error: 'Mission creation returned no shared match id',
       };
     }
     missionMatchId = reply.missionMatchId;
-  } else if (!service) {
+    if (progress) progress.missionMatchId = missionMatchId;
+  } else if (!mission && !service) {
     // The real page omits both only when no accepted head exists. An explicitly
     // injected service keeps older local-only admission tests usable without
     // granting the browser path an unauthenticated fallback.
@@ -255,11 +284,13 @@ export async function launchCoopMission(
   // payload relies on the route's durable idempotency before trying local again.
   const launched = await launchCampaignEncounter(
     composed.composition.encounter,
-    service ?? getEncounterService(),
+    service ?? createEncounterApiLauncher(),
+    progress,
   );
   if (!launched.success) {
     return {
       ok: false,
+      ...(progress ? { retryable: true } : {}),
       error: launched.error ?? 'Failed to launch co-op encounter',
     };
   }
@@ -292,4 +323,110 @@ function rejectionMessage(reason: CoopCompositionRejection): string {
       return 'Co-op mission cannot launch.';
     }
   }
+}
+
+interface IPrepareCoopMissionLaunchInput {
+  readonly campaign: ICampaign;
+  readonly missionKey: string;
+  readonly matchId: string;
+  readonly encounter: IEncounter;
+  readonly contributions: readonly ICoopForceContribution[];
+  readonly selectedUnits: readonly CampaignLaunchSelectionUnit[];
+  readonly roster: {
+    readonly units: readonly IRosterUnitProjection[];
+    readonly pilots: ISelectUnitReadinessInput['pilots'];
+  };
+  readonly beforeLaunch: () => void;
+  readonly launch: typeof launchCoopMission;
+}
+
+/** Capture authority and selected identities once; uncertain retries reuse them. */
+export async function prepareCoopMissionLaunch({
+  campaign,
+  missionKey,
+  matchId,
+  encounter,
+  contributions,
+  selectedUnits,
+  roster,
+  beforeLaunch,
+  launch,
+}: IPrepareCoopMissionLaunchInput): Promise<CoopMissionLaunchOperation> {
+  if (!campaign.missions.has(missionKey))
+    throw new Error('The mission is no longer available. Resync the campaign.');
+  const recorded = await readRecordedCoopEncounter(
+    campaign.missions.get(missionKey)?.scenarioIds ?? [],
+  );
+  if (recorded)
+    return async () => ({
+      ok: true as const,
+      encounterId: recorded,
+      gameSessionId: undefined,
+      missionMatchId: undefined,
+    });
+  const progress: ICoopMissionLaunchProgress = {};
+  const catalog = await fetchCanonicalCatalogSnapshot();
+  const launchHead = await readCampaignLaunchHead(campaign.id);
+  const ownedForces = await resolveLaunchForces({
+    campaignId: campaign.id,
+    missionId: missionKey,
+    launchHead,
+    sessionId: matchId,
+  });
+  assertOwnedForcesCurrent(ownedForces);
+  const byId = new Map(roster.units.map((unit) => [unit.unitId, unit]));
+  for (const contribution of contributions.filter(
+    (entry) => entry.participation === 'deploy',
+  )) {
+    for (const unitId of contribution.force.unitIds) {
+      const unit = byId.get(unitId);
+      if (!unit)
+        throw new Error('Deploying unit is missing from the campaign roster.');
+      const readiness = selectUnitReadiness({
+        unit,
+        campaign,
+        pilots: roster.pilots,
+        authority: launchHead.readinessAuthority,
+      });
+      const blocker = readiness.reasons.find(
+        (reason) => reason.severity === 'blocker',
+      );
+      if (blocker) throw new Error(blocker.message);
+    }
+  }
+
+  const revision = launchHead.kind === 'head' ? launchHead.revision : undefined;
+  return () => {
+    beforeLaunch();
+    return launch(
+      encounter,
+      contributions,
+      undefined,
+      {
+        snapshot: {
+          campaignId: campaign.id,
+          matchId,
+          revision,
+          catalog,
+        },
+        expected: { campaignId: campaign.id, matchId, revision },
+        selectedUnits,
+        ...(launchHead.kind === 'head'
+          ? {
+              mission: {
+                campaignId: campaign.id,
+                sessionId: matchId,
+                missionId: missionKey,
+                expectedHead: {
+                  branchId: launchHead.branchId,
+                  revision: launchHead.revision,
+                  effectiveGeneration: launchHead.effectiveGeneration,
+                },
+              },
+            }
+          : {}),
+      },
+      progress,
+    );
+  };
 }

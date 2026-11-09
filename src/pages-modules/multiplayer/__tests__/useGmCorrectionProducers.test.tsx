@@ -215,6 +215,204 @@ describe('useGmCorrectionProducers - the previewed request', () => {
 });
 
 describe('useGmCorrectionProducers - what approve commits', () => {
+  it('clears readiness immediately while the next preview is pending', async () => {
+    const { preview, commit, result } = mountHook();
+    expect(result.current.canApproveHostGmCorrection).toBe(false);
+    await act(async () => {
+      await result.current.onPreviewHostGmCorrection();
+    });
+    expect(result.current.canApproveHostGmCorrection).toBe(true);
+    let finish!: (answer: GmRewindPreviewOutcome) => void;
+    preview.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    let next!: Promise<GmRewindPreviewOutcome>;
+    await act(async () => {
+      next = result.current.onPreviewHostGmCorrection();
+    });
+    expect(result.current.canApproveHostGmCorrection).toBe(false);
+    await expect(
+      result.current.onApproveHostGmCorrection(),
+    ).rejects.toBeInstanceOf(Error);
+    expect(commit).not.toHaveBeenCalled();
+    await act(async () => {
+      finish(PREVIEW_ANSWER);
+      await next;
+    });
+    expect(result.current.canApproveHostGmCorrection).toBe(true);
+  });
+
+  it.each([
+    { kind: 'unavailable' } as const,
+    {
+      kind: 'refused',
+      reason: 'STALE_REVISION',
+      detail: 'head moved',
+    } as const,
+  ])(
+    'invalidates an earlier success when a preview answers $kind',
+    async (answer) => {
+      const { preview, commit, result } = mountHook();
+      await act(async () => {
+        await result.current.onPreviewHostGmCorrection();
+      });
+      preview.mockResolvedValueOnce(answer);
+      await act(async () => {
+        await result.current.onPreviewHostGmCorrection();
+      });
+      await expect(
+        result.current.onApproveHostGmCorrection(),
+      ).rejects.toBeInstanceOf(Error);
+      expect(commit).not.toHaveBeenCalled();
+    },
+  );
+
+  it('invalidates an earlier success when a preview throws', async () => {
+    const { preview, commit, result } = mountHook();
+    await act(async () => {
+      await result.current.onPreviewHostGmCorrection();
+    });
+    preview.mockRejectedValueOnce(new Error('offline'));
+    await act(async () => {
+      await expect(result.current.onPreviewHostGmCorrection()).rejects.toThrow(
+        'offline',
+      );
+    });
+    await expect(
+      result.current.onApproveHostGmCorrection(),
+    ).rejects.toBeInstanceOf(Error);
+    expect(commit).not.toHaveBeenCalled();
+  });
+
+  it('consumes the successful preview before committing', async () => {
+    const { commit, result } = mountHook();
+    await act(async () => {
+      await result.current.onPreviewHostGmCorrection();
+    });
+    await act(async () => {
+      await result.current.onApproveHostGmCorrection();
+    });
+    await expect(
+      result.current.onApproveHostGmCorrection(),
+    ).rejects.toBeInstanceOf(Error);
+    expect(commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('requires a new preview after the commit fails in transport', async () => {
+    const { commit, result } = mountHook();
+    commit.mockRejectedValueOnce(new Error('offline'));
+    await act(async () => {
+      await result.current.onPreviewHostGmCorrection();
+    });
+    await act(async () => {
+      await expect(result.current.onApproveHostGmCorrection()).rejects.toThrow(
+        'offline',
+      );
+    });
+    await expect(
+      result.current.onApproveHostGmCorrection(),
+    ).rejects.toBeInstanceOf(Error);
+    expect(commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not revive an old success after a newer failed preview', async () => {
+    const { preview, commit, result } = mountHook();
+    let finish!: (answer: GmRewindPreviewOutcome) => void;
+    preview.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    let old!: Promise<GmRewindPreviewOutcome>;
+    await act(async () => {
+      old = result.current.onPreviewHostGmCorrection();
+    });
+    preview.mockResolvedValueOnce({ kind: 'unavailable' });
+    await act(async () => {
+      await result.current.onPreviewHostGmCorrection();
+    });
+    await act(async () => {
+      finish(PREVIEW_ANSWER);
+      await old;
+    });
+    await expect(
+      result.current.onApproveHostGmCorrection(),
+    ).rejects.toBeInstanceOf(Error);
+    expect(commit).not.toHaveBeenCalled();
+  });
+
+  it.each(['match', 'token', 'mirror'] as const)(
+    'invalidates approval when the %s context changes',
+    async (changed) => {
+      const commit = jest.fn(async () => COMMITTED);
+      const { result, rerender } = renderHook(
+        (context) =>
+          useGmCorrectionProducers({
+            ...context,
+            preview: async () => PREVIEW_ANSWER,
+            commit,
+          }),
+        {
+          initialProps: {
+            matchId: 'match-1',
+            wireToken: 'wire-token',
+            mirrorEvents: MIRROR_EVENTS,
+          },
+        },
+      );
+      await act(async () => {
+        await result.current.onPreviewHostGmCorrection();
+      });
+      rerender({
+        matchId: changed === 'match' ? 'match-2' : 'match-1',
+        wireToken: changed === 'token' ? 'new-token' : 'wire-token',
+        mirrorEvents: changed === 'mirror' ? [...MIRROR_EVENTS] : MIRROR_EVENTS,
+      });
+      await expect(
+        result.current.onApproveHostGmCorrection(),
+      ).rejects.toBeInstanceOf(Error);
+      expect(commit).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not authorize a preview that finishes after its context was replaced', async () => {
+    let finish!: (answer: GmRewindPreviewOutcome) => void;
+    const preview = jest.fn(
+      () =>
+        new Promise<GmRewindPreviewOutcome>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const commit = jest.fn(async () => COMMITTED);
+    const { result, rerender } = renderHook(
+      ({ wireToken }) =>
+        useGmCorrectionProducers({
+          matchId: 'match-1',
+          wireToken,
+          mirrorEvents: MIRROR_EVENTS,
+          preview,
+          commit,
+        }),
+      { initialProps: { wireToken: 'wire-token' } },
+    );
+    let pending!: Promise<GmRewindPreviewOutcome>;
+    await act(async () => {
+      pending = result.current.onPreviewHostGmCorrection();
+    });
+    rerender({ wireToken: 'replacement-token' });
+    await act(async () => {
+      finish(PREVIEW_ANSWER);
+      await pending;
+    });
+    expect(result.current.canApproveHostGmCorrection).toBe(false);
+    await expect(
+      result.current.onApproveHostGmCorrection(),
+    ).rejects.toBeInstanceOf(Error);
+    expect(commit).not.toHaveBeenCalled();
+  });
+
   it('commits the exact previewed request plus the captured reason', async () => {
     const { preview, commit, result } = mountHook();
 
@@ -323,12 +521,15 @@ describe('useGmCorrectionProducers - where the private reason is NOT', () => {
       [
         'onApproveHostGmCorrection',
         'onPreviewHostGmCorrection',
+        'canApproveHostGmCorrection',
         'setPrivateReason',
       ].sort(),
     );
     const surfacedValues = result.current as unknown as Record<string, unknown>;
     for (const key of surfaced) {
-      expect(typeof surfacedValues[key]).toBe('function');
+      expect(typeof surfacedValues[key]).toBe(
+        key === 'canApproveHostGmCorrection' ? 'boolean' : 'function',
+      );
     }
 
     // Anything the hook could have written on its way through.

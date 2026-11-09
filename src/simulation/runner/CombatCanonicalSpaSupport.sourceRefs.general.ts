@@ -20,7 +20,7 @@ export const ARTIFICIAL_PAIN_SHUNT_AMMO_EXPLOSION_SOURCE_REFS = [
   canonicalSpaSourceRef(
     'mekstation-deviation',
     'MekStation applyAmmoExplosionPilotDamage routes heat-induced and critical-induced ammo explosions through the shared pilot-damage resolver and emits no PilotHit when the resolver returns zero wounds.',
-    'src/simulation/runner/phases/ammoExplosionPilotDamage.ts#L47-L54',
+    'src/simulation/runner/phases/ammoExplosionPilotDamage.ts#L48-L55',
     'MekStation working-tree',
   ),
   canonicalSpaSourceRef(
@@ -59,7 +59,7 @@ export const CANONICAL_EAGLE_EYES_SOURCE_REFS = [
   canonicalSpaSourceRef(
     'mekstation-deviation',
     'MekStation createInitialState seeds eagleEyesRangeBonus from hydrated fullUnit ability ids for represented active-probe state.',
-    'src/simulation/runner/SimulationRunnerState.ts#L120-L131',
+    'src/simulation/runner/SimulationRunnerState.ts#L136-L147',
     'MekStation working-tree',
   ),
   canonicalSpaSourceRef(

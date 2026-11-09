@@ -1,3 +1,6 @@
+import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSession';
+import type { LaunchCoopMissionResult } from '@/lib/campaign/coop/launchCoopMission';
+import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 /**
  * Mission-launch page 10.3 gate: server head, not the in-memory sequence.
  *
@@ -10,10 +13,6 @@
  * - stale refusal becomes the dashboard conflict (RED: swallowed)
  * - single-player with no effective branch still launches (GREEN control)
  */
-
-import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSession';
-import type { LaunchCoopMissionResult } from '@/lib/campaign/coop/launchCoopMission';
-import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import type { IForce } from '@/types/campaign/Force';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { IEncounter } from '@/types/encounter';
@@ -26,13 +25,22 @@ import {
   launchMissionFromPage,
 } from '@/pages-modules/gameplay/campaigns/missionLaunchPage.launch';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
-import { createCampaign } from '@/types/campaign/Campaign';
-import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
+import { createCampaign, type ICampaign } from '@/types/campaign/Campaign';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import {
+  createHostCoopSession,
+  createGuestCoopSession,
+} from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { createContract } from '@/types/campaign/Mission';
 
 jest.mock('@/lib/campaign/coop/launchCoopMission', () => ({
+  ...jest.requireActual<typeof import('@/lib/campaign/coop/launchCoopMission')>(
+    '@/lib/campaign/coop/launchCoopMission',
+  ),
   launchCoopMission: jest.fn(),
 }));
 
@@ -182,16 +190,65 @@ function readyProjection(): IMissionReadinessProjection {
  * Why: the single-player arm checkpoints after materialize; a missing
  * `saveCampaign` would fail the control for the wrong reason.
  */
-function fakeStore(): CampaignPageStore {
+function fakeStore(campaign: ICampaign | null = null): CampaignPageStore {
   return {
     getState: () => ({
+      campaign,
       updateCampaign: jest.fn(),
+      switchCampaign: jest.fn(),
       getMissionsStore: () => ({
         getState: () => ({ addMission: jest.fn() }),
       }),
       saveCampaign: jest.fn(async () => ({ committed: true })),
     }),
   } as unknown as CampaignPageStore;
+}
+
+function coopInput() {
+  const force = makeForce('force-root');
+  const mission = makeMission();
+  const campaign = {
+    ...createCampaign('K15', 'mercenary'),
+    id: 'campaign-1',
+    rootForceId: force.id,
+    forces: new Map([[force.id, force]]),
+    missions: new Map([[mission.id, mission]]),
+    coopSession: createHostCoopSession('ROOM1', 'match-1'),
+  };
+  const state = {
+    ...fakeStore().getState(),
+    campaign,
+    dayAdvanceInFlight: false,
+  };
+  const store: CampaignPageStore = {
+    getState: () => state,
+    getInitialState: () => state,
+    setState: jest.fn(),
+    subscribe: jest.fn(() => () => {}),
+  };
+  return {
+    campaign,
+    campaignKey: campaign.id,
+    missionKey: mission.id,
+    matchId: 'match-1',
+    localForce: force,
+    localPlayerId: 'host',
+    localChoice: 'deploy' as const,
+    otherRecord: {
+      matchId: 'match-1',
+      missionId: mission.id,
+      playerId: 'guest',
+      role: 'guest' as const,
+      choice: 'deploy' as const,
+      force,
+    },
+    readinessProjection: readyProjection(),
+    router: { push: jest.fn(async () => true) },
+    store,
+    setLaunchError: jest.fn(),
+    setIsLaunching: jest.fn(),
+    state,
+  };
 }
 
 /**
@@ -237,7 +294,39 @@ describe('launchMissionFromPage', () => {
   const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
+    useCampaignRosterStore.setState({
+      campaignId: 'campaign-1',
+      units: [
+        {
+          unitId: 'u-1',
+          unitRef: 'atlas-as7-d',
+          unitName: 'Atlas',
+          chassisVariant: 'AS7-D',
+          readiness: 'Ready',
+          pilotId: 'pilot-1',
+        },
+      ],
+      pilots: [
+        {
+          pilotId: 'pilot-1',
+          pilotName: 'Ari',
+          status: CampaignPilotStatus.Active,
+          primaryRole: CampaignPersonnelRole.PILOT,
+          rankIndex: 0,
+          wounds: 0,
+          recoveryTime: 0,
+          xp: 0,
+          campaignXpEarned: 0,
+          campaignKills: 0,
+          campaignMissions: 0,
+          hireDate: new Date('3025-01-01'),
+        },
+      ],
+    });
     useCampaignPersistenceStore.getState().reset();
+    useCampaignPersistenceStore.setState({
+      loadCampaign: jest.fn(async () => true),
+    });
     launchCoopMissionMock.mockReset();
     launchCoopMissionMock.mockResolvedValue(okCoopLaunch());
     materializeMock.mockReset();
@@ -252,6 +341,169 @@ describe('launchMissionFromPage', () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+  });
+
+  function answerLaunchAuthority() {
+    globalThis.fetch = fetchAnswering((url) =>
+      url.endsWith('/head')
+        ? { status: 200, body: SERVER_HEAD }
+        : {
+            status: 200,
+            body: { kind: 'materialized', head: SERVER_HEAD, slots: [] },
+          },
+    );
+  }
+
+  it('does not join a scenario placeholder before the host records a session', async () => {
+    const input = coopInput();
+    input.campaign.coopSession = createGuestCoopSession('match-1', 'ROOM1');
+    input.state.campaign.missions.set(input.missionKey, {
+      ...makeMission(),
+      scenarioIds: ['scenario-placeholder'],
+    });
+    globalThis.fetch = fetchAnswering(() => ({
+      status: 200,
+      body: { encounter: { id: 'scenario-placeholder' } },
+    }));
+    await launchMissionFromPage(input);
+    expect(input.router.push).not.toHaveBeenCalled();
+    expect(input.setLaunchError).toHaveBeenLastCalledWith(
+      expect.stringContaining('host has not recorded'),
+    );
+    expect(input.state.saveCampaign).not.toHaveBeenCalled();
+  });
+
+  it('keeps a guest in HQ without creating or saving a mission', async () => {
+    const input = coopInput();
+    input.campaign.coopSession = createGuestCoopSession('match-1', 'ROOM1');
+    await launchMissionFromPage({ ...input, localChoice: 'command-hq' });
+    expect(input.router.push).toHaveBeenCalledWith(
+      '/gameplay/campaigns/campaign-1',
+    );
+    expect(launchCoopMissionMock).not.toHaveBeenCalled();
+    expect(input.state.saveCampaign).not.toHaveBeenCalled();
+  });
+
+  it('rechecks day advance after asynchronous preparation', async () => {
+    const input = coopInput();
+    globalThis.fetch = fetchAnswering((url) => {
+      if (url.endsWith('/head')) {
+        input.state.dayAdvanceInFlight = true;
+        return { status: 200, body: SERVER_HEAD };
+      }
+      return {
+        status: 200,
+        body: { kind: 'materialized', head: SERVER_HEAD, slots: [] },
+      };
+    });
+    await launchMissionFromPage(input);
+    expect(launchCoopMissionMock).not.toHaveBeenCalled();
+    expect(input.setLaunchError).toHaveBeenLastCalledWith(
+      expect.stringContaining('advancing'),
+    );
+  });
+
+  it('does not report checkpoint success if resync removed the mission', async () => {
+    answerLaunchAuthority();
+    const input = coopInput();
+    launchCoopMissionMock.mockImplementationOnce(async () => {
+      input.state.campaign.missions.clear();
+      return okCoopLaunch();
+    });
+    await launchMissionFromPage(input);
+    expect(input.router.push).not.toHaveBeenCalled();
+    expect(input.setLaunchError).toHaveBeenLastCalledWith(
+      expect.stringContaining('mission'),
+    );
+  });
+
+  it('guards same-tick co-op calls and checkpoints the encounter once', async () => {
+    answerLaunchAuthority();
+    const input = coopInput();
+    await Promise.all([
+      launchMissionFromPage(input),
+      launchMissionFromPage(input),
+    ]);
+    expect(launchCoopMissionMock).toHaveBeenCalledTimes(1);
+    expect(input.state.saveCampaign).toHaveBeenCalledTimes(1);
+    expect(input.state.switchCampaign).toHaveBeenCalledWith(
+      expect.objectContaining({
+        missions: new Map([
+          [
+            input.missionKey,
+            expect.objectContaining({ scenarioIds: ['enc-coop-1'] }),
+          ],
+        ]),
+      }),
+    );
+    expect(input.setIsLaunching.mock.calls).toEqual([[true], [false]]);
+  });
+
+  it('refuses co-op during day advance without blocking single-player', async () => {
+    answerLaunchAuthority();
+    const input = coopInput();
+    input.state.dayAdvanceInFlight = true;
+    await launchMissionFromPage(input);
+    expect(launchCoopMissionMock).not.toHaveBeenCalled();
+    expect(input.setLaunchError).toHaveBeenLastCalledWith(
+      expect.stringContaining('advancing'),
+    );
+    useCampaignPersistenceStore.setState({
+      saveCampaign: jest.fn(async () => ({
+        status: 'saved' as const,
+        record: {} as SerializedCampaign,
+      })),
+    });
+    await launchMissionFromPage({
+      ...input,
+      campaign: { ...input.campaign, coopSession: undefined },
+    });
+    expect(materializeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries the checkpoint without relaunching and awaits navigation', async () => {
+    answerLaunchAuthority();
+    const input = coopInput();
+    input.state.saveCampaign = jest
+      .fn()
+      .mockResolvedValueOnce({ committed: false, reason: 'save failed' })
+      .mockResolvedValue({ committed: true });
+    await launchMissionFromPage(input);
+    expect(input.router.push).not.toHaveBeenCalled();
+    await launchMissionFromPage(input);
+    expect(launchCoopMissionMock).toHaveBeenCalledTimes(1);
+    expect(input.router.push).toHaveBeenCalledTimes(1);
+    expect(input.state.saveCampaign).toHaveBeenCalledTimes(2);
+  });
+
+  it('a guest refreshes and joins the recorded encounter without launch or save', async () => {
+    globalThis.fetch = fetchAnswering(() => ({
+      status: 200,
+      body: {
+        encounter: { id: 'host-encounter', gameSessionId: 'host-session' },
+      },
+    }));
+    const input = coopInput();
+    input.campaign.coopSession = createGuestCoopSession('match-1', 'ROOM1');
+    input.state.campaign = {
+      ...input.campaign,
+      missions: new Map([
+        [
+          input.missionKey,
+          { ...makeMission(), scenarioIds: ['host-encounter'] },
+        ],
+      ]),
+    };
+    const refresh = jest.fn(async () => true);
+    useCampaignPersistenceStore.setState({ loadCampaign: refresh });
+    await launchMissionFromPage(input);
+    expect(refresh).toHaveBeenCalledWith('campaign-1');
+    expect(input.router.push).toHaveBeenCalledWith(
+      '/gameplay/encounters/host-encounter?campaignId=campaign-1&missionId=mission-1',
+    );
+    expect(launchCoopMissionMock).not.toHaveBeenCalled();
+    expect(input.state.saveCampaign).not.toHaveBeenCalled();
+    expect(input.state.updateCampaign).not.toHaveBeenCalled();
   });
 
   it('requests the server head and sends its branch and revision, not the in-memory sequence', async () => {
@@ -300,7 +552,7 @@ describe('launchMissionFromPage', () => {
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
       router,
-      store: fakeStore(),
+      store: fakeStore(campaign),
       setLaunchError,
       setIsLaunching: jest.fn(),
     });
@@ -362,13 +614,35 @@ describe('launchMissionFromPage', () => {
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
       router,
-      store: fakeStore(),
+      store: fakeStore(campaign),
       setLaunchError,
       setIsLaunching: jest.fn(),
     });
     expect(router.push).not.toHaveBeenCalled();
     expect(setLaunchError).toHaveBeenLastCalledWith(
       'Mission creation refused (409 COOP_MISSION_STALE_HEAD)',
+    );
+    launchCoopMissionMock.mockResolvedValueOnce({
+      ok: false,
+      error: 'Mission creation refused (409 COOP_MISSION_UNIT_NOT_READY)',
+    });
+    await launchMissionFromPage({
+      campaign,
+      campaignKey: campaign.id,
+      missionKey: 'mission-1',
+      matchId: 'match-1',
+      localForce: force,
+      otherRecord,
+      localPlayerId: 'host',
+      localChoice: 'deploy',
+      readinessProjection: readyProjection(),
+      router,
+      store: fakeStore(campaign),
+      setLaunchError,
+      setIsLaunching: jest.fn(),
+    });
+    expect(setLaunchError).toHaveBeenLastCalledWith(
+      'A deploying unit is not ready.',
     );
   });
 
@@ -421,7 +695,7 @@ describe('launchMissionFromPage', () => {
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
       router,
-      store: fakeStore(),
+      store: fakeStore(campaign),
       setLaunchError,
       setIsLaunching: jest.fn(),
     });
@@ -481,7 +755,7 @@ describe('launchMissionFromPage', () => {
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
       router,
-      store: fakeStore(),
+      store: fakeStore(campaign),
       setLaunchError: jest.fn(),
       setIsLaunching: jest.fn(),
     });
@@ -506,6 +780,9 @@ describe('launchMissionFromPage', () => {
     });
     expect(authorityBody.sessionId).toBeUndefined();
     expect(materializeMock.mock.calls[0]?.[0]).toHaveProperty('ownedForces');
+    expect(
+      materializeMock.mock.calls[0]?.[0].readinessContext?.rosterUnits,
+    ).toEqual(useCampaignRosterStore.getState().units);
     expect(router.push).toHaveBeenCalled();
   });
 
@@ -546,7 +823,7 @@ describe('launchMissionFromPage', () => {
       localChoice: 'deploy',
       readinessProjection: readyProjection(),
       router,
-      store: fakeStore(),
+      store: fakeStore(campaign),
       setLaunchError: jest.fn(),
       setIsLaunching: jest.fn(),
     });

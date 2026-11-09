@@ -16,6 +16,116 @@ rate-limits and replay-protects every inbound intent.
 Intents and events flow over the server WebSocket. A match's
 correctness **never depends on a y-webrtc peer connection**.
 
+## Finished match lifecycle
+
+`matchCompletion.ts` owns the rule that a committed `GameEnded` completes
+match metadata. Command handlers call it only after their events are durable.
+Completion uses the store's idempotent `closeMatch`; it does not tear down
+the host or invoke either outcome publisher. Attached players can receive the
+terminal events, while completed metadata refuses new spectators and fresh
+host construction.
+
+Boot recovery excludes completed rows. When a validated effective history
+proves that an old `active` row already ended, recovery completes that row,
+logs its match id once, and skips session and host construction. A rewind is
+checked against its effective branch, not its superseded terminal tail.
+
+Pending durable combat outcomes on completed matches are retried separately,
+without creating hosts. `publishDurableCombatOutcome.ts` owns the shared
+read/publish/receipt sequence: stamp `publishedAt` only after a listener
+consumes the outcome; skip already-published rows on every later restart.
+The existing seven-day completed-match retention remains in force.
+
+## Lobby and spectator seat lifecycle
+
+`matchIntentKinds.ts` owns wire intent classification, host-only lobby
+authorization and allowed match statuses. Setup intents (OccupySeat, LeaveSeat,
+ReassignSeat, SetAiSlot, SetHumanSlot, SetReady and LaunchMatch) require `lobby`.
+Completed matches reject all lobby intents. ForfeitMatch retains its lobby/active
+availability and existing outcome/completion path.
+
+MarkSeatAi is the narrow recovery exception: it requires `active` and an occupied
+`human` seat whose player id **and slot id** match a pending disconnected entry.
+Connected humans, empty seats, AI and spectators are refused. This preserves:
+
+- `src/types/multiplayer/Protocol.ts:315-319`, the MarkSeatAi pending-human contract.
+- `src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts:257`, scenario
+  `host MarkSeatAi clears the pending seat and broadcasts MatchResumed`, and
+  `MarkSeatAi rejects %s targets without changing seats or clearing pending`
+  at line 300.
+
+The final socket detach queues spectator removal on the same host executor as
+intents. The queued operation checks for reattachment both before and after its
+metadata read. It removes only the matching spectator seat, persists it, and
+broadcasts LobbyUpdated; it does not change the playing roster, side assignments,
+campaign membership or human-seat grace handling. Registration uses the first
+free spectator slot id so removing a middle viewer cannot duplicate another slot.
+
+Spectator departure retains delivery records, acknowledgements and cursor state
+by authenticated viewer identity, not slot id. A viewer must register again to
+regain membership, then resumes the same delivery numbering across rejoin and
+restart. Rewind still clears the superseded delivery stream as described below.
+
+Follow-ups: seats compare-and-swap across REST and host writers, abrupt-crash
+leftovers, and spectator registrations that never attach. General metadata
+transition validation remains separate from these intent admission rules.
+
+## Match pause causes
+
+A match pauses for three independent causes: a human seat inside its reconnect
+grace (`peer-pending`), an absent campaign GM on a co-op mission (`gm-absent`),
+and a faulted server-driven co-op opponent (`opponent-fault`). While any cause
+holds, engine intents are refused with `MATCH_PAUSED` and a reason naming the
+cause.
+
+`MatchPaused` is a snapshot. Its required `reason` is the active cause with
+the highest precedence, from `opponent-fault` down to `peer-pending`;
+`pendingSlots` always lists the pending seats, and the grace fields ride only
+with a pending seat. The host broadcasts a new snapshot whenever the cause set
+changes (peer drop or rejoin, GM leave or return, opponent fault) and
+`MatchResumed` only when no cause remains. Every joining socket, spectators
+included, receives the current snapshot after its replay and `LobbyUpdated`.
+Pause frames are transport-only: never stored, replayed or schema-packed.
+
+The opponent fault exits explicitly. A `SessionJoin` from a seated participant
+(a human player or the GM: `hostPlayerId` or `playerIds`) clears the fault and
+retries the opponent once; the turn identity is deterministic, so the retry
+appends nothing twice, and a repeated failure pauses again. A spectator's join
+never retries. A successful `ForfeitMatch` lifts every cause and broadcasts
+`MatchResumed`; a refused one changes nothing. In a co-op mission the forfeit
+concedes the OpFor side, so the fault overlay does not offer it. Nothing ends
+a faulted match through the legacy abort path. Restart recovery starts with no
+fault; a rebuilt campaign session starts GM-absent, which joiners learn from
+the snapshot.
+
+## Viewer delivery recovery and rewind
+
+Active-match recovery restores contiguous per-viewer delivery records and
+their persisted acknowledgements before draining pending publications.
+Each receipt must identify that match and viewer and name an issued delivery
+slot. Missing, unreadable, or out-of-range receipts leave that viewer's
+restored frames unacked; one viewer's read failure does not block another.
+Stores without acknowledgement support retain unacked accounting.
+
+A live rewind discards in-memory delivery records, acknowledgements,
+isolation, and refused-event resume markers before replaying the rebuilt stream.
+Restart recovery on an activated rewind skips the superseded delivery
+records and their acknowledgements. Both paths start the rebuilt stream
+with its own delivery numbers and acknowledgement window.
+
+`POST /api/matches/:id/rewind-commit` rebuilds the live host before it stores
+the GM's private reason. If the rebuild fails after the commit, the route still
+answers 200 with the committed result. It adds `rebuildPending: true` only when
+the host still serves the superseded session. The host keeps that rebuild
+pending and retries it, inside its command queue, before the next command and
+after the next join. Until a retry succeeds, commands are refused as
+`STALE_BRANCH`. A restart folds the activated branch on boot, so the pending
+state is never persisted. A failure after the host has claimed the branch,
+such as a failed replay to attached sockets, is not pending: the rebuilt
+session is authoritative, and folding it again would drop newer events. The
+rebuild holds only a correction lease it acquired itself and never releases a
+lease another owner holds.
+
 ## y-webrtc / peer-to-peer is a non-authoritative fallback
 
 The y-webrtc / P2P stack (`src/lib/p2p/`) is a **non-authoritative

@@ -5,10 +5,27 @@ import { act, renderHook } from '@testing-library/react';
 import type { IAdaptedUnit } from '@/engine/types';
 import type { IWeapon } from '@/simulation/ai/types';
 import type { IEncounter } from '@/types/encounter';
+import type { IForce } from '@/types/force';
 import type {
   ISkirmishLaunchConfig,
   ISkirmishUnitSelection,
 } from '@/utils/gameplay/preBattleSessionBuilder';
+
+import { usePreBattleLaunch } from '../usePreBattleLaunch';
+
+const mockCompleteEncounterSession = jest.fn();
+const mockPreparedBattleData = jest.fn();
+jest.mock('@/components/gameplay/pages/preBattleSessionBuilder', () => ({
+  getAssignedUnitIds: () => ['unit'],
+  buildPreparedBattleData: () => mockPreparedBattleData(),
+}));
+const mockLinkEncounterSession = jest.fn();
+jest.mock('@/services/encounter/encounterLifecycleClient', () => ({
+  linkEncounterSession: (session: unknown, options: unknown) =>
+    mockLinkEncounterSession(session, options),
+  completeEncounterSession: (session: unknown) =>
+    mockCompleteEncounterSession(session),
+}));
 
 const mockAdaptUnit = jest.fn();
 jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
@@ -146,6 +163,7 @@ function makeEncounter(): IEncounter {
 
 describe('usePreBattleSkirmish recovery persistence', () => {
   beforeEach(() => {
+    mockLinkEncounterSession.mockReset().mockResolvedValue(undefined);
     mockAdaptUnit.mockImplementation(
       async (
         unitRef: string,
@@ -160,6 +178,7 @@ describe('usePreBattleSkirmish recovery persistence', () => {
     mockPersistInteractiveLaunchRecoveryLog.mockImplementation(async () => {
       calls.push('persist');
     });
+    mockLinkEncounterSession.mockImplementation(async () => calls.push('link'));
     const router = {
       push: jest.fn((path: string) => {
         calls.push('push');
@@ -191,7 +210,11 @@ describe('usePreBattleSkirmish recovery persistence', () => {
     expect(router.push).toHaveBeenCalledWith(
       expect.stringMatching(/^\/gameplay\/games\//),
     );
-    expect(calls).toEqual(['persist', 'set', 'push']);
+    expect(calls).toEqual(['persist', 'link', 'set', 'push']);
+    expect(mockLinkEncounterSession).toHaveBeenCalledWith(
+      expect.objectContaining({ id: expect.any(String) }),
+      { restart: true },
+    );
   });
 
   it('does not expose or navigate to a skirmish whose recovery log failed', async () => {
@@ -285,5 +308,137 @@ describe('usePreBattleSkirmish recovery persistence', () => {
         head: 9,
         center_torso: 31,
       });
+  });
+});
+
+it('does not publish or navigate a skirmish whose encounter link is rejected', async () => {
+  mockLinkEncounterSession.mockRejectedValueOnce(
+    new Error('Encounter already launched'),
+  );
+  const router = { push: jest.fn() } as unknown as NextRouter;
+  const setInteractiveSession = jest.fn();
+  const showToast = jest.fn();
+  const { result } = renderHook(() =>
+    usePreBattleSkirmish({
+      encounter: makeEncounter(),
+      router,
+      setInteractiveSession,
+      showToast,
+    }),
+  );
+  await act(async () => result.current.launchSkirmish(makeConfig()));
+  expect(setInteractiveSession).not.toHaveBeenCalled();
+  expect(router.push).not.toHaveBeenCalled();
+  expect(showToast).toHaveBeenCalledWith({
+    message: 'Encounter already launched',
+    variant: 'error',
+  });
+});
+
+describe('S1a force-based launch modes', () => {
+  beforeEach(() => {
+    mockLinkEncounterSession.mockReset().mockResolvedValue(undefined);
+    mockCompleteEncounterSession.mockReset().mockResolvedValue(undefined);
+    mockPersistInteractiveLaunchRecoveryLog
+      .mockReset()
+      .mockResolvedValue(undefined);
+    const adapted = [
+      makeAdaptedUnit('player', GameSide.Player),
+      makeAdaptedUnit('opponent', GameSide.Opponent),
+    ];
+    mockPreparedBattleData.mockResolvedValue({
+      playerAdapted: [adapted[0]],
+      opponentAdapted: [adapted[1]],
+      gameUnits: adapted.map((unit) => ({
+        id: unit.id,
+        name: unit.id,
+        side: unit.side,
+        unitRef: unit.id,
+        pilotRef: '',
+        gunnery: 4,
+        piloting: 5,
+      })),
+    });
+  });
+  function launchHook() {
+    const push = jest.fn();
+    const router = { push } as unknown as NextRouter;
+    const publish = jest.fn();
+    const spectator = jest.fn();
+    const showToast = jest.fn();
+    const { result } = renderHook(() =>
+      usePreBattleLaunch({
+        playerForce: { id: 'player' } as IForce,
+        opponentForce: { id: 'opponent' } as IForce,
+        mapConfig: makeEncounter().mapConfig,
+        gameConfig: {
+          mapRadius: 5,
+          turnLimit: 1,
+          victoryConditions: [],
+          optionalRules: [],
+        },
+        linkage: { encounterId: 'enc-skirmish' },
+        pilots: [],
+        router,
+        setSession: publish,
+        setInteractiveSession: publish,
+        setSpectatorMode: spectator,
+        setIsResolving: jest.fn(),
+        showToast,
+        seedOverride: 42,
+      }),
+    );
+    return { result, router, push, publish, spectator, showToast };
+  }
+  it.each(['interactive', 'spectator', 'auto'] as const)(
+    'links the actual %s session before publication/navigation',
+    async (mode) => {
+      const h = launchHook();
+      await act(async () => h.result.current(mode));
+      const linked = mockLinkEncounterSession.mock.calls[0][0];
+      expect(linked.config.encounterId).toBe('enc-skirmish');
+      expect(mockLinkEncounterSession).toHaveBeenCalledWith(linked, {
+        restart: true,
+      });
+      expect(h.router.push).toHaveBeenCalledWith(
+        `/gameplay/games/${linked.id}`,
+      );
+      expect(mockLinkEncounterSession.mock.invocationCallOrder[0]).toBeLessThan(
+        h.push.mock.invocationCallOrder[0],
+      );
+      if (mode === 'auto') {
+        expect(mockCompleteEncounterSession).toHaveBeenCalledWith(linked);
+        expect(
+          mockCompleteEncounterSession.mock.invocationCallOrder[0],
+        ).toBeLessThan(h.publish.mock.invocationCallOrder[0]);
+      } else expect(mockCompleteEncounterSession).not.toHaveBeenCalled();
+    },
+  );
+  it.each(['interactive', 'spectator', 'auto'] as const)(
+    'does not publish %s after rejected linking',
+    async (mode) => {
+      mockLinkEncounterSession.mockRejectedValueOnce(
+        new Error('Already launched'),
+      );
+      const h = launchHook();
+      await act(async () => h.result.current(mode));
+      expect(h.publish).not.toHaveBeenCalled();
+      expect(h.spectator).not.toHaveBeenCalled();
+      expect(h.router.push).not.toHaveBeenCalled();
+      expect(mockCompleteEncounterSession).not.toHaveBeenCalled();
+    },
+  );
+  it('surfaces auto completion failure before publication/navigation', async () => {
+    mockCompleteEncounterSession.mockRejectedValueOnce(
+      new Error('Completion failed'),
+    );
+    const h = launchHook();
+    await act(async () => h.result.current('auto'));
+    expect(h.publish).not.toHaveBeenCalled();
+    expect(h.router.push).not.toHaveBeenCalled();
+    expect(h.showToast).toHaveBeenCalledWith({
+      message: 'Completion failed',
+      variant: 'error',
+    });
   });
 });

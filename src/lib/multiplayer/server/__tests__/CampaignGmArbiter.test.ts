@@ -11,6 +11,7 @@
  * @spec openspec/changes/add-coop-campaign-play/specs/coop-campaign-sync/spec.md
  */
 
+import type { ICampaignIntentContext } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
@@ -34,6 +35,125 @@ const CAMPAIGN_ID = 'campaign-gm';
 const HOST_ID = 'host-player';
 const GUEST_ID = 'guest-player';
 
+describe('proposal identity and closure', () => {
+  it('keeps the original timeout deadline when an id is reused', async () => {
+    jest.useFakeTimers();
+    const { arbiter } = await makeArbiterWithTimeout(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      500,
+    );
+    try {
+      const resolved = jest.fn();
+      arbiter.subscribeResolved(resolved);
+      await arbiter.submitProposal(spendProposal(50_000, 'timed'));
+      jest.advanceTimersByTime(250);
+      await arbiter.submitProposal(spendProposal(90_000, 'timed'));
+      jest.advanceTimersByTime(250);
+      expect(resolved).toHaveBeenCalledTimes(1);
+      expect(arbiter.getPendingProposals()).toEqual([]);
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      arbiter.close();
+      jest.useRealTimers();
+    }
+  });
+  it('reserves the id before an auto-approved commit finishes', async () => {
+    const { arbiter, host } = await makeArbiter(
+      'auto-approve',
+      stateWith({ balance: 600_000 }),
+    );
+    let release!: () => void;
+    const waiting = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const apply = host.applyHostIntent;
+    const commit = jest
+      .spyOn(host, 'applyHostIntent')
+      .mockImplementation(async (...args) => {
+        await waiting;
+        return apply(...args);
+      });
+    try {
+      const first = arbiter.submitProposal(spendProposal(50_000, 'inflight'));
+      const duplicate = arbiter.submitProposal(
+        spendProposal(90_000, 'inflight'),
+      );
+      release();
+      await first;
+      await expect(duplicate).resolves.toMatchObject({
+        reason: 'malformed-intent',
+      });
+      expect(commit).toHaveBeenCalledTimes(1);
+    } finally {
+      release();
+      arbiter.close();
+    }
+  });
+
+  it.each(['host-review', 'auto-approve'] as const)(
+    'rejects reused ids in %s without replacing or committing twice',
+    async (mode) => {
+      const { arbiter, host } = await makeArbiter(
+        mode,
+        stateWith({ balance: 600_000 }),
+      );
+      try {
+        await arbiter.submitProposal(spendProposal(50_000, 'same-id'));
+        await expect(
+          arbiter.submitProposal(spendProposal(90_000, 'same-id')),
+        ).resolves.toMatchObject({
+          status: 'mechanically-rejected',
+          reason: 'malformed-intent',
+          proposalId: 'same-id',
+        });
+        if (mode === 'host-review') {
+          expect(arbiter.getPendingProposals()[0]?.proposal.intent).toEqual(
+            spendProposal(50_000, 'same-id').intent,
+          );
+          await arbiter.decide('same-id', 'approve');
+        }
+        expect(host.getState().balance).toBe(550_000);
+        await expect(
+          arbiter.submitProposal(spendProposal(70_000, 'same-id')),
+        ).resolves.toMatchObject({ reason: 'malformed-intent' });
+      } finally {
+        arbiter.close();
+      }
+    },
+  );
+
+  it('settles every queued proposal once, clears the queue, and refuses submissions after close', async () => {
+    const { arbiter } = await makeArbiter(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+    );
+    const resolved = jest.fn();
+    arbiter.subscribeResolved(resolved);
+    await arbiter.submitProposal(spendProposal(50_000, 'first'));
+    await arbiter.submitProposal(spendProposal(50_000, 'second'));
+    arbiter.close();
+    arbiter.close();
+    expect(resolved.mock.calls.map(([result]) => result)).toEqual([
+      expect.objectContaining({
+        proposalId: 'first',
+        status: 'mechanically-rejected',
+        reason: 'session-closed',
+      }),
+      expect.objectContaining({
+        proposalId: 'second',
+        status: 'mechanically-rejected',
+        reason: 'session-closed',
+      }),
+    ]);
+    expect(arbiter.getPendingProposals()).toEqual([]);
+    await expect(arbiter.decide('first', 'approve')).resolves.toBeNull();
+    await expect(
+      arbiter.submitProposal(spendProposal(50_000, 'third')),
+    ).resolves.toMatchObject({ reason: 'session-closed' });
+  });
+});
+
 function stateWith(
   patch: Partial<ICampaignAuthoritativeState>,
 ): ICampaignAuthoritativeState {
@@ -43,6 +163,7 @@ function stateWith(
 async function makeArbiter(
   mode: 'auto-approve' | 'host-review',
   initialState: ICampaignAuthoritativeState,
+  intentContext?: ICampaignIntentContext,
 ): Promise<{
   arbiter: CampaignGmArbiter;
   host: CampaignMatchHost;
@@ -53,6 +174,7 @@ async function makeArbiter(
     hostPlayerId: HOST_ID,
     eventStore: new InMemoryCampaignEventStore(),
     initialState,
+    ...(intentContext === undefined ? {} : { intentContext }),
   });
   const received: ICampaignEvent[] = [];
   host.subscribe((event) => received.push(event));
@@ -76,17 +198,34 @@ function spendProposal(amount: number, id = 'proposal-1'): IGuestProposal {
   };
 }
 
-function hireProposal(cost: number, id = 'proposal-hire'): IGuestProposal {
+/** The host's market: one recruit at a price the guest never names. */
+const HOST_MARKET: ICampaignIntentContext = {
+  personnelOffer: (offerId) =>
+    offerId === 'offer-1'
+      ? {
+          offerId,
+          name: 'Pilot One',
+          hireCost: 75_000,
+          expirationDate: '3025-12-31',
+          campaignDate: '3025-01-01',
+        }
+      : null,
+};
+
+function hireProposal(
+  offerId = 'offer-1',
+  id = 'proposal-hire',
+): IGuestProposal {
   return {
     proposalId: id,
     campaignId: CAMPAIGN_ID,
     proposingPlayerId: GUEST_ID,
     ts: '2026-05-19T10:00:00.000Z',
     intent: {
-      kind: 'HirePilot',
+      kind: 'HireOffer',
       campaignId: CAMPAIGN_ID,
       intentId: `intent-${id}`,
-      payload: { pilot: { pilotId: 'p1', name: 'Pilot One' }, cost },
+      payload: { offerId },
     },
   };
 }
@@ -265,15 +404,38 @@ describe('CampaignGmArbiter — guest holds no write authority', () => {
     const { arbiter, host } = await makeArbiter(
       'host-review',
       stateWith({ balance: 600_000 }),
+      HOST_MARKET,
     );
-    await arbiter.submitProposal(hireProposal(75_000));
+    await arbiter.submitProposal(hireProposal());
     // Before the host decides, nothing is on the roster.
-    expect(host.getState().pilots.p1).toBeUndefined();
+    expect(host.getState().pilots['hired-offer-1']).toBeUndefined();
 
     await arbiter.decide('proposal-hire', 'approve');
-    // Only after the GM approves does the pilot land.
-    expect(host.getState().pilots.p1).toBeDefined();
+    // Only after the GM approves does the pilot land, at the host's price.
+    expect(host.getState().pilots['hired-offer-1']).toStrictEqual({
+      pilotId: 'hired-offer-1',
+      name: 'Pilot One',
+    });
     expect(host.getState().balance).toBe(525_000);
+  });
+
+  // K14b: the pre-check judges a hire against the HOST's market, so an
+  // offer the host does not hold never reaches the review queue.
+  it('mechanically rejects a guest hire of an offer the host market lacks', async () => {
+    const { arbiter, host } = await makeArbiter(
+      'host-review',
+      stateWith({ balance: 600_000 }),
+      HOST_MARKET,
+    );
+
+    const result = await arbiter.submitProposal(hireProposal('offer-forged'));
+
+    expect(result).toMatchObject({
+      status: 'mechanically-rejected',
+      reason: 'offer-not-found',
+    });
+    expect(arbiter.getPendingProposals()).toHaveLength(0);
+    expect(host.getState().balance).toBe(600_000);
   });
 });
 

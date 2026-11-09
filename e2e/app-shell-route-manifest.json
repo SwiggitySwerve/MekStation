@@ -14,7 +14,6 @@
     { "path": "/gameplay/encounters", "label": "encounters" },
     { "path": "/gameplay/encounters/create", "label": "create encounter" },
     { "path": "/gameplay/games", "label": "games" },
-    { "path": "/gameplay/repair", "label": "repair bay" },
     { "path": "/compendium", "label": "compendium" },
     { "path": "/compendium/units", "label": "compendium units" },
     { "path": "/compendium/equipment", "label": "compendium equipment" },

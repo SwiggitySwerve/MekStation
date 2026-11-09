@@ -1,5 +1,6 @@
 import type { LoadUnitSource } from '@/components/customizer/dialogs/UnitLoadDialog';
 import type { useToast } from '@/components/shared/Toast';
+import type { ILoadUnitResult } from '@/services/units/unitLoaderService/types';
 import type { UnitState } from '@/stores/unitState';
 import type {
   IExportableUnit,
@@ -94,6 +95,42 @@ function registerFamilyState(familyState: FamilyEditorState): LoadedTab {
   return { id, name, tonnage, techBase, unitType };
 }
 
+/** One message per failure the user can act on differently. */
+function loadFailureMessage(
+  result: ILoadUnitResult,
+  unit: IUnitIndexEntry,
+  source: LoadUnitSource,
+): string {
+  const name = `${unit.chassis} ${unit.variant}`.trim();
+  switch (result.errorCode) {
+    case 'unsupported-configuration':
+      return (
+        result.error ?? 'This configuration is not supported by the editor.'
+      );
+    case 'invalid-definition':
+      return source === 'custom' && !isLibrarySaveSupported(unit.unitType)
+        ? `Saved ${unit.unitType} designs cannot be reopened yet. Only BattleMech designs reopen from the library.`
+        : 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.';
+    case 'unsupported-store-family':
+      return 'This unit family cannot be opened in the editor yet.';
+    case 'unknown-family':
+      return 'This library entry uses an unknown unit family. Choose another entry or correct the saved definition.';
+    case 'family-not-found':
+      // A missing family index is retried after a short delay, so this is not
+      // permanent and does not tell the user to give up on the family.
+      return 'The catalog for this unit family is unavailable right now.';
+    case 'not-found':
+      // Retrying cannot help: the entry is gone. A bundled unit left the
+      // catalog; a saved design left the user's library.
+      return `${name} is no longer in the ${source === 'custom' ? 'library' : 'catalog'}.`;
+    case 'read-failed':
+      // The entry exists but its source could not be read; a retry may work.
+      return `Couldn't read ${name}; try again.`;
+    default:
+      return `Failed to load ${unit.chassis} ${unit.variant}. Please try again.`;
+  }
+}
+
 export async function loadUnitIntoTab({
   unit,
   source,
@@ -122,21 +159,7 @@ export async function loadUnitIntoTab({
           : null;
     if (!tab) {
       showToast({
-        message:
-          result.errorCode === 'unsupported-configuration'
-            ? (result.error ??
-              'This configuration is not supported by the editor.')
-            : result.errorCode === 'invalid-definition'
-              ? source === 'custom' && !isLibrarySaveSupported(unit.unitType)
-                ? `Saved ${unit.unitType} designs cannot be reopened yet. Only BattleMech designs reopen from the library.`
-                : 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.'
-              : result.errorCode === 'unsupported-store-family'
-                ? 'This unit family cannot be opened in the editor yet.'
-                : result.errorCode === 'unknown-family'
-                  ? 'This library entry uses an unknown unit family. Choose another entry or correct the saved definition.'
-                  : result.errorCode === 'family-not-found'
-                    ? 'The catalog for this unit family is unavailable. Choose an entry from another family.'
-                    : `Failed to load ${unit.chassis} ${unit.variant}. Please try again.`,
+        message: loadFailureMessage(result, unit, source),
         variant: 'error',
       });
       logger.error('Failed to load unit:', result.error);

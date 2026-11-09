@@ -1,7 +1,9 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { IFactionStanding } from '@/types/campaign/factionStanding/IFactionStanding';
 
+import { hiredPilotId } from '@/lib/campaign/markets/offerLifecycle';
 import { getStandingLevel } from '@/types/campaign/factionStanding/IFactionStanding';
 import { Money } from '@/types/campaign/Money';
 
@@ -32,7 +34,47 @@ export function applyAuthoritativeStateToGuestCampaign(
       campaign.factionStandings,
       state.factionStanding,
     ),
+    ...withoutConsumedOffers(campaign, state),
     updatedAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * The viewer's markets without the offers the ledger has consumed (K14b): a
+ * recruit whose deterministic `hired-<offerId>` pilot the ledger holds, and a
+ * contract the ledger holds as accepted. So the co-op host's own page never
+ * offers a hired recruit again. A decline stays only beside an offer still
+ * listed (K14a's normalizer rule); a campaign without a market gains none.
+ * The saved record is pruned the same way when a co-op command rewrites it.
+ */
+function withoutConsumedOffers(
+  campaign: ICampaignWithCommand,
+  state: ICampaignAuthoritativeState,
+): Pick<ICampaignWithCommand, 'personnelMarket' | 'contractMarket'> {
+  const market = campaign.contractMarket;
+  const offers = market?.offers.filter(
+    (offer) => state.contracts[offer.id] === undefined,
+  );
+  const retained = new Set(offers?.map((offer) => offer.id));
+  return {
+    ...(campaign.personnelMarket === undefined
+      ? {}
+      : {
+          personnelMarket: campaign.personnelMarket.filter(
+            (offer) => state.pilots[hiredPilotId(offer.id)] === undefined,
+          ),
+        }),
+    ...(market === undefined || offers === undefined
+      ? {}
+      : {
+          contractMarket: {
+            ...market,
+            offers,
+            declinedOfferIds: market.declinedOfferIds.filter((id) =>
+              retained.has(id),
+            ),
+          },
+        }),
   };
 }
 

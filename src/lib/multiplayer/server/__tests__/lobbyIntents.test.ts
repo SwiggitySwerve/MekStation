@@ -110,6 +110,82 @@ function lastLobbyUpdate(broadcasts: readonly IServerMessage[]): IMatchSeat[] {
 }
 
 describe('ServerMatchHost lobby intents', () => {
+  const setupIntents: IIntent['intent'][] = [
+    { kind: 'OccupySeat', slotId: 'bravo-2' },
+    { kind: 'LeaveSeat', slotId: 'alpha-1' },
+    { kind: 'ReassignSeat', slotId: 'alpha-1', toSide: 'bravo', toSeat: 2 },
+    { kind: 'SetAiSlot', slotId: 'alpha-1' },
+    { kind: 'SetHumanSlot', slotId: 'alpha-2' },
+    { kind: 'SetReady', slotId: 'alpha-1', ready: true },
+    { kind: 'LaunchMatch' },
+  ];
+
+  describe.each(['active', 'completed'] as const)(
+    '%s status gate',
+    (status) => {
+      it.each(setupIntents)(
+        'rejects $kind without changing metadata or events',
+        async (payload) => {
+          const { host, store, matchId } = await makeLobbyHost();
+          const meta = await store.getMatchMeta(matchId);
+          await store.updateMatchMeta(matchId, {
+            status,
+            seats: meta.seats?.map((seat) => ({
+              ...seat,
+              kind: seat.slotId === 'alpha-2' ? 'ai' : 'human',
+              ready: true,
+              occupant:
+                seat.slotId === 'alpha-2'
+                  ? null
+                  : seat.slotId === 'bravo-2' && payload.kind !== 'LaunchMatch'
+                    ? null
+                    : {
+                        playerId:
+                          seat.slotId === 'alpha-1' ? 'pid_host' : seat.slotId,
+                        displayName: seat.slotId,
+                      },
+            })),
+          });
+          const before = await store.getMatchMeta(matchId);
+          const events = await store.getEvents(matchId);
+          const frames = await host.handleIntent({
+            ...intent(matchId, 'pid_host', payload),
+            intentId: 'status-refusal',
+          });
+          expect(frames).toEqual([
+            expect.objectContaining({
+              kind: 'Error',
+              code: 'INVALID_INTENT',
+              intentId: 'status-refusal',
+              reason: expect.stringContaining('match status'),
+            }),
+          ]);
+          expect(await store.getMatchMeta(matchId)).toEqual(before);
+          expect(await store.getEvents(matchId)).toEqual(events);
+        },
+      );
+    },
+  );
+
+  it('rejects ForfeitMatch on completed metadata without engine events', async () => {
+    const { host, store, matchId } = await makeLobbyHost();
+    await store.updateMatchMeta(matchId, { status: 'completed' });
+    const events = await store.getEvents(matchId);
+    expect(
+      await host.handleIntent({
+        ...intent(matchId, 'pid_host', { kind: 'ForfeitMatch' }),
+        intentId: 'finished-forfeit',
+      }),
+    ).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        intentId: 'finished-forfeit',
+      }),
+    ]);
+    expect(await store.getEvents(matchId)).toEqual(events);
+  });
+
   it('U4 broadcasts the originating SetReady intentId', async () => {
     const { host, store, matchId } = await makeLobbyHost();
     const socket = makeMockSocket();
@@ -274,6 +350,7 @@ describe('ServerMatchHost lobby intents', () => {
     }
     const meta = await store.getMatchMeta(matchId);
     expect(meta.status).toBe('active');
+    expect(meta.roomCode).toBeUndefined();
     // Invite code should no longer resolve once launched.
     const resolved = await store.getMatchByRoomCode('ABCDEF');
     expect(resolved).toBeNull();

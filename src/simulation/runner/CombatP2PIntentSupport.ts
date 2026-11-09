@@ -31,16 +31,16 @@ function integrated(
 const P2P_DECLARE_MOVEMENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes declareMovement into MovementDeclared and MovementLocked host events after phase and ownership validation.',
-    'src/lib/p2p/intentTranslation.ts',
-    'L175-L249',
+    'src/lib/p2p/intentTranslationCombatTranslators.ts',
+    'L42-L160',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const P2P_STAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes stand into a host-owned stand command after phase and ownership validation.',
-    'src/lib/p2p/intentTranslation.ts',
-    'L177-L268',
+    'src/lib/p2p/intentTranslationCommandTranslators.ts',
+    'L23-L45',
   ),
   mekstationDeviationSourceRef(
     'MekStation hostIntentRouter applies the translated stand command through the host adapter.',
@@ -52,8 +52,8 @@ const P2P_STAND_SOURCE_REFS = [
 const P2P_GO_PRONE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes goProne into a host-owned goProne command after phase and ownership validation.',
-    'src/lib/p2p/intentTranslation.ts',
-    'L179-L292',
+    'src/lib/p2p/intentTranslationCommandTranslators.ts',
+    'L47-L69',
   ),
   mekstationDeviationSourceRef(
     'MekStation hostIntentRouter applies the translated goProne command through the host adapter.',
@@ -65,8 +65,8 @@ const P2P_GO_PRONE_SOURCE_REFS = [
 const P2P_ACTIVATE_MOVEMENT_ENHANCEMENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes activateMovementEnhancement into a host-owned booster activation command after phase and ownership validation.',
-    'src/lib/p2p/intentTranslation.ts',
-    'L181-L320',
+    'src/lib/p2p/intentTranslationCommandTranslators.ts',
+    'L71-L97',
   ),
   mekstationDeviationSourceRef(
     'MekStation hostIntentRouter applies the translated activateMovementEnhancement command through the host adapter.',
@@ -79,15 +79,15 @@ const P2P_TORSO_TWIST_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents validates torsoTwist legality and emits FacingChanged with secondaryFacing.',
     'src/lib/p2p/intentTranslation.ts',
-    'L183-L370',
+    'L235-L283',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 const P2P_DECLARE_ATTACK_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation translateIntentToEvents routes declareAttack into AttackDeclared and AttackLocked host events after phase and ownership validation.',
-    'src/lib/p2p/intentTranslation.ts',
-    'L185-L411',
+    'src/lib/p2p/intentTranslationCombatTranslators.ts',
+    'L162-L244',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

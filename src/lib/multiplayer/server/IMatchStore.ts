@@ -442,9 +442,15 @@ export class MatchStoreSequenceCollisionError extends Error {
   }
 }
 
-/**
- * Thrown when a method is called for a match that doesn't exist.
- */
+/** Another lobby already owns this normalized invite code. */
+export class RoomCodeCollisionError extends Error {
+  constructor(readonly roomCode: string) {
+    super(`Lobby room code already in use: ${roomCode}`);
+    this.name = 'RoomCodeCollisionError';
+  }
+}
+
+/** Thrown when a method is called for a match that doesn't exist. */
 export class MatchNotFoundError extends Error {
   constructor(public readonly matchId: string) {
     super(`Match not found: ${matchId}`);
@@ -657,6 +663,8 @@ export interface IMatchStore
     matchId: string,
     outcomeId: string,
   ): Promise<void>;
+  /** Pending completed-match outcomes can be retried without recovering hosts. */
+  listPendingOutcomeMatchIds?(): Promise<readonly string[]>;
 
   /**
    * Per-viewer delivery mapping (leaf 3.1). OPTIONAL like the outbox

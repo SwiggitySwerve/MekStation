@@ -6,8 +6,10 @@ import {
   IInitiativeRolledPayload,
   IPhaseChangedPayload,
   LockState,
-  MovementType,
 } from '@/types/gameplay';
+import { resetPerTurnMovementState } from '@/utils/gameplay/movement/perTurnMovementState';
+import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
+import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 export function applyPhaseChanged(
   state: IGameState,
@@ -30,13 +32,9 @@ export function applyPhaseChanged(
   if (payload.toPhase === GamePhase.Movement) {
     for (const unitId of Object.keys(units)) {
       units[unitId] = {
-        ...units[unitId],
-        movementThisTurn: MovementType.Stationary,
-        hexesMovedThisTurn: 0,
-        movedBackwardThisTurn: false,
-        usedMechanicalJumpBoosterThisTurn: false,
-        isEvading: false,
-        evasionBonus: undefined,
+        ...resetPerTurnMovementState(units[unitId], {
+          advanceBoosterCounters: false,
+        }),
         isSpotting: false,
         spotTargetId: undefined,
       };
@@ -68,27 +66,11 @@ export function applyTurnStarted(
     // if a caller advanced past End without resolving, a stale queue
     // would carry into a fresh turn). TW p.52: PSRs do not persist
     // across turn boundaries.
-    const empInterferenceTurns = Math.max(
-      0,
-      Math.trunc(units[unitId].empInterferenceTurns ?? 0) - 1,
+    // advanceVehicleCrewStun (C14) is its own once-per-round step, not part of
+    // the shared per-turn unit fields.
+    units[unitId] = advanceVehicleCrewStun(
+      resetPerTurnUnitFields(units[unitId], { presence: 'explicit' }),
     );
-    const empShutdownTurns = Math.max(
-      0,
-      Math.trunc(units[unitId].empShutdownTurns ?? 0) - 1,
-    );
-    units[unitId] = {
-      ...units[unitId],
-      weaponsFiredThisTurn: [],
-      pendingPSRs: [],
-      isLoadingOrUnloadingCargo: false,
-      tagDesignated: false,
-      externalHeatThisTurn: 0,
-      pendingExternalHeat: 0,
-      empInterferenceTurns,
-      empShutdownTurns,
-      isSpotting: false,
-      spotTargetId: undefined,
-    };
   }
 
   return {

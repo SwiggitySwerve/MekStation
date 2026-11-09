@@ -42,7 +42,7 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation checkVictoryConditions consults evaluateObjectiveOutcome before destruction and turn-limit fallback winner selection.',
     'src/utils/gameplay/gameState/gameStateReducer.ts',
-    'L146-L182',
+    'L131-L167',
   ),
   mekstationDeviationSourceRef(
     'MekStation evaluateObjectiveOutcome routes markerless, capture, defend, and breakthrough scenarios through one objective outcome gate.',
@@ -52,12 +52,12 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunnerState.isGameOver consults evaluateObjectiveOutcome before survivor-count game-over checks.',
     'src/simulation/runner/SimulationRunnerState.ts',
-    'L588-L631',
+    'L551-L568',
   ),
   mekstationDeviationSourceRef(
     'MekStation GameOutcomeCalculator consults evaluateObjectiveOutcome before elimination, mutual destruction, and turn-limit outcome branches.',
     'src/services/game-resolution/GameOutcomeCalculator.ts',
-    'L178-L225',
+    'L179-L226',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -65,12 +65,12 @@ const PSR_QUEUE_LIFECYCLE_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation applyPhaseChanged resets lock/action state and deliberately preserves pendingPSRs across intra-turn phase transitions.',
     'src/utils/gameplay/gameState/phaseManagement.ts',
-    'L11-L43',
+    'L14-L53',
   ),
   mekstationDeviationSourceRef(
     'MekStation applyTurnStarted clears stale pendingPSRs at the next turn boundary.',
     'src/utils/gameplay/gameState/phaseManagement.ts',
-    'L45-L73',
+    'L55-L99',
   ),
   mekstationDeviationSourceRef(
     'MekStation phaseManagement regression tests prove applyPhaseChanged preserves pendingPSRs and applyTurnStarted clears them.',
@@ -96,17 +96,17 @@ const RUNNER_TERMINAL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation SimulationRunner derives matchTerminalState from operable survivors before appending the terminal GameEnded event.',
     'src/simulation/runner/SimulationRunner.ts',
-    'L381-L412',
+    'L434-L469',
   ),
   mekstationDeviationSourceRef(
     'MekStation appendRunnerGameEndedEvent maps runner winner/reason/turns into a terminal GameEnded replay event.',
     'src/simulation/runner/SimulationRunnerTerminalEvent.ts',
-    'L52-L84',
+    'L48-L80',
   ),
   mekstationDeviationSourceRef(
     'MekStation terminal parity behavior test proves SimulationRunner returns terminal summary fields and appends terminal GameEnded events.',
     'src/simulation/runner/__tests__/simulationRunnerTerminalParity.behavior.test.ts',
-    'L31-L92',
+    'L41-L106',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -115,7 +115,7 @@ const TERMINAL_SURVIVOR_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation appendRunnerGameEndedEvent survivor checks exclude destroyed, retreated, ejected, and unconscious units before selecting destruction or turn-limit reasons.',
     'src/simulation/runner/SimulationRunnerTerminalEvent.ts',
-    'L21-L50',
+    'L22-L46',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

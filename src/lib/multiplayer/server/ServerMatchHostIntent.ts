@@ -39,6 +39,8 @@ import {
   shadowAudienceInput,
 } from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import { markMatchCompleted } from './matchCompletion';
+import { isLobbyIntentKind } from './matchIntentKinds';
 import {
   refuseDuringHistoryRebuild,
   refuseLiveBranchFromIntent,
@@ -51,7 +53,6 @@ import {
   readActorUnitId,
 } from './ServerMatchHostIntentClaims';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
-import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
 import {
   commitThenPublish,
   errorMessage,
@@ -99,6 +100,8 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
   readonly session: InteractiveSession;
   readonly closed: boolean;
   readonly isPaused: boolean;
+  /** M-H3: refusal text naming the active pause cause. */
+  readonly pauseRefusal?: string;
   readonly broadcast: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   /** Undelivered-only broadcast for the outbox resume pass (7.1); optional for test contexts, production always supplies it. */
@@ -187,9 +190,7 @@ export async function handleIntent(
     envelope,
     verifiedPrincipalId,
   );
-  if (principalMismatch) {
-    return principalMismatch;
-  }
+  if (principalMismatch) return principalMismatch;
 
   // M3 (add-matchmaking-and-spectator) design D5 — a spectator can
   // never produce an `Intent`. The spectator surface renders no intent
@@ -291,7 +292,7 @@ export async function handleIntent(
       envelope,
       viewer,
       'MATCH_PAUSED',
-      'Match is paused waiting for a peer to reconnect',
+      ctx.pauseRefusal ?? 'Match is paused waiting for a peer to reconnect',
     );
   }
 
@@ -390,6 +391,7 @@ export async function handleIntent(
   broadcasts.push(...published.messages);
   if (!published.committed) return broadcasts;
 
+  await markMatchCompleted(ctx.store, ctx.matchId, newEvents);
   ctx.tryPublishOutcome();
   return broadcasts;
 }

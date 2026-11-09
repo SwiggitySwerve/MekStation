@@ -34,6 +34,7 @@ import { campaignRecordRow } from '@/services/campaignPersistence/CampaignPersis
 import { TransactionType } from '@/types/campaign/Transaction';
 
 import { addCampaignDays } from '../campaignCalendar';
+import { hiredPilotId } from '../markets/offerLifecycle';
 import { replayCampaignEvents } from '../sync/applyCampaignEvent';
 import {
   CAMPAIGN_STREAM_TYPE,
@@ -170,6 +171,44 @@ function withGmInterventionEntries(
 }
 
 /**
+ * The saved markets without the offers the journal has consumed (K14b): a
+ * recruit whose deterministic pilot is enrolled, and a contract the journal
+ * holds as accepted. A decline is kept only beside an offer still listed -
+ * the K14a normalizer's rule, since pruning an offer but keeping its marker
+ * carries no fact. A record without a market gains none.
+ */
+function withoutConsumedOffers(
+  body: SerializedCampaign['body'],
+  state: ICampaignAuthoritativeState,
+): Pick<SerializedCampaign['body'], 'personnelMarket' | 'contractMarket'> {
+  const market = body.contractMarket;
+  const offers = market?.offers.filter(
+    (offer) => state.contracts[offer.id] === undefined,
+  );
+  const retained = new Set(offers?.map((offer) => offer.id));
+  return {
+    ...(body.personnelMarket === undefined
+      ? {}
+      : {
+          personnelMarket: body.personnelMarket.filter(
+            (offer) => state.pilots[hiredPilotId(offer.id)] === undefined,
+          ),
+        }),
+    ...(market === undefined || offers === undefined
+      ? {}
+      : {
+          contractMarket: {
+            ...market,
+            offers,
+            declinedOfferIds: market.declinedOfferIds.filter((id) =>
+              retained.has(id),
+            ),
+          },
+        }),
+  };
+}
+
+/**
  * The record readiness of each journal roster status: the inverse of the
  * checkpoint projection's readiness-to-status map (campaignSourceGenesis).
  */
@@ -209,6 +248,7 @@ function recordAtJournalState(
       ...body,
       currentDate,
       finances: { ...body.finances, balance: state.balance },
+      ...withoutConsumedOffers(body, state),
       ...(roster === undefined
         ? {}
         : {

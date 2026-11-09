@@ -137,6 +137,42 @@ describe('determineMatchTerminalState — closed-set classifier', () => {
     ).toBe('timeout');
   });
 
+  it.each(['player', 'opponent'] as const)(
+    'honors a resolved %s objective winner with survivors on both sides at the limit',
+    (winner) => {
+      expect(
+        determineMatchTerminalState(
+          buildInputs({ winner, turnsElapsed: 3, maxTurns: 3 }),
+        ),
+      ).toBe(winner === 'player' ? 'player_victory' : 'opfor_victory');
+    },
+  );
+
+  it('classifies a critical halt at the limit as draw rather than timeout', () => {
+    expect(
+      determineMatchTerminalState(
+        buildInputs({
+          haltedByCriticalAnomaly: true,
+          turnsElapsed: 3,
+          maxTurns: 3,
+        }),
+      ),
+    ).toBe('draw');
+  });
+
+  it('preserves explicit-exit precedence over a resolved winner', () => {
+    expect(
+      determineMatchTerminalState(
+        buildInputs({ winner: 'player', hadForfeit: true }),
+      ),
+    ).toBe('forfeit');
+    expect(
+      determineMatchTerminalState(
+        buildInputs({ winner: 'opponent', hadWithdrawal: true }),
+      ),
+    ).toBe('withdrawal');
+  });
+
   it('classifies draw when neither side meets victory conditions before timeout', () => {
     expect(
       determineMatchTerminalState(

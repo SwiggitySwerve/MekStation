@@ -45,6 +45,8 @@ import type {
 } from '@/types/interventions';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import { normalizeShoppingList } from '@/lib/campaign/acquisition/shoppingList';
+import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import {
   rehydrateCampaignMission,
   rehydrateContractMarket,
@@ -56,6 +58,7 @@ import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 import { emitPendingOutcomeAdded } from '@/utils/events/campaignOutcomeEvents';
 
+import { mergeBattleOutcomeState } from './campaignBattleOutcomeState';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 
 /**
@@ -184,8 +187,10 @@ export function withBattleQueueAttached(
 ): ICampaign {
   return {
     ...campaign,
-    pendingBattleOutcomes: pending,
-    processedBattleIds: processed,
+    ...mergeBattleOutcomeState(campaign, {
+      pendingBattleOutcomes: pending,
+      processedBattleIds: processed,
+    }),
   } as ICampaign & {
     readonly pendingBattleOutcomes: readonly ICombatOutcome[];
     readonly processedBattleIds: readonly string[];
@@ -220,6 +225,11 @@ export function serializeCampaign(
   processedBattleIds: readonly string[] = [],
   reviewedBattleIds: Record<string, number> = {},
 ): SerializedCampaignState {
+  const battleState = mergeBattleOutcomeState(campaign, {
+    pendingBattleOutcomes,
+    processedBattleIds,
+    reviewedBattleIds,
+  });
   const audit =
     (
       campaign as ICampaign & {
@@ -275,9 +285,7 @@ export function serializeCampaign(
     campaignStartDate: startDate.toISOString(),
     description: campaign.description,
     iconUrl: campaign.iconUrl,
-    pendingBattleOutcomes: [...pendingBattleOutcomes],
-    processedBattleIds: [...processedBattleIds],
-    reviewedBattleIds: { ...reviewedBattleIds },
+    ...battleState,
     dailyBattleAudit: [...audit],
     // D-1 fix (2026-06-09 audit): unit battle damage is canonical state —
     // dropping it here was the audit's headline data-loss finding. The map
@@ -324,7 +332,7 @@ export function deserializeCampaign(
   forces: Map<string, IForce>,
   missions: Map<string, IMission>,
 ): ICampaign {
-  return {
+  return normalizeMarketOffers({
     id: serialized.id,
     name: serialized.name,
     currentDate: new Date(serialized.currentDate),
@@ -362,7 +370,11 @@ export function deserializeCampaign(
       ),
     },
     factionStandings: serialized.factionStandings,
-    shoppingList: serialized.shoppingList,
+    shoppingList: normalizeShoppingList(
+      serialized.shoppingList,
+      serialized.currentDate,
+      serialized.partsInventory,
+    ),
     options: serialized.options,
     campaignType: serialized.campaignType as CampaignType,
     activePreset: serialized.activePreset,
@@ -371,6 +383,7 @@ export function deserializeCampaign(
     iconUrl: serialized.iconUrl,
     createdAt: serialized.createdAt,
     updatedAt: serialized.updatedAt,
+    ...mergeBattleOutcomeState(null, serialized),
     // D-1 fix (2026-06-09 audit): rehydrate unit battle damage instead of
     // hard-resetting it. Pre-fix snapshots lack the field — default to the
     // fresh-campaign empty map, which is the old (lossy) behavior for
@@ -407,7 +420,7 @@ export function deserializeCampaign(
     // Per `wire-coop-campaign-route` Wave 6.1: the coopSession field
     // survives reload so every co-op surface remounts on the same campaign.
     coopSession: serialized.coopSession,
-  } as ICampaign;
+  } as ICampaign);
 }
 export function persistCampaignRecord(
   campaign: ICampaign,

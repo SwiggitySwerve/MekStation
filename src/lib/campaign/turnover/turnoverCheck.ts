@@ -2,6 +2,7 @@ import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
+import { isRosterPilotDeparted } from '@/lib/campaign/personnel/statusRules';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { Money } from '@/types/campaign/Money';
 
@@ -55,8 +56,8 @@ export function getPersonMonthlySalary(
 /**
  * Determines whether a roster entry is eligible for a turnover check.
  *
- * Only `Active` entries are checked. Wounded/Critical/MIA/KIA entries are
- * skipped. The commander-immunity option bypasses the check for unit
+ * Only `Active` entries without departure markers are checked. All other
+ * statuses are skipped. The commander-immunity option bypasses the check for unit
  * commanders.
  *
  * NPC behavior: PROCESS — departure rolls apply to NPCs and PCs alike.
@@ -68,6 +69,7 @@ function isEligibleForCheck(
 ): boolean {
   // Only active entries receive a turnover check
   if (entry.status !== CampaignPilotStatus.Active) return false;
+  if (isRosterPilotDeparted(entry)) return false;
 
   // Commander immunity: skip the check for the unit commander when the option
   // is enabled; `isCommander` lives on the roster entry.

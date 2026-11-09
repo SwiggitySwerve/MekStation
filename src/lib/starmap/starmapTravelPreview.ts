@@ -12,7 +12,7 @@ import {
   unitMarketProcessor,
 } from '@/lib/campaign/processors';
 import { findSystemById } from '@/lib/starmap/loadInnerSphereSeed';
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { isTerminalMissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 
@@ -266,7 +266,7 @@ function buildDeadlineWarnings(
     .filter(
       (mission): mission is IContract | IMission =>
         mission.systemId === destinationSystem.id &&
-        !isTerminalMission(mission) &&
+        !isTerminalMissionStatus(mission.status) &&
         typeof mission.endDate === 'string',
     )
     .map((mission) => {
@@ -363,17 +363,6 @@ function blockedPreview(input: {
     routeAssumptions: input.rules.routeAssumptions,
     generatedAt: input.generatedAt,
   };
-}
-
-function isTerminalMission(mission: IMission): boolean {
-  return [
-    MissionStatus.SUCCESS,
-    MissionStatus.PARTIAL,
-    MissionStatus.FAILED,
-    MissionStatus.BREACH,
-    MissionStatus.CANCELLED,
-    MissionStatus.ABORTED,
-  ].includes(mission.status);
 }
 
 function addDays(date: Date, days: number): Date {

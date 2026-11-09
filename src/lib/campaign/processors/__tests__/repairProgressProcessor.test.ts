@@ -90,6 +90,52 @@ function makeCampaign(
 }
 
 describe('repairProgressProcessor', () => {
+  it('prunes a terminal-only queue without consuming parts or changing carried damage', () => {
+    const campaign = makeCampaign({
+      repairQueue: [
+        makeTicket({ status: 'completed' }),
+        makeTicket({ ticketId: 'cancelled', status: 'cancelled' }),
+      ],
+    });
+    const result = repairProgressProcessor.process(campaign, TEST_DATE);
+    expect(result.campaign.repairQueue).toEqual([]);
+    expect(result.campaign.unitCombatStates).toEqual(campaign.unitCombatStates);
+    expect(result.events).toEqual([]);
+  });
+
+  it('resumes parts-needed work when inventory arrives, then does not consume it twice', () => {
+    const item = {
+      inventoryId: 'lot',
+      partId: 'armor',
+      partName: 'Armor',
+      quantity: 3,
+      source: 'manual' as const,
+      acquiredAt: TEST_DATE.toISOString(),
+    };
+    const campaign = makeCampaign({
+      repairQueue: [
+        makeTicket({
+          status: 'parts-needed',
+          partsRequired: [{ partId: 'armor', quantity: 2, matched: false }],
+        }),
+      ],
+      partsInventory: [item],
+    });
+    const first = repairProgressProcessor.process(campaign, TEST_DATE);
+    expect(first.campaign.partsInventory?.[0].quantity).toBe(1);
+    expect(
+      first.campaign.unitCombatStates['unit-alpha'].currentArmorPerLocation.CT,
+    ).toBe(10);
+    const second = repairProgressProcessor.process(first.campaign, TEST_DATE);
+    expect(second.campaign.partsInventory).toEqual(
+      first.campaign.partsInventory,
+    );
+    expect(second.campaign.unitCombatStates).toEqual(
+      first.campaign.unitCombatStates,
+    );
+    expect(second.campaign.repairQueue).toEqual([]);
+  });
+
   it('registers as unit maintenance work after repair queue creation', () => {
     expect(repairProgressProcessor.id).toBe('repair-progress');
     expect(repairProgressProcessor.phase).toBe(DayPhase.UNITS);

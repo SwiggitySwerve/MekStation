@@ -111,6 +111,8 @@ const defaultSourceAnchors = [
     path: 'src/lib/interventions/GmCascadePreviewPipeline.ts',
     tokens: [
       'approveGmCascadePreview',
+      'prepareGmCascadeApproval',
+      'recordGmCascadeApproval',
       'appendGmInterventionRecord',
       'requires-manual-takeover',
       'Cannot approve GM cascade preview',
@@ -162,9 +164,22 @@ const defaultSourceAnchors = [
       'GmCampaignInterventionActions',
       'gm-ledger-player-log',
       'createGmCascadePreview',
-      'approveGmCascadePreview',
-      'requires-manual-takeover',
+      // Prepared, applied, then recorded: the ledger rows follow the apply.
+      'prepareGmCascadeApproval',
+      'recordGmCascadeApproval',
+      'useGmControlPlane',
       'No campaign state changed',
+    ],
+  },
+  {
+    // K11: preview, approve and manual takeover are one token-guarded state;
+    // manual control is offered only for a requires-manual-takeover preview.
+    id: 'campaign-gm-ledger-control-state',
+    path: 'src/components/campaign/gm/gmControlPlaneState.ts',
+    tokens: [
+      'GM_CONTROL_TRANSITIONS',
+      'reduceGmControlPlane',
+      'requires-manual-takeover',
     ],
   },
   {

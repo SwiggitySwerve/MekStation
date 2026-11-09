@@ -70,6 +70,11 @@ import {
 } from './CampaignProgressionGate';
 
 export { PRODUCTION_PROPOSAL_TIMEOUT_MS } from './campaignGmArbiterTimeout';
+export { describeProposalEffect } from './campaignGmProposalContext';
+import {
+  describeProposalEffect,
+  relevantStandingFor,
+} from './campaignGmProposalContext';
 
 // =============================================================================
 // Pending proposal — the host review queue entry
@@ -183,6 +188,8 @@ export class CampaignGmArbiter {
   }
   /** Proposals awaiting a host decision (`host-review` mode only). */
   private readonly pending = new Map<string, IPendingProposal>();
+  private readonly submittedIds = new Set<string>();
+  private readonly closedListeners = new Set<() => void>();
   private readonly listeners = new Set<PendingProposalListener>();
   private readonly resolvedListeners = new Set<ProposalResolvedListener>();
   /**
@@ -204,6 +211,10 @@ export class CampaignGmArbiter {
     Promise<GuestProposalResult | null>
   >();
   private closed = false;
+
+  /** Transport checks this immediately before submit, without an intervening await. */
+  hasSubmittedProposal = (proposalId: string): boolean =>
+    this.submittedIds.has(proposalId);
 
   constructor(
     host: CampaignMatchHost,
@@ -280,15 +291,42 @@ export class CampaignGmArbiter {
     };
   };
 
+  /** Local callers awaiting admission or commit must also hear closure. */
+  subscribeClosed = (listener: () => void): (() => void) => {
+    if (this.closed) {
+      listener();
+      return () => undefined;
+    }
+    this.closedListeners.add(listener);
+    return () => {
+      this.closedListeners.delete(listener);
+    };
+  };
+
   /**
    * Drop every armed auto-veto timer. A closed host must not leave a
    * timeout handle that keeps the process alive.
    */
   close = (): void => {
+    if (this.closed) return;
     this.closed = true;
+    const pending = this.getPendingProposals();
+    this.pending.clear();
     for (const proposalId of Array.from(this.timers.keys())) {
       this.cancelTimeoutFor(proposalId);
     }
+    this.submittedIds.clear();
+    for (const entry of pending) {
+      this.notifyResolved({
+        status: 'mechanically-rejected',
+        proposalId: entry.proposal.proposalId,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: 'session-closed',
+      });
+    }
+    this.notifyPending();
+    this.closedListeners.forEach((listener) => listener());
+    this.closedListeners.clear();
   };
 
   // ---------------------------------------------------------------------------
@@ -332,6 +370,18 @@ export class CampaignGmArbiter {
         reason: 'malformed-intent',
       };
     }
+
+    if (this.closed || this.submittedIds.has(proposal.proposalId)) {
+      return {
+        status: 'mechanically-rejected',
+        proposalId: proposal.proposalId,
+        code: INVALID_CAMPAIGN_INTENT,
+        reason: this.closed ? 'session-closed' : 'malformed-intent',
+      };
+    }
+    // Reserve before an auto-approved/guarded commit can yield. Keep the id
+    // after resolution so a replay cannot commit a different intent under it.
+    this.submittedIds.add(proposal.proposalId);
 
     // Step 2 — CO1 mechanical validation FIRST (design D5 — the floor in
     // BOTH modes). The check runs against the host's CURRENT
@@ -488,11 +538,15 @@ export class CampaignGmArbiter {
     proposal: IGuestProposal,
     state: ICampaignAuthoritativeState,
   ): ICampaignMechanicalRejection | { ok: true } {
+    // The host's own market reader, so the pre-check judges a HireOffer
+    // against the same offer the commit will.
     const validation = validateCampaignIntent(
       proposal.intent,
       state,
       proposal.proposingPlayerId,
       proposal.ts,
+      undefined,
+      this.host.intentContext,
     );
     if (validation.ok) return { ok: true };
     // `validateCampaignIntent` touches no head, so it cannot produce a
@@ -653,67 +707,6 @@ export class CampaignGmArbiter {
       listener(result);
     });
   }
-}
-
-// =============================================================================
-// Context derivation — campaign context for the host review surface
-// =============================================================================
-
-/**
- * The faction standing relevant to a proposal — the employer faction's
- * standing for an `AcceptContract`, `null` for every other intent kind
- * (no faction is involved).
- */
-function relevantStandingFor(
-  proposal: IGuestProposal,
-  state: ICampaignAuthoritativeState,
-): number | null {
-  if (proposal.intent.kind === 'AcceptContract') {
-    const factionId = proposal.intent.payload.contract.employerFactionId;
-    return state.factionStanding[factionId] ?? 0;
-  }
-  return null;
-}
-
-/**
- * A human-readable one-line summary of a proposal's ledger/roster
- * effect, shown on the host GM review surface so the host can decide
- * without inspecting the raw intent payload.
- */
-export function describeProposalEffect(proposal: IGuestProposal): string {
-  const intent = proposal.intent;
-  switch (intent.kind) {
-    case 'HirePilot':
-      return `Hire pilot ${intent.payload.pilot.name} for ${formatCbills(
-        intent.payload.cost,
-      )}`;
-    case 'AcceptContract':
-      return `Accept contract ${intent.payload.contract.name}`;
-    case 'SpendFunds':
-      return `Spend ${formatCbills(intent.payload.amount)} — ${
-        intent.payload.reason
-      }`;
-    case 'AllocateSalvage':
-      return `Allocate ${formatCbills(intent.payload.value)} of salvage`;
-    case 'AdvanceDay':
-      return `Advance the campaign day by ${intent.payload.days ?? 1}`;
-    case 'RemoveParticipant':
-      // Host-only - never a guest proposal - but the switch is
-      // exhaustive so the label exists the day the union is consulted.
-      return `Remove participant ${intent.payload.participantId}`;
-    default: {
-      // Exhaustiveness guard — a new intent kind trips this at compile
-      // time so the review surface never shows an unlabelled proposal.
-      const exhaustive: never = intent;
-      void exhaustive;
-      return 'Unknown campaign action';
-    }
-  }
-}
-
-/** Format a C-bill amount with thousands separators for the review UI. */
-function formatCbills(amount: number): string {
-  return `${Math.round(amount).toLocaleString('en-US')} C-bills`;
 }
 
 /**

@@ -23,6 +23,7 @@ import {
 
 import { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 import { mapRawIndexRows, type RawUnitIndexEntry } from './unitIndexMapper';
+import { assertUnitShape } from './unitShapeGuard';
 
 /**
  * Full unit data structure (placeholder - will be defined in types)
@@ -86,15 +87,35 @@ function encodeSitePath(sitePath: string): string {
   return sitePath.split('/').map(encodeURIComponent).join('/');
 }
 
+function unitLoadKey(key: string, strict = false): string {
+  return `${key}|${strict ? 'strict' : 'lenient'}`;
+}
+
+/** How long a family whose index 404'd is treated as absent before a retry. */
+export const MISSING_FAMILY_TTL_MS = 30_000;
+
 /**
  * Canonical Unit Service implementation
  */
 export class CanonicalUnitService implements ICanonicalUnitService {
   private indexCache = new Map<UnitFamily, IUnitIndexEntry[]>();
-  /** Families whose index 404'd; cleared by `clearCache`. */
-  private missingFamilies = new Set<UnitFamily>();
+  /** Families whose index 404'd, with the time the absence expires. */
+  private missingFamilies = new Map<UnitFamily, number>();
+  /**
+   * In-flight loads. A load may cache its result only while it is still the
+   * registered entry, so `clearCache` / `invalidateUnit` cancel stale writes.
+   */
   private indexLoads = new Map<UnitFamily, Promise<IUnitIndexEntry[]>>();
+  private unitLoads = new Map<string, Promise<IFullUnit | null>>();
   private unitCache: Map<string, IFullUnit> = new Map();
+
+  private isFamilyMissing(family: UnitFamily): boolean {
+    const expiresAt = this.missingFamilies.get(family);
+    if (expiresAt === undefined) return false;
+    if (Date.now() < expiresAt) return true;
+    this.missingFamilies.delete(family);
+    return false;
+  }
 
   /**
    * Load JSON data - works on both server and client side using fetch
@@ -131,30 +152,33 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   ): Promise<IUnitIndexEntry[]> {
     const cached = this.indexCache.get(family);
     if (cached) return cached;
-    if (this.missingFamilies.has(family)) return [];
+    if (this.isFamilyMissing(family)) return [];
     const pending = this.indexLoads.get(family);
     if (pending) return pending;
-    const load = (async () => {
+    const registered: { load?: Promise<IUnitIndexEntry[]> } = {};
+    const load = (registered.load = (async () => {
       const data = await this.loadJson<{ units?: RawUnitIndexEntry[] }>(
         `/data/units/${family}/index.json`,
         true,
         true,
       );
+      const current = this.indexLoads.get(family) === registered.load;
       if (data === undefined) {
-        this.missingFamilies.add(family);
+        if (current)
+          this.missingFamilies.set(family, Date.now() + MISSING_FAMILY_TTL_MS);
         return [];
       }
       if (!data || !Array.isArray(data.units))
         throw new Error('Canonical source index is invalid');
       const entries = mapRawIndexRows(data.units, family);
-      this.indexCache.set(family, entries);
+      if (current) this.indexCache.set(family, entries);
       return entries;
-    })();
+    })());
     this.indexLoads.set(family, load);
     try {
       return await load;
     } finally {
-      this.indexLoads.delete(family);
+      if (this.indexLoads.get(family) === load) this.indexLoads.delete(family);
     }
   }
 
@@ -194,29 +218,51 @@ export class CanonicalUnitService implements ICanonicalUnitService {
       return this.unitCache.get(key)!;
     }
 
-    // Find in index to get file path
-    const index = await this.getIndex(
-      family ? { ...options, family } : options,
-    );
-    const entry = index.find((e) => e.id === id);
-
-    if (!entry) {
-      return null;
-    }
-
-    try {
-      const unit = await this.loadJson<IFullUnit>(
-        encodeSitePath(entry.filePath),
-        options.strict,
+    // Strict and lenient callers fail differently, so they never share a load.
+    const loadKey = unitLoadKey(key, options.strict);
+    const pending = this.unitLoads.get(loadKey);
+    if (pending) return pending;
+    const registered: { load?: Promise<IFullUnit | null> } = {};
+    const load = (registered.load = (async () => {
+      // Find in index to get file path
+      const index = await this.getIndex(
+        family ? { ...options, family } : options,
       );
-      if (!unit) {
+      const entry = index.find((e) => e.id === id);
+
+      if (!entry) {
         return null;
       }
-      this.unitCache.set(key, unit);
-      return unit;
-    } catch (error) {
-      if (options.strict) throw error;
-      return null;
+
+      try {
+        const unit = await this.loadJson<IFullUnit>(
+          encodeSitePath(entry.filePath),
+          options.strict,
+        );
+        if (!unit) {
+          return null;
+        }
+        // Guard the shape before caching so no reader sees (or keeps) a
+        // payload that is not a unit. Strict callers get the field issue;
+        // lenient ones get null. Full contract validation runs in CI.
+        assertUnitShape(
+          unit,
+          { id: entry.id, family: family ?? 'battlemechs' },
+          entry.filePath,
+        );
+        if (this.unitLoads.get(loadKey) === registered.load)
+          this.unitCache.set(key, unit);
+        return unit;
+      } catch (error) {
+        if (options.strict) throw error;
+        return null;
+      }
+    })());
+    this.unitLoads.set(loadKey, load);
+    try {
+      return await load;
+    } finally {
+      if (this.unitLoads.get(loadKey) === load) this.unitLoads.delete(loadKey);
     }
   };
 
@@ -270,7 +316,10 @@ export class CanonicalUnitService implements ICanonicalUnitService {
 
   invalidateUnit = (id: string, family?: UnitFamily): void => {
     const reference = parseUnitReference(id, family);
-    this.unitCache.delete(unitFamilyKey(reference.id, reference.family));
+    const key = unitFamilyKey(reference.id, reference.family);
+    this.unitCache.delete(key);
+    this.unitLoads.delete(unitLoadKey(key, true));
+    this.unitLoads.delete(unitLoadKey(key, false));
   };
 
   /**
@@ -279,6 +328,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   clearCache = (): void => {
     this.indexCache.clear();
     this.indexLoads.clear();
+    this.unitLoads.clear();
     this.missingFamilies.clear();
     this.unitCache.clear();
   };

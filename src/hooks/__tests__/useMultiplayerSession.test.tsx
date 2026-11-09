@@ -5,6 +5,7 @@ import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
+import { useP2PCommandGate } from '@/hooks/useP2PCommandGate';
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
@@ -38,6 +39,264 @@ class MockSocket implements IClientWebSocket {
 
 const auth = { playerId: 'pid_host', token: 'token' };
 const ts = '2026-04-30T00:00:00.000Z';
+
+const pauseMessage: IServerMessage = {
+  kind: 'MatchPaused',
+  matchId: 'match-1',
+  ts,
+  reason: 'peer-pending',
+  pendingSlots: ['bravo-1'],
+  graceRemainingMs: 30_000,
+  pendingExpiresAtMs: 40_000,
+};
+const timeoutMessage: IServerMessage = {
+  kind: 'SeatTimedOut',
+  matchId: 'match-1',
+  ts,
+  slotId: 'bravo-1',
+  playerId: 'pid_opp',
+};
+
+function mountLifecycleSession() {
+  const sockets: MockSocket[] = [];
+  const view = renderHook(
+    ({ matchId }: { matchId: string | null }) =>
+      useMultiplayerSession('ws://example.test/socket', matchId, auth, {
+        reconnect: false,
+        socketFactory: () => {
+          const socket = new MockSocket();
+          sockets.push(socket);
+          return socket;
+        },
+      }),
+    { initialProps: { matchId: 'match-1' as string | null } },
+  );
+  act(() => sockets[0].onopen?.({}));
+  return { ...view, sockets };
+}
+
+describe('useMultiplayerSession terminal lifecycle', () => {
+  beforeEach(() => useGameplayStore.getState().reset());
+  afterEach(() => useGameplayStore.getState().reset());
+
+  it.each(['ready', 'MatchResumed'] as const)(
+    'clears pause presentation and pending state together on %s',
+    (recovery) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(pauseMessage));
+      expect(result.current.pausedInfo).not.toBeNull();
+      expect(result.current.error?.code).toBe('MATCH_PAUSED');
+      expect(useGameplayStore.getState().localMatchStatus).toBe('hostPending');
+      act(() => {
+        if (recovery === 'ready') emitReplay(sockets[0], []);
+        else sockets[0].emit({ kind: recovery, matchId: 'match-1', ts });
+      });
+      expect(result.current.status).toBe('ready');
+      expect(result.current.pausedInfo).toBeNull();
+      expect(result.current.error).toBeNull();
+      expect(useGameplayStore.getState()).toMatchObject({
+        localMatchStatus: 'live',
+        localMatchGraceDeadlineMs: null,
+        localMatchGraceRemainingMs: null,
+      });
+      unmount();
+    },
+  );
+
+  it('removes the pause overlay on timeout and keeps terminal state through recovery', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    act(() => {
+      sockets[0].emit(pauseMessage);
+      sockets[0].emit(timeoutMessage);
+    });
+    expect(result.current.status).toBe('error');
+    expect(result.current.pausedInfo).toBeNull();
+    expect(result.current.error?.code).toBe('SEAT_TIMED_OUT');
+    const terminalError = result.current.error;
+    const aborted = useGameplayStore.getState();
+    for (const recovery of ['ready', 'MatchResumed', 'MatchPaused'] as const) {
+      act(() => {
+        if (recovery === 'ready') emitReplay(sockets[0], []);
+        else if (recovery === 'MatchPaused') sockets[0].emit(pauseMessage);
+        else sockets[0].emit({ kind: recovery, matchId: 'match-1', ts });
+      });
+      expect(result.current.status).toBe('error');
+      expect(result.current.pausedInfo).toBeNull();
+      expect(result.current.error).toBe(terminalError);
+      expect(useGameplayStore.getState()).toBe(aborted);
+    }
+    // Terminal presentation cannot discard the server's conceded outcome history.
+    const events = buildEventLog().events;
+    act(() => emitReplay(sockets[0], events));
+    expect(result.current.mirrorEvents.map((event) => event.id)).toEqual(
+      events.map((event) => event.id),
+    );
+    expect(result.current.status).toBe('error');
+    unmount();
+  });
+
+  it('clears pause presentation on close without resetting an aborted match', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    act(() => {
+      sockets[0].emit(pauseMessage);
+      sockets[0].emit(timeoutMessage);
+      sockets[0].emit({
+        kind: 'Close',
+        matchId: 'match-1',
+        ts,
+        reason: 'Match closed',
+      });
+    });
+    expect(result.current.status).toBe('closed');
+    expect(result.current.pausedInfo).toBeNull();
+    expect(result.current.error).toBeNull();
+    expect(useGameplayStore.getState().localMatchStatus).toBe('aborted');
+    unmount();
+  });
+
+  it.each(['paused', 'aborted'] as const)(
+    'resets %s on WS teardown so a later P2P match is available',
+    (status) => {
+      const { sockets, unmount } = mountLifecycleSession();
+      act(() =>
+        sockets[0].emit(status === 'paused' ? pauseMessage : timeoutMessage),
+      );
+      unmount();
+      expect(useGameplayStore.getState()).toMatchObject({
+        localMatchStatus: 'live',
+        localMatchGraceDeadlineMs: null,
+        localMatchGraceRemainingMs: null,
+      });
+      const nextMatch = renderHook(() => useP2PCommandGate('p2p-ROOM01'));
+      expect(nextMatch.result.current?.available).toBe(true);
+      nextMatch.unmount();
+    },
+  );
+
+  it('resets when the match changes and ignores disposed socket callbacks', () => {
+    const { result, sockets, rerender, unmount } = mountLifecycleSession();
+    const staleMessage = sockets[0].onmessage;
+    act(() => sockets[0].emit(timeoutMessage));
+    rerender({ matchId: 'match-2' });
+    expect(useGameplayStore.getState().localMatchStatus).toBe('live');
+    act(() => staleMessage?.({ data: JSON.stringify(timeoutMessage) }));
+    expect(useGameplayStore.getState().localMatchStatus).toBe('live');
+    expect(result.current.error).toBeNull();
+    unmount();
+  });
+});
+
+function reasonPause(
+  reason: 'gm-absent' | 'opponent-fault',
+  pendingSlots: readonly string[] = [],
+): IServerMessage {
+  return pendingSlots.length > 0
+    ? {
+        kind: 'MatchPaused',
+        matchId: 'match-1',
+        ts,
+        reason,
+        pendingSlots: [...pendingSlots],
+        graceRemainingMs: 30_000,
+        pendingExpiresAtMs: 40_000,
+      }
+    : { kind: 'MatchPaused', matchId: 'match-1', ts, reason, pendingSlots: [] };
+}
+
+describe('useMultiplayerSession pause reasons', () => {
+  beforeEach(() => useGameplayStore.getState().reset());
+  afterEach(() => useGameplayStore.getState().reset());
+
+  it.each([
+    ['gm-absent', 'Waiting for the GM to return.'],
+    [
+      'opponent-fault',
+      'The server opponent hit an error; rejoining the match retries it.',
+    ],
+  ] as const)(
+    'pauses on %s without inventing a reconnect grace',
+    (reason, message) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(reasonPause(reason)));
+      expect(result.current.status).toBe('paused');
+      expect(result.current.pausedInfo).toEqual({
+        reason,
+        pendingSlots: [],
+        graceRemainingMs: 0,
+        pendingExpiresAtMs: null,
+      });
+      expect(result.current.error).toEqual({
+        code: 'MATCH_PAUSED',
+        reason: message,
+      });
+      expect(useGameplayStore.getState()).toMatchObject({
+        localMatchStatus: 'live',
+        localMatchGraceDeadlineMs: null,
+        localMatchGraceRemainingMs: null,
+      });
+      unmount();
+    },
+  );
+
+  it('drops the peer grace when the snapshot no longer names a pending seat', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    act(() => sockets[0].emit(pauseMessage));
+    expect(useGameplayStore.getState().localMatchStatus).toBe('hostPending');
+    act(() => sockets[0].emit(reasonPause('gm-absent')));
+    expect(result.current.status).toBe('paused');
+    expect(result.current.pausedInfo?.reason).toBe('gm-absent');
+    expect(useGameplayStore.getState()).toMatchObject({
+      localMatchStatus: 'live',
+      localMatchGraceDeadlineMs: null,
+    });
+    unmount();
+  });
+
+  it('keeps the peer grace when a GM-absent snapshot still names a pending seat', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    act(() => sockets[0].emit(reasonPause('gm-absent', ['bravo-1'])));
+    expect(result.current.pausedInfo).toEqual({
+      reason: 'gm-absent',
+      pendingSlots: ['bravo-1'],
+      graceRemainingMs: 30_000,
+      pendingExpiresAtMs: 40_000,
+    });
+    expect(useGameplayStore.getState()).toMatchObject({
+      localMatchStatus: 'hostPending',
+      localMatchGraceDeadlineMs: 40_000,
+    });
+    unmount();
+  });
+
+  it.each(['gm-absent', 'opponent-fault'] as const)(
+    'clears a %s pause on MatchResumed',
+    (reason) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(reasonPause(reason)));
+      act(() =>
+        sockets[0].emit({ kind: 'MatchResumed', matchId: 'match-1', ts }),
+      );
+      expect(result.current.status).toBe('ready');
+      expect(result.current.pausedInfo).toBeNull();
+      expect(result.current.error).toBeNull();
+      unmount();
+    },
+  );
+
+  it.each(['gm-absent', 'opponent-fault'] as const)(
+    'keeps a timed-out match aborted through a %s pause',
+    (reason) => {
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => sockets[0].emit(timeoutMessage));
+      const aborted = useGameplayStore.getState();
+      act(() => sockets[0].emit(reasonPause(reason)));
+      expect(result.current.status).toBe('error');
+      expect(result.current.pausedInfo).toBeNull();
+      expect(useGameplayStore.getState()).toBe(aborted);
+      unmount();
+    },
+  );
+});
 
 describe('useMultiplayerSession reconnect lifecycle', () => {
   beforeEach(() => {

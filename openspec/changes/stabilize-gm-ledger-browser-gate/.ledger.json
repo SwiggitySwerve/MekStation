@@ -1,0 +1,6 @@
+{
+  "name": "stabilize-gm-ledger-browser-gate",
+  "status": "in-progress",
+  "reason": "Root-approved browser harness repair and PR gate coverage: correct two-effect repair expectation, await asynchronous E2E store exposure, and select the seven-test GM ledger spec in the existing two-shard gate.",
+  "lastReviewed": "2026-11-08"
+}

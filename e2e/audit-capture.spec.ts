@@ -941,30 +941,6 @@ test.describe('UX Audit Capture Suite @audit', () => {
   });
 
   // ============================================================================
-  // 16. GAMEPLAY - REPAIR
-  // ============================================================================
-
-  test.describe('Gameplay - Repair', () => {
-    test('Repair queue - populated', async ({ page }) => {
-      await page.goto('/gameplay/repair');
-      await waitForPageReady(page);
-      await expect(page).toHaveScreenshot('repair_all.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
-    });
-
-    test('Repair queue - empty', async ({ page }) => {
-      await page.goto('/gameplay/repair?search=zzzzzzzzzzzzzzzzzzz');
-      await waitForPageReady(page);
-      await expect(page).toHaveScreenshot('repair_empty.png', {
-        fullPage: true,
-        animations: 'disabled',
-      });
-    });
-  });
-
-  // ============================================================================
   // 17. COMPARISON
   // ============================================================================
 

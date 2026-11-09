@@ -117,7 +117,7 @@ export const LOCAL_PSR_RESOLUTION_SOURCE_REFS = [
     kind: 'mekstation-deviation',
     citation:
       'MekStation runPSRPhase resolves unit.pendingPSRs, emits PSRResolved/UnitFell/PilotHit/UnitDestroyed, and clears pendingPSRs after resolution.',
-    url: 'src/simulation/runner/phases/postCombatPsr.ts#L272-L323',
+    url: 'src/simulation/runner/phases/postCombatPsr.ts#L279-L331',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
   {
@@ -134,7 +134,7 @@ export const LOCAL_INTERACTIVE_PSR_RESOLUTION_SOURCE_REFS = [
     kind: 'mekstation-deviation',
     citation:
       'MekStation resolvePendingPSRs mirrors interactive/session PSR resolution, fall emission, fall-sourced PilotHit emission, and reasonCode propagation.',
-    url: 'src/utils/gameplay/gameSessionPSRResolution.ts#L54-L410',
+    url: 'src/utils/gameplay/gameSessionPSRResolution.ts#L55-L417',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -144,7 +144,7 @@ export const LOCAL_PSR_REASON_CODE_SOURCE_REFS = [
     kind: 'mekstation-deviation',
     citation:
       'MekStation applyPSRTriggered preserves PSRTriggered.reasonCode into unit.pendingPSRs and applyUnitFell clears pending PSRs after fall resolution.',
-    url: 'src/utils/gameplay/gameState/pilotingState.ts#L14-L64',
+    url: 'src/utils/gameplay/gameState/pilotingState.ts#L17-L73',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
   {

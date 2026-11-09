@@ -34,6 +34,7 @@ import type {
   ICampaignEventPayloadMap,
 } from '@/types/campaign/CampaignSync';
 
+import { hiredPilotId } from '@/lib/campaign/markets/offerLifecycle';
 import {
   freezeCampaignEvent,
   resolveCampaignEventScope,
@@ -68,6 +69,65 @@ interface IValidatedIntent {
 export type CampaignIntentValidation =
   | IValidatedIntent
   | Extract<CampaignIntentResult, { ok: false }>;
+
+/**
+ * One personnel-market offer as the AUTHORITY holds it - the only place a
+ * hire's recruit and price may come from (K14b). Every field is a fact the
+ * authority read, already checked to be present and usable.
+ */
+export interface IAuthoritativePersonnelOffer {
+  readonly offerId: string;
+  /** The recruit's display name; becomes the hired pilot's name. */
+  readonly name: string;
+  /** Finite, non-negative C-bill cost; becomes the debit. */
+  readonly hireCost: number;
+  /** `YYYY-MM-DD` the offer is last valid on. */
+  readonly expirationDate: string;
+  /** The authority's campaign date the offer is judged against. */
+  readonly campaignDate: string;
+}
+
+/**
+ * Authoritative facts an intent may need beyond the ledger state.
+ *
+ * `ICampaignAuthoritativeState` carries no market, so a `HireOffer` cannot be
+ * judged from it. Each authority supplies the reader for the market IT holds;
+ * an authority that supplies none refuses every `HireOffer`
+ * (`offer-source-unavailable`) rather than trusting the intent.
+ */
+/**
+ * One contract-market offer as the AUTHORITY holds it - the only place an
+ * acceptance's contract id, name and employer may come from (K14b).
+ */
+export interface IAuthoritativeContractOffer {
+  readonly contractId: string;
+  readonly name: string;
+  /** The exact opaque `IContract.employerId`; drives the standing gate. */
+  readonly employerFactionId: string;
+  /** The offer is in the market's `declinedOfferIds`. */
+  readonly declined: boolean;
+  /** The contract's end date, when it has one. */
+  readonly endDate?: string;
+  /** The authority's campaign date; required to judge a dated offer. */
+  readonly campaignDate?: string;
+}
+
+/**
+ * A reader's answer: the offer, `null` when the market holds no usable offer
+ * under that id, or `'source-unavailable'` when the authority cannot read a
+ * market at all right now (no saved row, an unreadable one, a host whose
+ * campaign is gone). The last is not the same fact as an absent offer.
+ */
+export type AuthoritativeOfferLookup<T> = T | null | 'source-unavailable';
+
+export interface ICampaignIntentContext {
+  readonly personnelOffer?: (
+    offerId: string,
+  ) => AuthoritativeOfferLookup<IAuthoritativePersonnelOffer>;
+  readonly contractOffer?: (
+    contractId: string,
+  ) => AuthoritativeOfferLookup<IAuthoritativeContractOffer>;
+}
 
 /** Helper — build a typed rejection. */
 function reject(
@@ -125,6 +185,8 @@ function event<T extends CampaignEventType>(
  * @param hostPlayerId verified GM identity. Required only for the audited
  *                    participant-removal command; omitted callers cannot
  *                    accidentally authorize it.
+ * @param context     the authority's market reader. Required only for a
+ *                    `HireOffer`; omitted callers refuse it.
  */
 export function validateCampaignIntent(
   intent: CampaignHostCommand,
@@ -132,6 +194,7 @@ export function validateCampaignIntent(
   authorPlayerId: string,
   ts: string,
   hostPlayerId?: string,
+  context?: ICampaignIntentContext,
 ): CampaignIntentValidation {
   // The intent must target the campaign this host owns.
   if (intent.campaignId !== state.campaignId) {
@@ -165,13 +228,38 @@ export function validateCampaignIntent(
       };
     }
 
-    case 'HirePilot': {
-      const { pilot, cost } = intent.payload;
-      // Hiring spends C-bills — the same balance invariant applies.
+    case 'HirePilot':
+      // Retired (K14b): it names its own recruit and price, which is how a
+      // co-op guest hired an invented pilot for an invented cost.
+      return reject('hire-requires-market-offer');
+
+    case 'HireOffer': {
+      if (context?.personnelOffer === undefined) {
+        return reject('offer-source-unavailable');
+      }
+      const offer = context.personnelOffer(intent.payload.offerId);
+      if (offer === 'source-unavailable') {
+        return reject('offer-source-unavailable');
+      }
+      if (offer === null || offer.offerId !== intent.payload.offerId) {
+        return reject('offer-not-found');
+      }
+      const pilotId = hiredPilotId(offer.offerId);
+      // The pilot id is derived from the offer, so a hired offer stays
+      // spent in the ledger even when a stale save restores the offer.
+      if (state.pilots[pilotId] !== undefined) {
+        return reject('offer-consumed');
+      }
+      if (offer.expirationDate.slice(0, 10) < offer.campaignDate.slice(0, 10)) {
+        return reject('offer-expired');
+      }
+      const cost = offer.hireCost;
+      // MekHQ debits FIRST and enrols nobody when the debit fails
+      // (ForceHumanResources.recruitPerson, e7adc2c).
       if (cost > state.balance) {
         return reject('insufficient-funds');
       }
-      const newBalance = state.balance - cost;
+      const pilot = { pilotId, name: offer.name };
       // A hire produces TWO events: the funds debit and the roster
       // change. Both go through the host's single append path so the
       // log stays totally ordered (design risk-mitigation "two events
@@ -182,7 +270,7 @@ export function validateCampaignIntent(
           mk('FundsChanged', {
             delta: -cost,
             reason: `Hired pilot ${pilot.name}`,
-            balance: newBalance,
+            balance: state.balance - cost,
           }),
           mk('PilotHired', { pilot, cost }),
         ],
@@ -190,13 +278,44 @@ export function validateCampaignIntent(
     }
 
     case 'AcceptContract': {
-      const { contract } = intent.payload;
+      // K14b: the intent only NAMES the contract. Its id, name and employer
+      // come from the authority's market; a caller-described contract is
+      // how a co-op guest had an invented contract committed.
+      if (context?.contractOffer === undefined) {
+        return reject('offer-source-unavailable');
+      }
+      const contractId = intent.payload.contract.contractId;
+      const offer = context.contractOffer(contractId);
+      if (offer === 'source-unavailable') {
+        return reject('offer-source-unavailable');
+      }
+      if (offer === null || offer.contractId !== contractId) {
+        return reject('offer-not-found');
+      }
+      if (state.contracts[contractId] !== undefined) {
+        return reject('offer-consumed');
+      }
+      // MekHQ removes a declined offer from the board (e7adc2c
+      // ChaosContractMarketDialog.java:686-695): never signable.
+      if (offer.declined) return reject('offer-declined');
+      if (offer.endDate) {
+        if (!offer.campaignDate) return reject('offer-source-unavailable');
+        if (offer.endDate.slice(0, 10) < offer.campaignDate.slice(0, 10)) {
+          return reject('offer-expired');
+        }
+      }
       // Faction-standing gate — the campaign analogue of the combat
-      // "unit ownership" validation (design D4 step 3).
-      const standing = state.factionStanding[contract.employerFactionId] ?? 0;
+      // "unit ownership" validation (design D4 step 3) - judged on the
+      // employer the market stored.
+      const standing = state.factionStanding[offer.employerFactionId] ?? 0;
       if (standing < CONTRACT_MIN_STANDING) {
         return reject('insufficient-standing');
       }
+      const contract = {
+        contractId,
+        name: offer.name,
+        employerFactionId: offer.employerFactionId,
+      };
       return {
         ok: true,
         events: [mk('ContractAccepted', { contract })],

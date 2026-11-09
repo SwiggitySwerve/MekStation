@@ -73,6 +73,30 @@ describe('ContractMarketPanel', () => {
     expect(onDecline).toHaveBeenCalledWith(SAMPLE_OFFERS[0].id);
   });
 
+  // K14b PR4: co-op has no host-authoritative decline, so Decline carries
+  // its own reason while Accept keeps whatever the page decides for it.
+  it('blocks only Decline when only a decline reason is given', () => {
+    const onDecline = jest.fn();
+    const reason =
+      "Declining isn't available in co-op yet — there is no host-authoritative decline.";
+    render(
+      <ContractMarketPanel
+        offers={SAMPLE_OFFERS}
+        onAccept={() => {}}
+        onDecline={onDecline}
+        declineBlockedReason={reason}
+      />,
+    );
+    const id = SAMPLE_OFFERS[0].id;
+    const decline = screen.getByTestId(`offer-decline-${id}`);
+
+    expect(decline).toBeDisabled();
+    expect(decline).toHaveAttribute('title', reason);
+    expect(screen.getByTestId(`offer-accept-${id}`)).toBeEnabled();
+    fireEvent.click(decline);
+    expect(onDecline).not.toHaveBeenCalled();
+  });
+
   it('shows an empty state when the market has no offers', () => {
     render(
       <ContractMarketPanel

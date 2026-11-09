@@ -258,6 +258,41 @@ export function buildPersistedCampaignEventRows(
   };
 }
 
+/**
+ * The rows a GM ledger shows: the persisted rows in order, with the first
+ * row replaced by the session row of the same intervention (the session row
+ * carries the GM-private metadata the saved effect never holds), then the
+ * session rows no persisted row names (a manual takeover, or an approval the
+ * campaign has not written back yet). Persisted rows without an intervention
+ * id (older saves) and additional effects of one intervention are always kept.
+ * Sequences are renumbered 1..n so the row test ids stay unique across both sources.
+ */
+export function mergeLedgerRows<
+  TRow extends {
+    readonly sequence: number;
+    readonly interventionRecordId?: string;
+  },
+>(persisted: readonly TRow[], session: readonly TRow[]): TRow[] {
+  const sessionByIntervention = new Map<string, TRow>();
+  for (const row of session) {
+    if (row.interventionRecordId) {
+      sessionByIntervention.set(row.interventionRecordId, row);
+    }
+  }
+  const used = new Set<TRow>();
+  const merged = persisted.map((row) => {
+    const match = row.interventionRecordId
+      ? sessionByIntervention.get(row.interventionRecordId)
+      : undefined;
+    if (!match || used.has(match)) return row;
+    used.add(match);
+    return match;
+  });
+  return [...merged, ...session.filter((row) => !used.has(row))].map(
+    (row, index) => ({ ...row, sequence: index + 1 }),
+  );
+}
+
 export function findFundsEffect(
   events: readonly unknown[],
 ): Extract<

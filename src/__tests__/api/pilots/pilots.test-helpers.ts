@@ -502,6 +502,63 @@ describe('PUT /api/pilots/[id] - Update pilot', () => {
     mockSQLiteService.initialize.mockImplementation(() => {});
   });
 
+  it.each([undefined, null, 1, false, 'active', []].map((body) => ({ body })))(
+    'rejects a malformed update body $body before mutation',
+    async ({ body }) => {
+      const res = createMockResponse();
+      await idHandler(createMockRequest('PUT', body, { id: 'pilot-1' }), res);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid pilot update.' });
+      expect(mockPilotService.updatePilot).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(
+    [
+      null,
+      '',
+      'Active',
+      'wounded',
+      'critical',
+      'deserted',
+      1,
+      false,
+      {},
+      [],
+      ['active'],
+    ].map((status) => ({ status })),
+  )('rejects invalid status $status before mutation', async ({ status }) => {
+    const req = createMockRequest(
+      'PUT',
+      { name: 'Must not change', status },
+      { id: 'pilot-1' },
+    );
+    const res = createMockResponse();
+
+    await idHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Invalid pilot status.' });
+    expect(mockPilotService.updatePilot).not.toHaveBeenCalled();
+  });
+
+  it.each(Object.values(PilotStatus))(
+    'accepts exact status %s',
+    async (status) => {
+      mockPilotService.updatePilot.mockReturnValue({ success: true });
+      mockPilotService.getPilot.mockReturnValue(createMockPilot({ status }));
+      const req = createMockRequest('PUT', { status }, { id: 'pilot-1' });
+      const res = createMockResponse();
+
+      await idHandler(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(mockPilotService.updatePilot).toHaveBeenCalledWith('pilot-1', {
+        status,
+      });
+    },
+  );
+
   it('should update pilot', async () => {
     const updates = {
       name: 'Updated Name',

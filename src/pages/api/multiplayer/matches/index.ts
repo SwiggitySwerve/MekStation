@@ -45,6 +45,7 @@ import {
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
 import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
+import { createMatchWithRoomCodeRetry } from '@/lib/multiplayer/server/matchRoomCodes';
 import { buildDefaultMatchUnitBootstrap } from '@/lib/multiplayer/server/matchUnitBootstrap';
 import { generateRoomCode } from '@/lib/p2p/roomCodes';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
@@ -338,10 +339,10 @@ export default async function handler(
   if (await rejectOverCapacity(res, store, hostPlayerId)) return;
 
   const playerIds = normalizePlayerIds(body, hostPlayerId);
-  const meta = buildMatchMeta(body, hostPlayerId, playerIds);
+  let meta = buildMatchMeta(body, hostPlayerId, playerIds);
 
   try {
-    await store.createMatch(meta);
+    meta = await createMatchWithRoomCodeRetry(store, meta);
     if (body.coopCampaign) {
       if (!meta.roomCode) {
         throw new Error('Co-op campaign registration requires a room code');

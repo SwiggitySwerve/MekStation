@@ -2,6 +2,7 @@ import type { IGameSession, IGameUnit, IUnitGameState } from '@/types/gameplay';
 
 import { GamePhase } from '@/types/gameplay';
 
+import { isActivationComplete } from './gameSessionActivation';
 import {
   invalidateEvadingAttackerAttack,
   invalidateInvalidTargetAttack,
@@ -86,6 +87,7 @@ function getAttackParticipants(
   context: IDeclareAttackContext,
 ): IAttackParticipants | IGameSession {
   const attackerUnit = getAttackerUnit(context.session, context.attackerId);
+  if (isActivationComplete(attackerUnit)) return context.session;
   const weaponIds = context.weapons.map((weapon) => weapon.weaponId);
   const invalidSession = invalidateAttackDeclaration(context, weaponIds);
   if (invalidSession) return invalidSession;

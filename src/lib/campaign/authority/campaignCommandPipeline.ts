@@ -78,6 +78,7 @@ import { recordFirstJournalAuthorityCommand } from './campaignAuthorityMigration
 import { diffCampaignFields } from './campaignCommandFieldSet';
 import { decideCampaignConflict } from './campaignConflictDecision';
 import { durableCampaignMarkerIo } from './campaignCutoverMarkerIo';
+import { appendDurableHireOffer } from './campaignHireOfferCommand';
 import { campaignStreamRef } from './campaignLaunchHead';
 import { rewriteCampaignRecordAfterCommand } from './campaignRecordJournalState';
 
@@ -478,7 +479,8 @@ export async function executeCampaignCommand(
 
   // AcceptContract names the contract id. Every other guest intent
   // names none: AllocateSalvage carries value + recoveredUnit and no
-  // matchId; HirePilot, SpendFunds, AdvanceDay, and RemoveParticipant
+  // matchId; HireOffer names a personnel offer, which is not a sealed
+  // artifact; HirePilot, SpendFunds, AdvanceDay, and RemoveParticipant
   // name no sealed artifact. Do not invent ids.
   const namedArtifact =
     request.intent.kind === 'AcceptContract'
@@ -503,6 +505,27 @@ export async function executeCampaignCommand(
   // is not known until that read has happened.
   if (request.intent.kind === 'AcceptContract') {
     const outcome = await appendDurableAcceptContract(
+      deps.journal,
+      request,
+      request.intent,
+      priorEvents,
+      priorState,
+    );
+    return outcome.kind === 'refused'
+      ? outcome.result
+      : acknowledgeCommit(
+          store,
+          request.campaignId,
+          request.commandId,
+          outcome.events,
+          outcome.expectedDigest,
+        );
+  }
+
+  // K14b: a hire is priced by the offer the SOURCE holds, read under its
+  // own prepared transaction, for the same reason an acceptance is.
+  if (request.intent.kind === 'HireOffer') {
+    const outcome = await appendDurableHireOffer(
       deps.journal,
       request,
       request.intent,

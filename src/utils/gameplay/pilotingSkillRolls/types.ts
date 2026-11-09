@@ -118,6 +118,7 @@ const PSR_REASON_CATEGORY_BY_TRIGGER = {
 
   [PSRTrigger.Shutdown]: 'heat',
   [PSRTrigger.StandingUp]: 'recovery',
+  [PSRTrigger.SwampUnstuck]: 'recovery',
 } as const satisfies Readonly<Record<PSRTrigger, PSRReasonCategory>>;
 
 export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory {

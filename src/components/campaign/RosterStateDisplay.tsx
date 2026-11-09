@@ -12,12 +12,16 @@
  * @spec openspec/specs/campaign-unit-combat-state/spec.md
  */
 import React, { useState } from 'react';
+import { useStore } from 'zustand';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { Card, Button } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { selectUnitReadiness } from '@/lib/campaign/readiness/selectUnitReadiness';
+import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuthority';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPilotStatus } from '@/types/campaign';
 
 import { RosterUnitCard, RosterPilotCard } from './RosterStateCards';
@@ -40,17 +44,21 @@ type TabType = 'units' | 'pilots';
 // =============================================================================
 
 export function RosterStateDisplay({
-  units,
+  units: rosterUnits,
   pilots,
   onUnitClick,
   onPilotClick,
 }: RosterStateDisplayProps): React.ReactElement {
   const [activeTab, setActiveTab] = useState<TabType>('units');
 
-  // "Operational" in the legacy shape mapped to Ready or Damaged here —
-  // both readiness states deploy. Destroyed is the only excluded state.
-  const operationalUnits = units.filter(
-    (u) => u.readiness === 'Ready' || u.readiness === 'Damaged',
+  const campaign = useStore(useCampaignStore(), (state) => state.campaign);
+  const authority = useReadinessAuthority(campaign?.id, campaign);
+  const readiness = rosterUnits.map((unit) =>
+    selectUnitReadiness({ unit, campaign, pilots, authority }),
+  );
+  const units = readiness.map((entry) => entry.unit);
+  const operationalUnits = readiness.filter(
+    (entry) => entry.status !== 'blocked',
   );
   const activePilots = pilots.filter(
     (p) =>

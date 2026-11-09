@@ -44,6 +44,7 @@ import {
   _setDefaultMatchStoreForTests,
   _resetDefaultMatchStore,
 } from '../getDefaultMatchStore';
+import { addSpectatorSeat } from '../lobby/spectatorSeats';
 import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
@@ -290,6 +291,10 @@ function opponentLocks(events: readonly IGameEvent[]) {
       event.type === GameEventType.MovementLocked &&
       (event.payload as { unitId?: string }).unitId === 'opponent',
   );
+}
+
+function kindsAfter(frames: readonly IServerMessage[], from: number) {
+  return frames.slice(from).map((frame) => frame.kind);
 }
 
 function assertHidden(frames: readonly IServerMessage[]) {
@@ -829,10 +834,210 @@ describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
       host!.getSessionForTests().currentState.units.opponent.lockState,
     ).toBe(LockState.Pending);
     commits.mockRestore();
-    await host!.handleSessionJoin(hostSocket, 'host');
     expect(await store.getEvents(MATCH)).toEqual(events);
     expect(host!.isPausedForReconnect()).toBe(true);
     assertHidden(hostSocket.frames);
+  });
+
+  describe('M-H3 opponent fault pause and exit', () => {
+    function failOpponentBatches() {
+      const append = store.appendCommandBatch;
+      return jest
+        .spyOn(store, 'appendCommandBatch')
+        .mockImplementation(async (matchId, batch) => {
+          if (batch.commandId.startsWith('coop-ai:'))
+            throw new Error('injected-store-failure');
+          return append(matchId, batch);
+        });
+    }
+
+    async function faulted() {
+      const sockets = await fixture(enabled);
+      await intent({ kind: 'AdvancePhase' }, 'start-movement');
+      const commits = failOpponentBatches();
+      await playerMove();
+      expect(opponentLocks(await store.getEvents(MATCH))).toEqual([]);
+      expect(host!.isPausedForReconnect()).toBe(true);
+      return { ...sockets, commits };
+    }
+
+    it('announces the fault to every seated socket without a grace', async () => {
+      const { hostSocket, guestSocket } = await faulted();
+      for (const sock of [hostSocket, guestSocket]) {
+        const paused = sock.frames.filter(
+          (frame) => frame.kind === 'MatchPaused',
+        );
+        expect(paused).toEqual([
+          {
+            kind: 'MatchPaused',
+            matchId: MATCH,
+            ts: expect.any(String),
+            reason: 'opponent-fault',
+            pendingSlots: [],
+          },
+        ]);
+      }
+    });
+
+    it('refuses player commands during the fault with the fault reason', async () => {
+      await faulted();
+      const events = await store.getEvents(MATCH);
+      expect(await intent({ kind: 'AdvancePhase' }, 'during-fault')).toEqual([
+        expect.objectContaining({
+          kind: 'Error',
+          code: 'MATCH_PAUSED',
+          reason: 'Match is paused after a server opponent fault',
+        }),
+      ]);
+      expect(await store.getEvents(MATCH)).toEqual(events);
+    });
+
+    it('seated rejoin retries the opponent once and resumes', async () => {
+      const { hostSocket, guestSocket, commits } = await faulted();
+      commits.mockRestore();
+      const from = guestSocket.frames.length;
+      await host!.handleSessionJoin(hostSocket, 'host');
+      expect(opponentLocks(await store.getEvents(MATCH))).toHaveLength(1);
+      expect(host!.isPausedForReconnect()).toBe(false);
+      expect(kindsAfter(guestSocket.frames, from)).toContain('MatchResumed');
+      const events = await store.getEvents(MATCH);
+      await host!.handleSessionJoin(guestSocket, 'guest');
+      expect(await store.getEvents(MATCH)).toEqual(events);
+      assertHidden(hostSocket.frames);
+    });
+
+    it('a rejoin while the failure persists pauses again with the fault', async () => {
+      const { hostSocket, guestSocket } = await faulted();
+      const events = await store.getEvents(MATCH);
+      const from = guestSocket.frames.length;
+      await host!.handleSessionJoin(hostSocket, 'host');
+      expect(await store.getEvents(MATCH)).toEqual(events);
+      expect(host!.isPausedForReconnect()).toBe(true);
+      const after = guestSocket.frames.slice(from);
+      expect(after.map((frame) => frame.kind)).not.toContain('MatchResumed');
+      expect(after).toContainEqual(
+        expect.objectContaining({
+          kind: 'MatchPaused',
+          reason: 'opponent-fault',
+        }),
+      );
+    });
+
+    it('a spectator join leaves the fault latched and receives the snapshot', async () => {
+      const { commits } = await faulted();
+      commits.mockRestore();
+      await store.updateMatchMeta(MATCH, {
+        seats: addSpectatorSeat([], {
+          playerId: 'watcher',
+          displayName: 'Watcher',
+        }),
+      });
+      const watcher = socket();
+      expect(await host!.admitSocket(watcher, 'watcher')).not.toBeNull();
+      await host!.handleSessionJoin(watcher, 'watcher');
+      expect(opponentLocks(await store.getEvents(MATCH))).toEqual([]);
+      expect(host!.isPausedForReconnect()).toBe(true);
+      expect(watcher.frames).toContainEqual(
+        expect.objectContaining({
+          kind: 'MatchPaused',
+          reason: 'opponent-fault',
+          pendingSlots: [],
+        }),
+      );
+      expect(watcher.frames.map((frame) => frame.kind)).not.toContain(
+        'MatchResumed',
+      );
+    });
+
+    it('a host forfeit ends the faulted match and resumes the surface', async () => {
+      const { guestSocket } = await faulted();
+      const from = guestSocket.frames.length;
+      await intent({ kind: 'ForfeitMatch' }, 'forfeit-fault');
+      const events = await store.getEvents(MATCH);
+      expect(events.some((e) => e.type === GameEventType.GameEnded)).toBe(true);
+      expect(kindsAfter(guestSocket.frames, from)).toContain('MatchResumed');
+      expect(host!.isPausedForReconnect()).toBe(false);
+    });
+  });
+
+  describe('M-H3 GM-absent pause', () => {
+    async function withGm() {
+      const entry = await getCampaignHostRegistry().register(
+        'campaign-vessel',
+        {
+          campaignId: 'campaign',
+          hostPlayerId: 'host',
+          roomCode: 'ABC234',
+          state: createEmptyCampaignState('campaign'),
+        },
+      );
+      entry.syncSession.noteGmConnected();
+      const sockets = await fixture(enabled);
+      await intent({ kind: 'AdvancePhase' }, 'start-movement');
+      return { entry, ...sockets };
+    }
+
+    it('announces GM absence and resumes when the GM returns', async () => {
+      const { entry, guestSocket } = await withGm();
+      const from = guestSocket.frames.length;
+      entry.syncSession.noteGmDisconnected();
+      expect(guestSocket.frames.slice(from)).toEqual([
+        {
+          kind: 'MatchPaused',
+          matchId: MATCH,
+          ts: expect.any(String),
+          reason: 'gm-absent',
+          pendingSlots: [],
+        },
+      ]);
+      expect(await intent({ kind: 'AdvancePhase' }, 'gm-away')).toEqual([
+        expect.objectContaining({
+          code: 'MATCH_PAUSED',
+          reason: 'Match is paused until the campaign GM returns',
+        }),
+      ]);
+      entry.syncSession.noteGmConnected();
+      expect(
+        kindsAfter(guestSocket.frames, from).filter(
+          (kind) => kind === 'MatchPaused' || kind === 'MatchResumed',
+        ),
+      ).toEqual(['MatchPaused', 'MatchResumed']);
+    });
+
+    it('a peer rejoin while the GM is away keeps the match paused for the GM', async () => {
+      const { entry, hostSocket, guestSocket } = await withGm();
+      entry.syncSession.noteGmDisconnected();
+      const dropped = hostSocket.onKind('MatchPaused');
+      host!.detachSocket(guestSocket);
+      expect(await dropped).toMatchObject({
+        reason: 'gm-absent',
+        pendingSlots: [expect.any(String)],
+      });
+      const from = hostSocket.frames.length;
+      const back = socket();
+      expect(await host!.admitSocket(back, 'guest')).not.toBeNull();
+      await host!.handleSessionJoin(back, 'guest');
+      const after = hostSocket.frames.slice(from);
+      expect(after.map((frame) => frame.kind)).not.toContain('MatchResumed');
+      expect(after).toContainEqual(
+        expect.objectContaining({
+          kind: 'MatchPaused',
+          reason: 'gm-absent',
+          pendingSlots: [],
+        }),
+      );
+      expect(host!.isPausedForReconnect()).toBe(true);
+    });
+
+    it('a joiner after restart learns the GM is away', async () => {
+      const { entry } = await withGm();
+      entry.syncSession.noteGmDisconnected();
+      const next = await coldReopen();
+      expect(next.frames).toContainEqual(
+        expect.objectContaining({ kind: 'MatchPaused', reason: 'gm-absent' }),
+      );
+      expect(host!.isPausedForReconnect()).toBe(true);
+    });
   });
 
   it.each(['branchId', 'effectiveGeneration'] as const)(

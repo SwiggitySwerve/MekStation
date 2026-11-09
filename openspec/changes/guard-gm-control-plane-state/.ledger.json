@@ -1,0 +1,6 @@
+{
+  "name": "guard-gm-control-plane-state",
+  "status": "in-progress",
+  "reason": "Root-approved K11: the GM ledger control plane's preview, approve and manual-takeover state is one token-guarded reducer; persisted rows stay visible and merge with session rows by intervention id; a co-op GM funds intent carries the approval's own intervention id. PR2 of S14/K11; no schema, event, wire-shape or persisted-format change.",
+  "lastReviewed": "2026-11-08"
+}

@@ -3,6 +3,7 @@ import React from 'react';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { Button } from '@/components/ui/Button';
 import { useDeviceType } from '@/hooks/useDeviceType';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import {
   BrowserDraftStatus,
@@ -73,8 +74,11 @@ export interface UnitSaveState {
 }
 
 /** One reading of a unit's save state for every save surface. */
-export function useUnitSaveState(unitId: string): UnitSaveState {
-  const draft = useBrowserDraftState(unitId);
+export function useUnitSaveState(
+  unitId: string,
+  unitType?: UnitType,
+): UnitSaveState {
+  const draft = useBrowserDraftState(unitId, unitType);
   const library = useLibrarySaveState(unitId);
   return {
     draft,
@@ -113,16 +117,24 @@ function SettledCheck(): React.ReactElement {
 /** The save-state words in one of three shapes; a failed draft is red with Retry. */
 function UnitSaveLinesView({
   unitId,
+  unitType,
   state,
   layout,
 }: {
   unitId: string;
+  unitType?: UnitType;
   state: UnitSaveState;
   layout: 'stacked' | 'inline' | 'panel';
 }): React.ReactElement {
-  const pulse = useDraftSavePulse(unitId);
+  const pulse = useDraftSavePulse(unitId, unitType);
   if (state.failed)
-    return <BrowserDraftStatus unitId={unitId} compact={layout !== 'panel'} />;
+    return (
+      <BrowserDraftStatus
+        unitId={unitId}
+        unitType={unitType}
+        compact={layout !== 'panel'}
+      />
+    );
   const { first, second, settled } = state.lines;
   // Each automatic save lands here instead of in a toast: "Draft Saved" and
   // its check brighten to the OK green for a moment, then settle back. The
@@ -192,18 +204,25 @@ function UnitSaveLinesView({
  */
 export function UnitSaveLabel({
   unitId,
+  unitType,
   className = '',
 }: {
   unitId: string;
+  unitType?: UnitType;
   className?: string;
 }): React.ReactElement | null {
   const { isMobile } = useDeviceType();
-  const state = useUnitSaveState(unitId);
+  const state = useUnitSaveState(unitId, unitType);
   if (isMobile) return null;
   if (state.failed)
     return (
       <span className={`min-w-0 text-[13px] leading-5 ${className}`}>
-        <UnitSaveLinesView unitId={unitId} state={state} layout="stacked" />
+        <UnitSaveLinesView
+          unitId={unitId}
+          unitType={unitType}
+          state={state}
+          layout="stacked"
+        />
       </span>
     );
   return (
@@ -216,7 +235,12 @@ export function UnitSaveLabel({
       // label's 14px caps, so both now share the button's midline.
       className={`relative top-px max-w-56 min-w-0 text-[13px] leading-5 ${className}`}
     >
-      <UnitSaveLinesView unitId={unitId} state={state} layout="inline" />
+      <UnitSaveLinesView
+        unitId={unitId}
+        unitType={unitType}
+        state={state}
+        layout="inline"
+      />
     </span>
   );
 }
@@ -239,21 +263,23 @@ const ICON_ONLY_OUTLINE_PRIMARY =
 
 export function UnitSaveAction({
   unitId,
+  unitType,
   disabledReason,
   onSave,
 }: {
   unitId: string | null;
+  unitType?: UnitType;
   disabledReason: string | null;
   onSave: () => void;
 }): React.ReactElement {
-  const { needsSave } = useUnitSaveState(unitId ?? '');
+  const { needsSave } = useUnitSaveState(unitId ?? '', unitType);
   const primary = unitId !== null && needsSave;
   return (
     // 24px to Save: the header's right group keeps one 24px gap between the
     // visible edges of these words, Save, the unit menu glyph and the panel
     // toggle glyph.
     <div className="flex min-w-0 shrink-0 items-center gap-6">
-      {unitId && <UnitSaveLabel unitId={unitId} />}
+      {unitId && <UnitSaveLabel unitId={unitId} unitType={unitType} />}
       <Button
         type="button"
         size="sm"
@@ -286,6 +312,7 @@ export function UnitSaveAction({
         {unitId && (
           <UnitSaveIndicator
             unitId={unitId}
+            unitType={unitType}
             descriptionId="library-save-state"
             disabledReason={disabledReason}
           />
@@ -308,15 +335,17 @@ export function UnitSaveAction({
  */
 export function UnitSaveSummary({
   unitId,
+  unitType,
   className = '',
   showOnDesktop = false,
 }: {
   unitId: string;
+  unitType?: UnitType;
   className?: string;
   showOnDesktop?: boolean;
 }): React.ReactElement | null {
   const { isMobile } = useDeviceType();
-  const state = useUnitSaveState(unitId);
+  const state = useUnitSaveState(unitId, unitType);
   if (!isMobile && !showOnDesktop) return null;
   return (
     <span
@@ -324,7 +353,12 @@ export function UnitSaveSummary({
       title={saveStateTitle(state)}
       className={`inline-flex min-w-0 items-center gap-1 text-[13px] leading-5 ${className}`}
     >
-      <UnitSaveLinesView unitId={unitId} state={state} layout="inline" />
+      <UnitSaveLinesView
+        unitId={unitId}
+        unitType={unitType}
+        state={state}
+        layout="inline"
+      />
     </span>
   );
 }
@@ -335,16 +369,23 @@ export function UnitSaveSummary({
  */
 export function UnitSaveDetails({
   unitId,
+  unitType,
 }: {
   unitId: string;
+  unitType?: UnitType;
 }): React.ReactElement {
-  const state = useUnitSaveState(unitId);
+  const state = useUnitSaveState(unitId, unitType);
   return (
     <div className="flex flex-col gap-1" data-testid="unit-save-details">
       <span className="text-text-theme-secondary text-xs font-semibold tracking-wider uppercase">
         Saving
       </span>
-      <UnitSaveLinesView unitId={unitId} state={state} layout="panel" />
+      <UnitSaveLinesView
+        unitId={unitId}
+        unitType={unitType}
+        state={state}
+        layout="panel"
+      />
       <span className="text-text-theme-secondary text-[13px] leading-[18px]">
         {SAVE_STATE_EXPLANATION}
       </span>
@@ -361,15 +402,17 @@ export function UnitSaveDetails({
  */
 export function UnitSaveIndicator({
   unitId,
+  unitType,
   descriptionId,
   disabledReason = null,
 }: {
   unitId: string;
+  unitType?: UnitType;
   descriptionId: string;
   disabledReason?: string | null;
 }): React.ReactElement | null {
   const { isMobile } = useDeviceType();
-  const { draft, label, failed } = useUnitSaveState(unitId);
+  const { draft, label, failed } = useUnitSaveState(unitId, unitType);
   return (
     <>
       <span id={descriptionId} className="sr-only">

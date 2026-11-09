@@ -24,7 +24,7 @@ import type { ICampaignOptions } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { isRosterPilotSalaryEligible } from '@/lib/campaign/personnel/statusRules';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { Money } from '@/types/campaign/Money';
 
@@ -337,25 +337,14 @@ export interface SalaryBreakdown {
 }
 
 /**
- * Roster entry statuses excluded from salary calculation.
- *
- * Only KIA is excluded — the CampaignPilotStatus enum has 5 values and lacks
- * the PersonnelStatus dead/retired/deserted variants. All other active statuses
- * (Active, Wounded, Critical, MIA) incur salary costs.
- */
-const EXCLUDED_STATUSES = new Set<CampaignPilotStatus>([
-  CampaignPilotStatus.KIA,
-]);
-
-/**
  * Checks if a roster entry is eligible for salary payment.
- * Excludes KIA entries; all other CampaignPilotStatus values are eligible.
+ * Excludes KIA and departed entries, including legacy departure markers.
  *
  * @param entry - The roster entry to check
  * @returns True if eligible for salary
  */
 export function isEligibleForSalary(entry: ICampaignRosterEntry): boolean {
-  return !EXCLUDED_STATUSES.has(entry.status);
+  return isRosterPilotSalaryEligible(entry);
 }
 
 /** Combat role set for categorization */

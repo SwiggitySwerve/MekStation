@@ -3,10 +3,27 @@
  * task 2.3). Flag OFF is the 2.1 digest lock; this file owns flag ON.
  */
 
+import type { IAdaptedUnit } from '@/engine/types';
+
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
-import { GameSide, type IGameUnit } from '@/types/gameplay';
+import {
+  Facing,
+  MovementType,
+  GameEventType,
+  GamePhase,
+  GameSide,
+  type IGameUnit,
+} from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
+import { createEventBase } from '@/utils/gameplay/gameEvents/base';
+import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
+import { getActivePhaseUnitId } from '@/utils/gameplay/gameSessionActivation';
+import {
+  appendEvent,
+  hydrateGameSessionFromEvents,
+} from '@/utils/gameplay/gameSessionCore';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import * as matchJournalAuthority from '../matchJournalAuthority';
@@ -54,6 +71,8 @@ function intent(intentId: string, matchId = MATCH_ID): IIntent {
 async function makeHost(options: {
   readonly matchId?: string;
   readonly journalAuthority: boolean;
+  readonly declarationFixture?: boolean;
+  readonly empFixture?: boolean;
 }): Promise<{ host: ServerMatchHost; store: InMemoryMatchStore }> {
   const matchId = options.matchId ?? MATCH_ID;
   const store = new InMemoryMatchStore({ quiet: true });
@@ -71,20 +90,113 @@ async function makeHost(options: {
     updatedAt: now,
     config: { mapRadius: 4, turnLimit: 5 },
   });
-  const host = await createPersistedHost(() =>
-    ServerMatchHost.create(matchId, store, {
-      mapRadius: 4,
+  const gameUnits = twoSidedRoster();
+  const adaptedUnits: IAdaptedUnit[] = options.declarationFixture
+    ? Object.values(
+        createGameSession(
+          {
+            mapRadius: 7,
+            turnLimit: 5,
+            victoryConditions: [],
+            optionalRules: [],
+          },
+          gameUnits,
+        ).currentState.units,
+      ).map((unit) => ({
+        ...unit,
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        weapons: [
+          {
+            id: 'laser',
+            name: 'Medium Laser',
+            shortRange: 3,
+            mediumRange: 6,
+            longRange: 9,
+            minRange: 0,
+            damage: 5,
+            heat: 3,
+            ammoPerTon: -1,
+            destroyed: false,
+          },
+        ],
+      }))
+    : [];
+  const host = await createPersistedHost(() => {
+    if (options.empFixture) {
+      let session = startGame(
+        createGameSession(
+          {
+            mapRadius: 4,
+            turnLimit: 5,
+            victoryConditions: [],
+            optionalRules: [],
+          },
+          gameUnits,
+          { id: matchId },
+        ),
+        GameSide.Player,
+      );
+      for (const entry of [
+        {
+          type: GameEventType.PhaseChanged,
+          payload: {
+            fromPhase: session.currentState.phase,
+            toPhase: GamePhase.Heat,
+          },
+        },
+        {
+          type: GameEventType.EmpMinefieldEffectApplied,
+          payload: {
+            unitId: 'lock-player',
+            hex: { q: 0, r: 0 },
+            roll: 9,
+            modifier: 0,
+            modifiedRoll: 9,
+            effect: 'shutdown',
+            durationTurns: 2,
+            source: 'minefield',
+          },
+        },
+      ]) {
+        session = appendEvent(session, {
+          ...createEventBase(
+            session.id,
+            session.events.length,
+            entry.type,
+            session.currentState.turn,
+            GamePhase.Heat,
+            'lock-player',
+          ),
+          payload: entry.payload,
+        });
+      }
+      const interactive = InteractiveSession.fromHydratedSession(session, {
+        random: new SeededRandom(42),
+        d6Roller: () => 6,
+      });
+      return new ServerMatchHost(matchId, store, interactive, undefined, {
+        journalAuthority: options.journalAuthority,
+        randomSeed: 42,
+        diceSeed: 42,
+      });
+    }
+    return ServerMatchHost.create(matchId, store, {
+      mapRadius: options.declarationFixture ? 7 : 4,
       turnLimit: 5,
       random: new SeededRandom(42),
       randomSeed: 42,
-      grid: createMinimalGrid(4),
-      playerUnits: [],
-      opponentUnits: [],
-      gameUnits: twoSidedRoster(),
+      grid: createMinimalGrid(options.declarationFixture ? 7 : 4),
+      playerUnits: adaptedUnits.filter((unit) => unit.side === GameSide.Player),
+      opponentUnits: adaptedUnits.filter(
+        (unit) => unit.side === GameSide.Opponent,
+      ),
+      gameUnits,
       diceSeed: 42,
       journalAuthority: options.journalAuthority,
-    }),
-  );
+    });
+  });
   return { host, store };
 }
 
@@ -143,6 +255,157 @@ describe('combat journal-authority path', () => {
     matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     matchJournalAuthority._setApplyCommittedForTests(null);
   });
+
+  it.each([false, true])(
+    'C10 persists EMP-gated heat resolution (journal=%s)',
+    async (journalAuthority) => {
+      const { host, store } = await makeHost({
+        journalAuthority,
+        empFixture: true,
+      });
+      try {
+        expect(host.isJournalAuthorityEnabled()).toBe(journalAuthority);
+        const before = host.getSessionForTests().events.length;
+        const messages = await host.handleIntent(intent('c10-heat'));
+        expect(messages.filter((message) => message.kind === 'Error')).toEqual(
+          [],
+        );
+        expect(messages.some((message) => message.kind === 'Event')).toBe(true);
+        expect(
+          host.getSessionForTests().currentState.units['lock-player'],
+        ).toMatchObject({
+          shutdown: true,
+          empShutdownTurns: 2,
+        });
+        const events = await store.getEvents(host.matchId);
+        expect(
+          events
+            .slice(before)
+            .filter(
+              (e) =>
+                e.type === GameEventType.StartupAttempt ||
+                e.type === GameEventType.ShutdownCheck,
+            ),
+        ).toEqual([]);
+        expect(events.map((event) => event.type)).toEqual(
+          host.getSessionForTests().events.map((event) => event.type),
+        );
+        expect(
+          hydrateGameSessionFromEvents(host.matchId, events).currentState.units,
+        ).toEqual(host.getSessionForTests().currentState.units);
+        expect(host.hasDetectedDivergence()).toBe(false);
+      } finally {
+        await host.closeMatch();
+      }
+    },
+  );
+
+  it.each(
+    [false, true].flatMap((journalAuthority) =>
+      (['Attack', 'Physical'] as const).map((kind) => ({
+        journalAuthority,
+        kind,
+      })),
+    ),
+  )(
+    'refuses fresh-ID $kind without events, batches, or receipts (journal=$journalAuthority)',
+    async ({ journalAuthority, kind }) => {
+      const { host, store } = await makeHost({
+        journalAuthority,
+        declarationFixture: true,
+      });
+      const send = (
+        intentId: string,
+        payload: IIntent['intent'],
+        playerId = 'host-player',
+      ) =>
+        host.handleIntent({ ...intent(intentId), playerId, intent: payload });
+      await send('initiative', { kind: 'AdvancePhase' });
+      await send('move-player', {
+        kind: 'Move',
+        unitId: 'lock-player',
+        to: { q: -2, r: 1 },
+        facing: Facing.North,
+        movementType: MovementType.Run,
+      });
+      await send(
+        'move-opponent',
+        {
+          kind: 'Move',
+          unitId: 'lock-opponent',
+          to: { q: -2, r: 0 },
+          facing: Facing.South,
+          movementType: MovementType.Run,
+        },
+        'guest-player',
+      );
+      await send('weapon-phase', { kind: 'AdvancePhase' });
+      let attackerId = 'lock-player';
+      let targetId = 'lock-opponent';
+      if (kind === 'Physical') {
+        await send('physical-phase', { kind: 'AdvancePhase' });
+        expect(host.getSessionForTests().currentState.phase).toBe(
+          GamePhase.PhysicalAttack,
+        );
+        attackerId = getActivePhaseUnitId(host.getSessionForTests())!;
+        targetId =
+          attackerId === 'lock-player' ? 'lock-opponent' : 'lock-player';
+      }
+      const playerId =
+        attackerId === 'lock-player' ? 'host-player' : 'guest-player';
+      const payload: IIntent['intent'] =
+        kind === 'Attack'
+          ? { kind, attackerId, targetId, weaponIds: ['laser'] }
+          : {
+              kind,
+              attackerId,
+              targetId,
+              attackType: 'punch',
+              limb: 'leftArm',
+            };
+      const first = await send('first-declaration', payload, playerId);
+      expect(first.some((message) => message.kind === 'Error')).toBe(false);
+      expect(
+        host
+          .getSessionForTests()
+          .events.filter(
+            (event) =>
+              event.type ===
+              (kind === 'Attack'
+                ? GameEventType.AttackDeclared
+                : GameEventType.PhysicalAttackDeclared),
+          ),
+      ).toHaveLength(1);
+      const before = JSON.stringify(host.getSessionForTests());
+      const storedBefore = await store.getEvents(host.matchId);
+      const appendBatch = jest.spyOn(store, 'appendCommandBatch');
+      const duplicate = await send('fresh-duplicate', payload, playerId);
+      expect(duplicate).toEqual([
+        expect.objectContaining({
+          kind: 'Error',
+          code: 'INVALID_INTENT',
+          reason: 'unit-already-committed',
+          intentId: 'fresh-duplicate',
+        }),
+      ]);
+      expect(JSON.stringify(host.getSessionForTests())).toBe(before);
+      expect(await store.getEvents(host.matchId)).toEqual(storedBefore);
+      expect(appendBatch).not.toHaveBeenCalled();
+      expect(
+        await store.getCommandReceipt(host.matchId, 'fresh-duplicate'),
+      ).toBeNull();
+      const retry = await send('first-declaration', payload, playerId);
+      if (journalAuthority)
+        expect(retry.some((message) => message.kind === 'Error')).toBe(false);
+      else
+        expect(retry).toEqual([
+          expect.objectContaining({ kind: 'Error', code: 'DUPLICATE_INTENT' }),
+        ]);
+      expect(await store.getEvents(host.matchId)).toEqual(storedBefore);
+      appendBatch.mockRestore();
+      await host.closeMatch();
+    },
+  );
 
   it('FLAG: the process-wide switch is off', () => {
     expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false);

@@ -133,6 +133,7 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
       createdAt: now,
       updatedAt: now,
       config: { mapRadius: 4, turnLimit: 5 },
+      roomCode: 'ABC234',
       layout: '1v1',
       seats: defaultSeats('1v1'),
     });
@@ -198,5 +199,45 @@ describe('DELETE /api/multiplayer/matches/[id] against a live host', () => {
       expect.objectContaining({ kind: 'Close', reason: 'Match closed' }),
     );
     expect(socketGraph.getMatchHostRegistry().get(MATCH_ID)).toBeNull();
+  });
+
+  it('completes a hostless match durably and accepts a repeated DELETE', async () => {
+    authMock.mockResolvedValue({
+      ok: true,
+      playerId: HOST_PLAYER_ID,
+      publicKey: 'pk',
+      token: {},
+    });
+    const registry = loadRegistryModuleInNewGraph().getMatchHostRegistry();
+    const handler = loadCloseRouteInNewGraph();
+    expect(registry.get(MATCH_ID)).toBeNull();
+
+    expect(await deleteMatch(handler)).toEqual({
+      statusCode: 200,
+      body: { ok: true },
+    });
+    const completed = await getDefaultMatchStore().getMatchMeta(MATCH_ID);
+    expect(completed.status).toBe('completed');
+    expect(completed.roomCode).toBeUndefined();
+    expect(
+      await getDefaultMatchStore().getMatchByRoomCode('ABC234'),
+    ).toBeNull();
+    await getDefaultMatchStore().createMatch({
+      ...completed,
+      matchId: 'reuse-invite',
+      status: 'lobby',
+      roomCode: 'ABC234',
+    });
+    expect(registry.get(MATCH_ID)).toBeNull();
+    expect(await deleteMatch(handler)).toEqual({
+      statusCode: 200,
+      body: { ok: true },
+    });
+    expect(await getDefaultMatchStore().getMatchMeta(MATCH_ID)).toEqual(
+      completed,
+    );
+    expect(
+      (await getDefaultMatchStore().getMatchByRoomCode('ABC234'))?.matchId,
+    ).toBe('reuse-invite');
   });
 });

@@ -21,7 +21,9 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 
 import {
   advanceRefitOrder,
+  cancelRefitOrder,
   createRefitOrder,
+  getOpenRefitOrders,
 } from '@/lib/campaign/refit/refitPipeline';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
@@ -56,6 +58,8 @@ export interface ICommitRefitResult {
  * Parameters for committing a refit order.
  */
 export interface ICommitRefitParams {
+  /** Bind editor actions to the campaign they were opened for. */
+  readonly campaignId?: string;
   /** The owned campaign unit being refit. */
   readonly unitId: string;
   /** The unit's current configuration. */
@@ -76,9 +80,9 @@ export interface ICommitRefitParams {
  * @param params - the refit parameters
  * @returns the commit result
  */
-export function commitRefitOrder(
+export async function commitRefitOrder(
   params: ICommitRefitParams,
-): ICommitRefitResult {
+): Promise<ICommitRefitResult> {
   const store = getCampaignStoreForRoster();
   if (!store) {
     return { applied: false, reason: 'No campaign loaded' };
@@ -86,6 +90,35 @@ export function commitRefitOrder(
   const campaign = store.getState().campaign as ICampaign | null;
   if (!campaign) {
     return { applied: false, reason: 'No campaign loaded' };
+  }
+  if (params.campaignId && campaign.id !== params.campaignId) {
+    return {
+      applied: false,
+      reason: 'The editor belongs to another campaign.',
+    };
+  }
+  if (campaign.coopSession?.mode === 'guest') {
+    return { applied: false, reason: 'Only the host can create refit orders.' };
+  }
+  if (
+    ![...campaign.forces.values()].some((force) =>
+      force.unitIds.includes(params.unitId),
+    )
+  ) {
+    return {
+      applied: false,
+      reason: 'This unit does not belong to the campaign.',
+    };
+  }
+  if (
+    getOpenRefitOrders(campaign.refitOrders ?? []).some(
+      (order) => order.unitId === params.unitId,
+    )
+  ) {
+    return {
+      applied: false,
+      reason: 'This unit already has an open refit order.',
+    };
   }
 
   // Build the proposed order with a fixed estimate.
@@ -105,7 +138,17 @@ export function commitRefitOrder(
     ...(campaign.refitOrders ?? []),
     finalOrder,
   ];
-  store.getState().updateCampaign({ refitOrders: nextOrders });
+  await store.getState().updateCampaign({ refitOrders: nextOrders });
+  const current = store.getState().campaign;
+  if (
+    current?.id !== campaign.id ||
+    !current.refitOrders?.some(
+      (order) =>
+        order.id === finalOrder.id && order.status === finalOrder.status,
+    )
+  ) {
+    return { applied: false, reason: 'Refit order was not saved.' };
+  }
   useCampaignPersistenceStore.getState().markDirty();
 
   return {
@@ -113,4 +156,46 @@ export function commitRefitOrder(
     order: finalOrder,
     validationErrors: advance.advanced ? undefined : advance.errors,
   };
+}
+
+/** Cancel one order, retaining terminal history and the original configuration. */
+export async function cancelCampaignRefitOrder(
+  campaignId: string,
+  orderId: string,
+): Promise<ICommitRefitResult> {
+  const store = getCampaignStoreForRoster();
+  const campaign = store?.getState().campaign;
+  if (!store || !campaign || campaign.id !== campaignId) {
+    return { applied: false, reason: 'The campaign is no longer loaded.' };
+  }
+  if (campaign.coopSession?.mode === 'guest') {
+    return { applied: false, reason: 'Only the host can cancel refit orders.' };
+  }
+  const orders = campaign.refitOrders ?? [];
+  const order = orders.find((candidate) => candidate.id === orderId);
+  if (!order)
+    return { applied: false, reason: 'The refit order was not found.' };
+  const cancelled = cancelRefitOrder(order);
+  if (cancelled === order) {
+    return {
+      applied: false,
+      reason: 'This refit order is already closed.',
+      order,
+    };
+  }
+  await store.getState().updateCampaign({
+    refitOrders: orders.map((candidate) =>
+      candidate === order ? cancelled : candidate,
+    ),
+  });
+  const current = store.getState().campaign;
+  if (
+    current?.id !== campaignId ||
+    current.refitOrders?.find((candidate) => candidate.id === orderId)
+      ?.status !== 'cancelled'
+  ) {
+    return { applied: false, reason: 'Refit cancellation was not saved.' };
+  }
+  useCampaignPersistenceStore.getState().markDirty();
+  return { applied: true, order: cancelled };
 }

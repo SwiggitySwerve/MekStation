@@ -8,6 +8,7 @@ import type { IWeapon } from '@/simulation/ai/types';
 
 import {
   GamePhase,
+  LockState,
   GameSide,
   GameStatus,
   type IGameEvent,
@@ -191,6 +192,74 @@ it('§5.3: translates a guest-owned declareMovement into MovementDeclared + Move
   expect(result.events[1].type).toBe('movement_locked');
   expect(result.events[0].sequence).toBe(session.events.length);
   expect(result.events[1].sequence).toBe(session.events.length + 1);
+});
+
+function withStuckGuest(
+  session: IGameSession,
+  canUnstickByJumping: boolean,
+): IGameSession {
+  return {
+    ...session,
+    currentState: {
+      ...session.currentState,
+      units: {
+        ...session.currentState.units,
+        'guest-0': {
+          ...session.currentState.units['guest-0'],
+          isStuck: true,
+          ...(canUnstickByJumping ? { canUnstickByJumping: true } : {}),
+        },
+      },
+    },
+  };
+}
+
+function jumpAuthority(): IIntentTranslationAuthorityContext {
+  return {
+    ...authority(),
+    movementByUnit: new Map([['guest-0', { walkMP: 4, runMP: 6, jumpMP: 4 }]]),
+  };
+}
+
+function guestJumpIntent(session: IGameSession): IGameIntent {
+  const guest = session.currentState.units['guest-0'];
+  return buildDeclareMovementIntent(GUEST_PEER, {
+    unitId: 'guest-0',
+    from: guest.position,
+    to: { q: guest.position.q, r: guest.position.r + 2 },
+    facing: guest.facing,
+    movementType: MovementType.Jump,
+    mpUsed: 2,
+    heatGenerated: 2,
+  });
+}
+
+it('C6b: lets a stuck guest unit jump only while it is eligible to jump free', () => {
+  const eligible = withStuckGuest(
+    withPhase(fixtureSession(), GamePhase.Movement),
+    true,
+  );
+  const accepted = translateIntentToEvents(
+    guestJumpIntent(eligible),
+    eligible,
+    jumpAuthority(),
+  );
+  expect(accepted.ok).toBe(true);
+
+  const stuck = withStuckGuest(
+    withPhase(fixtureSession(), GamePhase.Movement),
+    false,
+  );
+  const refused = translateIntentToEvents(
+    guestJumpIntent(stuck),
+    stuck,
+    jumpAuthority(),
+  );
+  expect(refused).toMatchObject({
+    ok: false,
+    reason: 'unsupported-intent',
+    detail: 'Unit is stuck',
+  });
 });
 
 it('rejects declareMovement when the guest origin does not match host state', () => {
@@ -895,3 +964,36 @@ it('rejects declareAttack when weaponAttacks contains malformed weapon data', ()
   if (result.ok) return;
   expect(result.reason).toBe('malformed-payload');
 });
+
+it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
+  'refuses committed ranged and physical P2P declarations in %s',
+  (lockState) => {
+    for (const phase of [GamePhase.WeaponAttack, GamePhase.PhysicalAttack]) {
+      const session = withPhase(fixtureSession(), phase);
+      session.currentState.units['guest-0'] = {
+        ...session.currentState.units['guest-0'],
+        lockState,
+      };
+      const before = JSON.stringify(session);
+      const intent =
+        phase === GamePhase.WeaponAttack
+          ? buildDeclareAttackIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              weapons: ['ml-1'],
+              toHitNumber: 7,
+            })
+          : buildDeclarePhysicalIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              attackType: 'punch',
+            });
+      expect(translateIntentToEvents(intent, session, authority())).toEqual({
+        ok: false,
+        reason: 'unsupported-intent',
+        detail: 'unit-already-committed',
+      });
+      expect(JSON.stringify(session)).toBe(before);
+    }
+  },
+);

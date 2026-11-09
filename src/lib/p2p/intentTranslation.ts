@@ -45,6 +45,10 @@ import {
 } from '@/utils/gameplay/gameEvents/statusPhysical';
 import { requestSpot, validateTorsoTwist } from '@/utils/gameplay/gameSession';
 import {
+  COMMITTED_DECLARATION_REASON,
+  isActivationComplete,
+} from '@/utils/gameplay/gameSessionActivation';
+import {
   getAllowedPhysicalAttackCount,
   physicalAttackDeclarationsForTurn,
   physicalAttackLimbForDeclaration,
@@ -298,6 +302,13 @@ function translateDeclarePhysical(
   }
 
   const attacker = session.currentState.units[payload.attackerId];
+  if (attacker && isActivationComplete(attacker)) {
+    return {
+      ok: false,
+      reason: 'unsupported-intent',
+      detail: COMMITTED_DECLARATION_REASON,
+    };
+  }
   const declarationsThisTurn = physicalAttackDeclarationsForTurn(
     session.events,
     session.currentState.turn,

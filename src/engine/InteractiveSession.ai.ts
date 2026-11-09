@@ -9,7 +9,6 @@ import {
   type IGameEvent,
   type IGameSession,
   type IUnitGameState,
-  LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import {
   Facing,
@@ -28,10 +27,12 @@ import {
   lockAttack,
   lockMovement,
 } from '@/utils/gameplay/gameSession';
+import { isActivationComplete } from '@/utils/gameplay/gameSessionActivation';
 import {
   canActInPhysicalAttack,
   lockPhysicalAttack,
 } from '@/utils/gameplay/gameSessionCore';
+import { appendInteractiveMovementTerrainEffects } from '@/utils/gameplay/gameSessionMovementTerrain';
 import {
   buildMovementEventPath,
   maxMovementCostForCapability,
@@ -175,6 +176,9 @@ function runInteractiveSessionMovementAI(
           facing: refreshedUnit.facing,
           prone: refreshedUnit.prone ?? false,
           isStuck: refreshedUnit.isStuck ?? false,
+          ...(refreshedUnit.canUnstickByJumping === true
+            ? { canUnstickByJumping: true }
+            : {}),
         },
         moveEvt.payload.to,
         moveEvt.payload.facing as Facing,
@@ -213,6 +217,14 @@ function runInteractiveSessionMovementAI(
           validation.heatGenerated,
           eventPath,
         ),
+      );
+      setSession(
+        appendInteractiveMovementTerrainEffects(session, {
+          grid: occupiedGrid,
+          unitId,
+          fromFacing: refreshedUnit.facing,
+          capability: cap,
+        }),
       );
     }
     setSession(lockMovement(session, unitId));
@@ -278,14 +290,6 @@ function runInteractiveSessionWeaponAI(
     }
     setSession(lockAttack(session, unitId));
   }
-}
-
-function isActivationComplete(unit: IUnitGameState): boolean {
-  return (
-    unit.lockState === LockState.Locked ||
-    unit.lockState === LockState.Revealed ||
-    unit.lockState === LockState.Resolved
-  );
 }
 
 function runInteractiveSessionPhysicalAI(

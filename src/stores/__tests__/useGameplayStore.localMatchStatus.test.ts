@@ -134,4 +134,29 @@ describe('useGameplayStore local reconnect match status', () => {
     expect(state.session?.events).toHaveLength(0);
     expect(state.session?.currentState.status).toBe(GameStatus.Active);
   });
+
+  it.each(['live', 'hostPending', 'guestPending', 'aborted'] as const)(
+    'keeps aborted and its grace facts when an automatic writer requests %s',
+    (status) => {
+      const store = useGameplayStore.getState();
+      store.setLocalMatchStatus('aborted', { nowMs: 9_000 });
+      const aborted = useGameplayStore.getState();
+      store.setLocalMatchStatus(status, { nowMs: 10_000, graceMs: 15_000 });
+      expect(useGameplayStore.getState()).toBe(aborted);
+    },
+  );
+
+  it('allows an explicit session reset to start a later match after abort', () => {
+    const store = useGameplayStore.getState();
+    store.setLocalMatchStatus('aborted', { nowMs: 9_000 });
+    store.resetLocalMatchStatus();
+    expect(useGameplayStore.getState()).toMatchObject({
+      localMatchStatus: 'live',
+      localMatchGraceDeadlineMs: null,
+      localMatchGraceRemainingMs: null,
+      reconnectGraceMs: RECONNECT_GRACE_MS,
+    });
+    store.setLocalMatchStatus('hostPending', { nowMs: 10_000 });
+    expect(useGameplayStore.getState().localMatchStatus).toBe('hostPending');
+  });
 });

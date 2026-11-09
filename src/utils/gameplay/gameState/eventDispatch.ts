@@ -51,6 +51,7 @@ import {
   type IWithdrawalDeclaredPayload,
 } from '@/types/gameplay';
 
+import { removeSquadSwarmState } from '../attackLinks';
 import {
   applyAttackDeclared,
   applyAttackLocked,
@@ -149,15 +150,6 @@ function applyAttackResolvedEdgeSpend(
       },
     },
   };
-}
-
-function removeSquadSwarmState<
-  T extends NonNullable<IGameState['units'][string]['combatState']>['state'],
->(state: T): T {
-  const { swarmingUnitId: _swarmingUnitId, ...squadState } = state as T & {
-    readonly swarmingUnitId?: string;
-  };
-  return squadState as T;
 }
 
 function applySwarmDismounted(

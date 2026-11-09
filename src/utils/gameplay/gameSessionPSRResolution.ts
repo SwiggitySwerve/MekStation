@@ -17,6 +17,7 @@ import {
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
 import { roll2d6 as rollDice } from './hitLocation';
+import { failedBogDownGrantsJumpUnstick } from './movement/stuckState';
 import {
   isGyroDestroyed,
   type IPSRBatchResult,
@@ -104,7 +105,7 @@ function createPsrUnitResolutionContext(
   };
 }
 
-function createDefaultComponentDamage(): IComponentDamageState {
+export function createDefaultComponentDamage(): IComponentDamageState {
   return {
     engineHits: 0,
     gyroHits: 0,
@@ -294,19 +295,25 @@ function appendUnitStuckForPsrFailure(
   batchResult: IPSRBatchResult,
 ): IGameSession {
   const reason = fallReasonForFailedPsr(context, batchResult);
+  const failedPsr = firstFailedPsr(batchResult)?.psr;
   const sequence = session.events.length;
 
   return appendEvent(
     session,
-    createUnitStuckEvent(
-      session.id,
+    createUnitStuckEvent({
+      gameId: session.id,
       sequence,
-      context.turn,
-      context.phase,
-      context.unitId,
-      reason.reason,
-      reason.reasonCode,
-    ),
+      turn: context.turn,
+      phase: context.phase,
+      unitId: context.unitId,
+      ...(reason.reason !== undefined ? { reason: reason.reason } : {}),
+      ...(reason.reasonCode !== undefined
+        ? { reasonCode: reason.reasonCode }
+        : {}),
+      ...(failedPsr && failedBogDownGrantsJumpUnstick(failedPsr)
+        ? { canUnstickByJumping: true as const }
+        : {}),
+    }),
   );
 }
 

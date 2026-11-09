@@ -158,7 +158,7 @@ export const MEKSTATION_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS = [
   pilotModifierApplicationSourceRef(
     'mekstation-deviation',
     'MekStation validateMovement, runMovementPhase, and movement step decomposition consume Maneuvering Ace pilot ability state for biped lateral shifts and source-backed QuadMek lateral-step MP relief.',
-    'src/utils/gameplay/movement/validation.ts#L50',
+    'src/utils/gameplay/movement/validation.ts#L51',
     'MekStation working-tree',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];

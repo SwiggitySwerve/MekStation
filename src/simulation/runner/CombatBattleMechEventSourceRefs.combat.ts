@@ -75,12 +75,12 @@ export const BATTLEMECH_CRITICAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner critical-hit helper emits CriticalHit before CriticalHitResolved and ComponentDestroyed payloads.',
     'src/simulation/runner/phases/weaponAttackCriticalEvents.ts',
-    'L46-L151',
+    'L47-L152',
   ),
   mekstationDeviationSourceRef(
     'MekStation heat critical damage path emits CriticalHit, CriticalHitResolved, ComponentDestroyed, PSRTriggered, PilotHit, and UnitDestroyed chains.',
     'src/simulation/runner/phases/heatCriticalDamage.ts',
-    'L73-L278',
+    'L65-L270',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -136,12 +136,12 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation unit-state status-check factories create UnitFell, UnitStuck, and UnitStood payloads.',
     'src/utils/gameplay/gameEvents/statusChecksUnitState.ts',
-    'L1-L210',
+    'L1-L215',
   ),
   mekstationDeviationSourceRef(
     'MekStation interactive PSR resolver emits PSRResolved, UnitFell, UnitStuck, PilotHit, UnitDestroyed, and UnitStood paths.',
     'src/utils/gameplay/gameSessionPSRResolution.ts',
-    'L54-L410',
+    'L55-L417',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner PSR event helpers emit PSRResolved, UnitFell, and fall-sourced PilotHit events.',
@@ -151,12 +151,12 @@ export const BATTLEMECH_PSR_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner PSR phase resolves queued PSRs, failed falls, failed bog-down stuck outcomes, and pilot-death UnitDestroyed events.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L70-L230',
+    'L77-L244',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner heat lifecycle emits shutdown checks and queues shutdown PSRs after heat shutdown.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L97-L155',
+    'L98-L160',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner stand-up helper emits PSRTriggered, PSRResolved, and UnitStood events.',
@@ -174,7 +174,7 @@ export const BATTLEMECH_PHYSICAL_EVENT_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation runner physical event helpers emit PhysicalAttackDeclared and PhysicalAttackResolved payloads.',
     'src/simulation/runner/phases/physicalAttackEvents.ts',
-    'L17-L72',
+    'L18-L73',
   ),
   mekstationDeviationSourceRef(
     'MekStation runner physical attack phase emits declarations, resolved hits/misses/rejections, displacement, fall, and PSR fallout events.',

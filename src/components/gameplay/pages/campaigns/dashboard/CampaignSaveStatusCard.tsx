@@ -96,8 +96,8 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   // the existing action rather than inventing a second resync keeps one
   // definition of "catch up to the server".
   const handleResyncLaunch = useCallback(() => {
-    void resolveConflictTakeServer().then(() => {
-      clearLaunchConflict();
+    void resolveConflictTakeServer().then((adopted) => {
+      if (adopted) clearLaunchConflict();
     });
   }, [clearLaunchConflict, resolveConflictTakeServer]);
 

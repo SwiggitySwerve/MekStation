@@ -20,6 +20,15 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 
 import { HiringPanel } from '@/components/campaign/command/HiringPanel';
+import {
+  coopHireRefusalMessage,
+  sendCoopHireOffer,
+} from '@/lib/campaign/coop/coopMarketCommands';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
+import {
+  coopMarketActionRefusal,
+  localMarketRefusal,
+} from '@/lib/campaign/markets/offerLifecycle';
 import { generatePersonnelForDay } from '@/lib/campaign/markets/personnelMarket';
 import {
   CampaignPageFrameFromShell,
@@ -31,6 +40,7 @@ import {
 } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { hireCandidate } from '@/stores/campaign/campaignCommandActions';
 import { selectPersonnelMarket } from '@/stores/campaign/campaignCommandSelectors';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 
 const HIRING_LOADING = {
   title: 'Personnel & Hiring',
@@ -40,6 +50,11 @@ const HIRING_LOADING = {
 export default function HiringPage(): React.ReactElement {
   const shell = useCampaignPageShell('Personnel & Hiring');
   const { campaign: shellCampaign, store, isClient } = shell;
+  const dayAdvanceInFlight = useDayAdvanceInFlight();
+  // A co-op host hires through the campaign host; a guest cannot hire.
+  const blockedReason = shellCampaign
+    ? coopMarketActionRefusal(shellCampaign, 'hire', dayAdvanceInFlight)
+    : undefined;
   const loadStatus = useCampaignLoadStatus();
   // Re-render tick — bumped after a hire so the page re-reads the market.
   const [, setActionTick] = useState(0);
@@ -51,7 +66,12 @@ export default function HiringPage(): React.ReactElement {
   // pool yet (a fresh campaign that has not advanced a day). Uses the
   // existing market engine — no new generation logic.
   useEffect(() => {
-    if (!isClient || !shellCampaign) return;
+    if (
+      !isClient ||
+      !shellCampaign ||
+      localMarketRefusal(shellCampaign, store.getState().dayAdvanceInFlight)
+    )
+      return;
     const extended = shellCampaign as ICampaignWithCommand;
     if (extended.personnelMarket !== undefined) return;
     const offers = generatePersonnelForDay(shellCampaign, Math.random);
@@ -59,7 +79,7 @@ export default function HiringPage(): React.ReactElement {
       .getState()
       .updateCampaign({ personnelMarket: offers } as Partial<ICampaign>);
     setActionTick((tick) => tick + 1);
-  }, [isClient, shellCampaign, store]);
+  }, [isClient, shellCampaign, store, dayAdvanceInFlight]);
 
   const pendingPage = renderPendingCampaignPage(shell, HIRING_LOADING);
   if (pendingPage) return pendingPage;
@@ -73,8 +93,37 @@ export default function HiringPage(): React.ReactElement {
     coopRouteId: 'hiring',
   } as const;
 
+  /**
+   * A co-op host's Hire goes to the campaign host as `HireOffer`; the hire
+   * reaches this page through the ledger, which hides the consumed offer.
+   * Nothing is written locally, and the button stays held until the host
+   * answers.
+   */
+  const handleCoopHire = async (offerId: string): Promise<void> => {
+    setActionError(null);
+    setHiringOfferId(offerId);
+    const refusal = await sendCoopHireOffer(campaign, offerId);
+    if (refusal === null) {
+      await useCampaignPersistenceStore
+        .getState()
+        .refreshAfterCommittedCommand({
+          kind: 'committed',
+          state: { campaignId: campaign.id },
+        });
+    } else {
+      setActionError(coopHireRefusalMessage(refusal));
+    }
+    setHiringOfferId(null);
+    setActionTick((tick) => tick + 1);
+  };
+
   /** Hire a candidate through the existing personnel-management logic. */
   const handleHire = (offerId: string): void => {
+    if (hiringOfferId !== null) return;
+    if (campaign.coopSession?.mode === 'host') {
+      void handleCoopHire(offerId);
+      return;
+    }
     setActionError(null);
     setHiringOfferId(offerId);
     const result = hireCandidate(offerId);
@@ -95,11 +144,13 @@ export default function HiringPage(): React.ReactElement {
 
   return (
     <CampaignPageFrameFromShell shell={shell} frame={frame}>
+      {blockedReason && <p role="status">{blockedReason}</p>}
       {feedback ?? (
         <HiringPanel
           candidates={candidates}
           onHire={handleHire}
           hiringOfferId={hiringOfferId}
+          blockedReason={blockedReason}
         />
       )}
     </CampaignPageFrameFromShell>

@@ -36,6 +36,7 @@ import {
 } from './CombatPsrTriggerSourceRefs';
 import {
   LOCAL_TERRAIN_PSR_SOURCE_REFS,
+  SWAMP_UNSTUCK_PSR_SOURCE_REFS,
   terrainPsrSourceRefs,
 } from './CombatTerrainEnvironmentSourceRefs';
 
@@ -167,8 +168,13 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.SwampBogDown]: integrated(
     PSRTrigger.SwampBogDown,
-    'movementTerrainPsr queues createSwampBogDownPSR for non-jump BattleMech swamp entry and emits UnitStuck immediately for jump entry; failed swamp bog-down PSRs set isStuck instead of UnitFell/PilotHit',
+    'movementTerrainPsr queues createSwampBogDownPSR for non-jump BattleMech swamp entry and emits UnitStuck immediately for jump entry; failed swamp bog-down PSRs set isStuck instead of UnitFell/PilotHit, and only a failed movement-step bog-down grants canUnstickByJumping so a later jump frees the unit',
     terrainPsrSourceRefs(TerrainType.Swamp),
+  ),
+  [PSRTrigger.SwampUnstuck]: integrated(
+    PSRTrigger.SwampUnstuck,
+    'runMovementPhase rolls createSwampUnstuckPSR for every stuck unit that can act before anyone moves; a pass clears isStuck and canUnstickByJumping, a failure leaves the unit stuck without UnitFell or PilotHit, and the reducer clears stuck on the replayed passed PSRResolved',
+    SWAMP_UNSTUCK_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.AirMekLanding]: integrated(
     PSRTrigger.AirMekLanding,

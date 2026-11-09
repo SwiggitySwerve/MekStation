@@ -17,18 +17,23 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
 import { buildConservativeC3NetworkStateFromUnits } from '@/utils/gameplay/c3Network';
 import {
   movementStepsUseBackwardMovement,
   movementStepsUseMechanicalJumpBooster,
 } from '@/utils/gameplay/movement/stepPredicates';
+import { applyJumpUnstick } from '@/utils/gameplay/movement/stuckState';
 import {
   deriveObjectivePlacementConfig,
   placeObjectives,
 } from '@/utils/gameplay/objectives';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { resetPerTurnUnitFields } from '@/utils/gameplay/perTurnUnitFields';
 import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 import { hasSPA } from '@/utils/gameplay/spaModifiers';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
+import { advanceVehicleCrewStun } from '@/utils/gameplay/vehicleCrewStun';
 
 import type { ISimulationConfig } from '../core/types';
 
@@ -327,106 +332,18 @@ export function synthesizeGameUnits(
   return result;
 }
 
-const MAX_STANDARD_BOOSTER_FAILURE_LEVEL = 6;
-
-function normalizeBoosterTurnsUsed(value: number | undefined): number {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return 0;
-  return Math.max(
-    0,
-    Math.min(MAX_STANDARD_BOOSTER_FAILURE_LEVEL, Math.trunc(value)),
-  );
-}
-
-function advanceBoosterTurnCounter(options: {
-  readonly active: boolean | undefined;
-  readonly turnsUsed: number | undefined;
-  readonly failureLevelIncreasedLastTurn: boolean | undefined;
-}): {
-  readonly turnsUsed: number;
-  readonly failureLevelIncreasedLastTurn: boolean;
-} {
-  const turnsUsed = normalizeBoosterTurnsUsed(options.turnsUsed);
-
-  if (options.active === true) {
-    return {
-      turnsUsed: Math.min(turnsUsed + 1, MAX_STANDARD_BOOSTER_FAILURE_LEVEL),
-      failureLevelIncreasedLastTurn: true,
-    };
-  }
-
-  const idleDecay = options.failureLevelIncreasedLastTurn === true ? 2 : 1;
-  return {
-    turnsUsed: Math.max(0, turnsUsed - idleDecay),
-    failureLevelIncreasedLastTurn: false,
-  };
-}
-
-function shouldTrackMASC(unit: IUnitGameState): boolean {
-  return (
-    unit.hasMASC === true ||
-    unit.activeMASC === true ||
-    unit.mascTurnsUsed !== undefined ||
-    unit.mascFailureLevelIncreasedLastTurn !== undefined
-  );
-}
-
-function shouldTrackSupercharger(unit: IUnitGameState): boolean {
-  return (
-    unit.hasSupercharger === true ||
-    unit.activeSupercharger === true ||
-    unit.superchargerTurnsUsed !== undefined ||
-    unit.superchargerFailureLevelIncreasedLastTurn !== undefined
-  );
-}
-
 export function resetTurnState(state: IGameState): IGameState {
   const updatedUnits: Record<string, IUnitGameState> = {};
   for (const [id, unit] of Object.entries(state.units)) {
-    const mascCounter = advanceBoosterTurnCounter({
-      active: unit.activeMASC,
-      turnsUsed: unit.mascTurnsUsed,
-      failureLevelIncreasedLastTurn: unit.mascFailureLevelIncreasedLastTurn,
-    });
-    const superchargerCounter = advanceBoosterTurnCounter({
-      active: unit.activeSupercharger,
-      turnsUsed: unit.superchargerTurnsUsed,
-      failureLevelIncreasedLastTurn:
-        unit.superchargerFailureLevelIncreasedLastTurn,
-    });
-
-    let updatedUnit: IUnitGameState = {
-      ...unit,
-      damageThisPhase: 0,
-      weaponsFiredThisTurn: [],
-      pendingPSRs: [],
-      tagDesignated: false,
-      externalHeatThisTurn: 0,
-      pendingExternalHeat: 0,
-      sprintedThisTurn: false,
-      isEvading: false,
-      evasionBonus: undefined,
-    };
-
-    if (shouldTrackMASC(unit)) {
-      updatedUnit = {
-        ...updatedUnit,
-        activeMASC: false,
-        mascTurnsUsed: mascCounter.turnsUsed,
-        mascFailureLevelIncreasedLastTurn:
-          mascCounter.failureLevelIncreasedLastTurn,
-      };
-    }
-    if (shouldTrackSupercharger(unit)) {
-      updatedUnit = {
-        ...updatedUnit,
-        activeSupercharger: false,
-        superchargerTurnsUsed: superchargerCounter.turnsUsed,
-        superchargerFailureLevelIncreasedLastTurn:
-          superchargerCounter.failureLevelIncreasedLastTurn,
-      };
-    }
-
-    updatedUnits[id] = updatedUnit;
+    // damageThisPhase stays here: the runner zeroes it per turn, the reducer per
+    // phase (C7 D1). 'sparse' keeps the runner's serialized shape unchanged.
+    // advanceVehicleCrewStun (C14) is its own once-per-round step.
+    updatedUnits[id] = advanceVehicleCrewStun(
+      resetPerTurnUnitFields(
+        { ...unit, damageThisPhase: 0 },
+        { presence: 'sparse' },
+      ),
+    );
   }
 
   return { ...state, units: updatedUnits };
@@ -452,7 +369,7 @@ export function applyMovementEvent(
   const isSprintMovement = payload.movementType === MovementType.Sprint;
 
   const updatedUnit: IUnitGameState = {
-    ...unit,
+    ...applyJumpUnstick(unit, payload.movementType),
     position: payload.to,
     facing: payload.facing,
     movementThisTurn: payload.movementType,
@@ -607,22 +524,20 @@ export function applyDamageResultToState(
       newDestroyedLocations,
     );
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [targetId]: updatedUnit,
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [targetId]: updatedUnit,
+      },
     },
-  };
+    targetId,
+  );
 }
 
 export function isUnitOperable(unit: IUnitGameState): boolean {
-  return (
-    !unit.destroyed &&
-    !unit.hasRetreated &&
-    !unit.hasEjected &&
-    unit.pilotConscious !== false
-  );
+  return getUnitOperability(unit).crewActive;
 }
 
 export function isGameOver(state: IGameState, turnLimit = 0): boolean {

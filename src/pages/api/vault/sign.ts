@@ -18,6 +18,14 @@ import type {
 } from '@/types/vault';
 
 import { BUILD_VERSION } from '@/constants/appVersion';
+import { rejectUnlessSameHost } from '@/lib/api/sameHostGuard';
+import {
+  API_KDF_RATE_LIMIT,
+  applySecurityHeaders,
+  clientRateLimitKey,
+  rateLimit,
+  rejectRateLimited,
+} from '@/lib/api/security';
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import {
   unlockIdentity,
@@ -50,6 +58,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
+  applySecurityHeaders(res);
+  if (rejectUnlessSameHost(req, res)) return;
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method not allowed' });
@@ -73,6 +83,15 @@ export default async function handler(
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'Items array is required' });
+    }
+
+    const limit = rateLimit(
+      clientRateLimitKey(req, 'vault-sign'),
+      API_KDF_RATE_LIMIT,
+    );
+    if (!limit.ok) {
+      rejectRateLimited(res, limit);
+      return;
     }
 
     // Type-safe items array

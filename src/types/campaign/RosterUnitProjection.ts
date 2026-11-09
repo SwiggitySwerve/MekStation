@@ -57,7 +57,12 @@
  */
 
 import type { RosterUnitSource } from './RosterUnitSource';
-import type { IUnitCombatState } from './UnitCombatState';
+
+import {
+  isUnitCombatReady,
+  type IUnitCombatState,
+  type IUnitMaxState,
+} from './UnitCombatState';
 
 // =============================================================================
 // Type
@@ -104,7 +109,7 @@ export interface IRosterUnitProjection {
    */
   readonly chassisVariant: string;
   /**
-   * Display readiness, cached on the projection for selector stability.
+   * Legacy display cache; current decisions use selectUnitReadiness.
    * In the browser the post-battle processor refreshes it from
    * `deriveRosterReadiness(campaign.unitCombatStates[unitId])` when combat
    * state changes. On the saved record of a journal-native campaign, the
@@ -122,42 +127,87 @@ export interface IRosterUnitProjection {
 // =============================================================================
 
 /**
- * Derive roster readiness from canonical combat state.
- *
- * Mapping:
- * - `undefined` state OR `combatReady === false` → `'Destroyed'`.
- *   - The undefined case treats "no combat state yet" the same as
- *     "destroyed" for display purposes — the deploy-flow seeds a fresh
- *     state on first deploy, so this branch only fires for units that
- *     have been explicitly removed from rotation.
- * - `combatReady === true` AND any destroyed components OR any location
- *   below max armor / structure → `'Damaged'`.
- *   - Without an `IUnitMaxState` companion, we cannot tell "damaged"
- *     from "fully repaired" by armor numbers alone — the post-battle
- *     processor flips the projection field directly. The caller can
- *     pass an optional `maxState` to enable accurate diff-based
- *     readiness; without it we fall back to "any destroyed component
- *     means damaged".
- * - Otherwise → `'Ready'`.
- *
- * @param state Canonical combat state for the unit, or `undefined` if the
- *   unit has not yet been deployed.
- * @returns The derived readiness label for display.
+ * Physical condition from canonical facts. Full-health evidence is required to
+ * reconcile a stale false combatReady flag; missing maxima never prove repair.
+ * Campaign absence/authority and deployment reasons belong to selectUnitReadiness.
  */
 export function deriveRosterReadiness(
   state: IUnitCombatState | undefined,
-): 'Ready' | 'Damaged' | 'Destroyed' {
-  // No state = unit not deployed (or removed); display as destroyed so the
-  // dashboard doesn't surface a "Ready" badge for a unit the campaign has
-  // no record of.
+  maxState?: IUnitMaxState,
+): IRosterUnitProjection['readiness'] {
   if (!state) return 'Destroyed';
-  // Explicit destruction flag wins regardless of component counts.
-  if (!state.combatReady) return 'Destroyed';
-  // Any destroyed component or destroyed location implies the unit went
-  // through a battle and took at least one critical hit — show as damaged
-  // until repair completes (which clears the components / restores
-  // combatReady).
-  if (state.destroyedComponents.length > 0) return 'Damaged';
-  if (state.destroyedLocations.length > 0) return 'Damaged';
+  const fullyRestored =
+    maxState !== undefined &&
+    maxState.unitId === state.unitId &&
+    state.heatEnd === 0 &&
+    state.destroyedComponents.length === 0 &&
+    state.destroyedLocations.length === 0 &&
+    completeFullHealthMap(
+      state.currentArmorPerLocation,
+      maxState.maxArmorPerLocation,
+      false,
+    ) &&
+    completeFullHealthMap(
+      state.currentStructurePerLocation,
+      maxState.maxStructurePerLocation,
+      true,
+    ) &&
+    completeFullHealthMap(
+      state.ammoRemaining,
+      maxState.maxAmmoPerBin,
+      false,
+      true,
+    );
+  const effectiveState =
+    !state.combatReady && fullyRestored
+      ? { ...state, combatReady: true }
+      : state;
+  if (
+    !isUnitCombatReady(effectiveState) ||
+    state.destroyedLocations.includes('CT')
+  )
+    return 'Destroyed';
+  if (
+    state.destroyedComponents.length > 0 ||
+    state.destroyedLocations.length > 0
+  )
+    return 'Damaged';
+  if (
+    maxState &&
+    (hasDeficit(state.currentArmorPerLocation, maxState.maxArmorPerLocation) ||
+      hasDeficit(
+        state.currentStructurePerLocation,
+        maxState.maxStructurePerLocation,
+      ))
+  )
+    return 'Damaged';
   return 'Ready';
+}
+
+function hasDeficit(
+  current: Readonly<Record<string, number>>,
+  max: Readonly<Record<string, number>>,
+): boolean {
+  return Object.entries(max).some(
+    ([key, value]) => current[key] !== undefined && current[key] < value,
+  );
+}
+
+function completeFullHealthMap(
+  current: Readonly<Record<string, number>>,
+  max: Readonly<Record<string, number>>,
+  positive: boolean,
+  allowEmpty = false,
+): boolean {
+  const entries = Object.entries(max);
+  return (
+    (allowEmpty || entries.length > 0) &&
+    entries.length === Object.keys(current).length &&
+    entries.every(
+      ([key, value]) =>
+        Number.isFinite(value) &&
+        (positive ? value > 0 : value >= 0) &&
+        current[key] === value,
+    )
+  );
 }

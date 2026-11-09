@@ -29,7 +29,10 @@ import type {
   ICampaignRosterUnitChange,
 } from './campaignHostDoors';
 import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
-import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
+import type {
+  ICampaignIntentContext,
+  UnsequencedCampaignEvent,
+} from './CampaignMatchHostIntent';
 
 import { resultOfCommit, throwCommitFailure } from './campaignHostBatchCommit';
 import {
@@ -48,6 +51,8 @@ export interface ICampaignMatchHostLockedContext {
   readonly campaignId: string;
   readonly hostPlayerId: string;
   readonly eventStore: ICampaignEventStore;
+  /** The authority's market reader; absent refuses every `HireOffer`. */
+  readonly intentContext?: ICampaignIntentContext;
   readonly isOpened: () => boolean;
   readonly isClosed: () => boolean;
   readonly markOpened: () => void;
@@ -161,6 +166,7 @@ export async function handleIntentLocked(
     `guest:${intent.campaignId}`,
     nowIso(),
     host.hostPlayerId,
+    host.intentContext,
   );
   if (!validation.ok) return validation;
 
@@ -195,6 +201,7 @@ export async function applyHostIntentLocked(
     host.hostPlayerId,
     nowIso(),
     host.hostPlayerId,
+    host.intentContext,
   );
   if (!validation.ok) return answered(validation);
   return commitValidated(

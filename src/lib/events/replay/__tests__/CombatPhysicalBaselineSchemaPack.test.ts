@@ -23,6 +23,10 @@ import {
   COMBAT_PHYSICAL_EVENT_TYPES,
 } from '../CombatPhysicalBaselineSchemaPack';
 import {
+  createReplayCheckpointMetadata,
+  evaluateReplayCheckpointCompatibility,
+} from '../ReplayCheckpointCompatibility';
+import {
   ReplaySchemaRegistry,
   UnsupportedReplayHistoryError,
 } from '../ReplaySchemaRegistry';
@@ -230,6 +234,151 @@ describe('combat physical/PSR/ground-object baseline schema pack', () => {
     expect((dfa['clusters'] as unknown[]).length).toBe(5);
     expect((dfa['displacements'] as unknown[]).length).toBe(2);
     expect((dfa['rolls'] as unknown[]).length).toBe(12);
+  });
+
+  describe('swamp-unstuck widening at baseline v1 (C6b)', () => {
+    // The four variants whose payload carries a PSR reason code. Adding
+    // `swamp_unstuck` to that enum widens all four schemas in place.
+    const REVISED_TYPES = [
+      'psr_triggered',
+      'psr_resolved',
+      'unit_fell',
+      'unit_stuck',
+    ] as const;
+
+    const upcastCode = (eventType: string, payload: unknown): string | null => {
+      try {
+        registry.upcast(eventType, 1, payload);
+      } catch (error) {
+        if (error instanceof UnsupportedReplayHistoryError) return error.code;
+        throw error;
+      }
+      return null;
+    };
+
+    it('accepts a UnitStuck that grants jump eligibility', () => {
+      const payload = {
+        ...clone(VALID_COMBAT_PHYSICAL_EVENT_PAYLOADS['unit_stuck']),
+        canUnstickByJumping: true,
+      };
+      expect(registry.upcast('unit_stuck', 1, payload).payload).toEqual(
+        payload,
+      );
+    });
+
+    it('keeps a legacy UnitStuck byte-identical with no eligibility key', () => {
+      const legacy = VALID_COMBAT_PHYSICAL_EVENT_PAYLOADS['unit_stuck'];
+      const upcast = registry.upcast('unit_stuck', 1, legacy).payload;
+      expect(upcast).toEqual(legacy);
+      expect(upcast).not.toHaveProperty('canUnstickByJumping');
+    });
+
+    it.each(['yes', 1, null])(
+      'rejects a UnitStuck eligibility of %p',
+      (value) => {
+        expect(
+          upcastCode('unit_stuck', {
+            ...clone(VALID_COMBAT_PHYSICAL_EVENT_PAYLOADS['unit_stuck']),
+            canUnstickByJumping: value,
+          }),
+        ).toBe('invalid-payload');
+      },
+    );
+
+    it.each(REVISED_TYPES)(
+      '%s accepts the swamp_unstuck reason code',
+      (type) => {
+        const payload = {
+          ...clone(VALID_COMBAT_PHYSICAL_EVENT_PAYLOADS[type]),
+          reasonCode: 'swamp_unstuck',
+        };
+        expect(registry.upcast(type, 1, payload).payload).toEqual(payload);
+      },
+    );
+
+    it('revises the schema id of exactly the four PSR-coded variants', () => {
+      const ids = Object.fromEntries(
+        COMBAT_PHYSICAL_BASELINE_SCHEMA_PACK.map((registration) => [
+          registration.eventType,
+          registration.schemas.map((schema) => schema.schemaId),
+        ]),
+      );
+      for (const eventType of INVENTORY_PHYSICAL_DISCRIMINANTS) {
+        expect(ids[eventType]).toEqual([
+          (REVISED_TYPES as readonly string[]).includes(eventType)
+            ? `combat.${eventType}.v1.swamp-unstuck-1`
+            : `combat.${eventType}.v1`,
+        ]);
+      }
+    });
+
+    it('makes a checkpoint fingerprinted before the widening incompatible, and only for histories holding a revised variant', () => {
+      // The registrations as they stood before C6b: every id was
+      // combat.<type>.v1.
+      const before = new ReplaySchemaRegistry({
+        events: COMBAT_PHYSICAL_BASELINE_SCHEMA_PACK.map((registration) => ({
+          ...registration,
+          schemas: registration.schemas.map((schema) => ({
+            ...schema,
+            schemaId: `combat.${registration.eventType}.v1`,
+          })),
+        })),
+      });
+      const history = (types: readonly string[]) =>
+        types.map((eventType) => ({ eventType, schemaVersion: 1 }));
+      const checkpointFor = (fingerprint: string) =>
+        createReplayCheckpointMetadata({
+          streamId: 'match-1',
+          branchId: 'root',
+          revision: 12,
+          schemaPipelineFingerprint: fingerprint,
+          projectorId: 'combat.reducer',
+          projectorVersion: 1,
+          sourceTailDigest: 'tail',
+          stateDigest: 'state',
+        });
+      const expectationFor = (fingerprint: string) => ({
+        streamId: 'match-1',
+        branchId: 'root',
+        schemaPipelineFingerprint: fingerprint,
+        projectorId: 'combat.reducer',
+        projectorVersion: 1,
+      });
+
+      for (const eventType of REVISED_TYPES) {
+        const oldFingerprint = before.fingerprintPipeline(history([eventType]));
+        const newFingerprint = registry.fingerprintPipeline(
+          history([eventType]),
+        );
+        expect(newFingerprint).not.toBe(oldFingerprint);
+        expect(
+          evaluateReplayCheckpointCompatibility(
+            checkpointFor(oldFingerprint),
+            expectationFor(newFingerprint),
+          ),
+        ).toEqual({
+          compatible: false,
+          mismatches: ['schemaPipelineFingerprint'],
+        });
+      }
+
+      const untouched = INVENTORY_PHYSICAL_DISCRIMINANTS.filter(
+        (eventType) =>
+          !(REVISED_TYPES as readonly string[]).includes(eventType),
+      );
+      const untouchedFingerprint = registry.fingerprintPipeline(
+        history(untouched),
+      );
+      expect(untouchedFingerprint).toBe(
+        before.fingerprintPipeline(history(untouched)),
+      );
+      expect(
+        evaluateReplayCheckpointCompatibility(
+          checkpointFor(untouchedFingerprint),
+          expectationFor(untouchedFingerprint),
+        ),
+      ).toEqual({ compatible: true, digestsVerified: false });
+    });
   });
 
   it('imports no catalog, clock, or RNG surface (pure-data validation)', () => {

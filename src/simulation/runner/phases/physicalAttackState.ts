@@ -4,7 +4,10 @@ import {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay';
+import { clearAttackLinks } from '@/utils/gameplay/attackLinks';
+import { releasedGrappleState } from '@/utils/gameplay/attackLinks';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
 import { translateHex } from '@/utils/gameplay/physicalAttacks';
 
 import { LETHAL_PILOT_WOUNDS } from '../SimulationRunnerConstants';
@@ -88,22 +91,14 @@ export function applyBreakGrappleState(options: {
       ...state.units,
       [attackerId]: {
         ...attacker,
-        grappledUnitId: undefined,
-        isGrappleAttacker: undefined,
-        grappledThisRound: false,
-        grappleSide: undefined,
-        isChainWhipGrappled: false,
+        ...releasedGrappleState(),
         facing: attackerMoved
           ? facingToward(attacker.position, target.position, attacker.facing)
           : attacker.facing,
       },
       [targetId]: {
         ...target,
-        grappledUnitId: undefined,
-        isGrappleAttacker: undefined,
-        grappledThisRound: false,
-        grappleSide: undefined,
-        isChainWhipGrappled: false,
+        ...releasedGrappleState(),
         facing: targetMoved
           ? facingToward(target.position, attacker.position, target.facing)
           : target.facing,
@@ -125,8 +120,7 @@ export function markUnitFallenAfterDfaMiss(
     units: {
       ...state.units,
       [unitId]: {
-        ...unit,
-        prone: true,
+        ...applyFallPosture(unit),
         facing: newFacing,
         pendingPSRs: [],
       },
@@ -207,18 +201,21 @@ export function applyDfaMissFallPilotDamage(options: {
     });
   }
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [unitId]: {
-        ...unit,
-        pilotWounds: totalWounds,
-        pilotConscious,
-        edgePointsRemaining:
-          consciousnessCheck.edgePointsRemaining ?? unit.edgePointsRemaining,
-        destroyed: pilotKilled ? true : unit.destroyed,
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [unitId]: {
+          ...unit,
+          pilotWounds: totalWounds,
+          pilotConscious,
+          edgePointsRemaining:
+            consciousnessCheck.edgePointsRemaining ?? unit.edgePointsRemaining,
+          destroyed: pilotKilled ? true : unit.destroyed,
+        },
       },
     },
-  };
+    unitId,
+  );
 }

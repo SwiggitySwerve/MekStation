@@ -31,6 +31,7 @@ jest.mock('@/stores/campaign/campaignRefitActions', () => ({
 const mockSaveCampaign = jest.fn();
 
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: {
     getState: () => ({ saveCampaign: mockSaveCampaign }),
   },
@@ -103,7 +104,7 @@ describe('CampaignRefitCommandBar', () => {
     mockPush.mockReset();
     mockNavigateToCampaignCustomizerReturn.mockReset();
     mockSaveCampaign.mockReset().mockResolvedValue({ status: 'saved' });
-    mockCommitRefitOrder.mockReset().mockReturnValue({
+    mockCommitRefitOrder.mockReset().mockResolvedValue({
       applied: true,
       order: {
         id: 'refit-1',
@@ -151,7 +152,7 @@ describe('CampaignRefitCommandBar', () => {
         currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
       }),
     );
-    expect(mockSaveCampaign).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mockSaveCampaign).toHaveBeenCalledTimes(1));
     await waitFor(() => {
       expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledWith(
         expect.objectContaining({ push: mockPush }),
@@ -174,6 +175,35 @@ describe('CampaignRefitCommandBar', () => {
       await screen.findByTestId('campaign-refit-save-error'),
     ).toHaveTextContent('Campaign changed on another client');
     expect(mockNavigateToCampaignCustomizerReturn).not.toHaveBeenCalled();
+  });
+
+  it('retries persistence of the same order instead of committing a duplicate', async () => {
+    mockSaveCampaign.mockResolvedValueOnce({
+      status: 'error',
+      errorMessage: 'Save failed.',
+    });
+    renderCommandBar({ changed: true });
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Save failed.');
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+    await waitFor(() =>
+      expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledTimes(1),
+    );
+    expect(mockCommitRefitOrder).toHaveBeenCalledTimes(1);
+    expect(mockSaveCampaign).toHaveBeenCalledTimes(2);
+  });
+
+  it('surfaces an open-order rejection without attempting a save', async () => {
+    mockCommitRefitOrder.mockResolvedValue({
+      applied: false,
+      reason: 'This unit already has an open refit order.',
+    });
+    renderCommandBar({ changed: true });
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'This unit already has an open refit order.',
+    );
+    expect(mockSaveCampaign).not.toHaveBeenCalled();
   });
 
   it('keeps no-delta refit saves disabled', () => {

@@ -13,12 +13,12 @@ const LOCAL_CRITICAL_PSR_BRIDGE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation weaponAttackCriticalEvents converts crit-origin psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
     'src/simulation/runner/phases/weaponAttackCriticalEvents.ts',
-    'L153-L186',
+    'L154-L187',
   ),
   mekstationDeviationRef(
     'MekStation heatCriticalDamage converts heat-critical psr_triggered events into runner PSRTriggered events with canonical reasonCode values.',
     'src/simulation/runner/phases/heatCriticalDamage.ts',
-    'L145-L169',
+    'L137-L161',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -82,7 +82,7 @@ export const MEGAMEK_MP_BOOSTER_FAILURE_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runPSRPhase routes failed MASCFailure and SuperchargerFailure resolution through movement-enhancement failure critical-damage helpers.',
     'src/simulation/runner/phases/postCombatPsr.ts',
-    'L111-L155',
+    'L124-L168',
   ),
   mekstationDeviationRef(
     'MekStation psrEdgeRerolls consumes edge_when_masc_fails to reroll failed MASCFailure and SuperchargerFailure PSRs before applying fall or booster-failure aftermath.',
@@ -110,7 +110,7 @@ export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation runHeatPhase routes heat shutdown into queueRunnerShutdownPSR after emitting the ShutdownCheck event and before persisting shutdown state.',
     'src/simulation/runner/phases/postCombatHeatLifecycle.ts',
-    'L97-L155',
+    'L98-L160',
   ),
   mekstationDeviationRef(
     'MekStation queueRunnerShutdownPSR emits PSRTriggered with PSRTrigger.Shutdown and appends the pending createShutdownPSR entry for later PSR phase resolution.',
@@ -120,7 +120,7 @@ export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation createShutdownPSR stamps Reactor shutdown with PSRTrigger.Shutdown reasonCode and triggerSource.',
     'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-    'L45-L58',
+    'L54-L67',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -148,7 +148,7 @@ export const STANDING_UP_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation createStandingUpPSR stamps Standing up with PSRTrigger.StandingUp reasonCode and optional movement-step triggerSource.',
     'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-    'L72-L84',
+    'L81-L93',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -189,7 +189,7 @@ export const DAMAGE_THRESHOLD_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyDamageThresholdPSR queues createDamagePSR once damageThisPhase reaches the local 20+ threshold and avoids duplicate phase-damage PSRs.',
     'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
-    'L415-L442',
+    'L410-L437',
   ),
   mekstationDeviationRef(
     'MekStation createDamagePSR stamps PhaseDamage20Plus as the reasonCode and triggerSource for the pending PSR.',

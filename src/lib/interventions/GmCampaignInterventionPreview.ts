@@ -11,10 +11,12 @@ import type {
   IGmCampaignSalvageAllocationCorrection,
 } from '@/types/interventions';
 
+import { completeRepairTicket } from '@/lib/campaign/repair/repairTicketLifecycle';
 import { TransactionType } from '@/types/campaign/Transaction';
 
 export interface IGmCampaignProjectedEffectResult {
   readonly effect: IGmCampaignProjectedEffect;
+  readonly additionalEffects?: readonly IGmCampaignProjectedEffect[];
   readonly changedStateRefs: readonly string[];
   readonly summary: string;
 }
@@ -158,9 +160,69 @@ function buildRepairTicketEffect(
     );
   }
 
+  let ticketAfter = after.value;
+  const additionalEffects: IGmCampaignProjectedEffect[] = [];
+  if (ticketAfter?.status === 'completed') {
+    const unitState = state.unitCombatStates[ticketAfter.unitId];
+    if (!before || !unitState) {
+      return failure(
+        'campaign-repair-unit-state-missing',
+        'Repair completion requires an existing ticket and unit combat state.',
+        [repairTicketRef(state.id, correction.ticketId)],
+      );
+    }
+    // A status correction must pass the same completion boundary as daily work.
+    const completion = completeRepairTicket(
+      { ...ticketAfter, status: before.status },
+      state.partsInventory,
+      unitState,
+      state.unitMaxStates?.[ticketAfter.unitId],
+      state.currentDate.toISOString(),
+    );
+    if (completion.kind === 'blocked') {
+      return failure(
+        `campaign-repair-${completion.reason}`,
+        `Repair completion blocked: ${completion.reason}.`,
+        [repairTicketRef(state.id, correction.ticketId)],
+      );
+    }
+    ticketAfter = completion.ticket;
+    const unitEffect = buildBaseUnitStateEffect(
+      domain,
+      {
+        family: 'base-unit-state',
+        unitId: ticketAfter.unitId,
+        combatState: completion.state,
+      },
+      state,
+      summaryOverride,
+    );
+    if (!unitEffect.effect) return unitEffect;
+    additionalEffects.push(unitEffect.effect);
+    for (const item of state.partsInventory ?? []) {
+      const next = completion.inventory.find(
+        (candidate) => candidate.inventoryId === item.inventoryId,
+      );
+      if (next?.quantity === item.quantity) continue;
+      const inventoryEffect = buildInventoryLotEffect(
+        domain,
+        {
+          family: 'inventory-lot',
+          inventoryId: item.inventoryId,
+          ...(next ? { item: next } : { remove: true }),
+        },
+        state,
+        summaryOverride,
+      );
+      if (!inventoryEffect.effect) return inventoryEffect;
+      additionalEffects.push(inventoryEffect.effect);
+    }
+  }
+
   const changedStateRefs = [
     campaignFieldRef(state.id, 'repairQueue'),
     repairTicketRef(state.id, correction.ticketId),
+    ...additionalEffects.flatMap((effect) => effect.changedStateRefs),
   ];
   const summary =
     summaryOverride ??
@@ -168,6 +230,7 @@ function buildRepairTicketEffect(
 
   return {
     summary,
+    additionalEffects,
     changedStateRefs,
     effect: {
       type: 'gm.campaign.repair_ticket_corrected',
@@ -175,7 +238,7 @@ function buildRepairTicketEffect(
       family: 'repair-ticket',
       ticketId: correction.ticketId,
       before,
-      after: after.value,
+      after: ticketAfter,
       changedStateRefs,
       publicSummary: summary,
     },

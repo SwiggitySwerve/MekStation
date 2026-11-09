@@ -7,6 +7,8 @@
 
 import {
   GamePhase,
+  GameEventType,
+  LockState,
   GameSide,
   GameStatus,
   type IGameEvent,
@@ -14,11 +16,14 @@ import {
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { createEventBase } from '@/utils/gameplay/gameEvents/base';
 import {
   appendEvent,
   createGameSession,
   startGame,
+  advancePhase,
 } from '@/utils/gameplay/gameSessionCore';
+import { resolveHeatPhase } from '@/utils/gameplay/gameSessionHeat';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
 
 import {
@@ -29,6 +34,8 @@ import {
   buildActivateMovementEnhancementIntent,
   buildConcedeIntent,
   buildDeclareMovementIntent,
+  buildDeclareAttackIntent,
+  buildDeclarePhysicalIntent,
   buildEndPhaseIntent,
   buildGoProneIntent,
   buildStandIntent,
@@ -388,4 +395,122 @@ describe('hostIntentRouter', () => {
     expect(router.flushBuffered()).toEqual([]);
     expect(harness.appended).toEqual([]);
   });
+});
+
+it.each([false, true])(
+  'refuses committed declarations without appending through the router (buffered=%s)',
+  (buffered) => {
+    for (const phase of [GamePhase.WeaponAttack, GamePhase.PhysicalAttack]) {
+      const initial = fixtureSession();
+      const session = {
+        ...initial,
+        currentState: { ...initial.currentState, phase },
+      };
+      session.currentState.units['guest-0'] = {
+        ...session.currentState.units['guest-0'],
+        lockState: LockState.Locked,
+      };
+      const harness = makeAdapter(session);
+      harness.setGuestPending(buffered);
+      const router = createHostIntentRouter(harness.adapter);
+      const intent =
+        phase === GamePhase.WeaponAttack
+          ? buildDeclareAttackIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              weapons: ['ml-1'],
+              toHitNumber: 7,
+            })
+          : buildDeclarePhysicalIntent(GUEST_PEER, {
+              attackerId: 'guest-0',
+              targetId: 'host-0',
+              attackType: 'punch',
+            });
+      const result = router.handleIntent(intent);
+      if (buffered) {
+        expect(result.outcome).toBe('buffered');
+        harness.setGuestPending(false);
+        expect(router.flushBuffered()).toEqual([
+          expect.objectContaining({
+            outcome: 'rejected',
+            reason: 'unsupported-intent',
+            detail: 'unit-already-committed',
+          }),
+        ]);
+      } else
+        expect(result).toMatchObject({
+          outcome: 'rejected',
+          reason: 'unsupported-intent',
+          detail: 'unit-already-committed',
+        });
+      expect(harness.appended).toEqual([]);
+      expect(harness.adapter.getSession()).toBe(session);
+    }
+  },
+);
+
+it('C10 routes a P2P heat command through the resolver and mirrors its recorded events', () => {
+  let initial = fixtureSession();
+  for (const entry of [
+    {
+      type: GameEventType.PhaseChanged,
+      payload: {
+        fromPhase: initial.currentState.phase,
+        toPhase: GamePhase.Heat,
+      },
+    },
+    {
+      type: GameEventType.EmpMinefieldEffectApplied,
+      payload: {
+        unitId: 'guest-0',
+        hex: { q: 0, r: 0 },
+        roll: 9,
+        modifier: 0,
+        modifiedRoll: 9,
+        effect: 'shutdown',
+        durationTurns: 2,
+        source: 'minefield',
+      },
+    },
+  ]) {
+    initial = appendEvent(initial, {
+      ...createEventBase(
+        initial.id,
+        initial.events.length,
+        entry.type,
+        initial.currentState.turn,
+        GamePhase.Heat,
+        'guest-0',
+      ),
+      payload: entry.payload,
+    });
+  }
+  const harness = makeAdapter(initial);
+  const router = createHostIntentRouter({
+    ...harness.adapter,
+    advancePhase: () => {
+      const before = harness.adapter.getSession();
+      if (!before) throw new Error('missing P2P host session');
+      harness.setSession(
+        advancePhase(
+          resolveHeatPhase(before, () => {
+            throw new Error('EMP startup must not consume dice');
+          }),
+        ),
+      );
+    },
+  });
+  expect(
+    router.handleIntent(
+      buildEndPhaseIntent(GUEST_PEER, { phase: GamePhase.Heat }),
+    ).outcome,
+  ).toBe('applied');
+  const resolved = harness.adapter.getSession();
+  expect(resolved?.currentState.units['guest-0'].shutdown).toBe(true);
+  const tail = resolved?.events.slice(initial.events.length) ?? [];
+  expect(tail.filter((e) => e.type === GameEventType.StartupAttempt)).toEqual(
+    [],
+  );
+  const mirrored = tail.reduce(appendEvent, initial);
+  expect(mirrored.currentState).toEqual(resolved?.currentState);
 });

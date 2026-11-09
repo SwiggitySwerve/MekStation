@@ -1,3 +1,4 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 /**
  * Game session attack, heat, and PSR event payloads
  * Extracted from GameSessionInterfaces.ts to keep focused type modules under the lint line cap.
@@ -418,14 +419,7 @@ export interface IUnitDestroyedPayload {
    * destruction cause. It is reported by `ShutdownCheck`/heat lifecycle
    * events and should not be encoded as `UnitDestroyed`.
    */
-  readonly cause:
-    | 'damage'
-    | 'ammo_explosion'
-    | 'pilot_death'
-    | 'engine_destroyed'
-    | 'impossible_displacement'
-    | 'ct_destroyed'
-    | 'head_destroyed';
+  readonly cause: UnitDestroyedCause;
   /** Unit that killed this unit (undefined for self-destruction: ammo explosions, pilot death, etc.) */
   readonly killerUnitId?: string;
 }
@@ -596,6 +590,13 @@ export interface IUnitStuckPayload {
   readonly unitId: string;
   readonly reason?: string;
   readonly reasonCode?: PSRTrigger;
+  /**
+   * Present (and true) only when the unit may later free itself by jumping:
+   * MegaMek grants this for a failed bog-down roll during ground movement,
+   * not for jumping into or being displaced into the swamp. Absent on
+   * every other stuck event, so the reducer never writes a false key.
+   */
+  readonly canUnstickByJumping?: boolean;
 }
 
 /**

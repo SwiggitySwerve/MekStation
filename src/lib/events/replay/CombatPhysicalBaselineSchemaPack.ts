@@ -194,6 +194,7 @@ const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
       unitId: z.string(),
       reason: z.string().optional(),
       reasonCode: psrTriggerSchema.optional(),
+      canUnstickByJumping: z.boolean().optional(),
     })
     .strict(),
   [GameEventType.UnitStood]: z
@@ -252,6 +253,30 @@ const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
     .strict(),
 } satisfies Record<CombatPhysicalEventType, z.ZodType>;
 
+/**
+ * The variants whose v1 schema was widened in place for the swamp-unstuck
+ * lifecycle (C6b): `swamp_unstuck` joined the PSR reason-code enum all four
+ * carry, and `UnitStuck` gained the optional `canUnstickByJumping`. Every
+ * earlier payload still parses unchanged, so they stay at v1 with no
+ * transition. The pipeline fingerprint hashes schema ids, not shapes, so
+ * the revised id is what makes a checkpoint fingerprinted before the
+ * widening incompatible (event-store spec, "Upcast pipeline changes
+ * without a projector change"); same pattern as #1947.
+ */
+const SWAMP_UNSTUCK_REVISED_EVENT_TYPES: ReadonlySet<GameEventType> =
+  new Set<GameEventType>([
+    GameEventType.PSRTriggered,
+    GameEventType.PSRResolved,
+    GameEventType.UnitFell,
+    GameEventType.UnitStuck,
+  ]);
+
+function combatPhysicalSchemaId(eventType: GameEventType): string {
+  return SWAMP_UNSTUCK_REVISED_EVENT_TYPES.has(eventType)
+    ? `combat.${eventType}.v1.swamp-unstuck-1`
+    : `combat.${eventType}.v1`;
+}
+
 /** The ten runtime discriminant values this pack registers. */
 export const COMBAT_PHYSICAL_EVENT_TYPES: readonly GameEventType[] =
   Object.freeze(
@@ -276,7 +301,7 @@ export const COMBAT_PHYSICAL_BASELINE_SCHEMA_PACK: readonly IReplayEventSchemaRe
         schemas: [
           {
             schemaVersion: 1,
-            schemaId: `combat.${eventType}.v1`,
+            schemaId: combatPhysicalSchemaId(eventType),
             parse: (payload: unknown) => schema.parse(payload),
           },
         ],

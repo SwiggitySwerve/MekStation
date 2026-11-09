@@ -1,3 +1,4 @@
+import { act, render, screen, waitFor } from '@testing-library/react';
 /**
  * Co-op mission launch route probes for the staged multiplayer/co-op work.
  *
@@ -8,11 +9,10 @@
  *
  * @spec openspec/specs/coop-campaign-sync/spec.md
  */
-
-import { act, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignSyncWebSocket } from '@/lib/campaign/coop/campaignSyncTransport';
+import type { ReadinessAuthority } from '@/lib/campaign/readiness/selectUnitReadiness';
 import type { IForce } from '@/types/campaign/Force';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
@@ -27,7 +27,11 @@ import {
   publishCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { createCampaign, createMission } from '@/types/campaign/Campaign';
-import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import {
+  createGuestCoopSession,
+  createHostCoopSession,
+} from '@/types/campaign/CoopSession';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 const mockRouterPush = jest.fn();
@@ -48,6 +52,15 @@ let mockRosterUnits: IRosterUnitProjection[] = [
     readiness: 'Ready' as const,
   },
 ];
+
+let mockReadinessAuthority: ReadinessAuthority = { kind: 'snapshot' };
+let mockDayAdvanceInFlight = false;
+jest.mock('@/lib/campaign/hooks/useDayAdvanceInFlight', () => ({
+  useDayAdvanceInFlight: () => mockDayAdvanceInFlight,
+}));
+jest.mock('@/lib/campaign/readiness/useReadinessAuthority', () => ({
+  useReadinessAuthority: () => mockReadinessAuthority,
+}));
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -90,6 +103,9 @@ jest.mock('@/components/campaign/CampaignNavigation', () => ({
 }));
 
 jest.mock('@/lib/campaign/coop/launchCoopMission', () => ({
+  ...jest.requireActual<typeof import('@/lib/campaign/coop/launchCoopMission')>(
+    '@/lib/campaign/coop/launchCoopMission',
+  ),
   launchCoopMission: (...args: unknown[]) => mockLaunchCoopMission(...args),
 }));
 
@@ -115,6 +131,7 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     reportLaunchConflict: () => {},
   };
   return {
+    hasUnsettledCampaignPersistence: () => false,
     useCampaignPersistenceStore: Object.assign(
       (selector: (state: typeof persistenceState) => unknown) =>
         selector(persistenceState),
@@ -124,7 +141,18 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
 });
 
 const mockRosterState = {
-  pilots: [],
+  get units() {
+    return mockRosterUnits;
+  },
+  get pilots() {
+    return mockRosterUnits
+      .filter((unit) => unit.pilotId)
+      .map((unit) => ({
+        pilotId: unit.pilotId,
+        pilotName: unit.unitName,
+        status: CampaignPilotStatus.Active,
+      }));
+  },
   getUnitsWithReadiness: () => mockRosterUnits,
   getDeployableUnits: () => mockRosterUnits,
 };
@@ -137,11 +165,12 @@ jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
 }));
 
 const mockGetCampaign = jest.fn();
-const mockCampaignStoreApi = {
+let mockCampaignStoreApi = {
   getState: () => ({
     campaign: mockGetCampaign(),
     getCampaign: mockGetCampaign,
     updateCampaign: mockUpdateCampaign,
+    switchCampaign: mockUpdateCampaign,
     saveCampaign: mockSaveCampaign,
     getMissionsStore: () => ({
       getState: () => ({
@@ -159,6 +188,17 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
 import CoopMissionLaunchPage from '@/pages/gameplay/campaigns/[id]/missions/[missionId]/launch';
 
 function makeForce(id: string, unitIds: string[]): IForce {
+  for (const unitId of unitIds) {
+    if (!mockRosterUnits.some((unit) => unit.unitId === unitId))
+      mockRosterUnits.push({
+        unitId,
+        unitRef: 'atlas-as7-d',
+        unitName: unitId,
+        chassisVariant: 'AS7-D',
+        readiness: 'Ready',
+        pilotId: `pilot-${unitId}`,
+      });
+  }
   return {
     id,
     name: `Force ${id}`,
@@ -185,6 +225,9 @@ function makeSoloLaunchCampaign(name: string) {
 
 describe('CoopMissionLaunchPage - staged participation sync', () => {
   beforeEach(() => {
+    mockCampaignStoreApi = { ...mockCampaignStoreApi };
+    mockDayAdvanceInFlight = false;
+    mockReadinessAuthority = { kind: 'snapshot' };
     mockRouterPush.mockReset();
     mockGetCampaign.mockReset();
     mockMaterializeCampaignMissionEncounter.mockReset().mockResolvedValue({
@@ -219,12 +262,161 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         unitName: 'Atlas',
         chassisVariant: 'AS7-D',
         readiness: 'Ready',
+        pilotId: 'pilot-atlas',
       },
     ];
     mockCanonicalUnitRefs = ['atlas-as7-d'];
     mockCustomCombatRefs = undefined;
     mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);
     _resetCoopRuntimeSessions();
+  });
+
+  it('explains guest launch authority and keeps the participation picker', async () => {
+    mockGetCampaign.mockReturnValue({
+      ...makeSoloLaunchCampaign('Guest launch'),
+      coopSession: createGuestCoopSession('match-launch-1', 'ABC234'),
+    });
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+    expect(
+      screen.getByText('The host starts this mission.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('coop-launch-mission')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Join Mission' }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('coop-participation-picker')).toBeInTheDocument();
+    expect(mockLaunchCoopMission).not.toHaveBeenCalled();
+  });
+
+  it.each(['deploy', 'command-hq'] as const)(
+    'guest %s joins without creating or launching an encounter',
+    async (choice) => {
+      const campaign = makeSoloLaunchCampaign('Recorded guest mission');
+      const mission = campaign.missions.get('mission-alpha');
+      if (!mission) throw new Error('Missing mission fixture');
+      mockGetCampaign.mockReturnValue({
+        ...campaign,
+        missions: new Map([
+          [mission.id, { ...mission, scenarioIds: ['recorded-encounter'] }],
+        ]),
+        coopSession: createGuestCoopSession('match-launch-1', 'ABC234'),
+      });
+      const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          encounter: { id: 'recorded-encounter', gameSessionId: 'session-1' },
+        }),
+      } as Response);
+      try {
+        await act(async () => {
+          render(<CoopMissionLaunchPage />);
+        });
+        await act(async () => {
+          screen.getByTestId(`participation-${choice}`).click();
+        });
+        await act(async () => {
+          screen.getByTestId('coop-join-mission').click();
+        });
+        expect(mockLoadPersistedCampaign).toHaveBeenCalledWith(campaign.id);
+        expect(mockRouterPush).toHaveBeenCalledWith(
+          choice === 'deploy'
+            ? '/gameplay/encounters/recorded-encounter?campaignId=campaign-coop-1&missionId=mission-alpha'
+            : '/gameplay/campaigns/campaign-coop-1',
+        );
+        if (choice === 'deploy')
+          expect(fetchMock).toHaveBeenCalledWith(
+            '/api/encounters/recorded-encounter',
+            expect.objectContaining({ signal: expect.anything() }),
+          );
+        else expect(fetchMock).not.toHaveBeenCalled();
+        expect(mockLaunchCoopMission).not.toHaveBeenCalled();
+        expect(mockMaterializeCampaignMissionEncounter).not.toHaveBeenCalled();
+      } finally {
+        fetchMock.mockRestore();
+      }
+    },
+  );
+
+  it('disables co-op launch while the campaign clock advances', async () => {
+    const campaign = makeSoloLaunchCampaign('Advancing');
+    const force = makeForce(campaign.rootForceId, ['u-host-1']);
+    mockGetCampaign.mockReturnValue({
+      ...campaign,
+      forces: new Map([[force.id, force]]),
+      coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
+    });
+    publishCoopParticipation({
+      matchId: 'match-launch-1',
+      missionId: 'mission-alpha',
+      playerId: 'guest',
+      role: 'guest',
+      choice: 'deploy',
+      force: makeForce('guest-force', ['u-guest-1']),
+    });
+    mockDayAdvanceInFlight = true;
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+    expect(
+      screen.getByRole('button', { name: 'Launch Mission' }),
+    ).toBeDisabled();
+    expect(mockLaunchCoopMission).not.toHaveBeenCalled();
+  });
+
+  it('waits for authority before presenting fresh mirrored units for selection', async () => {
+    mockGetCampaign.mockReturnValue(makeSoloLaunchCampaign('Fresh company'));
+    mockRosterUnits = [1, 2].map((index) => ({
+      unitId: `unit-${index}`,
+      unitRef: 'atlas-as7-d',
+      unitName: 'Atlas',
+      chassisVariant: 'AS7-D',
+      readiness: 'Ready',
+      pilotId: `vault-pilot-${index}`,
+      sourceVersion: 1,
+    }));
+    mockReadinessAuthority = { kind: 'loading' };
+    const view = render(<CoopMissionLaunchPage />);
+    await waitFor(() =>
+      expect(screen.getByTestId('launch-mission-direct')).toBeDisabled(),
+    );
+    expect(
+      screen.queryByTestId('mission-readiness-panel'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Loading readiness...',
+    );
+    mockReadinessAuthority = { kind: 'snapshot' };
+    view.rerender(<CoopMissionLaunchPage />);
+    await waitFor(() =>
+      expect(screen.getAllByRole('checkbox')).toHaveLength(2),
+    );
+    for (const checkbox of screen.getAllByRole('checkbox')) {
+      expect(checkbox).toBeEnabled();
+      expect(checkbox).toBeChecked();
+    }
+    expect(screen.getByTestId('launch-mission-direct')).toBeEnabled();
+  });
+
+  it('shows an unassigned pilot blocker with the unchanged assignment action', async () => {
+    mockGetCampaign.mockReturnValue(
+      makeSoloLaunchCampaign('Unassigned company'),
+    );
+    mockRosterUnits = mockRosterUnits.map(
+      ({ pilotId: _pilotId, ...unit }) => unit,
+    );
+    render(<CoopMissionLaunchPage />);
+    const link = await screen.findByRole('link', { name: 'Assign pilot' });
+    expect(link).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-coop-1/personnel?intent=assign-pilot&unit=atlas-as7-d',
+    );
+    expect(
+      screen.getAllByText('No pilot assigned. Assign one before launch.'),
+    ).toHaveLength(1);
+    expect(link.closest('[role="alert"]')).toBeInTheDocument();
   });
 
   it('keeps co-op launch gated while the other player choice is not synchronized', async () => {
@@ -261,6 +453,12 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
     const rootForce = makeForce(baseCampaign.rootForceId, ['u-host-1']);
     const campaign = {
       ...baseCampaign,
+      missions: new Map([
+        [
+          'mission-alpha',
+          createMission({ id: 'mission-alpha', name: 'Selected mission' }),
+        ],
+      ]),
       id: 'campaign-coop-1',
       forces: new Map([[rootForce.id, rootForce]]),
       coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
@@ -507,6 +705,15 @@ interface ICoopRosterUnitFixture {
 
 /** A co-op runtime whose host projection carries the given roster rows. */
 function coopRuntimeWithRoster(units: readonly ICoopRosterUnitFixture[]) {
+  mockRosterUnits = units.map((unit) => ({
+    unitId: unit.unitId,
+    unitRef: unit.unitRef,
+    unitName: unit.designation,
+    chassisVariant: 'Fixture',
+    readiness: 'Ready',
+    pilotId: `pilot-${unit.unitId}`,
+    unitSource: unit.unitSource as IRosterUnitProjection['unitSource'],
+  }));
   const rosterUnits = Object.fromEntries(
     units.map((unit) => [unit.unitId, unit]),
   );
@@ -577,6 +784,12 @@ describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
     const rootForce = makeForce(baseCampaign.rootForceId, [HOST_UNIT]);
     mockGetCampaign.mockReturnValue({
       ...baseCampaign,
+      missions: new Map([
+        [
+          'mission-alpha',
+          createMission({ id: 'mission-alpha', name: 'Selected mission' }),
+        ],
+      ]),
       id: 'campaign-coop-1',
       forces: new Map([[rootForce.id, rootForce]]),
       coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
@@ -603,6 +816,7 @@ describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
   }
 
   beforeEach(() => {
+    mockCampaignStoreApi = { ...mockCampaignStoreApi };
     mockRouterPush.mockReset();
     mockGetCampaign.mockReset();
     mockLaunchCoopMission.mockReset();
@@ -801,6 +1015,7 @@ describe('CoopMissionLaunchPage - creator binding and reseat (P2CG1G2)', () => {
   }
 
   beforeEach(() => {
+    mockCampaignStoreApi = { ...mockCampaignStoreApi };
     sockets.length = 0;
     mockGetCampaign.mockReset();
     mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);

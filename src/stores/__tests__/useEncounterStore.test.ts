@@ -1,3 +1,4 @@
+import { act, renderHook } from '@testing-library/react';
 /**
  * useEncounterStore — rawForceIds Slot Tests
  *
@@ -12,8 +13,6 @@
  *       (Requirement: Encounter List Surfaces Broken-Reference State)
  */
 
-import { act, renderHook } from '@testing-library/react';
-
 import {
   EncounterStatus,
   ScenarioTemplateType,
@@ -21,6 +20,7 @@ import {
   VictoryConditionType,
   type IEncounter,
 } from '@/types/encounter';
+import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 
 import { useEncounterStore } from '../useEncounterStore';
 
@@ -151,5 +151,57 @@ describe('useEncounterStore — rawForceIds slot', () => {
     expect(result.current.encounters).toHaveLength(1);
     expect(result.current.rawForceIds).toEqual({});
     expect(result.current.getEncounterRawForceIds('enc-legacy')).toBeNull();
+  });
+});
+
+describe('encounter store lifecycle transport', () => {
+  const session = () =>
+    createGameSession(
+      {
+        mapRadius: 6,
+        turnLimit: 10,
+        victoryConditions: [],
+        optionalRules: [],
+        encounterId: 'enc-1',
+      },
+      [],
+    );
+  it.each(['linkSession', 'completeSession'] as const)(
+    'reloads server state after %s',
+    async (operation) => {
+      const game = session();
+      mockFetchResponse({ success: true });
+      const expected = {
+        ...makeEncounter('enc-1', 'Local'),
+        status:
+          operation === 'linkSession'
+            ? EncounterStatus.Launched
+            : EncounterStatus.Completed,
+        gameSessionId: game.id,
+      };
+      mockFetchResponse({ encounters: [expected] });
+      expect(await useEncounterStore.getState()[operation](game)).toBe(true);
+      expect(mockFetch).toHaveBeenNthCalledWith(
+        1,
+        '/api/encounters/enc-1/session',
+        expect.objectContaining({
+          method: operation === 'linkSession' ? 'POST' : 'PATCH',
+        }),
+      );
+      expect(useEncounterStore.getState().encounters).toEqual([expected]);
+    },
+  );
+  it('keeps server state and surfaces a rejected link', async () => {
+    mockFetchResponse(
+      { success: false, error: 'Already launched' },
+      false,
+      400,
+    );
+    expect(await useEncounterStore.getState().linkSession(session())).toBe(
+      false,
+    );
+    expect(useEncounterStore.getState().error).toBe('Already launched');
+    expect(useEncounterStore.getState().encounters).toEqual([]);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 });

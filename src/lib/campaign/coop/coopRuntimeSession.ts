@@ -24,6 +24,7 @@ import type {
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IForce } from '@/types/campaign/Force';
 
+import { campaignMarketIntentContext } from '@/lib/campaign/markets/authoritativeOffers';
 import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import {
   CampaignGmArbiter,
@@ -45,6 +46,12 @@ export interface IOpenCoopRuntimeOptions {
   readonly roomCode?: string;
   readonly hostPlayerId?: string;
   readonly arbitrationMode?: GmArbitrationMode;
+  /**
+   * The host's live campaign (K14b). Its markets are what a co-op hire or
+   * acceptance is judged against, read at each intent. Defaults to the
+   * campaign the session opened with.
+   */
+  readonly readCampaign?: () => ICampaign | null;
 }
 
 export interface ICoopRuntimeSession {
@@ -100,6 +107,10 @@ export async function openCoopRuntimeSession(
     // the in-memory store whatever CAMPAIGN_JOURNAL_AUTHORITY_ENABLED holds.
     eventStore: createDefaultCampaignEventStore(),
     initialState: buildCampaignAuthoritativeState(campaign),
+    intentContext: campaignMarketIntentContext(
+      campaign.id,
+      options.readCampaign ?? (() => campaign),
+    ),
   });
   const syncSession = new CampaignSyncSession(host);
   await syncSession.open(options.roomCode ?? campaign.coopSession?.roomCode);
@@ -123,6 +134,11 @@ export async function openCoopRuntimeSession(
   // waiter must hear them from the arbiter's resolved-result path.
   arbiter.subscribeResolved((result) => {
     resolveGuestProposal(record, result);
+  });
+  arbiter.subscribeClosed(() => {
+    for (const proposalId of Array.from(record.resultWaiters.keys())) {
+      resolveGuestProposal(record, sessionClosed(proposalId));
+    }
   });
 
   runtimeByMatchId.set(matchId, record);
@@ -165,13 +181,30 @@ export async function submitGuestProposalToHost(
     return sessionClosed(proposal.proposalId);
   }
 
-  const initial = await runtime.arbiter.submitProposal(proposal);
-  if (initial.status !== 'pending') {
-    return initial;
+  // The arbiter rejects the duplicate; it must never replace the first waiter.
+  if (runtime.resultWaiters.has(proposal.proposalId)) {
+    return runtime.arbiter.submitProposal(proposal);
   }
-
-  return new Promise<GuestProposalResult>((resolve) => {
+  return new Promise<GuestProposalResult>((resolve, reject) => {
+    // Admission can synchronously notify a host that closes or decides. Install
+    // the waiter first so that terminal result cannot fall through the gap.
     runtime.resultWaiters.set(proposal.proposalId, resolve);
+    void runtime.arbiter.submitProposal(proposal).then(
+      (initial) => {
+        if (initial.status !== 'pending') {
+          if (runtime.resultWaiters.get(proposal.proposalId) === resolve) {
+            runtime.resultWaiters.delete(proposal.proposalId);
+          }
+          resolve(initial);
+        }
+      },
+      (error: unknown) => {
+        if (runtime.resultWaiters.get(proposal.proposalId) === resolve) {
+          runtime.resultWaiters.delete(proposal.proposalId);
+        }
+        reject(error);
+      },
+    );
   });
 }
 

@@ -25,6 +25,7 @@ import type { IHex, IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
 import {
   GameEventType,
+  LockState,
   GameSide,
   Facing,
   MovementType,
@@ -417,3 +418,48 @@ function setupIndirectSessionWithSpotter(): {
 
   return { session: s, weaponsByUnit, grid };
 }
+
+it.each([LockState.Locked, LockState.Revealed, LockState.Resolved])(
+  'refuses single attacks, volleys, and Hold Fire after %s',
+  (lockState) => {
+    const session = applyInteractiveSessionVolley(
+      {
+        session: setupSessionAtWeaponAttack(),
+        weaponsByUnit: buildWeaponsMap(),
+        attackerId: 'a1',
+      },
+      [{ targetId: 't1', weaponIds: ['w1'], modesByWeaponId: {} }],
+    );
+    session.currentState.units.a1 = {
+      ...session.currentState.units.a1,
+      lockState,
+    };
+    const before = JSON.stringify(session);
+    const base = {
+      session,
+      weaponsByUnit: buildWeaponsMap(),
+      attackerId: 'a1',
+    };
+    expect(
+      applyInteractiveSessionAttack({
+        ...base,
+        targetId: 't1',
+        weaponIds: ['w2'],
+      }),
+    ).toBe(session);
+    expect(
+      applyInteractiveSessionAttack({
+        ...base,
+        targetId: 'missing-target',
+        weaponIds: ['w2'],
+      }),
+    ).toBe(session);
+    expect(
+      applyInteractiveSessionVolley(base, [
+        { targetId: 't2', weaponIds: ['w2'], modesByWeaponId: {} },
+      ]),
+    ).toBe(session);
+    expect(applyInteractiveSessionVolley(base, [])).toBe(session);
+    expect(JSON.stringify(session)).toBe(before);
+  },
+);

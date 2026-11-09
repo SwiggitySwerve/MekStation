@@ -131,10 +131,8 @@ export function useSyncRoom(): UseSyncRoomReturn {
         localPeerId,
       );
       previousGameSessionPeers.current = currentGameSessionPeers;
-      if (status === 'guestPending' || status === 'hostPending') {
+      if (status !== null) {
         useGameplayStore.getState().setLocalMatchStatus(status);
-      } else if (status === 'live') {
-        useGameplayStore.getState().resetLocalMatchStatus();
       }
     };
 

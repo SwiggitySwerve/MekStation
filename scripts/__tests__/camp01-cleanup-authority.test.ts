@@ -3,16 +3,62 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 
 const url = (file: string): string => pathToFileURL(path.resolve(file)).href;
+const fixtureCopyOptions = {
+  recursive: true,
+  preserveTimestamps: true,
+  verbatimSymlinks: true,
+  force: false,
+  errorOnExist: true,
+} satisfies fs.CopySyncOptions;
 const harness = String.raw`
 import fs from 'node:fs'; import path from 'node:path';
   import * as cleanup from ${JSON.stringify(url('scripts/qc/camp01-cleanup-authority.mjs'))}; import * as target from ${JSON.stringify(url('scripts/qc/camp01-target-authority.mjs'))}; import * as trust from ${JSON.stringify(url('scripts/qc/camp01-git-trust.mjs'))}; import * as controller from ${JSON.stringify(url('scripts/qc/run-camp01-authority-receipt.mjs'))}; import { WAVE_CONTRACTS } from ${JSON.stringify(url('scripts/qc/camp01-authority-receipt.contract.mjs'))}; import { digestBytes } from ${JSON.stringify(url('scripts/qc/camp01-authority-receipt.schemas.mjs'))};
   const q=JSON.parse(fs.readFileSync(0,'utf8')), root=q.root, git={executable:q.git}, repo=path.join(root,'repo'), owned=path.join(root,'owned'), proofs=path.join(root,'proofs'), cleanupRoot=path.join(repo,'.sisyphus','evidence','playtest','.camp01-cleanups'), manifestBytes=Buffer.from('{"schema":"test"}\n'), digest=digestBytes(manifestBytes), runId='camp01-'+'b'.repeat(32), calls=[], validatorInputs=[], receiptPath=path.join(cleanupRoot,'camp-proof-'+runId+'-wave-cleanup.json'), stagePath=path.join(cleanupRoot,'.camp-proof-'+runId+'-wave-cleanup.json.stage');
 const run=(args,cwd=repo)=>trust.invokeGit({git,args:args[0]==='merge'?['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid',...args]:args,cwd}); const commit=async(message,cwd=repo)=>{await run(['add','.'],cwd);await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m',message],cwd);return (await run(['rev-parse','HEAD'],cwd)).stdout.trim();};
-  async function seed(reproduction=false){fs.mkdirSync(repo);await run(['init','--initial-branch=main']);fs.writeFileSync(path.join(repo,'.gitignore'),'.sisyphus/\nignored/\n');fs.writeFileSync(path.join(repo,'base.txt'),'base\n');const base=await commit('base');let ownedTarget=null,productHead=null;if(!reproduction){await run(['worktree','add','-b','codex/camp-proof',owned,base]);ownedTarget=await target.inspectOwnedTarget({wave:'camp-proof',subject:'product',worktree:owned,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof'],headSha:base},{git});fs.appendFileSync(path.join(owned,'base.txt'),'product\n');productHead=await commit('product',owned);await run(['merge','--no-ff','codex/camp-proof','-m','merge']);}const main=(await run(['rev-parse','HEAD'])).stdout.trim(), initiatingRaw=await target.inspectOwnedTarget({wave:'camp-proof',subject:'product',worktree:repo,spec:{mergeSha:main},row:WAVE_CONTRACTS['camp-proof'],headSha:main},{git}), initiatingTarget={...initiatingRaw,initiating:true}, runRoot='.sisyphus/evidence/playtest/camp-proof-'+main;fs.mkdirSync(proofs);const proofTarget=await target.createProofTarget({wave:'camp-proof',sha:main,mode:'exact-main'},{git,repositoryRoot:repo,proofRoot:proofs}), clean=await target.observeCleanState({target:proofTarget,phase:'final',runRoot},{git}), durable=path.join(repo,...runRoot.split('/'),runId);fs.mkdirSync(durable,{recursive:true});fs.writeFileSync(path.join(durable,'receipt-manifest.json'),manifestBytes);fs.mkdirSync(cleanupRoot,{recursive:true});const spec={childChange:'add-camp01-authority-receipts',prNumber:'1',mergeSha:base,approvalId:'approval-1',reviewer:'reviewer'}, provenance={subject:reproduction?'none':'product-pr',spec,owned:reproduction?null:{kind:'product',prNumber:'2',headSha:productHead,approvalId:'approval-2',reviewer:'reviewer',mergeSha:main}}, runRecord={mode:'exact-main',phase:'final',sha:main,runRoot,provenance,proofTarget,cleanManifest:{baseline:clean.manifest,final:clean.manifest,matched:true},executionEnvironmentDigest:digest,runId,receiptDigest:digest,transientValidated:true,durableValidated:true}, state={schema:'camp01-controller-state/v1',wave:'camp-proof',rowDigest:digest,repairSource:null,registration:{subject:reproduction?'none':'product-pr',spec,recordedAt:reproduction?'proof':'register-pr-target'},ownedTarget,proofTarget,runs:[runRecord],lifecycle:'receipt-validated'};return {base,main,ownedTarget,proofTarget,initiatingTarget,runRecord,state};}
+  async function seedFresh(reproduction=false){fs.mkdirSync(repo);await run(['init','--initial-branch=main']);fs.writeFileSync(path.join(repo,'.gitignore'),'.sisyphus/\nignored/\n');fs.writeFileSync(path.join(repo,'base.txt'),'base\n');const base=await commit('base');let ownedTarget=null,productHead=null;if(!reproduction){await run(['worktree','add','-b','codex/camp-proof',owned,base]);ownedTarget=await target.inspectOwnedTarget({wave:'camp-proof',subject:'product',worktree:owned,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof'],headSha:base},{git});fs.appendFileSync(path.join(owned,'base.txt'),'product\n');productHead=await commit('product',owned);await run(['merge','--no-ff','codex/camp-proof','-m','merge']);}const main=(await run(['rev-parse','HEAD'])).stdout.trim(), initiatingRaw=await target.inspectOwnedTarget({wave:'camp-proof',subject:'product',worktree:repo,spec:{mergeSha:main},row:WAVE_CONTRACTS['camp-proof'],headSha:main},{git}), initiatingTarget={...initiatingRaw,initiating:true}, runRoot='.sisyphus/evidence/playtest/camp-proof-'+main;fs.mkdirSync(proofs);const proofTarget=await target.createProofTarget({wave:'camp-proof',sha:main,mode:'exact-main'},{git,repositoryRoot:repo,proofRoot:proofs}), clean=await target.observeCleanState({target:proofTarget,phase:'final',runRoot},{git}), durable=path.join(repo,...runRoot.split('/'),runId);fs.mkdirSync(durable,{recursive:true});fs.writeFileSync(path.join(durable,'receipt-manifest.json'),manifestBytes);fs.mkdirSync(cleanupRoot,{recursive:true});const spec={childChange:'add-camp01-authority-receipts',prNumber:'1',mergeSha:base,approvalId:'approval-1',reviewer:'reviewer'}, provenance={subject:reproduction?'none':'product-pr',spec,owned:reproduction?null:{kind:'product',prNumber:'2',headSha:productHead,approvalId:'approval-2',reviewer:'reviewer',mergeSha:main}}, runRecord={mode:'exact-main',phase:'final',sha:main,runRoot,provenance,proofTarget,cleanManifest:{baseline:clean.manifest,final:clean.manifest,matched:true},executionEnvironmentDigest:digest,runId,receiptDigest:digest,transientValidated:true,durableValidated:true}, state={schema:'camp01-controller-state/v1',wave:'camp-proof',rowDigest:digest,repairSource:null,registration:{subject:reproduction?'none':'product-pr',spec,recordedAt:reproduction?'proof':'register-pr-target'},ownedTarget,proofTarget,runs:[runRecord],lifecycle:'receipt-validated'};return {base,main,ownedTarget,proofTarget,initiatingTarget,runRecord,state};}
+// Restore to the original canonical path: linked worktree backlinks are absolute.
+async function seed(reproduction=false) {
+  if (root !== path.join(q.fixtureRoot, 'sandbox')) throw new Error('fixture sandbox path drift');
+  fs.cpSync(path.join(q.fixtureRoot, reproduction ? 'reproduction' : 'product'), root, ${JSON.stringify(fixtureCopyOptions)});
+  return JSON.parse(fs.readFileSync(path.join(root, 'fixture-records.json'), 'utf8'));
+}
+async function fixtureFacts(seeded) {
+  const worktrees = [];
+  for (const record of [seeded.initiatingTarget, seeded.ownedTarget, seeded.proofTarget].filter(Boolean)) {
+    const cwd = record.canonicalPath;
+    // Copying changes inode/stat data. Refresh it without changing the index tree.
+    await run(['update-index', '--refresh'], cwd);
+    const status = (await run(['status', '--porcelain'], cwd)).stdout;
+    if (status !== '') throw new Error('fixture worktree is dirty: ' + cwd + ': ' + status);
+    const gitDirectory = (await run(['rev-parse', '--absolute-git-dir'], cwd)).stdout.trim();
+    const readAdmin = (name) => {
+      const file = path.join(gitDirectory, name);
+      return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
+    };
+    const dotGit = path.join(cwd, '.git');
+    worktrees.push({
+      cwd, gitDirectory, status,
+      head: (await run(['rev-parse', '--verify', 'HEAD'], cwd)).stdout,
+      indexTree: (await run(['write-tree'], cwd)).stdout,
+      dotGit: fs.statSync(dotGit).isFile() ? fs.readFileSync(dotGit, 'utf8') : null,
+      adminHead: readAdmin('HEAD'), gitdir: readAdmin('gitdir'), commondir: readAdmin('commondir'),
+    });
+  }
+  return {
+    records: seeded, worktrees,
+    refs: (await run(['for-each-ref'])).stdout,
+    worktreeList: (await run(['worktree', 'list', '--porcelain', '-z'])).stdout,
+  };
+}
 const exists=(value)=>fs.existsSync(value); const exactSet=(left,right)=>JSON.stringify([...left].sort())===JSON.stringify([...right].sort()); const errorText=(error)=>error instanceof Error?error.message:String(error);
-  let proofPath=null, expectedBranchOid=null; try {let value; if(q.action.startsWith('orphan')){const seeded=await seed(true), other=q.action==='orphan-unrecorded'?await target.createProofTarget({wave:'camp-00',sha:seeded.main,mode:'exact-main'},{git,repositoryRoot:repo,proofRoot:proofs}):seeded.proofTarget, beforeMutation=async()=>{if(q.action==='orphan-race')await run(['switch','-c','codex/orphan-race'],other.canonicalPath);}, authority=cleanup.createCleanupAuthority({git,initiatingTarget:seeded.initiatingTarget,cleanupRoot,failedCreationTargets:[seeded.proofTarget]},{beforeMutation});proofPath=other.canonicalPath;value=await authority.recoverFailedCreation({target:other});value={value,exists:exists(other.canonicalPath)};} else {const seeded=await seed(q.action==='reproduction'||q.action==='reproduction-ref'), state=structuredClone(seeded.state), runRecord=state.runs[0];proofPath=seeded.proofTarget.canonicalPath;if(q.action==='run-identity')runRecord[q.field]=q.field==='sha'?seeded.base:q.value;if(q.action==='unsafe')Object.assign(runRecord,q.shape);if(q.action==='unrecorded')state.proofTarget={...state.proofTarget,gitWorktreeId:path.join(root,'unrecorded')};if(q.action==='dirty'||q.action==='index'){fs.appendFileSync(path.join(owned,'base.txt'),'dirty\n');if(q.action==='index')await run(['add','base.txt'],owned);}if(q.action==='manifest'){fs.mkdirSync(path.join(owned,'ignored'));fs.writeFileSync(path.join(owned,'ignored','drift'),'drift');}if(q.action==='initiating')state.ownedTarget=seeded.initiatingTarget;if(q.action==='durable')state.proofTarget={...state.proofTarget,canonicalPath:cleanupRoot};if(q.action==='reparse'){const external=path.join(root,'external');fs.mkdirSync(external);fs.symlinkSync(external,path.join(seeded.proofTarget.canonicalPath,'escape'),q.junction?'junction':'dir');}if(q.action==='evidence-reparse'){const external=path.join(root,'evidence-external');fs.mkdirSync(external);fs.symlinkSync(external,path.join(repo,'.sisyphus','evidence','playtest','accumulated-link'),process.platform==='win32'?'junction':'dir');}
+  let proofPath=null, expectedBranchOid=null; try {let value; if(q.action==='prepare-fixture'||q.action==='check-fixture') {
+    const seeded = q.action==='prepare-fixture' ? await seedFresh(q.reproduction) : await seed(q.reproduction);
+    if(q.action==='prepare-fixture') fs.writeFileSync(path.join(root, 'fixture-records.json'), JSON.stringify(seeded));
+    value = await fixtureFacts(seeded);
+  } else if(q.action.startsWith('orphan')){const seeded=await seed(true), other=q.action==='orphan-unrecorded'?await target.createProofTarget({wave:'camp-00',sha:seeded.main,mode:'exact-main'},{git,repositoryRoot:repo,proofRoot:proofs}):seeded.proofTarget, beforeMutation=async()=>{if(q.action==='orphan-race')await run(['switch','-c','codex/orphan-race'],other.canonicalPath);}, authority=cleanup.createCleanupAuthority({git,initiatingTarget:seeded.initiatingTarget,cleanupRoot,failedCreationTargets:[seeded.proofTarget]},{beforeMutation});proofPath=other.canonicalPath;value=await authority.recoverFailedCreation({target:other});value={value,exists:exists(other.canonicalPath)};} else {const seeded=await seed(q.action==='reproduction'||q.action==='reproduction-ref'), state=structuredClone(seeded.state), runRecord=state.runs[0];proofPath=seeded.proofTarget.canonicalPath;if(q.action==='run-identity')runRecord[q.field]=q.field==='sha'?seeded.base:q.value;if(q.action==='unsafe')Object.assign(runRecord,q.shape);if(q.action==='unrecorded')state.proofTarget={...state.proofTarget,gitWorktreeId:path.join(root,'unrecorded')};if(q.action==='dirty'||q.action==='index'){fs.appendFileSync(path.join(owned,'base.txt'),'dirty\n');if(q.action==='index')await run(['add','base.txt'],owned);}if(q.action==='manifest'){fs.mkdirSync(path.join(owned,'ignored'));fs.writeFileSync(path.join(owned,'ignored','drift'),'drift');}if(q.action==='initiating')state.ownedTarget=seeded.initiatingTarget;if(q.action==='durable')state.proofTarget={...state.proofTarget,canonicalPath:cleanupRoot};if(q.action==='reparse'){const external=path.join(root,'external');fs.mkdirSync(external);fs.symlinkSync(external,path.join(seeded.proofTarget.canonicalPath,'escape'),q.junction?'junction':'dir');}if(q.action==='evidence-reparse'){const external=path.join(root,'evidence-external');fs.mkdirSync(external);fs.symlinkSync(external,path.join(repo,'.sisyphus','evidence','playtest','accumulated-link'),process.platform==='win32'?'junction':'dir');}
     if(q.action==='missing-owned-record')state.ownedTarget=null;if(q.action==='missing-proof-target')await run(['worktree','remove',seeded.proofTarget.canonicalPath]);if(q.action==='binding-drift')state.ownedTarget.oldOid=seeded.main;if(q.action==='basename-drift')state.wave='wrong-wave';if(q.action==='digest-drift')fs.writeFileSync(path.join(repo,...runRecord.runRoot.split('/'),runId,'receipt-manifest.json'),'drift');if(q.action==='reproduction-ref')await run(['branch','codex/camp-proof',seeded.main]);if(q.action==='initiating-dirty')fs.appendFileSync(path.join(repo,'base.txt'),'dirty\n');if(q.action==='receipt-collision')fs.writeFileSync(receiptPath,'collision');if(q.action==='unmerged'){fs.appendFileSync(path.join(owned,'base.txt'),'unmerged\n');runRecord.provenance.owned.headSha=await commit('unmerged',owned);}if(q.action==='branch-oid-drift'){fs.appendFileSync(path.join(owned,'base.txt'),'advanced\n');expectedBranchOid=await commit('advance owned branch',owned);} const beforeMutation=async()=>{if(q.action==='path-race'){fs.renameSync(seeded.proofTarget.canonicalPath,seeded.proofTarget.canonicalPath+'-moved');proofPath=seeded.proofTarget.canonicalPath+'-moved';}if(q.action==='head-race')await run(['checkout','--detach',seeded.base],seeded.proofTarget.canonicalPath);if(q.action==='branch-state')await run(['switch','-c','codex/substitute'],seeded.proofTarget.canonicalPath);if(q.action==='ref-race')await run(['branch','-m','codex/camp-proof','codex/renamed'],owned);}, invokePublicValidator=async(input)=>{if(!exactSet(Object.keys(input),['entry','stage','wave','mode','sha','runRoot','runId']))throw new Error('validator payload drift');validatorInputs.push(input);calls.push('validate:'+input.stage);if(q.action==='validator-fail')throw new Error('reopen rejected');if(q.action==='validator-shape')return q.validatorValue;return {validated:true};}, invokeGit=async(input,deps)=>{calls.push(input.args.join(' '));if(q.action==='silent-remove'&&input.args[0]==='worktree'&&input.args[1]==='remove'&&input.args[2]===seeded.proofTarget.canonicalPath)return {status:0,stdout:'',stderr:''};if(q.action==='oid-race'&&input.args[0]==='update-ref')await trust.invokeGit({git,args:['update-ref',input.args[2],seeded.base],cwd:repo});const result=await trust.invokeGit(input,deps);if(q.action==='porcelain-missing'&&input.args.join(' ')==='worktree list --porcelain -z')return {...result,stdout:result.stdout.replace('branch refs/heads/codex/camp-proof\0','')};return result;}; let unlinkFaulted=false, cleanupFs={...fs}; if(q.action==='fs-write-fault')cleanupFs.writeFileSync=()=>{throw new Error('write fault');};if(q.action==='fs-link-fault')cleanupFs.linkSync=()=>{throw new Error('link fault');};if(q.action==='fs-unlink-fault')cleanupFs.unlinkSync=(value)=>{if(!unlinkFaulted&&value===stagePath){unlinkFaulted=true;throw new Error('unlink fault');}return fs.unlinkSync(value);};const authority=cleanup.createCleanupAuthority({git,initiatingTarget:seeded.initiatingTarget,cleanupRoot,failedCreationTargets:[]},{beforeMutation,fs:cleanupFs,invokeGit,invokePublicValidator});
   if(q.action==='happy'){let stored=state;value=await controller.runController(['cleanup','--wave=camp-proof','--run-root='+runRecord.runRoot,'--run-id='+runId,'--receipt-digest='+digest],{stateStore:{load:()=>stored,save:()=>{},remove:()=>{stored=null;}},cleanupTargets:authority.cleanupTargets});const receipt=JSON.parse(fs.readFileSync(receiptPath,'utf8'));value={result:value,receipt,calls,validatorInputs,run:runRecord,proofExists:exists(seeded.proofTarget.canonicalPath),ownedExists:exists(owned),stored};}else value=await authority.cleanupTargets({state,run:runRecord});}
   process.stdout.write(JSON.stringify({ok:true,value}));
@@ -34,7 +80,7 @@ function invoke(request: Record<string, unknown>): Result {
     process.execPath,
     ['--input-type=module', '--eval', harness],
     {
-      input: JSON.stringify(request),
+      input: JSON.stringify({ ...request, fixtureRoot }),
       encoding: 'utf8',
     },
   );
@@ -55,10 +101,60 @@ function findHostGit(): string | null {
 const hostGit = findHostGit(),
   gitIt = hostGit ? it : it.skip;
 let root: string;
-beforeEach(() => {
-  root = fs.mkdtempSync(path.join(os.tmpdir(), 'camp-proof3d2-'));
+let fixtureRoot: string;
+function removeSandbox(): void {
+  if (path.resolve(root) !== path.join(fixtureRoot, 'sandbox')) {
+    throw new Error('fixture sandbox path drift');
+  }
+  fs.rmSync(root, { recursive: true, force: true });
+}
+beforeAll(() => {
+  if (!hostGit) return;
+  fixtureRoot = fs.realpathSync.native(
+    fs.mkdtempSync(path.join(os.tmpdir(), `camp-proof3d2-${process.pid}-`)),
+  );
+  root = path.join(fixtureRoot, 'sandbox');
+  for (const reproduction of [false, true]) {
+    removeSandbox();
+    fs.mkdirSync(root);
+    const fresh = invoke({
+      action: 'prepare-fixture',
+      reproduction,
+      root,
+      git: hostGit,
+    });
+    if (!fresh.ok)
+      throw new Error(`fixture preparation failed: ${fresh.error}`);
+    const kind = reproduction ? 'reproduction' : 'product';
+    fs.cpSync(root, path.join(fixtureRoot, kind), fixtureCopyOptions);
+    removeSandbox();
+    const restored = invoke({
+      action: 'check-fixture',
+      reproduction,
+      root,
+      git: hostGit,
+    });
+    if (!restored.ok || !isDeepStrictEqual(restored.value, fresh.value)) {
+      throw new Error(
+        `fixture restoration drift (${kind}): ${JSON.stringify({ fresh, restored })}`,
+      );
+    }
+  }
+  removeSandbox();
+}, 30_000);
+beforeEach(removeSandbox);
+afterEach(removeSandbox);
+afterAll(() => {
+  if (!fixtureRoot) return;
+  const absolute = path.resolve(fixtureRoot);
+  if (
+    path.dirname(absolute) !== fs.realpathSync.native(os.tmpdir()) ||
+    !path.basename(absolute).startsWith(`camp-proof3d2-${process.pid}-`)
+  ) {
+    throw new Error('fixture parent path drift');
+  }
+  fs.rmSync(absolute, { recursive: true, force: true });
 });
-afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
 
 describe('CAMP-01 cleanup authority', () => {
   gitIt(

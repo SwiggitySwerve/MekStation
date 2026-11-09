@@ -24,6 +24,13 @@ import {
   setHumanSlot,
   setReady,
 } from './lobby/lobbyStateMachine';
+import { markMatchCompleted } from './matchCompletion';
+import {
+  isLobbyIntentKind,
+  lobbyIntentAllowedInStatus,
+  MATCH_INTENT_KINDS,
+  type LobbyIntentKind,
+} from './matchIntentKinds';
 import { sideOfPlayer } from './sideAssignments';
 
 export interface IServerMatchHostLobbyContext extends IServerMatchHostCaptureContext {
@@ -48,15 +55,7 @@ interface ILobbyIntentMutation {
 type LobbyIntent = Extract<
   IIntent['intent'],
   {
-    readonly kind:
-      | 'OccupySeat'
-      | 'LeaveSeat'
-      | 'ReassignSeat'
-      | 'SetAiSlot'
-      | 'SetHumanSlot'
-      | 'SetReady'
-      | 'LaunchMatch'
-      | 'MarkSeatAi';
+    readonly kind: Exclude<LobbyIntentKind, 'ForfeitMatch'>;
   }
 >;
 
@@ -111,6 +110,21 @@ const LOBBY_INTENT_HANDLERS: LobbyIntentHandlers = {
       throw new LobbyStateError(`Unknown slotId: ${intent.slotId}`);
     }
     const droppedPlayerId = target.occupant?.playerId ?? null;
+    if (
+      target.kind !== 'human' ||
+      droppedPlayerId === null ||
+      !ctx.pendingPeers
+        .getAllPending()
+        .some(
+          (entry) =>
+            entry.playerId === droppedPlayerId &&
+            entry.slotId === target.slotId,
+        )
+    ) {
+      throw new LobbyStateError(
+        'MarkSeatAi requires a pending occupied human seat',
+      );
+    }
     const nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
     if (droppedPlayerId) {
       ctx.pendingPeers.clearPending(droppedPlayerId);
@@ -118,20 +132,6 @@ const LOBBY_INTENT_HANDLERS: LobbyIntentHandlers = {
     return { seats: nextSeats };
   },
 };
-
-export function isLobbyIntentKind(kind: IIntent['intent']['kind']): boolean {
-  return (
-    kind === 'OccupySeat' ||
-    kind === 'LeaveSeat' ||
-    kind === 'ReassignSeat' ||
-    kind === 'SetAiSlot' ||
-    kind === 'SetHumanSlot' ||
-    kind === 'SetReady' ||
-    kind === 'LaunchMatch' ||
-    kind === 'MarkSeatAi' ||
-    kind === 'ForfeitMatch'
-  );
-}
 
 export async function handleLobbyIntent(
   ctx: IServerMatchHostLobbyContext,
@@ -143,7 +143,8 @@ export async function handleLobbyIntent(
   const intent = envelope.intent;
 
   if (
-    isHostOnlyLobbyIntent(intent.kind) &&
+    isLobbyIntentKind(intent.kind) &&
+    MATCH_INTENT_KINDS[intent.kind].hostOnly &&
     envelope.playerId !== meta.hostPlayerId
   ) {
     const err: IServerMessage = {
@@ -158,13 +159,20 @@ export async function handleLobbyIntent(
     return [err];
   }
 
-  if (intent.kind === 'ForfeitMatch') {
-    return handleForfeitMatch(ctx, meta);
-  }
-
   let mutation: ILobbyIntentMutation;
 
   try {
+    if (
+      !isLobbyIntentKind(intent.kind) ||
+      !lobbyIntentAllowedInStatus(intent.kind, meta.status)
+    ) {
+      throw new LobbyStateError(
+        `Intent ${intent.kind} is not allowed in match status ${meta.status}`,
+      );
+    }
+    if (intent.kind === 'ForfeitMatch') {
+      return handleForfeitMatch(ctx, meta);
+    }
     const handler = LOBBY_INTENT_HANDLERS[intent.kind as LobbyIntent['kind']];
     if (!handler) {
       throw new LobbyStateError(
@@ -273,18 +281,8 @@ async function handleForfeitMatch(
     await ctx.broadcastEvent(envelopeOut);
     out.push(envelopeOut);
   }
+  await markMatchCompleted(ctx.store, ctx.matchId, newEvents);
   return out;
-}
-
-function isHostOnlyLobbyIntent(kind: IIntent['intent']['kind']): boolean {
-  return (
-    kind === 'ReassignSeat' ||
-    kind === 'SetAiSlot' ||
-    kind === 'SetHumanSlot' ||
-    kind === 'LaunchMatch' ||
-    kind === 'MarkSeatAi' ||
-    kind === 'ForfeitMatch'
-  );
 }
 
 function handleOccupySeat(

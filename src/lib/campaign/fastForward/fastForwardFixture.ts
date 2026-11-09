@@ -26,14 +26,13 @@
  * gives `0.4 ** 8 ≈ 0.0655%` — the exact arithmetic design D8 documents —
  * low enough that any default seed passes by construction, not by luck.
  *
- * Bounded contract window (design D8 + R9): the fixture's contract
- * `endDate` falls the day immediately after the single covered Monday, so
- * `getActiveContracts` (`campaignCommandSelectors.ts:241-260`, status-blind
- * by design) never offers the contract a second scenario-generation
- * Monday. Without this bound, a later battle could flip an
- * already-terminal contract to a different terminal status and re-pay it
- * (R9, a documented production gap this fixture sidesteps rather than
- * masks).
+ * Bounded contract window (design D8): the fixture expires on Thursday.
+ * Monday's battles apply on Tuesday immediately or Wednesday with the
+ * parity suite's one-day fight deferral. Expiry must fall outside that
+ * window: expiring first settles the contract as SUCCESS without pay,
+ * which later battles correctly preserve, so those orderings would test
+ * different lifecycle events. Expiring before the following Monday also
+ * keeps `getActiveContracts` from offering a second generation Monday.
  *
  * Roster seeding uses `useCampaignRosterStore.setState` (the
  * `campaignCombatLoop.test.ts` `seedRoster` precedent) with canonical
@@ -314,11 +313,10 @@ export function buildFastForwardFixture(
     roster.units,
   );
 
-  // Bounded contract window (D8 + R9): terminal the day after the single
-  // covered Monday so `getActiveContracts` never offers this contract a
-  // second scenario-generation pass.
+  // Keep expiry after both Tuesday/Wednesday outcome-application days,
+  // including the one-day fight deferral, and before the next Monday.
   const contractEndDate = new Date(
-    mondayStartDate.getTime() + 24 * 60 * 60 * 1000,
+    mondayStartDate.getTime() + 3 * 24 * 60 * 60 * 1000,
   ).toISOString();
 
   const contract = createContract({

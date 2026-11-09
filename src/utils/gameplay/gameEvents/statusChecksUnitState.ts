@@ -42,6 +42,8 @@ export interface ICreateUnitStuckEventInput
   extends statusCheckCommon.IStatusCheckEventContext {
   readonly reason?: string;
   readonly reasonCode?: PSRTrigger;
+  /** Only ever true; a failed ground-movement bog-down may jump free. */
+  readonly canUnstickByJumping?: true;
 }
 
 type UnitStoodEventArgs = [
@@ -87,6 +89,9 @@ export function createUnitStuckEvent(
     unitId: input.unitId,
     ...(input.reason !== undefined ? { reason: input.reason } : {}),
     ...(input.reasonCode !== undefined ? { reasonCode: input.reasonCode } : {}),
+    ...(input.canUnstickByJumping === true
+      ? { canUnstickByJumping: true }
+      : {}),
   };
 
   return statusCheckCommon.createStatusCheckEvent(

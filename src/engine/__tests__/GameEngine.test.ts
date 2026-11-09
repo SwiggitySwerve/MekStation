@@ -5,12 +5,16 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { Faction } from '@/constants/scenario/rats';
+import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
 import {
   calculateGameOutcome,
   calculateCombatStats,
   calculateOutcomeFromEvents,
+  type IGameOutcome,
 } from '@/services/game-resolution/GameOutcomeCalculator';
 import { ScenarioGeneratorService } from '@/services/generators/ScenarioGeneratorService';
+import { BotPlayer } from '@/simulation/ai/BotPlayer';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { MAX_TURNS } from '@/simulation/runner/SimulationRunnerConstants';
 import { TerrainPreset } from '@/types/encounter';
 import {
@@ -18,13 +22,17 @@ import {
   GameStatus,
   GamePhase,
   GameEventType,
+  type IAttackResolvedPayload,
+  type IPSRTriggeredPayload,
   type IGameEndedPayload,
   LockState,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { PSRTrigger } from '@/types/gameplay/PSRTriggerCodes';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
 import { BiomeType, ScenarioObjectiveType } from '@/types/scenario';
 import { Era } from '@/types/temporal/Era';
+import { createEventBase } from '@/utils/gameplay/gameEvents/base';
 import { endGame } from '@/utils/gameplay/gameSession';
 
 import type { IAdaptedUnit } from '../types';
@@ -34,6 +42,21 @@ import {
   createGridFromHexTerrain,
   createGridFromTerrainPreset,
 } from '../GameEngine.helpers';
+import {
+  runAttackPhase,
+  runPhysicalAttackPhase,
+  runInteractivePhaseAdvance,
+} from '../GameEngine.phases';
+
+jest.mock('@/services/game-resolution/GameOutcomeCalculator', () => {
+  const actual = jest.requireActual<
+    typeof import('@/services/game-resolution/GameOutcomeCalculator')
+  >('@/services/game-resolution/GameOutcomeCalculator');
+  return {
+    ...actual,
+    calculateGameOutcome: jest.fn(actual.calculateGameOutcome),
+  };
+});
 
 function createTestWeapon(id: string): IWeapon {
   return {
@@ -137,6 +160,204 @@ describe('GameEngine', () => {
   });
 
   describe('runToCompletion', () => {
+    it.each<[IGameOutcome['reason'], IGameEndedPayload['reason']]>([
+      ['concede', 'concede'],
+      ['turn_limit', 'turn_limit'],
+      ['objective', 'objective'],
+      ['elimination', 'destruction'],
+      ['mutual_destruction', 'destruction'],
+      ['aborted', 'destruction'],
+      ['timeout', 'destruction'],
+    ])('preserves the existing %s -> %s reason mapping', (reason, mapped) => {
+      const actual = jest.requireActual<
+        typeof import('@/services/game-resolution/GameOutcomeCalculator')
+      >('@/services/game-resolution/GameOutcomeCalculator');
+      jest.mocked(calculateGameOutcome).mockImplementationOnce((input) => ({
+        ...actual.calculateGameOutcome(input),
+        reason,
+      }));
+      const session = new GameEngine({
+        seed: 42,
+        turnLimit: 1,
+      }).runToCompletion(
+        [createTestUnit('player-1', GameSide.Player)],
+        [createTestUnit('opponent-1', GameSide.Opponent)],
+        [
+          createGameUnit('player-1', GameSide.Player),
+          createGameUnit('opponent-1', GameSide.Opponent),
+        ],
+      );
+      expect(getGameEndedPayload(session).reason).toBe(mapped);
+    });
+
+    it.each([42, 12345])(
+      'preserves the C4 auto-resolve baseline for seed %i',
+      (seed) => {
+        const weapons = [
+          {
+            ...createTestWeapon('baseline-laser'),
+            shortRange: 1,
+            mediumRange: 1,
+            longRange: 1,
+            damage: 1,
+            heat: 0,
+          },
+        ];
+        const player = {
+          ...createTestUnit('player-1', GameSide.Player),
+          weapons,
+        };
+        const opponent = {
+          ...createTestUnit('opponent-1', GameSide.Opponent),
+          weapons,
+        };
+        const session = new GameEngine({
+          seed,
+          turnLimit: 20,
+          mapRadius: 7,
+        }).runToCompletion(
+          [player],
+          [opponent],
+          [
+            createGameUnit(player.id, player.side),
+            createGameUnit(opponent.id, opponent.side),
+          ],
+        );
+        const events = session.events.map(
+          ({ type, turn, phase, actorId, payload }) => ({
+            type,
+            turn,
+            phase,
+            actorId: actorId ?? null,
+            payload,
+          }),
+        );
+        const declarations = events.filter(
+          ({ type }) =>
+            type === GameEventType.AttackDeclared ||
+            type === GameEventType.PhysicalAttackDeclared,
+        );
+        expect(
+          declarations.some(
+            ({ type }) => type === GameEventType.AttackDeclared,
+          ),
+        ).toBe(true);
+        expect(
+          declarations.some(
+            ({ type }) => type === GameEventType.PhysicalAttackDeclared,
+          ),
+        ).toBe(true);
+        const actual = {
+          seed,
+          declarations: declarations.length,
+          events: digestReplayCheckpointState(
+            JSON.parse(JSON.stringify(events)) as unknown,
+          ),
+          outcome: getGameEndedPayload(session),
+          units: digestReplayCheckpointState(
+            JSON.parse(JSON.stringify(session.currentState.units)) as unknown,
+          ),
+        };
+        // Captured twice on origin/main bfbf2b239 before the declaration guards;
+        // rebaselined for the runToCompletion End-phase PSR drain (terrain PR5).
+        // To rebaseline after an approved rule change, on a clean tree run
+        //   npx jest src/engine/__tests__/GameEngine.test.ts -t "C4 auto-resolve baseline" --no-color
+        // and copy the Received values from the toEqual diff. Capture twice; both
+        // runs must print identical values. Never compute or edit a digest by hand.
+        expect(actual).toEqual(
+          {
+            '42': {
+              seed: 42,
+              declarations: 4,
+              events:
+                '2e6518e7722bb8fedc5212f0a83b0b67f4568ab56326e54266cc2d94608c0de1',
+              outcome: {
+                winner: 'player',
+                reason: 'destruction',
+                turns: 8,
+              },
+              units:
+                '46bfa4fe3634d27bfa20d25d67df4c78ffedced150cf7cfe5e1b4f013448d7e6',
+            },
+            '12345': {
+              seed: 12345,
+              declarations: 12,
+              events:
+                'b0d824117f9c7cdff7f78ff4a1d9aa54d1a6139a5557a85b7bb31f55c3f9399a',
+              outcome: {
+                winner: 'opponent',
+                reason: 'turn_limit',
+                turns: 20,
+              },
+              units:
+                'ef7ae9e28848ca2c199e1aa6522b9c20d1619117c260caad3eee8e274b4f2943',
+            },
+          }[seed],
+        );
+      },
+    );
+
+    it('retains exactly one inline damage-threshold trigger when auto-resolve crosses 20 damage', () => {
+      const attacker = {
+        ...createTestUnit('player-1', GameSide.Player),
+        walkMP: 0,
+        runMP: 0,
+        jumpMP: 0,
+        weapons: [
+          {
+            ...createTestWeapon('heavy-laser'),
+            name: 'Large Laser',
+            damage: 20,
+            heat: 0,
+            shortRange: 20,
+            mediumRange: 30,
+            longRange: 40,
+          },
+        ],
+      };
+      const target = {
+        ...createTestUnit('opponent-1', GameSide.Opponent),
+        walkMP: 0,
+        runMP: 0,
+        jumpMP: 0,
+        weapons: [],
+      };
+      const session = new GameEngine({
+        seed: 42,
+        turnLimit: 1,
+        mapRadius: 7,
+      }).runToCompletion(
+        [attacker],
+        [target],
+        [
+          { ...createGameUnit('player-1', GameSide.Player), gunnery: 0 },
+          createGameUnit('opponent-1', GameSide.Opponent),
+        ],
+      );
+      const hits = session.events.filter(
+        (event) =>
+          event.type === GameEventType.AttackResolved &&
+          (event.payload as IAttackResolvedPayload).hit &&
+          (event.payload as IAttackResolvedPayload).damage === 20,
+      );
+      expect(hits).toHaveLength(1);
+      const triggers = session.events.filter(
+        (event) =>
+          event.type === GameEventType.PSRTriggered &&
+          (event.payload as IPSRTriggeredPayload).reasonCode ===
+            PSRTrigger.PhaseDamage20Plus,
+      );
+      expect(triggers).toHaveLength(1);
+      expect(triggers[0]).toMatchObject({
+        turn: hits[0].turn,
+        phase: GamePhase.WeaponAttack,
+        payload: {
+          unitId: 'opponent-1',
+          triggerSource: 'phase_damage_20_plus',
+        },
+      });
+    });
+
     it('should return a completed game session', () => {
       const engine = new GameEngine({
         seed: 12345,
@@ -736,3 +957,167 @@ describe('GameEngine', () => {
     });
   });
 });
+
+it.each([GamePhase.WeaponAttack, GamePhase.PhysicalAttack])(
+  'does not plan or append declarations for committed actors in %s',
+  (phase) => {
+    const engine = new GameEngine({ seed: 42, mapRadius: 7 });
+    const player = createTestUnit('player-1', GameSide.Player);
+    const opponent = createTestUnit('opponent-1', GameSide.Opponent);
+    const interactive = engine.createInteractiveSession(
+      [player],
+      [opponent],
+      [
+        createGameUnit(player.id, player.side),
+        createGameUnit(opponent.id, opponent.side),
+      ],
+    );
+    interactive.advancePhase();
+    interactive.advancePhase();
+    if (phase === GamePhase.PhysicalAttack) interactive.advancePhase();
+    const session = interactive.getSession();
+    for (const [unitId, unit] of Object.entries(session.currentState.units))
+      session.currentState.units[unitId] = {
+        ...unit,
+        lockState: LockState.Locked,
+      };
+    const before = JSON.stringify(session);
+    const bot = new BotPlayer(new SeededRandom(42));
+    const ranged = jest.spyOn(bot, 'playAttackPhase');
+    const physical = jest.spyOn(bot, 'playPhysicalAttackPhase');
+    const weaponsByUnit = new Map([
+      [player.id, player.weapons],
+      [opponent.id, opponent.weapons],
+    ]);
+    const result =
+      phase === GamePhase.WeaponAttack
+        ? runAttackPhase(session, bot, weaponsByUnit, new Map())
+        : runPhysicalAttackPhase({
+            session,
+            botPlayer: bot,
+            weaponsByUnit,
+            gunneryByUnit: new Map(),
+            pilotingByUnit: new Map(),
+            d6Roller: () => 1,
+          });
+    expect(ranged).not.toHaveBeenCalled();
+    expect(physical).not.toHaveBeenCalled();
+    expect(result).toBe(session);
+    expect(JSON.stringify(session)).toBe(before);
+  },
+);
+
+it('refuses a second attack through the public interactive session without changing its journal', () => {
+  const weapons = [
+    {
+      ...createTestWeapon('public-laser'),
+      shortRange: 20,
+      mediumRange: 30,
+      longRange: 40,
+    },
+  ];
+  const player = { ...createTestUnit('player-1', GameSide.Player), weapons };
+  const opponent = createTestUnit('opponent-1', GameSide.Opponent);
+  const session = new GameEngine({
+    seed: 42,
+    mapRadius: 7,
+  }).createInteractiveSession(
+    [player],
+    [opponent],
+    [
+      createGameUnit(player.id, player.side),
+      createGameUnit(opponent.id, opponent.side),
+    ],
+  );
+  session.advancePhase();
+  session.advancePhase();
+  session.applyAttack(player.id, opponent.id, ['public-laser']);
+  const before = session.getSession();
+  expect(
+    before.events.filter(
+      (event) => event.type === GameEventType.AttackDeclared,
+    ),
+  ).toHaveLength(1);
+  const snapshot = JSON.stringify(before);
+  session.applyAttack(player.id, opponent.id, ['public-laser']);
+  session.applyAttack(player.id, 'missing-target', ['public-laser']);
+  expect(session.getSession()).toBe(before);
+  expect(JSON.stringify(session.getSession())).toBe(snapshot);
+});
+
+it.each(['interactive-session', 'engine-phase-helper'] as const)(
+  'C10 blocks EMP startup through %s',
+  (path) => {
+    const player = createTestUnit('c10-player', GameSide.Player);
+    const opponent = createTestUnit('c10-opponent', GameSide.Opponent);
+    const active = new GameEngine({
+      seed: 42,
+      turnLimit: 5,
+      mapRadius: 7,
+    }).createInteractiveSession(
+      [player],
+      [opponent],
+      [
+        createGameUnit(player.id, player.side),
+        createGameUnit(opponent.id, opponent.side),
+      ],
+    );
+    for (const entry of [
+      {
+        type: GameEventType.PhaseChanged,
+        payload: {
+          fromPhase: active.getSession().currentState.phase,
+          toPhase: GamePhase.Heat,
+        },
+      },
+      {
+        type: GameEventType.EmpMinefieldEffectApplied,
+        payload: {
+          unitId: player.id,
+          hex: { q: 0, r: 0 },
+          roll: 9,
+          modifier: 0,
+          modifiedRoll: 9,
+          effect: 'shutdown',
+          durationTurns: 2,
+          source: 'minefield',
+        },
+      },
+    ]) {
+      const before = active.getSession();
+      active.appendEvent({
+        ...createEventBase(
+          before.id,
+          before.events.length,
+          entry.type,
+          before.currentState.turn,
+          GamePhase.Heat,
+          player.id,
+        ),
+        payload: entry.payload,
+      });
+    }
+    const before = active.getSession();
+    let result = before;
+    if (path === 'engine-phase-helper') {
+      result = runInteractivePhaseAdvance(before);
+    } else {
+      active.advancePhase();
+      result = active.getSession();
+    }
+    expect(result.currentState.phase).toBe(GamePhase.End);
+    expect(result.currentState.units[player.id]).toMatchObject({
+      shutdown: true,
+      empShutdownTurns: 2,
+    });
+    expect(
+      result.events
+        .slice(before.events.length)
+        .filter(
+          (e) =>
+            e.type === GameEventType.StartupAttempt ||
+            e.type === GameEventType.ShutdownCheck,
+        ),
+    ).toEqual([]);
+  },
+);

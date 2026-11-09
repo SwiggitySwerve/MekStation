@@ -38,6 +38,17 @@ import type { ILoan } from '@/types/campaign/Loan';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import {
+  SAMPLE_CANDIDATES,
+  SAMPLE_OFFERS,
+} from '@/components/campaign/command/__fixtures__/commandFixtures';
+import {
+  deserializeCampaignBody,
+  serializeCampaign as serializeCampaignBody,
+} from '@/lib/campaign/persistence/serializeCampaign';
+import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfiguration';
+import { AvailabilityRating } from '@/types/campaign/acquisition/acquisitionTypes';
+import { createCampaign } from '@/types/campaign/Campaign';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
@@ -48,11 +59,15 @@ import { RefitClass } from '@/types/campaign/Refit';
 import { CombatRole } from '@/types/campaign/scenario/scenarioTypes';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
 
-import { takeLoan } from '../campaignCommandActions';
+import { addAcquisitionRequest, takeLoan } from '../campaignCommandActions';
 import { useCampaignPersistenceStore } from '../useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '../useCampaignRosterStore';
 import { resetCampaignStore, useCampaignStore } from '../useCampaignStore';
 import { type SerializedCampaignState } from '../useCampaignStore.persistence';
+import {
+  deserializeCampaign as deserializeLocal,
+  serializeCampaign as serializeLocal,
+} from '../useCampaignStore.persistence';
 
 // =============================================================================
 // localStorage mock — clientSafeStorage delegates to window.localStorage;
@@ -80,6 +95,62 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
   configurable: true,
+});
+
+describe('K14a compatible market recovery', () => {
+  it('both loaders recover the same markets idempotently without changing payments or enrollment', () => {
+    const campaign: ICampaignWithCommand = {
+      ...createCampaign('Legacy market', 'mercenary'),
+      currentDate: new Date('3025-01-31'),
+      campaignStartDate: new Date('3025-01-01'),
+      missions: new Map([[SAMPLE_OFFERS[0].id, SAMPLE_OFFERS[0]]]),
+      contractMarket: {
+        offers: SAMPLE_OFFERS,
+        declinedOfferIds: [SAMPLE_OFFERS[0].id, SAMPLE_OFFERS[1].id, 'missing'],
+      },
+      personnelMarket: SAMPLE_CANDIDATES,
+      finances: {
+        balance: new Money(123),
+        transactions: [
+          {
+            id: `tx-hire-${SAMPLE_CANDIDATES[0].id}`,
+            type: TransactionType.Expense,
+            amount: new Money(SAMPLE_CANDIDATES[0].hireCost),
+            date: new Date('3025-01-30'),
+            description: 'Legacy hire',
+          },
+        ],
+      },
+    };
+    const loadLocal = (value: ICampaign): ICampaignWithCommand =>
+      deserializeLocal(serializeLocal(value), new Map(), new Map());
+    const loadServer = (value: ICampaign): ICampaignWithCommand =>
+      deserializeCampaignBody(serializeCampaignBody(value));
+    const local = loadLocal(campaign);
+    const server = loadServer(campaign);
+    for (const restored of [
+      local,
+      server,
+      loadLocal(local),
+      loadServer(server),
+    ]) {
+      expect(restored.contractMarket?.offers.map((offer) => offer.id)).toEqual([
+        SAMPLE_OFFERS[1].id,
+        SAMPLE_OFFERS[2].id,
+      ]);
+      expect(restored.contractMarket?.declinedOfferIds).toEqual([
+        SAMPLE_OFFERS[1].id,
+      ]);
+      expect(restored.personnelMarket?.map((offer) => offer.id)).toEqual(
+        SAMPLE_CANDIDATES.slice(1).map((offer) => offer.id),
+      );
+      expect(restored.finances).toEqual(campaign.finances);
+      expect(restored.missions).toEqual(campaign.missions);
+      expect(restored.forces).toEqual(campaign.forces);
+    }
+    expect(local.contractMarket).toEqual(server.contractMarket);
+    expect(local.personnelMarket).toEqual(server.personnelMarket);
+  });
 });
 
 // =============================================================================
@@ -199,6 +270,115 @@ function currentCampaign(): ICampaignWithCommand {
 // =============================================================================
 
 describe('D-1 — campaign persistence round-trip (save → reload seam)', () => {
+  it('keeps duplicate open refits and cancelled history through save and repeated reload', () => {
+    const id = seedCampaign();
+    const first = {
+      id: 'first',
+      unitId: 'unit-a',
+      status: 'in-progress' as const,
+      targetConfiguration: DEFAULT_UNIT_CONFIGURATION,
+      refitClass: RefitClass.EquipmentSwap,
+      estimatedCost: 1000,
+      estimatedHours: 20,
+      hoursCompleted: 7,
+      createdAt: '3025-02-01',
+    };
+    const orders = [
+      first,
+      { ...first, id: 'second', status: 'proposed' as const },
+      { ...first, id: 'old', status: 'cancelled' as const },
+    ];
+    useCampaignStore().getState().updateCampaign({ refitOrders: orders });
+    for (let read = 0; read < 2; read++) {
+      useCampaignStore().getState().saveCampaign();
+      resetCampaignStore();
+      expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
+      expect(currentCampaign().refitOrders).toEqual(orders);
+    }
+  });
+  it('loads legacy acquisitions identically on server and local paths and stays identical after loading twice', () => {
+    const id = seedCampaign();
+    addAcquisitionRequest({
+      partName: 'PPC',
+      quantity: 2,
+      availability: AvailabilityRating.E,
+      isConsumable: false,
+    });
+    const base = currentCampaign();
+    const request = base.shoppingList?.items[0];
+    if (!request) throw new Error('request missing');
+    const legacy = {
+      ...base,
+      currentDate: new Date('3025-01-15T00:00:00.000Z'),
+      shoppingList: {
+        items: [
+          {
+            ...request,
+            id: 'duplicate',
+            status: 'failed' as const,
+            attempts: 3,
+            lastAttemptDate: '3025-01-12T00:00:00.000Z',
+          },
+          {
+            ...request,
+            id: 'duplicate',
+            status: 'failed' as const,
+            attempts: 1,
+            lastAttemptDate: 'invalid-date',
+          },
+          {
+            ...request,
+            id: 'duplicate',
+            status: 'delivered' as const,
+            quantity: 5,
+          },
+          { ...request, id: 'duplicate-legacy-1' },
+        ],
+      },
+      partsInventory: [
+        {
+          inventoryId: 'acquisition-duplicate',
+          partId: 'ppc',
+          partName: 'PPC',
+          quantity: 5,
+          source: 'acquisition' as const,
+          acquiredAt: '3025-01-10T00:00:00.000Z',
+        },
+      ],
+    };
+    useCampaignStore().getState().updateCampaign(legacy);
+    useCampaignStore().getState().saveCampaign();
+    const server = deserializeCampaignBody(serializeCampaignBody(legacy));
+    expect(server.shoppingList?.items.map((item) => item.status)).toEqual([
+      'pending',
+      'pending',
+      'delivered',
+      'pending',
+    ]);
+    expect(
+      new Set(server.shoppingList?.items.map((item) => item.id)).size,
+    ).toBe(4);
+    expect(server.shoppingList?.items[0].lastAttemptDate).toBe(
+      '3025-01-12T00:00:00.000Z',
+    );
+    expect(server.shoppingList?.items[1].lastAttemptDate).toBe(
+      legacy.currentDate.toISOString(),
+    );
+    resetCampaignStore();
+    expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
+    const local = currentCampaign();
+    expect(local.shoppingList).toEqual(server.shoppingList);
+    expect(local.partsInventory).toEqual(legacy.partsInventory);
+    expect(
+      deserializeCampaignBody(serializeCampaignBody(server)).shoppingList,
+    ).toEqual(server.shoppingList);
+    useCampaignStore().getState().saveCampaign();
+    resetCampaignStore();
+    expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
+    expect(currentCampaign().shoppingList).toEqual(local.shoppingList);
+    expect(currentCampaign().partsInventory).toEqual(legacy.partsInventory);
+  });
+
   beforeEach(() => {
     jest.useFakeTimers();
     localStorageMock.clear();
@@ -516,7 +696,8 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     expect(reloaded.moraleTransitions![0].to).toBe(MoraleState.High);
     expect(reloaded.personnelMarket).toHaveLength(1);
     expect(reloaded.personnelMarket![0].hireCost).toBe(25_000);
-    expect(reloaded.contractMarket?.declinedOfferIds).toEqual(['contract-77']);
+    // K14a: an orphan marker has no offer to hide and is pruned on reload.
+    expect(reloaded.contractMarket?.declinedOfferIds).toEqual([]);
     expect(reloaded.contractMarket?.offers).toHaveLength(1);
     expect(
       reloaded.contractMarket?.offers[0].paymentTerms.basePayment,

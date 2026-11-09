@@ -22,6 +22,8 @@ import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistence
 import { claimCampaignSessionForce } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
 import { bindCampaignSessionParticipant } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 
 import type { ICampaignHostRegistryEntry } from '../CampaignHostRegistry';
@@ -127,10 +129,24 @@ export async function seedCoopCampaign(
           : 'marauder-mad-3r',
       unitSource: 'canonical' as const,
       unitName: unitId,
+      pilotId: `pilot-${unitId}`,
       chassisVariant: 'Fixture',
       readiness: 'Ready',
     })),
-    pilots: [],
+    pilots: [...hostIds, ...guestIds].map((unitId) => ({
+      pilotId: `pilot-${unitId}`,
+      pilotName: unitId,
+      status: CampaignPilotStatus.Active,
+      primaryRole: CampaignPersonnelRole.PILOT,
+      rankIndex: 0,
+      wounds: 0,
+      recoveryTime: 0,
+      xp: 0,
+      campaignXpEarned: 0,
+      campaignKills: 0,
+      campaignMissions: 0,
+      hireDate: '3025-01-01T00:00:00.000Z',
+    })),
     missions: [],
     activeMissionId: null,
     missionCount: 0,

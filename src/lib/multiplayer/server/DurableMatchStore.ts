@@ -59,7 +59,11 @@ import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicaliz
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { rejectPreparedThenable } from '@/lib/events/journal/SQLiteEventJournalWriter';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
-import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
+import {
+  isSqliteUniqueConstraintError,
+  sqliteConstraintMessage,
+} from '@/services/persistence/sqliteConstraintErrors';
+import { MATCH_ROOM_CODES_MIGRATION } from '@/services/persistence/SQLiteService.matchRoomCodes.migration';
 
 import type { ICapabilityDatabaseHandle } from './durableCapabilityPorts';
 import type {
@@ -101,6 +105,7 @@ import {
 import { matchStreamRef } from './history/GmCombatRewindPreview';
 import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import {
+  RoomCodeCollisionError,
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
@@ -136,6 +141,7 @@ import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
 } from './matchJournalAuthority';
+import { lobbyMatchMeta, patchMatchMeta } from './matchRoomCodes';
 import { foldMatchSession } from './MatchSessionProjector';
 import {
   mirrorMatchBatchToJournal,
@@ -669,6 +675,8 @@ export class DurableMatchStore
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
     this.db.exec(SCHEMA_SQL);
+    // Synchronous: MatchRecovery/CampaignHostRegistry cannot observe legacy codes.
+    MATCH_ROOM_CODES_MIGRATION.up(this.db);
     this.db.exec(LEGACY_IMPORT_SCHEMA_SQL);
     this.db.exec(VIEWER_DELIVERY_SCHEMA_SQL);
     this.db.exec(VIEWER_DELIVERY_ACK_SCHEMA_SQL);
@@ -744,12 +752,10 @@ export class DurableMatchStore
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    meta = lobbyMatchMeta(meta);
     // A match's invite code only resolves while it is in `lobby`
     // status — mirror `InMemoryMatchStore`'s indexing rule.
-    const indexedRoomCode =
-      meta.roomCode && meta.status === 'lobby'
-        ? normalizeRoomCode(meta.roomCode)
-        : null;
+    const indexedRoomCode = meta.roomCode ?? null;
     const insertMatch = this.db.prepare(
       `INSERT INTO mp_matches
            (match_id, status, room_code, created_at, updated_at, meta_json)
@@ -759,14 +765,18 @@ export class DurableMatchStore
       'INSERT INTO mp_match_events (match_id, sequence, event_json) VALUES (?, ?, ?)',
     );
     transact(() => {
-      insertMatch.run(
-        meta.matchId,
-        meta.status,
-        indexedRoomCode,
-        meta.createdAt,
-        meta.updatedAt,
-        JSON.stringify(meta),
-      );
+      try {
+        insertMatch.run(
+          meta.matchId,
+          meta.status,
+          indexedRoomCode,
+          meta.createdAt,
+          meta.updatedAt,
+          JSON.stringify(meta),
+        );
+      } catch (error) {
+        throwRoomCodeWriteError(error, indexedRoomCode);
+      }
       for (const event of initialEvents) {
         insertEvent.run(meta.matchId, event.sequence, JSON.stringify(event));
       }
@@ -1591,6 +1601,17 @@ export class DurableMatchStore
     };
   };
 
+  listPendingOutcomeMatchIds = async (): Promise<readonly string[]> => {
+    const rows = this.db
+      .prepare(
+        `SELECT o.match_id
+       FROM mp_matches m JOIN mp_combat_outcome_outbox o ON o.match_id = m.match_id
+       WHERE m.status = 'completed' AND o.published_at IS NULL`,
+      )
+      .all() as { readonly match_id: string }[];
+    return rows.map((row) => row.match_id);
+  };
+
   markCombatOutcomePublished = async (
     matchId: string,
     outcomeId: string,
@@ -1659,35 +1680,26 @@ export class DurableMatchStore
     const row = this.getMatchRow(matchId);
     if (!row) throw new MatchNotFoundError(matchId);
     const before = JSON.parse(row.meta_json) as IMatchMeta;
-    // Mirror `InMemoryMatchStore`: an explicit `roomCode: null` clears
-    // the field; an absent key leaves it alone.
-    const { roomCode: patchRoomCode, ...restPatch } = patch;
-    const nextRoomCode =
-      patchRoomCode === null ? undefined : (patchRoomCode ?? before.roomCode);
-    const nextMeta: IMatchMeta = {
-      ...before,
-      ...restPatch,
-      roomCode: nextRoomCode,
-      updatedAt: new Date().toISOString(),
-    };
+    const nextMeta = patchMatchMeta(before, patch);
     // Invite codes resolve ONLY while the match is in `lobby` status.
-    const indexedRoomCode =
-      nextMeta.roomCode && nextMeta.status === 'lobby'
-        ? normalizeRoomCode(nextMeta.roomCode)
-        : null;
-    this.db
-      .prepare(
-        `UPDATE mp_matches
+    const indexedRoomCode = nextMeta.roomCode ?? null;
+    try {
+      this.db
+        .prepare(
+          `UPDATE mp_matches
          SET status = ?, room_code = ?, updated_at = ?, meta_json = ?
          WHERE match_id = ?`,
-      )
-      .run(
-        nextMeta.status,
-        indexedRoomCode,
-        nextMeta.updatedAt,
-        JSON.stringify(nextMeta),
-        matchId,
-      );
+        )
+        .run(
+          nextMeta.status,
+          indexedRoomCode,
+          nextMeta.updatedAt,
+          JSON.stringify(nextMeta),
+          matchId,
+        );
+    } catch (error) {
+      throwRoomCodeWriteError(error, indexedRoomCode);
+    }
   };
 
   getMatchByRoomCode = async (roomCode: string): Promise<IMatchMeta | null> => {
@@ -1704,11 +1716,9 @@ export class DurableMatchStore
     const row = this.getMatchRow(matchId);
     if (!row) return; // idempotent — closing a missing match is a no-op
     if (row.status === 'completed') return; // already closed
-    const nextMeta: IMatchMeta = {
-      ...(JSON.parse(row.meta_json) as IMatchMeta),
+    const nextMeta = patchMatchMeta(JSON.parse(row.meta_json) as IMatchMeta, {
       status: 'completed',
-      updatedAt: new Date().toISOString(),
-    };
+    });
     this.db
       .prepare(
         `UPDATE mp_matches
@@ -1872,4 +1882,21 @@ function isUniqueConstraintError(e: unknown): boolean {
   // gating on `instanceof Error` - a cross-realm error object carries a
   // usable message and code but fails the identity check.
   return isSqliteUniqueConstraintError(e);
+}
+
+/** Translate only this index; sequence, match-id and other failures retain their meaning. */
+function throwRoomCodeWriteError(
+  error: unknown,
+  roomCode: string | null,
+): never {
+  if (
+    roomCode &&
+    isSqliteUniqueConstraintError(error) &&
+    /UNIQUE constraint failed: mp_matches\.room_code$/.test(
+      sqliteConstraintMessage(error),
+    )
+  ) {
+    throw new RoomCodeCollisionError(roomCode);
+  }
+  throw error;
 }

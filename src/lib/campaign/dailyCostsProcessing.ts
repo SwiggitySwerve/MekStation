@@ -18,9 +18,9 @@
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { ICampaignLoan } from '@/types/campaign/CampaignLoan';
 
+import { isRosterPilotSalaryEligible } from '@/lib/campaign/personnel/statusRules';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { ICampaign } from '@/types/campaign/Campaign';
-import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { getAllUnits } from '@/types/campaign/Force';
 import { Money } from '@/types/campaign/Money';
@@ -86,9 +86,11 @@ function applyLoanRepayments(loans: readonly ICampaignLoan[] | undefined): {
  * Process daily costs for the campaign.
  *
  * Calculates:
- * - Salary: DEFAULT_DAILY_SALARY * salaryMultiplier per active person
- * - Maintenance: DEFAULT_DAILY_MAINTENANCE * maintenanceCostMultiplier per unit
+ * - Flat salary and maintenance when role-based salaries are disabled
  * - Loan repayment: sum of every active loan's `dailyRepayment` (design D4)
+ *
+ * Role-based salaries and their maintenance are charged by financialProcessor;
+ * campaign loans are serviced here regardless of the salary mode.
  *
  * Deducts from campaign balance and records transactions.
  *
@@ -96,7 +98,7 @@ function applyLoanRepayments(loans: readonly ICampaignLoan[] | undefined): {
  * @returns Updated finances, the updated loan ledger, and a cost breakdown
  */
 export function processDailyCosts(campaign: ICampaign): {
-  finances: { transactions: Transaction[]; balance: Money };
+  finances: ICampaign['finances'];
   loans: readonly ICampaignLoan[];
   costs: DailyCostBreakdown;
 } {
@@ -106,16 +108,19 @@ export function processDailyCosts(campaign: ICampaign): {
 
   // Count billable personnel for salary — read from roster store
   // (canonical source per PR4 of `wire-iperson-hard-cutover`).
-  // CampaignPilotStatus.KIA is the only non-billable terminal status; Active,
-  // Wounded, Critical, and MIA all still draw salary.
+  // Injury and MIA statuses still draw salary; deaths and departures do not.
   const rosterEntries = useCampaignRosterStore.getState().pilots;
   const personnelCount = rosterEntries.filter(
-    (e) => e.status !== CampaignPilotStatus.KIA,
+    isRosterPilotSalaryEligible,
   ).length;
 
   // Calculate salary costs
   let salaries = Money.ZERO;
-  if (options.payForSalaries && personnelCount > 0) {
+  if (
+    !options.useRoleBasedSalaries &&
+    options.payForSalaries &&
+    personnelCount > 0
+  ) {
     const dailySalaryPerPerson = new Money(
       DEFAULT_DAILY_SALARY * options.salaryMultiplier,
     );
@@ -142,7 +147,11 @@ export function processDailyCosts(campaign: ICampaign): {
 
   // Calculate maintenance costs
   let maintenance = Money.ZERO;
-  if (options.payForMaintenance && unitCount > 0) {
+  if (
+    !options.useRoleBasedSalaries &&
+    options.payForMaintenance &&
+    unitCount > 0
+  ) {
     const dailyMaintenancePerUnit = new Money(
       DEFAULT_DAILY_MAINTENANCE * options.maintenanceCostMultiplier,
     );
@@ -184,6 +193,7 @@ export function processDailyCosts(campaign: ICampaign): {
 
   return {
     finances: {
+      ...campaign.finances,
       transactions: newTransactions,
       balance: currentBalance,
     },

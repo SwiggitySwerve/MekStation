@@ -33,6 +33,8 @@ import {
   resolveAllPhysicalAttacks,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import { isActivationComplete } from '@/utils/gameplay/gameSessionActivation';
+import { appendInteractiveMovementTerrainEffects } from '@/utils/gameplay/gameSessionMovementTerrain';
 import {
   canUnitGoProne,
   getGoProneMpCost,
@@ -162,6 +164,9 @@ export function runMovementPhase(
           facing: unit.facing,
           prone: unit.prone ?? false,
           isStuck: unit.isStuck ?? false,
+          ...(unit.canUnstickByJumping === true
+            ? { canUnstickByJumping: true }
+            : {}),
         },
         moveEvt.payload.to,
         moveEvt.payload.facing as Facing,
@@ -198,6 +203,12 @@ export function runMovementPhase(
         validation.heatGenerated,
         eventPath,
       );
+      updatedSession = appendInteractiveMovementTerrainEffects(updatedSession, {
+        grid,
+        unitId,
+        fromFacing: unit.facing,
+        capability: cap,
+      });
     }
     updatedSession = lockMovement(updatedSession, unitId);
 
@@ -270,6 +281,7 @@ export function runAttackPhase(
 
   for (const unitId of Object.keys(updatedSession.currentState.units)) {
     const unit = updatedSession.currentState.units[unitId];
+    if (isActivationComplete(unit)) continue;
     if (unit.destroyed) {
       updatedSession = lockAttack(updatedSession, unitId);
       continue;
@@ -369,6 +381,7 @@ export function runPhysicalAttackPhase(input: {
 
   for (const unitId of Object.keys(updatedSession.currentState.units)) {
     const unit = updatedSession.currentState.units[unitId];
+    if (isActivationComplete(unit)) continue;
     if (!canUnitAct(unit)) continue;
 
     const weapons = weaponsByUnit.get(unitId) ?? [];

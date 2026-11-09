@@ -93,7 +93,7 @@ const MEKSTATION_PHYSICAL_PILOTING_SOURCE_REFS = [
 const MEKSTATION_PSR_PILOTING_SOURCE_REFS = [
   mekstationRef(
     'MekStation runPSRPhase resolves each unit pending PSRs with the unit piloting skill before emitting PSRResolved and fall aftermath events.',
-    'src/simulation/runner/phases/postCombatPsr.ts#L292-L300',
+    'src/simulation/runner/phases/postCombatPsr.ts#L301-L314',
   ),
   mekstationRef(
     'MekStation resolvePSR and resolveAllPSRs compute PSR target numbers from pilotingSkill plus accumulated modifiers.',
@@ -101,7 +101,7 @@ const MEKSTATION_PSR_PILOTING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation resolvePendingPSRs mirrors interactive PSR resolution through resolveAllPSRs with the unit piloting skill.',
-    'src/utils/gameplay/gameSessionPSRResolution.ts#L173-L191',
+    'src/utils/gameplay/gameSessionPSRResolution.ts#L174-L192',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -112,7 +112,7 @@ const MEKSTATION_PSR_EVENT_STAMPING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation heatCriticalDamage stamps basePilotingSkill when translating heat-critical PSR trigger events.',
-    'src/simulation/runner/phases/heatCriticalDamage.ts#L159-L160',
+    'src/simulation/runner/phases/heatCriticalDamage.ts#L151-L152',
   ),
   mekstationRef(
     'MekStation movementEnhancementFailureEvents stamps basePilotingSkill for MASC/Supercharger failure PSR trigger events.',
@@ -127,7 +127,7 @@ const MEKSTATION_STAND_UP_PILOTING_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation attemptStandUp computes the interactive stand-up target number from piloting plus gyro, wound, trigger, quirk, and SPA modifiers.',
-    'src/utils/gameplay/gameSessionPSR.ts#L87-L156',
+    'src/utils/gameplay/gameSessionPSR.ts#L95-L203',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -164,7 +164,7 @@ const MEKSTATION_PSR_WOUND_SOURCE_REFS = [
   ),
   mekstationRef(
     'MekStation resolvePendingPSRs threads interactive unit pilotWounds into resolveAllPSRs.',
-    'src/utils/gameplay/gameSessionPSRResolution.ts#L173-L191',
+    'src/utils/gameplay/gameSessionPSRResolution.ts#L174-L192',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -174,8 +174,8 @@ const MEKSTATION_STAND_UP_WOUND_SOURCE_REFS = [
     'src/simulation/runner/phases/movementStandUp.ts#L48-L57',
   ),
   mekstationRef(
-    'MekStation interactive stand-up resolution adds unitState.pilotWounds directly to the stand-up target number.',
-    'src/utils/gameplay/gameSessionPSR.ts#L132-L156',
+    'MekStation interactive stand-up resolution projects unitState, including pilot wounds, through projectStandUpPsr before using its target number.',
+    'src/utils/gameplay/gameSessionPSR.ts#L114-L171',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

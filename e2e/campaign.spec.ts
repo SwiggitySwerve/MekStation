@@ -313,8 +313,8 @@ test.describe('Campaign Detail Page @campaign', () => {
 // These tests asserted `mission-tree` / `mission-node-*` /
 // `mission-details-panel` on the campaign detail route after a store-seeded
 // create. That route now mounts CampaignDashboard (command center cards);
-// MissionTreeView remains on CampaignOverviewTab, reachable only via the
-// legacy `/gameplay/campaigns/[id]/overview` path. Mission launch / readiness
+// MissionTreeView and CampaignOverviewTab have been deleted (owner ruling
+// 2026-11-07, D1). Mission launch / readiness
 // coverage lives in flow-audits + seam / playtest helpers that drive the
 // wizard + operations queue, not the retired tree panel.
 // =============================================================================

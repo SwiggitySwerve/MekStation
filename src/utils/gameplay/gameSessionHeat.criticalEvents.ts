@@ -1,3 +1,5 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
+
 import {
   GameEventType,
   GamePhase,
@@ -43,26 +45,10 @@ function createHeatCriticalHitEvent(
   };
 }
 
-function mapCriticalDestructionCause(
-  cause: string,
-):
-  | 'damage'
-  | 'ammo_explosion'
-  | 'pilot_death'
-  | 'engine_destroyed'
-  | 'impossible_displacement'
-  | 'ct_destroyed'
-  | 'head_destroyed' {
+function mapCriticalDestructionCause(cause: string): UnitDestroyedCause {
   return cause === 'damage'
     ? 'engine_destroyed'
-    : (cause as
-        | 'damage'
-        | 'ammo_explosion'
-        | 'pilot_death'
-        | 'engine_destroyed'
-        | 'impossible_displacement'
-        | 'ct_destroyed'
-        | 'head_destroyed');
+    : (cause as UnitDestroyedCause);
 }
 
 export function emitHeatCriticalEvents(

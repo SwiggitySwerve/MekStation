@@ -24,6 +24,7 @@ import {
   movementStepsUseBackwardMovement,
   movementStepsUseMechanicalJumpBooster,
 } from '@/utils/gameplay/movement/stepPredicates';
+import { applyJumpUnstick } from '@/utils/gameplay/movement/stuckState';
 
 export function applyMovementDeclared(
   state: IGameState,
@@ -67,7 +68,7 @@ export function applyMovementDeclared(
 
   const updatedUnit: IUnitGameState = clearPendingAltitudeControlMovementCost(
     clearPendingConversionMovementCost({
-      ...unit,
+      ...applyJumpUnstick(unit, payload.movementType),
       position: payload.to,
       facing: payload.facing,
       secondaryFacing: payload.facing,

@@ -1,3 +1,4 @@
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 import type { CriticalHitEvent } from '@/utils/gameplay/criticalHitResolution/types';
 
 import {
@@ -30,15 +31,7 @@ import {
   findExplodingAmmoBin,
 } from './weaponAttackHelpers';
 
-type DestructionCause =
-  | 'damage'
-  | 'ammo_explosion'
-  | 'pilot_death'
-  | 'engine_destroyed'
-  | 'impossible_displacement'
-  | 'ct_destroyed'
-  | 'head_destroyed'
-  | undefined;
+type DestructionCause = UnitDestroyedCause | undefined;
 
 interface ICriticalExplosion {
   readonly location: string;
@@ -131,6 +124,29 @@ export function applyCritAmmoExplosions(
         unitId,
       ),
     );
+    if (
+      explosion.binId !== undefined &&
+      explosion.weaponType !== undefined &&
+      explosion.roundsDestroyed !== undefined
+    ) {
+      events.push(
+        createGameEvent(
+          gameId,
+          events.length,
+          GameEventType.AmmoConsumed,
+          currentState.turn,
+          GamePhase.WeaponAttack,
+          {
+            unitId: targetId,
+            binId: explosion.binId,
+            weaponType: explosion.weaponType,
+            roundsConsumed: explosion.roundsDestroyed,
+            roundsRemaining: 0,
+          },
+          unitId,
+        ),
+      );
+    }
     // Empty tracked ammo bins so a subsequent volley in the same turn
     // cannot re-trigger the same bin. Represented equipment explosions
     // have no ammo-state mutation.

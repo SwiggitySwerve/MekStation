@@ -131,7 +131,7 @@ describe('BattleMech combat event support catalog', () => {
     expect(urlsFor(GameEventType.GameCreated)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/lifecycle.ts#L72-L180',
-        'src/simulation/runner/SimulationRunner.ts#L181-L405',
+        'src/simulation/runner/SimulationRunner.ts#L235-L479',
       ]),
     );
     expect(urlsFor(GameEventType.AttackResolved)).toEqual(
@@ -144,13 +144,13 @@ describe('BattleMech combat event support catalog', () => {
     expect(urlsFor(GameEventType.UnitEjected)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/gameEvents/statusPhysical.ts#L267-L364',
-        'src/utils/gameplay/gameState/unitExitState.ts#L45-L59',
+        'src/utils/gameplay/gameState/unitExitState.ts#L60-L75',
       ]),
     );
     expect(urlsFor(GameEventType.ObjectiveCaptured)).toEqual(
       expect.arrayContaining([
         'src/utils/gameplay/objectives/objectiveEvents.ts#L25-L185',
-        'src/simulation/runner/SimulationRunner.ts#L321-L338',
+        'src/simulation/runner/SimulationRunner.ts#L391-L404',
       ]),
     );
     expect(urlsFor(GameEventType.AttacksRevealed)).toEqual(
@@ -158,8 +158,8 @@ describe('BattleMech combat event support catalog', () => {
         'src/utils/gameplay/gameEvents/attackReveal.ts#L1-L28',
         'src/utils/gameplay/gameSessionCore.ts#L398-L430',
         'src/utils/gameplay/gameSessionAttackReveal.ts#L22-L87',
-        'src/utils/gameplay/gameState/actionLocking.ts#L157-L205',
-        'src/utils/gameplay/gameState/eventDispatch.ts#L224-L225',
+        'src/utils/gameplay/gameState/actionLocking.ts#L158-L206',
+        'src/utils/gameplay/gameState/eventDispatch.ts#L219-L220',
       ]),
     );
     expect(urlsFor(GameEventType.CommandResultPublished)).toEqual(
@@ -177,9 +177,9 @@ describe('BattleMech combat event support catalog', () => {
     );
     expect(urlsFor(GameEventType.UnitStuck)).toEqual(
       expect.arrayContaining([
-        'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L210',
-        'src/utils/gameplay/gameSessionPSRResolution.ts#L54-L410',
-        'src/simulation/runner/phases/postCombatPsr.ts#L70-L230',
+        'src/utils/gameplay/gameEvents/statusChecksUnitState.ts#L1-L215',
+        'src/utils/gameplay/gameSessionPSRResolution.ts#L55-L417',
+        'src/simulation/runner/phases/postCombatPsr.ts#L77-L244',
       ]),
     );
   });

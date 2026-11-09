@@ -1,0 +1,6 @@
+{
+  "name": "preserve-gm-multi-effect-ledger-rows",
+  "status": "in-progress",
+  "reason": "Root-approved K11 regression fix: preserve distinct effects and unique row identities while merging persisted and session ledger history; no persisted-format or authority change.",
+  "lastReviewed": "2026-11-08"
+}

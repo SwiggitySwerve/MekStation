@@ -135,7 +135,9 @@ export function addSpectatorSeat(
     );
   }
 
-  const seatNumber = current.length + 1;
+  const occupiedSlots = new Set(seats.map((seat) => seat.slotId));
+  let seatNumber = 1;
+  while (occupiedSlots.has(buildSpectatorSlotId(seatNumber))) seatNumber += 1;
   const seat: IMatchSeat = {
     slotId: buildSpectatorSlotId(seatNumber),
     side: SPECTATOR_SIDE,

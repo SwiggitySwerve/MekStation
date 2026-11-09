@@ -163,8 +163,8 @@ export interface IMotiveDamageState {
   /** Commander-hit count (per TW, 2 kills the crew). */
   readonly commanderHits: number;
   /**
-   * Number of upcoming phases the crew spends recovering from stun.
-   * Decremented by the phase driver.
+   * Counts rounds despite the persisted name; decremented at Initiative.
+   * MegaMek 48fcb2f64 Tank.java:1112-1121 (Tank.newRound).
    */
   readonly crewStunnedPhases: number;
 }

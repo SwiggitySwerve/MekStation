@@ -9,8 +9,7 @@
  * operation per seat generation.
  */
 
-import type Database from 'better-sqlite3';
-
+import Database from 'better-sqlite3';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -429,10 +428,20 @@ describe('SQLiteService local seat credentials migration', () => {
     expect(() => getSQLiteService({ path: dbPath }).initialize()).toThrow(
       'injected local seat failure',
     );
-    const failed = getSQLiteService().getDatabase();
-    expect(tables(failed)).toEqual([]);
-    expect(
-      failed.prepare('SELECT * FROM migrations ORDER BY version').all(),
-    ).toEqual(before);
+    const service = getSQLiteService();
+    expect(service.isInitialized()).toBe(false);
+    expect(() => service.getDatabase()).toThrow('Database not initialized');
+    const failed = new Database(dbPath, {
+      readonly: true,
+      fileMustExist: true,
+    });
+    try {
+      expect(tables(failed)).toEqual([]);
+      expect(
+        failed.prepare('SELECT * FROM migrations ORDER BY version').all(),
+      ).toEqual(before);
+    } finally {
+      failed.close();
+    }
   });
 });

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import { AcquisitionsPanel } from '@/components/campaign/command/AcquisitionsPanel';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
 import {
   CampaignPageFrameFromShell,
   getLoadedCampaign,
@@ -25,6 +26,7 @@ export default function AcquisitionsPage(): React.ReactElement {
   const loadStatus = useCampaignLoadStatus();
   const [, setActionTick] = useState(0);
   const [actionError, setActionError] = useState<string | null>(null);
+  const isAdvancing = useDayAdvanceInFlight();
 
   const pendingPage = renderPendingCampaignPage(shell, ACQUISITIONS_LOADING);
   if (pendingPage) return pendingPage;
@@ -60,9 +62,11 @@ export default function AcquisitionsPage(): React.ReactElement {
     setActionTick((tick) => tick + 1);
   };
 
-  const handleAdvanceDay = (): void => {
+  // A co-op advance answers with a Promise, which is truthy whether or not the
+  // day was saved: await it, then judge the report.
+  const handleAdvanceDay = async (): Promise<void> => {
     setActionError(null);
-    const report = shell.store.getState().advanceDay();
+    const report = await shell.store.getState().advanceDay();
     if (!report) {
       setActionError('The acquisition processor could not advance the day.');
       return;
@@ -86,7 +90,8 @@ export default function AcquisitionsPage(): React.ReactElement {
           currentDate={campaign.currentDate}
           onAddRequest={handleAddRequest}
           onRemoveRequest={handleRemoveRequest}
-          onAdvanceDay={handleAdvanceDay}
+          onAdvanceDay={() => void handleAdvanceDay()}
+          isAdvancing={isAdvancing}
           actionError={actionError}
         />
       )}

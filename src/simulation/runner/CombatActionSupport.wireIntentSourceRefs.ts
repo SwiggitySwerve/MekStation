@@ -33,7 +33,7 @@ export const MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS = [
   ),
   wireDispatchSourceRef(
     'MekStation dispatchToEngine rejects lobby wire intents as non-engine intents instead of treating them as BattleMech combat actions.',
-    'L72-L83',
+    'L89-L105',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -44,7 +44,7 @@ export const MEKSTATION_RECONNECT_WIRE_INTENT_SOURCE_REFS = [
   ),
   wireDispatchSourceRef(
     'MekStation dispatchToEngine rejects reconnect and lobby timeout wire intents as non-engine intents instead of treating them as BattleMech combat actions.',
-    'L72-L83',
+    'L89-L105',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -52,41 +52,41 @@ export const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
   AdvancePhase: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes AdvancePhase wire intents to InteractiveSession.advancePhase.',
-      'L54-L56',
+      'L64-L66',
     ),
   ],
   Attack: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Attack wire intents to InteractiveSession.applyAttack.',
-      'L42-L44',
+      'L48-L51',
     ),
   ],
   Concede: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Concede wire intents to InteractiveSession.concede after normalizing the side payload.',
-      'L66-L70',
+      'L73-L76',
     ),
   ],
   Eject: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Eject wire intents to InteractiveSession.ejectUnit.',
-      'L58-L60',
+      'L67-L69',
     ),
   ],
   Move: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Move wire intents to InteractiveSession.applyMovement.',
-      'L15-L24',
+      'L26-L35',
     ),
     wireDispatchSourceRef(
       'MekStation parseMovementType normalizes Move wire movement strings before engine dispatch.',
-      'L94-L111',
+      'L122-L128',
     ),
   ],
   Physical: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Physical wire intents to InteractiveSession.applyPhysicalAttack.',
-      'L46-L52',
+      'L52-L60',
     ),
   ],
   RequestSpot: [
@@ -96,37 +96,37 @@ export const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
     ),
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes RequestSpot wire intents to InteractiveSession.requestSpot.',
-      'L54-L58',
+      'L61-L63',
     ),
   ],
   GoProne: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes GoProne wire intents to InteractiveSession.goProne.',
-      'L30-L32',
+      'L39-L41',
     ),
   ],
   ActivateMovementEnhancement: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes ActivateMovementEnhancement wire intents to InteractiveSession.activateMovementEnhancement.',
-      'L34-L36',
+      'L42-L44',
     ),
   ],
   TorsoTwist: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes TorsoTwist wire intents to InteractiveSession.torsoTwist.',
-      'L38-L40',
+      'L45-L47',
     ),
   ],
   Stand: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Stand wire intents to InteractiveSession.attemptStandUp.',
-      'L26-L28',
+      'L36-L38',
     ),
   ],
   Withdraw: [
     wireDispatchSourceRef(
       'MekStation dispatchToEngine routes Withdraw wire intents to InteractiveSession.declareWithdrawal.',
-      'L62-L64',
+      'L70-L72',
     ),
   ],
   ForfeitMatch: MEKSTATION_RECONNECT_WIRE_INTENT_SOURCE_REFS,
@@ -145,7 +145,7 @@ export const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
     ),
     wireDispatchSourceRef(
       'MekStation dispatchToEngine excludes RewindRequest from EngineIntent so it is not treated as a BattleMech combat action.',
-      'L10-L25',
+      'L14-L23',
     ),
   ],
 } satisfies Record<

@@ -1,3 +1,6 @@
+import { describe, it, expect } from '@jest/globals';
+
+import type { IWeapon } from '@/simulation/ai/types';
 /**
  * Integration test — player withdrawal through `InteractiveSession`.
  *
@@ -12,10 +15,6 @@
  * @spec openspec/changes/add-combat-morale-and-withdrawal/tasks.md § 2
  */
 
-import { describe, it, expect } from '@jest/globals';
-
-import type { IWeapon } from '@/simulation/ai/types';
-
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   Facing,
@@ -25,6 +24,8 @@ import {
   MovementType,
   type IGameUnit,
 } from '@/types/gameplay';
+import { createPhysicalAttackResolvedEvent } from '@/utils/gameplay/gameEvents/statusPhysical';
+import { deriveState } from '@/utils/gameplay/gameState/gameStateReducer';
 
 import type { IAdaptedUnit } from '../types';
 
@@ -179,4 +180,38 @@ describe('InteractiveSession.declareWithdrawal', () => {
       'north',
     );
   });
+});
+
+// A canonical grapple event supplies replayable relationship state.
+it('C9: normal grappled units can currently withdraw; release the off-board link', () => {
+  const session = makeSession();
+  const initial = session.getSession();
+  session.appendEvent(
+    createPhysicalAttackResolvedEvent(
+      initial.id,
+      initial.events.length,
+      initial.currentState.turn,
+      'unit-player',
+      'unit-opponent',
+      'grapple',
+      12,
+      2,
+      true,
+      0,
+    ),
+  );
+  expect(session.getState().units['unit-player'].grappledUnitId).toBe(
+    'unit-opponent',
+  );
+  session.declareWithdrawal('unit-player', 'south');
+  session.advancePhase();
+  session.advancePhase();
+  expect(session.getState().units['unit-player'].hasRetreated).toBe(true);
+  expect(
+    session.getState().units['unit-opponent'].grappledUnitId,
+  ).toBeUndefined();
+  const final = session.getSession();
+  expect(deriveState(final.id, final.events).units).toEqual(
+    final.currentState.units,
+  );
 });

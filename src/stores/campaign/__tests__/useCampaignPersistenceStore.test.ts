@@ -185,6 +185,87 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
   });
 
+  it('counts every edit even when already dirty', () => {
+    const initialSeq = useCampaignPersistenceStore.getState().editSeq;
+    useCampaignPersistenceStore.getState().markDirty();
+    useCampaignPersistenceStore.getState().markDirty();
+    expect(useCampaignPersistenceStore.getState().editSeq).toBe(initialSeq + 2);
+  });
+
+  it('keeps an edit made during a save pending until the next save acknowledges it', async () => {
+    const acceptedRecord = buildSerializedCampaign(campaign, 'device-x', 1);
+    const editedCampaign = { ...campaign, name: 'Edited during save' };
+    let resolveSave!: (response: Response) => void;
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveSave = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse(
+          200,
+          buildSerializedCampaign(editedCampaign, 'device-x', 2),
+        ),
+      );
+
+    useCampaignPersistenceStore.getState().markDirty();
+    const saving = useCampaignPersistenceStore.getState().saveCampaign();
+    await flushPromises();
+    mockStore.getState().updateCampaign({ name: editedCampaign.name });
+    useCampaignPersistenceStore.getState().markDirty();
+    resolveSave(jsonResponse(200, acceptedRecord));
+    await saving;
+
+    expect(useCampaignPersistenceStore.getState()).toMatchObject({
+      dirty: true,
+      saveState: 'idle',
+      baseVersion: 1,
+      lastPersistedCampaign: { name: campaign.name },
+    });
+    expect(mockStore.getState().campaign?.name).toBe(editedCampaign.name);
+
+    await useCampaignPersistenceStore.getState().saveCampaign();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(useCampaignPersistenceStore.getState()).toMatchObject({
+      dirty: false,
+      saveState: 'saved',
+      baseVersion: 2,
+    });
+  });
+
+  it.each(['save', 'load'] as const)(
+    'clears the typed save conflict after a successful %s',
+    async (operation) => {
+      const serverRecord = buildSerializedCampaign(campaign, 'device-x', 3);
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValueOnce(conflictResponse(serverRecord));
+      await useCampaignPersistenceStore.getState().saveCampaign();
+      expect(
+        useCampaignPersistenceStore.getState().saveConflict,
+      ).not.toBeNull();
+      fetchMock.mockResolvedValueOnce(jsonResponse(200, serverRecord));
+
+      if (operation === 'save') {
+        await useCampaignPersistenceStore.getState().saveCampaign();
+      } else {
+        expect(
+          await useCampaignPersistenceStore
+            .getState()
+            .loadCampaign(campaign.id),
+        ).toBe(true);
+      }
+
+      expect(useCampaignPersistenceStore.getState().saveConflict).toBeNull();
+      expect(
+        useCampaignPersistenceStore.getState().conflictServerRecord,
+      ).toBeNull();
+    },
+  );
+
   it('auto-save fires after the debounce interval settles', async () => {
     const stored = buildSerializedCampaign(campaign, 'device-x', 1);
     const fetchMock = jest
@@ -235,6 +316,47 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(3);
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
   });
+
+  it.each(['retired', 'deserted'])(
+    'normalizes a legacy Active %s on durable restore without paying or refunding',
+    async (departureReason) => {
+      seedRosterProjection(campaign.id);
+      const roster = useCampaignRosterStore.getState();
+      const entry = roster.pilots[0];
+      const envelope = buildSerializedCampaign(campaign, 'device-y', 3, {
+        campaignId: campaign.id,
+        units: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 0,
+        pilots: [
+          {
+            ...entry,
+            salary: entry.salary?.amount,
+            lastPromotionDate: entry.lastPromotionDate?.toISOString(),
+            status: CampaignPilotStatus.Active,
+            departureReason,
+            hireDate: entry.hireDate.toISOString(),
+          },
+        ],
+      });
+      const fetchMock = jest
+        .spyOn(global, 'fetch')
+        .mockResolvedValue(jsonResponse(200, envelope));
+      const before = mockStore.getState().campaign!.finances;
+      const ok = await useCampaignPersistenceStore
+        .getState()
+        .loadCampaign(campaign.id);
+      expect(ok).toBe(true);
+      expect(useCampaignRosterStore.getState().pilots[0]).toMatchObject({
+        status: departureReason,
+        departureReason,
+      });
+      expect(mockStore.getState().campaign!.finances).toEqual(before);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(fetchMock.mock.calls[0][1]?.method).toBeUndefined();
+    },
+  );
 
   it('loadCampaign rehydrates the server roster projection', async () => {
     const envelope = buildSerializedCampaign(campaign, 'device-y', 3, {

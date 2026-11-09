@@ -17,6 +17,7 @@ import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { IForce } from '@/types/campaign/Force';
 
 import type {
+  CampaignCommitResult,
   CampaignStore,
   ICreateCampaignCoopOpts,
   IGuestMirrorSnapshot,
@@ -24,31 +25,39 @@ import type {
 
 import { clientSafeStorage } from '../utils/clientSafeStorage';
 import {
+  hydrateCampaignBattleState,
+  mergeBattleOutcomeState,
+} from './campaignBattleOutcomeState';
+import {
+  hasUnsettledCampaignPersistence,
   useCampaignPersistenceStore,
   type CampaignPersistenceSaveResult,
 } from './useCampaignPersistenceStore';
-import { useCampaignRosterStore } from './useCampaignRosterStore';
 import { createCampaignDayActions } from './useCampaignStore.dayActions';
 import {
   deserializeCampaign,
   persistCampaignRecord,
   type SerializedCampaignState,
 } from './useCampaignStore.persistence';
+import { createCampaignSalvageActions } from './useCampaignStore.salvageActions';
 import { createForcesStore } from './useForcesStore';
 import { createMissionsStore } from './useMissionsStore';
 
 type CampaignSet = Parameters<StateCreator<CampaignStore>>[0];
 type CampaignGet = Parameters<StateCreator<CampaignStore>>[1];
 
-function commitResultFromPersistence(result: CampaignPersistenceSaveResult): {
-  readonly committed: boolean;
-  readonly reason?: string;
-} {
+function commitResultFromPersistence(
+  result: CampaignPersistenceSaveResult,
+): CampaignCommitResult {
   if (result.status === 'saved' || result.status === 'skipped') {
     return { committed: true };
   }
   if (result.status === 'error') {
-    return { committed: false, reason: result.errorMessage };
+    return {
+      committed: false,
+      reason: result.errorMessage,
+      ...(result.refusal ? { recoverable: true } : {}),
+    };
   }
   return { committed: false, reason: 'campaign save conflict' };
 }
@@ -103,18 +112,32 @@ function createCampaignAction(
 ): CampaignStore['createCampaign'] {
   return (name, factionId, options, coopOpts?: ICreateCampaignCoopOpts) => {
     const campaign = createCampaignEntity(name, factionId, options);
+    resetPersistenceForCreatedCampaign(campaign.id);
     const rootForce = createRootForce(campaign.rootForceId, name);
     const { forcesStore, missionsStore } = initializeChildStores(
       campaign.id,
       rootForce,
     );
     set({
-      campaign: withRootForce(campaign, rootForce, coopOpts?.coopSession),
+      ...hydrateCampaignBattleState(
+        withRootForce(campaign, rootForce, coopOpts?.coopSession),
+      ),
       forcesStore,
       missionsStore,
     });
     return campaign.id;
   };
+}
+
+function resetPersistenceForCreatedCampaign(campaignId: string): void {
+  // Resetting would discard the previous campaign's pending work and save token.
+  if (hasUnsettledCampaignPersistence()) {
+    throw new Error(
+      'Your current campaign is still saving. Try again in a moment.',
+    );
+  }
+  useCampaignPersistenceStore.getState().reset();
+  useCampaignPersistenceStore.setState({ campaignId });
 }
 
 function createGuestMirrorCampaignAction(
@@ -130,6 +153,7 @@ function createGuestMirrorCampaignAction(
       snapshot.campaignName,
     );
     const localId = snapshot.campaignId || campaign.id;
+    resetPersistenceForCreatedCampaign(localId);
     const { forcesStore, missionsStore } = initializeChildStores(
       localId,
       rootForce,
@@ -141,12 +165,14 @@ function createGuestMirrorCampaignAction(
       guestSession,
     );
     set({
-      campaign: snapshot.authoritativeState
-        ? applyAuthoritativeStateToGuestCampaign(
-            mirror,
-            snapshot.authoritativeState,
-          )
-        : mirror,
+      ...hydrateCampaignBattleState(
+        snapshot.authoritativeState
+          ? applyAuthoritativeStateToGuestCampaign(
+              mirror,
+              snapshot.authoritativeState,
+            )
+          : mirror,
+      ),
       forcesStore,
       missionsStore,
     });
@@ -178,10 +204,9 @@ function loadCampaignAction(set: CampaignSet): CampaignStore['loadCampaign'] {
           .map((m) => [m.id, m]),
       );
       set({
-        campaign: deserializeCampaign(serialized, forces, missions),
-        pendingBattleOutcomes: serialized.pendingBattleOutcomes,
-        processedBattleIds: serialized.processedBattleIds,
-        reviewedBattleIds: serialized.reviewedBattleIds,
+        ...hydrateCampaignBattleState(
+          deserializeCampaign(serialized, forces, missions),
+        ),
         forcesStore,
         missionsStore,
       });
@@ -194,11 +219,16 @@ function loadCampaignAction(set: CampaignSet): CampaignStore['loadCampaign'] {
 
 function switchCampaignAction(
   set: CampaignSet,
+  get: CampaignGet,
 ): CampaignStore['switchCampaign'] {
   return (campaign) => {
     const { forcesStore, missionsStore } =
       initializeChildStoresFromCampaign(campaign);
-    set({ campaign, forcesStore, missionsStore });
+    set({
+      ...hydrateCampaignBattleState(campaign, get()),
+      forcesStore,
+      missionsStore,
+    });
   };
 }
 
@@ -244,13 +274,15 @@ function saveCampaignAction(
       get,
       campaign,
     );
+    const battleState = mergeBattleOutcomeState(campaign, get());
     const updatedCampaign: ICampaign = {
       ...campaign,
+      ...battleState,
       forces,
       missions,
       updatedAt: new Date().toISOString(),
     };
-    set({ campaign: updatedCampaign });
+    set({ campaign: updatedCampaign, ...battleState });
     persistCampaignRecord(
       updatedCampaign,
       pendingBattleOutcomes,
@@ -294,126 +326,6 @@ function updateCampaignAction(
   };
 }
 
-function commitRosterEnrollmentAction(
-  set: CampaignSet,
-  get: CampaignGet,
-): CampaignStore['commitRosterEnrollment'] {
-  return async (expected, unit, updates) => {
-    const roster = useCampaignRosterStore.getState();
-    if (
-      get().campaign !== expected ||
-      roster.campaignId !== expected.id ||
-      roster.units.some((entry) => entry.unitId === unit.unitId)
-    ) {
-      return {
-        committed: false,
-        reason: 'Campaign or roster changed while preparing salvage; retry.',
-      };
-    }
-    const forcesStore = get().forcesStore;
-    const oldForce = forcesStore?.getState().getForce(expected.rootForceId);
-    const nextForce = updates.forces?.get(expected.rootForceId);
-    if (!nextForce || (forcesStore && !oldForce))
-      return {
-        committed: false,
-        reason: 'The campaign root force is missing.',
-      };
-    if (
-      forcesStore
-        ?.getState()
-        .getAllForces()
-        .some((force) => force !== expected.forces.get(force.id))
-    ) {
-      return {
-        committed: false,
-        reason:
-          'Force assignments changed while preparing salvage; save and retry.',
-      };
-    }
-    const beforeUnits = roster.units;
-    const { pendingBattleOutcomes, processedBattleIds, reviewedBattleIds } =
-      get();
-    const nextUnits = [...beforeUnits, unit];
-    const nextForces = new Map(updates.forces);
-    const nextCampaign = {
-      ...expected,
-      ...updates,
-      forces: nextForces,
-      updatedAt: new Date().toISOString(),
-    };
-    const rollback = (): void => {
-      if (get().campaign === nextCampaign) set({ campaign: expected });
-      const currentRoster = useCampaignRosterStore.getState();
-      if (currentRoster.units === nextUnits)
-        currentRoster.replaceUnitsForCampaign(expected.id, beforeUnits);
-      if (forcesStore && oldForce) {
-        // A co-op conflict may already have adopted the server record. Keep
-        // that record and align the child store with it instead of undoing it.
-        const current = get().campaign;
-        const force =
-          current?.id === expected.id
-            ? current.forces.get(expected.rootForceId)
-            : oldForce;
-        if (force) forcesStore.getState().addForce(force);
-      }
-      const active = get().campaign;
-      persistCampaignRecord(
-        active?.id === expected.id ? active : expected,
-        pendingBattleOutcomes,
-        processedBattleIds,
-        reviewedBattleIds,
-      );
-    };
-    try {
-      if (!roster.replaceUnitsForCampaign(expected.id, nextUnits))
-        return {
-          committed: false,
-          reason: 'The campaign roster changed; retry.',
-        };
-      forcesStore?.getState().updateForce(nextForce.id, nextForce);
-      const committedForce = forcesStore?.getState().getForce(nextForce.id);
-      if (committedForce) nextForces.set(committedForce.id, committedForce);
-      set({ campaign: nextCampaign });
-      // Cache writes that can fail happen before the acknowledged server write.
-      persistCampaignRecord(
-        nextCampaign,
-        pendingBattleOutcomes,
-        processedBattleIds,
-        reviewedBattleIds,
-      );
-      useCampaignPersistenceStore.getState().markDirty();
-      const result = await useCampaignPersistenceStore
-        .getState()
-        .saveCampaign();
-      if (result.status !== 'saved') {
-        rollback();
-        return {
-          committed: false,
-          reason:
-            result.status === 'error'
-              ? result.errorMessage
-              : 'Salvage save was refused; resync and retry.',
-        };
-      }
-      return { committed: true };
-    } catch (error) {
-      try {
-        rollback();
-      } catch (restoreError) {
-        return {
-          committed: false,
-          reason: `Salvage enrollment failed; restoring the local cache also failed: ${restoreError instanceof Error ? restoreError.message : String(restoreError)}`,
-        };
-      }
-      return {
-        committed: false,
-        reason:
-          error instanceof Error ? error.message : 'Salvage enrollment failed.',
-      };
-    }
-  };
-}
-
 function appendActivityLogEntryAction(
   set: CampaignSet,
   get: CampaignGet,
@@ -452,11 +364,11 @@ export function createCampaignStoreActions(
     createCampaign: createCampaignAction(set),
     createGuestMirrorCampaign: createGuestMirrorCampaignAction(set),
     loadCampaign: loadCampaignAction(set),
-    switchCampaign: switchCampaignAction(set),
+    switchCampaign: switchCampaignAction(set, get),
     saveCampaign: saveCampaignAction(set, get),
     ...createCampaignDayActions(set, get),
     updateCampaign: updateCampaignAction(set, get),
-    commitRosterEnrollment: commitRosterEnrollmentAction(set, get),
+    ...createCampaignSalvageActions(set, get),
     appendActivityLogEntry: appendActivityLogEntryAction(set, get),
   };
 }

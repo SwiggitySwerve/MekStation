@@ -23,11 +23,12 @@ import type {
 
 import {
   ActionLedger,
-  approveGmCascadePreview,
   cancelGmCascadePreview,
   createGmTacticalCommandPreview,
   InterventionLedger,
+  prepareGmCascadeApproval,
   projectInterventionRecordForPlayer,
+  recordGmCascadeApproval,
   registerGmCombatInterventionImplementer,
 } from '@/lib/interventions';
 import { logger } from '@/utils/logger';
@@ -140,28 +141,42 @@ export function useGmTacticalInterventionSurface({
         );
       }
 
-      const approval = approveGmCascadePreview({
+      const logBlocked = (reason: string) => {
+        logger.warn('[gm-intervention:approval-blocked]', {
+          service: 'gm-intervention',
+          event: 'approval-blocked',
+          interventionId: previewResult.interventionId,
+          reason,
+        });
+        return blockedApprovalResult(reason);
+      };
+      const prepared = prepareGmCascadeApproval({
         ledger: ledgers.interventionLedger,
         actionLedger: ledgers.actionLedger,
         preview: previewResult,
         state: session.currentState as IGmCombatInterventionState,
       });
+      if (prepared.status === 'blocked') return logBlocked(prepared.reason);
 
-      if (approval.status === 'blocked') {
-        logger.warn('[gm-intervention:approval-blocked]', {
-          service: 'gm-intervention',
-          event: 'approval-blocked',
-          interventionId: previewResult.interventionId,
-          reason: approval.reason,
-        });
-        return blockedApprovalResult(approval.reason);
+      // The engine applies first; the ledgers hear of the correction only
+      // once it took (S14).
+      try {
+        if (commandId === 'gm.advance-phase') {
+          interactiveSession.advancePhase();
+        } else {
+          interactiveSession.applyCorrectedState(prepared.state);
+        }
+      } catch (error) {
+        return logBlocked(
+          `The live engine did not apply the GM intervention: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
-
-      if (commandId === 'gm.advance-phase') {
-        interactiveSession.advancePhase();
-      } else {
-        interactiveSession.applyCorrectedState(approval.state);
-      }
+      const approval = recordGmCascadeApproval({
+        ledger: ledgers.interventionLedger,
+        actionLedger: ledgers.actionLedger,
+        preview: previewResult,
+        prepared,
+      });
 
       setSession(interactiveSession.getSession());
       setPlayerLog(projectTacticalGmPlayerLog(ledgers.interventionLedger));

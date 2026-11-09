@@ -95,7 +95,7 @@ const MEKSTATION_GAME_STATE_MINEFIELDS_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation IGameState.minefields stores represented battle-wide minefield entry damage, optional density, optional setting/sensitivity, optional detonated state, and explicit conventional, command-detonated, vibrabomb, active, EMP, and inferno type tags by canonical coordToKey q,r keys while runtime behavior resolves conventional semantics, explicit inferno density external-heat entry, explicit active ground-entry suppression, represented active BattleMech jump-entry triggering, represented EMP effect state, represented vibrabomb density/setting triggers, and fail-closes unsupported non-conventional tags.',
     'src/types/gameplay/GameSessionStateTypes.ts',
-    'L720-L748',
+    'L726-L754',
   );
 
 const MEKSTATION_GAME_CREATED_MINEFIELDS_SOURCE_REF =
@@ -344,12 +344,12 @@ export const TERRAIN_MINEFIELD_COMBAT_SUPPORT = {
       mekstationDeviationSourceRef(
         'MekStation runner applyMovementEvent clears infernoBurning when a GO_PRONE movement step is committed.',
         'src/simulation/runner/SimulationRunnerState.ts',
-        'L420-L459',
+        'L392-L394',
       ),
       mekstationDeviationSourceRef(
         'MekStation interactive movement reducer clears infernoBurning for GO_PRONE movement events.',
         'src/utils/gameplay/gameState/actionLocking.ts',
-        'L69-L93',
+        'L70-L94',
       ),
     ],
   ),

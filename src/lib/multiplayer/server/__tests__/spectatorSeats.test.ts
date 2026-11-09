@@ -44,6 +44,22 @@ function readyOneVOne() {
 }
 
 describe('addSpectatorSeat', () => {
+  it('reuses a vacant middle slot without duplicating a surviving slot', () => {
+    let seats = defaultSeats('1v1');
+    for (let i = 0; i < MAX_SPECTATORS_PER_MATCH; i += 1) {
+      seats = addSpectatorSeat(seats, {
+        playerId: `watch-${i}`,
+        displayName: `Watch ${i}`,
+      });
+    }
+    seats = removeSpectatorSeat(seats, 'watch-4');
+    seats = addSpectatorSeat(seats, WATCHER);
+    expect(spectatorSeats(seats)).toHaveLength(MAX_SPECTATORS_PER_MATCH);
+    expect(findSpectatorSeat(seats, WATCHER.playerId)?.slotId).toBe(
+      'spectator-5',
+    );
+    expect(new Set(seats.map((seat) => seat.slotId)).size).toBe(seats.length);
+  });
   it('appends a spectator seat that owns no playing slot', () => {
     const seats = addSpectatorSeat(defaultSeats('1v1'), WATCHER);
     const seat = findSpectatorSeat(seats, WATCHER.playerId);

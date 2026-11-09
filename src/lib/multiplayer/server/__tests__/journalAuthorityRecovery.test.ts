@@ -28,7 +28,10 @@ import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import * as matchJournalAuthority from '../matchJournalAuthority';
 import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
-import { rebuildSessionFromEvents } from '../MatchRecovery';
+import {
+  rebuildSessionFromEvents,
+  recoverActiveMatches,
+} from '../MatchRecovery';
 import { selectMatchRollbackReader } from '../matchRollbackReaderSelection';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 import { digestCommandPostState } from '../ServerMatchHostDecision';
@@ -187,15 +190,17 @@ async function makeJournalledHost(options: {
 }): Promise<{
   host: ServerMatchHost;
   store: DurableMatchStore;
+  reopenStore: () => DurableMatchStore;
   cleanup: () => Promise<void>;
 }> {
   const dir = await mkdtemp(path.join(tmpdir(), 'journal-recovery-'));
   resetSQLiteService();
   getSQLiteService({ path: path.join(dir, 'mekstation.db') }).initialize();
-  const store = new DurableMatchStore({
+  const storeOptions = {
     path: path.join(dir, 'multiplayer-matches.db'),
     capabilityDb: () => getSQLiteService().getDatabase(),
-  });
+  };
+  let store = new DurableMatchStore(storeOptions);
   matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
   const now = '2026-06-30T12:00:00.000Z';
   await store.createMatch({
@@ -239,6 +244,11 @@ async function makeJournalledHost(options: {
   return {
     host,
     store,
+    reopenStore: () => {
+      store.close();
+      store = new DurableMatchStore(storeOptions);
+      return store;
+    },
     cleanup: async () => {
       store.close();
       resetSQLiteService();
@@ -466,6 +476,8 @@ describe('combat journal-authority recovery', () => {
     try {
       await host.handleIntent(concedeIntent('terminal-command', host.matchId));
 
+      expect((await store.getMatchMeta(host.matchId)).status).toBe('completed');
+
       const row = await store.getCombatOutcomeOutbox(host.matchId);
       expect(row).toEqual(
         expect.objectContaining({
@@ -483,8 +495,205 @@ describe('combat journal-authority recovery', () => {
 
       await host.closeMatch();
       expect(published).toHaveLength(1);
+
+      // Restart publication reads the persisted receipt, not a host-local flag.
+      await rebuildHost(store, host.matchId);
+      await rebuildHost(store, host.matchId);
+      expect(await store.getCombatOutcomeOutbox(host.matchId)).toEqual(row);
+      expect(published).toHaveLength(1);
     } finally {
       unsubscribe();
+    }
+  });
+
+  it('OUTCOME EXIT: the durable outcome records an ejected unit and survives the JSON column', async () => {
+    const { host, store } = await makeHost({
+      matchId: 'match-terminal-outcome-eject',
+    });
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: host.matchId,
+      ts: nowIso(),
+      playerId: 'host-player',
+      intentId: 'eject-command',
+      intent: { kind: 'Eject', unitId: 'lock-player' },
+    } as unknown as IIntent);
+    await host.handleIntent(concedeIntent('terminal-command', host.matchId));
+
+    const outcome = (await store.getCombatOutcomeOutbox(host.matchId))?.outcome;
+    const exits = outcome?.unitDeltas.map((delta) => [
+      delta.unitId,
+      delta.exitReason ?? null,
+    ]);
+    expect(exits).toEqual([
+      ['lock-player', 'ejected'],
+      ['lock-opponent', null],
+    ]);
+    // DurableMatchStore persists the outcome as JSON text.
+    expect(JSON.parse(JSON.stringify(outcome))).toEqual(outcome);
+  });
+
+  it.each(['no listener', 'throwing listener'] as const)(
+    'OUTCOME RETRY: %s leaves the row pending until recovery consumes it',
+    async (listenerMode) => {
+      const { host, store } = await makeHost({
+        matchId: `match-outcome-${listenerMode.replace(' ', '-')}`,
+      });
+      const throwingListener = jest.fn(() => {
+        throw new Error('subscriber unavailable');
+      });
+      const unsubscribe =
+        listenerMode === 'throwing listener'
+          ? subscribeToCombatOutcome(throwingListener)
+          : () => {};
+      try {
+        await host.handleIntent(
+          concedeIntent('terminal-command', host.matchId),
+        );
+
+        const pending = await store.getCombatOutcomeOutbox(host.matchId);
+        expect(pending).toEqual(expect.objectContaining({ publishedAt: null }));
+        // A second attempt without a working listener must still be retryable.
+        await rebuildHost(store, host.matchId);
+        expect(await store.getCombatOutcomeOutbox(host.matchId)).toEqual(
+          pending,
+        );
+        if (listenerMode === 'throwing listener') {
+          expect(throwingListener).toHaveBeenCalledTimes(2);
+        }
+
+        const published: ICombatOutcomeReadyEvent[] = [];
+        const stopConsuming = subscribeToCombatOutcome((event) => {
+          published.push(event);
+        });
+        try {
+          const recovered = await rebuildHost(store, host.matchId);
+          expect(published).toEqual([
+            { matchId: host.matchId, outcome: pending?.outcome },
+          ]);
+          expect(await store.getCombatOutcomeOutbox(host.matchId)).toEqual({
+            ...pending,
+            publishedAt: expect.any(String),
+          });
+
+          await rebuildHost(store, host.matchId);
+          await recovered.closeMatch();
+          expect(published).toHaveLength(1);
+        } finally {
+          stopConsuming();
+        }
+      } finally {
+        unsubscribe();
+      }
+    },
+  );
+
+  it.each(['memory', 'sqlite'] as const)(
+    'COMPLETED OUTCOME: %s restarts retry pending outcomes without hosts and never repeat a consumed outcome',
+    async (adapter) => {
+      const matchId = `completed-pending-${adapter}`;
+      const fixture =
+        adapter === 'sqlite'
+          ? await makeJournalledHost({ matchId })
+          : await makeHost({ matchId });
+      let store = fixture.store;
+      const construct = jest.spyOn(ServerMatchHost, 'recover');
+      let stop = () => {};
+      try {
+        await fixture.host.handleIntent(
+          concedeIntent('terminal-command', matchId),
+        );
+        expect((await store.getMatchMeta(matchId)).status).toBe('completed');
+        const pending = await store.getCombatOutcomeOutbox(matchId);
+        expect(pending?.publishedAt).toBeNull();
+
+        const restart = async () => {
+          if ('reopenStore' in fixture) store = fixture.reopenStore();
+          const result = await recoverActiveMatches(store);
+          expect(result.failed).toEqual([]);
+          expect(result.hosts.size).toBe(0);
+          expect(construct).not.toHaveBeenCalled();
+        };
+        await restart();
+        expect(await store.getCombatOutcomeOutbox(matchId)).toEqual(pending);
+
+        const throwing = jest.fn(() => {
+          throw new Error('consumer unavailable');
+        });
+        stop = subscribeToCombatOutcome(throwing);
+        await restart();
+        expect(throwing).toHaveBeenCalledTimes(1);
+        expect(await store.getCombatOutcomeOutbox(matchId)).toEqual(pending);
+        stop();
+
+        const published = jest.fn();
+        stop = subscribeToCombatOutcome(published);
+        await restart();
+        expect(published).toHaveBeenCalledTimes(1);
+        expect(published).toHaveBeenCalledWith({
+          matchId,
+          outcome: pending?.outcome,
+        });
+        const delivered = await store.getCombatOutcomeOutbox(matchId);
+        expect(delivered).toEqual({
+          ...pending,
+          publishedAt: expect.any(String),
+        });
+        for (let attempt = 0; attempt < 3; attempt++) {
+          await restart();
+          expect(await store.getCombatOutcomeOutbox(matchId)).toEqual(
+            delivered,
+          );
+          expect(published).toHaveBeenCalledTimes(1);
+        }
+      } finally {
+        stop();
+        construct.mockRestore();
+        if ('cleanup' in fixture) await fixture.cleanup();
+      }
+    },
+  );
+
+  it('OUTCOME RETRY: SQLite reopen preserves an unconsumed row for recovery', async () => {
+    const fixture = await makeJournalledHost({
+      matchId: 'match-outcome-sqlite-reopen',
+    });
+    try {
+      const { host, store } = fixture;
+      await host.handleIntent(concedeIntent('terminal-command', host.matchId));
+      const pending = await store.getCombatOutcomeOutbox(host.matchId);
+      expect(pending).toEqual(expect.objectContaining({ publishedAt: null }));
+
+      const reopened = fixture.reopenStore();
+      expect(await reopened.getCombatOutcomeOutbox(host.matchId)).toEqual(
+        pending,
+      );
+      const published: ICombatOutcomeReadyEvent[] = [];
+      const unsubscribe = subscribeToCombatOutcome((event) => {
+        published.push(event);
+      });
+      try {
+        await rebuildJournalledHost(reopened, host.matchId);
+        expect(published).toEqual([
+          { matchId: host.matchId, outcome: pending?.outcome },
+        ]);
+        const delivered = await reopened.getCombatOutcomeOutbox(host.matchId);
+        expect(delivered).toEqual({
+          ...pending,
+          publishedAt: expect.any(String),
+        });
+
+        const reopenedAgain = fixture.reopenStore();
+        expect(
+          await reopenedAgain.getCombatOutcomeOutbox(host.matchId),
+        ).toEqual(delivered);
+        await rebuildJournalledHost(reopenedAgain, host.matchId);
+        expect(published).toHaveLength(1);
+      } finally {
+        unsubscribe();
+      }
+    } finally {
+      await fixture.cleanup();
     }
   });
 

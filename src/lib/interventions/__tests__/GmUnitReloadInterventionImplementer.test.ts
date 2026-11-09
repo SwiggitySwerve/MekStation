@@ -373,6 +373,26 @@ describe('GM unit reload intervention implementer', () => {
     });
   });
 
+  it('preserves live swamp-stuck state and jump eligibility across a reload', () => {
+    const start = makeState();
+    const stuck = {
+      ...start,
+      units: {
+        ...start.units,
+        'atlas-1': {
+          ...start.units['atlas-1'],
+          isStuck: true,
+          canUnstickByJumping: true,
+        },
+      },
+    };
+    const unit = approveReload(makeCommand(payload()), stuck).state.units[
+      'atlas-1'
+    ];
+
+    expect(unit).toMatchObject({ isStuck: true, canUnstickByJumping: true });
+  });
+
   it('requires manual takeover for incompatible reload conflicts before commit', () => {
     const command = makeCommand(
       payload({

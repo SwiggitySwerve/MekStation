@@ -13,7 +13,6 @@ import { useForceStore } from '@/stores/useForceStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { useQuickGameStore } from '@/stores/useQuickGameStore';
-import { useRepairStore } from '@/stores/useRepairStore';
 import {
   UNIT_TEMPLATES,
   useTabManagerStore,
@@ -30,7 +29,6 @@ declare global {
       encounter: typeof useEncounterStore;
       gameplay: typeof useGameplayStore;
       quickGame: typeof useQuickGameStore;
-      repair: typeof useRepairStore;
       award: typeof useAwardStore;
       tabManager: typeof useTabManagerStore;
     };

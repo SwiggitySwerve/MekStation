@@ -25,6 +25,7 @@ import type {
 } from '@/types/campaign/CampaignSync';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { authoritativeContractOfferOf } from '@/lib/campaign/markets/authoritativeOffers';
 import { rehydrateContractMarket } from '@/lib/campaign/persistence/missionSerialization';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
@@ -129,7 +130,7 @@ type StoredOffer = Readonly<Record<string, unknown>>;
  * an untouched field round-trips byte-identically instead of being
  * re-serialized through a rehydration this command never needed.
  */
-interface ICampaignSourceMarketRead {
+export interface ICampaignSourceMarketRead {
   readonly sourceRecordBody: string;
   /** The `campaigns` row `version` the body was read at (the CAS token). */
   readonly sourceRowVersion: number;
@@ -142,7 +143,9 @@ interface ICampaignSourceMarketRead {
   readonly storedMissions: readonly StoredMissionEntry[];
 }
 
-function asRecord(value: unknown): Readonly<Record<string, unknown>> | null {
+export function asRecord(
+  value: unknown,
+): Readonly<Record<string, unknown>> | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
     ? (value as Readonly<Record<string, unknown>>)
     : null;
@@ -178,7 +181,7 @@ function storedMissionsOf(
  * authority it writes; this command only reads, so it declines to invent a
  * verdict about a record that never claimed one.
  */
-function storedRecordIsNotSource(
+export function storedRecordIsNotSource(
   storedRecord: Readonly<Record<string, unknown>>,
 ): boolean {
   const parsed = parseCampaignAuthority(storedRecord.authority);
@@ -222,7 +225,7 @@ const STORED_PAYMENT_AMOUNT_FIELDS = [
  * that would be silently invented is exactly the "must be refused rather
  * than rewritten" case the source read already takes on.
  */
-function isStoredContractOffer(offer: StoredOffer): boolean {
+export function isStoredContractOffer(offer: StoredOffer): boolean {
   if (!isContract(offer)) return false;
   const terms = asRecord(offer.paymentTerms);
   if (terms === null) return false;
@@ -230,6 +233,19 @@ function isStoredContractOffer(offer: StoredOffer): boolean {
     typeof terms.salvagePercent === 'number' &&
     STORED_PAYMENT_AMOUNT_FIELDS.every((field) => isStoredMoney(terms[field]))
   );
+}
+
+/**
+ * The source record's campaign clock, or `null` when its body holds no
+ * readable `currentDate`. Expiry is judged against THIS date - the one the
+ * source saved - never against the server's wall clock or the caller's.
+ */
+export function storedCampaignDate(
+  body: Readonly<Record<string, unknown>>,
+): Date | null {
+  if (typeof body.currentDate !== 'string') return null;
+  const date = new Date(body.currentDate);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 /**
@@ -261,7 +277,7 @@ function isStoredContractOffer(offer: StoredOffer): boolean {
  * prepared transaction as an untyped 500, which told a caller nothing and
  * looked like a server fault rather than an unusable source record.
  */
-function readCampaignSourceMarket(
+export function readCampaignSourceMarket(
   db: Database.Database,
   campaignId: string,
 ): ICampaignSourceMarketRead | null {
@@ -382,7 +398,7 @@ type PreparedCampaignJournal = IEventJournal<ICampaignJournalEnvelope> &
     'appendPreparedWithExtension'
   >;
 
-function preparedJournalOf(
+export function preparedJournalOf(
   journal: IEventJournal<ICampaignJournalEnvelope>,
 ): PreparedCampaignJournal | null {
   const candidate = journal as Partial<PreparedCampaignJournal>;
@@ -482,24 +498,35 @@ export async function appendDurableAcceptContract(
       ) {
         return { kind: 'refused', result: notDurable('offer-absent') };
       }
+      const sourceDate = storedCampaignDate(source.storedBody);
+      // A dated offer against a row with no readable clock cannot be
+      // judged, and guessing "not expired" would sign a contract the
+      // source may consider finished. A durability fault, not a rules one.
+      if (offer.endDate && sourceDate === null) {
+        return { kind: 'refused', result: notDurable('source-record-absent') };
+      }
 
-      // Validation runs against the SERVER-DERIVED compact fact, so the
-      // faction-standing gate judges the employer the source stored rather
-      // than the one the caller typed.
+      // Validation reads the SOURCE's offer through the shared reader, so
+      // the declined and expiry rules (K14b; MekHQ removes a declined offer
+      // from the board, ChaosContractMarketDialog.java:686-695 at e7adc2c)
+      // and the standing gate judge what the source stored, never what the
+      // caller typed. Rules refusals, not durability ones.
       const validation = validateCampaignIntent(
-        {
-          ...intent,
-          payload: {
-            contract: {
-              contractId: offer.id,
-              name: offer.name,
-              employerFactionId: offer.employerId,
-            },
-          },
-        },
+        intent,
         priorState,
         request.authorPlayerId,
         request.ts,
+        undefined,
+        {
+          contractOffer: (id) =>
+            id === contractId
+              ? authoritativeContractOfferOf(
+                  offer,
+                  source.market.declinedOfferIds,
+                  sourceDate?.toISOString(),
+                )
+              : null,
+        },
       );
       if (!validation.ok) {
         return {

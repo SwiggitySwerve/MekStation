@@ -139,6 +139,29 @@ function makeAllocation(): ISalvageAllocation {
 // ---------------------------------------------------------------------------
 
 describe('projectCampaignInventory', () => {
+  it('projects a processed mercenary award as pending until enrollment', () => {
+    const allocation = makeAllocation();
+    const awarded = {
+      ...allocation,
+      mercenaryAward: {
+        ...allocation.mercenaryAward,
+        candidates: allocation.mercenaryAward.candidates.map((candidate) => ({
+          ...candidate,
+          status: 'awarded' as const,
+        })),
+      },
+    };
+    const inventory = projectCampaignInventory(
+      makeCampaign({ salvageAllocations: { 'match-1': awarded } }),
+      [],
+      GENERATED_AT,
+    );
+    expect(inventory.salvageBay[0].status).toBe('pending');
+    expect(inventory.summary.salvageValueTotal).toBe(100_000);
+    expect(awarded.processed).toBe(true);
+    expect(awarded.mercenaryAward.candidates[0].status).toBe('awarded');
+  });
+
   it('an empty campaign yields an empty inventory with zeroed summary', () => {
     const inventory = projectCampaignInventory(
       makeCampaign(),
@@ -198,12 +221,14 @@ describe('projectCampaignInventory', () => {
     expect(inventory.repairBay.map((i) => i.ticketId)).toEqual(['t-live']);
   });
 
-  it('completed tickets map to status "done"', () => {
+  it('completed tickets leave the active bay and its totals', () => {
     const campaign = makeCampaign({
       repairQueue: [makeRepairTicket({ status: 'completed' })],
     });
     const inventory = projectCampaignInventory(campaign, [], GENERATED_AT);
-    expect(inventory.repairBay[0].status).toBe('done');
+    expect(inventory.repairBay).toEqual([]);
+    expect(inventory.summary.repairTicketCount).toBe(0);
+    expect(inventory.summary.totalRepairHours).toBe(0);
   });
 
   it('projects mercenary salvage candidates as ISalvageBayItems and totals their value', () => {
@@ -306,4 +331,21 @@ describe('projectCampaignInventory', () => {
     );
     expect(inventory.medicalBay[0].status).toBe('ready');
   });
+});
+
+it('excludes terminal and legacy departures from the medical return-to-duty projection', () => {
+  const inventory = projectCampaignInventory(
+    makeCampaign(),
+    [
+      makeRosterEntry({ status: CampaignPilotStatus.Retired }),
+      makeRosterEntry({ status: CampaignPilotStatus.Deserted }),
+      makeRosterEntry({
+        status: CampaignPilotStatus.Wounded,
+        departureReason: 'retired',
+      }),
+    ],
+    GENERATED_AT,
+  );
+  expect(inventory.medicalBay).toEqual([]);
+  expect(inventory.summary.pilotsInMedical).toBe(0);
 });

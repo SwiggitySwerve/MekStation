@@ -1495,6 +1495,17 @@ async function handleCampaignProposal({
   ) {
     return;
   }
+  // A duplicate is a refusal of this submission, not a terminal decision
+  // about the original proposal. Broadcasting it would clear the GM queue
+  // and the original guest waiter. Keep the check adjacent to submit so its
+  // synchronous id reservation cannot race another socket handler.
+  if (proposalId !== null && entry.arbiter.hasSubmittedProposal(proposalId)) {
+    send(
+      socket,
+      errorFrame(matchId, 'INVALID_INTENT', 'malformed-intent', proposalId),
+    );
+    return;
+  }
   const submitted = await unlessLateRefused(
     socket,
     matchId,

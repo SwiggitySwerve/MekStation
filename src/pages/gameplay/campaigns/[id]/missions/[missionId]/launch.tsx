@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 /**
  * Co-op Mission Launch Page
  *
@@ -19,8 +20,6 @@
  *
  * @spec openspec/changes/wire-coop-campaign-route/specs/coop-campaign-sync/spec.md
  */
-
-import { useRouter } from 'next/router';
 import React, {
   useCallback,
   useEffect,
@@ -43,8 +42,10 @@ import {
   publishCoopParticipation,
   subscribeCoopParticipation,
 } from '@/lib/campaign/coop/coopRuntimeSession';
+import { useDayAdvanceInFlight } from '@/lib/campaign/hooks/useDayAdvanceInFlight';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { useCombatCatalog } from '@/lib/campaign/readiness/useCombatCatalog';
+import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuthority';
 import {
   getLoadedCampaign,
   renderPendingCampaignPage,
@@ -88,15 +89,15 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   const customizerResult = customizerResultFromRouter(router);
 
   const store = shell.store;
+  const dayAdvanceInFlight = useDayAdvanceInFlight();
   const campaign = shell.campaign;
+  const readinessAuthority = useReadinessAuthority(campaign?.id, campaign);
   const { localPlayerId, matchId, otherPlayerId } = coopIdentity(campaign);
   const localForce = useMemo(
     () => (campaign ? rootForceForCampaign(campaign) : null),
     [campaign],
   );
-  const rosterUnits = useCampaignRosterStore((state) =>
-    state.getUnitsWithReadiness(),
-  );
+  const rosterUnits = useCampaignRosterStore((state) => state.units);
   const rosterPilots = useCampaignRosterStore((state) => state.pilots);
   const mission = missionForCampaign(campaign, missionKey);
   const [selectedRosterUnitIds, setSelectedRosterUnitIds] = useState<
@@ -109,6 +110,8 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
         campaignId: campaign?.id ?? campaignKey ?? 'campaign-pending',
         mission,
         units: rosterUnits,
+        campaign,
+        authority: readinessAuthority,
         pilots: rosterPilots,
         repairBay: selectRepairBay(campaign ?? null),
         selectedRosterUnitIds: selectedRosterUnitIds ?? undefined,
@@ -120,6 +123,7 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
     [
       campaign,
       campaignKey,
+      readinessAuthority,
       catalog,
       mission,
       rosterPilots,
@@ -316,6 +320,8 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
   return (
     <CoopMissionLaunchSurface
       breadcrumbs={shell.breadcrumbs}
+      isLaunching={isLaunching}
+      dayAdvanceInFlight={dayAdvanceInFlight}
       launchError={launchError}
       loadedCampaign={loadedCampaign}
       localChoice={localChoice}

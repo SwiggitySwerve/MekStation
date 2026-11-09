@@ -18,6 +18,13 @@ export type MaybePromise<T> = T | Promise<T>;
 export interface CampaignCommitResult {
   readonly committed: boolean;
   readonly reason?: string;
+  /**
+   * Not committed, but only because the server refused the write for want of
+   * a credential it will accept (a typed live co-op refusal): the change was
+   * kept, stays pending, and a later save can persist it. Every other
+   * uncommitted result is a rejection the persistence layer has rolled back.
+   */
+  readonly recoverable?: boolean;
 }
 
 /**
@@ -75,6 +82,13 @@ export interface CampaignState {
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;
   outcomeApplyErrors: Record<string, string>;
+  /**
+   * True while a day advance, multi-day advance or travel is in flight. Only
+   * one of them runs at a time; a second call returns without changing
+   * anything. Transient: the explicit `partialize` never persists it, so a
+   * reload starts clear. Controls that move the clock read it to disable.
+   */
+  dayAdvanceInFlight: boolean;
   forcesStore: StoreApi<ForcesStore> | null;
   missionsStore: StoreApi<MissionsStore> | null;
   /**

@@ -446,18 +446,34 @@ export function isCampaignEventType(value: string): value is CampaignEventType {
  */
 export type CampaignIntentKind =
   | 'HirePilot'
+  | 'HireOffer'
   | 'AcceptContract'
   | 'SpendFunds'
   | 'AllocateSalvage'
   | 'RemoveParticipant'
   | 'AdvanceDay';
 
-/** `HirePilot` intent payload. */
+/**
+ * `HirePilot` intent payload.
+ *
+ * @deprecated Retired (K14b): it names its own recruit and price, so every
+ * authority refuses it with `hire-requires-market-offer`. It stays in the
+ * schema only so an old frame gets that typed refusal. Use `HireOffer`.
+ */
 export interface IHirePilotIntentPayload {
   /** The pilot to hire. */
   readonly pilot: ICampaignRosterPilot;
   /** C-bill hiring cost; validated against the balance. */
   readonly cost: number;
+}
+
+/**
+ * `HireOffer` intent payload. Names the market offer and nothing else: the
+ * authority derives the recruit and the price from the offer it holds.
+ */
+export interface IHireOfferIntentPayload {
+  /** Id of the personnel-market offer to hire. */
+  readonly offerId: string;
 }
 
 /** `AcceptContract` intent payload. */
@@ -499,6 +515,7 @@ export interface IRemoveParticipantIntentPayload {
 /** Discriminated map from intent kind to its payload shape. */
 export interface ICampaignIntentPayloadMap {
   readonly HirePilot: IHirePilotIntentPayload;
+  readonly HireOffer: IHireOfferIntentPayload;
   readonly AcceptContract: IAcceptContractIntentPayload;
   readonly SpendFunds: ISpendFundsIntentPayload;
   readonly AllocateSalvage: IAllocateSalvageIntentPayload;
@@ -600,7 +617,19 @@ export type CampaignIntentRejectionReason =
   | 'malformed-intent'
   | 'session-closed'
   | 'campaign-mismatch'
-  | 'intent-identity-conflict';
+  | 'intent-identity-conflict'
+  /** A retired `HirePilot`: a hire must name a market offer (K14b). */
+  | 'hire-requires-market-offer'
+  /** This authority has no market to look a `HireOffer` up in. */
+  | 'offer-source-unavailable'
+  /** The authoritative market holds no usable offer under that id. */
+  | 'offer-not-found'
+  /** The offer was already hired: its deterministic pilot is enrolled. */
+  | 'offer-consumed'
+  /** The offer lapsed before the authoritative campaign date. */
+  | 'offer-expired'
+  /** The player declined this contract offer; it cannot be signed. */
+  | 'offer-declined';
 
 /**
  * The result of validating one campaign intent against authoritative

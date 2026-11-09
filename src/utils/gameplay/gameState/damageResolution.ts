@@ -12,6 +12,7 @@ import {
 import { PILOT_DEATH_WOUND_THRESHOLD } from '@/utils/gameplay/damage/constants';
 import { applyDestroyedLocationPhysicalEquipmentState } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
+import { clearAttackLinks } from '../attackLinks';
 import { applyCriticalHitComponentDamage } from './criticalHitComponentDamage';
 import {
   applyCriticalHitEquipmentState,
@@ -154,13 +155,16 @@ export function applyDamageApplied(
       newDestroyedLocations,
     );
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [payload.unitId]: updatedUnit,
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [payload.unitId]: updatedUnit,
+      },
     },
-  };
+    payload.unitId,
+  );
 }
 
 export function applyHeatChange(
@@ -206,25 +210,28 @@ export function applyPilotHit(
     : unit.pilotConscious;
   const pilotDead = payload.totalWounds >= PILOT_DEATH_WOUND_THRESHOLD;
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [payload.unitId]: {
-        ...unit,
-        pilotWounds: payload.totalWounds,
-        pilotConscious: pilotDead ? false : conscious,
-        edgePointsRemaining:
-          payload.edgePointsRemaining ?? unit.edgePointsRemaining,
-        ...(pilotDead
-          ? {
-              destroyed: true as const,
-              destructionCause: 'pilot_death' as const,
-            }
-          : {}),
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [payload.unitId]: {
+          ...unit,
+          pilotWounds: payload.totalWounds,
+          pilotConscious: pilotDead ? false : conscious,
+          edgePointsRemaining:
+            payload.edgePointsRemaining ?? unit.edgePointsRemaining,
+          ...(pilotDead
+            ? {
+                destroyed: true as const,
+                destructionCause: 'pilot_death' as const,
+              }
+            : {}),
+        },
       },
     },
-  };
+    payload.unitId,
+  );
 }
 
 export function applyUnitDestroyed(
@@ -236,18 +243,21 @@ export function applyUnitDestroyed(
     return state;
   }
 
-  return {
-    ...state,
-    units: {
-      ...state.units,
-      [payload.unitId]: {
-        ...unit,
-        destroyed: true,
-        destructionCause: payload.cause,
-        combatState: applyVehicleDestroyedToCombatState(unit, payload),
+  return clearAttackLinks(
+    {
+      ...state,
+      units: {
+        ...state.units,
+        [payload.unitId]: {
+          ...unit,
+          destroyed: true,
+          destructionCause: payload.cause,
+          combatState: applyVehicleDestroyedToCombatState(unit, payload),
+        },
       },
     },
-  };
+    payload.unitId,
+  );
 }
 
 export function applyCriticalHitResolved(

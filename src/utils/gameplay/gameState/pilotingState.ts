@@ -1,5 +1,6 @@
 import {
   LockState,
+  PSRTrigger,
   type IGameState,
   type IPhysicalAttackDeclaredPayload,
   type IPSRResolvedPayload,
@@ -8,6 +9,8 @@ import {
   type IUnitStoodPayload,
   type IUnitStuckPayload,
 } from '@/types/gameplay';
+import { applyFallPosture } from '@/utils/gameplay/movement/fallPosture';
+import { clearStuck } from '@/utils/gameplay/movement/stuckState';
 
 import { updateUnitState } from './unitStatePatch';
 
@@ -43,12 +46,19 @@ export function applyPSRResolved(
   state: IGameState,
   payload: IPSRResolvedPayload,
 ): IGameState {
-  return updateUnitState(state, payload.unitId, (unit) => ({
-    ...unit,
-    pendingPSRs: (unit.pendingPSRs ?? []).filter(
-      (psr) => psr.reason !== payload.reason,
-    ),
-  }));
+  return updateUnitState(state, payload.unitId, (unit) => {
+    const resolved = {
+      ...unit,
+      pendingPSRs: (unit.pendingPSRs ?? []).filter(
+        (psr) => psr.reason !== payload.reason,
+      ),
+    };
+    // A passed movement-start swamp recovery roll frees the unit (MegaMek
+    // TWGameManager.doTryUnstuck); a failed one leaves it stuck.
+    return payload.passed && payload.reasonCode === PSRTrigger.SwampUnstuck
+      ? clearStuck(resolved)
+      : resolved;
+  });
 }
 
 export function applyUnitFell(
@@ -56,8 +66,7 @@ export function applyUnitFell(
   payload: IUnitFellPayload,
 ): IGameState {
   return updateUnitState(state, payload.unitId, (unit) => ({
-    ...unit,
-    prone: true,
+    ...applyFallPosture(unit),
     facing: payload.newFacing,
     pendingPSRs: [],
   }));
@@ -70,6 +79,9 @@ export function applyUnitStuck(
   return updateUnitState(state, payload.unitId, (unit) => ({
     ...unit,
     isStuck: true,
+    ...(payload.canUnstickByJumping === true
+      ? { canUnstickByJumping: true }
+      : {}),
     pendingPSRs: [],
   }));
 }

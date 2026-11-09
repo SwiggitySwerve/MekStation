@@ -1,6 +1,18 @@
 {
   "allowedActiveChanges": [
     {
+      "name": "fix-per-turn-movement-reset",
+      "status": "in-progress",
+      "reason": "Root-approved C8: share movement and MASC/supercharger turn reset between reducer and runner, with unchanged replay fixtures and golden digests required.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
+      "name": "fix-campaign-outcome-ledgers",
+      "status": "in-progress",
+      "reason": "Root-approved K3 battle-outcome hydration, campaign isolation, salvage dedupe, and partial-error surfacing; existing persisted formats and event payloads stay unchanged. Hosted proof and Root merge are pending.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
       "name": "align-ci-budget-workflow-contracts",
       "status": "in-progress",
       "reason": "Root-authorized Phase G workflow contract alignment: preserve aggregation/browser/desktop/advisory guarantees while consuming canonical measured timeout budgets. Hosted proof and canonical sync/archive remain pending.",
@@ -101,6 +113,78 @@
       "status": "in-progress",
       "reason": "L-VAL-MECH native cockpit topology and armored critical marker: slot validation uses the selected cockpit through CockpitType.getCockpitSystemSlots. Editor grid, auto-fill, loadout and preview consumers follow. Full validity parity remains open.",
       "lastReviewed": "2026-11-03"
+    },
+    {
+      "name": "remove-dead-ui-hooks",
+      "status": "proposed",
+      "reason": "Owner ruling 2026-11-07 D1: delete unused hooks and the mobile placement adapter (useAsync, useOfflineStatus, useGameStatePersistence, useScreenReaderAnnouncer, EquipmentAssignmentAdapter, TacticalAccessibility). REMOVED requirement deltas only; canonical sync/archive pending PR merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "remove-legacy-campaign-overview",
+      "status": "proposed",
+      "reason": "Owner ruling 2026-11-07 D1: delete the unmounted legacy campaign overview stack (CampaignOverviewTab, MissionTreeView, CampaignStatusHelpers, legacy CampaignStatus/ICampaign types), ContextPanel, RefitLaunchPanel and ImportUnitDialog; DeleteCampaignDialog is kept and moved. REMOVED requirement delta only; canonical sync/archive pending PR merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-pilot-departure-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved K1 departure lifecycle: terminal roster statuses, shared payroll and deployment exclusions, settlement-once guards, and legacy normalization on both load paths. Red/green and a killed settlement mutant are recorded; local gates and draft PR verification precede canonical sync/archive. No turnover classification parity, bulk migration, refunds, or Critical/MIA healing is claimed.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
+      "name": "fix-c6a-psr-and-fall-posture",
+      "status": "in-progress",
+      "reason": "Root-approved C6a only: remove duplicate interactive phase-damage PSR and clear hull-down on reducer and runner falls; no schema changes, stuck recovery, or fixture regeneration.",
+      "lastReviewed": "2026-11-07"
+    },
+    {
+      "name": "remove-standalone-repair",
+      "status": "proposed",
+      "reason": "Owner ruling 2026-11-07 D1: delete the unlinked standalone repair bay (/gameplay/repair, RepairBayPage, useRepairStore, src/types/repair, src/components/repair) and its e2e exposure/spec/fixtures; the campaign RepairTicket system is kept. REMOVED requirement deltas only; canonical sync/archive pending PR merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-c6b-stuck-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved C6b, two sequential PRs: (1) widen the combat physical replay schemas in place at v1 for swamp_unstuck and UnitStuck canUnstickByJumping with revised schema ids, plus the runner movement-start recovery roll, jump eligibility and jump unstick with matching reducer transitions; (2) interactive commit, projection and validator consistency. No fixture regeneration.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-salvage-acceptance-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved K5 and D6: distinguish awarded salvage from enrollment, share enrollment evidence, and refuse decline after enrollment; no eligibility, engine, processor, schema or persistence-format changes. Draft PR verification precedes Root merge.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-campaign-creation-recovery",
+      "status": "in-progress",
+      "reason": "Root-approved K16: retry only fully populated wizard campaigns, refuse replacement while persistence is unsettled, and reset clean creation identity without changing save coordination or persisted formats.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-client-match-lifecycle",
+      "status": "in-progress",
+      "reason": "Root-approved M-M2/M3: sticky client abort, guarded WS/P2P recovery, coupled pause cleanup and teardown reset; M-H3 server broadcasts remain a dependency.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-runner-terminal-state",
+      "status": "in-progress",
+      "reason": "Root-approved C17 only: classify runner termination from the effective configured limit bounded by the ceiling, critical halt and resolved objective winner; make the engine reason adapter exhaustive with all existing mappings preserved. No schema changes or fixture regeneration; wider end-reason consolidation deferred.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-acquisition-request-identity-and-retry",
+      "status": "in-progress",
+      "reason": "Root-approved K9: unique request IDs, pinned MekHQ D7 seven-day unlimited retries and deterministic legacy normalization in both loaders. No new persisted fields or options. Pricing/debits and historical quantity loss remain separate follow-ups.",
+      "lastReviewed": "2026-11-08"
+    },
+    {
+      "name": "fix-combat-unit-exit-outcomes",
+      "status": "in-progress",
+      "reason": "Root-approved C1/C2/C11, two sequential PRs: (1) one getUnitOperability helper for the seven operability predicates with per-call-site characterization, exit latches that fire once and keep the first retreat edge; (2) additive optional IUnitCombatDelta.exitReason with a report.log fallback for older outcomes, KIA only on lethal wounds, salvage and combatReady gated on exits. No fixture regeneration.",
+      "lastReviewed": "2026-11-08"
     }
   ]
 }

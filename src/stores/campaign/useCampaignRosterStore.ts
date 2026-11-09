@@ -1,3 +1,4 @@
+import { create } from 'zustand';
 /**
  * Campaign Roster Store
  *
@@ -29,8 +30,6 @@
  * @see ./campaignRosterStore.types.ts
  * @see ./campaignRosterStore.helpers.ts
  */
-
-import { create } from 'zustand';
 import {
   persist,
   createJSONStorage,
@@ -39,6 +38,8 @@ import {
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 
+import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
+import { selectUnitReadiness } from '@/lib/campaign/readiness/selectUnitReadiness';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -117,6 +118,16 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
         return true;
       },
 
+      replacePilotsForCampaign: (campaignId, pilots) => {
+        if (
+          get().campaignId !== campaignId ||
+          new Set(pilots.map((pilot) => pilot.pilotId)).size !== pilots.length
+        )
+          return false;
+        set({ pilots });
+        return true;
+      },
+
       removeUnit: (unitId) => {
         set((state) => ({
           units: state.units.filter((u) => u.unitId !== unitId),
@@ -163,18 +174,27 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
       getUnitReadiness: (unitId) => {
         const unit = get().units.find((u) => u.unitId === unitId);
         if (!unit) return 'Destroyed';
-        return unit.readiness;
+        const campaign = getCampaignStoreForRoster()?.getState().campaign;
+        return selectUnitReadiness({ unit, campaign, pilots: get().pilots })
+          .readiness;
       },
 
       getUnitsWithReadiness: () => {
-        // The projection already carries `readiness`; surface as-is so
-        // legacy callers that destructured `{ readiness, ...unit }` keep
-        // working unchanged.
-        return get().units;
+        const campaign = getCampaignStoreForRoster()?.getState().campaign;
+        return get().units.map(
+          (unit) =>
+            selectUnitReadiness({ unit, campaign, pilots: get().pilots }).unit,
+        );
       },
 
       getDeployableUnits: () => {
-        return get().units.filter((u) => u.readiness !== 'Destroyed');
+        const campaign = getCampaignStoreForRoster()?.getState().campaign;
+        return get()
+          .units.map((unit) =>
+            selectUnitReadiness({ unit, campaign, pilots: get().pilots }),
+          )
+          .filter((entry) => entry.status !== 'blocked')
+          .map((entry) => entry.unit);
       },
 
       // ===================================================================
@@ -319,6 +339,20 @@ export const useCampaignRosterStore = create<CampaignRosterStore>()(
       // (matches the old hardcoded bridge value, so behavior is preserved
       // until the user sets a real rank).
       version: CAMPAIGN_ROSTER_STORE_VERSION,
+      // Merge runs for current-version saves too; a version migration alone
+      // would leave existing v3 Active departures unchanged.
+      merge: (persistedState, currentState) => {
+        const state = persistedState as
+          | Partial<CampaignRosterState>
+          | undefined;
+        return {
+          ...currentState,
+          ...state,
+          pilots: (state?.pilots ?? currentState.pilots).map(
+            normalizeRosterPilotDeparture,
+          ),
+        };
+      },
       migrate: (persistedState, version) => {
         if (!persistedState) return persistedState;
         const state = persistedState as Partial<CampaignRosterState>;

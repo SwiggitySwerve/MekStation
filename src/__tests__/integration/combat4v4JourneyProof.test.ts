@@ -21,7 +21,9 @@ import {
   type IGameEvent,
   type IGameUnit,
 } from '@/types/gameplay';
+import { deriveState } from '@/utils/gameplay/gameState/gameStateReducer';
 import { derivePostBattleReport } from '@/utils/gameplay/postBattleReport';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 jest.setTimeout(30_000);
 
@@ -134,6 +136,50 @@ describe('combat-4v4 journey proof', () => {
 
   afterEach(async () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it('C9: runToCompletion clears seeded displacement relationships at real exits', () => {
+    const players = buildLance('player', GameSide.Player, -2);
+    const opponents = buildLance('opponent', GameSide.Opponent, 2);
+    const roster = [...players, ...opponents];
+    const armed = roster.map((unit) => ({
+      ...unit,
+      weapons: unit.weapons.map((weapon) => ({ ...weapon, damage: 100 })),
+    }));
+    const gameUnits = roster.map((unit, index) => ({
+      ...makeGameUnit(unit.id, unit.side),
+      gunnery: 2,
+      isPushing: true,
+      isMakingDisplacementAttack: true,
+      displacementAttackTargetId: roster[(index + 1) % roster.length].id,
+      targetedByDisplacementAttackerId:
+        roster[(index + roster.length - 1) % roster.length].id,
+    }));
+    const session = new GameEngine({
+      mapRadius: 7,
+      turnLimit: 6,
+      seed: 42,
+    }).runToCompletion(armed.slice(0, 4), armed.slice(4), gameUnits);
+    const units = session.currentState.units;
+    const departed = Object.values(units).filter(
+      (unit) => !getUnitOperability(unit).onField,
+    );
+    expect(departed.length).toBeGreaterThan(0);
+    for (const unit of Object.values(units)) {
+      for (const target of [
+        unit.displacementAttackTargetId,
+        unit.targetedByDisplacementAttackerId,
+      ]) {
+        if (target !== undefined)
+          expect(getUnitOperability(units[target]).onField).toBe(true);
+      }
+    }
+    for (const unit of departed) {
+      expect(unit.displacementAttackTargetId).toBeUndefined();
+      expect(unit.targetedByDisplacementAttackerId).toBeUndefined();
+      expect(unit.isPushing).toBe(false);
+    }
+    expect(deriveState(session.id, session.events).units).toEqual(units);
   });
 
   it('runs four BattleMechs per side to terminal state and persists replay evidence', async () => {

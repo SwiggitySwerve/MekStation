@@ -8,6 +8,7 @@ import {
   LockState,
 } from '@/types/gameplay';
 import { evaluateObjectiveOutcome } from '@/utils/gameplay/objectives/objectiveEngine';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import { applyEvent } from './eventDispatch';
 import {
@@ -53,13 +54,7 @@ export function getActiveUnits(
   side: GameSide,
 ): readonly IUnitGameState[] {
   return Object.values(state.units).filter(
-    (unit) =>
-      unit.side === side &&
-      !unit.destroyed &&
-      !unit.shutdown &&
-      !unit.hasRetreated &&
-      !unit.hasEjected &&
-      unit.pilotConscious,
+    (unit) => unit.side === side && getUnitOperability(unit).canAct,
   );
 }
 
@@ -68,23 +63,13 @@ export function getUnitsAwaitingAction(
 ): readonly IUnitGameState[] {
   return Object.values(state.units).filter(
     (unit) =>
-      !unit.destroyed &&
-      !unit.shutdown &&
-      !unit.hasRetreated &&
-      !unit.hasEjected &&
-      unit.pilotConscious &&
-      unit.lockState === LockState.Pending,
+      getUnitOperability(unit).canAct && unit.lockState === LockState.Pending,
   );
 }
 
 export function allUnitsLocked(state: IGameState): boolean {
   const activeUnits = Object.values(state.units).filter(
-    (unit) =>
-      !unit.destroyed &&
-      !unit.shutdown &&
-      !unit.hasRetreated &&
-      !unit.hasEjected &&
-      unit.pilotConscious,
+    (unit) => getUnitOperability(unit).canAct,
   );
 
   return activeUnits.every(

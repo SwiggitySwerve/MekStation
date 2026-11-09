@@ -8,6 +8,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { subscribeToCombatOutcome } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
@@ -27,8 +28,10 @@ import {
   type IGameCreatedPayload,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing } from '@/types/gameplay/HexGridInterfaces';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -45,6 +48,7 @@ import {
   buildDefaultMatchUnitBootstrap,
   buildMatchHostBootstrapFromMeta,
 } from '../matchUnitBootstrap';
+import { ServerMatchHost } from '../ServerMatchHost';
 
 const AT = '2026-10-18T00:00:00.000Z';
 let dir: string, store: DurableMatchStore;
@@ -154,6 +158,49 @@ afterEach(async () => {
   if (!dir.startsWith(path.join(tmpdir(), 'mp-recovery2-legacy-')))
     throw new Error('Unexpected cleanup path');
   await rm(dir, { recursive: true, force: true });
+});
+
+it('repairs only committed terminal histories, logs once, and keeps unfinished recovery working', async () => {
+  const finished = meta('historical-finished');
+  const ended = await engineFor(finished);
+  ended.concede(GameSide.Opponent);
+  await writeLegacy(finished, ended.getSession().events);
+  const live = meta('unfinished-control');
+  const unfinished = await engineFor(live);
+  await writeLegacy(live, unfinished.getSession().events);
+  const completed = meta('already-completed');
+  await writeLegacy(
+    { ...completed, status: 'completed' },
+    ended.getSession().events,
+  );
+  const construct = jest.spyOn(ServerMatchHost, 'recover');
+  const repaired = jest.spyOn(logger, 'info').mockImplementation(() => {});
+  const publish = jest.fn();
+  const stop = subscribeToCombatOutcome(publish);
+  try {
+    for (let restart = 0; restart < 2; restart++) {
+      const recovered = await recoverActiveMatches(store);
+      expect(recovered.failed).toEqual([]);
+      expect([...recovered.hosts.keys()]).toEqual([live.matchId]);
+      expect((await store.getMatchMeta(finished.matchId)).status).toBe(
+        'completed',
+      );
+      expect((await store.getMatchMeta(live.matchId)).status).toBe('active');
+    }
+    expect(construct.mock.calls.map(([matchId]) => matchId)).toEqual([
+      live.matchId,
+      live.matchId,
+    ]);
+    expect(repaired).toHaveBeenCalledTimes(1);
+    expect(repaired).toHaveBeenCalledWith(
+      `[MatchRecovery] repaired completed match ${finished.matchId}`,
+    );
+    expect(publish).not.toHaveBeenCalled();
+  } finally {
+    stop();
+    construct.mockRestore();
+    repaired.mockRestore();
+  }
 });
 
 it('boots the real activated prefix with unit capabilities and preserves the missing-receipt fence', async () => {

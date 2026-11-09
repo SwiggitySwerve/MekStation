@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
+  GmCascadeApprovalPreparation,
   IGmCampaignInterventionDomainPayload,
   IGmCampaignInterventionState,
   IGmCampaignPublicEffect,
+  IGmCascadePreparedApproval,
   IGmPrivateMetadata,
   IGmTimeCascadeInterventionDomainPayload,
   IGmTimeCascadeInterventionState,
@@ -14,8 +16,9 @@ import type {
 import { ActionLedger } from '@/lib/interventions/ActionLedger';
 import { registerGmCampaignInterventionImplementers } from '@/lib/interventions/GmCampaignInterventionImplementer';
 import {
-  approveGmCascadePreview,
   createGmCascadePreview,
+  prepareGmCascadeApproval,
+  recordGmCascadeApproval,
 } from '@/lib/interventions/GmCascadePreviewPipeline';
 import { buildRosterRecoveryPatchesFromExternalEffects } from '@/lib/interventions/GmRosterRecoveryProjection';
 import { registerGmTimeCascadeInterventionImplementer } from '@/lib/interventions/GmTimeCascadeInterventionImplementer';
@@ -39,6 +42,7 @@ import {
   TIME_CASCADE_ID,
   TIME_CASCADE_MANUAL_ID,
   buildPersistedCampaignEventRows,
+  mergeLedgerRows,
   refreshLedgerRows,
   type GmCampaignPreview,
   type GmCampaignUpdate,
@@ -53,11 +57,8 @@ import {
   LedgerProjection,
 } from './GmCampaignLedgerProjection';
 import { GmCampaignLedgerStatusCards } from './GmCampaignLedgerStatusCards';
-import {
-  GmPreviewPanel,
-  ManualTakeoverPanel,
-  type ManualTakeoverState,
-} from './GmCampaignPreviewPanels';
+import { GmPreviewPanel, ManualTakeoverPanel } from './GmCampaignPreviewPanels';
+import { useGmControlPlane, viewGmControl } from './gmControlPlaneState';
 
 interface GmCampaignInterventionControlPlaneProps {
   readonly campaign: ICampaign;
@@ -105,45 +106,31 @@ export function GmCampaignInterventionControlPlane({
       campaign.updatedAt,
     ],
   );
-  const [preview, setPreview] = useState<GmLedgerPreview | null>(null);
-  // Post-approval latch (re-audit IS-01/UXF-05): the preview type has no
-  // 'approved' status by design (a preview is a pre-approval artifact), so the
-  // control plane tracks "this preview was already applied" itself. It gates
-  // canApprove (no re-approving an applied correction) and swaps the preview
-  // card's stale 'ready' tag for an 'approved' one. Cleared when the next
-  // preview is generated.
-  const [approvedApplied, setApprovedApplied] = useState(false);
-  // True from an approval's apply call until its answer (the co-op page's
-  // answer is the host's commit or refusal frame), so approve cannot send a
-  // second correction while the first is in flight.
-  const [approving, setApproving] = useState(false);
-  const [approvalStatus, setApprovalStatus] = useState<string>(
-    'No approved GM corrections yet.',
+  // Preview, approve and manual takeover are one token-guarded state (K11):
+  // a stale or duplicate control action is refused by `dispatch`.
+  const [{ control }, dispatch] = useGmControlPlane();
+  const view = viewGmControl(control);
+  const preview = control.kind === 'idle' ? null : control.preview;
+  // This session's ledger rows; the shown rows merge them with the persisted
+  // rows by intervention id, so saved history never drops out of view.
+  const [sessionPlayerRows, setSessionPlayerRows] = useState<
+    readonly PlayerLedgerRow[]
+  >([]);
+  const [sessionGmRows, setSessionGmRows] = useState<readonly GmLedgerRow[]>(
+    [],
   );
-  const [approvalReason, setApprovalReason] = useState<string | null>(null);
-  const [playerRows, setPlayerRows] = useState<readonly PlayerLedgerRow[]>(
-    () => persistedRows.playerRows,
+  const playerRows = useMemo(
+    () => mergeLedgerRows(persistedRows.playerRows, sessionPlayerRows),
+    [persistedRows, sessionPlayerRows],
   );
-  const [gmRows, setGmRows] = useState<readonly GmLedgerRow[]>(
-    () => persistedRows.gmRows,
+  const gmRows = useMemo(
+    () => mergeLedgerRows(persistedRows.gmRows, sessionGmRows),
+    [persistedRows, sessionGmRows],
   );
-  const [manualTakeover, setManualTakeover] =
-    useState<ManualTakeoverState | null>(null);
   const rosterEntries = useCampaignRosterStore((state) => state.pilots);
   const applyPilotPatches = useCampaignRosterStore(
     (state) => state.applyPilotPatches,
   );
-
-  useEffect(() => {
-    if (actionLedger.getRecords().length > 0) return;
-    setPlayerRows(persistedRows.playerRows);
-    setGmRows(persistedRows.gmRows);
-  }, [actionLedger, persistedRows]);
-
-  const canApprove =
-    preview?.status === 'ready' && !approvedApplied && !approving;
-  const canTakeManualControl =
-    preview?.status === 'requires-manual-takeover' && !approvedApplied;
 
   const handleMerchantPreview = (conflicted: boolean): void => {
     const nextPreview = createGmCascadePreview({
@@ -262,113 +249,148 @@ export function GmCampaignInterventionControlPlane({
     setNextPreview(nextPreview);
   };
 
+  const refreshSessionRows = (): void =>
+    refreshLedgerRows(actionLedger, setSessionPlayerRows, setSessionGmRows);
+
+  /** Records an approval whose update was applied (S14: never before). */
+  const recordApplied = <TState,>(
+    ledger: InterventionLedger<TState>,
+    approval: GmLedgerPreview,
+    prepared: IGmCascadePreparedApproval<TState>,
+  ): void => {
+    recordGmCascadeApproval({
+      ledger,
+      actionLedger,
+      preview: approval,
+      prepared,
+    });
+    refreshSessionRows();
+  };
+
   /**
-   * Hands an approved update to `onApplyCampaignUpdate` with approve disabled
-   * until it answers. Returns true when it applied; on a refusal it shows
-   * "Not applied to campaign state." with the reason and returns false.
+   * Runs one prepared approval under the preview's token. A blocked
+   * preparation is reported; otherwise `approve-started` must be accepted
+   * (a duplicate or stale approve is refused here, before anything is
+   * applied), the update goes to `onApplyCampaignUpdate`, and only once it
+   * applied does `record` run. A refusal, or a throw anywhere after the
+   * start, is answered under the same token, so nothing escapes the click.
    */
-  const applyApproved = async (updates: GmCampaignUpdate): Promise<boolean> => {
-    setApproving(true);
+  const runApproval = async <TState extends GmCampaignUpdate>(
+    token: number,
+    prepared: GmCascadeApprovalPreparation<TState>,
+    record: (applied: IGmCascadePreparedApproval<TState>) => void,
+  ): Promise<void> => {
+    if (prepared.status === 'blocked') {
+      dispatch({ type: 'approve-blocked', token, reason: prepared.reason });
+      return;
+    }
+    if (!dispatch({ type: 'approve-started', token })) return;
     try {
-      const refusal = await onApplyCampaignUpdate(updates);
-      if (typeof refusal !== 'string') return true;
-      setApprovalStatus('Not applied to campaign state.');
-      setApprovalReason(refusal);
-      return false;
-    } finally {
-      setApproving(false);
+      const refusal = await onApplyCampaignUpdate(prepared.state);
+      if (typeof refusal === 'string') {
+        dispatch({ type: 'approve-refused', token, reason: refusal });
+        return;
+      }
+      record(prepared);
+      dispatch({ type: 'approve-applied', token });
+    } catch (error) {
+      dispatch({
+        type: 'approve-failed',
+        token,
+        reason: error instanceof Error ? error.message : String(error),
+      });
     }
   };
 
   /**
    * Approves the current preview under a fresh intervention id (the preview's
    * id, the time in base 36 and six random base-36 characters), so each
-   * approval is its own ledger record and row; applies it through
-   * `applyApproved` and, when applied, latches the preview and refreshes the
-   * rows from the action ledger.
+   * approval is its own ledger record and row. The approval is prepared
+   * without touching any ledger and run through `runApproval`; a time
+   * cascade's roster patches are made only once its update applied.
    */
   const handleApprove = async (): Promise<void> => {
-    if (!preview) return;
+    if (control.kind !== 'previewed' && control.kind !== 'refused') return;
+    const { token } = control;
     const approvedAt = now();
     const approval = {
-      ...preview,
-      interventionId: `${preview.interventionId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      ...control.preview,
+      interventionId: `${control.preview.interventionId}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     };
     if (approval.domain === 'time') {
-      const result = approveGmCascadePreview<
-        IGmTimeCascadeInterventionState,
+      await runApproval(
+        token,
+        prepareGmCascadeApproval<
+          IGmTimeCascadeInterventionState,
+          IGmPrivateMetadata,
+          IGmTimeCascadePublicEffect,
+          IGmTimeCascadeInterventionDomainPayload
+        >({
+          ledger: timeLedger,
+          actionLedger,
+          preview: approval as GmTimeCascadePreview,
+          state: campaign as IGmTimeCascadeInterventionState,
+          approvedAt,
+          createdAt: approvedAt,
+        }),
+        (prepared) => {
+          const timePayload = prepared.record.domainPayload as
+            | IGmTimeCascadeInterventionDomainPayload
+            | undefined;
+          applyPilotPatches(
+            buildRosterRecoveryPatchesFromExternalEffects(
+              timePayload?.projectedEffects.flatMap(
+                (effect) => effect.externalEffects,
+              ) ?? [],
+            ),
+          );
+          recordApplied(timeLedger, approval, prepared);
+        },
+      );
+      return;
+    }
+
+    await runApproval(
+      token,
+      prepareGmCascadeApproval<
+        IGmCampaignInterventionState,
         IGmPrivateMetadata,
-        IGmTimeCascadePublicEffect,
-        IGmTimeCascadeInterventionDomainPayload
+        IGmCampaignPublicEffect,
+        IGmCampaignInterventionDomainPayload
       >({
-        ledger: timeLedger,
+        ledger: campaignLedger,
         actionLedger,
-        preview: approval as GmTimeCascadePreview,
-        state: campaign as IGmTimeCascadeInterventionState,
+        preview: approval as GmCampaignPreview,
+        state: campaign as IGmCampaignInterventionState,
         approvedAt,
         createdAt: approvedAt,
-      });
-
-      if (result.status !== 'approved') {
-        setApprovalStatus('Approval blocked.');
-        setApprovalReason(
-          result.reason ?? 'The time-cascade preview could not be approved.',
-        );
-        return;
-      }
-
-      const timePayload = result.record?.domainPayload as
-        | IGmTimeCascadeInterventionDomainPayload
-        | undefined;
-      const rosterPatches = buildRosterRecoveryPatchesFromExternalEffects(
-        timePayload?.projectedEffects.flatMap(
-          (effect) => effect.externalEffects,
-        ) ?? [],
-      );
-      applyPilotPatches(rosterPatches);
-      if (!(await applyApproved(result.state))) return;
-      setApprovedApplied(true);
-      setApprovalStatus('Approved and applied to campaign state.');
-      setApprovalReason(null);
-      refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
-      return;
-    }
-
-    const result = approveGmCascadePreview<
-      IGmCampaignInterventionState,
-      IGmPrivateMetadata,
-      IGmCampaignPublicEffect,
-      IGmCampaignInterventionDomainPayload
-    >({
-      ledger: campaignLedger,
-      actionLedger,
-      preview: approval as GmCampaignPreview,
-      state: campaign as IGmCampaignInterventionState,
-      approvedAt,
-      createdAt: approvedAt,
-    });
-
-    if (result.status !== 'approved') {
-      setApprovalStatus('Approval blocked.');
-      setApprovalReason(result.reason ?? 'The preview could not be approved.');
-      return;
-    }
-
-    if (!(await applyApproved(result.state))) return;
-    setApprovedApplied(true);
-    setApprovalStatus('Approved and applied to campaign state.');
-    setApprovalReason(null);
-    refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+      }),
+      (prepared) => recordApplied(campaignLedger, approval, prepared),
+    );
   };
 
+  /**
+   * Records one manual takeover for a conflicted preview. The dispatch is the
+   * guard: once it is accepted the preview is in `manual`, so a repeat click
+   * is refused before anything is appended.
+   */
   const handleManualTakeover = (): void => {
-    if (!preview || !preview.privateMetadata) return;
+    if (control.kind !== 'previewed' || !control.preview.privateMetadata) {
+      return;
+    }
+    const { token, preview } = control;
+    const accepted = dispatch({
+      type: 'manual-recorded',
+      token,
+      conflicts: preview.conflicts.map((conflict) => conflict.message),
+    });
+    if (!accepted) return;
     const createdAt = now();
-    const manualPublicEffect = buildManualPublicEffect(preview, campaign);
     const targetLedger =
       preview.domain === 'time' ? timeLedger : campaignLedger;
     const manualRecord = targetLedger.appendApprovedRecord({
-      id: `${preview.interventionId}:manual`,
+      // The canned preview id repeats across previews; the token does not.
+      id: `${preview.interventionId}:manual:${token}`,
       domain: preview.domain,
       kind: preview.kind,
       status: 'manual',
@@ -381,32 +403,18 @@ export function GmCampaignInterventionControlPlane({
         manualTakeoverNotes:
           'Manual takeover selected because projected effects conflict with the current cascade state.',
       },
-      publicEffect: manualPublicEffect,
+      publicEffect: buildManualPublicEffect(preview, campaign),
       domainPayload: preview.domainPayload,
       createdAt,
       approvedAt: createdAt,
     });
 
     actionLedger.appendGmInterventionRecord(manualRecord);
-    setManualTakeover({
-      reason: 'Manual takeover selected; no campaign state changed.',
-      conflicts: preview.conflicts.map((conflict) => conflict.message),
-    });
-    setApprovalStatus('Manual takeover recorded.');
-    setApprovalReason(null);
-    refreshLedgerRows(actionLedger, setPlayerRows, setGmRows);
+    refreshSessionRows();
   };
 
   const setNextPreview = (nextPreview: GmLedgerPreview): void => {
-    setPreview(nextPreview);
-    setApprovedApplied(false);
-    setManualTakeover(null);
-    setApprovalReason(null);
-    setApprovalStatus(
-      nextPreview.status === 'ready'
-        ? 'Ready for GM approval.'
-        : `Preview status: ${nextPreview.status}`,
-    );
+    dispatch({ type: 'preview-generated', preview: nextPreview });
   };
 
   return (
@@ -417,12 +425,13 @@ export function GmCampaignInterventionControlPlane({
     >
       <GmCampaignLedgerStatusCards
         balanceLabel={campaign.finances.balance.format()}
-        approvalStatus={approvalStatus}
+        approvalStatus={view.status}
       />
 
       <GmCampaignInterventionActions
-        canApprove={canApprove}
-        canTakeManualControl={canTakeManualControl}
+        canGenerate={view.canGenerate}
+        canApprove={view.canApprove}
+        canTakeManualControl={view.canTakeManualControl}
         onMerchantPreview={handleMerchantPreview}
         onApprove={handleApprove}
         onRepairPreview={handleRepairPreview}
@@ -435,13 +444,13 @@ export function GmCampaignInterventionControlPlane({
       {preview ? (
         <GmPreviewPanel
           preview={preview}
-          approvalReason={approvalReason}
-          approvedApplied={approvedApplied}
+          approvalReason={view.reason}
+          approvedApplied={view.approvedApplied}
         />
       ) : null}
 
-      {manualTakeover ? (
-        <ManualTakeoverPanel manualTakeover={manualTakeover} />
+      {view.manualTakeover ? (
+        <ManualTakeoverPanel manualTakeover={view.manualTakeover} />
       ) : null}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">

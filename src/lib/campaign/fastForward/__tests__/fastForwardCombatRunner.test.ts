@@ -60,6 +60,7 @@ import {
   resetCampaignStore,
   useCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
+import { EncounterStatus } from '@/types/encounter';
 import { Facing, GameSide, LockState, MovementType } from '@/types/gameplay';
 
 import type { FastForwardBattleRunner } from '../fastForwardCampaign';
@@ -381,34 +382,88 @@ describe('runFastForwardBattle', () => {
     expect(result).toBeNull();
   });
 
-  describe('launch authority gate (umbrella 10.3)', () => {
-    /**
-     * Bring the fixture to a bridged encounter, which is the point the
-     * launch gate sits in front of.
-     */
-    async function bridgeOneScenario() {
-      const fixture = buildFastForwardFixture({
-        useRoleBasedSalaries: false,
-      });
-      const store = useCampaignStore();
-      store.getState().switchCampaign(fixture.campaign);
-      const dayOneReport = await store.getState().advanceDay();
-      if (!dayOneReport) throw new Error('day 1 advanceDay() returned null');
-      const afterDayOne = dayOneReport.campaign as ICampaignWithBridgeState;
-      const scenarioId = afterDayOne.bridgedScenarioIds?.[0];
-      if (!scenarioId)
-        throw new Error('no scenario bridged on the fixture Monday');
-      const bridgedEncounter = afterDayOne.bridgedEncounters?.[scenarioId];
-      if (!bridgedEncounter?.campaignMeta) {
-        throw new Error(`bridged encounter ${scenarioId} has no campaignMeta`);
-      }
-      return {
-        scenarioId,
-        bridgedEncounter,
-        campaignMeta: bridgedEncounter.campaignMeta,
-      };
+  /**
+   * Bring the fixture to a bridged encounter, which is the point the
+   * launch gate sits in front of.
+   */
+  async function bridgeOneScenario() {
+    const fixture = buildFastForwardFixture({
+      useRoleBasedSalaries: false,
+    });
+    const store = useCampaignStore();
+    store.getState().switchCampaign(fixture.campaign);
+    const dayOneReport = await store.getState().advanceDay();
+    if (!dayOneReport) throw new Error('day 1 advanceDay() returned null');
+    const afterDayOne = dayOneReport.campaign as ICampaignWithBridgeState;
+    const scenarioId = afterDayOne.bridgedScenarioIds?.[0];
+    if (!scenarioId)
+      throw new Error('no scenario bridged on the fixture Monday');
+    const bridgedEncounter = afterDayOne.bridgedEncounters?.[scenarioId];
+    if (!bridgedEncounter?.campaignMeta) {
+      throw new Error(`bridged encounter ${scenarioId} has no campaignMeta`);
     }
+    return {
+      scenarioId,
+      bridgedEncounter,
+      campaignMeta: bridgedEncounter.campaignMeta,
+    };
+  }
 
+  describe('encounter completion without a mounted page (S1b)', () => {
+    it('links the materialized encounter to the fought session and completes it', async () => {
+      const { scenarioId, bridgedEncounter, campaignMeta } =
+        await bridgeOneScenario();
+
+      const detail = await runFastForwardBattle({
+        scenarioId,
+        contractId: campaignMeta.contractId,
+        encounterId: bridgedEncounter.id,
+      });
+      if (!detail) throw new Error('runFastForwardBattle returned null');
+
+      const stored = getEncounterRepository().getEncounterById(
+        detail.encounterId,
+      );
+      expect(stored?.status).toBe(EncounterStatus.Completed);
+      expect(stored?.gameSessionId).toBe(detail.session.id);
+    });
+
+    it.each(['POST', 'PATCH'])(
+      'a refused %s session write fails the battle before any outcome is published',
+      async (refusedMethod) => {
+        const { scenarioId, bridgedEncounter, campaignMeta } =
+          await bridgeOneScenario();
+        const real = createInProcessApiFetch();
+        const impl = (async (input: unknown, init?: RequestInit) => {
+          if (
+            String(input).endsWith('/session') &&
+            init?.method === refusedMethod
+          ) {
+            return {
+              ok: false,
+              status: 409,
+              json: async () => ({ success: false, error: 'refused by test' }),
+            } as Response;
+          }
+          return real(input as RequestInfo, init);
+        }) as unknown as typeof fetch;
+
+        await expect(
+          runFastForwardBattle(
+            {
+              scenarioId,
+              contractId: campaignMeta.contractId,
+              encounterId: bridgedEncounter.id,
+            },
+            { fetchImpl: impl },
+          ),
+        ).rejects.toThrow('refused by test');
+        expect(useCampaignStore().getState().getPendingOutcomeCount()).toBe(0);
+      },
+    );
+  });
+
+  describe('launch authority gate (umbrella 10.3)', () => {
     /**
      * The real in-process fetch, with only the launch-authority call
      * answered by the test. Everything else still runs the production

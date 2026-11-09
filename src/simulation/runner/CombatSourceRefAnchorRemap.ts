@@ -4,29 +4,29 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/engine/adapters/CompendiumAdapter.ts#L185-L208':
     'src/engine/adapters/CompendiumAdapter.weapons.ts#L33-L68',
   'src/engine/GameEngine.phases.ts#L388-L479':
-    'src/engine/GameEngine.phases.ts#L398-L444',
+    'src/engine/GameEngine.phases.ts#L353-L455',
   'src/engine/InteractiveSession.actions.ts#L1-L1634':
     'src/engine/InteractiveSession.actions.attackProjection.ts#L22-L60',
   'src/engine/InteractiveSession.actions.ts#L192-L235':
-    'src/engine/InteractiveSession.actions.attack.ts#L185-L200',
+    'src/engine/InteractiveSession.actions.attack.ts#L60-L266',
   'src/engine/InteractiveSession.actions.ts#L326-L397':
     'src/engine/InteractiveSession.actions.battleArmor.ts#L119-L145',
   'src/engine/InteractiveSession.actions.ts#L80-L132':
-    'src/engine/InteractiveSession.actions.movement.ts#L90-L161',
+    'src/engine/InteractiveSession.actions.movement.ts#L91-L162',
   'src/lib/p2p/intentTranslation.ts#L187-L444':
-    'src/lib/p2p/intentTranslation.ts#L174-L185',
+    'src/lib/p2p/intentTranslation.ts#L285-L349',
   'src/lib/p2p/intentTranslation.ts#L189-L468':
-    'src/lib/p2p/intentTranslation.ts#L176-L187',
+    'src/lib/p2p/intentTranslation.ts#L388-L410',
   'src/lib/p2p/intentTranslation.ts#L191-L493':
-    'src/lib/p2p/intentTranslation.ts#L178-L189',
+    'src/lib/p2p/intentTranslation.ts#L412-L435',
   'src/lib/p2p/intentTranslation.ts#L193-L525':
-    'src/lib/p2p/intentTranslation.ts#L180-L191',
+    'src/lib/p2p/intentTranslationCommandTranslators.ts#L99-L119',
   'src/lib/p2p/intentTranslation.ts#L195-L564':
-    'src/lib/p2p/intentTranslation.ts#L182-L193',
+    'src/lib/p2p/intentTranslationCommandTranslators.ts#L138-L156',
   'src/lib/p2p/intentTranslation.ts#L197-L537':
-    'src/lib/p2p/intentTranslationCombatTranslators.ts#L189-L200',
+    'src/lib/p2p/intentTranslationCommandTranslators.ts#L121-L136',
   'src/lib/p2p/intentTranslation.ts#L220-L470':
-    'src/lib/p2p/intentTranslation.ts#L263-L274',
+    'src/lib/p2p/intentTranslation.ts#L351-L386',
   'src/simulation/runner/__tests__/criticalHitEvents.test.ts#L1027-L1115':
     'src/simulation/runner/__tests__/criticalHitEvents.06.test.ts#L96-L174',
   'src/simulation/runner/__tests__/criticalHitEvents.test.ts#L1394-L1457':
@@ -138,7 +138,7 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/simulation/runner/phases/weaponAttack.ts#L1178-L1229':
     'src/simulation/runner/phases/weaponAttackShots.ts#L123-L192',
   'src/simulation/runner/phases/weaponAttack.ts#L1212-L1221':
-    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L101-L157',
+    'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts#L96-L152',
   'src/simulation/runner/phases/weaponAttack.ts#L1225-L1317':
     'src/simulation/runner/phases/weaponAttackHitResolution.ts#L145-L356',
   'src/simulation/runner/phases/weaponAttack.ts#L1273-L1302':
@@ -276,13 +276,13 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/__tests__/unitStateExtension.test.ts#L927-L944':
     'src/utils/gameplay/__tests__/unitStateExtension.04.fragment.ts#L251-L266',
   'src/utils/gameplay/gameSessionAttackResolution.ts#L226-L357':
-    'src/utils/gameplay/gameSessionAttackResolution.hit.ts#L48-L216',
+    'src/utils/gameplay/gameSessionAttackResolution.hit.ts#L56-L244',
   'src/utils/gameplay/gameSessionAttackResolution.ts#L256-L474':
-    'src/utils/gameplay/gameSessionAttackResolution.damageEvents.ts#L78-L325',
+    'src/utils/gameplay/gameSessionAttackResolution.damageEvents.ts#L77-L344',
   'src/utils/gameplay/gameSessionCore.ts#L494-L545':
     'src/utils/gameplay/gameSessionCore.attackToHit.ts#L120-L137',
   'src/utils/gameplay/gameSessionCore.ts#L504-L528':
-    'src/utils/gameplay/gameSessionCore.attack.ts#L100-L145',
+    'src/utils/gameplay/gameSessionCore.attack.ts#L102-L149',
   'src/utils/gameplay/gameSessionCore.ts#L564-L639':
     'src/utils/gameplay/gameSessionCore.attackEvents.ts#L35-L134',
   'src/utils/gameplay/gameSessionCore.ts#L596-L630':
@@ -294,11 +294,11 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/gameSessionCore.ts#L667-L679':
     'src/utils/gameplay/gameSessionCore.ts#L398-L430',
   'src/utils/gameplay/gameSessionHeat.ts#L1082-L1148':
-    'src/utils/gameplay/gameSessionHeat.effects.ts#L246-L359',
+    'src/utils/gameplay/gameSessionHeat.effects.ts#L254-L374',
   'src/utils/gameplay/gameSessionHeat.ts#L1083-L1135':
-    'src/utils/gameplay/gameSessionHeat.effects.ts#L246-L359',
+    'src/utils/gameplay/gameSessionHeat.effects.ts#L254-L374',
   'src/utils/gameplay/gameSessionHeat.ts#L1146-L1163':
-    'src/utils/gameplay/gameSessionHeat.criticalEvents.ts#L69-L168',
+    'src/utils/gameplay/gameSessionHeat.criticalEvents.ts#L55-L154',
   'src/utils/gameplay/gameSessionHeat.ts#L345-L1013':
     'src/utils/gameplay/gameSessionHeat.ts#L23-L70',
   'src/utils/gameplay/gameSessionHeat.ts#L657-L1156':
@@ -314,11 +314,11 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/gameSessionPhysical.ts#L431-L770':
     'src/utils/gameplay/gameSessionPhysicalInput.ts#L47-L82',
   'src/utils/gameplay/gameSessionPhysical.ts#L437-L469':
-    'src/utils/gameplay/gameSessionPhysical.ts#L105-L220',
+    'src/utils/gameplay/gameSessionPhysical.ts#L106-L222',
   'src/utils/gameplay/gameSessionPhysical.ts#L543-L549':
     'src/utils/gameplay/gameSessionPhysicalSupport.ts#L153-L160',
   'src/utils/gameplay/gameSessionPhysical.ts#L585-L990':
-    'src/utils/gameplay/gameSessionPhysical.ts#L105-L220',
+    'src/utils/gameplay/gameSessionPhysical.ts#L106-L222',
   'src/utils/gameplay/gameSessionPhysical.ts#L607-L825':
     'src/utils/gameplay/gameSessionPhysicalResolution.ts#L50-L186',
   'src/utils/gameplay/gameSessionPhysical.ts#L643-L662':

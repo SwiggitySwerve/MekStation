@@ -1593,6 +1593,7 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
       PSRTrigger.ExitingWater,
       PSRTrigger.Skidding,
       PSRTrigger.SwampBogDown,
+      PSRTrigger.SwampUnstuck,
       PSRTrigger.AirMekLanding,
       PSRTrigger.BuildingCollapse,
       PSRTrigger.RunningDamagedHip,

@@ -36,7 +36,6 @@
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 
 import type { ICombatOutcomeReadyEvent } from '@/engine/combatOutcomeBus';
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
 import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import {
@@ -44,13 +43,21 @@ import {
   subscribeToCombatOutcome,
 } from '@/engine/combatOutcomeBus';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import {
+  isolationAdaptedUnit,
+  isolationGameUnit,
+} from '@/lib/multiplayer/server/__tests__/matchIsolationFixtures';
 import { InMemoryMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore';
 import {
   ServerMatchHost,
   type IMatchSocket,
 } from '@/lib/multiplayer/server/ServerMatchHost';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
-import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameEventType,
+  GameSide,
+  GameStatus,
+} from '@/types/gameplay/GameSessionInterfaces';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -161,14 +168,27 @@ async function makeLobbyHost(opts: {
     roomCode: 'ABC123',
     seats,
   });
+  // Both sides must survive AdvancePhase so reconnect is tested before Concede.
+  const player = isolationAdaptedUnit('capstone-player', GameSide.Player, {
+    q: 0,
+    r: -2,
+  });
+  const opponent = isolationAdaptedUnit(
+    'capstone-opponent',
+    GameSide.Opponent,
+    { q: 0, r: 2 },
+  );
   const host = ServerMatchHost.create(opts.matchId, store, {
     mapRadius: 4,
     turnLimit: 5,
     random: new SeededRandom(7),
     grid: createMinimalGrid(4),
-    playerUnits: [],
-    opponentUnits: [],
-    gameUnits: [] as readonly IGameUnit[],
+    playerUnits: [player],
+    opponentUnits: [opponent],
+    gameUnits: [
+      isolationGameUnit(player.id, player.side),
+      isolationGameUnit(opponent.id, opponent.side),
+    ],
   });
   // Register player refs so OccupySeat resolves display names.
   host.registerPlayerRef({ playerId: HOST_PID, displayName: 'Host' });
@@ -258,20 +278,24 @@ describe('Phase 4 capstone — multiplayer end-to-end', () => {
     expect(persistedMeta.status).toBe('active');
 
     // -- Stage 2: Run a few engine intents -----------------------------------
-    // Empty unit roster means Move/Attack would no-op or be rejected;
-    // AdvancePhase with no players still ticks the engine forward.
+    // AdvancePhase ticks the engine forward with both sides surviving.
     // We assert at minimum the host's intent dispatcher accepted the
     // intent and broadcast events (or an Error envelope without
     // crashing).
     const advance = await host.handleIntent(
       envelope('match-capstone-1', HOST_PID, { kind: 'AdvancePhase' }),
     );
-    // The empty roster + initiative phase still produces at least one
-    // event from the engine (initiative roll attempt). Host should not
-    // crash; broadcasts is non-empty (Event or Error).
+    // Host should not crash while advancing through the setup phase.
     expect(advance.length).toBeGreaterThanOrEqual(0);
 
     // -- Stage 3: Drop opponent + reconnect with lastSeq ---------------------
+    expect((await store.getMatchMeta('match-capstone-1')).status).toBe(
+      'active',
+    );
+    expect(host.getSessionForTests().currentState.status).toBe(
+      GameStatus.Active,
+    );
+    expect(busFires).toBe(0);
     const seqBeforeDrop = host.highestSeq();
     host.detachSocket(oppSock);
     // harden-multiplayer-transport (M2): a socket drop now runs host
@@ -300,9 +324,7 @@ describe('Phase 4 capstone — multiplayer end-to-end', () => {
     expect(host.isPausedForReconnect()).toBe(false);
 
     // -- Stage 4: Concede -> outcome bus fires --------------------------------
-    // Concede fires GameEnded (or short-circuits if the engine already
-    // ended on its own — empty rosters trip the win condition during
-    // AdvancePhase). Either path lands a GameEnded in the store and
+    // Concede ends the still-active match, lands GameEnded in the store, and
     // fires CombatOutcomeReady exactly once on the bus thanks to the
     // engine's `outcomePublished` guard + the host's
     // `hostOutcomePublished` mirror.

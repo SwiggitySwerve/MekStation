@@ -10,6 +10,10 @@
  */
 
 import {
+  serializeCampaign,
+  deserializeCampaignBody,
+} from '@/lib/campaign/persistence';
+import {
   type ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
@@ -65,7 +69,8 @@ function makeOutcome(overrides?: Partial<ICombatOutcome>): ICombatOutcome {
     contractId: 'contract-1',
     scenarioId: null,
     endReason: CombatEndReason.ObjectiveMet,
-    report: {} as ICombatOutcome['report'],
+    // Every persisted outcome carries the session log; exits are read from it.
+    report: { log: [] } as unknown as ICombatOutcome['report'],
     unitDeltas: [
       makeDelta({ unitId: 'enemy-1', finalStatus: UnitFinalStatus.Damaged }),
       makeDelta({ unitId: 'enemy-2', finalStatus: UnitFinalStatus.Crippled }),
@@ -108,6 +113,23 @@ function makeCampaign(
 // =============================================================================
 
 describe('applySalvage', () => {
+  it('keeps processed salvage after a server round trip drops the transient reported ledger', () => {
+    const outcome = makeOutcome();
+    const applied = applySalvage(outcome, makeCampaign()).campaign;
+    const restored = deserializeCampaignBody(
+      JSON.parse(JSON.stringify(serializeCampaign(applied))),
+    );
+    expect(
+      (restored as ICampaignWithSalvageState).salvageReportedBattleIds,
+    ).toBeUndefined();
+    const result = applySalvage(outcome, restored);
+    expect(result.summary.skippedDuplicate).toBe(true);
+    expect(result.campaign).toBe(restored);
+    expect(result.campaign.salvageAllocations).toEqual(
+      applied.salvageAllocations,
+    );
+  });
+
   it('persists an allocation + report on the campaign extension', () => {
     const contract = createContract({
       id: 'contract-1',

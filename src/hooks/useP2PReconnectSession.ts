@@ -36,7 +36,11 @@ export { deriveReconnectRoomCode };
 import { logger } from '@/utils/logger';
 
 export const RECONNECT_HOST_WAIT_MS = 10_000;
+/** How long a sent reconnect request may go without any host reply. */
+export const RECONNECT_REPLAY_WAIT_MS = 10_000;
 const HOST_POLL_INTERVAL_MS = 250;
+/** The only `peer-rejected` reason a reconnect request can provoke. */
+const WRONG_MATCH_REASON = 'wrong-match';
 
 type ReplayEventAppender = (
   matchId: string,
@@ -49,6 +53,7 @@ type ReplayStreamMessage = Parameters<
 
 interface ReconnectDependencies {
   readonly timeoutMs: number;
+  readonly replayWaitMs: number;
   readonly pollIntervalMs: number;
   readonly getLastSequence: (matchId: string) => Promise<number | null>;
   readonly getMatchMetadata: (
@@ -89,7 +94,11 @@ interface ReconnectRuntime {
   cleanupChannel: (() => void) | null;
   timeoutId: ReturnType<typeof setTimeout> | null;
   pollId: ReturnType<typeof setInterval> | null;
+  /** Armed once the request is sent; restarted by every replay chunk. */
+  replayWaitId: ReturnType<typeof setTimeout> | null;
   requestSent: boolean;
+  /** True once any replay chunk for this match has arrived. */
+  replayStarted: boolean;
   replayChain: Promise<void>;
   replayEvents: IGameEvent[];
   requestedFullReplay: boolean;
@@ -97,6 +106,7 @@ interface ReconnectRuntime {
 
 export interface IUseP2PReconnectSessionOptions {
   readonly timeoutMs?: number;
+  readonly replayWaitMs?: number;
   readonly pollIntervalMs?: number;
   readonly getLastSequence?: (matchId: string) => Promise<number | null>;
   readonly getMatchMetadata?: (
@@ -148,7 +158,9 @@ function createReconnectRuntime(): ReconnectRuntime {
     cleanupChannel: null,
     timeoutId: null,
     pollId: null,
+    replayWaitId: null,
     requestSent: false,
+    replayStarted: false,
     replayChain: Promise.resolve(),
     replayEvents: [],
     requestedFullReplay: false,
@@ -163,6 +175,10 @@ function clearReconnectTimers(runtime: ReconnectRuntime): void {
   if (runtime.pollId) {
     clearInterval(runtime.pollId);
     runtime.pollId = null;
+  }
+  if (runtime.replayWaitId) {
+    clearTimeout(runtime.replayWaitId);
+    runtime.replayWaitId = null;
   }
 }
 
@@ -208,6 +224,7 @@ function resolveReconnectDependencies(
       matchLogStorage.deleteEventsForMatch.bind(matchLogStorage),
     onMirrorPrefixDivergence: options.onMirrorPrefixDivergence,
     timeoutMs: options.timeoutMs ?? RECONNECT_HOST_WAIT_MS,
+    replayWaitMs: options.replayWaitMs ?? RECONNECT_REPLAY_WAIT_MS,
     pollIntervalMs: options.pollIntervalMs ?? HOST_POLL_INTERVAL_MS,
   };
 }
@@ -279,21 +296,46 @@ function setupGuestReconnect(
   deps: ReconnectDependencies,
   runtime: ReconnectRuntime,
 ): void {
+  const armReplayWait = (): void => {
+    if (runtime.replayWaitId) clearTimeout(runtime.replayWaitId);
+    runtime.replayWaitId = setTimeout(() => {
+      runtime.replayWaitId = null;
+      enterHostPending(matchId, deps, runtime);
+    }, deps.replayWaitMs);
+  };
+
   const unsubscribeReplay = channel.onReplayStream((stream) => {
     if (stream.matchId !== matchId) return;
-    runtime.replayChain = runtime.replayChain.then(() =>
-      applyReplayStream(matchId, stream, deps, runtime),
-    );
+    runtime.replayStarted = true;
+    // Progress restarts the wait; the final chunk ends it.
+    if (stream.done) clearReconnectTimers(runtime);
+    else armReplayWait();
+    // One failed chunk must not poison the chain for every later one.
+    runtime.replayChain = runtime.replayChain
+      .then(() => applyReplayStream(matchId, stream, deps, runtime))
+      .catch((error: unknown) => {
+        logger.error('P2P reconnect replay chunk failed', error);
+      });
   });
   const unsubscribeReject = channel.onReconnectReject((rejection) => {
     if (rejection.matchId !== matchId) return;
     clearReconnectTimers(runtime);
     deps.redirectToLobby(matchId, rejection.reason);
   });
+  // An unmatched request is answered with a match-less `peer-rejected`,
+  // not a `reconnect-reject`. Only this request can provoke it, and only
+  // before any replay chunk has started.
+  const unsubscribePeerRejection = channel.onPeerRejection((rejection) => {
+    if (!runtime.requestSent || runtime.replayStarted) return;
+    if (rejection.reason !== WRONG_MATCH_REASON) return;
+    clearReconnectTimers(runtime);
+    deps.redirectToLobby(matchId, 'Wrong match');
+  });
 
   runtime.cleanupChannel = () => {
     unsubscribeReplay();
     unsubscribeReject();
+    unsubscribePeerRejection();
   };
 
   const sendReconnectRequest = (): void => {
@@ -304,6 +346,7 @@ function setupGuestReconnect(
       matchId,
       lastLocalSeq: runtime.requestedFullReplay ? 0 : lastLocalSeq,
     });
+    armReplayWait();
   };
 
   const checkHost = (): void => {
@@ -383,6 +426,16 @@ function handleReconnectTimeout(
   runtime: ReconnectRuntime,
 ): void {
   if (runtime.requestSent || runtime.cancelled) return;
+  enterHostPending(matchId, deps, runtime);
+}
+
+/** Show the locally logged board and wait on the absent host. */
+function enterHostPending(
+  matchId: string,
+  deps: ReconnectDependencies,
+  runtime: ReconnectRuntime,
+): void {
+  if (runtime.cancelled) return;
   clearReconnectTimers(runtime);
   void deps.hydrateFromMatchLog(matchId).then((session) => {
     if (runtime.cancelled) return;

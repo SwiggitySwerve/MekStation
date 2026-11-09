@@ -50,7 +50,6 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
-import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   type IGameSessionChannel,
@@ -66,6 +65,7 @@ import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   type IIntent,
   type IEventMessage,
+  type IMatchPaused,
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
@@ -89,7 +89,6 @@ import {
 } from './fogMatchAdmission';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import {
-  hasCombatOutcomeOutbox,
   hasPublicationOutbox,
   hasViewerDeliveryAcknowledgementStore,
   hasViewerDeliveryStore,
@@ -103,6 +102,7 @@ import {
   type IJournalAuthorityAdmissionRefusal,
   type IJournalAuthorityPrivacyGateWiring,
 } from './journalAuthorityAdmission';
+import { isSpectatorPlayer, removeSpectatorSeat } from './lobby/spectatorSeats';
 import {
   MATCH_BASELINE_BRANCH_ID,
   MATCH_BASELINE_FIRST_GENERATION,
@@ -130,6 +130,7 @@ import {
   recoverServerInteractiveSession,
 } from './matchUnitBootstrap';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
+import { publishDurableCombatOutcome } from './publishDurableCombatOutcome';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
   bindCampaignGmHostProbe,
@@ -169,8 +170,10 @@ import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatch
 import { ServerMatchHostOutcomePublisher } from './ServerMatchHostOutcomePublisher';
 import { resumePendingPublications } from './ServerMatchHostPublication';
 import {
+  buildPauseSnapshot,
   maybeMarkPlayerPending,
   maybeResume,
+  pauseRefusalReason,
 } from './ServerMatchHostReconnectLifecycle';
 import {
   bindReconnectChannel,
@@ -180,6 +183,7 @@ import {
   sendReplay,
 } from './ServerMatchHostReplay';
 import {
+  readEffectiveRewindBranchId,
   rebuildHostFromActivatedBranch,
   type IRewindRebuildHost,
   type IRewindRebuildRequest,
@@ -330,6 +334,12 @@ export class ServerMatchHost {
    * this as the live path so post-rewind commands can extend it.
    */
   private liveServedBranchId: string | null = null;
+  /**
+   * M-H4: a committed rewind whose live rebuild failed before the host
+   * claimed the branch. The next command or join retries it; a restart
+   * heals it through the boot fold, so it is never persisted.
+   */
+  private pendingRewindRebuild: IRewindRebuildRequest | null = null;
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -536,15 +546,46 @@ export class ServerMatchHost {
   }
 
   /**
-   * Reload persisted delivery slots into the in-memory mapping. A store
-   * without the port, or a load error, leaves the mapping empty so
-   * SessionJoin falls back to a full replay.
+   * Reload persisted delivery slots and their applied receipts. A store
+   * without the delivery port, or a slot load error, leaves the mapping
+   * empty so SessionJoin falls back to a full replay. Missing/unreadable
+   * receipts leave only that viewer's restored slots unacked.
    */
   restorePersistedViewerDeliveries = async (): Promise<void> => {
     if (!hasViewerDeliveryStore(this.store)) return;
     try {
       const rows = await this.store.listViewerDeliveryRecords(this.matchId);
       this.deliveryCursors.loadFromRecords(rows);
+      if (!hasViewerDeliveryAcknowledgementStore(this.store)) return;
+      for (const playerId of Array.from(
+        new Set(rows.map((row) => row.playerId)),
+      )) {
+        const issued = this.deliveryCursors.issued(playerId);
+        // Noncontiguous records were rejected: their receipt cannot name
+        // any slot in this restored stream either.
+        if (issued === 0) continue;
+        try {
+          const ack = await this.store.getViewerDeliveryAcknowledgement(
+            this.matchId,
+            playerId,
+          );
+          if (
+            ack !== null &&
+            ack.matchId === this.matchId &&
+            ack.playerId === playerId &&
+            Number.isSafeInteger(ack.deliverySequence) &&
+            ack.deliverySequence >= 0 &&
+            ack.deliverySequence < issued
+          ) {
+            this.deliveryCursors.acknowledge(playerId, ack.deliverySequence);
+          }
+        } catch (error) {
+          logger.warn(
+            '[ServerMatchHost] viewer ack restore failed; this viewer remains unacked',
+            error,
+          );
+        }
+      }
     } catch (error) {
       logger.warn(
         '[ServerMatchHost] viewer delivery restore failed; resume will fall back to a full replay',
@@ -555,17 +596,62 @@ export class ServerMatchHost {
 
   /**
    * Rebuild the live engine from the activated rewind branch. The
-   * commit route calls this after `kind === 'committed'`.
+   * commit route calls this after `kind === 'committed'`. A failure
+   * still rejects; one before the branch claim leaves the rebuild
+   * pending (M-H4).
    */
   rebuildFromActivatedBranch = (
     input: IRewindRebuildRequest,
   ): Promise<void> => {
     this.opponentEpoch += 1;
     return this.queueCommand(async () => {
-      await rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+      await this.runRewindRebuild(input);
       await this.driveOpponent();
     });
   };
+
+  /**
+   * Run one rebuild and record what it left. Pending only when the
+   * host still serves another branch: after the claim the rebuilt
+   * session is authoritative, and folding it again would drop every
+   * event appended since.
+   */
+  private async runRewindRebuild(input: IRewindRebuildRequest): Promise<void> {
+    try {
+      await rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+      this.pendingRewindRebuild = null;
+    } catch (error) {
+      this.pendingRewindRebuild =
+        this.liveServedBranchId === input.branchId ? null : input;
+      throw error;
+    }
+  }
+
+  /**
+   * M-H4: inside the command queue, retry a pending rebuild the same
+   * way the commit route ran it. A pending branch the stream has since
+   * left is dropped (that correction's own rebuild owns it). A failed
+   * retry stays pending and the admission keeps answering STALE_BRANCH.
+   */
+  private async retryPendingRewindRebuild(): Promise<void> {
+    const pending = this.pendingRewindRebuild;
+    if (pending === null || this.closed) return;
+    try {
+      if (readEffectiveRewindBranchId(this.matchId) !== pending.branchId) {
+        this.pendingRewindRebuild = null;
+        return;
+      }
+      this.opponentEpoch += 1;
+      await this.runRewindRebuild(pending);
+    } catch (error) {
+      logger.warn(
+        '[ServerMatchHost] pending rewind rebuild retry failed; commands stay refused until it succeeds',
+        error,
+      );
+      return;
+    }
+    await this.driveOpponent();
+  }
 
   /**
    * Bound ReplayChunk to the activated head after a rewind fold
@@ -858,6 +944,27 @@ export class ServerMatchHost {
    * window is authorized against the already-migrated host.
    */
   private async handleSocketDropped(playerId: string): Promise<void> {
+    if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
+      return;
+    const meta = await this.store.getMatchMeta(this.matchId);
+    // Socket admission can run while the queued drop is reading metadata.
+    if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
+      return;
+    if (isSpectatorPlayer(meta.seats ?? [], playerId)) {
+      const seats = removeSpectatorSeat(meta.seats ?? [], playerId);
+      await this.store.updateMatchMeta(this.matchId, { seats });
+      // Keep delivery cursors/acks by viewer identity: a later authenticated
+      // re-registration resumes the same stream (including after restart).
+      this.broadcast({
+        kind: 'LobbyUpdated',
+        matchId: this.matchId,
+        ts: nowIso(),
+        seats,
+        status: meta.status,
+        hostPlayerId: meta.hostPlayerId,
+      });
+      return;
+    }
     await this.migrateHostIfNeeded(playerId);
     await this.maybeMarkPlayerPending(playerId);
   }
@@ -886,9 +993,8 @@ export class ServerMatchHost {
   /**
    * Wave 4: resolve the pause when the last pending peer reconnects.
    */
-  private maybeResume(): void {
-    if (this.opponentFaulted) return;
-    maybeResume({
+  private maybeResume(): boolean {
+    return maybeResume({
       matchId: this.matchId,
       isPaused: this.isPaused,
       pendingPeers: this.pendingPeers,
@@ -896,7 +1002,43 @@ export class ServerMatchHost {
         this.isPaused = paused;
       },
       broadcast: (message) => this.broadcast(message),
+      pauseSnapshot: this.pauseSnapshot,
     });
+  }
+
+  /**
+   * M-H3: one snapshot across every pause cause - pending peers, an
+   * absent campaign GM, and a faulted server opponent.
+   */
+  private pauseSnapshot = (): IMatchPaused | null =>
+    buildPauseSnapshot({
+      matchId: this.matchId,
+      pending: this.pendingPeers.getAllPending(),
+      gmAbsent: this.campaignPause?.isPaused() === true,
+      opponentFaulted: this.opponentFaulted,
+    });
+
+  /** M-H3: broadcast the snapshot, or `MatchResumed` once no cause remains. */
+  private broadcastPauseState(): void {
+    this.broadcast(
+      this.pauseSnapshot() ?? {
+        kind: 'MatchResumed',
+        matchId: this.matchId,
+        ts: nowIso(),
+      },
+    );
+  }
+
+  /** M-H3: human players and the GM may retry a faulted opponent. */
+  private async isSeatedParticipant(playerId: string): Promise<boolean> {
+    try {
+      const meta = await this.store.getMatchMeta(this.matchId);
+      return (
+        meta.hostPlayerId === playerId || meta.playerIds.includes(playerId)
+      );
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -1027,7 +1169,15 @@ export class ServerMatchHost {
     if (!joined) this.lifecycle.detach(socket);
     if (joined) {
       await this.queueCommand(async () => {
-        if (socket.readyState === 1) await this.driveOpponent();
+        await this.retryPendingRewindRebuild();
+        if (socket.readyState !== 1) return;
+        // M-H3 fault exit: a seated participant's join retries a faulted
+        // opponent once. A spectator's join leaves the fault latched.
+        const retry =
+          this.opponentFaulted && (await this.isSeatedParticipant(playerId));
+        if (retry) this.opponentFaulted = false;
+        await this.driveOpponent();
+        if (retry && !this.opponentFaulted) this.broadcastPauseState();
       });
     }
   };
@@ -1077,6 +1227,8 @@ export class ServerMatchHost {
     this.campaignPause = entry.syncSession;
     this.releaseCampaignPause = entry.syncSession.onPauseChanged((paused) => {
       this.opponentEpoch += 1;
+      // M-H3: players learn the GM left or returned.
+      if (!this.closed) this.broadcastPauseState();
       if (!paused)
         void this.queueCommand(() => this.driveOpponent()).catch((error) => {
           logger.error('[ServerMatchHost] opponent resume failed', error);
@@ -1097,7 +1249,7 @@ export class ServerMatchHost {
         this.lifecycle.snapshotConnectedSince().has(playerId),
       halt: () => {
         this.opponentFaulted = true;
-        this.isPaused = true;
+        this.broadcastPauseState();
       },
     });
   };
@@ -1108,6 +1260,7 @@ export class ServerMatchHost {
     verifiedPrincipalId?: string,
   ): Promise<readonly IServerMessage[]> => {
     return this.queueCommand(async () => {
+      await this.retryPendingRewindRebuild();
       const messages = await handleIntentWithContext(
         buildIntentContext(this.internals()),
         envelope,
@@ -1202,15 +1355,9 @@ export class ServerMatchHost {
    * event-at-a-time commits have no terminal transaction to join.
    */
   private publishDurableCombatOutcome = async (): Promise<void> => {
-    if (!hasCombatOutcomeOutbox(this.store)) return;
-    const record = await this.store.getCombatOutcomeOutbox(this.matchId);
-    if (record == null || record.publishedAt != null) return;
-    publishCombatOutcome({
-      matchId: record.matchId,
-      outcome: record.outcome,
-    });
-    await this.store.markCombatOutcomePublished(this.matchId, record.outcomeId);
-    this.outcomePublisher.markPublishedFromDurableOutbox();
+    if (await publishDurableCombatOutcome(this.store, this.matchId)) {
+      this.outcomePublisher.markPublishedFromDurableOutbox();
+    }
   };
 
   /** Test/observability: number of currently-connected sockets. */
@@ -1275,7 +1422,9 @@ export class ServerMatchHost {
 
   /** Wave 4 test/observability: is the match currently paused? */
   isPausedForReconnect = (): boolean =>
-    this.isPaused || this.campaignPause?.isPaused() === true;
+    this.isPaused ||
+    this.opponentFaulted ||
+    this.campaignPause?.isPaused() === true;
 
   /** Wave 4 test/observability: snapshot pending peers (slot+player). */
   getPendingPeersForTests = (): ReadonlyArray<PendingPeerSnapshot> =>
@@ -1306,8 +1455,10 @@ export class ServerMatchHost {
       playerRefs: this.playerRefs,
       pendingPeers: this.pendingPeers,
       setPaused: (paused) => {
-        this.isPaused = paused || this.opponentFaulted;
+        this.isPaused = paused;
       },
+      pauseSnapshot: this.pauseSnapshot,
+      pauseRefusal: pauseRefusalReason(this.pauseSnapshot()?.reason ?? null),
       broadcast: (message) => this.broadcast(message),
       broadcastEvent: (message) => this.broadcastEvent(message),
       broadcastUndeliveredEvent: (message) =>
@@ -1557,7 +1708,7 @@ export class ServerMatchHost {
   private async handleLobbyIntent(
     envelope: IIntent,
   ): Promise<readonly IServerMessage[]> {
-    const wasPaused = this.isPaused;
+    const wasPaused = this.isPausedForReconnect();
     const messages = await handleLobbyIntentWithContext(
       buildLobbyContext(this.internals()),
       envelope,
@@ -1566,8 +1717,12 @@ export class ServerMatchHost {
     // lose publication + reconnect access immediately.
     await this.revalidateAttachedViewers();
     if (envelope.intent.kind === 'ForfeitMatch') {
-      if (wasPaused) {
+      // M-H3: only a forfeit that ended the match lifts its pause. A
+      // refused one (non-host, engine refusal) leaves every cause intact.
+      if (!messages.some((message) => message.kind === 'Error')) {
         this.isPaused = false;
+        this.opponentFaulted = false;
+        if (wasPaused) this.broadcastPauseState();
       }
       this.tryPublishOutcome();
     }

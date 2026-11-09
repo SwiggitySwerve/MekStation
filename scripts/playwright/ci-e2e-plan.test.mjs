@@ -34,6 +34,28 @@ const seed = (tests) => ({
 const selected = (plan) =>
   plan.shards.flatMap(({ tasks }) => tasks.flatMap(({ tests }) => tests));
 
+test('the GM ledger runs exactly once in the one-worker, zero-retry PR gates', () => {
+  const file = 'gm-campaign-ledger-control-plane.spec.ts';
+  const gates = CI_SUITES.find(({ name }) => name === 'gates');
+  assert.ok(gates.files.includes(file));
+  assert.equal(gates.workers, 1);
+  assert.ok(gates.options.includes('--retries=0'));
+  const tests = census();
+  const plan = planShards(tests, seed(tests));
+  const ledgerTests = selected(plan).filter((row) => row.file === file);
+  assert.equal(ledgerTests.length, 2);
+  assertSameTests(
+    tests.filter((row) => row.file === file),
+    ledgerTests,
+  );
+  assert.equal(
+    plan.shards.filter(({ tasks }) =>
+      tasks.some(({ tests }) => tests.some((row) => row.file === file)),
+    ).length,
+    1,
+  );
+});
+
 test('every live test appears exactly once, including a test absent from timings', () => {
   const tests = census();
   const timing = seed(tests);

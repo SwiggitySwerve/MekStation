@@ -1,4 +1,5 @@
 import type { IGameEvent } from '@/types/gameplay';
+import type { UnitDestroyedCause } from '@/types/gameplay/UnitDestroyedCause';
 import type { CriticalHitEvent } from '@/utils/gameplay/criticalHitResolution/types';
 
 import { GameEventType, GamePhase } from '@/types/gameplay';
@@ -220,11 +221,7 @@ function mapCriticalDestructionCause(
   if (rawCause === 'pilot_death') {
     return 'pilot_death';
   }
-  return rawCause as
-    | 'ammo_explosion'
-    | 'impossible_displacement'
-    | 'ct_destroyed'
-    | 'head_destroyed';
+  return rawCause as UnitDestroyedCause;
 }
 
 /**

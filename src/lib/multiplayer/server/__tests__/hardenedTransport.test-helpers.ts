@@ -16,6 +16,7 @@ import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GameEventType,
+  GameSide,
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { defaultSeats, type IMatchSeat } from '@/types/multiplayer/Lobby';
@@ -112,7 +113,11 @@ function activeMeta(matchId: string): IMatchMeta {
   };
 }
 
-async function makeActiveHost(store: DurableMatchStore, matchId: string) {
+async function makeActiveHost(
+  store: DurableMatchStore,
+  matchId: string,
+  gameUnits: readonly IGameUnit[] = [],
+) {
   await store.createMatch(activeMeta(matchId));
   const host = ServerMatchHost.create(matchId, store, {
     mapRadius: 4,
@@ -121,7 +126,7 @@ async function makeActiveHost(store: DurableMatchStore, matchId: string) {
     grid: createMinimalGrid(4),
     playerUnits: [],
     opponentUnits: [],
-    gameUnits: [] as readonly IGameUnit[],
+    gameUnits,
   });
   // Flush the fire-and-forget initial-event persist.
   await Promise.resolve();
@@ -592,7 +597,28 @@ describe('M2 — Replay-Attack Protection', () => {
   it('the replay window is closed after recovery — a pre-restart intent is still a duplicate', async () => {
     const store = new DurableMatchStore({ path: ':memory:' });
     const matchId = 'replay-recover';
-    const host = await makeActiveHost(store, matchId);
+    // Both sides must survive the command: a finished match has no live host
+    // after restart, independently of whether its replay window was restored.
+    const host = await makeActiveHost(store, matchId, [
+      {
+        id: 'player',
+        name: 'Player',
+        side: GameSide.Player,
+        unitRef: 'atlas-as7-d',
+        pilotRef: 'p1',
+        gunnery: 4,
+        piloting: 5,
+      },
+      {
+        id: 'opponent',
+        name: 'Opponent',
+        side: GameSide.Opponent,
+        unitRef: 'atlas-as7-d',
+        pilotRef: 'p2',
+        gunnery: 4,
+        piloting: 5,
+      },
+    ]);
     const sock = makeSocket();
     host.attachSocket(sock, 'pid_host');
 
@@ -610,6 +636,7 @@ describe('M2 — Replay-Attack Protection', () => {
     // reconstruct from — AdvancePhase from Setup always advances).
     const producedEvents = accepted.some((b) => b.kind === 'Event');
     expect(producedEvents).toBe(true);
+    expect((await store.getMatchMeta(matchId)).status).toBe('active');
 
     // Simulate a restart: recover the match from the durable store.
     const result = await recoverActiveMatches(store);

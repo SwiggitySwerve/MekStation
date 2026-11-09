@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 /**
  * Campaign Mech Bay Page
  *
@@ -8,18 +9,20 @@
  * @spec openspec/changes/add-campaign-bay-ui/specs/campaign-bay-ui/spec.md
  */
 
-import React, { useEffect, useState } from 'react';
-
 import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
 import { MechBay } from '@/components/campaign/bays/MechBay';
+import { RefitOrdersPanel } from '@/components/campaign/bays/RefitOrdersPanel';
 import { resolveMechBayLoadout } from '@/lib/campaign/bays/resolveMechBayUnit';
 import { buildCampaignCustomizerHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { useCombatCatalog } from '@/lib/campaign/readiness/useCombatCatalog';
+import { useReadinessAuthority } from '@/lib/campaign/readiness/useReadinessAuthority';
 import * as CampaignShell from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { listCampaignSavedDesigns } from '@/services/units/listCampaignSavedDesigns';
 import { selectRepairBay } from '@/stores/campaign/campaignBaySelectors';
+import { cancelCampaignRefitOrder } from '@/stores/campaign/campaignRefitActions';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { generateUUID } from '@/utils/uuid';
@@ -93,6 +96,10 @@ export function buildMechBayUnitLoadoutMaps({
 
 export default function MechBayPage(): React.ReactElement {
   const shell = CampaignShell.useCampaignPageShell('Mech Bay');
+  const readinessAuthority = useReadinessAuthority(
+    shell.campaign?.id,
+    shell.campaign,
+  );
   const catalog = useCombatCatalog(shell.routeCampaignId ?? undefined);
   const units = useCampaignRosterStore((state) => state.units);
   const pilots = useCampaignRosterStore((state) => state.pilots);
@@ -149,6 +156,8 @@ export default function MechBayPage(): React.ReactElement {
     mission: activeMission,
     units,
     pilots,
+    campaign,
+    authority: readinessAuthority,
     repairBay,
     maxUnits: 4,
     baseCampaignHref: `/gameplay/campaigns/${encodeURIComponent(campaign.id)}`,
@@ -185,7 +194,7 @@ export default function MechBayPage(): React.ReactElement {
           {/* Refit launch flow (CP3, design D6) — opens above the grid
               when the player picks a unit's Refit affordance. */}
           <MechBay
-            units={units}
+            units={readinessProjection.units.map((entry) => entry.unit)}
             readinessByUnitId={readinessByUnitId}
             unitTonnageById={unitTonnageById}
             unitBattleValueById={unitBattleValueById}
@@ -211,6 +220,27 @@ export default function MechBayPage(): React.ReactElement {
           />
         </>
       )}
+      <RefitOrdersPanel
+        key={campaign.id}
+        orders={campaign.refitOrders ?? []}
+        readOnly={campaign.coopSession?.mode === 'guest'}
+        onCancel={async (orderId) => {
+          const result = await cancelCampaignRefitOrder(campaign.id, orderId);
+          // A failed local save leaves the cancelled order dirty; Retry Save
+          // persists that same terminal record without another transition.
+          if (!result.applied && result.order?.status !== 'cancelled')
+            return result;
+          const saved = await useCampaignPersistenceStore
+            .getState()
+            .saveCampaign();
+          return saved.status === 'saved'
+            ? { applied: true }
+            : {
+                applied: false,
+                reason: 'Refit cancellation was not saved.',
+              };
+        }}
+      />
     </CampaignShell.CampaignPageFrameFromShell>
   );
 }

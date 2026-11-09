@@ -33,9 +33,12 @@ import {
   rollInitiative,
   resolveAllAttacks,
   resolveHeatPhase,
+  resolvePendingPSRs,
   endGame,
 } from '@/utils/gameplay/gameSession';
 import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
+import { rollSessionStuckRecovery } from '@/utils/gameplay/gameSessionStuckRecovery';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 
 import type { IGameEngineConfig, IAdaptedUnit } from './types';
@@ -73,8 +76,18 @@ function gameOutcomeReasonToGameEndedReason(
       return 'turn_limit';
     case 'objective':
       return 'objective';
-    default:
+    case 'elimination':
+    case 'mutual_destruction':
       return 'destruction';
+    case 'aborted':
+    case 'timeout':
+      // Legacy adapter behavior: these reasons also became destruction.
+      // Correcting their semantics is a follow-up; preserve seeded outcomes.
+      return 'destruction';
+    default: {
+      const exhaustive: never = reason;
+      throw new Error(`Unhandled game outcome reason: ${exhaustive}`);
+    }
   }
 }
 
@@ -177,6 +190,7 @@ export class GameEngine {
     for (let turn = 0; turn < autoResolveTurnLimit; turn++) {
       session = rollInitiative(session, undefined, d6Roller);
       session = advancePhase(session);
+      session = rollSessionStuckRecovery(session, this.grid, d6Roller);
 
       session = runMovementPhase(
         session,
@@ -231,6 +245,10 @@ export class GameEngine {
           createLocationIndexRollerFromD6(d6Roller),
       });
       session = advancePhase(session);
+      // End phase: drain the PSR queue with the seeded dice, as the
+      // interactive session does, before the game-over check and before the
+      // next turn boundary would clear any PSR left unresolved.
+      session = resolvePendingPSRs(session, diceRoller);
 
       if (isGameEnded(session.currentState, gameConfig)) {
         return this.endSessionFromOutcome(session, gameConfig);
@@ -283,7 +301,7 @@ export class GameEngine {
 
   private determineWinnerFromState(state: IGameState): GameSide | 'draw' {
     const remainsInForce = (u: IGameState['units'][string]): boolean =>
-      !u.destroyed && !u.hasRetreated && !u.hasEjected;
+      getUnitOperability(u).onField;
 
     const playerAlive = Object.values(state.units).some(
       (u) => u.side === GameSide.Player && remainsInForce(u),

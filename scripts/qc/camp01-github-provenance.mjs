@@ -13,6 +13,13 @@ import {
   invokeGit,
   resolveVerifiedGit,
 } from './camp01-git-trust.mjs';
+import {
+  LEGACY_LEDGER_FILE,
+  colocatedLedgerFile,
+  parseColocatedLedger,
+  parseLegacyLedger,
+  reconcileLedgerEntries,
+} from './openspec-active-change-ledger.mjs';
 
 const OID = /^[0-9a-f]{40}$/,
   CHANGE = /^[a-z0-9][a-z0-9-]{0,127}$/,
@@ -149,11 +156,51 @@ async function verifyCitation(citation,repository,dependencies) {
   return Object.freeze({prNumber:citation.prNumber,headSha:pull.head.sha,mergeSha:citation.mergeSha,reviewId:citation.approvalId,reviewer:review.user.login,permission:level});
 }
 
-// prettier-ignore
-async function verifyLedgeredSpec(citation,repository,dependencies) {
-  await verifyAncestor(citation.mergeSha,repository,dependencies); let ledger;
-  try { ledger=JSON.parse(await readRepositoryFile({repository,sha:citation.mergeSha,file:'openspec/active-change-ledger.json'},dependencies)); await readRepositoryFile({repository,sha:citation.mergeSha,file:`openspec/changes/${citation.childChange}/tasks.md`},dependencies); } catch { fail('cited spec is not ledger-accounted at merge SHA'); }
-  if(!Array.isArray(ledger?.allowedActiveChanges)||!ledger.allowedActiveChanges.some((entry)=>entry?.name===citation.childChange)) fail('cited spec is not ledger-accounted at merge SHA');
+async function verifyLedgeredSpec(citation, repository, dependencies) {
+  await verifyAncestor(citation.mergeSha, repository, dependencies);
+  try {
+    const name = citation.childChange;
+    const colocatedFile = colocatedLedgerFile(name);
+    // List the cited tree first. Only an absent path permits compatibility
+    // fallback; a failed read or malformed file must reject the proof.
+    const files = (
+      await invokeGit(
+        {
+          git: { executable: repository.executable },
+          args: [
+            'ls-tree',
+            '--name-only',
+            citation.mergeSha,
+            '--',
+            LEGACY_LEDGER_FILE,
+            colocatedFile,
+          ],
+          cwd: repository.directory,
+        },
+        gitDependencies(dependencies),
+      )
+    ).stdout
+      .trim()
+      .split('\n');
+    const read = (file) =>
+      readRepositoryFile(
+        { repository, sha: citation.mergeSha, file },
+        dependencies,
+      );
+    const legacy = files.includes(LEGACY_LEDGER_FILE)
+      ? parseLegacyLedger(await read(LEGACY_LEDGER_FILE))
+      : [];
+    const matchingLegacy = legacy.filter((entry) => entry?.name === name);
+    if (files.includes(colocatedFile)) {
+      const colocated = parseColocatedLedger(await read(colocatedFile), name);
+      reconcileLedgerEntries(matchingLegacy, [colocated]);
+    } else if (matchingLegacy.length !== 1) {
+      throw new Error('Historical legacy membership missing or duplicated.');
+    }
+    await read(`openspec/changes/${name}/tasks.md`);
+  } catch {
+    fail('cited spec is not ledger-accounted at merge SHA');
+  }
 }
 
 // prettier-ignore

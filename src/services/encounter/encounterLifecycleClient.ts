@@ -1,0 +1,65 @@
+import type { IGameSession } from '@/types/gameplay';
+
+import type { IEncounterSessionLinkOptions } from './EncounterLifecycle';
+
+// Shared encounter transport limit: launch and completion carry event histories.
+const ENCOUNTER_SESSION_MIB = 16;
+export const ENCOUNTER_SESSION_BODY_LIMIT = `${ENCOUNTER_SESSION_MIB}mb`;
+export const ENCOUNTER_SESSION_MAX_BYTES = ENCOUNTER_SESSION_MIB * 1024 * 1024;
+
+type FetchImpl = typeof fetch;
+
+/** Transport only (browser fetch, or an injected in-process router). The server owns transition/evidence validation. */
+async function writeEncounterSession(
+  session: IGameSession,
+  method: 'POST' | 'PATCH',
+  options: IEncounterSessionLinkOptions = {},
+  fetchImpl: FetchImpl = fetch,
+): Promise<void> {
+  const encounterId = session.config.encounterId;
+  if (!encounterId) return;
+  const response = await fetchImpl(
+    `/api/encounters/${encodeURIComponent(encounterId)}/session`,
+    {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        gameId: session.id,
+        events: session.events,
+        ...(options.restart ? { restart: true } : {}),
+      }),
+    },
+  );
+  const result: unknown = await response.json();
+  if (
+    !response.ok ||
+    !result ||
+    typeof result !== 'object' ||
+    !('success' in result) ||
+    result.success !== true
+  ) {
+    const message =
+      result &&
+      typeof result === 'object' &&
+      'error' in result &&
+      typeof result.error === 'string'
+        ? result.error
+        : 'Encounter session update failed';
+    throw new Error(message);
+  }
+}
+
+export function linkEncounterSession(
+  session: IGameSession,
+  options: IEncounterSessionLinkOptions = {},
+  fetchImpl?: FetchImpl,
+): Promise<void> {
+  return writeEncounterSession(session, 'POST', options, fetchImpl);
+}
+
+export function completeEncounterSession(
+  session: IGameSession,
+  fetchImpl?: FetchImpl,
+): Promise<void> {
+  return writeEncounterSession(session, 'PATCH', {}, fetchImpl);
+}
