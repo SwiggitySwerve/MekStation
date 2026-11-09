@@ -1896,7 +1896,7 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
       expect.stringContaining(
         'separate RunningDamagedHip and RunningDamagedGyro',
       ),
-      expect.stringContaining('RunningDamagedHip per forward step'),
+      expect.stringContaining('single PSR per Run, Sprint or Evade move'),
     ]),
   );
   expect(
