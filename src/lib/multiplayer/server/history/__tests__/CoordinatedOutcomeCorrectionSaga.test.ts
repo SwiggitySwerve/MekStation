@@ -20,6 +20,8 @@ import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQL
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { DurableMatchStore } from '@/lib/multiplayer/server/DurableMatchStore';
 import { readSupersededMatchEvents } from '@/lib/multiplayer/server/DurableMatchStore.supersede';
+import { bindViewerDeliveryPersist } from '@/lib/multiplayer/server/DurableMatchStore.viewerDelivery';
+import { ViewerDeliveryCursors } from '@/lib/multiplayer/server/projection/ViewerDeliveryCursors';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -32,6 +34,7 @@ import {
   GameEventType,
   GamePhase,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { logger } from '@/utils/logger';
 
 import { _setCombatJournalAuthorityModeForTests } from '../../matchJournalAuthority';
 import {
@@ -219,6 +222,33 @@ describe('recordCoordinatedCorrectionSource', () => {
 
   afterEach(() => {
     store.close();
+  });
+
+  it('VDC continuing live cursors after source correction safely fall back on reload without PK warnings', async () => {
+    const warnings = jest.spyOn(logger, 'warn');
+    const live = new ViewerDeliveryCursors(
+      bindViewerDeliveryPersist(MATCH_ID, store),
+    );
+    expect(live.assign('player-2', 2)).toBe(0);
+    expect(live.assign('player-2', 3)).toBe(1);
+    expect(await store.listViewerDeliveryRecords(MATCH_ID)).toHaveLength(2);
+
+    expect(record(store).kind).toBe('recorded');
+    // The saga never rebuilds the host or resets its in-memory counter.
+    expect(live.assign('player-2', 0)).toBe(2);
+    const rows = await store.listViewerDeliveryRecords(MATCH_ID);
+    const restored = new ViewerDeliveryCursors();
+    restored.loadFromRecords(rows);
+
+    expect(restored.issued('player-2')).toBe(0);
+    expect(restored.deliverySequenceOf('player-2', 2)).toBeNull();
+    expect(restored.firstMissedAuthoritySequence('player-2', -1)).toBeNull();
+    expect(rows.map((row) => row.deliverySequence)).toEqual([2]);
+    expect(
+      warnings.mock.calls.filter(([message]) =>
+        String(message).includes('persist failed'),
+      ),
+    ).toEqual([]);
   });
 
   it('source record moves the tail and writes the replacement outbox row and the saga row in one transaction', async () => {

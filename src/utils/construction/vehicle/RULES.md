@@ -1087,3 +1087,97 @@ Clan (4.5 tons); the existing local armor owner retains the explicit IS choice
 `BLKFile.java:1950-1994` at the same pin; independent synthetic verifier probes
 record totals 30 and 30.5 respectively. This transport does not change the shared
 armor-normalization rule or any catalog value.
+
+## Small support vehicles: weapons, clip ammunition, Omni fire control (pinned)
+
+At pin 48fcb2f64, a support vehicle under 5 t weighs its weapons at their type
+tonnage in the verifier's sum (`TestEntity.getWeightWeapon`, kilogram rounding for
+the total, `TestSupportVehicle.java:760-770`). The payload used to mark every
+weapon on such a chassis unresolved ("infantry metadata is not in this catalog")
+although the catalog weight already equals the Java tonnage for 20 of the 21
+weapon ids the corpus mounts; that guard is removed. Eighteen small support
+sources become exactly Java (193 to 211 of 227 totals equal), none moves away.
+
+Three things stay reported rather than guessed:
+
+- **Clip ammunition.** A small vehicle's weapon beyond its first clip adds
+  `nextKg((size - 1) x InfantryWeapon.getAmmoWeight())`
+  (`TestSupportVehicle.java:980-988`). The ammunition weight is a Java constant
+  the catalog does not carry (Java: Auto-Rifle 0.00048 t, Support Laser 0.003 t).
+  A small-vehicle weapon with `:SIZE:` above 1 is reported unresolved, three
+  sources: Limpet Half-Track and Rock Rover RRV and RRV (Speed). Needs a catalog
+  field (catalog lane).
+- **Misidentified weapon.** `Machine Gun (Light)(PT)` reaches the battle-armor
+  `balightmg` (0.075 t) through the shared native name `Machine Gun (Light)`,
+  where Java loads the infantry support gun (`machine-gun-light-registry`,
+  0.007 t). A weapon whose catalog `allowedUnitTypes` names neither
+  "Support Vehicle" nor "Infantry" is not a support-vehicle weapon, so it is
+  reported, not charged. Across all 317 weapon mounts of the 227 support sources
+  this flags exactly that one mount type (Ibex RV Militarized MG). The identity
+  itself is routed by `registry-routing.json` (`techRoutes`) and the protected
+  alias `Machine Gun (Light)`, which are catalog data.
+- **Pintle and sponson mechanisms, ladders, dumpers, manipulators** are d3 and d4.
+
+`MiscType.java:707-711`: an Omni support chassis carries a fixed fire-control mass
+(`baseChassisFireConWeight`) that wins over the 5% or 10% of weapon mass when
+positive. `resolveVehicleVariableMass` owns the rule and takes the value in its
+context; the support handler reads the BLK tag. Three sources are Omni with a
+positive value (the Boreas Cavalry Hovercraft A, B and Prime, 0.01 t); they are
+now exact. The editor path does not read the tag yet (it needs the field plumbed
+through the vehicle store, registry, persistence and snapshot contract), so for an
+Omni support chassis the editor still shows the weapon-based fire-control mass.
+The basis also excludes non-support infantry weapons (`F_INFANTRY` without
+`F_INF_SUPPORT`); not modelled, no closed source depends on it.
+
+`internal_type -1` (MegaMek `T_STRUCTURE_UNKNOWN`) never reaches a support
+structure mass, which ignores the structure type
+(`TestSupportVehicle.java:778-797`); `supportSmallVehicle.pinned.test.ts` pins
+13.5 t and 59.5 t for -1, 0 and absent alike.
+
+No small-vehicle mount in the corpus is DWP-mounted or a squad support weapon,
+so `Mounted.getTonnage` x0.75 and x0.5/0.4 (`Mounted.java:729-746`) are not
+implemented; nothing here measures them.
+
+## Support pintle and sponson mechanisms (pinned)
+
+`MiscType.getTonnage` (MiscType.java:563-603 at 48fcb2f64) weighs the two turret
+mechanisms from their neighbours, not from a catalog value:
+
+- **Sponson pair:** 10% of the sponson-mounted equipment (not ammunition, heat
+  sinks or armor), rounded up, split between the sponsons. This is the
+  aggregate rule above, now applied to support vehicles as well.
+- **Pintle:** 5% of the weapons that are pintle-mounted in the pintle's own
+  location, rounded up. A fixed chassis weight (`baseChassisSponsonPintleWeight`,
+  MegaMek's `Tank.getBaseChassisSponsonPintleWeight`, -1 when unassigned) wins,
+  even when zero, and is split over the pintles.
+- Rounding is kilograms on a support vehicle under 5 t, half tons otherwise.
+
+`applyVehicleMountMechanismWeights` in `turret.ts` is the single owner: the editor
+(`mountedWeight.ts`, which previously held the sponson block inline) and the
+support payload (`supportPayload.ts`) both call it, with
+`computeVehiclePintleMechanismWeight` beside the existing sponson function. The
+sponson payload predicate (`isSponsonMechanismPayload`) moved with it. The support
+handler reads the BLK tag `baseChassisSponsonPintleWeight` into the new
+`ISupportVehicle` field. Other copies: none of the rule remains elsewhere; the
+combat Tank path (`vehicleHandlerWeight.ts`) already reaches the sponson through
+the editor owner.
+
+A mechanism whose weapons or payload have an unresolved mass is itself
+unresolved, never charged as if they weighed nothing. A mount the catalog cannot
+identify counts as a possible pintle weapon (unidentified ammunition does not).
+The Ibex RV (Militarized MG) pintles therefore stay unresolved while its
+battle-armor gun misidentification stands (Java 0.001 t each).
+
+Verified against the pinned verifier (`supportMechanisms.pinned.{json,test.ts}`):
+Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+equal Java in weapons, miscellaneous equipment and total. The Dreadnought Mk II
+Land Train's sponsons (0.25 t each) and every other term equal Java; its total
+is 0.5 t short because `ISMGA(ST)` reaches the 0.25 t `mga` entry where Java's
+ISMGA weighs 0.5 t, the same identity gap the combat path closes for `ISLMGA(ST)`
+above. Pinning the registry mass through the injected lookup closes it to 200 t.
+That identity fix is a separate change (the lookup token owner is shared with the
+combat path) and is reported, not made here.
+
+Not modelled: the sponson Omni branch has no corpus source and the support unit
+does not expose `isOmni`; clip ammunition mass and the `Machine Gun (Light)`
+identity stay as listed in the small-vehicle section above.

@@ -1210,3 +1210,61 @@ verifier weapon and ammunition terms.
 - **GIVEN** a support chassis mounting a wrecking ball, a flail or a sized cargo bay
 - **WHEN** the construction handler weighs it
 - **THEN** they SHALL weigh 4, 5 and 20 tons and the torpedo ammunition bin SHALL weigh 1 ton
+
+### Requirement: Small support vehicle weapon mass
+
+A support vehicle under 5 tons SHALL weigh its weapons at their pinned type
+tonnage, SHALL take an Omni chassis's fixed fire-control mass when positive, and
+SHALL report as unresolved, never guess, a weapon beyond its first clip (its
+ammunition weight is not carried) and a weapon whose identity is not a legal
+support-vehicle weapon. A support structure mass SHALL NOT read the structure
+type.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestSupportVehicle.java:760-788,980-988` and `MiscType.java:707-711`.
+
+#### Scenario: Small support vehicles equal the pinned Java terms
+
+- **GIVEN** Hoverbike, Assuan Armored Bike, Harpoon ParaSub, Beast Riot Car, TrackBike, Rumbler-HT and the Omni Boreas Cavalry Hovercraft A and Prime
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Boreas fire control SHALL weigh its fixed chassis 0.01 tons
+
+#### Scenario: Unmodelled terms are reported, not guessed
+
+- **GIVEN** Rock Rover RRV (Speed) with a size-2 Support Laser, and Ibex RV (Militarized MG) with `Machine Gun (Light)(PT)`
+- **WHEN** their support weight is calculated
+- **THEN** the first SHALL report its clip ammunition mass unresolved and fall short of Java by exactly 0.003 tons
+- **AND** the second SHALL report the battle-armor gun as not a support-vehicle weapon and SHALL NOT charge its 0.075 tons
+
+#### Scenario: An unknown structure type does not move a support structure mass
+
+- **GIVEN** a support chassis with internal type -1, 0 or none
+- **WHEN** its structure mass is calculated
+- **THEN** it SHALL be 13.5 tons and the total 59.5 tons in each case
+
+### Requirement: Support pintle and sponson mechanisms follow the pinned weight rule
+
+A support vehicle's sponson pair SHALL weigh 10% of its sponson-mounted equipment
+(excluding ammunition, heat sinks and armor), and each pintle SHALL weigh 5% of
+the pintle-mounted weapons in its own location, both rounded up (kilograms under
+5 tons, half tons otherwise); a fixed chassis weight, even zero, SHALL replace the
+pintle figure and be split over the pintles. A mechanism whose weapons or payload
+have an unresolved mass SHALL be reported unresolved, never weighed as if they
+weighed nothing. The editor and the support handler SHALL share one owner.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:563-603` and `Tank.getBaseChassisSponsonPintleWeight`.
+
+#### Scenario: Pintle and sponson sources equal the pinned Java terms
+
+- **GIVEN** Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Apocalypse pintle SHALL weigh its fixed chassis weight 0.08 tons
+
+#### Scenario: An unresolved weapon leaves its pintle unresolved
+
+- **GIVEN** Ibex RV (Militarized MG) whose pintle weapon is reported as not a support-vehicle weapon
+- **WHEN** its support weight is calculated
+- **THEN** its pintles SHALL be reported unresolved and SHALL NOT be weighed as zero

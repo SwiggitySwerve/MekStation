@@ -14,8 +14,10 @@ import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
-import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
-import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
+import {
+  isFireWeaponCategory,
+  isWeaponCategory,
+} from '@/utils/equipment/ammunitionCompatibility';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
@@ -29,11 +31,12 @@ import {
   computeTurretEquipmentWeight,
   getVehicleSourceIdentity,
 } from './equipmentMounts';
-import { isVehicleArmorEquipment } from './itemSlots';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import {
-  computeVehicleSponsonMechanismWeight,
+  applyVehicleMountMechanismWeights,
   getVehicleTurretMechanismFigures,
+  isSponsonMechanismPayload,
+  isVehicleMechanismMountId,
 } from './turret';
 import {
   resolveVehicleAccessoryMass,
@@ -50,14 +53,6 @@ export type EquipmentResolver = (
   isAmmo?: boolean,
 ) => IEquipmentItem | undefined;
 
-const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
-  EquipmentCategory.ENERGY_WEAPON,
-  EquipmentCategory.BALLISTIC_WEAPON,
-  EquipmentCategory.MISSILE_WEAPON,
-  EquipmentCategory.ARTILLERY,
-  EquipmentCategory.CAPITAL_WEAPON,
-];
-
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
  * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
  * plasma weapons still contribute. Non-weapon plasma-named items do not.
@@ -65,7 +60,7 @@ const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
 export function getVehicleHeatNeutralWeaponHeat(
   item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
 ): number | null {
-  const weapon = WEAPON_CATEGORIES.includes(item.category);
+  const weapon = isFireWeaponCategory(item.category);
   // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
   // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
   const excludedEnergy = /tsemp|taser/i.test(item.name);
@@ -181,7 +176,7 @@ export function computeVehicleMountedWeightFigures(
       clanCase,
       instanceId: mount.id,
       sourceId: getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId,
-      weapon: item !== undefined && WEAPON_CATEGORIES.includes(item.category),
+      weapon: item !== undefined && isFireWeaponCategory(item.category),
       id: equipmentId,
       location: mount.location,
       order,
@@ -200,7 +195,7 @@ export function computeVehicleMountedWeightFigures(
       // WeaponType.java:2925-2926; MiscType.java:12532-12543 (48fcb2f6).
       computerRelevant:
         item === undefined ||
-        (WEAPON_CATEGORIES.includes(item.category) &&
+        (isFireWeaponCategory(item.category) &&
           isDirectFireBVWeapon(equipmentId) &&
           !/taser/i.test(equipmentId)) ||
         (item.category !== EquipmentCategory.AMMUNITION &&
@@ -212,11 +207,12 @@ export function computeVehicleMountedWeightFigures(
         item.category === EquipmentCategory.AMMUNITION ||
         isWeaponCategory(item.category),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
-      sponsonPayload:
-        mount.isSponsonMounted &&
-        item?.category !== EquipmentCategory.AMMUNITION &&
-        !HEAT_SINK_EQUIPMENT_IDS.includes(item?.id ?? mount.equipmentId) &&
-        !isVehicleArmorEquipment(item?.id ?? mount.equipmentId),
+      sponsonPayload: isSponsonMechanismPayload({
+        isSponsonMounted: mount.isSponsonMounted,
+        isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
+        id: item?.id ?? mount.equipmentId,
+      }),
+      pintleMounted: mount.isPintleTurretMounted === true,
       // An unresolved definition has unknown classification as well as mass.
       needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
       inSecondaryTurret: mount.location === VehicleLocation.TURRET_2,
@@ -278,28 +274,23 @@ export function computeVehicleMountedWeightFigures(
                 { directFireWeaponTonnage },
               );
   }
-  const sponsons = mounted.filter((m) => m.id === 'vehicular-sponson-turret');
-  if (sponsons.length) {
-    const weight = computeVehicleSponsonMechanismWeight({
-      equipmentWeight: sum(
-        mounted.filter((m) => m.sponsonPayload),
-        'Sponson basis',
-      ),
-      count: sponsons.length,
-      isOmni: state.isOmni,
-      baseChassisWeight: state.baseChassisSponsonPintleWeight,
-      kilograms:
-        state.unitType === UnitType.SUPPORT_VEHICLE &&
-        state.tonnage !== undefined &&
-        state.tonnage < 5,
-    });
-    for (const mount of sponsons) {
-      mount.weight = weight;
-      if (weight === null) unresolvedMountIds.push(mount.instanceId);
-    }
-    if (weight === null)
-      issues.push('Sponson mechanism mass is unavailable or invalid');
-  }
+  // MiscType.java:563-603: the sponson and pintle mechanisms, one owner for the
+  // editor and the support handler.
+  const mechanisms = applyVehicleMountMechanismWeights(mounted, {
+    isOmni: state.isOmni,
+    baseChassisWeight: state.baseChassisSponsonPintleWeight,
+    kilograms:
+      state.unitType === UnitType.SUPPORT_VEHICLE &&
+      state.tonnage !== undefined &&
+      state.tonnage < 5,
+  });
+  for (const mount of mounted)
+    if (isVehicleMechanismMountId(mount.id) && mount.weight === null)
+      unresolvedMountIds.push(mount.instanceId);
+  if (mechanisms.sponsonUnavailable)
+    issues.push('Sponson mechanism mass is unavailable or invalid');
+  if (mechanisms.pintleUnavailable)
+    issues.push('Pintle mechanism mass is unavailable or invalid');
   const equipment = sum(mounted, 'Equipment');
   const heatLoad = sumVehicleHeatLoad(mounted, {
     year: state.year,
