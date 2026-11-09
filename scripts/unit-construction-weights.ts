@@ -10,6 +10,8 @@ import {
   areHandlersInitialized,
   initializeUnitTypeHandlers,
 } from '../src/services/units/handlers/initializeHandlers';
+import { createSupportRegistryMass } from '../src/services/units/handlers/supportRegistryMass';
+import { SupportVehicleUnitHandler } from '../src/services/units/handlers/SupportVehicleUnitHandler';
 import { computeNativeTankWeight } from '../src/services/units/handlers/vehicleHandlerWeight';
 import { VehicleUnitHandler } from '../src/services/units/handlers/VehicleUnitHandler';
 import {
@@ -17,6 +19,11 @@ import {
   type IRawSerializedUnit,
 } from '../src/services/units/unitLoaderService';
 import { getUnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
+import {
+  isSupportVehicle,
+  type ISupportVehicle,
+} from '../src/types/unit/VehicleInterfaces';
+import { computeSupportVehicleWeight } from '../src/utils/construction/vehicle/supportWeight';
 import { getEquipmentPayloadWeight } from '../src/utils/equipment/equipmentWeightAccounting';
 import {
   buildDeltaReport,
@@ -33,6 +40,10 @@ export interface ILocalWeights {
   /** A lump the local code cannot split; compared against the sum of its members. */
   groups?: Record<string, { members: readonly string[]; ours: number }>;
   total?: number;
+  /** Unsupported Java terms, with their local-owner reason; never zero-filled. */
+  gaps?: Record<string, string>;
+  /** The owner's unresolved inputs, retained verbatim without interpreting names. */
+  unresolved?: readonly string[];
   /** Why this row has no local terms at all (no construction seam on main). */
   unavailable?: string;
 }
@@ -565,6 +576,37 @@ function mapTankWeights(
   };
 }
 
+function captureSupportWeights(unit: ISupportVehicle): ILocalWeights {
+  const weights = computeSupportVehicleWeight(
+    unit,
+    createSupportRegistryMass(unit.techBase),
+  );
+  // ConstructionReference.java:99-106; TestSupportVehicle.java:773-774.
+  // Read public typed fields only, so changes inside the owner flow through.
+  return {
+    terms: {
+      getWeightEngine: weights.engine,
+      getWeightStructure: weights.structure,
+      getWeightControls: weights.controls,
+      getWeightHeatSinks: weights.heatSinks,
+      getWeightArmor: weights.armor,
+      getWeightMisc: weights.misc,
+      getWeightMiscEquip: weights.miscEquipment,
+      getWeightWeapon: weights.weapons,
+      getWeightAmmo: weights.ammo,
+      getWeightPowerAmp: weights.powerAmplifiers,
+      getWeightCarryingSpace: weights.carryingSpace,
+      getFuelTonnage: weights.fuel,
+    },
+    total: weights.total,
+    gaps: {
+      getArmoredComponentWeight:
+        'computeSupportVehicleWeight has no typed armored-component output',
+    },
+    unresolved: weights.unresolved,
+  };
+}
+
 function captureBlkWeights(bytes: Buffer): ILocalWeights {
   let stage = 'blk-source-parser';
   try {
@@ -575,12 +617,17 @@ function captureBlkWeights(bytes: Buffer): ILocalWeights {
     if (!areHandlersInitialized()) initializeUnitTypeHandlers();
     const handler = getUnitTypeRegistry().getHandlerForDocument(document);
     if (!handler) throw new Error(document.unitType);
-    if (!(handler instanceof VehicleUnitHandler))
+    if (
+      !(handler instanceof VehicleUnitHandler) &&
+      !(handler instanceof SupportVehicleUnitHandler)
+    )
       return { terms: {}, unavailable: unavailableReason(document.unitType) };
     stage = 'blk-handler-parser';
     const unit = handler.parse(document);
     if (!unit.success) throw new Error(JSON.stringify(unit.error));
     stage = 'blk-weights';
+    if (isSupportVehicle(unit.data.unit))
+      return captureSupportWeights(unit.data.unit);
     const weights = computeNativeTankWeight(document, unit.data.unit);
     if (!weights)
       return {
