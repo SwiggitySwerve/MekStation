@@ -486,7 +486,9 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
   - CI acceptance is the PR checks, CAMP-01 and nightly Coverage Thresholds on
     main. The six pre-existing nightly Full E2E failures are owner-deferred
     under the 2026-10-31 ruling; that is not a waiver for other failures. The
-    accepted deployed Guard proof on `0b8ea746c6` establishes Phase G release,
+    owner ruled on 2026-11-09 that the roadmap is not complete until a Full E2E
+    run on main is green (ROADMAP D-11, owned by Coordinator 4); 5.2's final
+    accounting links that green run. The accepted deployed Guard proof on `0b8ea746c6` establishes Phase G release,
     not fresh nightly or full parity acceptance (`phase-g/PHASE-G-COMPLETE.md`).
   - Next: after relevant integrations settle, perform one batched source
     accounting, fresh guarded conversion and all-family acceptance pass on the
