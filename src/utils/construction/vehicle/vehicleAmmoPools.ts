@@ -39,7 +39,9 @@ export function initializeVehicleInfantryClip(
   // Entity.java:5145-5165 seeds size 1 before BLKFile.java:377-385 adjusts it.
   // A size <= 1 leaves that seed; larger sizes use Java's integer conversion.
   const size = Number(sourceId.split(/:size:/i)[1] ?? 1);
-  const usableShots = facts.clipShots * (size > 1 ? Math.trunc(size) : 1);
+  const clips = size > 1 ? Math.min(2147483647, Math.trunc(size)) : 1;
+  // BLKFile.java:384 multiplies Java ints, including signed overflow.
+  const usableShots = Math.imul(facts.clipShots, clips);
   if (
     !Number.isFinite(size) ||
     !Number.isSafeInteger(usableShots) ||

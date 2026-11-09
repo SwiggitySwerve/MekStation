@@ -85,6 +85,20 @@ describe('implicit infantry ammunition on vehicles (MegaMek 48fcb2f64)', () => {
     ).toBe(30);
   });
 
+  it.each([
+    [102261126, 2147483646],
+    [102261127, undefined],
+    [2147483647, 2147483627],
+    [2147483648, 2147483627],
+  ])('preserves Java int32 clip initialization for size %s', (size, shots) => {
+    // Independently loaded Boreas A: double-to-int saturation, then int overflow.
+    expect(
+      resolveVehicleInfantryClip(
+        `support-laser-semi-portable-registry:SIZE:${size}`,
+      )?.usableShots,
+    ).toBe(shots);
+  });
+
   it('uses the existing source year when native admission varies by year', () => {
     const id = 'Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0';
     expect(resolveVehicleInfantryClip(id)).toBeUndefined();

@@ -986,7 +986,9 @@ persisted mounts or change offensive/defensive ammunition arithmetic.
 MegaMek 48fcb2f64 `Entity.java:5120-5123,5142-5182` creates linked generic
 Infantry Ammo only after native admission. Native weapon shots initialize the
 clip at mounted size 1; `BLKFile.java:377-385` subsequently adjusts source sizes
-above 1 using integer truncation. Sizes at or below 1 retain the initial clip.
+above 1 using Java's saturating double-to-int conversion and signed int32
+multiplication. Nonpositive overflowed shot counts have no usable ammunition.
+Sizes at or below 1 retain the initial clip.
 Empty alternate inferno clips are not counted. `Mounted.java:986-990` supplies
 usable shots; `AmmoMounted.java:144-159` excludes intrinsic one-shot links.
 
