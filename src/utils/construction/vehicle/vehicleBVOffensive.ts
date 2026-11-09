@@ -197,19 +197,11 @@ function calculateVehicleOffensiveEquipmentBV(
   return total;
 }
 
-/**
- * Compute offensive BV per vehicle rules.
- *
- *   weaponBV  = sum of (per-weapon BV × turretMult × rearMult × artemisMult × tcMult)
- *   ammoBV    = capped-per-weapon-family sum (delegates to mech ammo cap)
- *   offEquipBV = targeting-computer and misc equipment BV
- *   turretModifier = configured turret multiplier (for the breakdown only)
- *   offensiveBV = (weaponBV + ammoBV + offEquipBV + tonnage / 2) × speedFactor
- */
-export function calculateVehicleOffensiveBV(
+/** Resolve adjusted mount values once, preserving their existing order. */
+function calculateVehicleWeaponBVEntries(
   input: VehicleBVInput,
-): VehicleOffensiveBVBreakdown {
-  const fireControlFactor = supportFireControlFactor(input);
+  fireControlFactor: number,
+) {
   const targetingComputerMounted =
     hasBVTargetingComputer(input.chassisEquipment ?? []) ||
     (input.offensiveEquipment ?? []).some(
@@ -294,6 +286,25 @@ export function calculateVehicleOffensiveBV(
         (w.location.toLowerCase() === 'rear' || w.isRearMounted === true),
     ),
   );
+
+  return { weaponEntries, primaryTurretMult, secondaryTurretMult };
+}
+
+/**
+ * Compute offensive BV per vehicle rules.
+ *
+ *   weaponBV  = sum of (per-weapon BV × turretMult × rearMult × artemisMult × tcMult)
+ *   ammoBV    = capped-per-weapon-family sum (delegates to mech ammo cap)
+ *   offEquipBV = targeting-computer and misc equipment BV
+ *   turretModifier = configured turret multiplier (for the breakdown only)
+ *   offensiveBV = (weaponBV + ammoBV + offEquipBV + tonnage / 2) × speedFactor
+ */
+export function calculateVehicleOffensiveBV(
+  input: VehicleBVInput,
+): VehicleOffensiveBVBreakdown {
+  const fireControlFactor = supportFireControlFactor(input);
+  const { weaponEntries, primaryTurretMult, secondaryTurretMult } =
+    calculateVehicleWeaponBVEntries(input, fireControlFactor);
 
   const weaponBV = weaponEntries.reduce((sum, entry) => sum + entry.finalBV, 0);
   const perWeaponBVs = weaponEntries
