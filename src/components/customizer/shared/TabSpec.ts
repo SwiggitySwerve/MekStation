@@ -49,7 +49,6 @@ export interface TabSpec<TState = unknown> {
    *
    * Examples:
    *   - Bombs tab hidden when `unit.unitType === UnitType.CONVENTIONAL_FIGHTER`
-   *   - Glider tab hidden when `unit.tonnage >= 10`
    *   - Field Guns tab hidden when `unit.motionType === SquadMotionType.JUMP`
    *
    * When undefined the tab is always visible.

@@ -2,7 +2,7 @@ name: Lint and Test Guard
 
 # `Lint and Test` is the only required check. If GitHub ever finishes a PR
 # Checks run without creating that job (run 41817202190), this posts a
-# failed `Lint and Test` check on the run's head commit, so a missing report
+# failed `Lint and Test` commit status on the run's head, so a missing report
 # can never look mergeable, even to an admin merge. Cancelled and skipped
 # runs are ignored: they were superseded or never started.
 # scripts/ci/lint-and-test-guard.mjs holds the decision.
@@ -51,9 +51,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          RUN_EVENT: ${{ github.event.workflow_run.event }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-        run: node scripts/ci/lint-and-test-guard.mjs --repo "$REPO" --run "$RUN_ID" --sha "$HEAD_SHA" --conclusion "$CONCLUSION"
+        run: node scripts/ci/lint-and-test-guard.mjs --repo "$REPO" --run "$RUN_ID" --attempt "$RUN_ATTEMPT" --sha "$HEAD_SHA" --conclusion "$CONCLUSION" --event "$RUN_EVENT"
 
       - name: Publish trusted budget approval status for associated PRs
         if: github.event.workflow_run.event == 'pull_request'

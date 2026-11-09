@@ -35,6 +35,8 @@ export interface EquipmentBrowserProps {
   className?: string;
   readOnly?: boolean;
   addHint?: string;
+  /** Restricts the catalog to what the unit family accepts; stable function. */
+  catalogFilter?: (equipment: IEquipmentItem) => boolean;
 }
 
 export function EquipmentBrowser(
@@ -53,8 +55,9 @@ function EquipmentBrowserContent({
   className = '',
   readOnly = false,
   addHint = 'Added to the unit.',
+  catalogFilter,
 }: EquipmentBrowserProps): React.ReactElement {
-  const browser = useEquipmentBrowser();
+  const browser = useEquipmentBrowser({ catalogFilter });
   const unit = useContext(EquipmentBrowserUnitContext);
   const capacity = unit ? getCatalogCapacityNotice(unit) : undefined;
   // At the limit every Add names the notice as its description.

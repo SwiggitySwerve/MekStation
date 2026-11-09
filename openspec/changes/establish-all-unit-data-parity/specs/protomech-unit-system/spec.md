@@ -428,6 +428,32 @@ policy SHALL NOT remain.
 - **THEN** every location of every case SHALL equal the original result
 - **AND** the editor's Auto action, which passes no count, SHALL place the legal total
 
+### Requirement: ProtoMech Equipment Tab
+
+The ProtoMech Equipment tab SHALL offer the catalog items MegaMekLab 62bf193 `ProtoMekUtil.isProtoMekEquipment(eq, proto)` accepts, list the loadout the way `PMEquipmentTab.showInLoadOut` does, and place each mount in a location of this editor. Placement findings SHALL be those of the pinned verifier.
+
+#### Scenario: Items offered
+
+- **WHEN** the Equipment tab lists the catalog
+- **THEN** ammunition SHALL be offered
+- **AND** a weapon or miscellaneous item SHALL be offered only when the catalog lists ProtoMech among its allowed unit types, the catalog form of `F_PROTO_WEAPON` and `F_PROTOMEK_EQUIPMENT`
+- **AND** an item the catalog does not describe SHALL NOT be offered, while placement validation SHALL keep treating an absent list as unknown rather than illegal
+- **AND** the configuration rules of the three-argument form (magnetic clamp on a quad or glider, the club flags) SHALL NOT filter the list, as `UnitUtil.isEntityEquipment` calls the two-argument form
+
+#### Scenario: Loadout list and placement
+
+- **WHEN** the loadout lists a unit's mounts
+- **THEN** jump jets, MASC, partial wing, magnetic clamp and UMU mounts SHALL NOT be listed
+- **AND** an added item SHALL start in the Torso and SHALL be movable to the Left Arm or Right Arm (not on a quad) or to the Main Gun (only when the mount exists)
+- **AND** the slot and weight findings of `getProtoPlacementErrors` SHALL be shown for the whole unit
+- **AND** each edit SHALL persist through save and reopen
+
+#### Scenario: Known gaps
+
+- **GIVEN** the MekStation mount has no shot count, where MegaMekLab merges ammunition into one `LOC_BODY` mount (`PMEquipmentDatabaseView.addProtoMekAmmo`)
+- **THEN** an ammunition item added from the catalog SHALL be a plain mount, and the shot count SHALL remain a recorded residual
+- **AND** the "+2 jump from gliding wings" rule SHALL remain outside this requirement, since it has no pinned citation
+
 ### Requirement: Electric Discharge ProtoMech Armor
 
 The ProtoMech armor owner SHALL represent Standard and Electric Discharge armor

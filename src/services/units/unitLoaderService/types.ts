@@ -11,7 +11,10 @@ import type { ProtoMechState } from '@/stores/protoMechState';
  */
 import type { VehicleState } from '@/stores/vehicleState';
 import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
-import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type {
+  ISerializedFluff,
+  ISerializedStructure,
+} from '@/types/unit/UnitSerialization';
 
 import { UnitState } from '@/stores/unitState';
 
@@ -54,9 +57,7 @@ export interface IRawSerializedUnit {
     readonly type: string;
   };
   readonly cockpit?: string;
-  readonly structure?: {
-    readonly type: string;
-  };
+  readonly structure?: ISerializedStructure;
   readonly armor?: {
     readonly type: string;
     readonly allocation?: Record<
