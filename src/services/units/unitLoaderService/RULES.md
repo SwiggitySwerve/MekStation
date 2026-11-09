@@ -34,6 +34,17 @@ existing location-hint behavior. Native prefixes and display markers such as
 Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
 
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
+Custom mech saves retain category with optional `isAmmo` metadata only when the
+existing ID classifier alone would choose a different ammo/non-ammo category;
+unambiguous portable records retain their literal shape. For optional metadata,
+absent markers remain undefined. The category-qualified catalog lookup selects
+the saved mount's own record before sizing. Older placed saves recover category
+only from complete, consistent resolved criticals with the same saved ID.
+Empty, partial, conflicting or neighbouring placements do not supply category.
+An explicit category without a matching record fails with a diagnostic.
+Ammunition never inherits launcher heat. Derived metadata is omitted from the
+library fingerprint projection; existing edit/draft category tracking and
+literal fingerprint bytes remain unchanged.
 When registry fallback reaches a shared launcher/ammo ID, getMountedById selects
 the token's record through the normalization owner's ammo classification. An
 existing resolved definition retains precedence. Claiming launcher cells cannot

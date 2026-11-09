@@ -24,6 +24,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { TechBase } from '@/types/enums/TechBase';
 
+import { isComponentAllowedForTechMode } from './techBaseValidation.compatibility';
 import {
   filterArmorTypes,
   filterCockpitTypes,
@@ -67,7 +68,9 @@ function createValidator<T>(
   return {
     getValidTypes: filterFn,
     isValid: (value: T, techBase: TechBase) =>
-      filterFn(techBase).includes(value),
+      isComponentAllowedForTechMode(undefined, techBase, (side) =>
+        filterFn(side).includes(value),
+      ),
     getDefault: (techBase: TechBase) =>
       filterFn(techBase)[0] ?? fallbackDefault,
     fallbackDefault,
