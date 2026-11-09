@@ -39,7 +39,10 @@ import {
   resolveVehicleAccessoryMass,
   resolveVehicleVariableMass,
 } from './variableEquipmentMass';
-import { sumVehicleHeatLoad } from './vehicleHeatLoad';
+import {
+  isInsulatorLinkableLaser,
+  sumVehicleHeatLoad,
+} from './vehicleHeatLoad';
 
 /** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
@@ -182,9 +185,7 @@ export function computeVehicleMountedWeightFigures(
       id: equipmentId,
       location: mount.location,
       order,
-      laser:
-        item?.category === EquipmentCategory.ENERGY_WEAPON &&
-        /laser/i.test(item.name),
+      laser: isInsulatorLinkableLaser(item),
       linked: false,
       insulated: false,
       capacitor: false,

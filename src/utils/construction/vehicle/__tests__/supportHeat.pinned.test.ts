@@ -9,9 +9,11 @@ import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehi
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 import { EngineType } from '@/types/construction/EngineType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { computeSupportVehicleWeight } from '../supportWeight';
+import { isInsulatorLinkableLaser } from '../vehicleHeatLoad';
 import { computeVehicleWeightBreakdown } from '../weightComposition';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
@@ -422,4 +424,22 @@ it('charges no sinks under 5 tons whatever it mounts', () => {
   const result = new SupportVehicleUnitHandler().parse(parsed.data.document);
   if (!result.success) throw new Error('handler parse');
   expect(computeSupportVehicleWeight(result.data.unit).heatSinks).toBe(0);
+});
+
+// The one owner of the insulator-link laser rule: an energy weapon whose name
+// says laser, in either category form the callers hold (registry enum for the
+// editor, BV catalog string for the support handler); unresolved is never one.
+it.each([
+  [{ category: EquipmentCategory.ENERGY_WEAPON, name: 'Medium Laser' }, true],
+  [{ category: 'Energy', name: 'ER Small Pulse Laser' }, true],
+  [{ category: EquipmentCategory.ENERGY_WEAPON, name: 'PPC' }, false],
+  [{ category: 'Energy', name: 'Flamer' }, false],
+  [
+    { category: EquipmentCategory.BALLISTIC_WEAPON, name: 'Laser Rifle' },
+    false,
+  ],
+  [{ category: 'Ballistic', name: 'Laser Rifle' }, false],
+  [undefined, false],
+])('classifies %j as an insulator-linkable laser: %s', (item, expected) => {
+  expect(isInsulatorLinkableLaser(item)).toBe(expected);
 });

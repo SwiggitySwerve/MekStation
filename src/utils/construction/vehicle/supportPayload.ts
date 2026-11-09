@@ -14,7 +14,10 @@ import {
 } from './powerAmplifier';
 import { computeTurretWeight } from './turret';
 import { resolveVehicleVariableMass } from './variableEquipmentMass';
-import { sumVehicleHeatLoad } from './vehicleHeatLoad';
+import {
+  isInsulatorLinkableLaser,
+  sumVehicleHeatLoad,
+} from './vehicleHeatLoad';
 
 /** TestEntity.java:631-667,716-769: sum catalog mount weights by kind.
  */
@@ -105,7 +108,7 @@ export function computeSupportPayloadWeights(
       heat,
       energy,
       id: item.id,
-      laser: item.category === 'Energy' && /laser/i.test(item.name),
+      laser: isInsulatorLinkableLaser(item),
       miscHeatExcluded: ammo || weapon,
     };
   });

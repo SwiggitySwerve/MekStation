@@ -6,6 +6,7 @@
 import type { VehicleEngineType } from '@/types/construction/EngineType';
 
 import { EngineType } from '@/types/construction';
+import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 
 import {
   getMountedBVLinkType,
@@ -23,6 +24,33 @@ const MISC_HEAT = new Map([
   ['nova-combined-electronic-warfare-system-cews', 2],
   ['spot-welder', 2],
 ]);
+
+/**
+ * The catalog's energy-weapon category in both representations the callers
+ * hold: the registry enum (editor and combat) and the BV catalog string
+ * (support handler).
+ */
+const ENERGY_WEAPON_CATEGORIES: ReadonlySet<string> = new Set([
+  EquipmentCategory.ENERGY_WEAPON,
+  'Energy',
+]);
+
+/**
+ * Whether a mount is a laser a Laser Insulator can link: an energy weapon whose
+ * name says laser (MekFileParser.java:360-388, 48fcb2f64). The one owner of this
+ * heat-link classification; the id-based RISC target rule (`isRiscLaser`) and the
+ * amplifier basis (`isPowerAmplifierEnergyWeapon`) are different rules.
+ * An unresolved definition is never a laser.
+ */
+export function isInsulatorLinkableLaser(
+  item: { category: string; name: string } | undefined,
+): boolean {
+  return (
+    item !== undefined &&
+    ENERGY_WEAPON_CATEGORIES.has(item.category) &&
+    /laser/i.test(item.name)
+  );
+}
 
 /** One mount as the heat-neutral load sees it (see `sumVehicleHeatLoad`). */
 export interface IHeatLoadMount<Location> {
