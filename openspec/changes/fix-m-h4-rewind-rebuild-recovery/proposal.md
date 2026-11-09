@@ -42,6 +42,13 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   a restart cannot resume past the rebuilt head (follow-up D-2c). Spectators are
   not marked; nothing is persisted.
 
+- The coordinated outcome-correction target blocks its candidate only when it
+  blocks the saga on a non-retryable refusal, and keeps it on a retryable or crash
+  path because a retry reuses the id persisted on the saga. It sweeps earlier
+  `building` candidates that are unsealed and named by no non-blocked saga, and
+  holds and releases its correction lease around the whole record, which it never
+  released before (follow-up D-3b). The saga runner has no production caller yet.
+
 The activated branch of a failed rebuild is not moved to `blocked`:
 `effective -> blocked` is not a legal transition. A failed rebuild is a host
 state, not a branch status.
