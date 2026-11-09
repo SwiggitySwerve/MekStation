@@ -40,6 +40,7 @@ import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { CURRENT_UNIT_SCHEMA_VERSION } from '@/types/contracts/generated/unit.zod';
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { vehicleEditorSchema } from '@/types/unit/VehicleSerialization';
@@ -141,6 +142,7 @@ function serializeEquipment(
 ): ISerializedEquipment[] {
   return equipment.map((item) => ({
     id: item.equipmentId,
+    ...(item.category === EquipmentCategory.AMMUNITION ? { isAmmo: true } : {}),
     location: item.location ?? 'Unallocated',
     // Split mounts are reconstructed from the complete critical grid on reopen.
     ...(item.slots && !item.splitSlots ? { slots: [...item.slots] } : {}),

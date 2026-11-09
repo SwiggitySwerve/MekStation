@@ -11,7 +11,10 @@ import type { ProtoMechState } from '@/stores/protoMechState';
  */
 import type { VehicleState } from '@/stores/vehicleState';
 import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
-import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type {
+  ISerializedEquipmentInput,
+  ISerializedFluff,
+} from '@/types/unit/UnitSerialization';
 
 import { UnitState } from '@/stores/unitState';
 
@@ -74,15 +77,7 @@ export interface IRawSerializedUnit {
     readonly jumpJetType?: string;
     readonly enhancements?: readonly string[];
   };
-  readonly equipment?: ReadonlyArray<{
-    readonly id: string;
-    readonly location: string;
-    readonly slots?: readonly number[];
-    readonly isRearMounted?: boolean;
-    readonly linkedAmmo?: string;
-    readonly isRemovable?: boolean;
-    readonly isOmniPodMounted?: boolean;
-  }>;
+  readonly equipment?: readonly ISerializedEquipmentInput[];
   /**
    * Optional critical slot grid from import sources (e.g., MegaMek).
    * Used as a hint for tech-base variant resolution (Clan vs Inner Sphere) in mixed-tech units.

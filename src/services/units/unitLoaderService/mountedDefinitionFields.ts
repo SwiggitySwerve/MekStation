@@ -1,4 +1,4 @@
-import { IEquipmentItem } from '@/types/equipment';
+import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 
@@ -22,8 +22,12 @@ export function mountedDefinitionFields(
     weight: equipmentDef.weight,
     criticalSlots: equipmentDef.criticalSlots,
     heat:
-      getWeaponById(equipmentDef.id)?.heat ??
-      ('heat' in equipmentDef ? (equipmentDef as { heat: number }).heat : 0),
+      equipmentDef.category === EquipmentCategory.AMMUNITION
+        ? 0
+        : (getWeaponById(equipmentDef.id)?.heat ??
+          ('heat' in equipmentDef
+            ? (equipmentDef as { heat: number }).heat
+            : 0)),
     techBase: equipmentDef.techBase,
   };
 }

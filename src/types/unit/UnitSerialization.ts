@@ -154,6 +154,8 @@ export interface ISerializedMovement {
  */
 export interface ISerializedEquipment {
   readonly id: string;
+  /** Optional mounted category evidence; absence is not a non-ammo default. */
+  readonly isAmmo?: boolean;
   readonly location: string;
   readonly slots?: number[];
   readonly isRearMounted?: boolean;
@@ -161,6 +163,11 @@ export interface ISerializedEquipment {
   readonly isRemovable?: boolean;
   readonly isOmniPodMounted?: boolean;
 }
+
+/** Definition readers accept immutable placements without copying schema facts. */
+export type ISerializedEquipmentInput = Omit<ISerializedEquipment, 'slots'> & {
+  readonly slots?: readonly number[];
+};
 
 /**
  * Serialized critical slots
