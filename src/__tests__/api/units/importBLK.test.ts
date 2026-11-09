@@ -5,8 +5,13 @@ import { createHash } from 'node:crypto';
 
 import type { IBlkDocument } from '@/types/formats/BlkFormat';
 import type { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
+import type { IUnitMountedEquipmentIdentity } from '@/types/unit/MountedEquipmentInterfaces';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
-import type { IUnitTypeHandler } from '@/types/unit/UnitTypeHandler';
+import type {
+  IUnitParseData,
+  IUnitTypeHandler,
+  IUnitValidateResult,
+} from '@/types/unit/UnitTypeHandler';
 
 import customHandler from '@/pages/api/units/custom/[id]';
 import handler from '@/pages/api/units/import';
@@ -74,51 +79,24 @@ it.each(fixtures)(
     );
     const parsed = new BlkParserService().parse(source.blk);
     if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
-    const expected = createProtoMechHandler().parse(parsed.data.document);
-    if (!expected.success) throw new Error(expected.error.errors.join('; '));
-    const res = await post(source.blk);
-    expect(res._getStatusCode()).toBe(201);
-    const id = parseImportResponse(res).data?.unitId;
-    if (!id) throw new Error('Expected saved custom identity');
-    expect(id).toMatch(/^custom-/);
-    const loaded = await reload('protomechs', id);
-    expect(loaded).toMatchObject({
-      success: true,
-      family: 'protomechs',
-      reference: { source: 'custom', family: 'protomechs', id, version: 1 },
-    });
-    if (!loaded.success) throw new Error(loaded.error);
-    expect(loaded.definition).toMatchObject({
-      id,
-      family: 'protomechs',
-      unitType: 'ProtoMech',
-      armor: { byLocation: expected.data.unit.armorByLocation },
-      movement: {
-        cruiseMP: expected.data.unit.cruiseMP,
-        jumpMP: expected.data.unit.jumpMP,
-      },
-    });
-    expect(
-      loaded.definition.equipment?.map(({ id, name, location }) => ({
-        id,
-        name,
-        location,
-      })),
-    ).toEqual(
-      expected.data.unit.equipment.map((mount) => ({
-        id: mount.equipmentId,
-        name: mount.name,
-        location: mount.location,
-      })),
+    const expected = parseExpected(
+      parsed.data.document,
+      createProtoMechHandler(),
     );
-    expect(loaded.definition.blkSource).toMatchObject(
-      JSON.parse(
-        JSON.stringify({
-          text: source.blk,
-          document: parsed.data.document,
-          handlerUnit: expected.data.unit,
-        }),
-      ),
+    await expectSavedImport(
+      'protomechs',
+      source.blk,
+      parsed.data.document,
+      expected,
+      {
+        armor: { byLocation: expected.unit.armorByLocation },
+        movement: {
+          cruiseMP: expected.unit.cruiseMP,
+          jumpMP: expected.unit.jumpMP,
+        },
+      },
+      false,
+      parsed.data.warnings,
     );
   },
 );
@@ -195,6 +173,70 @@ function parseExpected<T extends IBaseUnit>(
   return { ...result.data, diagnostics: handler.validate(result.data.unit) };
 }
 
+type ImportProofUnit = IBaseUnit & {
+  readonly equipment: readonly (IUnitMountedEquipmentIdentity & {
+    readonly location: string;
+  })[];
+};
+
+async function expectSavedImport(
+  family: UnitFamily,
+  text: string,
+  document: IBlkDocument,
+  expected: IUnitParseData<ImportProofUnit> & {
+    readonly diagnostics: IUnitValidateResult;
+  },
+  fields: Record<string, unknown>,
+  invalid = false,
+  parserWarnings: readonly string[] = [],
+) {
+  const { unit } = expected;
+  if (invalid) {
+    expect(expected.diagnostics.isValid).toBe(false);
+    expect(expected.diagnostics.errors.length).toBeGreaterThan(0);
+  }
+  const res = await post(text);
+  expect(res._getStatusCode()).toBe(201);
+  const id = parseImportResponse(res).data?.unitId;
+  if (!id) throw new Error('Expected saved custom identity');
+  expect(id).toMatch(/^custom-/);
+  expect(id).not.toBe(unit.id);
+  expect(getUnitRepository().list()).toHaveLength(1);
+  const loaded = await reload(family, id);
+  expect(loaded).toMatchObject({
+    success: true,
+    family,
+    reference: { source: 'custom', family, id, version: 1 },
+  });
+  if (!loaded.success) throw new Error(loaded.error);
+  expect(loaded.definition).toMatchObject({
+    id,
+    family,
+    unitType: unit.unitType,
+    chassis: document.name,
+    model: document.model,
+    isValid: unit.isValid,
+    validationErrors: unit.validationErrors,
+    equipment: unit.equipment.map((mount) => ({
+      id: mount.equipmentId,
+      name: mount.name,
+      location: mount.location,
+    })),
+    ...fields,
+  });
+  expect(loaded.definition.blkSource).toEqual(
+    JSON.parse(
+      JSON.stringify({
+        text,
+        document,
+        handlerUnit: unit,
+        diagnostics: expected.diagnostics,
+        warnings: [...parserWarnings, ...expected.warnings],
+      }),
+    ),
+  );
+}
+
 async function expectVehicleImport(
   text: string,
   unitType: UnitType,
@@ -209,52 +251,19 @@ async function expectVehicleImport(
       : unitType === UnitType.SUPPORT_VEHICLE
         ? parseExpected(parsed.data.document, createSupportVehicleHandler())
         : parseExpected(parsed.data.document, createVehicleHandler());
-  const { unit } = expected;
-  if (invalid) {
-    expect(expected.diagnostics.isValid).toBe(false);
-    expect(expected.diagnostics.errors.length).toBeGreaterThan(0);
-  }
-  const res = await post(text);
-  expect(res._getStatusCode()).toBe(201);
-  const id = parseImportResponse(res).data?.unitId;
-  if (!id) throw new Error('Expected saved custom identity');
-  expect(id).toMatch(/^custom-/);
-  expect(id).not.toBe(unit.id);
-  expect(getUnitRepository().list()).toHaveLength(1);
-  const loaded = await reload('vehicles', id);
-  expect(loaded).toMatchObject({
-    success: true,
-    family: 'vehicles',
-    reference: { source: 'custom', family: 'vehicles', id, version: 1 },
-  });
-  if (!loaded.success) throw new Error(loaded.error);
-  expect(loaded.definition).toMatchObject({
-    id,
-    family: 'vehicles',
-    unitType,
-    motionType,
-    chassis: parsed.data.document.name,
-    model: parsed.data.document.model,
-    armor: { byLocation: unit.armorByLocation },
-    movement: unit.movement,
-    isValid: unit.isValid,
-    validationErrors: unit.validationErrors,
-    equipment: unit.equipment.map((mount) => ({
-      id: mount.equipmentId,
-      name: mount.name,
-      location: mount.location,
-    })),
-  });
-  expect(loaded.definition.blkSource).toEqual(
-    JSON.parse(
-      JSON.stringify({
-        text,
-        document: parsed.data.document,
-        handlerUnit: unit,
-        diagnostics: expected.diagnostics,
-        warnings: [...parsed.data.warnings, ...expected.warnings],
-      }),
-    ),
+  await expectSavedImport(
+    'vehicles',
+    text,
+    parsed.data.document,
+    expected,
+    {
+      unitType,
+      motionType,
+      armor: { byLocation: expected.unit.armorByLocation },
+      movement: expected.unit.movement,
+    },
+    invalid,
+    parsed.data.warnings,
   );
 }
 

@@ -33,6 +33,21 @@ function parseWithDiagnostics<T extends IBaseUnit>(
     : result;
 }
 
+function parseSupportedDocument(document: IBlkDocument) {
+  switch (document.mappedUnitType) {
+    case UnitType.PROTOMECH:
+      return parseWithDiagnostics(document, createProtoMechHandler());
+    case UnitType.VEHICLE:
+      return parseWithDiagnostics(document, createVehicleHandler());
+    case UnitType.VTOL:
+      return parseWithDiagnostics(document, createVTOLHandler());
+    case UnitType.SUPPORT_VEHICLE:
+      return parseWithDiagnostics(document, createSupportVehicleHandler());
+    default:
+      return undefined;
+  }
+}
+
 /** Source/handler snapshots retain facts absent from the shared definition shape. */
 export async function importBLKDefinition(
   sourceText: unknown,
@@ -55,16 +70,7 @@ export async function importBLKDefinition(
       parsed.error.warnings,
     );
   const { document } = parsed.data;
-  const result =
-    document.mappedUnitType === UnitType.PROTOMECH
-      ? parseWithDiagnostics(document, createProtoMechHandler())
-      : document.mappedUnitType === UnitType.VEHICLE
-        ? parseWithDiagnostics(document, createVehicleHandler())
-        : document.mappedUnitType === UnitType.VTOL
-          ? parseWithDiagnostics(document, createVTOLHandler())
-          : document.mappedUnitType === UnitType.SUPPORT_VEHICLE
-            ? parseWithDiagnostics(document, createSupportVehicleHandler())
-            : undefined;
+  const result = parseSupportedDocument(document);
   if (!result)
     return fail(
       `Unsupported BLK unit type ${document.unitType}; only protomechs and vehicles are supported`,
