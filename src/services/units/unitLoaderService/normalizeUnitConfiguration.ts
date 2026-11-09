@@ -181,6 +181,7 @@ function deriveHeatSinkState(serialized: IRawSerializedUnit): HeatSinkState {
 function deriveArmorState(
   serialized: IRawSerializedUnit,
   techBase: TechBase,
+  configuration: MechConfiguration,
 ): ArmorState {
   const armorType = serialized.armor?.type
     ? mapArmorType(serialized.armor.type, techBase)
@@ -190,7 +191,11 @@ function deriveArmorState(
   return {
     armorType,
     armorAllocation,
-    armorTonnage: calculateArmorTonnage(armorAllocation, armorType),
+    armorTonnage: calculateArmorTonnage(
+      armorAllocation,
+      armorType,
+      configuration,
+    ),
   };
 }
 
@@ -292,15 +297,20 @@ export function normalizeUnitConfiguration(
   const { techBaseMode, techBase } = deriveTechBaseContext(serialized);
   const model = deriveModel(serialized);
   const rulesLevel = deriveRulesLevel(serialized);
+  const configuration = deriveConfigurationState(
+    serialized,
+    techBase,
+    techBaseMode,
+  );
   const normalized = {
     ...deriveIdentityState(serialized, model, rulesLevel, techBase),
-    ...deriveConfigurationState(serialized, techBase, techBaseMode),
+    ...configuration,
     ...deriveEngineState(serialized, techBase),
     gyroType: deriveGyroType(serialized),
     internalStructureType: deriveStructureType(serialized, techBase),
     cockpitType: deriveCockpitType(serialized),
     ...deriveHeatSinkState(serialized),
-    ...deriveArmorState(serialized, techBase),
+    ...deriveArmorState(serialized, techBase, configuration.configuration),
     ...mapMovementConfiguration(serialized.movement),
     equipment,
     armActuators: deriveArmActuators(serialized),

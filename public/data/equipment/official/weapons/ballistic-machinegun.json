@@ -16,7 +16,23 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 1950
+      "introductionYear": 1950,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "light-machine-gun",
@@ -34,7 +50,23 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 3059
+      "introductionYear": 3059,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "heavy-machine-gun",
@@ -52,7 +84,23 @@
       "ammoPerTon": 100,
       "costCBills": 7500,
       "battleValue": 6,
-      "introductionYear": 3058
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-machine-gun",
@@ -70,7 +118,23 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 2825
+      "introductionYear": 2825,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "bamg",
@@ -94,7 +158,8 @@
       "costCBills": 5000,
       "battleValue": 5,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "machine-gun-bearhunter-ac",
@@ -118,7 +183,8 @@
       "costCBills": 0,
       "battleValue": 4,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "machine-gun-bearhunter-aci",
@@ -142,7 +208,8 @@
       "costCBills": 0,
       "battleValue": 9,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "baheavymg",
@@ -166,7 +233,8 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 3050,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "balightmg",
@@ -189,7 +257,8 @@
       "costCBills": 5000,
       "battleValue": 5,
       "introductionYear": 3060,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "hmga",
@@ -213,7 +282,23 @@
       "costCBills": 1250,
       "battleValue": 0,
       "introductionYear": 3069,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lmga",
@@ -237,7 +322,23 @@
       "costCBills": 1250,
       "battleValue": 0,
       "introductionYear": 3069,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mga",
@@ -261,7 +362,23 @@
       "costCBills": 1250,
       "battleValue": 0,
       "introductionYear": 3069,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-light-machine-gun",
@@ -285,7 +402,23 @@
         "long": 6,
         "extreme": 8
       },
-      "ammoPerTon": 200
+      "ammoPerTon": 200,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

@@ -19,7 +19,22 @@
       "introductionYear": 2587,
       "isExplosive": true,
       "extinctionYear": 2865,
-      "reintroductionYear": 3040
+      "reintroductionYear": 3040,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "light-gauss-rifle",
@@ -38,7 +53,23 @@
       "costCBills": 275000,
       "battleValue": 159,
       "introductionYear": 3044,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "heavy-gauss-rifle",
@@ -57,7 +88,23 @@
       "costCBills": 500000,
       "battleValue": 346,
       "introductionYear": 3046,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "ap-gauss-rifle",
@@ -76,7 +123,23 @@
       "costCBills": 8500,
       "battleValue": 21,
       "introductionYear": 3060,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-gauss-rifle",
@@ -95,7 +158,23 @@
       "costCBills": 300000,
       "battleValue": 320,
       "introductionYear": 2817,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "baapgaussrifle",
@@ -119,7 +198,8 @@
       "costCBills": 10000,
       "battleValue": 21,
       "introductionYear": 3061,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "badavidlightgaussrifle",
@@ -143,7 +223,8 @@
       "costCBills": 22500,
       "battleValue": 7,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bagrandmaulergausscannon",
@@ -167,7 +248,8 @@
       "costCBills": 8000,
       "battleValue": 6,
       "introductionYear": 3050,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bakingdavidlightgaussrifle",
@@ -191,7 +273,8 @@
       "costCBills": 30000,
       "battleValue": 7,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamagshotgaussrifle",
@@ -215,7 +298,8 @@
       "costCBills": 10500,
       "battleValue": 15,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "batsunamiheavygaussrifle",
@@ -239,7 +323,8 @@
       "costCBills": 9500,
       "battleValue": 6,
       "introductionYear": 3049,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "naval-gauss-heavy",
@@ -265,7 +350,16 @@
       "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
-      "reintroductionYear": 3052
+      "reintroductionYear": 3052,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "naval-gauss-light",
@@ -291,7 +385,16 @@
       "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
-      "reintroductionYear": 3052
+      "reintroductionYear": 3052,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "naval-gauss-medium",
@@ -317,7 +420,16 @@
       "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
-      "reintroductionYear": 3052
+      "reintroductionYear": 3052,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-gauss-rifle",
@@ -343,7 +455,23 @@
       "introductionYear": 2813,
       "special": [],
       "extinctionYear": 2837,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improvedheavygaussrifle",
@@ -367,7 +495,23 @@
       "costCBills": 700000,
       "battleValue": 385,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "sbgr",
@@ -391,7 +535,23 @@
       "costCBills": 350000,
       "battleValue": 198,
       "introductionYear": 3051,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "gaussrifleprototype",
@@ -417,7 +577,23 @@
       "introductionYear": 2587,
       "special": [],
       "extinctionYear": 2590,
-      "reintroductionYear": 3038
+      "reintroductionYear": 3038,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

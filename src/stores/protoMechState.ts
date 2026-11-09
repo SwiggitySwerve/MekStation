@@ -40,6 +40,8 @@ import {
 } from '@/utils/construction/protomech/protoMechBV';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
+import type { IUnitSaveMetadata } from './unitSaveState';
+
 // =============================================================================
 // ProtoMech Armor/Structure Allocation
 // =============================================================================
@@ -117,7 +119,7 @@ export function createProtoMechMountedEquipment(
 /**
  * Complete state for a single ProtoMech unit
  */
-export interface ProtoMechState {
+export interface ProtoMechState extends IUnitSaveMetadata {
   /** Original catalog facts not expressible by the editor. */
   librarySource?: IUnitContract;
   // =========================================================================
