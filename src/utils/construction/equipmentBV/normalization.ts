@@ -164,12 +164,14 @@ export function getNativeEquipmentLookupToken(equipmentId: string): string {
 }
 
 /**
- * The decorated machine-gun-array mounts whose weight lookup must drop the
- * `(ST)` sponson and `:OMNI` decorators first: the BV catalog matches them by
- * name to a 0.25 t stub, where MegaMek loads the plain array (0.5 t,
- * ISLightMGA.java:69-82 at 48fcb2f64).
+ * The decorated Inner Sphere machine-gun-array mounts (ISMGA, ISLMGA, ISHMGA)
+ * whose weight lookup must drop the `(ST)` sponson and `:OMNI` decorators
+ * first: the BV catalog matches them by name to a 0.25 t stub, where MegaMek
+ * loads the plain array (0.5 t each: ISMGA.java:70-83, ISLightMGA.java:69-82,
+ * ISHeavyMGA.java:70-83 at 48fcb2f64). Clan arrays already resolve to the same
+ * 0.25 t entry with or without the decorator, so they stay out.
  */
-const NATIVE_WEIGHT_TOKEN_MOUNT = /^islmga\(st\)(?::omni)?$/i;
+const NATIVE_WEIGHT_TOKEN_MOUNT = /^is[lh]?mga(?:\(st\)(?::omni)?|:omni)$/i;
 
 /**
  * The single token the weight owners resolve a native mount through. Every
