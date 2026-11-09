@@ -72,8 +72,12 @@ const BATCH_COUNT = readPositiveIntEnv(
 // CI smoke count (N=5) win rates quantize to 0.2 steps, so the ≥10pp deltas
 // can deterministically collapse to 0 when unrelated rules fixes shift seeded
 // outcomes (2026-06-09 audit finding E-5 — that exact collapse blocked PR
-// #801). Smoke runs keep the completion/invariant/ceiling assertions; the
-// win-rate proofs run at the default 100-game batches (local + full-size lane).
+// #801). Smoke runs keep the completion and invariant assertions; the win-rate
+// proofs and the asymmetric dominance ceiling run at the default 100-game
+// batches (local + full-size lane). The asymmetric ceiling is excluded from
+// smoke because a ceiling at N=5 cannot be meaningful for an asymmetric batch:
+// gunnery 2 against gunnery 5 sweeps 5 to 0 about 0.8^5 ≈ 33% of the time, so
+// a shifted dice stream flips it. The N≥100 runs still enforce it.
 const STATISTICAL_PROOF_BATCH_MIN = 100;
 const statisticalIt = BATCH_COUNT >= STATISTICAL_PROOF_BATCH_MIN ? it : it.skip;
 const BATTLE_TURN_CAP = readPositiveIntEnv(
@@ -311,21 +315,24 @@ describe('Pilot skill batch variance (Task 1.9)', () => {
     },
   );
 
-  it('symmetric batch: player and opponent win rates should be roughly balanced (neither side > 90%)', () => {
-    // Sanity check — with equal skills neither side should dominate
-    // completely. The test variable name (`asymmetric`) is a pre-
-    // existing misnomer in this file: the assertion's intent is the
-    // dominance ceiling, not symmetric balance.
-    //
-    // Threshold widened 0.95 → 0.99 (3× variance budget per the
-    // MEMORY rule on perf-test budget widening). Reason: Phase 3 of
-    // `add-combat-fidelity-suite` wired critical hits into the
-    // runner. The skilled-pilot side (gunnery 2) lands more hits +
-    // more crits, accelerating engine destruction; observed batch
-    // win rate climbs from ~0.94 to ~0.97. The dominance ceiling
-    // assertion is preserved (no side reaches a literal 100%); the
-    // exact upper bound is widened to absorb the crit-induced lift.
-    expect(asymmetricResults.playerWinRate).toBeLessThan(0.99);
-    expect(asymmetricResults.opponentWinRate).toBeLessThan(0.99);
-  });
+  statisticalIt(
+    'asymmetric batch: neither side reaches the dominance ceiling (< 99%)',
+    () => {
+      // Sanity check — even with gunnery 2 against gunnery 5 neither side
+      // should win literally every game. The assertions are on the
+      // asymmetric batch (the test was previously titled "symmetric
+      // batch"); they run only at N≥100, see STATISTICAL_PROOF_BATCH_MIN.
+      //
+      // Threshold widened 0.95 → 0.99 (3× variance budget per the
+      // MEMORY rule on perf-test budget widening). Reason: Phase 3 of
+      // `add-combat-fidelity-suite` wired critical hits into the
+      // runner. The skilled-pilot side (gunnery 2) lands more hits +
+      // more crits, accelerating engine destruction; observed batch
+      // win rate climbs from ~0.94 to ~0.97. The dominance ceiling
+      // assertion is preserved (no side reaches a literal 100%); the
+      // exact upper bound is widened to absorb the crit-induced lift.
+      expect(asymmetricResults.playerWinRate).toBeLessThan(0.99);
+      expect(asymmetricResults.opponentWinRate).toBeLessThan(0.99);
+    },
+  );
 });
