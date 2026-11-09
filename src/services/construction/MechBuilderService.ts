@@ -1,5 +1,7 @@
 import type { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
+import type { IEquipmentSlotAllocation } from '@/types/equipment/MountedEquipment';
 import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 /**
@@ -60,6 +62,7 @@ export interface IEditableMech {
   // Heat Sinks
   readonly heatSinkType: HeatSinkType | string;
   readonly heatSinkCount: number;
+  readonly armActuators?: ArmActuatorConfig;
 
   // Equipment
   readonly equipment: readonly IEquipmentSlot[];
@@ -96,6 +99,8 @@ export interface IArmorAllocation {
  * Equipment in a critical slot
  */
 export interface IEquipmentSlot {
+  readonly splitSlots?: IEquipmentSlotAllocation['splitSlots'];
+  readonly spreadSlots?: IEquipmentSlotAllocation['spreadSlots'];
   readonly category?: EquipmentCategory;
   readonly instanceId?: string;
   readonly name?: string;

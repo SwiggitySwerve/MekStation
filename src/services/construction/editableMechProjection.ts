@@ -2,6 +2,7 @@ import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/type
 import type { UnitState } from '@/stores/unitState';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
@@ -60,6 +61,7 @@ export interface IEditableMechProjectionInput {
   readonly armorAllocation: IArmorAllocation;
   readonly heatSinkType: IEditableMech['heatSinkType'];
   readonly heatSinkCount: number;
+  readonly armActuators?: ArmActuatorConfig;
   readonly equipment: readonly IMountedEquipmentInstance[];
 }
 
@@ -89,11 +91,14 @@ export function projectEditableMech(
     armorAllocation: buildEditableArmorAllocation(state.armorAllocation),
     heatSinkType: state.heatSinkType,
     heatSinkCount: state.heatSinkCount,
+    armActuators: state.armActuators,
     equipment: state.equipment.map((item) => ({
       instanceId: item.instanceId,
       name: item.name,
       category: item.category,
       slots: item.slots,
+      splitSlots: item.splitSlots,
+      spreadSlots: item.spreadSlots,
       criticalSlots: item.criticalSlots,
       isRearMounted: item.isRearMounted,
       equipmentId: item.equipmentId,
@@ -133,6 +138,21 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
     source,
     context?.equipment,
     mech.equipment,
+    context
+      ? {
+          configuration: mech.configuration ?? MechConfiguration.BIPED,
+          engineType: mech.engineType as EngineType,
+          gyroType: mech.gyroType as UnitState['gyroType'],
+          cockpitType: mech.cockpitType,
+          armActuators: mech.armActuators,
+          structureType: mech.structureType,
+          armorType: mech.armorType,
+          heatSinkType: mech.heatSinkType,
+          heatSinkCount: mech.heatSinkCount,
+          engineRating: mech.engineRating,
+          baseline: context.types,
+        }
+      : undefined,
   );
   const a = mech.armorAllocation;
   const effectiveConfiguration =

@@ -26,3 +26,14 @@ Cockpit-specific topology is supplied by `CockpitType.ts` through `topology.ts`.
 Grid rendering, placement warnings, fill, compact and sort pass the selected
 cockpit, including their scheduled automatic variants. Callers that omit the
 optional cockpit retain the legacy Standard layout.
+
+`sourceGrid.ts` owns the source/current critical-grid projection shared by editor
+construction and saving. Unchanged native tokens and explicit empty arrays survive
+at every active location. Matching consumes design/allocation facts, never temporary
+mount IDs. Moves and removals clear all split/spread portions before new portions
+are written. Current fixed systems and changed component allocations replace stale
+source cells through the existing topology, source-token and component owners.
+Inactive configuration locations are discarded. Source-backed saves use this complete
+projection; context-free saves retain their legacy byte representation and absence.
+Reopening retains the supplied arrays; equipment ID/category reconciliation and MTF
+export remain separate owners. Complete native grids can expose those residuals.
