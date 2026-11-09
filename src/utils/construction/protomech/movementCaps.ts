@@ -15,6 +15,8 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import { getBaseEngineWeight } from '@/utils/construction/engineCalculations';
 
+import { partialWingJumpBonus } from './partialWing';
+
 // =============================================================================
 // MP cap table
 // =============================================================================
@@ -62,19 +64,24 @@ export function computeRunMP(
 /**
  * Jump MP the editor shows: the stored jump MP plus the Partial Wing bonus.
  * Pinned MegaMek 48fcb2f64 ProtoMek.getJumpMP (ProtoMek.java:452-492) adds the
- * bonus only for a mounted Partial Wing: +2 in a standard or thin atmosphere (+3
- * high, +1 trace, 0 otherwise, ProtoMek.java:470-487). The editor has no
- * atmosphere, so it shows the standard +2, as MML 62bf193 MovementView.java
- * :456-465 does. A glider has no bonus of its own: it is WiGE, uses its walk MP
- * to fly, and MML pins its jump spinner at 0 (MovementView.java:265-268). The
- * bonus is a display value only; BV and validation read the stored jump MP
- * (BV_CALCULATION ignores weather).
+ * bonus only for a mounted Partial Wing; its table lives in `partialWing.ts`, the
+ * one owner of that rule. The editor has no atmosphere, so it asks for the
+ * standard one (+2), as MML 62bf193 MovementView.java:456-465 shows. A glider has
+ * no bonus of its own: it is WiGE, uses its walk MP to fly, and MML pins its jump
+ * spinner at 0 (MovementView.java:265-268). The bonus is a display value only; BV
+ * and validation read the stored jump MP (BV_CALCULATION ignores weather).
  */
 export function effectiveJumpMP(
   baseJumpMP: number,
   hasPartialWing: boolean,
 ): number {
-  return hasPartialWing ? baseJumpMP + 2 : baseJumpMP;
+  return (
+    baseJumpMP +
+    partialWingJumpBonus('standard', {
+      wingWorking: hasPartialWing,
+      ignoreWeather: false,
+    })
+  );
 }
 
 /**

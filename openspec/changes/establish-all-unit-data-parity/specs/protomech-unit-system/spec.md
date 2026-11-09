@@ -479,6 +479,7 @@ The editor SHALL show jump MP as pinned MegaMek `48fcb2f64` `ProtoMek.getJumpMP`
 
 - **WHEN** a ProtoMech has a mounted Partial Wing
 - **THEN** the effective jump the editor shows SHALL be the stored jump MP plus 2, the standard-atmosphere bonus of ProtoMek.java:470-487, as MML 62bf193 `MovementView.java:456-465` shows
+- **AND** the bonus table (+3 very high or high, +2 standard or thin, +1 trace, otherwise 0, and 0 when the wing is not working or weather is ignored) SHALL be implemented once, by the pure `partialWingJumpBonus` owner that gameplay movement also uses
 - **AND** a unit without a Partial Wing SHALL show no effective-jump bonus, glider or not
 - **AND** BV and validation SHALL keep reading the stored jump MP, since the bonus applies only when weather is not ignored and BV ignores it
 

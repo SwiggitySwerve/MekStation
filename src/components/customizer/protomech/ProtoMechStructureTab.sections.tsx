@@ -199,7 +199,9 @@ export function ProtoMechMovementSection({
             <span className="text-text-theme-primary">
               {controls.effectiveJump}
             </span>
-            <span className="ml-1 text-blue-400">(+2 Partial Wing)</span>
+            <span className="ml-1 text-blue-400">
+              (+{controls.effectiveJump - controls.jumpMP} Partial Wing)
+            </span>
           </span>
         )}
       </div>

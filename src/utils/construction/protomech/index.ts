@@ -45,6 +45,13 @@ export {
   PROTO_ENGINE_WEIGHT_FACTOR,
 } from './movementCaps';
 
+// Partial Wing jump bonus: the single, pure owner shared with gameplay
+export { partialWingJumpBonus } from './partialWing';
+export type {
+  PartialWingAtmosphere,
+  PartialWingJumpContext,
+} from './partialWing';
+
 // Main Gun and arm placement (pinned slot, weight and weapon-legality rules)
 export {
   getProtoLocationSlotLimit,
