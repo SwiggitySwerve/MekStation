@@ -7,8 +7,7 @@
  * `(set, get)` pair as the api slice so consumers can compose them as
  * thin pass-throughs.
  *
- * Behavior is byte-for-byte identical to the original inline
- * implementation — only the call site moved.
+ * Mutations succeed only after their subsequent list reload succeeds.
  */
 
 import { canTransitionPilotStatus } from '@/services/pilots/pilotStatus';
@@ -19,6 +18,8 @@ import type {
   PilotSetFn,
   SuccessResponse,
 } from './usePilotStore.types';
+
+import { reloadPilotsAfterMutation } from './usePilotStore.api';
 
 /** Wound count above which a pilot is automatically marked KIA. */
 const WOUNDS_FOR_KIA = 6;
@@ -45,8 +46,7 @@ async function postWithSuccess(
     const data = (await response.json()) as SuccessResponse;
 
     if (data.success) {
-      await get().loadPilots();
-      return true;
+      return await reloadPilotsAfterMutation(set, get);
     }
     set({ error: data.error || errorFallback });
     return false;
