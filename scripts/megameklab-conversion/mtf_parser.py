@@ -18,7 +18,6 @@ from enum_mappings import (
     map_mech_location,
     map_mech_config,
     map_rules_level,
-    map_structure_type,
     map_tech_base,
     map_unit_type,
     map_year_to_era,
@@ -36,7 +35,6 @@ from mtf_serialized_models import (
     SerializedGyro,
     SerializedHeatSinks,
     SerializedMovement,
-    SerializedStructure,
     SerializedUnit,
 )
 
@@ -343,7 +341,7 @@ class MTFParser:
         # Parse structure
         structure_str = data.get('structure', 'Standard')
         structure = build_structure(
-            data.get('config', ''), structure_str, data.get('location_structure', {}))
+            data.get('config', ''), structure_str, data.get('location_structure', {}), data.get('techbase', ''))
 
         # Parse heat sinks
         hs_data = data.get('heat_sinks', {'count': 10, 'type': 'Single'})

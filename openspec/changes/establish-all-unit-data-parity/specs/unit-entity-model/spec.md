@@ -261,3 +261,29 @@ remain absent; zero, false and empty transporter lists SHALL survive round trips
 - **AND** code 7 SHALL retain PATCHWORK alongside its explicit per-arc codes
 
 Catalog hydration, construction validity, equipment/export and BV remain open.
+
+### Requirement: FrankenMek donor structure metadata
+
+Both MTF importers SHALL preserve explicit per-location structure types in the
+optional `structure.typeByLocation` map alongside existing donor tonnages.
+Canonical structure identities and location names SHALL share schema definitions.
+An absent map SHALL preserve legacy global-structure behavior; old documents
+SHALL remain readable without adding inferred donor types.
+
+#### Scenario: Typed donors cross the import boundary
+
+- **GIVEN** a FrankenMek with IS and Clan donor structures
+- **WHEN** either importer reads the native MTF
+- **THEN** the donor types and tonnages SHALL survive schema validation
+- **AND** unprefixed types SHALL use the chassis tech base while explicit qualifiers retain their identity
+- **AND** an unknown explicit native type SHALL fail with its location and spelling
+
+#### Scenario: Missing donor declarations and old documents
+
+- **GIVEN** missing or scalar Hybrid donor declarations
+- **WHEN** imported
+- **THEN** their omitted type entries SHALL retain native Standard defaults
+- **AND** existing tonnage payloads SHALL remain unchanged
+- **GIVEN** an old document without `typeByLocation`
+- **WHEN** validated
+- **THEN** the map SHALL remain absent and its existing structure data SHALL remain unchanged

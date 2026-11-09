@@ -24,7 +24,7 @@ FRANKEN_STRUCTURE_LOCATIONS = {
 
 
 def build_structure(config: str, structure: str,
-                    values: Dict[str, str]) -> SerializedStructure:
+                    values: Dict[str, str], tech_base: str = '') -> SerializedStructure:
     """Per-location structure tonnage of a FrankenMek (MtfFile.java:362-411,669-702).
 
     Hybrid structure, or a value with its own type, is `<type>:<tonnage>`;
@@ -35,6 +35,8 @@ def build_structure(config: str, structure: str,
         return SerializedStructure(type=structure_type)
     hybrid = structure.strip().lower() == 'hybrid'
     tonnage: Dict[str, int] = {}
+    types: Dict[str, str] = {}
+    clan = bool(re.fullmatch(r'(?:Clan|Mixed\s*\(Clan Chassis\))', tech_base.strip(), re.IGNORECASE))
     for code, value in values.items():
         location = FRANKEN_STRUCTURE_LOCATIONS.get(code)
         if location is None or not value.strip():
@@ -44,7 +46,10 @@ def build_structure(config: str, structure: str,
             tonnage[location] = int(raw.strip())
         except ValueError as error:
             raise ValueError(f'Invalid FrankenMek structure tonnage for {code}: {raw}') from error
-    return SerializedStructure(type=structure_type, locationTonnage=tonnage or None)
+        if ':' in value or not hybrid:
+            name = value.rsplit(':', 1)[0].strip() if ':' in value else structure.strip()
+            types[location] = map_structure_type(name, code, clan)
+    return SerializedStructure(type=structure_type, locationTonnage=tonnage or None, typeByLocation=types)
 
 
 def franken_structure_tonnage(config: str, structure: str,

@@ -25,6 +25,33 @@ const UnitSchemaVersion = z
 export const unitSchemaVersionOf = (unit: {
   readonly schemaVersion?: string;
 }) => unit.schemaVersion ?? CURRENT_UNIT_SCHEMA_VERSION;
+const SchemaDef_structureType = z
+  .enum([
+    'STANDARD',
+    'ENDO_STEEL',
+    'ENDO_STEEL_CLAN',
+    'ENDO_COMPOSITE',
+    'REINFORCED',
+    'COMPOSITE',
+    'INDUSTRIAL',
+    'ENDO_COMPOSITE_CLAN',
+  ])
+  .describe('Internal structure type');
+const SchemaDef_structureLocation = z.enum([
+  'HEAD',
+  'CENTER_TORSO',
+  'LEFT_TORSO',
+  'RIGHT_TORSO',
+  'LEFT_ARM',
+  'RIGHT_ARM',
+  'LEFT_LEG',
+  'RIGHT_LEG',
+  'FRONT_LEFT_LEG',
+  'FRONT_RIGHT_LEG',
+  'REAR_LEFT_LEG',
+  'REAR_RIGHT_LEG',
+  'CENTER_LEG',
+]);
 const SchemaDef_componentTechBase = z.enum(['INNER_SPHERE', 'CLAN']);
 const SchemaDef_standardArmorType = z
   .enum([
@@ -210,22 +237,20 @@ export const UnitContract = z
           .describe('Cockpit type'),
         structure: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'ENDO_STEEL',
-                'ENDO_STEEL_CLAN',
-                'ENDO_COMPOSITE',
-                'REINFORCED',
-                'COMPOSITE',
-                'INDUSTRIAL',
-                'ENDO_COMPOSITE_CLAN',
-              ])
-              .describe('Internal structure type'),
+            type: SchemaDef_structureType,
             locationTonnage: z
               .record(z.string(), z.number().int().gte(1))
               .describe(
                 'FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)',
+              )
+              .optional(),
+            typeByLocation: z
+              .partialRecord(
+                SchemaDef_structureLocation,
+                SchemaDef_structureType,
+              )
+              .describe(
+                'Explicit FrankenMek donor types; missing entries use native defaults. An absent map preserves legacy global structure behavior.',
               )
               .optional(),
           })
@@ -702,22 +727,20 @@ export const UnitContract = z
           .optional(),
         structure: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'ENDO_STEEL',
-                'ENDO_STEEL_CLAN',
-                'ENDO_COMPOSITE',
-                'REINFORCED',
-                'COMPOSITE',
-                'INDUSTRIAL',
-                'ENDO_COMPOSITE_CLAN',
-              ])
-              .describe('Internal structure type'),
+            type: SchemaDef_structureType,
             locationTonnage: z
               .record(z.string(), z.number().int().gte(1))
               .describe(
                 'FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)',
+              )
+              .optional(),
+            typeByLocation: z
+              .partialRecord(
+                SchemaDef_structureLocation,
+                SchemaDef_structureType,
+              )
+              .describe(
+                'Explicit FrankenMek donor types; missing entries use native defaults. An absent map preserves legacy global structure behavior.',
               )
               .optional(),
           })

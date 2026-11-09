@@ -115,6 +115,9 @@ export interface ISerializedStructure {
   readonly type: string;
   /** FrankenMek only: structure tonnage per location (MtfFile.java:669-691). */
   readonly locationTonnage?: Readonly<Record<string, number>>;
+  /** Explicit FrankenMek donor types; omitted entries use native defaults.
+   * Absence of the entire map preserves legacy, global-structure behavior. */
+  readonly typeByLocation?: Readonly<Record<string, string>>;
 }
 
 /**

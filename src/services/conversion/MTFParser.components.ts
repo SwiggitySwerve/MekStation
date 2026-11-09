@@ -71,6 +71,10 @@ export function parseStructure(
   if (!config.includes('FrankenMek')) return { type };
   const hybrid = structure.trim().toLowerCase() === 'hybrid';
   const tonnage: Record<string, number> = {};
+  const typeByLocation: Record<string, string> = {};
+  const clan = /^(?:Clan|Mixed\s*\(Clan Chassis\))$/i.test(
+    parseField(lines, 'techbase') ?? '',
+  );
   for (const [code, location] of Object.entries(MTF_LOCATION_CODES)) {
     const value = parseField(lines, `${code} structure`);
     if (!value) continue;
@@ -80,10 +84,17 @@ export function parseStructure(
         `Invalid FrankenMek structure tonnage for ${code}: ${raw}`,
       );
     tonnage[location] = Number(raw);
+    const split = value.lastIndexOf(':');
+    // Java ignores scalar Hybrid entries and initializes missing donors to Standard.
+    if (split >= 0 || !hybrid) {
+      const name = split >= 0 ? value.slice(0, split).trim() : structure.trim();
+      typeByLocation[location] = mapStructureType(name, code, clan);
+    }
   }
   return {
     type,
     ...(Object.keys(tonnage).length ? { locationTonnage: tonnage } : {}),
+    typeByLocation,
   };
 }
 
