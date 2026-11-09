@@ -52,6 +52,7 @@ export function getEditableUnitSnapshot(state: UnitState): UnitEditSnapshot {
     engineRating: state.engineRating,
     gyroType: state.gyroType,
     internalStructureType: state.internalStructureType,
+    frankenStructure: state.frankenStructure,
     cockpitType: state.cockpitType,
     heatSinkType: state.heatSinkType,
     heatSinkCount: state.heatSinkCount,

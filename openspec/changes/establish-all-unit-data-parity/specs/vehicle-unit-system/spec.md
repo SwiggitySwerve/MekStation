@@ -938,7 +938,7 @@ Native Tank construction weight SHALL select armor technology through the shared
 armor owner using the pinned weight verifier's technology-level semantics.
 Only an absent armor technology tag SHALL inherit the chassis side; explicit
 unknown level -1 SHALL select IS density. Native Tank weight transport SHALL
-reuse the guarded lookup-token owner only for ISLMGA(ST) and its :OMNI form,
+reuse the guarded lookup-token owner only for decorated Inner Sphere arrays,
 retaining original source identity and mount flags. Public equipment lookup
 identities SHALL remain unchanged, including the legacy lmga target for these
 decorated inputs. Existing catalog
@@ -1262,3 +1262,26 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **GIVEN** Ibex RV (Militarized MG) whose pintle weapon is reported as not a support-vehicle weapon
 - **WHEN** its support weight is calculated
 - **THEN** its pintles SHALL be reported unresolved and SHALL NOT be weighed as zero
+
+### Requirement: Decorated Inner Sphere arrays weigh as the plain array in every weight owner
+
+A decorated Inner Sphere machine-gun array (ISMGA, ISLMGA or ISHMGA with `(ST)`,
+`(ST):OMNI` or `:OMNI`) SHALL weigh 0.5 tons in both the combat vehicle weight
+transport and the support vehicle weight, through one shared lookup-token owner.
+Clan arrays SHALL remain 0.25 tons, every other source token SHALL keep its
+ordinary lookup, and public equipment lookup identities SHALL remain unchanged.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ISMGA.java:70-83`, `ISLightMGA.java:69-82` and `ISHeavyMGA.java:70-83`.
+
+#### Scenario: The array family shares one token
+
+- **GIVEN** the decorated tokens ISMGA(ST), ISLMGA(ST), ISHMGA(ST), their `:OMNI` forms and ISMGA:OMNI
+- **WHEN** the native weight lookup token is selected
+- **THEN** each SHALL select the plain array identity and a Clan or plain array token SHALL be left unchanged
+
+#### Scenario: The Dreadnought Land Train equals the pinned Java total
+
+- **GIVEN** the Dreadnought Mk II Land Train with two ISMGA(ST) arrays on its sponsons
+- **WHEN** its support weight is calculated
+- **THEN** weapons SHALL be 32 tons, miscellaneous equipment 10 tons and the total 200 tons, equal to the pinned verifier

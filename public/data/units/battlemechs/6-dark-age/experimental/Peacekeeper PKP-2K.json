@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "ANTI_PENETRATIVE_ABLATION",
     "allocation": {
       "LEFT_ARM": 27,
       "RIGHT_ARM": 27,
