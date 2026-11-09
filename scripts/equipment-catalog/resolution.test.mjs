@@ -10,22 +10,9 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
 const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
-// These identity corrections and the named residual are approved exceptions. All other
+// These Java identity corrections are approved exceptions. All other
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
-  // TEMPORARY C2-approved residual: loader ownTechSide loses the [IS] suffix.
-  // Census: parity-2.1-b/b5/clan-caseii/implementation/cleared-conversion/
-  // canonical-slotless-census.json: 0/9815 corpus paths, 0/9828 public JSON files.
-  // PR-2, after C3 #3211, must delete this entry and make the case resolve caseii.
-  {
-    api: 'unitLoaderClan',
-    name: 'CASE II [IS]',
-    oldTarget: 'caseii',
-    newTarget: 'clan-caseii',
-    literalName: true,
-    reason:
-      'C2-approved known ownTechSide suffix residual; 0 affected corpus paths per canonical-slotless-census.json; remove in PR-2 after #3211',
-  },
   // Pinned plain Clan CASE II; MiscType.java:4839-4845 at 48fcb2f64.
   ...[
     ['unitLoaderClan', 'CASE II'],
