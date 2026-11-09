@@ -44,6 +44,12 @@ export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
 
  */
 
+export interface IAerospaceAmmoBVPools {
+  readonly total: number;
+  readonly available: Readonly<Record<string, number>>;
+  readonly cap: Readonly<Record<string, number>>;
+}
+
 export function calculateAerospaceAmmoBV(
   equipment: readonly IAerospaceBVEquipment[],
 
@@ -51,7 +57,15 @@ export function calculateAerospaceAmmoBV(
   nativeGroups = false,
 ): number {
   if (ammo.length === 0) return 0;
+  return calculateAerospaceAmmoBVPools(equipment, ammo, nativeGroups).total;
+}
 
+/** The actual grouping maps used by the existing capped-ammo calculation. */
+export function calculateAerospaceAmmoBVPools(
+  equipment: readonly IAerospaceBVEquipment[],
+  ammo: readonly IAerospaceBVAmmo[],
+  nativeGroups = false,
+): IAerospaceAmmoBVPools {
   // Bucket weapon BV by normalized equipment id so ammo entries can match.
 
   const weaponBVByType: Record<string, number> = {};
@@ -97,11 +111,12 @@ export function calculateAerospaceAmmoBV(
 
   // Cap each bucket at the matching weapon BV total.
 
-  return sumCappedAmmoBV(ammoBVByType, (key) => {
+  const total = sumCappedAmmoBV(ammoBVByType, (key) => {
     const weaponBV = weaponBVByType[key] ?? 0;
 
     return weaponBV === 0 ? undefined : weaponBV;
   });
+  return { total, available: ammoBVByType, cap: weaponBVByType };
 }
 
 /** Shared crew table with G4/P5 defaults. */
