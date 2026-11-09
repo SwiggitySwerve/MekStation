@@ -18,8 +18,8 @@ import type { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterface
 import { getAerospaceEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
+import { getAerospaceArcs } from '@/types/construction/aerospaceArcLabels';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
@@ -53,25 +53,20 @@ export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTon
 
 /**
  * Translate the store's keyed arc armor into the record-sheet
- * `{ arc: { current, maximum } }` map. The store keys are the four arc
- * location enum strings (Nose / Left Wing / Right Wing / Aft) which match the
- * extractor's `ARC_ORDER` labels exactly.
+ * `{ arc: { current } }` map, keyed by the label the sheet prints for this
+ * hull (small craft: Left Side/Right Side; fighters: wings). The store keys
+ * stay the persisted `AerospaceLocation` values.
+ *
+ * No `maximum`: MML `UnitUtil.getMaxArmor` has no per-arc cap for aerospace,
+ * so echoing `current` would print a fabricated cap on the skeleton fallback.
  */
 function toArmorArcs(
   allocation: IAerospaceArmorAllocation,
-): Record<string, { current: number; maximum: number }> {
-  const arcs: AerospaceLocation[] = [
-    AerospaceLocation.NOSE,
-    AerospaceLocation.LEFT_WING,
-    AerospaceLocation.RIGHT_WING,
-    AerospaceLocation.AFT,
-  ];
-  const result: Record<string, { current: number; maximum: number }> = {};
-  for (const arc of arcs) {
-    const points = allocation[arc] ?? 0;
-    // Maximum is unknown from the store alone — use the allocated value.
-    result[arc] = { current: points, maximum: points };
-  }
+  smallCraft: boolean,
+): Record<string, { current: number }> {
+  const result: Record<string, { current: number }> = {};
+  for (const { arc, label } of getAerospaceArcs(smallCraft))
+    result[label] = { current: allocation[arc] ?? 0 };
   return result;
 }
 
@@ -114,7 +109,12 @@ export function buildAerospaceUnitObject(
       count: input.heatSinks,
     },
     armorType: String(input.armorType),
-    armorArcs: toArmorArcs(input.armorAllocation),
+    // MML PrintEntity.drawArmor prints "BAR: n" for support craft with BAR armor.
+    barRating: input.isFixedWingSupport ? input.barRating : undefined,
+    armorArcs: toArmorArcs(
+      input.armorAllocation,
+      input.unitType === UnitType.SMALL_CRAFT,
+    ),
     bombBaySlots: input.hasBombBay ? input.bombCapacity : 0,
     equipment: input.equipment.map((eq) => ({
       id: eq.id,

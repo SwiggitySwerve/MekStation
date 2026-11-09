@@ -18,6 +18,7 @@ import {
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { logger } from '@/utils/logger';
 
+import { transitionMissionStatus } from '../missionStatusMachine';
 import { awardKillXP, awardScenarioXP } from '../progression/xpAwards';
 
 // =============================================================================
@@ -349,11 +350,11 @@ export function applyContractDelta(
     nextStatus = MissionStatus.PARTIAL;
   }
 
-  const updated: IContract = {
-    ...mission,
-    status: nextStatus,
-    updatedAt: new Date().toISOString(),
-  };
+  const moved = transitionMissionStatus(mission, nextStatus, 'post-battle');
+  if (!moved.ok) {
+    return { contract: mission, previousStatus, flippedToTerminal: false };
+  }
+  const updated = moved.mission;
   missions.set(updated.id, updated);
 
   // Per `wire-encounter-to-campaign-round-trip` Wave 5 §9: a flip

@@ -1,14 +1,22 @@
 import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { assertMatchStatusTransition } from '@/types/multiplayer/MatchStatus';
 
 import type { IMatchMeta, IMatchMetaPatch, IMatchStore } from './IMatchStore';
 
 import { RoomCodeCollisionError } from './IMatchStore';
 
-/** Match metadata patch semantics shared by both server stores. */
+/**
+ * Match metadata patch semantics shared by both server stores. This is the
+ * one writer every status change passes through, so it owns the transition
+ * guard: an illegal edge throws before anything is merged or persisted.
+ */
 export function patchMatchMeta(
   before: IMatchMeta,
   patch: IMatchMetaPatch,
 ): IMatchMeta {
+  if (patch.status !== undefined) {
+    assertMatchStatusTransition(before.status, patch.status);
+  }
   const { roomCode: patchRoomCode, ...restPatch } = patch;
   const roomCode =
     patchRoomCode === null ? undefined : (patchRoomCode ?? before.roomCode);

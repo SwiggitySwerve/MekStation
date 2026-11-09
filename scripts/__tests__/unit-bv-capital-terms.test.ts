@@ -53,6 +53,28 @@ function weaponsByLocation(
   return groups;
 }
 
+/** The complete large aerospace breakdown of a pinned converted source. */
+function completeFromSource(source: (typeof pinned)[number]['unit']) {
+  const byArc = Object.fromEntries(
+    Object.entries(source.armor.byArc).map(([arc, points]) => {
+      if (typeof points !== 'number') throw new Error('Invalid trace armor');
+      return [arc, points];
+    }),
+  );
+  const result = calculateBattleValueForUnit(
+    contractUnitToBVUnit({
+      ...source,
+      armor: { ...source.armor, byArc },
+    } as Parameters<typeof contractUnitToBVUnit>[0]),
+  );
+  if (result?.kind !== 'dropship' && result?.kind !== 'capital-ship')
+    throw new Error('Expected large aerospace');
+  const b = result.breakdown;
+  if (b.calculationScope !== 'complete')
+    throw new Error('Expected complete scope');
+  return b;
+}
+
 test('large aerospace exposes summary before rounding and preserves incomplete scope', () => {
   expect(calculateLargeAerospaceBV(unit)).toMatchObject({
     calculationScope: 'defensive-only',
@@ -145,24 +167,7 @@ describe('capital per-mount weapon terms (MegaMek 48fcb2f64 LargeAeroBVCalculato
   test.each(pinned)(
     '$path matches the pinned Java per-location weapon terms',
     ({ unit: source, terms: java }) => {
-      const byArc = Object.fromEntries(
-        Object.entries(source.armor.byArc).map(([arc, points]) => {
-          if (typeof points !== 'number')
-            throw new Error('Invalid trace armor');
-          return [arc, points];
-        }),
-      );
-      const result = calculateBattleValueForUnit(
-        contractUnitToBVUnit({
-          ...source,
-          armor: { ...source.armor, byArc },
-        } as Parameters<typeof contractUnitToBVUnit>[0]),
-      );
-      if (result?.kind !== 'dropship' && result?.kind !== 'capital-ship')
-        throw new Error('Expected large aerospace');
-      const b = result.breakdown;
-      if (b.calculationScope !== 'complete')
-        throw new Error('Expected complete scope');
+      const b = completeFromSource(source);
       const ours = weaponsByLocation(b);
       const theirs = weaponsByLocation(java);
       expect(Object.keys(ours).sort()).toEqual(Object.keys(theirs).sort());
@@ -175,6 +180,112 @@ describe('capital per-mount weapon terms (MegaMek 48fcb2f64 LargeAeroBVCalculato
           .flat()
           .reduce((sum, value) => sum + value, 0),
         b.weaponFirePoolBV,
+      );
+    },
+  );
+});
+
+describe('capital native ammo terms (MegaMek 48fcb2f64 assembleAmmo/processAmmo)', () => {
+  const ammoTerms = (
+    terms: Record<string, unknown>,
+    kind: 'cap' | 'available' | 'arc',
+  ): Record<string, number> =>
+    Object.fromEntries(
+      Object.entries(terms).filter(
+        (entry): entry is [string, number] =>
+          entry[0].startsWith(`ammo.${kind}.`) && typeof entry[1] === 'number',
+      ),
+    );
+  const mg = (location: string, rear = false) => [
+    { equipmentId: `${rear ? 'r-' : ''}machine-gun`, location },
+    { equipmentId: `${rear ? 'r-' : ''}is-ammo-mg-full:200`, location },
+  ];
+
+  test('a defensive-only design projects no ammo terms', () => {
+    const terms = calculateLargeAerospaceBV({
+      ...unit,
+      equipment: mg('AFT'),
+    });
+    expect(Object.keys(terms).filter((key) => key.startsWith('ammo.'))).toEqual(
+      [],
+    );
+  });
+
+  test('cap and available are unweighted and keyed by BV-arc index and native group', () => {
+    const terms = completeTerms(mg('AFT'));
+    expect(ammoTerms(terms, 'cap')).toEqual({ 'ammo.cap.3:MG:2': 5 });
+    expect(ammoTerms(terms, 'available')).toEqual({
+      'ammo.available.3:MG:2': 1,
+    });
+  });
+
+  test('a rear mount uses its BV arc index while its location stays physical', () => {
+    const terms = completeTerms(mg('LEFT_SIDE', true));
+    // Left Side (R) is BV arc 2; Java's weapon abbreviation stays LS.
+    expect(Object.keys(ammoTerms(terms, 'cap'))).toEqual(['ammo.cap.2:MG:2']);
+    expect(Object.keys(ammoTerms(terms, 'available'))).toEqual([
+      'ammo.available.2:MG:2',
+    ]);
+    expect(Object.keys(weaponsByLocation(terms))).toEqual(['LS']);
+  });
+
+  test('a depleted bin keeps its weapon cap but has no availability', () => {
+    const terms = completeTerms([
+      { equipmentId: 'machine-gun', location: 'AFT' },
+      { equipmentId: 'is-ammo-mg-full:0', location: 'AFT' },
+    ]);
+    expect(Object.keys(ammoTerms(terms, 'cap'))).toEqual(['ammo.cap.3:MG:2']);
+    expect(ammoTerms(terms, 'available')).toEqual({});
+  });
+
+  test('screen launchers keep Java cap entry without becoming offensive', () => {
+    // Java lists nose launchers as one cap entry: Hamilcar (3084) is 480 (3 x 160).
+    const terms = completeTerms([
+      { equipmentId: 'b-screen-launcher', location: 'NOSE' },
+      { equipmentId: 'screen-launcher', location: 'NOSE' },
+      { equipmentId: 'screen-launcher', location: 'NOSE' },
+      { equipmentId: 'ammo-screen:20', location: 'NOSE' },
+    ]);
+    expect(ammoTerms(terms, 'cap')).toEqual({
+      'ammo.cap.0:SCREEN_LAUNCHER:0': 480,
+    });
+    expect(ammoTerms(terms, 'available')).toEqual({});
+    expect(terms.weaponBV).toBe(0);
+    expect(terms.ammoBV).toBe(0);
+    expect(weaponKeys(terms)).toEqual([]);
+  });
+
+  test('every arc reports its weighted, capped ammo, including zeros', () => {
+    const terms = completeTerms(mg('AFT'));
+    expect(Object.keys(ammoTerms(terms, 'arc')).sort()).toEqual([
+      'ammo.arc.Aft',
+      'ammo.arc.Left Side',
+      'ammo.arc.Left Side (R)',
+      'ammo.arc.Nose',
+      'ammo.arc.Right Side',
+      'ammo.arc.Right Side (R)',
+    ]);
+    near(ammoTerms(terms, 'arc')['ammo.arc.Aft'], 1);
+    near(
+      Object.values(ammoTerms(terms, 'arc')).reduce((sum, v) => sum + v, 0),
+      terms.ammoBV,
+    );
+  });
+
+  test.each(pinned)(
+    '$path matches the pinned Java ammo caps, availability and arcs',
+    ({ unit: source, terms: java }) => {
+      const b = completeFromSource(source);
+      for (const kind of ['cap', 'available', 'arc'] as const) {
+        const ours = ammoTerms(b, kind);
+        const theirs = ammoTerms(java, kind);
+        expect(Object.keys(ours).sort()).toEqual(Object.keys(theirs).sort());
+        for (const [key, value] of Object.entries(theirs))
+          near(ours[key], value);
+      }
+      near(
+        Object.values(ammoTerms(b, 'arc')).reduce((sum, v) => sum + v, 0),
+        b.ammoBV,
       );
     },
   );
