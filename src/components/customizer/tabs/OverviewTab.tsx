@@ -21,6 +21,7 @@ import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
 import { customizerStyles as cs } from '../styles';
 import { BuildSummaryCard } from './overview/BuildSummaryCard';
 import { ComponentTechnologyCard } from './overview/ComponentTechnologyCard';
+import { CrewCard } from './overview/CrewCard';
 import { OverviewIssueSummary } from './overview/OverviewIssueSummary';
 import { useBuildReadiness } from './overview/useBuildReadiness';
 import { useOverviewBuildSummary } from './overview/useOverviewBuildSummary';
@@ -84,6 +85,8 @@ export function OverviewTab({
             onNavigate={onNavigate}
           />
         </div>
+
+        <CrewCard readOnly={readOnly} className="min-w-0 @4xl:col-span-2" />
 
         {readOnly && (
           <div className={`${cs.panel.notice} @4xl:col-span-2`}>

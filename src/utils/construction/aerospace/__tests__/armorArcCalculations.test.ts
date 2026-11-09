@@ -1,10 +1,8 @@
 /**
  * Aerospace per-arc armor allocation invariants.
  *
- * Each arc has a tonnage-multiplier:
- *   ASF/CF: Nose 0.28, LWing/RWing 0.20, Aft 0.12, Sides 0
- *   SmallCraft: Nose 0.28, LSide/RSide 0.20, Aft 0.12, Wings 0
- * maxArcArmorPoints = floor(tonnage × factor).
+ * Existing fighter factors stay stable. Small-craft locations have no
+ * independent maximum; their SI-based total is owned by armor.ts.
  */
 
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
@@ -77,9 +75,9 @@ describe('maxArcArmorPoints — ASF/CF', () => {
 describe('maxArcArmorPoints — small craft', () => {
   const subType = AerospaceSubType.SMALL_CRAFT;
 
-  it('uses sides instead of wings (0.20 factor)', () => {
-    expect(maxArcArmorPoints(AerospaceArc.LEFT_SIDE, 200, subType)).toBe(40);
-    expect(maxArcArmorPoints(AerospaceArc.RIGHT_SIDE, 200, subType)).toBe(40);
+  it('has no independent limit on small-craft sides', () => {
+    expect(maxArcArmorPoints(AerospaceArc.LEFT_SIDE, 200, subType)).toBeNull();
+    expect(maxArcArmorPoints(AerospaceArc.RIGHT_SIDE, 200, subType)).toBeNull();
   });
 
   it('returns 0 for wings on small craft', () => {
@@ -96,9 +94,9 @@ describe('maxTotalArmorPoints', () => {
     );
   });
 
-  it('sums all arcs for small craft (Nose + LSide + RSide + Aft)', () => {
+  it('requires more than tonnage to determine a small-craft total', () => {
     // 200 t SC: 56 + 40 + 40 + 24 = 160
-    expect(maxTotalArmorPoints(200, AerospaceSubType.SMALL_CRAFT)).toBe(160);
+    expect(maxTotalArmorPoints(200, AerospaceSubType.SMALL_CRAFT)).toBeNull();
   });
 });
 
@@ -111,15 +109,9 @@ describe('arcMaxMap', () => {
     expect(map[AerospaceArc.AFT]).toBe(6);
   });
 
-  it('returns non-zero side arcs for small craft (regression: side factors must not collapse to 0)', () => {
-    // Guards the SMALL_CRAFT_ARC_FACTORS table: if a side factor is ever
-    // zeroed, a small craft silently loses its side-arc armor cap and a
-    // player can "build" one with no side armor and no validation error.
+  it('exposes no independent small-craft arc limits', () => {
     const map = arcMaxMap(200, AerospaceSubType.SMALL_CRAFT);
-    expect(map[AerospaceArc.NOSE]).toBe(56);
-    expect(map[AerospaceArc.LEFT_SIDE]).toBe(40);
-    expect(map[AerospaceArc.RIGHT_SIDE]).toBe(40);
-    expect(map[AerospaceArc.AFT]).toBe(24);
+    for (const arc of SMALL_CRAFT_ARCS) expect(map[arc]).toBeNull();
   });
 });
 
@@ -209,35 +201,39 @@ describe('maxArcArmorPointsForLocation — caps drop from 10× misleading displa
       100,
       AerospaceSubType.AEROSPACE_FIGHTER,
     );
-    expect(nose + lw + rw + aft).toBe(
+    const maxima = [nose, lw, rw, aft];
+    expect(maxima).not.toContain(null);
+    expect(maxima.reduce<number>((sum, max) => sum + (max ?? 0), 0)).toBe(
       maxTotalArmorPoints(100, AerospaceSubType.AEROSPACE_FIGHTER),
     );
   });
 
-  it('small craft via the wing-location bridge: wings yield 0 (sides are AerospaceArc-only)', () => {
-    // AerospaceLocation has no LEFT_SIDE / RIGHT_SIDE today — small-craft
-    // side-arc UI routing is the deferred audit P1 work. Wing locations on a
-    // small craft therefore yield 0 via the bridge, matching that scope guard.
+  it('maps stored Wing keys to Side arcs without imposing a location cap', () => {
     expect(
-      maxArcArmorPointsForLocation(
+      mapAerospaceLocationToArc(
         AerospaceLocation.LEFT_WING,
-        200,
         AerospaceSubType.SMALL_CRAFT,
       ),
-    ).toBe(0);
+    ).toBe(AerospaceArc.LEFT_SIDE);
     expect(
-      maxArcArmorPointsForLocation(
-        AerospaceLocation.NOSE,
-        200,
+      mapAerospaceLocationToArc(
+        AerospaceLocation.RIGHT_WING,
         AerospaceSubType.SMALL_CRAFT,
       ),
-    ).toBe(56);
-    expect(
-      maxArcArmorPointsForLocation(
-        AerospaceLocation.AFT,
-        200,
-        AerospaceSubType.SMALL_CRAFT,
-      ),
-    ).toBe(24);
+    ).toBe(AerospaceArc.RIGHT_SIDE);
+    for (const location of [
+      AerospaceLocation.NOSE,
+      AerospaceLocation.LEFT_WING,
+      AerospaceLocation.RIGHT_WING,
+      AerospaceLocation.AFT,
+    ]) {
+      expect(
+        maxArcArmorPointsForLocation(
+          location,
+          200,
+          AerospaceSubType.SMALL_CRAFT,
+        ),
+      ).toBeNull();
+    }
   });
 });
