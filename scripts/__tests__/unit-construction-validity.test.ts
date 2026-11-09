@@ -64,6 +64,45 @@ test('distinguishes disagreeing validity and missing reference/local results', (
   ).toContain('duplicate: battlearmor/unit.blk');
 });
 
+test('compares BattleMech MTF validity like any other family and keeps a disagreement visible', () => {
+  const mtf = { path: 'meks/unit.mtf', sha256: 'c'.repeat(64) };
+  const mech = (javaValid: boolean, localValid: boolean) =>
+    buildValidityReport(
+      [
+        {
+          ...mtf,
+          constructionValidity: {
+            isValid: localValid,
+            errors: [],
+            warnings: [],
+            infos: [],
+          },
+        },
+      ],
+      [
+        {
+          ...mtf,
+          concreteFamily: 'BipedMek',
+          battleValue: {
+            total: 100,
+            aggregates: { defensiveValue: 60, offensiveValue: 40 },
+          },
+          construction: { valid: javaValid },
+        },
+      ],
+      ['battlemechs'],
+    );
+  expect(mech(true, true)).toMatchObject({ ok: true });
+  expect(mech(true, true).byFamily.battlemechs).toMatchObject({
+    matched: 1,
+    missingLocal: 0,
+  });
+  const javelin = mech(false, true);
+  expect(javelin.ok).toBe(false);
+  expect(javelin.rows[0].status).toBe('different');
+  expect(javelin.errors).toContain('different: meks/unit.mtf');
+});
+
 test('preserves captured validation failure and unsupported-weight reasons without a match', () => {
   const failure = { failure: 'Error: Validation unavailable' };
   const result = buildValidityReport(

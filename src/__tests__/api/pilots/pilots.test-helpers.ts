@@ -341,6 +341,46 @@ describe('POST /api/pilots - Create pilot', () => {
     expect(res.status).toHaveBeenCalledWith(201);
   });
 
+  it('forwards reviewed random skills while retaining the service random source default', async () => {
+    const identity = { name: 'Reviewed Pilot' };
+    const skills = { gunnery: 2, piloting: 3 };
+    mockPilotService.createRandom.mockReturnValue({
+      success: true,
+      id: 'reviewed-random',
+    });
+    mockPilotService.getPilot.mockReturnValue(
+      createMockPilot({ id: 'reviewed-random', skills }),
+    );
+    const res = createMockResponse();
+    await indexHandler(
+      createMockRequest('POST', { mode: 'random', identity, skills }),
+      res,
+    );
+    expect(mockPilotService.createRandom).toHaveBeenCalledWith(
+      identity,
+      undefined,
+      skills,
+    );
+    expect(res.status).toHaveBeenCalledWith(201);
+  });
+
+  it.each([null, '2/3', {}, { gunnery: '2', piloting: 3 }, { gunnery: 2 }])(
+    'rejects malformed reviewed skills %p before calling the service',
+    async (skills) => {
+      const res = createMockResponse();
+      await indexHandler(
+        createMockRequest('POST', {
+          mode: 'random',
+          identity: { name: 'Reviewed Pilot' },
+          skills,
+        }),
+        res,
+      );
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(mockPilotService.createRandom).not.toHaveBeenCalled();
+    },
+  );
+
   it('should reject request without mode', async () => {
     const req = createMockRequest('POST', {});
     const res = createMockResponse();

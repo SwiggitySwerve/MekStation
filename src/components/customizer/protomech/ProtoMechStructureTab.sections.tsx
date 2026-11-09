@@ -5,10 +5,8 @@ import { formatTons } from '@/utils/formatting';
 import { customizerStyles as cs } from '../styles';
 import {
   CHASSIS_LABELS,
-  MAIN_GUN_WEAPON_OPTIONS,
   type useProtoMechChassisControls,
   type useProtoMechIdentityControls,
-  type useProtoMechMainGunControls,
   type useProtoMechMovementControls,
   type useProtoMechTonnageControls,
 } from './ProtoMechStructureTab.logic';
@@ -17,7 +15,6 @@ type IdentityControls = ReturnType<typeof useProtoMechIdentityControls>;
 type ChassisControls = ReturnType<typeof useProtoMechChassisControls>;
 type TonnageControls = ReturnType<typeof useProtoMechTonnageControls>;
 type MovementControls = ReturnType<typeof useProtoMechMovementControls>;
-type MainGunControls = ReturnType<typeof useProtoMechMainGunControls>;
 
 interface ReadOnlyProps {
   readOnly: boolean;
@@ -233,54 +230,6 @@ export function ProtoMechMovementSection({
           </label>
         )}
       </div>
-    </div>
-  );
-}
-
-export function ProtoMechMainGunSection({
-  readOnly,
-  controls,
-}: ReadOnlyProps & {
-  controls: MainGunControls;
-}): React.ReactElement {
-  return (
-    <div className={cs.panel.main}>
-      <h3 className={cs.text.sectionTitle}>Main Gun</h3>
-      <label className="mb-4 flex cursor-pointer items-center gap-2">
-        <input
-          type="checkbox"
-          checked={controls.hasMainGun}
-          onChange={controls.handleMainGunChange}
-          disabled={readOnly}
-          className="border-border-theme bg-surface-raised rounded"
-        />
-        <span className="text-text-theme-primary text-sm">Main Gun Mount</span>
-      </label>
-
-      {controls.hasMainGun && (
-        <div>
-          <label className={cs.text.label}>Weapon</label>
-          <select
-            value={controls.mainGunWeaponId ?? ''}
-            onChange={controls.handleMainGunWeaponChange}
-            disabled={readOnly}
-            className={cs.select.full}
-          >
-            <option value="">-- select weapon --</option>
-            {MAIN_GUN_WEAPON_OPTIONS.map(({ id, label }) => (
-              <option key={id} value={id}>
-                {label}
-              </option>
-            ))}
-          </select>
-          {controls.hasUnapprovedMainGunWeapon && (
-            <p className="mt-1 text-xs text-red-400">
-              This weapon is not in the approved main-gun list
-              (VAL-PROTO-MAIN-GUN).
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 }
