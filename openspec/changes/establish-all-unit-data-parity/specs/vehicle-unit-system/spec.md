@@ -1021,6 +1021,47 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **WHEN** resolved
 - **THEN** each SHALL resolve to the same record as before
 
+### Requirement: Native combat VTOL construction weight
+
+Combat VTOLs SHALL expose a complete typed `VehicleWeightBreakdown` through the
+same construction owners as Tanks. Rotor mass SHALL be the existing lifting
+term, counted once. Native chin turret, engine, armor and transporter facts SHALL
+reach those owners. Only complete parses SHALL publish computed `totalWeight`
+and `remainingTonnage`; incomplete mass SHALL remain unavailable through the
+typed API. The legacy number-only handler API SHALL retain its explicit failure.
+
+Source: MegaMek `48fcb2f64`, `TestTank.java:178-270`, `VTOL.java:729-731`,
+`BLKVTOLFile.java:90-195` and `TestEntity.java:1011-1032`.
+
+#### Scenario: Native components determine the VTOL total
+
+- **GIVEN** Skadi Swift, Garuda Heavy and Onuris A sources
+- **WHEN** the native VTOL breakdown is requested
+- **THEN** their totals SHALL equal the pinned verifier's 30, 40 and 30 tons
+- **AND** Skadi's chin SHALL weigh 1 ton, Garuda's structure SHALL weigh 8 tons and Onuris's engine-based booster SHALL weigh 0.5 tons
+- **AND** rotor mass SHALL use each source's lifting term without a second charge
+
+#### Scenario: Computed mass differs from design tonnage
+
+- **GIVEN** Marten Scout, Balac Hybrid, Hawk Moth II, Warrior H-7F and Warrior HX-9 sources
+- **WHEN** their complete construction mass is published
+- **THEN** their totals SHALL equal 13.5, 24.5, 24, 20.5 and 20.5 tons respectively
+- **AND** remaining tonnage SHALL equal design tonnage minus that computed mass
+
+#### Scenario: Incomplete mass remains unavailable
+
+- **GIVEN** a loadable VTOL with unresolved mounted mass or unsupported construction
+- **WHEN** the native breakdown is requested
+- **THEN** it SHALL return unavailable and SHALL NOT publish a computed subtotal
+- **AND** the legacy number-only API SHALL still throw its incomplete-weight error
+
+#### Scenario: VTOL loader controls and Omni allowance reach the shared owners
+
+- **GIVEN** a Ferret with a no-controls tag and an Omni Skadi with a 2-ton chin allowance
+- **WHEN** their complete native mass is calculated
+- **THEN** Ferret SHALL retain 0.5 tons of controls because its loader ignores that Tank-only tag
+- **AND** Skadi SHALL weigh 31 tons and SHALL receive an overweight diagnostic
+
 ## ADDED Requirements
 
 ### Requirement: Pinned vehicle armor limits and allocation
@@ -1169,3 +1210,35 @@ verifier weapon and ammunition terms.
 - **GIVEN** a support chassis mounting a wrecking ball, a flail or a sized cargo bay
 - **WHEN** the construction handler weighs it
 - **THEN** they SHALL weigh 4, 5 and 20 tons and the torpedo ammunition bin SHALL weigh 1 ton
+
+### Requirement: Small support vehicle weapon mass
+
+A support vehicle under 5 tons SHALL weigh its weapons at their pinned type
+tonnage, SHALL take an Omni chassis's fixed fire-control mass when positive, and
+SHALL report as unresolved, never guess, a weapon beyond its first clip (its
+ammunition weight is not carried) and a weapon whose identity is not a legal
+support-vehicle weapon. A support structure mass SHALL NOT read the structure
+type.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestSupportVehicle.java:760-788,980-988` and `MiscType.java:707-711`.
+
+#### Scenario: Small support vehicles equal the pinned Java terms
+
+- **GIVEN** Hoverbike, Assuan Armored Bike, Harpoon ParaSub, Beast Riot Car, TrackBike, Rumbler-HT and the Omni Boreas Cavalry Hovercraft A and Prime
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Boreas fire control SHALL weigh its fixed chassis 0.01 tons
+
+#### Scenario: Unmodelled terms are reported, not guessed
+
+- **GIVEN** Rock Rover RRV (Speed) with a size-2 Support Laser, and Ibex RV (Militarized MG) with `Machine Gun (Light)(PT)`
+- **WHEN** their support weight is calculated
+- **THEN** the first SHALL report its clip ammunition mass unresolved and fall short of Java by exactly 0.003 tons
+- **AND** the second SHALL report the battle-armor gun as not a support-vehicle weapon and SHALL NOT charge its 0.075 tons
+
+#### Scenario: An unknown structure type does not move a support structure mass
+
+- **GIVEN** a support chassis with internal type -1, 0 or none
+- **WHEN** its structure mass is calculated
+- **THEN** it SHALL be 13.5 tons and the total 59.5 tons in each case

@@ -32,6 +32,7 @@ import {
   type PhysicalAttackLimb,
   type PhysicalAttackType,
 } from '@/utils/gameplay/physicalAttacks';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 
@@ -339,7 +340,7 @@ export function ejectInteractiveSessionUnit(
   if (session.currentState.status !== GameStatus.Active) return;
 
   const unit = session.currentState.units[unitId];
-  if (!unit || unit.destroyed || unit.hasRetreated || unit.hasEjected) return;
+  if (!unit || !getUnitOperability(unit).onField) return;
 
   appendAndPersistInteractiveSessionEvent(
     context,

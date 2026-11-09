@@ -1,10 +1,44 @@
 import type { VehicleBVInput } from '../../src/utils/construction/vehicle/vehicleBVTypes';
 
+import prime from '../../public/data/units/vehicles/Boreas Cavalry Hovercraft (Prime).json';
+import boreas from '../../public/data/units/vehicles/Boreas Cavalry Hovercraft A.json';
+import monocycle from '../../public/data/units/vehicles/Monocycle.json';
 import { GroundMotionType } from '../../src/types/unit/BaseUnitInterfaces';
 import { vehicleBVTerms } from '../../src/utils/construction/vehicle/bvTrace';
 import { calculateVehicleBV } from '../../src/utils/construction/vehicle/vehicleBVCalculator';
 import { calculateRow } from '../vehicle-aero-bv-delta';
 import fixture from './fixtures/vehicle_aero_contract_bv.json';
+
+// Pinned 48fcb2f64 loaded-entity reference: positive clips carry zero generic BV.
+test.each([
+  {
+    source: boreas,
+    path: 'vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft A.blk',
+    bv: 30,
+  },
+  {
+    source: prime,
+    path: 'vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk',
+    bv: 78,
+  },
+  {
+    source: monocycle,
+    path: 'vehicles/TRO Irregulars/Smalls/Monocycle.blk',
+    bv: 81,
+  },
+])(
+  'per-term adapter preserves $source.id BV and exposes its implicit ammo',
+  ({ source, path, bv }) => {
+    const row = calculateRow(
+      { unit: source, path, sha256: 'a'.repeat(64) },
+      true,
+    );
+    expect(row.reason).toBeUndefined();
+    expect(row.figure?.total).toBe(bv);
+    expect(row.figure?.terms?.['ammo.available.INFANTRY:0']).toBe(0);
+    expect(row.figure?.terms).not.toHaveProperty(['ammo.cap.INFANTRY:0']);
+  },
+);
 
 test('vehicle adapter exposes type, penalty and weight without folding them into TMM', () => {
   const source = fixture.units[0];

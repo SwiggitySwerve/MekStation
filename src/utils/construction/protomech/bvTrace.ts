@@ -53,6 +53,13 @@ export function protoMechBVTerms(
     equipmentTerms[`equipment.native.${location.index}.${fact.equipmentId}`] =
       fact.battleValue;
   }
+  for (const fact of b.resolvedZeroEquipmentMountBV ?? []) {
+    const location =
+      fact.nativeLocation ?? nativeLocations.get(fact.location)?.index;
+    if (location === undefined) continue;
+    equipmentTerms[`equipment.native.${location}.${fact.equipmentId}`] =
+      fact.battleValue;
+  }
   const available: Record<string, number> = {};
   for (const fact of b.ammoAvailableMountBV ?? []) {
     addBVToAmmoCapGroup(available, fact.nativeGroup, fact.battleValue);

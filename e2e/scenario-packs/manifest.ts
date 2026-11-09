@@ -108,7 +108,7 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     // `MATCH_LOG_DB_VERSION` (`matchLogStorageSchema.ts:4`) at mint time —
     // strictly equal-checked by `loadEncounterPack` (design D3), never a
     // ladder-tolerant pin (no migration ladder exists for this store).
-    pins: { matchLogDbVersion: 2 },
+    pins: { matchLogDbVersion: 3 },
     postLoadActions: [],
   },
   {

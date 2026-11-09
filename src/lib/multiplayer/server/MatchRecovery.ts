@@ -44,6 +44,7 @@ import { logger } from '@/utils/logger';
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 
 import { revisionForMatchSequence } from './history/matchStoreBranchSegmentReader';
+import { releaseLeftoverSpectators } from './lobby/spectatorBootSweep';
 import { matchStoreHistoryReader } from './MatchCheckpointHistory';
 import { markMatchCompleted } from './matchCompletion';
 import { consultMatchRecoveryJournalHead } from './MatchRecoveryJournalHead';
@@ -200,6 +201,10 @@ export async function recoverActiveMatches(
 
   for (const meta of active) {
     if (matchId !== undefined && meta.matchId !== matchId) continue;
+    // The full pass is the boot pass: no socket survived the restart, so
+    // persisted spectator seats are crash leftovers. A scoped pass is the
+    // runtime co-op rebuild, where a fresh registration must stay.
+    if (matchId === undefined) await releaseLeftoverSpectators(store, meta);
     try {
       // A committed rewind leaves a non-root effective branch. Fold
       // that path here — the store log is still the untruncated line.

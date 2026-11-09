@@ -6,6 +6,8 @@
  */
 import { z } from 'zod';
 
+import type { IReferenceIdentity } from './unit-bv-provenance';
+
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
 import {
   areHandlersInitialized,
@@ -285,6 +287,7 @@ export function buildQuantityReport(
   families: readonly string[] = FAMILIES,
   localSettings: LocalSettingFn = defaultLocalSetting,
   rawExtra: readonly unknown[] = [],
+  referenceIdentity?: Partial<IReferenceIdentity>,
 ): IQuantityReport {
   const references = rawReferences.map((value) =>
     QuantityReference.parse(value),
@@ -449,6 +452,7 @@ export function buildQuantityReport(
         };
       }),
     localSettings,
+    referenceIdentity,
   );
   drift.push(...settings.drift);
   errors.push(...drift, ...settings.errors);
