@@ -1587,10 +1587,8 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
       PSRTrigger.Shutdown,
       PSRTrigger.StandingUp,
       PSRTrigger.EnteringRubble,
-      PSRTrigger.RunningRoughTerrain,
       PSRTrigger.MovingOnIce,
       PSRTrigger.EnteringWater,
-      PSRTrigger.ExitingWater,
       PSRTrigger.Skidding,
       PSRTrigger.SwampBogDown,
       PSRTrigger.SwampUnstuck,
@@ -1610,7 +1608,14 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
   ).toEqual([]);
   expect(
     supportIdsByLevel(RUNNER_PSR_TRIGGER_COMBAT_SUPPORT, 'out-of-scope'),
-  ).toEqual([PSRTrigger.ChargeMiss, PSRTrigger.DFAMiss].sort());
+  ).toEqual(
+    [
+      PSRTrigger.ChargeMiss,
+      PSRTrigger.DFAMiss,
+      PSRTrigger.RunningRoughTerrain,
+      PSRTrigger.ExitingWater,
+    ].sort(),
+  );
   const damageAndCriticalPsrTriggers = [
     PSRTrigger.PhaseDamage20Plus,
     PSRTrigger.LegDamage,

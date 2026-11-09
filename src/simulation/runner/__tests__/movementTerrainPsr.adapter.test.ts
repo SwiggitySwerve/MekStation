@@ -83,7 +83,6 @@ describe('runner queueMovementTerrainPSRs adapter', () => {
     expect(plannedPsrs.map((psr) => psr.reasonCode)).toEqual([
       PSRTrigger.EnteringWater,
       PSRTrigger.EnteringRubble,
-      PSRTrigger.ExitingWater,
       PSRTrigger.SwampBogDown,
     ]);
     expect(next.units.m1.pendingPSRs).toEqual(plannedPsrs);
@@ -124,15 +123,6 @@ describe('runner queueMovementTerrainPSRs adapter', () => {
       ],
       [
         2,
-        3,
-        GamePhase.Movement,
-        PSRTrigger.ExitingWater,
-        0,
-        'movement-step:1',
-        4,
-      ],
-      [
-        3,
         3,
         GamePhase.Movement,
         PSRTrigger.SwampBogDown,
