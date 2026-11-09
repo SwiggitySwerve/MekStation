@@ -1,5 +1,6 @@
 import { SuperHeavyVehicleLocation } from '@/types/construction/UnitLocation';
 
+import type { OffensiveBVConfig } from '../battleValueOffensive';
 import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type {
   VehicleWeaponMount,
@@ -11,16 +12,13 @@ import type {
 } from './vehicleBVTypes';
 
 import {
+  calculateAmmoBVPools,
   extractWeaponTypeFromAmmoId,
   getCatalogAmmoBVGroup,
   getNativeAmmoBVGroup,
   getMachineGunArrayBVGroup,
 } from '../battleValueAmmo';
 import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
-import {
-  calculateAmmoBVWithExcessiveCap,
-  type OffensiveBVConfig,
-} from '../battleValueOffensive';
 import {
   applyTargetingComputerBV,
   applyDroneWeaponBV,
@@ -321,9 +319,8 @@ export function calculateVehicleOffensiveBV(
       bv: entry.listedBV,
     }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);
-  const ammoBV =
-    calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries) *
-    fireControlFactor;
+  const ammoPools = calculateAmmoBVPools(perWeaponBVs, ammoEntries);
+  const ammoBV = ammoPools.total * fireControlFactor;
   const offensiveEquipmentBV = calculateVehicleOffensiveEquipmentBV(
     input.offensiveEquipment,
   );
