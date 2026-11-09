@@ -12,12 +12,11 @@ import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
 import { calculateGyroWeight } from '@/utils/construction/gyroCalculations';
 import { calculateHeatSinkWeight } from '@/utils/construction/heatSinkCalculations';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+import { calculateStructureWeight } from '@/utils/construction/structureCalculations';
 
 /**
  * Parameters for structural weight calculation
@@ -82,12 +81,10 @@ export function calculateStructuralWeight(
   const gyroWeight = calculateGyroWeight(engineRating, gyroType as GyroType);
 
   // Structure weight
-  const structureDef = getInternalStructureDefinition(
+  const structureWeight = calculateStructureWeight(
+    tonnage,
     internalStructureType as InternalStructureType,
   );
-  const structureWeight = structureDef
-    ? ceilToHalfTon(tonnage * structureDef.weightMultiplier)
-    : ceilToHalfTon(tonnage * 0.1);
 
   // Cockpit weight
   const cockpitDef = getCockpitDefinition(cockpitType as CockpitType);
@@ -148,12 +145,10 @@ export function getStructureWeight(
   tonnage: number,
   internalStructureType: string,
 ): number {
-  const structureDef = getInternalStructureDefinition(
+  return calculateStructureWeight(
+    tonnage,
     internalStructureType as InternalStructureType,
   );
-  return structureDef
-    ? ceilToHalfTon(tonnage * structureDef.weightMultiplier)
-    : ceilToHalfTon(tonnage * 0.1);
 }
 
 /**
