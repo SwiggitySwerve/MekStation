@@ -354,3 +354,30 @@ finding SHALL NOT be rules.
 - **WHEN** checking torso, head or leg placement
 - **THEN** this requirement SHALL NOT enforce it, because the torso needs the armor slot and variable weights
 - **AND** the live `protomech-unit-system` statement that a quad cannot have a main gun SHALL be reconciled separately, because the pinned corpus contains a quad ultraheavy with one
+
+### Requirement: ProtoMech Auto Armor Allocation
+
+The construction owner SHALL place armor as MegaMekLab 62bf193 does in
+`PMStructureTab.autoAllocateArmor` and `allocateLeftoverPoints`, using the armor
+limits of the ProtoMech Armor Limits requirement. The proportional MekStation
+policy SHALL NOT remain.
+
+#### Scenario: Proportional pass and leftover order
+
+- **WHEN** allocating a point count to a ProtoMech
+- **THEN** each location SHALL first take its limit times the count over the total cap, truncated and never more than remain, in the order Head, Torso, Right Arm, Left Arm, Legs, Main Gun
+- **AND** a count above the total cap SHALL be treated as the cap
+- **AND** leftover points SHALL go one at a time to the torso, legs, head, then both arms, then the head again when a main gun is mounted
+- **AND** a Quad SHALL start the leftover with the legs and SHALL have no arm step
+
+#### Scenario: Points aimed at a full location
+
+- **WHEN** edited internal structure leaves the location limits unable to hold the count
+- **THEN** a leftover point aimed at a full location SHALL be dropped, as upstream drops it
+- **AND** the placed total SHALL NOT exceed the count or the cap
+
+#### Scenario: Agreement with MegaMekLab
+
+- **WHEN** the owner is run over the pinned table of 2,944 allocations from the original classes
+- **THEN** every location of every case SHALL equal the original result
+- **AND** the editor's Auto action, which passes no count, SHALL place the legal total
