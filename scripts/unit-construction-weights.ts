@@ -5,6 +5,9 @@
  */
 import { z } from 'zod';
 
+import type { IBlkDocument } from '../src/types/formats/BlkFormat';
+import type { VehicleWeightBreakdown } from '../src/utils/construction/vehicle/weightComposition';
+
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
 import {
   areHandlersInitialized,
@@ -12,8 +15,13 @@ import {
 } from '../src/services/units/handlers/initializeHandlers';
 import { createSupportRegistryMass } from '../src/services/units/handlers/supportRegistryMass';
 import { SupportVehicleUnitHandler } from '../src/services/units/handlers/SupportVehicleUnitHandler';
-import { computeNativeTankWeight } from '../src/services/units/handlers/vehicleHandlerWeight';
+import {
+  computeNativeTankWeight,
+  computeNativeVTOLWeight,
+  rejectIncompleteCombatVehicleWeight,
+} from '../src/services/units/handlers/vehicleHandlerWeight';
 import { VehicleUnitHandler } from '../src/services/units/handlers/VehicleUnitHandler';
+import { VTOLUnitHandler } from '../src/services/units/handlers/VTOLUnitHandler';
 import {
   UnitLoaderService,
   type IRawSerializedUnit,
@@ -21,7 +29,9 @@ import {
 import { getUnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
 import {
   isSupportVehicle,
+  isVTOL,
   type ISupportVehicle,
+  type IVTOL,
 } from '../src/types/unit/VehicleInterfaces';
 import { computeSupportVehicleWeight } from '../src/utils/construction/vehicle/supportWeight';
 import { getEquipmentPayloadWeight } from '../src/utils/equipment/equipmentWeightAccounting';
@@ -544,10 +554,9 @@ const unavailableReason = (unitType: string): string => {
   return `${unitType}: no local additive weight seam on main`;
 };
 
-function mapTankWeights(
-  weights: NonNullable<ReturnType<typeof computeNativeTankWeight>>,
-  tonnage: number,
-): ILocalWeights {
+function mapCombatVehicleWeightTerms(
+  weights: VehicleWeightBreakdown,
+): Pick<ILocalWeights, 'terms' | 'groups'> {
   const terms: Record<string, number> = {};
   const put = (key: string, value: number | null | undefined) => {
     if (typeof value === 'number') terms[key] = value;
@@ -572,6 +581,15 @@ function mapTankWeights(
         ours: weights.equipment ?? NaN,
       },
     },
+  };
+}
+
+function mapTankWeights(
+  weights: NonNullable<ReturnType<typeof computeNativeTankWeight>>,
+  tonnage: number,
+): ILocalWeights {
+  return {
+    ...mapCombatVehicleWeightTerms(weights),
     total: tonnage - (weights.remaining ?? NaN),
   };
 }
@@ -607,6 +625,29 @@ function captureSupportWeights(unit: ISupportVehicle): ILocalWeights {
   };
 }
 
+function captureVTOLWeights(
+  document: IBlkDocument,
+  unit: IVTOL,
+): ILocalWeights {
+  const weights = computeNativeVTOLWeight(document, unit);
+  if (!weights) {
+    try {
+      rejectIncompleteCombatVehicleWeight();
+    } catch (error) {
+      return {
+        terms: {},
+        unavailable: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+  return {
+    ...mapCombatVehicleWeightTerms(weights),
+    // Only a complete typed breakdown establishes that this published field
+    // is computed mass; incomplete parses retain a nominal default here.
+    total: unit.totalWeight,
+  };
+}
+
 function captureBlkWeights(bytes: Buffer): ILocalWeights {
   let stage = 'blk-source-parser';
   try {
@@ -619,13 +660,20 @@ function captureBlkWeights(bytes: Buffer): ILocalWeights {
     if (!handler) throw new Error(document.unitType);
     if (
       !(handler instanceof VehicleUnitHandler) &&
-      !(handler instanceof SupportVehicleUnitHandler)
+      !(handler instanceof SupportVehicleUnitHandler) &&
+      !(handler instanceof VTOLUnitHandler)
     )
       return { terms: {}, unavailable: unavailableReason(document.unitType) };
     stage = 'blk-handler-parser';
     const unit = handler.parse(document);
-    if (!unit.success) throw new Error(JSON.stringify(unit.error));
+    if (!unit.success) {
+      if (handler instanceof VTOLUnitHandler)
+        return { terms: {}, unavailable: unit.error.errors.join('; ') };
+      throw new Error(JSON.stringify(unit.error));
+    }
     stage = 'blk-weights';
+    if (isVTOL(unit.data.unit))
+      return captureVTOLWeights(document, unit.data.unit);
     if (isSupportVehicle(unit.data.unit))
       return captureSupportWeights(unit.data.unit);
     const weights = computeNativeTankWeight(document, unit.data.unit);
