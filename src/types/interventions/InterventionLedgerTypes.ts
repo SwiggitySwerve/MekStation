@@ -11,11 +11,7 @@ export type InterventionDomain = KnownInterventionDomain | (string & {});
 
 export type GmInterventionKind = 'add' | 'subtract' | 'fix' | 'undo' | 'reload';
 
-export type InterventionLedgerRecordStatus =
-  | 'previewed'
-  | 'approved'
-  | 'cancelled'
-  | 'manual';
+export type InterventionLedgerRecordStatus = 'approved' | 'manual';
 
 export type InterventionPreviewStatus =
   | 'ready'

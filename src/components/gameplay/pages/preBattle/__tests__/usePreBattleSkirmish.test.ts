@@ -1,6 +1,6 @@
 import type { NextRouter } from 'next/router';
 
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import type { IAdaptedUnit } from '@/engine/types';
 import type { IWeapon } from '@/simulation/ai/types';
@@ -172,6 +172,72 @@ describe('usePreBattleSkirmish recovery persistence', () => {
     );
     mockPersistInteractiveLaunchRecoveryLog.mockReset();
   });
+
+  it('guards skirmish preparation and pending navigation against repeat launches', async () => {
+    let finishNavigation!: (value: boolean) => void;
+    const push = jest.fn(
+      () =>
+        new Promise<boolean>((resolve) => {
+          finishNavigation = resolve;
+        }),
+    );
+    const setInteractiveSession = jest.fn();
+    const { result, rerender } = renderHook(() =>
+      usePreBattleSkirmish({
+        encounter: makeEncounter(),
+        router: { push } as unknown as NextRouter,
+        setInteractiveSession,
+        showToast: jest.fn(),
+      }),
+    );
+    let pending!: Promise<void>;
+    await act(async () => {
+      pending = result.current.launchSkirmish(makeConfig());
+      void result.current.launchSkirmish(makeConfig());
+    });
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
+    rerender();
+    await act(async () => {
+      void result.current.launchSkirmish(makeConfig());
+    });
+    expect(result.current.isLaunching).toBe(true);
+    expect(mockLinkEncounterSession).toHaveBeenCalledTimes(1);
+    expect(setInteractiveSession).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      finishNavigation(true);
+      await pending;
+    });
+    expect(result.current.isLaunching).toBe(false);
+  });
+
+  it.each(['cancelled', 'rejected'] as const)(
+    'reports %s skirmish navigation and allows retry',
+    async (failure) => {
+      const push = jest.fn().mockResolvedValue(true);
+      if (failure === 'cancelled') push.mockResolvedValueOnce(false);
+      else push.mockRejectedValueOnce(new Error('Navigation refused'));
+      const showToast = jest.fn();
+      const { result } = renderHook(() =>
+        usePreBattleSkirmish({
+          encounter: makeEncounter(),
+          router: { push } as unknown as NextRouter,
+          setInteractiveSession: jest.fn(),
+          showToast,
+        }),
+      );
+      await act(async () => result.current.launchSkirmish(makeConfig()));
+      expect(showToast).toHaveBeenLastCalledWith({
+        message:
+          failure === 'cancelled'
+            ? 'Failed to launch skirmish'
+            : 'Navigation refused',
+        variant: 'error',
+      });
+      expect(result.current.isLaunching).toBe(false);
+      await act(async () => result.current.launchSkirmish(makeConfig()));
+      expect(push).toHaveBeenCalledTimes(2);
+    },
+  );
 
   it('persists the launch recovery log before navigating to the game page', async () => {
     const calls: string[] = [];
@@ -346,7 +412,7 @@ describe('S1a force-based launch modes', () => {
       makeAdaptedUnit('player', GameSide.Player),
       makeAdaptedUnit('opponent', GameSide.Opponent),
     ];
-    mockPreparedBattleData.mockResolvedValue({
+    mockPreparedBattleData.mockReset().mockResolvedValue({
       playerAdapted: [adapted[0]],
       opponentAdapted: [adapted[1]],
       gameUnits: adapted.map((unit) => ({
@@ -361,12 +427,13 @@ describe('S1a force-based launch modes', () => {
     });
   });
   function launchHook() {
-    const push = jest.fn();
+    const push = jest.fn().mockResolvedValue(true);
     const router = { push } as unknown as NextRouter;
     const publish = jest.fn();
     const spectator = jest.fn();
     const showToast = jest.fn();
-    const { result } = renderHook(() =>
+    const setIsResolving = jest.fn();
+    const { result, rerender } = renderHook(() =>
       usePreBattleLaunch({
         playerForce: { id: 'player' } as IForce,
         opponentForce: { id: 'opponent' } as IForce,
@@ -383,13 +450,86 @@ describe('S1a force-based launch modes', () => {
         setSession: publish,
         setInteractiveSession: publish,
         setSpectatorMode: spectator,
-        setIsResolving: jest.fn(),
+        setIsResolving,
         showToast,
         seedOverride: 42,
       }),
     );
-    return { result, router, push, publish, spectator, showToast };
+    return {
+      result,
+      rerender,
+      router,
+      push,
+      publish,
+      spectator,
+      showToast,
+      setIsResolving,
+    };
   }
+  it.each(['interactive', 'spectator', 'auto'] as const)(
+    'guards %s preparation and pending navigation against repeat launches',
+    async (mode) => {
+      const h = launchHook();
+      let finishNavigation!: (value: boolean) => void;
+      h.push.mockImplementation(
+        () =>
+          new Promise<boolean>((resolve) => {
+            finishNavigation = resolve;
+          }),
+      );
+      let pending!: Promise<void>;
+      await act(async () => {
+        pending = h.result.current(mode);
+        void h.result.current(mode);
+      });
+      await waitFor(() => expect(h.push).toHaveBeenCalledTimes(1));
+      h.rerender();
+      await act(async () => {
+        void h.result.current(mode);
+      });
+      expect(mockPreparedBattleData).toHaveBeenCalledTimes(1);
+      expect(mockLinkEncounterSession).toHaveBeenCalledTimes(1);
+      expect(h.publish.mock.calls.length + h.spectator.mock.calls.length).toBe(
+        1,
+      );
+      expect(h.setIsResolving).not.toHaveBeenCalledWith(false);
+      await act(async () => {
+        finishNavigation(true);
+        await pending;
+      });
+      expect(h.setIsResolving).toHaveBeenLastCalledWith(false);
+    },
+  );
+  it.each(['interactive', 'spectator', 'auto'] as const)(
+    'reports cancelled %s navigation and allows retry',
+    async (mode) => {
+      const h = launchHook();
+      h.push.mockResolvedValueOnce(false);
+      await act(async () => h.result.current(mode));
+      expect(h.showToast).toHaveBeenLastCalledWith({
+        message:
+          mode === 'auto'
+            ? 'Failed to resolve battle'
+            : `Failed to start ${mode} mode`,
+        variant: 'error',
+      });
+      expect(h.setIsResolving).toHaveBeenLastCalledWith(false);
+      await act(async () => h.result.current(mode));
+      expect(h.push).toHaveBeenCalledTimes(2);
+    },
+  );
+  it('surfaces rejected navigation and permits another force launch', async () => {
+    const h = launchHook();
+    h.push.mockRejectedValueOnce(new Error('Navigation refused'));
+    await act(async () => h.result.current('interactive'));
+    expect(h.showToast).toHaveBeenLastCalledWith({
+      message: 'Navigation refused',
+      variant: 'error',
+    });
+    expect(h.setIsResolving).toHaveBeenLastCalledWith(false);
+    await act(async () => h.result.current('interactive'));
+    expect(h.push).toHaveBeenCalledTimes(2);
+  });
   it.each(['interactive', 'spectator', 'auto'] as const)(
     'links the actual %s session before publication/navigation',
     async (mode) => {

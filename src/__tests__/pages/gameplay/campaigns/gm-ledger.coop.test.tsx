@@ -196,6 +196,29 @@ describe('GM ledger page approve on a co-op host (U92)', () => {
     }
   });
 
+  it.each(['solo', 'host'] as const)(
+    'blocks stale %s approval before local apply or host dispatch',
+    async (mode) => {
+      mockCampaign = campaignOf(mode);
+      const { transport, sent } = fakeHostTransport(fundsChangedAnswer);
+      registerCampaignSyncTransport(transport);
+      const { rerender } = render(<GmLedgerPage />);
+      fireEvent.click(screen.getByTestId('gm-ledger-preview-btn'));
+      mockCampaign = { ...mockCampaign, updatedAt: '2026-11-08T12:00:00.000Z' };
+      rerender(<GmLedgerPage />);
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+      });
+      expect(
+        screen.getByTestId('gm-ledger-approval-status').textContent,
+      ).toContain('Approval blocked.');
+      expect(sent).toEqual([]);
+      expect(mockUpdateCampaign).not.toHaveBeenCalled();
+      expect(refreshSpy).not.toHaveBeenCalled();
+      expect(markDirtySpy).not.toHaveBeenCalled();
+    },
+  );
+
   it('(R4) a co-op funds approval sends ApplyGmIntervention and does not write the local store', async () => {
     mockCampaign = campaignOf('host');
     const { transport, sent } = fakeHostTransport(fundsChangedAnswer);

@@ -63,14 +63,15 @@ export function ActivityLogCard({
         </Link>
       }
     >
-      {notice ? (
+      {notice && (
         <p
           data-testid={notice.testid}
           className="text-text-theme-secondary text-xs"
         >
           {notice.message}
         </p>
-      ) : (
+      )}
+      {(!notice || notice.keepsEntries) && (
         <>
           <nav
             role="tablist"

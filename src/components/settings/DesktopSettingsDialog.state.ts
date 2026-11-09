@@ -72,6 +72,13 @@ export function useDesktopSettingsDialogState({
   const pending = useRef<DecisionRequest | null>(null);
   const resetBusy = useRef(false);
   const activeReset = useRef<symbol | null>(null);
+  const activeSave = useRef<{
+    readonly session: number;
+    readonly api: typeof api;
+    readonly updates: Partial<IDesktopSettings>;
+  } | null>(null);
+  const savedSettings = useRef(settings);
+  const draftUpdates = useRef<Partial<IDesktopSettings>>({});
   const session = useRef(0);
   const draftRevision = useRef(0);
   const mounted = useRef(false);
@@ -82,6 +89,7 @@ export function useDesktopSettingsDialogState({
     readonly hasChanges: boolean;
     readonly onClose: () => void;
     readonly resetSettings: typeof resetSettings;
+    readonly updateSettings: typeof updateSettings;
   } | null>(null);
 
   const invalidateDecision = useCallback(() => {
@@ -100,6 +108,7 @@ export function useDesktopSettingsDialogState({
       hasChanges,
       onClose,
       resetSettings,
+      updateSettings,
     };
   });
 
@@ -114,58 +123,110 @@ export function useDesktopSettingsDialogState({
 
   useLayoutEffect(() => {
     session.current += 1;
+    activeSave.current = null;
+    draftUpdates.current = {};
+    if (!resetBusy.current) setIsSaving(false);
     invalidateDecision();
     setResetStatus(null);
   }, [isOpen, api, invalidateDecision]);
 
+  const refreshDraft = useCallback(() => {
+    setLocalSettings({ ...savedSettings.current, ...draftUpdates.current });
+    setHasChanges(Object.keys(draftUpdates.current).length > 0);
+  }, []);
+
   useLayoutEffect(() => {
     draftRevision.current += 1;
     invalidateDecision();
+    savedSettings.current = settings;
     if (isOpen && settings) {
-      setLocalSettings({ ...settings });
-      setHasChanges(false);
+      refreshDraft();
     }
-  }, [isOpen, settings, invalidateDecision]);
+  }, [isOpen, api, settings, invalidateDecision, refreshDraft]);
 
   const updateLocalSetting = useCallback(
     <K extends keyof IDesktopSettings>(key: K, value: IDesktopSettings[K]) => {
-      if (resetBusy.current) return;
+      if (!mounted.current || !committed.current?.isOpen || resetBusy.current)
+        return;
       draftRevision.current += 1;
       invalidateDecision();
-      setLocalSettings((prev) => (prev ? { ...prev, [key]: value } : null));
-      setHasChanges(true);
+      const savedValue =
+        activeSave.current && Object.hasOwn(activeSave.current.updates, key)
+          ? activeSave.current.updates[key]
+          : savedSettings.current[key];
+      if (Object.is(value, savedValue)) delete draftUpdates.current[key];
+      else draftUpdates.current[key] = value;
+      refreshDraft();
     },
-    [invalidateDecision],
+    [invalidateDecision, refreshDraft],
   );
 
-  const handleSave = useCallback(async () => {
-    if (!localSettings || resetBusy.current) return;
-
-    setIsSaving(true);
-    try {
-      const result = await updateSettings(localSettings);
-      if (result.success) {
-        setHasChanges(false);
-        onClose();
+  const writeSettings = useCallback(
+    async (closeAfterSave: boolean) => {
+      const current = committed.current;
+      if (
+        !mounted.current ||
+        !current?.isOpen ||
+        !current.api ||
+        activeSave.current ||
+        resetBusy.current ||
+        pending.current
+      )
+        return;
+      const keys = Object.keys(
+        draftUpdates.current,
+      ) as (keyof IDesktopSettings)[];
+      for (const key of keys) {
+        if (Object.is(draftUpdates.current[key], savedSettings.current[key]))
+          delete draftUpdates.current[key];
       }
-    } finally {
-      setIsSaving(false);
-    }
-  }, [localSettings, updateSettings, onClose]);
-
-  const handleApply = useCallback(async () => {
-    if (!localSettings || resetBusy.current) return;
-
-    setIsSaving(true);
-    try {
-      const result = await updateSettings(localSettings);
-      if (result.success) {
-        setHasChanges(false);
+      if (!Object.keys(draftUpdates.current).length) {
+        refreshDraft();
+        return;
       }
-    } finally {
-      setIsSaving(false);
-    }
-  }, [localSettings, updateSettings]);
+      const request = {
+        session: session.current,
+        api: current.api,
+        updates: { ...draftUpdates.current },
+      };
+      activeSave.current = request;
+      const isCurrent = () =>
+        mounted.current &&
+        activeSave.current === request &&
+        session.current === request.session &&
+        committed.current?.isOpen === true &&
+        committed.current.api === request.api;
+      setIsSaving(true);
+      try {
+        const result = await current.updateSettings(request.updates, isCurrent);
+        if (!isCurrent() || !result.success) return;
+        savedSettings.current = {
+          ...savedSettings.current,
+          ...request.updates,
+        };
+        for (const key of Object.keys(
+          request.updates,
+        ) as (keyof IDesktopSettings)[]) {
+          if (Object.is(draftUpdates.current[key], request.updates[key]))
+            delete draftUpdates.current[key];
+        }
+        refreshDraft();
+        if (closeAfterSave && !Object.keys(draftUpdates.current).length)
+          committed.current?.onClose();
+      } catch (error) {
+        if (isCurrent())
+          logger.error('Failed to save desktop settings:', error);
+      } finally {
+        if (isCurrent()) {
+          activeSave.current = null;
+          setIsSaving(false);
+        }
+      }
+    },
+    [refreshDraft],
+  );
+  const handleSave = useCallback(() => writeSettings(true), [writeSettings]);
+  const handleApply = useCallback(() => writeSettings(false), [writeSettings]);
 
   const requestDecision = useCallback((action: Decision) => {
     const current = committed.current;
@@ -173,6 +234,7 @@ export function useDesktopSettingsDialogState({
       !mounted.current ||
       !current?.isOpen ||
       current.isSaving ||
+      activeSave.current ||
       resetBusy.current ||
       pending.current
     )
@@ -197,6 +259,7 @@ export function useDesktopSettingsDialogState({
       !mounted.current ||
       !current?.isOpen ||
       current.isSaving ||
+      activeSave.current ||
       resetBusy.current ||
       pending.current
     )
@@ -216,6 +279,7 @@ export function useDesktopSettingsDialogState({
       !mounted.current ||
       !current?.isOpen ||
       current.isSaving ||
+      activeSave.current ||
       resetBusy.current ||
       session.current !== decision.session ||
       current.api !== decision.api ||
@@ -249,8 +313,9 @@ export function useDesktopSettingsDialogState({
       )
         return;
       if (result.success) {
-        if (draftRevision.current === request.draftRevision)
-          setHasChanges(false);
+        // Edits are blocked during reset; settings events may still advance the revision.
+        draftUpdates.current = {};
+        refreshDraft();
         setResetStatus({
           error: false,
           message: 'Settings reset successfully.',
@@ -283,7 +348,7 @@ export function useDesktopSettingsDialogState({
         if (mounted.current) setIsSaving(false);
       }
     }
-  }, [decision, invalidateDecision]);
+  }, [decision, invalidateDecision, refreshDraft]);
 
   const handleSelectDirectory = useCallback(
     async (
