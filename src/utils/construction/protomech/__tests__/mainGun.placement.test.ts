@@ -185,20 +185,17 @@ describe('arms', () => {
     );
   });
 
-  it('reports the pinned weapon exclusion as well as the arm weight limit', () => {
-    // Java excludes this weapon from ProtoMechs independently of its weight.
+  it('replaces the invented heavy-weapon rule with the pinned weight limit', () => {
+    // The old rule named clan-gauss-rifle "heavy"; the pin rejects it by weight.
     const arm = check(5, ProtoChassis.BIPED, [
       { equipmentId: 'CLGaussRifle', location: P.LEFT_ARM },
     ]);
-    expect(messages(arm)).toEqual([
-      '"CLGaussRifle" is not a legal ProtoMech weapon.',
-      'Exceeds 500 kg limit in Left Arm.',
-    ]);
+    expect(messages(arm)).toEqual(['Exceeds 500 kg limit in Left Arm.']);
     expect(
       check(5, ProtoChassis.BIPED, [
         { equipmentId: 'CLGaussRifle', location: P.MAIN_GUN },
       ]).passed,
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('does not invent a weight for equipment whose weight depends on the unit', () => {
