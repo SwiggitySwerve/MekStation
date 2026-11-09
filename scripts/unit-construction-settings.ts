@@ -1,10 +1,13 @@
+import type { IReferenceIdentity } from './unit-bv-provenance';
+
 import { WeightOverflowValidation } from '../src/services/validation/rules/universal/WeightOverflowValidation';
 /**
  * Verifier option constants (row 3.4 W3). MegaMek's TestEntityOption values are
  * constants of a verifier class, not facts of a unit, so they are compared once
  * per (family, verifierClass) cell against the local owner that plays the same
  * role. Measurement only: a gap is a finding, and an option no Java call site
- * reads is reported as an unaccepted inapplicable candidate (it still fails).
+ * reads is reported as a failing candidate unless explicitly accepted by D3
+ * for the reference's verified pin and verifier configuration.
  * See unit-bv-parity.md "Opt-in verifier quantities and settings".
  */
 import { ArmorTypeEnum } from '../src/types/construction/ArmorType';
@@ -22,6 +25,7 @@ import { computeVehicleControlsLiftWeights } from '../src/utils/construction/veh
 import { computePowerAmplifierWeight } from '../src/utils/construction/vehicle/powerAmplifier';
 import { computeTurretWeight } from '../src/utils/construction/vehicle/turret';
 import { calculateTargetingComputerWeight } from '../src/utils/equipment/targetingComputerUtils';
+import acceptance from './unit-construction-settings-acceptance.json';
 
 /** Per-row evidence a quantity capture leaves for the cell-level settings checks. */
 export interface IProbes {
@@ -553,6 +557,7 @@ export type SettingStatus =
   | 'matched'
   | 'different'
   | 'missing-local'
+  | 'accepted-inapplicable'
   | 'inapplicable-candidate';
 export interface ISettingResult {
   key: string;
@@ -596,12 +601,22 @@ export interface ISettingsReport {
 
 const typeName = (value: unknown) => (value === null ? 'null' : typeof value);
 const canon = (value: unknown) => JSON.stringify(value);
+const acceptedCells = new Set(
+  acceptance.cells.map(({ family, verifierClass, key }) =>
+    JSON.stringify([family, verifierClass, key]),
+  ),
+);
 
 export function compareSettings(
   rows: readonly ISettingsRow[],
   localSettings: LocalSettingFn = defaultLocalSetting,
+  referenceIdentity?: Partial<IReferenceIdentity>,
 ): ISettingsReport {
   const drift: string[] = [];
+  const identityMatches =
+    referenceIdentity?.megamekCommit === acceptance.reference.megamekCommit &&
+    referenceIdentity?.verifierConfigSha256 ===
+      acceptance.reference.verifierConfigSha256;
   const cellRows = new Map<string, ISettingsRow[]>();
   const perRowValues: Record<string, Record<string, number>> = {
     ammoTechLevel: {},
@@ -669,17 +684,28 @@ export function compareSettings(
             reason: 'verifier class is not in the pinned classification',
           };
         const site = spec.consumers[verifierClass];
+        const listed = acceptedCells.has(
+          JSON.stringify([family, verifierClass, name]),
+        );
+        const candidate =
+          !site || spec.gatedOff?.when(javaOptions[spec.gatedOff.by]);
+        if (listed && !candidate)
+          drift.push(`accepted-inapplicable-consumer-drift: ${id} ${name}`);
+        const candidateStatus: SettingStatus =
+          listed && identityMatches
+            ? 'accepted-inapplicable'
+            : 'inapplicable-candidate';
         if (!site)
           return {
             ...base,
-            status: 'inapplicable-candidate',
+            status: candidateStatus,
             reason: 'no Java call site reads this option for the class',
             evidence: `${spec.note}. No call site in ${verifierClass}.`,
           };
         if (spec.gatedOff?.when(javaOptions[spec.gatedOff.by]))
           return {
             ...base,
-            status: 'inapplicable-candidate',
+            status: candidateStatus,
             reason: `gated off by the pinned ${spec.gatedOff.by} = ${canon(javaOptions[spec.gatedOff.by])}`,
             evidence: `${spec.gatedOff.evidence}. Read at ${site}.`,
           };
@@ -718,6 +744,7 @@ export function compareSettings(
     different: 0,
     'missing-local': 0,
     'inapplicable-candidate': 0,
+    'accepted-inapplicable': 0,
   };
   const inapplicableCandidates: {
     family: string;
@@ -740,7 +767,10 @@ export function compareSettings(
     }
   const errors = cells.flatMap((cell) =>
     cell.results
-      .filter((item) => item.status !== 'matched')
+      .filter(
+        (item) =>
+          item.status !== 'matched' && item.status !== 'accepted-inapplicable',
+      )
       .map(
         (item) =>
           `settings-${item.status}: ${cell.family}/${cell.verifierClass} ${item.key}`,
