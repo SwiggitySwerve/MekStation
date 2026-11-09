@@ -24,6 +24,15 @@ routing remains unchanged. No serializer or catalog rewrite is required.
 Pinned MegaMek 48fcb2f64: `MtfFile.getEquipmentType` passes no tech restriction
 to `EquipmentType.get` for a Mixed-tech unit.
 
+Explicit saved placement supplies mount context to that same resolver. A known
+saved legacy ID retains its own definition before location or chassis hints;
+an unresolved alias can inspect only valid cells belonging to its placement.
+Empty or invalid allocations never borrow another mount's hints and remain
+available for allocation validation. Unplaced source summaries retain their
+existing location-hint behavior. Native prefixes and display markers such as
+`(Clan)` name the token's own technology, including during split restoration.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
+
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
 When registry fallback reaches a shared launcher/ammo ID, getMountedById selects
 the token's record through the normalization owner's ammo classification. An

@@ -211,8 +211,8 @@ function resolveMixedTechVariant(
 }
 
 /**
- * A native name that carries its own tech prefix (CLLRM20, cllrm20, clan-lrm-20,
- * ISTAG) names one Java item whatever the unit is: the prefix is the side when
+ * A native prefix or display marker names one Java item whatever the unit is.
+ * Native prefixes (CLLRM20, cllrm20, clan-lrm-20, ISTAG) name the side when
  * removing it leaves the same base item, or when the normalizer kept the Clan
  * marker (cllightmg -> clan-light-machine-gun). Unit lists without crit slots
  * (vehicles) otherwise fell back to the IS record on mixed-tech units.
@@ -222,6 +222,13 @@ function ownTechSide(
   normalizedId: string,
   baseId: string,
 ): TechBase | null {
+  const hint = getTechHintFromToken(id);
+  if (
+    hint &&
+    normalizeCatalogEquipmentId(stripTechMarkersFromName(id), false) === baseId
+  ) {
+    return hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+  }
   const raw = id.toLowerCase().trim();
   if (/^cl/.test(raw) && normalizedId === `clan-${baseId}`)
     return TechBase.CLAN;
@@ -395,12 +402,28 @@ export function resolveEquipmentId(
   mode: TechBaseMode,
   slots: ReadonlyArray<string | null> | undefined,
   sourceName?: string,
+  placedSlots?: readonly number[],
 ): IResolvedEquipment {
+  // A placed alias may inspect its own cells, never another mount's hints.
+  slots =
+    placedSlots === undefined
+      ? slots
+      : placedSlots.flatMap((index) =>
+          Number.isInteger(index) && index >= 0 && index < (slots?.length ?? 0)
+            ? [slots?.[index] ?? null]
+            : [],
+        );
   const routed = resolveTechRoutedEquipment(id, unitTechBase, mode, slots);
   if (routed) return routed;
   const ammo = slots === undefined ? resolveSlotlessAmmo(id) : null;
   if (ammo) return ammo;
-  const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
+  const previous = resolveLegacyEquipmentId(
+    id,
+    unitTechBase,
+    mode,
+    slots,
+    placedSlots,
+  );
   const target = normalizeCatalogEquipmentId(id);
   const lookup = getEquipmentLookupService();
   // Converted slugs can lose native punctuation. The retained name may recover
@@ -440,7 +463,15 @@ function resolveLegacyEquipmentId(
   _unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
+  placedSlots?: readonly number[],
 ): IResolvedEquipment {
+  // MtfFile.java:1210-1212: Mixed lookup has no chassis tech restriction.
+  // A saved, placed ID is identity evidence even when its cells are invalid.
+  const placed =
+    placedSlots !== undefined
+      ? legacyDefinition(getEquipmentLookupService().getById(id), id)
+      : undefined;
+  if (placed) return { equipmentDef: placed, resolvedId: placed.id };
   const identity = nativeIdentityId(id);
   const exact = identity
     ? legacyDefinition(getEquipmentLookupService().getById(identity), id)

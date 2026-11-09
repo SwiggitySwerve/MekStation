@@ -428,6 +428,28 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **AND** malformed source SHALL fail with diagnostics without persistence; existing MTF/JSON behavior SHALL remain available
 - **AND** other BLK families, browser BLK selection and native numerical parity SHALL remain separate obligations
 
+### Requirement: Placed legacy equipment identity
+
+The existing BattleMech legacy equipment resolver SHALL preserve a known saved
+equipment ID when explicit placement context is supplied. Resolving an alias
+SHALL use only that mount's valid critical cells. Unplaced source summaries
+SHALL retain their existing location-hint behavior.
+
+#### Scenario: Opposite-tech mounts share a location
+
+- **GIVEN** a saved IS ER medium laser beside native Clan ER medium laser cells
+- **WHEN** the definition reopens with its saved placement
+- **THEN** the resolver SHALL retain the saved IS identity before location or chassis preferences
+- **AND** an unresolved alias SHALL NOT borrow technology from neighbouring mounts
+- **AND** invalid or empty placement cells SHALL remain available for validation without supplying neighbouring hints
+
+#### Scenario: Explicit display markers retain split identity
+
+- **GIVEN** a saved Clan weapon whose critical tokens carry a `(Clan)` marker
+- **WHEN** those tokens are resolved during split-mount restoration
+- **THEN** each token SHALL retain its own Clan definition and critical demand
+- **AND** complete split placements SHALL survive save and reopen with their ID, tech base, category, multiplicity, locations and rear facts preserved
+
 ### Requirement: Mounted browser unit import
 
 The unit library SHALL expose file selection and drop for JSON, MTF and BLK through

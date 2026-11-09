@@ -61,6 +61,8 @@ export function mapEquipment(
       unitTechBase,
       unitTechBaseMode,
       locationCriticalSlots,
+      undefined,
+      item.slots,
     );
 
     if (equipmentDef) {
