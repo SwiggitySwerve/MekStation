@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react';
 /**
  * Aerospace Store Factory
  *
@@ -7,8 +8,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  */
-
-import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -26,7 +25,6 @@ import {
   createUnitIdentityActions,
   modificationPatch,
   modifiedPatch,
-  pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
@@ -47,6 +45,10 @@ import {
   createEmptyAerospaceArmorAllocation,
   unitTypeForAerospaceSubType,
 } from './aerospaceState';
+import {
+  pickPersistedAerospaceState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { AerospaceStore } from './aerospaceState';
@@ -116,16 +118,6 @@ type AerospaceStoreSet = (
     | ((state: AerospaceStore) => Partial<AerospaceStore>),
 ) => void;
 type AerospaceStoreGet = () => AerospaceStore;
-
-function pickStoreFields<TState, const TKey extends keyof TState>(
-  state: TState,
-  keys: readonly TKey[],
-): Pick<TState, TKey> {
-  return Object.fromEntries(keys.map((key) => [key, state[key]])) as Pick<
-    TState,
-    TKey
-  >;
-}
 
 function createAerospaceArmorActions(
   set: AerospaceStoreSet,
@@ -300,22 +292,12 @@ const createAerospaceFuelActions = (
     ),
 });
 
-const AEROSPACE_PERSIST_KEYS =
-  'tonnage techBase unitType aerospaceSubType isFixedWingSupport structuralTechRating engineTechRating motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType smallCraftArmorType armorTypeByArc barRating armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
-    ' ',
-  ) as ReadonlyArray<keyof AerospaceStore>;
-
-function pickPersistedAerospaceState(state: AerospaceStore) {
-  return {
-    ...pickPersistedUnitIdentity(state),
-    ...pickStoreFields(state, AEROSPACE_PERSIST_KEYS),
-  };
-}
-
 function aerospacePersistOptions(initialState: AerospaceState) {
   return createUnitStorePersistOptions(
     `megamek-aerospace-${initialState.id}`,
-    pickPersistedAerospaceState,
+    withUnitLibraryReceipt((state: AerospaceStore) =>
+      pickPersistedAerospaceState(state),
+    ),
   );
 }
 
