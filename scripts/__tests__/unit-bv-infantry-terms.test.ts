@@ -281,6 +281,7 @@ test.each(['weapon.-1.TPRS.Auto-Pistol', 'weapon.0.FGUN.ac10'])(
 
 test.each([
   'unknownTraceField',
+  '__proto__',
   'weapon.0.INVALID.ac10',
   'weapon.bad.FGUN.ac10',
   'weapon.-1.TPRS.',
@@ -292,4 +293,13 @@ test.each([
   expect(
     schema.safeParse({ ...calculateInfantryBV(baseInput()), [key]: 1 }).success,
   ).toBe(false);
+});
+
+test('strict replay keeps rejecting enumerable inherited unknown keys', () => {
+  const schema = gameUnitSchema.shape.infantryInit
+    .unwrap()
+    .shape.bvBreakdown.unwrap();
+  const input = { ...calculateInfantryBV(baseInput()) };
+  Object.setPrototypeOf(input, { unknownTraceField: 1 });
+  expect(schema.safeParse(input).success).toBe(false);
 });
