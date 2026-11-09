@@ -364,7 +364,9 @@ class MTFParser:
         )
 
         # Build equipment list from weapons and selected critical-only mounted equipment.
-        equipment = build_equipment_list(data.get('weapons', []), data.get('criticals', {}))
+        equipment = build_equipment_list(
+            data.get('weapons', []), data.get('criticals', {}), data.get('mass', 0),
+            data.get('config', ''), map_tech_base(data.get('techbase', 'Inner Sphere')) == 'CLAN')
 
         # Build critical slots
         critical_slots = build_critical_slots(data.get('criticals', {}))
