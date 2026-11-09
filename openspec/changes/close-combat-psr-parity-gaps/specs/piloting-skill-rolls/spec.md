@@ -106,6 +106,25 @@ A Run, Sprint or Evade move by a unit that can fall under MegaMek 48fcb2f64 `Mek
 - **WHEN** the only hip critical is on a destroyed leg
 - **THEN** no running-with-damage PSR SHALL be queued
 
+### Requirement: Sideslip And Flanking PSRs Are Not Queued For BattleMechs
+
+Controlled-sideslip and flanking-and-turning PSRs SHALL NOT be queued for a BattleMech by any movement path. MegaMek 48fcb2f64 calls `Entity.checkSideSlip` (`Entity.java:14083-14123`) only for VTOL, hover and WiGE-with-clearance movement (`MovePathHandler.java:3715-3727`; the client prediction in `SharedUtility.java:397-402` has the same gate). The `controlled_sideslip` and `flanking_and_turning` reason codes, their factories, and the Maneuvering Ace relief on a pending `flanking_and_turning` PSR SHALL remain so older replays and journals parse and resolve. Vehicle production of these PSRs, with the skid and motive-damage outcome, belongs to the vehicle combat matrix.
+
+#### Scenario: A BattleMech runs and turns
+
+- **WHEN** a BattleMech runs two hexes, turns, and moves again
+- **THEN** no `flanking_and_turning` PSR SHALL be queued
+
+#### Scenario: A Maneuvering Ace lateral shift
+
+- **WHEN** a BattleMech with Maneuvering Ace makes a walking or running lateral shift
+- **THEN** no `controlled_sideslip` PSR SHALL be queued
+
+#### Scenario: Older journals
+
+- **WHEN** a journal holds a pending `flanking_and_turning` PSR for a pilot with Maneuvering Ace
+- **THEN** it SHALL resolve with the `-1` Maneuvering Ace modifier as before
+
 ## MODIFIED Requirements
 
 ### Requirement: PSR Trigger — Movement with Damage

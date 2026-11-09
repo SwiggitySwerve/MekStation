@@ -47,6 +47,12 @@ export const MEGAMEK_MANEUVERING_ACE_BATTLEMECH_MOVEMENT_RESIDUAL_SOURCE_REFS =
     ),
     pilotModifierApplicationSourceRef(
       'megamek-source',
+      'MegaMek MovePathHandler calls Entity.checkSideSlip only for VTOL, hover and WiGE-with-clearance movement, so BattleMechs never roll controlled-sideslip or flanking-and-turning checks.',
+      `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L2569-L2576`,
+      MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
+    ),
+    pilotModifierApplicationSourceRef(
+      'megamek-source',
       'MegaMek TWGameManager.getPilotingRollData applies -1 Maneuvering Ace to out-of-control control rolls without applying it to recovery rolls.',
       `https://github.com/MegaMek/megamek/blob/${MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/TWGameManager.java#L16908-L16920`,
       MEGAMEK_PILOT_MOVEMENT_SOURCE_VERSION,
@@ -65,36 +71,6 @@ export const MEGAMEK_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS =
       citation.includes('checkSideSlip') ||
       citation.includes('PILOT_MANEUVERING_ACE'),
   );
-
-export const MEKSTATION_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS = [
-  pilotModifierApplicationSourceRef(
-    'mekstation-deviation',
-    'MekStation movementControlPsr queues represented controlled-sideslip PSRs for lateral movement steps and suppresses walking Maneuvering Ace lateral shifts.',
-    'src/simulation/runner/phases/movementControlPsr.ts#L34-L91',
-    'MekStation working-tree',
-  ),
-  pilotModifierApplicationSourceRef(
-    'mekstation-deviation',
-    'MekStation runner movement coverage proves walking Maneuvering Ace lateral shifts suppress controlled-sideslip PSRs while running lateral shifts emit controlled_sideslip with a movement-step trigger source.',
-    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L375-L436',
-    'MekStation working-tree',
-  ),
-] satisfies readonly ICombatFeatureSourceReference[];
-
-export const MEKSTATION_MANEUVERING_ACE_FLANKING_TURNING_SOURCE_REFS = [
-  pilotModifierApplicationSourceRef(
-    'mekstation-deviation',
-    'MekStation movementControlPsr queues one represented flanking-and-turning PSR for BattleMech run/sprint movement when movement-step decomposition changes facing after moving more than one hex, while excluding Infantry and ProtoMech units.',
-    'src/simulation/runner/phases/movementControlPsr.ts#L47-L221',
-    'MekStation working-tree',
-  ),
-  pilotModifierApplicationSourceRef(
-    'mekstation-deviation',
-    'MekStation runner movement coverage proves represented BattleMech flanking-and-turning production plus walking, straight-running, Infantry, and ProtoMech non-production cases.',
-    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L464-L596',
-    'MekStation working-tree',
-  ),
-] satisfies readonly ICombatFeatureSourceReference[];
 
 export const MEKSTATION_MANEUVERING_ACE_OUT_OF_CONTROL_PSR_SOURCE_REFS = [
   pilotModifierApplicationSourceRef(

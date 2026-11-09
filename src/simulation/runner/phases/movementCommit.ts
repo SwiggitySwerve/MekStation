@@ -18,7 +18,6 @@ import {
 import type { IMovementEvent } from '../../ai/AIPlayerEvents';
 
 import { applyMovementEvent } from '../SimulationRunnerState';
-import { queueMovementControlPSRs } from './movementControlPsr';
 import { queueMovementDamagePSRs } from './movementDamagePsr';
 import { queueMovementEnhancementPSRs } from './movementEnhancementPsr';
 import { applyMovementMinefieldEffects } from './movementMines';
@@ -137,14 +136,6 @@ export function commitValidatedMovement(options: {
   );
 
   nextState = queueMovementDamagePSRs({
-    currentState: nextState,
-    events,
-    gameId,
-    unitId,
-    movementType: committedPayload.movementType,
-    steps: decomposition.steps,
-  });
-  nextState = queueMovementControlPSRs({
     currentState: nextState,
     events,
     gameId,

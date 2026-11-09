@@ -51,8 +51,8 @@ describe('non-BattleMech scope matrix QC validator', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('families=6/6');
-    expect(result.stdout).toContain('rows=151');
-    expect(result.stdout).toContain('covered=151');
+    expect(result.stdout).toContain('rows=155');
+    expect(result.stdout).toContain('covered=155');
     expect(result.stdout).toContain('errors=0');
     expect(result.stderr).toBe('');
   });
@@ -73,8 +73,8 @@ describe('non-BattleMech scope matrix QC validator', () => {
     expect(manifest.releaseClaim).toBe('ready-with-scope');
     expect(manifest.familyCount).toBe(6);
     expect(manifest.rows).toMatchObject({
-      total: 151,
-      leaf: 148,
+      total: 155,
+      leaf: 152,
       aggregate: 3,
     });
     expect(manifest.rowCoverage.uncoveredRows).toEqual([]);

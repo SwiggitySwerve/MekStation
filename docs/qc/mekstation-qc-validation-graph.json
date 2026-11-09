@@ -936,7 +936,7 @@
     {
       "id": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
       "kind": "command",
-      "label": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=151 --expect-level=out-of-scope:151 --expect-scope=aggregate:3 --expect-scope=leaf:148"
+      "label": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=155 --expect-level=out-of-scope:155 --expect-scope=aggregate:3 --expect-scope=leaf:152"
     },
     {
       "id": "surface:behavior-class-combat-rules",

@@ -42,3 +42,23 @@
 - [x] Kill the mutants (drop the `canFall` gate, drop the heavy-duty
       discount, roll per step, roll on a walk, ignore the destroyed-leg rule).
 - [x] Prove no committed replay, digest or golden moved, or list the movement.
+
+## 4. C-1b: sideslip and flanking-and-turning are not BattleMech rolls
+
+- [x] Record the replay, digest, golden, runner, engine and p2p suites on
+      unmodified main before editing.
+- [x] Read the pin: `Entity.checkSideSlip` (`Entity.java:14083-14123`), its only
+      call sites (`MovePathHandler.java:3715-3727`, `SharedUtility.java:397-402`),
+      and every other `isUsingManAce` site (none rolls for a Mek).
+- [x] Record failing tests: a BattleMech Maneuvering Ace running lateral shift
+      and a run that turns after moving queue no PSR; the trigger and resolver
+      catalog rows are out of scope.
+- [x] Remove the runner's `movementControlPsr` producer; interactive paths never
+      had one. Keep the enum values, factories and the Maneuvering Ace relief
+      for older replays.
+- [x] Mark the `ControlledSideslip` and `FlankingAndTurning` trigger rows and
+      the two Maneuvering Ace producer-application rows out of scope; update the
+      inventory baseline 151/148/4/9 to 155/152/6/11.
+- [x] Re-anchor catalog citations by content; drop the refs to the removed
+      producer.
+- [ ] Prove no committed replay, digest or golden moved, or list the movement.

@@ -179,7 +179,11 @@ it('commits Maneuvering Ace biped lateral shifts through movement validation and
   );
 });
 
-it('queues controlled-sideslip PSRs for represented running lateral movement', () => {
+// MegaMek 48fcb2f64 `Entity.checkSideSlip` (Entity.java L14083-L14123) is
+// called only for VTOL, hover and WiGE movement (MovePathHandler.java
+// L3715-L3727), so a BattleMech never rolls a controlled-sideslip or
+// flanking-and-turning check.
+it('queues no controlled-sideslip PSR for a BattleMech running lateral shift', () => {
   const target = { q: 1, r: -1 };
   const { next, events } = runScriptedMove(
     createMinimalGrid(3),
@@ -196,27 +200,19 @@ it('queues controlled-sideslip PSRs for represented running lateral movement', (
     },
   );
 
-  expect(next.units['player-1'].pendingPSRs).toEqual([
-    expect.objectContaining({
-      entityId: 'player-1',
-      reason: 'Controlled sideslip',
-      reasonCode: PSRTrigger.ControlledSideslip,
-      additionalModifier: -1,
-      triggerSource: 'movement-step:0',
-    }),
+  const movementPayload = events.find(
+    (event) => event.type === GameEventType.MovementDeclared,
+  )?.payload as IMovementDeclaredPayload | undefined;
+
+  expect(movementPayload?.steps).toEqual([
+    expect.objectContaining({ kind: 'lateral', direction: 'right' }),
   ]);
-  expect(psrPayloads(events)).toEqual([
-    expect.objectContaining({
-      unitId: 'player-1',
-      reason: 'Controlled sideslip',
-      reasonCode: PSRTrigger.ControlledSideslip,
-      additionalModifier: -1,
-      triggerSource: 'movement-step:0',
-    }),
-  ]);
+  expect(next.units['player-1'].position).toEqual(target);
+  expect(next.units['player-1'].pendingPSRs ?? []).toEqual([]);
+  expect(psrPayloads(events)).toEqual([]);
 });
 
-it('queues one flanking-and-turning PSR for represented BattleMech run movement that turns after moving', () => {
+it('queues no flanking-and-turning PSR for a BattleMech run that turns after moving', () => {
   const target = { q: 1, r: -2 };
   const { next, events } = runScriptedMove(
     createMinimalGrid(4),
@@ -267,22 +263,7 @@ it('queues one flanking-and-turning PSR for represented BattleMech run movement 
       to: target,
     }),
   ]);
-  expect(next.units['player-1'].pendingPSRs).toEqual([
-    expect.objectContaining({
-      entityId: 'player-1',
-      reason: 'Flanking and turning',
-      reasonCode: PSRTrigger.FlankingAndTurning,
-      additionalModifier: 0,
-      triggerSource: 'movement-step:2',
-    }),
-  ]);
-  expect(psrPayloads(events)).toEqual([
-    expect.objectContaining({
-      unitId: 'player-1',
-      reason: 'Flanking and turning',
-      reasonCode: PSRTrigger.FlankingAndTurning,
-      additionalModifier: 0,
-      triggerSource: 'movement-step:2',
-    }),
-  ]);
+  expect(next.units['player-1'].position).toEqual(target);
+  expect(next.units['player-1'].pendingPSRs ?? []).toEqual([]);
+  expect(psrPayloads(events)).toEqual([]);
 });
