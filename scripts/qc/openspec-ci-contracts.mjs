@@ -200,7 +200,7 @@ export const requiredPackageScripts = [
     tokens: [
       'validate:combat:gaps',
       '--expect-total=0',
-      '--expect-total=149',
+      '--expect-total=151',
       'openspec validate --all --strict',
     ],
   },
