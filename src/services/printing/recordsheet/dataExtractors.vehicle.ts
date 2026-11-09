@@ -46,7 +46,7 @@ export interface IVehicleUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Armor allocation keyed by location string. */
   armorAllocation?: Record<
     string,
-    { current: number; maximum: number; bar?: number }
+    { current: number; maximum?: number; bar?: number }
   >;
   crew?: Array<{
     role: 'driver' | 'gunner' | 'commander';
@@ -84,14 +84,14 @@ export function extractVehicleData(
     ).map((loc) => ({
       location: loc,
       current: armorAlloc[loc]?.current ?? 0,
-      maximum: armorAlloc[loc]?.maximum ?? 0,
+      maximum: armorAlloc[loc]?.maximum,
       bar: armorAlloc[loc]?.bar,
     }));
 
   // If no allocation provided, emit a placeholder Front location so the
   // renderer always has at least one bar to draw.
   if (armorLocations.length === 0) {
-    armorLocations.push({ location: 'Front', current: 0, maximum: 0 });
+    armorLocations.push({ location: 'Front', current: 0 });
   }
 
   // Crew — default to a single driver when not specified
