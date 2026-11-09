@@ -37,6 +37,15 @@ export async function isStoreExposed(page: Page): Promise<boolean> {
   });
 }
 
+/** Each document publishes its store map after the E2E import completes. */
+async function waitForStoreExposure(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => typeof window.__ZUSTAND_STORES__ !== 'undefined',
+    undefined,
+    { timeout: DEFAULT_TIMEOUT },
+  );
+}
+
 /**
  * Get the current state of a Zustand store.
  *
@@ -62,6 +71,12 @@ export async function getStoreState<T>(
   page: Page,
   storeName: string,
 ): Promise<T> {
+  await waitForStoreExposure(page);
+  return readStoreSnapshot<T>(page, storeName);
+}
+
+/** Read once; callers that poll own their single readiness/predicate budget. */
+async function readStoreSnapshot<T>(page: Page, storeName: string): Promise<T> {
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
@@ -156,6 +171,7 @@ export async function setStoreValue(
   storeName: string,
   updates: Record<string, unknown>,
 ): Promise<void> {
+  await waitForStoreExposure(page);
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
@@ -206,7 +222,7 @@ export async function waitForStoreState<T>(
   timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
   await expect(async () => {
-    const state = await getStoreState<T>(page, storeName);
+    const state = await readStoreSnapshot<T>(page, storeName);
     const predicate = new Function('state', `return ${predicateString}`) as (
       state: T,
     ) => boolean;

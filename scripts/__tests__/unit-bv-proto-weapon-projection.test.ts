@@ -10,6 +10,7 @@ import {
   buildProto,
   mount,
 } from '../../src/utils/construction/protomech/__tests__/protoMechBV.test.helpers';
+import { nativeProtoEquipmentIndices } from '../../src/utils/construction/protomech/nativeEquipmentIndices';
 
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
 describe('ProtoMech weapon diagnostic projection', () => {
@@ -179,5 +180,75 @@ describe('ProtoMech weapon diagnostic projection', () => {
     expect(
       Object.keys(terms).filter((key) => key.startsWith('weapon.')),
     ).toEqual([]);
+  });
+});
+
+describe('ProtoMech native equipment indices', () => {
+  test.each(['Fusillade', 'Fussilade', 'fusillade-registry'])(
+    'native equipment map expands %s after its own source position',
+    (id) => {
+      const equipment = Object.freeze(
+        [
+          mount('EIInterface', ProtoLocation.TORSO),
+          mount(id, ProtoLocation.TORSO),
+          mount('clan-er-small-laser', ProtoLocation.RIGHT_ARM),
+          mount(id, ProtoLocation.TORSO),
+          mount('clan-er-small-laser', ProtoLocation.LEFT_ARM),
+        ].map((entry) => Object.freeze(entry)),
+      );
+      const before = JSON.stringify(equipment);
+      expect(nativeProtoEquipmentIndices(equipment)).toEqual([0, 1, 4, 5, 8]);
+      expect(JSON.stringify(equipment)).toBe(before);
+    },
+  );
+
+  test('native equipment map separates single-shot, double-shot and dry weapons', () => {
+    const equipment = [
+      mount('cllrm5-os-registry', ProtoLocation.TORSO),
+      mount('Fusillade', ProtoLocation.TORSO),
+      mount('tsemp-one-shot-registry', ProtoLocation.RIGHT_ARM),
+      mount('unknown-equipment', ProtoLocation.TORSO),
+      mount('CLMediumChemLaserAmmo (30)', ProtoLocation.TORSO),
+    ];
+    expect(nativeProtoEquipmentIndices(equipment)).toEqual([0, 2, 5, 6, 7]);
+  });
+
+  test('Sprite 3 retains local indices and projects native implicit-ammo insertion', () => {
+    const source = sources.find((entry) =>
+      entry.path.endsWith('/Sprite 3.blk'),
+    );
+    if (!source) throw new Error('Missing pinned Sprite source');
+    const document = new BlkParserService().parse(source.content);
+    if (!document.success) throw new Error(document.error.errors.join('; '));
+    const handler = new ProtoMechUnitHandler();
+    const parsed = handler.parse(document.data.document);
+    if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+    const unit = parsed.data.unit;
+    const before = JSON.stringify(unit);
+    const breakdown = handler.calculateBVBreakdown(unit);
+    expect(breakdown.weaponMountBV?.map((fact) => fact.equipmentIndex)).toEqual(
+      [7, 8, 9, 10],
+    );
+    // Entity.java:5093-5175 at 48fcb2f64: each Fusillade inserts two ammo mounts.
+    expect(
+      Object.fromEntries(
+        Object.entries(protoMechBVTerms(breakdown)).filter(([key]) =>
+          key.startsWith('weapon.'),
+        ),
+      ),
+    ).toEqual({
+      'weapon.7.T.Fusillade': 11,
+      'weapon.10.T.Fusillade': 11,
+      'weapon.13.RA.CLMediumChemicalLaser': 37,
+      'weapon.14.LA.CLMediumChemicalLaser': 37,
+    });
+    expect(breakdown.weaponMountBV).toMatchObject([
+      { equipmentIndex: 7 },
+      { equipmentIndex: 8, nativeEquipmentIndex: 10 },
+      { equipmentIndex: 9, nativeEquipmentIndex: 13 },
+      { equipmentIndex: 10, nativeEquipmentIndex: 14 },
+    ]);
+    expect(breakdown.final).toBe(source.javaTotal);
+    expect(JSON.stringify(unit)).toBe(before);
   });
 });
