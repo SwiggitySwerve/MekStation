@@ -47,6 +47,7 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 
 import { normalizeShoppingList } from '@/lib/campaign/acquisition/shoppingList';
 import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
+import { reconcileMissionCopy } from '@/lib/campaign/missionStatusMachine';
 import {
   rehydrateCampaignMission,
   rehydrateContractMarket,
@@ -212,7 +213,12 @@ function mergeSerializedMissionMap(
 ): Map<string, IMission> {
   const merged = rehydrateMissionMap(serializedEntries);
   liveEntries.forEach((value, key) => {
-    merged.set(key, rehydrateCampaignMission(value));
+    // The live (missions-store) copy wins unless the saved campaign has the
+    // mission further along; it must never reopen a settled contract.
+    merged.set(
+      key,
+      reconcileMissionCopy(rehydrateCampaignMission(value), merged.get(key)),
+    );
   });
   return merged;
 }
