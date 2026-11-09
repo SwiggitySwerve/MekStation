@@ -28,15 +28,18 @@ TECH_BASE_MAP: Dict[str, str] = {
     "2": "MIXED",
 }
 
+# MTF source vocabulary shared with the TypeScript parser. Python keeps its
+# legacy aliases below; see src/types/formats/MTF_COMPONENT_VOCABULARY.md.
+MTF_COMPONENT_VOCABULARY: Dict[str, Dict[str, str]] = json.loads(
+    (Path(__file__).resolve().parents[2] / 'src/types/formats/mtf-component-vocabulary.json')
+    .read_text(encoding='utf-8-sig')
+)
+
 RULES_LEVEL_MAP: Dict[str, str] = {
     # One-based MTF levels: MegaMek 48fcb2f64 MtfFile.java:828-902.
+    **MTF_COMPONENT_VOCABULARY["rulesLevel"],
     # Retain zero as a pre-existing compatibility alias, not an MTF source code.
     "0": "INTRODUCTORY",
-    "1": "INTRODUCTORY",
-    "2": "STANDARD",
-    "3": "ADVANCED",
-    "4": "EXPERIMENTAL",
-    "5": "UNOFFICIAL",
     # Text rules levels
     "Introductory": "INTRODUCTORY",
     "Standard": "STANDARD",
@@ -108,16 +111,11 @@ BLK_ENGINE_CODE_MAP: Dict[str, str] = json.loads(
 )
 
 GYRO_TYPE_MAP: Dict[str, str] = {
-    "Standard Gyro": "STANDARD",
+    **MTF_COMPONENT_VOCABULARY["gyro"],
     "Standard": "STANDARD",
-    "XL Gyro": "XL",
     "Extra-Light Gyro": "XL",
-    "Compact Gyro": "COMPACT",
-    "Heavy Duty Gyro": "HEAVY_DUTY",
     "Heavy-Duty Gyro": "HEAVY_DUTY",
-    "Superheavy Gyro": "SUPERHEAVY",
     "Super Heavy Gyro": "SUPERHEAVY",
-    "None": "NONE",
     # Numeric codes
     "0": "STANDARD",
     "1": "XL",
@@ -127,28 +125,14 @@ GYRO_TYPE_MAP: Dict[str, str] = {
 }
 
 COCKPIT_TYPE_MAP: Dict[str, str] = {
-    "Standard Cockpit": "STANDARD",
+    **MTF_COMPONENT_VOCABULARY["cockpit"],
     "Standard": "STANDARD",
-    "Small Cockpit": "SMALL",
     "Small": "SMALL",
-    "Command Console": "COMMAND_CONSOLE",
-    "Torso-Mounted Cockpit": "TORSO_MOUNTED",
     "Torso Cockpit": "TORSO_MOUNTED",
-    "Primitive Cockpit": "PRIMITIVE",
     "Primitive": "PRIMITIVE",
-    "Industrial Cockpit": "INDUSTRIAL",
     "Industrial": "INDUSTRIAL",
-    "Primitive Industrial Cockpit": "PRIMITIVE_INDUSTRIAL",
     "Primitive Industrial": "PRIMITIVE_INDUSTRIAL",
-    "Superheavy Industrial Cockpit": "SUPERHEAVY_INDUSTRIAL",
-    "Tripod Industrial Cockpit": "TRIPOD_INDUSTRIAL",
-    "Superheavy Tripod Industrial Cockpit": "SUPERHEAVY_TRIPOD_INDUSTRIAL",
-    "Superheavy Cockpit": "SUPERHEAVY",
-    "Superheavy Tripod Cockpit": "SUPERHEAVY_TRIPOD",
-    "Interface Cockpit": "INTERFACE",
-    "Virtual Reality Piloting Pod": "VRRP",
     "VRRP": "VRRP",
-    "QuadVee Cockpit": "QUADVEE",
 }
 
 STRUCTURE_TYPE_MAP: Dict[str, str] = {
@@ -207,19 +191,15 @@ ARMOR_TYPE_MAP: Dict[str, str] = {
 }
 
 HEAT_SINK_TYPE_MAP: Dict[str, str] = {
-    "Single": "SINGLE",
+    **MTF_COMPONENT_VOCABULARY["heatSink"],
     "Single Heat Sink": "SINGLE",
     "Single Heat Sinks": "SINGLE",
-    "Double": "DOUBLE",
     "Double Heat Sink": "DOUBLE",
     "Double Heat Sinks": "DOUBLE",
     "Double (IS)": "DOUBLE",
     "Double (Clan)": "DOUBLE_CLAN",
     "Clan Double Heat Sink": "DOUBLE_CLAN",
-    "Clan Double": "DOUBLE_CLAN",
-    "Compact": "COMPACT",
     "Compact Heat Sink": "COMPACT",
-    "Laser": "LASER",
     "Laser Heat Sink": "LASER",
 }
 

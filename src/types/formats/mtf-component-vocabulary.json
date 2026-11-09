@@ -1,0 +1,44 @@
+{
+  "authority": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587: Mek.java GYRO_STRING/COCKPIT_STRING, MtfFile.java heat sink and rules-level parsing. See MTF_COMPONENT_VOCABULARY.md.",
+  "gyro": {
+    "Standard Gyro": "STANDARD",
+    "XL Gyro": "XL",
+    "Compact Gyro": "COMPACT",
+    "Heavy Duty Gyro": "HEAVY_DUTY",
+    "None": "NONE",
+    "Superheavy Gyro": "SUPERHEAVY"
+  },
+  "cockpit": {
+    "Standard Cockpit": "STANDARD",
+    "Small Cockpit": "SMALL",
+    "Command Console": "COMMAND_CONSOLE",
+    "Torso-Mounted Cockpit": "TORSO_MOUNTED",
+    "Industrial Cockpit": "INDUSTRIAL",
+    "Primitive Cockpit": "PRIMITIVE",
+    "Primitive Industrial Cockpit": "PRIMITIVE_INDUSTRIAL",
+    "Superheavy Cockpit": "SUPERHEAVY",
+    "Superheavy Tripod Cockpit": "SUPERHEAVY_TRIPOD",
+    "Tripod Cockpit": "STANDARD",
+    "Interface Cockpit": "INTERFACE",
+    "Virtual Reality Piloting Pod": "VRRP",
+    "QuadVee Cockpit": "QUADVEE",
+    "Superheavy Industrial Cockpit": "SUPERHEAVY_INDUSTRIAL",
+    "Tripod Industrial Cockpit": "TRIPOD_INDUSTRIAL",
+    "Superheavy Tripod Industrial Cockpit": "SUPERHEAVY_TRIPOD_INDUSTRIAL"
+  },
+  "heatSink": {
+    "Single": "SINGLE",
+    "Double": "DOUBLE",
+    "IS Double": "DOUBLE",
+    "Clan Double": "DOUBLE_CLAN",
+    "Laser": "LASER",
+    "Compact": "COMPACT"
+  },
+  "rulesLevel": {
+    "1": "INTRODUCTORY",
+    "2": "STANDARD",
+    "3": "ADVANCED",
+    "4": "EXPERIMENTAL",
+    "5": "UNOFFICIAL"
+  }
+}
