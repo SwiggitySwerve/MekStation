@@ -126,6 +126,28 @@ test('BA ammo terms follow Java presence: a bare launcher has a cap only, bare a
   expect(oneShot['ammo.available.SRM:1']).toBeCloseTo(0.08, 10);
 });
 
+test('BA weapons without a capping ammo type create no cap term', () => {
+  // BAMGWeapon.java:61 and ISBAPlasmaRifle.java:64 are ammoType NA; the Taser is
+  // intrinsically one-shot (ISBATaser.java:84). assembleAmmo skips all three.
+  const machineGun = cavalierTrace('CLBAMG:RA\nBABattleClaw:LA');
+  expect(ammoKeys(machineGun.trace)).toEqual([]);
+  const taser = cavalierTrace('ISBATaser:RA\nBABattleClaw:LA');
+  expect(ammoKeys(taser.trace)).toEqual([]);
+  // Reporting only: the launcher still caps the pool of a missile suit.
+  const missile = cavalierTrace(
+    'ISBASRM1:RA\nCLBAMG:LA\nBA-SRM1 Ammo:Body:Shots4#',
+  );
+  expect(ammoKeys(missile.trace).sort()).toEqual(
+    [1, 2, 3, 4]
+      .flatMap((i) => [
+        `trooper.${i}.ammo.available.SRM:1`,
+        `trooper.${i}.ammo.cap.SRM:1`,
+      ])
+      .concat(['ammo.available.SRM:1', 'ammo.cap.SRM:1'])
+      .sort(),
+  );
+});
+
 test('BA without ammo pools or launchers emits no ammo terms', () => {
   expect(ammoKeys(cavalierTrace('BABattleClaw:LA').trace)).toEqual([]);
   expect(
