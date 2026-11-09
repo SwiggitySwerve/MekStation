@@ -47,3 +47,21 @@ A GM combat rewind that the journal has committed SHALL be answered as committed
 - **GIVEN** another owner holds the live correction lease on the match stream
 - **WHEN** the live host rebuilds on the activated branch
 - **THEN** that lease SHALL remain live with the same id, owner and fencing epoch
+
+### Requirement: A Closed Host Is Not Rebuilt
+
+A live host that has closed SHALL NOT be rebuilt from an activated rewind branch. `rebuildFromActivatedBranch` SHALL do nothing for a closed host, including a host that closes while its rebuild waits in the command queue, and SHALL NOT leave a rebuild pending for it. The rewind-commit route SHALL treat a closed host as having no live host and SHALL answer the committed result without `rebuildPending`. Boot recovery folds the activated branch for the match. Intents, lobby intents and joins to a closed or completed match remain refused by the existing guards.
+
+#### Scenario: Rewind on a match whose host already closed
+
+- **GIVEN** a match whose host closed on completion but is still registered
+- **WHEN** a GM rewind commits
+- **THEN** the route SHALL answer 200 `committed` without `rebuildPending`
+- **AND** the closed host SHALL keep its session and served branch
+
+#### Scenario: Host closes while the rebuild is queued
+
+- **GIVEN** a rebuild waiting in a host's command queue
+- **WHEN** the host closes before the rebuild runs
+- **THEN** the rebuild SHALL NOT run
+

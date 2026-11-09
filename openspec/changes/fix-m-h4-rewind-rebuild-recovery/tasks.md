@@ -14,6 +14,13 @@
 - [x] 9. After acquiring the lease, move every other `building` candidate on the same stream to `blocked`.
 - [x] 10. Kill the block and sweep mutants; run the full affected directories and gates.
 
+## Follow-up D-2b / D-2d: closed-host guard and reserved `waiting-effects`
+
+- [x] 17. Record failing regressions: rebuilding a closed host rewrites its session and claims the branch; the route still calls the rebuild on a closed registered host; a host that closes while the rebuild is queued is rebuilt anyway.
+- [x] 18. Guard `rebuildFromActivatedBranch` inside the command queue and have the route treat a closed host as no live host.
+- [x] 19. Document `waiting-effects` as reserved for the effect-receipt change (contract comment, event-store requirement); no code or schema change (D-2d).
+- [x] 20. Kill the no-host-guard, no-route-guard and call-time-guard mutants; run the full affected directories and gates.
+
 ## Follow-up (not in this change)
 
 - [ ] M-H4 follow-up: private-reason writer throw after commit returns 500; needs a decision on retrying or persisting the reason.

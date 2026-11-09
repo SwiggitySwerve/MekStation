@@ -95,15 +95,17 @@ function statusForRefusal(
  * Rebuild the live host on the activated branch. True means the commit
  * stands but the host still serves the superseded session: it retries
  * on its next command or join, and a restart folds the branch on boot.
- * Look up only — never getOrCreate. An empty registry means nobody is
- * connected; MatchRecovery folds this branch on boot.
+ * Look up only — never getOrCreate. An empty registry, or a host that
+ * already closed, means nobody is connected; MatchRecovery folds this
+ * branch on boot.
  */
 async function rebuildLiveHost(
   matchId: string,
   input: IRewindRebuildRequest,
 ): Promise<boolean> {
   const liveHost = getMatchHostRegistry().get(matchId);
-  if (liveHost === null) return false;
+  // Completion closes a host without dropping it from the registry.
+  if (liveHost === null || liveHost.isClosed()) return false;
   try {
     await liveHost.rebuildFromActivatedBranch(input);
     return false;

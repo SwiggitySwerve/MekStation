@@ -605,6 +605,10 @@ export class ServerMatchHost {
   ): Promise<void> => {
     this.opponentEpoch += 1;
     return this.queueCommand(async () => {
+      // A closed host serves nobody and a restart folds the branch, so
+      // a rebuild here would only rewrite a dead session. Checked inside
+      // the queue: the host may close while this waits its turn (D-2b).
+      if (this.closed) return;
       await this.runRewindRebuild(input);
       await this.driveOpponent();
     });

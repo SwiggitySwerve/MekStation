@@ -124,7 +124,9 @@ state is never persisted. A failure after the host has claimed the branch,
 such as a failed replay to attached sockets, is not pending: the rebuilt
 session is authoritative, and folding it again would drop newer events. The
 rebuild holds only a correction lease it acquired itself and never releases a
-lease another owner holds.
+lease another owner holds. A host that has already closed
+(completion closes a host without dropping it from the registry) is neither
+rebuilt nor reported pending; its branch is folded on the next boot.
 
 ## y-webrtc / peer-to-peer is a non-authoritative fallback
 

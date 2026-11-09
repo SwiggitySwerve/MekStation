@@ -35,6 +35,14 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   candidate on the same stream to `blocked`. Under the lease no other candidate
   can still be authorized.
 
+- A host that has closed is not rebuilt, and is not reported as pending, whether
+  it closed before the rebuild or while it waited in the queue (follow-up D-2b).
+  Intents, lobby intents and joins were already refused on a closed or completed
+  match; the audit's "no closed-host guard" held only for the rebuild.
+- `waiting-effects` stays reserved for the effect-receipt change; it is documented
+  as such and not removed, because removal is a persisted-format migration
+  (follow-up D-2d).
+
 The activated branch of a failed rebuild is not moved to `blocked`:
 `effective -> blocked` is not a legal transition. A failed rebuild is a host
 state, not a branch status.

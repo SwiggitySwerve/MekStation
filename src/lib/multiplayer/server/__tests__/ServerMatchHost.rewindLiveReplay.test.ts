@@ -204,6 +204,34 @@ describe('ServerMatchHost rewind reaches connected players', () => {
       expect(recovered.viewerUnacked(GUEST)).toBe(fixture.prefix.length);
     });
 
+    it('D-2b rebuilding a closed host changes nothing and is not left pending', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const viewer = await joinedViewer(fixture.host, GUEST);
+      await fixture.host.closeMatch();
+      const sentBefore = viewer.sent.length;
+
+      await rebuild(fixture);
+
+      expect(fixture.host.servedBranchId()).toBeNull();
+      expect(fixture.host.getSessionForTests().currentState.phase).toBe(
+        fixture.preRewindPhase,
+      );
+      expect(viewer.sent.length).toBe(sentBefore);
+    });
+
+    it('D-2b a host that closes while its rebuild waits in the queue is not rebuilt', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+
+      const queued = rebuild(fixture);
+      await fixture.host.closeMatch();
+      await queued;
+
+      expect(fixture.host.servedBranchId()).toBeNull();
+      expect(fixture.host.getSessionForTests().currentState.phase).toBe(
+        fixture.preRewindPhase,
+      );
+    });
+
     it('M1 receives the rebuilt replay on its open socket, marked as replacing its stream', async () => {
       const fixture = await standUpCommittedRewind(PLAIN);
       const guest = await joinedViewer(fixture.host, GUEST);
@@ -434,6 +462,28 @@ describe('ServerMatchHost rewind reaches connected players', () => {
         GamePhase.Initiative,
       );
       writer.mockRestore();
+    });
+
+    it('D-2b a rewind on a match whose host already closed leaves the dead host alone and answers committed', async () => {
+      await getMatchHostRegistry().recoverActiveMatches();
+      const live = getMatchHostRegistry().get(MATCH_ID);
+      expect(live).not.toBeNull();
+      // Completion closes the host without dropping it from the registry.
+      await live!.closeMatch();
+      expect(getMatchHostRegistry().get(MATCH_ID)).toBe(live);
+      const phaseBefore = live!.getSessionForTests().currentState.phase;
+      const rebuild = jest.spyOn(live!, 'rebuildFromActivatedBranch');
+
+      const res = await postRewindCommit(PRIVATE_REASON);
+
+      expect(res._getStatusCode()).toBe(200);
+      const body = res._getJSONData() as Record<string, unknown>;
+      expect(body).toMatchObject({ kind: 'committed' });
+      expect(body).not.toHaveProperty('rebuildPending');
+      expect(rebuild).not.toHaveBeenCalled();
+      expect(live!.servedBranchId()).toBeNull();
+      expect(live!.getSessionForTests().currentState.phase).toBe(phaseBefore);
+      rebuild.mockRestore();
     });
 
     async function postRewindCommit(
