@@ -102,8 +102,8 @@ export const useCustomizerStore = create<CustomizerState>((set) => ({
   selectEquipment: (equipment) =>
     set({
       selectedEquipment: equipment,
-      // Clear location selection when selecting new equipment
-      selectedLocation: equipment ? null : undefined,
+      // Clear location selection whenever equipment selection changes
+      selectedLocation: null,
     }),
 
   selectLocation: (location) => set({ selectedLocation: location }),
