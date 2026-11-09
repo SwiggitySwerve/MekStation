@@ -1,0 +1,6 @@
+{
+    "name":  "fix-customizer-save-in-flight",
+    "status":  "implemented",
+    "reason":  "U5 implemented with red/green regression proof, both killed mutants, and all required local gates passing; hosted CI pending.",
+    "lastReviewed":  "2026-11-08"
+}
