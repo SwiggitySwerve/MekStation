@@ -32,8 +32,11 @@ table, with nothing tying their partition to the table's routes.
 After a restart a spectator's seat is released at boot, so their reconnect is
 refused until they register again (`POST /matches/:id/spectate`). **Viewers resume
 across a restart without a page reload**, because the page now registers again by
-itself, within the client's reconnect window. The limit: a server that stays down
-longer than the client's reconnect attempts still needs a page reload. Before, the
+itself. The spectate page caps no reconnect attempts (the backoff is capped at 30
+seconds), so a viewer resumes whenever the server returns. The limits: the tab
+must stay open, and the viewer's token must still be valid, since an expired token
+makes the registration fail and the page shows "Cannot spectate" until the vault is
+unlocked again. Before, the
 persisted seat let a reconnecting socket bind with no new registration, and the
 seat could never be reclaimed if the viewer did not return. The server rule
 (registration required) is unchanged.
@@ -47,5 +50,4 @@ retained viewer delivery cursors are untouched.
 ## Non-goals
 
 Spectator registrations that never attach (they hold a seat until the next
-restart), reconnecting a client after an outage longer than its reconnect window,
-and `pruneExpiredMatches`.
+restart), renewing an expired spectator token, and `pruneExpiredMatches`.
