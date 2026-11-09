@@ -104,3 +104,21 @@ test fix and co-op proposal error handling. There were no conflicts or changes
 to this lane's implementation. Post-merge caller, co-op, API and integration
 checks are recorded below. Hosted CI and draft-to-ready status are reported in
 the PR, outside this local verification receipt.
+
+
+## Results after merging main
+
+- Full intervention, GM component, campaign page, tactical page-module, co-op
+  component, campaign API and integration directories: 124 suites / 1364 tests
+  passed, 32 existing skips (`d6-post-merge.log`). Jest reported one worker
+  teardown warning and force-exited that worker; the command exited zero. No
+  suppression or test-runner setting was added to hide it.
+- Full ledger E2E: 8/8 passed again on port 3617, in 5.3 minutes
+  (`d6-e2e-post-merge.log`), with the same explicit server command.
+- Both TypeScript configs, root lint (63 warnings / zero errors), full formatting,
+  unit-lint ceilings and the 57-unkeyable-test budget passed on the merged tree
+  (`d6-typecheck-final.log`, `d6-lint-final.log`, `d6-format-post-merge.log`,
+  `d6-lint-units-final.log`, `d6-budget-final.log`).
+- Focused strict OpenSpec validation and CI accounting passed after the merge.
+- No committed digest or fixture changed. All local gate processes finished
+  before the PR handoff. Hosted checks must pass before marking the draft ready.
