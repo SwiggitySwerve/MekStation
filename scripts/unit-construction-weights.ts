@@ -533,6 +533,38 @@ const unavailableReason = (unitType: string): string => {
   return `${unitType}: no local additive weight seam on main`;
 };
 
+function mapTankWeights(
+  weights: NonNullable<ReturnType<typeof computeNativeTankWeight>>,
+  tonnage: number,
+): ILocalWeights {
+  const terms: Record<string, number> = {};
+  const put = (key: string, value: number | null | undefined) => {
+    if (typeof value === 'number') terms[key] = value;
+  };
+  put('getWeightEngine', weights.engine);
+  put('getWeightStructure', weights.structure);
+  put('getWeightControls', weights.controls);
+  put('getWeightHeatSinks', weights.heatSinks);
+  put('getWeightArmor', weights.armor);
+  put('getWeightPowerAmp', weights.powerAmplifiers);
+  put('getWeightCarryingSpace', weights.carryingSpace);
+  // TestTank.getWeightMisc is turret + dual turret + lifting equipment.
+  put(
+    'getWeightMisc',
+    (weights.turret ?? NaN) + (weights.secondaryTurret ?? NaN) + weights.lift,
+  );
+  return {
+    terms,
+    groups: {
+      mountedEquipment: {
+        members: TANK_LUMP,
+        ours: weights.equipment ?? NaN,
+      },
+    },
+    total: tonnage - (weights.remaining ?? NaN),
+  };
+}
+
 function captureBlkWeights(bytes: Buffer): ILocalWeights {
   let stage = 'blk-source-parser';
   try {
@@ -556,32 +588,7 @@ function captureBlkWeights(bytes: Buffer): ILocalWeights {
         unavailable:
           'computeNativeTankWeight returned undefined (incomplete mass, non-standard structure or unsupported armor)',
       };
-    const terms: Record<string, number> = {};
-    const put = (key: string, value: number | null | undefined) => {
-      if (typeof value === 'number') terms[key] = value;
-    };
-    put('getWeightEngine', weights.engine);
-    put('getWeightStructure', weights.structure);
-    put('getWeightControls', weights.controls);
-    put('getWeightHeatSinks', weights.heatSinks);
-    put('getWeightArmor', weights.armor);
-    put('getWeightPowerAmp', weights.powerAmplifiers);
-    put('getWeightCarryingSpace', weights.carryingSpace);
-    // TestTank.getWeightMisc is turret + dual turret + lifting equipment.
-    put(
-      'getWeightMisc',
-      (weights.turret ?? NaN) + (weights.secondaryTurret ?? NaN) + weights.lift,
-    );
-    return {
-      terms,
-      groups: {
-        mountedEquipment: {
-          members: TANK_LUMP,
-          ours: weights.equipment ?? NaN,
-        },
-      },
-      total: document.tonnage - (weights.remaining ?? NaN),
-    };
+    return mapTankWeights(weights, document.tonnage);
   } catch (error) {
     throw new Error(`${stage}: ${String(error)}`);
   }
