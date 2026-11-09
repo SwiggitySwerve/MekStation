@@ -7,6 +7,8 @@ import {
   WEAPON_CATALOG_FILES,
 } from '@/utils/construction/equipmentBV/catalogData';
 
+import { resolveVehicleClanArmor } from './armor';
+
 /**
  * Vehicle item slots: MegaMek 48fcb2f6 Tank.getFreeSlots (Tank.java:2581-2726,
  * checked by TestTank.java:331-337) and TestSupportVehicle.occupiedSlotCount
@@ -69,9 +71,6 @@ const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
 export function isVehicleArmorEquipment(id: string): boolean {
   return ARMOR.has(id);
 }
-/** TechConstants.isClan:394-398. */
-const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
-
 let catalog: { items: Map<string, SlotRecord>; ammo: Map<string, SlotRecord> };
 function records() {
   const index = (files: readonly { items?: unknown[] }[]) => {
@@ -161,10 +160,7 @@ function engineSlots(source: VehicleSlotUnit, clan: boolean): number {
 
 /** Tank.java:2677-2704 (non-patchwork; patchwork counts 0 here). */
 function armorSlots(source: VehicleSlotUnit, unitClan: boolean): number {
-  const clan =
-    source.armorTechLevel === undefined
-      ? unitClan
-      : CLAN_TECH_LEVELS.has(source.armorTechLevel);
+  const clan = resolveVehicleClanArmor(source.armorTechLevel, unitClan);
   const code = source.armorType;
   if (code === 1 || code === 2) return clan ? 1 : 2;
   if (code === 6) return 3;
