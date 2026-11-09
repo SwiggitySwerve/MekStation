@@ -16,6 +16,14 @@ critical-slot lookup removes `(OMNIPOD)` before the rear marker, matching
 pinned MtfFile.java:1010-1020. Already resolved decorated spellings retain
 their catalog IDs, including specialized ammunition bin identities.
 
+Mixed-tech equipment retains its own explicit Clan/IS identity before location
+or chassis preferences, including when a saved critical grid uses display names.
+The existing `ownTechSide` resolver owns this precedence. Unqualified source IDs
+still use critical hints and the same-location other-tech twin join; pure-mode
+routing remains unchanged. No serializer or catalog rewrite is required.
+Pinned MegaMek 48fcb2f64: `MtfFile.getEquipmentType` passes no tech restriction
+to `EquipmentType.get` for a Mixed-tech unit.
+
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
 When registry fallback reaches a shared launcher/ammo ID, getMountedById selects
 the token's record through the normalization owner's ammo classification. An
