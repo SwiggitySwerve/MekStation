@@ -544,10 +544,9 @@ const unavailableReason = (unitType: string): string => {
   return `${unitType}: no local additive weight seam on main`;
 };
 
-function mapTankWeights(
+function mapCombatVehicleWeightTerms(
   weights: NonNullable<ReturnType<typeof computeNativeTankWeight>>,
-  tonnage: number,
-): ILocalWeights {
+): Pick<ILocalWeights, 'terms' | 'groups'> {
   const terms: Record<string, number> = {};
   const put = (key: string, value: number | null | undefined) => {
     if (typeof value === 'number') terms[key] = value;
@@ -572,6 +571,15 @@ function mapTankWeights(
         ours: weights.equipment ?? NaN,
       },
     },
+  };
+}
+
+function mapTankWeights(
+  weights: NonNullable<ReturnType<typeof computeNativeTankWeight>>,
+  tonnage: number,
+): ILocalWeights {
+  return {
+    ...mapCombatVehicleWeightTerms(weights),
     total: tonnage - (weights.remaining ?? NaN),
   };
 }
