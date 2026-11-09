@@ -1,0 +1,6 @@
+{
+  "name": "fix-vault-version-load-races",
+  "status": "active",
+  "reason": "Approved Wave 3 U9 fix for stale vault version requests and operation-specific errors.",
+  "lastReviewed": "2026-11-08"
+}

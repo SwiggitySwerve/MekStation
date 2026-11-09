@@ -30,4 +30,5 @@ export interface VersionRollbackDialogProps {
   version: IVersionSnapshot | null;
   currentVersion: number;
   onConfirm?: (version: IVersionSnapshot) => void;
+  error?: string | null;
 }
