@@ -7,6 +7,7 @@ import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupS
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+import { EngineType } from '@/types/construction/EngineType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -88,7 +89,12 @@ it.each(corpusRows)(
 // Synthetic support chassis: a real corpus BLK (Jifty JI-50) with only the
 // equipment blocks edited, loaded by the pinned MekFileParser. The cases the
 // corpus never mounts on a support vehicle.
-const blk = (front: string, rear: string) => `<UnitType>
+const blk = (
+  front: string,
+  rear: string,
+  engine = '0',
+  tonnage = '60.0',
+) => `<UnitType>
 SupportTank
 </UnitType>
 
@@ -121,7 +127,7 @@ cargobay:13.0:1:1::-1:0
 </cruiseMP>
 
 <engine_type>
-0
+${engine}
 </engine_type>
 
 <armor_type>
@@ -174,7 +180,7 @@ ${rear}
 </engine_tech_rating>
 
 <tonnage>
-60.0
+${tonnage}
 </tonnage>
 
 <fuel>
@@ -191,6 +197,7 @@ const synthetic: readonly (readonly [
   mounts: readonly Mount[],
   javaHeat: number,
   javaTotal: number,
+  ice?: boolean,
 ])[] = [
   [
     'two medium lasers',
@@ -277,13 +284,62 @@ const synthetic: readonly (readonly [
     6,
     54,
   ],
+  // Miscellaneous heat (MiscType.java:1423-1441; TestEntity.java:971-979):
+  // the RISC Laser Pulse Module adds 2.
+  [
+    'RISC laser pulse module (+2)',
+    'Medium Laser\nRISC Laser Pulse Module',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['risclaserpulsemodule', 'front'],
+    ],
+    5,
+    58.5,
+  ],
+  // TestEntity.java:974-977: fusion and fission skip the welder's heat.
+  [
+    'Spot Welder on a fusion engine adds nothing',
+    'Medium Laser\nSpot Welder',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['spot-welder', 'front'],
+    ],
+    3,
+    57.5,
+  ],
+  [
+    'Spot Welder on an ICE engine (+2)',
+    'Medium Laser\nSpot Welder',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['spot-welder', 'front'],
+    ],
+    5,
+    68,
+    true,
+  ],
 ];
 
-describe.each(synthetic)(
-  'synthetic support chassis: %s',
-  (_label, front, rear, mounts, javaHeat, javaTotal) => {
+describe.each(
+  synthetic.map(([label, front, rear, mounts, javaHeat, javaTotal, ice]) => ({
+    label,
+    front,
+    rear,
+    mounts,
+    javaHeat,
+    javaTotal,
+    ice,
+  })),
+)(
+  'synthetic support chassis: $label',
+  ({ front, rear, mounts, javaHeat, javaTotal, ice }) => {
     it('charges the Java heat in the handler total', () => {
-      const parsed = new BlkParserService().parse(blk(front, rear));
+      const parsed = new BlkParserService().parse(
+        blk(front, rear, ice ? '1' : '0'),
+      );
       if (!parsed.success) throw new Error('fixture parse');
       const handler = new SupportVehicleUnitHandler();
       const result = handler.parse(parsed.data.document);
@@ -298,6 +354,7 @@ describe.each(synthetic)(
         'Jifty Transportable Field Repair Unit JI-50 (ML)',
       );
       const template = state.equipment[0];
+      if (ice) state.engineType = EngineType.ICE;
       state.equipment = mounts.map(([equipmentId, where], i) => ({
         ...template,
         id: String(i),
@@ -311,3 +368,58 @@ describe.each(synthetic)(
     });
   },
 );
+
+// Nova CEWS adds 2 heat in Java (count 5 beside a medium laser; MiscType.java:1436-1439).
+// The editor resolves it. The support handler's BV catalog does not know the BLK
+// name, so the mount is reported unresolved (a warning), never charged a guess.
+it('Nova CEWS adds 2 heat in the editor and is reported unresolved by the handler', () => {
+  const state = loadState('Jifty Transportable Field Repair Unit JI-50 (ML)');
+  const template = state.equipment[0];
+  state.equipment = [
+    'medium-laser',
+    'nova-combined-electronic-warfare-system-cews',
+  ].map((equipmentId, i) => ({
+    ...template,
+    id: String(i),
+    equipmentId,
+    location: VehicleLocation.FRONT,
+  }));
+  expect(computeVehicleWeightBreakdown(state, resolve).heatSinks).toBe(5);
+  const parsed = new BlkParserService().parse(
+    blk('Medium Laser\nNova CEWS', hoists),
+  );
+  if (!parsed.success) throw new Error('fixture parse');
+  const result = new SupportVehicleUnitHandler().parse(parsed.data.document);
+  if (!result.success) throw new Error('handler parse');
+  expect(computeSupportVehicleWeight(result.data.unit).unresolved).toEqual([
+    'Nova CEWS',
+  ]);
+});
+
+// TestSupportVehicle.java:928-930: a small support vehicle (under 5 t) needs no
+// sinks whatever it mounts. Pinned Java on a 4 t ICE chassis with a medium
+// laser, a PPC and a Spot Welder: count 0 (it would be 15 if the weapons and
+// the welder counted). The handler flags the weapons unresolved on a chassis
+// this small, so only the welder's heat can reach it.
+it('charges no sinks under 5 tons whatever it mounts', () => {
+  const state = loadState('Jifty Transportable Field Repair Unit JI-50 (ML)');
+  const template = state.equipment[0];
+  state.tonnage = 4;
+  state.engineType = EngineType.ICE;
+  state.equipment = ['medium-laser', 'ppc', 'spot-welder'].map(
+    (equipmentId, i) => ({
+      ...template,
+      id: String(i),
+      equipmentId,
+      location: VehicleLocation.FRONT,
+    }),
+  );
+  expect(computeVehicleWeightBreakdown(state, resolve).heatSinks).toBe(0);
+  const parsed = new BlkParserService().parse(
+    blk('Medium Laser\nPPC\nSpot Welder', hoists, '1', '4.0'),
+  );
+  if (!parsed.success) throw new Error('fixture parse');
+  const result = new SupportVehicleUnitHandler().parse(parsed.data.document);
+  if (!result.success) throw new Error('handler parse');
+  expect(computeSupportVehicleWeight(result.data.unit).heatSinks).toBe(0);
+});
