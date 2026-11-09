@@ -800,6 +800,8 @@ describe('useGameplayStore utility actions', () => {
       getSession: () => snapshot,
     } as unknown as InteractiveSession;
 
+    useGameplayStore.getState().setSession(snapshot);
+    useGameplayStore.getState().selectUnit('player-a');
     useGameplayStore.setState({
       session: snapshot,
       interactiveSession: fake,
@@ -825,6 +827,8 @@ describe('useGameplayStore utility actions', () => {
 
   it('stages a physical-attack dock command into the forecast commit flow', () => {
     const session = forcePhysicalAttackState(makeSession());
+    useGameplayStore.getState().setSession(session);
+    useGameplayStore.getState().selectUnit('player-a');
     useGameplayStore.setState({
       session,
       ui: {

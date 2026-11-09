@@ -5,6 +5,16 @@ const { GamePhase, LockState, buildMovementCommands, makeCtx } = H;
 describe('movementCommands', () => {
   const commands = buildMovementCommands();
 
+  it('Cancel commits only a local cancel action', () => {
+    const cancel = commands.find(
+      (command) => command.id === 'movement.cancel',
+    )!;
+    expect(cancel.commit(makeCtx({}))).toEqual({
+      actionId: 'cancel',
+      payload: {},
+    });
+  });
+
   // tactical-movement-intent-composer (Single Movement Authority): the dock no
   // longer exposes Walk / Run / Sprint / Jump movement-verb commands — the
   // Movement Intent Composer owns movement composition + mode selection. Evade

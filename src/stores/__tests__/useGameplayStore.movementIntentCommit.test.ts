@@ -169,6 +169,7 @@ describe('commitComposedMovement (task 1.4)', () => {
 
     // Reference: what the legacy commitPlannedMovement would send for this move.
     const legacy = buildFakeSessionWithUnit();
+    useGameplayStore.getState().selectUnit('unit-a');
     useGameplayStore.setState({
       interactiveSession: legacy.session,
       plannedMovement: {
@@ -188,6 +189,7 @@ describe('commitComposedMovement (task 1.4)', () => {
     // Intent-first: compose the equivalent move and commit via the new path.
     useGameplayStore.getState().reset();
     const composedRun = buildFakeSessionWithUnit();
+    useGameplayStore.getState().selectUnit('unit-a');
     useGameplayStore.setState({
       interactiveSession: composedRun.session,
       movementIntent: composed,
@@ -197,6 +199,7 @@ describe('commitComposedMovement (task 1.4)', () => {
       .getState()
       .commitComposedMovement(composed, MovementType.Run);
 
+    expect(legacy.movements).toHaveLength(1);
     expect(composedRun.movements).toHaveLength(1);
     expect(composedRun.movements[0]).toEqual(legacy.movements[0]);
     // Composition resets after commit.

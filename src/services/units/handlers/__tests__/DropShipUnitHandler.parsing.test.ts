@@ -57,7 +57,7 @@ describe('DropShipUnitHandler', () => {
     });
 
     it('should parse military design type', () => {
-      const doc = createMockBlkDocument({ designType: 0 });
+      const doc = createMockBlkDocument({ designType: 1 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
@@ -89,24 +89,25 @@ describe('DropShipUnitHandler', () => {
       expect(result.data?.unit?.structuralIntegrity).toBe(12);
     });
 
-    it('should parse armor by arc', () => {
+    it('should parse armor by location in BLK source order', () => {
+      // BLKDropshipFile.java:192-199: armor[1] is the RIGHT side, armor[2] the LEFT.
       const doc = createMockBlkDocument({
-        armor: [200, 150, 150, 120, 120, 80],
+        armor: [200, 150, 140, 120],
       });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.armorByArc.nose).toBe(200);
-      expect(result.data?.unit?.armorByArc.frontLeftSide).toBe(150);
-      expect(result.data?.unit?.armorByArc.frontRightSide).toBe(150);
-      expect(result.data?.unit?.armorByArc.aftLeftSide).toBe(120);
-      expect(result.data?.unit?.armorByArc.aftRightSide).toBe(120);
-      expect(result.data?.unit?.armorByArc.aft).toBe(80);
+      expect(result.data?.unit?.armorByArc).toStrictEqual({
+        nose: 200,
+        rightSide: 150,
+        leftSide: 140,
+        aft: 120,
+      });
     });
 
     it('should calculate total armor points', () => {
       const doc = createMockBlkDocument({
-        armor: [200, 150, 150, 120, 120, 80], // Total: 820
+        armor: [250, 200, 190, 180], // Total: 820
       });
       const result = handler.parse(doc);
 
