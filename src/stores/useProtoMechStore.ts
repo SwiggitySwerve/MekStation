@@ -13,7 +13,6 @@ import {
   createUnitStorePersistOptions,
   createUnitIdentityActions,
   modificationPatch,
-  pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
@@ -42,6 +41,7 @@ import {
   createProtoMechMountedEquipment,
   createEmptyProtoMechArmorAllocation,
 } from './protoMechState';
+import { pickPersistedProtoMechState } from './unitDraftPersistence';
 
 export type { ProtoMechStore } from './protoMechState';
 
@@ -449,38 +449,7 @@ export function createProtoMechStore(
       },
       createUnitStorePersistOptions(
         `megamek-protomech-${initialState.id}`,
-        (state: ProtoMechStore) => ({
-          ...pickPersistedUnitIdentity(state),
-          librarySource: state.librarySource,
-          techBase: state.techBase,
-          unitType: state.unitType,
-          tonnage: state.tonnage,
-          weightClass: state.weightClass,
-          chassisType: state.chassisType,
-          pointSize: state.pointSize,
-          engineRating: state.engineRating,
-          walkMP: state.walkMP,
-          cruiseMP: state.cruiseMP,
-          flankMP: state.flankMP,
-          jumpMP: state.jumpMP,
-          structureByLocation: state.structureByLocation,
-          armorByLocation: state.armorByLocation,
-          armorType: state.armorType,
-          hasMainGun: state.hasMainGun,
-          mainGunWeaponId: state.mainGunWeaponId,
-          hasMyomerBooster: state.hasMyomerBooster,
-          glidingWings: state.glidingWings,
-          hasMagneticClamps: state.hasMagneticClamps,
-          hasExtendedTorsoTwist: state.hasExtendedTorsoTwist,
-          equipment: state.equipment,
-          isModified: state.isModified,
-          createdAt: state.createdAt,
-          lastModifiedAt: state.lastModifiedAt,
-          // Persist the last-computed BV breakdown so hydrated sessions read
-          // the same value the parity harness would produce. Stale copies are
-          // rewritten on the first BV-affecting mutation.
-          bvBreakdown: state.bvBreakdown,
-        }),
+        (state: ProtoMechStore) => pickPersistedProtoMechState(state),
       ),
     ),
   );
