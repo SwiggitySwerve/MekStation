@@ -1590,6 +1590,32 @@ test.describe('library persistence and printing', () => {
     });
   }
 
+  test('ProtoMech Armor: Clear then Auto places the legal total @customizer', async ({
+    page,
+  }) => {
+    // Row 4.1 item a-3: Auto is MegaMekLab's allocation at the legal total. Centaur
+    // is 5 t with a main gun, so the pinned cap is 24 + 3 = 27 (TestProtoMek.maxArmorFactor).
+    await page.goto('/customizer');
+    await library(page, 'Centaur', '');
+    await section(page, 'Armor');
+    const used = page.getByTestId('protomech-armor-total-used');
+    await expect(page.getByTestId('protomech-armor-total-max')).toHaveText(
+      '27',
+    );
+    await page.getByRole('button', { name: 'Clear', exact: true }).click();
+    await expect(used).toHaveText('0');
+    await page.getByRole('button', { name: 'Auto', exact: true }).click();
+    await expect(used).toHaveText('27');
+    // 5 t: head 2 + 5/2, torso 2 x 5, arms 2, legs 2 x 3, main gun 3 x 1.
+    await expect(page.getByLabel('Head armor points')).toHaveValue('4');
+    await expect(page.getByLabel('Torso armor points')).toHaveValue('10');
+    await expect(page.getByLabel('Right Arm armor points')).toHaveValue('2');
+    await expect(page.getByLabel('Left Arm armor points')).toHaveValue('2');
+    await expect(page.getByLabel('Legs armor points')).toHaveValue('6');
+    await expect(page.getByLabel('Main Gun armor points')).toHaveValue('3');
+    await noOverflow(page);
+  });
+
   test('ProtoMech Main Gun: remove the weapon, save, reload and reopen @customizer', async ({
     page,
     request,
