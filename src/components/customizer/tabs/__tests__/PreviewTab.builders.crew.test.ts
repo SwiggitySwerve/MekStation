@@ -118,10 +118,18 @@ describe('editor crew seats in the record-sheet payload', () => {
     ).toBeUndefined();
   });
 
-  it('leaves a QuadVee without authored seats on its existing template type', () => {
+  it('prints a QuadVee without authored seats as its two blank native seats', () => {
     const data = extract(state(MechConfiguration.QUADVEE, 30));
-    expect(data).toMatchObject({ mechType: 'quad' });
-    expect(data).not.toHaveProperty('crew');
+    expect(data).toMatchObject({
+      mechType: 'quadvee',
+      crew: {
+        crewType: 'QUADVEE',
+        slots: [
+          { slotIndex: 0, role: 'Pilot' },
+          { slotIndex: 1, role: 'Gunner' },
+        ],
+      },
+    });
   });
 
   it.each([
