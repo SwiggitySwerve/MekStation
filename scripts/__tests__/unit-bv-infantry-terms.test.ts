@@ -1,10 +1,25 @@
 import { gameUnitSchema } from '../../src/lib/events/replay/CombatLifecycleSharedSchemas';
 import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
 import { INFANTRY_BV_TRACE_FIELDS } from '../../src/types/unit/BVBreakdownTypes';
+import { getEquipmentEntry } from '../../src/utils/construction/equipmentBVResolver';
 import { baseInput } from '../../src/utils/construction/infantry/__tests__/infantryBV.test.helpers';
 import { calculateInfantryBV } from '../../src/utils/construction/infantry/infantryBV';
 import { aggregateDelta } from '../unit-bv-parity';
 import { calculateRow } from '../vehicle-aero-bv-delta';
+
+function sourceFigure(file: string) {
+  const source = personnel.rows.find(
+    (row) => row.path.startsWith('infantry/') && row.path.endsWith('/' + file),
+  );
+  if (!source) throw new Error('Missing pinned infantry source: ' + file);
+  const row = calculateRow({
+    ...source,
+    unit: null,
+    sourceText: source.content,
+  });
+  expect(row.reason).toBeUndefined();
+  return row;
+}
 
 test('infantry exposes pre-movement structure and specialization stages', () => {
   const breakdown = calculateInfantryBV(baseInput());
@@ -16,6 +31,9 @@ test('infantry exposes pre-movement structure and specialization stages', () => 
   expect(breakdown).not.toHaveProperty('weaponBV');
   expect(
     Object.keys(breakdown).filter((key) => key.startsWith('infantry.')),
+  ).toEqual([]);
+  expect(
+    Object.keys(breakdown).filter((key) => key.startsWith('weapon.')),
   ).toEqual([]);
 });
 
@@ -48,17 +66,7 @@ test.each([
 ] as const)(
   'projects exact native infantry stages: %s',
   (file, primary, secondary, antiMek, remainder) => {
-    const source = personnel.rows.find(
-      (row) =>
-        row.path.startsWith('infantry/') && row.path.endsWith('/' + file),
-    );
-    if (!source) throw new Error('Missing pinned infantry source: ' + file);
-    const row = calculateRow({
-      ...source,
-      unit: null,
-      sourceText: source.content,
-    });
-    expect(row.reason).toBeUndefined();
+    const row = sourceFigure(file);
     const terms = row.figure?.terms;
     expect(terms).toMatchObject({
       'infantry.primaryWeaponBV': primary,
@@ -91,6 +99,8 @@ test('native anti-Mek excludes archaic weapons and keeps prosthetic bonuses in t
     'infantry.secondaryWeaponBV': 0.95,
     'infantry.antiMekWeaponBV': 0.95,
     'infantry.weaponRemainderBV': 0.18999999999999995,
+    'weapon.-1.TPRS.Blade (Dagger/Knife/Bayonet)': 0.1,
+    'weapon.-1.TPRS.Auto-Pistol': 1.9,
   });
   expect(JSON.stringify(input)).toBe(before);
 });
@@ -169,3 +179,117 @@ test.each(
     ).toBe(true);
   },
 );
+
+// Pinned MegaMek processWeapon calls merge temporary trooper identities;
+// the comparator then compares each location's values and count.
+test.each([
+  [
+    'Clan Anti-Infantry Clan Jade Falcon Police.blk',
+    {
+      'weapon.-1.TPRS.Shotgun (Avenger CCW)': 3.5999999999999996,
+      'weapon.-1.TPRS.Tranq Gun': 1.04,
+    },
+    [],
+  ],
+  [
+    'Clan Foot Point (Laser Marine).blk',
+    { 'weapon.-1.TPRS.Laser Rifle': 71.5 },
+    [],
+  ],
+  [
+    'Mob (Huge).blk',
+    {
+      'weapon.-1.TPRS.Rifle (Makeshift)': 4.32,
+      'weapon.-1.TPRS.InfantryMiniGrenadeInferno': 1.2000000000000002,
+    },
+    [],
+  ],
+  [
+    'Field Gun Platoon (AFFS) (Motorized AC10 3067+).blk',
+    { 'weapon.-1.TPRS.Rifle (Federated Long)': 29.96 },
+    [123, 123],
+  ],
+  [
+    'Beast Infantry (Hipposaur)(Auto-Rifle_Auto-Cannon).blk',
+    {
+      'weapon.-1.TPRS.InfantryAssaultRifle': 0,
+      'weapon.-1.TPRS.Autocannon (Semi-Portable)': 18.8,
+    },
+    [],
+  ],
+] as const)(
+  'projects native weapon calls without changing their values: %s',
+  (file, troopers, guns) => {
+    const terms = sourceFigure(file).figure?.terms ?? {};
+    expect(
+      Object.fromEntries(
+        Object.entries(terms).filter(([key]) =>
+          key.startsWith('weapon.-1.TPRS.'),
+        ),
+      ),
+    ).toEqual(troopers);
+    const fieldGuns = Object.entries(terms).filter(([key]) =>
+      key.includes('.FGUN.'),
+    );
+    expect(fieldGuns.map(([, value]) => value)).toEqual(guns);
+    if (guns.length) {
+      const id = getEquipmentEntry('Autocannon/10')?.id;
+      expect(id).toBeDefined();
+      expect(fieldGuns.map(([key]) => key)).toEqual(
+        guns.map((_, index) => `weapon.${index}.FGUN.${id}`),
+      );
+    }
+  },
+);
+
+test('primary, secondary and anti-Mek calls with the same identity merge once', () => {
+  const input = baseInput({
+    totalTroopers: 10,
+    primaryWeapon: { id: 'Auto-Pistol', damageDivisor: 1 },
+    secondaryWeapon: { id: 'Auto-Pistol', damageDivisor: 1 },
+    sourceOffense: {
+      secondaryShooters: 5,
+      mp: 1,
+      antiMek: true,
+      augmentations: [],
+      prostheticAntiMek: false,
+    },
+  });
+  const before = JSON.stringify(input);
+  const b = calculateInfantryBV(input);
+  expect(
+    Object.fromEntries(
+      Object.entries(b).filter(([key]) => key.startsWith('weapon.')),
+    ),
+  ).toEqual({ 'weapon.-1.TPRS.Auto-Pistol': 3.8 });
+  expect(JSON.stringify(input)).toBe(before);
+});
+
+test.each(['weapon.-1.TPRS.Auto-Pistol', 'weapon.0.FGUN.ac10'])(
+  'strict replay admits only optional finite weapon diagnostic %s',
+  (key) => {
+    const schema = gameUnitSchema.shape.infantryInit
+      .unwrap()
+      .shape.bvBreakdown.unwrap();
+    const legacy = calculateInfantryBV(baseInput());
+    for (const value of [undefined, 0, 12.5])
+      expect(schema.safeParse({ ...legacy, [key]: value }).success).toBe(true);
+    for (const value of [NaN, Infinity, -Infinity, '12.5'])
+      expect(schema.safeParse({ ...legacy, [key]: value }).success).toBe(false);
+  },
+);
+
+test.each([
+  'unknownTraceField',
+  'weapon.0.INVALID.ac10',
+  'weapon.bad.FGUN.ac10',
+  'weapon.-1.TPRS.',
+  'weapon.0.TPRS.Auto-Pistol',
+])('strict replay keeps rejecting unknown diagnostic key %s', (key) => {
+  const schema = gameUnitSchema.shape.infantryInit
+    .unwrap()
+    .shape.bvBreakdown.unwrap();
+  expect(
+    schema.safeParse({ ...calculateInfantryBV(baseInput()), [key]: 1 }).success,
+  ).toBe(false);
+});

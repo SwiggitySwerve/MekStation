@@ -1334,3 +1334,35 @@ aggregates and totals SHALL remain unchanged.
 - **THEN** absent source facts and absent secondary weapons SHALL NOT acquire diagnostic keys
 - **AND** represented zero values SHALL remain present and finite
 - **AND** strict replay SHALL accept the optional finite keys and legacy payloads while rejecting nonfinite diagnostics
+
+### Requirement: Infantry per-weapon BV diagnostic projection
+
+The infantry calculation owner SHALL retain the values already computed for
+each source-backed weapon call without changing resolution, admission, shooter
+counts, arithmetic, modifiers, ammunition, aggregates or totals. Repeated
+temporary trooper weapon identities SHALL merge in native call order, including
+eligible anti-Mek repeats. Separate field-gun mounts SHALL remain separate.
+The trace SHALL format retained values as optional `weapon.*` diagnostics;
+it SHALL NOT recalculate contributions or infer missing facts.
+
+#### Scenario: Primary, secondary and anti-Mek weapon calls
+
+- **GIVEN** source infantry with distinct primary and secondary weapons
+- **WHEN** the existing owner computes their shooter contributions and eligible anti-Mek repeats
+- **THEN** each identity SHALL retain its merged pre-speed weapon contribution
+- **AND** archaic weapons SHALL receive no anti-Mek repeat, while prosthetic and augmentation bonuses SHALL remain in the existing remainder
+
+#### Scenario: Shared identities and separate field guns
+
+- **GIVEN** primary and secondary calls with the same weapon identity, or repeated field-gun mounts
+- **WHEN** the weapon trace is projected
+- **THEN** temporary trooper calls SHALL merge into one identity in call order
+- **AND** each field gun SHALL retain its own local mount ordinal, resolved identity, FGUN location and already-computed value
+
+#### Scenario: Zero, absence and replay compatibility
+
+- **GIVEN** a represented zero-valued weapon or a legacy input without source weapon facts
+- **WHEN** the breakdown is projected and validated for replay
+- **THEN** a represented zero SHALL remain present, and absent facts SHALL remain absent
+- **AND** only optional finite values at recognized weapon diagnostic keys SHALL be accepted, with unknown-key rejection preserved
+- **AND** existing replay fixtures, digests, golden results and all prior infantry terms SHALL remain unchanged

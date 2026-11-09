@@ -6,7 +6,7 @@
  * embeds: `IGameConfig`, `IGameUnit` (with its five per-type construction
  * init blocks), `IHexTerrain`, `IC3NetworkState`, `IEncounterMeta`,
  * `IObjectiveMarker`, `IRepresentedGroundObjectState`, and
- * `IRepresentedMinefieldState`. Every object is `.strict()` — no
+ * `IRepresentedMinefieldState`. Every object rejects unknown keys — no
  * passthrough, no unconstrained records (concrete key/value maps use
  * typed values per the change law).
  *
@@ -43,7 +43,10 @@ import {
   SquadMotionType,
 } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { INFANTRY_BV_TRACE_FIELDS } from '@/types/unit/BVBreakdownTypes';
+import {
+  INFANTRY_BV_TRACE_FIELDS,
+  isInfantryBVWeaponTerm,
+} from '@/types/unit/BVBreakdownTypes';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
@@ -389,25 +392,37 @@ const infantryBVTraceShape = Object.fromEntries(
   z.ZodOptional<typeof finiteNumber>
 >;
 
+const infantryBVBreakdownShape = {
+  ...infantryBVTraceShape,
+  defensiveBV: finiteNumber.optional(),
+  perTrooper: finiteNumber,
+  motiveMultiplier: finiteNumber,
+  antiMechMultiplier: finiteNumber,
+  fieldGunBV: finiteNumber,
+  platoonBV: finiteNumber,
+  pilotMultiplier: finiteNumber,
+  final: finiteNumber,
+  primaryBV: finiteNumber,
+  secondaryBV: finiteNumber,
+  armorKitBV: finiteNumber,
+  fieldGunWeaponBV: finiteNumber,
+  fieldGunAmmoBV: finiteNumber,
+  troopers: finiteNumber,
+};
+
 const infantryBVBreakdownSchema = z
-  .object({
-    ...infantryBVTraceShape,
-    defensiveBV: finiteNumber.optional(),
-    perTrooper: finiteNumber,
-    motiveMultiplier: finiteNumber,
-    antiMechMultiplier: finiteNumber,
-    fieldGunBV: finiteNumber,
-    platoonBV: finiteNumber,
-    pilotMultiplier: finiteNumber,
-    final: finiteNumber,
-    primaryBV: finiteNumber,
-    secondaryBV: finiteNumber,
-    armorKitBV: finiteNumber,
-    fieldGunWeaponBV: finiteNumber,
-    fieldGunAmmoBV: finiteNumber,
-    troopers: finiteNumber,
-  })
-  .strict();
+  .object(infantryBVBreakdownShape)
+  // Only recognized weapon keys may extend the legacy strict shape.
+  .catchall(finiteNumber.optional())
+  .superRefine((value, context) => {
+    const keys = Object.keys(value).filter(
+      (key) =>
+        !Object.hasOwn(infantryBVBreakdownShape, key) &&
+        !isInfantryBVWeaponTerm(key),
+    );
+    if (keys.length)
+      context.addIssue({ code: z.ZodIssueCode.unrecognized_keys, keys });
+  });
 
 /**
  * Full `IInfantry` mirror (extends ISquadUnit -> IBaseUnit -> IEntity /
