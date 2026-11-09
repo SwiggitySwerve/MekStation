@@ -18,7 +18,6 @@ import {
   isFireWeaponCategory,
   isWeaponCategory,
 } from '@/utils/equipment/ammunitionCompatibility';
-import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
@@ -32,11 +31,12 @@ import {
   computeTurretEquipmentWeight,
   getVehicleSourceIdentity,
 } from './equipmentMounts';
-import { isVehicleArmorEquipment } from './itemSlots';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import {
-  computeVehicleSponsonMechanismWeight,
+  applyVehicleMountMechanismWeights,
   getVehicleTurretMechanismFigures,
+  isSponsonMechanismPayload,
+  isVehicleMechanismMountId,
 } from './turret';
 import {
   resolveVehicleAccessoryMass,
@@ -207,11 +207,12 @@ export function computeVehicleMountedWeightFigures(
         item.category === EquipmentCategory.AMMUNITION ||
         isWeaponCategory(item.category),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
-      sponsonPayload:
-        mount.isSponsonMounted &&
-        item?.category !== EquipmentCategory.AMMUNITION &&
-        !HEAT_SINK_EQUIPMENT_IDS.includes(item?.id ?? mount.equipmentId) &&
-        !isVehicleArmorEquipment(item?.id ?? mount.equipmentId),
+      sponsonPayload: isSponsonMechanismPayload({
+        isSponsonMounted: mount.isSponsonMounted,
+        isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
+        id: item?.id ?? mount.equipmentId,
+      }),
+      pintleMounted: mount.isPintleTurretMounted === true,
       // An unresolved definition has unknown classification as well as mass.
       needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
       inSecondaryTurret: mount.location === VehicleLocation.TURRET_2,
@@ -273,28 +274,23 @@ export function computeVehicleMountedWeightFigures(
                 { directFireWeaponTonnage },
               );
   }
-  const sponsons = mounted.filter((m) => m.id === 'vehicular-sponson-turret');
-  if (sponsons.length) {
-    const weight = computeVehicleSponsonMechanismWeight({
-      equipmentWeight: sum(
-        mounted.filter((m) => m.sponsonPayload),
-        'Sponson basis',
-      ),
-      count: sponsons.length,
-      isOmni: state.isOmni,
-      baseChassisWeight: state.baseChassisSponsonPintleWeight,
-      kilograms:
-        state.unitType === UnitType.SUPPORT_VEHICLE &&
-        state.tonnage !== undefined &&
-        state.tonnage < 5,
-    });
-    for (const mount of sponsons) {
-      mount.weight = weight;
-      if (weight === null) unresolvedMountIds.push(mount.instanceId);
-    }
-    if (weight === null)
-      issues.push('Sponson mechanism mass is unavailable or invalid');
-  }
+  // MiscType.java:563-603: the sponson and pintle mechanisms, one owner for the
+  // editor and the support handler.
+  const mechanisms = applyVehicleMountMechanismWeights(mounted, {
+    isOmni: state.isOmni,
+    baseChassisWeight: state.baseChassisSponsonPintleWeight,
+    kilograms:
+      state.unitType === UnitType.SUPPORT_VEHICLE &&
+      state.tonnage !== undefined &&
+      state.tonnage < 5,
+  });
+  for (const mount of mounted)
+    if (isVehicleMechanismMountId(mount.id) && mount.weight === null)
+      unresolvedMountIds.push(mount.instanceId);
+  if (mechanisms.sponsonUnavailable)
+    issues.push('Sponson mechanism mass is unavailable or invalid');
+  if (mechanisms.pintleUnavailable)
+    issues.push('Pintle mechanism mass is unavailable or invalid');
   const equipment = sum(mounted, 'Equipment');
   const heatLoad = sumVehicleHeatLoad(mounted, {
     year: state.year,
