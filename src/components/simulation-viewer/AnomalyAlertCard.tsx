@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 
 import type { IAnomalyAlertCardProps } from '@/components/simulation-viewer/types';
 
@@ -55,10 +55,13 @@ export const AnomalyAlertCard: React.FC<IAnomalyAlertCardProps> = ({
 }) => {
   const [dismissed, setDismissed] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const dismissalStarted = useRef(false);
 
   const styles = SEVERITY_STYLES[anomaly.severity];
 
   const handleDismiss = useCallback(() => {
+    if (dismissalStarted.current) return;
+    dismissalStarted.current = true;
     setDismissed(true);
     announce(`${formatTitle(anomaly.type)} alert dismissed`);
     setTimeout(() => {

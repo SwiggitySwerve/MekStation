@@ -89,7 +89,10 @@ export function PilotCreationWizard({
           />
 
           {wizard.error && (
-            <div className="mt-4 rounded-lg border border-red-600/30 bg-red-900/20 p-3">
+            <div
+              role="alert"
+              className="mt-4 rounded-lg border border-red-600/30 bg-red-900/20 p-3"
+            >
               <p className="text-sm text-red-400">{wizard.error}</p>
             </div>
           )}
@@ -99,6 +102,7 @@ export function PilotCreationWizard({
           canProceed={wizard.canProceed}
           currentStep={wizard.currentStep}
           isLoading={wizard.isLoading}
+          hasCreationFailed={wizard.hasCreationFailed}
           onBack={wizard.handleBack}
           onClose={onClose}
           onCreate={wizard.handleCreate}

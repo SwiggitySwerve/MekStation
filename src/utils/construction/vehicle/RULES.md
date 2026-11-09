@@ -756,3 +756,92 @@ ammunition uses the Artillery category but enters only the ammo sum, excluding
 weapon-dependent fire-control, heat and amplifier bases. Pin48fcb2f6:
 TestEntity.java:716-724,753-769. Existing support validity consumes this total;
 the combat-vehicle overweight reservation is unchanged.
+
+## Environmental sealing registry mass
+
+`variableEquipmentMass.ts:resolveVehicleAccessoryMass` routes
+`environmental-sealed-chassis-registry` through the existing
+`environmental-sealed-chassis` rule before both the divisor lookup and the
+support guard. Both identities therefore use one mass rule: combat sealing
+weighs 10% of vehicle tonnage, rounded upward to a half ton; support sealing
+adds zero mounted mass because its chassis structure already accounts for it.
+Missing construction context remains unavailable. Catalog records and native
+mount identities are unchanged.
+
+At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:10270-10281` defines the combat chassis modification and
+`MiscType.java:660-666` computes its mass. `RoundWeight.java:56-68` owns
+standard rounding, and `TestEntity.java:631-667` sums miscellaneous mounts.
+`Tank.java:1878-1879` includes inherent submarine sealing;
+`TestTank.java:469-471` rejects an additional sealing mount on a submarine.
+This identity fix adds no inherent-sealing equipment charge or legality rule.
+
+`environmentalSealingMass.pinned.test.ts` covers both catalog identities,
+rounding, missing context and the support guard, plus the mounted masses
+independently probed for the 19 frozen sealing gaps at mm-data `50f7efe`.
+The two armor-density gaps and one sponson gap remain separate follow-ups.
+
+## Native Tank armor technology and decorated array identity
+
+At MegaMek 48fcb2f64, construction armor weight uses `ArmorType.forEntity`
+(:96-101), which selects with `TechConstants.isClan` (:394-398). Only an absent
+BLK armor technology tag inherits the chassis side. Explicit `-1` selects IS,
+even on a Clan chassis; Clan levels are 2, 6, 8, 10 and 12. The shared armor
+owner supplies this decision to weight, introduction-year and slot callers.
+`Entity.isClanArmor` is a different API and is not the weight selection rule.
+The base and Bombast Chalchiuhtotolin sources therefore carry 7 and 7.5 tons
+of armor, respectively (`TestEntity.java:584-604`; `BLKTankFile.java:284-304`).
+
+Native Tank weight transport reuses the guarded lookup-token owner only for
+`ISLMGA(ST)` and its `:OMNI` form, selecting the ISLMGA identity and 0.5-ton
+mass for construction. Public equipment lookup identities remain unchanged,
+including the legacy `lmga` target for these decorated inputs. The native
+weight selection matches plain
+ISLMGA and converted islmgast (`ISLightMGA.java:67-83`). Source tokens, sponson
+flags and existing catalog IDs are retained. Clan arrays remain 0.25 tons.
+
+The frozen Myrmidon P (Tate) deficit was two misidentified arrays, not its
+sponson mechanism. Its mechanism already weighs 0.5 tons under the aggregate
+rule above (`MiscType.java:563-591`). Correcting the arrays makes its equipment
+term 11.5 tons and complete weight 40 tons without changing mechanism arithmetic.
+
+## Combat engine heat-sink allowances (pinned)
+
+At pin 48fcb2f64, `TestTank.getWeightHeatSinks` (TestTank.java:264-270)
+subtracts `Engine.getWeightFreeEngineHeatSinks` (Engine.java:480-493) from the
+heat-neutral requirement (TestEntity.java:945-984) and clamps at zero. The
+allowance is 10 for every fusion-class engine (Fusion, XL, Light, XXL, Compact,
+Large and the Clan variants), 5 for fission, 1 for fuel cell, and 0 for ICE or
+no engine. `weightComposition.ts` matches this table, and a Java sweep over all
+1,444 mobile corpus vehicles found no disagreement on count or mass for the
+1,150 vehicles that have a complete combat weight. `heatSinkEngines.pinned.test.ts`
+pins one real row per engine family, the clamp, non-patchwork stealth (+10),
+a PPC capacitor (+5) and a laser insulator (-1).
+
+The only source path into this term is the mount's catalog id, resolved from
+its source identity. The sweep found no mount with an unresolved heat value, so
+the path loses nothing. Support vehicles are outside this term: Java gives them
+no free sinks (TestSupportVehicle.java:917-931), and the support heat term
+depends on the 2.2-d support weight model.
+
+## Support ammo slot boundary and independent fire-control placement
+
+At MegaMek `48fcb2f64`, `TestSupportVehicle.getAmmoSlots` (:1618-1640)
+shares ammo with weapons only for small support vehicles. Small means strictly
+below 5 tons (`EntityWeightClass.java:80-97`); at exactly 5 tons, distinct
+non-one-shot ammo types require slots. `itemSlots.ts` starts its existing
+conservative ammo grouping at this boundary. Native ammo identity, armor and
+other lower bounds described by that owner remain separate work.
+
+`TestTank.isValidTankLocation` (:979-980) and `isBodyEquipment` (:1079-1093)
+require Basic and Advanced Fire Control in Body. `vehicleValidation.ts` owns
+this placement check independently of slot accounting. Missing, variable or
+unit-dependent slot costs on another mount cannot suppress a known placement
+error. Equipment identities and names use the public catalog resolver, including
+the native `:OMNI` qualifier. The Tank, VTOL and support handlers retain their
+existing validation entrypoints, CASE checks and motive compatibility checks.
+
+`vehicleEquipmentValidation.pinned.test.ts` loads synthetic BLKs through the real
+handlers for the 5-ton ammo overrun and misplaced fire control beside variable
+cargo. Boundary and placement controls also cover unknown costs, Blue Shield's
+unit-dependent slots, Body placement, CASE and independent motive errors.

@@ -605,6 +605,10 @@ export class ServerMatchHost {
   ): Promise<void> => {
     this.opponentEpoch += 1;
     return this.queueCommand(async () => {
+      // A closed host serves nobody and a restart folds the branch, so
+      // a rebuild here would only rewrite a dead session. Checked inside
+      // the queue: the host may close while this waits its turn (D-2b).
+      if (this.closed) return;
       await this.runRewindRebuild(input);
       await this.driveOpponent();
     });
@@ -659,6 +663,19 @@ export class ServerMatchHost {
    */
   boundReplayToEffectiveHead = (sequence: number): void => {
     this.rewindReplayCeiling = sequence;
+  };
+
+  /**
+   * Make these viewers' next join replay from the rebuilt head, ignoring
+   * the `lastSeq` they quote: it names the superseded stream. The mark
+   * lives in memory, so boot recovery sets it again for a host it
+   * folds onto an activated branch (D-2c).
+   */
+  markViewersForResync = (playerIds: readonly string[]): void => {
+    this.rewindResyncViewers.clear();
+    for (const playerId of playerIds) {
+      this.rewindResyncViewers.add(playerId);
+    }
   };
 
   /**
@@ -726,12 +743,7 @@ export class ServerMatchHost {
       discardViewerDeliveries: () => {
         this.deliveryCursors.discardAll();
       },
-      markViewersForResync: (playerIds) => {
-        this.rewindResyncViewers.clear();
-        for (const playerId of playerIds) {
-          this.rewindResyncViewers.add(playerId);
-        }
-      },
+      markViewersForResync: this.markViewersForResync,
       setRewindReplayCeiling: (sequence) => {
         this.boundReplayToEffectiveHead(sequence);
       },

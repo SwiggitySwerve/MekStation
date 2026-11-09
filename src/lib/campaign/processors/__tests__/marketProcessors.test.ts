@@ -1,6 +1,7 @@
 import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { IUnitMarketOffer } from '@/types/campaign/markets/marketTypes';
 
+import { initializePersonnelMarket } from '@/lib/campaign/markets/personnelMarket';
 import {
   ICampaign,
   createDefaultCampaignOptions,
@@ -276,6 +277,30 @@ function makePersonnelOffer(
 }
 
 describe('market offers stored on campaign state (D-7)', () => {
+  it('retains initial recruits and appends distinct offers on the first day advance', () => {
+    const initial = initializePersonnelMarket(
+      createTestCampaign({
+        rngSeed: 42,
+        options: {
+          ...createDefaultCampaignOptions(),
+          personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+        },
+      }),
+    );
+    const tomorrow = new Date(initial.currentDate);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    const result = personnelMarketProcessor.process(
+      { ...initial, currentDate: tomorrow },
+      tomorrow,
+    );
+    const next = result.campaign as ICampaignWithCommand;
+    const initialOffers = initial.personnelMarket ?? [];
+    const all = next.personnelMarket ?? [];
+    expect(initialOffers.length).toBeGreaterThan(0);
+    expect(all.slice(0, initialOffers.length)).toEqual(initialOffers);
+    expect(all.length).toBeGreaterThan(initialOffers.length);
+    expect(new Set(all.map((offer) => offer.id)).size).toBe(all.length);
+  });
   it('preserves co-op personnel expiry while local recovery leaves source state alone', () => {
     const campaign: ICampaignWithCommand = {
       ...createTestCampaign({

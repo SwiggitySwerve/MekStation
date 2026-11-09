@@ -1,6 +1,8 @@
 import 'fake-indexeddb/auto';
 import { IDBFactory } from 'fake-indexeddb';
 
+import { createPendingOutcomePublication } from '@/engine/combatOutcomeJournal';
+
 if (typeof globalThis.structuredClone === 'undefined') {
   Object.defineProperty(globalThis, 'structuredClone', {
     value: <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T,
@@ -100,6 +102,245 @@ function getRawRecord<T>(dbName: string, storeName: string, key: IDBValidKey) {
 describe('MatchLogStorage', () => {
   beforeEach(() => {
     installFreshIndexedDB();
+  });
+
+  it('atomically journals new terminal events as pending and preserves acknowledged receipts on duplicate appends', async () => {
+    const storage = new MatchLogStorage({
+      dbName: nextDbName(),
+      now: () => BASE_TIME,
+      scheduleFrame: () => undefined,
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('publication', 1),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'concede' },
+    };
+    const write = storage.appendEvent(
+      'publication',
+      ended,
+      createPendingOutcomePublication('publication', ended),
+    );
+    await storage.flushPendingWrites();
+    await write;
+    expect(
+      await storage.getOutcomePublication('publication', ended.id),
+    ).toEqual({
+      matchId: 'publication',
+      terminalEventId: ended.id,
+      terminalSequence: ended.sequence,
+      createdAt: ended.timestamp,
+      state: 'pending',
+    });
+    await storage.acknowledgeOutcomePublication('publication', ended.id);
+    const receipt = await storage.getOutcomePublication(
+      'publication',
+      ended.id,
+    );
+    expect(receipt).toEqual(
+      expect.objectContaining({
+        state: 'acknowledged',
+        acknowledgedAt: BASE_TIME,
+      }),
+    );
+    const duplicate = storage.appendEvent('publication', ended);
+    await storage.flushPendingWrites();
+    await duplicate;
+    expect(
+      await storage.getOutcomePublication('publication', ended.id),
+    ).toEqual(receipt);
+    storage.close();
+  });
+
+  it('rolls back the terminal event and pending receipt when another append aborts its batch', async () => {
+    const storage = new MatchLogStorage({
+      dbName: nextDbName(),
+      now: () => BASE_TIME,
+      scheduleFrame: () => undefined,
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('rollback-publication', 1),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'concede' },
+    };
+    const writes = Promise.allSettled([
+      storage.appendEvent(
+        'rollback-publication',
+        ended,
+        createPendingOutcomePublication('rollback-publication', ended),
+      ),
+      storage.appendEvent(
+        'rollback-publication',
+        makeEvent('rollback-publication', Number.NaN),
+      ),
+    ]);
+    await expect(storage.flushPendingWrites()).rejects.toThrow();
+    await writes;
+    expect(await storage.getEventsForMatch('rollback-publication')).toEqual([]);
+    expect(
+      await storage.getOutcomePublication('rollback-publication', ended.id),
+    ).toBeUndefined();
+    storage.close();
+  });
+
+  it('preserves legacy version-two events without inventing pending publication receipts during migration', async () => {
+    const dbName = nextDbName();
+    const db = await openRawDatabase(dbName, 2, (legacy) => {
+      legacy.createObjectStore('matchEvents', {
+        keyPath: ['matchId', 'sequence'],
+      });
+      legacy.createObjectStore('matches', { keyPath: 'matchId' });
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('legacy-completed', 1),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'concede' },
+    };
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction('matchEvents', 'readwrite');
+      transaction.objectStore('matchEvents').put({
+        matchId: 'legacy-completed',
+        sequence: ended.sequence,
+        event: ended,
+        savedAt: BASE_TIME,
+      });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+    db.close();
+    const storage = new MatchLogStorage({ dbName });
+    await storage.initialize();
+    expect(await storage.getEventsForMatch('legacy-completed')).toEqual([
+      ended,
+    ]);
+    expect(
+      await storage.getOutcomePublication('legacy-completed', ended.id),
+    ).toBeUndefined();
+    const replayed = storage.appendEvent('legacy-completed', ended);
+    await storage.flushPendingWrites();
+    await replayed;
+    expect(
+      await storage.getOutcomePublication('legacy-completed', ended.id),
+    ).toBeUndefined();
+    storage.close();
+    const migrated = await openRawDatabase(dbName, MATCH_LOG_DB_VERSION);
+    expect(
+      migrated.objectStoreNames.contains(MATCH_LOG_STORES.OUTCOME_PUBLICATIONS),
+    ).toBe(true);
+    migrated.close();
+  });
+
+  it('purges publication receipts together with an old completed match', async () => {
+    const storage = new MatchLogStorage({
+      dbName: nextDbName(),
+      now: () => BASE_TIME,
+      scheduleFrame: () => undefined,
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('purge-publication', 1),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'concede' },
+    };
+    const write = storage.appendEvent(
+      'purge-publication',
+      ended,
+      createPendingOutcomePublication('purge-publication', ended),
+    );
+    await storage.flushPendingWrites();
+    await write;
+    await storage.acknowledgeOutcomePublication('purge-publication', ended.id);
+    await storage.markMatchCompleted(
+      'purge-publication',
+      '2026-01-01T00:00:00.000Z',
+    );
+    expect((await storage.purgeOldMatches()).purgedMatchIds).toContain(
+      'purge-publication',
+    );
+    expect(
+      await storage.getOutcomePublication('purge-publication', ended.id),
+    ).toBeUndefined();
+    storage.close();
+  });
+
+  it('rejects corrupt receipts instead of treating them as absent historical delivery', async () => {
+    const dbName = nextDbName();
+    const storage = new MatchLogStorage({ dbName });
+    await storage.initialize();
+    storage.close();
+    const db = await openRawDatabase(dbName, MATCH_LOG_DB_VERSION);
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(
+        MATCH_LOG_STORES.OUTCOME_PUBLICATIONS,
+        'readwrite',
+      );
+      transaction.objectStore(MATCH_LOG_STORES.OUTCOME_PUBLICATIONS).put({
+        matchId: 'corrupt',
+        terminalEventId: 'terminal',
+        state: 'pending',
+      });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+    db.close();
+    await expect(
+      storage.getOutcomePublication('corrupt', 'terminal'),
+    ).rejects.toThrow('corrupt');
+    await expect(
+      storage.acknowledgeOutcomePublication('corrupt', 'terminal'),
+    ).rejects.toThrow('corrupt');
+    storage.close();
+  });
+
+  it('does not invent an acknowledgement for a missing publication record', async () => {
+    const storage = new MatchLogStorage({ dbName: nextDbName() });
+    await expect(
+      storage.acknowledgeOutcomePublication('missing', 'terminal'),
+    ).rejects.toThrow('missing');
+    expect(
+      await storage.getOutcomePublication('missing', 'terminal'),
+    ).toBeUndefined();
+    storage.close();
+  });
+
+  it('does not create publication intent for replicated terminal events', async () => {
+    const storage = new MatchLogStorage({
+      dbName: nextDbName(),
+      scheduleFrame: () => undefined,
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('mirror-terminal', 1),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'concede' },
+    };
+    const write = storage.appendEvent('mirror-terminal', ended);
+    await storage.flushPendingWrites();
+    await write;
+    expect(await storage.getEventsForMatch('mirror-terminal')).toEqual([ended]);
+    expect(
+      await storage.getOutcomePublication('mirror-terminal', ended.id),
+    ).toBeUndefined();
+    storage.close();
+  });
+
+  it('rejects publication intent that belongs to another match before writing an event', async () => {
+    const storage = new MatchLogStorage({
+      dbName: nextDbName(),
+      scheduleFrame: () => undefined,
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('intent-owner', 1),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'concede' },
+    };
+    await expect(
+      storage.appendEvent(
+        'intent-owner',
+        ended,
+        createPendingOutcomePublication('another-match', ended),
+      ),
+    ).rejects.toThrow('does not match');
+    await storage.flushPendingWrites();
+    expect(await storage.getEventsForMatch('intent-owner')).toEqual([]);
+    storage.close();
   });
 
   it('creates matchEvents and matches stores with the compound event key during migration', async () => {

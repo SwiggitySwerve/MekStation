@@ -217,7 +217,11 @@ battle armor in combat and ProtoMeks for BV/MTF; twelve Clan LRM 1-4 case
 variants select ProtoMeks in combat and battle armor for BV/MTF. Another
 56 compatibility spellings have combat data but remain unresolved for BV.
 These gaps earn no parity credit. The eight bare-name combat results are
-unchanged. Editor-created LRM N (Clan) mounts still fail BLK export because
+unchanged. These counts describe the Compendium adapter's resolution only: the
+simulation runner's raw catalog lookup (`UnitHydrationCatalogLookup`) is a
+separate path that can resolve some of the same names the other way, so the
+counts are not a statement about the runner. No corpus unit uses these names.
+Editor-created LRM N (Clan) mounts still fail BLK export because
 the native parser reads the suffix as a shot count; ordinary Clan LRM 5/10
 already share that limitation. Source-file export preservation below does
 not cover those editor-created mounts.

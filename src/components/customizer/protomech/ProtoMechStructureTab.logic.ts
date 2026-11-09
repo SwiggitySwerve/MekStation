@@ -4,12 +4,11 @@ import type { IProtoMechArmorAllocation } from '@/stores/protoMechState';
 
 import { useProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
-  ProtoChassis,
-  PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
-} from '@/types/unit/ProtoMechInterfaces';
-import {
+  computeProtoArmorLimits,
   effectiveJumpMP,
+  getProtoArmorErrors,
   getProtoMPCaps,
   getProtoWeightClass,
 } from '@/utils/construction/protomech';
@@ -33,16 +32,9 @@ export const LOCATION_LABELS: Record<ProtoMechLocation, string> = {
   [ProtoMechLocation.MAIN_GUN]: 'Main Gun',
 };
 
-export const MAIN_GUN_WEAPON_OPTIONS = [
-  { id: 'clan-lrm-5', label: 'LRM-5' },
-  { id: 'clan-lrm-10', label: 'LRM-10' },
-  { id: 'clan-ac-2', label: 'AC/2' },
-  { id: 'clan-ac-5', label: 'AC/5' },
-  { id: 'clan-medium-pulse-laser', label: 'Medium Pulse Laser' },
-  { id: 'clan-er-medium-laser', label: 'ER Medium Laser' },
-  { id: 'clan-ppc', label: 'PPC' },
-  { id: 'clan-er-ppc', label: 'ER PPC' },
-  { id: 'clan-gauss-rifle', label: 'Gauss Rifle' },
+/** ArmorType.java:1375-1391 (MegaMek 48fcb2f64); stored as armorType 0. */
+export const PROTO_ARMOR_TYPE_OPTIONS = [
+  { value: 0, label: 'Standard ProtoMech' },
 ] as const;
 
 export interface ProtoMechIdentityControls {
@@ -82,19 +74,19 @@ export interface ProtoMechMovementControls {
   handleGlidingWingsChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export interface ProtoMechMainGunControls {
-  hasMainGun: boolean;
-  mainGunWeaponId: string | undefined;
-  hasUnapprovedMainGunWeapon: boolean;
-  handleMainGunChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleMainGunWeaponChange: (event: ChangeEvent<HTMLSelectElement>) => void;
-}
-
 export interface ProtoMechArmorControls {
   armorByLocation: IProtoMechArmorAllocation;
   structureByLocation: IProtoMechArmorAllocation;
   armorLocations: readonly ProtoMechLocation[];
   totalArmor: number;
+  /** Maximum armor points per location (TestProtoMek.maxArmorFactor). */
+  locationLimits: Readonly<Record<ProtoMechLocation, number>>;
+  /** Maximum total armor points (TestProtoMek.maxArmorFactor by weight). */
+  totalLimit: number;
+  /** Construction diagnostics; never repaired or clamped. */
+  errors: readonly string[];
+  armorType: number;
+  handleArmorTypeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleAutoAllocateArmor: () => void;
   handleClearAllArmor: () => void;
   handleLocationArmorChange: (
@@ -287,52 +279,16 @@ export function useProtoMechMovementControls(
   };
 }
 
-export function useProtoMechMainGunControls(
-  readOnly: boolean,
-): ProtoMechMainGunControls {
-  const hasMainGun = useProtoMechStore((s) => s.hasMainGun);
-  const mainGunWeaponId = useProtoMechStore((s) => s.mainGunWeaponId);
-  const setMainGun = useProtoMechStore((s) => s.setMainGun);
-  const setMainGunWeaponId = useProtoMechStore((s) => s.setMainGunWeaponId);
-
-  const hasUnapprovedMainGunWeapon =
-    mainGunWeaponId !== undefined &&
-    !PROTO_MAIN_GUN_APPROVED_WEAPON_IDS.has(mainGunWeaponId);
-
-  const handleMainGunChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      if (!readOnly) {
-        setMainGun(event.target.checked);
-      }
-    },
-    [readOnly, setMainGun],
-  );
-
-  const handleMainGunWeaponChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      if (!readOnly) {
-        const value = event.target.value;
-        setMainGunWeaponId(value === '' ? null : value);
-      }
-    },
-    [readOnly, setMainGunWeaponId],
-  );
-
-  return {
-    hasMainGun,
-    mainGunWeaponId,
-    hasUnapprovedMainGunWeapon,
-    handleMainGunChange,
-    handleMainGunWeaponChange,
-  };
-}
-
 export function useProtoMechArmorControls(
   readOnly: boolean,
 ): ProtoMechArmorControls {
+  const tonnage = useProtoMechStore((s) => s.tonnage);
+  const chassisType = useProtoMechStore((s) => s.chassisType);
   const hasMainGun = useProtoMechStore((s) => s.hasMainGun);
   const armorByLocation = useProtoMechStore((s) => s.armorByLocation);
   const structureByLocation = useProtoMechStore((s) => s.structureByLocation);
+  const armorType = useProtoMechStore((s) => s.armorType);
+  const setArmorType = useProtoMechStore((s) => s.setArmorType);
   const setLocationArmor = useProtoMechStore((s) => s.setLocationArmor);
   const autoAllocateArmor = useProtoMechStore((s) => s.autoAllocateArmor);
   const clearAllArmor = useProtoMechStore((s) => s.clearAllArmor);
@@ -344,6 +300,36 @@ export function useProtoMechArmorControls(
   const totalArmor = useMemo(
     () => getTotalArmor(armorByLocation),
     [armorByLocation],
+  );
+  const limits = useMemo(
+    () =>
+      computeProtoArmorLimits(
+        tonnage,
+        chassisType,
+        hasMainGun,
+        structureByLocation,
+      ),
+    [tonnage, chassisType, hasMainGun, structureByLocation],
+  );
+  const errors = useMemo(
+    () =>
+      getProtoArmorErrors(
+        tonnage,
+        chassisType,
+        hasMainGun,
+        structureByLocation,
+        armorByLocation,
+      ),
+    [tonnage, chassisType, hasMainGun, structureByLocation, armorByLocation],
+  );
+
+  const handleArmorTypeChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      if (!readOnly) {
+        setArmorType(Number(event.target.value));
+      }
+    },
+    [readOnly, setArmorType],
   );
 
   const handleAutoAllocateArmor = useCallback(() => {
@@ -372,6 +358,11 @@ export function useProtoMechArmorControls(
     structureByLocation,
     armorLocations,
     totalArmor,
+    locationLimits: limits.byLocation,
+    totalLimit: limits.total,
+    errors,
+    armorType,
+    handleArmorTypeChange,
     handleAutoAllocateArmor,
     handleClearAllArmor,
     handleLocationArmorChange,

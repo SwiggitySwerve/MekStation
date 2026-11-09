@@ -32,6 +32,14 @@ export interface IAerospaceBVBreakdown {
   readonly final: number;
 }
 
+/** Actual aircraft weapon value before speed; identity belongs to the local input. */
+export interface IAerospaceBVWeaponMount {
+  readonly equipmentIndex: number;
+  readonly equipmentId: string;
+  readonly location: AerospaceArc;
+  readonly battleValue: number;
+}
+
 /** Already-admitted mount value; indices/ids belong to the local input. */
 export interface IProtoMechBVMountValue {
   readonly equipmentIndex: number;
@@ -96,6 +104,10 @@ export const INFANTRY_BV_TRACE_FIELDS = [
   'weightBV',
   'offensiveTypeModifier',
   'adjustment',
+  'infantry.primaryWeaponBV',
+  'infantry.secondaryWeaponBV',
+  'infantry.antiMekWeaponBV',
+  'infantry.weaponRemainderBV',
 ] as const;
 
 export interface IInfantryBVBreakdown extends Readonly<

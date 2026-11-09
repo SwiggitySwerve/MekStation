@@ -20,9 +20,11 @@ import {
   COOP_DECLINE_REFUSAL,
   COOP_GUEST_MARKET_REFUSAL,
 } from '@/lib/campaign/markets/offerLifecycle';
+import { initializePersonnelMarket } from '@/lib/campaign/markets/personnelMarket';
 import AcquisitionsPage from '@/pages/gameplay/campaigns/[id]/acquisitions';
 import ContractMarketPage from '@/pages/gameplay/campaigns/[id]/contract-market';
 import HiringPage from '@/pages/gameplay/campaigns/[id]/hiring';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import {
   resetCampaignStore,
   useCampaignStore,
@@ -59,6 +61,67 @@ jest.mock('@/pages-modules/gameplay/campaigns/campaignPageShell', () => ({
 }));
 
 const REPORT = { date: new Date('3025-01-01T00:00:00.000Z') } as DayReport;
+
+describe('local hiring first-open compatibility', () => {
+  afterEach(() => {
+    useCampaignPersistenceStore.getState().reset();
+    resetCampaignStore();
+    jest.restoreAllMocks();
+  });
+
+  it('initializes an absent old-save pool through the same seeded owner', () => {
+    const store = useCampaignStore();
+    const legacy = {
+      ...createCampaign('Old save', 'mercenary', {
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      }),
+      id: 'legacy-market',
+      rngSeed: 42,
+      currentDate: new Date('3025-06-15T00:00:00.000Z'),
+    };
+    const expected = initializePersonnelMarket(legacy).personnelMarket;
+    store.setState({ campaign: legacy });
+    const view = render(<HiringPage />);
+    expect(
+      (store.getState().campaign as ICampaignWithCommand).personnelMarket,
+    ).toEqual(expected);
+    view.unmount();
+    const initialized = store.getState().campaign;
+    render(<HiringPage />);
+    expect(store.getState().campaign).toBe(initialized);
+  });
+
+  it('leaves an exhausted old-save pool empty on first open', () => {
+    const store = useCampaignStore();
+    const empty: ICampaignWithCommand = {
+      ...createCampaign('Exhausted', 'mercenary', {
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      }),
+      personnelMarket: [],
+    };
+    store.setState({ campaign: empty });
+    render(<HiringPage />);
+    expect(store.getState().campaign).toBe(empty);
+  });
+
+  it('seeds on first open after a local campaign enables its initially disabled market', () => {
+    const store = useCampaignStore();
+    store.getState().createCampaign('Enable later', 'mercenary');
+    const disabled = store.getState().campaign as ICampaignWithCommand;
+    expect(disabled.personnelMarket).toBeUndefined();
+    store.getState().updateCampaign({
+      options: {
+        ...disabled.options,
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      },
+    });
+    render(<HiringPage />);
+    expect(
+      (store.getState().campaign as ICampaignWithCommand).personnelMarket
+        ?.length,
+    ).toBeGreaterThan(0);
+  });
+});
 
 function seed(advanceDay: () => unknown): void {
   act(() => {

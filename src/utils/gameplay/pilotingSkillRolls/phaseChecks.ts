@@ -13,14 +13,33 @@ import { createDamagePSR } from './damageFactories';
 import { createStandingUpPSR } from './environmentFactories';
 
 /**
- * Check if a unit has accumulated 20+ damage this phase.
- * Should be called at end of weapon attack phase.
+ * MegaMek 48fcb2f64 `TWGameManager.checkForPSRFromDamage`
+ * (TWGameManager.java:17851-17854): 20 damage in a phase, or 30 for a dual
+ * cockpit Mek with an active dedicated pilot.
+ */
+export const PHASE_DAMAGE_PSR_THRESHOLD = 20;
+export const DUAL_COCKPIT_PHASE_DAMAGE_PSR_THRESHOLD = 30;
+
+/**
+ * Check if a unit has accumulated 20+ damage this phase (30+ for a dual
+ * cockpit with a dedicated pilot). The threshold only; whether the unit can
+ * fall is the caller's gate.
+ *
+ * `dualCockpitDedicatedPilot` has no unit-state source yet: MekStation has no
+ * dual cockpit construction type and no multi-crew model, so no caller sets it.
+ *
+ * Should be called at the end of each damage-taking phase.
  */
 export function checkPhaseDamagePSR(
   unitState: IUnitGameState,
+  options: { readonly dualCockpitDedicatedPilot?: boolean } = {},
 ): IPendingPSR | null {
   const damageThisPhase = unitState.damageThisPhase ?? 0;
-  if (damageThisPhase >= 20) {
+  const threshold =
+    options.dualCockpitDedicatedPilot === true
+      ? DUAL_COCKPIT_PHASE_DAMAGE_PSR_THRESHOLD
+      : PHASE_DAMAGE_PSR_THRESHOLD;
+  if (damageThisPhase >= threshold) {
     return createDamagePSR(unitState.id);
   }
   return null;

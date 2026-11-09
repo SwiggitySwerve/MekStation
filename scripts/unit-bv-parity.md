@@ -272,18 +272,36 @@ their previous meaning. Missing quantities never become neutral values.
 Add `--construction-validity` to the guarded serial comparator with a P1
 `--construction-terms` reference. The same source calculation writes separate
 `construction-validity-report.json` and `construction-validity-rows.jsonl`.
-It compares actual BA, infantry, ProtoMech and vehicle handler validation
-results, including invalid designs and diagnostics. Vehicle validity uses the
-same pinned Buffer already read and hash-checked by `calculateSources`, parsed
-through the public BLK parser, initialized registry, selected handler and its
-public category. It never reconstructs validation input from converted BV JSON.
-`FixedWingSupport` under `vehicles/` routes to aerospace and is explicitly
-out of vehicle scope; a folder name never supplies vehicle classification.
-Existing BA/infantry/ProtoMech facts remain intact. Other uncomputed BLK
-categories, parser/handler failures and validator exceptions remain explicit
-staged failure facts; uncomputed MTF validity remains missing. Successful parsing
+It compares actual BA, infantry, ProtoMech, vehicle, aerospace and capital
+handler validation results, including invalid designs and diagnostics. Vehicle,
+aerospace and capital validity use the same pinned Buffer already read and
+hash-checked by `calculateSources`, parsed through the public BLK parser,
+initialized registry and the handler it selects. They never reconstruct
+validation input from converted BV JSON. `FixedWingSupport` under `vehicles/`
+validates through the aerospace handler, and a folder name never supplies
+classification. Aerospace and capital cover fighters, conventional fighters,
+FixedWingSupport, SmallCraft, DropShips, JumpShips, WarShips and space stations.
+Existing BA/infantry/ProtoMech facts remain intact. Parser/handler failures and
+validator exceptions remain explicit staged failure facts, named `blk-source-parser`,
+`blk-handler-unavailable`, `blk-handler-parser` and `blk-validator`.
+BattleMech MTF has no source handler, so its validity is the editor projection
+the app itself runs: the row's converted `unit` goes through
+`UnitLoaderService.mapToUnitState`, the editor's `useUnitCalculations` (rendered
+once on the server build of `react-dom`), the editor's slot, armor and weight
+helpers, and the validation orchestrator. The orchestrator's rule results are
+flattened to `ruleId: message` strings under errors, warnings and infos, so the
+fact has the same shape as a handler result and `isValid` is the orchestrator's.
+The MTF bytes are only hash-checked by `calculateSources`; validity does not
+reparse them, and it is computed even when the BV path could not use the
+converted unit. Its staged failures are `mtf-converted-unit`, `mtf-load`,
+`mtf-projection` and `mtf-validator`. Successful parsing
 with `isValid:false` retains invalidity and all returned errors/warnings/infos.
-Registry/validation work runs only with the opt-in flag. Other local-family projections,
+Registry/validation work runs only with the opt-in flag. Under the flag the CLI
+first loads the JSON equipment catalog, because weight validity resolves
+mounted mass through it: without the catalog Ajax Assault Tank C, Lightning
+Attack Hovercraft CX-3 and SturmFeur Kalki read as valid instead of overweight.
+A fallback to the hardcoded catalog stops the run rather than changing results.
+Other local-family projections,
 weight terms/totals, verifier quantities and settings remain explicit gaps;
 reference weight maps marked unsupported retain their reasons; infantry's
 decomposition is applicable but not instrumented. `ok` is scoped to

@@ -347,3 +347,65 @@ once per launcher; its two built-in shots add no separate ammo term
 (`CLFussilade.java:58-81`). Source fixtures verify all 12 residuals with the
 missing catalog facts supplied at the resolver boundary; this does not claim
 that the shipped catalog has those facts.
+
+## Main Gun and arm placement
+
+`mainGun.ts` owns the slot and weight limits of the Main Gun and the arms, the
+slot classification of a mount and the weapon-legality test, from pinned
+MegaMek `48fcb2f64` `TestProtoMek.java`: `maxSlotsByLocation` (606-629),
+`maxWeightByLocation` (651-678), `requiresSlot` (572-585) and
+`hasIllegalEquipmentCombinations` (296-380). Ultraheavy is above 9 t (line 65).
+An arm holds one mount of at most 0.5 t (1.0 t ultraheavy), a quad has none, and
+the Main Gun holds one slot-taking mount (two on a quad that is also
+ultraheavy) of any weight. Ammunition, MASC, UMU, jump jets and the EI interface
+take no slot. An enabled Main Gun may be empty.
+
+The hand-written approved-weapon list, the "heavy weapon" arm class and the
+"a weapon must be assigned" finding are removed: none exists upstream.
+
+Weapon legality (`F_PROTO_WEAPON`) comes from the catalog's `allowedUnitTypes`,
+which only the Java-derived `-registry` entries carry. A weapon is rejected only
+when the catalog describes it and omits `ProtoMech`. Most plain entries that
+canonical units resolve to carry no list, so an absent list is unknown, not
+illegal; 127 canonical weapon mounts depend on this. Catalog weights of
+variable-weight miscellany (magnetic clamp, partial wing) and ProtoMech quad
+melee are unknown and add no weight. The catalog also lists the mech weights of
+the Clan LRM-10 and LRM-15 (2.5 and 3.5 t) where Java mounts them at 2.0 and
+3.0 t; this matters only in the unlimited Main Gun.
+
+The torso is not enforced: it needs the armor's slot (Electric Discharge) and
+the variable weights above.
+
+`__tests__/fixtures/main-gun-java-verdicts.json` holds the pinned verifier's
+verdict, limits and mounts for the 86 canonical ProtoMechs (mm-data `50f7efe`),
+produced by `__tests__/fixtures/ProtoMekPlacementProbe.java` against the pinned
+MegaMek build (jar and probe SHA-256 in the fixture's `meta`). To regenerate,
+compile the probe against that jar and its runtime classpath, then run it with
+a units directory that holds `UnitVerifierOptions.xml` and the BLK files.
+
+## Auto armor allocation
+
+`allocateProtoArmor` in `armor.ts` is MegaMekLab's Auto allocation, ported from
+`PMStructureTab.java` at megameklab `62bf193` (`autoAllocateArmor`,
+`allocateLeftoverPoints`, `addArmorPoint`). Each location first takes its limit
+times (points / total cap), truncated and never more than remain; locations are
+walked Head, Torso, **Right** Arm, Left Arm, Legs, Main Gun
+(`ProtoMek.java:102-108`, `firstArmorIndex()` is `LOC_HEAD`). Leftover points go
+one at a time to the torso, legs, head, then both arms, then the head again for a
+main gun; a Quad starts with the legs and has no arm step. A point aimed at a full
+location is dropped, so edited structure that shrinks the limits leaves points
+unplaced, exactly as upstream does. A point count above the cap is clamped.
+
+MegaMekLab buys armor points separately from placing them. MekStation stores only
+placed points, so the store's Auto passes no count and places the legal total, the
+same as MegaMekLab's Maximize followed by Auto. At the default structure the old
+proportional policy gave identical results at the full total; the port differs
+for any smaller count and for edited structure.
+
+`__tests__/fixtures/armor-auto-allocate-java.json` holds 2,944 results from the
+original classes: every tonnage 2-15, biped/quad/glider, with and without a main
+gun, up to 14 point totals each, plus cases with larger and with reduced internal
+structure. `ProtoAutoAllocateProbe.java` copies the three methods byte-for-byte
+(hashes in the fixture's `meta`) and runs them on a real `ProtoMek` with the
+pinned `UnitUtil` and `TestProtoMek`. It needs a working directory that holds the
+pinned `mmconf/milestoneReleases.yml`.

@@ -1,5 +1,5 @@
 /**
- * Unit Import API - Import JSON, MTF or ProtoMech BLK source
+ * Unit Import API - Import JSON, MTF, or supported BLK source
  *
  * POST /api/units/import - Import JSON or { sourceFormat: 'mtf' | 'blk', sourceText }
  *

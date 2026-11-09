@@ -900,3 +900,76 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `TestTank.java:178-2
 - **THEN** validation SHALL remain incomplete and invalid while retaining known independent errors
 - **AND** the status boundary SHALL display an unavailable value without arithmetic on null, a false zero, or a synthetic turret capacity denominator
 - **AND** resolved input figures SHALL retain their existing numerical values
+
+### Requirement: Environmental sealing mounted mass identity
+
+The vehicle mounted-equipment mass owner SHALL apply the same environmental
+sealing rule to the legacy catalog identity and its generated registry identity.
+Non-support mounted sealing SHALL weigh one tenth of declared tonnage using
+standard upward half-ton rounding. Support sealing SHALL add zero mounted mass
+because its structure accounts for the chassis modification. Missing context
+SHALL remain unavailable. Native mount identities, catalog values and inherent
+submarine sealing SHALL remain unchanged.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:660-666,10270-10281`, `RoundWeight.java:56-68`,
+`TestEntity.java:631-667`, `Tank.java:1878-1879` and
+`TestTank.java:469-471`.
+
+#### Scenario: Native registry identity reaches mounted mass
+
+- **GIVEN** a 55-ton combat vehicle mounting Environmental Sealed Chassis
+- **WHEN** its native name resolves to environmental-sealed-chassis-registry
+- **THEN** the mounted-equipment owner SHALL charge 5.5 tons
+- **AND** the legacy environmental-sealed-chassis identity SHALL charge the same
+- **AND** a 55.01-ton combat vehicle SHALL charge 6 tons
+
+#### Scenario: Support and unavailable construction context
+
+- **GIVEN** either sealing catalog identity on a 1.3-ton or 55-ton support vehicle
+- **WHEN** mounted mass is resolved with explicit support context
+- **THEN** its mounted sealing mass SHALL be zero
+- **AND** either identity without construction context SHALL remain unavailable
+- **AND** an unmounted inherent submarine sealing capability SHALL NOT add a mount
+
+### Requirement: Native Tank armor technology and decorated array identity
+
+Native Tank construction weight SHALL select armor technology through the shared
+armor owner using the pinned weight verifier's technology-level semantics.
+Only an absent armor technology tag SHALL inherit the chassis side; explicit
+unknown level -1 SHALL select IS density. Native Tank weight transport SHALL
+reuse the guarded lookup-token owner only for ISLMGA(ST) and its :OMNI form,
+retaining original source identity and mount flags. Public equipment lookup
+identities SHALL remain unchanged, including the legacy lmga target for these
+decorated inputs. Existing catalog
+IDs, ammunition namespace guards and unresolved-equipment behavior SHALL remain
+unchanged.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ArmorType.java:96-101`, `TechConstants.java:394-398`,
+`BLKTankFile.java:284-304`, `ISLightMGA.java:67-83` and
+`MiscType.java:563-591`.
+
+#### Scenario: Explicit unknown armor technology differs from an absent tag
+
+- **GIVEN** the base and Bombast Chalchiuhtotolin sources with explicit armor technology -1
+- **WHEN** native construction weight is calculated
+- **THEN** their armor SHALL weigh 7 and 7.5 tons respectively and their complete totals SHALL each equal 50 tons
+- **AND** an absent armor technology tag SHALL retain the chassis-side fallback
+- **AND** explicit Clan levels 2, 6, 8, 10 and 12 SHALL select Clan technology
+
+#### Scenario: Decorated IS arrays retain their technology and sponson charge
+
+- **GIVEN** Myrmidon P (Tate) with two ISLMGA(ST) arrays
+- **WHEN** native Tank construction weight is calculated
+- **THEN** each array SHALL weigh 0.5 tons like ISLMGA and converted islmgast
+- **AND** the existing sponson mechanism SHALL remain 0.5 tons, equipment SHALL total 11.5 tons and complete weight SHALL equal 40 tons
+- **AND** the original source tokens and sponson flags SHALL remain intact
+- **AND** Omni decorators SHALL retain the IS identity and Clan arrays SHALL remain 0.25 tons
+
+#### Scenario: Unrelated body-decorated identities retain their compatibility targets
+
+- **GIVEN** (B) CLArrowIV, (B) CLLBXAC10 and (B) CLLBXAC20
+- **WHEN** resolved through the IS or Mixed unit-loader API
+- **THEN** their established targets SHALL remain arrow-iv-launcher, lb-10-x-ac and lb-20-x-ac respectively
+- **AND** the ISLMGA decorator correction SHALL NOT reroute other decorated inputs

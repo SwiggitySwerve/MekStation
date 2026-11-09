@@ -1,0 +1,6 @@
+{
+  "name": "w3-u-low-touch-cancel",
+  "status": "in-progress",
+  "reason": "Root-approved Wave 3 U-LOW: clear cancelled tactical map gestures using the existing touch-end handler.",
+  "lastReviewed": "2026-11-08"
+}

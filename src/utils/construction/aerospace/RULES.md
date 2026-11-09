@@ -554,3 +554,33 @@ at a zero-armor location still counts. Missing arc facts retain the legacy
 total-armor path. Numeric codes use the shared defensive owner, independent of
 editor enum ordinals. Source pin 48fcb2f64, BVCalculator.java:350-420.
 Enforcement: aerospaceBV.patchwork.test.ts and catalog printing source-owner BV.
+
+## Ordinary aerospace weapon diagnostics
+
+The arc owner retains admitted physical weapon identities and actual values
+after links, direction and heat. The offensive owner applies its existing
+support fire-control factor to these diagnostic values before speed. The trace
+only formats the supplied facts as `weapon.<local index>.<physical location>.<local id>`;
+it does not reconstruct mounts, infer Java equipment identities or calculate BV.
+The existing comparator folds both sides by physical location and multiplicity.
+Absent facts remain absent; ammo and defensive/misc equipment do not become weapons.
+Scalar aggregation order, native ammo ownership and final rounding remain unchanged.
+MegaMek 48fcb2f64: AeroBVCalculator.java:147-155,
+HeatTrackingBVCalculator.java:108-126 and BVCalculator.java:800-919,966-976.
+Enforcement: `scripts/__tests__/unit-bv-aerospace-terms.test.ts`, 620-source
+byte-preservation captures and the guarded all-family per-term comparison.
+
+## Ordinary aerospace ammunition diagnostics
+
+The ammo calculation owner retains uncapped bin availability and raw launcher
+caps before direction, heat, support fire control and speed. Native type/rack
+identities come from the shared ammo owner, including its supplemental diagnostic
+identities; they do not expand legacy arithmetic matching. Defensive launcher
+caps remain diagnostic facts outside offensive ammo arithmetic. One-shot launchers
+and unresolved identities do not invent caps. Explicit empty ammo lists retain
+represented caps; omitted ammo retains the legacy trace. The trace only formats
+the supplied pools as `ammo.available.<group>` and `ammo.cap.<group>`.
+MegaMek 48fcb2f64, BVCalculator.java:1189-1242.
+Enforcement: `scripts/__tests__/unit-bv-aerospace-terms.test.ts`, including an
+availability-clipped-to-cap mutant, 620-source byte-preservation captures and
+the guarded all-family comparison. Existing A1 weapon terms remain unchanged.

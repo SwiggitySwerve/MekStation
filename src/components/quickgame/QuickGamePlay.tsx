@@ -260,7 +260,8 @@ export function QuickGamePlay(): React.ReactElement {
             <h3 className="mb-2 text-lg font-medium text-red-300">
               Battle Error
             </h3>
-            <p className="text-text-theme-muted text-sm">{error}</p>
+            <p className="text-text-theme-muted mb-6 text-sm">{error}</p>
+            <Button onClick={() => playAgain(false)}>Start New Setup</Button>
           </div>
         </Card>
       </div>

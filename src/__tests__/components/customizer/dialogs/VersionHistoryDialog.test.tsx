@@ -1,7 +1,14 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
+import { useVersionHistoryDialog } from '@/components/customizer/dialogs/useVersionHistoryDialog';
 import { VersionHistoryDialog } from '@/components/customizer/dialogs/VersionHistoryDialog';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 
@@ -61,6 +68,8 @@ describe('VersionHistoryDialog', () => {
       notes: null,
       revertSource: null,
       data: {
+        id: 'unit-1',
+        unitType: 'BattleMech',
         chassis,
         variant: 'AS7-D',
         tonnage: 100,
@@ -168,6 +177,65 @@ describe('VersionHistoryDialog', () => {
       expect(screen.getByText(/Version 2 Details/i)).toBeInTheDocument();
     });
     expect(screen.queryByText(/Version 1 Details/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps the loaded preview when its version is selected again', async () => {
+    const user = userEvent.setup();
+    render(<VersionHistoryDialog {...defaultProps} />);
+    const version = await screen.findByRole('button', { name: /v1/i });
+    await user.click(version);
+    await screen.findByText('Version 1 Details');
+
+    await user.click(version);
+
+    expect(screen.getByText('Version 1 Details')).toBeInTheDocument();
+    expect(screen.queryByText('Loading preview...')).not.toBeInTheDocument();
+    expect(customUnitApiService.getVersion).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a pending preview on re-selection and can select another version', async () => {
+    const user = userEvent.setup();
+    const pending = Promise.withResolvers<ReturnType<typeof versionPayload>>();
+    jest
+      .mocked(customUnitApiService.getVersion)
+      .mockReturnValueOnce(pending.promise);
+    render(<VersionHistoryDialog {...defaultProps} />);
+    const version = await screen.findByRole('button', { name: /v1/i });
+    await user.click(version);
+    await user.click(version);
+    expect(screen.getByText('Loading preview...')).toBeInTheDocument();
+    expect(customUnitApiService.getVersion).toHaveBeenCalledTimes(1);
+
+    await act(async () => pending.resolve(versionPayload(1, 'Atlas')));
+    expect(screen.getByText('Version 1 Details')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /v2/i }));
+    expect(await screen.findByText('Version 2 Details')).toBeInTheDocument();
+  });
+
+  it('clears pending preview loading on close and ignores its late completion', async () => {
+    const pending = Promise.withResolvers<ReturnType<typeof versionPayload>>();
+    jest
+      .mocked(customUnitApiService.getVersion)
+      .mockReturnValueOnce(pending.promise);
+    const { result, rerender } = renderHook(
+      ({ isOpen }) => useVersionHistoryDialog({ ...defaultProps, isOpen }),
+      { initialProps: { isOpen: true } },
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    act(() => result.current.setSelectedVersion(1));
+    expect(result.current.isLoadingPreview).toBe(true);
+
+    rerender({ isOpen: false });
+    expect(result.current.isLoadingPreview).toBe(false);
+    rerender({ isOpen: true });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.selectedVersion).toBeNull();
+    expect(result.current.isLoadingPreview).toBe(false);
+    act(() => result.current.setSelectedVersion(2));
+    await waitFor(() => expect(result.current.previewData?.version).toBe(2));
+    await act(async () => pending.resolve(versionPayload(1, 'Atlas')));
+    expect(result.current.previewData?.version).toBe(2);
+    expect(result.current.isLoadingPreview).toBe(false);
   });
 
   it('restores into the draft without calling the library revert API', async () => {

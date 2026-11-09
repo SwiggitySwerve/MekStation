@@ -20,13 +20,18 @@ import path from 'node:path';
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
 
+import { campaignMarketIntentContext } from '@/lib/campaign/markets/authoritativeOffers';
+import { initializePersonnelMarket } from '@/lib/campaign/markets/personnelMarket';
+import { serializeCampaign } from '@/lib/campaign/persistence/serializeCampaign';
 import { readCampaignJournalEvents } from '@/lib/campaign/sync/campaignJournalReads';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { createCampaign } from '@/types/campaign/Campaign';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 
 import type { CampaignAuthorityMode } from '../campaignAuthorityMode';
 
@@ -166,6 +171,49 @@ describe('durable hire-offer command', () => {
     expect(await journal.getCommandReceipt(commandId)).toBeNull();
     expect(storedRow()).toStrictEqual(before);
   }
+
+  it('hires an initial market recruit from the saved source without advancing a day', async () => {
+    const initial = initializePersonnelMarket({
+      ...createCampaign('Initial Market', 'mercenary', {
+        startingFunds: 500_000,
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      }),
+      id: CAMPAIGN_ID,
+      rngSeed: 42,
+      currentDate: new Date(NOW),
+    });
+    const offer = initial.personnelMarket?.[0];
+    expect(offer).toBeDefined();
+    if (!offer) throw new Error('Initial recruit missing');
+    seedSourceRecord({ ...serializeCampaign(initial) });
+
+    const live = campaignMarketIntentContext(CAMPAIGN_ID, () => initial);
+    expect(live.personnelOffer?.(offer.id)).toMatchObject({
+      offerId: offer.id,
+      name: offer.name,
+      hireCost: offer.hireCost,
+    });
+    const result = await run(hireOffer(offer.id), 'cmd-initial');
+
+    expect(result.kind).toBe('committed');
+    if (result.kind !== 'committed') return;
+    expect(result.state.pilots[`hired-${offer.id}`]?.name).toBe(offer.name);
+    expect(result.state.balance).toBe(500_000 - offer.hireCost);
+    const saved = JSON.parse(storedRow().payload) as {
+      body: { personnelMarket: { id: string }[] };
+    };
+    expect(saved.body.personnelMarket.map((one) => one.id)).toEqual(
+      initial.personnelMarket
+        ?.filter((one) => one.id !== offer.id)
+        .map((one) => one.id),
+    );
+    const after = storedRow();
+    expect(await run(hireOffer(offer.id), 'cmd-initial')).toEqual({
+      kind: 'duplicate',
+      commandId: 'cmd-initial',
+    });
+    expect(storedRow()).toEqual(after);
+  });
 
   it('derives the recruit and the price from the stored offer and consumes it in the row', async () => {
     seedSourceRecord({

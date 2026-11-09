@@ -35,6 +35,7 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 
 import { LocalSeatCredentialPanel } from './LocalSeatCredentialPanel';
 import { LocalSeatOperatorPanel } from './LocalSeatOperatorPanel';
@@ -97,6 +98,9 @@ async function resolveInviteIdentity(
 export function CampaignCoopEntryPanel(): React.ReactElement {
   const router = useRouter();
   const store = useCampaignStore();
+  const personnelMarketDisabled =
+    applyPreset(DEFAULT_COOP_PRESET, DEFAULT_COOP_FACTION_ID)
+      .personnelMarketStyle === PersonnelMarketStyle.DISABLED;
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState('');
@@ -111,6 +115,11 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     useState<CoopErrorKind | null>(null);
   const createPasswordRef = useRef<HTMLInputElement>(null);
   const [createCoopBusy, setCreateCoopBusy] = useState(false);
+  const pendingCreateCleanup = useRef<(() => Promise<void>) | null>(null);
+  const [cleanupPending, setCleanupPending] = useState(false);
+  const [retainedCampaignId, setRetainedCampaignId] = useState<string | null>(
+    null,
+  );
   const [coopTokenState, setCoopTokenState] =
     useState<IMintedCoopCredential | null>(null);
   const joinAttempt = useRef<AbortController | null>(null);
@@ -122,7 +131,17 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
     setCreateCoopError(null);
     setCreateCoopErrorKind(null);
     setCreateCoopBusy(true);
+    let cleanupAttempt: (() => Promise<void>) | null = null;
+    let createdCampaignId: string | null = null;
+    let savedCampaignId: string | null = null;
+    let roomAcknowledged = false;
     try {
+      if (pendingCreateCleanup.current) {
+        await pendingCreateCleanup.current();
+        pendingCreateCleanup.current = null;
+        setCleanupPending(false);
+        return;
+      }
       let auth = coopTokenState;
       if (!auth) {
         if (!password) {
@@ -139,13 +158,32 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         turnLimit: 20,
         fogOfWar: false,
       };
-      const campaignId = store
-        .getState()
-        .createCampaign(
-          'Co-op Campaign',
-          DEFAULT_COOP_FACTION_ID,
-          applyPreset(DEFAULT_COOP_PRESET, DEFAULT_COOP_FACTION_ID),
-        );
+      const previousCampaignState = store.getState();
+      const previousPersistenceState = useCampaignPersistenceStore.getState();
+      const campaignId = previousCampaignState.createCampaign(
+        'Co-op Campaign',
+        DEFAULT_COOP_FACTION_ID,
+        applyPreset(DEFAULT_COOP_PRESET, DEFAULT_COOP_FACTION_ID),
+      );
+      createdCampaignId = campaignId;
+      cleanupAttempt = async () => {
+        if (savedCampaignId !== null) {
+          const response = await fetch(
+            `/api/campaigns/${encodeURIComponent(savedCampaignId)}`,
+            { method: 'DELETE' },
+          );
+          if (!response.ok && response.status !== 404) {
+            throw new Error(`Server responded ${response.status}`);
+          }
+          savedCampaignId = null;
+        }
+        // A later selection owns its own state and persistence coordination.
+        if (store.getState().getCampaign()?.id === campaignId) {
+          useCampaignPersistenceStore.getState().reset();
+          store.setState(previousCampaignState);
+          useCampaignPersistenceStore.setState(previousPersistenceState);
+        }
+      };
       const createdCampaign = store.getState().getCampaign();
       if (!createdCampaign) {
         throw new Error('Failed to create the host campaign snapshot');
@@ -164,6 +202,16 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
             : 'Failed to persist the host campaign to the server',
         );
       }
+      if (
+        persisted.record.campaignId !== campaignId ||
+        persisted.record.campaignId === previousCampaignState.campaign?.id
+      ) {
+        throw new Error(
+          'The save acknowledgement did not identify the new campaign',
+        );
+      }
+      // Only the id acknowledged by this attempt's save is eligible for deletion.
+      savedCampaignId = persisted.record.campaignId;
       const rosterUnits = useCampaignRosterStore.getState().units;
       const coopState = buildCampaignAuthoritativeState(
         createdCampaign,
@@ -192,7 +240,9 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         throw new Error(data.error ?? `HTTP ${res.status}`);
       }
       const data = (await res.json()) as ICreateMatchResponse;
-      const roomCode = data.roomCode ?? data.meta.roomCode;
+      roomAcknowledged =
+        typeof data.matchId === 'string' && data.matchId.length > 0;
+      const roomCode = data.roomCode ?? data.meta?.roomCode;
       if (!roomCode) {
         throw new Error("Server didn't return a co-op room code");
       }
@@ -209,9 +259,25 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           coopSession: createHostCoopSession(roomCode, data.matchId),
         }),
       );
-      await router.push(`/gameplay/campaigns/${campaignId}`);
+      const navigated = await router.push(`/gameplay/campaigns/${campaignId}`);
+      if (navigated === false)
+        throw new Error('Could not open the created co-op campaign');
     } catch (e) {
-      setCreateCoopError(e instanceof Error ? e.message : 'Unknown error');
+      let message = e instanceof Error ? e.message : 'Unknown error';
+      if (roomAcknowledged) {
+        setRetainedCampaignId(createdCampaignId);
+      } else if (cleanupAttempt) {
+        try {
+          await cleanupAttempt();
+        } catch (cleanupError: unknown) {
+          pendingCreateCleanup.current = cleanupAttempt;
+          setCleanupPending(true);
+          message += ` Cleanup failed: ${cleanupError instanceof Error ? cleanupError.message : 'Unknown error'}. Retry cleanup before creating another campaign.`;
+        }
+      } else if (pendingCreateCleanup.current) {
+        message = `Cleanup failed: ${message}. Retry cleanup before creating another campaign.`;
+      }
+      setCreateCoopError(message);
       setCreateCoopErrorKind(
         isVaultIdentityRequired(e) ? 'vault-identity' : 'generic',
       );
@@ -354,9 +420,13 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
               void handleCreateCoopCampaign();
             }}
             data-testid="create-coop-campaign-btn"
-            disabled={createCoopBusy}
+            disabled={createCoopBusy || retainedCampaignId !== null}
           >
-            {createCoopBusy ? 'Creating Co-op...' : 'Create Co-op Campaign'}
+            {createCoopBusy
+              ? 'Creating Co-op...'
+              : cleanupPending
+                ? 'Retry cleanup'
+                : 'Create Co-op Campaign'}
           </Button>
           <Button
             variant="secondary"
@@ -372,6 +442,13 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           empty roster. You can rename the campaign and configure its faction,
           preset, and roster from the campaign dashboard after creation.
         </p>
+
+        {personnelMarketDisabled && (
+          <p className="text-text-theme-secondary mt-3 text-sm">
+            This preset has no personnel market. Hiring recruits requires a
+            preset with a personnel market enabled.
+          </p>
+        )}
 
         {createCoopError && (
           <div
@@ -392,6 +469,15 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
               </>
             )}
           </div>
+        )}
+
+        {retainedCampaignId && (
+          <Link
+            href={`/gameplay/campaigns/${retainedCampaignId}`}
+            className="mt-3 inline-block text-sm font-medium text-sky-300 underline underline-offset-2"
+          >
+            Open created co-op campaign
+          </Link>
         )}
 
         {!coopTokenState && (

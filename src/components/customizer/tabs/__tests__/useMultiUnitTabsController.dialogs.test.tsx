@@ -81,6 +81,175 @@ beforeEach(() => {
 });
 
 describe('useDialogHandlers library save', () => {
+  it.each([undefined, 'existing-library'])(
+    'admits only one same-tick save with overwrite id %s',
+    async (overwriteId) => {
+      mockGetUnitStore.mockReturnValue(makeStore());
+      const getTabById = jest.fn(() => tab(UnitType.BATTLEMECH));
+      let finish!: (value: {
+        success: true;
+        id: string;
+        version: number;
+      }) => void;
+      const write = overwriteId ? mockSave : mockCreate;
+      write.mockReturnValue(
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      );
+      const { result } = renderHook(() =>
+        useDialogHandlers(performCloseTab, renameTab, getTabById),
+      );
+      act(() => result.current.openSaveDialog(UNIT_ID));
+      let pending!: Promise<void>;
+      act(() => {
+        const submit = result.current.handleSaveDialogSave;
+        pending = submit('First', 'ONE', overwriteId);
+        void submit('Second', 'TWO', overwriteId);
+      });
+      expect(write).toHaveBeenCalledTimes(1);
+      expect(result.current.isSaving).toBe(true);
+      act(() => {
+        result.current.handleSaveDialogCancel();
+        result.current.openSaveDialog('another-tab');
+      });
+      expect(result.current.saveDialog).toMatchObject({
+        isOpen: true,
+        tabId: UNIT_ID,
+      });
+      await act(async () => {
+        finish({ success: true, id: 'saved-library', version: 1 });
+        await pending;
+      });
+      expect(result.current.isSaving).toBe(false);
+      expect(result.current.saveDialog.isOpen).toBe(false);
+      expect(showToastMock).toHaveBeenCalledTimes(1);
+      expect(performCloseTab).not.toHaveBeenCalled();
+    },
+  );
+
+  it('ignores same-tick cancellation and closes the original tab only after save completion', async () => {
+    mockGetUnitStore.mockReturnValue(makeStore());
+    const getTabById = jest.fn(() => tab(UnitType.BATTLEMECH));
+    let finish!: (value: {
+      success: true;
+      id: string;
+      version: number;
+    }) => void;
+    mockCreate.mockReturnValue(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const { result } = renderHook(() =>
+      useDialogHandlers(performCloseTab, renameTab, getTabById),
+    );
+    act(() => result.current.openCloseDialog(UNIT_ID, 'Original'));
+    act(() => result.current.handleCloseDialogSave());
+    let pending!: Promise<void>;
+    act(() => {
+      pending = result.current.handleSaveDialogSave('Final', 'ONE');
+      result.current.handleSaveDialogCancel();
+      result.current.openSaveDialog('another-tab');
+    });
+    expect(result.current.saveDialog).toMatchObject({
+      isOpen: true,
+      tabId: UNIT_ID,
+      closeAfterSave: true,
+    });
+    expect(performCloseTab).not.toHaveBeenCalled();
+    await act(async () => {
+      finish({ success: true, id: 'saved-library', version: 1 });
+      await pending;
+    });
+    expect(performCloseTab).toHaveBeenCalledTimes(1);
+    expect(performCloseTab).toHaveBeenCalledWith(UNIT_ID);
+    expect(result.current.isSaving).toBe(false);
+  });
+
+  it.each(['failure', 'rejection', 'missing identity'] as const)(
+    'unlocks a %s for retry and later cancellation',
+    async (outcome) => {
+      mockGetUnitStore.mockReturnValue(makeStore());
+      const getTabById = jest.fn(() => tab(UnitType.BATTLEMECH));
+      let finish!: () => void;
+      mockCreate.mockReturnValue(
+        new Promise((resolve, reject) => {
+          finish = () =>
+            outcome === 'rejection'
+              ? reject(new Error('offline'))
+              : resolve(
+                  outcome === 'failure'
+                    ? { success: false, error: 'offline' }
+                    : { success: true },
+                );
+        }),
+      );
+      const { result } = renderHook(() =>
+        useDialogHandlers(performCloseTab, renameTab, getTabById),
+      );
+      act(() => result.current.openSaveDialog(UNIT_ID));
+      let pending!: Promise<void>;
+      act(() => {
+        pending = result.current.handleSaveDialogSave('First', 'ONE');
+      });
+      expect(result.current.isSaving).toBe(true);
+      await act(async () => {
+        finish();
+        await pending;
+      });
+      expect(result.current.isSaving).toBe(false);
+      expect(result.current.saveDialog.isOpen).toBe(true);
+      expect(performCloseTab).not.toHaveBeenCalled();
+      expect(renameTab).not.toHaveBeenCalled();
+      mockCreate.mockResolvedValue({ success: false, error: 'still offline' });
+      await act(async () => {
+        await result.current.handleSaveDialogSave('Retry', 'TWO');
+      });
+      expect(mockCreate).toHaveBeenCalledTimes(2);
+      expect(result.current.isSaving).toBe(false);
+      act(() => result.current.handleSaveDialogCancel());
+      expect(result.current.saveDialog.isOpen).toBe(false);
+    },
+  );
+
+  it('unlocks a serialization failure so the corrected draft can retry', async () => {
+    const store = createVehicleStore(
+      createDefaultVehicleState({
+        id: UNIT_ID,
+        name: 'Carrier C',
+        tonnage: 60,
+        techBase: TechBase.INNER_SPHERE,
+        unitType: UnitType.VEHICLE,
+      }),
+    );
+    store.setState({ crewSize: -1 });
+    jest.mocked(getVehicleStore).mockReturnValue(store);
+    const getTabById = jest.fn(() => tab(UnitType.VEHICLE));
+    const { result } = renderHook(() =>
+      useDialogHandlers(performCloseTab, renameTab, getTabById),
+    );
+    act(() => result.current.openSaveDialog(UNIT_ID));
+    await act(async () => {
+      await result.current.handleSaveDialogSave('Carrier', 'C');
+    });
+    expect(mockCreate).not.toHaveBeenCalled();
+    expect(result.current.isSaving).toBe(false);
+    expect(result.current.saveDialog.isOpen).toBe(true);
+    act(() => store.setState({ crewSize: 4 }));
+    mockCreate.mockResolvedValue({
+      success: true,
+      id: 'custom-carrier',
+      version: 1,
+    });
+    await act(async () => {
+      await result.current.handleSaveDialogSave('Carrier', 'C');
+    });
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+    expect(result.current.isSaving).toBe(false);
+    expect(result.current.saveDialog.isOpen).toBe(false);
+  });
+
   it.each([UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE] as const)(
     'saves %s through its vehicle store and keeps concurrent edits dirty',
     async (unitType) => {

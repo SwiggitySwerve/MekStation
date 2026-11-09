@@ -14,6 +14,8 @@ import type {
 
 import { PilotStatus, PilotType, PilotExperienceLevel } from '@/types/pilot';
 
+import type { PilotStore } from '../usePilotStore.types';
+
 import {
   usePilotStore,
   useFilteredPilots,
@@ -304,6 +306,27 @@ describe('usePilotStore', () => {
   // ===========================================================================
 
   describe('createRandom', () => {
+    it('forwards reviewed skills in the random request and returns the refreshed pilot id', async () => {
+      const skills = { gunnery: 2, piloting: 3 };
+      const pilot = createMockPilot({ id: 'reviewed-random', skills });
+      mockFetchResponse({ success: true, id: pilot.id });
+      mockFetchResponse({ pilots: [pilot], count: 1 });
+      const id = await usePilotStore
+        .getState()
+        .createRandom({ name: 'Reviewed Pilot' }, skills);
+      expect(id).toBe(pilot.id);
+      expect(mockFetch).toHaveBeenNthCalledWith(1, '/api/pilots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'random',
+          identity: { name: 'Reviewed Pilot' },
+          skills,
+        }),
+      });
+      expect(usePilotStore.getState().pilots[0].skills).toEqual(skills);
+    });
+
     it('should create random pilot', async () => {
       const newPilot = createMockPilot({
         id: 'random-pilot-1',
@@ -869,6 +892,169 @@ describe('useFilteredPilots', () => {
     const { result } = renderHook(() => useFilteredPilots());
 
     expect(result.current).toHaveLength(4);
+  });
+});
+
+/** @spec openspec/changes/fix-store-mutation-reload-failures/specs/pilot-system/spec.md */
+describe('pilot mutation refresh outcomes', () => {
+  type MutationResult = boolean | string | null;
+  const mutations: ReadonlyArray<{
+    name: string;
+    run: (store: PilotStore) => Promise<MutationResult>;
+    success: MutationResult;
+    failure: false | null;
+  }> = [
+    {
+      name: 'createPilot',
+      run: (s) =>
+        s.createPilot({
+          identity: { name: 'New pilot' },
+          type: PilotType.Persistent,
+          skills: { gunnery: 4, piloting: 5 },
+        }),
+      success: 'new-pilot',
+      failure: null,
+    },
+    {
+      name: 'createFromTemplate',
+      run: (s) =>
+        s.createFromTemplate(PilotExperienceLevel.Regular, {
+          name: 'New pilot',
+        }),
+      success: 'new-pilot',
+      failure: null,
+    },
+    {
+      name: 'createRandom',
+      run: (s) => s.createRandom({ name: 'New pilot' }),
+      success: 'new-pilot',
+      failure: null,
+    },
+    {
+      name: 'updatePilot',
+      run: (s) => s.updatePilot('pilot-1', { name: 'Updated' }),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'deletePilot',
+      run: (s) => s.deletePilot('pilot-1'),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'improveGunnery',
+      run: (s) => s.improveGunnery('pilot-1'),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'improvePiloting',
+      run: (s) => s.improvePiloting('pilot-1'),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'applyWound',
+      run: (s) => s.applyWound('pilot-1'),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'healWounds',
+      run: (s) => s.healWounds('pilot-1'),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'purchaseAbility',
+      run: (s) => s.purchaseAbility('pilot-1', 'ability-1', 100),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'purchaseSPA',
+      run: (s) => s.purchaseSPA('pilot-1', 'spa-1'),
+      success: true,
+      failure: false,
+    },
+    {
+      name: 'removeSPA',
+      run: (s) => s.removeSPA('pilot-1', 'spa-1', { isCreationFlow: true }),
+      success: true,
+      failure: false,
+    },
+  ];
+
+  beforeEach(() => {
+    mockFetch.mockReset();
+    usePilotStore.setState({ pilots: mockPilots, selectedPilotId: 'pilot-1' });
+  });
+
+  describe.each(mutations)('$name', ({ name, run, success, failure }) => {
+    it.each(['populated', 'empty'] as const)(
+      'returns success after a %s reload',
+      async (list) => {
+        mockFetchResponse({ success: true, id: 'new-pilot' });
+        const reloaded =
+          list === 'empty' ? [] : [createMockPilot({ id: 'new-pilot' })];
+        mockFetchResponse({ pilots: reloaded, count: reloaded.length });
+
+        expect(await run(usePilotStore.getState())).toBe(success);
+        expect(usePilotStore.getState().pilots).toEqual(reloaded);
+        expect(usePilotStore.getState().error).toBeNull();
+        expect(usePilotStore.getState().isLoading).toBe(false);
+        if (name.startsWith('create')) {
+          expect(usePilotStore.getState().selectedPilotId).toBe('new-pilot');
+        }
+        expect(mockFetch).toHaveBeenCalledTimes(2);
+      },
+    );
+
+    it.each(['http', 'network', 'json'] as const)(
+      'returns failure after a saved mutation and %s reload failure',
+      async (fault) => {
+        mockFetchResponse({ success: true, id: 'new-pilot' });
+        const detail =
+          fault === 'http'
+            ? 'Failed to load pilots: Error'
+            : 'Reload unavailable';
+        if (fault === 'http') {
+          mockFetchResponse({}, false, 503);
+        } else if (fault === 'network') {
+          mockFetchError(detail);
+        } else {
+          mockFetch.mockResolvedValueOnce({
+            ok: true,
+            json: () => Promise.reject(new Error(detail)),
+          });
+        }
+
+        const result = await run(usePilotStore.getState());
+        const state = usePilotStore.getState();
+        // All creation modes must explicitly discourage repeating the saved write.
+        expect(state.error).toBe(
+          `Pilot saved, but the list could not be refreshed. Reload to see it. ${detail}`,
+        );
+        expect(result).toBe(failure);
+        expect(state.isLoading).toBe(false);
+        expect(state.pilots).toEqual(mockPilots);
+        expect(state.selectedPilotId).toBe(
+          name === 'deletePilot' ? null : 'pilot-1',
+        );
+        expect(mockFetch).toHaveBeenCalledTimes(2);
+        expect(mockFetch).toHaveBeenNthCalledWith(2, '/api/pilots');
+      },
+    );
+
+    it('preserves mutation rejection without reloading or claiming a saved change', async () => {
+      mockFetchResponse({ success: false, error: 'Mutation rejected' });
+      expect(await run(usePilotStore.getState())).toBe(failure);
+      expect(usePilotStore.getState().error).toBe('Mutation rejected');
+      expect(usePilotStore.getState().isLoading).toBe(false);
+      expect(usePilotStore.getState().selectedPilotId).toBe('pilot-1');
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
   });
 });
 

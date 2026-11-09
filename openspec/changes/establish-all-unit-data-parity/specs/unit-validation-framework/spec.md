@@ -77,3 +77,19 @@ treat non-ammunition as ammunition, or infer legality for missing definitions.
 
 Authority: MegaMek `48fcb2f64` `TestEntity.java:1271-1286`, invoked by
 `TestMek.java:766`; mm-data `50f7efe` Javelin JVN-10U.
+
+### Requirement: Shared BattleMech structure mass
+
+BattleMech construction and weight-validation consumers SHALL obtain structure mass from the construction owner, retaining the existing component multipliers and half-ton ceiling. This consolidation SHALL preserve admission rules, fallback results, critical slots and numerical output.
+
+#### Scenario: Existing structure types retain their mass
+
+- **WHEN** the editor, validation helpers or construction calculator evaluates an existing structure type at ordinary or superheavy tonnage
+- **THEN** each SHALL use the shared structure-mass calculation
+- **AND** every resulting component and total weight SHALL equal its value before consolidation
+
+#### Scenario: Unknown structure admission remains with the caller
+
+- **WHEN** an unknown structure type reaches the construction installation step
+- **THEN** the step SHALL retain its error and zero weight
+- **AND** the other existing mass consumers SHALL retain their Standard-weight fallback

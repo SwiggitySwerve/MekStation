@@ -1,3 +1,5 @@
+import type { IAerospaceBVWeaponMount } from '@/types/unit/BVBreakdownTypes';
+
 import type {
   IAerospaceArcContribution,
   IAerospaceBVBreakdown,
@@ -27,7 +29,8 @@ import {
   normalizeArcLocation,
 } from './aerospaceBVArcs';
 import {
-  calculateAerospaceAmmoBV,
+  calculateAerospaceAmmoBVPools,
+  type IAerospaceAmmoBVPools,
   isAerospaceOffensiveMisc,
   isAerospaceAmmo,
   calculateAerospaceFinalBV,
@@ -199,6 +202,8 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
   avgThrust: number;
   speedFactor: number;
   offensive: number;
+  weaponMountBV?: readonly IAerospaceBVWeaponMount[];
+  ammoPools?: IAerospaceAmmoBVPools;
 } {
   // BVCalculator.java:1045-1091: ammo is not part of the forward/rear pool.
   // Explicit ammo owns bins separately; omitted ammo retains the legacy flat-input contract.
@@ -234,10 +239,10 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
         }));
   const weaponFirePoolBV = arcs.weaponFirePoolBV * fireControl;
   const fuselageWeaponBV = arcs.fuselageWeaponBV * fireControl;
-  const ammoBV =
-    (input.ammo
-      ? calculateAerospaceAmmoBV(firingInput.equipment, input.ammo, true)
-      : 0) * fireControl;
+  const ammoPools = input.ammo
+    ? calculateAerospaceAmmoBVPools(firingInput.equipment, input.ammo, true)
+    : undefined;
+  const ammoBV = (ammoPools?.total ?? 0) * fireControl;
   const offensiveEquipmentBV =
     input.offensiveEquipmentBV ??
     sumWeaponBV(input.equipment.filter(isAerospaceOffensiveMisc));
@@ -261,6 +266,15 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
     avgThrust,
     speedFactor,
     offensive,
+    ...(ammoPools ? { ammoPools } : {}),
+    ...(arcs.weaponMountBV
+      ? {
+          weaponMountBV: arcs.weaponMountBV.map((mount) => ({
+            ...mount,
+            battleValue: mount.battleValue * fireControl,
+          })),
+        }
+      : {}),
   };
 }
 
@@ -357,6 +371,10 @@ export function calculateAerospaceBV(
       final,
     },
     summary,
+    offensive.weaponMountBV
+      ? { subType: input.subType, mounts: offensive.weaponMountBV }
+      : undefined,
+    offensive.ammoPools,
   );
 }
 

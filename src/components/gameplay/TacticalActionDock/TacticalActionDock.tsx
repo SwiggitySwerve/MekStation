@@ -22,7 +22,13 @@
  * @see openspec/changes/add-tactical-action-menu-system/tasks.md §2.1, §2.3
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type {
   CommandAvailability,
@@ -224,6 +230,27 @@ export function TacticalActionDock({
   const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
     null,
   );
+  // Ownership changes synchronously, including multiple requests in one batch.
+  // Retain the originating cancel callback even when the service rerenders.
+  const pendingGmPreviewCancel = useRef<(() => void) | null>(null);
+  const cancelPendingGmPreview = useCallback(() => {
+    const cancel = pendingGmPreviewCancel.current;
+    pendingGmPreviewCancel.current = null;
+    cancel?.();
+  }, []);
+  useEffect(() => cancelPendingGmPreview, [cancelPendingGmPreview]);
+
+  const gmPreviewService: IGmTacticalInterventionSurface | undefined =
+    gmIntervention && {
+      ...gmIntervention,
+      preview: (request) => {
+        cancelPendingGmPreview();
+        setGmPreviewState(null);
+        const preview = gmIntervention.preview(request);
+        pendingGmPreviewCancel.current = () => gmIntervention.cancel?.(preview);
+        return preview;
+      },
+    };
   // Single Movement Authority: when the composer is active, the command
   // registry must know so movement builders drop the posture/traversal verbs
   // (the composer palette is their only home — re-audit VD-01/UXF-01/IS-02).
@@ -307,7 +334,7 @@ export function TacticalActionDock({
   const { dispatchCommand, confirmationDialog } = useTacticalCommandDispatch({
     ctx: effectiveCtx,
     commandGate,
-    gmIntervention,
+    gmIntervention: gmPreviewService,
     onAction,
     onGmPreview: setGmPreviewState,
   });
@@ -324,19 +351,19 @@ export function TacticalActionDock({
       });
       return;
     }
+    pendingGmPreviewCancel.current = null;
     setGmPreviewState(null);
   }, [gmIntervention, gmPreviewState]);
 
   const cancelGmPreview = useCallback(() => {
-    if (gmPreviewState) {
-      gmIntervention?.cancel?.(gmPreviewState.preview);
-    }
+    cancelPendingGmPreview();
     setGmPreviewState(null);
-  }, [gmIntervention, gmPreviewState]);
+  }, [cancelPendingGmPreview]);
 
   const takeManualControl = useCallback(() => {
     if (!gmPreviewState) return;
     gmIntervention?.manualTakeover?.(gmPreviewState.preview);
+    pendingGmPreviewCancel.current = null;
     setGmPreviewState(null);
   }, [gmIntervention, gmPreviewState]);
 
