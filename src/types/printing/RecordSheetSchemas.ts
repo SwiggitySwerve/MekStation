@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { AEROSPACE_ARC_LABELS } from '@/types/construction/aerospaceArcLabels';
 import {
   getMechCrewRoles,
   MECH_CREW_ROLES,
@@ -212,14 +213,7 @@ export const VehicleRecordSheetDataSchema = z.object({
 });
 
 export const AerospaceArcArmorSchema = z.object({
-  arc: z.enum([
-    'Nose',
-    'Left Wing',
-    'Right Wing',
-    'Left Side',
-    'Right Side',
-    'Aft',
-  ]),
+  arc: z.enum(AEROSPACE_ARC_LABELS),
   current: z.number(),
   maximum: z.number().optional(),
 });

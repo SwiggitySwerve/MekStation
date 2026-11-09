@@ -15,10 +15,10 @@ import type { IAerospaceRecordSheetUnitInput } from '@/services/printing/records
 import type { IAerospaceArmorAllocation } from '@/stores/aerospaceState';
 import type { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
 
-import { getAerospaceSheetArcs } from '@/services/printing/recordsheet/aerospaceArcLabels';
 import { getAerospaceEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
+import { getAerospaceArcs } from '@/types/construction/aerospaceArcLabels';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -65,8 +65,8 @@ function toArmorArcs(
   smallCraft: boolean,
 ): Record<string, { current: number }> {
   const result: Record<string, { current: number }> = {};
-  for (const { location, label } of getAerospaceSheetArcs(smallCraft))
-    result[label] = { current: allocation[location] ?? 0 };
+  for (const { arc, label } of getAerospaceArcs(smallCraft))
+    result[label] = { current: allocation[arc] ?? 0 };
   return result;
 }
 

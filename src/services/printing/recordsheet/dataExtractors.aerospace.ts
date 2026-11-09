@@ -8,6 +8,7 @@
 import type { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { mapHeatSinkType } from '@/services/conversion/ValueMappings';
+import { getAerospaceArcs } from '@/types/construction/aerospaceArcLabels';
 import {
   IAerospaceRecordSheetData,
   IAerospaceArcArmor,
@@ -19,7 +20,6 @@ import { calculateHeatDissipation } from '@/utils/construction/heatSinkCalculati
 
 import type { IBaseRecordSheetUnitConfig } from './types';
 
-import { getAerospaceSheetArcs } from './aerospaceArcLabels';
 import { extractHeader } from './dataExtractors';
 import {
   ISimpleEquipmentInput,
@@ -60,7 +60,7 @@ export function extractAerospaceData(
   specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IAerospaceRecordSheetData {
   const arcAlloc = unit.armorArcs ?? {};
-  const armorArcs: IAerospaceArcArmor[] = getAerospaceSheetArcs(
+  const armorArcs: IAerospaceArcArmor[] = getAerospaceArcs(
     unit.smallCraftMotionType !== undefined,
   ).map(({ label }) => ({
     arc: label,

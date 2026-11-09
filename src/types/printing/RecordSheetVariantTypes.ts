@@ -1,3 +1,4 @@
+import type { AerospaceArcLabel } from '@/types/construction/aerospaceArcLabels';
 import type { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import type {
@@ -73,15 +74,10 @@ export interface IVehicleRecordSheetData {
  */
 /**
  * Armor arc labels. Fighters print wings; small craft print sides, per
- * SmallCraft.java LOCATION_NAMES ("Nose", "Left Side", "Right Side", "Aft").
+ * SmallCraft.java LOCATION_NAMES. Derived from the shared label owner, so the
+ * strings live in one place.
  */
-export type RecordSheetAerospaceArc =
-  | 'Nose'
-  | 'Left Wing'
-  | 'Right Wing'
-  | 'Left Side'
-  | 'Right Side'
-  | 'Aft';
+export type RecordSheetAerospaceArc = `${AerospaceArcLabel}`;
 
 export interface IAerospaceArcArmor {
   readonly arc: RecordSheetAerospaceArc;

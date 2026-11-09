@@ -2,18 +2,28 @@
 import fs from 'fs';
 import path from 'path';
 
+import {
+  AEROSPACE_ARC_OPTIONS,
+  AEROSPACE_ARMOR_ARCS,
+  getAerospaceArmorArcs,
+} from '@/components/customizer/aerospace/aerospaceLocationLabels';
 import { buildAerospaceUnitObject } from '@/components/customizer/aerospace/buildAerospaceUnitObject';
-import { getAerospaceSheetArcs } from '@/services/printing/recordsheet/aerospaceArcLabels';
 import * as aerospaceExtractor from '@/services/printing/recordsheet/dataExtractors.aerospace';
 import * as aerospaceBindings from '@/services/printing/svgRecordSheetRenderer/aerospace/bindings';
 import { renderAerospaceSVG } from '@/services/printing/svgRecordSheetRenderer/aerospaceRenderer';
 import { mapAerospaceDefinitionToState } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { isDefinitionForFamily } from '@/services/units/unitLoaderService/definitionTypes';
 import {
+  AEROSPACE_ARC_LABELS,
+  getAerospaceArcs,
+} from '@/types/construction/aerospaceArcLabels';
+import {
   AerospaceLocation,
   SmallCraftLocation,
 } from '@/types/construction/UnitLocation';
 import { UnitContract } from '@/types/contracts';
+import { AerospaceArcArmorSchema } from '@/types/printing/RecordSheetSchemas';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 
 import {
   catalog,
@@ -394,15 +404,15 @@ describe('Aerospace catalog location identity acceptance', () => {
   });
 });
 
-describe('Aerospace sheet arc label owner', () => {
+describe('Aerospace arc label owner', () => {
   it('matches the pinned small craft and the persisted fighter arc names', () => {
-    expect(getAerospaceSheetArcs(true).map((a) => a.label)).toEqual([
+    expect(getAerospaceArcs(true).map((a) => a.label)).toEqual([
       SmallCraftLocation.NOSE,
       SmallCraftLocation.LEFT_SIDE,
       SmallCraftLocation.RIGHT_SIDE,
       SmallCraftLocation.AFT,
     ]);
-    expect(getAerospaceSheetArcs(false).map((a) => a.label)).toEqual([
+    expect(getAerospaceArcs(false).map((a) => a.label)).toEqual([
       AerospaceLocation.NOSE,
       AerospaceLocation.LEFT_WING,
       AerospaceLocation.RIGHT_WING,
@@ -412,7 +422,7 @@ describe('Aerospace sheet arc label owner', () => {
 
   it('keeps the persisted store keys for both hulls', () => {
     const keys = (smallCraft: boolean) =>
-      getAerospaceSheetArcs(smallCraft).map((a) => a.location);
+      getAerospaceArcs(smallCraft).map((a) => a.arc);
     expect(keys(true)).toEqual(keys(false));
     expect(keys(true)).toEqual([
       AerospaceLocation.NOSE,
@@ -420,6 +430,69 @@ describe('Aerospace sheet arc label owner', () => {
       AerospaceLocation.RIGHT_WING,
       AerospaceLocation.AFT,
     ]);
+  });
+
+  it('lists exactly the labels the sheet schema accepts', () => {
+    const schemaArcs = AerospaceArcArmorSchema.shape.arc.options;
+    expect([...schemaArcs].sort()).toEqual(
+      [...AEROSPACE_ARC_LABELS].map(String).sort(),
+    );
+    for (const smallCraft of [true, false])
+      for (const { label } of getAerospaceArcs(smallCraft))
+        expect(schemaArcs).toContain(label);
+  });
+});
+
+/**
+ * The customizer's arc labels derive from the same owner as the sheet. The
+ * expected arrays are the serialized output before the owner was shared, so
+ * the editor stays byte-identical.
+ */
+describe('Customizer aerospace arc labels', () => {
+  const fighterArcs = [
+    { arc: 'Nose', label: 'Nose' },
+    { arc: 'Left Wing', label: 'Left Wing' },
+    { arc: 'Right Wing', label: 'Right Wing' },
+    { arc: 'Aft', label: 'Aft' },
+  ];
+  const smallCraftArcs = [
+    { arc: 'Nose', label: 'Nose' },
+    { arc: 'Left Wing', label: 'Left Side' },
+    { arc: 'Right Wing', label: 'Right Side' },
+    { arc: 'Aft', label: 'Aft' },
+  ];
+
+  it('serializes exactly as before the owner was shared', () => {
+    expect(JSON.stringify(AEROSPACE_ARMOR_ARCS)).toBe(
+      JSON.stringify(fighterArcs),
+    );
+    expect(JSON.stringify(AEROSPACE_ARC_OPTIONS)).toBe(
+      JSON.stringify([
+        ...fighterArcs.map(({ arc, label }) => ({ value: arc, label })),
+        { value: 'Fuselage', label: 'Fuselage' },
+      ]),
+    );
+    expect(
+      JSON.stringify(getAerospaceArmorArcs(AerospaceSubType.AEROSPACE_FIGHTER)),
+    ).toBe(JSON.stringify(fighterArcs));
+    expect(
+      JSON.stringify(
+        getAerospaceArmorArcs(AerospaceSubType.CONVENTIONAL_FIGHTER),
+      ),
+    ).toBe(JSON.stringify(fighterArcs));
+    expect(
+      JSON.stringify(getAerospaceArmorArcs(AerospaceSubType.SMALL_CRAFT)),
+    ).toBe(JSON.stringify(smallCraftArcs));
+  });
+
+  it.each([
+    [AerospaceSubType.AEROSPACE_FIGHTER, false],
+    [AerospaceSubType.CONVENTIONAL_FIGHTER, false],
+    [AerospaceSubType.SMALL_CRAFT, true],
+  ])('shows the sheet label for %s', (subType, smallCraft) => {
+    expect(getAerospaceArmorArcs(subType)).toEqual(
+      getAerospaceArcs(smallCraft),
+    );
   });
 });
 
