@@ -62,7 +62,7 @@ function buildSession(events: readonly IGameEvent[], turn = 1): IGameSession {
 
 describe('TacticalCommandShell — electedSpotters (PR-K8)', () => {
   afterEach(() => {
-    useGameplayStore.setState({ session: null });
+    act(() => useGameplayStore.setState({ session: null }));
   });
 
   it('seeds an empty electedSpotters list by default', () => {
@@ -255,5 +255,114 @@ describe('TacticalCommandShell — electedSpotters (PR-K8)', () => {
     });
     rerender();
     expect(result.current.state.electedSpotters.length).toBe(1);
+  });
+});
+
+describe('TacticalCommandShell current event history (U15)', () => {
+  const pair = { attackerId: 'a1', spotterId: 's1' };
+  const selected = buildEvent(
+    GameEventType.IndirectFireSpotterSelected,
+    0,
+    pair,
+  );
+  const lost = buildEvent(GameEventType.IndirectFireSpotterLost, 1, pair);
+
+  function mountShell(events: readonly IGameEvent[]) {
+    useGameplayStore.setState({ session: buildSession(events) });
+    return renderHook(() => useTacticalShell(), {
+      wrapper: ({ children }: { children: React.ReactNode }) => (
+        <TacticalCommandShell viewerPlayerId="p1">
+          {children}
+        </TacticalCommandShell>
+      ),
+    });
+  }
+
+  afterEach(() => {
+    act(() => useGameplayStore.setState({ session: null }));
+  });
+
+  it('removes an undone selection and processes the replacement event', () => {
+    const { result } = mountShell([selected]);
+    expect(result.current.state.electedSpotters).toEqual([pair]);
+
+    act(() => useGameplayStore.setState({ session: buildSession([]) }));
+    expect(result.current.state.electedSpotters).toEqual([]);
+
+    const replacement = { attackerId: 'a2', spotterId: 's2' };
+    act(() =>
+      useGameplayStore.setState({
+        session: buildSession([
+          buildEvent(GameEventType.IndirectFireSpotterSelected, 0, replacement),
+        ]),
+      }),
+    );
+    expect(result.current.state.electedSpotters).toEqual([replacement]);
+  });
+
+  it('restores a selected pair when its Lost event is undone', () => {
+    const { result } = mountShell([selected, lost]);
+    expect(result.current.state.electedSpotters).toEqual([]);
+    act(() => useGameplayStore.setState({ session: buildSession([selected]) }));
+    expect(result.current.state.electedSpotters).toEqual([pair]);
+  });
+
+  it('replaces spotters when a different session has the same event count', () => {
+    const { result } = mountShell([selected]);
+    const replacement = { attackerId: 'a2', spotterId: 's2' };
+    act(() =>
+      useGameplayStore.setState({
+        session: {
+          ...buildSession([
+            buildEvent(
+              GameEventType.IndirectFireSpotterSelected,
+              0,
+              replacement,
+            ),
+          ]),
+          id: 'replacement-session',
+        },
+      }),
+    );
+    expect(result.current.state.electedSpotters).toEqual([replacement]);
+  });
+
+  it('drops the old turn when rollover and a selection arrive together', () => {
+    const { result } = mountShell([selected]);
+    const newPair = { attackerId: 'a2', spotterId: 's2' };
+    act(() =>
+      useGameplayStore.setState({
+        session: buildSession(
+          [
+            selected,
+            buildEvent(
+              GameEventType.IndirectFireSpotterSelected,
+              1,
+              newPair,
+              2,
+            ),
+          ],
+          2,
+        ),
+      }),
+    );
+    expect(result.current.state.electedSpotters).toEqual([newPair]);
+  });
+
+  it('clears spotters when the session is removed', () => {
+    const { result } = mountShell([selected]);
+    act(() => useGameplayStore.setState({ session: null }));
+    expect(result.current.state.electedSpotters).toEqual([]);
+  });
+
+  it('preserves pair ordering, deduplication, and independent attackers', () => {
+    const otherPair = { attackerId: 'a2', spotterId: 's1' };
+    const { result } = mountShell([
+      selected,
+      selected,
+      buildEvent(GameEventType.IndirectFireSpotterSelected, 1, otherPair),
+      lost,
+    ]);
+    expect(result.current.state.electedSpotters).toEqual([otherPair]);
   });
 });
