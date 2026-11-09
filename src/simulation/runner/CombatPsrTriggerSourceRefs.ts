@@ -120,7 +120,7 @@ export const HEAT_SHUTDOWN_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation createShutdownPSR stamps Reactor shutdown with PSRTrigger.Shutdown reasonCode and triggerSource.',
     'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-    'L54-L67',
+    'L66-L79',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -148,7 +148,7 @@ export const STANDING_UP_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation createStandingUpPSR stamps Standing up with PSRTrigger.StandingUp reasonCode and optional movement-step triggerSource.',
     'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-    'L81-L93',
+    'L93-L105',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -189,7 +189,7 @@ export const DAMAGE_THRESHOLD_PSR_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation applyDamageThresholdPSR queues createDamagePSR once damageThisPhase reaches the local 20+ threshold and avoids duplicate phase-damage PSRs.',
     'src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts',
-    'L410-L437',
+    'L456-L483',
   ),
   mekstationDeviationRef(
     'MekStation createDamagePSR stamps PhaseDamage20Plus as the reasonCode and triggerSource for the pending PSR.',

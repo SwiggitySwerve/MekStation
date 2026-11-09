@@ -57,6 +57,14 @@ BattleMech-like unit that is not prone rolls them. Water entry also skips
 hover, VTOL, naval, hydrofoil, submarine, UMU, swim and WiGE motive modes, so
 callers pass the unit's motive mode when they know it.
 
+The rules follow MegaMek 48fcb2f64: a water roll for every step into a water
+hex (`Entity.checkWaterMove`, no exit roll), `+1` for ultra-rubble (rubble
+level above 5), and ice as reckless movement (`Entity.checkRecklessMove`): one
+roll per non-jump step taken in an ice hex. There is no running-through-rough
+roll. `planDisplacementTerrainPSRs` is the single producer for a unit forced
+into a hex (domino today): building collapse, bog-down and water entry only
+(`TWGameManager.doEntityDisplacement`), with no movement-step stamp.
+
 The runner applies the effects in `queueMovementTerrainPSRs`. Interactive paths
 (the session, its AI, `GameEngine` movement and P2P host translation) apply them
 through `gameSessionMovementTerrain`, right after `MovementDeclared` and before

@@ -198,7 +198,8 @@ it('does not invent building-collapse PSRs without explicit load metadata', () =
   );
 });
 
-it('queues water-exit PSRs when a unit leaves water terrain', () => {
+it('queues no PSR when a unit leaves water terrain', () => {
+  // MegaMek 48fcb2f64 Entity.checkWaterMove rolls only for entering water.
   const target = { q: 1, r: 0 };
   const grid = setTerrain(
     createMinimalGrid(3),
@@ -207,22 +208,14 @@ it('queues water-exit PSRs when a unit leaves water terrain', () => {
   );
 
   const { next, events } = runScriptedMove(grid, target);
-  const payloads = psrPayloads(events);
 
   expect(next.units['player-1'].position).toEqual(target);
-  expect(next.units['player-1'].pendingPSRs).toContainEqual(
-    expect.objectContaining({ reasonCode: PSRTrigger.ExitingWater }),
-  );
-  expect(payloads).toContainEqual(
-    expect.objectContaining({
-      reasonCode: PSRTrigger.ExitingWater,
-      triggerSource: expect.stringMatching(/^movement-step:/),
-    }),
-  );
+  expect(next.units['player-1'].pendingPSRs ?? []).toEqual([]);
+  expect(psrPayloads(events)).toEqual([]);
   expect(
     RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.ExitingWater],
   ).toMatchObject({
-    level: 'integrated',
+    level: 'out-of-scope',
   });
 });
 
