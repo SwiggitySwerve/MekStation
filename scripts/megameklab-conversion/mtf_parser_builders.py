@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from enum_mappings import map_mech_location, normalize_equipment_id
-from mtf_serialized_models import SerializedEquipment
+from enum_mappings import map_mech_location, map_structure_type, normalize_equipment_id
+from mtf_serialized_models import SerializedEquipment, SerializedStructure
 
 CRITICAL_MOUNTED_EQUIPMENT_IDS = {
     'chaff pod': 'chaffpod',
@@ -23,15 +23,16 @@ FRANKEN_STRUCTURE_LOCATIONS = {
 }
 
 
-def franken_structure_tonnage(config: str, structure: str,
-                              values: Dict[str, str]) -> Optional[Dict[str, int]]:
+def build_structure(config: str, structure: str,
+                    values: Dict[str, str]) -> SerializedStructure:
     """Per-location structure tonnage of a FrankenMek (MtfFile.java:362-411,669-702).
 
     Hybrid structure, or a value with its own type, is `<type>:<tonnage>`;
     otherwise the value is the tonnage. Other meks have none.
     """
+    structure_type = map_structure_type(structure)
     if 'FrankenMek' not in config:
-        return None
+        return SerializedStructure(type=structure_type)
     hybrid = structure.strip().lower() == 'hybrid'
     tonnage: Dict[str, int] = {}
     for code, value in values.items():
@@ -43,7 +44,12 @@ def franken_structure_tonnage(config: str, structure: str,
             tonnage[location] = int(raw.strip())
         except ValueError as error:
             raise ValueError(f'Invalid FrankenMek structure tonnage for {code}: {raw}') from error
-    return tonnage or None
+    return SerializedStructure(type=structure_type, locationTonnage=tonnage or None)
+
+
+def franken_structure_tonnage(config: str, structure: str,
+                              values: Dict[str, str]) -> Optional[Dict[str, int]]:
+    return build_structure(config, structure, values).locationTonnage
 
 
 def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:

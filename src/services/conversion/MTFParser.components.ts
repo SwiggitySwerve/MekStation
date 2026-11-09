@@ -1,3 +1,6 @@
+import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
+
+import { mapStructureType } from './MTFParser.mapping';
 import { parseField } from './MTFParser.types';
 
 export function parseEngine(lines: string[]): { type: string; rating: number } {
@@ -59,12 +62,13 @@ const MTF_LOCATION_CODES: Readonly<Record<string, string>> = {
  * otherwise the value is the tonnage. Internal points come from
  * calcTotalStructure, the single owner of the per-location table.
  */
-export function parseFrankenStructureTonnage(
+export function parseStructure(
   lines: string[],
   config: string,
   structure: string,
-): Record<string, number> | undefined {
-  if (!config.includes('FrankenMek')) return undefined;
+): ISerializedStructure {
+  const type = mapStructureType(structure);
+  if (!config.includes('FrankenMek')) return { type };
   const hybrid = structure.trim().toLowerCase() === 'hybrid';
   const tonnage: Record<string, number> = {};
   for (const [code, location] of Object.entries(MTF_LOCATION_CODES)) {
@@ -77,7 +81,18 @@ export function parseFrankenStructureTonnage(
       );
     tonnage[location] = Number(raw);
   }
-  return Object.keys(tonnage).length ? tonnage : undefined;
+  return {
+    type,
+    ...(Object.keys(tonnage).length ? { locationTonnage: tonnage } : {}),
+  };
+}
+
+export function parseFrankenStructureTonnage(
+  lines: string[],
+  config: string,
+  structure: string,
+): Record<string, number> | undefined {
+  return parseStructure(lines, config, structure).locationTonnage;
 }
 
 export function parseArmor(lines: string[]): {

@@ -27,7 +27,7 @@ from mtf_parser_builders import (
     build_armor_allocation,
     build_critical_slots,
     build_equipment_list,
-    franken_structure_tonnage,
+    build_structure,
 )
 from mtf_serialized_models import (
     SerializedArmor,
@@ -342,10 +342,8 @@ class MTFParser:
 
         # Parse structure
         structure_str = data.get('structure', 'Standard')
-        structure = SerializedStructure(
-            type=map_structure_type(structure_str),
-            locationTonnage=franken_structure_tonnage(
-                data.get('config', ''), structure_str, data.get('location_structure', {})))
+        structure = build_structure(
+            data.get('config', ''), structure_str, data.get('location_structure', {}))
 
         # Parse heat sinks
         hs_data = data.get('heat_sinks', {'count': 10, 'type': 'Single'})
