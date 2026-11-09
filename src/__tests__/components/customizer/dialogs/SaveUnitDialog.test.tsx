@@ -11,19 +11,6 @@ import React from 'react';
 import { SaveUnitDialog } from '@/components/customizer/dialogs/SaveUnitDialog';
 import { unitNameValidator } from '@/services/units/UnitNameValidator';
 
-// Mock ModalOverlay
-jest.mock('@/components/customizer/dialogs/ModalOverlay', () => ({
-  ModalOverlay: ({
-    children,
-    isOpen,
-    onClose: _onClose,
-  }: {
-    children: React.ReactNode;
-    isOpen: boolean;
-    onClose: () => void;
-  }) => (isOpen ? <div data-testid="modal-overlay">{children}</div> : null),
-}));
-
 // Mock UnitNameValidator
 jest.mock('@/services/units/UnitNameValidator', () => ({
   unitNameValidator: {
@@ -57,10 +44,81 @@ describe('SaveUnitDialog', () => {
       .mockImplementation(() => new Promise(() => undefined));
   });
 
+  it.each(['create', 'overwrite'] as const)(
+    'locks %s controls while saving and restores them after failure',
+    async (mode) => {
+      jest.mocked(unitNameValidator.validateUnitName).mockResolvedValue({
+        isValid: mode === 'create',
+        isCanonicalConflict: false,
+        isCustomConflict: mode === 'overwrite',
+        conflictingUnitId:
+          mode === 'overwrite' ? 'existing-library' : undefined,
+        suggestedName: mode === 'overwrite' ? 'Atlas AS7-D-2' : undefined,
+      });
+      const { rerender } = render(
+        <SaveUnitDialog {...defaultProps} isSaving />,
+      );
+      await waitFor(() =>
+        expect(
+          screen.getByText(
+            mode === 'create'
+              ? 'Name is available'
+              : 'Conflicts with existing custom unit',
+          ),
+        ).toBeInTheDocument(),
+      );
+      expect(screen.getByRole('button', { name: 'Saving...' })).toBeDisabled();
+      expect(screen.getByLabelText('Chassis Name')).toBeDisabled();
+      expect(screen.getByLabelText('Variant Designation')).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+      if (mode === 'overwrite') {
+        expect(
+          screen.getByRole('button', { name: 'Save As New' }),
+        ).toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Suggest' })).toBeDisabled();
+      }
+      rerender(<SaveUnitDialog {...defaultProps} isSaving={false} />);
+      expect(
+        screen.getByRole('button', {
+          name: mode === 'create' ? 'Save' : 'Overwrite',
+        }),
+      ).toBeEnabled();
+      expect(screen.getByLabelText('Chassis Name')).toBeEnabled();
+      expect(screen.getByLabelText('Variant Designation')).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+    },
+  );
+
+  it.each(['Cancel', 'Close dialog', 'Escape', 'backdrop'])(
+    'blocks %s during saving and permits dismissal after completion',
+    (dismissal) => {
+      const { rerender } = render(
+        <SaveUnitDialog {...defaultProps} isSaving />,
+      );
+      const dismiss = () => {
+        const dialog = screen.getByRole('dialog', { name: 'Save Unit' });
+        if (dismissal === 'Escape')
+          fireEvent.keyDown(dialog, { key: 'Escape' });
+        else if (dismissal === 'backdrop') {
+          const backdrop = dialog.parentElement;
+          if (!backdrop) throw new Error('Missing dialog backdrop');
+          fireEvent.click(backdrop);
+        } else fireEvent.click(screen.getByRole('button', { name: dismissal }));
+      };
+      dismiss();
+      expect(defaultProps.onCancel).not.toHaveBeenCalled();
+      rerender(<SaveUnitDialog {...defaultProps} isSaving={false} />);
+      dismiss();
+      expect(defaultProps.onCancel).toHaveBeenCalledTimes(1);
+    },
+  );
+
   it('should render when open', () => {
     render(<SaveUnitDialog {...defaultProps} />);
 
-    expect(screen.getByTestId('modal-overlay')).toBeInTheDocument();
+    expect(
+      screen.getByRole('dialog', { name: 'Save Unit' }),
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue('Atlas')).toBeInTheDocument();
     expect(screen.getByDisplayValue('AS7-D')).toBeInTheDocument();
   });
@@ -68,7 +126,7 @@ describe('SaveUnitDialog', () => {
   it('should not render when closed', () => {
     render(<SaveUnitDialog {...defaultProps} isOpen={false} />);
 
-    expect(screen.queryByTestId('modal-overlay')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('should reset form when dialog opens', () => {

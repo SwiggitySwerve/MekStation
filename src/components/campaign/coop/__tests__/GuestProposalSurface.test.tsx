@@ -81,6 +81,38 @@ function deferredTransport(): {
 }
 
 describe('useGuestProposals — proposal lifecycle', () => {
+  it.each(['throw', 'reject'] as const)(
+    'clears pending and permits retry when the transport fails by %s',
+    async (failure) => {
+      const transport = jest.fn((): Promise<GuestProposalResult> => {
+        if (failure === 'throw') throw new Error('Connection lost');
+        return Promise.reject(new Error('Connection lost'));
+      });
+      const { result } = renderHook(() =>
+        useGuestProposals(transport, 'guest-player'),
+      );
+      await act(async () => {
+        await expect(result.current.submit(SPEND_INTENT)).resolves.toBeNull();
+      });
+      expect(result.current.isPending('SpendFunds')).toBe(false);
+      expect(result.current.proposals[0].outcomeLabel).toContain(
+        'Connection lost',
+      );
+      expect(result.current.proposals[0].status).toBe('submission-failed');
+
+      transport.mockResolvedValue({
+        status: 'committed',
+        proposalId: 'proposal-retry',
+        events: [],
+      });
+      await act(async () => {
+        await result.current.submit({ ...SPEND_INTENT, intentId: 'retry' });
+      });
+      expect(transport).toHaveBeenCalledTimes(2);
+      expect(result.current.proposals[1].status).toBe('committed');
+    },
+  );
+
   it('marks a proposal pending then resolved', async () => {
     const { transport, resolveWith } = deferredTransport();
     const { result } = renderHook(() =>
@@ -156,6 +188,25 @@ describe('GuestProposalSurface — rendering', () => {
       />
     );
   }
+
+  it('announces a failed submission and enables the action again', async () => {
+    render(
+      <ProbeSurface
+        transport={() => Promise.reject(new Error('Connection lost'))}
+      />,
+    );
+    await act(async () => {
+      screen.getByTestId('guest-action-SpendFunds').click();
+    });
+    expect(
+      screen.getByTestId('guest-proposal-submission-failed'),
+    ).toHaveTextContent('Submission failed — Connection lost');
+    expect(screen.getByTestId('guest-decision-announcement')).toHaveTextContent(
+      'Submission failed — Connection lost',
+    );
+    expect(screen.getByTestId('guest-action-SpendFunds')).toBeEnabled();
+    expect(screen.queryByTestId('guest-action-SpendFunds-pending')).toBeNull();
+  });
 
   it('a guest control submits a proposal and shows the pending indicator', async () => {
     const { transport } = deferredTransport();
