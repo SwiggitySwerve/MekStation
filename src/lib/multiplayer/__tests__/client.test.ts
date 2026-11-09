@@ -17,6 +17,7 @@ import {
   HEARTBEAT_INTERVAL_MS,
   HEARTBEAT_TIMEOUT_MS,
   RECONNECT_INITIAL_MS,
+  REPLAY_CHUNK_SIZE,
 } from '@/types/multiplayer/Protocol';
 
 import { connect, type IClientWebSocket } from '../client';
@@ -35,6 +36,20 @@ interface IMockSocket extends IClientWebSocket {
   fireOpen(): void;
   fireClose(): void;
   sentRaw: string[];
+}
+
+interface IReplayReceiptCase {
+  readonly name: string;
+  readonly end: number;
+  readonly overlap: boolean;
+  readonly ordered: boolean;
+  readonly duplicate: boolean;
+  readonly failed: boolean;
+  readonly missing: boolean;
+  readonly live: number | null;
+  readonly ack: number;
+  readonly recovering: boolean;
+  readonly collision?: boolean;
 }
 
 function makeMockSocketFactory(): {
@@ -793,9 +808,11 @@ describe('multiplayer client', () => {
     expect(client.lastSeq()).toBe(2);
   });
 
-  it.each([
+  it.each<IReplayReceiptCase>([
     {
       name: 'captured authority order',
+      end: 76,
+      overlap: false,
       ordered: false,
       duplicate: false,
       failed: false,
@@ -806,6 +823,8 @@ describe('multiplayer client', () => {
     },
     {
       name: 'ordered replay',
+      end: 76,
+      overlap: false,
       ordered: true,
       duplicate: false,
       failed: false,
@@ -816,6 +835,8 @@ describe('multiplayer client', () => {
     },
     {
       name: 'duplicate replay',
+      end: 76,
+      overlap: false,
       ordered: false,
       duplicate: true,
       failed: false,
@@ -826,6 +847,8 @@ describe('multiplayer client', () => {
     },
     {
       name: 'failed reducer',
+      end: 76,
+      overlap: false,
       ordered: false,
       duplicate: false,
       failed: true,
@@ -836,6 +859,8 @@ describe('multiplayer client', () => {
     },
     {
       name: 'missing backfill across repeated replay',
+      end: 76,
+      overlap: false,
       ordered: false,
       duplicate: true,
       failed: false,
@@ -846,6 +871,8 @@ describe('multiplayer client', () => {
     },
     {
       name: 'concurrent live delivery',
+      end: 76,
+      overlap: false,
       ordered: false,
       duplicate: false,
       failed: false,
@@ -856,6 +883,8 @@ describe('multiplayer client', () => {
     },
     {
       name: 'concurrent live delivery with a real gap',
+      end: 76,
+      overlap: false,
       ordered: false,
       duplicate: false,
       failed: false,
@@ -864,11 +893,48 @@ describe('multiplayer client', () => {
       ack: 76,
       recovering: true,
     },
+    ...[false, true].map((overlap) => ({
+      name: `large replay beyond the identity window (overlap=${overlap})`,
+      end: 1000,
+      overlap,
+      ordered: false,
+      duplicate: true,
+      failed: false,
+      missing: false,
+      live: null,
+      ack: 1000,
+      recovering: false,
+    })),
+    {
+      name: 'large replay refuses a late collision beyond the identity window',
+      end: 1000,
+      overlap: false,
+      ordered: false,
+      duplicate: false,
+      failed: false,
+      missing: false,
+      live: null,
+      ack: 7,
+      recovering: true,
+      collision: true,
+    },
   ])(
     'reconciles applied replay receipts: $name',
-    ({ ordered, duplicate, failed, missing, live, ack, recovering }) => {
+    ({
+      end,
+      overlap,
+      ordered,
+      duplicate,
+      failed,
+      missing,
+      live,
+      ack,
+      recovering,
+      collision = false,
+    }) => {
       const f = makeMockSocketFactory();
       const applied: number[] = [];
+      const errors: unknown[] = [];
       let rejectBackfill = failed;
       const client = connect(
         'ws://localhost/x',
@@ -882,9 +948,22 @@ describe('multiplayer client', () => {
           throw new Error('projection failed');
         applied.push(delivery);
       });
+      client.on('error', (error) => errors.push(error));
       f.lastSocket().fireOpen();
+      if (overlap) {
+        finishReplay(f);
+        for (const delivery of [0, 1, 2, 3, 4, 8]) {
+          f.lastSocket().inject({
+            kind: 'Event',
+            matchId: 'm1',
+            ts: nowIsoForTest(),
+            deliverySequence: delivery,
+            event: { id: `r-${delivery}`, type: 'phase_changed' },
+          });
+        }
+      }
       const deliveries = ordered
-        ? Array.from({ length: 77 }, (_, index) => index)
+        ? Array.from({ length: end + 1 }, (_, index) => index)
         : [
             0,
             1,
@@ -895,7 +974,7 @@ describe('multiplayer client', () => {
             5,
             6,
             7,
-            ...Array.from({ length: 68 }, (_, index) => index + 9),
+            ...Array.from({ length: end - 8 }, (_, index) => index + 9),
           ];
       const replayed = deliveries.filter(
         (delivery) => !missing || delivery !== 6,
@@ -909,17 +988,39 @@ describe('multiplayer client', () => {
           fromDeliverySequence: 0,
           totalEvents: replayed.length,
         });
-        f.lastSocket().inject({
-          kind: 'ReplayChunk',
-          matchId: 'm1',
-          ts,
-          deliverySequences: replayed,
-          // Player projections carry no authority sequence. Array order is authoritative.
-          events: replayed.map((delivery) => ({
-            id: `r-${delivery}`,
-            type: 'phase_changed',
-          })),
-        });
+        const receiveChunk = (chunk: readonly number[]) => {
+          f.lastSocket().inject({
+            kind: 'ReplayChunk',
+            matchId: 'm1',
+            ts,
+            deliverySequences: chunk,
+            // Player projections carry no authority sequence. Array order is authoritative.
+            events: chunk.map((delivery) => ({
+              id: `r-${delivery}`,
+              type: 'phase_changed',
+            })),
+          });
+        };
+        for (
+          let offset = 0;
+          offset < replayed.length;
+          offset += REPLAY_CHUNK_SIZE
+        ) {
+          receiveChunk(replayed.slice(offset, offset + REPLAY_CHUNK_SIZE));
+        }
+        if (duplicate) receiveChunk(replayed.slice(0, 1));
+        if (collision) {
+          f.lastSocket().inject({
+            kind: 'ReplayChunk',
+            matchId: 'm1',
+            ts,
+            deliverySequences: [0, end + 1],
+            events: [
+              { id: 'fork', type: 'phase_changed' },
+              { id: `r-${end + 1}`, type: 'phase_changed' },
+            ],
+          });
+        }
         if (live !== null) {
           f.lastSocket().inject({
             kind: 'Event',
@@ -933,7 +1034,7 @@ describe('multiplayer client', () => {
           kind: 'ReplayEnd',
           matchId: 'm1',
           ts,
-          toDeliverySequence: 76,
+          toDeliverySequence: collision ? end + 1 : end,
         });
       };
       replay();
@@ -948,13 +1049,19 @@ describe('multiplayer client', () => {
         deliveryAcksOn(f.lastSocket()).every((receipt) => receipt <= ack),
       ).toBe(true);
       expect(client.lifecycle().recoveringFromGap).toBe(recovering);
-      expect(client.lifecycle().blockedBySequenceCollision).toBe(false);
-      if (failed) expect(client.isReady()).toBe(false);
+      expect(client.lifecycle().blockedBySequenceCollision).toBe(collision);
+      if (collision) {
+        expect(errors).toContainEqual({
+          code: 'PROTOCOL_VIOLATION',
+          reason: 'sequence-collision',
+        });
+      }
+      if (failed || collision) expect(client.isReady()).toBe(false);
       if (failed) {
         rejectBackfill = false;
         replay();
         expect(applied).toEqual(replayed);
-        expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([76]);
+        expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([end]);
         expect(client.lifecycle().recoveringFromGap).toBe(false);
         expect(client.isReady()).toBe(true);
       }

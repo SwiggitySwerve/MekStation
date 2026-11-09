@@ -296,6 +296,11 @@ const SERVER_MESSAGE_HANDLERS: Record<
     const end = message as Extract<IServerMessage, { kind: 'ReplayEnd' }>;
     const completesNumberedReplay =
       !state.ready && typeof end.toDeliverySequence === 'number';
+    // Preserve identity and receipt evidence for this drain even when a long
+    // replay evicts an overlapping delivery from the bounded live cache.
+    const replayAppliedIdentityByDelivery = completesNumberedReplay
+      ? new Map(state.appliedIdentityByDelivery)
+      : undefined;
     // Whatever asked for this replay has been served - including a gap
     // recovery, so the next hole is allowed to ask again.
     const answeredGapRecovery = state.recoveringFromGap;
@@ -315,6 +320,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
         updateLastSeq,
         requestResync,
         acknowledgeDelivery,
+        replayAppliedIdentityByDelivery,
         queued: replay,
       })
     ) {
@@ -331,13 +337,18 @@ const SERVER_MESSAGE_HANDLERS: Record<
         updateLastSeq,
         requestResync,
         acknowledgeDelivery,
+        replayAppliedIdentityByDelivery,
         queued: pending,
       })
     ) {
       return;
     }
-    if (completesNumberedReplay) {
-      reconcileAppliedDeliveryReceipts(state, acknowledgeDelivery);
+    if (replayAppliedIdentityByDelivery !== undefined) {
+      reconcileAppliedDeliveryReceipts(
+        state,
+        acknowledgeDelivery,
+        replayAppliedIdentityByDelivery,
+      );
     }
     // Caught up, so anything still unanswered can be asked again - with
     // the id it originally carried, which is what lets authority
@@ -474,6 +485,7 @@ interface IApplyQueuedEventsContext {
   readonly updateLastSeq: LastSeqUpdater;
   readonly requestResync: () => void;
   readonly acknowledgeDelivery: () => void;
+  readonly replayAppliedIdentityByDelivery?: Map<number, string>;
   readonly queued: readonly IQueuedInboundEvent[];
 }
 
@@ -489,6 +501,7 @@ function applyQueuedEvents({
   updateLastSeq,
   requestResync,
   acknowledgeDelivery,
+  replayAppliedIdentityByDelivery,
   queued,
 }: IApplyQueuedEventsContext): boolean {
   for (let index = 0; index < queued.length; index += 1) {
@@ -496,7 +509,14 @@ function applyQueuedEvents({
     if (state.blockedBySequenceCollision) return false;
     // Replay and live queues may overlap. Check again at application,
     // after earlier items have actually reached the projection.
-    if (isAlreadyApplied(state, current.event, current.deliverySequence)) {
+    if (
+      isAlreadyApplied(
+        state,
+        current.event,
+        current.deliverySequence,
+        replayAppliedIdentityByDelivery,
+      )
+    ) {
       if (state.blockedBySequenceCollision) {
         emitSequenceCollision(emit);
         return false;
@@ -515,7 +535,12 @@ function applyQueuedEvents({
       }
       return false;
     }
-    rememberApplied(state, current.event, current.deliverySequence);
+    rememberApplied(
+      state,
+      current.event,
+      current.deliverySequence,
+      replayAppliedIdentityByDelivery,
+    );
     updateLastSeq(current.event);
     completeDeliveryApplication({
       state,
@@ -572,9 +597,16 @@ function completeDeliveryApplication({
 function reconcileAppliedDeliveryReceipts(
   state: IClientState,
   acknowledgeDelivery: () => void,
+  replayAppliedIdentityByDelivery: ReadonlyMap<number, string>,
 ): void {
+  // Both queues succeeded. The per-drain index records only successful
+  // applications and outlives eviction from the bounded collision cache.
   let cursor = state.deliveryResumeCursor ?? -1;
-  while (state.appliedIdentityByDelivery.has(cursor + 1)) cursor += 1;
+  while (
+    replayAppliedIdentityByDelivery.has(cursor + 1) ||
+    state.appliedIdentityByDelivery.has(cursor + 1)
+  )
+    cursor += 1;
   state.deliveryResumeCursor = cursor >= 0 ? cursor : null;
   if (cursor >= 0) {
     // Already-applied replay items may not have advanced this socket's head.
@@ -952,10 +984,13 @@ function isAlreadyApplied(
   state: IClientState,
   event: unknown,
   deliverySequence?: number,
+  replayAppliedIdentityByDelivery?: ReadonlyMap<number, string>,
 ): boolean {
   const identity = identityOf(event);
   if (typeof deliverySequence === 'number') {
-    const known = state.appliedIdentityByDelivery.get(deliverySequence);
+    const known =
+      replayAppliedIdentityByDelivery?.get(deliverySequence) ??
+      state.appliedIdentityByDelivery.get(deliverySequence);
     if (known === undefined) return false;
     if (known !== identity) state.blockedBySequenceCollision = true;
     return true;
@@ -1055,10 +1090,12 @@ function rememberApplied(
   state: IClientState,
   event: unknown,
   deliverySequence?: number,
+  replayAppliedIdentityByDelivery?: Map<number, string>,
 ): void {
   const identity = identityOf(event);
   if (typeof deliverySequence === 'number') {
     state.appliedIdentityByDelivery.set(deliverySequence, identity);
+    replayAppliedIdentityByDelivery?.set(deliverySequence, identity);
     if (deliverySequence > state.lastAppliedDelivery) {
       state.lastAppliedDelivery = deliverySequence;
     }
