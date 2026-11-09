@@ -120,6 +120,10 @@ export interface IBattleArmorBVInput {
   offensiveEquipmentBV?: number;
   canAntiMek?: boolean;
   unresolvedEquipment?: readonly string[];
+  /** Diagnostic pass-through for the trace: pre-cap ammo BV per native pool. */
+  ammoAvailableBVByPool?: Readonly<Record<string, number>>;
+  /** Diagnostic pass-through for the trace: launcher BV per native pool. */
+  ammoCapBVByPool?: Readonly<Record<string, number>>;
 
   /** Pilot gunnery skill (default 4). */
   gunnery?: number;
@@ -357,5 +361,9 @@ export function calculateBattleArmorBV(
     squadTotal,
     pilotMultiplier,
     final,
+    ...(input.ammoAvailableBVByPool && {
+      ammoAvailableBVByPool: input.ammoAvailableBVByPool,
+    }),
+    ...(input.ammoCapBVByPool && { ammoCapBVByPool: input.ammoCapBVByPool }),
   };
 }

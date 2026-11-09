@@ -2,6 +2,7 @@
 import { z } from 'zod';
 
 import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
+import type { LocalQuantityFact } from './unit-construction-quantities';
 import type { LocalWeightFact } from './unit-construction-weights';
 
 import stages from './megameklab-conversion/java-reference/bv-stages.json';
@@ -42,6 +43,7 @@ export interface IFigure {
 export interface IComputedRow {
   constructionValidity?: IUnitValidateResult | { failure: string };
   constructionWeights?: LocalWeightFact;
+  constructionQuantities?: LocalQuantityFact;
   path: string;
   sha256: string;
   figure?: IFigure;

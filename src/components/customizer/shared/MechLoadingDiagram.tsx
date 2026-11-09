@@ -16,6 +16,7 @@ export function MechLoadingDiagram(): React.ReactElement {
       className="[&_[data-testid=armor-diagram]>div>div.mt-4]:hidden"
     >
       <ArmorDiagramPanel
+        presentation="loading"
         configuration={configuration}
         armorDiagramMode="silhouette"
         armorDiagramVariant="clean-tech"

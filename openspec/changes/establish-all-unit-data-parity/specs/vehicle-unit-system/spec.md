@@ -1021,6 +1021,47 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **WHEN** resolved
 - **THEN** each SHALL resolve to the same record as before
 
+### Requirement: Native combat VTOL construction weight
+
+Combat VTOLs SHALL expose a complete typed `VehicleWeightBreakdown` through the
+same construction owners as Tanks. Rotor mass SHALL be the existing lifting
+term, counted once. Native chin turret, engine, armor and transporter facts SHALL
+reach those owners. Only complete parses SHALL publish computed `totalWeight`
+and `remainingTonnage`; incomplete mass SHALL remain unavailable through the
+typed API. The legacy number-only handler API SHALL retain its explicit failure.
+
+Source: MegaMek `48fcb2f64`, `TestTank.java:178-270`, `VTOL.java:729-731`,
+`BLKVTOLFile.java:90-195` and `TestEntity.java:1011-1032`.
+
+#### Scenario: Native components determine the VTOL total
+
+- **GIVEN** Skadi Swift, Garuda Heavy and Onuris A sources
+- **WHEN** the native VTOL breakdown is requested
+- **THEN** their totals SHALL equal the pinned verifier's 30, 40 and 30 tons
+- **AND** Skadi's chin SHALL weigh 1 ton, Garuda's structure SHALL weigh 8 tons and Onuris's engine-based booster SHALL weigh 0.5 tons
+- **AND** rotor mass SHALL use each source's lifting term without a second charge
+
+#### Scenario: Computed mass differs from design tonnage
+
+- **GIVEN** Marten Scout, Balac Hybrid, Hawk Moth II, Warrior H-7F and Warrior HX-9 sources
+- **WHEN** their complete construction mass is published
+- **THEN** their totals SHALL equal 13.5, 24.5, 24, 20.5 and 20.5 tons respectively
+- **AND** remaining tonnage SHALL equal design tonnage minus that computed mass
+
+#### Scenario: Incomplete mass remains unavailable
+
+- **GIVEN** a loadable VTOL with unresolved mounted mass or unsupported construction
+- **WHEN** the native breakdown is requested
+- **THEN** it SHALL return unavailable and SHALL NOT publish a computed subtotal
+- **AND** the legacy number-only API SHALL still throw its incomplete-weight error
+
+#### Scenario: VTOL loader controls and Omni allowance reach the shared owners
+
+- **GIVEN** a Ferret with a no-controls tag and an Omni Skadi with a 2-ton chin allowance
+- **WHEN** their complete native mass is calculated
+- **THEN** Ferret SHALL retain 0.5 tons of controls because its loader ignores that Tank-only tag
+- **AND** Skadi SHALL weigh 31 tons and SHALL receive an overweight diagnostic
+
 ## ADDED Requirements
 
 ### Requirement: Pinned vehicle armor limits and allocation
@@ -1110,3 +1151,120 @@ following MML 62bf193 UnitUtil.java:900-916 and MegaMek 48fcb2f64 TestTank.java:
 - **WHEN** its equipment catalog is pending
 - **THEN** its inert loading diagram SHALL render the six-side armored hull
 - **AND** support loading diagrams SHALL omit Body armor controls
+
+### Requirement: Support-vehicle heat sink mass
+
+Support-vehicle heat-sink mass SHALL equal the pinned verifier's heat-neutral
+requirement with no free engine sinks, and zero for a support vehicle under
+5 tons. The editor figure and the construction-handler total SHALL read one
+shared linked-heat sum, so laser insulators and PPC capacitors apply to a
+support chassis as they do to a combat one. Support `remaining` tonnage SHALL
+include this mass; it SHALL NOT be treated as a Java total because source fuel
+remains outside the editor composition.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestSupportVehicle.java:917-931` and `TestEntity.java:945-984`.
+
+#### Scenario: Corpus support vehicles carry Java heat
+
+- **GIVEN** the 19 corpus support vehicles with positive pinned-Java heat, among them Jifty JI-50 (ML), Wayland Mobile Base and White Tip Submarine
+- **WHEN** the editor weight is composed
+- **THEN** each SHALL report the pinned count as its heat-sink mass, with no engine allowance subtracted
+- **AND** Hoverbike (Laser) and Harpoon ParaSub, under 5 tons, SHALL report zero
+
+#### Scenario: Insulator and capacitor apply to a support chassis
+
+- **GIVEN** a support Jifty chassis with two medium lasers and a laser insulator, and another with a PPC and a PPC capacitor
+- **WHEN** heat is composed by the editor or by the construction handler
+- **THEN** the sink masses SHALL be 5 and 15 tons
+- **AND** an insulated small laser SHALL keep the running-total minimum of one
+- **AND** an insulator in another location SHALL link no laser
+
+### Requirement: Support torpedo launcher mass identity
+
+A support vehicle's torpedo launcher (LRT and SRT) SHALL weigh the pinned launcher
+mass, taken from the Java-derived registry entry the unit loader resolves for the
+BLK token, not from the legacy name stub the BV catalog matches. Only a
+definition that the registry owner identifies as a registry entry SHALL supply
+mass this way; other resolver answers (cargo, flail, wrecking ball) and
+ammunition SHALL keep their existing mass source.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `TestSupportVehicle`
+verifier weapon and ammunition terms.
+
+#### Scenario: Torpedo launchers weigh the Java mass
+
+- **GIVEN** a support chassis mounting LRT 5, 10, 15 or 20, or SRT 2, 4 or 6
+- **WHEN** the construction handler weighs it
+- **THEN** the launchers SHALL weigh 2, 5, 7, 10, 1, 2 and 3 tons respectively
+- **AND** LRT 10, LRT 15, SRT 2 and SRT 4 together SHALL weigh 15 tons
+
+#### Scenario: Corpus torpedo boats equal Java
+
+- **GIVEN** Seahorse Cargo Sub, Silverfin Coastal Cutter and White Tip Submarine
+- **WHEN** their support weight is calculated
+- **THEN** it SHALL equal the pinned verifier's 250, 40 and 249.5 tons
+
+#### Scenario: Non-registry answers keep their mass source
+
+- **GIVEN** a support chassis mounting a wrecking ball, a flail or a sized cargo bay
+- **WHEN** the construction handler weighs it
+- **THEN** they SHALL weigh 4, 5 and 20 tons and the torpedo ammunition bin SHALL weigh 1 ton
+
+### Requirement: Small support vehicle weapon mass
+
+A support vehicle under 5 tons SHALL weigh its weapons at their pinned type
+tonnage, SHALL take an Omni chassis's fixed fire-control mass when positive, and
+SHALL report as unresolved, never guess, a weapon beyond its first clip (its
+ammunition weight is not carried) and a weapon whose identity is not a legal
+support-vehicle weapon. A support structure mass SHALL NOT read the structure
+type.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestSupportVehicle.java:760-788,980-988` and `MiscType.java:707-711`.
+
+#### Scenario: Small support vehicles equal the pinned Java terms
+
+- **GIVEN** Hoverbike, Assuan Armored Bike, Harpoon ParaSub, Beast Riot Car, TrackBike, Rumbler-HT and the Omni Boreas Cavalry Hovercraft A and Prime
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Boreas fire control SHALL weigh its fixed chassis 0.01 tons
+
+#### Scenario: Unmodelled terms are reported, not guessed
+
+- **GIVEN** Rock Rover RRV (Speed) with a size-2 Support Laser, and Ibex RV (Militarized MG) with `Machine Gun (Light)(PT)`
+- **WHEN** their support weight is calculated
+- **THEN** the first SHALL report its clip ammunition mass unresolved and fall short of Java by exactly 0.003 tons
+- **AND** the second SHALL report the battle-armor gun as not a support-vehicle weapon and SHALL NOT charge its 0.075 tons
+
+#### Scenario: An unknown structure type does not move a support structure mass
+
+- **GIVEN** a support chassis with internal type -1, 0 or none
+- **WHEN** its structure mass is calculated
+- **THEN** it SHALL be 13.5 tons and the total 59.5 tons in each case
+
+### Requirement: Support pintle and sponson mechanisms follow the pinned weight rule
+
+A support vehicle's sponson pair SHALL weigh 10% of its sponson-mounted equipment
+(excluding ammunition, heat sinks and armor), and each pintle SHALL weigh 5% of
+the pintle-mounted weapons in its own location, both rounded up (kilograms under
+5 tons, half tons otherwise); a fixed chassis weight, even zero, SHALL replace the
+pintle figure and be split over the pintles. A mechanism whose weapons or payload
+have an unresolved mass SHALL be reported unresolved, never weighed as if they
+weighed nothing. The editor and the support handler SHALL share one owner.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:563-603` and `Tank.getBaseChassisSponsonPintleWeight`.
+
+#### Scenario: Pintle and sponson sources equal the pinned Java terms
+
+- **GIVEN** Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Apocalypse pintle SHALL weigh its fixed chassis weight 0.08 tons
+
+#### Scenario: An unresolved weapon leaves its pintle unresolved
+
+- **GIVEN** Ibex RV (Militarized MG) whose pintle weapon is reported as not a support-vehicle weapon
+- **WHEN** its support weight is calculated
+- **THEN** its pintles SHALL be reported unresolved and SHALL NOT be weighed as zero

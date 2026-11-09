@@ -248,7 +248,7 @@ export function getInfantryMotiveMultiplier(motive: InfantryMotive): number {
  */
 export function calculateInfantryFieldGunBV(
   fieldGuns: readonly InfantryFieldGunMount[] | undefined,
-  onWeapon?: (battleValue: number) => void,
+  onWeapon?: (battleValue: number, gun: InfantryFieldGunMount) => void,
 ): { weaponBV: number; ammoBV: number; total: number } {
   if (!fieldGuns || fieldGuns.length === 0) {
     return { weaponBV: 0, ammoBV: 0, total: 0 };
@@ -264,7 +264,7 @@ export function calculateInfantryFieldGunBV(
         ? gun.bvOverride
         : resolveEquipmentBV(gun.id).battleValue;
     weaponBV += gunBV;
-    onWeapon?.(gunBV);
+    onWeapon?.(gunBV, gun);
     weapons.push({ id: getNativeAmmoBVGroup(gun.id) ?? gun.id, bv: gunBV });
 
     for (const bin of gun.ammo ?? []) {
@@ -364,17 +364,28 @@ function infantrySourceWeaponStage(
   const secondary = stages.secondary
     ? stages.secondary.bv * source.secondaryShooters
     : undefined;
+  // Retain each native processWeapon call, including zero-valued weapons.
+  // Temporary trooper mounts share an identity across the anti-Mek repeat.
+  const trooperWeapons = new Map<string, number>();
+  const recordWeapon = (id: string, value: number) => {
+    trooperWeapons.set(id, (trooperWeapons.get(id) ?? 0) + value);
+  };
+  recordWeapon(input.primaryWeapon.id, primary);
+  if (input.secondaryWeapon && secondary !== undefined)
+    recordWeapon(input.secondaryWeapon.id, secondary);
+  const fieldGunWeapons: Array<{ id: string; battleValue: number }> = [];
   let weaponBV = primary + (secondary ?? 0);
   let antiMek = 0;
   if (antiMechMultiplier > 1) {
     const before = weaponBV;
-    for (const [value, canRepeat] of [
-      [primary, stages.canRepeatPrimary],
-      [secondary ?? 0, stages.canRepeatSecondary],
+    for (const [value, canRepeat, id] of [
+      [primary, stages.canRepeatPrimary, input.primaryWeapon.id],
+      [secondary ?? 0, stages.canRepeatSecondary, input.secondaryWeapon?.id],
     ] as const) {
-      if (!canRepeat) continue;
+      if (!canRepeat || id === undefined) continue;
       weaponBV += value;
       antiMek += value;
+      recordWeapon(id, value);
     }
     if (source.prostheticAntiMek) {
       const repeat = weaponBV - before;
@@ -384,7 +395,14 @@ function infantrySourceWeaponStage(
   for (const bonus of infantryWeaponBonuses(source)) {
     if (bonus > 0) weaponBV += troopers * bonus;
   }
-  return { primary, secondary, antiMek, weaponBV };
+  return {
+    primary,
+    secondary,
+    antiMek,
+    weaponBV,
+    trooperWeapons,
+    fieldGunWeapons,
+  };
 }
 
 // =============================================================================
@@ -448,8 +466,9 @@ export function calculateInfantryBV(
   const fieldGunResult = calculateInfantryFieldGunBV(
     input.fieldGuns,
     sourceWeaponStage
-      ? (battleValue) => {
+      ? (battleValue, gun) => {
           sourceWeaponStage.weaponBV += battleValue;
+          sourceWeaponStage.fieldGunWeapons.push({ id: gun.id, battleValue });
         }
       : undefined,
   );

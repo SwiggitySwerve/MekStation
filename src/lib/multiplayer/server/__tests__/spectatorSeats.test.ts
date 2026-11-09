@@ -17,11 +17,15 @@ import {
   SPECTATOR_SIDE,
 } from '@/types/multiplayer/Lobby';
 
+import type { IMatchMeta } from '../IMatchStore';
+
 import { canLaunch, occupySeat, setReady } from '../lobby/lobbyStateMachine';
 import {
   addSpectatorSeat,
   findSpectatorSeat,
   isSpectatorPlayer,
+  holdsAutoReleasableSpectatorSeat,
+  isAutoReleasableSpectatorSeat,
   isSpectatorSeat,
   MAX_SPECTATORS_PER_MATCH,
   removeSpectatorSeat,
@@ -140,6 +144,77 @@ describe('spectator classification', () => {
     const seats = addSpectatorSeat(defaultSeats('1v1'), WATCHER);
     expect(seats.filter(isSpectatorSeat)).toHaveLength(1);
     expect(seats.filter((s) => !isSpectatorSeat(s))).toHaveLength(2);
+  });
+});
+
+describe('which spectator seats automatic cleanup may release', () => {
+  /** A 1v1 with Alice/Bob playing, the host in a spectator seat and a viewer. */
+  function gmMatch(
+    status: IMatchMeta['status'] = 'active',
+    hostPlayerId = 'pid_gm',
+  ) {
+    let seats = readyOneVOne();
+    seats = addSpectatorSeat(seats, { playerId: 'pid_gm', displayName: 'GM' });
+    seats = addSpectatorSeat(seats, WATCHER);
+    return { hostPlayerId, status, seats };
+  }
+
+  it('releases a viewer', () => {
+    expect(holdsAutoReleasableSpectatorSeat(gmMatch(), WATCHER.playerId)).toBe(
+      true,
+    );
+  });
+
+  it.each(['lobby', 'active'] as const)(
+    "keeps the host's own spectator seat while the match is %s",
+    (status) => {
+      const match = gmMatch(status);
+      expect(holdsAutoReleasableSpectatorSeat(match, 'pid_gm')).toBe(false);
+      const seat = match.seats.find((s) => s.occupant?.playerId === 'pid_gm');
+      expect(seat && isAutoReleasableSpectatorSeat(seat, match)).toBe(false);
+    },
+  );
+
+  it("releases the GM's seat like any other once the match is completed", () => {
+    const match = gmMatch('completed');
+    expect(holdsAutoReleasableSpectatorSeat(match, 'pid_gm')).toBe(true);
+    expect(holdsAutoReleasableSpectatorSeat(match, WATCHER.playerId)).toBe(
+      true,
+    );
+  });
+
+  it('follows the host, not the seat: a former host is an ordinary spectator', () => {
+    expect(
+      holdsAutoReleasableSpectatorSeat(
+        gmMatch('active', 'pid_other'),
+        'pid_gm',
+      ),
+    ).toBe(true);
+  });
+
+  it('is false for playing occupants and strangers', () => {
+    const match = gmMatch();
+    expect(holdsAutoReleasableSpectatorSeat(match, ALICE.playerId)).toBe(false);
+    expect(holdsAutoReleasableSpectatorSeat(match, 'pid_nobody')).toBe(false);
+  });
+
+  it('classifies seats, not players: an empty spectator seat is releasable', () => {
+    const match = gmMatch();
+    const empty = spectatorSeats(match.seats)[0];
+    expect(
+      isAutoReleasableSpectatorSeat({ ...empty, occupant: null }, match),
+    ).toBe(true);
+  });
+
+  it('is not consulted by deliberate removal: removeSpectatorSeat still removes the GM seat', () => {
+    // The exemption lives only in the automatic-cleanup predicate above, so a
+    // deliberate removal of the host's own spectator seat is unchanged.
+    const match = gmMatch();
+    expect(
+      removeSpectatorSeat(match.seats, 'pid_gm').some(
+        (seat) => seat.occupant?.playerId === 'pid_gm',
+      ),
+    ).toBe(false);
   });
 });
 
