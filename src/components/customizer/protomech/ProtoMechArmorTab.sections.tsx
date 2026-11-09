@@ -142,7 +142,7 @@ export function ProtoMechArmorPanelSection({
           <span className={cs.text.label}>Armor Weight</span>
           <output
             data-testid="protomech-armor-weight"
-            className={cs.text.secondary}
+            className={`${cs.text.secondary} block`}
           >
             {controls.armorWeight === null
               ? 'Unavailable'
