@@ -22,6 +22,7 @@ import {
 
 import type { IAttackPlan } from './useGameplayStore.combatFlows';
 
+import { finishCommit } from './useGameplayStore.attackIntent';
 import { InteractivePhase } from './useGameplayStore.helpers';
 import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
 
@@ -226,22 +227,7 @@ export function fireWeaponsLogic(get: GetFn, set: SetFn): void {
 
   interactiveSession.applyAttack(ui.selectedUnitId, ui.targetUnitId, weaponIds);
 
-  const gameOver = interactiveSession.isGameOver();
-
-  set({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
-    validTargetIds: [],
-    hitChance: null,
-    ui: {
-      ...get().ui,
-      selectedUnitId: null,
-      targetUnitId: null,
-      queuedWeaponIds: [],
-    },
-  });
+  finishCommit(interactiveSession, set);
 }
 
 /**
