@@ -1363,3 +1363,34 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
+
+### Requirement: Vehicle ammunition diagnostic projection
+
+The vehicle owner SHALL transport its admitted uncapped native ammunition and
+raw weapon-cap pools from the shared ammunition owner. The trace SHALL format
+these facts as `ammo.available.<type>:<rack>` and `ammo.cap.<type>:<rack>` without
+regrouping them or recomputing BV. Existing capped ammo BV, fire-control and
+speed modifiers, source inputs and numerical outputs SHALL remain unchanged.
+Unavailable native pool facts SHALL remain absent and their remainder SHALL be
+reported explicitly.
+
+#### Scenario: Raw pools remain independent of capped ammo and weapon modifiers
+
+- **GIVEN** an SRM-2 with listed BV 21 and Artemis IV, and physical bins valued at 32 and 4
+- **WHEN** the vehicle's diagnostic pools are projected
+- **THEN** `ammo.available.SRM:2` SHALL be 36 and `ammo.cap.SRM:2` SHALL be 21
+- **AND** weapon BV SHALL remain 25.2 and capped ammunition BV SHALL remain 21
+
+#### Scenario: Support fire-control scaling leaves raw pools intact
+
+- **GIVEN** a support vehicle with basic fire control, an SRM-2 valued at 21 and a bin valued at 3
+- **WHEN** the vehicle's diagnostic pools are projected
+- **THEN** the raw availability SHALL remain 3 and the raw cap SHALL remain 21
+- **AND** the existing scaled ammunition BV SHALL remain 2.7
+
+#### Scenario: Defensive launcher caps do not admit defensive ammunition
+
+- **GIVEN** an AMS valued at 32, or two APDS launchers valued at 64 each, with their defensive ammunition
+- **WHEN** the shared diagnostic owner supplies their raw native cap facts
+- **THEN** `ammo.cap.AMS:2` SHALL be 32 or `ammo.cap.APDS:2` SHALL be 128 respectively
+- **AND** defensive ammunition SHALL remain absent from offensive availability, with every existing arithmetic result unchanged
