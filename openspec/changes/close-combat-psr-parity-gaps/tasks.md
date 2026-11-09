@@ -27,3 +27,18 @@
 - [x] Kill the mutants (ultra-rubble, water-entry-only-from-land, a rubble roll
       in displacement, an ice roll on a jump).
 - [x] Prove no committed replay, digest or golden moved.
+
+## 3. C-1a: running with a damaged hip or gyro
+
+- [x] Record the replay, digest, golden, runner, engine and p2p suites on
+      unmodified main before editing.
+- [x] Read the pin: `MovePathHandler.java:1283-1286`, `TWRulesPSR.java:62-77`,
+      `Mek.hasHipCrit`, `MoveStep.java:2257-2260`.
+- [x] Record failing tests: planner rules; session, AI, engine, P2P and runner
+      queue one PSR per run, ahead of terrain PSRs, with the same tuples.
+- [x] Add `planRunningWithDamagePSR` and use it from
+      `gameSessionMovementTerrain` and the runner's `movementDamagePsr`.
+- [x] Re-anchor the running-with-damage catalog citations by content.
+- [x] Kill the mutants (drop the `canFall` gate, drop the heavy-duty
+      discount, roll per step, roll on a walk, ignore the destroyed-leg rule).
+- [ ] Prove no committed replay, digest or golden moved, or list the movement.
