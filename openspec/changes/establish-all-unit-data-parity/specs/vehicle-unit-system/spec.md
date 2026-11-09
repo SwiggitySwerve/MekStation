@@ -1062,8 +1062,6 @@ Source: MegaMek `48fcb2f64`, `TestTank.java:178-270`, `VTOL.java:729-731`,
 - **THEN** Ferret SHALL retain 0.5 tons of controls because its loader ignores that Tank-only tag
 - **AND** Skadi SHALL weigh 31 tons and SHALL receive an overweight diagnostic
 
-## ADDED Requirements
-
 ### Requirement: Pinned vehicle armor limits and allocation
 
 Vehicle armor editing SHALL follow the pinned MegaMekLab location limits and
@@ -1103,8 +1101,6 @@ domain rules without changing serialized armor allocations on open.
 - **AND** the front/rear weighting and rounding remainder SHALL follow the pinned MegaMekLab allocator
 - **AND** zero- and one-point budgets SHALL NOT create negative armor
 
-## ADDED Requirements
-
 ### Requirement: Pinned vehicle armor Body presentation
 
 Vehicle armor forms and diagrams SHALL omit Body for combat, support,
@@ -1120,8 +1116,6 @@ Body SHALL remain unarmored independently of BAR and armor tech rating.
 - **AND** manual allocation SHALL NOT assign armor to Body
 - **AND** automatic allocation SHALL keep Body at zero
 - **AND** Body equipment placement SHALL remain available under its existing construction rules
-
-## ADDED Requirements
 
 ### Requirement: Pinned vehicle armor diagnostic identities
 
