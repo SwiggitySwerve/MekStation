@@ -244,6 +244,36 @@ describe('vehicleCriticalHitResolution', () => {
   });
 
   describe('applyVehicleCritEffect', () => {
+    it.each(['crew_stunned', 'commander_hit', 'copilot_hit'] as const)(
+      '%s preserves the existing stun increment and unrelated state',
+      (kind) => {
+        for (const rounds of [0, 1, 2, 4]) {
+          const original = mkState();
+          const state = {
+            ...original,
+            motive: { ...original.motive, crewStunnedPhases: rounds },
+          };
+          const before = JSON.stringify(state);
+          const result = applyVehicleCritEffect(
+            state,
+            { ...vehicleCritFromRoll([3, 3]), kind },
+            { engineType: EngineType.ICE, hasAmmoInSlot: false },
+          );
+          expect(result.state).toEqual({
+            ...state,
+            motive: {
+              ...state.motive,
+              crewStunnedPhases: rounds + 2,
+              commanderHits: kind === 'crew_stunned' ? 0 : 1,
+            },
+          });
+          expect(JSON.stringify(state)).toBe(before);
+          expect(result.applied.kind).toBe(kind);
+          expect(result.ammoExplosion).toBe(false);
+        }
+      },
+    );
+
     it('none leaves state unchanged', () => {
       const state = mkState();
       const r = applyVehicleCritEffect(state, vehicleCritFromRoll([1, 1]), {

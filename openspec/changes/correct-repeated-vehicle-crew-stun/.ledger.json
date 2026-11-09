@@ -1,0 +1,6 @@
+{
+  "name": "correct-repeated-vehicle-crew-stun",
+  "status": "in-progress",
+  "reason": "Root-approved C-6 parity fix for MegaMek 48fcb2f64 Tank.stunCrew, with consolidation before the increment change.",
+  "lastReviewed": "2026-11-08"
+}

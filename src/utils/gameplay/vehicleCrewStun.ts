@@ -1,4 +1,15 @@
-import type { IUnitGameState } from '@/types/gameplay';
+import type { IUnitGameState, IVehicleCombatState } from '@/types/gameplay';
+
+/** Apply crew stun without changing unrelated combat state. */
+export function stunCrew(vehicle: IVehicleCombatState): IVehicleCombatState {
+  return {
+    ...vehicle,
+    motive: {
+      ...vehicle.motive,
+      crewStunnedPhases: vehicle.motive.crewStunnedPhases + 2,
+    },
+  };
+}
 
 /**
  * Advance crew stun once at a new round's Initiative boundary.

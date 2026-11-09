@@ -14,6 +14,50 @@ import {
 } from './vehicleCrewStun.helpers';
 
 describe('vehicle crew stun round lifecycle (MegaMek 48fcb2f64 Tank.newRound)', () => {
+  it.each(['crew_stunned', 'commander_hit', 'copilot_hit'] as const)(
+    '%s preserves the existing reducer increment and unrelated state',
+    (effect) => {
+      const session = stunnedVehicleSession();
+      const unit = session.currentState.units.target;
+      const combat = unit.combatState;
+      if (combat?.kind !== 'vehicle') throw new Error('Expected vehicle');
+      for (const rounds of [0, 1, 2, 4]) {
+        const vehicle = {
+          ...combat.state,
+          motive: { ...combat.state.motive, crewStunnedPhases: rounds },
+        };
+        const state = {
+          ...session.currentState,
+          units: {
+            ...session.currentState.units,
+            target: {
+              ...unit,
+              combatState: { kind: 'vehicle' as const, state: vehicle },
+            },
+          },
+        };
+        const event = crewStunEvent(session);
+        const before = JSON.stringify(state);
+        const next = applyEvent(state, {
+          ...event,
+          payload: { ...event.payload, effect },
+        });
+        expect(next.units.target.combatState).toEqual({
+          kind: 'vehicle',
+          state: {
+            ...vehicle,
+            motive: {
+              ...vehicle.motive,
+              crewStunnedPhases: rounds + 2,
+              commanderHits: effect === 'crew_stunned' ? 0 : 1,
+            },
+          },
+        });
+        expect(JSON.stringify(state)).toBe(before);
+      }
+    },
+  );
+
   it('changes only the vehicle stun counter and leaves nonvehicles untouched', () => {
     const { currentState } = stunnedVehicleSession();
     const vehicle = currentState.units.target;
