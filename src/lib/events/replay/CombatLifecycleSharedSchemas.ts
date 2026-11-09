@@ -410,19 +410,24 @@ const infantryBVBreakdownShape = {
   troopers: finiteNumber,
 };
 
-const infantryBVBreakdownSchema = z
-  .object(infantryBVBreakdownShape)
-  // Only recognized weapon keys may extend the legacy strict shape.
-  .catchall(finiteNumber.optional())
-  .superRefine((value, context) => {
-    const keys = Object.keys(value).filter(
-      (key) =>
+const infantryBVBreakdownSchema = z.preprocess((value, context) => {
+  // Inspect raw keys before Zod drops "__proto__" while cloning objects.
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    const keys: string[] = [];
+    // Legacy strict parsing also rejects enumerable inherited unknown keys.
+    for (const key in value) {
+      if (
         !Object.hasOwn(infantryBVBreakdownShape, key) &&
-        !isInfantryBVWeaponTerm(key),
-    );
+        !isInfantryBVWeaponTerm(key)
+      ) {
+        keys.push(key);
+      }
+    }
     if (keys.length)
       context.addIssue({ code: z.ZodIssueCode.unrecognized_keys, keys });
-  });
+  }
+  return value;
+}, z.object(infantryBVBreakdownShape).catchall(finiteNumber.optional()));
 
 /**
  * Full `IInfantry` mirror (extends ISquadUnit -> IBaseUnit -> IEntity /
