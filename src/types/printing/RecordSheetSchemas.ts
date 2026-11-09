@@ -258,6 +258,7 @@ export const BattleArmorRecordSheetDataSchema = z.object({
   walkMP: z.number(),
   umuMP: z.number(),
   vtolMP: z.number(),
+  movementMode: z.enum(['ground', 'jump', 'vtol', 'umu']).optional(),
   specialAbilities: z.array(RecordSheetSPAEntrySchema).optional(),
 });
 
