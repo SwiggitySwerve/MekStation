@@ -1,3 +1,5 @@
+import type { IProtoMechBVMountValue } from '@/types/unit/BVBreakdownTypes';
+
 import {
   IProtoMechMountedEquipment,
   IProtoMechUnit,
@@ -8,6 +10,20 @@ import {
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+
+/** Retain the admitted value and original mount identity without resolution. */
+export function protoMechBVMountValue(
+  equipmentIndex: number,
+  mount: IProtoMechMountedEquipment,
+  battleValue: number,
+): IProtoMechBVMountValue {
+  return {
+    equipmentIndex,
+    equipmentId: mount.equipmentId,
+    location: mount.location,
+    battleValue,
+  };
+}
 
 /** Native misc belongs outside the weapon/ammo-cap pool (BVCalculator:978-1042). */
 export function resolveProtoOffensiveEquipmentBV(
