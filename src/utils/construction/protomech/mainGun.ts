@@ -9,8 +9,8 @@
  *   - TestProtoMek.java:296-380 hasIllegalEquipmentCombinations
  * (MegaMek 48fcb2f64, MAX_STD_TONNAGE = 9 at line 65.)
  *
- * Scope is the Main Gun and the arms. The torso also needs the armor's slot and
- * the variable weights of some miscellany, and is not enforced here.
+ * Main Gun and arm placement includes slot and weight limits. Torso placement
+ * includes the armor slot; variable miscellaneous mass remains separate.
  *
  * @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md
  */

@@ -37,7 +37,7 @@ export function getProtoMountWeight(equipmentId: string): number | undefined {
 }
 
 /** TestProtoMek/TestEntity 48fcb2f6: a lower bound, not a complete mass total.
- * Standard armor, structure, controls, engine, fixed-mass weapons, standard LRMs
+ * Supported armor, structure, controls, engine, fixed-mass weapons, standard LRMs
  * and known ammo can prove overage. Other missiles/misc/jump/sink mass is omitted.
  */
 function getProtoMinimumWeightExact(
