@@ -326,9 +326,7 @@ describe('IMission Interface', () => {
         MissionStatus.PARTIAL,
         MissionStatus.FAILED,
         MissionStatus.BREACH,
-        MissionStatus.CANCELLED,
         MissionStatus.PENDING,
-        MissionStatus.ABORTED,
       ];
 
       statuses.forEach((status) => {

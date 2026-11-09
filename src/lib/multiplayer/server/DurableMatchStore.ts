@@ -64,6 +64,7 @@ import {
   sqliteConstraintMessage,
 } from '@/services/persistence/sqliteConstraintErrors';
 import { MATCH_ROOM_CODES_MIGRATION } from '@/services/persistence/SQLiteService.matchRoomCodes.migration';
+import { assertMatchCreateStatus } from '@/types/multiplayer/MatchStatus';
 
 import type { ICapabilityDatabaseHandle } from './durableCapabilityPorts';
 import type {
@@ -752,6 +753,7 @@ export class DurableMatchStore
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    assertMatchCreateStatus(meta.status);
     meta = lobbyMatchMeta(meta);
     // A match's invite code only resolves while it is in `lobby`
     // status — mirror `InMemoryMatchStore`'s indexing rule.

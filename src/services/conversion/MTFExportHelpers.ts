@@ -1,6 +1,9 @@
 export { formatEngineType, formatArmorType } from './MTFVocabulary';
 
-import { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type {
+  ISerializedFluff,
+  ISerializedUnit,
+} from '@/types/unit/UnitSerialization';
 
 const BIPED_LOCATION_ORDER = [
   'LEFT_ARM',
@@ -103,11 +106,20 @@ export function formatConfig(config: string, isOmni?: boolean): string {
   return baseConfig;
 }
 
-export function formatTechBase(techBase: string): string {
+export function formatTechBase(
+  techBase: string,
+  chassisTechBase?: NonNullable<
+    ISerializedUnit['componentTechBases']
+  >['chassis'],
+): string {
   if (techBase === 'CLAN') return 'Clan';
   if (techBase === 'MIXED') {
+    // MegaMek 48fcb2f64: MtfFile.java:867-906; Mek.java:5184-5190.
+    // MML 62bf193: BasicInfoView.java:638-655; BMStructureTab.java:773-802.
+    if (chassisTechBase === 'INNER_SPHERE') return 'Mixed (IS Chassis)';
+    if (chassisTechBase === 'CLAN') return 'Mixed (Clan Chassis)';
     throw new Error(
-      'Cannot export MIXED: missing chassis-tech-context (typed current IS or Clan chassis base)',
+      'Cannot export MIXED: missing or invalid chassis-tech-context (typed current IS or Clan chassis base)',
     );
   }
   return 'Inner Sphere';

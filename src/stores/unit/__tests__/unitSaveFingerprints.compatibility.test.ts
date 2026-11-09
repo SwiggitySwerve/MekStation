@@ -6,7 +6,10 @@ import {
   getUnitStore,
   hydrateOrCreateUnit,
 } from '@/stores/unitStoreRegistry';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import { getUnitEditHistory } from '../unitEditHistory';
 import {
@@ -16,6 +19,7 @@ import {
   getUnitLibraryFingerprint,
   recordUnitLibrarySave,
 } from '../unitEditSnapshot';
+import { createUnitStore } from '../useUnitStore';
 import fixture from './fixtures/unit-save-fingerprints-7c8579e19.json';
 
 beforeEach(() => {
@@ -125,6 +129,64 @@ it('normalizes regenerated equipment IDs and links while retaining exact edit id
   ).toBe(sample.libraryFingerprint);
 });
 
+it.each(fixture.cases)(
+  'absent crewSeats keeps the literal fingerprint bytes: $name',
+  (sample) => {
+    const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+    const absent = { ...state, crewSeats: undefined };
+    expect(getUnitEditFingerprint(absent)).toBe(sample.editFingerprint);
+    expect(getUnitDraftFingerprint(absent)).toBe(sample.draftFingerprint);
+    expect(getUnitLibraryFingerprint(absent)).toBe(sample.libraryFingerprint);
+  },
+);
+
+it('a crew seat edit changes every shared fingerprint, marks the draft modified, and is clean after save', () => {
+  const sample = fixture.cases[0];
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  const store = createUnitStore({
+    ...state,
+    configuration: MechConfiguration.TRIPOD,
+    tonnage: 100,
+    isModified: false,
+    librarySave: undefined,
+  });
+  recordUnitLibrarySave(
+    store,
+    { id: 'crew-fixture', version: 1 },
+    store.getState(),
+  );
+  const saved = store.getState().librarySave;
+  if (!saved?.draftFingerprint) throw new Error('Missing library receipt');
+  const before = {
+    edit: getUnitEditFingerprint(store.getState()),
+    draft: getUnitDraftFingerprint(store.getState()),
+    library: getUnitLibraryFingerprint(store.getState()),
+  };
+  expect(store.getState().isModified).toBe(false);
+
+  store
+    .getState()
+    .setCrewSeat({ slotIndex: 1, name: 'Gunner Gil', gunnery: 2, piloting: 6 });
+  expect(getUnitEditFingerprint(store.getState())).not.toBe(before.edit);
+  expect(getUnitDraftFingerprint(store.getState())).not.toBe(before.draft);
+  expect(getUnitLibraryFingerprint(store.getState())).not.toBe(before.library);
+  expect(store.getState().isModified).toBe(true);
+
+  recordUnitLibrarySave(
+    store,
+    { id: 'crew-fixture', version: 2 },
+    store.getState(),
+  );
+  expect(store.getState().isModified).toBe(false);
+
+  store
+    .getState()
+    .setCrewSeat({ slotIndex: 1, name: 'Gunner Gus', gunnery: 2, piloting: 6 });
+  expect(store.getState().isModified).toBe(true);
+  getUnitEditHistory(store).getState().undo();
+  expect(store.getState().isModified).toBe(false);
+});
+
 it('adding an optional field that is absent does not change the mech fingerprint', () => {
   const sample = fixture.cases.find((entry) => entry.name === 'empty-fluff');
   if (!sample) throw new Error('Missing empty-fluff compatibility fixture');
@@ -150,5 +212,89 @@ it('adding an optional field that is absent does not change the mech fingerprint
   ).toBe(sample.draftFingerprint);
   expect(stringifyUnitSaveFingerprint({ ...oldDraft, crewSeats: [] })).not.toBe(
     sample.draftFingerprint,
+  );
+});
+
+it('keeps literal fingerprint bytes when an old mount has no split allocation', () => {
+  const sample = fixture.cases.find(
+    (entry) => entry.name === 'linked-equipment',
+  );
+  if (!sample)
+    throw new Error('Missing linked-equipment compatibility fixture');
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  expect(state.equipment.every((item) => !('splitSlots' in item))).toBe(true);
+  const absent: UnitState = {
+    ...state,
+    equipment: state.equipment.map((item) => ({
+      ...item,
+      splitSlots: undefined,
+    })),
+  };
+  expect(
+    getEditableUnitSnapshot(absent).equipment[0].splitSlots,
+  ).toBeUndefined();
+  expect(getUnitEditFingerprint(absent)).toBe(sample.editFingerprint);
+  expect(getUnitDraftFingerprint(absent)).toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(absent)).toBe(sample.libraryFingerprint);
+});
+
+it.each([
+  CockpitType.TRIPOD,
+  CockpitType.QUADVEE,
+  CockpitType.SUPER_HEAVY_TRIPOD,
+])('fingerprints a meaningful change to the %s cockpit', (cockpitType) => {
+  const sample = fixture.cases.find(
+    (entry) => entry.name === 'linked-equipment',
+  );
+  if (!sample)
+    throw new Error('Missing linked-equipment compatibility fixture');
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  const changed = { ...state, cockpitType };
+  expect(getUnitEditFingerprint(changed)).not.toBe(sample.editFingerprint);
+  expect(getUnitDraftFingerprint(changed)).not.toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(changed)).not.toBe(
+    sample.libraryFingerprint,
+  );
+});
+
+it('fingerprints a secondary split-slot edit without changing the primary mount', () => {
+  const sample = fixture.cases.find(
+    (entry) => entry.name === 'linked-equipment',
+  );
+  if (!sample)
+    throw new Error('Missing linked-equipment compatibility fixture');
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  const split: UnitState = {
+    ...state,
+    equipment: [
+      {
+        ...state.equipment[0],
+        equipmentId: 'ac-20',
+        name: 'AC/20',
+        weight: 14,
+        criticalSlots: 10,
+        heat: 7,
+        linkedAmmoId: undefined,
+        location: MechLocation.RIGHT_ARM,
+        slots: [4, 5, 6, 7, 8, 9, 10, 11],
+        splitSlots: { location: MechLocation.RIGHT_TORSO, slots: [1, 2] },
+      },
+    ],
+  };
+  const moved: UnitState = {
+    ...split,
+    equipment: split.equipment.map((item) => ({
+      ...item,
+      splitSlots: { location: MechLocation.RIGHT_TORSO, slots: [2, 3] },
+    })),
+  };
+  expect(moved.equipment[0].slots).toEqual(split.equipment[0].slots);
+  expect(moved.equipment[0].equipmentId).toBe(split.equipment[0].equipmentId);
+  expect(getUnitEditFingerprint(moved)).not.toBe(getUnitEditFingerprint(split));
+  expect(getUnitDraftFingerprint(moved)).not.toBe(
+    getUnitDraftFingerprint(split),
+  );
+  expect(getUnitLibraryFingerprint(moved)).not.toBe(
+    getUnitLibraryFingerprint(split),
   );
 });

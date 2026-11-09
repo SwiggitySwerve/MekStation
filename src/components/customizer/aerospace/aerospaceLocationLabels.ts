@@ -1,16 +1,14 @@
-import {
-  AerospaceLocation,
-  SmallCraftLocation,
-} from '@/types/construction/UnitLocation';
+import { getAerospaceArcs } from '@/types/construction/aerospaceArcLabels';
+import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 
-/** Shared display order; persisted location values remain unchanged. */
-export const AEROSPACE_ARMOR_ARCS = [
-  AerospaceLocation.NOSE,
-  AerospaceLocation.LEFT_WING,
-  AerospaceLocation.RIGHT_WING,
-  AerospaceLocation.AFT,
-].map((arc) => ({ arc, label: arc as string }));
+/**
+ * Shared display order; persisted location values remain unchanged. The labels
+ * come from the shared owner (`types/construction/aerospaceArcLabels.ts`),
+ * which the record sheet also uses.
+ */
+export const AEROSPACE_ARMOR_ARCS: { arc: AerospaceLocation; label: string }[] =
+  getAerospaceArcs(false).map(({ arc, label }) => ({ arc, label }));
 
 export const AEROSPACE_ARC_OPTIONS = [
   ...AEROSPACE_ARMOR_ARCS.map(({ arc, label }) => ({ value: arc, label })),
@@ -21,15 +19,7 @@ export const AEROSPACE_ARC_OPTIONS = [
 export function getAerospaceArmorArcs(
   subType: AerospaceSubType,
 ): typeof AEROSPACE_ARMOR_ARCS {
-  return AEROSPACE_ARMOR_ARCS.map(({ arc, label }) => ({
-    arc,
-    label:
-      subType === AerospaceSubType.SMALL_CRAFT
-        ? arc === AerospaceLocation.LEFT_WING
-          ? SmallCraftLocation.LEFT_SIDE
-          : arc === AerospaceLocation.RIGHT_WING
-            ? SmallCraftLocation.RIGHT_SIDE
-            : label
-        : label,
-  }));
+  return getAerospaceArcs(subType === AerospaceSubType.SMALL_CRAFT).map(
+    ({ arc, label }) => ({ arc, label }),
+  );
 }

@@ -159,7 +159,14 @@
         "INTERFACE",
         "VRRP",
         "QUADVEE",
-        "PRIMITIVE_INDUSTRIAL"
+        "PRIMITIVE_INDUSTRIAL",
+        "DUAL",
+        "TRIPOD",
+        "SUPERHEAVY_INDUSTRIAL",
+        "SUPERHEAVY_COMMAND_CONSOLE",
+        "SMALL_COMMAND_CONSOLE",
+        "TRIPOD_INDUSTRIAL",
+        "SUPERHEAVY_TRIPOD_INDUSTRIAL"
       ],
       "description": "Cockpit type"
     },
@@ -557,6 +564,22 @@
         "armor": { "$ref": "#/$defs/componentTechBase" }
       },
       "additionalProperties": false
+    },
+    "crewSeats": {
+      "type": "array",
+      "description": "BattleMech Tripod/QuadVee crew seats the user assigned; unassigned seats are absent",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "slotIndex": { "type": "integer", "minimum": 0, "maximum": 2 },
+          "name": { "type": "string", "minLength": 1 },
+          "gunnery": { "type": "integer", "minimum": 0, "maximum": 8 },
+          "piloting": { "type": "integer", "minimum": 0, "maximum": 8 }
+        },
+        "required": ["slotIndex", "name", "gunnery", "piloting"],
+        "additionalProperties": false
+      }
     },
     "omniPodHeatSinks": { "type": "integer", "minimum": 0 },
     "baseChassisTurretWeight": { "type": "number", "minimum": 0 },

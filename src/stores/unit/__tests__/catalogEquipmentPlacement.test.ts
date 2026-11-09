@@ -1,4 +1,5 @@
 import { MechLocation } from '@/types/construction';
+import { CockpitType } from '@/types/construction/CockpitType';
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -31,6 +32,36 @@ const makeUnit = () =>
     techBase: TechBase.INNER_SPHERE,
   });
 beforeEach(() => localStorage.clear());
+
+it.each([
+  [CockpitType.SMALL, 4],
+  [CockpitType.TORSO_MOUNTED, 2],
+  [CockpitType.SMALL_COMMAND_CONSOLE, 5],
+] as const)(
+  'previews and adds equipment against %s head topology',
+  (cockpit, slot) => {
+    const unit = makeUnit();
+    unit.getState().setCockpitType(cockpit);
+    const preview = previewCatalogEquipmentPlacement(laser, unit.getState());
+    expect(
+      preview.locations.find((option) => option.location === MechLocation.HEAD)
+        ?.start,
+    ).toBe(slot);
+    expect(
+      unit.getState().addEquipmentAtLocation(laser, MechLocation.HEAD).success,
+    ).toBe(true);
+    expect(unit.getState().equipment.at(-1)?.slots).toEqual([slot]);
+  },
+);
+
+it('rejects catalog placement into a command console head', () => {
+  const unit = makeUnit();
+  unit.getState().setCockpitType(CockpitType.COMMAND_CONSOLE);
+  expect(
+    unit.getState().addEquipmentAtLocation(laser, MechLocation.HEAD).success,
+  ).toBe(false);
+  expect(unit.getState().equipment).toEqual([]);
+});
 
 it('previews without mutation, commits once and restores the same instance through undo/redo and draft recovery', () => {
   const unit = makeUnit(),
