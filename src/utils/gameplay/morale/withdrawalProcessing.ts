@@ -141,9 +141,7 @@ export function applyWithdrawalEdgeExits(session: IGameSession): IGameSession {
   for (const unitId of Object.keys(updated.currentState.units)) {
     const unit = updated.currentState.units[unitId];
     if (!unit) continue;
-    if (unit.destroyed) continue;
-    if (unit.hasRetreated) continue;
-    if (unit.hasEjected) continue;
+    if (!getUnitOperability(unit).onField) continue;
     if (!unit.isWithdrawing && !unit.isRetreating) continue;
     if (!unit.retreatTargetEdge) continue;
     if (
