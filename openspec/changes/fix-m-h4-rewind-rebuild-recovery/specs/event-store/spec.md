@@ -42,3 +42,64 @@ The `waiting-effects` branch status SHALL stay in the status ladder, the transit
 - **WHEN** a reader looks for the status that holds a candidate behind an unresolved effect
 - **THEN** `waiting-effects` SHALL be present, documented as reserved, and legal only between `building` and `blocked` or `effective`
 
+### Requirement: Failed and Stranded Campaign Retroactive Correction Candidates Are Blocked
+
+A campaign retroactive correction SHALL move the candidate it built to `blocked` when replay diverges, verification refuses it, the impact sealer fails, or an unexpected error escapes after the candidate exists, while it still holds the correction lease, and SHALL return the same refusal or rethrow the same error it would have otherwise. A failure to move the candidate SHALL NOT replace that refusal or error. After acquiring its lease and before building its own candidate, a campaign retroactive correction SHALL move every other `building` candidate on the same stream that has no sealed impact manifest to `blocked`. It SHALL NOT change a candidate with a sealed manifest, which awaits activation, SHALL NOT change a branch that is not `building`, and SHALL NOT sweep when it did not acquire the lease.
+
+#### Scenario: Each failure after the candidate exists blocks it
+
+- **GIVEN** a campaign retroactive correction whose candidate has been built
+- **WHEN** replay diverges, verification refuses, the sealer throws, or an unexpected error escapes
+- **THEN** the candidate SHALL be `blocked`
+- **AND** the caller SHALL receive the original typed refusal, or the original error
+- **AND** the lease SHALL be released
+
+#### Scenario: A stranded unsealed candidate is blocked by the next correction
+
+- **GIVEN** a `building` candidate with no sealed manifest whose lease was released
+- **WHEN** a new correction acquires the lease and seals its own candidate
+- **THEN** the stranded candidate SHALL be `blocked`
+- **AND** the new candidate SHALL be `building` with a sealed manifest
+
+#### Scenario: A sealed candidate awaiting activation survives
+
+- **GIVEN** a `building` candidate with a sealed manifest
+- **WHEN** another correction acquires the lease and commits
+- **THEN** the sealed candidate SHALL still be `building`
+
+#### Scenario: No lease, no sweep
+
+- **GIVEN** a stranded unsealed candidate and a live lease held by another owner
+- **WHEN** a correction is refused as `correction-lease-held`
+- **THEN** the stranded candidate SHALL still be `building`
+
+### Requirement: Coordinated Outcome Correction Target Blocks Only Dead Candidates
+
+The coordinated outcome-correction target SHALL move the campaign candidate named on its saga to `blocked` when it blocks the saga on a non-retryable refusal, and SHALL keep that candidate `building` on a retryable refusal or a crash, because a retry reuses the candidate id persisted on the saga. After acquiring its correction lease and before minting a candidate, it SHALL move to `blocked` every `building` candidate on the campaign stream that has no sealed impact manifest and is not named by any saga that is not `blocked`. It SHALL NOT change a candidate with a sealed manifest, a candidate a non-blocked saga names, or a branch that is not `building`, and SHALL NOT sweep when it did not acquire the lease. It SHALL hold the lease for the whole record and release it on every exit, including a blocked answer and a thrown error.
+
+#### Scenario: A non-retryable refusal blocks the saga and its candidate
+
+- **GIVEN** a target record whose candidate has been minted
+- **WHEN** a non-retryable branch refusal escapes a later step
+- **THEN** the saga SHALL be `blocked` and its candidate SHALL be `blocked`
+- **AND** the lease SHALL be released
+
+#### Scenario: A crash keeps the candidate for the retry
+
+- **GIVEN** a target record that crashed after the candidate id was persisted on the saga
+- **WHEN** the record is retried
+- **THEN** the candidate SHALL still be `building` and SHALL be reused
+- **AND** the lease SHALL have been released after the crash
+
+#### Scenario: Only dead candidates are swept
+
+- **GIVEN** a stranded unsealed candidate no saga names, one a `target-pending` saga names, one only a `blocked` saga names, and one with a sealed manifest
+- **WHEN** a new target record mints its candidate
+- **THEN** the unnamed unsealed candidate and the one only a `blocked` saga names SHALL be `blocked`
+- **AND** the other two and the new candidate SHALL be `building`
+
+#### Scenario: No lease, no sweep
+
+- **GIVEN** a stranded unsealed candidate and a live lease held by another owner
+- **WHEN** a target record answers `not-ready`
+- **THEN** the stranded candidate SHALL still be `building`

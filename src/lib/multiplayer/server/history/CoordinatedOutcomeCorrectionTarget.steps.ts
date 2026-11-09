@@ -184,6 +184,89 @@ export function acquireTargetCorrectionLease(
   });
 }
 
+/**
+ * D-3b: release the lease `acquireTargetCorrectionLease` returned. A
+ * lease that was already released, or taken over, must not hide the
+ * domain result: the stream is then open or fenced by its new owner.
+ */
+export function releaseTargetCorrectionLease(
+  campaignDb: Database.Database,
+  input: { readonly campaignId: string; readonly at: string },
+  lease: IEventHistoryCorrectionLease,
+): void {
+  try {
+    new SQLiteEventHistoryCorrectionLeaseStore(
+      campaignDb,
+      new SQLiteEventHistoryBranchStore(campaignDb),
+      { nowMs: () => Date.parse(input.at) },
+    ).releaseCorrectionLease(campaignStreamRef(input.campaignId), {
+      leaseId: lease.leaseId,
+      owner: lease.owner,
+    });
+  } catch {
+    // Already released or taken over.
+  }
+}
+
+/**
+ * D-3b: under a freshly acquired lease, block the campaign stream's
+ * `building` candidates that are dead: no sealed manifest, and not the
+ * candidate of any saga that is not itself `blocked`. A saga persists
+ * its candidate id and reuses it on retry, and a `target-pending` saga
+ * keeps a sealed candidate for a later activation, so neither is
+ * touched. Runs before the caller mints its own candidate.
+ */
+export function blockStrandedTargetCandidates(
+  campaignDb: Database.Database,
+  matchDb: Database.Database,
+  campaignId: string,
+): void {
+  const stream = campaignStreamRef(campaignId);
+  const branches = new SQLiteEventHistoryBranchStore(campaignDb);
+  const manifests = new SQLiteEventHistoryArtifactManifestStore(campaignDb);
+  migrateCoordinatedCorrectionSaga(matchDb);
+  const named = new Set(
+    (
+      matchDb
+        .prepare(
+          `SELECT candidate_branch_id AS candidateBranchId
+             FROM ${COORDINATED_CORRECTION_SAGA_TABLE}
+            WHERE candidate_branch_id IS NOT NULL AND state != 'blocked'`,
+        )
+        .all() as Array<{ readonly candidateBranchId: string }>
+    ).map((row) => row.candidateBranchId),
+  );
+  for (const branch of branches.listBranches(stream)) {
+    if (branch.status !== 'building') continue;
+    if (named.has(branch.branchId)) continue;
+    if (manifests.readArtifactManifest(stream, branch.branchId) !== null) {
+      continue;
+    }
+    branches.transitionBranchStatus(stream, branch.branchId, 'blocked');
+  }
+}
+
+/**
+ * D-3b: the saga was blocked by a non-retryable refusal, so its
+ * candidate is dead. A failure to block must not replace the blocked
+ * answer the caller is owed; the next mint's sweep retries it.
+ */
+export function blockTargetCandidate(
+  campaignDb: Database.Database,
+  campaignId: string,
+  branchId: string,
+): void {
+  try {
+    const stream = campaignStreamRef(campaignId);
+    const branches = new SQLiteEventHistoryBranchStore(campaignDb);
+    if (branches.readBranch(stream, branchId)?.status === 'building') {
+      branches.transitionBranchStatus(stream, branchId, 'blocked');
+    }
+  } catch {
+    // Left `building`; the next sweep blocks it.
+  }
+}
+
 export function mintTargetCandidateBranch(
   campaignDb: Database.Database,
   lease: IEventHistoryCorrectionLease,

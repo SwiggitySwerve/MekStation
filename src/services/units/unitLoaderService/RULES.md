@@ -102,6 +102,12 @@ registry owns their accepted contract discriminators and available store mapper.
 - Armor uses named `armor.byLocation` entries and the shared converter-location
   owner; no positional order is inferred. Zero-valued turret entries still
   install turrets. Turret presence and equipment flags use `equipmentMounts.ts`.
+- A missing support-vehicle source BAR rating maps to `null`, preserving the BV
+  owner's native zero default instead of the new-editor BAR 7. Explicit source
+  ratings and saved `vehicleEditor.barRating` overrides remain authoritative.
+  MegaMek 48fcb2f64: SupportTank.java:63,79; BLKFile.java:484-529;
+  BVCalculator.java:430-434. `vehicleSourceBV.test.ts` enforces source-to-sheet
+  totals, save/reopen preservation and the separate new-editor default.
 - Turrets reuse the existing store action. There is no turret capacity cap
   (owner ruling 5; removed in #2479), and this mapper adds none.
 - Focused `vehicleMapping.test.ts` fixtures enforce this mapping and error
