@@ -1211,3 +1211,29 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
+
+### Requirement: Infantry raw weapon-stage diagnostics
+
+The infantry BV owner SHALL supply optional primary, represented secondary,
+anti-Mek repeat and remaining weapon-stage values to the trace. Their
+`infantry.primaryWeaponBV`, `infantry.secondaryWeaponBV`,
+`infantry.antiMekWeaponBV` and `infantry.weaponRemainderBV` projections SHALL
+retain pinned native operation order and floating-point residuals without
+rounding. Existing per-trooper arithmetic, old diagnostics, source inputs,
+aggregates and totals SHALL remain unchanged.
+
+#### Scenario: Native stages retain fractional residuals
+
+- **GIVEN** pinned infantry with primary and optional secondary weapons, anti-Mek training or field guns
+- **WHEN** source weapon-stage diagnostics are projected
+- **THEN** primary and secondary values SHALL use the original shooter counts
+- **AND** anti-Mek weapon repeats SHALL exclude archaic weapons and prosthetic bonuses
+- **AND** the remainder SHALL subtract primary, secondary, field guns and anti-Mek repeats in native order, retaining even tiny nonzero residuals
+
+#### Scenario: Missing facts, zero values and replay compatibility
+
+- **GIVEN** a legacy calculation without source facts, an absent secondary weapon or a represented zero secondary contribution
+- **WHEN** its breakdown is calculated or replayed
+- **THEN** absent source facts and absent secondary weapons SHALL NOT acquire diagnostic keys
+- **AND** represented zero values SHALL remain present and finite
+- **AND** strict replay SHALL accept the optional finite keys and legacy payloads while rejecting nonfinite diagnostics
