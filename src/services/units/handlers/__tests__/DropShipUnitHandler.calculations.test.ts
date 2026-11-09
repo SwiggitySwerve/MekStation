@@ -76,7 +76,7 @@ describe('DropShipUnitHandler', () => {
     });
 
     it('should calculate higher cost for military vs civilian', () => {
-      const militaryDoc = createMockBlkDocument({ designType: 0 });
+      const militaryDoc = createMockBlkDocument({ designType: 1 });
       const civilianDoc = createCivilianDropShip();
 
       const militaryResult = handler.parse(militaryDoc);

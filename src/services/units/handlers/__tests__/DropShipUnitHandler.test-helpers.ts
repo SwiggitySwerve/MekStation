@@ -46,7 +46,7 @@ export function createMockBlkDocument(
     sinkType: 0,
     engineType: 0,
     armorType: 0,
-    armor: [200, 150, 150, 120, 120, 80],
+    armor: [250, 200, 190, 180], // Nose, Right Side, Left Side, Aft (BLKDropshipFile.java:192-199); total 820
     crew: 21,
     officers: 5,
     gunners: 4,
@@ -64,7 +64,7 @@ export function createMockBlkDocument(
     rawTags: {
       dockingcollar: 'true',
     },
-    designType: 0, // Military
+    designType: 1, // Military (Aero.java:437-438: CIVILIAN = 0, MILITARY = 1)
     ...overrides,
   };
 }
@@ -77,7 +77,7 @@ export function createAerodyneDropShip(): IBlkDocument {
     tonnage: 1720,
     safeThrust: 4,
     structuralIntegrity: 8,
-    armor: [150, 100, 100, 80, 80, 60],
+    armor: [150, 100, 100, 80], // 4 values
     transporters: ['mechbay:4', 'asfbay:2:1', 'cargobay:50.0:1'],
   });
 }
@@ -86,7 +86,7 @@ export function createCivilianDropShip(): IBlkDocument {
   return createMockBlkDocument({
     name: 'Mule',
     model: 'Cargo',
-    designType: 1, // Civilian
+    designType: 0, // Civilian
     tonnage: 11200,
     safeThrust: 2,
     transporters: ['cargobay:8000.0:4'],
