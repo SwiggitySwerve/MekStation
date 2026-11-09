@@ -3115,6 +3115,178 @@ if (process.argv.includes('--capture')) {
   );
   writeFileSync(output, JSON.stringify(snapshot) + '\n');
 } else {
+  // Pinned MegaMek 48fcb2f64; native identity constructors and runtime probe
+  // (ParityCatalogProbe.java, retained with the 2.1-b evidence).
+  const parityInfantryAndBA = [
+    [
+      'aa-weapon-mk.-1,-light',
+      'aa-weapon-mk-1-light-registry',
+      0.7,
+      0.005,
+      0,
+      'BOTH',
+    ],
+    [
+      'aa-weapon-mk.-2,-man-portable',
+      'aa-weapon-mk-2-man-portable-registry',
+      4.14,
+      0.035,
+      0,
+      'BOTH',
+    ],
+    [
+      'auto-pistol-m&g',
+      'auto-pistol-m-g-registry',
+      0.16,
+      0.00065,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'gauss-rifle,-light-david',
+      'gauss-rifle-light-david-registry',
+      4.01,
+      0.018,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'laser-rifle-er-[sunbeam-starfire]',
+      'laser-rifle-er-sunbeam-starfire-registry',
+      2.01,
+      0.005,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'needler,-support-firedrake',
+      'needler-support-firedrake-registry',
+      6.13,
+      0.025,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'needler-rifle-m&g-flechette',
+      'needler-rifle-m-g-flechette-registry',
+      0.1,
+      0.0015,
+      0,
+      'BOTH',
+    ],
+    [
+      'pistol-sternsnacht-heavy-[claymore]',
+      'pistol-sternsnacht-heavy-claymore-registry',
+      0.08,
+      0.0025,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'pulse-laser-rifle-is',
+      'pulse-laser-rifle-inner-sphere-registry',
+      0.76,
+      0.005,
+      0,
+      'BOTH',
+    ],
+    [
+      'rifle-m&g-g-150',
+      'rifle-m-g-g-150-registry',
+      1.64,
+      0.0035,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'support-laser-er,-is',
+      'support-laser-er-is-registry',
+      8.21,
+      0.11,
+      0,
+      'INNER_SPHERE',
+    ],
+    [
+      'support-laser-er,-semi-portable',
+      'support-laser-er-semi-portable-registry',
+      5.02,
+      0.025,
+      0,
+      'CLAN',
+    ],
+    [
+      'support-laser-er-heavy,-clan',
+      'support-laser-er-heavy-clan-registry',
+      18.52,
+      0.24,
+      0,
+      'CLAN',
+    ],
+    ['isbalightactiveprobe', 'active-probe-light', 0, 0.25, 2, 'INNER_SPHERE'],
+  ];
+  for (const [
+    input,
+    id,
+    battleValue,
+    weight,
+    criticalSlots,
+    techBase,
+  ] of parityInfantryAndBA) {
+    test(`parity 2.1-b.1 resolves ${input} to its pinned identity`, () => {
+      const require = createRequire(resolve(process.cwd(), 'package.json'));
+      require('tsx/cjs');
+      const { getEquipmentEntry, resolveAmmoBV } = require(
+        resolve(process.cwd(), 'src/utils/construction/equipmentBV'),
+      );
+      for (const name of [input, input.toUpperCase()]) {
+        const entry = getEquipmentEntry(name);
+        assert.ok(entry, name);
+        assert.deepEqual(
+          {
+            id: entry.id,
+            battleValue: entry.battleValue,
+            weight: entry.weight,
+            criticalSlots: entry.criticalSlots,
+            techBase: entry.techBase,
+          },
+          { id, battleValue, weight, criticalSlots, techBase },
+          name,
+        );
+        assert.equal(
+          resolveAmmoBV(name).resolved,
+          false,
+          `${name} is not ammunition`,
+        );
+      }
+    });
+  }
+  test('parity 2.1-b.1 preserves the BA probe values and corrects its pinned rules level', () => {
+    const data = read(
+      resolve(
+        process.cwd(),
+        'public/data/equipment/official/electronics/active-probe.json',
+      ),
+    );
+    const item = data.items.find((item) => item.id === 'active-probe-light');
+    assert.deepEqual(
+      {
+        weight: item.weight,
+        criticalSlots: item.criticalSlots,
+        battleValue: item.battleValue,
+        rulesLevel: item.rulesLevel,
+        introductionYear: item.introductionYear,
+      },
+      {
+        weight: 0.25,
+        criticalSlots: 2,
+        battleValue: 0,
+        rulesLevel: 'STANDARD',
+        introductionYear: 3050,
+      },
+      'MiscType.java:10941-10965 at 48fcb2f64',
+    );
+  });
+
   test('every previously resolved catalog/native input retains its API identity', async (t) => {
     const beforeFile =
       process.env.CATALOG_RESOLUTION_BEFORE ??
