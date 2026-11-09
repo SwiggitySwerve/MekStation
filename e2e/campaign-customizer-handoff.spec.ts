@@ -9,10 +9,10 @@ import { createHash } from 'node:crypto';
 import { persistCampaignThroughDashboard } from './fixtures/campaign';
 import {
   ATLAS_AS7_D_E2E_UNIT_ID,
-  cloneCanonicalAtlasAs7DConfig,
   expectCanonicalAtlasCustomizerStats,
   expectCanonicalAtlasStoredConfiguration,
 } from './fixtures/campaignUnits';
+import { seedCampaignWithRoster } from './helpers/campaignSeeders';
 import { captureCamp01AttestedPng } from './helpers/uxWalkthrough';
 import { assertNoMekStationLoading } from './helpers/wait';
 
@@ -28,111 +28,6 @@ async function waitForCampaignStores(page: Page): Promise<void> {
       win.__ZUSTAND_STORES__?.campaignRoster,
     );
   });
-}
-
-interface SeededCustomizerCampaign {
-  readonly campaignId: string;
-  readonly missionId: string;
-}
-
-async function seedCampaignWithRoster(
-  page: Page,
-): Promise<SeededCustomizerCampaign> {
-  const atlasConfig = cloneCanonicalAtlasAs7DConfig();
-  return page.evaluate(
-    ({ atlasConfig: seededAtlasConfig, atlasUnitId }) => {
-      type StoreApi = {
-        getState: () => Record<string, unknown>;
-        setState?: (state: Record<string, unknown>) => void;
-      };
-      const resolveStore = (store: StoreApi | (() => StoreApi)): StoreApi =>
-        typeof (store as StoreApi).getState === 'function'
-          ? (store as StoreApi)
-          : (store as () => StoreApi)();
-      const stores = (
-        window as unknown as {
-          __ZUSTAND_STORES__?: {
-            campaign?: StoreApi | (() => StoreApi);
-            campaignRoster?: StoreApi;
-          };
-        }
-      ).__ZUSTAND_STORES__;
-
-      if (!stores?.campaign || !stores.campaignRoster) {
-        throw new Error('Campaign E2E stores are not exposed');
-      }
-
-      const campaignStore = resolveStore(stores.campaign);
-      const campaignState = campaignStore.getState() as {
-        createCampaign: (
-          name: string,
-          factionId: string,
-          options: Record<string, unknown>,
-        ) => string;
-        getCampaign: () => Record<string, unknown>;
-        updateCampaign: (updates: Record<string, unknown>) => void;
-        getMissionsStore?: () => {
-          getState: () => {
-            addMission?: (mission: Record<string, unknown>) => void;
-          };
-        };
-      };
-      const campaignId = campaignState.createCampaign(
-        'E2E Customizer Handoff',
-        'mercenary',
-        {
-          startingFunds: 2_500_000,
-        },
-      );
-      const campaign = campaignState.getCampaign();
-      const missionId = 'mission-alpha';
-      const mission = {
-        id: missionId,
-        name: 'Mission Readiness Browser Proof',
-        status: 'Active',
-        type: 'mission',
-        systemId: 'terra',
-        scenarioIds: [],
-        description: 'Browser proof mission for readiness customizer handoff.',
-        briefing:
-          'Verify readiness refit returns without resetting deployment.',
-        startDate: '3025-01-03',
-        createdAt: '3025-01-03T00:00:00.000Z',
-        updatedAt: '3025-01-03T00:00:00.000Z',
-      };
-      campaignState.updateCampaign({
-        ...campaign,
-        currentDate: new Date('3025-01-03T00:00:00.000Z'),
-        missions: new Map([[missionId, mission]]),
-        unitConfigurations: {
-          ...((campaign.unitConfigurations as Record<string, unknown>) ?? {}),
-          [atlasUnitId]: seededAtlasConfig,
-        },
-      });
-      campaignState.getMissionsStore?.().getState().addMission?.(mission);
-      stores.campaignRoster.setState?.({
-        campaignId,
-        units: [
-          {
-            unitId: atlasUnitId,
-            unitRef: 'atlas-as7-d',
-            unitName: 'Atlas',
-            chassisVariant: 'AS7-D',
-            readiness: 'Ready',
-          },
-        ],
-        pilots: [],
-        missions: [],
-        activeMissionId: null,
-        missionCount: 1,
-      });
-      return { campaignId, missionId };
-    },
-    {
-      atlasConfig,
-      atlasUnitId: ATLAS_AS7_D_E2E_UNIT_ID,
-    },
-  );
 }
 
 async function makeOneCampaignRefitChange(page: Page): Promise<void> {
@@ -255,6 +150,34 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     expect(serverRecord.body.refitOrders).toHaveLength(1);
   });
 
+  test('refuses a refit for a roster projection without campaign force ownership', async ({
+    page,
+  }) => {
+    await page.goto('/gameplay/campaigns');
+    await waitForCampaignStores(page);
+    const { campaignId } = await seedCampaignWithRoster(page, { owned: false });
+    persistedCampaignIds.add(campaignId);
+    await persistCampaignThroughDashboard(page, campaignId);
+
+    await page.goto(`/gameplay/campaigns/${campaignId}/mech-bay`);
+    await expect(page.getByTestId('mech-bay-grid')).toBeVisible();
+    await page.getByTestId('mech-bay-refit-unit-atlas-e2e').click();
+    await expect(page.getByTestId('campaign-refit-command-bar')).toBeVisible();
+    await makeOneCampaignRefitChange(page);
+    await page.getByTestId('campaign-refit-save').click();
+
+    await expect(page.getByTestId('campaign-refit-save-error')).toHaveText(
+      'This unit does not belong to the campaign.',
+    );
+    await expect(page).toHaveURL(/\/customizer.*mode=campaign-refit/);
+    const record = await page.request.get(`/api/campaigns/${campaignId}`);
+    expect(record.ok()).toBe(true);
+    const saved = (await record.json()) as {
+      body: { refitOrders?: readonly unknown[] };
+    };
+    expect(saved.body.refitOrders ?? []).toHaveLength(0);
+  });
+
   test('returns from campaign customizer into mission readiness with deployment validation refresh', async ({
     page,
   }) => {
@@ -271,16 +194,17 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     await assertNoMekStationLoading(page);
     await expect(page.getByTestId('mission-readiness-panel')).toBeVisible();
     await expect(page.getByTestId('mission-readiness-status')).toContainText(
-      'Ready with warnings (1)',
+      'Launch blocked',
     );
     await expect(
       page.getByTestId(
         `mission-readiness-action-${ATLAS_AS7_D_E2E_UNIT_ID}-pilot_unassigned`,
       ),
     ).toContainText('Assign pilot');
-    await expect(page.getByTestId('launch-mission-direct')).toContainText(
-      'Launch with warnings',
-    );
+    await expect(
+      page.getByTestId('mission-readiness-panel').getByRole('alert'),
+    ).toContainText('No pilot assigned. Assign one before launch.');
+    await expect(page.getByTestId('launch-mission-direct')).toBeDisabled();
     await page
       .getByTestId(`mission-readiness-customize-${ATLAS_AS7_D_E2E_UNIT_ID}`)
       .click();
@@ -320,12 +244,23 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     ).not.toContainText(ATLAS_AS7_D_E2E_UNIT_ID);
     await expect(page.getByTestId('mission-readiness-panel')).toBeVisible();
     await expect(page.getByTestId('mission-readiness-status')).toContainText(
-      'Ready with warnings (1)',
+      'Launch blocked',
     );
-    await expect(page.getByTestId('launch-mission-direct')).toContainText(
-      'Launch with warnings',
+    await expect(
+      page.getByTestId('mission-readiness-panel').getByRole('alert'),
+    ).toContainText([
+      'No pilot assigned. Assign one before launch.',
+      'Unit is being refit and cannot deploy.',
+    ]);
+    await expect(
+      page.getByTestId(
+        `mission-readiness-action-${ATLAS_AS7_D_E2E_UNIT_ID}-pilot_unassigned`,
+      ),
+    ).toHaveAttribute(
+      'href',
+      `/gameplay/campaigns/${campaignId}/personnel?intent=assign-pilot&unit=${ATLAS_AS7_D_E2E_UNIT_ID}`,
     );
-    await expect(page.getByTestId('launch-mission-direct')).toBeEnabled();
+    await expect(page.getByTestId('launch-mission-direct')).toBeDisabled();
     await waitForCampaignStores(page);
 
     const refitOrders = await page.evaluate(() => {
