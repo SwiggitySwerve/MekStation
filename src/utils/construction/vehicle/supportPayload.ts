@@ -12,6 +12,7 @@ import {
   isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
 } from './powerAmplifier';
+import { getSupportRegistryMass } from './supportMountMass';
 import { computeTurretWeight } from './turret';
 import { resolveVehicleVariableMass } from './variableEquipmentMass';
 import {
@@ -36,10 +37,19 @@ export function computeSupportPayloadWeights(
   const unresolved: string[] = [];
   const mounts = unit.equipment.map((mount) => {
     const ammo = isAmmunitionEquipmentId(mount.equipmentId);
-    const item = ammo
+    const catalogItem = ammo
       ? getAmmunitionWeightEntry(mount.equipmentId)
       : (getEquipmentEntry(mount.equipmentId) ??
         getEquipmentEntry(mount.equipmentId.replace(/[ /]+/g, '-')));
+    // Ammunition keeps its own path; only a launcher can be a name stub.
+    const registryMass =
+      ammo || !catalogItem
+        ? undefined
+        : getSupportRegistryMass(mount.equipmentId, unit.techBase, mount.name);
+    const item =
+      catalogItem && registryMass !== undefined
+        ? { ...catalogItem, weight: registryMass }
+        : catalogItem;
     if (!item || item.weight === undefined) {
       unresolved.push(mount.equipmentId);
       return {
