@@ -1087,3 +1087,53 @@ Clan (4.5 tons); the existing local armor owner retains the explicit IS choice
 `BLKFile.java:1950-1994` at the same pin; independent synthetic verifier probes
 record totals 30 and 30.5 respectively. This transport does not change the shared
 armor-normalization rule or any catalog value.
+
+## Small support vehicles: weapons, clip ammunition, Omni fire control (pinned)
+
+At pin 48fcb2f64, a support vehicle under 5 t weighs its weapons at their type
+tonnage in the verifier's sum (`TestEntity.getWeightWeapon`, kilogram rounding for
+the total, `TestSupportVehicle.java:760-770`). The payload used to mark every
+weapon on such a chassis unresolved ("infantry metadata is not in this catalog")
+although the catalog weight already equals the Java tonnage for 20 of the 21
+weapon ids the corpus mounts; that guard is removed. Eighteen small support
+sources become exactly Java (193 to 211 of 227 totals equal), none moves away.
+
+Three things stay reported rather than guessed:
+
+- **Clip ammunition.** A small vehicle's weapon beyond its first clip adds
+  `nextKg((size - 1) x InfantryWeapon.getAmmoWeight())`
+  (`TestSupportVehicle.java:980-988`). The ammunition weight is a Java constant
+  the catalog does not carry (Java: Auto-Rifle 0.00048 t, Support Laser 0.003 t).
+  A small-vehicle weapon with `:SIZE:` above 1 is reported unresolved, three
+  sources: Limpet Half-Track and Rock Rover RRV and RRV (Speed). Needs a catalog
+  field (catalog lane).
+- **Misidentified weapon.** `Machine Gun (Light)(PT)` reaches the battle-armor
+  `balightmg` (0.075 t) through the shared native name `Machine Gun (Light)`,
+  where Java loads the infantry support gun (`machine-gun-light-registry`,
+  0.007 t). A weapon whose catalog `allowedUnitTypes` names neither
+  "Support Vehicle" nor "Infantry" is not a support-vehicle weapon, so it is
+  reported, not charged. Across all 317 weapon mounts of the 227 support sources
+  this flags exactly that one mount type (Ibex RV Militarized MG). The identity
+  itself is routed by `registry-routing.json` (`techRoutes`) and the protected
+  alias `Machine Gun (Light)`, which are catalog data.
+- **Pintle and sponson mechanisms, ladders, dumpers, manipulators** are d3 and d4.
+
+`MiscType.java:707-711`: an Omni support chassis carries a fixed fire-control mass
+(`baseChassisFireConWeight`) that wins over the 5% or 10% of weapon mass when
+positive. `resolveVehicleVariableMass` owns the rule and takes the value in its
+context; the support handler reads the BLK tag. Three sources are Omni with a
+positive value (the Boreas Cavalry Hovercraft A, B and Prime, 0.01 t); they are
+now exact. The editor path does not read the tag yet (it needs the field plumbed
+through the vehicle store, registry, persistence and snapshot contract), so for an
+Omni support chassis the editor still shows the weapon-based fire-control mass.
+The basis also excludes non-support infantry weapons (`F_INFANTRY` without
+`F_INF_SUPPORT`); not modelled, no closed source depends on it.
+
+`internal_type -1` (MegaMek `T_STRUCTURE_UNKNOWN`) never reaches a support
+structure mass, which ignores the structure type
+(`TestSupportVehicle.java:778-797`); `supportSmallVehicle.pinned.test.ts` pins
+13.5 t and 59.5 t for -1, 0 and absent alike.
+
+No small-vehicle mount in the corpus is DWP-mounted or a squad support weapon,
+so `Mounted.getTonnage` x0.75 and x0.5/0.4 (`Mounted.java:729-746`) are not
+implemented; nothing here measures them.

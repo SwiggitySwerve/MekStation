@@ -235,6 +235,8 @@ export interface ISupportVehicle
   extends IGroundUnit, IVehicleIntroductionSourceContext {
   readonly structureLocations?: readonly string[];
   readonly internalStructureType?: number;
+  /** Omni chassis: fixed fire-control mass from the source (MiscType.java:707-711). */
+  readonly baseChassisFireConWeight?: number;
   readonly unitType: UnitType.SUPPORT_VEHICLE;
 
   /** Installed primary turret, including dual and support-VTOL chin types. */
