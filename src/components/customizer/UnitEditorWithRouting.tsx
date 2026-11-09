@@ -261,6 +261,7 @@ export function UnitEditorWithRouting({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
     ).length > 0;
   const tabIssueNotice =
     activeTabId === 'overview' ||
