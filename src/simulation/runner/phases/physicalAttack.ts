@@ -15,6 +15,7 @@ import { InvariantRunner } from '../../invariants/InvariantRunner';
 import { IViolation } from '../../invariants/types';
 import { runPhysicalAttackForUnit } from './physicalAttackTurn';
 import { createD6Roller, resetPhaseDamage } from './utils';
+import { queuePhaseDamagePSRs } from './weaponAttackHitResolution.helpers';
 
 export function runPhysicalAttackPhase(options: {
   state: IGameState;
@@ -69,6 +70,7 @@ export function runPhysicalAttackPhase(options: {
     physicalGrid = turnResult.grid;
   }
 
+  currentState = queuePhaseDamagePSRs(currentState);
   violations.push(...invariantRunner.runAll(currentState));
   return currentState;
 }

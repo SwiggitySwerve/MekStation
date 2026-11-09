@@ -6,7 +6,8 @@
  * arms already carry `kind`. Status carries the class, body the answer:
  *
  *   200  committed (plus `rebuildPending: true` when the commit stands
- *        but the live host could not be rebuilt yet — M-H4)
+ *        but the live host could not be rebuilt yet — M-H4). A private
+ *        reason that could not be stored is logged, never a 500 (D-2a).
  *   403  gm-role-required / actor-mismatch / state-not-owned
  *   404  no authoritative history
  *   409  every other typed refusal, including the three commit-only
@@ -249,19 +250,28 @@ export default async function handler(
         effectiveGeneration: result.effectiveGeneration,
       });
       if (body.reason !== undefined) {
-        const writer = new GmPrivatePreviewRecordWriter(
-          new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
-        );
-        await writer.store({
-          resolver: new AuthorizedViewerResolver(
-            new HostAsGmMembershipSource(membership, meta.hostPlayerId),
-          ),
-          principalId: viewer.principalId,
-          campaignSessionId: matchId,
-          commandId: null,
-          createdAt: new Date().toISOString(),
-          privateReason: body.reason,
-        });
+        // The commit is durable, so a failed private-reason write is
+        // logged, not a 500 for a rewind that stands (D-2a).
+        try {
+          const writer = new GmPrivatePreviewRecordWriter(
+            new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
+          );
+          await writer.store({
+            resolver: new AuthorizedViewerResolver(
+              new HostAsGmMembershipSource(membership, meta.hostPlayerId),
+            ),
+            principalId: viewer.principalId,
+            campaignSessionId: matchId,
+            commandId: null,
+            createdAt: new Date().toISOString(),
+            privateReason: body.reason,
+          });
+        } catch (error) {
+          logger.error(
+            '[rewind-commit] private reason was not stored after commit; the rewind stands',
+            error,
+          );
+        }
       }
       res
         .status(200)

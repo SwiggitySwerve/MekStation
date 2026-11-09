@@ -5,8 +5,7 @@
  * shared `PilotStore` shape) so the main store can compose them as thin
  * pass-throughs while keeping per-file LOC under the lint budget.
  *
- * Behavior is byte-for-byte identical to the original inline
- * implementation — only the call site moved.
+ * Mutations succeed only after their subsequent list reload succeeds.
  */
 
 import {
@@ -46,6 +45,21 @@ export async function loadPilotsLogic(set: PilotSetFn): Promise<void> {
   }
 }
 
+/** Preserve server success in the error so a failed reload does not invite duplicates. */
+export async function reloadPilotsAfterMutation(
+  set: PilotSetFn,
+  get: PilotGetFn,
+): Promise<boolean> {
+  await get().loadPilots();
+  const { error } = get();
+  if (error === null) return true;
+  set({
+    error: `Pilot saved, but the list could not be refreshed. Reload to see it. ${error}`,
+    isLoading: false,
+  });
+  return false;
+}
+
 /**
  * Shared POST-pilot helper. The three create flows (full / template /
  * random) only differ in the JSON body shape — DRYing them avoids three
@@ -69,7 +83,7 @@ async function postCreatePilot(
     const data = (await response.json()) as CreatePilotResponse;
 
     if (data.success && data.id) {
-      await get().loadPilots();
+      if (!(await reloadPilotsAfterMutation(set, get))) return null;
       set({ selectedPilotId: data.id, isLoading: false });
       return data.id;
     }
@@ -166,8 +180,7 @@ export async function updatePilotLogic(
     const data = (await response.json()) as UpdatePilotResponse;
 
     if (data.success) {
-      await get().loadPilots();
-      return true;
+      return await reloadPilotsAfterMutation(set, get);
     }
     set({ error: data.error || 'Failed to update pilot' });
     return false;
@@ -198,8 +211,7 @@ export async function deletePilotLogic(
       if (selectedPilotId === id) {
         set({ selectedPilotId: null });
       }
-      await get().loadPilots();
-      return true;
+      return await reloadPilotsAfterMutation(set, get);
     }
     set({ error: data.error || 'Failed to delete pilot' });
     return false;

@@ -244,6 +244,67 @@ describe('vehicleCriticalHitResolution', () => {
   });
 
   describe('applyVehicleCritEffect', () => {
+    it.each(['crew_stunned', 'commander_hit', 'copilot_hit'] as const)(
+      '%s follows Tank.stunCrew and preserves unrelated state',
+      (kind) => {
+        for (const [rounds, expected] of [
+          [0, 2],
+          [1, 2],
+          [2, 3],
+          [4, 5],
+        ] as const) {
+          const original = mkState();
+          const state = {
+            ...original,
+            motive: { ...original.motive, crewStunnedPhases: rounds },
+          };
+          const before = JSON.stringify(state);
+          const result = applyVehicleCritEffect(
+            state,
+            { ...vehicleCritFromRoll([3, 3]), kind },
+            { engineType: EngineType.ICE, hasAmmoInSlot: false },
+          );
+          expect(result.state).toEqual({
+            ...state,
+            motive: {
+              ...state.motive,
+              crewStunnedPhases: expected,
+              commanderHits: kind === 'crew_stunned' ? 0 : 1,
+            },
+          });
+          expect(JSON.stringify(state)).toBe(before);
+          expect(result.applied.kind).toBe(kind);
+          expect(result.ammoExplosion).toBe(false);
+        }
+      },
+    );
+
+    it('shares stun increments across effects and preserves commander casualties and destroyed guards', () => {
+      let state = mkState();
+      for (const [kind, expected] of [
+        ['crew_stunned', 2],
+        ['commander_hit', 3],
+        ['crew_stunned', 4],
+        ['copilot_hit', 5],
+      ] as const) {
+        state = applyVehicleCritEffect(
+          state,
+          { ...vehicleCritFromRoll([3, 3]), kind },
+          { engineType: EngineType.ICE, hasAmmoInSlot: false },
+        ).state;
+        expect(state.motive.crewStunnedPhases).toBe(expected);
+        expect(state.destroyed).toBe(kind === 'copilot_hit');
+      }
+      expect(state.motive.commanderHits).toBe(2);
+      expect(state.destructionCause).toBe('crew_killed');
+      expect(
+        applyVehicleCritEffect(state, vehicleCritFromRoll([3, 3]), {
+          engineType: EngineType.ICE,
+          hasAmmoInSlot: false,
+        }).state,
+      ).toBe(state);
+    });
+
     it('none leaves state unchanged', () => {
       const state = mkState();
       const r = applyVehicleCritEffect(state, vehicleCritFromRoll([1, 1]), {
@@ -254,7 +315,7 @@ describe('vehicleCriticalHitResolution', () => {
       expect(r.ammoExplosion).toBe(false);
     });
 
-    it('crew_stunned adds 2 stunned phases', () => {
+    it('first crew stun starts at two rounds', () => {
       const state = mkState();
       const r = applyVehicleCritEffect(state, vehicleCritFromRoll([3, 3]), {
         engineType: EngineType.ICE,

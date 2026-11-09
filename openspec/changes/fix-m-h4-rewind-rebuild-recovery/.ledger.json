@@ -1,6 +1,6 @@
 {
   "name": "fix-m-h4-rewind-rebuild-recovery",
   "status": "in-progress",
-  "reason": "Root-approved M-H4: a committed rewind whose live rebuild fails answers committed with rebuildPending and the host retries it; the rebuild never adopts a foreign lease; failed and stranded combat-rewind candidates move to blocked. Two sequential PRs; additive optional response field, no schema or persisted-format change.",
-  "lastReviewed": "2026-11-08"
+  "reason": "Root-approved M-H4: a committed rewind whose live rebuild fails answers committed with rebuildPending and the host retries it; the rebuild never adopts a foreign lease; failed and stranded combat-rewind candidates move to blocked. Two sequential PRs, then follow-up PRs for the reason-writer throw (D-2a), resync marks (D-2c), the closed-host guard (D-2b) and stranded campaign candidates (D-3); additive optional response field, no schema or persisted-format change.",
+  "lastReviewed": "2026-11-09"
 }

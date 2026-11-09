@@ -37,6 +37,7 @@ import {
 import { createHostIntentRouter } from '../hostIntentRouter';
 import { buildDeclareMovementIntent } from '../intentTranslation';
 import { applyMirrorEvent, createMirrorSession } from '../mirrorSession';
+import { linkPeers } from './linkedDocs.test-helpers';
 
 const FIXED_TIMESTAMP = '2026-04-30T00:00:00.000Z';
 const HOST_PEER = 'host-peer';
@@ -81,20 +82,6 @@ function expectConverged(host: IGameSession, guest: IGameSession): void {
     JSON.stringify(host.currentState),
   );
   expect(guest.events.slice(1)).toEqual(host.events.slice(1));
-}
-
-/**
- * Each peer owns its own Y.Doc, synced both ways through update events, as in
- * production. A single shared doc does not deliver events the host appends
- * from inside its intent observer to the guest's observer.
- */
-function linkPeers(hostDoc: Y.Doc, guestDoc: Y.Doc): void {
-  hostDoc.on('update', (update: Uint8Array, origin: unknown) => {
-    if (origin !== 'remote') Y.applyUpdate(guestDoc, update, 'remote');
-  });
-  guestDoc.on('update', (update: Uint8Array, origin: unknown) => {
-    if (origin !== 'remote') Y.applyUpdate(hostDoc, update, 'remote');
-  });
 }
 
 describe('P2P sync of interactive terrain PSRs', () => {

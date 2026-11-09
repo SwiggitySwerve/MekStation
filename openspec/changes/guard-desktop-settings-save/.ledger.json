@@ -1,0 +1,6 @@
+{
+  "name": "guard-desktop-settings-save",
+  "status": "implemented-awaiting-ci",
+  "reason": "U17 local verification passed: 57 suites, 729 passing tests, 32 skipped; four mutants killed; both TypeScript configs, lint, formatting, and budgets pass. Hosted CI and Root review remain pending. No IPC or provider-wiring changes.",
+  "lastReviewed": "2026-11-08"
+}

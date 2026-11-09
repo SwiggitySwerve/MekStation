@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 
 import type { ICampaignActivityEntry } from '@/lib/campaign/activity/campaignActivityProjection';
 import type { ICampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
+import type { CampaignActivityFeedState } from '@/lib/campaign/hooks/useCampaignActivityFeed';
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
@@ -203,6 +204,118 @@ describe('useCampaignActivityFeed', () => {
       });
     });
     expect(result.current.source).not.toBe('local');
+  });
+
+  it.each(['network', 'http', 'malformed'] as const)(
+    'keeps loaded entries after a %s refresh failure and replaces them on recovery',
+    async (failure) => {
+      loadCoopPair();
+      fetchMock.mockImplementationOnce(() =>
+        jsonResponse(200, {
+          kind: 'activity',
+          viewerSeat: 'gm',
+          entries: [SERVER_ENTRY],
+        }),
+      );
+      const { result } = renderHook(() => useCampaignActivityFeed(CAMPAIGN_ID));
+      await waitFor(() =>
+        expect(result.current).toMatchObject({ status: 'ready' }),
+      );
+      fetchMock.mockImplementationOnce(() =>
+        failure === 'network'
+          ? Promise.reject(new Error('Offline'))
+          : jsonResponse(failure === 'http' ? 500 : 200, {
+              error: 'Refresh failed',
+            }),
+      );
+      await act(async () => {
+        window.dispatchEvent(new Event('focus'));
+      });
+      await waitFor(() =>
+        expect(result.current).toMatchObject({
+          status: 'error',
+          entries: [SERVER_ENTRY],
+          viewerSeat: 'gm',
+        }),
+      );
+
+      const freshEntry = { ...SERVER_ENTRY, message: 'New activity' };
+      fetchMock.mockImplementationOnce(() =>
+        jsonResponse(200, {
+          kind: 'activity',
+          viewerSeat: 'gm',
+          entries: [freshEntry],
+        }),
+      );
+      await act(async () => {
+        window.dispatchEvent(new Event('focus'));
+      });
+      await waitFor(() =>
+        expect(result.current).toMatchObject({
+          status: 'ready',
+          entries: [freshEntry],
+        }),
+      );
+    },
+  );
+
+  it('drops previously loaded entries when a refresh is forbidden', async () => {
+    loadCoopPair();
+    fetchMock.mockImplementationOnce(() =>
+      jsonResponse(200, {
+        kind: 'activity',
+        viewerSeat: 'gm',
+        entries: [SERVER_ENTRY],
+      }),
+    );
+    const { result } = renderHook(() => useCampaignActivityFeed(CAMPAIGN_ID));
+    await waitFor(() =>
+      expect(result.current).toMatchObject({ status: 'ready' }),
+    );
+    fetchMock.mockImplementationOnce(() =>
+      jsonResponse(403, { error: 'Seat revoked' }),
+    );
+    await act(async () => {
+      window.dispatchEvent(new Event('focus'));
+    });
+    await waitFor(() =>
+      expect(result.current).toMatchObject({
+        status: 'forbidden',
+        entries: [],
+        viewerSeat: null,
+      }),
+    );
+  });
+
+  it('never renders the previous campaign entries under a new campaign key', async () => {
+    loadCoopPair();
+    fetchMock.mockImplementationOnce(() =>
+      jsonResponse(200, {
+        kind: 'activity',
+        viewerSeat: 'gm',
+        entries: [SERVER_ENTRY],
+      }),
+    );
+    const seen: CampaignActivityFeedState[] = [];
+    const { result, rerender } = renderHook(
+      ({ id }) => {
+        const feed = useCampaignActivityFeed(id);
+        if (id !== CAMPAIGN_ID) seen.push(feed);
+        return feed;
+      },
+      { initialProps: { id: CAMPAIGN_ID } },
+    );
+    await waitFor(() =>
+      expect(result.current).toMatchObject({ status: 'ready' }),
+    );
+    fetchMock.mockImplementationOnce(
+      () => new Promise<Response>(() => undefined),
+    );
+    rerender({ id: 'another-campaign' });
+    expect(seen.length).toBeGreaterThan(0);
+    seen.forEach((feed) =>
+      expect(feed).toMatchObject({ status: 'loading', entries: [] }),
+    );
   });
 
   it('two consumers with the same key share one in-flight request', async () => {

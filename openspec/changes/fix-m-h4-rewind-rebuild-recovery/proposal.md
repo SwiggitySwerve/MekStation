@@ -35,6 +35,9 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   candidate on the same stream to `blocked`. Under the lease no other candidate
   can still be authorized.
 
+- A failure to store the GM's private reason after the commit is logged and the
+  route still answers 200 with the committed result (follow-up D-2a). No
+  response field reports it.
 - A host that has closed is not rebuilt, and is not reported as pending, whether
   it closed before the rebuild or while it waited in the queue (follow-up D-2b).
   Intents, lobby intents and joins were already refused on a closed or completed
