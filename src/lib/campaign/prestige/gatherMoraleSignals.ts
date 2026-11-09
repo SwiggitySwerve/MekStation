@@ -74,13 +74,13 @@ export function gatherMoraleSignals(
   }
 
   // Pay — a `daily_costs` event with `warning`/`critical` severity means
-  // the campaign ran a negative balance, i.e. pay was not comfortably met.
-  // Absent a daily-costs event, pay is treated as met.
-  let payMet = true;
+  // the campaign ran a negative balance, i.e. pay was not comfortably met;
+  // `info` means the costs were paid. A day with no daily-costs event carries
+  // no pay information, so pay is null (neutral), not "met".
+  let payMet: boolean | null = null;
   for (const event of dayEvents) {
-    if (event.type === 'daily_costs' && event.severity !== 'info') {
-      payMet = false;
-    }
+    if (event.type !== 'daily_costs') continue;
+    payMet = payMet !== false && event.severity === 'info';
   }
 
   // Desertions — `turnover_departure` events whose `departureType` is a
