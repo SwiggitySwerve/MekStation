@@ -247,14 +247,6 @@ export interface IMTFData {
 }
 
 /**
- * MTF importer interface
- */
-export interface IMTFImporter {
-  import(mtfContent: string): IDeserializationResult;
-  validate(mtfContent: string): { isValid: boolean; errors: string[] };
-}
-
-/**
  * MTF exporter interface
  */
 export interface IMTFExporter {

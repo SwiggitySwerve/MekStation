@@ -17,7 +17,7 @@ encoder/decoder retains its existing supported subset and compatibility aliases.
 ProtoMech import retains its existing `PROTO_ARMOR_CODES` admission subset.
 Shared schema defaults do not certify native mount effects. Blank native model names
 remain blank. This API does not promise new editor admission or native parity;
-other BLK families, browser BLK selection and the legacy importer remain open.
+other BLK families and browser BLK selection remain open.
 
 `importMTFDefinition` owns MTF source-to-definition orchestration. It calls the
 existing MTF parser and `loadUnitDefinition` admission contract; it owns no native
@@ -38,5 +38,11 @@ SQLite persistence and shared definition reload. It does not establish complete
 MTF semantic or numerical parity. `importBLK.test.ts` verifies eight pinned
 original-byte vehicle fixtures through real SQLite, the saved-unit API/client and
 shared definition reload, including retained construction diagnostics. Other BLK
-families, browser BLK selection and the legacy `IMTFImporter` runtime-object
-interface remain separate work.
+families and browser BLK selection remain separate work.
+
+The legacy `IMTFImporter` runtime-object interface and `MTFImportService` are
+retired under owner ruling O2. Their exports, singleton factories and
+`services.conversion.importer` registry entry are removed. No live caller used
+the service or its JSON helpers. MTF source import uses `importMTFDefinition`
+through `POST /api/units/import`; retirement changes no saved format or native
+import rule.
