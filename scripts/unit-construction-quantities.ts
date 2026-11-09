@@ -42,6 +42,9 @@ import {
   captureConstructionWeights,
   compareWeight,
   type LocalWeightFact,
+  WEIGHT_ABS_TOLERANCE,
+  WEIGHT_REL_LIMIT,
+  WEIGHT_REL_TOLERANCE,
 } from './unit-construction-weights';
 
 export const QUANTITY_KEYS = [
@@ -319,7 +322,7 @@ export function buildQuantityReport(
         const same =
           typeof left === 'number' &&
           typeof right === 'number' &&
-          Math.abs(left - right) <= Math.max(1e-9, 1e-12 * Math.abs(left));
+          compareWeight(left, right).status === 'exact';
         if (!same) drift.push(`extra-quantity-mismatch: ${path} ${name}`);
       }
     }
@@ -454,9 +457,9 @@ export function buildQuantityReport(
     scope: 'construction-verifier-quantities-and-settings' as const,
     ok: errors.length === 0,
     tolerance: {
-      absolute: 1e-9,
-      relative: 1e-12,
-      relativeLimit: 0.01,
+      absolute: WEIGHT_ABS_TOLERANCE,
+      relative: WEIGHT_REL_TOLERANCE,
+      relativeLimit: WEIGHT_REL_LIMIT,
       rule: 'exact within absolute/relative tolerance; otherwise strictly less than 1% of the Java quantity',
     },
     settingKeys: SETTING_KEYS,
