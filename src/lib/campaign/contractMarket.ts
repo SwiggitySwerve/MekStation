@@ -63,6 +63,7 @@ import {
   getContractNegotiationModifier,
   getContractPayMultiplier,
 } from './markets/marketStandingIntegration';
+import { missionTransitionRefusal } from './missionStatusMachine';
 
 // =============================================================================
 // Re-exports - preserve the historical public API of this module
@@ -293,6 +294,18 @@ export function acceptContract(
   if (refused) return refused;
   if (campaign.missions.has(contract.id)) {
     throw new Error(`Contract ${contract.id} already exists in campaign`);
+  }
+
+  // The durable accept command writes this same object without an
+  // `updatedAt` stamp, so only the verdict comes from the guard.
+  const refusal = missionTransitionRefusal(
+    contract.status,
+    MissionStatus.ACTIVE,
+  );
+  if (refusal !== null) {
+    throw new Error(
+      `Contract ${contract.id} cannot be accepted from status ${contract.status} (${refusal})`,
+    );
   }
 
   const updatedContract: IContract = {
