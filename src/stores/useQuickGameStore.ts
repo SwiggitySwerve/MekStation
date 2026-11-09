@@ -185,7 +185,7 @@ export const useQuickGameStore = create<QuickGameStore>()(
         ];
 
         const currentIndex = stepOrder.indexOf(game.step);
-        if (currentIndex < stepOrder.length - 1) {
+        if (currentIndex >= 0 && currentIndex < stepOrder.length - 1) {
           // Validate before advancing
           if (
             game.step === QuickGameStep.SelectUnits &&

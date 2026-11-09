@@ -5,7 +5,16 @@ The day processors own generation cadence. `FinanceService.recordTransaction`
 owns finance arithmetic. Store actions own local commit and enrollment rollback.
 No rendering code decides eligibility or computes purchase/hire costs.
 
-- Local actions and initial page seeding refuse any `coopSession` and an active
+`personnelMarket.ts` owns initial personnel-market generation and generated
+offer identity. The shared store create action initializes enabled local and
+host markets before publishing state or saving. The initializer and daily
+processor use the same campaign-seeded personnel stream. IDs derive from
+campaign identity, resolved seed, UTC date and ordinal without extra attribute
+rolls. Stored identities and explicit empty pools are never regenerated.
+Disabled markets retain their absence so enabling a local market later can
+still initialize it on first open.
+
+- Local actions and legacy first-open seeding refuse any `coopSession` and an active
   day-advance lock. Existing co-op proposals and source authority are unchanged.
 - A declined contract stays declined until replaced by a new market cycle.
   Accepted mission evidence wins over stale offer/decline records on reload.
@@ -43,6 +52,10 @@ below are relative to `MekHQ/src/mekhq/`):
   debits the market cost before `recruitPrepaidPerson`, then removes applicants.
 - `gui/panes/UnitMarketPane.java:490-576` checks funds, debits UNIT_PURCHASE,
   acquires units and removes their offers.
+- `gui/dialog/DataLoadingDialog.java:454-455` refreshes personnel applicants
+  at campaign start; `campaign/ForceHumanResources.java:1044-1048` bypasses
+  the normal date restriction. `campaign/campaignOptions/CampaignOption.java:995-996`
+  defaults the personnel market to disabled, as MekStation still does.
 
 ## Co-op authority (K14b)
 
@@ -58,5 +71,6 @@ live campaign. Declined, ended, consumed and unaffordable offers are refused.
   record rewrite both drop offers the ledger has consumed.
 - A guest's Hire and Accept are disabled: guests do not receive the market.
 - Co-op Decline is disabled: there is no host-authoritative decline command.
-- A new co-op campaign has no market until its first day advance: first-open
-  seeding stays refused in co-op (K14a).
+- An enabled co-op host market exists before the first save. First-open
+  recovery remains local-only. A stock co-op campaign on the Standard preset
+  has no personnel market by design; co-op hiring needs a market-enabled preset.

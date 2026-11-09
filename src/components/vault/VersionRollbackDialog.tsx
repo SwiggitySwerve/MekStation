@@ -24,6 +24,7 @@ export function VersionRollbackDialog({
   version,
   currentVersion,
   onConfirm,
+  error,
 }: VersionRollbackDialogProps): React.ReactElement | null {
   const [isRollingBack, setIsRollingBack] = useState(false);
 
@@ -127,6 +128,15 @@ export function VersionRollbackDialog({
           </div>
         </div>
       </div>
+
+      {error && (
+        <p
+          role="alert"
+          className="mb-4 rounded-xl border border-red-500/30 bg-red-900/30 p-4 text-sm text-red-300"
+        >
+          {error}
+        </p>
+      )}
 
       {/* Actions */}
       <div className="flex gap-3">

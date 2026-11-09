@@ -1,36 +1,54 @@
 /**
- * ProtoMechArmorTab — placeholder
+ * ProtoMechArmorTab
  *
- * Will be wired by `add-protomech-construction` to expose:
- *   - 5-location armor allocation (Head / Torso / L-Arm / R-Arm / Legs)
- *   - Per-location max based on ProtoMech tonnage
+ * Armor type, running total against the pinned cap, per-location allocation
+ * and the compact armor diagram. MegaMekLab 62bf193 keeps these in its
+ * Structure/Armor tab (BAProtoArmorView, ArmorAllocationView); MekStation
+ * shows them as their own tab, like the vehicle and aerospace editors.
+ *
+ * Limits and diagnostics come from `construction/protomech/armor.ts`
+ * (TestProtoMek.maxArmorFactor, MegaMek 48fcb2f64); this tab never repairs
+ * or clamps a source value.
  *
  * @spec openspec/specs/multi-unit-tabs/spec.md
- * @wiredBy add-protomech-construction
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md
  */
 
 import React from 'react';
 
-import { PlaceholderTab } from '../tabs/PlaceholderTab';
+import { ProtoMechArmorDiagram } from './ProtoMechArmorDiagram';
+import {
+  ProtoMechArmorAllocationSection,
+  ProtoMechArmorPanelSection,
+} from './ProtoMechArmorTab.sections';
+import { useProtoMechArmorControls } from './ProtoMechStructureTab.logic';
 
 export interface ProtoMechArmorTabProps {
   readOnly?: boolean;
   className?: string;
 }
 
-/**
- * Placeholder for the ProtoMech Armor tab.
- * Construction proposal `add-protomech-construction` will replace the body.
- */
 export function ProtoMechArmorTab({
+  readOnly = false,
   className = '',
 }: ProtoMechArmorTabProps): React.ReactElement {
+  const armorControls = useProtoMechArmorControls(readOnly);
+
   return (
-    <PlaceholderTab
-      className={className}
-      testId="protomech-armor-tab"
-      wiredBy="add-protomech-construction"
-    />
+    <div className={`space-y-6 ${className}`} data-testid="protomech-armor-tab">
+      <ProtoMechArmorPanelSection
+        readOnly={readOnly}
+        controls={armorControls}
+      />
+      <ProtoMechArmorAllocationSection
+        readOnly={readOnly}
+        controls={armorControls}
+      />
+
+      <div className="flex justify-center">
+        <ProtoMechArmorDiagram />
+      </div>
+    </div>
   );
 }
 

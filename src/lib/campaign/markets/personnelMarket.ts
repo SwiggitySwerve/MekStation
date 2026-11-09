@@ -11,8 +11,13 @@
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignWithCommand } from '@/types/campaign/CampaignCommandExtensions';
 import type { IPersonnelMarketOffer } from '@/types/campaign/markets/marketTypes';
 
+import {
+  createDailyRandom,
+  resolveCampaignSeed,
+} from '@/lib/campaign/utils/campaignRng';
 import {
   CampaignPersonnelRole,
   getRoleCategory,
@@ -32,6 +37,9 @@ export type RandomFn = () => number;
 // =============================================================================
 // Constants
 // =============================================================================
+
+/** Shared by creation, local first-open recovery and the daily processor. */
+export const PERSONNEL_MARKET_STREAM_ID = 'personnel-market';
 
 /** Combat roles available on the personnel market. */
 const COMBAT_ROLES: readonly CampaignPersonnelRole[] = Object.freeze([
@@ -188,19 +196,25 @@ export function addDays(dateStr: string, days: number): string {
 // Market Operations
 // =============================================================================
 
+function isPersonnelMarketEnabled(campaign: ICampaign): boolean {
+  return (
+    (campaign.options.personnelMarketStyle ?? PersonnelMarketStyle.DISABLED) !==
+    PersonnelMarketStyle.DISABLED
+  );
+}
+
 /** Generates personnel offers for a single day. */
 export function generatePersonnelForDay(
   campaign: ICampaign,
   random: RandomFn,
 ): IPersonnelMarketOffer[] {
-  const style =
-    campaign.options.personnelMarketStyle ?? PersonnelMarketStyle.DISABLED;
-  if (style === PersonnelMarketStyle.DISABLED) {
+  if (!isPersonnelMarketEnabled(campaign)) {
     return [];
   }
 
   const count = calculateDailyRecruits(random);
   const currentDate = campaign.currentDate.toISOString().split('T')[0];
+  const marketId = `pmo-${campaign.id}-${resolveCampaignSeed(campaign)}-${currentDate}`;
   const offers: IPersonnelMarketOffer[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -212,7 +226,7 @@ export function generatePersonnelForDay(
     const expirationDate = addDays(currentDate, getExpirationDays(experience));
 
     offers.push({
-      id: `pmo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      id: `${marketId}-${i}`,
       name,
       role,
       experienceLevel: experience,
@@ -223,6 +237,34 @@ export function generatePersonnelForDay(
   }
 
   return offers;
+}
+
+/**
+ * Seed an absent source market before its first save, or on a local legacy
+ * campaign's first open. Empty saved pools are exhausted, not uninitialized.
+ * Guests receive source facts and must never invent their own applicants.
+ * @spec openspec/changes/seed-initial-personnel-market/specs/markets-system/spec.md
+ */
+export function initializePersonnelMarket(
+  campaign: ICampaignWithCommand,
+): ICampaignWithCommand {
+  if (
+    campaign.personnelMarket !== undefined ||
+    campaign.coopSession?.mode === 'guest' ||
+    !isPersonnelMarketEnabled(campaign)
+  )
+    return campaign;
+  return {
+    ...campaign,
+    personnelMarket: generatePersonnelForDay(
+      campaign,
+      createDailyRandom(
+        campaign,
+        campaign.currentDate,
+        PERSONNEL_MARKET_STREAM_ID,
+      ),
+    ),
+  };
 }
 
 /** Removes offers whose expirationDate is before currentDate. */
