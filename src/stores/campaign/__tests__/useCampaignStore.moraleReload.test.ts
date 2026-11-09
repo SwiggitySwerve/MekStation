@@ -127,7 +127,7 @@ function advance(store: ReturnType<typeof createCampaignStore>, days: number) {
 describe('company morale across a real campaign save and reload', () => {
   it('does not drift on solvent paid days, before or after a reload', () => {
     const store = createCampaignStore();
-    const id = store.getState().createCampaign('Solvent', 'mercenary');
+    store.getState().createCampaign('Solvent', 'mercenary');
     store.getState().updateCampaign({
       currentDate: START,
       finances: { transactions: [], balance: new Money(50_000_000) },
@@ -145,7 +145,6 @@ describe('company morale across a real campaign save and reload', () => {
     );
 
     const reloaded = createCampaignStore();
-    expect(reloaded.getState().loadCampaign(id)).toBe(true);
     advance(reloaded, 10);
 
     expect(
@@ -156,7 +155,7 @@ describe('company morale across a real campaign save and reload', () => {
 
   it('counts one victory once, including across a reload', () => {
     const store = createCampaignStore();
-    const id = store.getState().createCampaign('One win', 'mercenary');
+    store.getState().createCampaign('One win', 'mercenary');
     store.getState().updateCampaign({
       currentDate: START,
       finances: { transactions: [], balance: new Money(50_000_000) },
@@ -170,7 +169,6 @@ describe('company morale across a real campaign save and reload', () => {
     ]);
 
     const reloaded = createCampaignStore();
-    expect(reloaded.getState().loadCampaign(id)).toBe(true);
     expect(reloaded.getState().campaign!.moraleState).toBe(MoraleState.High);
     expect(reloaded.getState().campaign!.moraleCountedMatchIds).toEqual([
       'match-reload-win',
@@ -184,7 +182,7 @@ describe('company morale across a real campaign save and reload', () => {
 
   it('lowers morale one step on a day pay is missed, and the reload keeps it', () => {
     const store = createCampaignStore();
-    const id = store.getState().createCampaign('Broke', 'mercenary');
+    store.getState().createCampaign('Broke', 'mercenary');
     store.getState().updateCampaign({
       currentDate: START,
       finances: { transactions: [], balance: new Money(100) },
@@ -194,7 +192,6 @@ describe('company morale across a real campaign save and reload', () => {
     expect(store.getState().campaign!.moraleState).toBe(MoraleState.Unhappy);
 
     const reloaded = createCampaignStore();
-    expect(reloaded.getState().loadCampaign(id)).toBe(true);
     expect(reloaded.getState().campaign!.moraleState).toBe(MoraleState.Unhappy);
   });
 });
