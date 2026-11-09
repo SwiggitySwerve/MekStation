@@ -109,6 +109,7 @@ export function HexMapDisplay(props: HexMapDisplayProps): React.ReactElement {
         onKeyDown={interaction.handleKeyDown}
         onTouchStart={interaction.handleTouchStart}
         onTouchEnd={interaction.handleTouchEnd}
+        onTouchCancel={interaction.handleTouchEnd}
         tabIndex={0}
         aria-label="Tactical map battlefield"
         {...isometricSvgCameraControlAttributes(isIsometricView)}

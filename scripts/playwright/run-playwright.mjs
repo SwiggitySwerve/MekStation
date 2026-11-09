@@ -35,24 +35,20 @@ const campCollection = prepareCamp01PlaywrightCollection(
 const prodEvidence = rawArgs.includes('--prod-evidence');
 const playwrightArgs = rawArgs.filter((arg) => arg !== '--prod-evidence');
 const prodServerCommand = campIsolation.active
-  ? `npx kill-port 3600 --silent && npm run build && node ${JSON.stringify(
+  ? `node scripts/next/run-dev.mjs --check-port && npm run build && node ${JSON.stringify(
       path.join(campIsolation.paths.next, 'standalone', 'server.js'),
     )}`
-  : 'npx kill-port 3600 --silent && npm run build && node .next/standalone/server.js';
+  : 'node scripts/next/run-dev.mjs --check-port && npm run build && node .next/standalone/server.js';
 const prodEvidenceEnv = prodEvidence
   ? {
       MEKSTATION_E2E_SERVER_COMMAND: prodServerCommand,
       // A full `next build` runs inside the webServer command — allow 15 min.
       MEKSTATION_E2E_SERVER_TIMEOUT_MS: '900000',
       MEKSTATION_COMMAND_SCREEN_BUILD_MODE: 'production',
-      // The standalone server reads PORT; the dev server defaults to 3600.
-      PORT: '3600',
     }
   : {};
-// Receipt runs inherit a stripped PATH and empty npm cache. `npm run dev` is
-// `npx kill-port && node server.js`, and kill-port is not a dependency, so npx
-// hangs in npm-prefix.js until Playwright's 120s webServer timeout, then
-// Windows taskkill wedges on that tree. Start server.js with the same Node.
+// Receipt runs inherit a stripped PATH and empty npm cache. Preserve their
+// direct server invocation with the same Node and their longer startup budget.
 const campDevServerEnv =
   campIsolation.active && !prodEvidence
     ? {

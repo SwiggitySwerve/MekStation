@@ -27,7 +27,13 @@ import {
   isWeaponEquip,
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
-import { getNativeAmmoBVGroup, normalizeWeaponKey } from '../battleValueAmmo';
+import {
+  calculateAmmoBVPools,
+  getMechDiagnosticAmmoBVGroup,
+  getNativeAmmoBVGroup,
+  normalizeWeaponKey,
+  projectMechAmmoBVPools,
+} from '../battleValueAmmo';
 import {
   hasBVActuatorEnhancement,
   isDirectFireBVWeapon,
@@ -48,9 +54,21 @@ export function buildMechBVWeapons(
   hasTC: boolean;
   ammoCapWeapons: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
   ammoCapProjectionWeapons?: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
+  ammoDiagnosticCapWeapons?: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
 } {
   // Weapons
   const weapons: WeaponEntry[] = [];
+  const ammoDiagnosticCapWeapons: { id: string; bv: number }[] = [];
+  const recordDiagnosticCap = (id: string, bv: number, resolved: boolean) => {
+    if (
+      resolved &&
+      Number.isFinite(bv) &&
+      bv >= 0 &&
+      !isOneShotBVWeapon(id) &&
+      getMechDiagnosticAmmoBVGroup(id)
+    )
+      ammoDiagnosticCapWeapons.push({ id, bv });
+  };
   const torpedoSourceIds = new Map<WeaponEntry, string>();
   const unresolvedWeapons: string[] = [];
   let hasTC = cs.hasTC;
@@ -90,7 +108,14 @@ export function buildMechBVWeapons(
       continue;
     }
     if (lo.includes('tsm') || lo.includes('triple-strength-myomer')) continue;
-    if (isDefEquip(resolveId)) continue;
+    if (isDefEquip(resolveId)) {
+      if (getMechDiagnosticAmmoBVGroup(resolveId) && isWeaponEquip(resolveId)) {
+        const res = resolveWeaponForUnit(resolveId, unit.techBase);
+        for (let i = 0; i < qty; i++)
+          recordDiagnosticCap(resolveId, res.battleValue, res.resolved);
+      }
+      continue;
+    }
     if (!isWeaponEquip(resolveId)) continue;
 
     let clanDetected =
@@ -174,6 +199,7 @@ export function buildMechBVWeapons(
         location: eq.location,
       };
       weapons.push(weapon);
+      recordDiagnosticCap(resolveId, effectiveBV, res.resolved);
       // Diagnostic identity only: retain the compatibility id used by arithmetic.
       const nativeGroup = getNativeAmmoBVGroup(resolveId);
       if (res.resolved && /^(?:LRM|SRM)_TORPEDO:/.test(nativeGroup ?? ''))
@@ -215,6 +241,7 @@ export function buildMechBVWeapons(
     hasTC,
     ammoCapWeapons,
     ...(ammoCapProjectionWeapons && { ammoCapProjectionWeapons }),
+    ...(ammoDiagnosticCapWeapons.length > 0 && { ammoDiagnosticCapWeapons }),
   };
 }
 
@@ -229,16 +256,36 @@ export function buildMechBVOffensiveInputs(
 > & {
   ammoProjection?: Pick<
     NonNullable<ValidationResult['breakdown']>,
-    'ammoCapProjectionWeapons' | 'ammoAvailableProjectionBins'
+    | 'ammoCapProjectionWeapons'
+    | 'ammoAvailableProjectionBins'
+    | 'ammoDiagnosticPools'
   >;
 } {
-  const { weapons, hasTC, ammoCapWeapons, ammoCapProjectionWeapons } =
-    buildMechBVWeapons(unit, cs, issues);
+  const {
+    weapons,
+    hasTC,
+    ammoCapWeapons,
+    ammoCapProjectionWeapons,
+    ammoDiagnosticCapWeapons,
+  } = buildMechBVWeapons(unit, cs, issues);
+  const diagnosticBins = [...cs.ammo, ...(cs.ammoDiagnosticBins ?? [])].filter(
+    ({ id }) => getMechDiagnosticAmmoBVGroup(id),
+  );
+  const ammoDiagnosticPools =
+    ammoDiagnosticCapWeapons || diagnosticBins.length
+      ? projectMechAmmoBVPools(
+          calculateAmmoBVPools(ammoCapWeapons, cs.ammo),
+          ammoCapProjectionWeapons,
+          cs.ammoAvailableProjectionBins,
+          { weapons: ammoDiagnosticCapWeapons ?? [], bins: diagnosticBins },
+        )
+      : undefined;
   const ammoProjection = {
     ...(ammoCapProjectionWeapons && { ammoCapProjectionWeapons }),
     ...(cs.ammoAvailableProjectionBins && {
       ammoAvailableProjectionBins: cs.ammoAvailableProjectionBins,
     }),
+    ...(ammoDiagnosticPools && { ammoDiagnosticPools }),
   };
   return {
     weapons,

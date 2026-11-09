@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import type { IForce } from '@/types/force';
@@ -7,6 +7,7 @@ import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 const mockInitialize = jest.fn();
 const mockGetAllUnits = jest.fn();
 const mockGetCanonicalUnitIndex = jest.fn();
+const mockShowToast = jest.fn();
 
 const force = {
   id: 'force-1',
@@ -48,7 +49,7 @@ jest.mock('next/router', () => ({
 }));
 
 jest.mock('@/components/shared/Toast', () => ({
-  useToast: () => ({ showToast: jest.fn() }),
+  useToast: () => ({ showToast: mockShowToast }),
 }));
 
 jest.mock('@/components/ui', () => ({
@@ -59,12 +60,23 @@ jest.mock('@/components/ui', () => ({
 }));
 
 jest.mock('@/components/force', () => ({
-  ForceBuilder: ({ units }: { units: Map<string, { name: string }> }) => (
-    <div data-testid="assigned-unit-names">
-      {Array.from(units.values())
-        .map((unit) => unit.name)
-        .join(',')}
-    </div>
+  ForceBuilder: ({
+    units,
+    onSwapAssignments,
+  }: {
+    units: Map<string, { name: string }>;
+    onSwapAssignments: (firstId: string, secondId: string) => void;
+  }) => (
+    <>
+      <div data-testid="assigned-unit-names">
+        {Array.from(units.values())
+          .map((unit) => unit.name)
+          .join(',')}
+      </div>
+      <button onClick={() => onSwapAssignments('assignment-1', 'assignment-2')}>
+        Swap slots
+      </button>
+    </>
   ),
   PilotSelector: () => null,
   UnitSelector: ({ units }: { units: Array<{ name: string }> }) => (
@@ -135,7 +147,7 @@ const canonicalUnit = {
   bv: 1_900,
 } as IUnitIndexEntry;
 
-describe('ForceDetailPage custom-unit lookup', () => {
+describe('ForceDetailPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockInitialize.mockResolvedValue(undefined);
@@ -169,4 +181,33 @@ describe('ForceDetailPage custom-unit lookup', () => {
     );
     expect(screen.queryByTestId('force-loading-state')).not.toBeInTheDocument();
   });
+
+  it.each([
+    { success: false, message: 'Failed to swap assignments', variant: 'error' },
+    {
+      success: true,
+      message: 'Assignments swapped successfully',
+      variant: 'success',
+    },
+  ])(
+    'reports $variant feedback for a swap after refreshing',
+    async ({ success, message, variant }) => {
+      forceState.swapAssignments.mockResolvedValueOnce(success);
+      render(<ForceDetailPage />);
+
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Swap slots' }),
+      );
+
+      await waitFor(() => {
+        expect(mockShowToast).toHaveBeenCalledWith({ message, variant });
+      });
+      expect(mockShowToast).toHaveBeenCalledTimes(1);
+      expect(forceState.swapAssignments).toHaveBeenCalledWith(
+        'assignment-1',
+        'assignment-2',
+      );
+      expect(forceState.loadForces).toHaveBeenCalledTimes(2);
+    },
+  );
 });

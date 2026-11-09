@@ -15,7 +15,9 @@
  * 2. replacement row (outcome_id, outcome_version) — a hit is the retry
  *    law: same receipt, no writes.
  * 3. correction lease on campaignStreamRef(campaignId) — held-by-other
- *    is retryable, not blocked.
+ *    is retryable, not blocked. Held for the whole record and released
+ *    on every exit. Under it, `building` candidates that are unsealed
+ *    and named by no non-blocked saga are blocked before the mint.
  * 4. minted candidate_branch_id persisted on the saga BEFORE any journal
  *    write. The id is random and not re-derivable; a retry reuses it.
  * 5. replay groups keyed by candidateScopedCommandId.
@@ -37,6 +39,7 @@ import type Database from 'better-sqlite3';
 
 import type { IRetainedSourceEvent } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import type { IEventHistoryCorrectionLease } from '@/lib/events/journal/EventHistoryCorrectionLeaseContract';
 import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
@@ -57,6 +60,8 @@ import {
   acquireTargetCorrectionLease,
   advanceSagaToTargetPending,
   appendReplacementConsequenceBatch,
+  blockStrandedTargetCandidates,
+  blockTargetCandidate,
   insertReplacementReceipt,
   isNonRetryableTargetRefusal,
   isRetryableLeaseRefusal,
@@ -64,6 +69,7 @@ import {
   persistSagaCandidateBranchId,
   readReplacementReceipt,
   reasonFromUnknown,
+  releaseTargetCorrectionLease,
   replayRetainedOntoCandidate,
   sealCampaignImpactIfNeeded,
 } from './CoordinatedOutcomeCorrectionTarget.steps';
@@ -174,16 +180,22 @@ export async function recordCoordinatedCorrectionTarget(
     return Object.freeze({ kind: 'recorded', receipt: existing, saga });
   }
 
+  let candidateBranchId = saga.candidateBranchId;
+  let lease: IEventHistoryCorrectionLease | null = null;
   try {
-    let candidateBranchId = saga.candidateBranchId;
     if (candidateBranchId === null || candidateBranchId.length === 0) {
-      const lease = acquireTargetCorrectionLease(stores.campaignDb, {
+      lease = acquireTargetCorrectionLease(stores.campaignDb, {
         campaignId: input.campaignId,
         owner: input.owner,
         actor: input.actor,
         at: input.at,
         ttlMs: input.ttlMs ?? 60_000,
       });
+      blockStrandedTargetCandidates(
+        stores.campaignDb,
+        stores.matchDb,
+        input.campaignId,
+      );
       candidateBranchId = mintTargetCandidateBranch(stores.campaignDb, lease, {
         campaignId: input.campaignId,
         at: input.at,
@@ -260,11 +272,30 @@ export async function recordCoordinatedCorrectionTarget(
     const reason = reasonFromUnknown(error);
     if (isNonRetryableTargetRefusal(error)) {
       blockCoordinatedCorrection(stores.matchDb, key, reason);
+      // The saga is dead, so is its candidate. A retryable or crash
+      // path keeps it: the retry reuses the id persisted on the saga.
+      if (candidateBranchId) {
+        blockTargetCandidate(
+          stores.campaignDb,
+          input.campaignId,
+          candidateBranchId,
+        );
+      }
     }
     return Object.freeze({
       kind: 'blocked',
       reason,
       saga: readCoordinatedCorrectionSaga(stores.matchDb, key),
     });
+  } finally {
+    // Held for the whole record so nothing mints beside it; every exit
+    // opens the stream again (D-3b).
+    if (lease !== null) {
+      releaseTargetCorrectionLease(
+        stores.campaignDb,
+        { campaignId: input.campaignId, at: input.at },
+        lease,
+      );
+    }
   }
 }

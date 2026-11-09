@@ -1,5 +1,6 @@
 import type { UnitData } from '../validate-bv-types';
 
+import { projectMechAmmoBVPools } from '../../src/utils/construction/battleValueAmmo';
 import { mechBVTerms } from '../../src/utils/construction/mechBV/bvTrace';
 import { calculateUnitBV } from '../validate-bv-calculator';
 import { calculatePhysicalBVTotal } from '../validate-bv-physical-weapons';
@@ -124,4 +125,122 @@ test('physical aggregation preserves per-mount rounding, TSM and case-insensitiv
       55,
     ),
   ).toBe(65.4);
+});
+
+// Pinned 48fcb2f64 BVCalculator.java:1189-1242: assembleAmmo also retains
+// defensive launcher caps and genuine zero-valued usable coolant-pod bins.
+test.each([
+  ['anti-missile-system', ['ISAntiMissileSystem'], 'AMS:2', 32],
+  ['risc-advanced-point-defense-system', ['ISAPDS', 'ISAPDS'], 'APDS:2', 64],
+  ['fluid-gun', ['ISFluidGun'], 'FLUID_GUN:1', 6],
+  ['improved-gauss-rifle', [], 'GAUSS_IMP:0', 320],
+  ['improved-autocannon-5', [], 'AC_IMP:5', 70],
+  ['ac-10p', [], 'AC_PRIMITIVE:10', 123],
+] as const)(
+  'projects listed raw %s cap without an ammo bin',
+  (id, slots, group, bv) => {
+    const input: UnitData = {
+      ...unit,
+      equipment: [{ id, location: 'LEFT_TORSO' }],
+      criticalSlots: { LEFT_TORSO: [...slots] },
+    };
+    const source = JSON.stringify(input);
+    const b = calculateUnitBV(input).breakdown;
+    if (!b) throw Error('Missing breakdown');
+    expect(mechBVTerms(b)).toHaveProperty([`ammo.cap.${group}`], bv);
+    expect(JSON.stringify(input)).toBe(source);
+    expect(b.ammoBV).toBe(0);
+  },
+);
+
+test.each([
+  ['Coolant Pod', 'COOLANT_POD:1', 0],
+  ['Coolant Pod (ARMORED)', 'COOLANT_POD:1', 0],
+  ['ISFluidGun Ammo', 'FLUID_GUN:1', 1],
+  ['CLImpGaussAmmo', 'GAUSS_IMP:0', 40],
+  ['CLIMPAmmoAC5', 'AC_IMP:5', 9],
+] as const)(
+  'projects actual physical %s availability without a launcher',
+  (id, group, bv) => {
+    const b = calculateUnitBV({
+      ...unit,
+      criticalSlots: { LEFT_TORSO: [id, `${id} (OMNIPOD)`] },
+    }).breakdown;
+    if (!b) throw Error('Missing breakdown');
+    expect(mechBVTerms(b)).toHaveProperty([`ammo.available.${group}`], bv * 2);
+    expect(mechBVTerms(b)).not.toHaveProperty([`ammo.cap.${group}`]);
+  },
+);
+
+test.each([
+  [
+    'anti-missile-system',
+    ['ISAntiMissileSystem', 'ISAMS Ammo'],
+    'AMS:2',
+    32,
+    11,
+  ],
+  [
+    'risc-advanced-point-defense-system',
+    ['ISAPDS', 'ISAPDS', 'ISAPDS Ammo'],
+    'APDS:2',
+    64,
+    22,
+  ],
+] as const)(
+  'keeps %s defensive arithmetic separate from raw caps',
+  (id, slots, group, cap, ammo) => {
+    const b = calculateUnitBV({
+      ...unit,
+      equipment: [{ id, location: 'LEFT_TORSO' }],
+      criticalSlots: { LEFT_TORSO: [...slots] },
+    }).breakdown;
+    if (!b) throw Error('Missing breakdown');
+    expect(b).toMatchObject({
+      defEquipBV: cap + ammo,
+      amsAmmoBV: ammo,
+      ammoBV: 0,
+    });
+    expect(b.ammoPools?.cap).toEqual({});
+    expect(mechBVTerms(b)).toHaveProperty([`ammo.cap.${group}`], cap);
+  },
+);
+
+test('retains raw quantity expansion and distinct improved and ordinary groups', () => {
+  const b = calculateUnitBV({
+    ...unit,
+    equipment: [
+      { id: '2-improved-autocannon-5', location: 'LEFT_TORSO' },
+      { id: 'ac-5', location: 'RIGHT_TORSO' },
+    ],
+  }).breakdown;
+  if (!b) throw Error('Missing breakdown');
+  expect(mechBVTerms(b)).toMatchObject({
+    'ammo.cap.AC_IMP:5': 140,
+    'ammo.cap.AC:5': 70,
+  });
+  expect(b.ammoPools?.cap).toEqual({ 'AC:5': 70 });
+});
+
+test('does not invent supplemental facts for absent, empty or unresolved bins', () => {
+  const b = calculateUnitBV({
+    ...unit,
+    criticalSlots: { LEFT_TORSO: [null, 'Unknown Ammo', 'Coolant Pod:0'] },
+  }).breakdown;
+  if (!b) throw Error('Missing breakdown');
+  expect(b.ammoDiagnosticPools).toBeUndefined();
+  expect(
+    Object.keys(mechBVTerms(b)).filter((key) => key.startsWith('ammo.')),
+  ).toEqual([]);
+});
+
+test('supplemental grouping preserves existing pool values and caller objects', () => {
+  const pools = { available: { 'FLUID_GUN:1': 7 }, cap: { 'AMS:2': 9 } };
+  const before = JSON.stringify(pools);
+  const projected = projectMechAmmoBVPools(pools, undefined, undefined, {
+    weapons: [{ id: 'ams', bv: 32 }],
+    bins: [{ id: 'ISFluidGun Ammo', bv: 1 }],
+  });
+  expect(projected).toEqual(pools);
+  expect(JSON.stringify(pools)).toBe(before);
 });
