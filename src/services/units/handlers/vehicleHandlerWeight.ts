@@ -40,6 +40,16 @@ type NativeTankWeightUnit = Pick<
   | keyof IVehicleTurretSourceContext
 >;
 
+type NativeCombatVehicleWeightUnit = NativeTankWeightUnit & {
+  readonly unitType: UnitType.VEHICLE | UnitType.VTOL;
+  readonly hasNoControlSystems: boolean;
+};
+
+/** Preserve the native tag's integer parsing, including the explicit -1 sentinel. */
+export function getNativeVehicleArmorTechLevel(source: IBlkDocument): number {
+  return Number.parseInt(String(source.rawTags.armor_tech_level ?? ''), 10);
+}
+
 /**
  * MegaMek T_STRUCTURE_UNKNOWN (EquipmentType.java:138, 48fcb2f64). BLKTankFile
  * stores a `-1` tag verbatim, and TestTank.getStructure:87-95 maps only `1` to
@@ -51,6 +61,20 @@ const T_STRUCTURE_UNKNOWN = -1;
 export function computeNativeTankWeight(
   source: IBlkDocument,
   unit: NativeTankWeightUnit,
+): VehicleWeightBreakdown | undefined {
+  return computeNativeCombatVehicleWeight(source, {
+    ...unit,
+    unitType: UnitType.VEHICLE,
+    // BLKTankFile.java:268-269 uses tag presence, regardless of its payload.
+    hasNoControlSystems: Object.keys(source.rawTags).some(
+      (key) => key.toLowerCase() === 'hasnocontrolsystems',
+    ),
+  });
+}
+
+function computeNativeCombatVehicleWeight(
+  source: IBlkDocument,
+  unit: NativeCombatVehicleWeightUnit,
 ): VehicleWeightBreakdown | undefined {
   // Do not silently turn an unsupported native structure or armor into Standard.
   if (
@@ -95,7 +119,6 @@ export function computeNativeTankWeight(
   const weights = computeVehicleWeightBreakdown(
     {
       ...unit,
-      unitType: UnitType.VEHICLE,
       tonnage: source.tonnage,
       year: source.year,
       techBase,
@@ -111,10 +134,6 @@ export function computeNativeTankWeight(
       secondaryTurret: unit.secondaryTurret ?? null,
       equipment,
       powerAmpWeight: 0,
-      // BLKTankFile.java:268-269 uses tag presence, regardless of its payload.
-      hasNoControlSystems: Object.keys(source.rawTags).some(
-        (key) => key.toLowerCase() === 'hasnocontrolsystems',
-      ),
       transporters: source.transporters ?? [],
     },
     (id, isAmmo) => lookup.getMountedById(id, isAmmo === true),
@@ -132,6 +151,16 @@ export function withNativeTankWeight<
   const weights = fields.errors.length
     ? undefined
     : computeNativeTankWeight(source, fields);
+  return withNativeVehicleWeight(source, fields, weights);
+}
+
+function withNativeVehicleWeight<
+  T extends { readonly errors: readonly string[] },
+>(
+  source: IBlkDocument,
+  fields: T,
+  weights: VehicleWeightBreakdown | undefined,
+): T & Partial<Pick<IVehicle, 'totalWeight' | 'remainingTonnage'>> {
   return weights?.remaining == null
     ? fields
     : {
