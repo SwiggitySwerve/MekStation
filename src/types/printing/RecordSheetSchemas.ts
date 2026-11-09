@@ -190,7 +190,7 @@ export const VehicleCrewMemberSchema = z.object({
 export const VehicleLocationArmorSchema = z.object({
   location: z.enum(RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS),
   current: z.number(),
-  maximum: z.number(),
+  maximum: z.number().optional(),
   bar: z.number().optional(),
 });
 

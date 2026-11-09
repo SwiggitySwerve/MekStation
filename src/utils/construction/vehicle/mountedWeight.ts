@@ -8,12 +8,13 @@ import type {
 
 import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
-import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { EngineType, VehicleLocation } from '@/types/construction';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
+import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
@@ -26,6 +27,7 @@ import {
 } from '../equipmentBV/weaponLinks';
 import {
   computeVehicleInstalledEngineWeight,
+  NON_FUSION_ENGINE_TYPES,
   type VehicleInstalledEngineState,
 } from './engine';
 import {
@@ -57,11 +59,14 @@ const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
   EquipmentCategory.CAPITAL_WEAPON,
 ];
 
-/** Native MiscType.getHeat(), not weapon heat metadata. 48fcb2f6:1423-1435. */
+/** Native MiscType.getHeat(), not weapon heat metadata. 48fcb2f6:1423-1441. */
 const MISC_HEAT = new Map([
   ['groundmobilehpg', 20],
   ['risc-viral-jammer-decoy', 12],
   ['risc-viral-jammer-homing', 12],
+  ['risclaserpulsemodule', 2],
+  ['nova-combined-electronic-warfare-system-cews', 2],
+  ['spot-welder', 2],
 ]);
 
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
@@ -341,14 +346,25 @@ export function computeVehicleMountedWeightFigures(
   }, 0);
   // TestEntity.java:971-979 adds miscellaneous heat after all linked weapons;
   // including it in that running total would change the insulator zero guard.
-  const miscellaneousHeat = mounted.reduce(
-    (total, mount) =>
-      total +
-      (mount.item?.category === EquipmentCategory.MISC_EQUIPMENT
-        ? (MISC_HEAT.get(mount.id) ?? 0)
-        : 0),
-    0,
-  );
+  const heatLoad = mounted.reduce<number | null>((total, mount) => {
+    if (total === null) return null;
+    // Native MiscType includes electronics (Nova CEWS), but never weapons/ammo.
+    if (
+      mount.item === undefined ||
+      mount.isAmmunition ||
+      isWeaponCategory(mount.item.category)
+    )
+      return total;
+    if (mount.id === 'spot-welder') {
+      const type = state.engineType;
+      if (type === undefined) return null;
+      // TestEntity.java:974-977: fusion/fission does not add welder heat.
+      if (!NON_FUSION_ENGINE_TYPES.has(type))
+        return Object.values(EngineType).some((t) => t === type) ? total : null;
+      if (type === EngineType.FISSION) return total;
+    }
+    return total + (MISC_HEAT.get(mount.id) ?? 0);
+  }, rawWeaponHeat);
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');
@@ -392,8 +408,7 @@ export function computeVehicleMountedWeightFigures(
     ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
   );
   return {
-    rawWeaponHeat:
-      rawWeaponHeat === null ? null : rawWeaponHeat + miscellaneousHeat,
+    rawWeaponHeat: heatLoad,
     equipment,
     turretEquipment,
     secondaryTurretEquipment,
