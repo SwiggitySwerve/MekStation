@@ -75,6 +75,7 @@ import {
   hasVehicleEquipmentFeature,
 } from './vehicleFeatureTags';
 import {
+  getNativeVehicleArmorTechLevel,
   withNativeTankWeight,
   rejectIncompleteCombatVehicleWeight,
 } from './vehicleHandlerWeight';
@@ -251,10 +252,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       hasVehicleEquipmentFeature(equipment, 'limitedamphibious');
     const hasTrailerHitch = getBooleanFromRawTags(rawTags, 'trailerhitch');
     const isTrailer = getBooleanFromRawTags(rawTags, 'trailer');
-    const armorTechLevel = Number.parseInt(
-      String(rawTags.armor_tech_level ?? ''),
-      10,
-    );
+    const armorTechLevel = getNativeVehicleArmorTechLevel(document);
 
     // Internal structure type
     const internalStructureType = document.internalType || 0;

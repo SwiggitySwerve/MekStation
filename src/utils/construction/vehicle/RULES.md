@@ -1027,3 +1027,34 @@ half weights. Registry mass supersedes the applicable stub mass; other stub
 metadata is still read (`supportPayload` still calls `getEquipmentEntry` and
 overrides only the weight of the catalog entry it spreads). The 42 stubs remain a
 catalog residual.
+
+## Native combat VTOL weight transport (2.2-g)
+
+`computeNativeVTOLWeight` transports native VTOL fields into the same construction
+owner as `computeNativeTankWeight` and returns the unchanged
+`VehicleWeightBreakdown` type. `chinTurret` is the primary turret; no secondary
+turret is installed (`BLKVTOLFile.java:132-133,164-172`, MegaMek 48fcb2f64).
+`TestTank.java:178-226` owns the ordinary and fixed Omni mechanism mass.
+
+Rotor mass is already `controlsLift.ts`'s `lift` term, rounded up to half tons
+from 10% of chassis mass (`TestTank.java:229-239`). It is counted once. VTOLs over
+30 tons use the existing superheavy structure owner (`VTOL.java:729-731`,
+`TestTank.java:87-95`, `Structure.java:65-108`). Engine, suspension, armor, heat,
+power amplifier, variable accessory and carrying-space rules retain their
+existing owners. Jet boosters use installed engine mass through the existing
+accessory rule (`MiscType.java:518-527`).
+
+Tank's loader reads the no-controls tag by presence; `BLKVTOLFile.java:64-199`
+never reads it, so VTOL transport keeps controls enabled. Source engine flags
+use `isClanBlkEngine`; armor-tech integer parsing is shared unchanged with the
+Tank handler. Complete parses publish computed mass and remaining tonnage;
+unsupported or unresolved breakdowns remain unavailable. The number-only legacy
+handler API retains its explicit incomplete-weight failure.
+
+Explicit residual outside the 131-source corpus: with Skadi's pure-Clan chassis
+and a conflicting IS armor-tech tag, Java normalizes ferro-fibrous armor back to
+Clan (4.5 tons); the existing local armor owner retains the explicit IS choice
+(5 tons). The mixed-Clan counterpart retains IS armor in Java. Authority:
+`BLKFile.java:1950-1994` at the same pin; independent synthetic verifier probes
+record totals 30 and 30.5 respectively. This transport does not change the shared
+armor-normalization rule or any catalog value.
