@@ -384,7 +384,6 @@ points or deriving a BV rule.
 - **WHEN** the contract BV adapter maps armor and equipment
 - **THEN** it SHALL preserve the corresponding domain location and armor points
 
-
 ### Requirement: Runtime parity term validation
 
 The comparator SHALL reject malformed runtime terms with a structured failed
@@ -975,7 +974,6 @@ The offensive pool SHALL NOT add tonnage or a generic physical-attack bonus.
 - **AND** source fields, export bytes and unrelated BV components SHALL be checked separately from changed speed, offensive subtotal and total values
 - **AND** equipment pools, damage/options, complete BV and production editor/save flows SHALL remain unverified until independently proven
 
-
 ### Requirement: ProtoMech Defensive BV
 
 The proto defensive BV SHALL combine armor, structure, defensive equipment,
@@ -1043,8 +1041,8 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **AND** negative, fractional, infinite and signed-zero inputs SHALL retain their prior results
 - **AND** construction and gameplay SHALL preserve their distinct guards and interval conventions
 
-
 #### Scenario: Shared thresholds preserve the BV validation adapter
+
 - **GIVEN** the active `validate:bv` adapter selecting defensive calculator inputs
 - **WHEN** standard TMM thresholds and their inverse bracket minima are consolidated
 - **THEN** it SHALL consume the movement owner for both lookups
@@ -1215,7 +1213,6 @@ remain available and equal 1 for these turret kinds.
 - **AND** every unit moving away SHALL be explained with its component values
 - **AND** the mass correction SHALL NOT establish complete vehicle BV parity
 
-
 #### Scenario: Project existing vehicle weapon mount results
 
 - **GIVEN** the pinned Tamerlane Flamer and rocket-launcher variants
@@ -1357,7 +1354,6 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **WHEN** BV is computed
 - **THEN** ammo BV SHALL equal `10 * 4 / 1000 * 2 = 0.08` per trooper and final BV SHALL equal 219
 
-
 #### Scenario: Partial wing raises BV movement
 
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
@@ -1395,7 +1391,6 @@ reported explicitly.
 - **THEN** `ammo.cap.AMS:2` SHALL be 32 or `ammo.cap.APDS:2` SHALL be 128 respectively
 - **AND** defensive ammunition SHALL remain absent from offensive availability, with every existing arithmetic result unchanged
 
-
 #### Scenario: Project admitted implicit infantry clips on support vehicles
 
 - **GIVEN** a fresh support vehicle carrying native infantry weapons whose positive clip shots and ammunition admission are represented by pinned equipment facts
@@ -1420,6 +1415,38 @@ unchanged. A pool absent from the owner result SHALL create no term.
 - **GIVEN** the pinned Cavalier [SRM] source with an SRM-1 launcher and a bin whose pool BV exceeds the launcher BV
 - **WHEN** its BA breakdown is projected
 - **THEN** `ammo.available.SRM:1` SHALL report the pre-cap pool, `ammo.cap.SRM:1` SHALL equal 15 and ammo BV SHALL remain capped at 15
+
+### Requirement: Infantry per-weapon BV diagnostic projection
+
+The infantry calculation owner SHALL retain the values already computed for
+each source-backed weapon call without changing resolution, admission, shooter
+counts, arithmetic, modifiers, ammunition, aggregates or totals. Repeated
+temporary trooper weapon identities SHALL merge in native call order, including
+eligible anti-Mek repeats. Separate field-gun mounts SHALL remain separate.
+The trace SHALL format retained values as optional `weapon.*` diagnostics;
+it SHALL NOT recalculate contributions or infer missing facts.
+
+#### Scenario: Primary, secondary and anti-Mek weapon calls
+
+- **GIVEN** source infantry with distinct primary and secondary weapons
+- **WHEN** the existing owner computes their shooter contributions and eligible anti-Mek repeats
+- **THEN** each identity SHALL retain its merged pre-speed weapon contribution
+- **AND** archaic weapons SHALL receive no anti-Mek repeat, while prosthetic and augmentation bonuses SHALL remain in the existing remainder
+
+#### Scenario: Shared identities and separate field guns
+
+- **GIVEN** primary and secondary calls with the same weapon identity, or repeated field-gun mounts
+- **WHEN** the weapon trace is projected
+- **THEN** temporary trooper calls SHALL merge into one identity in call order
+- **AND** each field gun SHALL retain its own local mount ordinal, resolved identity, FGUN location and already-computed value
+
+#### Scenario: Zero, absence and replay compatibility
+
+- **GIVEN** a represented zero-valued weapon or a legacy input without source weapon facts
+- **WHEN** the breakdown is projected and validated for replay
+- **THEN** a represented zero SHALL remain present, and absent facts SHALL remain absent
+- **AND** only optional finite values at recognized weapon diagnostic keys SHALL be accepted, with unknown-key rejection preserved
+- **AND** existing replay fixtures, digests, golden results and all prior infantry terms SHALL remain unchanged
 
 ### Requirement: ProtoMech resolved-zero miscellaneous diagnostics
 

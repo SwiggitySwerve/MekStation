@@ -15,13 +15,10 @@
 import type { IObjectiveMarker } from '@/types/scenario/ScenarioInterfaces';
 
 import {
-  Facing,
   GameEventType,
   GamePhase,
   GameSide,
   GameStatus,
-  LockState,
-  MovementType,
   type IGameConfig,
   type IGameEvent,
   type IGameSession,
@@ -59,22 +56,19 @@ import {
   getUnitLifecycle,
   getUnitOperability,
 } from '../unitOperability';
+import {
+  FLAG_DOMAIN,
+  FLAG_DOMAIN_SIZE,
+  beforeLeftPlay,
+  beforeSurvives,
+  flagLabel,
+  unitWith,
+  type Flags,
+} from './unitFlagDomain.test-helpers';
 
 // ---------------------------------------------------------------------------
 // Frozen pre-PR formulas (verbatim from origin/main 8524986d1)
 // ---------------------------------------------------------------------------
-
-type Flags = Pick<
-  IUnitGameState,
-  | 'destroyed'
-  | 'shutdown'
-  | 'pilotConscious'
-  | 'hasEjected'
-  | 'hasRetreated'
-  | 'isRetreating'
-  | 'isWithdrawing'
-  | 'empShutdownTurns'
->;
 
 function beforeExitReason(u: Flags): 'ejected' | 'retreated' | null {
   if (u.hasEjected === true) return 'ejected';
@@ -89,69 +83,12 @@ function beforeOperability(u: Flags) {
   return { exitReason, onField, crewActive, canAct: crewActive && !u.shutdown };
 }
 
-/** gameStateReducer getSurvivingUnitsForSide / objectiveEngine unitOccupiesHexes. */
-const beforeSurvives = (u: Flags): boolean =>
-  !u.destroyed && !u.hasRetreated && !u.hasEjected;
-
-/** forcedWithdrawal.ts:84 and withdrawalProcessing.ts:194. */
-const beforeLeftPlay = (u: Flags): boolean =>
-  Boolean(u.destroyed || u.hasRetreated || u.hasEjected);
-
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const bools = [false, true] as const;
-const optBools = [undefined, false, true] as const;
-const consciousness = [true, false, undefined] as const;
-const emp = [undefined, 0, 2] as const;
-
-const COMBOS: Flags[] = [];
-for (const destroyed of bools)
-  for (const shutdown of optBools)
-    for (const pilotConscious of consciousness)
-      for (const hasEjected of optBools)
-        for (const hasRetreated of optBools)
-          for (const isRetreating of [undefined, true] as const)
-            for (const isWithdrawing of [undefined, true] as const)
-              for (const empShutdownTurns of emp)
-                COMBOS.push({
-                  destroyed,
-                  shutdown,
-                  pilotConscious: pilotConscious as boolean,
-                  hasEjected,
-                  hasRetreated,
-                  isRetreating,
-                  isWithdrawing,
-                  empShutdownTurns,
-                });
-
-function unitWith(
-  id: string,
-  side: GameSide,
-  flags: Partial<IUnitGameState> = {},
-  position = { q: 0, r: 0 },
-): IUnitGameState {
-  return {
-    id,
-    side,
-    position,
-    facing: Facing.North,
-    heat: 0,
-    movementThisTurn: MovementType.Stationary,
-    hexesMovedThisTurn: 0,
-    armor: {},
-    structure: {},
-    destroyedLocations: [],
-    destroyedEquipment: [],
-    ammo: {},
-    pilotWounds: 0,
-    pilotConscious: true,
-    destroyed: false,
-    lockState: LockState.Pending,
-    ...flags,
-  };
-}
+const COMBOS = FLAG_DOMAIN;
+const label = flagLabel;
 
 function stateOf(
   units: IUnitGameState[],
@@ -168,8 +105,6 @@ function stateOf(
     ...extra,
   };
 }
-
-const label = (f: Flags) => JSON.stringify(f);
 
 function objectiveMarker(
   objectiveType: IObjectiveMarker['objectiveType'],
@@ -193,7 +128,7 @@ function objectiveMarker(
 
 describe('getUnitLifecycle: whole flag domain against the frozen formulas', () => {
   it('covers the domain it claims to', () => {
-    expect(COMBOS).toHaveLength(2 * 3 * 3 * 3 * 3 * 2 * 2 * 3);
+    expect(COMBOS).toHaveLength(FLAG_DOMAIN_SIZE);
   });
 
   it('getUnitExitReason and getUnitOperability answer exactly as before', () => {

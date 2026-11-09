@@ -399,12 +399,14 @@ export function main(): void {
   validateSourceManifest(convertedFile, fs.readFileSync(convertedFile));
   const optionalArg = (name: string): string | undefined =>
     process.argv.includes(name) ? arg(name) : undefined;
-  const references = readTrustedReferences(
-    arg('--reference'),
-    optionalArg('--reference-policy'),
-    arg('--out'),
-    ReferenceTrustMode.parse(optionalArg('--reference-trust')),
-  );
+  const { rows: references, identity: referenceIdentity } =
+    readTrustedReferences(
+      arg('--reference'),
+      optionalArg('--reference-policy'),
+      arg('--out'),
+      ReferenceTrustMode.parse(optionalArg('--reference-trust')),
+      true,
+    );
   const includeConstruction = process.argv.includes('--construction-validity');
   const includeWeights = process.argv.includes('--construction-weights');
   const includeQuantities = process.argv.includes('--construction-quantities');
@@ -475,6 +477,7 @@ export function main(): void {
       undefined,
       undefined,
       extraFile ? readJsonLines(extraFile) : [],
+      referenceIdentity,
     );
     const out = arg('--out');
     fs.writeFileSync(
