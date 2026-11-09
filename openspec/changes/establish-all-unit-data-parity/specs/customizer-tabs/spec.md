@@ -57,5 +57,6 @@ Each subtype SHALL support a real source-load, edit, save, reopen and print flow
 - **WHEN** it is loaded, selected, saved and reopened
 - **THEN** its native identity, cockpit mass and fixed head or torso system positions SHALL be preserved
 - **AND** manual and automatic fill, compact and sort SHALL use that selected cockpit layout
+- **AND** loaded armor weight SHALL count every active configuration location, including a Tripod center leg, and retain that weight on save/reopen
 - **AND** Standard-tagged Tripods SHALL NOT acquire a different cockpit merely from their configuration
 - **AND** catalog regeneration SHALL remain separate from recognizing an existing source tag
