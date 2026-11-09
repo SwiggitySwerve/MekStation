@@ -21,7 +21,7 @@ Define the complete construction, state management, BLK parsing, customizer UI w
 | Motion Type     | Determines movement mode: Tracked, Wheeled, Hover, VTOL, Naval, Hydrofoil, Submarine, WiGE, Rail, Maglev.                       |
 | Turret System   | Rotating weapon mount unique to vehicles. Types: None, Single (360°), Dual, Chin (VTOL), Sponson.                               |
 | BAR Rating      | Barrier Armor Rating (1–10) used by support vehicles instead of standard armor types.                                           |
-| Flank MP        | Derived movement: `floor(cruiseMP × 1.5)`.                                                                                      |
+| Flank MP        | Derived movement: `ceil(cruiseMP × 1.5)`.                                                                                      |
 
 ## Requirements
 
@@ -135,7 +135,7 @@ The system SHALL manage engine configuration and derive movement points.
 #### Scenario: Flank MP derivation
 
 - **WHEN** cruise MP is set to any value
-- **THEN** flank MP SHALL be `floor(cruiseMP × 1.5)`
+- **THEN** flank MP SHALL be `ceil(cruiseMP × 1.5)`
 - **AND** flank MP SHALL be read-only (derived)
 
 #### Scenario: Engine type selection
@@ -421,15 +421,17 @@ The system SHALL expose actions for modifying vehicle state.
 
 - **WHEN** changing cruise MP
 - **THEN** the system SHALL:
-  - Update `flankMP` to `floor(cruiseMP × 1.5)`
-  - Recalculate `engineRating` to `tonnage × cruiseMP`
+  - Update `flankMP` to cruise MP × 1.5 rounded upward
+  - Recalculate `engineRating` from tonnage and cruise MP, as the Engine and Movement
+    requirement defines
   - Mark state as modified
 
 #### Scenario: Engine rating change side effects
 
 - **WHEN** changing engine rating directly
 - **THEN** the system SHALL:
-  - Update `cruiseMP` to `floor(rating / tonnage)`
+  - Update `cruiseMP` from rating, tonnage and suspension factor, as the Engine and Movement
+    requirement defines
   - Update `flankMP` accordingly
   - Mark state as modified
 
@@ -749,10 +751,10 @@ Vehicle units SHALL carry a motive-damage state struct updated by combat resolut
 
 #### Scenario: Motive penalty applies to flank MP
 
-- **GIVEN** a vehicle with original cruise 5, flank 7 (floor(5×1.5)=7) and penalty 2
+- **GIVEN** a vehicle with original cruise 5, flank 8 (ceil(5×1.5)=8) and penalty 2
 - **WHEN** effective MP is computed
 - **THEN** effective cruise SHALL equal 3 (5 − 2)
-- **AND** effective flank SHALL equal 4 (floor(3 × 1.5))
+- **AND** effective flank SHALL equal 5 (ceil(3 × 1.5)), as MegaMek `Tank.getWalkMP` subtracts motive damage from cruise (`Tank.java:397`) and `Entity.getRunMP` then rounds upward (`Entity.java:4016`)
 
 #### Scenario: Cumulative motive penalties
 
