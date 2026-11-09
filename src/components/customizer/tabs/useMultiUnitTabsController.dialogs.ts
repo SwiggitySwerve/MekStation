@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import type { TabInfo } from '@/stores/useTabManagerStore';
 import type { IUnitContract } from '@/types/contracts';
@@ -103,6 +103,7 @@ export function useDialogHandlers(
 ): {
   closeDialog: CloseDialogState;
   saveDialog: SaveDialogState;
+  isSaving: boolean;
   handleCloseDialogCancel: () => void;
   handleCloseDialogDiscard: () => void;
   handleCloseDialogSave: () => void;
@@ -121,6 +122,8 @@ export function useDialogHandlers(
     useState<CloseDialogState>(INITIAL_CLOSE_DIALOG);
   const [saveDialog, setSaveDialog] =
     useState<SaveDialogState>(INITIAL_SAVE_DIALOG);
+  const saveInFlight = useRef(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleCloseDialogCancel = useCallback(() => {
     setCloseDialog(INITIAL_CLOSE_DIALOG);
@@ -135,6 +138,7 @@ export function useDialogHandlers(
 
   const openSaveDialogForTab = useCallback(
     (tabId: string, closeAfterSave: boolean) => {
+      if (saveInFlight.current) return;
       const disabledReason = getLibrarySaveDisabledReason(getTabById(tabId));
       if (disabledReason) {
         showToast({ message: disabledReason, variant: 'error' });
@@ -180,12 +184,13 @@ export function useDialogHandlers(
   );
 
   const handleSaveDialogCancel = useCallback(() => {
+    if (saveInFlight.current) return;
     setSaveDialog(INITIAL_SAVE_DIALOG);
   }, []);
 
   const handleSaveDialogSave = useCallback(
     async (chassis: string, variant: string, overwriteId?: string) => {
-      if (!saveDialog.tabId) {
+      if (saveInFlight.current || !saveDialog.isOpen || !saveDialog.tabId) {
         return;
       }
 
@@ -213,6 +218,9 @@ export function useDialogHandlers(
       const mechStore =
         'configuration' in state ? getUnitStore(saveDialog.tabId) : undefined;
 
+      // React state alone cannot reject a second submission before rendering.
+      saveInFlight.current = true;
+      setIsSaving(true);
       try {
         const identity = {
           id: overwriteId ?? saveDialog.tabId,
@@ -365,9 +373,13 @@ export function useDialogHandlers(
           message: 'Failed to save unit. Please try again.',
           variant: 'error',
         });
+      } finally {
+        saveInFlight.current = false;
+        setIsSaving(false);
       }
     },
     [
+      saveDialog.isOpen,
       saveDialog.tabId,
       saveDialog.closeAfterSave,
       getTabById,
@@ -388,6 +400,7 @@ export function useDialogHandlers(
   return {
     closeDialog,
     saveDialog,
+    isSaving,
     handleCloseDialogCancel,
     handleCloseDialogDiscard,
     handleCloseDialogSave,
