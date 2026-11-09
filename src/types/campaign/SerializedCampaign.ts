@@ -234,6 +234,8 @@ export interface SerializedCampaignBody {
   readonly moraleState?: MoraleState;
   /** Company morale transition history (D9). */
   readonly moraleTransitions?: readonly IMoraleTransition[];
+  /** Match ids of the outcomes company morale has already counted. */
+  readonly moraleCountedMatchIds?: readonly string[];
   /** Starmap "you are here" pin (`wire-starmap-into-campaign`). */
   readonly currentSystemId?: string;
   /**

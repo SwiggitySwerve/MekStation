@@ -72,6 +72,17 @@ broadcasts LobbyUpdated; it does not change the playing roster, side assignments
 campaign membership or human-seat grace handling. Registration uses the first
 free spectator slot id so removing a middle viewer cannot duplicate another slot.
 
+Only seats automatic cleanup may release are released (`isAutoReleasableSpectatorSeat`,
+consulted by the last-socket detach and the boot sweep and by nothing else). A
+co-op campaign seats its GM host in a spectator seat (`hostSeatKind: 'spectator'`)
+and membership comes from owned seats, so while the match is live the seat held by
+`hostPlayerId` is the GM's membership and survives a detach, and the GM's drop then
+follows the normal host path (migration is refused for a campaign GM). It grants
+no general immortality: a completed match releases the GM's seat on the next
+detach like any other, `removeSpectatorSeat` and the rest of the seat primitives
+are unchanged, and explicit close (`DELETE`, `closeMatch`) ends the match instead
+of editing seats. A normal host holds a playing seat and is never affected.
+
 Spectator departure retains delivery records, acknowledgements and cursor state
 by authenticated viewer identity, not slot id. A viewer must register again to
 regain membership, then resumes the same delivery numbering across rejoin and
@@ -92,9 +103,21 @@ re-derivation is logged, and `LobbyUpdated` carries the stored metadata. Host
 migration still patches only `hostPlayerId` through `updateMatchMeta`, which
 merges onto the latest row and bumps the revision.
 
-Follow-ups: abrupt-crash leftovers and spectator registrations that never attach.
-Status transition validation is the separate table above; these rules decide only
-which intents a status admits.
+A spectator seat that outlives its sockets because the process died first is a
+crash leftover. The full boot recovery pass (`recoverActiveMatches` with no match
+id, run once by `bootstrapMultiplayerServer`) releases every viewer's spectator
+seat of every `active` match through `updateMatchSeats`
+(`lobby/spectatorBootSweep.ts`): no socket survives a restart. What counts is
+`isAutoReleasableSpectatorSeat`, the same rule the last-socket detach uses, so the
+co-op GM host's own spectator seat is kept. Playing seats, roster, status and the
+retained delivery cursors are untouched. A viewer registers again to watch, which
+the spectate page does by itself when its reconnect is refused. A recovery
+scoped to one match id is the runtime co-op rebuild and never sweeps, because a
+spectator may have just registered and not attached yet.
+
+Follow-up: spectator registrations that never attach hold a seat until the next
+restart or until they attach and detach. Status transition validation is the
+separate table above; these rules decide only which intents a status admits.
 
 ## Match pause causes
 

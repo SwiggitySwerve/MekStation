@@ -1026,3 +1026,33 @@ LargeSupportTank, 2 SupportVTOL), two under-5-t rows whose Java heat is zero,
 and seven synthetic Jifty-chassis cases probed in the pinned Java. The
 editor `remaining` for a support vehicle now falls by the sink mass. It still
 omits source fuel, so it is not a Java total; the handler total is.
+
+## Support torpedo launcher identity (pinned)
+
+The support handler hands the payload the raw BLK token (`LRT 10`, `SRT 2`).
+`getEquipmentEntry` matches those by name to the legacy stubs `lrtorpedoN` and
+`srtN`, which are unofficial, tagged Clan and weigh half the pinned launcher
+(`lrtorpedo10` 2.5 t against Java 5 t; `srt2` 0.5 against 1). The unit loader
+resolves the same token to the Java-derived registry entries (`lrt-10-registry`
+5 t, `lrt-15-registry` 7, `srt-2-registry` 1, `srt-4-registry` 2), which is why
+the editor was already right and only the handler total was short.
+
+The payload rule stays pure: `computeSupportPayloadWeights` takes an optional
+injected `SupportRegistryMass` lookup and uses its answer for a non-ammunition
+mount, otherwise the BV entry's. The service layer supplies the lookup
+(`services/units/handlers/supportRegistryMass.ts`, built from
+`resolveEquipmentId` and `isRegistryEquipment`) and `SupportVehicleUnitHandler`
+passes it; the editor never calls the payload and already resolves registry ids
+through its own resolver. Ammunition keeps its own path. The registry-only rule matters:
+the loader also answers for the wrecking ball and flail (weight 0 against Java 4
+and 5 t) and for cargo (weight 1, variable by size). Pinned MegaMek 48fcb2f64,
+`TestSupportVehicle` verifier: LRT 5/10/15/20 weigh 2/5/7/10 t and SRT 2/4/6
+weigh 1/2/3 t. Corpus: Seahorse Cargo Sub 245 to 250 t, Silverfin Coastal Cutter
+39 to 40 t, White Tip Submarine 236.5 to 249.5 t, each now equal to Java.
+
+Residual, left for the catalog lane: the 42 legacy stubs (`lrtorpedo1..20`,
+`srt1..6` and their OS/IOS variants in `weapons/missile-other.json`) keep their
+half weights. Registry mass supersedes the applicable stub mass; other stub
+metadata is still read (`supportPayload` still calls `getEquipmentEntry` and
+overrides only the weight of the catalog entry it spreads). The 42 stubs remain a
+catalog residual.

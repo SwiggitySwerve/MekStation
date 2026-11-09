@@ -38,6 +38,7 @@ import {
  *
  * - each victory: +1
  * - met pay: +1
+ * - no pay information that day (null): 0
  * - each defeat: -1
  * - missed pay: -1
  * - each desertion: -1
@@ -46,7 +47,8 @@ function scoreSignals(signals: IMoraleSignals): number {
   let score = 0;
   score += signals.recentVictories;
   score -= signals.recentDefeats;
-  score += signals.payMet ? 1 : -1;
+  if (signals.payMet === true) score += 1;
+  else if (signals.payMet === false) score -= 1;
   score -= signals.desertions;
   return score;
 }
@@ -81,7 +83,7 @@ function transitionReason(
     if (signals.recentVictories > 0) {
       parts.push(`${signals.recentVictories} recent victory(s)`);
     }
-    if (signals.payMet) parts.push('pay met');
+    if (signals.payMet === true) parts.push('pay met');
     return parts.length > 0
       ? `Morale rose: ${parts.join(', ')}`
       : 'Morale rose';
@@ -90,7 +92,7 @@ function transitionReason(
   if (signals.recentDefeats > 0) {
     parts.push(`${signals.recentDefeats} recent defeat(s)`);
   }
-  if (!signals.payMet) parts.push('pay missed');
+  if (signals.payMet === false) parts.push('pay missed');
   if (signals.desertions > 0) parts.push(`${signals.desertions} desertion(s)`);
   return parts.length > 0 ? `Morale fell: ${parts.join(', ')}` : 'Morale fell';
 }

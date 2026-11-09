@@ -384,3 +384,97 @@ The report carries `byFamily` (row verdict counts plus term counts) and
 plus `weightTotal` and group names; each with exact/within1Pct/different/missing
 counts and the maximum absolute and relative difference), and each row lists
 every term with Java and local values, delta and relative percent.
+
+## Opt-in verifier quantities and settings
+
+`--construction-quantities` (row 3.4 W3) compares the five finite verifier
+quantities and the 24 construction settings the pinned Java exporter writes per
+row (`construction.verifierQuantities`, `construction.settings`, in the same P1
+`--reference` file) with MekStation's own owners. It runs next to, and
+independent of, `--construction-validity` and `--construction-weights` (any of
+the three loads the JSON equipment catalog first) and writes
+`construction-quantity-report.json` and `construction-quantity-rows.jsonl`.
+Without the flag every existing report, and every row's other fields, keep their
+previous bytes; the flag only adds the local `constructionQuantities` fact. When
+`--construction-weights` also runs, one weight capture feeds both comparators.
+Either selected report failing keeps the CLI exit nonzero. It is measurement
+only: a disagreement or a missing local value is a finding for a later PR.
+
+### Quantities (per row)
+
+`weightExact` (`calculateWeightExact`, t), `weightRounded` (`calculateWeight`, t),
+`weightDesign` (`getWeight`, t), `armorPoints` (`getTotalOArmor`, points) and
+`criticalSlots` (`totalCritSlotCount`, slots). The rule is W1's: exact within
+1e-9 absolute or 1e-12 relative, `within1Pct` only when strictly less than 1% of
+the Java quantity, otherwise `different`; a zero Java quantity needs a zero local
+one. A quantity MekStation cannot produce is `missing-local` with its reason, a
+nonfinite one `nonfinite-local`, a captured exception `failed-local`; all fail
+the row. A Java quantity that is absent, has the wrong unit, is nonfinite or
+carries an exporter `status` is `reference-invalid`, never a zero.
+
+Local sources, all existing owners:
+
+- `weightExact`: the W1 total (BattleMech editor projection, Tank native weight).
+- `weightDesign`: the editor state tonnage (BattleMech) or the handler unit
+  tonnage (BLK families with a handler).
+- `armorPoints`: `getTotalAllocatedArmor` over the editor allocation
+  (BattleMech) or the handler `totalArmorPoints` (vehicle, aerospace, capital).
+- `criticalSlots`: the sum of `getLocationSlotCount` over the configuration's
+  locations (BattleMech only).
+- `weightRounded`: no local owner. The validators compare the unrounded sum
+  (`WeightOverflowValidation.ts:54`, `AbstractUnitTypeHandler.ts:353`), and
+  `ceilToHalfTon` exists per component only; the script never derives it.
+- BattleArmor, infantry and ProtoMech handlers expose none of the five.
+
+### Settings (per cell)
+
+The 22 `TestEntityOption` getters (plus `gameYear`) are constants of the
+verifier class, not facts of a unit, so they are compared once per
+(family, verifierClass) cell, not per row. `ammoTechLevel` varies per unit and
+stays per row: it is `missing-local` on every row because no local owner exports
+the Java compound tech-level integer (VAL-BM-012 compares `rulesLevel` enums).
+`gameYear` is a cell constant until a row differs; then each row of the cell is
+a finding.
+
+Each cell result is `matched`, `different`, `missing-local` (with the reason) or
+`inapplicable-candidate`. A candidate is an option no Java call site reads for
+that verifier class, or one gated off by another pinned option; its Java file:line
+evidence is on the result. **Nothing is excluded**: candidates still fail the
+report until the owner accepts them (design D3), and they are listed under
+`settings.inapplicableCandidates` for that decision.
+
+Local values come from existing owners and are never invented:
+
+- Weight ceilings: a sentinel probe of the owner (the real rounding function is
+  called with a discriminating input such as 0.3 t and the observed step is
+  compared with the Java `Ceil`). An owner whose output cannot show the step
+  (the gyro) or that does not exist is `missing-local`.
+- `getIntroYearMargin`: `INTRO_YEAR_MARGIN`, only for the families whose
+  intro-year check uses it (vehicle, aerospace).
+- `getMaxOverweight` and `showOverweightedEntity`: each row's capture runs the
+  real overweight rule (VAL-UNIV-014 for BattleMechs, the handler's common
+  validation for BLK families) at 0, 0.1, 0.25 and 0.3 t over, and the cell uses
+  the observed tolerance. Local tolerance is 0 where a check exists; Java is 0.25
+  for aerospace, capital, BattleArmor and infantry, which is a measured
+  `different` gap, not a validator change. The result carries a count of corpus
+  rows lying in the (0, max] t band (Java exact and rounded weight over design
+  weight); on the pinned corpus that count is 0 for every class.
+- `showUnderweightEntity` and `skip` are `missing-local` with "no local owner;
+  absence cannot be cited": a rule that is absent has no file:line to cite.
+
+A drift guard fails the report when the reference's settings key set is not the
+pinned 24, a value changes type, an option differs between rows of one cell, a
+verifier class is not in the pinned classification, or a quantity key is not one
+of the five.
+
+`--weight-terms-extra <rows.jsonl>` (the W2 additive infantry export) is also
+accepted here. Its rows carry the same pinned-Java quantities, so they are
+cross-checked against the primary reference on path plus SHA-256 and any
+disagreement is drift (`extra-quantity-mismatch`, `extra-unknown`,
+`extra-hash-mismatch`, `extra-duplicate`, `extra-rejected`); they supply nothing
+the primary lacks.
+
+The report carries `byFamily` (row verdict counts), `byQuantity` (family, then
+quantity, with exact/within1Pct/different/missing counts and the maximum
+absolute and relative difference), `settings` (`cells`, `counts`,
+`inapplicableCandidates`, `perRow`) and `drift`.
