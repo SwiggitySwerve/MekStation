@@ -388,14 +388,14 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.electron_config_cache }}
-          key: ${{ runner.os }}-electron-cache-v2-${{ hashFiles('desktop/package-lock.json') }}
+          key: ${{ runner.os }}-electron-cache-v1-${{ hashFiles('desktop/package-lock.json') }}
 
       - name: Restore electron-builder downloads
         id: electron-builder-cache
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.ELECTRON_BUILDER_CACHE }}
-          key: ${{ runner.os }}-electron-builder-cache-v2-${{ hashFiles('desktop/package-lock.json') }}
+          key: ${{ runner.os }}-electron-builder-cache-v1-${{ hashFiles('desktop/package-lock.json') }}
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
