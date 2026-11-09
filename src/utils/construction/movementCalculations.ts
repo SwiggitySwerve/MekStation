@@ -8,6 +8,14 @@
 
 import { RulesLevel } from '../../types/enums/RulesLevel';
 import { TechBase } from '../../types/enums/TechBase';
+import {
+  calculateMechRunMP,
+  calculateMaxRunMPWithModifiers,
+  type MovementModifiers,
+} from './mechMovement';
+
+export { calculateMaxRunMPWithModifiers };
+export type { MovementModifiers };
 
 // calculateWalkMP is exported from engineCalculations.ts
 // Re-export it here for convenience
@@ -25,19 +33,12 @@ export function calculateRunMP(walkMP: number): number {
   if (walkMP <= 0) {
     return 0;
   }
-  return Math.ceil(walkMP * 1.5);
+  return calculateMechRunMP(walkMP);
 }
 
 // =============================================================================
 // Movement Enhancement System
 // =============================================================================
-
-export interface MovementModifiers {
-  /** Bonus added to base 1.5x run multiplier (e.g., MASC adds 0.5 for 2.0x total) */
-  runMultiplierBonus: number;
-  /** Flat MP added after multiplication (e.g., TSM adds +1) */
-  flatMPBonus: number;
-}
 
 export const MOVEMENT_ENHANCEMENT_MODIFIERS: Record<string, MovementModifiers> =
   {
@@ -67,18 +68,6 @@ export function getMovementModifiersFromEquipment(
   }
 
   return result;
-}
-
-export function calculateMaxRunMPWithModifiers(
-  walkMP: number,
-  modifiers: MovementModifiers,
-): number | undefined {
-  if (walkMP <= 0) return 0;
-  if (modifiers.runMultiplierBonus === 0 && modifiers.flatMPBonus === 0) {
-    return undefined;
-  }
-  const totalMultiplier = 1.5 + modifiers.runMultiplierBonus;
-  return Math.floor(walkMP * totalMultiplier) + modifiers.flatMPBonus;
 }
 
 /**
@@ -209,7 +198,7 @@ export function calculateJumpJetSlots(
 export function getMaxJumpMP(walkMP: number, jumpJetType: JumpJetType): number {
   if (jumpJetType === JumpJetType.IMPROVED) {
     // Improved jets can reach up to run MP
-    return Math.ceil(walkMP * 1.5);
+    return calculateMechRunMP(walkMP);
   }
   return walkMP;
 }
