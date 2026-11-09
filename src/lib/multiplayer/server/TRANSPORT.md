@@ -103,9 +103,21 @@ re-derivation is logged, and `LobbyUpdated` carries the stored metadata. Host
 migration still patches only `hostPlayerId` through `updateMatchMeta`, which
 merges onto the latest row and bumps the revision.
 
-Follow-ups: abrupt-crash leftovers and spectator registrations that never attach.
-Status transition validation is the separate table above; these rules decide only
-which intents a status admits.
+A spectator seat that outlives its sockets because the process died first is a
+crash leftover. The full boot recovery pass (`recoverActiveMatches` with no match
+id, run once by `bootstrapMultiplayerServer`) releases every viewer's spectator
+seat of every `active` match through `updateMatchSeats`
+(`lobby/spectatorBootSweep.ts`): no socket survives a restart. What counts is
+`isAutoReleasableSpectatorSeat`, the same rule the last-socket detach uses, so the
+co-op GM host's own spectator seat is kept. Playing seats, roster, status and the
+retained delivery cursors are untouched. A viewer registers again to watch, which
+the spectate page does by itself when its reconnect is refused. A recovery
+scoped to one match id is the runtime co-op rebuild and never sweeps, because a
+spectator may have just registered and not attached yet.
+
+Follow-up: spectator registrations that never attach hold a seat until the next
+restart or until they attach and detach. Status transition validation is the
+separate table above; these rules decide only which intents a status admits.
 
 ## Match pause causes
 
