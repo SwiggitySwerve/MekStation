@@ -211,26 +211,3 @@ export function computeVehicleStructureWeight(
   const baseWeight = tonnage * 0.1;
   return ceilToHalfTon(baseWeight * multiplier * (doubles ? 2 : 1));
 }
-
-// =============================================================================
-// Max armor per location (2 × structure points)
-// =============================================================================
-
-/**
- * Compute maximum armor points for each vehicle location
- *
- * Per TechManual: max armor per location = 2 × internal structure
- */
-export function computeVehicleMaxArmorByLocation(
-  tonnage: number,
-): VehicleStructurePoints {
-  const structure = computeVehicleStructurePoints(tonnage);
-  return {
-    front: structure.front * 2,
-    left: structure.left * 2,
-    right: structure.right * 2,
-    rear: structure.rear * 2,
-    turret: structure.turret * 2,
-    rotor: structure.rotor * 2,
-  };
-}
