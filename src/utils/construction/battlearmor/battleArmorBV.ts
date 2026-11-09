@@ -13,6 +13,7 @@ import type {
   BAOffensiveBVBreakdown,
   BAPerTrooperBV,
   IBABreakdown,
+  IBANativeWeaponValue,
 } from '@/types/unit/BVBreakdownTypes';
 
 import {
@@ -57,6 +58,27 @@ export interface BAWeaponBVMount {
   antiMek?: boolean;
   antiMekOnly?: boolean;
   antiMekQuantity?: number;
+}
+
+/**
+ * One counted weapon or claw mount with its native facts. The averaged-trooper
+ * model above cannot say which trooper carries it, so the mount owner retains
+ * the full catalog value, native location and section memberships here.
+ */
+export interface BANativeWeaponMount {
+  id: string;
+  /** Native entity location: Squad, Point or `Trooper N`. */
+  location: string;
+  /** Owning trooper (1-based) of a `Trooper N` location. */
+  trooper?: number;
+  /** Full undivided catalog BV of one mount. */
+  battleValue: number;
+  /** Squad-support mount (`SSWM`): divided by the shooting strength. */
+  support: boolean;
+  claw: boolean;
+  infantry: boolean;
+  /** Per-mount half of the Anti-Mek filter; the squad's eligibility is separate. */
+  antiMek: boolean;
 }
 
 /**
@@ -124,6 +146,8 @@ export interface IBattleArmorBVInput {
   ammoAvailableBVByPool?: Readonly<Record<string, number>>;
   /** Diagnostic pass-through for the trace: launcher BV per native pool. */
   ammoCapBVByPool?: Readonly<Record<string, number>>;
+  /** Diagnostic pass-through for the trace: native mounts for per-trooper weapon values. */
+  nativeWeapons?: readonly BANativeWeaponMount[];
 
   /** Pilot gunnery skill (default 4). */
   gunnery?: number;
@@ -321,6 +345,61 @@ export function calculateBAOffensiveBV(
   };
 }
 
+/**
+ * Per-trooper native weapon values, following the pinned section order
+ * (BattleArmorBVCalculator.java:133-160): Weapons (squad-located, not support,
+ * not a claw), Squad Support (non-infantry weapons at the trooper or marked
+ * support, divided by the shooting strength for support) and Anti-Mek (only when
+ * the squad may make anti-Mek attacks; squad or own-trooper mounts). A mount in
+ * several passes reports their sum, as Java merges `weapon.*` terms. Mounts no
+ * pass counts are absent; `index` keeps the mount order across troopers.
+ */
+export function battleArmorNativeWeaponBV(
+  mounts: readonly BANativeWeaponMount[],
+  squadSize: number,
+  canAntiMek: boolean,
+): IBANativeWeaponValue[][] {
+  const strength = Math.max(1, Math.floor(squadSize));
+  return Array.from({ length: strength }, (_, offset) => {
+    const trooper = offset + 1;
+    const values: IBANativeWeaponValue[] = [];
+    mounts.forEach((mount, index) => {
+      const atSquad = mount.trooper === undefined;
+      const divisor = mount.support ? strength : 1;
+      let value = 0;
+      let counted = false;
+      if (atSquad && !mount.support && !mount.claw) {
+        value += mount.battleValue;
+        counted = true;
+      }
+      if (
+        !mount.claw &&
+        !mount.infantry &&
+        (mount.trooper === trooper || mount.support)
+      ) {
+        value += mount.battleValue / divisor;
+        counted = true;
+      }
+      if (
+        canAntiMek &&
+        mount.antiMek &&
+        (atSquad || mount.trooper === trooper)
+      ) {
+        value += mount.claw ? mount.battleValue : mount.battleValue / divisor;
+        counted = true;
+      }
+      if (counted)
+        values.push({
+          index,
+          id: mount.id,
+          location: mount.location,
+          battleValue: value,
+        });
+    });
+    return values;
+  });
+}
+
 // =============================================================================
 // Full BA BV
 // =============================================================================
@@ -365,5 +444,12 @@ export function calculateBattleArmorBV(
       ammoAvailableBVByPool: input.ammoAvailableBVByPool,
     }),
     ...(input.ammoCapBVByPool && { ammoCapBVByPool: input.ammoCapBVByPool }),
+    ...(input.nativeWeapons && {
+      nativeWeaponBVByTrooper: battleArmorNativeWeaponBV(
+        input.nativeWeapons,
+        squadSize,
+        input.canAntiMek ?? false,
+      ),
+    }),
   };
 }

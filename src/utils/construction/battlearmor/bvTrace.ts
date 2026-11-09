@@ -45,6 +45,14 @@ export function battleArmorBVTerms(
     'squad.strength': b.squadSize,
   };
   replicateTroopers(terms, b.squadSize, { ...trooper, ...ammo });
+  // Native weapon values differ per trooper; squad-level terms are trooper 1's.
+  (b.nativeWeaponBVByTrooper ?? []).forEach((values, offset) => {
+    for (const { index, location, id, battleValue } of values) {
+      const key = `weapon.${index}.${location}.${id}`;
+      if (offset === 0) terms[key] = battleValue;
+      terms[`trooper.${offset + 1}.${key}`] = battleValue;
+    }
+  });
   return terms;
 }
 

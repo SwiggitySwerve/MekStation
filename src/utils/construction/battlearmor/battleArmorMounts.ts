@@ -10,7 +10,11 @@ import {
   type IBattleArmorMountedEquipment,
 } from '@/types/unit/PersonnelInterfaces';
 
-import type { BAWeaponBVMount, BAAmmoBVMount } from './battleArmorBV';
+import type {
+  BAWeaponBVMount,
+  BAAmmoBVMount,
+  BANativeWeaponMount,
+} from './battleArmorBV';
 
 import {
   addBVToAmmoCapGroup,
@@ -114,8 +118,12 @@ const BA_CAP_AMMO_TYPES = new Set([
 const nativeParts = (mount: IBattleArmorMountedEquipment) =>
   mount.equipmentId.split(':');
 /** Native `Trooper N` mounts belong to that trooper alone. */
+const trooperOfMount = (mount: IBattleArmorMountedEquipment) => {
+  const index = /^Trooper (\d+)$/i.exec(mount.unitLocation ?? '')?.[1];
+  return index === undefined ? undefined : Number(index);
+};
 const isPersonalMount = (mount: IBattleArmorMountedEquipment) =>
-  /^Trooper \d+$/i.test(mount.unitLocation ?? '');
+  trooperOfMount(mount) !== undefined;
 
 /**
  * The one owner of BA weapon-mount classification. The averaged trooper model
@@ -133,9 +141,11 @@ function classifyBAWeaponMount(
   const claw = /battleclaw.*(?:vibro|magnet)/i.test(id);
   const infantry =
     qualifiers.includes('APM') || mount.isAPMount || /^Infantry/i.test(id);
+  const trooper = trooperOfMount(mount);
   return {
     claw,
-    personal: isPersonalMount(mount),
+    trooper,
+    personal: trooper !== undefined,
     support: qualifiers.includes('SSWM'),
     infantry,
     antiMek:
@@ -211,6 +221,7 @@ export function projectBAMounts(
   squadSize: number,
 ): {
   weapons: BAWeaponBVMount[];
+  nativeWeapons: BANativeWeaponMount[];
   ammo: BAAmmoBVMount[];
   unresolvedEquipment: string[];
   hasMagneticClamp: boolean;
@@ -220,6 +231,7 @@ export function projectBAMounts(
   ammoCapBVByPool: Record<string, number>;
 } {
   const weapons: BAWeaponBVMount[] = [];
+  const nativeWeapons: BANativeWeaponMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
   const unresolvedEquipment: string[] = [];
   // BattleArmorBVCalculator.java:285-304: one point each for improved
@@ -303,7 +315,7 @@ export function projectBAMounts(
       unresolvedEquipment.push(`${id}: catalog identity unresolved`);
       continue;
     }
-    const { claw, personal, support, infantry, antiMek } =
+    const { claw, trooper, personal, support, infantry, antiMek } =
       classifyBAWeaponMount(mount, id, qualifiers, entry.category);
     if (
       !claw &&
@@ -334,6 +346,18 @@ export function projectBAMounts(
       antiMekOnly: claw,
       antiMek,
     });
+    // Native facts need a real location; the Java trace skips zero-BV weapons.
+    if (mount.unitLocation !== undefined && entry.battleValue > 0)
+      nativeWeapons.push({
+        id: entry.id,
+        location: mount.unitLocation,
+        trooper,
+        battleValue: entry.battleValue,
+        support,
+        claw,
+        infantry,
+        antiMek,
+      });
   }
   // BVCalculator.java:1057-1079: ammo without a launcher is dropped and
   // excess ammo is capped at the launchers' BV.
@@ -350,6 +374,7 @@ export function projectBAMounts(
   }
   return {
     weapons,
+    nativeWeapons,
     ammo,
     unresolvedEquipment,
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
