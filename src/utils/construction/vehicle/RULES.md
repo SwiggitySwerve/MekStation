@@ -839,3 +839,18 @@ as Endo Steel (a 45 t Bellona: 2.5 t against 4.5 t), and the corpus has no Tank
 with any other value. The 56 rows' totals equal the pinned verifier's
 `calculateWeightExact` with every component equal, and no validity result moves.
 `VehicleStructureUnknown.pinned.test.ts` pins six of them.
+
+## IS Mech Mortar-8 native identity (pinned)
+
+`IS Mech Mortar-8` is the internal name of `ISMekMortar8` (10 t, 5 slots;
+`ISMekMortar8.java`, 48fcb2f64). The general normalizer shortens the name to
+"is mech mortar", which matches nothing, so Mortar Carrier's three front mortars
+had no mass and its complete total was unavailable. The exact-identity table in
+`sourceLookupAliases.ts` now maps it to the catalog record `mech-mortar-8`, which
+holds Java's values. Being an exact identity, it holds on a Clan unit too, where
+unit tech base would otherwise swap the legacy record for the 5 t Clan one.
+
+With it Mortar Carrier weighs 60 t (engine 8.5, structure 6, controls 3, armor
+4.5, equipment 38), equal to the pinned verifier's `calculateWeightExact`.
+`IS Mech Mortar-4` has the same gap, but only owner-excluded `ge` sources use it,
+so it is left unmapped. `VehicleIsMechMortar.pinned.test.ts` pins the unit.

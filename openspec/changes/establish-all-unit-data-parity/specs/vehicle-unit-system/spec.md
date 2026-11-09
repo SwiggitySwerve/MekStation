@@ -998,3 +998,25 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **GIVEN** a native Tank source with `internal_type` 1 (Endo Steel in the pinned verifier) or any value other than 0 and -1
 - **WHEN** native construction weight is calculated
 - **THEN** no complete total SHALL be published
+
+### Requirement: Native IS Mech Mortar-8 identity
+
+Native equipment resolution SHALL map the Java internal name `IS Mech Mortar-8`
+to the catalog record `mech-mortar-8` (10 t), whatever the unit's tech base, so
+that mounts carrying it have mass.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ISMekMortar8.java`.
+
+#### Scenario: Mortar Carrier complete weight
+
+- **GIVEN** the Mortar Carrier source with three `IS Mech Mortar-8` mounts
+- **WHEN** native construction weight is calculated
+- **THEN** each mortar SHALL weigh 10 tons and the complete total SHALL equal the pinned verifier's 60 tons
+- **AND** the handler SHALL publish that total without changing validity
+
+#### Scenario: Other mech mortar identities are unchanged
+
+- **GIVEN** `IS Mech Mortar-1`, `IS Mech Mortar-2`, `Clan Mech Mortar-4` and `Clan Mech Mortar-8`
+- **WHEN** resolved
+- **THEN** each SHALL resolve to the same record as before
