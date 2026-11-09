@@ -3,6 +3,27 @@
 `blk_common.py` owns parsing primitives and rules shared by BLK converters.
 Converters keep their required-tag policies and compose the shared results.
 
+## Aerospace cockpit source identities
+
+`src/types/formats/blk-aerospace-cockpit.json` owns native Aero cockpit codes
+0 STANDARD, 1 SMALL, 2 COMMAND_CONSOLE, 3 PRIMITIVE. Python aerospace tables and
+the TypeScript ASF source reader consume that file; producer receipts inventory
+it. Authority: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
+`Aero.java:106-109`, `BLKAeroSpaceFighterFile.java:128-130` and
+`BLKFile.java:895-896`. MegaMekLab 62bf19360382049e2e6a1e8f24e859e27bdc5878
+`UnitUtil.java:2004` delegates to that BLK writer.
+
+Python aliases 4 STANDARD_AERO, 5 PRIMITIVE_AERO and 6 CLAN remain compatibility
+values outside the native fact table. Omitted/unknown defaults, conventional
+fighter compatibility and SmallCraft behavior retain their existing policies.
+In particular, the separate conventional-fighter map is not an ASF code table;
+the pinned conventional loader does not read cockpit_type. Regression coverage:
+`AerospaceCockpitSource.test.ts` and `test_blk_aerospace_cockpit.py`, including
+12 original-byte mm-data 50f7efef0c9f775b0258f8283525ed4f906e1985 sources.
+Only the existing BV owner interprets the resulting cockpit:
+`battleValue/AeroBVCalculator.java:165-175` gives small/command-console 0.95,
+with the separate drone condition retained. No formula is defined by the reader.
+
 ## Maximum thrust
 
 `maximum_thrust` rounds safe thrust times 1.5 up, including odd values.

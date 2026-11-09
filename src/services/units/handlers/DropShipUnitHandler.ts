@@ -24,12 +24,14 @@ import {
   createFailureResult,
 } from './AbstractUnitTypeHandler';
 import {
+  DROPSHIP_ARC_ALIASES,
   EXTENDED_CAPITAL_WEAPON_TERMS,
   buildCapitalCrewConfiguration,
   parseCapitalCrewQuarters,
   parseCapitalEquipment,
   parseCapitalTransportBays,
   parseCapitalVesselBasics,
+  parseDropShipArmorByArc,
 } from './capitalShipHandlerShared';
 import { type ITransportBayTypeRule } from './transportBayParsing';
 import {
@@ -48,18 +50,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * DropShip armor arc order for array parsing
- */
-const _DROPSHIP_ARMOR_ARCS = [
-  'nose',
-  'frontLeftSide',
-  'frontRightSide',
-  'aftLeftSide',
-  'aftRightSide',
-  'aft',
-] as const;
 
 const DROPSHIP_TRANSPORT_BAY_RULES: readonly ITransportBayTypeRule[] = [
   { tokens: ['mech'], type: BayType.MECH },
@@ -104,14 +94,19 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
         ? AerospaceMotionType.AERODYNE
         : AerospaceMotionType.SPHEROID;
 
-    // Design type
-    const designTypeCode = document.designType || 0;
+    // Design type: Aero.java:437-438 CIVILIAN = 0, MILITARY = 1; an absent tag is MILITARY
+    // (BLKDropshipFile.java:180-184).
+    const designTypeCode = document.designType ?? 1;
+    if (designTypeCode !== 0 && designTypeCode !== 1) {
+      errors.push(`Unsupported designtype ${designTypeCode}`);
+    }
     const designType =
-      designTypeCode === 1
+      designTypeCode === 0
         ? DropShipDesignType.CIVILIAN
         : DropShipDesignType.MILITARY;
 
     const basics = parseCapitalVesselBasics(document);
+    const armorByArc = parseDropShipArmorByArc(basics.armor, errors);
 
     // Docking collar
     const rawTags = document.rawTags || {};
@@ -132,11 +127,9 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
 
     // Equipment
     const equipment = parseCapitalEquipment(document, {
-      arcAliases: {
-        'left side': CapitalArc.FRONT_LEFT,
-        'right side': CapitalArc.FRONT_RIGHT,
-      },
+      arcAliases: DROPSHIP_ARC_ALIASES,
       capitalWeaponTerms: EXTENDED_CAPITAL_WEAPON_TERMS,
+      errors,
     });
 
     // Escape pods and life boats
@@ -148,6 +141,7 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
       motionType,
       designType,
       ...basics,
+      armorByArc,
       hasDockingCollar,
       crewConfiguration,
       transportBays,

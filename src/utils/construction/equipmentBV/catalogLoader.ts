@@ -68,6 +68,13 @@ function toCatalogEntry(
     ...(typeof item.introductionYear === 'number'
       ? { introductionYear: item.introductionYear }
       : {}),
+    ...(Array.isArray(item.allowedUnitTypes)
+      ? {
+          allowedUnitTypes: item.allowedUnitTypes.filter(
+            (value): value is string => typeof value === 'string',
+          ),
+        }
+      : {}),
   };
 }
 

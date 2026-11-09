@@ -10,7 +10,7 @@ import type {
   IAerospaceBVInput,
 } from './aerospaceBVTypes';
 
-import { HeatSinkType } from '../../../types/construction/HeatSinkType';
+import { mapHeatSinkType } from '../../../services/conversion/ValueMappings';
 import {
   AerospaceCockpitType,
   type AerospaceArc,
@@ -28,6 +28,13 @@ import { calculateAerospaceBV } from './aerospaceBVCalculator';
 // ============================================================================
 // Unit → BV Adapter (used by `calculateBattleValueForUnit` dispatch)
 // ============================================================================
+
+/** Native aerospace sink codes retain the adapter's single-sink fallback. */
+export function resolveBlkAerospaceHeatSinkType(
+  code: number | undefined,
+): 'DOUBLE' | 'SINGLE' {
+  return code === 1 ? 'DOUBLE' : 'SINGLE';
+}
 
 /**
  * Concrete aerospace shapes accepted by {@link calculateAerospaceBVFromUnit}.
@@ -185,9 +192,7 @@ export function buildAerospaceBVInputFromUnit(
       (unit.heatSinks === undefined
         ? undefined
         : calculateHeatDissipation(
-            unit.heatSinkType === 1
-              ? HeatSinkType.DOUBLE_IS
-              : HeatSinkType.SINGLE,
+            mapHeatSinkType(resolveBlkAerospaceHeatSinkType(unit.heatSinkType)),
             unit.heatSinks,
           )),
     armorType: unit.armorTypeByArc

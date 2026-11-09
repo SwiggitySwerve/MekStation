@@ -319,3 +319,65 @@ unchanged outputs in a separately verified refactor.
 - **WHEN** comparing sources with unresolved booster equipment identity
 - **THEN** those differences SHALL remain explicitly unmatched rather than counted as source movement parity
 - **AND** jump rules, damaged-unit options, construction caps, equipment identity, complete BV and production persistence/editor proof SHALL remain separate
+
+### Requirement: ProtoMech Main Gun And Arm Placement
+
+The construction owner SHALL limit the Main Gun and arm locations from pinned
+MegaMek `TestProtoMek.java` at 48fcb2f64 (`maxSlotsByLocation`,
+`maxWeightByLocation`, `requiresSlot`, `hasIllegalEquipmentCombinations`). The
+hand-written approved-weapon list, heavy-weapon arm class and required-weapon
+finding SHALL NOT be rules.
+
+#### Scenario: Location limits
+
+- **WHEN** a ProtoMech above 9 t is ultraheavy
+- **THEN** each arm SHALL hold one mount of at most 1.0 t, otherwise 0.5 t, and a Quad SHALL hold none
+- **AND** the Main Gun SHALL hold one slot-taking mount of any weight, or two on a Quad that is also ultraheavy
+- **AND** ammunition, MASC, UMU, jump jets and the EI interface SHALL take no slot
+
+#### Scenario: Agreement with the pinned verifier
+
+- **WHEN** the rule is applied to the 86 canonical ProtoMechs
+- **THEN** each unit's verdict SHALL equal the pinned verifier's `hasIllegalEquipmentCombinations` verdict
+- **AND** an enabled Main Gun with nothing in it SHALL be valid
+
+#### Scenario: Unknown versus excluded weapons
+
+- **WHEN** the catalog describes a weapon and omits ProtoMech from its allowed unit types
+- **THEN** the rule SHALL report it as not a legal ProtoMech weapon
+- **WHEN** the catalog carries no unit-type list for a weapon
+- **THEN** the rule SHALL NOT reject it
+- **AND** a mount whose weight is unknown or unit-dependent SHALL count its slot and add no invented weight
+
+#### Scenario: Scope boundary
+
+- **WHEN** checking torso, head or leg placement
+- **THEN** this requirement SHALL NOT enforce it, because the torso needs the armor slot and variable weights
+- **AND** the live `protomech-unit-system` statement that a quad cannot have a main gun SHALL be reconciled separately, because the pinned corpus contains a quad ultraheavy with one
+
+### Requirement: ProtoMech Auto Armor Allocation
+
+The construction owner SHALL place armor as MegaMekLab 62bf193 does in
+`PMStructureTab.autoAllocateArmor` and `allocateLeftoverPoints`, using the armor
+limits of the ProtoMech Armor Limits requirement. The proportional MekStation
+policy SHALL NOT remain.
+
+#### Scenario: Proportional pass and leftover order
+
+- **WHEN** allocating a point count to a ProtoMech
+- **THEN** each location SHALL first take its limit times the count over the total cap, truncated and never more than remain, in the order Head, Torso, Right Arm, Left Arm, Legs, Main Gun
+- **AND** a count above the total cap SHALL be treated as the cap
+- **AND** leftover points SHALL go one at a time to the torso, legs, head, then both arms, then the head again when a main gun is mounted
+- **AND** a Quad SHALL start the leftover with the legs and SHALL have no arm step
+
+#### Scenario: Points aimed at a full location
+
+- **WHEN** edited internal structure leaves the location limits unable to hold the count
+- **THEN** a leftover point aimed at a full location SHALL be dropped, as upstream drops it
+- **AND** the placed total SHALL NOT exceed the count or the cap
+
+#### Scenario: Agreement with MegaMekLab
+
+- **WHEN** the owner is run over the pinned table of 2,944 allocations from the original classes
+- **THEN** every location of every case SHALL equal the original result
+- **AND** the editor's Auto action, which passes no count, SHALL place the legal total

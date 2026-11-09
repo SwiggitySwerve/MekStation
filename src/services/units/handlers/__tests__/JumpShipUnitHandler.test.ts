@@ -161,16 +161,22 @@ describe('JumpShipUnitHandler', () => {
       expect(result.data?.unit?.gravDecks).toBe(2);
     });
 
-    it('should parse armor by arc', () => {
+    it('should parse armor by arc in BLK source order', () => {
+      // Nose, Left Front, Right Front, Aft, Aft Left, Aft Right (BLKJumpshipFile.java:229-234).
       const doc = createMockBlkDocument({
-        armor: [30, 25, 25, 20, 20, 15],
+        armor: [30, 25, 24, 20, 19, 15],
       });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.armorByArc.nose).toBe(30);
-      expect(result.data?.unit?.armorByArc.frontLeftSide).toBe(25);
-      expect(result.data?.unit?.armorByArc.aft).toBe(15);
+      expect(result.data?.unit?.armorByArc).toStrictEqual({
+        nose: 30,
+        frontLeftSide: 25,
+        frontRightSide: 24,
+        aft: 20,
+        aftLeftSide: 19,
+        aftRightSide: 15,
+      });
     });
 
     it('should calculate total armor points', () => {

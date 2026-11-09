@@ -1265,3 +1265,25 @@ facts and totals SHALL remain unchanged; unavailable facts SHALL remain absent.
 - **THEN** the corresponding source-backed raw cap or availability term SHALL be present under its native type/rack key
 - **AND** repeated source facts SHALL accumulate through the existing ammo owner without overwriting existing pool values
 - **AND** missing, unresolved, empty or intrinsic one-shot facts SHALL NOT invent terms, and all original numerical outputs SHALL remain unchanged
+
+### Requirement: Aerospace ammunition diagnostics
+
+The ordinary aerospace ammo owner SHALL retain actual uncapped availability and
+raw launcher caps under known native type/rack identities. The trace SHALL format
+these facts without recalculating BV. Scalar arithmetic, all existing weapon
+diagnostics, source inputs and totals SHALL remain unchanged. Unresolved facts
+SHALL remain absent, and legacy inputs omitting ammo SHALL retain their trace.
+
+#### Scenario: Availability exceeds the weapon cap
+
+- **GIVEN** an SRM-2 valued at 21 BV and physical bins totaling 100 BV
+- **WHEN** ordinary aerospace BV is calculated with explicit ammo
+- **THEN** availability SHALL equal 100 and the raw cap SHALL equal 21
+- **AND** ammo BV SHALL remain 21 before the existing support fire-control factor
+
+#### Scenario: Independent bins and caps
+
+- **GIVEN** unmatched bins, an explicit empty ammo list, or represented AMS launchers
+- **WHEN** ordinary aerospace ammo diagnostics are projected
+- **THEN** unmatched bins SHALL retain availability without inventing a cap, empty lists SHALL retain real caps without inventing bins, and AMS raw caps SHALL remain outside offensive ammo arithmetic
+- **AND** direction, heat, fire control and speed SHALL NOT scale these diagnostics
