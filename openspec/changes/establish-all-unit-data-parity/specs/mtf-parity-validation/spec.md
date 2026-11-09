@@ -65,3 +65,10 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **WHEN** a custom copy is serialized, saved and reloaded
 - **THEN** all unchanged domain facts SHALL compare exactly
 - **AND** edited facts SHALL reflect the saved edits without canonical substitution
+
+#### Scenario: Preserve a declared XL gyro during MTF import
+
+- **GIVEN** an MTF source declaring an XL gyro
+- **WHEN** it is parsed, saved through the unit API and reloaded
+- **THEN** the existing gyro mapping owner SHALL preserve the declared XL identity in the existing serialized gyro field
+- **AND** the editor SHALL calculate with that identity when recovering source equipment mass

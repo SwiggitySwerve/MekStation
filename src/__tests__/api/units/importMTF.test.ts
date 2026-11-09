@@ -11,8 +11,13 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import {
+  parseUnit,
+  UnitLoaderService,
+} from '@/services/units/unitLoaderService';
 import { loadUnitDefinition } from '@/services/units/unitLoaderService/loadUnitDefinition';
 import { getUnitRepository } from '@/services/units/UnitRepository';
+import { GyroType } from '@/types/construction/GyroType';
 import { UnitContract } from '@/types/contracts';
 
 import { parseImportResponse } from '../../helpers';
@@ -33,6 +38,27 @@ async function post(body: unknown) {
 
 beforeEach(() => getSQLiteService({ path: ':memory:' }).initialize());
 afterEach(() => resetSQLiteService());
+
+it('retains a declared XL gyro through real API persistence and loading', async () => {
+  const sourceText = /^gyro:/im.test(text)
+    ? text.replace(/^gyro:.*$/im, 'gyro:XL Gyro')
+    : `${text}\ngyro:XL Gyro`;
+  const response = await post({ sourceFormat: 'mtf', sourceText });
+  expect(response._getStatusCode()).toBe(201);
+  const id = parseImportResponse(response).data?.unitId;
+  if (!id) throw new Error('Expected persisted XL source');
+  const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+    method: 'GET',
+    query: { id },
+  });
+  await customHandler(req, res);
+  expect(res._getStatusCode()).toBe(200);
+  const definition = parseUnit(JSON.parse(res._getData()).parsedData);
+  expect(definition.gyro?.type).toBe('XL');
+  expect(
+    new UnitLoaderService().mapToUnitState(definition, false).gyroType,
+  ).toBe(GyroType.XL);
+});
 
 it('imports pinned MTF, renames a conflict and reloads its custom identity without rewriting source', async () => {
   expect(createHash('sha256').update(text).digest('hex')).toBe(source.sha256);
