@@ -1478,9 +1478,10 @@ Unresolved fallback zeros and missing or unsupported facts SHALL remain absent.
 
 ### Requirement: ProtoMech native raw weapon indices
 
-The ProtoMech offensive owner SHALL retain local equipment indices and append
-an optional native weapon index where intrinsic one-shot ammo shifts subsequent
-mount positions. The independent generated insertion counts SHALL account for
+The ProtoMech offensive owner SHALL retain local equipment indices. The parity
+trace entry point SHALL append an optional native weapon index where intrinsic
+one-shot ammo shifts subsequent mount positions. The independent generated
+insertion counts SHALL account for
 two ammo mounts after each Fusillade. The trace SHALL format the supplied native
 index with a local-index fallback for legacy snapshots. Existing source data,
 equipment identities, ammunition, validity, persistence and BV SHALL remain
@@ -1489,7 +1490,7 @@ unchanged. Legacy weapon-flag tables SHALL remain unchanged.
 #### Scenario: Sprite 3 double one-shot launcher positions
 
 - **GIVEN** pinned Sprite 3 source weapon indices 7, 8, 9 and 10
-- **WHEN** its public breakdown and raw weapon terms are calculated
+- **WHEN** its public breakdown is enriched by the parity trace entry point and raw weapon terms are calculated
 - **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
 - **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
 - **AND** all mount values, other terms, source data and BV SHALL remain unchanged

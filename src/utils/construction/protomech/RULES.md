@@ -485,8 +485,11 @@ without an ammo type. The independent generated `nativeOneShotAmmoMounts.ts`
 retains those insertion counts without changing the legacy weapon-flag tables.
 
 Weapon snapshots retain their local `equipmentIndex`, identity, location and
-already-admitted BV. Only a shifted snapshot appends `nativeEquipmentIndex`;
-the trace formats that value and falls back to the local index for existing
+already-admitted BV. The parity trace entry point `withProtoMechNativeIndices`
+in `nativeTraceEnrichment.ts` copies the breakdown and appends
+`nativeEquipmentIndex` only to shifted snapshots; ordinary calculator
+breakdowns retain local indices without that field. The trace formats the
+enriched value and falls back to the local index for existing
 breakdowns. Sprite 3 therefore renames only raw weapon indices 8/9/10 to
 10/13/14. Source equipment, explicit ammo, quantities, equipment projections,
 classification, caps, arithmetic, validity and persistence are unchanged.
