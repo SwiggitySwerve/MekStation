@@ -55,7 +55,10 @@ import {
 import { recoverServerInteractiveSession } from './matchUnitBootstrap';
 import { publishDurableCombatOutcome } from './publishDurableCombatOutcome';
 import { ServerMatchHost } from './ServerMatchHost';
-import { tryFoldActivatedRewindBranch } from './ServerMatchHostRewindRebuild';
+import {
+  seatedPlayerIds,
+  tryFoldActivatedRewindBranch,
+} from './ServerMatchHostRewindRebuild';
 
 /**
  * Capability a store must expose to be recoverable: the standard
@@ -218,6 +221,10 @@ export async function recoverActiveMatches(
         host.boundReplayToEffectiveHead(
           last === undefined ? -1 : last.sequence,
         );
+        // The live rebuild's resync marks died with the old process, and
+        // a client's lastSeq still names the superseded stream: mark the
+        // seated players so their next join replays the new head (D-2c).
+        host.markViewersForResync(await seatedPlayerIds(store, meta.matchId));
         // Skip restorePersistedViewerDeliveries: those rows name the
         // superseded stream. Next join replays the new head.
         await host.resumePendingEventPublications();
