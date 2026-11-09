@@ -154,24 +154,44 @@ export const STANDING_UP_PSR_SOURCE_REFS = [
 
 export const RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS = [
   megaMekSourceRef(
-    'MegaMek Entity.checkRunningWithDamage queues one combined running-with-damaged-hip-actuator-or-gyro piloting roll for running or sprinting fall-capable units.',
+    'MegaMek Entity.checkRunningWithDamage queues one combined running-with-damaged-hip-actuator-or-gyro piloting roll for running or sprinting fall-capable units; a heavy-duty gyro ignores its first hit.',
     'megamek/src/megamek/common/units/Entity.java',
     'L7868-L7894',
   ),
-  mekstationDeviationRef(
-    'MekStation queueMovementDamagePSRs emits separate RunningDamagedHip and RunningDamagedGyro PSRTriggered events from runner movement steps.',
-    'src/simulation/runner/phases/movementDamagePsr.ts',
-    'L18-L44',
+  megaMekSourceRef(
+    'MegaMek MovePathHandler rolls the running-with-damage check once after the whole path through doSkillCheckInPlace, gated on canFall.',
+    'megamek/src/megamek/server/totalWarfare/MovePathHandler.java',
+    'L482-L486',
+  ),
+  megaMekSourceRef(
+    'MegaMek Mek.hasHipCrit counts a hip critical only on a leg that is not destroyed.',
+    'megamek/src/megamek/common/units/Mek.java',
+    'L670-L694',
+  ),
+  megaMekSourceRef(
+    'MegaMek MoveStep treats an evade step as a run, so an evading unit makes the running-with-damage roll.',
+    'megamek/src/megamek/common/moves/MoveStep.java',
+    'L1848-L1849',
   ),
   mekstationDeviationRef(
-    'MekStation movementDamagePSRsForUnit queues RunningDamagedHip per forward step and RunningDamagedGyro once at the first movement/turn step when the unit runs.',
+    'MekStation planRunningWithDamagePSR is the one producer of the running-with-damage roll: a single PSR per Run, Sprint or Evade move by a unit that can fall, stamped on the last step, coded RunningDamagedGyro when the gyro damage counts and RunningDamagedHip otherwise; MegaMek has one combined reason, and the Playtest 3 heavy-duty gyro branch in the older source is not modelled.',
+    'src/utils/gameplay/movement/runningDamagePsr.ts',
+    'L28-L97',
+  ),
+  mekstationDeviationRef(
+    'MekStation queueMovementDamagePSRs queues the shared planner result as one RunningDamagedHip or RunningDamagedGyro PSRTriggered event per movement.',
     'src/simulation/runner/phases/movementDamagePsr.ts',
-    'L46-L84',
+    'L18-L69',
+  ),
+  mekstationDeviationRef(
+    'MekStation buildInteractiveMovementTerrainEvents emits the shared running-with-damage PSR for interactive, AI, engine and P2P movement before the terrain PSRs.',
+    'src/utils/gameplay/gameSessionMovementTerrain.ts',
+    'L34-L75',
   ),
   mekstationDeviationRef(
     'MekStation running-with-damage PSR factories stamp separate RunningDamagedHip and RunningDamagedGyro reasonCode/triggerSource rows.',
     'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts',
-    'L36-L62',
+    'L74-L106',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
