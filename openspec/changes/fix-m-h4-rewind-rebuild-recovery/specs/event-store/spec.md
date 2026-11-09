@@ -73,3 +73,33 @@ A campaign retroactive correction SHALL move the candidate it built to `blocked`
 - **WHEN** a correction is refused as `correction-lease-held`
 - **THEN** the stranded candidate SHALL still be `building`
 
+### Requirement: Coordinated Outcome Correction Target Blocks Only Dead Candidates
+
+The coordinated outcome-correction target SHALL move the campaign candidate named on its saga to `blocked` when it blocks the saga on a non-retryable refusal, and SHALL keep that candidate `building` on a retryable refusal or a crash, because a retry reuses the candidate id persisted on the saga. After acquiring its correction lease and before minting a candidate, it SHALL move to `blocked` every `building` candidate on the campaign stream that has no sealed impact manifest and is not named by any saga that is not `blocked`. It SHALL NOT change a candidate with a sealed manifest, a candidate a non-blocked saga names, or a branch that is not `building`, and SHALL NOT sweep when it did not acquire the lease. It SHALL hold the lease for the whole record and release it on every exit, including a blocked answer and a thrown error.
+
+#### Scenario: A non-retryable refusal blocks the saga and its candidate
+
+- **GIVEN** a target record whose candidate has been minted
+- **WHEN** a non-retryable branch refusal escapes a later step
+- **THEN** the saga SHALL be `blocked` and its candidate SHALL be `blocked`
+- **AND** the lease SHALL be released
+
+#### Scenario: A crash keeps the candidate for the retry
+
+- **GIVEN** a target record that crashed after the candidate id was persisted on the saga
+- **WHEN** the record is retried
+- **THEN** the candidate SHALL still be `building` and SHALL be reused
+- **AND** the lease SHALL have been released after the crash
+
+#### Scenario: Only dead candidates are swept
+
+- **GIVEN** a stranded unsealed candidate no saga names, one a `target-pending` saga names, one only a `blocked` saga names, and one with a sealed manifest
+- **WHEN** a new target record mints its candidate
+- **THEN** the unnamed unsealed candidate and the one only a `blocked` saga names SHALL be `blocked`
+- **AND** the other two and the new candidate SHALL be `building`
+
+#### Scenario: No lease, no sweep
+
+- **GIVEN** a stranded unsealed candidate and a live lease held by another owner
+- **WHEN** a target record answers `not-ready`
+- **THEN** the stranded candidate SHALL still be `building`
