@@ -120,6 +120,7 @@ export function useUnitCalculations(
     const structureWeight = calculateStructureWeight(
       tonnage,
       selections.internalStructureType,
+      { configuration, frankenStructure: selections.frankenStructure },
     );
 
     // Cockpit weight

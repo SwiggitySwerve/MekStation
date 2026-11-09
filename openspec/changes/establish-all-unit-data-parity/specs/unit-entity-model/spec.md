@@ -355,3 +355,30 @@ construction validity before the section-weighted mass rule is enabled.
 - **WHEN** loaded, saved and reopened
 - **THEN** the type map SHALL NOT be inferred or removed
 - **AND** existing global mass arithmetic SHALL remain unchanged
+
+### Requirement: Consistent structure calculation context
+
+The BattleMech editor and construction validation projections SHALL forward
+effective configuration and optional FrankenMek donor metadata to the existing
+structure mass owner. Adding this context SHALL preserve existing arithmetic
+until the section-weighted mass rule is enabled separately.
+
+#### Scenario: All editor consumers retain structure context
+
+- **GIVEN** an editor unit with effective configuration and explicit donor metadata
+- **WHEN** editor statistics, Overview, the Structure tab or weight validation calculates mass
+- **THEN** each consumer SHALL pass both facts through the shared calculation hook to the structure mass owner
+- **AND** a metadata-only edit SHALL refresh each consumer's calculation input
+
+#### Scenario: Public construction and validation callers forward context
+
+- **GIVEN** optional structure context supplied to a construction or validation weight calculation
+- **WHEN** the aggregate, structure step or public structure lookup calls the mass owner
+- **THEN** the supplied context SHALL reach that owner without changing component arithmetic or unknown-type admission checks
+
+#### Scenario: Context forwarding preserves legacy results
+
+- **GIVEN** an existing design with or without donor metadata
+- **WHEN** the context-forwarding change is applied without enabling the native mass rule
+- **THEN** component weights, Battle Value and construction validity SHALL remain unchanged
+- **AND** absent donor metadata SHALL remain absent
