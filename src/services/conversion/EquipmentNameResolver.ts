@@ -12,6 +12,7 @@ import {
   MEGAMEKLAB_TYPE_MAP,
   SYSTEM_COMPONENTS,
   normalizeName,
+  normalizeNameWithTechBase,
   stripQuantityPrefix,
 } from './EquipmentNameResolverMappings';
 
@@ -27,7 +28,8 @@ export interface EquipmentResolution {
 export class EquipmentNameResolver {
   private equipmentByName: Map<string, IEquipmentItem> = new Map();
   private equipmentById: Map<string, IEquipmentItem> = new Map();
-  private normalizedNameMap: Map<string, IEquipmentItem> = new Map();
+  private normalizedNameMap: Map<string, Map<TechBase, IEquipmentItem>> =
+    new Map();
   private initialized = false;
 
   initialize = (): void => {
@@ -38,7 +40,10 @@ export class EquipmentNameResolver {
       this.equipmentById.set(item.id, item);
       if (!isLegacyEquipmentId(item.id)) continue;
       this.equipmentByName.set(item.name.toLowerCase(), item);
-      this.normalizedNameMap.set(normalizeName(item.name), item);
+      const name = normalizeName(item.name);
+      const candidates = this.normalizedNameMap.get(name) ?? new Map();
+      candidates.set(item.techBase, item);
+      this.normalizedNameMap.set(name, candidates);
     }
 
     this.initialized = true;
@@ -110,8 +115,7 @@ export class EquipmentNameResolver {
       };
     }
 
-    const normalizedType = normalizeName(typeToLookup);
-    const byNormalizedType = this.normalizedNameMap.get(normalizedType);
+    const byNormalizedType = this.resolveNormalizedName(typeToLookup, techBase);
     if (byNormalizedType) {
       return {
         found: true,
@@ -123,8 +127,7 @@ export class EquipmentNameResolver {
       };
     }
 
-    const normalizedName = normalizeName(itemName);
-    const byNormalizedName = this.normalizedNameMap.get(normalizedName);
+    const byNormalizedName = this.resolveNormalizedName(itemName, techBase);
     if (byNormalizedName) {
       return {
         found: true,
@@ -160,6 +163,24 @@ export class EquipmentNameResolver {
       originalName: itemName,
       originalType: itemType,
     };
+  };
+
+  private resolveNormalizedName = (
+    name: string,
+    techBase?: TechBase,
+  ): IEquipmentItem | undefined => {
+    const normalized = normalizeNameWithTechBase(name);
+    const candidates = this.normalizedNameMap.get(normalized.normalizedName);
+    if (!candidates) return undefined;
+
+    // A native marker wins over chassis tech; unqualified names retain the IS
+    // default. A sole legacy candidate keeps its existing compatibility fallback.
+    const side = normalized.techBase ?? techBase ?? TechBase.INNER_SPHERE;
+    return (
+      candidates.get(side) ??
+      candidates.get(TechBase.INNER_SPHERE) ??
+      candidates.values().next().value
+    );
   };
 
   getById = (id: string): IEquipmentItem | undefined => {
