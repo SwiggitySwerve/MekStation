@@ -383,6 +383,33 @@ MegaMek build (jar and probe SHA-256 in the fixture's `meta`). To regenerate,
 compile the probe against that jar and its runtime classpath, then run it with
 a units directory that holds `UnitVerifierOptions.xml` and the BLK files.
 
+## Auto armor allocation
+
+`allocateProtoArmor` in `armor.ts` is MegaMekLab's Auto allocation, ported from
+`PMStructureTab.java` at megameklab `62bf193` (`autoAllocateArmor`,
+`allocateLeftoverPoints`, `addArmorPoint`). Each location first takes its limit
+times (points / total cap), truncated and never more than remain; locations are
+walked Head, Torso, **Right** Arm, Left Arm, Legs, Main Gun
+(`ProtoMek.java:102-108`, `firstArmorIndex()` is `LOC_HEAD`). Leftover points go
+one at a time to the torso, legs, head, then both arms, then the head again for a
+main gun; a Quad starts with the legs and has no arm step. A point aimed at a full
+location is dropped, so edited structure that shrinks the limits leaves points
+unplaced, exactly as upstream does. A point count above the cap is clamped.
+
+MegaMekLab buys armor points separately from placing them. MekStation stores only
+placed points, so the store's Auto passes no count and places the legal total, the
+same as MegaMekLab's Maximize followed by Auto. At the default structure the old
+proportional policy gave identical results at the full total; the port differs
+for any smaller count and for edited structure.
+
+`__tests__/fixtures/armor-auto-allocate-java.json` holds 2,944 results from the
+original classes: every tonnage 2-15, biped/quad/glider, with and without a main
+gun, up to 14 point totals each, plus cases with larger and with reduced internal
+structure. `ProtoAutoAllocateProbe.java` copies the three methods byte-for-byte
+(hashes in the fixture's `meta`) and runs them on a real `ProtoMek` with the
+pinned `UnitUtil` and `TestProtoMek`. It needs a working directory that holds the
+pinned `mmconf/milestoneReleases.yml`.
+
 ## Resolved zero-misc diagnostic projection
 
 At MegaMek `48fcb2f64`, `BVCalculator.processOffensiveEquipment` calls
