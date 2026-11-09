@@ -81,7 +81,7 @@ export const LOCAL_EJECTION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation InteractiveSession.ejectUnit emits UnitEjected only for active, non-destroyed, non-retreated, non-ejected units.',
     'src/engine/InteractiveSession.ts',
-    'L453-L471',
+    'L669-L671',
   ),
   mekstationDeviationRef(
     'MekStation applyUnitEjected latches hasEjected, resolves the action, and preserves the existing armor, structure, destroyed, and pilotConscious state.',
