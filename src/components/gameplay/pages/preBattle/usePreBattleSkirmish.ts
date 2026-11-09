@@ -1,6 +1,6 @@
 import type { NextRouter } from 'next/router';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { IAdaptedUnit } from '@/engine/types';
@@ -206,6 +206,7 @@ export function usePreBattleSkirmish({
     readonly ISkirmishUnitSelection[]
   >([]);
   const [isLaunching, setIsLaunching] = useState(false);
+  const launchInFlightRef = useRef(false);
 
   const assignPilotMoving = useCallback(
     (targetSide: SkirmishSide, unitId: string, pilot: IPilot | null) => {
@@ -251,6 +252,7 @@ export function usePreBattleSkirmish({
 
   const launchSkirmish = useCallback(
     async (config: ISkirmishLaunchConfig) => {
+      if (launchInFlightRef.current) return;
       const launchError = ensureEncounterCanLaunch(encounter);
       if (launchError || !encounter) {
         showToast({
@@ -260,6 +262,7 @@ export function usePreBattleSkirmish({
         return;
       }
 
+      launchInFlightRef.current = true;
       setIsLaunching(true);
       try {
         const interactiveSession = await createInteractiveSkirmishSession(
@@ -278,7 +281,10 @@ export function usePreBattleSkirmish({
         });
         showToast({ message: 'Launching skirmish...', variant: 'success' });
 
-        void router.push(`/gameplay/games/${liveSession.id}`);
+        const navigated = await router.push(
+          `/gameplay/games/${liveSession.id}`,
+        );
+        if (navigated === false) throw new Error('Failed to launch skirmish');
       } catch (err) {
         logger.error('Skirmish launch failed:', err);
         showToast({
@@ -287,6 +293,7 @@ export function usePreBattleSkirmish({
           variant: 'error',
         });
       } finally {
+        launchInFlightRef.current = false;
         setIsLaunching(false);
       }
     },

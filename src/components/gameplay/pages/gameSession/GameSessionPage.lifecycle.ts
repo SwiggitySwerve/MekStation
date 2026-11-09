@@ -1,11 +1,12 @@
 import type { NextRouter } from 'next/router';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type { MatchLogPrefixVerdict } from '@/lib/p2p/matchLogPrefix';
 import type { IGameSession } from '@/types/gameplay';
 
+import { toastHelpers } from '@/components/shared/Toast';
 import { useP2PPeerPresence } from '@/hooks/useP2PPeerPresence';
 import {
   deriveReconnectRoomCode,
@@ -115,37 +116,39 @@ function loadRouteSession(
 function canPersistCompletedSession(
   session: IGameSession | null,
   isCompletedForRedirect: boolean,
-  hasPersisted: boolean,
+  hasAttempted: boolean,
   routeId: string | null,
 ): session is IGameSession {
   return Boolean(
     session &&
     isCompletedForRedirect &&
-    !hasPersisted &&
+    !hasAttempted &&
     typeof routeId === 'string' &&
     routeId !== 'demo',
   );
 }
 
-function persistMatchLog(
+type PersistenceStatus = 'pending' | 'saved' | 'failed';
+
+function persistSessionArtifact(
   session: IGameSession,
-  onPersisted: () => void,
-): () => void {
-  let cancelled = false;
-  void import('@/lib/combat/combatResolution').then(({ finalize }) =>
-    finalize(session)
-      .then(() => {
-        if (!cancelled) onPersisted();
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        logger.warn('match log persistence failed:', err);
-        onPersisted();
-      }),
-  );
-  return () => {
-    cancelled = true;
-  };
+  statuses: Map<string, PersistenceStatus>,
+  persist: () => Promise<unknown>,
+  failureMessage: string,
+): void {
+  statuses.set(session.id, 'pending');
+  // Saves belong to the captured session and must settle even after the
+  // page has redirected to victory. A rerender must not cancel or repeat them.
+  void (async () => {
+    try {
+      await persist();
+      statuses.set(session.id, 'saved');
+    } catch (error) {
+      statuses.set(session.id, 'failed');
+      logger.warn(failureMessage, { sessionId: session.id, error });
+      toastHelpers.error(failureMessage);
+    }
+  })();
 }
 
 function shouldPersistEncounter(
@@ -162,27 +165,6 @@ function shouldPersistEncounter(
     session.config.encounterId &&
     !alreadyFired,
   );
-}
-
-function persistEncounterReplay(session: IGameSession): () => void {
-  let cancelled = false;
-  void import('@/components/encounter/persistEncounterFromSession').then(
-    ({ persistEncounterFromSession }) =>
-      persistEncounterFromSession(session).then((result) => {
-        if (cancelled) return;
-        if (!result.ok) {
-          logger.warn('[encounter] replay-library persist failed', {
-            status: result.status,
-            error: result.error,
-            gameId: session.id,
-          });
-        }
-      }),
-  );
-
-  return () => {
-    cancelled = true;
-  };
 }
 
 function shouldRedirectCompletedGame(
@@ -210,8 +192,8 @@ export function useGameSessionLifecycle({
   loadSession,
   createDemoSession,
 }: GameSessionLifecycleParams): void {
-  const [hasPersisted, setHasPersisted] = useState(false);
-  const encounterPersistFiredRef = useRef(false);
+  const matchLogStatuses = useRef(new Map<string, PersistenceStatus>());
+  const encounterReplayStatuses = useRef(new Map<string, PersistenceStatus>());
 
   const redirectReconnectToLobby = useCallback(
     (reconnectMatchId: string, reason: string) => {
@@ -265,14 +247,22 @@ export function useGameSessionLifecycle({
       !canPersistCompletedSession(
         session,
         isCompletedForRedirect,
-        hasPersisted,
+        session ? matchLogStatuses.current.has(session.id) : false,
         routeId,
       )
     ) {
       return;
     }
-    return persistMatchLog(session, () => setHasPersisted(true));
-  }, [session, isCompletedForRedirect, hasPersisted, routeId]);
+    persistSessionArtifact(
+      session,
+      matchLogStatuses.current,
+      async () => {
+        const { finalize } = await import('@/lib/combat/combatResolution');
+        await finalize(session);
+      },
+      'Failed to save match log. Battle results are still available.',
+    );
+  }, [session, isCompletedForRedirect, routeId]);
 
   useEffect(() => {
     if (
@@ -280,13 +270,27 @@ export function useGameSessionLifecycle({
         session,
         isCompletedForRedirect,
         routeId,
-        encounterPersistFiredRef.current,
+        session ? encounterReplayStatuses.current.has(session.id) : false,
       )
     ) {
       return;
     }
-    encounterPersistFiredRef.current = true;
-    return persistEncounterReplay(session);
+    persistSessionArtifact(
+      session,
+      encounterReplayStatuses.current,
+      async () => {
+        const { persistEncounterFromSession } =
+          await import('@/components/encounter/persistEncounterFromSession');
+        const result = await persistEncounterFromSession(session);
+        if (!result.ok) {
+          throw new Error(
+            `Replay save failed (${result.status ?? 'network error'})`,
+            { cause: result.error },
+          );
+        }
+      },
+      'Failed to save encounter replay. Battle results are still available.',
+    );
   }, [session, isCompletedForRedirect, routeId]);
 
   useEffect(() => {

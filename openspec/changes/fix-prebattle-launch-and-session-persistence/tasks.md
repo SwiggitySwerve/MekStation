@@ -1,0 +1,7 @@
+- [x] Record failing launch and persistence regressions in existing hook suites.
+- [x] Guard both pre-battle launch hooks through navigation settlement without changing S1a messages or restart linkage.
+- [x] Key completion persistence by session ID and report failed attempts.
+- [x] Kill launch-guard, page-wide-flag, and silent-save-success mutants; restore production code.
+- [x] Run whole touched test directories, integration, typechecks, lint, units lint/tests, formatting, budgets, and OpenSpec validation.
+- [x] Run the existing seam E2E on a spare port before marking the PR ready.
+- [ ] Open one draft PR and mark ready only after hosted CI is green.
