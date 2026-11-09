@@ -1238,3 +1238,18 @@ source reference, so the predicate reads either. The AMS ids are the one
 
 Not modelled: a dumper's `DWP`/squad adjustments and a cargo whose own mass is
 unresolved (no corpus source), and the editor's Omni fire-control mass.
+
+## Manipulator and Nova CEWS spellings (pinned)
+
+The BLK files name the manipulator `Manipulator (Non-Mech/Non-Battle Armor)`,
+MegaMek's internal name (`EquipmentTypeLookup.java:342`); the catalog entry, 0.01 t
+as `MiscType.java:7694-7703`, is named `...Non-BattleArmor)`. The unit loader
+resolved the BLK spelling, the BV lookup the support payload uses did not, so the
+eight sources that mount it reported the manipulator unresolved. `Nova CEWS` is a
+registered lookup name of NovaCEWS (`MiscType.java:6192-6193`) that resolved
+nowhere; every corpus file mounts `NovaCEWS`, so this affects only hand-written
+and exported display names. Both are lines in `NATIVE_IDENTITY_CORRECTIONS`
+(`equipmentBV/sourceLookupAliases.ts`), the native-name owner where `novacews`
+already lives, so the loader, registry, BV and printing paths agree. No catalog
+entry changed. A Nova CEWS tank weighs 3.5 t more than the same tank without it:
+1.5 t of equipment and 2 t of heat sinks (pinned sweep rows).

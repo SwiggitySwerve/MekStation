@@ -1312,3 +1312,25 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **GIVEN** an advanced fire control with an assault rifle and a standard infantry SRM, and another with an anti-missile system and a medium laser
 - **WHEN** the support weight is calculated
 - **THEN** the first SHALL be sized from the SRM alone (0.003 tons on a small vehicle) and the second from the medium laser alone
+
+### Requirement: The native manipulator and Nova CEWS spellings share one identity
+
+The BLK spelling `Manipulator (Non-Mech/Non-Battle Armor)` and the display name
+`Nova CEWS` SHALL resolve, in the BV catalog and the unit loader alike, to the
+existing manipulator (0.01 tons) and NovaCEWS (1.5 tons, heat 2) entries through
+the native identity table, without a catalog change.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`EquipmentTypeLookup.java:342`, `MiscType.java:6192-6193,7694-7703`.
+
+#### Scenario: Manipulator-equipped support vehicles equal the pinned Java terms
+
+- **GIVEN** a tank, a small tank and a VTOL mounting `Manipulator (Non-Mech/Non-Battle Armor)`
+- **WHEN** their support weight is calculated
+- **THEN** each manipulator SHALL weigh 0.01 tons, nothing SHALL be reported unresolved and the totals SHALL equal the pinned verifier
+
+#### Scenario: Nova CEWS by either name
+
+- **GIVEN** the same tank mounting `Nova CEWS` or `NovaCEWS`
+- **WHEN** its support weight is calculated
+- **THEN** both SHALL weigh 1.5 tons of equipment plus 2 tons of heat sinks and equal the pinned total of 27.5 tons

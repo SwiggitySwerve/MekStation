@@ -2,22 +2,18 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { createSupportRegistryMass } from '@/services/units/handlers/supportRegistryMass';
-import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 
 import { computeVehicleMountedWeightFigures } from '../mountedWeight';
-import { computeSupportVehicleWeight } from '../supportWeight';
 import {
   applyVehicleDumperWeights,
   isFireControlBasisWeapon,
   resolveVehicleVariableMass,
   type IVehicleDumperMount,
 } from '../variableEquipmentMass';
-import fixture from './supportMiscMasses.pinned.json';
+import { fixture, weigh } from './supportMiscMasses.test.helpers';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
@@ -33,43 +29,7 @@ beforeAll(async () => {
   await getEquipmentLookupService().initialize();
 });
 
-const LOCATIONS = ['Body', 'Front', 'Right', 'Left', 'Rear', 'Turret'];
-type Row = (typeof fixture.rows)[number];
-
-/** A row replaces every equipment block of its base (unlisted blocks are emptied). */
-function blk(row: Row): string {
-  let text = fixture.bases[row.base as keyof typeof fixture.bases];
-  const blocks = row.blocks as Record<string, string[]>;
-  for (const loc of LOCATIONS) {
-    const body = (blocks[loc] ?? []).map((item) => `${item}\n`).join('');
-    const block = `<${loc} Equipment>\n${body}</${loc} Equipment>`;
-    const present = new RegExp(
-      `<${loc} Equipment>\\n[\\s\\S]*?</${loc} Equipment>`,
-    );
-    if (present.test(text)) text = text.replace(present, block);
-    else if (body)
-      text = text.replace(
-        '</Body Equipment>\n',
-        `</Body Equipment>\n\n${block}\n`,
-      );
-  }
-  return text;
-}
-
-const handler = new SupportVehicleUnitHandler();
-function weigh(row: Row) {
-  const parsed = new BlkParserService().parse(blk(row));
-  if (!parsed.success) throw new Error(`parse ${row.name}`);
-  const result = handler.parse(parsed.data.document);
-  if (!result.success) throw new Error(`handler ${row.name}`);
-  const unit = result.data.unit;
-  return computeSupportVehicleWeight(
-    unit,
-    createSupportRegistryMass(unit.techBase),
-  );
-}
-
-// MegaMek 48fcb2f64 TestSupportVehicle terms of 67 synthetic sources built from
+// MegaMek 48fcb2f64 TestSupportVehicle terms of 69 synthetic sources built from
 // the Lesseps (50 t), Skoda (1 t) and Cascatelle (60 t VTOL) corpus excerpts:
 // ladder MiscType.java:841-843, dumper Mounted.java:729-738 and
 // MekFileParser.java:854-885, fluid suction MiscType.java:7578-7583, fire-control

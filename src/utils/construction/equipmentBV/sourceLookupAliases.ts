@@ -97,6 +97,12 @@ const NATIVE_IDENTITY_CORRECTIONS: Readonly<Record<string, string>> = {
   iserflamer: 'er-flamer',
   isnarcbeacon: 'narc',
   novacews: 'nova-combined-electronic-warfare-system-cews',
+  // MiscType.java:6192-6193: a registered lookup name of NovaCEWS.
+  'nova cews': 'nova-combined-electronic-warfare-system-cews',
+  // EquipmentTypeLookup.java:342: the internal name the BLK files use; the
+  // catalog entry is named "...Non-BattleArmor)" (MiscType.java:7694-7703).
+  'manipulator (non-mech/non-battle armor)':
+    'manipulator-non-mech-non-battlearmor',
   'small vsp laser': 'small-vsp-laser',
   'is lb 10-x ac ammo': 'lb-10-x-ammo',
   'is lb 2-x ac ammo': 'lb-2-x-ammo',
