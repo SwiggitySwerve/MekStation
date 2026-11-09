@@ -1110,3 +1110,31 @@ following MML 62bf193 UnitUtil.java:900-916 and MegaMek 48fcb2f64 TestTank.java:
 - **WHEN** its equipment catalog is pending
 - **THEN** its inert loading diagram SHALL render the six-side armored hull
 - **AND** support loading diagrams SHALL omit Body armor controls
+
+### Requirement: Support-vehicle heat sink mass
+
+Support-vehicle heat-sink mass SHALL equal the pinned verifier's heat-neutral
+requirement with no free engine sinks, and zero for a support vehicle under
+5 tons. The editor figure and the construction-handler total SHALL read one
+shared linked-heat sum, so laser insulators and PPC capacitors apply to a
+support chassis as they do to a combat one. Support `remaining` tonnage SHALL
+include this mass; it SHALL NOT be treated as a Java total because source fuel
+remains outside the editor composition.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestSupportVehicle.java:917-931` and `TestEntity.java:945-984`.
+
+#### Scenario: Corpus support vehicles carry Java heat
+
+- **GIVEN** the 19 corpus support vehicles with positive pinned-Java heat, among them Jifty JI-50 (ML), Wayland Mobile Base and White Tip Submarine
+- **WHEN** the editor weight is composed
+- **THEN** each SHALL report the pinned count as its heat-sink mass, with no engine allowance subtracted
+- **AND** Hoverbike (Laser) and Harpoon ParaSub, under 5 tons, SHALL report zero
+
+#### Scenario: Insulator and capacitor apply to a support chassis
+
+- **GIVEN** a support Jifty chassis with two medium lasers and a laser insulator, and another with a PPC and a PPC capacitor
+- **WHEN** heat is composed by the editor or by the construction handler
+- **THEN** the sink masses SHALL be 5 and 15 tons
+- **AND** an insulated small laser SHALL keep the running-total minimum of one
+- **AND** an insulator in another location SHALL link no laser

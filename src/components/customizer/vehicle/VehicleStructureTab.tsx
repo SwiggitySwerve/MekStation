@@ -9,9 +9,14 @@
 
 import React, { useCallback } from 'react';
 
+import {
+  getVehicleMaxTonnage,
+  getVehicleMinTonnage,
+} from '@/services/construction/constructionConstants';
 import { useVehicleStore } from '@/stores/useVehicleStore';
 import { type VehicleEngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
@@ -25,7 +30,6 @@ import {
   MOTION_TYPE_OPTIONS,
   STRUCTURE_TYPE_OPTIONS,
   TURRET_TYPE_OPTIONS,
-  VEHICLE_TONNAGE,
 } from './vehicleStructureOptions';
 
 // =============================================================================
@@ -100,18 +104,21 @@ export function VehicleStructureTab({
   // Derived: minimum crew for current tonnage + motion type
   const minimumCrew = computeMinimumCrew(tonnage, motionType);
 
-  // Get max tonnage for current motion type
-  const maxTonnageForMotion =
-    MOTION_TYPE_OPTIONS.find((m) => m.value === motionType)?.maxTonnage ?? 200;
+  // Superheavy eligibility follows the entered weight, not the current flag.
+  const support = unitType === UnitType.SUPPORT_VEHICLE;
+  const minTonnage = getVehicleMinTonnage(support);
+  const maxTonnageForMotion = getVehicleMaxTonnage(motionType, support);
 
   // Handlers
   const handleTonnageChange = useCallback(
     (newTonnage: number) => {
-      const max = Math.min(VEHICLE_TONNAGE.max, maxTonnageForMotion);
-      const clamped = Math.max(VEHICLE_TONNAGE.min, Math.min(max, newTonnage));
+      const clamped = Math.max(
+        minTonnage,
+        Math.min(maxTonnageForMotion, newTonnage),
+      );
       setTonnage(clamped);
     },
-    [setTonnage, maxTonnageForMotion],
+    [setTonnage, minTonnage, maxTonnageForMotion],
   );
 
   const handleMotionTypeChange = useCallback(
@@ -120,14 +127,12 @@ export function VehicleStructureTab({
       setMotionType(newMotionType);
 
       // Clamp tonnage if needed for new motion type
-      const maxTonnage =
-        MOTION_TYPE_OPTIONS.find((m) => m.value === newMotionType)
-          ?.maxTonnage ?? 200;
+      const maxTonnage = getVehicleMaxTonnage(newMotionType, support);
       if (tonnage > maxTonnage) {
         setTonnage(maxTonnage);
       }
     },
-    [setMotionType, setTonnage, tonnage],
+    [setMotionType, setTonnage, tonnage, support],
   );
 
   const handleEngineTypeChange = useCallback(
@@ -163,7 +168,7 @@ export function VehicleStructureTab({
     MOTION_TYPE_OPTIONS.map((option) => option.value),
     (value) => {
       const option = MOTION_TYPE_OPTIONS.find((item) => item.value === value);
-      return `${option?.label ?? value} (max ${formatTons(option?.maxTonnage ?? 200)})`;
+      return `${option?.label ?? value} (max ${formatTons(getVehicleMaxTonnage(value, support))})`;
     },
   );
 
@@ -185,9 +190,9 @@ export function VehicleStructureTab({
                 type="number"
                 value={tonnage}
                 onChange={(e) => handleTonnageChange(Number(e.target.value))}
-                min={VEHICLE_TONNAGE.min}
-                max={Math.min(VEHICLE_TONNAGE.max, maxTonnageForMotion)}
-                step={VEHICLE_TONNAGE.step}
+                min={minTonnage}
+                max={maxTonnageForMotion}
+                step={minTonnage}
                 disabled={readOnly}
                 className={`${cs.input.number} w-20`}
                 data-testid="vehicle-tonnage-input"
