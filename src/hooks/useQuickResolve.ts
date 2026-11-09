@@ -10,9 +10,11 @@
  * back to false.
  *
  * Cancellation: calling `cancel()` aborts the underlying batch; the
- * hook still resolves with the partial `IBatchResult`.
+ * hook exposes `wasCancelled` and the partial `IBatchResult` in
+ * `partialResult`, leaving the successful `result` null.
  *
  * @spec openspec/changes/add-quick-resolve-monte-carlo/specs/simulation-system/spec.md
+ * @spec openspec/changes/guard-quick-resolve-cancellation/specs/simulation-system/spec.md
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -41,17 +43,19 @@ export interface IQuickResolveMutationArgs {
 export interface IUseQuickResolveState {
   /** True while a batch is in flight (between `mutate` and resolution). */
   readonly isRunning: boolean;
+  /** True when the current batch settled after cancellation. */
+  readonly wasCancelled: boolean;
   /** Most recent progress emission; `null` until first run completes. */
   readonly progress: IQuickResolveProgress | null;
   /** `progress.runsCompleted` flat-shortcut for the UI. */
   readonly runsCompleted: number;
   /** `progress.totalRuns` flat-shortcut for the UI. */
   readonly totalRuns: number;
-  /** Aggregated batch result, populated once the run resolves. */
+  /** Aggregated result from a successful, uncancelled batch. */
   readonly result: IBatchResult | null;
   /** Error message from the last failed batch, or null. */
   readonly error: string | null;
-  /** Partial result from a systemic-failure abort, if applicable. */
+  /** Partial result from cancellation or a systemic-failure abort. */
   readonly partialResult: IBatchResult | null;
 }
 
@@ -70,6 +74,7 @@ export interface IUseQuickResolveApi extends IUseQuickResolveState {
 
 const INITIAL_STATE: IUseQuickResolveState = {
   isRunning: false,
+  wasCancelled: false,
   progress: null,
   runsCompleted: 0,
   totalRuns: 0,
@@ -102,6 +107,7 @@ export function useQuickResolve(
       // Abort any in-flight batch on unmount so the engine loop
       // terminates promptly and we don't leak work.
       abortRef.current?.abort();
+      abortRef.current = null;
     };
   }, []);
 
@@ -133,7 +139,12 @@ export function useQuickResolve(
           baseSeed: args?.baseSeed,
           signal: controller.signal,
           onProgress: (progress) => {
-            if (!mountedRef.current) return;
+            if (
+              !mountedRef.current ||
+              abortRef.current !== controller ||
+              controller.signal.aborted
+            )
+              return;
             setState((prev) => ({
               ...prev,
               progress,
@@ -143,34 +154,39 @@ export function useQuickResolve(
           },
         });
 
-        if (!mountedRef.current) return;
+        if (!mountedRef.current || abortRef.current !== controller) return;
+        const wasCancelled = controller.signal.aborted;
         // Spec § 5.4: log the seed onto the result so the UI / debugger
         // can replay this batch deterministically. The value is part
         // of `IBatchResult.baseSeed` already — surface it via state.
         setState((prev) => ({
           ...prev,
           isRunning: false,
-          result,
-          totalRuns: result.totalRuns,
+          wasCancelled,
+          result: wasCancelled ? null : result,
+          partialResult: wasCancelled ? result : null,
+          totalRuns: wasCancelled ? prev.totalRuns : result.totalRuns,
           runsCompleted: result.totalRuns,
         }));
       } catch (err) {
-        if (!mountedRef.current) return;
-        if (err instanceof QuickResolveSystemicFailure) {
-          // Surface the partial aggregate even on systemic failure so
-          // the UI can show what was collected before the abort.
-          setState((prev) => ({
-            ...prev,
-            isRunning: false,
-            error: err.message,
-            partialResult: err.partialResult,
-          }));
-          return;
-        }
+        if (!mountedRef.current || abortRef.current !== controller) return;
+        const wasCancelled = controller.signal.aborted;
+        const partialResult =
+          err instanceof QuickResolveSystemicFailure ? err.partialResult : null;
         setState((prev) => ({
           ...prev,
           isRunning: false,
-          error: err instanceof Error ? err.message : String(err),
+          wasCancelled,
+          error: wasCancelled
+            ? null
+            : err instanceof Error
+              ? err.message
+              : String(err),
+          partialResult,
+          runsCompleted:
+            wasCancelled && partialResult
+              ? partialResult.totalRuns
+              : prev.runsCompleted,
         }));
       } finally {
         if (abortRef.current === controller) {
