@@ -424,8 +424,12 @@ test('genuine global switches still normalize and restore fixed-mode memory; com
 });
 
 test('structure and armor actions change only their requested selection', async () => {
-  const { store } = await openSource(sources[0][0], sources[0][1]);
+  const { store } = await openSource(sources[4][0], sources[4][1]);
   const before = selections(store.getState());
+  expect(store.getState().internalStructureType).not.toBe(
+    InternalStructureType.STANDARD,
+  );
+  expect(store.getState().armorType).not.toBe(ArmorTypeEnum.STANDARD);
   act(() =>
     store.getState().setInternalStructureType(InternalStructureType.STANDARD),
   );
