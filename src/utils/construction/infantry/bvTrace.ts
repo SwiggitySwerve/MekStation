@@ -1,7 +1,10 @@
 import type {
   IInfantryBVBreakdown,
+  InfantryBVAmmoTerm,
   InfantryBVWeaponTerm,
 } from '@/types/unit/BVBreakdownTypes';
+
+import type { InfantryAmmoBVPools } from './infantryBV';
 
 import { calculateBaseBV } from '../battleValueTotals';
 
@@ -19,6 +22,7 @@ export function infantryBVTerms(
     readonly remainder: number;
     readonly trooperWeapons: ReadonlyMap<string, number>;
     readonly fieldGunWeapons: readonly { id: string; battleValue: number }[];
+    readonly ammoPools?: InfantryAmmoBVPools;
   },
 ): IInfantryBVBreakdown {
   const weapons: Partial<Record<InfantryBVWeaponTerm, number>> = {};
@@ -27,6 +31,13 @@ export function infantryBVTerms(
   source?.fieldGunWeapons.forEach((gun, index) => {
     weapons[`weapon.${index}.FGUN.${gun.id}`] = gun.battleValue;
   });
+  const ammo: Partial<Record<InfantryBVAmmoTerm, number>> = {};
+  for (const kind of ['cap', 'available'] as const) {
+    for (const [group, value] of Object.entries(
+      source?.ammoPools?.[kind] ?? {},
+    ))
+      ammo[`ammo.${kind}.${group}` as InfantryBVAmmoTerm] = value;
+  }
   return {
     ...b,
     armorBV: 0,
@@ -52,5 +63,6 @@ export function infantryBVTerms(
         }
       : {}),
     ...weapons,
+    ...ammo,
   };
 }

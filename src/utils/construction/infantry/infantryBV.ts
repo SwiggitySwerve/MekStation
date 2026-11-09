@@ -240,6 +240,10 @@ export function getInfantryMotiveMultiplier(motive: InfantryMotive): number {
 // Field gun BV
 // =============================================================================
 
+export type InfantryAmmoBVPools = Readonly<
+  Pick<ReturnType<typeof calculateAmmoBVPools>, 'cap' | 'available'>
+>;
+
 /**
  * Field gun aggregate BV — full mech-scale weapon BV + ammo (capped per weapon).
  *
@@ -252,10 +256,7 @@ export function getInfantryMotiveMultiplier(motive: InfantryMotive): number {
 export function calculateInfantryFieldGunBV(
   fieldGuns: readonly InfantryFieldGunMount[] | undefined,
   onWeapon?: (battleValue: number, gun: InfantryFieldGunMount) => void,
-  onAmmo?: (pools: {
-    cap: Readonly<Record<string, number>>;
-    available: Readonly<Record<string, number>>;
-  }) => void,
+  onAmmo?: (pools: InfantryAmmoBVPools) => void,
 ): { weaponBV: number; ammoBV: number; total: number } {
   if (!fieldGuns || fieldGuns.length === 0) {
     return { weaponBV: 0, ammoBV: 0, total: 0 };
@@ -477,12 +478,18 @@ export function calculateInfantryBV(
     stages,
     antiMechMultiplier,
   );
+  let sourceAmmoPools: InfantryAmmoBVPools | undefined;
   const fieldGunResult = calculateInfantryFieldGunBV(
     input.fieldGuns,
     sourceWeaponStage
       ? (battleValue, gun) => {
           sourceWeaponStage.weaponBV += battleValue;
           sourceWeaponStage.fieldGunWeapons.push({ id: gun.id, battleValue });
+        }
+      : undefined,
+    sourceWeaponStage
+      ? (pools) => {
+          sourceAmmoPools = pools;
         }
       : undefined,
   );
@@ -540,6 +547,7 @@ export function calculateInfantryBV(
     sourceWeaponStage
       ? {
           ...sourceWeaponStage,
+          ammoPools: sourceAmmoPools,
           // Same left-associative subtraction as finishInfantryWeapons in the oracle.
           remainder:
             sourceWeaponStage.weaponBV -

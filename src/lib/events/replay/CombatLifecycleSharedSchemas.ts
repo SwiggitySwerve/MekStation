@@ -46,6 +46,7 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   INFANTRY_BV_TRACE_FIELDS,
   isInfantryBVWeaponTerm,
+  isInfantryBVAmmoTerm,
 } from '@/types/unit/BVBreakdownTypes';
 import {
   InfantryArmorKit,
@@ -418,7 +419,8 @@ const infantryBVBreakdownSchema = z.preprocess((value, context) => {
     for (const key in value) {
       if (
         !Object.hasOwn(infantryBVBreakdownShape, key) &&
-        !isInfantryBVWeaponTerm(key)
+        !isInfantryBVWeaponTerm(key) &&
+        !isInfantryBVAmmoTerm(key)
       ) {
         keys.push(key);
       }
