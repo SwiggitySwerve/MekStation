@@ -1,0 +1,6 @@
+{
+  "name": "extract-unit-save-state-owner",
+  "status": "implemented",
+  "reason": "U3 PR1 passes 151 suites with literal fingerprint compatibility, red-run and killed-mutant evidence, both TypeScript configurations, lint, formatting, OpenSpec and CI budgets. Hosted CI pending; non-mech integration follows after merge.",
+  "lastReviewed": "2026-11-09"
+}

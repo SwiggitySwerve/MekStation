@@ -90,6 +90,20 @@ export interface CatalogRow {
   stage?: string;
 }
 const service = new RecordSheetService();
+// Independent of bindVehicle's own table so a code swap there cannot hide.
+const VEHICLE_PIP_CODE: Record<string, string> = {
+  FRONT: 'FR',
+  LEFT: 'LS',
+  RIGHT: 'RS',
+  REAR: 'RR',
+  FRONT_LEFT: 'FRLS',
+  FRONT_RIGHT: 'FRRS',
+  REAR_LEFT: 'RRLS',
+  REAR_RIGHT: 'RRRS',
+  TURRET: 'TU',
+  TURRET_2: 'FT',
+  ROTOR: 'RO',
+};
 
 export async function initializeEquipment(): Promise<void> {
   const transport = jest
@@ -161,6 +175,8 @@ export function verifyCatalogUnit(
       const armor = Object.fromEntries(
         data.armorLocations.map((a) => [a.location, a.current]),
       );
+      const expectedLabels: string[] = [];
+      const expectedPips: Record<string, number> = {};
       for (const [key, value] of Object.entries(
         source.armor?.byLocation ?? {},
       )) {
@@ -177,11 +193,52 @@ export function verifyCatalogUnit(
           TURRET_2: 'Turret 2',
           ROTOR: 'Rotor',
         };
-        if (key !== 'BODY')
+        if (key !== 'BODY') {
           check(`armor.${key}`, armor[label[key] ?? key], value);
+          expectedLabels.push(label[key] ?? key);
+          // Superheavy dual-turret sheets print the primary turret as RT.
+          const code =
+            key === 'TURRET' &&
+            state.isSuperheavy &&
+            state.motionType !== 'VTOL' &&
+            source.armor?.byLocation?.TURRET_2 !== undefined
+              ? 'RT'
+              : (VEHICLE_PIP_CODE[key] ?? key);
+          expectedPips[code] = (expectedPips[code] ?? 0) + value;
+        }
       }
+      // Extra, duplicate or missing printed locations fail, not just wrong values.
+      check(
+        'armor.locations',
+        data.armorLocations.map((a) => a.location).sort(),
+        expectedLabels.sort(),
+      );
+      // Vehicles have no per-location cap at the pin (only the unit total and
+      // the VTOL rotor), so a printed maximum is a fabricated value.
+      check(
+        'armor.maximum',
+        data.armorLocations
+          .filter((a) => a.maximum !== undefined)
+          .map((a) => a.location),
+        [],
+      );
+      check(
+        'barRating',
+        data.barRating,
+        source.unitType === 'Support Vehicle'
+          ? source.armor?.barRating
+          : undefined,
+      );
       checkEquipment(data.equipment, state.equipment, check);
       const bindings = bindVehicle(data);
+      const printedPips: Record<string, number | undefined> = {
+        ...bindings.pipCounts,
+      };
+      for (const code of new Set([
+        ...Object.keys(expectedPips),
+        ...Object.keys(printedPips),
+      ]))
+        check(`pips.${code}`, printedPips[code], expectedPips[code]);
       check(
         'binding.BV',
         bindings.texts.bv,
@@ -676,7 +733,10 @@ export function defineCatalogFamilyParity(
                     d.field === 'motion' ||
                     d.field === 'weightClass' ||
                     d.field === 'binding.inventory' ||
-                    (family === 'vehicles' && d.field.startsWith('armor.')) ||
+                    (family === 'vehicles' &&
+                      (d.field.startsWith('armor.') ||
+                        d.field.startsWith('pips.') ||
+                        d.field === 'barRating')) ||
                     d.field.startsWith('weaponStats') ||
                     d.field.startsWith('weaponAliasStats') ||
                     (d.field === 'template' && r.subtype !== 'SmallCraft'),

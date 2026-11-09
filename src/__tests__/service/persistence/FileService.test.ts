@@ -146,6 +146,32 @@ describe('FileService', () => {
   });
 
   describe('importUnit', () => {
+    it.each(['mtf', 'blk'])(
+      'prepares %s source bytes for the existing API without parsing native rules',
+      async (sourceFormat) => {
+        const sourceText = 'original\r\nsource\r\n';
+        const result = await service.importUnit(
+          new File([sourceText], `source.${sourceFormat.toUpperCase()}`),
+        );
+        expect(result).toMatchObject({
+          success: true,
+          unit: { sourceFormat, sourceText },
+        });
+      },
+    );
+
+    it('retains JSON envelopes while validating their unit', async () => {
+      const envelope = {
+        formatVersion: '1.0.0',
+        unit: { chassis: 'Locust', model: 'LCT-1V' },
+      };
+      expect(
+        await service.importUnit(
+          new File([JSON.stringify(envelope)], 'unit.json'),
+        ),
+      ).toMatchObject({ success: true, unit: envelope });
+    });
+
     it('should successfully import valid unit file', async () => {
       const unitData = {
         id: 'unit-1',
