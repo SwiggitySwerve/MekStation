@@ -792,9 +792,11 @@ owner supplies this decision to weight, introduction-year and slot callers.
 The base and Bombast Chalchiuhtotolin sources therefore carry 7 and 7.5 tons
 of armor, respectively (`TestEntity.java:584-604`; `BLKTankFile.java:284-304`).
 
-Native equipment routing first preserves an existing exact technology route,
-then reuses the guarded lookup-token owner for mount decorators. `ISLMGA(ST)`
-and its Omni form retain the ISLMGA identity and 0.5-ton mass, like plain
+Native Tank weight transport reuses the guarded lookup-token owner only for
+`ISLMGA(ST)` and its `:OMNI` form, selecting the ISLMGA identity and 0.5-ton
+mass for construction. Public equipment lookup identities remain unchanged,
+including the legacy `lmga` target for these decorated inputs. The native
+weight selection matches plain
 ISLMGA and converted islmgast (`ISLightMGA.java:67-83`). Source tokens, sponson
 flags and existing catalog IDs are retained. Clan arrays remain 0.25 tons.
 

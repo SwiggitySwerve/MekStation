@@ -14,6 +14,7 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
+import { getNativeEquipmentLookupToken } from '@/utils/construction/equipmentBV/normalization';
 import {
   computeVehicleArmorWeight,
   resolveVehicleClanArmor,
@@ -61,8 +62,12 @@ export function computeNativeTankWeight(
   const equipment = unit.equipment.map((mount) => {
     const original =
       getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId;
+    // Resolve this native array for weight without rerouting public API identities.
+    const lookupToken = /^islmga\(st\)(?::omni)?$/i.test(original)
+      ? getNativeEquipmentLookupToken(original)
+      : original;
     const { equipmentDef } = resolveEquipmentId(
-      original,
+      lookupToken,
       techBase,
       mode,
       undefined,

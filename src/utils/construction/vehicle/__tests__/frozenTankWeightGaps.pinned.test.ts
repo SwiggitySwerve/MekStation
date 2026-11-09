@@ -112,6 +112,16 @@ it.each(reference.fixtures)(
       expect(withoutMechanism?.equipment).toBe(11);
       expect(weights?.equipment).toBe(11.5);
       expect(
+        computeNativeTankWeight(parsed.data.document, {
+          ...unit,
+          equipment: unit.equipment.map((mount) =>
+            mount.equipmentId === 'ISLMGA(ST)'
+              ? { ...mount, equipmentId: 'ISLMGA(ST):OMNI' }
+              : mount,
+          ),
+        })?.equipment,
+      ).toBe(11.5);
+      expect(
         unit.equipment.filter((mount) => mount.equipmentId === 'ISLMGA(ST)'),
       ).toEqual([
         expect.objectContaining({ isSponsonMounted: true }),
@@ -121,16 +131,16 @@ it.each(reference.fixtures)(
   },
 );
 
-// ISLightMGA.java:67-83 (0.5 t); CLLightMGA.java (0.25 t). Mount syntax
-// must not select another technology, alter a saved ID, or invent equipment.
+// Public compatibility identities remain frozen. The native Tank weight adapter
+// selects ISLightMGA.java:67-83 (0.5 t) without changing these lookup results.
 it.each([
-  ['ISLMGA(ST)', 'islmga-registry', 0.5],
+  ['ISLMGA(ST)', 'lmga', 0.25],
   ['ISLMGA', 'islmga-registry', 0.5],
   ['islmgast', 'islmga-registry', 0.5],
-  ['ISLMGA(ST):OMNI', 'islmga-registry', 0.5],
+  ['ISLMGA(ST):OMNI', 'lmga', 0.25],
   ['lmga', 'lmga', 0.25],
 ] as const)(
-  'resolves %s through native identity on either chassis side',
+  'retains the public compatibility identity of %s on either chassis side',
   (name, id, weight) => {
     for (const [side, mode] of [
       [TechBase.INNER_SPHERE, TechBaseMode.INNER_SPHERE],
@@ -142,6 +152,27 @@ it.each([
     }
   },
 );
+
+// Compatibility targets frozen by the catalog guard; other identity corrections
+// require their own approval even when the source token carries a Clan prefix.
+it.each([
+  ['(B) CLArrowIV', 'arrow-iv-launcher'],
+  ['(B) CLLBXAC10', 'lb-10-x-ac'],
+  ['(B) CLLBXAC20', 'lb-20-x-ac'],
+])('retains the frozen IS and Mixed target of %s', (name, expected) => {
+  expect(
+    resolveEquipmentId(
+      name,
+      TechBase.INNER_SPHERE,
+      TechBaseMode.INNER_SPHERE,
+      undefined,
+    ).equipmentDef?.id,
+  ).toBe(expected);
+  expect(
+    resolveEquipmentId(name, TechBase.INNER_SPHERE, TechBaseMode.MIXED, [name])
+      .equipmentDef?.id,
+  ).toBe(expected);
+});
 
 it('retains decorator flags, missing equipment and the ammunition namespace', () => {
   expect(
