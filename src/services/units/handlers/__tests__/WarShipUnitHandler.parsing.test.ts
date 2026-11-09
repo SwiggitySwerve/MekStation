@@ -55,26 +55,28 @@ describe('WarShipUnitHandler', () => {
       expect(result.data?.unit?.structuralIntegrity).toBe(80);
     });
 
-    it('should parse armor by arc with broadsides', () => {
+    it('should parse armor by arc in BLK source order, leaving broadsides unarmored', () => {
+      // Nose, Left Front, Right Front, Aft, Aft Left, Aft Right; Java sets both
+      // broadsides to ARMOR_NA and rejects any other length (BLKWarshipFile.java:258-267).
       const doc = createMockBlkDocument({
-        armor: [500, 400, 400, 350, 350, 300, 450, 450],
+        armor: [500, 410, 420, 330, 340, 350],
       });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.armorByArc.nose).toBe(500);
-      expect(result.data?.unit?.armorByArc.frontLeftSide).toBe(400);
-      expect(result.data?.unit?.armorByArc.frontRightSide).toBe(400);
-      expect(result.data?.unit?.armorByArc.aftLeftSide).toBe(350);
-      expect(result.data?.unit?.armorByArc.aftRightSide).toBe(350);
-      expect(result.data?.unit?.armorByArc.aft).toBe(300);
-      expect(result.data?.unit?.armorByArc.leftBroadside).toBe(450);
-      expect(result.data?.unit?.armorByArc.rightBroadside).toBe(450);
+      expect(result.data?.unit?.armorByArc).toStrictEqual({
+        nose: 500,
+        frontLeftSide: 410,
+        frontRightSide: 420,
+        aft: 330,
+        aftLeftSide: 340,
+        aftRightSide: 350,
+      });
     });
 
     it('should calculate total armor points', () => {
       const doc = createMockBlkDocument({
-        armor: [500, 400, 400, 350, 350, 300, 450, 450], // Total: 3200
+        armor: [800, 500, 500, 450, 475, 475], // Total: 3200
       });
       const result = handler.parse(doc);
 
