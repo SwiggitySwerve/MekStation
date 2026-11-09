@@ -107,7 +107,7 @@ Airborne aero SHALL carry two velocity fields: `currentVelocity` (the velocity e
 
 ### Requirement: Safe vs Max Thrust
 
-The unit's `safeThrust` SHALL be its construction-time thrust rating. `maxThrust` SHALL equal `floor(safeThrust × 1.5)`. Spending more than safeThrust in a single turn SHALL trigger a control roll at end-of-turn. Spending more than maxThrust SHALL be forbidden — the movement declaration SHALL be rejected.
+The unit's `safeThrust` SHALL be its construction-time thrust rating. `maxThrust` SHALL equal `ceil(safeThrust × 1.5)`. Spending more than safeThrust in a single turn SHALL trigger a control roll at end-of-turn. Spending more than maxThrust SHALL be forbidden — the movement declaration SHALL be rejected.
 
 #### Scenario: Thrust within safeThrust — no control roll
 
