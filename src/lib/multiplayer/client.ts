@@ -294,14 +294,18 @@ const SERVER_MESSAGE_HANDLERS: Record<
     resendPending,
   }) => {
     const end = message as Extract<IServerMessage, { kind: 'ReplayEnd' }>;
+    const completesNumberedReplay =
+      !state.ready && typeof end.toDeliverySequence === 'number';
     // Whatever asked for this replay has been served - including a gap
     // recovery, so the next hole is allowed to ask again.
     const answeredGapRecovery = state.recoveringFromGap;
     state.recoveringFromGap = false;
-    // ...and this is the ONLY place the delivery cursor may move past a
-    // hole, because it is the only place the client learns that what it
-    // asked for was actually sent.
-    if (answeredGapRecovery) releaseDeliveryPin(state, end);
+    // Legacy bound-only recovery retains its envelope evidence. A numbered
+    // replay must instead prove receipt from successful applications after
+    // both queues drain; its upper bound alone cannot prove a hole filled.
+    if (answeredGapRecovery && !completesNumberedReplay) {
+      releaseDeliveryPin(state, end);
+    }
     const replay = state.replayBuffer;
     state.replayBuffer = [];
     if (
@@ -331,6 +335,9 @@ const SERVER_MESSAGE_HANDLERS: Record<
       })
     ) {
       return;
+    }
+    if (completesNumberedReplay) {
+      reconcileAppliedDeliveryReceipts(state, acknowledgeDelivery);
     }
     // Caught up, so anything still unanswered can be asked again - with
     // the id it originally carried, which is what lets authority
@@ -554,6 +561,41 @@ function completeDeliveryApplication({
       requestResync();
     }
   }
+  acknowledgeAppliedDelivery(state, acknowledgeDelivery);
+}
+
+/**
+ * Replay follows authority order, which can differ from delivery numbering.
+ * Walk receipts only: a backfill can connect to later deliveries that already
+ * applied. Never reorder or re-emit events, and stop at any unapplied number.
+ */
+function reconcileAppliedDeliveryReceipts(
+  state: IClientState,
+  acknowledgeDelivery: () => void,
+): void {
+  let cursor = state.deliveryResumeCursor ?? -1;
+  while (state.appliedIdentityByDelivery.has(cursor + 1)) cursor += 1;
+  state.deliveryResumeCursor = cursor >= 0 ? cursor : null;
+  if (cursor >= 0) {
+    // Already-applied replay items may not have advanced this socket's head.
+    // The next live frame must follow the reconciled receipt, not a backfill.
+    state.lastDeliverySequence = Math.max(
+      state.lastDeliverySequence ?? -1,
+      cursor,
+    );
+  }
+  state.recoveringFromGap = cursor < state.lastAppliedDelivery;
+  if (!state.recoveringFromGap) {
+    state.deliveryHoleRevealSeq = null;
+    state.deliveryHoleRevealDelivery = null;
+  }
+  acknowledgeAppliedDelivery(state, acknowledgeDelivery);
+}
+
+function acknowledgeAppliedDelivery(
+  state: IClientState,
+  acknowledgeDelivery: () => void,
+): void {
   const cursor = state.deliveryResumeCursor;
   if (cursor === null || cursor <= state.highestAcknowledgedDelivery) return;
   state.highestAcknowledgedDelivery = cursor;
@@ -1129,8 +1171,7 @@ function noteDeliveryGap(
     // contiguously again: those in-between frames were never received,
     // and quoting past them tells the server to resume after events
     // this client does not hold. Un-pinning is evidence-based instead
-    // and happens in `releaseDeliveryPin`, once the replay that was
-    // asked for has actually been served.
+    // and happens when the requested replay has successfully drained.
     if (state.deliveryResumeCursor === previous) {
       state.deliveryResumeCursor = deliverySequence;
     }
@@ -1177,8 +1218,8 @@ function lifecycleState(state: IClientState): IClientLifecycleState {
 }
 
 /**
- * Un-pin the delivery cursor - but only on evidence that the hole was
- * filled.
+ * Un-pin the delivery cursor for legacy bound-only recovery. Numbered
+ * replay windows reconcile successful applications instead.
  *
  * Prefers `ReplayEnd.toDeliverySequence` against the revealing frame's
  * delivery number. An old server that does not send that field falls

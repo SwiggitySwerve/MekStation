@@ -793,6 +793,240 @@ describe('multiplayer client', () => {
     expect(client.lastSeq()).toBe(2);
   });
 
+  it.each([
+    {
+      name: 'captured authority order',
+      ordered: false,
+      duplicate: false,
+      failed: false,
+      missing: false,
+      live: null,
+      ack: 76,
+      recovering: false,
+    },
+    {
+      name: 'ordered replay',
+      ordered: true,
+      duplicate: false,
+      failed: false,
+      missing: false,
+      live: null,
+      ack: 76,
+      recovering: false,
+    },
+    {
+      name: 'duplicate replay',
+      ordered: false,
+      duplicate: true,
+      failed: false,
+      missing: false,
+      live: null,
+      ack: 76,
+      recovering: false,
+    },
+    {
+      name: 'failed reducer',
+      ordered: false,
+      duplicate: false,
+      failed: true,
+      missing: false,
+      live: null,
+      ack: 4,
+      recovering: true,
+    },
+    {
+      name: 'missing backfill across repeated replay',
+      ordered: false,
+      duplicate: true,
+      failed: false,
+      missing: true,
+      live: null,
+      ack: 5,
+      recovering: true,
+    },
+    {
+      name: 'concurrent live delivery',
+      ordered: false,
+      duplicate: false,
+      failed: false,
+      missing: false,
+      live: 77,
+      ack: 77,
+      recovering: false,
+    },
+    {
+      name: 'concurrent live delivery with a real gap',
+      ordered: false,
+      duplicate: false,
+      failed: false,
+      missing: false,
+      live: 78,
+      ack: 76,
+      recovering: true,
+    },
+  ])(
+    'reconciles applied replay receipts: $name',
+    ({ ordered, duplicate, failed, missing, live, ack, recovering }) => {
+      const f = makeMockSocketFactory();
+      const applied: number[] = [];
+      let rejectBackfill = failed;
+      const client = connect(
+        'ws://localhost/x',
+        'm1',
+        { playerId: 'p1', token: 'tok' },
+        { socketFactory: f.factory, reconnect: false },
+      );
+      client.on('event', (event) => {
+        const delivery = Number((event as { id: string }).id.slice(2));
+        if (rejectBackfill && delivery === 5)
+          throw new Error('projection failed');
+        applied.push(delivery);
+      });
+      f.lastSocket().fireOpen();
+      const deliveries = ordered
+        ? Array.from({ length: 77 }, (_, index) => index)
+        : [
+            0,
+            1,
+            2,
+            3,
+            4,
+            8,
+            5,
+            6,
+            7,
+            ...Array.from({ length: 68 }, (_, index) => index + 9),
+          ];
+      const replayed = deliveries.filter(
+        (delivery) => !missing || delivery !== 6,
+      );
+      const ts = nowIsoForTest();
+      const replay = () => {
+        f.lastSocket().inject({
+          kind: 'ReplayStart',
+          matchId: 'm1',
+          ts,
+          fromDeliverySequence: 0,
+          totalEvents: replayed.length,
+        });
+        f.lastSocket().inject({
+          kind: 'ReplayChunk',
+          matchId: 'm1',
+          ts,
+          deliverySequences: replayed,
+          // Player projections carry no authority sequence. Array order is authoritative.
+          events: replayed.map((delivery) => ({
+            id: `r-${delivery}`,
+            type: 'phase_changed',
+          })),
+        });
+        if (live !== null) {
+          f.lastSocket().inject({
+            kind: 'Event',
+            matchId: 'm1',
+            ts,
+            deliverySequence: live,
+            event: { id: `r-${live}`, type: 'phase_changed' },
+          });
+        }
+        f.lastSocket().inject({
+          kind: 'ReplayEnd',
+          matchId: 'm1',
+          ts,
+          toDeliverySequence: 76,
+        });
+      };
+      replay();
+      if (duplicate) replay();
+      expect(applied).toEqual(
+        failed
+          ? [0, 1, 2, 3, 4, 8]
+          : [...replayed, ...(live !== null ? [live] : [])],
+      );
+      expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([ack]);
+      expect(
+        deliveryAcksOn(f.lastSocket()).every((receipt) => receipt <= ack),
+      ).toBe(true);
+      expect(client.lifecycle().recoveringFromGap).toBe(recovering);
+      expect(client.lifecycle().blockedBySequenceCollision).toBe(false);
+      if (failed) expect(client.isReady()).toBe(false);
+      if (failed) {
+        rejectBackfill = false;
+        replay();
+        expect(applied).toEqual(replayed);
+        expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([76]);
+        expect(client.lifecycle().recoveringFromGap).toBe(false);
+        expect(client.isReady()).toBe(true);
+      }
+      client.close();
+    },
+  );
+
+  it.each([77, 78])(
+    'resumes live delivery %i after reconnect backfills join already applied deliveries',
+    (nextDelivery) => {
+      const f = makeMockSocketFactory();
+      const applied: number[] = [];
+      const client = connect(
+        'ws://localhost/x',
+        'm1',
+        { playerId: 'p1', token: 'tok' },
+        { socketFactory: f.factory },
+      );
+      client.on('event', (event) =>
+        applied.push((event as { sequence: number }).sequence),
+      );
+      f.lastSocket().fireOpen();
+      finishReplay(f);
+      const later = [8, ...Array.from({ length: 68 }, (_, index) => index + 9)];
+      const beforeReconnect = [0, 1, 2, 3, 4, ...later];
+      for (const delivery of beforeReconnect) {
+        liveDeliveredEvent(f, delivery, delivery, `r-${delivery}`);
+      }
+      expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([4]);
+      f.lastSocket().fireClose();
+      jest.advanceTimersByTime(RECONNECT_INITIAL_MS);
+      f.lastSocket().fireOpen();
+      const ts = nowIsoForTest();
+      const replayed = [8, 5, 6, 7, ...later.slice(1)];
+      f.lastSocket().inject({
+        kind: 'ReplayStart',
+        matchId: 'm1',
+        ts,
+        fromDeliverySequence: 5,
+        totalEvents: replayed.length,
+      });
+      f.lastSocket().inject({
+        kind: 'ReplayChunk',
+        matchId: 'm1',
+        ts,
+        deliverySequences: replayed,
+        events: replayed.map((delivery) => ({
+          id: `r-${delivery}`,
+          sequence: delivery,
+          type: 'phase_changed',
+        })),
+      });
+      f.lastSocket().inject({
+        kind: 'ReplayEnd',
+        matchId: 'm1',
+        ts,
+        toDeliverySequence: 76,
+      });
+      expect(applied).toEqual([...beforeReconnect, 5, 6, 7]);
+      expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([76]);
+      expect(client.lifecycle().recoveringFromGap).toBe(false);
+
+      liveDeliveredEvent(f, nextDelivery, nextDelivery, `r-${nextDelivery}`);
+      expect(applied).toEqual([...beforeReconnect, 5, 6, 7, nextDelivery]);
+      expect(deliveryAcksOn(f.lastSocket()).slice(-1)).toEqual([
+        nextDelivery === 77 ? 77 : 76,
+      ]);
+      expect(client.lifecycle().recoveringFromGap).toBe(nextDelivery === 78);
+      client.close();
+    },
+  );
+
   it('sends SessionJoin on open', () => {
     const f = makeMockSocketFactory();
     connect(
