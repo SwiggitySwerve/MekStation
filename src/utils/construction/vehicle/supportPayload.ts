@@ -13,11 +13,22 @@ import {
   requiresPowerAmplifiers,
 } from './powerAmplifier';
 import { computeTurretWeight } from './turret';
-import { resolveVehicleVariableMass } from './variableEquipmentMass';
+import {
+  getMountSourceSize,
+  resolveVehicleVariableMass,
+} from './variableEquipmentMass';
 import {
   isInsulatorLinkableLaser,
   sumVehicleHeatLoad,
 } from './vehicleHeatLoad';
+
+const WEAPON_CATEGORIES = [
+  'Energy',
+  'Ballistic',
+  'Missile',
+  'Artillery',
+  'Capital',
+];
 
 /**
  * Pinned mass for a raw BLK mount token that a service-layer owner can identify
@@ -63,8 +74,22 @@ export function computeSupportPayloadWeights(
       catalogItem && registryMass !== undefined
         ? { ...catalogItem, weight: registryMass }
         : catalogItem;
-    if (!item || item.weight === undefined) {
-      unresolved.push(mount.equipmentId);
+    // A weapon the pinned registry allows neither on a support vehicle nor as an
+    // infantry weapon (for example a battle-armor gun reached by a shared native
+    // name) is a misidentified mount, not a mass: report it, never charge it.
+    const misidentified =
+      item !== undefined &&
+      !ammo &&
+      WEAPON_CATEGORIES.includes(item.category) &&
+      item.allowedUnitTypes !== undefined &&
+      !item.allowedUnitTypes.includes('Support Vehicle') &&
+      !item.allowedUnitTypes.includes('Infantry');
+    if (!item || item.weight === undefined || misidentified) {
+      unresolved.push(
+        misidentified
+          ? `${mount.equipmentId} (not a support-vehicle weapon)`
+          : mount.equipmentId,
+      );
       return {
         ...mount,
         ammo,
@@ -77,24 +102,12 @@ export function computeSupportPayloadWeights(
       };
     }
     // TestEntity.java:716-724,753-769: an artillery ammo category is not a weapon.
-    const weapon =
-      !ammo &&
-      ['Energy', 'Ballistic', 'Missile', 'Artillery', 'Capital'].includes(
-        item.category,
-      );
-    if (unit.tonnage < 5 && weapon) {
-      unresolved.push(mount.equipmentId);
-      return {
-        ...mount,
-        ammo,
-        weapon,
-        weight: 0,
-        heat: 0,
-        energy: false,
-        laser: false,
-        miscHeatExcluded: true,
-      };
-    } // Infantry mount/clip metadata is not in this catalog.
+    const weapon = !ammo && WEAPON_CATEGORIES.includes(item.category);
+    // TestSupportVehicle.java:980-988: a small vehicle's weapon beyond its first
+    // clip adds (size - 1) x the infantry weapon's ammunition weight, a Java
+    // constant the catalog does not carry. Report it, never guess it.
+    if (unit.tonnage < 5 && weapon && getMountSourceSize(mount.equipmentId) > 1)
+      unresolved.push(`${mount.equipmentId} (clip ammunition mass)`);
     const energy =
       weapon &&
       isPowerAmplifierEnergyWeapon({
@@ -154,6 +167,7 @@ export function computeSupportPayloadWeights(
             tonnage: unit.tonnage,
             engineWeight,
             weaponWeight: weapons,
+            baseChassisFireConWeight: unit.baseChassisFireConWeight,
             isSupportVehicle: true,
           },
         ) ?? mount.weight;

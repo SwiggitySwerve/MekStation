@@ -1169,3 +1169,35 @@ verifier weapon and ammunition terms.
 - **GIVEN** a support chassis mounting a wrecking ball, a flail or a sized cargo bay
 - **WHEN** the construction handler weighs it
 - **THEN** they SHALL weigh 4, 5 and 20 tons and the torpedo ammunition bin SHALL weigh 1 ton
+
+### Requirement: Small support vehicle weapon mass
+
+A support vehicle under 5 tons SHALL weigh its weapons at their pinned type
+tonnage, SHALL take an Omni chassis's fixed fire-control mass when positive, and
+SHALL report as unresolved, never guess, a weapon beyond its first clip (its
+ammunition weight is not carried) and a weapon whose identity is not a legal
+support-vehicle weapon. A support structure mass SHALL NOT read the structure
+type.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestSupportVehicle.java:760-788,980-988` and `MiscType.java:707-711`.
+
+#### Scenario: Small support vehicles equal the pinned Java terms
+
+- **GIVEN** Hoverbike, Assuan Armored Bike, Harpoon ParaSub, Beast Riot Car, TrackBike, Rumbler-HT and the Omni Boreas Cavalry Hovercraft A and Prime
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Boreas fire control SHALL weigh its fixed chassis 0.01 tons
+
+#### Scenario: Unmodelled terms are reported, not guessed
+
+- **GIVEN** Rock Rover RRV (Speed) with a size-2 Support Laser, and Ibex RV (Militarized MG) with `Machine Gun (Light)(PT)`
+- **WHEN** their support weight is calculated
+- **THEN** the first SHALL report its clip ammunition mass unresolved and fall short of Java by exactly 0.003 tons
+- **AND** the second SHALL report the battle-armor gun as not a support-vehicle weapon and SHALL NOT charge its 0.075 tons
+
+#### Scenario: An unknown structure type does not move a support structure mass
+
+- **GIVEN** a support chassis with internal type -1, 0 or none
+- **WHEN** its structure mass is calculated
+- **THEN** it SHALL be 13.5 tons and the total 59.5 tons in each case
