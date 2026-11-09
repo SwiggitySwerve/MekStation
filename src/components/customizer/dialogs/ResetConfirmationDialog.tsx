@@ -6,7 +6,7 @@
  * @spec openspec/specs/confirmation-dialogs/spec.md
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 
@@ -91,12 +91,50 @@ export function ResetConfirmationDialog({
   const [selectedOption, setSelectedOption] = useState<ResetOption>(options[0]);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+  const autoCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const openingRef = useRef(0);
+
+  const stopProgress = useCallback(() => {
+    if (progressIntervalRef.current !== null) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  }, []);
+
+  const clearTimers = useCallback(() => {
+    stopProgress();
+    if (autoCloseTimeoutRef.current !== null) {
+      clearTimeout(autoCloseTimeoutRef.current);
+      autoCloseTimeoutRef.current = null;
+    }
+  }, [stopProgress]);
+
+  const resetDialog = useCallback(() => {
+    setStep('select');
+    setProgress(0);
+    setError(null);
+  }, []);
+
+  useEffect(() => {
+    const opening = openingRef;
+    opening.current++;
+    resetDialog();
+    return () => {
+      opening.current++;
+      clearTimers();
+    };
+  }, [isOpen, clearTimers, resetDialog]);
 
   const handleClose = () => {
     if (step !== 'progress') {
-      setStep('select');
-      setProgress(0);
-      setError(null);
+      openingRef.current++;
+      clearTimers();
+      resetDialog();
       onClose();
     }
   };
@@ -106,29 +144,35 @@ export function ResetConfirmationDialog({
   };
 
   const handleConfirm = async () => {
+    const opening = openingRef.current;
     setStep('progress');
     setProgress(0);
     setError(null);
 
     try {
       // Simulate progress
-      const progressInterval = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         setProgress((p) => Math.min(p + 10, 90));
       }, 100);
 
       await onConfirm(selectedOption.id);
 
-      clearInterval(progressInterval);
+      if (opening !== openingRef.current) return;
       setProgress(100);
       setStep('result');
 
       // Auto-close on success
-      setTimeout(() => {
-        handleClose();
+      autoCloseTimeoutRef.current = setTimeout(() => {
+        autoCloseTimeoutRef.current = null;
+        if (opening === openingRef.current) handleClose();
       }, 2000);
     } catch (err) {
+      if (opening !== openingRef.current) return;
       setError(err instanceof Error ? err.message : 'Reset failed');
       setStep('result');
+    } finally {
+      // An older completion must not stop a newer opening's interval.
+      if (opening === openingRef.current) stopProgress();
     }
   };
 
