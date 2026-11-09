@@ -1,0 +1,6 @@
+{
+  "name": "add-contract-morale-rules",
+  "status": "in-progress",
+  "reason": "K2 M1: pure pin-faithful contract (enemy) morale rules from MekHQ e7adc2c MHQMorale, no wiring; replaces the unused inverted updateMorale.",
+  "lastReviewed": "2026-11-09"
+}
