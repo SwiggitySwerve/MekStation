@@ -182,10 +182,11 @@ export function resolveLargeAerospaceMountBV(
         fail('Invalid defensive ammunition quantity');
       // assembleAmmo still lists a screen launcher as an ammo-using weapon
       // (SCREEN_LAUNCHER:0). No ammo bin keys on it, so this is trace-only.
-      const screen =
+      const screenEntry =
         defensiveKind === 'screen' && quantity === undefined
-          ? getCapitalEquipmentBVFacts(id)
+          ? getEquipmentEntry(id)
           : undefined;
+      const screen = screenEntry && getCapitalEquipmentBVFacts(screenEntry.id);
       const screenArc = screen
         ? arcs.find((a) => a.arc === largeAerospaceMountArc(mount, capitalType))
         : undefined;
