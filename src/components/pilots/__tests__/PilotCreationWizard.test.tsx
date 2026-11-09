@@ -1,7 +1,18 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
+import CreatePilotPage from '@/pages/gameplay/pilots/create';
+
 import { PilotCreationWizard } from '../PilotCreationWizard';
+import { usePilotCreationWizardState } from '../wizard/usePilotCreationWizardState';
 
 // =============================================================================
 // Mocks
@@ -12,23 +23,30 @@ const mockCreateRandom = jest.fn().mockResolvedValue('pilot-2');
 const mockCreatePilot = jest.fn().mockResolvedValue('pilot-3');
 const mockCreateStatblock = jest.fn().mockReturnValue({ id: 'statblock-1' });
 const mockShowToast = jest.fn();
+const mockPush = jest.fn();
+let mockStoreError: string | null = null;
 
-jest.mock('@/stores/usePilotStore', () => ({
-  usePilotStore: () => ({
+function mockPilotState() {
+  return {
     createFromTemplate: mockCreateFromTemplate,
     createRandom: mockCreateRandom,
     createPilot: mockCreatePilot,
     createStatblock: mockCreateStatblock,
     isLoading: false,
+    error: mockStoreError,
+  };
+}
+
+jest.mock('next/router', () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
+jest.mock('@/stores/usePilotStore', () => ({
+  usePilotStore: Object.assign(() => mockPilotState(), {
+    getState: () => mockPilotState(),
   }),
   usePilotSelector: (selector: (state: unknown) => unknown) =>
-    selector({
-      createFromTemplate: mockCreateFromTemplate,
-      createRandom: mockCreateRandom,
-      createPilot: mockCreatePilot,
-      createStatblock: mockCreateStatblock,
-      isLoading: false,
-    }),
+    selector(mockPilotState()),
 }));
 
 jest.mock('@/components/shared/Toast', () => ({
@@ -50,6 +68,7 @@ jest.mock('@/components/customizer/dialogs/ModalOverlay', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockStoreError = null;
 });
 
 // =============================================================================
@@ -352,5 +371,206 @@ describe('PilotCreationWizard - Statblock Mode', () => {
     expect(
       screen.getByText(/Statblock pilots are not saved to the database/),
     ).toBeInTheDocument();
+  });
+});
+
+describe('PilotCreationWizard - completion regressions', () => {
+  function reachReview(mode = 'Template') {
+    fireEvent.click(screen.getByText(mode));
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    fireEvent.change(screen.getByPlaceholderText('Enter pilot name'), {
+      target: { value: 'Reviewed Pilot' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    if (mode !== 'Statblock') {
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+    }
+  }
+
+  it.each(['Template', 'Custom', 'Random'])(
+    'keeps a null %s result on review and blocks another create',
+    async (mode) => {
+      const onCreated = jest.fn();
+      const onClose = jest.fn();
+      const create =
+        mode === 'Template'
+          ? mockCreateFromTemplate
+          : mode === 'Custom'
+            ? mockCreatePilot
+            : mockCreateRandom;
+      const message =
+        'Pilot saved, but the list could not be refreshed. Reload to see it.';
+      create.mockImplementationOnce(async () => {
+        mockStoreError = message;
+        return null;
+      });
+      render(
+        <PilotCreationWizard isOpen onCreated={onCreated} onClose={onClose} />,
+      );
+      reachReview(mode);
+      const submit = screen.getByRole('button', { name: 'Create Pilot' });
+      fireEvent.click(submit);
+      await waitFor(() =>
+        expect(screen.getByText(message)).toBeInTheDocument(),
+      );
+      expect(onCreated).not.toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+      expect(mockShowToast).toHaveBeenCalledWith({
+        message: mockStoreError,
+        variant: 'error',
+      });
+      expect(mockShowToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ variant: 'success' }),
+      );
+      expect(submit).toBeDisabled();
+      fireEvent.click(submit);
+      expect(create).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByRole('button', { name: 'Return to roster' }));
+      expect(onClose).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('shows an ordinary store failure without claiming success', async () => {
+    mockCreateFromTemplate.mockImplementationOnce(async () => {
+      mockStoreError = 'Validation failed';
+      return null;
+    });
+    render(<CreatePilotPage />);
+    reachReview();
+    fireEvent.click(screen.getByRole('button', { name: 'Create Pilot' }));
+    await waitFor(() =>
+      expect(screen.getByText('Validation failed')).toBeInTheDocument(),
+    );
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Create Pilot' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Return to roster' }));
+    expect(mockPush).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith('/gameplay/pilots');
+  });
+
+  it('blocks resubmission after a thrown error and resets only when reopened', async () => {
+    mockCreateFromTemplate.mockRejectedValueOnce(new Error('Connection lost'));
+    const props = { isOpen: true, onClose: jest.fn() };
+    const { rerender } = render(<PilotCreationWizard {...props} />);
+    reachReview();
+    fireEvent.click(screen.getByRole('button', { name: 'Create Pilot' }));
+    await waitFor(() =>
+      expect(screen.getByText('Connection lost')).toBeInTheDocument(),
+    );
+    expect(screen.getByRole('button', { name: 'Create Pilot' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Return to roster' }),
+    ).toBeEnabled();
+    rerender(<PilotCreationWizard {...props} isOpen={false} />);
+    rerender(<PilotCreationWizard {...props} />);
+    reachReview();
+    fireEvent.click(screen.getByRole('button', { name: 'Create Pilot' }));
+    await waitFor(() => expect(props.onClose).toHaveBeenCalledTimes(1));
+    expect(mockCreateFromTemplate).toHaveBeenCalledTimes(2);
+  });
+
+  it('guards two submissions in the same render and remains pending until completion', async () => {
+    let finish: (id: string) => void = () => {
+      throw new Error('No pending create');
+    };
+    mockCreateFromTemplate.mockImplementationOnce(
+      () =>
+        new Promise<string>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const onCreated = jest.fn();
+    const onClose = jest.fn();
+    const { result } = renderHook(() =>
+      usePilotCreationWizardState({ isOpen: true, onCreated, onClose }),
+    );
+    act(() => {
+      result.current.handleModeSelect('template');
+      result.current.handleIdentityChange('name', 'Reviewed Pilot');
+    });
+    const submissions: Promise<void>[] = [];
+    act(() => {
+      submissions.push(result.current.handleCreate());
+      submissions.push(result.current.handleCreate());
+    });
+    expect(mockCreateFromTemplate).toHaveBeenCalledTimes(1);
+    expect(result.current.isLoading).toBe(true);
+    await act(async () => {
+      finish('pilot-1');
+      await Promise.all(submissions);
+    });
+    expect(onCreated).toHaveBeenCalledTimes(1);
+    expect(onCreated).toHaveBeenCalledWith('pilot-1');
+    expect(onClose).not.toHaveBeenCalled();
+    await act(async () => {
+      await result.current.handleCreate();
+    });
+    expect(mockCreateFromTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it('completes a statblock with null instead of a temporary detail id', async () => {
+    const onCreated = jest.fn();
+    const onClose = jest.fn();
+    render(
+      <PilotCreationWizard isOpen onCreated={onCreated} onClose={onClose} />,
+    );
+    reachReview('Statblock');
+    fireEvent.click(screen.getByRole('button', { name: 'Create Pilot' }));
+    await waitFor(() => expect(onCreated).toHaveBeenCalledWith(null));
+    expect(mockCreateStatblock).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(mockShowToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'info' }),
+    );
+  });
+
+  it.each([
+    ['Template', '/gameplay/pilots/pilot-1?creating=1'],
+    ['Custom', '/gameplay/pilots/pilot-3?creating=1'],
+    ['Random', '/gameplay/pilots/pilot-2?creating=1'],
+    ['Statblock', '/gameplay/pilots'],
+  ])(
+    'navigates exactly once after %s completion',
+    async (mode, destination) => {
+      render(<CreatePilotPage />);
+      reachReview(mode);
+      fireEvent.click(screen.getByRole('button', { name: 'Create Pilot' }));
+      await waitFor(() => expect(mockPush).toHaveBeenCalledWith(destination));
+      expect(mockPush).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('modal-overlay')).not.toBeInTheDocument();
+    },
+  );
+
+  it('submits the random skills shown after the last reroll', async () => {
+    const random = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    try {
+      render(<PilotCreationWizard isOpen onClose={jest.fn()} />);
+      fireEvent.click(screen.getByText('Random'));
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      fireEvent.change(screen.getByPlaceholderText('Enter pilot name'), {
+        target: { value: 'Reviewed Pilot' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      const preview = screen.getByText('Generated Skills').parentElement;
+      if (!preview) throw new Error('Missing generated skills preview');
+      expect(within(preview).getByText('5')).toBeInTheDocument();
+      expect(within(preview).getByText('6')).toBeInTheDocument();
+      random.mockReturnValue(0.05);
+      fireEvent.click(screen.getByRole('button', { name: 'Reroll' }));
+      expect(within(preview).getByText('2')).toBeInTheDocument();
+      expect(within(preview).getByText('3')).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getAllByText('2/3').length).toBeGreaterThan(0);
+      fireEvent.click(screen.getByRole('button', { name: 'Create Pilot' }));
+      await waitFor(() =>
+        expect(mockCreateRandom).toHaveBeenCalledWith(
+          { name: 'Reviewed Pilot' },
+          { gunnery: 2, piloting: 3 },
+        ),
+      );
+      expect(mockCreatePilot).not.toHaveBeenCalled();
+    } finally {
+      random.mockRestore();
+    }
   });
 });

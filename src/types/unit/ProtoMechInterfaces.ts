@@ -122,37 +122,6 @@ export interface IProtoArmorMaxByTonnage {
 }
 
 // =============================================================================
-// Main gun
-// =============================================================================
-
-/**
- * Approved weapon IDs that may be installed in the MainGun location.
- * Weapons not in this list are rejected by VAL-PROTO-MAIN-GUN.
- */
-export const PROTO_MAIN_GUN_APPROVED_WEAPON_IDS: ReadonlySet<string> = new Set([
-  'clan-lrm-5',
-  'clan-lrm-10',
-  'clan-ac-2',
-  'clan-ac-5',
-  'clan-gauss-rifle',
-  'clan-ppc',
-  'clan-er-ppc',
-  'clan-medium-pulse-laser',
-  'clan-er-medium-laser',
-]);
-
-/**
- * Weapon size classes for arm-placement enforcement.
- * Heavy weapons (PPC, Gauss, AC, LRM-10+) may NOT be placed in arm mounts;
- * they must go in the MainGun location.
- */
-export enum ProtoWeaponSizeClass {
-  LIGHT = 'Light',
-  MEDIUM = 'Medium',
-  HEAVY = 'Heavy',
-}
-
-// =============================================================================
 // Core ProtoMech unit interface
 // =============================================================================
 

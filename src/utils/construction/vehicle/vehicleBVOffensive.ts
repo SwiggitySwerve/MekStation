@@ -197,19 +197,11 @@ function calculateVehicleOffensiveEquipmentBV(
   return total;
 }
 
-/**
- * Compute offensive BV per vehicle rules.
- *
- *   weaponBV  = sum of (per-weapon BV × turretMult × rearMult × artemisMult × tcMult)
- *   ammoBV    = capped-per-weapon-family sum (delegates to mech ammo cap)
- *   offEquipBV = targeting-computer and misc equipment BV
- *   turretModifier = configured turret multiplier (for the breakdown only)
- *   offensiveBV = (weaponBV + ammoBV + offEquipBV + tonnage / 2) × speedFactor
- */
-export function calculateVehicleOffensiveBV(
+/** Resolve adjusted mount values once, preserving their existing order. */
+function calculateVehicleWeaponBVEntries(
   input: VehicleBVInput,
-): VehicleOffensiveBVBreakdown {
-  const fireControlFactor = supportFireControlFactor(input);
+  fireControlFactor: number,
+) {
   const targetingComputerMounted =
     hasBVTargetingComputer(input.chassisEquipment ?? []) ||
     (input.offensiveEquipment ?? []).some(
@@ -219,6 +211,7 @@ export function calculateVehicleOffensiveBV(
   const secondaryTurretMult = turretMultiplier(input.secondaryTurret);
   const drone = hasBVDroneOS(input.chassisEquipment);
   const mounts = input.weapons
+    .map((w, equipmentIndex) => ({ ...w, equipmentIndex }))
     .filter((w) => getEquipmentEntry(w.id)?.id !== 'ppc-capacitor')
     .map((w) => ({
       capacitorBV: undefined as number | undefined,
@@ -287,13 +280,34 @@ export function calculateVehicleOffensiveBV(
       )
       .reduce((sum, w) => sum + value(w, false).finalBV, 0);
   const reverse = directional('front') < directional('rear');
-  const weaponEntries = mounts.map((w) =>
-    value(
+  const weaponEntries = mounts.map((w) => ({
+    ...value(
       w,
       reverse !==
         (w.location.toLowerCase() === 'rear' || w.isRearMounted === true),
     ),
-  );
+    equipmentIndex: w.equipmentIndex,
+    location: w.location,
+  }));
+
+  return { weaponEntries, primaryTurretMult, secondaryTurretMult };
+}
+
+/**
+ * Compute offensive BV per vehicle rules.
+ *
+ *   weaponBV  = sum of (per-weapon BV × turretMult × rearMult × artemisMult × tcMult)
+ *   ammoBV    = capped-per-weapon-family sum (delegates to mech ammo cap)
+ *   offEquipBV = targeting-computer and misc equipment BV
+ *   turretModifier = configured turret multiplier (for the breakdown only)
+ *   offensiveBV = (weaponBV + ammoBV + offEquipBV + tonnage / 2) × speedFactor
+ */
+export function calculateVehicleOffensiveBV(
+  input: VehicleBVInput,
+): VehicleOffensiveBVBreakdown {
+  const fireControlFactor = supportFireControlFactor(input);
+  const { weaponEntries, primaryTurretMult, secondaryTurretMult } =
+    calculateVehicleWeaponBVEntries(input, fireControlFactor);
 
   const weaponBV = weaponEntries.reduce((sum, entry) => sum + entry.finalBV, 0);
   const perWeaponBVs = weaponEntries
@@ -324,6 +338,20 @@ export function calculateVehicleOffensiveBV(
     : input.secondaryTurret
       ? secondaryTurretMult
       : 1.0;
+  // BVCalculator.countAsOffensiveWeapon excludes zero-BV TAG/unresolved mounts,
+  // but admits machine-gun arrays even when their linked pool is empty.
+  const weaponMountBV = weaponEntries
+    .filter(
+      (entry) =>
+        entry.listedBV > 0 ||
+        getMachineGunArrayBVGroup(getEquipmentEntry(entry.id)?.id ?? entry.id),
+    )
+    .map((entry) => ({
+      equipmentIndex: entry.equipmentIndex,
+      equipmentId: getEquipmentEntry(entry.id)?.id ?? entry.id,
+      location: entry.location,
+      battleValue: entry.finalBV,
+    }));
 
   return {
     weaponBV,
@@ -333,5 +361,6 @@ export function calculateVehicleOffensiveBV(
     turretModifier,
     weightBV,
     total,
+    ...(weaponMountBV.length ? { weaponMountBV } : {}),
   };
 }

@@ -367,6 +367,66 @@ export function calculateAmmoBVWithExcessiveCap(
   return calculateAmmoBVPools(weapons, ammo).total;
 }
 
+/** Existing Mech diagnostic pool policy, separate from arithmetic inputs. */
+export function projectMechAmmoBVPools(
+  pools:
+    | { available: Record<string, number>; cap: Record<string, number> }
+    | undefined,
+  sourceWeapons?: Array<{ id: string; bv: number }>,
+  sourceBins?: Array<{ id: string; bv: number; weaponType: string }>,
+  supplemental?: {
+    weapons: Array<{ id: string; bv: number }>;
+    bins: Array<{ id: string; bv: number }>;
+  },
+): { available: Record<string, number>; cap: Record<string, number> } {
+  const available = { ...pools?.available };
+  if (sourceBins) {
+    for (const [key, bv] of Object.entries(
+      calculateAmmoBVPools([], sourceBins).available,
+    ))
+      addBVToAmmoCapGroup(available, key, bv);
+  }
+  const cap = sourceWeapons
+    ? calculateAmmoBVPools(sourceWeapons, []).cap
+    : (pools?.cap ?? {});
+  const projected = { available, cap: supplemental ? { ...cap } : cap };
+  if (supplemental) {
+    for (const [kind, entries] of [
+      ['cap', supplemental.weapons],
+      ['available', supplemental.bins],
+    ] as const) {
+      const additional: Record<string, number> = {};
+      for (const { id, bv } of entries) {
+        const group = getMechDiagnosticAmmoBVGroup(id);
+        if (group) addBVToAmmoCapGroup(additional, group, bv);
+      }
+      for (const [group, bv] of Object.entries(additional))
+        if (!Object.hasOwn(projected[kind], group)) projected[kind][group] = bv;
+    }
+  }
+  return projected;
+}
+
+/** Supplemental native identities for Mech diagnostics only. These must not
+ * expand the compatibility groups used by calculateAmmoBVPools arithmetic.
+ * MegaMek 48fcb2f64: BVCalculator.java:1189-1242 and the listed weapon types.
+ */
+export function getMechDiagnosticAmmoBVGroup(id: string): string | undefined {
+  // The converter's primitive launcher id loses its qualifier in catalog lookup.
+  if (/^ac-\d+p$/i.test(id))
+    return getNativeAmmoBVGroup(id.replace(/p$/i, '-primitive'));
+  const key = getEquipmentEntry(id)?.id ?? id.toLowerCase();
+  const groups: readonly (readonly [readonly string[], string])[] = [
+    [['ams', 'clan-ams'], 'AMS:2'],
+    [['risc-apds', 'risc-advanced-point-defense-system'], 'APDS:2'],
+    [['improved-gauss-rifle', 'impgaussammo'], 'GAUSS_IMP:0'],
+    [['improved-autocannon-5', 'impammoac5'], 'AC_IMP:5'],
+    [['fluid-gun', 'isfluidgun ammo', 'isfluidgunammo'], 'FLUID_GUN:1'],
+    [['coolant-pod-registry'], 'COOLANT_POD:1'],
+  ];
+  return groups.find(([ids]) => ids.includes(key))?.[1];
+}
+
 /** The capped total plus the uncapped native pools it was built from, keyed
  * AmmoType:rackSize like BVCalculator.assembleAmmo's ammoMap and
  * weaponsForExcessiveAmmo (BVCalculator.java:1189-1242, 48fcb2f64). A bin or
@@ -520,4 +580,12 @@ export function getMachineGunArrayBVGroup(id: string): string | undefined {
   if (!Object.hasOwn(MG_ARRAY_GUN_IDS, id)) return undefined;
   const gun = MG_ARRAY_GUN_IDS[id];
   return gun ? getNativeAmmoBVGroup(gun) : undefined;
+}
+
+/** Existing Mech BV lookup policy; source annotations do not change identity. */
+export function normalizeMechBVSourceName(name: string): string {
+  return name
+    .replace(/\s*\(armored\)/gi, '')
+    .replace(/\s*\(r\)/gi, '')
+    .trim();
 }

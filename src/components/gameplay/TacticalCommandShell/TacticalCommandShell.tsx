@@ -225,77 +225,34 @@ export function TacticalCommandShell({
     setState((prev) => ({ ...prev, ...partial }));
   }, []);
 
-  // Wave 8 PR-K8 — G1: subscribe to IndirectFireSpotterSelected /
-  // IndirectFireSpotterLost events from the gameplay store and project
-  // them into `electedSpotters` for token-ring / inspector consumption.
-  // Cleared on turn rollover so stale spotter visuals don't persist.
+  // Rebuild from surviving current-turn events: undo and session replacement
+  // can shorten or replace history, so a forward-only cursor is insufficient.
   const session = useGameplayStore((s) => s.session);
-  const lastProcessedEventIndex = useRef<number>(0);
-  const lastSeenTurn = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!session) return;
-    // Some test fixtures and early-mount paths construct a session
-    // without an `events` array. Coerce to [] so the rollover branch
-    // still runs and the walk safely bails. Without this guard the
-    // `events.length` read at the early-return crashes consumers that
-    // wrap the shell with a minimal session (e.g.
-    // `useActivationFocusRequest.test.tsx`).
-    const events = session.events ?? [];
-    const currentTurn = session.currentState?.turn ?? null;
-
-    // Turn rollover → clear elected spotters.
-    if (
-      lastSeenTurn.current !== null &&
-      currentTurn !== null &&
-      currentTurn !== lastSeenTurn.current
-    ) {
-      setState((prev) =>
-        prev.electedSpotters.length === 0
-          ? prev
-          : { ...prev, electedSpotters: [] },
-      );
-    }
-    lastSeenTurn.current = currentTurn;
-
-    // Walk new events since last process. Process Selected/Lost in order.
-    const startIdx = lastProcessedEventIndex.current;
-    if (startIdx >= events.length) return;
-
-    let nextSpotters: IElectedSpotter[] | null = null;
-    for (let i = startIdx; i < events.length; i++) {
-      const evt = events[i];
+  const electedSpotters = useMemo(() => {
+    let spotters: IElectedSpotter[] = [];
+    for (const evt of session?.events ?? []) {
+      if (evt.turn !== session?.currentState?.turn) continue;
       if (evt.type === GameEventType.IndirectFireSpotterSelected) {
-        const p = evt.payload as {
-          attackerId: string;
-          spotterId: string;
-        };
-        if (!nextSpotters) nextSpotters = [...state.electedSpotters];
-        // Idempotent: skip if pair already present.
-        const exists = nextSpotters.some(
+        const p = evt.payload as IElectedSpotter;
+        const exists = spotters.some(
           (s) => s.spotterId === p.spotterId && s.attackerId === p.attackerId,
         );
         if (!exists) {
-          nextSpotters.push({
+          spotters.push({
             spotterId: p.spotterId,
             attackerId: p.attackerId,
           });
         }
       } else if (evt.type === GameEventType.IndirectFireSpotterLost) {
-        const p = evt.payload as { attackerId: string; spotterId: string };
-        if (!nextSpotters) nextSpotters = [...state.electedSpotters];
-        nextSpotters = nextSpotters.filter(
+        const p = evt.payload as IElectedSpotter;
+        spotters = spotters.filter(
           (s) =>
             !(s.spotterId === p.spotterId && s.attackerId === p.attackerId),
         );
       }
     }
-    lastProcessedEventIndex.current = events.length;
-
-    if (nextSpotters !== null) {
-      setState((prev) => ({ ...prev, electedSpotters: nextSpotters! }));
-    }
-  }, [session, state.electedSpotters]);
+    return spotters;
+  }, [session]);
 
   // Memoize context value so consumers don't churn re-renders when no
   // shell-relevant prop changed. The state object identity changes on
@@ -307,10 +264,18 @@ export function TacticalCommandShell({
       viewerPlayerId,
       shellMode,
       sessionId,
-      state,
+      state: { ...state, electedSpotters },
       updateState,
     }),
-    [registry, viewerPlayerId, shellMode, sessionId, state, updateState],
+    [
+      registry,
+      viewerPlayerId,
+      shellMode,
+      sessionId,
+      state,
+      electedSpotters,
+      updateState,
+    ],
   );
 
   return (

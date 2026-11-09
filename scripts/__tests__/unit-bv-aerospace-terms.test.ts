@@ -6,6 +6,7 @@ import {
   AerospaceSubType,
 } from '../../src/types/unit/AerospaceInterfaces';
 import { calculateAerospaceBV } from '../../src/utils/construction/aerospace/aerospaceBV';
+import { calculateAerospaceAmmoBV } from '../../src/utils/construction/aerospace/aerospaceBVCalculations';
 import { aerospaceBVTerms } from '../../src/utils/construction/aerospace/bvTrace';
 import { calculateRow } from '../vehicle-aero-bv-delta';
 import fixture from './fixtures/vehicle_aero_contract_bv.json';
@@ -174,4 +175,136 @@ test('does not invent weapons from ammo, unresolved, defensive or invalid-locati
 test('legacy breakdowns without owner facts retain their exact trace', () => {
   const result = aircraft();
   expect(aerospaceBVTerms(result)).toEqual(result);
+});
+
+// BVCalculator.java:1189-1242 (48fcb2f64): uncapped bins and raw weapon caps
+// are independent diagnostics, before direction, heat, FCS and speed.
+const ammoTerms = (value: IAerospaceBVBreakdown) =>
+  Object.fromEntries(
+    Object.entries(value).filter(([key]) => key.startsWith('ammo.')),
+  );
+const srm = { id: 'srm-2', location: Arc.AFT };
+const bin = (bv: number) => ({ id: 'is-ammo-srm-2', weaponType: 'srm-2', bv });
+
+test('retains repeated native bins and raw caps independently of heat and direction', () => {
+  const result = aircraft({
+    equipment: [srm, srm],
+    ammo: [bin(3), bin(7)],
+    heatCapacity: 0,
+  });
+  expect(ammoTerms(result)).toEqual({
+    'ammo.available.SRM:2': 10,
+    'ammo.cap.SRM:2': 42,
+  });
+  expect(result.ammoBV).toBe(10);
+});
+
+test('availability stays uncapped when actual bins exceed the raw weapon cap', () => {
+  const result = aircraft({ equipment: [srm], ammo: [bin(100)] });
+  expect(ammoTerms(result)).toEqual({
+    'ammo.available.SRM:2': 100,
+    'ammo.cap.SRM:2': 21,
+  });
+  expect(result.ammoBV).toBe(21);
+});
+
+test('unmatched bins retain availability without inventing a zero cap', () => {
+  const result = aircraft({ ammo: [bin(7)] });
+  expect(ammoTerms(result)).toEqual({ 'ammo.available.SRM:2': 7 });
+  expect(result.ammoBV).toBe(0);
+});
+
+test('an explicit empty ammo list retains real weapon caps without inventing bins', () => {
+  const result = aircraft({ equipment: [srm], ammo: [] });
+  expect(ammoTerms(result)).toEqual({ 'ammo.cap.SRM:2': 21 });
+  expect(result.ammoBV).toBe(0);
+});
+
+test('support FCS scales the ammo total while raw diagnostic pools stay unscaled', () => {
+  const result = aircraft({
+    equipment: [srm],
+    ammo: [bin(10)],
+    isSupportVehicle: true,
+  });
+  expect(ammoTerms(result)).toEqual({
+    'ammo.available.SRM:2': 10,
+    'ammo.cap.SRM:2': 21,
+  });
+  expect(result.ammoBV).toBe(8);
+});
+
+test('legacy omission and unresolved identities do not invent native ammo terms', () => {
+  expect(ammoTerms(aircraft({ equipment: [srm] }))).toEqual({});
+  expect(
+    ammoTerms(
+      aircraft({
+        ammo: [
+          { id: 'unknown-a2-ammo', weaponType: 'unknown-a2-weapon', bv: 7 },
+        ],
+      }),
+    ),
+  ).toEqual({});
+  expect(calculateAerospaceAmmoBV([srm], [])).toBe(0);
+  expect(calculateAerospaceAmmoBV([srm], [bin(100)], true)).toBe(21);
+});
+
+test('defensive launcher caps remain raw facts outside offensive ammo arithmetic', () => {
+  const result = aircraft({
+    equipment: [
+      { id: 'anti-missile-system', location: Arc.NOSE },
+      { id: 'anti-missile-system', location: Arc.AFT },
+    ],
+    ammo: [{ id: 'ams-ammo', weaponType: 'ams', bv: 11 }],
+  });
+  expect(ammoTerms(result)).toEqual({ 'ammo.cap.AMS:2': 64 });
+  expect(result.ammoBV).toBe(0);
+});
+
+test('known supplemental identities retain actual zero bins and primitive raw caps', () => {
+  const result = aircraft({
+    equipment: [{ id: 'ac-10p', location: Arc.NOSE }],
+    ammo: [
+      { id: 'coolant-pod-registry', weaponType: 'Coolant Pod', bv: 0 },
+      {
+        id: 'ac-10-primitive-ammo',
+        weaponType: 'AC/10 Primitive Ammo',
+        bv: 15,
+      },
+    ],
+  });
+  expect(ammoTerms(result)).toEqual({
+    'ammo.available.COOLANT_POD:1': 0,
+    'ammo.available.AC_PRIMITIVE:10': 15,
+    'ammo.cap.AC_PRIMITIVE:10': 123,
+  });
+});
+
+test('intrinsic one-shot launchers do not invent an excessive-ammo cap', () => {
+  expect(
+    ammoTerms(
+      aircraft({
+        equipment: [
+          { id: 'srm-2-os', location: Arc.NOSE },
+          { id: 'issrm4ios', location: Arc.NOSE },
+          { id: 'issrm6os', location: Arc.NOSE },
+        ],
+        ammo: [],
+      }),
+    ),
+  ).toEqual({});
+});
+
+test('catalog-backed usable zero bins survive native miscellaneous classification', () => {
+  const equipment = [
+    { id: 'coolant-pod:omni', location: Arc.FUSELAGE },
+    { id: 'coolant-pod', location: Arc.FUSELAGE },
+    { id: 'coolant-pod:0', location: Arc.FUSELAGE },
+  ];
+  expect(ammoTerms(aircraft({ equipment, ammo: [] }))).toEqual({
+    'ammo.available.COOLANT_POD:1': 0,
+  });
+  expect(
+    ammoTerms(aircraft({ equipment: equipment.slice(2), ammo: [] })),
+  ).toEqual({});
+  expect(ammoTerms(aircraft({ equipment }))).toEqual({});
 });

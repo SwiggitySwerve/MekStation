@@ -26,8 +26,28 @@
 - [x] 15. Mark the host and the seated players when boot recovery folds an activated rewind branch; no persistence.
 - [x] 16. Kill the no-mark, host-only, every-recovery and spectator mutants; run the full affected directories and gates.
 
+## Follow-up D-2b / D-2d: closed-host guard and reserved `waiting-effects`
+
+- [x] 17. Record failing regressions: rebuilding a closed host rewrites its session and claims the branch; the route still calls the rebuild on a closed registered host; a host that closes while the rebuild is queued is rebuilt anyway.
+- [x] 18. Guard `rebuildFromActivatedBranch` inside the command queue and have the route treat a closed host as no live host.
+- [x] 19. Document `waiting-effects` as reserved for the effect-receipt change (contract comment, event-store requirement); no code or schema change (D-2d).
+- [x] 20. Kill the no-host-guard, no-route-guard and call-time-guard mutants; run the full affected directories and gates.
+
+## Follow-up D-3a: campaign retroactive correction candidates
+
+- [x] 21. Record failing regressions: replay divergence, verification refusal, sealer failure and an escaping error leave the candidate `building`; an unsealed stranded candidate is never swept; guards that a sealed candidate and a lease-less commit leave candidates alone.
+- [x] 22. Block the candidate on each of those failures while the lease is held, and sweep unsealed `building` candidates after acquiring the lease and before minting the commit's own.
+- [x] 23. Kill the four block mutants and the sweep mutants (none, sealed, past `building`, after own mint, before lease); run the full affected directories and gates.
+
+## Follow-up D-3b: coordinated outcome target candidates
+
+- [x] 24. Record failing regressions: a non-retryable refusal leaves the saga's candidate `building`; the target lease is never released; an unsealed stranded candidate no live saga names is never swept; guards that a sealed candidate and a lease-less record leave candidates alone.
+- [x] 25. Block the saga's candidate with the saga on a non-retryable refusal (not on retryable or crash paths); sweep unsealed `building` candidates no non-blocked saga names, after acquiring the lease and before the mint; release the lease in `finally`.
+- [x] 26. Kill the candidate-block, over-block, sweep (saga-blind, blocked-saga-blind, sealed, none, before-lease, after-mint) and lease mutants; run the full affected directories and gates.
+
 ## Remaining follow-ups (separate PRs)
 
 - [x] D-2c: resync marks lost on restart (above).
-- [ ] D-2b: closed-host guard on the rebuild; `waiting-effects` (D-2d) is reserved for the effect-receipt change.
-- [ ] D-3: coordinated-outcome and campaign-retro builders strand `building` candidates.
+- [x] D-2b and D-2d: closed-host guard on the rebuild; `waiting-effects` is reserved for the effect-receipt change (above).
+- [x] D-3a: the campaign retro builder strands `building` candidates (above).
+- [x] D-3b: the coordinated-outcome target strands `building` candidates (above).

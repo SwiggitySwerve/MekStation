@@ -1,0 +1,6 @@
+{
+  "name": "seed-initial-personnel-market",
+  "status": "locally-verified",
+  "reason": "Root-approved D-5 implemented. All 390 unique suites passed (4818 tests, 32 skipped); combat validation passed 79 suites / 2107 tests; both requested mutants killed; static and OpenSpec gates passed with unchanged ceilings. Standard stays disabled and absent until enabled. No migration or wire changes. Publish a draft for hosted CI and Root review.",
+  "lastReviewed": "2026-11-08"
+}

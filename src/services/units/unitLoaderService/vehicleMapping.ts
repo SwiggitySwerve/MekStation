@@ -177,9 +177,7 @@ export function normalizeVehicleConfiguration(
     definition.structuralTechRating,
   );
   const barRating =
-    unitType === UnitType.SUPPORT_VEHICLE
-      ? (armor.barRating ?? defaults.barRating)
-      : null;
+    unitType === UnitType.SUPPORT_VEHICLE ? (armor.barRating ?? null) : null;
   const occupiedTurrets = (definition.equipment ?? [])
     .filter((item) => getVehicleMountFlags(item.location).isTurretMounted)
     .map((item) => resolveVehicleContractLocation(item.location));

@@ -262,6 +262,32 @@ remain absent; zero, false and empty transporter lists SHALL survive round trips
 
 Catalog hydration, construction validity, equipment/export and BV remain open.
 
+### Requirement: MTF source rules-level numbering
+
+The Python MTF converter SHALL decode numeric source rules levels using the
+one-based pinned mapping: 1 Introductory, 2 Standard, 3 Advanced, 4 Experimental
+and 5 Unofficial. The existing shared enum table SHALL own this mapping.
+Existing named aliases and the legacy zero alias SHALL retain their values.
+Correcting this field SHALL NOT change other serialized unit facts or BV results.
+This correction SHALL NOT regenerate shipped unit catalogs.
+
+#### Scenario: Javelin retains its box-set source level
+
+- **GIVEN** the pinned Javelin JVN-10U source with `rules level:1`
+- **WHEN** the Python MTF converter produces the serialized unit
+- **THEN** `rulesLevel` SHALL be `INTRODUCTORY`
+- **AND** its other serialized source facts SHALL remain unchanged
+
+#### Scenario: Other valid source levels retain their meaning
+
+- **GIVEN** an Inner Sphere source with level 1 through 5 or a Clan or Mixed source with level 2 through 5
+- **WHEN** the Python MTF converter reads its numeric rules level
+- **THEN** the serialized value SHALL match pinned `MtfFile.java:828-902`
+- **AND** existing named aliases SHALL NOT acquire a numeric offset
+
+Authority: MegaMek `48fcb2f64` `MtfFile.java:828-902`, `Mek.java:5205-5207`
+and `TechConstants.java:104-106`; MegaMekLab `62bf193` `UnitUtil.java:2001-2002`.
+
 ### Requirement: FrankenMek donor structure metadata
 
 Both MTF importers SHALL preserve explicit per-location structure types in the

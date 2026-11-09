@@ -98,3 +98,16 @@ guns. The existing validator fallback owns full-bin BV 1; existing half-bin
 scaling gives 0.5 once. Native ammunition remains nonexplosive. Pinned MegaMek
 48fcb2f64: AmmoType.java:13310-13360; NailRivetGunWeapon.java:60-78;
 BVCalculator.java:1189-1242. No catalog identity or value changes are required.
+
+Mech supplemental diagnostic pools retain native identities omitted by the
+compatibility calculation: AMS, APDS, improved AC/5, improved Gauss, fluid guns,
+coolant pods and the converter's primitive AC launcher qualifier. Their identity
+mapping belongs to `getMechDiagnosticAmmoBVGroup`; it does not extend arithmetic
+grouping. `projectMechAmmoBVPools` reuses the existing addition owner and fills
+only missing diagnostic groups, preserving existing values and caller objects.
+Listed source-mount BV supplies raw caps before weapon modifiers, independently
+of physical bins. AMS/APDS facts never enter defensive or offensive arithmetic.
+Availability uses already-admitted ammo values; a genuinely resolved zero-valued
+physical bin additionally requires positive usable shots. Missing, unresolved,
+empty and intrinsic one-shot facts do not invent terms. These diagnostics do not
+establish effective-quantity or defensive-cap arithmetic parity.

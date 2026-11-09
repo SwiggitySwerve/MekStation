@@ -1076,6 +1076,17 @@ remain available and equal 1 for these turret kinds.
 - **AND** the mass correction SHALL NOT establish complete vehicle BV parity
 
 
+#### Scenario: Project existing vehicle weapon mount results
+
+- **GIVEN** the pinned Tamerlane Flamer and rocket-launcher variants
+- **WHEN** the existing offensive owner results are projected before the speed factor
+- **THEN** the front Flamer SHALL expose 6 BV, each front RL10 SHALL expose 18 BV, and each rear RL10 SHALL expose 9 BV
+- **AND** duplicate mounts SHALL remain separate, with comparison using the existing per-location count and sorted-value contract
+- **AND** trace indices and equipment IDs SHALL remain local identities, with known native location abbreviations
+- **AND** source-name aliases and canonical catalog IDs SHALL yield identical diagnostic mount identities through the catalog owner
+- **AND** existing totals, aggregates, ammunition, loads and construction validity SHALL remain unchanged
+- **AND** unknown locations and absent diagnostic snapshots SHALL NOT acquire invented native identities
+
 ### Requirement: Per-Trooper Defensive BV
 
 BA defensive BV SHALL apply the pinned MegaMek armor/internal and movement
@@ -1206,6 +1217,7 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **WHEN** BV is computed
 - **THEN** ammo BV SHALL equal `10 * 4 / 1000 * 2 = 0.08` per trooper and final BV SHALL equal 219
 
+
 #### Scenario: Partial wing raises BV movement
 
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
@@ -1236,3 +1248,42 @@ weapon terms.
 - **WHEN** the rear group dominates without heat discounts
 - **THEN** weapon terms SHALL retain two LWG values of 46 and one NOS value of 23
 - **AND** the trace SHALL preserve multiplicity without treating physical ammo bins as weapons
+
+### Requirement: Supplemental Mech ammunition diagnostic projection
+
+The Mech owner SHALL project source-backed raw AMS/APDS, improved AC/Gauss,
+fluid-gun and primitive-AC caps, and omitted native availability including
+genuinely zero-valued usable coolant pods. Grouping SHALL remain in the ammo
+owner and the trace SHALL format its results. Existing arithmetic inputs,
+defensive ammunition calculations, pools, quantities, modifiers, diagnostic
+facts and totals SHALL remain unchanged; unavailable facts SHALL remain absent.
+
+#### Scenario: Raw defensive launcher caps and real zero-valued bins
+
+- **GIVEN** a represented AMS mount valued at 32, an APDS mount valued at 64 or a usable physical coolant pod valued at zero
+- **WHEN** the Mech breakdown and trace are calculated
+- **THEN** the corresponding source-backed raw cap or availability term SHALL be present under its native type/rack key
+- **AND** repeated source facts SHALL accumulate through the existing ammo owner without overwriting existing pool values
+- **AND** missing, unresolved, empty or intrinsic one-shot facts SHALL NOT invent terms, and all original numerical outputs SHALL remain unchanged
+
+### Requirement: Aerospace ammunition diagnostics
+
+The ordinary aerospace ammo owner SHALL retain actual uncapped availability and
+raw launcher caps under known native type/rack identities. The trace SHALL format
+these facts without recalculating BV. Scalar arithmetic, all existing weapon
+diagnostics, source inputs and totals SHALL remain unchanged. Unresolved facts
+SHALL remain absent, and legacy inputs omitting ammo SHALL retain their trace.
+
+#### Scenario: Availability exceeds the weapon cap
+
+- **GIVEN** an SRM-2 valued at 21 BV and physical bins totaling 100 BV
+- **WHEN** ordinary aerospace BV is calculated with explicit ammo
+- **THEN** availability SHALL equal 100 and the raw cap SHALL equal 21
+- **AND** ammo BV SHALL remain 21 before the existing support fire-control factor
+
+#### Scenario: Independent bins and caps
+
+- **GIVEN** unmatched bins, an explicit empty ammo list, or represented AMS launchers
+- **WHEN** ordinary aerospace ammo diagnostics are projected
+- **THEN** unmatched bins SHALL retain availability without inventing a cap, empty lists SHALL retain real caps without inventing bins, and AMS raw caps SHALL remain outside offensive ammo arithmetic
+- **AND** direction, heat, fire control and speed SHALL NOT scale these diagnostics

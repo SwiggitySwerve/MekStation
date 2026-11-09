@@ -1065,7 +1065,7 @@ test.describe('library persistence and printing', () => {
       family: 'ProtoMech',
       chassis: 'Centaur',
       model: '',
-      section: 'Structure',
+      section: 'Armor',
       total: 20,
       sheet: 'armorPipsHD',
     },
@@ -1254,6 +1254,11 @@ test.describe('library persistence and printing', () => {
             const total =
               unit.family === 'infantry' ? 18 : unit.total - original + edited;
             await expect(figure(page, unit)).toContainText(String(total));
+            // The Armor tab's own running total follows the edit.
+            if (unit.family === 'ProtoMech')
+              await expect(
+                page.getByTestId('protomech-armor-total-used'),
+              ).toHaveText(String(total));
             const figures =
               (await figure(page, unit).textContent())
                 ?.replace(/\s+/g, ' ')
@@ -1330,6 +1335,10 @@ test.describe('library persistence and printing', () => {
                 keyboard,
               );
             await expect(editInput(page, unit)).toHaveValue(String(edited));
+            if (unit.family === 'ProtoMech')
+              await expect(
+                page.getByTestId('protomech-armor-total-used'),
+              ).toHaveText(String(total));
             await expect(figure(page, unit)).toHaveText(figures);
             await expect.poll(() => keyFigures(page, unit)).toEqual(metrics);
             await noOverflow(page);
@@ -1580,6 +1589,76 @@ test.describe('library persistence and printing', () => {
       });
     });
   }
+
+  test('ProtoMech Main Gun: remove the weapon, save, reload and reopen @customizer', async ({
+    page,
+    request,
+  }) => {
+    // Row 4.1 item a-2: the Main Gun tab reads the real mount, edits it, and the
+    // edit survives the browser draft and the saved library copy.
+    let savedId: string | undefined;
+    try {
+      await page.goto('/customizer');
+      await library(page, 'Centaur', '');
+      await section(page, 'Main Gun');
+      const slots = page.getByTestId('protomech-main-gun-slots');
+      await expect(page.getByLabel('Main Gun mount')).toBeChecked();
+      await expect(slots).toHaveText('1 / 1');
+      await expect(
+        page.getByTestId('protomech-main-gun-contents'),
+      ).toContainText('CLERMicroLaser');
+      await page
+        .getByRole('button', { name: 'Remove CLERMicroLaser from Main Gun' })
+        .click();
+      await expect(slots).toHaveText('0 / 1');
+      await expect(page.getByTestId('protomech-main-gun-empty')).toBeVisible();
+
+      await page
+        .getByRole('button', { name: 'Save active unit to library' })
+        .click();
+      const save = page.getByRole('dialog', { name: 'Save Unit', exact: true });
+      const chassis = `Flow Centaur Main Gun ${Date.now()}`;
+      await save.getByLabel('Chassis Name').fill(chassis);
+      await save.getByLabel('Variant Designation').fill('Saved Gun');
+      const posted = page.waitForResponse(
+        (r) =>
+          r.url().endsWith('/api/units/custom') &&
+          r.request().method() === 'POST',
+      );
+      await save.getByRole('button', { name: 'Save', exact: true }).click();
+      const response = await posted;
+      expect(response.ok()).toBe(true);
+      savedId = (await response.json()).data.id;
+      expect(savedId).toBeTruthy();
+
+      await page.reload();
+      await section(page, 'Main Gun');
+      await expect(slots).toHaveText('0 / 1');
+
+      // Close the draft so the library must fetch the saved server copy.
+      await page
+        .getByRole('button', {
+          name: `Close ${chassis} Saved Gun`,
+          exact: true,
+        })
+        .click();
+      const fetched = page.waitForResponse(
+        (r) =>
+          r.url().endsWith(`/api/units/custom/${savedId}`) &&
+          r.request().method() === 'GET',
+        { timeout: 60_000 },
+      );
+      await library(page, chassis, 'Saved Gun', true);
+      expect((await fetched).ok()).toBe(true);
+      await section(page, 'Main Gun');
+      await expect(page.getByLabel('Main Gun mount')).toBeChecked();
+      await expect(slots).toHaveText('0 / 1');
+      await expect(page.getByTestId('protomech-main-gun-empty')).toBeVisible();
+      await noOverflow(page);
+    } finally {
+      if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+    }
+  });
 
   for (const viewport of viewports) {
     test.describe(`library loading ${viewport.width}`, () => {
