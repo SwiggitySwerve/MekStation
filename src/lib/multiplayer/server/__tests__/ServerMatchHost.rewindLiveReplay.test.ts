@@ -64,6 +64,7 @@ import {
   declareMovement,
   startGame,
 } from '@/utils/gameplay/gameSession';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -423,17 +424,48 @@ describe('ServerMatchHost rewind reaches connected players', () => {
       const writer = jest
         .spyOn(GmPrivatePreviewRecordWriter.prototype, 'store')
         .mockRejectedValueOnce(new Error('injected: reason writer failed'));
+      const logged = jest.spyOn(logger, 'error').mockImplementation(() => {});
 
       const res = await postRewindCommit(PRIVATE_REASON);
 
       expect(writer).toHaveBeenCalledTimes(1);
-      // Follow-up row (tasks.md): this 500 after commit is not M-H4's.
-      expect(res._getStatusCode()).toBe(500);
+      // D-2a: the commit is durable, so a writer throw is logged, not a 500.
+      expect(res._getStatusCode()).toBe(200);
+      expect(res._getJSONData()).toMatchObject({ kind: 'committed' });
+      expect(res._getJSONData()).not.toHaveProperty('rebuildPending');
+      expect(logged).toHaveBeenCalledTimes(1);
       expect(live!.servedBranchId()).not.toBeNull();
       expect(live!.getSessionForTests().currentState.phase).toBe(
         GamePhase.Initiative,
       );
       writer.mockRestore();
+      logged.mockRestore();
+    });
+
+    it('D-2a a writer throw after a failed rebuild still answers committed with rebuildPending', async () => {
+      await getMatchHostRegistry().recoverActiveMatches();
+      const live = getMatchHostRegistry().get(MATCH_ID);
+      expect(live).not.toBeNull();
+      const rebuild = jest
+        .spyOn(live!, 'rebuildFromActivatedBranch')
+        .mockRejectedValueOnce(new Error('injected: live rebuild failed'));
+      const writer = jest
+        .spyOn(GmPrivatePreviewRecordWriter.prototype, 'store')
+        .mockRejectedValueOnce(new Error('injected: reason writer failed'));
+      const logged = jest.spyOn(logger, 'error').mockImplementation(() => {});
+
+      const res = await postRewindCommit(PRIVATE_REASON);
+
+      expect(res._getStatusCode()).toBe(200);
+      expect(res._getJSONData()).toMatchObject({
+        kind: 'committed',
+        rebuildPending: true,
+      });
+      // One log for the rebuild, one for the writer.
+      expect(logged).toHaveBeenCalledTimes(2);
+      rebuild.mockRestore();
+      writer.mockRestore();
+      logged.mockRestore();
     });
 
     async function postRewindCommit(
