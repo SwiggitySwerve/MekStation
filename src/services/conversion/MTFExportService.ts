@@ -35,7 +35,7 @@ export class MTFExportService {
       // Validate each identity before emitting content so independent failures
       // (for example mixed chassis context and unsupported armor) stay visible.
       const [techBase, engineType, armorType] = [
-        () => formatTechBase(unit.techBase),
+        () => formatTechBase(unit.techBase, unit.componentTechBases?.chassis),
         () => formatEngineType(unit.engine.type),
         () => formatArmorType(unit.armor.type),
       ].map((format) => {
