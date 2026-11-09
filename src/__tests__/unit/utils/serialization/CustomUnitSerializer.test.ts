@@ -57,7 +57,7 @@ it.each(Object.values(CockpitType))(
       era: Era.LATE_SUCCESSION_WARS,
     });
     expect(serialized.criticalSlots[MechLocation.LEFT_ARM]?.slice(4)).toEqual(
-      Array(8).fill('AC/20'),
+      crab.criticalSlots.LEFT_ARM.slice(4),
     );
     const reopened = loader.mapToUnitState(parseUnit(serialized), false);
     expect(serialized.cockpit).toBe(getCockpitSourceTag(cockpitType));
