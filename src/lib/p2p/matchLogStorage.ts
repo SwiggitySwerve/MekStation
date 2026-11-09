@@ -419,6 +419,7 @@ export class MatchLogStorage {
 }
 
 export { migrateMatchLogDatabase } from './matchLogStorage.helpers';
+export { persistMatchEvent } from './matchLogStorage.helpers';
 
 const defaultMatchLogStorage = new MatchLogStorage();
 

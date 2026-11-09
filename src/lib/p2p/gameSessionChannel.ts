@@ -1,7 +1,6 @@
 import type * as Y from 'yjs';
 
 import {
-  GameEventType,
   type IGameEvent,
   type IGameIntent,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -18,7 +17,11 @@ import {
   type IReconnectRequestEnvelope,
   type IReplayStreamEnvelope,
 } from './gameSessionEnvelope';
-import { matchLogStorage, type MatchLogStorage } from './matchLogStorage';
+import {
+  matchLogStorage,
+  persistMatchEvent,
+  type MatchLogStorage,
+} from './matchLogStorage';
 import { getLocalPeerId, getYArray } from './SyncProvider';
 
 export {
@@ -109,20 +112,14 @@ export function createGameSessionChannel(
     if (!matchId) return;
 
     const storage = options.matchLog ?? matchLogStorage;
-    void storage
-      .appendEvent(matchId, event)
-      .then(() => {
-        if (event.type !== GameEventType.GameEnded) return;
-        return storage.markMatchCompleted?.(matchId, event.timestamp);
-      })
-      .catch((error: unknown) => {
-        const logger = options.logger ?? console;
-        logger.error('Failed to persist P2P match event', {
-          matchId,
-          sequence: event.sequence,
-          error,
-        });
+    void persistMatchEvent(matchId, event, storage).catch((error: unknown) => {
+      const logger = options.logger ?? console;
+      logger.error('Failed to persist P2P match event', {
+        matchId,
+        sequence: event.sequence,
+        error,
       });
+    });
   };
 
   const observeEnvelopes = (
