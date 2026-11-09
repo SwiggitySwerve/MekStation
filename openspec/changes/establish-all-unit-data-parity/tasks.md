@@ -434,6 +434,55 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
     or an explicit owner deferral. Item 27 is owner-deferred; item 111 is only
     coordinator-deferred, so it does not satisfy that acceptance condition.
     G5 owns the central external status documents; P8 owns this task ledger.
+  - Single deferral list (2026-11-09, `PARITY-PLAN` §11 "O4 deferral list").
+    The owner deferred the 22 non-parity items below, none of which affects BV
+    totals, construction validity, loading, editors or record sheets. For the
+    items marked "residual", only the stated non-parity residual is deferred;
+    the rest of each item is resolved or tracked elsewhere. FU-27 is carried
+    here from its 2026-11-03 deferral (tick-4 owner decisions, item 3).
+
+    | FU  | Deferred item                                                                | Reason                                                       |
+    | --- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ |
+    | 5   | Cluster damage preview for UAC/RAC/LB-X                                      | Combat preview only; no BV, validity or loading term         |
+    | 9   | One owner for the missile family                                             | Refactor; behaviour unchanged                                |
+    | 15  | #2424/#2425 Low notes                                                        | Doc note in aerospace RULES.md                               |
+    | 21  | CAMP-01 follow-ups from the #2429 reviews                                    | Comment in CAMP-01 test tooling                              |
+    | 23  | UL-03 (#2431) leftovers (residual)                                           | Schema tie of `barRating`, unused engine-enum values, tests  |
+    | 26  | #2434 (UL-16) exporter test gaps (residual)                                  | All fail closed                                              |
+    | 27  | Date-dependent tests (carried, deferred 2026-11-03)                          | Outside the goal                                             |
+    | 35  | #2449 (UL-07a prep) review items                                             | Schema 250 t bound; no pinned source fails                   |
+    | 36  | #2448 (UL-08b) `.` subtest does not test the allowlist                       | Python test strengthening; code already refuses `.`          |
+    | 37  | Vehicle unit-type aliases that MegaMek rejects                               | No pinned source uses them                                   |
+    | 38  | #2450 (follow-up 33) review items (residual)                                 | Nested pins in the snapshot test                             |
+    | 44  | Generator node test from #2444 is not in CI                                  | One-line CI change; no parity effect                         |
+    | 52  | #2461 (UL-19 first term) notes                                               | Doc wording only                                             |
+    | 73  | UL-14 (#2518) leftovers (residual)                                           | Temp worktree cleanup and PR-size note; capital stays read-only |
+    | 87  | HVAC adjacency (from #2620)                                                  | No pinned source has that layout                             |
+    | 88  | HAG cluster damage (from #2623)                                              | Needs a combat model; catalog damage stays 0                 |
+    | 96  | Follow-up 17 closure notes (residual)                                        | MRM attack preview vs runner hit columns (combat logic)      |
+    | 98  | 375 px settings overflow                                                     | Armor-diagram settings selector layout nit                   |
+    | 105 | Stray scratch files                                                          | Outside the repo; delete by hand                             |
+    | 107 | Untested `isOmniFixedOnly` category branch                                   | Test gap; production behaviour is correct                    |
+    | 113 | FU-93 leftovers (residual)                                                   | LB-X ammo display names; Machine Gun (Light) unrouted by agreement |
+    | 114 | Slow PDF export test                                                         | 17-26 s of a 30 s budget; flake risk, no parity effect       |
+    | 115 | Half MG ammo bins hydrate with the wrong weapon family (from #2872)          | Combat runner family; BV pooling unaffected                  |
+
+  - Not deferred: FU-84 (FrankenMek catalog files) is owner-approved for narrow
+    regeneration (2026-11-09 ruling, `PARITY-PLAN` §11), limited to each file's
+    structure block with a guarded BV proof, and is owned by the 3.1-b worker.
+    FU-111 is still coordinator-deferred, owned by 2.1-b under the standing
+    approval, so it does not satisfy the owner-deferral condition.
+  - FU-97 (salvage roster bug) is closed with evidence; the fix is #2997 and
+    #3004 (both merged 2026-11-07). `e2e/campaign-economy-browser.spec.ts:382`
+    failed in the nightly Full E2E Suite (chromium) in runs 41961957398
+    (2026-11-05, `workflow_dispatch`, head `5ae130546`), 42072283514
+    (2026-11-05, `73b1d1646`), 42254293879 (2026-11-06, `e86866ba2`) and
+    42386769747 (2026-11-07, `09fd1f54a`). It does not fail in run 42496894305
+    (2026-11-08, head `59183c466`, job 128781151938), the first nightly
+    containing both fixes: it is absent from that run's 11 failures (run
+    totals 963 passed, 24 skipped, 11 failed). Ten of those 11 failures are a
+    separate Wave 3 regression (ROADMAP D-11), not FU-97 and not unit data;
+    `campaign-wizard-save-diagnostics` already failed on 2026-11-07.
   - CI acceptance is the PR checks, CAMP-01 and nightly Coverage Thresholds on
     main. The six pre-existing nightly Full E2E failures are owner-deferred
     under the 2026-10-31 ruling; that is not a waiver for other failures. The
