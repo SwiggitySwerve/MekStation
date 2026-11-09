@@ -117,9 +117,23 @@ export const INFANTRY_BV_TRACE_FIELDS = [
   'infantry.weaponRemainderBV',
 ] as const;
 
-export interface IInfantryBVBreakdown extends Readonly<
-  Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
-> {
+/** Temporary trooper identities and local field-gun mount ordinals. */
+export type InfantryBVWeaponTerm =
+  | `weapon.-1.TPRS.${string}`
+  | `weapon.${number}.FGUN.${string}`;
+
+export function isInfantryBVWeaponTerm(
+  key: string,
+): key is InfantryBVWeaponTerm {
+  return /^weapon\.(?:-1\.TPRS|\d+\.FGUN)\..+$/.test(key);
+}
+
+export interface IInfantryBVBreakdown
+  extends
+    Readonly<
+      Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
+    >,
+    Readonly<Partial<Record<InfantryBVWeaponTerm, number>>> {
   /** Defensive aggregate, including represented source movement and stealth. */
   readonly defensiveBV: number;
   readonly perTrooper: number;
