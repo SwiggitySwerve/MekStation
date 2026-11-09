@@ -37,6 +37,11 @@ The adapters deliberately retain different matching policies:
   outer nonempty weapon/ammo guard. Source shot counts are not connected yet.
 - Aerospace: resolve equipment, lowercase raw keys only, skip unresolved weapon
   entries and omit missing or zero caps. Weapons in all arcs still share groups.
+- Battle armor: `baAmmoPool` chooses the native `ammoType:rackSize` pool for
+  launchers and bins (`battlearmor/battleArmorMounts.ts`). Both sides accumulate
+  through `addBVToAmmoCapGroup`, and each pool with a launcher yields one capped
+  `{ id, bvOverride }` entry via `sumCappedAmmoBV`; a pool without a launcher
+  is omitted. The pre-cap pool report is unchanged.
 
 These policies are preserved behavior, not a claim of native type/rack grouping.
 Pinned [BVCalculator.java](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java)

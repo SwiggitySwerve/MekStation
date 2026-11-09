@@ -12,7 +12,11 @@ import {
 
 import type { BAWeaponBVMount, BAAmmoBVMount } from './battleArmorBV';
 
-import { getNativeAmmoBVGroup } from '../battleValueAmmo';
+import {
+  addBVToAmmoCapGroup,
+  getNativeAmmoBVGroup,
+  sumCappedAmmoBV,
+} from '../battleValueAmmo';
 import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
 import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
 
@@ -195,8 +199,8 @@ export function projectBAMounts(
     (firstECM === undefined ? 0 : ANGEL_ECM.has(firstECM) ? 2 : 1);
   let offensiveEquipmentBV = 0;
   // Per-trooper ammo BV and launcher BV by pool (BVCalculator.java:1189-1243).
-  const ammoPools = new Map<string, number>();
-  const weaponPools = new Map<string, number>();
+  const ammoPools: Record<string, number> = {};
+  const weaponPools: Record<string, number> = {};
   for (const mount of equipment) {
     const [id, ...qualifiers] = nativeParts(mount);
     if (id === 'InfantryAssaultRifle') continue; // BattleArmorBVCalculator.java:115-120.
@@ -256,10 +260,10 @@ export function projectBAMounts(
       const share = /^Trooper \d+$/i.test(mount.unitLocation ?? '')
         ? 1 / Math.max(1, squadSize)
         : 1;
-      ammoPools.set(
+      addBVToAmmoCapGroup(
+        ammoPools,
         pool,
-        (ammoPools.get(pool) ?? 0) +
-          ((kg * shots) / 1000) * entry.battleValue * share,
+        ((kg * shots) / 1000) * entry.battleValue * share,
       );
       continue;
     }
@@ -292,7 +296,7 @@ export function projectBAMounts(
       !/(?:OS|\(OS\))$/i.test(id) &&
       !ROCKET_LAUNCHERS.has(id.toLowerCase())
     )
-      weaponPools.set(pool, (weaponPools.get(pool) ?? 0) + entry.battleValue);
+      addBVToAmmoCapGroup(weaponPools, pool, entry.battleValue);
     const quantity = personal || support ? 1 / Math.max(1, squadSize) : 1;
     weapons.push({
       id: entry.id,
@@ -310,10 +314,16 @@ export function projectBAMounts(
   }
   // BVCalculator.java:1057-1079: ammo without a launcher is dropped and
   // excess ammo is capped at the launchers' BV.
-  for (const [pool, bv] of ammoPools) {
-    const cap = weaponPools.get(pool);
-    if (cap !== undefined)
-      ammo.push({ id: pool, bvOverride: Math.min(bv, cap) });
+  // One entry per pool, each capped by the shared owner's rule.
+  for (const pool of Object.keys(ammoPools)) {
+    if (!Object.hasOwn(weaponPools, pool)) continue;
+    ammo.push({
+      id: pool,
+      bvOverride: sumCappedAmmoBV(
+        { [pool]: ammoPools[pool] },
+        (p) => weaponPools[p],
+      ),
+    });
   }
   return {
     weapons,
@@ -323,9 +333,9 @@ export function projectBAMounts(
     defensiveEquipmentBV,
     offensiveEquipmentBV,
     // Pre-cap pools: the Java trace reports ammoMap and weaponsForExcessiveAmmo.
-    ammoAvailableBVByPool: Object.fromEntries(ammoPools),
+    ammoAvailableBVByPool: { ...ammoPools },
     ammoCapBVByPool: Object.fromEntries(
-      [...weaponPools].filter(([pool]) =>
+      Object.entries(weaponPools).filter(([pool]) =>
         BA_CAP_AMMO_TYPES.has(pool.split(':')[0]),
       ),
     ),
