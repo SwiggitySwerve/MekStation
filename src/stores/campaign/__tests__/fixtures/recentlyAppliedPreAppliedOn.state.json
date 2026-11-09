@@ -1,0 +1,425 @@
+{
+  "id": "campaign-legacy-outcomes",
+  "name": "Legacy outcome save",
+  "currentDate": "3025-07-04T00:00:00.000Z",
+  "factionId": "mercenary",
+  "forces": [],
+  "rootForceId": "force-1794246548824-upfeldd",
+  "missions": [],
+  "finances": {
+    "transactions": [],
+    "balance": 1000
+  },
+  "factionStandings": {},
+  "shoppingList": {
+    "items": []
+  },
+  "options": {
+    "healingRateMultiplier": 1,
+    "salaryMultiplier": 1,
+    "retirementAge": 65,
+    "healingWaitingPeriod": 1,
+    "medicalSystem": "standard",
+    "maxPatientsPerDoctor": 25,
+    "doctorsUseAdministration": false,
+    "xpPerMission": 1,
+    "xpPerKill": 1,
+    "xpCostMultiplier": 1,
+    "trackTimeInService": true,
+    "useEdge": true,
+    "scenarioXP": 1,
+    "killXPAward": 1,
+    "killsForXP": 1,
+    "taskXP": 1,
+    "nTasksXP": 1,
+    "vocationalXP": 1,
+    "vocationalXPTargetNumber": 7,
+    "vocationalXPCheckFrequency": 30,
+    "adminXP": 0,
+    "adminXPPeriod": 7,
+    "missionFailXP": 1,
+    "missionSuccessXP": 3,
+    "missionOutstandingXP": 5,
+    "useAgingEffects": true,
+    "startingFunds": 1000,
+    "maintenanceCostMultiplier": 1,
+    "repairCostMultiplier": 1,
+    "acquisitionCostMultiplier": 1,
+    "payForMaintenance": true,
+    "payForRepairs": true,
+    "payForSalaries": true,
+    "payForAmmunition": true,
+    "maintenanceCycleDays": 7,
+    "useLoanSystem": true,
+    "useTaxes": true,
+    "taxRate": 10,
+    "overheadPercent": 5,
+    "useRoleBasedSalaries": false,
+    "payForSecondaryRole": true,
+    "maxLoanPercent": 50,
+    "defaultLoanRate": 5,
+    "taxFrequency": "annually",
+    "useFoodAndHousing": true,
+    "clanPriceMultiplier": 2,
+    "mixedTechPriceMultiplier": 1.5,
+    "usedEquipmentMultiplier": 0.5,
+    "damagedEquipmentMultiplier": 0.33,
+    "useAutoResolve": false,
+    "autoResolveCasualtyRate": 1,
+    "allowPilotCapture": true,
+    "useRandomInjuries": true,
+    "pilotDeathChance": 0.1,
+    "autoEject": true,
+    "trackAmmunition": true,
+    "useQuirks": false,
+    "maxUnitsPerLance": 4,
+    "maxLancesPerCompany": 3,
+    "enforceFormationRules": false,
+    "allowMixedFormations": true,
+    "requireForceCommanders": false,
+    "useCombatTeams": false,
+    "dateFormat": "yyyy-MM-dd",
+    "useFactionRules": false,
+    "techLevel": 1,
+    "limitByYear": true,
+    "allowClanEquipment": false,
+    "useRandomEvents": false,
+    "usePrisonerEvents": true,
+    "useLifeEvents": true,
+    "useContractEvents": true,
+    "simulateGrayMonday": false,
+    "enableDayReportNotifications": true,
+    "useTurnover": true,
+    "turnoverFixedTargetNumber": 3,
+    "turnoverCheckFrequency": "monthly",
+    "turnoverCommanderImmune": true,
+    "turnoverPayoutMultiplier": 12,
+    "turnoverUseSkillModifiers": true,
+    "turnoverUseAgeModifiers": true,
+    "turnoverUseMissionStatusModifiers": true,
+    "trackFactionStanding": true,
+    "regardChangeMultiplier": 1,
+    "useAcquisitionSystem": false,
+    "usePlanetaryModifiers": true,
+    "acquisitionTransitUnit": "month",
+    "clanPartsPenalty": true,
+    "rankSystemCode": "MERC",
+    "unitMarketMethod": "none",
+    "personnelMarketStyle": "disabled",
+    "contractMarketMethod": "atb_monthly"
+  },
+  "campaignType": "mercenary",
+  "campaignStartDate": "3025-01-01T00:00:00.000Z",
+  "pendingBattleOutcomes": [],
+  "processedBattleIds": ["legacy-win", "legacy-loss"],
+  "reviewedBattleIds": {},
+  "dailyBattleAudit": [],
+  "unitCombatStates": {},
+  "partsInventory": [],
+  "recentlyAppliedOutcomes": [
+    {
+      "version": 1,
+      "matchId": "legacy-win",
+      "contractId": null,
+      "scenarioId": null,
+      "endReason": "destruction",
+      "report": {
+        "version": 1,
+        "matchId": "legacy-win",
+        "winner": "player",
+        "reason": "destruction",
+        "turnCount": 1,
+        "units": [
+          {
+            "unitId": "attacker",
+            "side": "player",
+            "designation": "Hunchback",
+            "damageDealt": 0,
+            "damageReceived": 0,
+            "kills": 0,
+            "heatProblems": 0,
+            "physicalAttacks": 0,
+            "xpPending": true
+          },
+          {
+            "unitId": "target",
+            "side": "opponent",
+            "designation": "Marauder",
+            "damageDealt": 0,
+            "damageReceived": 0,
+            "kills": 0,
+            "heatProblems": 0,
+            "physicalAttacks": 0,
+            "xpPending": true
+          }
+        ],
+        "mvpUnitId": null,
+        "log": [
+          {
+            "id": "28530299-882c-4ed6-ad00-12f7f2fe95bc",
+            "gameId": "62f3286f-e8c2-4944-a3db-e0928464341e",
+            "sequence": 0,
+            "timestamp": "2026-11-09T17:49:08.825Z",
+            "type": "game_created",
+            "turn": 0,
+            "phase": "initiative",
+            "visibility": "public",
+            "payload": {
+              "config": {
+                "mapRadius": 10,
+                "turnLimit": 10,
+                "victoryConditions": ["destruction"],
+                "optionalRules": []
+              },
+              "units": [
+                {
+                  "id": "attacker",
+                  "name": "Hunchback",
+                  "side": "player",
+                  "unitRef": "hbk-4g",
+                  "pilotRef": "p1",
+                  "gunnery": 4,
+                  "piloting": 5
+                },
+                {
+                  "id": "target",
+                  "name": "Marauder",
+                  "side": "opponent",
+                  "unitRef": "mad-3r",
+                  "pilotRef": "p2",
+                  "gunnery": 4,
+                  "piloting": 5
+                }
+              ]
+            }
+          },
+          {
+            "id": "bdd138bd-978c-4b16-a830-c1c04cc111f1",
+            "gameId": "62f3286f-e8c2-4944-a3db-e0928464341e",
+            "sequence": 1,
+            "timestamp": "2026-11-09T17:49:08.827Z",
+            "type": "game_started",
+            "turn": 1,
+            "phase": "initiative",
+            "visibility": "public",
+            "payload": {
+              "firstSide": "player"
+            }
+          },
+          {
+            "id": "283c23e5-adf1-4713-bdaa-a231903266b1",
+            "gameId": "62f3286f-e8c2-4944-a3db-e0928464341e",
+            "sequence": 2,
+            "timestamp": "2026-11-09T17:49:08.827Z",
+            "type": "game_ended",
+            "turn": 1,
+            "phase": "initiative",
+            "visibility": "public",
+            "payload": {
+              "winner": "player",
+              "reason": "destruction",
+              "turns": 1
+            }
+          }
+        ]
+      },
+      "unitDeltas": [
+        {
+          "unitId": "attacker",
+          "unitRef": "hbk-4g",
+          "pilotRef": "p1",
+          "side": "player",
+          "destroyed": false,
+          "finalStatus": "intact",
+          "armorRemaining": {},
+          "internalsRemaining": {},
+          "destroyedLocations": [],
+          "destroyedComponents": [],
+          "heatEnd": 0,
+          "ammoRemaining": {},
+          "pilotState": {
+            "conscious": true,
+            "wounds": 0,
+            "killed": false,
+            "finalStatus": "active"
+          }
+        },
+        {
+          "unitId": "target",
+          "unitRef": "mad-3r",
+          "pilotRef": "p2",
+          "side": "opponent",
+          "destroyed": false,
+          "finalStatus": "intact",
+          "armorRemaining": {},
+          "internalsRemaining": {},
+          "destroyedLocations": [],
+          "destroyedComponents": [],
+          "heatEnd": 0,
+          "ammoRemaining": {},
+          "pilotState": {
+            "conscious": true,
+            "wounds": 0,
+            "killed": false,
+            "finalStatus": "active"
+          }
+        }
+      ],
+      "capturedAt": "2026-11-09T17:49:08.828Z"
+    },
+    {
+      "version": 1,
+      "matchId": "legacy-loss",
+      "contractId": null,
+      "scenarioId": null,
+      "endReason": "destruction",
+      "report": {
+        "version": 1,
+        "matchId": "legacy-loss",
+        "winner": "opponent",
+        "reason": "destruction",
+        "turnCount": 1,
+        "units": [
+          {
+            "unitId": "attacker",
+            "side": "player",
+            "designation": "Hunchback",
+            "damageDealt": 0,
+            "damageReceived": 0,
+            "kills": 0,
+            "heatProblems": 0,
+            "physicalAttacks": 0,
+            "xpPending": true
+          },
+          {
+            "unitId": "target",
+            "side": "opponent",
+            "designation": "Marauder",
+            "damageDealt": 0,
+            "damageReceived": 0,
+            "kills": 0,
+            "heatProblems": 0,
+            "physicalAttacks": 0,
+            "xpPending": true
+          }
+        ],
+        "mvpUnitId": null,
+        "log": [
+          {
+            "id": "40598119-3e92-4d5b-a28a-179a3f930216",
+            "gameId": "e6464355-481a-4e2d-92df-5dab426f0a8d",
+            "sequence": 0,
+            "timestamp": "2026-11-09T17:49:08.828Z",
+            "type": "game_created",
+            "turn": 0,
+            "phase": "initiative",
+            "visibility": "public",
+            "payload": {
+              "config": {
+                "mapRadius": 10,
+                "turnLimit": 10,
+                "victoryConditions": ["destruction"],
+                "optionalRules": []
+              },
+              "units": [
+                {
+                  "id": "attacker",
+                  "name": "Hunchback",
+                  "side": "player",
+                  "unitRef": "hbk-4g",
+                  "pilotRef": "p1",
+                  "gunnery": 4,
+                  "piloting": 5
+                },
+                {
+                  "id": "target",
+                  "name": "Marauder",
+                  "side": "opponent",
+                  "unitRef": "mad-3r",
+                  "pilotRef": "p2",
+                  "gunnery": 4,
+                  "piloting": 5
+                }
+              ]
+            }
+          },
+          {
+            "id": "c255cf4a-d43b-4f46-b5ec-c30d0aeaf04c",
+            "gameId": "e6464355-481a-4e2d-92df-5dab426f0a8d",
+            "sequence": 1,
+            "timestamp": "2026-11-09T17:49:08.828Z",
+            "type": "game_started",
+            "turn": 1,
+            "phase": "initiative",
+            "visibility": "public",
+            "payload": {
+              "firstSide": "player"
+            }
+          },
+          {
+            "id": "7f142b7a-a9de-455d-846a-58833db88b77",
+            "gameId": "e6464355-481a-4e2d-92df-5dab426f0a8d",
+            "sequence": 2,
+            "timestamp": "2026-11-09T17:49:08.828Z",
+            "type": "game_ended",
+            "turn": 1,
+            "phase": "initiative",
+            "visibility": "public",
+            "payload": {
+              "winner": "opponent",
+              "reason": "destruction",
+              "turns": 1
+            }
+          }
+        ]
+      },
+      "unitDeltas": [
+        {
+          "unitId": "attacker",
+          "unitRef": "hbk-4g",
+          "pilotRef": "p1",
+          "side": "player",
+          "destroyed": false,
+          "finalStatus": "intact",
+          "armorRemaining": {},
+          "internalsRemaining": {},
+          "destroyedLocations": [],
+          "destroyedComponents": [],
+          "heatEnd": 0,
+          "ammoRemaining": {},
+          "pilotState": {
+            "conscious": true,
+            "wounds": 0,
+            "killed": false,
+            "finalStatus": "active"
+          }
+        },
+        {
+          "unitId": "target",
+          "unitRef": "mad-3r",
+          "pilotRef": "p2",
+          "side": "opponent",
+          "destroyed": false,
+          "finalStatus": "intact",
+          "armorRemaining": {},
+          "internalsRemaining": {},
+          "destroyedLocations": [],
+          "destroyedComponents": [],
+          "heatEnd": 0,
+          "ammoRemaining": {},
+          "pilotState": {
+            "conscious": true,
+            "wounds": 0,
+            "killed": false,
+            "finalStatus": "active"
+          }
+        }
+      ],
+      "capturedAt": "2026-11-09T17:49:08.828Z"
+    }
+  ],
+  "moraleCountedMatchIds": ["legacy-win"],
+  "rngSeed": 3745730713,
+  "createdAt": "2026-11-09T17:49:08.824Z",
+  "updatedAt": "2026-11-09T17:49:08.824Z"
+}

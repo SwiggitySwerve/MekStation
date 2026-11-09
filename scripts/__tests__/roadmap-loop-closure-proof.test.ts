@@ -1814,6 +1814,8 @@ describe('roadmap-main-proof public CLI', () => {
         scripts: {
           build: 'node proof-step.mjs build',
           'qc:openspec-ci:validate': 'node proof-step.mjs qc',
+          'openspec:validate':
+            'node proof-step.mjs openspec validate --all --strict',
         },
       }),
     );
@@ -1850,16 +1852,6 @@ if (step === 'runtime' && scenario === 'failed-runtime' || step === 'idle' && sc
     write(
       'node_modules/jest/bin/jest.js',
       "console.log(JSON.stringify({step:'qc-pin',argv:process.argv.slice(2)}));\n",
-    );
-    // npx must resolve a fixture-local executable, never a global install or cache.
-    write(
-      'node_modules/.bin/openspec',
-      `#!/bin/sh\nexec "${process.execPath}" "${path.join(repo, 'proof-step.mjs')}" openspec "$@"\n`,
-    );
-    fs.chmodSync(path.join(repo, 'node_modules/.bin/openspec'), 0o755);
-    write(
-      'node_modules/.bin/openspec.cmd',
-      `@echo off\r\n"${process.execPath}" "${path.join(repo, 'proof-step.mjs')}" openspec %*\r\n`,
     );
     write(
       'status-fault.mjs',
@@ -1975,7 +1967,11 @@ syncBuiltinESMExports();
       path.join(repo, proofRelative, 'openspec-strict.log'),
       'utf8',
     );
-    expect(JSON.parse(strict.split(/\r?\n/)[0])).toMatchObject({
+    const resultLine = strict
+      .split(/\r?\n/)
+      .find((line) => line.startsWith('{"step":'));
+    expect(resultLine).toBeDefined();
+    expect(JSON.parse(resultLine ?? '')).toMatchObject({
       step: 'openspec',
       argv: ['validate', '--all', '--strict'],
     });
@@ -2142,7 +2138,7 @@ describe('roadmap-main-proof --dry-run', () => {
     expect(result.stdout).toContain(
       `openspec/planning/${LEDGER_NAME}/validate-roadmap.mjs --git`,
     );
-    expect(result.stdout).toContain('openspec validate --all --strict');
+    expect(result.stdout).toContain('run openspec:validate');
     expect(result.stdout).toContain('qc:openspec-ci:validate');
     expect(result.stdout).toContain('sha256');
     expect(result.stdout).toContain(`u91-main-proof-${DATE}`);
@@ -2477,7 +2473,7 @@ if (request.mode === 'resolve') {
       argvs: [
         ['node', 'x.mjs', REGEX],
         ['npm', 'run', 'build'],
-        ['npx', 'openspec', 'validate'],
+        ['npx', '--yes', '@fission-ai/openspec@1.5.0', 'validate'],
         ['git', 'status'],
       ],
     });

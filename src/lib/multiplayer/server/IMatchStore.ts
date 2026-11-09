@@ -645,8 +645,10 @@ export interface IMatchStore
   /**
    * Move the live match-log tail from `fromSequence` inclusive into
    * superseded sibling storage. A rewind activation uses this so the
-   * next append can reuse the cut sequence. Optional: a store without
-   * it still has the old full-log unique space.
+   * next append can reuse the cut sequence. Durable viewer delivery
+   * records and acknowledgements are discarded for the entire match
+   * in the same transaction, because rebuilt replay renumbers from zero.
+   * Optional: a store without it still has the old full-log unique space.
    */
   supersedeFrom?(
     matchId: string,

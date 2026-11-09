@@ -17,6 +17,7 @@ import {
   requiredWorkflowJobContracts,
   requiredWorkflowTokens,
 } from './openspec-ci-contracts.mjs';
+import { findDuplicateDeltaHeaders } from './openspec-delta-headers.mjs';
 import {
   parseWorkflowJobs,
   validateJobTokens,
@@ -183,6 +184,19 @@ function main() {
   );
 
   const activeChanges = activeOpenSpecChanges(openspecChangesPath);
+  for (const { file, operation, lines } of findDuplicateDeltaHeaders(
+    openspecChangesPath,
+    activeChanges,
+  )) {
+    const source = path.relative(repoRoot, file);
+    errors.push(
+      issue(
+        'duplicate-openspec-operation-header',
+        `${source}: ## ${operation} Requirements repeats at lines ${lines.join(', ')}.`,
+        { source, operation, lines },
+      ),
+    );
+  }
   const accountedActiveChanges = accountedActiveOpenSpecChanges(
     activeChanges,
     errors,
