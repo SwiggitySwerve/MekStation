@@ -37,8 +37,17 @@ export function battleArmorBVTerms(
     'squad.factor': b.squadFactor,
     'squad.strength': b.squadSize,
   };
-  for (let i = 1; i <= b.squadSize; i++)
-    for (const [key, value] of Object.entries(trooper))
-      terms[`trooper.${i}.${key}`] = value;
+  replicateTroopers(terms, b.squadSize, trooper);
   return terms;
+}
+
+/** The Java probe snapshots the squad terms once per trooper (trooper.N.*). */
+function replicateTroopers(
+  terms: Record<string, number | undefined>,
+  squadSize: number,
+  perTrooper: Readonly<Record<string, number | undefined>>,
+): void {
+  for (let i = 1; i <= squadSize; i++)
+    for (const [key, value] of Object.entries(perTrooper))
+      terms[`trooper.${i}.${key}`] = value;
 }
