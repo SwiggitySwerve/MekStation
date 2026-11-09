@@ -32,7 +32,12 @@ const MAX_ENTRIES = 50;
 
 function copySnapshot(state: UnitStore): UnitEditSnapshot {
   const copy = JSON.parse(getUnitEditFingerprint(state)) as UnitEditSnapshot;
-  return { ...copy, role: copy.role, fluff: copy.fluff };
+  return {
+    ...copy,
+    role: copy.role,
+    fluff: copy.fluff,
+    crewSeats: copy.crewSeats,
+  };
 }
 
 function createHistory(unit: StoreApi<UnitStore>): IHistoryController {
@@ -184,6 +189,8 @@ const labels: Partial<Record<keyof UnitActions, string>> = {
   clearAllEquipment: 'Clear equipment',
   resetChassis: 'Reset chassis',
   updateFluff: 'Edit description',
+  setCrewSeat: 'Assign crew seat',
+  clearCrewSeat: 'Clear crew seat',
   linkAmmo: 'Link ammunition',
 };
 

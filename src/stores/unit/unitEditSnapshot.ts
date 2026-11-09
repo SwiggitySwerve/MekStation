@@ -26,6 +26,7 @@ export function getEditableUnitSnapshot(state: UnitState): UnitEditSnapshot {
     mulId: state.mulId,
     role: state.role,
     fluff: state.fluff,
+    crewSeats: state.crewSeats,
     year: state.year,
     rulesLevel: state.rulesLevel,
     tonnage: state.tonnage,
