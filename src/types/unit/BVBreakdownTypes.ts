@@ -85,6 +85,13 @@ export interface IProtoMechBVBreakdown {
   /** Positive values already admitted by the native offensive-misc owner. */
   readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
   readonly speedFactor: number;
+  /** Resolved zero misc values with retained source-location evidence. */
+  readonly resolvedZeroEquipmentMountBV?: readonly IProtoMechBVResolvedZeroMount[];
+}
+
+/** Body has no public armor location; other locations use the existing trace map. */
+export interface IProtoMechBVResolvedZeroMount extends IProtoMechBVMountValue {
+  readonly nativeLocation?: 0;
 }
 
 /** Shared optional diagnostic keys for calculations and strict replay payloads. */
@@ -165,4 +172,8 @@ export interface IBABreakdown {
   readonly squadTotal: number;
   readonly pilotMultiplier: number;
   readonly final: number;
+  /** Native `ammoType:rackSize` -> pre-cap per-trooper ammo BV (Java ammoMap). */
+  readonly ammoAvailableBVByPool?: Readonly<Record<string, number>>;
+  /** Native `ammoType:rackSize` -> launcher BV in that pool (Java weaponsForExcessiveAmmo). */
+  readonly ammoCapBVByPool?: Readonly<Record<string, number>>;
 }
