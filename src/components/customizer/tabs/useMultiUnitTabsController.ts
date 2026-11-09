@@ -13,6 +13,7 @@ import {
   type CustomizerTabId,
 } from '@/hooks/useCustomizerRouter';
 import { IUnitIndexEntry } from '@/services/common/types';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { LoadRequestCoordinator } from '@/services/units/unitLoaderService/LoadRequestCoordinator';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { TechBase } from '@/types/enums/TechBase';
@@ -255,6 +256,9 @@ export function useMultiUnitTabsController(): UseMultiUnitTabsControllerResult {
       const requests = loadRequests.current;
       const ticket = requests.begin(
         JSON.stringify([source, unit.family ?? 'battlemechs', unit.id]),
+        source === 'canonical'
+          ? () => getCanonicalUnitService().invalidateUnit(unit.id, unit.family)
+          : undefined,
       );
       if (!ticket) return;
       try {

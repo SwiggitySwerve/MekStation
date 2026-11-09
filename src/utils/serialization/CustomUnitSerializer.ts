@@ -54,6 +54,7 @@ import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology'
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
+import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 
 const GYRO_TYPE = {
@@ -273,6 +274,7 @@ export function serializeCustomUnitState(
       state.techBaseMode === TechBaseMode.MIXED
         ? serializeComponentTechBases(state.componentTechBases)
         : undefined,
+    ...crewSeatSaveFields(state),
   };
 }
 
