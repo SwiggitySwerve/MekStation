@@ -15,6 +15,7 @@
  * @spec openspec/changes/attack-phase-intent-composer/specs/tactical-attack-intent/spec.md
  */
 
+import type { InteractiveSession } from '@/engine/GameEngine';
 import type {
   Facing,
   IAttackIntentState,
@@ -24,7 +25,11 @@ import type {
 
 import { GamePhase } from '@/types/gameplay';
 
-import type { GetFn, SetFn } from './useGameplayStore.combatFlowTypes';
+import type {
+  CombatFlowsSlice,
+  GetFn,
+  SetFn,
+} from './useGameplayStore.combatFlowTypes';
 
 import { InteractivePhase } from './useGameplayStore.helpers';
 import { allowIntentInPhase } from './useGameplayStore.phaseGuard';
@@ -196,6 +201,30 @@ export function selectVolleyGroups(state: IAttackIntentState): readonly {
 // Commit (compile-down to the preserved attackPlan contract — design D2)
 // ---------------------------------------------------------------------------
 
+/** Adopt a completed attack and release the tactical selection. */
+export function finishCommit(
+  interactiveSession: InteractiveSession,
+  set: (
+    update: (state: Pick<CombatFlowsSlice, 'ui'>) => Partial<CombatFlowsSlice>,
+  ) => void,
+  cleanup: Partial<CombatFlowsSlice> = {},
+): void {
+  const gameOver = interactiveSession.isGameOver();
+  set((state) => ({
+    session: interactiveSession.getSession(),
+    interactivePhase: gameOver
+      ? InteractivePhase.GameOver
+      : InteractivePhase.SelectUnit,
+    ...cleanup,
+    ui: {
+      ...state.ui,
+      selectedUnitId: null,
+      targetUnitId: null,
+      queuedWeaponIds: [],
+    },
+  }));
+}
+
 /**
  * Fire: commit the whole composed volley atomically.
  *
@@ -237,13 +266,7 @@ export function commitComposedVolleyLogic(get: GetFn, set: SetFn): void {
 
   interactiveSession.applyVolley(attackerId, selectVolleyGroups(attackIntent));
 
-  const gameOver = interactiveSession.isGameOver();
-
-  set((state) => ({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
+  finishCommit(interactiveSession, set, {
     attackIntent: INITIAL_ATTACK_INTENT_STATE,
     attackPlan: {
       targetUnitId: null,
@@ -252,13 +275,7 @@ export function commitComposedVolleyLogic(get: GetFn, set: SetFn): void {
     },
     validTargetIds: [],
     hitChance: null,
-    ui: {
-      ...state.ui,
-      selectedUnitId: null,
-      targetUnitId: null,
-      queuedWeaponIds: [],
-    },
-  }));
+  });
 }
 
 /**
@@ -284,19 +301,7 @@ export function holdFireLogic(get: GetFn, set: SetFn): void {
 
   interactiveSession.applyVolley(attackerId, []);
 
-  const gameOver = interactiveSession.isGameOver();
-
-  set((state) => ({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
+  finishCommit(interactiveSession, set, {
     attackIntent: INITIAL_ATTACK_INTENT_STATE,
-    ui: {
-      ...state.ui,
-      selectedUnitId: null,
-      targetUnitId: null,
-      queuedWeaponIds: [],
-    },
-  }));
+  });
 }

@@ -1,0 +1,6 @@
+{
+  "name": "fix-tactical-turn-cleanup",
+  "status": "in-progress",
+  "reason": "Root approved Wave 3 U1: exception-safe AI presentation, shared attack cleanup and cancellation of pending advancement on queue reset.",
+  "lastReviewed": "2026-11-08"
+}
