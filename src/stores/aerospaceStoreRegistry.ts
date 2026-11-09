@@ -120,6 +120,7 @@ export function duplicateAerospace(
     engineRating: sourceState.engineRating,
     safeThrust: sourceState.safeThrust,
     armorType: sourceState.armorType,
+    smallCraftArmorType: sourceState.smallCraftArmorType,
     armorTonnage: sourceState.armorTonnage,
     armorAllocation: { ...sourceState.armorAllocation },
     heatSinks: sourceState.heatSinks,

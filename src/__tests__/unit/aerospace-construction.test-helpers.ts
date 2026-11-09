@@ -405,14 +405,14 @@ describe('armorArcCalculations', () => {
     ).toBe(0);
   });
 
-  it('small craft: LEFT_SIDE max = floor(100 × 0.20) = 20', () => {
+  it('small craft: a side has no independent location maximum', () => {
     expect(
       maxArcArmorPoints(
         AerospaceArc.LEFT_SIDE,
         100,
         AerospaceSubType.SMALL_CRAFT,
       ),
-    ).toBe(20);
+    ).toBeNull();
   });
 
   it('maxTotalArmorPoints: 100t ASF = nose+wing+wing+aft = 28+20+20+12 = 80', () => {

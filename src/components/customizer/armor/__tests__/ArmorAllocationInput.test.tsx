@@ -16,6 +16,21 @@ import React from 'react';
 import { ArmorAllocationInput } from '../ArmorAllocationInput';
 
 describe('ArmorAllocationInput', () => {
+  it('accepts an unbounded location without adding an HTML maximum', () => {
+    const onChange = jest.fn();
+    render(
+      <ArmorAllocationInput
+        label="Left Side"
+        value={80}
+        max={null}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByLabelText('Left Side armor value');
+    expect(input.hasAttribute('max')).toBe(false);
+    fireEvent.change(input, { target: { value: '608' } });
+    expect(onChange).toHaveBeenCalledWith(608);
+  });
   it('clamps values above max', () => {
     const onChange = jest.fn();
     render(

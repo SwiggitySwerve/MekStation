@@ -5,6 +5,7 @@ import { WeightClass } from '@/types/enums/WeightClass';
 
 import {
   AerospaceEngineType,
+  AerospaceSubType,
   isAerospace,
   isConventionalFighter,
   isSmallCraft,
@@ -61,13 +62,15 @@ export const aerospaceEditorSchema = z.object({
   ),
 });
 
-/** Project support armor identity into the catalog contract without losing BAR. */
+/** Preserve native small-craft and support armor identity in the existing contract. */
 export function serializeAerospaceArmorIdentity(
   type: string,
   context: {
     readonly isFixedWingSupport?: boolean;
     readonly barRating?: number;
     readonly armorTypeByArc?: Readonly<Record<string, number>>;
+    readonly smallCraftArmorType?: string;
+    readonly aerospaceSubType?: AerospaceSubType;
   },
 ): {
   type: string;
@@ -80,7 +83,9 @@ export function serializeAerospaceArmorIdentity(
       ? 'PATCHWORK'
       : context.isFixedWingSupport && context.barRating !== undefined
         ? 'BAR'
-        : type,
+        : context.aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+          ? (context.smallCraftArmorType ?? type)
+          : type,
     barRating: context.barRating,
   };
 }

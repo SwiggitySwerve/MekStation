@@ -30,6 +30,7 @@ import {
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { BayType, ITransportBay } from '@/types/unit/CapitalShipInterfaces';
+import { smallCraftArmorWeight } from '@/utils/construction/aerospace/armor';
 import { makeSmallCraftCrew } from '@/utils/construction/aerospace/crewCalculations';
 import { FUEL_POINTS_PER_TON } from '@/utils/construction/aerospace/fuelCalculations';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
@@ -256,6 +257,31 @@ export function mapAerospaceDefinitionToState(
   );
   const armorPoints = Object.values(armorAllocation).reduce((a, b) => a + b, 0);
   const pointsPerTon = getArmorDefinition(armorType)?.pointsPerTon ?? 16;
+  const motionType =
+    definition.motionType === 'SPHEROID'
+      ? AerospaceMotionType.SPHEROID
+      : AerospaceMotionType.AERODYNE;
+  const structuralIntegrity = aerospaceStructuralIntegrity({
+    aerospaceSubType: base.aerospaceSubType,
+    isFixedWingSupport,
+    tonnage,
+    safeThrust,
+    structuralIntegrity: Number(definition.structuralIntegrity ?? 0),
+  });
+  const smallCraftArmorType = isSmallCraft ? definition.armor?.type : undefined;
+  const armorTonnage = isSmallCraft
+    ? smallCraftArmorWeight(
+        {
+          tonnage,
+          techBase,
+          armorType,
+          smallCraftArmorType,
+          motionType,
+          structuralIntegrity,
+        },
+        armorPoints,
+      )
+    : Math.ceil((armorPoints / pointsPerTon) * 2) / 2;
   const createdAt = session.createdAt ?? base.createdAt;
 
   return {
@@ -272,10 +298,7 @@ export function mapAerospaceDefinitionToState(
           engineTechRating: definition.engineTechRating,
         }
       : {}),
-    motionType:
-      definition.motionType === 'SPHEROID'
-        ? AerospaceMotionType.SPHEROID
-        : AerospaceMotionType.AERODYNE,
+    motionType,
     isOmni: definition.isOmni ?? false,
     engineType: engineTypeName
       ? mapEngineType(engineTypeName, techBase)
@@ -288,13 +311,7 @@ export function mapAerospaceDefinitionToState(
     ),
     fuelTons: fuelPoints / FUEL_POINTS_PER_TON[aerospaceEngineType],
     fuelPoints,
-    structuralIntegrity: aerospaceStructuralIntegrity({
-      aerospaceSubType: base.aerospaceSubType,
-      isFixedWingSupport,
-      tonnage,
-      safeThrust,
-      structuralIntegrity: Number(definition.structuralIntegrity ?? 0),
-    }),
+    structuralIntegrity,
     cockpitType:
       COCKPIT_BY_CONTRACT[definition.cockpit ?? 'STANDARD'] ??
       AerospaceCockpitType.STANDARD,
@@ -302,11 +319,12 @@ export function mapAerospaceDefinitionToState(
     heatSinkPool: heatSinks * (doubleHeatSinks ? 2 : 1),
     doubleHeatSinks: doubleHeatSinks ?? false,
     armorType,
+    ...(isSmallCraft ? { smallCraftArmorType } : {}),
     armorTypeByArc: definition.armor?.typeByArc
       ? { ...definition.armor.typeByArc }
       : undefined,
     barRating: definition.armor?.barRating,
-    armorTonnage: Math.ceil((armorPoints / pointsPerTon) * 2) / 2,
+    armorTonnage,
     armorAllocation,
     hasBombBay: definition.hasBombBay === true,
     bombCapacity: Number(definition.bombCapacity ?? 0),
