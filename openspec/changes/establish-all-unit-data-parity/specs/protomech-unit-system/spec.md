@@ -427,3 +427,46 @@ policy SHALL NOT remain.
 - **WHEN** the owner is run over the pinned table of 2,944 allocations from the original classes
 - **THEN** every location of every case SHALL equal the original result
 - **AND** the editor's Auto action, which passes no count, SHALL place the legal total
+
+## ADDED Requirements
+
+### Requirement: Electric Discharge ProtoMech Armor
+
+The ProtoMech armor owner SHALL represent Standard and Electric Discharge armor
+using pinned MegaMek `48fcb2f64` identities and component rules. Existing numeric
+armor fields SHALL remain compatible; legacy Standard code 0 or an omitted
+source code SHALL retain Standard meaning. Unsupported identities SHALL produce
+diagnostics. Tech filtering remains deferred under owner ruling O3.
+
+#### Scenario: EDP armor selection and weight
+
+- **WHEN** a user selects Electric Discharge ProtoMech armor
+- **THEN** the editor SHALL display the Experimental choice and allocated mass at 0.075 t per point
+- **AND** 31 points SHALL retain Java's unrounded allocated mass, approximately 2.325 t
+- **AND** complete ProtoMech mass SHALL round once to the nearest kilogram, without half-ton armor rounding
+
+#### Scenario: Single torso slot and equipment BV owner
+
+- **WHEN** a ProtoMech uses Electric Discharge armor
+- **THEN** validation SHALL add one torso slot separately from ordinary equipment, excluding the armor mount from ordinary slot counting
+- **AND** the existing armor equipment mount SHALL supply its 32 BV exactly once through the miscellaneous offensive-equipment owner
+- **AND** switching to Standard SHALL remove the EDP mount and retain all other equipment and armor points
+
+#### Scenario: Full torso compatibility
+
+- **WHEN** selecting EDP on a ProtoMech whose torso is full
+- **THEN** MekStation SHALL retain every existing equipment mount and allow the armor edit
+- **AND** it SHALL display the torso slot-overflow validation diagnostic
+- **AND** the documented compatibility deviation SHALL identify that pinned MML unassigns optional mounts while MekStation has no unallocated ProtoMech location yet
+
+#### Scenario: Save and reopen EDP
+
+- **WHEN** either pinned Basilisk ProtoMech Quad variant is edited, saved and reopened
+- **THEN** armor identity, armor points and a single EDP mount SHALL be retained
+- **AND** armor mass, component total mass, slot validity and BV SHALL match the pinned Java observations
+
+#### Scenario: ProtoMech numerical regression
+
+- **WHEN** calculating the 86 pinned canonical ProtoMechs
+- **THEN** handler and shared-dispatch BV SHALL each equal the actual pinned Java total
+- **AND** no construction-validity result SHALL move away from the pinned Java verdict

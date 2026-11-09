@@ -7,26 +7,21 @@
  * @spec openspec/specs/equipment-services/spec.md
  */
 
+import physicalWeaponFormulas from '@/types/equipment/physicalWeaponFormulas.json';
 import {
   IVariableFormulas,
   fixed,
   ceilDivide,
-  floorDivide,
   roundDivide,
   multiply,
   multiplyRound,
   equalsWeight,
-  plus,
 } from '@/types/equipment/VariableEquipment';
 
-// MegaMek 48fcb2f64, MiscType.java:688-689,1000-1001,1259-1260.
-const CLAW_FORMULAS: IVariableFormulas = {
-  weight: ceilDivide('tonnage', 15),
-  criticalSlots: equalsWeight(),
-  cost: multiplyRound('tonnage', 200, 1),
-  damage: floorDivide('tonnage', 7),
-  requiredContext: ['tonnage'],
-};
+// Static code facts use the existing formula AST contract and evaluator.
+const physical = physicalWeaponFormulas as Readonly<
+  Record<keyof typeof physicalWeaponFormulas, IVariableFormulas>
+>;
 
 /**
  * Variable equipment formulas
@@ -151,140 +146,17 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
     requiredContext: ['tonnage'],
   },
 
-  // ============================================================================
-  // PHYSICAL WEAPONS
-  // ============================================================================
-
-  /**
-   * Hatchet
-   * Weight: ceil(tonnage / 15)
-   * Slots: = weight
-   * Cost: weight × 5,000
-   * Damage: floor(tonnage / 5)
-   */
-  hatchet: {
-    weight: ceilDivide('tonnage', 15),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 5000),
-    damage: floorDivide('tonnage', 5),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Sword
-   * MegaMek 48fcb2f64, MiscType.java:512-513,1075-1076.
-   * Weight: tonnage / 20 rounded up to 0.5 tons
-   * Slots: ceil(tonnage / 15)
-   * Cost: weight × 10,000
-   * Damage: floor(tonnage / 10) + 1
-   */
-  sword: {
-    weight: multiplyRound('tonnage', 0.05, 0.5),
-    criticalSlots: ceilDivide('tonnage', 15),
-    cost: multiply('weight', 10000),
-    damage: plus(floorDivide('tonnage', 10), 1),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Mace
-   * Weight: ceil(tonnage / 10)
-   * Slots: = weight
-   * Cost: weight × 7,500
-   * Damage: floor(tonnage / 4)
-   */
-  mace: {
-    weight: ceilDivide('tonnage', 10),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 7500),
-    damage: floorDivide('tonnage', 4),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Claw (native) and Claws (legacy physical record)
-   * Weight: ceil(tonnage / 15)
-   * Slots: = weight
-   * Cost: ceil(tonnage × 200)
-   * Damage: floor(tonnage / 7)
-   */
-  claw: CLAW_FORMULAS,
-  claws: CLAW_FORMULAS,
-
-  /**
-   * Lance
-   * Weight: ceil(tonnage / 20)
-   * Slots: = weight
-   * Cost: weight × 15,000
-   * Damage: floor(tonnage / 5) + 1
-   */
-  lance: {
-    weight: ceilDivide('tonnage', 20),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 15000),
-    damage: plus(floorDivide('tonnage', 5), 1),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Talons: one spreadable mount (MiscType.java:688-689,1256-1258,4314).
-   * Pinned MegaMek 48fcb2f64: weight ceil(tonnage / 15), slots 4 (biped) or 8 (quad).
-   * Cost: weight × 6,000
-   * Damage: floor(tonnage / 7)
-   */
-  talons: {
-    weight: ceilDivide('tonnage', 15),
-    criticalSlots: plus(multiply('isQuad', 4), 4),
-    cost: multiply('weight', 6000),
-    damage: floorDivide('tonnage', 7),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Retractable Blade
-   * MegaMek 48fcb2f64, MiscType.java:516-517,1082-1083.
-   * Weight: tonnage × 0.05 rounded to 0.5 tons
-   * Slots: 1 + ceil(tonnage / 20)
-   * Cost: weight × 10,000
-   * Damage: floor(tonnage / 10)
-   */
-  'retractable-blade': {
-    weight: plus(multiplyRound('tonnage', 0.05, 0.5), 0.5),
-    criticalSlots: plus(ceilDivide('tonnage', 20), 1),
-    cost: multiply('weight', 10000),
-    damage: floorDivide('tonnage', 10),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Flail
-   * Weight: ceil(tonnage / 5)
-   * Slots: = weight
-   * Cost: weight × 11,000
-   * Damage: floor(tonnage / 4) + 2
-   */
-  flail: {
-    weight: fixed(5),
-    criticalSlots: fixed(4),
-    cost: fixed(110000),
-    damage: plus(floorDivide('tonnage', 4), 2),
-    requiredContext: ['tonnage'],
-  },
-
-  /**
-   * Wrecking Ball
-   * Weight: ceil(tonnage / 10)
-   * Slots: = weight
-   * Cost: weight × 11,000
-   * Damage: floor(tonnage / 5) + 3
-   */
-  'wrecking-ball': {
-    weight: fixed(4),
-    criticalSlots: fixed(5),
-    cost: fixed(110000),
-    damage: plus(floorDivide('tonnage', 5), 3),
-    requiredContext: ['tonnage'],
-  },
+  // Preserve public registry order and the shared Claw alias object.
+  hatchet: physical['hatchet'],
+  sword: physical['sword'],
+  mace: physical['mace'],
+  claw: physical['claw'],
+  claws: physical['claw'],
+  lance: physical['lance'],
+  talons: physical['talons'],
+  'retractable-blade': physical['retractable-blade'],
+  flail: physical['flail'],
+  'wrecking-ball': physical['wrecking-ball'],
 } as const;
 
 /**
