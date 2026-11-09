@@ -55,6 +55,28 @@ A GM combat rewind that the journal has committed SHALL be answered as committed
 - **WHEN** the live host rebuilds on the activated branch
 - **THEN** that lease SHALL remain live with the same id, owner and fencing epoch
 
+### Requirement: Restart Keeps Seated Players Resynced After a Rewind
+
+Boot recovery of a match whose effective head sits on an activated rewind branch SHALL mark the host and every seated player for resync, exactly as the live rebuild does, so that a seated player's next join replays from the rebuilt head regardless of the `lastSeq` it quotes. The mark SHALL be consumed by that join. Boot recovery SHALL NOT mark spectators, and SHALL NOT mark a match whose effective head is on the live path. The mark SHALL NOT be persisted.
+
+#### Scenario: Stale lastSeq after a restart replays the rebuilt head
+
+- **GIVEN** a match rewound before a restart, and a seated player whose client holds events from the superseded stream
+- **WHEN** that player rejoins the recovered host quoting a `lastSeq` past the rebuilt head
+- **THEN** the host SHALL replay the rebuilt stream from its start
+
+#### Scenario: The mark is consumed
+
+- **GIVEN** a seated player who has rejoined the recovered host once
+- **WHEN** the player rejoins quoting the rebuilt head's last sequence
+- **THEN** the host SHALL resume from that sequence and replay nothing
+
+#### Scenario: Spectators and never-rewound matches are not marked
+
+- **GIVEN** a recovered host with a spectator seat, or a recovered match that was never rewound
+- **WHEN** the spectator, or any player, rejoins quoting the last sequence they hold
+- **THEN** the host SHALL resume from that sequence
+
 ### Requirement: A Closed Host Is Not Rebuilt
 
 A live host that has closed SHALL NOT be rebuilt from an activated rewind branch. `rebuildFromActivatedBranch` SHALL do nothing for a closed host, including a host that closes while its rebuild waits in the command queue, and SHALL NOT leave a rebuild pending for it. The rewind-commit route SHALL treat a closed host as having no live host and SHALL answer the committed result without `rebuildPending`. Boot recovery folds the activated branch for the match. Intents, lobby intents and joins to a closed or completed match remain refused by the existing guards.

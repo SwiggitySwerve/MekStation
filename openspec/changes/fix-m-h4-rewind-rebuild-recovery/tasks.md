@@ -20,6 +20,12 @@
 - [x] 12. Catch and log the writer failure in the route; no new response field.
 - [x] 13. Kill the no-catch, no-log and dropped-`rebuildPending` mutants; run the full affected directories and gates.
 
+## Follow-up D-2c: resync marks survive a restart
+
+- [x] 14. Record failing regressions: a recovered rewound match replays the rebuilt head to a seated player quoting a stale `lastSeq`; guards that a spectator, and a never-rewound match, are not marked.
+- [x] 15. Mark the host and the seated players when boot recovery folds an activated rewind branch; no persistence.
+- [x] 16. Kill the no-mark, host-only, every-recovery and spectator mutants; run the full affected directories and gates.
+
 ## Follow-up D-2b / D-2d: closed-host guard and reserved `waiting-effects`
 
 - [x] 17. Record failing regressions: rebuilding a closed host rewrites its session and claims the branch; the route still calls the rebuild on a closed registered host; a host that closes while the rebuild is queued is rebuilt anyway.
@@ -29,6 +35,6 @@
 
 ## Remaining follow-ups (separate PRs)
 
-- [ ] D-2c: resync marks lost on restart.
+- [x] D-2c: resync marks lost on restart (above).
 - [x] D-2b and D-2d: closed-host guard on the rebuild; `waiting-effects` is reserved for the effect-receipt change (above).
 - [ ] D-3: coordinated-outcome and campaign-retro builders strand `building` candidates.

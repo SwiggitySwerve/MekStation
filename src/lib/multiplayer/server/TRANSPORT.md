@@ -113,6 +113,13 @@ Restart recovery on an activated rewind skips the superseded delivery
 records and their acknowledgements. Both paths start the rebuilt stream
 with its own delivery numbers and acknowledgement window.
 
+The resync marks that send a seated player back to the rebuilt head also
+survive a restart: boot recovery of a match on an activated rewind branch marks
+the host and every seated player, so their next join replays from the rebuilt
+head whatever `lastSeq` they quote. Spectators are not marked, as in the live
+rebuild. A match that was never rewound is not marked. Nothing is persisted;
+the cost is one full replay per seat after each restart, consumed on join.
+
 `POST /api/matches/:id/rewind-commit` rebuilds the live host before it stores
 the GM's private reason. If the rebuild fails after the commit, the route still
 answers 200 with the committed result. It adds `rebuildPending: true` only when

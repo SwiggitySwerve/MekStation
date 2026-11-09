@@ -666,6 +666,19 @@ export class ServerMatchHost {
   };
 
   /**
+   * Make these viewers' next join replay from the rebuilt head, ignoring
+   * the `lastSeq` they quote: it names the superseded stream. The mark
+   * lives in memory, so boot recovery sets it again for a host it
+   * folds onto an activated branch (D-2c).
+   */
+  markViewersForResync = (playerIds: readonly string[]): void => {
+    this.rewindResyncViewers.clear();
+    for (const playerId of playerIds) {
+      this.rewindResyncViewers.add(playerId);
+    }
+  };
+
+  /**
    * Branch the host actually serves. Null means the live-path identity
    * (root / baseline). The admission view projects this; it is not
    * the store's effective head (that can move before rebuild).
@@ -730,12 +743,7 @@ export class ServerMatchHost {
       discardViewerDeliveries: () => {
         this.deliveryCursors.discardAll();
       },
-      markViewersForResync: (playerIds) => {
-        this.rewindResyncViewers.clear();
-        for (const playerId of playerIds) {
-          this.rewindResyncViewers.add(playerId);
-        }
-      },
+      markViewersForResync: this.markViewersForResync,
       setRewindReplayCeiling: (sequence) => {
         this.boundReplayToEffectiveHead(sequence);
       },
