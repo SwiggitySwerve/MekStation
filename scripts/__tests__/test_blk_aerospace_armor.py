@@ -1,5 +1,7 @@
 """Armor regression seam: pinned MegaMek 48fcb2f6 BLK loaders and EquipmentType."""
 
+import hashlib
+import json
 import logging
 from pathlib import Path
 import sys
@@ -40,9 +42,25 @@ class AerospaceArmorTest(unittest.TestCase):
                     'NOSE': 100, f'RIGHT_{side}': 201, f'LEFT_{side}': 302, 'AFT': 400,
                 })
 
+    def test_pinned_starfire_prototype_keeps_ferro_aluminum_identity(self):
+        # EquipmentType.java:112 at 48fcb2f64: T_ARMOR_FERRO_ALUM_PROTO = 27.
+        fixtures = json.loads((Path(__file__).parent / 'fixtures/blk_converter_fidelity.json')
+                              .read_text(encoding='utf-8'))['fixtures']
+        fixture = next(row for row in fixtures if row['path'].endswith('Starfire SF-1X (Prototype).blk'))
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'Starfire SF-1X (Prototype).blk'
+            source.write_bytes(fixture['blk'].encode('utf-8'))
+            self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(),
+                             'fd91d63db87aab1e78f4ef34dc975b56efa726f616518c384ff9f894b01b056e')
+            unit = convert_aerospace_blk(source, logging.getLogger(__name__))
+        self.assertEqual(unit['armor']['type'], 'FERRO_ALUMINUM_PROTO')
+        self.assertEqual(sum(unit['armor']['byArc'].values()), 125)
+        self.assertEqual(validate_unit(unit), [])
+
     def test_equipment_type_codes_use_existing_schema_names(self):
         # EquipmentType.java:85-126; check code 25 as well as the former wrong alias 40.
         for code, expected in ((19, 'FERRO_ALUMINUM'), (20, 'HEAVY_FERRO_ALUMINUM'),
+                               (27, 'FERRO_ALUMINUM_PROTO'),
                                (40, 'PRIMITIVE_AERO'), (41, 'AEROSPACE'),
                                (22, 'STEALTH'), (25, 'IMPACT_RESISTANT'),
                                (10, 'COMMERCIAL'), (14, 'INDUSTRIAL'),

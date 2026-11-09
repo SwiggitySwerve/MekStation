@@ -241,6 +241,27 @@ required before returning complete scope.
 - **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
 - **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
 
+### Requirement: Large aerospace weapon-group diagnostic projection
+
+The large aerospace mount owner SHALL retain, for each arc, the equal-mount
+groups the native calculator sums before valuation (same type, physical
+location, rear flag and link type), and the complete trace SHALL project one
+weapon term per group: count times link-multiplied value times the arc weight,
+plus one capacitor addition per group after weighting. Terms SHALL be keyed by
+the physical location abbreviation (DropShip wings LS and RS; otherwise NOS,
+FLS, FRS, ALS, ARS, AFT, LBS, RBS), never by the BV arc. Local indices SHALL NOT
+assert native equipment identity. Existing mount valuation, arc selection,
+aggregates, totals and defensive-only scope SHALL remain unchanged, and
+defensive-only results SHALL NOT receive weapon terms.
+
+#### Scenario: Rear mounts keep their physical location
+
+- **GIVEN** the pinned Aqueduct Liquid Carrier with rear-mounted medium lasers on each wing
+- **WHEN** its complete large aerospace trace is calculated
+- **THEN** the wing weapons SHALL appear at LS and RS with values 46 and 23, though their BV arcs are the rear wing arcs
+- **AND** the nose, aft large laser and aft machine gun SHALL appear at NOS, AFT and AFT with values 30.75, 123 and 10
+- **AND** the terms SHALL sum to the weapon fire-pool BV and final BV 919 SHALL remain unchanged
+
 ### Requirement: Capital ship defensive BV dispatch
 
 JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
@@ -1287,6 +1308,32 @@ SHALL remain absent, and legacy inputs omitting ammo SHALL retain their trace.
 - **WHEN** ordinary aerospace ammo diagnostics are projected
 - **THEN** unmatched bins SHALL retain availability without inventing a cap, empty lists SHALL retain real caps without inventing bins, and AMS raw caps SHALL remain outside offensive ammo arithmetic
 - **AND** direction, heat, fire control and speed SHALL NOT scale these diagnostics
+
+### Requirement: Infantry raw weapon-stage diagnostics
+
+The infantry BV owner SHALL supply optional primary, represented secondary,
+anti-Mek repeat and remaining weapon-stage values to the trace. Their
+`infantry.primaryWeaponBV`, `infantry.secondaryWeaponBV`,
+`infantry.antiMekWeaponBV` and `infantry.weaponRemainderBV` projections SHALL
+retain pinned native operation order and floating-point residuals without
+rounding. Existing per-trooper arithmetic, old diagnostics, source inputs,
+aggregates and totals SHALL remain unchanged.
+
+#### Scenario: Native stages retain fractional residuals
+
+- **GIVEN** pinned infantry with primary and optional secondary weapons, anti-Mek training or field guns
+- **WHEN** source weapon-stage diagnostics are projected
+- **THEN** primary and secondary values SHALL use the original shooter counts
+- **AND** anti-Mek weapon repeats SHALL exclude archaic weapons and prosthetic bonuses
+- **AND** the remainder SHALL subtract primary, secondary, field guns and anti-Mek repeats in native order, retaining even tiny nonzero residuals
+
+#### Scenario: Missing facts, zero values and replay compatibility
+
+- **GIVEN** a legacy calculation without source facts, an absent secondary weapon or a represented zero secondary contribution
+- **WHEN** its breakdown is calculated or replayed
+- **THEN** absent source facts and absent secondary weapons SHALL NOT acquire diagnostic keys
+- **AND** represented zero values SHALL remain present and finite
+- **AND** strict replay SHALL accept the optional finite keys and legacy payloads while rejecting nonfinite diagnostics
 
 ### Requirement: ProtoMech resolved-zero miscellaneous diagnostics
 

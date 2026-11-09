@@ -1,9 +1,5 @@
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
-import {
-  publishCombatOutcome,
-  type ICombatOutcomeReadyEvent,
-} from '@/engine/combatOutcomeBus';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { calculateGameOutcome } from '@/services/game-resolution/GameOutcomeCalculator';
 import {
@@ -21,13 +17,11 @@ export interface IFinalizeSessionOutcomeInput {
   readonly gameConfig: IGameConfig;
   readonly startedAt: string;
   readonly linkage: IInteractiveSessionLinkage;
-  /** Scratch sessions finalize state but must never touch the bus. */
-  readonly suppressPublish?: boolean;
 }
 
 export interface IFinalizeSessionOutcomeResult {
   readonly session: IGameSession;
-  readonly published: boolean;
+  readonly outcome: ICombatOutcome | null;
 }
 
 export function finalizeSessionOutcome(
@@ -57,7 +51,7 @@ export function finalizeSessionOutcome(
   }
 
   if (session.currentState.status !== GameStatus.Completed) {
-    return { session, published: false };
+    return { session, outcome: null };
   }
 
   let outcome: ICombatOutcome;
@@ -67,17 +61,8 @@ export function finalizeSessionOutcome(
       scenarioId: input.linkage.scenarioId ?? undefined,
     });
   } catch {
-    return { session, published: false };
+    return { session, outcome: null };
   }
 
-  const event: ICombatOutcomeReadyEvent = {
-    matchId: outcome.matchId,
-    outcome,
-  };
-  // Suppressed callers report published=true so the finalize guard
-  // closes; the outcome belongs to the live session, not the scratch.
-  if (input.suppressPublish === true) {
-    return { session, published: true };
-  }
-  return { session, published: publishCombatOutcome(event) };
+  return { session, outcome };
 }
