@@ -16,21 +16,6 @@ import React from 'react';
 import { ArmorAllocationInput } from '../ArmorAllocationInput';
 
 describe('ArmorAllocationInput', () => {
-  it('accepts an unbounded location without adding an HTML maximum', () => {
-    const onChange = jest.fn();
-    render(
-      <ArmorAllocationInput
-        label="Left Side"
-        value={80}
-        max={null}
-        onChange={onChange}
-      />,
-    );
-    const input = screen.getByLabelText('Left Side armor value');
-    expect(input.hasAttribute('max')).toBe(false);
-    fireEvent.change(input, { target: { value: '608' } });
-    expect(onChange).toHaveBeenCalledWith(608);
-  });
   it('clamps values above max', () => {
     const onChange = jest.fn();
     render(
@@ -46,6 +31,24 @@ describe('ArmorAllocationInput', () => {
     ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: '50' } });
     expect(onChange).toHaveBeenCalledWith(10);
+  });
+
+  it('leaves an unlimited location without a max attribute or upper clamp', () => {
+    const onChange = jest.fn();
+    render(
+      <ArmorAllocationInput
+        label="Front"
+        value={76}
+        max={null}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByLabelText('Front armor value');
+    expect(input.getAttribute('max')).toBeNull();
+    fireEvent.change(input, { target: { value: '1000' } });
+    expect(onChange).toHaveBeenLastCalledWith(1000);
+    fireEvent.change(input, { target: { value: '-1' } });
+    expect(onChange).toHaveBeenLastCalledWith(0);
   });
 
   it('clamps values below min (default 0)', () => {

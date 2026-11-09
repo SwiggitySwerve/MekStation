@@ -302,18 +302,12 @@ export function AerospaceArmorDiagram({
           const max = getArcMax(tonnage, subType, arc);
           return (
             <div key={arc} className="flex flex-col gap-1">
-              {max === null ? (
-                <span className="text-text-theme-secondary text-xs">
-                  {label}
-                </span>
-              ) : (
-                <ArmorLocationBlock
-                  label={label}
-                  current={current}
-                  max={max}
-                  accentClass="text-cyan-400"
-                />
-              )}
+              <ArmorLocationBlock
+                label={label}
+                current={current}
+                max={max}
+                accentClass="text-cyan-400"
+              />
               <ArmorAllocationInput
                 label={label}
                 value={current}
