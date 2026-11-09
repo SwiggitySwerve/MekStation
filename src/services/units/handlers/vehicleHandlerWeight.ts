@@ -2,11 +2,15 @@ import type { IBlkDocument } from '@/types/formats/BlkFormat';
 import type {
   IVehicle,
   IVehicleTurretSourceContext,
+  IVTOL,
 } from '@/types/unit/VehicleInterfaces';
 import type { VehicleWeightBreakdown } from '@/utils/construction/vehicle/weightComposition';
 
 import { decodeBlkArmorType } from '@/services/conversion/BlkArmorCodes';
-import { decodeBlkVehicleEngine } from '@/services/conversion/blkEngineIdentity';
+import {
+  decodeBlkVehicleEngine,
+  isClanBlkEngine,
+} from '@/services/conversion/blkEngineIdentity';
 import { isClanSourceChassis } from '@/services/conversion/ValueMappings';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { resolveEquipmentId } from '@/services/units/unitLoaderService/equipmentResolution';
@@ -45,6 +49,21 @@ type NativeCombatVehicleWeightUnit = NativeTankWeightUnit & {
   readonly hasNoControlSystems: boolean;
 };
 
+type NativeVTOLWeightUnit = Pick<
+  IVTOL,
+  | 'unitType'
+  | 'engineType'
+  | 'engineRating'
+  | 'motionType'
+  | 'armorType'
+  | 'armorLayoutError'
+  | 'totalArmorPoints'
+  | 'internalStructureType'
+  | 'equipment'
+  | 'chinTurret'
+  | keyof IVehicleTurretSourceContext
+>;
+
 /** Preserve the native tag's integer parsing, including the explicit -1 sentinel. */
 export function getNativeVehicleArmorTechLevel(source: IBlkDocument): number {
   return Number.parseInt(String(source.rawTags.armor_tech_level ?? ''), 10);
@@ -69,6 +88,30 @@ export function computeNativeTankWeight(
     hasNoControlSystems: Object.keys(source.rawTags).some(
       (key) => key.toLowerCase() === 'hasnocontrolsystems',
     ),
+  });
+}
+
+/**
+ * Native VTOL fields use the same construction owners as Tank.
+ * TestTank.java:229-239 (48fcb2f64): rotor mass is the existing lifting term.
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md
+ */
+export function computeNativeVTOLWeight(
+  source: IBlkDocument,
+  unit: NativeVTOLWeightUnit,
+): VehicleWeightBreakdown | undefined {
+  const armorTechLevel = getNativeVehicleArmorTechLevel(source);
+  return computeNativeCombatVehicleWeight(source, {
+    ...unit,
+    unitType: UnitType.VTOL,
+    internalStructureType: unit.internalStructureType ?? 0,
+    clanEngine: isClanBlkEngine(source.type, source.rawTags.clan_engine),
+    ...(Number.isInteger(armorTechLevel) ? { armorTechLevel } : {}),
+    turret: unit.chinTurret,
+    // BLKVTOLFile.java:132-133,164-172 installs at most one chin turret.
+    secondaryTurret: undefined,
+    // Unlike BLKTankFile, BLKVTOLFile never reads hasNoControlSystems.
+    hasNoControlSystems: false,
   });
 }
 
@@ -151,6 +194,19 @@ export function withNativeTankWeight<
   const weights = fields.errors.length
     ? undefined
     : computeNativeTankWeight(source, fields);
+  return withNativeVehicleWeight(source, fields, weights);
+}
+
+/** Publish only complete source-derived VTOL mass, without changing legacy APIs. */
+export function withNativeVTOLWeight<
+  T extends NativeVTOLWeightUnit & { readonly errors: readonly string[] },
+>(
+  source: IBlkDocument,
+  fields: T,
+): T & Partial<Pick<IVTOL, 'totalWeight' | 'remainingTonnage'>> {
+  const weights = fields.errors.length
+    ? undefined
+    : computeNativeVTOLWeight(source, fields);
   return withNativeVehicleWeight(source, fields, weights);
 }
 
