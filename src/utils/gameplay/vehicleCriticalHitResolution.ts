@@ -3,7 +3,7 @@
  *
  * 2d6 vehicle critical-hit table + effect application. Unlike mechs, vehicle
  * crits don't consume critical slots — they modify the combat state:
- *   - Crew Stunned: skip next movement + weapon phase.
+ *   - Crew Stunned: track remaining stun rounds.
  *   - Engine Hit: immobilizes the vehicle.
  *   - Driver/Commander: wound counter; 2 kills the crew (vehicle destroyed).
  *   - Fuel Tank: ICE/FuelCell only — vehicle destroyed by fuel explosion

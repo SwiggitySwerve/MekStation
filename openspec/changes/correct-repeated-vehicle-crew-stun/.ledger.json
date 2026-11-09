@@ -1,6 +1,6 @@
 {
   "name": "correct-repeated-vehicle-crew-stun",
-  "status": "in-progress",
-  "reason": "Root-approved C-6 parity fix for MegaMek 48fcb2f64 Tank.stunCrew, with consolidation before the increment change.",
+  "status": "implemented",
+  "reason": "Implemented MegaMek 48fcb2f64 Tank.stunCrew after a separate consolidation commit. Local gates passed; hosted CI and Root merge are pending.",
   "lastReviewed": "2026-11-08"
 }
