@@ -37,6 +37,15 @@ export async function isStoreExposed(page: Page): Promise<boolean> {
   });
 }
 
+/** Each document publishes its store map after the E2E import completes. */
+async function waitForStoreExposure(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => typeof window.__ZUSTAND_STORES__ !== 'undefined',
+    undefined,
+    { timeout: DEFAULT_TIMEOUT },
+  );
+}
+
 /**
  * Get the current state of a Zustand store.
  *
@@ -62,6 +71,7 @@ export async function getStoreState<T>(
   page: Page,
   storeName: string,
 ): Promise<T> {
+  await waitForStoreExposure(page);
   return readStoreSnapshot<T>(page, storeName);
 }
 
@@ -161,6 +171,7 @@ export async function setStoreValue(
   storeName: string,
   updates: Record<string, unknown>,
 ): Promise<void> {
+  await waitForStoreExposure(page);
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(

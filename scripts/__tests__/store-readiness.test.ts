@@ -1,7 +1,5 @@
 import type { Page } from '@playwright/test';
 
-import { expect as playwrightExpect } from '@playwright/test';
-
 import {
   getStoreState,
   isStoreExposed,
@@ -10,7 +8,14 @@ import {
   waitForStoreState,
 } from '../../e2e/helpers/store';
 
-jest.mock('@playwright/test', () => ({ expect: jest.fn() }));
+jest.mock('@playwright/test', () => ({
+  expect: (value: unknown) =>
+    typeof value === 'function'
+      ? {
+          toPass: (options: { timeout: number }) => mockToPass(value, options),
+        }
+      : expect(value),
+}));
 
 function browserDocument() {
   const state = { ready: false, reset: jest.fn() };
@@ -23,13 +28,43 @@ function browserDocument() {
   const evaluate = jest.fn(
     async (callback: (arg: unknown) => unknown, arg?: unknown) => callback(arg),
   );
-  const waitForFunction = jest.fn();
+  const pending = new Set<{
+    predicate: () => boolean;
+    publish: () => void;
+  }>();
+  const waitForFunction = jest.fn(
+    (
+      predicate: () => boolean,
+      _arg: undefined,
+      options: { timeout: number },
+    ) => {
+      if (predicate()) return Promise.resolve();
+      return new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          pending.delete(wait);
+          reject(new Error('Store exposure timed out'));
+        }, options.timeout);
+        const wait = {
+          predicate,
+          publish: () => {
+            clearTimeout(timer);
+            pending.delete(wait);
+            resolve();
+          },
+        };
+        pending.add(wait);
+      });
+    },
+  );
   const publish = (stores: Record<string, unknown> = { campaign: store }) => {
     Object.defineProperty(window, '__ZUSTAND_STORES__', {
       configurable: true,
       writable: true,
       value: stores,
     });
+    for (const wait of pending) {
+      if (wait.predicate()) wait.publish();
+    }
   };
   return {
     // This double implements only the public Page methods used by the helper.
@@ -42,20 +77,105 @@ function browserDocument() {
   };
 }
 
-const mockedExpect = jest.mocked(playwrightExpect);
-const toPass = jest.fn();
+const mockToPass = jest.fn();
 
 beforeEach(() => {
   delete window.__ZUSTAND_STORES__;
-  toPass.mockReset();
-  mockedExpect.mockImplementation((value: unknown) => {
-    if (typeof value === 'function') {
-      return {
-        toPass: (options: { timeout: number }) => toPass(value, options),
-      };
-    }
-    return expect(value);
+  mockToPass.mockReset();
+});
+
+function track<T>(promise: Promise<T>) {
+  let settled = false;
+  const result = promise.then(
+    (value) => {
+      settled = true;
+      return { value };
+    },
+    (error: unknown) => {
+      settled = true;
+      return { error };
+    },
+  );
+  return { result, isSettled: () => settled };
+}
+
+describe('store publication readiness', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('waits for publication before reading (matrix row 1)', async () => {
+    const fixture = browserDocument();
+    const read = track(getStoreState(fixture.page, 'campaign'));
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(read.isSettled()).toBe(false);
+    expect(fixture.store.getState).not.toHaveBeenCalled();
+    fixture.publish();
+
+    expect(await read.result).toEqual({ value: fixture.state });
+    expect(fixture.store.getState).toHaveBeenCalledTimes(1);
   });
+
+  it('waits for publication before writing (matrix row 2)', async () => {
+    const fixture = browserDocument();
+    const write = track(
+      setStoreValue(fixture.page, 'campaign', { ready: true }),
+    );
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(write.isSettled()).toBe(false);
+    expect(fixture.store.setState).not.toHaveBeenCalled();
+    fixture.publish();
+
+    expect(await write.result).toEqual({ value: undefined });
+    expect(fixture.store.setState).toHaveBeenCalledTimes(1);
+    expect(fixture.store.setState).toHaveBeenCalledWith({ ready: true });
+  });
+
+  it('waits again after navigation replaces a previously published document', async () => {
+    const fixture = browserDocument();
+    fixture.publish();
+    await getStoreState(fixture.page, 'campaign');
+
+    delete window.__ZUSTAND_STORES__;
+    const read = track(getStoreState(fixture.page, 'campaign'));
+    await jest.advanceTimersByTimeAsync(0);
+    expect(read.isSettled()).toBe(false);
+    expect(fixture.store.getState).toHaveBeenCalledTimes(1);
+
+    const nextState = { ready: true, document: 'next' };
+    const nextStore = { getState: jest.fn(() => nextState) };
+    fixture.publish({ campaign: nextStore });
+    expect(await read.result).toEqual({ value: nextState });
+    expect(nextStore.getState).toHaveBeenCalledTimes(1);
+    expect(fixture.waitForFunction).toHaveBeenCalledTimes(2);
+  });
+
+  it.each(['read', 'write'])(
+    'fails a %s within the existing 10-second exposure budget',
+    async (operation) => {
+      const fixture = browserDocument();
+      const result = track(
+        operation === 'read'
+          ? getStoreState(fixture.page, 'campaign')
+          : setStoreValue(fixture.page, 'campaign', {}),
+      );
+      await jest.advanceTimersByTimeAsync(9999);
+      expect(result.isSettled()).toBe(false);
+      await jest.advanceTimersByTimeAsync(1);
+
+      expect(await result.result).toEqual({
+        error: new Error('Store exposure timed out'),
+      });
+      expect(fixture.waitForFunction).toHaveBeenCalledWith(
+        expect.any(Function),
+        undefined,
+        { timeout: 10000 },
+      );
+      expect(fixture.store.getState).not.toHaveBeenCalled();
+      expect(fixture.store.setState).not.toHaveBeenCalled();
+    },
+  );
 });
 
 afterEach(() => {
@@ -114,26 +234,28 @@ describe('store snapshot contract', () => {
       expect.stringContaining('Skipping reset'),
     );
     expect(fixture.waitForFunction).not.toHaveBeenCalled();
-    expect(toPass).not.toHaveBeenCalled();
+    expect(mockToPass).not.toHaveBeenCalled();
   });
 
   it('keeps the existing reset action and settling budget', async () => {
     const fixture = browserDocument();
     fixture.publish();
-    toPass.mockImplementation(async (callback: () => Promise<void>) =>
+    mockToPass.mockImplementation(async (callback: () => Promise<void>) =>
       callback(),
     );
 
     await resetStores(fixture.page, 321);
 
     expect(fixture.state.reset).toHaveBeenCalledTimes(1);
-    expect(toPass).toHaveBeenCalledWith(expect.any(Function), { timeout: 321 });
+    expect(mockToPass).toHaveBeenCalledWith(expect.any(Function), {
+      timeout: 321,
+    });
     expect(fixture.waitForFunction).not.toHaveBeenCalled();
   });
 
   it('polls snapshots inside one predicate budget, including before publication', async () => {
     const fixture = browserDocument();
-    toPass.mockImplementation(async (callback: () => Promise<void>) => {
+    mockToPass.mockImplementation(async (callback: () => Promise<void>) => {
       await expect(callback()).rejects.toThrow('Stores are not exposed');
       fixture.publish();
       await expect(callback()).rejects.toThrow();
@@ -143,8 +265,10 @@ describe('store snapshot contract', () => {
 
     await waitForStoreState(fixture.page, 'campaign', 'state.ready', 432);
 
-    expect(toPass).toHaveBeenCalledTimes(1);
-    expect(toPass).toHaveBeenCalledWith(expect.any(Function), { timeout: 432 });
+    expect(mockToPass).toHaveBeenCalledTimes(1);
+    expect(mockToPass).toHaveBeenCalledWith(expect.any(Function), {
+      timeout: 432,
+    });
     expect(fixture.waitForFunction).not.toHaveBeenCalled();
     expect(fixture.store.getState).toHaveBeenCalledTimes(2);
   });
@@ -152,7 +276,7 @@ describe('store snapshot contract', () => {
   it('preserves a predicate timeout instead of starting a nested readiness wait', async () => {
     const fixture = browserDocument();
     const timeout = new Error('predicate budget expired');
-    toPass.mockImplementation(async (callback: () => Promise<void>) => {
+    mockToPass.mockImplementation(async (callback: () => Promise<void>) => {
       await expect(callback()).rejects.toThrow('Stores are not exposed');
       throw timeout;
     });
@@ -161,7 +285,7 @@ describe('store snapshot contract', () => {
       waitForStoreState(fixture.page, 'campaign', 'state.ready'),
     ).rejects.toBe(timeout);
 
-    expect(toPass).toHaveBeenCalledWith(expect.any(Function), {
+    expect(mockToPass).toHaveBeenCalledWith(expect.any(Function), {
       timeout: 10000,
     });
     expect(fixture.waitForFunction).not.toHaveBeenCalled();
