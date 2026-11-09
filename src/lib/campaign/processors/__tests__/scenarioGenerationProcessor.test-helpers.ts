@@ -306,6 +306,81 @@ describe('scenarioGenerationProcessor', () => {
       expect(result.campaign).toBeDefined();
     });
 
+    // MekHQ rolls scenarios only for contracts whose status is ACTIVE
+    // (Campaign.getActiveContracts -> ContractHistoryData.isActive).
+    it.each([
+      MissionStatus.SUCCESS,
+      MissionStatus.PARTIAL,
+      MissionStatus.FAILED,
+      MissionStatus.BREACH,
+      MissionStatus.PENDING,
+    ])('should not generate scenarios for a %s contract', (status) => {
+      const processor = createScenarioGenerationProcessor(
+        createCyclingRandom(0.3, 0.5, 0.5, 0.5, 0.5),
+      );
+      const campaign = createMockCampaign({
+        currentDate: new Date('2025-01-27'), // Monday
+        options: { ...createMockCampaign().options, useAtBScenarios: true },
+        combatTeams: [createMockTeam({ role: CombatRole.MANEUVER })],
+        missions: new Map([['contract-001', createMockContract({ status })]]),
+      });
+
+      const result = processor.process(campaign, campaign.currentDate);
+
+      expect(result.events).toHaveLength(0);
+    });
+
+    it('should generate for an ACTIVE contract with the same rolls', () => {
+      const processor = createScenarioGenerationProcessor(
+        createCyclingRandom(0.3, 0.5, 0.5, 0.5, 0.5),
+      );
+      const campaign = createMockCampaign({
+        currentDate: new Date('2025-01-27'), // Monday
+        options: { ...createMockCampaign().options, useAtBScenarios: true },
+        combatTeams: [createMockTeam({ role: CombatRole.MANEUVER })],
+        missions: new Map([['contract-001', createMockContract()]]),
+      });
+
+      const result = processor.process(campaign, campaign.currentDate);
+
+      expect(result.events.length).toBeGreaterThan(0);
+    });
+
+    it('should generate only for the ACTIVE contract beside a settled one', () => {
+      const processor = createScenarioGenerationProcessor(
+        createConstantRandom(0),
+      );
+      const campaign = createMockCampaign({
+        currentDate: new Date('2025-01-27'), // Monday
+        options: { ...createMockCampaign().options, useAtBScenarios: true },
+        combatTeams: [createMockTeam({ role: CombatRole.MANEUVER })],
+        missions: new Map([
+          [
+            'contract-done',
+            createMockContract({
+              id: 'contract-done',
+              status: MissionStatus.SUCCESS,
+            }),
+          ],
+          [
+            'contract-live',
+            createMockContract({
+              id: 'contract-live',
+              status: MissionStatus.ACTIVE,
+            }),
+          ],
+        ]),
+      });
+
+      const result = processor.process(campaign, campaign.currentDate);
+
+      const contractIds = result.events.map(
+        (event) => (event.data as { contractId?: string }).contractId,
+      );
+      expect(contractIds.length).toBeGreaterThan(0);
+      expect(new Set(contractIds)).toEqual(new Set(['contract-live']));
+    });
+
     it('should skip non-contract missions', () => {
       const campaign = createMockCampaign({
         currentDate: new Date('2025-01-27'),
