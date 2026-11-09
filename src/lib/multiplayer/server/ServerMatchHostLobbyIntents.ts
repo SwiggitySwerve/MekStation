@@ -8,7 +8,9 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { InvalidMatchStatusTransitionError } from '@/types/multiplayer/MatchStatus';
 import { nowIso } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta, IMatchStore, ISideAssignment } from './IMatchStore';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
@@ -24,6 +26,7 @@ import {
   setHumanSlot,
   setReady,
 } from './lobby/lobbyStateMachine';
+import { updateMatchSeats, type SeatUpdateResult } from './lobby/seatUpdate';
 import { markMatchCompleted } from './matchCompletion';
 import {
   isLobbyIntentKind,
@@ -50,6 +53,11 @@ interface ILobbyIntentMutation {
   readonly seats: IMatchSeat[];
   readonly status?: IMatchMeta['status'];
   readonly clearRoomCode?: boolean;
+  /**
+   * Pending-peer entry to drop once the seat write is applied. The handler
+   * can run again after a conflict, so it must not touch host state itself.
+   */
+  readonly clearPendingFor?: string;
 }
 
 type LobbyIntent = Extract<
@@ -125,13 +133,36 @@ const LOBBY_INTENT_HANDLERS: LobbyIntentHandlers = {
         'MarkSeatAi requires a pending occupied human seat',
       );
     }
-    const nextSeats = setAiSlot(seats, intent.slotId, intent.aiProfile);
-    if (droppedPlayerId) {
-      ctx.pendingPeers.clearPending(droppedPlayerId);
-    }
-    return { seats: nextSeats };
+    return {
+      seats: setAiSlot(seats, intent.slotId, intent.aiProfile),
+      clearPendingFor: droppedPlayerId,
+    };
   },
 };
+
+/** Status gate plus handler against the metadata it is handed; may throw. */
+function deriveLobbyMutation(
+  ctx: IServerMatchHostLobbyContext,
+  meta: IMatchMeta,
+  envelope: IIntent,
+): ILobbyIntentMutation {
+  const intent = envelope.intent;
+  if (
+    !isLobbyIntentKind(intent.kind) ||
+    !lobbyIntentAllowedInStatus(intent.kind, meta.status)
+  ) {
+    throw new LobbyStateError(
+      `Intent ${intent.kind} is not allowed in match status ${meta.status}`,
+    );
+  }
+  const handler = LOBBY_INTENT_HANDLERS[intent.kind as LobbyIntent['kind']];
+  if (!handler) {
+    throw new LobbyStateError(
+      `Unhandled lobby intent: ${(intent as { kind: string }).kind}`,
+    );
+  }
+  return handler(ctx, meta.seats ?? [], envelope, intent as never);
+}
 
 export async function handleLobbyIntent(
   ctx: IServerMatchHostLobbyContext,
@@ -139,82 +170,119 @@ export async function handleLobbyIntent(
 ): Promise<readonly IServerMessage[]> {
   const out: IServerMessage[] = [];
   const meta = await ctx.store.getMatchMeta(ctx.matchId);
-  const seats = meta.seats ?? [];
   const intent = envelope.intent;
+
+  const reject = (
+    code: 'AUTH_REJECTED' | 'INVALID_INTENT' | 'STORE_FAILURE',
+    reason: string,
+  ): readonly IServerMessage[] => {
+    const err: IServerMessage = {
+      kind: 'Error',
+      matchId: ctx.matchId,
+      ts: nowIso(),
+      code,
+      intentId: envelope.intentId,
+      reason,
+    };
+    ctx.broadcast(err);
+    return [err];
+  };
+  const refuse = (e: unknown): readonly IServerMessage[] =>
+    reject(
+      'INVALID_INTENT',
+      e instanceof Error ? e.message : 'Lobby state machine rejected',
+    );
 
   if (
     isLobbyIntentKind(intent.kind) &&
     MATCH_INTENT_KINDS[intent.kind].hostOnly &&
     envelope.playerId !== meta.hostPlayerId
   ) {
-    const err: IServerMessage = {
-      kind: 'Error',
-      matchId: ctx.matchId,
-      ts: nowIso(),
-      code: 'AUTH_REJECTED',
-      intentId: envelope.intentId,
-      reason: `Intent ${intent.kind} requires host privileges`,
-    };
-    ctx.broadcast(err);
-    return [err];
+    return reject(
+      'AUTH_REJECTED',
+      `Intent ${intent.kind} requires host privileges`,
+    );
   }
 
-  let mutation: ILobbyIntentMutation;
-
-  try {
-    if (
-      !isLobbyIntentKind(intent.kind) ||
-      !lobbyIntentAllowedInStatus(intent.kind, meta.status)
-    ) {
-      throw new LobbyStateError(
-        `Intent ${intent.kind} is not allowed in match status ${meta.status}`,
+  // Forfeit ends the game through the engine rather than writing seats, so
+  // only it decides from this first read.
+  if (intent.kind === 'ForfeitMatch') {
+    if (!lobbyIntentAllowedInStatus(intent.kind, meta.status)) {
+      return refuse(
+        new LobbyStateError(
+          `Intent ${intent.kind} is not allowed in match status ${meta.status}`,
+        ),
       );
     }
-    if (intent.kind === 'ForfeitMatch') {
-      return handleForfeitMatch(ctx, meta);
-    }
-    const handler = LOBBY_INTENT_HANDLERS[intent.kind as LobbyIntent['kind']];
-    if (!handler) {
-      throw new LobbyStateError(
-        `Unhandled lobby intent: ${(intent as { kind: string }).kind}`,
-      );
-    }
-    mutation = handler(ctx, seats, envelope, intent as never);
-  } catch (e) {
-    const err: IServerMessage = {
-      kind: 'Error',
-      matchId: ctx.matchId,
-      ts: nowIso(),
-      code: 'INVALID_INTENT',
-      intentId: envelope.intentId,
-      reason: e instanceof Error ? e.message : 'Lobby state machine rejected',
-    };
-    ctx.broadcast(err);
-    return [err];
+    return handleForfeitMatch(ctx, meta);
   }
 
-  const nextSeats = mutation.seats;
-  const nextStatus = mutation.status ?? meta.status;
-
+  // Every other lobby intent is derived from the metadata at write time and
+  // stored with the revision it was derived from, so a concurrent seat write
+  // (REST spectate, detach, another intent) is merged, never overwritten.
+  const attempt: {
+    mutation: ILobbyIntentMutation | null;
+    refusal: unknown;
+    derivations: number;
+  } = { mutation: null, refusal: null, derivations: 0 };
+  let result: SeatUpdateResult;
   try {
-    await ctx.store.updateMatchMeta(ctx.matchId, {
-      seats: nextSeats,
-      playerIds: lobbyPlayerIds(nextSeats),
-      sideAssignments: lobbySideAssignments(nextSeats),
-      status: nextStatus,
-      ...(mutation.clearRoomCode ? { roomCode: null } : {}),
+    result = await updateMatchSeats(ctx.store, ctx.matchId, (current) => {
+      attempt.derivations += 1;
+      attempt.mutation = null;
+      attempt.refusal = null;
+      let mutation: ILobbyIntentMutation;
+      try {
+        mutation = deriveLobbyMutation(ctx, current, envelope);
+      } catch (e) {
+        attempt.refusal = e;
+        return null;
+      }
+      attempt.mutation = mutation;
+      return {
+        seats: mutation.seats,
+        playerIds: lobbyPlayerIds(mutation.seats),
+        sideAssignments: lobbySideAssignments(mutation.seats),
+        status: mutation.status ?? current.status,
+        ...(mutation.clearRoomCode ? { roomCode: null } : {}),
+      };
     });
   } catch (e) {
-    const err: IServerMessage = {
-      kind: 'Error',
-      matchId: ctx.matchId,
-      ts: nowIso(),
-      code: 'STORE_FAILURE',
-      intentId: envelope.intentId,
-      reason: e instanceof Error ? e.message : 'Lobby persist failed',
-    };
-    ctx.broadcast(err);
-    return [err];
+    // The match moved on between the read and this write (for example it
+    // completed under a LaunchMatch). That is a refused intent, not a store
+    // fault, so it carries the intent code and is logged, never swallowed.
+    if (e instanceof InvalidMatchStatusTransitionError) {
+      logger.warn(
+        `[ServerMatchHost ${ctx.matchId}] lobby intent ${intent.kind} refused: match status changed concurrently`,
+        { from: e.from, to: e.to },
+      );
+      return refuse(e);
+    }
+    return reject(
+      'STORE_FAILURE',
+      e instanceof Error ? e.message : 'Lobby persist failed',
+    );
+  }
+
+  if (attempt.refusal !== null) {
+    if (attempt.derivations > 1) {
+      // Only a concurrent change can make the second look differ from the
+      // first, so a refusal here is a lost race worth a trace.
+      logger.warn(
+        `[ServerMatchHost ${ctx.matchId}] lobby intent ${intent.kind} refused after a concurrent metadata change`,
+        { reason: String(attempt.refusal) },
+      );
+    }
+    return refuse(attempt.refusal);
+  }
+  if (result.kind === 'busy') {
+    return reject(
+      'STORE_FAILURE',
+      'Lobby update conflicted with concurrent changes; retry',
+    );
+  }
+  if (attempt.mutation?.clearPendingFor !== undefined) {
+    ctx.pendingPeers.clearPending(attempt.mutation.clearPendingFor);
   }
 
   const update: ILobbyUpdated = {
@@ -222,9 +290,9 @@ export async function handleLobbyIntent(
     intentId: envelope.intentId,
     matchId: ctx.matchId,
     ts: nowIso(),
-    seats: nextSeats,
-    status: nextStatus,
-    hostPlayerId: meta.hostPlayerId,
+    seats: [...(result.meta.seats ?? [])],
+    status: result.meta.status,
+    hostPlayerId: result.meta.hostPlayerId,
   };
   ctx.broadcast(update);
   out.push(update);

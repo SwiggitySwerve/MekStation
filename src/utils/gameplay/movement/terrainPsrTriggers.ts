@@ -10,20 +10,24 @@ import {
   TerrainType,
   type ITerrainFeature,
 } from '@/types/gameplay/TerrainTypes';
-import { coordToKey } from '@/utils/gameplay/hexMath';
-import { parseTerrainFeatures } from '@/utils/gameplay/lineOfSight';
 import {
   createBuildingCollapsePSR,
   createEnteringWaterPSR,
-  createExitingWaterPSR,
   createIcePSR,
   createRubblePSR,
-  createRunningRoughTerrainPSR,
   createSkiddingPSR,
   createSwampBogDownPSR,
 } from '@/utils/gameplay/pilotingSkillRolls';
 
 import { movementModeForPath } from './mode';
+import {
+  hasOverloadedBuildingFeature,
+  hasTerrainFeature,
+  terrainAt,
+  terrainFeaturesFromTag,
+  terrainLevelFromFeatures,
+  waterDepthFromFeatures,
+} from './terrainFeatureQueries';
 
 export type TerrainBearingMovementStep = {
   readonly kind: string;
@@ -61,6 +65,8 @@ type TerrainPsrContext = {
   readonly grid: IHexGrid;
   readonly movementType: MovementType;
   readonly step: TerrainBearingMovementStep;
+  /** The step ordinal stamped into `movement-step:<n>`; none for displacement. */
+  readonly stepIndex: number | undefined;
   readonly steps: readonly TerrainBearingMovementStep[];
   readonly unitId: string;
   readonly unitTonnage?: number;
@@ -176,11 +182,49 @@ function terrainPSRsForStep(options: {
 }): readonly IPendingPSR[] {
   const context = terrainPsrContext(options);
   return [
-    ...waterTransitionPSRs(context),
-    ...enteredTerrainPSRs(context),
+    ...waterEntryPSRs(context),
+    ...rubblePSRs(context),
+    ...recklessIcePSRs(context),
     ...swampBogDownPSRs(context),
     ...buildingCollapsePSRs(context),
     ...skiddingPSRs(context),
+  ];
+}
+
+/**
+ * Terrain PSRs for a unit forced into `to` by a displacement (push, charge,
+ * DFA, domino). MegaMek 48fcb2f64 `TWGameManager.doEntityDisplacement`
+ * limits the terrain outcomes to building collapse (L9771), the bog-down
+ * check (L9824, L10047-L10069) and the water check (L9851-L9866), in that
+ * order. There is no rubble, ice or exiting-water roll, and the bog-down check
+ * does not look at the hex the unit left. The PSRs carry no `movement-step`
+ * stamp.
+ */
+export function planDisplacementTerrainPSRs(options: {
+  readonly grid: IHexGrid;
+  readonly unitId: string;
+  readonly unit: ITerrainPsrMover | undefined;
+  readonly from: IHexCoordinate;
+  readonly to: IHexCoordinate;
+}): readonly IPendingPSR[] {
+  const { from, grid, to, unit, unitId } = options;
+  const context: TerrainPsrContext = {
+    grid,
+    movementType: MovementType.Walk,
+    step: { kind: 'forward', index: 0, from, to },
+    stepIndex: undefined,
+    steps: [],
+    unitId,
+    unitTonnage: unit?.tonnage,
+    unitType: unit?.unitType,
+    canFall: canFall(unit),
+    enteredFeatures: terrainFeaturesFromTag(terrainAt(grid, to)),
+    fromFeatures: [],
+  };
+  return [
+    ...buildingCollapsePSRs(context),
+    ...swampBogDownPSRs(context),
+    ...waterEntryPSRs(context),
   ];
 }
 
@@ -198,6 +242,7 @@ function terrainPsrContext(options: {
   const { grid, step } = options;
   return {
     ...options,
+    stepIndex: step.index,
     enteredFeatures: terrainFeaturesFromTag(
       step.terrainEntered ?? terrainAt(grid, step.to),
     ),
@@ -205,66 +250,87 @@ function terrainPsrContext(options: {
   };
 }
 
-function waterTransitionPSRs(
-  context: TerrainPsrContext,
-): readonly IPendingPSR[] {
-  const { canFall, enteredFeatures, fromFeatures, movementMode, step, unitId } =
+/**
+ * MegaMek 48fcb2f64 `Entity.checkWaterMove` (Entity.java:9615-9639): any step
+ * that changes position into a water hex rolls, whatever the hex it left. A
+ * jump rolls for its landing hex (`MovePathHandler.java:1615`). A hex that is
+ * ice-covered water is walked on, so it is not a water roll.
+ */
+function waterEntryPSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
+  const { canFall, enteredFeatures, movementMode, step, stepIndex, unitId } =
     context;
-  const psrs: IPendingPSR[] = [];
-  if (!canFall) return psrs;
-
+  if (!canFall || step.kind === 'turn') return [];
+  if (!hasTerrainFeature(enteredFeatures, TerrainType.Water)) return [];
+  if (hasTerrainFeature(enteredFeatures, TerrainType.Ice)) return [];
   if (
-    hasTerrainFeature(fromFeatures, TerrainType.Water) &&
-    !hasTerrainFeature(enteredFeatures, TerrainType.Water)
+    movementMode !== undefined &&
+    WATER_ENTRY_EXEMPT_MODES.has(movementMode)
   ) {
-    psrs.push(createExitingWaterPSR(unitId, step.index));
+    return [];
   }
 
-  if (
-    hasTerrainFeature(enteredFeatures, TerrainType.Water) &&
-    !hasTerrainFeature(fromFeatures, TerrainType.Water) &&
-    !(movementMode !== undefined && WATER_ENTRY_EXEMPT_MODES.has(movementMode))
-  ) {
-    psrs.push(
-      createEnteringWaterPSR(unitId, step.index, {
-        waterDepth: waterDepthFromFeatures(enteredFeatures),
-      }),
-    );
-  }
-
-  return psrs;
+  return [
+    createEnteringWaterPSR(unitId, stepIndex, {
+      waterDepth: waterDepthFromFeatures(enteredFeatures),
+    }),
+  ];
 }
 
-function enteredTerrainPSRs(
-  context: TerrainPsrContext,
-): readonly IPendingPSR[] {
-  const { canFall, enteredFeatures, movementType, step, unitId } = context;
-  const psrs: IPendingPSR[] = [];
-
-  if (canFall && hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
-    psrs.push(createRubblePSR(unitId, step.index));
+/**
+ * MegaMek 48fcb2f64 `Entity.checkRubbleMove` (Entity.java:9539-9568): entering
+ * a rubble hex rolls, +1 for ultra-rubble (level above 5).
+ */
+function rubblePSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
+  const { canFall, enteredFeatures, stepIndex, unitId } = context;
+  if (!canFall || !hasTerrainFeature(enteredFeatures, TerrainType.Rubble)) {
+    return [];
   }
 
-  if (
-    hasTerrainFeature(enteredFeatures, TerrainType.Rough) &&
-    movementModeForPath(movementType) === 'run'
-  ) {
-    psrs.push(createRunningRoughTerrainPSR(unitId, step.index));
-  }
+  return [
+    createRubblePSR(unitId, stepIndex, {
+      rubbleLevel: terrainLevelFromFeatures(
+        enteredFeatures,
+        TerrainType.Rubble,
+      ),
+    }),
+  ];
+}
 
-  if (canFall && hasTerrainFeature(enteredFeatures, TerrainType.Ice)) {
-    psrs.push(createIcePSR(unitId, step.index));
-  }
+/**
+ * Ice follows MegaMek 48fcb2f64 `Entity.checkRecklessMove`
+ * (Entity.java:9241-9290): every non-jump step taken in a hex containing ice
+ * rolls "moving recklessly" at +0 (L9280-L9281), including a turn made on the
+ * ice. The careful-movement exemption (L9250) is not modelled: MekStation has
+ * no careful step.
+ */
+function recklessIcePSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
+  const {
+    canFall,
+    enteredFeatures,
+    grid,
+    movementType,
+    step,
+    stepIndex,
+    unitId,
+  } = context;
+  if (!canFall || movementType === MovementType.Jump) return [];
+  if (step.kind !== 'forward' && step.kind !== 'turn') return [];
 
-  return psrs;
+  const hexFeatures =
+    step.kind === 'turn'
+      ? terrainFeaturesFromTag(terrainAt(grid, step.at))
+      : enteredFeatures;
+  if (!hasTerrainFeature(hexFeatures, TerrainType.Ice)) return [];
+
+  return [createIcePSR(unitId, stepIndex)];
 }
 
 function swampBogDownPSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
-  const { enteredFeatures, step, unitId } = context;
+  const { enteredFeatures, stepIndex, unitId } = context;
   if (!shouldQueueSwampBogDownPSR(context)) return [];
 
   return [
-    createSwampBogDownPSR(unitId, step.index, {
+    createSwampBogDownPSR(unitId, stepIndex, {
       swampDepth: terrainLevelFromFeatures(enteredFeatures, TerrainType.Swamp),
     }),
   ];
@@ -291,7 +357,7 @@ function buildingCollapsePSRs(
   if (!isBattleMechLikeUnitType(unitType)) return [];
   if (!hasOverloadedBuildingFeature(enteredFeatures, unitTonnage)) return [];
 
-  return [createBuildingCollapsePSR(unitId, step.index)];
+  return [createBuildingCollapsePSR(unitId, context.stepIndex)];
 }
 
 function skiddingPSRs(context: TerrainPsrContext): readonly IPendingPSR[] {
@@ -352,67 +418,6 @@ function calculateMovementBeforeSkidModifier(distance: number): number {
       (entry) => distance > entry.minimumExclusiveDistance,
     )?.modifier ?? -1
   );
-}
-
-function terrainAt(
-  grid: IHexGrid,
-  coord: IHexCoordinate | undefined,
-): string | undefined {
-  if (!coord) return undefined;
-  return grid.hexes.get(coordToKey(coord))?.terrain;
-}
-
-function terrainFeaturesFromTag(
-  tag: string | undefined,
-): readonly ITerrainFeature[] {
-  if (!tag) return [];
-  return parseTerrainFeatures(tag);
-}
-
-function hasTerrainFeature(
-  terrainFeatures: readonly ITerrainFeature[],
-  terrainType: TerrainType,
-): boolean {
-  return terrainFeatures.some(
-    (feature) => feature.type === terrainType && feature.level > 0,
-  );
-}
-
-function waterDepthFromFeatures(
-  terrainFeatures: readonly ITerrainFeature[],
-): number | undefined {
-  const water = terrainFeatures.find(
-    (feature) => feature.type === TerrainType.Water,
-  );
-  if (!water) return undefined;
-  return Math.max(1, water.level);
-}
-
-function terrainLevelFromFeatures(
-  terrainFeatures: readonly ITerrainFeature[],
-  terrainType: TerrainType,
-): number | undefined {
-  const feature = terrainFeatures.find((entry) => entry.type === terrainType);
-  if (!feature) return undefined;
-  return Math.max(1, feature.level);
-}
-
-function hasOverloadedBuildingFeature(
-  terrainFeatures: readonly ITerrainFeature[],
-  unitTonnage: number | undefined,
-): boolean {
-  if (unitTonnage === undefined || !Number.isFinite(unitTonnage)) return false;
-
-  const building = terrainFeatures.find(
-    (feature) =>
-      feature.type === TerrainType.Building &&
-      feature.level > 0 &&
-      feature.constructionFactor !== undefined &&
-      Number.isFinite(feature.constructionFactor),
-  );
-  if (!building || building.constructionFactor === undefined) return false;
-
-  return unitTonnage > building.constructionFactor;
 }
 
 /**

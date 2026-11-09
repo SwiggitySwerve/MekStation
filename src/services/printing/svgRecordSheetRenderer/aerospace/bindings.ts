@@ -57,6 +57,10 @@ const ARC_TO_CODE: Record<string, keyof AerospacePipCounts> = {
   Nose: 'NOS',
   'Left Wing': 'LWG',
   'Right Wing': 'RWG',
+  // Small craft sides share the left/right slots; bindAerospace redirects
+  // them to the LS/RS template ids.
+  'Left Side': 'LWG',
+  'Right Side': 'RWG',
   Aft: 'AFT',
 };
 
@@ -118,7 +122,9 @@ export function bindAerospace(
     [AEROSPACE_TEMPLATE_IDS.rulesLevel]: header.rulesLevel,
     [AEROSPACE_TEMPLATE_IDS.role]: header.role ?? '',
     [AEROSPACE_TEMPLATE_IDS.bv]: header.battleValue.toLocaleString(),
-    [AEROSPACE_TEMPLATE_IDS.armorType]: data.armorType,
+    // MML PrintEntity.drawArmor: BAR armor prints "BAR: <rating>" as the type.
+    [AEROSPACE_TEMPLATE_IDS.armorType]:
+      data.barRating !== undefined ? `BAR: ${data.barRating}` : data.armorType,
     [AEROSPACE_TEMPLATE_IDS.mpWalk]: String(data.safeThrust),
     [AEROSPACE_TEMPLATE_IDS.mpRun]: String(data.maxThrust),
     [AEROSPACE_TEMPLATE_IDS.textSI]: String(data.structuralIntegrity),

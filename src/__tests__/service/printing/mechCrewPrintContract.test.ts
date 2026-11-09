@@ -78,6 +78,9 @@ it.each([
     expect(data).toEqual({
       ...service.extractData({ ...unit, configuration }),
       crew: supplied,
+      // The native QuadVee crew layout exists only on the QuadVee template, so
+      // an explicit QUADVEE roster selects it (getMechType alone yields 'quad').
+      ...(crewType === 'QUADVEE' ? { mechType: 'quadvee' } : {}),
     });
   },
 );

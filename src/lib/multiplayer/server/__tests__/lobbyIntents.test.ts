@@ -13,14 +13,17 @@ import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { defaultSeats, type IMatchSeat } from '@/types/multiplayer/Lobby';
+import { InvalidMatchStatusTransitionError } from '@/types/multiplayer/MatchStatus';
 import {
   nowIso,
   type IIntent,
   type IServerMessage,
 } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
+import { raceMetaWrites } from './matchMetaRace.test-helpers';
 
 interface IRecorded {
   parsed: { kind: string };
@@ -186,6 +189,128 @@ describe('ServerMatchHost lobby intents', () => {
     expect(await store.getEvents(matchId)).toEqual(events);
   });
 
+  it('merges a concurrent seat change instead of overwriting it', async () => {
+    const { host, store, matchId } = await makeLobbyHost();
+    // Another writer seats a player in alpha-2 between the handler's read and write.
+    const race = raceMetaWrites(store, matchId, (fresh) => ({
+      seats: fresh.seats?.map((seat) =>
+        seat.slotId === 'alpha-2'
+          ? { ...seat, occupant: { playerId: 'pid_late', displayName: 'Late' } }
+          : seat,
+      ),
+    }));
+
+    const frames = await host.handleIntent({
+      ...intent(matchId, 'pid_guest', {
+        kind: 'OccupySeat',
+        slotId: 'bravo-2',
+      }),
+      intentId: 'occupy-race',
+    });
+
+    expect(race.fired()).toBe(1);
+    const occupants = Object.fromEntries(
+      (await store.getMatchMeta(matchId)).seats?.map((seat) => [
+        seat.slotId,
+        seat.occupant?.playerId,
+      ]) ?? [],
+    );
+    expect(occupants).toMatchObject({
+      'alpha-2': 'pid_late',
+      'bravo-2': 'pid_guest',
+    });
+    const broadcast = lastLobbyUpdate(frames);
+    expect(
+      broadcast.find((seat) => seat.slotId === 'alpha-2')?.occupant?.playerId,
+    ).toBe('pid_late');
+    expect(
+      broadcast.find((seat) => seat.slotId === 'bravo-2')?.occupant?.playerId,
+    ).toBe('pid_guest');
+    expect((await store.getMatchMeta(matchId)).playerIds).toEqual(
+      expect.arrayContaining(['pid_host', 'pid_late', 'pid_guest']),
+    );
+  });
+
+  /** Fill and ready every seat so LaunchMatch would succeed. */
+  async function makeLaunchable(store: InMemoryMatchStore, matchId: string) {
+    const meta = await store.getMatchMeta(matchId);
+    await store.updateMatchMeta(matchId, {
+      seats: meta.seats?.map((seat) => ({
+        ...seat,
+        kind: seat.slotId === 'alpha-2' ? 'ai' : 'human',
+        ready: true,
+        occupant:
+          seat.slotId === 'alpha-2'
+            ? null
+            : {
+                playerId: seat.slotId === 'alpha-1' ? 'pid_host' : seat.slotId,
+                displayName: seat.slotId,
+              },
+      })),
+    });
+  }
+
+  it('refuses a LaunchMatch whose match completes before the write, and logs it', async () => {
+    const { host, store, matchId } = await makeLobbyHost();
+    await makeLaunchable(store, matchId);
+    // The match completes between the handler's read and its write.
+    const race = raceMetaWrites(store, matchId, () => ({
+      status: 'completed',
+    }));
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    const frames = await host.handleIntent({
+      ...intent(matchId, 'pid_host', { kind: 'LaunchMatch' }),
+      intentId: 'launch-race',
+    });
+
+    expect(race.fired()).toBe(1);
+    expect(frames).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        intentId: 'launch-race',
+        reason: expect.stringContaining('completed'),
+      }),
+    ]);
+    expect((await store.getMatchMeta(matchId)).status).toBe('completed');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('refused after a concurrent metadata change'),
+      expect.anything(),
+    );
+    warn.mockRestore();
+  });
+
+  it('maps a status edge the store refuses to a typed, logged INVALID_INTENT', async () => {
+    const { host, store, matchId } = await makeLobbyHost();
+    await makeLaunchable(store, matchId);
+    jest
+      .spyOn(store, 'updateMatchMetaIf')
+      .mockRejectedValueOnce(
+        new InvalidMatchStatusTransitionError('completed', 'active'),
+      );
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    const frames = await host.handleIntent({
+      ...intent(matchId, 'pid_host', { kind: 'LaunchMatch' }),
+      intentId: 'launch-refused',
+    });
+
+    expect(frames).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        intentId: 'launch-refused',
+        reason: expect.stringContaining('completed'),
+      }),
+    ]);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('match status'),
+      expect.objectContaining({ from: 'completed', to: 'active' }),
+    );
+    warn.mockRestore();
+  });
+
   it('U4 broadcasts the originating SetReady intentId', async () => {
     const { host, store, matchId } = await makeLobbyHost();
     const socket = makeMockSocket();
@@ -239,7 +364,7 @@ describe('ServerMatchHost lobby intents', () => {
       };
       if (code === 'STORE_FAILURE') {
         jest
-          .spyOn(store, 'updateMatchMeta')
+          .spyOn(store, 'updateMatchMetaIf')
           .mockRejectedValueOnce(new Error('write failed'));
       }
       const frames = await host.handleIntent(envelope);

@@ -12,6 +12,7 @@ import {
   type Locator,
   type Page,
   type Request,
+  type Response,
 } from '@playwright/test';
 
 import { assertNoMekStationLoading } from './wait';
@@ -84,6 +85,11 @@ export async function createCampaignViaWizard(
     await expect(page.getByTestId('campaign-name-input')).toBeVisible({
       timeout: 20_000,
     });
+    await page.waitForFunction(
+      () => (window as { __E2E_MODE__?: boolean }).__E2E_MODE__ === true,
+      undefined,
+      { timeout: 15_000 },
+    );
   });
 
   await recorder.step('name campaign', async () => {
@@ -161,27 +167,67 @@ export async function submitCampaignWizard(page: Page): Promise<void> {
     if (isCampaignSave(request)) saveStarted = true;
   };
   page.on('request', onRequest);
-  const saved = page
-    .waitForResponse((response) => isCampaignSave(response.request()), {
-      timeout: 30_000,
-    })
-    .then(async (response) => {
-      if (!response.ok()) {
-        throw new Error(
-          `Campaign create save failed: PUT ${response.url()} returned ${response.status()}\n${await response.text()}`,
+  // Playwright's response and URL waits have no abort option. Own their
+  // listeners/timers so a losing wait cannot consume the caller's test budget.
+  let cancelSave: (() => void) | undefined;
+  const saved = new Promise<void>((resolve, reject) => {
+    let finished = false;
+    const finish = (settle: () => void) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      page.off('response', onResponse);
+      page.off('close', onClose);
+      settle();
+    };
+    const onResponse = (response: Response) => {
+      if (!isCampaignSave(response.request())) return;
+      page.off('response', onResponse);
+      if (response.ok()) finish(resolve);
+      else {
+        void response.text().then(
+          (body) =>
+            finish(() =>
+              reject(
+                new Error(
+                  `Campaign create save failed: PUT ${response.url()} returned ${response.status()}\n${body}`,
+                ),
+              ),
+            ),
+          (error: unknown) => finish(() => reject(error)),
         );
       }
-    });
-  const dashboard = expect(page).toHaveURL(
-    /\/gameplay\/campaigns\/(?!create(?:[/?#]|$))[^/?#]+\/?(?:[?#].*)?$/,
-    { timeout: 30_000 },
-  );
+    };
+    const onClose = () =>
+      finish(() =>
+        reject(
+          new Error('Campaign create page closed before submission completed'),
+        ),
+      );
+    const timer = setTimeout(
+      () =>
+        finish(() =>
+          reject(new Error('Campaign create save timed out after 30000ms')),
+        ),
+      30_000,
+    );
+    cancelSave = () => finish(resolve);
+    page.on('response', onResponse);
+    page.on('close', onClose);
+  });
   const errorLocator = page.getByTestId('name-error');
-  const validationDeadline = Date.now() + 30_000;
+  const submissionDeadline = Date.now() + 30_000;
   let stopped = false;
   let wakeProbe: (() => void) | undefined;
-  const wizardError = (async () => {
+  const dashboard = (async () => {
     while (!stopped) {
+      if (
+        /\/gameplay\/campaigns\/(?!create(?:[/?#]|$))[^/?#]+\/?(?:[?#].*)?$/.test(
+          page.url(),
+        )
+      ) {
+        return;
+      }
       const visible = await errorLocator.isVisible();
       if (stopped) return;
       if (visible) {
@@ -189,16 +235,20 @@ export async function submitCampaignWizard(page: Page): Promise<void> {
         // error can render before response.text() finishes reading that body.
         if (saveStarted) await saved;
         if (stopped) return;
-        const message = await errorLocator.innerText();
+        // The error can disappear after isVisible. Unlike innerText, this
+        // probe does not retry a missing element and create another long wait.
+        const [message] = await errorLocator.allInnerTexts();
         if (stopped) return;
-        throw new Error(`Campaign create failed: ${message}`);
+        if (message !== undefined) {
+          throw new Error(`Campaign create failed: ${message}`);
+        }
       }
-      const remaining = validationDeadline - Date.now();
+      const remaining = submissionDeadline - Date.now();
       if (remaining <= 0) {
-        throw new Error('Campaign create validation timed out after 30000ms');
+        throw new Error('Campaign create dashboard timed out after 30000ms');
       }
-      // Locator.waitFor has no abort option. Own the pause so the losing
-      // validation branch can stop before fixture context teardown.
+      // URL reads are synchronous and isVisible does not retry. Only an
+      // already-started locator probe needs draining after this pause stops.
       await new Promise<void>((resolve) => {
         const timer = setTimeout(resolve, Math.min(100, remaining));
         wakeProbe = () => {
@@ -211,10 +261,7 @@ export async function submitCampaignWizard(page: Page): Promise<void> {
   })();
   // Install all rejection handlers before clicking: a fast failed PUT must
   // surface its status/body, and a local save error may precede any request.
-  const completed = Promise.race([
-    Promise.all([saved, dashboard]),
-    wizardError,
-  ]);
+  const completed = Promise.all([saved, dashboard]);
   let clicked: Promise<void> | undefined;
   try {
     clicked = page.getByTestId('wizard-submit-btn').click();
@@ -222,16 +269,11 @@ export async function submitCampaignWizard(page: Page): Promise<void> {
   } finally {
     stopped = true;
     wakeProbe?.();
+    cancelSave?.();
     page.off('request', onRequest);
-    // Failure can leave save/dashboard/click work in flight too. Keep their
-    // existing deadlines, and preserve the original failure while draining.
-    await Promise.allSettled([
-      saved,
-      dashboard,
-      wizardError,
-      completed,
-      clicked,
-    ]);
+    // All losing waits are stopped before draining in-flight work. Preserve
+    // the winning error and leave the caller's page open for its assertions.
+    await Promise.allSettled([saved, dashboard, completed, clicked]);
   }
 }
 

@@ -30,8 +30,10 @@ import {
   type IMatchMeta,
 } from '@/lib/multiplayer/server/IMatchStore';
 import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
+import { updateMatchSeats } from '@/lib/multiplayer/server/lobby/seatUpdate';
 import {
   addSpectatorSeat,
+  findSpectatorSeat,
   SpectatorSeatError,
 } from '@/lib/multiplayer/server/lobby/spectatorSeats';
 import {
@@ -139,13 +141,27 @@ export default async function handler(
     displayName,
   };
 
-  let nextSeats;
+  // The profile bootstrap above awaited, so the match may have moved on: the
+  // seat is derived from the metadata at write time, status included, and a
+  // concurrent seat write makes it derive again instead of overwriting.
+  let result;
   try {
-    nextSeats = addSpectatorSeat(
-      meta.seats ?? [],
-      spectatorRef,
-      usesRosterMembership(meta.seats) ? meta.playerIds : [],
-    );
+    result = await updateMatchSeats(store, id, (current) => {
+      if (current.status !== 'active') {
+        throw new SpectatorSeatError(
+          `Match is not spectatable (status: ${current.status})`,
+        );
+      }
+      const seats = current.seats ?? [];
+      if (findSpectatorSeat(seats, auth.playerId)) return null;
+      return {
+        seats: addSpectatorSeat(
+          seats,
+          spectatorRef,
+          usesRosterMembership(current.seats) ? current.playerIds : [],
+        ),
+      };
+    });
   } catch (e) {
     if (e instanceof SpectatorSeatError) {
       res.status(409).json({ error: e.message });
@@ -156,19 +172,12 @@ export default async function handler(
     });
     return;
   }
-
-  try {
-    await store.updateMatchMeta(id, { seats: nextSeats });
-  } catch (e) {
-    res.status(500).json({
-      error: e instanceof Error ? e.message : 'Failed to persist spectator',
-    });
+  if (result.kind === 'busy') {
+    res.status(409).json({ error: 'Seat update conflicted, retry' });
     return;
   }
 
-  const seat = nextSeats.find(
-    (s) => s.kind === 'spectator' && s.occupant?.playerId === auth.playerId,
-  );
+  const seat = findSpectatorSeat(result.meta.seats ?? [], auth.playerId);
 
   res.status(201).json({
     slotId: seat?.slotId ?? '',

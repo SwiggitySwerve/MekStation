@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-h1-match-status-guard",
+  "status": "in-progress",
+  "reason": "Wave 4 M-H1/H2: one MatchStatus union and transition table that every status writer passes through in both match stores; create accepts only lobby or active. PR1 of three (PR2 seat compare-and-swap, PR3 boot sweep of crash-leftover spectator seats and intent-table drift test). No schema, wire or persisted-format change.",
+  "lastReviewed": "2026-11-09"
+}

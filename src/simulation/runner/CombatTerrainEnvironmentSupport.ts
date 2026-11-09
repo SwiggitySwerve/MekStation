@@ -364,7 +364,7 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrain === TerrainType.Water) {
     return integrated(
       terrain,
-      'runMovementPhase queues depth-aware water entry and exit PSRs from movement terrain and resolvePSR applies Frogman relief when present',
+      'runMovementPhase queues depth-aware water entry PSRs for every step into a water hex and resolvePSR applies Frogman relief when present; there is no exit roll (MegaMek 48fcb2f64 Entity.checkWaterMove)',
       terrainPsrSourceRefs(terrain),
     );
   }
@@ -372,7 +372,7 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
   if (terrain === TerrainType.Pavement || terrain === TerrainType.Ice) {
     return integrated(
       terrain,
-      'runMovementPhase queues local skidding PSRs for running turn steps on pavement or ice, with source-backed movement-before-skid distance modifiers',
+      'runMovementPhase queues local skidding PSRs for running turn steps on pavement or ice, with source-backed movement-before-skid distance modifiers; ice also rolls MegaMek reckless-movement PSRs for each non-jump step taken in an ice hex',
       terrainPsrSourceRefs(terrain),
     );
   }
@@ -381,14 +381,6 @@ function makeTerrainPsrEntry(terrain: TerrainType): ICombatFeatureSupportEntry {
     return integrated(
       terrain,
       'runMovementPhase queues source-backed swamp bog-down PSRs for non-jump BattleMech entry, emits UnitStuck immediately for jump entry, and resolvePSR applies Swamp Beast relief while failed bog-down PSRs set isStuck without UnitFell/PilotHit',
-      terrainPsrSourceRefs(terrain),
-    );
-  }
-
-  if (terrain === TerrainType.Rough) {
-    return integrated(
-      terrain,
-      'runMovementPhase queues a local running-through-rough-terrain PSR when a running movement step enters rough terrain',
       terrainPsrSourceRefs(terrain),
     );
   }

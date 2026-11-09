@@ -27,6 +27,8 @@ import {
   type IMatchSeat,
 } from '@/types/multiplayer/Lobby';
 
+import type { IMatchMeta } from '../IMatchStore';
+
 /**
  * A generous per-match spectator cap (design Open-Question resolution).
  * A popular match cannot exhaust server sockets with observers; a join
@@ -84,6 +86,50 @@ export function isSpectatorPlayer(
   playerId: string,
 ): boolean {
   return findSpectatorSeat(seats, playerId) !== null;
+}
+
+/**
+ * True iff AUTOMATIC cleanup may release `seat`: the last-socket detach and the
+ * boot sweep. Nothing else consults this. `removeSpectatorSeat`, `isSpectatorSeat`
+ * and `isSpectatorPlayer` are unchanged, so any deliberate removal still removes
+ * any spectator seat, the GM's included, and `closeMatch`/DELETE and prune are
+ * not affected (they end the match rather than editing seats).
+ *
+ * A co-op campaign creates its GM host in a spectator seat
+ * (`hostSeatKind: 'spectator'`), and match membership is derived from owned
+ * seats, so while the match is live that seat is the GM's membership and
+ * automatic cleanup must not release it. A completed match has no live
+ * membership left to protect, so there the seat is released like any other.
+ * Keying on `hostPlayerId` is safe because:
+ *   - a campaign GM never loses host privilege: host migration is refused for
+ *     one (`reconnection/HostMigration.ts` `refuseIfCampaignGm`, and for co-op
+ *     missions `meta.coopMission`), so the GM stays `hostPlayerId`;
+ *   - a normal host always holds a PLAYING seat, which `addSpectatorSeat`
+ *     refuses to double as a viewer registration, so its seat is never a
+ *     spectator seat to begin with.
+ * `multiplayerMatchHostSeat.test.ts` pins both facts.
+ */
+export function isAutoReleasableSpectatorSeat(
+  seat: IMatchSeat,
+  meta: Pick<IMatchMeta, 'hostPlayerId' | 'status'>,
+): boolean {
+  return (
+    isSpectatorSeat(seat) &&
+    (meta.status === 'completed' ||
+      seat.occupant?.playerId !== meta.hostPlayerId)
+  );
+}
+
+/** True iff `playerId` holds a seat automatic cleanup may release. */
+export function holdsAutoReleasableSpectatorSeat(
+  meta: Pick<IMatchMeta, 'seats' | 'hostPlayerId' | 'status'>,
+  playerId: string,
+): boolean {
+  return (meta.seats ?? []).some(
+    (seat) =>
+      isAutoReleasableSpectatorSeat(seat, meta) &&
+      seat.occupant?.playerId === playerId,
+  );
 }
 
 /**

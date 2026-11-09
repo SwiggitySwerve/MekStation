@@ -33,7 +33,7 @@ const OBJECTIVE_CONTROL_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation objective control treats only alive, non-retreated, non-ejected units as objective hex occupants.',
     'src/utils/gameplay/objectives/objectiveEngine.ts',
-    'L40-L95',
+    'L41-L96',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
@@ -47,7 +47,7 @@ const OBJECTIVE_OUTCOME_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation evaluateObjectiveOutcome routes markerless, capture, defend, and breakthrough scenarios through one objective outcome gate.',
     'src/utils/gameplay/objectives/objectiveEngine.ts',
-    'L340-L364',
+    'L341-L365',
   ),
   mekstationDeviationSourceRef(
     'MekStation SimulationRunnerState.isGameOver consults evaluateObjectiveOutcome before survivor-count game-over checks.',
