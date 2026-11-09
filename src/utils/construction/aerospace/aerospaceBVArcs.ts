@@ -1,3 +1,5 @@
+import type { IAerospaceBVWeaponMount } from '@/types/unit/BVBreakdownTypes';
+
 import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type {
   IAerospaceArcContribution,
@@ -116,6 +118,8 @@ export function normalizeArcLocation(
 // ============================================================================
 
 interface IAerospaceWeaponBV {
+  equipmentIndex: number;
+  equipmentId: string;
   arc: AerospaceArc;
   location: AerospaceArc;
   id: string;
@@ -137,13 +141,10 @@ function calculateAerospaceWeaponHeat(
   weapons: readonly IAerospaceWeaponBV[],
   forwardWeight: number,
   rearWeight: number,
-): { weapon: IAerospaceWeaponBV; adjustedBV: number; heatDiscount: boolean }[] {
-  if (
-    input.heatCapacity === undefined ||
-    input.isSupportVehicle ||
-    input.subType === AerospaceSubType.CONVENTIONAL_FIGHTER
-  )
-    return [];
+): {
+  results: ReturnType<typeof calculateHeatTrackedWeapons<IAerospaceWeaponBV>>;
+  tracked: boolean;
+} {
   const weighted = weapons.map((w) => ({
     ...w,
     bv: calculateArcWeaponBV(
@@ -152,10 +153,26 @@ function calculateAerospaceWeaponHeat(
       w.capacitorBV,
     ),
   }));
-  return calculateHeatTrackedWeapons(
-    weighted,
-    calculateBaseHeatEfficiency(input.heatCapacity),
-  );
+  if (
+    input.heatCapacity === undefined ||
+    input.isSupportVehicle ||
+    input.subType === AerospaceSubType.CONVENTIONAL_FIGHTER
+  )
+    return {
+      results: weighted.map((weapon) => ({
+        weapon,
+        adjustedBV: weapon.bv,
+        heatDiscount: false,
+      })),
+      tracked: false,
+    };
+  return {
+    results: calculateHeatTrackedWeapons(
+      weighted,
+      calculateBaseHeatEfficiency(input.heatCapacity),
+    ),
+    tracked: true,
+  };
 }
 
 /**
@@ -172,6 +189,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   primaryArc: AerospaceArc | null;
   weaponFirePoolBV: number;
   fuselageWeaponBV: number;
+  weaponMountBV?: readonly IAerospaceBVWeaponMount[];
 } {
   const mainArcs = getMainArcsForSubType(input.subType);
   const drone = hasBVDroneOS(input.equipment.map((item) => item.id));
@@ -191,7 +209,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   const weapons: IAerospaceWeaponBV[] = [];
   const capacitors: { location: AerospaceArc }[] = [];
 
-  for (const item of input.equipment) {
+  for (const [equipmentIndex, item] of input.equipment.entries()) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const location = normalizeArcLocation(item.location, input.subType);
     if (location === null) continue;
@@ -221,6 +239,8 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       isDirectFireBVWeapon(entry.id),
     );
     weapons.push({
+      equipmentIndex,
+      equipmentId: item.id,
       id: entry?.id ?? item.id,
       targeted,
       ammunition,
@@ -295,17 +315,27 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   // AeroBVCalculator.java:141-155; HeatTrackingBVCalculator.java:59-61,108-126.
   // Native sorting uses arc-modified BV and one aircraft-wide heat budget.
   const heatPenalty = new Map<AerospaceArc, number>();
-  for (const { weapon, adjustedBV } of calculateAerospaceWeaponHeat(
+  const heat = calculateAerospaceWeaponHeat(
     input,
     weapons,
     forwardWeight,
     rearWeight,
-  )) {
+  );
+  for (const { weapon, adjustedBV } of heat.tracked ? heat.results : []) {
     heatPenalty.set(
       weapon.arc,
       (heatPenalty.get(weapon.arc) ?? 0) + weapon.bv - adjustedBV,
     );
   }
+  const weaponMountBV = heat.results
+    .filter(({ weapon }) => !weapon.ammunition)
+    .map(({ weapon, adjustedBV }) => ({
+      equipmentIndex: weapon.equipmentIndex,
+      equipmentId: weapon.equipmentId,
+      location: weapon.location,
+      battleValue: adjustedBV,
+    }))
+    .sort((a, b) => a.equipmentIndex - b.equipmentIndex);
   fuselageWeaponBV =
     calculateArcWeaponBV(
       fuselageWeaponBV - (additions.get(AerospaceArc.FUSELAGE) ?? 0),
@@ -346,5 +376,6 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     primaryArc,
     weaponFirePoolBV,
     fuselageWeaponBV,
+    ...(weaponMountBV.length ? { weaponMountBV } : {}),
   };
 }
