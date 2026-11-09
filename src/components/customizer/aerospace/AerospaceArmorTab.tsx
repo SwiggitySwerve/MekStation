@@ -26,6 +26,7 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions } from '../tabs/SelectOptions';
 import { AerospaceArmorDiagram } from './AerospaceArmorDiagram';
+import { getAerospaceArmorArcs } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Constants
@@ -38,13 +39,6 @@ const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
   { value: ArmorTypeEnum.LIGHT_FERRO, label: 'Light Ferro-Fibrous' },
   { value: ArmorTypeEnum.HEAVY_FERRO, label: 'Heavy Ferro-Fibrous' },
   { value: ArmorTypeEnum.STEALTH, label: 'Stealth' },
-];
-
-const AEROSPACE_ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: 'Nose' },
-  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
-  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
-  { arc: AerospaceLocation.AFT, label: 'Aft' },
 ];
 
 // =============================================================================
@@ -281,7 +275,7 @@ export function AerospaceArmorTab({
           <h3 className={cs.text.sectionTitle}>Arc Allocation</h3>
 
           <div className="space-y-3">
-            {AEROSPACE_ARCS.map(({ arc, label }) => {
+            {getAerospaceArmorArcs(subType).map(({ arc, label }) => {
               const currentValue = armorAllocation[arc] ?? 0;
               const maxValue = maxArcArmorPointsForLocation(
                 arc,

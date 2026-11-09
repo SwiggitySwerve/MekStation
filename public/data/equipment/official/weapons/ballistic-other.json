@@ -19,7 +19,22 @@
       "introductionYear": 2608,
       "special": ["Defensive"],
       "extinctionYear": 2835,
-      "reintroductionYear": 3045
+      "reintroductionYear": 3045,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-ams",
@@ -38,7 +53,23 @@
       "costCBills": 100000,
       "battleValue": 32,
       "introductionYear": 2819,
-      "special": ["Defensive"]
+      "special": ["Defensive"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "protomechac2",
@@ -62,7 +93,23 @@
       "costCBills": 95000,
       "battleValue": 34,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "protomechac4",
@@ -86,7 +133,23 @@
       "costCBills": 133000,
       "battleValue": 49,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "protomechac8",
@@ -110,7 +173,23 @@
       "costCBills": 175000,
       "battleValue": 66,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "nail-rivet-gun",
@@ -132,7 +211,22 @@
       "costCBills": 7000,
       "battleValue": 1,
       "introductionYear": 2304,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "rifle-cannon-heavy",
@@ -156,7 +250,22 @@
       "costCBills": 90000,
       "battleValue": 91,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "rifle-cannon-light",
@@ -180,7 +289,22 @@
       "costCBills": 37750,
       "battleValue": 21,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "rifle-cannon-medium",
@@ -204,7 +328,22 @@
       "costCBills": 75750,
       "battleValue": 51,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "baheavy-recoilless-rifle",
@@ -228,7 +367,8 @@
       "costCBills": 5000,
       "battleValue": 22,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "balight-recoilless-rifle",
@@ -252,7 +392,8 @@
       "costCBills": 1000,
       "battleValue": 12,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamedium-recoilless-rifle",
@@ -276,7 +417,8 @@
       "costCBills": 3000,
       "battleValue": 19,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "hag20",
@@ -300,7 +442,23 @@
       "costCBills": 400000,
       "battleValue": 267,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "hag30",
@@ -324,7 +482,22 @@
       "costCBills": 500000,
       "battleValue": 401,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "hag40",
@@ -348,7 +521,22 @@
       "costCBills": 600000,
       "battleValue": 535,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "magshotgr",
@@ -372,7 +560,23 @@
       "costCBills": 8500,
       "battleValue": 15,
       "introductionYear": 3054,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "smg-awa-starling-mk7",
@@ -390,7 +594,8 @@
       "costCBills": 300,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-awa-starling-mk7-lb",
@@ -408,7 +613,8 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-awa-starling-mk7-sf",
@@ -426,7 +632,8 @@
       "costCBills": 600,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-blackfield-scorpion-mk-65",
@@ -444,7 +651,8 @@
       "costCBills": 420,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-boudicca-4",
@@ -462,7 +670,8 @@
       "costCBills": 300,
       "battleValue": 0,
       "introductionYear": 2525,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-boudicca-5",
@@ -480,7 +689,8 @@
       "costCBills": 500,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-boudicca-7",
@@ -498,7 +708,8 @@
       "costCBills": 700,
       "battleValue": 1,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-dsk-largo-sga",
@@ -516,7 +727,8 @@
       "costCBills": 600,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-dsk-largo-sgb",
@@ -534,7 +746,8 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-houwei",
@@ -552,7 +765,8 @@
       "costCBills": 250,
       "battleValue": 0,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-hunkle-v",
@@ -570,7 +784,8 @@
       "costCBills": 600,
       "battleValue": 1,
       "introductionYear": 2330,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-j-15-hagel",
@@ -588,7 +803,8 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-j-17-hagel",
@@ -606,7 +822,8 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-jinse-yanjingshe-ap-rounds",
@@ -624,7 +841,8 @@
       "costCBills": 675,
       "battleValue": 1,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-jinse-yanjingshe-standard",
@@ -642,7 +860,8 @@
       "costCBills": 675,
       "battleValue": 1,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-nambu-type-s-124",
@@ -660,7 +879,8 @@
       "costCBills": 450,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-rfw-bedivere",
@@ -678,7 +898,8 @@
       "costCBills": 560,
       "battleValue": 0,
       "introductionYear": 2312,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-spartacus",
@@ -696,7 +917,8 @@
       "costCBills": 750,
       "battleValue": 0,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-sturm-hornet-mk-iii",
@@ -714,7 +936,8 @@
       "costCBills": 750,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-supekuta",
@@ -732,7 +955,8 @@
       "costCBills": 200,
       "battleValue": 0,
       "introductionYear": 2314,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-tiberius",
@@ -750,7 +974,8 @@
       "costCBills": 600,
       "battleValue": 1,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-wc-2",
@@ -768,7 +993,8 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-wc-6",
@@ -786,7 +1012,8 @@
       "costCBills": 800,
       "battleValue": 0,
       "introductionYear": 2825,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "smg-wolf-barron-a7",
@@ -804,7 +1031,8 @@
       "costCBills": 450,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-barton-amr-anti-armor",
@@ -822,7 +1050,8 @@
       "costCBills": 700,
       "battleValue": 1,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-barton-amr-standard",
@@ -840,7 +1069,8 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-fnf-j12-dark-caste",
@@ -858,7 +1088,8 @@
       "costCBills": 3500,
       "battleValue": 0,
       "introductionYear": 2830,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-fnf-j12-sldf",
@@ -876,7 +1107,8 @@
       "costCBills": 3500,
       "battleValue": 0,
       "introductionYear": 2760,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-hammel-marksman",
@@ -894,7 +1126,8 @@
       "costCBills": 500,
       "battleValue": 0.28,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-lancelot-mk-v",
@@ -912,7 +1145,8 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-lrs-53-sniper-rifle",
@@ -930,7 +1164,8 @@
       "costCBills": 1000,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-praetorian-s-3",
@@ -948,7 +1183,8 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-praetorian-s-5",
@@ -966,7 +1202,8 @@
       "costCBills": 600,
       "battleValue": 1,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-sairentosutomu",
@@ -984,7 +1221,8 @@
       "costCBills": 900,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-sr-17-suns-killer",
@@ -1002,7 +1240,8 @@
       "costCBills": 600,
       "battleValue": 0,
       "introductionYear": 2335,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-thors-hammer",
@@ -1020,7 +1259,8 @@
       "costCBills": 750,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-wilimton-rs-14",
@@ -1038,7 +1278,8 @@
       "costCBills": 1500,
       "battleValue": 0,
       "introductionYear": 2790,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-wilimton-rs-17-stripped",
@@ -1056,7 +1297,8 @@
       "costCBills": 2000,
       "battleValue": 1,
       "introductionYear": 3075,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "sniper-rifle-yuan-ling",
@@ -1074,7 +1316,8 @@
       "costCBills": 1000,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     },
     {
       "id": "arrow-iv-launcher",
@@ -1095,7 +1338,22 @@
       "introductionYear": 2593,
       "special": ["artillery"],
       "extinctionYear": 2830,
-      "reintroductionYear": 3044
+      "reintroductionYear": 3044,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-arrow-iv-launcher",
@@ -1114,7 +1372,22 @@
       "costCBills": 450000,
       "battleValue": 240,
       "introductionYear": 2844,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "long-tom",
@@ -1133,7 +1406,22 @@
       "costCBills": 650000,
       "battleValue": 329,
       "introductionYear": 3012,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "sniper-cannon",
@@ -1152,7 +1440,22 @@
       "costCBills": 475000,
       "battleValue": 77,
       "introductionYear": 3012,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "thumper-cannon",
@@ -1171,7 +1474,22 @@
       "costCBills": 200000,
       "battleValue": 41,
       "introductionYear": 3012,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mech-mortar-1",
@@ -1191,7 +1509,15 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "mech-mortar-2",
@@ -1211,7 +1537,15 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "mech-mortar-4",
@@ -1231,7 +1565,15 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "mech-mortar-8",
@@ -1251,7 +1593,15 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "clan-mech-mortar-1",
@@ -1269,7 +1619,15 @@
       "costCBills": 7000,
       "battleValue": 10,
       "introductionYear": 2840,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "clan-mech-mortar-2",
@@ -1287,7 +1645,15 @@
       "costCBills": 15000,
       "battleValue": 14,
       "introductionYear": 2840,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "clan-mech-mortar-4",
@@ -1306,7 +1672,15 @@
       "costCBills": 32000,
       "battleValue": 26,
       "introductionYear": 2830,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "clan-mech-mortar-8",
@@ -1324,7 +1698,15 @@
       "costCBills": 70000,
       "battleValue": 50,
       "introductionYear": 2531,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "vehicular-grenade-launcher",
@@ -1342,7 +1724,23 @@
       "costCBills": 10000,
       "battleValue": 15,
       "introductionYear": 1950,
-      "special": ["one-shot", "smoke"]
+      "special": ["one-shot", "smoke"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

@@ -262,6 +262,35 @@ defensive-only results SHALL NOT receive weapon terms.
 - **AND** the nose, aft large laser and aft machine gun SHALL appear at NOS, AFT and AFT with values 30.75, 123 and 10
 - **AND** the terms SHALL sum to the weapon fire-pool BV and final BV 919 SHALL remain unchanged
 
+### Requirement: Large aerospace native ammunition diagnostic projection
+
+The complete large aerospace trace SHALL project the native ammunition pools the
+pinned calculator assembles: per BV arc, `ammo.cap` (the unweighted base BV of
+ammo-using weapons) and `ammo.available` (the unweighted ammunition BV with
+multi-ton ratio, omitting depleted bins), keyed `<BV arc index>:<type>:<rack>`;
+and `ammo.arc.<name>` for every arc, the weighted and capped ammunition added
+when that arc is processed, including zero. A screen launcher SHALL keep its
+native `SCREEN_LAUNCHER:0` cap entry as a trace-only fact without becoming an
+offensive weapon or ammunition. Arc names SHALL follow the unit kind (DropShip
+wings `Left Side`, `Left Side (R)` and so on; otherwise `Left Front Side`,
+`Aft Left Side`, and `Left Broadsides` for WarShips). Existing valuation, caps,
+arc selection, aggregates, totals and defensive-only scope SHALL remain
+unchanged, and defensive-only results SHALL NOT receive ammunition terms.
+
+#### Scenario: Pinned WarShip pools and broadsides
+
+- **GIVEN** the pinned Bonaventure Corvette (2317) with LRM-15 launchers in the nose and aft and AC/10 launchers on both broadsides
+- **WHEN** its complete large aerospace trace is calculated
+- **THEN** ammo.cap SHALL equal 272 at arcs 0 and 3 (`LRM:15`) and 246 at arcs 6 and 7 (`AC:10`), and ammo.available SHALL equal 119 and 120 at the same keys
+- **AND** ammo.arc SHALL equal 119 (Nose), 59.5 (Aft) and 30 each for Left and Right Broadsides, with zero for the other four arcs
+- **AND** final BV SHALL remain unchanged
+
+#### Scenario: Screen launcher cap entry
+
+- **GIVEN** nose screen launchers whose pinned-Java cap entry is 480 (the Hamilcar 3084 value, 3 x 160)
+- **WHEN** the trace is projected
+- **THEN** ammo.cap at arc 0 SHALL list `SCREEN_LAUNCHER:0` as 480 with no availability and no offensive BV
+
 ### Requirement: Capital ship defensive BV dispatch
 
 JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
@@ -354,7 +383,6 @@ points or deriving a BV rule.
 - **GIVEN** converter output carrying FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT or ROTOR
 - **WHEN** the contract BV adapter maps armor and equipment
 - **THEN** it SHALL preserve the corresponding domain location and armor points
-
 
 ### Requirement: Runtime parity term validation
 
@@ -946,7 +974,6 @@ The offensive pool SHALL NOT add tonnage or a generic physical-attack bonus.
 - **AND** source fields, export bytes and unrelated BV components SHALL be checked separately from changed speed, offensive subtotal and total values
 - **AND** equipment pools, damage/options, complete BV and production editor/save flows SHALL remain unverified until independently proven
 
-
 ### Requirement: ProtoMech Defensive BV
 
 The proto defensive BV SHALL combine armor, structure, defensive equipment,
@@ -1014,8 +1041,8 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **AND** negative, fractional, infinite and signed-zero inputs SHALL retain their prior results
 - **AND** construction and gameplay SHALL preserve their distinct guards and interval conventions
 
-
 #### Scenario: Shared thresholds preserve the BV validation adapter
+
 - **GIVEN** the active `validate:bv` adapter selecting defensive calculator inputs
 - **WHEN** standard TMM thresholds and their inverse bracket minima are consolidated
 - **THEN** it SHALL consume the movement owner for both lookups
@@ -1186,7 +1213,6 @@ remain available and equal 1 for these turret kinds.
 - **AND** every unit moving away SHALL be explained with its component values
 - **AND** the mass correction SHALL NOT establish complete vehicle BV parity
 
-
 #### Scenario: Project existing vehicle weapon mount results
 
 - **GIVEN** the pinned Tamerlane Flamer and rocket-launcher variants
@@ -1328,12 +1354,42 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **WHEN** BV is computed
 - **THEN** ammo BV SHALL equal `10 * 4 / 1000 * 2 = 0.08` per trooper and final BV SHALL equal 219
 
-
 #### Scenario: Partial wing raises BV movement
 
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
+
+### Requirement: Vehicle ammunition diagnostic projection
+
+The vehicle owner SHALL transport its admitted uncapped native ammunition and
+raw weapon-cap pools from the shared ammunition owner. The trace SHALL format
+these facts as `ammo.available.<type>:<rack>` and `ammo.cap.<type>:<rack>` without
+regrouping them or recomputing BV. Existing capped ammo BV, fire-control and
+speed modifiers, source inputs and numerical outputs SHALL remain unchanged.
+Unavailable native pool facts SHALL remain absent and their remainder SHALL be
+reported explicitly.
+
+#### Scenario: Raw pools remain independent of capped ammo and weapon modifiers
+
+- **GIVEN** an SRM-2 with listed BV 21 and Artemis IV, and physical bins valued at 32 and 4
+- **WHEN** the vehicle's diagnostic pools are projected
+- **THEN** `ammo.available.SRM:2` SHALL be 36 and `ammo.cap.SRM:2` SHALL be 21
+- **AND** weapon BV SHALL remain 25.2 and capped ammunition BV SHALL remain 21
+
+#### Scenario: Support fire-control scaling leaves raw pools intact
+
+- **GIVEN** a support vehicle with basic fire control, an SRM-2 valued at 21 and a bin valued at 3
+- **WHEN** the vehicle's diagnostic pools are projected
+- **THEN** the raw availability SHALL remain 3 and the raw cap SHALL remain 21
+- **AND** the existing scaled ammunition BV SHALL remain 2.7
+
+#### Scenario: Defensive launcher caps do not admit defensive ammunition
+
+- **GIVEN** an AMS valued at 32, or two APDS launchers valued at 64 each, with their defensive ammunition
+- **WHEN** the shared diagnostic owner supplies their raw native cap facts
+- **THEN** `ammo.cap.AMS:2` SHALL be 32 or `ammo.cap.APDS:2` SHALL be 128 respectively
+- **AND** defensive ammunition SHALL remain absent from offensive availability, with every existing arithmetic result unchanged
 
 ### Requirement: Infantry per-weapon BV diagnostic projection
 

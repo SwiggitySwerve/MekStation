@@ -11,9 +11,7 @@ import React, { useCallback, useMemo } from 'react';
 
 import { useVehicleStore } from '@/stores/useVehicleStore';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getVehicleArmorProfile } from '@/utils/construction/vehicle/armorLimits';
 import {
   getVehicleArmorEditorLayout,
   getVehicleArmorEditorFigures,
@@ -60,34 +58,19 @@ export function VehicleArmorTab({
   const autoAllocateArmor = useVehicleStore((s) => s.autoAllocateArmor);
   const clearAllArmor = useVehicleStore((s) => s.clearAllArmor);
 
-  const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
   const unitType = useVehicleStore((s) => s.unitType);
 
-  // Derived state
-  const isVTOL = motionType === GroundMotionType.VTOL;
-  const hasTurret = turret !== null;
-  const hasSecondaryTurret = Boolean(secondaryTurret);
   const armorProfile = useMemo(
-    () => ({
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-      isSuperheavy,
-      isSupport: unitType === UnitType.SUPPORT_VEHICLE,
-      isChinTurret: turret?.type === TurretType.CHIN,
-      motionType,
-      usesBarArmor,
-    }),
-    [
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-      isSuperheavy,
-      unitType,
-      turret?.type,
-      motionType,
-      usesBarArmor,
-    ],
+    () =>
+      getVehicleArmorProfile({
+        tonnage,
+        unitType,
+        motionType,
+        turret,
+        secondaryTurret,
+        usesBarArmor,
+      }),
+    [tonnage, unitType, motionType, turret, secondaryTurret, usesBarArmor],
   );
   const layout = getVehicleArmorEditorLayout(armorProfile);
   const {
@@ -97,6 +80,7 @@ export function VehicleArmorTab({
     maxUsefulTonnage,
     unallocatedPoints,
     wastedPoints,
+    overLimitPoints,
   } = getVehicleArmorEditorFigures({
     tonnage,
     armorType,
@@ -126,15 +110,9 @@ export function VehicleArmorTab({
 
   const handleLocationArmorChange = useCallback(
     (location: VehicleArmorLocation, points: number) => {
-      const max = getMaxVehicleArmorForLocation({
-        tonnage,
-        location,
-        profile: armorProfile,
-      });
-      const clamped = Math.max(0, Math.min(max, points));
-      setLocationArmor(location, clamped);
+      setLocationArmor(location, points);
     },
-    [setLocationArmor, tonnage, armorProfile],
+    [setLocationArmor],
   );
 
   const handleMaximizeArmor = useCallback(() => {
@@ -232,6 +210,15 @@ export function VehicleArmorTab({
                 <span className={`${cs.text.value} ml-2`}>{maxTotalArmor}</span>
               </div>
             </div>
+            {overLimitPoints > 0 && (
+              <p
+                className={`${cs.text.valueNegative} mt-2 text-xs`}
+                role="status"
+              >
+                Allocated armor exceeds the {maxTotalArmor}-point vehicle limit
+                by {overLimitPoints}.
+              </p>
+            )}
             {wastedPoints > 0 && (
               <p className="mt-2 text-xs text-amber-400">
                 {wastedPoints} points wasted (exceeds maximum)
@@ -294,7 +281,7 @@ export function VehicleArmorTab({
                       )
                     }
                     min={0}
-                    max={maxValue}
+                    max={maxValue ?? Math.max(availablePoints, currentValue)}
                     disabled={readOnly || maxValue === 0}
                     className="min-w-0 flex-1"
                   />
@@ -310,11 +297,13 @@ export function VehicleArmorTab({
                         )
                       }
                       min={0}
-                      max={maxValue}
+                      max={maxValue ?? undefined}
                       disabled={readOnly || maxValue === 0}
                       className={`${cs.input.number} w-12`}
                     />
-                    <span className={cs.text.secondary}>/{maxValue}</span>
+                    {maxValue !== null && (
+                      <span className={cs.text.secondary}>/{maxValue}</span>
+                    )}
                   </div>
                 </div>
               );

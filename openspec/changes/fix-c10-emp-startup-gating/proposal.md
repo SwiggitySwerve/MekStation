@@ -30,7 +30,6 @@ expectation stops the lane for Root's decision; none may be regenerated.
 | --- | --- |
 | Session API | resolveHeatPhase -> resolveHeatForUnit |
 | Interactive session | InteractiveSession.advancePhase -> InteractiveSession.phases -> resolveHeatPhase |
-| Engine phase helper | runInteractivePhaseAdvance -> resolveHeatPhase |
 | Complete game | GameEngine.runToCompletion -> resolveHeatPhase |
 | QuickResolve | QuickResolveService -> GameEngine.runToCompletion |
 | Quick game | useQuickGameStore.actions -> GameEngine.runToCompletion |

@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react';
 /**
  * Infantry Store Factory
  *
@@ -6,15 +7,12 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  */
-
-import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import {
   createUnitStorePersistOptions,
   createUnitIdentityActions,
-  pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
 import {
@@ -37,6 +35,10 @@ import {
   computeInfantryStateBV,
   normalizeInfantryState,
 } from './infantryState';
+import {
+  pickPersistedInfantryState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { InfantryStore } from './infantryState';
@@ -317,36 +319,9 @@ export function createInfantryStore(
       },
       createUnitStorePersistOptions(
         `megamek-infantry-${initialState.id}`,
-        (state: InfantryStore) => ({
-          ...pickPersistedUnitIdentity(state),
-          techBase: state.techBase,
-          unitType: state.unitType,
-          squadSize: state.squadSize,
-          numberOfSquads: state.numberOfSquads,
-          motionType: state.motionType,
-          infantryMotive: state.infantryMotive,
-          platoonComposition: state.platoonComposition,
-          groundMP: state.groundMP,
-          jumpMP: state.jumpMP,
-          primaryWeapon: state.primaryWeapon,
-          primaryWeaponId: state.primaryWeaponId,
-          secondaryWeapon: state.secondaryWeapon,
-          secondaryWeaponId: state.secondaryWeaponId,
-          secondaryWeaponCount: state.secondaryWeaponCount,
-          armorKit: state.armorKit,
-          damageDivisor: state.damageDivisor,
-          specialization: state.specialization,
-          hasAntiMechTraining: state.hasAntiMechTraining,
-          isAugmented: state.isAugmented,
-          augmentationType: state.augmentationType,
-          librarySource: state.librarySource,
-          umuMP: state.umuMP,
-          fieldGuns: state.fieldGuns,
-          bvBreakdown: state.bvBreakdown,
-          isModified: state.isModified,
-          createdAt: state.createdAt,
-          lastModifiedAt: state.lastModifiedAt,
-        }),
+        withUnitLibraryReceipt((state: InfantryStore) =>
+          pickPersistedInfantryState(state),
+        ),
       ),
     ),
   );

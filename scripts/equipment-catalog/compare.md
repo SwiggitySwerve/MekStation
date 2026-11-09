@@ -37,3 +37,20 @@ Tests: `node --test scripts/equipment-catalog/vehicle-slots.test.mjs`.
 from the remaining capital inventory. Only those additional slugs are derived;
 unrelated one-shot aliases remain outside this change. Existing native aliases
 and previously generated gap inputs retain their separate contracts.
+
+## Plain catalog weapon applicability
+
+`allowed-unit-types.mjs <pinned-java-facts.json>` adds only the reviewed
+`allowedUnitTypes` arrays in `allowed-unit-types-source.json` and refreshes the
+matching frozen baseline rows. Run `EquipmentFacts.java` against the verified
+pinned runtime first; the updater verifies the extraction's SHA-256. The
+manifest records native identities and inherited flag source lines, and every
+retained identity must agree on the complete array. This field is emitted for
+Java WeaponType records, including TAG and C3 masters filed as electronics.
+
+The updater rejects stale baseline rows, conflicting existing arrays, unknown
+identities and empty arrays before writing anything. Empty arrays remain held
+until the loader preserves their meaning. Other values, identities and alias
+ownership do not change; two runs must be identical. Format the touched JSON
+with oxfmt after updating. Tests: `node --test
+scripts/equipment-catalog/allowed-unit-types.test.mjs`.

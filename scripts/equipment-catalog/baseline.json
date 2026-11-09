@@ -3,7 +3,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 0,
     "id": "ac-2",
-    "sha256": "fb85e002cf325c678fe9ec889f2aaafaa077a36ae85649f6eafd28f6ed353995",
+    "sha256": "480219ee2db0caa115d950ad4494f2077bf740a2ffca6d4ae0e12b53eebd1c76",
     "item": {
       "id": "ac-2",
       "name": "AC/2",
@@ -28,14 +28,29 @@
       "ammoPerTon": 45,
       "costCBills": 75000,
       "battleValue": 37,
-      "introductionYear": 2290
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 1,
     "id": "ac-5",
-    "sha256": "0ab77159182420ca1d505eb7d7084551d6cd3685a0baa3a7637d63fbf058ff4c",
+    "sha256": "12a64a730b449aa31b2f9672252108c672134c1e0b76cad7d89ecc788ae2a678",
     "item": {
       "id": "ac-5",
       "name": "AC/5",
@@ -60,14 +75,29 @@
       "ammoPerTon": 20,
       "costCBills": 125000,
       "battleValue": 70,
-      "introductionYear": 2240
+      "introductionYear": 2240,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 2,
     "id": "ac-10",
-    "sha256": "2de34a26e664934298d1aedce1f480d5f9f333a4e5e0d8999433e19736963102",
+    "sha256": "6625704f662cf8559d41315b95f215c3e8aa684be081683aaebe279d1e40d932",
     "item": {
       "id": "ac-10",
       "name": "AC/10",
@@ -92,14 +122,29 @@
       "ammoPerTon": 10,
       "costCBills": 200000,
       "battleValue": 123,
-      "introductionYear": 2443
+      "introductionYear": 2443,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 3,
     "id": "ac-20",
-    "sha256": "db6666d20528de540cfdd51494d7f904e7db74553898752655d68c10bf684c8f",
+    "sha256": "07651e22cad90835b13cf5792f0304f57b73dee1cd734226fdf5eee270e763aa",
     "item": {
       "id": "ac-20",
       "name": "AC/20",
@@ -124,14 +169,29 @@
       "ammoPerTon": 5,
       "costCBills": 300000,
       "battleValue": 178,
-      "introductionYear": 2488
+      "introductionYear": 2488,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 4,
     "id": "uac-2",
-    "sha256": "81e3b45f3af512a62d948b12c39eb1a5baa237d560698112323c01676911eae4",
+    "sha256": "6effc6b65dca1c2b45befa77035b6643a6c84545726c8bdad8706fad4b5c2fa3",
     "item": {
       "id": "uac-2",
       "name": "Ultra AC/2",
@@ -157,14 +217,30 @@
       "costCBills": 120000,
       "battleValue": 56,
       "introductionYear": 3050,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 5,
     "id": "uac-5",
-    "sha256": "315af1e73246979ac74361695b86fcf2ebbe0fae62e363f3148f36a8f1a15f7d",
+    "sha256": "736da42960268aed88dc2bc15f74eab2f4412dc6c1ac7380d73f9380d4c7bb7b",
     "item": {
       "id": "uac-5",
       "name": "Ultra AC/5",
@@ -192,14 +268,30 @@
       "introductionYear": 2630,
       "special": ["Can fire twice"],
       "extinctionYear": 2915,
-      "reintroductionYear": 3035
+      "reintroductionYear": 3035,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 6,
     "id": "uac-10",
-    "sha256": "c25e59259dfb2278655016a7174ecf94f7dd4742f8c093f401ea54d34d2813a7",
+    "sha256": "520d6df617ee1e4ae36daba17a90750fec4897e870551ad8b75c704e27e11ca8",
     "item": {
       "id": "uac-10",
       "name": "Ultra AC/10",
@@ -225,14 +317,30 @@
       "costCBills": 320000,
       "battleValue": 210,
       "introductionYear": 3050,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 7,
     "id": "uac-20",
-    "sha256": "5ce91a350be5612e7e9a851c5e43e6ee96f56af29283e869d43dfcd708d99c17",
+    "sha256": "1da711d07b7ea1f99b8624f7a117da8496e578d70ecc128f878004377a70d1b0",
     "item": {
       "id": "uac-20",
       "name": "Ultra AC/20",
@@ -258,14 +366,30 @@
       "costCBills": 480000,
       "battleValue": 281,
       "introductionYear": 3052,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 8,
     "id": "clan-uac-2",
-    "sha256": "fe956a71b87d79c3d17eb4b7d7235539895978323bc865014817c552fd799394",
+    "sha256": "316f8b761420b840a18a6977815dbbbc8605a612b220753c6301d63b989ea8b3",
     "item": {
       "id": "clan-uac-2",
       "name": "Ultra AC/2 (Clan)",
@@ -291,14 +415,30 @@
       "costCBills": 120000,
       "battleValue": 62,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 9,
     "id": "clan-uac-5",
-    "sha256": "806ecf2b22121329fe9fe4d2a08bb887b62aef38a2dfa5cbb6d83233f8c310e7",
+    "sha256": "da80d11e1cf41eb6c022de9a52e0031fb2a5c9275e723656fd9b4c22e5b96f3d",
     "item": {
       "id": "clan-uac-5",
       "name": "Ultra AC/5 (Clan)",
@@ -324,14 +464,30 @@
       "costCBills": 200000,
       "battleValue": 122,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 10,
     "id": "clan-uac-10",
-    "sha256": "8154754b8a9f678326774d68e79f806666dd86267f0324aab1f48af3d2e3e3af",
+    "sha256": "f8af7b77e3a4d41fdcb5996e1030deb681e3af5ef76bfdef7619217e6a3885d1",
     "item": {
       "id": "clan-uac-10",
       "name": "Ultra AC/10 (Clan)",
@@ -357,14 +513,30 @@
       "costCBills": 320000,
       "battleValue": 210,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 11,
     "id": "clan-uac-20",
-    "sha256": "7c1a705713df71f60d0f3b8960d5dba9c1d72c099a64b010e2865746591ea572",
+    "sha256": "762ae49c1b9e83858c11bfcd4421802c146470682131d26e26d34f53a58acc80",
     "item": {
       "id": "clan-uac-20",
       "name": "Ultra AC/20 (Clan)",
@@ -390,14 +562,29 @@
       "costCBills": 480000,
       "battleValue": 335,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 12,
     "id": "lb-2-x-ac",
-    "sha256": "032e11abc0ded0574b0ceaa037e836dd28642261520a222508740451d088793f",
+    "sha256": "014e29988e61bfca95cece1b94274c59b18c3157e0f5997e067788eb8ed95049",
     "item": {
       "id": "lb-2-x-ac",
       "name": "LB 2-X AC",
@@ -423,14 +610,30 @@
       "costCBills": 150000,
       "battleValue": 42,
       "introductionYear": 3050,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 13,
     "id": "lb-5-x-ac",
-    "sha256": "f13871c3592c0d426653781040cab44cb06f6e504cacd9063cd9aa435c5211a4",
+    "sha256": "5f5ef013e4bf231aab7b2bbb4944c5c930e921c56fef893e6f6bf9a0d509cccf",
     "item": {
       "id": "lb-5-x-ac",
       "name": "LB 5-X AC",
@@ -456,14 +659,30 @@
       "costCBills": 250000,
       "battleValue": 83,
       "introductionYear": 3050,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 14,
     "id": "lb-10-x-ac",
-    "sha256": "a29e227dd27bb3ae0cf134dd6016c67359f093c2581226df440799a5da220b21",
+    "sha256": "1abc36da912966affc3d44f5d9a61192e0d7603ec6569101db28e43b0364211f",
     "item": {
       "id": "lb-10-x-ac",
       "name": "LB 10-X AC",
@@ -487,14 +706,30 @@
       "introductionYear": 2590,
       "special": ["Cluster ammo available"],
       "extinctionYear": 2840,
-      "reintroductionYear": 3035
+      "reintroductionYear": 3035,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 15,
     "id": "lb-20-x-ac",
-    "sha256": "e7abd51afba68dccfb5c05876c331d7affd643fd3ae56880e0a0a959e82d3ff4",
+    "sha256": "5860e2feae53b10e48897c6b8aad602d5d57b3d94a2b33cab2ed7a8831ed010c",
     "item": {
       "id": "lb-20-x-ac",
       "name": "LB 20-X AC",
@@ -520,14 +755,30 @@
       "costCBills": 600000,
       "battleValue": 237,
       "introductionYear": 3050,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 16,
     "id": "clan-lb-2-x-ac",
-    "sha256": "4a424e83cfab6f82ae48d04ed27ed6602a830828cba8480c7b7342ee54b11fbd",
+    "sha256": "7c5144174196e2790db1ebf268384dc2402b6fd9fb8ad6c0c08002dc3b6b889d",
     "item": {
       "id": "clan-lb-2-x-ac",
       "name": "LB 2-X AC (Clan)",
@@ -553,14 +804,30 @@
       "costCBills": 150000,
       "battleValue": 47,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 17,
     "id": "clan-lb-5-x-ac",
-    "sha256": "5b33f74ae2229029b2493f022283777ff181b67de00c25c28a95663bd989a6eb",
+    "sha256": "31bbfb8523ee62a735346ccf8ed6c2412f3faf85c62661ddd2c721d623ba7931",
     "item": {
       "id": "clan-lb-5-x-ac",
       "name": "LB 5-X AC (Clan)",
@@ -586,14 +853,30 @@
       "costCBills": 250000,
       "battleValue": 93,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 18,
     "id": "clan-lb-10-x-ac",
-    "sha256": "d5eb73fd222df197e3cf451e6029a62ff118781126497dce1743aed003854f76",
+    "sha256": "fbab246287f422955c2efa10f8e2d90c16dcf49d505e309f8ea7c480b0210e55",
     "item": {
       "id": "clan-lb-10-x-ac",
       "name": "LB 10-X AC (Clan)",
@@ -619,14 +902,30 @@
       "costCBills": 400000,
       "battleValue": 148,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 19,
     "id": "clan-lb-20-x-ac",
-    "sha256": "10e7ea347954b39f6adf354d86dbaa62ca76c0b84c6437975f4b79aa875bd699",
+    "sha256": "64c54e173ef2dc6d6e520589b850d56c66256fe01b172fb851071b654c4b221a",
     "item": {
       "id": "clan-lb-20-x-ac",
       "name": "LB 20-X AC (Clan)",
@@ -652,14 +951,29 @@
       "costCBills": 600000,
       "battleValue": 237,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 20,
     "id": "rac-2",
-    "sha256": "f4e32abfa379ef807c260520b505d3a7a924f8fe3d020dcd644be27e7316554e",
+    "sha256": "e173ac8ebbd917ca147c12493da87ad0de3e8e0d6246d95783af69c6ac171d85",
     "item": {
       "id": "rac-2",
       "name": "Rotary AC/2",
@@ -685,14 +999,30 @@
       "costCBills": 175000,
       "battleValue": 118,
       "introductionYear": 3055,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 21,
     "id": "rac-5",
-    "sha256": "a5ac1947545176d1b0e70277443b236a86d1c592607e85781932cc8caccd6ddc",
+    "sha256": "68c6e9af55c744553da84c820c60c4ddd3a17c3aa9714bf50671d1fbaeb73bdd",
     "item": {
       "id": "rac-5",
       "name": "Rotary AC/5",
@@ -718,14 +1048,30 @@
       "costCBills": 275000,
       "battleValue": 247,
       "introductionYear": 3055,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 22,
     "id": "clan-rac-2",
-    "sha256": "a2e84b3f4896aa2743c503a3c31c9149d0a3eb3dd08c8f06805070533f27fd31",
+    "sha256": "9535c795fa3af327bc0ef63b8935b41f3128939c05186dbee89d56e378251f4e",
     "item": {
       "id": "clan-rac-2",
       "name": "Rotary AC/2 (Clan)",
@@ -751,14 +1097,29 @@
       "costCBills": 175000,
       "battleValue": 161,
       "introductionYear": 3073,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 23,
     "id": "clan-rac-5",
-    "sha256": "8d3af12d8ff8fd1dd7224b5f3dfa3619afe36550376993685ba3893957afe567",
+    "sha256": "73c77d1ada35459ceb9e35a22e0b58781f3d9b5b43eb7b72502f62b9acc646e2",
     "item": {
       "id": "clan-rac-5",
       "name": "Rotary AC/5 (Clan)",
@@ -784,14 +1145,29 @@
       "costCBills": 275000,
       "battleValue": 345,
       "introductionYear": 3073,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 24,
     "id": "lac-2",
-    "sha256": "6bed60d2ecc2b86bdbff2e2281f7eddaba584f17c1ae95a88f14248eae9d9439",
+    "sha256": "3c61e01b94684ad9a0195546d18b242fa250a8c3469dce97686867fd0a6bf9d7",
     "item": {
       "id": "lac-2",
       "name": "Light AC/2",
@@ -816,14 +1192,29 @@
       "ammoPerTon": 45,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 3057
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 25,
     "id": "lac-5",
-    "sha256": "770b3ebf5042d799187b88c8316870a0f42327057134d59dab5f69e118519423",
+    "sha256": "cc9bb091a85a459c10f3ae244fef8dfb7634e79e3f82e28d486e4f22be68c8f5",
     "item": {
       "id": "lac-5",
       "name": "Light AC/5",
@@ -848,14 +1239,29 @@
       "ammoPerTon": 20,
       "costCBills": 150000,
       "battleValue": 62,
-      "introductionYear": 3057
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 26,
     "id": "improved-autocannon-10",
-    "sha256": "98b3cb9b382ae58e8fdb97dd68e3e9444be919af67af409744b0e8ec70c47874",
+    "sha256": "e578423bfe799220467143fa21ec5913ef53cc1922d6794b1f1bfdc18683ca01",
     "item": {
       "id": "improved-autocannon-10",
       "name": "Improved Autocannon/10",
@@ -883,14 +1289,29 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 27,
     "id": "improved-autocannon-2",
-    "sha256": "ad09a9085e62cc807675a4ef6e79737cf7fe9eba35f669df29bbce88a9e4335d",
+    "sha256": "94b2e78a86f5a630bbb89e2d736b13fd098cdb92144c6c7c102589e0f0e38ed9",
     "item": {
       "id": "improved-autocannon-2",
       "name": "Improved Autocannon/2",
@@ -918,14 +1339,29 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 28,
     "id": "improved-autocannon-20",
-    "sha256": "b16f7d8535cbcb30f31f077a9e33fb0833295d0dd6359d34fe3fa9f715ff6fde",
+    "sha256": "e5cfdf1e32ba1cc25f0c91329d5077b955df2d528009d11373279a6838a7cdc6",
     "item": {
       "id": "improved-autocannon-20",
       "name": "Improved Autocannon/20",
@@ -953,14 +1389,29 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 29,
     "id": "improved-autocannon-5",
-    "sha256": "d570c0418dbafc579d5caacec75a60adc59c7c83f7ab5ebc66bb9286ffe4179e",
+    "sha256": "ef8b2851f1e9474417c8228334bdba431384865db67db631c27ce9eb1d63793b",
     "item": {
       "id": "improved-autocannon-5",
       "name": "Improved Autocannon/5",
@@ -988,14 +1439,29 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 30,
     "id": "hyper-velocity-auto-cannon-10",
-    "sha256": "723d937cbd6a6239417228c3ab01d56a67841791ea3e7517974371dcc6310a00",
+    "sha256": "bbbc06a3ef70ef2bcc45c193642f72d4d1507d070a12565f7faa55f2b8ac18a6",
     "item": {
       "id": "hyper-velocity-auto-cannon-10",
       "name": "HVAC/10",
@@ -1021,14 +1487,29 @@
       "costCBills": 230000,
       "battleValue": 158,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 31,
     "id": "hyper-velocity-auto-cannon-2",
-    "sha256": "f0027ac867fcca3fa5872a7ab298a17dc2d2c0442a84d4203be5cf9728b86457",
+    "sha256": "751e66eb9f20d1d51696fdb781a4ce7d824c5ad9be373ab9a9b8d887e2e97772",
     "item": {
       "id": "hyper-velocity-auto-cannon-2",
       "name": "HVAC/2",
@@ -1054,14 +1535,29 @@
       "costCBills": 100000,
       "battleValue": 53,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 32,
     "id": "hyper-velocity-auto-cannon-5",
-    "sha256": "7b3d7d355be5ed19a7a6fc9da99490a277396055f89257046a6eca5f19cb8ba6",
+    "sha256": "53041e6c2c8004503efadc24886937e61b9930d0b59bc4783292f026adb85d6e",
     "item": {
       "id": "hyper-velocity-auto-cannon-5",
       "name": "HVAC/5",
@@ -1087,14 +1583,29 @@
       "costCBills": 160000,
       "battleValue": 109,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 0,
     "id": "gauss-rifle",
-    "sha256": "e25b65a4d273260f771b56ed70f94a92bc173cb5db872b803b999c7d97ea3dd4",
+    "sha256": "87eaf828ffdde3cfde1b8635f7f11905f9ddf3d8ef077e293dfca5e02b52b88c",
     "item": {
       "id": "gauss-rifle",
       "name": "Gauss Rifle",
@@ -1122,14 +1633,29 @@
       "introductionYear": 2587,
       "isExplosive": true,
       "extinctionYear": 2865,
-      "reintroductionYear": 3040
+      "reintroductionYear": 3040,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 1,
     "id": "light-gauss-rifle",
-    "sha256": "8d63adb774ebce5cad9d7ce9c0a94b02f007741733d658597a62c1d50b18b6ad",
+    "sha256": "d1692e8fb3566c71d91fc35184e353505f7001bb74d97aa2343ac95cef53b269",
     "item": {
       "id": "light-gauss-rifle",
       "name": "Light Gauss Rifle",
@@ -1155,14 +1681,30 @@
       "costCBills": 275000,
       "battleValue": 159,
       "introductionYear": 3044,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 2,
     "id": "heavy-gauss-rifle",
-    "sha256": "632d6e05caf6048125cf006147ce9ec903fc63d9cc963060967f2bb032884eab",
+    "sha256": "ac6ccbb891678bb84a17acaacadb9306b46c1e09c6205c54214838efc5debfeb",
     "item": {
       "id": "heavy-gauss-rifle",
       "name": "Heavy Gauss Rifle",
@@ -1188,14 +1730,30 @@
       "costCBills": 500000,
       "battleValue": 346,
       "introductionYear": 3046,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 3,
     "id": "ap-gauss-rifle",
-    "sha256": "77951169a25ca1d12801c47895d9d4a4a392150c2e01966154ae8db8e4fb0f74",
+    "sha256": "c2a479e5d533b5fba479d48e96314352d26557f2130de2d848ab0a1229331557",
     "item": {
       "id": "ap-gauss-rifle",
       "name": "AP Gauss Rifle",
@@ -1221,14 +1779,30 @@
       "costCBills": 8500,
       "battleValue": 21,
       "introductionYear": 3060,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 4,
     "id": "clan-gauss-rifle",
-    "sha256": "d1bcf0df70331b9e59f8d262ba3cc5fd5073bb0ab5e378f35ad0b9104427cd2e",
+    "sha256": "d16c8d7c5935cc1924b65813ee02736048889f9090b1cf941f924590d5f0bfad",
     "item": {
       "id": "clan-gauss-rifle",
       "name": "Gauss Rifle (Clan)",
@@ -1254,14 +1828,30 @@
       "costCBills": 300000,
       "battleValue": 320,
       "introductionYear": 2817,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 5,
     "id": "baapgaussrifle",
-    "sha256": "ed2fb579f8b466d40774facfd915075161aee3207797168f52d2c218534f9558",
+    "sha256": "2986f4050ee02ddcbee8d625b402f1c41001a29ffc305426d1eff1e65bb5afb7",
     "item": {
       "id": "baapgaussrifle",
       "name": "Gauss Rifle [Anti-personnel Gauss Rifle]",
@@ -1287,14 +1877,15 @@
       "costCBills": 10000,
       "battleValue": 21,
       "introductionYear": 3061,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 6,
     "id": "badavidlightgaussrifle",
-    "sha256": "317ae3f5e195116f06467a84712086d0fa9ecd878aecbeb33e455a31cb0f9636",
+    "sha256": "9832d65fea15b022db0c96fbbdc847afd53204c94b715ff2cd44a33114af1c51",
     "item": {
       "id": "badavidlightgaussrifle",
       "name": "Gauss Rifle [David]",
@@ -1320,14 +1911,15 @@
       "costCBills": 22500,
       "battleValue": 7,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 7,
     "id": "bagrandmaulergausscannon",
-    "sha256": "a6abd2adc9bb3819dfe25ff46e7b591bf7dd5f107dfc0013f30daca221b1f607",
+    "sha256": "a3db061f5adbb6d14397f0afa132579e33921070ec1aef0e11f80a6f1b1e630f",
     "item": {
       "id": "bagrandmaulergausscannon",
       "name": "Gauss Rifle [Grand Mauler]",
@@ -1353,14 +1945,15 @@
       "costCBills": 8000,
       "battleValue": 6,
       "introductionYear": 3050,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 8,
     "id": "bakingdavidlightgaussrifle",
-    "sha256": "024594fbf96821c38349d88b30c18b4e3b22c12d3e5f47478ff18d2be6e0f5a3",
+    "sha256": "113dc943220f47119f7f352e768978adaf7a8c4e434c7cc200c3a16f8f600a05",
     "item": {
       "id": "bakingdavidlightgaussrifle",
       "name": "Gauss Rifle [King David]",
@@ -1386,14 +1979,15 @@
       "costCBills": 30000,
       "battleValue": 7,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 9,
     "id": "bamagshotgaussrifle",
-    "sha256": "565cb59ed0dd1c8ec01c72b3de3b69c988f02510a9d148042cce92fda1a94d2e",
+    "sha256": "6947036a2f269414c8f710901091e3f4aa924534f05cf698b95298c4603c256e",
     "item": {
       "id": "bamagshotgaussrifle",
       "name": "Gauss Rifle [Magshot]",
@@ -1419,14 +2013,15 @@
       "costCBills": 10500,
       "battleValue": 15,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 10,
     "id": "batsunamiheavygaussrifle",
-    "sha256": "e369a486812d33997d71e1c8448f0791b1a44c01d5173132bf86518504dcf1c5",
+    "sha256": "354f451a4b2acc2ecdc9b708a056ab2da73776e6ebcaded5d2ec4c8d703ef10b",
     "item": {
       "id": "batsunamiheavygaussrifle",
       "name": "Gauss Rifle [Tsunami]",
@@ -1452,14 +2047,15 @@
       "costCBills": 9500,
       "battleValue": 6,
       "introductionYear": 3049,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 11,
     "id": "naval-gauss-heavy",
-    "sha256": "a673bfe94dfd98df6829669967160b4a9ba8b120c48b01e5468e8eeee0ff5e58",
+    "sha256": "455c2f40e40cc344c5634adf76fc46c68b7b0238d30632120a68d6772ad4790c",
     "item": {
       "id": "naval-gauss-heavy",
       "name": "Naval Gauss (Heavy)",
@@ -1487,14 +2083,23 @@
       "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
-      "reintroductionYear": 3052
+      "reintroductionYear": 3052,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 12,
     "id": "naval-gauss-light",
-    "sha256": "23d44aef7c69b987e5878844fce648cc92cf79d5dd7745af400699fc3a2c4a6f",
+    "sha256": "3886c280160426ee592251e6be4155e93712bc46f333e67f8794eae4ea8b23e5",
     "item": {
       "id": "naval-gauss-light",
       "name": "Naval Gauss (Light)",
@@ -1522,14 +2127,23 @@
       "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
-      "reintroductionYear": 3052
+      "reintroductionYear": 3052,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 13,
     "id": "naval-gauss-medium",
-    "sha256": "2453e3c3c3564694a10fa975b7127573bc781dfbf9ffbe1a4dec52f98a2a1e90",
+    "sha256": "611cda8c7e0e590de0f6a980dc08339054101616ae3fe9b2ebc69889f731812a",
     "item": {
       "id": "naval-gauss-medium",
       "name": "Naval Gauss (Medium)",
@@ -1557,14 +2171,23 @@
       "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
-      "reintroductionYear": 3052
+      "reintroductionYear": 3052,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 14,
     "id": "improved-gauss-rifle",
-    "sha256": "8acb84067f9bef520a74b454957ab2f70ca2be31877df1e1b0b459cf3630d253",
+    "sha256": "247a16b0e9a360a67be272c68e950094f9a5182ddf7fcef045910f44af59ef2c",
     "item": {
       "id": "improved-gauss-rifle",
       "name": "Improved Gauss Rifle",
@@ -1592,14 +2215,30 @@
       "introductionYear": 2813,
       "special": [],
       "extinctionYear": 2837,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 15,
     "id": "improvedheavygaussrifle",
-    "sha256": "dd5f0e311fd1e6288e9d01bdae3ecf1961430113d52763fda658e19c7ee929dc",
+    "sha256": "377978866396e98d16abff7330cb0157b6902852af5339b49fb02ba74c08c965",
     "item": {
       "id": "improvedheavygaussrifle",
       "name": "Improved Heavy Gauss Rifle",
@@ -1625,14 +2264,30 @@
       "costCBills": 700000,
       "battleValue": 385,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 16,
     "id": "sbgr",
-    "sha256": "9a6cfd3060d607f8461c157de8412a6f398f2fad269ce550a69bba27fe2df361",
+    "sha256": "7857e5c96c385bb42a7e0831d4009a4c4589324cb6ef9f1d3a8ab3dcdc1782df",
     "item": {
       "id": "sbgr",
       "name": "Silver Bullet Gauss Rifle",
@@ -1658,14 +2313,30 @@
       "costCBills": 350000,
       "battleValue": 198,
       "introductionYear": 3051,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-gauss.json",
     "index": 17,
     "id": "gaussrifleprototype",
-    "sha256": "e2114b647e7125e23a62e31d6001de04d6031f3d8aa7157eb9f2f80083da4e8c",
+    "sha256": "8886a88f96ea6e216b4dd5573fbd7c9a730a880731da868a1c6cde0f544ddeb7",
     "item": {
       "id": "gaussrifleprototype",
       "name": "Prototype Gauss Rifle",
@@ -1693,14 +2364,30 @@
       "introductionYear": 2587,
       "special": [],
       "extinctionYear": 2590,
-      "reintroductionYear": 3038
+      "reintroductionYear": 3038,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 0,
     "id": "machine-gun",
-    "sha256": "74520afdaa6a97035d995d966d25d086c58ba42d90b2b95b7c16e6ef0de24a38",
+    "sha256": "927173c48734b5cd19b84a7d38e28a3691d4ac14880f1d161b888d066a6a5470",
     "item": {
       "id": "machine-gun",
       "name": "Machine Gun",
@@ -1725,14 +2412,30 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 1950
+      "introductionYear": 1950,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 1,
     "id": "light-machine-gun",
-    "sha256": "66cbfe41ab7be805811dd41cd078bbc8be06dce59a2b13858f183f9e49e2afa4",
+    "sha256": "86e5e0d0dc2ce65872080c9aa1ce409cc4a228eb3d9bcc35012ecb5ffb4cd401",
     "item": {
       "id": "light-machine-gun",
       "name": "Light Machine Gun",
@@ -1757,14 +2460,30 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 3059
+      "introductionYear": 3059,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 2,
     "id": "heavy-machine-gun",
-    "sha256": "32f3960ca575dc4b699364c6983e10018ce308f546e7f25d24e8778446c743b9",
+    "sha256": "e2e567cb51b9d10f1707fec9e1b8869bad07dec6a05bed62e5f0a1f9645e6487",
     "item": {
       "id": "heavy-machine-gun",
       "name": "Heavy Machine Gun",
@@ -1789,14 +2508,30 @@
       "ammoPerTon": 100,
       "costCBills": 7500,
       "battleValue": 6,
-      "introductionYear": 3058
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 3,
     "id": "clan-machine-gun",
-    "sha256": "074a3e4cbd09ff60f60626b22341558ad370a2b938742eb64d5297ca72359472",
+    "sha256": "02a32e7dca7a7b166668fdb56bce7d0d12f1a7e0ec83df7ae86b7b4b3a4bc39e",
     "item": {
       "id": "clan-machine-gun",
       "name": "Machine Gun (Clan)",
@@ -1821,14 +2556,30 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 2825
+      "introductionYear": 2825,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 4,
     "id": "bamg",
-    "sha256": "dd3510a8e2afbe6ae74078e88d9be8109c2f2002380d1f77c365efabd21addf4",
+    "sha256": "9821986e100c3672225a2e3b9381e5213cfecd954d9d62ab65f76ba67335ca80",
     "item": {
       "id": "bamg",
       "name": "Machine Gun (Medium)",
@@ -1854,14 +2605,15 @@
       "costCBills": 5000,
       "battleValue": 5,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 5,
     "id": "machine-gun-bearhunter-ac",
-    "sha256": "5784e0b1c6ffb13b432d34c2132d2721f7fb513be430e3c8a8be0a6661619d93",
+    "sha256": "5c6fc8c1d3ac3b1045529cae60af9a35333cbe611f848f22cb1bf025b2d513bb",
     "item": {
       "id": "machine-gun-bearhunter-ac",
       "name": "Machine Gun (Bearhunter AC)",
@@ -1887,14 +2639,15 @@
       "costCBills": 0,
       "battleValue": 4,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 6,
     "id": "machine-gun-bearhunter-aci",
-    "sha256": "304ae156e7e665e983f5ddb12535348e19218d1e5ad13583f0472521fde2da9f",
+    "sha256": "83ef93943bc998bd3db03235c48c01e8b2e03aa23f6ee2542d0b62467ac69b86",
     "item": {
       "id": "machine-gun-bearhunter-aci",
       "name": "Machine Gun (Bearhunter ACi)",
@@ -1920,14 +2673,15 @@
       "costCBills": 0,
       "battleValue": 9,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 7,
     "id": "baheavymg",
-    "sha256": "f4190fbbbd47ffc83b66325c388b3ccf10adfbfd341dd35b4f329dbd3442a05d",
+    "sha256": "81f3f5131f599d608eb1a82f69fd73b06c90744a6c091fe4f1be681b1f51cd33",
     "item": {
       "id": "baheavymg",
       "name": "Machine Gun (Heavy)",
@@ -1953,14 +2707,15 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 3050,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 8,
     "id": "balightmg",
-    "sha256": "73e5c3137d6d48253ff9114ec66ef4c6fb6b0cb431178fa034594bf500fa25ab",
+    "sha256": "81f84aecab91c93de1f187307210ff3f9b02908c86ab35fe1dc1f00591aaf365",
     "item": {
       "id": "balightmg",
       "name": "Machine Gun (Light)",
@@ -1982,14 +2737,15 @@
       "costCBills": 5000,
       "battleValue": 5,
       "introductionYear": 3060,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 9,
     "id": "hmga",
-    "sha256": "0de2485fc33a71f9ded1e01c07e618d003b65a816d15de7b06512be8ecc66350",
+    "sha256": "0b2491fe6c7125b200a8a06c5ec25af58999f547c5c8de48fc4a20ce42df7769",
     "item": {
       "id": "hmga",
       "name": "Heavy Machine Gun Array",
@@ -2015,14 +2771,30 @@
       "costCBills": 1250,
       "battleValue": 0,
       "introductionYear": 3069,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 10,
     "id": "lmga",
-    "sha256": "73b3d874ec02c55f4b65a1b6453984375cb95aa46fc6531e76e1f0fb0ddf2fce",
+    "sha256": "ffaafdc6040893bbdd23e10eb7180fadbd7d71bc5d937b5d030cc7efff506c17",
     "item": {
       "id": "lmga",
       "name": "Light Machine Gun Array",
@@ -2048,14 +2820,30 @@
       "costCBills": 1250,
       "battleValue": 0,
       "introductionYear": 3069,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 11,
     "id": "mga",
-    "sha256": "6671472b5cc08469e7a2da412066a46176a4c23d22b013dc69ba477c9321bbfe",
+    "sha256": "0517db583cd7cf695a8c266866062c7817ee271580bb66196f5359a7b021b4da",
     "item": {
       "id": "mga",
       "name": "Machine Gun Array",
@@ -2081,14 +2869,30 @@
       "costCBills": 1250,
       "battleValue": 0,
       "introductionYear": 3069,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-machinegun.json",
     "index": 12,
     "id": "clan-light-machine-gun",
-    "sha256": "a74aeb36f80c9ea77e76be406d330c06d5e719f0fb98ddf674fbe6b056a98f8f",
+    "sha256": "6195aa720ac40873cdd45057ba9dd974d223821e8ae010a153d9ab94b2e3117e",
     "item": {
       "id": "clan-light-machine-gun",
       "name": "Light Machine Gun (Clan)",
@@ -2114,14 +2918,30 @@
         "long": 6,
         "extreme": 8
       },
-      "ammoPerTon": 200
+      "ammoPerTon": 200,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 0,
     "id": "ams",
-    "sha256": "e3ca5feced48997dd5d51aad8efa77d79c48497dce5d3f502aa521c3c3fbd9c9",
+    "sha256": "d8b382002efd60e28e4f9a61a3e6cef943152074878da7b865ac5998834861be",
     "item": {
       "id": "ams",
       "name": "Anti-Missile System",
@@ -2149,14 +2969,29 @@
       "introductionYear": 2608,
       "special": ["Defensive"],
       "extinctionYear": 2835,
-      "reintroductionYear": 3045
+      "reintroductionYear": 3045,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 1,
     "id": "clan-ams",
-    "sha256": "758e3d97afbaa2723e090f5c2fdff571e5c3dbf2679a6414dfa15600f0ded624",
+    "sha256": "55921037cccd289f2d6a2fe6739074de85f3e5b20a5fe4b312e25663d09d654d",
     "item": {
       "id": "clan-ams",
       "name": "Anti-Missile System (Clan)",
@@ -2182,14 +3017,30 @@
       "costCBills": 100000,
       "battleValue": 32,
       "introductionYear": 2819,
-      "special": ["Defensive"]
+      "special": ["Defensive"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 2,
     "id": "protomechac2",
-    "sha256": "3b084ea83a5feb353f831c16956641bf66d438e8652e623275fc4628260102ee",
+    "sha256": "186b3999ea433d6c77c81b64c082db793e28d9bfb1bcdc74957da599c7846488",
     "item": {
       "id": "protomechac2",
       "name": "ProtoMech AC/2",
@@ -2215,14 +3066,30 @@
       "costCBills": 95000,
       "battleValue": 34,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 3,
     "id": "protomechac4",
-    "sha256": "ba19f003cb3452c5a9d7bd5d229d60fd52f766198170cc4e3cac90e06099b997",
+    "sha256": "bc25965a9f1ea9353161455d79240f6383eddd1b9ef9f872ea1a91a6d0ec205b",
     "item": {
       "id": "protomechac4",
       "name": "ProtoMech AC/4",
@@ -2248,14 +3115,30 @@
       "costCBills": 133000,
       "battleValue": 49,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 4,
     "id": "protomechac8",
-    "sha256": "72ccff406b634010145107da34d80e5a6fd81a1299d4d02025c88062f6196f84",
+    "sha256": "3648f9d01355bb0d32423eca9a2e44fff565ed16b26f42ea49c765325f40dc70",
     "item": {
       "id": "protomechac8",
       "name": "ProtoMech AC/8",
@@ -2281,14 +3164,30 @@
       "costCBills": 175000,
       "battleValue": 66,
       "introductionYear": 3065,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 5,
     "id": "nail-rivet-gun",
-    "sha256": "a07e9367da85b8cd68e137e0b010365495033002cd2606c1a87a731649ae55c5",
+    "sha256": "7ee45869abf8f4a52ec06880fa004ea73fac67472d182a0ebd6409344c43271f",
     "item": {
       "id": "nail-rivet-gun",
       "name": "Nail/Rivet Gun",
@@ -2317,14 +3216,29 @@
       "costCBills": 7000,
       "battleValue": 1,
       "introductionYear": 2304,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 6,
     "id": "rifle-cannon-heavy",
-    "sha256": "f7e17e6eed982f0334bb66234c8fd87d656daced48336b22af432300edb94e66",
+    "sha256": "19a6bd7208439e9b2197cd4eb13531878b151cec84cb98d9e385f18fb53b38dd",
     "item": {
       "id": "rifle-cannon-heavy",
       "name": "Rifle (Cannon, Heavy)",
@@ -2350,14 +3264,29 @@
       "costCBills": 90000,
       "battleValue": 91,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 7,
     "id": "rifle-cannon-light",
-    "sha256": "6ac6eef542ea2598d49240eef6b4e85c1e4bf260ac72581afda23af3c9b27935",
+    "sha256": "42e31385d1c5fc524c68902f31609d11e1a355c735ea1520c9dc10aa14bf43ce",
     "item": {
       "id": "rifle-cannon-light",
       "name": "Rifle (Cannon, Light)",
@@ -2383,14 +3312,29 @@
       "costCBills": 37750,
       "battleValue": 21,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 8,
     "id": "rifle-cannon-medium",
-    "sha256": "c1d67be482036994963d403021aed1f92f2e4722b59b7dbc04156ef16ae97f42",
+    "sha256": "99163b5a0927b12339a0268a2e336690917f7c832270b1d3323ad12e6fc5c776",
     "item": {
       "id": "rifle-cannon-medium",
       "name": "Rifle (Cannon, Medium)",
@@ -2416,14 +3360,29 @@
       "costCBills": 75750,
       "battleValue": 51,
       "introductionYear": 1950,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 9,
     "id": "baheavy-recoilless-rifle",
-    "sha256": "8fa22a39c698bd95f64315b8028c5fcd947a611cf166a508126e589744dee354",
+    "sha256": "f5db918b767dc73de3bb7bcd3078ba31f4b35bd2758ee54b793b741a96e7ec99",
     "item": {
       "id": "baheavy-recoilless-rifle",
       "name": "BA Recoilless Rifle (Heavy)",
@@ -2449,14 +3408,15 @@
       "costCBills": 5000,
       "battleValue": 22,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 10,
     "id": "balight-recoilless-rifle",
-    "sha256": "ab25670689e20aba32bc6bc1d22684a18c22c53cb57880d21a85032a1fa46fd3",
+    "sha256": "47a4feedc283425df7ca29d7ebc935cb994d33049014c439f8e7956a3a30a8df",
     "item": {
       "id": "balight-recoilless-rifle",
       "name": "BA Recoilless Rifle (Light)",
@@ -2482,14 +3442,15 @@
       "costCBills": 1000,
       "battleValue": 12,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 11,
     "id": "bamedium-recoilless-rifle",
-    "sha256": "aeaa00054e7d14311abc4bb5a67721c46f5d501a52f6b35f1696a33dc0505d22",
+    "sha256": "a755b8de87ad7cc5381a55ca0bd606af3f256a1850463df1b228588df505f3f8",
     "item": {
       "id": "bamedium-recoilless-rifle",
       "name": "BA Recoilless Rifle (Medium)",
@@ -2515,14 +3476,15 @@
       "costCBills": 3000,
       "battleValue": 19,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 12,
     "id": "hag20",
-    "sha256": "916b6bed16a9d0646cb2c23053cac6a23dda7e9c8fe7206143823f0c42c85f0a",
+    "sha256": "dcbf33b1c8916fa80778556c815fdb5de8f78fb60274dd1058a0b1ec6ebeaeff",
     "item": {
       "id": "hag20",
       "name": "HAG/20",
@@ -2548,14 +3510,30 @@
       "costCBills": 400000,
       "battleValue": 267,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 13,
     "id": "hag30",
-    "sha256": "9d1c214d141cfbe0bec3ebc0b1b971f96d1e268cd4c0927a71e8a5e18ab2f3a7",
+    "sha256": "321b42c2d13fad02ea6fbcdbab2050ba7faceeb7f27e6ae1ab50bb80c1fed52f",
     "item": {
       "id": "hag30",
       "name": "HAG/30",
@@ -2581,14 +3559,29 @@
       "costCBills": 500000,
       "battleValue": 401,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 14,
     "id": "hag40",
-    "sha256": "dd6ead7fa24e7d50c20e5ce1c58dcf99e17ffa2471010e3ed2110f89743b1e9a",
+    "sha256": "2232eeaa69f08555da398d20c2bbe9a44225879e838c4620464eaccab44a8e3f",
     "item": {
       "id": "hag40",
       "name": "HAG/40",
@@ -2614,14 +3607,29 @@
       "costCBills": 600000,
       "battleValue": 535,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 15,
     "id": "magshotgr",
-    "sha256": "676a38788df097734f9411c506e2af3c4f38cf18c753a7c7682d0f14ddcc3bb2",
+    "sha256": "fb165964c08583bc73fef575dc487dae9972343c4f8c759872fd7e2d5f027326",
     "item": {
       "id": "magshotgr",
       "name": "Magshot",
@@ -2647,14 +3655,30 @@
       "costCBills": 8500,
       "battleValue": 15,
       "introductionYear": 3054,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 16,
     "id": "smg-awa-starling-mk7",
-    "sha256": "8d44084d2ec93127f5d6a60c29cefe0e89c51fe796fa78ab7c300a3f55eaf38a",
+    "sha256": "7cdc5aeeff8549b743a42783812f7027d33ecddfe8ab9025f43a0db24d03bdba",
     "item": {
       "id": "smg-awa-starling-mk7",
       "name": "SMG (AWA Starling Mk7)",
@@ -2679,14 +3703,15 @@
       "costCBills": 300,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 17,
     "id": "smg-awa-starling-mk7-lb",
-    "sha256": "e0fa279966374d77bd395344b6bba62e49bdd5fbce5b0026ef9b97cfae57b9b8",
+    "sha256": "b1951ed5011c87ca41fb37a1359aa59efe7ecb32c2a538b5007249e4b7611312",
     "item": {
       "id": "smg-awa-starling-mk7-lb",
       "name": "SMG (AWA Starling Mk7-LB)",
@@ -2711,14 +3736,15 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 18,
     "id": "smg-awa-starling-mk7-sf",
-    "sha256": "6c035f5c708b47ad5197af6d89c4c0655dda29f4e28d3763f57ab9410180186f",
+    "sha256": "832e6c5d75842214681e542b6196eeaef03b11364e9f18702ca6fa8fbafd4564",
     "item": {
       "id": "smg-awa-starling-mk7-sf",
       "name": "SMG (AWA Starling Mk7-SF)",
@@ -2743,14 +3769,15 @@
       "costCBills": 600,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 19,
     "id": "smg-blackfield-scorpion-mk-65",
-    "sha256": "d5c9a24240dca5dba83b23f4f999caa4cb04ffe8193e9963ca8f2c6d4205c2a6",
+    "sha256": "2c8bc281bfeaff8181d3998808772c7ab9170afa8abe6916695c585778612ce7",
     "item": {
       "id": "smg-blackfield-scorpion-mk-65",
       "name": "SMG (Blackfield Scorpion Mk 65)",
@@ -2775,14 +3802,15 @@
       "costCBills": 420,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 20,
     "id": "smg-boudicca-4",
-    "sha256": "0adcff25da0b8dab76425c12b0aed1cb45fd5922e2ea22f8049d3f589952d40c",
+    "sha256": "8ef1fcb079ef25e306866bf06e90cf4bdd0ca46db0343b0be43579ad3f7fdcfb",
     "item": {
       "id": "smg-boudicca-4",
       "name": "SMG (Boudicca-4)",
@@ -2807,14 +3835,15 @@
       "costCBills": 300,
       "battleValue": 0,
       "introductionYear": 2525,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 21,
     "id": "smg-boudicca-5",
-    "sha256": "91d11e1c94d1d61d2d36a75daf9773d607eaf0cdcdfe7885317f49376436e819",
+    "sha256": "b7d32c96d8752d68fa3777f85486166b2973b19ca2ac63ad04e088f9edd00a38",
     "item": {
       "id": "smg-boudicca-5",
       "name": "SMG (Boudicca-5)",
@@ -2839,14 +3868,15 @@
       "costCBills": 500,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 22,
     "id": "smg-boudicca-7",
-    "sha256": "b6331e10c7b391d51681314dd6d74a5c1fa4122629b5d6dcb4203fd468a36b8a",
+    "sha256": "ed15293c35226f2210111467ad3acd317814f79bfa3d26c6897e39f478c6083d",
     "item": {
       "id": "smg-boudicca-7",
       "name": "SMG (Boudicca-7)",
@@ -2871,14 +3901,15 @@
       "costCBills": 700,
       "battleValue": 1,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 23,
     "id": "smg-dsk-largo-sga",
-    "sha256": "ba670a8310165b4772e475b093f6a2ba817a6c97dec2020b494f32b8d34818de",
+    "sha256": "0f41ee68655926bec643793f61dce910725e8b77c18f9c92b3000edb70dbfd62",
     "item": {
       "id": "smg-dsk-largo-sga",
       "name": "SMG (DSK Largo SGA)",
@@ -2903,14 +3934,15 @@
       "costCBills": 600,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 24,
     "id": "smg-dsk-largo-sgb",
-    "sha256": "7a67d6809b9eb8fe04ae9c9e992fd0573a73b941d840556a83026bdda64d2223",
+    "sha256": "6f3a241e780e1f517e1d951cb70fee2ad1db70e6895a9bd89d8ecf1bfd87aafb",
     "item": {
       "id": "smg-dsk-largo-sgb",
       "name": "SMG (DSK Largo SGB)",
@@ -2935,14 +3967,15 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 25,
     "id": "smg-houwei",
-    "sha256": "9ec5ce079b772fa8e152d8a03e0974a6cd33973bb9b14053de50139bfedd0559",
+    "sha256": "aaa2548bb974f96a303403182021670a3b745ba47bd890f6013022acea3e3e12",
     "item": {
       "id": "smg-houwei",
       "name": "SMG (Houwei)",
@@ -2967,14 +4000,15 @@
       "costCBills": 250,
       "battleValue": 0,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 26,
     "id": "smg-hunkle-v",
-    "sha256": "9bc93d327241f4f51bc7d64205150a02a19636070e77ee11872bd3208fda21ae",
+    "sha256": "9e9a133537beb4ec70dfef61aae5e2852ccfa170126c624af49a5aaa61157fcf",
     "item": {
       "id": "smg-hunkle-v",
       "name": "SMG (Hunkle V)",
@@ -2999,14 +4033,15 @@
       "costCBills": 600,
       "battleValue": 1,
       "introductionYear": 2330,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 27,
     "id": "smg-j-15-hagel",
-    "sha256": "70470884fb13997eba45d4b4d5caedc6ab86292a0042d8691006ada46b110c4c",
+    "sha256": "4328f543c8d408bcdc336662730cf1da7d7f083267bb14ed636fd55da4b3aad0",
     "item": {
       "id": "smg-j-15-hagel",
       "name": "SMG (J-15 Hagel)",
@@ -3031,14 +4066,15 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 28,
     "id": "smg-j-17-hagel",
-    "sha256": "b9a5f93586a06e90ab55e4360e10e4a3aa16baa62f0d444ce4c6fe32d3fb9faf",
+    "sha256": "b5f1b7d6d965ca18264152a28de178f7ab736d981ac132b795d6a3e6cfe29932",
     "item": {
       "id": "smg-j-17-hagel",
       "name": "SMG (J-17 Hagel)",
@@ -3063,14 +4099,15 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 29,
     "id": "smg-jinse-yanjingshe-ap-rounds",
-    "sha256": "b7f138494b6108d8434b40ce2a78ad5d799858bea404d0f9c0bc1177b993383a",
+    "sha256": "3034a2b786bd3d204843c92433902ff1cea379b143f259a65a6424b23f138686",
     "item": {
       "id": "smg-jinse-yanjingshe-ap-rounds",
       "name": "SMG (Jinse Yanjingshe (AP Rounds))",
@@ -3095,14 +4132,15 @@
       "costCBills": 675,
       "battleValue": 1,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 30,
     "id": "smg-jinse-yanjingshe-standard",
-    "sha256": "e84ca820032e6c8147f265252a4605bb14a6f420ac9fbec1b59601ed77748408",
+    "sha256": "a9b673dcd744e65c948095e588c1feeb23387c66d22b348777bd67b7dfe156c5",
     "item": {
       "id": "smg-jinse-yanjingshe-standard",
       "name": "SMG (Jinse Yanjingshe (Standard))",
@@ -3127,14 +4165,15 @@
       "costCBills": 675,
       "battleValue": 1,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 31,
     "id": "smg-nambu-type-s-124",
-    "sha256": "bc9ca1da4026901edfce002ca3f4350f83db80aba90e2c2bb610f56bff1d5377",
+    "sha256": "e3fe4f1e98bedcf3c9fec0bf480d2a138e16e31db342b02a81460ba3feb8e438",
     "item": {
       "id": "smg-nambu-type-s-124",
       "name": "SMG (Nambu Type S-124)",
@@ -3159,14 +4198,15 @@
       "costCBills": 450,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 32,
     "id": "smg-rfw-bedivere",
-    "sha256": "566165bd10b1a398fcb7b7ea7a200699f03910743bbc3698bfb027fc64a2b6c1",
+    "sha256": "cef5803324ac88b4200eaa45f47b6b70cf32f3ce2dda6452dcc0a864e871c703",
     "item": {
       "id": "smg-rfw-bedivere",
       "name": "SMG (RFW Bedivere)",
@@ -3191,14 +4231,15 @@
       "costCBills": 560,
       "battleValue": 0,
       "introductionYear": 2312,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 33,
     "id": "smg-spartacus",
-    "sha256": "61485c11e1fba6e9394f5b9b8c4442914508ee06ecdb8f93ce72f0c4c4ec6387",
+    "sha256": "9f8731aa80a69fdc8dcfbfc4d647b236d16ab1dddcca64a22337af648850f7eb",
     "item": {
       "id": "smg-spartacus",
       "name": "SMG (Spartacus)",
@@ -3223,14 +4264,15 @@
       "costCBills": 750,
       "battleValue": 0,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 34,
     "id": "smg-sturm-hornet-mk-iii",
-    "sha256": "ea55dd6dd74e6588632299b298c26d54f6174824ac784b7c03562c957034ba53",
+    "sha256": "ec25e5a18b57b6b7dbd3ccc0374e470169657b98433609630131284b1759a3ce",
     "item": {
       "id": "smg-sturm-hornet-mk-iii",
       "name": "SMG (Sturm Hornet Mk III)",
@@ -3255,14 +4297,15 @@
       "costCBills": 750,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 35,
     "id": "smg-supekuta",
-    "sha256": "e6ec1c1ab4f590ffcdde3aaf77015904b9dbbbbd043db74cb2a1cc6f40f570b6",
+    "sha256": "fd35d7c9b96ee0534ef2539a4bbcd76d1830bbe65f4439aed5496f00580ddd35",
     "item": {
       "id": "smg-supekuta",
       "name": "SMG (Supekuta)",
@@ -3287,14 +4330,15 @@
       "costCBills": 200,
       "battleValue": 0,
       "introductionYear": 2314,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 36,
     "id": "smg-tiberius",
-    "sha256": "4c7dc903cb9dca8900eab943c8880ec9d8f2c1f2ed9f5f2626e3a66396745989",
+    "sha256": "f4d571fc465dc92d4d452aa91231b4999cad9161c89711e89308d0ee15bf7a1b",
     "item": {
       "id": "smg-tiberius",
       "name": "SMG (Tiberius)",
@@ -3319,14 +4363,15 @@
       "costCBills": 600,
       "battleValue": 1,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 37,
     "id": "smg-wc-2",
-    "sha256": "03c214d656ae3f3671daefd8aca418ba264e45ec6fe08731fd545248ecb4f0a4",
+    "sha256": "40de00ddb9372e49c6313bb6409ecddc4b707956e9f74c3f2af5ad8061c68bea",
     "item": {
       "id": "smg-wc-2",
       "name": "SMG (WC-2)",
@@ -3351,14 +4396,15 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 38,
     "id": "smg-wc-6",
-    "sha256": "b0f9f615b140b55f8d6eedb7f4efcb59430dc82991073a692818f89293dad251",
+    "sha256": "4e0158e9ec126edfad2be8916308502f175e6b67c612e5236511ca3ab79a4e81",
     "item": {
       "id": "smg-wc-6",
       "name": "SMG (WC-6)",
@@ -3383,14 +4429,15 @@
       "costCBills": 800,
       "battleValue": 0,
       "introductionYear": 2825,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 39,
     "id": "smg-wolf-barron-a7",
-    "sha256": "59270c7e76acdac0fe495482d921c4626836ac1d5f4cdc3a3c660393467f302e",
+    "sha256": "e274514fc0f0372824f505548ea870401bf63f226c370fe51faecab3d8a0f007",
     "item": {
       "id": "smg-wolf-barron-a7",
       "name": "SMG (Wolf-Barron A7)",
@@ -3415,14 +4462,15 @@
       "costCBills": 450,
       "battleValue": 0,
       "introductionYear": 3045,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 40,
     "id": "sniper-rifle-barton-amr-anti-armor",
-    "sha256": "ce45ae9e7bd337a832281ee93076b6383581ab80f6d4d1a224593529f1d4d5ae",
+    "sha256": "42efd22671d8ca7052a52e3574af3905d0e2c4954e87195edd349447d52ded29",
     "item": {
       "id": "sniper-rifle-barton-amr-anti-armor",
       "name": "Sniper Rifle (Barton AMR (Anti-Armor))",
@@ -3447,14 +4495,15 @@
       "costCBills": 700,
       "battleValue": 1,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 41,
     "id": "sniper-rifle-barton-amr-standard",
-    "sha256": "689839d3afecc148d4fc49f34806b67b418c579e49e77319ddb89e63f50bace2",
+    "sha256": "6f56097399dd690b67e6d9e859b7c06e31b0130e9c98c0e61715c767c092394a",
     "item": {
       "id": "sniper-rifle-barton-amr-standard",
       "name": "Sniper Rifle (Barton AMR (Standard))",
@@ -3479,14 +4528,15 @@
       "costCBills": 700,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 42,
     "id": "sniper-rifle-fnf-j12-dark-caste",
-    "sha256": "8e915a3031a152d96a206fb6294ba7f10ee6f3af72a5f4eab7d10159851ff040",
+    "sha256": "eab3b36a07a046cc3462d943ac765511d46f75f2d57f005bf239eee04e44aa34",
     "item": {
       "id": "sniper-rifle-fnf-j12-dark-caste",
       "name": "Sniper Rifle (FNF-J12 (Dark Caste))",
@@ -3511,14 +4561,15 @@
       "costCBills": 3500,
       "battleValue": 0,
       "introductionYear": 2830,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 43,
     "id": "sniper-rifle-fnf-j12-sldf",
-    "sha256": "8b14ee70f21ebc155b43578d4c76e747e7ea5418fbfd5f43b0a254ffd97f0073",
+    "sha256": "eb0965ac33f2fa478a28b0499453dd5adaba4bd52277c8d285f5866a0d115bbc",
     "item": {
       "id": "sniper-rifle-fnf-j12-sldf",
       "name": "Sniper Rifle (FNF-J12 (SLDF))",
@@ -3543,14 +4594,15 @@
       "costCBills": 3500,
       "battleValue": 0,
       "introductionYear": 2760,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 44,
     "id": "sniper-rifle-hammel-marksman",
-    "sha256": "dfdd79f8ac9f089f6578562df9458943ea809ef74e43a60639e06ea4ca79ac0d",
+    "sha256": "db373489f8500a98a441d2ab82c1647db38a90cf7565eac037db86b476752670",
     "item": {
       "id": "sniper-rifle-hammel-marksman",
       "name": "Sniper Rifle (Hammel Marksman)",
@@ -3575,14 +4627,15 @@
       "costCBills": 500,
       "battleValue": 0.28,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 45,
     "id": "sniper-rifle-lancelot-mk-v",
-    "sha256": "5cafa36edbcfa38fa7a75674e5cc7b9e58a9b5b60ae49e926da1f6b980abd2c3",
+    "sha256": "533dbd98af1735c64bebfe873ffdd053ba2f55a26577d2869e04dc947205d089",
     "item": {
       "id": "sniper-rifle-lancelot-mk-v",
       "name": "Sniper Rifle (Lancelot Mk V)",
@@ -3607,14 +4660,15 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 2095,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 46,
     "id": "sniper-rifle-lrs-53-sniper-rifle",
-    "sha256": "bd207ba8ddc7b0d1b76354dd5900127883d4cc71bcf41db1dd49cfc4956ad0a8",
+    "sha256": "d3641628b63a5ec7ef0193d1781b70606d13ce1c660fe635a7e881d1dc0f8ff2",
     "item": {
       "id": "sniper-rifle-lrs-53-sniper-rifle",
       "name": "Sniper Rifle (LRS-53 Sniper Rifle)",
@@ -3639,14 +4693,15 @@
       "costCBills": 1000,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 47,
     "id": "sniper-rifle-praetorian-s-3",
-    "sha256": "a08e938b1c521857302f8a560427e3b47de75d6504078d8dec276ae51f6b02a2",
+    "sha256": "f1ed5c7bea61987d1d70f99e747bb49835cbb0284191a3499f96b361d8d1582a",
     "item": {
       "id": "sniper-rifle-praetorian-s-3",
       "name": "Sniper Rifle (Praetorian S-3)",
@@ -3671,14 +4726,15 @@
       "costCBills": 400,
       "battleValue": 0,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 48,
     "id": "sniper-rifle-praetorian-s-5",
-    "sha256": "e8ae7f3a8f944e7b346dd0d24a4b6c61522616ea46aca3dd737f9487f2b5f2b9",
+    "sha256": "fdb8aceee70f638041b2ade3f914a7993e7e110717db72212a80ffc3653e37ff",
     "item": {
       "id": "sniper-rifle-praetorian-s-5",
       "name": "Sniper Rifle (Praetorian S-5)",
@@ -3703,14 +4759,15 @@
       "costCBills": 600,
       "battleValue": 1,
       "introductionYear": 2915,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 49,
     "id": "sniper-rifle-sairentosutomu",
-    "sha256": "342ef7b3c796508802d4620d09e60353bffa7e371abd6b48d64f20c9d1736e37",
+    "sha256": "050f1c0024f1b6bd0b9df5fac8a784b1c15e25a011e0cdf778f3c3a94c763fca",
     "item": {
       "id": "sniper-rifle-sairentosutomu",
       "name": "Sniper Rifle (Sairentosutomu)",
@@ -3735,14 +4792,15 @@
       "costCBills": 900,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 50,
     "id": "sniper-rifle-sr-17-suns-killer",
-    "sha256": "710cb621a609460898de14cec5a055ca85146d5e9711c8b7ea36e888d190bd44",
+    "sha256": "ca98f4af5186322a9a1fae3f459dae0a85902c16827f02712cfa7d227e3c44a2",
     "item": {
       "id": "sniper-rifle-sr-17-suns-killer",
       "name": "Sniper Rifle (SR-17 Suns Killer)",
@@ -3767,14 +4825,15 @@
       "costCBills": 600,
       "battleValue": 0,
       "introductionYear": 2335,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 51,
     "id": "sniper-rifle-thors-hammer",
-    "sha256": "89ccf1e5d22bb7a358bdd38d1dea0a2ae2a66904429cc6574e096a8edee94049",
+    "sha256": "9ffee32f3373c441c96b5b8001fcfb5c77e524fb791def47ca6b66774f7b9570",
     "item": {
       "id": "sniper-rifle-thors-hammer",
       "name": "Sniper Rifle (Thors Hammer)",
@@ -3799,14 +4858,15 @@
       "costCBills": 750,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 52,
     "id": "sniper-rifle-wilimton-rs-14",
-    "sha256": "e335d8fc7142f9d7cbd42646378201e4d30163866c8a9f987005c0b821d3285a",
+    "sha256": "8452707589f3b2aa2c6331851ae45d7011eedbddba2dedb7105cff6a3a9ffbdb",
     "item": {
       "id": "sniper-rifle-wilimton-rs-14",
       "name": "Sniper Rifle (Wilimton RS-14)",
@@ -3831,14 +4891,15 @@
       "costCBills": 1500,
       "battleValue": 0,
       "introductionYear": 2790,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 53,
     "id": "sniper-rifle-wilimton-rs-17-stripped",
-    "sha256": "cb66d4f8df1d435975b1db4fc5ffc6eae010611e2392140f35f08efc98e2e311",
+    "sha256": "ab67bf3ac61e3ef723058ea26769dcdbff49b10f535327e1c23ec6cda6b7d06f",
     "item": {
       "id": "sniper-rifle-wilimton-rs-17-stripped",
       "name": "Sniper Rifle (Wilimton RS-17 (Stripped))",
@@ -3863,14 +4924,15 @@
       "costCBills": 2000,
       "battleValue": 1,
       "introductionYear": 3075,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 54,
     "id": "sniper-rifle-yuan-ling",
-    "sha256": "0a1fc2317e78a0efe162eb9e4463a4c5a461bd22355b9719fc4d7eeb96a86d29",
+    "sha256": "06301215812e4a604239040e87221325654e2359b640c65069741a3fd0435507",
     "item": {
       "id": "sniper-rifle-yuan-ling",
       "name": "Sniper Rifle (Yuan Ling)",
@@ -3895,14 +4957,15 @@
       "costCBills": 1000,
       "battleValue": 0,
       "introductionYear": 2795,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Infantry"]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 55,
     "id": "arrow-iv-launcher",
-    "sha256": "320507859dc01004bf6e43dae2153a129e6a4a4bc7261d07580c511c5412960d",
+    "sha256": "b39ecc3ee93861a64e732349a73c89ee9687b104cdf07475f9e61fcf4c7f23db",
     "item": {
       "id": "arrow-iv-launcher",
       "name": "Arrow IV Launcher",
@@ -3930,14 +4993,29 @@
       "introductionYear": 2593,
       "special": ["artillery"],
       "extinctionYear": 2830,
-      "reintroductionYear": 3044
+      "reintroductionYear": 3044,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 56,
     "id": "clan-arrow-iv-launcher",
-    "sha256": "6372f19ef09a61acbc88050f38bbb05310555a8ae05bfdbc0bfa6f4961fcd95a",
+    "sha256": "444ae350d5245250d40afcbead1938312b150d9d795f3d60f2acfe7249c7acd6",
     "item": {
       "id": "clan-arrow-iv-launcher",
       "name": "Arrow IV Launcher (Clan)",
@@ -3963,14 +5041,29 @@
       "costCBills": 450000,
       "battleValue": 240,
       "introductionYear": 2844,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 57,
     "id": "long-tom",
-    "sha256": "dfba82af185ce19e19aa7ce1c6dd706146ab6f10fe8bd10f628c2223ac1f5e9d",
+    "sha256": "797634b8eeb3b0d9ce41e1a6f19899878e2143fc3a679adea17f1f8434e2626b",
     "item": {
       "id": "long-tom",
       "name": "Long Tom Cannon",
@@ -3996,14 +5089,29 @@
       "costCBills": 650000,
       "battleValue": 329,
       "introductionYear": 3012,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 58,
     "id": "sniper-cannon",
-    "sha256": "ccf81623ab8ed184722401c8cbd036f4a838b55c1189967c9a76903accfc0723",
+    "sha256": "7d98d86a88638824fad490424304972113c4f893f7c192bf7a876a315fac7fcd",
     "item": {
       "id": "sniper-cannon",
       "name": "Sniper Cannon",
@@ -4029,14 +5137,29 @@
       "costCBills": 475000,
       "battleValue": 77,
       "introductionYear": 3012,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 59,
     "id": "thumper-cannon",
-    "sha256": "3957573f001e9294304d80b8bb4b664ca8d7a0942773798895f2e3cf3ed4c858",
+    "sha256": "b5a40d8f42cc93f239e569ae7c81412f0608df03219684af37535a5d44d98a60",
     "item": {
       "id": "thumper-cannon",
       "name": "Thumper Cannon",
@@ -4062,14 +5185,29 @@
       "costCBills": 200000,
       "battleValue": 41,
       "introductionYear": 3012,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 60,
     "id": "mech-mortar-1",
-    "sha256": "42bdb6e944ac21363e09c64e89851abb7e9104afe103d84b7472e4307f04f7ca",
+    "sha256": "3dbc39d32ffc8132b2cfa8d7e939c60720a9b78445dbb6db3250a83c8959d521",
     "item": {
       "id": "mech-mortar-1",
       "name": "Mech Mortar 1",
@@ -4093,14 +5231,22 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 61,
     "id": "mech-mortar-2",
-    "sha256": "c61a081de77033ae64a725683511bb7676b306073003f37f4715e1b9c5f34232",
+    "sha256": "7d1c81d666c8fe4901dc6cf4a0f0304c57db54cc71c39308c7af5f0720c1a2a4",
     "item": {
       "id": "mech-mortar-2",
       "name": "Mech Mortar 2",
@@ -4124,14 +5270,22 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 62,
     "id": "mech-mortar-4",
-    "sha256": "d9d6a8cb3161026fd80737cf2773927c959dfc3863495aff8f1ce46c5269069d",
+    "sha256": "4370166967c1d13186a3648f9881af09abb566e8c06cd2de9502db5420d77688",
     "item": {
       "id": "mech-mortar-4",
       "name": "Mech Mortar 4",
@@ -4155,14 +5309,22 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 63,
     "id": "mech-mortar-8",
-    "sha256": "e94002fe146c445b42a3324f6ead96b31d638c1dbe65f4c6d680aa980fd5bef6",
+    "sha256": "b0d6d678e186cd2faf2d3c5b9fb487211038e80b2fc19bdaf4e11fdad5a9e0bd",
     "item": {
       "id": "mech-mortar-8",
       "name": "Mech Mortar 8",
@@ -4186,14 +5348,22 @@
       "introductionYear": 2531,
       "special": ["artillery"],
       "extinctionYear": 2819,
-      "reintroductionYear": 3043
+      "reintroductionYear": 3043,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 64,
     "id": "clan-mech-mortar-1",
-    "sha256": "6286b4eb308b2f9f6c30f601a7b718c7de2bdc13cfa0b848385a3038669e8431",
+    "sha256": "3b6c4f5db34e2f5fd9f0cc17e217139745a1ef235c98ff07d75d25211422d05f",
     "item": {
       "id": "clan-mech-mortar-1",
       "name": "Mech Mortar 1 (Clan)",
@@ -4215,14 +5385,22 @@
       "costCBills": 7000,
       "battleValue": 10,
       "introductionYear": 2840,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 65,
     "id": "clan-mech-mortar-2",
-    "sha256": "68bb3523b97b202a7765245be89bb5e9b91505832093c82d44f62ecf83f09236",
+    "sha256": "ace012f48d9409439c8b95983069461b69e4d57ce6b49b907f6274c5334e4393",
     "item": {
       "id": "clan-mech-mortar-2",
       "name": "Mech Mortar 2 (Clan)",
@@ -4244,14 +5422,22 @@
       "costCBills": 15000,
       "battleValue": 14,
       "introductionYear": 2840,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 66,
     "id": "clan-mech-mortar-4",
-    "sha256": "4ae2d53547022330d0501feecb9d3c6ab4feb57e52cd855cbbcf0b11d3cb4d32",
+    "sha256": "4dca42192203e9ef48143a12c57e74f69c0a5250ccb64d20881de391eaa47d4b",
     "item": {
       "id": "clan-mech-mortar-4",
       "name": "Mech Mortar 4 (Clan)",
@@ -4277,14 +5463,22 @@
       "costCBills": 32000,
       "battleValue": 26,
       "introductionYear": 2830,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 67,
     "id": "clan-mech-mortar-8",
-    "sha256": "40fe608ec77955fbfc3ac36e76e9df9ba21f26f17c1ffbb7bf4e03b352a7582d",
+    "sha256": "8dadd2bbd949610ca22cc175daa7cbd52c85bcf66d510bdc94f43035700d3677",
     "item": {
       "id": "clan-mech-mortar-8",
       "name": "Mech Mortar 8 (Clan)",
@@ -4306,14 +5500,22 @@
       "costCBills": 70000,
       "battleValue": 50,
       "introductionYear": 2531,
-      "special": ["artillery"]
+      "special": ["artillery"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     }
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 68,
     "id": "vehicular-grenade-launcher",
-    "sha256": "a19c36f919cc9acd6805d1652df4cd30142b97dbee24b39199a4043040bb4a49",
+    "sha256": "e173905b76700be14cccf1436b7873bcd70d4d9c7c957b33f6036982b845e883",
     "item": {
       "id": "vehicular-grenade-launcher",
       "name": "Vehicular Grenade Launcher",
@@ -4338,14 +5540,30 @@
       "costCBills": 10000,
       "battleValue": 15,
       "introductionYear": 1950,
-      "special": ["one-shot", "smoke"]
+      "special": ["one-shot", "smoke"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 0,
     "id": "atm-3",
-    "sha256": "0eb55751763f7ee89c2e443bc7dd8c4b604e777d3bcc5ef9b1c70a10fb1b7a91",
+    "sha256": "7176d70faba8cc752f5d9815d8255bee71e5efbb3d2d4cd9faebb77db1bb133b",
     "item": {
       "id": "atm-3",
       "name": "ATM 3",
@@ -4371,14 +5589,29 @@
       "costCBills": 50000,
       "battleValue": 53,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 1,
     "id": "atm-6",
-    "sha256": "78c7e60e299c80b76c38ad9585d77b056cb8188a60127b6ed0acc32afa4cd1b9",
+    "sha256": "47b710c78e43f3f8d0562710bb8c79b21d506280633f8fe5b0706af37566f2c4",
     "item": {
       "id": "atm-6",
       "name": "ATM 6",
@@ -4404,14 +5637,29 @@
       "costCBills": 125000,
       "battleValue": 105,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 2,
     "id": "atm-9",
-    "sha256": "10bc199b7451a49b243625d8e1f444aec39d43358026df2b1fda830a9167de1b",
+    "sha256": "5b38eb494f188a9f661c412a39ead79e2ca83626db9231be169e815085d05ff2",
     "item": {
       "id": "atm-9",
       "name": "ATM 9",
@@ -4437,14 +5685,29 @@
       "costCBills": 225000,
       "battleValue": 147,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 3,
     "id": "atm-12",
-    "sha256": "175947ed7113ee54b50f9cea4104ca530feb1d9e4ae12b8cc1dd1952d18b2bec",
+    "sha256": "21bde879beb7578813b43ed14960916b4764bbceec88b4024b4733f7ab0614d1",
     "item": {
       "id": "atm-12",
       "name": "ATM 12",
@@ -4470,14 +5733,29 @@
       "costCBills": 350000,
       "battleValue": 212,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 4,
     "id": "iatm12",
-    "sha256": "caf2d49f68ddf898a8dddfb80e24bb5ccc0541a1da90851b98cdb27dd62d449c",
+    "sha256": "ed59891c87987189db3e625f44666a47c205e22938a730b313d54126bff5ee31",
     "item": {
       "id": "iatm12",
       "name": "Improved ATM 12",
@@ -4504,14 +5782,29 @@
       "costCBills": 700000,
       "battleValue": 333,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 5,
     "id": "iatm3",
-    "sha256": "5768143b2a7c8357aa6117a26a20483cbbb337f31ce42ab3b7ea87d91582f103",
+    "sha256": "78b3bf15f0eb464b3330a8a56e29309725aeb95b3e2776985d66d3d431ef7ad1",
     "item": {
       "id": "iatm3",
       "name": "Improved ATM 3",
@@ -4538,14 +5831,29 @@
       "costCBills": 100000,
       "battleValue": 83,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 6,
     "id": "iatm6",
-    "sha256": "eb9821b848c0ea0118a67cd12b3d3f92d02fcadb6b3bc1abc8e2781a1613f071",
+    "sha256": "3c31ee38d17fb7e692244dc3afa05950d664f4e45647aa556b48678251e01375",
     "item": {
       "id": "iatm6",
       "name": "Improved ATM 6",
@@ -4572,14 +5880,29 @@
       "costCBills": 250000,
       "battleValue": 165,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 7,
     "id": "iatm9",
-    "sha256": "67a15dfcb444fdeb09e94783757bb1ca4bc5eb90314290378b0c09b0a080eff0",
+    "sha256": "bedb57f024fe7fb73e449efa42f80b80640164e317f9956426632c34725398ff",
     "item": {
       "id": "iatm9",
       "name": "Improved ATM 9",
@@ -4606,14 +5929,29 @@
       "costCBills": 450000,
       "battleValue": 231,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 8,
     "id": "iatm-3",
-    "sha256": "114ee1b0b76728c63ecc795d21353cb39caea1c9113b2d45934bbe3c39ce9d1d",
+    "sha256": "be25a00116d0782ab5134c98e43723309aabd929f2a01561d9d2c7f75836a77f",
     "item": {
       "id": "iatm-3",
       "name": "iATM 3",
@@ -4635,14 +5973,29 @@
       "costCBills": 50000,
       "battleValue": 83,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 9,
     "id": "iatm-6",
-    "sha256": "1e74e91ba159606d1eb2efbb43a1561890ce091e0b62a59d65580a21cbbee81a",
+    "sha256": "15b159338de3497b54432d1ca8c58fa9d4e5d00c2b16bc484dacfcfaaad0b681",
     "item": {
       "id": "iatm-6",
       "name": "iATM 6",
@@ -4664,14 +6017,29 @@
       "costCBills": 250000,
       "battleValue": 165,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 10,
     "id": "iatm-9",
-    "sha256": "87709ff9adaf3ca748019b3f4817e7a8351ba2558fd2ed252593f5974a1568f7",
+    "sha256": "6b8a9b88ecc6f295e5177b4f79278973e5a8263899a55ee4907d4c460ad70f69",
     "item": {
       "id": "iatm-9",
       "name": "iATM 9",
@@ -4693,14 +6061,29 @@
       "costCBills": 450000,
       "battleValue": 231,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-atm.json",
     "index": 11,
     "id": "iatm-12",
-    "sha256": "22e4d6a6e412daa6883e5e67c191422fa9e767ce78bb5f5fbc442133e7b1cfae",
+    "sha256": "681e24704d8bb6c71ef6217716be16fc6d0d185ca0627c441a55094e3daee018",
     "item": {
       "id": "iatm-12",
       "name": "iATM 12",
@@ -4722,14 +6105,29 @@
       "costCBills": 700000,
       "battleValue": 333,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 0,
     "id": "lrm-5",
-    "sha256": "5f57507548a86a2cac24fdf2e985ed60662b3e06ef732ca3b70cfb3573ab1aa6",
+    "sha256": "3620e1655af3dbd35df54414b22560a72ee7297dfd75797c8c980710906d2d02",
     "item": {
       "id": "lrm-5",
       "name": "LRM 5",
@@ -4754,14 +6152,29 @@
       "ammoPerTon": 24,
       "costCBills": 30000,
       "battleValue": 45,
-      "introductionYear": 2295
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 1,
     "id": "lrm-10",
-    "sha256": "007b883cffce4f7614759a0b73971f62c0d3b7d41994fcda641934155275ea2e",
+    "sha256": "78b27ee9e8d1b315e607686c37e50f1e19e406df03780c300e237e043dcdf7fe",
     "item": {
       "id": "lrm-10",
       "name": "LRM 10",
@@ -4786,14 +6199,29 @@
       "ammoPerTon": 12,
       "costCBills": 100000,
       "battleValue": 90,
-      "introductionYear": 2295
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 2,
     "id": "lrm-15",
-    "sha256": "34d5762a291ac696a20c828100a9b4ae7391df3aeb07bd8ba16f3c2a36a192f7",
+    "sha256": "42e8c9a1b5aebf4eba7265ff7d0b0d489753e799a0b07e46528ec3327b6159b9",
     "item": {
       "id": "lrm-15",
       "name": "LRM 15",
@@ -4818,14 +6246,29 @@
       "ammoPerTon": 8,
       "costCBills": 175000,
       "battleValue": 136,
-      "introductionYear": 2295
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 3,
     "id": "lrm-20",
-    "sha256": "27c375f8919a4fd530711ce1baf28c3b3684dba9a2030c5c30b184bc16d33d36",
+    "sha256": "75e7150bc44166dcea35f253808c5175ffabf391d2e30368bb2c54ec1063a236",
     "item": {
       "id": "lrm-20",
       "name": "LRM 20",
@@ -4850,14 +6293,29 @@
       "ammoPerTon": 6,
       "costCBills": 250000,
       "battleValue": 181,
-      "introductionYear": 2295
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 4,
     "id": "clan-lrm-5",
-    "sha256": "44bd147316e1dd7a9cc0758fa20679a80c3d79a7dba95b8d16ff05df4f0ee13f",
+    "sha256": "0339a118f583b33facc88a99147e15104e78e65d1320946a53aec39ee7aba607",
     "item": {
       "id": "clan-lrm-5",
       "name": "LRM 5 (Clan)",
@@ -4882,14 +6340,30 @@
       "ammoPerTon": 24,
       "costCBills": 30000,
       "battleValue": 55,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 5,
     "id": "clan-lrm-10",
-    "sha256": "123899987dd2ea1ac20b5806513b33b3ed692ee18e65afed4ad0fb78de87f44f",
+    "sha256": "c828fc7e40dbff36146bce8430face5141a6195cfb7e8db573576334a821bbcd",
     "item": {
       "id": "clan-lrm-10",
       "name": "LRM 10 (Clan)",
@@ -4914,14 +6388,30 @@
       "ammoPerTon": 12,
       "costCBills": 100000,
       "battleValue": 109,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 6,
     "id": "clan-lrm-15",
-    "sha256": "a92c32ad3409dbe87851c7d41d201ad930c1c1d777cc2907e0080ac19d5fb750",
+    "sha256": "6e13b55069360f00ca6f9723cfb57ccf40a19acd5ddc8242dbf97ad84fe78814",
     "item": {
       "id": "clan-lrm-15",
       "name": "LRM 15 (Clan)",
@@ -4946,14 +6436,30 @@
       "ammoPerTon": 8,
       "costCBills": 175000,
       "battleValue": 164,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 7,
     "id": "clan-lrm-20",
-    "sha256": "0b04e8146fe61bf5dc4f6de096026d5e0994f51099ac03614bfd400c14216183",
+    "sha256": "7a341bcec25df1c70107b99b1320c393bce000b60d8d2c0c12c5db1051df832c",
     "item": {
       "id": "clan-lrm-20",
       "name": "LRM 20 (Clan)",
@@ -4978,14 +6484,30 @@
       "ammoPerTon": 6,
       "costCBills": 250000,
       "battleValue": 220,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 8,
     "id": "balrm1",
-    "sha256": "40bc91cf21c446eb634003e8d78db1943e05dc6544fcb42f4824aba090f2c79e",
+    "sha256": "68bfde6b78f950734102f3c5a8a97cc8c7dcd27480822622b3b4786253bed728",
     "item": {
       "id": "balrm1",
       "name": "LRM 1",
@@ -5011,14 +6533,15 @@
       "costCBills": 6000,
       "battleValue": 17,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 9,
     "id": "balrm1os",
-    "sha256": "04ef237105d0fa226cb66ec02559c9a809b78219b4f0776e6f79d394a6ddf9e6",
+    "sha256": "92f1c9db029d53a962a779ba790231dd54891c1fd7ade50ffef24cccdfbfcbad",
     "item": {
       "id": "balrm1os",
       "name": "LRM 1 (OS)",
@@ -5043,14 +6566,15 @@
       "costCBills": 3000,
       "battleValue": 3,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 10,
     "id": "balrm2",
-    "sha256": "c635a8359c2b4c33fb0dfc7e295378c0894309d04333904109e15977d223b5c9",
+    "sha256": "f65cc8179805b1c10bfc61502a262ed05cf50f0ce391960af4f350eb10758f9f",
     "item": {
       "id": "balrm2",
       "name": "LRM 2",
@@ -5076,14 +6600,15 @@
       "costCBills": 12000,
       "battleValue": 24,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 11,
     "id": "balrm2os",
-    "sha256": "6f6e56f5fd47d572b5c0888ed813a115bd968325775fe2720fb959cdaa3dd4e4",
+    "sha256": "99ebb7d44ca78698be72f2fbddb161e84901e977f4de59dfdfba75160a7423a8",
     "item": {
       "id": "balrm2os",
       "name": "LRM 2 (OS)",
@@ -5108,14 +6633,15 @@
       "costCBills": 6000,
       "battleValue": 5,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 12,
     "id": "balrm3",
-    "sha256": "fed1466e0ea18f2f468152284fec4b050312bc58696679a3e4b9eb547b01cc06",
+    "sha256": "1b0c853d5d00f6c209fe7b270b44ca704fe0ef3364b6c0925f84d4a94240af4c",
     "item": {
       "id": "balrm3",
       "name": "LRM 3",
@@ -5141,14 +6667,15 @@
       "costCBills": 18000,
       "battleValue": 34,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 13,
     "id": "balrm3os",
-    "sha256": "9558dc9fe583b70fad0fae1df856053b210146355266ae6b1e2fe3a1f8a9b945",
+    "sha256": "9562a2a943d6c22d475148d5b991152ba7901ab5f2bbaa786f90e64a45e04389",
     "item": {
       "id": "balrm3os",
       "name": "LRM 3 (OS)",
@@ -5173,14 +6700,15 @@
       "costCBills": 9000,
       "battleValue": 7,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 14,
     "id": "balrm4",
-    "sha256": "df9337a3932491dfc5badb0524eb88024a41fec8ed2312efe22b6d405d79ed66",
+    "sha256": "b9a497428b325e2fd31a7d7b53acb0f664b8fe238a0b963649f886eeb5e785a1",
     "item": {
       "id": "balrm4",
       "name": "LRM 4",
@@ -5206,14 +6734,15 @@
       "costCBills": 24000,
       "battleValue": 46,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 15,
     "id": "balrm4os",
-    "sha256": "49a9360121685e0b8150e44201b17c7df305fc7e1ce4926c8fca6207279b32a3",
+    "sha256": "1ca44de60a7bece7fca29981ae65944fe446991e326eca5aae572bedd05b4ff3",
     "item": {
       "id": "balrm4os",
       "name": "LRM 4 (OS)",
@@ -5238,14 +6767,15 @@
       "costCBills": 12000,
       "battleValue": 9,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 16,
     "id": "balrm5-os",
-    "sha256": "e9fc08dd0039d32bd9d8b1885feb561ee8f0e1ea18b887254225742fb14ef219",
+    "sha256": "6d42a0ccf4abbaecad9a71386ace78063560c3494d9ab84739a23ac77d696528",
     "item": {
       "id": "balrm5-os",
       "name": "LRM 5 (OS)",
@@ -5270,7 +6800,8 @@
       "costCBills": 15000,
       "battleValue": 11,
       "introductionYear": 2660,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
@@ -5697,7 +7228,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 29,
     "id": "improved-lrm-10",
-    "sha256": "36a1aee813c2f5d5d4fede1750d736129857c14af585a4450bfb662b039216bd",
+    "sha256": "4f1e205ef886795118a1f68e26a3393a0b50bc35eee9625d5ac8493b50f1e19a",
     "item": {
       "id": "improved-lrm-10",
       "name": "Improved LRM 10",
@@ -5725,14 +7256,29 @@
       "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 30,
     "id": "improved-lrm-15",
-    "sha256": "4f9a2b8f92adcb58d91ca1bb562dce1b182bb0cc08800c92f5903ca843eaff7e",
+    "sha256": "95a0eca799111e6a1487f04f1c5faa48e4a5a674dc9076c517ea08eaa666ccbd",
     "item": {
       "id": "improved-lrm-15",
       "name": "Improved LRM 15",
@@ -5760,14 +7306,29 @@
       "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 31,
     "id": "improved-lrm-20",
-    "sha256": "a9312c141b95b278b8957cf63106fdf74db6de95d0454235d534856675b74987",
+    "sha256": "5a1363234257cdf7a551311ea8c8f95bb9cec709f1a324215ca260cfec931c7c",
     "item": {
       "id": "improved-lrm-20",
       "name": "Improved LRM 20",
@@ -5795,14 +7356,29 @@
       "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 32,
     "id": "improved-lrm-5",
-    "sha256": "ce3d1f63f31a4e4ed847c4d756a707ed79895e24f9b70ce35ad356e5f6be3cf8",
+    "sha256": "a5a37b6758041de59e8d3ee6ace006be32d914fdba76c38db70132e8b4ee5666",
     "item": {
       "id": "improved-lrm-5",
       "name": "Improved LRM 5",
@@ -5830,14 +7406,29 @@
       "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 33,
     "id": "lrm10-ios",
-    "sha256": "de25b23f818f287bb0c241aa59cc91eaadb2a3197f9f98557e3c5f9925da89a4",
+    "sha256": "b0b325600d9b1a6bef8023665cea2e682cfc99a422e33159077293d49be001c0",
     "item": {
       "id": "lrm10-ios",
       "name": "LRM 10 (I-OS)",
@@ -5858,14 +7449,29 @@
       "costCBills": 80000,
       "battleValue": 22,
       "introductionYear": 3081,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 34,
     "id": "lrm10-os",
-    "sha256": "3f9f819fc8d39c67b7a1fabe96d97543b0b8f5d714de46aa080e67f6ff43af5c",
+    "sha256": "e9084f075f5a30092a9b075deb709deacfb3aa839f78e96305210efc03232bfd",
     "item": {
       "id": "lrm10-os",
       "name": "LRM 10 (OS)",
@@ -5886,14 +7492,29 @@
       "costCBills": 50000,
       "battleValue": 22,
       "introductionYear": 2824,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 35,
     "id": "lrm15-ios",
-    "sha256": "b6fb18023166ee179288153474a3b8300047b12212edfa2486c47e56e18ee154",
+    "sha256": "046104ebbc5e973074773f1067e243b921c1c75f673cd495bce5bc3476108fde",
     "item": {
       "id": "lrm15-ios",
       "name": "LRM 15 (I-OS)",
@@ -5914,14 +7535,29 @@
       "costCBills": 140000,
       "battleValue": 33,
       "introductionYear": 3081,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 36,
     "id": "lrm15-os",
-    "sha256": "2ca510d57154a3dc975f35a48d3c336e1e35d5fb1fdaaaa46f4cfb135659ab13",
+    "sha256": "0d09d5116c0c153bb3bed774ad3190be305535a7bb56a4ad725e3bb36c9e0ea2",
     "item": {
       "id": "lrm15-os",
       "name": "LRM 15 (OS)",
@@ -5942,14 +7578,29 @@
       "costCBills": 87500,
       "battleValue": 33,
       "introductionYear": 2824,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 37,
     "id": "lrm20-ios",
-    "sha256": "5ad034f6f50be81d7ed955f1498ebafc3a5a94854664928609280f7344c28f4f",
+    "sha256": "bc75f07006f840b5a362183ee9823dcf4fdc5a6ea65f062f267627b0ead16415",
     "item": {
       "id": "lrm20-ios",
       "name": "LRM 20 (I-OS)",
@@ -5970,14 +7621,29 @@
       "costCBills": 200000,
       "battleValue": 44,
       "introductionYear": 3081,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 38,
     "id": "lrm20-os",
-    "sha256": "b605cb204b25432f205a215392be1d40ef159950098dc3b914b059dd924ec77c",
+    "sha256": "a67409196c70e107b69c1cbe33b9bd5ad1152effea1e30f161588554313d23ab",
     "item": {
       "id": "lrm20-os",
       "name": "LRM 20 (OS)",
@@ -5998,14 +7664,29 @@
       "costCBills": 125000,
       "battleValue": 44,
       "introductionYear": 2824,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 39,
     "id": "lrm5-ios",
-    "sha256": "9713a9ef13b714f99fb28f1be90b405eecfff8d57787b073d98e40fd7464f846",
+    "sha256": "e567e7d46ab7876d86dc64bb8d671c0543eb172902d1ff084f89130b0ed7b7f6",
     "item": {
       "id": "lrm5-ios",
       "name": "LRM 5 (I-OS)",
@@ -6026,14 +7707,29 @@
       "costCBills": 24000,
       "battleValue": 11,
       "introductionYear": 3081,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 40,
     "id": "streaklrm1",
-    "sha256": "ef7640b30c967a70e0fa77081d54fdfa25b5fb07dfe4785abe235838eea00d68",
+    "sha256": "07e20b54ba1472d37c87de8b71f125f007274feb954c6b9bf282b761663e7653",
     "item": {
       "id": "streaklrm1",
       "name": "Streak LRM 1",
@@ -6060,14 +7756,15 @@
       "costCBills": 15000,
       "battleValue": 17,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 41,
     "id": "streaklrm10",
-    "sha256": "91cca73b6a5656c10cf3eb2ba0281cf33d062d9e6dcf9bdae536309d53b7ba60",
+    "sha256": "91cc7622bfdb7b57268ae1195a7971e3ef7a299ad7c05e58b15052b7d10800ac",
     "item": {
       "id": "streaklrm10",
       "name": "Streak LRM 10",
@@ -6094,14 +7791,30 @@
       "costCBills": 225000,
       "battleValue": 173,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 42,
     "id": "streaklrm11",
-    "sha256": "861c19e05e7f98b5c90132e5bf48477a17c97239057ec4c30dfb588b8388dcda",
+    "sha256": "4a7d521353de19fb7ba613d96b8683e3180e20ad881fd10298d8acd670ee2412",
     "item": {
       "id": "streaklrm11",
       "name": "Streak LRM 11",
@@ -6128,14 +7841,15 @@
       "costCBills": 165000,
       "battleValue": 190,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 43,
     "id": "streaklrm12",
-    "sha256": "8ea198ff82a0a0fae88f26fdc7b2025593f3fa1b3b9b05f2bcdac071da89fc21",
+    "sha256": "2b47f4aecf7687e506486340814f7493f110373a8b10a9ba9ae955cb90598001",
     "item": {
       "id": "streaklrm12",
       "name": "Streak LRM 12",
@@ -6162,14 +7876,15 @@
       "costCBills": 180000,
       "battleValue": 207,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 44,
     "id": "streaklrm13",
-    "sha256": "91c8fb642a015612edb9306946d2f20d1d90e7976e3617980122304f0e86e336",
+    "sha256": "a0fbd43ccbff5c88a2a91f3f9b38ec85fa61a1e90fec5027b85ab8c8a05fa884",
     "item": {
       "id": "streaklrm13",
       "name": "Streak LRM 13",
@@ -6196,14 +7911,15 @@
       "costCBills": 195000,
       "battleValue": 224,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 45,
     "id": "streaklrm14",
-    "sha256": "593a2ddf77f31a3828bb957f3acac5ad44bd155903ece79561c722a9a91b7a52",
+    "sha256": "7bfca4508fff550ffea72edff2abc7953157947deb757eee3cffc2b688236860",
     "item": {
       "id": "streaklrm14",
       "name": "Streak LRM 14",
@@ -6230,14 +7946,15 @@
       "costCBills": 210000,
       "battleValue": 241,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 46,
     "id": "streaklrm15",
-    "sha256": "b48e11d2e8e4cce2eab1f0bc1b5f4731ab0d3d1e45c0b6d9bddc69ea0e930e69",
+    "sha256": "c506057adb606ff9d34733bce55b6be8fcd2316de5e3801015c97e9d09a663ef",
     "item": {
       "id": "streaklrm15",
       "name": "Streak LRM 15",
@@ -6264,14 +7981,30 @@
       "costCBills": 400000,
       "battleValue": 259,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 47,
     "id": "streaklrm16",
-    "sha256": "82eec81a6fc7ed3a9f7800c8436bba2ee71f32a2521a95fb9589b2b6761e8455",
+    "sha256": "12fa74cc61fcee1330f0b7b95e0494def4d7a182b34af0d39a79c5a2125ff20c",
     "item": {
       "id": "streaklrm16",
       "name": "Streak LRM 16",
@@ -6298,14 +8031,15 @@
       "costCBills": 240000,
       "battleValue": 276,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 48,
     "id": "streaklrm17",
-    "sha256": "f54899798e1655ae0a9e465158643c5acc9c9676c70afbc2813928a7bd94a4b8",
+    "sha256": "c6852e0d75d82d55ca067f9fff0a92d5a2ec9705b08da3d07516212bb6a22ca0",
     "item": {
       "id": "streaklrm17",
       "name": "Streak LRM 17",
@@ -6332,14 +8066,15 @@
       "costCBills": 255000,
       "battleValue": 293,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 49,
     "id": "streaklrm18",
-    "sha256": "0b0d31ab5f08c33537be811c5b4209cf4672f79f44eaf6fcc55f47b7b4c6fe86",
+    "sha256": "031c5d865e0cacef985d7682ea08d891708d20c606119cffc13cd4bbd166cd85",
     "item": {
       "id": "streaklrm18",
       "name": "Streak LRM 18",
@@ -6366,14 +8101,15 @@
       "costCBills": 270000,
       "battleValue": 310,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 50,
     "id": "streaklrm19",
-    "sha256": "43397c7c1d6ec369c8e8d4d6c51e8042bf90319b7210e9352f4d11ffbaeb9cf7",
+    "sha256": "b5c73929b4e78aa53d3090da2e290b94e512b7500ea1e2ade918cefd7e1f7ad7",
     "item": {
       "id": "streaklrm19",
       "name": "Streak LRM 19",
@@ -6400,14 +8136,15 @@
       "costCBills": 285000,
       "battleValue": 327,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 51,
     "id": "streaklrm2",
-    "sha256": "c11394a39fa5dd0a79a39d4dfc84d916da2e911b28a9f44c8108326a2677f04b",
+    "sha256": "ba075e09c454580b2b2c76df212d62f78fb854fdaa86c26b90067f29d0921f4d",
     "item": {
       "id": "streaklrm2",
       "name": "Streak LRM 2",
@@ -6434,14 +8171,15 @@
       "costCBills": 30000,
       "battleValue": 34,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 52,
     "id": "streaklrm20",
-    "sha256": "d96e10b6141b598508554397ed7d4556a1c3fb857632822874cf99caf198348e",
+    "sha256": "b2cec658e41c0fd20bc59eed1d11fa17cdd3b259ff6aef597a71db608e2cf965",
     "item": {
       "id": "streaklrm20",
       "name": "Streak LRM 20",
@@ -6468,14 +8206,30 @@
       "costCBills": 600000,
       "battleValue": 345,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 53,
     "id": "streaklrm3",
-    "sha256": "4ababd6225a8be950f07f917191ef230992be8d0f34795185025b63365aa5fae",
+    "sha256": "b6c70d80ad9dde7ccf34198aabb8ada7e3cbf30d57d40a54dea673cfdafbeba1",
     "item": {
       "id": "streaklrm3",
       "name": "Streak LRM 3",
@@ -6502,14 +8256,15 @@
       "costCBills": 45000,
       "battleValue": 51,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 54,
     "id": "streaklrm4",
-    "sha256": "1fbc090c8cf3f27e1966928309ae595d312fc8057e3bacdc958cd97c09562af7",
+    "sha256": "cf2d04c49e4bf58b98afc294c38e8e0cbe5a0d791cd423a6a487f87bf0002c82",
     "item": {
       "id": "streaklrm4",
       "name": "Streak LRM 4",
@@ -6536,14 +8291,15 @@
       "costCBills": 60000,
       "battleValue": 68,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 55,
     "id": "streaklrm5",
-    "sha256": "401dd9af28e641fbdf9bc6d724fd6ae31dc7137fb8d605680a8426ccc15d5197",
+    "sha256": "4b7c14f8ead871bda7fcece11e37e841b023ecc7248426152f5f85651cd4790f",
     "item": {
       "id": "streaklrm5",
       "name": "Streak LRM 5",
@@ -6570,14 +8326,30 @@
       "costCBills": 75000,
       "battleValue": 86,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 56,
     "id": "streaklrm6",
-    "sha256": "eae8edcbcb4ddc9b9adf8ee81c3692ac339610eb320acbcbdc4dd2e5a6374e79",
+    "sha256": "bec819ac87e93ab9ad3d260f6a6bd72e418d56c187a512b1878f3c2097762ecf",
     "item": {
       "id": "streaklrm6",
       "name": "Streak LRM 6",
@@ -6604,14 +8376,15 @@
       "costCBills": 90000,
       "battleValue": 103,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 57,
     "id": "streaklrm7",
-    "sha256": "5070f3918b102458a1d6805ca36b6da36479e75897f889affd772bb453898490",
+    "sha256": "8b7427f4836c7dd7f4af161991e1b7f2090ff0c5afc48feba293f1798321e901",
     "item": {
       "id": "streaklrm7",
       "name": "Streak LRM 7",
@@ -6638,14 +8411,15 @@
       "costCBills": 105000,
       "battleValue": 120,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 58,
     "id": "streaklrm8",
-    "sha256": "ef4449214abb79cfef9d29e83e045aab3d23afc53062ab2a40082ccc4c1933c0",
+    "sha256": "2bf28b734e779274100609ffc88fc31b7afd41eb212eb683fb8fc36a3f629209",
     "item": {
       "id": "streaklrm8",
       "name": "Streak LRM 8",
@@ -6672,14 +8446,15 @@
       "costCBills": 120000,
       "battleValue": 137,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 59,
     "id": "streaklrm9",
-    "sha256": "c241c39a590dcc578d817755712fcf5bdd831f66ee0aca7ef81fa240f5b0965f",
+    "sha256": "a8f4d41d3f9837b1e2e8c684c70b589f9e6556831acf32019d3110aaf971564d",
     "item": {
       "id": "streaklrm9",
       "name": "Streak LRM 9",
@@ -6706,14 +8481,15 @@
       "costCBills": 135000,
       "battleValue": 155,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 60,
     "id": "iosstreaklrm10",
-    "sha256": "6ec89b8f4f384fd9b20ceba9c6321c4245aaa030d1253130516533124a215dbd",
+    "sha256": "cfb0650c0dbbc4bbd9f1a437efb372d5532615d600313ea5f23d0e3699de767a",
     "item": {
       "id": "iosstreaklrm10",
       "name": "Streak LRM 10 (I-OS)",
@@ -6739,14 +8515,29 @@
       "costCBills": 180000,
       "battleValue": 35,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 61,
     "id": "osstreaklrm10",
-    "sha256": "f4ec5c1d4c943b8972486660ac83d408ec243a6f5003b8308bb66a17c967f224",
+    "sha256": "f83f858c3a2ad80f468c0ce0840be77c8a81e0a3ce487fffd26f380262bd4770",
     "item": {
       "id": "osstreaklrm10",
       "name": "Streak LRM 10 (OS)",
@@ -6772,7 +8563,22 @@
       "costCBills": 112500,
       "battleValue": 35,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
@@ -6911,7 +8717,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 66,
     "id": "iosstreaklrm15",
-    "sha256": "2fe4b7bb1f247105b6029df433875f7f574b8d432982b48e586fe3c6895d5f38",
+    "sha256": "f768a42ffac240c3868b3859fd67f8e16c54a253cb8a1618940a837840964bba",
     "item": {
       "id": "iosstreaklrm15",
       "name": "Streak LRM 15 (I-OS)",
@@ -6937,14 +8743,29 @@
       "costCBills": 320000,
       "battleValue": 52,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 67,
     "id": "osstreaklrm15",
-    "sha256": "8331ad7b57d6e74127e7b8641ee9acd3e9d77757c69e36ed54281acd77e85835",
+    "sha256": "27358283a34f8f464b83ad42f1ffce496474db59f2a3a28f92c47c604d08ea66",
     "item": {
       "id": "osstreaklrm15",
       "name": "Streak LRM 15 (OS)",
@@ -6970,7 +8791,22 @@
       "costCBills": 200000,
       "battleValue": 52,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
@@ -7142,7 +8978,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 73,
     "id": "iosstreaklrm20",
-    "sha256": "f51432c284e56810599eb6a9b058bdb259e511666a7cbba0ef020965a81e6139",
+    "sha256": "e028144e6ec9f7c6ca7af72275f3c5ba263eee99a2373e1532ac48878ab2110e",
     "item": {
       "id": "iosstreaklrm20",
       "name": "Streak LRM 20 (I-OS)",
@@ -7168,14 +9004,29 @@
       "costCBills": 480000,
       "battleValue": 69,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 74,
     "id": "osstreaklrm20",
-    "sha256": "624583ed049b9efafb9069a42fc1aee8993a14ccdb3507cc5aaf5796bb29d8ce",
+    "sha256": "ef55079d6525454e4c9cd73a7dbd15973c71a2ecb10b8b158b6ea6aa612d2243",
     "item": {
       "id": "osstreaklrm20",
       "name": "Streak LRM 20 (OS)",
@@ -7201,7 +9052,22 @@
       "costCBills": 300000,
       "battleValue": 69,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
@@ -7307,7 +9173,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 78,
     "id": "iosstreaklrm5",
-    "sha256": "a11ed4bd50d77b6967bf18de09924add698da0fb5e152d0a4ac9d0a368cdf406",
+    "sha256": "b49babf1e9c27757223473a8c1d6cb1f08fe30f553786112f99d4b5e97ce3a24",
     "item": {
       "id": "iosstreaklrm5",
       "name": "Streak LRM 5 (I-OS)",
@@ -7333,14 +9199,29 @@
       "costCBills": 60000,
       "battleValue": 17,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 79,
     "id": "osstreaklrm5",
-    "sha256": "d0e335c6b83329ccfb3153ec18af1da04c1cd27c73d7f4208d8507648bda5a64",
+    "sha256": "b83dcd31ad31dae6f35ae732777e861f4bbc3c5020224131e3e396e85adb7b49",
     "item": {
       "id": "osstreaklrm5",
       "name": "Streak LRM 5 (OS)",
@@ -7366,7 +9247,22 @@
       "costCBills": 37500,
       "battleValue": 17,
       "introductionYear": 3057,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
@@ -7505,7 +9401,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 84,
     "id": "enhanced-lrm-10",
-    "sha256": "8b092f650ef84dcc57e0aa3f2d0199a5c88867b1d766a78854f2f16483fde785",
+    "sha256": "db46ca3fed0348daaa9f6c192d579d2f2aaec288636a498668a54d450bc600e2",
     "item": {
       "id": "enhanced-lrm-10",
       "name": "Enhanced LRM 10",
@@ -7532,14 +9428,29 @@
       "costCBills": 125000,
       "battleValue": 104,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 85,
     "id": "enhanced-lrm-15",
-    "sha256": "cb2aa7bb288d41f9646fb05c7173c90d3bbeca2c3dd6171b8711b8abe4068aa7",
+    "sha256": "4830983e731eb02e3939b6c6763686ae914b49acec07477bc7ec1a3346d77a85",
     "item": {
       "id": "enhanced-lrm-15",
       "name": "Enhanced LRM 15",
@@ -7566,14 +9477,29 @@
       "costCBills": 218750,
       "battleValue": 157,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 86,
     "id": "enhanced-lrm-20",
-    "sha256": "ff217ffc4d7461d471808d57058f1e31235cf5b83c2eef5b1cf648bc073a203f",
+    "sha256": "66757147852bbcc25b9960d86d718d058e343729f0c5ca5ca19adbd83fe9060e",
     "item": {
       "id": "enhanced-lrm-20",
       "name": "Enhanced LRM 20",
@@ -7600,14 +9526,29 @@
       "costCBills": 312500,
       "battleValue": 210,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 87,
     "id": "enhanced-lrm-5",
-    "sha256": "74a6bff198624547046c5cbc9f2b874c54c4ad6d52b9e18cace0635b1923f74c",
+    "sha256": "97c7b7db8b0f37f8ba6a9677bb3cf1d10686acbf18e9002b1ac8a550e5460af7",
     "item": {
       "id": "enhanced-lrm-5",
       "name": "Enhanced LRM 5",
@@ -7634,14 +9575,29 @@
       "costCBills": 37500,
       "battleValue": 52,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 88,
     "id": "extended-lrm-10",
-    "sha256": "ee86907a0035cbe64b3e7894316cc2c76f0e68cd78bbdf5bf337022515d903a6",
+    "sha256": "60220efb4a089a9bafdf5072b0ee8df8921e9ae373312932e18bfbdd3cb071e1",
     "item": {
       "id": "extended-lrm-10",
       "name": "Extended LRM 10",
@@ -7667,14 +9623,29 @@
       "costCBills": 200000,
       "battleValue": 133,
       "introductionYear": 3054,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 89,
     "id": "extended-lrm-15",
-    "sha256": "e5b8a8ceb30e9bf8789fcb30685c56aa24e3188b1f3fd8ef503d8d3065a7c5cc",
+    "sha256": "2e966e0403f25788406e2f1b01649ff7582782b82b340568d9a251bce1145fb5",
     "item": {
       "id": "extended-lrm-15",
       "name": "Extended LRM 15",
@@ -7700,14 +9671,29 @@
       "costCBills": 350000,
       "battleValue": 200,
       "introductionYear": 3054,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 90,
     "id": "extended-lrm-20",
-    "sha256": "8b9b475f756e3234db1516a8b60c52d027b35ce221655c1d8cb5bd42647f3029",
+    "sha256": "b5f8b55379b6dc1f4cddf645083394b930d05fa1c80fcec2cd523d5d893be48b",
     "item": {
       "id": "extended-lrm-20",
       "name": "Extended LRM 20",
@@ -7733,14 +9719,29 @@
       "costCBills": 500000,
       "battleValue": 268,
       "introductionYear": 3054,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 91,
     "id": "extended-lrm-5",
-    "sha256": "8ae6b5496e01951be6320c40ab2ac6015c29fc82222c126b93ce131fadd8c030",
+    "sha256": "52dc6caa40421d52c051381620cb9e7a660f56dda0a709362f7bc1a4cd6948ce",
     "item": {
       "id": "extended-lrm-5",
       "name": "Extended LRM 5",
@@ -7766,14 +9767,29 @@
       "costCBills": 60000,
       "battleValue": 67,
       "introductionYear": 3054,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 92,
     "id": "primitive-prototype-lrm-10",
-    "sha256": "529b630207ff7fcd518f7b33cbaab936a3273bc68496a8a36411f97d98a59fad",
+    "sha256": "a8a7a97a3eb3bad7a44927f632df6e6570b6baa93ae74fcf6d0f98eed2e05607",
     "item": {
       "id": "primitive-prototype-lrm-10",
       "name": "Primitive Prototype LRM 10",
@@ -7799,14 +9815,30 @@
       "costCBills": 100000,
       "battleValue": 90,
       "introductionYear": 2295,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 93,
     "id": "primitive-prototype-lrm-15",
-    "sha256": "20848652c87ee668eb3f5fe5541e27a8b8607cf4c2bbc6b5c31a4f6ed3dc16d2",
+    "sha256": "7b62b5dc6621c574563ed8b7595a925c952fb48d3c6f612eceadbb88b8d1796e",
     "item": {
       "id": "primitive-prototype-lrm-15",
       "name": "Primitive Prototype LRM 15",
@@ -7832,14 +9864,30 @@
       "costCBills": 175000,
       "battleValue": 136,
       "introductionYear": 2295,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 94,
     "id": "primitive-prototype-lrm-20",
-    "sha256": "bbef7541d3d6e11199bfd2fbaaacddd69d235ba0dd5386fb53d461eadc2cd03b",
+    "sha256": "297e3a047085045c0c77dad067de232aa9dd4f26f7d6b785e275ddb5f7e4c18e",
     "item": {
       "id": "primitive-prototype-lrm-20",
       "name": "Primitive Prototype LRM 20",
@@ -7865,14 +9913,30 @@
       "costCBills": 250000,
       "battleValue": 181,
       "introductionYear": 2295,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 95,
     "id": "primitive-prototype-lrm-5",
-    "sha256": "34d67c8db8e0cba8f7f58fc6d00edb9111856285c088b4ad60dbfb78e80e011b",
+    "sha256": "9f6d6d4a64cee780a01fd0adecd9808318bbd306e1cc2563f24b0ad35c5182a7",
     "item": {
       "id": "primitive-prototype-lrm-5",
       "name": "Primitive Prototype LRM 5",
@@ -7898,7 +9962,23 @@
       "costCBills": 30000,
       "battleValue": 45,
       "introductionYear": 2295,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
@@ -8029,7 +10109,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 0,
     "id": "mrm-10",
-    "sha256": "29e46d99223de931d8a4d4ff8a5d0ceae32fc4308b84eecfa71c1379680e6893",
+    "sha256": "04eed4d87ecceef01aee3e4f368832b469c7caac82ce4b258478b2d4dcbfe8a3",
     "item": {
       "id": "mrm-10",
       "name": "MRM 10",
@@ -8055,14 +10135,29 @@
       "costCBills": 50000,
       "battleValue": 56,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 1,
     "id": "mrm-20",
-    "sha256": "028a962c0aacbec8ddce903d6bf3ea722eed8b7581e0ac754d6f532ba5b58aba",
+    "sha256": "2731667aba90492f9adf5a0ce649faaa3b3b7d1c95b06fc2ad96e88e68635ac0",
     "item": {
       "id": "mrm-20",
       "name": "MRM 20",
@@ -8088,14 +10183,29 @@
       "costCBills": 125000,
       "battleValue": 112,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 2,
     "id": "mrm-30",
-    "sha256": "a76f55bd1f163e3a84921d9c2eb2792b0f7a9b9ebb8ea8e8af5f1a1bb924865d",
+    "sha256": "521ccd76e54f1f23576391c8633ad67eb4ef480b5774ac6a968bfdd19867950e",
     "item": {
       "id": "mrm-30",
       "name": "MRM 30",
@@ -8121,14 +10231,29 @@
       "costCBills": 225000,
       "battleValue": 168,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 3,
     "id": "mrm-40",
-    "sha256": "8af265758cdc6e2f545adbd31dfe667a339afb56096cdbdeb97732e6b5be6c1b",
+    "sha256": "99517d719f01c7887783593fcb4501ee6535de37cf24deb0efe3bd58ad55d022",
     "item": {
       "id": "mrm-40",
       "name": "MRM 40",
@@ -8154,14 +10279,29 @@
       "costCBills": 350000,
       "battleValue": 224,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 4,
     "id": "bamrm1",
-    "sha256": "e651fdabde2d3a19b08797f3e5f931b306f8042e2d6b94c5494fd42ad48fb5be",
+    "sha256": "4d20d8b5075ebc0f1a5e9b18a03b9aea5e3fe84250973c2b9ce87f2cc71e9f57",
     "item": {
       "id": "bamrm1",
       "name": "MRM 1",
@@ -8188,14 +10328,15 @@
       "costCBills": 5000,
       "battleValue": 9,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 5,
     "id": "bamrm1os",
-    "sha256": "ea1f2c594538168e3fa4f8bd8588137d3c981107d98db56414624ed4f6bd06f7",
+    "sha256": "1ba5e54fee91cfff04a4f148c3fc7c4abb927320a76d45dc5cae2e47b33559f7",
     "item": {
       "id": "bamrm1os",
       "name": "MRM 1 (OS)",
@@ -8221,14 +10362,15 @@
       "costCBills": 2500,
       "battleValue": 2,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 6,
     "id": "bamrm2",
-    "sha256": "24aad940057a0e518c0a5393f11497ecd5671ffe0f96a5c3a4cc62a7afb2b6c7",
+    "sha256": "6fe46c36ddcb88e54775380c1d4c41ce25bbd2f5f559bb50269d7b951dbbfe5c",
     "item": {
       "id": "bamrm2",
       "name": "MRM 2",
@@ -8255,14 +10397,15 @@
       "costCBills": 10000,
       "battleValue": 9,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 7,
     "id": "bamrm2os",
-    "sha256": "b63d0b77b48d320c55f13168a3c4b3e0c480c57640c6dfe48cfd83e534b69c2c",
+    "sha256": "6d40a88f26214d321e8a304129e4c9cbde48a42cf966dcca19aec69cb49d63a2",
     "item": {
       "id": "bamrm2os",
       "name": "MRM 2 (OS)",
@@ -8288,14 +10431,15 @@
       "costCBills": 5000,
       "battleValue": 3,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 8,
     "id": "bamrm3",
-    "sha256": "a53ca1afb0dde4992a2377e266eb5d50080b487bbb8e6a50ee35ac71ed7d4dd8",
+    "sha256": "e4a37f762ac84af8210cbedc72522017de41727f47176cd38fed790167e6f960",
     "item": {
       "id": "bamrm3",
       "name": "MRM 3",
@@ -8322,14 +10466,15 @@
       "costCBills": 15000,
       "battleValue": 18,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 9,
     "id": "bamrm3os",
-    "sha256": "2fb4e2c1543198de37341c1b4f9417779eff9a9e42ddd81a337247f2b70d526a",
+    "sha256": "e661225561450d5f5e4c0f1e1602b2d69ece3ffb9b978627e7711f07d928f072",
     "item": {
       "id": "bamrm3os",
       "name": "MRM 3 (OS)",
@@ -8355,14 +10500,15 @@
       "costCBills": 7500,
       "battleValue": 4,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 10,
     "id": "bamrm4",
-    "sha256": "472f3ba4ef00b9665877e5a96c85d9d355224465bdea6d0fc2883fa6ef2e9c72",
+    "sha256": "f8177db03c258a6ef7dee80bd56e55aba74ea2d389500fb6ea4293539eefb70f",
     "item": {
       "id": "bamrm4",
       "name": "MRM 4",
@@ -8389,14 +10535,15 @@
       "costCBills": 20000,
       "battleValue": 23,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 11,
     "id": "bamrm4os",
-    "sha256": "014909b203d1daece30c8066e54310d2e3977b933ef669bed26f9c5ae14729f6",
+    "sha256": "d0f3e75623c4c6e65c4008ab87c0f17eedd22198264dd341e7ecac51fdb832b6",
     "item": {
       "id": "bamrm4os",
       "name": "MRM 4 (OS)",
@@ -8422,14 +10569,15 @@
       "costCBills": 10000,
       "battleValue": 5,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 12,
     "id": "bamrm5",
-    "sha256": "e9323fff0df4f2ee826e0cfd8a58140f9692dad97b3e4568ef7e6f02bd444479",
+    "sha256": "c0ae8361f313e1affa83c2f82a97c9138e76b3c339f8b71908716d8bc4ba8d2e",
     "item": {
       "id": "bamrm5",
       "name": "MRM 5",
@@ -8456,14 +10604,15 @@
       "costCBills": 25000,
       "battleValue": 28,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 13,
     "id": "bamrm5os",
-    "sha256": "14b6580b978d4b6451d8140ddb818a07551abd55e7a2a2587be7a09a70b3b1d2",
+    "sha256": "567195f4467ecbb53b62db16b17f6f33476a4a9267e6f620b179b5de5510dcca",
     "item": {
       "id": "bamrm5os",
       "name": "MRM 5 (OS)",
@@ -8489,14 +10638,15 @@
       "costCBills": 12500,
       "battleValue": 6,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 14,
     "id": "mrm-10-i-os",
-    "sha256": "e667d149beeda7e6360640e5f13e56b6b216cdc3c05ba7219a785de5b2e05a56",
+    "sha256": "90c024b500667455326d040b91ac9f3d17753ad573a8ce6fee70880e8bbda28e",
     "item": {
       "id": "mrm-10-i-os",
       "name": "MRM 10 (I-OS)",
@@ -8522,14 +10672,29 @@
       "costCBills": 40000,
       "battleValue": 11,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 15,
     "id": "mrm-10-os",
-    "sha256": "523a7cf84c853c73ebe531abf5c57217fc7beff48e6bd894d02d55381db9067d",
+    "sha256": "ef95bfd7d575a7b44d45c8d8d11d29a4dc85746361be7815a96d7bc56e0a26a8",
     "item": {
       "id": "mrm-10-os",
       "name": "MRM 10 (OS)",
@@ -8555,14 +10720,29 @@
       "costCBills": 25000,
       "battleValue": 11,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 16,
     "id": "mrm-20-i-os",
-    "sha256": "e249d8ef237d3f7a5cd69f48648795e33afe2cf5f92b59996e265aa0a2a51e25",
+    "sha256": "e505c9fb89ed1d266dd6ba38b366de2a287ed9ae4755e3e4794efdf5ab055ec9",
     "item": {
       "id": "mrm-20-i-os",
       "name": "MRM 20 (I-OS)",
@@ -8588,14 +10768,29 @@
       "costCBills": 100000,
       "battleValue": 22,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 17,
     "id": "mrm-20-os",
-    "sha256": "06378ea61b0245903d805597248681d58c47a616201789ff94a59f4335cd60da",
+    "sha256": "3850dfa034a34d73f4be1a6638a73cba830f2d147fc8f31077dc986ebecdc702",
     "item": {
       "id": "mrm-20-os",
       "name": "MRM 20 (OS)",
@@ -8621,14 +10816,29 @@
       "costCBills": 62500,
       "battleValue": 22,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 18,
     "id": "mrm-30-i-os",
-    "sha256": "3f0ea79153c48edb069ea4f8ee3d4f6f3811ce72a2223eb228da0d1575ed34d2",
+    "sha256": "418793db61bf403499f8159fc8e838461a37431ab517f859e00d9e5777ba5b28",
     "item": {
       "id": "mrm-30-i-os",
       "name": "MRM 30 (I-OS)",
@@ -8654,14 +10864,29 @@
       "costCBills": 180000,
       "battleValue": 34,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 19,
     "id": "mrm-30-os",
-    "sha256": "0aad4265ed0e10f3a300ef2c02b5cc5d6c5c5d21529b6093a125a2756283ecaf",
+    "sha256": "c569276a3a7afe22ae5185436eb6b11c61b75c61267984b08c66a5a1ff2c8895",
     "item": {
       "id": "mrm-30-os",
       "name": "MRM 30 (OS)",
@@ -8687,14 +10912,29 @@
       "costCBills": 112500,
       "battleValue": 34,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 20,
     "id": "mrm-40-i-os",
-    "sha256": "08faaff9d6457497931137e2abb8af06febfd82ab114f0f15a5ebc7481c7d952",
+    "sha256": "4c0637a16251dd2bab31d05cb33fb726e441e26076c410b08b4f51b5a2130bba",
     "item": {
       "id": "mrm-40-i-os",
       "name": "MRM 40 (I-OS)",
@@ -8720,14 +10960,29 @@
       "costCBills": 280000,
       "battleValue": 49,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
     "file": "weapons/missile-mrm.json",
     "index": 21,
     "id": "mrm-40-os",
-    "sha256": "0fc4e2586b5f52fc40b355f3745b1689b8ce8b798d5fb38f5bd28bd0906d17ed",
+    "sha256": "4179a4bc79452ea6d6fc8a24e5662c86aec58b766a938048bf799ba657b4999a",
     "item": {
       "id": "mrm-40-os",
       "name": "MRM 40 (OS)",
@@ -8753,7 +11008,22 @@
       "costCBills": 175000,
       "battleValue": 45,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   },
   {
@@ -18419,14 +20689,14 @@
     "file": "ammunition/lrm.json",
     "index": 4,
     "id": "ammo-lrm-5",
-    "sha256": "e9bba6a99d5673dbe12318abca7f5b049f006016e2494e753ed7c3495716a518",
+    "sha256": "1e2f952b2f5889859273cc679cbf3b0631759fdc8822319c82a58b6f97886a42",
     "item": {
       "id": "ammo-lrm-5",
       "name": "LRM 5 Ammo",
       "category": "LRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 24,
       "weight": 1,
@@ -18442,14 +20712,14 @@
     "file": "ammunition/lrm.json",
     "index": 5,
     "id": "ammo-lrm-10",
-    "sha256": "29207c1a52c3229602455f141b30d2bdbcba31f8e0a8933d61a5c3dde9e23bb5",
+    "sha256": "b8bd96c300813ff9d65fc1ac736b75057507be9ca48fca2babe1da373de22686",
     "item": {
       "id": "ammo-lrm-10",
       "name": "LRM 10 Ammo",
       "category": "LRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 12,
       "weight": 1,
@@ -18465,14 +20735,14 @@
     "file": "ammunition/lrm.json",
     "index": 6,
     "id": "ammo-lrm-15",
-    "sha256": "c41a4a2a7225e3158be7e7fc5f44fc930b900d8882a22cb34e9989d99a7bedfd",
+    "sha256": "85c5c04e1d578dc20913cdb45149299696039fea0610849563eb199ad69352db",
     "item": {
       "id": "ammo-lrm-15",
       "name": "LRM 15 Ammo",
       "category": "LRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 8,
       "weight": 1,
@@ -18488,14 +20758,14 @@
     "file": "ammunition/lrm.json",
     "index": 7,
     "id": "ammo-lrm-20",
-    "sha256": "adddea6b9dbbf040caf7df6bd2a622db1f8545b031b63753cae240b6f7fd6971",
+    "sha256": "12cc592c8e9f936f4a95e0311c57a7c581b75eb6e2f685c484b23fc4ff496ffe",
     "item": {
       "id": "ammo-lrm-20",
       "name": "LRM 20 Ammo",
       "category": "LRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 6,
       "weight": 1,
@@ -19946,14 +22216,14 @@
     "file": "ammunition/machinegun.json",
     "index": 4,
     "id": "ammo-mg-full",
-    "sha256": "dfa4c954eb1d1779550ba44adc5a327b544ad3449f59b33648f3fd6da7683ad9",
+    "sha256": "ee5f3bf3bd08bbaf9dc7c95534994fbb013a3ccf9ccd48934f90c92ea3723261",
     "item": {
       "id": "ammo-mg-full",
       "name": "Machine Gun Ammo [Full]",
       "category": "Machine Gun",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": ["machine-gun", "clan-machine-gun"],
       "shotsPerTon": 200,
       "weight": 1,
@@ -19969,14 +22239,14 @@
     "file": "ammunition/machinegun.json",
     "index": 5,
     "id": "machine-gun-ammo-half",
-    "sha256": "b0649d37ea308424a612d8cb8bd1962ccdadaa78ede86fab4253618cf97238c6",
+    "sha256": "47fcd85fde3f0219ca17d0ed54441bdd48dbcef4bd5652f483284168a0466b56",
     "item": {
       "id": "machine-gun-ammo-half",
       "name": "Machine Gun Ammo [Half]",
       "category": "Machine Gun",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": ["machine-gun", "clan-machine-gun"],
       "shotsPerTon": 100,
       "weight": 0.5,
@@ -21515,14 +23785,14 @@
     "file": "ammunition/srm.json",
     "index": 5,
     "id": "ammo-srm-2",
-    "sha256": "294d68414a01aa4b61c8cd6246f75c8c0ced2956cfc4d8c23d415e557a5acfb8",
+    "sha256": "a3d8e084d731ae48b675cfa62bf39847ad4bd331be814ed70da5f06fdab51c49",
     "item": {
       "id": "ammo-srm-2",
       "name": "SRM 2 Ammo",
       "category": "SRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 50,
       "weight": 1,
@@ -21538,14 +23808,14 @@
     "file": "ammunition/srm.json",
     "index": 6,
     "id": "ammo-srm-4",
-    "sha256": "91ef31b927531559ce1527a62a0f6fd67518b6bb0b95dc14ffe4799ad6165c9f",
+    "sha256": "3c2f45aa1c4c25b13d17035c6556e683e1f6a6e2e95180f37f3b40e57829bc8a",
     "item": {
       "id": "ammo-srm-4",
       "name": "SRM 4 Ammo",
       "category": "SRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 25,
       "weight": 1,
@@ -21561,14 +23831,14 @@
     "file": "ammunition/srm.json",
     "index": 7,
     "id": "ammo-srm-6",
-    "sha256": "5f5035d7e999107c36263b8a0605b51dda6a7c9d8806f3a63f7076c21620853b",
+    "sha256": "17d98a635dce95afb0bd7fe67da2d630c757d6d8f11216aed0b83d6b0b2328bd",
     "item": {
       "id": "ammo-srm-6",
       "name": "SRM 6 Ammo",
       "category": "SRM",
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "INTRODUCTORY",
       "compatibleWeaponIds": [],
       "shotsPerTon": 15,
       "weight": 1,
