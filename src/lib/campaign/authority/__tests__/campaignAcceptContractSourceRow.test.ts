@@ -233,7 +233,12 @@ describe('accepted contract materializes into the source record', () => {
       .run(payload, CAMPAIGN_ID);
   }
 
-  function run(intent: ICampaignIntent, commandId: string, author = AUTHOR) {
+  function run(
+    intent: ICampaignIntent,
+    commandId: string,
+    author = AUTHOR,
+    ts = NOW,
+  ) {
     return executeCampaignCommand(
       { journal, authority: JOURNAL_AUTHORITY },
       {
@@ -241,7 +246,7 @@ describe('accepted contract materializes into the source record', () => {
         intent,
         authorPlayerId: author,
         commandId,
-        ts: NOW,
+        ts,
       },
     );
   }
@@ -452,9 +457,8 @@ describe('accepted contract materializes into the source record', () => {
     const first = await run(acceptContract(STORED_ID), 'cmd-first', AUTHOR);
     expect(first.kind).toBe('committed');
 
-    // Carry-forward R5: command identity is actor-scoped, so a different
-    // actor's retry is NOT a duplicate. The reduced market in the row is
-    // what stops it.
+    // A different command has no committed receipt. The reduced market
+    // must still refuse another actor accepting the consumed offer.
     const second = await run(
       acceptContract(STORED_ID),
       'cmd-second-actor',
@@ -534,31 +538,54 @@ describe('accepted contract materializes into the source record', () => {
     expect(after.version).toBe(before.version);
   });
 
-  it('(e) answers the SAME actor re-submitting a committed acceptance from the reduced market, not the command log', async () => {
-    seedSourceRecord({
-      missions: [],
-      contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
-    });
-    const first = await run(acceptContract(STORED_ID), 'cmd-retry', AUTHOR);
-    expect(first.kind).toBe('committed');
-    const db = getSQLiteService().getDatabase();
-    const afterFirst = readRow(db);
+  it.each([false, true])(
+    '(e) answers a committed acceptance retry as a duplicate (cold reopen: %s)',
+    async (reopen) => {
+      seedSourceRecord({
+        missions: [],
+        contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
+      });
+      const first = await run(acceptContract(STORED_ID), 'cmd-retry', AUTHOR);
+      expect(first.kind).toBe('committed');
+      const afterFirst = readRow(getSQLiteService().getDatabase());
+      const receipt = await journal.getCommandReceipt('cmd-retry');
+      expect(receipt).not.toBeNull();
+      const events = await readCampaignJournalEvents(journal, CAMPAIGN_ID);
+      const highWater = await journal.captureHighWater();
 
-    // Consequence of the row write, pinned so it is a decision rather than a
-    // surprise: `prepare` reads the market BEFORE the append can consult the
-    // command log, so this retry refuses `offer-absent` where it previously
-    // answered `duplicate` (the identity arm - the retry's events carry new
-    // sequences, so its command digest differs from the committed one).
-    // Exactly-once is 6.2b's to own; what matters here is that the retry
-    // writes NOTHING a second time, and says so in the offer's vocabulary.
-    const retry = await run(acceptContract(STORED_ID), 'cmd-retry', AUTHOR);
-    expect(retry).toStrictEqual({
-      kind: 'offer-not-durable',
-      contractId: STORED_ID,
-      reason: 'offer-absent',
-    });
-    const afterRetry = readRow(db);
-    expect(afterRetry.version).toBe(afterFirst.version);
-    expect(afterRetry.payload).toBe(afterFirst.payload);
-  });
+      if (reopen) {
+        resetSQLiteService();
+        getSQLiteService({ path: databasePath }).initialize();
+        journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
+          getSQLiteService().getDatabase(),
+          () => NOW,
+        );
+      }
+
+      // The first acceptance consumed the offer. Its durable receipt must
+      // identify the retry before the source read mistakes it for a missing
+      // offer and tells the caller that its committed acceptance failed.
+      // The command route assigns a new timestamp on every request.
+      const retry = await run(
+        acceptContract(STORED_ID),
+        'cmd-retry',
+        AUTHOR,
+        '3025-01-03T00:00:01.000Z',
+      );
+      expect(retry).toStrictEqual({
+        kind: 'duplicate',
+        commandId: 'cmd-retry',
+      });
+      const afterRetry = readRow(getSQLiteService().getDatabase());
+      expect(afterRetry.version).toBe(afterFirst.version);
+      expect(afterRetry.payload).toBe(afterFirst.payload);
+      expect(await journal.getCommandReceipt('cmd-retry')).toStrictEqual(
+        receipt,
+      );
+      expect(
+        await readCampaignJournalEvents(journal, CAMPAIGN_ID),
+      ).toStrictEqual(events);
+      expect(await journal.captureHighWater()).toStrictEqual(highWater);
+    },
+  );
 });

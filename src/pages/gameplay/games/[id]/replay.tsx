@@ -9,7 +9,7 @@
 
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   ReplayProjection,
@@ -206,6 +206,9 @@ export default function GameReplayPage(): React.ReactElement {
   >(null);
   const [matchLogLoadState, setMatchLogLoadState] =
     useState<MatchLogLoadState>('idle');
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const matchLogRequestPending = useRef(false);
   const isUploadActive = uploadedEvents !== null;
   const directEvents = uploadedEvents ?? persistedEvents;
   const isDirectReplayActive = directEvents !== null;
@@ -226,6 +229,7 @@ export default function GameReplayPage(): React.ReactElement {
   useEffect(() => {
     if (!isClient || !gameId) return;
     let cancelled = false;
+    matchLogRequestPending.current = true;
     setMatchLogLoadState('loading');
     setPersistedEvents(null);
     void fetch(`/api/matches/${encodeURIComponent(gameId)}`)
@@ -233,6 +237,7 @@ export default function GameReplayPage(): React.ReactElement {
         if (cancelled) return;
         if (res.ok) {
           const report = (await res.json()) as IPostBattleReport;
+          if (cancelled) return;
           setPersistedEvents(report.log);
           setMatchLogLoadState('loaded');
           return;
@@ -243,11 +248,17 @@ export default function GameReplayPage(): React.ReactElement {
         if (!cancelled) {
           setMatchLogLoadState('error');
         }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          matchLogRequestPending.current = false;
+          setIsRetrying(false);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [gameId, isClient]);
+  }, [gameId, isClient, loadAttempt]);
 
   const {
     allEvents,
@@ -255,6 +266,7 @@ export default function GameReplayPage(): React.ReactElement {
     error: eventsError,
     pagination,
     loadMore,
+    refresh,
   } = useGameTimeline(gameId, {
     pageSize: 1000,
     infiniteScroll: false,
@@ -298,18 +310,32 @@ export default function GameReplayPage(): React.ReactElement {
     setSelectedEventId(null);
   }, [uploadedEvents]);
 
+  const handleRetry = useCallback(() => {
+    if (!gameId || matchLogRequestPending.current) return;
+    matchLogRequestPending.current = true;
+    setIsRetrying(true);
+    setLoadAttempt((attempt) => attempt + 1);
+    refresh();
+  }, [gameId, refresh]);
+
+  const matchLogFailed =
+    matchLogLoadState === 'missing' || matchLogLoadState === 'error';
+  const loadErrorMessage =
+    eventsError?.message ??
+    (matchLogLoadState === 'missing'
+      ? 'Replay not found for this game. Retry or load a .jsonl file.'
+      : matchLogLoadState === 'error'
+        ? 'Could not load the replay. Retry or load a .jsonl file.'
+        : null);
+
   if (
     !isClient ||
-    eventsLoading ||
-    (matchLogLoadState === 'loading' && directEvents === null)
+    (!isDirectReplayActive &&
+      !isRetrying &&
+      !matchLogFailed &&
+      (eventsLoading || matchLogLoadState === 'loading'))
   ) {
     return <ReplayLoading />;
-  }
-
-  if (eventsError && !isDirectReplayActive) {
-    return (
-      <ReplayError message={eventsError.message} gameId={gameId || undefined} />
-    );
   }
 
   const activeEvents = activeReplayEvents({
@@ -334,6 +360,15 @@ export default function GameReplayPage(): React.ReactElement {
           showKeyboardHelp={showKeyboardHelp}
           onToggleKeyboardHelp={() => setShowKeyboardHelp(!showKeyboardHelp)}
         />
+        {!isDirectReplayActive && (isRetrying || loadErrorMessage !== null) && (
+          <ReplayError
+            message={
+              isRetrying ? 'Retrying replay...' : (loadErrorMessage ?? '')
+            }
+            onRetry={handleRetry}
+            isRetrying={isRetrying}
+          />
+        )}
         <div className="flex flex-1 overflow-hidden">
           <ReplaySidebar
             activeTab={activeTab}

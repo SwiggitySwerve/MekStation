@@ -8,11 +8,11 @@ import {
 } from '@/types/gameplay';
 import { consumeAmmo, isEnergyWeapon } from '@/utils/gameplay/ammoTracking';
 import { resolveDamage } from '@/utils/gameplay/damage';
-import { createDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
+import { canFall } from '@/utils/gameplay/movement/terrainPsrTriggers';
+import { checkPhaseDamagePSR } from '@/utils/gameplay/pilotingSkillRolls';
 
 import type { IWeapon } from '../../ai/types';
 
-import { DAMAGE_PSR_THRESHOLD } from '../SimulationRunnerConstants';
 import {
   appendAttackResolvedEvent,
   appendUnitDestroyedEvent,
@@ -445,37 +445,51 @@ export function emitUnitDestroyedEvent(options: {
 }
 
 /**
- * Per the `piloting-skill-rolls` delta: when a surviving target has
- * accumulated `DAMAGE_PSR_THRESHOLD` (20+) damage this phase, queue a
- * `20+_damage` piloting skill roll. Idempotent — only one damage PSR is
- * queued per phase even across a multi-weapon volley. Extracted from
- * `resolveWeaponHit`; returns the (possibly updated) game state.
+ * MegaMek 48fcb2f64 `TWGameManager.checkForPSRFromDamage`
+ * (TWGameManager.java:17843-17893): when a surviving unit that can fall has
+ * accumulated 20+ damage this phase (30+ for a dual cockpit with a dedicated
+ * pilot), queue a `20+_damage` piloting skill roll. Idempotent — only one
+ * damage PSR is queued per phase even across a multi-weapon volley. Shared by
+ * the weapon-hit path and the end-of-physical-phase sweep; returns the
+ * (possibly updated) game state.
  */
 export function applyDamageThresholdPSR(
   currentState: IGameState,
   targetId: string,
 ): IGameState {
   const targetPostDamage = currentState.units[targetId];
-  if (
-    !targetPostDamage.destroyed &&
-    (targetPostDamage.damageThisPhase ?? 0) >= DAMAGE_PSR_THRESHOLD
-  ) {
-    const existingPSRs = targetPostDamage.pendingPSRs ?? [];
-    const hasDamagePSR = existingPSRs.some(
-      (pendingPSR) => pendingPSR.triggerSource === '20+_damage',
-    );
-    if (!hasDamagePSR) {
-      return {
-        ...currentState,
-        units: {
-          ...currentState.units,
-          [targetId]: {
-            ...targetPostDamage,
-            pendingPSRs: [...existingPSRs, createDamagePSR(targetId)],
-          },
-        },
-      };
-    }
+  if (targetPostDamage.destroyed || !canFall(targetPostDamage)) {
+    return currentState;
   }
-  return currentState;
+  const damagePSR = checkPhaseDamagePSR(targetPostDamage);
+  if (!damagePSR) return currentState;
+
+  const existingPSRs = targetPostDamage.pendingPSRs ?? [];
+  const hasDamagePSR = existingPSRs.some(
+    (pendingPSR) => pendingPSR.triggerSource === '20+_damage',
+  );
+  if (hasDamagePSR) return currentState;
+
+  return {
+    ...currentState,
+    units: {
+      ...currentState.units,
+      [targetId]: {
+        ...targetPostDamage,
+        pendingPSRs: [...existingPSRs, damagePSR],
+      },
+    },
+  };
+}
+
+/**
+ * End-of-phase sweep: MegaMek checks every unit's phase damage once the phase
+ * ends (TWPhaseEndManager.java:156, 206, 239), not only the units a weapon
+ * hit. Returns the same state object when nothing was queued.
+ */
+export function queuePhaseDamagePSRs(currentState: IGameState): IGameState {
+  return Object.keys(currentState.units).reduce(
+    (state, unitId) => applyDamageThresholdPSR(state, unitId),
+    currentState,
+  );
 }

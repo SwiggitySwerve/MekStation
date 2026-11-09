@@ -34,7 +34,9 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
 - After acquiring its lease, a combat rewind moves every other `building`
   candidate on the same stream to `blocked`. Under the lease no other candidate
   can still be authorized.
-
+- A failure to store the GM's private reason after the commit is logged and the
+  route still answers 200 with the committed result (follow-up D-2a). No
+  response field reports it.
 - Boot recovery of a match on an activated rewind branch marks the host and the
   seated players for resync, as the live rebuild does, so a stale `lastSeq` after
   a restart cannot resume past the rebuilt head (follow-up D-2c). Spectators are

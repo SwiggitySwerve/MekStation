@@ -515,6 +515,94 @@ async function readCampaignBaseFixSnapshot(
 }
 
 test.describe('GM campaign ledger control plane @gm-ledger', () => {
+  test('blocks every stale correction before save and keeps freshness out of saved history', async ({
+    page,
+  }) => {
+    let campaignId = '';
+    await page.goto('/gameplay/campaigns', { waitUntil: 'domcontentloaded' });
+    campaignId = await createTestCampaign(page, {
+      name: 'GM Stale Preview Proof',
+      cBills: 1_000_000,
+      persist: true,
+    });
+    try {
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await assertNoMekStationLoading(page);
+      await waitForCampaignStoreExposure(page);
+      await seedCampaignBaseFixState(page);
+      for (const kind of [
+        'merchant',
+        'repair',
+        'salvage',
+        'unit-reload',
+        'time',
+      ]) {
+        await generateCorrection(page, kind);
+        await expect(
+          page.getByTestId('gm-ledger-preview-status'),
+        ).toContainText('ready');
+        await page.evaluate((correctionType) => {
+          const stores = (
+            window as unknown as {
+              __ZUSTAND_STORES__: {
+                campaign: {
+                  getState: () => {
+                    updateCampaign: (updates: { name: string }) => void;
+                  };
+                };
+              };
+            }
+          ).__ZUSTAND_STORES__;
+          stores.campaign.getState().updateCampaign({
+            name: `GM Stale Preview Proof ${correctionType}`,
+          });
+        }, kind);
+        await page.getByTestId('gm-ledger-approve-btn').click();
+        await expect(
+          page.getByTestId('gm-ledger-approval-status'),
+        ).toContainText('Approval blocked.');
+        await expect(
+          page.getByTestId('gm-ledger-approval-reason'),
+        ).toContainText('stale campaign version');
+        await expect(page.getByTestId('gm-ledger-approve-btn')).toBeDisabled();
+        expect(
+          (await readClientLedgerSnapshot(page)).gmInterventionEventCount,
+        ).toBe(0);
+        expect((await readCampaignTimeState(page)).timeCascadeEventCount).toBe(
+          0,
+        );
+      }
+      await saveCampaignThroughDashboard(page, campaignId);
+      expect(
+        (await readServerLedgerSnapshot(page, campaignId))
+          .gmInterventionEventCount,
+      ).toBe(0);
+      await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await assertNoMekStationLoading(page);
+      await generateCorrection(page, 'merchant');
+      await page.getByTestId('gm-ledger-approve-btn').click();
+      await expect(page.getByTestId('gm-ledger-approval-status')).toContainText(
+        'Approved and applied',
+      );
+      await saveCampaignThroughDashboard(page, campaignId);
+      const saved = await page.request.get(
+        `/api/campaigns/${encodeURIComponent(campaignId)}`,
+      );
+      expect(saved.ok()).toBe(true);
+      expect(await saved.text()).not.toContain('"freshness"');
+      expect(
+        (await readServerLedgerSnapshot(page, campaignId))
+          .gmInterventionEventCount,
+      ).toBe(1);
+    } finally {
+      if (campaignId) await deleteCampaign(page, campaignId);
+    }
+  });
+
   test('previews, approves, and redacts a merchant reversal', async ({
     page,
   }) => {
