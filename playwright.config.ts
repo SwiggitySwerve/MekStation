@@ -295,8 +295,8 @@ export default defineConfig({
     // inside the chain far exceeds the dev-server startup budget.
     command: process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev',
     url: e2eReadyURL,
-    // The readiness URL includes a per-run token. A stale server on 3600 will
-    // not satisfy it, so Playwright runs the dev script and lets it clear 3600.
+    // The per-run token prevents reusing another run's server. If the selected
+    // port is occupied, default dev startup refuses it and reports its owner.
     reuseExistingServer:
       process.env.MEKSTATION_E2E_REUSE_EXISTING_SERVER !== 'false',
     timeout: Number(process.env.MEKSTATION_E2E_SERVER_TIMEOUT_MS ?? 120 * 1000),
