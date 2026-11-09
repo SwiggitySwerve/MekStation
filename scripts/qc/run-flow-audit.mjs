@@ -24,7 +24,7 @@
  * bypasses the custom readiness handler entirely). The runner probes that
  * exact readiness token before spawning Playwright so `reuseExistingServer`
  * in playwright.config.ts is guaranteed to skip its `command` (which would
- * otherwise `kill-port 3600` first) — see design D3 + proposal.md's
+ * otherwise refuse the occupied port) — see design D3 + proposal.md's
  * `reuseExistingServer` risk note.
  *
  * Output: .sisyphus/evidence/flow-audit/<runId>/
@@ -72,7 +72,7 @@ const isDirectRun =
 // token instead of a random per-run one lets the runner's probe match an
 // already-running dev server's own `e2eReadyURL` query, so Playwright's
 // `reuseExistingServer` skips spawning `npm run dev` (which would otherwise
-// `kill-port 3600` the developer's server first).
+// refuse the developer's occupied port).
 const HOLD_RUN_ID = 'mekstation-flow-hold';
 const HOLD_PORT = 3600;
 const HOLD_READY_URL = `http://localhost:${HOLD_PORT}/__playwright_e2e_ready__?runId=${encodeURIComponent(HOLD_RUN_ID)}`;
@@ -218,8 +218,8 @@ function printManifest(manifest) {
  * Probe the fixed hold-mode readiness URL before spawning Playwright.
  * Distinguishes "nothing is listening" from "something is listening but not
  * in flow-audit hold mode" (holdModeNotes) so the failure message tells the
- * developer exactly what to run instead of silently letting Playwright's
- * webServer kill whatever is on port 3600.
+ * developer exactly what to run before Playwright tries to start a server
+ * on the occupied port.
  */
 function probeHoldServer() {
   return new Promise((resolve, reject) => {

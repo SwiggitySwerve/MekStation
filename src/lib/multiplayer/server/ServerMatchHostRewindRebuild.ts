@@ -316,7 +316,7 @@ async function supersedeActivatedTail(
   await store.supersedeFrom(matchId, throughRevision, at);
 }
 
-async function seatedPlayerIds(
+export async function seatedPlayerIds(
   store: IMatchStore,
   matchId: string,
 ): Promise<readonly string[]> {

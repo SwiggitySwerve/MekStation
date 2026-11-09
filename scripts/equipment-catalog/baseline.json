@@ -22691,13 +22691,13 @@
     "file": "electronics/active-probe.json",
     "index": 9,
     "id": "active-probe-light",
-    "sha256": "2d8f2e3720b6e868eb10ae1649d8a94ca55eb21fd8f91614f1fda71ab2fce3ca",
+    "sha256": "74ebfe8d4b1b0384a8407725b3cb0c8f53e905e27181e35d10923212f7fc1aac",
     "item": {
       "id": "active-probe-light",
       "name": "Active Probe (Light)",
       "category": "Active Probe",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "STANDARD",
       "weight": 0.25,
       "criticalSlots": 2,
       "vehicleSlots": {

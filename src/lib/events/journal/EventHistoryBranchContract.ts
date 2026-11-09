@@ -49,6 +49,16 @@ export const EVENT_HISTORY_GENESIS_REVISION = 0;
 /** The depth of a root branch. Children are strictly deeper. */
 export const EVENT_HISTORY_GENESIS_DEPTH = 0;
 
+/**
+ * `waiting-effects` is reserved. No production code writes it: it is the
+ * state a verified candidate would hold while an unresolved old-generation
+ * effect lease or delivery blocks its activation (add-authoritative-history-
+ * branches design.md, "Activation"), and the cross-stream effect-receipt
+ * change that owns those leases has not started. It stays in the ladder, the
+ * transition table and the storage CHECK and trigger because removing it is
+ * a persisted-format migration. The combat rewind and the campaign builders
+ * move a candidate straight from `building` to `blocked` or `effective`.
+ */
 export const EVENT_HISTORY_BRANCH_STATUSES = [
   'building',
   'waiting-effects',

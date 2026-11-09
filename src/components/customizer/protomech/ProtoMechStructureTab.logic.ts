@@ -9,7 +9,9 @@ import {
   PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
 } from '@/types/unit/ProtoMechInterfaces';
 import {
+  computeProtoArmorLimits,
   effectiveJumpMP,
+  getProtoArmorErrors,
   getProtoMPCaps,
   getProtoWeightClass,
 } from '@/utils/construction/protomech';
@@ -32,6 +34,11 @@ export const LOCATION_LABELS: Record<ProtoMechLocation, string> = {
   [ProtoMechLocation.LEGS]: 'Legs',
   [ProtoMechLocation.MAIN_GUN]: 'Main Gun',
 };
+
+/** ArmorType.java:1375-1391 (MegaMek 48fcb2f64); stored as armorType 0. */
+export const PROTO_ARMOR_TYPE_OPTIONS = [
+  { value: 0, label: 'Standard ProtoMech' },
+] as const;
 
 export const MAIN_GUN_WEAPON_OPTIONS = [
   { id: 'clan-lrm-5', label: 'LRM-5' },
@@ -95,6 +102,14 @@ export interface ProtoMechArmorControls {
   structureByLocation: IProtoMechArmorAllocation;
   armorLocations: readonly ProtoMechLocation[];
   totalArmor: number;
+  /** Maximum armor points per location (TestProtoMek.maxArmorFactor). */
+  locationLimits: Readonly<Record<ProtoMechLocation, number>>;
+  /** Maximum total armor points (TestProtoMek.maxArmorFactor by weight). */
+  totalLimit: number;
+  /** Construction diagnostics; never repaired or clamped. */
+  errors: readonly string[];
+  armorType: number;
+  handleArmorTypeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleAutoAllocateArmor: () => void;
   handleClearAllArmor: () => void;
   handleLocationArmorChange: (
@@ -330,9 +345,13 @@ export function useProtoMechMainGunControls(
 export function useProtoMechArmorControls(
   readOnly: boolean,
 ): ProtoMechArmorControls {
+  const tonnage = useProtoMechStore((s) => s.tonnage);
+  const chassisType = useProtoMechStore((s) => s.chassisType);
   const hasMainGun = useProtoMechStore((s) => s.hasMainGun);
   const armorByLocation = useProtoMechStore((s) => s.armorByLocation);
   const structureByLocation = useProtoMechStore((s) => s.structureByLocation);
+  const armorType = useProtoMechStore((s) => s.armorType);
+  const setArmorType = useProtoMechStore((s) => s.setArmorType);
   const setLocationArmor = useProtoMechStore((s) => s.setLocationArmor);
   const autoAllocateArmor = useProtoMechStore((s) => s.autoAllocateArmor);
   const clearAllArmor = useProtoMechStore((s) => s.clearAllArmor);
@@ -344,6 +363,36 @@ export function useProtoMechArmorControls(
   const totalArmor = useMemo(
     () => getTotalArmor(armorByLocation),
     [armorByLocation],
+  );
+  const limits = useMemo(
+    () =>
+      computeProtoArmorLimits(
+        tonnage,
+        chassisType,
+        hasMainGun,
+        structureByLocation,
+      ),
+    [tonnage, chassisType, hasMainGun, structureByLocation],
+  );
+  const errors = useMemo(
+    () =>
+      getProtoArmorErrors(
+        tonnage,
+        chassisType,
+        hasMainGun,
+        structureByLocation,
+        armorByLocation,
+      ),
+    [tonnage, chassisType, hasMainGun, structureByLocation, armorByLocation],
+  );
+
+  const handleArmorTypeChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      if (!readOnly) {
+        setArmorType(Number(event.target.value));
+      }
+    },
+    [readOnly, setArmorType],
   );
 
   const handleAutoAllocateArmor = useCallback(() => {
@@ -372,6 +421,11 @@ export function useProtoMechArmorControls(
     structureByLocation,
     armorLocations,
     totalArmor,
+    locationLimits: limits.byLocation,
+    totalLimit: limits.total,
+    errors,
+    armorType,
+    handleArmorTypeChange,
     handleAutoAllocateArmor,
     handleClearAllArmor,
     handleLocationArmorChange,

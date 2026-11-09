@@ -353,7 +353,7 @@ describe('useVaultImport', () => {
       expect(result.current.step).toBe('preview');
     });
 
-    it('should set error on unsuccessful import result', async () => {
+    it('should return to preview with the error after an unsuccessful import result', async () => {
       mockImportFromString.mockResolvedValue({
         success: false,
         error: { message: 'Validation failed' },
@@ -367,11 +367,30 @@ describe('useVaultImport', () => {
         await result.current.selectFile(file);
       });
 
+      const preview = result.current.preview;
+
       await act(async () => {
         await result.current.importFile(handlers);
       });
 
       expect(result.current.error).toBe('Validation failed');
+      expect(result.current.step).toBe('preview');
+      expect(result.current.preview).toBe(preview);
+      expect(result.current.file).toBe(file);
+      expect(result.current.importing).toBe(false);
+
+      mockImportFromString.mockResolvedValue({
+        success: true,
+        data: { importedCount: 1, skippedCount: 0, replacedCount: 0 },
+      });
+
+      await act(async () => {
+        await result.current.importFile(handlers);
+      });
+
+      expect(result.current.step).toBe('complete');
+      expect(result.current.error).toBeNull();
+      expect(result.current.importing).toBe(false);
     });
   });
 });

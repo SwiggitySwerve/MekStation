@@ -24,6 +24,7 @@
 import { generateAtBContracts } from '@/lib/campaign/contractMarket';
 import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import {
+  PERSONNEL_MARKET_STREAM_ID,
   generatePersonnelForDay,
   removeExpiredOffers,
 } from '@/lib/campaign/markets/personnelMarket';
@@ -103,7 +104,7 @@ export const unitMarketProcessor: IDayProcessor = {
  * offers past their expiration date are pruned via `removeExpiredOffers`.
  */
 export const personnelMarketProcessor: IDayProcessor = {
-  id: 'personnel-market',
+  id: PERSONNEL_MARKET_STREAM_ID,
   phase: DayPhase.MARKETS,
   displayName: 'Personnel Market Refresh',
 
@@ -117,7 +118,7 @@ export const personnelMarketProcessor: IDayProcessor = {
     // D-10: seeded per-(campaign, day, processor) stream, not Math.random.
     const offers = generatePersonnelForDay(
       campaign,
-      createDailyRandom(campaign, date, 'personnel-market'),
+      createDailyRandom(campaign, date, PERSONNEL_MARKET_STREAM_ID),
     );
     const events: IDayEvent[] = [
       {

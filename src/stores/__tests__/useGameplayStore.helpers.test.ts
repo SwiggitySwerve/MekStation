@@ -7,6 +7,69 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 describe('runAITurnLogic', () => {
+  it.each([
+    ['single activation', 'opponent-1', 'runAITurn', false],
+    ['movement AI', undefined, 'runAITurn', false],
+    ['phase advance', undefined, 'advancePhase', false],
+    ['terminal activation', 'opponent-1', 'runAITurn', true],
+  ] as const)(
+    'releases the UI and preserves the original error after a failed %s',
+    (_name, unitId, failingMethod, gameOver) => {
+      const failure = new Error('AI failed after updating its session');
+      const snapshot = {
+        currentState: { phase: GamePhase.Movement },
+      } as IGameSession;
+      const fakeSession = {
+        getState: () => snapshot.currentState,
+        getSession: () => snapshot,
+        isGameOver: () => gameOver,
+        runAITurn: jest.fn(),
+        advancePhase: jest.fn(),
+      };
+      fakeSession[failingMethod].mockImplementation(() => {
+        throw failure;
+      });
+      const set = jest.fn();
+      let thrown: unknown;
+
+      try {
+        runAITurnLogic(fakeSession as never, set, unitId);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBe(failure);
+      expect(set).toHaveBeenNthCalledWith(1, {
+        interactivePhase: InteractivePhase.AITurn,
+      });
+      expect(set).toHaveBeenLastCalledWith({
+        session: snapshot,
+        interactivePhase: gameOver
+          ? InteractivePhase.GameOver
+          : InteractivePhase.SelectUnit,
+      });
+    },
+  );
+
+  it('marks a successful terminal single activation as game over', () => {
+    const snapshot = {
+      currentState: { phase: GamePhase.WeaponAttack },
+    } as IGameSession;
+    const fakeSession = {
+      runAITurn: jest.fn(),
+      getSession: () => snapshot,
+      isGameOver: () => true,
+    };
+    const set = jest.fn();
+
+    runAITurnLogic(fakeSession as never, set, 'opponent-1');
+
+    expect(set).toHaveBeenLastCalledWith({
+      session: snapshot,
+      interactivePhase: InteractivePhase.GameOver,
+    });
+  });
+
   it('runs one opponent activation without advancing past the player turn', () => {
     const runAITurn = jest.fn();
     const advancePhase = jest.fn();

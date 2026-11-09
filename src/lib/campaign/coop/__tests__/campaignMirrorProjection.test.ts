@@ -15,8 +15,10 @@ import {
   SAMPLE_CANDIDATES,
   SAMPLE_OFFERS,
 } from '@/components/campaign/command/__fixtures__/commandFixtures';
+import { initializePersonnelMarket } from '@/lib/campaign/markets/personnelMarket';
 import { createCampaign } from '@/types/campaign/Campaign';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 
 import { applyAuthoritativeStateToGuestCampaign } from '../campaignMirrorProjection';
 
@@ -35,6 +37,27 @@ function campaignWithMarkets(): ICampaignWithCommand {
 }
 
 describe('applyAuthoritativeStateToGuestCampaign markets', () => {
+  it('keeps initial source offers and removes only the recruit the ledger hired', () => {
+    const campaign = initializePersonnelMarket(
+      createCampaign('Fresh host', 'mercenary', {
+        personnelMarketStyle: PersonnelMarketStyle.MEKHQ,
+      }),
+    );
+    const first = campaign.personnelMarket?.[0];
+    if (!first) throw new Error('Initial recruit missing');
+    const state = createEmptyCampaignState(campaign.id);
+    const before = applyAuthoritativeStateToGuestCampaign(
+      campaign,
+      state,
+    ) as ICampaignWithCommand;
+    expect(before.personnelMarket).toEqual(campaign.personnelMarket);
+    const pilotId = `hired-${first.id}`;
+    const after = applyAuthoritativeStateToGuestCampaign(campaign, {
+      ...state,
+      pilots: { [pilotId]: { pilotId, name: first.name } },
+    }) as ICampaignWithCommand;
+    expect(after.personnelMarket).toEqual(campaign.personnelMarket?.slice(1));
+  });
   it('drops the recruits and contracts the ledger has consumed', () => {
     const [hired, open] = SAMPLE_CANDIDATES;
     const [accepted, kept] = SAMPLE_OFFERS;

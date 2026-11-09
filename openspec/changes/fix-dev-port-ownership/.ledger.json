@@ -1,0 +1,6 @@
+{
+  "name": "fix-dev-port-ownership",
+  "status": "in-progress",
+  "reason": "D-9: preserve other checkouts' dev servers when selecting a busy port",
+  "lastReviewed": "2026-11-08"
+}

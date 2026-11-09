@@ -74,6 +74,29 @@ describe('useVaultImport string import and reset', () => {
       expect(result.current.step).toBe('idle');
     });
 
+    it.each(['Validation failed', ''])(
+      'should return to idle after an unsuccessful string import with message %j',
+      async (message) => {
+        const failure = { success: false as const, error: { message } };
+        mockImportFromString.mockResolvedValue(failure);
+        const { result } = renderHook(() => useVaultImport());
+
+        const importResult = await act(async () => {
+          return await result.current.importString(
+            mockBundleContent,
+            createMockHandlers(),
+          );
+        });
+
+        expect(importResult).toBe(failure);
+        expect(result.current.result).toBe(failure);
+        expect(result.current.step).toBe('idle');
+        expect(result.current.error).toBe(message || 'Import failed');
+        expect(result.current.preview).toBeNull();
+        expect(result.current.importing).toBe(false);
+      },
+    );
+
     it('should handle conflicts in string import', async () => {
       const conflicts = [createMockConflict()];
       mockImportFromString.mockResolvedValue({
@@ -99,6 +122,49 @@ describe('useVaultImport string import and reset', () => {
   });
 
   describe('resolve conflicts', () => {
+    it('should return to preview when importing resolved conflicts fails', async () => {
+      const conflicts = [createMockConflict()];
+      mockImportFromString
+        .mockResolvedValueOnce({
+          success: true,
+          data: {
+            importedCount: 0,
+            skippedCount: 0,
+            replacedCount: 0,
+            conflicts,
+          },
+        })
+        .mockResolvedValueOnce({
+          success: false,
+          error: { message: 'Bundle signature verification failed' },
+        });
+      const { result } = renderHook(() => useVaultImport());
+      const handlers = createMockHandlers();
+
+      await act(async () => {
+        await result.current.selectFile(createMockFile('test.mekbundle'));
+      });
+      const preview = result.current.preview;
+
+      await act(async () => {
+        await result.current.importFile(handlers);
+      });
+      expect(result.current.step).toBe('conflicts');
+
+      const importResult = await act(async () => {
+        return await result.current.resolveConflicts(
+          [createMockConflict('replace')],
+          handlers,
+        );
+      });
+
+      expect(importResult.success).toBe(false);
+      expect(result.current.step).toBe('preview');
+      expect(result.current.preview).toBe(preview);
+      expect(result.current.error).toBe('Bundle signature verification failed');
+      expect(result.current.importing).toBe(false);
+    });
+
     it('should return error when no file content', async () => {
       const { result } = renderHook(() => useVaultImport());
       const handlers = createMockHandlers();
