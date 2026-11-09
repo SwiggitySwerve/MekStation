@@ -24,6 +24,20 @@ type IPhysicalAttackOption = H.IPhysicalAttackOption;
 type ITacticalCommandContext = H.ITacticalCommandContext;
 type IWeaponStatus = H.IWeaponStatus;
 describe('TacticalActionDock', () => {
+  it('Cancel dispatches local cancellation instead of undo', () => {
+    const onAction = jest.fn();
+    render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="combat"
+        onAction={onAction}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('command-btn-movement.cancel'));
+    expect(onAction).toHaveBeenCalledWith('cancel', {});
+    expect(onAction).not.toHaveBeenCalledWith('undo', expect.anything());
+  });
+
   it('opens an app dialog for End Phase without invoking native confirmation', () => {
     const onAction = jest.fn();
     const nativeConfirm = jest

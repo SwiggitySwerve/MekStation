@@ -19,6 +19,7 @@ import type { InteractiveSession } from '@/engine/GameEngine';
 import type {
   Facing,
   IAttackIntentState,
+  IGameplayUIState,
   IWeaponAssignment,
   WeaponFireMode,
 } from '@/types/gameplay';
@@ -201,19 +202,14 @@ export function selectVolleyGroups(state: IAttackIntentState): readonly {
 // Commit (compile-down to the preserved attackPlan contract — design D2)
 // ---------------------------------------------------------------------------
 
-/** Adopt a completed attack and release the tactical selection. */
-export function finishCommit(
-  interactiveSession: InteractiveSession,
-  set: (
-    update: (state: Pick<CombatFlowsSlice, 'ui'>) => Partial<CombatFlowsSlice>,
-  ) => void,
-): void {
-  const gameOver = interactiveSession.isGameOver();
-  set((state) => ({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
+/** Clear attack drafts and previews while retaining the current unit. */
+export function clearAttackComposerState(
+  ui: IGameplayUIState,
+): Pick<
+  CombatFlowsSlice,
+  'attackIntent' | 'attackPlan' | 'validTargetIds' | 'hitChance' | 'ui'
+> {
+  return {
     attackIntent: INITIAL_ATTACK_INTENT_STATE,
     attackPlan: {
       targetUnitId: null,
@@ -223,11 +219,27 @@ export function finishCommit(
     validTargetIds: [],
     hitChance: null,
     ui: {
-      ...state.ui,
-      selectedUnitId: null,
+      ...ui,
       targetUnitId: null,
       queuedWeaponIds: [],
     },
+  };
+}
+
+/** Adopt a completed attack and release the tactical selection. */
+export function finishCommit(
+  interactiveSession: InteractiveSession,
+  set: (
+    update: (state: Pick<CombatFlowsSlice, 'ui'>) => Partial<CombatFlowsSlice>,
+  ) => void,
+): void {
+  const gameOver = interactiveSession.isGameOver();
+  set((state) => ({
+    ...clearAttackComposerState({ ...state.ui, selectedUnitId: null }),
+    session: interactiveSession.getSession(),
+    interactivePhase: gameOver
+      ? InteractivePhase.GameOver
+      : InteractivePhase.SelectUnit,
   }));
 }
 

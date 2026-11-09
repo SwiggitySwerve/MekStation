@@ -15,6 +15,63 @@ import {
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
 
+import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
+
+import {
+  getSessionTerminalEvent,
+  type IPendingOutcomePublication,
+  type IOutcomePublicationRecord,
+  type IOutcomePublicationStorage,
+} from './combatOutcomeJournal';
+
+export type OutcomePublicationStorage = IOutcomePublicationStorage;
+
+export async function loadSessionOutcomePublication(
+  session: IGameSession,
+  storage: OutcomePublicationStorage = matchLogStorage,
+): Promise<IOutcomePublicationRecord | undefined> {
+  const terminal = getSessionTerminalEvent(session);
+  if (!terminal) return undefined;
+  if (
+    storage === matchLogStorage &&
+    (typeof window === 'undefined' ||
+      typeof globalThis.indexedDB === 'undefined')
+  )
+    return undefined;
+  return storage.getOutcomePublication(
+    session.matchId ?? session.id,
+    terminal.id,
+  );
+}
+
+export function persistInteractiveOutcomeAcknowledgement(
+  context: IInteractiveSessionRuntimeContext,
+  pending: IPendingOutcomePublication,
+): void {
+  const storage = context.getOutcomePublicationStorage();
+  if (
+    storage === matchLogStorage &&
+    (typeof window === 'undefined' ||
+      typeof globalThis.indexedDB === 'undefined')
+  )
+    return;
+  if (!storage.acknowledgeOutcomePublication) {
+    context.outcomeJournal.retry(pending);
+    reportMatchLogDivergence(
+      new Error(
+        'Recovered match storage cannot acknowledge outcome publication',
+      ),
+    );
+    return;
+  }
+  void storage
+    .acknowledgeOutcomePublication(pending.matchId, pending.terminalEventId)
+    .catch((error: unknown) => {
+      context.outcomeJournal.retry(pending);
+      reportMatchLogDivergence(error);
+    });
+}
+
 export const MATCH_LOG_DIVERGENCE_MESSAGE =
   'Match log save failed — local state may diverge';
 export const INTERACTIVE_SESSION_NOT_FOUND_MESSAGE =
@@ -56,7 +113,14 @@ export type MatchLogHydrationStorage = Pick<
   MatchLogStorage,
   'getEventsForMatch'
 > &
-  Partial<Pick<MatchLogStorage, 'getLastSequence'>>;
+  Partial<
+    Pick<
+      MatchLogStorage,
+      | 'getLastSequence'
+      | 'getOutcomePublication'
+      | 'acknowledgeOutcomePublication'
+    >
+  >;
 
 type InteractiveLaunchRecoveryStorage = Pick<
   MatchLogStorage,
