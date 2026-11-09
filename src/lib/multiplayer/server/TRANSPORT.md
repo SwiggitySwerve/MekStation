@@ -124,7 +124,8 @@ state is never persisted. A failure after the host has claimed the branch,
 such as a failed replay to attached sockets, is not pending: the rebuilt
 session is authoritative, and folding it again would drop newer events. The
 rebuild holds only a correction lease it acquired itself and never releases a
-lease another owner holds.
+lease another owner holds. A private reason that cannot be stored after the commit is logged:
+the route still answers 200 committed, with no extra field.
 
 ## y-webrtc / peer-to-peer is a non-authoritative fallback
 

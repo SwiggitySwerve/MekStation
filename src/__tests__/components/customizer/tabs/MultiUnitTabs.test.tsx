@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,6 +15,7 @@ import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import { useUnitValidation } from '@/hooks/useUnitValidation';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import {
   UnitLoaderService,
   parseUnit,
@@ -37,6 +38,10 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 // Mock dependencies
+jest.mock('@/services/units/CustomUnitApiService', () => ({
+  customUnitApiService: { create: jest.fn(), save: jest.fn() },
+}));
+
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
@@ -109,12 +114,14 @@ jest.mock('@/components/customizer/dialogs/SaveUnitDialog', () => ({
     initialVariant,
     currentUnitId,
     constructionValidation,
+    isSaving,
     onSave,
   }: {
     isOpen: boolean;
     initialChassis: string;
     initialVariant: string;
     currentUnitId?: string;
+    isSaving?: boolean;
     constructionValidation: {
       isValid: boolean;
       isLoading: boolean;
@@ -133,7 +140,7 @@ jest.mock('@/components/customizer/dialogs/SaveUnitDialog', () => ({
         data-chassis={initialChassis}
         data-variant={initialVariant}
         data-unit-id={currentUnitId}
-        disabled={!canSave}
+        disabled={!canSave || isSaving}
         onClick={() => onSave('Test', 'TST-1')}
       >
         Save
@@ -444,6 +451,39 @@ describe('MultiUnitTabs', () => {
   });
 
   describe('Library save action', () => {
+    it('forwards the pending save state through the controller to the targeted dialog', async () => {
+      const store = createNewUnitStore({
+        id: 'tab-1',
+        name: 'Atlas AS7-D',
+        tonnage: 100,
+        techBase: TechBase.INNER_SPHERE,
+      });
+      store.setState({ chassis: 'Atlas', model: 'AS7-D' });
+      mockGetUnitStore.mockReturnValue(store);
+      let finish!: (value: { success: false; error: string }) => void;
+      jest.mocked(customUnitApiService.create).mockReturnValue(
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+      );
+      renderWithToast(
+        <MultiUnitTabs>
+          <div>Content</div>
+        </MultiUnitTabs>,
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Save active unit to library' }),
+      );
+      const confirm = screen.getByTestId('save-unit-dialog');
+      fireEvent.click(confirm);
+      expect(customUnitApiService.create).toHaveBeenCalledTimes(1);
+      expect(confirm).toBeDisabled();
+      await act(async () => {
+        finish({ success: false, error: 'offline' });
+      });
+      expect(confirm).toBeEnabled();
+    });
+
     it('opens the active BattleMech save dialog with its current identity', () => {
       const activeStore = createNewUnitStore({
         id: 'tab-1',
