@@ -8,6 +8,8 @@ import {
   INTRO_YEAR_MARGIN,
 } from '@/utils/construction/equipmentIntroduction';
 
+import { resolveVehicleClanArmor } from './armor';
+
 /** TestEntity.java:1487-1512,1611-1618; both vehicle verifiers call this loop. */
 export function vehicleEquipmentIntroYearErrors(source: {
   readonly metadata: { readonly year: number };
@@ -35,8 +37,6 @@ export function vehicleEquipmentIntroYearErrors(source: {
  * armor loop (:1512-1552) and the engine part (:1594-1607). Patchwork armor
  * (code 7) is not: no pinned vehicle needs it.
  */
-/** TechConstants.isClan:394-398 (T_CLAN_TW, ADVANCED, EXPERIMENTAL, UNOFFICIAL, ALL_CLAN). */
-const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
 const PATCHWORK = 7;
 
 export interface VehicleIntroYearSource {
@@ -52,10 +52,7 @@ export function vehicleArmorIntroYearErrors(
   source: VehicleIntroYearSource,
 ): string[] {
   if (source.armorCode === PATCHWORK) return [];
-  const clanArmor =
-    source.armorTechLevel === undefined
-      ? source.clan
-      : CLAN_TECH_LEVELS.has(source.armorTechLevel);
+  const clanArmor = resolveVehicleClanArmor(source.armorTechLevel, source.clan);
   const intro = javaArmorIntroduction(
     source.armorCode,
     clanArmor,

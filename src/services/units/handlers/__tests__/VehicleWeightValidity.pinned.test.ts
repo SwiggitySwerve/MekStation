@@ -292,14 +292,14 @@ it.each([
   { chassis: 'Mixed (IS Chassis)', level: undefined, armor: 8.5 },
   { chassis: 'Mixed (Clan Chassis)', level: undefined, armor: 7.5 },
   { chassis: 'Mixed (IS Chassis)', level: -1, armor: 8.5 },
-  { chassis: 'Mixed (Clan Chassis)', level: -1, armor: 7.5 },
+  { chassis: 'Mixed (Clan Chassis)', level: -1, armor: 8.5 },
   { chassis: 'Mixed (IS Chassis)', level: 2, armor: 7.5 },
   { chassis: 'Mixed (IS Chassis)', level: 6, armor: 7.5 },
   { chassis: 'Mixed (IS Chassis)', level: 8, armor: 7.5 },
   { chassis: 'Mixed (IS Chassis)', level: 10, armor: 7.5 },
-  // Entity.isClanArmor uses four concrete levels, unlike TechConstants.isClan.
+  // Pinned ArmorType.forEntity uses TechConstants.isClan, not Entity.isClanArmor.
   { chassis: 'Mixed (Clan Chassis)', level: 4, armor: 8.5 },
-  { chassis: 'Mixed (Clan Chassis)', level: 12, armor: 8.5 },
+  { chassis: 'Mixed (Clan Chassis)', level: 12, armor: 7.5 },
 ])(
   'selects armor side from $level on $chassis',
   ({ chassis, level, armor }) => {
