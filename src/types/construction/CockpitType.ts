@@ -122,6 +122,7 @@ function nativeCockpit(
   weight: number,
   introductionYear: number,
   techBase = TechBase.INNER_SPHERE,
+  clanIntroductionYear?: number,
 ): CockpitDefinition {
   const systems = getCockpitSystemSlots(type);
   return {
@@ -129,6 +130,7 @@ function nativeCockpit(
     sourceTag,
     weight,
     introductionYear,
+    ...(clanIntroductionYear === undefined ? {} : { clanIntroductionYear }),
     techBase,
     name: cockpitName(type),
     // Native Dual is unofficial; the app maps that level to Experimental.
@@ -279,6 +281,8 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     'SMALL_COMMAND_CONSOLE',
     5,
     3055,
+    TechBase.INNER_SPHERE,
+    3080,
   ),
   nativeCockpit(CockpitType.TRIPOD_INDUSTRIAL, 'TRIPOD_INDUSTRIAL', 4, 3125),
   nativeCockpit(
