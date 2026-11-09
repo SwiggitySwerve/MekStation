@@ -2,7 +2,7 @@
 
 Construction and equipment owners decide numerical values. The customizer builders project their results into RecordSheetService; preview and export must use the same builder.
 
-Explicit Mech crew rosters reuse the native MechCrewType owner and existing pilot schema. Extraction rejects incomplete, reordered or mislabelled slots; an absent pilot stays unassigned. No crew type or person is inferred. Existing specialAbilities stays crew-global; multi-slot rendering and authoring remain separate required work.
+Explicit Mech crew rosters reuse the native MechCrewType owner and existing pilot schema. Extraction rejects incomplete, reordered or mislabelled slots; an absent pilot stays unassigned. No person is inferred, and no crew type is inferred for a Tripod, Quad or Biped. A QuadVee is the one exception: QuadVee.java:164-166 (MM 48fcb2f64) always gives it the QUADVEE crew and MML 62bf193 PrintMek.java:112-131,343-348 always prints it on mek_quadvee with the dual-seat panel, so a QuadVee without an explicit roster extracts the blank two-seat QUADVEE roster (`blankMechCrew`) and the `quadvee` mech type (`getMechType` tests QuadVee before Quad). The `quadvee` type uses the quad armor and structure pip groups, which the QuadVee template carries. Existing specialAbilities stays crew-global; multi-slot rendering and authoring remain separate required work.
 
 - ProtoMech extraction forwards the supplied pilot-SPA block built by spaSection, including designated headlines, to the existing fallback SVG renderer; canonical template/PDF SPA rendering is a separate concern.
 

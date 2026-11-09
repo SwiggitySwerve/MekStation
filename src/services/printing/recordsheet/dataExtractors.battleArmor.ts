@@ -34,6 +34,7 @@ export interface IBattleArmorUnitConfig extends IBaseRecordSheetUnitConfig {
   jumpMP?: number;
   umuMP?: number;
   vtolMP?: number;
+  movementMode?: IBattleArmorRecordSheetData['movementMode'];
 }
 
 /**
@@ -77,6 +78,7 @@ export function extractBattleArmorData(
     jumpMP: unit.jumpMP ?? 0,
     umuMP: unit.umuMP ?? 0,
     vtolMP: unit.vtolMP ?? 0,
+    movementMode: unit.movementMode,
     specialAbilities,
   };
 }
