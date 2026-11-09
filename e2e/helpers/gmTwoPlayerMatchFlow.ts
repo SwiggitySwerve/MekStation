@@ -20,22 +20,27 @@ import {
   type APIRequestContext,
   type Browser,
   type Page,
-  type Response,
 } from '@playwright/test';
+
+import {
+  captureAuthToken,
+  captureMatchCreation,
+  type IMatchHandle,
+  type IMatchToken,
+} from './gmTwoPlayerMatchFlow.responses';
+
+export {
+  captureAuthToken,
+  captureMatchCreation,
+  type IMatchHandle,
+  type IMatchToken,
+} from './gmTwoPlayerMatchFlow.responses';
 
 export const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 
 export interface IMatchIdentity {
   readonly id: string;
   readonly displayName: string;
-}
-export interface IMatchToken {
-  readonly token: string;
-  readonly playerId: string;
-}
-export interface IMatchHandle {
-  readonly matchId: string;
-  readonly roomCode: string;
 }
 
 /** The per-run Playwright token, or a loud failure naming the gap. */
@@ -81,21 +86,15 @@ export async function openContextPage(browser: Browser): Promise<Page> {
 export async function connectLobby(
   page: Page,
   password: string,
-): Promise<void> {
+): Promise<IMatchToken> {
   await expect(page.getByRole('heading', { name: 'Unlock vault' })).toBeVisible(
     { timeout: 20_000 },
   );
   await page.getByPlaceholder('Vault password').fill(password);
-  await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/multiplayer/auth/token') &&
-        response.request().method() === 'POST' &&
-        response.status() === 200,
-      { timeout: 30_000 },
-    ),
+  const { token } = await captureAuthToken(page, () =>
     page.getByRole('button', { name: 'Connect to lobby' }).click(),
-  ]);
+  );
+  return token;
 }
 
 /** Ready one slot and wait for the row to reflect it. */
@@ -155,25 +154,6 @@ export async function advanceToMovement(
   await expect(guest.getByTestId('phase-name')).toContainText(/Movement/i);
 }
 
-export async function readToken(
-  response: Promise<Response>,
-): Promise<IMatchToken> {
-  return (await (await response).json()) as IMatchToken;
-}
-
-export async function readMatch(
-  response: Promise<Response>,
-): Promise<IMatchHandle> {
-  const body = (await (await response).json()) as {
-    readonly matchId: string;
-    readonly roomCode?: string;
-    readonly meta: { readonly roomCode?: string };
-  };
-  const roomCode = body.roomCode ?? body.meta.roomCode;
-  if (!roomCode) throw new Error('Match response lacked a room code');
-  return { matchId: body.matchId, roomCode };
-}
-
 /**
  * Drive a real 1v1 to the Movement phase and return the handles.
  *
@@ -198,6 +178,7 @@ export async function launchOneVersusOne(input: {
 }): Promise<{
   readonly match: IMatchHandle;
   readonly hostToken: IMatchToken;
+  readonly guestToken: IMatchToken;
   readonly identityIds: readonly string[];
 }> {
   const { request, hostPage, guestPage } = input;
@@ -210,28 +191,12 @@ export async function launchOneVersusOne(input: {
   await hostPage.getByLabel('Display name').fill(input.hostName);
   await hostPage.getByLabel('Map radius').fill('4');
   await hostPage.getByLabel('Turn limit').fill(input.turnLimit ?? '5');
-  const created = hostPage.waitForResponse(
-    (response) =>
-      response.url().endsWith('/api/multiplayer/matches') &&
-      response.request().method() === 'POST' &&
-      response.status() === 201,
-    { timeout: 30_000 },
-  );
-  const tokenResponse = hostPage.waitForResponse(
-    (response) =>
-      response.url().includes('/api/multiplayer/auth/token') &&
-      response.request().method() === 'POST' &&
-      response.status() === 200,
-    { timeout: 30_000 },
-  );
-  await Promise.all([
-    hostPage.waitForURL(/\/multiplayer\/lobby\/[A-Z0-9]+$/, {
-      timeout: 30_000,
-    }),
+  const { hostToken, match } = await captureMatchCreation(hostPage, () =>
     hostPage.getByRole('button', { name: 'Create match' }).click(),
-  ]);
-  const hostToken = await readToken(tokenResponse);
-  const match = await readMatch(created);
+  );
+  await hostPage.waitForURL(/\/multiplayer\/lobby\/[A-Z0-9]+$/, {
+    timeout: 30_000,
+  });
   await connectLobby(hostPage, input.hostPassword);
 
   const guest = await seedIdentity(
@@ -249,7 +214,7 @@ export async function launchOneVersusOne(input: {
     }),
     guestPage.getByRole('button', { name: 'Join match' }).click(),
   ]);
-  await connectLobby(guestPage, input.guestPassword);
+  const guestToken = await connectLobby(guestPage, input.guestPassword);
   await markReady(hostPage, 'alpha-1');
   await markReady(guestPage, 'bravo-1');
   await hostPage.getByRole('button', { name: 'Launch match' }).click();
@@ -261,7 +226,7 @@ export async function launchOneVersusOne(input: {
   });
   await advanceToMovement(hostPage, guestPage);
 
-  return { match, hostToken, identityIds };
+  return { match, hostToken, guestToken, identityIds };
 }
 
 /**
