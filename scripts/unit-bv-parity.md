@@ -478,3 +478,44 @@ The report carries `byFamily` (row verdict counts), `byQuantity` (family, then
 quantity, with exact/within1Pct/different/missing counts and the maximum
 absolute and relative difference), `settings` (`cells`, `counts`,
 `inapplicableCandidates`, `perRow`) and `drift`.
+
+## Accepted D3 settings exclusions (2026-11-09)
+
+PARITY-PLAN §17 accepts exactly the 157 `(family, verifierClass, key)` cells
+recorded in `scripts/unit-construction-settings-acceptance.json`: 146 unused or
+report-only cells and 11 suppressed by pinned options. The JSON preserves the
+verbatim ruling, source-report digest, reference digest and sidecar digest.
+It is separate from `config/reference-policy/`; that policy is unchanged.
+
+The acceptance applies only to MegaMek
+`48fcb2f64a1b3f2d575707ce5653dad64927b587` and verifier configuration
+`6da4950889506c309776d933b4af757e582f97a6accd5f2095596d2f3cf76533`.
+Both identities come from `runtime` in the reference's adjacent
+`reference-full.jsonl.provenance.json`. The trusted-reference reader supplies
+them only after validating the sidecar against the actual reference bytes and
+the independent policy; its existing array-return callers remain supported.
+A missing, mismatched or untrusted identity authorizes no exclusions.
+
+To reproduce or check the reviewed data, supply the original W3 proof report,
+the reference sidecar and PARITY-PLAN:
+
+```text
+node scripts/derive-construction-settings-acceptance.mjs --report <parity-W3/proof-rev/head/construction-quantity-report.json> --sidecar <reference-full.jsonl.provenance.json> --plan <PARITY-PLAN.md> --check
+```
+
+The derivation requires exactly 157 distinct triples. Check mode compares the
+entire regenerated document with the committed JSON and fails on any change.
+Omit `--check` only when deliberately preparing reviewed acceptance data.
+
+Listed cells that remain inapplicable under the current consumer classification
+receive terminal status `accepted-inapplicable`, with a separate count. They
+produce no `settings-inapplicable-candidate` error and never count as matched.
+If a listed cell becomes consumed (including an enabled formerly suppressed
+gate), `accepted-inapplicable-consumer-drift` fails the report even if its local
+value matches. An unlisted triple remains outside the acceptance.
+
+The census settings counts become 24 matched / 4 different / 68 missing-local /
+0 inapplicable-candidate / 157 accepted-inapplicable. The four differences,
+68 missing-local settings, per-row settings and all missing quantities remain
+findings. This acceptance does not close row 3.4 or change BV, validity, weight,
+source loading, catalog data or persistence.
