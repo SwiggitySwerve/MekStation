@@ -93,7 +93,7 @@ export function captureMechValidity(
       infos: result.results.flatMap((rule) => messages(rule.infos)),
     };
   } catch (error) {
-    throw new Error(`${stage}: ${label}: ${String(error)}`);
+    throw new Error(`${stage}: ${String(error)} (${label})`);
   }
 }
 
