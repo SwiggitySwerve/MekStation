@@ -66,7 +66,12 @@
       shifted dice stream makes the CI smoke batch (N=5) sweep 5 to 0, and a
       ceiling at N=5 cannot be meaningful for an asymmetric batch. The nightly
       full-size proof still enforces it.
+- [x] Characterize a replay-corpus game that ends before the End phase in the
+      D-8 `replayScope` helper (Root-approved file exception); prove it alone
+      leaves every pin unchanged on a fresh origin/main.
 - [x] Prove no committed replay, digest or golden moved, or list the movement:
-      none moved (916/916 suites, 14,352 tests before and after); the runner's
-      seeded stream shifts (flanking events 46 to 0, total events 2042 to 2001
-      over 14 Atlas-mirror seeds).
+      the runner's seeded stream shifts (flanking events 46 to 0, total events
+      2042 to 2001 over 14 Atlas-mirror seeds). The only committed values that
+      move are D-8's `replayScope` characterization pins (seed 4 now ends in
+      turn 6; `firedWeapons` 15 to 17, `phaseDamage` 10 to 7), re-pinned and
+      listed in the PR; no digest, golden or other fixture moves.
