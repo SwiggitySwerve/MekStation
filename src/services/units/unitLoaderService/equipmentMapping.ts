@@ -45,6 +45,7 @@ export function mapEquipment(
   unitTechBaseMode: TechBaseMode,
   unitCriticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
+  isOmni = false,
 ): IMountedEquipmentInstance[] {
   const serialized = equipment ?? [];
 
@@ -111,5 +112,6 @@ export function mapEquipment(
     unitCriticalSlots,
     tonnage,
     serialized.length === 0,
+    isOmni,
   );
 }

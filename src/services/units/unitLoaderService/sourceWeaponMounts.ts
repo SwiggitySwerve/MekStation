@@ -75,6 +75,14 @@ const nativeOrder = [
   MechLocation.HEAD,
 ];
 
+/** MtfFile.java:545-548 visits native locations in reverse order. */
+export function compareSourceCriticalLocations(
+  a: MechLocation,
+  b: MechLocation,
+): number {
+  return nativeOrder.indexOf(a) - nativeOrder.indexOf(b);
+}
+
 export interface ISourceCriticalWeapon extends Pick<
   IMountedEquipmentInstance,
   | 'equipmentId'
@@ -133,10 +141,7 @@ export function sourceCriticalWeapons(
       const location = mapMechLocation(key);
       return location ? [{ location, tokens }] : [];
     })
-    .sort(
-      (a, b) =>
-        nativeOrder.indexOf(a.location) - nativeOrder.indexOf(b.location),
-    );
+    .sort((a, b) => compareSourceCriticalLocations(a.location, b.location));
   const resolved = locations.map(({ location, tokens }) => ({
     location,
     slots: tokens.flatMap((token, index) => {

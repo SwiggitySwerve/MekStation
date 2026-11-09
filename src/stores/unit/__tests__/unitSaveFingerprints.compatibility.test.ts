@@ -298,3 +298,29 @@ it('fingerprints a secondary split-slot edit without changing the primary mount'
     getUnitLibraryFingerprint(split),
   );
 });
+
+it('fingerprints explicit pod edits without replacing the old U3 literals', () => {
+  const sample = fixture.cases.find(
+    (item) => JSON.parse(item.rawDraft).state.equipment.length > 0,
+  );
+  if (!sample) throw Error('Missing literal U3 equipment draft');
+  const original = (JSON.parse(sample.rawDraft) as { state: UnitState }).state;
+  expect(getUnitDraftFingerprint(original)).toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(original)).toBe(sample.libraryFingerprint);
+  const pod = {
+    ...original,
+    equipment: original.equipment.map((item, index) =>
+      index === 0 ? { ...item, isOmniPodMounted: true } : item,
+    ),
+  };
+  expect(getUnitDraftFingerprint(pod)).not.toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(pod)).not.toBe(sample.libraryFingerprint);
+  const restored = {
+    ...pod,
+    equipment: pod.equipment.map((item, index) =>
+      index === 0 ? original.equipment[0] : item,
+    ),
+  };
+  expect(getUnitDraftFingerprint(restored)).toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(restored)).toBe(sample.libraryFingerprint);
+});
