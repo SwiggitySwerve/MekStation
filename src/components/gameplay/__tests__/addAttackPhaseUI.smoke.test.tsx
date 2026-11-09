@@ -241,6 +241,8 @@ describe('add-attack-phase-ui § 11.4 — commit flow wires to engine applyAttac
 
   it('commitAttack forwards attacker / target / weapon ids to the session', () => {
     const { session, calls } = buildFakeSession();
+    // Establish the unit context before composing its attack.
+    useGameplayStore.getState().selectUnit('attacker');
     useGameplayStore.setState({
       interactiveSession: session as never,
       attackPlan: {
