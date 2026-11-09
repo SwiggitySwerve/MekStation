@@ -29,6 +29,7 @@ import { toast } from '@/components/shared/Toast';
 import { useAnimationQueue } from '@/stores/useAnimationQueue';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { usePhysicalAttackPlanStore } from '@/stores/useGameplayStore.combatFlows';
+import { InteractivePhase } from '@/stores/useGameplayStore.helpers';
 import {
   Facing,
   GameEventType,
@@ -160,6 +161,214 @@ function buildFakeSession(phase: GamePhase = GamePhase.Movement): {
     calls,
   };
 }
+
+describe('tactical turn cleanup', () => {
+  beforeEach(() => {
+    useGameplayStore.getState().reset();
+    useAnimationQueue.getState().reset();
+  });
+
+  afterEach(() => {
+    useAnimationQueue.getState().reset();
+    useGameplayStore.getState().reset();
+  });
+
+  const attackActions = [
+    'commitAttack',
+    'commitComposedVolley',
+    'fireWeapons',
+    'holdFire',
+  ] as const;
+
+  function prepareAttack(phase = GamePhase.WeaponAttack, gameOver = false) {
+    const { session } = buildFakeSession(phase);
+    session.applyAttack = jest.fn();
+    session.applyVolley = jest.fn();
+    session.torsoTwist = jest.fn();
+    session.isGameOver = () => gameOver;
+    useGameplayStore.setState({
+      session: session.getSession(),
+      interactiveSession: session,
+      interactivePhase: InteractivePhase.SelectWeapons,
+      attackPlan: {
+        targetUnitId: 'enemy-1',
+        selectedWeapons: ['laser'],
+        weaponModeError: 'stale error',
+      },
+      attackIntent: {
+        focusedTargetId: 'enemy-1',
+        assignments: [{ targetId: 'enemy-1', weaponId: 'laser' }],
+        composedTwist: Facing.South,
+      },
+      validTargetIds: ['enemy-1'],
+      hitChance: 80,
+      ui: {
+        ...useGameplayStore.getState().ui,
+        selectedUnitId: 'attacker',
+        targetUnitId: 'enemy-1',
+        queuedWeaponIds: ['laser'],
+        errorMessage: 'unrelated message',
+      },
+    });
+    return session;
+  }
+
+  it.each(attackActions)(
+    '%s preserves its declaration and clears selection on success',
+    (action) => {
+      const session = prepareAttack();
+
+      useGameplayStore.getState()[action]();
+
+      if (action === 'commitAttack') {
+        expect(session.applyAttack).toHaveBeenCalledWith(
+          'attacker',
+          'enemy-1',
+          ['laser'],
+          {},
+        );
+      } else if (action === 'fireWeapons') {
+        expect(session.applyAttack).toHaveBeenCalledWith(
+          'attacker',
+          'enemy-1',
+          ['laser'],
+        );
+      } else {
+        expect(session.applyVolley).toHaveBeenCalledWith(
+          'attacker',
+          action === 'holdFire'
+            ? []
+            : [
+                {
+                  targetId: 'enemy-1',
+                  weaponIds: ['laser'],
+                  modesByWeaponId: {},
+                },
+              ],
+        );
+        expect(session.torsoTwist).toHaveBeenCalledTimes(
+          action === 'holdFire' ? 0 : 1,
+        );
+      }
+      expect(useGameplayStore.getState()).toMatchObject({
+        session: session.getSession(),
+        interactivePhase: InteractivePhase.SelectUnit,
+        ui: {
+          selectedUnitId: null,
+          targetUnitId: null,
+          queuedWeaponIds: [],
+          errorMessage: 'unrelated message',
+        },
+      });
+    },
+  );
+
+  it.each(attackActions)(
+    '%s clears both attack plans and targeting previews',
+    (action) => {
+      prepareAttack();
+
+      useGameplayStore.getState()[action]();
+
+      expect(useGameplayStore.getState()).toMatchObject({
+        attackPlan: {
+          targetUnitId: null,
+          selectedWeapons: [],
+          weaponModeError: null,
+        },
+        attackIntent: {
+          focusedTargetId: null,
+          assignments: [],
+          composedTwist: null,
+        },
+        validTargetIds: [],
+        hitChance: null,
+      });
+    },
+  );
+
+  it.each(attackActions)('%s adopts a terminal session', (action) => {
+    prepareAttack(GamePhase.WeaponAttack, true);
+    useGameplayStore.getState()[action]();
+    expect(useGameplayStore.getState().interactivePhase).toBe(
+      InteractivePhase.GameOver,
+    );
+  });
+
+  it.each(attackActions)(
+    '%s preserves the draft outside the attack phase',
+    (action) => {
+      const session = prepareAttack(GamePhase.Movement);
+      const before = useGameplayStore.getState();
+      useGameplayStore.getState()[action]();
+      expect(useGameplayStore.getState()).toBe(before);
+      expect(session.applyAttack).not.toHaveBeenCalled();
+      expect(session.applyVolley).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(attackActions)(
+    '%s preserves the draft when no attacker is selected',
+    (action) => {
+      const session = prepareAttack();
+      useGameplayStore.setState((state) => ({
+        ui: { ...state.ui, selectedUnitId: null },
+      }));
+      const before = useGameplayStore.getState();
+
+      useGameplayStore.getState()[action]();
+
+      expect(useGameplayStore.getState()).toBe(before);
+      expect(session.applyAttack).not.toHaveBeenCalled();
+      expect(session.applyVolley).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(attackActions)(
+    '%s preserves the draft when declaration throws',
+    (action) => {
+      const session = prepareAttack();
+      const failure = new Error('declaration failed');
+      const fail = () => {
+        throw failure;
+      };
+      session.applyAttack = fail;
+      session.applyVolley = fail;
+      const before = useGameplayStore.getState();
+      expect(() => useGameplayStore.getState()[action]()).toThrow(failure);
+      expect(useGameplayStore.getState()).toBe(before);
+    },
+  );
+
+  it.each(['advanceInteractivePhase', 'skipPhase'] as const)(
+    '%s can wait again after the previous queue was reset',
+    (action) => {
+      const { session, calls } = buildMovementAnimationSession();
+      useGameplayStore.setState({
+        session: session.getSession(),
+        interactiveSession: session,
+      });
+      useAnimationQueue.getState().enqueue({ id: 'old', mapId: 'old-map' });
+      useGameplayStore.getState()[action]();
+      useGameplayStore.getState()[action]();
+      expect(calls.advancePhase).toBe(0);
+
+      useAnimationQueue.getState().reset();
+      expect(calls.advancePhase).toBe(0);
+      useAnimationQueue.getState().complete('old');
+      expect(calls.advancePhase).toBe(0);
+
+      useAnimationQueue.getState().enqueue({ id: 'new', mapId: 'new-map' });
+      useGameplayStore.getState()[action]();
+      useGameplayStore.getState()[action]();
+      expect(calls.advancePhase).toBe(0);
+      useAnimationQueue.getState().complete('new');
+      expect(calls.advancePhase).toBe(1);
+      useAnimationQueue.getState().reset();
+      expect(calls.advancePhase).toBe(1);
+    },
+  );
+});
 
 describe('useGameplayStore — combat-phase planning actions', () => {
   beforeEach(() => {

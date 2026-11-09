@@ -17,7 +17,6 @@ import {
   QuickGameStep,
   QUICK_GAME_FORCE_READINESS_ERROR,
   createQuickGameUnit,
-  createQuickGameInstance,
   hasReadyQuickGameForces,
 } from '@/types/quickgame';
 import {
@@ -227,7 +226,6 @@ export function createBattleActions(
   startBattle: () => Promise<void>;
   startSpectatorMode: () => Promise<void>;
   startInteractiveSkirmish: () => Promise<void>;
-  playAgain: (resetUnits: boolean) => void;
 } {
   return {
     startBattle: async (): Promise<void> => {
@@ -383,33 +381,6 @@ export function createBattleActions(
           isLoading: false,
         });
       }
-    },
-
-    playAgain: (resetUnits: boolean): void => {
-      const { game } = get();
-      if (!game) return;
-
-      const newGame = createQuickGameInstance();
-
-      if (!resetUnits) {
-        const resetPlayerUnits = game.playerForce.units.map((unit) => ({
-          ...unit,
-          instanceId: `unit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-          heat: 0,
-          isDestroyed: false,
-          isWithdrawn: false,
-          armor: { ...unit.maxArmor },
-          structure: { ...unit.maxStructure },
-        }));
-
-        newGame.playerForce = {
-          ...game.playerForce,
-          units: resetPlayerUnits,
-        };
-        newGame.scenarioConfig = { ...game.scenarioConfig };
-      }
-
-      set({ game: newGame, isDirty: true, error: null });
     },
   };
 }

@@ -74,48 +74,46 @@ export function runAITurnLogic(
 
   set({ interactivePhase: InteractivePhase.AITurn });
 
-  if (unitId) {
-    interactiveSession.runAITurn(GameSide.Opponent, unitId);
+  try {
+    if (unitId) {
+      interactiveSession.runAITurn(GameSide.Opponent, unitId);
+      return;
+    }
+
+    const state = interactiveSession.getState();
+
+    if (state.phase === GamePhase.Movement) {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.advancePhase();
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.WeaponAttack) {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.advancePhase();
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.PhysicalAttack) {
+      interactiveSession.runAITurn(GameSide.Opponent);
+      interactiveSession.advancePhase();
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.Heat) {
+      interactiveSession.advancePhase();
+    }
+
+    if (interactiveSession.getState().phase === GamePhase.End) {
+      interactiveSession.advancePhase();
+    }
+  } finally {
+    const gameOver = interactiveSession.isGameOver();
+
     set({
       session: interactiveSession.getSession(),
-      interactivePhase: InteractivePhase.SelectUnit,
+      interactivePhase: gameOver
+        ? InteractivePhase.GameOver
+        : InteractivePhase.SelectUnit,
     });
-    return;
   }
-
-  const state = interactiveSession.getState();
-
-  if (state.phase === GamePhase.Movement) {
-    interactiveSession.runAITurn(GameSide.Opponent);
-    interactiveSession.advancePhase();
-  }
-
-  if (interactiveSession.getState().phase === GamePhase.WeaponAttack) {
-    interactiveSession.runAITurn(GameSide.Opponent);
-    interactiveSession.advancePhase();
-  }
-
-  if (interactiveSession.getState().phase === GamePhase.PhysicalAttack) {
-    interactiveSession.runAITurn(GameSide.Opponent);
-    interactiveSession.advancePhase();
-  }
-
-  if (interactiveSession.getState().phase === GamePhase.Heat) {
-    interactiveSession.advancePhase();
-  }
-
-  if (interactiveSession.getState().phase === GamePhase.End) {
-    interactiveSession.advancePhase();
-  }
-
-  const gameOver = interactiveSession.isGameOver();
-
-  set({
-    session: interactiveSession.getSession(),
-    interactivePhase: gameOver
-      ? InteractivePhase.GameOver
-      : InteractivePhase.SelectUnit,
-  });
 }
 
 export function advanceInteractivePhaseLogic(
@@ -393,12 +391,19 @@ function waitForAnimationQueueDrain(callback: () => void): void {
   if (pendingPhaseAdvance) return;
   pendingPhaseAdvance = true;
 
-  let unsubscribe: (() => void) | null = null;
-  unsubscribe = useAnimationQueue.getState().onComplete(() => {
+  let unsubscribeComplete: (() => void) | null = null;
+  let unsubscribeReset: (() => void) | null = null;
+  const releaseWait = () => {
+    pendingPhaseAdvance = false;
+    unsubscribeComplete?.();
+    unsubscribeReset?.();
+  };
+
+  unsubscribeReset = useAnimationQueue.getState().onReset(releaseWait);
+  unsubscribeComplete = useAnimationQueue.getState().onComplete(() => {
     if (useAnimationQueue.getState().isActive) return;
 
-    pendingPhaseAdvance = false;
-    unsubscribe?.();
+    releaseWait();
     callback();
   });
 }
