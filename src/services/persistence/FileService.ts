@@ -65,11 +65,19 @@ export class FileService implements IFileService {
   };
 
   /**
-   * Import a unit from a JSON file
+   * Prepare a file for the import API. Native rules are parsed on the server.
    */
   importUnit = async (file: File): Promise<IImportResult> => {
     try {
       const text = await this.readFileAsText(file);
+      const sourceFormat = file.name.toLowerCase().match(/\.(mtf|blk)$/)?.[1];
+      if (sourceFormat) {
+        return {
+          success: true,
+          filename: file.name,
+          unit: { sourceFormat, sourceText: text },
+        };
+      }
       const parsed = this.parseJSON(text, file.name);
 
       if (!parsed.success) {
@@ -80,7 +88,15 @@ export class FileService implements IFileService {
         };
       }
 
-      const validation = this.validateUnitStructure(parsed.data);
+      const data = parsed.data;
+      const validation = this.validateUnitStructure(
+        typeof data === 'object' &&
+          data !== null &&
+          'formatVersion' in data &&
+          'unit' in data
+          ? data.unit
+          : data,
+      );
       if (!validation.isValid) {
         return {
           success: false,
