@@ -49,3 +49,23 @@ registry/reset seams, and fingerprint bytes remain unchanged. Non-mech factory
 integration, family-aware UI consumers, and async save-completion changes are
 separate PRs. The initial owner does not claim that every existing writer has
 already been routed through it.
+
+PR2 adds `unitSaveStateAdapters.ts` for the six editable store families. Mech
+fingerprints still delegate to the original facade. Non-mech draft fingerprints
+reuse the existing field projections in `unitDraftPersistence.ts`, excluding
+runtime identity, timestamps, modification/receipt metadata and cached BV. Mount
+IDs and ammunition links use the same normalization owner as mech equipment.
+Library comparisons use the existing family serializers. Their transport IDs
+are validated before being removed from the comparison.
+
+All six factories use the additive receipt wrapper. An absent receipt adds no
+field to a legacy draft. New persisted editable fields join their family's
+projection once, following the undefined/absence rule in
+`unitSaveFingerprints.ts`. In particular, a missing ProtoMech numeric armor type
+stays undefined in the projection; the adapter supplies no Standard armor
+default. Existing registry hydration/default behavior is retained.
+
+The library loader attaches receipts only after validated, versioned custom
+loads. Canonical designs and read-only capital views acquire no receipt. UI
+status readers and save-dialog completion writers adopt these adapters in PR3;
+PR2 does not change editor mutation or undo behavior.

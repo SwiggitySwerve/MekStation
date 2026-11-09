@@ -17,7 +17,22 @@
       "costCBills": 50000,
       "battleValue": 53,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "atm-6",
@@ -36,7 +51,22 @@
       "costCBills": 125000,
       "battleValue": 105,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "atm-9",
@@ -55,7 +85,22 @@
       "costCBills": 225000,
       "battleValue": 147,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "atm-12",
@@ -74,7 +119,22 @@
       "costCBills": 350000,
       "battleValue": 212,
       "introductionYear": 3047,
-      "special": ["Multiple ammo types"]
+      "special": ["Multiple ammo types"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm12",
@@ -99,7 +159,22 @@
       "costCBills": 700000,
       "battleValue": 333,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm3",
@@ -124,7 +199,22 @@
       "costCBills": 100000,
       "battleValue": 83,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm6",
@@ -149,7 +239,22 @@
       "costCBills": 250000,
       "battleValue": 165,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm9",
@@ -174,7 +279,22 @@
       "costCBills": 450000,
       "battleValue": 231,
       "introductionYear": 3070,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm-3",
@@ -192,7 +312,22 @@
       "costCBills": 50000,
       "battleValue": 83,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm-6",
@@ -210,7 +345,22 @@
       "costCBills": 250000,
       "battleValue": 165,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm-9",
@@ -228,7 +378,22 @@
       "costCBills": 450000,
       "battleValue": 231,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "iatm-12",
@@ -246,7 +411,22 @@
       "costCBills": 700000,
       "battleValue": 333,
       "introductionYear": 3049,
-      "special": ["iatm"]
+      "special": ["iatm"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

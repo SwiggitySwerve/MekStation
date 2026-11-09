@@ -5,8 +5,60 @@ import { createContract } from '@/types/campaign/Mission';
 import { acceptContract } from '../contractMarket';
 import {
   missionTransitionRefusal,
+  reconcileMissionCopy,
   transitionMissionStatus,
 } from '../missionStatusMachine';
+
+describe('reconcileMissionCopy', () => {
+  const copy = (status: MissionStatus, name: string) => ({
+    ...createContract({
+      id: 'contract-1',
+      name,
+      employerId: 'davion',
+      targetId: 'liao',
+      status,
+    }),
+  });
+
+  it.each(
+    ALL_MISSION_STATUSES.flatMap((kept) =>
+      ALL_MISSION_STATUSES.map((other) => [kept, other] as const),
+    ),
+  )(
+    'with kept=%s and other=%s keeps `other` only when it is a legal move forward',
+    (keptStatus, otherStatus) => {
+      const kept = copy(keptStatus, 'kept');
+      const other = copy(otherStatus, 'other');
+
+      const picked = reconcileMissionCopy(kept, other);
+
+      const otherIsAhead =
+        keptStatus !== otherStatus &&
+        missionTransitionRefusal(keptStatus, otherStatus) === null;
+      expect(picked).toBe(otherIsAhead ? other : kept);
+    },
+  );
+
+  it('keeps `kept` when there is no other copy', () => {
+    const kept = copy(MissionStatus.ACTIVE, 'kept');
+
+    expect(reconcileMissionCopy(kept, undefined)).toBe(kept);
+  });
+
+  it.each([
+    [MissionStatus.ACTIVE, MissionStatus.SUCCESS, 'other'],
+    [MissionStatus.PENDING, MissionStatus.ACTIVE, 'other'],
+    [MissionStatus.SUCCESS, MissionStatus.ACTIVE, 'kept'],
+    [MissionStatus.FAILED, MissionStatus.SUCCESS, 'kept'],
+    [MissionStatus.ACTIVE, MissionStatus.PENDING, 'kept'],
+    [MissionStatus.ACTIVE, MissionStatus.ACTIVE, 'kept'],
+  ] as const)('%s vs %s -> %s', (keptStatus, otherStatus, winner) => {
+    const kept = copy(keptStatus, 'kept');
+    const other = copy(otherStatus, 'other');
+
+    expect(reconcileMissionCopy(kept, other).name).toBe(winner);
+  });
+});
 
 describe('missionTransitionRefusal', () => {
   it.each([
