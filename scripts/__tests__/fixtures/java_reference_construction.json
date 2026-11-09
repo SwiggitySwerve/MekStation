@@ -1923,9 +1923,8 @@
         "diagnostics": "",
         "reconstruction": {
           "absoluteTolerance": 1e-9,
-          "ok": false,
-          "relativeTolerance": 1e-12,
-          "status": "unsupported"
+          "ok": true,
+          "relativeTolerance": 1e-12
         },
         "settings": {
           "ammoTechLevel": 6,
@@ -1995,9 +1994,9 @@
           "getWeightStructure": 0.0,
           "getWeightWeapon": 0.0015
         },
-        "weightTermsStatus": {
-          "reason": "java.lang.UnsupportedOperationException: Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending",
-          "status": "unsupported"
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "trooper.base": 20.0
         },
         "weightTotal": 20.0
       }
@@ -2011,9 +2010,8 @@
         "diagnostics": "",
         "reconstruction": {
           "absoluteTolerance": 1e-9,
-          "ok": false,
-          "relativeTolerance": 1e-12,
-          "status": "unsupported"
+          "ok": true,
+          "relativeTolerance": 1e-12
         },
         "settings": {
           "ammoTechLevel": 1,
@@ -2083,9 +2081,9 @@
           "getWeightStructure": 0.0,
           "getWeightWeapon": 0.005
         },
-        "weightTermsStatus": {
-          "reason": "java.lang.UnsupportedOperationException: Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending",
-          "status": "unsupported"
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "trooper.base": 20.0
         },
         "weightTotal": 20.0
       }
@@ -2099,9 +2097,8 @@
         "diagnostics": "",
         "reconstruction": {
           "absoluteTolerance": 1e-9,
-          "ok": false,
-          "relativeTolerance": 1e-12,
-          "status": "unsupported"
+          "ok": true,
+          "relativeTolerance": 1e-12
         },
         "settings": {
           "ammoTechLevel": 5,
@@ -2171,9 +2168,10 @@
           "getWeightStructure": 0.0,
           "getWeightWeapon": 0.02
         },
-        "weightTermsStatus": {
-          "reason": "java.lang.UnsupportedOperationException: Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending",
-          "status": "unsupported"
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "trooper.antiMekGear": 0.44999999999999996,
+          "trooper.base": 5.8500000000000005
         },
         "weightTotal": 6.300000000000001
       }

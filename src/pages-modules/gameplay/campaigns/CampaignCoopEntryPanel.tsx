@@ -35,6 +35,7 @@ import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
+import { PersonnelMarketStyle } from '@/types/campaign/markets/marketTypes';
 
 import { LocalSeatCredentialPanel } from './LocalSeatCredentialPanel';
 import { LocalSeatOperatorPanel } from './LocalSeatOperatorPanel';
@@ -97,6 +98,9 @@ async function resolveInviteIdentity(
 export function CampaignCoopEntryPanel(): React.ReactElement {
   const router = useRouter();
   const store = useCampaignStore();
+  const personnelMarketDisabled =
+    applyPreset(DEFAULT_COOP_PRESET, DEFAULT_COOP_FACTION_ID)
+      .personnelMarketStyle === PersonnelMarketStyle.DISABLED;
 
   const [joinOpen, setJoinOpen] = useState(false);
   const [joinCode, setJoinCode] = useState('');
@@ -438,6 +442,13 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           empty roster. You can rename the campaign and configure its faction,
           preset, and roster from the campaign dashboard after creation.
         </p>
+
+        {personnelMarketDisabled && (
+          <p className="text-text-theme-secondary mt-3 text-sm">
+            This preset has no personnel market. Hiring recruits requires a
+            preset with a personnel market enabled.
+          </p>
+        )}
 
         {createCoopError && (
           <div

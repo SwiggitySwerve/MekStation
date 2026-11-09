@@ -207,7 +207,7 @@ function mekstationComposerMovementModeSourceRefs(
     mekstationDeviationSourceRef(
       `MekStation commitComposedMovement stages the ${mode} declaration and delegates to the legacy commitPlannedMovementLogic path so the authoritative movement declaration and its wire/P2P kinds stay identical to the pre-composer dock move.`,
       'src/stores/useGameplayStore.ts',
-      'L624-L662',
+      'L642-L680',
     ),
   ] satisfies readonly ICombatFeatureSourceReference[];
 }
@@ -250,14 +250,14 @@ export const MEKSTATION_STABILIZE_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
     'MekStation buildMovementCommands exposes movement.stabilize as a product-visible tactical command that commits the local stabilize action id.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L92-L106',
+    'L105-L119',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 
 export const MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS = [
   mekstationDeviationSourceRef(
-    'MekStation buildMovementCommands exposes movement.cancel as a local movement-preview reset command that commits the undo action id.',
+    'MekStation buildMovementCommands exposes movement.cancel as a local draft reset command that dispatches cancel without changing committed events.',
     'src/components/gameplay/TacticalActionDock/commands/movementCommands.ts',
-    'L108-L128',
+    'L121-L141',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
