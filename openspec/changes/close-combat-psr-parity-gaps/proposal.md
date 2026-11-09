@@ -17,7 +17,7 @@ Sequential PRs, one gap each:
 2. **C-2.** Terrain rules to the pin: drop exiting-water and running-through-rough
    rolls, roll water on every water hex, ice as reckless movement, ultra-rubble
    +1, and fold the displacement producer into the shared one.
-3. **C-1.** Interactive movement damage, control and enhancement PSRs.
+3. **C-1.** Interactive movement damage, control and enhancement PSRs, in three PRs. C-1a: running with a damaged hip or gyro rolls once per move (`MovePathHandler.java:1283-1286`, `TWRulesPSR.java:62-77`) in every path. C-1b: flanking-and-turning and controlled sideslip belong to VTOL, hover and WiGE only (`MovePathHandler.java:3715-3727`). C-1c: MASC and Supercharger failure.
 4. **C-3.** Per-step rolls that cut the move short on a failure.
 5. **C-4a.** Vehicle bog-down in the shared producer.
 
@@ -45,6 +45,8 @@ changes are listed in the C-2 PR: no exit-water or rough PSR in movement or
 domino displacement, a water PSR for every water hex entered, an ice PSR per
 non-jump step in an ice hex (none on a jump landing), and domino displacement
 no longer queues rubble or ice PSRs.
+
+C-1a: no schema-pack, payload or persisted-format change. The runner now queues one running-with-damage PSR per move instead of one hip PSR per forward step plus a separate gyro PSR, and none for a destroyed-leg hip or a first heavy-duty gyro hit. Interactive, AI, engine and P2P movement queue the same PSR, which they did not before. `RunningDamagedHip` and `RunningDamagedGyro` keep their factories and reason codes.
 
 ## Non-goals
 

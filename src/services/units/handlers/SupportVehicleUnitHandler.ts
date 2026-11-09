@@ -246,6 +246,10 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       barRating,
       cargoCapacity,
       fuelTonnage: document.fuel ?? 0,
+      baseChassisFireConWeight: getRawTagNumber(
+        rawTags,
+        'baseChassisFireConWeight',
+      ),
       transporters: document.transporters ?? [],
       crewSize,
       passengerCapacity,

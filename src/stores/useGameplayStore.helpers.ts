@@ -13,6 +13,7 @@ import {
 } from '@/types/gameplay';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
 import { GAME_PHASE_ORDER } from '@/utils/gameplay/gamePhaseTransitions';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import { useAnimationQueue } from './useAnimationQueue';
 // Benign module cycle: `useGameplayStore.attackIntent` imports the
@@ -222,9 +223,7 @@ function deriveSelectableWeaponTargetIds(
       .filter(([, candidate]) => {
         return (
           candidate.side !== selectedUnit.side &&
-          !candidate.destroyed &&
-          !candidate.hasRetreated &&
-          !candidate.hasEjected
+          getUnitOperability(candidate).onField
         );
       })
       .map(([unitId]) => unitId);

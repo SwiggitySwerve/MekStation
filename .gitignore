@@ -60,6 +60,8 @@ scripts/**
 !scripts/unit-construction-weights.ts
 !scripts/unit-construction-quantities.ts
 !scripts/unit-construction-settings.ts
+!scripts/unit-construction-settings-acceptance.json
+!scripts/derive-construction-settings-acceptance.mjs
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs

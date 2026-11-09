@@ -73,6 +73,16 @@ steps come from the canonical decomposition of the declared path, so
 `movement-step:<n>` matches the runner's numbering without adding steps to the
 declared payload.
 
+`planRunningWithDamagePSR` (`runningDamagePsr.ts`) is the only producer of the
+running-with-damaged-hip-or-gyro roll. MegaMek 48fcb2f64 rolls it once after
+the whole path (`MovePathHandler.java` L1283-L1286, `TWRulesPSR.java` L62-L77)
+for a Run, Sprint or Evade move by a unit that can fall, when the gyro damage
+counts (a heavy-duty gyro ignores its first hit) or a leg that is not
+destroyed has a hip crit. A hip and a gyro are one roll, and a Walk or Jump
+never rolls. The PSR is stamped with the last step and queued ahead of the
+terrain PSRs; the runner's `queueMovementDamagePSRs` and
+`gameSessionMovementTerrain` both call the planner.
+
 `stuckRecovery.ts` owns the movement-start recovery roll: which stuck units may
 roll, the `swamp_unstuck` PSR for the unit's hex, and the roll itself. Event
 emission and state changes stay with the caller. The runner rolls it at the
