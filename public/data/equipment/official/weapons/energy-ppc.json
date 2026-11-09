@@ -19,7 +19,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 200000,
       "battleValue": 176,
-      "introductionYear": 2435
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "er-ppc",
@@ -38,7 +54,23 @@
       "battleValue": 229,
       "introductionYear": 2735,
       "extinctionYear": 2860,
-      "reintroductionYear": 3037
+      "reintroductionYear": 3037,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "light-ppc",
@@ -55,7 +87,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 150000,
       "battleValue": 88,
-      "introductionYear": 3064
+      "introductionYear": 3064,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "heavy-ppc",
@@ -72,7 +120,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 4 },
       "costCBills": 250000,
       "battleValue": 317,
-      "introductionYear": 3062
+      "introductionYear": 3062,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "snub-nose-ppc",
@@ -91,7 +155,23 @@
       "battleValue": 165,
       "introductionYear": 2695,
       "extinctionYear": 2790,
-      "reintroductionYear": 3067
+      "reintroductionYear": 3067,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-ppc",
@@ -108,7 +188,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 300000,
       "battleValue": 412,
-      "introductionYear": 2818
+      "introductionYear": 2818,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "enhanced-er-ppc",
@@ -127,7 +223,23 @@
       "battleValue": 329,
       "introductionYear": 2817,
       "extinctionYear": 2831,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ]
 }

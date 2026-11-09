@@ -1,4 +1,3 @@
-import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 import {
   GamePhase,
   type IGameEvent,
@@ -7,11 +6,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
-import { movementModeForPath } from '@/utils/gameplay/movement';
-import {
-  createRunningDamagedGyroPSR,
-  createRunningDamagedHipPSR,
-} from '@/utils/gameplay/pilotingSkillRolls';
+import { planRunningWithDamagePSR } from '@/utils/gameplay/movement/runningDamagePsr';
 
 import { queuePendingPSR } from './physicalAttackPsr';
 
@@ -64,25 +59,11 @@ function movementDamagePSRsForUnit(
   movementType: MovementType,
   steps: readonly MovementDamageStep[],
 ): readonly IPendingPSR[] {
-  if (movementModeForPath(movementType) !== 'run') return [];
-
-  const unit = state.units[unitId];
-  const componentDamage = unit?.componentDamage;
-  const psrs: IPendingPSR[] = [];
-  const forwardSteps = steps.filter((step) => step.kind === 'forward');
-  const firstMovementStep = steps.find(
-    (step) => step.kind === 'forward' || step.kind === 'turn',
-  );
-
-  if (componentDamage?.actuators?.[ActuatorType.HIP]) {
-    for (const step of forwardSteps) {
-      psrs.push(createRunningDamagedHipPSR(unitId, step.index));
-    }
-  }
-
-  if ((componentDamage?.gyroHits ?? 0) > 0 && firstMovementStep) {
-    psrs.push(createRunningDamagedGyroPSR(unitId, firstMovementStep.index));
-  }
-
-  return psrs;
+  const psr = planRunningWithDamagePSR({
+    unitId,
+    unit: state.units[unitId],
+    movementType,
+    steps,
+  });
+  return psr ? [psr] : [];
 }

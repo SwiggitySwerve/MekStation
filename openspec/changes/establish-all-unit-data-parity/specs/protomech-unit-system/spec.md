@@ -428,8 +428,6 @@ policy SHALL NOT remain.
 - **THEN** every location of every case SHALL equal the original result
 - **AND** the editor's Auto action, which passes no count, SHALL place the legal total
 
-## ADDED Requirements
-
 ### Requirement: Electric Discharge ProtoMech Armor
 
 The ProtoMech armor owner SHALL represent Standard and Electric Discharge armor

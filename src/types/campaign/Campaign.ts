@@ -10,7 +10,10 @@
 
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
-import type { ICombatOutcome } from '../combat/CombatOutcome';
+import type {
+  IAppliedCombatOutcome,
+  ICombatOutcome,
+} from '../combat/CombatOutcome';
 import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
 import type { IGmTimeCascadeProjectedEffect } from '../interventions/GmTimeCascadeInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
@@ -188,7 +191,7 @@ export interface ICampaign {
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
 
   /** Applied outcomes retained for current morale/windowed processors. */
-  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
 
   /**
    * Refit orders for owned campaign units (`add-campaign-refit-and-prestige`,
@@ -225,6 +228,16 @@ export interface ICampaign {
    * an empty list.
    */
   readonly moraleTransitions?: readonly IMoraleTransition[];
+
+  /**
+   * Match ids of the battle outcomes company morale has already counted, so a
+   * victory or defeat moves morale once instead of on each of the 31 days it
+   * stays in `recentlyAppliedOutcomes`. Holds exactly the ids of the outcomes
+   * still in that window after the last morale evaluation. Optional — absent
+   * on older campaigns, where the in-window outcomes are counted once on the
+   * first evaluation after loading.
+   */
+  readonly moraleCountedMatchIds?: readonly string[];
 
   /**
    * Co-op session metadata (`wire-coop-campaign-route`, Wave 6.1).

@@ -152,9 +152,16 @@ def map_cockpit_type(value: str) -> str:
 
 
 
-def map_structure_type(value: str) -> str:
+def map_structure_type(value: str, native_location: Optional[str] = None, clan_default: bool = False) -> str:
     """Map MTF structure type to TypeScript enum value."""
     clean = value.strip()
+    if native_location is not None and not re.fullmatch(
+            r'(?:(?:IS|Clan) )?(?:Standard|Endo[ -]Steel|Endo[ -]Composite|Reinforced|Composite|Industrial)(?: Structure)?', clean, re.IGNORECASE):
+        raise ValueError(f'Unknown structure type for {native_location}: {value}')
+    if native_location is not None and clan_default and not re.match(r'^(IS|Clan) ', clean, re.IGNORECASE):
+        clean = 'Clan ' + clean
+    if native_location is not None and 'ENDO' in clean.upper() and 'COMPOSITE' in clean.upper() and 'CLAN' in clean.upper():
+        return 'ENDO_COMPOSITE_CLAN'
     if clean in STRUCTURE_TYPE_MAP:
         return STRUCTURE_TYPE_MAP[clean]
     upper = clean.upper()

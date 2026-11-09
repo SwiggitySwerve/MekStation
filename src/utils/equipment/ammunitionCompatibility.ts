@@ -49,6 +49,27 @@ export function isWeaponCategory(category: EquipmentCategory): boolean {
   return WEAPON_CATEGORIES.has(category);
 }
 
+/**
+ * Weapons that fire: every `isWeaponCategory` category except physical weapons,
+ * in both representations the callers hold: the registry enum (editor and
+ * combat) and the BV catalog's strings (support payload). The one owner of the
+ * vehicle weapon-versus-equipment split.
+ */
+const FIRE_WEAPON_CATEGORIES: ReadonlySet<string> = new Set<string>([
+  ...[...WEAPON_CATEGORIES].filter(
+    (category) => category !== EquipmentCategory.PHYSICAL_WEAPON,
+  ),
+  'Energy',
+  'Ballistic',
+  'Missile',
+  'Artillery',
+  'Capital',
+]);
+
+export function isFireWeaponCategory(category: string): boolean {
+  return FIRE_WEAPON_CATEGORIES.has(category);
+}
+
 function normalizeIdentity(identity: string): string {
   return identity.toLowerCase().replace(/[^a-z0-9]/g, '');
 }

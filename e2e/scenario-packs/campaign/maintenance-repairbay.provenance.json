@@ -1,7 +1,7 @@
 {
   "genesisSource": "fast-forward:maintenance-repairbay",
-  "mintedAt": "2026-10-18T05:40:37.143Z",
-  "baseCommit": "c962217ba54d3179897918cd234058bf1d9dc298",
+  "mintedAt": "2026-11-09T16:44:50.805Z",
+  "baseCommit": "cbb0053194f7a5e2f0d04d65fc3d461c82794c2b",
   "invariantSummary": {
     "battles": [
       {
@@ -70,9 +70,10 @@
             "armorRemaining": {
               "head": 9,
               "center_torso": 42,
-              "left_torso": 27,
+              "left_torso": 32,
               "right_torso": 27,
-              "center_torso_rear": 5
+              "center_torso_rear": 5,
+              "left_torso_rear": 2
             },
             "internalsRemaining": {
               "head": 3,
@@ -80,8 +81,8 @@
               "left_torso": 21,
               "right_torso": 21,
               "center_torso_rear": 31,
-              "right_torso_rear": 21,
-              "left_torso_rear": 21
+              "left_torso_rear": 21,
+              "right_torso_rear": 21
             }
           },
           {
@@ -91,20 +92,18 @@
             "finalStatus": "intact",
             "armorRemaining": {
               "head": 9,
-              "center_torso": 26,
-              "left_torso": 16,
+              "center_torso": 31,
+              "left_torso": 26,
               "right_torso": 16,
-              "center_torso_rear": 0,
-              "right_torso_rear": 2
+              "center_torso_rear": 0
             },
             "internalsRemaining": {
               "head": 3,
-              "center_torso": 18,
+              "center_torso": 23,
               "left_torso": 16,
               "right_torso": 16,
               "right_torso_rear": 16,
-              "center_torso_rear": 18,
-              "left_torso_rear": 16
+              "center_torso_rear": 23
             }
           }
         ]
@@ -285,18 +284,6 @@
       {
         "type": "income",
         "amountCents": 0
-      },
-      {
-        "type": "income",
-        "amountCents": 0
-      },
-      {
-        "type": "income",
-        "amountCents": 0
-      },
-      {
-        "type": "income",
-        "amountCents": 0
       }
     ],
     "xpCounters": [
@@ -360,17 +347,17 @@
     "contractStatuses": [
       {
         "contractId": "fast-forward-fixture-contract",
-        "status": "Partial Success"
+        "status": "Failed"
       }
     ],
     "repairTickets": [
       {
         "kind": "armor",
-        "count": 11
+        "count": 10
       },
       {
         "kind": "structure",
-        "count": 3
+        "count": 2
       }
     ]
   }

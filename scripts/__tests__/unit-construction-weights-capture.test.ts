@@ -1,4 +1,7 @@
+import { createHash } from 'node:crypto';
+
 import blackHawk from '../../public/data/units/battlemechs/3-succession-wars/advanced/Black Hawk A.json';
+import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import { resetEquipmentLoader } from '../../src/services/equipment/EquipmentLoaderService';
 import {
   getEquipmentLookupService,
@@ -11,13 +14,18 @@ import {
 import aeroCapital from '../../src/services/units/handlers/__tests__/fixtures/aerospace-capital-validity.json';
 import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
 import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
+import support from '../../src/services/units/handlers/__tests__/fixtures/support-handler-locations.pinned-sources.json';
 import vehicles from '../../src/services/units/handlers/__tests__/fixtures/vehicle-handler-locations.pinned-sources.json';
 import { resetHandlerInitialization } from '../../src/services/units/handlers/initializeHandlers';
+import { createSupportRegistryMass } from '../../src/services/units/handlers/supportRegistryMass';
+import { SupportVehicleUnitHandler } from '../../src/services/units/handlers/SupportVehicleUnitHandler';
 import { resetUnitTypeRegistry } from '../../src/services/units/UnitTypeRegistry';
+import { computeSupportVehicleWeight } from '../../src/utils/construction/vehicle/supportWeight';
 import {
   captureConstructionWeights,
   type ILocalWeights,
 } from '../unit-construction-weights';
+import pinnedSupport from './fixtures/unit-construction-weights-support.pinned.json';
 
 // The equipment catalog reads public/ from disk; jsdom would otherwise fetch.
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
@@ -144,7 +152,7 @@ describe('Tank: the native weight breakdown', () => {
     near(result.terms.getWeightEngine, 25);
     near(result.total, 95);
   });
-  test('a VTOL or support vehicle has no native seam and says so', () => {
+  test('a combat VTOL still has no native seam and says so', () => {
     const vtol = fixture(vehicles.rows, 'Skadi Swift Attack VTOL.blk');
     const result = fact(capture(vtol.content, vtol.path));
     expect(result.terms).toEqual({});
@@ -154,6 +162,79 @@ describe('Tank: the native weight breakdown', () => {
     expect(capture('not a blk', 'vehicles/x.blk')).toEqual({
       failure: expect.stringContaining('blk-'),
     });
+  });
+});
+
+describe('support vehicles: capture the existing typed owner', () => {
+  const numericFields = {
+    engine: 'getWeightEngine',
+    structure: 'getWeightStructure',
+    controls: 'getWeightControls',
+    heatSinks: 'getWeightHeatSinks',
+    armor: 'getWeightArmor',
+    misc: 'getWeightMisc',
+    miscEquipment: 'getWeightMiscEquip',
+    weapons: 'getWeightWeapon',
+    ammo: 'getWeightAmmo',
+    powerAmplifiers: 'getWeightPowerAmp',
+    carryingSpace: 'getWeightCarryingSpace',
+    fuel: 'getFuelTonnage',
+  } satisfies Partial<
+    Record<keyof ReturnType<typeof computeSupportVehicleWeight>, string>
+  >;
+  const cases = [
+    ...pinnedSupport.rows,
+    ...[
+      'Air Car.blk',
+      'Dromedary Water Transport.blk',
+      'Lexan Surveillance VTOL.blk',
+    ].map((name) => fixture(support.rows, name)),
+  ];
+  test.each(cases)('$path', ({ path, content, sha256 }) => {
+    expect(createHash('sha256').update(content).digest('hex')).toBe(sha256);
+    const parsed = new BlkParserService().parse(content);
+    if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+    const handler = new SupportVehicleUnitHandler();
+    const loaded = handler.parse(parsed.data.document);
+    if (!loaded.success) throw new Error(JSON.stringify(loaded.error));
+    const unit = loaded.data.unit;
+    const weights = computeSupportVehicleWeight(
+      unit,
+      createSupportRegistryMass(unit.techBase),
+    );
+    const captured = fact(
+      captureConstructionWeights({ path }, Buffer.from(content)),
+    );
+    expect(captured.total).toBe(handler.calculateWeight(unit));
+    expect(captured.terms).toEqual(
+      Object.fromEntries(
+        Object.entries(numericFields).map(([field, key]) => [
+          key,
+          weights[field as keyof typeof numericFields],
+        ]),
+      ),
+    );
+    // Adding an owner field keeps compilation compatible, but fails this coverage
+    // assertion until it is mapped or explicitly recorded as an unsupported field.
+    expect(
+      Object.keys(weights)
+        .filter(
+          (field) => typeof weights[field as keyof typeof weights] === 'number',
+        )
+        .sort(),
+    ).toEqual([...Object.keys(numericFields), 'total'].sort());
+    expect(captured.unresolved).toEqual(weights.unresolved);
+    expect(captured.terms).not.toHaveProperty('getArmoredComponentWeight');
+    expect(captured.gaps?.getArmoredComponentWeight).toMatch(
+      /no typed.*armored/i,
+    );
+    expect(captured.unavailable).toBeUndefined();
+  });
+  test('classification uses the document even in a non-vehicle folder', () => {
+    const row = pinnedSupport.rows[0];
+    const capture = (path: string) =>
+      captureConstructionWeights({ path }, Buffer.from(row.content));
+    expect(capture('infantry/misfiled.blk')).toEqual(capture(row.path));
   });
 });
 

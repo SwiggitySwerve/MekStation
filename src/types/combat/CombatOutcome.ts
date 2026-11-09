@@ -175,8 +175,26 @@ export interface ICombatOutcome {
   readonly report: IPostBattleReport;
   /** Per-unit campaign-facing deltas. */
   readonly unitDeltas: readonly IUnitCombatDelta[];
-  /** ISO-8601 timestamp captured when the outcome was derived. */
+  /**
+   * ISO-8601 WALL-CLOCK instant at which the outcome was derived. It is
+   * provenance only. A campaign's date is an in-game date on a different
+   * timeline (a fresh campaign starts at the wall clock and advances one day
+   * per day processed; an era campaign is centuries away from it), so campaign
+   * code never compares this with a campaign date. The campaign's own time for
+   * an applied outcome is `IAppliedCombatOutcome.appliedOn`.
+   */
   readonly capturedAt: string;
+}
+
+/**
+ * An outcome as the campaign records it once applied. `ICombatOutcome` (the
+ * wire, journal and replay shape) is unchanged; the campaign adds the in-game
+ * day it was applied on. Optional on read: saves written before it existed have
+ * no value and are stamped when they are loaded (`stampMissingAppliedOn`).
+ */
+export interface IAppliedCombatOutcome extends ICombatOutcome {
+  /** ISO-8601 in-game instant: `campaign.currentDate` when the outcome was applied. */
+  readonly appliedOn?: string;
 }
 
 /**

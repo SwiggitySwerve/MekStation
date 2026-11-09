@@ -1,0 +1,6 @@
+{
+  "name": "pin-openspec-cli-and-check-delta-headers",
+  "status": "in-progress",
+  "reason": "FU-51: pin strict OpenSpec validation and reject duplicate delta operation headers in PR CI.",
+  "lastReviewed": "2026-11-09"
+}

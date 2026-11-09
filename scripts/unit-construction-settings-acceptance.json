@@ -1,0 +1,806 @@
+{
+  "ruling": {
+    "date": "2026-11-09",
+    "source": "PARITY-PLAN.md",
+    "section": "17",
+    "citation": "**D3 accepted:** the 157 settings cells in `parity-W3/INAPPLICABLE-TABLE.md` (146 unused/report-only, 11 suppressed by pinned options) are excluded from numerical/validity parity for MegaMek pin `48fcb2f64` and its recorded verifier configuration only. The 68 missing-local cells, the 4 differing cells, all missing quantities and other gaps stay open. Row 3.4 is not closed by this."
+  },
+  "reference": {
+    "megamekCommit": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+    "verifierConfigSha256": "6da4950889506c309776d933b4af757e582f97a6accd5f2095596d2f3cf76533",
+    "referenceSha256": "4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87",
+    "sidecar": "reference-full.jsonl.provenance.json",
+    "sidecarSha256": "eaebbd8208d0075f63d862d762d8fea48a8adb8e932791eea8d7fac977f97c9a"
+  },
+  "source": {
+    "report": "parity-W3/proof-rev/head/construction-quantity-report.json",
+    "reportSha256": "4002a3ee395b16b895149f12c3379ffd3261a675cbdf4c221e6cfa08392a9a3a"
+  },
+  "cells": [
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestAero",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingArmor"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "showIncorrectIntroYear"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getIntroYearMargin"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSmallCraft",
+      "key": "gameYear"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "showCorrectArmor"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "aerospace",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingArmor"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "battlearmor",
+      "verifierClass": "TestBattleArmor",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "battlemechs",
+      "verifierClass": "TestMek",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingArmor"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "showIncorrectIntroYear"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getIntroYearMargin"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestAdvancedAerospace",
+      "key": "gameYear"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingArmor"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "showIncorrectIntroYear"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getIntroYearMargin"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "capital",
+      "verifierClass": "TestSmallCraft",
+      "key": "gameYear"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingArmor"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getMaxOverweight"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "showOverweightedEntity"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "showUnderweightEntity"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "showCorrectArmor"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "showFailedEquip"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "showIncorrectIntroYear"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getIntroYearMargin"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "infantry",
+      "verifierClass": "TestInfantry",
+      "key": "gameYear"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingArmor"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "protomeks",
+      "verifierClass": "TestProtoMek",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingStructure"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingControls"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingTurret"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingLifting"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getWeightCeilingPowerAmp"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "showCorrectArmor"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestSupportVehicle",
+      "key": "getPrintSize"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getWeightCeilingEngine"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getWeightCeilingWeapons"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getWeightCeilingTargComp"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getWeightCeilingGyro"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getMinUnderweight"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "showCorrectArmor"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "showCorrectCritical"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getTargetingComputerCrits"
+    },
+    {
+      "family": "vehicles",
+      "verifierClass": "TestTank",
+      "key": "getPrintSize"
+    }
+  ]
+}

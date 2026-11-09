@@ -887,7 +887,7 @@
     {
       "id": "command:npx-cmd-openspec-validate-all-strict",
       "kind": "command",
-      "label": "npx.cmd openspec validate --all --strict"
+      "label": "npm.cmd run openspec:validate"
     },
     {
       "id": "surface:battlemech-combat-catalog-validation",
@@ -936,7 +936,7 @@
     {
       "id": "command:npm-cmd-run-validate-combat-gaps-level-out-of-scope-format-summary-expect-total-147-expect-level",
       "kind": "command",
-      "label": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=149 --expect-level=out-of-scope:149 --expect-scope=aggregate:3 --expect-scope=leaf:146"
+      "label": "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=151 --expect-level=out-of-scope:151 --expect-scope=aggregate:3 --expect-scope=leaf:148"
     },
     {
       "id": "surface:behavior-class-combat-rules",

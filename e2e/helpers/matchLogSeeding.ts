@@ -13,10 +13,12 @@
 
 import type { Page } from '@playwright/test';
 
-const MATCH_LOG_DB_NAME = 'mekstation-match-log';
-const MATCH_LOG_DB_VERSION = 2;
-const MATCH_EVENTS_STORE = 'matchEvents';
-const MATCHES_STORE = 'matches';
+import {
+  MATCH_LOG_DB_NAME,
+  MATCH_LOG_DB_VERSION,
+  MATCH_LOG_STORES,
+  OUTCOME_PUBLICATION_KEY_PATH,
+} from '../../src/lib/p2p/matchLogStorageSchema';
 
 /** Which side a seeded unit fields — mirrors `GameSide`'s string values. */
 export type SeededGameSide = 'player' | 'opponent';
@@ -246,6 +248,8 @@ export async function seedMatchLog(
       dbVersion,
       eventStoreName,
       matchStoreName,
+      outcomePublicationStoreName,
+      outcomePublicationKeyPath,
       matchId: id,
       events: seededEvents,
       savedAt: saved,
@@ -295,6 +299,11 @@ export async function seedMatchLog(
         if (!matchStore.indexNames.contains('byLastActivity')) {
           matchStore.createIndex('byLastActivity', 'lastActivity');
         }
+        if (!db.objectStoreNames.contains(outcomePublicationStoreName)) {
+          db.createObjectStore(outcomePublicationStoreName, {
+            keyPath: outcomePublicationKeyPath,
+          });
+        }
       };
 
       const db = await requestToPromise(openRequest);
@@ -324,8 +333,10 @@ export async function seedMatchLog(
     {
       dbName: MATCH_LOG_DB_NAME,
       dbVersion: MATCH_LOG_DB_VERSION,
-      eventStoreName: MATCH_EVENTS_STORE,
-      matchStoreName: MATCHES_STORE,
+      eventStoreName: MATCH_LOG_STORES.MATCH_EVENTS,
+      matchStoreName: MATCH_LOG_STORES.MATCHES,
+      outcomePublicationStoreName: MATCH_LOG_STORES.OUTCOME_PUBLICATIONS,
+      outcomePublicationKeyPath: [...OUTCOME_PUBLICATION_KEY_PATH],
       matchId,
       events,
       savedAt,
@@ -378,7 +389,7 @@ export async function readPersistedMatchEventSummaries(
     },
     {
       dbName: MATCH_LOG_DB_NAME,
-      eventStoreName: MATCH_EVENTS_STORE,
+      eventStoreName: MATCH_LOG_STORES.MATCH_EVENTS,
       id: matchId,
     },
   );
