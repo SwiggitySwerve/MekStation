@@ -178,9 +178,7 @@ export function rollbackDayAdvance(
       snapshot.reviewedBattleIds,
     ),
   );
-  if (!wasDirty && useCampaignPersistenceStore.getState().dirty) {
-    useCampaignPersistenceStore.setState({ dirty: false });
-  }
+  useCampaignPersistenceStore.getState().restoreDirtyAfterRollback(wasDirty);
   return failure;
 }
 

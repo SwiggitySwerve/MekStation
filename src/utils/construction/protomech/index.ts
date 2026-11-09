@@ -9,6 +9,18 @@
 
 // Weight class tables and chassis legality
 export {
+  PROTO_ARMOR_CODES,
+  PROTO_ARMOR_TYPES,
+  getProtoArmorDefinition,
+  getProtoArmorName,
+  isProtoEDPArmorMount,
+  protoArmorContractType,
+  setProtoArmorEquipment,
+} from './armorType';
+export { computeProtoArmorWeight, computeProtoWeight } from './weight';
+export { getProtoArmorSlotErrors } from './mainGun';
+
+export {
   getProtoWeightClass,
   isChassisLegalForTonnage,
   PROTO_MAX_TONNAGE,

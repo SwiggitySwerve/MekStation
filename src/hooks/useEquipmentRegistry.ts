@@ -16,6 +16,8 @@ import { logger } from '@/utils/logger';
 interface UseEquipmentRegistryResult {
   isReady: boolean;
   recheckReady: () => void;
+  error: Error | null;
+  retry: () => void;
 }
 
 /**
@@ -23,47 +25,50 @@ interface UseEquipmentRegistryResult {
  * Returns isReady state that triggers re-render when registry is initialized
  */
 export function useEquipmentRegistry(): UseEquipmentRegistryResult {
-  const [isReady, setIsReady] = useState(false);
-  const [initAttempted, setInitAttempted] = useState(false);
+  const [isReady, setIsReady] = useState(() =>
+    getEquipmentRegistry().isReady(),
+  );
+  const [error, setError] = useState<Error | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     const registry = getEquipmentRegistry();
-
-    // Check if already ready
     if (registry.isReady()) {
       setIsReady(true);
       return;
     }
-
-    // If not ready and we haven't attempted init, start it
-    if (!initAttempted) {
-      setInitAttempted(true);
-      registry
-        .initialize()
-        .then((outcome) => {
-          // An interrupted init resolves without building the name maps, so
-          // reporting ready would advertise a registry whose every lookup
-          // resolves nothing. Re-arm the attempt instead of latching it, so a
-          // surviving document gets another go.
-          if (outcome === 'interrupted') {
-            setInitAttempted(false);
-            return;
-          }
-          setIsReady(true);
-        })
-        .catch((error) => {
-          logger.error('Equipment registry initialization failed', error);
-        });
-    }
-  }, [initAttempted]);
+    let mounted = true;
+    void registry
+      .initialize()
+      .then((outcome) => {
+        if (!mounted) return;
+        // An interrupted document load is incomplete; a surviving mount retries.
+        if (outcome === 'interrupted') setAttempt((value) => value + 1);
+        else setIsReady(true);
+      })
+      .catch((cause: unknown) => {
+        if (!mounted) return;
+        logger.error('Equipment registry initialization failed', cause);
+        setError(cause instanceof Error ? cause : new Error(String(cause)));
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [attempt]);
 
   // Force re-check of registry status
   const recheckReady = useCallback(() => {
     const registry = getEquipmentRegistry();
     if (registry.isReady() && !isReady) {
       setIsReady(true);
+      setError(null);
     }
   }, [isReady]);
 
-  return { isReady, recheckReady };
+  const retry = useCallback(() => {
+    setError(null);
+    setIsReady(false);
+    setAttempt((value) => value + 1);
+  }, []);
+  return { isReady, recheckReady, error, retry };
 }

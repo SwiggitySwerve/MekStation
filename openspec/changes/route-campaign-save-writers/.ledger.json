@@ -1,0 +1,6 @@
+{
+  "name": "route-campaign-save-writers",
+  "status": "active",
+  "reason": "Coordinator 4 approved K4 PR2 after #3170 merged: route external writers without behavior changes.",
+  "lastReviewed": "2026-11-09"
+}

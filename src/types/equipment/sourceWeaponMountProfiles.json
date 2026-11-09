@@ -1,0 +1,103 @@
+{
+  "backhoe": {
+    "grouping": "location",
+    "recover": false
+  },
+  "chain-whip": {
+    "grouping": "location",
+    "recover": false
+  },
+  "chainsaw": {
+    "grouping": "location",
+    "recover": false
+  },
+  "combine": {
+    "grouping": "location",
+    "recover": false
+  },
+  "dual-saw": {
+    "grouping": "location",
+    "recover": false
+  },
+  "hatchet": {
+    "grouping": "location",
+    "recover": true
+  },
+  "heavy-duty-pile-driver": {
+    "grouping": "location",
+    "recover": false
+  },
+  "flail": {
+    "grouping": "location",
+    "recover": true
+  },
+  "lance": {
+    "grouping": "location",
+    "recover": true
+  },
+  "wrecking-ball": {
+    "grouping": "location",
+    "recover": true
+  },
+  "claw": {
+    "grouping": "location",
+    "recover": true,
+    "aliases": ["claws"]
+  },
+  "largeshield": {
+    "grouping": "location",
+    "recover": false
+  },
+  "largevibroblade": {
+    "grouping": "location",
+    "recover": false
+  },
+  "mediumshield": {
+    "grouping": "location",
+    "recover": false
+  },
+  "mediumvibroblade": {
+    "grouping": "location",
+    "recover": false
+  },
+  "smallshield": {
+    "grouping": "location",
+    "recover": false
+  },
+  "smallvibroblade": {
+    "grouping": "location",
+    "recover": false
+  },
+  "mace": {
+    "grouping": "location",
+    "recover": true
+  },
+  "mining-drill": {
+    "grouping": "location",
+    "recover": false
+  },
+  "retractable-blade": {
+    "grouping": "location",
+    "recover": true
+  },
+  "rock-cutter": {
+    "grouping": "location",
+    "recover": false
+  },
+  "spikes": {
+    "grouping": "location",
+    "recover": false
+  },
+  "spot-welder": {
+    "grouping": "location",
+    "recover": false
+  },
+  "sword": {
+    "grouping": "location",
+    "recover": true
+  },
+  "talons": {
+    "grouping": "spread",
+    "recover": true
+  }
+}

@@ -26,6 +26,21 @@ After the data-readiness contract is satisfied, each source subtype SHALL open t
 - **AND** maximum thrust, engine rating and fuel points SHALL display the stored domain results after edits
 - **AND** read-only mode SHALL disable every mutation control
 
+#### Scenario: Family shell waits for the equipment catalog
+
+- **GIVEN** an identified unit with pending equipment data
+- **WHEN** its mech, vehicle, aerospace, battle armor, infantry, ProtoMech or capital shell renders
+- **THEN** it SHALL show a family-labelled skeleton with its existing location representation and no interactive diagram controls
+- **AND** capital loading content SHALL remain read-only
+- **AND** catalog failure SHALL expose an error and retry action, and successful initialization SHALL replace the skeleton with the selected shell
+
+#### Scenario: Small craft location display
+
+- **GIVEN** an aerodyne or spheroid small craft
+- **WHEN** its loading or ready armor diagram renders
+- **THEN** it SHALL identify Nose, Left Side, Right Side and Aft with the craft's shape rather than fighter wings
+- **AND** display labels SHALL preserve the existing stored arc identities and armor values
+
 ### Requirement: Subtype workflow acceptance
 
 Each subtype SHALL support a real source-load, edit, save, reopen and print flow with identical domain figures across forms, status displays and the selected record sheet. Acceptance SHALL verify structural and behavioral fidelity to the pinned MegaMekLab editor, narrow/wide layouts and keyboard use; numerical tolerance SHALL NOT be used as a visual-similarity measure.
