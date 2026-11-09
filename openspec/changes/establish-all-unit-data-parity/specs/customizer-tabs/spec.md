@@ -41,6 +41,14 @@ After the data-readiness contract is satisfied, each source subtype SHALL open t
 - **THEN** it SHALL identify Nose, Left Side, Right Side and Aft with the craft's shape rather than fighter wings
 - **AND** display labels SHALL preserve the existing stored arc identities and armor values
 
+#### Scenario: Edit and reopen small-craft Side armor
+
+- **GIVEN** an editable aerodyne or spheroid small craft with a ready catalog
+- **WHEN** the user edits either Side through the Armor tab or location diagram
+- **THEN** the location SHALL remain editable without a fighter Wing cap or an independent Side cap
+- **AND** armor weight, available points and total diagnostics SHALL consume the aerospace construction owner
+- **AND** saving and reopening SHALL retain Side allocation and native armor identity at narrow and wide widths
+
 ### Requirement: Subtype workflow acceptance
 
 Each subtype SHALL support a real source-load, edit, save, reopen and print flow with identical domain figures across forms, status displays and the selected record sheet. Acceptance SHALL verify structural and behavioral fidelity to the pinned MegaMekLab editor, narrow/wide layouts and keyboard use; numerical tolerance SHALL NOT be used as a visual-similarity measure.

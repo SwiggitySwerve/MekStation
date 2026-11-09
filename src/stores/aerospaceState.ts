@@ -254,6 +254,8 @@ export interface AerospaceState extends IUnitSaveMetadata {
 
   /** Armor type */
   armorType: ArmorTypeEnum;
+  /** Native SmallCraft armor identity; absent legacy drafts retain their explicit type. */
+  smallCraftArmorType?: string;
   /** Native patchwork type codes by contract arc; points stay in armorAllocation. */
   armorTypeByArc?: Readonly<Record<string, number>>;
   /** Source support-aircraft Barrier Armor Rating, retained for shared BV. */

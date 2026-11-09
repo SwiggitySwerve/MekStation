@@ -178,7 +178,7 @@ it('UL-10 resolves the family-less mech and explicit aerospace Tomahawks indepen
   }
 });
 
-it('UL-10 loads every fixture definition without creating non-mech stores', async () => {
+it('UL-10 reads every fixture definition and reports unsupported editor construction', async () => {
   for (const [family, unitType] of [
     ['capital', 'DropShip'],
     ['battlearmor', 'Battle Armor'],
@@ -235,6 +235,23 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
         infantry: 'infantry',
       }[family as string];
       if (family !== 'battlemechs') {
+        // This historical index fixture carries BAR_2. Definition reads preserve
+        // that identity; it has no supported small-craft construction profile.
+        if (
+          family === 'aerospace' &&
+          result.success &&
+          result.definition.unitType === 'Small Craft' &&
+          result.definition.armor?.type === 'BAR_2'
+        ) {
+          expect(
+            await loader.loadUnit(entry.id, 'canonical', family),
+          ).toMatchObject({
+            success: false,
+            errorCode: 'session-failed',
+            error: 'Unsupported small-craft armor: BAR_2',
+          });
+          continue;
+        }
         expect(
           await loader.loadUnit(entry.id, 'canonical', family),
         ).toMatchObject(

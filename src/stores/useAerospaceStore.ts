@@ -30,6 +30,8 @@ import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { IEquipmentItem } from '@/types/equipment';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { smallCraftArmor } from '@/utils/construction/aerospace/armor';
 import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
@@ -88,7 +90,10 @@ function createAutoAllocatedAerospaceArmorPatch(
 ): Partial<AerospaceStore> {
   const armorDef = getArmorDefinition(state.armorType);
   const pointsPerTon = armorDef?.pointsPerTon ?? 16;
-  const totalPoints = Math.floor(state.armorTonnage * pointsPerTon);
+  const totalPoints =
+    state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+      ? smallCraftArmor(state).availablePoints
+      : Math.floor(state.armorTonnage * pointsPerTon);
 
   return modifiedPatch({
     armorAllocation: allocateAerospaceArmorPoints(totalPoints),
@@ -96,7 +101,11 @@ function createAutoAllocatedAerospaceArmorPatch(
 }
 
 function aerospaceArmorTypePatch(type: AerospaceStore['armorType']) {
-  return modifiedPatch({ armorType: type, armorTypeByArc: undefined });
+  return modifiedPatch({
+    armorType: type,
+    armorTypeByArc: undefined,
+    smallCraftArmorType: undefined,
+  });
 }
 
 function aerospaceArmorTonnagePatch(tonnage: number) {
@@ -215,10 +224,14 @@ const createAerospaceChassisActions = (
   // MegaMekLab rebuilds the entity when the fighter type changes
   // (ASStructureTab.fighterTypeChanged), so the unit type follows the Sub-Type.
   setAerospaceSubType: (aerospaceSubType) =>
-    set(
+    set((state) =>
       modifiedPatch({
         aerospaceSubType,
         unitType: unitTypeForAerospaceSubType(aerospaceSubType),
+        smallCraftArmorType:
+          aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+            ? state.smallCraftArmorType
+            : undefined,
       }),
     ),
 });

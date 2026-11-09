@@ -1,6 +1,8 @@
 import type { CritScan } from './validate-bv-crit-scan';
 import type { UnitData } from './validate-bv-types';
 
+import { calculateMechRunMP } from '../src/utils/construction/mechMovement';
+
 export interface BvHeatAndMovement {
   effectiveHSCount: number;
   heatDiss: number;
@@ -56,17 +58,6 @@ function deriveBvWalkMP(unit: UnitData, cs: CritScan): number {
   return bvWalk;
 }
 
-function deriveRunMP(bvWalk: number, cs: CritScan, armorType: string): number {
-  let runMP =
-    cs.hasMASC && cs.hasSupercharger
-      ? Math.ceil(bvWalk * 2.5)
-      : cs.hasMASC || cs.hasSupercharger
-        ? bvWalk * 2
-        : Math.ceil(bvWalk * 1.5);
-  if (armorType === 'hardened') runMP = Math.max(0, runMP - 1);
-  return runMP;
-}
-
 function partialWingBonus(
   unit: UnitData,
   cs: CritScan,
@@ -113,7 +104,11 @@ export function deriveBvHeatAndMovement(
   const effectiveHSCount = deriveEffectiveHeatSinkCount(unit, cs);
   const heatDiss = deriveHeatDissipation(unit, cs, effectiveHSCount);
   const bvWalk = deriveBvWalkMP(unit, cs);
-  const runMP = deriveRunMP(bvWalk, cs, armorType);
+  const runMP = calculateMechRunMP(bvWalk, {
+    masc: cs.hasMASC,
+    supercharger: cs.hasSupercharger,
+    hardenedArmor: armorType === 'hardened',
+  });
   const jets = deriveJumpMP(unit, cs);
   const boosterMP = cs.mechanicalJumpBoosterMP ?? 0;
   const mechanicalJumpMP = cs.hasLargeShield
