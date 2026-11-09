@@ -45,7 +45,7 @@ export interface ITrackedProposal {
   /** The proposal raised by the guest. */
   readonly proposal: IGuestProposal;
   /** The proposal's current resolution status. */
-  readonly status: ProposalResolutionStatus;
+  readonly status: ProposalResolutionStatus | 'submission-failed';
   /**
    * A short, human-readable outcome label shown to the guest once the
    * proposal resolves. Empty while `pending`.
@@ -182,7 +182,25 @@ export function useGuestProposals(
       // Submit through the caller-supplied transport and record the
       // resolution when it lands — the pending indicator clears (spec
       // "Indicator clears on resolution").
-      const result = await transport(proposal);
+      let result: GuestProposalResult;
+      try {
+        result = await transport(proposal);
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : 'Unknown error';
+        setProposals((prev) =>
+          prev.map((tracked) =>
+            tracked.proposal.proposalId === proposal.proposalId
+              ? {
+                  ...tracked,
+                  status: 'submission-failed',
+                  outcomeLabel: `Submission failed — ${message}`,
+                }
+              : tracked,
+          ),
+        );
+        return null;
+      }
       const { status, label } = describeResolution(result);
       setProposals((prev) =>
         prev.map((tracked) =>
