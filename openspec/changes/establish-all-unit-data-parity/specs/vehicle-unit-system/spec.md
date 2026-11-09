@@ -1021,8 +1021,6 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **WHEN** resolved
 - **THEN** each SHALL resolve to the same record as before
 
-## ADDED Requirements
-
 ### Requirement: Pinned vehicle armor limits and allocation
 
 Vehicle armor editing SHALL follow the pinned MegaMekLab location limits and
@@ -1062,8 +1060,6 @@ domain rules without changing serialized armor allocations on open.
 - **AND** the front/rear weighting and rounding remainder SHALL follow the pinned MegaMekLab allocator
 - **AND** zero- and one-point budgets SHALL NOT create negative armor
 
-## ADDED Requirements
-
 ### Requirement: Pinned vehicle armor Body presentation
 
 Vehicle armor forms and diagrams SHALL omit Body for combat, support,
@@ -1079,8 +1075,6 @@ Body SHALL remain unarmored independently of BAR and armor tech rating.
 - **AND** manual allocation SHALL NOT assign armor to Body
 - **AND** automatic allocation SHALL keep Body at zero
 - **AND** Body equipment placement SHALL remain available under its existing construction rules
-
-## ADDED Requirements
 
 ### Requirement: Pinned vehicle armor diagnostic identities
 
