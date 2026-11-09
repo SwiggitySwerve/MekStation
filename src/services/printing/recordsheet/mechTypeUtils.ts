@@ -14,10 +14,11 @@ export function getMechType(
   configuration: string,
 ): 'biped' | 'quad' | 'tripod' | 'lam' | 'quadvee' {
   const config = configuration.toLowerCase();
+  // MML PrintMek.java:112-131 tests the QuadVee flag before the Quad flag.
+  if (config.includes('quadvee')) return 'quadvee';
   if (config.includes('quad')) return 'quad';
   if (config.includes('tripod')) return 'tripod';
   if (config.includes('lam')) return 'lam';
-  if (config.includes('quadvee')) return 'quadvee';
   return 'biped';
 }
 

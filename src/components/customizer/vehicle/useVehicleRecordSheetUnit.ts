@@ -29,6 +29,7 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
   const flankMP = useVehicleStore((s) => s.flankMP);
   const armorType = useVehicleStore((s) => s.armorType);
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
+  const usesBarArmor = useVehicleStore((s) => s.usesBarArmor);
   const barRating = useVehicleStore((s) => s.barRating);
   const equipment = useVehicleStore((s) => s.equipment);
   const turret = useVehicleStore((s) => s.turret);
@@ -56,6 +57,7 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
         flankMP,
         armorType,
         armorAllocation,
+        usesBarArmor,
         barRating,
         equipment,
         turret,
@@ -80,6 +82,7 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
       flankMP,
       armorType,
       armorAllocation,
+      usesBarArmor,
       barRating,
       equipment,
       turret,

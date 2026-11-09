@@ -1062,8 +1062,6 @@ Source: MegaMek `48fcb2f64`, `TestTank.java:178-270`, `VTOL.java:729-731`,
 - **THEN** Ferret SHALL retain 0.5 tons of controls because its loader ignores that Tank-only tag
 - **AND** Skadi SHALL weigh 31 tons and SHALL receive an overweight diagnostic
 
-## ADDED Requirements
-
 ### Requirement: Pinned vehicle armor limits and allocation
 
 Vehicle armor editing SHALL follow the pinned MegaMekLab location limits and
@@ -1103,8 +1101,6 @@ domain rules without changing serialized armor allocations on open.
 - **AND** the front/rear weighting and rounding remainder SHALL follow the pinned MegaMekLab allocator
 - **AND** zero- and one-point budgets SHALL NOT create negative armor
 
-## ADDED Requirements
-
 ### Requirement: Pinned vehicle armor Body presentation
 
 Vehicle armor forms and diagrams SHALL omit Body for combat, support,
@@ -1120,8 +1116,6 @@ Body SHALL remain unarmored independently of BAR and armor tech rating.
 - **AND** manual allocation SHALL NOT assign armor to Body
 - **AND** automatic allocation SHALL keep Body at zero
 - **AND** Body equipment placement SHALL remain available under its existing construction rules
-
-## ADDED Requirements
 
 ### Requirement: Pinned vehicle armor diagnostic identities
 
@@ -1242,3 +1236,29 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **GIVEN** a support chassis with internal type -1, 0 or none
 - **WHEN** its structure mass is calculated
 - **THEN** it SHALL be 13.5 tons and the total 59.5 tons in each case
+
+### Requirement: Support pintle and sponson mechanisms follow the pinned weight rule
+
+A support vehicle's sponson pair SHALL weigh 10% of its sponson-mounted equipment
+(excluding ammunition, heat sinks and armor), and each pintle SHALL weigh 5% of
+the pintle-mounted weapons in its own location, both rounded up (kilograms under
+5 tons, half tons otherwise); a fixed chassis weight, even zero, SHALL replace the
+pintle figure and be split over the pintles. A mechanism whose weapons or payload
+have an unresolved mass SHALL be reported unresolved, never weighed as if they
+weighed nothing. The editor and the support handler SHALL share one owner.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:563-603` and `Tank.getBaseChassisSponsonPintleWeight`.
+
+#### Scenario: Pintle and sponson sources equal the pinned Java terms
+
+- **GIVEN** Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Apocalypse pintle SHALL weigh its fixed chassis weight 0.08 tons
+
+#### Scenario: An unresolved weapon leaves its pintle unresolved
+
+- **GIVEN** Ibex RV (Militarized MG) whose pintle weapon is reported as not a support-vehicle weapon
+- **WHEN** its support weight is calculated
+- **THEN** its pintles SHALL be reported unresolved and SHALL NOT be weighed as zero
