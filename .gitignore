@@ -52,6 +52,7 @@ scripts/**
 !scripts/print-combat-validation-gaps.ts
 !scripts/vehicle-aero-bv-delta.ts
 !scripts/unit-bv-parity.ts
+!scripts/unit-bv-key-set.ts
 !scripts/unit-bv-parity.md
 !scripts/unit-bv-provenance.ts
 !scripts/unit-bv-reference.ts

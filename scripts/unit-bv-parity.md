@@ -199,6 +199,41 @@ values fail, even when totals match. Existing MekStation breakdowns expose only
 some terms; those omissions remain failures rather than inferred neutral values.
 Aggregate mode remains available without the flag.
 
+### Local-only term classification
+
+`buildBVKeySetReport` supplements the existing Java-keyed comparison without
+changing its report, joins, term values or BV arithmetic. It examines every
+local-only key after calling the same `foldWeaponTerms` function as the term
+comparator. Weapon mount indices and names become a location's `.count` and
+descending `.#<rank>` values, including trooper weapons. Equivalent mounts with
+different identities produce no local-only findings; additional folded slots do.
+
+Native namespaces are derived from **every row of the entire trusted reference**,
+separately for each family. There is no namespace allowlist. Scalar names stay
+exact. Dotted keys use the prefix before their first numeric identity/rank
+segment, or before the final identity segment when none is numeric. Indexed root
+containers retain a `<n>` placeholder and classify the remaining key recursively.
+For example, these rules yield `ammo.cap.`, `ammo.available.`, `ammo.arc.`,
+`weapon.FR.`, `equipment.native.`, `section.`, `infantry.`,
+`trooper.<n>.ammo.cap.` and the exact scalar `trooper.<n>.armorBV`.
+
+Each local folded key absent from its row's reference map is recorded, including
+genuine zero values. Category `native-local-only` means the family reference emits
+that namespace elsewhere; this is a parity finding. Category `non-native-local`
+means no Java counterpart namespace exists for that family. These local
+intermediates remain visible as diagnostics and do not fail the key-set check.
+Family, path, reference/source hashes, term, namespace and local value accompany
+each entry. Undefined and nonfinite values serialize as null with an explicit
+`valueIssue`, preserving their distinction from genuine zero.
+
+Unjoined rows or unavailable reference/local maps are `unassessed`, with their
+reason, and fail the check. Empty maps are assessed as actual empty key sets.
+The report's `ok` is true only with no native findings or unassessed rows;
+Java-only omissions and numerical differences remain the existing comparator's
+responsibility. Thus this report alone never establishes full numerical parity.
+Counts roll up by family, namespace and exact key. All output is deterministically
+sorted, and no reported key is excluded or converted into a reference value.
+
 ## Bounded full-corpus execution
 
 `unit-bv-pipeline.ts` runs the same conversion, source validation, calculations
