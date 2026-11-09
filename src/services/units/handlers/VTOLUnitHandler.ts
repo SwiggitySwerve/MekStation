@@ -57,7 +57,10 @@ import {
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
 } from './unitHandlerShared';
-import { rejectIncompleteCombatVehicleWeight } from './vehicleHandlerWeight';
+import {
+  rejectIncompleteCombatVehicleWeight,
+  withNativeVTOLWeight,
+} from './vehicleHandlerWeight';
 
 // ============================================================================
 // Constants
@@ -155,7 +158,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const rawTags = document.rawTags || {};
     const rotorType = this.getStringFromRaw(rawTags, 'rotortype') || 'Standard';
 
-    return {
+    return withNativeVTOLWeight(document, {
       unitType: UnitType.VTOL,
       ...turretSource.facts,
       internalStructureType: document.internalType ?? 0,
@@ -177,7 +180,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       rotorHits,
       errors,
       warnings,
-    };
+    });
   }
 
   /**

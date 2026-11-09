@@ -4,6 +4,7 @@ import {
 } from '@/services/core/createSingleton';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
+import { parseStructure } from './MTFParser.components';
 import { mapConfiguration } from './MTFParser.mapping';
 import {
   generateUnitId,
@@ -11,14 +12,12 @@ import {
   mapEngineType,
   mapEraFromYear,
   mapRulesLevel,
-  mapStructureType,
   mapTechBase,
   parseArmor,
   parseCriticalSlots,
   parseEngine,
   parseField,
   parseFluff,
-  parseFrankenStructureTonnage,
   parseHeader,
   parseHeatSinks,
   parseQuirks,
@@ -59,11 +58,7 @@ export class MTFParserService {
       const mass = parseField(lines, 'mass');
       const engine = parseEngine(lines);
       const structure = parseField(lines, 'structure') || 'IS Standard';
-      const locationTonnage = parseFrankenStructureTonnage(
-        lines,
-        header.config,
-        structure,
-      );
+      const parsedStructure = parseStructure(lines, header.config, structure);
       const heatSinks = parseHeatSinks(lines);
       const walkMP = parseInt(parseField(lines, 'walk mp') || '0', 10);
       const jumpMP = parseInt(parseField(lines, 'jump mp') || '0', 10);
@@ -110,10 +105,7 @@ export class MTFParserService {
           type: 'STANDARD',
         },
         cockpit: 'STANDARD',
-        structure: {
-          type: mapStructureType(structure),
-          ...(locationTonnage ? { locationTonnage } : {}),
-        },
+        structure: parsedStructure,
         armor: {
           type: armorType,
           allocation: armor.allocation,
