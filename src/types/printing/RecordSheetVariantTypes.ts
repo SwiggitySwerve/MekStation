@@ -1,3 +1,4 @@
+import type { AerospaceArcLabel } from '@/types/construction/aerospaceArcLabels';
 import type { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import type {
@@ -31,7 +32,12 @@ export interface IVehicleCrewMember {
 export interface IVehicleLocationArmor {
   readonly location: RecordSheetVehicleArmorLocation;
   readonly current: number;
-  readonly maximum: number;
+  /**
+   * Printed only when a caller supplies a real per-location cap. Vehicles have
+   * none: MegaMek and MML cap only the unit total (plus the VTOL rotor), so the
+   * customizer builder leaves this absent rather than echoing `current`.
+   */
+  readonly maximum?: number;
   /** BAR (Barrier Armor Rating) for support vehicles — omitted for standard tanks. */
   readonly bar?: number;
 }
@@ -66,10 +72,21 @@ export interface IVehicleRecordSheetData {
 /**
  * Aerospace armor per standard 4-arc layout.
  */
+/**
+ * Armor arc labels. Fighters print wings; small craft print sides, per
+ * SmallCraft.java LOCATION_NAMES. Derived from the shared label owner, so the
+ * strings live in one place.
+ */
+export type RecordSheetAerospaceArc = `${AerospaceArcLabel}`;
+
 export interface IAerospaceArcArmor {
-  readonly arc: 'Nose' | 'Left Wing' | 'Right Wing' | 'Aft';
+  readonly arc: RecordSheetAerospaceArc;
   readonly current: number;
-  readonly maximum: number;
+  /**
+   * Printed only when a caller supplies a real per-arc cap. Aerospace has none
+   * (MML UnitUtil.getMaxArmor returns null), so the builder leaves it absent.
+   */
+  readonly maximum?: number;
 }
 
 /**
@@ -96,6 +113,8 @@ export interface IAerospaceRecordSheetData {
   readonly maxThrust: number;
   readonly heatSinks: IRecordSheetHeatSinks;
   readonly armorType: string;
+  /** BAR rating of a fixed-wing support craft with BAR armor (MML prints "BAR: n"). */
+  readonly barRating?: number;
   readonly armorArcs: readonly IAerospaceArcArmor[];
   readonly equipment: readonly IRecordSheetEquipment[];
   /** Number of bomb bay slots (0 when no bomb bay). */
@@ -137,6 +156,14 @@ export interface IBattleArmorRecordSheetData {
   readonly walkMP: number;
   readonly umuMP: number;
   readonly vtolMP: number;
+  /**
+   * The squad's movement mode, which picks the second movement line
+   * (MML `PrintBattleArmor.writeTextFields`): jump prints "Jump MP:", VTOL
+   * prints "VTOL MP:" with the jump MP, UMU prints "UW MP:", and ground modes
+   * print none. Absent on legacy payloads, which fall back to the first
+   * non-zero of jump, VTOL, UMU.
+   */
+  readonly movementMode?: 'ground' | 'jump' | 'vtol' | 'umu';
   readonly specialAbilities?: readonly IRecordSheetSPAEntry[];
 }
 

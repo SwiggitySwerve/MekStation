@@ -13,6 +13,30 @@ GUSTAV = ['chassis:Schwerer Gustav', 'model:', 'Config:Biped FrankenMek', 'mass:
 
 
 class FrankenStructureTest(unittest.TestCase):
+    def test_types_and_tech_identity(self):
+        unit = dataclass_to_dict(MTFParser()._parse_lines(GUSTAV, 'source.mtf'))
+        self.assertEqual(unit['structure']['typeByLocation']['LEFT_ARM'], 'ENDO_STEEL')
+        lines = [line.replace('IS Endo Steel:65', 'Clan Endo Steel:65') for line in GUSTAV]
+        unit = dataclass_to_dict(MTFParser()._parse_lines(lines, 'source.mtf'))
+        self.assertEqual(unit['structure']['typeByLocation']['LEFT_ARM'], 'ENDO_STEEL_CLAN')
+
+    def test_unknown_native_types_fail(self):
+        for spelling in ['Unknown Alloy', 'ENDO_STEEL']:
+            lines = [line.replace('IS Endo Steel:65', f'{spelling}:65') for line in GUSTAV]
+            with self.assertRaisesRegex(ValueError, 'Unknown structure type for la:'):
+                MTFParser()._parse_lines(lines, 'source.mtf')
+
+    def test_missing_and_scalar_hybrid_defaults(self):
+        lines = ['chassis:X', 'Config:Biped FrankenMek', 'mass:50', 'structure:Hybrid', 'LA structure:35']
+        unit = dataclass_to_dict(MTFParser()._parse_lines(lines, 'source.mtf'))
+        self.assertEqual(unit['structure']['typeByLocation'], {})
+
+    def test_chassis_tech_qualifies_only_unprefixed_donors(self):
+        lines = ['chassis:X', 'Config:Biped FrankenMek', 'mass:50', 'techbase:Mixed (Clan Chassis)',
+                 'structure:Hybrid', 'LA structure:Endo-Composite:50', 'RA structure:IS Endo Steel:50']
+        unit = dataclass_to_dict(MTFParser()._parse_lines(lines, 'source.mtf'))
+        self.assertEqual(unit['structure']['typeByLocation'], {'LEFT_ARM': 'ENDO_COMPOSITE_CLAN', 'RIGHT_ARM': 'ENDO_STEEL'})
+
     def test_hybrid_frankenmek_keeps_each_location_tonnage(self):
         unit = dataclass_to_dict(MTFParser()._parse_lines(GUSTAV, 'source.mtf'))
         self.assertEqual(unit['structure']['locationTonnage'], {

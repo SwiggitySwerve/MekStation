@@ -18,7 +18,6 @@ from enum_mappings import (
     map_mech_location,
     map_mech_config,
     map_rules_level,
-    map_structure_type,
     map_tech_base,
     map_unit_type,
     map_year_to_era,
@@ -27,7 +26,7 @@ from mtf_parser_builders import (
     build_armor_allocation,
     build_critical_slots,
     build_equipment_list,
-    franken_structure_tonnage,
+    build_structure,
 )
 from mtf_serialized_models import (
     SerializedArmor,
@@ -36,7 +35,6 @@ from mtf_serialized_models import (
     SerializedGyro,
     SerializedHeatSinks,
     SerializedMovement,
-    SerializedStructure,
     SerializedUnit,
 )
 
@@ -257,17 +255,17 @@ class MTFParser:
         elif key.endswith('_armor') or key.endswith('armor'):
             # Armor allocation
             loc_key = key.replace('_armor', '').replace('armor', '').strip().upper()
+            patchwork = data.get('armor_type', '').lower() == 'patchwork' and ':' in value
+            armor_name, points = value.rsplit(':', 1) if patchwork else (None, value)
             try:
-                if data.get('armor_type', '').lower() == 'patchwork' and ':' in value:
-                    armor_name, points = value.rsplit(':', 1)
-                    data['armor_allocation'][loc_key] = int(points)
-                    armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
-                    code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
-                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
-                else:
-                    data['armor_allocation'][loc_key] = int(value)
+                data['armor_allocation'][loc_key] = int(points)
             except ValueError:
-                pass
+                return
+            if patchwork:
+                # Keep unknown type diagnostics outside the bad-point-count handler.
+                armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
+                code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
+                data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
         elif key == 'quirk':
             data['quirks'].append(value)
         elif key == 'weaponquirk':
@@ -342,10 +340,8 @@ class MTFParser:
 
         # Parse structure
         structure_str = data.get('structure', 'Standard')
-        structure = SerializedStructure(
-            type=map_structure_type(structure_str),
-            locationTonnage=franken_structure_tonnage(
-                data.get('config', ''), structure_str, data.get('location_structure', {})))
+        structure = build_structure(
+            data.get('config', ''), structure_str, data.get('location_structure', {}), data.get('techbase', ''))
 
         # Parse heat sinks
         hs_data = data.get('heat_sinks', {'count': 10, 'type': 'Single'})

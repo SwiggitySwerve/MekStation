@@ -9,8 +9,8 @@
  *   - TestProtoMek.java:296-380 hasIllegalEquipmentCombinations
  * (MegaMek 48fcb2f64, MAX_STD_TONNAGE = 9 at line 65.)
  *
- * Scope is the Main Gun and the arms. The torso also needs the armor's slot and
- * the variable weights of some miscellany, and is not enforced here.
+ * Main Gun and arm placement includes slot and weight limits. Torso placement
+ * includes the armor slot; variable miscellaneous mass remains separate.
  *
  * @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md
  */
@@ -20,6 +20,8 @@ import type { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 
 import { getEquipmentEntry } from '../equipmentBV';
+import { getProtoArmorDefinition, isProtoEDPArmorMount } from './armorType';
+import { getProtoMountWeight } from './weight';
 import { PROTO_MAX_STANDARD_TONNAGE } from './weightClass';
 
 /** The store and the BV adapter name locations with identical strings. */
@@ -69,9 +71,37 @@ export function getProtoLocationSlotLimit(
   quad: boolean,
   ultra: boolean,
 ): number {
+  if (location === ProtoLocation.TORSO) return (ultra ? 3 : 2) * (quad ? 2 : 1);
   if (location === MAIN_GUN) return quad && ultra ? 2 : 1;
   if (ARMS.includes(location)) return quad ? 0 : 1;
   throw new Error(`Slot limit is not defined for ${location}`);
+}
+
+/** TestProtoMek.java:299-349 excludes ArmorType mounts, then adds armor slots. */
+export function getProtoArmorSlotErrors(
+  tonnage: number,
+  quad: boolean,
+  armorType: number | undefined,
+  placements: readonly ProtoEquipmentPlacement[],
+): string[] {
+  const armor = getProtoArmorDefinition(armorType);
+  if (!armor) return [`Unsupported ProtoMech armor type: ${armorType}`];
+  const used =
+    armor.torsoSlots +
+    placements.filter(
+      (mount) =>
+        mount.location === ProtoLocation.TORSO &&
+        !isProtoEDPArmorMount(mount.equipmentId) &&
+        protoMountTakesSlot(mount.equipmentId),
+    ).length;
+  const limit = getProtoLocationSlotLimit(
+    ProtoLocation.TORSO,
+    quad,
+    isProtoUltraheavyTonnage(tonnage),
+  );
+  return used > limit
+    ? [`Exceeds ${limit} slot limit in Torso (${used} mounted).`]
+    : [];
 }
 
 /**
@@ -108,17 +138,7 @@ export function protoMountTakesSlot(equipmentId: string): boolean {
   return !NON_SLOT.test(compact(equipmentId));
 }
 
-/**
- * Catalog weight of a mount, or undefined when it cannot be stated: the id is
- * not in the catalog, or the catalog marks the weight as depending on the unit.
- * Such a mount still takes its slot; no weight is invented for it.
- */
-export function getProtoMountWeight(equipmentId: string): number | undefined {
-  const entry = getEquipmentEntry(equipmentId);
-  if (!entry || entry.weight === undefined) return undefined;
-  if (entry.special?.includes('Variable weight')) return undefined;
-  return entry.weight;
-}
+export { getProtoMountWeight } from './weight';
 
 /**
  * True only when the catalog describes the weapon and excludes ProtoMechs

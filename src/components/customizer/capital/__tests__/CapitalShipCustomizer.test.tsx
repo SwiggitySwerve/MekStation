@@ -1,3 +1,4 @@
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { PaperSize } from '@/types/printing';
 /**
@@ -55,7 +56,7 @@ const capitalIndex = read('data/units/capital/index.json').units.filter(
   (row: { id: string }) => IDS.includes(row.id),
 );
 
-beforeEach(() => {
+beforeEach(async () => {
   global.fetch = jest.fn(async (input: string) => {
     const relative = decodeURIComponent(
       new URL(input, 'http://localhost').pathname,
@@ -71,6 +72,7 @@ beforeEach(() => {
       ? { ok: false, status: 404 }
       : { ok: true, status: 200, json: async () => body };
   }) as unknown as typeof fetch;
+  await getEquipmentRegistry().initialize();
   resetCanonicalUnitService();
   useTabManagerStore.setState({ tabs: [], activeTabId: null });
 });

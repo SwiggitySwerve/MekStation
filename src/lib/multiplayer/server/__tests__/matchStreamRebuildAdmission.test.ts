@@ -146,8 +146,11 @@ describe('combat commands during a history rebuild', () => {
     };
   }
 
-  async function makeHost(matchId: string): Promise<ServerMatchHost> {
-    await store.createMatch(activeMeta(matchId));
+  async function makeHost(
+    matchId: string,
+    status: IMatchMeta['status'] = 'active',
+  ): Promise<ServerMatchHost> {
+    await store.createMatch({ ...activeMeta(matchId), status });
     const host = ServerMatchHost.create(matchId, store, {
       mapRadius: 4,
       turnLimit: 5,
@@ -219,8 +222,7 @@ describe('combat commands during a history rebuild', () => {
   it('still accepts lobby-status readiness while the rebuild runs', async () => {
     const matchId = 'rebuild-lobby';
     seedStream(matchId);
-    const host = await makeHost(matchId);
-    await store.updateMatchMeta(matchId, { status: 'lobby' });
+    const host = await makeHost(matchId, 'lobby');
     acquireLease(matchId);
 
     const frames = await host.handleIntent(unready(matchId));

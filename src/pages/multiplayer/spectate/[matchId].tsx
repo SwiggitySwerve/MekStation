@@ -6,54 +6,11 @@ import type { MultiplayerTokenState } from '@/pages-modules/multiplayer/multipla
 
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
+import { useSpectatorRegistration } from '@/hooks/useSpectatorRegistration';
 import {
   buildWsUrl,
   mintToken,
 } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
-
-function useSpectatorRegistration(
-  matchId: string | null,
-  tokenState: MultiplayerTokenState | null,
-): {
-  readonly registered: boolean;
-  readonly registerError: string | null;
-} {
-  const [registered, setRegistered] = useState<boolean>(false);
-  const [registerError, setRegisterError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!matchId || !tokenState || registered) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch(
-          `/api/multiplayer/matches/${encodeURIComponent(matchId)}/spectate`,
-          {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${tokenState.wireToken}` },
-          },
-        );
-        if (cancelled) return;
-        if (!res.ok) {
-          const data = (await res.json()) as { error?: string };
-          throw new Error(data.error ?? `HTTP ${res.status}`);
-        }
-        setRegistered(true);
-      } catch (e) {
-        if (!cancelled) {
-          setRegisterError(
-            e instanceof Error ? e.message : 'Failed to register as spectator',
-          );
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [matchId, tokenState, registered]);
-
-  return { registered, registerError };
-}
 
 function SpectatorAuthPrompt({
   password,
@@ -134,10 +91,8 @@ export default function SpectatePage(): React.ReactElement {
   );
   const [password, setPassword] = useState<string>('');
   const [authError, setAuthError] = useState<string | null>(null);
-  const { registered, registerError } = useSpectatorRegistration(
-    matchId,
-    tokenState,
-  );
+  const { registered, registerError, reRegister, markBound } =
+    useSpectatorRegistration(matchId, tokenState);
 
   const wsUrl = registered && matchId ? buildWsUrl(matchId) : null;
   const auth = useMemo(
@@ -152,6 +107,19 @@ export default function SpectatePage(): React.ReactElement {
     registered ? matchId : null,
     auth,
   );
+
+  // The server releases a spectator seat when the viewer's sockets are gone and
+  // at boot after a restart, so the reconnect is refused with AUTH_REJECTED and
+  // the client closes for good. Register again (bounded to one per successful
+  // bind) and the session hook rebinds; a refusal of that is a registerError.
+  const admissionRefused =
+    registered && session.closedInfo?.code === 'AUTH_REJECTED';
+  useEffect(() => {
+    if (admissionRefused) reRegister();
+  }, [admissionRefused, reRegister]);
+  useEffect(() => {
+    if (session.status === 'ready') markBound();
+  }, [session.status, markBound]);
 
   if (!matchId) {
     return (

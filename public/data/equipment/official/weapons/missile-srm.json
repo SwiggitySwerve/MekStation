@@ -16,7 +16,22 @@
       "ammoPerTon": 50,
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 2365
+      "introductionYear": 2365,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "srm-4",
@@ -34,7 +49,22 @@
       "ammoPerTon": 25,
       "costCBills": 60000,
       "battleValue": 39,
-      "introductionYear": 2365
+      "introductionYear": 2365,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "srm-6",
@@ -52,7 +82,22 @@
       "ammoPerTon": 15,
       "costCBills": 80000,
       "battleValue": 59,
-      "introductionYear": 2365
+      "introductionYear": 2365,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-srm-2",
@@ -70,7 +115,23 @@
       "ammoPerTon": 50,
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-srm-4",
@@ -88,7 +149,23 @@
       "ammoPerTon": 25,
       "costCBills": 60000,
       "battleValue": 39,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-srm-6",
@@ -106,7 +183,23 @@
       "ammoPerTon": 15,
       "costCBills": 80000,
       "battleValue": 59,
-      "introductionYear": 2824
+      "introductionYear": 2824,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streak-srm-2",
@@ -127,7 +220,22 @@
       "introductionYear": 2645,
       "special": ["No ammo wasted on miss"],
       "extinctionYear": 2845,
-      "reintroductionYear": 3035
+      "reintroductionYear": 3035,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streak-srm-4",
@@ -146,7 +254,23 @@
       "costCBills": 90000,
       "battleValue": 59,
       "introductionYear": 3055,
-      "special": ["No ammo wasted on miss"]
+      "special": ["No ammo wasted on miss"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streak-srm-6",
@@ -165,7 +289,23 @@
       "costCBills": 120000,
       "battleValue": 89,
       "introductionYear": 3055,
-      "special": ["No ammo wasted on miss"]
+      "special": ["No ammo wasted on miss"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-streak-srm-2",
@@ -184,7 +324,23 @@
       "costCBills": 15000,
       "battleValue": 40,
       "introductionYear": 2822,
-      "special": ["No ammo wasted on miss"]
+      "special": ["No ammo wasted on miss"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-streak-srm-4",
@@ -203,7 +359,23 @@
       "costCBills": 90000,
       "battleValue": 79,
       "introductionYear": 2822,
-      "special": ["No ammo wasted on miss"]
+      "special": ["No ammo wasted on miss"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-streak-srm-6",
@@ -222,7 +394,23 @@
       "costCBills": 120000,
       "battleValue": 118,
       "introductionYear": 2822,
-      "special": ["No ammo wasted on miss"]
+      "special": ["No ammo wasted on miss"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "advancedsrm1",
@@ -247,7 +435,8 @@
       "costCBills": 15000,
       "battleValue": 15,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm1os",
@@ -271,7 +460,8 @@
       "costCBills": 7500,
       "battleValue": 3,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm2",
@@ -296,7 +486,8 @@
       "costCBills": 30000,
       "battleValue": 30,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm2os",
@@ -320,7 +511,8 @@
       "costCBills": 15000,
       "battleValue": 6,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm3",
@@ -345,7 +537,8 @@
       "costCBills": 45000,
       "battleValue": 45,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm3os",
@@ -369,7 +562,8 @@
       "costCBills": 22500,
       "battleValue": 9,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm4",
@@ -394,7 +588,8 @@
       "costCBills": 60000,
       "battleValue": 60,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm4os",
@@ -418,7 +613,8 @@
       "costCBills": 30000,
       "battleValue": 12,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm5",
@@ -443,7 +639,8 @@
       "costCBills": 75000,
       "battleValue": 75,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm5os",
@@ -467,7 +664,8 @@
       "costCBills": 37500,
       "battleValue": 15,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm6",
@@ -492,7 +690,8 @@
       "costCBills": 90000,
       "battleValue": 90,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "advancedsrm6os",
@@ -516,7 +715,8 @@
       "costCBills": 45000,
       "battleValue": 18,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm1",
@@ -541,7 +741,8 @@
       "costCBills": 5000,
       "battleValue": 15,
       "introductionYear": 2860,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm1os",
@@ -565,7 +766,8 @@
       "costCBills": 2500,
       "battleValue": 3,
       "introductionYear": 2860,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm2-os",
@@ -589,7 +791,8 @@
       "costCBills": 5000,
       "battleValue": 4,
       "introductionYear": 2868,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm3",
@@ -614,7 +817,8 @@
       "costCBills": 15000,
       "battleValue": 30,
       "introductionYear": 2860,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm3-os",
@@ -637,7 +841,8 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 2868,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm4-os",
@@ -661,7 +866,8 @@
       "costCBills": 10000,
       "battleValue": 8,
       "introductionYear": 2868,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm5",
@@ -686,7 +892,8 @@
       "costCBills": 25000,
       "battleValue": 47,
       "introductionYear": 2860,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm5os",
@@ -710,7 +917,8 @@
       "costCBills": 12500,
       "battleValue": 9,
       "introductionYear": 2860,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "basrm6-os",
@@ -734,7 +942,8 @@
       "costCBills": 15000,
       "battleValue": 12,
       "introductionYear": 2868,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "primitive-prototype-srm-2",
@@ -759,7 +968,23 @@
       "costCBills": 10000,
       "battleValue": 21,
       "introductionYear": 2365,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "primitive-prototype-srm-4",
@@ -784,7 +1009,23 @@
       "costCBills": 60000,
       "battleValue": 39,
       "introductionYear": 2365,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "primitive-prototype-srm-6",
@@ -809,7 +1050,23 @@
       "costCBills": 80000,
       "battleValue": 59,
       "introductionYear": 2365,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm4prototype",
@@ -835,7 +1092,22 @@
       "battleValue": 59,
       "introductionYear": 2814,
       "special": [],
-      "extinctionYear": 2826
+      "extinctionYear": 2826,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm6prototype",
@@ -861,7 +1133,22 @@
       "battleValue": 89,
       "introductionYear": 2814,
       "special": [],
-      "extinctionYear": 2826
+      "extinctionYear": 2826,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-srm-2",
@@ -888,7 +1175,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2828,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-srm-4",
@@ -915,7 +1217,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2828,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-srm-6",
@@ -942,7 +1259,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2828,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "srm2-ios",
@@ -965,7 +1297,22 @@
       "costCBills": 8000,
       "battleValue": 4,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "srm4-ios",
@@ -988,7 +1335,22 @@
       "costCBills": 48000,
       "battleValue": 8,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "srm6-ios",
@@ -1011,7 +1373,22 @@
       "costCBills": 64000,
       "battleValue": 12,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm1",
@@ -1036,7 +1413,8 @@
       "costCBills": 15000,
       "battleValue": 20,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "streaksrm3",
@@ -1061,7 +1439,8 @@
       "costCBills": 45000,
       "battleValue": 59,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "streaksrm5",
@@ -1086,7 +1465,8 @@
       "costCBills": 75000,
       "battleValue": 99,
       "introductionYear": 3055,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["ProtoMech"]
     },
     {
       "id": "streaksrm2-ios",
@@ -1109,7 +1489,22 @@
       "costCBills": 12000,
       "battleValue": 8,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm2-os",
@@ -1133,7 +1528,22 @@
       "costCBills": 7500,
       "battleValue": 8,
       "introductionYear": 2819,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm4-ios",
@@ -1156,7 +1566,22 @@
       "costCBills": 72000,
       "battleValue": 16,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm4-os",
@@ -1180,7 +1605,22 @@
       "costCBills": 45000,
       "battleValue": 16,
       "introductionYear": 2819,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm6-ios",
@@ -1203,7 +1643,22 @@
       "costCBills": 96000,
       "battleValue": 24,
       "introductionYear": 3058,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "streaksrm6-os",
@@ -1227,7 +1682,22 @@
       "costCBills": 60000,
       "battleValue": 24,
       "introductionYear": 2819,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "srmt1os",

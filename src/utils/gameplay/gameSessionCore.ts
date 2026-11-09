@@ -62,6 +62,10 @@ import {
   createSpottingDeclaredEvent,
 } from './gameEvents';
 import {
+  isTurnBoundary,
+  nextPhase as nextPhaseInOrder,
+} from './gamePhaseTransitions';
+import {
   getActivePhaseUnitId,
   isPhaseActivationEligible,
 } from './gameSessionActivation';
@@ -225,30 +229,13 @@ export function getEventsForPhase(
 }
 
 export function getNextPhase(currentPhase: GamePhase): GamePhase {
-  const phaseOrder: GamePhase[] = [
-    GamePhase.Initiative,
-    GamePhase.Movement,
-    GamePhase.WeaponAttack,
-    GamePhase.PhysicalAttack,
-    GamePhase.Heat,
-    GamePhase.End,
-  ];
-
-  const currentIndex = phaseOrder.indexOf(currentPhase);
-  if (currentIndex === -1 || currentIndex === phaseOrder.length - 1) {
-    return GamePhase.Initiative;
-  }
-
-  return phaseOrder[currentIndex + 1];
+  return nextPhaseInOrder(currentPhase);
 }
 
 export function advancePhase(session: IGameSession): IGameSession {
   const { phase, turn } = session.currentState;
   const nextPhase = getNextPhase(phase);
-  const nextTurn =
-    nextPhase === GamePhase.Initiative && phase !== GamePhase.Initiative
-      ? turn + 1
-      : turn;
+  const nextTurn = isTurnBoundary(phase, nextPhase) ? turn + 1 : turn;
 
   const sequence = session.events.length;
   const event = createPhaseChangedEvent(

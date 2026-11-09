@@ -28,3 +28,31 @@ it('invalidates canceled requests even when the same source is requested again',
   requests.finish(old);
   expect(requests.isCurrent(next)).toBe(true);
 });
+
+it('releases a canceled source once, after revoking its editor ticket', () => {
+  const requests = new LoadRequestCoordinator();
+  const release = jest.fn((): void => {
+    expect(requests.isCurrent(ticket)).toBe(false);
+  });
+  const ticket = requests.begin('canonical:atlas', release)!;
+  requests.cancel();
+  requests.cancel();
+  expect(release).toHaveBeenCalledTimes(1);
+});
+
+it('releases a replaced source but never a duplicate or completed source', () => {
+  const requests = new LoadRequestCoordinator();
+  const oldRelease = jest.fn();
+  const duplicateRelease = jest.fn();
+  const nextRelease = jest.fn();
+  const old = requests.begin('canonical:atlas', oldRelease)!;
+  expect(requests.begin('canonical:atlas', duplicateRelease)).toBeNull();
+  expect(oldRelease).not.toHaveBeenCalled();
+  const next = requests.begin('custom:atlas', nextRelease)!;
+  expect(oldRelease).toHaveBeenCalledTimes(1);
+  requests.finish(old);
+  requests.finish(next);
+  requests.cancel();
+  expect(duplicateRelease).not.toHaveBeenCalled();
+  expect(nextRelease).not.toHaveBeenCalled();
+});

@@ -4,8 +4,9 @@
  * Complements the smoke test by exercising the *engine path* — not just
  * the helpers in isolation. Asserts:
  *
- * - `runInteractivePhaseAdvance` queues damage PSRs when the weapon
- *   phase closes and resolves them when the End phase runs.
+ * - The live interactive phase driver (`advanceInteractiveSessionPhase`)
+ *   queues damage PSRs when the weapon phase closes and resolves them
+ *   when the End phase runs.
  * - Replay determinism (task 10.2 / 11.6): reprocessing the event log
  *   through `deriveState` yields a state equivalent (pendingPSRs,
  *   prone flag, pilot wounds) to the live session.
@@ -15,7 +16,10 @@
 
 import { describe, it, expect } from '@jest/globals';
 
-import { runInteractivePhaseAdvance } from '@/engine/GameEngine.phases';
+import {
+  advanceInteractiveSessionPhase,
+  type IInteractiveSessionPhaseContext,
+} from '@/engine/InteractiveSession.phases';
 import {
   GameEventType,
   GamePhase,
@@ -101,6 +105,29 @@ function setupAtWeaponPhase(): IGameSession {
   return session;
 }
 
+/**
+ * Run one live interactive phase advance. Rollers are left to the engine
+ * defaults and `isGameOver` is false: this suite is about the PSR queue and
+ * drain, not victory.
+ */
+function advanceLivePhase(session: IGameSession): IGameSession {
+  let current = session;
+  const context: IInteractiveSessionPhaseContext = {
+    getSession: () => current,
+    setSession: (next) => {
+      current = next;
+    },
+    d6RollerForResolvers: () => undefined,
+    diceRollerForResolvers: () => undefined,
+    physicalContextByUnit: () => new Map(),
+    waterDepthAt: () => 0,
+    environmentHeatEffectAt: () => 0,
+    isGameOver: () => false,
+  };
+  advanceInteractiveSessionPhase(context);
+  return current;
+}
+
 /** Seed 20 damage on a unit so `checkPhaseDamagePSR` fires. */
 function seedDamage(
   session: IGameSession,
@@ -138,10 +165,10 @@ describe('wire-piloting-skill-rolls — engine phase loop', () => {
     let session = setupAtWeaponPhase();
     session = seedDamage(session, 'attacker', 20);
 
-    // runInteractivePhaseAdvance on WeaponAttack should lock + resolve
+    // advanceLivePhase on WeaponAttack should lock + resolve
     // attacks, then call `checkAndQueueDamagePSRs`, then advance to
     // PhysicalAttack. Attacker should have a pendingPSR at that point.
-    session = runInteractivePhaseAdvance(session);
+    session = advanceLivePhase(session);
 
     expect(session.currentState.phase).toBe(GamePhase.PhysicalAttack);
     const triggered = session.events.filter(
@@ -156,10 +183,10 @@ describe('wire-piloting-skill-rolls — engine phase loop', () => {
     session = seedDamage(session, 'attacker', 20);
 
     // WeaponAttack → PhysicalAttack → Heat → End, resolve at End.
-    session = runInteractivePhaseAdvance(session); // → PhysicalAttack
-    session = runInteractivePhaseAdvance(session); // → Heat
-    session = runInteractivePhaseAdvance(session); // → End
-    session = runInteractivePhaseAdvance(session); // resolves + advances past End
+    session = advanceLivePhase(session); // → PhysicalAttack
+    session = advanceLivePhase(session); // → Heat
+    session = advanceLivePhase(session); // → End
+    session = advanceLivePhase(session); // resolves + advances past End
 
     const resolved = session.events.filter(
       (e: IGameEvent) => e.type === GameEventType.PSRResolved,
@@ -170,10 +197,10 @@ describe('wire-piloting-skill-rolls — engine phase loop', () => {
   it('replay determinism: deriveState from events reproduces live state', () => {
     let session = setupAtWeaponPhase();
     session = seedDamage(session, 'attacker', 20);
-    session = runInteractivePhaseAdvance(session); // queues PSR
-    session = runInteractivePhaseAdvance(session); // physical → heat
-    session = runInteractivePhaseAdvance(session); // heat → end
-    session = runInteractivePhaseAdvance(session); // end → resolves PSR
+    session = advanceLivePhase(session); // queues PSR
+    session = advanceLivePhase(session); // physical → heat
+    session = advanceLivePhase(session); // heat → end
+    session = advanceLivePhase(session); // end → resolves PSR
 
     // Reprocessing the event log produces an identical snapshot for
     // every field `applyPSRTriggered` / `applyPSRResolved` / `applyUnitFell`
@@ -197,7 +224,7 @@ describe('wire-piloting-skill-rolls — engine phase loop', () => {
     // skipped for any reason.
     let session = setupAtWeaponPhase();
     session = seedDamage(session, 'attacker', 20);
-    session = runInteractivePhaseAdvance(session); // queues PSR
+    session = advanceLivePhase(session); // queues PSR
 
     expect(
       session.currentState.units['attacker'].pendingPSRs?.length,

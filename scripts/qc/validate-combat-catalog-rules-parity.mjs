@@ -15,15 +15,15 @@ const sourceAnchorsPath =
   process.env.MEKSTATION_COMBAT_CATALOG_ANCHORS_PATH ?? null;
 
 const expectedOutOfScopeSummary = {
-  total: 149,
-  levels: ['--expect-level=out-of-scope:149'],
-  scopes: ['--expect-scope=aggregate:3', '--expect-scope=leaf:146'],
+  total: 151,
+  levels: ['--expect-level=out-of-scope:151'],
+  scopes: ['--expect-scope=aggregate:3', '--expect-scope=leaf:148'],
   sections: [
     '--expect-section=actions:30',
     '--expect-section=damageAndDeath:6',
     '--expect-section=eventStream:16',
     '--expect-section=featureSupport:75',
-    '--expect-section=lifecycleAndPsr:2',
+    '--expect-section=lifecycleAndPsr:4',
     '--expect-section=pilotSkills:9',
     '--expect-section=ruleSupport:6',
     '--expect-section=validationScope:5',
@@ -220,7 +220,7 @@ const defaultSourceAnchors = [
     path: 'src/simulation/runner/__tests__/combatValidationCatalog.04.keeps-non-battlemech-scope-rows-auditable-without-maki.fragment.ts',
     tokens: [
       'keeps non-BattleMech scope rows auditable without making them BattleMech blockers',
-      'outOfScopeRows).toHaveLength(149)',
+      'outOfScopeRows).toHaveLength(151)',
       'non-battlemech-combat-system-split',
     ],
   },

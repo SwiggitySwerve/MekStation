@@ -19,7 +19,12 @@ import {
 } from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import {
+  getMechCrewType,
+  normalizeMechCrewSeats,
+} from '@/types/pilot/MechCrewSeats';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
+import { cloneSerializedStructure } from '@/utils/serialization/structureMetadata';
 
 import type { IRawSerializedUnit } from './types';
 
@@ -177,6 +182,7 @@ function deriveHeatSinkState(serialized: IRawSerializedUnit): HeatSinkState {
 function deriveArmorState(
   serialized: IRawSerializedUnit,
   techBase: TechBase,
+  configuration: MechConfiguration,
 ): ArmorState {
   const armorType = serialized.armor?.type
     ? mapArmorType(serialized.armor.type, techBase)
@@ -186,7 +192,11 @@ function deriveArmorState(
   return {
     armorType,
     armorAllocation,
-    armorTonnage: calculateArmorTonnage(armorAllocation, armorType),
+    armorTonnage: calculateArmorTonnage(
+      armorAllocation,
+      armorType,
+      configuration,
+    ),
   };
 }
 
@@ -270,6 +280,17 @@ export type NormalizedUnitConfiguration = Omit<
   'id' | 'isModified' | 'createdAt' | 'lastModifiedAt' | 'sourceDefinition'
 >;
 
+/** Saved Tripod/QuadVee seats; a configuration without native seats reopens blank. */
+function deriveCrewSeats(
+  serialized: IRawSerializedUnit,
+  configuration: MechConfiguration,
+  tonnage: number,
+): UnitState['crewSeats'] {
+  return getMechCrewType(configuration, tonnage)
+    ? normalizeMechCrewSeats(serialized.crewSeats)
+    : undefined;
+}
+
 export function normalizeUnitConfiguration(
   serialized: IRawSerializedUnit,
   equipment: UnitState['equipment'],
@@ -277,21 +298,36 @@ export function normalizeUnitConfiguration(
   const { techBaseMode, techBase } = deriveTechBaseContext(serialized);
   const model = deriveModel(serialized);
   const rulesLevel = deriveRulesLevel(serialized);
+  const configuration = deriveConfigurationState(
+    serialized,
+    techBase,
+    techBaseMode,
+  );
   const normalized = {
     ...deriveIdentityState(serialized, model, rulesLevel, techBase),
-    ...deriveConfigurationState(serialized, techBase, techBaseMode),
+    ...configuration,
     ...deriveEngineState(serialized, techBase),
     gyroType: deriveGyroType(serialized),
     internalStructureType: deriveStructureType(serialized, techBase),
+    ...(serialized.structure?.typeByLocation !== undefined ||
+    serialized.structure?.locationTonnage !== undefined
+      ? { frankenStructure: cloneSerializedStructure(serialized.structure) }
+      : {}),
     cockpitType: deriveCockpitType(serialized),
     ...deriveHeatSinkState(serialized),
-    ...deriveArmorState(serialized, techBase),
+    ...deriveArmorState(serialized, techBase, configuration.configuration),
     ...mapMovementConfiguration(serialized.movement),
     equipment,
     armActuators: deriveArmActuators(serialized),
   };
+  const crewSeats = deriveCrewSeats(
+    serialized,
+    normalized.configuration,
+    normalized.tonnage,
+  );
   return {
     ...normalized,
+    ...(crewSeats ? { crewSeats } : {}),
     bvContext: {
       source: serialized,
       equipment,

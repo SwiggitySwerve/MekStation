@@ -32,6 +32,8 @@ import {
 import * as orchestrator from '../../src/services/validation/UnitValidationOrchestrator';
 import { UnitCategory } from '../../src/types/unit/UnitTypeHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
+import { buildQuantityReport } from '../unit-construction-quantities';
+import { buildWeightReport } from '../unit-construction-weights';
 import {
   buildDeltaReport,
   calculateRow,
@@ -863,5 +865,287 @@ describe('opt-in MTF validity uses the converted mech through the editor project
       'Source hash mismatch',
     );
     expect(load).not.toHaveBeenCalled();
+  });
+});
+
+describe('opt-in construction weights ride along without moving anything else', () => {
+  let root: string;
+  const weights = ['node', 'delta.ts', '--construction-weights'];
+  const puma = () =>
+    vehicles.rows.find((row) =>
+      row.path.endsWith('Puma Assault Tank PAT-001.blk'),
+    )!;
+  // The BV payload is independent: weights use the pinned source bytes.
+  function write() {
+    const row = puma();
+    const relative = row.path.replace('data/mekfiles/', '');
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, row.content);
+    return {
+      path: relative,
+      sha256: sourceHash(Buffer.from(row.content)),
+      unit: null,
+      reason: 'BV payload is independent of the weight capture',
+    };
+  }
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'weights-'));
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+  });
+  afterEach(() => {
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  test('--construction-weights loads the JSON catalog, and stops on the fallback', async () => {
+    await prepareConstructionValidity(weights);
+    expect(getEquipmentLookupService().getDataSource()).toBe('json');
+    expect(getEquipmentRegistry().isReady()).toBe(true);
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    mockCatalogAvailable = false;
+    await expect(prepareConstructionValidity(weights)).rejects.toThrow(
+      'Equipment catalog unavailable',
+    );
+  });
+  test('adds only constructionWeights, byte-identical otherwise, with and without validity', async () => {
+    await prepareConstructionValidity(weights);
+    const raw = write();
+    for (const validity of [false, true]) {
+      const plain = calculateSources([raw], root, validity)[0];
+      const withWeights = calculateSources([raw], root, validity, true)[0];
+      const { constructionWeights, ...unchanged } = withWeights;
+      expect(constructionWeights).toBeDefined();
+      expect(JSON.stringify(unchanged)).toBe(JSON.stringify(plain));
+      expect(plain).not.toHaveProperty('constructionWeights');
+    }
+  });
+  test('the captured fact feeds the comparator end to end', async () => {
+    await prepareConstructionValidity(weights);
+    const raw = write();
+    const row = calculateSources([raw], root, false, true)[0];
+    const report = buildWeightReport(
+      [row],
+      [
+        {
+          path: raw.path,
+          sha256: raw.sha256,
+          concreteFamily: 'Tank',
+          battleValue: {
+            total: 1,
+            aggregates: { defensiveValue: 0, offensiveValue: 0 },
+          },
+          construction: {
+            weightTerms: {
+              getWeightEngine: 25,
+              getWeightStructure: 9.5,
+              getWeightWeapon: 32,
+              getWeightAmmo: 4,
+            },
+            weightTotal: 95,
+          },
+        },
+      ],
+      ['vehicles'],
+    );
+    expect(report.rows[0].terms.map((t) => t.status)).toEqual([
+      'exact',
+      'exact',
+      'grouped:mountedEquipment',
+      'grouped:mountedEquipment',
+    ]);
+    expect(report.rows[0].groups[0]).toMatchObject({
+      java: 36,
+      status: 'exact',
+    });
+  });
+  test('keeps hash rejection before any weight work', () => {
+    const raw = write();
+    fs.appendFileSync(path.join(root, raw.path), 'changed');
+    expect(() => calculateSources([raw], root, false, true)).toThrow(
+      'Source hash mismatch',
+    );
+  });
+});
+
+describe('opt-in verifier quantities ride along without moving anything else', () => {
+  let root: string;
+  const flag = ['node', 'delta.ts', '--construction-quantities'];
+  const puma = () =>
+    vehicles.rows.find((row) =>
+      row.path.endsWith('Puma Assault Tank PAT-001.blk'),
+    )!;
+  function write() {
+    const row = puma();
+    const relative = row.path.replace('data/mekfiles/', '');
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, row.content);
+    return {
+      path: relative,
+      sha256: sourceHash(Buffer.from(row.content)),
+      unit: null,
+      reason: 'BV payload is independent of the quantity capture',
+    };
+  }
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'quantities-'));
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+  });
+  afterEach(() => {
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  test('--construction-quantities loads the JSON catalog, and stops on the fallback', async () => {
+    await prepareConstructionValidity(flag);
+    expect(getEquipmentLookupService().getDataSource()).toBe('json');
+    expect(getEquipmentRegistry().isReady()).toBe(true);
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    mockCatalogAvailable = false;
+    await expect(prepareConstructionValidity(flag)).rejects.toThrow(
+      'Equipment catalog unavailable',
+    );
+  });
+  test('adds only constructionQuantities, byte-identical otherwise, alone and with the other modes', async () => {
+    await prepareConstructionValidity(flag);
+    const raw = write();
+    for (const [validity, weights] of [
+      [false, false],
+      [true, false],
+      [false, true],
+      [true, true],
+    ]) {
+      const plain = calculateSources([raw], root, validity, weights)[0];
+      const withQuantities = calculateSources(
+        [raw],
+        root,
+        validity,
+        weights,
+        true,
+      )[0];
+      const { constructionQuantities, ...unchanged } = withQuantities;
+      expect(constructionQuantities).toBeDefined();
+      expect(JSON.stringify(unchanged)).toBe(JSON.stringify(plain));
+      expect(plain).not.toHaveProperty('constructionQuantities');
+    }
+  });
+  test('one weight capture feeds both comparators', async () => {
+    await prepareConstructionValidity(flag);
+    const row = calculateSources([write()], root, false, true, true)[0];
+    const weights = row.constructionWeights as { total: number };
+    const quantities = row.constructionQuantities as {
+      values: { weightExact: number };
+    };
+    expect(quantities.values.weightExact).toBe(weights.total);
+  });
+  test('the captured fact feeds the comparator end to end', async () => {
+    await prepareConstructionValidity(flag);
+    const raw = write();
+    const row = calculateSources([raw], root, false, false, true)[0];
+    // Java: P1 vehicles/2750 IS Land/Puma Assault Tank PAT-001.blk (sha bee08713...).
+    const java = {
+      weightExact: { value: 95, unit: 't' },
+      weightRounded: { value: 95, unit: 't' },
+      weightDesign: { value: 95, unit: 't' },
+      armorPoints: { value: 184, unit: 'points' },
+      criticalSlots: { value: 150, unit: 'slots' },
+    };
+    const settings = Object.fromEntries([
+      ['ammoTechLevel', 0],
+      ['gameYear', -1],
+      ['getIntroYearMargin', 5],
+      ['getMaxOverweight', 0],
+      ['getMinUnderweight', 1],
+      ['getPrintSize', 70],
+      ['getTargetingComputerCrits', 0],
+      ...[
+        'Armor',
+        'Controls',
+        'Engine',
+        'Gyro',
+        'Lifting',
+        'PowerAmp',
+        'Structure',
+        'Turret',
+      ].map((name) => [`getWeightCeiling${name}`, 'HALF_TON']),
+      ['getWeightCeilingTargComp', 'TON'],
+      ['getWeightCeilingWeapons', 'TON'],
+      ['showCorrectArmor', true],
+      ['showCorrectCritical', true],
+      ['showFailedEquip', true],
+      ['showIncorrectIntroYear', true],
+      ['showOverweightedEntity', true],
+      ['showUnderweightEntity', false],
+      ['skip', false],
+    ]);
+    const report = buildQuantityReport(
+      [row],
+      [
+        {
+          path: raw.path,
+          sha256: raw.sha256,
+          concreteFamily: 'Tank',
+          battleValue: {
+            total: 1,
+            aggregates: { defensiveValue: 0, offensiveValue: 0 },
+          },
+          construction: {
+            valid: true,
+            verifierClass: 'megamek.common.verifier.TestTank',
+            verifierQuantities: java,
+            settings,
+          },
+        },
+      ],
+      ['vehicles'],
+    );
+    expect(
+      Object.fromEntries(
+        report.rows[0].quantities.map((q) => [q.key, q.status]),
+      ),
+    ).toEqual({
+      weightExact: 'exact',
+      weightRounded: 'missing-local',
+      weightDesign: 'exact',
+      armorPoints: 'exact',
+      criticalSlots: 'missing-local',
+    });
+    expect(report.rows[0].status).toBe('incomplete');
+    const cell = report.settings.cells[0];
+    const status = (key: string) =>
+      cell.results.find((result) => result.key === key)?.status;
+    expect(cell).toMatchObject({
+      family: 'vehicles',
+      verifierClass: 'TestTank',
+    });
+    expect(status('getMaxOverweight')).toBe('matched');
+    expect(status('showOverweightedEntity')).toBe('matched');
+    expect(status('getWeightCeilingControls')).toBe('matched');
+    expect(status('getIntroYearMargin')).toBe('matched');
+    expect(status('skip')).toBe('missing-local');
+    expect(status('getWeightCeilingEngine')).toBe('inapplicable-candidate');
+    expect(report.ok).toBe(false);
+  });
+  test('keeps hash rejection before any quantity work', () => {
+    const raw = write();
+    fs.appendFileSync(path.join(root, raw.path), 'changed');
+    expect(() => calculateSources([raw], root, false, false, true)).toThrow(
+      'Source hash mismatch',
+    );
   });
 });

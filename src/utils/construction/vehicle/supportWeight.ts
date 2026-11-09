@@ -17,7 +17,10 @@ import {
   computeSupportVehicleEngineWeight,
   getSupportVehicleSizeIndex,
 } from './engine';
-import { computeSupportPayloadWeights } from './supportPayload';
+import {
+  computeSupportPayloadWeights,
+  type SupportRegistryMass,
+} from './supportPayload';
 import { computeSupportTransportWeights } from './supportTransport';
 
 // MegaMek 48fcb2f6 TestSupportVehicle.java:102-121 (SVType chassis values).
@@ -96,7 +99,10 @@ export function computeSupportStructureWeight(
  * TestEntity.java:1011-1033 + TestSupportVehicle.java:768-775 order the sum;
  * BLKSupportTankFile.java:96-97 loads fuel directly in tons (not fuel points).
  */
-export function computeSupportVehicleWeight(unit: ISupportVehicle): {
+export function computeSupportVehicleWeight(
+  unit: ISupportVehicle,
+  registryMassOf?: SupportRegistryMass,
+): {
   structure: number;
   engine: number;
   armor: number;
@@ -133,6 +139,7 @@ export function computeSupportVehicleWeight(unit: ISupportVehicle): {
       ),
     },
     engine,
+    registryMassOf,
   );
   const transport = computeSupportTransportWeights(
     unit.transporters ?? [],

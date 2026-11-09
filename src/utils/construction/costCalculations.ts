@@ -76,6 +76,16 @@ export const COCKPIT_COSTS: Record<CockpitType, number> = {
   [CockpitType.INTERFACE]: 200000, // MekCostCalculator.java:54-77 (default).
   [CockpitType.VRRP]: 1250000, // 48fcb2f64 MekCostCalculator.java:65.
   [CockpitType.PRIMITIVE_INDUSTRIAL]: 100000, // 48fcb2f64 MekCostCalculator.java:66.
+  // Additional native identities: 48fcb2f64 MekCostCalculator.java:54-77.
+  [CockpitType.DUAL]: 40000,
+  [CockpitType.TRIPOD]: 400000,
+  [CockpitType.QUADVEE]: 375000,
+  [CockpitType.SUPER_HEAVY_TRIPOD]: 500000,
+  [CockpitType.SUPER_HEAVY_INDUSTRIAL]: 200000,
+  [CockpitType.SUPER_HEAVY_COMMAND_CONSOLE]: 800000,
+  [CockpitType.SMALL_COMMAND_CONSOLE]: 675000,
+  [CockpitType.TRIPOD_INDUSTRIAL]: 300000,
+  [CockpitType.SUPER_HEAVY_TRIPOD_INDUSTRIAL]: 400000,
 };
 
 /**

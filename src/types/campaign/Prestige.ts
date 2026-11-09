@@ -117,8 +117,13 @@ export interface IMoraleSignals {
   readonly recentVictories: number;
   /** Player defeats recorded since the last morale evaluation. */
   readonly recentDefeats: number;
-  /** True if the company met its pay obligations this period. */
-  readonly payMet: boolean;
+  /**
+   * True if the company met its pay obligations this period, false if it did
+   * not, and null on a day that carried no pay information (no daily-costs
+   * event). Paid costs are the baseline: true and null both score 0, and only
+   * false lowers morale (-1). An application design rule, not MekHQ parity.
+   */
+  readonly payMet: boolean | null;
   /** Count of personnel who deserted since the last evaluation. */
   readonly desertions: number;
 }

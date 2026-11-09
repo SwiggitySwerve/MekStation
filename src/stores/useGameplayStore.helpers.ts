@@ -12,6 +12,8 @@ import {
   type IAttackIntentState,
 } from '@/types/gameplay';
 import { deriveValidWeaponTargetIds } from '@/utils/gameplay/combatTargetIds';
+import { GAME_PHASE_ORDER } from '@/utils/gameplay/gamePhaseTransitions';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import { useAnimationQueue } from './useAnimationQueue';
 // Benign module cycle: `useGameplayStore.attackIntent` imports the
@@ -145,13 +147,12 @@ function advanceKnownInteractivePhase(
   }
 }
 
-const ADVANCEABLE_INTERACTIVE_PHASES: ReadonlySet<GamePhase> = new Set([
-  GamePhase.Initiative,
-  GamePhase.Movement,
-  GamePhase.WeaponAttack,
-  GamePhase.Heat,
-  GamePhase.End,
-]);
+// Every phase advances through the interactive session, PhysicalAttack
+// included: leaving it resolves the declared physical attacks, and without it
+// the UI's Physical advance was a silent no-op.
+const ADVANCEABLE_INTERACTIVE_PHASES: ReadonlySet<GamePhase> = new Set(
+  GAME_PHASE_ORDER,
+);
 
 function resetInteractiveSelection(
   interactiveSession: InteractiveSession,
@@ -222,9 +223,7 @@ function deriveSelectableWeaponTargetIds(
       .filter(([, candidate]) => {
         return (
           candidate.side !== selectedUnit.side &&
-          !candidate.destroyed &&
-          !candidate.hasRetreated &&
-          !candidate.hasEjected
+          getUnitOperability(candidate).onField
         );
       })
       .map(([unitId]) => unitId);

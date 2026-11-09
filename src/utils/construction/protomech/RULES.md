@@ -409,3 +409,84 @@ structure. `ProtoAutoAllocateProbe.java` copies the three methods byte-for-byte
 (hashes in the fixture's `meta`) and runs them on a real `ProtoMek` with the
 pinned `UnitUtil` and `TestProtoMek`. It needs a working directory that holds the
 pinned `mmconf/milestoneReleases.yml`.
+
+## Electric Discharge ProtoMech armor
+
+`armorType.ts` owns Standard ProtoMech (42; legacy 0/omitted) and Electric
+Discharge (18), their mass-per-point, torso slots and equipment identities.
+MegaMek `48fcb2f64` `ArmorType.java:1375-1420` gives Standard 0.05 t/point and
+EDP 0.075 t/point, one torso slot and equipment BV 32. The armor mount itself
+has zero mass. The catalog is unchanged. EDP is Clan Experimental, approximate
+prototype 3071, no production/common date, extinct 3085, no reintroduction;
+TechAdvancement's five-year approximation margin explains catalog year 3066.
+Both choices are available without year/faction filters: tech filtering remains
+deferred under O3. This is not a claim of tech-legality parity.
+
+`weight.ts` owns allocated armor mass and the extracted minimum-weight rule.
+`TestProtoMek.getWeightAllocatedArmor` returns points times weight-per-point;
+`calculateWeight` rounds the complete component sum to the nearest kilogram.
+There is no half-ton rounding. Complete weight is returned only when mounted
+mass can be accounted for; unknown equipment produces an explicit missing list.
+The Basilisk pair exercises the complete path, including the pinned fixed 1 t
+Quad melee mount (`MiscType.createProtoQuadMeleeSystem:9440-9450`) and Myomer
+Booster (`MiscType.getTonnage`, 0.025 times unit mass rounded to kg). Other
+weight families and unmodelled linked-equipment effects are not certified.
+EDP source validation uses this complete mass when available, otherwise the
+known minimum; Standard source validation retains the minimum-weight policy.
+
+`getProtoArmorSlotErrors` supersedes the earlier torso-slot deferral: count
+ordinary slot-taking torso mounts, excluding armor equipment, then add the
+selected armor's required slots. Torso equipment-mass limits remain separate.
+The mount remains the sole EDP BV contributor through
+`resolveProtoOffensiveEquipmentBV`; the armor-point coefficient is unchanged.
+An explicit armor edit creates/removes that mount; source loading retains the
+source declarations. Unknown armor identities produce diagnostics, not a
+Standard-looking identity. Saves retain the existing numeric field and schema.
+
+Compatibility deviation approved by Coordinator 3: pinned MML `62bf193`
+`PMStructureTab.freeUpSpace` (line 289) unassigns optional torso mounts with
+`UnitUtil.changeMountStatus(... Entity.LOC_NONE ...)` at line 310 before
+creating the armor mount (`createArmorMountsAndSetArmorType`, line 319).
+MekStation has no unallocated ProtoMech location yet. Its armor edit retains
+all equipment, allows EDP and displays slot overflow instead of unassigning.
+Follow-up: **unallocated ProtoMech mounts and MML's EDP transition**, routed by
+Coordinator 3 with Equipment/Assign Criticals work.
+
+## Resolved zero-misc diagnostic projection
+
+At MegaMek `48fcb2f64`, `BVCalculator.processOffensiveEquipment` calls
+`offensiveEquipmentBV` while testing for zero, before skipping arithmetic.
+The existing Java trace hook records that actual zero. The local equipment
+owner retains separate optional `resolvedZeroEquipmentMountBV` facts only
+for resolved catalog zeros with error-free, matching BLK source identity and
+the represented source block: EIInterface, CLMyomerBooster,
+ProtoMechJumpJet and ExtendedJumpJetSystem at Body, and ProtoMechPartialWing
+at Torso. `BLKProtoMekFile.loadEquipment` and `TestProtoMek.requiresSlot`
+place the four no-slot types at native Body 0. Public mount locations and
+existing positive-misc facts are preserved; the trace's existing location map
+continues to format Torso 2. Other blocks and identities remain unprojected.
+
+Unknown resolver fallback zeros, missing/malformed provenance, and nonzero or
+nonfinite values produce no fact. Optional zero facts retain each actual mount
+index, id and public location in encounter order, with a separate Body index
+where needed. The trace formats those facts with native last-put semantics.
+These diagnostic facts never enter arithmetic, admission, quantities or caps.
+Legacy breakdowns remain supported without inferred zeros. This establishes
+only the represented zero-term projection, without catalog, source-location,
+persistence or general equipment-rule changes.
+
+## Native weapon indices after intrinsic one-shot ammunition
+
+`nativeEquipmentIndices.ts` owns the diagnostic mapping from source mounts to
+native equipment positions. MegaMek `48fcb2f64` `Entity.java:5093-5175`
+appends intrinsic ammo immediately after its launcher; Fusillade inserts two
+mounts through `F_DOUBLE_ONE_SHOT`. `AmmoType.java:2443-2447` excludes weapons
+without an ammo type. The independent generated `nativeOneShotAmmoMounts.ts`
+retains those insertion counts without changing the legacy weapon-flag tables.
+
+Weapon snapshots retain their local `equipmentIndex`, identity, location and
+already-admitted BV. Only a shifted snapshot appends `nativeEquipmentIndex`;
+the trace formats that value and falls back to the local index for existing
+breakdowns. Sprite 3 therefore renames only raw weapon indices 8/9/10 to
+10/13/14. Source equipment, explicit ammo, quantities, equipment projections,
+classification, caps, arithmetic, validity and persistence are unchanged.

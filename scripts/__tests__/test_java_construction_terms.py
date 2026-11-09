@@ -43,20 +43,38 @@ class ConstructionTermsTest(unittest.TestCase):
         row['construction']['reconstruction']['absoluteTolerance'] = 1
         self.assertTrue(construction_errors([row]))
 
-    def test_unsupported_is_retained_separately_never_a_reconstruction_pass(self):
+    def infantry_row(self, terms, total):
         row = self.row()
         row['path'] = 'infantry/a.blk'
-        row['construction'] = {'weightTermsStatus': {'status': 'unsupported', 'reason': 'native static calculation'},
-                               'reconstruction': {'ok': False, 'status': 'unsupported'}}
-        self.assertEqual(construction_errors([row]), [])
-        forged = copy.deepcopy(row)
-        forged['construction']['reconstruction']['ok'] = True
-        self.assertTrue(construction_errors([forged]))
-        row['path'] = 'vehicles/a.blk'
-        self.assertTrue(construction_errors([row]))
-        row['path'] = 'infantry/a.blk'
-        row['construction']['weightTermsStatus']['reason'] = ''
-        self.assertTrue(construction_errors([row]))
+        row['construction'].update(weightTerms=terms, weightTotal=total,
+                                   weightRemainder=total - sum(terms.values()))
+        return row
+
+    def test_unsupported_is_never_accepted_for_any_family(self):
+        for path in ('infantry/a.blk', 'vehicles/a.blk'):
+            row = self.row()
+            row['path'] = path
+            row['construction'] = {'weightTermsStatus': {'status': 'unsupported', 'reason': 'native static calculation'},
+                                   'reconstruction': {'ok': False, 'status': 'unsupported'}}
+            self.assertTrue(construction_errors([row]), path)
+            forged = copy.deepcopy(row)
+            forged['construction']['reconstruction']['ok'] = True
+            self.assertTrue(construction_errors([forged]), path)
+
+    def test_infantry_unmounted_and_mounted_terms_reconstruct(self):
+        unmounted = self.infantry_row({'trooper.base': 2.125, 'trooper.antiMekGear': 0.375,
+                                       'fieldWeapon.0': 1.5, 'ammo.0': 0.25}, 4.25)
+        mounted = self.infantry_row({'mount.weight': 6.0, 'mount.trooperGear': 1.0}, 7.0)
+        self.assertEqual(construction_errors([unmounted, mounted]), [])
+        drifted = copy.deepcopy(unmounted)
+        drifted['construction']['weightTotal'] = 4.5
+        self.assertTrue(construction_errors([drifted]))
+
+    def test_infantry_rows_need_exactly_one_base_term(self):
+        for terms in ({'ammo.0': 0.25}, {'trooper.base': 1.0, 'mount.weight': 1.0},
+                      {'trooper.base': 1.0, 'mount.trooperGear': 0.5}):
+            row = self.infantry_row(terms, sum(terms.values()))
+            self.assertTrue(construction_errors([row]), terms)
 
     def test_failure_stages_remain_visible(self):
         row = self.row()
@@ -74,8 +92,11 @@ class ConstructionTermsTest(unittest.TestCase):
         self.assertEqual(len(fixture['rows']), 24)
         self.assertEqual(construction_errors(fixture['rows']), [])
         supported = [row['construction'] for row in fixture['rows'] if 'weightTerms' in row['construction']]
-        self.assertEqual(len(supported), 21)
+        self.assertEqual(len(supported), 24)
         self.assertTrue(all('getWeight' not in c['weightTerms'] for c in supported))
+        motorized = next(row['construction'] for row in fixture['rows'] if 'Motorized Platoon TC 3047+ (SRM)' in row['path'])
+        self.assertEqual(motorized['weightTerms'], {'trooper.base': 5.8500000000000005, 'trooper.antiMekGear': 0.44999999999999996})
+        self.assertEqual(motorized['weightTotal'], 6.300000000000001)
         self.assertTrue(any(c['weightTerms'].get('getFuelTonnage', 0) > 0 for c in supported))
         self.assertTrue(any('trooper.0.rounding' in c['weightTerms'] for c in supported))
 

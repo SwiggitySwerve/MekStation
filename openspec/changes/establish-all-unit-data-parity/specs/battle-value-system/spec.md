@@ -241,6 +241,56 @@ required before returning complete scope.
 - **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
 - **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
 
+### Requirement: Large aerospace weapon-group diagnostic projection
+
+The large aerospace mount owner SHALL retain, for each arc, the equal-mount
+groups the native calculator sums before valuation (same type, physical
+location, rear flag and link type), and the complete trace SHALL project one
+weapon term per group: count times link-multiplied value times the arc weight,
+plus one capacitor addition per group after weighting. Terms SHALL be keyed by
+the physical location abbreviation (DropShip wings LS and RS; otherwise NOS,
+FLS, FRS, ALS, ARS, AFT, LBS, RBS), never by the BV arc. Local indices SHALL NOT
+assert native equipment identity. Existing mount valuation, arc selection,
+aggregates, totals and defensive-only scope SHALL remain unchanged, and
+defensive-only results SHALL NOT receive weapon terms.
+
+#### Scenario: Rear mounts keep their physical location
+
+- **GIVEN** the pinned Aqueduct Liquid Carrier with rear-mounted medium lasers on each wing
+- **WHEN** its complete large aerospace trace is calculated
+- **THEN** the wing weapons SHALL appear at LS and RS with values 46 and 23, though their BV arcs are the rear wing arcs
+- **AND** the nose, aft large laser and aft machine gun SHALL appear at NOS, AFT and AFT with values 30.75, 123 and 10
+- **AND** the terms SHALL sum to the weapon fire-pool BV and final BV 919 SHALL remain unchanged
+
+### Requirement: Large aerospace native ammunition diagnostic projection
+
+The complete large aerospace trace SHALL project the native ammunition pools the
+pinned calculator assembles: per BV arc, `ammo.cap` (the unweighted base BV of
+ammo-using weapons) and `ammo.available` (the unweighted ammunition BV with
+multi-ton ratio, omitting depleted bins), keyed `<BV arc index>:<type>:<rack>`;
+and `ammo.arc.<name>` for every arc, the weighted and capped ammunition added
+when that arc is processed, including zero. A screen launcher SHALL keep its
+native `SCREEN_LAUNCHER:0` cap entry as a trace-only fact without becoming an
+offensive weapon or ammunition. Arc names SHALL follow the unit kind (DropShip
+wings `Left Side`, `Left Side (R)` and so on; otherwise `Left Front Side`,
+`Aft Left Side`, and `Left Broadsides` for WarShips). Existing valuation, caps,
+arc selection, aggregates, totals and defensive-only scope SHALL remain
+unchanged, and defensive-only results SHALL NOT receive ammunition terms.
+
+#### Scenario: Pinned WarShip pools and broadsides
+
+- **GIVEN** the pinned Bonaventure Corvette (2317) with LRM-15 launchers in the nose and aft and AC/10 launchers on both broadsides
+- **WHEN** its complete large aerospace trace is calculated
+- **THEN** ammo.cap SHALL equal 272 at arcs 0 and 3 (`LRM:15`) and 246 at arcs 6 and 7 (`AC:10`), and ammo.available SHALL equal 119 and 120 at the same keys
+- **AND** ammo.arc SHALL equal 119 (Nose), 59.5 (Aft) and 30 each for Left and Right Broadsides, with zero for the other four arcs
+- **AND** final BV SHALL remain unchanged
+
+#### Scenario: Screen launcher cap entry
+
+- **GIVEN** nose screen launchers whose pinned-Java cap entry is 480 (the Hamilcar 3084 value, 3 x 160)
+- **WHEN** the trace is projected
+- **THEN** ammo.cap at arc 0 SHALL list `SCREEN_LAUNCHER:0` as 480 with no availability and no offensive BV
+
 ### Requirement: Capital ship defensive BV dispatch
 
 JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
@@ -333,7 +383,6 @@ points or deriving a BV rule.
 - **GIVEN** converter output carrying FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT or ROTOR
 - **WHEN** the contract BV adapter maps armor and equipment
 - **THEN** it SHALL preserve the corresponding domain location and armor points
-
 
 ### Requirement: Runtime parity term validation
 
@@ -458,6 +507,96 @@ numeric output before native identity, quantity or grouping corrections.
 - **AND** a normal launcher in the same group SHALL retain its own listed-BV cap
 - **AND** callers omitting separate cap inputs SHALL retain their existing policy
 - **AND** unchanged totals from nonbinding source ammunition SHALL NOT establish complete ammunition parity
+
+### Requirement: Aerospace weapon diagnostics
+
+The ordinary aerospace calculation owners SHALL retain actual admitted
+per-mount weapon values after existing link, direction, heat and support
+fire-control stages. The trace SHALL format those supplied facts using local
+input identity and known physical locations without recalculating BV or
+inventing native equipment identities. Existing scalar arithmetic, ammo terms,
+modifiers, source inputs and totals SHALL remain unchanged. Missing facts SHALL
+remain absent; ammo, defensive equipment and unresolved mounts SHALL NOT create
+weapon terms.
+
+#### Scenario: Small-craft heat diagnostics preserve aggregate BV
+
+- **GIVEN** the pinned Dragonstar Assault Transport (3060) source
+- **WHEN** its ordinary aerospace breakdown is projected
+- **THEN** the two aft weapon values SHALL be 31 and 15.5
+- **AND** its total SHALL remain 1175 with every previous numerical field unchanged
+
+#### Scenario: Rear mounts retain their physical location
+
+- **GIVEN** two rear-mounted medium lasers physically installed in a fighter's left wing and one forward nose medium laser
+- **WHEN** the rear group dominates without heat discounts
+- **THEN** weapon terms SHALL retain two LWG values of 46 and one NOS value of 23
+- **AND** the trace SHALL preserve multiplicity without treating physical ammo bins as weapons
+
+### Requirement: Supplemental Mech ammunition diagnostic projection
+
+The Mech owner SHALL project source-backed raw AMS/APDS, improved AC/Gauss,
+fluid-gun and primitive-AC caps, and omitted native availability including
+genuinely zero-valued usable coolant pods. Grouping SHALL remain in the ammo
+owner and the trace SHALL format its results. Existing arithmetic inputs,
+defensive ammunition calculations, pools, quantities, modifiers, diagnostic
+facts and totals SHALL remain unchanged; unavailable facts SHALL remain absent.
+
+#### Scenario: Raw defensive launcher caps and real zero-valued bins
+
+- **GIVEN** a represented AMS mount valued at 32, an APDS mount valued at 64 or a usable physical coolant pod valued at zero
+- **WHEN** the Mech breakdown and trace are calculated
+- **THEN** the corresponding source-backed raw cap or availability term SHALL be present under its native type/rack key
+- **AND** repeated source facts SHALL accumulate through the existing ammo owner without overwriting existing pool values
+- **AND** missing, unresolved, empty or intrinsic one-shot facts SHALL NOT invent terms, and all original numerical outputs SHALL remain unchanged
+
+### Requirement: Aerospace ammunition diagnostics
+
+The ordinary aerospace ammo owner SHALL retain actual uncapped availability and
+raw launcher caps under known native type/rack identities. The trace SHALL format
+these facts without recalculating BV. Scalar arithmetic, all existing weapon
+diagnostics, source inputs and totals SHALL remain unchanged. Unresolved facts
+SHALL remain absent, and legacy inputs omitting ammo SHALL retain their trace.
+
+#### Scenario: Availability exceeds the weapon cap
+
+- **GIVEN** an SRM-2 valued at 21 BV and physical bins totaling 100 BV
+- **WHEN** ordinary aerospace BV is calculated with explicit ammo
+- **THEN** availability SHALL equal 100 and the raw cap SHALL equal 21
+- **AND** ammo BV SHALL remain 21 before the existing support fire-control factor
+
+#### Scenario: Independent bins and caps
+
+- **GIVEN** unmatched bins, an explicit empty ammo list, or represented AMS launchers
+- **WHEN** ordinary aerospace ammo diagnostics are projected
+- **THEN** unmatched bins SHALL retain availability without inventing a cap, empty lists SHALL retain real caps without inventing bins, and AMS raw caps SHALL remain outside offensive ammo arithmetic
+- **AND** direction, heat, fire control and speed SHALL NOT scale these diagnostics
+
+### Requirement: Infantry raw weapon-stage diagnostics
+
+The infantry BV owner SHALL supply optional primary, represented secondary,
+anti-Mek repeat and remaining weapon-stage values to the trace. Their
+`infantry.primaryWeaponBV`, `infantry.secondaryWeaponBV`,
+`infantry.antiMekWeaponBV` and `infantry.weaponRemainderBV` projections SHALL
+retain pinned native operation order and floating-point residuals without
+rounding. Existing per-trooper arithmetic, old diagnostics, source inputs,
+aggregates and totals SHALL remain unchanged.
+
+#### Scenario: Native stages retain fractional residuals
+
+- **GIVEN** pinned infantry with primary and optional secondary weapons, anti-Mek training or field guns
+- **WHEN** source weapon-stage diagnostics are projected
+- **THEN** primary and secondary values SHALL use the original shooter counts
+- **AND** anti-Mek weapon repeats SHALL exclude archaic weapons and prosthetic bonuses
+- **AND** the remainder SHALL subtract primary, secondary, field guns and anti-Mek repeats in native order, retaining even tiny nonzero residuals
+
+#### Scenario: Missing facts, zero values and replay compatibility
+
+- **GIVEN** a legacy calculation without source facts, an absent secondary weapon or a represented zero secondary contribution
+- **WHEN** its breakdown is calculated or replayed
+- **THEN** absent source facts and absent secondary weapons SHALL NOT acquire diagnostic keys
+- **AND** represented zero values SHALL remain present and finite
+- **AND** strict replay SHALL accept the optional finite keys and legacy payloads while rejecting nonfinite diagnostics
 
 ## MODIFIED Requirements
 
@@ -835,7 +974,6 @@ The offensive pool SHALL NOT add tonnage or a generic physical-attack bonus.
 - **AND** source fields, export bytes and unrelated BV components SHALL be checked separately from changed speed, offensive subtotal and total values
 - **AND** equipment pools, damage/options, complete BV and production editor/save flows SHALL remain unverified until independently proven
 
-
 ### Requirement: ProtoMech Defensive BV
 
 The proto defensive BV SHALL combine armor, structure, defensive equipment,
@@ -903,8 +1041,8 @@ TMM, including zero Run. Every ProtoMech SHALL add 0.1 to the inherited factor.
 - **AND** negative, fractional, infinite and signed-zero inputs SHALL retain their prior results
 - **AND** construction and gameplay SHALL preserve their distinct guards and interval conventions
 
-
 #### Scenario: Shared thresholds preserve the BV validation adapter
+
 - **GIVEN** the active `validate:bv` adapter selecting defensive calculator inputs
 - **WHEN** standard TMM thresholds and their inverse bracket minima are consolidated
 - **THEN** it SHALL consume the movement owner for both lookups
@@ -1075,7 +1213,6 @@ remain available and equal 1 for these turret kinds.
 - **AND** every unit moving away SHALL be explained with its component values
 - **AND** the mass correction SHALL NOT establish complete vehicle BV parity
 
-
 #### Scenario: Project existing vehicle weapon mount results
 
 - **GIVEN** the pinned Tamerlane Flamer and rocket-launcher variants
@@ -1217,73 +1354,142 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **WHEN** BV is computed
 - **THEN** ammo BV SHALL equal `10 * 4 / 1000 * 2 = 0.08` per trooper and final BV SHALL equal 219
 
-
 #### Scenario: Partial wing raises BV movement
 
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
 
-### Requirement: Aerospace weapon diagnostics
+### Requirement: Vehicle ammunition diagnostic projection
 
-The ordinary aerospace calculation owners SHALL retain actual admitted
-per-mount weapon values after existing link, direction, heat and support
-fire-control stages. The trace SHALL format those supplied facts using local
-input identity and known physical locations without recalculating BV or
-inventing native equipment identities. Existing scalar arithmetic, ammo terms,
-modifiers, source inputs and totals SHALL remain unchanged. Missing facts SHALL
-remain absent; ammo, defensive equipment and unresolved mounts SHALL NOT create
-weapon terms.
+The vehicle owner SHALL transport its admitted uncapped native ammunition and
+raw weapon-cap pools from the shared ammunition owner. The trace SHALL format
+these facts as `ammo.available.<type>:<rack>` and `ammo.cap.<type>:<rack>` without
+regrouping them or recomputing BV. Existing capped ammo BV, fire-control and
+speed modifiers, source inputs and numerical outputs SHALL remain unchanged.
+Unavailable native pool facts SHALL remain absent and their remainder SHALL be
+reported explicitly.
 
-#### Scenario: Small-craft heat diagnostics preserve aggregate BV
+#### Scenario: Raw pools remain independent of capped ammo and weapon modifiers
 
-- **GIVEN** the pinned Dragonstar Assault Transport (3060) source
-- **WHEN** its ordinary aerospace breakdown is projected
-- **THEN** the two aft weapon values SHALL be 31 and 15.5
-- **AND** its total SHALL remain 1175 with every previous numerical field unchanged
+- **GIVEN** an SRM-2 with listed BV 21 and Artemis IV, and physical bins valued at 32 and 4
+- **WHEN** the vehicle's diagnostic pools are projected
+- **THEN** `ammo.available.SRM:2` SHALL be 36 and `ammo.cap.SRM:2` SHALL be 21
+- **AND** weapon BV SHALL remain 25.2 and capped ammunition BV SHALL remain 21
 
-#### Scenario: Rear mounts retain their physical location
+#### Scenario: Support fire-control scaling leaves raw pools intact
 
-- **GIVEN** two rear-mounted medium lasers physically installed in a fighter's left wing and one forward nose medium laser
-- **WHEN** the rear group dominates without heat discounts
-- **THEN** weapon terms SHALL retain two LWG values of 46 and one NOS value of 23
-- **AND** the trace SHALL preserve multiplicity without treating physical ammo bins as weapons
+- **GIVEN** a support vehicle with basic fire control, an SRM-2 valued at 21 and a bin valued at 3
+- **WHEN** the vehicle's diagnostic pools are projected
+- **THEN** the raw availability SHALL remain 3 and the raw cap SHALL remain 21
+- **AND** the existing scaled ammunition BV SHALL remain 2.7
 
-### Requirement: Supplemental Mech ammunition diagnostic projection
+#### Scenario: Defensive launcher caps do not admit defensive ammunition
 
-The Mech owner SHALL project source-backed raw AMS/APDS, improved AC/Gauss,
-fluid-gun and primitive-AC caps, and omitted native availability including
-genuinely zero-valued usable coolant pods. Grouping SHALL remain in the ammo
-owner and the trace SHALL format its results. Existing arithmetic inputs,
-defensive ammunition calculations, pools, quantities, modifiers, diagnostic
-facts and totals SHALL remain unchanged; unavailable facts SHALL remain absent.
+- **GIVEN** an AMS valued at 32, or two APDS launchers valued at 64 each, with their defensive ammunition
+- **WHEN** the shared diagnostic owner supplies their raw native cap facts
+- **THEN** `ammo.cap.AMS:2` SHALL be 32 or `ammo.cap.APDS:2` SHALL be 128 respectively
+- **AND** defensive ammunition SHALL remain absent from offensive availability, with every existing arithmetic result unchanged
 
-#### Scenario: Raw defensive launcher caps and real zero-valued bins
+#### Scenario: Project admitted implicit infantry clips on support vehicles
 
-- **GIVEN** a represented AMS mount valued at 32, an APDS mount valued at 64 or a usable physical coolant pod valued at zero
-- **WHEN** the Mech breakdown and trace are calculated
-- **THEN** the corresponding source-backed raw cap or availability term SHALL be present under its native type/rack key
-- **AND** repeated source facts SHALL accumulate through the existing ammo owner without overwriting existing pool values
-- **AND** missing, unresolved, empty or intrinsic one-shot facts SHALL NOT invent terms, and all original numerical outputs SHALL remain unchanged
+- **GIVEN** a fresh support vehicle carrying native infantry weapons whose positive clip shots and ammunition admission are represented by pinned equipment facts
+- **WHEN** its diagnostic ammunition pools are projected
+- **THEN** usable generic infantry clips SHALL form one `ammo.available.INFANTRY:0` group with value zero, without a launcher cap
+- **AND** initial clip size SHALL be one; a BLK size above one SHALL multiply native clip shots using Java integer truncation
+- **AND** combat vehicles, BA weapons, unresolved admission context, native NA or empty clips and intrinsic one-shot ammunition SHALL NOT acquire this group
+- **AND** a supplied infantry flag alone SHALL NOT establish ammunition admission
+- **AND** existing BV arithmetic, other diagnostic keys, source inputs, loads, validity, catalogs and persisted mounts SHALL remain unchanged
 
-### Requirement: Aerospace ammunition diagnostics
+### Requirement: BA ammo diagnostics
 
-The ordinary aerospace ammo owner SHALL retain actual uncapped availability and
-raw launcher caps under known native type/rack identities. The trace SHALL format
-these facts without recalculating BV. Scalar arithmetic, all existing weapon
-diagnostics, source inputs and totals SHALL remain unchanged. Unresolved facts
-SHALL remain absent, and legacy inputs omitting ammo SHALL retain their trace.
+The BA mount owner SHALL retain its existing pre-cap ammo BV per native
+`ammoType:rackSize` pool and the launcher BV per pool. The trace SHALL format
+those supplied facts as `ammo.available.<pool>` and `ammo.cap.<pool>` for the
+squad and as `trooper.N.ammo.*` for every trooper, without recalculating BV.
+Existing scalar arithmetic, ammo BV, source inputs and totals SHALL remain
+unchanged. A pool absent from the owner result SHALL create no term.
 
-#### Scenario: Availability exceeds the weapon cap
+#### Scenario: Pre-cap pool beside a capped ammo BV
 
-- **GIVEN** an SRM-2 valued at 21 BV and physical bins totaling 100 BV
-- **WHEN** ordinary aerospace BV is calculated with explicit ammo
-- **THEN** availability SHALL equal 100 and the raw cap SHALL equal 21
-- **AND** ammo BV SHALL remain 21 before the existing support fire-control factor
+- **GIVEN** the pinned Cavalier [SRM] source with an SRM-1 launcher and a bin whose pool BV exceeds the launcher BV
+- **WHEN** its BA breakdown is projected
+- **THEN** `ammo.available.SRM:1` SHALL report the pre-cap pool, `ammo.cap.SRM:1` SHALL equal 15 and ammo BV SHALL remain capped at 15
 
-#### Scenario: Independent bins and caps
+### Requirement: Infantry per-weapon BV diagnostic projection
 
-- **GIVEN** unmatched bins, an explicit empty ammo list, or represented AMS launchers
-- **WHEN** ordinary aerospace ammo diagnostics are projected
-- **THEN** unmatched bins SHALL retain availability without inventing a cap, empty lists SHALL retain real caps without inventing bins, and AMS raw caps SHALL remain outside offensive ammo arithmetic
-- **AND** direction, heat, fire control and speed SHALL NOT scale these diagnostics
+The infantry calculation owner SHALL retain the values already computed for
+each source-backed weapon call without changing resolution, admission, shooter
+counts, arithmetic, modifiers, ammunition, aggregates or totals. Repeated
+temporary trooper weapon identities SHALL merge in native call order, including
+eligible anti-Mek repeats. Separate field-gun mounts SHALL remain separate.
+The trace SHALL format retained values as optional `weapon.*` diagnostics;
+it SHALL NOT recalculate contributions or infer missing facts.
+
+#### Scenario: Primary, secondary and anti-Mek weapon calls
+
+- **GIVEN** source infantry with distinct primary and secondary weapons
+- **WHEN** the existing owner computes their shooter contributions and eligible anti-Mek repeats
+- **THEN** each identity SHALL retain its merged pre-speed weapon contribution
+- **AND** archaic weapons SHALL receive no anti-Mek repeat, while prosthetic and augmentation bonuses SHALL remain in the existing remainder
+
+#### Scenario: Shared identities and separate field guns
+
+- **GIVEN** primary and secondary calls with the same weapon identity, or repeated field-gun mounts
+- **WHEN** the weapon trace is projected
+- **THEN** temporary trooper calls SHALL merge into one identity in call order
+- **AND** each field gun SHALL retain its own local mount ordinal, resolved identity, FGUN location and already-computed value
+
+#### Scenario: Zero, absence and replay compatibility
+
+- **GIVEN** a represented zero-valued weapon or a legacy input without source weapon facts
+- **WHEN** the breakdown is projected and validated for replay
+- **THEN** a represented zero SHALL remain present, and absent facts SHALL remain absent
+- **AND** only optional finite values at recognized weapon diagnostic keys SHALL be accepted, with unknown-key rejection preserved
+- **AND** existing replay fixtures, digests, golden results and all prior infantry terms SHALL remain unchanged
+
+### Requirement: ProtoMech resolved-zero miscellaneous diagnostics
+
+The ProtoMech equipment owner SHALL retain optional diagnostic facts for actual
+resolved catalog zeros of the five represented native miscellaneous identities
+with matching, error-free BLK source provenance. Body EI interfaces, myomer
+boosters, ProtoMech jump jets and extended jump systems SHALL retain native
+location 0 independently of the public mount location. A Torso partial wing
+SHALL use the existing native location formatter. The trace SHALL format these
+facts with native last-put semantics without changing existing positive facts,
+source data, arithmetic, equipment admission, ammunition policy or totals.
+Unresolved fallback zeros and missing or unsupported facts SHALL remain absent.
+
+#### Scenario: Actual resolved zeros and retained source locations
+
+- **GIVEN** represented source mounts whose catalog BV resolves to zero at Body or Torso
+- **WHEN** the public ProtoMech breakdown and trace are calculated
+- **THEN** actual zero-valued native equipment keys SHALL be present at their supported native locations
+- **AND** repeated mounts SHALL retain individual facts while duplicate keys use the last actual value
+- **AND** all original source values, validity, positive facts and numerical outputs SHALL remain unchanged
+
+#### Scenario: Unknown zeros and missing source evidence
+
+- **GIVEN** an unresolved zero fallback, malformed or absent provenance, unsupported identity or source block, nonzero value or legacy breakdown
+- **WHEN** zero-misc diagnostics are projected
+- **THEN** no absent or unsupported fact SHALL become an invented zero or native location
+- **AND** existing weapon, positive miscellaneous and ammunition projections SHALL remain unchanged
+
+
+### Requirement: ProtoMech native raw weapon indices
+
+The ProtoMech offensive owner SHALL retain local equipment indices and append
+an optional native weapon index where intrinsic one-shot ammo shifts subsequent
+mount positions. The independent generated insertion counts SHALL account for
+two ammo mounts after each Fusillade. The trace SHALL format the supplied native
+index with a local-index fallback for legacy snapshots. Existing source data,
+equipment identities, ammunition, validity, persistence and BV SHALL remain
+unchanged. Legacy weapon-flag tables SHALL remain unchanged.
+
+#### Scenario: Sprite 3 double one-shot launcher positions
+
+- **GIVEN** pinned Sprite 3 source weapon indices 7, 8, 9 and 10
+- **WHEN** its public breakdown and raw weapon terms are calculated
+- **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
+- **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
+- **AND** all mount values, other terms, source data and BV SHALL remain unchanged

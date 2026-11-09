@@ -589,14 +589,11 @@ describe('structure.ts', () => {
           { abbreviation: 'FRL', points: 10 },
         ]);
 
-        // quadvee is not in PREMADE_PIP_TYPES, so should use dynamic generation
-        // Note: quadvee doesn't have its own pip group mapping, so it falls back to biped
-        // which doesn't have FLL/FRL, but the code will warn and skip
+        // quadvee is not in PREMADE_PIP_TYPES, so it uses dynamic generation, and
+        // the QuadVee template carries the quad group IDs (isPipsFLL, isPipsFRL).
         await fillStructurePips(svgDoc, svgRoot, structure, 50, 'quadvee');
 
-        // Since quadvee falls back to biped pip group IDs (which don't have FLL/FRL),
-        // warnings should be logged but ArmorPipLayout won't be called
-        expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect(consoleWarnSpy).not.toHaveBeenCalledWith(
           expect.stringContaining('No structure pip group ID for location'),
         );
       });

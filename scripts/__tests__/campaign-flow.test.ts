@@ -24,10 +24,12 @@ function submission() {
   const saved = deferred<Response>();
   const dashboard = deferred<void>();
   const click = deferred<void>();
-  const legacyError = deferred<void>();
   const heldProbe = deferred<boolean>();
+  const heldText = deferred<string>();
   let visible = false;
   let holdProbe = false;
+  let holdText = false;
+  let currentUrl = 'http://localhost/gameplay/campaigns/create';
   let serial = 0;
   const track = <T>(
     label: string,
@@ -62,9 +64,6 @@ function submission() {
       text: async () => 'save failed body',
     }) as unknown as Response;
   const errorLocator = {
-    waitFor: jest.fn(({ timeout }: { timeout: number }) =>
-      track('legacy locator', legacyError, timeout),
-    ),
     isVisible: jest.fn(() => {
       if (holdProbe) {
         holdProbe = false;
@@ -74,13 +73,22 @@ function submission() {
       probe.resolve(visible);
       return track('visibility probe', probe);
     }),
-    innerText: jest.fn(async () => 'invalid campaign name'),
+    // Keep the retrying API in the double so reintroducing it exposes the
+    // disappearing-element wait rather than silently passing this regression.
+    innerText: jest.fn(() =>
+      holdText
+        ? track('validation text', heldText)
+        : Promise.resolve('invalid campaign name'),
+    ),
+    allInnerTexts: jest.fn(async () => ['invalid campaign name']),
   };
   const toHaveURL = jest.fn((_url: RegExp, options: { timeout: number }) =>
     track('dashboard', dashboard, options.timeout),
   );
   (playwrightExpect as unknown as jest.Mock).mockReturnValue({ toHaveURL });
+  const url = jest.fn(() => currentUrl);
   const page = {
+    url,
     on: (event: string, listener: (value: Request) => void) =>
       requests.on(event, listener),
     off: (event: string, listener: (value: Request) => void) =>
@@ -105,19 +113,27 @@ function submission() {
     page: page as unknown as Page,
     pending,
     requests,
-    saved,
-    dashboard,
     click,
     heldProbe,
     errorLocator,
-    toHaveURL,
+    url,
     response,
+    sendResponse(value: Response) {
+      saved.resolve(value);
+      requests.emit('response', value);
+    },
+    navigate(url = 'http://localhost/gameplay/campaigns/campaign-1') {
+      currentUrl = url;
+      dashboard.resolve(undefined);
+    },
     showError() {
       visible = true;
-      legacyError.resolve(undefined);
     },
     holdNextProbe() {
       holdProbe = true;
+    },
+    holdErrorText() {
+      holdText = true;
     },
     startSave() {
       requests.emit('request', request);
@@ -125,6 +141,8 @@ function submission() {
     succeed() {
       requests.emit('request', request);
       saved.resolve(response(true));
+      requests.emit('response', response(true));
+      currentUrl = 'http://localhost/gameplay/campaigns/campaign-1';
       dashboard.resolve(undefined);
       click.resolve(undefined);
     },
@@ -150,7 +168,7 @@ const outcome = (promise: Promise<void>) =>
   );
 function expectDrained(fixture: Submission) {
   expect(fixture.pending.size).toBe(0);
-  expect(fixture.requests.listenerCount('request')).toBe(0);
+  expect(fixture.requests.eventNames()).toEqual([]);
   expect(jest.getTimerCount()).toBe(0);
 }
 
@@ -169,11 +187,9 @@ describe('campaign wizard submission owns every raced wait', () => {
     const result = outcome(submitCampaignWizard(fixture.page));
     await flush();
     fixture.succeed();
+    await jest.advanceTimersByTimeAsync(100);
     expect(await result).toEqual({ ok: true });
     expectDrained(fixture);
-    expect(fixture.toHaveURL).toHaveBeenCalledWith(expect.any(RegExp), {
-      timeout: 30_000,
-    });
   });
 
   it('success drains an in-flight probe before returning and starts no later probe', async () => {
@@ -189,15 +205,18 @@ describe('campaign wizard submission owns every raced wait', () => {
     await flush();
     expect(settled).toBe(false);
     fixture.heldProbe.resolve(false);
+    await jest.advanceTimersByTimeAsync(100);
     expect(await result).toEqual({ ok: true });
     expectDrained(fixture);
     const calls = fixture.errorLocator.isVisible.mock.calls.length;
+    const navigationCalls = fixture.url.mock.calls.length;
     await jest.advanceTimersByTimeAsync(30_000);
     expect(fixture.errorLocator.isVisible).toHaveBeenCalledTimes(calls);
+    expect(fixture.page.url).toHaveBeenCalledTimes(navigationCalls);
     expectDrained(fixture);
   });
 
-  it('click failure drains the already-started save and dashboard without replacing the error', async () => {
+  it('click failure cancels save and dashboard waits without replacing the error', async () => {
     const fixture = setup();
     const failure = new Error('submit click failed');
     const result = outcome(submitCampaignWizard(fixture.page));
@@ -207,9 +226,26 @@ describe('campaign wizard submission owns every raced wait', () => {
     });
     fixture.click.reject(failure);
     await flush();
-    expect(settled).toBe(false);
-    fixture.saved.resolve(fixture.response(true));
-    fixture.dashboard.resolve(undefined);
+    expect(settled).toBe(true);
+    expect(await result).toEqual({ ok: false, error: failure });
+    expectDrained(fixture);
+  });
+
+  it('a disappearing validation error cannot delay a click failure', async () => {
+    const fixture = setup();
+    fixture.showError();
+    fixture.holdErrorText();
+    fixture.errorLocator.allInnerTexts.mockResolvedValueOnce([]);
+    const failure = new Error('submit click failed');
+    let settled = false;
+    const result = outcome(submitCampaignWizard(fixture.page));
+    void result.then(() => {
+      settled = true;
+    });
+    await flush();
+    fixture.click.reject(failure);
+    await flush();
+    expect(settled).toBe(true);
     expect(await result).toEqual({ ok: false, error: failure });
     expectDrained(fixture);
   });
@@ -220,14 +256,13 @@ describe('campaign wizard submission owns every raced wait', () => {
     const result = outcome(submitCampaignWizard(fixture.page));
     fixture.startSave();
     fixture.showError();
-    fixture.saved.resolve({
+    fixture.sendResponse({
       ...fixture.response(false),
       text: () => body.promise,
     });
-    fixture.dashboard.resolve(undefined);
     fixture.click.resolve(undefined);
     await jest.advanceTimersByTimeAsync(100);
-    expect(fixture.errorLocator.innerText).not.toHaveBeenCalled();
+    expect(fixture.errorLocator.allInnerTexts).not.toHaveBeenCalled();
     body.resolve('save failed body');
     expect(await result).toEqual({
       ok: false,
@@ -238,7 +273,41 @@ describe('campaign wizard submission owns every raced wait', () => {
     expectDrained(fixture);
   });
 
-  it('inline validation failure drains the other waits at their original deadlines', async () => {
+  it('preserves a failure reading the failed PUT body', async () => {
+    const fixture = setup();
+    const failure = new Error('response body unavailable');
+    const result = outcome(submitCampaignWizard(fixture.page));
+    fixture.startSave();
+    fixture.sendResponse({
+      ...fixture.response(false),
+      text: () => Promise.reject(failure),
+    });
+    fixture.click.resolve(undefined);
+    expect(await result).toEqual({ ok: false, error: failure });
+    expectDrained(fixture);
+  });
+
+  it('click failure cancels a pending failed-PUT body without leaving later work', async () => {
+    const fixture = setup();
+    const body = deferred<string>();
+    const failure = new Error('submit click failed');
+    const result = outcome(submitCampaignWizard(fixture.page));
+    fixture.startSave();
+    fixture.sendResponse({
+      ...fixture.response(false),
+      text: () => body.promise,
+    });
+    fixture.click.reject(failure);
+    expect(await result).toEqual({ ok: false, error: failure });
+    expectDrained(fixture);
+    const probes = fixture.errorLocator.isVisible.mock.calls.length;
+    body.reject(new Error('late body failure'));
+    await jest.advanceTimersByTimeAsync(30_000);
+    expect(fixture.errorLocator.isVisible).toHaveBeenCalledTimes(probes);
+    expectDrained(fixture);
+  });
+
+  it('inline validation without a PUT cancels the other waits immediately', async () => {
     const fixture = setup();
     const result = outcome(submitCampaignWizard(fixture.page));
     fixture.showError();
@@ -248,8 +317,7 @@ describe('campaign wizard submission owns every raced wait', () => {
       settled = true;
     });
     await jest.advanceTimersByTimeAsync(100);
-    expect(settled).toBe(false);
-    await jest.advanceTimersByTimeAsync(29_900);
+    expect(settled).toBe(true);
     expect(await result).toEqual({
       ok: false,
       error: new Error('Campaign create failed: invalid campaign name'),
@@ -277,8 +345,76 @@ describe('campaign wizard submission owns every raced wait', () => {
     await jest.advanceTimersByTimeAsync(30_000);
     expect(await result).toEqual({
       ok: false,
-      error: new Error('save timeout'),
+      error: new Error('Campaign create save timed out after 30000ms'),
     });
     expectDrained(fixture);
   });
+
+  it('keeps the 30-second dashboard deadline after a successful PUT without navigation', async () => {
+    const fixture = setup();
+    const result = outcome(submitCampaignWizard(fixture.page));
+    fixture.startSave();
+    fixture.sendResponse(fixture.response(true));
+    fixture.click.resolve(undefined);
+    await jest.advanceTimersByTimeAsync(30_000);
+    expect(await result).toEqual({
+      ok: false,
+      error: new Error('Campaign create dashboard timed out after 30000ms'),
+    });
+    expectDrained(fixture);
+  });
+
+  it('a failed PUT returns its diagnostic within budget and leaves the wizard open', async () => {
+    const fixture = setup();
+    let settled = false;
+    const result = outcome(submitCampaignWizard(fixture.page));
+    void result.then(() => {
+      settled = true;
+    });
+    fixture.startSave();
+    fixture.sendResponse(fixture.response(false));
+    fixture.click.resolve(undefined);
+    await jest.advanceTimersByTimeAsync(100);
+    expect(settled).toBe(true);
+    expect(await result).toEqual({
+      ok: false,
+      error: new Error(
+        'Campaign create save failed: PUT http://localhost/api/campaigns/campaign-1 returned 500\nsave failed body',
+      ),
+    });
+    expect(fixture.page.url()).toMatch(/\/campaigns\/create$/);
+    expectDrained(fixture);
+    const probes = fixture.errorLocator.isVisible.mock.calls.length;
+    const urls = fixture.url.mock.calls.length;
+    fixture.showError();
+    fixture.succeed();
+    await jest.advanceTimersByTimeAsync(30_000);
+    expect(fixture.errorLocator.isVisible).toHaveBeenCalledTimes(probes);
+    expect(fixture.errorLocator.allInnerTexts).not.toHaveBeenCalled();
+    expect(fixture.page.url).toHaveBeenCalledTimes(urls);
+    expectDrained(fixture);
+  });
+
+  it.each(['save', 'navigation'])(
+    'requires both save and navigation when %s finishes first',
+    async (first) => {
+      const fixture = setup();
+      let settled = false;
+      const result = outcome(submitCampaignWizard(fixture.page));
+      void result.then(() => {
+        settled = true;
+      });
+      fixture.click.resolve(undefined);
+      fixture.startSave();
+      if (first === 'save') fixture.sendResponse(fixture.response(true));
+      else fixture.navigate();
+      await jest.advanceTimersByTimeAsync(100);
+      expect(settled).toBe(false);
+      if (first === 'save') fixture.navigate();
+      else fixture.sendResponse(fixture.response(true));
+      await jest.advanceTimersByTimeAsync(100);
+      expect(await result).toEqual({ ok: true });
+      expectDrained(fixture);
+    },
+  );
 });

@@ -1,4 +1,4 @@
-﻿# Combat-vehicle construction rules
+# Combat-vehicle construction rules
 
 ## Native Tank complete-weight transport
 
@@ -793,7 +793,8 @@ The base and Bombast Chalchiuhtotolin sources therefore carry 7 and 7.5 tons
 of armor, respectively (`TestEntity.java:584-604`; `BLKTankFile.java:284-304`).
 
 Native Tank weight transport reuses the guarded lookup-token owner only for
-`ISLMGA(ST)` and its `:OMNI` form, selecting the ISLMGA identity and 0.5-ton
+decorated Inner Sphere arrays (`ISLMGA(ST)` and its `:OMNI` form here; the
+whole family is in "Decorated array weight token" below), selecting the ISLMGA identity and 0.5-ton
 mass for construction. Public equipment lookup identities remain unchanged,
 including the legacy `lmga` target for these decorated inputs. The native
 weight selection matches plain
@@ -823,3 +824,383 @@ its source identity. The sweep found no mount with an unresolved heat value, so
 the path loses nothing. Support vehicles are outside this term: Java gives them
 no free sinks (TestSupportVehicle.java:917-931), and the support heat term
 depends on the 2.2-d support weight model.
+
+## Unknown native Tank structure type (pinned)
+
+Fifty-six Tank sources carry `<internal_type>-1</internal_type>`, which is
+MegaMek's `T_STRUCTURE_UNKNOWN` (`EquipmentType.java:138`, 48fcb2f64).
+`BLKTankFile.java:169-172` stores the tag verbatim, and
+`TestTank.getStructure` (:87-95) maps only `1` to Endo Steel. Every other value,
+including `-1`, therefore weighs through the Standard branch of
+`Structure.getWeightStructure` (:65-103): tonnage / 10, rounded up to a half ton.
+
+`computeNativeTankWeight` accepts `0` and `-1` as Standard structure. Any other
+`internal_type` stays unavailable instead of being approximated: Java weighs `1`
+as Endo Steel (a 45 t Bellona: 2.5 t against 4.5 t), and the corpus has no Tank
+with any other value. The 56 rows' totals equal the pinned verifier's
+`calculateWeightExact` with every component equal, and no validity result moves.
+`VehicleStructureUnknown.pinned.test.ts` pins six of them.
+
+## IS Mech Mortar-8 native identity (pinned)
+
+`IS Mech Mortar-8` is the internal name of `ISMekMortar8` (10 t, 5 slots;
+`ISMekMortar8.java`, 48fcb2f64). The general normalizer shortens the name to
+"is mech mortar", which matches nothing, so Mortar Carrier's three front mortars
+had no mass and its complete total was unavailable. The exact-identity table in
+`sourceLookupAliases.ts` now maps it to the catalog record `mech-mortar-8`, which
+holds Java's values. Being an exact identity, it holds on a Clan unit too, where
+unit tech base would otherwise swap the legacy record for the 5 t Clan one.
+
+With it Mortar Carrier weighs 60 t (engine 8.5, structure 6, controls 3, armor
+4.5, equipment 38), equal to the pinned verifier's `calculateWeightExact`.
+`IS Mech Mortar-4` has the same gap, but only owner-excluded `ge` sources use it,
+so it is left unmapped. `VehicleIsMechMortar.pinned.test.ts` pins the unit.
+
+## Support ammo slot boundary and independent fire-control placement
+
+At MegaMek `48fcb2f64`, `TestSupportVehicle.getAmmoSlots` (:1618-1640)
+shares ammo with weapons only for small support vehicles. Small means strictly
+below 5 tons (`EntityWeightClass.java:80-97`); at exactly 5 tons, distinct
+non-one-shot ammo types require slots. `itemSlots.ts` starts its existing
+conservative ammo grouping at this boundary. Native ammo identity, armor and
+other lower bounds described by that owner remain separate work.
+
+`TestTank.isValidTankLocation` (:979-980) and `isBodyEquipment` (:1079-1093)
+require Basic and Advanced Fire Control in Body. `vehicleValidation.ts` owns
+this placement check independently of slot accounting. Missing, variable or
+unit-dependent slot costs on another mount cannot suppress a known placement
+error. Equipment identities and names use the public catalog resolver, including
+the native `:OMNI` qualifier. The Tank, VTOL and support handlers retain their
+existing validation entrypoints, CASE checks and motive compatibility checks.
+
+`vehicleEquipmentValidation.pinned.test.ts` loads synthetic BLKs through the real
+handlers for the 5-ton ammo overrun and misplaced fire control beside variable
+cargo. Boundary and placement controls also cover unknown costs, Blue Shield's
+unit-dependent slots, Body placement, CASE and independent motive errors.
+
+## Correction: miscellaneous heat for RISC, Nova CEWS and Spot Welder
+
+The earlier MiscType citation ending at line 1435 is incomplete. At pin
+48fcb2f64, `MiscType.getHeat` spans MiscType.java:1423-1441; lines 1436-1439
+return 2 for RISC Laser Pulse Module, Nova CEWS and Spot Welder. Resolve this
+heat by catalog id for non-weapon, non-ammunition items: Nova is cataloged as
+ECM, yet is a native MiscType. Weapon and ammunition categories never receive
+miscellaneous heat, even if their id matches a miscellaneous device.
+
+`TestEntity.java:974-977` skips Spot Welder heat for fusion-class and fission
+engines. Other known engines count its 2 heat. An unknown engine leaves the
+welder heat unresolved rather than guessing an exclusion. Miscellaneous heat
+is still added after linked-weapon heat so the laser-insulator zero guard
+keeps its existing ordering.
+
+Thirty synthetic Scorpion Light Tank BLKs pin six engine types against no
+added item, each individual device and all three together. Fusion, XL, Light
+and fission give counts 0/0/2/2/4 and paid mass 0 throughout. ICE gives counts
+and mass 0/2/2/2/6. Fuel cell gives those same counts and paid mass 0/1/1/1/5.
+Existing catalog masses already match Java (RISC 1 t, Nova 1.5 t, welder 2 t).
+No corpus vehicle mounts these devices; the 1,444-source heat sweep remains
+1,150 matching complete combat weights with the same 294 unavailable. Support
+vehicle sink mass remains the separate 2.2-d obligation.
+
+## Pinned vehicle armor editor limits and allocation (4.1-i)
+
+`armorLimits.ts` owns installed armored locations, the rotor limit and the
+class-total ceiling. `armor.ts` retains its public facade for existing total
+callers. `editorArmor.ts` projects the same limits into editor figures and
+performs automatic allocation; stores and components transport those results.
+
+At MML 62bf193, `UnitUtil.getMaxArmor` (UnitUtil.java:900-916) returns null for
+vehicle locations except the VTOL rotor, which has maximum 2. Null means no
+individual maximum (`ArmorLocationView.setMaxPoints`). This applies to hull
+faces and installed turrets, including six-side superheavy and large-support
+layouts. Body is not an armored location; absent turrets and unknown locations
+remain unavailable. Structure points do not limit vehicle armor.
+
+The total is separate: `UnitUtil.getMaximumArmorPoints` (UnitUtil.java:769-795)
+uses `floor(tonnage * 3.5 + 40)` for combat vehicles, VTOLs and superheavy tanks,
+matching MegaMek 48fcb2f64 `TestTank.java:338`. Support vehicles instead use
+`TestSupportVehicle.maxArmorFactor` (TestSupportVehicle.java:585-617):
+`4 + trunc(tonnage * movement factor)`. The existing support-total helper owns
+the factors and large-naval size boundary; BAR does not alter the point ceiling.
+
+`ArmorAllocationView.java:209-276` and `TestEntity.java:1148-1152` distinguish
+raw purchased points from available points: available is the smaller of the
+raw points and the class total. Waste is the difference. Numeric location
+inputs have no maximum for ordinary armored locations, so a saved invalid
+design remains inspectable; diagnostics report purchased-point and class-total
+over-allocation without inventing a location cap. The rotor remains bounded.
+
+Automatic allocation follows MML `CVStructureTab.java:877-940` and
+`SVArmorTab.java:286-364`. Clear the old allocation; reserve up to two available
+points for a rotor; exclude Body and Rotor from the remaining location count.
+Every other location receives a share of `1 / count`; split the combined
+front/rear share 60/40, floor each result and put the rounding remainder on
+Front. Both installed turrets and all six hull faces participate. Purchased
+points use the actual armor type or BAR table and never exceed the class total.
+Zero- and one-point rotor budgets cannot create negative hull armor.
+
+The editor, store allocator and status diagnostics share these owners. Handler
+validity continues to use its source-handler path and is checked independently;
+changing an editor diagnostic must not silently change catalog validity or BV.
+
+## Body presentation in the pinned vehicle armor editor (4.1-i clarification)
+
+Pinned MML 62bf193 does not expose a Body armor control for support vehicles.
+ArmorAllocationView.java:91-110 defines Tank, superheavy/large-support and VTOL
+layouts without LOC_BODY; :321-343 selects those layouts for support tanks,
+large support tanks and support VTOLs. SVArmorTab.java:304 discounts Body as
+unarmored, and :329 skips it during automatic allocation. This is independent
+of BAR and armor tech rating. UnitUtil.getMaxArmor returning null does not
+create an editor location that is absent from the layout.
+
+The shared editor layout therefore omits Body entirely, including four-side
+support vehicles, instead of rendering a disabled Body armor input. Body
+remains unavailable to manual armor edits and zero in automatic allocation;
+its equipment-location role is unchanged. This clarifies the earlier
+'remain unavailable' wording: the pinned armor UI has no Body field.
+
+## Diagnostic identities and native loading fixtures (4.1-i)
+
+The archived vehicle construction scenario based on twice the structure does
+not define the pinned armor rule. UnitUtil.java:900-916 at MML 62bf193 gives
+installed hull/turret locations no maximum. TestTank.java:338 at MegaMek
+48fcb2f64 supplies the separate total ceiling. VAL-VEHICLE-ARMOR-LOC therefore
+checks the rotor and unavailable locations; VAL-VEHICLE-ARMOR-TOTAL checks
+the class budget. The root vehicle-construction tests retain the former
+Front-30 example as a legal allocation, and check Front-216 against the
+50-ton Tank's 215-point total without an independent Front error.
+
+Whole-shell loading tests use native geometry as well as the armor-tab tests.
+A tracked superheavy or large-support fixture must carry an appropriate
+weight, rather than setting a six-side flag on a 50-ton hull. The shared
+construction classifier owns the threshold. Support loading diagrams expose
+Front and other armored locations, with no Body armor control, matching the
+pinned layouts cited above.
+
+## Implicit infantry clip diagnostics
+
+`vehicleAmmoPools.ts` owns fresh support-vehicle clip initialization and the
+vehicle diagnostic pool projection. It consumes independent pinned equipment
+facts through the existing catalog identity resolver. It does not install
+persisted mounts or change offensive/defensive ammunition arithmetic.
+
+MegaMek 48fcb2f64 `Entity.java:5120-5123,5142-5182` creates linked generic
+Infantry Ammo only after native admission. Native weapon shots initialize the
+clip at mounted size 1; `BLKFile.java:377-385` subsequently adjusts source sizes
+above 1 using Java's saturating double-to-int conversion and signed int32
+multiplication. Nonpositive overflowed shot counts have no usable ammunition.
+Sizes at or below 1 retain the initial clip.
+Empty alternate inferno clips are not counted. `Mounted.java:986-990` supplies
+usable shots; `AmmoMounted.java:144-159` excludes intrinsic one-shot links.
+
+`BVCalculator.java:1147-1153,1194-1207` admits positive usable clips and groups
+them through the shared ammo accumulator. Generic ammo has type INFANTRY,
+rack 0 and BV 0 (`AmmoType.java:2033,16257-16268`; `EquipmentType.java:186`).
+Multiple clips therefore add one zero-valued availability group. Infantry
+weapons never supply its launcher cap (`BVCalculator.java:1230-1232`), and
+`processAmmo:1058-1063` skips it. No arithmetic input acquires this diagnostic.
+
+Combat vehicles, BA weapons, unresolved identities, native NA/empty clips and
+intrinsic one-shot ammo stay absent. A caller-supplied infantry flag cannot
+supply the missing native admission facts. Missing admission context remains
+unknown and is not projected; the 23 pinned vehicle sources all have proven
+admission, independently checked on their 43 actual infantry mounts.
+
+## Support-vehicle heat sinks (pinned)
+
+At pin 48fcb2f64, `TestSupportVehicle.getWeightHeatSinks` is the heat-neutral
+count itself: support vehicles get no free engine sinks, whatever the engine
+(TestSupportVehicle.java:917-931). `getCountHeatSinks` is
+`TestEntity.calcHeatNeutralHSRequirement` (TestEntity.java:945-984), except that
+a small support vehicle (under 5 t) needs none and Java never iterates its
+weapons. Both support paths, the editor (`weightComposition.ts`) and the
+handler total (`supportPayload.ts`), now take the same linked raw heat as the
+combat path, so a laser insulator (-1, with the running-total minimum of one) and
+a PPC capacitor (+5) apply to a support chassis exactly as to a combat one. The
+previous handler sum skipped both links, and the editor reported no support
+heat at all.
+
+This supersedes the closing note of the previous section ("the support heat
+term depends on the 2.2-d support weight model"). `supportHeat.pinned.test.ts`
+pins the 19 corpus support rows that carry heat (15 SupportTank, 2
+LargeSupportTank, 2 SupportVTOL), two under-5-t rows whose Java heat is zero,
+and seven synthetic Jifty-chassis cases probed in the pinned Java. The
+editor `remaining` for a support vehicle now falls by the sink mass. It still
+omits source fuel, so it is not a Java total; the handler total is.
+
+## Support torpedo launcher identity (pinned)
+
+The support handler hands the payload the raw BLK token (`LRT 10`, `SRT 2`).
+`getEquipmentEntry` matches those by name to the legacy stubs `lrtorpedoN` and
+`srtN`, which are unofficial, tagged Clan and weigh half the pinned launcher
+(`lrtorpedo10` 2.5 t against Java 5 t; `srt2` 0.5 against 1). The unit loader
+resolves the same token to the Java-derived registry entries (`lrt-10-registry`
+5 t, `lrt-15-registry` 7, `srt-2-registry` 1, `srt-4-registry` 2), which is why
+the editor was already right and only the handler total was short.
+
+The payload rule stays pure: `computeSupportPayloadWeights` takes an optional
+injected `SupportRegistryMass` lookup and uses its answer for a non-ammunition
+mount, otherwise the BV entry's. The service layer supplies the lookup
+(`services/units/handlers/supportRegistryMass.ts`, built from
+`resolveEquipmentId` and `isRegistryEquipment`) and `SupportVehicleUnitHandler`
+passes it; the editor never calls the payload and already resolves registry ids
+through its own resolver. Ammunition keeps its own path. The registry-only rule matters:
+the loader also answers for the wrecking ball and flail (weight 0 against Java 4
+and 5 t) and for cargo (weight 1, variable by size). Pinned MegaMek 48fcb2f64,
+`TestSupportVehicle` verifier: LRT 5/10/15/20 weigh 2/5/7/10 t and SRT 2/4/6
+weigh 1/2/3 t. Corpus: Seahorse Cargo Sub 245 to 250 t, Silverfin Coastal Cutter
+39 to 40 t, White Tip Submarine 236.5 to 249.5 t, each now equal to Java.
+
+Residual, left for the catalog lane: the 42 legacy stubs (`lrtorpedo1..20`,
+`srt1..6` and their OS/IOS variants in `weapons/missile-other.json`) keep their
+half weights. Registry mass supersedes the applicable stub mass; other stub
+metadata is still read (`supportPayload` still calls `getEquipmentEntry` and
+overrides only the weight of the catalog entry it spreads). The 42 stubs remain a
+catalog residual.
+
+## Native combat VTOL weight transport (2.2-g)
+
+`computeNativeVTOLWeight` transports native VTOL fields into the same construction
+owner as `computeNativeTankWeight` and returns the unchanged
+`VehicleWeightBreakdown` type. `chinTurret` is the primary turret; no secondary
+turret is installed (`BLKVTOLFile.java:132-133,164-172`, MegaMek 48fcb2f64).
+`TestTank.java:178-226` owns the ordinary and fixed Omni mechanism mass.
+
+Rotor mass is already `controlsLift.ts`'s `lift` term, rounded up to half tons
+from 10% of chassis mass (`TestTank.java:229-239`). It is counted once. VTOLs over
+30 tons use the existing superheavy structure owner (`VTOL.java:729-731`,
+`TestTank.java:87-95`, `Structure.java:65-108`). Engine, suspension, armor, heat,
+power amplifier, variable accessory and carrying-space rules retain their
+existing owners. Jet boosters use installed engine mass through the existing
+accessory rule (`MiscType.java:518-527`).
+
+Tank's loader reads the no-controls tag by presence; `BLKVTOLFile.java:64-199`
+never reads it, so VTOL transport keeps controls enabled. Source engine flags
+use `isClanBlkEngine`; armor-tech integer parsing is shared unchanged with the
+Tank handler. Complete parses publish computed mass and remaining tonnage;
+unsupported or unresolved breakdowns remain unavailable. The number-only legacy
+handler API retains its explicit incomplete-weight failure.
+
+Explicit residual outside the 131-source corpus: with Skadi's pure-Clan chassis
+and a conflicting IS armor-tech tag, Java normalizes ferro-fibrous armor back to
+Clan (4.5 tons); the existing local armor owner retains the explicit IS choice
+(5 tons). The mixed-Clan counterpart retains IS armor in Java. Authority:
+`BLKFile.java:1950-1994` at the same pin; independent synthetic verifier probes
+record totals 30 and 30.5 respectively. This transport does not change the shared
+armor-normalization rule or any catalog value.
+
+## Small support vehicles: weapons, clip ammunition, Omni fire control (pinned)
+
+At pin 48fcb2f64, a support vehicle under 5 t weighs its weapons at their type
+tonnage in the verifier's sum (`TestEntity.getWeightWeapon`, kilogram rounding for
+the total, `TestSupportVehicle.java:760-770`). The payload used to mark every
+weapon on such a chassis unresolved ("infantry metadata is not in this catalog")
+although the catalog weight already equals the Java tonnage for 20 of the 21
+weapon ids the corpus mounts; that guard is removed. Eighteen small support
+sources become exactly Java (193 to 211 of 227 totals equal), none moves away.
+
+Three things stay reported rather than guessed:
+
+- **Clip ammunition.** A small vehicle's weapon beyond its first clip adds
+  `nextKg((size - 1) x InfantryWeapon.getAmmoWeight())`
+  (`TestSupportVehicle.java:980-988`). The ammunition weight is a Java constant
+  the catalog does not carry (Java: Auto-Rifle 0.00048 t, Support Laser 0.003 t).
+  A small-vehicle weapon with `:SIZE:` above 1 is reported unresolved, three
+  sources: Limpet Half-Track and Rock Rover RRV and RRV (Speed). Needs a catalog
+  field (catalog lane).
+- **Misidentified weapon.** `Machine Gun (Light)(PT)` reaches the battle-armor
+  `balightmg` (0.075 t) through the shared native name `Machine Gun (Light)`,
+  where Java loads the infantry support gun (`machine-gun-light-registry`,
+  0.007 t). A weapon whose catalog `allowedUnitTypes` names neither
+  "Support Vehicle" nor "Infantry" is not a support-vehicle weapon, so it is
+  reported, not charged. Across all 317 weapon mounts of the 227 support sources
+  this flags exactly that one mount type (Ibex RV Militarized MG). The identity
+  itself is routed by `registry-routing.json` (`techRoutes`) and the protected
+  alias `Machine Gun (Light)`, which are catalog data.
+- **Pintle and sponson mechanisms, ladders, dumpers, manipulators** are d3 and d4.
+
+`MiscType.java:707-711`: an Omni support chassis carries a fixed fire-control mass
+(`baseChassisFireConWeight`) that wins over the 5% or 10% of weapon mass when
+positive. `resolveVehicleVariableMass` owns the rule and takes the value in its
+context; the support handler reads the BLK tag. Three sources are Omni with a
+positive value (the Boreas Cavalry Hovercraft A, B and Prime, 0.01 t); they are
+now exact. The editor path does not read the tag yet (it needs the field plumbed
+through the vehicle store, registry, persistence and snapshot contract), so for an
+Omni support chassis the editor still shows the weapon-based fire-control mass.
+The basis also excludes non-support infantry weapons (`F_INFANTRY` without
+`F_INF_SUPPORT`); not modelled, no closed source depends on it.
+
+`internal_type -1` (MegaMek `T_STRUCTURE_UNKNOWN`) never reaches a support
+structure mass, which ignores the structure type
+(`TestSupportVehicle.java:778-797`); `supportSmallVehicle.pinned.test.ts` pins
+13.5 t and 59.5 t for -1, 0 and absent alike.
+
+No small-vehicle mount in the corpus is DWP-mounted or a squad support weapon,
+so `Mounted.getTonnage` x0.75 and x0.5/0.4 (`Mounted.java:729-746`) are not
+implemented; nothing here measures them.
+
+## Support pintle and sponson mechanisms (pinned)
+
+`MiscType.getTonnage` (MiscType.java:563-603 at 48fcb2f64) weighs the two turret
+mechanisms from their neighbours, not from a catalog value:
+
+- **Sponson pair:** 10% of the sponson-mounted equipment (not ammunition, heat
+  sinks or armor), rounded up, split between the sponsons. This is the
+  aggregate rule above, now applied to support vehicles as well.
+- **Pintle:** 5% of the weapons that are pintle-mounted in the pintle's own
+  location, rounded up. A fixed chassis weight (`baseChassisSponsonPintleWeight`,
+  MegaMek's `Tank.getBaseChassisSponsonPintleWeight`, -1 when unassigned) wins,
+  even when zero, and is split over the pintles.
+- Rounding is kilograms on a support vehicle under 5 t, half tons otherwise.
+
+`applyVehicleMountMechanismWeights` in `turret.ts` is the single owner: the editor
+(`mountedWeight.ts`, which previously held the sponson block inline) and the
+support payload (`supportPayload.ts`) both call it, with
+`computeVehiclePintleMechanismWeight` beside the existing sponson function. The
+sponson payload predicate (`isSponsonMechanismPayload`) moved with it. The support
+handler reads the BLK tag `baseChassisSponsonPintleWeight` into the new
+`ISupportVehicle` field. Other copies: none of the rule remains elsewhere; the
+combat Tank path (`vehicleHandlerWeight.ts`) already reaches the sponson through
+the editor owner.
+
+A mechanism whose weapons or payload have an unresolved mass is itself
+unresolved, never charged as if they weighed nothing. A mount the catalog cannot
+identify counts as a possible pintle weapon (unidentified ammunition does not).
+The Ibex RV (Militarized MG) pintles therefore stay unresolved while its
+battle-armor gun misidentification stands (Java 0.001 t each).
+
+Verified against the pinned verifier (`supportMechanisms.pinned.{json,test.ts}`):
+Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+equal Java in weapons, miscellaneous equipment and total. The Dreadnought Mk II
+Land Train's sponsons (0.25 t each) equal Java. Its `ISMGA(ST)` arrays reached
+the 0.25 t `mga` entry where Java's ISMGA weighs 0.5 t, which left its total 0.5 t
+short until the "Decorated array weight token" section below; the row now equals
+Java at 200 t.
+
+Not modelled: the sponson Omni branch has no corpus source and the support unit
+does not expose `isOmni`; clip ammunition mass and the `Machine Gun (Light)`
+identity stay as listed in the small-vehicle section above.
+
+## Decorated array weight token (pinned)
+
+MegaMek loads `ISMGA`, `ISLMGA` and `ISHMGA` as 0.5 t each (`ISMGA.java:70-83`,
+`ISLightMGA.java:69-82`, `ISHeavyMGA.java:70-83` at 48fcb2f64). The BV catalog
+matches the decorated source tokens (`(ST)` sponson, `:OMNI`) by name to the
+0.25 t `mga`, `lmga` and `hmga` stubs, so a decorated Inner Sphere array weighed
+half its Java mass wherever the weight owners did not step around it.
+
+`getNativeWeightLookupToken` in `equipmentBV/normalization.ts` is the one owner of
+that step. It returns the plain array token for the decorated Inner Sphere
+arrays (`ISMGA`, `ISLMGA`, `ISHMGA` with `(ST)`, `(ST):OMNI` or `:OMNI`) and every
+other source token unchanged. Both weight owners resolve through it: the combat
+Tank/VTOL transport (`vehicleHandlerWeight.ts`, which held the `ISLMGA(ST)`
+predicate inline) and the support registry mass (`supportRegistryMass.ts`).
+Public equipment lookup identities are unchanged. Clan arrays (`CLMGA`, `CLLMGA`,
+`CLHMGA`) resolve to the same 0.25 t entry with or without the decorator and stay
+outside the guard. Plain `ISMGA`, `ISLMGA` and `ISHMGA`, and `ISLMGA:OMNI`, already
+reached the 0.5 t registry entry directly.
+
+Corpus effect: the combat Tank and VTOL breakdowns are unchanged (the only
+combat source with a decorated array is Myrmidon P, `ISLMGA(ST)`, already 0.5 t),
+and the Dreadnought Mk II Land Train's two `ISMGA(ST)` arrays now weigh 0.5 t, so
+its weapons (32 t), miscellaneous equipment (10 t) and total (200 t) equal Java.

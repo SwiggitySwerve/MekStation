@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-h2-gm-spectator-seat",
+  "status": "in-progress",
+  "reason": "Wave 4 M-H2 bug fix to the #3040 spectator detach: the co-op campaign GM sits in a spectator seat and was released like a viewer when its last socket dropped, locking the GM out of an active match. One shared predicate keeps the host's own spectator seat. No schema, wire or persisted-format change; no co-op mission launch change.",
+  "lastReviewed": "2026-11-09"
+}

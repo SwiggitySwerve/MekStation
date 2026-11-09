@@ -15,8 +15,10 @@ import {
   TurretType,
   type ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
+import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { ceilToHalfTon, isValidWeight } from '@/utils/physical/weightUtils';
 
+import { isVehicleArmorEquipment } from './itemSlots';
 import { roundSupportComponentWeight } from './supportRounding';
 
 // Minimum tonnage required for dual turrets
@@ -106,6 +108,122 @@ export function computeVehicleSponsonMechanismWeight(context: {
     computeTurretWeight(TurretType.SINGLE, equipmentWeight, context.kilograms) /
     count
   );
+}
+
+/** MiscType.java:592-603 at 48fcb2f64. A fixed chassis weight (even zero, and
+ * even off an Omni chassis) is split over the pintles; otherwise a pintle
+ * weighs 5% of the pintle-mounted weapons in its own location, rounded up
+ * (kilograms on a small support vehicle, half ton otherwise). A negative fixed
+ * weight is MegaMek's unassigned sentinel.
+ */
+export function computeVehiclePintleMechanismWeight(context: {
+  weaponWeight: number | null;
+  count: number;
+  baseChassisWeight?: number;
+  kilograms?: boolean;
+}): number | null {
+  const { weaponWeight, count, baseChassisWeight } = context;
+  if (!Number.isSafeInteger(count) || count <= 0) return null;
+  if (baseChassisWeight !== undefined) {
+    if (!Number.isFinite(baseChassisWeight)) return null;
+    if (baseChassisWeight >= 0) return baseChassisWeight / count;
+  }
+  if (weaponWeight === null || !isValidWeight(weaponWeight)) return null;
+  return roundSupportComponentWeight(
+    weaponWeight / 20,
+    0,
+    context.kilograms ?? false,
+  );
+}
+
+/** One mount as the sponson and pintle mechanisms see it. */
+export interface IVehicleMechanismMount<Location> {
+  id: string;
+  location: Location;
+  /** Null while unresolved; mechanism mounts are overwritten by the pass. */
+  weight: number | null;
+  weapon: boolean;
+  pintleMounted: boolean;
+  /** Non-ammunition, non-heat-sink, non-armor equipment mounted on a sponson. */
+  sponsonPayload: boolean;
+}
+
+/** The sponson basis (MiscType.java:576-584): everything sponson-mounted except
+ * ammunition, heat sinks and armor.
+ */
+export function isSponsonMechanismPayload(mount: {
+  isSponsonMounted: boolean;
+  isAmmunition: boolean;
+  id: string;
+}): boolean {
+  return (
+    mount.isSponsonMounted &&
+    !mount.isAmmunition &&
+    !HEAT_SINK_EQUIPMENT_IDS.includes(mount.id) &&
+    !isVehicleArmorEquipment(mount.id)
+  );
+}
+
+/** The catalog identities of the two mechanism mounts the pass below weighs. */
+const SPONSON_MOUNT_ID = 'vehicular-sponson-turret';
+const PINTLE_MOUNT_ID = 'pintle-mount';
+export const isVehicleMechanismMountId = (id: string): boolean =>
+  id === SPONSON_MOUNT_ID || id === PINTLE_MOUNT_ID;
+
+const sumKnown = (weights: readonly (number | null)[]): number | null =>
+  weights.some((weight) => weight === null)
+    ? null
+    : weights.reduce<number>((total, weight) => total + (weight ?? 0), 0);
+
+/**
+ * Weigh every sponson and pintle mechanism mount in place, for the editor and
+ * the support handler alike. A mechanism whose basis has an unresolved mass is
+ * left null (unavailable), never charged as if that mass were zero.
+ */
+export function applyVehicleMountMechanismWeights<Location>(
+  mounts: IVehicleMechanismMount<Location>[],
+  context: {
+    isOmni?: boolean;
+    baseChassisWeight?: number;
+    kilograms?: boolean;
+  },
+): { sponsonUnavailable: boolean; pintleUnavailable: boolean } {
+  const sponsons = mounts.filter((m) => m.id === SPONSON_MOUNT_ID);
+  const pintles = mounts.filter((m) => m.id === PINTLE_MOUNT_ID);
+  const { isOmni, baseChassisWeight, kilograms } = context;
+  let sponsonUnavailable = false;
+  let pintleUnavailable = false;
+  if (sponsons.length) {
+    const weight = computeVehicleSponsonMechanismWeight({
+      equipmentWeight: sumKnown(
+        mounts.filter((m) => m.sponsonPayload).map((m) => m.weight),
+      ),
+      count: sponsons.length,
+      isOmni,
+      baseChassisWeight,
+      kilograms,
+    });
+    for (const mount of sponsons) mount.weight = weight;
+    sponsonUnavailable = weight === null;
+  }
+  for (const pintle of pintles) {
+    const weight = computeVehiclePintleMechanismWeight({
+      weaponWeight: sumKnown(
+        mounts
+          .filter(
+            (m) =>
+              m.weapon && m.pintleMounted && m.location === pintle.location,
+          )
+          .map((m) => m.weight),
+      ),
+      count: pintles.length,
+      baseChassisWeight,
+      kilograms,
+    });
+    pintle.weight = weight;
+    if (weight === null) pintleUnavailable = true;
+  }
+  return { sponsonUnavailable, pintleUnavailable };
 }
 
 export interface VehicleTurretMechanismContext {

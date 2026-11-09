@@ -94,20 +94,26 @@ export function calculateLargeAerospaceBV(
     maxThrust,
     heatCapacity: calculateHeatDissipation(sinks.type, sinks.count),
   });
-  return largeAerospaceBVTerms({
-    ...defense,
-    ...stage,
-    ...calculateDropShipFinalBV(defense.defensive, stage.offensive, {
-      ...options,
-      cockpit: unit.cockpit,
-      hasDroneOperatingSystem: hasBVDroneOS(
-        equipment.map((m) => m.equipmentId),
-      ),
-    }),
-    calculationScope: 'complete',
-    unresolvedMounts: [],
-    incompleteReasons: [],
-  });
+  return largeAerospaceBVTerms(
+    {
+      ...defense,
+      ...stage,
+      ...calculateDropShipFinalBV(defense.defensive, stage.offensive, {
+        ...options,
+        cockpit: unit.cockpit,
+        hasDroneOperatingSystem: hasBVDroneOS(
+          equipment.map((m) => m.equipmentId),
+        ),
+      }),
+      calculationScope: 'complete',
+      unresolvedMounts: [],
+      incompleteReasons: [],
+    },
+    {
+      isDropShip: unit.unitType === UnitType.DROPSHIP,
+      arcs: resolution.arcs,
+    },
+  );
 }
 
 /** Existing DropShip entry delegates to the shared composition owner. */

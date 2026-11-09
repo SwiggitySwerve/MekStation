@@ -7,11 +7,16 @@
  * one step transition — up, down, or none (design D8). One step per day
  * keeps morale from swinging wildly.
  *
- * The signal tally is deterministic: positive signals (victories, met pay)
- * and negative signals (defeats, missed pay, desertions) are weighed; if
- * the net is positive morale steps up, if negative it steps down, if zero
- * it holds. A single bad day cannot crater morale because the step is
- * always exactly one.
+ * The signal tally is deterministic: the positive signal (victories) and the
+ * negative signals (defeats, missed pay, desertions) are weighed; if the net
+ * is positive morale steps up, if negative it steps down, if zero it holds.
+ * A single bad day cannot crater morale because the step is always exactly
+ * one.
+ *
+ * Paying the costs is the baseline, not a signal: a paid day scores 0, so a
+ * company that merely pays its way does not climb. This is an application
+ * design rule (Root ruling for K-M4); it is not a port of MekHQ, which has no
+ * company-level morale of this kind.
  *
  * @spec openspec/changes/add-campaign-refit-and-prestige/specs/campaign-refit-and-prestige/spec.md
  * @module lib/campaign/prestige/moraleStateMachine
@@ -37,16 +42,16 @@ import {
  * morale up, a negative score pushes it down, zero holds.
  *
  * - each victory: +1
- * - met pay: +1
  * - each defeat: -1
- * - missed pay: -1
+ * - missed pay (`payMet === false`): -1
+ * - met pay (`payMet === true`) and no pay information (`null`): 0
  * - each desertion: -1
  */
 function scoreSignals(signals: IMoraleSignals): number {
   let score = 0;
   score += signals.recentVictories;
   score -= signals.recentDefeats;
-  score += signals.payMet ? 1 : -1;
+  if (signals.payMet === false) score -= 1;
   score -= signals.desertions;
   return score;
 }
@@ -81,7 +86,6 @@ function transitionReason(
     if (signals.recentVictories > 0) {
       parts.push(`${signals.recentVictories} recent victory(s)`);
     }
-    if (signals.payMet) parts.push('pay met');
     return parts.length > 0
       ? `Morale rose: ${parts.join(', ')}`
       : 'Morale rose';
@@ -90,7 +94,7 @@ function transitionReason(
   if (signals.recentDefeats > 0) {
     parts.push(`${signals.recentDefeats} recent defeat(s)`);
   }
-  if (!signals.payMet) parts.push('pay missed');
+  if (signals.payMet === false) parts.push('pay missed');
   if (signals.desertions > 0) parts.push(`${signals.desertions} desertion(s)`);
   return parts.length > 0 ? `Morale fell: ${parts.join(', ')}` : 'Morale fell';
 }

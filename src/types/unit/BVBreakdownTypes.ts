@@ -49,7 +49,10 @@ export interface IProtoMechBVMountValue {
 }
 
 /** Retained public weapon snapshot contract. */
-export type IProtoMechBVWeaponMount = IProtoMechBVMountValue;
+export type IProtoMechBVWeaponMount = IProtoMechBVMountValue & {
+  /** Native diagnostic index when intrinsic ammo shifts the source index. */
+  readonly nativeEquipmentIndex?: number;
+};
 
 /** Actual positive bin value with the existing ammo owner's native group. */
 export interface IProtoMechBVAmmoMount extends IProtoMechBVMountValue {
@@ -85,6 +88,13 @@ export interface IProtoMechBVBreakdown {
   /** Positive values already admitted by the native offensive-misc owner. */
   readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
   readonly speedFactor: number;
+  /** Resolved zero misc values with retained source-location evidence. */
+  readonly resolvedZeroEquipmentMountBV?: readonly IProtoMechBVResolvedZeroMount[];
+}
+
+/** Body has no public armor location; other locations use the existing trace map. */
+export interface IProtoMechBVResolvedZeroMount extends IProtoMechBVMountValue {
+  readonly nativeLocation?: 0;
 }
 
 /** Shared optional diagnostic keys for calculations and strict replay payloads. */
@@ -104,11 +114,29 @@ export const INFANTRY_BV_TRACE_FIELDS = [
   'weightBV',
   'offensiveTypeModifier',
   'adjustment',
+  'infantry.primaryWeaponBV',
+  'infantry.secondaryWeaponBV',
+  'infantry.antiMekWeaponBV',
+  'infantry.weaponRemainderBV',
 ] as const;
 
-export interface IInfantryBVBreakdown extends Readonly<
-  Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
-> {
+/** Temporary trooper identities and local field-gun mount ordinals. */
+export type InfantryBVWeaponTerm =
+  | `weapon.-1.TPRS.${string}`
+  | `weapon.${number}.FGUN.${string}`;
+
+export function isInfantryBVWeaponTerm(
+  key: string,
+): key is InfantryBVWeaponTerm {
+  return /^weapon\.(?:-1\.TPRS|\d+\.FGUN)\..+$/.test(key);
+}
+
+export interface IInfantryBVBreakdown
+  extends
+    Readonly<
+      Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
+    >,
+    Readonly<Partial<Record<InfantryBVWeaponTerm, number>>> {
   /** Defensive aggregate, including represented source movement and stealth. */
   readonly defensiveBV: number;
   readonly perTrooper: number;
@@ -161,4 +189,8 @@ export interface IBABreakdown {
   readonly squadTotal: number;
   readonly pilotMultiplier: number;
   readonly final: number;
+  /** Native `ammoType:rackSize` -> pre-cap per-trooper ammo BV (Java ammoMap). */
+  readonly ammoAvailableBVByPool?: Readonly<Record<string, number>>;
+  /** Native `ammoType:rackSize` -> launcher BV in that pool (Java weaponsForExcessiveAmmo). */
+  readonly ammoCapBVByPool?: Readonly<Record<string, number>>;
 }

@@ -102,7 +102,11 @@ import {
   type IJournalAuthorityAdmissionRefusal,
   type IJournalAuthorityPrivacyGateWiring,
 } from './journalAuthorityAdmission';
-import { isSpectatorPlayer, removeSpectatorSeat } from './lobby/spectatorSeats';
+import { updateMatchSeats } from './lobby/seatUpdate';
+import {
+  holdsAutoReleasableSpectatorSeat,
+  removeSpectatorSeat,
+} from './lobby/spectatorSeats';
 import {
   MATCH_BASELINE_BRANCH_ID,
   MATCH_BASELINE_FIRST_GENERATION,
@@ -962,19 +966,39 @@ export class ServerMatchHost {
     // Socket admission can run while the queued drop is reading metadata.
     if (this.closed || this.lifecycle.snapshotConnectedSince().has(playerId))
       return;
-    if (isSpectatorPlayer(meta.seats ?? [], playerId)) {
-      const seats = removeSpectatorSeat(meta.seats ?? [], playerId);
-      await this.store.updateMatchMeta(this.matchId, { seats });
-      // Keep delivery cursors/acks by viewer identity: a later authenticated
-      // re-registration resumes the same stream (including after restart).
-      this.broadcast({
-        kind: 'LobbyUpdated',
-        matchId: this.matchId,
-        ts: nowIso(),
-        seats,
-        status: meta.status,
-        hostPlayerId: meta.hostPlayerId,
-      });
+    // Automatic cleanup releases a viewer's seat. The co-op GM's own spectator
+    // seat is its membership while the match is live and stays (see
+    // `isAutoReleasableSpectatorSeat`); a completed match releases it too.
+    if (holdsAutoReleasableSpectatorSeat(meta, playerId)) {
+      // Rechecked against the metadata at write time: a REST registration or
+      // a reattach may have landed since the read above.
+      const removal = await updateMatchSeats(
+        this.store,
+        this.matchId,
+        (current) =>
+          this.lifecycle.snapshotConnectedSince().has(playerId) ||
+          !holdsAutoReleasableSpectatorSeat(current, playerId)
+            ? null
+            : { seats: removeSpectatorSeat(current.seats ?? [], playerId) },
+      );
+      if (removal.kind === 'busy') {
+        logger.warn(
+          `[ServerMatchHost ${this.matchId}] spectator ${playerId} seat removal lost every attempt to concurrent seat writes`,
+        );
+        return;
+      }
+      if (removal.kind === 'applied') {
+        // Keep delivery cursors/acks by viewer identity: a later authenticated
+        // re-registration resumes the same stream (including after restart).
+        this.broadcast({
+          kind: 'LobbyUpdated',
+          matchId: this.matchId,
+          ts: nowIso(),
+          seats: [...(removal.meta.seats ?? [])],
+          status: removal.meta.status,
+          hostPlayerId: removal.meta.hostPlayerId,
+        });
+      }
       return;
     }
     await this.migrateHostIfNeeded(playerId);

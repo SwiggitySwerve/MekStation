@@ -116,6 +116,11 @@ export function calculateProtoMechBV(
       ? {}
       : { offensiveEquipmentMountBV: offensive.offensiveEquipmentMountBV }),
     speedFactor: offensive.speedFactor,
+    ...(offensive.resolvedZeroEquipmentMountBV === undefined
+      ? {}
+      : {
+          resolvedZeroEquipmentMountBV: offensive.resolvedZeroEquipmentMountBV,
+        }),
   };
 }
 

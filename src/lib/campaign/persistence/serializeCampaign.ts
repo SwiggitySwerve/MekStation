@@ -30,6 +30,7 @@ import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 
 import { normalizeShoppingList } from '../acquisition/shoppingList';
+import { stampMissingAppliedOn } from '../appliedOutcomes';
 import { normalizeMarketOffers } from '../markets/offerLifecycle';
 import {
   rehydrateContractMarket,
@@ -190,6 +191,7 @@ export function serializeCampaign(campaign: ICampaign): SerializedCampaignBody {
     unitPrestige: campaign.unitPrestige,
     moraleState: campaign.moraleState,
     moraleTransitions: campaign.moraleTransitions,
+    moraleCountedMatchIds: campaign.moraleCountedMatchIds,
     currentSystemId: campaign.currentSystemId,
     coopSession: campaign.coopSession,
     personnelMarket: extended.personnelMarket,
@@ -246,7 +248,12 @@ export function deserializeCampaignBody(
     processedBattleIds: body.processedBattleIds,
     gmInterventionEvents: body.gmInterventionEvents,
     timeCascadeEvents: body.timeCascadeEvents,
-    recentlyAppliedOutcomes: body.recentlyAppliedOutcomes,
+    // Old records have no `appliedOn` (their `capturedAt` is a wall-clock
+    // instant, not a campaign date): stamp the loaded campaign's date.
+    recentlyAppliedOutcomes: stampMissingAppliedOn(
+      body.recentlyAppliedOutcomes,
+      new Date(body.currentDate),
+    ),
     dailyBattleAudit: body.dailyBattleAudit,
     // Restore the loan ledger (design D4). Absent on pre-CP2b snapshots,
     // in which case the campaign simply carries no `loans` field.
@@ -264,6 +271,7 @@ export function deserializeCampaignBody(
     unitPrestige: body.unitPrestige,
     moraleState: body.moraleState,
     moraleTransitions: body.moraleTransitions,
+    moraleCountedMatchIds: body.moraleCountedMatchIds,
     currentSystemId: body.currentSystemId,
     coopSession: body.coopSession,
     personnelMarket: body.personnelMarket,

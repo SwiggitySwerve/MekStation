@@ -343,7 +343,7 @@ export function getLimitationExplanation(violation: IViolation): string | null {
     campaignProgression:
       'Campaign progression is partially implemented; academy/education and coming-of-age SPA systems remain stubbed (see known-limitations.md)',
     mtfParsing:
-      'MTF file parsing is not implemented (see known-limitations.md)',
+      'MTF source import is implemented and the legacy importer is retired; bucket retained for legacy generic detectors only (see known-limitations.md)',
   };
 
   return explanations[category] || null;

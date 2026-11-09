@@ -124,6 +124,7 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     errorMessage: null,
     loadCampaign: jest.fn().mockResolvedValue(true),
     reset: jest.fn(),
+    initializeCreatedCampaign: jest.fn(),
     saveCampaign: jest.fn(),
     saveState: 'idle' as const,
     launchConflict: null,

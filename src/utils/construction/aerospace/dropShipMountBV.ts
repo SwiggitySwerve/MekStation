@@ -4,7 +4,10 @@ import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type { CapitalShipBVType } from './aerospaceBVTypes';
 import type { IDropShipBVUnit } from './dropShipBV';
-import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
+import type {
+  ILargeAerospaceArcBV,
+  ILargeAerospaceWeaponGroup,
+} from './largeAerospaceFirePool';
 
 import {
   addBVToAmmoCapGroup,
@@ -122,6 +125,8 @@ export function resolveLargeAerospaceMountBV(
       heat: 0,
       ammoBVByType: {} as Record<string, number>,
       weaponBVByAmmoType: {} as Record<string, number>,
+      nonOffensiveCapBVByAmmoType: {} as Record<string, number>,
+      weaponGroups: [] as ILargeAerospaceWeaponGroup[],
     }),
   );
   const unresolved: {
@@ -175,6 +180,22 @@ export function resolveLargeAerospaceMountBV(
           !Number.isSafeInteger(Number(quantity)))
       )
         fail('Invalid defensive ammunition quantity');
+      // assembleAmmo still lists a screen launcher as an ammo-using weapon
+      // (SCREEN_LAUNCHER:0). No ammo bin keys on it, so this is trace-only.
+      const screenEntry =
+        defensiveKind === 'screen' && quantity === undefined
+          ? getEquipmentEntry(id)
+          : undefined;
+      const screen = screenEntry && getCapitalEquipmentBVFacts(screenEntry.id);
+      const screenArc = screen
+        ? arcs.find((a) => a.arc === largeAerospaceMountArc(mount, capitalType))
+        : undefined;
+      if (screen && screenArc)
+        addBVToAmmoCapGroup(
+          screenArc.nonOffensiveCapBVByAmmoType,
+          `${screen.ammoType}:${screen.rackSize}`,
+          resolveEquipmentBV(id).battleValue,
+        );
       return;
     }
     const entry = getEquipmentEntry(id);
@@ -287,9 +308,32 @@ export function resolveLargeAerospaceMountBV(
     });
   }
   const capacitorGroups = new Set<string>();
+  const summed = new Map<
+    string,
+    {
+      -readonly [K in keyof ILargeAerospaceWeaponGroup]: ILargeAerospaceWeaponGroup[K];
+    }
+  >();
   for (const weapon of weapons) {
     const value = weapon.bv * getWeaponLinkBVMultiplier(weapon.artemisType);
     const capacitor = weapon.capacitorBV ?? 0;
+    // LargeAeroBVCalculator.canBeSummed: type, location, rear flag, link type.
+    const summedKey = `${weapon.id}|${weapon.location}|${weapon.rear}|${weapon.artemisType ?? ''}|${capacitor ? 'cap' : ''}`;
+    const sum = summed.get(summedKey);
+    if (sum) {
+      sum.count += 1;
+      sum.weaponBV += value;
+    } else {
+      const created = {
+        id: weapon.id,
+        location: weapon.location,
+        count: 1,
+        weaponBV: value,
+        capacitorBV: capacitor,
+      };
+      summed.set(summedKey, created);
+      weapon.arc.weaponGroups.push(created);
+    }
     weapon.arc.weaponSelectionBV += value + capacitor;
     weapon.arc.weaponBV += value;
     weapon.arc.heat += weapon.heat + (capacitor ? 5 : 0);

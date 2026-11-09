@@ -25,6 +25,7 @@ export type CatalogPlacementState = Pick<
   | 'tonnage'
   | 'engineType'
   | 'gyroType'
+  | 'cockpitType'
   | 'configuration'
   | 'isOmni'
   | 'armActuators'
@@ -89,6 +90,7 @@ export function previewCatalogEquipmentPlacement(
           state.gyroType,
           state.equipment,
           state.armActuators,
+          state.cockpitType,
         ),
         state.isOmni,
         readOnly,

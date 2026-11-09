@@ -203,9 +203,7 @@ describe('prestige + morale integration — battle sequence (task 9.2)', () => {
     for (let day = 0; day < 3; day += 1) {
       const dayOutcome = outcome(`loss-${day}`, 'opponent');
       const dayOutcomeB = outcome(`loss-b-${day}`, 'opponent');
-      // Two defeats per day clears the +1 met-pay signal and still nets
-      // negative, so morale steps down each day (a single defeat alone is
-      // cancelled by met pay — see the morale-signal weighting).
+      // Two defeats per day net negative, so morale steps down each day.
       prestige = applyOutcomePrestige(
         dayOutcome,
         prestige,

@@ -16,8 +16,15 @@ export function buildLocationSlots(
   gyroType: GyroType,
   equipment: readonly IMountedEquipmentInstance[],
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotContent[] {
-  const fixed = getFixedSlotNames(location, engineType, gyroType, armActuators);
+  const fixed = getFixedSlotNames(
+    location,
+    engineType,
+    gyroType,
+    armActuators,
+    cockpitType,
+  );
   const filled = new Map<number, SlotContent>();
   for (const item of equipment) {
     if (item.location !== location) continue;

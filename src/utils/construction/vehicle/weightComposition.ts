@@ -57,7 +57,7 @@ export interface VehicleWeightState
 }
 
 export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
-  /** Combat heat-neutral sinks; support's existing editor terms are unchanged. */
+  /** Heat-neutral sinks; support vehicles have no free sinks (and none under 5 t). */
   heatSinks?: number | null;
   engine: number;
   controls: number;
@@ -90,15 +90,20 @@ export function computeVehicleWeightFigures(
   );
   // Engine.java:480-493; TestTank.java:264-270 and TestEntity.java:980-981,
   // MegaMek 48fcb2f64a1b. Combat sinks weigh one ton beyond the free allowance.
-  const freeHeatSinks = isVehicleFusionEngine(state.engineType)
-    ? 10
-    : state.engineType === EngineType.FISSION
-      ? 5
-      : state.engineType === EngineType.FUEL_CELL
-        ? 1
-        : 0;
+  // Support vehicles get no free sinks and a small one (< 5 t) needs none:
+  // TestSupportVehicle.java:917-931.
+  const isSupport = state.unitType === UnitType.SUPPORT_VEHICLE;
+  const freeHeatSinks = isSupport
+    ? 0
+    : isVehicleFusionEngine(state.engineType)
+      ? 10
+      : state.engineType === EngineType.FISSION
+        ? 5
+        : state.engineType === EngineType.FUEL_CELL
+          ? 1
+          : 0;
   const heatSinks =
-    state.unitType === UnitType.SUPPORT_VEHICLE
+    isSupport && state.tonnage < 5
       ? 0
       : rawWeaponHeat === null
         ? null
@@ -179,7 +184,7 @@ export function computeVehicleWeightFigures(
     ...mounted,
     primarySummary: _primary,
     secondarySummary: _secondary,
-    ...(state.unitType === UnitType.SUPPORT_VEHICLE ? {} : { heatSinks }),
+    heatSinks,
     engine,
     controls,
     lift,

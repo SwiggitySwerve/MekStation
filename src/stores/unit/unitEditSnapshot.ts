@@ -1,5 +1,13 @@
 import type { StoreApi } from 'zustand';
 
+import {
+  normalizeUnitSaveEquipmentIds,
+  stringifyUnitSaveFingerprint,
+} from '@/stores/unitSaveFingerprints';
+import {
+  createUnitLibrarySaveReceipt,
+  getUnitLibrarySavePatch,
+} from '@/stores/unitSaveState';
 import { Era } from '@/types/temporal/Era';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
@@ -26,6 +34,7 @@ export function getEditableUnitSnapshot(state: UnitState): UnitEditSnapshot {
     mulId: state.mulId,
     role: state.role,
     fluff: state.fluff,
+    crewSeats: state.crewSeats,
     year: state.year,
     rulesLevel: state.rulesLevel,
     tonnage: state.tonnage,
@@ -43,6 +52,7 @@ export function getEditableUnitSnapshot(state: UnitState): UnitEditSnapshot {
     engineRating: state.engineRating,
     gyroType: state.gyroType,
     internalStructureType: state.internalStructureType,
+    frankenStructure: state.frankenStructure,
     cockpitType: state.cockpitType,
     heatSinkType: state.heatSinkType,
     heatSinkCount: state.heatSinkCount,
@@ -58,48 +68,20 @@ export function getEditableUnitSnapshot(state: UnitState): UnitEditSnapshot {
 }
 
 export function getUnitEditFingerprint(state: UnitState): string {
-  return JSON.stringify(orderedJson(getEditableUnitSnapshot(state)));
-}
-
-function orderedJson(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(orderedJson);
-  if (value && typeof value === 'object')
-    return Object.fromEntries(
-      Object.entries(value)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([key, item]) => [key, orderedJson(item)]),
-    );
-  return value;
-}
-
-function normalizeEquipmentIds(
-  equipment: UnitState['equipment'],
-): UnitState['equipment'] {
-  const ids = new Map(
-    equipment.map((item, index) => [item.instanceId, `equipment-${index}`]),
-  );
-  return equipment.map((item, index) => ({
-    ...item,
-    instanceId: `equipment-${index}`,
-    linkedAmmoId: item.linkedAmmoId
-      ? (ids.get(item.linkedAmmoId) ?? item.linkedAmmoId)
-      : undefined,
-  }));
+  return stringifyUnitSaveFingerprint(getEditableUnitSnapshot(state));
 }
 
 /** Preserve editor-only fields in dirty checks without treating temporary IDs as edits. */
 export function getUnitDraftFingerprint(state: UnitState): string {
-  return JSON.stringify(
-    orderedJson({
-      ...getEditableUnitSnapshot(state),
-      equipment: normalizeEquipmentIds(state.equipment),
-    }),
-  );
+  return stringifyUnitSaveFingerprint({
+    ...getEditableUnitSnapshot(state),
+    equipment: normalizeUnitSaveEquipmentIds(state.equipment),
+  });
 }
 
 /** Compare the persisted design, independent of temporary editor equipment IDs. */
 export function getUnitLibraryFingerprint(state: UnitState): string {
-  const equipment = normalizeEquipmentIds(state.equipment);
+  const equipment = normalizeUnitSaveEquipmentIds(state.equipment);
   const data = serializeCustomUnitState(
     {
       ...state,
@@ -116,18 +98,17 @@ export function getUnitLibraryFingerprint(state: UnitState): string {
       era: getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS,
     },
   );
-  return JSON.stringify(orderedJson({ ...data, sourceDefinition: undefined }));
+  return stringifyUnitSaveFingerprint({ ...data, sourceDefinition: undefined });
 }
 
 export function createLibrarySaveReceipt(
   state: UnitState,
   reference: { id: string; version: number },
 ): NonNullable<UnitState['librarySave']> {
-  return {
-    ...reference,
-    fingerprint: getUnitLibraryFingerprint(state),
-    draftFingerprint: getUnitDraftFingerprint(state),
-  };
+  return createUnitLibrarySaveReceipt(reference, {
+    library: getUnitLibraryFingerprint(state),
+    draft: getUnitDraftFingerprint(state),
+  });
 }
 
 /** Record the submitted state even if a newer edit arrived during the request. */
@@ -137,10 +118,10 @@ export function recordUnitLibrarySave(
   savedState: UnitState,
 ): void {
   const librarySave = createLibrarySaveReceipt(savedState, reference);
-  store.setState({
-    librarySave,
-    isModified:
-      getUnitDraftFingerprint(store.getState()) !==
-      librarySave.draftFingerprint,
-  });
+  store.setState(
+    getUnitLibrarySavePatch(
+      librarySave,
+      getUnitDraftFingerprint(store.getState()),
+    ),
+  );
 }

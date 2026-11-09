@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand';
 
 import { applyAuthoritativeStateToGuestCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
 import { initializePersonnelMarket } from '@/lib/campaign/markets/personnelMarket';
+import { reconcileMissionCopy } from '@/lib/campaign/missionStatusMachine';
 import {
   ACTIVITY_LOG_MAX_ENTRIES,
   type IActivityLogEntry,
@@ -140,7 +141,7 @@ function resetPersistenceForCreatedCampaign(campaignId: string): void {
     );
   }
   useCampaignPersistenceStore.getState().reset();
-  useCampaignPersistenceStore.setState({ campaignId });
+  useCampaignPersistenceStore.getState().initializeCreatedCampaign(campaignId);
 }
 
 function createGuestMirrorCampaignAction(
@@ -248,14 +249,26 @@ function collectCampaignForcesAndMissions(
           .map((f) => [f.id, f]),
       )
     : campaign.forces;
+  // `campaign.missions` can be ahead of the child store (a retried or
+  // manually applied battle settles it there only); never save the stale copy.
   const missions = missionsStore
     ? new Map(
         missionsStore
           .getState()
           .getAllMissions()
-          .map((m) => [m.id, m]),
+          .map((m) => [
+            m.id,
+            reconcileMissionCopy(m, campaign.missions.get(m.id)),
+          ]),
       )
     : campaign.missions;
+  if (missionsStore) {
+    missions.forEach((mission) => {
+      if (missionsStore.getState().getMission(mission.id) !== mission) {
+        missionsStore.getState().addMission(mission);
+      }
+    });
+  }
   return { forces, missions };
 }
 

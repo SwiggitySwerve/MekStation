@@ -26,6 +26,8 @@ export interface VehicleVariableMassContext {
   readonly tonnage: number;
   readonly engineWeight?: number;
   readonly weaponWeight?: number;
+  /** Omni support chassis: a fixed fire-control mass wins over the weapon-based one. */
+  readonly baseChassisFireConWeight?: number;
   readonly isSupportVehicle: boolean;
 }
 
@@ -71,6 +73,11 @@ export function resolveVehicleAccessoryMass(
   return evaluateVehicleMassFormula({ id: 'supercharger' }, context) ?? null;
 }
 
+/** The `:SIZE:n` qualifier of a native mount token (1 when absent). */
+export function getMountSourceSize(sourceId: string): number {
+  return Number(sourceId.split(/:size:/i)[1] ?? 1);
+}
+
 /** Unit/size-based mass owner. Undefined retains the caller's explicit legacy
  * unsupported-rule policy; fixed zero remains distinct from an unknown rule.
  * MiscType.java:700-730,820-842 at MegaMek 48fcb2f6; see RULES.md.
@@ -86,7 +93,7 @@ export function resolveVehicleVariableMass(
   const kilograms = context.isSupportVehicle && tonnage < 5;
   const round = (weight: number) =>
     roundSupportComponentWeight(weight, tonnage, kilograms);
-  const size = Number(sourceId.split(/:size:/i)[1] ?? 1);
+  const size = getMountSourceSize(sourceId);
   if (item.id === 'droneoperatingsystem') return tonnage / 10 + 0.5;
   if (item.id === 'boobytrap') return round(tonnage / 10);
   if (item.id === 'dronecarriercontrolsystem') return 2 + size * 0.5;
@@ -102,10 +109,14 @@ export function resolveVehicleVariableMass(
     );
   if (['cargo', 'liquid-storage', 'communications-equipment'].includes(item.id))
     return round(size);
+  // MiscType.java:707-711 (48fcb2f64): an Omni support vehicle's fixed chassis
+  // fire-control weight, when positive, is the mass whatever the weapons are.
   if (['basic-fire-control', 'advanced-fire-control'].includes(item.id))
-    return weaponWeight === undefined
-      ? item.weight
-      : round(weaponWeight / (item.id === 'basic-fire-control' ? 20 : 10));
+    return (context.baseChassisFireConWeight ?? 0) > 0
+      ? context.baseChassisFireConWeight
+      : weaponWeight === undefined
+        ? item.weight
+        : round(weaponWeight / (item.id === 'basic-fire-control' ? 20 : 10));
   if (!item.special?.includes('Variable weight') && !item.variableEquipmentId)
     return item.weight;
   return evaluateVehicleMassFormula(item, context);

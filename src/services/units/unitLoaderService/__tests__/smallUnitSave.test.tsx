@@ -32,6 +32,11 @@ import { Era } from '@/types/temporal/Era';
 import { BAArmorType } from '@/types/unit/BattleArmorInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
+import { isProtoEDPArmorMount } from '@/utils/construction/protomech/armorType';
+import {
+  computeProtoArmorWeight,
+  computeProtoWeight,
+} from '@/utils/construction/protomech/weight';
 import { serializeCustomSmallUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 import { isDefinitionForFamily } from '../definitionTypes';
@@ -111,6 +116,82 @@ const identity = (state: SmallState) => ({
   variant: state.model,
   era: Era.DARK_AGE,
 });
+
+it.each([
+  ['Basilisk ProtoMech (Quad).json', 2.4, 255],
+  ['Basilisk ProtoMech (Quad) B.json', 2.1, 234],
+] as const)(
+  'retains EDP armor, mass and single equipment BV through real-store save/reopen: %s',
+  async (file, armorMass, expectedBV) => {
+    getSQLiteService({ path: ':memory:' }).initialize();
+    try {
+      const definition = UnitContract.parse(
+        JSON.parse(
+          fs.readFileSync(
+            path.join('public/data/units/protomechs', file),
+            'utf8',
+          ),
+        ),
+      );
+      const store = createProtoMechStore(
+        mapProtoMechDefinitionToState(definition),
+      );
+      store.getState().setArmorType(42);
+      expect(
+        serializeCustomSmallUnitState(
+          store.getState(),
+          identity(store.getState()),
+        ).armor?.type,
+      ).toBe('STANDARD_PROTOMEK');
+      expect(
+        store
+          .getState()
+          .equipment.filter((m) => isProtoEDPArmorMount(m.equipmentId)),
+      ).toHaveLength(0);
+      store.getState().setArmorType(18);
+      expect(store.getState().bvBreakdown?.final).toBe(expectedBV);
+      const state = store.getState();
+      const serialized = serializeCustomSmallUnitState(state, identity(state));
+      expect(serialized.armor?.type).toBe('ELECTRIC_DISCHARGE');
+      const repository = new UnitRepository();
+      const saved = repository.create({
+        chassis: state.chassis,
+        variant: state.model,
+        data: serialized,
+      });
+      if (!saved.success) throw new Error(saved.error.message);
+      jest
+        .mocked(customUnitApiService.getById)
+        .mockResolvedValue(JSON.parse(repository.getById(saved.data.id)!.data));
+      const loaded = await new UnitLoaderService().loadCustomUnit(
+        saved.data.id,
+        'protomechs',
+      );
+      if (loaded.familyState?.store !== 'protomech')
+        throw new Error('Wrong reopened family');
+      const reopened = createProtoMechStore(
+        loaded.familyState.state,
+      ).getState();
+      expect(reopened.armorType).toBe(18);
+      expect(
+        reopened.equipment.filter((m) => isProtoEDPArmorMount(m.equipmentId)),
+      ).toHaveLength(1);
+      expect(reopened.bvBreakdown?.final).toBe(expectedBV);
+      expect(
+        computeProtoArmorWeight(
+          Object.values(reopened.armorByLocation).reduce((a, b) => a + b, 0),
+          reopened.armorType,
+        ),
+      ).toBe(armorMass);
+      expect(
+        computeProtoWeight({ ...reopened, weightPerUnit: reopened.tonnage })
+          .total,
+      ).toBe(file.includes(' B.') ? 6.475 : 7);
+    } finally {
+      resetSQLiteService();
+    }
+  },
+);
 function rows(family: string) {
   const directory = `public/data/units/${family}`;
   const index = JSON.parse(

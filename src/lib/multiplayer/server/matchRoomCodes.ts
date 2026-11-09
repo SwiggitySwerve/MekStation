@@ -1,14 +1,28 @@
 import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { assertMatchStatusTransition } from '@/types/multiplayer/MatchStatus';
 
 import type { IMatchMeta, IMatchMetaPatch, IMatchStore } from './IMatchStore';
 
 import { RoomCodeCollisionError } from './IMatchStore';
 
-/** Match metadata patch semantics shared by both server stores. */
+/** The compare-and-swap token; rows written before it existed read as 0. */
+export function metaRevision(meta: Pick<IMatchMeta, 'revision'>): number {
+  return meta.revision ?? 0;
+}
+
+/**
+ * Match metadata patch semantics shared by both server stores. This is the
+ * one writer every status change passes through, so it owns the transition
+ * guard: an illegal edge throws before anything is merged or persisted. It
+ * also stamps the next revision, so every metadata write is a swap.
+ */
 export function patchMatchMeta(
   before: IMatchMeta,
   patch: IMatchMetaPatch,
 ): IMatchMeta {
+  if (patch.status !== undefined) {
+    assertMatchStatusTransition(before.status, patch.status);
+  }
   const { roomCode: patchRoomCode, ...restPatch } = patch;
   const roomCode =
     patchRoomCode === null ? undefined : (patchRoomCode ?? before.roomCode);
@@ -16,6 +30,7 @@ export function patchMatchMeta(
     ...before,
     ...restPatch,
     roomCode,
+    revision: metaRevision(before) + 1,
     updatedAt: new Date().toISOString(),
   });
 }

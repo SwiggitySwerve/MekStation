@@ -63,6 +63,60 @@ function equipmentAt(
 }
 
 describe('PreviewTab builders', () => {
+  it('projects the selected small cockpit head into Preview', () => {
+    const result = buildPreviewUnitConfig(
+      {
+        ...baseState,
+        configuration: MechConfiguration.BIPED,
+        cockpitType: 'Small',
+      },
+      5,
+      8,
+      1000,
+      2_000_000,
+    );
+    expect(
+      result.criticalSlots?.[MechLocation.HEAD].map(
+        (slot) => slot?.content ?? null,
+      ),
+    ).toEqual([
+      'Life Support',
+      'Sensors',
+      'Small Cockpit',
+      'Sensors',
+      null,
+      null,
+    ]);
+  });
+
+  it('projects a selected torso cockpit into Preview head and torso cells', () => {
+    const result = buildPreviewUnitConfig(
+      {
+        ...baseState,
+        configuration: MechConfiguration.BIPED,
+        cockpitType: 'Torso-Mounted',
+      },
+      5,
+      8,
+      1000,
+      2_000_000,
+    );
+    expect(result.criticalSlots?.[MechLocation.HEAD].slice(2)).toEqual([
+      null,
+      null,
+      null,
+      null,
+    ]);
+    expect(
+      result.criticalSlots?.[MechLocation.CENTER_TORSO]
+        .slice(10)
+        .map((slot) => slot?.content),
+    ).toEqual(['Torso-Mounted Cockpit', 'Sensors']);
+    expect(result.criticalSlots?.[MechLocation.LEFT_TORSO][0]?.content).toBe(
+      'Life Support',
+    );
+  });
+
   it('builds the standard Biped location topology', () => {
     const result = buildCriticalSlotsFromEquipment(
       [equipmentAt(MechLocation.LEFT_ARM, [4])],

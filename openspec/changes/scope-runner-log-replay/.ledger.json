@@ -1,0 +1,6 @@
+{
+  "name": "scope-runner-log-replay",
+  "status": "in-progress",
+  "reason": "D-8 behavior-preserving characterization and explicit standalone-runner replay scope. Ordered deterministic playback does not establish runner-private unit-state equality or authoritative resume. No event stream, schema, fixture, admission fence or persisted-format change.",
+  "lastReviewed": "2026-11-09"
+}

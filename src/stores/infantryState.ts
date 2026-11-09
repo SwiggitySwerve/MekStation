@@ -1,3 +1,4 @@
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 /**
  * Infantry State Interface
  *
@@ -7,8 +8,6 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.2
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
-
-import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 import type { IUnitContract } from '@/types/contracts';
 import type { IInfantryBVBreakdown } from '@/utils/construction/infantry/infantryBV';
 
@@ -36,6 +35,8 @@ import { computeInfantryBVFromState } from '@/utils/construction/infantry/infant
 import { infantryLibraryBVInput } from '@/utils/construction/infantry/libraryMapping';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
+import type { IUnitSaveMetadata } from './unitSaveState';
+
 // =============================================================================
 // Infantry State Interface
 // =============================================================================
@@ -43,7 +44,7 @@ import { generateUnitId as generateUUID } from '@/utils/uuid';
 /**
  * Complete state for a single Infantry platoon
  */
-export interface InfantryState {
+export interface InfantryState extends IUnitSaveMetadata {
   /** Original catalog facts not expressible by the legacy editor enums. */
   librarySource?: IUnitContract;
   umuMP?: number;

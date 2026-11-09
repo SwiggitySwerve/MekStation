@@ -16,7 +16,22 @@
       "ammoPerTon": 45,
       "costCBills": 75000,
       "battleValue": 37,
-      "introductionYear": 2290
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "ac-5",
@@ -34,7 +49,22 @@
       "ammoPerTon": 20,
       "costCBills": 125000,
       "battleValue": 70,
-      "introductionYear": 2240
+      "introductionYear": 2240,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "ac-10",
@@ -52,7 +82,22 @@
       "ammoPerTon": 10,
       "costCBills": 200000,
       "battleValue": 123,
-      "introductionYear": 2443
+      "introductionYear": 2443,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "ac-20",
@@ -70,7 +115,22 @@
       "ammoPerTon": 5,
       "costCBills": 300000,
       "battleValue": 178,
-      "introductionYear": 2488
+      "introductionYear": 2488,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "uac-2",
@@ -89,7 +149,23 @@
       "costCBills": 120000,
       "battleValue": 56,
       "introductionYear": 3050,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "uac-5",
@@ -110,7 +186,23 @@
       "introductionYear": 2630,
       "special": ["Can fire twice"],
       "extinctionYear": 2915,
-      "reintroductionYear": 3035
+      "reintroductionYear": 3035,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "uac-10",
@@ -129,7 +221,23 @@
       "costCBills": 320000,
       "battleValue": 210,
       "introductionYear": 3050,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "uac-20",
@@ -148,7 +256,23 @@
       "costCBills": 480000,
       "battleValue": 281,
       "introductionYear": 3052,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-uac-2",
@@ -167,7 +291,23 @@
       "costCBills": 120000,
       "battleValue": 62,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-uac-5",
@@ -186,7 +326,23 @@
       "costCBills": 200000,
       "battleValue": 122,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-uac-10",
@@ -205,7 +361,23 @@
       "costCBills": 320000,
       "battleValue": 210,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-uac-20",
@@ -224,7 +396,22 @@
       "costCBills": 480000,
       "battleValue": 335,
       "introductionYear": 2820,
-      "special": ["Can fire twice"]
+      "special": ["Can fire twice"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lb-2-x-ac",
@@ -243,7 +430,23 @@
       "costCBills": 150000,
       "battleValue": 42,
       "introductionYear": 3050,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lb-5-x-ac",
@@ -262,7 +465,23 @@
       "costCBills": 250000,
       "battleValue": 83,
       "introductionYear": 3050,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lb-10-x-ac",
@@ -282,7 +501,23 @@
       "introductionYear": 2590,
       "special": ["Cluster ammo available"],
       "extinctionYear": 2840,
-      "reintroductionYear": 3035
+      "reintroductionYear": 3035,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lb-20-x-ac",
@@ -301,7 +536,23 @@
       "costCBills": 600000,
       "battleValue": 237,
       "introductionYear": 3050,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-lb-2-x-ac",
@@ -320,7 +571,23 @@
       "costCBills": 150000,
       "battleValue": 47,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-lb-5-x-ac",
@@ -339,7 +606,23 @@
       "costCBills": 250000,
       "battleValue": 93,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-lb-10-x-ac",
@@ -358,7 +641,23 @@
       "costCBills": 400000,
       "battleValue": 148,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-lb-20-x-ac",
@@ -377,7 +676,22 @@
       "costCBills": 600000,
       "battleValue": 237,
       "introductionYear": 2819,
-      "special": ["Cluster ammo available"]
+      "special": ["Cluster ammo available"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "rac-2",
@@ -396,7 +710,23 @@
       "costCBills": 175000,
       "battleValue": 118,
       "introductionYear": 3055,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "rac-5",
@@ -415,7 +745,23 @@
       "costCBills": 275000,
       "battleValue": 247,
       "introductionYear": 3055,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-rac-2",
@@ -434,7 +780,22 @@
       "costCBills": 175000,
       "battleValue": 161,
       "introductionYear": 3073,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-rac-5",
@@ -453,7 +814,22 @@
       "costCBills": 275000,
       "battleValue": 345,
       "introductionYear": 3073,
-      "special": ["Can fire 1-6 shots"]
+      "special": ["Can fire 1-6 shots"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lac-2",
@@ -471,7 +847,22 @@
       "ammoPerTon": 45,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 3057
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "lac-5",
@@ -489,7 +880,22 @@
       "ammoPerTon": 20,
       "costCBills": 150000,
       "battleValue": 62,
-      "introductionYear": 3057
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-autocannon-10",
@@ -515,7 +921,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-autocannon-2",
@@ -541,7 +962,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-autocannon-20",
@@ -567,7 +1003,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-autocannon-5",
@@ -593,7 +1044,22 @@
       "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "hyper-velocity-auto-cannon-10",
@@ -617,7 +1083,22 @@
       "costCBills": 230000,
       "battleValue": 158,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "hyper-velocity-auto-cannon-2",
@@ -641,7 +1122,22 @@
       "costCBills": 100000,
       "battleValue": 53,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "hyper-velocity-auto-cannon-5",
@@ -665,7 +1161,22 @@
       "costCBills": 160000,
       "battleValue": 109,
       "introductionYear": 3059,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

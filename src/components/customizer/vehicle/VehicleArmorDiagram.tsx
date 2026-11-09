@@ -6,11 +6,10 @@
  *   - Turret      when turret is configured (any non-CHIN turret type)
  *   - Chin Turret when turret.type === TurretType.CHIN
  *   - Rotor       when motionType === VTOL
- *   - Body        when the vehicle is a support vehicle
  *
  * Reads state from useVehicleStore; wires inputs back via setLocationArmor /
- * autoAllocateArmor. Auto-allocate follows TM pp.86-87 distribution:
- *   40% Front, 20% Left, 20% Right, 10% Rear, remainder Turret.
+ * autoAllocateArmor. Allocation follows the installed-location distribution
+ * from pinned MegaMekLab.
  *
  * Accessibility:
  *   - Each per-location numeric input is rendered via the shared
@@ -32,9 +31,7 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
-import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getVehicleArmorProfile } from '@/utils/construction/vehicle/armorLimits';
 import {
   getMaxVehicleArmorForLocation,
   getVehicleArmorEditorLayout,
@@ -63,7 +60,7 @@ interface VehicleArmorDiagramProps {
 /**
  * Visual armor diagram for vehicles.
  * Displays all active locations with pip rows and numeric inputs.
- * Includes an Auto-Allocate action following TechManual distribution tables.
+ * Includes an Auto-Allocate action following the pinned MegaMekLab allocator.
  */
 export function VehicleArmorDiagram({
   className = '',
@@ -86,49 +83,29 @@ export function VehicleArmorDiagram({
   const usesBarArmor = useVehicleStore((s) => s.usesBarArmor);
   const barRating = useVehicleStore((s) => s.barRating);
   const armorTechRating = useVehicleStore((s) => s.armorTechRating);
-  const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
   const setLocationArmor = useVehicleStore((s) => s.setLocationArmor);
 
-  const isVTOL = motionType === GroundMotionType.VTOL;
-  // Support vehicles carry a Body location per spec
-  const isSupport = unitType === UnitType.SUPPORT_VEHICLE;
-  const hasTurret = turret !== null;
-  const hasSecondaryTurret = Boolean(secondaryTurret);
-  const isChinTurret = turret?.type === TurretType.CHIN;
   const armorProfile = useMemo(
-    () => ({
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-      isSuperheavy,
-      isSupport,
-      isChinTurret,
-      motionType,
-      usesBarArmor,
-    }),
-    [
-      hasTurret,
-      isVTOL,
-      hasSecondaryTurret,
-      isSuperheavy,
-      isSupport,
-      isChinTurret,
-      motionType,
-      usesBarArmor,
-    ],
+    () =>
+      getVehicleArmorProfile({
+        tonnage,
+        unitType,
+        motionType,
+        turret,
+        secondaryTurret,
+        usesBarArmor,
+      }),
+    [tonnage, unitType, motionType, turret, secondaryTurret, usesBarArmor],
   );
+  const { isVTOL, hasTurret, isChinTurret } = armorProfile;
+  const hasSecondaryTurret = armorProfile.hasSecondaryTurret ?? false;
   const layout = getVehicleArmorEditorLayout(armorProfile);
 
   const handleChange = useCallback(
     (location: VehicleArmorLocation, raw: number) => {
-      const max = getMaxVehicleArmorForLocation({
-        tonnage,
-        location,
-        profile: armorProfile,
-      });
-      setLocationArmor(location, Math.max(0, Math.min(max, raw)));
+      setLocationArmor(location, raw);
     },
-    [setLocationArmor, tonnage, armorProfile],
+    [setLocationArmor],
   );
 
   // The shared armor owner supplies points, including native BAR armor.
@@ -157,6 +134,10 @@ export function VehicleArmorDiagram({
       motionType: state.motionType,
       armorType: state.armorType,
       armorTonnage: state.armorTonnage,
+      barRating: state.barRating,
+      armorTechRating: state.armorTechRating,
+      usesBarArmor: state.usesBarArmor,
+      isSuperheavy: state.isSuperheavy,
       turretType: state.turret?.type,
       secondaryTurretType: state.secondaryTurret?.type,
       allocation: { ...state.armorAllocation },
@@ -176,6 +157,10 @@ export function VehicleArmorDiagram({
           current.motionType === requested.motionType &&
           current.armorType === requested.armorType &&
           current.armorTonnage === requested.armorTonnage &&
+          current.barRating === requested.barRating &&
+          current.armorTechRating === requested.armorTechRating &&
+          current.usesBarArmor === requested.usesBarArmor &&
+          current.isSuperheavy === requested.isSuperheavy &&
           current.turret?.type === requested.turretType &&
           current.secondaryTurret?.type === requested.secondaryTurretType &&
           shallow(current.armorAllocation, requested.allocation)

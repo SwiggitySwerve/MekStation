@@ -1,0 +1,226 @@
+{
+  "hatchet": {
+    "weight": {
+      "type": "CEIL_DIVIDE",
+      "field": "tonnage",
+      "divisor": 15
+    },
+    "criticalSlots": {
+      "type": "EQUALS_WEIGHT"
+    },
+    "cost": {
+      "type": "MULTIPLY",
+      "field": "weight",
+      "multiplier": 5000
+    },
+    "damage": {
+      "type": "FLOOR_DIVIDE",
+      "field": "tonnage",
+      "divisor": 5
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "sword": {
+    "weight": {
+      "type": "MULTIPLY_ROUND",
+      "field": "tonnage",
+      "multiplier": 0.05,
+      "roundTo": 0.5
+    },
+    "criticalSlots": {
+      "type": "CEIL_DIVIDE",
+      "field": "tonnage",
+      "divisor": 15
+    },
+    "cost": {
+      "type": "MULTIPLY",
+      "field": "weight",
+      "multiplier": 10000
+    },
+    "damage": {
+      "type": "PLUS",
+      "base": {
+        "type": "FLOOR_DIVIDE",
+        "field": "tonnage",
+        "divisor": 10
+      },
+      "bonus": 1
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "mace": {
+    "weight": {
+      "type": "CEIL_DIVIDE",
+      "field": "tonnage",
+      "divisor": 10
+    },
+    "criticalSlots": {
+      "type": "EQUALS_WEIGHT"
+    },
+    "cost": {
+      "type": "MULTIPLY",
+      "field": "weight",
+      "multiplier": 7500
+    },
+    "damage": {
+      "type": "FLOOR_DIVIDE",
+      "field": "tonnage",
+      "divisor": 4
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "claw": {
+    "weight": {
+      "type": "CEIL_DIVIDE",
+      "field": "tonnage",
+      "divisor": 15
+    },
+    "criticalSlots": {
+      "type": "EQUALS_WEIGHT"
+    },
+    "cost": {
+      "type": "MULTIPLY_ROUND",
+      "field": "tonnage",
+      "multiplier": 200,
+      "roundTo": 1
+    },
+    "damage": {
+      "type": "FLOOR_DIVIDE",
+      "field": "tonnage",
+      "divisor": 7
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "lance": {
+    "weight": {
+      "type": "CEIL_DIVIDE",
+      "field": "tonnage",
+      "divisor": 20
+    },
+    "criticalSlots": {
+      "type": "EQUALS_WEIGHT"
+    },
+    "cost": {
+      "type": "MULTIPLY",
+      "field": "weight",
+      "multiplier": 15000
+    },
+    "damage": {
+      "type": "PLUS",
+      "base": {
+        "type": "FLOOR_DIVIDE",
+        "field": "tonnage",
+        "divisor": 5
+      },
+      "bonus": 1
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "talons": {
+    "weight": {
+      "type": "CEIL_DIVIDE",
+      "field": "tonnage",
+      "divisor": 15
+    },
+    "criticalSlots": {
+      "type": "PLUS",
+      "base": {
+        "type": "MULTIPLY",
+        "field": "isQuad",
+        "multiplier": 4
+      },
+      "bonus": 4
+    },
+    "cost": {
+      "type": "MULTIPLY",
+      "field": "weight",
+      "multiplier": 6000
+    },
+    "damage": {
+      "type": "FLOOR_DIVIDE",
+      "field": "tonnage",
+      "divisor": 7
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "retractable-blade": {
+    "weight": {
+      "type": "PLUS",
+      "base": {
+        "type": "MULTIPLY_ROUND",
+        "field": "tonnage",
+        "multiplier": 0.05,
+        "roundTo": 0.5
+      },
+      "bonus": 0.5
+    },
+    "criticalSlots": {
+      "type": "PLUS",
+      "base": {
+        "type": "CEIL_DIVIDE",
+        "field": "tonnage",
+        "divisor": 20
+      },
+      "bonus": 1
+    },
+    "cost": {
+      "type": "MULTIPLY",
+      "field": "weight",
+      "multiplier": 10000
+    },
+    "damage": {
+      "type": "FLOOR_DIVIDE",
+      "field": "tonnage",
+      "divisor": 10
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "flail": {
+    "weight": {
+      "type": "FIXED",
+      "value": 5
+    },
+    "criticalSlots": {
+      "type": "FIXED",
+      "value": 4
+    },
+    "cost": {
+      "type": "FIXED",
+      "value": 110000
+    },
+    "damage": {
+      "type": "PLUS",
+      "base": {
+        "type": "FLOOR_DIVIDE",
+        "field": "tonnage",
+        "divisor": 4
+      },
+      "bonus": 2
+    },
+    "requiredContext": ["tonnage"]
+  },
+  "wrecking-ball": {
+    "weight": {
+      "type": "FIXED",
+      "value": 4
+    },
+    "criticalSlots": {
+      "type": "FIXED",
+      "value": 5
+    },
+    "cost": {
+      "type": "FIXED",
+      "value": 110000
+    },
+    "damage": {
+      "type": "PLUS",
+      "base": {
+        "type": "FLOOR_DIVIDE",
+        "field": "tonnage",
+        "divisor": 5
+      },
+      "bonus": 3
+    },
+    "requiredContext": ["tonnage"]
+  }
+}

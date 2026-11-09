@@ -2,29 +2,12 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IContract } from '@/types/campaign/Mission';
 import type { Transaction } from '@/types/campaign/Transaction';
 
-import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { missionPayoutOutcome } from '@/types/campaign/enums/MissionStatus';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 import { calculateTotalPayout } from '@/types/campaign/PaymentTerms';
 
 import type { IDayEvent } from '../dayPipeline';
-
-/**
- * Map a terminal `MissionStatus` to the payout outcome the
- * `IPaymentTerms` calculator understands.
- */
-export function statusToPayoutOutcome(
-  status: MissionStatus,
-): 'success' | 'partial' | 'failure' {
-  switch (status) {
-    case MissionStatus.SUCCESS:
-      return 'success';
-    case MissionStatus.PARTIAL:
-      return 'partial';
-    default:
-      return 'failure';
-  }
-}
 
 /**
  * Apply final payment for a fulfilled contract. Returns the updated
@@ -39,7 +22,7 @@ export function applyContractClosure(
   transactions: Transaction[];
   event: IDayEvent;
 } {
-  const outcome = statusToPayoutOutcome(contract.status);
+  const outcome = missionPayoutOutcome(contract.status);
   const payout = calculateTotalPayout(contract.paymentTerms, outcome);
   const newBalance = campaign.finances.balance.add(payout);
   const txnId = `tx-contract-close-${contract.id}-${nowIso}`;

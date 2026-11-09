@@ -223,6 +223,9 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
       saveCampaign: mockSaveCampaign,
       loadCampaign: jest.fn(async () => true),
       reset: mockPersistenceReset,
+      restoreAfterFailedCreation: (snapshot: unknown) => {
+        mockPersistenceSetState(snapshot);
+      },
     }),
   },
 }));

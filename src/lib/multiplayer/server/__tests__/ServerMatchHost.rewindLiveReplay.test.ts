@@ -140,7 +140,7 @@ describe('ServerMatchHost rewind reaches connected players', () => {
     resetSQLiteService();
     getSQLiteService({ path: path.join(dir, 'journal.db') }).initialize();
     db = getSQLiteService().getDatabase();
-    store = new DurableMatchStore({ path: ':memory:' });
+    store = new DurableMatchStore({ path: path.join(dir, 'matches.db') });
     _setCombatJournalAuthorityModeForTests('enabled');
   });
 
@@ -150,6 +150,111 @@ describe('ServerMatchHost rewind reaches connected players', () => {
     store.close();
     resetSQLiteService();
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+  });
+
+  describe('VDC durable rewind regressions', () => {
+    afterEach(() => jest.restoreAllMocks());
+
+    it('replays to attached viewers without primary-key collisions or persist warnings', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      await joinedViewer(fixture.host, GM);
+      await joinedViewer(fixture.host, GUEST);
+      const warnings = jest.spyOn(logger, 'warn');
+
+      await rebuild(fixture);
+
+      for (const playerId of [GM, GUEST]) {
+        const rows = (
+          await store.listViewerDeliveryRecords(PLAIN.matchId)
+        ).filter((row) => row.playerId === playerId);
+        expect(
+          rows.map((row) => [row.deliverySequence, row.authoritySequence]),
+        ).toEqual(
+          fixture.prefix.map((event, index) => [index, event.sequence]),
+        );
+      }
+      expect(
+        warnings.mock.calls.filter(([message]) =>
+          String(message).includes('persist failed'),
+        ),
+      ).toEqual([]);
+    });
+
+    it('restart safety skips stale pre-rewind mappings and receipts on main', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      await joinedViewer(fixture.host, GUEST);
+      await fixture.host.handleDeliveryAck(
+        GUEST,
+        fixture.host.viewerIssued(GUEST) - 1,
+      );
+      for (const viewer of opened.splice(0)) viewer.close();
+      store.close();
+      store = new DurableMatchStore({ path: path.join(dir, 'matches.db') });
+      const readSlots = jest.spyOn(store, 'listViewerDeliveryRecords');
+      const readAck = jest.spyOn(store, 'getViewerDeliveryAcknowledgement');
+
+      const recovered = (await recoverActiveMatches(store)).hosts.get(
+        PLAIN.matchId,
+      );
+
+      if (!recovered) throw new Error('rewound match was not recovered');
+      expect(readSlots).not.toHaveBeenCalled();
+      expect(readAck).not.toHaveBeenCalled();
+      expect(recovered.viewerIssued(GUEST)).toBe(0);
+      expect(recovered.viewerUnacked(GUEST)).toBe(0);
+      const viewer = await joinedViewer(recovered, GUEST);
+      expect(viewer.mirrorEventIds()).toEqual(
+        fixture.prefix.map((event) => event.id),
+      );
+    });
+
+    it('restart replay persists only the rebuilt stream without persist warnings', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      await joinedViewer(fixture.host, GUEST);
+      await rebuild(fixture);
+      for (const viewer of opened.splice(0)) viewer.close();
+      store.close();
+      store = new DurableMatchStore({ path: path.join(dir, 'matches.db') });
+      const warnings = jest.spyOn(logger, 'warn');
+
+      const recovered = (await recoverActiveMatches(store)).hosts.get(
+        PLAIN.matchId,
+      );
+      if (!recovered) throw new Error('rewound match was not recovered');
+      const viewer = await joinedViewer(recovered, GUEST);
+
+      expect(viewer.mirrorEventIds()).toEqual(
+        fixture.prefix.map((event) => event.id),
+      );
+      expect(
+        warnings.mock.calls.filter(([message]) =>
+          String(message).includes('persist failed'),
+        ),
+      ).toEqual([]);
+      expect(
+        (await store.listViewerDeliveryRecords(PLAIN.matchId))
+          .filter((row) => row.playerId === GUEST)
+          .map((row) => [row.deliverySequence, row.authoritySequence]),
+      ).toEqual(fixture.prefix.map((event, index) => [index, event.sequence]));
+    });
+
+    it('clears the old durable ack so the new stream accepts a lower receipt', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      await joinedViewer(fixture.host, GUEST);
+      const previous = fixture.host.viewerIssued(GUEST) - 1;
+      expect(previous).toBeGreaterThan(0);
+      await fixture.host.handleDeliveryAck(GUEST, previous);
+
+      await rebuild(fixture);
+
+      expect(
+        await store.getViewerDeliveryAcknowledgement(PLAIN.matchId, GUEST),
+      ).toBeNull();
+      await fixture.host.handleDeliveryAck(GUEST, 0);
+      expect(
+        await store.getViewerDeliveryAcknowledgement(PLAIN.matchId, GUEST),
+      ).toMatchObject({ deliverySequence: 0 });
+    });
   });
 
   describe('a player connected at the rewind (admission probe rows)', () => {

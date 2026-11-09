@@ -13,7 +13,11 @@ import type { AtBContractType } from './contracts/contractTypes';
 import type { IScenario } from './Scenario';
 import type { AtBMoraleLevel } from './scenario/scenarioTypes';
 
-import { isTerminalMissionStatus, MissionStatus } from './enums/MissionStatus';
+import {
+  isTerminalMissionStatus,
+  MissionStatus,
+  missionPayoutOutcome,
+} from './enums/MissionStatus';
 import { ScenarioStatus } from './enums/ScenarioStatus';
 import { Money } from './Money';
 import {
@@ -283,21 +287,10 @@ export function getMissionScenarios(
  * const payout = getTotalPayout(contract);
  */
 export function getTotalPayout(contract: IContract): Money {
-  let outcome: 'success' | 'partial' | 'failure';
-
-  switch (contract.status) {
-    case MissionStatus.SUCCESS:
-      outcome = 'success';
-      break;
-    case MissionStatus.PARTIAL:
-      outcome = 'partial';
-      break;
-    default:
-      outcome = 'failure';
-      break;
-  }
-
-  return calculateTotalPayout(contract.paymentTerms, outcome);
+  return calculateTotalPayout(
+    contract.paymentTerms,
+    missionPayoutOutcome(contract.status),
+  );
 }
 
 /**
@@ -323,7 +316,7 @@ export function getScenarioCount(mission: IMission): number {
 /**
  * Checks if a mission is in a terminal state.
  *
- * Terminal states: SUCCESS, PARTIAL, FAILED, BREACH, CANCELLED, ABORTED
+ * Terminal states: SUCCESS, PARTIAL, FAILED, BREACH
  *
  * @param mission - The mission to check
  * @returns true if the mission is in a terminal state

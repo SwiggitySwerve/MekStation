@@ -13,7 +13,10 @@
 
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
-import type { ICombatOutcome } from '../combat/CombatOutcome';
+import type {
+  IAppliedCombatOutcome,
+  ICombatOutcome,
+} from '../combat/CombatOutcome';
 import type {
   IGmCampaignProjectedEffect,
   IGmTimeCascadeProjectedEffect,
@@ -198,7 +201,7 @@ export interface SerializedCampaignBody {
   readonly processedBattleIds?: readonly string[];
   readonly gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
-  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
   /** Daily post-battle audit entries shown on the campaign dashboard. */
   readonly dailyBattleAudit?: readonly IDailyBattleAuditEntry[];
   /**
@@ -234,6 +237,8 @@ export interface SerializedCampaignBody {
   readonly moraleState?: MoraleState;
   /** Company morale transition history (D9). */
   readonly moraleTransitions?: readonly IMoraleTransition[];
+  /** Match ids of the outcomes company morale has already counted. */
+  readonly moraleCountedMatchIds?: readonly string[];
   /** Starmap "you are here" pin (`wire-starmap-into-campaign`). */
   readonly currentSystemId?: string;
   /**

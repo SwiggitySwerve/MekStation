@@ -39,6 +39,7 @@ import {
   CampaignGrantSnapshotSchema,
 } from './CampaignGrantProtocol';
 import { MatchSeatSchema } from './Lobby';
+import { MATCH_STATUSES } from './MatchStatus';
 
 export {
   CampaignGrantAckSchema,
@@ -920,7 +921,7 @@ export const LobbyUpdatedSchema = z.object({
   ts: tsSchema,
   intentId: z.string().min(1).optional(),
   seats: z.array(MatchSeatSchema),
-  status: z.enum(['lobby', 'active', 'completed']),
+  status: z.enum(MATCH_STATUSES),
   hostPlayerId: z.string().min(1),
 });
 export type ILobbyUpdated = z.infer<typeof LobbyUpdatedSchema>;

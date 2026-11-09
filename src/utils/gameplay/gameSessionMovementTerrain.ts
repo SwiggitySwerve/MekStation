@@ -13,7 +13,11 @@ import { GameEventType, GamePhase } from '@/types/gameplay';
 import { createPSRTriggeredEvent, createUnitStuckEvent } from './gameEvents';
 import { appendEvent } from './gameSessionEvents';
 import { decomposeMovementSteps } from './movement/eventPathDecomposition';
-import { planMovementTerrainEffects } from './movement/terrainPsrTriggers';
+import { planRunningWithDamagePSR } from './movement/runningDamagePsr';
+import {
+  planMovementTerrainEffects,
+  type MovementTerrainEffect,
+} from './movement/terrainPsrTriggers';
 
 /** One committed interactive movement, as declared. */
 export interface IInteractiveMovementTerrainInput {
@@ -28,9 +32,11 @@ export interface IInteractiveMovementTerrainInput {
 }
 
 /**
- * Build the terrain events for one interactive movement from the shared
- * producer (`planMovementTerrainEffects`), numbered from `startSequence`.
- * Steps come from the canonical decomposition of the declared path; the
+ * Build the movement PSR events for one interactive movement from the shared
+ * producers, numbered from `startSequence`: the running-with-damage roll
+ * (`planRunningWithDamagePSR`) first, then the terrain effects
+ * (`planMovementTerrainEffects`), the order the runner queues them in. Steps
+ * come from the canonical decomposition of the declared path; the
  * `MovementDeclared` payload itself is not changed.
  */
 export function buildInteractiveMovementTerrainEvents(
@@ -50,14 +56,23 @@ export function buildInteractiveMovementTerrainEvents(
     grid,
     movementCapability: capability,
   });
-  const effects = planMovementTerrainEffects({
-    grid,
+  const runningDamage = planRunningWithDamagePSR({
     unitId: declared.unitId,
     unit: mover,
     movementType: declared.movementType,
-    movementMode: capability?.movementMode,
     steps,
   });
+  const effects: readonly MovementTerrainEffect[] = [
+    ...(runningDamage ? [{ kind: 'psr' as const, psr: runningDamage }] : []),
+    ...planMovementTerrainEffects({
+      grid,
+      unitId: declared.unitId,
+      unit: mover,
+      movementType: declared.movementType,
+      movementMode: capability?.movementMode,
+      steps,
+    }),
+  ];
   const piloting = session.units.find(
     (unit) => unit.id === declared.unitId,
   )?.piloting;

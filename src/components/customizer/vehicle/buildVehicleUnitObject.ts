@@ -25,10 +25,14 @@ import type {
 
 import { getVehicleEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
-import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
+import {
+  getVehicleArmorEditorLayout,
+  type IVehicleArmorProfile,
+} from '@/utils/construction/vehicle/editorArmor';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { getInstalledVehicleTurretType } from '@/utils/construction/vehicle/turret';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
@@ -50,6 +54,7 @@ export interface VehicleUnitObjectInput extends RecordSheetUnitIdentityWithTonna
   flankMP: number;
   armorType: ArmorTypeEnum;
   armorAllocation: IVehicleArmorAllocation | IVTOLArmorAllocation;
+  usesBarArmor?: boolean;
   barRating: number | null;
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
@@ -100,37 +105,48 @@ function toMotionLabel(
 }
 
 /**
+ * Location enum string → record-sheet label for every location the editor
+ * layout can produce. `Body` is absent on purpose: see `toArmorAllocation`.
+ */
+const LOCATION_LABEL: Record<string, string> = {
+  Front: 'Front',
+  Left: 'Left Side',
+  Right: 'Right Side',
+  'Front Left': 'Front Left',
+  'Front Right': 'Front Right',
+  'Rear Left': 'Rear Left',
+  'Rear Right': 'Rear Right',
+  Rear: 'Rear',
+  Turret: 'Turret',
+  'Turret 2': 'Turret 2',
+  Rotor: 'Rotor',
+};
+
+/**
  * Translate the store's keyed armor allocation into the record-sheet
- * `{ location: { current, maximum } }` map. The store keys are location enum
- * strings (Front / Left / Right / Rear / Turret / Turret 2 / Body / Rotor);
- * the extractor recognises the canonical record-sheet location labels.
+ * `{ location: { current } }` map for exactly the unit's real armor layout.
+ *
+ * The layout comes from the editor's layout owner (six-side only when
+ * superheavy and not a VTOL, turrets only when installed, rotor only on VTOLs),
+ * not from which store keys exist: the store seeds every location at 0, and a
+ * real location may legitimately carry 0 armor. `Body` is never printed: every
+ * pinned vehicle loader fixes Body armor at 0 (`fullArmor[0] = 0` in
+ * BLKTankFile.java:196-200, BLKSupportTankFile.java:129-134,
+ * BLKLargeSupportTankFile.java:132-137 and BLKSupportVTOLFile.java:127-132) and
+ * `Tank.autoSetInternal` gives it no structure (Tank.java:1611).
+ *
+ * No `maximum`: MegaMek and MML cap only the unit total and the VTOL rotor, so
+ * echoing `current` would print a fabricated cap on the skeleton fallback.
  */
 function toArmorAllocation(
   allocation: IVehicleArmorAllocation | IVTOLArmorAllocation,
-): Record<string, { current: number; maximum: number }> {
-  // Map the store's location keys onto the extractor's expected label set.
-  const keyToLabel: Record<string, string> = {
-    Front: 'Front',
-    Left: 'Left Side',
-    Right: 'Right Side',
-    'Front Left': 'Front Left',
-    'Front Right': 'Front Right',
-    'Rear Left': 'Rear Left',
-    'Rear Right': 'Rear Right',
-    Rear: 'Rear',
-    Turret: 'Turret',
-    'Turret 2': 'Turret 2',
-    Body: 'Body',
-    Rotor: 'Rotor',
-  };
-
-  const result: Record<string, { current: number; maximum: number }> = {};
-  for (const [key, points] of Object.entries(allocation)) {
-    const label = keyToLabel[key];
-    if (label === undefined || typeof points !== 'number') continue;
-    // Maximum is unknown from the store alone — use the allocated value so the
-    // bar renders full; the extractor only needs current/maximum to draw.
-    result[label] = { current: points, maximum: points };
+  profile: IVehicleArmorProfile,
+): Record<string, { current: number }> {
+  const points: Record<string, number | undefined> = { ...allocation };
+  const result: Record<string, { current: number }> = {};
+  for (const { location } of getVehicleArmorEditorLayout(profile).locations) {
+    if (location === VehicleLocation.BODY) continue;
+    result[LOCATION_LABEL[location]] = { current: points[location] ?? 0 };
   }
   return result;
 }
@@ -164,14 +180,18 @@ export function buildVehicleUnitObject(
     cruiseMP: input.cruiseMP,
     flankMP: input.flankMP,
     armorType: String(input.armorType),
-    armorAllocation: toArmorAllocation(
-      getInstalledArmorAllocation(
-        input.armorAllocation,
-        turretType !== TurretType.NONE,
-        turretType === TurretType.DUAL,
-      ),
-    ),
-    barRating: input.barRating ?? undefined,
+    armorAllocation: toArmorAllocation(input.armorAllocation, {
+      hasTurret: turretType !== TurretType.NONE,
+      hasSecondaryTurret: turretType === TurretType.DUAL,
+      isVTOL: input.motionType === GroundMotionType.VTOL,
+      isSuperheavy: input.isSuperheavy,
+      isSupport: input.unitType === UnitType.SUPPORT_VEHICLE,
+      isChinTurret: turretType === TurretType.CHIN,
+      motionType: input.motionType,
+    }),
+    // The store keeps `barRating` after the armor changes away from BAR (and a
+    // new support vehicle starts at 7), so only `usesBarArmor` says it applies.
+    barRating: input.usesBarArmor ? (input.barRating ?? undefined) : undefined,
     equipment: input.equipment.map((eq) => ({
       id: eq.id,
       equipmentId: eq.equipmentId,

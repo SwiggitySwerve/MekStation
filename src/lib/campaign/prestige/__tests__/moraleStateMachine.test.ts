@@ -23,7 +23,7 @@ function signals(overrides: Partial<IMoraleSignals> = {}): IMoraleSignals {
 }
 
 describe('evaluateMoraleTransition', () => {
-  it('moves morale up by exactly one step on victories with met pay', () => {
+  it('moves morale up by exactly one step on victories', () => {
     const result = evaluateMoraleTransition(
       MoraleState.Steady,
       signals({ recentVictories: 2, payMet: true }),
@@ -56,24 +56,149 @@ describe('evaluateMoraleTransition', () => {
   });
 
   it('holds morale when there are no signals', () => {
+    // The helper's default is payMet: true, a day on which costs were paid.
     const result = evaluateMoraleTransition(
       MoraleState.Steady,
       signals(),
       OCCURRED_AT,
     );
-    // payMet:true is +1 by itself — so "no signals" must net zero. Verify
-    // that a balanced day (one victory cancelled by one defeat, pay met
-    // cancelled by a desertion) holds.
+    expect(result.direction).toBeNull();
+    expect(result.transition).toBeNull();
+    expect(result.to).toBe(MoraleState.Steady);
+
+    // A balanced day also holds: one victory cancelled by one defeat.
     const balanced = evaluateMoraleTransition(
       MoraleState.Steady,
-      signals({ recentVictories: 1, recentDefeats: 1, desertions: 1 }),
+      signals({ recentVictories: 1, recentDefeats: 1 }),
       OCCURRED_AT,
     );
     expect(balanced.direction).toBeNull();
     expect(balanced.transition).toBeNull();
     expect(balanced.to).toBe(MoraleState.Steady);
-    // The trivial-signals case still steps up (payMet is a positive).
-    expect(result.direction).toBe('up');
+  });
+
+  // App-design rule (Root ruling for K-M4, not MekHQ parity): paid costs are
+  // the baseline and score 0; only a missed payment scores, at -1.
+  describe('met pay is the baseline (0); missed pay is -1', () => {
+    it('does not raise morale by itself', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ payMet: true }),
+        OCCURRED_AT,
+      );
+
+      expect(result.direction).toBeNull();
+      expect(result.to).toBe(MoraleState.Steady);
+    });
+
+    it('lowers morale by itself when pay is missed', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ payMet: false }),
+        OCCURRED_AT,
+      );
+
+      expect(result.direction).toBe('down');
+      expect(result.to).toBe(MoraleState.Unhappy);
+    });
+
+    it('lets a victory raise morale whether or not the costs were paid', () => {
+      for (const payMet of [true, null]) {
+        const result = evaluateMoraleTransition(
+          MoraleState.Steady,
+          signals({ recentVictories: 1, payMet }),
+          OCCURRED_AT,
+        );
+        expect(result.to).toBe(MoraleState.High);
+      }
+    });
+
+    it('does not let paid costs soften a defeat', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentDefeats: 1, payMet: true }),
+        OCCURRED_AT,
+      );
+
+      expect(result.to).toBe(MoraleState.Unhappy);
+    });
+
+    it('lets a victory and a missed payment cancel out', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentVictories: 1, payMet: false }),
+        OCCURRED_AT,
+      );
+
+      expect(result.direction).toBeNull();
+    });
+
+    it('names a victory, not paid costs, as the reason for a rise', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentVictories: 2, payMet: true }),
+        OCCURRED_AT,
+      );
+
+      expect(result.transition?.reason).toMatch(/victory/);
+      expect(result.transition?.reason).not.toMatch(/pay/);
+    });
+
+    it('names missed pay as a reason for a fall', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ payMet: false }),
+        OCCURRED_AT,
+      );
+
+      expect(result.transition?.reason).toMatch(/pay missed/);
+    });
+  });
+
+  describe('a null pay signal (no costs event that day) is neutral', () => {
+    it('holds morale when nothing else happened', () => {
+      const result = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ payMet: null }),
+        OCCURRED_AT,
+      );
+
+      expect(result.direction).toBeNull();
+      expect(result.transition).toBeNull();
+      expect(result.to).toBe(MoraleState.Steady);
+    });
+
+    it('lets a single victory raise morale, and a single defeat lower it', () => {
+      const up = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentVictories: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+      const down = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentDefeats: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+
+      expect(up.to).toBe(MoraleState.High);
+      expect(down.to).toBe(MoraleState.Unhappy);
+    });
+
+    it('does not claim pay was met or missed in the reason', () => {
+      const up = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentVictories: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+      const down = evaluateMoraleTransition(
+        MoraleState.Steady,
+        signals({ recentDefeats: 1, payMet: null }),
+        OCCURRED_AT,
+      );
+
+      expect(up.transition?.reason).not.toMatch(/pay/);
+      expect(down.transition?.reason).not.toMatch(/pay/);
+    });
   });
 
   it('cannot step above the maximum state', () => {

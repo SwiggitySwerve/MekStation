@@ -166,7 +166,9 @@ export function bindVehicle(data: IVehicleRecordSheetData): VehicleBindings {
     [VEHICLE_TEMPLATE_IDS.rulesLevel]: header.rulesLevel,
     [VEHICLE_TEMPLATE_IDS.role]: header.role ?? '',
     [VEHICLE_TEMPLATE_IDS.bv]: header.battleValue.toLocaleString(),
-    [VEHICLE_TEMPLATE_IDS.armorType]: data.armorType,
+    // MML PrintEntity.drawArmor: BAR armor prints "BAR: <rating>" as the type.
+    [VEHICLE_TEMPLATE_IDS.armorType]:
+      data.barRating !== undefined ? `BAR: ${data.barRating}` : data.armorType,
     [VEHICLE_TEMPLATE_IDS.movementType]: data.motionType,
     [VEHICLE_TEMPLATE_IDS.mpWalk]: String(data.cruiseMP),
     [VEHICLE_TEMPLATE_IDS.mpRun]: String(data.flankMP),

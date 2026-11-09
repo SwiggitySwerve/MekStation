@@ -1,3 +1,11 @@
+## REMOVED Requirements
+
+### Requirement: MTF Import Service
+
+**Reason**: Owner ruling O2 retires the unused legacy service and its JSON-only helpers. Its import, validation and equipment-resolution scenarios no longer describe a supported service contract.
+
+**Migration**: MTF source import uses `importMTFDefinition` behind `POST /api/units/import`. There are no live callers of the retired service to migrate.
+
 ## ADDED Requirements
 
 ### Requirement: Versioned portable unit documents
@@ -363,6 +371,23 @@ Canonical and saved unit detail pages SHALL share read-only quirk presentation. 
 - **AND** valid unit badges remain unchanged and the persisted payload is not modified
 - **AND** editor retention, mount editing, print output and gameplay effects remain separate obligations
 
+### Requirement: Legacy MTF importer retirement
+
+The system SHALL retire the unused `IMTFImporter` interface and `MTFImportService`, including their exports and `services.conversion.importer` registry entry. MTF source import SHALL continue through `importMTFDefinition` behind `POST /api/units/import`.
+
+#### Scenario: Registry access after retirement
+
+- **WHEN** a consumer accesses the service registry
+- **THEN** it SHALL NOT expose the legacy conversion importer
+- **AND** the remaining persistence, equipment, unit, construction and pilot services SHALL resolve through their existing factories
+- **AND** service initialization and shutdown SHALL retain their existing persistence and equipment behavior
+
+#### Scenario: Existing source import and detector compatibility
+
+- **WHEN** the legacy runtime-object importer is retired
+- **THEN** the live MTF parser, source import API and saved unit formats SHALL remain unchanged
+- **AND** the legacy generic-detector MTF bucket SHALL retain its existing classification and filtering behavior
+
 ### Requirement: Direct MTF source import API
 
 The unit import API SHALL accept explicit MTF source text, use the existing MTF parser and shared family-aware definition admission, and persist accepted BattleMech definitions as custom units without changing native parser or construction rules. Existing JSON import behavior SHALL remain available.
@@ -381,7 +406,7 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **THEN** the API SHALL return client diagnostics, retain parser warnings and create no saved unit
 - **AND** successful structural admission SHALL NOT certify construction validity, equipment completeness or numerical parity
 - **AND** malformed request bodies and unsupported source formats SHALL return 400
-- **AND** BLK import, browser file selection and the legacy runtime-object importer SHALL remain separate obligations
+- **AND** BLK import and browser file selection SHALL remain separate obligations
 
 #### Scenario: Browser MTF selection, drop and conflict rename
 
@@ -391,7 +416,7 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **WHEN** a name conflict is retried with a nonempty alternate variant
 - **THEN** the API SHALL allocate a new custom identity with that trimmed variant in both the saved model and variant fields, retaining the original source text and existing saved unit unchanged
 - **AND** invalid alternate variants SHALL return 400 without persistence
-- **AND** BLK and legacy runtime-object import SHALL remain open work
+- **AND** BLK import SHALL remain open work
 
 #### Scenario: ProtoMech-only BLK source API import
 
@@ -401,4 +426,27 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **AND** an admitted record SHALL retain family, custom identity, armor, movement and ordered mounts through API persistence and reload, with original text, parsed document and full handler facts retained in its source snapshot
 - **AND** construction-invalid but structurally loadable records SHALL retain their facts and diagnostics without a new validity gate, and native blank model names SHALL remain blank
 - **AND** malformed source SHALL fail with diagnostics without persistence; existing MTF/JSON behavior SHALL remain available
-- **AND** other BLK families, browser BLK selection, native numerical parity and the legacy runtime-object importer SHALL remain separate obligations
+- **AND** other BLK families, browser BLK selection and native numerical parity SHALL remain separate obligations
+
+### Requirement: Mounted browser unit import
+
+The unit library SHALL expose file selection and drop for JSON, MTF and BLK through
+the existing file and API client services. Native admission SHALL remain with the
+source import API. Unsupported families, malformed source and server failures SHALL
+retain diagnostics with a file replacement or retry action. Successful imports SHALL
+refresh the library and preserve the saved identity for existing editor loading.
+
+#### Scenario: Request ownership and terminal completion
+
+- **WHEN** selections or conflict suggestions complete out of order
+- **THEN** only the current request SHALL update its payload and rename suggestion
+- **AND** duplicate clicks and Enter SHALL NOT duplicate an in-flight or successful POST
+- **WHEN** the dialog closes and reopens
+- **THEN** prior selections, errors, suggestions and completions SHALL NOT enter the new session
+
+#### Scenario: Accessible import and persisted loading
+
+- **WHEN** a user opens the mounted import dialog
+- **THEN** its file input SHALL have a label, keyboard focus SHALL remain within the modal, and closing SHALL restore focus
+- **WHEN** supported pinned MTF and vehicle BLK files are imported
+- **THEN** both SHALL appear in the library after reload and an imported unit SHALL open through existing customizer loading

@@ -279,10 +279,11 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
     countBy(nonstandardEmptyCompatibleAmmo.map((ammo) => ammo.rulesLevel)),
   ).toEqual({
     EXPERIMENTAL: 39 + addedAmmoIds('experimental-empty-compatible-row').length,
-    UNOFFICIAL: 97 + addedAmmoIds('unofficial-empty-compatible-row').length, // was 101: the three half-ton MG records now declare compatible weapons (owner ruling 2026-11-02 q1); was 98: ammo-mg-full feeds both machine guns (AmmoType.java:17147-17155)
+    UNOFFICIAL: 90 + addedAmmoIds('unofficial-empty-compatible-row').length, // was 101: the three half-ton MG records now declare compatible weapons (owner ruling 2026-11-02 q1); was 98: ammo-mg-full feeds both machine guns (AmmoType.java:17147-17155)
   });
   expect(countBy(gapClasses)).toEqual(
     withAddedAmmoCounts({
+      'battlemech-ammo-missing-compatible-weapon-refs': 7,
       'duplicate-runtime-id': 12,
       'experimental-empty-compatible-row': 39,
       'non-battlemech-aerospace-capital-ammo': 8,
@@ -291,7 +292,7 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
       'unsupported-aquatic-torpedo-ammo': 11,
       'unsupported-artillery-ammo': 9,
       'unsupported-rotary-ac-10-20-ammo': 2,
-      'unofficial-empty-compatible-row': 97,
+      'unofficial-empty-compatible-row': 90,
     }),
   );
   expect(supportIdsByLevel(ammoCompatibilitySupport, 'helper-only')).toEqual(

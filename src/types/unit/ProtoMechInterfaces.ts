@@ -173,8 +173,8 @@ export interface IProtoMechUnit {
   readonly glidingWings: boolean;
 
   // ---- Armor ----
-  /** Armor always Standard for ProtoMechs */
-  readonly armorType: 'Standard';
+  /** Armor identity; unsupported loadable identities remain explicitly unknown. */
+  readonly armorType: 'Standard' | 'Electric Discharge ProtoMech' | 'Unknown';
   readonly armorByLocation: IProtoArmorByLocation;
   readonly structureByLocation: IProtoArmorByLocation;
 

@@ -1,3 +1,4 @@
+import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 /**
  * Battle Armor State Interface
  *
@@ -6,8 +7,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
-
-import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 import type { IUnitContract } from '@/types/contracts';
 import type { IBABreakdown } from '@/utils/construction/battlearmor/battleArmorBV';
 
@@ -25,6 +24,8 @@ import {
   IBattleArmorMountedEquipment,
 } from '@/types/unit/PersonnelInterfaces';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
+
+import type { IUnitSaveMetadata } from './unitSaveState';
 
 // =============================================================================
 // Battle Armor Mounted Equipment
@@ -56,7 +57,7 @@ export function createBattleArmorMountedEquipment(
 /**
  * Complete state for a single Battle Armor unit (squad)
  */
-export interface BattleArmorState {
+export interface BattleArmorState extends IUnitSaveMetadata {
   /** Original catalog facts not expressible by the editor. */
   librarySource?: IUnitContract;
   // =========================================================================

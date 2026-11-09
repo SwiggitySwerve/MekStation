@@ -239,6 +239,8 @@ async function generateDynamicArmorPips(
 function getPipGroupIdsForMechType(mechType: string): Record<string, string> {
   switch (mechType) {
     case 'quad':
+    // The QuadVee template carries the quad group IDs (armorPipsFLL, ...).
+    case 'quadvee':
       return QUAD_PIP_GROUP_IDS;
     case 'tripod':
       return TRIPOD_PIP_GROUP_IDS;

@@ -30,6 +30,7 @@ import {
   createWithdrawalDeclaredEvent,
 } from '@/utils/gameplay/gameEvents';
 import { appendEvent } from '@/utils/gameplay/gameSession';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import { collectForcedWithdrawals } from './forcedWithdrawal';
 import { buildMissingMoraleEvents } from './moraleEvaluation';
@@ -140,9 +141,7 @@ export function applyWithdrawalEdgeExits(session: IGameSession): IGameSession {
   for (const unitId of Object.keys(updated.currentState.units)) {
     const unit = updated.currentState.units[unitId];
     if (!unit) continue;
-    if (unit.destroyed) continue;
-    if (unit.hasRetreated) continue;
-    if (unit.hasEjected) continue;
+    if (!getUnitOperability(unit).onField) continue;
     if (!unit.isWithdrawing && !unit.isRetreating) continue;
     if (!unit.retreatTargetEdge) continue;
     if (
@@ -191,7 +190,7 @@ export function declarePlayerWithdrawal(
 ): IGameSession {
   const unit = session.currentState.units[unitId];
   if (!unit) return session;
-  if (unit.destroyed || unit.hasRetreated || unit.hasEjected) return session;
+  if (!getUnitOperability(unit).onField) return session;
   if (unit.isWithdrawing || unit.isRetreating) return session;
 
   const { turn, phase } = session.currentState;

@@ -290,6 +290,17 @@ describe('durable viewer delivery mapping', () => {
       const recovered = rebuilt.hosts.get(matchId);
       if (!recovered) throw new Error('active match was not recovered');
       expect(recovered.viewerUnacked(viewerId)).toBe(1);
+      if (viewerId === 'spectator') {
+        // Boot recovery released the crash-leftover seat, so the viewer
+        // registers again (REST spectate) and resumes the retained stream.
+        expect(await recovered.admitSocket(makeSocket(), viewerId)).toBeNull();
+        await store.updateMatchMeta(matchId, {
+          seats: addSpectatorSeat(
+            (await store.getMatchMeta(matchId)).seats ?? [],
+            { playerId: viewerId, displayName: 'Watcher' },
+          ),
+        });
+      }
       const resumed = makeSocket();
       expect(await recovered.admitSocket(resumed, viewerId)).not.toBeNull();
       await recovered.handleSessionJoin(

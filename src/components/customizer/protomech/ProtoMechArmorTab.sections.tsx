@@ -93,14 +93,7 @@ export function ProtoMechArmorAllocationSection({
   );
 }
 
-/**
- * Armor type and running total. MegaMekLab 62bf193 BAProtoArmorView offers the
- * armor types flagged F_PROTOMEK_EQUIPMENT; only Standard ProtoMech is
- * supported here (ArmorType.java:1375-1391 at MegaMek 48fcb2f64). Electric
- * Discharge ProtoMech armor (ArmorType.java:1393) is a separate change.
- * MegaMekLab buys armor points apart from placing them; MekStation stores only
- * the placed points, so the total is a read-out against the pinned cap.
- */
+/** Armor identity and mass come from the ProtoMech owner. Tech filtering is deferred. */
 export function ProtoMechArmorPanelSection({
   readOnly,
   controls,
@@ -144,6 +137,17 @@ export function ProtoMechArmorPanelSection({
               {controls.totalLimit}
             </span>
           </div>
+        </div>
+        <div>
+          <span className={cs.text.label}>Armor Weight</span>
+          <output
+            data-testid="protomech-armor-weight"
+            className={`${cs.text.secondary} block`}
+          >
+            {controls.armorWeight === null
+              ? 'Unavailable'
+              : `${controls.armorWeight.toFixed(3)} t`}
+          </output>
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { getUnitSaveState } from '@/stores/unitSaveState';
 import { safeGetItem } from '@/stores/utils/clientSafeStorage';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -53,7 +54,17 @@ export function isStoredCustomizerDraftModified(
     const state = parsed.state;
     if (!state || typeof state !== 'object' || !('isModified' in state))
       return true;
-    return state.isModified !== false;
+    return (
+      getUnitSaveState(
+        {
+          isModified:
+            typeof state.isModified === 'boolean'
+              ? state.isModified
+              : undefined,
+        },
+        '',
+      ).modification !== 'clean'
+    );
   } catch {
     return true;
   }

@@ -3,6 +3,7 @@ import type { IBaseUnit } from '@/types/unit/BaseUnitInterfaces';
 import type { IUnitTypeHandler } from '@/types/unit/UnitTypeHandler';
 
 import { BlkParserService } from '@/services/conversion/BlkParserService';
+import { parseBlkLineList } from '@/services/conversion/BlkParserService.helpers';
 import { RULES_LEVEL_TAGS } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import armorCodes from '@/types/formats/blk-armor-codes.json';
@@ -12,14 +13,18 @@ import { resolveBlkAerospaceHeatSinkType } from '@/utils/construction/aerospace/
 import type { importMTFDefinition } from './importMTFDefinition';
 
 import { createAerospaceHandler } from './handlers/AerospaceUnitHandler';
+import { createBattleArmorHandler } from './handlers/BattleArmorUnitHandler';
 import { createConventionalFighterHandler } from './handlers/ConventionalFighterUnitHandler';
 import { FixedWingSupportUnitHandler } from './handlers/FixedWingSupportUnitHandler';
+import { createInfantryHandler } from './handlers/InfantryUnitHandler';
 import { createProtoMechHandler } from './handlers/ProtoMechUnitHandler';
 import { createSmallCraftHandler } from './handlers/SmallCraftUnitHandler';
 import { createSupportVehicleHandler } from './handlers/SupportVehicleUnitHandler';
 import { createVehicleHandler } from './handlers/VehicleUnitHandler';
 import { createVTOLHandler } from './handlers/VTOLUnitHandler';
+import { projectBattleArmorDefinition } from './unitLoaderService/battleArmorDefinitionProjection';
 import { UNIT_DEFINITION_FAMILIES } from './unitLoaderService/definitionTypes';
+import { projectInfantryDefinition } from './unitLoaderService/infantryDefinitionProjection';
 import { loadUnitDefinition } from './unitLoaderService/loadUnitDefinition';
 import { PROTO_ARMOR_CODES } from './unitLoaderService/smallUnitDefinitionMapper';
 
@@ -41,6 +46,10 @@ function parseWithDiagnostics<T extends IBaseUnit>(
 
 function parseSupportedDocument(document: IBlkDocument) {
   switch (document.mappedUnitType) {
+    case UnitType.INFANTRY:
+      return parseWithDiagnostics(document, createInfantryHandler());
+    case UnitType.BATTLE_ARMOR:
+      return parseWithDiagnostics(document, createBattleArmorHandler());
     case UnitType.PROTOMECH:
       return parseWithDiagnostics(document, createProtoMechHandler());
     case UnitType.VEHICLE:
@@ -92,7 +101,7 @@ export async function importBLKDefinition(
   const result = parseSupportedDocument(document);
   if (!result)
     return fail(
-      `Unsupported BLK unit type ${document.unitType}; only protomechs, vehicles and aerospace are supported`,
+      `Unsupported BLK unit type ${document.unitType}; only protomechs, vehicles, aerospace, battle armor and infantry are supported`,
     );
   if (!result.success)
     return fail(
@@ -101,23 +110,63 @@ export async function importBLKDefinition(
       [...parsed.data.warnings, ...result.error.warnings],
     );
   const { unit, diagnostics } = result.data;
+  const isInfantry = unit.unitType === UnitType.INFANTRY;
   const isProtoMech = unit.unitType === UnitType.PROTOMECH;
   const isAerospace = UNIT_DEFINITION_FAMILIES.aerospace.unitTypes.some(
     (type) => type === unit.unitType,
   );
-  const family = isProtoMech
-    ? 'protomechs'
-    : isAerospace
-      ? 'aerospace'
-      : 'vehicles';
+  const family = isInfantry
+    ? 'infantry'
+    : unit.unitType === UnitType.BATTLE_ARMOR
+      ? 'battlearmor'
+      : isProtoMech
+        ? 'protomechs'
+        : isAerospace
+          ? 'aerospace'
+          : 'vehicles';
   const warnings = [...parsed.data.warnings, ...result.data.warnings];
-  const armorType = isProtoMech
-    ? Object.entries(PROTO_ARMOR_CODES).find(
-        ([, code]) => code === unit.armorType,
-      )?.[0]
-    : Object.entries(armorCodes).find(
-        ([code]) => Number(code) === unit.armorType,
-      )?.[1];
+  let battleArmorFields: Record<string, unknown> = {};
+  if (unit.unitType === UnitType.BATTLE_ARMOR) {
+    try {
+      battleArmorFields = projectBattleArmorDefinition({
+        ...unit,
+        weightClass: unit.baWeightClass,
+        groundMP: unit.movement.groundMP,
+      });
+    } catch (error) {
+      if (!(error instanceof TypeError)) throw error;
+      return fail(
+        'Battle armor source loading failed',
+        [error.message],
+        warnings,
+      );
+    }
+  }
+  const infantryFields = isInfantry
+    ? {
+        ...projectInfantryDefinition({
+          ...unit,
+          platoonComposition: {
+            squads: unit.numberOfSquads,
+            troopersPerSquad: unit.squadSize,
+          },
+          motiveType: document.motionType ?? unit.motionType,
+          armorKit: document.armorKit ?? unit.armorKit,
+        }),
+        specializations: unit.bvOffense?.specializations,
+        augmentations: unit.bvOffense?.augmentations,
+        effectiveArmorFlags: unit.bvArmorFlags,
+      }
+    : {};
+  const armorType = isInfantry
+    ? undefined
+    : isProtoMech
+      ? Object.entries(PROTO_ARMOR_CODES).find(
+          ([, code]) => code === unit.armorType,
+        )?.[0]
+      : Object.entries(armorCodes).find(
+          ([code]) => Number(code) === unit.armorType,
+        )?.[1];
   const definition = {
     ...unit,
     family,
@@ -137,15 +186,19 @@ export async function importBLKDefinition(
           },
         }
       : {}),
-    armor: {
-      type: armorType,
-      ...('armorByArc' in unit
-        ? { byArc: unit.armorByArc }
-        : { byLocation: unit.armorByLocation }),
-      ...(armorType === 'BAR' && 'barRating' in unit
-        ? { barRating: unit.barRating }
-        : {}),
-    },
+    armor: isInfantry
+      ? undefined
+      : {
+          type: armorType,
+          ...('armorByArc' in unit
+            ? { byArc: unit.armorByArc }
+            : 'armorByLocation' in unit
+              ? { byLocation: unit.armorByLocation }
+              : {}),
+          ...(armorType === 'BAR' && 'barRating' in unit
+            ? { barRating: unit.barRating }
+            : {}),
+        },
     movement: isProtoMech
       ? {
           ...unit.movement,
@@ -153,11 +206,29 @@ export async function importBLKDefinition(
           jumpMP: unit.jumpMP,
         }
       : unit.movement,
-    equipment: unit.equipment.map((mount) => ({
-      id: mount.equipmentId,
-      name: mount.name,
-      location: mount.location,
-    })),
+    equipment: isInfantry
+      ? Object.entries(document.rawTags).flatMap(([block, entries]) => {
+          const location =
+            block === 'Troopers Equipment'
+              ? 'TROOPERS'
+              : block === 'Field Guns Equipment'
+                ? 'FIELD_GUNS'
+                : undefined;
+          return location
+            ? (parseBlkLineList(entries) ?? []).map((name) => ({
+                id: name,
+                name,
+                location,
+              }))
+            : [];
+        })
+      : unit.equipment.map((mount) => ({
+          id: mount.equipmentId,
+          name: mount.name,
+          location: mount.location,
+        })),
+    ...battleArmorFields,
+    ...infantryFields,
     quirks: document.quirks,
     weaponQuirks: document.weaponQuirks,
     blkSource: {

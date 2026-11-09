@@ -2,9 +2,14 @@ import type { ICampaignContractMarket } from '@/types/campaign/CampaignCommandEx
 import type { IContract, IMission } from '@/types/campaign/Mission';
 import type { IPaymentTerms } from '@/types/campaign/PaymentTerms';
 
+import {
+  MissionStatus,
+  parseMissionStatus,
+} from '@/types/campaign/enums/MissionStatus';
 import { isContract } from '@/types/campaign/Mission';
 import { Money } from '@/types/campaign/Money';
 import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import { logger } from '@/utils/logger';
 
 type SerializedMoneyLike =
   | Money
@@ -42,7 +47,25 @@ function rehydratePaymentTerms(
   });
 }
 
-export function rehydrateCampaignMission(mission: IMission): IMission {
+/**
+ * Every persisted mission (SQLite body, IndexedDB/localStorage, the
+ * missions store, the durable accept row) loads through here, so this is the
+ * one place an old status string is brought into the `MissionStatus` union.
+ * A value the union does not know loads as inert PENDING rather than as an
+ * untyped string, and says so.
+ */
+function loadedStatus(mission: IMission): MissionStatus {
+  const parsed = parseMissionStatus(mission.status);
+  if (parsed !== undefined) return parsed;
+  logger.warn(
+    `[missionSerialization] Mission "${mission.id}" has unknown status ${JSON.stringify(mission.status)}; loading it as ${MissionStatus.PENDING}.`,
+  );
+  return MissionStatus.PENDING;
+}
+
+export function rehydrateCampaignMission(stored: IMission): IMission {
+  const status = loadedStatus(stored);
+  const mission = status === stored.status ? stored : { ...stored, status };
   if (!isContract(mission)) return mission;
   const contract: IContract = mission;
 

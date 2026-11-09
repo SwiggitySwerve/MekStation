@@ -10,6 +10,61 @@ import {
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import { getEquipmentCalculatorService } from '../EquipmentCalculatorService';
+import {
+  getVariableEquipmentFormulas,
+  getVariableEquipmentIds,
+} from '../variableEquipmentFormulas';
+
+it('preserves registry enumeration and the shared Claw alias definition', () => {
+  expect(getVariableEquipmentIds()).toEqual([
+    'targeting-computer-is',
+    'targeting-computer-clan',
+    'masc-is',
+    'masc-clan',
+    'supercharger',
+    'partial-wing',
+    'tsm',
+    'hatchet',
+    'sword',
+    'mace',
+    'claw',
+    'claws',
+    'lance',
+    'talons',
+    'retractable-blade',
+    'flail',
+    'wrecking-ball',
+  ]);
+  expect(getVariableEquipmentFormulas('claw')).toBe(
+    getVariableEquipmentFormulas('claws'),
+  );
+});
+
+// Characterization before moving the physical formula ASTs to shared JSON.
+it.each([
+  ['hatchet', 45, 3, 3, 15000, 9],
+  ['sword', 45, 2.5, 3, 25000, 5],
+  ['mace', 45, 5, 5, 37500, 11],
+  ['claw', 45, 3, 3, 9000, 6],
+  ['claws', 45, 3, 3, 9000, 6],
+  ['lance', 45, 3, 3, 45000, 10],
+  ['talons', 45, 3, 4, 18000, 6],
+  ['retractable-blade', 45, 3, 4, 30000, 4],
+  ['flail', 45, 5, 4, 110000, 13],
+  ['wrecking-ball', 45, 4, 5, 110000, 12],
+  ['hatchet', 15, 1, 1, 5000, 3],
+  ['hatchet', 16, 2, 2, 10000, 3],
+  ['sword', 16, 1, 2, 10000, 2],
+  ['mace', 105, 11, 11, 82500, 26],
+  ['retractable-blade', 16, 1.5, 2, 15000, 1],
+] as const)(
+  'preserves %s construction and combat properties at %d tons',
+  (id, tonnage, weight, criticalSlots, costCBills, damage) => {
+    expect(
+      getEquipmentCalculatorService().calculateProperties(id, { tonnage }),
+    ).toMatchObject({ weight, criticalSlots, costCBills, damage });
+  },
+);
 
 // MegaMek 48fcb2f64, MiscType.java:512-517,1075-1083.
 it.each([

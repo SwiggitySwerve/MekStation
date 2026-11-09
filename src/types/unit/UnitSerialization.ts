@@ -1,4 +1,5 @@
 import type { ResultType } from '@/types/common/result';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 /**
  * Unit Serialization Types
  *
@@ -91,6 +92,8 @@ export interface ISerializedUnit {
   readonly componentTechBases?: Readonly<
     Partial<Record<string, 'INNER_SPHERE' | 'CLAN'>>
   >;
+  /** Authored Tripod/QuadVee crew seats; unassigned seats are absent. */
+  readonly crewSeats?: readonly IMechCrewSeat[];
 }
 
 /**
@@ -115,6 +118,9 @@ export interface ISerializedStructure {
   readonly type: string;
   /** FrankenMek only: structure tonnage per location (MtfFile.java:669-691). */
   readonly locationTonnage?: Readonly<Record<string, number>>;
+  /** Explicit FrankenMek donor types; omitted entries use native defaults.
+   * Absence of the entire map preserves legacy, global-structure behavior. */
+  readonly typeByLocation?: Readonly<Record<string, string>>;
 }
 
 /**
@@ -244,14 +250,6 @@ export interface IMTFData {
   readonly weapons: string[];
   readonly criticals: Record<string, string[]>;
   readonly fluff?: Record<string, string>;
-}
-
-/**
- * MTF importer interface
- */
-export interface IMTFImporter {
-  import(mtfContent: string): IDeserializationResult;
-  validate(mtfContent: string): { isValid: boolean; errors: string[] };
 }
 
 /**

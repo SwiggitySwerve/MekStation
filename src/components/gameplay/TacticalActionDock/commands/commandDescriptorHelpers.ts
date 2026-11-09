@@ -1,19 +1,13 @@
 import type {
   CommandAvailability,
+  GamePhase,
   ICommandCommitResult,
   ITacticalCommandContext,
 } from '@/types/gameplay';
 
-import { GamePhase } from '@/types/gameplay';
+import { GAME_PHASE_ORDER } from '@/utils/gameplay/gamePhaseTransitions';
 
-export const ALL_GAME_PHASES: readonly GamePhase[] = [
-  GamePhase.Initiative,
-  GamePhase.Movement,
-  GamePhase.WeaponAttack,
-  GamePhase.PhysicalAttack,
-  GamePhase.Heat,
-  GamePhase.End,
-];
+export const ALL_GAME_PHASES: readonly GamePhase[] = GAME_PHASE_ORDER;
 
 const AVAILABLE: CommandAvailability = { available: true };
 

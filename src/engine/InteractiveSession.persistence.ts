@@ -141,7 +141,7 @@ export async function persistInteractiveLaunchRecoveryLog(
     await Promise.all(writes);
     await storage.upsertMatchMetadata({
       matchId,
-      status: 'active',
+      status: getSessionTerminalEvent(session) ? 'completed' : 'active',
     });
   } catch (error) {
     await Promise.allSettled(writes);

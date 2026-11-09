@@ -104,8 +104,9 @@ async function flushInitialEventPersist(): Promise<void> {
 describe('MatchHostRegistry unit bootstrap', () => {
   it('does not bootstrap a completed match', async () => {
     const store = new InMemoryMatchStore({ quiet: true });
-    const meta = matchMeta({ status: 'completed' });
+    const meta = matchMeta({ status: 'active' });
     await store.createMatch(meta);
+    await store.closeMatch(meta.matchId);
     const registry = new MatchHostRegistry({ store });
     const create = jest.spyOn(ServerMatchHost, 'create');
     try {

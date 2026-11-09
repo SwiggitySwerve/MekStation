@@ -102,6 +102,11 @@ const NATIVE_IDENTITY_CORRECTIONS: Readonly<Record<string, string>> = {
   'is lb 2-x ac ammo': 'lb-2-x-ammo',
   'is lb 20-x ac ammo': 'lb-20-x-ammo',
   'is lb 5-x ac ammo': 'lb-5-x-ammo',
+  // ISMekMortar8.java (10 t, 5 slots; 48fcb2f64). The general normalizer shortens
+  // the name to "is mech mortar", and unit tech base would swap the legacy record
+  // for the 5 t Clan one. IS Mech Mortar-4 has the same gap, but only
+  // owner-excluded `ge` sources use it.
+  'is mech mortar-8': 'mech-mortar-8',
   'is streak srm 2 ammo': 'streak-srm-ammo',
 };
 

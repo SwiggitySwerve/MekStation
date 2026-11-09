@@ -33,10 +33,32 @@ export function mapRulesLevel(level: string): string {
   return levelMap[level] || 'STANDARD';
 }
 
-export function mapStructureType(structure: string): string {
-  const lower = structure.toLowerCase();
+export function mapStructureType(
+  structure: string,
+  nativeLocation?: string,
+  clanDefault = false,
+): string {
+  if (
+    nativeLocation !== undefined &&
+    !/^(?:(?:IS|Clan) )?(?:Standard|Endo[ -]Steel|Endo[ -]Composite|Reinforced|Composite|Industrial)(?: Structure)?$/i.test(
+      structure.trim(),
+    )
+  ) {
+    throw new Error(
+      `Unknown structure type for ${nativeLocation}: ${structure}`,
+    );
+  }
+  const lower = (
+    nativeLocation !== undefined &&
+    clanDefault &&
+    !/^(?:IS|Clan) /i.test(structure.trim())
+      ? `Clan ${structure}`
+      : structure
+  ).toLowerCase();
   if (lower.includes('endo') && lower.includes('composite'))
-    return 'ENDO_COMPOSITE';
+    return nativeLocation !== undefined && lower.includes('clan')
+      ? 'ENDO_COMPOSITE_CLAN'
+      : 'ENDO_COMPOSITE';
   if (lower.includes('endo') && lower.includes('clan'))
     return 'ENDO_STEEL_CLAN';
   if (lower.includes('endo')) return 'ENDO_STEEL';

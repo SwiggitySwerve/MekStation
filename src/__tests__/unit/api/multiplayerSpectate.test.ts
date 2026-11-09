@@ -17,6 +17,7 @@ import {
   _resetDefaultMatchStore,
   getDefaultMatchStore,
 } from '@/lib/multiplayer/server/getDefaultMatchStore';
+import { getDefaultPlayerStore } from '@/lib/multiplayer/server/InMemoryPlayerStore';
 import {
   addSpectatorSeat,
   MAX_SPECTATORS_PER_MATCH,
@@ -227,5 +228,84 @@ describe('POST /api/multiplayer/matches/:id/spectate', () => {
     const { req, res, result } = mockReqRes({ id: 'nope' });
     await handler(req, res);
     expect(result.statusCode).toBe(404);
+  });
+
+  describe('registration racing another seat write (M-H2 compare-and-swap)', () => {
+    /** Holds the first registration inside its profile bootstrap. */
+    function gateFirstBootstrap() {
+      const players = getDefaultPlayerStore();
+      const original = players.getOrCreatePlayer.bind(players);
+      let release = () => {};
+      let entered = () => {};
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const reached = new Promise<void>((resolve) => {
+        entered = resolve;
+      });
+      jest
+        .spyOn(players, 'getOrCreatePlayer')
+        .mockImplementationOnce(async (input) => {
+          entered();
+          await gate;
+          return original(input);
+        });
+      return { reached, release };
+    }
+
+    const watcher = (playerId: string) => ({
+      ok: true,
+      playerId,
+      publicKey: 'pk',
+      token: {},
+    });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    it('keeps both spectators when two registrations overlap', async () => {
+      await seedMatch('overlap', 'active');
+      authMock
+        .mockResolvedValueOnce(watcher('watch-a'))
+        .mockResolvedValueOnce(watcher('watch-b'));
+      const { reached, release } = gateFirstBootstrap();
+      const first = mockReqRes({ id: 'overlap' });
+      const pending = handler(first.req, first.res);
+      await reached;
+
+      const second = mockReqRes({ id: 'overlap' });
+      await handler(second.req, second.res);
+      release();
+      await pending;
+
+      expect(first.result.statusCode).toBe(201);
+      expect(second.result.statusCode).toBe(201);
+      const seats =
+        (await getDefaultMatchStore().getMatchMeta('overlap')).seats ?? [];
+      expect(
+        seats
+          .filter((seat) => seat.kind === 'spectator')
+          .map((seat) => seat.occupant?.playerId)
+          .sort(),
+      ).toEqual(['watch-a', 'watch-b']);
+      expect(new Set(seats.map((seat) => seat.slotId)).size).toBe(seats.length);
+    });
+
+    it('refuses a registration whose match completes before the seat is written', async () => {
+      await seedMatch('ends-midway', 'active');
+      authMock.mockResolvedValueOnce(watcher('watch-a'));
+      const { reached, release } = gateFirstBootstrap();
+      const first = mockReqRes({ id: 'ends-midway' });
+      const pending = handler(first.req, first.res);
+      await reached;
+
+      await getDefaultMatchStore().closeMatch('ends-midway');
+      release();
+      await pending;
+
+      expect(first.result.statusCode).toBe(409);
+      const meta = await getDefaultMatchStore().getMatchMeta('ends-midway');
+      expect(meta.status).toBe('completed');
+      expect(meta.seats?.some((seat) => seat.kind === 'spectator')).toBe(false);
+    });
   });
 });

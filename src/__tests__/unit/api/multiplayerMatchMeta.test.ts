@@ -134,8 +134,15 @@ async function seed(
     },
     ...patch,
   };
-  await getDefaultMatchStore().createMatch(meta);
-  return meta;
+  const store = getDefaultMatchStore();
+  if (meta.status !== 'completed') {
+    await store.createMatch(meta);
+    return meta;
+  }
+  // No path creates a finished match: complete it through the store.
+  await store.createMatch({ ...meta, status: 'active' });
+  await store.closeMatch(meta.matchId);
+  return store.getMatchMeta(meta.matchId);
 }
 
 function expectDenied(result: { statusCode: number; body: unknown }) {

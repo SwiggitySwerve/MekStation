@@ -17,7 +17,7 @@ Movement points SHALL be calculated from engine rating and tonnage.
 #### Scenario: Run MP
 
 - **WHEN** calculating run MP
-- **THEN** runMP = floor(walkMP × 1.5)
+- **THEN** runMP = ceil(walkMP × 1.5)
 
 ### Requirement: Jump Jets
 

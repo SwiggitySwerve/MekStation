@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-h2-spectator-boot-sweep",
+  "status": "in-progress",
+  "reason": "Wave 4 M-H1/H2 PR3 of three: the full boot recovery pass releases crash-leftover spectator seats of active matches through the guarded seat writer, and a test pins the runner's wire-intent lists to the intent table routes. No schema, wire or persisted-format change.",
+  "lastReviewed": "2026-11-09"
+}

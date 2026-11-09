@@ -21,6 +21,19 @@ describe('gyroCalculations', () => {
       expect(compactWeight).toBeGreaterThan(standardWeight);
     });
 
+    // 48fcb2f64 TestMek.java:249-264: heavy-duty and superheavy both x2.
+    it.each([
+      [GyroType.STANDARD, 300, 3],
+      [GyroType.XL, 300, 1.5],
+      [GyroType.COMPACT, 300, 4.5],
+      [GyroType.HEAVY_DUTY, 300, 6],
+      [GyroType.SUPERHEAVY, 300, 6],
+      [GyroType.SUPERHEAVY, 400, 8],
+      [GyroType.SUPERHEAVY, 270, 6],
+    ])('weighs %s at rating %s as %s t', (type, rating, tons) => {
+      expect(calculateGyroWeight(rating, type)).toBe(tons);
+    });
+
     it('should return 0 for zero or negative rating', () => {
       expect(calculateGyroWeight(0, GyroType.STANDARD)).toBe(0);
       expect(calculateGyroWeight(-1, GyroType.STANDARD)).toBe(0);

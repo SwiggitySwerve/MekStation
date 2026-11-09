@@ -29,6 +29,9 @@ export function createUnitSession(
       ...item,
       ...(item.slots ? { slots: [...item.slots] } : {}),
     })),
+    ...(configuration.crewSeats
+      ? { crewSeats: configuration.crewSeats.map((seat) => ({ ...seat })) }
+      : {}),
     ...(configuration.fluff
       ? {
           fluff: {

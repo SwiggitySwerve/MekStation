@@ -9,6 +9,7 @@ import {
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import { isFixedOmniEquipment } from '@/utils/construction/equipmentMutationPolicy';
 
+import { getSlotParts } from './parts';
 import { getFixedSlotIndices } from './queries';
 import { findContiguousSlotStarts, type ArmActuatorConfig } from './topology';
 import { SlotAssignment, SlotOperationResult } from './types';
@@ -26,6 +27,7 @@ function createLocationAssignments(
   configuration: MechConfiguration,
   isOmni: boolean,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   const totalSlots = getLocationSlotCount(location, configuration);
   const fixedSlots = getFixedSlotIndices(
@@ -33,6 +35,7 @@ function createLocationAssignments(
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
   );
   for (const item of locationEquipment) {
     if (isFixedOmniEquipment(isOmni, item)) {
@@ -82,15 +85,24 @@ function organizeEquipment(
   comparator: EquipmentComparator,
   isOmni: boolean,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   const assignments: SlotAssignment[] = [];
   const unassigned: string[] = [];
 
   for (const location of getLocationsForConfig(configuration)) {
     const locationEquipment = equipment
-      .filter(
-        (item) =>
-          item.location === location && item.slots && item.slots.length > 0,
+      .flatMap((item) =>
+        getSlotParts(item)
+          .filter((part) => part.location === location && part.slots.length > 0)
+          .map((part) => ({
+            ...item,
+            ...part,
+            criticalSlots:
+              item.splitSlots || item.spreadSlots
+                ? part.slots.length
+                : item.criticalSlots,
+          })),
       )
       .sort(comparator);
     if (locationEquipment.length === 0) continue;
@@ -103,12 +115,50 @@ function organizeEquipment(
       configuration,
       isOmni,
       armActuators,
+      cockpitType,
     );
     assignments.push(...result.assignments);
     unassigned.push(...result.unassigned);
   }
 
-  return { assignments, unassigned };
+  const byPart = new Map(
+    assignments.map((part) => [`${part.instanceId}:${part.location}`, part]),
+  );
+  const mounted = new Map(equipment.map((item) => [item.instanceId, item]));
+  // A failed secondary portion must not leave neighbors compacted into the
+  // preserved primary portion. Keep the entire operation atomic in that case.
+  if (
+    unassigned.some(
+      (id) => mounted.get(id)?.splitSlots || mounted.get(id)?.spreadSlots,
+    )
+  )
+    return { assignments: [], unassigned: [...new Set(unassigned)] };
+  const complete = assignments.flatMap((primary) => {
+    const item = mounted.get(primary.instanceId);
+    if (
+      !item ||
+      primary.location !== item.location ||
+      unassigned.includes(item.instanceId)
+    )
+      return [];
+    const movePart = (
+      part: NonNullable<IMountedEquipmentInstance['splitSlots']>,
+    ) => ({
+      location: part.location,
+      slots:
+        byPart.get(`${item.instanceId}:${part.location}`)?.slots ?? part.slots,
+    });
+    return [
+      {
+        ...primary,
+        ...(item.splitSlots ? { splitSlots: movePart(item.splitSlots) } : {}),
+        ...(item.spreadSlots
+          ? { spreadSlots: item.spreadSlots.map(movePart) }
+          : {}),
+      },
+    ];
+  });
+  return { assignments: complete, unassigned: [...new Set(unassigned)] };
 }
 
 export function compactEquipmentSlots(
@@ -118,6 +168,7 @@ export function compactEquipmentSlots(
   configuration: MechConfiguration = MechConfiguration.BIPED,
   isOmni = false,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   return organizeEquipment(
     equipment,
@@ -131,6 +182,7 @@ export function compactEquipmentSlots(
     },
     isOmni,
     armActuators,
+    cockpitType,
   );
 }
 
@@ -141,6 +193,7 @@ export function sortEquipmentBySize(
   configuration: MechConfiguration = MechConfiguration.BIPED,
   isOmni = false,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): SlotOperationResult {
   return organizeEquipment(
     equipment,
@@ -155,5 +208,6 @@ export function sortEquipmentBySize(
     },
     isOmni,
     armActuators,
+    cockpitType,
   );
 }

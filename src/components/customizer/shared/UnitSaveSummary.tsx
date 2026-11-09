@@ -79,7 +79,7 @@ export function useUnitSaveState(
   unitType?: UnitType,
 ): UnitSaveState {
   const draft = useBrowserDraftState(unitId, unitType);
-  const library = useLibrarySaveState(unitId);
+  const library = useLibrarySaveState(unitId, unitType);
   return {
     draft,
     library,

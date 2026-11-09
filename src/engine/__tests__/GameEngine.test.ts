@@ -42,11 +42,7 @@ import {
   createGridFromHexTerrain,
   createGridFromTerrainPreset,
 } from '../GameEngine.helpers';
-import {
-  runAttackPhase,
-  runPhysicalAttackPhase,
-  runInteractivePhaseAdvance,
-} from '../GameEngine.phases';
+import { runAttackPhase, runPhysicalAttackPhase } from '../GameEngine.phases';
 
 jest.mock('@/services/game-resolution/GameOutcomeCalculator', () => {
   const actual = jest.requireActual<
@@ -1045,79 +1041,71 @@ it('refuses a second attack through the public interactive session without chang
   expect(JSON.stringify(session.getSession())).toBe(snapshot);
 });
 
-it.each(['interactive-session', 'engine-phase-helper'] as const)(
-  'C10 blocks EMP startup through %s',
-  (path) => {
-    const player = createTestUnit('c10-player', GameSide.Player);
-    const opponent = createTestUnit('c10-opponent', GameSide.Opponent);
-    const active = new GameEngine({
-      seed: 42,
-      turnLimit: 5,
-      mapRadius: 7,
-    }).createInteractiveSession(
-      [player],
-      [opponent],
-      [
-        createGameUnit(player.id, player.side),
-        createGameUnit(opponent.id, opponent.side),
-      ],
-    );
-    for (const entry of [
-      {
-        type: GameEventType.PhaseChanged,
-        payload: {
-          fromPhase: active.getSession().currentState.phase,
-          toPhase: GamePhase.Heat,
-        },
+it('C10 blocks EMP startup through the interactive session', () => {
+  const player = createTestUnit('c10-player', GameSide.Player);
+  const opponent = createTestUnit('c10-opponent', GameSide.Opponent);
+  const active = new GameEngine({
+    seed: 42,
+    turnLimit: 5,
+    mapRadius: 7,
+  }).createInteractiveSession(
+    [player],
+    [opponent],
+    [
+      createGameUnit(player.id, player.side),
+      createGameUnit(opponent.id, opponent.side),
+    ],
+  );
+  for (const entry of [
+    {
+      type: GameEventType.PhaseChanged,
+      payload: {
+        fromPhase: active.getSession().currentState.phase,
+        toPhase: GamePhase.Heat,
       },
-      {
-        type: GameEventType.EmpMinefieldEffectApplied,
-        payload: {
-          unitId: player.id,
-          hex: { q: 0, r: 0 },
-          roll: 9,
-          modifier: 0,
-          modifiedRoll: 9,
-          effect: 'shutdown',
-          durationTurns: 2,
-          source: 'minefield',
-        },
+    },
+    {
+      type: GameEventType.EmpMinefieldEffectApplied,
+      payload: {
+        unitId: player.id,
+        hex: { q: 0, r: 0 },
+        roll: 9,
+        modifier: 0,
+        modifiedRoll: 9,
+        effect: 'shutdown',
+        durationTurns: 2,
+        source: 'minefield',
       },
-    ]) {
-      const before = active.getSession();
-      active.appendEvent({
-        ...createEventBase(
-          before.id,
-          before.events.length,
-          entry.type,
-          before.currentState.turn,
-          GamePhase.Heat,
-          player.id,
-        ),
-        payload: entry.payload,
-      });
-    }
+    },
+  ]) {
     const before = active.getSession();
-    let result = before;
-    if (path === 'engine-phase-helper') {
-      result = runInteractivePhaseAdvance(before);
-    } else {
-      active.advancePhase();
-      result = active.getSession();
-    }
-    expect(result.currentState.phase).toBe(GamePhase.End);
-    expect(result.currentState.units[player.id]).toMatchObject({
-      shutdown: true,
-      empShutdownTurns: 2,
+    active.appendEvent({
+      ...createEventBase(
+        before.id,
+        before.events.length,
+        entry.type,
+        before.currentState.turn,
+        GamePhase.Heat,
+        player.id,
+      ),
+      payload: entry.payload,
     });
-    expect(
-      result.events
-        .slice(before.events.length)
-        .filter(
-          (e) =>
-            e.type === GameEventType.StartupAttempt ||
-            e.type === GameEventType.ShutdownCheck,
-        ),
-    ).toEqual([]);
-  },
-);
+  }
+  const before = active.getSession();
+  active.advancePhase();
+  const result = active.getSession();
+  expect(result.currentState.phase).toBe(GamePhase.End);
+  expect(result.currentState.units[player.id]).toMatchObject({
+    shutdown: true,
+    empShutdownTurns: 2,
+  });
+  expect(
+    result.events
+      .slice(before.events.length)
+      .filter(
+        (e) =>
+          e.type === GameEventType.StartupAttempt ||
+          e.type === GameEventType.ShutdownCheck,
+      ),
+  ).toEqual([]);
+});

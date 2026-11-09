@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react';
 /**
  * Aerospace Store Factory
  *
@@ -7,8 +8,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  */
-
-import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -26,12 +25,13 @@ import {
   createUnitIdentityActions,
   modificationPatch,
   modifiedPatch,
-  pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { IEquipmentItem } from '@/types/equipment';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { smallCraftArmor } from '@/utils/construction/aerospace/armor';
 import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
@@ -45,6 +45,10 @@ import {
   createEmptyAerospaceArmorAllocation,
   unitTypeForAerospaceSubType,
 } from './aerospaceState';
+import {
+  pickPersistedAerospaceState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { AerospaceStore } from './aerospaceState';
@@ -86,7 +90,10 @@ function createAutoAllocatedAerospaceArmorPatch(
 ): Partial<AerospaceStore> {
   const armorDef = getArmorDefinition(state.armorType);
   const pointsPerTon = armorDef?.pointsPerTon ?? 16;
-  const totalPoints = Math.floor(state.armorTonnage * pointsPerTon);
+  const totalPoints =
+    state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+      ? smallCraftArmor(state).availablePoints
+      : Math.floor(state.armorTonnage * pointsPerTon);
 
   return modifiedPatch({
     armorAllocation: allocateAerospaceArmorPoints(totalPoints),
@@ -94,7 +101,11 @@ function createAutoAllocatedAerospaceArmorPatch(
 }
 
 function aerospaceArmorTypePatch(type: AerospaceStore['armorType']) {
-  return modifiedPatch({ armorType: type, armorTypeByArc: undefined });
+  return modifiedPatch({
+    armorType: type,
+    armorTypeByArc: undefined,
+    smallCraftArmorType: undefined,
+  });
 }
 
 function aerospaceArmorTonnagePatch(tonnage: number) {
@@ -107,16 +118,6 @@ type AerospaceStoreSet = (
     | ((state: AerospaceStore) => Partial<AerospaceStore>),
 ) => void;
 type AerospaceStoreGet = () => AerospaceStore;
-
-function pickStoreFields<TState, const TKey extends keyof TState>(
-  state: TState,
-  keys: readonly TKey[],
-): Pick<TState, TKey> {
-  return Object.fromEntries(keys.map((key) => [key, state[key]])) as Pick<
-    TState,
-    TKey
-  >;
-}
 
 function createAerospaceArmorActions(
   set: AerospaceStoreSet,
@@ -223,10 +224,14 @@ const createAerospaceChassisActions = (
   // MegaMekLab rebuilds the entity when the fighter type changes
   // (ASStructureTab.fighterTypeChanged), so the unit type follows the Sub-Type.
   setAerospaceSubType: (aerospaceSubType) =>
-    set(
+    set((state) =>
       modifiedPatch({
         aerospaceSubType,
         unitType: unitTypeForAerospaceSubType(aerospaceSubType),
+        smallCraftArmorType:
+          aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+            ? state.smallCraftArmorType
+            : undefined,
       }),
     ),
 });
@@ -287,22 +292,12 @@ const createAerospaceFuelActions = (
     ),
 });
 
-const AEROSPACE_PERSIST_KEYS =
-  'tonnage techBase unitType aerospaceSubType isFixedWingSupport structuralTechRating engineTechRating motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType armorTypeByArc barRating armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
-    ' ',
-  ) as ReadonlyArray<keyof AerospaceStore>;
-
-function pickPersistedAerospaceState(state: AerospaceStore) {
-  return {
-    ...pickPersistedUnitIdentity(state),
-    ...pickStoreFields(state, AEROSPACE_PERSIST_KEYS),
-  };
-}
-
 function aerospacePersistOptions(initialState: AerospaceState) {
   return createUnitStorePersistOptions(
     `megamek-aerospace-${initialState.id}`,
-    pickPersistedAerospaceState,
+    withUnitLibraryReceipt((state: AerospaceStore) =>
+      pickPersistedAerospaceState(state),
+    ),
   );
 }
 

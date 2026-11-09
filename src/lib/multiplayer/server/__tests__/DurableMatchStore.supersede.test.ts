@@ -219,6 +219,100 @@ describe('DurableMatchStore supersession migrate', () => {
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
+  async function seedDeliveryStreams(store: DurableMatchStore): Promise<void> {
+    await seedTwoBatches(store);
+    await store.createMatch(meta('untouched-match'));
+    for (const matchId of [MATCH_ID, 'untouched-match']) {
+      await store.appendViewerDeliveryRecord({
+        matchId,
+        playerId: 'p1',
+        deliverySequence: 0,
+        authoritySequence: 0,
+      });
+      await store.appendViewerDeliveryRecord({
+        matchId,
+        playerId: 'p1',
+        deliverySequence: 1,
+        authoritySequence: 3,
+      });
+      await store.acknowledgeViewerDelivery({
+        matchId,
+        playerId: 'p1',
+        deliverySequence: 1,
+      });
+    }
+  }
+
+  it('VDC clears the entire delivery stream and ack only for the superseded match', async () => {
+    const store = new DurableMatchStore({ path: dbPath });
+    try {
+      await seedDeliveryStreams(store);
+      const otherRows =
+        await store.listViewerDeliveryRecords('untouched-match');
+      const otherAck = await store.getViewerDeliveryAcknowledgement(
+        'untouched-match',
+        'p1',
+      );
+
+      await store.supersedeFrom(MATCH_ID, CUT, AT);
+
+      expect(await store.listViewerDeliveryRecords(MATCH_ID)).toEqual([]);
+      expect(
+        await store.getViewerDeliveryAcknowledgement(MATCH_ID, 'p1'),
+      ).toBeNull();
+      expect(await store.listViewerDeliveryRecords('untouched-match')).toEqual(
+        otherRows,
+      );
+      expect(
+        await store.getViewerDeliveryAcknowledgement('untouched-match', 'p1'),
+      ).toEqual(otherAck);
+    } finally {
+      store.close();
+    }
+  });
+
+  it('VDC rolls back delivery and ack deletion when a later receipt deletion fails', async () => {
+    const store = new DurableMatchStore({ path: dbPath });
+    const raw = new Database(dbPath);
+    try {
+      await seedDeliveryStreams(store);
+      const before = await Promise.all(
+        [MATCH_ID, 'untouched-match'].map(async (matchId) => ({
+          rows: await store.listViewerDeliveryRecords(matchId),
+          ack: await store.getViewerDeliveryAcknowledgement(matchId, 'p1'),
+        })),
+      );
+      raw.exec(`CREATE TRIGGER fail_vdc_later_receipt_delete
+        BEFORE DELETE ON mp_command_receipts
+        BEGIN SELECT RAISE(ABORT, 'injected later receipt failure'); END;`);
+
+      await expect(
+        store.supersedeFrom(MATCH_ID, CUT, AT),
+      ).rejects.toMatchObject({
+        message: 'injected later receipt failure',
+      });
+
+      const after = await Promise.all(
+        [MATCH_ID, 'untouched-match'].map(async (matchId) => ({
+          rows: await store.listViewerDeliveryRecords(matchId),
+          ack: await store.getViewerDeliveryAcknowledgement(matchId, 'p1'),
+        })),
+      );
+      expect(after).toEqual(before);
+      expect(
+        (await store.getEvents(MATCH_ID)).map((row) => row.sequence),
+      ).toEqual([0, 1, 2, 3]);
+      expect(
+        raw
+          .prepare(`SELECT COUNT(*) AS n FROM ${EVENTS_SUPERSEDED_TABLE}`)
+          .get(),
+      ).toEqual({ n: 0 });
+    } finally {
+      raw.close();
+      store.close();
+    }
+  });
+
   it('migration is idempotent and keeps existing live rows; sibling stays empty', async () => {
     const first = new DurableMatchStore({ path: dbPath });
     await first.createMatch(meta());

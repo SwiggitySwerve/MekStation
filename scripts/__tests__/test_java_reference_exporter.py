@@ -88,7 +88,8 @@ class JavaReferenceExporterTest(unittest.TestCase):
     def test_construction_selfcheck_and_full_run_reject_invalid_captures(self):
         rows = copy.deepcopy(self.rows)
         for row in rows:
-            row['construction'].update(weightTerms={'engine': 1}, weightTotal=1, weightRemainder=0,
+            terms = {'trooper.base': 1} if row['path'].startswith('infantry/') else {'engine': 1}
+            row['construction'].update(weightTerms=terms, weightTotal=1, weightRemainder=0,
                                        reconstruction={'ok': True, 'absoluteTolerance': 1e-9, 'relativeTolerance': 1e-12})
         self.run_main(rows, rows, construction_terms=True)
         broken = copy.deepcopy(rows)

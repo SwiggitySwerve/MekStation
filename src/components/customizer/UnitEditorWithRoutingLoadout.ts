@@ -44,6 +44,7 @@ interface UseUnitEditorLoadoutOptions {
   equipment: readonly IMountedEquipmentInstance[];
   engineType: EngineType;
   gyroType: GyroType;
+  cockpitType?: string;
   armActuators?: ArmActuatorConfig;
   removeEquipment: (instanceId: string) => void;
   clearAllEquipment: () => void;
@@ -111,6 +112,7 @@ export function useUnitEditorLoadout({
   equipment,
   engineType,
   gyroType,
+  cockpitType,
   armActuators,
   removeEquipment,
   clearAllEquipment,
@@ -173,6 +175,7 @@ export function useUnitEditorLoadout({
           gyroType,
           equipment.filter((candidate) => candidate.instanceId !== instanceId),
           armActuators,
+          cockpitType,
         );
         const allowed = isValidLocationForEquipment(item.equipmentId, location);
         const fits =
@@ -191,7 +194,7 @@ export function useUnitEditorLoadout({
         };
       });
     },
-    [equipment, engineType, gyroType, configuration, armActuators],
+    [equipment, engineType, gyroType, configuration, armActuators, cockpitType],
   );
 
   const availableLocations = useMemo(
@@ -220,6 +223,7 @@ export function useUnitEditorLoadout({
         gyroType,
         equipment.filter((candidate) => candidate.instanceId !== instanceId),
         armActuators,
+        cockpitType,
       );
       const start = findContiguousSlotStarts(free, item.criticalSlots)[0];
       if (item.criticalSlots > 0 && start === undefined) return;
@@ -235,6 +239,7 @@ export function useUnitEditorLoadout({
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
       getAvailableLocationsForEquipment,
       updateEquipmentLocation,
     ],

@@ -1,8 +1,8 @@
 /**
  * Live Seed-Reproducibility E2E Proof
  *
- * Group 5 of `add-sp-combat-determinism`: drives the live pre-battle route
- * with a fixed `?seed=N` through auto-resolve TWICE, via two independent
+ * Drives two fresh encounters prepared from one battle-input definition
+ * with a fixed `?seed=N` through live pre-battle auto-resolve, via independent
  * page loads, and asserts the two runs land on an identical winner, turn
  * count, and event count. This is the live-route companion to the jest-level
  * determinism proofs (`src/engine/__tests__/interactiveSessionDeterminism.test.ts`)
@@ -11,7 +11,8 @@
  * (an invariant proof, never a golden trace).
  *
  * @tags @game @determinism @smoke
- * @spec openspec/changes/add-sp-combat-determinism/specs/game-engine-orchestration/spec.md
+ * @spec openspec/specs/game-engine-orchestration/spec.md#requirement-single-player-launch-seed-threading
+ * @spec openspec/specs/encounter-system/spec.md#requirement-explicit-restart-and-visible-launch-refusal
  */
 
 import { expect, test, type Page } from '@playwright/test';
@@ -43,13 +44,14 @@ interface AssignmentSlot {
 /** One auto-resolved run's outcome, read straight from the gameplay store. */
 interface SeedRunProof {
   readonly sessionId: string;
+  readonly seed: number | null | undefined;
   readonly winner: string | null;
   readonly turn: number;
   readonly eventCount: number;
 }
 
 // =============================================================================
-// Fixture setup — one encounter, two assigned single-unit forces, no
+// Fixture setup — two fresh encounters, two assigned single-unit forces, no
 // campaign linkage (the reproducibility proof only needs the pre-battle
 // route's auto-resolve path, not the campaign outcome plumbing that
 // encounter-combat-continuity.spec.ts exercises).
@@ -145,36 +147,50 @@ async function createAssignedLance(
   return forceId;
 }
 
-async function createSeedProofEncounter(
-  page: Page,
-): Promise<{ readonly encounterId: string; readonly encounterName: string }> {
+async function createSeedProofEncounters(page: Page): Promise<
+  ReadonlyArray<{
+    readonly encounterId: string;
+    readonly encounterName: string;
+  }>
+> {
   const label = `Seed Reproducibility ${Date.now()}`;
-  const playerForceId = await createAssignedLance(
-    page,
-    `${label} Player Lance`,
-    `${label} Player Pilot`,
-    PLAYER_UNIT_ID,
-  );
-  const opponentForceId = await createAssignedLance(
-    page,
-    `${label} Opponent Lance`,
-    `${label} Opponent Pilot`,
-    OPPONENT_UNIT_ID,
-  );
+  // Both rows reference these same unmodified source forces/pilots. Each
+  // route mount constructs a fresh battle; neither consumes a prior session.
+  const battleInput = {
+    playerForceId: await createAssignedLance(
+      page,
+      `${label} Player Lance`,
+      `${label} Player Pilot`,
+      PLAYER_UNIT_ID,
+    ),
+    opponentForceId: await createAssignedLance(
+      page,
+      `${label} Opponent Lance`,
+      `${label} Opponent Pilot`,
+      OPPONENT_UNIT_ID,
+    ),
+    template: 'skirmish' as const,
+  };
 
-  const encounterName = `${label} Encounter`;
-  const encounterId = await createEncounterWithForces(
-    page,
-    encounterName,
-    playerForceId,
-    opponentForceId,
-    { description: 'Seed-reproducibility auto-resolve proof encounter' },
-  );
-  if (!encounterId) {
-    throw new Error('Failed to create seed-reproducibility encounter');
+  const encounters = [];
+  for (const run of ['A', 'B']) {
+    const encounterName = `${label} Encounter ${run}`;
+    const encounterId = await createEncounterWithForces(
+      page,
+      encounterName,
+      battleInput.playerForceId,
+      battleInput.opponentForceId,
+      {
+        template: battleInput.template,
+        description: 'Seed-reproducibility auto-resolve proof encounter',
+      },
+    );
+    if (!encounterId) {
+      throw new Error(`Failed to create seed-reproducibility encounter ${run}`);
+    }
+    encounters.push({ encounterId, encounterName });
   }
-
-  return { encounterId, encounterName };
+  return encounters;
 }
 
 // =============================================================================
@@ -228,6 +244,7 @@ async function runAutoResolveOnce(
             getState: () => {
               session: {
                 id: string;
+                config: { seed?: number | null };
                 events: readonly unknown[];
                 currentState: {
                   turn: number;
@@ -245,11 +262,77 @@ async function runAutoResolveOnce(
     }
     return {
       sessionId: session.id,
+      seed: session.config.seed,
       winner: session.currentState.result?.winner ?? null,
       turn: session.currentState.turn,
       eventCount: session.events.length,
     };
   });
+}
+
+interface PersistedEncounter {
+  readonly id: string;
+  readonly status: string;
+  readonly gameSessionId?: string;
+  readonly name: string;
+  readonly description?: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  readonly [field: string]: unknown;
+}
+
+interface LaunchPayload {
+  readonly config: {
+    readonly encounterId: string;
+    readonly seed: number;
+    readonly [field: string]: unknown;
+  };
+  readonly units: readonly {
+    readonly unitRef: string;
+    readonly gunnery: number;
+    readonly piloting: number;
+    readonly [field: string]: unknown;
+  }[];
+  readonly encounterMeta?: unknown;
+  readonly [field: string]: unknown;
+}
+
+interface PersistedHistory {
+  readonly gameId: string;
+  readonly sourceDigest: string;
+  readonly events: readonly {
+    readonly type: string;
+    readonly payload: unknown;
+  }[];
+}
+
+async function readPersistedEncounter(
+  page: Page,
+  id: string,
+): Promise<PersistedEncounter> {
+  const response = await page.request.get(`/api/encounters/${id}`);
+  expect(response.ok()).toBe(true);
+  const body = (await response.json()) as { encounter: PersistedEncounter };
+  expect(body.encounter.id).toBe(id);
+  return body.encounter;
+}
+
+async function readPersistedHistory(
+  page: Page,
+  sessionId: string,
+): Promise<PersistedHistory> {
+  const url = `/api/replay-library/encounter/${sessionId}`;
+  // The completed page persists through its real terminal-state effect.
+  await expect
+    .poll(async () => (await page.request.get(url)).status())
+    .toBe(200);
+  const response = await page.request.get(url);
+  expect(response.ok()).toBe(true);
+  const history = (await response.json()) as PersistedHistory;
+  expect(history.gameId).toBe(sessionId);
+  expect(history.events[0]?.type).toBe('game_created');
+  expect(history.events.at(-1)?.type).toBe('game_ended');
+  return history;
 }
 
 // =============================================================================
@@ -261,41 +344,133 @@ test.describe(
   { tag: ['@game', '@determinism', '@smoke'] },
   () => {
     test(
-      'same ?seed=N auto-resolved twice via independent page loads yields identical winner, turn count, and event count',
+      'fresh encounters with the same ?seed=N and battle inputs yield identical winner, turn count, and event count',
       { tag: ['@game', '@determinism', '@smoke'] },
-      async ({ page }) => {
+      async ({ page }, testInfo) => {
         await page.goto('/gameplay');
         await waitForE2EStores(page);
 
-        const { encounterId, encounterName } =
-          await createSeedProofEncounter(page);
+        // Prepare both before run A can mutate any battle state.
+        const [first, second] = await createSeedProofEncounters(page);
+        expect(second.encounterId).not.toBe(first.encounterId);
+        const firstBefore = await readPersistedEncounter(
+          page,
+          first.encounterId,
+        );
+        const secondBefore = await readPersistedEncounter(
+          page,
+          second.encounterId,
+        );
+        expect(firstBefore.status).toBe('ready');
+        expect(secondBefore.status).toBe('ready');
+        expect(firstBefore.gameSessionId).toBeUndefined();
+        expect(secondBefore.gameSessionId).toBeUndefined();
+
+        // Compare every stored field, allowing only row identity, name and
+        // timestamps to differ. Forces/map/deployment/rules/turn conditions
+        // stay exact; no gameplay input is normalized.
+        expect(secondBefore).toEqual({
+          ...firstBefore,
+          id: second.encounterId,
+          name: second.encounterName,
+          createdAt: secondBefore.createdAt,
+          updatedAt: secondBefore.updatedAt,
+        });
 
         const firstRun = await runAutoResolveOnce(
           page,
-          encounterId,
-          encounterName,
+          first.encounterId,
+          first.encounterName,
           SEED_UNDER_TEST,
+        );
+        const firstCompleted = await readPersistedEncounter(
+          page,
+          first.encounterId,
+        );
+        expect(firstCompleted.status).toBe('completed');
+        expect(firstCompleted.gameSessionId).toBe(firstRun.sessionId);
+        const firstHistory = await readPersistedHistory(
+          page,
+          firstRun.sessionId,
+        );
+
+        // Run A must not mutate run B's prepared configuration.
+        expect(await readPersistedEncounter(page, second.encounterId)).toEqual(
+          secondBefore,
         );
         const secondRun = await runAutoResolveOnce(
           page,
-          encounterId,
-          encounterName,
+          second.encounterId,
+          second.encounterName,
           SEED_UNDER_TEST,
         );
-
-        // Two independent page loads of the same seed launch distinct
-        // sessions (fresh GameEngine + generated session id each time) — a
-        // sanity check that this is really two separate runs, not a cached
-        // replay of the first.
+        const secondCompleted = await readPersistedEncounter(
+          page,
+          second.encounterId,
+        );
+        expect(secondCompleted.status).toBe('completed');
+        expect(secondCompleted.gameSessionId).toBe(secondRun.sessionId);
         expect(secondRun.sessionId).not.toBe(firstRun.sessionId);
+        const secondHistory = await readPersistedHistory(
+          page,
+          secondRun.sessionId,
+        );
 
-        // The reproducibility invariant under test: identical seed, identical
-        // forces, identical outcome. Equality is asserted only BETWEEN the
-        // two runs — no literal winner/turn/event-count value appears in
-        // this spec for any seed (design D6).
+        // Check the actual saved GameCreated inputs, including all unit
+        // fields and all config fields except the permitted encounter ID.
+        const firstLaunch = firstHistory.events[0].payload as LaunchPayload;
+        const secondLaunch = secondHistory.events[0].payload as LaunchPayload;
+        expect(firstLaunch.config.encounterId).toBe(first.encounterId);
+        expect(secondLaunch.config.encounterId).toBe(second.encounterId);
+        expect(firstRun.seed).toBe(SEED_UNDER_TEST);
+        expect(secondRun.seed).toBe(SEED_UNDER_TEST);
+        expect(firstLaunch.config.seed).toBe(SEED_UNDER_TEST);
+        expect(secondLaunch.config.seed).toBe(SEED_UNDER_TEST);
+        expect(secondLaunch).toEqual({
+          ...firstLaunch,
+          config: { ...firstLaunch.config, encounterId: second.encounterId },
+          encounterMeta: secondLaunch.encounterMeta,
+        });
+        expect(firstLaunch.units).toEqual([
+          expect.objectContaining({
+            unitRef: PLAYER_UNIT_ID,
+            gunnery: 4,
+            piloting: 5,
+          }),
+          expect.objectContaining({
+            unitRef: OPPONENT_UNIT_ID,
+            gunnery: 4,
+            piloting: 5,
+          }),
+        ]);
+        expect(firstHistory.events).toHaveLength(firstRun.eventCount);
+        expect(secondHistory.events).toHaveLength(secondRun.eventCount);
+
+        // Equality only BETWEEN runs: never pin a seed-to-outcome golden.
         expect(secondRun.winner).toBe(firstRun.winner);
         expect(secondRun.turn).toBe(firstRun.turn);
         expect(secondRun.eventCount).toBe(firstRun.eventCount);
+
+        expect(await readPersistedEncounter(page, first.encounterId)).toEqual(
+          firstCompleted,
+        );
+        expect(await readPersistedHistory(page, firstRun.sessionId)).toEqual(
+          firstHistory,
+        );
+        await testInfo.attach('seed-reproducibility-proof', {
+          contentType: 'application/json',
+          body: JSON.stringify(
+            {
+              encounters: [first.encounterId, second.encounterId],
+              runs: [firstRun, secondRun],
+              launches: [firstLaunch, secondLaunch],
+              firstCompleted,
+              preservedHistoryDigest: firstHistory.sourceDigest,
+            },
+            null,
+            2,
+          ),
+        });
       },
     );
   },

@@ -1,5 +1,7 @@
 import { createStore, type StoreApi } from 'zustand/vanilla';
 
+import { isUnitDraftModified } from '@/stores/unitSaveState';
+
 import type { UnitActions, UnitStore } from '../unitState';
 
 import {
@@ -32,7 +34,13 @@ const MAX_ENTRIES = 50;
 
 function copySnapshot(state: UnitStore): UnitEditSnapshot {
   const copy = JSON.parse(getUnitEditFingerprint(state)) as UnitEditSnapshot;
-  return { ...copy, role: copy.role, fluff: copy.fluff };
+  return {
+    ...copy,
+    role: copy.role,
+    fluff: copy.fluff,
+    crewSeats: copy.crewSeats,
+    frankenStructure: copy.frankenStructure,
+  };
 }
 
 function createHistory(unit: StoreApi<UnitStore>): IHistoryController {
@@ -45,9 +53,7 @@ function createHistory(unit: StoreApi<UnitStore>): IHistoryController {
   const changed = (): boolean => {
     const state = unit.getState();
     const baseline = state.librarySave?.draftFingerprint ?? cleanFingerprint;
-    return (
-      baseline === undefined || getUnitDraftFingerprint(state) !== baseline
-    );
+    return isUnitDraftModified(() => getUnitDraftFingerprint(state), baseline);
   };
   const publish = (): void => {
     const next = {
@@ -94,9 +100,10 @@ function createHistory(unit: StoreApi<UnitStore>): IHistoryController {
       unit.setState({
         ...patch,
         lastModifiedAt: Date.now(),
-        isModified:
-          baseline === undefined ||
-          getUnitDraftFingerprint(restored) !== baseline,
+        isModified: isUnitDraftModified(
+          () => getUnitDraftFingerprint(restored),
+          baseline,
+        ),
       });
     } finally {
       depth--;
@@ -184,6 +191,8 @@ const labels: Partial<Record<keyof UnitActions, string>> = {
   clearAllEquipment: 'Clear equipment',
   resetChassis: 'Reset chassis',
   updateFluff: 'Edit description',
+  setCrewSeat: 'Assign crew seat',
+  clearCrewSeat: 'Clear crew seat',
   linkAmmo: 'Link ammunition',
 };
 

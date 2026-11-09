@@ -156,15 +156,15 @@ const MEKSTATION_TERRAIN_PSR_PROPERTIES_SOURCE_REF =
   );
 
 const MEKSTATION_TERRAIN_PSR_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation planMovementTerrainEffects, the shared producer behind the runner queueMovementTerrainPSRs adapter, plans water entry/exit, rubble, running rough terrain, ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and a UnitStuck for jump-entry bog-down; water, rubble, skid and ice PSRs are planned only for a BattleMech-like unit that is not prone (MegaMek Mek.canFall), and water entry skips non-walking motive modes.',
+  'MekStation planMovementTerrainEffects, the shared producer behind the runner queueMovementTerrainPSRs adapter, plans water entry (every step into a water hex), rubble (+1 ultra-rubble), reckless-movement ice, swamp bog-down, overloaded building-collapse, and pavement-or-ice skidding PSRs from movement-step terrain features, and a UnitStuck for jump-entry bog-down; planDisplacementTerrainPSRs plans the building, bog-down and water outcomes of a forced displacement; water, rubble, skid and ice PSRs are planned only for a BattleMech-like unit that is not prone (MegaMek Mek.canFall), and water entry skips non-walking motive modes.',
   'src/utils/gameplay/movement/terrainPsrTriggers.ts',
-  'L113-L342',
+  'L113-L421',
 );
 
 const MEKSTATION_TERRAIN_PSR_FACTORY_SOURCE_REF = mekstationDeviationSourceRef(
-  'MekStation terrain PSR factories define rubble, running-rough, ice, water, swamp bog-down, swamp unstuck, skidding, and movement-step stamped building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
+  'MekStation terrain PSR factories define rubble (with the ultra-rubble modifier), running-rough, ice, water, swamp bog-down, swamp unstuck, skidding, and movement-step stamped building-collapse pending PSRs plus local water-depth and swamp-depth modifiers.',
   'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-  'L103-L281',
+  'L115-L296',
 );
 
 const MEKSTATION_TERRAIN_PSR_CLASSIFICATION_SOURCE_REF =
@@ -288,7 +288,7 @@ const MEKSTATION_SWAMP_UNSTUCK_FACTORY_SOURCE_REF =
   mekstationDeviationSourceRef(
     'MekStation createSwampUnstuckPSR adds +1 swamp terrain and +3 quicksand modifiers to the recovery roll; only biped and quad leg profiles are represented.',
     'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts',
-    'L239-L264',
+    'L255-L280',
   );
 
 const MEKSTATION_SWAMP_UNSTUCK_RUNNER_SOURCE_REF = mekstationDeviationSourceRef(

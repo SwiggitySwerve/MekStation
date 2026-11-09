@@ -18,6 +18,7 @@ import {
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { VehicleStatusBar } from '../VehicleStatusBar';
@@ -125,6 +126,44 @@ describe('VehicleStatusBar — full layout', () => {
     expect(item('Armor')).toEqual(['100', '+28 unalloc']);
   });
 
+  it('reports a class-total excess independently of concentrated location armor', () => {
+    renderBar({ armorTonnage: 40, armorAllocation: { ...ARMOR, Front: 170 } });
+    expect(item('Armor')).toEqual(['240', '-25 unalloc']);
+    expect(item('Valid')).toEqual(['2 err', 'VAL-VEHICLE-ARMOR-TOTAL']);
+  });
+
+  it('recomputes BAR armor points when armor technology or BAR rating changes', () => {
+    const state = {
+      unitType: UnitType.SUPPORT_VEHICLE,
+      usesBarArmor: true,
+      barRating: 10,
+      armorTechRating: 5,
+      armorTonnage: 1,
+      armorAllocation: { ...createEmptyVehicleArmorAllocation(), Front: 19 },
+    };
+    const view = renderBar(state);
+    expect(item('Armor')).toEqual(['19', 'allocated']);
+    rerenderBar(view, { ...state, armorTechRating: 4 });
+    expect(item('Armor')).toEqual(['19', '-2 unalloc']);
+    rerenderBar(view, { ...state, armorTechRating: 4, barRating: 8 });
+    expect(item('Armor')).toEqual(['19', '+3 unalloc']);
+  });
+
+  it('recomputes the class ceiling when tonnage or support motion changes', () => {
+    const view = renderBar({ armorTonnage: 40 });
+    expect(item('Armor')).toEqual(['100', '+115 unalloc']);
+    rerenderBar(view, { armorTonnage: 40, tonnage: 60 });
+    expect(item('Armor')).toEqual(['100', '+150 unalloc']);
+    rerenderBar(view, { armorTonnage: 40, unitType: UnitType.SUPPORT_VEHICLE });
+    expect(item('Armor')).toEqual(['100', '+4 unalloc']);
+    rerenderBar(view, {
+      armorTonnage: 40,
+      unitType: UnitType.SUPPORT_VEHICLE,
+      motionType: GroundMotionType.HOVER,
+    });
+    expect(item('Armor')).toEqual(['100', '-46 unalloc']);
+  });
+
   it('reports fully allocated armor', () => {
     renderBar({ armorTonnage: 100 / 16, armorAllocation: ARMOR });
     expect(item('Armor')).toEqual(['100', 'allocated']);
@@ -147,10 +186,11 @@ describe('VehicleStatusBar — full layout', () => {
 
   it('surfaces the validation error count and first rule id', () => {
     const view = renderBar();
-    expect(item('Valid')).toEqual(['5 err', 'VAL-VEHICLE-ARMOR-LOC']);
+    expect(item('Valid')).toEqual(['1 err', 'VAL-VEHICLE-CREW']);
 
     rerenderBar(view, { tonnage: 500, engineRating: 500 * 4 });
-    expect(item('Valid')).toEqual(['3 err', 'VAL-VEHICLE-TONNAGE']);
+    // The six-side chassis also rejects the stale four-side Left/Right allocation.
+    expect(item('Valid')).toEqual(['5 err', 'VAL-VEHICLE-TONNAGE']);
   });
 });
 

@@ -22,6 +22,7 @@
  */
 
 import { type IUnitGameState, MovementType } from '@/types/gameplay';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 import type { IEligibilityContext } from './eligibilityContext';
 import type { IPhysicalAttackOption } from './types';
@@ -44,12 +45,7 @@ export function getEligiblePhysicalAttacks(
   context: IEligibilityContext,
 ): readonly IPhysicalAttackOption[] {
   if (!attacker || !target) return [];
-  if (
-    attacker.destroyed ||
-    target.destroyed ||
-    target.hasRetreated ||
-    target.hasEjected
-  ) {
+  if (attacker.destroyed || !getUnitOperability(target).onField) {
     return [];
   }
 

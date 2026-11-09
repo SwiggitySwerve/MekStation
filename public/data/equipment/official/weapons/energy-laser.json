@@ -19,7 +19,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 11250,
       "battleValue": 9,
-      "introductionYear": 2290
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "medium-laser",
@@ -36,7 +52,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 40000,
       "battleValue": 46,
-      "introductionYear": 2290
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "large-laser",
@@ -53,7 +85,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 100000,
       "battleValue": 123,
-      "introductionYear": 2306
+      "introductionYear": 2306,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "er-small-laser",
@@ -70,7 +118,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 11250,
       "battleValue": 17,
-      "introductionYear": 3052
+      "introductionYear": 3052,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "er-medium-laser",
@@ -87,7 +151,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 80000,
       "battleValue": 62,
-      "introductionYear": 3052
+      "introductionYear": 3052,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "er-large-laser",
@@ -106,7 +186,23 @@
       "battleValue": 163,
       "introductionYear": 2605,
       "extinctionYear": 2950,
-      "reintroductionYear": 3037
+      "reintroductionYear": 3037,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-micro-laser",
@@ -129,7 +225,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 10000,
       "battleValue": 7,
-      "introductionYear": 3054
+      "introductionYear": 3054,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-small-laser",
@@ -146,7 +258,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 11250,
       "battleValue": 31,
-      "introductionYear": 2817
+      "introductionYear": 2817,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-medium-laser",
@@ -163,7 +291,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 80000,
       "battleValue": 108,
-      "introductionYear": 2817
+      "introductionYear": 2817,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-large-laser",
@@ -180,7 +324,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 200000,
       "battleValue": 248,
-      "introductionYear": 2815
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "small-pulse-laser",
@@ -200,7 +360,23 @@
       "introductionYear": 2595,
       "special": ["-2 to-hit modifier"],
       "extinctionYear": 2950,
-      "reintroductionYear": 3037
+      "reintroductionYear": 3037,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "medium-pulse-laser",
@@ -220,7 +396,23 @@
       "introductionYear": 2595,
       "special": ["-2 to-hit modifier"],
       "extinctionYear": 2950,
-      "reintroductionYear": 3037
+      "reintroductionYear": 3037,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "large-pulse-laser",
@@ -240,7 +432,23 @@
       "introductionYear": 2595,
       "special": ["-2 to-hit modifier"],
       "extinctionYear": 2950,
-      "reintroductionYear": 3037
+      "reintroductionYear": 3037,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-micro-pulse-laser",
@@ -258,7 +466,23 @@
       "costCBills": 12500,
       "battleValue": 12,
       "introductionYear": 3054,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-small-pulse-laser",
@@ -276,7 +500,23 @@
       "costCBills": 16000,
       "battleValue": 24,
       "introductionYear": 2820,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-medium-pulse-laser",
@@ -294,7 +534,23 @@
       "costCBills": 60000,
       "battleValue": 111,
       "introductionYear": 2820,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-large-pulse-laser",
@@ -312,7 +568,23 @@
       "costCBills": 175000,
       "battleValue": 265,
       "introductionYear": 2820,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-small-pulse-laser",
@@ -330,7 +602,23 @@
       "costCBills": 60000,
       "battleValue": 36,
       "introductionYear": 3057,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-medium-pulse-laser",
@@ -348,7 +636,23 @@
       "costCBills": 150000,
       "battleValue": 117,
       "introductionYear": 3057,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-large-pulse-laser",
@@ -366,7 +670,23 @@
       "costCBills": 400000,
       "battleValue": 272,
       "introductionYear": 3057,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "small-x-pulse-laser",
@@ -384,7 +704,22 @@
       "costCBills": 31000,
       "battleValue": 21,
       "introductionYear": 3057,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "medium-x-pulse-laser",
@@ -402,7 +737,22 @@
       "costCBills": 110000,
       "battleValue": 71,
       "introductionYear": 3057,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "large-x-pulse-laser",
@@ -420,7 +770,22 @@
       "costCBills": 275000,
       "battleValue": 178,
       "introductionYear": 3057,
-      "special": ["-2 to-hit modifier"]
+      "special": ["-2 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "small-vsp-laser",
@@ -438,7 +803,22 @@
       "costCBills": 60000,
       "battleValue": 22,
       "introductionYear": 3070,
-      "special": ["variable damage (5/4/3)"]
+      "special": ["variable damage (5/4/3)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "medium-vsp-laser",
@@ -456,7 +836,22 @@
       "costCBills": 200000,
       "battleValue": 56,
       "introductionYear": 3070,
-      "special": ["variable damage (9/7/5)"]
+      "special": ["variable damage (9/7/5)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "large-vsp-laser",
@@ -474,7 +869,22 @@
       "costCBills": 465000,
       "battleValue": 123,
       "introductionYear": 3070,
-      "special": ["variable damage (11/9/7)"]
+      "special": ["variable damage (11/9/7)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "bombast-laser",
@@ -491,7 +901,22 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 200000,
       "battleValue": 137,
-      "introductionYear": 3064
+      "introductionYear": 3064,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "small-heavy-laser",
@@ -509,7 +934,23 @@
       "costCBills": 20000,
       "battleValue": 15,
       "introductionYear": 3057,
-      "special": ["+1 to-hit modifier"]
+      "special": ["+1 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "medium-heavy-laser",
@@ -527,7 +968,23 @@
       "costCBills": 100000,
       "battleValue": 76,
       "introductionYear": 3057,
-      "special": ["+1 to-hit modifier"]
+      "special": ["+1 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "large-heavy-laser",
@@ -545,7 +1002,23 @@
       "costCBills": 250000,
       "battleValue": 244,
       "introductionYear": 3057,
-      "special": ["+1 to-hit modifier"]
+      "special": ["+1 to-hit modifier"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-heavy-small-laser",
@@ -569,7 +1042,23 @@
       "costCBills": 30000,
       "battleValue": 19,
       "introductionYear": 3069,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-heavy-medium-laser",
@@ -593,7 +1082,23 @@
       "costCBills": 150000,
       "battleValue": 93,
       "introductionYear": 3069,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-heavy-large-laser",
@@ -617,7 +1122,23 @@
       "costCBills": 350000,
       "battleValue": 296,
       "introductionYear": 3069,
-      "isExplosive": true
+      "isExplosive": true,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "basmallvsplaser",
@@ -667,7 +1188,23 @@
       "costCBills": 10000,
       "battleValue": 7,
       "introductionYear": 3059,
-      "special": ["Requires ammo"]
+      "special": ["Requires ammo"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-medium-chemical-laser",
@@ -692,7 +1229,23 @@
       "costCBills": 30000,
       "battleValue": 37,
       "introductionYear": 3059,
-      "special": ["Requires ammo"]
+      "special": ["Requires ammo"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-large-chemical-laser",
@@ -717,7 +1270,23 @@
       "costCBills": 75000,
       "battleValue": 99,
       "introductionYear": 3059,
-      "special": ["Requires ammo"]
+      "special": ["Requires ammo"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "improved-small-laser",
@@ -768,7 +1337,23 @@
       "battleValue": 123,
       "introductionYear": 2807,
       "extinctionYear": 2830,
-      "reintroductionYear": 3080
+      "reintroductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "small-re-engineered-laser",
@@ -785,7 +1370,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 25000,
       "battleValue": 14,
-      "introductionYear": 3115
+      "introductionYear": 3115,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "medium-re-engineered-laser",
@@ -802,7 +1403,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 100000,
       "battleValue": 65,
-      "introductionYear": 3115
+      "introductionYear": 3115,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "large-re-engineered-laser",
@@ -819,7 +1436,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 5 },
       "costCBills": 250000,
       "battleValue": 161,
-      "introductionYear": 3115
+      "introductionYear": 3115,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "blazer-cannon",
@@ -836,7 +1469,22 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 4 },
       "costCBills": 200000,
       "battleValue": 222,
-      "introductionYear": 2812
+      "introductionYear": 2812,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ]
 }

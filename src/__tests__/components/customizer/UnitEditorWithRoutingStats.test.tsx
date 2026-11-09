@@ -80,16 +80,22 @@ test('slot counts separate placed slots from the slots unplaced items still need
 
 test('cold-loaded definitions refresh BV and heat without a unit edit', () => {
   const values = input();
-  jest
-    .mocked(useEquipmentRegistry)
-    .mockReturnValue({ isReady: false, recheckReady: jest.fn() });
+  jest.mocked(useEquipmentRegistry).mockReturnValue({
+    isReady: false,
+    recheckReady: jest.fn(),
+    error: null,
+    retry: jest.fn(),
+  });
   const { result, rerender } = renderHook(() =>
     useUnitEditorRoutingStats(values),
   );
   expect(result.current.unitStats.battleValue).toBe(0);
-  jest
-    .mocked(useEquipmentRegistry)
-    .mockReturnValue({ isReady: true, recheckReady: jest.fn() });
+  jest.mocked(useEquipmentRegistry).mockReturnValue({
+    isReady: true,
+    recheckReady: jest.fn(),
+    error: null,
+    retry: jest.fn(),
+  });
   rerender();
   expect(result.current.unitStats.battleValue).toBe(2000);
   expect(result.current.unitStats.heatGenerated).toBe(29);

@@ -17,7 +17,10 @@ import {
 
 import { IFullUnit } from './CanonicalUnitService';
 import { getCanonicalUnitService } from './CanonicalUnitService';
-import { parseCustomUnitDetailsResponse } from './customUnitApiResponse';
+import {
+  parseCustomUnitDetailsResponse,
+  parseUnitImportResponse,
+} from './customUnitApiResponse';
 
 /**
  * API Response types
@@ -41,6 +44,8 @@ export interface ISaveResult {
   readonly error?: string;
   readonly requiresRename?: boolean;
   readonly suggestedName?: ICloneNameSuggestion;
+  readonly validationErrors?: readonly string[];
+  readonly warnings?: readonly string[];
 }
 
 /**
@@ -433,7 +438,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
   };
 
   /**
-   * Import a unit from JSON
+   * Import JSON or an explicit native-source payload.
    */
   importUnit = async (
     data: ISerializedUnitEnvelope | Record<string, unknown>,
@@ -444,35 +449,11 @@ export class CustomUnitApiService implements ICustomUnitApiService {
       body: JSON.stringify(data),
     });
 
-    const result = (await response.json()) as {
-      data?: { unitId: string };
-      error?: {
-        message: string;
-        suggestedName?: string;
-        validationErrors?: string[];
-      };
-    };
-
-    if (!response.ok) {
-      return {
-        success: false,
-        error: result.error?.message,
-        requiresRename: response.status === 409,
-        suggestedName: result.error?.suggestedName
-          ? {
-              chassis: '',
-              variant: '',
-              suggestedVariant: result.error.suggestedName,
-            }
-          : undefined,
-      };
-    }
-
-    return {
-      success: true,
-      id: result.data?.unitId,
-      version: 1,
-    };
+    return parseUnitImportResponse(
+      await response.json(),
+      response.ok,
+      response.status,
+    );
   };
 
   /**

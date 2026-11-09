@@ -8,27 +8,18 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
-export const VEHICLE_TONNAGE = {
-  min: 1,
-  max: 200,
-  step: 1,
-  heavyMin: 60,
-  superheavyMin: 101,
-};
-
 export const MOTION_TYPE_OPTIONS: {
   value: GroundMotionType;
   label: string;
-  maxTonnage: number;
 }[] = [
-  { value: GroundMotionType.TRACKED, label: 'Tracked', maxTonnage: 200 },
-  { value: GroundMotionType.WHEELED, label: 'Wheeled', maxTonnage: 80 },
-  { value: GroundMotionType.HOVER, label: 'Hover', maxTonnage: 50 },
-  { value: GroundMotionType.VTOL, label: 'VTOL', maxTonnage: 30 },
-  { value: GroundMotionType.NAVAL, label: 'Naval', maxTonnage: 300 },
-  { value: GroundMotionType.HYDROFOIL, label: 'Hydrofoil', maxTonnage: 100 },
-  { value: GroundMotionType.SUBMARINE, label: 'Submarine', maxTonnage: 300 },
-  { value: GroundMotionType.WIGE, label: 'WiGE', maxTonnage: 80 },
+  { value: GroundMotionType.TRACKED, label: 'Tracked' },
+  { value: GroundMotionType.WHEELED, label: 'Wheeled' },
+  { value: GroundMotionType.HOVER, label: 'Hover' },
+  { value: GroundMotionType.VTOL, label: 'VTOL' },
+  { value: GroundMotionType.NAVAL, label: 'Naval' },
+  { value: GroundMotionType.HYDROFOIL, label: 'Hydrofoil' },
+  { value: GroundMotionType.SUBMARINE, label: 'Submarine' },
+  { value: GroundMotionType.WIGE, label: 'WiGE' },
 ];
 
 export const ENGINE_TYPE_OPTIONS: {

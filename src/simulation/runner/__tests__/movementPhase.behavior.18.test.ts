@@ -198,7 +198,8 @@ it('does not invent building-collapse PSRs without explicit load metadata', () =
   );
 });
 
-it('queues water-exit PSRs when a unit leaves water terrain', () => {
+it('queues no PSR when a unit leaves water terrain', () => {
+  // MegaMek 48fcb2f64 Entity.checkWaterMove rolls only for entering water.
   const target = { q: 1, r: 0 };
   const grid = setTerrain(
     createMinimalGrid(3),
@@ -207,22 +208,14 @@ it('queues water-exit PSRs when a unit leaves water terrain', () => {
   );
 
   const { next, events } = runScriptedMove(grid, target);
-  const payloads = psrPayloads(events);
 
   expect(next.units['player-1'].position).toEqual(target);
-  expect(next.units['player-1'].pendingPSRs).toContainEqual(
-    expect.objectContaining({ reasonCode: PSRTrigger.ExitingWater }),
-  );
-  expect(payloads).toContainEqual(
-    expect.objectContaining({
-      reasonCode: PSRTrigger.ExitingWater,
-      triggerSource: expect.stringMatching(/^movement-step:/),
-    }),
-  );
+  expect(next.units['player-1'].pendingPSRs ?? []).toEqual([]);
+  expect(psrPayloads(events)).toEqual([]);
   expect(
     RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.ExitingWater],
   ).toMatchObject({
-    level: 'integrated',
+    level: 'out-of-scope',
   });
 });
 
@@ -258,7 +251,22 @@ it('queues skid PSRs when a running unit changes facing on pavement', () => {
   });
 });
 
-it('queues damaged-movement PSRs when a damaged unit runs', () => {
+const RUNNING_DAMAGE_REASON_CODES: readonly string[] = [
+  PSRTrigger.RunningDamagedHip,
+  PSRTrigger.RunningDamagedGyro,
+];
+
+function runningDamagePayloads(
+  events: Parameters<typeof psrPayloads>[0],
+): readonly IPSRTriggeredPayload[] {
+  return psrPayloads(events).filter(
+    (payload) =>
+      payload.reasonCode !== undefined &&
+      RUNNING_DAMAGE_REASON_CODES.includes(payload.reasonCode),
+  );
+}
+
+it('queues one running-with-damage PSR when a hip- and gyro-damaged unit runs', () => {
   const target = { q: 1, r: 0 };
   const componentDamage = {
     ...DEFAULT_COMPONENT_DAMAGE,
@@ -272,31 +280,66 @@ it('queues damaged-movement PSRs when a damaged unit runs', () => {
     { componentDamage },
     { movementType: MovementType.Run },
   );
-  const payloads = psrPayloads(events);
 
   expect(next.units['player-1'].position).toEqual(target);
-  expect(next.units['player-1'].pendingPSRs).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ reasonCode: PSRTrigger.RunningDamagedHip }),
-      expect.objectContaining({ reasonCode: PSRTrigger.RunningDamagedGyro }),
-    ]),
-  );
-  expect(payloads).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        reasonCode: PSRTrigger.RunningDamagedHip,
-        triggerSource: expect.stringMatching(/^movement-step:/),
-      }),
-      expect.objectContaining({
-        reasonCode: PSRTrigger.RunningDamagedGyro,
-        triggerSource: expect.stringMatching(/^movement-step:/),
-      }),
-    ]),
-  );
+  expect(next.units['player-1'].pendingPSRs).toEqual([
+    expect.objectContaining({ reasonCode: PSRTrigger.RunningDamagedGyro }),
+  ]);
+  expect(runningDamagePayloads(events)).toEqual([
+    expect.objectContaining({
+      reasonCode: PSRTrigger.RunningDamagedGyro,
+      triggerSource: expect.stringMatching(/^movement-step:/),
+    }),
+  ]);
   expect(
     RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.RunningDamagedHip],
   ).toMatchObject({ level: 'integrated' });
   expect(
     RUNNER_PSR_TRIGGER_COMBAT_SUPPORT[PSRTrigger.RunningDamagedGyro],
   ).toMatchObject({ level: 'integrated' });
+});
+
+it('queues one hip PSR for a multi-hex run, stamped on the last step', () => {
+  const target = { q: 3, r: 0 };
+  const componentDamage = {
+    ...DEFAULT_COMPONENT_DAMAGE,
+    actuators: { [ActuatorType.HIP]: true },
+  };
+
+  const { next, events } = runScriptedMove(
+    createMinimalGrid(4),
+    target,
+    { componentDamage },
+    { movementType: MovementType.Run },
+  );
+  const declared = events.find(
+    (event) => event.type === GameEventType.MovementDeclared,
+  )?.payload as { steps: readonly { index: number }[] };
+
+  expect(next.units['player-1'].position).toEqual(target);
+  expect(declared.steps.length).toBeGreaterThan(1);
+  expect(runningDamagePayloads(events)).toEqual([
+    expect.objectContaining({
+      reasonCode: PSRTrigger.RunningDamagedHip,
+      triggerSource: `movement-step:${declared.steps[declared.steps.length - 1].index}`,
+    }),
+  ]);
+  expect(next.units['player-1'].pendingPSRs).toHaveLength(1);
+});
+
+it('queues no running-with-damage PSR for a walk by a damaged unit', () => {
+  const componentDamage = {
+    ...DEFAULT_COMPONENT_DAMAGE,
+    gyroHits: 1,
+    actuators: { [ActuatorType.HIP]: true },
+  };
+
+  const { events } = runScriptedMove(
+    createMinimalGrid(3),
+    { q: 1, r: 0 },
+    { componentDamage },
+    { movementType: MovementType.Walk },
+  );
+
+  expect(runningDamagePayloads(events)).toEqual([]);
 });

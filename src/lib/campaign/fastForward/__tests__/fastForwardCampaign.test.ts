@@ -54,6 +54,10 @@ interface BridgeCampaignView {
 
 function resetWorld(): void {
   resetCampaignStore();
+  // The campaign store persists to localStorage and a fresh store rehydrates
+  // from it. Without this a previous test's pending outcome settles the next
+  // test's fixture contract before scenario generation runs.
+  localStorage.clear();
   _resetCombatOutcomeBus();
   _resetContractFulfilledBus();
   _resetDayPipeline();

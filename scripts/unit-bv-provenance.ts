@@ -35,13 +35,37 @@ const parseJsonLines = (bytes: Buffer): unknown[] =>
 export const readJsonLines = (file: string): unknown[] =>
   parseJsonLines(fs.readFileSync(file));
 
+const ReferenceIdentity = z.object({
+  megamekCommit: z.string().regex(/^[a-f0-9]{40}$/),
+  verifierConfigSha256: digest,
+});
+export type IReferenceIdentity = z.infer<typeof ReferenceIdentity>;
+interface ITrustedReferences {
+  rows: unknown[];
+  identity: IReferenceIdentity | undefined;
+}
+
 /** A separately approved policy must never be inferred from the supplied oracle. */
 export function readTrustedReferences(
   reference: string,
   policyFile: string | undefined,
   out: string,
+  mode: IReferenceTrustMode | undefined,
+  includeIdentity: true,
+): ITrustedReferences;
+export function readTrustedReferences(
+  reference: string,
+  policyFile: string | undefined,
+  out: string,
   mode?: IReferenceTrustMode,
-): unknown[] {
+): unknown[];
+export function readTrustedReferences(
+  reference: string,
+  policyFile: string | undefined,
+  out: string,
+  mode?: IReferenceTrustMode,
+  includeIdentity = false,
+): unknown[] | ITrustedReferences {
   const trustMode = ReferenceTrustMode.parse(mode);
   const failures: IReferenceMismatch[] = [];
   const read = (file: string | undefined, field: string): Buffer => {
@@ -110,7 +134,14 @@ export function readTrustedReferences(
   // Report-only changes trust enforcement, not ordinary reference input validity.
   if (failures.some((issue) => issue.field === 'reference'))
     throw new Error('Reference input could not be read or decoded');
-  return references;
+  if (!includeIdentity) return references;
+  const identity = z.object({ runtime: ReferenceIdentity }).safeParse(actual);
+  // report.ok binds this receipt to the exact reference bytes and independent
+  // policy. Report-only violations must never authorize an exclusion.
+  return {
+    rows: references,
+    identity: report.ok && identity.success ? identity.data.runtime : undefined,
+  };
 }
 
 function callOwner(

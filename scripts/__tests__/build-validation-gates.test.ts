@@ -33,7 +33,12 @@ const dependencies = (job: Job): string[] =>
   typeof job.needs === 'string' ? [job.needs] : (job.needs ?? []);
 const command = (job: Job, run: string, directory?: string): Step => {
   const step = job.steps.find(
-    (entry) => entry.run === run && entry['working-directory'] === directory,
+    (entry) =>
+      entry['working-directory'] === directory &&
+      (entry.run === run ||
+        entry.run
+          ?.split('\n')
+          .some((line) => line.trim() === `if ${run}; then`)),
   );
   expect(step).toBeDefined();
   expect(step?.['continue-on-error']).toBeUndefined();

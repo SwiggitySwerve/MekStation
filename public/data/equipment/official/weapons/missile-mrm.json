@@ -17,7 +17,22 @@
       "costCBills": 50000,
       "battleValue": 56,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-20",
@@ -36,7 +51,22 @@
       "costCBills": 125000,
       "battleValue": 112,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-30",
@@ -55,7 +85,22 @@
       "costCBills": 225000,
       "battleValue": 168,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-40",
@@ -74,7 +119,22 @@
       "costCBills": 350000,
       "battleValue": 224,
       "introductionYear": 3047,
-      "special": ["+1 to-hit penalty"]
+      "special": ["+1 to-hit penalty"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "bamrm1",
@@ -99,7 +159,8 @@
       "costCBills": 5000,
       "battleValue": 9,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm1os",
@@ -123,7 +184,8 @@
       "costCBills": 2500,
       "battleValue": 2,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm2",
@@ -148,7 +210,8 @@
       "costCBills": 10000,
       "battleValue": 9,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm2os",
@@ -172,7 +235,8 @@
       "costCBills": 5000,
       "battleValue": 3,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm3",
@@ -197,7 +261,8 @@
       "costCBills": 15000,
       "battleValue": 18,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm3os",
@@ -221,7 +286,8 @@
       "costCBills": 7500,
       "battleValue": 4,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm4",
@@ -246,7 +312,8 @@
       "costCBills": 20000,
       "battleValue": 23,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm4os",
@@ -270,7 +337,8 @@
       "costCBills": 10000,
       "battleValue": 5,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm5",
@@ -295,7 +363,8 @@
       "costCBills": 25000,
       "battleValue": 28,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "bamrm5os",
@@ -319,7 +388,8 @@
       "costCBills": 12500,
       "battleValue": 6,
       "introductionYear": 3053,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": ["Battle Armor"]
     },
     {
       "id": "mrm-10-i-os",
@@ -343,7 +413,22 @@
       "costCBills": 40000,
       "battleValue": 11,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-10-os",
@@ -367,7 +452,22 @@
       "costCBills": 25000,
       "battleValue": 11,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-20-i-os",
@@ -391,7 +491,22 @@
       "costCBills": 100000,
       "battleValue": 22,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-20-os",
@@ -415,7 +530,22 @@
       "costCBills": 62500,
       "battleValue": 22,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-30-i-os",
@@ -439,7 +569,22 @@
       "costCBills": 180000,
       "battleValue": 34,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-30-os",
@@ -463,7 +608,22 @@
       "costCBills": 112500,
       "battleValue": 34,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-40-i-os",
@@ -487,7 +647,22 @@
       "costCBills": 280000,
       "battleValue": 49,
       "introductionYear": 3056,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "mrm-40-os",
@@ -511,7 +686,22 @@
       "costCBills": 175000,
       "battleValue": 45,
       "introductionYear": 3047,
-      "special": []
+      "special": [],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ],
   "$schema": "../_schema/weapon-schema.json"

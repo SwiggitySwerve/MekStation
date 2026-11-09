@@ -22,7 +22,10 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType, getNativeGyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  InternalStructureType,
+  mapSerializedStructureType,
+} from '@/types/construction/InternalStructureType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -107,67 +110,14 @@ export function mapStructureType(
   typeStr: string,
   techBase: TechBase,
 ): InternalStructureType {
-  const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-
-  if (normalized === 'ENDOSTEEL' || normalized === 'ENDO') {
-    return techBase === TechBase.CLAN
-      ? InternalStructureType.ENDO_STEEL_CLAN
-      : InternalStructureType.ENDO_STEEL_IS;
-  }
-  if (normalized === 'ENDOSTEELIS') {
-    return InternalStructureType.ENDO_STEEL_IS;
-  }
-  if (normalized === 'ENDOSTEELCLAN') {
-    return InternalStructureType.ENDO_STEEL_CLAN;
-  }
-  if (normalized === 'ENDOCOMPOSITE') {
-    return InternalStructureType.ENDO_COMPOSITE;
-  }
-  if (normalized === 'REINFORCED') {
-    return InternalStructureType.REINFORCED;
-  }
-  if (normalized === 'COMPOSITE') {
-    return InternalStructureType.COMPOSITE;
-  }
-  if (normalized === 'INDUSTRIAL') {
-    return InternalStructureType.INDUSTRIAL;
-  }
-
-  return InternalStructureType.STANDARD;
+  return mapSerializedStructureType(typeStr, techBase);
 }
 
 /**
  * Map cockpit type string to CockpitType enum
  */
 export function mapCockpitType(typeStr: string): CockpitType {
-  const native = getNativeCockpitType(typeStr);
-  if (native) return native;
-  const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
-
-  if (normalized === 'SMALL' || normalized === 'SMALLCOCKPIT') {
-    return CockpitType.SMALL;
-  }
-  if (normalized === 'COMMAND' || normalized === 'COMMANDCONSOLE') {
-    return CockpitType.COMMAND_CONSOLE;
-  }
-  if (
-    normalized === 'TORSO' ||
-    normalized === 'TORSOMOUNTED' ||
-    normalized === 'TORSOMOUNTEDCOCKPIT'
-  ) {
-    return CockpitType.TORSO_MOUNTED;
-  }
-  if (normalized === 'PRIMITIVE' || normalized === 'PRIMITIVECOCKPIT') {
-    return CockpitType.PRIMITIVE;
-  }
-  if (normalized === 'INDUSTRIAL' || normalized === 'INDUSTRIALCOCKPIT') {
-    return CockpitType.INDUSTRIAL;
-  }
-  if (normalized === 'SUPERHEAVY' || normalized === 'SUPERHEAVYCOCKPIT') {
-    return CockpitType.SUPER_HEAVY;
-  }
-
-  return CockpitType.STANDARD;
+  return getNativeCockpitType(typeStr) ?? CockpitType.STANDARD;
 }
 
 /**

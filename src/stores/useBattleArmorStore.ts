@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react';
 /**
  * Battle Armor Store Factory
  *
@@ -6,8 +7,6 @@
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.1
  */
-
-import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -22,7 +21,6 @@ import {
   createUnitIdentityActions,
   modificationPatch,
   modifiedPatch,
-  pickPersistedUnitIdentity,
 } from '@/stores/unitStoreIdentityActions';
 import { IEquipmentItem } from '@/types/equipment';
 import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
@@ -34,6 +32,10 @@ import {
   createDefaultBattleArmorState,
   createBattleArmorMountedEquipment,
 } from './battleArmorState';
+import {
+  pickPersistedBattleArmorState,
+  withUnitLibraryReceipt,
+} from './unitDraftPersistence';
 
 // Re-export types for convenience
 export type { BattleArmorStore } from './battleArmorState';
@@ -300,37 +302,9 @@ export function createBattleArmorStore(
       },
       createUnitStorePersistOptions(
         `megamek-battlearmor-${initialState.id}`,
-        (state: BattleArmorStore) => ({
-          ...pickPersistedUnitIdentity(state),
-          librarySource: state.librarySource,
-          techBase: state.techBase,
-          unitType: state.unitType,
-          chassisType: state.chassisType,
-          weightClass: state.weightClass,
-          weightPerTrooper: state.weightPerTrooper,
-          squadSize: state.squadSize,
-          motionType: state.motionType,
-          groundMP: state.groundMP,
-          jumpMP: state.jumpMP,
-          hasMechanicalJumpBoosters: state.hasMechanicalJumpBoosters,
-          umuMP: state.umuMP,
-          leftManipulator: state.leftManipulator,
-          rightManipulator: state.rightManipulator,
-          armorType: state.armorType,
-          baArmorType: state.baArmorType,
-          armorPerTrooper: state.armorPerTrooper,
-          hasAPMount: state.hasAPMount,
-          hasModularMount: state.hasModularMount,
-          hasTurretMount: state.hasTurretMount,
-          hasStealthSystem: state.hasStealthSystem,
-          stealthType: state.stealthType,
-          hasMimeticArmor: state.hasMimeticArmor,
-          hasFireResistantArmor: state.hasFireResistantArmor,
-          equipment: state.equipment,
-          isModified: state.isModified,
-          createdAt: state.createdAt,
-          lastModifiedAt: state.lastModifiedAt,
-        }),
+        withUnitLibraryReceipt((state: BattleArmorStore) =>
+          pickPersistedBattleArmorState(state),
+        ),
       ),
     ),
   );

@@ -1,5 +1,7 @@
 """Fighter tag policy from MegaMek 48fcb2f6 BLK fighter loaders."""
 
+import hashlib
+import json
 import logging
 from pathlib import Path
 import sys
@@ -12,18 +14,55 @@ from blk_aerospace_converter import convert_aerospace_blk
 
 
 class AerospaceHeatSinkSourceTest(unittest.TestCase):
-    def convert(self, unit_type, heat_sinks=None, tag='heatsinks', sink_type=0, type_tag='sink_type'):
+    def convert(self, unit_type, heat_sinks=None, tag='heatsinks', sink_type=0, type_tag='sink_type',
+                tech='IS Level 2', extra=''):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / 'fighter-heatsinks.blk'
             sink_tag = '' if heat_sinks is None else f'<{tag}>{heat_sinks}</{tag}>\n'
             sink_type_tag = '' if sink_type is None else f'<{type_tag}>{sink_type}</{type_tag}>\n'
             source.write_text(
                 f'<UnitType>{unit_type}</UnitType>\n<Name>Heat sink fixture</Name>\n'
+                f'<type>{tech}</type>\n'
                 '<year>3050</year>\n<tonnage>50</tonnage>\n<SafeThrust>5</SafeThrust>\n'
-                + sink_tag + sink_type_tag,
+                + sink_tag + sink_type_tag + extra,
                 encoding='utf-8',
             )
             return convert_aerospace_blk(source, logging.getLogger(__name__))
+
+    def test_pinned_clan_fighters_keep_aerospace_double_identity(self):
+        # Aero.java:102-103 and BLKAeroSpaceFighterFile.java:91-102 at 48fcb2f64.
+        fixtures = json.loads((Path(__file__).parent / 'fixtures/aerospace_source_qualifiers.json')
+                              .read_text(encoding='utf-8'))['fixtures']
+        for name, count in (('Tyre Michiko.blk', 16), ('Jengiz A.blk', 27)):
+            fixture = next(row for row in fixtures if row['source'].endswith(name))
+            with self.subTest(source=fixture['source']), tempfile.TemporaryDirectory() as directory:
+                source = Path(directory) / name
+                source.write_bytes(fixture['blk'].encode('utf-8'))
+                self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(), fixture['sha256'])
+                unit = convert_aerospace_blk(source, logging.getLogger(__name__))
+                self.assertEqual(unit['techBase'], 'CLAN')
+                self.assertEqual(unit['heatSinks'], {'type': 'DOUBLE', 'count': count})
+
+    def test_aerospace_sink_identity_is_independent_of_chassis_technology(self):
+        for family in ('AeroSpaceFighter', 'ConvFighter', 'SmallCraft'):
+            for tech in ('IS Level 2', 'Clan Level 2', 'Mixed (Clan Chassis) Advanced',
+                         'Mixed (IS Chassis) Advanced'):
+                for code, expected in ((0, 'SINGLE'), (1, 'DOUBLE')):
+                    with self.subTest(family=family, tech=tech, code=code):
+                        unit = self.convert(family, 16, sink_type=code, tech=tech)
+                        self.assertEqual(unit['heatSinks'], {'type': expected, 'count': 16})
+
+    def test_heatsinktype_is_not_the_aerospace_sink_type_tag(self):
+        # The pinned loader reads sink_type; a similarly named tag cannot replace it.
+        for ignored in ('0', '1', '2', 'Double'):
+            extra = f'<heatsinktype>\n{ignored}\n</heatsinktype>\n'
+            for code, expected in ((0, 'SINGLE'), (1, 'DOUBLE')):
+                with self.subTest(ignored=ignored, code=code):
+                    unit = self.convert('AeroSpaceFighter', 16, sink_type=code,
+                                        tech='Clan Level 2', extra=extra)
+                    self.assertEqual(unit['heatSinks'], {'type': expected, 'count': 16})
+            with self.subTest(ignored=ignored), self.assertRaisesRegex(ValueError, '<sink_type>'):
+                self.convert('AeroSpaceFighter', 16, sink_type=None, extra=extra)
 
     # BLKAeroSpaceFighterFile.java:91-95; BLKConvFighterFile.java:86-89.
     def test_missing_fighter_tag_fails_with_source_filename(self):

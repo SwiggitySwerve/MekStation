@@ -10,7 +10,11 @@ import type { ProtoMechState } from '@/stores/protoMechState';
  * @spec openspec/specs/unit-services/spec.md
  */
 import type { VehicleState } from '@/stores/vehicleState';
-import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
+import type {
+  ISerializedFluff,
+  ISerializedStructure,
+} from '@/types/unit/UnitSerialization';
 
 import { UnitState } from '@/stores/unitState';
 
@@ -53,9 +57,7 @@ export interface IRawSerializedUnit {
     readonly type: string;
   };
   readonly cockpit?: string;
-  readonly structure?: {
-    readonly type: string;
-  };
+  readonly structure?: ISerializedStructure;
   readonly armor?: {
     readonly type: string;
     readonly allocation?: Record<
@@ -97,6 +99,8 @@ export interface IRawSerializedUnit {
   readonly componentTechBases?: Readonly<
     Partial<Record<string, 'INNER_SPHERE' | 'CLAN'>>
   >;
+  /** Authored Tripod/QuadVee crew seats. */
+  readonly crewSeats?: readonly IMechCrewSeat[];
   readonly role?: string;
   readonly fluff?: ISerializedFluff;
   /** Whether this unit is an OmniMech */

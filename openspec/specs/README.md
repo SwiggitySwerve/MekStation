@@ -277,7 +277,7 @@ Location slot counts and placement rules:
 Movement formulas and jump jet mechanics:
 
 - Walk MP = floor(rating / tonnage)
-- Run MP = floor(walk × 1.5)
+- Run MP = ceil(walk × 1.5)
 - 8 jump jet types (Standard, Improved, Extended, Mechanical, Partial Wing, etc.)
 - Jump jet weight by tonnage class
 - MASC, Supercharger, TSM enhancements

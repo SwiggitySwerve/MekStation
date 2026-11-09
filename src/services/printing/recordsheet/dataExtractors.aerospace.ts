@@ -8,6 +8,7 @@
 import type { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import { mapHeatSinkType } from '@/services/conversion/ValueMappings';
+import { getAerospaceArcs } from '@/types/construction/aerospaceArcLabels';
 import {
   IAerospaceRecordSheetData,
   IAerospaceArcArmor,
@@ -39,23 +40,17 @@ export interface IAerospaceUnitConfig extends IBaseRecordSheetUnitConfig {
   maxThrust?: number;
   heatSinks?: { type: string; count: number };
   armorType?: string;
-  /** Armor per arc. Missing arcs default to 0/0. */
+  /** BAR rating of a fixed-wing support craft with BAR armor. */
+  barRating?: number;
+  /** Armor per arc, keyed by sheet label. Missing arcs default to 0. */
   armorArcs?: Partial<
-    Record<IAerospaceArcArmor['arc'], { current: number; maximum: number }>
+    Record<IAerospaceArcArmor['arc'], { current: number; maximum?: number }>
   >;
   equipment?: ISimpleEquipmentInput[];
   /** Number of bomb bay slots (0 or absent when none). */
   bombBaySlots?: number;
   pilot?: IRecordSheetPilot;
 }
-
-/** Canonical arc order for the 4-arc armor diagram. */
-const ARC_ORDER: IAerospaceArcArmor['arc'][] = [
-  'Nose',
-  'Left Wing',
-  'Right Wing',
-  'Aft',
-];
 
 /**
  * Extract aerospace record sheet data from a unit configuration.
@@ -65,10 +60,12 @@ export function extractAerospaceData(
   specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IAerospaceRecordSheetData {
   const arcAlloc = unit.armorArcs ?? {};
-  const armorArcs: IAerospaceArcArmor[] = ARC_ORDER.map((arc) => ({
-    arc,
-    current: arcAlloc[arc]?.current ?? 0,
-    maximum: arcAlloc[arc]?.maximum ?? 0,
+  const armorArcs: IAerospaceArcArmor[] = getAerospaceArcs(
+    unit.smallCraftMotionType !== undefined,
+  ).map(({ label }) => ({
+    arc: label,
+    current: arcAlloc[label]?.current ?? 0,
+    maximum: arcAlloc[label]?.maximum,
   }));
 
   const hsRaw = unit.heatSinks ?? { type: 'Single', count: 10 };
@@ -94,6 +91,7 @@ export function extractAerospaceData(
     maxThrust: unit.maxThrust ?? 0,
     heatSinks,
     armorType: unit.armorType ?? 'Aerospace Standard',
+    barRating: unit.barRating,
     armorArcs,
     equipment: mapSimpleRecordSheetEquipment(unit.equipment),
     bombBaySlots: unit.bombBaySlots ?? 0,

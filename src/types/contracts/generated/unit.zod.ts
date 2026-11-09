@@ -25,6 +25,33 @@ const UnitSchemaVersion = z
 export const unitSchemaVersionOf = (unit: {
   readonly schemaVersion?: string;
 }) => unit.schemaVersion ?? CURRENT_UNIT_SCHEMA_VERSION;
+const SchemaDef_structureType = z
+  .enum([
+    'STANDARD',
+    'ENDO_STEEL',
+    'ENDO_STEEL_CLAN',
+    'ENDO_COMPOSITE',
+    'REINFORCED',
+    'COMPOSITE',
+    'INDUSTRIAL',
+    'ENDO_COMPOSITE_CLAN',
+  ])
+  .describe('Internal structure type');
+const SchemaDef_structureLocation = z.enum([
+  'HEAD',
+  'CENTER_TORSO',
+  'LEFT_TORSO',
+  'RIGHT_TORSO',
+  'LEFT_ARM',
+  'RIGHT_ARM',
+  'LEFT_LEG',
+  'RIGHT_LEG',
+  'FRONT_LEFT_LEG',
+  'FRONT_RIGHT_LEG',
+  'REAR_LEFT_LEG',
+  'REAR_RIGHT_LEG',
+  'CENTER_LEG',
+]);
 const SchemaDef_componentTechBase = z.enum(['INNER_SPHERE', 'CLAN']);
 const SchemaDef_standardArmorType = z
   .enum([
@@ -206,26 +233,31 @@ export const UnitContract = z
             'VRRP',
             'QUADVEE',
             'PRIMITIVE_INDUSTRIAL',
+            'DUAL',
+            'TRIPOD',
+            'SUPERHEAVY_INDUSTRIAL',
+            'SUPERHEAVY_COMMAND_CONSOLE',
+            'SMALL_COMMAND_CONSOLE',
+            'TRIPOD_INDUSTRIAL',
+            'SUPERHEAVY_TRIPOD_INDUSTRIAL',
           ])
           .describe('Cockpit type'),
         structure: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'ENDO_STEEL',
-                'ENDO_STEEL_CLAN',
-                'ENDO_COMPOSITE',
-                'REINFORCED',
-                'COMPOSITE',
-                'INDUSTRIAL',
-                'ENDO_COMPOSITE_CLAN',
-              ])
-              .describe('Internal structure type'),
+            type: SchemaDef_structureType,
             locationTonnage: z
               .record(z.string(), z.number().int().gte(1))
               .describe(
                 'FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)',
+              )
+              .optional(),
+            typeByLocation: z
+              .partialRecord(
+                SchemaDef_structureLocation,
+                SchemaDef_structureType,
+              )
+              .describe(
+                'Explicit FrankenMek donor types; missing entries use native defaults. An absent map preserves legacy global structure behavior.',
               )
               .optional(),
           })
@@ -519,6 +551,22 @@ export const UnitContract = z
           .strict()
           .describe('BattleMech Mixed Tech per-component tech base selections')
           .optional(),
+        crewSeats: z
+          .array(
+            z
+              .object({
+                slotIndex: z.number().int().gte(0).lte(2),
+                name: z.string().min(1),
+                gunnery: z.number().int().gte(0).lte(8),
+                piloting: z.number().int().gte(0).lte(8),
+              })
+              .strict(),
+          )
+          .max(3)
+          .describe(
+            'BattleMech Tripod/QuadVee crew seats the user assigned; unassigned seats are absent',
+          )
+          .optional(),
         omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
@@ -697,27 +745,32 @@ export const UnitContract = z
             'VRRP',
             'QUADVEE',
             'PRIMITIVE_INDUSTRIAL',
+            'DUAL',
+            'TRIPOD',
+            'SUPERHEAVY_INDUSTRIAL',
+            'SUPERHEAVY_COMMAND_CONSOLE',
+            'SMALL_COMMAND_CONSOLE',
+            'TRIPOD_INDUSTRIAL',
+            'SUPERHEAVY_TRIPOD_INDUSTRIAL',
           ])
           .describe('Cockpit type')
           .optional(),
         structure: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'ENDO_STEEL',
-                'ENDO_STEEL_CLAN',
-                'ENDO_COMPOSITE',
-                'REINFORCED',
-                'COMPOSITE',
-                'INDUSTRIAL',
-                'ENDO_COMPOSITE_CLAN',
-              ])
-              .describe('Internal structure type'),
+            type: SchemaDef_structureType,
             locationTonnage: z
               .record(z.string(), z.number().int().gte(1))
               .describe(
                 'FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)',
+              )
+              .optional(),
+            typeByLocation: z
+              .partialRecord(
+                SchemaDef_structureLocation,
+                SchemaDef_structureType,
+              )
+              .describe(
+                'Explicit FrankenMek donor types; missing entries use native defaults. An absent map preserves legacy global structure behavior.',
               )
               .optional(),
           })
@@ -1030,6 +1083,22 @@ export const UnitContract = z
           })
           .strict()
           .describe('BattleMech Mixed Tech per-component tech base selections')
+          .optional(),
+        crewSeats: z
+          .array(
+            z
+              .object({
+                slotIndex: z.number().int().gte(0).lte(2),
+                name: z.string().min(1),
+                gunnery: z.number().int().gte(0).lte(8),
+                piloting: z.number().int().gte(0).lte(8),
+              })
+              .strict(),
+          )
+          .max(3)
+          .describe(
+            'BattleMech Tripod/QuadVee crew seats the user assigned; unassigned seats are absent',
+          )
           .optional(),
         omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),

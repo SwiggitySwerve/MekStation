@@ -2,18 +2,29 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { createMocks } from 'node-mocks-http';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import customHandler from '@/pages/api/units/custom/[id]';
 import handler from '@/pages/api/units/import';
 import fixtures from '@/services/conversion/__tests__/MTFParser.pinned-sources.json';
 import { MTFParserService } from '@/services/conversion/MTFParserService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import {
+  parseUnit,
+  UnitLoaderService,
+} from '@/services/units/unitLoaderService';
 import { loadUnitDefinition } from '@/services/units/unitLoaderService/loadUnitDefinition';
 import { getUnitRepository } from '@/services/units/UnitRepository';
+import { GyroType } from '@/types/construction/GyroType';
 import { UnitContract } from '@/types/contracts';
+import { getEraForYear } from '@/types/enums';
+import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 import { parseImportResponse } from '../../helpers';
 
@@ -21,6 +32,21 @@ const source = fixtures.rows.find((row) =>
   row.path.endsWith('/Annihilator ANH-3A.mtf'),
 )!;
 const text = Buffer.from(source.base64, 'base64').toString('utf8');
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+
+beforeAll(async () => {
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+});
 
 async function post(body: unknown) {
   const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
@@ -33,6 +59,90 @@ async function post(body: unknown) {
 
 beforeEach(() => getSQLiteService({ path: ':memory:' }).initialize());
 afterEach(() => resetSQLiteService());
+
+it('retains a declared XL gyro through real API persistence and loading', async () => {
+  const sourceText = /^gyro:/im.test(text)
+    ? text.replace(/^gyro:.*$/im, 'gyro:XL Gyro')
+    : `${text}\ngyro:XL Gyro`;
+  const response = await post({ sourceFormat: 'mtf', sourceText });
+  expect(response._getStatusCode()).toBe(201);
+  const id = parseImportResponse(response).data?.unitId;
+  if (!id) throw new Error('Expected persisted XL source');
+  const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+    method: 'GET',
+    query: { id },
+  });
+  await customHandler(req, res);
+  expect(res._getStatusCode()).toBe(200);
+  const definition = parseUnit(JSON.parse(res._getData()).parsedData);
+  expect(definition.gyro?.type).toBe('XL');
+  expect(
+    new UnitLoaderService().mapToUnitState(definition, false).gyroType,
+  ).toBe(GyroType.XL);
+});
+
+it('persists a crit-only variable mount through API import, GET and custom save/reload', async () => {
+  const sourceText =
+    text.replace(/^mass:.*$/im, 'mass:80') +
+    `\nLeft Arm:\n${Array(8).fill('Mace (R) (OMNIPOD)').join('\n')}\n`;
+  const response = await post({ sourceFormat: 'mtf', sourceText });
+  expect(response._getStatusCode()).toBe(201);
+  const id = parseImportResponse(response).data?.unitId;
+  if (!id) throw new Error('Expected custom identity');
+  const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+    method: 'GET',
+    query: { id },
+  });
+  await customHandler(req, res);
+  expect(res._getStatusCode()).toBe(200);
+  const stored = getUnitRepository().getById(id);
+  if (!stored) throw new Error('Expected SQLite data');
+  const definition = UnitContract.parse(JSON.parse(stored.data));
+  expect(JSON.parse(res._getData()).parsedData).toEqual(definition);
+  expect(definition.equipment?.filter((item) => item.id === 'mace')).toEqual([
+    {
+      id: 'mace',
+      location: 'LEFT_ARM',
+      slots: [0, 1, 2, 3, 4, 5, 6, 7],
+      isRearMounted: true,
+      isOmniPodMounted: true,
+    },
+  ]);
+  const loader = new UnitLoaderService();
+  const state = loader.mapToUnitState(parseUnit(definition), false);
+  const saved = serializeCustomUnitState(state, {
+    id: 'custom-slot-copy',
+    chassis: state.chassis,
+    variant: 'Slot copy',
+    era: getEraForYear(state.year),
+  });
+  const savedResponse = await post(saved);
+  expect(savedResponse._getStatusCode()).toBe(201);
+  const copyId = parseImportResponse(savedResponse).data?.unitId;
+  if (!copyId) throw new Error('Expected saved copy');
+  const copy = getUnitRepository().getById(copyId);
+  if (!copy) throw new Error('Expected SQLite copy');
+  const reloaded = loader.mapToUnitState(
+    parseUnit(JSON.parse(copy.data)),
+    false,
+  );
+  for (const equipment of [state.equipment, reloaded.equipment]) {
+    expect(
+      equipment.filter((item) => item.equipmentId === 'mace'),
+    ).toMatchObject([
+      {
+        weight: 8,
+        criticalSlots: 8,
+        slots: [0, 1, 2, 3, 4, 5, 6, 7],
+        isRearMounted: true,
+        isOmniPodMounted: true,
+      },
+    ]);
+    expect(
+      equipment.filter((item) => item.equipmentId === 'mace'),
+    ).toHaveLength(1);
+  }
+});
 
 it('imports pinned MTF, renames a conflict and reloads its custom identity without rewriting source', async () => {
   expect(createHash('sha256').update(text).digest('hex')).toBe(source.sha256);

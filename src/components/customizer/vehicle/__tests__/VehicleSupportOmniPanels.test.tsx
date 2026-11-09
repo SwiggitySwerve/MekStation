@@ -148,7 +148,7 @@ describe.each([390, 1440])('support and Omni panels at %ipx', (width) => {
       summary.getByText('Allocated:').nextElementSibling,
     ).toHaveTextContent('83');
     const diagram = within(screen.getByTestId('vehicle-armor-diagram'));
-    expect(diagram.getByTestId('vehicle-armor-auto-allocate')).toBeDisabled();
+    expect(diagram.getByTestId('vehicle-armor-auto-allocate')).toBeEnabled();
     expect(
       diagram.queryByRole('spinbutton', { name: 'Body armor value' }),
     ).not.toBeInTheDocument();
@@ -323,16 +323,27 @@ it('keeps independently known required mass when an explicit allowance is unavai
     );
   }
 });
-it('does not offer four-side auto-allocation that would overwrite native BAR armor', () => {
+it('offers four-side auto-allocation within the native BAR budget', () => {
   const store = createVehicleStore(catalog('Small Steamer'));
   render(tree(store, <VehicleArmorTab />));
-  expect(screen.getByTestId('vehicle-armor-auto-allocate')).toBeDisabled();
+  expect(screen.getByTestId('vehicle-armor-auto-allocate')).toBeEnabled();
   expect(screen.getByTestId('vehicle-armor-tonnage-input')).toHaveAttribute(
     'max',
-    '0.3',
+    '0.1',
   );
   const summary = within(screen.getByTestId('vehicle-armor-summary'));
   expect(
     summary.getByText('Available Points:').nextElementSibling,
   ).toHaveTextContent('4');
+  fireEvent.click(screen.getAllByRole('button', { name: 'Auto-Allocate' })[0]);
+  expect(store.getState().armorAllocation).toMatchObject({
+    Front: 2,
+    Left: 1,
+    Right: 1,
+    Rear: 0,
+    Body: 0,
+  });
+  expect(summary.getByText('Allocated:').nextElementSibling).toHaveTextContent(
+    '4',
+  );
 });

@@ -138,6 +138,7 @@ it('preserves the facade and every support composition output', () => {
     turret: 0,
     secondaryTurret: 0,
     powerAmplifiers: 0,
+    heatSinks: 0,
     turretEquipment: 0,
     secondaryTurretEquipment: 0,
     turretMounted: 0,

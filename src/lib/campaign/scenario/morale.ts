@@ -1,8 +1,8 @@
 /**
  * Contract morale tracking and update system
  *
- * Provides functions to update morale based on scenario outcomes and retrieve
- * display information for UI rendering.
+ * Provides the level/number mapping and display information for UI rendering.
+ * The morale CHECK (how a level changes) is in `contractMorale.ts`.
  *
  * @module campaign/scenario/morale
  */
@@ -11,42 +11,6 @@ import {
   AtBMoraleLevel,
   MORALE_VALUES,
 } from '@/types/campaign/scenario/scenarioTypes';
-
-/**
- * Updates morale level based on scenario outcome.
- *
- * - Victory: increases morale by 1 (capped at OVERWHELMING +3)
- * - Defeat: decreases morale by 1 (capped at ROUTED -3)
- * - Draw: keeps morale unchanged
- *
- * @param currentLevel - Current morale level
- * @param scenarioOutcome - Outcome of the scenario
- * @returns Updated morale level
- *
- * @example
- * const newMorale = updateMorale(AtBMoraleLevel.STALEMATE, 'victory');
- * // Returns AtBMoraleLevel.ADVANCING
- */
-export function updateMorale(
-  currentLevel: AtBMoraleLevel,
-  scenarioOutcome: 'victory' | 'defeat' | 'draw',
-): AtBMoraleLevel {
-  const currentValue = MORALE_VALUES[currentLevel];
-  let newValue = currentValue;
-
-  switch (scenarioOutcome) {
-    case 'victory':
-      newValue = Math.min(3, currentValue + 1);
-      break;
-    case 'defeat':
-      newValue = Math.max(-3, currentValue - 1);
-      break;
-    case 'draw':
-      break;
-  }
-
-  return getMoraleLevelFromValue(newValue);
-}
 
 /**
  * Maps a numeric morale value to its corresponding morale level.

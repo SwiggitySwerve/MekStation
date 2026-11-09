@@ -19,7 +19,22 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 260000,
       "battleValue": 210,
-      "introductionYear": 3056
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "tsemp-cannon",
@@ -36,7 +51,23 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 5 },
       "costCBills": 800000,
       "battleValue": 488,
-      "introductionYear": 3080
+      "introductionYear": 3080,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "flamer",
@@ -54,7 +85,23 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 2100,
-      "special": ["Causes 2 heat to target"]
+      "special": ["Causes 2 heat to target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "er-flamer",
@@ -72,7 +119,23 @@
       "costCBills": 15000,
       "battleValue": 16,
       "introductionYear": 3065,
-      "special": ["Causes 2 heat to target"]
+      "special": ["Causes 2 heat to target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-er-flamer",
@@ -90,7 +153,23 @@
       "costCBills": 15000,
       "battleValue": 16,
       "introductionYear": 3067,
-      "special": ["Causes 2 heat to target"]
+      "special": ["Causes 2 heat to target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "heavy-flamer",
@@ -108,7 +187,23 @@
       "costCBills": 11250,
       "battleValue": 15,
       "introductionYear": 3068,
-      "special": ["Causes 4 heat to target"]
+      "special": ["Causes 4 heat to target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "vehicle-flamer",
@@ -127,7 +222,16 @@
       "costCBills": 7500,
       "battleValue": 5,
       "introductionYear": 1950,
-      "special": ["Causes 2 heat to target", "Requires ammo"]
+      "special": ["Causes 2 heat to target", "Requires ammo"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "clan-flamer",
@@ -145,7 +249,23 @@
       "costCBills": 7500,
       "battleValue": 6,
       "introductionYear": 2827,
-      "special": ["Causes 2 heat to target"]
+      "special": ["Causes 2 heat to target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "laser-ams",
@@ -163,7 +283,22 @@
       "costCBills": 225000,
       "battleValue": 45,
       "introductionYear": 3059,
-      "special": ["Defensive", "No ammo required"]
+      "special": ["Defensive", "No ammo required"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-laser-ams",
@@ -181,7 +316,22 @@
       "costCBills": 225000,
       "battleValue": 45,
       "introductionYear": 3048,
-      "special": ["Defensive", "No ammo required"]
+      "special": ["Defensive", "No ammo required"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-plasma-cannon",
@@ -200,7 +350,23 @@
       "costCBills": 320000,
       "battleValue": 170,
       "introductionYear": 3063,
-      "special": ["Causes heat to target"]
+      "special": ["Causes heat to target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "battlemech-taser",
@@ -218,7 +384,15 @@
       "costCBills": 200000,
       "battleValue": 40,
       "introductionYear": 3065,
-      "special": ["Shuts down target"]
+      "special": ["Shuts down target"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "fluid-gun",
@@ -237,7 +411,22 @@
       "costCBills": 35000,
       "battleValue": 6,
       "introductionYear": 1950,
-      "special": ["Requires ammo"]
+      "special": ["Requires ammo"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     }
   ]
 }

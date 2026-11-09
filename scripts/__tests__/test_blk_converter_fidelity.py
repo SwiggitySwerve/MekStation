@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 from blk_aerospace_converter import convert_aerospace_blk
 from blk_vehicle_converter import convert_vehicle_blk
+from enum_mappings import map_heat_sink_type
 from schema_gate import validate_unit
 
 FIXTURES = json.loads((Path(__file__).parent / 'fixtures/blk_converter_fidelity.json').read_text(encoding='utf-8'))['fixtures']
@@ -65,6 +66,13 @@ def patchwork_vehicle_body(body, missing=None):
 
 
 class BlkConverterFidelityTest(unittest.TestCase):
+    def test_explicit_clan_heat_sink_alias_retains_its_equipment_identity(self):
+        # MTF text aliases are distinct from Aero.java's chassis-independent 0/1 codes.
+        for source, expected in (('Double', 'DOUBLE'), ('Double (IS)', 'DOUBLE'),
+                                 ('Double (Clan)', 'DOUBLE_CLAN'), ('Clan Double', 'DOUBLE_CLAN')):
+            with self.subTest(source=source):
+                self.assertEqual(map_heat_sink_type(source), expected)
+
     def test_small_craft_hull_equipment_is_preserved(self):
         fixtures = [fixture for fixture in FIXTURES if 'hullEquipment' in fixture]
         self.assertEqual(len(fixtures), 6)

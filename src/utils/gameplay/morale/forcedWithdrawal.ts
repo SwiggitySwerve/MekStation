@@ -18,6 +18,7 @@ import {
   type IUnitGameState,
   type MoraleLevel,
 } from '@/types/gameplay';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 /**
  * A side's morale is "broken" when it is `BROKEN` or worse (`ROUTED`).
@@ -81,7 +82,7 @@ export function forcedWithdrawalReasonFor(
   unit: IUnitGameState,
   battleMorale: Record<GameSide, MoraleLevel> | undefined,
 ): ForcedWithdrawalReason | null {
-  if (unit.destroyed || unit.hasRetreated || unit.hasEjected) return null;
+  if (!getUnitOperability(unit).onField) return null;
   // A unit already flagged to withdraw must not be re-triggered.
   if (unit.isWithdrawing || unit.isRetreating) return null;
 

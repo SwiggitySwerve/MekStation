@@ -12,7 +12,7 @@ import { expect, type APIRequestContext, type Page } from '@playwright/test';
 
 import {
   launchOneVersusOne,
-  readToken,
+  captureAuthToken,
   seedIdentity,
   type IMatchHandle,
   type IMatchToken,
@@ -128,18 +128,6 @@ export function installIntentTap(page: Page, socketUrls: string[]): IIntentTap {
   };
 }
 
-function waitAuthToken(
-  page: Page,
-): Promise<import('@playwright/test').Response> {
-  return page.waitForResponse(
-    (response) =>
-      response.url().includes('/api/multiplayer/auth/token') &&
-      response.request().method() === 'POST' &&
-      response.status() === 200,
-    { timeout: 30_000 },
-  );
-}
-
 /**
  * Vault used for the post-launch spectate seat. Recovery remounts that
  * page and must mint the same durable identity.
@@ -174,14 +162,14 @@ export async function recoverSpectatorAfterIsolation(
   page: Page,
   vaultPassword: string,
 ): Promise<void> {
-  const tokenResponse = waitAuthToken(page);
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(
-    page.getByRole('heading', { name: 'Unlock vault to spectate' }),
-  ).toBeVisible({ timeout: 30_000 });
-  await page.getByPlaceholder('Vault password').fill(vaultPassword);
-  await page.getByRole('button', { name: 'Watch match' }).click();
-  await readToken(tokenResponse);
+  await captureAuthToken(page, async () => {
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(
+      page.getByRole('heading', { name: 'Unlock vault to spectate' }),
+    ).toBeVisible({ timeout: 30_000 });
+    await page.getByPlaceholder('Vault password').fill(vaultPassword);
+    await page.getByRole('button', { name: 'Watch match' }).click();
+  });
   await expect(page.getByTestId('networked-game-surface')).toBeVisible({
     timeout: 60_000,
   });
@@ -207,8 +195,6 @@ export async function launchThreeViewersToMovement(input: {
     throw new Error('launchThreeViewersToMovement needs a browser-backed page');
   }
 
-  // Guest token is minted inside connectLobby; arm the waiter first.
-  const p1TokenResponse = waitAuthToken(p1Page);
   const launched = await launchOneVersusOne({
     browser,
     request,
@@ -220,15 +206,15 @@ export async function launchThreeViewersToMovement(input: {
     guestPassword: p1Password,
     turnLimit: '50',
   });
-  const p1Token = await readToken(p1TokenResponse);
+  const p1Token = launched.guestToken;
 
   // Seed last so mintToken on the spectate page unlocks this vault.
   const spectator = await seedIdentity(request, 'Resilience P2', p2Password);
-  const p2TokenResponse = waitAuthToken(p2Page);
-  await p2Page.goto(`/multiplayer/spectate/${launched.match.matchId}`);
-  await p2Page.getByPlaceholder('Vault password').fill(p2Password);
-  await p2Page.getByRole('button', { name: 'Watch match' }).click();
-  const p2Token = await readToken(p2TokenResponse);
+  const { token: p2Token } = await captureAuthToken(p2Page, async () => {
+    await p2Page.goto(`/multiplayer/spectate/${launched.match.matchId}`);
+    await p2Page.getByPlaceholder('Vault password').fill(p2Password);
+    await p2Page.getByRole('button', { name: 'Watch match' }).click();
+  });
   await expect(p2Page.getByTestId('networked-game-surface')).toBeVisible({
     timeout: 30_000,
   });

@@ -591,7 +591,7 @@
         "npm.cmd run validate:combat",
         "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
         "npm.cmd run verify:qc:combat-4v4",
-        "npx.cmd openspec validate --all --strict",
+        "npm.cmd run openspec:validate",
         "npm.cmd run qc:wave3:validate"
       ],
       "manualChecks": [
@@ -647,7 +647,7 @@
         "npm.cmd run qc:combat:catalog-rules:validate",
         "npm.cmd run validate:combat",
         "npx.cmd tsx scripts/print-combat-validation-gaps.ts --format=summary",
-        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=149 --expect-level=out-of-scope:149 --expect-scope=aggregate:3 --expect-scope=leaf:146"
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=151 --expect-level=out-of-scope:151 --expect-scope=aggregate:3 --expect-scope=leaf:148"
       ],
       "manualChecks": [
         "Review out-of-scope split before claiming all official ammo or non-BattleMech support"
@@ -910,7 +910,7 @@
         "scripts/__tests__/nonbattlemech-scope-matrix-qc.test.ts"
       ],
       "commands": [
-        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=149 --expect-level=out-of-scope:149 --expect-scope=aggregate:3 --expect-scope=leaf:146 --expect-section=actions:30 --expect-section=damageAndDeath:6 --expect-section=eventStream:16 --expect-section=featureSupport:75 --expect-section=lifecycleAndPsr:2 --expect-section=pilotSkills:9 --expect-section=ruleSupport:6 --expect-section=validationScope:5",
+        "npm.cmd run validate:combat:gaps -- --level=out-of-scope --format=summary --expect-total=151 --expect-level=out-of-scope:151 --expect-scope=aggregate:3 --expect-scope=leaf:148 --expect-section=actions:30 --expect-section=damageAndDeath:6 --expect-section=eventStream:16 --expect-section=featureSupport:75 --expect-section=lifecycleAndPsr:4 --expect-section=pilotSkills:9 --expect-section=ruleSupport:6 --expect-section=validationScope:5",
         "npm.cmd run validate:combat",
         "npm.cmd run qc:wave4:validate",
         "npm.cmd run qc:nonbattlemech:scope:validate"
@@ -1518,7 +1518,7 @@
       "commands": [
         "node scripts/qc/generate-v220-steps.mjs --check",
         "npm.cmd run qc:openspec-ci:validate",
-        "npx.cmd openspec validate --all --strict",
+        "npm.cmd run openspec:validate",
         "npm.cmd run lint",
         "npm.cmd run typecheck -- --pretty false",
         "npm.cmd run format:check"

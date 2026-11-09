@@ -64,6 +64,7 @@ export function RecordSheetPreview({
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const equipment = useUnitStore((s) => s.equipment);
   const bvContext = useUnitStore((s) => s.bvContext);
+  const crewSeats = useUnitStore((s) => s.crewSeats);
 
   const previewState = useMemo<PreviewUnitState>(
     () => ({
@@ -89,6 +90,7 @@ export function RecordSheetPreview({
       jumpMP,
       equipment,
       bvContext,
+      crewSeats,
     }),
     [
       name,
@@ -113,6 +115,7 @@ export function RecordSheetPreview({
       jumpMP,
       equipment,
       bvContext,
+      crewSeats,
     ],
   );
 

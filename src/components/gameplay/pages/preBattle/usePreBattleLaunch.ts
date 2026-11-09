@@ -226,6 +226,8 @@ export function usePreBattleLaunch({
             gameUnits,
             linkage,
           );
+          // A route fallback can reload the page and discard the result in memory.
+          await persistInteractiveLaunchRecoveryLog(session);
           await linkEncounterSession(session, { restart: true });
           await completeEncounterSession(session);
           const outcomePublished = publishAutoResolvedCampaignOutcome(

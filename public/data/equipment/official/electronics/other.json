@@ -50,7 +50,22 @@
         "Uses small laser ranges"
       ],
       "extinctionYear": 2835,
-      "reintroductionYear": 3044
+      "reintroductionYear": 3044,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-tag",
@@ -67,6 +82,22 @@
       "special": [
         "Designates targets for homing missiles",
         "Uses small laser ranges"
+      ],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
       ]
     },
     {
@@ -80,7 +111,23 @@
       "costCBills": 40000,
       "battleValue": 0,
       "introductionYear": 3054,
-      "special": ["Designates targets", "Shorter range than standard TAG"]
+      "special": ["Designates targets", "Shorter range than standard TAG"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "clan-light-tag",
@@ -94,7 +141,23 @@
       "costCBills": 40000,
       "battleValue": 0,
       "introductionYear": 3046,
-      "special": ["Designates targets", "Shorter range than standard TAG"]
+      "special": ["Designates targets", "Shorter range than standard TAG"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ]
     },
     {
       "id": "communications-equipment",

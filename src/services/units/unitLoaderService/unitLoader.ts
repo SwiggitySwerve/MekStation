@@ -15,7 +15,10 @@ import type { UnitFamily } from '@/types/unit/UnitIndex';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { createDefaultInfantryState } from '@/stores/infantryState';
-import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
+import {
+  createEditorLibrarySaveReceipt,
+  type UnitSaveEditor,
+} from '@/stores/unitSaveStateAdapters';
 import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
 
 import type { IUnitDefinitionReference } from './definitionTypes';
@@ -52,6 +55,7 @@ function unitLoadErrorMessage(error: unknown, fallback: string): string {
 function mapFamilyState(
   store: FamilyEditorState['store'],
   definition: IUnitContract,
+  reference: IUnitDefinitionReference,
 ): FamilyEditorState {
   if (store === 'infantry') {
     const config = mapInfantryDefinition(definition);
@@ -65,7 +69,10 @@ function mapFamilyState(
   if (store === 'battlearmor')
     return { store, state: mapBattleArmorDefinitionToState(definition) };
   if (store === 'capital') {
-    return { store, state: mapCapitalDefinitionToView(definition, uuidv4()) };
+    return {
+      store,
+      state: mapCapitalDefinitionToView(definition, uuidv4(), reference),
+    };
   }
   if (store === 'vehicle') {
     return { store, state: mapToVehicleState(definition) };
@@ -84,26 +91,29 @@ function mapFamilyState(
   };
 }
 
-function withLoadedLibrarySave(
-  state: UnitState,
+/** Attach confirmed metadata after mapping; admission and loading remain unchanged. */
+function withLoadedLibrarySave<TEditor extends UnitSaveEditor>(
+  editor: TEditor,
   source: UnitSource,
   reference: IUnitDefinitionReference,
-): UnitState {
-  if (source !== 'custom') return state;
+): TEditor {
   const version = reference.version;
   if (
+    source !== 'custom' ||
     typeof version !== 'number' ||
     !Number.isSafeInteger(version) ||
     version < 1
-  ) {
-    return state;
-  }
+  )
+    return editor;
   return {
-    ...state,
-    librarySave: createLibrarySaveReceipt(state, {
-      id: reference.id,
-      version,
-    }),
+    ...editor,
+    state: {
+      ...editor.state,
+      librarySave: createEditorLibrarySaveReceipt(editor, {
+        id: reference.id,
+        version,
+      }),
+    },
   };
 }
 
@@ -165,9 +175,17 @@ export class UnitLoaderService {
         await this.ensureEquipmentInitialized();
       }
       if (store !== 'battlemech') {
+        const editor = mapFamilyState(
+          store,
+          loaded.definition,
+          loaded.reference,
+        );
         return {
           success: true,
-          familyState: mapFamilyState(store, loaded.definition),
+          familyState:
+            editor.store === 'capital'
+              ? editor
+              : withLoadedLibrarySave(editor, source, loaded.reference),
           sourceDefinition: loaded.reference,
         };
       }
@@ -178,7 +196,11 @@ export class UnitLoaderService {
       );
       return {
         success: true,
-        state: withLoadedLibrarySave(state, source, loaded.reference),
+        state: withLoadedLibrarySave(
+          { store: 'battlemech', state },
+          source,
+          loaded.reference,
+        ).state,
         sourceDefinition: loaded.reference,
       };
     } catch (error) {

@@ -1,193 +1,178 @@
-/**
- * Unit tests for autoAllocateArmorLogic.
- *
- * Asserts the auto-allocate distribution matches TechManual pp.86–87:
- *   40% Front, 20% each Side, 10% Rear, remainder Turret (10%)
- *
- * @spec openspec/changes/add-per-type-armor-diagrams/specs/armor-diagram/spec.md
- *       Scenario: Auto-allocate distributes per TechManual
- */
-
-import {
-  VehicleLocation,
-  VTOLLocation,
-} from '@/types/construction/UnitLocation';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { SuperHeavyVehicleLocation } from '@/types/construction/UnitLocation';
+import { TechBase } from '@/types/enums/TechBase';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
-import type { VehicleStore } from '../vehicleState';
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
+import { createVehicleStore } from '../useVehicleStore';
+import { createDefaultVehicleState, type VehicleState } from '../vehicleState';
 
-import { autoAllocateArmorLogic } from '../useVehicleStore.actions';
-
-function makeState(overrides: Partial<VehicleStore> = {}): VehicleStore {
-  return {
-    motionType: GroundMotionType.TRACKED,
+function makeStore(overrides: Partial<VehicleState> = {}) {
+  return createVehicleStore({
+    ...createDefaultVehicleState({
+      name: 'Pinned armor',
+      tonnage: 50,
+      techBase: TechBase.INNER_SPHERE,
+    }),
+    armorType: ArmorTypeEnum.STANDARD,
     armorTonnage: 5,
-    turret: null,
-    armorAllocation: {},
     ...overrides,
-  } as unknown as VehicleStore;
+  });
 }
+const turret = { type: TurretType.SINGLE, rotationArc: 360 };
+const total = (allocation: Record<string, number>) =>
+  Object.values(allocation).reduce((sum, points) => sum + points, 0);
+const allocate = (overrides: Partial<VehicleState> = {}) => {
+  const store = makeStore(overrides);
+  store.getState().autoAllocateArmor();
+  return store.getState().armorAllocation;
+};
 
-describe('autoAllocateArmorLogic — TechManual pp.86-87 distribution', () => {
-  it('distributes 40/20/20/10 for a tracked vehicle WITHOUT turret', () => {
-    // 5t × 16 pts/ton = 80 points total, no turret
-    const result = autoAllocateArmorLogic(makeState({ armorTonnage: 5 }));
-    const alloc = result.armorAllocation as Record<string, number>;
-
-    // Without turret, normalizer = 0.40 + 0.20 + 0.20 + 0.10 = 0.90
-    // Effective: front=80*0.40/0.90 ≈ 35.55 floored to 35
-    //            side= 80*0.20/0.90 ≈ 17.77 floored to 17 each
-    //            rear= 80*0.10/0.90 ≈  8.88 floored to 8
-    expect(alloc[VehicleLocation.FRONT]).toBe(35);
-    expect(alloc[VehicleLocation.LEFT]).toBe(17);
-    expect(alloc[VehicleLocation.RIGHT]).toBe(17);
-    expect(alloc[VehicleLocation.REAR]).toBe(8);
-    expect(alloc[VehicleLocation.TURRET]).toBe(0);
-
-    // Ratios honour the TM spec: Front ≈ 2× Side, Side = 2× Rear
-    expect(alloc[VehicleLocation.FRONT]).toBeGreaterThan(
-      alloc[VehicleLocation.LEFT] * 2 - 1,
-    );
-    expect(alloc[VehicleLocation.LEFT]).toBeGreaterThan(
-      alloc[VehicleLocation.REAR] * 2 - 1,
-    );
-  });
-
-  it('distributes 40/20/20/10/10 for a tracked vehicle WITH turret', () => {
-    const state = makeState({
-      armorTonnage: 5,
-      turret: {
-        type: TurretType.SINGLE,
-        weight: 0.5,
-        rotationArc: 360,
-      } as unknown as VehicleStore['turret'],
+describe('real vehicle store follows MML CVStructureTab:877 and SVArmorTab:286', () => {
+  it('distributes eighty points over four locations, favoring front over rear', () => {
+    expect(allocate()).toMatchObject({
+      Front: 24,
+      Left: 20,
+      Right: 20,
+      Rear: 16,
+      Turret: 0,
+      'Turret 2': 0,
+      Body: 0,
     });
-    const result = autoAllocateArmorLogic(state);
-    const alloc = result.armorAllocation as Record<string, number>;
-
-    // With turret, normalizer = 0.40 + 0.20 + 0.20 + 0.10 + 0.10 = 1.0
-    // Effective: front=80*0.40 = 32, side=80*0.20=16 each, rear=80*0.10=8, turret=80*0.10=8
-    expect(alloc[VehicleLocation.FRONT]).toBe(32);
-    expect(alloc[VehicleLocation.LEFT]).toBe(16);
-    expect(alloc[VehicleLocation.RIGHT]).toBe(16);
-    expect(alloc[VehicleLocation.REAR]).toBe(8);
-    expect(alloc[VehicleLocation.TURRET]).toBe(8);
-
-    // Sum ≤ totalPoints (80) — flooring may shave 1-2 points
-    const sum = Object.values(alloc).reduce((a, b) => a + (b ?? 0), 0);
-    expect(sum).toBeLessThanOrEqual(80);
-    expect(sum).toBeGreaterThanOrEqual(78);
   });
 
-  it('adds Rotor location for a VTOL', () => {
-    const result = autoAllocateArmorLogic(
-      makeState({
-        armorTonnage: 5,
+  it('gives the turret the same share as a side and puts rounding remainder on front', () => {
+    const armor = allocate({ turret });
+    expect(armor).toMatchObject({
+      Front: 20,
+      Left: 16,
+      Right: 16,
+      Rear: 12,
+      Turret: 16,
+    });
+    expect(total(armor)).toBe(80);
+  });
+
+  it('counts both turrets in the same budget instead of preserving old secondary armor', () => {
+    const armor = allocate({
+      turret,
+      secondaryTurret: turret,
+      armorAllocation: {
+        ...makeStore().getState().armorAllocation,
+        'Turret 2': 99,
+      },
+    });
+    expect(armor).toMatchObject({
+      Front: 18,
+      Left: 13,
+      Right: 13,
+      Rear: 10,
+      Turret: 13,
+      'Turret 2': 13,
+    });
+    expect(total(armor)).toBe(80);
+  });
+
+  it('clears armor on an absent secondary turret', () => {
+    const armor = allocate({
+      armorAllocation: {
+        ...makeStore().getState().armorAllocation,
+        'Turret 2': 99,
+      },
+    });
+    expect(armor['Turret 2']).toBe(0);
+    expect(total(armor)).toBe(80);
+  });
+
+  it('uses armor type points per ton rather than hardcoded standard armor', () => {
+    const armor = allocate({ armorType: ArmorTypeEnum.FERRO_FIBROUS_IS });
+    expect(total(armor)).toBe(89);
+    expect(armor).toMatchObject({ Front: 28, Left: 22, Right: 22, Rear: 17 });
+  });
+
+  it('caps allocation at the combat vehicle total', () => {
+    expect(total(allocate({ armorTonnage: 40 }))).toBe(215);
+  });
+
+  it('reserves exactly two rotor points before distributing the remaining VTOL budget', () => {
+    const armor = allocate({
+      tonnage: 30,
+      unitType: UnitType.VTOL,
+      motionType: GroundMotionType.VTOL,
+      armorTonnage: 40,
+    });
+    expect(armor).toMatchObject({
+      Front: 45,
+      Left: 35,
+      Right: 35,
+      Rear: 28,
+      Rotor: 2,
+    });
+    expect(total(armor)).toBe(145);
+  });
+
+  it.each([0, 1])(
+    'never creates negative hull armor with only %s point for a rotor',
+    (points) => {
+      const armor = allocate({
         motionType: GroundMotionType.VTOL,
-      }),
-    );
-    const alloc = result.armorAllocation as Record<string, number>;
-    expect(alloc[VTOLLocation.ROTOR]).toBeGreaterThan(0);
-    expect(alloc[VehicleLocation.FRONT]).toBeGreaterThan(0);
+        unitType: UnitType.VTOL,
+        armorTonnage: points / 16,
+      });
+      expect(armor.Rotor).toBe(points);
+      expect(total(armor)).toBe(points);
+      expect(
+        Object.values(armor).every(
+          (value) => Number.isInteger(value) && value >= 0,
+        ),
+      ).toBe(true);
+    },
+  );
+
+  it('uses BAR points and the support class total', () => {
+    const armor = allocate({
+      unitType: UnitType.SUPPORT_VEHICLE,
+      usesBarArmor: true,
+      barRating: 10,
+      armorTechRating: 5,
+      armorTonnage: 1,
+    });
+    expect(armor).toMatchObject({
+      Front: 8,
+      Left: 4,
+      Right: 4,
+      Rear: 3,
+      Body: 0,
+    });
+    expect(total(armor)).toBe(19);
+    expect(
+      total(allocate({ unitType: UnitType.SUPPORT_VEHICLE, armorTonnage: 40 })),
+    ).toBe(104);
   });
 
-  it('returns zero allocation when armorTonnage is 0', () => {
-    const result = autoAllocateArmorLogic(makeState({ armorTonnage: 0 }));
-    const alloc = result.armorAllocation as Record<string, number>;
-    expect(alloc[VehicleLocation.FRONT]).toBe(0);
-    expect(alloc[VehicleLocation.LEFT]).toBe(0);
-    expect(alloc[VehicleLocation.RIGHT]).toBe(0);
-    expect(alloc[VehicleLocation.REAR]).toBe(0);
-  });
-
-  /**
-   * Phase A 1.3 of tier5-audit-cleanup: explicit 40/20/20/10/10 ratio
-   * assertions on the canonical 100-point reference distribution.
-   *
-   * Input is `armorTonnage` (in tons), converted to points via
-   * `floor(tons * 16)`. armorTonnage = 6.25 produces exactly 100 points,
-   * which makes the 40/20/20/10/10 ratio land on whole-number expected
-   * values.
-   *
-   * @spec openspec/changes/tier5-audit-cleanup/specs/armor-diagram/spec.md
-   *   Requirement: Vehicle Auto-Allocate Canonical Distribution Ratio
-   */
-  describe('100-point reference distribution (TechManual pp.86-87)', () => {
-    it('turreted vehicle distributes EXACTLY 40/20/20/10/10', () => {
-      const result = autoAllocateArmorLogic(
-        makeState({
-          armorTonnage: 6.25, // 6.25 * 16 = 100 points exactly
-          turret: {
-            type: TurretType.SINGLE,
-            weight: 0.5,
-            rotationArc: 360,
-          } as unknown as VehicleStore['turret'],
-        }),
-      );
-      const alloc = result.armorAllocation as Record<string, number>;
-
-      // With turret, normalizer = 0.40 + 0.20 + 0.20 + 0.10 + 0.10 = 1.00
-      // Each location receives totalPoints * percent (no normalization needed).
-      expect(alloc[VehicleLocation.FRONT]).toBe(40);
-      expect(alloc[VehicleLocation.LEFT]).toBe(20);
-      expect(alloc[VehicleLocation.RIGHT]).toBe(20);
-      expect(alloc[VehicleLocation.REAR]).toBe(10);
-      expect(alloc[VehicleLocation.TURRET]).toBe(10);
-
-      // Sum is 100 exactly when the ratio normalizer is 1.0.
-      const sum = Object.values(alloc).reduce((a, b) => a + (b ?? 0), 0);
-      expect(sum).toBe(100);
-    });
-
-    it('turretless vehicle redistributes turret share via 0.90 normalizer', () => {
-      const result = autoAllocateArmorLogic(
-        makeState({ armorTonnage: 6.25, turret: null }),
-      );
-      const alloc = result.armorAllocation as Record<string, number>;
-
-      // No turret: normalizer = 0.40 + 0.20 + 0.20 + 0.10 = 0.90.
-      // Front: floor(100 * 0.40 / 0.90) = floor(44.44) = 44.
-      // Side:  floor(100 * 0.20 / 0.90) = floor(22.22) = 22 each.
-      // Rear:  floor(100 * 0.10 / 0.90) = floor(11.11) = 11.
-      expect(alloc[VehicleLocation.FRONT]).toBe(44);
-      expect(alloc[VehicleLocation.LEFT]).toBe(22);
-      expect(alloc[VehicleLocation.RIGHT]).toBe(22);
-      expect(alloc[VehicleLocation.REAR]).toBe(11);
-      expect(alloc[VehicleLocation.TURRET]).toBe(0);
-
-      // Sum is 99 (one point lost to flooring; expected within 1-2 of total).
-      const sum = Object.values(alloc).reduce((a, b) => a + (b ?? 0), 0);
-      expect(sum).toBeGreaterThanOrEqual(98);
-      expect(sum).toBeLessThanOrEqual(100);
-    });
-
-    it('VTOL adds rotor location with 2% structural share', () => {
-      const result = autoAllocateArmorLogic(
-        makeState({
-          armorTonnage: 6.25,
-          motionType: GroundMotionType.VTOL,
-          turret: null,
-        }),
-      );
-      const alloc = result.armorAllocation as Record<string, number>;
-
-      // VTOL no-turret: normalizer = 0.40 + 0.20 + 0.20 + 0.10 + 0.02 = 0.92.
-      // Front: floor(100 * 0.40 / 0.92) = floor(43.47) = 43.
-      // Side:  floor(100 * 0.20 / 0.92) = floor(21.73) = 21 each.
-      // Rear:  floor(100 * 0.10 / 0.92) = floor(10.86) = 10.
-      // Rotor: floor(100 * 0.02 / 0.92) = floor(2.17)  =  2.
-      expect(alloc[VehicleLocation.FRONT]).toBe(43);
-      expect(alloc[VehicleLocation.LEFT]).toBe(21);
-      expect(alloc[VehicleLocation.RIGHT]).toBe(21);
-      expect(alloc[VehicleLocation.REAR]).toBe(10);
-      expect(alloc[VTOLLocation.ROTOR]).toBe(2);
-
-      // Rotor share (2%) is intentionally smaller than a turret share (10%) —
-      // rotors are structural components, not weapon mounts.
-      expect(alloc[VTOLLocation.ROTOR]).toBeLessThan(
-        alloc[VehicleLocation.REAR],
-      );
-    });
-  });
+  it.each([UnitType.VEHICLE, UnitType.SUPPORT_VEHICLE] as const)(
+    'allocates all six hull faces for %s',
+    (unitType) => {
+      const armor = allocate({
+        unitType,
+        tonnage: 150,
+        motionType: GroundMotionType.WHEELED,
+        isSuperheavy: true,
+      });
+      expect(armor.Front).toBe(18);
+      expect(armor.Rear).toBe(10);
+      for (const location of [
+        SuperHeavyVehicleLocation.FRONT_LEFT,
+        SuperHeavyVehicleLocation.FRONT_RIGHT,
+        SuperHeavyVehicleLocation.REAR_LEFT,
+        SuperHeavyVehicleLocation.REAR_RIGHT,
+      ])
+        expect(armor[location]).toBe(13);
+      expect(total(armor)).toBe(80);
+      expect(armor.Left).toBe(0);
+      expect(armor.Right).toBe(0);
+    },
+  );
 });

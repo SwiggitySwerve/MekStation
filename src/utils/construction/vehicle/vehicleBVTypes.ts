@@ -1,5 +1,7 @@
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
+import type { AmmoBVPools } from '../battleValueOffensiveTypes';
+
 // =============================================================================
 // Public Types
 // =============================================================================
@@ -181,6 +183,8 @@ export interface IVehicleBVBreakdown {
   speedFactor: number;
   /** Optional calculated mount facts; local identities do not claim Java indices. */
   weaponMountBV?: readonly IVehicleBVWeaponMount[];
+  /** Uncapped native pools from the shared ammo owner, before FCS and speed. */
+  ammoPools?: Readonly<AmmoBVPools>;
 }
 
 // =============================================================================
@@ -211,6 +215,7 @@ export interface VehicleOffensiveBVBreakdown {
   turretModifier: number;
   total: number;
   weaponMountBV?: readonly IVehicleBVWeaponMount[];
+  ammoPools?: Readonly<AmmoBVPools>;
 }
 
 /** Adjusted result from the existing offensive weapon owner, before speed. */

@@ -74,6 +74,13 @@ The entity model SHALL preserve the loaded construction family, subtype, technol
 - **WHEN** the domain entity is constructed
 - **THEN** equipment identity, multiplicity, qualifiers and relationships SHALL match the upstream-loaded entity
 
+#### Scenario: Source mount ownership moves without changing loaded designs
+
+- **GIVEN** existing source equipment with recovered physical mounts, aliases and shared critical entries
+- **WHEN** mount grouping and physical formula facts move to their owning modules
+- **THEN** loaded equipment values, order, positions and qualifiers SHALL remain unchanged
+- **AND** existing admission guards and spread-mount anchoring SHALL remain unchanged until a separately verified behavior change
+
 #### Scenario: Invalid design remains inspectable
 
 - **GIVEN** an upstream-loadable design that fails construction validation
@@ -287,3 +294,64 @@ This correction SHALL NOT regenerate shipped unit catalogs.
 
 Authority: MegaMek `48fcb2f64` `MtfFile.java:828-902`, `Mek.java:5205-5207`
 and `TechConstants.java:104-106`; MegaMekLab `62bf193` `UnitUtil.java:2001-2002`.
+
+### Requirement: FrankenMek donor structure metadata
+
+Both MTF importers SHALL preserve explicit per-location structure types in the
+optional `structure.typeByLocation` map alongside existing donor tonnages.
+Canonical structure identities and location names SHALL share schema definitions.
+An absent map SHALL preserve legacy global-structure behavior; old documents
+SHALL remain readable without adding inferred donor types.
+
+#### Scenario: Typed donors cross the import boundary
+
+- **GIVEN** a FrankenMek with IS and Clan donor structures
+- **WHEN** either importer reads the native MTF
+- **THEN** the donor types and tonnages SHALL survive schema validation
+- **AND** unprefixed types SHALL use the chassis tech base while explicit qualifiers retain their identity
+- **AND** an unknown explicit native type SHALL fail with its location and spelling
+
+#### Scenario: Missing donor declarations and old documents
+
+- **GIVEN** missing or scalar Hybrid donor declarations
+- **WHEN** imported
+- **THEN** their omitted type entries SHALL retain native Standard defaults
+- **AND** existing tonnage payloads SHALL remain unchanged
+- **GIVEN** an old document without `typeByLocation`
+- **WHEN** validated
+- **THEN** the map SHALL remain absent and its existing structure data SHALL remain unchanged
+
+### Requirement: FrankenMek donor metadata persistence
+
+The BattleMech editor SHALL preserve explicit structure donor types and tonnages
+through loading, draft persistence, custom-library serialization, reopening,
+duplication and undo/redo. Each boundary SHALL own copies of both donor maps.
+Missing donor maps SHALL remain absent; an explicit empty map SHALL remain
+present. Retaining these facts SHALL NOT change construction mass, BV or
+construction validity before the section-weighted mass rule is enabled.
+
+#### Scenario: Save and reopen donor structure facts
+
+- **GIVEN** an imported FrankenMek with explicit donor types and tonnages
+- **WHEN** its editor saves to the custom library and a cold session reopens it
+- **THEN** both donor maps SHALL retain their values and presence
+- **AND** the calculation configuration SHALL survive the round trip
+- **AND** modifying an input, duplicate or serialized map SHALL NOT mutate the source editor
+
+#### Scenario: Replace global material and undo donor edits
+
+- **GIVEN** an editor retaining explicit donor facts
+- **WHEN** its global structure material is explicitly replaced
+- **THEN** donor overrides SHALL be cleared
+- **AND** undo SHALL restore them and redo SHALL clear them again
+- **GIVEN** an edit that adds donor metadata to a legacy editor
+- **WHEN** undone
+- **THEN** metadata SHALL return to absence and the clean draft state SHALL be restored
+- **AND** edits to either donor map SHALL participate in draft and library fingerprints
+
+#### Scenario: Old and empty donor documents remain distinct
+
+- **GIVEN** a global-only, tonnage-only or explicitly empty donor-type map
+- **WHEN** loaded, saved and reopened
+- **THEN** the type map SHALL NOT be inferred or removed
+- **AND** existing global mass arithmetic SHALL remain unchanged

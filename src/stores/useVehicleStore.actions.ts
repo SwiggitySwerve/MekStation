@@ -10,7 +10,12 @@ import {
   TurretType,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
-import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
+import {
+  clampLocationArmor,
+  getInstalledArmorAllocation,
+} from '@/utils/construction/vehicle/armor';
+import { getVehicleArmorProfile } from '@/utils/construction/vehicle/armorLimits';
+import { autoAllocateVehicleArmor } from '@/utils/construction/vehicle/editorArmor';
 import {
   computeStoredVehicleEngineRating,
   computeCruiseMPFromRating,
@@ -172,10 +177,18 @@ export function setLocationArmorLogic(
   location: string,
   points: number,
 ): Partial<VehicleStore> {
+  const profile = getVehicleArmorProfile(state);
   return {
     armorAllocation: {
       ...state.armorAllocation,
-      [location]: Math.max(0, points),
+      [location]: clampLocationArmor(
+        state.tonnage,
+        location,
+        points,
+        profile.hasTurret,
+        profile.isVTOL,
+        profile,
+      ),
     },
     isModified: true,
     lastModifiedAt: Date.now(),
@@ -288,46 +301,12 @@ export function setSecondaryTurretTypeLogic(
 export function autoAllocateArmorLogic(
   state: VehicleStore,
 ): Partial<VehicleStore> {
-  const pointsPerTon = 16;
-  const totalPoints = Math.floor(state.armorTonnage * pointsPerTon);
-  const hasTurret = state.turret !== null;
-  const isVTOL = state.motionType === GroundMotionType.VTOL;
-
-  const frontPercent = 0.4;
-  const sidePercent = 0.2;
-  const rearPercent = 0.1;
-  const turretPercent = hasTurret ? 0.1 : 0;
-  const rotorPercent = isVTOL ? 0.02 : 0;
-
-  const normalizer =
-    frontPercent + sidePercent * 2 + rearPercent + turretPercent + rotorPercent;
-
+  const profile = getVehicleArmorProfile(state);
   const newAllocation = {
-    [VehicleLocation.FRONT]: Math.floor(
-      (totalPoints * frontPercent) / normalizer,
-    ),
-    [VehicleLocation.LEFT]: Math.floor(
-      (totalPoints * sidePercent) / normalizer,
-    ),
-    [VehicleLocation.RIGHT]: Math.floor(
-      (totalPoints * sidePercent) / normalizer,
-    ),
-    [VehicleLocation.REAR]: Math.floor(
-      (totalPoints * rearPercent) / normalizer,
-    ),
-    [VehicleLocation.TURRET]: hasTurret
-      ? Math.floor((totalPoints * turretPercent) / normalizer)
-      : 0,
-    // Auto-allocate does not distribute to TURRET_2 today — secondary turret
-    // armor is set explicitly by the user. Preserve existing allocation if any.
-    [VehicleLocation.TURRET_2]:
-      state.armorAllocation[VehicleLocation.TURRET_2] || 0,
-    [VehicleLocation.BODY]: 0,
-    ...(isVTOL && {
-      [VTOLLocation.ROTOR]: Math.floor(
-        (totalPoints * rotorPercent) / normalizer,
-      ),
-    }),
+    ...(profile.isVTOL
+      ? createEmptyVTOLArmorAllocation()
+      : createEmptyVehicleArmorAllocation()),
+    ...autoAllocateVehicleArmor({ ...state, profile }),
   };
 
   return {

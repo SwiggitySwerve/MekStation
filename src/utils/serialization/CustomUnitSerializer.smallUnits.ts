@@ -2,10 +2,11 @@ import type { BattleArmorState } from '@/stores/battleArmorState';
 import type { InfantryState } from '@/stores/infantryState';
 import type { ProtoMechState } from '@/stores/protoMechState';
 
+import { projectBattleArmorDefinition } from '@/services/units/unitLoaderService/battleArmorDefinitionProjection';
+import { projectInfantryDefinition } from '@/services/units/unitLoaderService/infantryDefinitionProjection';
 import {
   mapProtoMechDefinitionToState,
   mapBattleArmorDefinitionToState,
-  PROTO_ARMOR_CODES,
 } from '@/services/units/unitLoaderService/smallUnitDefinitionMapper';
 import {
   BattleArmorLocation,
@@ -16,19 +17,15 @@ import { CURRENT_UNIT_SCHEMA_VERSION } from '@/types/contracts/generated/unit.zo
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { BattleArmorWeightClass } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   battleArmorEditorSchema,
   protoMechEditorSchema,
   infantryEditorSchema,
 } from '@/types/unit/SmallUnitSerialization';
-import { battleArmorContractArmorType } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
-import {
-  squadMotionTypeForMotive,
-  totalTroopers,
-} from '@/utils/construction/infantry/platoonComposition';
+import { squadMotionTypeForMotive } from '@/utils/construction/infantry/platoonComposition';
+import { protoArmorContractType } from '@/utils/construction/protomech/armorType';
 
 import type { CustomUnitSaveIdentity } from './CustomUnitSerializer';
 
@@ -79,28 +76,10 @@ export function serializeCustomSmallUnitState(
     techBase: value.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
     rulesLevel: RULES_LEVEL[value.rulesLevel],
     ...(value.unitType === UnitType.INFANTRY
-      ? {
-          platoon: {
-            squadSize: value.squadSize,
-            squadCount: value.numberOfSquads,
-            totalTroopers: totalTroopers(value.platoonComposition),
-          },
-          motionType: value.motionType.toUpperCase(),
+      ? projectInfantryDefinition({
+          ...value,
           motiveType: squadMotionTypeForMotive(value.infantryMotive),
-          primaryWeapon: {
-            id: value.primaryWeaponId ?? value.primaryWeapon,
-            name: value.primaryWeapon,
-          },
-          secondaryWeapon: value.secondaryWeapon
-            ? {
-                id: value.secondaryWeaponId ?? value.secondaryWeapon,
-                name: value.secondaryWeapon,
-                count: value.secondaryWeaponCount,
-              }
-            : undefined,
-          armorKit: value.armorKit,
-          damageDivisor: value.damageDivisor,
-        }
+        })
       : value.unitType === UnitType.PROTOMECH
         ? {
             tonnage: value.tonnage,
@@ -114,11 +93,7 @@ export function serializeCustomSmallUnitState(
             },
             movement: { cruiseMP: value.cruiseMP, jumpMP: value.jumpMP },
             armor: {
-              type: Object.entries(PROTO_ARMOR_CODES).find(
-                ([, code]) =>
-                  code ===
-                  (value.armorType || PROTO_ARMOR_CODES.STANDARD_PROTOMEK),
-              )?.[0],
+              type: protoArmorContractType(value.armorType),
               byLocation: Object.fromEntries(
                 Object.entries(value.armorByLocation).map(([key, points]) => [
                   location(key),
@@ -134,33 +109,8 @@ export function serializeCustomSmallUnitState(
                 .map((mount) => ({ id: mount.equipmentId, name: mount.name })),
             },
           }
-        : {
-            tonnage: value.squadSize,
-            squadSize: value.squadSize,
-            weightClass:
-              value.weightClass === BattleArmorWeightClass.PA_L
-                ? 'PAL'
-                : value.weightClass.toUpperCase(),
-            chassisType: value.chassisType.toUpperCase(),
-            motionType: value.motionType.toUpperCase(),
-            movement: {
-              groundMP: value.groundMP,
-              jumpMP: value.jumpMP,
-              umuMP: value.umuMP,
-            },
-            armor: {
-              type: battleArmorContractArmorType(value.armorType),
-              perTrooper: value.armorPerTrooper,
-            },
-            armorPerTrooper: value.armorPerTrooper,
-            manipulators: {
-              leftArm: value.leftManipulator,
-              rightArm: value.rightManipulator,
-            },
-            hasAntiPersonnelMount: value.hasAPMount,
-            hasModularWeaponMount: value.hasModularMount,
-          }),
-    ...(value.unitType !== UnitType.INFANTRY
+        : projectBattleArmorDefinition(value)),
+    ...(value.unitType === UnitType.PROTOMECH
       ? {
           equipment: value.equipment.map((mount) => ({
             id: mount.equipmentId,

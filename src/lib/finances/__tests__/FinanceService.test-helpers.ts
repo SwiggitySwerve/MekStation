@@ -748,24 +748,6 @@ describe('processContractPayment', () => {
     expect(result.transactions[0].amount.amount).toBe(575000);
   });
 
-  it('should process payment for cancelled status', () => {
-    const contract = createTestContract({ status: MissionStatus.CANCELLED });
-    const campaign = createTestCampaign();
-
-    const result = processContractPayment(campaign, contract);
-
-    expect(result.transactions).toHaveLength(1);
-  });
-
-  it('should process payment for aborted status', () => {
-    const contract = createTestContract({ status: MissionStatus.ABORTED });
-    const campaign = createTestCampaign();
-
-    const result = processContractPayment(campaign, contract);
-
-    expect(result.transactions).toHaveLength(1);
-  });
-
   it('should not record transaction when payout is zero', () => {
     const contract = createTestContract({
       status: MissionStatus.FAILED,

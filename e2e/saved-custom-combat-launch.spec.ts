@@ -278,6 +278,10 @@ test('server-saved custom unit launches through production combat to a durable p
       );
       expect(rosterId).toBeTruthy();
       expect(rosterId).not.toBe(customId);
+      await page.getByTestId('add-pilot-btn').click();
+      const pilotAssignment = selected.locator('select');
+      await pilotAssignment.selectOption({ index: 1 });
+      await expect(pilotAssignment).not.toHaveValue('');
       await page.getByTestId('wizard-next-btn').click();
       const savedResponse = page.waitForResponse(
         (response) =>
@@ -295,6 +299,7 @@ test('server-saved custom unit launches through production combat to a durable p
         unitId: rosterId,
         unitRef: customId,
         unitSource: 'custom',
+        pilotId: expect.any(String),
       });
 
       await page.goto(`/gameplay/campaigns/${campaignId}/mech-bay`);

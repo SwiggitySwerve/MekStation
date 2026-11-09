@@ -86,62 +86,6 @@ The system SHALL track structural integrity for aerospace fighters. Fighter SI S
 **AND** exporting an aerospace or conventional fighter SHALL NOT write a structural_integrity tag
 **AND** exporting a small craft SHALL write its structural_integrity tag
 
-## ADDED Requirements
-
-### Requirement: Aerospace definition to editor state
-
-The system SHALL map a validated aerospace definition from `loadUnitDefinition('aerospace', id)` to the existing `AerospaceState` for aerospace fighters, conventional fighters, FixedWingSupport and small craft.
-
-#### Scenario: Fighter definition opens in the aerospace store
-
-**GIVEN** a converted fighter definition
-**WHEN** it is mapped
-**THEN** the state SHALL carry its identity, tonnage, engine, safe and maximum thrust, fuel points, heat sinks, arc armor and armor type, bomb fields and equipment by arc
-**AND** its structural integrity SHALL come from the shared SI rule, so it equals the pinned MegaMek value
-**AND** a FixedWingSupport definition SHALL be marked as FixedWingSupport so later SI derivations use safe thrust
-
-#### Scenario: Small craft definition opens in the aerospace store
-
-**GIVEN** a converted small craft definition, spheroid or aerodyne
-**WHEN** it is mapped
-**THEN** the state SHALL have unit type and sub-type Small Craft and carry its motion type, crew and passengers, transport bays other than quarters, fuel points, heat sinks and arc armor
-**AND** its Left Side and Right Side armor and equipment SHALL map to the shared side arcs
-**AND** a rear-mounted side weapon SHALL be marked rear-mounted, placing it in the aft-side arc, as `SmallCraft.java` does
-**AND** its structural integrity SHALL be the explicit value from the definition, kept through tonnage and thrust edits (`BLKSmallCraftFile.java:125-128`)
-
-#### Scenario: Unknown arcs are rejected
-
-**GIVEN** a definition whose equipment names an arc outside Nose, Left Wing, Right Wing, Aft and Fuselage, or for a small craft also Left Side and Right Side
-**WHEN** it is mapped
-**THEN** mapping SHALL fail with an unsupported-configuration error rather than guess an arc
-
-### Requirement: Aerospace max thrust ownership
-
-The aerospace construction owner (`calculateMaxThrust`) SHALL derive max thrust
-from safe thrust for BLK imports of aerospace fighters, conventional fighters,
-small craft, DropShips, JumpShips, WarShips and space stations, for the default
-aerospace state, for safe-thrust and engine-rating store edits and for the
-new-unit template summary. Those consumers SHALL read it and SHALL NOT repeat
-the formula. Status bars, record sheets and the aerospace BV adapter read the
-resulting `maxThrust` and do not derive it. `BlkParserService.extractAerospace`
-keeps its own value, twice the safe thrust (it has no production consumer). This
-requirement covers where max thrust is derived and, with the Engine and Thrust
-Configuration requirement, its upward rounding; it does not establish aerospace
-BV parity.
-
-#### Scenario: Every consumer agrees with the owner
-
-- **GIVEN** safe thrust 1, 2, 3, 5, 6, 7 and 12
-- **WHEN** max thrust is derived or displayed
-- **THEN** the BLK basics, the aerospace-family handlers (fighter, conventional
-  fighter, small craft, DropShip, JumpShip, WarShip and space station), the
-  store actions, the aerospace BV adapter and the template summary SHALL show
-  the owner's result for each safe thrust
-- **AND** the status bar SHALL display the stored max thrust it is given
-- **AND** the default state SHALL show the owner's result for its own safe thrust
-
-## MODIFIED Requirements
-
 ### Requirement: Engine and Thrust Configuration
 
 The system SHALL support engine type selection and thrust-based movement for aerospace fighters.
@@ -235,3 +179,77 @@ The system SHALL parse aerospace fighters from BLK format documents via the `Aer
 **GIVEN** equipment items parsed from BLK
 **WHEN** creating mounted equipment instances
 **THEN** each mount SHALL receive a sequential ID in format `mount-{N}` starting from 0
+
+## ADDED Requirements
+
+### Requirement: Small craft armor limits
+
+Small craft SHALL use the aerospace construction owner's whole-craft armor limits from pinned MegaMek `TestSmallCraft.maxArmorWeight` and `maxArmorPoints`, including motion type, structural integrity, armor density, SI bonus and primitive rounding. Their Nose, Left Side, Right Side and Aft locations SHALL have no independent armor maximum, matching MegaMekLab `UnitUtil.getMaxArmor`.
+
+#### Scenario: Side allocation exceeds the former tonnage fraction
+
+- **GIVEN** a 200-ton, SI 8, IS standard-armor aerodyne small craft
+- **WHEN** its armor is edited
+- **THEN** its maximum armor weight SHALL be 36 tons and its whole-craft maximum SHALL be 608 points
+- **AND** neither Side SHALL be disabled or limited to zero or 40 points
+- **AND** allocations exceeding available total armor SHALL produce diagnostics without rewriting loaded locations
+
+#### Scenario: Native armor identity survives save and reopen
+
+- **GIVEN** small craft with standard, ferro-aluminum, heavy ferro-aluminum or primitive aerospace armor
+- **WHEN** the source loads and the editor saves and reopens it
+- **THEN** the existing contract's armor type and Side values SHALL retain their identity
+- **AND** native armor weight SHALL subtract SI bonus and reverse primitive rounding through the shared construction owner
+- **AND** an absent optional native identity in an older draft SHALL remain absent in its save fingerprint
+
+### Requirement: Aerospace definition to editor state
+
+The system SHALL map a validated aerospace definition from `loadUnitDefinition('aerospace', id)` to the existing `AerospaceState` for aerospace fighters, conventional fighters, FixedWingSupport and small craft.
+
+#### Scenario: Fighter definition opens in the aerospace store
+
+**GIVEN** a converted fighter definition
+**WHEN** it is mapped
+**THEN** the state SHALL carry its identity, tonnage, engine, safe and maximum thrust, fuel points, heat sinks, arc armor and armor type, bomb fields and equipment by arc
+**AND** its structural integrity SHALL come from the shared SI rule, so it equals the pinned MegaMek value
+**AND** a FixedWingSupport definition SHALL be marked as FixedWingSupport so later SI derivations use safe thrust
+
+#### Scenario: Small craft definition opens in the aerospace store
+
+**GIVEN** a converted small craft definition, spheroid or aerodyne
+**WHEN** it is mapped
+**THEN** the state SHALL have unit type and sub-type Small Craft and carry its motion type, crew and passengers, transport bays other than quarters, fuel points, heat sinks and arc armor
+**AND** its Left Side and Right Side armor and equipment SHALL map to the shared side arcs
+**AND** a rear-mounted side weapon SHALL be marked rear-mounted, placing it in the aft-side arc, as `SmallCraft.java` does
+**AND** its structural integrity SHALL be the explicit value from the definition, kept through tonnage and thrust edits (`BLKSmallCraftFile.java:125-128`)
+
+#### Scenario: Unknown arcs are rejected
+
+**GIVEN** a definition whose equipment names an arc outside Nose, Left Wing, Right Wing, Aft and Fuselage, or for a small craft also Left Side and Right Side
+**WHEN** it is mapped
+**THEN** mapping SHALL fail with an unsupported-configuration error rather than guess an arc
+
+### Requirement: Aerospace max thrust ownership
+
+The aerospace construction owner (`calculateMaxThrust`) SHALL derive max thrust
+from safe thrust for BLK imports of aerospace fighters, conventional fighters,
+small craft, DropShips, JumpShips, WarShips and space stations, for the default
+aerospace state, for safe-thrust and engine-rating store edits and for the
+new-unit template summary. Those consumers SHALL read it and SHALL NOT repeat
+the formula. Status bars, record sheets and the aerospace BV adapter read the
+resulting `maxThrust` and do not derive it. `BlkParserService.extractAerospace`
+keeps its own value, twice the safe thrust (it has no production consumer). This
+requirement covers where max thrust is derived and, with the Engine and Thrust
+Configuration requirement, its upward rounding; it does not establish aerospace
+BV parity.
+
+#### Scenario: Every consumer agrees with the owner
+
+- **GIVEN** safe thrust 1, 2, 3, 5, 6, 7 and 12
+- **WHEN** max thrust is derived or displayed
+- **THEN** the BLK basics, the aerospace-family handlers (fighter, conventional
+  fighter, small craft, DropShip, JumpShip, WarShip and space station), the
+  store actions, the aerospace BV adapter and the template summary SHALL show
+  the owner's result for each safe thrust
+- **AND** the status bar SHALL display the stored max thrust it is given
+- **AND** the default state SHALL show the owner's result for its own safe thrust

@@ -1,3 +1,4 @@
+import { readBlkProtoBooster } from '@/services/conversion/BlkProtoEquipment';
 /**
  * ProtoMech Unit Handler
  *
@@ -5,8 +6,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.6
  */
-
-import { readBlkProtoBooster } from '@/services/conversion/BlkProtoEquipment';
 import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
@@ -43,6 +42,7 @@ import {
   getProtoMainGunTopologyError,
   getProtoArmorErrors,
 } from '@/utils/construction/protomech';
+import { getProtoArmorName } from '@/utils/construction/protomech/armorType';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 import { getProtoSourceConstructionErrors } from '@/utils/construction/protomech/validation';
@@ -536,7 +536,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       // Glider Wings is a passive special equipment of the Glider chassis;
       // derive from the discriminant so the projection always matches.
       glidingWings: unit.chassisType === ProtoChassis.GLIDER,
-      armorType: 'Standard',
+      armorType: getProtoArmorName(unit.armorType),
       armorByLocation,
       structureByLocation,
       hasMainGun: unit.hasMainGun,

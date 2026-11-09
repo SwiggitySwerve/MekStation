@@ -20,7 +20,7 @@ Active work is queued, in-progress or parts-needed. Completed and cancelled tick
 MekHQ derives outstanding work using `MekHQ/src/mekhq/campaign/unit/Unit.java:1237-1249` (parts still needing fixing); it has no matching persisted RepairTicket history. The following retention policy is MekStation compatibility behavior, not an upstream time limit:
 
 - A repair pass may remove tickets already terminal at its start, but not tickets newly completed in that pass.
-- Any pendingBattleOutcomes or recentlyAppliedOutcomes reference to a source match protects that match's terminal tickets as deduplication records. There is no additional retention window or persisted field.
+- Any pendingBattleOutcomes or recentlyAppliedOutcomes reference to a source match protects that match's terminal tickets as deduplication records. An applied outcome stays in recentlyAppliedOutcomes for 31 in-game days from its `appliedOn` (the campaign date it was applied on; see `lib/campaign/appliedOutcomes.ts`), so that is how long the protection lasts. It is counted in campaign days, never against the outcome's wall-clock `capturedAt`. This adds no persisted field to the tickets.
 - processedBattleIds remains the outcome-application ledger. Pruning never erases it, repairs a unit or spends parts.
 - Legacy saves load unchanged. Active projections ignore their terminal rows immediately; a later processing/save persists eligible cleanup. A historically broken GM completion is not automatically replayed or charged again.
 

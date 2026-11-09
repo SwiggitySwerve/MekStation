@@ -42,6 +42,7 @@ export function getEquipmentNeedingPlacement(
   engineType: EngineType,
   gyroType: GyroType,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): readonly IMountedEquipmentInstance[] {
   return selectEquipmentNeedingPlacement(
     equipment,
@@ -51,6 +52,7 @@ export function getEquipmentNeedingPlacement(
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
     ),
   );
 }
@@ -71,6 +73,7 @@ interface UseCriticalSlotPlacementArgs {
   readonly engineType: EngineType;
   readonly gyroType: GyroType;
   readonly armActuators?: ArmActuatorConfig;
+  readonly cockpitType?: string;
   readonly getLocationData: (
     location: MechLocation,
     excludedEquipmentId?: string,
@@ -103,6 +106,7 @@ export function useCriticalSlotPlacement({
   engineType,
   gyroType,
   armActuators,
+  cockpitType,
   getLocationData,
   updateEquipmentLocation,
   clearEquipmentLocation,
@@ -120,8 +124,9 @@ export function useCriticalSlotPlacement({
         engineType,
         gyroType,
         armActuators,
+        cockpitType,
       ),
-    [equipment, configuration, engineType, gyroType, armActuators],
+    [equipment, configuration, engineType, gyroType, armActuators, cockpitType],
   );
   const placementOptions = useMemo(
     () =>

@@ -21,8 +21,9 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IMoraleSignals } from '@/types/campaign/Prestige';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type { IAppliedCombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { isWithinOutcomeRetention } from '../appliedOutcomes';
 import { type IDayEvent } from '../dayPipeline';
 
 /**
@@ -30,23 +31,22 @@ import { type IDayEvent } from '../dayPipeline';
  * post-battle processor stages applied outcomes on `recentlyAppliedOutcomes`.
  */
 interface ICampaignWithRecentOutcomes extends ICampaign {
-  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
 }
 
-const MORALE_OUTCOME_WINDOW_DAYS = 31;
-
+/**
+ * The applied outcomes still within retention on `asOf`. The window is in
+ * IN-GAME days from `appliedOn`; `capturedAt` is a wall-clock instant and is
+ * never compared with the campaign date (see `appliedOutcomes.ts`).
+ */
 export function filterRecentMoraleOutcomes(
   campaign: ICampaign,
   asOf: Date = campaign.currentDate,
-): readonly ICombatOutcome[] {
+): readonly IAppliedCombatOutcome[] {
   const extended = campaign as ICampaignWithRecentOutcomes;
-  const cutoff =
-    asOf.getTime() - MORALE_OUTCOME_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  return (extended.recentlyAppliedOutcomes ?? []).filter((outcome) => {
-    const capturedAt = Date.parse(outcome.capturedAt);
-    if (Number.isNaN(capturedAt)) return true;
-    return capturedAt >= cutoff && capturedAt <= asOf.getTime();
-  });
+  return (extended.recentlyAppliedOutcomes ?? []).filter((outcome) =>
+    isWithinOutcomeRetention(outcome, asOf),
+  );
 }
 
 /**
@@ -74,13 +74,14 @@ export function gatherMoraleSignals(
   }
 
   // Pay — a `daily_costs` event with `warning`/`critical` severity means
-  // the campaign ran a negative balance, i.e. pay was not comfortably met.
-  // Absent a daily-costs event, pay is treated as met.
-  let payMet = true;
+  // the campaign ran a negative balance, i.e. pay was not comfortably met;
+  // `info` means the costs were paid. A day with no daily-costs event carries
+  // no pay information, so pay is null, not "met". Paid and null both score 0
+  // in the state machine; only a missed payment (false) lowers morale.
+  let payMet: boolean | null = null;
   for (const event of dayEvents) {
-    if (event.type === 'daily_costs' && event.severity !== 'info') {
-      payMet = false;
-    }
+    if (event.type !== 'daily_costs') continue;
+    payMet = payMet !== false && event.severity === 'info';
   }
 
   // Desertions — `turnover_departure` events whose `departureType` is a

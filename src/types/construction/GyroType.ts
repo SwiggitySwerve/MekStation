@@ -92,7 +92,8 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
     name: 'Superheavy Gyro',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
-    weightMultiplier: 1.0,
+    // 48fcb2f64 TestMek.java:249-264: superheavy weighs twice, like heavy-duty.
+    weightMultiplier: 2.0,
     criticalSlots: 4,
     introductionYear: 3076,
     hitsToDestroy: 2,

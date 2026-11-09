@@ -453,5 +453,3 @@ export function runPhysicalAttackPhase(input: {
 
   return updatedSession;
 }
-
-export { runInteractivePhaseAdvance } from './GameEngine.interactivePhase';

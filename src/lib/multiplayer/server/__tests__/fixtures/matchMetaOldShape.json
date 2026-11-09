@@ -1,0 +1,18 @@
+[
+  {
+    "match_id": "old-shape-active",
+    "status": "active",
+    "room_code": null,
+    "created_at": "2026-11-09T00:00:00.000Z",
+    "updated_at": "2026-11-09T00:00:00.000Z",
+    "meta_json": "{\"hostPlayerId\":\"pid_host\",\"createdAt\":\"2026-11-09T00:00:00.000Z\",\"updatedAt\":\"2026-11-09T00:00:00.000Z\",\"config\":{\"mapRadius\":6,\"turnLimit\":10,\"fogOfWar\":false},\"layout\":\"1v1\",\"matchId\":\"old-shape-active\",\"playerIds\":[\"pid_host\",\"pid_opp\"],\"sideAssignments\":[{\"playerId\":\"pid_host\",\"side\":\"player\"},{\"playerId\":\"pid_opp\",\"side\":\"opponent\"}],\"status\":\"active\",\"seats\":[{\"slotId\":\"alpha-1\",\"side\":\"Alpha\",\"seatNumber\":1,\"occupant\":{\"playerId\":\"pid_host\",\"displayName\":\"Host\"},\"kind\":\"human\",\"ready\":false},{\"slotId\":\"bravo-1\",\"side\":\"Bravo\",\"seatNumber\":1,\"occupant\":{\"playerId\":\"pid_opp\",\"displayName\":\"Opp\"},\"kind\":\"human\",\"ready\":false},{\"slotId\":\"spectator-1\",\"side\":\"spectator\",\"seatNumber\":1,\"occupant\":{\"playerId\":\"pid_watcher\",\"displayName\":\"Watcher\"},\"kind\":\"spectator\",\"ready\":true}]}"
+  },
+  {
+    "match_id": "old-shape-lobby",
+    "status": "lobby",
+    "room_code": "ABC234",
+    "created_at": "2026-11-09T00:00:00.000Z",
+    "updated_at": "2026-11-09T00:00:00.000Z",
+    "meta_json": "{\"hostPlayerId\":\"pid_host\",\"createdAt\":\"2026-11-09T00:00:00.000Z\",\"updatedAt\":\"2026-11-09T00:00:00.000Z\",\"config\":{\"mapRadius\":6,\"turnLimit\":10,\"fogOfWar\":false},\"layout\":\"1v1\",\"matchId\":\"old-shape-lobby\",\"playerIds\":[\"pid_host\"],\"sideAssignments\":[{\"playerId\":\"pid_host\",\"side\":\"player\"}],\"status\":\"lobby\",\"roomCode\":\"ABC234\",\"seats\":[{\"slotId\":\"alpha-1\",\"side\":\"Alpha\",\"seatNumber\":1,\"occupant\":{\"playerId\":\"pid_host\",\"displayName\":\"Host\"},\"kind\":\"human\",\"ready\":false},{\"slotId\":\"bravo-1\",\"side\":\"Bravo\",\"seatNumber\":1,\"occupant\":null,\"kind\":\"human\",\"ready\":false}]}"
+  }
+]

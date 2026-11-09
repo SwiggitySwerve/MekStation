@@ -196,12 +196,16 @@ export const requiredPackageScripts = [
     tokens: ['qc:openspec-ci:validate', 'qc:validate', 'qc:lifecycle:status'],
   },
   {
+    id: 'openspec:validate',
+    tokens: ['npx --yes @fission-ai/openspec@1.5.0 validate --all --strict'],
+  },
+  {
     id: 'verify:rules',
     tokens: [
       'validate:combat:gaps',
       '--expect-total=0',
-      '--expect-total=149',
-      'openspec validate --all --strict',
+      '--expect-total=151',
+      'npm run openspec:validate',
     ],
   },
 ];

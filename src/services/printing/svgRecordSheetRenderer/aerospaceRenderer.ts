@@ -112,6 +112,12 @@ export function renderAerospaceSVG(data: IAerospaceRecordSheetData): string {
 
   armorArcs.forEach((arc, i) => {
     const ly = armorStartY + 10 + i * 20;
+    // Without a real per-arc cap (aerospace has none) print the value only.
+    if (arc.maximum === undefined) {
+      body += `
+  <text x="${MARGIN + 5}" y="${ly - 2}" font-family="${FONT}" font-size="7" fill="#000">${esc(arc.arc)} ${esc(arc.current)}</text>`;
+      return;
+    }
     const fillW =
       arc.maximum > 0 ? Math.round((arc.current / arc.maximum) * barW) : 0;
     body += `

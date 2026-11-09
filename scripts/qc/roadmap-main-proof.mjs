@@ -199,7 +199,7 @@ export function ladder(options, logDirRelative) {
     { name: 'next', argv: ['node', validator, '--next'] },
     {
       name: 'openspec-strict',
-      argv: ['npx', 'openspec', 'validate', '--all', '--strict'],
+      argv: ['npm', 'run', 'openspec:validate'],
     },
     { name: 'qc-openspec-ci', argv: ['npm', 'run', 'qc:openspec-ci:validate'] },
     {

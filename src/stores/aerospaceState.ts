@@ -1,3 +1,4 @@
+import type { StoreEquipmentCollectionActions } from '@/stores/equipmentStoreActions';
 /**
  * Aerospace State Interface
  *
@@ -10,8 +11,6 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 4.1
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
-
-import type { StoreEquipmentCollectionActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 
 import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
@@ -44,6 +43,8 @@ import {
 import { defaultSI } from '@/utils/construction/aerospace/siCalculations';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
+
+import type { IUnitSaveMetadata } from './unitSaveState';
 
 // =============================================================================
 // Aerospace Armor Allocation
@@ -120,7 +121,7 @@ export function createAerospaceMountedEquipment(
 /**
  * Complete state for a single aerospace fighter
  */
-export interface AerospaceState {
+export interface AerospaceState extends IUnitSaveMetadata {
   // =========================================================================
   // Identity
   // =========================================================================
@@ -253,6 +254,8 @@ export interface AerospaceState {
 
   /** Armor type */
   armorType: ArmorTypeEnum;
+  /** Native SmallCraft armor identity; absent legacy drafts retain their explicit type. */
+  smallCraftArmorType?: string;
   /** Native patchwork type codes by contract arc; points stay in armorAllocation. */
   armorTypeByArc?: Readonly<Record<string, number>>;
   /** Source support-aircraft Barrier Armor Rating, retained for shared BV. */

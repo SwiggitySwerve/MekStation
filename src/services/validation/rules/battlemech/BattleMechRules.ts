@@ -5,7 +5,7 @@
  * These extend/override the generic Mech category rules with
  * BattleMech-specific constraints from the TechManual.
  *
- * VAL-BM-001 through VAL-BM-010.
+ * VAL-BM-001 through VAL-BM-012.
  *
  * @spec openspec/specs/unit-validation-framework/spec.md
  * @spec openspec/specs/validation-rules-master/spec.md
@@ -34,6 +34,7 @@ import {
   createEmptyRuleResult,
   addRuleDiagnostic,
 } from '../ruleResults';
+import { BattleMechAmmoTechLevel } from './BattleMechAmmoTechLevel';
 import { BattleMechIntroductionYear } from './BattleMechIntroductionYear';
 
 const BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY = ValidationCategory.CONSTRUCTION;
@@ -346,4 +347,5 @@ export const BATTLEMECH_RULES: readonly IUnitValidationRuleDefinition[] = [
   BattleMechCTRequirements,
   BattleMechXLEngineSlots,
   BattleMechIntroductionYear,
+  BattleMechAmmoTechLevel,
 ];

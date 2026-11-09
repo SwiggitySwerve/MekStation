@@ -80,8 +80,8 @@ describe('useVehicleRecordSheetUnit', () => {
         a.location.startsWith('Turret'),
       ),
     ).toEqual([
-      { location: 'Turret', current: 7, maximum: 7, bar: undefined },
-      { location: 'Turret 2', current: 19, maximum: 19, bar: undefined },
+      { location: 'Turret', current: 7, maximum: undefined, bar: undefined },
+      { location: 'Turret 2', current: 19, maximum: undefined, bar: undefined },
     ]);
   });
 
@@ -113,7 +113,7 @@ describe('useVehicleRecordSheetUnit', () => {
     expect(data.armorLocations).toContainEqual({
       location: 'Turret',
       current: 0,
-      maximum: 0,
+      maximum: undefined,
       bar: undefined,
     });
     expect(data.armorLocations.some((a) => a.location === 'Turret 2')).toBe(
@@ -188,7 +188,7 @@ describe('useVehicleRecordSheetUnit', () => {
     expect(result.current).toMatchObject({
       name: 'Updated Tank',
       cruiseMP: 7,
-      armorAllocation: { Front: { current: 42, maximum: 42 } },
+      armorAllocation: { Front: { current: 42 } },
     });
     expect(getRecordSheetDispatchKind(result.current)).toBe('vehicle');
   });

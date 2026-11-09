@@ -492,8 +492,10 @@ describe('VAL-VEHICLE-TURRET', () => {
   });
 });
 
-describe('VAL-VEHICLE-ARMOR-LOC', () => {
-  it('valid: Manticore armor within 2× structure limits', () => {
+// MML 62bf193 UnitUtil.java:900-916 has no independent hull/turret maximum.
+// MegaMek 48fcb2f64 TestTank.java:338 limits a 50t Tank to 215 total points.
+describe('pinned vehicle armor location and total diagnostics', () => {
+  it('valid: Manticore armor within its class-total limit', () => {
     const result = validateVehicleConstruction(manticoreInput());
     const armorErrors = result.errors.filter(
       (e) => e.ruleId === 'VAL-VEHICLE-ARMOR-LOC',
@@ -501,11 +503,11 @@ describe('VAL-VEHICLE-ARMOR-LOC', () => {
     expect(armorErrors).toHaveLength(0);
   });
 
-  it('error: front armor exceeds 2× structure (50t front structure = 12 → max 24)', () => {
+  it('valid: Front 30 exceeds the former 24-point cap but stays within the class total', () => {
     const result = validateVehicleConstruction(
       manticoreInput({
         armorAllocation: {
-          Front: 30, // 30 > 24 (2 × 12)
+          Front: 30,
           Left: 16,
           Right: 16,
           Rear: 10,
@@ -514,10 +516,22 @@ describe('VAL-VEHICLE-ARMOR-LOC', () => {
         },
       }),
     );
-    const armorErrors = result.errors.filter(
-      (e) => e.ruleId === 'VAL-VEHICLE-ARMOR-LOC',
+    const armorErrors = result.errors.filter((e) =>
+      e.ruleId.startsWith('VAL-VEHICLE-ARMOR-'),
     );
-    expect(armorErrors.length).toBeGreaterThan(0);
+    expect(armorErrors).toHaveLength(0);
+  });
+
+  it('error: Front 216 exceeds the 215-point class total without a location error', () => {
+    const result = validateVehicleConstruction(
+      manticoreInput({ armorAllocation: { Front: 216 } }),
+    );
+    expect(
+      result.errors.filter((e) => e.ruleId === 'VAL-VEHICLE-ARMOR-LOC'),
+    ).toHaveLength(0);
+    expect(
+      result.errors.filter((e) => e.ruleId === 'VAL-VEHICLE-ARMOR-TOTAL'),
+    ).toEqual([expect.objectContaining({ allocated: 216, maximum: 215 })]);
   });
 });
 

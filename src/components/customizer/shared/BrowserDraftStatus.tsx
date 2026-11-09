@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import type { SaveState } from '@/stores/unitSaveState';
+
 import {
   getLatestStorageWriteReceipt,
   safeGetItem,
@@ -10,7 +12,7 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { getLibrarySaveStore } from '../tabs/MultiUnitTabsUnitState';
 import { getCustomizerDraftStorageKey } from './customizerDraftStorage';
 
-export type DraftState = 'pending' | 'saved' | 'failed';
+export type DraftState = SaveState['draft'];
 
 /**
  * Browser-draft wording. A pending unit has no known stored draft, so surfaces

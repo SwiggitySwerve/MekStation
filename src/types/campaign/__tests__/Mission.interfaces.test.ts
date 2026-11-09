@@ -140,9 +140,7 @@ describe('Mission System', () => {
         MissionStatus.PARTIAL,
         MissionStatus.FAILED,
         MissionStatus.BREACH,
-        MissionStatus.CANCELLED,
         MissionStatus.PENDING,
-        MissionStatus.ABORTED,
       ];
 
       statuses.forEach((status) => {

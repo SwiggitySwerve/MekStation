@@ -1,6 +1,7 @@
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import { ProtoMechUnitHandler } from '../../src/services/units/handlers/ProtoMechUnitHandler';
 import { ProtoLocation } from '../../src/types/unit/ProtoMechInterfaces';
+import * as equipmentBV from '../../src/utils/construction/equipmentBVResolver';
 import {
   calculateProtoMechBV,
   protoMechBVTerms,
@@ -10,6 +11,13 @@ import {
   buildProto,
   mount,
 } from '../../src/utils/construction/protomech/__tests__/protoMechBV.test.helpers';
+
+jest.mock('../../src/utils/construction/equipmentBVResolver', () => {
+  const actual = jest.requireActual<
+    typeof import('../../src/utils/construction/equipmentBVResolver')
+  >('../../src/utils/construction/equipmentBVResolver');
+  return { ...actual, resolveEquipmentBV: jest.fn(actual.resolveEquipmentBV) };
+});
 
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
 describe('ProtoMech native offensive-misc diagnostics', () => {
@@ -49,8 +57,8 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
       const b = handler.calculateBVBreakdown(unit);
       const terms = protoMechBVTerms(b);
       const actual = Object.fromEntries(
-        Object.entries(terms).filter(([key]) =>
-          key.startsWith('equipment.native.'),
+        Object.entries(terms).filter(
+          ([key, value]) => key.startsWith('equipment.native.') && value !== 0,
         ),
       );
       expect(actual).toEqual(pinned[source.path.split('/').at(-1) ?? '']);
@@ -82,10 +90,11 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
         ),
       ).toEqual([]);
       for (const fact of b.weaponMountBV ?? []) {
+        const nativeIndex = fact.nativeEquipmentIndex ?? fact.equipmentIndex;
         expect(
           Object.entries(terms).some(
             ([key, value]) =>
-              key.startsWith(`weapon.${fact.equipmentIndex}.`) &&
+              key.startsWith(`weapon.${nativeIndex}.`) &&
               value === fact.battleValue,
           ),
         ).toBe(true);
@@ -245,6 +254,141 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
     expect(terms['weapon.1.RA.clan-er-small-laser']).toBe(31);
     expect(
       Object.keys(terms).filter((key) => key.startsWith('equipment.native.')),
+    ).toEqual([]);
+  });
+});
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
+describe('ProtoMech resolved-zero misc diagnostics', () => {
+  const sourceMount = (equipmentId: string, blockKey = 'Body') => ({
+    ...mount(equipmentId, ProtoLocation.TORSO),
+    blkSource: {
+      rawEntry: equipmentId,
+      lookupName: equipmentId,
+      blockKey,
+      errors: [],
+    },
+  });
+
+  afterEach(() => jest.mocked(equipmentBV.resolveEquipmentBV).mockReset());
+  beforeEach(() => {
+    const actual = jest.requireActual<
+      typeof import('../../src/utils/construction/equipmentBVResolver')
+    >('../../src/utils/construction/equipmentBVResolver');
+    jest
+      .mocked(equipmentBV.resolveEquipmentBV)
+      .mockImplementation(actual.resolveEquipmentBV);
+  });
+
+  test.each([
+    ['EIInterface', 'Body', 0],
+    ['CLMyomerBooster', 'Body', 0],
+    ['ProtoMechJumpJet', 'Body', 0],
+    ['ExtendedJumpJetSystem', 'Body', 0],
+    ['ProtoMechPartialWing', 'Torso', 2],
+  ])(
+    'projects resolved %s at its native location',
+    (id, block, nativeLocation) => {
+      const unit = buildProto({
+        tonnage: 5,
+        equipment: [sourceMount(String(id), String(block))],
+      });
+      const original = JSON.stringify(unit);
+      const breakdown = calculateProtoMechBV(unit);
+      const terms = protoMechBVTerms(breakdown);
+      expect(terms).toHaveProperty(
+        [`equipment.native.${nativeLocation}.${id}`],
+        0,
+      );
+      expect(breakdown).toHaveProperty('resolvedZeroEquipmentMountBV');
+      expect(breakdown.offensiveEquipmentBV).toBe(0);
+      expect(breakdown).not.toHaveProperty('offensiveEquipmentMountBV');
+      expect(JSON.stringify(unit)).toBe(original);
+    },
+  );
+
+  test('requires resolved:true even for a recognized zero-valued identity', () => {
+    jest
+      .mocked(equipmentBV.resolveEquipmentBV)
+      .mockReturnValue({ resolved: false, battleValue: 0, heat: 0 });
+    const b = calculateProtoMechBV(
+      buildProto({ tonnage: 5, equipment: [sourceMount('EIInterface')] }),
+    );
+    expect(b).not.toHaveProperty('resolvedZeroEquipmentMountBV');
+    expect(protoMechBVTerms(b)).not.toHaveProperty([
+      'equipment.native.0.EIInterface',
+    ]);
+  });
+
+  test.each([1, -1, NaN, Infinity])(
+    'rejects a resolved nonzero/nonfinite value %s',
+    (battleValue) => {
+      jest
+        .mocked(equipmentBV.resolveEquipmentBV)
+        .mockReturnValue({ resolved: true, battleValue, heat: 0 });
+      const b = calculateProtoMechBV(
+        buildProto({ tonnage: 5, equipment: [sourceMount('EIInterface')] }),
+      );
+      expect(b).not.toHaveProperty('resolvedZeroEquipmentMountBV');
+    },
+  );
+
+  test('retains repeated source mounts while projecting one native key', () => {
+    const b = calculateProtoMechBV(
+      buildProto({
+        tonnage: 5,
+        equipment: [
+          sourceMount('ProtoMechJumpJet'),
+          sourceMount('ProtoMechJumpJet'),
+        ],
+      }),
+    );
+    expect(b).toHaveProperty('resolvedZeroEquipmentMountBV', [
+      {
+        equipmentIndex: 0,
+        equipmentId: 'ProtoMechJumpJet',
+        location: 'Torso',
+        nativeLocation: 0,
+        battleValue: 0,
+      },
+      {
+        equipmentIndex: 1,
+        equipmentId: 'ProtoMechJumpJet',
+        location: 'Torso',
+        nativeLocation: 0,
+        battleValue: 0,
+      },
+    ]);
+    expect(
+      Object.keys(protoMechBVTerms(b)).filter((k) =>
+        k.startsWith('equipment.native.'),
+      ),
+    ).toEqual(['equipment.native.0.ProtoMechJumpJet']);
+  });
+
+  test('absent, unknown, malformed and legacy source facts invent no zero', () => {
+    const b = calculateProtoMechBV(
+      buildProto({
+        tonnage: 5,
+        equipment: [
+          mount('EIInterface', ProtoLocation.TORSO),
+          sourceMount('unknown-zero-fallback'),
+          sourceMount('EIInterface', 'Not a location'),
+          {
+            ...sourceMount('EIInterface'),
+            blkSource: {
+              ...sourceMount('EIInterface').blkSource,
+              errors: ['invalid entry'],
+            },
+          },
+        ],
+      }),
+    );
+    expect(b).not.toHaveProperty('resolvedZeroEquipmentMountBV');
+    expect(
+      Object.keys(protoMechBVTerms(b)).filter((k) =>
+        k.startsWith('equipment.native.'),
+      ),
     ).toEqual([]);
   });
 });

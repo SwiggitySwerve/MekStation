@@ -17,6 +17,10 @@
 
 import type { Page } from '@playwright/test';
 
+import {
+  ATLAS_AS7_D_E2E_UNIT_ID,
+  cloneCanonicalAtlasAs7DConfig,
+} from '../fixtures/campaignUnits';
 import { createTestPilot, PILOT_SKILL_PRESETS } from '../fixtures/pilot';
 
 // =============================================================================
@@ -335,3 +339,147 @@ export async function seedHiringHall(
 // JSON and would crash the card. The contract-market page auto-seeds a
 // deterministic 5-offer market on first open (`generateAtBContracts`,
 // contract-market.tsx:63-72), so specs assert against that instead.
+
+export interface SeededCustomizerCampaign {
+  readonly campaignId: string;
+  readonly missionId: string;
+}
+
+/** Seed an Atlas and mission; leave its pilot unassigned for readiness proofs. */
+export async function seedCampaignWithRoster(
+  page: Page,
+  options: {
+    readonly name?: string;
+    readonly missionName?: string;
+    readonly owned?: boolean;
+  } = {},
+): Promise<SeededCustomizerCampaign> {
+  const atlasConfig = cloneCanonicalAtlasAs7DConfig();
+  return page.evaluate(
+    ({
+      atlasConfig: seededAtlasConfig,
+      atlasUnitId,
+      name,
+      missionName,
+      owned,
+    }) => {
+      type StoreApi = {
+        getState: () => Record<string, unknown>;
+        setState?: (state: Record<string, unknown>) => void;
+      };
+      const resolveStore = (store: StoreApi | (() => StoreApi)): StoreApi =>
+        typeof (store as StoreApi).getState === 'function'
+          ? (store as StoreApi)
+          : (store as () => StoreApi)();
+      const stores = (
+        window as unknown as {
+          __ZUSTAND_STORES__?: {
+            campaign?: StoreApi | (() => StoreApi);
+            campaignRoster?: StoreApi;
+          };
+        }
+      ).__ZUSTAND_STORES__;
+
+      if (!stores?.campaign || !stores.campaignRoster) {
+        throw new Error('Campaign E2E stores are not exposed');
+      }
+
+      const campaignStore = resolveStore(stores.campaign);
+      const campaignState = campaignStore.getState() as {
+        createCampaign: (
+          name: string,
+          factionId: string,
+          options: Record<string, unknown>,
+        ) => string;
+        getCampaign: () => Record<string, unknown> & {
+          rootForceId: string;
+        };
+        getForcesStore: () => {
+          getState: () => {
+            getForce: (
+              id: string,
+            ) => { unitIds: readonly string[] } | undefined;
+            updateForce: (
+              id: string,
+              updates: { unitIds: readonly string[] },
+            ) => void;
+            getAllForces: () => { id: string; unitIds: readonly string[] }[];
+          };
+        } | null;
+        updateCampaign: (updates: Record<string, unknown>) => void;
+        getMissionsStore?: () => {
+          getState: () => {
+            addMission?: (mission: Record<string, unknown>) => void;
+          };
+        };
+      };
+      const campaignId = campaignState.createCampaign(name, 'mercenary', {
+        startingFunds: 2_500_000,
+      });
+      const campaign = campaignState.getCampaign();
+      const forcesState = campaignState.getForcesStore()?.getState();
+      const rootForce = forcesState?.getForce(campaign.rootForceId);
+      if (!forcesState || !rootForce) {
+        throw new Error('Seeded campaign has no root force');
+      }
+      forcesState.updateForce(campaign.rootForceId, {
+        unitIds: owned
+          ? [...rootForce.unitIds, atlasUnitId]
+          : rootForce.unitIds,
+      });
+      const forces = new Map(
+        forcesState.getAllForces().map((force) => [force.id, force]),
+      );
+      const missionId = 'mission-alpha';
+      const mission = {
+        id: missionId,
+        name: missionName,
+        status: 'Active',
+        type: 'mission',
+        systemId: 'terra',
+        scenarioIds: [],
+        description: 'Browser proof mission for readiness customizer handoff.',
+        briefing:
+          'Verify readiness refit returns without resetting deployment.',
+        startDate: '3025-01-03',
+        createdAt: '3025-01-03T00:00:00.000Z',
+        updatedAt: '3025-01-03T00:00:00.000Z',
+      };
+      campaignState.updateCampaign({
+        ...campaign,
+        forces,
+        currentDate: new Date('3025-01-03T00:00:00.000Z'),
+        missions: new Map([[missionId, mission]]),
+        unitConfigurations: {
+          ...((campaign.unitConfigurations as Record<string, unknown>) ?? {}),
+          [atlasUnitId]: seededAtlasConfig,
+        },
+      });
+      campaignState.getMissionsStore?.().getState().addMission?.(mission);
+      stores.campaignRoster.setState?.({
+        campaignId,
+        units: [
+          {
+            unitId: atlasUnitId,
+            unitRef: 'atlas-as7-d',
+            unitName: 'Atlas',
+            chassisVariant: 'AS7-D',
+            readiness: 'Ready',
+          },
+        ],
+        pilots: [],
+        missions: [],
+        activeMissionId: null,
+        missionCount: 1,
+      });
+      return { campaignId, missionId };
+    },
+    {
+      name: options.name ?? 'E2E Customizer Handoff',
+      missionName: options.missionName ?? 'Mission Readiness Browser Proof',
+      owned: options.owned ?? true,
+      atlasConfig,
+      atlasUnitId: ATLAS_AS7_D_E2E_UNIT_ID,
+    },
+  );
+}

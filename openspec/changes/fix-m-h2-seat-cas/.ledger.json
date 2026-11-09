@@ -1,0 +1,6 @@
+{
+  "name": "fix-m-h2-seat-cas",
+  "status": "in-progress",
+  "reason": "Wave 4 M-H1/H2 PR2 of three: seat and roster writes (REST spectate, lobby intents, spectator detach, MarkSeatAi) go through one compare-and-swap writer keyed on an optional meta_json revision, so concurrent seat writers merge instead of overwriting. No DDL, wire or persisted-format change; rows without a revision read as 0.",
+  "lastReviewed": "2026-11-09"
+}

@@ -11,9 +11,21 @@ interface IEnteringWaterPSROptions {
   readonly waterDepth?: number;
 }
 
+interface IRubblePSROptions {
+  /** Rubble terrain level; above 5 is ultra-rubble (+1). */
+  readonly rubbleLevel?: number;
+}
+
 interface ISwampBogDownPSROptions {
   readonly swampDepth?: number;
 }
+
+/**
+ * MegaMek 48fcb2f64 Entity.checkRubbleMove (Entity.java:9556-9559): rubble
+ * above level 5 (a destroyed Castle Brian or fortress) is +1 "ultra-rubble".
+ */
+const ULTRA_RUBBLE_MINIMUM_LEVEL = 6;
+const ULTRA_RUBBLE_PILOTING_MODIFIER = 1;
 
 interface ISwampUnstuckPSROptions {
   readonly swampDepth?: number;
@@ -107,13 +119,17 @@ export function createStandingUpPSR(
 export function createRubblePSR(
   entityId: string,
   stepIndex?: number,
+  options: IRubblePSROptions = {},
 ): IPendingPSR {
   const movementStepSource = movementStepTriggerSource(stepIndex);
+  const isUltraRubble =
+    options.rubbleLevel !== undefined &&
+    options.rubbleLevel >= ULTRA_RUBBLE_MINIMUM_LEVEL;
   return {
     entityId,
     reason: 'Entering rubble',
     reasonCode: PSRTrigger.EnteringRubble,
-    additionalModifier: 0,
+    additionalModifier: isUltraRubble ? ULTRA_RUBBLE_PILOTING_MODIFIER : 0,
     triggerSource: movementStepSource ?? PSRTrigger.EnteringRubble,
   };
 }

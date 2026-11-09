@@ -20,3 +20,18 @@ region using total crew count minus one;574-593 reads global options. The print
 contract retains the existing crew-global SPA block and defines no per-slot SPA
 lists. Authoring, persistence and actual multi-slot rendering remain required
 follow-up work. `mechCrewPrintContract.test.ts` enforces this payload boundary.
+
+## Authored seats (row 4.3-c)
+
+`MechCrewSeats.ts` holds the editor's seats: `{ slotIndex, name, gunnery, piloting }`,
+unassigned seats absent, saved as the optional `crewSeats` field of a custom
+BattleMech record. The crew type is derived when the sheet is projected, never
+stored: TripodMek.java:115-117 returns SUPERHEAVY_TRIPOD when `isSuperHeavy()`
+(Mek.java:7167, weight > 100) and TRIPOD otherwise; QuadVee.java:164-166 always
+returns QUADVEE. A stored Tech Officer seat is kept, not printed, at 100 tons or
+less. Skills are integers 0 to `Crew.MAX_SKILL` = 8 (Crew.java:218); Java's
+`setGunnery`/`setPiloting` (:1090,:1126) do not bound them, so the lower bound
+is this app's choice. MegaMekLab does not author crew on a design: it reads
+seats from the Entity, a MUL or ForceBuildUI (ForceBuildUI.java:347,813-815;
+PrintQueueDialog.java:305), so the editor field is an app-level workflow. Wounds
+print as 0, and Edge and SPAs stay crew-global.

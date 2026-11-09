@@ -159,7 +159,14 @@
         "INTERFACE",
         "VRRP",
         "QUADVEE",
-        "PRIMITIVE_INDUSTRIAL"
+        "PRIMITIVE_INDUSTRIAL",
+        "DUAL",
+        "TRIPOD",
+        "SUPERHEAVY_INDUSTRIAL",
+        "SUPERHEAVY_COMMAND_CONSOLE",
+        "SMALL_COMMAND_CONSOLE",
+        "TRIPOD_INDUSTRIAL",
+        "SUPERHEAVY_TRIPOD_INDUSTRIAL"
       ],
       "description": "Cockpit type"
     },
@@ -168,40 +175,28 @@
       "required": ["type"],
       "properties": {
         "type": {
-          "type": "string",
-          "enum": [
-            "STANDARD",
-            "ENDO_STEEL",
-            "ENDO_STEEL_CLAN",
-            "ENDO_COMPOSITE",
-            "REINFORCED",
-            "COMPOSITE",
-            "INDUSTRIAL",
-            "ENDO_COMPOSITE_CLAN"
-          ],
-          "description": "Internal structure type"
+          "$ref": "#/$defs/structureType"
         },
         "locationTonnage": {
           "type": "object",
           "description": "FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)",
           "propertyNames": {
-            "enum": [
-              "HEAD",
-              "CENTER_TORSO",
-              "LEFT_TORSO",
-              "RIGHT_TORSO",
-              "LEFT_ARM",
-              "RIGHT_ARM",
-              "LEFT_LEG",
-              "RIGHT_LEG",
-              "FRONT_LEFT_LEG",
-              "FRONT_RIGHT_LEG",
-              "REAR_LEFT_LEG",
-              "REAR_RIGHT_LEG",
-              "CENTER_LEG"
-            ]
+            "$ref": "#/$defs/structureLocation"
           },
-          "additionalProperties": { "type": "integer", "minimum": 1 }
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "typeByLocation": {
+          "type": "object",
+          "description": "Explicit FrankenMek donor types; missing entries use native defaults. An absent map preserves legacy global structure behavior.",
+          "propertyNames": {
+            "$ref": "#/$defs/structureLocation"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/structureType"
+          }
         }
       },
       "additionalProperties": false
@@ -558,6 +553,22 @@
       },
       "additionalProperties": false
     },
+    "crewSeats": {
+      "type": "array",
+      "description": "BattleMech Tripod/QuadVee crew seats the user assigned; unassigned seats are absent",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": {
+          "slotIndex": { "type": "integer", "minimum": 0, "maximum": 2 },
+          "name": { "type": "string", "minLength": 1 },
+          "gunnery": { "type": "integer", "minimum": 0, "maximum": 8 },
+          "piloting": { "type": "integer", "minimum": 0, "maximum": 8 }
+        },
+        "required": ["slotIndex", "name", "gunnery", "piloting"],
+        "additionalProperties": false
+      }
+    },
     "omniPodHeatSinks": { "type": "integer", "minimum": 0 },
     "baseChassisTurretWeight": { "type": "number", "minimum": 0 },
     "baseChassisTurret2Weight": { "type": "number", "minimum": 0 },
@@ -884,6 +895,38 @@
     }
   ],
   "$defs": {
+    "structureType": {
+      "type": "string",
+      "enum": [
+        "STANDARD",
+        "ENDO_STEEL",
+        "ENDO_STEEL_CLAN",
+        "ENDO_COMPOSITE",
+        "REINFORCED",
+        "COMPOSITE",
+        "INDUSTRIAL",
+        "ENDO_COMPOSITE_CLAN"
+      ],
+      "description": "Internal structure type"
+    },
+    "structureLocation": {
+      "type": "string",
+      "enum": [
+        "HEAD",
+        "CENTER_TORSO",
+        "LEFT_TORSO",
+        "RIGHT_TORSO",
+        "LEFT_ARM",
+        "RIGHT_ARM",
+        "LEFT_LEG",
+        "RIGHT_LEG",
+        "FRONT_LEFT_LEG",
+        "FRONT_RIGHT_LEG",
+        "REAR_LEFT_LEG",
+        "REAR_RIGHT_LEG",
+        "CENTER_LEG"
+      ]
+    },
     "componentTechBase": {
       "type": "string",
       "enum": ["INNER_SPHERE", "CLAN"]

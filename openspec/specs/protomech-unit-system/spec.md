@@ -50,7 +50,7 @@ The system SHALL support three ProtoMech weight classes based on individual unit
 - **WHEN** setting ProtoMech tonnage via the store
 - **THEN** the system SHALL clamp the value to the range 2-9 tons
 - **AND** recalculate cruise MP as `max(1, 10 - tonnage)`
-- **AND** recalculate flank MP as `floor(cruiseMP * 1.5)`
+- **AND** recalculate flank MP as `ceil(cruiseMP * 1.5)`
 - **AND** recalculate engine rating as `tonnage * cruiseMP`
 
 #### Scenario: Invalid weight validation
@@ -83,7 +83,7 @@ The system SHALL support biped, quad, and glider ProtoMech configurations.
 
 - **WHEN** the raw tag `quad` is `"true"` or `"1"` in a BLK document
 - **THEN** `isQuad` SHALL be set to `true`
-- **AND** quad ProtoMechs SHALL NOT have main guns (validation error if main gun equipped)
+- **AND** a quad ProtoMech MAY mount a Main Gun, which SHALL hold one slot-taking mount, or two when the quad is also ultraheavy, as the ProtoMech Main Gun And Arm Placement requirement defines (MegaMek `TestProtoMek.java:594,620-621` at `48fcb2f64`)
 
 #### Scenario: Glider ProtoMech
 
@@ -184,13 +184,13 @@ The system SHALL track cruise, flank, and jump movement points.
 
 - **WHEN** setting cruise MP
 - **THEN** the value SHALL be clamped to minimum 1
-- **AND** flank MP SHALL be recalculated as `floor(cruiseMP * 1.5)`
+- **AND** flank MP SHALL be recalculated as `ceil(cruiseMP * 1.5)`
 - **AND** engine rating SHALL be recalculated as `tonnage * cruiseMP`
 
 #### Scenario: Flank MP (derived)
 
 - **WHEN** displaying flank MP
-- **THEN** flank MP SHALL be `floor(cruiseMP * 1.5)`
+- **THEN** flank MP SHALL be `ceil(cruiseMP * 1.5)`
 - **AND** flank MP SHALL be read-only in the UI
 
 #### Scenario: Jump MP
@@ -228,7 +228,7 @@ The system SHALL calculate engine rating from tonnage and cruise MP.
 
 - **WHEN** engine rating is set directly (e.g., from BLK parsing)
 - **THEN** cruise MP SHALL be recalculated as `floor(engineRating / tonnage)`
-- **AND** flank MP SHALL be recalculated as `floor(cruiseMP * 1.5)`
+- **AND** flank MP SHALL be recalculated as `ceil(cruiseMP * 1.5)`
 
 ### Requirement: Main Gun System
 
@@ -240,10 +240,11 @@ The system SHALL support an optional dedicated main gun mount.
 - **THEN** the `Main Gun` location SHALL be available for equipment and armor
 - **AND** main gun presence SHALL be detected from equipment location during BLK parsing
 
-#### Scenario: Quad main gun restriction
+#### Scenario: Quad main gun limit
 
 - **WHEN** a quad ProtoMech has main gun equipment
-- **THEN** validation SHALL produce an error: "Quad ProtoMechs cannot have main guns"
+- **THEN** validation SHALL NOT report an error for the Main Gun's presence
+- **AND** the Main Gun SHALL hold one slot-taking mount, or two when the quad is also ultraheavy (above 9 tons), as the ProtoMech Main Gun And Arm Placement requirement defines (MegaMek `TestProtoMek.java:594,620-621` at `48fcb2f64`)
 
 #### Scenario: Main gun detection during parsing
 
@@ -533,7 +534,7 @@ interface ProtoMechState {
   // Movement
   engineRating: number; // tonnage * cruiseMP
   cruiseMP: number; // min 1
-  flankMP: number; // floor(cruiseMP * 1.5), derived
+  flankMP: number; // ceil(cruiseMP * 1.5), derived
   jumpMP: number; // min 0
 
   // Structure & Armor
@@ -643,12 +644,12 @@ enum ProtoMechLocation {
 - **Condition**: `cruiseMP` MUST be at least 1
 - **Error**: "ProtoMech must have at least 1 cruise MP"
 
-### Rule: Quad Main Gun Restriction
+### Rule: Quad Main Gun Limit
 
 - **Applies to**: Quad ProtoMech only
 - **Severity**: ERROR
-- **Condition**: If `isQuad` is `true`, `hasMainGun` MUST be `false`
-- **Error**: "Quad ProtoMechs cannot have main guns"
+- **Condition**: A quad MAY set `hasMainGun`; its Main Gun MUST hold at most one slot-taking mount, or two when the quad is ultraheavy (above 9 tons)
+- **Error**: the Main Gun and arm placement finding of `VAL-PROTO-MAIN-GUN` (`TestProtoMek.java:594,620-621` at `48fcb2f64`)
 
 ### Rule: Glider Jump MP Requirement
 

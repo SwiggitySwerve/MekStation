@@ -104,11 +104,14 @@ function FillKey(): React.ReactElement {
 }
 
 export interface BlueprintArmorDiagramProps extends ConfigurableArmorDiagramProps {
+  /** Loading pictures omit the ready editor's root markers. */
+  readonly presentation?: 'editor' | 'loading';
   /** Locations the unit's validation flags for low or critical armor. */
   readonly locationIssues?: ArmorLocationIssues;
 }
 
 export function BlueprintArmorDiagram({
+  presentation = 'editor',
   armorData,
   selectedLocation,
   onLocationClick,
@@ -190,8 +193,8 @@ export function BlueprintArmorDiagram({
   return (
     <div
       className={`bg-surface-base border-border-theme @container flex flex-col rounded-lg border p-3 sm:p-4 ${className}`}
-      data-armor-variant="clean-tech"
-      data-armor-design="blueprint"
+      data-armor-variant={presentation === 'editor' ? 'clean-tech' : undefined}
+      data-armor-design={presentation === 'editor' ? 'blueprint' : undefined}
     >
       <DiagramHeader title="Armor Allocation" className="mb-2 sm:mb-3" />
       <div className={styles.views}>

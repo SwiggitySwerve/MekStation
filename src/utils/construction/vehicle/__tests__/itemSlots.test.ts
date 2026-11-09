@@ -1,8 +1,11 @@
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+
 import {
   combatVehicleSlotErrors,
   supportVehicleSlotErrors,
   type VehicleSlotUnit,
 } from '../itemSlots';
+import { validateSupportVehicleEquipment } from '../vehicleValidation';
 
 // Bandit (C) Hovercraft G (mm-data 3058Uu): pinned Java reports
 // "Using 2 slot(s) too many" against 15 available (TestTank.java:331-337).
@@ -150,7 +153,12 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
   it('reports the Brunel AC20 support-vehicle overrun and fire control location', () => {
     // Java 14, now matched: the full MG ammo record lists the machine guns
     // it feeds (AmmoType.isAmmoValid, AmmoType.java:17147-17155).
-    expect(supportVehicleSlotErrors(brunel)).toEqual([
+    expect(
+      validateSupportVehicleEquipment({
+        ...brunel,
+        motionType: GroundMotionType.WHEELED,
+      }),
+    ).toEqual([
       'Not enough item slots available! Using 14 slot(s) too many.',
       'Basic Fire Control must be mounted in the body.',
     ]);
@@ -170,6 +178,38 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
       supportVehicleSlotErrors({ ...brunel, tonnage: 9, equipment }),
     ).toEqual(['Not enough item slots available! Using 1 slot(s) too many.']);
   });
+
+  it.each([
+    { tonnage: 4.999, expected: [] },
+    {
+      tonnage: 5,
+      expected: ['Not enough item slots available! Using 1 slot(s) too many.'],
+    },
+    {
+      tonnage: 5.001,
+      expected: ['Not enough item slots available! Using 1 slot(s) too many.'],
+    },
+  ])(
+    'starts distinct ammo slots at 5 tons ($tonnage t)',
+    ({ tonnage, expected }) => {
+      // TestSupportVehicle:1618-1640; EntityWeightClass:80-97 (<5 t is small).
+      const mount = (equipmentId: string) => ({
+        equipmentId,
+        location: 'Body',
+      });
+      expect(
+        supportVehicleSlotErrors({
+          ...brunel,
+          tonnage,
+          equipment: [
+            ...Array(5).fill(mount('Machine Gun')),
+            mount('IS Ammo MG - Full'),
+            mount('IS Ammo MG - Full'),
+          ],
+        }),
+      ).toEqual(expected);
+    },
+  );
 
   it("reports Debbie 'The Warcrime Wagon' once its vehicle flamers resolve", () => {
     // mm-data TOS/Tortuga, an 80-ton SupportTank: pinned Java reports 10 too

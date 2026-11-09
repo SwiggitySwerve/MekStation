@@ -36,6 +36,7 @@ import { MatchSeatMembershipSource } from '../authorization/MatchSeatMembershipS
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { addSpectatorSeat } from '../lobby/spectatorSeats';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
+import { raceMetaWrites } from './matchMetaRace.test-helpers';
 
 // B14 seam: this suite pins the existing per-viewer fog filter beneath the
 // B14 refusal. Production has no per-viewer reveal projection and refuses.
@@ -281,6 +282,29 @@ describe('ServerMatchHost spectator connection — design D5', () => {
         (seat) => seat.occupant?.playerId === 'pid_watcher',
       ),
     ).toBe(true);
+    await host.closeMatch();
+  });
+
+  it('keeps a spectator who registers while another spectator detach is being persisted', async () => {
+    const { host, store, matchId } = await makeHostWithSpectator(false);
+    const socket = makeSocket();
+    await host.admitSocket(socket, 'pid_watcher');
+    // REST registration of a second viewer lands just before the detach write.
+    const race = raceMetaWrites(store, matchId, (fresh) => ({
+      seats: addSpectatorSeat(fresh.seats ?? [], {
+        playerId: 'pid_late',
+        displayName: 'Late',
+      }),
+    }));
+
+    host.detachSocket(socket);
+    await drainDrop(host, matchId);
+
+    expect(race.fired()).toBe(1);
+    const spectators = (await store.getMatchMeta(matchId)).seats
+      ?.filter((seat) => seat.kind === 'spectator')
+      .map((seat) => seat.occupant?.playerId);
+    expect(spectators).toEqual(['pid_late']);
     await host.closeMatch();
   });
 

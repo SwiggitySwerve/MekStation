@@ -8,7 +8,7 @@
  * This processor:
  * 1. Checks if it's Monday (weekly execution)
  * 2. Checks if AtB scenarios are enabled
- * 3. Filters for active contracts (endDate in future or undefined)
+ * 3. Filters for active contracts (status ACTIVE, endDate in future or undefined)
  * 4. For each combat team in each active contract:
  *    - Checks for battle occurrence
  *    - If battle: selects scenario type, calculates OpFor BV, generates conditions
@@ -48,7 +48,7 @@ import { calculateOpForBV } from '@/lib/campaign/scenario/opForGeneration';
 import { generateRandomConditions } from '@/lib/campaign/scenario/scenarioConditions';
 import { selectScenarioType } from '@/lib/campaign/scenario/scenarioTypeSelection';
 import { createDailyRandom } from '@/lib/campaign/utils/campaignRng';
-import { getActiveContracts } from '@/stores/campaign/campaignCommandSelectors';
+import { selectActiveContracts } from '@/stores/campaign/campaignCommandSelectors';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { ForceRole } from '@/types/campaign/enums';
 import { IContract } from '@/types/campaign/Mission';
@@ -232,7 +232,10 @@ function runScenarioGeneration(
   }
 
   // Process each active contract
-  const activeContracts = getActiveContracts(campaign);
+  // MekHQ only rolls scenarios for ACTIVE contracts: a settled contract (or a
+  // not-yet-accepted PENDING one) generates none, however long its end date
+  // still has to run.
+  const activeContracts = selectActiveContracts(campaign);
   for (const contract of activeContracts) {
     // Get combat teams for this contract (explicit or force-derived, D-9)
     const teams = getCombatTeamsForContract(campaign, contract);

@@ -1,19 +1,9 @@
 /**
  * AerospaceArmorDiagram
  *
- * Per-type armor diagram for aerospace fighters and conventional fighters.
- * Renders 4 firing arcs (Nose / Left Wing / Right Wing / Aft) plus a
- * Structural Integrity (SI) bar above the arcs.
- *
- * Per-arc capacity: derived from `tonnage * pointsPerTon(armorType)` and the
- * arc-share splits used by the store's auto-allocate routine. This keeps the
- * diagram caps consistent with the store's actual allocation logic and uses
- * the configured armor type (Standard / Ferro / etc.) rather than a static
- * 16 pts/ton assumption.
- *
- * Auto-Allocate: delegates to `useAerospaceStore.autoAllocateArmor()` which
- * already encapsulates the per-arc share table. The button is gated by the
- * fighter-vs-small-craft cap implicitly via the store's pointsPerTon lookup.
+ * Fighter and small-craft location diagrams with a separate SI bar.
+ * The construction owner supplies small-craft available points; their Side
+ * locations have no independent maximum. Auto-Allocate delegates to the store.
  *
  * Accessibility:
  *   - Per-arc inputs use the shared <ArmorAllocationInput> primitive which
@@ -36,32 +26,27 @@ import {
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { smallCraftArmor } from '@/utils/construction/aerospace/armor';
 import { maxArcArmorPointsForLocation } from '@/utils/construction/aerospace/armorArcCalculations';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
+import { getAerospaceArmorArcs } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Helpers
 // =============================================================================
 
 /**
- * Per-arc maximum armor points.
- *
- * Delegates to the canonical construction-spec utility (TechManual / StratOps
- * arc-factor tables: Nose 0.28, Wings/Sides 0.20 each, Aft 0.12 of tonnage).
- *
- * The previous local cap math derived arc maxima from `armorTonnage * pointsPerTon`
- * and a 35/25/25/15 share, then clamped against `tonnage * 8` / `tonnage * 16`.
- * That produced a cap ~10× larger than the construction-spec values and
- * disagreed with the tab's clamp-on-write (which already used 0.28-of-tonnage).
+ * Delegate to the family-aware bridge. Null means no independent location cap.
  */
 function getArcMax(
   tonnage: number,
   subType: AerospaceSubType,
   arc: AerospaceLocation,
-): number {
+): number | null {
   return maxArcArmorPointsForLocation(arc, tonnage, subType);
 }
 
@@ -74,12 +59,6 @@ interface AerospaceArmorDiagramProps {
 }
 
 // Arc display order with labels matching aerospace-unit-system spec arc names
-const ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: 'Nose' },
-  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
-  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
-  { arc: AerospaceLocation.AFT, label: 'Aft' },
-];
 
 // =============================================================================
 // Component
@@ -103,17 +82,42 @@ export function AerospaceArmorDiagram({
   const tonnage = useAerospaceStore((s) => s.tonnage);
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
   const armorType = useAerospaceStore((s) => s.armorType);
+  const smallCraftArmorType = useAerospaceStore((s) => s.smallCraftArmorType);
+  const techBase = useAerospaceStore((s) => s.techBase);
   const subType = useAerospaceStore((s) => s.aerospaceSubType);
+  const motionType = useAerospaceStore((s) => s.motionType);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const setArcArmor = useAerospaceStore((s) => s.setArcArmor);
 
   const si = useAerospaceStore((s) => s.structuralIntegrity);
   const siMax = si; // structural integrity equals SI rating
+  const craftArmor = useMemo(
+    () =>
+      subType === AerospaceSubType.SMALL_CRAFT
+        ? smallCraftArmor({
+            tonnage,
+            armorType,
+            armorTonnage,
+            smallCraftArmorType,
+            structuralIntegrity: si,
+            motionType,
+            techBase,
+          })
+        : undefined,
+    [
+      subType,
+      tonnage,
+      armorType,
+      armorTonnage,
+      smallCraftArmorType,
+      si,
+      motionType,
+      techBase,
+    ],
+  );
 
   // Resolve points-per-ton for the configured armor type (defaults to 16).
-  // Retained for availablePoints display below; per-arc cap math no longer
-  // depends on armorTonnage or pointsPerTon (caps come from chassis tonnage
-  // and arc-factor table, per construction spec).
+  // Fighter display keeps its existing points-per-ton path.
   const pointsPerTon = useMemo(() => {
     const def = getArmorDefinition(armorType);
     return def?.pointsPerTon ?? 16;
@@ -122,12 +126,13 @@ export function AerospaceArmorDiagram({
   const handleChange = useCallback(
     (arc: AerospaceLocation, raw: number) => {
       const max = getArcMax(tonnage, subType, arc);
-      setArcArmor(arc, Math.max(0, Math.min(max, raw)));
+      setArcArmor(arc, Math.max(0, max === null ? raw : Math.min(max, raw)));
     },
     [setArcArmor, tonnage, subType],
   );
 
-  const availablePoints = Math.floor(armorTonnage * pointsPerTon);
+  const availablePoints =
+    craftArmor?.availablePoints ?? Math.floor(armorTonnage * pointsPerTon);
 
   const handleAutoAllocate = useCallback(() => {
     const state = storeApi.getState();
@@ -143,6 +148,7 @@ export function AerospaceArmorDiagram({
       tonnage: state.tonnage,
       subType: state.aerospaceSubType,
       armorType: state.armorType,
+      smallCraftArmorType: state.smallCraftArmorType,
       armorTonnage: state.armorTonnage,
       allocation: { ...state.armorAllocation },
     };
@@ -160,6 +166,7 @@ export function AerospaceArmorDiagram({
           current.tonnage === requested.tonnage &&
           current.aerospaceSubType === requested.subType &&
           current.armorType === requested.armorType &&
+          current.smallCraftArmorType === requested.smallCraftArmorType &&
           current.armorTonnage === requested.armorTonnage &&
           shallow(current.armorAllocation, requested.allocation)
         );
@@ -219,55 +226,78 @@ export function AerospaceArmorDiagram({
           className="w-full max-w-[140px]"
           aria-hidden="true"
         >
-          {/* Fuselage */}
-          <path
-            d="M 80 15 L 95 55 L 95 145 L 80 160 L 65 145 L 65 55 Z"
-            className="fill-surface-raised stroke-border-theme"
-            strokeWidth="1.5"
-          />
-          {/* Left wing */}
-          <path
-            d="M 65 75 L 15 115 L 22 122 L 65 95"
-            className="fill-surface-raised stroke-border-theme"
-            strokeWidth="1.5"
-          />
-          {/* Right wing */}
-          <path
-            d="M 95 75 L 145 115 L 138 122 L 95 95"
-            className="fill-surface-raised stroke-border-theme"
-            strokeWidth="1.5"
-          />
-          {/* Nose highlight */}
-          <circle
-            cx="80"
-            cy="30"
-            r="6"
-            className="fill-cyan-900/30 stroke-cyan-500"
-            strokeWidth="1.5"
-          />
-          {/* Engine exhaust */}
-          <ellipse
-            cx="75"
-            cy="152"
-            rx="5"
-            ry="3"
-            className="fill-amber-900/30 stroke-amber-500"
-            strokeWidth="1"
-          />
-          <ellipse
-            cx="85"
-            cy="152"
-            rx="5"
-            ry="3"
-            className="fill-amber-900/30 stroke-amber-500"
-            strokeWidth="1"
-          />
+          {subType === AerospaceSubType.SMALL_CRAFT ? (
+            <g data-craft-shape={motionType}>
+              {motionType === AerospaceMotionType.SPHEROID ? (
+                <ellipse
+                  cx="80"
+                  cy="90"
+                  rx="55"
+                  ry="70"
+                  className="fill-surface-raised stroke-border-theme"
+                  strokeWidth="1.5"
+                />
+              ) : (
+                <path
+                  d="M80 15 L125 120 L110 155 L50 155 L35 120 Z"
+                  className="fill-surface-raised stroke-border-theme"
+                  strokeWidth="1.5"
+                />
+              )}
+            </g>
+          ) : (
+            <g>
+              {/* Fuselage */}
+              <path
+                d="M 80 15 L 95 55 L 95 145 L 80 160 L 65 145 L 65 55 Z"
+                className="fill-surface-raised stroke-border-theme"
+                strokeWidth="1.5"
+              />
+              {/* Left wing */}
+              <path
+                d="M 65 75 L 15 115 L 22 122 L 65 95"
+                className="fill-surface-raised stroke-border-theme"
+                strokeWidth="1.5"
+              />
+              {/* Right wing */}
+              <path
+                d="M 95 75 L 145 115 L 138 122 L 95 95"
+                className="fill-surface-raised stroke-border-theme"
+                strokeWidth="1.5"
+              />
+              {/* Nose highlight */}
+              <circle
+                cx="80"
+                cy="30"
+                r="6"
+                className="fill-cyan-900/30 stroke-cyan-500"
+                strokeWidth="1.5"
+              />
+              {/* Engine exhaust */}
+              <ellipse
+                cx="75"
+                cy="152"
+                rx="5"
+                ry="3"
+                className="fill-amber-900/30 stroke-amber-500"
+                strokeWidth="1"
+              />
+              <ellipse
+                cx="85"
+                cy="152"
+                rx="5"
+                ry="3"
+                className="fill-amber-900/30 stroke-amber-500"
+                strokeWidth="1"
+              />
+            </g>
+          )}
         </svg>
       </div>
 
       {/* Arc location blocks */}
       <div className="grid grid-cols-2 gap-3">
-        {ARCS.map(({ arc, label }) => {
+        {getAerospaceArmorArcs(subType).map(({ arc, label }) => {
           const current = (armorAllocation as Record<string, number>)[arc] ?? 0;
           const max = getArcMax(tonnage, subType, arc);
           return (

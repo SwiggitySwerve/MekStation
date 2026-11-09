@@ -64,6 +64,7 @@ import {
   sqliteConstraintMessage,
 } from '@/services/persistence/sqliteConstraintErrors';
 import { MATCH_ROOM_CODES_MIGRATION } from '@/services/persistence/SQLiteService.matchRoomCodes.migration';
+import { assertMatchCreateStatus } from '@/types/multiplayer/MatchStatus';
 
 import type { ICapabilityDatabaseHandle } from './durableCapabilityPorts';
 import type {
@@ -115,6 +116,7 @@ import {
   type IMatchProgressionReservation,
   type IMatchStore,
   type IMatchStreamRebuildStore,
+  type MatchMetaUpdateResult,
   type MatchPreparedCreateResult,
   type IPublicationOutboxStore,
   type IViewerDeliveryAcknowledgement,
@@ -141,7 +143,7 @@ import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
 } from './matchJournalAuthority';
-import { lobbyMatchMeta, patchMatchMeta } from './matchRoomCodes';
+import { lobbyMatchMeta, metaRevision, patchMatchMeta } from './matchRoomCodes';
 import { foldMatchSession } from './MatchSessionProjector';
 import {
   mirrorMatchBatchToJournal,
@@ -752,6 +754,7 @@ export class DurableMatchStore
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    assertMatchCreateStatus(meta.status);
     meta = lobbyMatchMeta(meta);
     // A match's invite code only resolves while it is in `lobby`
     // status — mirror `InMemoryMatchStore`'s indexing rule.
@@ -1680,15 +1683,48 @@ export class DurableMatchStore
     const row = this.getMatchRow(matchId);
     if (!row) throw new MatchNotFoundError(matchId);
     const before = JSON.parse(row.meta_json) as IMatchMeta;
+    this.writeMetaRow(matchId, patchMatchMeta(before, patch));
+  };
+
+  /**
+   * Compare-and-swap (M-H2). Read, revision check and write share one
+   * synchronous span, so a competing writer in this process cannot slip in;
+   * `AND meta_json = ?` makes the UPDATE itself the guard, so a writer on
+   * another connection that changed the row since it was read is a conflict
+   * too, never an overwrite.
+   */
+  updateMatchMetaIf = async (
+    matchId: string,
+    guard: { readonly expectedRevision: number },
+    patch: IMatchMetaPatch,
+  ): Promise<MatchMetaUpdateResult> => {
+    const row = this.getMatchRow(matchId);
+    if (!row) throw new MatchNotFoundError(matchId);
+    const before = JSON.parse(row.meta_json) as IMatchMeta;
+    if (metaRevision(before) !== guard.expectedRevision) {
+      return { kind: 'conflict', meta: before };
+    }
     const nextMeta = patchMatchMeta(before, patch);
+    if (this.writeMetaRow(matchId, nextMeta, row.meta_json) !== 1) {
+      return { kind: 'conflict', meta: await this.getMatchMeta(matchId) };
+    }
+    return { kind: 'applied', meta: nextMeta };
+  };
+
+  /** Row writer for metadata; `unchangedFrom` adds the compare-and-swap guard. */
+  private writeMetaRow(
+    matchId: string,
+    nextMeta: IMatchMeta,
+    unchangedFrom?: string,
+  ): number {
     // Invite codes resolve ONLY while the match is in `lobby` status.
     const indexedRoomCode = nextMeta.roomCode ?? null;
     try {
-      this.db
+      return this.db
         .prepare(
           `UPDATE mp_matches
          SET status = ?, room_code = ?, updated_at = ?, meta_json = ?
-         WHERE match_id = ?`,
+         WHERE match_id = ?${unchangedFrom === undefined ? '' : ' AND meta_json = ?'}`,
         )
         .run(
           nextMeta.status,
@@ -1696,11 +1732,12 @@ export class DurableMatchStore
           nextMeta.updatedAt,
           JSON.stringify(nextMeta),
           matchId,
-        );
+          ...(unchangedFrom === undefined ? [] : [unchangedFrom]),
+        ).changes;
     } catch (error) {
       throwRoomCodeWriteError(error, indexedRoomCode);
     }
-  };
+  }
 
   getMatchByRoomCode = async (roomCode: string): Promise<IMatchMeta | null> => {
     const normalized = normalizeRoomCode(roomCode);

@@ -397,10 +397,20 @@ function handleUndoAction(context: GameplayActionContext): void {
 }
 
 function handleSkipAction(context: GameplayActionContext): void {
-  const { session } = context;
-  if (canAdvancePhase(session)) {
-    context.set({ session: advancePhase(session) });
+  const { session, interactiveSession } = context;
+  if (!canAdvancePhase(session)) return;
+
+  if (interactiveSession) {
+    // The guarded advance: locks stragglers, resolves attacks, queues and
+    // drains PSRs, runs morale, and honours the End-phase game-over guard.
+    interactiveSession.advancePhase();
+    syncStoreAfterInteractiveAdvance(context, interactiveSession);
+    return;
   }
+
+  // The only raw advance left: a store session with no InteractiveSession
+  // behind it (store-only demo and test sessions). A live game always has one.
+  context.set({ session: advancePhase(session) });
 }
 
 function handleClearAction(context: GameplayActionContext): void {
@@ -410,9 +420,22 @@ function handleClearAction(context: GameplayActionContext): void {
 }
 
 function handleNextTurnAction(context: GameplayActionContext): void {
-  const { session, phase } = context;
+  const { session, phase, interactiveSession } = context;
   if (phase !== GamePhase.End && phase !== GamePhase.Initiative) return;
 
+  if (interactiveSession) {
+    // End -> Initiative drains PSRs and honours the game-over guard (the
+    // phase stays End once the game is over); Initiative -> Movement rolls
+    // initiative.
+    if (phase === GamePhase.End) interactiveSession.advancePhase();
+    if (interactiveSession.getState().phase === GamePhase.Initiative) {
+      interactiveSession.advancePhase();
+    }
+    syncStoreAfterInteractiveAdvance(context, interactiveSession);
+    return;
+  }
+
+  // Raw path: same store-only case as `handleSkipAction`.
   const advancedSession =
     phase === GamePhase.End ? advancePhase(session) : session;
   const updatedSession = advancePhase(rollInitiative(advancedSession));
@@ -443,6 +466,19 @@ function clearSelectedUnit(
 function setSessionFromInteractive(context: GameplayActionContext): void {
   if (!context.interactiveSession) return;
   context.set({ session: context.interactiveSession.getSession() });
+}
+
+/** Same store sync `advanceInteractivePhaseLogic` does after an advance. */
+function syncStoreAfterInteractiveAdvance(
+  context: GameplayActionContext,
+  interactiveSession: InteractiveSession,
+): void {
+  context.set({
+    session: interactiveSession.getSession(),
+    interactivePhase: interactiveSession.isGameOver()
+      ? InteractivePhase.GameOver
+      : InteractivePhase.SelectUnit,
+  });
 }
 
 function rotateFacing(facing: Facing, delta: 1 | -1): Facing {

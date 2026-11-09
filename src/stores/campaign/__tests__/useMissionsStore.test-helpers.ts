@@ -394,6 +394,21 @@ describe('useMissionsStore', () => {
     });
 
     describe('getCompletedMissions', () => {
+      it('includes a BREACH mission, which is terminal like the others', () => {
+        store
+          .getState()
+          .addMission(
+            createTestMission({ name: 'Breach', status: MissionStatus.BREACH }),
+          );
+
+        expect(
+          store
+            .getState()
+            .getCompletedMissions()
+            .map((m) => m.name),
+        ).toEqual(['Breach']);
+      });
+
       it('should return SUCCESS, PARTIAL, and FAILED missions', () => {
         const success = createTestMission({
           name: 'Success',
@@ -481,9 +496,7 @@ describe('useMissionsStore', () => {
           MissionStatus.PARTIAL,
           MissionStatus.FAILED,
           MissionStatus.BREACH,
-          MissionStatus.CANCELLED,
           MissionStatus.PENDING,
-          MissionStatus.ABORTED,
         ];
 
         statuses.forEach((status) => {

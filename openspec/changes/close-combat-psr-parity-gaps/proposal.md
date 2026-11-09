@@ -17,7 +17,7 @@ Sequential PRs, one gap each:
 2. **C-2.** Terrain rules to the pin: drop exiting-water and running-through-rough
    rolls, roll water on every water hex, ice as reckless movement, ultra-rubble
    +1, and fold the displacement producer into the shared one.
-3. **C-1.** Interactive movement damage, control and enhancement PSRs.
+3. **C-1.** Interactive movement damage, control and enhancement PSRs, in three PRs. C-1a: running with a damaged hip or gyro rolls once per move (`MovePathHandler.java:1283-1286`, `TWRulesPSR.java:62-77`) in every path. C-1b: flanking-and-turning and controlled sideslip belong to VTOL, hover and WiGE only (`MovePathHandler.java:3715-3727`). C-1c: MASC and Supercharger failure.
 4. **C-3.** Per-step rolls that cut the move short on a failure.
 5. **C-4a.** Vehicle bog-down in the shared producer.
 
@@ -37,7 +37,29 @@ The dual-cockpit threshold is implemented in `checkPhaseDamagePSR` but has no
 unit-state source yet: MekStation has no dual-cockpit construction type and no
 multi-crew model, so no caller sets `dualCockpitDedicatedPilot`.
 
+C-2: no schema-pack, payload or persisted-format change. `ExitingWater` and
+`RunningRoughTerrain` stay in `PSRTrigger` and keep their factories, so older
+journals and replays parse and resolve as before; only the producers stop
+emitting them. `createRubblePSR` gains an optional rubble level. Runner output
+changes are listed in the C-2 PR: no exit-water or rough PSR in movement or
+domino displacement, a water PSR for every water hex entered, an ice PSR per
+non-jump step in an ice hex (none on a jump landing), and domino displacement
+no longer queues rubble or ice PSRs.
+
+C-1a: no schema-pack, payload or persisted-format change. The runner now queues one running-with-damage PSR per move instead of one hip PSR per forward step plus a separate gyro PSR, and none for a destroyed-leg hip or a first heavy-duty gyro hit. Interactive, AI, engine and P2P movement queue the same PSR, which they did not before. `RunningDamagedHip` and `RunningDamagedGyro` keep their factories and reason codes.
+
 ## Non-goals
 
 - The post-phase PSR drain timing (MegaMek resolves after Movement, Firing and
   Physical; MekStation drains at End) is a separate follow-up.
+- Careful movement (the `checkRecklessMove` exemption) is not modelled; ice
+  rolls as the non-careful case.
+- Ice-covered water: the jump-landing PSR and ice breaking
+  (`MovePathHandler.java:1573-1611`) are not modelled; a jump landing on ice
+  rolls nothing.
+- The pin applies the displacement terrain checks to every displacement (push,
+  charge, DFA); the runner still applies them to domino displacement only.
+- Skidding on ice (`Entity.checkSkid`, `Entity.java:9514-9517`) applies to walking
+  as well as running, and uses a move-and-turn step rather than a turn step.
+- Lateral shifts are not terrain-bearing steps in the shared producer.
+- The pavement exemption for rubble and water (`isPavementStep`) is not modelled.

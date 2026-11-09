@@ -7,13 +7,6 @@
  */
 
 export {
-  MTFImportService,
-  getMTFImportService,
-  type IMTFImportResult,
-  type IValidationOptions,
-} from './MTFImportService';
-
-export {
   MTFParserService,
   getMTFParserService,
   type IMTFParseResult,

@@ -27,6 +27,22 @@ export function getLargeAerospaceArcs(
     : LARGE_AEROSPACE_ARCS;
 }
 
+/**
+ * Equal mounts the pinned calculator sums before valuation
+ * (LargeAeroBVCalculator.canBeSummed: type, physical location, rear flag and
+ * link type). Facts for native trace terms only; no stage reads them.
+ */
+export interface ILargeAerospaceWeaponGroup {
+  readonly id: string;
+  /** Physical location, which can differ from the BV arc for rear mounts. */
+  readonly location: CapitalArc;
+  readonly count: number;
+  /** Sum of the unweighted, link-multiplied mount values. */
+  readonly weaponBV: number;
+  /** One capacitor addition for the group, applied after arc weighting. */
+  readonly capacitorBV: number;
+}
+
 /** Native type/rack keys and mount valuation must be supplied by their owner. */
 export interface ILargeAerospaceArcBV {
   readonly arc: CapitalArc;
@@ -39,6 +55,9 @@ export interface ILargeAerospaceArcBV {
   readonly ammoBVByType?: Readonly<Record<string, number>>;
   /** Unmodified ammo-using weapon type BV, not the modified weaponBV above. */
   readonly weaponBVByAmmoType?: Readonly<Record<string, number>>;
+  /** Native cap entries of defensive launchers; trace-only, never capped against. */
+  readonly nonOffensiveCapBVByAmmoType?: Readonly<Record<string, number>>;
+  readonly weaponGroups?: readonly ILargeAerospaceWeaponGroup[];
 }
 
 export interface ILargeAerospaceFirePoolInput {

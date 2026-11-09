@@ -17,18 +17,11 @@ import { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
 
 import { EquipmentBrowser } from '../equipment/EquipmentBrowser';
 import { customizerStyles as cs } from '../styles';
+import { AEROSPACE_ARC_OPTIONS } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Constants
 // =============================================================================
-
-const AEROSPACE_ARC_OPTIONS: { value: AerospaceLocation; label: string }[] = [
-  { value: AerospaceLocation.NOSE, label: 'Nose' },
-  { value: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
-  { value: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
-  { value: AerospaceLocation.AFT, label: 'Aft' },
-  { value: AerospaceLocation.FUSELAGE, label: 'Fuselage' },
-];
 
 // =============================================================================
 // Types

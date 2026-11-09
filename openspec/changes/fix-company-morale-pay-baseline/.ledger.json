@@ -1,0 +1,6 @@
+{
+  "name": "fix-company-morale-pay-baseline",
+  "status": "in-progress",
+  "reason": "Root-ruled K-M4 PR4b: company morale scores paid costs 0 and missed pay -1 (explicit app-design correction to the Steady-to-Elite drift, not MekHQ parity); a day with no costs event stays neutral.",
+  "lastReviewed": "2026-11-09"
+}

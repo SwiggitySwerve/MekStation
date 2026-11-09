@@ -119,7 +119,7 @@ const requiredSurfaces = [
     allowedCoverageStatuses: ['ready-with-scope'],
     commandIncludes: [
       'validate:combat:gaps -- --format=summary --expect-total=0',
-      'openspec validate --all --strict',
+      'npm.cmd run openspec:validate',
     ],
   },
 ];

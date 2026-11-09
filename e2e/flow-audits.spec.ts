@@ -820,7 +820,14 @@ const FLOW_STAGES: Record<string, Record<string, FlowStageRunner>> = {
       });
       await fr.checkpoint('pilot-created', async (p) => {
         await p.getByRole('button', { name: 'Create Pilot' }).click();
-        await p.waitForURL(/\/gameplay\/pilots\/[^/?#]+/, { timeout: 30_000 });
+        // The creation URL also has one segment after /pilots/.
+        await p.waitForURL(
+          (url) =>
+            /^\/gameplay\/pilots\/(?!create(?:\/|$))[^/]+\/?$/.test(
+              url.pathname,
+            ),
+          { timeout: 30_000 },
+        );
       });
       const pilotId = pilotIdFromUrl(env.page);
       env.ctx.pilotId = pilotId;

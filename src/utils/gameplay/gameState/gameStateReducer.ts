@@ -96,12 +96,12 @@ function getSurvivingUnitsForSide(
   // considered withdrawn and SHALL NOT count toward its side's
   // remaining-unit total — even though `destroyed` stays false so that
   // post-battle summaries can distinguish withdrawal from combat loss.
+  // `onField` is the shared "still in the fight" read (not destroyed,
+  // retreated or ejected). The engine winner check
+  // (`GameEngine.determineWinnerFromState`) and the outcome calculator
+  // (`GameOutcomeCalculator`) count survivors with the same one.
   return Object.values(state.units).filter(
-    (unit) =>
-      !unit.destroyed &&
-      !unit.hasRetreated &&
-      !unit.hasEjected &&
-      unit.side === side,
+    (unit) => getUnitOperability(unit).onField && unit.side === side,
   );
 }
 

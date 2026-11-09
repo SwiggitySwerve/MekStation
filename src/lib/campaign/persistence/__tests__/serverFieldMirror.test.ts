@@ -163,6 +163,7 @@ function buildExtendedCampaign(): ICampaignWithCommand & {
         occurredAt: '3025-02-01T00:00:00.000Z',
       },
     ],
+    moraleCountedMatchIds: ['match-1', 'match-2'],
     currentSystemId: 'new-avalon',
     coopSession: { mode: 'host', roomCode: 'ROOM-42' },
     gmInterventionEvents: [
@@ -338,6 +339,7 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.moraleState).toBe(MoraleState.High);
     expect(restored.moraleTransitions).toHaveLength(1);
     expect(restored.moraleTransitions![0].to).toBe(MoraleState.High);
+    expect(restored.moraleCountedMatchIds).toEqual(['match-1', 'match-2']);
     expect(restored.currentSystemId).toBe('new-avalon');
     expect(restored.coopSession).toEqual({ mode: 'host', roomCode: 'ROOM-42' });
     expect(restored.gmInterventionEvents).toHaveLength(1);
@@ -426,6 +428,7 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     const wire = JSON.parse(JSON.stringify(body)) as SerializedCampaignBody;
     expect('refitOrders' in wire).toBe(false);
     expect('moraleState' in wire).toBe(false);
+    expect('moraleCountedMatchIds' in wire).toBe(false);
     expect('loans' in wire.finances).toBe(false);
 
     const restored = deserializeCampaignBody(wire) as ICampaignWithCommand;
@@ -436,6 +439,7 @@ describe('T3 — server-side campaign serialization field mirror', () => {
     expect(restored.refitOrders).toBeUndefined();
     expect(restored.unitPrestige).toBeUndefined();
     expect(restored.moraleState).toBeUndefined();
+    expect(restored.moraleCountedMatchIds).toBeUndefined();
     expect(restored.currentSystemId).toBeUndefined();
     expect(restored.coopSession).toBeUndefined();
     expect(restored.gmInterventionEvents).toBeUndefined();

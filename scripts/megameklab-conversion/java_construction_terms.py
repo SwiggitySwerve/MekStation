@@ -17,12 +17,14 @@ def construction_errors(rows):
             result = construction['reconstruction']
             unavailable = construction.get('weightTermsStatus')
             if unavailable:
-                if (unavailable['status'] == 'unsupported' and unavailable['reason'].strip()
-                        and row['path'].startswith('infantry/') and result.get('ok') is False
-                        and result.get('status') == 'unsupported' and 'weightTerms' not in construction):
-                    continue
                 raise ValueError(str(unavailable))
             terms = construction['weightTerms']
+            if row['path'].startswith('infantry/'):
+                # TestInfantry.getWeightExact: a mounted unit has only mount terms; otherwise trooper.base leads.
+                kinds = {key.split('.')[0] for key in terms}
+                if not (('mount.weight' in terms and kinds == {'mount'})
+                        or ('trooper.base' in terms and kinds <= {'trooper', 'fieldWeapon', 'ammo'})):
+                    raise ValueError('infantry weight terms need exactly one base: ' + ', '.join(sorted(terms)))
             numbers = [*terms.values(), construction['weightTotal'], construction['weightRemainder']]
             if not terms or any(type(value) not in (int, float) or not math.isfinite(value) for value in numbers):
                 raise ValueError('empty/nonfinite construction weights')

@@ -31,6 +31,7 @@ import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
+import type { MatchStatus } from '@/types/multiplayer/MatchStatus';
 
 import type {
   IMatchCommandBatch,
@@ -44,11 +45,11 @@ import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
 // =============================================================================
 
 /**
- * Match lifecycle states. `lobby` -> `active` -> `completed`. Wave 3b
- * (lobby) extends this slightly (`pending` for awaiting reconnect) but
- * the base set is locked here so Wave 1 stores can be forward-compatible.
+ * Match lifecycle states, `lobby` -> `active` -> `completed`. The union and
+ * the transition table live in `@/types/multiplayer/MatchStatus`; both stores
+ * enforce them in `patchMatchMeta` and on create.
  */
-export type MatchStatus = 'lobby' | 'active' | 'completed';
+export type { MatchStatus };
 
 /**
  * Player <-> side assignment. Wave 1 keeps this simple — Wave 3b's
@@ -144,6 +145,14 @@ export interface IMatchMeta {
   readonly unitBootstrap?: readonly IMatchUnitBootstrapEntry[];
   readonly coopCampaign?: IMatchCoopCampaignRegistration;
   readonly coopMission?: IMatchCoopMission;
+  /**
+   * Compare-and-swap token for metadata writes. Every `updateMatchMeta`,
+   * `updateMatchMetaIf` and `closeMatch` bumps it; an event append does not.
+   * Absent on rows written before it existed, which read as 0 (see
+   * `metaRevision`), so no migration or DDL is needed and an older binary
+   * simply ignores the extra JSON key.
+   */
+  readonly revision?: number;
 }
 
 /**
@@ -172,6 +181,11 @@ export type IMatchMetaPatch = Partial<
 > & {
   readonly roomCode?: string | null;
 };
+
+/** Outcome of a guarded metadata write; `meta` is the resulting or current row. */
+export type MatchMetaUpdateResult =
+  | { readonly kind: 'applied'; readonly meta: IMatchMeta }
+  | { readonly kind: 'conflict'; readonly meta: IMatchMeta };
 
 // =============================================================================
 // Durable publication outbox
@@ -524,6 +538,21 @@ export interface IMatchStore
   updateMatchMeta(matchId: string, patch: IMatchMetaPatch): Promise<void>;
 
   /**
+   * Apply `patch` only if the stored revision still equals
+   * `guard.expectedRevision`, as one atomic step. A stale revision (or, in
+   * the durable store, a row another connection changed since it was read)
+   * answers `conflict` with the current metadata and writes nothing. Every
+   * seat writer goes through this via `updateMatchSeats`, so two writers can
+   * no longer overwrite each other's seats. An illegal status edge still
+   * throws, and an unknown match throws `MatchNotFoundError`.
+   */
+  updateMatchMetaIf(
+    matchId: string,
+    guard: { readonly expectedRevision: number },
+    patch: IMatchMetaPatch,
+  ): Promise<MatchMetaUpdateResult>;
+
+  /**
    * Mark the match as `completed` and free any in-memory bookkeeping.
    * Idempotent — closing an already-closed match is a no-op.
    */
@@ -616,8 +645,10 @@ export interface IMatchStore
   /**
    * Move the live match-log tail from `fromSequence` inclusive into
    * superseded sibling storage. A rewind activation uses this so the
-   * next append can reuse the cut sequence. Optional: a store without
-   * it still has the old full-log unique space.
+   * next append can reuse the cut sequence. Durable viewer delivery
+   * records and acknowledgements are discarded for the entire match
+   * in the same transaction, because rebuilt replay renumbers from zero.
+   * Optional: a store without it still has the old full-log unique space.
    */
   supersedeFrom?(
     matchId: string,

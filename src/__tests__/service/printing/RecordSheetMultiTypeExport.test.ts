@@ -311,9 +311,7 @@ describe('multi-type record sheet export', () => {
     const data = service.extractData({ ...vehicleUnit, armorAllocation: {} });
     if (data.unitType !== 'vehicle') throw new Error('Expected vehicle data');
 
-    expect(data.armorLocations).toEqual([
-      { location: 'Front', current: 0, maximum: 0 },
-    ]);
+    expect(data.armorLocations).toEqual([{ location: 'Front', current: 0 }]);
     expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
   });
 

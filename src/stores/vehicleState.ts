@@ -38,6 +38,8 @@ import {
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
+import type { IUnitSaveMetadata } from './unitSaveState';
+
 // =============================================================================
 // Vehicle Armor Allocation
 // =============================================================================
@@ -134,7 +136,8 @@ export function createVehicleMountedEquipment(
 /**
  * Complete state for a single vehicle
  */
-export interface VehicleState extends IVehicleTurretSourceContext {
+export interface VehicleState
+  extends IVehicleTurretSourceContext, IUnitSaveMetadata {
   // =========================================================================
   // Identity
   // =========================================================================

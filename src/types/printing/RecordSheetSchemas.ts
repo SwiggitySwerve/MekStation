@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { AEROSPACE_ARC_LABELS } from '@/types/construction/aerospaceArcLabels';
 import {
   getMechCrewRoles,
   MECH_CREW_ROLES,
@@ -190,7 +191,7 @@ export const VehicleCrewMemberSchema = z.object({
 export const VehicleLocationArmorSchema = z.object({
   location: z.enum(RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS),
   current: z.number(),
-  maximum: z.number(),
+  maximum: z.number().optional(),
   bar: z.number().optional(),
 });
 
@@ -212,9 +213,9 @@ export const VehicleRecordSheetDataSchema = z.object({
 });
 
 export const AerospaceArcArmorSchema = z.object({
-  arc: z.enum(['Nose', 'Left Wing', 'Right Wing', 'Aft']),
+  arc: z.enum(AEROSPACE_ARC_LABELS),
   current: z.number(),
-  maximum: z.number(),
+  maximum: z.number().optional(),
 });
 
 export const AerospaceRecordSheetDataSchema = z.object({
@@ -228,6 +229,7 @@ export const AerospaceRecordSheetDataSchema = z.object({
   maxThrust: z.number(),
   heatSinks: RecordSheetHeatSinksSchema,
   armorType: z.string(),
+  barRating: z.number().optional(),
   armorArcs: z.array(AerospaceArcArmorSchema),
   equipment: z.array(RecordSheetEquipmentSchema),
   bombBaySlots: z.number(),
@@ -256,6 +258,7 @@ export const BattleArmorRecordSheetDataSchema = z.object({
   walkMP: z.number(),
   umuMP: z.number(),
   vtolMP: z.number(),
+  movementMode: z.enum(['ground', 'jump', 'vtol', 'umu']).optional(),
   specialAbilities: z.array(RecordSheetSPAEntrySchema).optional(),
 });
 

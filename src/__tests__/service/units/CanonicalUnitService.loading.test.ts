@@ -7,6 +7,7 @@
  */
 
 import { CanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { LoadRequestCoordinator } from '@/services/units/unitLoaderService/LoadRequestCoordinator';
 
 /** The missing-family TTL agreed for S10 (30 seconds). */
 const MISSING_FAMILY_TTL_MS = 30_000;
@@ -175,6 +176,71 @@ describe('CanonicalUnitService loading resilience', () => {
   });
 
   describe('cache invalidation during a load', () => {
+    it('finishes a same-unit retry before the canceled read returns and preserves the newer cache', async () => {
+      const requests = new LoadRequestCoordinator();
+      const held = deferred();
+      fetchMock
+        .mockResolvedValueOnce(indexResponse())
+        .mockReturnValueOnce(held.promise)
+        .mockResolvedValueOnce(unitResponse());
+      const oldTicket = requests.begin('canonical:atlas', () =>
+        service.invalidateUnit('atlas-as7-d'),
+      )!;
+      const old = service.getById('atlas-as7-d', { strict: true });
+      await jest.advanceTimersByTimeAsync(0);
+      requests.cancel();
+      const nextTicket = requests.begin('canonical:atlas')!;
+      let accepted: unknown;
+      const retry = service
+        .getById('atlas-as7-d', { strict: true })
+        .then((unit) => {
+          accepted = unit;
+          requests.finish(nextTicket);
+          return unit;
+        });
+      try {
+        await jest.advanceTimersByTimeAsync(0);
+        expect(unitFetches()).toBe(2);
+        expect(accepted).toMatchObject({ variant: 'AS7-D' });
+      } finally {
+        held.resolve({
+          ok: true,
+          json: async () => ({ ...ATLAS_UNIT, variant: 'stale' }),
+        });
+        await Promise.all([old, retry]);
+      }
+      expect(requests.isCurrent(oldTicket)).toBe(false);
+      expect(await service.getById('atlas-as7-d')).toBe(accepted);
+      expect(unitFetches()).toBe(2);
+    });
+
+    it('keeps two non-canceled coordinator consumers on one canonical read', async () => {
+      const firstConsumer = new LoadRequestCoordinator();
+      const secondConsumer = new LoadRequestCoordinator();
+      const release = jest.fn(() => service.invalidateUnit('atlas-as7-d'));
+      const held = deferred();
+      fetchMock
+        .mockResolvedValueOnce(indexResponse())
+        .mockReturnValueOnce(held.promise);
+      const firstTicket = firstConsumer.begin('canonical:atlas', release)!;
+      const secondTicket = secondConsumer.begin('canonical:atlas', release)!;
+      const first = service.getById('atlas-as7-d', { strict: true });
+      const second = service.getById('atlas-as7-d', { strict: true });
+      await jest.advanceTimersByTimeAsync(0);
+      expect(unitFetches()).toBe(1);
+      held.resolve(unitResponse());
+      const [a, b] = await Promise.all([first, second]);
+      expect(a).toMatchObject({ id: 'atlas-as7-d' });
+      expect(b).toBe(a);
+      firstConsumer.finish(firstTicket);
+      secondConsumer.finish(secondTicket);
+      firstConsumer.cancel();
+      secondConsumer.cancel();
+      expect(release).not.toHaveBeenCalled();
+      expect(await service.getById('atlas-as7-d')).toBe(a);
+      expect(unitFetches()).toBe(1);
+    });
+
     it('does not cache a unit whose load was invalidated mid-flight', async () => {
       const slowUnit = deferred();
       fetchMock.mockImplementation(async (url: string) =>

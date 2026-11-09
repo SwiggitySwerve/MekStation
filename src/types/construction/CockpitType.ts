@@ -23,6 +23,15 @@ export enum CockpitType {
   INTERFACE = 'Interface',
   VRRP = 'Virtual Reality Piloting Pod',
   PRIMITIVE_INDUSTRIAL = 'Primitive Industrial',
+  DUAL = 'Dual',
+  TRIPOD = 'Tripod',
+  QUADVEE = 'QuadVee',
+  SUPER_HEAVY_TRIPOD = 'Superheavy Tripod',
+  SUPER_HEAVY_INDUSTRIAL = 'Superheavy Industrial',
+  SUPER_HEAVY_COMMAND_CONSOLE = 'Superheavy Command Console',
+  SMALL_COMMAND_CONSOLE = 'Small Command Console',
+  TRIPOD_INDUSTRIAL = 'Tripod Industrial',
+  SUPER_HEAVY_TRIPOD_INDUSTRIAL = 'Superheavy Tripod Industrial',
 }
 
 export const INTERFACE_COCKPIT_SOURCE_TAG = 'INTERFACE';
@@ -56,7 +65,7 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
   const head = new Map([
     [0, 'Life Support'],
     [1, 'Sensors'],
-    [2, 'Standard Cockpit'],
+    [2, cockpitName(type)],
     [4, 'Sensors'],
     [5, 'Life Support'],
   ]);
@@ -65,14 +74,22 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
     head.delete(5);
     head.set(2, 'Small Cockpit');
     head.set(3, 'Sensors');
-  } else if (type === CockpitType.COMMAND_CONSOLE) {
-    head.set(3, 'Command Console');
-  } else if (type === CockpitType.INTERFACE) {
-    // MegaMek 48fcb2f64 Mek.java:5709-5720 occupies both cockpit cells.
-    head.set(2, 'Interface Cockpit');
-    head.set(3, 'Interface Cockpit');
+  } else if (
+    type === CockpitType.COMMAND_CONSOLE ||
+    type === CockpitType.INTERFACE ||
+    type === CockpitType.DUAL ||
+    type === CockpitType.QUADVEE ||
+    type === CockpitType.SUPER_HEAVY_COMMAND_CONSOLE ||
+    type === CockpitType.SMALL_COMMAND_CONSOLE
+  ) {
+    head.set(3, cockpitName(type));
+    if (type === CockpitType.SMALL_COMMAND_CONSOLE) head.delete(5);
   }
   return { head, centerTorso: [], sideTorso: [] };
+}
+
+function cockpitName(type: string): string {
+  return type.endsWith('Console') ? type : `${type} Cockpit`;
 }
 
 /**
@@ -80,8 +97,8 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
  */
 export interface CockpitDefinition {
   readonly type: CockpitType;
-  /** Native source tag for variants absent from legacy mapper aliases. */
-  readonly sourceTag?: string;
+  /** Canonical source-format tag, shared by parsing and persistence. */
+  readonly sourceTag: string;
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -97,12 +114,40 @@ export interface CockpitDefinition {
   readonly clanIntroductionYear?: number;
 }
 
+/** Additional identities: Mek.java:3720-3894; mass: TestMek.java:225-248.
+ * Slot counts derive from the same topology consumed by validation. */
+function nativeCockpit(
+  type: CockpitType,
+  sourceTag: string,
+  weight: number,
+  introductionYear: number,
+  techBase = TechBase.INNER_SPHERE,
+  clanIntroductionYear?: number,
+): CockpitDefinition {
+  const systems = getCockpitSystemSlots(type);
+  return {
+    type,
+    sourceTag,
+    weight,
+    introductionYear,
+    ...(clanIntroductionYear === undefined ? {} : { clanIntroductionYear }),
+    techBase,
+    name: cockpitName(type),
+    // Native Dual is unofficial; the app maps that level to Experimental.
+    rulesLevel:
+      type === CockpitType.DUAL ? RulesLevel.EXPERIMENTAL : RulesLevel.ADVANCED,
+    headSlots: systems.head.size,
+    otherSlots: systems.centerTorso.length + systems.sideTorso.length * 2,
+  };
+}
+
 /**
  * All cockpit definitions
  */
 export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   {
     type: CockpitType.STANDARD,
+    sourceTag: 'STANDARD',
     name: 'Standard Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
@@ -113,6 +158,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.SMALL,
+    sourceTag: 'SMALL',
     name: 'Small Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -125,6 +171,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.COMMAND_CONSOLE,
+    sourceTag: 'COMMAND_CONSOLE',
     name: 'Command Console',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -135,6 +182,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.TORSO_MOUNTED,
+    sourceTag: 'TORSO_MOUNTED',
     name: 'Torso-Mounted Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -145,6 +193,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.PRIMITIVE,
+    sourceTag: 'PRIMITIVE',
     name: 'Primitive Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
@@ -155,6 +204,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.INDUSTRIAL,
+    sourceTag: 'INDUSTRIAL',
     name: 'Industrial Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
@@ -165,6 +215,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   },
   {
     type: CockpitType.SUPER_HEAVY,
+    sourceTag: 'SUPERHEAVY',
     name: 'Superheavy Cockpit',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
@@ -209,17 +260,56 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     otherSlots: 0,
     introductionYear: 2295,
   },
+  nativeCockpit(CockpitType.DUAL, 'DUAL', 4, 2463),
+  nativeCockpit(CockpitType.TRIPOD, 'TRIPOD', 4, 2585),
+  nativeCockpit(CockpitType.QUADVEE, 'QUADVEE', 4, 3125, TechBase.CLAN),
+  nativeCockpit(CockpitType.SUPER_HEAVY_TRIPOD, 'SUPERHEAVY_TRIPOD', 5, 3125),
+  nativeCockpit(
+    CockpitType.SUPER_HEAVY_INDUSTRIAL,
+    'SUPERHEAVY_INDUSTRIAL',
+    4,
+    2900,
+  ),
+  nativeCockpit(
+    CockpitType.SUPER_HEAVY_COMMAND_CONSOLE,
+    'SUPERHEAVY_COMMAND_CONSOLE',
+    7,
+    3055,
+  ),
+  nativeCockpit(
+    CockpitType.SMALL_COMMAND_CONSOLE,
+    'SMALL_COMMAND_CONSOLE',
+    5,
+    3055,
+    TechBase.INNER_SPHERE,
+    3080,
+  ),
+  nativeCockpit(CockpitType.TRIPOD_INDUSTRIAL, 'TRIPOD_INDUSTRIAL', 4, 3125),
+  nativeCockpit(
+    CockpitType.SUPER_HEAVY_TRIPOD_INDUSTRIAL,
+    'SUPERHEAVY_TRIPOD_INDUSTRIAL',
+    5,
+    2585,
+  ),
 ] as const;
 
 /** Shared native identity; legacy exact/fuzzy aliases retain their guards. */
 export function getNativeCockpitType(source: string): CockpitType | undefined {
-  const normalized = source.trim().toUpperCase();
-  return COCKPIT_DEFINITIONS.find(
-    (definition) =>
-      definition.sourceTag !== undefined &&
-      (definition.sourceTag === normalized ||
-        definition.type.toUpperCase() === normalized ||
-        definition.name.toUpperCase() === normalized),
+  const normalize = (value: string) =>
+    value.toUpperCase().replace(/[_\s-]/g, '');
+  const normalized = normalize(source);
+  // Preserve the old loader's abbreviated aliases; native short name is VRPP.
+  if (normalized === 'COMMAND') return CockpitType.COMMAND_CONSOLE;
+  if (normalized === 'TORSO' || normalized === 'TORSOCOCKPIT')
+    return CockpitType.TORSO_MOUNTED;
+  if (normalized === 'VRPP') return CockpitType.VRRP;
+  if (normalized === 'SUPERHEAVYCOMMAND')
+    return CockpitType.SUPER_HEAVY_COMMAND_CONSOLE;
+  if (normalized === 'SMALLCOMMAND') return CockpitType.SMALL_COMMAND_CONSOLE;
+  return COCKPIT_DEFINITIONS.find((definition) =>
+    [definition.sourceTag, definition.type, definition.name].some(
+      (value) => normalize(value) === normalized,
+    ),
   )?.type;
 }
 
@@ -252,6 +342,13 @@ export function getCockpitDefinition(
   type: CockpitType,
 ): CockpitDefinition | undefined {
   return COCKPIT_DEFINITIONS.find((def) => def.type === type);
+}
+
+/** Canonical source identity is owned with the cockpit definition. */
+export function getCockpitSourceTag(type: CockpitType): string {
+  const definition = getCockpitDefinition(type);
+  if (!definition) throw new Error(`Unknown cockpit type: ${type}`);
+  return definition.sourceTag;
 }
 
 /** TestEntity.java:1565-1569: unit side, or earliest introduction for mixed tech. */

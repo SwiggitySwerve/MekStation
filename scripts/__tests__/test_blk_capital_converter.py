@@ -186,6 +186,15 @@ class CapitalConverterTest(unittest.TestCase):
         )
         self.assertEqual(unit['transporters'], ['mekbay:4.0:2:-1::-1:0', 'asfbay:2.0:2:3::-1:0', 'cargobay:75.0:1:6::-1:0'])
 
+    def test_capital_sink_codes_do_not_infer_clan_equipment_identity(self):
+        # Aero.java:102-103; the capital loaders preserve the same sink_type integer.
+        for tech in ('IS Level 2', 'Clan Level 2', 'Mixed (Clan Chassis) Advanced',
+                     'Mixed (IS Chassis) Advanced'):
+            for code, expected in ((0, 'SINGLE'), (1, 'DOUBLE')):
+                with self.subTest(tech=tech, code=code):
+                    body = with_tag(with_tag(UNION_BLK, 'type', tech), 'sink_type', code)
+                    self.assertEqual(self.convert(body)['heatSinks'], {'type': expected, 'count': 80})
+
     def test_blk_armor_index_one_is_the_right_side(self):
         # BLKDropshipFile.java:196-199: armor[RW=1] -> LOC_RIGHT_WING, armor[LW=2] -> LOC_LEFT_WING.
         self.assertEqual(

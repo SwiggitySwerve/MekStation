@@ -26,3 +26,18 @@ the earliest side. The validation year (explicit campaign year when supplied,
 otherwise design introduction) permits dates through year + 5 inclusively.
 Unknown definitions have no available date to test. No chassis exceptions
 or changes to catalog dates belong in this rule.
+
+## Introductory ammunition legality
+
+`BattleMechAmmoTechLevel` owns the ammunition rules-level check for Introductory
+BattleMechs and OmniMechs. It compares each mounted ammunition definition's
+rules level with the unit's level through the existing enum comparison owner.
+Each illegal bin produces an error naming its ammunition. Non-ammunition,
+missing definitions and non-Introductory units are outside this rule's scope.
+Source loading remains independent of construction validity.
+
+Pinned MegaMek `48fcb2f64`: `TestMek.java:766` calls
+`TestEntity.hasIllegalTechLevels`; `TestEntity.java:1271-1286` compares ammunition's
+minimum rules level with the ammo rules level. The pinned Javelin JVN-10U has
+Introductory rules and two SRT 6 ammo bins, which Java rejects as non-box-set
+ammunition. Catalog metadata and its normalization are consumed unchanged.

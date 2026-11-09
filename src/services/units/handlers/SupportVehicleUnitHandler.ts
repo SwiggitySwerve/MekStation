@@ -52,6 +52,7 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
+import { createSupportRegistryMass } from './supportRegistryMass';
 import {
   UnitFieldParseMessages,
   UnitValidationMessages,
@@ -245,6 +246,14 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       barRating,
       cargoCapacity,
       fuelTonnage: document.fuel ?? 0,
+      baseChassisFireConWeight: getRawTagNumber(
+        rawTags,
+        'baseChassisFireConWeight',
+      ),
+      baseChassisSponsonPintleWeight:
+        getRawTagString(rawTags, 'baseChassisSponsonPintleWeight') === undefined
+          ? undefined
+          : getRawTagNumber(rawTags, 'baseChassisSponsonPintleWeight'),
       transporters: document.transporters ?? [],
       crewSize,
       passengerCapacity,
@@ -487,7 +496,10 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       }
     }
 
-    const unresolved = computeSupportVehicleWeight(unit).unresolved;
+    const unresolved = computeSupportVehicleWeight(
+      unit,
+      createSupportRegistryMass(unit.techBase),
+    ).unresolved;
     if (unresolved.length)
       warnings.push(`Construction weight incomplete: ${unresolved.join(', ')}`);
 
@@ -503,7 +515,10 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
    * Calculate support vehicle weight
    */
   protected calculateTypeSpecificWeight(unit: ISupportVehicle): number {
-    return computeSupportVehicleWeight(unit).total;
+    return computeSupportVehicleWeight(
+      unit,
+      createSupportRegistryMass(unit.techBase),
+    ).total;
   }
 
   /**

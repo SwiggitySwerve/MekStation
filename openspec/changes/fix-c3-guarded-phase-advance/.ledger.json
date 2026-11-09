@@ -1,0 +1,6 @@
+{
+  "name": "fix-c3-guarded-phase-advance",
+  "status": "in-progress",
+  "reason": "Wave 4 C3 PR3: route the store's Skip and Next Turn handlers through the interactive session's guarded phase advance, and let the store's interactive Advance leave PhysicalAttack. Behaviour change B1/B3, approved by Coordinator 4. PR1 (phase table) and PR2 (dead driver) are behaviour-preserving and need no change.",
+  "lastReviewed": "2026-11-09"
+}

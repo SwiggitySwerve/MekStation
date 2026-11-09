@@ -14,7 +14,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { rehydrateMissionMap } from '@/lib/campaign/persistence/missionSerialization';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
-import { MissionStatus } from '@/types/campaign/enums';
+import { isTerminalMissionStatus, MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract, isContract } from '@/types/campaign/Mission';
 import { IScenario } from '@/types/campaign/Scenario';
 
@@ -49,7 +49,7 @@ interface MissionsActions {
 
   /** Get all missions with ACTIVE status */
   getActiveMissions: () => IMission[];
-  /** Get all missions with terminal success statuses (SUCCESS, PARTIAL, FAILED) */
+  /** Get all missions with a terminal status (SUCCESS, PARTIAL, FAILED, BREACH) */
   getCompletedMissions: () => IMission[];
   /** Get all missions matching a specific status */
   getMissionsByStatus: (status: MissionStatus) => IMission[];
@@ -154,11 +154,8 @@ export function createMissionsStore(
           ),
 
         getCompletedMissions: () =>
-          Array.from(get().missions.values()).filter(
-            (m) =>
-              m.status === MissionStatus.SUCCESS ||
-              m.status === MissionStatus.PARTIAL ||
-              m.status === MissionStatus.FAILED,
+          Array.from(get().missions.values()).filter((m) =>
+            isTerminalMissionStatus(m.status),
           ),
 
         getMissionsByStatus: (status) =>
