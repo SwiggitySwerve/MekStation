@@ -41,6 +41,7 @@ import { maxArcArmorPointsForLocation } from '@/utils/construction/aerospace/arm
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
+import { AEROSPACE_ARMOR_ARCS as ARCS } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Helpers
@@ -74,12 +75,6 @@ interface AerospaceArmorDiagramProps {
 }
 
 // Arc display order with labels matching aerospace-unit-system spec arc names
-const ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: 'Nose' },
-  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
-  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
-  { arc: AerospaceLocation.AFT, label: 'Aft' },
-];
 
 // =============================================================================
 // Component

@@ -26,6 +26,7 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions } from '../tabs/SelectOptions';
 import { AerospaceArmorDiagram } from './AerospaceArmorDiagram';
+import { AEROSPACE_ARMOR_ARCS as AEROSPACE_ARCS } from './aerospaceLocationLabels';
 
 // =============================================================================
 // Constants
@@ -38,13 +39,6 @@ const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
   { value: ArmorTypeEnum.LIGHT_FERRO, label: 'Light Ferro-Fibrous' },
   { value: ArmorTypeEnum.HEAVY_FERRO, label: 'Heavy Ferro-Fibrous' },
   { value: ArmorTypeEnum.STEALTH, label: 'Stealth' },
-];
-
-const AEROSPACE_ARCS: { arc: AerospaceLocation; label: string }[] = [
-  { arc: AerospaceLocation.NOSE, label: 'Nose' },
-  { arc: AerospaceLocation.LEFT_WING, label: 'Left Wing' },
-  { arc: AerospaceLocation.RIGHT_WING, label: 'Right Wing' },
-  { arc: AerospaceLocation.AFT, label: 'Aft' },
 ];
 
 // =============================================================================
