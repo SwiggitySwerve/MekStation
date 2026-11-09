@@ -23,7 +23,7 @@ compares source rows byte for byte after removing only each unit's `rulesLevel`.
 
 `enum_mappings.map_mech_config` is the only owner of the `Config:` mapping; it has
 no table. The converter SHALL select the contract `configuration` the way pinned
-MegaMek `48fcb2f64` does, `MtfFile.java:285-310`: test `chassisConfig.contains(...)`
+MegaMek `48fcb2f64` does, `MtfFile.java:283-310`: test `chassisConfig.contains(...)`
 in the order QuadVee, Quad, LAM, Tripod, and build a `BipedMek` for everything else.
 `QuadVee` is tested before `Quad` because it contains it. The `OmniMek` and
 `FrankenMek` suffixes never change the geometry: `Tripod OmniMek` is a Tripod

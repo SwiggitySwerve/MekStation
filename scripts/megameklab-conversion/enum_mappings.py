@@ -260,7 +260,7 @@ def map_mech_location(value: str) -> str:
 def map_mech_config(value: str) -> str:
     """Map MTF config to the contract configuration.
 
-    MtfFile.java:285-310 (MegaMek 48fcb2f6) picks the class with contains(), in this
+    MtfFile.java:283-310 (MegaMek 48fcb2f6) picks the class with contains(), in this
     order: QuadVee, Quad, LAM, Tripod, else BipedMek. The OmniMek and FrankenMek
     suffixes therefore never change the geometry. A value that matches no token is
     Biped, exactly as in the pinned loader (see MTF_RULES.md).

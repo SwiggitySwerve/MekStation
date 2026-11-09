@@ -8,7 +8,7 @@ from enum_mappings import map_mech_config, map_mech_location
 from mtf_converter import MTFParser, dataclass_to_dict
 
 # Every distinct `Config:` value of the 4,263 pinned mm-data 50f7efe BattleMech sources, with the class
-# MtfFile.java:285-310 (48fcb2f6) builds: contains() in the order QuadVee, Quad, LAM, Tripod, else BipedMek.
+# MtfFile.java:283-310 (48fcb2f6) builds: contains() in the order QuadVee, Quad, LAM, Tripod, else BipedMek.
 PINNED_CONFIGS = [
     ('Biped', 'Biped'),
     ('Biped OmniMek', 'Biped'),
@@ -53,7 +53,7 @@ class TripodConversionTest(unittest.TestCase):
 
 
 class MechConfigurationTest(unittest.TestCase):
-    """MtfFile.java:285-310 picks the class by contains(), so the Omni suffix never changes the geometry."""
+    """MtfFile.java:283-310 picks the class by contains(), so the Omni suffix never changes the geometry."""
 
     def test_tripod_omnimek_source_converts_to_tripod(self):
         unit = MTFParser()._parse_lines(
