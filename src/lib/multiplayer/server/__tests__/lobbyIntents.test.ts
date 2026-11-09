@@ -18,6 +18,7 @@ import {
   type IIntent,
   type IServerMessage,
 } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
@@ -184,6 +185,54 @@ describe('ServerMatchHost lobby intents', () => {
       }),
     ]);
     expect(await store.getEvents(matchId)).toEqual(events);
+  });
+
+  it('refuses a LaunchMatch that races a completion with a typed, logged error', async () => {
+    const { host, store, matchId } = await makeLobbyHost();
+    const meta = await store.getMatchMeta(matchId);
+    await store.updateMatchMeta(matchId, {
+      seats: meta.seats?.map((seat) => ({
+        ...seat,
+        kind: seat.slotId === 'alpha-2' ? 'ai' : 'human',
+        ready: true,
+        occupant:
+          seat.slotId === 'alpha-2'
+            ? null
+            : {
+                playerId: seat.slotId === 'alpha-1' ? 'pid_host' : seat.slotId,
+                displayName: seat.slotId,
+              },
+      })),
+    });
+    // The match completes between the handler's read and its write.
+    const write = store.updateMatchMeta.bind(store);
+    jest
+      .spyOn(store, 'updateMatchMeta')
+      .mockImplementationOnce(async (id, patch) => {
+        await store.closeMatch(id);
+        return write(id, patch);
+      });
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    const frames = await host.handleIntent({
+      ...intent(matchId, 'pid_host', { kind: 'LaunchMatch' }),
+      intentId: 'launch-race',
+    });
+
+    expect(frames).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        intentId: 'launch-race',
+        reason: expect.stringContaining('completed'),
+      }),
+    ]);
+    expect((await store.getMatchMeta(matchId)).status).toBe('completed');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('match status'),
+      expect.objectContaining({ from: 'completed', to: 'active' }),
+    );
+    warn.mockRestore();
   });
 
   it('U4 broadcasts the originating SetReady intentId', async () => {

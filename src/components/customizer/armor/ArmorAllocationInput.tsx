@@ -23,8 +23,8 @@ export interface ArmorAllocationInputProps {
   label: string;
   /** Current value (must be finite — caller is responsible for default 0) */
   value: number;
-  /** Hard maximum the input clamps to */
-  max: number;
+  /** Hard maximum; null leaves the numeric input unbounded. */
+  max: number | null;
   /** Minimum (defaults to 0) */
   min?: number;
   /** Step amount used by the spinner (default 1) */
@@ -44,10 +44,10 @@ export interface ArmorAllocationInputProps {
 // =============================================================================
 
 /** Clamp a numeric value to the [min, max] range. */
-function clamp(raw: number, min: number, max: number): number {
+function clamp(raw: number, min: number, max: number | null): number {
   if (Number.isNaN(raw)) return min;
   if (raw < min) return min;
-  if (raw > max) return max;
+  if (max !== null && raw > max) return max;
   return raw;
 }
 
@@ -132,7 +132,7 @@ export function ArmorAllocationInput({
       type="number"
       value={value}
       min={min}
-      max={max}
+      max={max ?? undefined}
       step={step}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
