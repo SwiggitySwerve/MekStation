@@ -14,7 +14,10 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
-import { computeVehicleArmorWeight } from '@/utils/construction/vehicle/armor';
+import {
+  computeVehicleArmorWeight,
+  resolveVehicleClanArmor,
+} from '@/utils/construction/vehicle/armor';
 import { getVehicleSourceIdentity } from '@/utils/construction/vehicle/equipmentMounts';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { computeVehicleWeightBreakdown } from '@/utils/construction/vehicle/weightComposition';
@@ -49,11 +52,8 @@ export function computeNativeTankWeight(
   )
     return undefined;
   const clan = isClanSourceChassis(source.type);
-  // Entity.isClanArmor:1985-1999; unlike TechConstants.isClan, excludes ALL_CLAN.
-  const clanArmor =
-    unit.armorTechLevel === undefined || unit.armorTechLevel === -1
-      ? clan
-      : [2, 6, 8, 10].includes(unit.armorTechLevel);
+  // ArmorType.forEntity:96-101 uses TechConstants.isClan, including explicit -1.
+  const clanArmor = resolveVehicleClanArmor(unit.armorTechLevel, clan);
   const armorType = decodeBlkArmorType(unit.armorType, clanArmor);
   if (armorType === undefined) return undefined;
   const techBase = clan ? TechBase.CLAN : TechBase.INNER_SPHERE;

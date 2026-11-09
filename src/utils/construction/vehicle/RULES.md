@@ -780,3 +780,25 @@ This identity fix adds no inherent-sealing equipment charge or legality rule.
 rounding, missing context and the support guard, plus the mounted masses
 independently probed for the 19 frozen sealing gaps at mm-data `50f7efe`.
 The two armor-density gaps and one sponson gap remain separate follow-ups.
+
+## Native Tank armor technology and decorated array identity
+
+At MegaMek 48fcb2f64, construction armor weight uses `ArmorType.forEntity`
+(:96-101), which selects with `TechConstants.isClan` (:394-398). Only an absent
+BLK armor technology tag inherits the chassis side. Explicit `-1` selects IS,
+even on a Clan chassis; Clan levels are 2, 6, 8, 10 and 12. The shared armor
+owner supplies this decision to weight, introduction-year and slot callers.
+`Entity.isClanArmor` is a different API and is not the weight selection rule.
+The base and Bombast Chalchiuhtotolin sources therefore carry 7 and 7.5 tons
+of armor, respectively (`TestEntity.java:584-604`; `BLKTankFile.java:284-304`).
+
+Native equipment routing first preserves an existing exact technology route,
+then reuses the guarded lookup-token owner for mount decorators. `ISLMGA(ST)`
+and its Omni form retain the ISLMGA identity and 0.5-ton mass, like plain
+ISLMGA and converted islmgast (`ISLightMGA.java:67-83`). Source tokens, sponson
+flags and existing catalog IDs are retained. Clan arrays remain 0.25 tons.
+
+The frozen Myrmidon P (Tate) deficit was two misidentified arrays, not its
+sponson mechanism. Its mechanism already weighs 0.5 tons under the aggregate
+rule above (`MiscType.java:563-591`). Correcting the arrays makes its equipment
+term 11.5 tons and complete weight 40 tons without changing mechanism arithmetic.

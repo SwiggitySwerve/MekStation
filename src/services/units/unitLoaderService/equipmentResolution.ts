@@ -16,7 +16,10 @@ import {
   isAmmunitionEquipmentId,
   loadAmmunitionCatalog,
 } from '@/utils/construction/equipmentBV/catalogLoader';
-import { normalizeNativeEquipmentName as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import {
+  getNativeEquipmentLookupToken,
+  normalizeNativeEquipmentName as normalizeCatalogEquipmentId,
+} from '@/utils/construction/equipmentBV/normalization';
 import { getAmmunitionEntry } from '@/utils/construction/equipmentBV/resolution';
 import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import {
@@ -275,9 +278,7 @@ export function inferPreferredTechBaseFromCriticalSlots(
   locationSlots: ReadonlyArray<string | null> | undefined,
   equipmentNameKey: string,
 ): TechBase | null {
-  if (!locationSlots || locationSlots.length === 0) {
-    return null;
-  }
+  if (!locationSlots?.length) return null;
 
   for (const entry of locationSlots) {
     if (typeof entry !== 'string') {
@@ -346,7 +347,8 @@ function resolveTechRoutedEquipment(
   mode: TechBaseMode,
   slots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment | null {
-  const name = parseCriticalSlotToken(id).lookupToken;
+  const token = parseCriticalSlotToken(id).lookupToken;
+  const name = techRoute(token) ? token : getNativeEquipmentLookupToken(token);
   const route = techRoute(name);
   if (!route) return null;
   const side =
