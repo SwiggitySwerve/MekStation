@@ -246,7 +246,39 @@ rendering SHALL not infer assignments, add a third seat or distribute global opt
 
 #### Scenario: Existing rendering controls remain unchanged
 
-- **GIVEN** ordinary/superheavy tripod, single-pilot biped/quad/LAM or a payload without an explicit QuadVee roster
+- **GIVEN** ordinary/superheavy tripod or single-pilot biped/quad/LAM
 - **WHEN** the sheet is exported
 - **THEN** existing output remains unchanged
-- **AND** crew-roster authoring and persistence remain required separate work
+- **AND** a QuadVee without an explicit roster is covered by the native QuadVee sheet requirement below
+
+### Requirement: Native QuadVee sheet selection and blank seats
+
+A QuadVee SHALL be extracted with the `quadvee` mech type and print on the
+QuadVee template, not the quad template: MegaMekLab 62bf193 `PrintMek.java:112-131`
+tests the QuadVee flag before the Quad flag. A QuadVee SHALL always have the
+native two-seat QUADVEE crew (MegaMek 48fcb2f64 `QuadVee.java:164-166`), so a
+QuadVee without an explicit roster SHALL extract two unassigned seats
+(`PrintMek.java:343-348` shows the dual-seat panel regardless of names), and
+an explicit or authored roster SHALL print its named seats. The `quadvee` type
+SHALL use the quad armor and structure pip groups, which the QuadVee template carries.
+Tripod, Quad and Biped payloads SHALL NOT have a roster inferred.
+
+#### Scenario: QuadVee without crew
+
+- **GIVEN** a QuadVee payload with no roster
+- **WHEN** the sheet is extracted and printed
+- **THEN** it uses the `quadvee` type with Pilot and Gunner seats, both unassigned
+- **AND** the four leg armor and structure pip groups are drawn as for a Quad
+
+#### Scenario: QuadVee with authored seats
+
+- **GIVEN** a QuadVee whose editor crew seats were assigned and saved
+- **WHEN** the unit is reopened and printed
+- **THEN** the named seats print on the QuadVee template
+
+#### Scenario: Tripod without crew remains open
+
+- **GIVEN** a tripod with no explicit roster
+- **WHEN** the sheet is printed
+- **THEN** it still prints the legacy single-pilot panel, a required gap against MegaMekLab's native two- or three-seat panel
+- **AND** this gap is carried until a seat-less Tripod prints its native seats

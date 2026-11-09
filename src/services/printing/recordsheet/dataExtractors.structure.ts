@@ -41,7 +41,7 @@ export function extractStructure(unit: IUnitConfig): IRecordSheetStructure {
 
   let limbLocations: ILocationStructure[];
 
-  if (mechType === 'quad') {
+  if (mechType === 'quad' || mechType === 'quadvee') {
     limbLocations = [
       {
         location: 'Front Left Leg',

@@ -54,6 +54,7 @@ export interface VehicleUnitObjectInput extends RecordSheetUnitIdentityWithTonna
   flankMP: number;
   armorType: ArmorTypeEnum;
   armorAllocation: IVehicleArmorAllocation | IVTOLArmorAllocation;
+  usesBarArmor?: boolean;
   barRating: number | null;
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
@@ -188,7 +189,9 @@ export function buildVehicleUnitObject(
       isChinTurret: turretType === TurretType.CHIN,
       motionType: input.motionType,
     }),
-    barRating: input.barRating ?? undefined,
+    // The store keeps `barRating` after the armor changes away from BAR (and a
+    // new support vehicle starts at 7), so only `usesBarArmor` says it applies.
+    barRating: input.usesBarArmor ? (input.barRating ?? undefined) : undefined,
     equipment: input.equipment.map((eq) => ({
       id: eq.id,
       equipmentId: eq.equipmentId,

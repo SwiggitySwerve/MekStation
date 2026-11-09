@@ -158,9 +158,22 @@ Stores without acknowledgement support retain unacked accounting.
 
 A live rewind discards in-memory delivery records, acknowledgements,
 isolation, and refused-event resume markers before replaying the rebuilt stream.
+Match-tail supersession deletes all of that match's durable delivery records
+and acknowledgements inside the same transaction as the event, publication
+outbox and command-receipt supersession. Even retained events are renumbered
+from zero, so keeping any old delivery prefix would collide. Other matches'
+resume data stays untouched; a later transaction failure restores the deleted
+rows along with the authority tail. Authority history keeps its existing
+superseded sibling rows; viewer resume data is disposable.
 Restart recovery on an activated rewind skips the superseded delivery
 records and their acknowledgements. Both paths start the rebuilt stream
 with its own delivery numbers and acknowledgement window.
+
+Coordinated outcome correction uses the same supersession helper but does not
+rebuild the live host or reset its in-memory viewer counter. Continued sends
+therefore persist slots above zero without collisions. A reload through
+`loadFromRecords` rejects that non-contiguous record and falls back to full replay,
+so no superseded mapping can shift the restored cursor.
 
 The resync marks that send a seated player back to the rebuilt head also
 survive a restart: boot recovery of a match on an activated rewind branch marks

@@ -13,7 +13,12 @@ import {
   isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
 } from './powerAmplifier';
-import { computeTurretWeight } from './turret';
+import {
+  applyVehicleMountMechanismWeights,
+  computeTurretWeight,
+  isSponsonMechanismPayload,
+  isVehicleMechanismMountId,
+} from './turret';
 import {
   getMountSourceSize,
   resolveVehicleVariableMass,
@@ -92,6 +97,7 @@ export function computeSupportPayloadWeights(
         energy: false,
         laser: false,
         miscHeatExcluded: true,
+        known: false,
       };
     }
     // TestEntity.java:716-724,753-769: an artillery ammo category is not a weapon.
@@ -112,11 +118,16 @@ export function computeSupportPayloadWeights(
             : EquipmentCategory.MISC_EQUIPMENT,
         special: item.special,
       });
-    const resolvedWeight = resolveVehicleVariableMass(item, mount.equipmentId, {
-      tonnage: unit.tonnage,
-      engineWeight,
-      isSupportVehicle: true,
-    });
+    // The sponson and pintle mechanisms are weighed from their neighbours after
+    // every mount is known (see the pass below), not from a catalog value.
+    const mechanism = isVehicleMechanismMountId(item.id);
+    const resolvedWeight = mechanism
+      ? 0
+      : resolveVehicleVariableMass(item, mount.equipmentId, {
+          tonnage: unit.tonnage,
+          engineWeight,
+          isSupportVehicle: true,
+        });
     if (resolvedWeight === undefined) unresolved.push(mount.equipmentId);
     const weight = resolvedWeight ?? item.weight;
     // TestEntity.java:938-982: heat-neutral weapon load; small SVs need no sinks.
@@ -139,7 +150,35 @@ export function computeSupportPayloadWeights(
       id: item.id,
       laser: isInsulatorLinkableLaser(item),
       miscHeatExcluded: ammo || weapon,
+      known: resolvedWeight !== undefined,
     };
+  });
+  // MiscType.java:563-603: the sponson and pintle mechanisms, one owner shared
+  // with the editor. A mechanism whose weapons or payload have an unresolved
+  // mass is itself unresolved, never charged as if that mass were zero.
+  const mechanisms = mounts.map((m) => ({
+    id: m.id,
+    location: m.location,
+    weight: m.known ? m.weight : null,
+    // An unidentified non-ammunition mount may be the very weapon the pintle
+    // carries, so it must make the pintle unresolved, not weightless.
+    weapon: m.weapon || (!m.known && !m.ammo),
+    pintleMounted: m.isPintleTurretMounted === true,
+    sponsonPayload: isSponsonMechanismPayload({
+      isSponsonMounted: m.isSponsonMounted,
+      isAmmunition: m.ammo,
+      id: m.id,
+    }),
+  }));
+  applyVehicleMountMechanismWeights(mechanisms, {
+    baseChassisWeight: unit.baseChassisSponsonPintleWeight,
+    kilograms: unit.tonnage < 5,
+  });
+  mounts.forEach((mount, index) => {
+    if (!isVehicleMechanismMountId(mount.id)) return;
+    const weight = mechanisms[index].weight;
+    if (weight === null) unresolved.push(mount.equipmentId);
+    else mount.weight = weight;
   });
   const sum = (predicate: (mount: (typeof mounts)[number]) => boolean) =>
     mounts.filter(predicate).reduce((n, m) => n + m.weight, 0);

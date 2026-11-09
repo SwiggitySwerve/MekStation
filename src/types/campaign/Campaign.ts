@@ -10,7 +10,10 @@
 
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
-import type { ICombatOutcome } from '../combat/CombatOutcome';
+import type {
+  IAppliedCombatOutcome,
+  ICombatOutcome,
+} from '../combat/CombatOutcome';
 import type { IGmCampaignProjectedEffect } from '../interventions/GmCampaignInterventionTypes';
 import type { IGmTimeCascadeProjectedEffect } from '../interventions/GmTimeCascadeInterventionTypes';
 import type { IShoppingList } from './acquisition/acquisitionTypes';
@@ -188,7 +191,7 @@ export interface ICampaign {
   readonly timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
 
   /** Applied outcomes retained for current morale/windowed processors. */
-  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
 
   /**
    * Refit orders for owned campaign units (`add-campaign-refit-and-prestige`,

@@ -193,6 +193,48 @@ describe('Campaign persistence API', () => {
     expect(record.version).toBe(1);
   });
 
+  it('accepts and returns applied outcomes that carry appliedOn, through the PUT guard, the co-op checkpoint projection and storage', async () => {
+    // `appliedOn` is additive: the PUT route checks only campaignId,
+    // schemaVersion and that the body is an object, the checkpoint reads only
+    // balance, forces, standings and the roster, and storage keeps the JSON.
+    const envelope = envelopeFor('camp-applied-on');
+    const applied = [
+      {
+        matchId: 'm-new',
+        capturedAt: '2026-11-09T12:00:00.000Z',
+        appliedOn: '3025-02-01T00:00:00.000Z',
+        report: { winner: 'player' },
+      },
+      {
+        matchId: 'm-old',
+        capturedAt: '2026-11-08T12:00:00.000Z',
+        report: { winner: 'opponent' },
+      },
+    ];
+    const withApplied = {
+      ...envelope,
+      body: { ...envelope.body, recentlyAppliedOutcomes: applied },
+    } as unknown as SerializedCampaign;
+    expect(() =>
+      authoritativeStateFromSerializedCampaign(withApplied),
+    ).not.toThrow();
+
+    const put = await callId('PUT', 'camp-applied-on', {
+      envelope: withApplied,
+      baseVersion: 0,
+    });
+    expect(put.res._getStatusCode()).toBe(200);
+
+    const { res } = await callId('GET', 'camp-applied-on');
+    expect(res._getStatusCode()).toBe(200);
+    expect(
+      (res._getJSONData() as SerializedCampaign).body.recentlyAppliedOutcomes,
+    ).toEqual(applied);
+    expect(readStoredPayload('camp-applied-on')).toContain(
+      '"appliedOn":"3025-02-01T00:00:00.000Z"',
+    );
+  });
+
   it('rejects a PUT whose envelope id disagrees with the url id', async () => {
     const { res } = await callId('PUT', 'url-id', {
       envelope: envelopeFor('different-id'),

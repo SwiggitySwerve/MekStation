@@ -565,3 +565,23 @@ The census settings counts become 24 matched / 4 different / 68 missing-local /
 68 missing-local settings, per-row settings and all missing quantities remain
 findings. This acceptance does not close row 3.4 or change BV, validity, weight,
 source loading, catalog data or persistence.
+
+## Support-vehicle weight capture (G1)
+
+W1 also captures SupportTank, LargeSupportTank and SupportVTOL sources through
+`SupportVehicleUnitHandler` and `computeSupportVehicleWeight`. It passes
+`createSupportRegistryMass(unit.techBase)`, exactly as the handler does, so raw
+BLK launcher names use the same registry masses. Combat VTOL remains unavailable.
+
+The adapter copies the owner's typed engine, structure, controls, heat sinks,
+armor, misc, misc equipment, weapons, ammo, power amplifiers, carrying space and
+fuel fields to the Java additive keys. Support fuel maps to `getFuelTonnage`.
+The total is the owner's `total`; no nominal weight or reference value supplies
+an absent result. Numeric-field coverage is checked against the public output,
+without making added owner fields a compile-time incompatibility.
+
+`getArmoredComponentWeight` has no typed support output. It stays absent and
+`missing-local`, with its reason in `local.gaps`, even when Java reports zero.
+The owner's `unresolved` inputs are retained verbatim in `local.unresolved`;
+the adapter does not interpret diagnostic names. Capturing these terms does not
+establish complete support weight parity: rows remain incomplete or different.

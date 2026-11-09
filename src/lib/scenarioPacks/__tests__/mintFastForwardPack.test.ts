@@ -86,10 +86,15 @@ import {
   type ComparableRunState,
 } from '@/lib/campaign/fastForward/invariants/comparableRunState';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { deserializeCampaignBody } from '@/lib/campaign/persistence/serializeCampaign';
+import { postBattleProcessor } from '@/lib/campaign/processors/postBattleProcessor';
+import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { Money } from '@/types/campaign/Money';
 import { GameSide } from '@/types/gameplay';
+import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
+import { endGame } from '@/utils/gameplay/gameSessionCore';
 
 import type { CapturedBattleOutcome } from '../../../__tests__/integration/fastForwardTestSupport';
 
@@ -640,6 +645,320 @@ describe('mint-from-fast-forward — maintenance fixture (task 5.1/5.3 acceptanc
     // `advanceDay()` again) leaves every ticket at 'parts-needed'
     // (proven above, `before`).
     expect(after.some((t) => t.status !== 'parts-needed')).toBe(true);
+  });
+});
+
+// =============================================================================
+// A minted pack carries no retained-outcome history (PR4c) — and loses nothing
+// =============================================================================
+
+describe('a minted pack carries no retained-outcome history, and loses nothing downstream', () => {
+  const DAYS = 33; // crosses the 31-day retention boundary of the applied-outcome list
+
+  beforeEach(() => primeWorld());
+  afterEach(() => {
+    resetWorld();
+    adaptUnitMock.mockReset();
+  });
+
+  /** A finished player win, derived as production does (wall-clock capturedAt). */
+  function playerWin(matchId: string) {
+    let session = createGameSession(
+      {
+        mapRadius: 10,
+        turnLimit: 10,
+        victoryConditions: ['destruction'],
+        optionalRules: [],
+      },
+      [
+        {
+          id: 'a',
+          name: 'A',
+          side: GameSide.Player,
+          unitRef: 'hbk-4g',
+          pilotRef: 'p1',
+          gunnery: 4,
+          piloting: 5,
+        },
+        {
+          id: 'b',
+          name: 'B',
+          side: GameSide.Opponent,
+          unitRef: 'mad-3r',
+          pilotRef: 'p2',
+          gunnery: 4,
+          piloting: 5,
+        },
+      ],
+    );
+    session = startGame(session, GameSide.Player);
+    session = endGame(session, GameSide.Player, 'destruction');
+    return deriveCombatOutcome({ ...session, id: matchId });
+  }
+
+  interface IDayTrace {
+    readonly moraleState: string | undefined;
+    readonly transitions: string;
+    readonly retainedOriginal: number;
+  }
+
+  /**
+   * Put `campaign` in the store with the given roster, advance `days` real
+   * days through the production pipeline (a fresh player win is queued on
+   * day 5, so the morale logic has something to do after the load), and
+   * record morale each day.
+   */
+  function advanceAndTrace(
+    campaign: ICampaign,
+    roster: { readonly units: unknown; readonly pilots: unknown },
+    originalMatchIds: ReadonlySet<string>,
+    days: number,
+  ): IDayTrace[] {
+    useCampaignRosterStore.setState({
+      units: roster.units,
+      pilots: roster.pilots,
+    } as never);
+    const store = useCampaignStore();
+    store.getState().switchCampaign(campaign);
+    const trace: IDayTrace[] = [];
+    for (let day = 1; day <= days; day++) {
+      if (day === 5) {
+        store.getState().enqueueOutcome(playerWin('equivalence-win'));
+      }
+      expect(store.getState().advanceDay()).not.toBeNull();
+      const c = store.getState().campaign as ICampaign & {
+        readonly recentlyAppliedOutcomes?: readonly {
+          readonly matchId: string;
+        }[];
+      };
+      trace.push({
+        moraleState: c.moraleState,
+        transitions: JSON.stringify(
+          (c.moraleTransitions ?? []).map((tr) => [
+            tr.from,
+            tr.to,
+            tr.direction,
+            tr.reason,
+            tr.occurredAt,
+          ]),
+        ),
+        retainedOriginal: (c.recentlyAppliedOutcomes ?? []).filter((o) =>
+          originalMatchIds.has(o.matchId),
+        ).length,
+      });
+    }
+    return trace;
+  }
+
+  it('omits the key (the form the pack schema already treats as absent) and keeps the ledgers', async () => {
+    const result = await runMaintenanceFastForward();
+    const raw = buildSerializedCampaign(
+      result.campaign,
+      'strip-form',
+      1,
+      buildFastForwardRosterProjectionSnapshot(result.campaign.id),
+    ).body;
+    // The strip is doing work: the unstripped dump held the battles.
+    expect((raw.recentlyAppliedOutcomes ?? []).length).toBeGreaterThan(0);
+
+    const { payload } = dumpAndCanonicalizeFastForwardCampaign(
+      result.campaign,
+      { packId: MAINTENANCE_PACK_ID },
+    );
+    expect(
+      Object.prototype.hasOwnProperty.call(
+        payload.body,
+        'recentlyAppliedOutcomes',
+      ),
+    ).toBe(false);
+    expect(campaignPackSchema.safeParse(payload).success).toBe(true);
+
+    const body = payload.body as unknown as {
+      readonly processedBattleIds?: readonly string[];
+      readonly moraleCountedMatchIds?: readonly string[];
+    };
+    expect(body.processedBattleIds?.length).toBe(
+      raw.recentlyAppliedOutcomes?.length,
+    );
+    expect(body.moraleCountedMatchIds?.length).toBe(
+      raw.recentlyAppliedOutcomes?.length,
+    );
+  });
+
+  it('gives the same moraleState and transitions every day for 33 days as the unstripped campaign, across the 31-day boundary', async () => {
+    const result = await runMaintenanceFastForward();
+    const roster = {
+      units: useCampaignRosterStore.getState().units,
+      pilots: useCampaignRosterStore.getState().pilots,
+    };
+    const originalIds = new Set(
+      result.battleOutcomes.map((b) => b.outcome.matchId),
+    );
+    const { payload } = dumpAndCanonicalizeFastForwardCampaign(
+      result.campaign,
+      { packId: MAINTENANCE_PACK_ID },
+    );
+
+    // Unstripped: the live in-memory campaign, advanced through the production pipeline.
+    const unstripped = advanceAndTrace(
+      result.campaign,
+      roster,
+      originalIds,
+      DAYS,
+    );
+
+    // Stripped: the minted pack, loaded as the loader does, advanced the same way.
+    primeWorld();
+    const stripped = advanceAndTrace(
+      deserializeCampaignBody(payload.body as never),
+      roster,
+      originalIds,
+      DAYS,
+    );
+
+    expect(stripped.map((d) => [d.moraleState, d.transitions])).toEqual(
+      unstripped.map((d) => [d.moraleState, d.transitions]),
+    );
+    // Non-vacuous: the unstripped campaign really held the history until the
+    // boundary and shed it, the stripped one never held any, and the fresh
+    // win on day 5 moved morale.
+    expect(unstripped[0].retainedOriginal).toBeGreaterThan(0);
+    expect(unstripped[DAYS - 1].retainedOriginal).toBe(0);
+    expect(stripped.every((d) => d.retainedOriginal === 0)).toBe(true);
+    expect(new Set(unstripped.map((d) => d.moraleState)).size).toBeGreaterThan(
+      1,
+    );
+  });
+
+  it('cannot apply an outcome twice when its record was stripped: the door, the processor and the repair builder still refuse', async () => {
+    const result = await runMaintenanceFastForward();
+    const roster = {
+      units: useCampaignRosterStore.getState().units,
+      pilots: useCampaignRosterStore.getState().pilots,
+    };
+    const { payload } = dumpAndCanonicalizeFastForwardCampaign(
+      result.campaign,
+      { packId: MAINTENANCE_PACK_ID },
+    );
+    const loaded = deserializeCampaignBody(
+      payload.body as never,
+    ) as ICampaign & {
+      readonly processedBattleIds?: readonly string[];
+    };
+    const processedId = loaded.processedBattleIds?.[0] as string;
+    expect(processedId).toBeTruthy();
+    const resubmitted = {
+      ...result.battleOutcomes[0].outcome,
+      matchId: processedId,
+    };
+
+    primeWorld();
+    useCampaignRosterStore.setState({
+      units: roster.units,
+      pilots: roster.pilots,
+    } as never);
+    const store = useCampaignStore();
+    store.getState().switchCampaign(loaded);
+    const snapshot = () => {
+      const c = store.getState().campaign as ICampaign & {
+        readonly repairQueue?: readonly { readonly ticketId: string }[];
+        readonly processedBattleIds?: readonly string[];
+        readonly recentlyAppliedOutcomes?: readonly unknown[];
+      };
+      return {
+        tickets: (c.repairQueue ?? []).map((t) => t.ticketId).sort(),
+        processed: [...(c.processedBattleIds ?? [])],
+        applied: (c.recentlyAppliedOutcomes ?? []).length,
+        pendingCount: store.getState().pendingBattleOutcomes.length,
+        unitStates: (c.unitCombatStates ?? {}) as Record<
+          string,
+          {
+            readonly currentArmorPerLocation: Record<string, number | null>;
+            readonly lastCombatOutcomeId: string | null;
+          }
+        >,
+        prestige: JSON.stringify(c.unitPrestige ?? []),
+      };
+    };
+    const before = snapshot();
+    expect(before.tickets.length).toBeGreaterThan(0);
+
+    // Guard 1: the store refuses a processed match id at the door.
+    store.getState().enqueueOutcome(resubmitted);
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+
+    // Guard 2: the processor itself, called directly with the processed
+    // match forced into the pending queue (a persisted queue, a sync path),
+    // skips it as a duplicate and changes nothing.
+    const direct = postBattleProcessor.process(
+      {
+        ...loaded,
+        pendingBattleOutcomes: [resubmitted],
+      } as unknown as ICampaign,
+      loaded.currentDate,
+    );
+    expect(direct.events).toEqual([]);
+    expect(
+      (direct.campaign as unknown as { processedBattleIds?: readonly string[] })
+        .processedBattleIds,
+    ).toEqual(loaded.processedBattleIds);
+    expect(
+      (
+        direct.campaign as unknown as {
+          recentlyAppliedOutcomes?: readonly unknown[];
+        }
+      ).recentlyAppliedOutcomes ?? [],
+    ).toEqual([]);
+
+    // Guard 3: through the store and day pipeline, the queue is filtered
+    // against the processed ids before the processor runs.
+    store.setState({
+      pendingBattleOutcomes: [resubmitted],
+      campaign: {
+        ...(store.getState().campaign as ICampaign),
+        pendingBattleOutcomes: [resubmitted],
+      } as ICampaign,
+    } as never);
+    // The first day is where a second application would show: the entry would
+    // be recorded and the match id stamped on the units. (After 31 days the
+    // retained list sheds it, so it is read here and again at the end.)
+    expect(store.getState().advanceDay()).not.toBeNull();
+    const afterFirstDay = snapshot();
+    expect(afterFirstDay.processed).toEqual(before.processed);
+    expect(afterFirstDay.applied).toBe(0);
+    expect(afterFirstDay.pendingCount).toBe(0); // drained, not retried
+    for (const unit of Object.values(afterFirstDay.unitStates)) {
+      expect(unit.lastCombatOutcomeId).not.toBe(processedId);
+    }
+    for (let day = 1; day < 40; day++) {
+      expect(store.getState().advanceDay()).not.toBeNull();
+    }
+    const after = snapshot();
+
+    expect(after.processed).toEqual(before.processed); // not applied again
+    expect(after.applied).toBe(0); // never re-enters the retained list, so never re-counts for morale
+    // No unit delta is re-applied. Repairs legitimately restore armor over 40
+    // days, so armor may only go UP; applying the battle again would drop it
+    // back to the outcome's end values and stamp the match id on the unit.
+    for (const [unitId, unit] of Object.entries(after.unitStates)) {
+      expect(unit.lastCombatOutcomeId).not.toBe(processedId);
+      for (const [location, armor] of Object.entries(
+        unit.currentArmorPerLocation,
+      )) {
+        const was =
+          before.unitStates[unitId]?.currentArmorPerLocation[location];
+        if (typeof armor === 'number' && typeof was === 'number') {
+          expect(armor).toBeGreaterThanOrEqual(was);
+        }
+      }
+    }
+    expect(after.prestige).toBe(before.prestige);
+    // Guard 4: the repair builder reads the pending queue too, but it skips a
+    // ticket id already in the queue and builds from unit state: no ticket is
+    // created for the re-submitted battle.
+    expect(after.tickets.filter((id) => !before.tickets.includes(id))).toEqual(
+      [],
+    );
   });
 });
 
