@@ -76,7 +76,8 @@ export function gatherMoraleSignals(
   // Pay — a `daily_costs` event with `warning`/`critical` severity means
   // the campaign ran a negative balance, i.e. pay was not comfortably met;
   // `info` means the costs were paid. A day with no daily-costs event carries
-  // no pay information, so pay is null (neutral), not "met".
+  // no pay information, so pay is null, not "met". Paid and null both score 0
+  // in the state machine; only a missed payment (false) lowers morale.
   let payMet: boolean | null = null;
   for (const event of dayEvents) {
     if (event.type !== 'daily_costs') continue;
