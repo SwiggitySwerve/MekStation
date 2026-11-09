@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+import blackHawk from '../../public/data/units/battlemechs/3-succession-wars/advanced/Black Hawk A.json';
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import { resetEquipmentLoader } from '../../src/services/equipment/EquipmentLoaderService';
 import {
@@ -23,10 +24,12 @@ import {
   resetHandlerInitialization,
 } from '../../src/services/units/handlers/initializeHandlers';
 import { ProtoMechUnitHandler } from '../../src/services/units/handlers/ProtoMechUnitHandler';
+import { UnitLoaderService } from '../../src/services/units/unitLoaderService/unitLoader';
 import {
   getUnitTypeRegistry,
   resetUnitTypeRegistry,
 } from '../../src/services/units/UnitTypeRegistry';
+import * as orchestrator from '../../src/services/validation/UnitValidationOrchestrator';
 import { UnitCategory } from '../../src/types/unit/UnitTypeHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
 import {
@@ -752,5 +755,113 @@ describe('opt-in BLK validity uses actual pinned bytes and the public handler', 
       'Source hash mismatch',
     );
     expect(areHandlersInitialized()).toBe(false);
+  });
+});
+
+describe('opt-in MTF validity uses the converted mech through the editor projection', () => {
+  let root: string;
+  const validity = ['node', 'delta.ts', '--construction-validity'];
+  // The converted unit carries the design; the MTF bytes are only hash-checked.
+  function write(unit: unknown, relative = 'meks/probe.mtf') {
+    const content = 'MTF bytes are hash-checked, never reparsed for validity\n';
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, content);
+    return {
+      path: relative,
+      sha256: sourceHash(Buffer.from(content)),
+      unit,
+    };
+  }
+  const fact = (unit: unknown) =>
+    calculateSources([write(unit)], root, true)[0].constructionValidity;
+  beforeEach(async () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'mech-validity-'));
+    await prepareConstructionValidity(validity);
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  test('records a legal mech as valid without changing its BV result', () => {
+    const input = write(blackHawk);
+    const plain = calculateSources([input], root)[0];
+    const projected = calculateSources([input], root, true)[0];
+    expect(projected.constructionValidity).toEqual({
+      isValid: true,
+      errors: [],
+      warnings: expect.any(Array),
+      infos: expect.any(Array),
+    });
+    const { constructionValidity, ...unchanged } = projected;
+    expect(constructionValidity).toBeDefined();
+    expect(unchanged).toEqual(plain);
+    expect(plain).not.toHaveProperty('constructionValidity');
+  });
+  test('records an overweight mech as invalid with the universal weight rule', () => {
+    const result = fact({ ...blackHawk, tonnage: 20 });
+    expect(result).toMatchObject({ isValid: false });
+    expect((result as { errors: string[] }).errors).toContainEqual(
+      expect.stringContaining('VAL-UNIV-014'),
+    );
+    expect(result).not.toHaveProperty('failure');
+  });
+  test('is deterministic across runs', () => {
+    expect(fact(blackHawk)).toEqual(fact(blackHawk));
+  });
+  test('validates even when the BV path could not use the converted unit', () => {
+    const row = calculateSources(
+      [write({ ...blackHawk, tonnage: 20 })],
+      root,
+      true,
+    )[0];
+    expect(row.constructionValidity).toMatchObject({ isValid: false });
+  });
+  test('keeps a missing converted unit as an explicit staged failure', () => {
+    expect(fact(null)).toEqual({
+      failure: expect.stringContaining('mtf-converted-unit'),
+    });
+  });
+  test('keeps a loader throw as a failure, not invalidity', () => {
+    jest
+      .spyOn(UnitLoaderService.prototype, 'mapToUnitState')
+      .mockImplementation(() => {
+        throw new Error('unmappable');
+      });
+    expect(fact(blackHawk)).toEqual({
+      failure: expect.stringContaining('mtf-load: Error: unmappable'),
+    });
+  });
+  test('keeps a thrown validator as a failure, not invalidity', () => {
+    jest
+      .spyOn(orchestrator.getUnitValidationOrchestrator(), 'validate')
+      .mockImplementation(() => {
+        throw new Error('validator unavailable');
+      });
+    expect(fact(blackHawk)).toEqual({
+      failure: expect.stringContaining(
+        'mtf-validator: Error: validator unavailable',
+      ),
+    });
+  });
+  test('does no mech projection work without opt-in', () => {
+    const load = jest.spyOn(UnitLoaderService.prototype, 'mapToUnitState');
+    expect(calculateSources([write(blackHawk)], root)[0]).not.toHaveProperty(
+      'constructionValidity',
+    );
+    expect(load).not.toHaveBeenCalled();
+  });
+  test('keeps hash rejection before any projection work', () => {
+    const input = write(blackHawk);
+    fs.appendFileSync(path.join(root, input.path), 'changed');
+    const load = jest.spyOn(UnitLoaderService.prototype, 'mapToUnitState');
+    expect(() => calculateSources([input], root, true)).toThrow(
+      'Source hash mismatch',
+    );
+    expect(load).not.toHaveBeenCalled();
   });
 });

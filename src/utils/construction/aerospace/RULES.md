@@ -569,3 +569,18 @@ MegaMek 48fcb2f64: AeroBVCalculator.java:147-155,
 HeatTrackingBVCalculator.java:108-126 and BVCalculator.java:800-919,966-976.
 Enforcement: `scripts/__tests__/unit-bv-aerospace-terms.test.ts`, 620-source
 byte-preservation captures and the guarded all-family per-term comparison.
+
+## Ordinary aerospace ammunition diagnostics
+
+The ammo calculation owner retains uncapped bin availability and raw launcher
+caps before direction, heat, support fire control and speed. Native type/rack
+identities come from the shared ammo owner, including its supplemental diagnostic
+identities; they do not expand legacy arithmetic matching. Defensive launcher
+caps remain diagnostic facts outside offensive ammo arithmetic. One-shot launchers
+and unresolved identities do not invent caps. Explicit empty ammo lists retain
+represented caps; omitted ammo retains the legacy trace. The trace only formats
+the supplied pools as `ammo.available.<group>` and `ammo.cap.<group>`.
+MegaMek 48fcb2f64, BVCalculator.java:1189-1242.
+Enforcement: `scripts/__tests__/unit-bv-aerospace-terms.test.ts`, including an
+availability-clipped-to-cap mutant, 620-source byte-preservation captures and
+the guarded all-family comparison. Existing A1 weapon terms remain unchanged.
