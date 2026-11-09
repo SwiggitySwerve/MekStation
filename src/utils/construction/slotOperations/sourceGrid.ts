@@ -235,6 +235,13 @@ export function projectSourceGrid(
       layout.gyroType !== layout.baseline.gyroType ||
       layout.cockpitType !== layout.baseline.cockpitType;
     for (const location of active) {
+      const occupied = new Set(
+        mounts.flatMap((mount) =>
+          getSlotParts(mount)
+            .filter((part) => locationIdentity(part.location) === location)
+            .flatMap((part) => [...part.slots]),
+        ),
+      );
       const key = critLocation(location);
       const missing = !source?.criticalSlots?.[key];
       const slots = (criticalSlots[key] ??= Array<string | null>(
@@ -251,6 +258,7 @@ export function projectSourceGrid(
       );
       if (fixedChanged)
         slots.forEach((token, index) => {
+          if (occupied.has(index)) return;
           const kind = classifySystemComponent(token ?? '');
           if (
             kind !== 'empty' &&
@@ -261,6 +269,9 @@ export function projectSourceGrid(
             slots[index] = null;
         });
       fixed.forEach((name, index) => {
+        // Retain an invalid live allocation for validation rather than losing
+        // one portion of a mount when a new component claims the same cell.
+        if (occupied.has(index)) return;
         if (
           missing ||
           (fixedChanged && classifySystemComponent(name) !== 'actuator')
@@ -273,6 +284,7 @@ export function projectSourceGrid(
           location === MechLocation.RIGHT_ARM)
       ) {
         for (const index of [2, 3]) {
+          if (occupied.has(index)) continue;
           const name = fixed.get(index);
           const actuator =
             classifySystemComponent(slots[index] ?? '') === 'actuator';

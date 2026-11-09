@@ -35,5 +35,8 @@ are written. Current fixed systems and changed component allocations replace sta
 source cells through the existing topology, source-token and component owners.
 Inactive configuration locations are discarded. Source-backed saves use this complete
 projection; context-free saves retain their legacy byte representation and absence.
+An invalid live mount still retains all its cells when a new fixed component
+claims them. The selected topology reports that conflict through validation;
+serialization must not erase a primary or secondary portion to conceal it.
 Reopening retains the supplied arrays; equipment ID/category reconciliation and MTF
 export remain separate owners. Complete native grids can expose those residuals.

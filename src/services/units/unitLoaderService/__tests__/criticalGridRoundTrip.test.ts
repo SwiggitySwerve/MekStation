@@ -22,6 +22,7 @@ import {
 } from '@/types/construction/MechConfigurationSystem';
 import { Era } from '@/types/temporal/Era';
 import { fillUnhittableSlots } from '@/utils/construction/slotOperations/filling';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
@@ -210,7 +211,7 @@ it('writes explicit empty cells when a cockpit edit extends an empty native arra
 });
 
 it.each(Object.values(CockpitType))(
-  'current %s fixed systems win over source',
+  'current %s systems replace stale source without erasing live allocations',
   (cockpit) => {
     const store = createUnitStore(loader.mapToUnitState(crab(), true));
     store.getState().setCockpitType(cockpit);
@@ -236,8 +237,13 @@ it.each(Object.values(CockpitType))(
         cockpit,
       ).forEach((name, index) => {
         // An unchanged Standard layout keeps its original native tokens.
+        const occupied = state.equipment
+          .flatMap(getSlotParts)
+          .some(
+            (part) => part.location === location && part.slots.includes(index),
+          );
         const expected =
-          cockpit === CockpitType.STANDARD
+          cockpit === CockpitType.STANDARD || occupied
             ? getCriticalSlotsForLocation(crab().criticalSlots, location)?.[
                 index
               ]
