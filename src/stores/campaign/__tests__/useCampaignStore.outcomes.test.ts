@@ -8,6 +8,10 @@ import * as battleHelpers from '@/lib/campaign/processors/postBattleProcessor.he
 import { getEventStore, resetEventStore } from '@/services/events';
 import { createCampaignStore } from '@/stores/campaign/useCampaignStore';
 import {
+  deserializeCampaign,
+  serializeCampaign as serializeCampaignState,
+} from '@/stores/campaign/useCampaignStore.persistence';
+import {
   COMBAT_OUTCOME_VERSION,
   CombatEndReason,
   PilotFinalStatus,
@@ -117,20 +121,21 @@ describe('useCampaignStore outcome queue persistence/events', () => {
     'does not resurrect an outcome removed by %s when its campaign is loaded again',
     (action) => {
       const store = createCampaignStore();
-      const id = store.getState().createCampaign('Drain Queue', 'mercenary');
+      store.getState().createCampaign('Drain Queue', 'mercenary');
       store.getState().enqueueOutcome(makeOutcome('drained'));
       if (action === 'dequeue') store.getState().dequeueOutcome('drained');
       else store.getState().markBattleReviewed('drained');
-      expect(store.getState().loadCampaign(id)).toBe(true);
-      expect(store.getState().pendingBattleOutcomes).toEqual([]);
-      expect(store.getState().campaign?.pendingBattleOutcomes).toEqual([]);
+      // A restarted app: a new store rehydrates the saved campaign.
+      const reloaded = createCampaignStore();
+      expect(reloaded.getState().pendingBattleOutcomes).toEqual([]);
+      expect(reloaded.getState().campaign?.pendingBattleOutcomes).toEqual([]);
       // Review acknowledgement does not mean effects were applied.
-      expect(store.getState().processedBattleIds).toEqual([]);
+      expect(reloaded.getState().processedBattleIds).toEqual([]);
     },
   );
   it('isolates pending outcomes across campaign create, switch, and load', () => {
     const store = createCampaignStore();
-    const alphaId = store.getState().createCampaign('Alpha Queue', 'mercenary');
+    store.getState().createCampaign('Alpha Queue', 'mercenary');
     store.getState().enqueueOutcome(makeOutcome('alpha-pending'));
     store.getState().saveCampaign();
     const alpha = store.getState().campaign!;
@@ -148,7 +153,17 @@ describe('useCampaignStore outcome queue persistence/events', () => {
     expect(
       store.getState().pendingBattleOutcomes.map((o) => o.matchId),
     ).toEqual(['bravo-pending']);
-    expect(store.getState().loadCampaign(alphaId)).toBe(true);
+    // Load alpha as the persistence store does: deserialize the saved
+    // campaign, then switch to it.
+    store
+      .getState()
+      .switchCampaign(
+        deserializeCampaign(
+          serializeCampaignState(alpha),
+          new Map(),
+          new Map(),
+        ),
+      );
     expect(
       store.getState().pendingBattleOutcomes.map((o) => o.matchId),
     ).toEqual(['alpha-pending']);
@@ -318,7 +333,6 @@ describe('useCampaignStore outcome queue persistence/events', () => {
     expect(parsed.state.pendingBattleOutcomes[0].matchId).toBe('match-persist');
 
     const hydrated = createCampaignStore();
-    expect(hydrated.getState().loadCampaign(campaignId)).toBe(true);
     expect(hydrated.getState().getPendingOutcomes()[0].matchId).toBe(
       'match-persist',
     );
