@@ -21,8 +21,18 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
-    "allocation": {}
+    "type": "PATCHWORK",
+    "allocation": {},
+    "typeByLocation": {
+      "LEFT_ARM": 1,
+      "RIGHT_ARM": 1,
+      "LEFT_TORSO": 0,
+      "RIGHT_TORSO": 0,
+      "CENTER_TORSO": 0,
+      "HEAD": 0,
+      "LEFT_LEG": 1,
+      "RIGHT_LEG": 1
+    }
   },
   "heatSinks": {
     "type": "DOUBLE",

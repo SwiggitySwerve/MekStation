@@ -255,17 +255,17 @@ class MTFParser:
         elif key.endswith('_armor') or key.endswith('armor'):
             # Armor allocation
             loc_key = key.replace('_armor', '').replace('armor', '').strip().upper()
+            patchwork = data.get('armor_type', '').lower() == 'patchwork' and ':' in value
+            armor_name, points = value.rsplit(':', 1) if patchwork else (None, value)
             try:
-                if data.get('armor_type', '').lower() == 'patchwork' and ':' in value:
-                    armor_name, points = value.rsplit(':', 1)
-                    data['armor_allocation'][loc_key] = int(points)
-                    armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
-                    code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
-                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
-                else:
-                    data['armor_allocation'][loc_key] = int(value)
+                data['armor_allocation'][loc_key] = int(points)
             except ValueError:
-                pass
+                return
+            if patchwork:
+                # Keep unknown type diagnostics outside the bad-point-count handler.
+                armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
+                code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
+                data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
         elif key == 'quirk':
             data['quirks'].append(value)
         elif key == 'weaponquirk':

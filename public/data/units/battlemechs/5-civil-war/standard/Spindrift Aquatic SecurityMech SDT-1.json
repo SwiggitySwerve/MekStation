@@ -21,8 +21,18 @@
     "type": "INDUSTRIAL"
   },
   "armor": {
-    "type": "STANDARD",
-    "allocation": {}
+    "type": "PATCHWORK",
+    "allocation": {},
+    "typeByLocation": {
+      "LEFT_ARM": 2,
+      "RIGHT_ARM": 2,
+      "LEFT_TORSO": 3,
+      "RIGHT_TORSO": 3,
+      "CENTER_TORSO": 15,
+      "HEAD": 15,
+      "LEFT_LEG": 15,
+      "RIGHT_LEG": 15
+    }
   },
   "heatSinks": {
     "type": "SINGLE",
