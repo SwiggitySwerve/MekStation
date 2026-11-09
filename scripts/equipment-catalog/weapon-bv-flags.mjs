@@ -59,7 +59,7 @@ function mapFlags(facts, catalog, mask) {
   return { canonical, aliases, unmapped, ambiguous };
 }
 
-function generate(input, catalog) {
+function readPinnedWeapons(input) {
   if (
     input.revision !== '48fcb2f64a1b3f2d575707ce5653dad64927b587' ||
     !input.weapons
@@ -70,6 +70,11 @@ function generate(input, catalog) {
     throw Error(
       'Regenerate pinned facts with WeaponBVFlags.java for F_INFANTRY',
     );
+  return facts;
+}
+
+function generate(input, catalog) {
+  const facts = readPinnedWeapons(input);
   const { canonical, aliases, unmapped, ambiguous } = mapFlags(
     facts,
     catalog,
@@ -122,4 +127,4 @@ if (
   );
   console.log(JSON.stringify(result.counts));
 }
-export { generate };
+export { generate, mapFlags, readPinnedWeapons };
