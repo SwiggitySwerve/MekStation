@@ -97,6 +97,12 @@ const sampleUnit: IQuickGameUnitRequest = {
   maxStructure: { head: 3, ct: 31 },
 };
 
+function setQuickGamePlaying(): void {
+  useQuickGameStore.setState(({ game }) => ({
+    game: { ...game!, status: GameStatus.Active, step: QuickGameStep.Playing },
+  }));
+}
+
 describe('Quick Game force admission', () => {
   const modes = [
     'startBattle',
@@ -262,10 +268,50 @@ describe('Quick Game completion projection equivalence', () => {
     jest.useRealTimers();
   });
 
+  it.each<[GameStatus, QuickGameStep]>([
+    [GameStatus.Setup, QuickGameStep.SelectUnits],
+    [GameStatus.Setup, QuickGameStep.Playing],
+    [GameStatus.Active, QuickGameStep.Review],
+    [GameStatus.Completed, QuickGameStep.Results],
+    [GameStatus.Completed, QuickGameStep.Playing],
+    [GameStatus.Abandoned, QuickGameStep.Playing],
+  ])('rejects endGame from %s/%s without changing state', (status, step) => {
+    useQuickGameStore.setState({
+      game: { ...createQuickGameInstance(), status, step },
+      isDirty: false,
+    });
+    const before = useQuickGameStore.getState();
+    before.endGame('opponent', 'concede');
+    expect(useQuickGameStore.getState()).toBe(before);
+  });
+
+  it('preserves the first completion when endGame is submitted again', () => {
+    useQuickGameStore.setState({
+      game: {
+        ...createQuickGameInstance(),
+        status: GameStatus.Active,
+        step: QuickGameStep.Playing,
+      },
+    });
+    useQuickGameStore.getState().endGame('player', 'objective');
+    const completed = useQuickGameStore.getState();
+    jest.setSystemTime(new Date('2026-10-14T06:00:00.000Z'));
+    completed.endGame('opponent', 'concede');
+    expect(useQuickGameStore.getState()).toBe(completed);
+  });
+
+  it('ignores endGame when no quick game exists', () => {
+    useQuickGameStore.getState().clearGame();
+    const before = useQuickGameStore.getState();
+    before.endGame('player', 'objective');
+    expect(useQuickGameStore.getState()).toBe(before);
+  });
+
   it.each(['player', 'opponent', 'draw'] as const)(
     'preserves every existing endGame field for %s',
     (winner) => {
       useQuickGameStore.getState().startNewGame();
+      setQuickGamePlaying();
       const before = useQuickGameStore.getState().game!;
       useQuickGameStore.getState().endGame(winner, 'objective');
       expect(useQuickGameStore.getState().game).toEqual({
@@ -830,6 +876,7 @@ describe('useQuickGameStore', () => {
 
       act(() => {
         result.current.startNewGame();
+        setQuickGamePlaying();
       });
 
       act(() => {
@@ -878,6 +925,7 @@ describe('useQuickGameStore', () => {
         result.current.startNewGame();
         result.current.addUnit(sampleUnit);
         result.current.setScenarioConfig({ difficulty: 1.5 });
+        setQuickGamePlaying();
         result.current.endGame('player', 'destruction');
       });
 
@@ -901,6 +949,7 @@ describe('useQuickGameStore', () => {
       act(() => {
         result.current.startNewGame();
         result.current.addUnit(sampleUnit);
+        setQuickGamePlaying();
         result.current.endGame('opponent', 'destruction');
       });
 
@@ -1010,6 +1059,7 @@ describe('Event Tracking and Replay', () => {
 
     // End the game
     act(() => {
+      setQuickGamePlaying();
       result.current.endGame('player', 'elimination');
     });
 
@@ -1074,6 +1124,7 @@ describe('Event Tracking and Replay', () => {
         phase: GamePhase.Initiative,
         payload: {},
       });
+      setQuickGamePlaying();
       result.current.endGame('player', 'elimination');
     });
 
