@@ -74,7 +74,8 @@ export const usePilotStore = create<PilotStore>((set, get) => ({
   createPilot: (options) => createPilotLogic(options, set, get),
   createFromTemplate: (level, identity) =>
     createFromTemplateLogic(level, identity, set, get),
-  createRandom: (identity) => createRandomLogic(identity, set, get),
+  createRandom: (identity, skills) =>
+    createRandomLogic(identity, set, get, skills),
   createStatblock: (statblock) => createStatblockLogic(statblock),
   updatePilot: (id, updates) => updatePilotLogic(id, updates, set, get),
   deletePilot: (id) => deletePilotLogic(id, set, get),

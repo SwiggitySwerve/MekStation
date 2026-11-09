@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
  */
 import { useState, useCallback } from 'react';
 
-import { PilotCreationWizard } from '@/components/pilots';
+import { PilotCreationWizard } from '@/components/pilots/PilotCreationWizard';
 import { PageLayout, Card, Button } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 
@@ -30,6 +30,7 @@ export default function CreatePilotPage(): React.ReactElement {
   // origin-only picks, add flaws) before the campaign starts.
   const handleCreated = useCallback(
     (pilotId: string | null) => {
+      setIsWizardOpen(false);
       if (pilotId) {
         router.push(`/gameplay/pilots/${pilotId}?creating=1`);
       } else {

@@ -37,7 +37,7 @@ export interface PilotCreationWizardProps {
   isOpen: boolean;
   /** Called when the wizard is closed */
   onClose: () => void;
-  /** Called when a pilot is successfully created */
+  /** Owns closing/navigation after success; null identifies a temporary statblock. */
   onCreated?: (pilotId: string | null) => void;
 }
 
