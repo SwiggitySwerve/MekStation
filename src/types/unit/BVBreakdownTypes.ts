@@ -77,6 +77,13 @@ export interface IProtoMechBVBreakdown {
   /** Positive values already admitted by the native offensive-misc owner. */
   readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
   readonly speedFactor: number;
+  /** Resolved zero misc values with retained source-location evidence. */
+  readonly resolvedZeroEquipmentMountBV?: readonly IProtoMechBVResolvedZeroMount[];
+}
+
+/** Body has no public armor location; other locations use the existing trace map. */
+export interface IProtoMechBVResolvedZeroMount extends IProtoMechBVMountValue {
+  readonly nativeLocation?: 0;
 }
 
 /** Shared optional diagnostic keys for calculations and strict replay payloads. */

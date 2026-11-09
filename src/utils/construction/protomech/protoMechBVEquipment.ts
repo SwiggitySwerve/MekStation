@@ -1,4 +1,7 @@
-import type { IProtoMechBVMountValue } from '@/types/unit/BVBreakdownTypes';
+import type {
+  IProtoMechBVMountValue,
+  IProtoMechBVResolvedZeroMount,
+} from '@/types/unit/BVBreakdownTypes';
 
 import {
   IProtoMechMountedEquipment,
@@ -22,6 +25,40 @@ export function protoMechBVMountValue(
     equipmentId: mount.equipmentId,
     location: mount.location,
     battleValue,
+  };
+}
+
+// Pinned native trace calls offensiveEquipmentBV even when the value is zero.
+// BLKProtoMekFile + TestProtoMek.requiresSlot place these four no-slot types at
+// Body. Partial Wing occupies the supplied Torso; no other source is inferred.
+const ZERO_MISC_SOURCE_BLOCKS = new Map([
+  ['EIInterface', 'Body'],
+  ['CLMyomerBooster', 'Body'],
+  ['ProtoMechJumpJet', 'Body'],
+  ['ExtendedJumpJetSystem', 'Body'],
+  ['ProtoMechPartialWing', 'Torso'],
+]);
+
+/** Diagnostic-only catalog zero; unresolved fallback zeros are never facts. */
+export function resolveProtoZeroEquipmentMountBV(
+  equipmentIndex: number,
+  mount: IProtoMechMountedEquipment,
+): IProtoMechBVResolvedZeroMount | undefined {
+  const source = mount.blkSource;
+  if (
+    source === undefined ||
+    source.errors.length > 0 ||
+    source.lookupName !== mount.equipmentId ||
+    ZERO_MISC_SOURCE_BLOCKS.get(mount.equipmentId) !== source.blockKey ||
+    (source.blockKey === 'Torso' && mount.location !== ProtoLocation.TORSO)
+  ) {
+    return undefined;
+  }
+  const resolved = resolveEquipmentBV(mount.equipmentId);
+  if (!resolved.resolved || resolved.battleValue !== 0) return undefined;
+  return {
+    ...protoMechBVMountValue(equipmentIndex, mount, resolved.battleValue),
+    ...(source.blockKey === 'Body' ? { nativeLocation: 0 as const } : {}),
   };
 }
 

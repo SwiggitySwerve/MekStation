@@ -1,6 +1,7 @@
 import type {
   IProtoMechBVAmmoMount,
   IProtoMechBVMountValue,
+  IProtoMechBVResolvedZeroMount,
   IProtoMechBVWeaponMount,
 } from '@/types/unit/BVBreakdownTypes';
 
@@ -21,6 +22,7 @@ import {
   classifyEquipment,
   protoMechBVMountValue,
   resolveProtoOffensiveEquipmentBV,
+  resolveProtoZeroEquipmentMountBV,
 } from './protoMechBVEquipment';
 
 /**
@@ -47,6 +49,7 @@ interface OffensivePieces {
   readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
   readonly speedFactor: number;
   readonly offensiveBV: number;
+  readonly resolvedZeroEquipmentMountBV?: readonly IProtoMechBVResolvedZeroMount[];
 }
 
 function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
@@ -62,8 +65,11 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
   const weaponMountBV: IProtoMechBVWeaponMount[] = [];
   const ammoAvailableMountBV: IProtoMechBVAmmoMount[] = [];
   const offensiveEquipmentMountBV: IProtoMechBVMountValue[] = [];
+  const resolvedZeroEquipmentMountBV: IProtoMechBVResolvedZeroMount[] = [];
 
   for (const [equipmentIndex, mount] of unit.equipment.entries()) {
+    const zeroFact = resolveProtoZeroEquipmentMountBV(equipmentIndex, mount);
+    if (zeroFact !== undefined) resolvedZeroEquipmentMountBV.push(zeroFact);
     const nativeBV = resolveProtoOffensiveEquipmentBV(
       mount.equipmentId,
       unit.tonnage,
@@ -203,6 +209,9 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
       : {}),
     speedFactor,
     offensiveBV,
+    ...(resolvedZeroEquipmentMountBV.length > 0
+      ? { resolvedZeroEquipmentMountBV }
+      : {}),
   };
 }
 

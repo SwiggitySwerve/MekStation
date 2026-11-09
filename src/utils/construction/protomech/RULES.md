@@ -347,3 +347,26 @@ once per launcher; its two built-in shots add no separate ammo term
 (`CLFussilade.java:58-81`). Source fixtures verify all 12 residuals with the
 missing catalog facts supplied at the resolver boundary; this does not claim
 that the shipped catalog has those facts.
+
+## Resolved zero-misc diagnostic projection
+
+At MegaMek `48fcb2f64`, `BVCalculator.processOffensiveEquipment` calls
+`offensiveEquipmentBV` while testing for zero, before skipping arithmetic.
+The existing Java trace hook records that actual zero. The local equipment
+owner retains separate optional `resolvedZeroEquipmentMountBV` facts only
+for resolved catalog zeros with error-free, matching BLK source identity and
+the represented source block: EIInterface, CLMyomerBooster,
+ProtoMechJumpJet and ExtendedJumpJetSystem at Body, and ProtoMechPartialWing
+at Torso. `BLKProtoMekFile.loadEquipment` and `TestProtoMek.requiresSlot`
+place the four no-slot types at native Body 0. Public mount locations and
+existing positive-misc facts are preserved; the trace's existing location map
+continues to format Torso 2. Other blocks and identities remain unprojected.
+
+Unknown resolver fallback zeros, missing/malformed provenance, and nonzero or
+nonfinite values produce no fact. Optional zero facts retain each actual mount
+index, id and public location in encounter order, with a separate Body index
+where needed. The trace formats those facts with native last-put semantics.
+These diagnostic facts never enter arithmetic, admission, quantities or caps.
+Legacy breakdowns remain supported without inferred zeros. This establishes
+only the represented zero-term projection, without catalog, source-location,
+persistence or general equipment-rule changes.

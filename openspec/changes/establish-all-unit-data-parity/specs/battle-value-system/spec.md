@@ -1211,3 +1211,30 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
+
+### Requirement: ProtoMech resolved-zero miscellaneous diagnostics
+
+The ProtoMech equipment owner SHALL retain optional diagnostic facts for actual
+resolved catalog zeros of the five represented native miscellaneous identities
+with matching, error-free BLK source provenance. Body EI interfaces, myomer
+boosters, ProtoMech jump jets and extended jump systems SHALL retain native
+location 0 independently of the public mount location. A Torso partial wing
+SHALL use the existing native location formatter. The trace SHALL format these
+facts with native last-put semantics without changing existing positive facts,
+source data, arithmetic, equipment admission, ammunition policy or totals.
+Unresolved fallback zeros and missing or unsupported facts SHALL remain absent.
+
+#### Scenario: Actual resolved zeros and retained source locations
+
+- **GIVEN** represented source mounts whose catalog BV resolves to zero at Body or Torso
+- **WHEN** the public ProtoMech breakdown and trace are calculated
+- **THEN** actual zero-valued native equipment keys SHALL be present at their supported native locations
+- **AND** repeated mounts SHALL retain individual facts while duplicate keys use the last actual value
+- **AND** all original source values, validity, positive facts and numerical outputs SHALL remain unchanged
+
+#### Scenario: Unknown zeros and missing source evidence
+
+- **GIVEN** an unresolved zero fallback, malformed or absent provenance, unsupported identity or source block, nonzero value or legacy breakdown
+- **WHEN** zero-misc diagnostics are projected
+- **THEN** no absent or unsupported fact SHALL become an invented zero or native location
+- **AND** existing weapon, positive miscellaneous and ammunition projections SHALL remain unchanged
