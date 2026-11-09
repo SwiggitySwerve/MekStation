@@ -263,6 +263,30 @@ describe('tactical turn cleanup', () => {
     },
   );
 
+  it.each(attackActions)(
+    '%s clears both attack plans and targeting previews',
+    (action) => {
+      prepareAttack();
+
+      useGameplayStore.getState()[action]();
+
+      expect(useGameplayStore.getState()).toMatchObject({
+        attackPlan: {
+          targetUnitId: null,
+          selectedWeapons: [],
+          weaponModeError: null,
+        },
+        attackIntent: {
+          focusedTargetId: null,
+          assignments: [],
+          composedTwist: null,
+        },
+        validTargetIds: [],
+        hitChance: null,
+      });
+    },
+  );
+
   it.each(attackActions)('%s adopts a terminal session', (action) => {
     prepareAttack(GamePhase.WeaponAttack, true);
     useGameplayStore.getState()[action]();
@@ -284,6 +308,23 @@ describe('tactical turn cleanup', () => {
   );
 
   it.each(attackActions)(
+    '%s preserves the draft when no attacker is selected',
+    (action) => {
+      const session = prepareAttack();
+      useGameplayStore.setState((state) => ({
+        ui: { ...state.ui, selectedUnitId: null },
+      }));
+      const before = useGameplayStore.getState();
+
+      useGameplayStore.getState()[action]();
+
+      expect(useGameplayStore.getState()).toBe(before);
+      expect(session.applyAttack).not.toHaveBeenCalled();
+      expect(session.applyVolley).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(attackActions)(
     '%s preserves the draft when declaration throws',
     (action) => {
       const session = prepareAttack();
@@ -296,6 +337,35 @@ describe('tactical turn cleanup', () => {
       const before = useGameplayStore.getState();
       expect(() => useGameplayStore.getState()[action]()).toThrow(failure);
       expect(useGameplayStore.getState()).toBe(before);
+    },
+  );
+
+  it.each(['advanceInteractivePhase', 'skipPhase'] as const)(
+    '%s can wait again after the previous queue was reset',
+    (action) => {
+      const { session, calls } = buildMovementAnimationSession();
+      useGameplayStore.setState({
+        session: session.getSession(),
+        interactiveSession: session,
+      });
+      useAnimationQueue.getState().enqueue({ id: 'old', mapId: 'old-map' });
+      useGameplayStore.getState()[action]();
+      useGameplayStore.getState()[action]();
+      expect(calls.advancePhase).toBe(0);
+
+      useAnimationQueue.getState().reset();
+      expect(calls.advancePhase).toBe(0);
+      useAnimationQueue.getState().complete('old');
+      expect(calls.advancePhase).toBe(0);
+
+      useAnimationQueue.getState().enqueue({ id: 'new', mapId: 'new-map' });
+      useGameplayStore.getState()[action]();
+      useGameplayStore.getState()[action]();
+      expect(calls.advancePhase).toBe(0);
+      useAnimationQueue.getState().complete('new');
+      expect(calls.advancePhase).toBe(1);
+      useAnimationQueue.getState().reset();
+      expect(calls.advancePhase).toBe(1);
     },
   );
 });

@@ -207,7 +207,6 @@ export function finishCommit(
   set: (
     update: (state: Pick<CombatFlowsSlice, 'ui'>) => Partial<CombatFlowsSlice>,
   ) => void,
-  cleanup: Partial<CombatFlowsSlice> = {},
 ): void {
   const gameOver = interactiveSession.isGameOver();
   set((state) => ({
@@ -215,7 +214,14 @@ export function finishCommit(
     interactivePhase: gameOver
       ? InteractivePhase.GameOver
       : InteractivePhase.SelectUnit,
-    ...cleanup,
+    attackIntent: INITIAL_ATTACK_INTENT_STATE,
+    attackPlan: {
+      targetUnitId: null,
+      selectedWeapons: [],
+      weaponModeError: null,
+    },
+    validTargetIds: [],
+    hitChance: null,
     ui: {
       ...state.ui,
       selectedUnitId: null,
@@ -266,16 +272,7 @@ export function commitComposedVolleyLogic(get: GetFn, set: SetFn): void {
 
   interactiveSession.applyVolley(attackerId, selectVolleyGroups(attackIntent));
 
-  finishCommit(interactiveSession, set, {
-    attackIntent: INITIAL_ATTACK_INTENT_STATE,
-    attackPlan: {
-      targetUnitId: null,
-      selectedWeapons: [],
-      weaponModeError: null,
-    },
-    validTargetIds: [],
-    hitChance: null,
-  });
+  finishCommit(interactiveSession, set);
 }
 
 /**
@@ -301,7 +298,5 @@ export function holdFireLogic(get: GetFn, set: SetFn): void {
 
   interactiveSession.applyVolley(attackerId, []);
 
-  finishCommit(interactiveSession, set, {
-    attackIntent: INITIAL_ATTACK_INTENT_STATE,
-  });
+  finishCommit(interactiveSession, set);
 }

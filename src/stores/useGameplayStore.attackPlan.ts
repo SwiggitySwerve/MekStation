@@ -125,13 +125,5 @@ export function commitAttackLogic(get: GetFn, set: SetFn): void {
     get().weaponModesByUnitId[ui.selectedUnitId] ?? {},
   );
 
-  finishCommit(interactiveSession, set, {
-    attackPlan: {
-      targetUnitId: null,
-      selectedWeapons: [],
-      weaponModeError: null,
-    },
-    validTargetIds: [],
-    hitChance: null,
-  });
+  finishCommit(interactiveSession, set);
 }

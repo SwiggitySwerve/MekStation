@@ -227,10 +227,7 @@ export function fireWeaponsLogic(get: GetFn, set: SetFn): void {
 
   interactiveSession.applyAttack(ui.selectedUnitId, ui.targetUnitId, weaponIds);
 
-  finishCommit(interactiveSession, set, {
-    validTargetIds: [],
-    hitChance: null,
-  });
+  finishCommit(interactiveSession, set);
 }
 
 /**
