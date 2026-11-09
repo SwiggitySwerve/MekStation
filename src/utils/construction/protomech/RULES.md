@@ -348,6 +348,41 @@ once per launcher; its two built-in shots add no separate ammo term
 missing catalog facts supplied at the resolver boundary; this does not claim
 that the shipped catalog has those facts.
 
+## Main Gun and arm placement
+
+`mainGun.ts` owns the slot and weight limits of the Main Gun and the arms, the
+slot classification of a mount and the weapon-legality test, from pinned
+MegaMek `48fcb2f64` `TestProtoMek.java`: `maxSlotsByLocation` (606-629),
+`maxWeightByLocation` (651-678), `requiresSlot` (572-585) and
+`hasIllegalEquipmentCombinations` (296-380). Ultraheavy is above 9 t (line 65).
+An arm holds one mount of at most 0.5 t (1.0 t ultraheavy), a quad has none, and
+the Main Gun holds one slot-taking mount (two on a quad that is also
+ultraheavy) of any weight. Ammunition, MASC, UMU, jump jets and the EI interface
+take no slot. An enabled Main Gun may be empty.
+
+The hand-written approved-weapon list, the "heavy weapon" arm class and the
+"a weapon must be assigned" finding are removed: none exists upstream.
+
+Weapon legality (`F_PROTO_WEAPON`) comes from the catalog's `allowedUnitTypes`,
+which only the Java-derived `-registry` entries carry. A weapon is rejected only
+when the catalog describes it and omits `ProtoMech`. Most plain entries that
+canonical units resolve to carry no list, so an absent list is unknown, not
+illegal; 127 canonical weapon mounts depend on this. Catalog weights of
+variable-weight miscellany (magnetic clamp, partial wing) and ProtoMech quad
+melee are unknown and add no weight. The catalog also lists the mech weights of
+the Clan LRM-10 and LRM-15 (2.5 and 3.5 t) where Java mounts them at 2.0 and
+3.0 t; this matters only in the unlimited Main Gun.
+
+The torso is not enforced: it needs the armor's slot (Electric Discharge) and
+the variable weights above.
+
+`__tests__/fixtures/main-gun-java-verdicts.json` holds the pinned verifier's
+verdict, limits and mounts for the 86 canonical ProtoMechs (mm-data `50f7efe`),
+produced by `__tests__/fixtures/ProtoMekPlacementProbe.java` against the pinned
+MegaMek build (jar and probe SHA-256 in the fixture's `meta`). To regenerate,
+compile the probe against that jar and its runtime classpath, then run it with
+a units directory that holds `UnitVerifierOptions.xml` and the BLK files.
+
 ## Resolved zero-misc diagnostic projection
 
 At MegaMek `48fcb2f64`, `BVCalculator.processOffensiveEquipment` calls

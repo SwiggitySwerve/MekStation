@@ -11,6 +11,7 @@
 import {
   IPilot,
   IPilotIdentity,
+  IPilotSkills,
   IPilotStatblock,
   ICreatePilotOptions,
   PilotExperienceLevel,
@@ -127,9 +128,10 @@ export function createRandomLogic(
   identity: IPilotIdentity,
   set: PilotSetFn,
   get: PilotGetFn,
+  skills?: IPilotSkills,
 ): Promise<string | null> {
   return postCreatePilot(
-    { mode: 'random', identity },
+    { mode: 'random', identity, skills },
     'Failed to create pilot',
     set,
     get,

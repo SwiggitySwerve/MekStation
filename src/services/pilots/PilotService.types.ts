@@ -3,6 +3,7 @@ import type {
   IPilotAbilityDesignation,
   ICreatePilotOptions,
   IPilotIdentity,
+  IPilotSkills,
   IPilotStatblock,
   ISPADesignation,
   PilotExperienceLevel,
@@ -19,6 +20,7 @@ export interface IPilotService {
   createRandom(
     identity: IPilotIdentity,
     randomFn?: () => number,
+    skills?: IPilotSkills,
   ): IPilotOperationResult;
   createStatblock(statblock: IPilotStatblock): IPilot;
   updatePilot(id: string, updates: Partial<IPilot>): IPilotOperationResult;

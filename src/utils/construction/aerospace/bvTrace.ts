@@ -9,6 +9,8 @@ import {
   AerospaceSubType,
 } from '@/types/unit/AerospaceInterfaces';
 
+import type { IAerospaceAmmoBVPools } from './aerospaceBVCalculations';
+
 import { calculateBaseBV } from '../battleValueTotals';
 
 const contractLocations = new Map(
@@ -27,6 +29,7 @@ export function aerospaceBVTerms(
     readonly subType: AerospaceSubType;
     readonly mounts: readonly IAerospaceBVWeaponMount[];
   },
+  ammo?: Pick<IAerospaceAmmoBVPools, 'available' | 'cap'>,
 ): IAerospaceBVBreakdown & {
   weightBV: number;
   offensiveTypeModifier: number;
@@ -46,9 +49,15 @@ export function aerospaceBVTerms(
       `weapon.${fact.equipmentIndex}.${getAerospaceEquipmentLocationAbbr(location)}.${fact.equipmentId}`
     ] = fact.battleValue;
   }
+  const ammoTerms: Record<string, number> = {};
+  for (const kind of ['available', 'cap'] as const) {
+    for (const [group, value] of Object.entries(ammo?.[kind] ?? {}))
+      ammoTerms[`ammo.${kind}.${group}`] = value;
+  }
   return {
     ...b,
     ...weaponTerms,
+    ...ammoTerms,
     weightBV: 0,
     offensiveTypeModifier: 1,
     summaryModifier: summary?.summaryModifier ?? b.subTypeMultiplier,

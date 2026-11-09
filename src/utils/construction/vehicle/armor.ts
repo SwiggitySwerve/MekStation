@@ -29,6 +29,19 @@ import {
 
 import { computeVehicleMaxArmorByLocation } from './structure';
 
+/** TechConstants.isClan:394-398 at MegaMek 48fcb2f64. */
+const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
+
+/** Only an absent source tag inherits the chassis side (BLKTankFile:291-298). */
+export function resolveVehicleClanArmor(
+  armorTechLevel: number | undefined,
+  clanChassis: boolean,
+): boolean {
+  return armorTechLevel === undefined
+    ? clanChassis
+    : CLAN_TECH_LEVELS.has(armorTechLevel);
+}
+
 /** Exclude armor belonging to turrets that are not installed. */
 export function getInstalledArmorAllocation<T extends Record<string, number>>(
   allocation: T,

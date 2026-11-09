@@ -11,6 +11,8 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 
+import type { IMatchEventRecord } from '../matchLogStorage';
+
 import {
   GAME_SESSION_EVENTS_ARRAY,
   answerReconnectRequest,
@@ -179,6 +181,63 @@ describe('gameSessionChannel', () => {
     expect(matchLog.markMatchCompleted).toHaveBeenCalledWith(
       'match-1',
       ended.timestamp,
+    );
+  });
+
+  it('waits for the terminal append before marking completion and preserves append failures', async () => {
+    let resolveAppend!: (value: IMatchEventRecord) => void;
+    let rejectAppend!: (error: Error) => void;
+    const matchLog = {
+      appendEvent: jest.fn(
+        () =>
+          new Promise<IMatchEventRecord>((resolve, reject) => {
+            resolveAppend = resolve;
+            rejectAppend = reject;
+          }),
+      ),
+      markMatchCompleted: jest.fn().mockResolvedValue(undefined),
+    };
+    const logger = { error: jest.fn() };
+    const channel = createGameSessionChannel({
+      localPeerId: 'host-peer',
+      eventArray,
+      matchId: 'match-1',
+      matchLog,
+      logger,
+    });
+    const ended: IGameEvent = {
+      ...makeEvent('terminal', 9),
+      type: GameEventType.GameEnded,
+      payload: { winner: GameSide.Player, reason: 'destruction' },
+    };
+
+    channel.broadcastEvent(ended);
+    await Promise.resolve();
+    expect(matchLog.markMatchCompleted).not.toHaveBeenCalled();
+    resolveAppend({
+      matchId: 'match-1',
+      sequence: ended.sequence,
+      event: ended,
+      savedAt: ended.timestamp,
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(matchLog.markMatchCompleted).toHaveBeenCalledWith(
+      'match-1',
+      ended.timestamp,
+    );
+
+    matchLog.markMatchCompleted.mockClear();
+    channel.broadcastEvent({ ...ended, id: 'failed-terminal', sequence: 10 });
+    const error = new Error('append failed');
+    rejectAppend(error);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(matchLog.markMatchCompleted).not.toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith(
+      'Failed to persist P2P match event',
+      expect.objectContaining({ error }),
     );
   });
 
