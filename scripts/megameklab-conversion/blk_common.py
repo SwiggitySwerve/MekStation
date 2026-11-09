@@ -127,53 +127,13 @@ except ImportError:  # pragma: no cover — defensive fallback only
 
 # MegaMek 48fcb2f6 EquipmentType.java:85-136. Codes are shared by unit families;
 # technology is a separate source fact, not another set of numeric armor codes.
-BAR_ARMOR_CODES = range(43, 52)
 BLK_ARMOR_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD",
-    1: "FERRO_FIBROUS",
-    2: "REACTIVE",
-    3: "REFLECTIVE",
-    4: "HARDENED",
-    5: "LIGHT_FERRO_FIBROUS",
-    6: "HEAVY_FERRO_FIBROUS",
-    7: "PATCHWORK",
-    8: "STEALTH",
-    9: "FERRO_FIBROUS_PROTO",
-    10: "COMMERCIAL",
-    11: "FERRO_CARBIDE",
-    12: "LAMELLOR_FERRO_CARBIDE",
-    13: "IMPROVED_FERRO_ALUMINUM",
-    14: "INDUSTRIAL",
-    15: "HEAVY_INDUSTRIAL",
-    16: "FERRO_LAMELLOR",
-    17: "PRIMITIVE",
-    18: "ELECTRIC_DISCHARGE",
-    19: "FERRO_ALUMINUM",
-    20: "HEAVY_FERRO_ALUMINUM",
-    21: "LIGHT_FERRO_ALUMINUM",
-    22: "STEALTH",
-    23: "ANTI_PENETRATIVE_ABLATION",
-    24: "HEAT_DISSIPATING",
-    25: "IMPACT_RESISTANT",
-    26: "BALLISTIC_REINFORCED",
-    27: "FERRO_ALUMINUM_PROTO",
-    28: "STANDARD",
-    29: "BA_STANDARD_PROTOTYPE",
-    30: "BA_STANDARD_ADVANCED",
-    31: "BA_STEALTH_BASIC",
-    32: "STEALTH",
-    33: "STEALTH_IMPROVED",
-    34: "STEALTH_PROTOTYPE",
-    35: "FIRE_RESISTANT",
-    36: "MIMETIC",
-    37: "REFLECTIVE",
-    38: "REACTIVE",
-    39: "PRIMITIVE",
-    40: "PRIMITIVE_AERO",
-    41: "AEROSPACE",
-    42: "STANDARD_PROTOMEK",
-    **dict.fromkeys(BAR_ARMOR_CODES, "BAR"),
+    int(code): name for code, name in json.loads(
+        (Path(__file__).resolve().parents[2] / 'src/types/formats/blk-armor-codes.json')
+        .read_text(encoding='utf-8')
+    ).items()
 }
+BAR_ARMOR_CODES = tuple(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == "BAR")
 
 
 # BLKFile.java:669-735. MTF numeric levels and aliases have different meanings.

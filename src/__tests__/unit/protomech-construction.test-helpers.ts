@@ -25,8 +25,6 @@ import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 import {
   getProtoMPCaps,
   getProtoWeightClass,
-  isArmPlacementIllegal,
-  isMainGunWeaponApproved,
   PROTO_VALIDATION_RULE_IDS,
   RULE_PROTO_CHASSIS,
   RULE_PROTO_MAIN_GUN,
@@ -53,8 +51,7 @@ const MINOTAUR_SNAPSHOT = {
   jumpMP: 0,
   myomerBooster: false,
   hasMainGun: false,
-  mainGunWeaponId: undefined as string | undefined,
-  weaponPlacements: [] as Array<{
+  equipmentPlacements: [] as Array<{
     equipmentId: string;
     location: ProtoLocation;
   }>,
@@ -69,8 +66,7 @@ const SPRITE_SNAPSHOT = {
   jumpMP: 4,
   myomerBooster: false,
   hasMainGun: false,
-  mainGunWeaponId: undefined as string | undefined,
-  weaponPlacements: [] as Array<{
+  equipmentPlacements: [] as Array<{
     equipmentId: string;
     location: ProtoLocation;
   }>,
@@ -85,8 +81,7 @@ const SATYR_SNAPSHOT = {
   jumpMP: 5,
   myomerBooster: false,
   hasMainGun: false,
-  mainGunWeaponId: undefined as string | undefined,
-  weaponPlacements: [] as Array<{
+  equipmentPlacements: [] as Array<{
     equipmentId: string;
     location: ProtoLocation;
   }>,
@@ -101,8 +96,7 @@ const NUTHATCH_SNAPSHOT = {
   jumpMP: 8,
   myomerBooster: false,
   hasMainGun: false,
-  mainGunWeaponId: undefined as string | undefined,
-  weaponPlacements: [] as Array<{
+  equipmentPlacements: [] as Array<{
     equipmentId: string;
     location: ProtoLocation;
   }>,
@@ -117,8 +111,9 @@ const ARES_SNAPSHOT = {
   jumpMP: 0,
   myomerBooster: false,
   hasMainGun: true,
-  mainGunWeaponId: 'clan-gauss-rifle',
-  weaponPlacements: [] as Array<{
+  equipmentPlacements: [
+    { equipmentId: 'CLAPGaussRifle', location: ProtoLocation.MAIN_GUN },
+  ] as Array<{
     equipmentId: string;
     location: ProtoLocation;
   }>,
@@ -433,62 +428,75 @@ describe('VAL-PROTO-MP', () => {
 // =============================================================================
 
 describe('VAL-PROTO-MAIN-GUN', () => {
-  it('LB-X 10 / Gauss Rifle / PPC approved IDs pass (Ares fixture)', () => {
-    // Ares uses clan-gauss-rifle
-    const result = validateProtoMainGun(ARES_SNAPSHOT);
-    expect(result.passed).toBe(true);
+  // Pinned rule: TestProtoMek.java:296-380, 606-678 (MegaMek 48fcb2f64).
+  // The full corpus and boundary cases are in
+  // src/utils/construction/protomech/__tests__/mainGun.*.test.ts.
+  it('Ares (ultraheavy biped, Gauss in the Main Gun) passes', () => {
+    expect(validateProtoMainGun(ARES_SNAPSHOT).passed).toBe(true);
   });
 
-  it('clan-ppc is approved', () => {
-    expect(isMainGunWeaponApproved('clan-ppc')).toBe(true);
-  });
-
-  it('clan-gauss-rifle is approved', () => {
-    expect(isMainGunWeaponApproved('clan-gauss-rifle')).toBe(true);
-  });
-
-  it('Medium Laser (not in approved list) fails VAL-PROTO-MAIN-GUN', () => {
-    const result = validateProtoMainGun({
-      hasMainGun: true,
-      mainGunWeaponId: 'clan-medium-laser', // not in approved list
-      weaponPlacements: [],
-    });
-    expect(result.passed).toBe(false);
-    expect(result.findings[0]?.ruleId).toBe(RULE_PROTO_MAIN_GUN);
-  });
-
-  it('no main gun with no weapon ID passes', () => {
-    const result = validateProtoMainGun({
-      hasMainGun: false,
-      mainGunWeaponId: undefined,
-      weaponPlacements: [],
-    });
-    expect(result.passed).toBe(true);
-  });
-
-  it('heavy weapon in arm mount fails (isArmPlacementIllegal)', () => {
-    // clan-gauss-rifle is heavy — arm placement is illegal
+  it('an enabled Main Gun with nothing in it passes, as upstream allows', () => {
     expect(
-      isArmPlacementIllegal('clan-gauss-rifle', ProtoLocation.LEFT_ARM),
+      validateProtoMainGun({
+        tonnage: 5,
+        chassisType: ProtoChassis.BIPED,
+        equipmentPlacements: [],
+      }).passed,
     ).toBe(true);
   });
 
-  it('heavy arm weapon triggers VAL-PROTO-MAIN-GUN error', () => {
+  it('a Main Gun weapon missing from the old hand-written list passes', () => {
     const result = validateProtoMainGun({
-      hasMainGun: false,
-      mainGunWeaponId: undefined,
-      weaponPlacements: [
-        { equipmentId: 'clan-gauss-rifle', location: ProtoLocation.LEFT_ARM },
+      tonnage: 5,
+      chassisType: ProtoChassis.BIPED,
+      equipmentPlacements: [
+        { equipmentId: 'CLMediumPulseLaser', location: ProtoLocation.MAIN_GUN },
+      ],
+    });
+    expect(result.passed).toBe(true);
+  });
+
+  it('a second Main Gun weapon on a biped fails with the pinned wording', () => {
+    const result = validateProtoMainGun({
+      tonnage: 5,
+      chassisType: ProtoChassis.BIPED,
+      equipmentPlacements: [
+        { equipmentId: 'CLERMicroLaser', location: ProtoLocation.MAIN_GUN },
+        { equipmentId: 'CLERSmallLaser', location: ProtoLocation.MAIN_GUN },
       ],
     });
     expect(result.passed).toBe(false);
     expect(result.findings[0]?.ruleId).toBe(RULE_PROTO_MAIN_GUN);
+    expect(result.findings[0]?.message).toBe(
+      'Exceeds 1 slot limit in Main Gun (2 mounted).',
+    );
   });
 
-  it('light weapon (clan-er-small-laser) in arm mount passes', () => {
+  it('a Gauss rifle in an arm fails by weight, not by a heavy-weapon class', () => {
+    const result = validateProtoMainGun({
+      tonnage: 5,
+      chassisType: ProtoChassis.BIPED,
+      equipmentPlacements: [
+        { equipmentId: 'CLGaussRifle', location: ProtoLocation.LEFT_ARM },
+      ],
+    });
+    expect(result.passed).toBe(false);
+    expect(result.findings[0]?.ruleId).toBe(RULE_PROTO_MAIN_GUN);
+    expect(result.findings[0]?.message).toBe(
+      'Exceeds 500 kg limit in Left Arm.',
+    );
+  });
+
+  it('a light weapon (CLERSmallLaser, 0.5 t) in an arm passes', () => {
     expect(
-      isArmPlacementIllegal('clan-er-small-laser', ProtoLocation.LEFT_ARM),
-    ).toBe(false);
+      validateProtoMainGun({
+        tonnage: 5,
+        chassisType: ProtoChassis.BIPED,
+        equipmentPlacements: [
+          { equipmentId: 'CLERSmallLaser', location: ProtoLocation.LEFT_ARM },
+        ],
+      }).passed,
+    ).toBe(true);
   });
 });
 
