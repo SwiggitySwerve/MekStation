@@ -1,0 +1,337 @@
+{
+  "provenance": "Distinct-value splice of real mm-data 50f7efe capital BLKs (armor and every equipment block rewritten so each arc carries a different armor value, weapon type and mount count), loaded in pinned MegaMek 48fcb2f64 (BLK*File loaders via MekFileParser); javaLocations is that loader's own per-location answer. Audit: _scratch/sm-audit-reports/parity-2.1-d/REPORT.md",
+  "cases": {
+    "D1-dropship": {
+      "pinnedClass": "megamek.common.units.Dropship",
+      "blk": "<UnitType>\nDropship\n</UnitType>\n\n<Name>\nUnion\n</Name>\n\n<Model>\n(2708)\n</Model>\n\n<year>\n2708\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<motion_type>\nSpheroid\n</motion_type>\n\n<transporters>\nmekbay:4.0:2:-1::-1:0\nmekbay:8.0:2:-1::-1:0\nasfbay:2.0:2:3::-1:0\ncargobay:74.5:2:4::-1:0\n1stclassquarters:30.0:0:-1::-1:0\n2ndclassquarters:0.0:0:-1::-1:0\ncrewquarters:77.0:0:-1::-1:0\n</transporters>\n\n<SafeThrust>\n3\n</SafeThrust>\n\n<heatsinks>\n90\n</heatsinks>\n\n<sink_type>\n0\n</sink_type>\n\n<armor>\n101\n202\n303\n404\n</armor>\n\n<Nose Equipment>\nLarge Laser\n</Nose Equipment>\n\n<Left Side Equipment>\nMedium Laser\nMedium Laser\n</Left Side Equipment>\n\n<Right Side Equipment>\nSmall Laser\nSmall Laser\nSmall Laser\n</Right Side Equipment>\n\n<Aft Equipment>\nPPC\n</Aft Equipment>\n\n<Hull Equipment>\n\n</Hull Equipment>\n\n<fuel>\n6450\n</fuel>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n41\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<structural_integrity>\n11\n</structural_integrity>\n\n<use>\n'Mech/ASF carrier\n</use>\n\n<length>\n81.5 meters\n</length>\n\n<width>\n81.5 meters\n</width>\n\n<height>\n78 meters\n</height>\n\n<published>\nRS:HPP1,RSFP:Battlefield\n</published>\n\n<tonnage>\n3600.0\n</tonnage>\n\n<designtype>\n1\n</designtype>\n\n<crew>\n42\n</crew>\n\n<officers>\n3\n</officers>\n\n<gunners>\n6\n</gunners>\n\n<passengers>\n0\n</passengers>\n\n<marines>\n0\n</marines>\n\n<battlearmor>\n0\n</battlearmor>\n\n<otherpassenger>\n0\n</otherpassenger>\n\n<life_boat>\n0\n</life_boat>\n\n<escape_pod>\n7\n</escape_pod>\n",
+      "javaLocations": {
+        "Nose": {
+          "index": 0,
+          "armor": 101,
+          "weapons": {
+            "Large Laser": 1
+          }
+        },
+        "Left Side": {
+          "index": 1,
+          "armor": 303,
+          "weapons": {
+            "Medium Laser": 2
+          }
+        },
+        "Right Side": {
+          "index": 2,
+          "armor": 202,
+          "weapons": {
+            "Small Laser": 3
+          }
+        },
+        "Aft": {
+          "index": 3,
+          "armor": 404,
+          "weapons": {
+            "PPC": 1
+          }
+        },
+        "Hull": {
+          "index": 4,
+          "armor": null,
+          "weapons": {}
+        }
+      }
+    },
+    "J1-jumpship": {
+      "pinnedClass": "megamek.common.units.Jumpship",
+      "blk": "<UnitType>\nJumpship\n</UnitType>\n\n<Name>\nChimeisho JumpShip\n</Name>\n\n<Model>\n(3056)\n</Model>\n\n<year>\n3056\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nAerodyne\n</motion_type>\n\n<transporters>\nsmallcraftbay:4.0:2:1::-1:0\ncargobay:362.5:1:2::-1:0\ncargobay:362.0:1:3::-1:0\n1stclassquarters:50.0:0:-1::-1:0\ncrewquarters:175.0:0:-1::-1:0\ndockingcollar\ndockingcollar\n</transporters>\n\n<SafeThrust>\n0\n</SafeThrust>\n\n<heatsinks>\n122\n</heatsinks>\n\n<sink_type>\n0\n</sink_type>\n\n<armor>\n101\n202\n303\n404\n505\n606\n</armor>\n\n<Nose Equipment>\nLarge Laser\n</Nose Equipment>\n\n<Left Front Side Equipment>\nMedium Laser\nMedium Laser\n</Left Front Side Equipment>\n\n<Right Front Side Equipment>\nSmall Laser\nSmall Laser\nSmall Laser\n</Right Front Side Equipment>\n\n<Aft Equipment>\nPPC\n</Aft Equipment>\n\n<Aft Left Side Equipment>\nMachine Gun\nMachine Gun\n</Aft Left Side Equipment>\n\n<Aft Right Side Equipment>\nAutocannon/5\n</Aft Right Side Equipment>\n\n<Hull Equipment>\n\n</Hull Equipment>\n\n<fuel>\n3000\n</fuel>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n41\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n5\n</armor_tech_level>\n\n<structural_integrity>\n1\n</structural_integrity>\n\n<use>\nTransport\n</use>\n\n<length>\n645m\n</length>\n\n<tonnage>\n245000.0\n</tonnage>\n\n<lithium-fusion>\n1\n</lithium-fusion>\n\n<sail>\n1\n</sail>\n\n<grav_decks>\n50\n</grav_decks>\n\n<designtype>\n0\n</designtype>\n\n<crew>\n50\n</crew>\n\n<officers>\n5\n</officers>\n\n<gunners>\n2\n</gunners>\n\n<passengers>\n0\n</passengers>\n\n<marines>\n0\n</marines>\n\n<battlearmor>\n0\n</battlearmor>\n\n<life_boat>\n5\n</life_boat>\n\n<escape_pod>\n0\n</escape_pod>\n",
+      "javaLocations": {
+        "Nose": {
+          "index": 0,
+          "armor": 101,
+          "weapons": {
+            "Large Laser": 1
+          }
+        },
+        "Left Front Side": {
+          "index": 1,
+          "armor": 202,
+          "weapons": {
+            "Medium Laser": 2
+          }
+        },
+        "Right Front Side": {
+          "index": 2,
+          "armor": 303,
+          "weapons": {
+            "Small Laser": 3
+          }
+        },
+        "Aft": {
+          "index": 3,
+          "armor": 404,
+          "weapons": {
+            "PPC": 1
+          }
+        },
+        "Aft Left Side": {
+          "index": 4,
+          "armor": 505,
+          "weapons": {
+            "Machine Gun": 2
+          }
+        },
+        "Aft Right Side": {
+          "index": 5,
+          "armor": 606,
+          "weapons": {
+            "Autocannon/5": 1
+          }
+        },
+        "Hull": {
+          "index": 6,
+          "armor": null,
+          "weapons": {}
+        }
+      }
+    },
+    "J2-jumpship-legacy-tags": {
+      "pinnedClass": "megamek.common.units.Jumpship",
+      "blk": "<UnitType>\nJumpship\n</UnitType>\n\n<Name>\nChimeisho JumpShip\n</Name>\n\n<Model>\n(3056)\n</Model>\n\n<year>\n3056\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nAerodyne\n</motion_type>\n\n<transporters>\nsmallcraftbay:4.0:2:1::-1:0\ncargobay:362.5:1:2::-1:0\ncargobay:362.0:1:3::-1:0\n1stclassquarters:50.0:0:-1::-1:0\ncrewquarters:175.0:0:-1::-1:0\ndockingcollar\ndockingcollar\n</transporters>\n\n<SafeThrust>\n0\n</SafeThrust>\n\n<heatsinks>\n122\n</heatsinks>\n\n<sink_type>\n0\n</sink_type>\n\n<armor>\n101\n202\n303\n404\n505\n606\n</armor>\n\n<Nose Equipment>\nLarge Laser\n</Nose Equipment>\n\n<Front Left Side Equipment>\nMedium Laser\nMedium Laser\n</Front Left Side Equipment>\n\n<Front Right Side Equipment>\nSmall Laser\nSmall Laser\nSmall Laser\n</Front Right Side Equipment>\n\n<Aft Equipment>\nPPC\n</Aft Equipment>\n\n<Aft Left Side Equipment>\nMachine Gun\nMachine Gun\n</Aft Left Side Equipment>\n\n<Aft Right Side Equipment>\nAutocannon/5\n</Aft Right Side Equipment>\n\n<Hull Equipment>\n\n</Hull Equipment>\n\n<fuel>\n3000\n</fuel>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n41\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n5\n</armor_tech_level>\n\n<structural_integrity>\n1\n</structural_integrity>\n\n<use>\nTransport\n</use>\n\n<length>\n645m\n</length>\n\n<tonnage>\n245000.0\n</tonnage>\n\n<lithium-fusion>\n1\n</lithium-fusion>\n\n<sail>\n1\n</sail>\n\n<grav_decks>\n50\n</grav_decks>\n\n<designtype>\n0\n</designtype>\n\n<crew>\n50\n</crew>\n\n<officers>\n5\n</officers>\n\n<gunners>\n2\n</gunners>\n\n<passengers>\n0\n</passengers>\n\n<marines>\n0\n</marines>\n\n<battlearmor>\n0\n</battlearmor>\n\n<life_boat>\n5\n</life_boat>\n\n<escape_pod>\n0\n</escape_pod>\n",
+      "javaLocations": {
+        "Nose": {
+          "index": 0,
+          "armor": 101,
+          "weapons": {
+            "Large Laser": 1
+          }
+        },
+        "Left Front Side": {
+          "index": 1,
+          "armor": 202,
+          "weapons": {
+            "Medium Laser": 2
+          }
+        },
+        "Right Front Side": {
+          "index": 2,
+          "armor": 303,
+          "weapons": {
+            "Small Laser": 3
+          }
+        },
+        "Aft": {
+          "index": 3,
+          "armor": 404,
+          "weapons": {
+            "PPC": 1
+          }
+        },
+        "Aft Left Side": {
+          "index": 4,
+          "armor": 505,
+          "weapons": {
+            "Machine Gun": 2
+          }
+        },
+        "Aft Right Side": {
+          "index": 5,
+          "armor": 606,
+          "weapons": {
+            "Autocannon/5": 1
+          }
+        },
+        "Hull": {
+          "index": 6,
+          "armor": null,
+          "weapons": {}
+        }
+      }
+    },
+    "S1-spacestation": {
+      "pinnedClass": "megamek.common.units.SpaceStation",
+      "blk": "<UnitType>\nSpaceStation\n</UnitType>\n\n<Name>\nAlliance Space Station\n</Name>\n\n<Model>\n(2713)\n</Model>\n\n<year>\n2713\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nAerodyne\n</motion_type>\n\n<transporters>\nsmallcraftbay:8.0:1:1::-1:0\nnavalrepairpressurized:50000.0:1:2:f5\nnavalrepairpressurized:50000.0:1:3:f4\n1stclassquarters:130.0:0:-1::-1:0\ncrewquarters:2093.0:0:-1::-1:0\n2ndclassquarters:2800.0:0:-1::-1:0\nsteeragequarters:280.0:0:-1::-1:0\ndockingcollar\ndockingcollar\ndockingcollar\ndockingcollar\ncargobay:67464.0:1:12::-1:0\n</transporters>\n\n<SafeThrust>\n0\n</SafeThrust>\n\n<heatsinks>\n400\n</heatsinks>\n\n<sink_type>\n0\n</sink_type>\n\n<armor>\n101\n202\n303\n404\n505\n606\n</armor>\n\n<Nose Equipment>\nLarge Laser\n</Nose Equipment>\n\n<Left Front Side Equipment>\nMedium Laser\nMedium Laser\n</Left Front Side Equipment>\n\n<Right Front Side Equipment>\nSmall Laser\nSmall Laser\nSmall Laser\n</Right Front Side Equipment>\n\n<Aft Equipment>\nPPC\n</Aft Equipment>\n\n<Aft Left Side Equipment>\nMachine Gun\nMachine Gun\n</Aft Left Side Equipment>\n\n<Aft Right Side Equipment>\nAutocannon/5\n</Aft Right Side Equipment>\n\n<Hull Equipment>\n\n</Hull Equipment>\n\n<fuel>\n100000\n</fuel>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n41\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n5\n</armor_tech_level>\n\n<structural_integrity>\n1\n</structural_integrity>\n\n<tonnage>\n100000.0\n</tonnage>\n\n<sail>\n0\n</sail>\n\n<grav_decks>\n500\n</grav_decks>\n\n<designtype>\n1\n</designtype>\n\n<crew>\n352\n</crew>\n\n<officers>\n13\n</officers>\n\n<gunners>\n12\n</gunners>\n\n<passengers>\n400\n</passengers>\n\n<marines>\n56\n</marines>\n\n<battlearmor>\n0\n</battlearmor>\n\n<life_boat>\n60\n</life_boat>\n\n<escape_pod>\n0\n</escape_pod>\n",
+      "javaLocations": {
+        "Nose": {
+          "index": 0,
+          "armor": 101,
+          "weapons": {
+            "Large Laser": 1
+          }
+        },
+        "Left Front Side": {
+          "index": 1,
+          "armor": 202,
+          "weapons": {
+            "Medium Laser": 2
+          }
+        },
+        "Right Front Side": {
+          "index": 2,
+          "armor": 303,
+          "weapons": {
+            "Small Laser": 3
+          }
+        },
+        "Aft": {
+          "index": 3,
+          "armor": 404,
+          "weapons": {
+            "PPC": 1
+          }
+        },
+        "Aft Left Side": {
+          "index": 4,
+          "armor": 505,
+          "weapons": {
+            "Machine Gun": 2
+          }
+        },
+        "Aft Right Side": {
+          "index": 5,
+          "armor": 606,
+          "weapons": {
+            "Autocannon/5": 1
+          }
+        },
+        "Hull": {
+          "index": 6,
+          "armor": null,
+          "weapons": {}
+        }
+      }
+    },
+    "W1-warship": {
+      "pinnedClass": "megamek.common.units.Warship",
+      "blk": "<UnitType>\nWarship\n</UnitType>\n\n<Name>\nAegis Heavy Cruiser\n</Name>\n\n<Model>\n(2843)\n</Model>\n\n<year>\n2843\n</year>\n\n<type>\nClan Level 3\n</type>\n\n<motion_type>\nAerodyne\n</motion_type>\n\n<transporters>\nsmallcraftbay:10.0:2:1::-1:0\nasfbay:20.0:4:2::-1:0\ncargobay:85509.0:1:3::-1:0\ndockingcollar\ndockingcollar\ndockingcollar\ndockingcollar\n1stclassquarters:490.0:0:-1::-1:0\ncrewquarters:1582.0:0:-1::-1:0\n2ndclassquarters:70.0:0:-1::-1:0\ncargobay:50.0:0:11::-1:0\n</transporters>\n\n<SafeThrust>\n2\n</SafeThrust>\n\n<heatsinks>\n2046\n</heatsinks>\n\n<sink_type>\n1\n</sink_type>\n\n<armor>\n101\n202\n303\n404\n505\n606\n</armor>\n\n<Nose Equipment>\nNaval Laser 55\n</Nose Equipment>\n\n<Left Front Side Equipment>\nNaval Laser 45\nNaval Laser 45\n</Left Front Side Equipment>\n\n<Right Front Side Equipment>\nNaval Laser 35\nNaval Laser 35\nNaval Laser 35\n</Right Front Side Equipment>\n\n<Aft Equipment>\nNaval PPC (Heavy)\nNaval PPC (Heavy)\nNaval PPC (Heavy)\nNaval PPC (Heavy)\n</Aft Equipment>\n\n<Aft Left Side Equipment>\nNaval PPC (Medium)\nNaval PPC (Medium)\nNaval PPC (Medium)\nNaval PPC (Medium)\nNaval PPC (Medium)\n</Aft Left Side Equipment>\n\n<Aft Right Side Equipment>\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\n</Aft Right Side Equipment>\n\n<Hull Equipment>\n\n</Hull Equipment>\n\n<Left Broadsides Equipment>\nNaval Autocannon (NAC/20)\n</Left Broadsides Equipment>\n\n<Right Broadsides Equipment>\nNaval Autocannon (NAC/10)\nNaval Autocannon (NAC/10)\n</Right Broadsides Equipment>\n\n<fuel>\n2500\n</fuel>\n\n<engine_type>\n1\n</engine_type>\n\n<clan_engine>\nfalse\n</clan_engine>\n\n<armor_type>\n11\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n6\n</armor_tech_level>\n\n<structural_integrity>\n75\n</structural_integrity>\n\n<tonnage>\n750000.0\n</tonnage>\n\n<kf_core>\n1\n</kf_core>\n\n<lithium-fusion>\n1\n</lithium-fusion>\n\n<sail>\n1\n</sail>\n\n<grav_decks>\n90\n90\n</grav_decks>\n\n<designtype>\n1\n</designtype>\n\n<crew>\n365\n</crew>\n\n<officers>\n49\n</officers>\n\n<gunners>\n80\n</gunners>\n\n<passengers>\n0\n</passengers>\n\n<marines>\n0\n</marines>\n\n<battlearmor>\n0\n</battlearmor>\n\n<life_boat>\n20\n</life_boat>\n\n<escape_pod>\n0\n</escape_pod>\n",
+      "javaLocations": {
+        "Nose": {
+          "index": 0,
+          "armor": 101,
+          "weapons": {
+            "Naval Laser 55": 1
+          }
+        },
+        "Left Front Side": {
+          "index": 1,
+          "armor": 202,
+          "weapons": {
+            "Naval Laser 45": 2
+          }
+        },
+        "Right Front Side": {
+          "index": 2,
+          "armor": 303,
+          "weapons": {
+            "Naval Laser 35": 3
+          }
+        },
+        "Aft": {
+          "index": 3,
+          "armor": 404,
+          "weapons": {
+            "Naval PPC (Heavy)": 4
+          }
+        },
+        "Aft Left Side": {
+          "index": 4,
+          "armor": 505,
+          "weapons": {
+            "Naval PPC (Medium)": 5
+          }
+        },
+        "Aft Right Side": {
+          "index": 5,
+          "armor": 606,
+          "weapons": {
+            "Naval PPC (Light)": 6
+          }
+        },
+        "Hull": {
+          "index": 6,
+          "armor": null,
+          "weapons": {}
+        },
+        "Left Broadsides": {
+          "index": 7,
+          "armor": null,
+          "weapons": {
+            "Naval Autocannon (NAC/20)": 1
+          }
+        },
+        "Right Broadsides": {
+          "index": 8,
+          "armor": null,
+          "weapons": {
+            "Naval Autocannon (NAC/10)": 2
+          }
+        }
+      }
+    },
+    "W2-warship-legacy-tags": {
+      "pinnedClass": "megamek.common.units.Warship",
+      "blk": "<UnitType>\nWarship\n</UnitType>\n\n<Name>\nAegis Heavy Cruiser\n</Name>\n\n<Model>\n(2843)\n</Model>\n\n<year>\n2843\n</year>\n\n<type>\nClan Level 3\n</type>\n\n<motion_type>\nAerodyne\n</motion_type>\n\n<transporters>\nsmallcraftbay:10.0:2:1::-1:0\nasfbay:20.0:4:2::-1:0\ncargobay:85509.0:1:3::-1:0\ndockingcollar\ndockingcollar\ndockingcollar\ndockingcollar\n1stclassquarters:490.0:0:-1::-1:0\ncrewquarters:1582.0:0:-1::-1:0\n2ndclassquarters:70.0:0:-1::-1:0\ncargobay:50.0:0:11::-1:0\n</transporters>\n\n<SafeThrust>\n2\n</SafeThrust>\n\n<heatsinks>\n2046\n</heatsinks>\n\n<sink_type>\n1\n</sink_type>\n\n<armor>\n101\n202\n303\n404\n505\n606\n</armor>\n\n<Nose Equipment>\nNaval Laser 55\n</Nose Equipment>\n\n<Front Left Side Equipment>\nNaval Laser 45\nNaval Laser 45\n</Front Left Side Equipment>\n\n<Front Right Side Equipment>\nNaval Laser 35\nNaval Laser 35\nNaval Laser 35\n</Front Right Side Equipment>\n\n<Aft Equipment>\nNaval PPC (Heavy)\nNaval PPC (Heavy)\nNaval PPC (Heavy)\nNaval PPC (Heavy)\n</Aft Equipment>\n\n<Aft Left Side Equipment>\nNaval PPC (Medium)\nNaval PPC (Medium)\nNaval PPC (Medium)\nNaval PPC (Medium)\nNaval PPC (Medium)\n</Aft Left Side Equipment>\n\n<Aft Right Side Equipment>\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\nNaval PPC (Light)\n</Aft Right Side Equipment>\n\n<Hull Equipment>\n\n</Hull Equipment>\n\n<Left Broadside Equipment>\nNaval Autocannon (NAC/20)\n</Left Broadside Equipment>\n\n<Right Broadside Equipment>\nNaval Autocannon (NAC/10)\nNaval Autocannon (NAC/10)\n</Right Broadside Equipment>\n\n<fuel>\n2500\n</fuel>\n\n<engine_type>\n1\n</engine_type>\n\n<clan_engine>\nfalse\n</clan_engine>\n\n<armor_type>\n11\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n6\n</armor_tech_level>\n\n<structural_integrity>\n75\n</structural_integrity>\n\n<tonnage>\n750000.0\n</tonnage>\n\n<kf_core>\n1\n</kf_core>\n\n<lithium-fusion>\n1\n</lithium-fusion>\n\n<sail>\n1\n</sail>\n\n<grav_decks>\n90\n90\n</grav_decks>\n\n<designtype>\n1\n</designtype>\n\n<crew>\n365\n</crew>\n\n<officers>\n49\n</officers>\n\n<gunners>\n80\n</gunners>\n\n<passengers>\n0\n</passengers>\n\n<marines>\n0\n</marines>\n\n<battlearmor>\n0\n</battlearmor>\n\n<life_boat>\n20\n</life_boat>\n\n<escape_pod>\n0\n</escape_pod>\n",
+      "javaLocations": {
+        "Nose": {
+          "index": 0,
+          "armor": 101,
+          "weapons": {
+            "Naval Laser 55": 1
+          }
+        },
+        "Left Front Side": {
+          "index": 1,
+          "armor": 202,
+          "weapons": {
+            "Naval Laser 45": 2
+          }
+        },
+        "Right Front Side": {
+          "index": 2,
+          "armor": 303,
+          "weapons": {
+            "Naval Laser 35": 3
+          }
+        },
+        "Aft": {
+          "index": 3,
+          "armor": 404,
+          "weapons": {
+            "Naval PPC (Heavy)": 4
+          }
+        },
+        "Aft Left Side": {
+          "index": 4,
+          "armor": 505,
+          "weapons": {
+            "Naval PPC (Medium)": 5
+          }
+        },
+        "Aft Right Side": {
+          "index": 5,
+          "armor": 606,
+          "weapons": {
+            "Naval PPC (Light)": 6
+          }
+        },
+        "Hull": {
+          "index": 6,
+          "armor": null,
+          "weapons": {}
+        },
+        "Left Broadsides": {
+          "index": 7,
+          "armor": null,
+          "weapons": {
+            "Naval Autocannon (NAC/20)": 1
+          }
+        },
+        "Right Broadsides": {
+          "index": 8,
+          "armor": null,
+          "weapons": {
+            "Naval Autocannon (NAC/10)": 2
+          }
+        }
+      }
+    }
+  }
+}

@@ -83,6 +83,8 @@ export enum CapitalArc {
   AFT = 'Aft',
   LEFT_BROADSIDE = 'LBS',
   RIGHT_BROADSIDE = 'RBS',
+  /** Hull location: carries equipment but is not a firing arc and is never armored. */
+  HULL = 'Hull',
 }
 
 /**
@@ -152,13 +154,11 @@ export interface IDropShip extends IAerospaceUnit {
   /** Docking collar present */
   readonly hasDockingCollar: boolean;
 
-  /** Armor per arc */
+  /** Armor per location: a DropShip has four (BLKDropshipFile.java:192-199). */
   readonly armorByArc: {
     readonly nose: number;
-    readonly frontLeftSide: number;
-    readonly frontRightSide: number;
-    readonly aftLeftSide: number;
-    readonly aftRightSide: number;
+    readonly leftSide: number;
+    readonly rightSide: number;
     readonly aft: number;
   };
 
@@ -293,7 +293,7 @@ export interface IWarShip extends IAerospaceUnit {
   /** Gravity decks */
   readonly gravityDecks: readonly IGravityDeck[];
 
-  /** Armor per arc (including broadsides) */
+  /** Armor per arc. Broadsides are never armored (BLKWarshipFile.java:265-267). */
   readonly armorByArc: {
     readonly nose: number;
     readonly frontLeftSide: number;
@@ -301,8 +301,6 @@ export interface IWarShip extends IAerospaceUnit {
     readonly aftLeftSide: number;
     readonly aftRightSide: number;
     readonly aft: number;
-    readonly leftBroadside?: number;
-    readonly rightBroadside?: number;
   };
 
   /** Equipment mounted by firing arc */

@@ -20,7 +20,11 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
-import { parseCapitalVesselBasics } from './capitalShipHandlerShared';
+import {
+  parseCapitalArmorByArc,
+  parseCapitalEquipment,
+  parseCapitalVesselBasics,
+} from './capitalShipHandlerShared';
 import {
   validateJumpShip,
   calculateJumpShipBV,
@@ -29,7 +33,6 @@ import {
 import {
   getBooleanFromRaw,
   parseCrewConfiguration,
-  parseEquipment,
   parseKFDrive,
   parseNumericRaw,
   parseQuarters,
@@ -81,6 +84,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
     const motionType = AerospaceMotionType.SPHEROID;
 
     const basics = parseCapitalVesselBasics(document);
+    const armorByArc = parseCapitalArmorByArc(basics.armor, errors);
 
     // K-F Drive
     const rawTags = document.rawTags || {};
@@ -105,7 +109,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
     const quarters = parseQuarters(document);
 
     // Equipment
-    const equipment = parseEquipment(document);
+    const equipment = parseCapitalEquipment(document, { errors });
 
     // Escape pods and life boats
     const escapePods = document.escapePod || 0;
@@ -120,6 +124,7 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
       unitType: UnitType.JUMPSHIP,
       motionType,
       ...basics,
+      armorByArc,
       kfDrive,
       dockingCollars,
       gravDecks,
