@@ -1,0 +1,6 @@
+{
+  "name": "guard-quick-resolve-cancellation",
+  "status": "in-progress",
+  "reason": "Root-approved U21: distinguish cancelled partial output from success and prevent stale Quick Resolve continuations from publishing hook state.",
+  "lastReviewed": "2026-11-08"
+}

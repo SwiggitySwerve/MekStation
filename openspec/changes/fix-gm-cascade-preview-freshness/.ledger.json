@@ -1,0 +1,6 @@
+{
+  "name": "fix-gm-cascade-preview-freshness",
+  "status": "in-progress",
+  "reason": "D-6 approved: reject stale cascade approvals and remove unreachable canonical ledger statuses.",
+  "lastReviewed": "2026-11-08"
+}

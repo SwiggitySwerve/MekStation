@@ -565,6 +565,80 @@ describe('GmCampaignInterventionControlPlane', () => {
 });
 
 describe('GmCampaignInterventionControlPlane control state (K11)', () => {
+  it.each(['merchant', 'repair', 'salvage', 'unit-reload', 'time'])(
+    'blocks stale %s approval and enables approval only after regeneration',
+    async (kind) => {
+      const campaign = makeCampaignWithBaseFixes();
+      const apply = jest.fn();
+      const { rerender } = render(
+        <GmCampaignInterventionControlPlane
+          campaign={campaign}
+          onApplyCampaignUpdate={apply}
+          now={fixedNow}
+        />,
+      );
+      generateCorrection(kind);
+      expect(screen.getByTestId('gm-ledger-preview-status')).toHaveTextContent(
+        'ready',
+      );
+      const current = { ...campaign, updatedAt: '2026-11-08T12:00:00.000Z' };
+      rerender(
+        <GmCampaignInterventionControlPlane
+          campaign={current}
+          onApplyCampaignUpdate={apply}
+          now={fixedNow}
+        />,
+      );
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+      });
+      expect(apply).not.toHaveBeenCalled();
+      expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+        'Approval blocked.',
+      );
+      expect(screen.getByTestId('gm-ledger-approve-btn')).toBeDisabled();
+      expect(playerRowCount()).toBe(0);
+      generateCorrection(kind);
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+      });
+      expect(apply).toHaveBeenCalledTimes(1);
+      expect(playerRowCount()).toBe(1);
+    },
+  );
+
+  it('blocks retry after a refusal if the campaign changed meanwhile', async () => {
+    const campaign = makeCampaignWithBaseFixes();
+    const apply = jest.fn(async () => 'host refused');
+    const { rerender } = render(
+      <GmCampaignInterventionControlPlane
+        campaign={campaign}
+        onApplyCampaignUpdate={apply}
+        now={fixedNow}
+      />,
+    );
+    generateCorrection('merchant');
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+    });
+    expect(screen.getByTestId('gm-ledger-approve-btn')).not.toBeDisabled();
+    rerender(
+      <GmCampaignInterventionControlPlane
+        campaign={{ ...campaign, updatedAt: 'changed' }}
+        onApplyCampaignUpdate={apply}
+        now={fixedNow}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('gm-ledger-approve-btn'));
+    });
+    expect(apply).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('gm-ledger-approval-status')).toHaveTextContent(
+      'Approval blocked.',
+    );
+    expect(playerRowCount()).toBe(0);
+  });
+
   beforeEach(() => {
     useCampaignRosterStore.getState().reset();
   });

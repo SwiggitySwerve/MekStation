@@ -3,6 +3,7 @@ import type { IRepairTicket } from '@/types/campaign/RepairTicket';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
 import type {
   GmCampaignInterventionDomain,
+  GmCampaignInterventionCorrection,
   IGmAuthorityContext,
   IGmCampaignInterventionCommandPayload,
   IGmCampaignInterventionDomainPayload,
@@ -14,6 +15,7 @@ import type {
 } from '@/types/interventions';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import { gmFundsInterventionIntent } from '@/lib/campaign/coop/coopGmIntervention';
 import { createCampaign } from '@/types/campaign/Campaign';
 import { Money } from '@/types/campaign/Money';
 import { DamageLevel, type ISalvageAllocation } from '@/types/campaign/Salvage';
@@ -154,6 +156,145 @@ function approveCommand(
 }
 
 describe('GM campaign intervention implementer', () => {
+  const freshnessCases: readonly [
+    GmCampaignInterventionDomain,
+    GmCampaignInterventionCorrection,
+  ][] = [
+    [
+      'salvage',
+      {
+        family: 'salvage-allocation',
+        matchId: 'match-1',
+        patch: { processed: true },
+      },
+    ],
+    [
+      'repair',
+      {
+        family: 'repair-ticket',
+        ticketId: 'ticket-1',
+        patch: { remainingHours: 1 },
+      },
+    ],
+    [
+      'economy',
+      {
+        family: 'funds-transaction',
+        transactionId: 'freshness-funds',
+        amountCents: 100,
+        description: 'Correction',
+      },
+    ],
+    [
+      'economy',
+      { family: 'inventory-lot', inventoryId: 'inventory-1', quantityDelta: 1 },
+    ],
+    [
+      'post-combat',
+      {
+        family: 'base-unit-state',
+        unitId: 'unit-1',
+        combatStatePatch: { combatReady: true },
+      },
+    ],
+  ];
+
+  describe.each(freshnessCases)(
+    'preview freshness for %s / %j',
+    (domain, correction) => {
+      it.each(['version', 'date', 'identity'] as const)(
+        'blocks changed campaign %s before domain application',
+        (changed) => {
+          const state = makeState();
+          const ledger = makeLedger();
+          const actionLedger = new ActionLedger();
+          const preview = createGmCascadePreview({
+            ledger,
+            command: makeCommand(domain, payload(correction)),
+            state,
+            authority: gmAuthority,
+          });
+          expect(preview.status).toBe('ready');
+          const current = {
+            ...state,
+            ...(changed === 'version' ? { updatedAt: 'changed-version' } : {}),
+            ...(changed === 'date'
+              ? { currentDate: new Date('3025-02-03') }
+              : {}),
+            ...(changed === 'identity' ? { id: 'another-campaign' } : {}),
+          };
+          const apply = jest.spyOn(ledger, 'apply');
+          const result = approveGmCascadePreview({
+            ledger,
+            actionLedger,
+            preview,
+            state: current,
+          });
+          expect(result).toMatchObject({ status: 'blocked', appended: false });
+          expect(result.state).toBe(current);
+          expect(apply).not.toHaveBeenCalled();
+          expect(ledger.getRecords()).toEqual([]);
+          expect(actionLedger.getRecords()).toEqual([]);
+          const regenerated = createGmCascadePreview({
+            ledger,
+            command: makeCommand(domain, payload(correction)),
+            state: current,
+            authority: gmAuthority,
+          });
+          expect(
+            approveGmCascadePreview({
+              ledger,
+              preview: regenerated,
+              state: current,
+            }).status,
+          ).toBe('approved');
+        },
+      );
+    },
+  );
+
+  it('keeps pipeline freshness out of records, campaign state and co-op wire payloads', () => {
+    const state = makeState();
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(
+        'economy',
+        payload({
+          family: 'funds-transaction',
+          transactionId: 'transient-proof',
+          amountCents: 100,
+          description: 'Correction',
+        }),
+      ),
+      state,
+      authority: gmAuthority,
+    });
+    expect(preview).toHaveProperty('freshness');
+    const result = approveGmCascadePreview({
+      ledger,
+      actionLedger,
+      preview,
+      state,
+    });
+    expect(result.status).toBe('approved');
+    const intent = gmFundsInterventionIntent(
+      state,
+      result.state.gmInterventionEvents,
+    );
+    expect(intent).not.toBeNull();
+    for (const persisted of [
+      ledger.getRecords(),
+      actionLedger.getRecords(),
+      result.state.gmInterventionEvents,
+      result.state,
+      intent,
+    ]) {
+      expect(JSON.stringify(persisted)).not.toContain('"freshness"');
+    }
+  });
+
   it('registers campaign domains and leaves time deferred', () => {
     const ledger = makeLedger();
     const state = makeState();

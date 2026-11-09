@@ -66,6 +66,25 @@ describe('toCampaignActivityDisplayRows', () => {
 });
 
 describe('displayRowsFromCampaignActivityFeed', () => {
+  it('shows cached authoritative rows with a nonblocking refresh warning', () => {
+    const feed = {
+      source: 'authoritative',
+      status: 'error',
+      entries: [FIRST],
+      viewerSeat: 'gm',
+      message: 'Offline',
+    } as const;
+    expect(displayRowsFromCampaignActivityFeed(feed)).toEqual(
+      toCampaignActivityDisplayRows([FIRST]),
+    );
+    expect(campaignActivityFeedNotice(feed)).toMatchObject({
+      keepsEntries: true,
+    });
+    expect(campaignActivityFeedNotice(feed)?.message).toContain(
+      'previously loaded',
+    );
+  });
+
   it('maps ready authoritative entries and yields nothing for forbidden', () => {
     expect(
       displayRowsFromCampaignActivityFeed({
