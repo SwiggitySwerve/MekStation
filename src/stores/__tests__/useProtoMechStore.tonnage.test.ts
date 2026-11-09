@@ -91,15 +91,13 @@ describe('ProtoMech store setChassisType', () => {
     expect(store.getState().tonnage).toBe(9);
   });
 
-  it('still reports a Glider above the Light class', () => {
+  it('keeps a Glider above the Light class without a finding (no pinned weight rule)', () => {
     const store = createNewProtoMechStore({ tonnage: 9 });
 
     store.getState().setChassisType(ProtoChassis.GLIDER);
 
     const state = store.getState();
     expect(state.tonnage).toBe(9);
-    expect(chassisFindings(state)).toEqual([
-      expect.objectContaining({ severity: 'error' }),
-    ]);
+    expect(chassisFindings(state)).toEqual([]);
   });
 });

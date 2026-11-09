@@ -320,17 +320,21 @@ describe('VAL-PROTO-CHASSIS (VAL-PROTO-CHASSIS)', () => {
     expect(result.passed).toBe(true);
   });
 
-  it('Glider on Medium tonnage (5 t) fails', () => {
-    const result = validateProtoChassis({
-      tonnage: 5,
-      chassisType: ProtoChassis.GLIDER,
-      jumpMP: 0,
-      myomerBooster: false,
-    });
-    expect(result.passed).toBe(false);
-    expect(result.findings[0]?.ruleId).toBe(RULE_PROTO_CHASSIS);
-    expect(result.findings[0]?.message).toMatch(/Glider/);
-  });
+  // TestProtoMek (MegaMek 48fcb2f64) has no glider weight rule; the three pinned
+  // Svartalfa gliders are 14 t. MML's tonnage spinner only moves a glider's minimum
+  // to 10 t when ultra and glider tech are legal (tech filtering, deferred).
+  it.each([5, 9, 14])(
+    'a Glider at %s t passes (no pinned weight rule)',
+    (t) => {
+      const result = validateProtoChassis({
+        tonnage: t,
+        chassisType: ProtoChassis.GLIDER,
+        jumpMP: 0,
+        myomerBooster: false,
+      });
+      expect(result.passed).toBe(true);
+    },
+  );
 
   it('Ultraheavy with tonnage < 10 fails', () => {
     const result = validateProtoChassis({
@@ -348,28 +352,27 @@ describe('VAL-PROTO-CHASSIS (VAL-PROTO-CHASSIS)', () => {
     expect(result.passed).toBe(true);
   });
 
-  it('Ultraheavy with jumpMP > 0 fails', () => {
+  // Pinned Sprite Ultraheavy ProtoMechs jump 3 to 5 and Java accepts them
+  // (fixtures/movement-java-verdicts.json); nothing in TestProtoMek forbids it.
+  it('Ultraheavy with jumpMP > 0 passes', () => {
     const result = validateProtoChassis({
       tonnage: 13,
       chassisType: ProtoChassis.ULTRAHEAVY,
       jumpMP: 2,
       myomerBooster: false,
     });
-    expect(result.passed).toBe(false);
-    expect(
-      result.findings.some((f) => f.message.includes('cannot have jump')),
-    ).toBe(true);
+    expect(result.passed).toBe(true);
   });
 
-  it('Myomer Booster on Heavy class fails', () => {
+  // Pinned Gorgon 6 (8 t) mounts a Myomer Booster and Java accepts it.
+  it('Myomer Booster on Heavy class passes', () => {
     const result = validateProtoChassis({
       tonnage: 9,
       chassisType: ProtoChassis.BIPED,
       jumpMP: 0,
       myomerBooster: true,
     });
-    expect(result.passed).toBe(false);
-    expect(result.findings[0]?.message).toMatch(/Myomer Booster/);
+    expect(result.passed).toBe(true);
   });
 });
 
@@ -383,38 +386,78 @@ describe('VAL-PROTO-MP', () => {
     expect(result.passed).toBe(true);
   });
 
-  it('Ultraheavy with jumpMP > 0 emits "Ultraheavy cannot jump"', () => {
+  it('Ultraheavy with jumpMP <= walk passes, as the pinned Sprite UH units do', () => {
     const result = validateProtoMP({
       tonnage: 13,
       chassisType: ProtoChassis.ULTRAHEAVY,
-      walkMP: 2,
-      jumpMP: 1,
-    });
-    expect(result.passed).toBe(false);
-    expect(
-      result.findings.some((f) => f.message.includes('Ultraheavy cannot jump')),
-    ).toBe(true);
-  });
-
-  it('Medium walk cap = 6 — walkMP 6 passes', () => {
-    const result = validateProtoMP({
-      tonnage: 5,
-      chassisType: ProtoChassis.BIPED,
-      walkMP: 6,
-      jumpMP: 0,
+      walkMP: 3,
+      jumpMP: 3,
     });
     expect(result.passed).toBe(true);
   });
 
-  it('Medium walk cap = 6 — walkMP 7 fails', () => {
-    const result = validateProtoMP({
-      tonnage: 5,
+  it('has no weight-class walk cap (pinned Siren: 3 t, walk 10)', () => {
+    expect(
+      validateProtoMP({
+        tonnage: 3,
+        chassisType: ProtoChassis.BIPED,
+        walkMP: 10,
+        jumpMP: 0,
+      }).passed,
+    ).toBe(true);
+    expect(
+      validateProtoMP({
+        tonnage: 5,
+        chassisType: ProtoChassis.BIPED,
+        walkMP: 7,
+        jumpMP: 0,
+      }).passed,
+    ).toBe(true);
+  });
+
+  it("reports Java's jump cap: walk MP, or 1.5 times it with an Extended Jump Jet", () => {
+    const base = {
+      tonnage: 6,
       chassisType: ProtoChassis.BIPED,
-      walkMP: 7,
-      jumpMP: 0,
+      walkMP: 4,
+    };
+    const over = validateProtoMP({ ...base, jumpMP: 5 });
+    expect(over.passed).toBe(false);
+    expect(over.findings[0]).toMatchObject({
+      ruleId: RULE_PROTO_MP,
+      message: 'Exceeds maximum jump MP.',
     });
-    expect(result.passed).toBe(false);
-    expect(result.findings[0]?.ruleId).toBe(RULE_PROTO_MP);
+    expect(
+      validateProtoMP({
+        ...base,
+        jumpMP: 6,
+        equipmentPlacements: [
+          {
+            equipmentId: 'ExtendedJumpJetSystem',
+            location: ProtoLocation.TORSO,
+          },
+        ],
+      }).passed,
+    ).toBe(true);
+  });
+
+  it('reports the quad running minimum and the glider flank minimum', () => {
+    expect(
+      validateProtoMP({
+        tonnage: 5,
+        chassisType: ProtoChassis.QUAD,
+        walkMP: 1,
+        jumpMP: 0,
+      }).findings.map((f) => f.message),
+    ).toEqual(['Quad ProtoMeks have a minimum running MP of 3.']);
+    expect(
+      validateProtoMP({
+        tonnage: 3,
+        chassisType: ProtoChassis.GLIDER,
+        walkMP: 2,
+        jumpMP: 0,
+      }).findings.map((f) => f.message),
+    ).toEqual(['Glider ProtoMeks have a minimum flanking MP of 4.']);
   });
 
   it('Nuthatch Light with max walk/jump (8/8) passes', () => {

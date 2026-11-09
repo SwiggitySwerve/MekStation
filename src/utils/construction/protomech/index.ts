@@ -43,6 +43,16 @@ export {
   PROTO_ENGINE_WEIGHT_FACTOR,
 } from './movementCaps';
 
+// Movement construction rules of TestProtoMek.correctMovement: the single owner
+export {
+  getProtoMovementErrors,
+  isProtoExtendedJumpJet,
+  isProtoUmu,
+  protoMaxJumpMP,
+  summarizeProtoJumpEquipment,
+} from './movementRules';
+export type { ProtoMovementFacts } from './movementRules';
+
 // Main Gun and arm placement (pinned slot, weight and weapon-legality rules)
 export {
   getProtoLocationSlotLimit,
