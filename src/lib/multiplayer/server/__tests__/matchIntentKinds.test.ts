@@ -5,7 +5,11 @@ import {
   type IIntentPayload,
 } from '@/types/multiplayer/Protocol';
 
-import { MATCH_INTENT_KINDS, isLobbyIntentKind } from '../matchIntentKinds';
+import {
+  MATCH_INTENT_KINDS,
+  isLobbyIntentKind,
+  lobbyIntentAllowedInStatus,
+} from '../matchIntentKinds';
 import { dispatchToEngine } from '../ServerMatchHostEngineDispatch';
 
 it('classifies every wire intent and refuses every lobby kind at the engine boundary', () => {
@@ -22,4 +26,15 @@ it('classifies every wire intent and refuses every lobby kind at the engine boun
   }
   expect(isLobbyIntentKind('RewindRequest')).toBe(false);
   expect(isLobbyIntentKind('Attack')).toBe(false);
+});
+
+it('admits MarkSeatAi only in an active match and no lobby intent in a completed one', () => {
+  expect(lobbyIntentAllowedInStatus('MarkSeatAi', 'lobby')).toBe(false);
+  expect(lobbyIntentAllowedInStatus('MarkSeatAi', 'active')).toBe(true);
+  for (const option of IntentPayloadSchema.options) {
+    const kind = option.shape.kind.value;
+    if (isLobbyIntentKind(kind)) {
+      expect(lobbyIntentAllowedInStatus(kind, 'completed')).toBe(false);
+    }
+  }
 });

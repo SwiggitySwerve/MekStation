@@ -8,7 +8,9 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import { InvalidMatchStatusTransitionError } from '@/types/multiplayer/MatchStatus';
 import { nowIso } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta, IMatchStore, ISideAssignment } from './IMatchStore';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
@@ -205,6 +207,25 @@ export async function handleLobbyIntent(
       ...(mutation.clearRoomCode ? { roomCode: null } : {}),
     });
   } catch (e) {
+    // The match moved on between the read and this write (for example it
+    // completed under a LaunchMatch). That is a refused intent, not a store
+    // fault, so it carries the intent code and is logged, never swallowed.
+    if (e instanceof InvalidMatchStatusTransitionError) {
+      logger.warn(
+        `[ServerMatchHost ${ctx.matchId}] lobby intent ${intent.kind} refused: match status changed concurrently`,
+        { from: e.from, to: e.to },
+      );
+      const refused: IServerMessage = {
+        kind: 'Error',
+        matchId: ctx.matchId,
+        ts: nowIso(),
+        code: 'INVALID_INTENT',
+        intentId: envelope.intentId,
+        reason: e.message,
+      };
+      ctx.broadcast(refused);
+      return [refused];
+    }
     const err: IServerMessage = {
       kind: 'Error',
       matchId: ctx.matchId,
