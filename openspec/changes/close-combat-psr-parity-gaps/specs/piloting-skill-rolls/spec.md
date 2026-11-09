@@ -70,3 +70,54 @@ A unit forced into a hex by a displacement SHALL be given terrain PSRs only by `
 
 - **WHEN** a domino displacement moves a BattleMech from a swamp hex into another swamp hex
 - **THEN** a `swamp_bog_down` PSR SHALL be queued
+
+### Requirement: Running With A Damaged Hip Or Gyro Rolls Once Per Move
+
+A Run, Sprint or Evade move by a unit that can fall under MegaMek 48fcb2f64 `Mek.canFall` (a BattleMech-like unit that is not prone) SHALL queue exactly one running-with-damage PSR when the unit has gyro damage that counts or a hip critical on a leg that is not destroyed (`MovePathHandler.java:1283-1286`, `Entity.checkRunningWithDamage` `Entity.java:9138-9148`, `TWRulesPSR.checkRunningWithDamage` `TWRulesPSR.java:62-77`, `Mek.hasHipCrit`). A heavy-duty gyro SHALL ignore its first hit. A hip and a gyro together SHALL still queue one PSR, and a Walk or Jump SHALL queue none. One shared planner SHALL produce the PSR for the standalone runner, the interactive session, its AI, `GameEngine` movement and P2P host translation, which queue it right after `MovementDeclared` and before any terrain PSR. The PSR SHALL carry the `movement-step:<n>` trigger source of the last step of the path and the `running_damaged_gyro` reason code when the gyro damage counts, otherwise `running_damaged_hip`.
+
+#### Scenario: A hip crit on a multi-hex run
+
+- **WHEN** a BattleMech with a damaged hip runs three hexes
+- **THEN** one `running_damaged_hip` PSR SHALL be queued, stamped with the last step
+
+#### Scenario: Hip and gyro together
+
+- **WHEN** a BattleMech with a damaged hip and one gyro hit runs
+- **THEN** one PSR SHALL be queued, not two
+
+#### Scenario: Heavy-duty gyro
+
+- **WHEN** a BattleMech with a heavy-duty gyro and one gyro hit runs
+- **THEN** no PSR SHALL be queued
+- **AND** with two gyro hits one SHALL be queued
+
+#### Scenario: Walking or jumping
+
+- **WHEN** a BattleMech with a damaged hip or gyro walks or jumps
+- **THEN** no running-with-damage PSR SHALL be queued
+
+#### Scenario: A unit that cannot fall
+
+- **WHEN** a prone unit or a unit that is not a BattleMech runs with a damaged hip or gyro
+- **THEN** no running-with-damage PSR SHALL be queued
+
+#### Scenario: Destroyed leg
+
+- **WHEN** the only hip critical is on a destroyed leg
+- **THEN** no running-with-damage PSR SHALL be queued
+
+## MODIFIED Requirements
+
+### Requirement: PSR Trigger — Movement with Damage
+
+The system SHALL trigger one PSR per move when a unit that can fall runs, sprints or evades with a damaged hip actuator or damaged gyro, as specified by "Running With A Damaged Hip Or Gyro Rolls Once Per Move".
+
+#### Scenario: Running with damaged hip
+
+- **WHEN** a unit with a damaged hip actuator attempts to run
+- **THEN** one PSR SHALL be required for the move, not one for each hex
+
+#### Scenario: Running with damaged gyro
+
+- **WHEN** a unit with gyro damage that counts attempts to run
+- **THEN** one PSR SHALL be required with the +3 per gyro hit modifier
