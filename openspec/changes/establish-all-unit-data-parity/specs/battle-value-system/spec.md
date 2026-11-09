@@ -1212,6 +1212,21 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
 
+### Requirement: BA ammo diagnostics
+
+The BA mount owner SHALL retain its existing pre-cap ammo BV per native
+`ammoType:rackSize` pool and the launcher BV per pool. The trace SHALL format
+those supplied facts as `ammo.available.<pool>` and `ammo.cap.<pool>` for the
+squad and as `trooper.N.ammo.*` for every trooper, without recalculating BV.
+Existing scalar arithmetic, ammo BV, source inputs and totals SHALL remain
+unchanged. A pool absent from the owner result SHALL create no term.
+
+#### Scenario: Pre-cap pool beside a capped ammo BV
+
+- **GIVEN** the pinned Cavalier [SRM] source with an SRM-1 launcher and a bin whose pool BV exceeds the launcher BV
+- **WHEN** its BA breakdown is projected
+- **THEN** `ammo.available.SRM:1` SHALL report the pre-cap pool, `ammo.cap.SRM:1` SHALL equal 15 and ammo BV SHALL remain capped at 15
+
 ### Requirement: Aerospace weapon diagnostics
 
 The ordinary aerospace calculation owners SHALL retain actual admitted

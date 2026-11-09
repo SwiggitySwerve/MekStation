@@ -164,6 +164,8 @@ export function projectBAMounts(
   hasMagneticClamp: boolean;
   defensiveEquipmentBV: number;
   offensiveEquipmentBV: number;
+  ammoAvailableBVByPool: Record<string, number>;
+  ammoCapBVByPool: Record<string, number>;
 } {
   const weapons: BAWeaponBVMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
@@ -305,5 +307,8 @@ export function projectBAMounts(
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
     defensiveEquipmentBV,
     offensiveEquipmentBV,
+    // Pre-cap pools: the Java trace reports ammoMap and weaponsForExcessiveAmmo.
+    ammoAvailableBVByPool: Object.fromEntries(ammoPools),
+    ammoCapBVByPool: Object.fromEntries(weaponPools),
   };
 }
