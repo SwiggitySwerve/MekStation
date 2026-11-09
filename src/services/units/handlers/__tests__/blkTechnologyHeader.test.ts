@@ -54,3 +54,34 @@ describe('BLK binary technology boundary: pure compatibility', () => {
     expect(isClanBlkEngine('Mixed (IS Chassis) Advanced')).toBe(false);
   });
 });
+
+describe('qualified Mixed BLK headers', () => {
+  it.each(Object.values(UnitType))(
+    'decodes both chassis and the suffix for %s',
+    (family) => {
+      for (const [chassis, techBase] of [
+        ['IS', TechBase.INNER_SPHERE],
+        ['Clan', TechBase.CLAN],
+      ] as const) {
+        for (const [suffix, rulesLevel] of [
+          ['', RulesLevel.STANDARD],
+          [' Advanced', RulesLevel.ADVANCED],
+          [' Experimental', RulesLevel.EXPERIMENTAL],
+        ] as const) {
+          expect(
+            decodeBlkTechnologyHeader(
+              `Mixed (${chassis} Chassis)${suffix}`,
+              family,
+            ),
+          ).toEqual({ techBase, rulesLevel });
+        }
+        expect(() =>
+          decodeBlkTechnologyHeader(
+            `Mixed (${chassis} Chassis) Unofficial`,
+            family,
+          ),
+        ).toThrow(/Unofficial.*RulesLevel/);
+      }
+    },
+  );
+});

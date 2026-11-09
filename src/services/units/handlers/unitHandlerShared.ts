@@ -343,12 +343,23 @@ export class UnsupportedBlkTechnologyError extends Error {}
 function readBlkTechnologyHeader(type: string) {
   const lower = type.toLowerCase();
   const chassis = /mixed\s*\((is|clan) chassis\)/i.exec(type);
+  const suffix =
+    chassis && type.slice(0, chassis.index).trim() === ''
+      ? type
+          .slice(chassis.index + chassis[0].length)
+          .trim()
+          .toLowerCase()
+      : undefined;
   const nativeClan =
     /^clan\b/i.test(type) || chassis?.[1].toLowerCase() === 'clan';
   const legacyClan = lower.includes('clan') && !lower.includes('mixed');
   return {
     nativeClan,
     legacyClan,
+    qualifiedMixed:
+      suffix !== undefined &&
+      ['', 'advanced', 'experimental', 'unofficial'].includes(suffix),
+    unofficial: suffix === 'unofficial',
     rulesLevel: readLegacyRulesLevel(lower),
   };
 }
@@ -396,6 +407,19 @@ export function decodeBlkTechnologyHeader(
   unitType: UnitType,
 ): IBlkHeaderTechnology {
   const header = readBlkTechnologyHeader(type);
+  // BLKFile.java:704-734: qualified Mixed headers carry a chassis family and
+  // a rules level independently of any explicit component technology flags.
+  if (header.qualifiedMixed) {
+    if (header.unofficial) {
+      throw new UnsupportedBlkTechnologyError(
+        'Unsupported BLK rules level Unofficial: RulesLevel has no matching value',
+      );
+    }
+    return {
+      techBase: header.nativeClan ? TechBase.CLAN : TechBase.INNER_SPHERE,
+      rulesLevel: header.rulesLevel ?? RulesLevel.STANDARD,
+    };
+  }
   const policy = pureRulesPolicy(unitType);
   const clan =
     unitType === UnitType.BATTLE_ARMOR ? header.nativeClan : header.legacyClan;
