@@ -189,7 +189,9 @@ const mockCampaignStoreState = {
   createGuestMirrorCampaign: mockCreateGuestMirrorCampaign,
   updateCampaign: mockUpdateCampaign,
 };
+const mockCampaignSetState = jest.fn();
 const mockCampaignStoreApi = {
+  setState: mockCampaignSetState,
   getState: () => mockCampaignStoreState,
   getInitialState: () => mockCampaignStoreState,
   subscribe: () => () => undefined,
@@ -205,16 +207,22 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
 // persistence layer.
 const mockSaveCampaign = jest.fn(async () => ({
   status: 'saved' as const,
-  record: {} as never,
+  // A successful save acknowledges the campaign it persisted. The creation
+  // cleanup boundary must never infer ownership from an empty receipt.
+  record: { campaignId: 'campaign-host-1' } as never,
   retriedConflict: false,
 }));
+const mockPersistenceReset = jest.fn();
+const mockPersistenceSetState = jest.fn();
 
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
   hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: {
+    setState: (...args: unknown[]) => mockPersistenceSetState(...args),
     getState: () => ({
       saveCampaign: mockSaveCampaign,
       loadCampaign: jest.fn(async () => true),
+      reset: mockPersistenceReset,
     }),
   },
 }));
@@ -259,6 +267,14 @@ describe('CampaignsListPage — co-op entry points', () => {
       factionStandings: {},
     });
     mockUpdateCampaign.mockReset();
+    mockCampaignSetState.mockClear();
+    mockPersistenceReset.mockClear();
+    mockPersistenceSetState.mockClear();
+    mockSaveCampaign.mockReset().mockResolvedValue({
+      status: 'saved',
+      record: { campaignId: 'campaign-host-1' } as never,
+      retriedConflict: false,
+    });
     mockOpenCoopRuntimeSession.mockClear();
     mockConnectCampaignSyncTransport.mockClear();
     mockTransportClose.mockClear();
@@ -358,6 +374,81 @@ describe('CampaignsListPage — co-op entry points', () => {
   // ===========================================================================
   // Task 1.2 — guest-side room-code join flow
   // ===========================================================================
+
+  it.each(['room-refused', 'receipt-mismatch'] as const)(
+    'keeps campaign-list creation failure honest for %s',
+    async (failure) => {
+      await mountAndHydrate();
+      if (failure === 'receipt-mismatch') {
+        mockSaveCampaign.mockResolvedValueOnce({
+          status: 'saved',
+          record: { campaignId: 'pre-existing-campaign' } as never,
+          retriedConflict: false,
+        });
+      }
+      const fetchSpy = jest.fn(async (url: string, init?: RequestInit) => {
+        if (url === '/api/multiplayer/auth/token') {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              token: 'wire-token',
+              playerId: 'pid_host',
+              displayName: 'Host Player',
+              expiresAt: mockLiveToken.expiresAt,
+            }),
+          };
+        }
+        if (url === '/api/multiplayer/matches') {
+          return {
+            ok: false,
+            status: 500,
+            json: async () => ({ error: 'Room unavailable' }),
+          };
+        }
+        if (
+          url === '/api/campaigns/campaign-host-1' &&
+          init?.method === 'DELETE'
+        ) {
+          return { ok: true, status: 204 };
+        }
+        throw new Error(`unexpected fetch ${url}`);
+      });
+      (globalThis as { fetch: unknown }).fetch = fetchSpy;
+      fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+        target: { value: 'vault-password' },
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+      });
+
+      expect(
+        await screen.findByTestId('create-coop-unavailable'),
+      ).toHaveTextContent(
+        failure === 'room-refused'
+          ? 'Room unavailable'
+          : 'The save acknowledgement did not identify the new campaign',
+      );
+      expect(mockRouterPush).not.toHaveBeenCalled();
+      const deletions = fetchSpy.mock.calls.filter(
+        ([, init]) => init?.method === 'DELETE',
+      );
+      expect(deletions.map(([url]) => url)).toEqual(
+        failure === 'room-refused' ? ['/api/campaigns/campaign-host-1'] : [],
+      );
+      expect(mockPersistenceReset).toHaveBeenCalledTimes(1);
+      expect(mockCampaignSetState).toHaveBeenCalledTimes(1);
+      expect(mockPersistenceSetState).toHaveBeenCalledTimes(1);
+      if (failure === 'receipt-mismatch') {
+        expect(
+          fetchSpy.mock.calls.some(
+            ([url]) => url === '/api/multiplayer/matches',
+          ),
+        ).toBe(false);
+      }
+      expect(screen.getByTestId('create-coop-campaign-btn')).toBeEnabled();
+    },
+  );
 
   it('Join Co-op Campaign opens a room-code modal', async () => {
     await mountAndHydrate();
