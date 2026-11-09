@@ -56,18 +56,42 @@ describe('isProtoMechCatalogEquipment', () => {
     ).toBe(true);
   });
 
+  // ProtoMekUtil.java:50-67: a misc item needs F_PROTOMEK_EQUIPMENT, which the
+  // catalog represents as allowedUnitTypes including ProtoMech, exactly as
+  // F_PROTO_WEAPON is for a weapon. There is no separate misc flag.
   it.each([
     EquipmentCategory.MISC_EQUIPMENT,
     EquipmentCategory.ELECTRONICS,
     EquipmentCategory.PHYSICAL_WEAPON,
-  ])('%s: misc needs the ProtoMech equipment marker', (category) => {
+  ])('%s: misc needs allowedUnitTypes to include ProtoMech', (category) => {
     expect(isProtoMechCatalogEquipment(item(category, ['ProtoMech']))).toBe(
       true,
     );
+    // A full list derived from the item's F_*_EQUIPMENT flags, as an EI interface.
+    expect(
+      isProtoMechCatalogEquipment(
+        item(category, ['BattleMech', 'ProtoMech', 'BattleArmor']),
+      ),
+    ).toBe(true);
     expect(isProtoMechCatalogEquipment(item(category))).toBe(false);
+    expect(isProtoMechCatalogEquipment(item(category, []))).toBe(false);
     expect(isProtoMechCatalogEquipment(item(category, ['BattleMech']))).toBe(
       false,
     );
+  });
+
+  it('answers a weapon and a misc item with the same listing the same way', () => {
+    for (const types of [undefined, [], ['BattleMech'], ['ProtoMech']]) {
+      expect(
+        isProtoMechCatalogEquipment(
+          item(EquipmentCategory.MISC_EQUIPMENT, types),
+        ),
+      ).toBe(
+        isProtoMechCatalogEquipment(
+          item(EquipmentCategory.ENERGY_WEAPON, types),
+        ),
+      );
+    }
   });
 });
 

@@ -11,11 +11,13 @@
  *   - PMEquipmentTab.showInLoadOut: jump jets, MASC, partial wing, magnetic
  *     clamp and UMU are edited elsewhere and are not listed as loadout.
  *
- * The catalog carries both Java flags as `allowedUnitTypes` (PROTO_EQUIPMENT and
- * the weapon flags read as ProtoMech), so a missing list means the catalog does
- * not yet describe the item and the picker does not offer it. Placement
- * validation keeps the opposite reading (mainGun.ts: an absent list is unknown,
- * never illegal) so no existing unit becomes invalid.
+ * The catalog represents both Java flags the same way: F_PROTO_WEAPON on a weapon
+ * and F_PROTOMEK_EQUIPMENT on a miscellaneous item (ProtoMekUtil.java:50-67) are
+ * `allowedUnitTypes` that include ProtoMech. One test therefore serves weapons,
+ * electronics and miscellaneous items; there is no separate misc flag. A missing
+ * list means the catalog does not yet describe the item and the picker does not
+ * offer it. Placement validation keeps the opposite reading (mainGun.ts: an
+ * absent list is unknown, never illegal) so no existing unit becomes invalid.
  *
  * @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md
  */
