@@ -138,27 +138,29 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
   ),
   [PSRTrigger.EnteringRubble]: integrated(
     PSRTrigger.EnteringRubble,
-    'movementTerrainPsr queues createRubblePSR from MovementDeclared step terrain',
+    'movementTerrainPsr queues createRubblePSR from MovementDeclared step terrain, with the MegaMek +1 for ultra-rubble (level above 5)',
     terrainPsrSourceRefs(TerrainType.Rubble),
   ),
-  [PSRTrigger.RunningRoughTerrain]: integrated(
+  [PSRTrigger.RunningRoughTerrain]: outOfScope(
     PSRTrigger.RunningRoughTerrain,
-    'local movementTerrainPsr queues createRunningRoughTerrainPSR when running through rough terrain',
+    'createRunningRoughTerrainPSR remains available so older replays still parse',
+    'MegaMek 48fcb2f64 has no running-through-rough roll (no match in Entity, MovePathHandler or the rules classes); movement no longer queues it',
     LOCAL_TERRAIN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.MovingOnIce]: integrated(
     PSRTrigger.MovingOnIce,
-    'local movementTerrainPsr queues createIcePSR from MovementDeclared step terrain',
+    'movementTerrainPsr queues createIcePSR with MegaMek reckless-movement semantics: one roll for every non-jump step taken in a hex containing ice; the careful-movement exemption is not modelled',
     LOCAL_TERRAIN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.EnteringWater]: integrated(
     PSRTrigger.EnteringWater,
-    'movementTerrainPsr queues createEnteringWaterPSR for valid water entry such as jump landings',
+    'movementTerrainPsr queues createEnteringWaterPSR for every step into a water hex, including water to water and jump landings; ice-covered water is walked on and does not roll',
     terrainPsrSourceRefs(TerrainType.Water),
   ),
-  [PSRTrigger.ExitingWater]: integrated(
+  [PSRTrigger.ExitingWater]: outOfScope(
     PSRTrigger.ExitingWater,
-    'local movementTerrainPsr queues createExitingWaterPSR when movement leaves water terrain',
+    'createExitingWaterPSR remains available so older replays still parse',
+    'MegaMek 48fcb2f64 Entity.checkWaterMove rolls only for entering water; it has no exiting-water roll, so movement and displacement no longer queue it',
     LOCAL_TERRAIN_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.Skidding]: integrated(

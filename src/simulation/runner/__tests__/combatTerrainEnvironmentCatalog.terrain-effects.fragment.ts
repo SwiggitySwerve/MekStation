@@ -230,11 +230,11 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/movement/terrainPsrTriggers.ts#L113-L342',
+            url: 'src/utils/gameplay/movement/terrainPsrTriggers.ts#L113-L421',
           }),
           expect.objectContaining({
             kind: 'mekstation-deviation',
-            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L103-L281',
+            url: 'src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts#L115-L296',
           }),
         ]),
       );
@@ -284,8 +284,9 @@ describe('BattleMech terrain and environment combat support catalog', () => {
         ]),
       },
     );
+    // The pin has no running-through-rough roll, so rough terrain queues no PSR.
     expect(TERRAIN_TYPE_PSR_COMBAT_SUPPORT[TerrainType.Rough]).toMatchObject({
-      evidence: expect.stringContaining('local running-through-rough-terrain'),
+      evidence: expect.stringContaining('does not queue a terrain-entry PSR'),
     });
   });
 });
