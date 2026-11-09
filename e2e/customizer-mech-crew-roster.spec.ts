@@ -26,6 +26,8 @@ interface ICase {
   readonly label: string;
   readonly chassis: string;
   readonly model: string;
+  /** Set in the Structure tab before the crew is assigned. */
+  readonly tonnage?: number;
   readonly seats: readonly ISeat[];
 }
 
@@ -37,6 +39,20 @@ const cases: readonly ICase[] = [
     seats: [
       { role: 'Pilot', pilot: { name: 'Kerr Vance', gunnery: 3, piloting: 4 } },
       { role: 'Gunner' },
+    ],
+  },
+  {
+    label: 'tripod edited to 105 tons gains a Tech Officer seat',
+    chassis: 'Triskelion',
+    model: 'TRK-4V',
+    tonnage: 105,
+    seats: [
+      { role: 'Pilot', pilot: { name: 'Mina Doyle', gunnery: 4, piloting: 4 } },
+      { role: 'Gunner' },
+      {
+        role: 'Tech Officer',
+        pilot: { name: 'Rafe Okoye', gunnery: 6, piloting: 2 },
+      },
     ],
   },
   {
@@ -174,6 +190,15 @@ test.describe('Tripod and QuadVee crew seats', () => {
       try {
         await page.goto('/customizer');
         await openFromLibrary(page, unit.chassis, unit.model, 'canonical');
+        if (unit.tonnage) {
+          await section(page, 'Structure');
+          await page
+            .getByRole('spinbutton', { name: 'Tonnage', exact: true })
+            .fill(String(unit.tonnage));
+          await expect(
+            page.getByRole('spinbutton', { name: 'Tonnage', exact: true }),
+          ).toHaveValue(String(unit.tonnage));
+        }
         await section(page, 'Overview');
         const card = page.getByTestId('overview-crew');
         await expect(card).toBeVisible();
