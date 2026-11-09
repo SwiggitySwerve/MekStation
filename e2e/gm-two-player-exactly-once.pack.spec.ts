@@ -27,6 +27,13 @@ import {
   type Page,
 } from '@playwright/test';
 
+import {
+  captureMatchCreation,
+  connectLobby,
+  type IMatchHandle as Match,
+  type IMatchToken as Token,
+} from './helpers/gmTwoPlayerMatchFlow';
+
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 const HOST_PASSWORD = 'HostPassword123!';
 const GUEST_PASSWORD = 'GuestPassword123!';
@@ -34,8 +41,6 @@ const GUEST_PASSWORD = 'GuestPassword123!';
 type Scenario = 'duplicate' | 'reconnect' | 'gap' | 'collision';
 type WireFrame = Record<string, unknown>;
 type Identity = { readonly id: string; readonly displayName: string };
-type Token = { readonly token: string; readonly playerId: string };
-type Match = { readonly matchId: string; readonly roomCode: string };
 
 interface ITargetFrame {
   readonly deliverySequence: number;
@@ -233,28 +238,14 @@ async function openTacticalFixture(
     await hostPage.getByLabel('Display name').fill('Exactly Once Host');
     await hostPage.getByLabel('Map radius').fill('4');
     await hostPage.getByLabel('Turn limit').fill('5');
-    const created = hostPage.waitForResponse(
-      (response) =>
-        response.url().endsWith('/api/multiplayer/matches') &&
-        response.request().method() === 'POST' &&
-        response.status() === 201,
-      { timeout: 30_000 },
-    );
-    const token = hostPage.waitForResponse(
-      (response) =>
-        response.url().includes('/api/multiplayer/auth/token') &&
-        response.request().method() === 'POST' &&
-        response.status() === 200,
-      { timeout: 30_000 },
-    );
-    await Promise.all([
-      hostPage.waitForURL(/\/multiplayer\/lobby\/[A-Z0-9]+$/, {
-        timeout: 30_000,
-      }),
+    const created = await captureMatchCreation(hostPage, () =>
       hostPage.getByRole('button', { name: 'Create match' }).click(),
-    ]);
-    hostToken = await readToken(token);
-    match = await readMatch(created);
+    );
+    hostToken = created.hostToken;
+    match = created.match;
+    await hostPage.waitForURL(/\/multiplayer\/lobby\/[A-Z0-9]+$/, {
+      timeout: 30_000,
+    });
     await connectLobby(hostPage, HOST_PASSWORD);
 
     const guest = await seedIdentity(
@@ -429,25 +420,6 @@ async function openContextPage(browser: Browser): Promise<Page> {
   return (await browser.newContext()).newPage();
 }
 
-async function connectLobby(page: Page, password: string): Promise<void> {
-  await expect(page.getByRole('heading', { name: 'Unlock vault' })).toBeVisible(
-    {
-      timeout: 20_000,
-    },
-  );
-  await page.getByPlaceholder('Vault password').fill(password);
-  await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/multiplayer/auth/token') &&
-        response.request().method() === 'POST' &&
-        response.status() === 200,
-      { timeout: 30_000 },
-    ),
-    page.getByRole('button', { name: 'Connect to lobby' }).click(),
-  ]);
-}
-
 async function markReady(page: Page, slotId: string): Promise<void> {
   const row = page.locator(`[data-slot-id="${slotId}"]`);
   await expect(row).toBeVisible({ timeout: 20_000 });
@@ -495,25 +467,6 @@ async function advancePhase(...pages: readonly Page[]): Promise<void> {
   const activePage = pages[activeIndex];
   if (!activePage) throw new Error('No player can advance the phase');
   await activePage.getByTestId('advance-phase-button').click();
-}
-
-async function readToken(
-  response: Promise<import('@playwright/test').Response>,
-): Promise<Token> {
-  return (await (await response).json()) as Token;
-}
-
-async function readMatch(
-  response: Promise<import('@playwright/test').Response>,
-): Promise<Match> {
-  const body = (await (await response).json()) as {
-    readonly matchId: string;
-    readonly roomCode?: string;
-    readonly meta: { readonly roomCode?: string };
-  };
-  const roomCode = body.roomCode ?? body.meta.roomCode;
-  if (!roomCode) throw new Error('Match response lacked a room code');
-  return { matchId: body.matchId, roomCode };
 }
 
 function parseFrame(message: string | Buffer): WireFrame | null {
