@@ -8450,5 +8450,22 @@
   "ISSmallLaserPrimitive": "primitive-prototype-small-laser-registry",
   "ProtoTypeArrowIV": "prototypearrowiv-registry",
   "Prototype Arrow IV": "prototypearrowiv-registry",
-  "ProtoArrowIVSystem": "prototypearrowiv-registry"
+  "ProtoArrowIVSystem": "prototypearrowiv-registry",
+  "aa-weapon-mk.-1,-light": "aa-weapon-mk-1-light-registry",
+  "aa-weapon-mk.-2,-man-portable": "aa-weapon-mk-2-man-portable-registry",
+  "auto-pistol-m&g": "auto-pistol-m-g-registry",
+  "gauss-rifle,-light-david": "gauss-rifle-light-david-registry",
+  "laser-rifle-er-[sunbeam-starfire]": "laser-rifle-er-sunbeam-starfire-registry",
+  "needler,-support-firedrake": "needler-support-firedrake-registry",
+  "needler-rifle-m&g-flechette": "needler-rifle-m-g-flechette-registry",
+  "pistol-sternsnacht-heavy-[claymore]": "pistol-sternsnacht-heavy-claymore-registry",
+  "pulse-laser-rifle-is": "pulse-laser-rifle-inner-sphere-registry",
+  "rifle-m&g-g-150": "rifle-m-g-g-150-registry",
+  "support-laser-er,-is": "support-laser-er-is-registry",
+  "support-laser-er,-semi-portable": "support-laser-er-semi-portable-registry",
+  "support-laser-er-heavy,-clan": "support-laser-er-heavy-clan-registry",
+  "isbalightactiveprobe": "active-probe-light",
+  "ISBALightActiveProbe": "active-probe-light",
+  "ISBAActiveProbe": "active-probe-light",
+  "IS BA Light Active Probe": "active-probe-light"
 }
