@@ -542,3 +542,11 @@ export function getMachineGunArrayBVGroup(id: string): string | undefined {
   const gun = MG_ARRAY_GUN_IDS[id];
   return gun ? getNativeAmmoBVGroup(gun) : undefined;
 }
+
+/** Existing Mech BV lookup policy; source annotations do not change identity. */
+export function normalizeMechBVSourceName(name: string): string {
+  return name
+    .replace(/\s*\(armored\)/gi, '')
+    .replace(/\s*\(r\)/gi, '')
+    .trim();
+}
