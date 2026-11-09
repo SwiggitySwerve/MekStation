@@ -1,0 +1,6 @@
+{
+  "name": "fix-campaign-activity-refresh-errors",
+  "status": "in-progress",
+  "reason": "Root-approved Wave 3 K-L4: retain same-viewer authoritative activity on refresh errors with visible feedback, while clearing on forbidden or changed identity. No persisted or protocol changes.",
+  "lastReviewed": "2026-11-08"
+}

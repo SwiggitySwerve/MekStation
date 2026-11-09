@@ -9,6 +9,7 @@ import type {
 } from '@/types/gameplay';
 
 import { applyMotiveDamageToState } from '../motiveDamage';
+import { stunCrew } from '../vehicleCrewStun';
 import { updateUnitState } from './unitStatePatch';
 
 export function applyVehicleMotiveDamaged(
@@ -49,7 +50,7 @@ const VEHICLE_CRITICAL_EFFECT_HANDLERS: Readonly<
   commander_hit: applyCommanderHit,
   copilot_hit: applyCommanderHit,
   crew_killed: destroyVehicle('crew_killed'),
-  crew_stunned: applyCrewStun,
+  crew_stunned: stunCrew,
   driver_hit: applyDriverHit,
   engine_hit: applyEngineHit,
   fuel_tank: destroyVehicle('fuel_tank_explosion'),
@@ -151,16 +152,6 @@ function destroyVehicle(
   });
 }
 
-function applyCrewStun(vehicle: IVehicleCombatState): IVehicleCombatState {
-  return {
-    ...vehicle,
-    motive: {
-      ...vehicle.motive,
-      crewStunnedPhases: vehicle.motive.crewStunnedPhases + 2,
-    },
-  };
-}
-
 function applyDriverHit(vehicle: IVehicleCombatState): IVehicleCombatState {
   const driverHits = vehicle.motive.driverHits + 1;
   return {
@@ -177,9 +168,8 @@ function applyCommanderHit(vehicle: IVehicleCombatState): IVehicleCombatState {
   return {
     ...vehicle,
     motive: {
-      ...vehicle.motive,
+      ...stunCrew(vehicle).motive,
       commanderHits,
-      crewStunnedPhases: vehicle.motive.crewStunnedPhases + 2,
     },
     ...(commanderHits >= 2
       ? { destroyed: true as const, destructionCause: 'crew_killed' as const }

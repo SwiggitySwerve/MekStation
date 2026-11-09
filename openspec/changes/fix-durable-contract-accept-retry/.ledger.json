@@ -1,0 +1,6 @@
+{
+  "name": "fix-durable-contract-accept-retry",
+  "status": "in-progress",
+  "reason": "Root-approved D-4, K14b task 16: recognize a committed durable AcceptContract retry from its existing receipt before reading the consumed offer. No wire, event or persisted-format change.",
+  "lastReviewed": "2026-11-08"
+}

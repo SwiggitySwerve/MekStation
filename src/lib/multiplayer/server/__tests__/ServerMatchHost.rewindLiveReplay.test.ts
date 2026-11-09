@@ -56,7 +56,11 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { defaultSeats } from '@/types/multiplayer/Lobby';
+import {
+  buildSpectatorSlotId,
+  defaultSeats,
+  SPECTATOR_SIDE,
+} from '@/types/multiplayer/Lobby';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 import {
   advancePhase,
@@ -64,6 +68,7 @@ import {
   declareMovement,
   startGame,
 } from '@/utils/gameplay/gameSession';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -270,6 +275,89 @@ describe('ServerMatchHost rewind reaches connected players', () => {
     });
   });
 
+  describe('D-2c resync marks survive a restart', () => {
+    /** Past any head these play logs reach: a client that held the superseded stream. */
+    const STALE_LAST_SEQ = 50;
+
+    async function recoveredHost(matchId: string): Promise<ServerMatchHost> {
+      const recovered = (await recoverActiveMatches(store)).hosts.get(matchId);
+      if (!recovered) throw new Error(`match ${matchId} was not recovered`);
+      return recovered;
+    }
+
+    async function rejoin(
+      host: ServerMatchHost,
+      playerId: string,
+      lastSeq: number,
+    ): Promise<string[]> {
+      const viewer = wireViewer(host, playerId);
+      opened.push(viewer);
+      await host.handleSessionJoin(viewer.serverSocket, playerId, lastSeq);
+      return replayedIds(viewer.sent);
+    }
+
+    it('replays the rebuilt stream to every seated player who rejoins with a stale lastSeq', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const recovered = await recoveredHost(fixture.log.matchId);
+      const rebuilt = fixture.prefix.map((event) => event.id);
+
+      expect(await rejoin(recovered, GM, STALE_LAST_SEQ)).toEqual(rebuilt);
+      expect(await rejoin(recovered, GUEST, STALE_LAST_SEQ)).toEqual(rebuilt);
+    });
+
+    it('consumes the mark on the first join: a second join resumes from its lastSeq', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const recovered = await recoveredHost(fixture.log.matchId);
+      const lastKept = fixture.prefix[fixture.prefix.length - 1].sequence;
+
+      expect(await rejoin(recovered, GUEST, STALE_LAST_SEQ)).not.toEqual([]);
+      expect(await rejoin(recovered, GUEST, lastKept)).toEqual([]);
+    });
+
+    it('does not mark a spectator, as the live rebuild does not', async () => {
+      const fixture = await standUpCommittedRewind(PLAIN);
+      const spectator = 'spectator-1';
+      const seats = defaultSeats('1v1').map((seat) => ({
+        ...seat,
+        occupant: {
+          playerId: seat.slotId === 'alpha-1' ? GM : GUEST,
+          displayName: seat.slotId === 'alpha-1' ? 'Host' : 'Guest',
+        },
+        ready: true,
+      }));
+      await store.updateMatchMeta(fixture.log.matchId, {
+        seats: [
+          ...seats,
+          {
+            slotId: buildSpectatorSlotId(1),
+            kind: 'spectator',
+            side: SPECTATOR_SIDE,
+            seatNumber: 1,
+            occupant: { playerId: spectator, displayName: 'Spectator' },
+            ready: true,
+          },
+        ],
+      });
+      const recovered = await recoveredHost(fixture.log.matchId);
+
+      expect(await rejoin(recovered, spectator, STALE_LAST_SEQ)).toEqual([]);
+    });
+
+    it('does not mark a recovered match that was never rewound', async () => {
+      const log: IPlayLog = {
+        matchId: 'u22a-live-never-rewound',
+        fogOfWar: false,
+        targetRevision: 2,
+      };
+      await writePlayLog(store, log, tacticalMeta(log));
+      const events = await store.getEvents(log.matchId);
+      const recovered = await recoveredHost(log.matchId);
+      const last = events[events.length - 1].sequence;
+
+      expect(await rejoin(recovered, GUEST, last)).toEqual([]);
+    });
+  });
+
   describe('privacy of the replay', () => {
     it('each socket gets its own projection: no fog-hidden fact and no authority-only field reaches a player', async () => {
       const fixture = await standUpCommittedRewind(FOG);
@@ -423,17 +511,48 @@ describe('ServerMatchHost rewind reaches connected players', () => {
       const writer = jest
         .spyOn(GmPrivatePreviewRecordWriter.prototype, 'store')
         .mockRejectedValueOnce(new Error('injected: reason writer failed'));
+      const logged = jest.spyOn(logger, 'error').mockImplementation(() => {});
 
       const res = await postRewindCommit(PRIVATE_REASON);
 
       expect(writer).toHaveBeenCalledTimes(1);
-      // Follow-up row (tasks.md): this 500 after commit is not M-H4's.
-      expect(res._getStatusCode()).toBe(500);
+      // D-2a: the commit is durable, so a writer throw is logged, not a 500.
+      expect(res._getStatusCode()).toBe(200);
+      expect(res._getJSONData()).toMatchObject({ kind: 'committed' });
+      expect(res._getJSONData()).not.toHaveProperty('rebuildPending');
+      expect(logged).toHaveBeenCalledTimes(1);
       expect(live!.servedBranchId()).not.toBeNull();
       expect(live!.getSessionForTests().currentState.phase).toBe(
         GamePhase.Initiative,
       );
       writer.mockRestore();
+      logged.mockRestore();
+    });
+
+    it('D-2a a writer throw after a failed rebuild still answers committed with rebuildPending', async () => {
+      await getMatchHostRegistry().recoverActiveMatches();
+      const live = getMatchHostRegistry().get(MATCH_ID);
+      expect(live).not.toBeNull();
+      const rebuild = jest
+        .spyOn(live!, 'rebuildFromActivatedBranch')
+        .mockRejectedValueOnce(new Error('injected: live rebuild failed'));
+      const writer = jest
+        .spyOn(GmPrivatePreviewRecordWriter.prototype, 'store')
+        .mockRejectedValueOnce(new Error('injected: reason writer failed'));
+      const logged = jest.spyOn(logger, 'error').mockImplementation(() => {});
+
+      const res = await postRewindCommit(PRIVATE_REASON);
+
+      expect(res._getStatusCode()).toBe(200);
+      expect(res._getJSONData()).toMatchObject({
+        kind: 'committed',
+        rebuildPending: true,
+      });
+      // One log for the rebuild, one for the writer.
+      expect(logged).toHaveBeenCalledTimes(2);
+      rebuild.mockRestore();
+      writer.mockRestore();
+      logged.mockRestore();
     });
 
     async function postRewindCommit(

@@ -1,17 +1,15 @@
 /**
  * P2P session sync integration tests (§ 9 of `add-p2p-game-session-sync`).
  *
- * Drives two `gameSessionChannel` instances bound to the SAME Yjs doc
- * (the simplest faithful model of two peers in the same Yjs room): the
- * "host" peer broadcasts events, the "guest" peer mirrors them through
- * `applyMirrorEvent`. The doc-level Y.Array delivers updates
- * synchronously inside a single transaction, so we do not need to fake
- * BroadcastChannel + the WebRTC layer.
+ * The host broadcasts events and the guest mirrors them through
+ * `applyMirrorEvent`. Direct broadcasts in §9.1 use a shared Y.Doc;
+ * intent round trips in §9.2 use separate linked docs so events appended
+ * inside the host's intent observer reach the guest's observer.
  *
  * Covers:
  *   §9.1 mirror convergence — host plays N events, guest mirror state
  *        is byte-identical at every boundary.
- *   §9.2 guest intent → host-appended event.
+ *   §9.2 guest intent → host-appended events → guest mirror convergence.
  *   §9.3 host disconnect → guest's local match status falls into
  *        `hostPending` (matches Wave 4's reconnect-grace contract).
  *
@@ -21,17 +19,21 @@
 import * as Y from 'yjs';
 
 import {
+  GameEventType,
   GamePhase,
   GameSide,
   GameStatus,
+  LockState,
   type IGameEvent,
   type IGameSession,
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 import {
+  advancePhase,
   appendEvent,
   createGameSession,
+  rollInitiative,
   startGame,
 } from '@/utils/gameplay/gameSessionCore';
 import { createHexGrid } from '@/utils/gameplay/hexGrid';
@@ -52,6 +54,7 @@ import {
   translateIntentToEvents,
 } from '../intentTranslation';
 import { applyMirrorEvent, createMirrorSession } from '../mirrorSession';
+import { linkPeers } from './linkedDocs.test-helpers';
 
 // =============================================================================
 // Fixtures
@@ -226,45 +229,64 @@ describe('§9.1 host + guest sessions converge under shared Y.Doc', () => {
 // =============================================================================
 
 describe('§9.2 guest intent translates into a host-appended event', () => {
-  let doc: Y.Doc;
-  let eventArray: Y.Array<string>;
+  let hostDoc: Y.Doc;
+  let guestDoc: Y.Doc;
 
   beforeEach(() => {
-    doc = new Y.Doc();
-    eventArray = doc.getArray<string>(GAME_SESSION_EVENTS_ARRAY);
+    hostDoc = new Y.Doc();
+    guestDoc = new Y.Doc();
+    linkPeers(hostDoc, guestDoc);
   });
 
   afterEach(() => {
-    doc.destroy();
+    hostDoc.destroy();
+    guestDoc.destroy();
   });
 
-  it('guest broadcastIntent → host translates → MovementDeclared event appended on host', () => {
-    let hostSession = createGameSession(fixtureConfig(), fixtureUnits(), {
+  it('guest movement intent appends host events and converges on the guest mirror', () => {
+    const sessionOptions = {
       id: 'match-intent-1',
       createdAt: FIXED_TIMESTAMP,
       hostPeerId: HOST_PEER,
       guestPeerId: GUEST_PEER,
       sideOwners: fixtureSideOwners(),
-    });
-    hostSession = startGame(hostSession, GameSide.Player);
-    // Force into Movement phase so the guest's intent is in-phase.
-    hostSession = {
-      ...hostSession,
-      currentState: {
-        ...hostSession.currentState,
-        phase: GamePhase.Movement,
-        status: GameStatus.Active,
-      },
     };
+    let hostSession = createGameSession(
+      fixtureConfig(),
+      fixtureUnits(),
+      sessionOptions,
+    );
+    let guestSession = createMirrorSession(
+      fixtureConfig(),
+      fixtureUnits(),
+      sessionOptions,
+    );
 
     const hostChannel = createGameSessionChannel({
       localPeerId: HOST_PEER,
-      eventArray,
+      eventArray: hostDoc.getArray<string>(GAME_SESSION_EVENTS_ARRAY),
     });
     const guestChannel = createGameSessionChannel({
       localPeerId: GUEST_PEER,
-      eventArray,
+      eventArray: guestDoc.getArray<string>(GAME_SESSION_EVENTS_ARRAY),
     });
+
+    const guestObserved: IGameEvent[] = [];
+    const unsubscribeGuest = guestChannel.onPeerEvent((event) => {
+      guestObserved.push(event);
+      guestSession = applyMirrorEvent(guestSession, event);
+    });
+
+    // Both peers reach Movement through the same host-authored events.
+    hostSession = startGame(hostSession, GameSide.Player);
+    hostSession = rollInitiative(hostSession, GameSide.Player, () => 6);
+    hostSession = advancePhase(hostSession);
+    for (const event of hostSession.events.slice(1)) {
+      hostChannel.broadcastEvent(event);
+    }
+    compareSessionsConverged(hostSession, guestSession);
+    const beforeMove = hostSession.events.length;
+    const beforeMoveObserved = guestObserved.length;
 
     const router = createHostIntentRouter({
       getSession: () => hostSession,
@@ -294,11 +316,15 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
     });
 
     // Guest authors a declareMovement intent for its own unit.
-    const guestUnit = hostSession.currentState.units['guest-0'];
+    const guestUnit = guestSession.currentState.units['guest-0'];
+    const destination = {
+      q: guestUnit.position.q,
+      r: guestUnit.position.r + 1,
+    };
     const intent = buildDeclareMovementIntent(GUEST_PEER, {
       unitId: 'guest-0',
       from: guestUnit.position,
-      to: { q: guestUnit.position.q, r: guestUnit.position.r + 1 },
+      to: destination,
       facing: guestUnit.facing,
       movementType: MovementType.Walk,
       mpUsed: 1,
@@ -307,14 +333,21 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
     guestChannel.broadcastIntent(intent);
 
     unsubscribeIntent();
+    unsubscribeGuest();
 
-    // Host appended the translated events.
-    const newEvents = hostSession.events
-      .filter((e) =>
-        ['movement_declared', 'movement_locked'].includes(e.type as string),
-      )
-      .map((e) => e.type);
-    expect(newEvents).toEqual(['movement_declared', 'movement_locked']);
+    const newEvents = hostSession.events.slice(beforeMove);
+    expect(newEvents.map((event) => event.type)).toEqual([
+      GameEventType.MovementDeclared,
+      GameEventType.MovementLocked,
+    ]);
+    expect(guestObserved.slice(beforeMoveObserved)).toEqual(newEvents);
+    compareSessionsConverged(hostSession, guestSession);
+    expect(guestSession.currentState.units['guest-0'].position).toEqual(
+      destination,
+    );
+    expect(guestSession.currentState.units['guest-0'].lockState).toBe(
+      LockState.Locked,
+    );
   });
 
   it('guest broadcastIntent -> host routes concede through the authoritative command adapter', () => {
@@ -329,11 +362,11 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
 
     const hostChannel = createGameSessionChannel({
       localPeerId: HOST_PEER,
-      eventArray,
+      eventArray: hostDoc.getArray<string>(GAME_SESSION_EVENTS_ARRAY),
     });
     const guestChannel = createGameSessionChannel({
       localPeerId: GUEST_PEER,
-      eventArray,
+      eventArray: guestDoc.getArray<string>(GAME_SESSION_EVENTS_ARRAY),
     });
 
     const concededSides: GameSide[] = [];
@@ -386,11 +419,11 @@ describe('§9.2 guest intent translates into a host-appended event', () => {
 
     const hostChannel = createGameSessionChannel({
       localPeerId: HOST_PEER,
-      eventArray,
+      eventArray: hostDoc.getArray<string>(GAME_SESSION_EVENTS_ARRAY),
     });
     const guestChannel = createGameSessionChannel({
       localPeerId: GUEST_PEER,
-      eventArray,
+      eventArray: guestDoc.getArray<string>(GAME_SESSION_EVENTS_ARRAY),
     });
 
     const standAttempts: string[] = [];

@@ -39,55 +39,77 @@ function participants() {
 }
 
 describe('engine crew stun boundaries', () => {
-  it('interactive phase advance expires stun only when the round changes and replays equally', () => {
-    const { units, adapted } = participants();
-    const engine = new GameEngine({ seed: 42, turnLimit: 5 });
-    const interactive = engine.createInteractiveSession(
-      [adapted[0]],
-      [adapted[1]],
-      units,
-    );
-    interactive.appendEvent(crewStunEvent(interactive.getSession()));
-    const initialTurn = interactive.getSession().currentState.turn;
-    for (
-      let step = 0;
-      step < 20 && interactive.getSession().currentState.turn < initialTurn + 2;
-      step++
-    ) {
-      const before = interactive.getSession().currentState;
-      interactive.advancePhase();
-      const after = interactive.getSession();
-      expect(stunnedRounds(after)).toBe(
-        Math.max(0, 2 - (after.currentState.turn - initialTurn)),
+  it.each([
+    [1, 2],
+    [2, 3],
+  ])(
+    'interactive phase advance expires %i stuns at round boundaries and replays equally',
+    (stuns, initialRounds) => {
+      const { units, adapted } = participants();
+      const engine = new GameEngine({ seed: 42, turnLimit: 5 });
+      const interactive = engine.createInteractiveSession(
+        [adapted[0]],
+        [adapted[1]],
+        units,
       );
-      if (after.currentState.turn > before.turn)
-        expect(after.currentState.phase).toBe(GamePhase.Initiative);
-      expect(
-        hydrateGameSessionFromEvents(after.id, after.events).currentState.units
-          .target.combatState,
-      ).toEqual(after.currentState.units.target.combatState);
-    }
-    expect(stunnedRounds(interactive.getSession())).toBe(0);
-  });
+      for (let stun = 0; stun < stuns; stun++) {
+        interactive.appendEvent(crewStunEvent(interactive.getSession()));
+      }
+      expect(stunnedRounds(interactive.getSession())).toBe(initialRounds);
+      const initialTurn = interactive.getSession().currentState.turn;
+      for (
+        let step = 0;
+        step < 30 &&
+        interactive.getSession().currentState.turn <
+          initialTurn + initialRounds;
+        step++
+      ) {
+        const before = interactive.getSession().currentState;
+        interactive.advancePhase();
+        const after = interactive.getSession();
+        expect(stunnedRounds(after)).toBe(
+          Math.max(0, initialRounds - (after.currentState.turn - initialTurn)),
+        );
+        if (after.currentState.turn > before.turn)
+          expect(after.currentState.phase).toBe(GamePhase.Initiative);
+        expect(
+          hydrateGameSessionFromEvents(after.id, after.events).currentState
+            .units.target.combatState,
+        ).toEqual(after.currentState.units.target.combatState);
+      }
+      expect(stunnedRounds(interactive.getSession())).toBe(0);
+    },
+  );
 
-  it('runToCompletion expires an event-seeded stun through its real phase loop', () => {
-    const actual = jest.requireActual<
-      typeof import('@/utils/gameplay/gameSession')
-    >('@/utils/gameplay/gameSession');
-    jest.mocked(startGame).mockImplementationOnce((...args) => {
-      const started = actual.startGame(...args);
-      return appendEvent(started, crewStunEvent(started));
-    });
-    const { units, adapted } = participants();
-    const result = new GameEngine({ seed: 42, turnLimit: 3 }).runToCompletion(
-      [adapted[0]],
-      [adapted[1]],
-      units,
-    );
-    expect(result.currentState.turn).toBeGreaterThanOrEqual(3);
-    expect(stunnedRounds(result)).toBe(0);
-    expect(
-      hydrateGameSessionFromEvents(result.id, result.events).currentState,
-    ).toEqual(result.currentState);
-  });
+  it.each([
+    [1, 2],
+    [2, 3],
+  ])(
+    'runToCompletion expires %i event-seeded stuns through its real phase loop',
+    (stuns, initialRounds) => {
+      const actual = jest.requireActual<
+        typeof import('@/utils/gameplay/gameSession')
+      >('@/utils/gameplay/gameSession');
+      jest.mocked(startGame).mockImplementationOnce((...args) => {
+        let started = actual.startGame(...args);
+        for (let stun = 0; stun < stuns; stun++) {
+          started = appendEvent(started, crewStunEvent(started));
+        }
+        expect(stunnedRounds(started)).toBe(initialRounds);
+        return started;
+      });
+      const { units, adapted } = participants();
+      const result = new GameEngine({
+        seed: 42,
+        turnLimit: initialRounds + 1,
+      }).runToCompletion([adapted[0]], [adapted[1]], units);
+      expect(result.currentState.turn).toBeGreaterThanOrEqual(
+        initialRounds + 1,
+      );
+      expect(stunnedRounds(result)).toBe(0);
+      expect(
+        hydrateGameSessionFromEvents(result.id, result.events).currentState,
+      ).toEqual(result.currentState);
+    },
+  );
 });

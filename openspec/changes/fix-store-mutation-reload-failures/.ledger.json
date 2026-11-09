@@ -1,0 +1,6 @@
+{
+  "name": "fix-store-mutation-reload-failures",
+  "status": "implemented",
+  "reason": "U8 implemented with saved-change refresh feedback; 135 suites and all local lane gates passed. Hosted CI and PR readiness remain pending.",
+  "lastReviewed": "2026-11-08"
+}

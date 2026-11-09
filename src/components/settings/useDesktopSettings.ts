@@ -5,7 +5,13 @@
  * Handles loading, saving, and real-time updates.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 
 import { logger } from '@/utils/logger';
 
@@ -56,6 +62,7 @@ interface UseDesktopSettingsResult {
   /** Update settings */
   updateSettings: (
     updates: Partial<IDesktopSettings>,
+    canPublish?: () => boolean,
   ) => Promise<IServiceResult>;
   /** Reset settings to defaults */
   resetSettings: () => Promise<IServiceResult>;
@@ -71,9 +78,20 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
   const [settings, setSettings] = useState<IDesktopSettings>(DEFAULT_SETTINGS);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const owner = useRef<{ readonly api: typeof api } | null>(null);
+
+  useLayoutEffect(() => {
+    owner.current = { api };
+    return () => {
+      owner.current = null;
+    };
+  }, [api]);
 
   // Load settings on mount
   const loadSettings = useCallback(async () => {
+    const requestOwner = owner.current;
+    if (!requestOwner || requestOwner.api !== api) return;
+    const isCurrent = () => owner.current === requestOwner;
     if (!api) {
       setIsLoading(false);
       return;
@@ -83,16 +101,17 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
       setIsLoading(true);
       setError(null);
       const loadedSettings = await api.getSettings();
-      if (loadedSettings) {
+      if (isCurrent() && loadedSettings) {
         setSettings(loadedSettings);
       }
     } catch (err) {
+      if (!isCurrent()) return;
       const message =
         err instanceof Error ? err.message : 'Failed to load settings';
       setError(message);
       logger.error('Failed to load settings:', err);
     } finally {
-      setIsLoading(false);
+      if (isCurrent()) setIsLoading(false);
     }
   }, [api]);
 
@@ -104,8 +123,10 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
   // Subscribe to settings changes
   useEffect(() => {
     if (!api) return;
+    const requestOwner = owner.current;
 
     const handleSettingsChange = (event: ISettingsChangeEvent) => {
+      if (owner.current !== requestOwner) return;
       setSettings((prev) => ({
         ...prev,
         [event.key]: event.newValue,
@@ -121,13 +142,19 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
 
   // Update settings
   const updateSettings = useCallback(
-    async (updates: Partial<IDesktopSettings>): Promise<IServiceResult> => {
-      if (!api) {
+    async (
+      updates: Partial<IDesktopSettings>,
+      canPublish: () => boolean = () => true,
+    ): Promise<IServiceResult> => {
+      const requestOwner = owner.current;
+      if (!api || !requestOwner || requestOwner.api !== api) {
         return { success: false, error: 'Not running in Electron' };
       }
+      const isCurrent = () => owner.current === requestOwner && canPublish();
 
       try {
         const result = await api.setSettings(updates);
+        if (!isCurrent()) return result;
         if (result.success) {
           // Optimistically update local state
           setSettings((prev) => ({ ...prev, ...updates }));
@@ -138,7 +165,7 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
       } catch (err) {
         const message =
           err instanceof Error ? err.message : 'Failed to update settings';
-        setError(message);
+        if (isCurrent()) setError(message);
         return { success: false, error: message };
       }
     },
@@ -147,12 +174,15 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
 
   // Reset settings
   const resetSettings = useCallback(async (): Promise<IServiceResult> => {
-    if (!api) {
+    const requestOwner = owner.current;
+    if (!api || !requestOwner || requestOwner.api !== api) {
       return { success: false, error: 'Not running in Electron' };
     }
+    const isCurrent = () => owner.current === requestOwner;
 
     try {
       const result = await api.resetSettings();
+      if (!isCurrent()) return result;
       if (result.success) {
         // Reload settings to get defaults
         await loadSettings();
@@ -163,7 +193,7 @@ export function useDesktopSettings(): UseDesktopSettingsResult {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to reset settings';
-      setError(message);
+      if (isCurrent()) setError(message);
       return { success: false, error: message };
     }
   }, [api, loadSettings]);
