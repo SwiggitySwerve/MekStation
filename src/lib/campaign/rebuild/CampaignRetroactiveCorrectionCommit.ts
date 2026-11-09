@@ -21,6 +21,7 @@ import type Database from 'better-sqlite3';
 
 import type { IRetainedSourceEvent } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { ICandidateVerificationOptions } from '@/lib/events/journal/EventHistoryCandidateVerification';
 import type {
   IEventHistoryCorrectionLease,
@@ -36,7 +37,10 @@ import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { readCampaignBranchAnchor } from '@/lib/campaign/rebuild/CampaignBranchAnchor';
 import { campaignBranchSegmentReader } from '@/lib/campaign/rebuild/campaignBranchSegmentReader';
 import { replayCampaignReplacement } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
-import { EventHistoryArtifactManifestError } from '@/lib/events/journal/EventHistoryArtifactManifest';
+import {
+  EventHistoryArtifactManifestError,
+  SQLiteEventHistoryArtifactManifestStore,
+} from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { resolveBranchPath } from '@/lib/events/journal/EventHistoryBranchResolver';
 import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
@@ -139,6 +143,50 @@ function releaseHeldLease(
 }
 
 /**
+ * D-3a: under a freshly acquired lease, an earlier `building` candidate
+ * with no sealed manifest is a correction that crashed or was abandoned:
+ * the partial unique index allows one live lease and it is ours, so
+ * nothing can still be building it. Block it. A SEALED candidate is not
+ * swept: sealing is where this commit stops, and activation (16.3) is a
+ * later step that has not run for it yet. Runs before this commit mints
+ * its own candidate, so that one is never swept.
+ */
+function blockStrandedCandidates(
+  branches: SQLiteEventHistoryBranchStore,
+  manifests: SQLiteEventHistoryArtifactManifestStore,
+  stream: IEventHistoryStreamRef,
+): void {
+  for (const branch of branches.listBranches(stream)) {
+    if (branch.status !== 'building') continue;
+    if (manifests.readArtifactManifest(stream, branch.branchId) !== null) {
+      continue;
+    }
+    branches.transitionBranchStatus(stream, branch.branchId, 'blocked');
+  }
+}
+
+/**
+ * D-3a: a candidate this commit built and refused or failed on is
+ * terminal. Blocked while the lease is still held. A failure to block
+ * must not replace the refusal or error the caller is owed (and this
+ * module must not import the logger, which reads `process.env`); the
+ * next commit's stranded sweep retries it.
+ */
+function blockFailedCandidate(
+  branches: SQLiteEventHistoryBranchStore,
+  stream: IEventHistoryStreamRef,
+  branchId: string,
+): void {
+  try {
+    if (branches.readBranch(stream, branchId)?.status === 'building') {
+      branches.transitionBranchStatus(stream, branchId, 'blocked');
+    }
+  } catch {
+    // Left `building`; the next commit's sweep blocks it.
+  }
+}
+
+/**
  * Map a lease or mint failure that escaped the inner steps.
  * Acquire and cut have no other closed reasons in this vocabulary.
  */
@@ -170,7 +218,9 @@ export async function commitCampaignRetroactiveCorrection<TState>(
   const leases = new SQLiteEventHistoryCorrectionLeaseStore(deps.db, branches);
   const sourceHead = readEffectiveStreamHead(deps.db, branches, stream);
   const effective = branches.requireEffectiveHead(stream);
+  const manifests = new SQLiteEventHistoryArtifactManifestStore(deps.db);
   let held: IHeldCorrectionLease | null = null;
+  let candidateBranchId: string | null = null;
   try {
     const lease = leases.acquireCorrectionLease({
       ...stream,
@@ -188,6 +238,7 @@ export async function commitCampaignRetroactiveCorrection<TState>(
       owner: lease.owner,
       fencingEpoch: lease.fencingEpoch,
     };
+    blockStrandedCandidates(branches, manifests, stream);
     await deps.onLeaseHeld?.(lease);
 
     // A base ahead of the head (or not an integer) is refused by the
@@ -202,6 +253,7 @@ export async function commitCampaignRetroactiveCorrection<TState>(
       baseRevision: request.baseRevision,
       createdAt: now,
     });
+    candidateBranchId = candidate.branchId;
 
     let replayedCommandCount = 0;
     try {
@@ -212,6 +264,7 @@ export async function commitCampaignRetroactiveCorrection<TState>(
       });
       replayedCommandCount = receipts.length;
     } catch (error) {
+      blockFailedCandidate(branches, stream, candidate.branchId);
       return refuse(
         'replay-divergence',
         error instanceof Error
@@ -237,6 +290,7 @@ export async function commitCampaignRetroactiveCorrection<TState>(
         deps.verification,
       );
     } catch (error) {
+      blockFailedCandidate(branches, stream, candidate.branchId);
       return refuse(
         'candidate-verification-failed',
         error instanceof Error
@@ -268,6 +322,7 @@ export async function commitCampaignRetroactiveCorrection<TState>(
         manifest,
       });
     } catch (error) {
+      blockFailedCandidate(branches, stream, candidate.branchId);
       return refuse(
         'sealer-failure',
         error instanceof EventHistoryArtifactManifestError ||
@@ -277,6 +332,9 @@ export async function commitCampaignRetroactiveCorrection<TState>(
       );
     }
   } catch (error) {
+    if (candidateBranchId !== null) {
+      blockFailedCandidate(branches, stream, candidateBranchId);
+    }
     return mapOuterRefusal(error);
   } finally {
     releaseHeldLease(leases, request.campaignId, held);
