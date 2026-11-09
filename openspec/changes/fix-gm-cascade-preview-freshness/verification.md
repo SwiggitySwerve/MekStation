@@ -99,7 +99,8 @@ The whole-repository formatting check passed (`d6-format-final.log`). Both test
 files flagged by the first formatting check were formatted with oxfmt. No lint,
 unit-lint or cache-budget ceiling was raised.
 
-A fetched main update after the initial branch was limited to an unrelated E2E
-source-scan race test. The lane merges main rather than rebasing or force-pushing.
-Hosted CI and draft-to-ready status are reported in the PR, outside this local
-verification receipt.
+The lane merged fetched main at `ed4d61469`, including the E2E source-scan race
+test fix and co-op proposal error handling. There were no conflicts or changes
+to this lane's implementation. Post-merge caller, co-op, API and integration
+checks are recorded below. Hosted CI and draft-to-ready status are reported in
+the PR, outside this local verification receipt.
