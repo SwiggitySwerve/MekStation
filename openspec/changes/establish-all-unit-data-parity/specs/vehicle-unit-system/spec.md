@@ -1021,6 +1021,96 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **WHEN** resolved
 - **THEN** each SHALL resolve to the same record as before
 
+## ADDED Requirements
+
+### Requirement: Pinned vehicle armor limits and allocation
+
+Vehicle armor editing SHALL follow the pinned MegaMekLab location limits and
+MegaMek class-total limits. Installed armored hull and turret locations SHALL
+have no individual point maximum, except that a VTOL rotor SHALL allow at most
+two points. Unavailable and unarmored locations SHALL remain unavailable.
+Combat, VTOL and superheavy vehicle totals SHALL use the pinned Tank formula;
+support and large-support totals SHALL use the pinned support movement and size
+rules. Forms, store allocation and status diagnostics SHALL consume the same
+domain rules without changing serialized armor allocations on open.
+
+#### Scenario: Edit canonical Ajax armor above the former location cap
+
+- **GIVEN** canonical Ajax Assault Tank Prime with 76 Front armor and 304 total armor
+- **WHEN** it opens and Front armor is edited to 80 through the tab or diagram
+- **THEN** opening SHALL preserve every stored armor value
+- **AND** the edit SHALL retain 80 rather than clamp it to 40
+- **AND** its class total SHALL be 355 with no individual Front maximum
+- **AND** any purchased-point deficit SHALL be reported independently of location limits
+
+#### Scenario: Diagnose the pinned rotor and class-total boundaries
+
+- **GIVEN** a combat, VTOL, superheavy, support or large-support vehicle
+- **WHEN** armor diagnostics run
+- **THEN** concentrated armor within its class total SHALL NOT receive an invented location-limit error
+- **AND** rotor armor above two SHALL receive a rotor-limit error
+- **AND** armor above the applicable class total SHALL receive a total-limit error
+- **AND** Jonah Submarine JN-002 with five armor against its four-point support limit SHALL retain that legitimate error
+
+#### Scenario: Automatically allocate the purchased class-limited armor budget
+
+- **GIVEN** a vehicle using combat armor or BAR armor, including a six-side or dual-turret layout
+- **WHEN** automatic allocation is requested
+- **THEN** allocation SHALL use its armor type or BAR table and SHALL NOT exceed purchased points or the class total
+- **AND** a rotor SHALL receive at most two available points before the remaining distribution
+- **AND** Body SHALL remain unarmored and every installed armored face and turret SHALL participate
+- **AND** the front/rear weighting and rounding remainder SHALL follow the pinned MegaMekLab allocator
+- **AND** zero- and one-point budgets SHALL NOT create negative armor
+
+## ADDED Requirements
+
+### Requirement: Pinned vehicle armor Body presentation
+
+Vehicle armor forms and diagrams SHALL omit Body for combat, support,
+large-support and VTOL layouts, matching MML 62bf193
+ArmorAllocationView.java:91-110,321-343 and SVArmorTab.java:304,329.
+Body SHALL remain unarmored independently of BAR and armor tech rating.
+
+#### Scenario: Support Body is an equipment location without an armor control
+
+- **GIVEN** a support tank, support VTOL or large support vehicle using BAR or combat armor
+- **WHEN** its armor tab or diagram opens
+- **THEN** no Body armor input or disabled Body armor row SHALL be rendered
+- **AND** manual allocation SHALL NOT assign armor to Body
+- **AND** automatic allocation SHALL keep Body at zero
+- **AND** Body equipment placement SHALL remain available under its existing construction rules
+
+## ADDED Requirements
+
+### Requirement: Pinned vehicle armor diagnostic identities
+
+Vehicle armor validation SHALL use VAL-VEHICLE-ARMOR-LOC for rotor and
+unavailable-location violations, and VAL-VEHICLE-ARMOR-TOTAL for the separate
+class-total ceiling. Ordinary installed hull and turret armor SHALL NOT
+receive a location error based on internal structure. This supersedes the
+structure-based vehicle location scenario in archived add-vehicle-construction,
+following MML 62bf193 UnitUtil.java:900-916 and MegaMek 48fcb2f64 TestTank.java:338.
+
+#### Scenario: Former per-location overrun is legal within the class total
+
+- **GIVEN** a 50-ton Tank with Front 30, Left 16, Right 16, Rear 10 and Turret 10 armor
+- **WHEN** construction validation runs
+- **THEN** neither VAL-VEHICLE-ARMOR-LOC nor VAL-VEHICLE-ARMOR-TOTAL SHALL be emitted for its 82 points
+
+#### Scenario: Concentrated armor exceeds only the class-total ceiling
+
+- **GIVEN** a 50-ton Tank with Front 216 armor and no armor elsewhere
+- **WHEN** construction validation runs
+- **THEN** VAL-VEHICLE-ARMOR-TOTAL SHALL report 216 against maximum 215
+- **AND** VAL-VEHICLE-ARMOR-LOC SHALL NOT be emitted for Front
+
+#### Scenario: Pending catalog loading preserves the pinned vehicle representation
+
+- **GIVEN** a tracked superheavy or large-support vehicle with native tonnage and geometry
+- **WHEN** its equipment catalog is pending
+- **THEN** its inert loading diagram SHALL render the six-side armored hull
+- **AND** support loading diagrams SHALL omit Body armor controls
+
 ### Requirement: Support-vehicle heat sink mass
 
 Support-vehicle heat-sink mass SHALL equal the pinned verifier's heat-neutral

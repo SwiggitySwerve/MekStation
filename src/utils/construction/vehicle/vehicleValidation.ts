@@ -8,7 +8,8 @@ import type { IVehicleTurretSourceContext } from '@/types/unit/VehicleInterfaces
  *   VAL-VEHICLE-TONNAGE   — tonnage within legal range for motion type
  *   VAL-VEHICLE-ENGINE    — engine rating legal, motion-type exclusions
  *   VAL-VEHICLE-TURRET    — turret mass rule + motion-type eligibility
- *   VAL-VEHICLE-ARMOR-LOC — per-location armor ≤ 2× structure
+ *   VAL-VEHICLE-ARMOR-LOC - rotor and unavailable location limits
+ *   VAL-VEHICLE-ARMOR-TOTAL - separate vehicle-class total
  *   VAL-VEHICLE-CREW      — at least minimum crew for tonnage / motion type
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
@@ -42,6 +43,7 @@ import { vehicleMotiveErrors } from './motiveCompatibility';
 import { validatePowerAmplifiers } from './powerAmplifier';
 import {
   computeVehicleStructureWeight,
+  hasSixSideVehicleHull,
   VehicleStructureType,
 } from './structure';
 import {
@@ -60,6 +62,7 @@ export const VEHICLE_VALIDATION_RULE_IDS = [
   'VAL-VEHICLE-ENGINE',
   'VAL-VEHICLE-TURRET',
   'VAL-VEHICLE-ARMOR-LOC',
+  'VAL-VEHICLE-ARMOR-TOTAL',
   'VAL-VEHICLE-CREW',
   'VAL-VEHICLE-POWER-AMP',
 ] as const;
@@ -226,6 +229,18 @@ export function validateVehicleConstruction(
     input.armorAllocation,
     hasTurret,
     isVTOL,
+    {
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret: secondaryTurretType !== TurretType.NONE,
+      isSupport: input.unitType === UnitType.SUPPORT_VEHICLE,
+      motionType: input.motionType,
+      isSuperheavy: hasSixSideVehicleHull({
+        tonnage: input.tonnage,
+        motionType: input.motionType,
+        isSupportVehicle: input.unitType === UnitType.SUPPORT_VEHICLE,
+      }),
+    },
   );
   for (const e of armorLocErrors) {
     errors.push(e);

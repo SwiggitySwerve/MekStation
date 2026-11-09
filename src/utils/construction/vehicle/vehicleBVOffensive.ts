@@ -1,5 +1,6 @@
 import { SuperHeavyVehicleLocation } from '@/types/construction/UnitLocation';
 
+import type { OffensiveBVConfig } from '../battleValueOffensive';
 import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type {
   VehicleWeaponMount,
@@ -11,16 +12,18 @@ import type {
 } from './vehicleBVTypes';
 
 import {
+  calculateAmmoBVPools,
   extractWeaponTypeFromAmmoId,
   getCatalogAmmoBVGroup,
   getNativeAmmoBVGroup,
   getMachineGunArrayBVGroup,
+  projectMechAmmoBVPools,
 } from '../battleValueAmmo';
-import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
 import {
-  calculateAmmoBVWithExcessiveCap,
-  type OffensiveBVConfig,
-} from '../battleValueOffensive';
+  getDefensiveEquipmentKind,
+  getOffensiveBVRole,
+  hasBVDroneOS,
+} from '../battleValueEquipment';
 import {
   applyTargetingComputerBV,
   applyDroneWeaponBV,
@@ -321,9 +324,8 @@ export function calculateVehicleOffensiveBV(
       bv: entry.listedBV,
     }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);
-  const ammoBV =
-    calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries) *
-    fireControlFactor;
+  const ammoPools = calculateAmmoBVPools(perWeaponBVs, ammoEntries);
+  const ammoBV = ammoPools.total * fireControlFactor;
   const offensiveEquipmentBV = calculateVehicleOffensiveEquipmentBV(
     input.offensiveEquipment,
   );
@@ -352,6 +354,26 @@ export function calculateVehicleOffensiveBV(
       location: entry.location,
       battleValue: entry.finalBV,
     }));
+  // BVCalculator.assembleAmmo also records raw defensive launcher caps.
+  // Reuse the shared diagnostic API, whose compatibility name retains Mech.
+  const diagnosticAmmoPools = projectMechAmmoBVPools(
+    ammoPools,
+    undefined,
+    undefined,
+    {
+      weapons: (input.defensiveEquipment ?? [])
+        .filter(
+          (entry) =>
+            getDefensiveEquipmentKind(entry.id) === 'ams' &&
+            !isOneShotBVWeapon(entry.id),
+        )
+        .map((entry) => ({ id: entry.id, bv: resolveMountBattleValue(entry) })),
+      bins: [],
+    },
+  );
+  const hasAmmoPools =
+    Object.keys(diagnosticAmmoPools.available).length > 0 ||
+    Object.keys(diagnosticAmmoPools.cap).length > 0;
 
   return {
     weaponBV,
@@ -362,5 +384,6 @@ export function calculateVehicleOffensiveBV(
     weightBV,
     total,
     ...(weaponMountBV.length ? { weaponMountBV } : {}),
+    ...(hasAmmoPools ? { ammoPools: diagnosticAmmoPools } : {}),
   };
 }

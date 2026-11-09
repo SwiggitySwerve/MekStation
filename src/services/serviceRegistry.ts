@@ -3,7 +3,6 @@ import {
   getMechBuilderService,
   getValidationService,
 } from './construction';
-import { getMTFImportService } from './conversion';
 import {
   getEquipmentLoader,
   getEquipmentNameMapper,
@@ -47,11 +46,6 @@ export const services = {
     },
     get calculation() {
       return getCalculationService();
-    },
-  },
-  conversion: {
-    get importer() {
-      return getMTFImportService();
     },
   },
   pilots: {
