@@ -57,6 +57,21 @@ function loadEncountersAction(
   };
 }
 
+/** A saved mutation cannot be retried safely just because its list reload failed. */
+async function reloadEncountersAfterMutation(
+  set: EncounterSet,
+  get: EncounterGet,
+): Promise<boolean> {
+  await get().loadEncounters();
+  const { error } = get();
+  if (error === null) return true;
+  set({
+    error: `Encounter saved, but the list could not be refreshed. Reload to see it. ${error}`,
+    isLoading: false,
+  });
+  return false;
+}
+
 function createEncounterAction(
   set: EncounterSet,
   get: EncounterGet,
@@ -78,8 +93,7 @@ function createEncounterAction(
           });
           return null;
         }
-        await get().loadEncounters();
-        return data.id;
+        return (await reloadEncountersAfterMutation(set, get)) ? data.id : null;
       },
       null,
     );
@@ -106,8 +120,7 @@ function updateEncounterAction(
           });
           return false;
         }
-        await get().loadEncounters();
-        return true;
+        return reloadEncountersAfterMutation(set, get);
       },
       false,
     );
@@ -135,8 +148,7 @@ function deleteEncounterAction(
         if (get().selectedEncounterId === id) {
           set({ selectedEncounterId: null });
         }
-        await get().loadEncounters();
-        return true;
+        return reloadEncountersAfterMutation(set, get);
       },
       false,
     );
@@ -156,8 +168,7 @@ function forceLinkAction(
         set({ error: data.error ?? errorMessage, isLoading: false });
         return false;
       }
-      await get().loadEncounters();
-      return true;
+      return reloadEncountersAfterMutation(set, get);
     },
     false,
   );
@@ -251,8 +262,9 @@ function seedSampleEncountersAction(
           });
           return null;
         }
-        await get().loadEncounters();
-        return data.ids;
+        return (await reloadEncountersAfterMutation(set, get))
+          ? data.ids
+          : null;
       },
       null,
     );
@@ -318,8 +330,9 @@ function launchEncounterAction(
           });
           return null;
         }
-        await get().loadEncounters();
-        return data.gameSessionId ?? null;
+        return (await reloadEncountersAfterMutation(set, get))
+          ? (data.gameSessionId ?? null)
+          : null;
       },
       null,
     );
@@ -346,8 +359,7 @@ function cloneEncounterAction(
           });
           return null;
         }
-        await get().loadEncounters();
-        return data.id;
+        return (await reloadEncountersAfterMutation(set, get)) ? data.id : null;
       },
       null,
     );
@@ -380,8 +392,7 @@ export function createEncounterApiActions(
         loadingSetter(set),
         async () => {
           await linkEncounterSession(session);
-          await get().loadEncounters();
-          return true;
+          return reloadEncountersAfterMutation(set, get);
         },
         false,
       ),
@@ -390,8 +401,7 @@ export function createEncounterApiActions(
         loadingSetter(set),
         async () => {
           await completeEncounterSession(session);
-          await get().loadEncounters();
-          return true;
+          return reloadEncountersAfterMutation(set, get);
         },
         false,
       ),

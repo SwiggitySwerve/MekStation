@@ -35,6 +35,10 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   candidate on the same stream to `blocked`. Under the lease no other candidate
   can still be authorized.
 
+- A failure to store the GM's private reason after the commit is logged and the
+  route still answers 200 with the committed result (follow-up D-2a). No
+  response field reports it.
+
 The activated branch of a failed rebuild is not moved to `blocked`:
 `effective -> blocked` is not a legal transition. A failed rebuild is a host
 state, not a branch status.

@@ -469,6 +469,11 @@ export async function appendDurableAcceptContract(
 
   const prepared = preparedJournalOf(journal);
   if (prepared === null) return notDurable('source-read-unavailable');
+  // A committed acceptance consumed its offer. Recognize the receipt first
+  // so a retry cannot mistake that missing offer for a failed acceptance.
+  if ((await journal.getCommandReceipt(request.commandId)) !== null) {
+    return refuseAccept({ kind: 'duplicate', commandId: request.commandId });
+  }
 
   return prepared.appendPreparedWithExtension<
     IPreparedAcceptContext,
