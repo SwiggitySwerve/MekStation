@@ -69,10 +69,10 @@ describe('vehicle per-mount weapon projection', () => {
     expect(row.figure).toMatchObject({
       total: 484,
       terms: {
-        'weapon.0.FR.rocket-launcher-10': 18,
-        'weapon.1.FR.rocket-launcher-10': 18,
-        'weapon.2.RR.rocket-launcher-10': 9,
-        'weapon.3.RR.rocket-launcher-10': 9,
+        'weapon.0.FR.rl10': 18,
+        'weapon.1.FR.rl10': 18,
+        'weapon.2.RR.rl10': 9,
+        'weapon.3.RR.rl10': 9,
         'weapon.4.TU.er-medium-laser': 62,
         weaponBV: 116,
       },
@@ -177,7 +177,7 @@ describe('vehicle per-mount weapon projection', () => {
       }),
     );
     expect(weaponTerms(b)).toEqual({
-      'weapon.1.FR.machine-gun-array': 0,
+      'weapon.1.FR.mga': 0,
       'weapon.2.FR.flamer': 6,
     });
     expect(b.weaponBV).toBe(6);
@@ -196,6 +196,28 @@ describe('vehicle per-mount weapon projection', () => {
     expect(JSON.stringify(value)).toBe(original);
   });
 
+  test('source names and canonical IDs produce identical sponson diagnostics', () => {
+    const source = input({
+      weapons: [
+        {
+          id: 'Medium Laser',
+          location: 'Body',
+          isTurretMounted: true,
+          isSponsonMounted: true,
+        },
+      ],
+    });
+    const original = JSON.stringify(source);
+    const canonical = input({
+      weapons: [{ ...source.weapons[0], id: 'medium-laser' }],
+    });
+    const actual = calculateVehicleBV(source);
+    expect(actual).toEqual(calculateVehicleBV(canonical));
+    expect(weaponTerms(actual)).toEqual({ 'weapon.0.BD.medium-laser': 46 });
+    expect(actual.weaponMountBV?.[0].equipmentId).toBe('medium-laser');
+    expect(JSON.stringify(source)).toBe(original);
+  });
+
   test('Artemis and machine-gun arrays project the existing linked values', () => {
     const b = calculateVehicleBV(
       input({
@@ -209,7 +231,7 @@ describe('vehicle per-mount weapon projection', () => {
     );
     expect(weaponTerms(b)).toEqual({
       'weapon.0.FR.srm-2': 25.2,
-      'weapon.1.TU.machine-gun-array': 6.7,
+      'weapon.1.TU.mga': 6.7,
       'weapon.2.TU.machine-gun': 5,
       'weapon.3.TU.machine-gun': 5,
     });

@@ -216,6 +216,7 @@ export interface VehicleOffensiveBVBreakdown {
 /** Adjusted result from the existing offensive weapon owner, before speed. */
 export interface IVehicleBVWeaponMount {
   readonly equipmentIndex: number;
+  /** Canonical local catalog ID; retain an unresolved supplied ID as-is. */
   readonly equipmentId: string;
   readonly location: string;
   readonly battleValue: number;

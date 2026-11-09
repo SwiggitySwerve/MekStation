@@ -1083,6 +1083,7 @@ remain available and equal 1 for these turret kinds.
 - **THEN** the front Flamer SHALL expose 6 BV, each front RL10 SHALL expose 18 BV, and each rear RL10 SHALL expose 9 BV
 - **AND** duplicate mounts SHALL remain separate, with comparison using the existing per-location count and sorted-value contract
 - **AND** trace indices and equipment IDs SHALL remain local identities, with known native location abbreviations
+- **AND** source-name aliases and canonical catalog IDs SHALL yield identical diagnostic mount identities through the catalog owner
 - **AND** existing totals, aggregates, ammunition, loads and construction validity SHALL remain unchanged
 - **AND** unknown locations and absent diagnostic snapshots SHALL NOT acquire invented native identities
 

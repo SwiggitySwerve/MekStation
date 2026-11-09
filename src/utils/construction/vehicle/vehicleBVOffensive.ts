@@ -348,7 +348,7 @@ export function calculateVehicleOffensiveBV(
     )
     .map((entry) => ({
       equipmentIndex: entry.equipmentIndex,
-      equipmentId: entry.id,
+      equipmentId: getEquipmentEntry(entry.id)?.id ?? entry.id,
       location: entry.location,
       battleValue: entry.finalBV,
     }));
