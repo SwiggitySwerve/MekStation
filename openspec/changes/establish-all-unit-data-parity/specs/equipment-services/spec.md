@@ -172,4 +172,5 @@ one-shot, Streak and ordinary LRM 5/10/15/20 records SHALL remain unchanged.
 - **AND** source strings, provenance, existing serialization, costs and local BLK reload results SHALL remain unchanged
 - **AND** captured ammo-BV contributions SHALL retain previously positive values
 - **AND** the twenty remaining resolved-name disagreements and 56 compatibility spellings with combat data but unresolved BV SHALL receive no parity credit
+- **AND** those disagreement counts describe the Compendium adapter's resolution only; the simulation runner's raw catalog lookup (`UnitHydrationCatalogLookup`) is a separate path that can resolve some of the same names the other way, so the counts SHALL NOT be read as a statement about the runner, and no corpus unit uses these names
 - **AND** legacy explicit IDs, unresolved alias differences, ammo quantities, mount legality, full combat/BV and production workflows SHALL remain separately accounted for

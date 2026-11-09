@@ -5,6 +5,12 @@
  * Handles targeting computer recalculation on weapon changes.
  */
 
+import type {
+  ICriticalSlotPart,
+  IEquipmentSlotAllocation,
+} from '@/types/equipment/MountedEquipment';
+import type { SlotAssignment } from '@/utils/construction/slotOperations';
+
 import {
   clearMountedEquipment,
   linkMountedAmmo,
@@ -18,9 +24,11 @@ import {
   hasFixedOmniMountConflict,
   isFixedOmniEquipment,
 } from '@/utils/construction/equipmentMutationPolicy';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { logger } from '@/utils/logger';
 import { generateUnitId } from '@/utils/uuid';
 
+import type { UnitState } from '../unitState';
 import type { UnitSliceGetFn, UnitSliceSetFn } from './unitSliceTypes';
 
 import {
@@ -47,14 +55,9 @@ export interface UnitEquipmentActions {
     instanceId: string,
     location: MechLocation,
     slots: readonly number[],
+    splitSlots?: ICriticalSlotPart,
   ) => void;
-  bulkUpdateEquipmentLocations: (
-    updates: ReadonlyArray<{
-      instanceId: string;
-      location: MechLocation;
-      slots: readonly number[];
-    }>,
-  ) => void;
+  bulkUpdateEquipmentLocations: (updates: readonly SlotAssignment[]) => void;
   clearEquipmentLocation: (instanceId: string) => void;
   setEquipmentRearMounted: (instanceId: string, isRearMounted: boolean) => void;
   linkAmmo: (
@@ -62,6 +65,24 @@ export interface UnitEquipmentActions {
     ammoInstanceId: string | undefined,
   ) => void;
   clearAllEquipment: () => void;
+}
+
+function conflictsWithFixedMount(
+  state: UnitState,
+  allocation: IEquipmentSlotAllocation,
+): boolean {
+  if (!state.isOmni) return false;
+  const occupied = state.equipment.flatMap((item) =>
+    getSlotParts(item).map((part) => ({ ...item, ...part })),
+  );
+  return getSlotParts(allocation).some((part) =>
+    hasFixedOmniMountConflict(
+      state.isOmni,
+      occupied,
+      part.location,
+      part.slots,
+    ),
+  );
 }
 
 export function createEquipmentSlice(
@@ -145,35 +166,31 @@ export function createEquipmentSlice(
       instanceId: string,
       location: MechLocation,
       slots: readonly number[],
+      splitSlots?: ICriticalSlotPart,
     ) =>
       set((state) => {
         const item = state.equipment.find((e) => e.instanceId === instanceId);
         if (
           !item ||
           !canChangeEquipmentMount(state.isOmni, item) ||
-          hasFixedOmniMountConflict(
-            state.isOmni,
-            state.equipment,
-            location,
-            slots,
-          )
+          conflictsWithFixedMount(state, { location, slots, splitSlots })
         )
           return state;
         return updateMountedEquipment(
           state,
           instanceId,
           (e) => e.instanceId,
-          (e) => ({ ...e, location, slots }),
+          (e) => ({
+            ...e,
+            location,
+            slots,
+            splitSlots,
+            spreadSlots: undefined,
+          }),
         );
       }),
 
-    bulkUpdateEquipmentLocations: (
-      updates: ReadonlyArray<{
-        instanceId: string;
-        location: MechLocation;
-        slots: readonly number[];
-      }>,
-    ) =>
+    bulkUpdateEquipmentLocations: (updates: readonly SlotAssignment[]) =>
       set((state) => {
         const updateMap = new Map(updates.map((u) => [u.instanceId, u]));
         if (
@@ -182,12 +199,7 @@ export function createEquipmentSlice(
             return (
               update &&
               canChangeEquipmentMount(state.isOmni, item) &&
-              hasFixedOmniMountConflict(
-                state.isOmni,
-                state.equipment,
-                update.location,
-                update.slots,
-              )
+              conflictsWithFixedMount(state, update)
             );
           })
         )
@@ -197,7 +209,13 @@ export function createEquipmentSlice(
           const update = updateMap.get(e.instanceId);
           if (!update || !canChangeEquipmentMount(state.isOmni, e)) return e;
           changed = true;
-          return { ...e, location: update.location, slots: update.slots };
+          return {
+            ...e,
+            location: update.location,
+            slots: update.slots,
+            splitSlots: update.splitSlots,
+            spreadSlots: update.spreadSlots,
+          };
         });
         if (!changed) return state;
         return {
@@ -215,7 +233,13 @@ export function createEquipmentSlice(
           state,
           instanceId,
           (e) => e.instanceId,
-          (e) => ({ ...e, location: undefined, slots: undefined }),
+          (e) => ({
+            ...e,
+            location: undefined,
+            slots: undefined,
+            splitSlots: undefined,
+            spreadSlots: undefined,
+          }),
         );
       }),
 
