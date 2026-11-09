@@ -109,6 +109,57 @@ interface IComponent extends ICounts {
   maxAbsDelta: number;
   maxRelPct: number;
 }
+interface IWeightReport {
+  scope: 'construction-weight-terms';
+  ok: boolean;
+  tolerance: {
+    absolute: number;
+    relative: number;
+    relativeLimit: number;
+    rule: string;
+  };
+  omittedComparisons: string[];
+  extraInput: { rows: number; accepted: number };
+  pendingInputs: {
+    input: string;
+    family: string;
+    rows: number;
+    reason: string;
+  }[];
+  errors: string[];
+  byFamily: Record<
+    string,
+    Record<
+      | 'rows'
+      | 'joined'
+      | 'nativeMaps'
+      | 'extraMaps'
+      | 'referenceUnsupported'
+      | 'missingReference'
+      | 'unjoined'
+      | 'matched'
+      | 'different'
+      | 'incomplete'
+      | 'missingLocal'
+      | 'failedLocal',
+      number
+    > & { terms: ICounts }
+  >;
+  byComponent: Record<string, Record<string, IComponent>>;
+  rows: (Pick<
+    ReturnType<typeof buildDeltaReport>['rows'][number],
+    'path' | 'sha256' | 'sourceSha256' | 'family' | 'joined' | 'status'
+  > & {
+    referenceSource: string | null;
+    unavailable: string | null;
+    terms: IWeightEntry[];
+    groups: IGroupEntry[];
+    total: IWeightEntry | null;
+    localOnly: string[];
+    local: LocalWeightFact | null;
+    reason: string | null;
+  })[];
+}
 const noCounts = (): ICounts => ({
   compared: 0,
   exact: 0,
@@ -167,7 +218,7 @@ export function buildWeightReport(
   rawReferences: readonly unknown[],
   families: readonly string[] = FAMILIES,
   rawExtra: readonly unknown[] = [],
-) {
+): IWeightReport {
   const references = rawReferences.map((value) => WeightReference.parse(value));
   const coverage = buildDeltaReport(computed, references, families);
   const ours = new Map(computed.map((row) => [row.path, row]));
