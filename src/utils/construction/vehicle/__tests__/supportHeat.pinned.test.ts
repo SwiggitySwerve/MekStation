@@ -1,0 +1,313 @@
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { BlkParserService } from '@/services/conversion/BlkParserService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
+import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+
+import { computeSupportVehicleWeight } from '../supportWeight';
+import { computeVehicleWeightBreakdown } from '../weightComposition';
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+beforeAll(async () => {
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+});
+
+const resolve = (id: string, isAmmo?: boolean) =>
+  getEquipmentLookupService().getMountedById(id, isAmmo === true);
+const loadState = (name: string) =>
+  mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/units/vehicles', `${name}.json`),
+        'utf8',
+      ),
+    ),
+  );
+
+/**
+ * Pinned MegaMek 48fcb2f64, original classes, loaded from the mm-data 50f7efe
+ * corpus: TestSupportVehicle.getWeightHeatSinks() is the count itself, with no
+ * free engine sinks (TestSupportVehicle.java:917-931), and
+ * getCountHeatSinks() is TestEntity.calcHeatNeutralHSRequirement
+ * (TestEntity.java:945-984) except that a small support vehicle needs none.
+ * Values come from a SupportProbe run over the 227 SupportTank,
+ * LargeSupportTank and SupportVTOL sources: 19 carry heat, in every engine
+ * family the corpus has.
+ */
+const corpusRows: readonly (readonly [unit: string, heat: number])[] = [
+  ['Jifty Transportable Field Repair Unit JI-50 (ML)', 6],
+  ['Prometheus Combat Support Bridgelayer', 3],
+  ['J-37 Ordnance Transport (Original)', 1],
+  ['J-37 Ordnance Transport', 2],
+  ['Savior Repair Vehicle', 1],
+  ['Wayland Mobile Base', 12],
+  ['Lexan Surveillance VTOL (Production)', 2],
+  ['Prime Mover (Original)', 2],
+  ['Prime Mover (LRM)', 1],
+  ['Corx Mobile Tunnel Miner', 2],
+  ['Croyle Systems Cortez Series N', 3],
+  ['Raptor RRV', 2],
+  ['Bailey Armored Car', 4],
+  ['Lexan Surveillance Helo', 2],
+  ['Korvin Tank KRV-2', 8],
+  ['Apostle Self-Propelled Artillery', 1],
+  ['Reaper Self-Propelled Artillery', 1],
+  ['Sand Devil Hover Tank', 8],
+  ['White Tip Submarine', 5],
+  // Under 5 t: Java never iterates the weapons (TestSupportVehicle.java:928-930).
+  ['Hoverbike (Laser)', 0],
+  ['Harpoon ParaSub', 0],
+];
+
+it.each(corpusRows)(
+  '%s carries %s support heat sink tons in the editor, as in Java',
+  (unit, javaHeat) => {
+    const state = loadState(unit);
+    expect(state.unitType).toBe(UnitType.SUPPORT_VEHICLE);
+    expect(computeVehicleWeightBreakdown(state, resolve).heatSinks).toBe(
+      javaHeat,
+    );
+  },
+);
+
+// Synthetic support chassis: a real corpus BLK (Jifty JI-50) with only the
+// equipment blocks edited, loaded by the pinned MekFileParser. The cases the
+// corpus never mounts on a support vehicle.
+const blk = (front: string, rear: string) => `<UnitType>
+SupportTank
+</UnitType>
+
+<Name>
+Heat Probe
+</Name>
+
+<Model>
+HP-1
+</Model>
+
+<year>
+3074
+</year>
+
+<type>
+IS Level 2
+</type>
+
+<motion_type>
+Tracked
+</motion_type>
+
+<transporters>
+cargobay:13.0:1:1::-1:0
+</transporters>
+
+<cruiseMP>
+4
+</cruiseMP>
+
+<engine_type>
+0
+</engine_type>
+
+<armor_type>
+47
+</armor_type>
+
+<armor_tech_rating>
+3
+</armor_tech_rating>
+
+<armor_tech_level>
+1
+</armor_tech_level>
+
+<armor>
+27
+20
+20
+25
+</armor>
+
+<Body Equipment>
+Armored Chassis
+</Body Equipment>
+
+<Front Equipment>
+${front}
+</Front Equipment>
+
+<Right Equipment>
+</Right Equipment>
+
+<Left Equipment>
+</Left Equipment>
+
+<Rear Equipment>
+${rear}
+</Rear Equipment>
+
+<barrating>
+6
+</barrating>
+
+<structural_tech_rating>
+3
+</structural_tech_rating>
+
+<engine_tech_rating>
+3
+</engine_tech_rating>
+
+<tonnage>
+60.0
+</tonnage>
+
+<fuel>
+0.0
+</fuel>
+`;
+const hoists = 'Lift Hoist/Arresting Hoist\nLift Hoist/Arresting Hoist';
+
+type Mount = readonly [id: string, location: 'front' | 'rear'];
+const synthetic: readonly (readonly [
+  label: string,
+  front: string,
+  rear: string,
+  mounts: readonly Mount[],
+  javaHeat: number,
+  javaTotal: number,
+])[] = [
+  [
+    'two medium lasers',
+    'Medium Laser\nMedium Laser',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['medium-laser', 'front'],
+    ],
+    6,
+    59.5,
+  ],
+  // MekFileParser.java:360-388 links the insulator; TestEntity.java:956-962.
+  [
+    'insulator on two lasers (-1)',
+    'Medium Laser\nMedium Laser\nLaser Insulator',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['medium-laser', 'front'],
+      ['laserinsulator', 'front'],
+    ],
+    5,
+    59,
+  ],
+  [
+    'insulator on one laser',
+    'Medium Laser\nLaser Insulator',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['laserinsulator', 'front'],
+    ],
+    2,
+    55,
+  ],
+  // The running-total guard: 1 - 1 = 0 is raised back to 1.
+  [
+    'insulated small laser keeps the one-heat minimum',
+    'Small Laser\nLaser Insulator',
+    hoists,
+    [
+      ['small-laser', 'front'],
+      ['laserinsulator', 'front'],
+    ],
+    1,
+    53.5,
+  ],
+  // MekFileParser.java:472-495; TestEntity.java:966-968.
+  [
+    'PPC capacitor (+5)',
+    'PPC\nPPC Capacitor',
+    hoists,
+    [
+      ['ppc', 'front'],
+      ['ppc-capacitor', 'front'],
+    ],
+    15,
+    74.5,
+  ],
+  [
+    'two lasers and a capacitor PPC',
+    'Medium Laser\nMedium Laser\nPPC\nPPC Capacitor',
+    hoists,
+    [
+      ['medium-laser', 'front'],
+      ['medium-laser', 'front'],
+      ['ppc', 'front'],
+      ['ppc-capacitor', 'front'],
+    ],
+    21,
+    82.5,
+  ],
+  // The insulator only links a laser in its own location.
+  [
+    'insulator in another location links nothing',
+    'Medium Laser\nMedium Laser',
+    'Laser Insulator',
+    [
+      ['medium-laser', 'front'],
+      ['medium-laser', 'front'],
+      ['laserinsulator', 'rear'],
+    ],
+    6,
+    54,
+  ],
+];
+
+describe.each(synthetic)(
+  'synthetic support chassis: %s',
+  (_label, front, rear, mounts, javaHeat, javaTotal) => {
+    it('charges the Java heat in the handler total', () => {
+      const parsed = new BlkParserService().parse(blk(front, rear));
+      if (!parsed.success) throw new Error('fixture parse');
+      const handler = new SupportVehicleUnitHandler();
+      const result = handler.parse(parsed.data.document);
+      if (!result.success) throw new Error('handler parse');
+      const weight = computeSupportVehicleWeight(result.data.unit);
+      expect(weight.unresolved).toEqual([]);
+      expect(weight.heatSinks).toBe(javaHeat);
+      expect(handler.calculateWeight(result.data.unit)).toBe(javaTotal);
+    });
+    it('charges the Java heat in the editor', () => {
+      const state = loadState(
+        'Jifty Transportable Field Repair Unit JI-50 (ML)',
+      );
+      const template = state.equipment[0];
+      state.equipment = mounts.map(([equipmentId, where], i) => ({
+        ...template,
+        id: String(i),
+        equipmentId,
+        location:
+          where === 'front' ? VehicleLocation.FRONT : VehicleLocation.REAR,
+      }));
+      expect(computeVehicleWeightBreakdown(state, resolve).heatSinks).toBe(
+        javaHeat,
+      );
+    });
+  },
+);
