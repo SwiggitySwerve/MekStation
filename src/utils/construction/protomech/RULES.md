@@ -409,3 +409,45 @@ structure. `ProtoAutoAllocateProbe.java` copies the three methods byte-for-byte
 (hashes in the fixture's `meta`) and runs them on a real `ProtoMek` with the
 pinned `UnitUtil` and `TestProtoMek`. It needs a working directory that holds the
 pinned `mmconf/milestoneReleases.yml`.
+
+## Electric Discharge ProtoMech armor
+
+`armorType.ts` owns Standard ProtoMech (42; legacy 0/omitted) and Electric
+Discharge (18), their mass-per-point, torso slots and equipment identities.
+MegaMek `48fcb2f64` `ArmorType.java:1375-1420` gives Standard 0.05 t/point and
+EDP 0.075 t/point, one torso slot and equipment BV 32. The armor mount itself
+has zero mass. The catalog is unchanged. EDP is Clan Experimental, approximate
+prototype 3071, no production/common date, extinct 3085, no reintroduction;
+TechAdvancement's five-year approximation margin explains catalog year 3066.
+Both choices are available without year/faction filters: tech filtering remains
+deferred under O3. This is not a claim of tech-legality parity.
+
+`weight.ts` owns allocated armor mass and the extracted minimum-weight rule.
+`TestProtoMek.getWeightAllocatedArmor` returns points times weight-per-point;
+`calculateWeight` rounds the complete component sum to the nearest kilogram.
+There is no half-ton rounding. Complete weight is returned only when mounted
+mass can be accounted for; unknown equipment produces an explicit missing list.
+The Basilisk pair exercises the complete path, including the pinned fixed 1 t
+Quad melee mount (`MiscType.createProtoQuadMeleeSystem:9440-9450`) and Myomer
+Booster (`MiscType.getTonnage`, 0.025 times unit mass rounded to kg). Other
+weight families and unmodelled linked-equipment effects are not certified.
+EDP source validation uses this complete mass when available, otherwise the
+known minimum; Standard source validation retains the minimum-weight policy.
+
+`getProtoArmorSlotErrors` supersedes the earlier torso-slot deferral: count
+ordinary slot-taking torso mounts, excluding armor equipment, then add the
+selected armor's required slots. Torso equipment-mass limits remain separate.
+The mount remains the sole EDP BV contributor through
+`resolveProtoOffensiveEquipmentBV`; the armor-point coefficient is unchanged.
+An explicit armor edit creates/removes that mount; source loading retains the
+source declarations. Unknown armor identities produce diagnostics, not a
+Standard-looking identity. Saves retain the existing numeric field and schema.
+
+Compatibility deviation approved by Coordinator 3: pinned MML `62bf193`
+`PMStructureTab.freeUpSpace` (line 289) unassigns optional torso mounts with
+`UnitUtil.changeMountStatus(... Entity.LOC_NONE ...)` at line 310 before
+creating the armor mount (`createArmorMountsAndSetArmorType`, line 319).
+MekStation has no unallocated ProtoMech location yet. Its armor edit retains
+all equipment, allows EDP and displays slot overflow instead of unassigning.
+Follow-up: **unallocated ProtoMech mounts and MML's EDP transition**, routed by
+Coordinator 3 with Equipment/Assign Criticals work.
