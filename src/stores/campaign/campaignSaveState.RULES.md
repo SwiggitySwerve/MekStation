@@ -1,6 +1,6 @@
 # Campaign save lifecycle
 
-`campaignSaveState.ts` owns the transient persistence snapshot and its internal
+`campaignSaveState.ts` owns the transient persistence snapshot and production
 transitions. The Zustand store owns effects: HTTP, timers, write/load queues,
 cache keys, campaign/roster installation, and notifications. Dispatch stays at
 the original partial-update sites; moving an effect across a dispatch changes
@@ -34,6 +34,9 @@ contract; normalization is held for K4 PR3.
 | edited                                             | advance editSeq and mark dirty; infer campaign id only when absent; retain status |
 | error-cleared                                      | idle with cleared error/refusal, only from error                                  |
 | launch-conflict-reported / launch-conflict-cleared | update launch evidence independently of row conflict evidence                     |
+| created-campaign-initialized                       | bind the created id after the caller's separate reset; retain all other fields    |
+| rollback-dirty-restored                            | clear dirty only after the action's original conditional guard permits dispatch   |
+| creation-cleanup-restored                          | restore the captured persistence snapshot after campaign installation             |
 | reset                                              | restore the initial transient snapshot                                            |
 
 The exhaustive event switch is the transition guard. Operations can start or
@@ -56,6 +59,9 @@ version, journal revision, or replay fence.
 - **Irrelevant committed receipt:** another campaign id, a null current id,
   or an already-stale binding starts no refresh and leaves an armed save alone.
 - **Repeated clearError outside error:** `error-cleared` changes no fields.
+- **Rollback dirty restoration when already dirty before rollback, or still clean
+  afterward:** `restoreDirtyAfterRollback` dispatches nothing. Unlike an ordinary
+  reducer field no-op, this preserves state identity and notifies no subscribers.
 - **Take-server without conflictServerRecord:** returns false without fetching
   or dispatching, including launch-only conflicts. Real launch resync is held
   for PR3; the UI's existing return check remains authoritative.
@@ -67,12 +73,19 @@ These cases are intentional preservation, not a general policy of ignoring
 unexpected events. In particular a save started before reset can still answer
 under the existing unguarded-save contract; PR1 adds no new generation fence.
 
-## Boundaries retained for later PRs
+## Production writers and held work
 
-PR2 routes the direct campaign-id initialization in useCampaignStore.actions,
-dirty restoration in dayAdvanceSnapshot, and captured-state restoration in
-CampaignCoopEntryPanel through named actions. Until then, this reducer enforces
-internal transitions only; external setState and test seeding remain possible.
+The campaign-id binding in useCampaignStore.actions, dirty restoration in
+dayAdvanceSnapshot, and captured-state restoration in CampaignCoopEntryPanel
+use named actions through this reducer. Raw Zustand setState remains available
+for test seeding and browser harnesses; production callers use the actions.
+
+Creation still resets before its separate id-binding notification. Failed co-op
+creation still resets coordination, reinstalls the previous campaign, and then
+restores its captured persistence state. That last action does not cancel a timer
+the campaign install just armed. Folding reset into snapshot restoration would
+change the behavior held for PR3. Snapshot fields and carried action references
+are restored with the same shallow-merge semantics as the previous setState.
 
 PR3 coordinates launch-only recovery, stale evidence cleanup, and suppression
 of installation-triggered auto-save with D-11. PR1 preserves timer behavior,
