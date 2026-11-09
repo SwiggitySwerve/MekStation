@@ -17,6 +17,7 @@ import {
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+import { nativeProtoEquipmentIndices } from './nativeEquipmentIndices';
 import { resolveProtoAmmoBV } from './protoMechAmmo';
 import {
   classifyEquipment,
@@ -66,6 +67,7 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
   const ammoAvailableMountBV: IProtoMechBVAmmoMount[] = [];
   const offensiveEquipmentMountBV: IProtoMechBVMountValue[] = [];
   const resolvedZeroEquipmentMountBV: IProtoMechBVResolvedZeroMount[] = [];
+  const nativeIndices = nativeProtoEquipmentIndices(unit.equipment);
 
   for (const [equipmentIndex, mount] of unit.equipment.entries()) {
     const zeroFact = resolveProtoZeroEquipmentMountBV(equipmentIndex, mount);
@@ -98,9 +100,13 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
           bv: resolved.battleValue,
         });
         // Retain the value already admitted above, without resolving it again.
-        weaponMountBV.push(
-          protoMechBVMountValue(equipmentIndex, mount, resolved.battleValue),
-        );
+        const nativeEquipmentIndex = nativeIndices[equipmentIndex];
+        weaponMountBV.push({
+          ...protoMechBVMountValue(equipmentIndex, mount, resolved.battleValue),
+          ...(nativeEquipmentIndex !== equipmentIndex
+            ? { nativeEquipmentIndex }
+            : {}),
+        });
       }
       continue;
     }

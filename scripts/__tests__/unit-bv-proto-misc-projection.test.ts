@@ -90,10 +90,11 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
         ),
       ).toEqual([]);
       for (const fact of b.weaponMountBV ?? []) {
+        const nativeIndex = fact.nativeEquipmentIndex ?? fact.equipmentIndex;
         expect(
           Object.entries(terms).some(
             ([key, value]) =>
-              key.startsWith(`weapon.${fact.equipmentIndex}.`) &&
+              key.startsWith(`weapon.${nativeIndex}.`) &&
               value === fact.battleValue,
           ),
         ).toBe(true);
