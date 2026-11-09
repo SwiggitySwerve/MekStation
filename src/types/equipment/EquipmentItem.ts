@@ -32,6 +32,12 @@ export interface IEquipmentItem extends Pick<
   /** External ammunition capacity and behavior metadata for weapon validation. */
   readonly ammoPerTon?: number;
   readonly flags?: readonly string[];
+  /**
+   * Unit types the catalog lists for this item (Java F_*_WEAPON and
+   * F_*_EQUIPMENT flags). Absent means the catalog does not describe it, not
+   * that every unit may mount it.
+   */
+  readonly allowedUnitTypes?: readonly string[];
   readonly special?: readonly string[];
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;

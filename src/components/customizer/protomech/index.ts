@@ -17,4 +17,3 @@ export { ProtoMechStructureTab } from './ProtoMechStructureTab';
 export { ProtoMechArmorTab } from './ProtoMechArmorTab';
 export { ProtoMechMainGunTab } from './ProtoMechMainGunTab';
 export { ProtoMechEquipmentTab } from './ProtoMechEquipmentTab';
-export { ProtoMechGliderTab } from './ProtoMechGliderTab';

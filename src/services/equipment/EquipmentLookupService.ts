@@ -194,6 +194,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         name: weapon.name,
         ammoPerTon: weapon.ammoPerTon,
         flags: weapon.flags,
+        allowedUnitTypes: weapon.allowedUnitTypes,
         special: weapon.special,
         category,
         additionalCategories,
@@ -236,6 +237,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         id: electronics.id,
         name: electronics.name,
         category: EquipmentCategory.ELECTRONICS,
+        allowedUnitTypes: electronics.allowedUnitTypes,
         techBase: electronics.techBase,
         rulesLevel: electronics.rulesLevel,
         weight: electronics.weight,
@@ -263,6 +265,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         category: isNativeClaw
           ? EquipmentCategory.PHYSICAL_WEAPON
           : EquipmentCategory.MISC_EQUIPMENT,
+        allowedUnitTypes: misc.allowedUnitTypes,
         techBase: misc.techBase,
         rulesLevel: misc.rulesLevel,
         weight: misc.weight,

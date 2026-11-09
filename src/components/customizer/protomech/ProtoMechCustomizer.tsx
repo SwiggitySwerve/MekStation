@@ -2,9 +2,7 @@
  * ProtoMech Customizer Component
  *
  * Main component for customizing ProtoMech units.
- * Tab set is data-driven from PROTOMECH_TABS registry. The Glider tab is
- * automatically hidden for Ultraheavy ProtoMechs (tonnage >= 10) via a
- * visibleWhen predicate that reads tonnage from the store.
+ * Tab set is data-driven from PROTOMECH_TABS registry.
  *
  * ProtoMechs are Clan-tech mini-mechs operating in points of five.
  *
@@ -22,7 +20,6 @@ import { useCustomizerTabShell } from '@/components/customizer/tabs/useCustomize
 import {
   ProtoMechStoreContext,
   ProtoMechStore,
-  useProtoMechStore,
 } from '@/stores/useProtoMechStore';
 
 // =============================================================================
@@ -36,7 +33,6 @@ export type ProtoMechTabId =
   | 'armor'
   | 'mainGun'
   | 'equipment'
-  | 'glider'
   | 'preview'
   | 'fluff';
 
@@ -54,7 +50,7 @@ interface ProtoMechCustomizerProps {
 }
 
 // =============================================================================
-// Inner component (needs store context to read tonnage for Glider visibility)
+// Inner component
 // =============================================================================
 
 interface ProtoMechCustomizerInnerProps {
@@ -68,12 +64,9 @@ function ProtoMechCustomizerInner({
   onTabChange,
   readOnly,
 }: ProtoMechCustomizerInnerProps): React.ReactElement {
-  // Read tonnage to drive the Glider tab visibility predicate
-  const tonnage = useProtoMechStore((s) => s.tonnage);
-
   const { tabBarProps, activeTab, TabComponent } = useCustomizerTabShell({
     specs: PROTOMECH_TABS,
-    state: { tonnage },
+    state: {},
     initialTab,
     onTabChange,
   });
@@ -106,8 +99,7 @@ function ProtoMechCustomizerInner({
 /**
  * Main ProtoMech customizer with registry-driven tabbed interface.
  *
- * Wraps ProtoMechCustomizerInner inside the store context so the inner
- * component can read tonnage for the Glider tab visibility predicate.
+ * Wraps ProtoMechCustomizerInner inside the store context.
  */
 export function ProtoMechCustomizer({
   store,
