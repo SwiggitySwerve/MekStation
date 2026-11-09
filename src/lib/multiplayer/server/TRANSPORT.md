@@ -60,14 +60,14 @@ MarkSeatAi is the narrow recovery exception: it requires `active` and an occupie
 Connected humans, empty seats, AI and spectators are refused. This preserves:
 
 - `src/types/multiplayer/Protocol.ts:315-319`, the MarkSeatAi pending-human contract.
-- `src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts:257`, scenario
+- `src/lib/multiplayer/server/__tests__/reconnectionFlow.test.ts:258`, scenario
   `host MarkSeatAi clears the pending seat and broadcasts MatchResumed`, and
   `MarkSeatAi rejects %s targets without changing seats or clearing pending`
-  at line 299.
+  at line 332.
 
 The final socket detach queues spectator removal on the same host executor as
-intents. The queued operation checks for reattachment both before and after its
-metadata read. It removes only the matching spectator seat, persists it, and
+intents. The queued operation checks for reattachment both before its metadata
+read and again when it derives the write. It removes only the matching spectator seat, persists it, and
 broadcasts LobbyUpdated; it does not change the playing roster, side assignments,
 campaign membership or human-seat grace handling. Registration uses the first
 free spectator slot id so removing a middle viewer cannot duplicate another slot.
@@ -77,10 +77,24 @@ by authenticated viewer identity, not slot id. A viewer must register again to
 regain membership, then resumes the same delivery numbering across rejoin and
 restart. Rewind still clears the superseded delivery stream as described below.
 
-Follow-ups: seats compare-and-swap across REST and host writers, abrupt-crash
-leftovers, and spectator registrations that never attach. Status transition
-validation is the separate table above; these rules decide only which intents a
-status admits.
+Seat writes are compare-and-swap. `IMatchMeta.revision` (absent reads as 0, kept
+only in `meta_json`, no DDL) is bumped by `updateMatchMeta`, `updateMatchMetaIf`
+and `closeMatch`, not by event appends. Every seat writer (REST spectate, lobby
+intents including MarkSeatAi, spectator detach) goes through
+`lobby/seatUpdate.ts`'s `updateMatchSeats`: it derives a patch from the metadata it
+read, stores it with `updateMatchMetaIf` at that revision, and on a conflict
+derives again from the winner's metadata, up to `SEAT_UPDATE_MAX_ATTEMPTS` (5),
+then answers `busy`. The durable store adds `AND meta_json = ?` to the UPDATE and
+requires one changed row, so a write from another connection is a conflict, not
+an overwrite. Derivations run again on a conflict, so they are pure: MarkSeatAi
+drops its pending entry only after its write is applied, a refusal found on a
+re-derivation is logged, and `LobbyUpdated` carries the stored metadata. Host
+migration still patches only `hostPlayerId` through `updateMatchMeta`, which
+merges onto the latest row and bumps the revision.
+
+Follow-ups: abrupt-crash leftovers and spectator registrations that never attach.
+Status transition validation is the separate table above; these rules decide only
+which intents a status admits.
 
 ## Match pause causes
 
