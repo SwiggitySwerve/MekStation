@@ -82,6 +82,22 @@ depend on IS/Clan equipment critical-slot differences. `ConvFighter.java:83-90`
 separately disables heat tracking, so its effective capacity sentinel is not a
 sink-type identifier.
 
+### Prototype ferro-aluminum armor
+
+Pinned `EquipmentType.java:112` defines `T_ARMOR_FERRO_ALUM_PROTO = 27`.
+`src/types/formats/blk-armor-codes.json` owns its schema identifier
+`FERRO_ALUMINUM_PROTO`; `blk_common.BLK_ARMOR_CODE_MAP` loads that definition and
+the aerospace tables import it. A missing literal key in the importing file is
+not an unmapped code. The unit schema already accepts this identifier; ordinary
+ferro-aluminum remains code 19, and unknown codes retain strict diagnostics.
+
+`test_blk_aerospace_armor.py` locks the original-byte mm-data `50f7efe` Starfire
+SF-1X (Prototype) at code 27 and 125 armor points, including schema acceptance.
+The shared-table tests in `test_blk_converter_fidelity.py` also cover this code,
+Mixed technology and the separate MTF `Double (Clan)` equipment alias. The
+left/right and codes 19/20 tests remain the FU-30 regression seams. These facts
+need no new armor identifier or catalog regeneration.
+
 ## DropShip input and motion (the DropShip converter arrives with #2444)
 
 After family recognition, missing identity, year, tonnage or type is an error.
