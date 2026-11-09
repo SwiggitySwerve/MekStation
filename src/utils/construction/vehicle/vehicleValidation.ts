@@ -23,6 +23,7 @@ import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
 import { normalizeEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
@@ -340,7 +341,22 @@ export function validateVehicleCaseLocations(
   });
 }
 
-/** Combat vehicles and VTOLs: CASE locations, item slots, motive compatibility. */
+/** TestTank:979-980,1079-1093: placement does not depend on slot completeness. */
+function validateVehicleFireControlLocations(
+  equipment: VehicleSlotUnit['equipment'],
+): string[] {
+  return equipment.flatMap(({ equipmentId, location }) => {
+    if (location === VehicleLocation.BODY) return [];
+    const record = getEquipmentEntry(equipmentId);
+    return record && FIRE_CONTROL.has(record.id)
+      ? [`${record.name} must be mounted in the body.`]
+      : [];
+  });
+}
+
+const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
+
+/** Combat vehicles and VTOLs: body locations, item slots, motive compatibility. */
 export function validateCombatVehicleEquipment(
   unit: VehicleSlotUnit & { readonly motionType: GroundMotionType },
   sideUnknown = false,
@@ -348,17 +364,19 @@ export function validateCombatVehicleEquipment(
   return [
     ...validateVehicleCaseLocations(unit.equipment),
     ...combatVehicleSlotErrors(unit, sideUnknown),
+    ...validateVehicleFireControlLocations(unit.equipment),
     ...vehicleMotiveErrors(unit.equipment, unit.motionType, false),
   ];
 }
 
-/** Support vehicles: CASE locations, item slots, then motive compatibility. */
+/** Support vehicles: body locations, item slots, then motive compatibility. */
 export function validateSupportVehicleEquipment(
   unit: VehicleSlotUnit & { readonly motionType: GroundMotionType },
 ): string[] {
   return [
     ...validateVehicleCaseLocations(unit.equipment),
     ...supportVehicleSlotErrors(unit),
+    ...validateVehicleFireControlLocations(unit.equipment),
     ...vehicleMotiveErrors(unit.equipment, unit.motionType, true),
   ];
 }

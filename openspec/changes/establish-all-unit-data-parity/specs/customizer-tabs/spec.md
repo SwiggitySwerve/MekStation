@@ -42,3 +42,11 @@ Each subtype SHALL support a real source-load, edit, save, reopen and print flow
 - **GIVEN** a populated subtype form with long names and validation errors
 - **WHEN** the viewport narrows or the user navigates with a keyboard
 - **THEN** required controls, labels and errors SHALL remain reachable and readable
+
+#### Scenario: Preserve a split weapon allocation through editor persistence
+
+- **GIVEN** a BattleMech with one weapon allocated across adjacent locations
+- **WHEN** the editor store organizes, unassigns or replaces that allocation
+- **THEN** it SHALL update every portion as one mount and preserve fixed OmniMech equipment
+- **AND** saving and reopening SHALL retain both portions in their assigned critical slots without duplicating the weapon
+- **AND** proposed split allocations SHALL follow pinned MegaMekLab eligibility, adjacency and configuration restrictions

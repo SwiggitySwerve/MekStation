@@ -1,3 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
   parseUnit,
   UnitLoaderService,
@@ -18,6 +23,47 @@ import { EquipmentCategory } from '@/types/equipment';
 import { Era } from '@/types/temporal/Era';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
+
+import crab from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/King Crab KGC-0000.json';
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+beforeAll(async () => {
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+});
+
+it('saves and reopens both King Crab split AC/20 mounts in their original slots', () => {
+  const loader = new UnitLoaderService();
+  const state = loader.mapToUnitState(crab, true);
+  const serialized = serializeCustomUnitState(state, {
+    id: state.id,
+    chassis: state.chassis,
+    variant: state.model,
+    era: Era.LATE_SUCCESSION_WARS,
+  });
+  expect(serialized.criticalSlots[MechLocation.LEFT_ARM]?.slice(4)).toEqual(
+    Array(8).fill('AC/20'),
+  );
+  const reopened = loader.mapToUnitState(parseUnit(serialized), false);
+  const allocations = (unit: UnitState) =>
+    unit.equipment
+      .filter((item) => item.equipmentId === 'ac-20')
+      .map(({ location, slots, splitSlots }) => ({
+        location,
+        slots,
+        splitSlots,
+      }));
+  expect(allocations(reopened)).toEqual(allocations(state));
+  expect(allocations(reopened)).toHaveLength(2);
+});
 
 describe('serializeCustomUnitState', () => {
   it.each([

@@ -9,3 +9,4 @@ export {
 export { getUnallocatedUnhittables, fillUnhittableSlots } from './filling';
 
 export { compactEquipmentSlots, sortEquipmentBySize } from './assignment';
+export { findEquipmentSlotAssignment } from './splitAllocation';
