@@ -20,8 +20,10 @@ import { endGame } from '@/utils/gameplay/gameSession';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 
+import { publishCombatOutcome } from './combatOutcomeBus';
 import { runInteractiveSessionAITurn } from './InteractiveSession.ai';
 import { finalizeSessionOutcome } from './InteractiveSession.outcome';
+import { persistInteractiveOutcomeAcknowledgement } from './InteractiveSession.persistence';
 import { advanceInteractiveSessionPhase } from './InteractiveSession.phases';
 import {
   d6RollerForResolvers,
@@ -144,7 +146,7 @@ export function runInteractiveSessionAI(
 export function tryFinalizeAndPublishInteractiveSession(
   context: IInteractiveSessionRuntimeContext,
 ): void {
-  if (context.getOutcomePublished()) return;
+  if (context.outcomeJournal.hasAcknowledged(context.getSession())) return;
   if (!isInteractiveSessionGameOver(context)) return;
 
   const result = finalizeSessionOutcome({
@@ -152,10 +154,27 @@ export function tryFinalizeAndPublishInteractiveSession(
     gameConfig: context.gameConfig,
     startedAt: context.startedAt,
     linkage: context.linkage,
-    suppressPublish: context.getSuppressOutcomePublication(),
   });
-  context.setSession(result.session);
-  context.setOutcomePublished(result.published);
+  if (result.session !== context.getSession())
+    context.setSession(result.session);
+  if (!result.outcome) return;
+  const pending = context.outcomeJournal.begin(result.session);
+  if (!pending) return;
+  if (context.getSuppressOutcomePublication()) {
+    context.outcomeJournal.acknowledge(pending);
+    return;
+  }
+  if (
+    !publishCombatOutcome({
+      matchId: result.outcome.matchId,
+      outcome: result.outcome,
+    })
+  ) {
+    context.outcomeJournal.retry(pending);
+    return;
+  }
+  context.outcomeJournal.acknowledge(pending);
+  persistInteractiveOutcomeAcknowledgement(context, pending);
 }
 
 export function applyCorrectedInteractiveSessionState(
@@ -197,7 +216,7 @@ export function abortInteractiveSession(
 export function hasInteractiveSessionPublishedOutcome(
   context: IInteractiveSessionRuntimeContext,
 ): boolean {
-  return context.getOutcomePublished();
+  return context.outcomeJournal.hasAcknowledged(context.getSession());
 }
 
 export function isInteractiveSessionGameOver(

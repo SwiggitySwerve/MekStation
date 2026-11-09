@@ -43,7 +43,7 @@ export function createMockBlkDocument(
     sinkType: 1,
     engineType: 0,
     armorType: 0,
-    armor: [500, 400, 400, 350, 350, 300, 450, 450],
+    armor: [800, 500, 500, 450, 475, 475], // Nose, FL, FR, Aft, AL, AR (BLKWarshipFile.java:258-263); total 3200
     crew: 2200,
     officers: 150,
     gunners: 400,

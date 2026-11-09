@@ -120,7 +120,7 @@ export const MOVEMENT_COMMAND_ACTION_SUPPORT = {
   'movement.cancel': outOfScope(
     'movement.cancel',
     'tactical-command',
-    'buildMovementCommands commits undo for local preview cancellation',
+    'buildMovementCommands dispatches cancel for local draft cleanup without undoing committed events',
     'Local preview cancel is not an authoritative combat action and has no game intent or wire path',
     MEKSTATION_MOVEMENT_CANCEL_COMMAND_SOURCE_REFS,
   ),

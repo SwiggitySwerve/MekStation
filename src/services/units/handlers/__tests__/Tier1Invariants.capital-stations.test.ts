@@ -207,7 +207,7 @@ describe('WarShipUnitHandler Tier 1 Invariants', () => {
       sinkType: 1,
       engineType: 0,
       armorType: 0,
-      armor: [500, 400, 400, 350, 350, 300, 450, 450], // 3200 total
+      armor: [800, 500, 500, 450, 475, 475], // 3200 total (six values, BLKWarshipFile.java:258)
       crew: 2200,
       officers: 150,
       gunners: 400,
