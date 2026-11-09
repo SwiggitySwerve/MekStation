@@ -27,6 +27,12 @@ otherwise design introduction) permits dates through year + 5 inclusively.
 Unknown definitions have no available date to test. No chassis exceptions
 or changes to catalog dates belong in this rule.
 
+`useMechValidationInput` owns the editor-state projection passed to the
+orchestrator. It composes the existing focused metadata, weight, armor,
+equipment and structure hooks; consumers do not reproduce their defaults or
+assemble a second validation input. `useUnitValidation` debounces that input
+and retains ownership of validation options and UI result formatting.
+
 ## Introductory ammunition legality
 
 `BattleMechAmmoTechLevel` owns the ammunition rules-level check for Introductory
