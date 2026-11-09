@@ -33,6 +33,7 @@ type TechHint = 'clan' | 'is';
 export function parseCriticalSlotToken(token: string): {
   readonly lookupToken: string;
   readonly isRearMounted: boolean;
+  readonly isOmniPodMounted: boolean;
 } {
   const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
   // MtfFile.java:952-956,1010-1021: armor, pod, Mek turret, then rear markers.
@@ -43,6 +44,7 @@ export function parseCriticalSlotToken(token: string): {
   return {
     lookupToken: mountName.replace(rearSuffix, '').trim(),
     isRearMounted: rearSuffix.test(mountName),
+    isOmniPodMounted: /\(OMNIPOD\)/i.test(token),
   };
 }
 

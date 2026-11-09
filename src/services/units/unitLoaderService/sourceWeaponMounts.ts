@@ -141,7 +141,8 @@ export function sourceCriticalWeapons(
     location,
     slots: tokens.flatMap((token, index) => {
       if (!token || isAmmunitionEquipmentId(token)) return [];
-      const { lookupToken, isRearMounted } = parseCriticalSlotToken(token);
+      const { lookupToken, isRearMounted, isOmniPodMounted } =
+        parseCriticalSlotToken(token);
       const id = sourceWeaponIdentity(
         techRouteId(lookupToken, clan) ??
           normalizeNativeEquipmentName(lookupToken),
@@ -206,7 +207,7 @@ export function sourceCriticalWeapons(
           item,
           summaryIds,
           isRearMounted,
-          isOmniPodMounted: /\(OMNIPOD\)/i.test(token),
+          isOmniPodMounted,
         },
       ];
     }),
