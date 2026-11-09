@@ -1,12 +1,17 @@
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 export const MATCH_LOG_DB_NAME = 'mekstation-match-log';
-export const MATCH_LOG_DB_VERSION = 2;
+export const MATCH_LOG_DB_VERSION = 3;
 export const MATCH_LOG_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+export const OUTCOME_PUBLICATION_KEY_PATH = [
+  'matchId',
+  'terminalEventId',
+] as const;
 
 export const MATCH_LOG_STORES = {
   MATCH_EVENTS: 'matchEvents',
   MATCHES: 'matches',
+  OUTCOME_PUBLICATIONS: 'outcomePublications',
 } as const;
 
 export type MatchLogStoreName =

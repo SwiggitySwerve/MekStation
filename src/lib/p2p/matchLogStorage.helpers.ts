@@ -1,22 +1,27 @@
+import type { IPendingOutcomePublication } from '@/engine/combatOutcomeJournal';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { MatchLogStorage } from './matchLogStorage';
 
+import { outcomePublicationKey } from './matchLogOutcomeJournal';
 import {
   MATCH_LOG_STORES,
+  OUTCOME_PUBLICATION_KEY_PATH,
   MatchLogStorageError,
   MatchLogStorageUnavailableError,
   type IMatchEventRecord,
   type IMatchLogFlushInfo,
   type IMatchMetadataRecord,
   type IMatchMetadataUpsert,
+  type IPurgeOldMatchesResult,
   type MatchLogStoreName,
 } from './matchLogStorageSchema';
 
 export interface IPendingEventWrite {
   readonly record: IMatchEventRecord;
+  readonly outcomePublication?: IPendingOutcomePublication;
   readonly resolve: (record: IMatchEventRecord) => void;
   readonly reject: (error: Error) => void;
 }
@@ -27,10 +32,66 @@ export function persistMatchEvent(
   event: IGameEvent,
   storage: Pick<MatchLogStorage, 'appendEvent'> &
     Partial<Pick<MatchLogStorage, 'markMatchCompleted'>>,
+  outcomePublication?: IPendingOutcomePublication,
 ): Promise<IMatchMetadataRecord | void> {
-  return storage.appendEvent(matchId, event).then(() => {
+  const append =
+    outcomePublication === undefined
+      ? storage.appendEvent(matchId, event)
+      : storage.appendEvent(matchId, event, outcomePublication);
+  return append.then(() => {
     if (event.type !== GameEventType.GameEnded) return;
     return storage.markMatchCompleted?.(matchId, event.timestamp);
+  });
+}
+
+export function purgeOldMatchesInDatabase(
+  db: IDBDatabase,
+  now: string,
+  retentionMs: number,
+): Promise<IPurgeOldMatchesResult> {
+  const nowMs = Date.parse(now);
+  const cutoff = (Number.isFinite(nowMs) ? nowMs : Date.now()) - retentionMs;
+  return new Promise<IPurgeOldMatchesResult>((resolve, reject) => {
+    const transaction = db.transaction(
+      [
+        MATCH_LOG_STORES.MATCHES,
+        MATCH_LOG_STORES.MATCH_EVENTS,
+        MATCH_LOG_STORES.OUTCOME_PUBLICATIONS,
+      ],
+      'readwrite',
+    );
+    const matchesStore = transaction.objectStore(MATCH_LOG_STORES.MATCHES);
+    const eventsStore = transaction.objectStore(MATCH_LOG_STORES.MATCH_EVENTS);
+    const purgedMatchIds: string[] = [];
+    let purgedEventCount = 0;
+    const cursorRequest = matchesStore.openCursor();
+    cursorRequest.onsuccess = () => {
+      const cursor = cursorRequest.result;
+      if (!cursor) return;
+      const metadata = cursor.value as IMatchMetadataRecord;
+      if (shouldPurgeMatch(metadata, cutoff)) {
+        const range = matchSequenceRange(metadata.matchId);
+        purgedMatchIds.push(metadata.matchId);
+        const countRequest = eventsStore.count(range);
+        countRequest.onsuccess = () => {
+          purgedEventCount += countRequest.result;
+          eventsStore.delete(range);
+        };
+        transaction
+          .objectStore(MATCH_LOG_STORES.OUTCOME_PUBLICATIONS)
+          .delete(
+            IDBKeyRange.bound([metadata.matchId, ''], [metadata.matchId, []]),
+          );
+        cursor.delete();
+      }
+      cursor.continue();
+    };
+    transaction.oncomplete = () =>
+      resolve({ purgedMatchIds, purgedEventCount });
+    transaction.onerror = () =>
+      reject(toStorageError('Failed to purge old matches', transaction.error));
+    transaction.onabort = () =>
+      reject(toStorageError('Old match purge aborted', transaction.error));
   });
 }
 
@@ -59,6 +120,9 @@ export function migrateMatchLogDatabase(
   );
   ensureIndex(matchStore, 'byStatus', 'status');
   ensureIndex(matchStore, 'byLastActivity', 'lastActivity');
+  ensureObjectStore(db, transaction, MATCH_LOG_STORES.OUTCOME_PUBLICATIONS, {
+    keyPath: [...OUTCOME_PUBLICATION_KEY_PATH],
+  });
 }
 
 export function persistBatchInTransaction(
@@ -68,43 +132,74 @@ export function persistBatchInTransaction(
 ): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const transaction = db.transaction(
-      [MATCH_LOG_STORES.MATCH_EVENTS, MATCH_LOG_STORES.MATCHES],
+      [
+        MATCH_LOG_STORES.MATCH_EVENTS,
+        MATCH_LOG_STORES.MATCHES,
+        MATCH_LOG_STORES.OUTCOME_PUBLICATIONS,
+      ],
       'readwrite',
     );
     const eventStore = transaction.objectStore(MATCH_LOG_STORES.MATCH_EVENTS);
     const matchStore = transaction.objectStore(MATCH_LOG_STORES.MATCHES);
     const latestSavedAtByMatch = new Map<string, string>();
 
-    for (const write of batch) {
-      eventStore.put(write.record);
-      const current = latestSavedAtByMatch.get(write.record.matchId);
-      if (!current || write.record.savedAt > current) {
-        latestSavedAtByMatch.set(write.record.matchId, write.record.savedAt);
+    try {
+      for (const write of batch) {
+        const pending = write.outcomePublication;
+        const previousTerminal =
+          pending !== undefined
+            ? eventStore.get([write.record.matchId, write.record.sequence])
+            : null;
+        eventStore.put(write.record);
+        if (previousTerminal && pending) {
+          previousTerminal.onsuccess = () => {
+            const previous = previousTerminal.result as
+              | IMatchEventRecord
+              | undefined;
+            // Replaying a historical terminal must not turn an absent receipt into pending delivery.
+            if (previous?.event.id === write.record.event.id) return;
+            const publications = transaction.objectStore(
+              MATCH_LOG_STORES.OUTCOME_PUBLICATIONS,
+            );
+            const existing = publications.get(outcomePublicationKey(pending));
+            existing.onsuccess = () => {
+              if (existing.result === undefined) publications.put(pending);
+            };
+          };
+        }
+        const current = latestSavedAtByMatch.get(write.record.matchId);
+        if (!current || write.record.savedAt > current) {
+          latestSavedAtByMatch.set(write.record.matchId, write.record.savedAt);
+        }
       }
-    }
 
-    for (const [matchId, lastActivity] of Array.from(
-      latestSavedAtByMatch.entries(),
-    )) {
-      const request = matchStore.get(matchId);
-      request.onsuccess = () => {
-        const existing = request.result as IMatchMetadataRecord | undefined;
-        matchStore.put(
-          mergeMatchMetadata(
-            existing,
-            {
-              matchId,
-            },
-            lastActivity,
-          ),
-        );
-      };
-    }
+      for (const [matchId, lastActivity] of Array.from(
+        latestSavedAtByMatch.entries(),
+      )) {
+        const request = matchStore.get(matchId);
+        request.onsuccess = () => {
+          const existing = request.result as IMatchMetadataRecord | undefined;
+          matchStore.put(
+            mergeMatchMetadata(
+              existing,
+              {
+                matchId,
+              },
+              lastActivity,
+            ),
+          );
+        };
+      }
 
-    onFlushTransaction?.({
-      recordCount: batch.length,
-      matchIds: Array.from(latestSavedAtByMatch.keys()),
-    });
+      onFlushTransaction?.({
+        recordCount: batch.length,
+        matchIds: Array.from(latestSavedAtByMatch.keys()),
+      });
+    } catch (error) {
+      transaction.abort();
+      reject(toStorageError('Failed to persist match event batch', error));
+      return;
+    }
 
     transaction.oncomplete = () => {
       resolve();
