@@ -1242,3 +1242,29 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **GIVEN** a support chassis with internal type -1, 0 or none
 - **WHEN** its structure mass is calculated
 - **THEN** it SHALL be 13.5 tons and the total 59.5 tons in each case
+
+### Requirement: Support pintle and sponson mechanisms follow the pinned weight rule
+
+A support vehicle's sponson pair SHALL weigh 10% of its sponson-mounted equipment
+(excluding ammunition, heat sinks and armor), and each pintle SHALL weigh 5% of
+the pintle-mounted weapons in its own location, both rounded up (kilograms under
+5 tons, half tons otherwise); a fixed chassis weight, even zero, SHALL replace the
+pintle figure and be split over the pintles. A mechanism whose weapons or payload
+have an unresolved mass SHALL be reported unresolved, never weighed as if they
+weighed nothing. The editor and the support handler SHALL share one owner.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:563-603` and `Tank.getBaseChassisSponsonPintleWeight`.
+
+#### Scenario: Pintle and sponson sources equal the pinned Java terms
+
+- **GIVEN** Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+- **WHEN** their support weight is calculated
+- **THEN** weapons, miscellaneous equipment and total SHALL equal the pinned verifier terms and nothing SHALL be reported unresolved
+- **AND** the Apocalypse pintle SHALL weigh its fixed chassis weight 0.08 tons
+
+#### Scenario: An unresolved weapon leaves its pintle unresolved
+
+- **GIVEN** Ibex RV (Militarized MG) whose pintle weapon is reported as not a support-vehicle weapon
+- **WHEN** its support weight is calculated
+- **THEN** its pintles SHALL be reported unresolved and SHALL NOT be weighed as zero
