@@ -454,8 +454,6 @@ The ProtoMech Equipment tab SHALL offer the catalog items MegaMekLab 62bf193 `Pr
 - **THEN** an ammunition item added from the catalog SHALL be a plain mount, and the shot count SHALL remain a recorded residual
 - **AND** the "+2 jump from gliding wings" rule SHALL remain outside this requirement, since it has no pinned citation
 
-## ADDED Requirements
-
 ### Requirement: Electric Discharge ProtoMech Armor
 
 The ProtoMech armor owner SHALL represent Standard and Electric Discharge armor

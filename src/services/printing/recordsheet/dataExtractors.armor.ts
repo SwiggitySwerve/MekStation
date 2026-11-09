@@ -52,7 +52,7 @@ export function extractArmor(unit: IUnitConfig): IRecordSheetArmor {
 
   let limbLocations: ILocationArmor[];
 
-  if (mechType === 'quad') {
+  if (mechType === 'quad' || mechType === 'quadvee') {
     limbLocations = [
       {
         location: 'Front Left Leg',
