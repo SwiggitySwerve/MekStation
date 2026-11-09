@@ -6885,6 +6885,6332 @@
           "lines": [184, 221]
         }
       ]
+    },
+    {
+      "id": "mml-3",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISMML3"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MMLWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "mml-5",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISMML5"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MMLWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "mml-7",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISMML7"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MMLWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "mml-9",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISMML9"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MMLWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "narc",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISNarcBeacon"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "inarc",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISImprovedNarc"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-narc",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLNarcBeacon"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "cruisemissile120",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISCruiseMissile120"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ISCruiseMissile120.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ArtilleryWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "cruisemissile50",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISCruiseMissile50"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ISCruiseMissile50.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ArtilleryWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "cruisemissile70",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISCruiseMissile70"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ISCruiseMissile70.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ArtilleryWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "cruisemissile90",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISCruiseMissile90"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ISCruiseMissile90.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/artillery/ArtilleryWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "bacompactnarc",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLBACompactNarc"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/CLBACompactNarc.java",
+          "lines": [68, 69, 70, 71, 72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo10",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRT10"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo15",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRT15"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo20",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRT20"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo5",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRT5"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo10-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo10 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT10IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo10-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo10 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT10OS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo15-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo15 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT15IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo15-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo15 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT15OS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo20-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo20 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT20IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo20-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo20 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT20OS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo5-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo5 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT5IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "lrtorpedo5-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLLRTorpedo5 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/clan/torpedo/oneShot/CLLRT5OS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lrms/LRTWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl1",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISBARL1"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL1.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl2",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISBARL2"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL2.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl3",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISBARL3"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL3.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl4",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISBARL4"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL4.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl-5",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISBARL5"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL5.java",
+          "lines": [71, 72]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-10",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 10"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-15",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 15"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-20",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 20"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-5",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 5"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-10-i-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 10 (I-OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt10IOS.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-10-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 10 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt10OS.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-15-i-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 15 (I-OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt15IOS.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-15-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 15 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt15OS.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-20-i-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 20 (I-OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt20IOS.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-20-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 20 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt20OS.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-5-i-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 5 (I-OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt5IOS.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "thunderbolt-5-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["Thunderbolt 5 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/innerSphere/thunderbolt/oneShot/ISThunderbolt5OS.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/thunderbolt/ThunderboltWeapon.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl10",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["RL10"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl15",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["RL15"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "rl20",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["RL20"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/rocketLauncher/RLWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "narcbeacon",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLNarcBeacon"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "narcbeacon-i-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLNarcBeacon (I-OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/clan/CLNarcIOS.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "narcbeacon-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLNarcBeacon (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/clan/CLNarcOS.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improvednarc",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISImprovedNarc"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improvednarc-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISImprovedNarc (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/innerSphere/ISImprovedNarcOS.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "narcbeaconprototype",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["ISNarcBeaconPrototype"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/prototypes/innerSphere/ISNarcPrototype.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/other/NarcWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt2",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/CLSRT2.java",
+          "lines": [76]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt4",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/CLSRT4.java",
+          "lines": [76]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt6",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/CLSRT6.java",
+          "lines": [76]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt2-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT2 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/oneShot/CLSRT2IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt2-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT2 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/oneShot/CLSRT2OS.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt4-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT4 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/oneShot/CLSRT4IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt4-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT4 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/oneShot/CLSRT4OS.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt6-ios",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT6 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/oneShot/CLSRT6IOS.java",
+          "lines": [77]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srt6-os",
+      "file": "weapons/missile-other.json",
+      "javaNames": ["CLSRT6 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/torpedo/oneShot/CLSRT6OS.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRTWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srm-2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["SRM 2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM2.java",
+          "lines": [77, 88]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srm-4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["SRM 4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM4.java",
+          "lines": [87]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srm-6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["SRM 6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM6.java",
+          "lines": [80]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-srm-2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLSRM2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/CLSRM2.java",
+          "lines": [81]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-srm-4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLSRM4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/CLSRM4.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-srm-6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLSRM6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/CLSRM6.java",
+          "lines": [81]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streak-srm-2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["ISStreakSRM2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM2.java",
+          "lines": [68, 79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streak-srm-4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["ISStreakSRM4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streak-srm-6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["ISStreakSRM6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-streak-srm-2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/CLStreakSRM2.java",
+          "lines": [74]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-streak-srm-4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-streak-srm-6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm1",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM1"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM1.java",
+          "lines": [65, 66, 67, 68, 69, 70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm1os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM1OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM1OS.java",
+          "lines": [63, 64, 66, 67, 68, 69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM2"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM2.java",
+          "lines": [67, 68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm2os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM2OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM2OS.java",
+          "lines": [65, 66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm3",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM3"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM3.java",
+          "lines": [65, 66, 67, 68, 69, 70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm3os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM3OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM3OS.java",
+          "lines": [63, 64, 66, 67, 68, 69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM4"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM4.java",
+          "lines": [65, 66, 67, 68, 69, 70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm4os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM4OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM4OS.java",
+          "lines": [63, 64, 66, 67, 68, 69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm5",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM5"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM5.java",
+          "lines": [65, 66, 67, 68, 69, 70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm5os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM5OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM5OS.java",
+          "lines": [63, 64, 66, 67, 68, 69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM6"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM6.java",
+          "lines": [65, 66, 67, 68, 69, 70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "advancedsrm6os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLAdvancedSRM6OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/advancedSRM/CLAdvancedSRM6OS.java",
+          "lines": [63, 64, 66, 67, 68, 69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/AdvancedSRMWeapon.java",
+          "lines": [65]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm1",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM1"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM1.java",
+          "lines": [67, 68, 69, 70, 71, 72]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm1os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM1OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM1OS.java",
+          "lines": [63, 64, 66, 67, 68, 69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm2-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM2 (OS)"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2OS.java",
+          "lines": [70, 71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm3",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM3"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM3.java",
+          "lines": [67, 68, 69, 70, 71, 72]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm3-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM3 (OS)"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM3OS.java",
+          "lines": [74, 75, 77, 78, 79, 80]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm4-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM4 (OS)"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM4OS.java",
+          "lines": [77, 78, 80, 81, 82, 83]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm5",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM5"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM5.java",
+          "lines": [75, 76, 77, 78, 79, 80]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm5os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM5OS"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM5OS.java",
+          "lines": [73, 74, 76, 77, 78, 79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "basrm6-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLBASRM6 (OS)"],
+      "allowedUnitTypes": ["Battle Armor"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM6OS.java",
+          "lines": [77, 78, 80, 81, 82, 83]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "primitive-prototype-srm-2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["Primitive Prototype SRM 2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/primitive/ISSRM2Primitive.java",
+          "lines": [75, 85]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "primitive-prototype-srm-4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["Primitive Prototype SRM 4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/primitive/ISSRM4Primitive.java",
+          "lines": [74]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "primitive-prototype-srm-6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["Primitive Prototype SRM 6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/primitive/ISSRM6Primitive.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm4prototype",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM4Prototype"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM4Prototype.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/prototypes/clan/CLPrototypeStreakSRMWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm6prototype",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM6Prototype"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM6Prototype.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/prototypes/clan/CLPrototypeStreakSRMWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-srm-2",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["Improved SRM 2"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/improvedSRM/CLImprovedSRM2.java",
+          "lines": [69, 76]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-srm-4",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["Improved SRM 4"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/improvedSRM/CLImprovedSRM4.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-srm-6",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["Improved SRM 6"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/improvedSRM/CLImprovedSRM6.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srm2-ios",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLSRM2 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM2IOS.java",
+          "lines": [70]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srm4-ios",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLSRM4 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM4IOS.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "srm6-ios",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLSRM6 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM6IOS.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm1",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM1"],
+      "allowedUnitTypes": ["ProtoMech"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/CLStreakSRM1.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm3",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM3"],
+      "allowedUnitTypes": ["ProtoMech"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/CLStreakSRM3.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm5",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM5"],
+      "allowedUnitTypes": ["ProtoMech"],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/CLStreakSRM5.java",
+          "lines": [72, 73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm2-ios",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM2 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM2IOS.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm2-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM2 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM2OS.java",
+          "lines": [74]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm4-ios",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM4 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM4IOS.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm4-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM4 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM4OS.java",
+          "lines": [74]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm6-ios",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM6 (IOS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM6IOS.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "streaksrm6-os",
+      "file": "weapons/missile-srm.json",
+      "javaNames": ["CLStreakSRM6 (OS)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM6OS.java",
+          "lines": [74]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/StreakSRMWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/srms/SRMWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/missiles/MissileWeapon.java",
+          "lines": [69]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "small-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Small Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISLaserSmall.java",
+          "lines": [77]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "medium-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Medium Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "large-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Large Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "er-small-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISERSmallLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISERLaserSmall.java",
+          "lines": [72]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "er-medium-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISERMediumLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "er-large-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISERLargeLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-micro-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERMicroLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/CLERLaserMicro.java",
+          "lines": [74]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-small-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERSmallLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/small/CLERLaserSmall.java",
+          "lines": [72]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-medium-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERMediumLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-large-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERLargeLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "small-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISSmallPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISPulseLaserSmall.java",
+          "lines": [81]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "medium-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISMediumPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "large-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISLargePulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-micro-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLMicroPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/CLPulseLaserMicro.java",
+          "lines": [75]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-small-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLSmallPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/small/CLPulseLaserSmall.java",
+          "lines": [80]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-medium-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLMediumPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-large-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLLargePulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-small-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERSmallPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/small/CLERPulseLaserSmall.java",
+          "lines": [82]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-medium-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERMediumPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-large-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLERLargePulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "small-x-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISSmallXPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISXPulseLaserSmall.java",
+          "lines": [81]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISMediumXPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/medium/ISXPulseLaserMedium.java",
+          "lines": [84]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "large-x-pulse-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISLargeXPulseLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/large/ISXPulseLaserLarge.java",
+          "lines": [85]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "small-vsp-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISSmallVSPLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/VariableSpeedPulseLaserWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "medium-vsp-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISMediumVSPLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/VariableSpeedPulseLaserWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "large-vsp-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["ISLargeVSPLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/VariableSpeedPulseLaserWeapon.java",
+          "lines": [62]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "bombast-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Bombast Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/ISBombastLaser.java",
+          "lines": [94]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "small-heavy-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLHeavySmallLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/small/CLHeavyLaserSmall.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "medium-heavy-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLHeavyMediumLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/medium/CLHeavyLaserMedium.java",
+          "lines": [79]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "large-heavy-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLHeavyLargeLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/large/CLHeavyLaserLarge.java",
+          "lines": [80]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-heavy-small-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLImprovedSmallHeavyLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/small/CLImprovedHeavyLaserSmall.java",
+          "lines": [86]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-heavy-medium-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLImprovedMediumHeavyLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/medium/CLImprovedHeavyLaserMedium.java",
+          "lines": [86]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-heavy-large-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLImprovedHeavyLargeLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/large/CLImprovedHeavyLaserLarge.java",
+          "lines": [86]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-small-chemical-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLSmallChemicalLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/CLChemicalLaserWeapon.java",
+          "lines": [63, 65, 66, 67, 68]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-medium-chemical-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLMediumChemicalLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/CLChemicalLaserWeapon.java",
+          "lines": [63, 65, 66, 67, 68]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-large-chemical-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["CLLargeChemicalLaser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/clan/CLChemicalLaserWeapon.java",
+          "lines": [63, 65, 66, 67, 68]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "improved-large-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Improved Large Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "small-re-engineered-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Small Re-engineered Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISReengineeredLaserSmall.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "medium-re-engineered-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Medium Re-engineered Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "large-re-engineered-laser",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Large Re-engineered Laser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/PulseLaserWeapon.java",
+          "lines": [59]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "blazer-cannon",
+      "file": "weapons/energy-laser.json",
+      "javaNames": ["Binary Laser (Blazer) Cannon"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/innerSphere/ISBinaryLaserCannon.java",
+          "lines": [82]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["PPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/innerSphere/ISPPC.java",
+          "lines": [89]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "er-ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["ISERPPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/innerSphere/ISERPPC.java",
+          "lines": [87]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "light-ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["Light PPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/innerSphere/ISLightPPC.java",
+          "lines": [87]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "heavy-ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["Heavy PPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/innerSphere/ISHeavyPPC.java",
+          "lines": [87]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "snub-nose-ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["ISSNPPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/innerSphere/ISSnubNosePPC.java",
+          "lines": [92]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["CLERPPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/clan/CLERPPC.java",
+          "lines": [84]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "enhanced-er-ppc",
+      "file": "weapons/energy-ppc.json",
+      "javaNames": ["CLWERPPC"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/clan/CLEnhancedPPC.java",
+          "lines": [84]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/PPCWeapon.java",
+          "lines": [66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "plasma-rifle",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["ISPlasmaRifle"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/innerSphere/ISPlasmaRifle.java",
+          "lines": [81]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "tsemp-cannon",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["TSEMP Cannon"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/TSEMPWeapon.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "flamer",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["Flamer"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/FlamerWeapon.java",
+          "lines": [63, 64, 65, 66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "er-flamer",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["ER Flamer"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/innerSphere/ISERFlamer.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/FlamerWeapon.java",
+          "lines": [63, 64, 65, 66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-er-flamer",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["CLERFlamer"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/clan/CLERFlamer.java",
+          "lines": [63]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/FlamerWeapon.java",
+          "lines": [63, 64, 65, 66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "heavy-flamer",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["Heavy Flamer"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/innerSphere/ISHeavyFlamer.java",
+          "lines": [82, 83]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/VehicleFlamerWeapon.java",
+          "lines": [73]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "vehicle-flamer",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["Flamer (Vehicle)"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/VehicleFlamerWeapon.java",
+          "lines": [73]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-flamer",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["CLFlamer"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/flamers/FlamerWeapon.java",
+          "lines": [63, 64, 65, 66]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "laser-ams",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["ISLaserAntiMissileSystem"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/innerSphere/ISLaserAMS.java",
+          "lines": [82]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-laser-ams",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["CLLaserAntiMissileSystem"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/clan/CLLaserAMS.java",
+          "lines": [80, 81]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/LaserWeapon.java",
+          "lines": [68]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/lasers/EnergyWeapon.java",
+          "lines": [64]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-plasma-cannon",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["CLPlasmaCannon"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/ppc/clan/CLPlasmaCannon.java",
+          "lines": [81, 82]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "battlemech-taser",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["Mek Taser"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/innerSphere/ISMekTaser.java",
+          "lines": [88, 89]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "fluid-gun",
+      "file": "weapons/energy-other.json",
+      "javaNames": ["IS Fluid Gun"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/other/FluidGunWeapon.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "c3-master",
+      "file": "electronics/c3.json",
+      "javaNames": ["ISC3MasterUnit"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/c3/ISC3M.java",
+          "lines": [72]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/TAGWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "c3-boosted-master",
+      "file": "electronics/c3.json",
+      "javaNames": ["ISC3MasterBoostedSystemUnit"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/c3/ISC3MBS.java",
+          "lines": [73]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/TAGWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "tag",
+      "file": "electronics/other.json",
+      "javaNames": ["ISTAG"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/ISTAG.java",
+          "lines": [76]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/TAGWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-tag",
+      "file": "electronics/other.json",
+      "javaNames": ["CLTAG"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/CLTAG.java",
+          "lines": [77]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/TAGWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "light-tag",
+      "file": "electronics/other.json",
+      "javaNames": ["CLLightTAG"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/CLLightTAG.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/TAGWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
+    },
+    {
+      "id": "clan-light-tag",
+      "file": "electronics/other.json",
+      "javaNames": ["CLLightTAG"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "source": [
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/CLLightTAG.java",
+          "lines": [71]
+        },
+        {
+          "path": "megamek/src/megamek/common/weapons/tag/TAGWeapon.java",
+          "lines": [61]
+        },
+        {
+          "path": "megamek/src/megamek/common/equipment/EquipmentType.java",
+          "lines": [184, 221]
+        }
+      ]
     }
   ]
 }
