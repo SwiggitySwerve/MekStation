@@ -14,6 +14,7 @@ import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
 
+import type { IStructureWeightContext } from '../structureCalculations';
 import type { ConstructionStepResult } from './types';
 
 import {
@@ -36,6 +37,7 @@ import { calculateStructureWeight } from '../structureCalculations';
 export function calculateInternalStructure(
   tonnage: number,
   structureType: InternalStructureType,
+  context?: IStructureWeightContext,
 ): ConstructionStepResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -54,7 +56,7 @@ export function calculateInternalStructure(
     };
   }
 
-  const weight = calculateStructureWeight(tonnage, structureType);
+  const weight = calculateStructureWeight(tonnage, structureType, context);
   const criticalSlots = definition.criticalSlots;
 
   return {
