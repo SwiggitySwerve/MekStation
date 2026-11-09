@@ -90,6 +90,8 @@ export interface ValidationResult {
     ammoCapProjectionWeapons?: { id: string; bv: number }[];
     /** Optional physical-bin trace facts; never supplied to ammo arithmetic. */
     ammoAvailableProjectionBins?: CritScan['ammoAvailableProjectionBins'];
+    /** Complete trace pools including supplemental facts; never arithmetic inputs. */
+    ammoDiagnosticPools?: AmmoBVPools;
     // Legacy aliases
     defensiveEquipBV: number;
   };
