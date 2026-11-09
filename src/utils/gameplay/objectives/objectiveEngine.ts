@@ -18,6 +18,7 @@ import type {
 import { GameSide } from '@/types/gameplay';
 import { ScenarioObjectiveType } from '@/types/scenario/ScenarioInterfaces';
 import { coordToKey } from '@/utils/gameplay/hexMath';
+import { getUnitOperability } from '@/utils/gameplay/unitOperability';
 
 /**
  * Maps a `GameSide` enum value onto the `ObjectiveSide` string used by
@@ -43,7 +44,7 @@ export function objectiveSideToGameSide(side: ObjectiveSide): GameSide | null {
  * retreated unit no longer projects control onto its hex.
  */
 function unitOccupiesHexes(unit: IUnitGameState): boolean {
-  return !unit.destroyed && !unit.hasRetreated && !unit.hasEjected;
+  return getUnitOperability(unit).onField;
 }
 
 /**
