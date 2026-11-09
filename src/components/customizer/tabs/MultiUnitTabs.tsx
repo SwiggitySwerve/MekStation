@@ -150,6 +150,7 @@ export function MultiUnitTabs({
     isNewTabModalOpen,
     closeDialog,
     saveDialog,
+    isSaving,
     librarySaveDisabledReason,
     savedHistoryDisabledReason,
     isLoadDialogOpen,
@@ -287,6 +288,7 @@ export function MultiUnitTabs({
 
       <TargetedSaveUnitDialog
         isOpen={saveDialog.isOpen}
+        isSaving={isSaving}
         initialChassis={saveDialog.chassis}
         initialVariant={saveDialog.variant}
         currentUnitId={saveDialog.tabId ?? undefined}

@@ -20,6 +20,7 @@ import {
   MovementType,
 } from '@/types/gameplay';
 
+import { ActionLedger } from '../ActionLedger';
 import {
   applyGmUnitReloadProjectedEffects,
   approveGmCascadePreview,
@@ -316,6 +317,37 @@ function approveReload(
 }
 
 describe('GM unit reload intervention implementer', () => {
+  it('blocks a reload preview after a live overlay changes', () => {
+    const state = makeState();
+    const ledger = makeLedger();
+    const actionLedger = new ActionLedger();
+    const preview = createGmCascadePreview({
+      ledger,
+      command: makeCommand(payload()),
+      state,
+      authority: gmAuthority,
+    });
+    expect(preview.status).toBe('ready');
+    const current = {
+      ...state,
+      units: {
+        ...state.units,
+        'atlas-1': { ...state.units['atlas-1'], heat: 22 },
+      },
+    };
+    expect(
+      approveGmCascadePreview({
+        ledger,
+        actionLedger,
+        preview,
+        state: current,
+      }),
+    ).toMatchObject({ status: 'blocked', appended: false });
+    expect(current.units['atlas-1'].heat).toBe(22);
+    expect(ledger.getRecords()).toEqual([]);
+    expect(actionLedger.getRecords()).toEqual([]);
+  });
+
   it('registers unit reload and previews source unit plus pilot data', () => {
     const preview = previewReload(makeCommand(payload()));
 

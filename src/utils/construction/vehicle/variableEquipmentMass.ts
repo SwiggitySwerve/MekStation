@@ -43,18 +43,23 @@ export function resolveVehicleAccessoryMass(
   item: VehicleVariableMassItem,
   context?: VehicleVariableMassContext,
 ): number | null | undefined {
-  const chassisDivisor = CHASSIS_MASS_DIVISORS.get(item.id);
+  // MiscType.java:10270-10281: both catalog ids represent the same native mod.
+  const id =
+    item.id === 'environmental-sealed-chassis-registry'
+      ? 'environmental-sealed-chassis'
+      : item.id;
+  const chassisDivisor = CHASSIS_MASS_DIVISORS.get(id);
   if (
-    !['vtoljetbooster', 'vehiclejumpjet'].includes(item.id) &&
+    !['vtoljetbooster', 'vehiclejumpjet'].includes(id) &&
     chassisDivisor === undefined
   )
     return undefined;
   if (!context) return null;
   // MiscType.java:496-497,867-889,2004-2012 at the same pin.
-  if (item.id === 'vehiclejumpjet')
+  if (id === 'vehiclejumpjet')
     return calculateJumpJetWeight(context.tonnage, 1, JumpJetType.STANDARD);
   // MiscType.java:660-666: support sealing is charged through structure.
-  if (item.id === 'environmental-sealed-chassis' && context.isSupportVehicle)
+  if (id === 'environmental-sealed-chassis' && context.isSupportVehicle)
     return 0;
   // MiscType.java:660-666,702-705 at the same pin.
   if (chassisDivisor !== undefined)

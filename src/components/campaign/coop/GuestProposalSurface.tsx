@@ -99,6 +99,7 @@ const STATUS_STYLES: Record<string, string> = {
   committed: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
   vetoed: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
   'mechanically-rejected': 'border-red-500/40 bg-red-500/10 text-red-300',
+  'submission-failed': 'border-red-500/40 bg-red-500/10 text-red-300',
 };
 
 /**

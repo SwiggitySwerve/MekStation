@@ -224,15 +224,19 @@ describe('InterventionLedger', () => {
     });
   });
 
-  it('rejects non-approved records from the append-only approved ledger path', () => {
-    const ledger = new InterventionLedger<CounterState>();
-    const record = makeRecord({ status: 'previewed' });
+  it.each(['previewed', 'cancelled'] as const)(
+    'rejects external %s records from the append-only approved ledger path',
+    (status) => {
+      const ledger = new InterventionLedger<CounterState>();
+      // @ts-expect-error Invalid external records must be rejected at runtime too.
+      const record = makeRecord({ status });
 
-    expect(() => ledger.appendApprovedRecord(record)).toThrow(
-      /Cannot append intervention record/,
-    );
-    expect(ledger.getRecords()).toEqual([]);
-  });
+      expect(() => ledger.appendApprovedRecord(record)).toThrow(
+        /Cannot append intervention record/,
+      );
+      expect(ledger.getRecords()).toEqual([]);
+    },
+  );
 
   it('refuses a second record with an id it already holds (S14)', () => {
     const ledger = new InterventionLedger<CounterState>();
