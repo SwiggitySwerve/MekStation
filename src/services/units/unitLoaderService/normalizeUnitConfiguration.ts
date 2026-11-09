@@ -24,6 +24,7 @@ import {
   normalizeMechCrewSeats,
 } from '@/types/pilot/MechCrewSeats';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
+import { cloneSerializedStructure } from '@/utils/serialization/structureMetadata';
 
 import type { IRawSerializedUnit } from './types';
 
@@ -308,6 +309,10 @@ export function normalizeUnitConfiguration(
     ...deriveEngineState(serialized, techBase),
     gyroType: deriveGyroType(serialized),
     internalStructureType: deriveStructureType(serialized, techBase),
+    ...(serialized.structure?.typeByLocation !== undefined ||
+    serialized.structure?.locationTonnage !== undefined
+      ? { frankenStructure: cloneSerializedStructure(serialized.structure) }
+      : {}),
     cockpitType: deriveCockpitType(serialized),
     ...deriveHeatSinkState(serialized),
     ...deriveArmorState(serialized, techBase, configuration.configuration),

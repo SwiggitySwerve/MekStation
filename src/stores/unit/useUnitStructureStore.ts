@@ -180,6 +180,7 @@ export function createStructureSlice(
 
         return modifiedPatch({
           internalStructureType: type,
+          frankenStructure: undefined,
           equipment,
         });
       }),

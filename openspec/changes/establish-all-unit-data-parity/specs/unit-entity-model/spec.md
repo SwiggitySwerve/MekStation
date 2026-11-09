@@ -320,3 +320,38 @@ SHALL remain readable without adding inferred donor types.
 - **GIVEN** an old document without `typeByLocation`
 - **WHEN** validated
 - **THEN** the map SHALL remain absent and its existing structure data SHALL remain unchanged
+
+### Requirement: FrankenMek donor metadata persistence
+
+The BattleMech editor SHALL preserve explicit structure donor types and tonnages
+through loading, draft persistence, custom-library serialization, reopening,
+duplication and undo/redo. Each boundary SHALL own copies of both donor maps.
+Missing donor maps SHALL remain absent; an explicit empty map SHALL remain
+present. Retaining these facts SHALL NOT change construction mass, BV or
+construction validity before the section-weighted mass rule is enabled.
+
+#### Scenario: Save and reopen donor structure facts
+
+- **GIVEN** an imported FrankenMek with explicit donor types and tonnages
+- **WHEN** its editor saves to the custom library and a cold session reopens it
+- **THEN** both donor maps SHALL retain their values and presence
+- **AND** the calculation configuration SHALL survive the round trip
+- **AND** modifying an input, duplicate or serialized map SHALL NOT mutate the source editor
+
+#### Scenario: Replace global material and undo donor edits
+
+- **GIVEN** an editor retaining explicit donor facts
+- **WHEN** its global structure material is explicitly replaced
+- **THEN** donor overrides SHALL be cleared
+- **AND** undo SHALL restore them and redo SHALL clear them again
+- **GIVEN** an edit that adds donor metadata to a legacy editor
+- **WHEN** undone
+- **THEN** metadata SHALL return to absence and the clean draft state SHALL be restored
+- **AND** edits to either donor map SHALL participate in draft and library fingerprints
+
+#### Scenario: Old and empty donor documents remain distinct
+
+- **GIVEN** a global-only, tonnage-only or explicitly empty donor-type map
+- **WHEN** loaded, saved and reopened
+- **THEN** the type map SHALL NOT be inferred or removed
+- **AND** existing global mass arithmetic SHALL remain unchanged

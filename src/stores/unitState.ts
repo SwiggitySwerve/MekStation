@@ -9,7 +9,10 @@ import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
  *
  * @spec openspec/specs/unit-store-architecture/spec.md
  */
-import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type {
+  ISerializedFluff,
+  ISerializedStructure,
+} from '@/types/unit/UnitSerialization';
 import type { ArmActuatorConfig } from '@/utils/construction/slotOperations/topology';
 
 import { IArmorAllocation } from '@/types/construction/ArmorAllocation';
@@ -245,6 +248,8 @@ export interface UnitState {
 
   /** Internal structure type */
   internalStructureType: InternalStructureType;
+  /** Explicit donor facts; map absence retains global structure calculations. */
+  frankenStructure?: ISerializedStructure;
 
   /** Cockpit type */
   cockpitType: CockpitType;
