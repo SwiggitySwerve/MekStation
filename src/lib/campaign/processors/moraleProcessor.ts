@@ -35,6 +35,10 @@ import {
 } from '../prestige/gatherMoraleSignals';
 import { evaluateMoraleTransition } from '../prestige/moraleStateMachine';
 
+function sameIds(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((id, index) => id === b[index]);
+}
+
 /**
  * Day-pipeline processor: evaluates company morale once per day and
  * applies at most one step transition.
@@ -51,9 +55,26 @@ export const moraleProcessor: IDayProcessor = {
     const dayEvents = getDayEventsSoFar(campaign);
     const prunedOutcomes = filterRecentMoraleOutcomes(campaign, date);
     const originalOutcomeCount = campaign.recentlyAppliedOutcomes?.length ?? 0;
+
+    // An outcome moves morale once, on the first evaluation after it is
+    // applied. It stays in `recentlyAppliedOutcomes` for 31 days (other
+    // processors read it), so the ids already counted are carried on the
+    // campaign. After this pass every outcome still in the window is counted.
+    const alreadyCounted = new Set(campaign.moraleCountedMatchIds ?? []);
+    const uncountedOutcomes = prunedOutcomes.filter(
+      (outcome) => !alreadyCounted.has(outcome.matchId),
+    );
+    const countedIds = Array.from(
+      new Set(prunedOutcomes.map((outcome) => outcome.matchId)),
+    );
+    const countedUnchanged = sameIds(
+      campaign.moraleCountedMatchIds ?? [],
+      countedIds,
+    );
+
     const campaignForSignals = {
       ...campaign,
-      recentlyAppliedOutcomes: prunedOutcomes,
+      recentlyAppliedOutcomes: uncountedOutcomes,
     } as ICampaign;
     const signals = gatherMoraleSignals(campaignForSignals, dayEvents);
 
@@ -63,14 +84,19 @@ export const moraleProcessor: IDayProcessor = {
       date.toISOString(),
     );
 
-    // No transition — morale held; return the campaign unchanged.
+    // No transition — morale held. The campaign is returned as is unless the
+    // outcome window or the counted ids moved.
     if (!evaluation.transition) {
+      if (prunedOutcomes.length === originalOutcomeCount && countedUnchanged) {
+        return { events: [], campaign };
+      }
       return {
         events: [],
-        campaign:
-          prunedOutcomes.length === originalOutcomeCount
-            ? campaign
-            : campaignForSignals,
+        campaign: {
+          ...campaign,
+          recentlyAppliedOutcomes: prunedOutcomes,
+          moraleCountedMatchIds: countedIds,
+        } as ICampaign,
       };
     }
 
@@ -81,6 +107,7 @@ export const moraleProcessor: IDayProcessor = {
     const updatedCampaign: ICampaign = {
       ...campaign,
       recentlyAppliedOutcomes: prunedOutcomes,
+      moraleCountedMatchIds: countedIds,
       moraleState: evaluation.to,
       moraleTransitions: transitions,
     };

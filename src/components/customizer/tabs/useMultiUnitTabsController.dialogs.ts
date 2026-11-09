@@ -6,8 +6,15 @@ import type { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { useToast } from '@/components/shared/Toast';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
-import { recordUnitLibrarySave } from '@/stores/unit/unitEditSnapshot';
-import { getUnitStore } from '@/stores/unitStoreRegistry';
+import {
+  createUnitLibrarySaveReceipt,
+  isUnitDraftModified,
+} from '@/stores/unitSaveState';
+import {
+  getEditorDraftFingerprint,
+  getEditorLibraryFingerprint,
+  getEditorLibrarySavePatch,
+} from '@/stores/unitSaveStateAdapters';
 import { Era } from '@/types/temporal/Era';
 import { logger } from '@/utils/logger';
 import {
@@ -21,6 +28,7 @@ import { getEraForYear } from '@/utils/temporal/eraUtils';
 
 import {
   getLibrarySaveDisabledReason,
+  getLibrarySaveEditor,
   getLibrarySaveStore,
 } from './MultiUnitTabsUnitState';
 
@@ -39,13 +47,23 @@ export function serializeCustomLibraryState(
     ...identity,
     era: getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS,
   };
-  return 'configuration' in state
-    ? serializeCustomUnitState(state, saveIdentity)
-    : 'aerospaceSubType' in state
-      ? serializeCustomAerospaceState(state, saveIdentity)
-      : 'pointSize' in state || 'squadSize' in state
-        ? serializeCustomSmallUnitState(state, saveIdentity)
-        : serializeCustomVehicleState(state, saveIdentity);
+  const editor = getLibrarySaveEditor(state);
+  switch (editor.store) {
+    case 'battlemech':
+      return serializeCustomUnitState(editor.state, saveIdentity);
+    case 'vehicle':
+      return serializeCustomVehicleState(editor.state, saveIdentity);
+    case 'aerospace':
+      return serializeCustomAerospaceState(editor.state, saveIdentity);
+    case 'infantry':
+    case 'battlearmor':
+    case 'protomech':
+      return serializeCustomSmallUnitState(editor.state, saveIdentity);
+    default: {
+      const unhandled: never = editor;
+      throw new Error(`Unhandled library save editor: ${String(unhandled)}`);
+    }
+  }
 }
 
 export interface CloseDialogState {
@@ -83,9 +101,9 @@ function readLibrarySaveReference(result: {
   id?: string;
   version?: number;
 }): { id: string; version: number } | null {
-  if (!result.success) return null;
+  if (result.success !== true) return null;
   const { id, version } = result;
-  if (typeof id !== 'string' || id.length === 0) return null;
+  if (typeof id !== 'string' || id.trim().length === 0) return null;
   if (
     typeof version !== 'number' ||
     !Number.isSafeInteger(version) ||
@@ -215,8 +233,7 @@ export function useDialogHandlers(
       }
 
       const state = unitStore.getState();
-      const mechStore =
-        'configuration' in state ? getUnitStore(saveDialog.tabId) : undefined;
+      const targetId = saveDialog.tabId;
 
       // React state alone cannot reject a second submission before rendering.
       saveInFlight.current = true;
@@ -226,6 +243,22 @@ export function useDialogHandlers(
           id: overwriteId ?? saveDialog.tabId,
           chassis,
           variant,
+        };
+        const unitName = [chassis, variant].filter(Boolean).join(' ');
+        const savedState = {
+          ...state,
+          chassis,
+          model: variant,
+          name: unitName,
+        };
+        // Capture immutable comparison values before awaiting the HTTP boundary.
+        const sourceFingerprint = getEditorDraftFingerprint(
+          getLibrarySaveEditor(state),
+        );
+        const savedEditor = getLibrarySaveEditor(savedState);
+        const submitted = {
+          draft: getEditorDraftFingerprint(savedEditor),
+          library: getEditorLibraryFingerprint(savedEditor),
         };
         const unitData = serializeCustomLibraryState(state, identity);
 
@@ -267,89 +300,85 @@ export function useDialogHandlers(
           return;
         }
 
-        const unitName = [chassis, variant].filter(Boolean).join(' ');
-        const savedState = {
-          ...state,
-          chassis,
-          model: variant,
-          name: unitName,
+        const targetStillOpen = () => {
+          const tab = getTabById(targetId);
+          return (
+            Boolean(tab) &&
+            getLibrarySaveStore(targetId, tab?.unitType) === unitStore
+          );
         };
-        const storeStillOpen =
-          getLibrarySaveStore(
-            saveDialog.tabId,
-            getTabById(saveDialog.tabId)?.unitType,
-          ) === unitStore;
-        const stillCurrent = unitStore.getState() === state;
-        const tabStillOpen = Boolean(getTabById(saveDialog.tabId));
-
+        const finishWithWarning = (message: string) => {
+          showToast({ message, variant: 'warning' });
+          setSaveDialog(INITIAL_SAVE_DIALOG);
+        };
+        const unavailableMessage = `Unit "${unitName}" saved, but its source tab is no longer open.`;
+        if (!targetStillOpen()) {
+          finishWithWarning(unavailableMessage);
+          return;
+        }
+        const stillCurrent = !isUnitDraftModified(
+          () =>
+            getEditorDraftFingerprint(
+              getLibrarySaveEditor(unitStore.getState()),
+            ),
+          sourceFingerprint,
+        );
+        const librarySave = createUnitLibrarySaveReceipt(reference, submitted);
+        const identityPatch = stillCurrent
+          ? {
+              chassis,
+              model: variant,
+              name: unitName,
+              lastModifiedAt: Date.now(),
+            }
+          : {};
         let browserSaveFailed = false;
-        if (storeStillOpen) {
-          if (stillCurrent && tabStillOpen) {
-            try {
-              unitStore.setState({
-                chassis,
-                model: variant,
-                name: unitName,
-                lastModifiedAt: Date.now(),
-              });
-            } catch (error) {
-              browserSaveFailed = true;
-              logger.error(
-                'Library saved but browser draft write failed:',
-                error,
-              );
-            }
-          }
+        try {
+          // One write keeps identity and receipt together. Zustand retains this
+          // confirmed receipt in memory even when browser persistence throws.
+          unitStore.setState({
+            ...identityPatch,
+            ...getEditorLibrarySavePatch(
+              getLibrarySaveEditor({
+                ...unitStore.getState(),
+                ...identityPatch,
+              }),
+              librarySave,
+            ),
+          });
+        } catch (error) {
+          browserSaveFailed = true;
+          logger.error('Library saved but browser draft write failed:', error);
+        }
+        const contentStillSaved = () =>
+          !getEditorLibrarySavePatch(
+            getLibrarySaveEditor(unitStore.getState()),
+            librarySave,
+          ).isModified;
+        if (targetStillOpen() && contentStillSaved()) {
           try {
-            if ('configuration' in savedState) {
-              if (mechStore)
-                recordUnitLibrarySave(mechStore, reference, savedState);
-            } else {
-              unitStore.setState({ isModified: !stillCurrent });
-            }
+            renameTab(saveDialog.tabId, unitName);
           } catch (error) {
             browserSaveFailed = true;
-            logger.error(
-              'Library saved but browser receipt write failed:',
-              error,
-            );
-          }
-          if (stillCurrent && tabStillOpen) {
-            try {
-              renameTab(saveDialog.tabId, unitName);
-            } catch (error) {
-              browserSaveFailed = true;
-              logger.error(
-                'Library saved but browser tab write failed:',
-                error,
-              );
-            }
+            logger.error('Library saved but browser tab write failed:', error);
           }
         }
         if (browserSaveFailed) {
-          showToast({
-            message: `Unit "${unitName}" saved to the library as v${reference.version}, but the browser draft save failed. Keep this tab open and retry the browser draft.`,
-            variant: 'warning',
-          });
-          setSaveDialog(INITIAL_SAVE_DIALOG);
+          finishWithWarning(
+            `Unit "${unitName}" saved to the library as v${reference.version}, but the browser draft save failed. Keep this tab open and retry the browser draft.`,
+          );
           return;
         }
 
-        if (!tabStillOpen || !storeStillOpen) {
-          showToast({
-            message: `Unit "${unitName}" saved, but its source tab is no longer open.`,
-            variant: 'warning',
-          });
-          setSaveDialog(INITIAL_SAVE_DIALOG);
+        if (!targetStillOpen()) {
+          finishWithWarning(unavailableMessage);
           return;
         }
 
-        if (!stillCurrent) {
-          showToast({
-            message: `Unit "${unitName}" saved, but newer browser draft changes remain.`,
-            variant: 'warning',
-          });
-          setSaveDialog(INITIAL_SAVE_DIALOG);
+        if (!contentStillSaved()) {
+          finishWithWarning(
+            `Unit "${unitName}" saved, but newer browser draft changes remain.`,
+          );
           return;
         }
 
@@ -362,7 +391,7 @@ export function useDialogHandlers(
         const tabIdToClose = saveDialog.tabId;
         setSaveDialog(INITIAL_SAVE_DIALOG);
 
-        if (shouldClose) {
+        if (shouldClose && targetStillOpen() && contentStillSaved()) {
           performCloseTab(tabIdToClose);
         }
       } catch (error) {

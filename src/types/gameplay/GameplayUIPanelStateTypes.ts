@@ -489,8 +489,18 @@ export function getPhaseActions(
         },
         { id: 'concede', label: 'Concede', primary: false, enabled: true },
       ];
-    default:
+    // Offering actions in these two phases is a deliberate UI change, not
+    // part of the phase-table work; today they have none.
+    case GamePhase.Initiative:
+    case GamePhase.PhysicalAttack:
       return [];
+    default: {
+      // Compile-time exhaustiveness over GamePhase; a value outside the
+      // enum still gets no actions, as before.
+      const exhaustive: never = phase;
+      void exhaustive;
+      return [];
+    }
   }
 }
 
@@ -532,18 +542,10 @@ export interface IGameplayUIState {
   readonly selectedUnitId: string | null;
   /** Targeted unit ID (for attacks) */
   readonly targetUnitId: string | null;
-  /** Movement preview (if planning movement) */
-  readonly movementPreview: IMovementPreview | null;
-  /** Attack preview (if planning attack) */
-  readonly attackPreview: IAttackPreview | null;
   /** Queued weapon IDs for attack */
   readonly queuedWeaponIds: readonly string[];
   /** Event log filter */
   readonly eventLogFilter: IEventLogFilter;
-  /** Replay state */
-  readonly replay: IReplayState;
-  /** Is waiting for opponent? */
-  readonly waitingForOpponent: boolean;
   /** Error message to display */
   readonly errorMessage: string | null;
 }
@@ -555,19 +557,7 @@ export const DEFAULT_UI_STATE: IGameplayUIState = {
   layout: DEFAULT_LAYOUT_CONFIG,
   selectedUnitId: null,
   targetUnitId: null,
-  movementPreview: null,
-  attackPreview: null,
   queuedWeaponIds: [],
   eventLogFilter: {},
-  replay: {
-    active: false,
-    playing: false,
-    speed: 1,
-    currentEventIndex: 0,
-    totalEvents: 0,
-    displayTurn: 1,
-    displayPhase: GamePhase.Initiative,
-  },
-  waitingForOpponent: false,
   errorMessage: null,
 };

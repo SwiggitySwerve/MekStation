@@ -7,6 +7,8 @@ import {
   WEAPON_CATALOG_FILES,
 } from '@/utils/construction/equipmentBV/catalogData';
 
+import { resolveVehicleClanArmor } from './armor';
+
 /**
  * Vehicle item slots: MegaMek 48fcb2f6 Tank.getFreeSlots (Tank.java:2581-2726,
  * checked by TestTank.java:331-337) and TestSupportVehicle.occupiedSlotCount
@@ -63,15 +65,10 @@ const ARMOR = new Set(
     ' ',
   ),
 );
-/** TestTank.isBodyEquipment:1079-1093 fire control, via isValidTankLocation:979-980. */
-const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
 /** Shared identity of Java ArmorType records, which do not enter mechanism mass. */
 export function isVehicleArmorEquipment(id: string): boolean {
   return ARMOR.has(id);
 }
-/** TechConstants.isClan:394-398. */
-const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
-
 let catalog: { items: Map<string, SlotRecord>; ammo: Map<string, SlotRecord> };
 function records() {
   const index = (files: readonly { items?: unknown[] }[]) => {
@@ -161,10 +158,7 @@ function engineSlots(source: VehicleSlotUnit, clan: boolean): number {
 
 /** Tank.java:2677-2704 (non-patchwork; patchwork counts 0 here). */
 function armorSlots(source: VehicleSlotUnit, unitClan: boolean): number {
-  const clan =
-    source.armorTechLevel === undefined
-      ? unitClan
-      : CLAN_TECH_LEVELS.has(source.armorTechLevel);
+  const clan = resolveVehicleClanArmor(source.armorTechLevel, unitClan);
   const code = source.armorType;
   if (code === 1 || code === 2) return clan ? 1 : 2;
   if (code === 6) return 3;
@@ -178,15 +172,6 @@ function overrun(used: number, available: number): string[] {
         `Not enough item slots available! Using ${used - available} slot(s) too many.`,
       ]
     : [];
-}
-
-function fireControlErrors(mounts: Mounts): string[] {
-  return mounts.items
-    .filter(
-      ({ record, location }) =>
-        FIRE_CONTROL.has(record.id) && location !== 'Body',
-    )
-    .map(({ record }) => `${record.name} must be mounted in the body.`);
 }
 
 /**
@@ -217,10 +202,7 @@ export function combatVehicleSlotErrors(
   used += engineSlots(source, sideUnknown || source.clanEngine === true);
   used += ammoSlots(mounts.ammo) + transportSlots(source.transporters);
   used += armorSlots(source, clan);
-  return [
-    ...overrun(used, 5 + Math.floor(source.tonnage / 5)),
-    ...fireControlErrors(mounts),
-  ];
+  return overrun(used, 5 + Math.floor(source.tonnage / 5));
 }
 
 export function supportVehicleSlotErrors(source: VehicleSlotUnit): string[] {
@@ -235,12 +217,8 @@ export function supportVehicleSlotErrors(source: VehicleSlotUnit): string[] {
     if (!JUMP_JETS.has(record.id)) used += slots;
   }
   used += mounts.items.some(({ record }) => JUMP_JETS.has(record.id)) ? 1 : 0;
-  // getAmmoSlots:1618-1622: small SV ammo shares its weapon's slot (< 5 t is
-  // small; 5 t is treated as small here, the lower bound).
-  used += source.tonnage > 5 ? ammoSlots(mounts.ammo) : 0;
+  // getAmmoSlots:1618-1622: only small SVs (< 5 t) share their weapons' slots.
+  used += source.tonnage >= 5 ? ammoSlots(mounts.ammo) : 0;
   used += transportSlots(source.transporters);
-  return [
-    ...overrun(used, 5 + Math.floor(source.tonnage / 10)),
-    ...fireControlErrors(mounts),
-  ];
+  return overrun(used, 5 + Math.floor(source.tonnage / 10));
 }

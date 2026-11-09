@@ -8,22 +8,19 @@ import type {
 
 import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
-import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { VehicleLocation } from '@/types/construction';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
+import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
 
-import {
-  getMountedBVLinkType,
-  linkLaserInsulatorWeapons,
-  linkPPCCapacitorWeapons,
-} from '../equipmentBV/weaponLinks';
+import { getMountedBVLinkType } from '../equipmentBV/weaponLinks';
 import {
   computeVehicleInstalledEngineWeight,
   type VehicleInstalledEngineState,
@@ -42,6 +39,10 @@ import {
   resolveVehicleAccessoryMass,
   resolveVehicleVariableMass,
 } from './variableEquipmentMass';
+import {
+  isInsulatorLinkableLaser,
+  sumVehicleHeatLoad,
+} from './vehicleHeatLoad';
 
 /** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
@@ -56,13 +57,6 @@ const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
   EquipmentCategory.ARTILLERY,
   EquipmentCategory.CAPITAL_WEAPON,
 ];
-
-/** Native MiscType.getHeat(), not weapon heat metadata. 48fcb2f6:1423-1435. */
-const MISC_HEAT = new Map([
-  ['groundmobilehpg', 20],
-  ['risc-viral-jammer-decoy', 12],
-  ['risc-viral-jammer-homing', 12],
-]);
 
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
  * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
@@ -191,9 +185,7 @@ export function computeVehicleMountedWeightFigures(
       id: equipmentId,
       location: mount.location,
       order,
-      laser:
-        item?.category === EquipmentCategory.ENERGY_WEAPON &&
-        /laser/i.test(item.name),
+      laser: isInsulatorLinkableLaser(item),
       linked: false,
       insulated: false,
       capacitor: false,
@@ -214,6 +206,11 @@ export function computeVehicleMountedWeightFigures(
         (item.category !== EquipmentCategory.AMMUNITION &&
           getMountedBVLinkType(equipmentId) === 'risc'),
       heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
+      // Native MiscType includes electronics (Nova CEWS), but never weapons/ammo.
+      miscHeatExcluded:
+        item === undefined ||
+        item.category === EquipmentCategory.AMMUNITION ||
+        isWeaponCategory(item.category),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       sponsonPayload:
         mount.isSponsonMounted &&
@@ -304,51 +301,10 @@ export function computeVehicleMountedWeightFigures(
       issues.push('Sponson mechanism mass is unavailable or invalid');
   }
   const equipment = sum(mounted, 'Equipment');
-  linkLaserInsulatorWeapons(
-    mounted,
-    mounted
-      .filter(
-        (m) =>
-          m.id === 'laserinsulator' || getMountedBVLinkType(m.id) === 'risc',
-      )
-      .map((m) => ({
-        ...m,
-        kind:
-          m.id === 'laserinsulator'
-            ? ('insulator' as const)
-            : ('risc' as const),
-      })),
-  );
-  linkPPCCapacitorWeapons(
-    mounted,
-    mounted.filter((m) => m.id === 'ppc-capacitor'),
-    state.year,
-    (w) => !w.linked,
-    (w) => {
-      w.linked = true;
-      w.capacitor = true;
-    },
-  );
-  const rawWeaponHeat = mounted.reduce<number | null>((total, mount) => {
-    if (total === null || mount.heat === null) return null;
-    // TestEntity.java:951-966 at 48fcb2f64: keep its running-total zero guard.
-    let heat = total + mount.heat;
-    if (mount.insulated) {
-      heat--;
-      if (heat === 0) heat++;
-    }
-    return heat + (mount.capacitor ? 5 : 0);
-  }, 0);
-  // TestEntity.java:971-979 adds miscellaneous heat after all linked weapons;
-  // including it in that running total would change the insulator zero guard.
-  const miscellaneousHeat = mounted.reduce(
-    (total, mount) =>
-      total +
-      (mount.item?.category === EquipmentCategory.MISC_EQUIPMENT
-        ? (MISC_HEAT.get(mount.id) ?? 0)
-        : 0),
-    0,
-  );
+  const heatLoad = sumVehicleHeatLoad(mounted, {
+    year: state.year,
+    engineType: state.engineType,
+  });
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');
@@ -392,8 +348,7 @@ export function computeVehicleMountedWeightFigures(
     ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
   );
   return {
-    rawWeaponHeat:
-      rawWeaponHeat === null ? null : rawWeaponHeat + miscellaneousHeat,
+    rawWeaponHeat: heatLoad,
     equipment,
     turretEquipment,
     secondaryTurretEquipment,

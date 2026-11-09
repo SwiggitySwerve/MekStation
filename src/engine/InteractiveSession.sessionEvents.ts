@@ -4,6 +4,7 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { matchLogStorage, persistMatchEvent } from '@/lib/p2p/matchLogStorage';
+import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 import {
   applyBattlefieldWreckTerrainForSessionEvents,
   terrainChangedPayloadFromBattlefieldWreckResult,
@@ -13,6 +14,7 @@ import { appendEvent } from '@/utils/gameplay/gameSession';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 
+import { createPendingOutcomePublication } from './combatOutcomeJournal';
 import { reportMatchLogDivergence } from './InteractiveSession.persistence';
 
 export function appendAndPersistInteractiveSessionEvent(
@@ -88,10 +90,14 @@ function persistInteractiveSessionMatchLogEvent(
   event: IGameEvent,
 ): void {
   const session = context.getSession();
+  const matchId = session.matchId ?? session.id;
   void persistMatchEvent(
-    session.matchId ?? session.id,
+    matchId,
     event,
     matchLogStorage,
+    event.type === GameEventType.GameEnded
+      ? createPendingOutcomePublication(matchId, event)
+      : undefined,
   ).catch((error: unknown) => {
     context.markMatchLogDiverged();
     reportMatchLogDivergence(error);

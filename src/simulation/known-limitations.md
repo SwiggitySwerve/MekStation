@@ -355,19 +355,26 @@ subsystem remain stubbed (`@stub` markers in
 
 ---
 
-## MTF File Parsing
+## MTF Source Import and Legacy Importer Retirement
 
-**Status**: Not Implemented (JSON import only)
+**Status**: Source import is implemented; the legacy runtime-object importer is retired.
 
-**Why**: Direct parsing of MegaMek's MTF (MechTech Format) files is not implemented. Only pre-converted JSON import is supported.
-
-**When**: Low priority - JSON import covers most use cases.
+`POST /api/units/import` routes MTF source text through `importMTFDefinition`, the
+existing MTF parser and shared definition admission. The unused `IMTFImporter`
+interface, `MTFImportService` and `services.conversion.importer` registry entry
+are retired under owner ruling O2. Successful structural import does not certify
+complete native semantic, construction or numerical parity.
 
 **Code Reference**:
 
-- `src/services/conversion/MTFImportService.ts` - Methods return "not implemented" errors
+- `src/services/units/importMTFDefinition.ts` - Live source-to-definition orchestration
+- `src/pages/api/units/import.ts` - Source import API
 
-**Example Violations to Exclude**:
+**Legacy Generic-Detector Bucket**:
+
+The `mtfParsing` bucket remains for explicitly opted-in legacy generic detectors.
+Its existing patterns and filtering are unchanged; the bucket does not describe
+current feature availability or suppress new import-validation evidence by default.
 
 - "MTF file parsing failed"
 - "Direct MTF import not available"

@@ -1,3 +1,8 @@
+import type {
+  IProtoMechBVMountValue,
+  IProtoMechBVResolvedZeroMount,
+} from '@/types/unit/BVBreakdownTypes';
+
 import {
   IProtoMechMountedEquipment,
   IProtoMechUnit,
@@ -8,6 +13,55 @@ import {
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+import { isProtoEDPArmorMount } from './armorType';
+
+/** Retain the admitted value and original mount identity without resolution. */
+export function protoMechBVMountValue(
+  equipmentIndex: number,
+  mount: IProtoMechMountedEquipment,
+  battleValue: number,
+): IProtoMechBVMountValue {
+  return {
+    equipmentIndex,
+    equipmentId: mount.equipmentId,
+    location: mount.location,
+    battleValue,
+  };
+}
+
+// Pinned native trace calls offensiveEquipmentBV even when the value is zero.
+// BLKProtoMekFile + TestProtoMek.requiresSlot place these four no-slot types at
+// Body. Partial Wing occupies the supplied Torso; no other source is inferred.
+const ZERO_MISC_SOURCE_BLOCKS = new Map([
+  ['EIInterface', 'Body'],
+  ['CLMyomerBooster', 'Body'],
+  ['ProtoMechJumpJet', 'Body'],
+  ['ExtendedJumpJetSystem', 'Body'],
+  ['ProtoMechPartialWing', 'Torso'],
+]);
+
+/** Diagnostic-only catalog zero; unresolved fallback zeros are never facts. */
+export function resolveProtoZeroEquipmentMountBV(
+  equipmentIndex: number,
+  mount: IProtoMechMountedEquipment,
+): IProtoMechBVResolvedZeroMount | undefined {
+  const source = mount.blkSource;
+  if (
+    source === undefined ||
+    source.errors.length > 0 ||
+    source.lookupName !== mount.equipmentId ||
+    ZERO_MISC_SOURCE_BLOCKS.get(mount.equipmentId) !== source.blockKey ||
+    (source.blockKey === 'Torso' && mount.location !== ProtoLocation.TORSO)
+  ) {
+    return undefined;
+  }
+  const resolved = resolveEquipmentBV(mount.equipmentId);
+  if (!resolved.resolved || resolved.battleValue !== 0) return undefined;
+  return {
+    ...protoMechBVMountValue(equipmentIndex, mount, resolved.battleValue),
+    ...(source.blockKey === 'Body' ? { nativeLocation: 0 as const } : {}),
+  };
+}
 
 /** Native misc belongs outside the weapon/ammo-cap pool (BVCalculator:978-1042). */
 export function resolveProtoOffensiveEquipmentBV(
@@ -19,7 +73,7 @@ export function resolveProtoOffensiveEquipmentBV(
     // MegaMek 48fcb2f6 MiscType.java:1367-1369; dynamic, not catalog BV.
     return 2.5 * Math.ceil(0.2 * tonnage);
   }
-  if (id === 'protomagneticclamp' || id === 'clanelectricdischargeprotomech') {
+  if (id === 'protomagneticclamp' || isProtoEDPArmorMount(equipmentId)) {
     // Fixed values stay catalog-owned (MiscType:9401, ArmorType:1405).
     return resolveEquipmentBV(equipmentId).battleValue;
   }

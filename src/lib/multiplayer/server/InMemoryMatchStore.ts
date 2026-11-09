@@ -15,7 +15,9 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { assertMatchCreateStatus } from '@/types/multiplayer/MatchStatus';
 
+import type { IMatchRecord } from './InMemoryMatchStore.record';
 import type {
   IMatchCommandBatch,
   IMatchCommandReceipt,
@@ -37,47 +39,14 @@ import {
   type IMatchPublication,
   type IMatchStore,
   type IPublicationOutboxStore,
+  type MatchMetaUpdateResult,
 } from './IMatchStore';
 import {
   firstNonContiguousSequence,
   matchCommandFingerprint,
   matchesCommandFingerprint,
 } from './matchCommandBatch';
-import { lobbyMatchMeta, patchMatchMeta } from './matchRoomCodes';
-
-// =============================================================================
-// Internal record shape
-// =============================================================================
-
-interface IMatchRecord {
-  meta: IMatchMeta;
-  events: IGameEvent[];
-  /**
-   * Command receipts by `commandId`. The batch contract's identity half
-   * lives here: a retry is only recognisable as one if the store
-   * remembers what the first attempt committed.
-   */
-  receipts: Map<string, IMatchCommandReceipt>;
-  /**
-   * Publication outbox rows by authority sequence (umbrella task 7.1);
-   * `publishedAt` null means "still owed to recipients". Written inside
-   * `appendCommandBatch` beside the events, so a refused batch leaves
-   * nothing here.
-   */
-  publications: Map<
-    number,
-    { readonly record: IMatchPublication; publishedAt: string | null }
-  >;
-  combatOutcome: IMatchCombatOutcomeOutbox | null;
-  started: IMatchJournalAuthorityStarted | null;
-  baseline: IMatchJournalAuthorityBaseline | null;
-  importedLegacy: boolean;
-  // Set of sequences we've already stored — avoids O(n) scan on every
-  // append for a duplicate-sequence check (matches can run hundreds of
-  // events in a long fight).
-  sequences: Set<number>;
-  closed: boolean;
-}
+import { lobbyMatchMeta, metaRevision, patchMatchMeta } from './matchRoomCodes';
 
 // =============================================================================
 // Store
@@ -121,6 +90,7 @@ export class InMemoryMatchStore
         `Match already exists in store: ${meta.matchId} (call createMatch with a fresh id)`,
       );
     }
+    assertMatchCreateStatus(meta.status);
     meta = lobbyMatchMeta(meta);
     this.assertRoomCodeAvailable(meta);
     const sequences = new Set<number>();
@@ -445,6 +415,24 @@ export class InMemoryMatchStore
   ): Promise<void> => {
     const rec = this.records.get(matchId);
     if (!rec) throw new MatchNotFoundError(matchId);
+    this.applyMetaPatch(rec, patch);
+  };
+
+  updateMatchMetaIf = async (
+    matchId: string,
+    guard: { readonly expectedRevision: number },
+    patch: IMatchMetaPatch,
+  ): Promise<MatchMetaUpdateResult> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    if (metaRevision(rec.meta) !== guard.expectedRevision) {
+      return { kind: 'conflict', meta: rec.meta };
+    }
+    this.applyMetaPatch(rec, patch);
+    return { kind: 'applied', meta: rec.meta };
+  };
+
+  private applyMetaPatch(rec: IMatchRecord, patch: IMatchMetaPatch): void {
     const before = rec.meta;
     const nextMeta = patchMatchMeta(before, patch);
     this.assertRoomCodeAvailable(nextMeta);
@@ -460,7 +448,7 @@ export class InMemoryMatchStore
         rec.meta.matchId,
       );
     }
-  };
+  }
 
   private assertRoomCodeAvailable(meta: IMatchMeta): void {
     if (!meta.roomCode) return;
@@ -481,13 +469,10 @@ export class InMemoryMatchStore
 
   closeMatch = async (matchId: string): Promise<void> => {
     const rec = this.records.get(matchId);
-    if (!rec) return; // idempotent — closing missing/closed match is a no-op
-    if (rec.closed) return;
+    if (!rec || rec.closed) return; // idempotent — missing/closed is a no-op
     rec.closed = true;
-    if (rec.meta.roomCode) {
-      this.roomCodeIndex.delete(normalizeRoomCode(rec.meta.roomCode));
-    }
-    rec.meta = patchMatchMeta(rec.meta, { status: 'completed' });
+    // Completing drops the invite code, which also frees its index entry.
+    this.applyMetaPatch(rec, { status: 'completed' });
   };
 
   /**

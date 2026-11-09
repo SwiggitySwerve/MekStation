@@ -194,7 +194,7 @@ export function createDropShipDocument(): IBlkDocument {
     fuel: 2500,
     structuralIntegrity: 9,
     heatsinks: 100,
-    armor: [200, 180, 180, 160, 160, 120],
+    armor: [200, 180, 170, 160], // DropShip: exactly four values
     crew: 14,
     passengers: 0,
     transporters: ['mechbay:4', 'asfbay:2'],

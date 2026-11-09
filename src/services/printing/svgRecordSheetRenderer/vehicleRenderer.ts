@@ -25,15 +25,21 @@ import {
   renderTitleBlock,
 } from './stringRendererPrimitives';
 
-/** Render a simple horizontal armor bar (filled rect + outline). */
+/**
+ * Render a simple horizontal armor bar (filled rect + outline). Without a real
+ * per-location maximum (vehicles have none) only the label and value print.
+ */
 function armorBar(
   x: number,
   y: number,
   w: number,
   current: number,
-  maximum: number,
+  maximum: number | undefined,
   label: string,
 ): string {
+  if (maximum === undefined)
+    return `
+    <text x="${x}" y="${y + 7}" font-family="${FONT}" font-size="7" fill="#000">${esc(label)} ${esc(current)}</text>`;
   const fillW = maximum > 0 ? Math.round((current / maximum) * w) : 0;
   return `
     <text x="${x}" y="${y - 2}" font-family="${FONT}" font-size="7" fill="#000">${esc(label)} ${esc(current)}/${esc(maximum)}</text>

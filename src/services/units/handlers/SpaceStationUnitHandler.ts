@@ -20,7 +20,11 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
-import { parseCapitalVesselBasics } from './capitalShipHandlerShared';
+import {
+  parseCapitalArmorByArc,
+  parseCapitalEquipment,
+  parseCapitalVesselBasics,
+} from './capitalShipHandlerShared';
 import {
   calculateSpaceStationBV,
   calculateSpaceStationCost,
@@ -31,7 +35,6 @@ import {
   parseCrewConfiguration,
   parseTransportBays,
   parseQuarters,
-  parseEquipment,
   parseNumericRaw,
   getBooleanFromRaw,
 } from './SpaceStationUnitHandler.helpers';
@@ -85,6 +88,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     const basics = parseCapitalVesselBasics(document, {
       includeEngineType: false,
     });
+    const armorByArc = parseCapitalArmorByArc(basics.armor, errors);
 
     // Station type
     const rawTags = document.rawTags || {};
@@ -116,7 +120,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
     const quarters = parseQuarters(document);
 
     // Equipment
-    const equipment = parseEquipment(document);
+    const equipment = parseCapitalEquipment(document, { errors });
 
     // Escape pods and life boats
     const escapePods = document.escapePod || 0;
@@ -132,6 +136,7 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
       motionType,
       stationType,
       ...basics,
+      armorByArc,
       dockingCollars,
       gravDecks,
       hasHPG,

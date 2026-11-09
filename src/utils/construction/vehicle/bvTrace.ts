@@ -22,7 +22,7 @@ const nativeLocations = new Map<string, string>([
 /** Baseline reference trace; all nonneutral values come from their owning stages.
  * CombatVehicle inherits the empty offensive type stage at MegaMek 48fcb2f6.
  * Mount indices/IDs remain local; the comparator groups values by location.
- * Native ammo type/rack details remain unavailable.
+ * Ammo type/rack pools come from the shared calculation owner.
  */
 export function vehicleBVTerms(
   b: IVehicleBVBreakdown,
@@ -30,7 +30,8 @@ export function vehicleBVTerms(
 ): IVehicleBVBreakdown & {
   offensiveTypeModifier: number;
   adjustment: number | undefined;
-} & Record<`weapon.${number}.${string}.${string}`, number> {
+} & Record<`weapon.${number}.${string}.${string}`, number> &
+  Record<`ammo.${'available' | 'cap'}.${string}`, number> {
   const weaponTerms: Record<`weapon.${number}.${string}.${string}`, number> =
     {};
   const dual =
@@ -50,9 +51,19 @@ export function vehicleBVTerms(
       `weapon.${fact.equipmentIndex}.${abbreviation}.${fact.equipmentId}`
     ] = fact.battleValue;
   }
+  const ammoTerms: Record<`ammo.${'available' | 'cap'}.${string}`, number> = {};
+  const pools = b.ammoPools;
+  if (pools) {
+    for (const kind of ['available', 'cap'] as const) {
+      for (const [group, bv] of Object.entries(pools[kind])) {
+        ammoTerms[`ammo.${kind}.${group}`] = bv;
+      }
+    }
+  }
   return {
     ...b,
     ...weaponTerms,
+    ...ammoTerms,
     offensiveTypeModifier: 1,
     adjustment:
       b.summaryModifier === undefined

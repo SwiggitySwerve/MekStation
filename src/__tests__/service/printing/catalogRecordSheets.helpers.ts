@@ -90,6 +90,33 @@ export interface CatalogRow {
   stage?: string;
 }
 const service = new RecordSheetService();
+// Aerospace arcs by contract key, independent of the module under test. Small
+// craft print "Left Side"/"Right Side" (SmallCraft.java LOCATION_NAMES).
+const AERO_ARC: Record<
+  string,
+  { code: string; fighter: string; smallCraft: string }
+> = {
+  NOSE: { code: 'NOS', fighter: 'Nose', smallCraft: 'Nose' },
+  LEFT_WING: { code: 'LWG', fighter: 'Left Wing', smallCraft: 'Left Side' },
+  RIGHT_WING: { code: 'RWG', fighter: 'Right Wing', smallCraft: 'Right Side' },
+  LEFT_SIDE: { code: 'LWG', fighter: 'Left Wing', smallCraft: 'Left Side' },
+  RIGHT_SIDE: { code: 'RWG', fighter: 'Right Wing', smallCraft: 'Right Side' },
+  AFT: { code: 'AFT', fighter: 'Aft', smallCraft: 'Aft' },
+};
+// Independent of bindVehicle's own table so a code swap there cannot hide.
+const VEHICLE_PIP_CODE: Record<string, string> = {
+  FRONT: 'FR',
+  LEFT: 'LS',
+  RIGHT: 'RS',
+  REAR: 'RR',
+  FRONT_LEFT: 'FRLS',
+  FRONT_RIGHT: 'FRRS',
+  REAR_LEFT: 'RRLS',
+  REAR_RIGHT: 'RRRS',
+  TURRET: 'TU',
+  TURRET_2: 'FT',
+  ROTOR: 'RO',
+};
 
 export async function initializeEquipment(): Promise<void> {
   const transport = jest
@@ -161,6 +188,8 @@ export function verifyCatalogUnit(
       const armor = Object.fromEntries(
         data.armorLocations.map((a) => [a.location, a.current]),
       );
+      const expectedLabels: string[] = [];
+      const expectedPips: Record<string, number> = {};
       for (const [key, value] of Object.entries(
         source.armor?.byLocation ?? {},
       )) {
@@ -177,11 +206,52 @@ export function verifyCatalogUnit(
           TURRET_2: 'Turret 2',
           ROTOR: 'Rotor',
         };
-        if (key !== 'BODY')
+        if (key !== 'BODY') {
           check(`armor.${key}`, armor[label[key] ?? key], value);
+          expectedLabels.push(label[key] ?? key);
+          // Superheavy dual-turret sheets print the primary turret as RT.
+          const code =
+            key === 'TURRET' &&
+            state.isSuperheavy &&
+            state.motionType !== 'VTOL' &&
+            source.armor?.byLocation?.TURRET_2 !== undefined
+              ? 'RT'
+              : (VEHICLE_PIP_CODE[key] ?? key);
+          expectedPips[code] = (expectedPips[code] ?? 0) + value;
+        }
       }
+      // Extra, duplicate or missing printed locations fail, not just wrong values.
+      check(
+        'armor.locations',
+        data.armorLocations.map((a) => a.location).sort(),
+        expectedLabels.sort(),
+      );
+      // Vehicles have no per-location cap at the pin (only the unit total and
+      // the VTOL rotor), so a printed maximum is a fabricated value.
+      check(
+        'armor.maximum',
+        data.armorLocations
+          .filter((a) => a.maximum !== undefined)
+          .map((a) => a.location),
+        [],
+      );
+      check(
+        'barRating',
+        data.barRating,
+        source.unitType === 'Support Vehicle'
+          ? source.armor?.barRating
+          : undefined,
+      );
       checkEquipment(data.equipment, state.equipment, check);
       const bindings = bindVehicle(data);
+      const printedPips: Record<string, number | undefined> = {
+        ...bindings.pipCounts,
+      };
+      for (const code of new Set([
+        ...Object.keys(expectedPips),
+        ...Object.keys(printedPips),
+      ]))
+        check(`pips.${code}`, printedPips[code], expectedPips[code]);
       check(
         'binding.BV',
         bindings.texts.bv,
@@ -240,22 +310,68 @@ export function verifyCatalogUnit(
       check('fuel', data.fuelPoints, state.fuelPoints);
       check('heat.count', data.heatSinks.count, state.heatSinks);
       check('heat.capacity', data.heatSinks.capacity, state.heatSinkPool);
-      const arcs: Record<string, string> = {
-        NOSE: 'Nose',
-        LEFT_WING: 'Left Wing',
-        RIGHT_WING: 'Right Wing',
-        LEFT_SIDE: 'Left Wing',
-        RIGHT_SIDE: 'Right Wing',
-        AFT: 'Aft',
-      };
-      for (const [arc, points] of Object.entries(source.armor?.byArc ?? {}))
+      const smallCraft = state.unitType === 'Small Craft';
+      const expectedLabels: string[] = [];
+      const expectedPips: Record<string, number> = {};
+      for (const [arc, points] of Object.entries(source.armor?.byArc ?? {})) {
+        const entry = AERO_ARC[arc];
+        const label = smallCraft ? entry?.smallCraft : entry?.fighter;
         check(
           `armor.${arc}`,
-          data.armorArcs.find((a) => a.arc === arcs[arc])?.current,
+          data.armorArcs.find((a) => a.arc === label)?.current,
           points,
         );
+        if (label) expectedLabels.push(label);
+        if (entry) expectedPips[entry.code] = points;
+      }
+      // Each of the four arcs prints exactly once, under the hull's own label.
+      check(
+        'armor.arcs',
+        data.armorArcs.map((a) => a.arc).sort(),
+        expectedLabels.sort(),
+      );
+      // MML UnitUtil.getMaxArmor has no per-arc cap for aerospace: a printed
+      // maximum would be fabricated.
+      check(
+        'armor.maximum',
+        data.armorArcs.filter((a) => a.maximum !== undefined).map((a) => a.arc),
+        [],
+      );
+      const expectedBar =
+        source.subType === 'FixedWingSupport' && source.armor?.type === 'BAR'
+          ? source.armor.barRating
+          : undefined;
+      check('barRating', data.barRating, expectedBar);
       checkEquipment(data.equipment, state.equipment, check);
       const bindings = bindAerospace(data);
+      for (const code of ['NOS', 'LWG', 'RWG', 'AFT']) {
+        const points = expectedPips[code] ?? 0;
+        // Small craft print their side arcs in the LS/RS template slots.
+        const side = smallCraft && (code === 'LWG' || code === 'RWG');
+        const slot = side ? (code === 'LWG' ? 'LS' : 'RS') : code;
+        const group = `armorPips${slot}`;
+        check(`pips.${code}`, bindings.pipCounts[code as 'NOS'], points);
+        check(
+          `pipGroup.${code}`,
+          bindings.pips.find((p) => p.groupId === group)?.count,
+          points > 0 ? points : undefined,
+        );
+        check(`text.${code}`, bindings.texts[`textArmor_${slot}`], `${points}`);
+        if (side)
+          check(
+            `pipGroup.${code}.unused`,
+            bindings.pips.some((p) => p.groupId === `armorPips${code}`),
+            false,
+          );
+      }
+      // MML PrintEntity.drawArmor: support vehicles with BAR armor print
+      // "BAR: <rating>" as the armor type.
+      if (expectedBar !== undefined)
+        check(
+          'binding.armorType',
+          bindings.texts.armorType,
+          `BAR: ${expectedBar}`,
+        );
       if (data.equipment.length)
         check('binding.inventory', bindings.inventory, data.equipment);
       check(
@@ -268,6 +384,12 @@ export function verifyCatalogUnit(
           'binding.heat',
           bindings.pips.find((p) => p.groupId === 'heatSinkPips')?.count ?? 0,
           data.heatSinks.count,
+        );
+      else
+        check(
+          'binding.heat',
+          bindings.pips.some((p) => p.groupId === 'heatSinkPips'),
+          false,
         );
       row.template = selectAerospaceTemplate(data);
       check(
@@ -676,7 +798,20 @@ export function defineCatalogFamilyParity(
                     d.field === 'motion' ||
                     d.field === 'weightClass' ||
                     d.field === 'binding.inventory' ||
-                    (family === 'vehicles' && d.field.startsWith('armor.')) ||
+                    (family === 'vehicles' &&
+                      (d.field.startsWith('armor.') ||
+                        d.field.startsWith('pips.') ||
+                        d.field === 'barRating')) ||
+                    (family === 'aerospace' &&
+                      (d.field.startsWith('armor.') ||
+                        d.field.startsWith('pips.') ||
+                        d.field.startsWith('pipGroup.') ||
+                        d.field.startsWith('text.') ||
+                        d.field === 'barRating' ||
+                        d.field === 'binding.armorType' ||
+                        d.field === 'binding.heat' ||
+                        d.field === 'binding.SI' ||
+                        d.field === 'SI')) ||
                     d.field.startsWith('weaponStats') ||
                     d.field.startsWith('weaponAliasStats') ||
                     (d.field === 'template' && r.subtype !== 'SmallCraft'),

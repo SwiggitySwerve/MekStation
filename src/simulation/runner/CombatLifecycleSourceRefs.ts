@@ -81,7 +81,7 @@ export const LOCAL_EJECTION_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation InteractiveSession.ejectUnit emits UnitEjected only for active, non-destroyed, non-retreated, non-ejected units.',
     'src/engine/InteractiveSession.ts',
-    'L453-L471',
+    'L669-L671',
   ),
   mekstationDeviationRef(
     'MekStation applyUnitEjected latches hasEjected, resolves the action, and preserves the existing armor, structure, destroyed, and pilotConscious state.',
@@ -99,12 +99,12 @@ export const LOCAL_SURVIVOR_COUNT_SOURCE_REFS = [
   mekstationDeviationRef(
     'MekStation objective control and destroy-objective predicates count only units that are alive and not retreated or ejected.',
     'src/utils/gameplay/objectives/objectiveEngine.ts',
-    'L40-L47',
+    'L41-L48',
   ),
   mekstationDeviationRef(
     'MekStation objective destroy evaluation uses countParticipating, which excludes destroyed, retreated, and ejected units.',
     'src/utils/gameplay/objectives/objectiveEngine.ts',
-    'L186-L212',
+    'L187-L213',
   ),
   mekstationDeviationRef(
     'MekStation runner isUnitOperable and isGameOver exclude destroyed, retreated, ejected, and unconscious units from terminal survivor checks.',

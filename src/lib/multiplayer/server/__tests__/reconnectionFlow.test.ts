@@ -31,6 +31,7 @@ import {
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { addSpectatorSeat } from '../lobby/spectatorSeats';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
+import { raceMetaWrites } from './matchMetaRace.test-helpers';
 
 // =============================================================================
 // Helpers
@@ -288,13 +289,44 @@ describe('Reconnection Flow (Wave 4)', () => {
     expect(host.isPausedForReconnect()).toBe(false);
   });
 
+  it('MarkSeatAi still converts the pending seat when a concurrent write forces a retry', async () => {
+    const { host, matchId, store } = await makeActiveHost();
+    const hostSock = makeSocket();
+    const oppSock = makeSocket();
+    host.attachSocket(hostSock, 'pid_host');
+    host.attachSocket(oppSock, 'pid_opp');
+    host.detachSocket(oppSock);
+    await flushDrop();
+    // Re-deriving after the conflict must still find the pending entry, so
+    // the handler may only clear it once the seat write has been applied.
+    const race = raceMetaWrites(store, matchId, (fresh) => ({
+      layout: fresh.layout,
+    }));
+
+    const out = await host.handleIntent({
+      kind: 'Intent',
+      matchId,
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: { kind: 'MarkSeatAi', slotId: 'bravo-1' },
+    });
+
+    expect(race.fired()).toBe(1);
+    expect(out.map((frame) => frame.kind)).toContain('LobbyUpdated');
+    const seat = (await store.getMatchMeta(matchId)).seats?.find(
+      (s) => s.slotId === 'bravo-1',
+    );
+    expect(seat?.kind).toBe('ai');
+    expect(host.getPendingPeersForTests()).toHaveLength(0);
+    expect(host.isPausedForReconnect()).toBe(false);
+  });
+
   it.each([
     'connected',
     'empty',
     'ai',
     'spectator',
     'wrong-slot',
-    'lobby',
     'completed',
   ] as const)(
     'MarkSeatAi rejects %s targets without changing seats or clearing pending',
@@ -326,10 +358,9 @@ describe('Reconnection Flow (Wave 4)', () => {
             );
       await store.updateMatchMeta(matchId, {
         seats,
-        status:
-          scenario === 'lobby' || scenario === 'completed'
-            ? scenario
-            : 'active',
+        // An active match never returns to lobby; the lobby refusal is
+        // pinned on the intent table in matchIntentKinds.test.ts.
+        status: scenario === 'completed' ? 'completed' : 'active',
       });
       const before = await store.getMatchMeta(matchId);
       const pending = host.getPendingPeersForTests();

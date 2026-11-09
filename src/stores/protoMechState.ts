@@ -1,3 +1,4 @@
+import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 /**
  * ProtoMech State Interface
  *
@@ -7,8 +8,6 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 5.3
  * @spec openspec/changes/add-protomech-construction/tasks.md §1
  */
-
-import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 import type { IUnitContract } from '@/types/contracts';
 
@@ -33,12 +32,15 @@ import {
   getProtoWeightClass,
   getProtoMPCaps,
 } from '@/utils/construction/protomech';
+import { getProtoArmorName } from '@/utils/construction/protomech/armorType';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
 import {
   calculateProtoMechBV,
   type IProtoMechBVBreakdown,
 } from '@/utils/construction/protomech/protoMechBV';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
+
+import type { IUnitSaveMetadata } from './unitSaveState';
 
 // =============================================================================
 // ProtoMech Armor/Structure Allocation
@@ -117,7 +119,7 @@ export function createProtoMechMountedEquipment(
 /**
  * Complete state for a single ProtoMech unit
  */
-export interface ProtoMechState {
+export interface ProtoMechState extends IUnitSaveMetadata {
   /** Original catalog facts not expressible by the editor. */
   librarySource?: IUnitContract;
   // =========================================================================
@@ -531,7 +533,7 @@ function toProtoMechUnit(state: ProtoMechState): IProtoMechUnit {
     engineWeight: computeProtoEngineWeight(state.engineRating),
     myomerBooster: state.hasMyomerBooster,
     glidingWings: state.glidingWings,
-    armorType: 'Standard',
+    armorType: getProtoArmorName(state.armorType),
     armorByLocation,
     structureByLocation,
     hasMainGun: state.hasMainGun,
