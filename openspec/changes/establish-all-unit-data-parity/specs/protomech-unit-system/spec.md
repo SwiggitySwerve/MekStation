@@ -522,3 +522,47 @@ ProtoMech movement validity SHALL be the rules of pinned MegaMek `48fcb2f64` `Te
 #### Scenario: Scope boundary
 
 - **THEN** the editor's weight-class input clamps, the Structure tab's ultraheavy jump lock and the unwired Myomer weight-class label SHALL remain outside this requirement, for the separate editor-limits item that cites MegaMekLab's own spinner limits
+
+### Requirement: Native ProtoMech complete construction mass
+
+SHALL compute native ProtoMech construction mass in one weight owner from engine,
+structure, controls, allocated armor, admitted equipment, per-shot ammunition and
+heat-neutral sinks, matching MegaMek 48fcb2f64 to the kilogram.
+
+SHALL resolve ProtoMech launcher mass through one native-family/rack multiplier
+table and mounted JJ, UMU, Myomer Booster, magnetic-clamp and partial-wing mass
+with their unit-dependent formulas rather than context-free catalog zeros.
+
+SHALL reuse the existing heat-neutral weapon and linked-load owners, excluding
+ammunition-fed chemical-laser heat while retaining native plasma heat.
+
+#### Scenario: Synthetic propulsion and launcher weight
+
+- **WHEN** loading the 20 pinned-Hydra synthetic designs through the production handler
+- **THEN** every component and total mass SHALL match the pinned original Java verifier
+- **AND** all 13 previously omitted weight failures SHALL be reported
+- **AND** the seven weight-valid designs SHALL retain their weight verdicts
+- **AND** propulsion mass SHALL follow mounts independently of movement fields
+
+#### Scenario: Canonical ProtoMech mass and validity
+
+- **WHEN** loading all 86 pinned canonical ProtoMechs
+- **THEN** every complete mass SHALL match the original Java verifier
+- **AND** Svartalfa 3 SHALL remain the only invalid canonical design
+- **AND** the valid SvartAlfa Ultra SHALL weigh 13,950 kg without chemical-laser sinks
+- **AND** existing ProtoMech BV inputs and results SHALL remain unchanged
+
+#### Scenario: Unavailable construction mass
+
+- **WHEN** a mount, engine, armor or heat requirement cannot be resolved
+- **THEN** a complete mass SHALL be unavailable with the missing input identified
+- **AND** a known subtotal SHALL remain available only when the core mass is known
+- **AND** validation SHALL use the known subtotal without inventing a zero mass
+
+#### Scenario: Formula boundaries and final rounding
+
+- **WHEN** resolving propulsion and clamp mounts at 5, 6, 9, 10 or 15 tons
+- **THEN** their masses SHALL match the corresponding original Java tiers
+- **AND** extended jump jets SHALL double only their own mass
+- **AND** ammunition SHALL retain per-bin kilogram ceiling
+- **AND** the complete component sum SHALL round to the nearest kilogram

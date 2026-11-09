@@ -20,7 +20,7 @@ const base = {
   equipment: [],
 };
 
-describe('minimum-weight extraction preserves existing admission and arithmetic', () => {
+describe('native ProtoMech weight accounting', () => {
   it('includes structure, controls and odd-count Standard armor', () => {
     expect(getProtoMinimumWeight(base)).toBe(1.15);
     expect(getProtoMinimumWeight({ ...base, weightPerUnit: 10 })).toBe(1.9);
@@ -45,28 +45,30 @@ describe('minimum-weight extraction preserves existing admission and arithmetic'
     expect(getProtoMinimumWeight({ ...base, equipment })).toBe(3.35);
     expect(
       getProtoMinimumWeight({ ...base, equipment, hasMainGun: true }),
-    ).toBe(4.35);
+    ).toBe(5.6);
   });
 
-  it('retains omission of unknown and variable miscellaneous mass', () => {
+  it('retains a known lower bound with an unsupported mount', () => {
     const equipment = [
       { equipmentId: 'not-in-catalog', location: L.TORSO },
       { equipmentId: 'ProtoMagneticClamp', location: L.TORSO },
     ];
-    expect(getProtoMinimumWeight({ ...base, equipment })).toBe(1.15);
+    expect(getProtoMinimumWeight({ ...base, equipment })).toBe(1.4);
   });
 
   it.each([
-    ['CLStreakSRM5', 1.15, 3.65],
+    ['CLStreakSRM5', 3.65, 3.65],
     ['CLLRM10', 3.15, 3.15],
-    ['CLERMediumLaser', 2.15, 3.4],
-    ['CLMediumChemicalLaser', 2.15, 2.65],
-    ['ProtoMechJumpJet', 1.15, 1.15],
-    ['CLMyomerBooster', 1.15, 1.275],
-    ['ProtoQuadMeleeSystem', 1.15, 2.15],
+    ['CLERMediumLaser', 3.4, 3.4],
+    ['CLMediumChemicalLaser', 2.15, 2.15],
+    ['ProtoMechJumpJet', 1.2, 1.2],
+    ['CLMyomerBooster', 1.275, 1.275],
+    ['ProtoQuadMeleeSystem', 2.15, 2.15],
+    ['ExtendedJumpJetSystem', 1.25, 1.25],
+    ['ProtoMagneticClamp', 1.4, 1.4],
     ['Clan Ammo SRM-2 (10)', 1.35, 1.35],
   ])(
-    'preserves both existing mass policies for %s',
+    'uses the same known contributions for %s',
     (equipmentId, minimum, total) => {
       const unit = {
         ...base,
@@ -77,7 +79,7 @@ describe('minimum-weight extraction preserves existing admission and arithmetic'
     },
   );
 
-  it.each(['ExtendedJumpJetSystem', 'ProtoMagneticClamp', 'not-in-catalog'])(
+  it.each(['not-in-catalog'])(
     'preserves unavailable complete mass for %s',
     (equipmentId) => {
       const unit = { ...base, equipment: [{ equipmentId, location: L.TORSO }] };
