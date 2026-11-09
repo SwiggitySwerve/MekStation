@@ -6,9 +6,9 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { TechBase } from '@/types/enums/TechBase';
-import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
+import { projectSourceGrid } from '@/utils/construction/slotOperations/sourceGrid';
 
 import type { UnitData } from '../../../scripts/validate-bv-types';
 import type {
@@ -17,7 +17,6 @@ import type {
 } from './MechBuilderService';
 
 import { deriveEffectiveConfiguration } from '../../../scripts/validate-bv-calculator-setup';
-import { toMechLoc } from '../../../scripts/validate-bv-normalizers';
 import { extractJumpMP } from './CalculationService.calculations';
 
 export function buildEditableArmorAllocation(
@@ -130,69 +129,11 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
     baseline: string | undefined,
     original: string | undefined,
   ) => (live === baseline && original ? original : live);
-  const criticalSlots = Object.fromEntries(
-    Object.entries(source?.criticalSlots ?? {}).map(([loc, slots]) => [
-      loc,
-      [...slots],
-    ]),
+  const { criticalSlots, equipment } = projectSourceGrid(
+    source,
+    context?.equipment,
+    mech.equipment,
   );
-  const critLocation = (location: string) => {
-    const short = toMechLoc(location);
-    return (
-      (short &&
-        Object.keys(criticalSlots).find((key) => toMechLoc(key) === short)) ||
-      location.toUpperCase().replace(/ /g, '_')
-    );
-  };
-  const equipment: UnitData['equipment'] = [];
-  const current = new Map(
-    mech.equipment.map((item, index) => [
-      item.instanceId ?? String(index),
-      item,
-    ]),
-  );
-  context?.equipment.forEach((original, index) => {
-    const live = current.get(original.instanceId);
-    const unchanged =
-      live &&
-      live.equipmentId === original.equipmentId &&
-      live.location === (original.location ?? '') &&
-      live.isRearMounted === original.isRearMounted &&
-      JSON.stringify(live.slots) === JSON.stringify(original.slots);
-    if (unchanged) {
-      const raw = source?.equipment?.[index];
-      // Recovered ammo/sinks already exist in the critical grid. Some ammo IDs
-      // are also weapon IDs, so adding them here would invent extra weapons.
-      if (raw) equipment.push({ id: raw.id, location: raw.location });
-      current.delete(original.instanceId);
-    } else if (original.location) {
-      const loc = critLocation(original.location);
-      for (const slot of original.slots ?? []) {
-        if (criticalSlots[loc]) criticalSlots[loc][slot] = null;
-      }
-    }
-  });
-  for (const item of current.values()) {
-    const loc = critLocation(item.location);
-    if (item.category !== EquipmentCategory.AMMUNITION)
-      equipment.push({
-        id: item.equipmentId,
-        location: loc + (item.isRearMounted ? ' (R)' : ''),
-      });
-    if (!loc) continue;
-    const slots = (criticalSlots[loc] ??= []);
-    const name =
-      (item.name ?? item.equipmentId) + (item.isRearMounted ? ' (R)' : '');
-    for (
-      let i = 0;
-      i < Math.max(1, item.slots?.length ?? item.criticalSlots ?? 1);
-      i++
-    ) {
-      const slot = item.slots?.[i];
-      if (slot === undefined) slots.push(name);
-      else slots[slot] = name;
-    }
-  }
   const a = mech.armorAllocation;
   const effectiveConfiguration =
     source?.configuration === mech.configuration
