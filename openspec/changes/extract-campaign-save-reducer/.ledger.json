@@ -1,0 +1,6 @@
+{
+  "name": "extract-campaign-save-reducer",
+  "status": "active",
+  "reason": "Coordinator 4 approved K4 PR1: behavior-preserving internal save-state reducer extraction.",
+  "lastReviewed": "2026-11-09"
+}
