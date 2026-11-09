@@ -51,6 +51,7 @@ import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
 import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
+import { cloneSerializedStructure } from './structureMetadata';
 
 const GYRO_TYPE = {
   [GyroType.STANDARD]: 'STANDARD',
@@ -235,7 +236,9 @@ export function serializeCustomUnitState(
     },
     gyro: { type: GYRO_TYPE[state.gyroType] },
     cockpit: getCockpitSourceTag(state.cockpitType),
-    structure: { type: STRUCTURE_TYPE[state.internalStructureType] },
+    structure: cloneSerializedStructure(state.frankenStructure) ?? {
+      type: STRUCTURE_TYPE[state.internalStructureType],
+    },
     armor: serializeArmor(state),
     heatSinks: {
       type: HEAT_SINK_TYPE[state.heatSinkType],

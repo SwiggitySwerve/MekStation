@@ -117,6 +117,40 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
     },
   ] as const;
 
+/** Serialized global identities; retains the historical fallback for old saves. */
+export function mapSerializedStructureType(
+  typeStr: string,
+  techBase: TechBase,
+): InternalStructureType {
+  const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
+
+  if (normalized === 'ENDOSTEEL' || normalized === 'ENDO') {
+    return techBase === TechBase.CLAN
+      ? InternalStructureType.ENDO_STEEL_CLAN
+      : InternalStructureType.ENDO_STEEL_IS;
+  }
+  if (normalized === 'ENDOSTEELIS') {
+    return InternalStructureType.ENDO_STEEL_IS;
+  }
+  if (normalized === 'ENDOSTEELCLAN') {
+    return InternalStructureType.ENDO_STEEL_CLAN;
+  }
+  if (normalized === 'ENDOCOMPOSITE') {
+    return InternalStructureType.ENDO_COMPOSITE;
+  }
+  if (normalized === 'REINFORCED') {
+    return InternalStructureType.REINFORCED;
+  }
+  if (normalized === 'COMPOSITE') {
+    return InternalStructureType.COMPOSITE;
+  }
+  if (normalized === 'INDUSTRIAL') {
+    return InternalStructureType.INDUSTRIAL;
+  }
+
+  return InternalStructureType.STANDARD;
+}
+
 /**
  * Get internal structure definition by type
  */

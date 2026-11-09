@@ -11,6 +11,7 @@ import { StoreApi } from 'zustand';
 
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 import { logger } from '@/utils/logger';
+import { cloneSerializedStructure } from '@/utils/serialization/structureMetadata';
 import { isValidUUID, generateUUID } from '@/utils/uuid';
 
 import {
@@ -236,12 +237,14 @@ export function duplicateUnit(
   // Copy configuration from source
   const mergedState: UnitState = {
     ...newState,
+    configuration: sourceState.configuration,
     techBaseMode: sourceState.techBaseMode,
     componentTechBases: { ...sourceState.componentTechBases },
     engineType: sourceState.engineType,
     engineRating: sourceState.engineRating,
     gyroType: sourceState.gyroType,
     internalStructureType: sourceState.internalStructureType,
+    frankenStructure: cloneSerializedStructure(sourceState.frankenStructure),
     cockpitType: sourceState.cockpitType,
     heatSinkType: sourceState.heatSinkType,
     heatSinkCount: sourceState.heatSinkCount,
