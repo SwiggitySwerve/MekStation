@@ -7,14 +7,21 @@ import type {
 
 import {
   addBVToAmmoCapGroup,
+  getMechDiagnosticAmmoBVGroup,
   getNativeAmmoBVGroup,
+  resolveNativeAmmoBin,
   sumCappedAmmoBV,
 } from '../battleValueAmmo';
 import { getOffensiveBVRole } from '../battleValueEquipment';
 import { calculateAdjustedBV } from '../battleValuePilot';
 import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
-import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
+import { isOneShotBVWeapon } from '../equipmentBV/weaponHeat';
+import {
+  getAmmunitionEntry,
+  getEquipmentEntry,
+  resolveEquipmentBV,
+} from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 
 export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
@@ -32,6 +39,12 @@ export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
   return total;
 }
 
+export interface IAerospaceAmmoBVPools {
+  readonly total: number;
+  readonly available: Readonly<Record<string, number>>;
+  readonly cap: Readonly<Record<string, number>>;
+}
+
 /**
 
  * Cap ammo BV against matching weapon BV, per TechManual.
@@ -44,12 +57,6 @@ export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
 
  */
 
-export interface IAerospaceAmmoBVPools {
-  readonly total: number;
-  readonly available: Readonly<Record<string, number>>;
-  readonly cap: Readonly<Record<string, number>>;
-}
-
 export function calculateAerospaceAmmoBV(
   equipment: readonly IAerospaceBVEquipment[],
 
@@ -60,7 +67,10 @@ export function calculateAerospaceAmmoBV(
   return calculateAerospaceAmmoBVPools(equipment, ammo, nativeGroups).total;
 }
 
-/** The actual grouping maps used by the existing capped-ammo calculation. */
+/** Existing capped total and source-backed native diagnostics before FCS/speed.
+ * Supplemental native identities affect diagnostics only, never ammo arithmetic.
+ * @spec establish-all-unit-data-parity: Aerospace ammunition diagnostics
+ */
 export function calculateAerospaceAmmoBVPools(
   equipment: readonly IAerospaceBVEquipment[],
   ammo: readonly IAerospaceBVAmmo[],
@@ -69,23 +79,53 @@ export function calculateAerospaceAmmoBVPools(
   // Bucket weapon BV by normalized equipment id so ammo entries can match.
 
   const weaponBVByType: Record<string, number> = {};
+  const available: Record<string, number> = {};
+  const cap: Record<string, number> = {};
+  const supplementalAvailable: Record<string, number> = {};
 
   for (const item of equipment) {
     if (nativeGroups && (item.isAmmo ?? isAmmunitionEquipmentId(item.id)))
       continue;
-    if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const resolved = resolveEquipmentBV(item.id);
 
     if (!resolved.resolved) continue;
 
     // BVCalculator.java:1190-1240: native ammo type/rack crosses tech bases.
     const entry = nativeGroups ? getEquipmentEntry(item.id) : undefined;
-    const key =
-      (nativeGroups
-        ? (getNativeAmmoBVGroup(item.id) ??
-          getNativeAmmoBVGroup(entry?.id ?? '') ??
-          getNativeAmmoBVGroup(entry?.name ?? ''))
-        : undefined) ?? item.id.toLowerCase();
+    // Some native zero-BV bins arrive as miscellaneous equipment. Retain only
+    // a usable physical bin confirmed by its existing ammunition catalog entry.
+    const binEntry = entry ? getAmmunitionEntry(entry.name) : undefined;
+    const bin = binEntry
+      ? resolveNativeAmmoBin(item.id.replace(/^[^:]+/, binEntry.id))
+      : undefined;
+    const binGroup = binEntry
+      ? getMechDiagnosticAmmoBVGroup(binEntry.id)
+      : undefined;
+    if (binGroup && binEntry?.battleValue === 0 && bin && bin.shots > 0)
+      addBVToAmmoCapGroup(
+        supplementalAvailable,
+        binGroup,
+        binEntry.battleValue,
+      );
+    // Reuse the shared diagnostic identities, including primitive AC and AMS;
+    // they must not expand the compatibility groups used by the numeric API.
+    const nativeGroup = nativeGroups
+      ? (getNativeAmmoBVGroup(item.id) ??
+        getNativeAmmoBVGroup(entry?.id ?? '') ??
+        getNativeAmmoBVGroup(entry?.name ?? ''))
+      : undefined;
+    const diagnosticGroup = nativeGroups
+      ? (getMechDiagnosticAmmoBVGroup(item.id) ?? nativeGroup)
+      : undefined;
+    if (
+      diagnosticGroup &&
+      ![item.id, entry?.id ?? '', entry?.name ?? ''].some(isOneShotBVWeapon) &&
+      Number.isFinite(resolved.battleValue) &&
+      resolved.battleValue >= 0
+    )
+      addBVToAmmoCapGroup(cap, diagnosticGroup, resolved.battleValue);
+    if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
+    const key = nativeGroup ?? item.id.toLowerCase();
 
     addBVToAmmoCapGroup(weaponBVByType, key, resolved.battleValue);
   }
@@ -100,14 +140,23 @@ export function calculateAerospaceAmmoBVPools(
       getAerospaceDefensiveEquipmentKind(entry.weaponType)
     )
       continue;
-    const key =
-      (nativeGroups
-        ? (getNativeAmmoBVGroup(entry.weaponType) ??
-          getNativeAmmoBVGroup(entry.id))
-        : undefined) ?? entry.weaponType.toLowerCase();
+    const nativeGroup = nativeGroups
+      ? (getNativeAmmoBVGroup(entry.weaponType) ??
+        getNativeAmmoBVGroup(entry.id))
+      : undefined;
+    const diagnosticGroup = nativeGroups
+      ? (getMechDiagnosticAmmoBVGroup(entry.id) ??
+        getMechDiagnosticAmmoBVGroup(entry.weaponType) ??
+        nativeGroup)
+      : undefined;
+    if (diagnosticGroup)
+      addBVToAmmoCapGroup(available, diagnosticGroup, entry.bv);
+    const key = nativeGroup ?? entry.weaponType.toLowerCase();
 
     addBVToAmmoCapGroup(ammoBVByType, key, entry.bv);
   }
+  for (const [group, value] of Object.entries(supplementalAvailable))
+    if (!Object.hasOwn(available, group)) available[group] = value;
 
   // Cap each bucket at the matching weapon BV total.
 
@@ -116,7 +165,7 @@ export function calculateAerospaceAmmoBVPools(
 
     return weaponBV === 0 ? undefined : weaponBV;
   });
-  return { total, available: ammoBVByType, cap: weaponBVByType };
+  return { total, available, cap };
 }
 
 /** Shared crew table with G4/P5 defaults. */
