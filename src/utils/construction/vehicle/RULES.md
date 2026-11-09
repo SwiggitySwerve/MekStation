@@ -823,3 +823,44 @@ its source identity. The sweep found no mount with an unresolved heat value, so
 the path loses nothing. Support vehicles are outside this term: Java gives them
 no free sinks (TestSupportVehicle.java:917-931), and the support heat term
 depends on the 2.2-d support weight model.
+
+## Pinned vehicle armor editor limits and allocation (4.1-i)
+
+`armorLimits.ts` owns installed armored locations, the rotor limit and the
+class-total ceiling. `armor.ts` retains its public facade for existing total
+callers. `editorArmor.ts` projects the same limits into editor figures and
+performs automatic allocation; stores and components transport those results.
+
+At MML 62bf193, `UnitUtil.getMaxArmor` (UnitUtil.java:900-916) returns null for
+vehicle locations except the VTOL rotor, which has maximum 2. Null means no
+individual maximum (`ArmorLocationView.setMaxPoints`). This applies to hull
+faces and installed turrets, including six-side superheavy and large-support
+layouts. Body is not an armored location; absent turrets and unknown locations
+remain unavailable. Structure points do not limit vehicle armor.
+
+The total is separate: `UnitUtil.getMaximumArmorPoints` (UnitUtil.java:769-795)
+uses `floor(tonnage * 3.5 + 40)` for combat vehicles, VTOLs and superheavy tanks,
+matching MegaMek 48fcb2f64 `TestTank.java:338`. Support vehicles instead use
+`TestSupportVehicle.maxArmorFactor` (TestSupportVehicle.java:585-617):
+`4 + trunc(tonnage * movement factor)`. The existing support-total helper owns
+the factors and large-naval size boundary; BAR does not alter the point ceiling.
+
+`ArmorAllocationView.java:209-276` and `TestEntity.java:1148-1152` distinguish
+raw purchased points from available points: available is the smaller of the
+raw points and the class total. Waste is the difference. Numeric location
+inputs have no maximum for ordinary armored locations, so a saved invalid
+design remains inspectable; diagnostics report purchased-point and class-total
+over-allocation without inventing a location cap. The rotor remains bounded.
+
+Automatic allocation follows MML `CVStructureTab.java:877-940` and
+`SVArmorTab.java:286-364`. Clear the old allocation; reserve up to two available
+points for a rotor; exclude Body and Rotor from the remaining location count.
+Every other location receives a share of `1 / count`; split the combined
+front/rear share 60/40, floor each result and put the rounding remainder on
+Front. Both installed turrets and all six hull faces participate. Purchased
+points use the actual armor type or BAR table and never exceed the class total.
+Zero- and one-point rotor budgets cannot create negative hull armor.
+
+The editor, store allocator and status diagnostics share these owners. Handler
+validity continues to use its source-handler path and is checked independently;
+changing an editor diagnostic must not silently change catalog validity or BV.

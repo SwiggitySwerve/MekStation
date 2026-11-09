@@ -1,16 +1,13 @@
-import {
-  ArmorTypeEnum,
-  getArmorDefinition,
-} from '@/types/construction/ArmorType';
+/** Vehicle armor editor figures and pinned automatic allocation. See RULES.md. */
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
-import { BLK_SUPERHEAVY_ARMOR_LOCATIONS } from '@/types/formats/BlkFormat';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import {
   computeVehicleArmorPoints,
+  computeVehicleArmorWeight,
   computeSupportVehicleBarArmorPointsFromTonnage,
   getSupportVehicleBarArmorWeight,
   resolveSupportVehicleArmorTechRating,
@@ -18,7 +15,9 @@ import {
 } from './armor';
 import {
   getMaxVehicleArmor,
+  getVehicleArmoredLocations,
   hasSixSideVehicleArmor,
+  VTOL_MAX_ROTOR_ARMOR,
   type IVehicleArmorProfile,
   type VehicleArmorLocation,
 } from './armorLimits';
@@ -33,60 +32,38 @@ export type {
   IGetMaxVehicleArmorInput,
   IGetMaxVehicleArmorForLocationInput,
 } from './armorLimits';
+export { computeVehicleArmorPoints as calculateArmorPoints } from './armor';
 
-/** BLKTankFile / BLKLargeSupportTankFile six-side layout; Tank.java:127-130
- * identifies Turret as rear and Turret 2 as front, matching record sheets.
- * BLKLargeSupportTankFile:124-137 keeps Body outside the six/eight armor entries. */
+/** Labels are presentation; the limit owner supplies installed armor topology. */
 export function getVehicleArmorEditorLayout(profile: IVehicleArmorProfile): {
   locations: { location: VehicleArmorLocation; label: string }[];
   isSixSide: boolean;
   canAutoAllocate: boolean;
 } {
   const isSixSide = hasSixSideVehicleArmor(profile);
-  const hull = isSixSide
-    ? BLK_SUPERHEAVY_ARMOR_LOCATIONS.slice(0, 6)
-    : [
-        VehicleLocation.FRONT,
-        VehicleLocation.LEFT,
-        VehicleLocation.RIGHT,
-        VehicleLocation.REAR,
-      ];
-  const locations: { location: VehicleArmorLocation; label: string }[] =
-    hull.map((location) => ({
-      location,
-      label:
-        location === VehicleLocation.LEFT
-          ? 'Left Side'
-          : location === VehicleLocation.RIGHT
-            ? 'Right Side'
-            : location,
-    }));
-  if (profile.hasTurret)
-    locations.push({
-      location: VehicleLocation.TURRET,
-      label: profile.isChinTurret
-        ? 'Chin Turret'
-        : profile.hasSecondaryTurret
-          ? 'Rear Turret'
-          : 'Turret',
-    });
-  if (profile.hasSecondaryTurret)
-    locations.push({
-      location: VehicleLocation.TURRET_2,
-      label: 'Front Turret',
-    });
-  if (profile.isVTOL)
-    locations.push({ location: VTOLLocation.ROTOR, label: 'Rotor' });
+  const locations = getVehicleArmoredLocations(profile).map((location) => ({
+    location,
+    label:
+      location === VehicleLocation.LEFT
+        ? 'Left Side'
+        : location === VehicleLocation.RIGHT
+          ? 'Right Side'
+          : location === VehicleLocation.TURRET
+            ? profile.isChinTurret
+              ? 'Chin Turret'
+              : profile.hasSecondaryTurret
+                ? 'Rear Turret'
+                : 'Turret'
+            : location === VehicleLocation.TURRET_2
+              ? 'Front Turret'
+              : location,
+  }));
   if (profile.isSupport && !isSixSide)
     locations.push({ location: VehicleLocation.BODY, label: 'Body' });
-  return {
-    locations,
-    isSixSide,
-    canAutoAllocate: !isSixSide && !profile.usesBarArmor,
-  };
+  return { locations, isSixSide, canAutoAllocate: true };
 }
 
-export function getVehicleArmorEditorFigures(input: {
+export interface IVehicleArmorEditorInput {
   tonnage: number;
   armorType: ArmorTypeEnum;
   armorTonnage: number;
@@ -94,13 +71,17 @@ export function getVehicleArmorEditorFigures(input: {
   armorTechRating?: number;
   armorAllocation: Record<string, number>;
   profile: IVehicleArmorProfile;
-}): {
+}
+
+/** MML ArmorAllocationView: raw purchased points, available budget and waste. */
+export function getVehicleArmorEditorFigures(input: IVehicleArmorEditorInput): {
   availablePoints: number;
   allocatedPoints: number;
   maxTotalArmor: number;
   maxUsefulTonnage: number;
   unallocatedPoints: number;
   wastedPoints: number;
+  overLimitPoints: number;
 } {
   const maxTotalArmor = getMaxVehicleArmor(input);
   const bar =
@@ -108,15 +89,16 @@ export function getVehicleArmorEditorFigures(input: {
       ? input.barRating
       : undefined;
   const rating = resolveSupportVehicleArmorTechRating(input.armorTechRating);
-  const availablePoints =
+  const rawPoints =
     bar === undefined
       ? computeVehicleArmorPoints(input.armorTonnage, input.armorType)
       : computeSupportVehicleBarArmorPointsFromTonnage(
           input.armorTonnage,
           bar,
           rating,
-          maxTotalArmor,
+          Number.MAX_SAFE_INTEGER,
         );
+  const availablePoints = Math.min(rawPoints, maxTotalArmor);
   const allocatedPoints = getTotalVehicleArmor(
     input.armorAllocation,
     input.profile.hasTurret,
@@ -128,10 +110,7 @@ export function getVehicleArmorEditorFigures(input: {
     maxTotalArmor,
     maxUsefulTonnage:
       bar === undefined
-        ? ceilToHalfTon(
-            maxTotalArmor /
-              (getArmorDefinition(input.armorType)?.pointsPerTon ?? 16),
-          )
+        ? computeVehicleArmorWeight(maxTotalArmor, input.armorType)
         : getSupportVehicleBarArmorWeight(
             maxTotalArmor,
             bar,
@@ -139,8 +118,44 @@ export function getVehicleArmorEditorFigures(input: {
             input.tonnage < 5,
           ),
     unallocatedPoints: availablePoints - allocatedPoints,
-    wastedPoints: Math.max(0, availablePoints - maxTotalArmor),
+    wastedPoints: Math.max(0, rawPoints - availablePoints),
+    overLimitPoints: Math.max(0, allocatedPoints - maxTotalArmor),
   };
 }
 
-export { computeVehicleArmorPoints as calculateArmorPoints } from './armor';
+/** MML CVStructureTab:877-940 / SVArmorTab:286-364, with nonnegative tiny budgets. */
+export function autoAllocateVehicleArmor(
+  input: IVehicleArmorEditorInput,
+): Record<string, number> {
+  let remaining = Math.max(
+    0,
+    getVehicleArmorEditorFigures(input).availablePoints,
+  );
+  const allocation: Record<string, number> = Object.fromEntries(
+    Object.keys(input.armorAllocation).map((location) => [location, 0]),
+  );
+  if (input.profile.isVTOL) {
+    const rotor = Math.min(remaining, VTOL_MAX_ROTOR_ARMOR);
+    allocation[VTOLLocation.ROTOR] = rotor;
+    remaining -= rotor;
+  }
+  const locations = getVehicleArmoredLocations(input.profile).filter(
+    (location) => location !== VTOLLocation.ROTOR,
+  );
+  const otherPercent = 1 / locations.length;
+  const frontRearPercent = 1 - otherPercent * (locations.length - 2);
+  let allocated = 0;
+  for (const location of locations) {
+    const percent =
+      location === VehicleLocation.FRONT
+        ? frontRearPercent * 0.6
+        : location === VehicleLocation.REAR
+          ? frontRearPercent * 0.4
+          : otherPercent;
+    const points = Math.floor(remaining * percent);
+    allocation[location] = points;
+    allocated += points;
+  }
+  allocation[VehicleLocation.FRONT] += remaining - allocated;
+  return allocation;
+}

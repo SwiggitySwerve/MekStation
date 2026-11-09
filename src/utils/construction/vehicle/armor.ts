@@ -5,10 +5,10 @@
  * BAR (Barrier Armor Rating) support for support vehicles.
  *
  * Rules:
- * - Per-location max = 2 × internal structure at that location
+ * - No independent location cap except the VTOL rotor; separate class-total limits
  * - Combat vehicle armor types: Standard (16pts/t), FF (17.92pts/t), etc.
  * - Support vehicles use the BAR 2-10 weight-per-point table
- * - Body location can only receive armor on support vehicles with BAR >= 6
+ * - Body is not an armored allocation location
  */
 
 import {
@@ -26,7 +26,11 @@ import {
   roundWeightToGrams,
 } from '@/utils/physical/weightUtils';
 
-import { computeVehicleMaxArmorByLocation } from './structure';
+import {
+  getMaxVehicleArmor,
+  getMaxVehicleArmorForLocation,
+  type IVehicleArmorProfile,
+} from './armorLimits';
 
 /** TechConstants.isClan:394-398 at MegaMek 48fcb2f64. */
 const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
@@ -209,32 +213,23 @@ export interface ArmorLocationViolation {
   message: string;
 }
 
-/**
- * Validate per-location armor does not exceed 2× structure
- *
- * Returns list of VAL-VEHICLE-ARMOR-LOC violations.
- */
+/** Check actual location maxima and the separate class-total limit. */
 export function validateVehicleArmorLocations(
   tonnage: number,
   allocation: Record<string, number>,
   hasTurret: boolean,
   isVTOL: boolean,
+  profile?: IVehicleArmorProfile,
 ): ArmorLocationViolation[] {
+  const context = { ...profile, hasTurret, isVTOL };
   const violations: ArmorLocationViolation[] = [];
-  const maxByLocation = computeVehicleMaxArmorByLocation(tonnage);
-
-  const locationMap: Record<string, number> = {
-    Front: maxByLocation.front,
-    Left: maxByLocation.left,
-    Right: maxByLocation.right,
-    Rear: maxByLocation.rear,
-    Turret: hasTurret ? maxByLocation.turret : 0,
-    Rotor: isVTOL ? maxByLocation.rotor : 0,
-  };
-
-  for (const [location, maximum] of Object.entries(locationMap)) {
-    const allocated = allocation[location] ?? 0;
-    if (allocated > maximum) {
+  for (const [location, allocated] of Object.entries(allocation)) {
+    const maximum = getMaxVehicleArmorForLocation({
+      tonnage,
+      location,
+      profile: context,
+    });
+    if (maximum !== null && allocated > maximum) {
       violations.push({
         ruleId: 'VAL-VEHICLE-ARMOR-LOC',
         location,
@@ -244,57 +239,55 @@ export function validateVehicleArmorLocations(
       });
     }
   }
-
+  const maximum = getMaxVehicleArmor({ tonnage, profile: context });
+  const allocated = getTotalVehicleArmor(
+    allocation,
+    hasTurret,
+    context.hasSecondaryTurret,
+  );
+  if (allocated > maximum)
+    violations.push({
+      ruleId: 'VAL-VEHICLE-ARMOR-TOTAL',
+      location: 'Total',
+      allocated,
+      maximum,
+      message: `Total armor ${allocated} exceeds maximum ${maximum}`,
+    });
   return violations;
 }
 
-/**
- * Clamp a single location's armor to its legal maximum
- */
+/** Preserve inspectable invalid totals; only actual location limits clamp edits. */
 export function clampLocationArmor(
   tonnage: number,
   location: string,
   points: number,
   hasTurret: boolean,
   isVTOL: boolean,
+  profile?: IVehicleArmorProfile,
 ): number {
-  const maxByLocation = computeVehicleMaxArmorByLocation(tonnage);
-  const locationMap: Record<string, number> = {
-    Front: maxByLocation.front,
-    Left: maxByLocation.left,
-    Right: maxByLocation.right,
-    Rear: maxByLocation.rear,
-    Turret: hasTurret ? maxByLocation.turret : 0,
-    Rotor: isVTOL ? maxByLocation.rotor : 0,
-    // Body is intentionally non-armored on standard combat ground vehicles —
-    // the location exists in the data model for support-vehicle BAR rules
-    // (Wave 5: support-vehicle customizer surface owns the real BAR-aware
-    // rule). For combat vehicles this clamps any user-supplied armor request
-    // to 0 to enforce the TechManual restriction without an extra VAL guard.
-    Body: 0,
-  };
-  const max = locationMap[location] ?? 0;
-  return Math.max(0, Math.min(points, max));
+  const maximum = getVehicleLocationMaxArmor(
+    tonnage,
+    location,
+    hasTurret,
+    isVTOL,
+    profile,
+  );
+  return Math.max(0, maximum === null ? points : Math.min(points, maximum));
 }
 
-/**
- * Get max armor points for a specific location
- *
- * Delegates to computeVehicleStructurePoints for the canonical 2× rule.
- */
+/** Null is an unlimited installed armored location, as in pinned MML. */
 export function getVehicleLocationMaxArmor(
   tonnage: number,
   location: string,
   hasTurret: boolean,
   isVTOL: boolean,
-): number {
-  return clampLocationArmor(
+  profile?: IVehicleArmorProfile,
+): number | null {
+  return getMaxVehicleArmorForLocation({
     tonnage,
     location,
-    Number.MAX_SAFE_INTEGER,
-    hasTurret,
-    isVTOL,
-  );
+    profile: { ...profile, hasTurret, isVTOL },
+  });
 }
 
 export {

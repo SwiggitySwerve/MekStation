@@ -29,6 +29,7 @@ import React from 'react';
 import type { VehicleState } from '@/stores/vehicleState';
 
 import { CustomizerConfirmationProvider } from '@/components/customizer/dialogs/CustomizerConfirmationProvider';
+import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 import {
   useVehicleStore,
   useVehicleStoreApi,
@@ -44,7 +45,9 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
+import ajax from '../../../../../public/data/units/vehicles/Ajax Assault Tank Prime.json';
 import { VehicleArmorDiagram } from '../VehicleArmorDiagram';
+import { VehicleArmorTab } from '../VehicleArmorTab';
 
 jest.mock('@/stores/useVehicleStore');
 const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
@@ -173,14 +176,18 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     });
   }
 
-  function tree(store: StoreApi<VehicleStore>, mounted = true) {
+  function tree(
+    store: StoreApi<VehicleStore>,
+    mounted = true,
+    content: React.ReactNode = <VehicleArmorDiagram />,
+  ) {
     const state = store.getState();
     return (
       <CustomizerConfirmationProvider
         scope={{ unitId: state.id, unitType: state.unitType }}
       >
         <actualStore.VehicleStoreContext.Provider value={store}>
-          {mounted && <VehicleArmorDiagram />}
+          {mounted && content}
         </actualStore.VehicleStoreContext.Provider>
       </CustomizerConfirmationProvider>
     );
@@ -258,7 +265,7 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('runs the original allocator once when the displayed request is confirmed twice', () => {
+  it('runs the pinned allocator once when the displayed request is confirmed twice', () => {
     const store = createStore();
     const allocate = jest.spyOn(store.getState(), 'autoAllocateArmor');
     render(tree(store));
@@ -273,10 +280,10 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     expect(allocate).toHaveBeenCalledTimes(1);
     expect(store.getState().armorAllocation).toEqual({
       ...createEmptyVehicleArmorAllocation(),
-      Front: 35,
-      Left: 17,
-      Right: 17,
-      Rear: 8,
+      Front: 24,
+      Left: 20,
+      Right: 20,
+      Rear: 16,
     });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(window.confirm).not.toHaveBeenCalled();
@@ -347,6 +354,10 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     ['motionType', { motionType: GroundMotionType.HOVER }],
     ['armorType', { armorType: ArmorTypeEnum.FERRO_FIBROUS_IS }],
     ['armorTonnage', { armorTonnage: 6 }],
+    ['BAR armor mode', { usesBarArmor: true }],
+    ['BAR rating', { barRating: 8 }],
+    ['armor tech rating', { armorTechRating: 5 }],
+    ['six-side layout', { isSuperheavy: true }],
     ['primary turret presence', { turret }],
     ['secondary turret presence', { secondaryTurret: turret }],
     ['unit ID', { id: 'replaced-vehicle' }],
@@ -422,12 +433,12 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     expect(currentAllocate).toHaveBeenCalledTimes(1);
     expect(store.getState().armorAllocation).toEqual({
       ...createEmptyVehicleArmorAllocation(),
-      Front: 32,
-      Left: 16,
-      Right: 16,
-      Rear: 8,
-      Turret: 8,
-      'Turret 2': 6,
+      Front: 18,
+      Left: 13,
+      Right: 13,
+      Rear: 10,
+      Turret: 13,
+      'Turret 2': 13,
     });
   });
 
@@ -454,7 +465,7 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     fireEvent.click(screen.getByTestId('vehicle-armor-auto-allocate'));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(allocate).toHaveBeenCalledTimes(1);
-    expect(store.getState().armorAllocation.Front).toBe(35);
+    expect(store.getState().armorAllocation.Front).toBe(24);
     expect(window.confirm).not.toHaveBeenCalled();
   });
 
@@ -472,7 +483,7 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     },
   );
 
-  it('preserves hidden secondary turret armor when the original allocator is confirmed', () => {
+  it('clears absent secondary turret armor when pinned allocation is confirmed', () => {
     const store = createStore({
       armorAllocation: { ...allocation, [VehicleLocation.TURRET_2]: 6 },
     });
@@ -481,8 +492,42 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     request();
     confirm();
     expect(allocate).toHaveBeenCalledTimes(1);
-    expect(store.getState().armorAllocation[VehicleLocation.TURRET_2]).toBe(6);
-    expect(store.getState().armorAllocation.Front).toBe(35);
+    expect(store.getState().armorAllocation[VehicleLocation.TURRET_2]).toBe(0);
+    expect(store.getState().armorAllocation.Front).toBe(24);
+  });
+
+  it('opens canonical Ajax armor and accepts edits above the old cap through both controls', () => {
+    const store = actualStore.createVehicleStore(mapToVehicleState(ajax));
+    render(tree(store, true, <VehicleArmorTab />));
+    const input = screen.getByRole('spinbutton', {
+      name: 'Front armor allocation',
+    });
+    expect(input).toHaveValue(76);
+    expect(store.getState().armorAllocation.Front).toBe(76);
+    expect(screen.getByLabelText('Front armor: 76')).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: '80' } });
+    expect(store.getState().armorAllocation.Front).toBe(80);
+    const diagramInput = screen.getByTestId('vehicle-armor-input-Front');
+    expect(diagramInput).toHaveValue(80);
+    fireEvent.change(diagramInput, { target: { value: '82' } });
+    expect(store.getState().armorAllocation.Front).toBe(82);
+    expect(input).toHaveValue(82);
+    expect(input).not.toHaveAttribute('max');
+    expect(diagramInput).not.toHaveAttribute('max');
+  });
+
+  it('keeps the rotor input and the real store within the two-point limit', () => {
+    const store = createStore({
+      motionType: GroundMotionType.VTOL,
+      unitType: UnitType.VTOL,
+    });
+    render(tree(store));
+    fireEvent.change(screen.getByTestId('vehicle-armor-input-Rotor'), {
+      target: { value: '3' },
+    });
+    expect(store.getState().armorAllocation.Rotor).toBe(2);
+    act(() => store.getState().setLocationArmor(VTOLLocation.ROTOR, 3));
+    expect(store.getState().armorAllocation.Rotor).toBe(2);
   });
 
   it('cancels when the requester disappears without changing unit scope', () => {

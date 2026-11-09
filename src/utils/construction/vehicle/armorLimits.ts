@@ -1,9 +1,15 @@
+/** Pinned vehicle armor limits and installed armored topology. See RULES.md. */
 import {
   VehicleLocation,
   VTOLLocation,
   SuperHeavyVehicleLocation,
 } from '@/types/construction/UnitLocation';
+import { BLK_SUPERHEAVY_ARMOR_LOCATIONS } from '@/types/formats/BlkFormat';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+
+import { hasSixSideVehicleHull } from './structure';
 
 export type VehicleArmorLocation =
   | VehicleLocation
@@ -21,13 +27,64 @@ export interface IVehicleArmorProfile {
   readonly usesBarArmor?: boolean;
 }
 
+export interface IVehicleArmorConfiguration {
+  readonly tonnage: number;
+  readonly unitType?: UnitType;
+  readonly motionType: GroundMotionType;
+  readonly turret?: { readonly type: TurretType } | null;
+  readonly secondaryTurret?: { readonly type: TurretType } | null;
+  readonly usesBarArmor?: boolean;
+}
+
+/** One projection of installed vehicle armor facts for all editor consumers. */
+export function getVehicleArmorProfile(
+  input: IVehicleArmorConfiguration,
+): IVehicleArmorProfile {
+  return {
+    hasTurret: input.turret != null,
+    hasSecondaryTurret: input.secondaryTurret != null,
+    isVTOL: input.motionType === GroundMotionType.VTOL,
+    isSupport: input.unitType === UnitType.SUPPORT_VEHICLE,
+    isChinTurret: input.turret?.type === TurretType.CHIN,
+    isSuperheavy: hasSixSideVehicleHull({
+      tonnage: input.tonnage,
+      motionType: input.motionType,
+      isSupportVehicle: input.unitType === UnitType.SUPPORT_VEHICLE,
+    }),
+    motionType: input.motionType,
+    usesBarArmor: input.usesBarArmor,
+  };
+}
+
 export function hasSixSideVehicleArmor(profile: IVehicleArmorProfile): boolean {
   return profile.isSuperheavy === true && !profile.isVTOL;
 }
 
+/** Body is not armored; only installed turrets and VTOL rotors participate. */
+export function getVehicleArmoredLocations(
+  profile: IVehicleArmorProfile,
+): VehicleArmorLocation[] {
+  const locations: VehicleArmorLocation[] = hasSixSideVehicleArmor(profile)
+    ? BLK_SUPERHEAVY_ARMOR_LOCATIONS.slice(0, 6)
+    : [
+        VehicleLocation.FRONT,
+        VehicleLocation.LEFT,
+        VehicleLocation.RIGHT,
+        VehicleLocation.REAR,
+      ];
+  if (profile.hasTurret) locations.push(VehicleLocation.TURRET);
+  if (profile.hasSecondaryTurret) locations.push(VehicleLocation.TURRET_2);
+  if (profile.isVTOL) locations.push(VTOLLocation.ROTOR);
+  return locations;
+}
+
+/** MML UnitUtil.java:900-916; MegaMek TestTank.java:72 (48fcb2f64). */
+export const VTOL_MAX_ROTOR_ARMOR = 2;
+
 export interface IGetMaxVehicleArmorForLocationInput {
   readonly tonnage: number;
-  readonly location: VehicleArmorLocation;
+  /** Unknown legacy string locations are unavailable. */
+  readonly location: string;
   readonly profile: IVehicleArmorProfile;
 }
 
@@ -36,33 +93,7 @@ export interface IGetMaxVehicleArmorInput {
   readonly profile: IVehicleArmorProfile;
 }
 
-interface IVehicleArmorLimitContext {
-  readonly baseStructure: number;
-  readonly profile: IVehicleArmorProfile & { hasSecondaryTurret: boolean };
-}
-
-type VehicleArmorLimitResolver = (context: IVehicleArmorLimitContext) => number;
-
-const VEHICLE_ARMOR_LIMIT_RESOLVERS: ReadonlyMap<
-  VehicleArmorLocation,
-  VehicleArmorLimitResolver
-> = new Map<VehicleArmorLocation, VehicleArmorLimitResolver>([
-  [VehicleLocation.FRONT, ({ baseStructure }) => baseStructure * 4],
-  [VehicleLocation.LEFT, ({ baseStructure }) => baseStructure * 3],
-  [VehicleLocation.RIGHT, ({ baseStructure }) => baseStructure * 3],
-  [VehicleLocation.REAR, ({ baseStructure }) => baseStructure * 2],
-  [
-    VehicleLocation.TURRET,
-    ({ baseStructure, profile }) => (profile.hasTurret ? baseStructure * 2 : 0),
-  ],
-  [
-    VehicleLocation.TURRET_2,
-    ({ baseStructure, profile }) =>
-      profile.hasSecondaryTurret ? baseStructure * 2 : 0,
-  ],
-  [VTOLLocation.ROTOR, ({ profile }) => (profile.isVTOL ? 2 : 0)],
-]);
-
+/** Null means no independent location maximum, matching pinned MML. */
 export function getMaxVehicleArmorForLocation(
   input: IGetMaxVehicleArmorForLocationInput | number,
   ...legacy:
@@ -73,7 +104,7 @@ export function getMaxVehicleArmorForLocation(
         isVTOL: boolean,
         hasSecondaryTurret?: boolean,
       ]
-): number {
+): number | null {
   const [location, hasTurret, isVTOL, hasSecondaryTurret] = legacy as [
     VehicleArmorLocation,
     boolean,
@@ -81,29 +112,25 @@ export function getMaxVehicleArmorForLocation(
     boolean | undefined,
   ];
   const eventInput: IGetMaxVehicleArmorForLocationInput =
-    typeof input !== 'number'
-      ? input
-      : {
+    typeof input === 'number'
+      ? {
           tonnage: input,
           location,
           profile: { hasTurret, isVTOL, hasSecondaryTurret },
-        };
-  const armorProfile: IVehicleArmorProfile & { hasSecondaryTurret: boolean } = {
-    ...eventInput.profile,
-    hasSecondaryTurret: eventInput.profile.hasSecondaryTurret ?? false,
-  };
-  const baseStructure = Math.floor(eventInput.tonnage / 10) + 1;
-  if (hasSixSideVehicleArmor(armorProfile)) {
-    if (eventInput.location === VehicleLocation.BODY) return 0;
-    return getMaxVehicleArmor({
-      tonnage: eventInput.tonnage,
-      profile: armorProfile,
-    });
-  }
-  const resolver = VEHICLE_ARMOR_LIMIT_RESOLVERS.get(eventInput.location);
-  return resolver?.({ baseStructure, profile: armorProfile }) ?? 0;
+        }
+      : input;
+  if (
+    !getVehicleArmoredLocations(eventInput.profile).some(
+      (installed) => installed === eventInput.location,
+    )
+  )
+    return 0;
+  return eventInput.location === VTOLLocation.ROTOR
+    ? VTOL_MAX_ROTOR_ARMOR
+    : null;
 }
 
+/** The class-total limit never depends on the number of faces or turrets. */
 export function getMaxVehicleArmor(
   input: IGetMaxVehicleArmorInput | number,
   ...legacy:
@@ -116,62 +143,18 @@ export function getMaxVehicleArmor(
     boolean | undefined,
   ];
   const eventInput: IGetMaxVehicleArmorInput =
-    typeof input !== 'number'
-      ? input
-      : {
-          tonnage: input,
-          profile: { hasTurret, isVTOL, hasSecondaryTurret },
-        };
-  if (hasSixSideVehicleArmor(eventInput.profile))
-    return eventInput.profile.isSupport
-      ? getSupportVehicleMaxTotalArmor(
-          eventInput.profile.motionType ?? GroundMotionType.TRACKED,
-          eventInput.tonnage,
-        )
-      : getTankMaxTotalArmor(eventInput.tonnage);
-  let total = 0;
-  total += getMaxVehicleArmorForLocation({
-    tonnage: eventInput.tonnage,
-    location: VehicleLocation.FRONT,
-    profile: eventInput.profile,
-  });
-  total += getMaxVehicleArmorForLocation({
-    tonnage: eventInput.tonnage,
-    location: VehicleLocation.LEFT,
-    profile: eventInput.profile,
-  });
-  total += getMaxVehicleArmorForLocation({
-    tonnage: eventInput.tonnage,
-    location: VehicleLocation.RIGHT,
-    profile: eventInput.profile,
-  });
-  total += getMaxVehicleArmorForLocation({
-    tonnage: eventInput.tonnage,
-    location: VehicleLocation.REAR,
-    profile: eventInput.profile,
-  });
-  if (eventInput.profile.hasTurret) {
-    total += getMaxVehicleArmorForLocation({
-      tonnage: eventInput.tonnage,
-      location: VehicleLocation.TURRET,
-      profile: eventInput.profile,
-    });
-  }
-  if (eventInput.profile.hasSecondaryTurret === true) {
-    total += getMaxVehicleArmorForLocation({
-      tonnage: eventInput.tonnage,
-      location: VehicleLocation.TURRET_2,
-      profile: eventInput.profile,
-    });
-  }
-  if (eventInput.profile.isVTOL) {
-    total += getMaxVehicleArmorForLocation({
-      tonnage: eventInput.tonnage,
-      location: VTOLLocation.ROTOR,
-      profile: eventInput.profile,
-    });
-  }
-  return total;
+    typeof input === 'number'
+      ? { tonnage: input, profile: { hasTurret, isVTOL, hasSecondaryTurret } }
+      : input;
+  return eventInput.profile.isSupport
+    ? getSupportVehicleMaxTotalArmor(
+        eventInput.profile.motionType ??
+          (eventInput.profile.isVTOL
+            ? GroundMotionType.VTOL
+            : GroundMotionType.TRACKED),
+        eventInput.tonnage,
+      )
+    : getTankMaxTotalArmor(eventInput.tonnage);
 }
 
 /**
