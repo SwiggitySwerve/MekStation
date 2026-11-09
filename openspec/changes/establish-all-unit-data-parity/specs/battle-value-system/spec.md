@@ -1395,6 +1395,17 @@ reported explicitly.
 - **THEN** `ammo.cap.AMS:2` SHALL be 32 or `ammo.cap.APDS:2` SHALL be 128 respectively
 - **AND** defensive ammunition SHALL remain absent from offensive availability, with every existing arithmetic result unchanged
 
+
+#### Scenario: Project admitted implicit infantry clips on support vehicles
+
+- **GIVEN** a fresh support vehicle carrying native infantry weapons whose positive clip shots and ammunition admission are represented by pinned equipment facts
+- **WHEN** its diagnostic ammunition pools are projected
+- **THEN** usable generic infantry clips SHALL form one `ammo.available.INFANTRY:0` group with value zero, without a launcher cap
+- **AND** initial clip size SHALL be one; a BLK size above one SHALL multiply native clip shots using Java integer truncation
+- **AND** combat vehicles, BA weapons, unresolved admission context, native NA or empty clips and intrinsic one-shot ammunition SHALL NOT acquire this group
+- **AND** a supplied infantry flag alone SHALL NOT establish ammunition admission
+- **AND** existing BV arithmetic, other diagnostic keys, source inputs, loads, validity, catalogs and persisted mounts SHALL remain unchanged
+
 ### Requirement: BA ammo diagnostics
 
 The BA mount owner SHALL retain its existing pre-cap ammo BV per native

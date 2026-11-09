@@ -17,13 +17,8 @@ import {
   getCatalogAmmoBVGroup,
   getNativeAmmoBVGroup,
   getMachineGunArrayBVGroup,
-  projectMechAmmoBVPools,
 } from '../battleValueAmmo';
-import {
-  getDefensiveEquipmentKind,
-  getOffensiveBVRole,
-  hasBVDroneOS,
-} from '../battleValueEquipment';
+import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
 import {
   applyTargetingComputerBV,
   applyDroneWeaponBV,
@@ -46,6 +41,7 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { hasSixSideVehicleHull } from './structure';
+import { projectVehicleAmmoPools } from './vehicleAmmoPools';
 import { calculateVehicleSpeedFactor } from './vehicleBVMovement';
 
 // =============================================================================
@@ -354,22 +350,10 @@ export function calculateVehicleOffensiveBV(
       location: entry.location,
       battleValue: entry.finalBV,
     }));
-  // BVCalculator.assembleAmmo also records raw defensive launcher caps.
-  // Reuse the shared diagnostic API, whose compatibility name retains Mech.
-  const diagnosticAmmoPools = projectMechAmmoBVPools(
+  const diagnosticAmmoPools = projectVehicleAmmoPools(
+    input,
     ammoPools,
-    undefined,
-    undefined,
-    {
-      weapons: (input.defensiveEquipment ?? [])
-        .filter(
-          (entry) =>
-            getDefensiveEquipmentKind(entry.id) === 'ams' &&
-            !isOneShotBVWeapon(entry.id),
-        )
-        .map((entry) => ({ id: entry.id, bv: resolveMountBattleValue(entry) })),
-      bins: [],
-    },
+    resolveMountBattleValue,
   );
   const hasAmmoPools =
     Object.keys(diagnosticAmmoPools.available).length > 0 ||
