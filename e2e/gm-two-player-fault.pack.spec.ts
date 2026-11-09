@@ -24,13 +24,12 @@ import {
   advanceToMovement,
   advancePhase,
   armScopedFault,
+  captureMatchCreation,
   connectLobby,
   deleteIdentities,
   e2eRunId,
   markReady,
   openContextPage,
-  readMatch,
-  readToken,
   seedIdentity,
   tapErrorFrames,
   type IMatchHandle,
@@ -67,28 +66,14 @@ test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
     await hostPage.getByLabel('Display name').fill('Fault Host');
     await hostPage.getByLabel('Map radius').fill('4');
     await hostPage.getByLabel('Turn limit').fill('5');
-    const created = hostPage.waitForResponse(
-      (response) =>
-        response.url().endsWith('/api/multiplayer/matches') &&
-        response.request().method() === 'POST' &&
-        response.status() === 201,
-      { timeout: 30_000 },
-    );
-    const token = hostPage.waitForResponse(
-      (response) =>
-        response.url().includes('/api/multiplayer/auth/token') &&
-        response.request().method() === 'POST' &&
-        response.status() === 200,
-      { timeout: 30_000 },
-    );
-    await Promise.all([
-      hostPage.waitForURL(/\/multiplayer\/lobby\/[A-Z0-9]+$/, {
-        timeout: 30_000,
-      }),
+    const created = await captureMatchCreation(hostPage, () =>
       hostPage.getByRole('button', { name: 'Create match' }).click(),
-    ]);
-    hostToken = await readToken(token);
-    match = await readMatch(created);
+    );
+    hostToken = created.hostToken;
+    match = created.match;
+    await hostPage.waitForURL(/\/multiplayer\/lobby\/[A-Z0-9]+$/, {
+      timeout: 30_000,
+    });
     await connectLobby(hostPage, HOST_PASSWORD);
 
     const guest = await seedIdentity(request, 'Fault Guest', GUEST_PASSWORD);
