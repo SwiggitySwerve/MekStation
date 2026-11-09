@@ -211,6 +211,7 @@ function calculateVehicleWeaponBVEntries(
   const secondaryTurretMult = turretMultiplier(input.secondaryTurret);
   const drone = hasBVDroneOS(input.chassisEquipment);
   const mounts = input.weapons
+    .map((w, equipmentIndex) => ({ ...w, equipmentIndex }))
     .filter((w) => getEquipmentEntry(w.id)?.id !== 'ppc-capacitor')
     .map((w) => ({
       capacitorBV: undefined as number | undefined,
@@ -279,13 +280,15 @@ function calculateVehicleWeaponBVEntries(
       )
       .reduce((sum, w) => sum + value(w, false).finalBV, 0);
   const reverse = directional('front') < directional('rear');
-  const weaponEntries = mounts.map((w) =>
-    value(
+  const weaponEntries = mounts.map((w) => ({
+    ...value(
       w,
       reverse !==
         (w.location.toLowerCase() === 'rear' || w.isRearMounted === true),
     ),
-  );
+    equipmentIndex: w.equipmentIndex,
+    location: w.location,
+  }));
 
   return { weaponEntries, primaryTurretMult, secondaryTurretMult };
 }
@@ -335,6 +338,20 @@ export function calculateVehicleOffensiveBV(
     : input.secondaryTurret
       ? secondaryTurretMult
       : 1.0;
+  // BVCalculator.countAsOffensiveWeapon excludes zero-BV TAG/unresolved mounts,
+  // but admits machine-gun arrays even when their linked pool is empty.
+  const weaponMountBV = weaponEntries
+    .filter(
+      (entry) =>
+        entry.listedBV > 0 ||
+        getMachineGunArrayBVGroup(getEquipmentEntry(entry.id)?.id ?? entry.id),
+    )
+    .map((entry) => ({
+      equipmentIndex: entry.equipmentIndex,
+      equipmentId: entry.id,
+      location: entry.location,
+      battleValue: entry.finalBV,
+    }));
 
   return {
     weaponBV,
@@ -344,5 +361,6 @@ export function calculateVehicleOffensiveBV(
     turretModifier,
     weightBV,
     total,
+    ...(weaponMountBV.length ? { weaponMountBV } : {}),
   };
 }

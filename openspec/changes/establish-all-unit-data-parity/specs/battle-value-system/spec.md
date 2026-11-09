@@ -1076,6 +1076,16 @@ remain available and equal 1 for these turret kinds.
 - **AND** the mass correction SHALL NOT establish complete vehicle BV parity
 
 
+#### Scenario: Project existing vehicle weapon mount results
+
+- **GIVEN** the pinned Tamerlane Flamer and rocket-launcher variants
+- **WHEN** the existing offensive owner results are projected before the speed factor
+- **THEN** the front Flamer SHALL expose 6 BV, each front RL10 SHALL expose 18 BV, and each rear RL10 SHALL expose 9 BV
+- **AND** duplicate mounts SHALL remain separate, with comparison using the existing per-location count and sorted-value contract
+- **AND** trace indices and equipment IDs SHALL remain local identities, with known native location abbreviations
+- **AND** existing totals, aggregates, ammunition, loads and construction validity SHALL remain unchanged
+- **AND** unknown locations and absent diagnostic snapshots SHALL NOT acquire invented native identities
+
 ### Requirement: Per-Trooper Defensive BV
 
 BA defensive BV SHALL apply the pinned MegaMek armor/internal and movement
@@ -1205,6 +1215,7 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **GIVEN** the pinned four-trooper Cavalier [SRM] source with an SRM-1 launcher and four BA SRM-1 shots
 - **WHEN** BV is computed
 - **THEN** ammo BV SHALL equal `10 * 4 / 1000 * 2 = 0.08` per trooper and final BV SHALL equal 219
+
 
 #### Scenario: Partial wing raises BV movement
 

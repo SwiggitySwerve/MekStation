@@ -179,6 +179,8 @@ export interface IVehicleBVBreakdown {
   offensiveEquipmentBV: number;
   /** Speed factor scalar. */
   speedFactor: number;
+  /** Optional calculated mount facts; local identities do not claim Java indices. */
+  weaponMountBV?: readonly IVehicleBVWeaponMount[];
 }
 
 // =============================================================================
@@ -208,4 +210,13 @@ export interface VehicleOffensiveBVBreakdown {
   speedFactor: number;
   turretModifier: number;
   total: number;
+  weaponMountBV?: readonly IVehicleBVWeaponMount[];
+}
+
+/** Adjusted result from the existing offensive weapon owner, before speed. */
+export interface IVehicleBVWeaponMount {
+  readonly equipmentIndex: number;
+  readonly equipmentId: string;
+  readonly location: string;
+  readonly battleValue: number;
 }
