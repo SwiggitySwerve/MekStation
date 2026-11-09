@@ -11,8 +11,10 @@ table, with nothing tying their partition to the table's routes.
 ## What Changes
 
 - The full boot recovery pass (`recoverActiveMatches` with no match id, run once by
-  `bootstrapMultiplayerServer`) releases every `kind: 'spectator'` seat of every
-  `active` match through `updateMatchSeats`. It never throws, so one match that
+  `bootstrapMultiplayerServer`) releases every viewer's `kind: 'spectator'` seat of
+  every `active` match through `updateMatchSeats`, by the shared
+  `isAutoReleasableSpectatorSeat` rule: the co-op GM host's own spectator seat is
+  kept. It never throws, so one match that
   cannot be swept does not stop recovery of the rest.
 - A recovery scoped to one match id (the runtime co-op host rebuild) never sweeps.
 - A test asserts `ENGINE_WIRE_COMBAT_INTENT_KINDS` equals the intent table's

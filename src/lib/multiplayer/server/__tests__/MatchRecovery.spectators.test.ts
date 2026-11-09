@@ -6,9 +6,12 @@
  * where a spectator may have just registered and not attached yet.
  */
 
+import { MatchSeatMembershipSource } from '../authorization/MatchSeatMembershipSource';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { recoverActiveMatches } from '../MatchRecovery';
 import {
+  GM_PLAYER_ID,
+  matchWithGmAndViewers,
   matchWithSpectators,
   playingSeats,
 } from './spectatorSeats.test-helpers';
@@ -36,6 +39,22 @@ describe('recoverActiveMatches spectator leftovers', () => {
     expect(await spectatorsOf(store, 'two')).toEqual([]);
     expect((await store.getMatchMeta('one')).seats).toEqual(playingSeats());
     expect((await store.getMatchMeta('clean')).revision).toBeUndefined();
+  });
+
+  it('keeps the co-op GM on the full boot pass while sweeping the viewers', async () => {
+    await store.createMatch(matchWithGmAndViewers('coop-boot', 2));
+    const members = new MatchSeatMembershipSource(store);
+
+    await recoverActiveMatches(store);
+
+    expect(await spectatorsOf(store, 'coop-boot')).toHaveLength(1);
+    expect((await spectatorsOf(store, 'coop-boot'))[0].occupant?.playerId).toBe(
+      GM_PLAYER_ID,
+    );
+    expect(
+      await members.lookupMembership(GM_PLAYER_ID, 'coop-boot'),
+    ).not.toBeNull();
+    expect(await members.lookupMembership('watch-1', 'coop-boot')).toBeNull();
   });
 
   it('leaves lobby and completed matches alone', async () => {

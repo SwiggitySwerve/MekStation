@@ -2,11 +2,12 @@
 
 ### Requirement: Boot recovery releases crash-leftover spectator seats
 
-The server SHALL release every spectator seat of every active match during the full
-boot recovery pass, because no socket survives a restart, and SHALL do so through
-the guarded seat writer so the release is revision-checked. The release SHALL leave
-playing seats, the roster, side assignments, match status and retained viewer
-delivery cursors unchanged, SHALL write nothing for a match without a spectator
+The server SHALL release every viewer's spectator seat of every active match during
+the full boot recovery pass, because no socket survives a restart, and SHALL do so
+through the guarded seat writer so the release is revision-checked. The seat the
+co-op GM host holds SHALL be kept, since it is that GM's match membership. The
+release SHALL leave playing seats, the roster, side assignments, match status and
+retained viewer delivery cursors unchanged, SHALL write nothing for a match without a spectator
 seat, and SHALL NOT stop recovery of other matches when one release fails. A
 recovery scoped to a single match id SHALL NOT release spectator seats.
 
@@ -15,6 +16,12 @@ recovery scoped to a single match id SHALL NOT release spectator seats.
 - **GIVEN** an active match whose persisted seats include spectator seats and no sockets
 - **WHEN** the server boots and runs the full recovery pass
 - **THEN** every spectator seat SHALL be gone and the playing seats SHALL be unchanged
+
+#### Scenario: A co-op GM sits in a spectator seat
+
+- **GIVEN** an active co-op campaign match whose GM host holds a spectator seat beside registered viewers
+- **WHEN** the server boots and runs the full recovery pass
+- **THEN** the viewers' seats SHALL be gone and the GM's seat and match membership SHALL remain
 
 #### Scenario: A co-op host is rebuilt at runtime
 

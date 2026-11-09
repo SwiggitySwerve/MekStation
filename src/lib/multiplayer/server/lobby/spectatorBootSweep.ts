@@ -5,7 +5,11 @@
  * process that died before that ran leaves the seat persisted, where it counts
  * toward the 16-spectator cap for the life of the match. Boot recovery calls
  * this for every active match: no socket survives a restart, so every persisted
- * spectator seat is a leftover. A viewer registers again to watch.
+ * viewer seat is a leftover. A viewer registers again to watch.
+ *
+ * What counts as a leftover is `isAutoReleasableSpectatorSeat`, the same rule the
+ * last-socket detach uses: the co-op GM host's own spectator seat is its match
+ * membership and is kept while the match is live.
  *
  * Boot only. A recovery scoped to one match runs at runtime too, where a
  * spectator may have just registered and not attached yet.
@@ -16,28 +20,34 @@ import { logger } from '@/utils/logger';
 import type { IMatchMeta, IMatchStore } from '../IMatchStore';
 
 import { updateMatchSeats } from './seatUpdate';
-import { isSpectatorSeat } from './spectatorSeats';
+import { isAutoReleasableSpectatorSeat } from './spectatorSeats';
 
-const spectatorCount = (meta: IMatchMeta): number =>
-  (meta.seats ?? []).filter(isSpectatorSeat).length;
+const releasableCount = (meta: IMatchMeta): number =>
+  (meta.seats ?? []).filter((seat) => isAutoReleasableSpectatorSeat(seat, meta))
+    .length;
 
 /**
- * Remove every spectator seat of `listed`'s match, deriving from the metadata at
- * write time. Returns how many seats were released. It never throws: one match
- * that cannot be swept must not stop recovery of the rest.
+ * Remove every spectator seat of `listed`'s match that automatic cleanup may
+ * release, deriving from the metadata at write time. Returns how many seats were
+ * released. It never throws: one match that cannot be swept must not stop
+ * recovery of the rest.
  */
 export async function releaseLeftoverSpectators(
   store: IMatchStore,
   listed: IMatchMeta,
 ): Promise<number> {
-  if (spectatorCount(listed) === 0) return 0;
+  if (releasableCount(listed) === 0) return 0;
   const seen = { spectators: 0 };
   try {
     const result = await updateMatchSeats(store, listed.matchId, (current) => {
-      seen.spectators = spectatorCount(current);
+      seen.spectators = releasableCount(current);
       return seen.spectators === 0
         ? null
-        : { seats: (current.seats ?? []).filter((s) => !isSpectatorSeat(s)) };
+        : {
+            seats: (current.seats ?? []).filter(
+              (seat) => !isAutoReleasableSpectatorSeat(seat, current),
+            ),
+          };
     });
     if (result.kind === 'busy') {
       logger.warn(

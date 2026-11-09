@@ -4,7 +4,7 @@
 - [x] 2. Add `lobby/spectatorBootSweep.ts` and call it from the full recovery pass only.
 - [x] 3. Document the boot rule in TRANSPORT.md and AGENTS.md.
 - [x] 3a. Add `useSpectatorRegistration` and the spectate page's bounded one-shot re-registration, with hook and page tests.
-- [ ] 3b. After the GM seat fix merges: use its shared predicate in the boot sweep, with the GM-survives-sweep test.
+- [x] 3b. After the GM seat fix merged: use its shared predicate in the boot sweep, with the GM-survives-sweep test.
 
 ## Verification
 

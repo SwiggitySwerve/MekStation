@@ -53,3 +53,34 @@ export function matchWithSpectators(
     seats: seatsWithSpectators(spectators),
   };
 }
+
+/** The co-op GM's seat: the host sits in a spectator seat beside the viewers. */
+export const GM_PLAYER_ID = 'pid_gm';
+
+/**
+ * A co-op campaign shape: `pid_gm` is `hostPlayerId` and holds `spectator-1`,
+ * with `viewers` ordinary spectators after it.
+ */
+export function matchWithGmAndViewers(
+  matchId: string,
+  viewers: number,
+  status: IMatchMeta['status'] = 'active',
+): IMatchMeta {
+  const base = matchWithSpectators(matchId, 0, status);
+  let seats = addSpectatorSeat(playingSeats(), {
+    playerId: GM_PLAYER_ID,
+    displayName: 'GM',
+  });
+  for (let index = 1; index <= viewers; index += 1) {
+    seats = addSpectatorSeat(seats, {
+      playerId: `watch-${index}`,
+      displayName: `Watch ${index}`,
+    });
+  }
+  return {
+    ...base,
+    hostPlayerId: GM_PLAYER_ID,
+    playerIds: [GM_PLAYER_ID, ...base.playerIds],
+    seats,
+  };
+}

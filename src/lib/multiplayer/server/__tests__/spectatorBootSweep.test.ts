@@ -9,6 +9,7 @@
 
 import { logger } from '@/utils/logger';
 
+import { MatchSeatMembershipSource } from '../authorization/MatchSeatMembershipSource';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { type IMatchStore } from '../IMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
@@ -16,6 +17,8 @@ import { SEAT_UPDATE_MAX_ATTEMPTS } from '../lobby/seatUpdate';
 import { releaseLeftoverSpectators } from '../lobby/spectatorBootSweep';
 import { raceMetaWrites } from './matchMetaRace.test-helpers';
 import {
+  GM_PLAYER_ID,
+  matchWithGmAndViewers,
   matchWithSpectators,
   playingSeats,
 } from './spectatorSeats.test-helpers';
@@ -67,6 +70,35 @@ describe.each(builders)('%s releaseLeftoverSpectators', (_name, build) => {
       sideAssignments: before.sideAssignments,
       revision: 1,
     });
+  });
+
+  it('keeps the co-op GM seat and its membership while sweeping the viewers beside it', async () => {
+    await store.createMatch(matchWithGmAndViewers('coop', 2));
+    const members = new MatchSeatMembershipSource(store);
+    expect(await members.lookupMembership(GM_PLAYER_ID, 'coop')).not.toBeNull();
+    const before = await store.getMatchMeta('coop');
+
+    const released = await releaseLeftoverSpectators(store, before);
+
+    expect(released).toBe(2);
+    const after = await store.getMatchMeta('coop');
+    const spectators = (after.seats ?? [])
+      .filter((seat) => seat.kind === 'spectator')
+      .map((seat) => seat.occupant?.playerId);
+    expect(spectators).toEqual([GM_PLAYER_ID]);
+    expect(after.hostPlayerId).toBe(GM_PLAYER_ID);
+    expect(await members.lookupMembership(GM_PLAYER_ID, 'coop')).not.toBeNull();
+    // The viewers' membership is gone: they register again to watch.
+    expect(await members.lookupMembership('watch-1', 'coop')).toBeNull();
+  });
+
+  it('writes nothing for a co-op match whose only spectator seat is the GM', async () => {
+    await store.createMatch(matchWithGmAndViewers('coop-quiet', 0));
+    const before = await store.getMatchMeta('coop-quiet');
+
+    expect(await releaseLeftoverSpectators(store, before)).toBe(0);
+
+    expect(await store.getMatchMeta('coop-quiet')).toEqual(before);
   });
 
   it('writes nothing when there is no spectator seat, and is idempotent', async () => {
