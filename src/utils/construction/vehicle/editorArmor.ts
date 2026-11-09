@@ -58,8 +58,6 @@ export function getVehicleArmorEditorLayout(profile: IVehicleArmorProfile): {
               ? 'Front Turret'
               : location,
   }));
-  if (profile.isSupport && !isSixSide)
-    locations.push({ location: VehicleLocation.BODY, label: 'Body' });
   return { locations, isSixSide, canAutoAllocate: true };
 }
 

@@ -195,4 +195,19 @@ describe('pinned MML vehicle armor limits (62bf193 UnitUtil.java:769-795,900-916
         .canAutoAllocate,
     ).toBe(true);
   });
+
+  it('omits Body from combat and every support armor layout, as pinned MML', () => {
+    for (const profile of [
+      combat,
+      { ...combat, isSupport: true },
+      { ...combat, isSupport: true, isVTOL: true },
+      { ...combat, isSupport: true, isSuperheavy: true },
+    ]) {
+      expect(
+        getVehicleArmorEditorLayout(profile).locations.map(
+          ({ location }) => location,
+        ),
+      ).not.toContain(VehicleLocation.BODY);
+    }
+  });
 });

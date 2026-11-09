@@ -1014,3 +1014,21 @@ domain rules without changing serialized armor allocations on open.
 - **AND** Body SHALL remain unarmored and every installed armored face and turret SHALL participate
 - **AND** the front/rear weighting and rounding remainder SHALL follow the pinned MegaMekLab allocator
 - **AND** zero- and one-point budgets SHALL NOT create negative armor
+
+## ADDED Requirements
+
+### Requirement: Pinned vehicle armor Body presentation
+
+Vehicle armor forms and diagrams SHALL omit Body for combat, support,
+large-support and VTOL layouts, matching MML 62bf193
+ArmorAllocationView.java:91-110,321-343 and SVArmorTab.java:304,329.
+Body SHALL remain unarmored independently of BAR and armor tech rating.
+
+#### Scenario: Support Body is an equipment location without an armor control
+
+- **GIVEN** a support tank, support VTOL or large support vehicle using BAR or combat armor
+- **WHEN** its armor tab or diagram opens
+- **THEN** no Body armor input or disabled Body armor row SHALL be rendered
+- **AND** manual allocation SHALL NOT assign armor to Body
+- **AND** automatic allocation SHALL keep Body at zero
+- **AND** Body equipment placement SHALL remain available under its existing construction rules

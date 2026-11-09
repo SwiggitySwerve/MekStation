@@ -6,7 +6,6 @@
  *   - Turret      when turret is configured (any non-CHIN turret type)
  *   - Chin Turret when turret.type === TurretType.CHIN
  *   - Rotor       when motionType === VTOL
- *   - Body        when the vehicle is a support vehicle
  *
  * Reads state from useVehicleStore; wires inputs back via setLocationArmor /
  * autoAllocateArmor. Allocation follows the installed-location distribution

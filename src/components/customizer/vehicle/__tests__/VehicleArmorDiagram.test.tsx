@@ -5,12 +5,11 @@
  *  - 4 base locations always rendered
  *  - Turret location appears when hasTurret
  *  - Rotor location appears when isVTOL
- *  - Body location appears when unitType === SUPPORT_VEHICLE
+ *  - Body is omitted from support armor layouts, as in pinned MML
  *  - Auto-allocate button disabled when availablePoints === 0
  *
  * @spec openspec/changes/add-per-type-armor-diagrams/specs/armor-diagram/spec.md
  *       Scenario: VTOL adds Rotor location
- *       Scenario: Support vehicle adds Body location
  *       Scenario: Turret configured shows Turret location
  */
 
@@ -111,7 +110,7 @@ describe('VehicleArmorDiagram', () => {
     expect(screen.getByText('Rotor')).toBeInTheDocument();
   });
 
-  it('shows Body location when support vehicle', () => {
+  it('omits the unarmored Body location for support vehicles, as pinned MML', () => {
     mockUseVehicleStore.mockImplementation((selector) =>
       selector(
         makeState({
@@ -120,7 +119,10 @@ describe('VehicleArmorDiagram', () => {
       ),
     );
     render(<VehicleArmorDiagram />);
-    expect(screen.getByText('Body')).toBeInTheDocument();
+    expect(screen.queryByText('Body')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('spinbutton', { name: 'Body armor value' }),
+    ).not.toBeInTheDocument();
   });
 
   it('disables auto-allocate button when armorTonnage is 0', () => {

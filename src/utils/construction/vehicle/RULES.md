@@ -910,3 +910,19 @@ Zero- and one-point rotor budgets cannot create negative hull armor.
 The editor, store allocator and status diagnostics share these owners. Handler
 validity continues to use its source-handler path and is checked independently;
 changing an editor diagnostic must not silently change catalog validity or BV.
+
+## Body presentation in the pinned vehicle armor editor (4.1-i clarification)
+
+Pinned MML 62bf193 does not expose a Body armor control for support vehicles.
+ArmorAllocationView.java:91-110 defines Tank, superheavy/large-support and VTOL
+layouts without LOC_BODY; :321-343 selects those layouts for support tanks,
+large support tanks and support VTOLs. SVArmorTab.java:304 discounts Body as
+unarmored, and :329 skips it during automatic allocation. This is independent
+of BAR and armor tech rating. UnitUtil.getMaxArmor returning null does not
+create an editor location that is absent from the layout.
+
+The shared editor layout therefore omits Body entirely, including four-side
+support vehicles, instead of rendering a disabled Body armor input. Body
+remains unavailable to manual armor edits and zero in automatic allocation;
+its equipment-location role is unchanged. This clarifies the earlier
+'remain unavailable' wording: the pinned armor UI has no Body field.
