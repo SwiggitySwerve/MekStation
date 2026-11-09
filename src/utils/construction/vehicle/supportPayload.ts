@@ -12,7 +12,6 @@ import {
   isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
 } from './powerAmplifier';
-import { getSupportRegistryMass } from './supportMountMass';
 import { computeTurretWeight } from './turret';
 import { resolveVehicleVariableMass } from './variableEquipmentMass';
 import {
@@ -20,11 +19,25 @@ import {
   sumVehicleHeatLoad,
 } from './vehicleHeatLoad';
 
+/**
+ * Pinned mass for a raw BLK mount token that a service-layer owner can identify
+ * as a Java-derived registry entry, or undefined. Injected so this rule stays
+ * pure: the BV catalog matches some raw tokens by name to legacy stubs whose
+ * mass is not pinned (`LRT 10` -> `lrtorpedo10`, 2.5 t against Java 5 t).
+ */
+export type SupportRegistryMass = (
+  equipmentId: string,
+  name?: string,
+) => number | undefined;
+
 /** TestEntity.java:631-667,716-769: sum catalog mount weights by kind.
+ * A non-ammunition mount uses the injected registry mass when it has one,
+ * otherwise its BV catalog entry's.
  */
 export function computeSupportPayloadWeights(
   unit: ISupportVehicle,
   engineWeight: number,
+  registryMassOf?: SupportRegistryMass,
 ): {
   weapons: number;
   ammo: number;
@@ -45,7 +58,7 @@ export function computeSupportPayloadWeights(
     const registryMass =
       ammo || !catalogItem
         ? undefined
-        : getSupportRegistryMass(mount.equipmentId, unit.techBase, mount.name);
+        : registryMassOf?.(mount.equipmentId, mount.name);
     const item =
       catalogItem && registryMass !== undefined
         ? { ...catalogItem, weight: registryMass }

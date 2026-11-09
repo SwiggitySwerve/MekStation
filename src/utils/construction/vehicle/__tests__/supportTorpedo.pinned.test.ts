@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { createSupportRegistryMass } from '@/services/units/handlers/supportRegistryMass';
 import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
 
 import { computeSupportVehicleWeight } from '../supportWeight';
@@ -30,8 +31,9 @@ beforeAll(async () => {
  * The support handler receives the raw BLK token. For `LRT n` and `SRT n` the
  * BV catalog matches the legacy name stubs `lrtorpedoN` and `srtN`, which weigh
  * half the Java launcher; the unit loader resolves the same token to the
- * Java-derived registry entry (`lrt-10-registry`, 5 t). The support payload
- * takes the mass from the registry entry when the resolver lands on one.
+ * Java-derived registry entry (`lrt-10-registry`, 5 t). The pure payload rule
+ * takes an injected registry mass; the handler injects the service-built lookup
+ * (`createSupportRegistryMass`), which answers only for registry entries.
  */
 const torpedoes: readonly (readonly [
   token: string,
@@ -48,15 +50,24 @@ const torpedoes: readonly (readonly [
   ['LRT 10\nLRT 15\nSRT 2\nSRT 4', 15, 66.5],
 ];
 
-const weigh = (front: string) => {
+const unitFor = (front: string) => {
   const parsed = new BlkParserService().parse(supportChassisBlk(front));
   if (!parsed.success) throw new Error('fixture parse');
   const handler = new SupportVehicleUnitHandler();
   const result = handler.parse(parsed.data.document);
   if (!result.success) throw new Error('handler parse');
+  return { handler, unit: result.data.unit };
+};
+
+// The handler's own wiring: the service-built lookup feeds the pure rule.
+const weigh = (front: string) => {
+  const { handler, unit } = unitFor(front);
   return {
-    weight: computeSupportVehicleWeight(result.data.unit),
-    total: handler.calculateWeight(result.data.unit),
+    weight: computeSupportVehicleWeight(
+      unit,
+      createSupportRegistryMass(unit.techBase),
+    ),
+    total: handler.calculateWeight(unit),
   };
 };
 
@@ -94,4 +105,32 @@ it.each([
   expect(weight.unresolved).toEqual([]);
   expect(weight.miscEquipment).toBe(javaMiscEquip);
   expect(total).toBe(javaTotal);
+});
+
+// The pure payload rule, with a lookup injected directly: a non-ammunition mount
+// uses the injected mass when there is one, otherwise its BV catalog entry's;
+// ammunition never takes it.
+describe('support payload rule with an injected registry mass', () => {
+  const launcher = 'LRT 10';
+  it('uses the injected mass for a non-ammunition mount', () => {
+    const { unit } = unitFor(launcher);
+    expect(
+      computeSupportVehicleWeight(unit, (id) =>
+        id === launcher ? 5 : undefined,
+      ).weapons,
+    ).toBe(5);
+  });
+  it('keeps the BV entry without a lookup or when it has no answer', () => {
+    const { unit } = unitFor(launcher);
+    expect(computeSupportVehicleWeight(unit).weapons).toBe(2.5);
+    expect(computeSupportVehicleWeight(unit, () => undefined).weapons).toBe(
+      2.5,
+    );
+  });
+  it('never applies the injected mass to an ammunition bin', () => {
+    const { unit } = unitFor(`${launcher}\nIS Ammo LRTorpedo-10`);
+    const weight = computeSupportVehicleWeight(unit, () => 9);
+    expect(weight.weapons).toBe(9);
+    expect(weight.ammo).toBe(1);
+  });
 });

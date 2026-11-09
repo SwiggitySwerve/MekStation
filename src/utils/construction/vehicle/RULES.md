@@ -1008,9 +1008,13 @@ resolves the same token to the Java-derived registry entries (`lrt-10-registry`
 5 t, `lrt-15-registry` 7, `srt-2-registry` 1, `srt-4-registry` 2), which is why
 the editor was already right and only the handler total was short.
 
-`supportMountMass.ts` takes a non-ammunition mount's mass from the loader's
-definition when `isRegistryEquipment` accepts it, and otherwise leaves the BV
-entry in charge. Ammunition keeps its own path. The registry-only rule matters:
+The payload rule stays pure: `computeSupportPayloadWeights` takes an optional
+injected `SupportRegistryMass` lookup and uses its answer for a non-ammunition
+mount, otherwise the BV entry's. The service layer supplies the lookup
+(`services/units/handlers/supportRegistryMass.ts`, built from
+`resolveEquipmentId` and `isRegistryEquipment`) and `SupportVehicleUnitHandler`
+passes it; the editor never calls the payload and already resolves registry ids
+through its own resolver. Ammunition keeps its own path. The registry-only rule matters:
 the loader also answers for the wrecking ball and flail (weight 0 against Java 4
 and 5 t) and for cargo (weight 1, variable by size). Pinned MegaMek 48fcb2f64,
 `TestSupportVehicle` verifier: LRT 5/10/15/20 weigh 2/5/7/10 t and SRT 2/4/6
