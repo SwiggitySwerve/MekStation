@@ -578,6 +578,7 @@ test.describe('co-op campaign UI audit', () => {
         await expect(hostPage.getByTestId('coop-launch-mission')).toBeVisible({
           timeout: 20_000,
         });
+        await expect(hostPage.getByTestId('coop-join-mission')).toHaveCount(0);
         await expect(hostPage.getByTestId('coop-session-badge')).toContainText(
           'Co-op session: Host',
           { timeout: 20_000 },
@@ -594,9 +595,12 @@ test.describe('co-op campaign UI audit', () => {
         });
 
         await guestPage.goto(missionLaunchPath);
-        await expect(guestPage.getByTestId('coop-launch-mission')).toBeVisible({
+        await expect(guestPage.getByTestId('coop-join-mission')).toBeVisible({
           timeout: 20_000,
         });
+        await expect(guestPage.getByTestId('coop-launch-mission')).toHaveCount(
+          0,
+        );
         await expect(guestPage.getByTestId('coop-session-badge')).toContainText(
           'Co-op session: Guest',
           { timeout: 20_000 },
@@ -812,9 +816,12 @@ test.describe('co-op campaign UI audit', () => {
         });
 
         await guestPage.goto(missionLaunchPath);
-        await expect(guestPage.getByTestId('coop-launch-mission')).toBeVisible({
+        await expect(guestPage.getByTestId('coop-join-mission')).toBeVisible({
           timeout: 20_000,
         });
+        await expect(guestPage.getByTestId('coop-launch-mission')).toHaveCount(
+          0,
+        );
         await expect(guestPage.getByTestId('coop-session-badge')).toContainText(
           'Co-op session: Guest',
           { timeout: 20_000 },
