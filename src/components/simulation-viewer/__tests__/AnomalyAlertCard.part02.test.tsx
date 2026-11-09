@@ -103,6 +103,47 @@ describe('AnomalyAlertCard', () => {
   });
 
   describe('Dismiss Animation', () => {
+    it.each(['pointer', 'keyboard'])(
+      'dismisses once after repeated %s activation during the fade',
+      (input) => {
+        const handleDismiss = jest.fn();
+        render(
+          <AnomalyAlertCard
+            anomaly={criticalAnomaly}
+            onDismiss={handleDismiss}
+          />,
+        );
+        const button = screen.getByRole('button', { name: 'Dismiss' });
+
+        act(() => {
+          if (input === 'pointer') {
+            fireEvent.click(button);
+            fireEvent.click(button);
+          } else {
+            fireEvent.keyDown(button, { key: 'Enter' });
+            fireEvent.keyDown(button, { key: ' ' });
+          }
+        });
+        act(() => {
+          jest.advanceTimersByTime(299);
+        });
+        expect(handleDismiss).not.toHaveBeenCalled();
+        fireEvent.click(button);
+
+        act(() => {
+          jest.advanceTimersByTime(1);
+        });
+        expect(handleDismiss).toHaveBeenCalledTimes(1);
+        expect(handleDismiss).toHaveBeenCalledWith(criticalAnomaly.id);
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+        act(() => {
+          jest.runAllTimers();
+        });
+        expect(handleDismiss).toHaveBeenCalledTimes(1);
+      },
+    );
+
     it('starts with opacity-100', () => {
       render(
         <AnomalyAlertCard anomaly={criticalAnomaly} onDismiss={jest.fn()} />,

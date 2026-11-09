@@ -1,0 +1,6 @@
+{
+  "name": "w3-u-low-anomaly-dismiss",
+  "status": "in-progress",
+  "reason": "Root-approved Wave 3 U-LOW: prevent repeated anomaly dismissal callbacks during the existing fade.",
+  "lastReviewed": "2026-11-08"
+}

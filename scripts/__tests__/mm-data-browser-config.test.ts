@@ -156,12 +156,10 @@ describe('mm-data browser manifest synchronization', () => {
       { beforeSync?: string[]; afterSync: string[] }
     > = {
       dev: {
-        beforeSync: ['npx kill-port 3600 --silent'],
-        afterSync: ['node server.js'],
+        afterSync: [],
       },
       'dev:e2e': {
-        beforeSync: ['npx kill-port 3600 --silent'],
-        afterSync: ['next dev --webpack --port 3600'],
+        afterSync: [],
       },
       build: {
         afterSync: [
@@ -177,6 +175,12 @@ describe('mm-data browser manifest synchronization', () => {
     for (const [name, contract] of Object.entries(entrypoints)) {
       const command = packageJson.scripts[name];
       expect(command).toBeDefined();
+      if (name === 'dev' || name === 'dev:e2e') {
+        expect(command).toBe(
+          `node scripts/next/run-dev.mjs${name === 'dev:e2e' ? ' --next' : ''}`,
+        );
+        continue;
+      }
       const syncIndex = command.indexOf(syncCommand);
       expect(syncIndex).toBeGreaterThanOrEqual(0);
       for (const prerequisite of contract.beforeSync ?? []) {
@@ -188,5 +192,87 @@ describe('mm-data browser manifest synchronization', () => {
         expect(syncIndex).toBeLessThan(command.indexOf(downstreamCommand));
       }
     }
+  });
+});
+
+describe('safe development startup entrypoints', () => {
+  function runStartup(input: object) {
+    const result = spawnSync(
+      process.execPath,
+      [path.join(projectRoot, 'scripts', '__tests__', 'dev-port.fixture.mjs')],
+      {
+        input: JSON.stringify(input),
+        encoding: 'utf8',
+        timeout: 30_000,
+      },
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.status).toBe(0);
+    return JSON.parse(result.stdout);
+  }
+
+  it.each([false, true])(
+    'refuses an actual listener without stopping it (Next=%s)',
+    (next) => {
+      const result = runStartup({ busy: true, next });
+      expect(result.code).toBe(1);
+      expect(result.stderr).toContain(`PID ${result.pid}`);
+      expect(result.stderr).toContain(`Port ${result.port}`);
+      expect(result.alive).toBe(true);
+    },
+  );
+
+  it.each([false, true])(
+    'checks PORT then synchronizes before starting (Next=%s)',
+    (next) => {
+      const result = runStartup({ next });
+      expect(result.code).toBe(0);
+      expect(result.calls).toHaveLength(2);
+      expect(result.calls[0].args[0]).toMatch(/sync-browser-config\.mjs$/);
+      expect(result.calls[1].args).toEqual(
+        next
+          ? [
+              expect.stringMatching(/[/\\]next[/\\]dist[/\\]bin[/\\]next$/),
+              'dev',
+              '--webpack',
+              '--port',
+              String(result.port),
+            ]
+          : [expect.stringMatching(/[/\\]server\.js$/)],
+      );
+      expect(result.calls[1].port).toBe(String(result.port));
+    },
+  );
+
+  it('does not start a server after synchronization fails', () => {
+    const result = runStartup({ syncCode: 7 });
+    expect(result.code).toBe(7);
+    expect(result.calls).toHaveLength(1);
+  });
+
+  it('propagates server failures and signals to its own child', () => {
+    expect(runStartup({ serverCode: 9 }).code).toBe(9);
+    const interrupted = runStartup({ signal: 'SIGTERM' });
+    expect(interrupted.code).toBe(143);
+    expect(interrupted.kills).toEqual(['SIGTERM']);
+  });
+
+  it('guards both production-evidence commands and removes destructive prefixes', () => {
+    const source = fs.readFileSync(
+      path.join(projectRoot, 'scripts', 'playwright', 'run-playwright.mjs'),
+      'utf8',
+    );
+    expect(source).not.toContain('kill-port');
+    expect(source).toContain(
+      'scripts/next/run-dev.mjs --check-port && npm run build',
+    );
+    const config = fs.readFileSync(
+      path.join(projectRoot, 'playwright.config.ts'),
+      'utf8',
+    );
+    expect(config).toContain(
+      "command: process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev'",
+    );
+    expect(config).toContain('PORT: String(e2ePort)');
   });
 });
