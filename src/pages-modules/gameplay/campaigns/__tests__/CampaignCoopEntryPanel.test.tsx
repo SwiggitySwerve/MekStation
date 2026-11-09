@@ -59,6 +59,9 @@ const mockCreateGuestMirrorCampaign = jest.fn(() => 'guest-campaign-1');
 const mockCampaignSetState = jest.fn();
 const mockPersistenceSetState = jest.fn();
 const mockPersistenceReset = jest.fn();
+const mockPersistenceRestore = jest.fn((snapshot: unknown) => {
+  mockPersistenceSetState(snapshot);
+});
 let mockPreviousCampaign: { id: string } | null = null;
 
 jest.mock('@/stores/campaign/useCampaignStore', () => ({
@@ -88,6 +91,7 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
       campaignId: 'campaign-host',
       saveCampaign: mockSaveCampaign,
       reset: mockPersistenceReset,
+      restoreAfterFailedCreation: mockPersistenceRestore,
     }),
   },
 }));
@@ -173,6 +177,7 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
     mockCampaignSetState.mockClear();
     mockPersistenceSetState.mockClear();
     mockPersistenceReset.mockClear();
+    mockPersistenceRestore.mockClear();
     mockRouterPush.mockReset();
     mockFetch.mockReset();
     mockCreateCampaign.mockClear();
@@ -265,6 +270,29 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
     expect(
       mockFetch.mock.calls.some(([url]) => url === '/api/multiplayer/matches'),
     ).toBe(false);
+  });
+
+  it('restores persistence through its named action after reset and campaign restore', async () => {
+    mockPreviousCampaign = { id: 'pre-existing-campaign' };
+    serveCreationRequests(refusedMatch);
+    submitCreation();
+    await screen.findByTestId('create-coop-unavailable');
+    expect(mockPersistenceRestore).toHaveBeenCalledTimes(1);
+    expect(mockPersistenceRestore).toHaveBeenCalledWith(
+      expect.objectContaining({
+        campaignId: 'campaign-host',
+        saveCampaign: mockSaveCampaign,
+        reset: mockPersistenceReset,
+        restoreAfterFailedCreation: mockPersistenceRestore,
+      }),
+    );
+    expect(mockPersistenceReset.mock.invocationCallOrder[0]).toBeLessThan(
+      mockCampaignSetState.mock.invocationCallOrder[0],
+    );
+    expect(mockCampaignSetState.mock.invocationCallOrder[0]).toBeLessThan(
+      mockPersistenceRestore.mock.invocationCallOrder[0],
+    );
+    expect(deletedCampaignUrls()).toEqual(['/api/campaigns/campaign-host']);
   });
 
   it('restores local state after a refused save without deleting an unacknowledged campaign', async () => {

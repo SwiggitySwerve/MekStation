@@ -25,6 +25,7 @@ import {
 } from '../unitState';
 import { wrapUnitEditActions } from './unitEditHistory';
 import { createArmorSlice } from './useUnitArmorStore';
+import { createCrewSlice } from './useUnitCrewStore';
 import { createEquipmentSlice } from './useUnitEquipmentStore';
 import { createFluffSlice } from './useUnitFluffStore';
 import { createStructureSlice } from './useUnitStructureStore';
@@ -40,6 +41,7 @@ function pickPersistedUnitState(state: UnitStore) {
     librarySave: state.librarySave,
     role: state.role,
     fluff: state.fluff,
+    crewSeats: state.crewSeats,
     tonnage: state.tonnage,
     techBase: state.techBase,
     unitType: state.unitType,
@@ -102,6 +104,7 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
           {
             ...createArmorSlice(set, get),
             ...createEquipmentSlice(set, get),
+            ...createCrewSlice(set, get),
             ...createFluffSlice(set),
             ...createStructureSlice(set, get),
             ...createTechBaseSlice(set, get),
