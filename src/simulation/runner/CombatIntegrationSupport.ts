@@ -86,9 +86,9 @@ const INTERACTIVE_TERMINAL_SOURCE_REFS = [
     'L176-L197',
   ),
   mekstationDeviationSourceRef(
-    'MekStation InteractiveSession.finalizeSessionOutcome converts calculated outcomes into endGame GameEnded events before publishing combat outcomes.',
+    'MekStation finalizeSessionOutcome converts calculated outcomes into GameEnded events before deriving terminal combat outcomes.',
     'src/engine/InteractiveSession.outcome.ts',
-    'L31-L76',
+    'L27-L68',
   ),
 ] satisfies readonly ICombatFeatureSourceReference[];
 

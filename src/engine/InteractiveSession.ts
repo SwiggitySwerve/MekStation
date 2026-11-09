@@ -49,6 +49,7 @@ import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.run
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
 
+import { CombatOutcomeJournal } from './combatOutcomeJournal';
 import { seedHexTerrainFromGrid } from './GameEngine.helpers';
 import {
   computeInteractiveSessionIndirectFireContext,
@@ -86,10 +87,13 @@ import {
   hasInteractiveSessionPublishedOutcome,
   isInteractiveSessionGameOver,
   runInteractiveSessionAI,
+  tryFinalizeAndPublishInteractiveSession,
 } from './InteractiveSession.lifecycle';
 import {
   hydrateRecoverableSessionFromMatchLog,
   hydrateSessionFromMatchLog,
+  loadSessionOutcomePublication,
+  type OutcomePublicationStorage,
   type MatchLogHydrationStorage,
 } from './InteractiveSession.persistence';
 import {
@@ -178,13 +182,9 @@ export class InteractiveSession {
    */
   private readonly d6Roller?: D6Roller;
   private startedAt: string;
-  /**
-   * Per `wire-encounter-to-campaign-round-trip` Wave 5: dedupe guard so
-   * `CombatOutcomeReady` fires exactly once per session even when
-   * multiple methods ((concede + advancePhase) cause us to re-evaluate
-   * `isGameOver`). Spec: "Event idempotent per session".
-   */
-  private outcomePublished = false;
+  private readonly outcomeJournal = new CombatOutcomeJournal();
+  private outcomePublicationStorage: OutcomePublicationStorage =
+    matchLogStorage;
 
   /** Scratch flag: finalize state on game-over but never touch the bus. */
   private suppressOutcomePublication = false;
@@ -270,16 +270,15 @@ export class InteractiveSession {
       setSession: (session) => {
         const previousSession = this.session;
         this.session = session;
-        persistNewInteractiveSessionEvents(
-          this.runtimeContext,
-          previousSession,
-        );
+        if (!this.suppressOutcomePublication)
+          persistNewInteractiveSessionEvents(
+            this.runtimeContext,
+            previousSession,
+          );
       },
-      getOutcomePublished: () => this.outcomePublished,
+      outcomeJournal: this.outcomeJournal,
+      getOutcomePublicationStorage: () => this.outcomePublicationStorage,
       getSuppressOutcomePublication: () => this.suppressOutcomePublication,
-      setOutcomePublished: (published) => {
-        this.outcomePublished = published;
-      },
       markMatchLogDiverged: () => {
         this.matchLogDiverged = true;
       },
@@ -328,6 +327,7 @@ export class InteractiveSession {
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
     instance.session = session;
+    instance.outcomeJournal.adopt(session);
     return instance;
   }
 
@@ -370,6 +370,7 @@ export class InteractiveSession {
       session.config.victoryConditions,
     );
     instance.session = session;
+    instance.outcomeJournal.adopt(session);
     instance.suppressOutcomePublication =
       options.suppressOutcomePublication === true;
     return instance;
@@ -403,6 +404,7 @@ export class InteractiveSession {
   static async fromSessionAsync(
     session: IGameSession,
     readCustom?: ReadCustomCombatDefinition,
+    publicationStorage?: OutcomePublicationStorage,
   ): Promise<InteractiveSession> {
     const adapted = await deriveAdaptedUnitsFromSession(session, readCustom);
     const playerAdapted = adapted.filter((u) => u.side === GameSide.Player);
@@ -444,6 +446,14 @@ export class InteractiveSession {
     // Replace the fresh Setup-phase session with the replayed one so
     // `currentState` (status / turn / phase / board) matches history.
     instance.session = session;
+    instance.outcomePublicationStorage = publicationStorage ?? matchLogStorage;
+    instance.outcomeJournal.adopt(
+      session,
+      await loadSessionOutcomePublication(
+        session,
+        instance.outcomePublicationStorage,
+      ),
+    );
     return instance;
   }
 
@@ -729,10 +739,14 @@ export class InteractiveSession {
   /**
    * Test-observability accessor for the once-per-session publish guard.
    * The capstone E2E test asserts double-publish suppression by reading
-   * this flag.
+   * the journal-derived acknowledgement.
    */
   hasPublishedOutcome = (): boolean => {
     return hasInteractiveSessionPublishedOutcome(this.runtimeContext);
+  };
+
+  resumeOutcomePublication = (): void => {
+    tryFinalizeAndPublishInteractiveSession(this.runtimeContext);
   };
 
   hasMatchLogDiverged = (): boolean => {
@@ -773,5 +787,22 @@ export async function recoverInteractiveSession(
   readCustom?: ReadCustomCombatDefinition,
 ): Promise<InteractiveSession> {
   const session = await hydrateRecoverableSessionFromMatchLog(matchId, storage);
-  return InteractiveSession.fromSessionAsync(session, readCustom);
+  const acknowledge = storage.acknowledgeOutcomePublication;
+  const publicationStorage: OutcomePublicationStorage = {
+    getOutcomePublication: (publicationMatchId, terminalEventId) =>
+      storage.getOutcomePublication?.(publicationMatchId, terminalEventId) ??
+      Promise.resolve(undefined),
+    acknowledgeOutcomePublication: acknowledge
+      ? (publicationMatchId, terminalEventId) =>
+          acknowledge.call(storage, publicationMatchId, terminalEventId)
+      : undefined,
+  };
+  const recovered = await InteractiveSession.fromSessionAsync(
+    session,
+    readCustom,
+    publicationStorage,
+  );
+  if (session.currentState.status === GameStatus.Completed)
+    recovered.resumeOutcomePublication();
+  return recovered;
 }
