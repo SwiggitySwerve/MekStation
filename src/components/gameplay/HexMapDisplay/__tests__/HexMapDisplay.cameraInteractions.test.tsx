@@ -60,6 +60,49 @@ function renderCameraMap(): {
 }
 
 describe('HexMapDisplay camera interactions', () => {
+  it('stops a cancelled pan and allows a fresh touch gesture', () => {
+    const { getInteraction } = renderCameraMap();
+    const grid = screen.getByTestId('hex-grid');
+
+    fireEvent.touchStart(grid, { touches: [touch(80, 90)] });
+    fireEvent.touchMove(grid, { touches: [touch(104, 118)] });
+    const panBeforeCancel = getInteraction().pan;
+
+    fireEvent.touchCancel(grid);
+    fireEvent.touchMove(grid, { touches: [touch(140, 150)] });
+    expect(getInteraction().pan).toEqual(panBeforeCancel);
+
+    fireEvent.touchStart(grid, { touches: [touch(100, 100)] });
+    fireEvent.touchMove(grid, { touches: [touch(110, 115)] });
+    expect(getInteraction().pan).toEqual({
+      x: panBeforeCancel.x + 10,
+      y: panBeforeCancel.y + 15,
+    });
+  });
+
+  it('clears a cancelled pinch and rotation before the next gesture', () => {
+    const { getInteraction } = renderCameraMap();
+    const grid = screen.getByTestId('hex-grid');
+
+    fireEvent.touchStart(grid, {
+      touches: [touch(100, 100), touch(200, 100)],
+    });
+    fireEvent.touchCancel(grid);
+    fireEvent.touchMove(grid, {
+      touches: [touch(100, 100), touch(100, 300)],
+    });
+    expect(getInteraction().zoom).toBe(1);
+    expect(getInteraction().isometricRotationStep).toBe(0);
+
+    fireEvent.touchStart(grid, {
+      touches: [touch(100, 100), touch(200, 100)],
+    });
+    fireEvent.touchMove(grid, {
+      touches: [touch(100, 100), touch(250, 100)],
+    });
+    expect(getInteraction().zoom).toBeCloseTo(1.5);
+  });
+
   it('rounds touch twist deltas symmetrically to isometric camera headings', () => {
     expect(isometricRotationStepForTouchGesture(0, 0, 90)).toBe(2);
     expect(isometricRotationStepForTouchGesture(0, 0, -90)).toBe(4);
