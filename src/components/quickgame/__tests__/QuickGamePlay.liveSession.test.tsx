@@ -139,6 +139,25 @@ describe('QuickGamePlay live tactical session guard', () => {
     mockQuickGameState.game.activeTacticalSession = null;
   });
 
+  it('offers a new setup with the same units after a battle error', () => {
+    mockQuickGameState.error = 'Failed to start battle';
+    render(<QuickGamePlay />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Battle Error' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Failed to start battle')).toBeInTheDocument();
+    expect(mockPlayAgain).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start New Setup' }));
+
+    expect(mockPlayAgain).toHaveBeenCalledTimes(1);
+    expect(mockPlayAgain).toHaveBeenCalledWith(false);
+    expect(mockStartBattle).not.toHaveBeenCalled();
+    expect(mockClearGame).not.toHaveBeenCalled();
+    expect(mockNavigateToGameSession).not.toHaveBeenCalled();
+  });
+
   it('does not fabricate a result for an active game without a recoverable session', async () => {
     render(<QuickGamePlay />);
 

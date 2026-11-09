@@ -1,5 +1,9 @@
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
+
+import type { MatchLogStorage } from './matchLogStorage';
+
 import {
   MATCH_LOG_STORES,
   MatchLogStorageError,
@@ -15,6 +19,19 @@ export interface IPendingEventWrite {
   readonly record: IMatchEventRecord;
   readonly resolve: (record: IMatchEventRecord) => void;
   readonly reject: (error: Error) => void;
+}
+
+/** Completion metadata must never get ahead of the persisted terminal event. */
+export function persistMatchEvent(
+  matchId: string,
+  event: IGameEvent,
+  storage: Pick<MatchLogStorage, 'appendEvent'> &
+    Partial<Pick<MatchLogStorage, 'markMatchCompleted'>>,
+): Promise<IMatchMetadataRecord | void> {
+  return storage.appendEvent(matchId, event).then(() => {
+    if (event.type !== GameEventType.GameEnded) return;
+    return storage.markMatchCompleted?.(matchId, event.timestamp);
+  });
 }
 
 export function migrateMatchLogDatabase(

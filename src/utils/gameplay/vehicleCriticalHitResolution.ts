@@ -3,7 +3,7 @@
  *
  * 2d6 vehicle critical-hit table + effect application. Unlike mechs, vehicle
  * crits don't consume critical slots — they modify the combat state:
- *   - Crew Stunned: skip next movement + weapon phase.
+ *   - Crew Stunned: track remaining stun rounds.
  *   - Engine Hit: immobilizes the vehicle.
  *   - Driver/Commander: wound counter; 2 kills the crew (vehicle destroyed).
  *   - Fuel Tank: ICE/FuelCell only — vehicle destroyed by fuel explosion
@@ -31,6 +31,7 @@ import {
 } from '@/types/gameplay';
 
 import { D6Roller, defaultD6Roller, roll2d6 } from './diceTypes';
+import { stunCrew } from './vehicleCrewStun';
 import {
   vehicleCritFromRollForLocation,
   type IVehicleCriticalTableContext,
@@ -155,7 +156,7 @@ const noStateEffectKinds = new Set<VehicleCritKind>([
 const vehicleCritEffectHandlers: Partial<
   Record<VehicleCritKind, VehicleCritEffectHandler>
 > = {
-  crew_stunned: (state) => ({ state: applyCrewStunned(state) }),
+  crew_stunned: (state) => ({ state: stunCrew(state) }),
   driver_hit: (state) => ({ state: applyDriverHit(state) }),
   pilot_hit: (state) => ({ state: applyDriverHit(state) }),
   commander_hit: (state) => ({ state: applyCommanderHit(state) }),
@@ -283,17 +284,6 @@ export function applyTurretLocked(
 // Per-kind effect helpers
 // =============================================================================
 
-/** Crew stunned: skip the next movement + weapon phase (2 phases). */
-function applyCrewStunned(state: IVehicleCombatState): IVehicleCombatState {
-  return {
-    ...state,
-    motive: {
-      ...state.motive,
-      crewStunnedPhases: state.motive.crewStunnedPhases + 2,
-    },
-  };
-}
-
 /** Driver/pilot wound counter; the second hit kills the crew. */
 function applyDriverHit(state: IVehicleCombatState): IVehicleCombatState {
   const driverHits = state.motive.driverHits + 1;
@@ -316,9 +306,8 @@ function applyCommanderHit(state: IVehicleCombatState): IVehicleCombatState {
   return {
     ...state,
     motive: {
-      ...state.motive,
+      ...stunCrew(state).motive,
       commanderHits,
-      crewStunnedPhases: state.motive.crewStunnedPhases + 2,
     },
     destroyed: crewKilled ? true : state.destroyed,
     destructionCause: crewKilled ? 'crew_killed' : state.destructionCause,

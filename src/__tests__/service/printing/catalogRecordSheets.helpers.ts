@@ -53,6 +53,7 @@ import {
 } from '@/stores/infantryState';
 import { computeProtoMechBVFromState } from '@/stores/protoMechState';
 import { getStructurePoints } from '@/types/construction/InternalStructureType';
+import { configurationRegistry } from '@/types/construction/mechConfigRegistry';
 import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { WeaponCategory } from '@/types/equipment';
 import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
@@ -62,6 +63,7 @@ import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
+import { buildArmorByLocation } from '@/utils/validation/armorValidationUtils';
 
 export const families = [
   'battlemechs',
@@ -397,12 +399,52 @@ export function verifyCatalogUnit(
         [data.movement.walkMP, data.movement.runMP, data.movement.jumpMP],
         [projection.walkMP, projection.runMP, state.jumpMP],
       );
-      for (const location of data.structure.locations)
+      const expectedLocations = configurationRegistry.getLocationDefinitions(
+        state.configuration,
+      );
+      const expectedNames = expectedLocations.map(({ id }) => id).sort();
+      const locationGroups = [
+        ['armor', data.armor.locations],
+        ['structure', data.structure.locations],
+      ] as const;
+      // Domain topology requires locations even when extraction omits them.
+      for (const [kind, locations] of locationGroups)
         check(
-          `structure.${location.location}`,
-          location.points,
-          getStructurePoints(state.tonnage, location.location),
+          `${kind}.locations`,
+          locations.map(({ location }) => location).sort(),
+          expectedNames,
         );
+      const expectedArmor = buildArmorByLocation(
+        state.armorAllocation,
+        state.tonnage,
+        state.configuration,
+      );
+      for (const { displayName, current } of Object.values(expectedArmor)) {
+        const isRear = displayName.endsWith(' (Rear)');
+        const location = data.armor.locations.find(
+          (entry) => entry.location === displayName.replace(/ \(Rear\)$/, ''),
+        );
+        check(
+          `armor.${displayName}`,
+          isRear ? location?.rear : location?.current,
+          current,
+        );
+      }
+      for (const { id, abbreviation } of expectedLocations) {
+        check(
+          `structure.${id}`,
+          data.structure.locations.find((location) => location.location === id)
+            ?.points,
+          getStructurePoints(state.tonnage, id),
+        );
+        for (const [kind, locations] of locationGroups)
+          check(
+            `${kind}.${id}.abbreviation`,
+            locations.find((location) => location.location === id)
+              ?.abbreviation,
+            abbreviation,
+          );
+      }
       check(
         'armor.total',
         data.armor.totalPoints,

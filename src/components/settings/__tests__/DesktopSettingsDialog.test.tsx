@@ -9,7 +9,11 @@ import {
 } from '@testing-library/react';
 import React from 'react';
 
-import type { IDesktopSettings, IServiceResult } from '../useElectron';
+import type {
+  IDesktopSettings,
+  IServiceResult,
+  ISettingsChangeEvent,
+} from '../useElectron';
 
 import { DesktopSettingsDialog } from '../DesktopSettingsDialog';
 import { useDesktopSettingsDialogState } from '../DesktopSettingsDialog.state';
@@ -41,20 +45,28 @@ const settings: IDesktopSettings = {
 const mockReset = jest.fn<Promise<IServiceResult>, []>();
 const mockUpdate = jest.fn<
   Promise<IServiceResult>,
-  [Partial<IDesktopSettings>]
+  [Partial<IDesktopSettings>, (() => boolean)?]
 >();
 let mockSettings = settings;
 let mockApi = {};
 let mockResetOwner = mockReset;
+let mockUseActualSettings = false;
 jest.mock('../useElectron', () => ({ useElectron: () => mockApi }));
 jest.mock('../useDesktopSettings', () => ({
-  useDesktopSettings: () => ({
-    settings: mockSettings,
-    isLoading: false,
-    updateSettings: mockUpdate,
-    resetSettings: mockResetOwner,
-    isElectron: true,
-  }),
+  useDesktopSettings: () =>
+    mockUseActualSettings
+      ? jest
+          .requireActual<typeof import('../useDesktopSettings')>(
+            '../useDesktopSettings',
+          )
+          .useDesktopSettings()
+      : {
+          settings: mockSettings,
+          isLoading: false,
+          updateSettings: mockUpdate,
+          resetSettings: mockResetOwner,
+          isElectron: true,
+        },
 }));
 const show = Object.getOwnPropertyDescriptor(
   HTMLDialogElement.prototype,
@@ -250,13 +262,405 @@ function deferred() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseActualSettings = false;
   mockResetOwner = mockReset;
   mockSettings = settings;
   mockApi = {};
-  mockReset.mockResolvedValue({ success: true });
-  mockUpdate.mockResolvedValue({ success: true });
+  mockReset.mockReset().mockResolvedValue({ success: true });
+  mockUpdate.mockReset().mockResolvedValue({ success: true });
   jest.spyOn(window, 'confirm').mockReturnValue(false);
   jest.spyOn(window, 'alert').mockImplementation(() => {});
+});
+
+describe('desktop settings Save and Apply ownership', () => {
+  function editedDialog() {
+    const onClose = jest.fn();
+    const view = renderHook(useDesktopSettingsDialogState, {
+      initialProps: { isOpen: true, onClose },
+    });
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', true));
+    return { view, onClose };
+  }
+
+  it.each(['handleSave', 'handleApply'] as const)(
+    '%s admits one write before a render',
+    async (action) => {
+      const pending = deferred();
+      mockUpdate.mockReturnValue(pending.promise);
+      const { view, onClose } = editedDialog();
+      let first!: Promise<void>;
+      act(() => {
+        first = view.result.current[action]();
+        void view.result.current.handleSave();
+        void view.result.current.handleApply();
+        view.result.current.handleClose();
+        void view.result.current.handleReset();
+      });
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { launchAtLogin: true },
+        expect.any(Function),
+      );
+      expect(view.result.current.isSaving).toBe(true);
+      expect(view.result.current.decision).toBeNull();
+      await act(async () => {
+        pending.resolve({ success: true });
+        await first;
+      });
+      expect(view.result.current.hasChanges).toBe(false);
+      expect(view.result.current.isSaving).toBe(false);
+      expect(onClose).toHaveBeenCalledTimes(action === 'handleSave' ? 1 : 0);
+    },
+  );
+
+  it.each(['reopen', 'api', 'unmount'] as const)(
+    'ignores a save completion after %s',
+    async (change) => {
+      const pending = deferred();
+      mockUpdate.mockReturnValue(pending.promise);
+      const { view, onClose } = editedDialog();
+      let save!: Promise<void>;
+      act(() => {
+        save = view.result.current.handleSave();
+      });
+      if (change === 'unmount') view.unmount();
+      else {
+        if (change === 'reopen') view.rerender({ isOpen: false, onClose });
+        else mockApi = {};
+        view.rerender({ isOpen: true, onClose });
+        act(() =>
+          view.result.current.updateLocalSetting('startMinimized', true),
+        );
+      }
+      await act(async () => {
+        pending.resolve({ success: true });
+        await save;
+      });
+      expect(onClose).not.toHaveBeenCalled();
+      if (change !== 'unmount') {
+        expect(view.result.current.hasChanges).toBe(true);
+        expect(view.result.current.localSettings?.startMinimized).toBe(true);
+      }
+    },
+  );
+
+  it('does not let old completion release a newer save', async () => {
+    const old = deferred();
+    const current = deferred();
+    mockUpdate
+      .mockReturnValueOnce(old.promise)
+      .mockReturnValueOnce(current.promise);
+    const { view, onClose } = editedDialog();
+    let oldSave!: Promise<void>;
+    let currentSave!: Promise<void>;
+    act(() => {
+      oldSave = view.result.current.handleSave();
+    });
+    view.rerender({ isOpen: false, onClose });
+    view.rerender({ isOpen: true, onClose });
+    act(() => view.result.current.updateLocalSetting('startMinimized', true));
+    act(() => {
+      currentSave = view.result.current.handleApply();
+    });
+    expect(mockUpdate).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      old.resolve({ success: true });
+      await oldSave;
+    });
+    expect(view.result.current.isSaving).toBe(true);
+    expect(view.result.current.hasChanges).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    await act(async () => {
+      current.resolve({ success: true });
+      await currentSave;
+    });
+    expect(view.result.current.isSaving).toBe(false);
+    expect(view.result.current.hasChanges).toBe(false);
+  });
+
+  it('preserves newer edits and incoming main settings, and writes only unsaved keys', async () => {
+    const pending = deferred();
+    mockUpdate.mockReturnValueOnce(pending.promise);
+    const { view, onClose } = editedDialog();
+    mockSettings = {
+      ...settings,
+      windowBounds: { ...settings.windowBounds, x: 450 },
+    };
+    view.rerender({ isOpen: true, onClose });
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(true);
+    expect(view.result.current.localSettings?.windowBounds.x).toBe(450);
+    expect(view.result.current.hasChanges).toBe(true);
+    let save!: Promise<void>;
+    act(() => {
+      save = view.result.current.handleSave();
+    });
+    act(() => view.result.current.updateLocalSetting('startMinimized', true));
+    await act(async () => {
+      pending.resolve({ success: true });
+      await save;
+    });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(view.result.current.hasChanges).toBe(true);
+    expect(view.result.current.localSettings?.startMinimized).toBe(true);
+    await act(async () => {
+      await view.result.current.handleApply();
+    });
+    expect(mockUpdate).toHaveBeenLastCalledWith(
+      { startMinimized: true },
+      expect.any(Function),
+    );
+    expect(view.result.current.hasChanges).toBe(false);
+  });
+
+  it('treats a reverted edit as clean without a write', async () => {
+    const { view } = editedDialog();
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', false));
+    expect(view.result.current.hasChanges).toBe(false);
+    await act(async () => {
+      await view.result.current.handleApply();
+    });
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it('keeps a same-key reversal made during a pending write', async () => {
+    const pending = deferred();
+    mockUpdate.mockReturnValueOnce(pending.promise);
+    const { view, onClose } = editedDialog();
+    let save!: Promise<void>;
+    act(() => {
+      save = view.result.current.handleSave();
+    });
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', false));
+    await act(async () => {
+      pending.resolve({ success: true });
+      await save;
+    });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(view.result.current.hasChanges).toBe(true);
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(false);
+    await act(async () => {
+      await view.result.current.handleApply();
+    });
+    expect(mockUpdate).toHaveBeenLastCalledWith(
+      { launchAtLogin: false },
+      expect.any(Function),
+    );
+  });
+
+  it.each(['false', 'reject'] as const)(
+    'retains a failed %s draft and allows retry',
+    async (failure) => {
+      const pending = deferred();
+      mockUpdate.mockReturnValueOnce(pending.promise);
+      const { view, onClose } = editedDialog();
+      let save!: Promise<void>;
+      act(() => {
+        save = view.result.current.handleSave();
+      });
+      await act(async () => {
+        if (failure === 'false')
+          pending.resolve({ success: false, error: 'Save denied' });
+        else pending.reject(new Error('Save denied'));
+        await save;
+      });
+      expect(view.result.current.hasChanges).toBe(true);
+      expect(view.result.current.isSaving).toBe(false);
+      expect(onClose).not.toHaveBeenCalled();
+      await act(async () => {
+        await view.result.current.handleSave();
+      });
+      expect(mockUpdate).toHaveBeenCalledTimes(2);
+      expect(onClose).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('preserves a real-hook draft across settings events and save echoes', async () => {
+    mockUseActualSettings = true;
+    const pending = deferred();
+    let listener!: (event: ISettingsChangeEvent) => void;
+    const setSettings = jest
+      .fn()
+      .mockReturnValueOnce(pending.promise)
+      .mockResolvedValue({ success: true });
+    mockApi = {
+      getSettings: jest.fn().mockResolvedValue(settings),
+      setSettings,
+      onSettingsChange: (next: typeof listener) => {
+        listener = next;
+      },
+      removeAllListeners: jest.fn(),
+    };
+    const onClose = jest.fn();
+    const view = renderHook(useDesktopSettingsDialogState, {
+      initialProps: { isOpen: true, onClose },
+    });
+    await act(async () => {});
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', true));
+    act(() =>
+      listener({
+        key: 'windowBounds',
+        oldValue: settings.windowBounds,
+        newValue: { ...settings.windowBounds, x: 450 },
+      }),
+    );
+    expect(view.result.current.hasChanges).toBe(true);
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(true);
+    let save!: Promise<void>;
+    act(() => {
+      save = view.result.current.handleSave();
+    });
+    act(() => view.result.current.updateLocalSetting('startMinimized', true));
+    act(() =>
+      listener({ key: 'launchAtLogin', oldValue: false, newValue: true }),
+    );
+    await act(async () => {
+      pending.resolve({ success: true });
+      await save;
+    });
+    expect(onClose).not.toHaveBeenCalled();
+    expect(view.result.current.hasChanges).toBe(true);
+    expect(view.result.current.localSettings?.windowBounds.x).toBe(450);
+    await act(async () => {
+      await view.result.current.handleApply();
+    });
+    expect(setSettings.mock.calls).toEqual([
+      [{ launchAtLogin: true }],
+      [{ startMinimized: true }],
+    ]);
+    expect(view.result.current.hasChanges).toBe(false);
+  });
+
+  it('replaces an edited draft with defaults after a real-hook reset', async () => {
+    mockUseActualSettings = true;
+    mockApi = {
+      getSettings: jest.fn().mockImplementation(async () => ({ ...settings })),
+      resetSettings: jest.fn().mockResolvedValue({ success: true }),
+      onSettingsChange: jest.fn(),
+      removeAllListeners: jest.fn(),
+    };
+    const view = renderHook(useDesktopSettingsDialogState, {
+      initialProps: { isOpen: true, onClose: jest.fn() },
+    });
+    await act(async () => {});
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', true));
+    await act(async () => {
+      await view.result.current.handleReset();
+    });
+    await act(async () => {
+      await view.result.current.approveDecision();
+    });
+    expect(view.result.current.hasChanges).toBe(false);
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(false);
+  });
+
+  it('does not publish an old save acknowledgement over a newer session Apply', async () => {
+    mockUseActualSettings = true;
+    const old = deferred();
+    let listener!: (event: ISettingsChangeEvent) => void;
+    const setSettings = jest
+      .fn()
+      .mockReturnValueOnce(old.promise)
+      .mockResolvedValue({ success: true });
+    mockApi = {
+      getSettings: jest.fn().mockResolvedValue(settings),
+      setSettings,
+      onSettingsChange: (next: typeof listener) => {
+        listener = next;
+      },
+      removeAllListeners: jest.fn(),
+    };
+    const onClose = jest.fn();
+    const view = renderHook(useDesktopSettingsDialogState, {
+      initialProps: { isOpen: true, onClose },
+    });
+    await act(async () => {});
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', true));
+    let oldSave!: Promise<void>;
+    act(() => {
+      oldSave = view.result.current.handleSave();
+    });
+    view.rerender({ isOpen: false, onClose });
+    view.rerender({ isOpen: true, onClose });
+    act(() =>
+      listener({ key: 'launchAtLogin', oldValue: false, newValue: true }),
+    );
+    act(() => view.result.current.updateLocalSetting('launchAtLogin', false));
+    await act(async () => {
+      await view.result.current.handleApply();
+    });
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(false);
+    await act(async () => {
+      old.resolve({ success: true });
+      await oldSave;
+    });
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(false);
+    expect(view.result.current.hasChanges).toBe(false);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(setSettings.mock.calls).toEqual([
+      [{ launchAtLogin: true }],
+      [{ launchAtLogin: false }],
+    ]);
+  });
+
+  it('accepts reset defaults published before the reset acknowledgement', async () => {
+    const pending = deferred();
+    mockReset.mockReturnValue(pending.promise);
+    const { view, onClose } = editedDialog();
+    await act(async () => {
+      await view.result.current.handleReset();
+    });
+    let reset!: Promise<void>;
+    act(() => {
+      reset = view.result.current.approveDecision();
+    });
+    mockSettings = { ...settings };
+    view.rerender({ isOpen: true, onClose });
+    await act(async () => {
+      pending.resolve({ success: true });
+      await reset;
+    });
+    expect(view.result.current.hasChanges).toBe(false);
+    expect(view.result.current.localSettings?.launchAtLogin).toBe(false);
+  });
+
+  it.each(['success', 'failure', 'reject'] as const)(
+    'ignores obsolete API %s publication in the settings hook',
+    async (outcome) => {
+      mockUseActualSettings = true;
+      const pending = deferred();
+      const actual = jest.requireActual<typeof import('../useDesktopSettings')>(
+        '../useDesktopSettings',
+      );
+      const createApi = () => ({
+        getSettings: jest.fn().mockResolvedValue(settings),
+        setSettings: jest.fn().mockReturnValue(pending.promise),
+        onSettingsChange: jest.fn(),
+        removeAllListeners: jest.fn(),
+      });
+      mockApi = createApi();
+      const view = renderHook(actual.useDesktopSettings);
+      await act(async () => {});
+      let save!: Promise<IServiceResult>;
+      act(() => {
+        save = view.result.current.updateSettings({ launchAtLogin: true });
+      });
+      mockApi = createApi();
+      view.rerender();
+      await act(async () => {});
+      await act(async () => {
+        if (outcome === 'reject') pending.reject(new Error('Old failure'));
+        else
+          pending.resolve(
+            outcome === 'success'
+              ? { success: true }
+              : { success: false, error: 'Old failure' },
+          );
+        await save;
+      });
+      expect(view.result.current.settings.launchAtLogin).toBe(false);
+      expect(view.result.current.error).toBeNull();
+    },
+  );
 });
 function resetDialog() {
   fireEvent.click(screen.getByRole('button', { name: 'Advanced' }));

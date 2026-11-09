@@ -1,0 +1,6 @@
+{
+  "name": "fix-coop-campaign-creation-cleanup",
+  "status": "in-progress",
+  "reason": "Root-approved Wave 3 K-L7: clean up only the newly created campaign acknowledged by this attempt's save, protect pre-existing campaigns, surface cleanup failures, and preserve acknowledged rooms.",
+  "lastReviewed": "2026-11-08"
+}

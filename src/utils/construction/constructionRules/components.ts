@@ -16,7 +16,6 @@ import { getInternalStructureDefinition } from '@/types/construction/InternalStr
 
 import type { ConstructionStepResult } from './types';
 
-import { ceilToHalfTon } from '../../physical/weightUtils';
 import {
   calculateEngineWeight,
   calculateIntegralHeatSinks,
@@ -29,6 +28,7 @@ import {
   calculateHeatSinkWeight,
   calculateExternalHeatSinkSlots,
 } from '../heatSinkCalculations';
+import { calculateStructureWeight } from '../structureCalculations';
 
 /**
  * Step 2: Install internal structure
@@ -54,7 +54,7 @@ export function calculateInternalStructure(
     };
   }
 
-  const weight = ceilToHalfTon(tonnage * definition.weightMultiplier);
+  const weight = calculateStructureWeight(tonnage, structureType);
   const criticalSlots = definition.criticalSlots;
 
   return {

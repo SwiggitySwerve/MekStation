@@ -10,6 +10,7 @@ jest.mock('@/lib/p2p/matchLogStorage', () => {
     ...actual,
     matchLogStorage: {
       appendEvent: jest.fn(),
+      markMatchCompleted: jest.fn(),
       getEventsForMatch: jest.fn(),
       getLastSequence: jest.fn(),
     },
@@ -35,6 +36,7 @@ import { MatchLogStorage, matchLogStorage } from '@/lib/p2p/matchLogStorage';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   GamePhase,
+  GameEventType,
   GameSide,
   LockState,
   type IGameConfig,
@@ -312,6 +314,9 @@ describe('InteractiveSession match log persistence wiring', () => {
     mockAppendMatchEvent = matchLogStorage.appendEvent as jest.Mock;
     mockToast = toast as jest.Mock;
     mockAppendMatchEvent.mockReset().mockResolvedValue(undefined);
+    (matchLogStorage.markMatchCompleted as jest.Mock)
+      .mockReset()
+      .mockResolvedValue(undefined);
     mockToast.mockReset();
     consoleErrorSpy = jest
       .spyOn(console, 'error')
@@ -320,6 +325,105 @@ describe('InteractiveSession match log persistence wiring', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+  });
+
+  it('marks a single-player match completed only after its terminal append settles', async () => {
+    const interactiveSession = makeInteractiveSession();
+    const matchId = interactiveSession.getSession().id;
+    let finish!: () => void;
+    mockAppendMatchEvent.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+
+    interactiveSession.concede(GameSide.Player);
+    const ended = interactiveSession.getSession().events.at(-1)!;
+    expect(ended.type).toBe(GameEventType.GameEnded);
+    expect(matchLogStorage.markMatchCompleted).not.toHaveBeenCalled();
+    finish();
+    await settlePersistenceRejection();
+    expect(matchLogStorage.markMatchCompleted).toHaveBeenCalledWith(
+      matchId,
+      ended.timestamp,
+    );
+  });
+
+  it('keeps completion metadata active when a terminal append fails', async () => {
+    mockAppendMatchEvent.mockRejectedValueOnce(
+      new Error('terminal append failed'),
+    );
+    const interactiveSession = makeInteractiveSession();
+    interactiveSession.concede(GameSide.Player);
+    await settlePersistenceRejection();
+    expect(matchLogStorage.markMatchCompleted).not.toHaveBeenCalled();
+    expect(interactiveSession.hasMatchLogDiverged()).toBe(true);
+  });
+
+  it('reports a failed completion metadata write without removing the terminal event', async () => {
+    const error = new Error('completion metadata failed');
+    (matchLogStorage.markMatchCompleted as jest.Mock).mockRejectedValueOnce(
+      error,
+    );
+    const interactiveSession = makeInteractiveSession();
+    interactiveSession.abortMatch();
+    await settlePersistenceRejection();
+    await settlePersistenceRejection();
+    expect(interactiveSession.getSession().events.at(-1)?.type).toBe(
+      GameEventType.GameEnded,
+    );
+    expect(interactiveSession.hasMatchLogDiverged()).toBe(true);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      MATCH_LOG_DIVERGENCE_MESSAGE,
+      error,
+    );
+  });
+
+  it('does not mark completion for an ordinary event', async () => {
+    const interactiveSession = makeInteractiveSession();
+    interactiveSession.advancePhase();
+    await settlePersistenceRejection();
+    expect(matchLogStorage.markMatchCompleted).not.toHaveBeenCalled();
+  });
+
+  it('persists completion metadata and makes an old single-player match eligible for retention cleanup', async () => {
+    installFreshIndexedDB();
+    const storage = new MatchLogStorage({
+      dbName: 'single-player-completion-retention',
+      now: () => '2026-11-08T00:00:00.000Z',
+      scheduleFrame: () => undefined,
+    });
+    const interactiveSession = makeInteractiveSession();
+    const launch = interactiveSession.getSession();
+    const writes = launch.events.map((event) =>
+      storage.appendEvent(launch.id, event),
+    );
+    await storage.flushPendingWrites();
+    await Promise.all(writes);
+    mockAppendMatchEvent.mockImplementation(storage.appendEvent);
+    (matchLogStorage.markMatchCompleted as jest.Mock).mockImplementation(
+      storage.markMatchCompleted,
+    );
+
+    jest.useFakeTimers().setSystemTime(new Date('2026-10-01T00:00:00.000Z'));
+    try {
+      interactiveSession.concede(GameSide.Player);
+      await storage.flushPendingWrites();
+      await settlePersistenceRejection();
+      expect(await storage.getMatchMetadata(launch.id)).toEqual(
+        expect.objectContaining({
+          status: 'completed',
+          lastActivity: '2026-10-01T00:00:00.000Z',
+        }),
+      );
+      expect((await storage.purgeOldMatches()).purgedMatchIds).toContain(
+        launch.id,
+      );
+    } finally {
+      jest.useRealTimers();
+      storage.close();
+    }
   });
 
   it('persists post-launch phase events before a cold reload can recover stale combat state', async () => {

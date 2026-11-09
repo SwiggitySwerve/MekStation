@@ -2,7 +2,19 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+import blackHawk from '../../public/data/units/battlemechs/3-succession-wars/advanced/Black Hawk A.json';
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
+import { resetEquipmentLoader } from '../../src/services/equipment/EquipmentLoaderService';
+import {
+  getEquipmentLookupService,
+  resetEquipmentLookupService,
+} from '../../src/services/equipment/EquipmentLookupService';
+import {
+  getEquipmentRegistry,
+  resetEquipmentRegistry,
+} from '../../src/services/equipment/EquipmentRegistry';
+import aeroCapital from '../../src/services/units/handlers/__tests__/fixtures/aerospace-capital-validity.json';
+import fixedWing from '../../src/services/units/handlers/__tests__/fixtures/fixed-wing-support.json';
 import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
 import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
 import vehicles from '../../src/services/units/handlers/__tests__/fixtures/vehicle-handler-locations.pinned-sources.json';
@@ -12,10 +24,12 @@ import {
   resetHandlerInitialization,
 } from '../../src/services/units/handlers/initializeHandlers';
 import { ProtoMechUnitHandler } from '../../src/services/units/handlers/ProtoMechUnitHandler';
+import { UnitLoaderService } from '../../src/services/units/unitLoaderService/unitLoader';
 import {
   getUnitTypeRegistry,
   resetUnitTypeRegistry,
 } from '../../src/services/units/UnitTypeRegistry';
+import * as orchestrator from '../../src/services/validation/UnitValidationOrchestrator';
 import { UnitCategory } from '../../src/types/unit/UnitTypeHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
 import {
@@ -25,12 +39,33 @@ import {
   captureConstructionValidity,
   compareFigures,
   FAMILIES,
+  prepareConstructionValidity,
   sourceHash,
   type IFigure,
   type IJavaReferenceRow,
   type IComputedRow,
 } from '../vehicle-aero-bv-delta';
 import fixture from './fixtures/vehicle_aero_contract_bv.json';
+import overweight from './fixtures/vehicle_overweight_pinned.json';
+
+// The equipment catalog reads public/ from disk; the pinned weight tests mock
+// the reader the same way because jsdom has a window and would use fetch.
+let mockCatalogAvailable = true;
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    mockCatalogAvailable
+      ? JSON.parse(
+          jest
+            .requireActual('node:fs')
+            .readFileSync(
+              jest
+                .requireActual('node:path')
+                .join(process.cwd(), 'public/data/equipment/official', file),
+              'utf8',
+            ),
+        )
+      : null,
+}));
 
 jest.mock('../../src/utils/construction/battleValueCalculations', () => {
   const actual = jest.requireActual(
@@ -482,7 +517,7 @@ test('captures a thrown construction-validator failure separately from validity'
   ).toEqual({ failure: 'Error: Validation unavailable' });
 });
 
-describe('opt-in vehicle validity uses actual pinned bytes and public category', () => {
+describe('opt-in BLK validity uses actual pinned bytes and the public handler', () => {
   let root: string;
   const source = (type = 'Tank', tonnage = 20) =>
     `<UnitType>\n${type}\n</UnitType>\n<Name>\nValidity probe\n</Name>\n<tonnage>\n${tonnage}\n</tonnage>\n<type>\nIS Level 2\n</type>\n<year>\n3060\n</year>\n<motion_type>\nTracked\n</motion_type>\n<cruiseMP>\n0\n</cruiseMP>\n<armor>\n1\n1\n1\n1\n0\n</armor>\n`;
@@ -505,10 +540,44 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
   });
   afterEach(() => {
     jest.restoreAllMocks();
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
     resetHandlerInitialization();
     resetUnitTypeRegistry();
     fs.rmSync(root, { recursive: true, force: true });
   });
+  const validity = ['node', 'delta.ts', '--construction-validity'];
+  test('does no catalog work without the validity opt-in', async () => {
+    await prepareConstructionValidity(['node', 'delta.ts']);
+    expect(getEquipmentLookupService().isInitialized()).toBe(false);
+    expect(getEquipmentRegistry().isReady()).toBe(false);
+  });
+  test('loads the JSON equipment catalog under the validity opt-in', async () => {
+    await prepareConstructionValidity(validity);
+    expect(getEquipmentLookupService().getDataSource()).toBe('json');
+    expect(getEquipmentRegistry().isReady()).toBe(true);
+  });
+  test('stops rather than validating against the hardcoded fallback catalog', async () => {
+    mockCatalogAvailable = false;
+    await expect(prepareConstructionValidity(validity)).rejects.toThrow(
+      'Equipment catalog unavailable',
+    );
+  });
+  test.each(overweight)(
+    'rejects the independently known overweight total once the catalog is loaded: $path',
+    async (row) => {
+      const input = write(row.content, row.path);
+      await prepareConstructionValidity(validity);
+      const fact = calculateSources([input], root, true)[0]
+        .constructionValidity;
+      expect(fact).toMatchObject({ isValid: false });
+      expect((fact as { errors: string[] }).errors).toContainEqual(
+        expect.stringMatching(/^Total weight \(\d+\.\d\dt\) exceeds tonnage/),
+      );
+    },
+  );
   test.each(vehicles.rows)(
     'transports the actual public validation for $path',
     (row) => {
@@ -531,6 +600,51 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
       expect(constructionValidity).toBeDefined();
       expect(unchanged).toEqual(plain);
       expect(plain.figure?.total).toBeGreaterThan(0);
+    },
+  );
+  test.each(aeroCapital.rows)(
+    'transports the actual public aerospace/capital validation for $path',
+    (row) => {
+      const input = write(row.content, row.path);
+      const plain = calculateSources([input], root)[0];
+      const projected = calculateSources([input], root, true)[0];
+      const document = new BlkParserService().parse(row.content);
+      if (!document.success) throw new Error('Pinned fixture did not parse');
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error('Public aerospace handler absent');
+      expect(handler.category).toBe(UnitCategory.AEROSPACE);
+      const parsed = handler.parse(document.data.document);
+      if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+      const expected = handler.validate(parsed.data.unit);
+      expect(projected.constructionValidity).toEqual(expected);
+      // The pinned Java verdict is retained in the fixture; agreement here is
+      // the capital/aerospace slice of the full-corpus validity proof.
+      expect(expected.isValid).toBe(row.valid);
+      const { constructionValidity, ...unchanged } = projected;
+      expect(constructionValidity).toBeDefined();
+      expect(unchanged).toEqual(plain);
+    },
+  );
+  test.each(fixedWing.rows.filter((row) => row.path.startsWith('vehicles/')))(
+    'validates FixedWingSupport under vehicles through the aerospace handler: $path',
+    (row) => {
+      const input = write(row.content, row.path);
+      const document = new BlkParserService().parse(row.content);
+      if (!document.success) throw new Error('Pinned fixture did not parse');
+      initializeUnitTypeHandlers();
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error('Public subtype handler absent');
+      expect(handler.category).toBe(UnitCategory.AEROSPACE);
+      const validate = jest.spyOn(handler, 'validate');
+      const fact = calculateSources([input], root, true)[0]
+        .constructionValidity;
+      expect(validate).toHaveBeenCalled();
+      expect(fact).toHaveProperty('isValid', row.valid);
+      expect(fact).not.toHaveProperty('failure');
     },
   );
   test('does no registry/parser work without opt-in', () => {
@@ -574,25 +688,9 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
         .constructionValidity,
     ).toHaveProperty('isValid', false);
   });
-  test('rejects FixedWingSupport under vehicles without invoking aerospace validation', () => {
-    initializeUnitTypeHandlers();
-    const document = new BlkParserService().parse(source('FixedWingSupport'));
-    if (!document.success) throw new Error('Source did not parse');
-    const handler = getUnitTypeRegistry().getHandlerForDocument(
-      document.data.document,
-    );
-    if (!handler) throw new Error('Public subtype handler absent');
-    expect(handler.category).toBe(UnitCategory.AEROSPACE);
-    const validate = jest.spyOn(handler, 'validate');
-    expect(
-      calculateSources([write(source('FixedWingSupport'))], root, true)[0]
-        .constructionValidity,
-    ).toEqual({ failure: expect.stringContaining('vehicle-out-of-scope') });
-    expect(validate).not.toHaveBeenCalled();
-  });
   test.each([
-    ['not a BLK source', 'vehicle-source-parser'],
-    [source('Tank', 0), 'vehicle-handler-parser'],
+    ['not a BLK source', 'blk-source-parser'],
+    [source('Tank', 0), 'blk-handler-parser'],
   ])('retains %s as an explicit staged failure', (content, reason) => {
     expect(
       calculateSources([write(content)], root, true)[0].constructionValidity,
@@ -606,7 +704,7 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
     expect(
       calculateSources([write(source())], root, true)[0].constructionValidity,
     ).toEqual({
-      failure: expect.stringContaining('vehicle-handler-unavailable'),
+      failure: expect.stringContaining('blk-handler-unavailable'),
     });
   });
   test('retains a thrown validator as a distinct failure, not invalidity', () => {
@@ -627,7 +725,7 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
       calculateSources([write(source())], root, true)[0].constructionValidity,
     ).toEqual({
       failure: expect.stringContaining(
-        'vehicle-validator: Error: validator unavailable',
+        'blk-validator: Error: validator unavailable',
       ),
     });
   });
@@ -657,5 +755,113 @@ describe('opt-in vehicle validity uses actual pinned bytes and public category',
       'Source hash mismatch',
     );
     expect(areHandlersInitialized()).toBe(false);
+  });
+});
+
+describe('opt-in MTF validity uses the converted mech through the editor projection', () => {
+  let root: string;
+  const validity = ['node', 'delta.ts', '--construction-validity'];
+  // The converted unit carries the design; the MTF bytes are only hash-checked.
+  function write(unit: unknown, relative = 'meks/probe.mtf') {
+    const content = 'MTF bytes are hash-checked, never reparsed for validity\n';
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, content);
+    return {
+      path: relative,
+      sha256: sourceHash(Buffer.from(content)),
+      unit,
+    };
+  }
+  const fact = (unit: unknown) =>
+    calculateSources([write(unit)], root, true)[0].constructionValidity;
+  beforeEach(async () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'mech-validity-'));
+    await prepareConstructionValidity(validity);
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    mockCatalogAvailable = true;
+    resetEquipmentLookupService();
+    resetEquipmentRegistry();
+    resetEquipmentLoader();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  test('records a legal mech as valid without changing its BV result', () => {
+    const input = write(blackHawk);
+    const plain = calculateSources([input], root)[0];
+    const projected = calculateSources([input], root, true)[0];
+    expect(projected.constructionValidity).toEqual({
+      isValid: true,
+      errors: [],
+      warnings: expect.any(Array),
+      infos: expect.any(Array),
+    });
+    const { constructionValidity, ...unchanged } = projected;
+    expect(constructionValidity).toBeDefined();
+    expect(unchanged).toEqual(plain);
+    expect(plain).not.toHaveProperty('constructionValidity');
+  });
+  test('records an overweight mech as invalid with the universal weight rule', () => {
+    const result = fact({ ...blackHawk, tonnage: 20 });
+    expect(result).toMatchObject({ isValid: false });
+    expect((result as { errors: string[] }).errors).toContainEqual(
+      expect.stringContaining('VAL-UNIV-014'),
+    );
+    expect(result).not.toHaveProperty('failure');
+  });
+  test('is deterministic across runs', () => {
+    expect(fact(blackHawk)).toEqual(fact(blackHawk));
+  });
+  test('validates even when the BV path could not use the converted unit', () => {
+    const row = calculateSources(
+      [write({ ...blackHawk, tonnage: 20 })],
+      root,
+      true,
+    )[0];
+    expect(row.constructionValidity).toMatchObject({ isValid: false });
+  });
+  test('keeps a missing converted unit as an explicit staged failure', () => {
+    expect(fact(null)).toEqual({
+      failure: expect.stringContaining('mtf-converted-unit'),
+    });
+  });
+  test('keeps a loader throw as a failure, not invalidity', () => {
+    jest
+      .spyOn(UnitLoaderService.prototype, 'mapToUnitState')
+      .mockImplementation(() => {
+        throw new Error('unmappable');
+      });
+    expect(fact(blackHawk)).toEqual({
+      failure: expect.stringContaining('mtf-load: Error: unmappable'),
+    });
+  });
+  test('keeps a thrown validator as a failure, not invalidity', () => {
+    jest
+      .spyOn(orchestrator.getUnitValidationOrchestrator(), 'validate')
+      .mockImplementation(() => {
+        throw new Error('validator unavailable');
+      });
+    expect(fact(blackHawk)).toEqual({
+      failure: expect.stringContaining(
+        'mtf-validator: Error: validator unavailable',
+      ),
+    });
+  });
+  test('does no mech projection work without opt-in', () => {
+    const load = jest.spyOn(UnitLoaderService.prototype, 'mapToUnitState');
+    expect(calculateSources([write(blackHawk)], root)[0]).not.toHaveProperty(
+      'constructionValidity',
+    );
+    expect(load).not.toHaveBeenCalled();
+  });
+  test('keeps hash rejection before any projection work', () => {
+    const input = write(blackHawk);
+    fs.appendFileSync(path.join(root, input.path), 'changed');
+    const load = jest.spyOn(UnitLoaderService.prototype, 'mapToUnitState');
+    expect(() => calculateSources([input], root, true)).toThrow(
+      'Source hash mismatch',
+    );
+    expect(load).not.toHaveBeenCalled();
   });
 });

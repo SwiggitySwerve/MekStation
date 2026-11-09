@@ -45,10 +45,16 @@ const mockCreateCampaign = jest.fn(() => 'campaign-host');
 const mockGetCampaign = jest.fn<unknown, []>(() => null);
 const mockUpdateCampaign = jest.fn();
 const mockCreateGuestMirrorCampaign = jest.fn(() => 'guest-campaign-1');
+const mockCampaignSetState = jest.fn();
+const mockPersistenceSetState = jest.fn();
+const mockPersistenceReset = jest.fn();
+let mockPreviousCampaign: { id: string } | null = null;
 
 jest.mock('@/stores/campaign/useCampaignStore', () => ({
   useCampaignStore: () => ({
+    setState: mockCampaignSetState,
     getState: () => ({
+      campaign: mockPreviousCampaign,
       createCampaign: mockCreateCampaign,
       getCampaign: mockGetCampaign,
       updateCampaign: mockUpdateCampaign,
@@ -59,14 +65,19 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
 
 const mockSaveCampaign = jest.fn(async () => ({
   status: 'saved' as const,
-  record: {} as never,
+  record: { campaignId: 'campaign-host' } as never,
   retriedConflict: false,
 }));
 
 jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
   hasUnsettledCampaignPersistence: () => false,
   useCampaignPersistenceStore: {
-    getState: () => ({ saveCampaign: mockSaveCampaign }),
+    setState: (...args: unknown[]) => mockPersistenceSetState(...args),
+    getState: () => ({
+      campaignId: 'campaign-host',
+      saveCampaign: mockSaveCampaign,
+      reset: mockPersistenceReset,
+    }),
   },
 }));
 
@@ -147,6 +158,10 @@ jest.mock('@/types/multiplayer/Player', () => ({
 
 describe('CampaignCoopEntryPanel onboarding affordances', () => {
   beforeEach(() => {
+    mockPreviousCampaign = null;
+    mockCampaignSetState.mockClear();
+    mockPersistenceSetState.mockClear();
+    mockPersistenceReset.mockClear();
     mockRouterPush.mockReset();
     mockFetch.mockReset();
     mockCreateCampaign.mockClear();
@@ -154,10 +169,174 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
     mockUpdateCampaign.mockClear();
     mockSaveCampaign.mockClear().mockResolvedValue({
       status: 'saved' as const,
-      record: {} as never,
+      record: { campaignId: 'campaign-host' } as never,
       retriedConflict: false,
     });
     global.fetch = mockFetch as unknown as typeof fetch;
+  });
+
+  function serveCreationRequests(
+    matchResponse: () => Promise<Response>,
+    deleteResponse: () => Promise<Response> = async () =>
+      ({ ok: true, status: 204 }) as Response,
+  ): void {
+    mockGetCampaign.mockReturnValue({ id: 'campaign-host' });
+    mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => mintBody('Host'),
+        } as Response;
+      }
+      if (url === '/api/multiplayer/matches') return matchResponse();
+      if (init?.method === 'DELETE') return deleteResponse();
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+  }
+
+  function submitCreation(): void {
+    render(<CampaignCoopEntryPanel />);
+    fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+      target: { value: 'vault-password' },
+    });
+    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+  }
+
+  function deletedCampaignUrls(): string[] {
+    return mockFetch.mock.calls
+      .filter(([, init]) => init?.method === 'DELETE')
+      .map(([url]) => String(url));
+  }
+
+  const refusedMatch = async (): Promise<Response> =>
+    ({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'Room creation failed' }),
+    }) as Response;
+
+  it('deletes only the campaign saved by this attempt and restores the pre-existing campaign', async () => {
+    mockPreviousCampaign = { id: 'pre-existing-campaign' };
+    serveCreationRequests(refusedMatch);
+    submitCreation();
+    await screen.findByTestId('create-coop-unavailable');
+    await waitFor(() =>
+      expect(deletedCampaignUrls()).toEqual(['/api/campaigns/campaign-host']),
+    );
+    expect(deletedCampaignUrls()).not.toContain(
+      '/api/campaigns/pre-existing-campaign',
+    );
+    expect(mockCampaignSetState).toHaveBeenCalledWith(
+      expect.objectContaining({ campaign: mockPreviousCampaign }),
+    );
+    expect(mockPersistenceReset).toHaveBeenCalledTimes(1);
+    expect(mockPersistenceSetState).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('create-coop-campaign-btn')).toBeEnabled();
+
+    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+    await waitFor(() => expect(deletedCampaignUrls()).toHaveLength(2));
+    expect(mockCreateCampaign).toHaveBeenCalledTimes(2);
+  });
+
+  it('never deletes a pre-existing id returned by a mismatched save acknowledgement', async () => {
+    mockPreviousCampaign = { id: 'pre-existing-campaign' };
+    mockSaveCampaign.mockResolvedValueOnce({
+      status: 'saved',
+      record: { campaignId: 'pre-existing-campaign' } as never,
+      retriedConflict: false,
+    });
+    serveCreationRequests(refusedMatch);
+    submitCreation();
+    const errorNotice = await screen.findByTestId('create-coop-unavailable');
+    expect(errorNotice).toHaveTextContent('did not identify the new campaign');
+    expect(deletedCampaignUrls()).toEqual([]);
+    expect(
+      mockFetch.mock.calls.some(([url]) => url === '/api/multiplayer/matches'),
+    ).toBe(false);
+  });
+
+  it('restores local state after a refused save without deleting an unacknowledged campaign', async () => {
+    mockPreviousCampaign = { id: 'pre-existing-campaign' };
+    mockSaveCampaign.mockResolvedValueOnce({
+      status: 'error',
+      errorMessage: 'Save refused',
+    } as never);
+    serveCreationRequests(refusedMatch);
+    submitCreation();
+    expect(
+      await screen.findByTestId('create-coop-unavailable'),
+    ).toHaveTextContent('Save refused');
+    expect(deletedCampaignUrls()).toEqual([]);
+    expect(mockCampaignSetState).toHaveBeenCalledWith(
+      expect.objectContaining({ campaign: mockPreviousCampaign }),
+    );
+  });
+
+  it('surfaces cleanup failure and retries cleanup before allowing another creation', async () => {
+    const cleanupResponse = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 500 })
+      .mockResolvedValue({ ok: true, status: 204 });
+    serveCreationRequests(refusedMatch, cleanupResponse);
+    submitCreation();
+    expect(
+      await screen.findByTestId('create-coop-unavailable'),
+    ).toHaveTextContent('Cleanup failed');
+    expect(screen.getByTestId('create-coop-campaign-btn')).toHaveTextContent(
+      'Retry cleanup',
+    );
+    expect(mockCampaignSetState).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+    await waitFor(() => expect(mockCampaignSetState).toHaveBeenCalledTimes(1));
+    expect(cleanupResponse).toHaveBeenCalledTimes(2);
+    expect(mockCreateCampaign).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves an acknowledged room when navigation fails and offers the created campaign', async () => {
+    mockRouterPush.mockRejectedValueOnce(new Error('Navigation failed'));
+    serveCreationRequests(
+      async () =>
+        ({
+          ok: true,
+          status: 201,
+          json: async () => ({
+            matchId: 'match-1',
+            roomCode: 'ROOMAA',
+            meta: { roomCode: 'ROOMAA' },
+          }),
+        }) as Response,
+    );
+    submitCreation();
+    expect(
+      await screen.findByTestId('create-coop-unavailable'),
+    ).toHaveTextContent('Navigation failed');
+    expect(deletedCampaignUrls()).toEqual([]);
+    expect(mockCampaignSetState).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole('link', { name: 'Open created co-op campaign' }),
+    ).toHaveAttribute('href', '/gameplay/campaigns/campaign-host');
+    expect(screen.getByTestId('create-coop-campaign-btn')).toBeDisabled();
+  });
+
+  it('does not restore over another campaign selected while room creation was in flight', async () => {
+    let finishMatch: ((response: Response) => void) | undefined;
+    serveCreationRequests(
+      () =>
+        new Promise<Response>((resolve) => {
+          finishMatch = resolve;
+        }),
+    );
+    submitCreation();
+    await waitFor(() => expect(finishMatch).toBeDefined());
+    mockGetCampaign.mockReturnValue({ id: 'another-pre-existing-campaign' });
+    await act(async () => {
+      finishMatch?.(await refusedMatch());
+    });
+    await screen.findByTestId('create-coop-unavailable');
+    expect(deletedCampaignUrls()).toEqual(['/api/campaigns/campaign-host']);
+    expect(mockCampaignSetState).not.toHaveBeenCalled();
+    expect(mockPersistenceReset).not.toHaveBeenCalled();
   });
 
   it('opens the mounted operator controls without changing initial create/join requests', async () => {
@@ -867,7 +1046,7 @@ describe('CampaignCoopEntryPanel credential choice (LSC-2)', () => {
     mockCreateGuestMirrorCampaign.mockClear();
     mockSaveCampaign.mockClear().mockResolvedValue({
       status: 'saved' as const,
-      record: {} as never,
+      record: { campaignId: 'campaign-host' } as never,
       retriedConflict: false,
     });
     mockEntrySockets.length = 0;

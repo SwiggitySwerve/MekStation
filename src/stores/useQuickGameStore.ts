@@ -185,7 +185,7 @@ export const useQuickGameStore = create<QuickGameStore>()(
         ];
 
         const currentIndex = stepOrder.indexOf(game.step);
-        if (currentIndex < stepOrder.length - 1) {
+        if (currentIndex >= 0 && currentIndex < stepOrder.length - 1) {
           // Validate before advancing
           if (
             game.step === QuickGameStep.SelectUnits &&
@@ -270,7 +270,12 @@ export const useQuickGameStore = create<QuickGameStore>()(
 
       endGame: (winner: 'player' | 'opponent' | 'draw', reason: string) => {
         const { game } = get();
-        if (!game) return;
+        if (
+          !game ||
+          game.status !== GameStatus.Active ||
+          game.step !== QuickGameStep.Playing
+        )
+          return;
 
         set({
           game: completeQuickGame(
