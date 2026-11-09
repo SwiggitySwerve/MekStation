@@ -162,6 +162,204 @@ function buildFakeSession(phase: GamePhase = GamePhase.Movement): {
   };
 }
 
+describe('C15 composer context lifecycle', () => {
+  beforeEach(() => {
+    useGameplayStore.getState().reset();
+    useAnimationQueue.getState().reset();
+  });
+
+  afterEach(() => useGameplayStore.getState().reset());
+
+  function prepareDraft(phase = GamePhase.WeaponAttack) {
+    const { session } = buildFakeSession(phase);
+    session.applyMovement(
+      'attacker',
+      { q: 0, r: 0 },
+      Facing.North,
+      MovementType.Stationary,
+    );
+    const unit =
+      buildMovementAnimationSession().session.getState().units['unit-a'];
+    const snapshot = {
+      ...session.getSession(),
+      currentState: {
+        ...session.getState(),
+        units: {
+          attacker: { ...unit, id: 'attacker' },
+          other: { ...unit, id: 'other' },
+          'enemy-new': { ...unit, id: 'enemy-new', side: GameSide.Opponent },
+        },
+      },
+    };
+    session.getSession = () => snapshot;
+    session.getState = () => snapshot.currentState;
+    useGameplayStore.getState().setInteractiveSession(session);
+    useGameplayStore.getState().selectUnit('attacker');
+    useGameplayStore.getState().focusAttackTarget('enemy-1');
+    useGameplayStore.getState().toggleWeaponAssignment('laser');
+    useGameplayStore.getState().setComposedTwist(Facing.South);
+    useGameplayStore.getState().setAttackTarget('enemy-1');
+    useGameplayStore.getState().togglePlannedWeapon('laser');
+    useGameplayStore.getState().toggleWeapon('laser');
+    useGameplayStore.getState().addPostureAction('GO_PRONE', 1);
+    useGameplayStore.getState().lockIn(MovementType.Walk);
+    useGameplayStore.getState().setPlannedMovement({
+      destination: { q: 1, r: 0 },
+      facing: Facing.South,
+      movementType: MovementType.Walk,
+      path: [
+        { q: 0, r: 0 },
+        { q: 1, r: 0 },
+      ],
+    });
+    useGameplayStore.setState({
+      validMovementHexes: [{ q: 1, r: 0 }],
+      validTargetIds: ['enemy-1'],
+      hitChance: 80,
+      attackPlan: {
+        ...useGameplayStore.getState().attackPlan,
+        weaponModeError: 'old',
+      },
+    });
+    return session;
+  }
+
+  function expectEmptyDraft() {
+    expect(useGameplayStore.getState()).toMatchObject({
+      movementIntent: { items: [], lockedMode: null },
+      plannedMovement: null,
+      attackIntent: {
+        focusedTargetId: null,
+        assignments: [],
+        composedTwist: null,
+      },
+      attackPlan: {
+        targetUnitId: null,
+        selectedWeapons: [],
+        weaponModeError: null,
+      },
+      hitChance: null,
+      ui: { targetUnitId: null, queuedWeaponIds: [] },
+    });
+  }
+
+  it.each(['other', null])(
+    'clears drafts when selection changes to %s',
+    (unitId) => {
+      prepareDraft();
+      useGameplayStore.getState().selectUnit(unitId);
+      expectEmptyDraft();
+      expect(useGameplayStore.getState().ui.selectedUnitId).toBe(unitId);
+    },
+  );
+
+  it('clears drafts through movement selection and preserves the new movement overlay', () => {
+    const session = prepareDraft(GamePhase.Movement);
+    const newMoves = [{ q: 3, r: 0 }];
+    session.getAvailableActions = jest
+      .fn()
+      .mockReturnValue({ validMoves: newMoves });
+    useGameplayStore.getState().selectUnitForMovement('other');
+    expectEmptyDraft();
+    expect(useGameplayStore.getState().validMovementHexes).toEqual(newMoves);
+    expect(useGameplayStore.getState().interactivePhase).toBe(
+      InteractivePhase.SelectMovement,
+    );
+  });
+
+  it('clears drafts through attacker token selection and preserves new target overlays', () => {
+    prepareDraft();
+    useGameplayStore.setState({
+      interactivePhase: InteractivePhase.SelectUnit,
+    });
+    useGameplayStore.getState().handleInteractiveTokenClick('other');
+    expectEmptyDraft();
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBe('other');
+    expect(useGameplayStore.getState().interactivePhase).toBe(
+      InteractivePhase.SelectTarget,
+    );
+    expect(useGameplayStore.getState().validTargetIds).toEqual(['enemy-new']);
+  });
+
+  it.each([
+    GamePhase.Movement,
+    GamePhase.WeaponAttack,
+    GamePhase.PhysicalAttack,
+    GamePhase.Heat,
+  ])('clears both composers when setSession changes phase to %s', (phase) => {
+    const session = prepareDraft(
+      phase === GamePhase.WeaponAttack
+        ? GamePhase.Movement
+        : GamePhase.WeaponAttack,
+    );
+    const snapshot = session.getSession();
+    useGameplayStore.getState().setSession({
+      ...snapshot,
+      currentState: { ...snapshot.currentState, phase },
+    });
+    expectEmptyDraft();
+    expect(useGameplayStore.getState().validMovementHexes).toEqual([]);
+    expect(useGameplayStore.getState().validTargetIds).toEqual([]);
+  });
+
+  it.each(['advanceInteractivePhase', 'skipPhase', 'runAITurn'] as const)(
+    'clears drafts after %s publishes a new phase',
+    (action) => {
+      const session = prepareDraft(GamePhase.Movement);
+      let snapshot = session.getSession();
+      session.getSession = () => snapshot;
+      session.getState = () => snapshot.currentState;
+      session.advancePhase = () => {
+        snapshot = {
+          ...snapshot,
+          currentState: {
+            ...snapshot.currentState,
+            phase: GamePhase.PhysicalAttack,
+          },
+        };
+      };
+      useGameplayStore.getState()[action]();
+      expectEmptyDraft();
+    },
+  );
+
+  it('clears drafts on a different session with the same phase and selected unit', () => {
+    const session = prepareDraft();
+    useGameplayStore
+      .getState()
+      .setSession({ ...session.getSession(), id: 'replacement' });
+    expectEmptyDraft();
+  });
+
+  it('preserves drafts on same-unit reselection and same-phase session refresh', () => {
+    const session = prepareDraft();
+    const before = useGameplayStore.getState();
+    useGameplayStore.getState().selectUnit('attacker');
+    useGameplayStore
+      .getState()
+      .setSession({ ...session.getSession(), updatedAt: 'refreshed' });
+    const after = useGameplayStore.getState();
+    expect(after.attackIntent).toBe(before.attackIntent);
+    expect(after.attackPlan).toBe(before.attackPlan);
+    expect(after.movementIntent).toBe(before.movementIntent);
+    expect(after.plannedMovement).toBe(before.plannedMovement);
+  });
+
+  it('local cancel clears drafts and overlays without touching session, history or selection', () => {
+    prepareDraft(GamePhase.Movement);
+    const before = useGameplayStore.getState();
+    const events = [...before.session!.events];
+    expect(events.length).toBeGreaterThan(0);
+    useGameplayStore.getState().handleAction('cancel');
+    expectEmptyDraft();
+    expect(useGameplayStore.getState().session).toBe(before.session);
+    expect(useGameplayStore.getState().session!.events).toEqual(events);
+    expect(useGameplayStore.getState().ui.selectedUnitId).toBe('attacker');
+    expect(useGameplayStore.getState().validMovementHexes).toEqual([]);
+    expect(useGameplayStore.getState().validTargetIds).toEqual([]);
+  });
+});
+
 describe('tactical turn cleanup', () => {
   beforeEach(() => {
     useGameplayStore.getState().reset();
@@ -186,6 +384,9 @@ describe('tactical turn cleanup', () => {
     session.applyVolley = jest.fn();
     session.torsoTwist = jest.fn();
     session.isGameOver = () => gameOver;
+    // Adopt the context before composing, as production callers do.
+    useGameplayStore.getState().setSession(session.getSession());
+    useGameplayStore.getState().selectUnit('attacker');
     useGameplayStore.setState({
       session: session.getSession(),
       interactiveSession: session,
@@ -308,7 +509,7 @@ describe('tactical turn cleanup', () => {
   );
 
   it.each(attackActions)(
-    '%s preserves the draft when no attacker is selected',
+    '%s does not declare when no attacker is selected',
     (action) => {
       const session = prepareAttack();
       useGameplayStore.setState((state) => ({
@@ -421,6 +622,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
 
     it('commitPlannedMovement calls applyMovement and clears the plan', () => {
       const fake = buildFakeSession();
+      useGameplayStore.getState().selectUnit('unit-a');
       useGameplayStore.setState({
         interactiveSession: fake.session,
         plannedMovement: {
@@ -457,6 +659,8 @@ describe('useGameplayStore — combat-phase planning actions', () => {
     it('rejects movement commits outside Movement without mutating the store', () => {
       const fake = buildFakeSession(GamePhase.Initiative);
       const originalSession = fake.session.getSession();
+      useGameplayStore.getState().setSession(originalSession);
+      useGameplayStore.getState().selectUnit('unit-a');
       const originalPlan = {
         destination: { q: 3, r: -1 },
         facing: Facing.Southeast,
@@ -496,6 +700,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
 
     it('commitPlannedMovement enqueues a 4-hex walk animation that holds phase advancement', () => {
       const { session, calls } = buildMovementAnimationSession();
+      useGameplayStore.getState().selectUnit('unit-a');
       useGameplayStore.setState({
         interactiveSession: session,
         plannedMovement: {
@@ -602,6 +807,7 @@ describe('useGameplayStore — combat-phase planning actions', () => {
 
     it('commitAttack calls applyAttack with attacker/target/weapons and clears the plan', () => {
       const fake = buildFakeSession(GamePhase.WeaponAttack);
+      useGameplayStore.getState().selectUnit('attacker');
       useGameplayStore.setState({
         interactiveSession: fake.session,
         attackPlan: {
