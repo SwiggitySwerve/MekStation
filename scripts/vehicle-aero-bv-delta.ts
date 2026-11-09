@@ -50,6 +50,10 @@ import {
   buildValidityReport,
   captureMechValidity,
 } from './unit-construction-validity';
+import {
+  buildWeightReport,
+  captureConstructionWeights,
+} from './unit-construction-weights';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
@@ -281,6 +285,7 @@ export function calculateSources(
   raws: readonly unknown[],
   mekfiles: string,
   includeConstruction = false,
+  includeWeights = false,
 ): IComputedRow[] {
   return raws.map((raw) => {
     const row = Input.parse(raw);
@@ -298,19 +303,30 @@ export function calculateSources(
     )
       throw new Error(`Source text hash mismatch: ${row.path}`);
     const computed = calculateRow(row, includeConstruction);
+    // Weight terms ride along without touching any other field of the row.
+    const withWeights = (value: IComputedRow): IComputedRow =>
+      includeWeights
+        ? {
+            ...value,
+            constructionWeights: captureConstructionWeights(row, bytes),
+          }
+        : value;
     if (!includeConstruction || computed.constructionValidity !== undefined)
-      return computed;
+      return withWeights(computed);
     // Validity is independent of whether the BV path could use the row.
     if (row.path.endsWith('.blk'))
-      return { ...computed, constructionValidity: captureBlkValidity(bytes) };
+      return withWeights({
+        ...computed,
+        constructionValidity: captureBlkValidity(bytes),
+      });
     if (row.path.endsWith('.mtf'))
-      return {
+      return withWeights({
         ...computed,
         constructionValidity: captureConstructionValidity(() =>
           captureMechValidity(row.unit, row.path),
         ),
-      };
-    return computed;
+      });
+    return withWeights(computed);
   });
 }
 export function writeDeltaReport(
@@ -339,7 +355,11 @@ export function writeDeltaReport(
 export async function prepareConstructionValidity(
   argv: readonly string[] = process.argv,
 ): Promise<void> {
-  if (!argv.includes('--construction-validity')) return;
+  if (
+    !argv.includes('--construction-validity') &&
+    !argv.includes('--construction-weights')
+  )
+    return;
   await getEquipmentRegistry().initialize();
   await getEquipmentLookupService().initialize();
   const load = getEquipmentLookupService().getLoadResult();
@@ -369,10 +389,12 @@ export function main(): void {
     ReferenceTrustMode.parse(optionalArg('--reference-trust')),
   );
   const includeConstruction = process.argv.includes('--construction-validity');
+  const includeWeights = process.argv.includes('--construction-weights');
   const converted = calculateSources(
     readJsonLines(arg('--converted')),
     path.resolve(arg('--mekfiles')),
     includeConstruction,
+    includeWeights,
   );
   const report = buildDeltaReport(
     converted,
@@ -391,6 +413,35 @@ export function main(): void {
     );
     fs.writeFileSync(
       path.join(out, 'construction-validity-rows.jsonl'),
+      rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
+    );
+    if (!summary.ok) process.exitCode = 1;
+  }
+  if (includeWeights) {
+    const extraFile = optionalArg('--weight-terms-extra');
+    const sha256 = (file: string) =>
+      createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+    const { rows, ...summary } = buildWeightReport(
+      converted,
+      references,
+      undefined,
+      extraFile ? readJsonLines(extraFile) : [],
+    );
+    const out = arg('--out');
+    fs.writeFileSync(
+      path.join(out, 'construction-weight-report.json'),
+      JSON.stringify(
+        {
+          ...summary,
+          referenceSha256: sha256(arg('--reference')),
+          extraInputSha256: extraFile ? sha256(extraFile) : null,
+        },
+        null,
+        2,
+      ) + '\n',
+    );
+    fs.writeFileSync(
+      path.join(out, 'construction-weight-rows.jsonl'),
       rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
     );
     if (!summary.ok) process.exitCode = 1;
