@@ -312,8 +312,10 @@ const EXPECTED_TYPE: Record<string, 'number' | 'string' | 'boolean'> =
           : 'number',
     ]),
   );
-export const expectedSettingType = (key: string) => EXPECTED_TYPE[key];
-export const settingSpec = (key: string) =>
+export const expectedSettingType = (
+  key: string,
+): 'number' | 'string' | 'boolean' | undefined => EXPECTED_TYPE[key];
+export const settingSpec = (key: string): ISettingSpec | undefined =>
   SETTING_SPECS.find((spec) => spec.key === key);
 
 // --- Local owners ------------------------------------------------------------
@@ -566,13 +568,37 @@ export interface ISettingsCell {
   results: ISettingResult[];
 }
 
+export interface IInapplicableCandidate {
+  family: string;
+  verifierClass: string;
+  key: string;
+  reason: string;
+  javaEvidence: string;
+}
+export interface ISettingsReport {
+  drift: string[];
+  cells: ISettingsCell[];
+  counts: Record<SettingStatus, number>;
+  inapplicableCandidates: IInapplicableCandidate[];
+  perRow: {
+    ammoTechLevel: {
+      rows: number;
+      missingLocal: number;
+      reason: string;
+      values: Record<string, number>;
+    };
+    gameYear: { findings: string[] };
+  };
+  errors: string[];
+}
+
 const typeName = (value: unknown) => (value === null ? 'null' : typeof value);
 const canon = (value: unknown) => JSON.stringify(value);
 
 export function compareSettings(
   rows: readonly ISettingsRow[],
   localSettings: LocalSettingFn = defaultLocalSetting,
-) {
+): ISettingsReport {
   const drift: string[] = [];
   const cellRows = new Map<string, ISettingsRow[]>();
   const perRowValues: Record<string, Record<string, number>> = {

@@ -31,6 +31,7 @@ import {
 import {
   compareSettings,
   defaultLocalSetting,
+  type ISettingsReport,
   probeMechOverweightTolerance,
   SETTING_KEYS,
   toleranceFromProbe,
@@ -231,13 +232,57 @@ function quantityEntry(
   };
 }
 
+interface IQuantityRow extends Pick<
+  ReturnType<typeof buildDeltaReport>['rows'][number],
+  'path' | 'sha256' | 'sourceSha256' | 'family' | 'joined'
+> {
+  verifierClass: string;
+  quantities: IQuantityEntry[];
+  local: LocalQuantityFact | null;
+  reason: string | null;
+  status: string;
+}
+interface IQuantityReport {
+  scope: 'construction-verifier-quantities-and-settings';
+  ok: boolean;
+  tolerance: {
+    absolute: number;
+    relative: number;
+    relativeLimit: number;
+    rule: string;
+  };
+  settingKeys: readonly string[];
+  extraInput: { rows: number; accepted: number };
+  drift: string[];
+  errors: string[];
+  byFamily: Record<
+    string,
+    Record<
+      | 'rows'
+      | 'joined'
+      | 'unjoined'
+      | 'missingReference'
+      | 'referenceInvalid'
+      | 'matched'
+      | 'different'
+      | 'incomplete'
+      | 'missingLocal'
+      | 'failedLocal',
+      number
+    >
+  >;
+  byQuantity: Record<string, Record<string, IComponent>>;
+  settings: Omit<ISettingsReport, 'drift' | 'errors'>;
+  rows: IQuantityRow[];
+}
+
 export function buildQuantityReport(
   computed: readonly IComputedRow[],
   rawReferences: readonly unknown[],
   families: readonly string[] = FAMILIES,
   localSettings: LocalSettingFn = defaultLocalSetting,
   rawExtra: readonly unknown[] = [],
-) {
+): IQuantityReport {
   const references = rawReferences.map((value) =>
     QuantityReference.parse(value),
   );
@@ -415,7 +460,6 @@ export function buildQuantityReport(
       rule: 'exact within absolute/relative tolerance; otherwise strictly less than 1% of the Java quantity',
     },
     settingKeys: SETTING_KEYS,
-    omittedComparisons: [] as string[],
     extraInput: { rows: rawExtra.length, accepted: acceptedExtra },
     drift: drift.sort(),
     errors: errors.sort(),
