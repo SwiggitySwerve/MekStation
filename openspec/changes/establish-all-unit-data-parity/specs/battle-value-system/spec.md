@@ -1211,3 +1211,20 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
 - **WHEN** BV is computed
 - **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114
+
+### Requirement: Supplemental Mech ammunition diagnostic projection
+
+The Mech owner SHALL project source-backed raw AMS/APDS, improved AC/Gauss,
+fluid-gun and primitive-AC caps, and omitted native availability including
+genuinely zero-valued usable coolant pods. Grouping SHALL remain in the ammo
+owner and the trace SHALL format its results. Existing arithmetic inputs,
+defensive ammunition calculations, pools, quantities, modifiers, diagnostic
+facts and totals SHALL remain unchanged; unavailable facts SHALL remain absent.
+
+#### Scenario: Raw defensive launcher caps and real zero-valued bins
+
+- **GIVEN** a represented AMS mount valued at 32, an APDS mount valued at 64 or a usable physical coolant pod valued at zero
+- **WHEN** the Mech breakdown and trace are calculated
+- **THEN** the corresponding source-backed raw cap or availability term SHALL be present under its native type/rack key
+- **AND** repeated source facts SHALL accumulate through the existing ammo owner without overwriting existing pool values
+- **AND** missing, unresolved, empty or intrinsic one-shot facts SHALL NOT invent terms, and all original numerical outputs SHALL remain unchanged

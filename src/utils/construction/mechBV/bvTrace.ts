@@ -46,13 +46,13 @@ function ammoPoolTerms(
   sourceBins?: NonNullable<
     ValidationResult['breakdown']
   >['ammoAvailableProjectionBins'],
+  diagnosticPools?: NonNullable<
+    ValidationResult['breakdown']
+  >['ammoDiagnosticPools'],
 ): Record<string, number> {
   const terms: Record<string, number> = {};
-  const { available, cap } = projectMechAmmoBVPools(
-    pools,
-    sourceWeapons,
-    sourceBins,
-  );
+  const { available, cap } =
+    diagnosticPools ?? projectMechAmmoBVPools(pools, sourceWeapons, sourceBins);
   for (const [key, bv] of Object.entries(available))
     terms[`ammo.available.${key}`] = bv;
   for (const [key, bv] of Object.entries(cap ?? {}))
@@ -80,6 +80,7 @@ export function mechBVTerms(
       b.ammoPools,
       b.ammoCapProjectionWeapons,
       b.ammoAvailableProjectionBins,
+      b.ammoDiagnosticPools,
     ),
     armorBV: b.armorBV + b.harjelBonus,
     structureBV: b.structureBV + b.gyroBV,

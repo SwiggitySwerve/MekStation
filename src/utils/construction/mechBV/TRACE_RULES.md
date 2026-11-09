@@ -56,3 +56,33 @@ NARC and iNARC bins separate; iNARC alone cannot invent an ordinary NARC key.
 This diagnostic support does not extend to other omitted ammo identities.
 Defensive caps, effective quantity parity, arithmetic native grouping and
 complete detailed parity remain separate work.
+
+## Supplemental Mech ammo groups
+
+The Mech input owner optionally transports `ammoDiagnosticPools`, composed by
+`projectMechAmmoBVPools` from the existing pools and actual supplemental source
+facts. The trace formats this result without resolving equipment or calculating
+caps. Legacy breakdowns retain their original projection policy. Existing
+projection lists and all arithmetic fields remain unchanged.
+
+The supplemental identity owner covers raw AMS/APDS caps, improved AC/5 and
+Gauss, fluid guns, coolant pods and the converter's primitive AC launcher id.
+Raw caps preserve mounted multiplicity, one-shot exclusion and listed values
+before modifiers. Available values come from existing admitted ammo entries or
+actual zero-valued usable physical bins. Repeated facts accumulate through the
+public addition owner; existing pool keys are never overwritten. AMS/APDS raw
+caps are diagnostics only and do not change defensive ammunition arithmetic.
+
+Pinned MegaMek 48fcb2f64 `BVCalculator.java:1189-1242` defines the raw pools.
+`ISAMS.java:64-76` and `ISAPDS.java:61-72` supply raw cap values 32 and 64;
+`CLImprovedGaussRifle.java:74-82`, `CLImprovedAC5.java:64-78`,
+`ISFluidGun.java:58-63` and `ISAC10Primitive.java:77-87` define the other
+represented launcher identities and listed values. Effective quantities,
+defensive arithmetic parity and other families remain separate obligations.
+
+Physical diagnostic bins reuse `normalizeMechBVSourceName`, extracted unchanged
+from the calculator's defensive-equipment and armored-PPC lookups. The shared
+policy removes armored/rear annotations for identity lookup; the original
+source token and all legacy scanning remain unchanged. This admits Turkina U's
+`Coolant Pod (OMNIPOD) (ARMORED)` through the existing real-bin resolver and
+retains its actual zero-valued availability without changing armored BV.
