@@ -1,0 +1,888 @@
+[
+  {
+    "path": "dropships/HBMPS/Aqueduct Liquid Carrier.blk",
+    "sha256": "91e1e8bdf96eb7af6ef53b16bf728b93db1d470cb7e0a3ba63342416cb0c9020",
+    "javaClass": "megamek.common.battleValue.DropShipBVCalculator",
+    "javaTotal": 919,
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 53,
+          "LEFT_SIDE": 62,
+          "NOSE": 73,
+          "RIGHT_SIDE": 62
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Aqueduct Liquid Carrier",
+      "collarType": 0,
+      "crew": 46,
+      "designType": "CIVILIAN",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-large-laser",
+          "location": "NOSE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "r-b-medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) Medium Laser"
+        },
+        {
+          "id": "r-b-medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) Medium Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "b-machine-gun",
+          "location": "AFT",
+          "name": "(B) Machine Gun"
+        },
+        {
+          "id": "machine-gun",
+          "location": "AFT",
+          "name": "Machine Gun"
+        },
+        {
+          "id": "is-ammo-mg-full:200",
+          "location": "AFT",
+          "name": "IS Ammo MG - Full:200"
+        }
+      ],
+      "era": "STAR_LEAGUE",
+      "escapePods": 6,
+      "fuel": 6000,
+      "gunners": 2,
+      "heatSinks": {
+        "count": 118,
+        "type": "SINGLE"
+      },
+      "id": "aqueduct-liquid-carrier",
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 5,
+        "safeThrust": 3
+      },
+      "mulId": 3712,
+      "officers": 6,
+      "otherPassengers": 0,
+      "passengers": 20,
+      "role": "None",
+      "rulesLevel": "STANDARD",
+      "source": "HB:MPS",
+      "structuralIntegrity": 30,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 45000,
+      "transporters": [
+        "smallcraftbay:2.0:2:1::-1:0",
+        "mekbay:2.0:1:-1::-1:0",
+        "cargobay:2850.0:2:7::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "steeragequarters:100.0:0:-1::-1:0",
+        "crewquarters:224.0:0:-1::-1:0",
+        "1stclassquarters:60.0:0:-1::-1:0",
+        "LiquidCargoBay:6500.0:0:8::-1:0",
+        "LiquidCargoBay:6500.0:0:9::-1:0",
+        "LiquidCargoBay:6500.0:0:10::-1:0",
+        "LiquidCargoBay:6500.0:0:11::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 2638
+    },
+    "terms": {
+      "ammo.arc.Aft": 1,
+      "ammo.arc.Left Side": 0,
+      "ammo.arc.Left Side (R)": 0,
+      "ammo.arc.Nose": 0,
+      "ammo.arc.Right Side": 0,
+      "ammo.arc.Right Side (R)": 0,
+      "ammo.available.3:MG:2": 1,
+      "ammo.cap.3:MG:2": 10,
+      "weapon.0.NOS.Large Laser": 30.75,
+      "weapon.2.LS.Medium Laser": 46,
+      "weapon.4.RS.Medium Laser": 23,
+      "weapon.6.AFT.Large Laser": 123,
+      "weapon.8.AFT.Machine Gun": 10
+    }
+  },
+  {
+    "path": "jumpships/3057R/Clan/Hunter Jumpship (2832).blk",
+    "sha256": "bff652e29ed85c48eb9dfdb56ba3aafd0e9082fb3150e406c2bfde0ade02b58a",
+    "javaClass": "megamek.common.battleValue.JumpShipBVCalculator",
+    "javaTotal": 1482,
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 6,
+          "AFT_LEFT_SIDE": 8,
+          "AFT_RIGHT_SIDE": 6,
+          "FRONT_LEFT_SIDE": 6,
+          "FRONT_RIGHT_SIDE": 6,
+          "NOSE": 8
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Hunter JumpShip",
+      "crew": 24,
+      "designType": "CIVILIAN",
+      "dockingCollars": 1,
+      "driveCoreType": 0,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-cllargepulselaser",
+          "location": "NOSE",
+          "name": "(B) CLLargePulseLaser"
+        },
+        {
+          "id": "b-clstreaksrm4",
+          "location": "NOSE",
+          "name": "(B) CLStreakSRM4"
+        },
+        {
+          "id": "clan-streak-srm-4-ammo:25",
+          "location": "NOSE",
+          "name": "Clan Streak SRM 4 Ammo:25"
+        },
+        {
+          "id": "b-clantimissilesystem",
+          "location": "NOSE",
+          "name": "(B) CLAntiMissileSystem"
+        },
+        {
+          "id": "clantimissilesystem",
+          "location": "NOSE",
+          "name": "CLAntiMissileSystem"
+        },
+        {
+          "id": "clams-ammo:96",
+          "location": "NOSE",
+          "name": "CLAMS Ammo:96"
+        },
+        {
+          "id": "b-cllargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) CLLargePulseLaser"
+        },
+        {
+          "id": "cllargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "CLLargePulseLaser"
+        },
+        {
+          "id": "b-cllargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) CLLargePulseLaser"
+        },
+        {
+          "id": "cllargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "CLLargePulseLaser"
+        },
+        {
+          "id": "b-clstreaksrm4",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) CLStreakSRM4"
+        },
+        {
+          "id": "clstreaksrm4",
+          "location": "AFT_LEFT_SIDE",
+          "name": "CLStreakSRM4"
+        },
+        {
+          "id": "clan-streak-srm-4-ammo:50",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Clan Streak SRM 4 Ammo:50"
+        },
+        {
+          "id": "b-clstreaksrm4",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) CLStreakSRM4"
+        },
+        {
+          "id": "clstreaksrm4",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "CLStreakSRM4"
+        },
+        {
+          "id": "clan-streak-srm-4-ammo:50",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Clan Streak SRM 4 Ammo:50"
+        },
+        {
+          "id": "ismobilehpg",
+          "location": "HULL",
+          "name": "ISMobileHPG"
+        }
+      ],
+      "era": "SUCCESSION_WARS",
+      "escapePods": 0,
+      "fuel": 2000,
+      "gravDecks": [],
+      "gunners": 2,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": true,
+      "heatSinks": {
+        "count": 97,
+        "type": "DOUBLE"
+      },
+      "id": "hunter-jumpship-2832",
+      "jumpRange": 30,
+      "lifeBoats": 4,
+      "marines": 0,
+      "model": "(2832)",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 0,
+        "safeThrust": 0
+      },
+      "mulId": 4340,
+      "officers": 4,
+      "otherCrew": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "TR:3057r",
+      "structuralIntegrity": 1,
+      "subType": "JumpShip",
+      "techBase": "CLAN",
+      "tonnage": 113000,
+      "transporters": [
+        "cargobay:485.5:1:1::-1:0",
+        "cargobay:485.0:1:2::-1:0",
+        "cargobay:485.0:1:3::-1:0",
+        "1stclassquarters:40.0:0:-1::-1:0",
+        "crewquarters:140.0:0:-1::-1:0",
+        "dockingcollar"
+      ],
+      "unitType": "JumpShip",
+      "year": 2832
+    },
+    "terms": {
+      "ammo.arc.Aft": 0,
+      "ammo.arc.Aft Left Side": 10,
+      "ammo.arc.Aft Right Side": 5,
+      "ammo.arc.Left Front Side": 0,
+      "ammo.arc.Nose": 10,
+      "ammo.arc.Right Front Side": 0,
+      "ammo.available.0:SRM_STREAK:4": 10,
+      "ammo.available.2:SRM_STREAK:4": 20,
+      "ammo.available.4:SRM_STREAK:4": 20,
+      "ammo.cap.0:SRM_STREAK:4": 79,
+      "ammo.cap.2:SRM_STREAK:4": 158,
+      "ammo.cap.4:SRM_STREAK:4": 158,
+      "weapon.0.NOS.CLLargePulseLaser": 265,
+      "weapon.12.FRS.CLLargePulseLaser": 132.5,
+      "weapon.15.ALS.CLStreakSRM4": 79,
+      "weapon.19.ARS.CLStreakSRM4": 39.5,
+      "weapon.2.NOS.CLStreakSRM4": 79,
+      "weapon.9.FLS.CLLargePulseLaser": 530
+    }
+  },
+  {
+    "path": "warship/3057/IS/Bonaventure Corvette (2317).blk",
+    "sha256": "3601c3fe2e8006b4f769a92abfc08e2fdc545e3122c025f4b7df2f564eddc173",
+    "javaClass": "megamek.common.battleValue.WarShipBVCalculator",
+    "javaTotal": 5201,
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 17,
+          "AFT_LEFT_SIDE": 20,
+          "AFT_RIGHT_SIDE": 20,
+          "FRONT_LEFT_SIDE": 20,
+          "FRONT_RIGHT_SIDE": 20,
+          "NOSE": 21
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Bonaventure Corvette",
+      "crew": 127,
+      "designType": "MILITARY",
+      "dockingCollars": 0,
+      "driveCoreType": 1,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-lrm-15",
+          "location": "NOSE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "NOSE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15:56",
+          "location": "NOSE",
+          "name": "IS Ammo LRM-15:56"
+        },
+        {
+          "id": "b-naval-laser-35",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Laser 35"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "b-naval-laser-35",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Laser 35"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "AFT",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15:56",
+          "location": "AFT",
+          "name": "IS Ammo LRM-15:56"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "issmallnavalcommscannersuite",
+          "location": "HULL",
+          "name": "ISSmallNavalCommScannerSuite"
+        },
+        {
+          "id": "b-autocannon-10",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Autocannon/10"
+        },
+        {
+          "id": "autocannon-10",
+          "location": "LEFT_BROADSIDE",
+          "name": "Autocannon/10"
+        },
+        {
+          "id": "is-ammo-ac-10:80",
+          "location": "LEFT_BROADSIDE",
+          "name": "IS Ammo AC/10:80"
+        },
+        {
+          "id": "b-autocannon-10",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Autocannon/10"
+        },
+        {
+          "id": "autocannon-10",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Autocannon/10"
+        },
+        {
+          "id": "is-ammo-ac-10:80",
+          "location": "RIGHT_BROADSIDE",
+          "name": "IS Ammo AC/10:80"
+        }
+      ],
+      "era": "AGE_OF_WAR",
+      "escapePods": 17,
+      "fuel": 32500,
+      "gravDecks": [50],
+      "gunners": 6,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": true,
+      "heatSinks": {
+        "count": 384,
+        "type": "SINGLE"
+      },
+      "id": "bonaventure-corvette-2317",
+      "jumpRange": 30,
+      "lifeBoats": 10,
+      "marines": 0,
+      "model": "(2317)",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 3848,
+      "officers": 18,
+      "otherCrew": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "TR:3057r",
+      "structuralIntegrity": 36,
+      "subType": "WarShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 240000,
+      "transporters": [
+        "asfbay:6.0:2:1::-1:0",
+        "smallcraftbay:2.0:1:2::-1:0",
+        "cargobay:53780.0:1:3::-1:0",
+        "1stclassquarters:170.0:0:-1::-1:0",
+        "crewquarters:616.0:0:-1::-1:0"
+      ],
+      "unitType": "WarShip",
+      "year": 2317
+    },
+    "terms": {
+      "ammo.arc.Aft": 59.5,
+      "ammo.arc.Aft Left Side": 0,
+      "ammo.arc.Aft Right Side": 0,
+      "ammo.arc.Left Broadsides": 30,
+      "ammo.arc.Left Front Side": 0,
+      "ammo.arc.Nose": 119,
+      "ammo.arc.Right Broadsides": 30,
+      "ammo.arc.Right Front Side": 0,
+      "ammo.available.0:LRM:15": 119,
+      "ammo.available.3:LRM:15": 119,
+      "ammo.available.6:AC:10": 120,
+      "ammo.available.7:AC:10": 120,
+      "ammo.cap.0:LRM:15": 272,
+      "ammo.cap.3:LRM:15": 272,
+      "ammo.cap.6:AC:10": 246,
+      "ammo.cap.7:AC:10": 246,
+      "weapon.0.NOS.LRM 15": 272,
+      "weapon.10.FRS.Large Laser": 123,
+      "weapon.12.AFT.LRM 15": 136,
+      "weapon.16.ALS.Large Laser": 30.75,
+      "weapon.18.ARS.Large Laser": 30.75,
+      "weapon.21.LBS.Autocannon/10": 61.5,
+      "weapon.25.RBS.Autocannon/10": 61.5,
+      "weapon.4.FLS.Naval Laser 35": 207.5,
+      "weapon.6.FLS.Large Laser": 30.75,
+      "weapon.8.FRS.Naval Laser 35": 830
+    }
+  },
+  {
+    "path": "spacestation/HB HL/Crucible Station.blk",
+    "sha256": "4bc6f8884bdcf149eb6998a27afc3b277ce62da6fced54e16fc3270a8ae11b09",
+    "javaClass": "megamek.common.battleValue.JumpShipBVCalculator",
+    "javaTotal": 2004,
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 10,
+          "AFT_LEFT_SIDE": 10,
+          "AFT_RIGHT_SIDE": 10,
+          "FRONT_LEFT_SIDE": 10,
+          "FRONT_RIGHT_SIDE": 10,
+          "NOSE": 10
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Crucible Station",
+      "crew": 337,
+      "designType": "MILITARY",
+      "dockingCollars": 0,
+      "driveCoreType": 3,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "NOSE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-srm-6",
+          "location": "NOSE",
+          "name": "(B) SRM 6"
+        },
+        {
+          "id": "srm-6",
+          "location": "NOSE",
+          "name": "SRM 6"
+        },
+        {
+          "id": "is-ammo-srm-6:15",
+          "location": "NOSE",
+          "name": "IS Ammo SRM-6:15"
+        },
+        {
+          "id": "is-ammo-srm-6:15",
+          "location": "NOSE",
+          "name": "IS Ammo SRM-6:15"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-srm-6",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) SRM 6"
+        },
+        {
+          "id": "srm-6",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "SRM 6"
+        },
+        {
+          "id": "is-ammo-srm-6:30",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS Ammo SRM-6:30"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-srm-6",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) SRM 6"
+        },
+        {
+          "id": "srm-6",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "SRM 6"
+        },
+        {
+          "id": "is-ammo-srm-6:30",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS Ammo SRM-6:30"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "AFT",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-srm-6",
+          "location": "AFT",
+          "name": "(B) SRM 6"
+        },
+        {
+          "id": "srm-6",
+          "location": "AFT",
+          "name": "SRM 6"
+        },
+        {
+          "id": "is-ammo-srm-6:15",
+          "location": "AFT",
+          "name": "IS Ammo SRM-6:15"
+        },
+        {
+          "id": "is-ammo-srm-6:15",
+          "location": "AFT",
+          "name": "IS Ammo SRM-6:15"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-srm-6",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) SRM 6"
+        },
+        {
+          "id": "srm-6",
+          "location": "AFT_LEFT_SIDE",
+          "name": "SRM 6"
+        },
+        {
+          "id": "is-ammo-srm-6:30",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS Ammo SRM-6:30"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-srm-6",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) SRM 6"
+        },
+        {
+          "id": "srm-6",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "SRM 6"
+        },
+        {
+          "id": "is-ammo-srm-6:30",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS Ammo SRM-6:30"
+        }
+      ],
+      "era": "CLAN_INVASION",
+      "escapePods": 40,
+      "fuel": 1000,
+      "gravDecks": [450, 450],
+      "gunners": 8,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": false,
+      "heatSinks": {
+        "count": 150,
+        "type": "DOUBLE"
+      },
+      "id": "crucible-station",
+      "isModular": false,
+      "jumpRange": 30,
+      "lifeBoats": 6,
+      "marines": 0,
+      "model": "",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 0,
+        "safeThrust": 0
+      },
+      "mulId": 4028,
+      "officers": 10,
+      "otherCrew": 0,
+      "passengers": 352,
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "HB:HL",
+      "structuralIntegrity": 1,
+      "subType": "Space Station",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 6000,
+      "transporters": [
+        "smallcraftbay:6.0:2:1::-1:0",
+        "infantrybay:9.0:1:2:Foot:-1:0",
+        "2ndclassquarters:280.0:0:-1::-1:0",
+        "steeragequarters:1500.0:0:-1::-1:0",
+        "1stclassquarters:220.0:0:-1::-1:0",
+        "crewquarters:315.0:0:-1::-1:0",
+        "cargobay:554.0:1:7::-1:0"
+      ],
+      "unitType": "Space Station",
+      "year": 3065
+    },
+    "terms": {
+      "ammo.arc.Aft": 3.5,
+      "ammo.arc.Aft Left Side": 3.5,
+      "ammo.arc.Aft Right Side": 3.5,
+      "ammo.arc.Left Front Side": 7,
+      "ammo.arc.Nose": 14,
+      "ammo.arc.Right Front Side": 14,
+      "ammo.available.0:SRM:6": 14,
+      "ammo.available.1:SRM:6": 14,
+      "ammo.available.2:SRM:6": 14,
+      "ammo.available.3:SRM:6": 14,
+      "ammo.available.4:SRM:6": 14,
+      "ammo.available.5:SRM:6": 14,
+      "ammo.cap.0:SRM:6": 118,
+      "ammo.cap.1:SRM:6": 118,
+      "ammo.cap.2:SRM:6": 118,
+      "ammo.cap.3:SRM:6": 118,
+      "ammo.cap.4:SRM:6": 118,
+      "ammo.cap.5:SRM:6": 118,
+      "weapon.0.NOS.ISERLargeLaser": 489,
+      "weapon.13.FLS.ISERLargeLaser": 244.5,
+      "weapon.17.FLS.ISSmallPulseLaser": 18,
+      "weapon.21.FLS.SRM 6": 59,
+      "weapon.25.FRS.ISERLargeLaser": 489,
+      "weapon.29.FRS.ISSmallPulseLaser": 36,
+      "weapon.33.FRS.SRM 6": 118,
+      "weapon.37.AFT.ISERLargeLaser": 122.25,
+      "weapon.4.NOS.ISSmallPulseLaser": 36,
+      "weapon.41.AFT.ISSmallPulseLaser": 9,
+      "weapon.45.AFT.SRM 6": 29.5,
+      "weapon.50.ALS.ISERLargeLaser": 122.25,
+      "weapon.54.ALS.ISSmallPulseLaser": 9,
+      "weapon.58.ALS.SRM 6": 29.5,
+      "weapon.62.ARS.ISERLargeLaser": 122.25,
+      "weapon.66.ARS.ISSmallPulseLaser": 9,
+      "weapon.70.ARS.SRM 6": 29.5,
+      "weapon.8.NOS.SRM 6": 118
+    }
+  }
+]
