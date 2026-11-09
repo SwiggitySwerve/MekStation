@@ -41,18 +41,12 @@ const EMPTY_FILTERS: FilterState = {
   weightClass: '',
 };
 
-interface FilterToolbarProps {
+interface FilterToolbarProps extends Omit<FilterPanelProps, 'onClearFilters'> {
   readonly onImport: () => void;
   readonly viewMode: ViewMode;
-  readonly filters: FilterState;
   readonly showFilters: boolean;
-  readonly hasActiveFilters: boolean;
   readonly activeFilterCount: number;
   readonly onViewModeChange: (mode: ViewMode) => void;
-  readonly onFilterChange: <K extends keyof FilterState>(
-    key: K,
-    value: FilterState[K],
-  ) => void;
   readonly onToggleFilters: () => void;
 }
 
@@ -358,10 +352,9 @@ export default function CustomUnitsListPage(): React.ReactElement {
   }, [units, filters]);
 
   const totalPages = Math.ceil(filteredUnits.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const displayedUnits = filteredUnits.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const handleFilterChange = <K extends keyof FilterState>(
