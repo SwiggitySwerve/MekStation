@@ -14,8 +14,39 @@ import { TechBase } from '@/types/enums/TechBase';
 import { serializeAerospaceArmorIdentity } from '@/types/unit/AerospaceSerialization';
 import { getArmorBVMultiplier } from '@/types/validation/BattleValue';
 import { getNativeArmorBVMultiplier } from '@/utils/construction/battleValueDefensive';
+import { projectAerospaceBVArmor } from '@/utils/construction/contractBVUnitAdapter';
+
+import { aerospaceBVUnitFromState } from '../aerospaceBVUnitAdapter';
 
 afterEach(() => clearAllAerospaceStores());
+
+it('shares the contract armor facts with the store projection without changing live points', () => {
+  const armor = {
+    type: 'STANDARD',
+    byArc: { Nose: 12, Aft: 7 },
+    typeByArc: { NOSE: 0, AFT: 2 },
+  };
+  const projected = projectAerospaceBVArmor(armor);
+  expect(projected).toEqual({
+    armorType: 'standard',
+    totalArmorPoints: 19,
+    armorByArc: armor.byArc,
+    armorTypeByArc: armor.typeByArc,
+  });
+  const state = createDefaultAerospaceState({
+    name: 'Projection',
+    tonnage: 25,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  expect(
+    aerospaceBVUnitFromState({
+      ...state,
+      armorAllocation: { ...state.armorAllocation, Nose: 12, Aft: 7 },
+      armorType: ArmorTypeEnum.STANDARD,
+      armorTypeByArc: armor.typeByArc,
+    }),
+  ).toMatchObject(projected);
+});
 
 // MegaMek 48fcb2f64: BVCalculator.java:350-420,1489-1503.
 // This API extracts the existing vehicle rule without changing it.

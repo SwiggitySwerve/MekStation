@@ -18,7 +18,11 @@ import {
 } from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { extractWeaponTypeFromAmmoId } from '../battleValueAmmo';
-import { resolveAerospaceContractArc } from '../contractBVUnitAdapter';
+import {
+  projectAerospaceBVArmor,
+  resolveAerospaceContractArc,
+  type IContractBVAerospace,
+} from '../contractBVUnitAdapter';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getAmmunitionEntry } from '../equipmentBVResolver';
 import { calculateHeatDissipation } from '../heatSinkCalculations';
@@ -34,6 +38,51 @@ export function resolveBlkAerospaceHeatSinkType(
   code: number | undefined,
 ): 'DOUBLE' | 'SINGLE' {
   return code === 1 ? 'DOUBLE' : 'SINGLE';
+}
+
+/** Live editor values use the same armor facts as contract BV, without catalog reloads. */
+export function aerospaceBVUnitFromState(
+  state: Pick<
+    AerospaceState,
+    | 'unitType'
+    | 'tonnage'
+    | 'structuralIntegrity'
+    | 'safeThrust'
+    | 'maxThrust'
+    | 'heatSinks'
+    | 'doubleHeatSinks'
+    | 'armorType'
+    | 'armorAllocation'
+    | 'equipment'
+  > & {
+    readonly techBase?: string;
+    readonly year?: number;
+    readonly isFixedWingSupport?: boolean;
+    readonly barRating?: number;
+    readonly armorTypeByArc?: AerospaceState['armorTypeByArc'];
+  },
+): IContractBVAerospace & {
+  readonly heatSinks: number;
+  readonly heatSinkType: number;
+} {
+  return {
+    unitType: state.unitType,
+    techBase: state.techBase,
+    year: state.year,
+    isSupportVehicle: state.isFixedWingSupport === true,
+    barRating: state.barRating,
+    tonnage: state.tonnage,
+    structuralIntegrity: state.structuralIntegrity,
+    movement: { safeThrust: state.safeThrust, maxThrust: state.maxThrust },
+    heatSinks: state.heatSinks,
+    heatSinkType: state.doubleHeatSinks ? 1 : 0,
+    ...projectAerospaceBVArmor({
+      type: state.armorType,
+      byArc: state.armorAllocation,
+      typeByArc: state.armorTypeByArc,
+    }),
+    equipment: state.equipment,
+  };
 }
 
 /**
@@ -255,3 +304,4 @@ export function isAerospaceUnitType(
     t === UnitType.SMALL_CRAFT
   );
 }
+import type { AerospaceState } from '@/stores/aerospaceState';
