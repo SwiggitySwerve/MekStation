@@ -39,26 +39,30 @@ export function calculateVehicleBV(input: VehicleBVInput): IVehicleBVBreakdown {
     piloting,
   );
 
-  return vehicleBVTerms({
-    defensive: def.total,
-    offensive: off.total,
-    pilotMultiplier,
-    summaryModifier,
-    typeModifier: def.typeModifier,
-    explosivePenalty: def.explosivePenalty,
-    weightBV: off.weightBV,
-    turretModifier: off.turretModifier,
-    final,
+  return vehicleBVTerms(
+    {
+      defensive: def.total,
+      offensive: off.total,
+      pilotMultiplier,
+      summaryModifier,
+      typeModifier: def.typeModifier,
+      explosivePenalty: def.explosivePenalty,
+      weightBV: off.weightBV,
+      turretModifier: off.turretModifier,
+      final,
 
-    armorBV: def.armorBV,
-    structureBV: def.structureBV,
-    defensiveEquipmentBV: def.defensiveEquipmentBV,
-    defensiveFactor: def.defensiveFactor,
-    tmm: def.tmm,
+      armorBV: def.armorBV,
+      structureBV: def.structureBV,
+      defensiveEquipmentBV: def.defensiveEquipmentBV,
+      defensiveFactor: def.defensiveFactor,
+      tmm: def.tmm,
 
-    weaponBV: off.weaponBV,
-    ammoBV: off.ammoBV,
-    offensiveEquipmentBV: off.offensiveEquipmentBV,
-    speedFactor: off.speedFactor,
-  });
+      weaponBV: off.weaponBV,
+      ammoBV: off.ammoBV,
+      offensiveEquipmentBV: off.offensiveEquipmentBV,
+      speedFactor: off.speedFactor,
+      ...(off.weaponMountBV ? { weaponMountBV: off.weaponMountBV } : {}),
+    },
+    input,
+  );
 }
