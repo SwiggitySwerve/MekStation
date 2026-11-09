@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "BALLISTIC_REINFORCED",
     "allocation": {
       "LEFT_ARM": 26,
       "RIGHT_ARM": 26,

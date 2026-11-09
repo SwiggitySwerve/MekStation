@@ -21,8 +21,18 @@
     "type": "COMPOSITE"
   },
   "armor": {
-    "type": "STANDARD",
-    "allocation": {}
+    "type": "PATCHWORK",
+    "allocation": {},
+    "typeByLocation": {
+      "LEFT_ARM": 2,
+      "RIGHT_ARM": 2,
+      "LEFT_TORSO": 0,
+      "RIGHT_TORSO": 0,
+      "CENTER_TORSO": 0,
+      "HEAD": 0,
+      "LEFT_LEG": 2,
+      "RIGHT_LEG": 2
+    }
   },
   "heatSinks": {
     "type": "DOUBLE",
