@@ -1,0 +1,6 @@
+{
+  "name": "fix-replay-load-recovery",
+  "status": "in-progress",
+  "reason": "Root-approved Wave 3 U20: show replay load failures and allow retry while preserving upload precedence.",
+  "lastReviewed": "2026-11-08"
+}
