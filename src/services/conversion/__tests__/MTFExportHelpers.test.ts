@@ -15,6 +15,7 @@ import {
   MTF_SLOTS_PER_LOCATION,
   formatArmorType,
   formatConfig,
+  formatCockpitType,
   formatEngineType,
   formatEquipmentName,
   formatHeatSinkType,
@@ -490,4 +491,54 @@ describe('MTFExportHelpers', () => {
       expect(lines).toHaveLength(0);
     });
   });
+});
+
+// Literal native names: MegaMek 48fcb2f64 Mek.java:214-222,5312-5318.
+describe('typed MTF cockpit formatting', () => {
+  it.each([
+    ['STANDARD', 'Standard Cockpit'],
+    ['SMALL', 'Small Cockpit'],
+    ['COMMAND_CONSOLE', 'Command Console'],
+    ['TORSO_MOUNTED', 'Torso-Mounted Cockpit'],
+    ['DUAL', 'Dual Cockpit'],
+    ['INDUSTRIAL', 'Industrial Cockpit'],
+    ['PRIMITIVE', 'Primitive Cockpit'],
+    ['PRIMITIVE_INDUSTRIAL', 'Primitive Industrial Cockpit'],
+    ['SUPERHEAVY', 'Superheavy Cockpit'],
+    ['SUPERHEAVY_TRIPOD', 'Superheavy Tripod Cockpit'],
+    ['TRIPOD', 'Tripod Cockpit'],
+    ['INTERFACE', 'Interface Cockpit'],
+    ['VRRP', 'Virtual Reality Piloting Pod'],
+    ['QUADVEE', 'QuadVee Cockpit'],
+    ['SUPERHEAVY_INDUSTRIAL', 'Superheavy Industrial Cockpit'],
+    ['SUPERHEAVY_COMMAND_CONSOLE', 'Superheavy Command Console'],
+    ['SMALL_COMMAND_CONSOLE', 'Small Command Console'],
+    ['TRIPOD_INDUSTRIAL', 'Tripod Industrial Cockpit'],
+    ['SUPERHEAVY_TRIPOD_INDUSTRIAL', 'Superheavy Tripod Industrial Cockpit'],
+  ])('formats %s using the pinned native name', (source, name) => {
+    // A non-Standard gyro forces the Standard cockpit line too.
+    expect(formatCockpitType(source, 'XL')).toBe(name);
+    expect(formatCockpitType(name, 'XL')).toBe(name);
+    expect(formatCockpitType(source, 'STANDARD')).toBe(
+      source === 'STANDARD' ? undefined : name,
+    );
+  });
+  it.each(['STANDARD', 'Standard', 'Standard Cockpit'])(
+    'omits the Standard/Standard pair (%s)',
+    (cockpit) => {
+      expect(formatCockpitType(cockpit, 'STANDARD')).toBeUndefined();
+    },
+  );
+  it.each(['XL', 'COMPACT', 'HEAVY_DUTY', 'SUPERHEAVY', 'NONE'])(
+    'emits Standard cockpit for a %s gyro',
+    (gyro) => {
+      expect(formatCockpitType('STANDARD', gyro)).toBe('Standard Cockpit');
+    },
+  );
+  it.each(['', 'UNKNOWN', 'constructor', '__proto__'])(
+    'refuses unsupported cockpit %s',
+    (cockpit) => {
+      expect(() => formatCockpitType(cockpit, 'STANDARD')).toThrow('cockpit');
+    },
+  );
 });

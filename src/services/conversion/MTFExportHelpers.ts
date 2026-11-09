@@ -5,6 +5,12 @@ import type {
   ISerializedUnit,
 } from '@/types/unit/UnitSerialization';
 
+import {
+  CockpitType,
+  getNativeCockpitType,
+  getCockpitDefinition,
+} from '@/types/construction/CockpitType';
+
 const BIPED_LOCATION_ORDER = [
   'LEFT_ARM',
   'RIGHT_ARM',
@@ -123,6 +129,25 @@ export function formatTechBase(
     );
   }
   return 'Inner Sphere';
+}
+
+/** Native MTF cockpit name; omit only the complete Standard pair. */
+export function formatCockpitType(
+  cockpit: ISerializedUnit['cockpit'],
+  gyroType: ISerializedUnit['gyro']['type'],
+): string | undefined {
+  const type =
+    typeof cockpit === 'string' ? getNativeCockpitType(cockpit) : undefined;
+  const definition = type ? getCockpitDefinition(type) : undefined;
+  if (!definition)
+    throw new Error(`Cannot export cockpit identity: ${cockpit}`);
+
+  // MegaMek 48fcb2f64 Mek.java:5152-5153,5312-5318. MML 62bf193
+  // UnitUtil.java:2001-2003 delegates to this writer. The gyro context is its
+  // canonical serialized token, never a loader's fallback-to-Standard guess.
+  if (type === CockpitType.STANDARD && gyroType === 'STANDARD')
+    return undefined;
+  return definition.name;
 }
 
 export function formatRulesLevel(rulesLevel: string): string {
