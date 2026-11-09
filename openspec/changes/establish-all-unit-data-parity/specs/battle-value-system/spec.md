@@ -241,6 +241,27 @@ required before returning complete scope.
 - **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
 - **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
 
+### Requirement: Large aerospace weapon-group diagnostic projection
+
+The large aerospace mount owner SHALL retain, for each arc, the equal-mount
+groups the native calculator sums before valuation (same type, physical
+location, rear flag and link type), and the complete trace SHALL project one
+weapon term per group: count times link-multiplied value times the arc weight,
+plus one capacitor addition per group after weighting. Terms SHALL be keyed by
+the physical location abbreviation (DropShip wings LS and RS; otherwise NOS,
+FLS, FRS, ALS, ARS, AFT, LBS, RBS), never by the BV arc. Local indices SHALL NOT
+assert native equipment identity. Existing mount valuation, arc selection,
+aggregates, totals and defensive-only scope SHALL remain unchanged, and
+defensive-only results SHALL NOT receive weapon terms.
+
+#### Scenario: Rear mounts keep their physical location
+
+- **GIVEN** the pinned Aqueduct Liquid Carrier with rear-mounted medium lasers on each wing
+- **WHEN** its complete large aerospace trace is calculated
+- **THEN** the wing weapons SHALL appear at LS and RS with values 46 and 23, though their BV arcs are the rear wing arcs
+- **AND** the nose, aft large laser and aft machine gun SHALL appear at NOS, AFT and AFT with values 30.75, 123 and 10
+- **AND** the terms SHALL sum to the weapon fire-pool BV and final BV 919 SHALL remain unchanged
+
 ### Requirement: Capital ship defensive BV dispatch
 
 JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
