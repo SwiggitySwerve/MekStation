@@ -539,3 +539,18 @@ without making added owner fields a compile-time incompatibility.
 The owner's `unresolved` inputs are retained verbatim in `local.unresolved`;
 the adapter does not interpret diagnostic names. Capturing these terms does not
 establish complete support weight parity: rows remain incomplete or different.
+
+## Combat VTOL weight capture (G1b)
+
+Combat VTOL sources use `computeNativeVTOLWeight` and the same typed component
+projection and declared equipment group as Tanks. The existing turret, secondary
+turret and lift projection is reused without new arithmetic. Only a complete
+breakdown permits capture of the handler's published `unit.totalWeight`.
+The legacy number-only `calculateWeight` API intentionally remains unavailable.
+
+An unavailable breakdown retains the owner's canonical incomplete-weight reason
+and captures no total. A handler-rejected VTOL retains its parse diagnostics as
+`missing-local`. The common parser's nominal defaults never establish computed
+mass. Numeric-field coverage lists mechanism bases, overlapping mounted/energy
+subsets and remaining budget as non-additive diagnostics with explicit reasons.
+Support VTOLs continue through the support owner and retain G1's behavior.
