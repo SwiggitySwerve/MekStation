@@ -580,6 +580,18 @@ export const BLK_EQUIPMENT_BLOCK_TAGS: readonly string[] = [
   'AR Equipment',
   'LBS Equipment',
   'RBS Equipment',
+  // WarShip/JumpShip/Space Station location names and the legacy tags the loaders still read
+  // (Jumpship.java:101-102, Warship.java:67-69, BLKWarshipFile.java:281-284, BLKJumpshipFile.java:249-250)
+  'Left Front Side Equipment',
+  'Right Front Side Equipment',
+  'Front Left Side Equipment',
+  'Front Right Side Equipment',
+  'Aft Left Side Equipment',
+  'Aft Right Side Equipment',
+  'Left Broadsides Equipment',
+  'Right Broadsides Equipment',
+  'Left Broadside Equipment',
+  'Right Broadside Equipment',
   // Battle Armor
   'Squad Equipment',
   'Point Equipment',

@@ -76,10 +76,11 @@ SC_LOCATION_MAP: Dict[str, str] = {
 SC_ARMOR_CODE_MAP: Dict[int, str] = {**ARMOR_CODE_MAP, **LARGE_CRAFT_ARMOR_CODE_MAP}
 
 COCKPIT_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD",
-    1: "SMALL",
-    2: "COMMAND_CONSOLE",
-    3: "PRIMITIVE",
+    **{int(code): name for code, name in json.loads(
+        (Path(__file__).resolve().parents[2] / 'src/types/formats/blk-aerospace-cockpit.json')
+        .read_text(encoding='utf-8-sig')
+    ).items()},
+    # Existing Python compatibility aliases; not native Aero cockpit codes.
     4: "STANDARD_AERO",
     5: "PRIMITIVE_AERO",
     6: "CLAN",

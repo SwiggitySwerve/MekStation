@@ -4,6 +4,7 @@ import {
   IPilotAbilityDesignation,
   ICreatePilotOptions,
   IPilotIdentity,
+  IPilotSkills,
   IPilotStatblock,
   ISPADesignation,
   PilotType,
@@ -13,6 +14,7 @@ import {
   getGunneryImprovementCost,
   getPilotingImprovementCost,
   isValidSkillValue,
+  validatePilotSkills,
   isValidWoundsValue,
   MIN_SKILL_VALUE,
   MAX_SKILL_VALUE,
@@ -66,16 +68,29 @@ export class PilotService implements IPilotService {
   createRandom = (
     identity: IPilotIdentity,
     randomFn: () => number = Math.random,
+    skills?: IPilotSkills,
   ): IPilotOperationResult => {
-    const gunneryRoll = this.rollSkill();
-    const pilotingRoll = this.rollSkill();
+    if (skills !== undefined) {
+      const errors = validatePilotSkills(skills);
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: errors.join('; '),
+          errorCode: PilotErrorCode.ValidationError,
+        };
+      }
+    }
+    const resolvedSkills = skills ?? {
+      gunnery: this.rollSkill(),
+      piloting: this.rollSkill(),
+    };
     const hasAbility = randomFn() < 0.2;
     const spa = hasAbility ? pickRandomSPA(randomFn) : null;
     const abilityIds = spa ? [spa.id] : undefined;
     return this.repo.create({
       identity,
       type: PilotType.Persistent,
-      skills: { gunnery: gunneryRoll, piloting: pilotingRoll },
+      skills: resolvedSkills,
       startingXp: 0,
       abilityIds,
     });

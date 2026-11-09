@@ -12,6 +12,7 @@ import {
   IPilotStatblock,
   PilotExperienceLevel,
   IPilotIdentity,
+  IPilotSkills,
   ICreatePilotOptions,
 } from '@/types/pilot';
 
@@ -78,7 +79,10 @@ export interface PilotStoreActions {
     identity: IPilotIdentity,
   ) => Promise<string | null>;
   /** Create random pilot */
-  createRandom: (identity: IPilotIdentity) => Promise<string | null>;
+  createRandom: (
+    identity: IPilotIdentity,
+    skills?: IPilotSkills,
+  ) => Promise<string | null>;
   /** Create statblock pilot (not persisted) */
   createStatblock: (statblock: IPilotStatblock) => IPilot;
   /** Update a pilot */

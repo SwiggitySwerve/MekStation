@@ -1,40 +1,9 @@
 {
   "schemaVersion": 1,
-  "scope": "Root accepts ONLY these 3 remaining frozen negative Tank weight gaps as row 2.2/2.3 follow-ups; no general fidelity waiver",
+  "scope": "No remaining frozen negative Tank weight gaps; every available Tank total must match pinned Java exactly",
   "integratedMain": "61145e3e11295cfa1d8ba74605a7bfd73d2b2946",
   "referenceSha256": "4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87",
   "historicalProofHead": "9f0f855545d3c86e082a7bdecd5ab5e2ec3f864f",
-  "acceptance": "Post-fix mismatch membership, source hashes, totals and deltas must equal this set exactly; every delta strictly negative; every local validity must equal Java. Any new/missing/changed mismatch or validity disagreement fails. All other cohort/BV/trust/load gates remain unchanged. Rows 2.2/2.3 remain open.",
-  "rows": [
-    {
-      "path": "vehicles/3085u/Cutting Edge/Chalchiuhtotolin Support Tank (Bombast Laser).blk",
-      "sourceSha256": "15e95ecc1896e779a65c7a012f0b36f260daadd5f27cf0129b7de9b406e4396e",
-      "localTotal": 49.5,
-      "javaTotal": 50,
-      "delta": -0.5,
-      "localValid": true,
-      "javaValid": true,
-      "suspectedComponent": "armor allocation/density"
-    },
-    {
-      "path": "vehicles/3085u/Cutting Edge/Chalchiuhtotolin Support Tank.blk",
-      "sourceSha256": "7b5608817af8e292074353a535f1b3cbfdd2444acc4a4ad5f9a40cad1125fe6d",
-      "localTotal": 49.5,
-      "javaTotal": 50,
-      "delta": -0.5,
-      "localValid": true,
-      "javaValid": true,
-      "suspectedComponent": "armor allocation/density"
-    },
-    {
-      "path": "vehicles/XTRs/Pirates/Myrmidon Medium Tank P (Tate).blk",
-      "sourceSha256": "6cf423c1382bd1433a6658a0804f6522690af689ac272decd211ad2a5eff013f",
-      "localTotal": 39.5,
-      "javaTotal": 40,
-      "delta": -0.5,
-      "localValid": true,
-      "javaValid": true,
-      "suspectedComponent": "miscellaneous equipment: sponson turret mechanism"
-    }
-  ]
+  "acceptance": "The post-fix mismatch set must be empty and every local validity must equal Java. Any new mismatch or validity disagreement fails. All source-hash, cohort, BV, trust and load gates remain unchanged. Rows 2.2/2.3 remain open for their other obligations.",
+  "rows": []
 }

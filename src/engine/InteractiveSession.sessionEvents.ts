@@ -3,7 +3,7 @@ import type {
   IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
 
-import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
+import { matchLogStorage, persistMatchEvent } from '@/lib/p2p/matchLogStorage';
 import {
   applyBattlefieldWreckTerrainForSessionEvents,
   terrainChangedPayloadFromBattlefieldWreckResult,
@@ -88,10 +88,12 @@ function persistInteractiveSessionMatchLogEvent(
   event: IGameEvent,
 ): void {
   const session = context.getSession();
-  void matchLogStorage
-    .appendEvent(session.matchId ?? session.id, event)
-    .catch((error: unknown) => {
-      context.markMatchLogDiverged();
-      reportMatchLogDivergence(error);
-    });
+  void persistMatchEvent(
+    session.matchId ?? session.id,
+    event,
+    matchLogStorage,
+  ).catch((error: unknown) => {
+    context.markMatchLogDiverged();
+    reportMatchLogDivergence(error);
+  });
 }

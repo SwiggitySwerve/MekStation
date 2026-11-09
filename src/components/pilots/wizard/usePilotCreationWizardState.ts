@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useToast } from '@/components/shared/Toast';
-import { usePilotSelector } from '@/stores/usePilotStore';
+import { usePilotSelector, usePilotStore } from '@/stores/usePilotStore';
 import {
   PilotExperienceLevel,
   IPilotIdentity,
@@ -91,7 +91,10 @@ async function createPilotForMode(
       type: PilotType;
       skills: IPilotSkills;
     }) => Promise<string | null>;
-    createRandom: (identity: IPilotIdentity) => Promise<string | null>;
+    createRandom: (
+      identity: IPilotIdentity,
+      skills?: IPilotSkills,
+    ) => Promise<string | null>;
     createStatblock: (statblock: IPilotStatblock) => { id: string };
   },
 ): Promise<string | null> {
@@ -105,7 +108,7 @@ async function createPilotForMode(
         skills: state.customSkills,
       });
     case 'random':
-      return actions.createRandom(state.identity);
+      return actions.createRandom(state.identity, getCurrentSkills(state));
     case 'statblock':
       return createStatblockPilot(state, actions.createStatblock);
     default:
@@ -135,6 +138,7 @@ interface PilotCreationWizardStateResult {
   readonly currentSkills: IPilotSkills;
   readonly currentStep: WizardStep;
   readonly error: string | null;
+  readonly hasCreationFailed: boolean;
   readonly isLoading: boolean;
   readonly state: WizardState;
   readonly handleBack: () => void;
@@ -168,18 +172,23 @@ export function usePilotCreationWizardState({
   const createRandom = usePilotSelector((state) => state.createRandom);
   const createPilot = usePilotSelector((state) => state.createPilot);
   const createStatblock = usePilotSelector((state) => state.createStatblock);
-  const isLoading = usePilotSelector((state) => state.isLoading);
+  const storeIsLoading = usePilotSelector((state) => state.isLoading);
   const { showToast } = useToast();
 
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [currentStep, setCurrentStep] = useState<WizardStep>('mode');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasCreationFailed, setHasCreationFailed] = useState(false);
+  const submitStarted = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       setState(INITIAL_STATE);
       setCurrentStep('mode');
       setError(null);
+      setHasCreationFailed(false);
+      submitStarted.current = false;
     }
   }, [isOpen]);
 
@@ -251,6 +260,9 @@ export function usePilotCreationWizardState({
   }, [currentStep, state]);
 
   const handleCreate = useCallback(async () => {
+    if (submitStarted.current) return;
+    submitStarted.current = true;
+    setIsSubmitting(true);
     setError(null);
 
     try {
@@ -261,14 +273,28 @@ export function usePilotCreationWizardState({
         createStatblock,
       });
 
+      if (pilotId === null) {
+        throw new Error(
+          usePilotStore.getState().error ||
+            'Pilot creation could not be confirmed. Check the roster before creating another pilot.',
+        );
+      }
+
       showToast(successToastFor(state));
-      onCreated?.(pilotId);
-      onClose();
+      if (onCreated) {
+        onCreated(state.mode === 'statblock' ? null : pilotId);
+      } else {
+        onClose();
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to create pilot';
       setError(errorMessage);
+      // A failed refresh can follow a successful save; require a roster check.
+      setHasCreationFailed(true);
       showToast({ message: errorMessage, variant: 'error' });
+    } finally {
+      setIsSubmitting(false);
     }
   }, [
     state,
@@ -286,7 +312,8 @@ export function usePilotCreationWizardState({
     currentSkills,
     currentStep,
     error,
-    isLoading,
+    hasCreationFailed,
+    isLoading: storeIsLoading || isSubmitting,
     state,
     handleBack,
     handleCreate,

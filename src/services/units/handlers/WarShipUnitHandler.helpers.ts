@@ -5,9 +5,7 @@
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   BayType,
-  CapitalArc,
   ICapitalCrewConfiguration,
-  ICapitalMountedEquipment,
   ICrewQuarters,
   IGravityDeck,
   ITransportBay,
@@ -21,57 +19,10 @@ import {
   type ITransportBayTypeRule,
 } from './transportBayParsing';
 
-const ARC_MAP: Record<string, CapitalArc> = {
-  nose: CapitalArc.NOSE,
-  'nose equipment': CapitalArc.NOSE,
-  'front left': CapitalArc.FRONT_LEFT,
-  fl: CapitalArc.FRONT_LEFT,
-  'fl equipment': CapitalArc.FRONT_LEFT,
-  'front right': CapitalArc.FRONT_RIGHT,
-  fr: CapitalArc.FRONT_RIGHT,
-  'fr equipment': CapitalArc.FRONT_RIGHT,
-  'aft left': CapitalArc.AFT_LEFT,
-  al: CapitalArc.AFT_LEFT,
-  'al equipment': CapitalArc.AFT_LEFT,
-  'aft right': CapitalArc.AFT_RIGHT,
-  ar: CapitalArc.AFT_RIGHT,
-  'ar equipment': CapitalArc.AFT_RIGHT,
-  aft: CapitalArc.AFT,
-  'aft equipment': CapitalArc.AFT,
-  'left broadside': CapitalArc.LEFT_BROADSIDE,
-  lbs: CapitalArc.LEFT_BROADSIDE,
-  'lbs equipment': CapitalArc.LEFT_BROADSIDE,
-  'right broadside': CapitalArc.RIGHT_BROADSIDE,
-  rbs: CapitalArc.RIGHT_BROADSIDE,
-  'rbs equipment': CapitalArc.RIGHT_BROADSIDE,
-};
-
 const WARSHIP_TRANSPORT_BAY_RULES: readonly ITransportBayTypeRule[] = [
   { tokens: ['dropship'], type: BayType.DROPSHIP },
   ...DEFAULT_CAPITAL_TRANSPORT_BAY_RULES,
 ];
-
-export function parseArmorByArc(armor: readonly number[]): {
-  nose: number;
-  frontLeftSide: number;
-  frontRightSide: number;
-  aftLeftSide: number;
-  aftRightSide: number;
-  aft: number;
-  leftBroadside?: number;
-  rightBroadside?: number;
-} {
-  return {
-    nose: armor[0] || 0,
-    frontLeftSide: armor[1] || 0,
-    frontRightSide: armor[2] || 0,
-    aftLeftSide: armor[3] || 0,
-    aftRightSide: armor[4] || 0,
-    aft: armor[5] || 0,
-    leftBroadside: armor[6],
-    rightBroadside: armor[7],
-  };
-}
 
 export function parseKFDriveType(
   rawTags: Record<string, string | string[]>,
@@ -161,50 +112,6 @@ export function parseQuarters(
   }
 
   return quarters;
-}
-
-export function parseEquipment(
-  document: IBlkDocument,
-): readonly ICapitalMountedEquipment[] {
-  const equipment: ICapitalMountedEquipment[] = [];
-  let mountId = 0;
-
-  for (const [locationKey, items] of Object.entries(
-    document.equipmentByLocation,
-  )) {
-    const arc = normalizeArc(locationKey);
-
-    for (const item of items) {
-      const isCapital = isCapitalWeapon(item);
-      equipment.push({
-        id: `mount-${mountId++}`,
-        equipmentId: item,
-        name: item,
-        arc,
-        isCapital,
-      });
-    }
-  }
-
-  return equipment;
-}
-
-function normalizeArc(locationKey: string): CapitalArc {
-  const normalized = locationKey.toLowerCase();
-  return ARC_MAP[normalized] || CapitalArc.NOSE;
-}
-
-function isCapitalWeapon(weaponName: string): boolean {
-  const lower = weaponName.toLowerCase();
-  return (
-    lower.includes('naval') ||
-    lower.includes('capital') ||
-    lower.includes('mass driver') ||
-    lower.includes('kraken') ||
-    lower.includes('killer whale') ||
-    lower.includes('white shark') ||
-    lower.includes('barracuda')
-  );
 }
 
 export function getStringFromRaw(
