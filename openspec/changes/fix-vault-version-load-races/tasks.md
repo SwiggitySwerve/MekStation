@@ -12,5 +12,5 @@
 
 ## 3. Validate and hand off
 
-- [ ] 3.1 Run full vault and integration test directories, both TypeScript configs, lint, lint:units and its suite, formatting, OpenSpec validation, and the CI budget check.
+- [x] 3.1 Run full vault and integration test directories, both TypeScript configs, lint, lint:units and its suite, formatting, OpenSpec validation, and the CI budget check.
 - [ ] 3.2 Open a draft PR, record the absence of production route mounts, and make ready only after hosted CI passes.
