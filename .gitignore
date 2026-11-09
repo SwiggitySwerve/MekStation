@@ -57,6 +57,8 @@ scripts/**
 !scripts/unit-bv-reference.ts
 !scripts/unit-construction-validity.ts
 !scripts/unit-construction-weights.ts
+!scripts/unit-construction-quantities.ts
+!scripts/unit-construction-settings.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
