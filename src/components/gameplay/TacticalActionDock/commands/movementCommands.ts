@@ -136,7 +136,7 @@ const MovementCancelCommand: ITacticalCommand = {
       : { available: true };
   },
   commit() {
-    return { actionId: 'undo', payload: {} };
+    return { actionId: 'cancel', payload: {} };
   },
 };
 
