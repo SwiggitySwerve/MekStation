@@ -1,10 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { getFileService } from '@/services/persistence/FileService';
-import {
-  customUnitApiService,
-  type ISaveResult,
-} from '@/services/units/CustomUnitApiService';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 
 type Selection = { filename: string; payload: Record<string, unknown> };
 type ImportState =
@@ -106,8 +103,7 @@ export function useUnitImport(
     // Synchronous snapshot update closes the double-click/Enter window.
     commit({ status: 'importing', ...chosen });
     try {
-      const result: ISaveResult =
-        await customUnitApiService.importUnit(payload);
+      const result = await customUnitApiService.importUnit(payload);
       if (token !== request.current) return;
       if (result.success && result.id) {
         commit({ status: 'success', id: result.id, warnings: result.warnings });

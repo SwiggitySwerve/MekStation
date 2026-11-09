@@ -157,24 +157,20 @@ test('imports pinned MTF and vehicle BLK into the library and reopens after relo
         const data = localStorage.getItem(`megamek-unit-${id}`);
         return data ? JSON.parse(data).state : null;
       });
-    await expect
-      .poll(readImportedEditor)
-      .toMatchObject({
-        chassis: 'Locust',
-        model: 'LCT-1V',
-        tonnage: 20,
-        librarySave: { id: ids[0] },
-      });
+    await expect.poll(readImportedEditor).toMatchObject({
+      chassis: 'Locust',
+      model: 'LCT-1V',
+      tonnage: 20,
+      librarySave: { id: ids[0] },
+    });
     await page.reload();
     await expect(page.getByRole('tab', { name: /Mek/ })).toBeVisible();
-    await expect
-      .poll(readImportedEditor)
-      .toMatchObject({
-        chassis: 'Locust',
-        model: 'LCT-1V',
-        tonnage: 20,
-        librarySave: { id: ids[0] },
-      });
+    await expect.poll(readImportedEditor).toMatchObject({
+      chassis: 'Locust',
+      model: 'LCT-1V',
+      tonnage: 20,
+      librarySave: { id: ids[0] },
+    });
     await page.screenshot({
       path: testInfo.outputPath('imported-customizer-reloaded.png'),
     });

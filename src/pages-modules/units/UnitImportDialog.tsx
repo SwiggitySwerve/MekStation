@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 
-import { Button, Input, useToast } from '@/components/ui';
+import { useToast } from '@/components/shared/Toast';
+import { Button, Input } from '@/components/ui';
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
 
 import { useUnitImport } from './useUnitImport';
@@ -12,9 +13,9 @@ export function UnitImportDialog({
   onClose: () => void;
   onImported: (id: string) => void;
 }): React.ReactElement {
-  const { addToast } = useToast();
+  const { showToast } = useToast();
   const { state, selectFile, submit, reset } = useUnitImport((id) => {
-    addToast({ message: 'Unit imported', variant: 'success' });
+    showToast({ message: 'Unit imported', variant: 'success' });
     onImported(id);
   });
   const [variant, setVariant] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export function UnitImportDialog({
       isOpen
       onClose={close}
       title="Import Unit"
-      subtitle="Choose a JSON, MTF or BLK file. Supported families are checked by the server."
+      subtitle="Select or drop a JSON, MTF or BLK file. Unsupported units will show a reason."
       footer={
         <>
           <Button onClick={close} variant="secondary">

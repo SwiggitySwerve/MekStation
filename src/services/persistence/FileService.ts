@@ -1,7 +1,7 @@
 /**
  * File Service
  *
- * Export and import JSON files for unit data.
+ * Export JSON and prepare JSON or native source files for unit import.
  *
  * @spec openspec/specs/persistence-services/spec.md
  */

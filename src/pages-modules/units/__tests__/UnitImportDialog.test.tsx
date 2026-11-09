@@ -9,7 +9,7 @@ import {
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
-import { ToastProvider } from '@/components/ui/Toast';
+import { ToastProvider } from '@/components/shared/Toast';
 import { UnitImportDialog } from '@/pages-modules/units/UnitImportDialog';
 import { useUnitImport } from '@/pages-modules/units/useUnitImport';
 import { getFileService } from '@/services/persistence/FileService';

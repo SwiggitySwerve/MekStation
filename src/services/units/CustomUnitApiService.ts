@@ -438,7 +438,7 @@ export class CustomUnitApiService implements ICustomUnitApiService {
   };
 
   /**
-   * Import a unit from JSON
+   * Import JSON or an explicit native-source payload.
    */
   importUnit = async (
     data: ISerializedUnitEnvelope | Record<string, unknown>,

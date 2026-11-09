@@ -1,7 +1,7 @@
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { ToastProvider } from '@/components/ui/Toast';
+import { ToastProvider } from '@/components/shared/Toast';
 import LibraryPage from '@/pages/units';
 import fixtures from '@/services/units/unitLoaderService/__tests__/fixtures/vehicles.pinned.json';
 import { loadUnitDefinition } from '@/services/units/unitLoaderService/loadUnitDefinition';
