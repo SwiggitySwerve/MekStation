@@ -33,6 +33,7 @@ import {
 } from '../src/utils/construction/contractBVUnitAdapter';
 import { mechBVTerms } from '../src/utils/construction/mechBV/bvTrace';
 import { protoMechBVTerms } from '../src/utils/construction/protomech';
+import { buildBVKeySetReport } from './unit-bv-key-set';
 import {
   buildDeltaReport,
   JavaReference,
@@ -417,14 +418,28 @@ export function main(): void {
     includeWeights,
     includeQuantities,
   );
+  const javaReferences = references.map((row) => JavaReference.parse(row));
   const report = buildDeltaReport(
     converted,
-    references.map((row) => JavaReference.parse(row)),
+    javaReferences,
     undefined,
     process.argv.includes('--per-term'),
   );
   writeDeltaReport(report, arg('--out'));
   process.exitCode = report.ok ? 0 : 1;
+  if (process.argv.includes('--bv-key-set')) {
+    const { rows, ...summary } = buildBVKeySetReport(report, javaReferences);
+    const out = arg('--out');
+    fs.writeFileSync(
+      path.join(out, 'bv-key-set-report.json'),
+      JSON.stringify(summary, null, 2) + '\n',
+    );
+    fs.writeFileSync(
+      path.join(out, 'bv-key-set-rows.jsonl'),
+      rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
+    );
+    if (!summary.ok) process.exitCode = 1;
+  }
   if (includeConstruction) {
     const { rows, ...summary } = buildValidityReport(converted, references);
     const out = arg('--out');

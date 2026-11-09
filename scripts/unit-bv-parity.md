@@ -201,6 +201,15 @@ Aggregate mode remains available without the flag.
 
 ### Local-only term classification
 
+Add `--bv-key-set` to `vehicle-aero-bv-delta.ts` to publish separate
+`bv-key-set-report.json` and `bv-key-set-rows.jsonl` files. Use it with
+`--per-term` to retain the existing numerical term gates as well. The flag
+leaves `delta-report.json` and `delta-rows.jsonl` byte-identical and adds no
+BV arithmetic. Without it, no key-set files are written and exit behavior is
+unchanged. Selecting it also requires no native findings or unassessed rows
+for exit zero: an explicit key-set check must fail closed on those gaps.
+Non-native diagnostics alone never change the exit code.
+
 `buildBVKeySetReport` supplements the existing Java-keyed comparison without
 changing its report, joins, term values or BV arithmetic. It examines every
 local-only key after calling the same `foldWeaponTerms` function as the term
@@ -233,6 +242,8 @@ Java-only omissions and numerical differences remain the existing comparator's
 responsibility. Thus this report alone never establishes full numerical parity.
 Counts roll up by family, namespace and exact key. All output is deterministically
 sorted, and no reported key is excluded or converted into a reference value.
+`counts.rows` is the source-row denominator; the rows file contains one entry
+per local-only key or unassessed source, rather than one entry per source.
 
 ## Bounded full-corpus execution
 
