@@ -124,17 +124,19 @@ function clanPrefixCatalogMatch(
   );
 }
 
-export function normalizeEquipmentId(
-  equipmentId: string,
-  catalog: EquipmentCatalogLookup = loadCatalogForEquipmentId(equipmentId),
-  includeRegistry = true,
-): string {
-  const fullCatalog = catalog;
-  const rawLower = equipmentId.toLowerCase().trim();
-  catalog =
+function getLegacyCatalog(fullCatalog: EquipmentCatalogLookup) {
+  const catalog =
     legacyCatalogs.get(fullCatalog) ??
     new Map([...fullCatalog].filter(([id]) => isLegacyEquipmentId(id)));
   legacyCatalogs.set(fullCatalog, catalog);
+  return catalog;
+}
+
+function getEquipmentLookupTokens(
+  equipmentId: string,
+  catalog: EquipmentCatalogLookup,
+) {
+  const rawLower = equipmentId.toLowerCase().trim();
   // BLK qualifiers describe the mount, not its EquipmentType.
   const qualifiedBase = rawLower.replace(BV_MOUNT_QUALIFIERS, '');
   const base = isAmmunitionEquipmentId(qualifiedBase)
@@ -150,6 +152,28 @@ export function normalizeEquipmentId(
         firstDirectAliasCatalogMatch(catalog, [lookupBase])
       ? lookupBase
       : lookupBase.replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '').trim();
+  return { rawLower, lookupBase, lower };
+}
+
+/** Retain exact catalog IDs while removing native mount decorators for lookup. */
+export function getNativeEquipmentLookupToken(equipmentId: string): string {
+  return getEquipmentLookupTokens(
+    equipmentId,
+    getLegacyCatalog(loadCatalogForEquipmentId(equipmentId)),
+  ).lower;
+}
+
+export function normalizeEquipmentId(
+  equipmentId: string,
+  catalog: EquipmentCatalogLookup = loadCatalogForEquipmentId(equipmentId),
+  includeRegistry = true,
+): string {
+  const fullCatalog = catalog;
+  catalog = getLegacyCatalog(fullCatalog);
+  const { rawLower, lookupBase, lower } = getEquipmentLookupTokens(
+    equipmentId,
+    catalog,
+  );
   const explicit = resolveRegistryId(lower);
   const generated =
     includeRegistry && explicit && fullCatalog.has(explicit)
