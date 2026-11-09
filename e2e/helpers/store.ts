@@ -62,6 +62,11 @@ export async function getStoreState<T>(
   page: Page,
   storeName: string,
 ): Promise<T> {
+  return readStoreSnapshot<T>(page, storeName);
+}
+
+/** Read once; callers that poll own their single readiness/predicate budget. */
+async function readStoreSnapshot<T>(page: Page, storeName: string): Promise<T> {
   const exposed = await isStoreExposed(page);
   if (!exposed) {
     throw new Error(
@@ -206,7 +211,7 @@ export async function waitForStoreState<T>(
   timeout = DEFAULT_TIMEOUT,
 ): Promise<void> {
   await expect(async () => {
-    const state = await getStoreState<T>(page, storeName);
+    const state = await readStoreSnapshot<T>(page, storeName);
     const predicate = new Function('state', `return ${predicateString}`) as (
       state: T,
     ) => boolean;
