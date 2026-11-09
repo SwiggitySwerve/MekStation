@@ -14,7 +14,10 @@ import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
-import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
+import {
+  isFireWeaponCategory,
+  isWeaponCategory,
+} from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
@@ -50,14 +53,6 @@ export type EquipmentResolver = (
   isAmmo?: boolean,
 ) => IEquipmentItem | undefined;
 
-const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
-  EquipmentCategory.ENERGY_WEAPON,
-  EquipmentCategory.BALLISTIC_WEAPON,
-  EquipmentCategory.MISSILE_WEAPON,
-  EquipmentCategory.ARTILLERY,
-  EquipmentCategory.CAPITAL_WEAPON,
-];
-
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
  * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
  * plasma weapons still contribute. Non-weapon plasma-named items do not.
@@ -65,7 +60,7 @@ const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
 export function getVehicleHeatNeutralWeaponHeat(
   item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
 ): number | null {
-  const weapon = WEAPON_CATEGORIES.includes(item.category);
+  const weapon = isFireWeaponCategory(item.category);
   // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
   // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
   const excludedEnergy = /tsemp|taser/i.test(item.name);
@@ -181,7 +176,7 @@ export function computeVehicleMountedWeightFigures(
       clanCase,
       instanceId: mount.id,
       sourceId: getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId,
-      weapon: item !== undefined && WEAPON_CATEGORIES.includes(item.category),
+      weapon: item !== undefined && isFireWeaponCategory(item.category),
       id: equipmentId,
       location: mount.location,
       order,
@@ -200,7 +195,7 @@ export function computeVehicleMountedWeightFigures(
       // WeaponType.java:2925-2926; MiscType.java:12532-12543 (48fcb2f6).
       computerRelevant:
         item === undefined ||
-        (WEAPON_CATEGORIES.includes(item.category) &&
+        (isFireWeaponCategory(item.category) &&
           isDirectFireBVWeapon(equipmentId) &&
           !/taser/i.test(equipmentId)) ||
         (item.category !== EquipmentCategory.AMMUNITION &&

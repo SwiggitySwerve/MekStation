@@ -48,6 +48,14 @@ export function prepareSchemaDefinitions(input) {
     parserOverride: (schema) => {
       const name = names.get(JSON.stringify(schema));
       if (name) return name;
+      const key = names.get(JSON.stringify(schema.propertyNames));
+      const value = names.get(JSON.stringify(schema.additionalProperties));
+      if (schema.type === 'object' && key && value) {
+        const description = schema.description
+          ? `.describe(${JSON.stringify(schema.description)})`
+          : '';
+        return `z.partialRecord(${key}, ${value})${description}`;
+      }
       // The library emits z.any() for `not`; in an intersected branch that
       // widens the inferred field to any. unknown keeps the other branch's type.
       const negated =
