@@ -18,7 +18,12 @@ import {
   AbstractUnitTypeHandler,
   createFailureResult,
 } from './AbstractUnitTypeHandler';
-import { parseCapitalVesselBasics } from './capitalShipHandlerShared';
+import {
+  EXTENDED_CAPITAL_WEAPON_TERMS,
+  parseCapitalArmorByArc,
+  parseCapitalEquipment,
+  parseCapitalVesselBasics,
+} from './capitalShipHandlerShared';
 import {
   UnitFieldParseMessages,
   UnitValidationMessages,
@@ -38,7 +43,6 @@ import {
   parseCrewConfiguration,
   parseTransportBays,
   parseQuarters,
-  parseEquipment,
   getStringFromRaw,
   getBooleanFromRaw,
   getNumericFromRaw,
@@ -73,9 +77,8 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     // WarShips are always spheroid
     const motionType = AerospaceMotionType.SPHEROID;
 
-    const basics = parseCapitalVesselBasics(document, {
-      includeBroadsides: true,
-    });
+    const basics = parseCapitalVesselBasics(document);
+    const armorByArc = parseCapitalArmorByArc(basics.armor, errors);
 
     // K-F Drive
     const rawTags = document.rawTags || {};
@@ -100,7 +103,10 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
     const quarters = parseQuarters(document);
 
     // Equipment
-    const equipment = parseEquipment(document);
+    const equipment = parseCapitalEquipment(document, {
+      capitalWeaponTerms: EXTENDED_CAPITAL_WEAPON_TERMS,
+      errors,
+    });
 
     // Escape pods and life boats
     const escapePods = document.escapePod || 0;
@@ -114,6 +120,7 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
       unitType: UnitType.WARSHIP,
       motionType,
       ...basics,
+      armorByArc,
       kfDriveType,
       hasLFBattery,
       sailArea,
