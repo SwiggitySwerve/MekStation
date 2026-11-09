@@ -269,8 +269,9 @@ their previous meaning. Missing quantities never become neutral values.
 
 ## Opt-in source-handler validity
 
-Add `--construction-validity` to the guarded serial comparator with a P1
-`--construction-terms` reference. The same source calculation writes separate
+Add `--construction-validity` to the guarded serial comparator, with the P1
+`--reference` file (an exporter run made with the Java exporter's
+`--construction-terms`; the comparator has no such flag). The same source calculation writes separate
 `construction-validity-report.json` and `construction-validity-rows.jsonl`.
 It compares actual BA, infantry, ProtoMech, vehicle, aerospace and capital
 handler validation results, including invalid designs and diagnostics. Vehicle,
@@ -302,15 +303,16 @@ mounted mass through it: without the catalog Ajax Assault Tank C, Lightning
 Attack Hovercraft CX-3 and SturmFeur Kalki read as valid instead of overweight.
 A fallback to the hardcoded catalog stops the run rather than changing results.
 Other local-family projections,
-weight terms/totals, verifier quantities and settings remain explicit gaps;
+weight terms/totals (compared only under `--construction-weights`, below),
+verifier quantities and settings remain explicit gaps here;
 reference weight maps marked unsupported retain their reasons; infantry's
 decomposition is applicable but not instrumented. `ok` is scoped to
 validity only; aggregate BV success does not fill missing comparisons. Either
 selected report failing keeps the CLI exit nonzero. Without the flag all
 existing BV report bytes and calculation paths retain their previous contract.
 Runtime/BV mode/settings mismatches use the independent policy/actual-evidence
-boundary and explicit enforcement mode above. This does not compare local
-construction weights or instrument previously absent crew/network facts.
+boundary and explicit enforcement mode above. Validity mode does not compare
+local construction weights or instrument previously absent crew/network facts.
 
 This vehicle slice does not fix domain mismatches. Its proof records the actual
 integrated validator/input head, including any landed source changes. If P3's
@@ -318,3 +320,67 @@ integrated validator/input head, including any landed source changes. If P3's
 still needs a later comparison including its final merged validators. Historical
 failed proofs are not waived. Exact BV, successful loading and report presence
 do not establish validity, weight, quantities, settings or complete row 3.4.
+
+## Opt-in construction weight terms
+
+`--construction-weights` (row 3.4 W1) compares MekStation's construction
+weight terms with the pinned-Java additive maps in the same P1 `--reference`
+(`construction.weightTerms` and `weightTotal`, tons, keyed by native method
+name; BattleArmor keeps `trooper.<index>.<method>`). It runs next to, and
+independent of, `--construction-validity` (either flag loads the JSON equipment
+catalog first) and writes `construction-weight-report.json` and
+`construction-weight-rows.jsonl`. Without the flag every existing report, and
+every row's other fields, keep their previous bytes; the flag only adds the
+local `constructionWeights` fact to each computed row. Either selected report
+failing keeps the CLI exit nonzero. It is measurement only: a disagreement or a
+missing local term is a finding for a later PR, never fixed here. Verifier
+quantities and settings are the separate W3 comparison.
+
+Rule per Java term (the reference's key set is the requirement list):
+`exact` when the difference is within the Java exporter's own tolerance
+(1e-9 t absolute, 1e-12 relative); `within1Pct` when it is strictly less than
+1% of the Java term; otherwise `different`. A zero Java term needs a zero local
+value. A term MekStation cannot produce is `missing-local`; a nonfinite local
+value is `nonfinite-local`; a captured local exception is `failed-local`. All
+of these fail the row, so a gap is never a pass. A local-only term is listed
+under `localOnly` and is informational. `getWeightAllocatedArmor` (patchwork)
+is compared against the local armor term.
+
+Local terms come only from construction owners that already exist and are never
+fabricated; whatever a family cannot produce is absent, with the reason kept on
+the row (`unavailable`):
+
+- BattleMech (MTF): the editor projection (`useUnitCalculations`, shared with
+  validity). Engine, structure, controls (cockpit + gyro), heat sinks, armor
+  and LAM/QuadVee conversion (`getWeightMisc`) map one-to-one. Jump jets are
+  MiscType in Java, so they join the equipment lump below.
+- Tank and SuperHeavyTank (BLK, `VehicleUnitHandler`): the native
+  `computeNativeTankWeight` breakdown. Engine, structure, controls, heat sinks,
+  armor, power amplifiers and carrying space map one-to-one; `getWeightMisc` is
+  turret + secondary turret + lift; total is tonnage minus remaining.
+- Everything else (VTOL, support vehicles, BattleArmor, ProtoMech, infantry,
+  aerospace, capital) has no additive local weight seam on main. BattleArmor's
+  `computeTrooperMass` takes editor-model mounts with `massKg` that no
+  BLK-source adapter builds; `aerospaceSourceWeight` is a mass bound. Their
+  terms report as `missing-local` and feed the follow-up seam lanes.
+
+Where the local code has only one figure for what Java splits, the report
+compares a declared group against the sum of the Java members present in that
+row (`mountedEquipment`: MiscEquip + Weapon + Ammo + the family's remaining
+members), marks the members `grouped:mountedEquipment`, and the group carries the
+verdict. No catalog-category classifier decides the split.
+
+Infantry's Java map is `unsupported`, so those rows fail as
+`reference-unsupported` and are listed under `pendingInputs`. The mode accepts
+the second reference input for them, `--weight-terms-extra <rows.jsonl>`: rows
+of `{path, sha256, construction: {weightTerms, weightTotal, reconstruction:
+{ok: true}}}` joined on path plus SHA-256, accepted only for rows whose primary
+map is unsupported and rejected (`extra-duplicate`, `extra-unknown`,
+`extra-hash-mismatch`, `extra-overlap`, `extra-rejected`) otherwise. Its hash is
+recorded as `extraInputSha256` beside `referenceSha256`.
+
+The report carries `byFamily` (row verdict counts plus term counts) and
+`byComponent` (family, then Java key with the trooper index collapsed to `*`,
+plus `weightTotal` and group names; each with exact/within1Pct/different/missing
+counts and the maximum absolute and relative difference), and each row lists
+every term with Java and local values, delta and relative percent.

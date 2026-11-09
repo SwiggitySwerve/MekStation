@@ -294,7 +294,6 @@ describe('Reconnection Flow (Wave 4)', () => {
     'ai',
     'spectator',
     'wrong-slot',
-    'lobby',
     'completed',
   ] as const)(
     'MarkSeatAi rejects %s targets without changing seats or clearing pending',
@@ -326,10 +325,9 @@ describe('Reconnection Flow (Wave 4)', () => {
             );
       await store.updateMatchMeta(matchId, {
         seats,
-        status:
-          scenario === 'lobby' || scenario === 'completed'
-            ? scenario
-            : 'active',
+        // An active match never returns to lobby; the lobby refusal is
+        // pinned on the intent table in matchIntentKinds.test.ts.
+        status: scenario === 'completed' ? 'completed' : 'active',
       });
       const before = await store.getMatchMeta(matchId);
       const pending = host.getPendingPeersForTests();

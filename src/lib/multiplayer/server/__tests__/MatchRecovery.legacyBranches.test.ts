@@ -169,10 +169,8 @@ it('repairs only committed terminal histories, logs once, and keeps unfinished r
   const unfinished = await engineFor(live);
   await writeLegacy(live, unfinished.getSession().events);
   const completed = meta('already-completed');
-  await writeLegacy(
-    { ...completed, status: 'completed' },
-    ended.getSession().events,
-  );
+  await writeLegacy(completed, ended.getSession().events);
+  await store.closeMatch(completed.matchId);
   const construct = jest.spyOn(ServerMatchHost, 'recover');
   const repaired = jest.spyOn(logger, 'info').mockImplementation(() => {});
   const publish = jest.fn();

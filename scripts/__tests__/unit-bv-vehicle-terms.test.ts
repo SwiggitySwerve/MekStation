@@ -20,7 +20,7 @@ test('vehicle adapter exposes type, penalty and weight without folding them into
 });
 
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
-describe('vehicle per-mount weapon projection', () => {
+describe('vehicle BV diagnostic projection', () => {
   const input = (patch: Partial<VehicleBVInput> = {}): VehicleBVInput => ({
     motionType: GroundMotionType.TRACKED,
     tonnage: 20,
@@ -218,6 +218,135 @@ describe('vehicle per-mount weapon projection', () => {
     expect(JSON.stringify(source)).toBe(original);
   });
 
+  describe('ammo pool projection', () => {
+    test('exposes uncapped availability and the listed cap before Artemis', () => {
+      const b = calculateVehicleBV(
+        input({
+          weapons: [{ id: 'srm-2', location: 'Front', artemisType: 'iv' }],
+          ammo: [
+            { id: 'srm-2-ammo', location: 'Body', bvOverride: 32 },
+            { id: 'srm-2-ammo', location: 'Body', bvOverride: 4 },
+          ],
+        }),
+      );
+      expect(b).toMatchObject({
+        weaponBV: 25.2,
+        ammoBV: 21,
+        ammoPools: { available: { 'SRM:2': 36 }, cap: { 'SRM:2': 21 } },
+        'ammo.available.SRM:2': 36,
+        'ammo.cap.SRM:2': 21,
+      });
+    });
+
+    test('retains raw pools before support fire-control scaling', () => {
+      const b = calculateVehicleBV(
+        input({
+          isSupportVehicle: true,
+          chassisEquipment: ['basic-fire-control'],
+          weapons: [{ id: 'srm-2', location: 'Front' }],
+          ammo: [{ id: 'srm-2-ammo', location: 'Body', bvOverride: 3 }],
+        }),
+      );
+      expect(b.ammoBV).toBeCloseTo(2.7);
+      expect(b).toMatchObject({
+        ammoPools: { available: { 'SRM:2': 3 }, cap: { 'SRM:2': 21 } },
+        'ammo.available.SRM:2': 3,
+        'ammo.cap.SRM:2': 21,
+      });
+    });
+
+    test('reports orphan bins and caps without bins independently', () => {
+      const orphan = calculateVehicleBV(
+        input({
+          ammo: [{ id: 'srm-2-ammo', location: 'Body', bvOverride: 3 }],
+        }),
+      );
+      expect(orphan.ammoBV).toBe(0);
+      expect(orphan).toMatchObject({ 'ammo.available.SRM:2': 3 });
+      expect(Object.keys(orphan)).not.toContain('ammo.cap.SRM:2');
+      const empty = calculateVehicleBV(
+        input({ weapons: [{ id: 'srm-2', location: 'Front' }] }),
+      );
+      expect(empty.ammoBV).toBe(0);
+      expect(empty).toMatchObject({ 'ammo.cap.SRM:2': 21 });
+      expect(Object.keys(empty)).not.toContain('ammo.available.SRM:2');
+    });
+
+    test('preserves admitted zero pools and never mutates supplied maps', () => {
+      const b = calculateVehicleBV(
+        input({
+          ammo: [{ id: 'srm-2-ammo', location: 'Body', bvOverride: 0 }],
+        }),
+      );
+      if (!b.ammoPools) throw new Error('Missing represented zero ammo pool');
+      const frozen = Object.freeze({
+        ...b,
+        ammoPools: Object.freeze({
+          available: Object.freeze({ ...b.ammoPools.available }),
+          cap: Object.freeze({ ...b.ammoPools.cap }),
+        }),
+      });
+      const original = JSON.stringify(frozen);
+      expect(vehicleBVTerms(frozen)).toMatchObject({
+        ammoBV: 0,
+        'ammo.available.SRM:2': 0,
+      });
+      expect(JSON.stringify(frozen)).toBe(original);
+    });
+
+    test('shares raw AMS cap facts across aliases without admitting defensive ammo', () => {
+      const source = input({
+        weapons: [{ id: 'srm-2', location: 'Front' }],
+        ammo: [{ id: 'srm-2-ammo', location: 'Body', bvOverride: 3 }],
+        defensiveEquipment: [
+          { id: 'isantimissilesystem', location: 'Turret' },
+          { id: 'isams-ammo', location: 'Body' },
+        ],
+      });
+      const original = JSON.stringify(source);
+      const actual = calculateVehicleBV(source);
+      expect(actual).toEqual(
+        calculateVehicleBV({
+          ...source,
+          defensiveEquipment: [
+            { id: 'ams', location: 'Turret' },
+            { id: 'ams-ammo', location: 'Body' },
+          ],
+        }),
+      );
+      expect(actual).toMatchObject({
+        ammoBV: 3,
+        defensiveEquipmentBV: 43,
+        ammoPools: {
+          available: { 'SRM:2': 3 },
+          cap: { 'SRM:2': 21, 'AMS:2': 32 },
+        },
+        'ammo.cap.AMS:2': 32,
+      });
+      expect(Object.keys(actual)).not.toContain('ammo.available.AMS:2');
+      expect(JSON.stringify(source)).toBe(original);
+    });
+
+    test('retains two APDS launcher caps while their ammo stays defensive', () => {
+      const b = calculateVehicleBV(
+        input({
+          defensiveEquipment: [
+            { id: 'risc-apds', location: 'Turret' },
+            { id: 'risc-apds', location: 'Turret' },
+            { id: 'isapds-ammo', location: 'Body' },
+          ],
+        }),
+      );
+      expect(b).toMatchObject({
+        ammoBV: 0,
+        defensiveEquipmentBV: 150,
+        ammoPools: { available: {}, cap: { 'APDS:2': 128 } },
+        'ammo.cap.APDS:2': 128,
+      });
+      expect(Object.keys(b)).not.toContain('ammo.available.APDS:2');
+    });
+  });
+
   test('Artemis and machine-gun arrays project the existing linked values', () => {
     const b = calculateVehicleBV(
       input({
@@ -240,6 +369,10 @@ describe('vehicle per-mount weapon projection', () => {
   test('unarmed and legacy breakdowns do not invent mount facts', () => {
     const b = calculateVehicleBV(input());
     expect(b).not.toHaveProperty('weaponMountBV');
+    expect(b).not.toHaveProperty('ammoPools');
+    expect(
+      Object.keys(vehicleBVTerms(b)).filter((key) => key.startsWith('ammo.')),
+    ).toEqual([]);
     expect(weaponTerms(vehicleBVTerms(b))).toEqual({});
     const legacy = { ...b, weaponBV: 6 };
     expect(vehicleBVTerms(legacy)).not.toHaveProperty('weaponMountBV');
