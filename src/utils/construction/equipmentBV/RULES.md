@@ -469,3 +469,43 @@ BLKFile.java:248-249). MRM-1 names the unofficial ISMRM1 weapon (:57-63),
 ISBAMRM1 names the BA weapon (:67-70), and IS MRM 1 Ammo names the one-shot
 BA bin (AmmoType.java:15093-15107); the same separation holds for racks2-5.
 Catalog IDs mrm-1..5 remain ammo. All citations use MegaMek48fcb2f64.
+
+## Independent native infantry clip facts
+
+`nativeInfantryClipFacts.ts` is generated solely by `InfantryClipFacts.java`
+and `scripts/equipment-catalog/infantry-clip-facts.mjs`. It does not regenerate
+`nativeWeaponFlags.ts`, its generator, equipment catalogs or value baselines.
+The public lookup accepts the existing catalog owner's name and Java subtype;
+ambiguous aliases shared with non-infantry types are omitted.
+
+Facts retain Java `instanceof InfantryWeapon`, ammo type/rack, native clip shots,
+intrinsic F_ONE_SHOT and native one-shot-ammo admission. The extractor calls
+`AmmoType.getOneshotAmmo` in pure and mixed contexts at every relevant native
+technology date boundary. It includes prototype, production, common,
+introduction, extinction and reintroduction dates for the weapon and every
+native ammunition candidate, including adjacent years for strict comparisons
+(`ITechnology.java:145-163,212-280`; `AmmoType.java:2443-2480`). Equal adjacent
+results compress into intervals. No primary/fallback legality rule is ported.
+
+The lookup selects those native facts using the already-present BV source year.
+A result shared by every interval remains available without a year. Missing
+year for a varying result, or differing pure/mixed results, remains null;
+consumers must not invent clips. Generic Infantry Ammo group and zero BV are
+extracted independently; a nonzero value aborts generation. No weapon prices or
+BV arithmetic are generated here. Packed tables keep the generated module small.
+
+Reproduce from an independently verified compiled MegaMek checkout at
+48fcb2f64a1b3f2d575707ce5653dad64927b587:
+
+```sh
+node scripts/equipment-catalog/infantry-clip-facts.mjs --megamek <compiled-checkout> --classpath-file <runtime-classpath.txt> --java <jdk-21-java> --check
+```
+
+The command verifies the checkout pin, unchanged native sources and that the
+classpath uses that checkout's classes, runs the independent Java extractor,
+then requires exact formatted module bytes. The compiled runtime/dependency
+provenance remains the caller's independently verified oracle input; source
+checks alone do not attest compiled binaries. `--facts` accepts retained raw
+extractor output for deterministic generator tests, not as a runtime pin proof.
+The node tests also verify that generating/checking a module leaves the existing
+native weapon flag file byte-unchanged. Missing admission context remains an explicit diagnostic gap, not a zero-shot fact.

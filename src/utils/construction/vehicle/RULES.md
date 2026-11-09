@@ -975,3 +975,30 @@ weight, rather than setting a six-side flag on a 50-ton hull. The shared
 construction classifier owns the threshold. Support loading diagrams expose
 Front and other armored locations, with no Body armor control, matching the
 pinned layouts cited above.
+
+## Implicit infantry clip diagnostics
+
+`vehicleAmmoPools.ts` owns fresh support-vehicle clip initialization and the
+vehicle diagnostic pool projection. It consumes independent pinned equipment
+facts through the existing catalog identity resolver. It does not install
+persisted mounts or change offensive/defensive ammunition arithmetic.
+
+MegaMek 48fcb2f64 `Entity.java:5120-5123,5142-5182` creates linked generic
+Infantry Ammo only after native admission. Native weapon shots initialize the
+clip at mounted size 1; `BLKFile.java:377-385` subsequently adjusts source sizes
+above 1 using integer truncation. Sizes at or below 1 retain the initial clip.
+Empty alternate inferno clips are not counted. `Mounted.java:986-990` supplies
+usable shots; `AmmoMounted.java:144-159` excludes intrinsic one-shot links.
+
+`BVCalculator.java:1147-1153,1194-1207` admits positive usable clips and groups
+them through the shared ammo accumulator. Generic ammo has type INFANTRY,
+rack 0 and BV 0 (`AmmoType.java:2033,16257-16268`; `EquipmentType.java:186`).
+Multiple clips therefore add one zero-valued availability group. Infantry
+weapons never supply its launcher cap (`BVCalculator.java:1230-1232`), and
+`processAmmo:1058-1063` skips it. No arithmetic input acquires this diagnostic.
+
+Combat vehicles, BA weapons, unresolved identities, native NA/empty clips and
+intrinsic one-shot ammo stay absent. A caller-supplied infantry flag cannot
+supply the missing native admission facts. Missing admission context remains
+unknown and is not projected; the 23 pinned vehicle sources all have proven
+admission, independently checked on their 43 actual infantry mounts.
