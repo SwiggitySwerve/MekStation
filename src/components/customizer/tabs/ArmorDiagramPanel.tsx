@@ -11,6 +11,8 @@ import { SchematicDiagram } from '@/components/armor/schematic';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 
+import type { BlueprintArmorDiagramProps } from '../armor/variants/BlueprintArmorDiagram';
+
 import {
   CleanTechDiagram,
   NeonOperatorDiagram,
@@ -25,6 +27,7 @@ import { TripodArmorDiagram } from '../armor/variants/TripodArmorDiagram';
 import { diagramLegendMovesToInspector } from './ArmorTab.logic';
 
 interface ArmorDiagramPanelProps {
+  readonly presentation?: BlueprintArmorDiagramProps['presentation'];
   readonly configuration: MechConfiguration;
   readonly armorDiagramMode: ArmorDiagramMode;
   readonly armorDiagramVariant: ArmorDiagramVariant;
@@ -37,6 +40,7 @@ interface ArmorDiagramPanelProps {
 }
 
 export function ArmorDiagramPanel({
+  presentation = 'editor',
   configuration,
   armorDiagramMode,
   armorDiagramVariant,
@@ -58,6 +62,10 @@ export function ArmorDiagramPanel({
     <div
       className="flex flex-col xl:flex-1 xl:[&>*]:flex-1"
       data-testid="armor-diagram"
+      data-armor-loading={
+        // Test hook only; product code must not read this attribute.
+        presentation === 'loading' ? 'true' : undefined
+      }
     >
       {configuration === MechConfiguration.QUAD && (
         <QuadArmorDiagram
@@ -112,6 +120,7 @@ export function ArmorDiagramPanel({
           {armorDiagramMode === 'silhouette' &&
             armorDiagramVariant === 'clean-tech' && (
               <CleanTechDiagram
+                presentation={presentation}
                 armorData={armorData}
                 selectedLocation={selectedLocation}
                 unallocatedPoints={unallocatedPoints}
