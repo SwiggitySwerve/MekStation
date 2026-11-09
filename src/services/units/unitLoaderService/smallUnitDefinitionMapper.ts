@@ -45,14 +45,12 @@ import {
   computeProtoStructure,
   computeRunMP,
 } from '@/utils/construction/protomech';
+import { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
 
 import { mapRulesLevel, mapTechBase } from './componentMappers';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
-export const PROTO_ARMOR_CODES = {
-  STANDARD_PROTOMEK: 42,
-  ELECTRIC_DISCHARGE: 18,
-} as const;
+export { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
 
 function enumValue<T extends string>(
   values: Record<string, T>,
