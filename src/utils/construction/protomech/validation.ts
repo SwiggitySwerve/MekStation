@@ -6,7 +6,7 @@
  *   VAL-PROTO-TONNAGE   — tonnage in legal range
  *   VAL-PROTO-CHASSIS   — chassis × tonnage × MP compatibility
  *   VAL-PROTO-MP        — MP ≤ weight-class cap; Ultraheavy cannot jump
- *   VAL-PROTO-MAIN-GUN  — main gun weapon in approved list; arm-weight check
+ *   VAL-PROTO-MAIN-GUN  — Main Gun and arm slot/weight limits; ProtoMech weapons
  *   VAL-PROTO-TECH-BASE — tech base is Clan (warning, not error)
  *
  * Each rule returns a ValidationRuleResult so callers can aggregate errors
@@ -20,10 +20,13 @@ import type { IProtoMech } from '@/types/unit/PersonnelInterfaces';
 
 import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 
-import { isArmPlacementIllegal, isMainGunWeaponApproved } from './mainGun';
+import {
+  getProtoPlacementErrors,
+  type ProtoEquipmentPlacement,
+} from './mainGun';
 import {
   computeProtoEngineWeight,
   computeRunMP,
@@ -73,10 +76,8 @@ export interface ProtoMechBuildSnapshot {
   jumpMP: number;
   myomerBooster: boolean;
   hasMainGun: boolean;
-  /** Equipment ID of the main gun weapon, undefined when no main gun */
-  mainGunWeaponId: string | undefined;
-  /** All weapon placements to check for arm-weight violations */
-  weaponPlacements: Array<{ equipmentId: string; location: ProtoLocation }>;
+  /** Every mount with its location, for the Main Gun and arm limits */
+  equipmentPlacements: readonly ProtoEquipmentPlacement[];
   /** Tech base string — should be 'Clan' for legal ProtoMechs */
   techBase: string;
 }
@@ -314,47 +315,29 @@ export function validateProtoMP(
 export const RULE_PROTO_MAIN_GUN = 'VAL-PROTO-MAIN-GUN';
 
 /**
- * Validate main gun configuration:
- * - When hasMainGun is true, mainGunWeaponId must be in the approved list
- * - No heavy weapon may be placed in an arm mount
+ * Validate Main Gun and arm placement against the pinned verifier
+ * (TestProtoMek.java:296-380, 606-678; MegaMek 48fcb2f64):
+ * - the Main Gun holds one slot-taking mount, two on a quad ultraheavy
+ * - an arm holds one mount of at most 0.5 t (1.0 t ultraheavy); a quad has none
+ * - a weapon the catalog excludes from ProtoMechs is illegal
+ * An enabled Main Gun may be empty, as upstream allows.
  */
 export function validateProtoMainGun(
   snapshot: Pick<
     ProtoMechBuildSnapshot,
-    'hasMainGun' | 'mainGunWeaponId' | 'weaponPlacements'
+    'tonnage' | 'chassisType' | 'equipmentPlacements'
   >,
 ): ValidationRuleResult {
-  const { hasMainGun, mainGunWeaponId, weaponPlacements } = snapshot;
-  const findings: ValidationFinding[] = [];
-
-  // Main gun weapon must be from the approved list
-  if (hasMainGun) {
-    if (!mainGunWeaponId) {
-      findings.push({
-        ruleId: RULE_PROTO_MAIN_GUN,
-        severity: 'error',
-        message:
-          'Main gun is enabled but no weapon has been assigned to the MainGun location.',
-      });
-    } else if (!isMainGunWeaponApproved(mainGunWeaponId)) {
-      findings.push({
-        ruleId: RULE_PROTO_MAIN_GUN,
-        severity: 'error',
-        message: `Weapon "${mainGunWeaponId}" is not in the approved main-gun list.`,
-      });
-    }
-  }
-
-  // Arm placement check — heavy weapons must not be in arm mounts
-  for (const { equipmentId, location } of weaponPlacements) {
-    if (isArmPlacementIllegal(equipmentId, location)) {
-      findings.push({
-        ruleId: RULE_PROTO_MAIN_GUN,
-        severity: 'error',
-        message: `Weapon "${equipmentId}" is too heavy for arm mount "${location}"; it must be placed in the MainGun location.`,
-      });
-    }
-  }
+  const { tonnage, chassisType, equipmentPlacements } = snapshot;
+  const findings: ValidationFinding[] = getProtoPlacementErrors(
+    tonnage,
+    chassisType === ProtoChassis.QUAD,
+    equipmentPlacements,
+  ).map((message) => ({
+    ruleId: RULE_PROTO_MAIN_GUN,
+    severity: 'error' as const,
+    message,
+  }));
 
   return {
     ruleId: RULE_PROTO_MAIN_GUN,

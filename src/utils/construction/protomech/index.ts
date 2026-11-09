@@ -31,16 +31,20 @@ export {
   PROTO_ENGINE_WEIGHT_FACTOR,
 } from './movementCaps';
 
-// Main gun approved list and arm-placement helpers
+// Main Gun and arm placement (pinned slot, weight and weapon-legality rules)
 export {
-  getProtoWeaponSizeClass,
+  getProtoLocationSlotLimit,
+  getProtoLocationWeightLimit,
   getProtoMainGunTopologyError,
-  isArmLocation,
-  isArmPlacementIllegal,
-  isMainGunWeaponApproved,
-  PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
-  ProtoWeaponSizeClass,
-  requiresMainGunMount,
+  getProtoMountWeight,
+  getProtoPlacementErrors,
+  isProtoMechExcludedWeapon,
+  isProtoUltraheavyTonnage,
+  protoMountTakesSlot,
+} from './mainGun';
+export type {
+  ProtoEquipmentPlacement,
+  ProtoPlacementLocation,
 } from './mainGun';
 
 // Validation rules (VAL-PROTO-*)

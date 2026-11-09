@@ -407,6 +407,54 @@ describe('PilotService', () => {
     });
 
     describe('createRandom', () => {
+      it.each([0.1, 0.8])(
+        'persists reviewed random skills and retains the SPA roll (%p)',
+        (abilityRoll) => {
+          const skills = { gunnery: 2, piloting: 3 };
+          const randomFn = jest.fn().mockReturnValue(abilityRoll);
+          const result = service.createRandom(
+            createMockIdentity('Reviewed Pilot'),
+            randomFn,
+            skills,
+          );
+          expect(result.success).toBe(true);
+          expect(mockRepository.create).toHaveBeenCalledTimes(1);
+          const options = mockRepository.create.mock.calls[0][0];
+          expect(options.skills).toEqual(skills);
+          expect(options.startingXp).toBe(0);
+          if (abilityRoll < 0.2) {
+            expect(options.abilityIds).toHaveLength(1);
+            expect(randomFn).toHaveBeenCalledTimes(2);
+          } else {
+            expect(options.abilityIds).toBeUndefined();
+            expect(randomFn).toHaveBeenCalledTimes(1);
+          }
+        },
+      );
+
+      it.each([
+        { gunnery: -1, piloting: 3 },
+        { gunnery: 2, piloting: 9 },
+        { gunnery: 2.5, piloting: 3 },
+        { gunnery: NaN, piloting: 3 },
+        { gunnery: 2, piloting: Infinity },
+      ])(
+        'rejects invalid reviewed random skills %p before persistence or SPA rolling',
+        (skills) => {
+          const randomFn = jest.fn().mockReturnValue(0.1);
+          const result = service.createRandom(
+            createMockIdentity('Reviewed Pilot'),
+            randomFn,
+            skills,
+          );
+          expect(result.success).toBe(false);
+          expect(result.errorCode).toBe(PilotErrorCode.ValidationError);
+          expect(result.error).toContain('must be between');
+          expect(mockRepository.create).not.toHaveBeenCalled();
+          expect(randomFn).not.toHaveBeenCalled();
+        },
+      );
+
       it('should create a random pilot', () => {
         // Mock Math.random for deterministic results
         const mockRandom = jest.spyOn(Math, 'random');

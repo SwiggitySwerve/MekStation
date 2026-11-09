@@ -23,6 +23,7 @@ import {
   envelopeOf,
 } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
+import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
@@ -38,6 +39,7 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
+  COORDINATED_CORRECTION_SAGA_TABLE,
   recordCoordinatedCorrectionSource,
   sealCoordinatedCorrectionManifest,
   readCoordinatedCorrectionSaga,
@@ -541,6 +543,200 @@ describe('recordCoordinatedCorrectionTarget', () => {
         .get(CAMPAIGN_COMBAT_OUTCOME_REPLACEMENT_TABLE),
     ).toBeUndefined();
     expect(inboxRow()).toEqual(inboxBefore);
+  });
+
+  describe('D-3b candidate lifecycle', () => {
+    const campaignStream = campaignStreamRef(CAMPAIGN_ID);
+
+    function candidates(): { branchId: string; status: string }[] {
+      return new SQLiteEventHistoryBranchStore(journalDb)
+        .listBranches(campaignStream)
+        .filter((branch) => branch.branchId !== 'root')
+        .map(({ branchId, status }) => ({ branchId, status }));
+    }
+
+    function statusOf(branchId: string | null | undefined): string | undefined {
+      return candidates().find((c) => c.branchId === branchId)?.status;
+    }
+
+    function leaseStore(): SQLiteEventHistoryCorrectionLeaseStore {
+      return new SQLiteEventHistoryCorrectionLeaseStore(
+        journalDb,
+        new SQLiteEventHistoryBranchStore(journalDb),
+        { nowMs: () => Date.parse(AT) },
+      );
+    }
+
+    function liveLease(): unknown {
+      return leaseStore().readLiveLease(campaignStream);
+    }
+
+    function acquireCampaignLease(owner: string) {
+      const head = journalDb
+        .prepare(
+          `SELECT stream_revision AS revision, event_digest AS digest
+             FROM event_journal_stream_heads
+            WHERE stream_id = ? AND branch_id = 'root'`,
+        )
+        .get(CAMPAIGN_ID) as {
+        readonly revision: number;
+        readonly digest: string;
+      };
+      return leaseStore().acquireCorrectionLease({
+        ...campaignStream,
+        owner,
+        actor: 'gm-0',
+        reason: `lease-of-${owner}`,
+        ttlMs: 60_000,
+        expectedBranchId: 'root',
+        expectedRevision: head.revision,
+        expectedDigest: head.digest,
+        expectedGeneration: 1,
+      });
+    }
+
+    /** A candidate whose correction crashed: built under a lease, never sealed. */
+    function strandCandidate(): string {
+      const lease = acquireCampaignLease('crashed-host');
+      const id = createCorrectionCandidateBranch(journalDb, leaseStore(), {
+        ...campaignStream,
+        leaseId: lease.leaseId,
+        owner: lease.owner,
+        fencingEpoch: lease.fencingEpoch,
+        createdAt: AT,
+      }).branchId;
+      leaseStore().releaseCorrectionLease(campaignStream, {
+        leaseId: lease.leaseId,
+        owner: lease.owner,
+      });
+      return id;
+    }
+
+    /** A saga row of another outcome that names `candidateBranchId`. */
+    function otherSaga(
+      outcomeId: string,
+      state: 'target-pending' | 'blocked',
+      candidateBranchId: string,
+    ): void {
+      matchDatabase(store)
+        .prepare(
+          `INSERT INTO ${COORDINATED_CORRECTION_SAGA_TABLE} (
+             match_id, outcome_id, outcome_version, target_revision, state,
+             blocked_reason, source_recorded_at, manifest_sealed_at,
+             target_recorded_at, updated_at, candidate_branch_id
+           ) VALUES (?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          MATCH_ID,
+          outcomeId,
+          TARGET,
+          state,
+          state === 'blocked' ? 'earlier refusal' : null,
+          AT,
+          AT,
+          AT,
+          AT,
+          candidateBranchId,
+        );
+    }
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('a non-retryable refusal after the mint blocks the saga and its candidate', async () => {
+      sealSource();
+      jest
+        .spyOn(
+          SQLiteEventHistoryArtifactManifestStore.prototype,
+          'sealArtifactManifest',
+        )
+        .mockImplementation(() => {
+          throw new EventHistoryBranchError(
+            'invalid-branch-record',
+            'injected: branch refused',
+          );
+        });
+      const result = await recordTarget();
+      expect(result).toMatchObject({
+        kind: 'blocked',
+        reason: 'injected: branch refused',
+        saga: { state: 'blocked' },
+      });
+      const minted = readCoordinatedCorrectionSaga(
+        matchDatabase(store),
+        sagaKeyOf(ACCEPTED),
+      )?.candidateBranchId;
+      expect(minted).toEqual(expect.any(String));
+      expect(statusOf(minted)).toBe('blocked');
+      expect(liveLease()).toBeNull();
+    });
+
+    it('a crash after the mint keeps the candidate building for the retry, and still releases the lease', async () => {
+      sealSource();
+      _setFailAfterCandidatePersistForTests(true);
+      const failed = await recordTarget();
+      _setFailAfterCandidatePersistForTests(false);
+      expect(failed.kind).toBe('blocked');
+      const minted = readCoordinatedCorrectionSaga(
+        matchDatabase(store),
+        sagaKeyOf(ACCEPTED),
+      )?.candidateBranchId;
+      expect(statusOf(minted)).toBe('building');
+      expect(liveLease()).toBeNull();
+      const retry = await recordTarget();
+      expect(retry.kind).toBe('pending');
+      expect(statusOf(minted)).toBe('building');
+    });
+
+    it('releases the lease after a successful record', async () => {
+      sealSource();
+      expect((await recordTarget()).kind).toBe('pending');
+      expect(liveLease()).toBeNull();
+    });
+
+    it('blocks an unsealed stranded candidate no live saga names, and keeps its own', async () => {
+      sealSource();
+      const stranded = strandCandidate();
+      const result = await recordTarget();
+      expect(result.kind).toBe('pending');
+      if (result.kind !== 'pending') return;
+      expect(statusOf(stranded)).toBe('blocked');
+      expect(statusOf(result.receipt.candidateBranchId)).toBe('building');
+      expect(candidates()).toHaveLength(2);
+    });
+
+    it('keeps an unsealed candidate that a non-blocked saga names, and blocks one only a blocked saga names', async () => {
+      sealSource();
+      const named = strandCandidate();
+      const abandoned = strandCandidate();
+      otherSaga('outcome-live', 'target-pending', named);
+      otherSaga('outcome-dead', 'blocked', abandoned);
+      const result = await recordTarget();
+      expect(result.kind).toBe('pending');
+      expect(statusOf(named)).toBe('building');
+      expect(statusOf(abandoned)).toBe('blocked');
+    });
+
+    it('keeps a sealed candidate awaiting activation', async () => {
+      sealSource();
+      const sealed = strandCandidate();
+      new SQLiteEventHistoryArtifactManifestStore(
+        journalDb,
+      ).sealArtifactManifest(campaignStream, sealed, [], AT);
+      const result = await recordTarget();
+      expect(result.kind).toBe('pending');
+      expect(statusOf(sealed)).toBe('building');
+    });
+
+    it('does not sweep when another owner holds the lease', async () => {
+      sealSource();
+      const stranded = strandCandidate();
+      acquireCampaignLease('host-other');
+      const result = await recordTarget();
+      expect(result.kind).toBe('not-ready');
+      expect(statusOf(stranded)).toBe('building');
+    });
   });
 
   it('a foreign lease answers not-ready, not blocked', async () => {

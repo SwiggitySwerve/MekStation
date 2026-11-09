@@ -4,10 +4,7 @@ import type { IProtoMechArmorAllocation } from '@/stores/protoMechState';
 
 import { useProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import {
-  ProtoChassis,
-  PROTO_MAIN_GUN_APPROVED_WEAPON_IDS,
-} from '@/types/unit/ProtoMechInterfaces';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   computeProtoArmorLimits,
   effectiveJumpMP,
@@ -38,18 +35,6 @@ export const LOCATION_LABELS: Record<ProtoMechLocation, string> = {
 /** ArmorType.java:1375-1391 (MegaMek 48fcb2f64); stored as armorType 0. */
 export const PROTO_ARMOR_TYPE_OPTIONS = [
   { value: 0, label: 'Standard ProtoMech' },
-] as const;
-
-export const MAIN_GUN_WEAPON_OPTIONS = [
-  { id: 'clan-lrm-5', label: 'LRM-5' },
-  { id: 'clan-lrm-10', label: 'LRM-10' },
-  { id: 'clan-ac-2', label: 'AC/2' },
-  { id: 'clan-ac-5', label: 'AC/5' },
-  { id: 'clan-medium-pulse-laser', label: 'Medium Pulse Laser' },
-  { id: 'clan-er-medium-laser', label: 'ER Medium Laser' },
-  { id: 'clan-ppc', label: 'PPC' },
-  { id: 'clan-er-ppc', label: 'ER PPC' },
-  { id: 'clan-gauss-rifle', label: 'Gauss Rifle' },
 ] as const;
 
 export interface ProtoMechIdentityControls {
@@ -87,14 +72,6 @@ export interface ProtoMechMovementControls {
   handleJumpMPChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleMyomerBoosterChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleGlidingWingsChange: (event: ChangeEvent<HTMLInputElement>) => void;
-}
-
-export interface ProtoMechMainGunControls {
-  hasMainGun: boolean;
-  mainGunWeaponId: string | undefined;
-  hasUnapprovedMainGunWeapon: boolean;
-  handleMainGunChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleMainGunWeaponChange: (event: ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export interface ProtoMechArmorControls {
@@ -299,46 +276,6 @@ export function useProtoMechMovementControls(
     handleJumpMPChange,
     handleMyomerBoosterChange,
     handleGlidingWingsChange,
-  };
-}
-
-export function useProtoMechMainGunControls(
-  readOnly: boolean,
-): ProtoMechMainGunControls {
-  const hasMainGun = useProtoMechStore((s) => s.hasMainGun);
-  const mainGunWeaponId = useProtoMechStore((s) => s.mainGunWeaponId);
-  const setMainGun = useProtoMechStore((s) => s.setMainGun);
-  const setMainGunWeaponId = useProtoMechStore((s) => s.setMainGunWeaponId);
-
-  const hasUnapprovedMainGunWeapon =
-    mainGunWeaponId !== undefined &&
-    !PROTO_MAIN_GUN_APPROVED_WEAPON_IDS.has(mainGunWeaponId);
-
-  const handleMainGunChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      if (!readOnly) {
-        setMainGun(event.target.checked);
-      }
-    },
-    [readOnly, setMainGun],
-  );
-
-  const handleMainGunWeaponChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      if (!readOnly) {
-        const value = event.target.value;
-        setMainGunWeaponId(value === '' ? null : value);
-      }
-    },
-    [readOnly, setMainGunWeaponId],
-  );
-
-  return {
-    hasMainGun,
-    mainGunWeaponId,
-    hasUnapprovedMainGunWeapon,
-    handleMainGunChange,
-    handleMainGunWeaponChange,
   };
 }
 

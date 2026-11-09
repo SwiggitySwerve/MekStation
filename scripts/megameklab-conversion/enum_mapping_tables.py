@@ -29,12 +29,14 @@ TECH_BASE_MAP: Dict[str, str] = {
 }
 
 RULES_LEVEL_MAP: Dict[str, str] = {
-    # Numeric rules levels
+    # One-based MTF levels: MegaMek 48fcb2f64 MtfFile.java:828-902.
+    # Retain zero as a pre-existing compatibility alias, not an MTF source code.
     "0": "INTRODUCTORY",
-    "1": "STANDARD",
-    "2": "ADVANCED",
-    "3": "EXPERIMENTAL",
-    "4": "UNOFFICIAL",
+    "1": "INTRODUCTORY",
+    "2": "STANDARD",
+    "3": "ADVANCED",
+    "4": "EXPERIMENTAL",
+    "5": "UNOFFICIAL",
     # Text rules levels
     "Introductory": "INTRODUCTORY",
     "Standard": "STANDARD",

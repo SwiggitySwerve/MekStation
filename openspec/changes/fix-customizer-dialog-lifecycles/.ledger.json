@@ -1,0 +1,6 @@
+{
+  "name": "fix-customizer-dialog-lifecycles",
+  "status": "implemented-awaiting-ci",
+  "reason": "U11 local gates pass: 63 suites, 811 tests passed, 32 skipped; both TypeScript configs, lint, formatting, unit lint, OpenSpec validation, and budgets 57/92. Baseline fails 10 regressions; both mutants killed (1 and 7 failures). Broad Jest run has a worker teardown warning; hosted CI and Root review remain pending.",
+  "lastReviewed": "2026-11-08"
+}

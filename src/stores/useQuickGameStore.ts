@@ -270,7 +270,12 @@ export const useQuickGameStore = create<QuickGameStore>()(
 
       endGame: (winner: 'player' | 'opponent' | 'draw', reason: string) => {
         const { game } = get();
-        if (!game) return;
+        if (
+          !game ||
+          game.status !== GameStatus.Active ||
+          game.step !== QuickGameStep.Playing
+        )
+          return;
 
         set({
           game: completeQuickGame(

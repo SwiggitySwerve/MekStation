@@ -46,7 +46,10 @@ import {
   validateSourceManifest,
 } from './unit-bv-provenance';
 import { ReferenceTrustMode } from './unit-bv-reference';
-import { buildValidityReport } from './unit-construction-validity';
+import {
+  buildValidityReport,
+  captureMechValidity,
+} from './unit-construction-validity';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
@@ -295,11 +298,19 @@ export function calculateSources(
     )
       throw new Error(`Source text hash mismatch: ${row.path}`);
     const computed = calculateRow(row, includeConstruction);
-    return includeConstruction &&
-      computed.constructionValidity === undefined &&
-      row.path.endsWith('.blk')
-      ? { ...computed, constructionValidity: captureBlkValidity(bytes) }
-      : computed;
+    if (!includeConstruction || computed.constructionValidity !== undefined)
+      return computed;
+    // Validity is independent of whether the BV path could use the row.
+    if (row.path.endsWith('.blk'))
+      return { ...computed, constructionValidity: captureBlkValidity(bytes) };
+    if (row.path.endsWith('.mtf'))
+      return {
+        ...computed,
+        constructionValidity: captureConstructionValidity(() =>
+          captureMechValidity(row.unit, row.path),
+        ),
+      };
+    return computed;
   });
 }
 export function writeDeltaReport(

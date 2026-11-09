@@ -802,3 +802,22 @@ The frozen Myrmidon P (Tate) deficit was two misidentified arrays, not its
 sponson mechanism. Its mechanism already weighs 0.5 tons under the aggregate
 rule above (`MiscType.java:563-591`). Correcting the arrays makes its equipment
 term 11.5 tons and complete weight 40 tons without changing mechanism arithmetic.
+
+## Combat engine heat-sink allowances (pinned)
+
+At pin 48fcb2f64, `TestTank.getWeightHeatSinks` (TestTank.java:264-270)
+subtracts `Engine.getWeightFreeEngineHeatSinks` (Engine.java:480-493) from the
+heat-neutral requirement (TestEntity.java:945-984) and clamps at zero. The
+allowance is 10 for every fusion-class engine (Fusion, XL, Light, XXL, Compact,
+Large and the Clan variants), 5 for fission, 1 for fuel cell, and 0 for ICE or
+no engine. `weightComposition.ts` matches this table, and a Java sweep over all
+1,444 mobile corpus vehicles found no disagreement on count or mass for the
+1,150 vehicles that have a complete combat weight. `heatSinkEngines.pinned.test.ts`
+pins one real row per engine family, the clamp, non-patchwork stealth (+10),
+a PPC capacitor (+5) and a laser insulator (-1).
+
+The only source path into this term is the mount's catalog id, resolved from
+its source identity. The sweep found no mount with an unresolved heat value, so
+the path loses nothing. Support vehicles are outside this term: Java gives them
+no free sinks (TestSupportVehicle.java:917-931), and the support heat term
+depends on the 2.2-d support weight model.
