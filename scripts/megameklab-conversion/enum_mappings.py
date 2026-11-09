@@ -23,7 +23,6 @@ from enum_mapping_tables import (
     HEAT_SINK_TYPE_MAP,
     MECH_LOCATION_MAP,
     ARMOR_LOCATION_KEY_MAP,
-    MECH_CONFIG_MAP,
     ERA_MAP,
     UNIT_TYPE_MAP,
 )
@@ -259,9 +258,17 @@ def map_mech_location(value: str) -> str:
 
 
 def map_mech_config(value: str) -> str:
-    """Map MTF config to TypeScript enum value."""
-    clean = value.strip()
-    return MECH_CONFIG_MAP.get(clean, "Biped")
+    """Map MTF config to the contract configuration.
+
+    MtfFile.java:283-310 (MegaMek 48fcb2f6) picks the class with contains(), in this
+    order: QuadVee, Quad, LAM, Tripod, else BipedMek. The OmniMek and FrankenMek
+    suffixes therefore never change the geometry. A value that matches no token is
+    Biped, exactly as in the pinned loader (see MTF_RULES.md).
+    """
+    for token in ("QuadVee", "Quad", "LAM", "Tripod"):
+        if token in value:
+            return token
+    return "Biped"
 
 
 # =============================================================================
