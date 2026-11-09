@@ -49,6 +49,13 @@ stays in `building` for ever. So does a candidate stranded by a crashed process.
   as such and not removed, because removal is a persisted-format migration
   (follow-up D-2d).
 
+- A campaign retroactive correction blocks its own candidate on every failure
+  after the candidate exists, and sweeps earlier unsealed `building` candidates
+  after acquiring its lease (follow-up D-3a). Unlike the combat rewind, a sealed
+  campaign candidate stays `building` by design until a later activation, so the
+  sweep never touches a candidate with a sealed manifest. The commit has no
+  production caller yet; this is latent risk, fixed before one exists.
+
 The activated branch of a failed rebuild is not moved to `blocked`:
 `effective -> blocked` is not a legal transition. A failed rebuild is a host
 state, not a branch status.
