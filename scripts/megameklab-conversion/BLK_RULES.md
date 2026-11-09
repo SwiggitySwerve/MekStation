@@ -63,6 +63,25 @@ separate concern. MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`
 write both heat-sink blocks. The tests above cover the missing-block guard,
 zero/positive counts, both explicit types, the alias and excluded families.
 
+### Aerospace double identity
+
+Pinned `Aero.java:102-103` defines only `HEAT_SINGLE = 0` and `HEAT_DOUBLE = 1`.
+The aerospace and capital converters serialize those identities as `SINGLE` and
+`DOUBLE`, independently of chassis technology. Clan chassis do not imply the
+MTF equipment identity `DOUBLE_CLAN`. The native aerospace loaders read
+`sink_type`; the similarly named `heatsinktype` tag neither overrides nor replaces
+it. FixedWingSupport's pinned corpus has zero single sinks; this statement does
+not extend its native loader to read tags it ignores.
+
+Regression coverage: `test_blk_aerospace_heatsinks.py` locks original-byte
+mm-data `50f7efe` Tyre Michiko (16 double sinks) and Jengiz A (27), chassis-tech
+independence and tag precedence. `test_blk_capital_converter.py` locks the same
+0/1 identity across IS, Clan and both Mixed chassis spellings. BV and print
+consumers interpret `DOUBLE` as two points per sink; aerospace sink mass does not
+depend on IS/Clan equipment critical-slot differences. `ConvFighter.java:83-90`
+separately disables heat tracking, so its effective capacity sentinel is not a
+sink-type identifier.
+
 ## DropShip input and motion (the DropShip converter arrives with #2444)
 
 After family recognition, missing identity, year, tonnage or type is an error.
