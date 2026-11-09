@@ -16,7 +16,15 @@
       "costCBills": 1500000,
       "battleValue": 0,
       "introductionYear": 3034,
-      "special": ["Coordinates up to 3 C3 slaves", "Shares targeting data"]
+      "special": ["Coordinates up to 3 C3 slaves", "Shares targeting data"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "c3-slave",
@@ -59,7 +67,15 @@
       "costCBills": 3000000,
       "battleValue": 0,
       "introductionYear": 3073,
-      "special": ["Coordinates up to 3 C3 slaves", "Extended range"]
+      "special": ["Coordinates up to 3 C3 slaves", "Extended range"],
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ]
     },
     {
       "id": "c3-boosted-slave",
