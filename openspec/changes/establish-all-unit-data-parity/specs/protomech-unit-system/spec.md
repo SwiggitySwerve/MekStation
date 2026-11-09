@@ -319,3 +319,38 @@ unchanged outputs in a separately verified refactor.
 - **WHEN** comparing sources with unresolved booster equipment identity
 - **THEN** those differences SHALL remain explicitly unmatched rather than counted as source movement parity
 - **AND** jump rules, damaged-unit options, construction caps, equipment identity, complete BV and production persistence/editor proof SHALL remain separate
+
+### Requirement: ProtoMech Main Gun And Arm Placement
+
+The construction owner SHALL limit the Main Gun and arm locations from pinned
+MegaMek `TestProtoMek.java` at 48fcb2f64 (`maxSlotsByLocation`,
+`maxWeightByLocation`, `requiresSlot`, `hasIllegalEquipmentCombinations`). The
+hand-written approved-weapon list, heavy-weapon arm class and required-weapon
+finding SHALL NOT be rules.
+
+#### Scenario: Location limits
+
+- **WHEN** a ProtoMech above 9 t is ultraheavy
+- **THEN** each arm SHALL hold one mount of at most 1.0 t, otherwise 0.5 t, and a Quad SHALL hold none
+- **AND** the Main Gun SHALL hold one slot-taking mount of any weight, or two on a Quad that is also ultraheavy
+- **AND** ammunition, MASC, UMU, jump jets and the EI interface SHALL take no slot
+
+#### Scenario: Agreement with the pinned verifier
+
+- **WHEN** the rule is applied to the 86 canonical ProtoMechs
+- **THEN** each unit's verdict SHALL equal the pinned verifier's `hasIllegalEquipmentCombinations` verdict
+- **AND** an enabled Main Gun with nothing in it SHALL be valid
+
+#### Scenario: Unknown versus excluded weapons
+
+- **WHEN** the catalog describes a weapon and omits ProtoMech from its allowed unit types
+- **THEN** the rule SHALL report it as not a legal ProtoMech weapon
+- **WHEN** the catalog carries no unit-type list for a weapon
+- **THEN** the rule SHALL NOT reject it
+- **AND** a mount whose weight is unknown or unit-dependent SHALL count its slot and add no invented weight
+
+#### Scenario: Scope boundary
+
+- **WHEN** checking torso, head or leg placement
+- **THEN** this requirement SHALL NOT enforce it, because the torso needs the armor slot and variable weights
+- **AND** the live `protomech-unit-system` statement that a quad cannot have a main gun SHALL be reconciled separately, because the pinned corpus contains a quad ultraheavy with one

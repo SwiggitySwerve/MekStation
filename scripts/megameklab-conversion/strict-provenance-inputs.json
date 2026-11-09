@@ -2,6 +2,7 @@
   "directory": "scripts/megameklab-conversion",
   "extensions": [".py", ".json"],
   "files": [
+    "src/types/formats/blk-armor-codes.json",
     "src/types/formats/blk-aerospace-armor.json",
     "src/utils/construction/vehicle/suspension.json",
     "src/utils/construction/vehicle/supportEngine.json",

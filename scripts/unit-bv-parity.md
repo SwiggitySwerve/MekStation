@@ -283,8 +283,18 @@ classification. Aerospace and capital cover fighters, conventional fighters,
 FixedWingSupport, SmallCraft, DropShips, JumpShips, WarShips and space stations.
 Existing BA/infantry/ProtoMech facts remain intact. Parser/handler failures and
 validator exceptions remain explicit staged failure facts, named `blk-source-parser`,
-`blk-handler-unavailable`, `blk-handler-parser` and `blk-validator`; uncomputed
-MTF validity remains missing. Successful parsing
+`blk-handler-unavailable`, `blk-handler-parser` and `blk-validator`.
+BattleMech MTF has no source handler, so its validity is the editor projection
+the app itself runs: the row's converted `unit` goes through
+`UnitLoaderService.mapToUnitState`, the editor's `useUnitCalculations` (rendered
+once on the server build of `react-dom`), the editor's slot, armor and weight
+helpers, and the validation orchestrator. The orchestrator's rule results are
+flattened to `ruleId: message` strings under errors, warnings and infos, so the
+fact has the same shape as a handler result and `isValid` is the orchestrator's.
+The MTF bytes are only hash-checked by `calculateSources`; validity does not
+reparse them, and it is computed even when the BV path could not use the
+converted unit. Its staged failures are `mtf-converted-unit`, `mtf-load`,
+`mtf-projection` and `mtf-validator`. Successful parsing
 with `isValid:false` retains invalidity and all returned errors/warnings/infos.
 Registry/validation work runs only with the opt-in flag. Under the flag the CLI
 first loads the JSON equipment catalog, because weight validity resolves
