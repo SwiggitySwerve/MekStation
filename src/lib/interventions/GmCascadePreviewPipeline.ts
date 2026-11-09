@@ -22,7 +22,10 @@ import { logger } from '@/utils/logger';
 import type { ActionLedger } from './ActionLedger';
 import type { InterventionLedger } from './InterventionLedger';
 
-import { validatePreviewFreshness } from './GmCascadePreviewFreshness';
+import {
+  capturePreviewFreshness,
+  validateGmCascadePreviewFreshness,
+} from './GmCascadePreviewFreshness';
 import {
   affectedStateRefs,
   buildPreviewMetadata,
@@ -124,6 +127,7 @@ export function createGmCascadePreview<TState, TCommandPayload>(
   const preview: IGmCascadePreview = {
     interventionId: resolvedInterventionId,
     ...metadata,
+    freshness: capturePreviewFreshness(state),
     status,
     domain: previewResult.domain,
     kind: previewResult.kind,
@@ -244,7 +248,7 @@ export function prepareGmCascadeApproval<
     return blocked(alreadyRecordedReason(preview.interventionId));
   }
 
-  const freshnessFailure = validatePreviewFreshness(preview, state);
+  const freshnessFailure = validateGmCascadePreviewFreshness(preview, state);
   if (freshnessFailure) return blocked(freshnessFailure);
 
   const record = buildApprovedRecord(input);

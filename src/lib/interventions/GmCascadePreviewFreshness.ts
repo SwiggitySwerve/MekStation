@@ -1,4 +1,53 @@
-import type { IGmCascadePreview } from '@/types/interventions/GmCascadePreviewTypes';
+import type {
+  GmCascadePreviewFreshness,
+  IGmCascadePreview,
+} from '@/types/interventions/GmCascadePreviewTypes';
+
+import { hashState } from '@/utils/events/hashUtils';
+
+export function capturePreviewFreshness(
+  state: unknown,
+): GmCascadePreviewFreshness {
+  const campaignId = readString(state, 'id');
+  const updatedAt = readString(state, 'updatedAt');
+  const currentDate = readDateIso(state, 'currentDate');
+  if (campaignId && updatedAt && currentDate) {
+    return Object.freeze({
+      kind: 'campaign',
+      campaignId,
+      updatedAt,
+      currentDate,
+    });
+  }
+  return Object.freeze({ kind: 'state', fingerprint: hashState(state) });
+}
+
+export function validateGmCascadePreviewFreshness(
+  preview: IGmCascadePreview,
+  state: unknown,
+): string | undefined {
+  const legacyFailure = validatePreviewFreshness(preview, state);
+  if (legacyFailure) return legacyFailure;
+
+  const { freshness } = preview;
+  if (!freshness) {
+    return `Cannot approve GM ${preview.domain} cascade preview without pipeline freshness. Generate a new preview.`;
+  }
+  if (freshness.kind === 'campaign') {
+    if (readString(state, 'id') !== freshness.campaignId) {
+      return 'Cannot approve GM cascade preview for a different campaign.';
+    }
+    if (readString(state, 'updatedAt') !== freshness.updatedAt) {
+      return 'Cannot approve GM cascade preview from a stale campaign version.';
+    }
+    if (readDateIso(state, 'currentDate') !== freshness.currentDate) {
+      return 'Cannot approve GM cascade preview from a stale campaign date.';
+    }
+  } else if (hashState(state) !== freshness.fingerprint) {
+    return 'Cannot approve GM cascade preview from a stale state fingerprint.';
+  }
+  return undefined;
+}
 
 export function validatePreviewFreshness(
   preview: Pick<IGmCascadePreview, 'domainPayload'>,
