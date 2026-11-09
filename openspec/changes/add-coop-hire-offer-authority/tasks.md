@@ -27,5 +27,5 @@
 
 - [ ] 14. Project the personnel and contract markets to co-op guests, so guest Hire and Accept can name real offers.
 - [ ] 15. Add a host-authoritative co-op decline command.
-- [ ] 16. Answer a retried durable `AcceptContract` as a duplicate. Today a retry after a committed acceptance finds the offer gone and answers `offer-not-durable`.
+- [x] 16. Answer a retried durable `AcceptContract` as a duplicate. `fix-durable-contract-accept-retry` checks the committed receipt before the consumed offer; warm and cold-reopen retries preserve the journal, receipt, source payload and version.
 - [x] 17. Route the co-op host's Accept through `AcceptContract` on the host transport, as Hire now is (brought into PR4 by Root, 2026-11-08).
