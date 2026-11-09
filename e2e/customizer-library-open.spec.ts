@@ -146,7 +146,6 @@ const OPEN_CASES: OpenCase[] = [
       'Armor',
       'Main Gun',
       'Equipment',
-      'Glider',
       'Preview',
       'Fluff',
     ],
@@ -1803,6 +1802,91 @@ test.describe('library persistence and printing', () => {
       await expect(page.getByLabel('Main Gun mount')).toBeChecked();
       await expect(slots).toHaveText('0 / 1');
       await expect(page.getByTestId('protomech-main-gun-empty')).toBeVisible();
+      await noOverflow(page);
+    } finally {
+      if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+    }
+  });
+
+  test('ProtoMech Equipment: add a weapon, place it, save, reload and reopen @customizer', async ({
+    page,
+    request,
+  }) => {
+    // Row 4.1 item b: the Equipment tab offers only what MegaMekLab's
+    // ProtoMekUtil.isProtoMekEquipment accepts, places a mount in an arm, and the
+    // placement survives the browser draft and the saved library copy. There is no
+    // Glider tab (PMMainUI has none; glider is the Structure tab's chassis choice).
+    let savedId: string | undefined;
+    try {
+      await page.goto('/customizer');
+      await library(page, 'Centaur', '');
+      await section(page, 'Equipment');
+      const mounted = page.getByTestId('protomech-equipment-mounted');
+      await page.getByLabel('Search equipment').fill('Heavy Flamer');
+      // The catalog has two ProtoMech Heavy Flamers (energy-other and the Java
+      // registry record); either is a legal pick.
+      const addFlamer = page
+        .getByRole('button', { name: 'Add Heavy Flamer', exact: true })
+        .first();
+      await expect(addFlamer).toBeVisible();
+      await addFlamer.click();
+      const location = mounted.getByLabel('Location of Heavy Flamer');
+      await expect(location).toHaveValue('Torso');
+      await location.selectOption('Right Arm');
+      await expect(location).toHaveValue('Right Arm');
+      // A weapon the pin excludes from ProtoMechs is not offered. The pin removes F_PROTO_WEAPON from the Bombast Laser (ISBombastLaser.java:94).
+      await page.getByLabel('Search equipment').fill('Bombast Laser');
+      await expect(
+        page.getByRole('button', { name: 'Add Bombast Laser', exact: true }),
+      ).toHaveCount(0);
+
+      await page
+        .getByRole('button', { name: 'Save active unit to library' })
+        .click();
+      const save = page.getByRole('dialog', { name: 'Save Unit', exact: true });
+      const chassis = `Flow Centaur Equipment ${Date.now()}`;
+      await save.getByLabel('Chassis Name').fill(chassis);
+      await save.getByLabel('Variant Designation').fill('Saved Arm');
+      const posted = page.waitForResponse(
+        (r) =>
+          r.url().endsWith('/api/units/custom') &&
+          r.request().method() === 'POST',
+      );
+      await save.getByRole('button', { name: 'Save', exact: true }).click();
+      const response = await posted;
+      expect(response.ok()).toBe(true);
+      savedId = (await response.json()).data.id;
+      expect(savedId).toBeTruthy();
+
+      await page.reload();
+      await section(page, 'Equipment');
+      await expect(
+        page
+          .getByTestId('protomech-equipment-mounted')
+          .getByLabel('Location of Heavy Flamer'),
+      ).toHaveValue('Right Arm');
+
+      // Close the draft so the library must fetch the saved server copy.
+      await page
+        .getByRole('button', {
+          name: `Close ${chassis} Saved Arm`,
+          exact: true,
+        })
+        .click();
+      const fetched = page.waitForResponse(
+        (r) =>
+          r.url().endsWith(`/api/units/custom/${savedId}`) &&
+          r.request().method() === 'GET',
+        { timeout: 60_000 },
+      );
+      await library(page, chassis, 'Saved Arm', true);
+      expect((await fetched).ok()).toBe(true);
+      await section(page, 'Equipment');
+      await expect(
+        page
+          .getByTestId('protomech-equipment-mounted')
+          .getByLabel('Location of Heavy Flamer'),
+      ).toHaveValue('Right Arm');
       await noOverflow(page);
     } finally {
       if (savedId) await request.delete(`/api/units/custom/${savedId}`);
