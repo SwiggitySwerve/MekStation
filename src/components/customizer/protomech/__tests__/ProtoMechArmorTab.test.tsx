@@ -31,6 +31,49 @@ import { ProtoMechArmorTab } from '../ProtoMechArmorTab';
 
 type Store = ReturnType<typeof createNewProtoMechStore>;
 
+it('changes armor through the real store, refreshes BV once, and retains a full torso', () => {
+  const state = createDefaultProtoMechState({ tonnage: 5 });
+  const equipment = ['one', 'two'].map((id) => ({
+    id,
+    name: 'Micro Laser',
+    equipmentId: 'CLERMicroLaser',
+    location: L.TORSO,
+  }));
+  const store = createProtoMechStore({ ...state, equipment });
+  renderWith(store);
+  setArmor('Head', 3);
+  fireEvent.change(screen.getByLabelText('Armor type'), {
+    target: { value: '18' },
+  });
+  expect(store.getState().armorType).toBe(18);
+  expect(store.getState().equipment).toEqual(expect.arrayContaining(equipment));
+  expect(store.getState().equipment).toHaveLength(3);
+  expect(store.getState().bvBreakdown?.offensiveEquipmentBV).toBe(32);
+  expect(screen.getByTestId('protomech-armor-weight')).toHaveTextContent(
+    '0.225',
+  );
+  expect(screen.getByTestId('protomech-armor-errors')).toHaveTextContent(
+    'Exceeds 2 slot limit in Torso (3 mounted).',
+  );
+  fireEvent.change(screen.getByLabelText('Armor type'), {
+    target: { value: '42' },
+  });
+  expect(store.getState().equipment).toEqual(equipment);
+  expect(store.getState().bvBreakdown?.offensiveEquipmentBV).toBe(0);
+  expect(screen.queryByTestId('protomech-armor-errors')).toBeNull();
+});
+
+it('reselecting EDP retains a single armor mount and read-only mode cannot change it', () => {
+  const store = createNewProtoMechStore({});
+  store.getState().setArmorType(18);
+  const mounts = store.getState().equipment;
+  store.getState().setArmorType(18);
+  expect(store.getState().equipment).toHaveLength(1);
+  expect(store.getState().equipment[0].id).toBe(mounts[0]?.id);
+  renderWith(store, <ProtoMechArmorTab readOnly />);
+  expect(screen.getByLabelText('Armor type')).toBeDisabled();
+});
+
 function renderWith(
   store: Store,
   ui: React.ReactElement = <ProtoMechArmorTab />,
@@ -59,13 +102,16 @@ describe('ProtoMechArmorTab: armor panel', () => {
     expect(screen.queryByText(/coming soon/i)).toBeNull();
   });
 
-  it('offers only Standard ProtoMech armor (ArmorType.java:1375-1391)', () => {
+  it('offers the pinned Standard and Experimental EDP armor choices without tech filtering', () => {
     renderWith(createNewProtoMechStore({ tonnage: 5 }));
     const select = screen.getByLabelText('Armor type') as HTMLSelectElement;
     expect(
       Array.from(select.options).map((option) => option.textContent),
-    ).toEqual(['Standard ProtoMech']);
-    expect(select.value).toBe('0');
+    ).toEqual([
+      'Standard ProtoMech',
+      'Electric Discharge ProtoMech (Experimental)',
+    ]);
+    expect(select.value).toBe('42');
   });
 
   it.each([

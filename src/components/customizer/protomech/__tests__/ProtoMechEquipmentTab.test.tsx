@@ -215,6 +215,23 @@ describe('ProtoMechEquipmentTab', () => {
     );
   });
 
+  it('does not list the Electric Discharge armor mount, which the armor type owns', () => {
+    const store = unit('Basilisk ProtoMech (Quad) B.json');
+    const armorMount = store
+      .getState()
+      .equipment.find((m) =>
+        /electricdischarge/i.test(m.equipmentId.replace(/\W/g, '')),
+      );
+    expect(armorMount).toBeDefined();
+    renderWith(store);
+    expect(
+      screen.getByTestId('protomech-equipment-mounted'),
+    ).not.toHaveTextContent(/electric discharge/i);
+    expect(
+      screen.queryByRole('button', { name: `Remove ${armorMount?.name}` }),
+    ).toBeNull();
+  });
+
   it('removes a mount through the store', () => {
     const store = unit('Centaur.json');
     renderWith(store);

@@ -6,7 +6,9 @@ weight-class labels, tonnage/MP caps and default-speed choices
 are retained below to keep modified requirements complete; their fidelity is
 not independently established by this slice. Native source projection is specified
 in the unit-services delta. Other component mass, equipment, production serialization and
-complete numerical/BV parity remain open.
+complete numerical/BV parity remain open. The Chassis Variants and Main Gun
+System requirements are modified only to replace the quad main-gun ban with the
+pinned slot limit.
 
 ### Requirement: Weight Classes
 
@@ -195,6 +197,50 @@ summed as points. Construction legality SHALL remain a separate diagnostic.
 - **AND** the duplicate's structure contribution to BV SHALL use those copied points
 - **AND** editing the duplicate's structure SHALL NOT alter the source's structure
 
+### Requirement: Chassis Variants
+
+The system SHALL support biped, quad, and glider ProtoMech configurations.
+
+#### Scenario: Biped (default)
+
+- **WHEN** creating a ProtoMech without specifying chassis variant
+- **THEN** `isQuad` SHALL be `false`
+- **AND** `isGlider` SHALL be `false`
+
+#### Scenario: Quad ProtoMech
+
+- **WHEN** the raw tag `quad` is `"true"` or `"1"` in a BLK document
+- **THEN** `isQuad` SHALL be set to `true`
+- **AND** a quad ProtoMech MAY mount a Main Gun, which SHALL hold one slot-taking mount, or two when the quad is also ultraheavy, as the ProtoMech Main Gun And Arm Placement requirement defines (MegaMek `TestProtoMek.java:594,620-621` at `48fcb2f64`)
+
+#### Scenario: Glider ProtoMech
+
+- **WHEN** the raw tag `glider` is `"true"` or `"1"` in a BLK document
+- **THEN** `isGlider` SHALL be set to `true`
+- **AND** glider ProtoMechs SHALL require at least 2 jump MP
+- **AND** validation SHALL produce an error if jump MP is less than 2: "Glider ProtoMechs require at least 2 jump MP"
+
+### Requirement: Main Gun System
+
+The system SHALL support an optional dedicated main gun mount.
+
+#### Scenario: Enabling main gun
+
+- **WHEN** `hasMainGun` is set to `true`
+- **THEN** the `Main Gun` location SHALL be available for equipment and armor
+- **AND** main gun presence SHALL be detected from equipment location during BLK parsing
+
+#### Scenario: Quad main gun limit
+
+- **WHEN** a quad ProtoMech has main gun equipment
+- **THEN** validation SHALL NOT report an error for the Main Gun's presence
+- **AND** the Main Gun SHALL hold one slot-taking mount, or two when the quad is also ultraheavy (above 9 tons), as the ProtoMech Main Gun And Arm Placement requirement defines (MegaMek `TestProtoMek.java:594,620-621` at `48fcb2f64`)
+
+#### Scenario: Main gun detection during parsing
+
+- **WHEN** parsing a BLK document
+- **THEN** `hasMainGun` SHALL be `true` if any equipment has location `Main Gun`
+
 ## ADDED Requirements
 
 ### Requirement: ProtoMech Engine Mass
@@ -353,7 +399,7 @@ finding SHALL NOT be rules.
 
 - **WHEN** checking torso, head or leg placement
 - **THEN** this requirement SHALL NOT enforce it, because the torso needs the armor slot and variable weights
-- **AND** the live `protomech-unit-system` statement that a quad cannot have a main gun SHALL be reconciled separately, because the pinned corpus contains a quad ultraheavy with one
+- **AND** the former statement that a quad cannot have a main gun is replaced by the Chassis Variants and Main Gun System requirements above, because the pinned verifier gives a quad one Main Gun slot (two when ultraheavy) and the pinned corpus contains a quad ultraheavy with one
 
 ### Requirement: ProtoMech Auto Armor Allocation
 
@@ -407,3 +453,46 @@ The ProtoMech Equipment tab SHALL offer the catalog items MegaMekLab 62bf193 `Pr
 - **GIVEN** the MekStation mount has no shot count, where MegaMekLab merges ammunition into one `LOC_BODY` mount (`PMEquipmentDatabaseView.addProtoMekAmmo`)
 - **THEN** an ammunition item added from the catalog SHALL be a plain mount, and the shot count SHALL remain a recorded residual
 - **AND** the "+2 jump from gliding wings" rule SHALL remain outside this requirement, since it has no pinned citation
+
+## ADDED Requirements
+
+### Requirement: Electric Discharge ProtoMech Armor
+
+The ProtoMech armor owner SHALL represent Standard and Electric Discharge armor
+using pinned MegaMek `48fcb2f64` identities and component rules. Existing numeric
+armor fields SHALL remain compatible; legacy Standard code 0 or an omitted
+source code SHALL retain Standard meaning. Unsupported identities SHALL produce
+diagnostics. Tech filtering remains deferred under owner ruling O3.
+
+#### Scenario: EDP armor selection and weight
+
+- **WHEN** a user selects Electric Discharge ProtoMech armor
+- **THEN** the editor SHALL display the Experimental choice and allocated mass at 0.075 t per point
+- **AND** 31 points SHALL retain Java's unrounded allocated mass, approximately 2.325 t
+- **AND** complete ProtoMech mass SHALL round once to the nearest kilogram, without half-ton armor rounding
+
+#### Scenario: Single torso slot and equipment BV owner
+
+- **WHEN** a ProtoMech uses Electric Discharge armor
+- **THEN** validation SHALL add one torso slot separately from ordinary equipment, excluding the armor mount from ordinary slot counting
+- **AND** the existing armor equipment mount SHALL supply its 32 BV exactly once through the miscellaneous offensive-equipment owner
+- **AND** switching to Standard SHALL remove the EDP mount and retain all other equipment and armor points
+
+#### Scenario: Full torso compatibility
+
+- **WHEN** selecting EDP on a ProtoMech whose torso is full
+- **THEN** MekStation SHALL retain every existing equipment mount and allow the armor edit
+- **AND** it SHALL display the torso slot-overflow validation diagnostic
+- **AND** the documented compatibility deviation SHALL identify that pinned MML unassigns optional mounts while MekStation has no unallocated ProtoMech location yet
+
+#### Scenario: Save and reopen EDP
+
+- **WHEN** either pinned Basilisk ProtoMech Quad variant is edited, saved and reopened
+- **THEN** armor identity, armor points and a single EDP mount SHALL be retained
+- **AND** armor mass, component total mass, slot validity and BV SHALL match the pinned Java observations
+
+#### Scenario: ProtoMech numerical regression
+
+- **WHEN** calculating the 86 pinned canonical ProtoMechs
+- **THEN** handler and shared-dispatch BV SHALL each equal the actual pinned Java total
+- **AND** no construction-validity result SHALL move away from the pinned Java verdict

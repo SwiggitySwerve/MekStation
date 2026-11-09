@@ -31,7 +31,12 @@ export interface IVehicleCrewMember {
 export interface IVehicleLocationArmor {
   readonly location: RecordSheetVehicleArmorLocation;
   readonly current: number;
-  readonly maximum: number;
+  /**
+   * Printed only when a caller supplies a real per-location cap. Vehicles have
+   * none: MegaMek and MML cap only the unit total (plus the VTOL rotor), so the
+   * customizer builder leaves this absent rather than echoing `current`.
+   */
+  readonly maximum?: number;
   /** BAR (Barrier Armor Rating) for support vehicles — omitted for standard tanks. */
   readonly bar?: number;
 }

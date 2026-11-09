@@ -402,3 +402,26 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **AND** construction-invalid but structurally loadable records SHALL retain their facts and diagnostics without a new validity gate, and native blank model names SHALL remain blank
 - **AND** malformed source SHALL fail with diagnostics without persistence; existing MTF/JSON behavior SHALL remain available
 - **AND** other BLK families, browser BLK selection, native numerical parity and the legacy runtime-object importer SHALL remain separate obligations
+
+### Requirement: Mounted browser unit import
+
+The unit library SHALL expose file selection and drop for JSON, MTF and BLK through
+the existing file and API client services. Native admission SHALL remain with the
+source import API. Unsupported families, malformed source and server failures SHALL
+retain diagnostics with a file replacement or retry action. Successful imports SHALL
+refresh the library and preserve the saved identity for existing editor loading.
+
+#### Scenario: Request ownership and terminal completion
+
+- **WHEN** selections or conflict suggestions complete out of order
+- **THEN** only the current request SHALL update its payload and rename suggestion
+- **AND** duplicate clicks and Enter SHALL NOT duplicate an in-flight or successful POST
+- **WHEN** the dialog closes and reopens
+- **THEN** prior selections, errors, suggestions and completions SHALL NOT enter the new session
+
+#### Scenario: Accessible import and persisted loading
+
+- **WHEN** a user opens the mounted import dialog
+- **THEN** its file input SHALL have a label, keyboard focus SHALL remain within the modal, and closing SHALL restore focus
+- **WHEN** supported pinned MTF and vehicle BLK files are imported
+- **THEN** both SHALL appear in the library after reload and an imported unit SHALL open through existing customizer loading

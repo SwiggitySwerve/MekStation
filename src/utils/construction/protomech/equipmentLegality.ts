@@ -22,6 +22,8 @@
 
 import { EquipmentCategory } from '@/types/equipment';
 
+import { isProtoEDPArmorMount } from './armorType';
+
 export interface ProtoMechCatalogCandidate {
   readonly category: EquipmentCategory;
   readonly allowedUnitTypes?: readonly string[];
@@ -39,9 +41,16 @@ export function isProtoMechCatalogEquipment(
 const HIDDEN_FROM_LOADOUT =
   /jumpjet|masc|myomerbooster|partialwing|magneticclamp|umu/;
 
-/** PMEquipmentTab.showInLoadOut: is the mount listed in the Equipment tab? */
+/**
+ * PMEquipmentTab.showInLoadOut: is the mount listed in the Equipment tab?
+ * MekStation additionally leaves out the Electric Discharge armor mount: the armor
+ * owner creates and removes it with the armor type (setProtoArmorEquipment), so
+ * moving or removing it here would separate the mount from the armor choice.
+ */
 export function isProtoMechLoadoutMount(equipmentId: string): boolean {
-  return !HIDDEN_FROM_LOADOUT.test(
-    equipmentId.toLowerCase().replace(/[^a-z0-9]/g, ''),
+  return (
+    !HIDDEN_FROM_LOADOUT.test(
+      equipmentId.toLowerCase().replace(/[^a-z0-9]/g, ''),
+    ) && !isProtoEDPArmorMount(equipmentId)
   );
 }

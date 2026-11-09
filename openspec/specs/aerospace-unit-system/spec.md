@@ -42,7 +42,7 @@ The aerospace unit system defines the construction, state management, BLK format
 - **Conventional Fighter**: A non-fusion-powered atmospheric combat aircraft sharing the same structural model as ASF but with different engine types (ICE, Fuel Cell, etc.)
 - **Small Craft**: Spacecraft of 100–200 tons with crew, cargo, and passenger capacity; uses side locations instead of wing locations
 - **Firing Arc**: One of four directional zones (Nose, Left Wing, Right Wing, Aft) plus an internal Fuselage location where equipment is mounted
-- **Safe Thrust / Max Thrust**: Movement ratings where Max Thrust = floor(Safe Thrust × 1.5)
+- **Safe Thrust / Max Thrust**: Movement ratings where Max Thrust = ceil(Safe Thrust × 1.5)
 - **Structural Integrity (SI)**: A durability rating representing the aerospace unit's structural resilience; default = ceil(tonnage / 10)
 - **OmniFighter**: An aerospace fighter with pod-mounted equipment that can be swapped between missions
 
@@ -147,14 +147,14 @@ The system SHALL support engine type selection and thrust-based movement for aer
 **GIVEN** an aerospace fighter with tonnage T
 **WHEN** safe thrust is set to value S
 **THEN** engine rating SHALL equal T × S
-**AND** max thrust SHALL equal floor(S × 1.5)
+**AND** max thrust SHALL equal ceil(S × 1.5)
 
 #### Scenario: Engine rating determines safe thrust
 
 **GIVEN** an aerospace fighter with tonnage T
 **WHEN** engine rating is set to value R
 **THEN** safe thrust SHALL equal floor(R / T)
-**AND** max thrust SHALL equal floor(safe thrust × 1.5)
+**AND** max thrust SHALL equal ceil(safe thrust × 1.5)
 
 #### Scenario: Safe thrust bounds
 
@@ -364,7 +364,7 @@ The system SHALL parse aerospace fighters from BLK format documents via the `Aer
 **THEN** the handler SHALL extract:
 
 - Identity: chassis, model, year, tonnage
-- Movement: safeThrust from `document.safeThrust`, maxThrust = floor(safeThrust × 1.5)
+- Movement: safeThrust from `document.safeThrust`, maxThrust = ceil(safeThrust × 1.5)
 - Fuel: from `document.fuel`
 - Structure: structuralIntegrity from `document.structuralIntegrity`
 - Heat sinks: from `document.heatsinks` (default 10), type from `document.sinkType`
@@ -763,7 +763,7 @@ enum AerospaceLocation {
 | `engineType`           | `EngineType`                   | Yes      | Engine type                       | See engine options        | `STANDARD`         |
 | `engineRating`         | `number`                       | Yes      | Engine rating                     | 10–400                    | tonnage × thrust   |
 | `safeThrust`           | `number`                       | Yes      | Safe thrust rating                | 1–12                      | Tonnage-based      |
-| `maxThrust`            | `number` (readonly)            | Yes      | Maximum thrust rating             | Derived                   | floor(safe × 1.5)  |
+| `maxThrust`            | `number` (readonly)            | Yes      | Maximum thrust rating             | Derived                   | ceil(safe × 1.5)  |
 | `fuel`                 | `number`                       | Yes      | Fuel points                       | ≥ 0                       | tonnage × 5        |
 | `structuralIntegrity`  | `number`                       | Yes      | Structural integrity rating       | ≥ 1                       | ceil(tonnage / 10) |
 | `cockpitType`          | `AerospaceCockpitType`         | Yes      | Cockpit type                      | See enum                  | `STANDARD`         |
@@ -786,7 +786,7 @@ enum AerospaceLocation {
 - `tonnage` MUST be a multiple of 5 between 5 and 100
 - `engineRating` MUST be clamped to [10, 400] when recalculated
 - `safeThrust` MUST be between 1 and 12 in the customizer UI
-- `maxThrust` SHALL always equal `floor(safeThrust × 1.5)` and MUST NOT be independently set
+- `maxThrust` SHALL always equal `ceil(safeThrust × 1.5)` and MUST NOT be independently set
 - `fuel` MUST be non-negative; the store SHALL enforce `Math.max(0, fuel)`
 - `structuralIntegrity` MUST be at least 1; the store SHALL enforce `Math.max(1, si)`
 - `heatSinks` MUST be non-negative; the store SHALL enforce `Math.max(0, count)`
@@ -829,15 +829,15 @@ Output: engineRating = 300
 **Formula**:
 
 ```
-maxThrust = floor(safeThrust × 1.5)
+maxThrust = ceil(safeThrust × 1.5)
 ```
 
 **Example**:
 
 ```
 Input: safeThrust = 5
-Calculation: maxThrust = floor(5 × 1.5) = floor(7.5)
-Output: maxThrust = 7
+Calculation: maxThrust = ceil(5 × 1.5) = ceil(7.5)
+Output: maxThrust = 8
 ```
 
 ### Armor Auto-Allocation
@@ -1206,7 +1206,7 @@ Max rear-arc weapons by tonnage:
 ### Common Pitfalls
 
 - **Pitfall**: Setting maxThrust independently from safeThrust
-  - **Solution**: maxThrust is always derived via `floor(safeThrust × 1.5)` and MUST NOT be set directly
+  - **Solution**: maxThrust is always derived via `ceil(safeThrust × 1.5)` and MUST NOT be set directly
 - **Pitfall**: Forgetting to update name when chassis or model changes
   - **Solution**: `setChassis` and `setModel` actions automatically recompute `name` as `"{chassis} {model}"`
 - **Pitfall**: Over-allocating armor points beyond available
@@ -1234,7 +1234,7 @@ const options: CreateAerospaceOptions = {
 const state = createDefaultAerospaceState(options);
 // safeThrust = 6 (tonnage ≤ 60)
 // engineRating = 50 × 6 = 300
-// maxThrust = floor(6 × 1.5) = 9
+// maxThrust = ceil(6 × 1.5) = 9
 // fuel = 50 × 5 = 250
 // SI = ceil(50 / 10) = 5
 ```

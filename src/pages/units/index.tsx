@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { ViewMode } from '@/components/ui';
 import type { FilterState, UnitEntry } from '@/pages-modules/units/list.types';
@@ -26,22 +26,27 @@ import {
   UnitGridView,
   UnitTableView,
 } from '@/pages-modules/units/list.views';
+import { UnitImportDialog } from '@/pages-modules/units/UnitImportDialog';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-interface FilterToolbarProps {
+const EMPTY_FILTERS: FilterState = {
+  search: '',
+  unitType: '',
+  techBase: '',
+  rulesLevel: '',
+  weightClass: '',
+};
+
+interface FilterToolbarProps extends Omit<FilterPanelProps, 'onClearFilters'> {
+  readonly onImport: () => void;
   readonly viewMode: ViewMode;
-  readonly filters: FilterState;
   readonly showFilters: boolean;
-  readonly hasActiveFilters: boolean;
   readonly activeFilterCount: number;
   readonly onViewModeChange: (mode: ViewMode) => void;
-  readonly onFilterChange: <K extends keyof FilterState>(
-    key: K,
-    value: FilterState[K],
-  ) => void;
   readonly onToggleFilters: () => void;
 }
 
@@ -123,13 +128,14 @@ function FilterToolbar({
   onViewModeChange,
   onFilterChange,
   onToggleFilters,
+  onImport,
 }: FilterToolbarProps): React.ReactElement {
   return (
-    <div className="mb-6 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-3">
+    <div className="mb-6 flex min-w-0 flex-wrap items-center justify-between gap-4">
+      <div className="flex min-w-0 flex-wrap items-center gap-3">
         <ViewModeToggle mode={viewMode} onChange={onViewModeChange} />
 
-        <div className="w-64">
+        <div className="w-64 max-w-full">
           <Input
             type="text"
             placeholder="Search units..."
@@ -172,9 +178,14 @@ function FilterToolbar({
         </button>
       </div>
 
-      <Link href="/customizer">
-        <Button variant="primary">Create Unit</Button>
-      </Link>
+      <div className="flex shrink-0 flex-wrap gap-2">
+        <Button variant="secondary" onClick={onImport}>
+          Import Unit
+        </Button>
+        <Link href="/customizer">
+          <Button variant="primary">Create Unit</Button>
+        </Link>
+      </div>
     </div>
   );
 }
@@ -291,27 +302,14 @@ function UnitResults({
 }
 
 export default function CustomUnitsListPage(): React.ReactElement {
+  const [importOpen, setImportOpen] = useState(false);
   const [units, setUnits] = useState<UnitEntry[]>([]);
-  const [filteredUnits, setFilteredUnits] = useState<UnitEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<FilterState>({
-    search: '',
-    unitType: '',
-    techBase: '',
-    rulesLevel: '',
-    weightClass: '',
-  });
-
-  const hasActiveFilters = Boolean(
-    filters.unitType ||
-    filters.techBase ||
-    filters.rulesLevel ||
-    filters.weightClass,
-  );
+  const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
 
   const activeFilterCount = [
     filters.unitType,
@@ -319,6 +317,7 @@ export default function CustomUnitsListPage(): React.ReactElement {
     filters.rulesLevel,
     filters.weightClass,
   ].filter(Boolean).length;
+  const hasActiveFilters = activeFilterCount > 0;
 
   useEffect(() => {
     async function fetchUnits() {
@@ -331,7 +330,6 @@ export default function CustomUnitsListPage(): React.ReactElement {
 
         if (data.units) {
           setUnits(data.units);
-          setFilteredUnits(data.units);
         } else {
           setError(data.error || 'Failed to load units');
         }
@@ -345,20 +343,18 @@ export default function CustomUnitsListPage(): React.ReactElement {
     fetchUnits();
   }, []);
 
-  const applyFilters = useCallback(() => {
-    setFilteredUnits(filterUnits(units, filters));
+  const filteredUnits = useMemo(
+    () => filterUnits(units, filters),
+    [units, filters],
+  );
+  useEffect(() => {
     setCurrentPage(1);
   }, [units, filters]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [applyFilters]);
-
   const totalPages = Math.ceil(filteredUnits.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const displayedUnits = filteredUnits.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE,
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const handleFilterChange = <K extends keyof FilterState>(
@@ -368,15 +364,7 @@ export default function CustomUnitsListPage(): React.ReactElement {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const clearFilters = () => {
-    setFilters({
-      search: '',
-      unitType: '',
-      techBase: '',
-      rulesLevel: '',
-      weightClass: '',
-    });
-  };
+  const clearFilters = () => setFilters(EMPTY_FILTERS);
 
   if (loading) {
     return <PageLoading message="Loading custom units..." />;
@@ -393,6 +381,7 @@ export default function CustomUnitsListPage(): React.ReactElement {
       maxWidth="wide"
     >
       <FilterToolbar
+        onImport={() => setImportOpen(true)}
         viewMode={viewMode}
         filters={filters}
         showFilters={showFilters}
@@ -402,6 +391,21 @@ export default function CustomUnitsListPage(): React.ReactElement {
         onFilterChange={handleFilterChange}
         onToggleFilters={() => setShowFilters(!showFilters)}
       />
+      {importOpen && (
+        <UnitImportDialog
+          onClose={() => setImportOpen(false)}
+          onImported={() => {
+            void customUnitApiService
+              .list()
+              .then((entries) => setUnits([...entries]))
+              .catch(() =>
+                setError(
+                  'Unit imported, but the library could not refresh. Reload to retry.',
+                ),
+              );
+          }}
+        />
+      )}
 
       {showFilters && (
         <FilterPanel

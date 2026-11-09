@@ -86,12 +86,20 @@ describe('isProtoMechLoadoutMount', () => {
     expect(isProtoMechLoadoutMount(id)).toBe(false);
   });
 
+  // The Electric Discharge armor mount belongs to the armor type: the armor owner
+  // (setProtoArmorEquipment) creates and removes it, so it is not loadout.
   it.each([
-    'CLERMicroLaser',
-    'eiinterface',
     'clan-electric-discharge-protomech',
-    'Clan Ammo SRM-2 (10)',
-  ])('lists %s', (id) => {
-    expect(isProtoMechLoadoutMount(id)).toBe(true);
+    'Clan Electric Discharge ProtoMech',
+    'CLEDPArmor',
+  ])('hides the armor-owned mount %s', (id) => {
+    expect(isProtoMechLoadoutMount(id)).toBe(false);
   });
+
+  it.each(['CLERMicroLaser', 'eiinterface', 'Clan Ammo SRM-2 (10)'])(
+    'lists %s',
+    (id) => {
+      expect(isProtoMechLoadoutMount(id)).toBe(true);
+    },
+  );
 });
