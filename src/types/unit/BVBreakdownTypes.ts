@@ -104,6 +104,10 @@ export const INFANTRY_BV_TRACE_FIELDS = [
   'weightBV',
   'offensiveTypeModifier',
   'adjustment',
+  'infantry.primaryWeaponBV',
+  'infantry.secondaryWeaponBV',
+  'infantry.antiMekWeaponBV',
+  'infantry.weaponRemainderBV',
 ] as const;
 
 export interface IInfantryBVBreakdown extends Readonly<
