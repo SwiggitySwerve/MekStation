@@ -16,6 +16,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { withUnitLibraryReceipt } from '@/stores/unitDraftPersistence';
 import { pickPersistedUnitIdentityWithClanName } from '@/stores/unitStoreIdentityActions';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { cloneSerializedStructure } from '@/utils/serialization/structureMetadata';
 
 import {
   UnitState,
@@ -57,6 +58,7 @@ function pickPersistedUnitState(state: UnitStore) {
     engineRating: state.engineRating,
     gyroType: state.gyroType,
     internalStructureType: state.internalStructureType,
+    frankenStructure: state.frankenStructure,
     cockpitType: state.cockpitType,
     heatSinkType: state.heatSinkType,
     heatSinkCount: state.heatSinkCount,
@@ -98,6 +100,13 @@ export function createUnitStore(initialState: UnitState): StoreApi<UnitStore> {
       (set, get) => ({
         // Spread initial state
         ...initialState,
+        ...(initialState.frankenStructure !== undefined
+          ? {
+              frankenStructure: cloneSerializedStructure(
+                initialState.frankenStructure,
+              ),
+            }
+          : {}),
 
         // Compose action slices
         ...wrapUnitEditActions(

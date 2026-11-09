@@ -1265,9 +1265,10 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 
 ### Requirement: Decorated Inner Sphere arrays weigh as the plain array in every weight owner
 
-A decorated Inner Sphere machine-gun array (ISMGA, ISLMGA or ISHMGA with `(ST)`,
-`(ST):OMNI` or `:OMNI`) SHALL weigh 0.5 tons in both the combat vehicle weight
-transport and the support vehicle weight, through one shared lookup-token owner.
+The system SHALL weigh a decorated Inner Sphere machine-gun array (ISMGA,
+ISLMGA or ISHMGA with `(ST)`, `(ST):OMNI` or `:OMNI`) at 0.5 tons in both the
+combat vehicle weight transport and the support vehicle weight, through one
+shared lookup-token owner.
 Clan arrays SHALL remain 0.25 tons, every other source token SHALL keep its
 ordinary lookup, and public equipment lookup identities SHALL remain unchanged.
 

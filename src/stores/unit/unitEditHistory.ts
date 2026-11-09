@@ -39,6 +39,7 @@ function copySnapshot(state: UnitStore): UnitEditSnapshot {
     role: copy.role,
     fluff: copy.fluff,
     crewSeats: copy.crewSeats,
+    frankenStructure: copy.frankenStructure,
   };
 }
 
