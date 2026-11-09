@@ -7,13 +7,19 @@ import { RULES_LEVEL_TAGS } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import armorCodes from '@/types/formats/blk-armor-codes.json';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { resolveBlkAerospaceHeatSinkType } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 
 import type { importMTFDefinition } from './importMTFDefinition';
 
+import { createAerospaceHandler } from './handlers/AerospaceUnitHandler';
+import { createConventionalFighterHandler } from './handlers/ConventionalFighterUnitHandler';
+import { FixedWingSupportUnitHandler } from './handlers/FixedWingSupportUnitHandler';
 import { createProtoMechHandler } from './handlers/ProtoMechUnitHandler';
+import { createSmallCraftHandler } from './handlers/SmallCraftUnitHandler';
 import { createSupportVehicleHandler } from './handlers/SupportVehicleUnitHandler';
 import { createVehicleHandler } from './handlers/VehicleUnitHandler';
 import { createVTOLHandler } from './handlers/VTOLUnitHandler';
+import { UNIT_DEFINITION_FAMILIES } from './unitLoaderService/definitionTypes';
 import { loadUnitDefinition } from './unitLoaderService/loadUnitDefinition';
 import { PROTO_ARMOR_CODES } from './unitLoaderService/smallUnitDefinitionMapper';
 
@@ -43,6 +49,19 @@ function parseSupportedDocument(document: IBlkDocument) {
       return parseWithDiagnostics(document, createVTOLHandler());
     case UnitType.SUPPORT_VEHICLE:
       return parseWithDiagnostics(document, createSupportVehicleHandler());
+    case UnitType.AEROSPACE:
+      return parseWithDiagnostics(document, createAerospaceHandler());
+    case UnitType.CONVENTIONAL_FIGHTER: {
+      const fixedWingSupport = new FixedWingSupportUnitHandler();
+      return parseWithDiagnostics(
+        document,
+        fixedWingSupport.canHandle(document)
+          ? fixedWingSupport
+          : createConventionalFighterHandler(),
+      );
+    }
+    case UnitType.SMALL_CRAFT:
+      return parseWithDiagnostics(document, createSmallCraftHandler());
     default:
       return undefined;
   }
@@ -73,7 +92,7 @@ export async function importBLKDefinition(
   const result = parseSupportedDocument(document);
   if (!result)
     return fail(
-      `Unsupported BLK unit type ${document.unitType}; only protomechs and vehicles are supported`,
+      `Unsupported BLK unit type ${document.unitType}; only protomechs, vehicles and aerospace are supported`,
     );
   if (!result.success)
     return fail(
@@ -83,7 +102,14 @@ export async function importBLKDefinition(
     );
   const { unit, diagnostics } = result.data;
   const isProtoMech = unit.unitType === UnitType.PROTOMECH;
-  const family = isProtoMech ? 'protomechs' : 'vehicles';
+  const isAerospace = UNIT_DEFINITION_FAMILIES.aerospace.unitTypes.some(
+    (type) => type === unit.unitType,
+  );
+  const family = isProtoMech
+    ? 'protomechs'
+    : isAerospace
+      ? 'aerospace'
+      : 'vehicles';
   const warnings = [...parsed.data.warnings, ...result.data.warnings];
   const armorType = isProtoMech
     ? Object.entries(PROTO_ARMOR_CODES).find(
@@ -103,9 +129,19 @@ export async function importBLKDefinition(
       ([, value]) => value === unit.techBase,
     )?.[0],
     rulesLevel: RULES_LEVEL_TAGS[unit.rulesLevel],
+    ...('heatSinks' in unit
+      ? {
+          heatSinks: {
+            type: resolveBlkAerospaceHeatSinkType(unit.heatSinkType),
+            count: unit.heatSinks,
+          },
+        }
+      : {}),
     armor: {
       type: armorType,
-      byLocation: unit.armorByLocation,
+      ...('armorByArc' in unit
+        ? { byArc: unit.armorByArc }
+        : { byLocation: unit.armorByLocation }),
       ...(armorType === 'BAR' && 'barRating' in unit
         ? { barRating: unit.barRating }
         : {}),
