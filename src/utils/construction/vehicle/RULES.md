@@ -1,4 +1,4 @@
-﻿# Combat-vehicle construction rules
+# Combat-vehicle construction rules
 
 ## Native Tank complete-weight transport
 
@@ -823,3 +823,80 @@ its source identity. The sweep found no mount with an unresolved heat value, so
 the path loses nothing. Support vehicles are outside this term: Java gives them
 no free sinks (TestSupportVehicle.java:917-931), and the support heat term
 depends on the 2.2-d support weight model.
+
+## Unknown native Tank structure type (pinned)
+
+Fifty-six Tank sources carry `<internal_type>-1</internal_type>`, which is
+MegaMek's `T_STRUCTURE_UNKNOWN` (`EquipmentType.java:138`, 48fcb2f64).
+`BLKTankFile.java:169-172` stores the tag verbatim, and
+`TestTank.getStructure` (:87-95) maps only `1` to Endo Steel. Every other value,
+including `-1`, therefore weighs through the Standard branch of
+`Structure.getWeightStructure` (:65-103): tonnage / 10, rounded up to a half ton.
+
+`computeNativeTankWeight` accepts `0` and `-1` as Standard structure. Any other
+`internal_type` stays unavailable instead of being approximated: Java weighs `1`
+as Endo Steel (a 45 t Bellona: 2.5 t against 4.5 t), and the corpus has no Tank
+with any other value. The 56 rows' totals equal the pinned verifier's
+`calculateWeightExact` with every component equal, and no validity result moves.
+`VehicleStructureUnknown.pinned.test.ts` pins six of them.
+
+## IS Mech Mortar-8 native identity (pinned)
+
+`IS Mech Mortar-8` is the internal name of `ISMekMortar8` (10 t, 5 slots;
+`ISMekMortar8.java`, 48fcb2f64). The general normalizer shortens the name to
+"is mech mortar", which matches nothing, so Mortar Carrier's three front mortars
+had no mass and its complete total was unavailable. The exact-identity table in
+`sourceLookupAliases.ts` now maps it to the catalog record `mech-mortar-8`, which
+holds Java's values. Being an exact identity, it holds on a Clan unit too, where
+unit tech base would otherwise swap the legacy record for the 5 t Clan one.
+
+With it Mortar Carrier weighs 60 t (engine 8.5, structure 6, controls 3, armor
+4.5, equipment 38), equal to the pinned verifier's `calculateWeightExact`.
+`IS Mech Mortar-4` has the same gap, but only owner-excluded `ge` sources use it,
+so it is left unmapped. `VehicleIsMechMortar.pinned.test.ts` pins the unit.
+
+## Support ammo slot boundary and independent fire-control placement
+
+At MegaMek `48fcb2f64`, `TestSupportVehicle.getAmmoSlots` (:1618-1640)
+shares ammo with weapons only for small support vehicles. Small means strictly
+below 5 tons (`EntityWeightClass.java:80-97`); at exactly 5 tons, distinct
+non-one-shot ammo types require slots. `itemSlots.ts` starts its existing
+conservative ammo grouping at this boundary. Native ammo identity, armor and
+other lower bounds described by that owner remain separate work.
+
+`TestTank.isValidTankLocation` (:979-980) and `isBodyEquipment` (:1079-1093)
+require Basic and Advanced Fire Control in Body. `vehicleValidation.ts` owns
+this placement check independently of slot accounting. Missing, variable or
+unit-dependent slot costs on another mount cannot suppress a known placement
+error. Equipment identities and names use the public catalog resolver, including
+the native `:OMNI` qualifier. The Tank, VTOL and support handlers retain their
+existing validation entrypoints, CASE checks and motive compatibility checks.
+
+`vehicleEquipmentValidation.pinned.test.ts` loads synthetic BLKs through the real
+handlers for the 5-ton ammo overrun and misplaced fire control beside variable
+cargo. Boundary and placement controls also cover unknown costs, Blue Shield's
+unit-dependent slots, Body placement, CASE and independent motive errors.
+
+## Correction: miscellaneous heat for RISC, Nova CEWS and Spot Welder
+
+The earlier MiscType citation ending at line 1435 is incomplete. At pin
+48fcb2f64, `MiscType.getHeat` spans MiscType.java:1423-1441; lines 1436-1439
+return 2 for RISC Laser Pulse Module, Nova CEWS and Spot Welder. Resolve this
+heat by catalog id for non-weapon, non-ammunition items: Nova is cataloged as
+ECM, yet is a native MiscType. Weapon and ammunition categories never receive
+miscellaneous heat, even if their id matches a miscellaneous device.
+
+`TestEntity.java:974-977` skips Spot Welder heat for fusion-class and fission
+engines. Other known engines count its 2 heat. An unknown engine leaves the
+welder heat unresolved rather than guessing an exclusion. Miscellaneous heat
+is still added after linked-weapon heat so the laser-insulator zero guard
+keeps its existing ordering.
+
+Thirty synthetic Scorpion Light Tank BLKs pin six engine types against no
+added item, each individual device and all three together. Fusion, XL, Light
+and fission give counts 0/0/2/2/4 and paid mass 0 throughout. ICE gives counts
+and mass 0/2/2/2/6. Fuel cell gives those same counts and paid mass 0/1/1/1/5.
+Existing catalog masses already match Java (RISC 1 t, Nova 1.5 t, welder 2 t).
+No corpus vehicle mounts these devices; the 1,444-source heat sweep remains
+1,150 matching complete combat weights with the same 294 unavailable. Support
+vehicle sink mass remains the separate 2.2-d obligation.

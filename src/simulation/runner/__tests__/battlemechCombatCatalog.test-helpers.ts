@@ -196,7 +196,15 @@ type PinnedScopeSplitAmmoGapClass =
   | 'unsupported-artillery-ammo';
 
 const EXPECTED_BATTLEMECH_AMMO_GAP_IDS = {
-  'battlemech-ammo-missing-compatible-weapon-refs': [],
+  'battlemech-ammo-missing-compatible-weapon-refs': [
+    'ammo-lrm-10',
+    'ammo-lrm-15',
+    'ammo-lrm-20',
+    'ammo-lrm-5',
+    'ammo-srm-2',
+    'ammo-srm-4',
+    'ammo-srm-6',
+  ],
   'unsupported-rotary-ac-10-20-ammo': UNSUPPORTED_ROTARY_AC_10_20_AMMO_IDS,
   'duplicate-runtime-id': [
     'ams',
@@ -383,20 +391,13 @@ const EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS = [
   'ammo-lac-20',
   'ammo-lac-5',
   'ammo-light-n-gauss',
-  'ammo-lrm-10',
   'ammo-lrm-10-primitive',
-  'ammo-lrm-15',
   'ammo-lrm-15-primitive',
-  'ammo-lrm-20',
   'ammo-lrm-20-primitive',
-  'ammo-lrm-5',
   'ammo-lrm-5-primitive',
   'ammo-medium-n-gauss',
-  'ammo-srm-2',
   'ammo-srm-2-primitive',
-  'ammo-srm-4',
   'ammo-srm-4-primitive',
-  'ammo-srm-6',
   'ammo-srm-6-primitive',
   'apgaussrifle',
   'clan-ammo-atm-12',

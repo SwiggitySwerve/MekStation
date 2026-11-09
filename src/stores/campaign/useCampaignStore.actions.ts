@@ -140,7 +140,7 @@ function resetPersistenceForCreatedCampaign(campaignId: string): void {
     );
   }
   useCampaignPersistenceStore.getState().reset();
-  useCampaignPersistenceStore.setState({ campaignId });
+  useCampaignPersistenceStore.getState().initializeCreatedCampaign(campaignId);
 }
 
 function createGuestMirrorCampaignAction(

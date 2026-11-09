@@ -519,6 +519,22 @@ export const UnitContract = z
           .strict()
           .describe('BattleMech Mixed Tech per-component tech base selections')
           .optional(),
+        crewSeats: z
+          .array(
+            z
+              .object({
+                slotIndex: z.number().int().gte(0).lte(2),
+                name: z.string().min(1),
+                gunnery: z.number().int().gte(0).lte(8),
+                piloting: z.number().int().gte(0).lte(8),
+              })
+              .strict(),
+          )
+          .max(3)
+          .describe(
+            'BattleMech Tripod/QuadVee crew seats the user assigned; unassigned seats are absent',
+          )
+          .optional(),
         omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
@@ -1030,6 +1046,22 @@ export const UnitContract = z
           })
           .strict()
           .describe('BattleMech Mixed Tech per-component tech base selections')
+          .optional(),
+        crewSeats: z
+          .array(
+            z
+              .object({
+                slotIndex: z.number().int().gte(0).lte(2),
+                name: z.string().min(1),
+                gunnery: z.number().int().gte(0).lte(8),
+                piloting: z.number().int().gte(0).lte(8),
+              })
+              .strict(),
+          )
+          .max(3)
+          .describe(
+            'BattleMech Tripod/QuadVee crew seats the user assigned; unassigned seats are absent',
+          )
           .optional(),
         omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),

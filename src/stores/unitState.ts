@@ -1,4 +1,5 @@
 import type { IMechBVContext } from '@/services/construction/editableMechProjection';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
 /**
  * Unit State Interface
@@ -46,6 +47,7 @@ import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 import type { AddEquipmentAtLocationResult } from './unit/catalogEquipmentPlacement';
 import type { UnitEquipmentActions } from './unit/useUnitEquipmentStore';
+import type { ILibrarySaveReceipt } from './unitSaveState';
 
 // =============================================================================
 // Armor Allocation Types
@@ -227,18 +229,16 @@ export interface UnitState {
   readonly sourceDefinition?: IUnitDefinitionReference;
 
   /** Last confirmed library save/load, independent of original provenance. */
-  librarySave?: {
-    readonly id: string;
-    readonly version: number;
-    readonly fingerprint: string;
-    readonly draftFingerprint?: string;
-  };
+  librarySave?: ILibrarySaveReceipt;
 
   /** Combat role metadata carried by canonical/custom unit payloads. */
   role?: string;
 
   /** Optional descriptive text carried by canonical/custom unit payloads. */
   fluff?: ISerializedFluff;
+
+  /** Authored Tripod/QuadVee crew seats; absent when none were assigned. */
+  crewSeats?: readonly IMechCrewSeat[];
 
   /** Introduction year */
   year: number;
@@ -372,6 +372,10 @@ export interface UnitActions {
   setRulesLevel: (rulesLevel: RulesLevel) => void;
   setRole: (role: string) => void;
   updateFluff: (patch: Partial<ISerializedFluff>) => void;
+
+  // Crew seats (Tripod and QuadVee only)
+  setCrewSeat: (seat: IMechCrewSeat) => void;
+  clearCrewSeat: (slotIndex: number) => void;
 
   // Chassis
   setTonnage: (tonnage: number) => void;

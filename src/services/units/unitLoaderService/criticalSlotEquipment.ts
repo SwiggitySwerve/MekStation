@@ -34,6 +34,12 @@ import {
   resolveEquipmentId,
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
+import {
+  canRecoverSourcePhysicalWeapon,
+  groupSourcePhysicalMounts,
+  sourceWeaponIdentity as criticalEquipmentId,
+  takeSourceWeaponSlots as takeMatchingSlots,
+} from './sourceWeaponMounts';
 
 export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
@@ -172,30 +178,6 @@ function claimedSlotsFor(
   const created = new Set<number>();
   claimed.set(location, created);
   return created;
-}
-
-/** Native and legacy Claw records join as one Java type; mounted IDs stay intact. */
-function criticalEquipmentId(equipmentId: string): string {
-  return equipmentId === 'claws' ? 'claw' : equipmentId;
-}
-
-function takeMatchingSlots(
-  slots: readonly IResolvedCriticalSlot[],
-  claimed: ReadonlySet<number>,
-  equipmentId: string,
-  count: number,
-  isAmmo = false,
-): readonly IResolvedCriticalSlot[] {
-  const identity = criticalEquipmentId(equipmentId);
-  return slots
-    .filter(
-      (slot) =>
-        !claimed.has(slot.index) &&
-        criticalEquipmentId(slot.equipmentId ?? '') === identity &&
-        (slot.equipmentDef?.category === EquipmentCategory.AMMUNITION) ===
-          isAmmo,
-    )
-    .slice(0, count);
 }
 
 function claim(
@@ -400,16 +382,7 @@ export function restoreCriticalSlotEquipment(
       if (
         tonnage !== undefined &&
         slot.equipmentDef?.category === EquipmentCategory.PHYSICAL_WEAPON &&
-        [
-          'mace',
-          'hatchet',
-          'lance',
-          'sword',
-          'retractable-blade',
-          'flail',
-          'wrecking-ball',
-          'claw',
-        ].includes(physicalId)
+        canRecoverSourcePhysicalWeapon(physicalId)
       ) {
         if (handledPhysical.has(physicalId)) continue;
         handledPhysical.add(physicalId);
@@ -419,42 +392,21 @@ export function restoreCriticalSlotEquipment(
         );
         const count = entries(properties.criticalSlots);
         if (count <= 0) continue;
-        const group = slots.filter(
-          (s) => criticalEquipmentId(s.equipmentId ?? '') === physicalId,
-        );
         const existing = placed.filter(
           (item) =>
             criticalEquipmentId(item.equipmentId) === physicalId &&
             (item.location === location ||
               item.splitSlots?.location === location),
         );
-        // Listed variable mounts may have no explicit slot assignment. Reserve
-        // their native groups without changing their established projections.
-        const reserved = group.filter((s) =>
-          claimedAtLocation.has(s.index),
-        ).length;
-        claim(
+        const groups = groupSourcePhysicalMounts(
+          slots,
           claimedAtLocation,
-          takeMatchingSlots(
-            slots,
-            claimedAtLocation,
-            slot.equipmentId,
-            Math.max(0, existing.length * count - reserved),
-          ),
+          slot.equipmentId,
+          count,
+          existing.length,
         );
-        const missing = Math.max(
-          0,
-          Math.floor(group.length / count) - existing.length,
-        );
-        for (let n = 0; n < missing; n++) {
-          const matching = takeMatchingSlots(
-            slots,
-            claimedAtLocation,
-            slot.equipmentId,
-            count,
-          );
-          if (matching.length !== count) break;
-          claim(claimedAtLocation, matching);
+        claim(claimedAtLocation, groups.claimed);
+        for (const matching of groups.mounts) {
           recovered.push({
             ...createMountedEquipment(
               { ...slot.equipmentDef, ...properties, criticalSlots: count },

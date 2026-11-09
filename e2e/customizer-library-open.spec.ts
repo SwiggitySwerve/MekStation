@@ -1616,6 +1616,83 @@ test.describe('library persistence and printing', () => {
     await noOverflow(page);
   });
 
+  for (const variant of [
+    { model: '', points: 32, mass: '2.400' },
+    { model: 'B', points: 28, mass: '2.100' },
+  ]) {
+    test(`ProtoMech EDP armor: ${variant.model || 'base'} edit, save, reload and reopen @customizer`, async ({
+      page,
+      request,
+    }) => {
+      let savedId: string | undefined;
+      try {
+        await page.goto('/customizer');
+        await library(page, 'Basilisk ProtoMech (Quad)', variant.model);
+        await section(page, 'Armor');
+        const type = page.getByLabel('Armor type', { exact: true });
+        const weight = page.getByTestId('protomech-armor-weight');
+        await expect(type).toHaveValue('18');
+        await expect(page.getByTestId('protomech-armor-total-used')).toHaveText(
+          String(variant.points),
+        );
+        await expect(weight).toHaveText(`${variant.mass} t`);
+        await type.selectOption('42');
+        await expect(weight).toHaveText(
+          `${(variant.points * 0.05).toFixed(3)} t`,
+        );
+        await type.selectOption('18');
+        await expect(weight).toHaveText(`${variant.mass} t`);
+        await page
+          .getByRole('button', { name: 'Save active unit to library' })
+          .click();
+        const save = page.getByRole('dialog', {
+          name: 'Save Unit',
+          exact: true,
+        });
+        const chassis = `Flow EDP ${variant.model || 'base'} ${Date.now()}`;
+        await save.getByLabel('Chassis Name').fill(chassis);
+        await save.getByLabel('Variant Designation').fill('Saved Armor');
+        const posted = page.waitForResponse(
+          (r) =>
+            r.url().endsWith('/api/units/custom') &&
+            r.request().method() === 'POST',
+        );
+        await save.getByRole('button', { name: 'Save', exact: true }).click();
+        const response = await posted;
+        expect(response.ok()).toBe(true);
+        savedId = (await response.json()).data.id;
+        expect(savedId).toBeTruthy();
+        await page.reload();
+        await section(page, 'Armor');
+        await expect(type).toHaveValue('18');
+        await expect(weight).toHaveText(`${variant.mass} t`);
+        await page
+          .getByRole('button', {
+            name: `Close ${chassis} Saved Armor`,
+            exact: true,
+          })
+          .click();
+        const fetched = page.waitForResponse(
+          (r) =>
+            r.url().endsWith(`/api/units/custom/${savedId}`) &&
+            r.request().method() === 'GET',
+          { timeout: 60_000 },
+        );
+        await library(page, chassis, 'Saved Armor', true);
+        expect((await fetched).ok()).toBe(true);
+        await section(page, 'Armor');
+        await expect(type).toHaveValue('18');
+        await expect(weight).toHaveText(`${variant.mass} t`);
+        await expect(page.getByTestId('protomech-armor-total-used')).toHaveText(
+          String(variant.points),
+        );
+        await noOverflow(page);
+      } finally {
+        if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+      }
+    });
+  }
+
   test('ProtoMech Main Gun: remove the weapon, save, reload and reopen @customizer', async ({
     page,
     request,
