@@ -3,7 +3,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { mapFlags, readPinnedWeapons } from './weapon-bv-flags.mjs';
+import {
+  mapFlags,
+  readPinnedWeapons,
+  readWeaponCatalog,
+} from './weapon-bv-flags.mjs';
 
 export function generate(input, catalog) {
   const facts = readPinnedWeapons(input);
@@ -40,17 +44,12 @@ if (
     throw Error(
       'Expected pinned facts JSON, output TS path and optional --check',
     );
-  const directory = 'public/data/equipment/official/weapons';
-  const catalog = fs
-    .readdirSync(directory)
-    .filter((file) => file.endsWith('.json'))
-    .flatMap(
-      (file) =>
-        JSON.parse(fs.readFileSync(path.join(directory, file))).items ?? [],
-    );
   // Match the repository formatter so --check compares the committed artifact exactly.
   const { spawnSync } = await import('node:child_process');
-  const generated = generate(JSON.parse(fs.readFileSync(input)), catalog);
+  const generated = generate(
+    JSON.parse(fs.readFileSync(input)),
+    readWeaponCatalog(),
+  );
   const formatted = spawnSync(
     process.execPath,
     ['node_modules/oxfmt/bin/oxfmt', '--stdin-filepath', output],
