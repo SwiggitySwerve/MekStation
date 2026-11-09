@@ -1,5 +1,6 @@
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import armorOrder from '@/types/formats/blk-aerospace-armor.json';
+import cockpitCodes from '@/types/formats/blk-aerospace-cockpit.json';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   AerospaceCockpitType,
@@ -33,11 +34,17 @@ const AEROSPACE_LOCATION_ENTRIES: readonly (readonly [
 
 const AEROSPACE_LOCATION_MAP = Object.fromEntries(AEROSPACE_LOCATION_ENTRIES);
 
-const COCKPIT_TYPE_BY_CODE: Record<number, AerospaceCockpitType> = {
-  1: AerospaceCockpitType.SMALL,
-  2: AerospaceCockpitType.PRIMITIVE,
-  3: AerospaceCockpitType.COMMAND_CONSOLE,
-};
+const COCKPIT_TYPE_BY_CODE: Readonly<Record<number, AerospaceCockpitType>> =
+  Object.fromEntries(
+    Object.entries(cockpitCodes).map(([code, name]) => {
+      const type = Object.entries(AerospaceCockpitType).find(
+        ([key]) => key === name,
+      )?.[1];
+      if (type === undefined)
+        throw new Error(`Unknown shared aerospace cockpit identity: ${name}`);
+      return [Number(code), type];
+    }),
+  );
 
 const FIGHTER_COCKPIT_TYPE_BY_CODE: Record<number, AerospaceCockpitType> = {
   1: AerospaceCockpitType.SMALL,
