@@ -756,3 +756,27 @@ ammunition uses the Artillery category but enters only the ammo sum, excluding
 weapon-dependent fire-control, heat and amplifier bases. Pin48fcb2f6:
 TestEntity.java:716-724,753-769. Existing support validity consumes this total;
 the combat-vehicle overweight reservation is unchanged.
+
+## Environmental sealing registry mass
+
+`variableEquipmentMass.ts:resolveVehicleAccessoryMass` routes
+`environmental-sealed-chassis-registry` through the existing
+`environmental-sealed-chassis` rule before both the divisor lookup and the
+support guard. Both identities therefore use one mass rule: combat sealing
+weighs 10% of vehicle tonnage, rounded upward to a half ton; support sealing
+adds zero mounted mass because its chassis structure already accounts for it.
+Missing construction context remains unavailable. Catalog records and native
+mount identities are unchanged.
+
+At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:10270-10281` defines the combat chassis modification and
+`MiscType.java:660-666` computes its mass. `RoundWeight.java:56-68` owns
+standard rounding, and `TestEntity.java:631-667` sums miscellaneous mounts.
+`Tank.java:1878-1879` includes inherent submarine sealing;
+`TestTank.java:469-471` rejects an additional sealing mount on a submarine.
+This identity fix adds no inherent-sealing equipment charge or legality rule.
+
+`environmentalSealingMass.pinned.test.ts` covers both catalog identities,
+rounding, missing context and the support guard, plus the mounted masses
+independently probed for the 19 frozen sealing gaps at mm-data `50f7efe`.
+The two armor-density gaps and one sponson gap remain separate follow-ups.
