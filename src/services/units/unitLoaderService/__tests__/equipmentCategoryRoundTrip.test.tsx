@@ -221,10 +221,16 @@ async function roundTrip(id: string, legacy: boolean, unallocated = false) {
   } else {
     const savedEquipment = definition.equipment;
     loaded.equipment.forEach((item, index) => {
-      expect(savedEquipment[index].isAmmo).toBe(
-        item.category === EquipmentCategory.AMMUNITION ? true : undefined,
-      );
+      if (savedEquipment[index].isAmmo !== undefined)
+        expect(savedEquipment[index].isAmmo).toBe(
+          item.category === EquipmentCategory.AMMUNITION,
+        );
     });
+    if (unallocated)
+      expect(savedEquipment.map((item) => item.isAmmo)).toEqual([
+        undefined,
+        true,
+      ]);
   }
   expect(definition.equipment.map((item) => item.id).sort()).toEqual(
     loaded.equipment.map((item) => item.equipmentId).sort(),

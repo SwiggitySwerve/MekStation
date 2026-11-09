@@ -25,7 +25,9 @@ Pinned MegaMek 48fcb2f64: `MtfFile.getEquipmentType` passes no tech restriction
 to `EquipmentType.get` for a Mixed-tech unit.
 
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
-Custom mech saves retain ammunition category with optional `isAmmo` metadata;
+Custom mech saves retain category with optional `isAmmo` metadata only when the
+existing ID classifier alone would choose a different ammo/non-ammo category;
+unambiguous portable records retain their literal shape. For optional metadata,
 absent markers remain undefined. The category-qualified catalog lookup selects
 the saved mount's own record before sizing. Older placed saves recover category
 only from complete, consistent resolved criticals with the same saved ID.

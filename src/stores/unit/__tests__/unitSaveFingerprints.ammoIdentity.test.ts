@@ -42,8 +42,18 @@ it.each(fixture.cases)(
   },
 );
 
-it('writes an ammo discriminator to the persisted design without adding it to fingerprint bytes', () => {
-  const state = linkedState();
+it('writes a shared-ID discriminator without changing old library fingerprint bytes', () => {
+  const old = fixture.cases.find((entry) => entry.name === 'linked-equipment');
+  if (!old) throw new Error('Missing literal fixture');
+  const original = linkedState();
+  const state = {
+    ...original,
+    equipment: original.equipment.map((item) =>
+      item.category === EquipmentCategory.AMMUNITION
+        ? { ...item, equipmentId: 'mrm-20' }
+        : item,
+    ),
+  };
   const serialized = serializeCustomUnitState(state, {
     id: state.id,
     chassis: state.chassis,
@@ -58,6 +68,22 @@ it('writes an ammo discriminator to the persisted design without adding it to fi
     equipment: { isAmmo?: boolean }[];
   };
   expect(bytes.equipment.every((item) => item.isAmmo === undefined)).toBe(true);
+  expect(getUnitLibraryFingerprint(state)).toBe(
+    old.libraryFingerprint.replace('"id":"ammo-ac5"', '"id":"mrm-20"'),
+  );
+});
+
+it('keeps unambiguous old portable equipment records free of category markers', () => {
+  const state = linkedState();
+  const serialized = serializeCustomUnitState(state, {
+    id: state.id,
+    chassis: state.chassis,
+    variant: state.model,
+    era: Era.DARK_AGE,
+  });
+  expect(serialized.equipment.every((item) => item.isAmmo === undefined)).toBe(
+    true,
+  );
 });
 
 it('detects a same-ID category edit in draft/edit fingerprints and dirty state', () => {
