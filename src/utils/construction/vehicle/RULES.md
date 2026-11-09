@@ -926,3 +926,21 @@ support vehicles, instead of rendering a disabled Body armor input. Body
 remains unavailable to manual armor edits and zero in automatic allocation;
 its equipment-location role is unchanged. This clarifies the earlier
 'remain unavailable' wording: the pinned armor UI has no Body field.
+
+## Diagnostic identities and native loading fixtures (4.1-i)
+
+The archived vehicle construction scenario based on twice the structure does
+not define the pinned armor rule. UnitUtil.java:900-916 at MML 62bf193 gives
+installed hull/turret locations no maximum. TestTank.java:338 at MegaMek
+48fcb2f64 supplies the separate total ceiling. VAL-VEHICLE-ARMOR-LOC therefore
+checks the rotor and unavailable locations; VAL-VEHICLE-ARMOR-TOTAL checks
+the class budget. The root vehicle-construction tests retain the former
+Front-30 example as a legal allocation, and check Front-216 against the
+50-ton Tank's 215-point total without an independent Front error.
+
+Whole-shell loading tests use native geometry as well as the armor-tab tests.
+A tracked superheavy or large-support fixture must carry an appropriate
+weight, rather than setting a six-side flag on a 50-ton hull. The shared
+construction classifier owns the threshold. Support loading diagrams expose
+Front and other armored locations, with no Body armor control, matching the
+pinned layouts cited above.

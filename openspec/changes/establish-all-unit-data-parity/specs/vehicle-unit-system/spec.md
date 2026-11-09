@@ -1032,3 +1032,34 @@ Body SHALL remain unarmored independently of BAR and armor tech rating.
 - **AND** manual allocation SHALL NOT assign armor to Body
 - **AND** automatic allocation SHALL keep Body at zero
 - **AND** Body equipment placement SHALL remain available under its existing construction rules
+
+## ADDED Requirements
+
+### Requirement: Pinned vehicle armor diagnostic identities
+
+Vehicle armor validation SHALL use VAL-VEHICLE-ARMOR-LOC for rotor and
+unavailable-location violations, and VAL-VEHICLE-ARMOR-TOTAL for the separate
+class-total ceiling. Ordinary installed hull and turret armor SHALL NOT
+receive a location error based on internal structure. This supersedes the
+structure-based vehicle location scenario in archived add-vehicle-construction,
+following MML 62bf193 UnitUtil.java:900-916 and MegaMek 48fcb2f64 TestTank.java:338.
+
+#### Scenario: Former per-location overrun is legal within the class total
+
+- **GIVEN** a 50-ton Tank with Front 30, Left 16, Right 16, Rear 10 and Turret 10 armor
+- **WHEN** construction validation runs
+- **THEN** neither VAL-VEHICLE-ARMOR-LOC nor VAL-VEHICLE-ARMOR-TOTAL SHALL be emitted for its 82 points
+
+#### Scenario: Concentrated armor exceeds only the class-total ceiling
+
+- **GIVEN** a 50-ton Tank with Front 216 armor and no armor elsewhere
+- **WHEN** construction validation runs
+- **THEN** VAL-VEHICLE-ARMOR-TOTAL SHALL report 216 against maximum 215
+- **AND** VAL-VEHICLE-ARMOR-LOC SHALL NOT be emitted for Front
+
+#### Scenario: Pending catalog loading preserves the pinned vehicle representation
+
+- **GIVEN** a tracked superheavy or large-support vehicle with native tonnage and geometry
+- **WHEN** its equipment catalog is pending
+- **THEN** its inert loading diagram SHALL render the six-side armored hull
+- **AND** support loading diagrams SHALL omit Body armor controls
