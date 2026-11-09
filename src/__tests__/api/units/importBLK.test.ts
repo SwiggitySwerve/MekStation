@@ -27,6 +27,7 @@ import { createAerospaceHandler } from '@/services/units/handlers/AerospaceUnitH
 import { createBattleArmorHandler } from '@/services/units/handlers/BattleArmorUnitHandler';
 import { createConventionalFighterHandler } from '@/services/units/handlers/ConventionalFighterUnitHandler';
 import { FixedWingSupportUnitHandler } from '@/services/units/handlers/FixedWingSupportUnitHandler';
+import { createInfantryHandler } from '@/services/units/handlers/InfantryUnitHandler';
 import { createProtoMechHandler } from '@/services/units/handlers/ProtoMechUnitHandler';
 import { createSmallCraftHandler } from '@/services/units/handlers/SmallCraftUnitHandler';
 import { createSupportVehicleHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
@@ -36,6 +37,7 @@ import vehicleFixtures from '@/services/units/unitLoaderService/__tests__/fixtur
 import { loadUnitDefinition } from '@/services/units/unitLoaderService/loadUnitDefinition';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
 
 import fixtures from '../../../../scripts/__tests__/fixtures/protomechs.pinned.json';
 import { parseImportResponse } from '../../helpers';
@@ -181,7 +183,7 @@ function parseExpected<T extends IBaseUnit>(
 }
 
 type ImportProofUnit = IBaseUnit & {
-  readonly equipment: readonly (IUnitMountedEquipmentIdentity & {
+  readonly equipment?: readonly (IUnitMountedEquipmentIdentity & {
     readonly location: string;
   })[];
 };
@@ -224,7 +226,7 @@ async function expectSavedImport(
     model: document.model,
     isValid: unit.isValid,
     validationErrors: unit.validationErrors,
-    equipment: unit.equipment.map((mount) => ({
+    equipment: unit.equipment?.map((mount) => ({
       id: mount.equipmentId,
       name: mount.name,
       location: mount.location,
@@ -242,6 +244,7 @@ async function expectSavedImport(
       }),
     ),
   );
+  return loaded;
 }
 
 async function expectVehicleImport(
@@ -332,7 +335,7 @@ it('preserves the existing ProtoMech armor admission boundary', async () => {
   expect(getUnitRepository().list()).toHaveLength(0);
 });
 
-it.each(['DropShip', 'Infantry', 'BattleMech'])(
+it.each(['DropShip', 'BattleMech'])(
   'explicitly rejects unsupported BLK type %s without a write',
   async (type) => {
     const res = await post(fixtures[0].blk.replace('ProtoMek', type));
@@ -684,6 +687,575 @@ it('rejects an unrepresentable battle armor code with client diagnostics and no 
   expect(res._getStatusCode()).toBe(400);
   expect(parseImportResponse(res).error?.validationErrors?.join('; ')).toMatch(
     /armor/i,
+  );
+  expect(getUnitRepository().list()).toHaveLength(0);
+});
+
+// Original bytes read with git show mm-data 50f7efe:<path>; SHA-256 does not normalize line endings.
+const infantrySources = [
+  {
+    path: 'data/mekfiles/infantry/3085/Clan/Clan Heavy Foot Infantry Ebon Keshik Point.blk',
+    sha256: 'c2cf5981b522fb1f00c6ae7a54bf3d74843645d532c7c12ca392377934d84530',
+    content:
+      '# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft\'s "Game Content Usage Rules"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b61a-765c-a555-50871b5d2f58\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nClan Heavy Foot Infantry\n</Name>\n\n<Model>\nEbon Keshik Point\n</Model>\n\n<mul id:>\n608\n</mul id:>\n\n<year>\n2875\n</year>\n\n<type>\nClan Level 3\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nLeg\n</motion_type>\n\n<Troopers Equipment>\nClan Armor Kit (All)\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>The Ebon Keshik is a group of elite, black-clad Elementals who guard the most sacred sites on Strana Mechty. Battle armor is too bulky for these human-scale facilities, so these warriors are most commonly equipped as foot infantry in specially sculpted black body armor and armed with Clan-standard Mauser IIC assault systems. Unlikely to see combat, a warrior assigned to the Ebon Keshik has little to look forward to beyond a Trial of Position against a younger warrior and the inevitable relegation to a solahma unit. Patrolling the corridors of power on Strana Mechty is the ultimate achievement in the career of an Elemental, yet it is a tainted honor, marking the end of a warrior\'s useful service rather than a reward for distinguished performance.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n5\n</squad_size>\n\n<squadn>\n1\n</squadn>\n\n<Primary>\nLaser Rifle (Mauser IIC IAS)\n</Primary>\n\n',
+    invalid: false,
+    facts: {
+      squadSize: 5,
+      squadCount: 1,
+      totalTroopers: 5,
+      motion: 'Leg',
+      primary: 'Laser Rifle (Mauser IIC IAS)',
+      secondary: null,
+      secondaryCount: 0,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Clan Armor Kit (All)'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Clan Armor Kit (All)',
+          name: 'Clan Armor Kit (All)',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/FRR/Anti-Mech Jump Infantry Third Ueda Infantry.blk',
+    sha256: '85809d71117f39fab7c2453b45696b8b171ed6e43b919e6ee562afdf6b81a914',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b63f-74a7-b312-5943434c11b9\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nAnti-'Mech Jump Infantry\n</Name>\n\n<Model>\nThird Ueda Infantry\n</Model>\n\n<mul id:>\n46\n</mul id:>\n\n<year>\n2600\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nJump\n</motion_type>\n\n<Troopers Equipment>\nFree Rasalhague Republic Infantry Kit\nAntiMekGear\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>The Third Ueda Infantry is a typical example of the Kungs\u00c9rm\u00e9 forces absorbed into the Rasalhague Dominion touman. Veterans of the grinding war against Clan Wolf, their numbers were culled through the Trials of Position required for integration into the Dominion military structure. The strongest warriors were seconded into the Third Drakon Cluster's battle armor Binaries, while those who remain provide conventional infantry support to the First Ueda Cavaliers. Low on the military hierarchy and without access to Clan equipment, the Third retains much of its old Inner Sphere gear, including Blazer rifles and heavy support lasers. This may make them appear less capable on paper, but appearances are deceptive. As jump infantry with dedicated anti-BattleMech training, they pose a serious threat to any force they can close with, and their years of combat experience against Clan opponents have taught them exactly how to exploit the weaknesses of heavier formations.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n7\n</squad_size>\n\n<squadn>\n3\n</squadn>\n\n<secondn>\n1\n</secondn>\n\n<Primary>\nLaser Rifle (Blazer)\n</Primary>\n\n<Secondary>\nSupport Laser (Heavy)\n</Secondary>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 7,
+      squadCount: 3,
+      totalTroopers: 21,
+      motion: 'Jump',
+      primary: 'Laser Rifle (Blazer)',
+      secondary: 'Support Laser (Heavy)',
+      secondaryCount: 1,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: [
+        'Free Rasalhague Republic Infantry Kit',
+        'AntiMekGear',
+      ],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Free Rasalhague Republic Infantry Kit',
+          name: 'Free Rasalhague Republic Infantry Kit',
+          location: 'TROOPERS',
+        },
+        {
+          id: 'AntiMekGear',
+          name: 'AntiMekGear',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/RAF/Motorized MG Galatean Support Wheels.blk',
+    sha256: '95c78504ac7f3db5f01fb9444efb9ff9b78314f5b50da1100c63caed663a23a6',
+    content:
+      '# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft\'s "Game Content Usage Rules"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b66e-7dcc-93e2-0705c87229c5\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nMotorized MG\n</Name>\n\n<Model>\nGalatean Support Wheels\n</Model>\n\n<mul id:>\n2234\n</mul id:>\n\n<year>\n2500\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nMotorized\n</motion_type>\n\n<Troopers Equipment>\nFlak, Standard\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Galatea\'s dune buggies and cross-country bikes have long seen field modifications and use by mercenary forces passing through the Hiring Hall world. When a Combine-born motorized infantry regiment was assigned to Galatea after the founding of the Republic, its soldiers quickly adopted these highly flexible local vehicles, driving new standardized models from Galatean manufacturers. Armed with auto rifles supplemented by semi-portable machine guns, the Galatean Support Wheels combine the speed of motorized transport with enough organic firepower to hold ground against light opposition. The GSW are considered the best example of RAF motorized infantry, a formation born from practical adaptation rather than central procurement.</p>\n</overview>\n\n<source>\nTR:3085S\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n7\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nInfantryAssaultRifle\n</Primary>\n\n<Secondary>\nMachine Gun (Portable)\n</Secondary>\n\n',
+    invalid: false,
+    facts: {
+      squadSize: 7,
+      squadCount: 4,
+      totalTroopers: 28,
+      motion: 'Motorized',
+      primary: 'InfantryAssaultRifle',
+      secondary: 'Machine Gun (Portable)',
+      secondaryCount: 2,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Flak, Standard'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Flak, Standard',
+          name: 'Flak, Standard',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/TW/Clan Points/Clan Mechanized Tracked Point (Laser).blk',
+    sha256: 'b178a9d6e65272133b03446896916cfab51f58ae19c216e4b23139387cd3967c',
+    content:
+      '# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft\'s "Game Content Usage Rules"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-bf75-7924-9ff2-ab7e9d53f0f8\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nClan Mechanized Tracked Point\n</Name>\n\n<Model>\n(Laser)\n</Model>\n\n<mul id:>\n624\n</mul id:>\n\n<year>\n2815\n</year>\n\n<type>\nClan Level 2\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nTracked\n</motion_type>\n\n<Troopers Equipment>\nClan Armor Kit (All)\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Clan mechanized tracked Points move five warriors in tracked APCs for all-terrain mechanized operations. Tracked vehicles handle the widest range of ground conditions, making these Points the most reliable mechanized infantry for garrison duty on worlds with varied or hostile terrain. Clan commanders assign tracked Points to sectors where wheeled or hover transport would struggle, and the armored carriers provide meaningful protection during transit. These formations anchor defensive positions and provide the mobile reserve that lighter Clan infantry elements lack.</p>\n</overview>\n\n<source>\nTW,TO:AUE\n</source>\n\n<squad_size>\n5\n</squad_size>\n\n<squadn>\n5\n</squadn>\n\n<Primary>\nLaser Rifle\n</Primary>\n\n',
+    invalid: true,
+    facts: {
+      squadSize: 5,
+      squadCount: 5,
+      totalTroopers: 25,
+      motion: 'Tracked',
+      primary: 'Laser Rifle',
+      secondary: null,
+      secondaryCount: 0,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Clan Armor Kit (All)'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Clan Armor Kit (All)',
+          name: 'Clan Armor Kit (All)',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Word of Blake/Mechanized Assault XCT Word of Blake Militia NBC.blk',
+    sha256: '7cb51305b2a29aecf57742a6795e92fbcf04d976df91b7adec7b5fee49836a3b',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b681-7575-a78c-9ef4137492e8\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nMechanized Assault XCT\n</Name>\n\n<Model>\nWord of Blake Militia NBC\n</Model>\n\n<mul id:>\n2130\n</mul id:>\n\n<year>\n3065\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<Troopers Equipment>\nEnvironment Suit, Marine\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>The Word of Blake's Nuclear, Biological, and Chemical Special Weapons Teams were the standard force for handling combat zones contaminated by weapons of mass destruction. Trained and equipped for operations in toxic environments, these mechanized assault platoons appeared during or immediately after Word of Blake strikes involving nuclear or chemical weapons, scouring irradiated ground for survivors and taking prisoners. Their environment suits provide protection against NBC hazards, while their wheeled mechanized transport carries decontamination gear alongside the platoon's Mauser 1200 LSS laser rifles and man-portable plasma rifles. NBC teams also operated in the aftermath of conventional raids, processing battlefields that conventional troops could not safely enter. Their willingness to work in lethal conditions made them a grim but essential component of the Word's military operations during the Jihad.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n6\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nLaser Rifle (Mauser 1200 LSS)\n</Primary>\n\n<Secondary>\nPlasma Rifle (Man-Portable)\n</Secondary>\n\n<spacesuit>\ntrue\n</spacesuit>\n\n<specialization>\n2048\n</specialization>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 6,
+      squadCount: 4,
+      totalTroopers: 24,
+      motion: 'Wheeled',
+      primary: 'Laser Rifle (Mauser 1200 LSS)',
+      secondary: 'Plasma Rifle (Man-Portable)',
+      secondaryCount: 2,
+      specializations: 2048,
+      augmentations: [],
+      troopersEquipment: ['Environment Suit, Marine'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Environment Suit, Marine',
+          name: 'Environment Suit, Marine',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Corporations/Hover Assault Infantry Johnston Industries Rapid Response Force.blk',
+    sha256: 'cd20cad4580e3178ccd7e0fe19acd1e20bdacdb010351e9960cc49d465a06bed',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b630-7cac-81a8-7e96ad1f2ee5\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nHover Assault Infantry\n</Name>\n\n<Model>\nJohnston Industries Rapid Response Force\n</Model>\n\n<mul id:>\n1549\n</mul id:>\n\n<year>\n2500\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nHover\n</motion_type>\n\n<Troopers Equipment>\nGeneric Infantry Kit\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Johnston Industries, one of the Federated Suns' largest military manufacturers, relies on Rapid Response Forces as its first line of reinforcement for factory security. Riding small, lightly armored hover bikes, RRF troopers combine speed with dismounted flexibility, able to cover the sprawling factory complexes that span dozens of kilometers across worlds like New Syrtis and Benet III. Armed with assault rifles and infantry LRM launchers, these platoons can respond to incursions faster than conventional garrison troops while delivering both direct and indirect fire support. The hover bikes trade protection for mobility, leaving troopers vulnerable if forced into sustained engagements, but Johnston's security doctrine emphasizes rapid reinforcement over static defense.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n5\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nInfantryAssaultRifle\n</Primary>\n\n<Secondary>\nInfantryLRM\n</Secondary>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 5,
+      squadCount: 4,
+      totalTroopers: 20,
+      motion: 'Hover',
+      primary: 'InfantryAssaultRifle',
+      secondary: 'InfantryLRM',
+      secondaryCount: 2,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Generic Infantry Kit'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Generic Infantry Kit',
+          name: 'Generic Infantry Kit',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Corporations/VTOL Infantry Hachiman Taro Enterprise Extraction Force.blk',
+    sha256: 'f70862fec518410a7f042794e2b0b88c912e1f5848080cd9cdd3a9943ad0353c',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b633-7a49-a3a4-b18a89545a01\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nVTOL Infantry\n</Name>\n\n<Model>\nHachiman Taro Enterprise Extraction Force\n</Model>\n\n<mul id:>\n3457\n</mul id:>\n\n<year>\n3045\n</year>\n\n<type>\nIS Level 4\n</type>\n\n<role>\nStriker\n</role>\n\n<motion_type>\nMicrocopter\n</motion_type>\n\n<Troopers Equipment>\nMyomer, Vest\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Hachiman Taro Enterprises, the Draconis Combine electronics conglomerate founded by Chandrasekhar Kurita, fields its Extraction Force as a specialized rapid-response security unit. Each trooper is equipped with a cutting-edge one-man VTOL microcopter, granting the platoon an extraordinary degree of insertion and extraction capability. The HTE Extraction Force specializes in recovering kidnapped corporate assets and personnel from hostile situations, often completing operations before alarms are raised. Armed only with auto-rifles, the sixteen-trooper platoon carries no secondary weapons due to the bulk of their individual flight systems. This trade-off limits their sustained combat power, but the unit's value lies in speed and stealth rather than firepower. The explosive growth of HTE under Chandrasekhar's stewardship brought powerful enemies, making a dedicated extraction capability essential to protecting the company's leadership and key personnel.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n4\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<Primary>\nInfantryAssaultRifle\n</Primary>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 4,
+      squadCount: 4,
+      totalTroopers: 16,
+      motion: 'Microcopter',
+      primary: 'InfantryAssaultRifle',
+      secondary: null,
+      secondaryCount: 0,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Myomer, Vest'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Myomer, Vest',
+          name: 'Myomer, Vest',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Davion/Frogmen Blue Water Marine Response Teams (Frogmen).blk',
+    sha256: 'ceaed7452a4da2adec92fbc2a7e2a108f1d0a02eb59bf78df1979d840ec63310',
+    content:
+      '# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft\'s "Game Content Usage Rules"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b637-7026-9456-5fce8e25b59c\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nFrogmen\n</Name>\n\n<Model>\nBlue Water Marine Response Teams (Frogmen)\n</Model>\n\n<mul id:>\n1153\n</mul id:>\n\n<year>\n2500\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nMotorized SCUBA\n</motion_type>\n\n<Troopers Equipment>\nFlak, Standard\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>The AFFS Frogmen are special operations troops drawn from the blue water marine community, trained extensively in sub-surface warfare and amphibious combat. Riding electric-cell underwater sleds, these operators conduct demolitions, reconnaissance, and direct action missions in riverine and coastal environments where conventional ground forces cannot follow. Equipped with laser rifles and heavy support lasers suited for both surface and near-surface engagements, the Frogmen prove the old adage that no coastline is ever truly secure. Their training pipeline is demanding enough that the AFFS maintains only a small number of active teams, but those who earn the qualification are among the most capable waterborne combatants in the Inner Sphere.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n6\n</squad_size>\n\n<squadn>\n2\n</squadn>\n\n<secondn>\n1\n</secondn>\n\n<Primary>\nInfantryFederatedBarrettM61A\n</Primary>\n\n<Secondary>\nSupport Laser\n</Secondary>\n\n<specialization>\n4096\n</specialization>\n\n',
+    invalid: false,
+    facts: {
+      squadSize: 6,
+      squadCount: 2,
+      totalTroopers: 12,
+      motion: 'Motorized SCUBA',
+      primary: 'InfantryFederatedBarrettM61A',
+      secondary: 'Support Laser',
+      secondaryCount: 1,
+      specializations: 4096,
+      augmentations: [],
+      troopersEquipment: ['Flak, Standard'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Flak, Standard',
+          name: 'Flak, Standard',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Mercenary/Submersible Mechanized Infantry Kraken Unleashed - The Mermen.blk',
+    sha256: 'f79adda034afd7c2cec285634bccbb6d3d8718a1601fc6755eac06b06a3b2321',
+    content:
+      '# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft\'s "Game Content Usage Rules"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b65f-7cb9-8f22-b595699f3c16\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nSubmersible Mechanized Infantry\n</Name>\n\n<Model>\nKraken Unleashed - The Mermen\n</Model>\n\n<mul id:>\n3116\n</mul id:>\n\n<year>\n2600\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nSubmarine\n</motion_type>\n\n<Troopers Equipment>\nEnvironment Suit, Marine\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Kraken Unleashed is a mercenary regiment specializing in amphibious, underwater, and naval combat. Stationed on the Capellan world of Principia, the command worked with local shipwright industries to develop a new infantry capability: the Submersible Mechanized Infantry. Using locally produced Harpoon parasubs, five-trooper squads operate from unpressurized submersibles equipped with small torpedo launchers. Troopers fire their gyroslug rifles from the safety of the armored hull while the parasub provides propulsion and additional firepower. Unlike full-sized combat submarines, the Harpoon is compact enough to load into a transport and deploy anywhere on a planet within hours. The Mermen, Kraken Unleashed\'s dedicated infantry component, field these parasubs as their primary combat platform, bringing firepower sufficient to threaten even concerted underwater BattleMech assaults.</p>\n</overview>\n\n<source>\nTR:3085S\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n5\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nGyroslug Rifle\n</Primary>\n\n<Secondary>\nInfantryStandardSRM\n</Secondary>\n\n<spacesuit>\ntrue\n</spacesuit>\n\n<specialization>\n4096\n</specialization>\n\n',
+    invalid: false,
+    facts: {
+      squadSize: 5,
+      squadCount: 4,
+      totalTroopers: 20,
+      motion: 'Submarine',
+      primary: 'Gyroslug Rifle',
+      secondary: 'InfantryStandardSRM',
+      secondaryCount: 2,
+      specializations: 4096,
+      augmentations: [],
+      troopersEquipment: ['Environment Suit, Marine'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Environment Suit, Marine',
+          name: 'Environment Suit, Marine',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Taurian/Field Gun Infantry Motorized Batteries.blk',
+    sha256: 'eb303bff6e97f5c7a8e252dc309b22aa22199c35f7e2764c7c2da4df22617117',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b67a-7f39-a5d0-2cbe1967da03\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nField Gun Infantry\n</Name>\n\n<Model>\n(Motorized Batteries)\n</Model>\n\n<mul id:>\n1061\n</mul id:>\n\n<year>\n2500\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nMotorized\n</motion_type>\n\n<Troopers Equipment>\nTaurian Concordat/Calderon Infantry Kit\n</Troopers Equipment>\n\n<Field Guns Equipment>\nLight Auto Cannon/5\nIS Ammo LAC/5\nLight Auto Cannon/5\nIS Ammo LAC/5\nLight Auto Cannon/5\nIS Ammo LAC/5\nLight Auto Cannon/5\nIS Ammo LAC/5\nLight Auto Cannon/5\nIS Ammo LAC/5\nLight Auto Cannon/5\nIS Ammo LAC/5\n</Field Guns Equipment>\n\n<overview>\n<p>The motorized field gun batteries of the Taurian Defense Force are a direct outgrowth of the Concordat's combined-arms doctrine, which pairs infantry firepower with armored formations wherever possible. Units of the First Taurian Lancers, a multiregiment combined-arms command fielded since 3020, pioneered the integration of field gun batteries alongside their motorized companies. Each battery fields six light autocannons mounted on towed carriages, crewed by teams of five soldiers apiece, with auto-rifles as personal sidearms for the gun crews.</p><p>These platoons deliver direct fire support that conventional infantry cannot match. The light autocannons engage armored vehicles and hardened positions at ranges well beyond personal weapon reach, providing organic heavy firepower to infantry formations that would otherwise depend entirely on attached armor or BattleMech support. Support particle projection cannons give the batteries an additional energy weapon capability against heavier targets. Transported by motorized vehicles, the batteries can reposition quickly enough to support offensive operations rather than being limited to static garrison defense. The Concordat's limited BattleMech inventory makes these field guns a critical force multiplier for TDF ground commanders.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n10\n</squad_size>\n\n<squadn>\n3\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nInfantryAssaultRifle\n</Primary>\n\n<Secondary>\nParticle Cannon (Support)\n</Secondary>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 10,
+      squadCount: 3,
+      totalTroopers: 30,
+      motion: 'Motorized',
+      primary: 'InfantryAssaultRifle',
+      secondary: 'Particle Cannon (Support)',
+      secondaryCount: 2,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Taurian Concordat/Calderon Infantry Kit'],
+      fieldEquipment: [
+        'Light Auto Cannon/5',
+        'IS Ammo LAC/5',
+        'Light Auto Cannon/5',
+        'IS Ammo LAC/5',
+        'Light Auto Cannon/5',
+        'IS Ammo LAC/5',
+        'Light Auto Cannon/5',
+        'IS Ammo LAC/5',
+        'Light Auto Cannon/5',
+        'IS Ammo LAC/5',
+        'Light Auto Cannon/5',
+        'IS Ammo LAC/5',
+      ],
+      equipment: [
+        {
+          id: 'Taurian Concordat/Calderon Infantry Kit',
+          name: 'Taurian Concordat/Calderon Infantry Kit',
+          location: 'TROOPERS',
+        },
+        {
+          id: 'Light Auto Cannon/5',
+          name: 'Light Auto Cannon/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'IS Ammo LAC/5',
+          name: 'IS Ammo LAC/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'Light Auto Cannon/5',
+          name: 'Light Auto Cannon/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'IS Ammo LAC/5',
+          name: 'IS Ammo LAC/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'Light Auto Cannon/5',
+          name: 'Light Auto Cannon/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'IS Ammo LAC/5',
+          name: 'IS Ammo LAC/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'Light Auto Cannon/5',
+          name: 'Light Auto Cannon/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'IS Ammo LAC/5',
+          name: 'IS Ammo LAC/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'Light Auto Cannon/5',
+          name: 'Light Auto Cannon/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'IS Ammo LAC/5',
+          name: 'IS Ammo LAC/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'Light Auto Cannon/5',
+          name: 'Light Auto Cannon/5',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'IS Ammo LAC/5',
+          name: 'IS Ammo LAC/5',
+          location: 'FIELD_GUNS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Kurita/Mechanized Field Artillery 71st Mechanized.blk',
+    sha256: '2897d69bffa68f2bbddbe81f8ff08eadff85ab206daed705a868b2c3a2a5f429',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b64f-7ba7-8305-a1f052c15b6b\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nMechanized Field Artillery\n</Name>\n\n<Model>\n71st Mechanized\n</Model>\n\n<mul id:>\n2131\n</mul id:>\n\n<year>\n2500\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nMissile Boat\n</role>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<Troopers Equipment>\nDraconis Combine Infantry Kit\n</Troopers Equipment>\n\n<Field Guns Equipment>\nISThumper\nISThumperAmmo\n</Field Guns Equipment>\n\n<overview>\n<p>The Sword of Light brigade has long represented the elite of the Draconis Combine Mustered Soldiery's combat arm, with membership requiring five years of flawless service and rigorous testing. Despite the advent of battle armor in the Inner Sphere, certain Sword of Light units have vehemently resisted incorporating battlesuits into their tables of organization. The Seventy-first Mechanized field artillery battalion embodies that philosophy, assigned to the Ninth Sword of Light after remaining loyal through the Second Sword of Light's betrayal. The battalion stubbornly continued to demonstrate that conventional infantry could deliver firepower without battlesuits. Each soldier carries a TK assault rifle, with support weapons specialists manning semi-portable autocannons to provide suppressive fire. The pride of the Seventy-first is its Thumper artillery piece, a traditional field gun whose indirect fire capability still exceeds what battle armor can deliver.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n6\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nRifle (TK Assault)\n</Primary>\n\n<Secondary>\nAutocannon (Semi-Portable)\n</Secondary>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 6,
+      squadCount: 4,
+      totalTroopers: 24,
+      motion: 'Wheeled',
+      primary: 'Rifle (TK Assault)',
+      secondary: 'Autocannon (Semi-Portable)',
+      secondaryCount: 2,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Draconis Combine Infantry Kit'],
+      fieldEquipment: ['ISThumper', 'ISThumperAmmo'],
+      equipment: [
+        {
+          id: 'Draconis Combine Infantry Kit',
+          name: 'Draconis Combine Infantry Kit',
+          location: 'TROOPERS',
+        },
+        {
+          id: 'ISThumper',
+          name: 'ISThumper',
+          location: 'FIELD_GUNS',
+        },
+        {
+          id: 'ISThumperAmmo',
+          name: 'ISThumperAmmo',
+          location: 'FIELD_GUNS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Steiner/HALO Paratrooper Lyran Paratrooper Corps.blk',
+    sha256: '5c95d201a7fbe72b284cb78ef276cd6aceeabd098c757da5308123da588ee697',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b677-7fd4-9cd1-8942e77f872e\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nHALO Paratrooper\n</Name>\n\n<Model>\nLyran Paratrooper Corps\n</Model>\n\n<mul id:>\n1364\n</mul id:>\n\n<year>\n3045\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nLeg\n</motion_type>\n\n<Troopers Equipment>\nLyran Alliance/Lyran Commonwealth (3060+) Infantry Kit\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Most Lyran troops undergo some form of paratrooper training during their service, but the soldiers who actually deploy with the Lyran Paratrooper Corps are a cut above. Experienced, talented, and organized into three-squad platoons of twenty-one troopers, the Corps operates as a strategic asset rather than a tactical one. Armed with Mauser and Gray G-150 rifles and backed by heavy recoilless rifles, paratroopers like those attached to the Third Skye CMR can deploy at a moment's notice from the Commonwealth's extensive inventory of fixed-wing transport craft. Their ability to conduct atmospheric drops gives them access to battlefields that ground-bound formations simply cannot reach in time.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n7\n</squad_size>\n\n<squadn>\n3\n</squadn>\n\n<secondn>\n2\n</secondn>\n\n<Primary>\nRifle (M&G G-150)\n</Primary>\n\n<Secondary>\nInfantryHRR\n</Secondary>\n\n<armordivisor>\n2.0\n</armordivisor>\n\n<specialization>\n512\n</specialization>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 7,
+      squadCount: 3,
+      totalTroopers: 21,
+      motion: 'Leg',
+      primary: 'Rifle (M&G G-150)',
+      secondary: 'InfantryHRR',
+      secondaryCount: 2,
+      specializations: 512,
+      augmentations: [],
+      troopersEquipment: [
+        'Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit',
+      ],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit',
+          name: 'Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Clan/Clan Space Marine Clan Snow Raven Space Marines.blk',
+    sha256: 'cba3202ca3a4226c4cbd27693afd50cbd22ce70d10af3ee0d0d67710ad1254f3',
+    content:
+      '# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft\'s "Game Content Usage Rules"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b61d-74cd-a4d7-2952f17014ef\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nClan Space Marine\n</Name>\n\n<Model>\nClan Snow Raven Space Marines\n</Model>\n\n<mul id:>\n3662\n</mul id:>\n\n<year>\n3015\n</year>\n\n<type>\nClan Level 3\n</type>\n\n<role>\nAmbusher\n</role>\n\n<motion_type>\nLeg\n</motion_type>\n\n<Troopers Equipment>\nEnvironment Suit, Marine\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Navies throughout history have sought dedicated marines, soldiers they can tailor to suit shipboard needs and requirements. Clan Snow Raven continues this tradition, fielding Space Marine Points drawn from warriors of all phenotypes to guard its fleet from internal threats. Unlike battle armor troops, these marines have limited mobility and are best suited to defensive operations, providing security and boarding defense on spacecraft ranging from WarShips to observation stations. Armed with Mauser IIC assault systems and fitted with marine environment suits, they can fight effectively in zero-gravity and vacuum conditions. The introduction of the Aerie power armor has raised questions about the future of unarmored marines within the Snow Raven touman, but the Aerie\'s prohibitive cost ensures that conventional marines will continue to fill shipboard security roles for the foreseeable future.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n5\n</squad_size>\n\n<squadn>\n4\n</squadn>\n\n<Primary>\nLaser Rifle (Mauser IIC IAS)\n</Primary>\n\n<armordivisor>\n2.0\n</armordivisor>\n\n<spacesuit>\ntrue\n</spacesuit>\n\n',
+    invalid: false,
+    facts: {
+      squadSize: 5,
+      squadCount: 4,
+      totalTroopers: 20,
+      motion: 'Leg',
+      primary: 'Laser Rifle (Mauser IIC IAS)',
+      secondary: null,
+      secondaryCount: 0,
+      specializations: 0,
+      augmentations: [],
+      troopersEquipment: ['Environment Suit, Marine'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Environment Suit, Marine',
+          name: 'Environment Suit, Marine',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+  {
+    path: 'data/mekfiles/infantry/3085/Word of Blake/Tau Wraith Manei Domini Recon Squad.blk',
+    sha256: 'b01ffb9814f27d0cbfaed17040eb0cf3617cd88c0da1d29a31f46fc16de6a23d',
+    content:
+      "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-b685-7571-8a26-5fbf95e62b10\n</UUID>\n\n<UnitType>\nInfantry\n</UnitType>\n\n<Name>\nManei Domini Recon Squad\n</Name>\n\n<Model>\n'Tau Wraith'\n</Model>\n\n<mul id:>\n3166\n</mul id:>\n\n<year>\n3065\n</year>\n\n<type>\nIS Level 4\n</type>\n\n<role>\nScout\n</role>\n\n<motion_type>\nLeg\n</motion_type>\n\n<Troopers Equipment>\nSneak Suit (Camo/IR/ECM)\n</Troopers Equipment>\n\n<Field Guns Equipment>\n</Field Guns Equipment>\n\n<overview>\n<p>Tau Wraith reconnaissance squads served as the Manei Domini's eyes on the battlefield, operating from the shadows to coordinate friendly forces and provide targeting telemetry for heavier units. Where Tau Zombies overwhelmed through brute cybernetic force, Wraiths relied on stealth and information superiority. Each six-trooper squad wore Sneak Suits incorporating camouflage, ECM, and infrared baffling that rendered them invisible to standard detection equipment, including active probes. Their boosted communicator implants allowed Wraiths to link directly into friendly C3 networks, sharing real-time battlefield data without the need for external communications gear. Armed with Mauser 1200 LSS laser rifles and equipped with paratrooper drop capability, Wraith squads could insert behind enemy lines and remain undetected while guiding strikes from friendly formations. Few conventional forces could match their combination of stealth, communications integration, and cybernetic enhancement.</p>\n</overview>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<squad_size>\n6\n</squad_size>\n\n<squadn>\n1\n</squadn>\n\n<Primary>\nLaser Rifle (Mauser 1200 LSS)\n</Primary>\n\n<sneakcamo>\ntrue\n</sneakcamo>\n\n<sneakir>\ntrue\n</sneakir>\n\n<sneakecm>\ntrue\n</sneakecm>\n\n<specialization>\n512\n</specialization>\n\n<augmentation>\nboost_comm_implant\ncyber_imp_visual\ncyber_imp_laser\ngas_effuser_pheromone\ngas_effuser_toxin\n</augmentation>\n\n",
+    invalid: false,
+    facts: {
+      squadSize: 6,
+      squadCount: 1,
+      totalTroopers: 6,
+      motion: 'Leg',
+      primary: 'Laser Rifle (Mauser 1200 LSS)',
+      secondary: null,
+      secondaryCount: 0,
+      specializations: 512,
+      augmentations: [
+        'boost_comm_implant',
+        'cyber_imp_visual',
+        'cyber_imp_laser',
+        'gas_effuser_pheromone',
+        'gas_effuser_toxin',
+      ],
+      troopersEquipment: ['Sneak Suit (Camo/IR/ECM)'],
+      fieldEquipment: [],
+      equipment: [
+        {
+          id: 'Sneak Suit (Camo/IR/ECM)',
+          name: 'Sneak Suit (Camo/IR/ECM)',
+          location: 'TROOPERS',
+        },
+      ],
+    },
+  },
+] as const;
+
+it.each(infantrySources)(
+  'saves and reloads original infantry bytes $path',
+  async (source) => {
+    expect(createHash('sha256').update(source.content).digest('hex')).toBe(
+      source.sha256,
+    );
+    const parsed = new BlkParserService().parse(source.content);
+    if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+    const expected = parseExpected(
+      parsed.data.document,
+      createInfantryHandler(),
+    );
+    const { unit } = expected;
+    const facts = source.facts;
+    const loaded = await expectSavedImport(
+      'infantry',
+      source.content,
+      parsed.data.document,
+      expected,
+      {
+        platoon: {
+          squadSize: facts.squadSize,
+          squadCount: facts.squadCount,
+          totalTroopers: facts.totalTroopers,
+        },
+        motionType: unit.motionType.toUpperCase(),
+        motiveType: facts.motion,
+        primaryWeapon: { id: facts.primary, name: facts.primary },
+        ...(facts.secondary
+          ? {
+              secondaryWeapon: {
+                id: facts.secondary,
+                name: facts.secondary,
+                count: facts.secondaryCount,
+              },
+            }
+          : {}),
+        damageDivisor: unit.damageDivisor,
+        specializations: unit.bvOffense?.specializations,
+        augmentations: facts.augmentations,
+        effectiveArmorFlags: unit.bvArmorFlags,
+        equipment: facts.equipment,
+      },
+      source.invalid,
+      parsed.data.warnings,
+    );
+    if (!facts.secondary)
+      expect(loaded.definition.secondaryWeapon).toBeUndefined();
+    expect(mapInfantryDefinition(loaded.definition)).toMatchObject({
+      squadSize: facts.squadSize,
+      numberOfSquads: facts.squadCount,
+      platoonComposition: {
+        squads: facts.squadCount,
+        troopersPerSquad: facts.squadSize,
+      },
+      primaryWeapon: facts.primary,
+      secondaryWeaponCount: facts.secondaryCount,
+      librarySource: loaded.definition,
+    });
+    if (source.invalid) {
+      expect(loaded.definition.blkSource).toMatchObject({
+        diagnostics: { isValid: false, errors: ['Maximum squad count is 4'] },
+      });
+    }
+  },
+);
+
+it('rejects an infantry name conflict without overwriting its source or platoon', async () => {
+  const text = infantrySources[0].content;
+  expect((await post(text))._getStatusCode()).toBe(201);
+  const before = getUnitRepository().list();
+  const saved = getUnitRepository().getById(before[0].id);
+  expect((await post('# conflict\n' + text))._getStatusCode()).toBe(409);
+  expect(getUnitRepository().list()).toEqual(before);
+  expect(getUnitRepository().getById(before[0].id)).toEqual(saved);
+});
+
+it('retains infantry source-loading diagnostics without writing a rejected source', async () => {
+  const text =
+    infantrySources[0].content + '\n<armordivisor>\n0\n</armordivisor>\n';
+  const res = await post(text);
+  expect(res._getStatusCode()).toBe(400);
+  expect(parseImportResponse(res).error?.validationErrors?.join('; ')).toMatch(
+    /damage divisor/i,
   );
   expect(getUnitRepository().list()).toHaveLength(0);
 });

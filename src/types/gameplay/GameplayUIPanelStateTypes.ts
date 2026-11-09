@@ -489,8 +489,18 @@ export function getPhaseActions(
         },
         { id: 'concede', label: 'Concede', primary: false, enabled: true },
       ];
-    default:
+    // Offering actions in these two phases is a deliberate UI change, not
+    // part of the phase-table work; today they have none.
+    case GamePhase.Initiative:
+    case GamePhase.PhysicalAttack:
       return [];
+    default: {
+      // Compile-time exhaustiveness over GamePhase; a value outside the
+      // enum still gets no actions, as before.
+      const exhaustive: never = phase;
+      void exhaustive;
+      return [];
+    }
   }
 }
 

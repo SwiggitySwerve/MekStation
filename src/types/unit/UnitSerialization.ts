@@ -1,4 +1,5 @@
 import type { ResultType } from '@/types/common/result';
+import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 /**
  * Unit Serialization Types
  *
@@ -91,6 +92,8 @@ export interface ISerializedUnit {
   readonly componentTechBases?: Readonly<
     Partial<Record<string, 'INNER_SPHERE' | 'CLAN'>>
   >;
+  /** Authored Tripod/QuadVee crew seats; unassigned seats are absent. */
+  readonly crewSeats?: readonly IMechCrewSeat[];
 }
 
 /**
