@@ -22,6 +22,11 @@ public class WeaponBVFlags {
       row.put("riscLaser", (w.hasFlag(WeaponType.F_LASER) || w instanceof CLChemicalLaserWeapon) && !w.hasFlag(WeaponType.F_PULSE) && !w.isClan());
       row.put("apollo", w.getAmmoType() == AmmoType.AmmoTypeEnum.MRM);
       row.put("infantry", w.hasFlag(WeaponType.F_INFANTRY));
+      // Entity.java:5120-5175; AmmoType.java:2443-2447 (48fcb2f64).
+      // NA weapons such as TSEMP One-Shot cannot insert an ammo mount.
+      row.put("oneShotAmmoMounts", w.hasFlag(WeaponType.F_ONE_SHOT)
+        && w.getAmmoType() != AmmoType.AmmoTypeEnum.NA
+        ? (w.hasFlag(WeaponType.F_DOUBLE_ONE_SHOT) ? 2 : 1) : 0);
       result.put(w.getClass().getSimpleName(), row);
     }
     new ObjectMapper().writerWithDefaultPrettyPrinter().writeValue(Path.of(args[0]).toFile(), Map.of("revision", "48fcb2f64a1b3f2d575707ce5653dad64927b587", "weapons", result));

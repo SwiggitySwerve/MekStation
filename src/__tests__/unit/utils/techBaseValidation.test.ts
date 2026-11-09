@@ -7,6 +7,7 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import {
   TechBaseComponent,
+  TechBaseMode,
   createDefaultComponentTechBases,
 } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
@@ -232,5 +233,80 @@ describe('techBaseValidation', () => {
       expect(result.heatSinkType).toBe(HeatSinkType.DOUBLE_CLAN);
       expect(result.armorType).toBe(ArmorTypeEnum.FERRO_FIBROUS_CLAN);
     });
+  });
+});
+
+describe('explicit Mixed full selection validation', () => {
+  const selections: ComponentSelections = {
+    engineType: EngineType.XL_CLAN,
+    gyroType: GyroType.XL,
+    internalStructureType: InternalStructureType.ENDO_STEEL_IS,
+    cockpitType: CockpitType.SMALL,
+    heatSinkType: HeatSinkType.DOUBLE_CLAN,
+    armorType: ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+  };
+  it.each([
+    [TechBase.CLAN, InternalStructureType.ENDO_STEEL_IS],
+    [TechBase.INNER_SPHERE, InternalStructureType.ENDO_STEEL_CLAN],
+  ])(
+    'retains independently legal components on a %s chassis',
+    (chassis, structure) => {
+      const current = { ...selections, internalStructureType: structure };
+      const bases = {
+        ...createDefaultComponentTechBases(TechBase.INNER_SPHERE),
+        chassis,
+      };
+      expect(
+        getFullyValidatedSelections(
+          bases,
+          current,
+          undefined,
+          undefined,
+          TechBaseMode.MIXED,
+        ),
+      ).toEqual(current);
+    },
+  );
+  it('does not accept unknown component values in Mixed mode', () => {
+    const invalid = {
+      engineType: 'unknown' as EngineType,
+      gyroType: 'unknown' as GyroType,
+      internalStructureType: 'unknown' as InternalStructureType,
+      cockpitType: 'unknown' as CockpitType,
+      heatSinkType: 'unknown' as HeatSinkType,
+      armorType: 'unknown' as ArmorTypeEnum,
+    };
+    const bases = createDefaultComponentTechBases(TechBase.CLAN);
+    expect(
+      getFullyValidatedSelections(
+        bases,
+        invalid,
+        undefined,
+        undefined,
+        TechBaseMode.MIXED,
+      ),
+    ).toEqual(getFullyValidatedSelections(bases, invalid));
+  });
+  it('keeps remembered fixed-mode selections ahead of current values', () => {
+    const bases = createDefaultComponentTechBases(TechBase.INNER_SPHERE);
+    const memory = createEmptySelectionMemory();
+    memory.engine[TechBase.INNER_SPHERE] = EngineType.LIGHT;
+    const current = { ...selections, engineType: EngineType.XL_IS };
+    const legacy = getFullyValidatedSelections(
+      bases,
+      current,
+      memory,
+      TechBase.INNER_SPHERE,
+    );
+    expect(legacy.engineType).toBe(EngineType.LIGHT);
+    expect(
+      getFullyValidatedSelections(
+        bases,
+        current,
+        memory,
+        TechBase.INNER_SPHERE,
+        TechBaseMode.INNER_SPHERE,
+      ),
+    ).toEqual(legacy);
   });
 });

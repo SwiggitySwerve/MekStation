@@ -250,6 +250,10 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
         rawTags,
         'baseChassisFireConWeight',
       ),
+      baseChassisSponsonPintleWeight:
+        getRawTagString(rawTags, 'baseChassisSponsonPintleWeight') === undefined
+          ? undefined
+          : getRawTagNumber(rawTags, 'baseChassisSponsonPintleWeight'),
       transporters: document.transporters ?? [],
       crewSize,
       passengerCapacity,

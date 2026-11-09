@@ -117,6 +117,9 @@ export function migrateMatchStoreSupersession(db: Database.Database): void {
  * Move the live tail from `fromSequence` inclusive. Idempotent when
  * the live tail is already empty. `fromSequence` is the first
  * discarded store sequence (revision = sequence + 1).
+ * Viewer resume data belongs to the superseded stream as a whole:
+ * rewind replay renumbers even retained events from zero. Unlike
+ * authority history, these disposable rows need no sibling archive.
  */
 export function supersedeMatchStoreFrom(
   db: Database.Database,
@@ -125,6 +128,13 @@ export function supersedeMatchStoreFrom(
   at: string,
 ): void {
   db.transaction(() => {
+    db.prepare(`DELETE FROM mp_viewer_delivery WHERE match_id = ?`).run(
+      matchId,
+    );
+    db.prepare(`DELETE FROM mp_viewer_delivery_ack WHERE match_id = ?`).run(
+      matchId,
+    );
+
     db.prepare(
       `INSERT INTO ${EVENTS_SUPERSEDED_TABLE}
          (match_id, sequence, event_json, superseded_at)

@@ -591,7 +591,7 @@
         "npm.cmd run validate:combat",
         "npm.cmd run validate:combat:gaps -- --format=summary --expect-total=0",
         "npm.cmd run verify:qc:combat-4v4",
-        "npx.cmd openspec validate --all --strict",
+        "npm.cmd run openspec:validate",
         "npm.cmd run qc:wave3:validate"
       ],
       "manualChecks": [
@@ -1518,7 +1518,7 @@
       "commands": [
         "node scripts/qc/generate-v220-steps.mjs --check",
         "npm.cmd run qc:openspec-ci:validate",
-        "npx.cmd openspec validate --all --strict",
+        "npm.cmd run openspec:validate",
         "npm.cmd run lint",
         "npm.cmd run typecheck -- --pretty false",
         "npm.cmd run format:check"

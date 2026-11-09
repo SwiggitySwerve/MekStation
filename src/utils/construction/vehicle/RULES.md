@@ -1137,3 +1137,47 @@ structure mass, which ignores the structure type
 No small-vehicle mount in the corpus is DWP-mounted or a squad support weapon,
 so `Mounted.getTonnage` x0.75 and x0.5/0.4 (`Mounted.java:729-746`) are not
 implemented; nothing here measures them.
+
+## Support pintle and sponson mechanisms (pinned)
+
+`MiscType.getTonnage` (MiscType.java:563-603 at 48fcb2f64) weighs the two turret
+mechanisms from their neighbours, not from a catalog value:
+
+- **Sponson pair:** 10% of the sponson-mounted equipment (not ammunition, heat
+  sinks or armor), rounded up, split between the sponsons. This is the
+  aggregate rule above, now applied to support vehicles as well.
+- **Pintle:** 5% of the weapons that are pintle-mounted in the pintle's own
+  location, rounded up. A fixed chassis weight (`baseChassisSponsonPintleWeight`,
+  MegaMek's `Tank.getBaseChassisSponsonPintleWeight`, -1 when unassigned) wins,
+  even when zero, and is split over the pintles.
+- Rounding is kilograms on a support vehicle under 5 t, half tons otherwise.
+
+`applyVehicleMountMechanismWeights` in `turret.ts` is the single owner: the editor
+(`mountedWeight.ts`, which previously held the sponson block inline) and the
+support payload (`supportPayload.ts`) both call it, with
+`computeVehiclePintleMechanismWeight` beside the existing sponson function. The
+sponson payload predicate (`isSponsonMechanismPayload`) moved with it. The support
+handler reads the BLK tag `baseChassisSponsonPintleWeight` into the new
+`ISupportVehicle` field. Other copies: none of the rule remains elsewhere; the
+combat Tank path (`vehicleHandlerWeight.ts`) already reaches the sponson through
+the editor owner.
+
+A mechanism whose weapons or payload have an unresolved mass is itself
+unresolved, never charged as if they weighed nothing. A mount the catalog cannot
+identify counts as a possible pintle weapon (unidentified ammunition does not).
+The Ibex RV (Militarized MG) pintles therefore stay unresolved while its
+battle-armor gun misidentification stands (Java 0.001 t each).
+
+Verified against the pinned verifier (`supportMechanisms.pinned.{json,test.ts}`):
+Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
+equal Java in weapons, miscellaneous equipment and total. The Dreadnought Mk II
+Land Train's sponsons (0.25 t each) and every other term equal Java; its total
+is 0.5 t short because `ISMGA(ST)` reaches the 0.25 t `mga` entry where Java's
+ISMGA weighs 0.5 t, the same identity gap the combat path closes for `ISLMGA(ST)`
+above. Pinning the registry mass through the injected lookup closes it to 200 t.
+That identity fix is a separate change (the lookup token owner is shared with the
+combat path) and is reported, not made here.
+
+Not modelled: the sponson Omni branch has no corpus source and the support unit
+does not expose `isOmni`; clip ammunition mass and the `Machine Gun (Light)`
+identity stay as listed in the small-vehicle section above.

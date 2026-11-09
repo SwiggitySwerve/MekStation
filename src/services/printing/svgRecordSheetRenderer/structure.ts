@@ -370,6 +370,7 @@ function getStructurePipGroupIdsForMechType(
 ): Record<string, string> {
   switch (mechType) {
     case 'quad':
+    case 'quadvee':
       return QUAD_STRUCTURE_PIP_GROUP_IDS;
     case 'tripod':
       return TRIPOD_STRUCTURE_PIP_GROUP_IDS;

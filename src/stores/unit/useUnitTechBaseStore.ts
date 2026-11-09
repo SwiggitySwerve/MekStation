@@ -208,10 +208,13 @@ function syncEnhancementEquipment(
 
 export function createTechBaseSlice(
   set: UnitSliceSetFn,
-  _get: UnitSliceGetFn,
+  get: UnitSliceGetFn,
 ): UnitTechBaseActions {
   return {
-    setTechBaseMode: (mode) =>
+    setTechBaseMode: (mode) => {
+      // MML 62bf193 BMStructureTab.java:772-784 mutates only when mode changes.
+      // Return before set: an equal-valued patch still writes draft metadata.
+      if (get().techBaseMode === mode) return;
       set((state) => {
         const newTechBase = getModeTechBase(mode, state.techBase);
         const newComponentTechBases =
@@ -230,6 +233,7 @@ export function createTechBaseSlice(
           getCurrentSelections(state),
           memoryTechBase ? updatedMemory : undefined,
           memoryTechBase,
+          mode,
         );
 
         // Re-sync enhancement equipment since MASC calculation differs by tech base
@@ -257,7 +261,8 @@ export function createTechBaseSlice(
           isModified: true,
           lastModifiedAt: Date.now(),
         };
-      }),
+      });
+    },
 
     setComponentTechBase: (component, techBase) =>
       set((state) => {
