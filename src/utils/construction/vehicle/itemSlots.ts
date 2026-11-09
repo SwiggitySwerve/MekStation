@@ -65,8 +65,6 @@ const ARMOR = new Set(
     ' ',
   ),
 );
-/** TestTank.isBodyEquipment:1079-1093 fire control, via isValidTankLocation:979-980. */
-const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
 /** Shared identity of Java ArmorType records, which do not enter mechanism mass. */
 export function isVehicleArmorEquipment(id: string): boolean {
   return ARMOR.has(id);
@@ -176,15 +174,6 @@ function overrun(used: number, available: number): string[] {
     : [];
 }
 
-function fireControlErrors(mounts: Mounts): string[] {
-  return mounts.items
-    .filter(
-      ({ record, location }) =>
-        FIRE_CONTROL.has(record.id) && location !== 'Body',
-    )
-    .map(({ record }) => `${record.name} must be mounted in the body.`);
-}
-
 /**
  * `sideUnknown`: the unit carries neither clan_engine nor armor_tech_level
  * (IVTOL), so both take the Clan side, the smaller cost.
@@ -213,10 +202,7 @@ export function combatVehicleSlotErrors(
   used += engineSlots(source, sideUnknown || source.clanEngine === true);
   used += ammoSlots(mounts.ammo) + transportSlots(source.transporters);
   used += armorSlots(source, clan);
-  return [
-    ...overrun(used, 5 + Math.floor(source.tonnage / 5)),
-    ...fireControlErrors(mounts),
-  ];
+  return overrun(used, 5 + Math.floor(source.tonnage / 5));
 }
 
 export function supportVehicleSlotErrors(source: VehicleSlotUnit): string[] {
@@ -231,12 +217,8 @@ export function supportVehicleSlotErrors(source: VehicleSlotUnit): string[] {
     if (!JUMP_JETS.has(record.id)) used += slots;
   }
   used += mounts.items.some(({ record }) => JUMP_JETS.has(record.id)) ? 1 : 0;
-  // getAmmoSlots:1618-1622: small SV ammo shares its weapon's slot (< 5 t is
-  // small; 5 t is treated as small here, the lower bound).
-  used += source.tonnage > 5 ? ammoSlots(mounts.ammo) : 0;
+  // getAmmoSlots:1618-1622: only small SVs (< 5 t) share their weapons' slots.
+  used += source.tonnage >= 5 ? ammoSlots(mounts.ammo) : 0;
   used += transportSlots(source.transporters);
-  return [
-    ...overrun(used, 5 + Math.floor(source.tonnage / 10)),
-    ...fireControlErrors(mounts),
-  ];
+  return overrun(used, 5 + Math.floor(source.tonnage / 10));
 }
