@@ -108,6 +108,8 @@ import { VehicleArmorDiagram } from '../vehicle/VehicleArmorDiagram';
 import { VehicleCustomizer } from '../vehicle/VehicleCustomizer';
 import { VehiclePreviewTab } from '../vehicle/VehiclePreviewTab';
 import { VehicleRecordSheetPreview } from '../vehicle/VehicleRecordSheetPreview';
+import { CustomizerCatalogBoundary } from './CustomizerCatalogBoundary';
+import { MechLoadingDiagram } from './MechLoadingDiagram';
 import { getTabSpecsForUnitType } from './tabRegistry';
 
 // =============================================================================
@@ -203,10 +205,18 @@ function createNonMechShell<S>(config: {
       () => getStore(activeTab.id) ?? hydrateOrCreate(activeTab.id, activeTab),
       [activeTab],
     );
+    const descriptor = getCustomizerDescriptor(activeTab.unitType);
+    const Diagram = descriptor.ArmorDiagramComponent;
     return (
       <ErrorBoundary componentName={label}>
         <StoreContext.Provider value={store}>
-          <Customizer store={store} className="flex-1" />
+          <CustomizerCatalogBoundary
+            family={activeTab.unitType}
+            tabs={descriptor.tabs}
+            diagram={<Diagram />}
+          >
+            <Customizer store={store} className="flex-1" />
+          </CustomizerCatalogBoundary>
         </StoreContext.Provider>
       </ErrorBoundary>
     );
@@ -238,11 +248,17 @@ function MechShell({
         activeTab={mechActiveTab}
         fallback={<CustomizerLoadingSkeleton label="Loading unit" />}
       >
-        <UnitEditorWithRouting
-          key={activeTab.id}
-          activeTabId={activeTabId}
-          onTabChange={onTabChange}
-        />
+        <CustomizerCatalogBoundary
+          family={activeTab.unitType}
+          tabs={getCustomizerDescriptor(activeTab.unitType).tabs}
+          diagram={<MechLoadingDiagram />}
+        >
+          <UnitEditorWithRouting
+            key={activeTab.id}
+            activeTabId={activeTabId}
+            onTabChange={onTabChange}
+          />
+        </CustomizerCatalogBoundary>
       </UnitStoreProvider>
     </ErrorBoundary>
   );
