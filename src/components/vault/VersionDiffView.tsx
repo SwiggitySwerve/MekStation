@@ -7,11 +7,11 @@
  * @spec openspec/changes/add-vault-sharing/specs/vault-sharing/spec.md
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 
 import type { IVersionDiff } from '@/types/vault';
 
-import { runBusyErrorOperation } from '@/components/common/runUiOperation';
+import { errorMessageFromUnknown } from '@/components/common/runUiOperation';
 import { Card } from '@/components/ui/Card';
 import { Select } from '@/components/ui/Input';
 import { formatRelativeTime } from '@/utils/formatting';
@@ -170,28 +170,46 @@ export function VersionDiffView({
   const [diff, setDiff] = useState<IVersionDiff | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const loadRunId = useRef(0);
   const [viewMode, setViewMode] = useState<VersionDiffViewMode>('unified');
 
   useEffect(() => {
+    const sequence = loadRunId;
+    const runId = ++sequence.current;
+    setDiff(null);
+    setError(null);
     if (fromVersion === 0 || toVersion === 0 || fromVersion >= toVersion) {
-      setDiff(null);
+      setIsLoading(false);
       return;
     }
+    setIsLoading(true);
 
     async function fetchDiff(): Promise<void> {
-      await runBusyErrorOperation(
-        setIsLoading,
-        setError,
-        'Failed to load diff',
-        async () => {
-          setDiff(
-            await fetchVersionDiff(itemId, contentType, fromVersion, toVersion),
-          );
-        },
-      );
+      try {
+        const data = await fetchVersionDiff(
+          itemId,
+          contentType,
+          fromVersion,
+          toVersion,
+        );
+        if (runId === loadRunId.current) {
+          setDiff(data);
+        }
+      } catch (error) {
+        if (runId === loadRunId.current) {
+          setError(errorMessageFromUnknown(error, 'Failed to load diff'));
+        }
+      } finally {
+        if (runId === loadRunId.current) {
+          setIsLoading(false);
+        }
+      }
     }
 
-    fetchDiff();
+    void fetchDiff();
+    return () => {
+      sequence.current++;
+    };
   }, [itemId, contentType, fromVersion, toVersion]);
 
   const versionOptions = useMemo(

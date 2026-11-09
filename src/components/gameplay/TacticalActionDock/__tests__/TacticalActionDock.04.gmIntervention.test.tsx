@@ -1,4 +1,4 @@
-import { within } from '@testing-library/react';
+import { act, within } from '@testing-library/react';
 
 import type {
   IGmCascadePreview,
@@ -6,6 +6,11 @@ import type {
   IGmPublicEffect,
   IPlayerVisibleInterventionRecord,
 } from '@/types/interventions';
+
+import {
+  capturePreviewFreshness,
+  validateGmCascadePreviewFreshness,
+} from '@/lib/interventions/GmCascadePreviewFreshness';
 
 import * as H from './TacticalActionDock.test-helpers';
 
@@ -59,6 +64,160 @@ function makePlayerLogRecord(
 }
 
 describe('TacticalActionDock GM intervention surface', () => {
+  it('cancels each pending preview before requesting its replacement in one batch', () => {
+    const first = makePreview({ interventionId: 'first' });
+    const second = makePreview({ interventionId: 'second' });
+    const order: string[] = [];
+    const preview = jest
+      .fn()
+      .mockImplementationOnce(() => {
+        order.push('preview:first');
+        return first;
+      })
+      .mockImplementationOnce(() => {
+        order.push('preview:second');
+        return second;
+      });
+    const cancel = jest.fn((value: GmPreview) => {
+      order.push(`cancel:${value.interventionId}`);
+    });
+    const { unmount } = render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="gm"
+        onAction={jest.fn()}
+        gmIntervention={{ preview, cancel }}
+      />,
+    );
+
+    act(() => {
+      fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+      fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    });
+    expect(order).toEqual(['preview:first', 'cancel:first', 'preview:second']);
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(cancel).toHaveBeenCalledWith(first);
+    unmount();
+    expect(cancel.mock.calls.map(([value]) => value)).toEqual([first, second]);
+  });
+
+  it('cancels on unmount through the service that created the preview', () => {
+    const value = makePreview();
+    const originalCancel = jest.fn();
+    const replacementCancel = jest.fn();
+    const preview = jest.fn(() => value);
+    const ctx = makeCtx();
+    const onAction = jest.fn();
+    const { rerender, unmount } = render(
+      <TacticalActionDock
+        ctx={ctx}
+        shellMode="gm"
+        onAction={onAction}
+        gmIntervention={{ preview, cancel: originalCancel }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    rerender(
+      <TacticalActionDock
+        ctx={ctx}
+        shellMode="gm"
+        onAction={onAction}
+        gmIntervention={{ preview, cancel: replacementCancel }}
+      />,
+    );
+    expect(originalCancel).not.toHaveBeenCalled();
+    unmount();
+    expect(originalCancel).toHaveBeenCalledTimes(1);
+    expect(originalCancel).toHaveBeenCalledWith(value);
+    expect(replacementCancel).not.toHaveBeenCalled();
+  });
+
+  it('keeps a D-6 stale preview pending until replacement without refreshing its fingerprint', () => {
+    let state = { turn: 1, phase: GamePhase.Movement };
+    const preview = jest.fn(() =>
+      makePreview({ freshness: capturePreviewFreshness(state) }),
+    );
+    const cancel = jest.fn();
+    const approve = jest.fn((value: GmPreview) => {
+      const reason = validateGmCascadePreviewFreshness(value, state);
+      return reason
+        ? { status: 'blocked' as const, appended: false, reason }
+        : { status: 'approved' as const, appended: true };
+    });
+    const { unmount } = render(
+      <TacticalActionDock
+        ctx={makeCtx()}
+        shellMode="gm"
+        onAction={jest.fn()}
+        gmIntervention={{ preview, approve, cancel }}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    const original = preview.mock.results[0].value;
+    const fingerprint = original.freshness;
+    state = { ...state, turn: 2 };
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
+    expect(
+      screen.getByRole('dialog', { name: 'Set Damage (GM)' }),
+    ).toBeVisible();
+    expect(
+      screen.getByTestId('gm-intervention-approval-issue'),
+    ).toHaveTextContent('stale state fingerprint');
+    expect(approve).toHaveBeenCalledWith(original);
+    expect(original.freshness).toBe(fingerprint);
+    expect(cancel).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(cancel).toHaveBeenCalledWith(original);
+    expect(
+      screen.queryByTestId('gm-intervention-approval-issue'),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    unmount();
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['cancel', 'approve', 'manual takeover'] as const)(
+    'releases ownership after %s without cancelling again on unmount',
+    (action) => {
+      const value = makePreview({
+        status:
+          action === 'manual takeover' ? 'requires-manual-takeover' : 'ready',
+      });
+      const cancel = jest.fn();
+      const approve = jest.fn(() => ({
+        status: 'approved' as const,
+        appended: true,
+      }));
+      const manualTakeover = jest.fn();
+      const { unmount } = render(
+        <TacticalActionDock
+          ctx={makeCtx()}
+          shellMode="gm"
+          onAction={jest.fn()}
+          gmIntervention={{
+            preview: () => value,
+            cancel,
+            approve,
+            manualTakeover,
+          }}
+        />,
+      );
+      fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+      const name =
+        action === 'cancel'
+          ? 'Cancel GM intervention preview'
+          : action === 'approve'
+            ? 'Approve'
+            : 'Manual Takeover';
+      fireEvent.click(screen.getByRole('button', { name }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      unmount();
+      expect(cancel).toHaveBeenCalledTimes(action === 'cancel' ? 1 : 0);
+    },
+  );
+
   it('opens an accessible GM confirmation from the preview service', () => {
     const onAction = jest.fn();
     const approve = jest.fn();

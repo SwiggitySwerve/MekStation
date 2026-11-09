@@ -8,7 +8,13 @@
  * - VersionRollbackDialog: confirmation dialog
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  act,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
 import type { IVersionSnapshot, ShareableContentType } from '@/types/vault';
@@ -91,6 +97,49 @@ function mockFetch(
   });
 }
 
+function deferred<T>() {
+  let resolve = (_value: T): void => {
+    throw new Error('Deferred promise not initialized');
+  };
+  let reject = (_reason: unknown): void => {
+    throw new Error('Deferred promise not initialized');
+  };
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
+function response(data: unknown, ok = true) {
+  return { ok, status: ok ? 200 : 500, json: async () => data };
+}
+
+function historyResponse(message: string) {
+  return response({
+    versions: [makeVersion({ message })],
+    summary: mockSummary,
+  });
+}
+
+function diffResponse(value: string) {
+  return response({
+    fromVersion: 2,
+    toVersion: 3,
+    contentType: 'unit',
+    itemId: 'item-1',
+    changedFields: ['name'],
+    additions: { name: value },
+    deletions: {},
+    modifications: {},
+  });
+}
+
+async function confirmRollback() {
+  fireEvent.click((await screen.findAllByTitle('Rollback to this version'))[0]);
+  fireEvent.click(screen.getByRole('button', { name: 'Rollback' }));
+}
+
 afterEach(() => {
   global.fetch = originalFetch;
   jest.restoreAllMocks();
@@ -105,6 +154,235 @@ describe('VersionHistoryPanel', () => {
     itemId: 'item-1',
     contentType: 'unit' as ShareableContentType,
   };
+
+  it.each([
+    { itemId: 'item-2' },
+    { contentType: 'pilot' as ShareableContentType },
+  ])('keeps the newest history when props change: %j', async (changedProps) => {
+    const oldRequest = deferred<ReturnType<typeof response>>();
+    global.fetch = jest
+      .fn()
+      .mockReturnValueOnce(oldRequest.promise)
+      .mockResolvedValueOnce(historyResponse('Newest history'));
+    const { rerender } = render(<VersionHistoryPanel {...defaultProps} />);
+    rerender(<VersionHistoryPanel {...defaultProps} {...changedProps} />);
+    await screen.findByText('Newest history');
+
+    await act(async () => oldRequest.resolve(historyResponse('Stale history')));
+
+    expect(screen.getByText('Newest history')).toBeInTheDocument();
+    expect(screen.queryByText('Stale history')).not.toBeInTheDocument();
+  });
+
+  it('ignores an old history error after a new history succeeds', async () => {
+    const oldRequest = deferred<ReturnType<typeof response>>();
+    global.fetch = jest
+      .fn()
+      .mockReturnValueOnce(oldRequest.promise)
+      .mockResolvedValueOnce(historyResponse('Newest history'));
+    const { rerender } = render(<VersionHistoryPanel {...defaultProps} />);
+    rerender(<VersionHistoryPanel {...defaultProps} itemId="item-2" />);
+    await screen.findByText('Newest history');
+
+    await act(async () => oldRequest.reject(new Error('Stale history error')));
+
+    expect(screen.getByText('Newest history')).toBeInTheDocument();
+    expect(screen.queryByText('Stale history error')).not.toBeInTheDocument();
+  });
+
+  it('keeps the new history error when an older request succeeds', async () => {
+    const oldRequest = deferred<ReturnType<typeof response>>();
+    global.fetch = jest
+      .fn()
+      .mockReturnValueOnce(oldRequest.promise)
+      .mockRejectedValueOnce(new Error('Current history failed'));
+    const { rerender } = render(<VersionHistoryPanel {...defaultProps} />);
+    rerender(<VersionHistoryPanel {...defaultProps} itemId="item-2" />);
+    await screen.findByText('Current history failed');
+
+    await act(async () => oldRequest.resolve(historyResponse('Stale history')));
+
+    expect(screen.getByText('Current history failed')).toBeInTheDocument();
+    expect(screen.queryByText('Stale history')).not.toBeInTheDocument();
+  });
+
+  it.each(['success', 'failure'])(
+    'keeps loading when an old history settles with %s',
+    async (outcome) => {
+      const oldRequest = deferred<ReturnType<typeof response>>();
+      const newRequest = deferred<ReturnType<typeof response>>();
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(oldRequest.promise)
+        .mockReturnValueOnce(newRequest.promise);
+      const { rerender } = render(<VersionHistoryPanel {...defaultProps} />);
+      rerender(<VersionHistoryPanel {...defaultProps} itemId="item-2" />);
+
+      await act(async () => {
+        if (outcome === 'success')
+          oldRequest.resolve(historyResponse('Stale history'));
+        else oldRequest.reject(new Error('Stale history error'));
+      });
+
+      expect(screen.getByText('Loading history...')).toBeInTheDocument();
+      await act(async () =>
+        newRequest.resolve(historyResponse('Newest history')),
+      );
+      expect(screen.getByText('Newest history')).toBeInTheDocument();
+    },
+  );
+
+  it('shows rollback failure in the dialog and allows retry without replacing history', async () => {
+    const onRollback = jest.fn();
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(
+        response({ versions: mockVersions, summary: mockSummary }),
+      )
+      .mockResolvedValueOnce(response({ error: 'Rollback denied' }, false))
+      .mockResolvedValueOnce(response({}))
+      .mockResolvedValueOnce(historyResponse('Restored history'));
+    render(<VersionHistoryPanel {...defaultProps} onRollback={onRollback} />);
+    await confirmRollback();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Rollback denied',
+    );
+    expect(screen.getByText('Confirm Rollback')).toBeInTheDocument();
+    expect(screen.getByText('Version History')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Failed to load history'),
+    ).not.toBeInTheDocument();
+    expect(onRollback).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Rollback' }));
+    await screen.findByText('Restored history');
+    expect(screen.queryByText('Rollback denied')).not.toBeInTheDocument();
+    expect(onRollback).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Confirm Rollback')).not.toBeInTheDocument();
+  });
+
+  it.each(['http', 'network'])(
+    'reports a refresh %s failure after a successful rollback',
+    async (failure) => {
+      const onRollback = jest.fn();
+      const fetchMock = jest
+        .fn()
+        .mockResolvedValueOnce(
+          response({ versions: mockVersions, summary: mockSummary }),
+        )
+        .mockResolvedValueOnce(response({}));
+      if (failure === 'http')
+        fetchMock.mockResolvedValueOnce(
+          response({ error: 'Refresh unavailable' }, false),
+        );
+      else fetchMock.mockRejectedValueOnce(new Error('Refresh unavailable'));
+      global.fetch = fetchMock;
+      render(<VersionHistoryPanel {...defaultProps} onRollback={onRollback} />);
+      await confirmRollback();
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Rollback succeeded',
+      );
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Refresh unavailable',
+      );
+      expect(screen.getByText('Version History')).toBeInTheDocument();
+      expect(screen.queryByText('Confirm Rollback')).not.toBeInTheDocument();
+      expect(onRollback).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it.each(['success', 'failure'])(
+    'ignores a stale rollback refresh %s after changing item',
+    async (outcome) => {
+      const refresh = deferred<ReturnType<typeof response>>();
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce(
+          response({ versions: mockVersions, summary: mockSummary }),
+        )
+        .mockResolvedValueOnce(response({}))
+        .mockReturnValueOnce(refresh.promise)
+        .mockResolvedValueOnce(historyResponse('New item history'));
+      const { rerender } = render(<VersionHistoryPanel {...defaultProps} />);
+      await confirmRollback();
+      await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(3));
+      rerender(<VersionHistoryPanel {...defaultProps} itemId="item-2" />);
+      await screen.findByText('New item history');
+
+      await act(async () => {
+        if (outcome === 'success')
+          refresh.resolve(historyResponse('Stale refresh'));
+        else refresh.reject(new Error('Stale refresh error'));
+      });
+
+      expect(screen.getByText('New item history')).toBeInTheDocument();
+      expect(screen.queryByText('Stale refresh')).not.toBeInTheDocument();
+      expect(screen.queryByText('Stale refresh error')).not.toBeInTheDocument();
+      expect(screen.queryByText('Confirm Rollback')).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(['success', 'failure'])(
+    'ignores a stale rollback POST %s after changing item',
+    async (outcome) => {
+      const rollback = deferred<ReturnType<typeof response>>();
+      const onRollback = jest.fn();
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce(
+          response({ versions: mockVersions, summary: mockSummary }),
+        )
+        .mockReturnValueOnce(rollback.promise)
+        .mockResolvedValueOnce(historyResponse('New item history'));
+      const { rerender } = render(
+        <VersionHistoryPanel {...defaultProps} onRollback={onRollback} />,
+      );
+      await confirmRollback();
+      rerender(
+        <VersionHistoryPanel
+          {...defaultProps}
+          itemId="item-2"
+          onRollback={onRollback}
+        />,
+      );
+      await screen.findByText('New item history');
+
+      await act(async () => {
+        if (outcome === 'success') rollback.resolve(response({}));
+        else rollback.reject(new Error('Old rollback failed'));
+      });
+
+      expect(screen.getByText('New item history')).toBeInTheDocument();
+      expect(screen.queryByText('Old rollback failed')).not.toBeInTheDocument();
+      expect(screen.queryByText('Confirm Rollback')).not.toBeInTheDocument();
+      expect(onRollback).not.toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledTimes(3);
+    },
+  );
+
+  it('does not refresh or notify after unmounting during rollback', async () => {
+    const rollback = deferred<ReturnType<typeof response>>();
+    const onRollback = jest.fn();
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce(
+        response({ versions: mockVersions, summary: mockSummary }),
+      )
+      .mockReturnValueOnce(rollback.promise)
+      .mockResolvedValue(historyResponse('Unmounted history'));
+    const { unmount } = render(
+      <VersionHistoryPanel {...defaultProps} onRollback={onRollback} />,
+    );
+    await confirmRollback();
+    unmount();
+
+    await act(async () => rollback.resolve(response({})));
+
+    expect(onRollback).not.toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
 
   it('should render loading state initially', () => {
     // Never-resolving fetch to capture loading state
@@ -221,6 +499,97 @@ describe('VersionDiffView', () => {
     contentType: 'unit' as ShareableContentType,
     versions: mockVersions,
   };
+
+  it.each(['success', 'failure'])(
+    'ignores an old diff %s after the new diff succeeds',
+    async (outcome) => {
+      const oldRequest = deferred<ReturnType<typeof response>>();
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(oldRequest.promise)
+        .mockResolvedValueOnce(diffResponse('Newest diff'));
+      const { rerender } = render(<VersionDiffView {...defaultProps} />);
+      rerender(<VersionDiffView {...defaultProps} itemId="item-2" />);
+      await screen.findByText('Newest diff');
+
+      await act(async () => {
+        if (outcome === 'success')
+          oldRequest.resolve(diffResponse('Stale diff'));
+        else oldRequest.reject(new Error('Stale diff error'));
+      });
+
+      expect(screen.getByText('Newest diff')).toBeInTheDocument();
+      expect(screen.queryByText('Stale diff')).not.toBeInTheDocument();
+      expect(screen.queryByText('Stale diff error')).not.toBeInTheDocument();
+    },
+  );
+
+  it.each(['success', 'failure'])(
+    'keeps the new diff loading when an old request settles with %s',
+    async (outcome) => {
+      const oldRequest = deferred<ReturnType<typeof response>>();
+      const newRequest = deferred<ReturnType<typeof response>>();
+      global.fetch = jest
+        .fn()
+        .mockReturnValueOnce(oldRequest.promise)
+        .mockReturnValueOnce(newRequest.promise);
+      render(<VersionDiffView {...defaultProps} />);
+      fireEvent.change(screen.getByLabelText('From Version'), {
+        target: { value: '1' },
+      });
+
+      await act(async () => {
+        if (outcome === 'success')
+          oldRequest.resolve(diffResponse('Stale diff'));
+        else oldRequest.reject(new Error('Stale diff error'));
+      });
+
+      expect(screen.getByText('Computing differences...')).toBeInTheDocument();
+      await act(async () => newRequest.resolve(diffResponse('Newest diff')));
+      expect(screen.getByText('Newest diff')).toBeInTheDocument();
+    },
+  );
+
+  it('invalidates an in-flight diff when selection becomes invalid', async () => {
+    const oldRequest = deferred<ReturnType<typeof response>>();
+    global.fetch = jest.fn().mockReturnValueOnce(oldRequest.promise);
+    render(<VersionDiffView {...defaultProps} />);
+    fireEvent.change(screen.getByLabelText('From Version'), {
+      target: { value: '3' },
+    });
+
+    await act(async () =>
+      oldRequest.reject(new Error('Invalidated diff failed')),
+    );
+    // Zero is another invalid selection that does not use the >= placeholder.
+    fireEvent.change(screen.getByLabelText('From Version'), {
+      target: { value: '0' },
+    });
+
+    expect(
+      screen.queryByText('Computing differences...'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Invalidated diff failed'),
+    ).not.toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears a current diff error when selection becomes invalid', async () => {
+    global.fetch = jest
+      .fn()
+      .mockRejectedValueOnce(new Error('Diff unavailable'));
+    render(<VersionDiffView {...defaultProps} />);
+    await screen.findByText('Diff unavailable');
+    fireEvent.change(screen.getByLabelText('From Version'), {
+      target: { value: '0' },
+    });
+
+    expect(screen.queryByText('Diff unavailable')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Computing differences...'),
+    ).not.toBeInTheDocument();
+  });
 
   it('should render Compare Versions header', () => {
     // Mock fetch for the diff request
