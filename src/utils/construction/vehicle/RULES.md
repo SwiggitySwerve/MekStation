@@ -975,3 +975,25 @@ weight, rather than setting a six-side flag on a 50-ton hull. The shared
 construction classifier owns the threshold. Support loading diagrams expose
 Front and other armored locations, with no Body armor control, matching the
 pinned layouts cited above.
+
+## Support-vehicle heat sinks (pinned)
+
+At pin 48fcb2f64, `TestSupportVehicle.getWeightHeatSinks` is the heat-neutral
+count itself: support vehicles get no free engine sinks, whatever the engine
+(TestSupportVehicle.java:917-931). `getCountHeatSinks` is
+`TestEntity.calcHeatNeutralHSRequirement` (TestEntity.java:945-984), except that
+a small support vehicle (under 5 t) needs none and Java never iterates its
+weapons. Both support paths, the editor (`weightComposition.ts`) and the
+handler total (`supportPayload.ts`), now take the same linked raw heat as the
+combat path, so a laser insulator (-1, with the running-total minimum of one) and
+a PPC capacitor (+5) apply to a support chassis exactly as to a combat one. The
+previous handler sum skipped both links, and the editor reported no support
+heat at all.
+
+This supersedes the closing note of the previous section ("the support heat
+term depends on the 2.2-d support weight model"). `supportHeat.pinned.test.ts`
+pins the 19 corpus support rows that carry heat (15 SupportTank, 2
+LargeSupportTank, 2 SupportVTOL), two under-5-t rows whose Java heat is zero,
+and seven synthetic Jifty-chassis cases probed in the pinned Java. The
+editor `remaining` for a support vehicle now falls by the sink mass. It still
+omits source fuel, so it is not a Java total; the handler total is.
