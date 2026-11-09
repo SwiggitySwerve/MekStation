@@ -1,0 +1,97 @@
+/**
+ * ProtoMech equipment picker legality, a port of MegaMekLab 62bf193
+ * ProtoMekUtil.isProtoMekEquipment(eq, proto) (ProtoMekUtil.java:46-67), the
+ * two-argument form UnitUtil.isEntityEquipment uses for the Equipment tab
+ * (AbstractEquipmentDatabaseView.java:615, UnitUtil.java:1295).
+ *
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md
+ */
+
+import { EquipmentCategory } from '@/types/equipment';
+
+import {
+  isProtoMechCatalogEquipment,
+  isProtoMechLoadoutMount,
+} from '../equipmentLegality';
+
+const item = (category: EquipmentCategory, allowed?: readonly string[]) => ({
+  category,
+  ...(allowed && { allowedUnitTypes: allowed }),
+});
+
+describe('isProtoMechCatalogEquipment', () => {
+  const WEAPONS = [
+    EquipmentCategory.ENERGY_WEAPON,
+    EquipmentCategory.BALLISTIC_WEAPON,
+    EquipmentCategory.MISSILE_WEAPON,
+    EquipmentCategory.ARTILLERY,
+  ];
+
+  it.each(WEAPONS)('%s: a weapon needs the ProtoMech unit type', (category) => {
+    expect(isProtoMechCatalogEquipment(item(category, ['ProtoMech']))).toBe(
+      true,
+    );
+    expect(
+      isProtoMechCatalogEquipment(item(category, ['BattleMech', 'ProtoMech'])),
+    ).toBe(true);
+    expect(isProtoMechCatalogEquipment(item(category, ['BattleMech']))).toBe(
+      false,
+    );
+  });
+
+  it('an unlisted weapon is not offered (F_PROTO_WEAPON is an allow-list)', () => {
+    expect(
+      isProtoMechCatalogEquipment(item(EquipmentCategory.ENERGY_WEAPON)),
+    ).toBe(false);
+  });
+
+  it('ammunition is always offered', () => {
+    expect(
+      isProtoMechCatalogEquipment(item(EquipmentCategory.AMMUNITION)),
+    ).toBe(true);
+    expect(
+      isProtoMechCatalogEquipment(
+        item(EquipmentCategory.AMMUNITION, ['BattleMech']),
+      ),
+    ).toBe(true);
+  });
+
+  it.each([
+    EquipmentCategory.MISC_EQUIPMENT,
+    EquipmentCategory.ELECTRONICS,
+    EquipmentCategory.PHYSICAL_WEAPON,
+  ])('%s: misc needs the ProtoMech equipment marker', (category) => {
+    expect(isProtoMechCatalogEquipment(item(category, ['ProtoMech']))).toBe(
+      true,
+    );
+    expect(isProtoMechCatalogEquipment(item(category))).toBe(false);
+    expect(isProtoMechCatalogEquipment(item(category, ['BattleMech']))).toBe(
+      false,
+    );
+  });
+});
+
+describe('isProtoMechLoadoutMount', () => {
+  // PMEquipmentTab.showInLoadOut hides jump jets, MASC, partial wing, magnetic
+  // clamp and UMU; everything else (including the EI interface) is listed.
+  it.each([
+    'protomechjumpjet',
+    'extendedjumpjetsystem',
+    'ProtoMech Jump Jet',
+    'protomechmasc',
+    'protomechpartialwing',
+    'protomagneticclamp',
+    'protomechumu',
+  ])('hides %s', (id) => {
+    expect(isProtoMechLoadoutMount(id)).toBe(false);
+  });
+
+  it.each([
+    'CLERMicroLaser',
+    'eiinterface',
+    'clan-electric-discharge-protomech',
+    'Clan Ammo SRM-2 (10)',
+  ])('lists %s', (id) => {
+    expect(isProtoMechLoadoutMount(id)).toBe(true);
+  });
+});
