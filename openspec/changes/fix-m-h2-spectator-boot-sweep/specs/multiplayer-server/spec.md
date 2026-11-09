@@ -28,6 +28,32 @@ recovery scoped to a single match id SHALL NOT release spectator seats.
 - **WHEN** the full recovery pass runs
 - **THEN** their metadata SHALL be unchanged
 
+### Requirement: A refused spectator registers again once and resumes
+
+The spectate page SHALL register again, once, when its socket is refused with
+`AUTH_REJECTED`, and SHALL then rebind so the viewer resumes without a page reload.
+It SHALL allow at most one such registration between two successful binds, SHALL
+NOT register for any other close, and SHALL show a registration the server refuses
+as an error without retrying.
+
+#### Scenario: The server restarted and released the seat
+
+- **GIVEN** a spectator is watching and the server restarts, releasing their seat
+- **WHEN** the reconnect is refused with `AUTH_REJECTED`
+- **THEN** the page SHALL register once, rejoin the session and drain the replay
+
+#### Scenario: Registration is refused
+
+- **GIVEN** the match completed while the viewer was disconnected
+- **WHEN** the page registers again and the server answers 409
+- **THEN** the page SHALL show "Cannot spectate" with the server's reason and open no further socket
+
+#### Scenario: The rebind is refused too
+
+- **GIVEN** a registration was accepted but the rebind is refused again
+- **WHEN** no successful bind has happened since
+- **THEN** the page SHALL NOT register a third time
+
 ### Requirement: The runner wire-intent lists follow the intent table routes
 
 The repository SHALL fail its tests when the runner's engine wire-intent list differs

@@ -19,14 +19,22 @@ table, with nothing tying their partition to the table's routes.
   `engine` routes and `NON_COMBAT_WIRE_INTENT_KINDS` equals its `lobby` and
   `rewind` routes. No runner file changes.
 
+- The spectator page registers again, once, when its reconnect is refused with
+  `AUTH_REJECTED`, then rebinds (`useSpectatorRegistration`,
+  `MAX_SPECTATOR_RE_REGISTRATIONS = 1`, refilled by a successful bind). A refused
+  registration (a completed match answers 409) is shown as "Cannot spectate" and
+  nothing loops. `client.ts` and the session hook are untouched.
+
 ## Behaviour change
 
-After a restart, a spectator who was registered before it must register again
-(`POST /matches/:id/spectate`) before opening a socket: the seat they held is
-released at boot. Before, the persisted seat let a reconnecting socket bind with
-no new registration, and the seat could never be reclaimed if the viewer did not
-return. This is the same rule a viewer already follows after their last socket
-detaches.
+After a restart a spectator's seat is released at boot, so their reconnect is
+refused until they register again (`POST /matches/:id/spectate`). **Viewers resume
+across a restart without a page reload**, because the page now registers again by
+itself, within the client's reconnect window. The limit: a server that stays down
+longer than the client's reconnect attempts still needs a page reload. Before, the
+persisted seat let a reconnecting socket bind with no new registration, and the
+seat could never be reclaimed if the viewer did not return. The server rule
+(registration required) is unchanged.
 
 ## Impact
 
@@ -37,5 +45,5 @@ retained viewer delivery cursors are untouched.
 ## Non-goals
 
 Spectator registrations that never attach (they hold a seat until the next
-restart), re-registration on the spectator client's socket reconnect (client
-code), and `pruneExpiredMatches`.
+restart), reconnecting a client after an outage longer than its reconnect window,
+and `pruneExpiredMatches`.
