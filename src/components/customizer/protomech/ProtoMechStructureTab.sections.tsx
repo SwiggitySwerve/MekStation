@@ -131,27 +131,23 @@ export function ProtoMechMovementSection({
 }: ReadOnlyProps & {
   controls: MovementControls;
 }): React.ReactElement {
-  // Ultraheavy cannot jump, and MML pins a glider's jump spinner at 0
-  // (MovementView.java:265-268); a glider flies on its walk MP.
+  // MML pins a glider's jump spinner at 0 (MovementView.java:265-268); a glider
+  // flies on its walk MP. Nothing else locks jump.
   const noJump = !controls.canJump;
   return (
     <div className={cs.panel.main}>
       <h3 className={cs.text.sectionTitle}>Movement</h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div>
-          <label className={cs.text.label}>
-            Walk MP{' '}
-            <span className={cs.text.secondary}>
-              (cap: {controls.mpCaps.walkMax})
-            </span>
-          </label>
+          <label className={cs.text.label}>Walk MP</label>
           <input
             type="number"
+            aria-label="Walk MP"
             value={controls.walkMP}
             onChange={controls.handleWalkMPChange}
             disabled={readOnly}
-            min={1}
-            max={controls.mpCaps.walkMax}
+            min={controls.walkMin}
+            max={controls.walkMax}
             className={cs.input.full}
           />
         </div>
@@ -164,23 +160,20 @@ export function ProtoMechMovementSection({
         <div>
           <label className={cs.text.label}>
             Jump MP{' '}
-            {controls.isUltraheavy ? (
-              <span className="text-red-400">(Ultraheavy: 0)</span>
-            ) : controls.isGliderChassis ? (
-              <span className={cs.text.secondary}>(Glider: 0)</span>
-            ) : (
-              <span className={cs.text.secondary}>
-                (cap: {controls.mpCaps.jumpMax})
-              </span>
-            )}
+            <span className={cs.text.secondary}>
+              {controls.isGliderChassis
+                ? '(Glider: 0)'
+                : `(max ${controls.jumpMax})`}
+            </span>
           </label>
           <input
             type="number"
+            aria-label="Jump MP"
             value={controls.jumpMP}
             onChange={controls.handleJumpMPChange}
             disabled={readOnly || noJump}
             min={0}
-            max={noJump ? 0 : controls.mpCaps.jumpMax}
+            max={controls.jumpMax}
             className={cs.input.full}
           />
         </div>
@@ -212,12 +205,11 @@ export function ProtoMechMovementSection({
             type="checkbox"
             checked={controls.hasMyomerBooster}
             onChange={controls.handleMyomerBoosterChange}
-            disabled={readOnly}
+            disabled={readOnly || controls.isGliderChassis}
             className="border-border-theme bg-surface-raised rounded"
           />
           <span className="text-text-theme-primary text-sm">
-            Myomer Booster{' '}
-            <span className={cs.text.secondary}>(Light / Medium only)</span>
+            Myomer Booster
           </span>
         </label>
       </div>

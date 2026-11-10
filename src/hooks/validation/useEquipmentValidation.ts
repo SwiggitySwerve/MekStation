@@ -9,27 +9,14 @@
 
 import { useMemo } from 'react';
 
+import type { EquipmentValidationData } from '@/utils/validation/mechValidationProjection.types';
+
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useUnitStore } from '@/stores/useUnitStore';
-import {
-  ICriticalSlotIssue,
-  ISlotsByLocation,
-  IValidatableUnit,
-} from '@/types/validation/UnitValidationInterfaces';
-import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
-import { buildSlotsByLocation } from '@/utils/validation/slotValidationUtils';
+import { projectMechEquipment } from '@/utils/validation/mechValidationProjection';
 
-/**
- * Equipment validation data
- */
-export interface EquipmentValidationData {
-  /** Per-location critical slot usage */
-  slotsByLocation: ISlotsByLocation;
-  equipmentSlotIssues: readonly ICriticalSlotIssue[];
-  mountedEquipment: IValidatableUnit['mountedEquipment'];
-  equipmentCatalog: IValidatableUnit['equipmentCatalog'];
-}
+export type { EquipmentValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for equipment validation data
@@ -38,39 +25,15 @@ export interface EquipmentValidationData {
  */
 export function useEquipmentValidation(): EquipmentValidationData {
   const { isReady } = useEquipmentRegistry();
-  const equipment = useUnitStore((s) => s.equipment);
-  const engineType = useUnitStore((s) => s.engineType);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
-  const configuration = useUnitStore((s) => s.configuration);
-  const armActuators = useUnitStore((s) => s.armActuators);
-
-  return useMemo(() => {
-    // Build per-location slot data for critical slot validation
-    const slotsByLocation = buildSlotsByLocation(equipment, configuration);
-
-    return {
-      mountedEquipment: equipment,
-      equipmentCatalog: isReady
-        ? getEquipmentLookupService().getAllEquipment()
-        : [],
-      slotsByLocation,
-      equipmentSlotIssues: getEquipmentSlotIssues(
-        equipment,
-        configuration,
-        engineType,
-        gyroType,
-        armActuators,
-        cockpitType,
-      ),
-    };
-  }, [
-    equipment,
-    configuration,
-    engineType,
-    gyroType,
-    armActuators,
-    cockpitType,
-    isReady,
-  ]);
+  const state = useUnitStore((s) => s);
+  return useMemo(
+    () =>
+      projectMechEquipment(state, {
+        equipmentRegistryReady: isReady,
+        equipmentCatalog: isReady
+          ? getEquipmentLookupService().getAllEquipment()
+          : [],
+      }),
+    [state, isReady],
+  );
 }

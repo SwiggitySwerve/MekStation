@@ -1,7 +1,16 @@
 # Deterministic CI budgets
 
 `budget-config.mjs` owns the schema, canonical numeric IDs, units, deltas and
-lowering API. `config/ci/budgets.json` declares the caps. Decimal MB means
+lowering API. `config/ci/budgets.json` declares non-size limits. Package size
+and memory growth are advisory observations, never acceptance or approval gates.
+The byte fields `standaloneStaticBytes`, `webZipBytes` and `installerBytes` are
+absent from `limits`, descriptors, raise detection and automatic ratchets.
+Legacy byte-limit fields are accepted on either base or head, in any subset,
+with their values ignored (PARITY-PLAN §24). They never enter canonical budget
+values, comparisons, approval raises or ratchets. `budget-check.mjs` uses
+`loadBudgetTree` in the required PR Checks static-checks job to reject every
+`limits.*Bytes` field in the merge tree. Old untouched branches inherit main's
+config, while a reintroduced byte cap fails. Decimal MB means
 1,000,000 bytes. Unknown/missing inputs fail; counts never substitute for missing
 observations. `budget-metrics.mjs` owns collection and observed projections;
 G2's `ci-metrics.mjs` owns timing statistics, run normalization and reporting.
@@ -83,13 +92,26 @@ target, resolved target and artifact root. An internal missing target is reporte
 as `dangling-in-root`, with a separate count/path census; it is not an escape.
 Successful web/installer censuses report zero escaping links only after every
 link passes that boundary. A real escaping build-machine path remains a failure.
-The release installer gate measures every installer in the existing validated
-release-upload inventory; the maximum must fit 170,000,000 bytes. No subset,
+The release installer census measures every installer in the existing validated
+release-upload inventory and reports its maximum, without a byte ceiling. No subset,
 exclusion or omission flag is accepted. The existing PR Linux pack job now
 produces its complete tar.gz installer as well as the unpacked application;
 the exact installer bytes and SHA-256 are recorded. Other platform installers
 remain measured by the release gate when produced. No catalog/public byte is
-excluded from the web ZIP or Linux application to meet the limits.
+excluded from the web ZIP or Linux application. Valid measurements never fail
+because of their magnitude. Missing roots, invalid inventories, escaped links
+and public-byte/hash mismatches remain integrity failures.
+
+The PR report shows all three package measurements, comparable main medians,
+signed deltas and baseline run/attempt/head identities. Missing or invalid
+telemetry is unavailable, never zero. Package rows do not affect report status,
+review labels, budget approval or count ratchets. Historical package artifacts
+remain readable. Weekly reports retain per-path byte contributors.
+
+The screenshot evidence-quality minimum, defensive bounds on untrusted input,
+GitHub summary clipping, CAMP observation protocol bound and Next build heap
+allocation remain. Container health behavior and runtime performance proofs
+are handled separately from this CI budget policy.
 
 Generated budget reports and the measured web ZIP live under `RUNNER_TEMP`,
 outside the checkout, so formatting, lint and source-cache keys cannot consume

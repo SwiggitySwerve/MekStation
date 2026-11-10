@@ -24,8 +24,6 @@ import {
   MEGAMEK_MANEUVERING_ACE_LATERAL_MOVEMENT_SOURCE_REFS,
   MEGAMEK_MANEUVERING_ACE_BATTLEMECH_MOVEMENT_RESIDUAL_SOURCE_REFS,
   MEGAMEK_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
-  MEKSTATION_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
-  MEKSTATION_MANEUVERING_ACE_FLANKING_TURNING_SOURCE_REFS,
   MEKSTATION_MANEUVERING_ACE_OUT_OF_CONTROL_PSR_SOURCE_REFS,
   MEGAMEK_MANEUVERING_ACE_OUT_OF_CONTROL_PRODUCER_SOURCE_REFS,
   MEGAMEK_MANEUVERING_ACE_AEROSPACE_MOVEMENT_SOURCE_REFS,
@@ -55,7 +53,7 @@ export const PILOT_MODIFIER_RESOLVER_MOVEMENT_ENVIRONMENT_SUPPORT = {
   ),
   'movement-application': integrated(
     'movement-application',
-    'validateMovement, runMovementPhase, and movement step decomposition consume Maneuvering Ace pilot ability state for source-backed biped lateral shifts, QuadMek lateral-step MP relief, represented controlled-sideslip checks, and represented flanking-and-turning checks; represented pending out-of-control PSRs consume Maneuvering Ace target-number relief; Heavy Lifter lift-capacity helper math, represented carry-object capacity-check accounting, represented per-arm carried-cargo physical legality lockout, and represented ground-object pickup/drop lifecycle are source-backed, with unresolved throw-object resolution split to a dedicated helper-only row',
+    'validateMovement, runMovementPhase, and movement step decomposition consume Maneuvering Ace pilot ability state for source-backed biped lateral shifts, QuadMek lateral-step MP relief; represented pending out-of-control PSRs consume Maneuvering Ace target-number relief; Heavy Lifter lift-capacity helper math, represented carry-object capacity-check accounting, represented per-arm carried-cargo physical legality lockout, and represented ground-object pickup/drop lifecycle are source-backed, with unresolved throw-object resolution split to a dedicated helper-only row',
     [
       ...MEGAMEK_MANEUVERING_ACE_BATTLEMECH_MOVEMENT_RESIDUAL_SOURCE_REFS,
       ...MEKSTATION_MANEUVERING_ACE_MOVEMENT_SOURCE_REFS,
@@ -64,21 +62,17 @@ export const PILOT_MODIFIER_RESOLVER_MOVEMENT_ENVIRONMENT_SUPPORT = {
       ...MEKSTATION_HEAVY_LIFTER_HELPER_SOURCE_REFS,
     ],
   ),
-  'maneuvering-ace-controlled-sideslip-producer-application': integrated(
+  'maneuvering-ace-controlled-sideslip-producer-application': outOfScope(
     'maneuvering-ace-controlled-sideslip-producer-application',
-    'runMovementPhase queues represented controlled-sideslip PSRs from lateral movement steps and suppresses walking Maneuvering Ace lateral shifts per MegaMek checkSideSlip',
-    [
-      ...MEGAMEK_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
-      ...MEKSTATION_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
-    ],
+    'MegaMek MovePathHandler calls Entity.checkSideSlip only for VTOL, hover and WiGE movement, so a BattleMech with Maneuvering Ace queues no controlled-sideslip PSR; the walking Maneuvering Ace suppression belongs to that vehicle-only check',
+    'Controlled-sideslip production belongs to the separate vehicle combat matrix (VTOL, hover and WiGE motive modes and their skid and motive-damage outcomes); the BattleMech runner no longer queues it, and the controlled_sideslip factory and reason code remain for older replays',
+    MEGAMEK_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
   ),
-  'maneuvering-ace-flanking-turning-producer-application': integrated(
+  'maneuvering-ace-flanking-turning-producer-application': outOfScope(
     'maneuvering-ace-flanking-turning-producer-application',
-    'runMovementPhase queues one represented flanking-and-turning PSR from movement-step decomposition when BattleMech run/sprint movement changes facing after moving more than one hex, stamps the movement-step trigger source, applies Maneuvering Ace relief through PSR modifier resolution, and rejects walking, straight-running, Infantry, and ProtoMech cases',
-    [
-      ...MEGAMEK_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
-      ...MEKSTATION_MANEUVERING_ACE_FLANKING_TURNING_SOURCE_REFS,
-    ],
+    'MegaMek MovePathHandler calls Entity.checkSideSlip only for VTOL, hover and WiGE movement, so a BattleMech never queues a flanking-and-turning PSR and the Maneuvering Ace relief on it has no BattleMech producer',
+    'Flanking-and-turning production belongs to the separate vehicle combat matrix (VTOL, hover and WiGE motive modes and their skid and motive-damage outcomes); the BattleMech runner no longer queues it, and the flanking_and_turning factory, reason code and Maneuvering Ace relief remain for older replays',
+    MEGAMEK_MANEUVERING_ACE_CONTROLLED_SIDESLIP_SOURCE_REFS,
   ),
   'maneuvering-ace-out-of-control-producer-application': outOfScope(
     'maneuvering-ace-out-of-control-producer-application',

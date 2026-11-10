@@ -158,7 +158,7 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'actions.wireIntents.SetReady',
     ]),
   );
-  expect(outOfScopeRows).toHaveLength(151);
+  expect(outOfScopeRows).toHaveLength(155);
   expect(
     outOfScopeRows.find(
       (row) =>
@@ -411,8 +411,10 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
     ),
   ).toEqual([
     'lifecycleAndPsr.psrTriggers.charge_miss',
+    'lifecycleAndPsr.psrTriggers.controlled_sideslip',
     'lifecycleAndPsr.psrTriggers.dfa_miss',
     'lifecycleAndPsr.psrTriggers.exiting_water',
+    'lifecycleAndPsr.psrTriggers.flanking_and_turning',
     'lifecycleAndPsr.psrTriggers.running_rough_terrain',
   ]);
   expect(
@@ -426,6 +428,8 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
     'pilotSkills.pilotModifierResolvers.critical-prevention-application',
     'pilotSkills.pilotModifierResolvers.legacy-defensive-quirk-to-hit-application',
     'pilotSkills.pilotModifierResolvers.low-arms-application',
+    'pilotSkills.pilotModifierResolvers.maneuvering-ace-controlled-sideslip-producer-application',
+    'pilotSkills.pilotModifierResolvers.maneuvering-ace-flanking-turning-producer-application',
     'pilotSkills.pilotModifierResolvers.maneuvering-ace-out-of-control-producer-application',
     'pilotSkills.pilotModifierResolvers.target-priority-application',
     'pilotSkills.pilotModifierResolvers.vehicle-movement-application',

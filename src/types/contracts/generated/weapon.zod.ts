@@ -7,6 +7,16 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+const SchemaRef_0_nativeTechnologyNames = z
+  .array(z.string().min(1))
+  .min(1)
+  .refine(
+    (arr) => arr.every((item, i) => arr.indexOf(item) == i),
+    'All items must be unique!',
+  )
+  .describe(
+    'Exact native internal names referencing the runtime technology-advancements sidecar. Missing metadata remains unavailable; parsing does not resolve references or derive legality.',
+  );
 const once = <T>(make: () => T): (() => T) => {
   let value: T | undefined;
   return () => (value ??= make());
@@ -18,6 +28,7 @@ const unionBranches1 = once(() => [
 
 export const WeaponContract = z
   .object({
+    nativeTechnologyNames: SchemaRef_0_nativeTechnologyNames.optional(),
     id: z
       .string()
       .regex(new RegExp('^[a-z0-9-]+$'))

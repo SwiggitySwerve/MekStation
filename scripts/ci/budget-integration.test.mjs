@@ -54,7 +54,7 @@ test('read-only graph preparation binds immutable source heads and rejects missi
   );
 });
 
-test('canonical envelope preserves unknown package projection and rejects forged identity/hash/cache inputs', () => {
+test('canonical count projection is independent of packages and rejects forged identity/hash/cache inputs', () => {
   const observation = normalizeRun({
     repository: 'o/r',
     run: {
@@ -123,7 +123,8 @@ test('canonical envelope preserves unknown package projection and rejects forged
     ],
   };
   const envelope = producerEnvelope(observation, inputs, artifacts);
-  assert.equal(envelope.budgetValues, null);
+  assert.equal(envelope.budgetValues['limits.unkeyableTests'], 0);
+  assert.equal(envelope.budgetValues['limits.installerBytes'], undefined);
   assert.equal(envelope.tests.complete, true);
   assert.equal(envelope.cache.attempts, 1);
   assert.throws(
