@@ -225,11 +225,13 @@ describe('Definition Lookups', () => {
   // ============================================================================
   describe('Armor Definitions', () => {
     describe('ARMOR_DEFINITIONS array', () => {
-      it('should contain all armor types', () => {
+      it('should contain all armor types except per-location Patchwork', () => {
         const definedTypes = ARMOR_DEFINITIONS.map((d) => d.type);
-        Object.values(ArmorTypeEnum).forEach((type) => {
-          expect(definedTypes).toContain(type);
-        });
+        Object.values(ArmorTypeEnum)
+          .filter((type) => type !== ArmorTypeEnum.PATCHWORK)
+          .forEach((type) => {
+            expect(definedTypes).toContain(type);
+          });
       });
 
       it('should have positive points per ton', () => {
@@ -246,14 +248,19 @@ describe('Definition Lookups', () => {
     });
 
     describe('getArmorDefinition', () => {
-      it.each(Object.values(ArmorTypeEnum))(
-        'should return definition for %s',
-        (type) => {
-          const def = getArmorDefinition(type);
-          expect(def).toBeDefined();
-          expect(def?.type).toBe(type);
-        },
-      );
+      it.each(
+        Object.values(ArmorTypeEnum).filter(
+          (type) => type !== ArmorTypeEnum.PATCHWORK,
+        ),
+      )('should return definition for %s', (type) => {
+        const def = getArmorDefinition(type);
+        expect(def).toBeDefined();
+        expect(def?.type).toBe(type);
+      });
+
+      it('has no uniform definition for per-location Patchwork', () => {
+        expect(getArmorDefinition(ArmorTypeEnum.PATCHWORK)).toBeUndefined();
+      });
     });
 
     describe('Armor points per ton', () => {

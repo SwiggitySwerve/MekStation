@@ -1,3 +1,4 @@
+import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   fixed,
@@ -5,6 +6,10 @@ import {
   validateFormula,
   validateVariableFormulas,
 } from '@/types/equipment/VariableEquipment';
+import {
+  calculateEnhancementSlots,
+  calculateEnhancementWeight,
+} from '@/utils/equipment/enhancementEquipmentUtils';
 
 import spider from '../../../../public/data/units/battlemechs/5-civil-war/standard/Spider SDR-8X.json';
 import butcherbird from '../../../../public/data/units/battlemechs/6-dark-age/advanced/Butcherbird Prime.json';
@@ -13,6 +18,45 @@ import { FormulaEvaluator } from '../FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '../variableEquipmentFormulas';
 
 const calculator = new EquipmentCalculatorService();
+
+// Same four 48fcb2f64 direct-Java vectors as the service/store regressions.
+it.each([
+  [50, TechBase.INNER_SPHERE, 3.5],
+  [100, TechBase.INNER_SPHERE, 7],
+  [50, TechBase.CLAN, 2.5],
+  [100, TechBase.CLAN, 5],
+] as const)(
+  'preserves %st %s wing technology in the enhancement weight caller',
+  (tonnage, techBase, weight) => {
+    expect(
+      calculateEnhancementWeight(
+        MovementEnhancementType.PARTIAL_WING,
+        tonnage,
+        techBase,
+        10,
+      ),
+    ).toBe(weight);
+  },
+);
+
+it.each([
+  [50, TechBase.INNER_SPHERE, 8],
+  [100, TechBase.INNER_SPHERE, 8],
+  [50, TechBase.CLAN, 6],
+  [100, TechBase.CLAN, 6],
+] as const)(
+  'preserves %st %s wing technology in the enhancement slot caller',
+  (tonnage, techBase, criticalSlots) => {
+    expect(
+      calculateEnhancementSlots(
+        MovementEnhancementType.PARTIAL_WING,
+        tonnage,
+        techBase,
+        10,
+      ),
+    ).toBe(criticalSlots);
+  },
+);
 
 it.each([
   [spider, 'ISPartialWing', TechBase.INNER_SPHERE, 2.5, 8, 125000],

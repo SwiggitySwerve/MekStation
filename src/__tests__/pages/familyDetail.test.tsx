@@ -125,7 +125,7 @@ it.each([
   // Ruling item 3; pinned Battle Tripod R_H3L-2X.mtf:48 specifies Ferro-Lamellor armor.
   [
     'battle-tripod-r-h3l-2x',
-    'eddbe902ae0689183102a9d54338b313e84f6072826145df36f785c3db825f1a',
+    'aa88738da13d3d8550361f0c3c2a2dba85c662db9bc1983a4913001788c9133b',
   ],
   // Ruling item 3; pinned Archer ARC-6W.mtf:32-36 fixes the quirk order.
   [
