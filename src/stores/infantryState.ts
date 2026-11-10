@@ -1,4 +1,5 @@
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 /**
  * Infantry State Interface
  *
@@ -44,7 +45,8 @@ import type { IUnitSaveMetadata } from './unitSaveState';
 /**
  * Complete state for a single Infantry platoon
  */
-export interface InfantryState extends IUnitSaveMetadata {
+export interface InfantryState
+  extends IUnitSaveMetadata, IUnitTechBaseIdentity {
   /** Original catalog facts not expressible by the legacy editor enums. */
   librarySource?: IUnitContract;
   umuMP?: number;

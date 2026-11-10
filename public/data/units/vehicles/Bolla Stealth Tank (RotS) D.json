@@ -109,5 +109,8 @@
       "COMMUNICATIONS": "GPT",
       "TARGETING": "Baltex"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

@@ -104,5 +104,8 @@
       "COMMUNICATIONS": "Neil",
       "TARGETING": "Angst"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

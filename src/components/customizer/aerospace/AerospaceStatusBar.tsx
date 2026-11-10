@@ -15,6 +15,7 @@ import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { aerospaceBVUnitFromState } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 import { smallCraftArmor } from '@/utils/construction/aerospace/armor';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import { calculateHeatDissipation } from '@/utils/construction/heatSinkCalculations';
@@ -48,6 +49,7 @@ export function AerospaceStatusBar({
   const fuel = useAerospaceStore((s) => s.fuelPoints);
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
   const armorType = useAerospaceStore((s) => s.armorType);
+  const armorTypeByArc = useAerospaceStore((s) => s.armorTypeByArc);
   const aerospaceSubType = useAerospaceStore((s) => s.aerospaceSubType);
   const smallCraftArmorType = useAerospaceStore((s) => s.smallCraftArmorType);
   const motionType = useAerospaceStore((s) => s.motionType);
@@ -140,7 +142,7 @@ export function AerospaceStatusBar({
 
   // Live BV breakdown (TechManual BV 2.0 aerospace path)
   const bv = useMemo(() => {
-    const bvInput = {
+    const bvInput = aerospaceBVUnitFromState({
       unitType,
       isFixedWingSupport,
       barRating,
@@ -148,12 +150,15 @@ export function AerospaceStatusBar({
       year,
       tonnage,
       structuralIntegrity,
-      movement: { safeThrust, maxThrust },
-      heatCapacity: heatDissipation,
+      safeThrust,
+      maxThrust,
+      heatSinks,
+      doubleHeatSinks,
       armorType,
-      totalArmorPoints: armorStats.allocated,
+      armorAllocation,
+      armorTypeByArc,
       equipment,
-    };
+    });
     const result = calculateBattleValueForUnit(bvInput);
     if (!result || result.kind !== 'aerospace')
       throw new TypeError('Expected aerospace BV');
@@ -168,9 +173,11 @@ export function AerospaceStatusBar({
     structuralIntegrity,
     safeThrust,
     maxThrust,
-    heatDissipation,
+    heatSinks,
+    doubleHeatSinks,
     armorType,
-    armorStats.allocated,
+    armorAllocation,
+    armorTypeByArc,
     equipment,
   ]);
 

@@ -8,7 +8,7 @@ import { readBlkProtoBooster } from '@/services/conversion/BlkProtoEquipment';
  */
 import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { TechBase, WeightClass, RulesLevel } from '@/types/enums';
+import { TechBase, WeightClass } from '@/types/enums';
 import {
   BLK_PROTOMECH_ARMOR_LOCATIONS,
   BLK_PROTOMECH_CHASSIS,
@@ -59,8 +59,6 @@ import {
   createValidationMessages,
   getRawTagBoolean,
   mapLocationEquipment,
-  parseInnerSphereOrClan,
-  parseRulesLevelFromType,
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
 } from './unitHandlerShared';
@@ -318,12 +316,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IProtoMech>,
   ): IProtoMech {
-    const techBase = parseInnerSphereOrClan(commonFields.techBase);
-    const rulesLevel = parseRulesLevelFromType(
-      commonFields.techBase,
-      RulesLevel.ADVANCED,
-    );
-
     // Weight class based on individual ProtoMech tonnage
     const weightClass = this.getWeightClass(
       typeSpecificFields.weightPerUnit || 5,
@@ -335,8 +327,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
         idPrefix: 'protomech',
         unitType: UnitType.PROTOMECH,
         weightClass: weightClass,
-        techBase,
-        rulesLevel,
       }),
       ...typeSpecificFields,
     } as IProtoMech;

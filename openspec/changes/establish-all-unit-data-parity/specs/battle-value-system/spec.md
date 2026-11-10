@@ -1475,12 +1475,43 @@ Unresolved fallback zeros and missing or unsupported facts SHALL remain absent.
 - **THEN** no absent or unsupported fact SHALL become an invented zero or native location
 - **AND** existing weapon, positive miscellaneous and ammunition projections SHALL remain unchanged
 
+### Requirement: Infantry native ammunition pool diagnostic projection
+
+The infantry BV owner SHALL retain native field-gun ammunition cap groups using
+the shared ammunition accumulator and expose the existing uncapped availability
+from one shared pool calculation on unchanged arithmetic inputs. The source
+trace SHALL format these retained facts as `ammo.cap.<type:rack>` and
+`ammo.available.<type:rack>` without recalculating ammunition rules or changing
+any prior breakdown value, source load, validity result, aggregate or total.
+
+#### Scenario: Repeated launchers and admitted bins
+
+- **GIVEN** repeated field guns and ammunition bins in one or more native type:rack pools
+- **WHEN** the infantry ammunition diagnostics are projected
+- **THEN** each cap SHALL sum resolved launcher BV and each availability SHALL sum admitted bin BV exactly once before excessive-ammo capping and speed
+- **AND** positive partial-shot bins SHALL retain the existing native bin value without new proration
+
+#### Scenario: Personal weapons, absent bins and represented zeros
+
+- **GIVEN** personal infantry weapons, a field-gun cap without bins, an explicit zero or an unknown identity
+- **WHEN** the source trace is projected
+- **THEN** personal weapons SHALL create no ammunition pools and absent bins SHALL create no availability key
+- **AND** represented zeros SHALL remain present while unknown or absent facts SHALL remain absent
+
+#### Scenario: Optional finite diagnostics retain strict replay validation
+
+- **GIVEN** legacy infantry payloads or payloads with native ammunition pool diagnostics
+- **WHEN** replay validates the raw breakdown before object cloning
+- **THEN** optional finite values at recognized ammunition diagnostic keys SHALL be accepted
+- **AND** malformed keys, nonfinite values, and own or enumerable inherited unknown keys SHALL be rejected
+- **AND** existing replay assertions, digests and golden results SHALL remain unchanged
 
 ### Requirement: ProtoMech native raw weapon indices
 
-The ProtoMech offensive owner SHALL retain local equipment indices and append
-an optional native weapon index where intrinsic one-shot ammo shifts subsequent
-mount positions. The independent generated insertion counts SHALL account for
+The ProtoMech offensive owner SHALL retain local equipment indices. The parity
+trace entry point SHALL append an optional native weapon index where intrinsic
+one-shot ammo shifts subsequent mount positions. The independent generated
+insertion counts SHALL account for
 two ammo mounts after each Fusillade. The trace SHALL format the supplied native
 index with a local-index fallback for legacy snapshots. Existing source data,
 equipment identities, ammunition, validity, persistence and BV SHALL remain
@@ -1489,7 +1520,34 @@ unchanged. Legacy weapon-flag tables SHALL remain unchanged.
 #### Scenario: Sprite 3 double one-shot launcher positions
 
 - **GIVEN** pinned Sprite 3 source weapon indices 7, 8, 9 and 10
-- **WHEN** its public breakdown and raw weapon terms are calculated
+- **WHEN** its public breakdown is enriched by the parity trace entry point and raw weapon terms are calculated
 - **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
 - **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
 - **AND** all mount values, other terms, source data and BV SHALL remain unchanged
+
+### Requirement: Canonical battle armor anti-Mek chassis projection
+
+Canonical MIXED battle armor SHALL project an explicit clanChassis fact into
+the existing shared anti-Mek eligibility owner. Pure definitions, absent-field
+fallbacks and authoritative saved editor state SHALL retain their behavior.
+
+#### Scenario: Gray Death Strike Suit HarJel squads
+
+- **GIVEN** the pinned Clan-chassis HarJel squads of four, five and six troopers
+- **WHEN** source and canonical editor BV inputs are built
+- **THEN** both SHALL be eligible for anti-Mek attacks and yield BV 285, 383 and 493
+- **AND** IS missile burden, manipulator, weight and movement guards SHALL remain enforced
+
+### Requirement: Aerospace patchwork BV projection consumers
+
+Source, contract and live editor aerospace BV SHALL share the existing armor
+projection and calculator owners. Status and both record-sheet paths SHALL
+transport per-arc armor types with current points. Unknown arcs SHALL fail.
+
+#### Scenario: Nanook patchwork armor reaches every BV display
+
+- **GIVEN** the pinned Nanook armor points and native per-arc armor codes
+- **WHEN** imported-source, contract, status-bar or record-sheet BV is calculated
+- **THEN** armor BV SHALL be 282.5, defensive BV 367.8 and final BV 1571
+- **AND** changes to current points or represented type codes SHALL update both displays
+- **AND** choosing a global armor type SHALL retain the existing clearing of per-arc codes

@@ -11,6 +11,7 @@ import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalcula
 import { resolveAerospaceStructuralIntegrity } from '../../conversion/BlkParserService.helpers';
 import {
   mapLocationEquipment,
+  getRawTagString,
   type AerospaceUnitCoreFields,
 } from './unitHandlerShared';
 
@@ -61,6 +62,7 @@ export interface AerospaceArmorByArc {
 export interface AerospaceBasics extends AerospaceUnitCoreFields {
   readonly engineType: number;
   readonly armorType: number;
+  readonly armorTypeByArc?: Readonly<Record<string, number>>;
   readonly armor: readonly number[];
   readonly armorByArc: AerospaceArmorByArc;
   readonly totalArmorPoints: number;
@@ -72,6 +74,16 @@ export function parseAerospaceBasics(
 ): AerospaceBasics {
   const safeThrust = document.safeThrust || 0;
   const armor = document.armor || [];
+  // BLKAeroSpaceFighterFile.java:148-164, pin 48fcb2f64; retain native per-arc codes.
+  const armorTypeByArc: Record<string, number> = {};
+  for (const key of Object.keys(document.rawTags)) {
+    if (!key.endsWith('_armor_type')) continue;
+    const raw = getRawTagString(document.rawTags, key);
+    const code = Number(raw);
+    if (!raw?.trim() || !Number.isInteger(code))
+      throw new TypeError(`Invalid aerospace armor type: ${key}`);
+    armorTypeByArc[key.slice(0, -11).toUpperCase().replace(/ /g, '_')] = code;
+  }
 
   return {
     movement: { safeThrust, maxThrust: calculateMaxThrust(safeThrust) },
@@ -81,6 +93,7 @@ export function parseAerospaceBasics(
     heatSinkType: document.sinkType || 0,
     engineType: document.engineType || 0,
     armorType: document.armorType || 0,
+    ...(Object.keys(armorTypeByArc).length ? { armorTypeByArc } : {}),
     armor,
     armorByArc: parseAerospaceArmorByArc(armor),
     totalArmorPoints: armor.reduce((sum, val) => sum + val, 0),
