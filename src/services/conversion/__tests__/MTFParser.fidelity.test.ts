@@ -191,4 +191,23 @@ describe('unrecognised component strings on the real import route', () => {
       ).cockpitType,
     ).toBe(CockpitType.STANDARD);
   });
+
+  // Java loads Dual, Small Command and Superheavy Command as real types the
+  // contract cannot hold yet, so the unit is rejected. The rejection must still
+  // name the raw token (it is never saved, so the error is the only record).
+  it.each(['Dual Cockpit', 'Small Command Console'])(
+    'rejects a %s unit and names the raw token in the error',
+    async (cockpit) => {
+      const text = original.replace(/^cockpit:.*$/im, `cockpit:${cockpit}`);
+      expect(text).toContain(`cockpit:${cockpit}`);
+
+      const imported = await importMTFDefinition(text);
+      expect(imported.success).toBe(false);
+      if (imported.success) return;
+      expect(imported.error.warnings).toContain(
+        `Unsupported MTF cockpit: ${cockpit}`,
+      );
+      expect(JSON.stringify(imported.error)).toContain(cockpit);
+    },
+  );
 });
