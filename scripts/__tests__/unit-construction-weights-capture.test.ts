@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 
+import type { VehicleWeightBreakdown } from '../../src/utils/construction/vehicle/weightComposition';
+
 import blackHawk from '../../public/data/units/battlemechs/3-succession-wars/advanced/Black Hawk A.json';
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import { resetEquipmentLoader } from '../../src/services/equipment/EquipmentLoaderService';
@@ -19,6 +21,8 @@ import vehicles from '../../src/services/units/handlers/__tests__/fixtures/vehic
 import { resetHandlerInitialization } from '../../src/services/units/handlers/initializeHandlers';
 import { createSupportRegistryMass } from '../../src/services/units/handlers/supportRegistryMass';
 import { SupportVehicleUnitHandler } from '../../src/services/units/handlers/SupportVehicleUnitHandler';
+import { computeNativeVTOLWeight } from '../../src/services/units/handlers/vehicleHandlerWeight';
+import { VTOLUnitHandler } from '../../src/services/units/handlers/VTOLUnitHandler';
 import { resetUnitTypeRegistry } from '../../src/services/units/UnitTypeRegistry';
 import { computeSupportVehicleWeight } from '../../src/utils/construction/vehicle/supportWeight';
 import {
@@ -26,6 +30,7 @@ import {
   type ILocalWeights,
 } from '../unit-construction-weights';
 import pinnedSupport from './fixtures/unit-construction-weights-support.pinned.json';
+import pinnedVTOL from './fixtures/unit-construction-weights-vtol.pinned.json';
 
 // The equipment catalog reads public/ from disk; jsdom would otherwise fetch.
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
@@ -152,15 +157,134 @@ describe('Tank: the native weight breakdown', () => {
     near(result.terms.getWeightEngine, 25);
     near(result.total, 95);
   });
-  test('a combat VTOL still has no native seam and says so', () => {
-    const vtol = fixture(vehicles.rows, 'Skadi Swift Attack VTOL.blk');
-    const result = fact(capture(vtol.content, vtol.path));
-    expect(result.terms).toEqual({});
-    expect(result.unavailable).toMatch(/VTOL|support|native tank weight/i);
-  });
   test('a malformed source is a staged failure, not a silent gap', () => {
     expect(capture('not a blk', 'vehicles/x.blk')).toEqual({
       failure: expect.stringContaining('blk-'),
+    });
+  });
+});
+
+describe('combat VTOL: capture complete typed mass only', () => {
+  const directFields = {
+    engine: 'getWeightEngine',
+    structure: 'getWeightStructure',
+    controls: 'getWeightControls',
+    heatSinks: 'getWeightHeatSinks',
+    armor: 'getWeightArmor',
+    powerAmplifiers: 'getWeightPowerAmp',
+    carryingSpace: 'getWeightCarryingSpace',
+  } satisfies Partial<Record<keyof VehicleWeightBreakdown, string>>;
+  const groupedFields = [
+    'turret',
+    'secondaryTurret',
+    'lift',
+    'equipment',
+  ] as const;
+  const nonAdditive = {
+    turretEquipment: 'Mechanism basis, already represented by turret mass',
+    secondaryTurretEquipment:
+      'Mechanism basis, already represented by secondary turret mass',
+    turretMounted: 'Equipment subset, already included in equipment',
+    secondaryTurretMounted: 'Equipment subset, already included in equipment',
+    energyWeapons: 'Amplifier basis, already included in equipment',
+    remaining: 'Remaining budget, not an additive construction term',
+  } satisfies Partial<Record<keyof VehicleWeightBreakdown, string>>;
+  const capture = (content: string, path = pinnedVTOL.rows[0].path) =>
+    fact(captureConstructionWeights({ path }, Buffer.from(content)));
+  const load = (content: string) => {
+    const document = new BlkParserService().parse(content);
+    if (!document.success) throw Error(JSON.stringify(document.error));
+    const handler = new VTOLUnitHandler();
+    const parsed = handler.parse(document.data.document);
+    if (!parsed.success) throw Error(JSON.stringify(parsed.error));
+    return {
+      document: document.data.document,
+      handler,
+      unit: parsed.data.unit,
+    };
+  };
+  test.each([
+    pinnedVTOL.rows[0],
+    fixture(vehicles.rows, 'Skadi Swift Attack VTOL.blk'),
+  ])(
+    '$path matches the published total and accounts for every numeric output',
+    ({ path, content, sha256 }) => {
+      expect(createHash('sha256').update(content).digest('hex')).toBe(sha256);
+      const { document, handler, unit } = load(content);
+      const weights = computeNativeVTOLWeight(document, unit);
+      if (!weights) throw Error('Pinned complete VTOL has no typed mass');
+      const result = capture(content, path);
+      expect(result.total).toBe(unit.totalWeight);
+      for (const [field, key] of Object.entries(directFields))
+        expect(result.terms[key]).toBe(
+          weights[field as keyof typeof directFields],
+        );
+      expect(result.groups?.mountedEquipment.ours).toBe(weights.equipment);
+      expect(result.groups?.mountedEquipment.members).toEqual([
+        'getWeightMiscEquip',
+        'getWeightWeapon',
+        'getWeightAmmo',
+        'getArmoredComponentWeight',
+      ]);
+      expect(
+        Object.keys(weights)
+          .filter(
+            (field) =>
+              typeof weights[field as keyof typeof weights] === 'number',
+          )
+          .sort(),
+      ).toEqual(
+        [
+          ...Object.keys(directFields),
+          ...groupedFields,
+          ...Object.keys(nonAdditive),
+        ].sort(),
+      );
+      expect(
+        Object.values(nonAdditive).every((reason) => reason.length > 0),
+      ).toBe(true);
+      expect(result.unavailable).toBeUndefined();
+      expect(() => handler.calculateWeight(unit)).toThrow(
+        /weight.*incomplete/i,
+      );
+    },
+  );
+  test('Marten uses published 13.5 t rather than its nominal 15 t', () => {
+    expect(capture(pinnedVTOL.rows[0].content).total).toBe(13.5);
+  });
+  test('Skadi retains the existing combined chin and rotor term', () => {
+    const row = fixture(vehicles.rows, 'Skadi Swift Attack VTOL.blk');
+    near(capture(row.content, row.path).terms.getWeightMisc, 4);
+  });
+  test('unresolved mounted mass stays missing-local with the handler reason', () => {
+    const content =
+      pinnedVTOL.rows[0].content +
+      '\n<Body Equipment>\nUnresolved source mount\n</Body Equipment>\n';
+    const { document, handler, unit } = load(content);
+    expect(computeNativeVTOLWeight(document, unit)).toBeUndefined();
+    expect(unit.totalWeight).toBe(15); // the common parser's nominal default is not a result
+    let reason = '';
+    try {
+      handler.calculateWeight(unit);
+    } catch (error) {
+      reason = error instanceof Error ? error.message : String(error);
+    }
+    expect(reason).not.toBe('');
+    expect(capture(content)).toEqual({ terms: {}, unavailable: reason });
+  });
+  test('a handler-rejected source keeps its parse diagnostics as missing-local', () => {
+    const content = pinnedVTOL.rows[0].content.replace(
+      /<cruiseMP>\s*[^<]*<\/cruiseMP>/i,
+      '<cruiseMP>\ninvalid\n</cruiseMP>',
+    );
+    const parsed = new BlkParserService().parse(content);
+    if (!parsed.success) throw Error(JSON.stringify(parsed.error));
+    const loaded = new VTOLUnitHandler().parse(parsed.data.document);
+    expect(loaded.success).toBe(false);
+    if (loaded.success) throw Error('Expected incomplete handler parse');
+    expect(capture(content)).toEqual({
+      terms: {},
+      unavailable: loaded.error.errors.join('; '),
     });
   });
 });

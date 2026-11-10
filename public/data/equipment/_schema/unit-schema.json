@@ -425,6 +425,10 @@
             "type": "string",
             "description": "Equipment ID reference"
           },
+          "isAmmo": {
+            "type": "boolean",
+            "description": "Optional mounted ammunition category evidence"
+          },
           "name": {
             "type": "string",
             "description": "Source display name for the mounted equipment"
