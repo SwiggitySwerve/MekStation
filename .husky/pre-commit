@@ -12,6 +12,14 @@
 # moment earlier. A concurrent stash in another worktree shifts that index, so
 # the backup step can drop someone else's entry. The same tasks still run; a
 # failed task leaves its edits in the working tree instead of reverting them.
-npx lint-staged --no-stash || exit $?
+# --no-stash does not stop lint-staged hiding the unstaged part of a partially
+# staged file; that is a separate option, on by default.
+#
+# check-partial-stage.mjs: in a worktree on a different drive from its git dir,
+# lint-staged's hiding step loses unstaged edits (see the script). There the
+# script refuses a commit with a partially staged file, or prints
+# --no-hide-partially-staged when there is none. Elsewhere it prints nothing.
+hide_flag=$(node scripts/lib/check-partial-stage.mjs) || exit $?
+npx lint-staged --no-stash $hide_flag || exit $?
 # Reject ignored-parent restaging failures even if lint-staged returned zero.
 node scripts/lib/check-staged-parents.mjs

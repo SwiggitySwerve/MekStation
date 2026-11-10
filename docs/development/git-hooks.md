@@ -27,6 +27,16 @@ The hook runs `npx lint-staged --no-stash`, so lint-staged takes no backup stash
 - **Why:** linked worktrees share one stash stack. lint-staged applies or drops its backup by an index it looked up just before, so a stash made in another worktree in between could make it drop someone else's entry.
 - **Trade-off:** if a task fails, the edits it made stay in the working tree rather than being reverted.
 - **Test:** `scripts/__tests__/precommit-no-build.test.ts` traces the git commands the hook runs and fails if any of them uses `stash`.
+- **Not implied:** `--no-stash` does not turn off lint-staged's hiding of the unstaged part of a partially staged file. That is a separate option (`--hide-partially-staged`), on by default. lint-staged's type declarations say otherwise; its command-line code does not.
+
+Before lint-staged, the hook runs `node scripts/lib/check-partial-stage.mjs` for worktrees on a different drive from their git directory, such as a linked worktree on `C:` of a repository on `E:`.
+
+- **Why:** lint-staged hides an unstaged edit by writing it to a patch inside the git directory, then resetting the file. It builds the patch path from a relative path to the git directory (`lib/resolveGitRepo.js:56-57`). Across drives that path is absolute, so the write fails. lint-staged still resets the file, and the unstaged edit is lost with no backup. lint-staged 16.2.7 and 17.6.0 both do this.
+- **In such a worktree:** a commit with a partially staged file is refused before lint-staged runs. The message names the files and gives the two ways out: stage the whole file, or move the unstaged edit aside, commit, and put it back. With no partially staged file, the hook passes `--no-hide-partially-staged`, so the failing patch step never runs.
+- **Everywhere else**, the script prints nothing, and lint-staged keeps its default: a partially staged file is committed with its staged part only.
+- **Not `--no-hide-partially-staged` everywhere:** with that flag, lint-staged commits the whole working-tree file, including the hunks you did not stage.
+- **Do not bypass the refusal with `--no-verify`.** The check is what protects the unstaged edit.
+- **Test:** `scripts/__tests__/precommit-partial-stage.test.ts`.
 
 The hook runs no production build (owner decision of 2026-09-23, roadmap unit U62). The pr-checks workflow runs `npm run build` on every pull request that changes code, together with the lint, format, type and test gates.
 
