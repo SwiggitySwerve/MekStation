@@ -19,6 +19,23 @@ import { MIGRATIONS, type IMigration } from './SQLiteService.migrations';
 export type { IMigration } from './SQLiteService.migrations';
 
 /**
+ * The database file was last written by a newer build than this one (S1b).
+ * Opening it could settle or pay data this build cannot read, so it is refused
+ * and left untouched.
+ */
+export class DatabaseNewerThanAppError extends Error {
+  constructor(
+    readonly fileVersion: number,
+    readonly knownVersion: number,
+  ) {
+    super(
+      `This data was saved by a newer version of MekStation (it records database version ${fileVersion}; this version knows up to ${knownVersion}). Update MekStation to open it. Nothing was changed.`,
+    );
+    this.name = 'DatabaseNewerThanAppError';
+  }
+}
+
+/**
  * Database configuration
  */
 export interface IDatabaseConfig {
@@ -148,6 +165,15 @@ export class SQLiteService implements ISQLiteService {
 
     // Get current migration version
     const currentVersion = this.getCurrentMigrationVersion();
+
+    // A file recorded above everything this build knows was written by a
+    // newer build. Running on it could pay or settle data this build cannot
+    // read, so refuse before touching it (S1b). The caller's catch closes the
+    // handle and never replaces the file.
+    const catalogMax = Math.max(...MIGRATIONS.map((m) => m.version));
+    if (currentVersion > catalogMax) {
+      throw new DatabaseNewerThanAppError(currentVersion, catalogMax);
+    }
 
     // Run pending migrations. A test-only cap leaves the file one
     // catalog step short; the next uncapped initialize is the same

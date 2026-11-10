@@ -16,6 +16,8 @@ interface IInitializeServicesContext {
     newValue: unknown;
   }) => void;
   readonly userDataPath: string;
+  /** The running app's version; stamps backups and gates restores (S1b). */
+  readonly appVersion: string;
 }
 
 interface IDesktopServices {
@@ -30,6 +32,7 @@ export async function initializeDesktopServices({
   onRecentFilesUpdate,
   onSettingsChange,
   userDataPath,
+  appVersion,
 }: IInitializeServicesContext): Promise<IDesktopServices> {
   console.log('Initializing services...');
 
@@ -53,7 +56,7 @@ export async function initializeDesktopServices({
   recentFilesService.on('update', onRecentFilesUpdate);
 
   const backupService = config.enableBackups
-    ? await createBackupService(userDataPath, settingsService)
+    ? await createBackupService(userDataPath, settingsService, appVersion)
     : null;
 
   console.log('Services initialized successfully');
@@ -69,6 +72,7 @@ export async function initializeDesktopServices({
 async function createBackupService(
   userDataPath: string,
   settingsService: SettingsService,
+  appVersion: string,
 ): Promise<BackupService> {
   const settings = settingsService.getAll();
   const backupService = new BackupService({
@@ -76,6 +80,7 @@ async function createBackupService(
     backupPath: settings.backupDirectory || path.join(userDataPath, 'backups'),
     maxBackups: settings.maxBackupCount,
     compressionLevel: 6,
+    appVersion,
   });
 
   await backupService.initialize();

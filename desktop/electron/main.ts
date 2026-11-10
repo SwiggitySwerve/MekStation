@@ -212,6 +212,7 @@ class MekStationApp {
         onRecentFilesUpdate: () => this.updateRecentFilesMenu(),
         onSettingsChange: (event) => this.handleSettingsChange(event),
         userDataPath: this.userDataPath,
+        appVersion: app.getVersion(),
       });
 
       this.localStorage = services.localStorage;
