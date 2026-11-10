@@ -1,0 +1,88 @@
+name: Parity Runtime
+
+# Report-only runtime-path parity census: numbers computed from the app's loaded
+# state, not the source path the Parity Scoreboard reads.
+#
+# Today it is dispatch-only, so a runtime port can prove on its own branch that
+# the hosted per-unit table equals the local one (gh workflow run
+# parity-runtime.yml --ref <branch> -f measure=load). Each port supplies its
+# entry script; on a ref without it the job fails and says so. Nightly
+# Validation calls this workflow once the ports are on main. Never add a PR or
+# push trigger. Branch dispatches count in the C5 dispatch queue.
+on:
+  workflow_dispatch:
+    inputs:
+      measure:
+        description: Runtime measure to census
+        required: true
+        type: choice
+        options: [load, reopen]
+  workflow_call:
+    inputs:
+      measure:
+        required: true
+        type: string
+
+concurrency:
+  group: parity-runtime-${{ inputs.measure }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    name: Parity Runtime ${{ inputs.measure }} (report only)
+    runs-on: ubuntu-latest
+    # Generous on purpose while the ports measure their hosted wall time; the
+    # nightly budget is set from those measurements, not guessed here.
+    timeout-minutes: 45
+    steps:
+      - name: Set runner scratch path
+        run: printf 'PARITY_RUNTIME_OUTPUT=%s/parity-runtime\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Run runtime census
+        env:
+          MEASURE: ${{ inputs.measure }}
+        run: |
+          case "$MEASURE" in
+            load) entry=scripts/runtime-path-bv/run.mjs ;;
+            reopen) entry=scripts/runtime-roundtrip/run.mjs ;;
+            *) echo "::error::unknown measure '$MEASURE'"; exit 2 ;;
+          esac
+          if [ ! -f "$entry" ]; then
+            echo "::error::$entry is not on this ref. Dispatch the branch that carries the port (--ref)."
+            exit 1
+          fi
+          mkdir -p "$PARITY_RUNTIME_OUTPUT"
+          start=$(date -u +%s)
+          node "$entry" --out "$PARITY_RUNTIME_OUTPUT"
+          end=$(date -u +%s)
+          printf '{"measure":"%s","entry":"%s","sha":"%s","node":"%s","wallSeconds":%s}\n' \
+            "$MEASURE" "$entry" "$(git rev-parse HEAD)" "$(node --version)" "$((end - start))" \
+            > "$PARITY_RUNTIME_OUTPUT/run-meta.json"
+          echo "census wall time: $((end - start)) s" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload census output
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: parity-runtime-${{ inputs.measure }}
+          overwrite: true
+          if-no-files-found: error
+          retention-days: 14
+          path: ${{ runner.temp }}/parity-runtime/
