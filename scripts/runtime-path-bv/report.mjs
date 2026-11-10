@@ -101,7 +101,7 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       validity,
       weightOwners,
       deterministic,
-      headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)}${weightOwners.mismatch ? ` · WEIGHT OWNERS DIFFER ${fmt(weightOwners.mismatch)}` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
+      headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },
     differences,
   };
