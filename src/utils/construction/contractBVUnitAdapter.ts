@@ -143,7 +143,8 @@ const AEROSPACE_ARCS: Readonly<Record<string, string>> = {
 
 /** Shared contract arc projection for BV and combat adapters. */
 export function resolveAerospaceContractArc(location: string): string {
-  return lookup(AEROSPACE_ARCS, location, 'aerospace arc');
+  const key = location.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase();
+  return lookup(AEROSPACE_ARCS, key, 'aerospace arc');
 }
 
 function requireFact<T>(value: T | undefined, name: string): T {
@@ -267,11 +268,24 @@ export function vehicleContractTurretType(
   );
 }
 
-function contractAerospaceArmorFacts(unit: IContractBVSource) {
+/** One armor-fact projection for contract and live editor aerospace inputs. */
+export function projectAerospaceBVArmor(
+  armor: Pick<IContractBVSource['armor'], 'type' | 'byArc' | 'typeByArc'>,
+): Pick<
+  IContractBVAerospace,
+  'armorType' | 'totalArmorPoints' | 'armorByArc' | 'armorTypeByArc'
+> {
   return {
-    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
-    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
+    armorType: armor.type.toLowerCase().replace(/_/g, '-'),
+    totalArmorPoints: sumValues(requireFact(armor.byArc, 'armor.byArc')),
+    armorByArc: armor.byArc,
+    armorTypeByArc: armor.typeByArc,
   };
+}
+
+function contractAerospaceArmorFacts(unit: IContractBVSource) {
+  const { armorType, totalArmorPoints } = projectAerospaceBVArmor(unit.armor);
+  return { armorType, totalArmorPoints };
 }
 
 function contractAerospaceToBVUnit(
@@ -303,9 +317,7 @@ function contractAerospaceToBVUnit(
       safeThrust: requireFact(unit.movement.safeThrust, 'movement.safeThrust'),
       maxThrust: requireFact(unit.movement.maxThrust, 'movement.maxThrust'),
     },
-    ...contractAerospaceArmorFacts(unit),
-    armorByArc: unit.armor.byArc,
-    armorTypeByArc: unit.armor.typeByArc,
+    ...projectAerospaceBVArmor(unit.armor),
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
       location: resolveAerospaceContractArc(item.location),

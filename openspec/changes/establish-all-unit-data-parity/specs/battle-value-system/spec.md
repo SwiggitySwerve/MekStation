@@ -1524,3 +1524,30 @@ unchanged. Legacy weapon-flag tables SHALL remain unchanged.
 - **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
 - **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
 - **AND** all mount values, other terms, source data and BV SHALL remain unchanged
+
+### Requirement: Canonical battle armor anti-Mek chassis projection
+
+Canonical MIXED battle armor SHALL project an explicit clanChassis fact into
+the existing shared anti-Mek eligibility owner. Pure definitions, absent-field
+fallbacks and authoritative saved editor state SHALL retain their behavior.
+
+#### Scenario: Gray Death Strike Suit HarJel squads
+
+- **GIVEN** the pinned Clan-chassis HarJel squads of four, five and six troopers
+- **WHEN** source and canonical editor BV inputs are built
+- **THEN** both SHALL be eligible for anti-Mek attacks and yield BV 285, 383 and 493
+- **AND** IS missile burden, manipulator, weight and movement guards SHALL remain enforced
+
+### Requirement: Aerospace patchwork BV projection consumers
+
+Source, contract and live editor aerospace BV SHALL share the existing armor
+projection and calculator owners. Status and both record-sheet paths SHALL
+transport per-arc armor types with current points. Unknown arcs SHALL fail.
+
+#### Scenario: Nanook patchwork armor reaches every BV display
+
+- **GIVEN** the pinned Nanook armor points and native per-arc armor codes
+- **WHEN** imported-source, contract, status-bar or record-sheet BV is calculated
+- **THEN** armor BV SHALL be 282.5, defensive BV 367.8 and final BV 1571
+- **AND** changes to current points or represented type codes SHALL update both displays
+- **AND** choosing a global armor type SHALL retain the existing clearing of per-arc codes

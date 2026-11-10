@@ -200,6 +200,8 @@ export interface IAerospaceMovement {
  * including thrust, fuel, and structural integrity.
  */
 export interface IAerospaceUnit extends IBaseUnit {
+  /** Native patchwork armor codes, separate from the live arc point allocation. */
+  readonly armorTypeByArc?: Readonly<Record<string, number>>;
   /** Aerospace motion type */
   readonly motionType: AerospaceMotionType;
 
