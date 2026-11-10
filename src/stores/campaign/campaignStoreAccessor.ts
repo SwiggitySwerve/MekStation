@@ -43,3 +43,26 @@ export function registerCampaignStoreAccessor(
 export function getCampaignStoreForRoster(): CampaignStoreForRoster | null {
   return getCampaignStore?.() ?? null;
 }
+
+// Zustand subscriptions run synchronously inside switchCampaign. Keep the cause
+// scoped to that one store installation; it is neither persisted nor an edit.
+let serverInstallStore: CampaignStoreForRoster | null = null;
+
+export function isInstallingServerCampaign(
+  store: CampaignStoreForRoster,
+): boolean {
+  return serverInstallStore === store;
+}
+
+/** Install an authoritative row without making the dirty bridge treat it as an edit. */
+export function installServerCampaign(campaign: ICampaign): void {
+  const store = getCampaignStoreForRoster();
+  if (!store) return;
+  const previous = serverInstallStore;
+  serverInstallStore = store;
+  try {
+    store.getState().switchCampaign(campaign, 'server');
+  } finally {
+    serverInstallStore = previous;
+  }
+}

@@ -62,7 +62,10 @@ import {
   isPendingWriteConflict,
   reduceCampaignSaveState,
 } from './campaignSaveState';
-import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+import {
+  getCampaignStoreForRoster,
+  installServerCampaign,
+} from './campaignStoreAccessor';
 import {
   ensureCampaignUnitMaxStates,
   prepareCampaignUnitMaxStates,
@@ -420,6 +423,10 @@ function writeLiveCampaign(
   campaign: ICampaign,
   pendingSource?: CampaignPendingOutcomeSource,
 ): void {
+  if (pendingSource === 'server') {
+    installServerCampaign(campaign);
+    return;
+  }
   const store = getCampaignStoreForRoster();
   store?.getState().switchCampaign(campaign, pendingSource);
 }
@@ -852,7 +859,9 @@ async function runSave(
   }
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
-  if (!get().dirty || !campaign || !campaignId) {
+  // Explicit writers (creation, co-op host actions, Save now and renewal)
+  // may be clean. The cause of an automatic save is owned by the bridge.
+  if (!campaign || !campaignId) {
     return { status: 'skipped' };
   }
   // An unadopted legacy copy must not become a server source by
@@ -1114,8 +1123,8 @@ async function runLoad(
       if (!current()) return false;
       writeCachedCampaignKey(migrated);
       if (!current()) return false;
-      // Installing a server record can trip the reference-based dirty bridge.
-      // That is a load, so cancel its timer before acknowledging clean state.
+      // The bridge excludes server installs. A timer from an earlier edit
+      // must also be disarmed before record-loaded acknowledges this row.
       clearAutoSaveTimer();
       dispatchSaveEvent(set, {
         type: 'record-loaded',
@@ -1249,7 +1258,7 @@ function armAutoSaveTimer(set: PersistenceSet, get: PersistenceGet): void {
   }
   autoSaveTimer = setTimeout(() => {
     autoSaveTimer = null;
-    if (!get().dirty || get().saveState === 'conflict') {
+    if (get().saveState === 'conflict') {
       return;
     }
     void performSave(set, get);

@@ -120,11 +120,20 @@ only the prior local pending entries, using the existing merge function for
 processed/reviewed unions and the applied-id filter. Default same-campaign
 activation, browser hydration, and co-op rollback keep their merge behavior.
 
-Immediately before `record-loaded`, the effect clears the timer that the dirty
-bridge may have armed during installation. Both the callback and `runSave`
-refuse clean writes. A manual save on a clean copy returns `skipped`; a later
-edit still saves normally. The adoption integration tests check timer removal,
+Authoritative server installation goes through `installServerCampaign` in the
+store accessor. Its synchronous, store-scoped provenance prevents the dirty
+bridge from treating that replacement as an edit or arming a save. The bridge
+still records the new campaign baseline, so the next real edit saves normally.
+Immediately before `record-loaded`, the persistence effect cancels any timer
+armed earlier. The adoption integration tests check both causes independently,
 zero PUTs beyond 2000 ms, and an ordinary edit's debounced PUT.
+
+Explicit `saveCampaign()` calls write even when `dirty` is false: creation,
+co-op host commits, Save now and credential renewal rely on that contract.
+Neither `runSave` nor the timer declines a clean write. Dirty state is a
+UI/recovery fact, not authorization to write. The timer retains its existing
+conflict guard; pending-write conflict and legacy adoption guards remain at the
+shared save boundary. No persisted provenance field or lock is added.
 
 If the first edit arrives before any read completes, no old marker is replaced.
 With no marker, `derivePendingWrite` can use the persisted cache revision to

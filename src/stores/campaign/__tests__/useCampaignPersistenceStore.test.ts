@@ -576,9 +576,9 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(0);
   });
 
-  it('a save queued during a load skips writing after the load installs clean state', async () => {
-    // A queued save waits for the GET. If the load installs a clean record,
-    // navigation alone must not increment its version with a redundant PUT.
+  it('an explicit clean save queued during a load writes at the loaded version', async () => {
+    // This is a deliberate save, not the timer caused by an authoritative
+    // replacement. It waits for the GET and writes even if that row is clean.
     const serverRecord = buildSerializedCampaign(campaign, 'device-remote', 7);
     const accepted = buildSerializedCampaign(campaign, 'device-local', 8);
     const putBodies: { baseVersion: number }[] = [];
@@ -601,17 +601,23 @@ describe('useCampaignPersistenceStore', () => {
       .getState()
       .loadCampaign(campaign.id);
     await flushPromises();
-    // The save starts while the GET is still outstanding.
+    // The explicit clean save starts while the GET is still outstanding.
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
     const savePromise = useCampaignPersistenceStore.getState().saveCampaign();
     await flushPromises();
     expect(putBodies).toHaveLength(0);
 
     resolveLoad(jsonResponse(200, serverRecord));
     await loadPromise;
-    await savePromise;
+    await expect(savePromise).resolves.toMatchObject({ status: 'saved' });
 
-    expect(putBodies).toEqual([]);
-    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
+    expect(putBodies).toHaveLength(1);
+    expect(putBodies[0].baseVersion).toBe(7);
+    expect(useCampaignPersistenceStore.getState()).toMatchObject({
+      saveState: 'saved',
+      baseVersion: 8,
+      dirty: false,
+    });
   });
 
   it('a save answer that lands after a load adopted a newer record leaves the adopted version', async () => {

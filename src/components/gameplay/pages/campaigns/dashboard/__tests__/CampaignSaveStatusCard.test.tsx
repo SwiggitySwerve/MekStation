@@ -16,13 +16,21 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '@testing-library/react';
 import React from 'react';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
-import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import { registerCampaignStoreAccessor } from '@/stores/campaign/campaignStoreAccessor';
+import {
+  __resetCampaignPersistenceCoordinationForTests,
+  useCampaignPersistenceStore,
+} from '@/stores/campaign/useCampaignPersistenceStore';
+import {
+  resetCampaignStore,
+  useCampaignStore,
+} from '@/stores/campaign/useCampaignStore';
 import {
   CombatEndReason,
   COMBAT_OUTCOME_VERSION,
@@ -476,5 +484,50 @@ describe('CampaignSaveStatusCard pending-write conflict', () => {
     expect(
       screen.getByTestId('campaign-pending-write-local'),
     ).toHaveTextContent(dateText('3025-12-25T00:00:00.000Z'));
+  });
+});
+
+describe('CampaignSaveStatusCard explicit clean save', () => {
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+    useCampaignPersistenceStore.getState().reset();
+    __resetCampaignPersistenceCoordinationForTests();
+    resetCampaignStore();
+  });
+
+  it('Save now writes a clean campaign through the real persistence action', async () => {
+    const campaign = buildPopulatedCampaign();
+    resetCampaignStore();
+    useCampaignStore().getState().switchCampaign(campaign);
+    registerCampaignStoreAccessor(() => useCampaignStore());
+    useCampaignPersistenceStore.getState().reset();
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore
+      .getState()
+      .initializeCreatedCampaign(campaign.id);
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => buildSerializedCampaign(campaign, 'server-device', 1),
+    } as Response);
+    render(<CampaignSaveStatusCard />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('campaign-save-now-btn'));
+    });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/campaigns/${campaign.id}`,
+      expect.objectContaining({ method: 'PUT' }),
+    );
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({
+      baseVersion: 0,
+      envelope: { campaignId: campaign.id },
+    });
+    await waitFor(() => {
+      expect(useCampaignPersistenceStore.getState().baseVersion).toBe(1);
+      expect(screen.getByText('Saved', { exact: true })).toBeInTheDocument();
+    });
   });
 });

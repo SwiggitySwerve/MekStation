@@ -371,20 +371,56 @@ describe('pending battle outcomes through a new document', () => {
     expect(puts).toEqual([]);
   });
 
-  it('skips a manual or queued clean save but still debounces an ordinary edit', async () => {
-    await expect(persistence().saveCampaign()).resolves.toEqual({
-      status: 'skipped',
-    });
+  it('does not classify a server-load replacement as an edit or arm its debounce', async () => {
+    remote = { ...remote, version: 5 };
+    reload();
+    const markDirty = jest.spyOn(persistence(), 'markDirty');
+    await persistence().loadCampaign(remote.campaignId);
+    expect(markDirty).not.toHaveBeenCalled();
+    expect(jest.getTimerCount()).toBe(0);
+    await jest.advanceTimersByTimeAsync(20_000);
     expect(puts).toEqual([]);
-    store.getState().updateCampaign({ name: 'Ordinary edit' });
-    await jest.advanceTimersByTimeAsync(AUTO_SAVE_DEBOUNCE_MS - 1);
-    expect(puts).toEqual([]);
+    // Suppressing the server install must not suppress the next real edit.
+    store.getState().updateCampaign({ name: 'Edit following replacement' });
+    expect(markDirty).toHaveBeenCalledTimes(1);
     await debounce();
     expect(puts).toHaveLength(1);
-    expect(puts[0].baseVersion).toBe(3);
-    expect(remote.body.name).toBe('Ordinary edit');
-    await persistence().saveCampaign();
+    expect(puts[0].baseVersion).toBe(5);
+  });
+
+  it('disarms an older timer when record-loaded acknowledges the server row', async () => {
+    // Reproduce an already-armed timer without claiming an unsaved local copy.
+    // A pending claim would correctly choose adoption instead of record-loaded.
+    persistence().markDirty();
+    store.getState().setPendingWrite(null);
+    expect(jest.getTimerCount()).toBe(1);
+    await persistence().loadCampaign(remote.campaignId);
+    const timersAfterLoad = jest.getTimerCount();
+    await jest.advanceTimersByTimeAsync(20_000);
+    expect(puts).toEqual([]);
+    expect(timersAfterLoad).toBe(0);
+  });
+
+  it('writes an explicit clean save and still debounces an ordinary edit', async () => {
+    expect(persistence().dirty).toBe(false);
+    await expect(persistence().saveCampaign()).resolves.toMatchObject({
+      status: 'saved',
+    });
     expect(puts).toHaveLength(1);
+    expect(puts[0].baseVersion).toBe(3);
+    expect(remote.version).toBe(4);
+    store.getState().updateCampaign({ name: 'Ordinary edit' });
+    await jest.advanceTimersByTimeAsync(AUTO_SAVE_DEBOUNCE_MS - 1);
+    expect(puts).toHaveLength(1);
+    await debounce();
+    expect(puts).toHaveLength(2);
+    expect(puts[1].baseVersion).toBe(4);
+    expect(remote.body.name).toBe('Ordinary edit');
+    expect(persistence().dirty).toBe(false);
+    await persistence().saveCampaign();
+    expect(puts).toHaveLength(3);
+    expect(puts[2].baseVersion).toBe(5);
+    expect(remote.version).toBe(6);
   });
 
   it.each([3, 5])(
