@@ -173,5 +173,8 @@
     }
   },
   "role": "Sniper",
-  "source": "Shrap23"
+  "source": "Shrap23",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

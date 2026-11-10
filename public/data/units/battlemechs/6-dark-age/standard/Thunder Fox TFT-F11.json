@@ -159,5 +159,8 @@
   },
   "mulId": 6892,
   "role": "Sniper",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

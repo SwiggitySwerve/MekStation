@@ -202,5 +202,8 @@
   },
   "mulId": 3130,
   "role": "Brawler",
-  "source": "TR:3058U,TR:CI"
+  "source": "TR:3058U,TR:CI",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

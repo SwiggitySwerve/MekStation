@@ -181,5 +181,8 @@
   "source": "TR:3145:C,TR:DA",
   "weaponQuirks": {
     "LA:5:CLERPPC": ["exposed_linkage"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

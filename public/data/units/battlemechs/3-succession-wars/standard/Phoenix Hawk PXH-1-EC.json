@@ -186,5 +186,8 @@
   "source": "TR:GC",
   "weaponQuirks": {
     "RA:4:Improved Large Laser": ["jettison_capable"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

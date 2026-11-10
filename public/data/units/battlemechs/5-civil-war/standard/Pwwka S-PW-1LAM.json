@@ -180,5 +180,8 @@
   "mulId": 4882,
   "role": "Striker",
   "source": "JFR",
-  "lamType": "Standard"
+  "lamType": "Standard",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

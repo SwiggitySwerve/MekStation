@@ -178,5 +178,8 @@
   },
   "mulId": 7676,
   "role": "Striker",
-  "source": "TR:GC"
+  "source": "TR:GC",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

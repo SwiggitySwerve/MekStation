@@ -190,5 +190,8 @@
   },
   "mulId": 9240,
   "role": "Striker",
-  "source": "Shrap09"
+  "source": "Shrap09",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

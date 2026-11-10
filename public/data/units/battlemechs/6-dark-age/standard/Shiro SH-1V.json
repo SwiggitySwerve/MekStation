@@ -186,5 +186,8 @@
   },
   "mulId": 6416,
   "role": "Missile Boat",
-  "source": "TR:3145:DC,TR:DA"
+  "source": "TR:3145:DC,TR:DA",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

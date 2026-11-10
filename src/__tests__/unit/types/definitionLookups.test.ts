@@ -11,6 +11,7 @@ import {
   mapCockpitType,
   mapGyroType,
 } from '@/services/units/unitLoaderService/componentMappers';
+import { parseUnit } from '@/services/units/unitLoaderService/unitContractAdapter';
 import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
 import { BattleMechCTRequirements } from '@/services/validation/rules/battlemech/BattleMechRules';
 import {
@@ -420,7 +421,7 @@ it.each([
 
 // Mek.java:5709-5720: both head cockpit cells are occupied.
 it('reserves all six interface head cells', () => {
-  const state = new UnitLoaderService().mapToUnitState(ryoken, true);
+  const state = new UnitLoaderService().mapToUnitState(parseUnit(ryoken), true);
   const head = getFixedSlotNames(
     MechLocation.HEAD,
     state.engineType,
@@ -433,7 +434,7 @@ it('reserves all six interface head cells', () => {
 
 // Engine.java:639-640: absent gyro puts all six engine cells together.
 it('restores the no-gyro engine positions and frees native center-torso mounts', () => {
-  const state = new UnitLoaderService().mapToUnitState(ryoken, true);
+  const state = new UnitLoaderService().mapToUnitState(parseUnit(ryoken), true);
   const ct = getFixedSlotNames(
     MechLocation.CENTER_TORSO,
     state.engineType,

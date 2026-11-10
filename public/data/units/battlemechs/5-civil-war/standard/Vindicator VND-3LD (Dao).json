@@ -179,5 +179,8 @@
   },
   "mulId": 3427,
   "role": "Sniper",
-  "source": "XTR:Liao"
+  "source": "XTR:Liao",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

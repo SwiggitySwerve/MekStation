@@ -176,5 +176,8 @@
   },
   "mulId": 677,
   "role": "Striker",
-  "source": "XTR:Pirates"
+  "source": "XTR:Pirates",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

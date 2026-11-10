@@ -183,5 +183,8 @@
   },
   "mulId": 8159,
   "role": "Striker",
-  "source": "RG14,RGv1"
+  "source": "RG14,RGv1",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }
