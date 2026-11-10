@@ -26,6 +26,7 @@ const observed = (bv = 1000) => ({
   bv,
   validity: 'valid',
   weight: 50,
+  allocatedWeight: 50,
   mp: { walk: 4, run: 6, jump: 0 },
   occupancy: null,
 });
@@ -259,14 +260,48 @@ const receipt = () => ({
     { rowsSha256: '1'.repeat(64), durationSeconds: 128.9, resources: { maxRSS: 1040000, userCPUTime: 99 } },
   ],
   deterministic: true,
-  scope: { families: ['battlemechs'], unitIds: null },
+  scope: { families: ['battlemechs'], populationCount: 4263, unitIds: null },
+});
+
+test('the receipt proves the population instead of inferring it', () => {
+  validateReceipt(receipt());
+  const withRows = (count, scope) => ({ ...receipt(), rows: { count, sha256: '1'.repeat(64) }, scope });
+  const whole = (populationCount) => ({ families: ['battlemechs'], populationCount, unitIds: null });
+  // Whole population: exactly populationCount rows. A short or padded capture cannot publish.
+  validateReceipt(withRows(4263, whole(4263)));
+  assert.throws(() => validateReceipt(withRows(4262, whole(4263))), /Population mismatch/);
+  assert.throws(() => validateReceipt(withRows(4264, whole(4263))), /Population mismatch/);
+  // Narrowed run: exactly one row per listed id, ids sorted and unique.
+  const narrowed = (unitIds, populationCount = 4263) => ({ families: ['battlemechs'], populationCount, unitIds });
+  validateReceipt(withRows(2, narrowed(['a', 'b'])));
+  assert.throws(() => validateReceipt(withRows(1, narrowed(['a', 'b']))), /Population mismatch/);
+  assert.throws(() => validateReceipt(withRows(2, narrowed(['a', 'a']))), /sorted and free of duplicates/);
+  assert.throws(() => validateReceipt(withRows(2, narrowed(['b', 'a']))), /sorted and free of duplicates/);
+  assert.throws(() => validateReceipt(withRows(2, narrowed(['a', 'b'], 1))), /larger than the population/);
+  assert.throws(() => validateReceipt(withRows(0, whole(0))));
+  // The count is required, not defaulted.
+  const { populationCount: _count, ...noCount } = whole(4263);
+  assert.throws(() => validateReceipt(withRows(4263, noCount)));
+});
+
+test('rows carry the status-bar weight and the allocated weight side by side', () => {
+  const row = loadRow('w');
+  row.load.observed.allocatedWeight = 49.5; // a second weight owner is still a valid row: it is reported, not hidden
+  validateRow(row);
+  const missing = loadRow('w');
+  delete missing.load.observed.allocatedWeight;
+  assert.throws(() => validateRow(missing));
 });
 
 test('run receipt carries the provenance rows must not', () => {
   validateReceipt(receipt());
   // A narrowed run says so; an empty scope or a run-less receipt is invalid.
-  validateReceipt({ ...receipt(), scope: { families: ['battlemechs'], unitIds: ['atlas-as7-d'] } });
-  assert.throws(() => validateReceipt({ ...receipt(), scope: { families: [], unitIds: null } }));
+  validateReceipt({
+    ...receipt(),
+    rows: { count: 1, sha256: '1'.repeat(64) },
+    scope: { families: ['battlemechs'], populationCount: 4263, unitIds: ['atlas-as7-d'] },
+  });
+  assert.throws(() => validateReceipt({ ...receipt(), scope: { families: [], populationCount: 4263, unitIds: null } }));
   assert.throws(() => validateReceipt({ ...receipt(), runs: [] }));
   assert.throws(() => validateReceipt({ ...receipt(), resources: { maxRSS: 1 } }));
   const { node: _node, ...noNode } = receipt();

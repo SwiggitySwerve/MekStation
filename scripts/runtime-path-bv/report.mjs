@@ -1,6 +1,7 @@
 // Capture records -> schema rows, and the counts the nightly publishes. No BV arithmetic here: the
 // capture reads BV, validity, weight, MP and terms from the app; this maps them and counts
 // agreement with the committed Java reference.
+import { assertPopulation } from '../lib/runtime-parity/rows.mjs';
 
 /** One captured record -> one load row (validated by serializeRows before it is written). */
 export function capturedToRow(record) {
@@ -37,9 +38,16 @@ const fmt = (n) => n.toLocaleString('en-US');
  * the per-unit differences (also misses) so a drop names its units.
  */
 export function summarize({ rows, referenceByPath, scope, deterministic }) {
+  // The counts below are only meaningful over exactly the population the scope claims.
+  assertPopulation(scope, rows.length);
+  if (new Set(rows.map((row) => `${row.family}\0${row.unitId}`)).size !== rows.length)
+    throw new Error('Population mismatch: more than one row for a unit');
   const errorsByStage = {};
   const bv = { exact: 0, different: 0, missing: 0 };
   const validity = { agree: 0, disagree: 0, missing: 0 };
+  // Status-bar weightUsed vs projectMechWeight().allocatedWeight, compared exactly: a difference is
+  // a second weight owner, reported as a finding (never a tolerance).
+  const weightOwners = { agree: 0, mismatch: 0, missing: 0 };
   const differences = [];
   for (const row of rows) {
     const ref = referenceByPath.get(row.path);
@@ -48,11 +56,17 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       errorsByStage[row.error.stage] = (errorsByStage[row.error.stage] ?? 0) + 1;
       bv.missing++;
       validity.missing++;
+      weightOwners.missing++;
       differences.push({ ...identity, measure: 'bv', observed: null, java: ref?.battleValue?.total ?? null, why: `error:${row.error.stage}` });
       differences.push({ ...identity, measure: 'validity', observed: null, java: ref?.construction?.valid ?? null, why: `error:${row.error.stage}` });
       continue;
     }
     const { observed } = row.load;
+    if (observed.weight === observed.allocatedWeight) weightOwners.agree++;
+    else {
+      weightOwners.mismatch++;
+      differences.push({ ...identity, measure: 'weight-owner', observed: observed.weight, allocated: observed.allocatedWeight, why: 'weightUsed differs from allocatedWeight' });
+    }
     const javaBv = ref?.battleValue?.total;
     if (observed.bv === null) {
       bv.missing++;
@@ -85,8 +99,9 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       errorsByStage,
       bv,
       validity,
+      weightOwners,
       deterministic,
-      headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
+      headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)}${weightOwners.mismatch ? ` · WEIGHT OWNERS DIFFER ${fmt(weightOwners.mismatch)}` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },
     differences,
   };

@@ -73,6 +73,12 @@ const {
 } = require('@/services/equipment/EquipmentRegistry');
 const { useTabManagerStore } = require('@/stores/useTabManagerStore');
 const { mechBVTerms } = require('@/utils/construction/mechBV/bvTrace');
+const { useUnitCalculations } = require('@/hooks/useUnitCalculations');
+const {
+  getMechConstructionSelections,
+  getMechValidationTonnage,
+  projectMechWeight,
+} = require('@/utils/validation/mechValidationProjection');
 const { numericTerms } = require('../vehicle-aero-bv-delta');
 
 const repoRoot = path.resolve(__dirname, '../..');
@@ -176,7 +182,20 @@ function StatusProbe() {
     unitStats.heatDissipation,
     unitStats.heatGeneration,
   );
-  probe.status = { validation, unitStats };
+  // The weight validation sees, read beside the status bar's weightUsed: the two are compared
+  // exactly per unit (a difference is a second weight owner, a finding, never a tolerance).
+  const selections = getMechConstructionSelections(state);
+  const calculations = useUnitCalculations(
+    getMechValidationTonnage(state.tonnage),
+    selections,
+    selections.armorTonnage,
+    selections.configuration,
+  );
+  const { allocatedWeight } = projectMechWeight(
+    state,
+    calculations.totalStructuralWeight,
+  );
+  probe.status = { validation, unitStats, allocatedWeight };
   return React.createElement(
     React.Fragment,
     null,
@@ -342,6 +361,7 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       }
       for (const value of [
         unitStats.weightUsed,
+        status.allocatedWeight,
         unitStats.walkMP,
         unitStats.runMP,
         unitStats.jumpMP,
@@ -354,6 +374,7 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
         bv,
         validity: status.validation.isValid ? 'valid' : 'invalid',
         weight: unitStats.weightUsed,
+        allocatedWeight: status.allocatedWeight,
         mp: {
           walk: unitStats.walkMP,
           run: unitStats.runMP,

@@ -11,14 +11,14 @@ node scripts/runtime-path-bv/run.mjs --out <dir> [--sources <dir>] [--mekfiles <
 
 Run from the repository root after `npm ci`. Everything is written under `<dir>`:
 
-| File                      | Content                                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `rows.ndjson`             | one schema row per unit (`scripts/lib/runtime-parity/ROW-SCHEMA.md`); identical on every host            |
-| `summary.json`            | counts: units, errors by stage, BV exact/different/missing, validity agree/disagree/missing, `headline`  |
-| `receipt.json`            | Node, platform, repo SHA, input hashes, scope, per-run time and `process.resourceUsage()` (never a gate) |
-| `java-differences.ndjson` | every unit that is not an exact BV or validity match, with the observed and Java value                   |
-| `failure.json`            | only when the run did not complete: a named `reason`                                                     |
-| `work/`                   | per-run capture logs and raw records                                                                     |
+| File                      | Content                                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `rows.ndjson`             | one schema row per unit (`scripts/lib/runtime-parity/ROW-SCHEMA.md`); identical on every host                                                    |
+| `summary.json`            | counts: units, errors by stage, BV exact/different/missing, validity agree/disagree/missing, `headline`                                          |
+| `receipt.json`            | Node, platform, repo SHA, input hashes, scope, per-run time and `process.resourceUsage()` (never a gate)                                         |
+| `java-differences.ndjson` | every unit that is not an exact BV or validity match (observed and Java value), and every unit whose `weightUsed` differs from `allocatedWeight` |
+| `failure.json`            | only when the run did not complete: a named `reason`                                                                                             |
+| `work/`                   | per-run capture logs and raw records                                                                                                             |
 
 ## Inputs
 
@@ -32,8 +32,10 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
 
 Non-zero only if the census did not complete: `S0A_REFERENCE_MISSING`, `S0B_MANIFEST_MISSING`, `INPUT_SHA_DRIFT`,
 `MISSING_MANIFEST_ROWS`, `ZERO_UNITS_MEASURED`, `UNSUPPORTED_FAMILY`, `CAPTURE_INCOMPLETE`,
-`CAPTURE_INFRASTRUCTURE_FAILURE`, or `NONDETERMINISTIC_ROWS` (two fresh capture processes must give byte-identical rows).
-Parity differences never fail the run. `--units` narrows the run for local work and is recorded in `receipt.scope`.
+`CAPTURE_INFRASTRUCTURE_FAILURE`, `POPULATION_MISMATCH` (a capture must give exactly one record per planned unit), or
+`NONDETERMINISTIC_ROWS` (two fresh capture processes must give byte-identical rows).
+Parity differences never fail the run. `--units` narrows the run for local work (ids are sorted and de-duplicated) and is
+recorded in `receipt.scope` with `populationCount`, so a narrowed run can never pass as the whole population.
 
 ## Files
 

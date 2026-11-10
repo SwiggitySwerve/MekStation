@@ -89,6 +89,24 @@ export function loadReference(repoRoot, work) {
   return { file, rows, gzipSha256: config.reference.gzipSha256 };
 }
 
+/**
+ * Exactly one record per planned unit: no unit missing, none repeated, none unplanned. Error records
+ * count (they are the unit's row, carrying its status). A capture that is short or padded cannot
+ * become a published count.
+ */
+export function assertOneRecordPerUnit(records, plan) {
+  const planned = new Set(plan.map((entry) => `${entry.family}\0${entry.unitId}`));
+  const seen = new Set();
+  for (const record of records) {
+    const key = `${record.family}\0${record.unitId}`;
+    if (!planned.has(key)) throw new RunError('POPULATION_MISMATCH', `captured a unit that is not in the plan: ${record.unitId}`);
+    if (seen.has(key)) throw new RunError('POPULATION_MISMATCH', `captured ${record.unitId} more than once`);
+    seen.add(key);
+  }
+  if (seen.size !== planned.size)
+    throw new RunError('POPULATION_MISMATCH', `captured ${seen.size} of ${planned.size} planned units`);
+}
+
 /** Rows that differ between runs, by identity, so a nondeterministic unit is named. */
 function differingUnits(texts) {
   const identityOf = (line) => {
@@ -131,25 +149,30 @@ export async function main(argv = process.argv.slice(2), deps = {}) {
     const join = obtainJoin({ repoRoot, sourcesDir: values.sources, mekfiles: values.mekfiles, commit: repoSha, referenceFile: reference.file, workDir: work });
     let plan = buildPlan({ rows: join.rows, manifest: join.manifest, families });
     const referenceByPath = verifyAgainstReference(plan, reference.rows);
+    // The population as the join defines it: the plan after the family filter, before --units.
+    const populationCount = plan.length;
     let unitIds = null;
     if (values.units) {
-      unitIds = values.units.split(',').filter(Boolean);
+      // Sorted and de-duplicated, so `--units a,a` is one unit and the scope is canonical.
+      unitIds = [...new Set(values.units.split(',').filter(Boolean))].sort();
       const known = new Set(plan.map((entry) => entry.unitId));
       const unknown = unitIds.filter((id) => !known.has(id));
       if (unknown.length) throw new InputError('MISSING_MANIFEST_ROWS', `--units not in the join: ${unknown.join(', ')}`);
-      plan = plan.filter((entry) => unitIds.includes(entry.unitId));
+      const wanted = new Set(unitIds);
+      plan = plan.filter((entry) => wanted.has(entry.unitId));
     }
     if (!plan.length) throw new InputError('ZERO_UNITS_MEASURED', 'the join produced no units for the requested families');
 
     const runs = [];
     for (let index = 1; index <= runCount; index++) {
       const result = capture({ repoRoot, plan, dir: path.join(work, `run-${index}`) });
+      assertOneRecordPerUnit(result.records, plan);
       const text = serializeRows(result.records.map(capturedToRow));
       runs.push({ text, rowsSha256: sha256(Buffer.from(text)), durationSeconds: result.durationSeconds, resources: result.resources });
     }
     const deterministic = runs.every((run) => run.text === runs[0].text);
     const rows = runs[0].text.split('\n').filter(Boolean).map((line) => JSON.parse(line));
-    const scope = { families, unitIds };
+    const scope = { families, populationCount, unitIds };
     const { summary, differences } = summarize({ rows, referenceByPath, scope, deterministic });
 
     fs.writeFileSync(path.join(out, OUTPUT_FILES.rows), runs[0].text);

@@ -132,7 +132,7 @@ const planEntry = (id) => ({
   path: `meks/${id}.mtf`,
   sha256: hex('a'),
 });
-const record = (id, { bv = 1000, validity = 'valid', terms = { armorBV: 360 } } = {}) => ({
+const record = (id, { bv = 1000, validity = 'valid', terms = { armorBV: 360 }, allocatedWeight = 50 } = {}) => ({
   unitId: id,
   family: 'battlemechs',
   path: `meks/${id}.mtf`,
@@ -140,7 +140,7 @@ const record = (id, { bv = 1000, validity = 'valid', terms = { armorBV: 360 } } 
   catalog: { path: `public/data/units/battlemechs/x/${id}.json`, blob: hex('1', 40) },
   error: null,
   infrastructure: false,
-  observed: { bv, validity, weight: 50, mp: { walk: 4, run: 6, jump: 0 } },
+  observed: { bv, validity, weight: 50, allocatedWeight, mp: { walk: 4, run: 6, jump: 0 } },
   terms,
   issues: [],
 });
@@ -169,7 +169,8 @@ test('summarize counts agreement with Java and counts every miss', () => {
     capturedToRow({ ...record('broken'), observed: null, terms: null, issues: null, error: { stage: 'open', name: 'E', message: 'm' } }),
   ];
   const referenceByPath = new Map(['exact', 'off', 'nobv', 'badvalid', 'broken'].map((id) => refRow(id, 1000)));
-  const { summary, differences } = summarize({ rows, referenceByPath, scope: { families: ['battlemechs'], unitIds: null }, deterministic: true });
+  const whole = { families: ['battlemechs'], populationCount: 5, unitIds: null };
+  const { summary, differences } = summarize({ rows, referenceByPath, scope: whole, deterministic: true });
   assert.deepEqual(summary.bv, { exact: 2, different: 1, missing: 2 });
   assert.deepEqual(summary.validity, { agree: 3, disagree: 1, missing: 1 });
   assert.deepEqual(summary.errorsByStage, { open: 1 });
@@ -179,8 +180,36 @@ test('summarize counts agreement with Java and counts every miss', () => {
     differences.filter((d) => d.measure === 'bv').map((d) => [d.unitId, d.why]),
     [['off', 'different'], ['nobv', 'no-calculator-result'], ['broken', 'error:open']],
   );
-  const narrowed = summarize({ rows: rows.slice(0, 1), referenceByPath, scope: { families: ['battlemechs'], unitIds: ['exact'] }, deterministic: true });
+  const narrowed = summarize({ rows: rows.slice(0, 1), referenceByPath, scope: { families: ['battlemechs'], populationCount: 5, unitIds: ['exact'] }, deterministic: true });
   assert.match(narrowed.summary.headline, /NARROWED SCOPE/);
+});
+
+test('summarize refuses rows that are not the population the scope claims', () => {
+  const rows = [capturedToRow(record('a')), capturedToRow(record('b'))];
+  const referenceByPath = new Map(['a', 'b'].map((id) => refRow(id, 1000)));
+  const scope = (populationCount, unitIds = null) => ({ families: ['battlemechs'], populationCount, unitIds });
+  const run = (r, s) => summarize({ rows: r, referenceByPath, scope: s, deterministic: true });
+  run(rows, scope(2));
+  assert.throws(() => run(rows, scope(3)), /Population mismatch/);
+  assert.throws(() => run(rows.slice(0, 1), scope(2)), /Population mismatch/);
+  assert.throws(() => run(rows, scope(2, ['a'])), /Population mismatch/);
+  assert.throws(() => run([rows[0], rows[0]], scope(2)), /more than one row/);
+});
+
+test('weight owners are compared exactly per unit and a difference is reported, not tolerated', () => {
+  const rows = [
+    capturedToRow(record('same')),
+    capturedToRow(record('near', { allocatedWeight: 50.0000001 })),
+    capturedToRow({ ...record('broken'), observed: null, terms: null, issues: null, error: { stage: 'open', name: 'E', message: 'm' } }),
+  ];
+  const referenceByPath = new Map(['same', 'near', 'broken'].map((id) => refRow(id, 1000)));
+  const { summary, differences } = summarize({ rows, referenceByPath, scope: { families: ['battlemechs'], populationCount: 3, unitIds: null }, deterministic: true });
+  assert.deepEqual(summary.weightOwners, { agree: 1, mismatch: 1, missing: 1 });
+  assert.match(summary.headline, /WEIGHT OWNERS DIFFER 1/);
+  assert.deepEqual(
+    differences.filter((d) => d.measure === 'weight-owner').map((d) => [d.unitId, d.observed, d.allocated]),
+    [['near', 50, 50.0000001]],
+  );
 });
 
 // --- main(): the whole flow with an injected capture ---------------------------------------
@@ -239,6 +268,45 @@ test('main records a narrowed scope and refuses units the join does not have', a
   const t2 = setup();
   assert.equal(await quietly(() => t2.run('--units', 'nope')), 1);
   assert.equal(JSON.parse(t2.read('failure.json')).reason, 'MISSING_MANIFEST_ROWS');
+});
+
+test('--units is sorted and de-duplicated, and the receipt proves the population', async () => {
+  const t = setup();
+  assert.equal(await quietly(() => t.run('--units', 'gamma,alpha,gamma,alpha', '--runs', '1')), 0);
+  const receipt = validateReceipt(JSON.parse(t.read('receipt.json')));
+  assert.deepEqual(receipt.scope, { families: ['battlemechs'], populationCount: 3, unitIds: ['alpha', 'gamma'] });
+  assert.equal(receipt.rows.count, 2);
+  assert.deepEqual(parseRows(t.read('rows.ndjson')).map((r) => r.unitId), ['alpha', 'gamma']);
+  const whole = setup();
+  assert.equal(await quietly(() => whole.run()), 0);
+  assert.deepEqual(JSON.parse(whole.read('receipt.json')).scope, { families: ['battlemechs'], populationCount: 3, unitIds: null });
+});
+
+test('a short, padded or repeating capture cannot publish a count', async () => {
+  const records = (plan) => plan.map((p) => record(p.unitId));
+  const attempt = async (mutate) => {
+    const t = setup({ capture: ({ plan }) => ({ records: mutate(records(plan)), durationSeconds: 1, resources: { maxRSS: 1 } }) });
+    const code = await quietly(() => t.run());
+    return { code, failure: t.exists('failure.json') ? JSON.parse(t.read('failure.json')) : null, wroteRows: t.exists('rows.ndjson') };
+  };
+  const short = await attempt((r) => r.slice(0, 2));
+  assert.deepEqual([short.code, short.failure.reason, short.wroteRows], [1, 'POPULATION_MISMATCH', false]);
+  const repeated = await attempt((r) => [r[0], r[0], r[2]]);
+  assert.deepEqual([repeated.code, repeated.failure.reason], [1, 'POPULATION_MISMATCH']);
+  const unplanned = await attempt((r) => [...r.slice(0, 2), record('stranger')]);
+  assert.deepEqual([unplanned.code, unplanned.failure.reason], [1, 'POPULATION_MISMATCH']);
+  // An error record is the unit's row: it counts toward the population and keeps its status.
+  const withError = setup({
+    capture: ({ plan }) => ({
+      records: plan.map((p) => (p.unitId === 'beta' ? { ...record('beta'), observed: null, terms: null, issues: null, error: { stage: 'open', name: 'E', message: 'm' } } : record(p.unitId))),
+      durationSeconds: 1,
+      resources: { maxRSS: 1 },
+    }),
+  });
+  assert.equal(await quietly(() => withError.run()), 0);
+  const rows = parseRows(withError.read('rows.ndjson'));
+  assert.equal(rows.length, 3);
+  assert.deepEqual(rows.map((r) => r.status), ['ok', 'error', 'ok']);
 });
 
 test('main fails the run, names the unit and keeps the artifacts when two runs differ', async () => {

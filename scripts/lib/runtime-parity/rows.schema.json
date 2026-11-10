@@ -78,6 +78,9 @@
                 "weight": {
                   "type": "number"
                 },
+                "allocatedWeight": {
+                  "type": "number"
+                },
                 "mp": {
                   "type": "object",
                   "properties": {
@@ -98,7 +101,14 @@
                   "type": "null"
                 }
               },
-              "required": ["bv", "validity", "weight", "mp", "occupancy"],
+              "required": [
+                "bv",
+                "validity",
+                "weight",
+                "allocatedWeight",
+                "mp",
+                "occupancy"
+              ],
               "additionalProperties": false
             },
             "terms": {
@@ -328,63 +338,7 @@
                 "weight": {
                   "type": "number"
                 },
-                "mp": {
-                  "type": "object",
-                  "properties": {
-                    "walk": {
-                      "type": "number"
-                    },
-                    "run": {
-                      "type": "number"
-                    },
-                    "jump": {
-                      "type": "number"
-                    }
-                  },
-                  "required": ["walk", "run", "jump"],
-                  "additionalProperties": false
-                },
-                "occupancy": {
-                  "type": "null"
-                },
-                "terms": {
-                  "type": "object",
-                  "propertyNames": {
-                    "type": "string"
-                  },
-                  "additionalProperties": {
-                    "type": "number"
-                  }
-                }
-              },
-              "required": [
-                "bv",
-                "validity",
-                "weight",
-                "mp",
-                "occupancy",
-                "terms"
-              ],
-              "additionalProperties": false
-            },
-            "after": {
-              "type": "object",
-              "properties": {
-                "bv": {
-                  "anyOf": [
-                    {
-                      "type": "number"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
-                "validity": {
-                  "type": "string",
-                  "enum": ["valid", "invalid"]
-                },
-                "weight": {
+                "allocatedWeight": {
                   "type": "number"
                 },
                 "mp": {
@@ -420,6 +374,70 @@
                 "bv",
                 "validity",
                 "weight",
+                "allocatedWeight",
+                "mp",
+                "occupancy",
+                "terms"
+              ],
+              "additionalProperties": false
+            },
+            "after": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "weight": {
+                  "type": "number"
+                },
+                "allocatedWeight": {
+                  "type": "number"
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "walk": {
+                      "type": "number"
+                    },
+                    "run": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["walk", "run", "jump"],
+                  "additionalProperties": false
+                },
+                "occupancy": {
+                  "type": "null"
+                },
+                "terms": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "bv",
+                "validity",
+                "weight",
+                "allocatedWeight",
                 "mp",
                 "occupancy",
                 "terms"

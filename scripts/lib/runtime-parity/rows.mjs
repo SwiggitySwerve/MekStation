@@ -49,8 +49,14 @@ const observation = z.strictObject({
   bv: z.number().nullable(),
   /** Validation result.isValid at the real read point. */
   validity: z.enum(['valid', 'invalid']),
-  /** projectMechWeight(...).allocatedWeight (editor weight). */
+  /** The status bar's unitStats.weightUsed, unrounded (never the toFixed(1) text). */
   weight: z.number(),
+  /**
+   * projectMechWeight(...).allocatedWeight, read beside `weight`. The two must be equal on
+   * every unit: a difference means a second weight owner, which is a finding to report,
+   * not a tolerance (summaries count it; rows keep both numbers).
+   */
+  allocatedWeight: z.number(),
   mp: z.strictObject({ walk: z.number(), run: z.number(), jump: z.number() }),
   /** Phase 2 placeholder: occupied-slot facts. Always null until the occupancy owner is on main. */
   occupancy: z.null(),
@@ -272,11 +278,15 @@ export const ReceiptSchema = z.strictObject({
   /** True when every run produced byte-identical rows (the determinism gate). */
   deterministic: z.boolean(),
   /**
-   * What was measured. `unitIds: null` is the whole joined population of the
-   * listed families; a list means a deliberately narrowed (local/focused) run.
+   * What was measured. `populationCount` is the plan length after the family
+   * filter and before `--units`. `unitIds: null` is the whole joined population
+   * of the listed families; a list (sorted, no duplicates) means a deliberately
+   * narrowed run. validateReceipt requires rows.count to equal populationCount
+   * (null) or unitIds.length (list): the population is proved, not inferred.
    */
   scope: z.strictObject({
     families: z.array(z.enum(FAMILIES)).min(1),
+    populationCount: z.int().min(1),
     unitIds: z.array(z.string()).nullable(),
   }),
 });
@@ -422,9 +432,27 @@ export function parseRows(textContent) {
     .map((line) => validateRow(JSON.parse(line)));
 }
 
+/**
+ * The population a scope claims, checked against the rows it produced: exactly populationCount
+ * rows for the whole population, exactly one per listed id for a narrowed run. Used by the
+ * receipt and the summaries, so a short or padded capture cannot publish a count.
+ */
+export function assertPopulation(scope, rowCount) {
+  const { unitIds, populationCount } = scope;
+  if (unitIds !== null) {
+    if (unitIds.some((id, i) => i > 0 && !(unitIds[i - 1] < id)))
+      throw new Error('scope.unitIds must be sorted and free of duplicates');
+    if (unitIds.length > populationCount) throw new Error('scope.unitIds is larger than the population');
+    if (rowCount !== unitIds.length)
+      throw new Error(`Population mismatch: ${rowCount} rows for ${unitIds.length} requested units`);
+  } else if (rowCount !== populationCount)
+    throw new Error(`Population mismatch: ${rowCount} rows for a population of ${populationCount}`);
+}
+
 export const validateReceipt = (receipt) => {
   const parsed = ReceiptSchema.safeParse(receipt);
   if (!parsed.success) throw new Error(`Invalid receipt: ${parsed.error.message}`);
+  assertPopulation(parsed.data.scope, parsed.data.rows.count);
   return parsed.data;
 };
 

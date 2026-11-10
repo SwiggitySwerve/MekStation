@@ -28,8 +28,12 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 
 ## Load row (`measure: load`, `status: ok`) — `load`
 
-- `observed`: `bv` (number, or `null`), `validity` (`valid`/`invalid`), `weight` (editor `allocatedWeight`),
-  `mp {walk, run, jump}`, `occupancy` (always `null` now; phase-2 placeholder).
+- `observed`: `bv` (number, or `null`), `validity` (`valid`/`invalid`), `weight` (the status bar's `unitStats.weightUsed`,
+  unrounded, never the `toFixed(1)` text), `allocatedWeight` (`projectMechWeight().allocatedWeight`, read beside it),
+  `mp {walk, run, jump}`, `occupancy` (always `null` now; phase-2 placeholder). `weight` and `allocatedWeight` must be equal
+  on every unit: the summary compares them exactly and counts a difference as a finding (a second weight owner), never a tolerance.
+  `weightRemaining` is not a validity term (the status bar subtracts from `tonnage`, validation from `getMechValidationTonnage`).
+  The reopen measure reads the same `weightUsed`, with `allocatedWeight` as the cross-check.
 - `terms`: exactly `numericTerms(mechBVTerms(breakdown))`, names unchanged (Java-comparable: `structureBV` includes the gyro,
   `defensiveEquipmentBV` = `defEquipBV` + `armoredComponentBV`, `weapon.<n>.<LOC>.<id>` per mount).
 - `issues[]`: every validation issue `{ruleId, channel (errors|warnings|infos), severity, field, message}`; `field` is the raw field.
@@ -68,7 +72,10 @@ Provenance and resource facts live here, never on a row: `repoSha`, `node`, `pla
 `rows {count, sha256}` (the rows file this receipt describes), `durationSeconds` (whole invocation), `runs[]` (one entry per
 fresh capture process: `rowsSha256`, `durationSeconds`, and that process's `resources` from `process.resourceUsage()`;
 recorded, never a gate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
-(`families`, and `unitIds`: `null` is the whole joined population, a list is a deliberately narrowed local run).
+(`families`; `populationCount`, the plan length after the family filter and before `--units`; and `unitIds`: `null` is the whole
+joined population, a sorted duplicate-free list is a deliberately narrowed local run). The population is proved, not inferred:
+`validateReceipt` and the summaries require `rows.count === populationCount` for a null scope and `rows.count === unitIds.length`
+otherwise, with exactly one row per planned unit id (error rows are the unit's row and carry their `status`).
 Rows are compared byte for byte across hosts; receipts are compared for identity, and each port's acceptance report
 names the Node version on both sides.
 
