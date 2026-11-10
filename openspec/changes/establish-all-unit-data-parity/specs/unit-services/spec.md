@@ -569,6 +569,15 @@ SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
 - **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
 - **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
 
+#### Scenario: Technology-specific ammo tokens retain their BV identity
+
+- **GIVEN** a loaded ammunition mount with a technology-specific native critical token
+- **WHEN** its unchanged design is saved, read back from SQLite and reopened
+- **THEN** the saved owned cell SHALL preserve that ammo token and its existing BV resolution
+- **AND** its per-pool ammo availability, caps and ammo BV SHALL match before save
+- **AND** a changed bin SHALL NOT inherit the previous bin's source token
+- **AND** established save-fingerprint literals SHALL remain byte-identical without fixture regeneration
+
 ### Requirement: Non-mech Mixed identity survives library load and save
 
 Non-mech loaders SHALL retain Mixed mode separately from the binary editor

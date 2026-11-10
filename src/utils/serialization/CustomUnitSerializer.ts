@@ -20,6 +20,7 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
+import { getMountedAmmoSourceToken } from '@/services/units/unitLoaderService/equipmentResolution';
 import { getCockpitSourceTag } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -200,6 +201,12 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
       for (const slot of slots) {
         if (slot >= 0 && slot < locationSlots.length) {
           locationSlots[slot] =
+            getMountedAmmoSourceToken(
+              item,
+              sourceSlots?.[slot],
+              state.techBase,
+              state.techBaseMode,
+            ) ??
             item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
         }
       }

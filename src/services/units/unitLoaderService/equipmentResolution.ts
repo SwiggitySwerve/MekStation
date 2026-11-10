@@ -1,3 +1,5 @@
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 /**
  * Unit Loader Service - Equipment Resolution
@@ -30,6 +32,49 @@ import {
 import { parseEquipmentSizeNumber } from '@/utils/equipmentSize';
 
 type TechHint = 'clan' | 'is';
+
+/** Preserve an ammo mount's own source identity, never another bin's evidence. */
+export function getMountedAmmoSourceToken(
+  mount: Pick<
+    IMountedEquipmentInstance,
+    'equipmentId' | 'category' | 'techBase'
+  >,
+  token: string | null | undefined,
+  techBase: TechBase,
+  mode: TechBaseMode,
+): string | undefined {
+  if (mount.category !== EquipmentCategory.AMMUNITION || !token)
+    return undefined;
+  // Use the placed-identity path with exactly this cell, including category and
+  // technology. A changed bin cannot inherit the previous bin's native token.
+  const original = resolveEquipmentId(
+    token,
+    techBase,
+    mode,
+    [token],
+    undefined,
+    [0],
+  );
+  // Native pod/rear wrappers are transport, not a different ammo definition.
+  // Keep established decorated identities before trying the existing decoder.
+  const lookupToken = parseCriticalSlotToken(token).lookupToken;
+  const resolved =
+    original.equipmentDef || lookupToken === token
+      ? original
+      : resolveEquipmentId(
+          lookupToken,
+          techBase,
+          mode,
+          [lookupToken],
+          undefined,
+          [0],
+        );
+  return resolved.resolvedId === mount.equipmentId &&
+    resolved.equipmentDef?.category === mount.category &&
+    resolved.equipmentDef.techBase === mount.techBase
+    ? token
+    : undefined;
+}
 
 export interface ICriticalSlotTokenParameters {
   /** Native :SIZE: value; invalid values retain their raw evidence. */
