@@ -3,7 +3,7 @@
   "chassis": "Ares",
   "model": "ARS-V1A Hera",
   "unitType": "BattleMech",
-  "configuration": "Biped",
+  "configuration": "Tripod",
   "techBase": "MIXED",
   "rulesLevel": "EXPERIMENTAL",
   "era": "DARK_AGE",
@@ -40,7 +40,7 @@
       "HEAD": 12,
       "LEFT_LEG": 56,
       "RIGHT_LEG": 56,
-      "CL": 56
+      "CENTER_LEG": 56
     }
   },
   "heatSinks": {
@@ -197,6 +197,14 @@
       "ISAntiPersonnelPod"
     ],
     "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod",
+      "ISAntiPersonnelPod"
+    ],
+    "CENTER_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",

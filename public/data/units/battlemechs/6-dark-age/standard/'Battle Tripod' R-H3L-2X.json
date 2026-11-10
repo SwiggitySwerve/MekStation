@@ -40,7 +40,7 @@
       "HEAD": 9,
       "LEFT_LEG": 19,
       "RIGHT_LEG": 19,
-      "CL": 19
+      "CENTER_LEG": 19
     }
   },
   "heatSinks": {
@@ -153,6 +153,14 @@
       "Clan Ferro-Lamellor"
     ],
     "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
+    ],
+    "CENTER_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
