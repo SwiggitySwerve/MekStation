@@ -75,8 +75,17 @@ export function validateBudgets(config) {
     for (const [id, value] of Object.entries(config.reporting))
       positive(value, `reporting.${id}`);
   }
-  exactKeys(config.limits, Object.keys(LIMIT_UNITS), 'limits');
-  for (const [id, value] of Object.entries(config.limits)) integer(value, id);
+  // Legacy size limits are ignored on both sides (PARITY-PLAN §24).
+  const legacyIds = Object.values(PACKAGE_METRIC_IDS).flat();
+  exactKeys(
+    config.limits,
+    [
+      ...Object.keys(LIMIT_UNITS),
+      ...legacyIds.filter((id) => Object.hasOwn(config.limits ?? {}, id)),
+    ],
+    'limits',
+  );
+  for (const id of Object.keys(LIMIT_UNITS)) integer(config.limits[id], id);
   exactKeys(
     config.targets,
     ['typicalPrJobs', 'unkeyableTests', 'repoWideKeys'],
@@ -157,6 +166,16 @@ export function loadBudgets(file = 'config/ci/budgets.json') {
   );
 }
 
+/** PR Checks validates the merge tree; stale PR heads remain readable above. */
+export function loadBudgetTree(file = 'config/ci/budgets.json') {
+  const config = loadBudgets(file);
+  if (Object.keys(config.limits).some((id) => id.endsWith('Bytes')))
+    throw new Error(
+      'Byte limits are forbidden in the budget tree (PARITY-PLAN §24)',
+    );
+  return config;
+}
+
 export function budgetConfigHash(file = 'config/ci/budgets.json') {
   return createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 }
@@ -211,9 +230,9 @@ export function budgetTargetGaps(config, observedValues = null) {
 export function budgetValues(config) {
   validateBudgets(config);
   return Object.fromEntries([
-    ...Object.entries(config.limits).map(([id, value]) => [
+    ...Object.keys(LIMIT_UNITS).map((id) => [
       `limits.${id}`,
-      value,
+      config.limits[id],
     ]),
     ...Object.entries(config.dependencies).flatMap(([scope, values]) =>
       Object.entries(values).map(([id, value]) => [
@@ -238,20 +257,7 @@ export function budgetRaises(base, head) {
     if (head !== null) validateBudgets(head);
     return []; // Initial baseline: no previously enforced cap exists.
   }
-  // Read old main configurations during the migration. Head remains strict:
-  // removed byte caps cannot be reintroduced as unused configuration.
-  const normalizedBase = structuredClone(base);
-  const legacyIds = Object.values(PACKAGE_METRIC_IDS).flat();
-  const present = legacyIds.filter((id) =>
-    Object.hasOwn(normalizedBase.limits ?? {}, id),
-  );
-  if (present.length && present.length !== legacyIds.length)
-    throw new Error('Incomplete legacy byte limits');
-  for (const id of present) {
-    integer(normalizedBase.limits[id], `legacy ${id}`);
-    delete normalizedBase.limits[id];
-  }
-  const before = budgetValues(normalizedBase),
+  const before = budgetValues(base),
     after = budgetValues(head);
   const raises = [];
   for (const id of new Set([...Object.keys(before), ...Object.keys(after)])) {
