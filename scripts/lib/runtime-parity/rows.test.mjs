@@ -249,6 +249,7 @@ const receipt = () => ({
   measure: 'load',
   repoSha: 'c'.repeat(40),
   node: 'v22.12.0',
+  nodeAbi: '127',
   platform: 'linux',
   reference: { sha256: 'd'.repeat(64) },
   sources: { sha256: 'e'.repeat(64) },
@@ -306,6 +307,10 @@ test('run receipt carries the provenance rows must not', () => {
   assert.throws(() => validateReceipt({ ...receipt(), resources: { maxRSS: 1 } }));
   const { node: _node, ...noNode } = receipt();
   assert.throws(() => validateReceipt(noNode));
+  // The ABI is required and must be the numeric module version, not a free string.
+  const { nodeAbi: _abi, ...noAbi } = receipt();
+  assert.throws(() => validateReceipt(noAbi));
+  assert.throws(() => validateReceipt({ ...receipt(), nodeAbi: 'v127' }));
   assert.throws(() => validateReceipt({ ...receipt(), repoSha: 'abc' }));
   assert.throws(() => validateReceipt({ ...receipt(), normalized: true }));
   // Provenance never rides on a row.

@@ -67,7 +67,8 @@ Checked by `validateRow`: `equal` is true exactly when `residual` equals the `no
 
 ## Run receipt (`receipt.json`)
 
-Provenance and resource facts live here, never on a row: `repoSha`, `node`, `platform`, `reference.sha256`
+Provenance and resource facts live here, never on a row: `repoSha`, `node` (`process.version`), `nodeAbi`
+(`process.versions.modules`; better-sqlite3 must run on the ABI that `node_modules` was built for), `platform`, `reference.sha256`
 (`config/reference/reference-full.jsonl.gz`), `sources.sha256` and `manifest.sha256` (the S0b join inputs as read),
 `rows {count, sha256}` (the rows file this receipt describes), `durationSeconds` (whole invocation), `runs[]` (one entry per
 fresh capture process: `rowsSha256`, `durationSeconds`, and that process's `resources` from `process.resourceUsage()`;

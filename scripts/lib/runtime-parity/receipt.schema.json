@@ -17,6 +17,10 @@
     "node": {
       "type": "string"
     },
+    "nodeAbi": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
     "platform": {
       "type": "string"
     },
@@ -149,6 +153,7 @@
     "measure",
     "repoSha",
     "node",
+    "nodeAbi",
     "platform",
     "reference",
     "sources",

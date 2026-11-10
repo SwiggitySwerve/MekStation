@@ -183,6 +183,7 @@ export async function runCensus(argv, deps, spec) {
       measure: spec.measure,
       repoSha,
       node: process.version,
+      nodeAbi: process.versions.modules,
       platform: `${process.platform}-${process.arch}`,
       reference: { sha256: reference.gzipSha256 },
       sources: { sha256: join.sourcesSha256 },

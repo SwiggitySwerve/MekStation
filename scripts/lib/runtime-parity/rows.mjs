@@ -252,6 +252,11 @@ export const ReceiptSchema = z.strictObject({
   measure: z.enum(['load', 'reopen']),
   repoSha: gitBlob,
   node: text,
+  /**
+   * process.versions.modules: the native-module ABI this process ran on. better-sqlite3 (the reopen
+   * measure's cold save) must run on the ABI that node_modules was built for, so it is recorded.
+   */
+  nodeAbi: z.string().regex(/^\d+$/),
   platform: text,
   /** SHA-256 of config/reference/reference-full.jsonl.gz as read. */
   reference: z.strictObject({ sha256: sha256Hex }),
