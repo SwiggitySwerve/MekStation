@@ -81,6 +81,7 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **AND** a gyro, cockpit or heat sink string the pinned loader defaults SHALL load with that Java default and a parse warning, not be rejected at import
 - **AND** a pinned cockpit type the contract cannot hold SHALL produce an explicit unsupported diagnostic
 - **AND** a pinned cockpit the committed catalog can only hold as Standard (Tripod) SHALL load as Standard with a parse warning, never silently
+- **AND** the raw gyro, cockpit and heat sink text SHALL be saved with the unit beside the derived values, with a unit-level diagnostic for every defaulted or stand-in value, so both survive save and reopen
 - **AND** the identity SHALL equal the committed catalog's for the same source bytes
 
 #### Scenario: Preserve slot-only weapons through MTF import and save

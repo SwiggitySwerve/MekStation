@@ -49,6 +49,18 @@ Both consumers read this one file:
     `UNSUPPORTED_COCKPIT:<raw>` value, which the unit contract rejects. Unreadable
     rules levels keep their existing `STANDARD` fallback in both languages.
 
+**Nothing is lost.** The importer keeps the declared text next to the derived
+value, inside `mtfSource` (which is saved with the unit and passes through the
+contract's `catchall`, like `mtfSource.text`):
+
+- `mtfSource.gyro`, `mtfSource.cockpit`, `mtfSource.heatSinks`: the raw values,
+  present when the line is present and non-blank;
+- `mtfSource.diagnostics`: one `{ field, raw, applied, reason, javaRef }` entry for
+  every field the loader defaulted (`java-default`), could only hold as Standard
+  (`no-editor-identity`) or could not represent (`unsupported`). Absent when
+  everything was recognised. Each entry mirrors one parse warning, so the import
+  result and the saved unit agree. The editor does not display them yet.
+
 Python is stricter on purpose: its converter output feeds the committed catalog,
 so an unlisted name there is an error rather than a guess (the R1 contract).
 

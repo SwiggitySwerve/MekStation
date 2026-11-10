@@ -176,6 +176,90 @@ describe('MTF component vocabulary', () => {
     });
   });
 
+  // The raw source token is kept on the unit next to the derived value, and a
+  // unit-level diagnostic is attached for every field the loader had to
+  // default; both ride in mtfSource, which is persisted with the definition.
+  describe('raw tokens and unit diagnostics', () => {
+    it('keeps the raw tokens beside the derived values', () => {
+      const { unit } = parse([
+        'gyro:XL Gyro',
+        'cockpit:Small Cockpit',
+        'heat sinks:12 Clan Double',
+      ]);
+      expect(unit?.mtfSource).toMatchObject({
+        gyro: 'XL Gyro',
+        cockpit: 'Small Cockpit',
+        heatSinks: '12 Clan Double',
+      });
+      expect(unit?.mtfSource).not.toHaveProperty('diagnostics');
+    });
+
+    it('omits a token whose line is absent', () => {
+      const { unit } = parse([]);
+      expect(unit?.mtfSource).not.toHaveProperty('gyro');
+      expect(unit?.mtfSource).not.toHaveProperty('cockpit');
+      expect(unit?.mtfSource).not.toHaveProperty('heatSinks');
+    });
+
+    it.each([
+      [
+        'gyro:Quantum Gyro',
+        {
+          field: 'gyro',
+          raw: 'Quantum Gyro',
+          applied: 'STANDARD',
+          reason: 'java-default',
+          javaRef: 'MtfFile.java:252-259',
+        },
+      ],
+      [
+        'cockpit:Mystery Cockpit',
+        {
+          field: 'cockpit',
+          raw: 'Mystery Cockpit',
+          applied: 'STANDARD',
+          reason: 'java-default',
+          javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
+        },
+      ],
+      [
+        'cockpit:Tripod Industrial Cockpit (Adv. FCS)',
+        {
+          field: 'cockpit',
+          raw: 'Tripod Industrial Cockpit (Adv. FCS)',
+          applied: 'STANDARD',
+          reason: 'no-editor-identity',
+          javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
+        },
+      ],
+      [
+        'cockpit:Dual Cockpit',
+        {
+          field: 'cockpit',
+          raw: 'Dual Cockpit',
+          applied: 'UNSUPPORTED_COCKPIT:Dual Cockpit',
+          reason: 'unsupported',
+          javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
+        },
+      ],
+      [
+        'heat sinks:14 Dissipators',
+        {
+          field: 'heatSinks',
+          raw: '14 Dissipators',
+          applied: 'SINGLE',
+          reason: 'java-default',
+          javaRef: 'MtfFile.java:566-598',
+        },
+      ],
+    ])('%s attaches one diagnostic to the unit', (line, diagnostic) => {
+      const { unit, warnings } = parse([line]);
+      expect(unit?.mtfSource.diagnostics).toEqual([diagnostic]);
+      // One warning string per diagnostic: the import result and the unit agree.
+      expect(warnings).toHaveLength(1);
+    });
+  });
+
   // MtfFile.java:566-598: contains Laser, else Double (Clan or IS from the
   // text, otherwise the unit's own tech base), else Compact, else Single.
   describe('heat sink keywords follow the pinned loader', () => {
