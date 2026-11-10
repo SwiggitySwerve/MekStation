@@ -1,0 +1,369 @@
+{
+  "provenance": "Literal fingerprints captured from the code at #3296 head 901bbf314 (before 4.1-b3d changed the Ultraheavy chassis into a mass), by building each state with createDefaultProtoMechState and reading getEditorDraftFingerprint / getEditorLibraryFingerprint. rawDraft is the persisted draft envelope; libraryRecord is the saved library contract. Never regenerate: the point is that an old unit keeps these exact bytes.",
+  "cases": {
+    "ultraheavy-biped-12t": {
+      "chassisType": "Ultraheavy",
+      "tonnage": 12,
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000012\",\"name\":\"New ProtoMech\",\"chassis\":\"Legacy\",\"model\":\"ultraheavy-biped-12t\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Advanced\",\"techBase\":\"Clan\",\"unitType\":\"ProtoMech\",\"tonnage\":12,\"weightClass\":\"Ultraheavy\",\"chassisType\":\"Ultraheavy\",\"pointSize\":5,\"engineRating\":24,\"walkMP\":3,\"cruiseMP\":3,\"flankMP\":2,\"jumpMP\":2,\"structureByLocation\":{\"Head\":3,\"Torso\":12,\"Left Arm\":3,\"Right Arm\":3,\"Legs\":7,\"Main Gun\":0},\"armorByLocation\":{\"Head\":0,\"Torso\":0,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":0,\"Main Gun\":0},\"armorType\":0,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"glidingWings\":false,\"hasMagneticClamps\":false,\"hasExtendedTorsoTwist\":false,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}",
+      "draftFingerprint": "{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Ultraheavy\",\"cruiseMP\":3,\"engineRating\":24,\"equipment\":[],\"flankMP\":2,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":2,\"model\":\"ultraheavy-biped-12t\",\"mulId\":\"-1\",\"name\":\"New ProtoMech\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":3,\"Left Arm\":3,\"Legs\":7,\"Main Gun\":0,\"Right Arm\":3,\"Torso\":12},\"techBase\":\"Clan\",\"tonnage\":12,\"unitType\":\"ProtoMech\",\"walkMP\":3,\"weightClass\":\"Ultraheavy\",\"year\":3071}",
+      "libraryFingerprint": "{\"armor\":{\"byLocation\":{\"HEAD\":0,\"LEFT_ARM\":0,\"LEGS\":0,\"MAIN_GUN\":0,\"RIGHT_ARM\":0,\"TORSO\":0},\"type\":\"STANDARD_PROTOMEK\"},\"chassis\":\"Legacy\",\"engine\":{\"rating\":24,\"type\":\"FUSION\"},\"equipment\":[],\"era\":\"Jihad\",\"family\":\"protomechs\",\"hasMainGun\":false,\"id\":\"\",\"isGlider\":false,\"isQuad\":false,\"mainGun\":{\"weapons\":[]},\"model\":\"ultraheavy-biped-12t\",\"movement\":{\"cruiseMP\":3,\"jumpMP\":2},\"mulId\":\"-1\",\"rulesLevel\":\"ADVANCED\",\"schemaVersion\":\"1.0.0\",\"smallUnitEditor\":{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Ultraheavy\",\"cruiseMP\":3,\"engineRating\":24,\"equipment\":[],\"flankMP\":2,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":2,\"model\":\"ultraheavy-biped-12t\",\"mulId\":\"-1\",\"name\":\"Legacy ultraheavy-biped-12t\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":3,\"Left Arm\":3,\"Legs\":7,\"Main Gun\":0,\"Right Arm\":3,\"Torso\":12},\"techBase\":\"Clan\",\"tonnage\":12,\"unitType\":\"ProtoMech\",\"walkMP\":3,\"weightClass\":\"Ultraheavy\",\"year\":3071},\"techBase\":\"CLAN\",\"tonnage\":12,\"unitType\":\"ProtoMech\",\"variant\":\"ultraheavy-biped-12t\",\"weightClass\":\"ULTRAHEAVY\",\"year\":3071}",
+      "libraryRecord": {
+        "schemaVersion": "1.0.0",
+        "id": "unit-save-fingerprint",
+        "chassis": "Legacy",
+        "model": "ultraheavy-biped-12t",
+        "variant": "ultraheavy-biped-12t",
+        "unitType": "ProtoMech",
+        "techBase": "CLAN",
+        "rulesLevel": "ADVANCED",
+        "era": "Late Succession Wars",
+        "year": 3071,
+        "tonnage": 12,
+        "engine": {
+          "type": "FUSION",
+          "rating": 24
+        },
+        "armor": {
+          "type": "STANDARD_PROTOMEK",
+          "byLocation": {
+            "HEAD": 0,
+            "TORSO": 0,
+            "LEFT_ARM": 0,
+            "RIGHT_ARM": 0,
+            "LEGS": 0,
+            "MAIN_GUN": 0
+          }
+        },
+        "movement": {
+          "cruiseMP": 3,
+          "jumpMP": 2
+        },
+        "equipment": [],
+        "mulId": "-1",
+        "weightClass": "ULTRAHEAVY",
+        "isQuad": false,
+        "isGlider": false,
+        "hasMainGun": false,
+        "mainGun": {
+          "weapons": []
+        },
+        "family": "protomechs",
+        "smallUnitEditor": {
+          "name": "Legacy ultraheavy-biped-12t",
+          "chassis": "Legacy",
+          "model": "ultraheavy-biped-12t",
+          "mulId": "-1",
+          "year": 3071,
+          "rulesLevel": "Advanced",
+          "techBase": "Clan",
+          "unitType": "ProtoMech",
+          "tonnage": 12,
+          "weightClass": "Ultraheavy",
+          "chassisType": "Ultraheavy",
+          "pointSize": 5,
+          "engineRating": 24,
+          "walkMP": 3,
+          "cruiseMP": 3,
+          "flankMP": 2,
+          "jumpMP": 2,
+          "structureByLocation": {
+            "Head": 3,
+            "Torso": 12,
+            "Left Arm": 3,
+            "Right Arm": 3,
+            "Legs": 7,
+            "Main Gun": 0
+          },
+          "armorByLocation": {
+            "Head": 0,
+            "Torso": 0,
+            "Left Arm": 0,
+            "Right Arm": 0,
+            "Legs": 0,
+            "Main Gun": 0
+          },
+          "armorType": 0,
+          "hasMainGun": false,
+          "hasMyomerBooster": false,
+          "glidingWings": false,
+          "hasMagneticClamps": false,
+          "hasExtendedTorsoTwist": false,
+          "equipment": []
+        }
+      }
+    },
+    "ultraheavy-biped-15t": {
+      "chassisType": "Ultraheavy",
+      "tonnage": 15,
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000015\",\"name\":\"New ProtoMech\",\"chassis\":\"Legacy\",\"model\":\"ultraheavy-biped-15t\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Advanced\",\"techBase\":\"Clan\",\"unitType\":\"ProtoMech\",\"tonnage\":15,\"weightClass\":\"Ultraheavy\",\"chassisType\":\"Ultraheavy\",\"pointSize\":5,\"engineRating\":30,\"walkMP\":3,\"cruiseMP\":3,\"flankMP\":2,\"jumpMP\":3,\"structureByLocation\":{\"Head\":4,\"Torso\":15,\"Left Arm\":4,\"Right Arm\":4,\"Legs\":8,\"Main Gun\":0},\"armorByLocation\":{\"Head\":0,\"Torso\":0,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":0,\"Main Gun\":0},\"armorType\":0,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"glidingWings\":false,\"hasMagneticClamps\":false,\"hasExtendedTorsoTwist\":false,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}",
+      "draftFingerprint": "{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Ultraheavy\",\"cruiseMP\":3,\"engineRating\":30,\"equipment\":[],\"flankMP\":2,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":3,\"model\":\"ultraheavy-biped-15t\",\"mulId\":\"-1\",\"name\":\"New ProtoMech\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":4,\"Left Arm\":4,\"Legs\":8,\"Main Gun\":0,\"Right Arm\":4,\"Torso\":15},\"techBase\":\"Clan\",\"tonnage\":15,\"unitType\":\"ProtoMech\",\"walkMP\":3,\"weightClass\":\"Ultraheavy\",\"year\":3071}",
+      "libraryFingerprint": "{\"armor\":{\"byLocation\":{\"HEAD\":0,\"LEFT_ARM\":0,\"LEGS\":0,\"MAIN_GUN\":0,\"RIGHT_ARM\":0,\"TORSO\":0},\"type\":\"STANDARD_PROTOMEK\"},\"chassis\":\"Legacy\",\"engine\":{\"rating\":30,\"type\":\"FUSION\"},\"equipment\":[],\"era\":\"Jihad\",\"family\":\"protomechs\",\"hasMainGun\":false,\"id\":\"\",\"isGlider\":false,\"isQuad\":false,\"mainGun\":{\"weapons\":[]},\"model\":\"ultraheavy-biped-15t\",\"movement\":{\"cruiseMP\":3,\"jumpMP\":3},\"mulId\":\"-1\",\"rulesLevel\":\"ADVANCED\",\"schemaVersion\":\"1.0.0\",\"smallUnitEditor\":{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Ultraheavy\",\"cruiseMP\":3,\"engineRating\":30,\"equipment\":[],\"flankMP\":2,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":3,\"model\":\"ultraheavy-biped-15t\",\"mulId\":\"-1\",\"name\":\"Legacy ultraheavy-biped-15t\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":4,\"Left Arm\":4,\"Legs\":8,\"Main Gun\":0,\"Right Arm\":4,\"Torso\":15},\"techBase\":\"Clan\",\"tonnage\":15,\"unitType\":\"ProtoMech\",\"walkMP\":3,\"weightClass\":\"Ultraheavy\",\"year\":3071},\"techBase\":\"CLAN\",\"tonnage\":15,\"unitType\":\"ProtoMech\",\"variant\":\"ultraheavy-biped-15t\",\"weightClass\":\"ULTRAHEAVY\",\"year\":3071}",
+      "libraryRecord": {
+        "schemaVersion": "1.0.0",
+        "id": "unit-save-fingerprint",
+        "chassis": "Legacy",
+        "model": "ultraheavy-biped-15t",
+        "variant": "ultraheavy-biped-15t",
+        "unitType": "ProtoMech",
+        "techBase": "CLAN",
+        "rulesLevel": "ADVANCED",
+        "era": "Late Succession Wars",
+        "year": 3071,
+        "tonnage": 15,
+        "engine": {
+          "type": "FUSION",
+          "rating": 30
+        },
+        "armor": {
+          "type": "STANDARD_PROTOMEK",
+          "byLocation": {
+            "HEAD": 0,
+            "TORSO": 0,
+            "LEFT_ARM": 0,
+            "RIGHT_ARM": 0,
+            "LEGS": 0,
+            "MAIN_GUN": 0
+          }
+        },
+        "movement": {
+          "cruiseMP": 3,
+          "jumpMP": 3
+        },
+        "equipment": [],
+        "mulId": "-1",
+        "weightClass": "ULTRAHEAVY",
+        "isQuad": false,
+        "isGlider": false,
+        "hasMainGun": false,
+        "mainGun": {
+          "weapons": []
+        },
+        "family": "protomechs",
+        "smallUnitEditor": {
+          "name": "Legacy ultraheavy-biped-15t",
+          "chassis": "Legacy",
+          "model": "ultraheavy-biped-15t",
+          "mulId": "-1",
+          "year": 3071,
+          "rulesLevel": "Advanced",
+          "techBase": "Clan",
+          "unitType": "ProtoMech",
+          "tonnage": 15,
+          "weightClass": "Ultraheavy",
+          "chassisType": "Ultraheavy",
+          "pointSize": 5,
+          "engineRating": 30,
+          "walkMP": 3,
+          "cruiseMP": 3,
+          "flankMP": 2,
+          "jumpMP": 3,
+          "structureByLocation": {
+            "Head": 4,
+            "Torso": 15,
+            "Left Arm": 4,
+            "Right Arm": 4,
+            "Legs": 8,
+            "Main Gun": 0
+          },
+          "armorByLocation": {
+            "Head": 0,
+            "Torso": 0,
+            "Left Arm": 0,
+            "Right Arm": 0,
+            "Legs": 0,
+            "Main Gun": 0
+          },
+          "armorType": 0,
+          "hasMainGun": false,
+          "hasMyomerBooster": false,
+          "glidingWings": false,
+          "hasMagneticClamps": false,
+          "hasExtendedTorsoTwist": false,
+          "equipment": []
+        }
+      }
+    },
+    "quad-13t": {
+      "chassisType": "Quad",
+      "tonnage": 13,
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000113\",\"name\":\"New ProtoMech\",\"chassis\":\"Legacy\",\"model\":\"quad-13t\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Advanced\",\"techBase\":\"Clan\",\"unitType\":\"ProtoMech\",\"tonnage\":13,\"weightClass\":\"Ultraheavy\",\"chassisType\":\"Quad\",\"pointSize\":5,\"engineRating\":13,\"walkMP\":5,\"cruiseMP\":5,\"flankMP\":3,\"jumpMP\":1,\"structureByLocation\":{\"Head\":3,\"Torso\":13,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":13,\"Main Gun\":0},\"armorByLocation\":{\"Head\":0,\"Torso\":0,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":0,\"Main Gun\":0},\"armorType\":0,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"glidingWings\":false,\"hasMagneticClamps\":false,\"hasExtendedTorsoTwist\":false,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}",
+      "draftFingerprint": "{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Quad\",\"cruiseMP\":5,\"engineRating\":13,\"equipment\":[],\"flankMP\":3,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":1,\"model\":\"quad-13t\",\"mulId\":\"-1\",\"name\":\"New ProtoMech\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":3,\"Left Arm\":0,\"Legs\":13,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":13},\"techBase\":\"Clan\",\"tonnage\":13,\"unitType\":\"ProtoMech\",\"walkMP\":5,\"weightClass\":\"Ultraheavy\",\"year\":3071}",
+      "libraryFingerprint": "{\"armor\":{\"byLocation\":{\"HEAD\":0,\"LEFT_ARM\":0,\"LEGS\":0,\"MAIN_GUN\":0,\"RIGHT_ARM\":0,\"TORSO\":0},\"type\":\"STANDARD_PROTOMEK\"},\"chassis\":\"Legacy\",\"engine\":{\"rating\":13,\"type\":\"FUSION\"},\"equipment\":[],\"era\":\"Jihad\",\"family\":\"protomechs\",\"hasMainGun\":false,\"id\":\"\",\"isGlider\":false,\"isQuad\":true,\"mainGun\":{\"weapons\":[]},\"model\":\"quad-13t\",\"movement\":{\"cruiseMP\":5,\"jumpMP\":1},\"mulId\":\"-1\",\"rulesLevel\":\"ADVANCED\",\"schemaVersion\":\"1.0.0\",\"smallUnitEditor\":{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Quad\",\"cruiseMP\":5,\"engineRating\":13,\"equipment\":[],\"flankMP\":3,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":1,\"model\":\"quad-13t\",\"mulId\":\"-1\",\"name\":\"Legacy quad-13t\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":3,\"Left Arm\":0,\"Legs\":13,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":13},\"techBase\":\"Clan\",\"tonnage\":13,\"unitType\":\"ProtoMech\",\"walkMP\":5,\"weightClass\":\"Ultraheavy\",\"year\":3071},\"techBase\":\"CLAN\",\"tonnage\":13,\"unitType\":\"ProtoMech\",\"variant\":\"quad-13t\",\"weightClass\":\"ULTRAHEAVY\",\"year\":3071}",
+      "libraryRecord": {
+        "schemaVersion": "1.0.0",
+        "id": "unit-save-fingerprint",
+        "chassis": "Legacy",
+        "model": "quad-13t",
+        "variant": "quad-13t",
+        "unitType": "ProtoMech",
+        "techBase": "CLAN",
+        "rulesLevel": "ADVANCED",
+        "era": "Late Succession Wars",
+        "year": 3071,
+        "tonnage": 13,
+        "engine": {
+          "type": "FUSION",
+          "rating": 13
+        },
+        "armor": {
+          "type": "STANDARD_PROTOMEK",
+          "byLocation": {
+            "HEAD": 0,
+            "TORSO": 0,
+            "LEFT_ARM": 0,
+            "RIGHT_ARM": 0,
+            "LEGS": 0,
+            "MAIN_GUN": 0
+          }
+        },
+        "movement": {
+          "cruiseMP": 5,
+          "jumpMP": 1
+        },
+        "equipment": [],
+        "mulId": "-1",
+        "weightClass": "ULTRAHEAVY",
+        "isQuad": true,
+        "isGlider": false,
+        "hasMainGun": false,
+        "mainGun": {
+          "weapons": []
+        },
+        "family": "protomechs",
+        "smallUnitEditor": {
+          "name": "Legacy quad-13t",
+          "chassis": "Legacy",
+          "model": "quad-13t",
+          "mulId": "-1",
+          "year": 3071,
+          "rulesLevel": "Advanced",
+          "techBase": "Clan",
+          "unitType": "ProtoMech",
+          "tonnage": 13,
+          "weightClass": "Ultraheavy",
+          "chassisType": "Quad",
+          "pointSize": 5,
+          "engineRating": 13,
+          "walkMP": 5,
+          "cruiseMP": 5,
+          "flankMP": 3,
+          "jumpMP": 1,
+          "structureByLocation": {
+            "Head": 3,
+            "Torso": 13,
+            "Left Arm": 0,
+            "Right Arm": 0,
+            "Legs": 13,
+            "Main Gun": 0
+          },
+          "armorByLocation": {
+            "Head": 0,
+            "Torso": 0,
+            "Left Arm": 0,
+            "Right Arm": 0,
+            "Legs": 0,
+            "Main Gun": 0
+          },
+          "armorType": 0,
+          "hasMainGun": false,
+          "hasMyomerBooster": false,
+          "glidingWings": false,
+          "hasMagneticClamps": false,
+          "hasExtendedTorsoTwist": false,
+          "equipment": []
+        }
+      }
+    },
+    "glider-14t": {
+      "chassisType": "Glider",
+      "tonnage": 14,
+      "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000114\",\"name\":\"New ProtoMech\",\"chassis\":\"Legacy\",\"model\":\"glider-14t\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Advanced\",\"techBase\":\"Clan\",\"unitType\":\"ProtoMech\",\"tonnage\":14,\"weightClass\":\"Ultraheavy\",\"chassisType\":\"Glider\",\"pointSize\":5,\"engineRating\":45,\"walkMP\":4,\"cruiseMP\":4,\"flankMP\":5,\"jumpMP\":0,\"structureByLocation\":{\"Head\":4,\"Torso\":14,\"Left Arm\":4,\"Right Arm\":4,\"Legs\":8,\"Main Gun\":0},\"armorByLocation\":{\"Head\":0,\"Torso\":0,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":0,\"Main Gun\":0},\"armorType\":0,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"glidingWings\":false,\"hasMagneticClamps\":false,\"hasExtendedTorsoTwist\":false,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}",
+      "draftFingerprint": "{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Glider\",\"cruiseMP\":4,\"engineRating\":45,\"equipment\":[],\"flankMP\":5,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":0,\"model\":\"glider-14t\",\"mulId\":\"-1\",\"name\":\"New ProtoMech\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":4,\"Left Arm\":4,\"Legs\":8,\"Main Gun\":0,\"Right Arm\":4,\"Torso\":14},\"techBase\":\"Clan\",\"tonnage\":14,\"unitType\":\"ProtoMech\",\"walkMP\":4,\"weightClass\":\"Ultraheavy\",\"year\":3071}",
+      "libraryFingerprint": "{\"armor\":{\"byLocation\":{\"HEAD\":0,\"LEFT_ARM\":0,\"LEGS\":0,\"MAIN_GUN\":0,\"RIGHT_ARM\":0,\"TORSO\":0},\"type\":\"STANDARD_PROTOMEK\"},\"chassis\":\"Legacy\",\"engine\":{\"rating\":45,\"type\":\"FUSION\"},\"equipment\":[],\"era\":\"Jihad\",\"family\":\"protomechs\",\"hasMainGun\":false,\"id\":\"\",\"isGlider\":true,\"isQuad\":false,\"mainGun\":{\"weapons\":[]},\"model\":\"glider-14t\",\"movement\":{\"cruiseMP\":4,\"jumpMP\":0},\"mulId\":\"-1\",\"rulesLevel\":\"ADVANCED\",\"schemaVersion\":\"1.0.0\",\"smallUnitEditor\":{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Glider\",\"cruiseMP\":4,\"engineRating\":45,\"equipment\":[],\"flankMP\":5,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":0,\"model\":\"glider-14t\",\"mulId\":\"-1\",\"name\":\"Legacy glider-14t\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":4,\"Left Arm\":4,\"Legs\":8,\"Main Gun\":0,\"Right Arm\":4,\"Torso\":14},\"techBase\":\"Clan\",\"tonnage\":14,\"unitType\":\"ProtoMech\",\"walkMP\":4,\"weightClass\":\"Ultraheavy\",\"year\":3071},\"techBase\":\"CLAN\",\"tonnage\":14,\"unitType\":\"ProtoMech\",\"variant\":\"glider-14t\",\"weightClass\":\"ULTRAHEAVY\",\"year\":3071}",
+      "libraryRecord": {
+        "schemaVersion": "1.0.0",
+        "id": "unit-save-fingerprint",
+        "chassis": "Legacy",
+        "model": "glider-14t",
+        "variant": "glider-14t",
+        "unitType": "ProtoMech",
+        "techBase": "CLAN",
+        "rulesLevel": "ADVANCED",
+        "era": "Late Succession Wars",
+        "year": 3071,
+        "tonnage": 14,
+        "engine": {
+          "type": "FUSION",
+          "rating": 45
+        },
+        "armor": {
+          "type": "STANDARD_PROTOMEK",
+          "byLocation": {
+            "HEAD": 0,
+            "TORSO": 0,
+            "LEFT_ARM": 0,
+            "RIGHT_ARM": 0,
+            "LEGS": 0,
+            "MAIN_GUN": 0
+          }
+        },
+        "movement": {
+          "cruiseMP": 4,
+          "jumpMP": 0
+        },
+        "equipment": [],
+        "mulId": "-1",
+        "weightClass": "ULTRAHEAVY",
+        "isQuad": false,
+        "isGlider": true,
+        "hasMainGun": false,
+        "mainGun": {
+          "weapons": []
+        },
+        "family": "protomechs",
+        "smallUnitEditor": {
+          "name": "Legacy glider-14t",
+          "chassis": "Legacy",
+          "model": "glider-14t",
+          "mulId": "-1",
+          "year": 3071,
+          "rulesLevel": "Advanced",
+          "techBase": "Clan",
+          "unitType": "ProtoMech",
+          "tonnage": 14,
+          "weightClass": "Ultraheavy",
+          "chassisType": "Glider",
+          "pointSize": 5,
+          "engineRating": 45,
+          "walkMP": 4,
+          "cruiseMP": 4,
+          "flankMP": 5,
+          "jumpMP": 0,
+          "structureByLocation": {
+            "Head": 4,
+            "Torso": 14,
+            "Left Arm": 4,
+            "Right Arm": 4,
+            "Legs": 8,
+            "Main Gun": 0
+          },
+          "armorByLocation": {
+            "Head": 0,
+            "Torso": 0,
+            "Left Arm": 0,
+            "Right Arm": 0,
+            "Legs": 0,
+            "Main Gun": 0
+          },
+          "armorType": 0,
+          "hasMainGun": false,
+          "hasMyomerBooster": false,
+          "glidingWings": false,
+          "hasMagneticClamps": false,
+          "hasExtendedTorsoTwist": false,
+          "equipment": []
+        }
+      }
+    }
+  }
+}

@@ -544,12 +544,32 @@ walk at least the motive minimum (biped 1, quad `floor(3 / 1.5)` = 2, glider
 Jet System), and 0 for a glider; lowering walk or changing motive lowers jump to its new
 limit. There is no weight-class cap (the table that stood in for these is deleted), and no
 ultraheavy jump lock (the pinned Sprite Ultraheavy units jump 3 to 5). The Myomer Booster
-is disabled only for a glider. A new ProtoMech starts at walk 4 (it was capped by weight
-class, 3 for an ultraheavy).
+is disabled only for a glider. A new ProtoMech starts at its motive's minimum walk
+(`PMMainUI.java:140-147`).
 
-Editor-only: validity is `movementRules.ts`. `setTonnage` still resets walk to `10 - t`
-and the tonnage clamps still key off the chassis; both belong to the separate
-ultraheavy-as-mass item.
+Editor-only: validity is `movementRules.ts`.
+
+## Ultraheavy is a mass
+
+MegaMekLab `62bf193` has three motives (BIPED, QUAD, GLIDER) and one tonnage spinner of
+2 to 15 t for all of them; a ProtoMech is ultraheavy when its tonnage is above
+`TestProtoMek.MAX_STD_TONNAGE` (9) (`PMChassisView.java:75-79,135-139,205-207`). The
+editor therefore offers three motives and one list, the weight class and status bar derive
+"Ultraheavy" from tonnage (`isProtoUltraheavyTonnage`, `getProtoWeightClass`), and the
+store's tonnage clamp is 2 to 15 t whatever the motive. `VAL-PROTO-CHASSIS` has no finding
+left: no motive and tonnage disagree. A tonnage edit keeps the walk MP and recomputes the
+engine; when the rating would be over 500 it is refused with a reason
+(`protoTonnageChangeError`, from `PMStructureTab.java:446-456`), and walk is never rewritten
+(the old `10 - t` reset changed the walk of 72 of the 86 canonical units, and all 10 above 9 t).
+`setTonnage` also stores the weight class derived from the new tonnage: the stored value is
+persisted in drafts and written into the saved record, so it must not go stale.
+
+`ProtoChassis.ULTRAHEAVY` stays as a deprecated member for the replay init schema
+(`z.nativeEnum`), the source model and old saved units. `legacyUltraheavy.ts` owns the two
+rules for it: `readSavedProtoChassis` reads a saved `Ultraheavy` as a Biped of the saved
+tonnage, and `legacyProtoChassisLabel` projects a Biped above 9 t back to `Ultraheavy` in the
+save fingerprints (`unitSaveStateAdapters.ts`), so stored draft and library fingerprints stay
+byte-identical (`stores/unitSaveState.rules.md`).
 
 ## Native total mass
 

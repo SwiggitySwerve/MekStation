@@ -30,7 +30,10 @@ import { GyroType, NO_GYRO_SOURCE_TAG } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  TechBaseMode,
+  applyUnitTechBaseIdentity,
+} from '@/types/construction/TechBaseConfiguration';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -351,7 +354,11 @@ export function serializeCustomVehicleState(
     })),
     vehicleEditor,
   });
-  return { ...definition, family: 'vehicles' as const, vehicleEditor };
+  return {
+    ...applyUnitTechBaseIdentity(definition, state, 'vehicles'),
+    family: 'vehicles' as const,
+    vehicleEditor,
+  };
 }
 
 /** Aerospace store -> catalog contract, sharing the custom-library save owner. */
@@ -437,7 +444,11 @@ export function serializeCustomAerospaceState(
     })),
     aerospaceEditor,
   });
-  return { ...definition, family: 'aerospace' as const, aerospaceEditor };
+  return {
+    ...applyUnitTechBaseIdentity(definition, state, 'aerospace'),
+    family: 'aerospace' as const,
+    aerospaceEditor,
+  };
 }
 
 export { serializeCustomSmallUnitState } from './CustomUnitSerializer.smallUnits';

@@ -2,6 +2,7 @@
 import type { FamilyEditorState } from '@/services/units/unitLoaderService/types';
 
 import { Era } from '@/types/temporal/Era';
+import { legacyProtoChassisLabel } from '@/utils/construction/protomech/legacyUltraheavy';
 import {
   serializeCustomAerospaceState,
   serializeCustomSmallUnitState,
@@ -81,6 +82,13 @@ function normalizedEditor(editor: NonMechEditor): NonMechEditor {
         ...editor,
         state: {
           ...editor.state,
+          // Reviewed loader shim (unitSaveState.rules.md): a biped above 9 t keeps the
+          // `Ultraheavy` label it was fingerprinted with before 4.1-b3d, so stored
+          // draft and library fingerprints still match. Quads and gliders were never relabelled.
+          chassisType: legacyProtoChassisLabel(
+            editor.state.chassisType,
+            editor.state.tonnage,
+          ),
           equipment: normalizedMounts(editor.state.equipment),
         },
       };

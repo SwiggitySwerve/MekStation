@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
@@ -7,12 +8,14 @@ import { Badge } from '@/components/ui';
 import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import { buildCampaignCustomizerReturnHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { extractMechBuildConfigFromUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
+import { campaignJsonEquals } from '@/lib/campaign/delivery/foldCampaignGrantDelivery';
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
 import {
   useCampaignPersistenceStore,
   type CampaignPersistenceSaveResult,
 } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useUnitStore, useUnitStoreApi } from '@/stores/useUnitStore';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { validateConstruction } from '@/utils/construction/constructionRules/validation';
 
 import { useCampaignCustomizerSession } from './CampaignCustomizerSessionContext';
@@ -38,8 +41,16 @@ function countConfigurationChanges(
   current: ReturnType<typeof extractMechBuildConfigFromUnitState>,
   target: ReturnType<typeof extractMechBuildConfigFromUnitState>,
 ): number {
-  return (Object.keys(current) as Array<keyof typeof current>).filter(
-    (key) => current[key] !== target[key],
+  const keys = Object.keys({ ...current, ...target }) as Array<
+    keyof typeof current
+  >;
+  // Legacy saves omit the Biped default; that alone is not a refit edit.
+  const valueFor = (config: typeof current, key: keyof typeof current) =>
+    key === 'configuration'
+      ? (config.configuration ?? MechConfiguration.BIPED)
+      : config[key];
+  return keys.filter(
+    (key) => !campaignJsonEquals(valueFor(current, key), valueFor(target, key)),
   ).length;
 }
 
@@ -52,54 +63,12 @@ export function CampaignRefitCommandBar({
   const router = useRouter();
   const store = useUnitStoreApi();
   const isModified = useUnitStore((state) => state.isModified);
-  const armorAllocation = useUnitStore((state) => state.armorAllocation);
-  const armorType = useUnitStore((state) => state.armorType);
-  const cockpitType = useUnitStore((state) => state.cockpitType);
-  const configuration = useUnitStore((state) => state.configuration);
-  const engineRating = useUnitStore((state) => state.engineRating);
-  const engineType = useUnitStore((state) => state.engineType);
-  const gyroType = useUnitStore((state) => state.gyroType);
-  const heatSinkCount = useUnitStore((state) => state.heatSinkCount);
-  const heatSinkType = useUnitStore((state) => state.heatSinkType);
-  const internalStructureType = useUnitStore(
-    (state) => state.internalStructureType,
-  );
-  const jumpMP = useUnitStore((state) => state.jumpMP);
-  const tonnage = useUnitStore((state) => state.tonnage);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
-  const targetConfiguration = useMemo(
-    () =>
-      extractMechBuildConfigFromUnitState({
-        armorAllocation,
-        armorType,
-        cockpitType,
-        configuration,
-        engineRating,
-        engineType,
-        gyroType,
-        heatSinkCount,
-        heatSinkType,
-        internalStructureType,
-        jumpMP,
-        tonnage,
-      }),
-    [
-      armorAllocation,
-      armorType,
-      cockpitType,
-      configuration,
-      engineRating,
-      engineType,
-      gyroType,
-      heatSinkCount,
-      heatSinkType,
-      internalStructureType,
-      jumpMP,
-      tonnage,
-    ],
+  const targetConfiguration = useUnitStore(
+    useShallow(extractMechBuildConfigFromUnitState),
   );
   const validation = useMemo(
     () => validateConstruction(targetConfiguration),

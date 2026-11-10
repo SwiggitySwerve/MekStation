@@ -273,6 +273,17 @@ saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
 (EquipmentType.java:95). Do not replace Commercial with Standard or lower
 Standard introduction dates to accommodate industrial source units.
 
+Non-mech Mixed identity is projected after components and saved binary editor
+fields. The shared TechBaseConfiguration chassis accessor owns the family fact:
+BA uses clanChassis, other families use componentTechBases.chassis. A known
+chassis sets the binary editor side; an absent fact remains unknown. Serializers
+apply typed Mixed mode and chassis after composing source declarations, so stale
+librarySource snapshots cannot override typed infantry identity or resurrect an
+unknown chassis. Pure units and legacy drafts retain absent metadata and their
+literal save projections. This preserves BLKFile.setTechLevel's independent
+Mixed designation and chassis side (MegaMek 48fcb2f64); Mixed editing and native
+BLK export headers remain deferred.
+
 Declared OmniMeks derive a represented mount's pod metadata from its owned native
 critical cells, using `parseCriticalSlotToken` as the one token-decoding owner.
 The marker is a suffix after removing outer armored and size metadata, before
