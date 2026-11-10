@@ -1490,16 +1490,40 @@ passing execution. An unverified effect or outcome stays "not verified".
     retains the old workflow/ref. Evidence: `parity-5.2-c/PLAN.md`, PARITY-PLAN
     §51. First CI check at resume is this end-to-end proof.
   - S0a first hosted dispatch, pre-B2 branch base: run 42765086632 on
-    ce3d07e5e/base 3f4d73318.
-    Historical BA missing: 58,238 before B2 #3248.
-    The current BA missing-terms baseline is 40,580 on main, from the
-    c4cdf9450 POST-MERGE census (`coord1-census/post-merge-3270/RESULTS.json`).
-    scoreboard on main: not yet run at pause. No completed current-main
-    scoreboard receipt was supplied for this correction. Evidence:
-    `parity-5.2-c/PLAN.md`, `parity-5.2-c/s0a-proof/census-proof.json`. FINISH
-    blocker #3336 changes cancel-in-progress to false; cite a completed
-    current-main receipt only when C5 supplies it. LF/CRLF and Python
+    ce3d07e5e/base 3f4d73318. Historical BA missing: 58,238 before B2 #3248. The
+    retained c4cdf9450 POST-MERGE source census has BA missing 40,580
+    (`coord1-census/post-merge-3270/RESULTS.json`). LF/CRLF and Python
     3.12.16/3.12.13 byte equivalence remain OPEN/PARKED.
+  - #3336 merged at `d73ade6eb`: scoreboard `cancel-in-progress: false`, the PR
+    Checks main scheme. POST-MERGE: done locally on `d73ade6eb`, scoreboard
+    tests 32/32. Merged source: `.github/workflows/parity-scoreboard.yml`;
+    record: `parity-5.2-c/PLAN.md`.
+  - The hosted scoreboard has completed on main: run 42775321502 on `1b8ca4688`,
+    success, 2026-11-10 07:26:36-07:31:44Z. Baseline: run 42773925769 on
+    `ed43d9bf2`, success. Both completed runs were verified; this labels the
+    measured SHA and does not claim the final pause head.
+    - SOURCE PATH first-line summary: "BV exact=9815/9815; missing terms=40580;
+      validity matched=9815/9815 different=0 missing-local=0 failed-local=0;
+      weight different=2726; delta, validity, weight and quantity rows changed=0
+      unchanged=9815".
+    - Runtime-path figures remain separate: vehicles 0/1,444 valid against
+      Java's 1,420 valid; mech validity agreement 4,261/4,263; BA and infantry
+      BV 3,008/3,008 = source = Java. Evidence: `parity-0c/compare/RESULT.md`;
+      see row 3.4 for causes, owners and closure conditions.
+    - Scoreboard evidence:
+      `_scratch/c5-tmp/scoreboard-42775321502/reports/scoreboard-summary.md`,
+      `parity-5.2-c/PLAN.md`, and completed hosted runs 42775321502/42773925769.
+      The summary compares each of the four row files independently; all have
+      added=0, removed=0, changed=0 and unchanged=9815.
+    - The pause record cites the scoreboard on the final main SHA; C5 supplies
+      it.
+  - Historical cancellation: main run 42772406455 on `d6fdfb29c` was cancelled
+    by #3317; it is not a passing main receipt. The completed main runs above
+    supersede the earlier "not yet run at pause" state.
+  - #3283 (`c52d98dd3`) fixes the tracked-example hook blocker with
+    `!/docs/data/examples/`. Merged source: `.gitignore`. This branch includes
+    that main merge; POST-MERGE for the broader y2 change remains pending C3
+    record.
   - C5 PARKED: CNI1 native review-identity startup consolidation (no approved
     timeout raise); SW #3315 at 36df1f9b8 with 47/47 navigation tests, next step
     changed-route build and activation probe; CAMP-01 coalescing, lighter draft
