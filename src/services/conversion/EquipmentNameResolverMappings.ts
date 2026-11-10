@@ -422,15 +422,16 @@ export const MEGAMEKLAB_TYPE_MAP: Record<string, string> = {
   Talons: 'talons',
 };
 
-/**
- * Name normalization patterns for fuzzy matching
- */
+/** Lexical prefix shared by name normalization and its tech facts. */
+export const TECH_PREFIX_PATTERN = /^(IS|Clan|CL)/i;
+
+/** Name normalization patterns for fuzzy matching. */
 export const NAME_NORMALIZATION_PATTERNS: Array<{
   pattern: RegExp;
   replacement: string;
 }> = [
   // Remove tech base prefixes
-  { pattern: /^(IS|Clan|CL)/i, replacement: '' },
+  { pattern: TECH_PREFIX_PATTERN, replacement: '' },
   // Remove spaces and special characters
   { pattern: /[\s\-_\/]/g, replacement: '' },
   // Standardize abbreviations
@@ -495,7 +496,7 @@ export function normalizeNameWithTechBase(name: string): {
   normalizedName: string;
   techBase: TechBase | undefined;
 } {
-  const prefix = NAME_NORMALIZATION_PATTERNS[0].pattern.exec(name)?.[1];
+  const prefix = TECH_PREFIX_PATTERN.exec(name)?.[1];
   let result = name;
   for (const { pattern, replacement } of NAME_NORMALIZATION_PATTERNS) {
     result = result.replace(pattern, replacement);

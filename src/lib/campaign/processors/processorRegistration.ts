@@ -1,6 +1,7 @@
 import { getDayPipeline } from '../dayPipeline';
 import { registerAcquisitionProcessor } from './acquisitionProcessor';
 import { autoAwardsProcessor } from './autoAwardsProcessor';
+import { contractMoraleProcessor } from './contractMoraleProcessor';
 import { contractProcessor } from './contractProcessor';
 import { dailyCostsProcessor } from './dailyCostsProcessor';
 import { factionStandingProcessor } from './factionStandingProcessor';
@@ -40,6 +41,7 @@ let registered = false;
  *   2. salvageProcessor          (phase = MISSIONS - 25 = 375)
  *   3. repairQueueBuilderProcessor (phase = MISSIONS - 10 = 390) [Wave 5]
  *   4. contractProcessor         (phase = MISSIONS = 400)
+ *      contractMoraleProcessor   (phase = MISSIONS + 10 = 410, monthly)
  *   5. healingProcessor          (phase = PERSONNEL = 100, runs earlier
  *      because it doesn't depend on combat outcomes — pre-Wave-5 order
  *      preserved)
@@ -69,6 +71,10 @@ export function registerBuiltinProcessors(): void {
   pipeline.register(repairProgressProcessor);
   pipeline.register(healingProcessor);
   pipeline.register(contractProcessor);
+  // Monthly enemy-morale check (phase MISSIONS + 10): after post-battle and the
+  // expiry pass, before scenario generation reads the level. CampaignNewDayManager
+  // .java:1264-1271 (e7adc2c).
+  pipeline.register(contractMoraleProcessor);
   pipeline.register(dailyCostsProcessor);
   // Per audit finding D-2 (2026-06-09): the role-based financial
   // processor (phase FINANCES, same as dailyCosts) was shipped and

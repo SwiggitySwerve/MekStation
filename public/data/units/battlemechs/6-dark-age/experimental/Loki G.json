@@ -186,5 +186,8 @@
   },
   "mulId": 6879,
   "role": "Skirmisher",
-  "source": "RG01"
+  "source": "RG01",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

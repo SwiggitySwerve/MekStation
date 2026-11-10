@@ -10,7 +10,6 @@ Usage:
 
 import os
 import re
-import warnings
 from typing import Optional, Dict
 from enum_mapping_tables import (
     TECH_BASE_MAP,
@@ -118,20 +117,18 @@ def map_engine_type(value: str) -> str:
 
 
 def map_gyro_type(value: str) -> str:
-    """Map MTF gyro type to TypeScript enum value."""
+    """Resolve a listed MTF gyro name; only a blank line is Standard.
+
+    MtfFile.java:252-259 treats an absent or blank gyro as Standard. An
+    unlisted name is rejected, not guessed (same contract as map_armor_type).
+    """
     clean = value.strip()
-    if clean in GYRO_TYPE_MAP:
+    if not clean:
+        return "STANDARD"
+    try:
         return GYRO_TYPE_MAP[clean]
-    upper = clean.upper()
-    if "SUPERHEAVY" in upper or "SUPER HEAVY" in upper:
-        return "SUPERHEAVY"
-    if "XL" in upper or "EXTRA" in upper:
-        return "XL"
-    if "COMPACT" in upper:
-        return "COMPACT"
-    if "HEAVY" in upper:
-        return "HEAVY_DUTY"
-    return "STANDARD"
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_GYRO: {value!r}") from None
 
 
 # =============================================================================
@@ -141,9 +138,18 @@ def map_gyro_type(value: str) -> str:
 
 
 def map_cockpit_type(value: str) -> str:
-    """Map MTF cockpit type to TypeScript enum value."""
+    """Resolve a listed MTF cockpit name; only a blank line is Standard.
+
+    MtfFile.java:262-269 treats an absent or blank cockpit as Standard. A name
+    outside the shared table is rejected, not guessed.
+    """
     clean = value.strip()
-    return COCKPIT_TYPE_MAP.get(clean, "STANDARD")
+    if not clean:
+        return "STANDARD"
+    try:
+        return COCKPIT_TYPE_MAP[clean]
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_COCKPIT: {value!r}") from None
 
 
 # =============================================================================
@@ -192,16 +198,6 @@ def map_armor_type(value: str) -> str:
     MegaMek 48fcb2f64 MtfFile.java:414-483 resolves registered names and
     Patchwork locations; EquipmentType.java:85-111 owns the type constants.
     """
-    # C2 R1: keep Jenner loadable until the first CW1 PR-C loader precursor.
-    # Its later correction must remove this residual and deliberately edit its test.
-    if value.strip() in ('Ferro-Fibrous Prototype', 'Ferro-Fibrous Prototype(Inner Sphere)'):
-        warnings.warn(
-            f"R1_DEFERRED_ARMOR: {value!r}: temporary FERRO_FIBROUS compatibility value; "
-            "FERRO_FIBROUS_PROTO is deferred until editor loader support lands",
-            RuntimeWarning,
-            stacklevel=2,
-        )
-        return ARMOR_TYPE_MAP['Ferro-Fibrous']
     try:
         return ARMOR_TYPE_MAP[value.strip()]
     except KeyError:
@@ -215,20 +211,18 @@ def map_armor_type(value: str) -> str:
 
 
 def map_heat_sink_type(value: str) -> str:
-    """Map MTF heat sink type to TypeScript enum value."""
+    """Resolve a listed MTF heat sink name; only a blank type is Single.
+
+    The pinned writer emits Single, Laser, Compact, IS Double and Clan Double
+    (Mek.java:5351-5362). An unlisted name is rejected, not guessed.
+    """
     clean = value.strip()
-    if clean in HEAT_SINK_TYPE_MAP:
+    if not clean:
+        return "SINGLE"
+    try:
         return HEAT_SINK_TYPE_MAP[clean]
-    upper = clean.upper()
-    if "DOUBLE" in upper and "CLAN" in upper:
-        return "DOUBLE_CLAN"
-    if "DOUBLE" in upper:
-        return "DOUBLE"
-    if "COMPACT" in upper:
-        return "COMPACT"
-    if "LASER" in upper:
-        return "LASER"
-    return "SINGLE"
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_HEAT_SINK: {value!r}") from None
 
 
 # =============================================================================

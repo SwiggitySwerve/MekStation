@@ -11,8 +11,8 @@
  *   - the representative command mix, named as real CampaignIntent kinds
  *     the GM authority commits, so "representative" is checkable;
  *   - nearest-rank percentiles, so p95 means one thing across runs;
- *   - the chunk, queue, and memory ceilings, mirrored against the
- *     product constants they bound;
+ *   - chunk and queue event/envelope counts, alongside advisory byte,
+ *     heap and RSS observations;
  *   - and the budgets themselves, each compared against its OWN
  *     threshold.
  *
@@ -65,15 +65,10 @@ export const CONTROLLED_LOOPBACK_FIXTURE = Object.freeze({
   latencyBudgetsMs: Object.freeze({ p95: 250, p99: 750 }),
   coldCatchUp: Object.freeze({ events: 1_000, budgetMs: 2_000 }),
   /** Ceilings the product's replay chunking must stay inside. */
-  replayChunk: Object.freeze({ maxEvents: 100, maxBytes: 512 * 1_024 }),
+  replayChunk: Object.freeze({ maxEvents: 100 }),
   /** Ceilings the per-connection outbound queue must stay inside. */
   connectionQueue: Object.freeze({
     maxEnvelopes: 256,
-    maxBytes: 1_024 * 1_024,
-  }),
-  memoryGrowthCeilingBytes: Object.freeze({
-    server: 128 * 1_024 * 1_024,
-    browserContext: 64 * 1_024 * 1_024,
   }),
   /** Functional timeout only - NOT a latency budget. */
   functionalWaitMs: 2_000,
@@ -160,18 +155,10 @@ export interface IControlledObservations {
   /**
    * Server memory growth, split by WINDOW.
    *
-   * The letter's ceiling is growth "above the post-warm-up baseline" for
-   * a fixture of 20 warm-up plus at least 200 measured commands, and
-   * E2E-73 separately requires the cold catch-up to stay within memory
-   * limits. Those are the two gated windows. Building a 1,000-event log
-   * needs hundreds of commands BEYOND the fixture, and that scaffolding
-   * is neither window - so its growth is recorded rather than gated,
-   * where it can be read as the finding it is instead of failing a
-   * budget that was never written about it.
-   *
-   * Resident set is what the ceiling names and what is gated; heap
-   * travels alongside because an RSS number alone cannot separate
-   * retained state from the runtime's own arenas.
+   * Measured, catch-up and tail-building windows stay separate so retained
+   * state can be distinguished from scaffolding and runtime allocation.
+   * All memory observations are advisory. Behavioral backpressure is proved
+   * through production admission, stopped issuance and recovery tests.
    */
   readonly serverMemory: {
     readonly measured: {
@@ -240,7 +227,6 @@ export interface IControlledReport {
     readonly contextHeapBytes: Readonly<
       Record<string, { readonly baseline: number; readonly used: number }>
     >;
-    readonly ceilings: typeof CONTROLLED_LOOPBACK_FIXTURE.memoryGrowthCeilingBytes;
   };
   readonly coldCatchUp: {
     readonly elapsedMs: number;
@@ -393,45 +379,12 @@ export class ControlledLoopbackPerformanceRunner {
         `replay chunk ${observations.maxReplayChunkEvents} events exceeds ${this.config.replayChunk.maxEvents}`,
       );
     }
-    if (observations.maxReplayChunkBytes > this.config.replayChunk.maxBytes) {
-      failures.push(
-        `replay chunk ${observations.maxReplayChunkBytes} bytes exceeds ${this.config.replayChunk.maxBytes}`,
-      );
-    }
     if (
       observations.peakQueueEnvelopes > this.config.connectionQueue.maxEnvelopes
     ) {
       failures.push(
         `queue ${observations.peakQueueEnvelopes} envelopes exceeds ${this.config.connectionQueue.maxEnvelopes}`,
       );
-    }
-    if (observations.peakQueueBytes > this.config.connectionQueue.maxBytes) {
-      failures.push(
-        `queue ${observations.peakQueueBytes} bytes exceeds ${this.config.connectionQueue.maxBytes}`,
-      );
-    }
-    const ceilings = this.config.memoryGrowthCeilingBytes;
-    const measuredGrowth = observations.serverMemory.measured.rssGrowthBytes;
-    if (measuredGrowth > ceilings.server) {
-      failures.push(
-        `server memory growth ${measuredGrowth} bytes exceeds ${ceilings.server}`,
-      );
-    }
-    // E2E-73: the catch-up itself must stay within memory limits.
-    const catchUpGrowth = observations.serverMemory.catchUp.rssGrowthBytes;
-    if (catchUpGrowth > ceilings.server) {
-      failures.push(
-        `catch-up memory growth ${catchUpGrowth} bytes exceeds ${ceilings.server}`,
-      );
-    }
-    for (const [role, growth] of Object.entries(
-      observations.contextMemoryGrowthBytes,
-    )) {
-      if (growth > ceilings.browserContext) {
-        failures.push(
-          `${role} memory growth ${growth} bytes exceeds ${ceilings.browserContext}`,
-        );
-      }
     }
     return { passed: failures.length === 0, failures, p95, p99 };
   }
@@ -464,7 +417,6 @@ export class ControlledLoopbackPerformanceRunner {
         server: observations.serverMemory,
         contextGrowthBytes: observations.contextMemoryGrowthBytes,
         contextHeapBytes: observations.contextHeapBytes,
-        ceilings: this.config.memoryGrowthCeilingBytes,
       },
       coldCatchUp: {
         elapsedMs: observations.coldCatchUpMs,

@@ -27,7 +27,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -39,7 +39,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -51,7 +51,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -63,7 +63,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -85,7 +85,7 @@
   "prostheticEnhancementCounts": {},
   "fieldGuns": [
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)"
     },
     {
@@ -93,7 +93,7 @@
       "name": "IS Ammo Medium Rifle"
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)"
     },
     {
@@ -101,7 +101,7 @@
       "name": "IS Ammo Medium Rifle"
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)"
     },
     {
@@ -109,7 +109,7 @@
       "name": "IS Ammo Medium Rifle"
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)"
     },
     {

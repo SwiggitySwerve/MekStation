@@ -116,7 +116,7 @@ describe('OpenSpec CI quality QC validator', () => {
     const result = runValidator();
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('workflowContracts=9/9');
+    expect(result.stdout).toContain('workflowContracts=10/10');
     expect(result.stdout).toContain('protectedContexts=1');
     expect(result.stdout).toMatch(/activeOpenSpecChanges=\d+/);
     expect(result.stdout).toMatch(/accountedActiveOpenSpecChanges=\d+/);
@@ -376,6 +376,22 @@ describe('OpenSpec CI quality QC validator', () => {
         token: 'qc:openspec-ci:validate',
       }),
     );
+  });
+
+  it('rejects a workflow that drops the jest-dom skip list check', () => {
+    const workflow = readWorkflow();
+    const mutated = workflow.replace(
+      'run: node scripts/jest/jest-dom-usage.js --check',
+      'run: node scripts/jest/jest-dom-usage.js',
+    );
+    expect(mutated).not.toBe(workflow);
+    const mutatedPath = path.join(tempDir, 'pr-checks.yml');
+    writeText(mutatedPath, mutated);
+    const result = runValidator(['--json'], {
+      MEKSTATION_PR_WORKFLOW_PATH: mutatedPath,
+    });
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('jest-dom-skip-list-is-safe');
   });
 
   describe('per-PR browser regression gates', () => {

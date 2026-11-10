@@ -550,7 +550,68 @@ ProtoMech movement validity SHALL be the rules of pinned MegaMek `48fcb2f64` `Te
 
 #### Scenario: Scope boundary
 
-- **THEN** the editor's weight-class input clamps, the Structure tab's ultraheavy jump lock and the unwired Myomer weight-class label SHALL remain outside this requirement, for the separate editor-limits item that cites MegaMekLab's own spinner limits
+- **THEN** the editor's input clamps, jump lock and Myomer Booster control SHALL be governed by the ProtoMech Editor Movement Limits requirement, and not by this validity requirement
+
+### Requirement: ProtoMech Editor Movement Limits
+
+The editor's walk and jump inputs SHALL accept what MegaMekLab 62bf193 accepts for a ProtoMech, and SHALL NOT apply a weight-class walk or jump cap, a ban on an ultraheavy jumping, or a Myomer Booster weight class, none of which MML or the pinned verifier has. The limits SHALL be implemented once in a pure owner that reuses the movement rules owner's `protoMaxJumpMP`.
+
+#### Scenario: Walk limits
+
+- **WHEN** a walk MP is entered
+- **THEN** it SHALL be raised to the motive's minimum: biped 1, quad `floor(3 / 1.5)` = 2, glider `ceil(4 / 1.5)` = 3 (`MovementView.java:267,270,272`)
+- **AND** it SHALL be capped at the largest walk whose engine rating is a valid engine, rating at most 500, as MML refuses a walk whose engine is invalid (`PMStructureTab.recalculateEngineRating`, `:264-276`)
+- **AND** there SHALL be no weight-class walk cap
+
+#### Scenario: Jump limits
+
+- **WHEN** a jump MP is entered
+- **THEN** it SHALL be at most `TestProtoMek.maxJumpMP` for the unit: the walk MP, or 1.5 times it rounded up when an Extended Jump Jet System is mounted (`MovementView.java:233`)
+- **AND** a glider's jump SHALL be fixed at 0 and its control disabled (`MovementView.java:265-268,354`), while an ultraheavy's SHALL NOT be locked
+- **AND** lowering the walk MP below the jump MP, or choosing a motive with a lower limit, SHALL lower the jump MP to the new limit, as MML does (`MovementView.java:370-371`)
+
+#### Scenario: Pinned units are unchanged by re-applying their own values
+
+- **WHEN** each of the 86 canonical ProtoMechs re-applies its own walk MP, jump MP and chassis through the store
+- **THEN** its walk MP, jump MP, run MP and engine rating SHALL NOT change
+
+#### Scenario: Controls and defaults
+
+- **THEN** the Myomer Booster control SHALL carry no weight-class qualifier and SHALL be disabled only for a glider, keeping its stored value (`PMChassisView.java:230-231`)
+- **AND** the glider chassis label SHALL carry no weight qualifier
+- **AND** a new ProtoMech SHALL start at its motive's minimum walk, from `PMMainUI.createNewUnit` (`PMMainUI.java:140-147`)
+- **AND** the tonnage range and the ultraheavy label SHALL follow the ProtoMech Ultraheavy As Mass requirement
+
+### Requirement: ProtoMech Ultraheavy As Mass
+
+Ultraheavy SHALL be a mass above `TestProtoMek.MAX_STD_TONNAGE` (9 t), not a chassis. The editor SHALL offer the three motives Biped, Quad and Glider and one tonnage range, 2 to 15 t, for all of them, as MegaMekLab 62bf193 does (`PMChassisView.java:75-79,135-139,205-207`). A tonnage edit SHALL keep the walk MP and SHALL be refused, with its reason shown and nothing changed, when the resulting engine rating is not a valid engine (`PMStructureTab.java:446-456`, `recalculateEngineRating :264-276`).
+
+#### Scenario: One tonnage range for every motive
+
+- **WHEN** a ProtoMech of any motive is edited
+- **THEN** its tonnage SHALL be accepted from 2 to 15 t and clamped outside that range
+- **AND** selecting a motive SHALL NOT change the tonnage
+- **AND** the weight class and the status bar SHALL show Ultraheavy for any tonnage above 9 t
+
+#### Scenario: Canonical units above 9 t are unchanged by re-applying themselves
+
+- **WHEN** each of the 10 pinned ProtoMechs above 9 t (five bipeds, two quads, three gliders) re-applies its own chassis and tonnage through the store
+- **THEN** its chassis, tonnage, walk MP, jump MP, run MP, engine rating, structure and armor SHALL NOT change
+- **AND** a heavy biped SHALL load as a Biped, not as the deprecated `Ultraheavy` chassis value
+
+#### Scenario: A tonnage edit keeps the walk or is refused
+
+- **WHEN** the tonnage is edited
+- **THEN** the walk MP SHALL stay as it was, with the engine rating recomputed for it
+- **AND** when that engine rating is over 500 the edit SHALL be refused with the tonnage, the walk and the rating in the message, and the tonnage, walk and engine SHALL be unchanged
+- **AND** the walk MP SHALL NOT be reset to a function of the tonnage or silently clamped
+
+#### Scenario: Units saved with the Ultraheavy chassis
+
+- **WHEN** a draft or library record saved with `chassisType: "Ultraheavy"` is opened
+- **THEN** it SHALL read as a Biped with the tonnage it was saved with
+- **AND** its stored draft and library fingerprints SHALL still match, by a reviewed loader shim that projects a Biped above 9 t back to the legacy label, so no stored fingerprint is rewritten
+- **AND** the `Ultraheavy` value SHALL remain a deprecated member of the chassis enumeration so the replay schema and source model still parse
 
 ### Requirement: Native ProtoMech complete construction mass
 

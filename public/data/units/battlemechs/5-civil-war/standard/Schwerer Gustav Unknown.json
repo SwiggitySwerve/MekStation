@@ -162,5 +162,8 @@
   },
   "mulId": 2828,
   "role": "Missile Boat",
-  "source": "XTR:Mercs"
+  "source": "XTR:Mercs",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

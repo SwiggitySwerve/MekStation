@@ -183,5 +183,8 @@
   },
   "mulId": 6712,
   "role": "Striker",
-  "source": "TR:3145:RotS,TR:DA"
+  "source": "TR:3145:RotS,TR:DA",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

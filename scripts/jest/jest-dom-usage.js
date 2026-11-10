@@ -14,10 +14,15 @@
  * such reference; jest.setup.js skips jest-dom for exactly those. The default is
  * to LOAD it, so a new test file is never affected, and a listed file that grows
  * a jest-dom matcher fails loudly (`... is not a function`) and in the guard test
- * (scripts/__tests__/jest-dom-usage.test.ts), never silently.
+ * (scripts/__tests__/jest-dom-skip.test.ts), never silently.
  *
  *   node scripts/jest/jest-dom-usage.js            # print summary
  *   node scripts/jest/jest-dom-usage.js --write    # rewrite config/jest/no-jest-dom-tests.json
+ *   node scripts/jest/jest-dom-usage.js --check    # reject unsafe listed entries without writing
+ *
+ * --check fails for listed files that disappeared, left the unit project, or
+ * now need jest-dom. Unlisted free tests only produce an advisory count: new
+ * tests safely load jest-dom by default and never require list regeneration.
  */
 'use strict';
 
@@ -98,10 +103,34 @@ function classify(root = ROOT) {
   return { free, needs };
 }
 
-module.exports = { classify, listTestFiles, LIST_FILE, JEST_DOM_MATCHERS };
+function run(argv, root = ROOT) {
+  const { free, needs } = classify(root);
+  const listFile = path.join(root, path.relative(ROOT, LIST_FILE));
+  if (argv.includes('--check')) {
+    const listed = new Set(JSON.parse(fs.readFileSync(listFile, 'utf8')));
+    const freeSet = new Set(free);
+    let unsafe = false;
+    for (const file of listed) {
+      let reason;
+      if (!fs.existsSync(path.join(root, file))) {
+        reason = 'file no longer exists';
+      } else if (needs.has(file)) {
+        reason = `needs jest-dom (${needs.get(file)})`;
+      } else if (!freeSet.has(file)) {
+        reason = 'not a unit-project test file';
+      }
+      if (reason) {
+        console.error(`${file}: ${reason}`);
+        unsafe = true;
+      }
+    }
+    const unlisted = free.filter((file) => !listed.has(file)).length;
+    console.log(
+      `${unlisted} unlisted test files could skip jest-dom (run --write)`,
+    );
+    return unsafe ? 1 : 0;
+  }
 
-if (require.main === module) {
-  const { free, needs } = classify();
   console.log(
     JSON.stringify({
       testFiles: free.length + needs.size,
@@ -109,8 +138,15 @@ if (require.main === module) {
       needsJestDom: needs.size,
     }),
   );
-  if (process.argv.includes('--write')) {
-    fs.writeFileSync(LIST_FILE, JSON.stringify(free, null, 2) + '\n');
-    console.log(`wrote ${path.relative(ROOT, LIST_FILE)}`);
+  if (argv.includes('--write')) {
+    fs.writeFileSync(listFile, JSON.stringify(free, null, 2) + '\n');
+    console.log(`wrote ${path.relative(root, listFile)}`);
   }
+  return 0;
+}
+
+module.exports = { classify, listTestFiles, LIST_FILE, JEST_DOM_MATCHERS, run };
+
+if (require.main === module) {
+  process.exitCode = run(process.argv.slice(2));
 }

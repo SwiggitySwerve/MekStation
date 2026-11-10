@@ -188,5 +188,8 @@
   "source": "TR:3145",
   "weaponQuirks": {
     "RA:4:ISERPPC": ["jettison_capable"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

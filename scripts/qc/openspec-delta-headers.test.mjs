@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { parse } from 'yaml';
+import { parse, stringify } from 'yaml';
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url));
 const validator = path.join(
@@ -132,7 +132,174 @@ test('CI runs the validator and Node tests without a docs-only change gate', () 
     step.run.trim(),
     'node --test scripts/qc/openspec-delta-headers.test.mjs\nnpm run qc:openspec-ci:validate',
   );
+  const strict = job.steps.find(
+    (entry) => entry.name === 'Validate OpenSpec specs (strict)',
+  );
+  assert.ok(
+    strict,
+    'static checks must contain the separate strict OpenSpec step',
+  );
+  assert.equal(strict.run, 'npm run openspec:validate');
+  assert.equal(strict.if, '${{ !cancelled() }}');
+  assert.equal(strict['continue-on-error'], undefined);
+  assert.ok(job.steps.indexOf(strict) < job.steps.indexOf(step));
+  assert.ok(workflow.jobs['lint-and-test'].needs.includes('static-checks'));
 });
+
+for (const [label, mutate] of [
+  [
+    'deleted strict step',
+    (_workflow, job, strict) => {
+      job.steps.splice(job.steps.indexOf(strict), 1);
+    },
+  ],
+  [
+    'strict step without !cancelled()',
+    (_workflow, _job, strict) => {
+      delete strict.if;
+    },
+  ],
+  [
+    'deleted strict command',
+    (_workflow, _job, strict) => {
+      delete strict.run;
+    },
+  ],
+  [
+    'strict command only in another job',
+    (workflow, _job, strict) => {
+      delete strict.run;
+      workflow.jobs['detect-changes'].steps.push({
+        run: 'npm run openspec:validate',
+      });
+    },
+  ],
+  [
+    'renamed strict step',
+    (_workflow, _job, strict) => {
+      strict.name = 'Other';
+    },
+  ],
+  [
+    'code-gated strict step',
+    (_workflow, _job, strict) => {
+      strict.if =
+        "${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}";
+    },
+  ],
+  [
+    'strict step continuing on error',
+    (_workflow, _job, strict) => {
+      strict['continue-on-error'] = true;
+    },
+  ],
+  [
+    'strict step using an unsafe shell',
+    (_workflow, _job, strict) => {
+      strict.shell = 'python';
+    },
+  ],
+  [
+    'code-gated static job',
+    (_workflow, job) => {
+      job.if = "needs.detect-changes.outputs.code == 'true'";
+    },
+  ],
+  [
+    'static job continuing on error',
+    (_workflow, job) => {
+      job['continue-on-error'] = true;
+    },
+  ],
+  [
+    'strict step after regression tests',
+    (_workflow, job, strict) => {
+      job.steps.splice(job.steps.indexOf(strict), 1);
+      job.steps.push(strict);
+    },
+  ],
+  [
+    'static job dropped from aggregator',
+    (workflow) => {
+      workflow.jobs['lint-and-test'].needs = workflow.jobs[
+        'lint-and-test'
+      ].needs.filter((id) => id !== 'static-checks');
+    },
+  ],
+]) {
+  test(`CI validator rejects ${label}`, (t) => {
+    const env = fixture(t, {});
+    const workflow = parse(
+      fs.readFileSync(
+        path.join(repoRoot, '.github/workflows/pr-checks.yml'),
+        'utf8',
+      ),
+    );
+    const job = workflow.jobs['static-checks'];
+    const strict = job.steps.find(
+      (step) => step.name === 'Validate OpenSpec specs (strict)',
+    );
+    assert.ok(strict, 'mutation requires the strict step');
+    mutate(workflow, job, strict);
+    const file = path.join(
+      path.dirname(env.MEKSTATION_OPENSPEC_CHANGES_DIR),
+      'workflow.yml',
+    );
+    write(file, stringify(workflow));
+    const { status, manifest } = run({
+      ...env,
+      MEKSTATION_PR_WORKFLOW_PATH: file,
+    });
+    assert.equal(
+      status,
+      1,
+      'weakened strict validation must fail the CI contract',
+    );
+    assert.ok(
+      manifest.errors.some((error) => error.jobId === 'static-checks'),
+      JSON.stringify(manifest.errors),
+    );
+  });
+}
+
+test(
+  'pinned strict CLI rejects a requirement without SHALL/MUST and accepts either modal',
+  { timeout: 400_000 },
+  (t) => {
+    const root = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'openspec-strict-modal-'),
+    );
+    t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const change = path.join(root, 'openspec/changes/seeded-modal');
+    write(
+      path.join(change, 'proposal.md'),
+      '# Change: Seeded modal\n\n## Why\nProve strict validation.\n\n## What Changes\n- Add a requirement.\n\n## Impact\n- Specs: seeded\n',
+    );
+    write(
+      path.join(change, 'tasks.md'),
+      '## Implementation\n- [ ] Validate the fixture.\n',
+    );
+    for (const modal of ['', 'SHALL ', 'MUST ']) {
+      write(
+        path.join(change, 'specs/seeded/spec.md'),
+        `## ADDED Requirements\n\n### Requirement: Seeded behavior\nThe system ${modal}rejects invalid input.\n\n#### Scenario: Invalid input\n- **WHEN** input is invalid\n- **THEN** an error is returned\n`,
+      );
+      const result = spawnSync(
+        'npx --yes @fission-ai/openspec@1.5.0 validate seeded-modal --strict --json',
+        {
+          cwd: root,
+          encoding: 'utf8',
+          shell: true,
+          timeout: 120_000,
+        },
+      );
+      assert.ifError(result.error);
+      const output = result.stdout + result.stderr;
+      assert.equal(result.status, modal ? 0 : 1, output);
+      if (!modal) assert.match(output, /SHALL or MUST/);
+    }
+  },
+);
 
 test('rejects a different scoped CLI version in the pinned package script', (t) => {
   const env = fixture(t, {});

@@ -146,7 +146,11 @@ it('recalculates structural edits and BV, while retaining tonnage caps and manua
   store.getState().setName('Renamed');
   store.getState().setCruiseMP(3);
   expect(store.getState().structureByLocation[L.TORSO]).toBe(99);
+  // One 2-15 t cap for every motive (PMChassisView.java:79); the old chassis-keyed cap of
+  // 9 t for a biped is gone with the Ultraheavy chassis (PMChassisView.java:205-207).
   store.getState().setTonnage(20);
+  expect(store.getState().tonnage).toBe(15);
+  store.getState().setTonnage(9);
   expect(store.getState().tonnage).toBe(9);
   expect(store.getState().structureByLocation).toEqual({
     Head: 2,

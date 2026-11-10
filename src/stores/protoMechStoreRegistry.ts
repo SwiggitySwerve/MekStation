@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 
 import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
+import { readSavedProtoChassis } from '@/utils/construction/protomech';
 import { logger } from '@/utils/logger';
 
 import {
@@ -36,6 +37,16 @@ const protoMechRegistry = createStoreRegistry<
   createDefaultState: (options, id) =>
     createDefaultProtoMechState({ ...options, id }),
   getIdFromState: (state) => state.id,
+  // A draft saved with the legacy Ultraheavy chassis reads as the biped it was
+  // (readSavedProtoChassis); its fingerprints are unchanged by the unitSaveStateAdapters shim.
+  mergeState: (defaultState, savedState, id) => ({
+    ...defaultState,
+    ...savedState,
+    ...(savedState.chassisType === undefined
+      ? {}
+      : { chassisType: readSavedProtoChassis(savedState.chassisType) }),
+    id,
+  }),
 });
 
 export function getProtoMechStore(

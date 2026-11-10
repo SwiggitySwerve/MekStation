@@ -73,6 +73,7 @@ import type { ICampaignWithBridgeState } from '@/lib/campaign/processors/scenari
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IContract } from '@/types/campaign/Mission';
 import type { IPartsInventory } from '@/types/campaign/PartsInventory';
+import type { SerializedCampaignBody } from '@/types/campaign/SerializedCampaign';
 import type { IUnitMaxState } from '@/types/campaign/UnitCombatState';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
@@ -89,6 +90,11 @@ import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnve
 import { deserializeCampaignBody } from '@/lib/campaign/persistence/serializeCampaign';
 import { postBattleProcessor } from '@/lib/campaign/processors/postBattleProcessor';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
+import { reorderRepairTicketPriority } from '@/stores/campaign/campaignBayActions';
+import {
+  groupRepairBayByUnit,
+  selectRepairBay,
+} from '@/stores/campaign/campaignBaySelectors';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { Money } from '@/types/campaign/Money';
@@ -357,17 +363,7 @@ async function runMaintenanceFastForward(): Promise<MaintenanceMintResult> {
       'runMaintenanceFastForward: no campaign in the store after the drain',
     );
   }
-  const mintedRepairQueue =
-    (
-      afterDrain as unknown as {
-        readonly repairQueue?: readonly {
-          readonly partsRequired: readonly {
-            readonly partId: string;
-            readonly quantity: number;
-          }[];
-        }[];
-      }
-    ).repairQueue ?? [];
+  const mintedRepairQueue = afterDrain.repairQueue ?? [];
   if (mintedRepairQueue.length === 0) {
     throw new Error(
       'runMaintenanceFastForward: drain completed but campaign.repairQueue is empty — no damaged, combat-ready player unit resolved this seed (a write-off unit produces no tickets, buildTicketsFromUnitState.ts)',
@@ -399,6 +395,34 @@ async function runMaintenanceFastForward(): Promise<MaintenanceMintResult> {
   await store.getState().updateCampaign({
     ...({ partsInventory } as unknown as Record<string, unknown>),
   } as never);
+
+  // D8 needs visible partial work after the next day, rather than only
+  // completed jobs (which the bay hides). Raise the longest movable job
+  // one slot within its unit group, just as RepairBay's Move Up control
+  // does. The page calls this public action in repair-bay.tsx:54.
+  const unitGroups = groupRepairBayByUnit(selectRepairBay(afterDrain));
+  const movableTickets = Array.from(unitGroups.values()).flatMap((tickets) =>
+    tickets.slice(1),
+  );
+  const longestJob = movableTickets.sort(
+    (a, b) => b.expectedHours - a.expectedHours,
+  )[0];
+  if (!longestJob) {
+    throw new Error('The maintenance fixture has no repair job to raise');
+  }
+  const reordered = [...(unitGroups.get(longestJob.unitId) ?? [])];
+  const index = reordered.findIndex(
+    (ticket) => ticket.ticketId === longestJob.ticketId,
+  );
+  const [raised] = reordered.splice(index, 1);
+  if (!raised) throw new Error('The maintenance repair job was not found');
+  reordered.splice(index - 1, 0, raised);
+  if (
+    !reorderRepairTicketPriority(reordered.map((ticket) => ticket.ticketId))
+      .applied
+  ) {
+    throw new Error('The maintenance repair priority request was refused');
+  }
 
   const finalCampaign = store.getState().getCampaign();
   if (!finalCampaign) {
@@ -616,35 +640,56 @@ describe('mint-from-fast-forward — maintenance fixture (task 5.1/5.3 acceptanc
     assertIdenticalCanonicalIdGraph(payloadA, payloadB);
   });
 
-  it('a second day advance — WITH the stitched partsInventory now present — applies real progress (proves the post-load action dependency, task 5.3 acceptance)', async () => {
+  it('a minted pack leaves visible partial work only after one production day (design D8)', async () => {
     const result = await runMaintenanceFastForward();
+    const { payload } = dumpAndCanonicalizeFastForwardCampaign(
+      result.campaign,
+      { packId: MAINTENANCE_PACK_ID },
+    );
+    const wirePayload: unknown = JSON.parse(JSON.stringify(payload));
+    const wireBody: unknown = campaignPackSchema.parse(wirePayload).body;
     const store = useCampaignStore();
-    const before = (
-      store.getState().getCampaign() as unknown as {
-        readonly repairQueue?: readonly {
-          readonly ticketId: string;
-          readonly status: string;
-        }[];
-      }
-    ).repairQueue!;
-    expect(before.every((t) => t.status === 'parts-needed')).toBe(true);
+    // The pack schema validates a field floor, while this body came from
+    // the typed production serializer. Mirror the loader's JSON boundary
+    // before handing the full generated body to the persistence deserializer.
+    store
+      .getState()
+      .switchCampaign(
+        deserializeCampaignBody(wireBody as SerializedCampaignBody),
+      );
+    const before = store.getState().getCampaign();
+    if (!before) throw new Error('The minted campaign did not load');
+    const untouchedRows = selectRepairBay(before);
+    expect(untouchedRows.length).toBeGreaterThan(0);
+    expect(untouchedRows.every((row) => row.status === 'parts-needed')).toBe(
+      true,
+    );
+    expect(
+      before.repairQueue?.every(
+        (ticket) =>
+          (ticket.remainingHours ?? ticket.expectedHours) ===
+          ticket.expectedHours,
+      ),
+    ).toBe(true);
 
-    await store.getState().advanceDay();
-
-    const after = (
-      store.getState().getCampaign() as unknown as {
-        readonly repairQueue?: readonly {
-          readonly ticketId: string;
-          readonly status: string;
-        }[];
-      }
-    ).repairQueue!;
-    // At least one ticket moved off its minted 'parts-needed' status —
-    // this is the exact causal link the parity spec's post-load
-    // `advance-day` action relies on; removing the action (never calling
-    // `advanceDay()` again) leaves every ticket at 'parts-needed'
-    // (proven above, `before`).
-    expect(after.some((t) => t.status !== 'parts-needed')).toBe(true);
+    const report = await store.getState().advanceDay();
+    if (!report) throw new Error('The post-load day advance did not commit');
+    const after = report.campaign;
+    // Completed repairs are hidden by the real bay selector. D8 needs at
+    // least one visible task with hours applied and work still outstanding.
+    expect(
+      selectRepairBay(after).some((row) => {
+        const ticket = after.repairQueue?.find(
+          (candidate) => candidate.ticketId === row.ticketId,
+        );
+        const remaining = ticket?.remainingHours;
+        return (
+          remaining !== undefined &&
+          remaining > 0 &&
+          remaining < row.expectedHours
+        );
+      }),
+    ).toBe(true);
   });
 });
 

@@ -186,5 +186,8 @@
   },
   "mulId": 4129,
   "role": "Sniper",
-  "source": "Unbound"
+  "source": "Unbound",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

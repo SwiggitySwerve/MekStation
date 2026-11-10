@@ -57,7 +57,7 @@ References SHALL come from a demonstrably compatible pinned MegaMek/MegaMekLab r
 
 ### Requirement: All-family semantic round trips
 
-Every supported source family SHALL preserve its domain facts through import, serialization, persistence and reload. Existing MTF text round-trip checks SHALL remain in place alongside semantic comparisons.
+SHALL preserve the domain facts of every supported source family through import, serialization, persistence and reload. Existing MTF text round-trip checks SHALL remain in place alongside semantic comparisons.
 
 #### Scenario: Reload a custom non-mech design
 
@@ -70,8 +70,18 @@ Every supported source family SHALL preserve its domain facts through import, se
 
 - **GIVEN** an MTF source declaring an XL gyro
 - **WHEN** it is parsed, saved through the unit API and reloaded
-- **THEN** the existing gyro mapping owner SHALL preserve the declared XL identity in the existing serialized gyro field
+- **THEN** the shared MTF component vocabulary SHALL preserve the declared XL identity in the existing serialized gyro field
 - **AND** the editor SHALL calculate with that identity when recovering source equipment mass
+
+#### Scenario: Preserve declared MTF components through import
+
+- **GIVEN** an MTF source declaring any pinned gyro, cockpit or heat sink name, or rules level 1 to 5
+- **WHEN** it is parsed by the app importer and by the Python converter
+- **THEN** both SHALL read one shared vocabulary file and resolve the same serialized identity, including Compact and Heavy Duty gyros, IS and Clan Double, Laser and Compact heat sinks, and rules level 5 as Unofficial
+- **AND** a gyro, cockpit or heat sink string the pinned loader defaults SHALL load with that Java default and a parse warning, not be rejected at import
+- **AND** the raw gyro, cockpit and heat sink text SHALL be saved with the unit beside the derived values, with a unit-level diagnostic for every defaulted value, so both survive save and reopen
+- **AND** every pinned cockpit name, including Tripod, Dual and both Command Consoles, SHALL resolve to its own identity, matched exact-first then by prefix in the pinned table order
+- **AND** the identity SHALL equal the pinned converter output for the same source bytes
 
 #### Scenario: Preserve slot-only weapons through MTF import and save
 
@@ -82,3 +92,11 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **AND** variable physical sizing, spreadable Talons anchoring and split eligibility SHALL use their existing domain owners and pinned native traversal
 - **AND** API persistence and custom serialization SHALL preserve recovered mounts, rear and Omni flags on reload
 - **AND** unknown or incomplete critical groups SHALL remain available in the source grid with incomplete recognized mounts reported diagnostically
+
+#### Scenario: Python source conversion preserves native critical weapons
+
+- **GIVEN** a native critical weapon mount absent from the MTF summary
+- **WHEN** the Python converter serializes that source
+- **THEN** it SHALL consume the shared mount profiles, physical formula facts and catalog identities to append each unrepresented mount once
+- **AND** summary multiplicity, split and spread anchors, rear and Omni flags SHALL survive loading and persistence
+- **AND** strict conversion receipts SHALL fingerprint every consumed mapping, catalog and shared formula input
