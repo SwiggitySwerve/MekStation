@@ -2,6 +2,8 @@ import { vehicleBVTerms } from '../bvTrace';
 import { calculateVehicleBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
+// MegaMek 48fcb2f64: ISSRM2.java:76 (21); BVCalculator.java:1230-1231
+// excludes F_ONE_SHOT/F_INFANTRY, independent of the synthetic BV-100 bins.
 test('retains a normal SRM-2 cap without matching vehicle ammunition', () => {
   const result = calculateVehicleBV(
     baseInput({ weapons: [{ id: 'srm-2', location: 'front' }], ammo: [] }),

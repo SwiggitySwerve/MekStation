@@ -41,6 +41,10 @@ describe('native ammo BV pools', () => {
 });
 
 describe('diagnostic cap emission', () => {
+  // MegaMek 48fcb2f64: ISSRM2.java:76 (21), ISSRM2IOS.java:76 (4),
+  // VehicularGrenadeLauncherWeapon.java:87 (15),
+  // InfantrySupportPortablePlasmaWeapon.java:73 (8.08),
+  // ISAC10Primitive.java:87 (123). Other inputs are synthetic pool probes.
   it('preserves compatibility arithmetic separately from diagnostic exclusions', () => {
     expect(
       calculateAmmoBVPools(

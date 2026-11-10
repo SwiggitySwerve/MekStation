@@ -23,6 +23,8 @@ const unit: UnitData = {
   equipment: [],
 };
 
+// MegaMek 48fcb2f64: VehicularGrenadeLauncherWeapon.java:85,87 (one-shot,15),
+// ISAC10Primitive.java:87 (123); primitive bin BV from AmmoType.java:13607.
 test('omits the inherently one-shot VGL cap', () => {
   const b = calculateUnitBV({
     ...unit,

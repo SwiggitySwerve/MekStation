@@ -32,7 +32,7 @@ independent weapon pass (:1212-1240). Normal launchers retain their caps even
 without ammunition; the ammo pass (:1195-1209) does not gate the weapon map.
 `processAmmo` (:1057-1080) pairs those maps only for numerical capping.
 VGL inherits `F_ONE_SHOT` from `VehicularGrenadeLauncherWeapon.java:85-86`;
-`ISSRM2IOS.java:79` sets that flag too. Infantry weapons inherit
+`ISSRM2IOS.java:77` sets that flag too. Infantry weapons inherit
 `F_INFANTRY` from `InfantryWeapon.java:86`. Thus the reported 24 extra caps
 were 22 one-shot and two infantry groups, rather than a no-ammunition rule.
 Compatibility arithmetic keeps its existing inputs, matching, sums and order;
