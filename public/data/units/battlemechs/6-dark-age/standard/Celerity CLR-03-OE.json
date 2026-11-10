@@ -162,5 +162,8 @@
   },
   "mulId": 6708,
   "role": "Scout",
-  "source": "TR:3145:RotS,TR:3145"
+  "source": "TR:3145:RotS,TR:3145",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

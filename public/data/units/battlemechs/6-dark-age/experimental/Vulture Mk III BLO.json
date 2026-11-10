@@ -202,5 +202,8 @@
   },
   "mulId": 7633,
   "role": "Missile Boat",
-  "source": "SO:UF,TR:DA"
+  "source": "SO:UF,TR:DA",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

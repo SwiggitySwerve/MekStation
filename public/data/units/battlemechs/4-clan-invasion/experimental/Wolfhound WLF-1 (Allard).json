@@ -186,5 +186,8 @@
   },
   "mulId": 5416,
   "role": "Striker",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

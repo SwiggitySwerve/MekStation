@@ -102,9 +102,14 @@ it('refreshes the real store through chassis, movement, jump and booster actions
   expect(store.getState().bvBreakdown?.defensiveFactor).toBe(1.5);
   store.getState().setMyomerBooster(true);
   expect(store.getState().bvBreakdown?.defensiveFactor).toBe(1.6);
+  // A glider cannot jump and walks at least 3 (MovementView.java:265-268,267), so the
+  // jump action is exercised on a biped: boosted walk 1 runs 2, jump 1 is within maxJumpMP.
+  store.getState().setChassisType(ProtoChassis.BIPED);
   store.getState().setWalkMP(1);
-  store.getState().setJumpMP(4);
-  expect(store.getState().bvBreakdown?.defensiveFactor).toBe(1.3);
+  store.getState().setJumpMP(1);
+  expect(store.getState().bvBreakdown?.defensiveFactor).toBe(
+    1.2000000000000002,
+  );
   expect(store.getState().bvBreakdown).toEqual(
     computeProtoMechBVFromState(store.getState()),
   );

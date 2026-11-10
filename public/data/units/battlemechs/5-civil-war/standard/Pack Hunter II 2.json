@@ -173,5 +173,8 @@
   "source": "TR:3085,TR:DA",
   "weaponQuirks": {
     "RT:7:CLERPPC": ["stable_weapon"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

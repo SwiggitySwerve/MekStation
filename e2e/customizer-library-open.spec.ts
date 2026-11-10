@@ -1893,6 +1893,77 @@ test.describe('library persistence and printing', () => {
     }
   });
 
+  test('ProtoMech Structure: an ultraheavy keeps its jump through edit, save, reload and reopen @customizer', async ({
+    page,
+    request,
+  }) => {
+    // Row 4.1 item b3b: MegaMekLab locks only a glider's jump spinner
+    // (MovementView.java:265-268), and its walk and jump limits are the motive minimum,
+    // the engine and TestProtoMek.maxJumpMP, not weight-class caps. Sprite Ultraheavy 3
+    // (walk 3, five Extended Jump Jets) jumps 5; the editor must show it, accept an edit
+    // up to its limit, and keep it through the saved library copy.
+    let savedId: string | undefined;
+    try {
+      await page.goto('/customizer');
+      await library(page, 'Sprite Ultraheavy ProtoMech', '3');
+      await section(page, 'Structure');
+      const jump = page.getByLabel('Jump MP', { exact: true });
+      await expect(jump).toBeEnabled();
+      await expect(jump).toHaveValue('5');
+      await expect(page.getByText('Light / Medium only')).toHaveCount(0);
+      await expect(page.getByText('Light Only')).toHaveCount(0);
+      await jump.fill('3');
+      await expect(jump).toHaveValue('3');
+
+      await page
+        .getByRole('button', { name: 'Save active unit to library' })
+        .click();
+      const save = page.getByRole('dialog', { name: 'Save Unit', exact: true });
+      const chassis = `Flow Sprite UH ${Date.now()}`;
+      await save.getByLabel('Chassis Name').fill(chassis);
+      await save.getByLabel('Variant Designation').fill('Saved Jump');
+      const posted = page.waitForResponse(
+        (r) =>
+          r.url().endsWith('/api/units/custom') &&
+          r.request().method() === 'POST',
+      );
+      await save.getByRole('button', { name: 'Save', exact: true }).click();
+      const response = await posted;
+      expect(response.ok()).toBe(true);
+      savedId = (await response.json()).data.id;
+      expect(savedId).toBeTruthy();
+
+      await page.reload();
+      await section(page, 'Structure');
+      await expect(page.getByLabel('Jump MP', { exact: true })).toHaveValue(
+        '3',
+      );
+
+      // Close the draft so the library must fetch the saved server copy.
+      await page
+        .getByRole('button', {
+          name: `Close ${chassis} Saved Jump`,
+          exact: true,
+        })
+        .click();
+      const fetched = page.waitForResponse(
+        (r) =>
+          r.url().endsWith(`/api/units/custom/${savedId}`) &&
+          r.request().method() === 'GET',
+        { timeout: 60_000 },
+      );
+      await library(page, chassis, 'Saved Jump', true);
+      expect((await fetched).ok()).toBe(true);
+      await section(page, 'Structure');
+      const reopened = page.getByLabel('Jump MP', { exact: true });
+      await expect(reopened).toBeEnabled();
+      await expect(reopened).toHaveValue('3');
+      await noOverflow(page);
+    } finally {
+      if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+    }
+  });
+
   for (const viewport of viewports) {
     test.describe(`library loading ${viewport.width}`, () => {
       test.use({ viewport });

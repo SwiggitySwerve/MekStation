@@ -14,6 +14,7 @@ import { buildSlotsByLocation } from '@/utils/validation/slotValidationUtils';
 
 import turkina from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Turkina U.json';
 import sarath from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Sarath SRTH-1OB.json';
+import { parseUnit } from '../unitContractAdapter';
 import { UnitLoaderService } from '../unitLoader';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
@@ -39,7 +40,7 @@ it.each([
   'recovers one spreadable Talons mount with native mass and locations',
   (source, weight, criticalSlots, locations) => {
     const loader = new UnitLoaderService();
-    const state = loader.mapToUnitState(source, true);
+    const state = loader.mapToUnitState(parseUnit(source), true);
     const talons = state.equipment.filter((x) => x.equipmentId === 'talons');
     expect(talons).toHaveLength(1);
     const mount = talons[0];

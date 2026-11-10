@@ -183,5 +183,8 @@
   },
   "mulId": 1750,
   "role": "Sniper",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

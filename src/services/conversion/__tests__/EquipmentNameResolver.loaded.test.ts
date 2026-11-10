@@ -7,6 +7,7 @@ import { TechBase } from '@/types/enums/TechBase';
 
 import { EquipmentNameResolver } from '../EquipmentNameResolver';
 import {
+  NAME_NORMALIZATION_PATTERNS,
   normalizeName,
   normalizeNameWithTechBase,
   stripQuantityPrefix,
@@ -119,6 +120,7 @@ describe('equipment name normalization retains the existing tech prefix', () => 
     ['CLCASEII', 'caseii', TechBase.CLAN],
     ['Clan CASE II', 'caseii', TechBase.CLAN],
     ['CASEII', 'caseii', undefined],
+    ['Claws', 'aws', TechBase.CLAN],
     ['ISMediumlaser', 'mediumlaser', TechBase.INNER_SPHERE],
     ['Medium-Laser', 'mediumlaser', undefined],
   ] as const)(
@@ -131,6 +133,18 @@ describe('equipment name normalization retains the existing tech prefix', () => 
       });
     },
   );
+
+  it('reads tech facts independently of normalization-pattern order', () => {
+    NAME_NORMALIZATION_PATTERNS.reverse();
+    try {
+      expect(normalizeNameWithTechBase('ISCASEII')).toEqual({
+        normalizedName: 'caseii',
+        techBase: TechBase.INNER_SPHERE,
+      });
+    } finally {
+      NAME_NORMALIZATION_PATTERNS.reverse();
+    }
+  });
 
   it('uses the existing quantity-prefix owner before reading tech', () => {
     const { cleanType } = stripQuantityPrefix('2CLCASEII');

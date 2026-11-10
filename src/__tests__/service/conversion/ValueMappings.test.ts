@@ -496,9 +496,10 @@ describe('ValueMappings', () => {
       expect(isOmniMechConfig('Tripod Omnimech')).toBe(true);
     });
 
-    it('should detect "omni" keyword', () => {
-      expect(isOmniMechConfig('omni')).toBe(true);
+    it('should detect the capitalised "Omni" keyword only, as the pinned loader does', () => {
+      // MtfFile.java:358: chassisConfig.contains("Omni") is case-sensitive.
       expect(isOmniMechConfig('Omni Configuration')).toBe(true);
+      expect(isOmniMechConfig('omni')).toBe(false);
     });
 
     it('should return false for standard configs', () => {

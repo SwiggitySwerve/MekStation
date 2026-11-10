@@ -183,5 +183,8 @@
   },
   "mulId": 2582,
   "role": "Skirmisher",
-  "source": "TR:3055U"
+  "source": "TR:3055U",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

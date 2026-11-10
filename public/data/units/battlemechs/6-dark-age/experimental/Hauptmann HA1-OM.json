@@ -186,5 +186,8 @@
   },
   "mulId": 6838,
   "role": "Missile Boat",
-  "source": "TR:J"
+  "source": "TR:J",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

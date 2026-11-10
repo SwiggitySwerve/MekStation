@@ -198,5 +198,8 @@
   },
   "mulId": 6873,
   "role": "Juggernaut",
-  "source": "TR:3145,TR:J"
+  "source": "TR:3145,TR:J",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

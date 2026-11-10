@@ -71,7 +71,11 @@ jobs:
             const fs = require('node:fs');
             const file = `${process.env.RUNNER_TEMP}/ci-garden/weekly.json`;
             const stat = fs.lstatSync(file);
-            if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 8 * 1024 * 1024) throw new Error('Invalid prepared JSON');
+            if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('Invalid prepared JSON');
+            if (stat.size > 8 * 1024 * 1024) {
+              core.info('Advisory garden publication unavailable: prepared JSON exceeds the defensive input bound; full evidence remains in ci-garden-prepared.');
+              return;
+            }
             const prepared = JSON.parse(fs.readFileSync(file, 'utf8'));
             const { updateGardenIssue, proposeRatchet } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/garden-publish.mjs`);
             const { loadBudgets, budgetRaises } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-config.mjs`);
