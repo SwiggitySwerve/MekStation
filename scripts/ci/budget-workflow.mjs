@@ -272,7 +272,7 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
       packageCheck.if !== '${{ !cancelled() }}' ||
       packageCheck['continue-on-error']
     )
-      throw new Error('Complete package budget gate disabled or bypassed');
+      throw new Error('Complete package census disabled or bypassed');
   }
   const step = aggregator.steps?.find(
     (s) => s.run === 'node scripts/ci/budget-aggregate.mjs',

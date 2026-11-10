@@ -223,39 +223,39 @@ function mekstationGmCommandSourceRefs(id: string, lineRange: string) {
 export const MEKSTATION_GM_COMMAND_SOURCE_REFS = {
   'gm.advance-phase': mekstationGmCommandSourceRefs(
     'gm.advance-phase',
-    'L37-L46',
+    'L50-L59',
   ),
   'gm.set-position-facing': mekstationGmCommandSourceRefs(
     'gm.set-position-facing',
-    'L48-L57',
+    'L61-L70',
   ),
-  'gm.set-damage': mekstationGmCommandSourceRefs('gm.set-damage', 'L59-L68'),
+  'gm.set-damage': mekstationGmCommandSourceRefs('gm.set-damage', 'L72-L81'),
   'gm.set-heat-ammo': mekstationGmCommandSourceRefs(
     'gm.set-heat-ammo',
-    'L70-L79',
+    'L83-L92',
   ),
   'gm.set-initiative': mekstationGmCommandSourceRefs(
     'gm.set-initiative',
-    'L81-L90',
+    'L94-L103',
   ),
   'gm.set-lifecycle': mekstationGmCommandSourceRefs(
     'gm.set-lifecycle',
-    'L92-L101',
+    'L105-L114',
   ),
   'gm.correct-attack': mekstationGmCommandSourceRefs(
     'gm.correct-attack',
-    'L103-L112',
+    'L116-L125',
   ),
   'gm.set-objective': mekstationGmCommandSourceRefs(
     'gm.set-objective',
-    'L114-L123',
+    'L127-L136',
   ),
   'gm.reload-unit': mekstationGmCommandSourceRefs(
     'gm.reload-unit',
-    'L125-L134',
+    'L138-L147',
   ),
   'gm.grant-resource': mekstationGmCommandSourceRefs(
     'gm.grant-resource',
-    'L136-L145',
+    'L149-L158',
   ),
 } satisfies Record<string, readonly ICombatFeatureSourceReference[]>;

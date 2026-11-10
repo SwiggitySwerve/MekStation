@@ -272,3 +272,61 @@ saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
 (MegaMek 48fcb2f64 ArmorType.java:669-688); BlkArmorCodes owns code 10
 (EquipmentType.java:95). Do not replace Commercial with Standard or lower
 Standard introduction dates to accommodate industrial source units.
+
+Declared OmniMeks derive a represented mount's pod metadata from its owned native
+critical cells, using `parseCriticalSlotToken` as the one token-decoding owner.
+The marker is a suffix after removing outer armored and size metadata, before
+turret/rear qualifiers (MegaMek 48fcb2f64 MtfFile.java:949-956,1005-1028).
+Ordinary and spreadable mounts retain their creation token; split weapons use
+the last visited critical, in native reverse-location/ascending-cell order
+(:545-548,1054-1066,1086-1128). Explicit saved booleans, including false, win.
+Missing source evidence is fixed; category or Omni identity alone never makes
+an item pod-mounted. Mount discovery, aliases and placement remain unchanged.
+
+This general recovery requires explicit `isOmni: true`. Absent/false declarations
+retain the existing loader output, including legacy physical pod flags. This
+preserves committed-catalog load/save/fingerprint bytes until the separately
+owned Omni declarations land. TestEntity.java:1861-1882 validates pod flags on
+non-Omnis; loading is not permission to rewrite an invalid source flag.
+EquipmentType.isOmniFixedOnly (EquipmentType.java:630-635) is an eligibility
+constraint checked separately, not a replacement for the source flag.
+MegaMekLab 62bf193 UnitUtil.java:650-686 also checks fixed-only equipment and
+fixed heat-sink quotas for newly authored pod mounts. No eligibility or
+base-chassis heat-sink arithmetic is copied into this loading boundary.
+
+## Equipment source-side markers
+
+The loader admits a source item's own explicit tech side only when critical
+slots are absent or the unit mode is Mixed:
+`locationCriticalSlots === undefined || unitTechBaseMode === TechBaseMode.MIXED`.
+Keep this #3211 admission condition unchanged. Recognized bracketed markers
+retain their side before unit-mode variant fallback; Mixed slot hints retain
+their existing matching and category guards. IS CASE II is 1.0 t and Clan
+CASE II is 0.5 t (pinned MiscType.java:4809-4815,4839-4845 at 48fcb2f64).
+
+Conversion's `normalizeNameWithTechBase` owns lexical facts used for fuzzy keys;
+its named `TECH_PREFIX_PATTERN` also belongs to the normalization patterns.
+Its historical lexical result for `Claws` is the key `aws` and Clan prefix
+facts. The loader's `ownTechSide` instead requires stripping a marker to
+normalize to the same catalog base, as well as the admission condition above.
+It must not reinterpret the unprefixed catalog identity `claws` as `aws`.
+These are different guarded decisions: sharing the conversion decision would
+bypass the loader's catalog/context guards, while sharing the loader decision
+would change existing fuzzy keys. Both public behaviors have regression tests.
+
+Named residual `C5-CASE-II-CLAN-LITERAL`: the literal `CASE II [Clan]`
+still resolves to `case ii [clan]` with no equipment definition in slotless
+IS, Clan and Mixed modes. The base `f377ea995` census found this literal in
+0 of 9,815 converted corpus paths and 0 of 9,828 public unit JSON files
+(including index/metadata files). Its C5 residual entry and census receipts are
+in the parity-3.2-y acceptance packet and the Clan CASE II PR-2 evidence.
+This fix does not add a candidate fallback or alias for that unresolved input.
+
+The bracket-suffix branch also checks the selected definition's actual tech
+side through the existing variant selector. An unprefixed catalog ID does not
+prove that the record is IS. For example, `Active Probe [IS]` must keep the
+STANDARD `clan-active-probe` record: unprefixed `active-probe` is also Clan
+but has UNOFFICIAL catalog metadata, while pinned `CLActiveProbe` is
+Clan/STANDARD (MiscType.java:5803-5838, 48fcb2f64). Likewise both Light Active
+Probe records are Clan (5848-5884). A mismatched actual side declines the suffix
+and retains the existing fallback; it introduces no alias or candidate fallback.

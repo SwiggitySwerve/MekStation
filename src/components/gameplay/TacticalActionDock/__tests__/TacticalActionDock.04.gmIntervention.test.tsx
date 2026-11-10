@@ -1,4 +1,5 @@
 import { act, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import type {
   IGmCascadePreview,
@@ -64,6 +65,44 @@ function makePlayerLogRecord(
 }
 
 describe('TacticalActionDock GM intervention surface', () => {
+  // @spec openspec/changes/disable-gm-non-event-corrections/specs/gm-tactical-command-surface/spec.md - Interim correction availability
+  it.each([
+    'gm.set-position-facing',
+    'gm.set-damage',
+    'gm.set-heat-ammo',
+    'gm.set-initiative',
+    'gm.set-lifecycle',
+    'gm.set-objective',
+  ])(
+    'disables %s with a visible explanation and refuses mouse/keyboard activation',
+    async (commandId) => {
+      const user = userEvent.setup();
+      const preview = jest.fn(() => makePreview());
+      const onAction = jest.fn();
+      render(
+        <TacticalActionDock
+          ctx={makeCtx()}
+          shellMode="gm"
+          onAction={onAction}
+          gmIntervention={{ preview }}
+        />,
+      );
+      const button = screen.getByTestId(`command-btn-${commandId}`);
+      const reason =
+        'Corrections are temporarily unavailable: the next game action would discard them until correction events are implemented.';
+      expect(button).toBeDisabled();
+      expect(button).toHaveAccessibleDescription(reason);
+      expect(screen.getByText(reason, { selector: 'p' })).toBeVisible();
+      await user.click(button);
+      button.focus();
+      expect(button).not.toHaveFocus();
+      await user.keyboard('{Enter} ');
+      expect(preview).not.toHaveBeenCalled();
+      expect(onAction).not.toHaveBeenCalled();
+      expect(screen.getByTestId('command-btn-gm.advance-phase')).toBeEnabled();
+    },
+  );
+
   it('cancels each pending preview before requesting its replacement in one batch', () => {
     const first = makePreview({ interventionId: 'first' });
     const second = makePreview({ interventionId: 'second' });
@@ -91,8 +130,8 @@ describe('TacticalActionDock GM intervention surface', () => {
     );
 
     act(() => {
-      fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
-      fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+      fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
+      fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
     });
     expect(order).toEqual(['preview:first', 'cancel:first', 'preview:second']);
     expect(cancel).toHaveBeenCalledTimes(1);
@@ -116,7 +155,7 @@ describe('TacticalActionDock GM intervention surface', () => {
         gmIntervention={{ preview, cancel: originalCancel }}
       />,
     );
-    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
     rerender(
       <TacticalActionDock
         ctx={ctx}
@@ -152,13 +191,13 @@ describe('TacticalActionDock GM intervention surface', () => {
         gmIntervention={{ preview, approve, cancel }}
       />,
     );
-    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
     const original = preview.mock.results[0].value;
     const fingerprint = original.freshness;
     state = { ...state, turn: 2 };
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }));
     expect(
-      screen.getByRole('dialog', { name: 'Set Damage (GM)' }),
+      screen.getByRole('dialog', { name: 'Advance Phase (GM)' }),
     ).toBeVisible();
     expect(
       screen.getByTestId('gm-intervention-approval-issue'),
@@ -166,7 +205,7 @@ describe('TacticalActionDock GM intervention surface', () => {
     expect(approve).toHaveBeenCalledWith(original);
     expect(original.freshness).toBe(fingerprint);
     expect(cancel).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
     expect(cancel).toHaveBeenCalledTimes(1);
     expect(cancel).toHaveBeenCalledWith(original);
     expect(
@@ -204,7 +243,7 @@ describe('TacticalActionDock GM intervention surface', () => {
           }}
         />,
       );
-      fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+      fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
       const name =
         action === 'cancel'
           ? 'Cancel GM intervention preview'
@@ -233,16 +272,16 @@ describe('TacticalActionDock GM intervention surface', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
 
     expect(preview).toHaveBeenCalledWith(
-      expect.objectContaining({ commandId: 'gm.set-damage' }),
+      expect.objectContaining({ commandId: 'gm.advance-phase' }),
     );
     expect(confirmSpy).not.toHaveBeenCalled();
     expect(onAction).not.toHaveBeenCalled();
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Set Damage (GM)',
+      name: 'Advance Phase (GM)',
     });
     expect(dialog).toHaveAttribute('data-gm-preview-status', 'ready');
     expect(
@@ -320,10 +359,10 @@ describe('TacticalActionDock GM intervention surface', () => {
       />,
     );
 
-    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Set Damage (GM)',
+      name: 'Advance Phase (GM)',
     });
     expect(dialog).toHaveAttribute(
       'data-gm-preview-status',

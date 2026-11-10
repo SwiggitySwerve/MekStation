@@ -132,12 +132,26 @@ rules level:4
       expect(result.unit?.rulesLevel).toBe('EXPERIMENTAL');
     });
 
-    it('should default to STANDARD for unknown level', () => {
+    it('should map rules level 5 to UNOFFICIAL', () => {
+      // MtfFile.java:828-902; 15 pinned corpus units declare level 5.
       const mtf = `
 chassis:Atlas
 model:AS7-D
 mass:100
 rules level:5
+`;
+
+      const result = service.parse(mtf);
+
+      expect(result.unit?.rulesLevel).toBe('UNOFFICIAL');
+    });
+
+    it('should default to STANDARD for unknown level', () => {
+      const mtf = `
+chassis:Atlas
+model:AS7-D
+mass:100
+rules level:9
 `;
 
       const result = service.parse(mtf);

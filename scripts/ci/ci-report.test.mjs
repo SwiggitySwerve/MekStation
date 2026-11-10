@@ -6,6 +6,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import { observationEnvelope } from './ci-observation.mjs';
+import { renderReport } from './ci-report-evaluate.mjs';
 import { buildReport, main } from './ci-report.mjs';
 import { extractTestObservation, testObservation } from './ci-test-metrics.mjs';
 
@@ -49,6 +50,66 @@ function apiFixture() {
     };
   };
 }
+
+test('package bytes and signed main deltas are advisory and use proven baselines', async () => {
+  const args = {
+    api: apiFixture(),
+    repository: 'owner/repo',
+    runId: 100,
+    attempt: 2,
+    jobGraph: { tests: [] },
+  };
+  const initial = await buildReport(args);
+  const packages = (standaloneStaticBytes, webZipBytes, installerBytes) => ({
+    web: {
+      metrics: {
+        schema: 'mekstation/ci-package-metrics/v1',
+        unit: 'bytes',
+        standaloneStaticBytes,
+        webZipBytes,
+      },
+    },
+    installers: {
+      metrics: {
+        schema: 'mekstation/ci-package-metrics/v1',
+        unit: 'bytes',
+        kind: 'installers',
+        installerBytes,
+      },
+    },
+  });
+  const source = observationEnvelope(initial.source.observation, {
+    packages: packages(400_148_000, 100_000_000, 200_000_000),
+  });
+  const base = observationEnvelope(initial.baselines[1].observation, {
+    packages: packages(400_000_000, 105_300_000, 200_000_000),
+  });
+  const result = await buildReport({
+    ...args,
+    producer: source,
+    baselineProducers: [base],
+  });
+  assert.equal(result.report.status, initial.report.status);
+  assert.equal(result.report.breach, initial.report.breach);
+  assert.equal(result.report.labelComplete, initial.report.labelComplete);
+  const markdown = renderReport(result.report);
+  assert.match(markdown, /400148000 B.*400000000 B.*\+148000 B/);
+  assert.match(markdown, /100000000 B.*105300000 B.*-5300000 B/);
+  assert.match(markdown, /200000000 B.*200000000 B.*\+0 B/);
+  assert.match(markdown, /99\/2/);
+  const stale = structuredClone(base);
+  stale.observation.identity.headSha = 'b'.repeat(40);
+  const rejected = await buildReport({
+    ...args,
+    producer: source,
+    baselineProducers: [stale],
+  });
+  assert.ok(
+    rejected.report.packages.every(
+      (row) => row.mainMedian === null && row.deltaBytes === null,
+    ),
+  );
+});
 
 test('collector retains failed rerun attempts while medians use successful comparable main', async () => {
   const result = await buildReport({

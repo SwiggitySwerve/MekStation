@@ -72,3 +72,52 @@ Level 5 fallback, SHALL remain unchanged.
 - **GIVEN** an unchanged accepted pure IS or Clan source
 - **WHEN** it is imported with the same dependencies and clock
 - **THEN** its complete typed definition bytes SHALL remain unchanged
+
+### Requirement: Native cockpit headers in MTF export
+
+MTF export SHALL receive typed serialized cockpit and gyro context and emit
+exactly one `cockpit:` line when either cockpit or gyro is non-Standard. Its
+value SHALL be the pinned native cockpit name for the recognized identity.
+The cockpit registry SHALL remain the single owner of the 19 supported
+identities and aliases. Unknown cockpit identities SHALL be refused without
+content while independent export errors remain visible.
+
+This extends the earlier pure-tech byte-preservation requirement only by the
+named cockpit line: all other bytes SHALL remain unchanged. The complete
+Standard-cockpit/Standard-gyro output SHALL remain byte-identical. This
+requirement does not add gyro header output or change persisted JSON/schema.
+
+MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `Mek.java:214-222`
+owns the native names; `:5152-5153` identifies the Standard pair and
+`:5312-5318` writes `MtfFile.COCKPIT` with `getCockpitTypeString()`.
+MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`,
+`UnitUtil.java:2001-2003`, delegates Mek saving to that writer.
+
+#### Scenario: Export every recognized non-Standard cockpit
+
+- **GIVEN** any of the 18 recognized non-Standard cockpit identities
+- **WHEN** the complete MTF exporter receives its serialized tag or supported alias
+- **THEN** the pinned native `cockpit:` header SHALL be emitted exactly once
+- **AND** all bytes outside that line SHALL be preserved
+
+#### Scenario: Standard cockpit with a non-Standard gyro
+
+- **GIVEN** a Standard cockpit paired with a non-Standard gyro
+- **WHEN** the unit is exported as MTF
+- **THEN** its header SHALL include exactly `cockpit:Standard Cockpit`
+- **AND** the complete Standard/Standard pair SHALL continue to omit the line
+
+#### Scenario: Preserve header identity across supported load and save
+
+- **GIVEN** a QuadVee, VRRP, Tripod or Superheavy Tripod cockpit
+- **WHEN** it is loaded, stored, serialized, reopened and exported
+- **THEN** its recognized cockpit identity SHALL determine the emitted header
+- **AND** header correctness SHALL be measured separately from typed cockpit identity on MTF re-import
+- **AND** the existing explicit Mixed chassis context and refusal rules SHALL remain unchanged
+
+#### Scenario: Refuse an unresolved cockpit identity
+
+- **GIVEN** an unknown cockpit identity
+- **WHEN** MTF export is requested
+- **THEN** it SHALL return a cockpit diagnostic without content
+- **AND** independent chassis-context or unsupported-component diagnostics SHALL remain visible

@@ -15,7 +15,6 @@ import {
 } from '@/services/validation/initializeUnitValidation';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
 import {
-  IValidatableUnit,
   IUnitValidationResult,
   UnitValidationSeverity,
   IUnitValidationOptions,
@@ -24,11 +23,7 @@ import { ValidationStatus } from '@/utils/colors/statusColors';
 import { logger } from '@/utils/logger';
 
 import { useDebounce } from './useDebounce';
-import { useArmorValidation } from './validation/useArmorValidation';
-import { useEquipmentValidation } from './validation/useEquipmentValidation';
-import { useStructureValidation } from './validation/useStructureValidation';
-import { useUnitMetadata } from './validation/useUnitMetadata';
-import { useWeightValidation } from './validation/useWeightValidation';
+import { useMechValidationInput } from './validation/useMechValidationInput';
 
 /**
  * Validation results formatted for UI consumption
@@ -121,12 +116,7 @@ export function useUnitValidation(
   const hasInitialized = useRef(false);
   const debounceMs = options?.debounceMs ?? 300;
 
-  // Use focused sub-hooks for validation data
-  const metadata = useUnitMetadata();
-  const weightData = useWeightValidation();
-  const armorData = useArmorValidation();
-  const equipmentData = useEquipmentValidation();
-  const structureData = useStructureValidation();
+  const validatableUnit = useMechValidationInput();
 
   // Initialize validation rules on first mount
   useEffect(() => {
@@ -139,11 +129,7 @@ export function useUnitValidation(
   // Create a snapshot of all validation dependencies
   const validationSnapshot = useMemo(
     () => ({
-      metadata,
-      weightData,
-      armorData,
-      equipmentData,
-      structureData,
+      validatableUnit,
       // Include validation options
       disabled: options?.disabled,
       campaignYear: options?.campaignYear,
@@ -157,11 +143,7 @@ export function useUnitValidation(
       includeInfos: options?.includeInfos,
     }),
     [
-      metadata,
-      weightData,
-      armorData,
-      equipmentData,
-      structureData,
+      validatableUnit,
       options?.disabled,
       options?.campaignYear,
       options?.rulesLevelFilter,
@@ -203,47 +185,9 @@ export function useUnitValidation(
       initializeUnitValidationRules();
     }
 
-    // Extract data from debounced snapshot
-    const { metadata, weightData, armorData, equipmentData, structureData } =
-      debouncedSnapshot;
-
-    // Build validatable unit from sub-hook data
-    const validatableUnit: IValidatableUnit = {
-      id: metadata.id,
-      name: metadata.name,
-      unitType: metadata.unitType,
-      techBase: metadata.techBase,
-      rulesLevel: metadata.rulesLevel,
-      era: metadata.era,
-      introductionYear: metadata.year,
-      extinctionYear: metadata.extinctionYear,
-      weight: weightData.maxWeight,
-      cost: metadata.cost,
-      battleValue: metadata.battleValue,
-      engineType: structureData.engineType,
-      gyroType: structureData.gyroType,
-      cockpitType: structureData.cockpitType,
-      internalStructureType: structureData.internalStructureType,
-      armorType: structureData.armorType,
-      techBaseMode: structureData.techBaseMode,
-      heatSinkCount: structureData.heatSinkCount,
-      heatSinkType: structureData.heatSinkType,
-      totalArmorPoints: armorData.totalArmorPoints,
-      maxArmorPoints: armorData.maxArmorPoints,
-      armorByLocation: armorData.armorByLocation,
-      // Weight validation fields
-      allocatedWeight: weightData.allocatedWeight,
-      maxWeight: weightData.maxWeight,
-      // Slot validation fields
-      slotsByLocation: equipmentData.slotsByLocation,
-      equipmentSlotIssues: equipmentData.equipmentSlotIssues,
-      mountedEquipment: equipmentData.mountedEquipment,
-      equipmentCatalog: equipmentData.equipmentCatalog,
-    };
-
     try {
       // Run validation
-      const result = validateUnit(validatableUnit, {
+      const result = validateUnit(debouncedSnapshot.validatableUnit, {
         campaignYear: debouncedSnapshot.campaignYear,
         rulesLevelFilter: debouncedSnapshot.rulesLevelFilter,
         skipRules: debouncedSnapshot.skipRules,
