@@ -15,6 +15,29 @@ import {
 } from './budget-config.mjs';
 
 const config = loadBudgets();
+test('byte limits are absent and legacy base removal never creates a raise or ratchet', () => {
+  const head = structuredClone(config);
+  const legacy = structuredClone(config);
+  for (const [id, value] of Object.entries({
+    standaloneStaticBytes: 290_000_000,
+    webZipBytes: 92_000_000,
+    installerBytes: 170_000_000,
+  })) {
+    delete head.limits[id];
+    legacy.limits[id] = value;
+  }
+  assert.equal(validateBudgets(head), head);
+  assert.deepEqual(budgetRaises(legacy, head), []);
+  assert.ok(budgetDescriptors(head).every((d) => d.unit !== 'bytes'));
+  assert.throws(() => validateBudgets(legacy));
+  assert.throws(() =>
+    ratchetBudgets(head, [{ id: 'limits.installerBytes', value: 1 }]),
+  );
+  const relaxed = structuredClone(head);
+  relaxed.limits.unkeyableTests++;
+  assert.equal(budgetRaises(legacy, relaxed)[0].id, 'limits.unkeyableTests');
+});
+
 test('schema rejects missing/unknown inputs, nonintegers and timeout bypasses', () => {
   for (const mutate of [
     (c) => {
