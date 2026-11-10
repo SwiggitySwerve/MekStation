@@ -1,8 +1,18 @@
-import { act, cleanup, renderHook } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 
+import { EditorLoadDiagnostics } from '@/components/customizer/shared/UnrecoveredCriticalSlotsNotice';
+import { TargetedSaveUnitDialog } from '@/components/customizer/tabs/MultiUnitTabs';
 import { useDialogHandlers } from '@/components/customizer/tabs/useMultiUnitTabsController.dialogs';
 import { loadUnitIntoTab } from '@/components/customizer/tabs/useMultiUnitTabsController.helpers';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -24,6 +34,7 @@ import {
   hydrateOrCreateUnit,
 } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
+import { UnitStoreContext } from '@/stores/useUnitStore';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { UnitContract } from '@/types/contracts';
@@ -39,7 +50,24 @@ import { getCriticalSlotsForLocation } from '../criticalSlotEquipment';
 import { isDefinitionForFamily } from '../definitionTypes';
 import { mapEquipment } from '../equipmentMapping';
 import { resolveEquipmentId } from '../equipmentResolution';
+import oldMainSaves from './fixtures/old-main-ammo-identity/manifest.json';
 import { unitStateBV as ammoIdentityBV } from './unitStateBV.helpers';
+
+let mockNextOldSaveUUID: string | undefined;
+jest.mock('uuid', () => {
+  const actual = jest.requireActual<typeof import('uuid')>('uuid');
+  return {
+    ...actual,
+    v4: () => {
+      if (mockNextOldSaveUUID) {
+        const value = mockNextOldSaveUUID;
+        mockNextOldSaveUUID = undefined;
+        return value;
+      }
+      return actual.v4();
+    },
+  };
+});
 
 jest.mock('@/components/shared/Toast', () => ({
   useToast: () => ({ showToast: jest.fn() }),
@@ -77,6 +105,12 @@ async function transport(
   }
   const custom = /^\/api\/units\/custom\/([^/]+)$/.exec(pathname);
   if (custom) {
+    if (options.method === 'PUT') {
+      const request = JSON.parse(String(options.body));
+      UnitContract.parse(request.data);
+      const result = repository.update(custom[1], request);
+      return response(result, result.success ? 200 : 400);
+    }
     const record = repository.getById(custom[1]);
     return record
       ? response({ ...record, parsedData: JSON.parse(record.data) })
@@ -146,7 +180,7 @@ function placements(state: UnitState) {
     .sort();
 }
 
-async function saveThroughDialog(loaded: UnitState) {
+async function saveThroughDialog(loaded: UnitState, overwriteId?: string) {
   const hook = renderHook(() =>
     useDialogHandlers(jest.fn(), jest.fn(), (tabId) =>
       useTabManagerStore.getState().tabs.find((tab) => tab.id === tabId),
@@ -157,18 +191,20 @@ async function saveThroughDialog(loaded: UnitState) {
   await act(async () => {
     await hook.result.current.handleSaveDialogSave(
       loaded.chassis,
-      `identity-${loaded.model}`,
+      overwriteId ? loaded.model : `identity-${loaded.model}`,
+      overwriteId,
     );
   });
   hook.unmount();
-  if (!savedId) throw new Error('The save hook did not persist a unit');
-  const record = repository.getById(savedId);
+  const targetId = overwriteId ?? savedId;
+  if (!targetId) throw new Error('The save hook did not persist a unit');
+  const record = repository.getById(targetId);
   if (!record) throw new Error('Missing SQLite row');
   const persisted = UnitContract.parse(JSON.parse(record.data));
   if (!isDefinitionForFamily('battlemechs', persisted)) {
     throw new Error('The saved fixture is not a BattleMech');
   }
-  return { id: savedId, persisted };
+  return { id: targetId, persisted };
 }
 
 beforeAll(async () => {
@@ -179,6 +215,7 @@ beforeAll(async () => {
   expect(getEquipmentRegistry().isReady()).toBe(true);
 });
 beforeEach(() => {
+  mockNextOldSaveUUID = undefined;
   getSQLiteService({ path: ':memory:' }).initialize();
   repository = new UnitRepository();
   savedId = undefined;
@@ -193,6 +230,188 @@ afterEach(() => {
 });
 afterAll(() => {
   global.fetch = originalFetch;
+});
+
+function oldSaveSlotFacts(state: UnitState) {
+  return state.equipment
+    .map((item) =>
+      JSON.stringify([
+        item.equipmentId,
+        item.category,
+        item.techBase,
+        item.location,
+        item.slots,
+        item.splitSlots,
+        item.spreadSlots,
+        item.isRearMounted,
+        item.weight,
+        item.criticalSlots,
+      ]),
+    )
+    .sort();
+}
+
+describe('frozen main-writer old saves', () => {
+  it.each(oldMainSaves.fixtures)(
+    '$catalogId opens without slot changes and stabilizes after the first A overwrite',
+    async (fixture) => {
+      const bytes = readFileSync(
+        resolve(__dirname, 'fixtures/old-main-ammo-identity', fixture.file),
+      );
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+        fixture.sha256,
+      );
+      const raw: unknown = JSON.parse(bytes.toString('utf8'));
+      const definition = UnitContract.parse(raw);
+      if (
+        !isDefinitionForFamily('battlemechs', definition) ||
+        !raw ||
+        typeof raw !== 'object'
+      )
+        throw new Error('Invalid frozen BattleMech document');
+      // Only external UUID creation is fixed, preserving the actual old library
+      // identity and complete JSON bytes while using the real repository.
+      mockNextOldSaveUUID = fixture.libraryId.slice('custom-'.length);
+      const seeded = repository.create({
+        chassis: definition.chassis,
+        variant: definition.model,
+        data: raw as Record<string, unknown>,
+      });
+      if (!seeded.success) throw new Error(JSON.stringify(seeded.error));
+      expect(seeded.data.id).toBe(fixture.libraryId);
+      expect(repository.getById(fixture.libraryId)?.data).toBe(
+        bytes.toString('utf8'),
+      );
+
+      let store = await open(fixture.libraryId, 'custom', fixture.catalogId);
+      let state = store.getState();
+      expect(oldSaveSlotFacts(state)).toEqual(fixture.mainOpen.slots);
+      expect(state.bvContext?.source.criticalSlots).toEqual(
+        fixture.mainOpen.criticalSlots,
+      );
+      expect(ammoIdentityBV(state).bv).toBe(fixture.mainOpen.bv);
+      expect(ammoIdentityBV(state).breakdown?.ammoBV).toBeCloseTo(
+        fixture.mainOpen.ammoBV,
+        7,
+      );
+      expect(state.sourceDefinition).toEqual(fixture.sourceDefinition);
+      expect(state.unrecoveredCriticalSlots).toEqual(
+        fixture.mainOpen.unrecoveredCriticalSlots,
+      );
+      // The original spellings are absent even though the mounted IDs and catalog
+      // link survive. A preserves available evidence; it does not repair old saves.
+      for (const cell of fixture.nativeAmmoCells) {
+        expect(bytes.toString('utf8')).not.toContain(cell.native);
+        expect(definition.equipment).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: cell.equipmentId,
+              location: cell.location,
+              slots: [cell.slot],
+            }),
+          ]),
+        );
+      }
+
+      const view = render(
+        <UnitStoreContext.Provider value={store}>
+          <EditorLoadDiagnostics />
+          <TargetedSaveUnitDialog
+            isOpen
+            currentUnitId={state.id}
+            initialChassis={state.chassis}
+            initialVariant={state.model}
+            onSave={jest.fn()}
+            onCancel={jest.fn()}
+          />
+        </UnitStoreContext.Provider>,
+      );
+      await waitFor(
+        () =>
+          expect(
+            screen.queryByRole('button', { name: 'Overwrite' }),
+          ).not.toBeNull(),
+        { timeout: 15000 },
+      );
+      await waitFor(
+        () =>
+          expect(
+            screen.queryByText('Checking construction readiness...'),
+          ).toBeNull(),
+        { timeout: 15000 },
+      );
+      const notice = screen.queryByRole('note', {
+        name: 'Critical-slot entries lost on save',
+      });
+      expect(notice).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Save anyway' })).toBeNull();
+      const dialog = screen.getByRole('dialog');
+      expect(dialog.textContent).toBe(
+        `Save UnitChassis NameVariant DesignationSuggestConflicts with existing custom unitFull Unit Name:${state.chassis} ${state.model}CancelOverwrite`,
+      );
+      expect(
+        within(dialog)
+          .getByRole('button', { name: 'Overwrite' })
+          .hasAttribute('disabled'),
+      ).toBe(false);
+      const ui = {
+        editorNotice: notice?.textContent ?? null,
+        dialogText: dialog.textContent,
+        buttons: within(dialog)
+          .getAllByRole('button')
+          .map((button) => ({
+            text: button.textContent,
+            disabled: button.hasAttribute('disabled'),
+          })),
+      };
+      view.unmount();
+
+      let firstBytes: string | undefined;
+      const hashes: string[] = [];
+      for (let cycle = 0; cycle < 3; cycle++) {
+        await saveThroughDialog(state, fixture.libraryId);
+        const saved = repository.getById(fixture.libraryId)?.data;
+        if (!saved) throw new Error('Missing overwritten SQLite document');
+        // The only first-overwrite difference is the existing library-ID adoption.
+        // In particular the old unmarked ammo cells are not silently reconstructed.
+        expect(saved).toBe(JSON.stringify({ ...raw, id: fixture.libraryId }));
+        if (firstBytes === undefined) firstBytes = saved;
+        expect(saved).toBe(firstBytes);
+        hashes.push(createHash('sha256').update(saved).digest('hex'));
+        clearAllStores(true);
+        useTabManagerStore.setState({ tabs: [], activeTabId: null });
+        store = await open(fixture.libraryId, 'custom', fixture.catalogId);
+        state = store.getState();
+        expect(oldSaveSlotFacts(state)).toEqual(fixture.mainOpen.slots);
+        expect(ammoIdentityBV(state).bv).toBe(fixture.mainOpen.bv);
+        expect(ammoIdentityBV(state).breakdown?.ammoBV).toBeCloseTo(
+          fixture.mainOpen.ammoBV,
+          7,
+        );
+      }
+      expect(new Set(hashes).size).toBe(1);
+      expect(hashes[0]).toBe(
+        {
+          'sentinel-stn-3l':
+            '4c3d0f5c0538bf1b38a11c7f1f8185368749f5366b7c6963b4c01e700b84726b',
+          'warhammer-whm-6r':
+            '725ff0f4d8b510704f7281eb090999a4b4319e3aed1038d4f3096abc570ab6ba',
+        }[fixture.catalogId],
+      );
+      console.info(
+        'OLD_SAVE_PROOF',
+        JSON.stringify({
+          catalogId: fixture.catalogId,
+          oldSha: fixture.sha256,
+          hashes,
+          ui,
+          slotsChanged: [],
+          bv: ammoIdentityBV(state).bv,
+          ammo: ammoIdentityBV(state).breakdown?.ammoBV,
+        }),
+      );
+    },
+  );
 });
 
 // Native equipment on a Mixed chassis retains its own technology:
