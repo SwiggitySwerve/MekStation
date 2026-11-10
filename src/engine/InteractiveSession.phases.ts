@@ -140,6 +140,7 @@ function lockStragglers(
     const u = next.currentState.units[unitId];
     if (
       u.lockState !== LockState.Locked &&
+      u.lockState !== LockState.Revealed &&
       u.lockState !== LockState.Resolved
     ) {
       next = lock(next, unitId);
