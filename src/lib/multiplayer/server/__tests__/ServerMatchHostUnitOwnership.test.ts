@@ -232,7 +232,7 @@ describe('ServerMatchHost unit ownership', () => {
     const foreign = await move('pB', 'unit-A2');
     expect(
       foreign.frames.some(
-        (f) => f.kind === 'Error' && f.code === 'AUTH_REJECTED',
+        (f) => f.kind === 'Error' && f.code === 'INVALID_INTENT',
       ),
     ).toBe(true);
     // And it must not have moved: refusing loudly while committing anyway
