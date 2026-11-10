@@ -13,7 +13,6 @@
 
 import {
   CombatRole,
-  AtBMoraleLevel,
   AtBScenarioType,
 } from '@/types/campaign/scenario/scenarioTypes';
 
@@ -573,41 +572,15 @@ describe('selectTrainingScenario', () => {
 describe('selectScenarioType', () => {
   describe('Maneuver role routing', () => {
     it('should route to selectManeuverScenario for MANEUVER role', () => {
-      const result = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.5),
-      );
+      const result = selectScenarioType(CombatRole.MANEUVER, seededRandom(0.5));
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
-    });
-
-    it('should apply morale modifier to roll for MANEUVER role', () => {
-      // STALEMATE = 0 modifier, so roll should be unmodified
-      const result1 = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.5),
-      );
-      expect(result1.scenarioType).toBeDefined();
-
-      // OVERWHELMING = -14 modifier, so roll should be reduced
-      const result2 = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.OVERWHELMING,
-        seededRandom(0.5),
-      );
-      expect(result2.scenarioType).toBeDefined();
     });
   });
 
   describe('Patrol role routing', () => {
     it('should route to selectPatrolScenario for PATROL role', () => {
-      const result = selectScenarioType(
-        CombatRole.PATROL,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.5),
-      );
+      const result = selectScenarioType(CombatRole.PATROL, seededRandom(0.5));
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
@@ -617,7 +590,6 @@ describe('selectScenarioType', () => {
     it('should route to selectFrontlineScenario for FRONTLINE role', () => {
       const result = selectScenarioType(
         CombatRole.FRONTLINE,
-        AtBMoraleLevel.STALEMATE,
         seededRandom(0.5),
       );
       expect(result.scenarioType).toBeDefined();
@@ -627,11 +599,7 @@ describe('selectScenarioType', () => {
 
   describe('Training role routing', () => {
     it('should route to selectTrainingScenario for TRAINING role', () => {
-      const result = selectScenarioType(
-        CombatRole.TRAINING,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.5),
-      );
+      const result = selectScenarioType(CombatRole.TRAINING, seededRandom(0.5));
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
@@ -639,73 +607,32 @@ describe('selectScenarioType', () => {
 
   describe('Cadre role routing', () => {
     it('should route to selectTrainingScenario for CADRE role (same table)', () => {
-      const result = selectScenarioType(
-        CombatRole.CADRE,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.5),
-      );
+      const result = selectScenarioType(CombatRole.CADRE, seededRandom(0.5));
       expect(result.scenarioType).toBeDefined();
       expect([true, false]).toContain(result.isAttacker);
     });
   });
 
-  describe('Morale modifier integration', () => {
-    it('should apply ROUTED morale modifier (+16)', () => {
-      const result = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.ROUTED,
-        seededRandom(0.5),
-      );
-      expect(result.scenarioType).toBeDefined();
-    });
-
-    it('should apply OVERWHELMING morale modifier (-14)', () => {
-      const result = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.OVERWHELMING,
-        seededRandom(0.5),
-      );
-      expect(result.scenarioType).toBeDefined();
-    });
-
-    it('should clamp modified roll to minimum 1', () => {
-      // With OVERWHELMING morale (-14) and low random, roll should clamp to 1
-      const result = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.OVERWHELMING,
-        seededRandom(0.01),
-      );
-      expect(result.scenarioType).toBeDefined();
-    });
-  });
-
-  describe('All morale levels', () => {
-    it('should work with all 7 morale levels', () => {
-      const moraleValues = Object.values(AtBMoraleLevel);
+  describe('All roles', () => {
+    it('should work with every role that has a table', () => {
       const roles = [
         CombatRole.MANEUVER,
         CombatRole.PATROL,
         CombatRole.FRONTLINE,
         CombatRole.TRAINING,
+        CombatRole.CADRE,
       ];
-
-      moraleValues.forEach((morale) => {
-        roles.forEach((role) => {
-          const result = selectScenarioType(role, morale, seededRandom(0.5));
-          expect(result.scenarioType).toBeDefined();
-          expect(typeof result.isAttacker).toBe('boolean');
-        });
+      roles.forEach((role) => {
+        const result = selectScenarioType(role, seededRandom(0.5));
+        expect(result.scenarioType).toBeDefined();
+        expect(typeof result.isAttacker).toBe('boolean');
       });
     });
   });
 
   describe('Edge cases', () => {
     it('should handle random value of 0.0', () => {
-      const result = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.0),
-      );
+      const result = selectScenarioType(CombatRole.MANEUVER, seededRandom(0.0));
       expect(result.scenarioType).toBeDefined();
       expect(typeof result.isAttacker).toBe('boolean');
     });
@@ -713,7 +640,6 @@ describe('selectScenarioType', () => {
     it('should handle random value of 0.99', () => {
       const result = selectScenarioType(
         CombatRole.MANEUVER,
-        AtBMoraleLevel.STALEMATE,
         seededRandom(0.99),
       );
       expect(result.scenarioType).toBeDefined();
@@ -721,11 +647,7 @@ describe('selectScenarioType', () => {
     });
 
     it('should return readonly IScenarioTypeResult', () => {
-      const result = selectScenarioType(
-        CombatRole.MANEUVER,
-        AtBMoraleLevel.STALEMATE,
-        seededRandom(0.5),
-      );
+      const result = selectScenarioType(CombatRole.MANEUVER, seededRandom(0.5));
       expect(Object.isFrozen(result) || !Object.isExtensible(result)).toBe(
         true,
       );

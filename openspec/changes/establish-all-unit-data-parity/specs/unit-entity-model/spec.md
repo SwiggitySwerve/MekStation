@@ -300,8 +300,8 @@ and `TechConstants.java:104-106`; MegaMekLab `62bf193` `UnitUtil.java:2001-2002`
 Both MTF importers SHALL preserve explicit per-location structure types in the
 optional `structure.typeByLocation` map alongside existing donor tonnages.
 Canonical structure identities and location names SHALL share schema definitions.
-An absent map SHALL preserve legacy global-structure behavior; old documents
-SHALL remain readable without adding inferred donor types.
+SHALL retain global-structure calculation when the donor-type map is absent.
+SHALL read old documents without adding inferred donor types.
 
 #### Scenario: Typed donors cross the import boundary
 
@@ -354,7 +354,7 @@ construction validity before the section-weighted mass rule is enabled.
 - **GIVEN** a global-only, tonnage-only or explicitly empty donor-type map
 - **WHEN** loaded, saved and reopened
 - **THEN** the type map SHALL NOT be inferred or removed
-- **AND** existing global mass arithmetic SHALL remain unchanged
+- **AND** SHALL retain legacy global mass arithmetic until the native mass rule is enabled
 
 ### Requirement: Consistent structure calculation context
 
@@ -382,3 +382,37 @@ until the section-weighted mass rule is enabled separately.
 - **WHEN** the context-forwarding change is applied without enabling the native mass rule
 - **THEN** component weights, Battle Value and construction validity SHALL remain unchanged
 - **AND** absent donor metadata SHALL remain absent
+
+### Requirement: Native configuration-aware structure mass
+
+SHALL calculate BattleMech structure mass in the existing owning module using
+pinned MegaMek 48fcb2f64 `Structure.java:65-108`, `TestMek.java:118-139` and
+`Mek.java:1052-1060`. SHALL apply the material-specific superheavy divisors and
+tripod multiplier before rounding each full structure mass upward to half a ton.
+SHALL use donor tonnage, rather than host tonnage, to classify a donor as superheavy.
+
+#### Scenario: Native section order and two rounding stages
+
+- **GIVEN** an explicit `typeByLocation` map, including an empty map
+- **WHEN** calculating structure mass
+- **THEN** SHALL accumulate rounded full donor masses multiplied by their native fractions in HEAD, CENTER_TORSO, RIGHT_TORSO, LEFT_TORSO, RIGHT_ARM, LEFT_ARM, RIGHT_LEG, LEFT_LEG order
+- **AND** SHALL round the accumulated sum upward to half a ton without reassociation, epsilon or fraction normalization
+- **AND** SHALL use effective configuration locations and native quad limb aliases, with no extra share for the tripod center leg
+
+#### Scenario: Native donor defaults and legacy documents
+
+- **GIVEN** a typed donor, omitted donor type or old document without `typeByLocation`
+- **WHEN** calculating structure mass
+- **THEN** SHALL use declared donor type and tonnage for typed entries, and initialized host defaults for omitted entries
+- **AND** SHALL retain the accepted Clan Endo-Composite donor identity without changing legacy global identity mapping
+- **AND** SHALL use the same native full-mass owner for global and donor calculations, defaulting absent configuration to Biped without enabling donor weighting
+- **AND** SHALL store no separate structure-mass multiplier in material metadata
+- **AND** SHALL distinguish ignored scalar Hybrid tonnages from explicit scalar Standard donors
+
+#### Scenario: Drizella mass survives editing and storage
+
+- **GIVEN** Drizella with its explicit native donor facts
+- **WHEN** loaded, calculated by each editor consumer, saved, cold reopened, duplicated or restored by undo
+- **THEN** SHALL retain its native structure mass of 3.5 tons and loaded total mass of 50 tons
+- **AND** SHALL refresh native mass after a donor-only edit and restore the previous mass through undo and redo
+- **AND** SHALL retain absent metadata when undo returns a legacy unit to its original state
