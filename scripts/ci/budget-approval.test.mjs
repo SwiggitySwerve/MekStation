@@ -12,6 +12,7 @@ function fixture() {
     root: { lockEntries: 1, directDependencies: 1 },
     desktop: { lockEntries: 1, directDependencies: 1 },
   };
+  const budgets = { base: null, head: config };
   const pull = {
     number: 1,
     head: { sha: 'a'.repeat(40) },
@@ -30,13 +31,19 @@ function fixture() {
           data: { owner: { login: 'owner', type: 'User', id: 1 } },
         }),
         getContent: async ({ path, ref }) => {
-          if (path === 'config/ci/budgets.json' && ref === pull.base.sha)
+          if (
+            path === 'config/ci/budgets.json' &&
+            ref === pull.base.sha &&
+            budgets.base === null
+          )
             throw Object.assign(new Error('Missing initial baseline'), {
               status: 404,
             });
           const data =
             path === 'config/ci/budgets.json'
-              ? config
+              ? ref === pull.base.sha
+                ? budgets.base
+                : budgets.head
               : path.endsWith('package-lock.json')
                 ? lock
                 : manifest;
@@ -94,8 +101,123 @@ function fixture() {
     },
     paginate: async () => [],
   };
-  return { github, pull, statuses };
+  return { github, pull, statuses, budgets };
 }
+
+test('legacy byte fields on the PR head are allowed with no raise or status writes', async () => {
+  for (const [onBase, onHead] of [
+    [false, true],
+    [true, false],
+    [true, true],
+  ]) {
+    const f = fixture();
+    f.budgets.base = structuredClone(f.budgets.head);
+    for (const config of [
+      ...(onBase ? [f.budgets.base] : []),
+      ...(onHead ? [f.budgets.head] : []),
+    ]) {
+      Object.assign(config.limits, {
+        standaloneStaticBytes: 290_000_000,
+        webZipBytes: 92_000_000,
+        installerBytes: 170_000_000,
+      });
+    }
+    if (onBase && onHead) f.budgets.head.limits.installerBytes++;
+    const result = await checkBudgetPolicy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      publish: false,
+    });
+    assert.equal(result.allowed, true, result.message);
+    assert.equal(result.code, 'no-raise');
+    assert.deepEqual(f.statuses, []);
+  }
+});
+
+test('legacy fields cannot mask unknown fields or a count raise requiring approval', async () => {
+  for (const side of ['base', 'head']) {
+    const f = fixture();
+    f.budgets.base = structuredClone(f.budgets.head);
+    f.budgets.head.limits.standaloneStaticBytes = 290_000_000;
+    f.budgets[side].limits.fooBytes = 1;
+    const result = await checkBudgetPolicy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      publish: false,
+    });
+    assert.equal(result.allowed, false);
+    assert.equal(result.code, 'invalid-budget');
+  }
+  const f = fixture();
+  f.pull.user = { id: 2, login: 'contributor' };
+  f.budgets.base = structuredClone(f.budgets.head);
+  Object.assign(f.budgets.head.limits, {
+    standaloneStaticBytes: 290_000_000,
+    webZipBytes: 92_000_000,
+    installerBytes: 170_000_000,
+    repoWideKeys: f.budgets.base.limits.repoWideKeys + 1,
+  });
+  const args = {
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    publish: false,
+  };
+  assert.equal((await checkBudgetPolicy(args)).code, 'missing-label');
+  f.pull.labels.push({ name: 'ci-budget-raise' });
+  assert.equal((await checkBudgetPolicy(args)).code, 'owner-approval-required');
+  f.github.paginate = async () => [
+    {
+      id: 1,
+      user: { id: 1, login: 'owner', type: 'User' },
+      state: 'APPROVED',
+      commit_id: f.pull.head.sha,
+      submitted_at: '2026-11-01T00:00:00Z',
+    },
+  ];
+  assert.equal((await checkBudgetPolicy(args)).code, 'owner-approved');
+  assert.deepEqual(f.statuses, []);
+});
+
+test('owner-authored legacy byte-limit removal needs no size label or approval', async () => {
+  const f = fixture();
+  f.pull.user = { id: 1, login: 'owner' };
+  const read = f.github.rest.repos.getContent;
+  f.github.rest.repos.getContent = async (request) => {
+    if (
+      request.path === 'config/ci/budgets.json' &&
+      request.ref === f.pull.base.sha
+    ) {
+      const head = await read({ ...request, ref: f.pull.head.sha });
+      const legacy = JSON.parse(Buffer.from(head.data.content, 'base64'));
+      Object.assign(legacy.limits, {
+        standaloneStaticBytes: 290000000,
+        webZipBytes: 92000000,
+        installerBytes: 170000000,
+      });
+      return {
+        data: {
+          encoding: 'base64',
+          content: Buffer.from(JSON.stringify(legacy)).toString('base64'),
+        },
+      };
+    }
+    return read(request);
+  };
+  const result = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(f.statuses.at(-1).state, 'success');
+});
 
 test('draft to ready retains successful required statuses on the same exact head and primary suite', async () => {
   const f = fixture();

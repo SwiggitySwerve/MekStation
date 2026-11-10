@@ -174,3 +174,38 @@ one-shot, Streak and ordinary LRM 5/10/15/20 records SHALL remain unchanged.
 - **AND** the twenty remaining resolved-name disagreements and 56 compatibility spellings with combat data but unresolved BV SHALL receive no parity credit
 - **AND** those disagreement counts describe the Compendium adapter's resolution only; the simulation runner's raw catalog lookup (`UnitHydrationCatalogLookup`) is a separate path that can resolve some of the same names the other way, so the counts SHALL NOT be read as a statement about the runner, and no corpus unit uses these names
 - **AND** legacy explicit IDs, unresolved alias differences, ammo quantities, mount legality, full combat/BV and production workflows SHALL remain separately accounted for
+
+### Requirement: Optional native technology references in equipment contracts
+
+SHALL allow optional `nativeTechnologyNames` on weapon, ammunition, electronics,
+miscellaneous-equipment and physical-weapon catalog records.
+SHALL define the reference list once in the shared technology-advancement JSON
+Schema and reuse it through local cross-language schema references.
+SHALL require a present list to contain at least one unique, nonempty string.
+SHALL preserve reference order, case, punctuation and whitespace without defaults,
+native-identity resolution, side inference or derived legality during parsing.
+SHALL preserve existing field constraints and reject embedded
+`technologyAdvancements` on equipment records.
+SHALL keep unit-document and recorded-combat construction contracts unchanged
+in this equipment-contract opt-in.
+
+#### Scenario: Legacy records and exact native references
+
+- **GIVEN** a valid equipment record, with or without an explicit native reference list
+- **WHEN** the Python schema gate and generated Zod contract parse the record
+- **THEN** both SHALL retain all supplied values and the reference list's exact order and spelling
+- **AND** an omitted reference list SHALL remain omitted without inferring a technology side or legality result
+- **AND** the existing binary `techBase` field SHALL retain its previous contract
+
+#### Scenario: Reject malformed metadata without weakening existing validation
+
+- **GIVEN** an empty list, duplicate name, empty name, nonstring entry, null, scalar or embedded fact map
+- **WHEN** either language validates `nativeTechnologyNames`
+- **THEN** validation SHALL fail
+- **AND** missing existing required fields, unknown properties and embedded `technologyAdvancements` SHALL remain invalid
+
+#### Scenario: Equipment metadata does not widen recorded construction
+
+- **WHEN** the five equipment contracts opt in to native references
+- **THEN** the unit document contract SHALL remain byte-identical
+- **AND** recorded BattleMech construction SHALL retain its existing 21-key shape and strict validation

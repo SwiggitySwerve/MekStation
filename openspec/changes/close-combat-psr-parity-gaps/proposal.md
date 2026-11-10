@@ -48,6 +48,8 @@ no longer queues rubble or ice PSRs.
 
 C-1a: no schema-pack, payload or persisted-format change. The runner now queues one running-with-damage PSR per move instead of one hip PSR per forward step plus a separate gyro PSR, and none for a destroyed-leg hip or a first heavy-duty gyro hit. Interactive, AI, engine and P2P movement queue the same PSR, which they did not before. `RunningDamagedHip` and `RunningDamagedGyro` keep their factories and reason codes.
 
+C-1b: no schema-pack, payload or persisted-format change. The standalone runner no longer queues `controlled_sideslip` or `flanking_and_turning` PSRs for BattleMechs; interactive, AI, engine and P2P movement never did, which matches the pin. `ControlledSideslip` and `FlankingAndTurning` stay in `PSRTrigger` with their factories and the Maneuvering Ace relief, so older journals and replays parse and resolve as before. Four catalog rows move to out of scope: two PSR trigger rows and two Maneuvering Ace producer-application rows (out-of-scope inventory 151 to 155, leaf 148 to 152, `lifecycleAndPsr` 4 to 6, `pilotSkills` 9 to 11). Removing those PSRs removes their dice, so the runner's seeded stream shifts and the CI-sized (N=5) asymmetric dominance ceiling in `swarm-pilot-skills-batch.test.ts` moves behind `statisticalIt`. The only committed values that move are D-8's `replayScope` characterization pins (re-pinned in the PR); no digest, golden or other fixture moves.
+
 ## Non-goals
 
 - The post-phase PSR drain timing (MegaMek resolves after Movement, Firing and
