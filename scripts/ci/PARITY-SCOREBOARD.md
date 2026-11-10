@@ -31,9 +31,14 @@ licensing.
 
 ## Execution contract
 
-The pipeline must exit 0. Detailed exits 0 and 1 both mean the census ran;
-other exits, signals, spawn errors, missing outputs and rejected reference trust
-fail the job. Parity differences do not fail this workflow. The runner rejects
+The local default preserves C1's pipeline exit-0 guard. The workflow explicitly
+passes `--report-mode`: pipeline exits 0/1 count as ran only with complete sources,
+aggregate report and aggregate rows (9,815 rows each), the full expected family
+inventory, successful reference trust and the pipeline's final `execution.json`
+completion marker. Stale completion evidence is removed before execution. Exit
+1 alone cannot establish completion. Exits >=2, signals and spawn errors fail.
+Detailed exits 0 and 1 both mean the census ran; missing outputs and rejected
+reference trust fail the job. Parity differences do not fail this workflow. The runner rejects
 a dirty target, the wrong reference or sidecar, and changes to HEAD, tree, policy
 or reference during execution. Runtime logs and provenance record each subprocess.
 
@@ -49,7 +54,8 @@ The workflow never supplies it. Committed-catalog comparisons are out of scope.
 
 ## Artifacts and baseline
 
-`parity-scoreboard-reports` retains `RESULTS.json`, the detailed reports, runtime
+`parity-scoreboard-reports` retains `RESULTS.json`, the aggregate report and
+completion marker, the detailed reports, runtime
 provenance/logs, `scoreboard-diff.json`, `scoreboard-row-index.json` and the summary
 for 30 days. `parity-scoreboard-rows` retains gzipped detailed rows and
 `sources.ndjson` for 14 days.

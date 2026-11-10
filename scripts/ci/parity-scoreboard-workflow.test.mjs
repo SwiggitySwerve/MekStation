@@ -45,6 +45,13 @@ test('scoreboard is main-push/dispatch only, read-only, coalesced, and bounded',
     [30, 14],
   );
   assert.ok(!steps.some((step) => step['continue-on-error']));
+  assert.ok(
+    steps.some(
+      (step) =>
+        /parity-scoreboard\.mjs.*run/.test(step.run ?? '') &&
+        /--report-mode/.test(step.run),
+    ),
+  );
 });
 
 test('scoreboard is classified outside the PR census and required aggregator', () => {

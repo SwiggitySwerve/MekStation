@@ -10,6 +10,8 @@ import { gzipSync } from 'node:zlib';
 import {
   assertClean,
   assertDetailedRan,
+  assertPipelineRan,
+  clearCensusOutputs,
   prepareReference,
   readCensusResults,
   verifySha256,
@@ -44,6 +46,117 @@ test('only detailed exits 0 and 1 mean ran; errors, signals and exit 2 fail', ()
     { status: 1, signal: 'SIGTERM' },
   ])
     assert.throws(() => assertDetailedRan(result), /Detailed execution failed/);
+});
+
+const pipelineFixture = (out) => {
+  const rows = ['one', 'two'].map((name) => ({
+    path: `meks/${name}.mtf`,
+    sha256: 'a'.repeat(64),
+    family: 'battlemechs',
+  }));
+  const write = (name, value) =>
+    fs.writeFileSync(path.join(out, name), JSON.stringify(value));
+  const lines = rows.map((row) => JSON.stringify(row)).join('\n') + '\n';
+  fs.writeFileSync(path.join(out, 'sources.ndjson'), lines);
+  fs.writeFileSync(path.join(out, 'delta-rows.jsonl'), lines);
+  write('delta-report.json', {
+    ok: false,
+    byFamily: { battlemechs: { rows: 2 } },
+  });
+  write('reference-provenance-report.json', { ok: true });
+  write('execution.json', {
+    cacheEnabled: false,
+    families: [{ family: 'battlemechs', production: 'fresh' }],
+  });
+  return {
+    reportMode: true,
+    out,
+    expectedRows: 2,
+    expectedFamilies: ['battlemechs'],
+  };
+};
+
+test('report mode accepts pipeline exit 1 only with complete outputs; local default stays strict', (t) => {
+  const options = pipelineFixture(temporary(t));
+  assert.doesNotThrow(() => assertPipelineRan({ status: 1 }, options));
+  assert.doesNotThrow(() =>
+    assertPipelineRan({ status: 0 }, { ...options, reportMode: false }),
+  );
+  assert.throws(
+    () => assertPipelineRan({ status: 1 }, { ...options, reportMode: false }),
+    /Aggregate pipeline failed/,
+  );
+  for (const result of [
+    { status: 2 },
+    { status: null },
+    { status: 1, signal: 'SIGTERM' },
+    { status: 1, error: new Error('crash') },
+  ])
+    assert.throws(
+      () => assertPipelineRan(result, options),
+      /Aggregate pipeline failed/,
+    );
+  assert.equal(
+    JSON.parse(fs.readFileSync('config/reference/parity-scoreboard.json'))
+      .reference.rows,
+    9815,
+  );
+});
+
+test('report mode refuses pipeline exit 1 with missing or partial completed outputs', (t) => {
+  const out = temporary(t);
+  for (const name of [
+    'sources.ndjson',
+    'delta-report.json',
+    'delta-rows.jsonl',
+    'execution.json',
+    'reference-provenance-report.json',
+  ]) {
+    const options = pipelineFixture(out);
+    fs.unlinkSync(path.join(out, name));
+    assert.throws(
+      () => assertPipelineRan({ status: 1 }, options),
+      /Aggregate pipeline incomplete/,
+      name,
+    );
+  }
+  for (const [name, value] of [
+    ['sources.ndjson', '{"path":"one"}\n'],
+    ['sources.ndjson', 'invalid JSON\n'],
+    ['delta-rows.jsonl', '{"path":"one"}\n'],
+    ['delta-report.json', '{"ok":false,"byFamily":{"battlemechs":{"rows":1}}}'],
+    ['execution.json', '{"cacheEnabled":false,"families":[]}'],
+    ['reference-provenance-report.json', '{"ok":false}'],
+  ]) {
+    const options = pipelineFixture(out);
+    fs.writeFileSync(path.join(out, name), value);
+    assert.throws(
+      () => assertPipelineRan({ status: 1 }, options),
+      /Aggregate pipeline incomplete/,
+      name,
+    );
+  }
+});
+
+test('reusing an output label removes stale completion evidence before execution', (t) => {
+  const out = temporary(t);
+  pipelineFixture(out);
+  fs.mkdirSync(path.join(out, 'terms'));
+  fs.writeFileSync(path.join(out, 'terms/delta-report.json'), '{}');
+  fs.writeFileSync(path.join(out, 'RESULTS.json'), '{}');
+  fs.writeFileSync(path.join(out, 'notes.txt'), 'keep');
+  clearCensusOutputs(out);
+  for (const name of [
+    'execution.json',
+    'sources.ndjson',
+    'delta-report.json',
+    'delta-rows.jsonl',
+    'reference-provenance-report.json',
+    'RESULTS.json',
+    'terms/delta-report.json',
+  ])
+    assert.equal(fs.existsSync(path.join(out, name)), false, name);
+  assert.equal(fs.readFileSync(path.join(out, 'notes.txt'), 'utf8'), 'keep');
 });
 
 test('SHA verification rejects altered bytes', () => {

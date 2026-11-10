@@ -1,5 +1,6 @@
 {
   "reference": {
+    "rows": 9815,
     "file": "reference-full.jsonl.gz",
     "gzipSha256": "bb1c1bf38eedf821ddd665a441c9c949a1ae255ceecfebc81d6fa2ed5cff0f77",
     "sha256": "4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87",

@@ -72,6 +72,98 @@ export function assertDetailedRan(result) {
     );
 }
 
+function verifyPipelineCompletion(out, expectedRows, expectedFamilies) {
+  try {
+    if (
+      !Number.isSafeInteger(expectedRows) ||
+      expectedRows < 1 ||
+      !Array.isArray(expectedFamilies) ||
+      !expectedFamilies.length
+    )
+      throw new Error('Missing expected corpus inventory');
+    const sources = readRows(path.join(out, 'sources.ndjson'));
+    const rows = readRows(path.join(out, 'delta-rows.jsonl'));
+    for (const items of [sources, rows]) {
+      if (
+        items.length !== expectedRows ||
+        items.some((row) => typeof row?.path !== 'string' || !row.path) ||
+        new Set(items.map((row) => row.path)).size !== expectedRows
+      )
+        throw new Error('Missing, partial or duplicate corpus rows');
+    }
+    const report = readJson(path.join(out, 'delta-report.json'));
+    const execution = readJson(path.join(out, 'execution.json'));
+    const families = [...expectedFamilies].sort();
+    if (
+      typeof report.ok !== 'boolean' ||
+      !report.byFamily ||
+      JSON.stringify(Object.keys(report.byFamily).sort()) !==
+        JSON.stringify(families)
+    )
+      throw new Error('Aggregate family inventory incomplete');
+    let total = 0;
+    for (const family of families) {
+      const count = report.byFamily[family]?.rows;
+      if (
+        !Number.isSafeInteger(count) ||
+        count < 0 ||
+        rows.filter((row) => row.family === family).length !== count
+      )
+        throw new Error('Aggregate family row count incomplete');
+      total += count;
+    }
+    if (total !== expectedRows) throw new Error('Aggregate total incomplete');
+    if (
+      execution.cacheEnabled !== false ||
+      !Array.isArray(execution.families) ||
+      execution.families.some((entry) => entry.production !== 'fresh') ||
+      JSON.stringify(execution.families.map((entry) => entry.family).sort()) !==
+        JSON.stringify(families)
+    )
+      throw new Error('Pipeline completion marker incomplete');
+    if (
+      readJson(path.join(out, 'reference-provenance-report.json')).ok !== true
+    )
+      throw new Error('Reference trust rejected');
+  } catch (error) {
+    throw new Error(`Aggregate pipeline incomplete: ${error.message}`, {
+      cause: error,
+    });
+  }
+}
+
+export function assertPipelineRan(
+  result,
+  { reportMode = false, out, expectedRows, expectedFamilies } = {},
+) {
+  if (
+    result.error ||
+    result.signal ||
+    !(reportMode ? [0, 1] : [0]).includes(result.status)
+  )
+    throw new Error('Aggregate pipeline failed');
+  // The pipeline writes execution.json only after all families, sources and the
+  // aggregate report have completed. Exit 1 alone also represents crashes.
+  if (reportMode) verifyPipelineCompletion(out, expectedRows, expectedFamilies);
+}
+
+export function clearCensusOutputs(out) {
+  fs.mkdirSync(path.join(out, 'terms'), { recursive: true });
+  for (const name of [
+    'RESULTS.json',
+    'sources.ndjson',
+    'execution.json',
+    'scoreboard-row-index.json',
+    'scoreboard-diff.json',
+    'scoreboard-summary.md',
+    ...REPORT_FILES,
+    ...REPORT_FILES.map((file) => path.join('terms', file)),
+  ]) {
+    const file = path.join(out, name);
+    if (fs.existsSync(file)) fs.unlinkSync(file);
+  }
+}
+
 // Preserve C1's category grouping, optional-total equality, ordering and counters.
 export function tallyBv(rows) {
   const category = (term) => {
@@ -206,7 +298,15 @@ export function readCensusResults(out, run) {
   };
 }
 
-export function runCensus({ root, out, reference, mekfiles, python, extra }) {
+export function runCensus({
+  root,
+  out,
+  reference,
+  mekfiles,
+  python,
+  extra,
+  reportMode = false,
+}) {
   const config = readJson(manifestFile);
   root = path.resolve(root);
   out = path.resolve(out);
@@ -239,21 +339,15 @@ export function runCensus({ root, out, reference, mekfiles, python, extra }) {
       config.compatibilityExtra.sha256,
       'W2 extra',
     );
-  fs.mkdirSync(out, { recursive: true });
   // Reusing a label is allowed, but never let stale successful files mask a crash.
-  fs.mkdirSync(path.join(out, 'terms'), { recursive: true });
-  for (const name of REPORT_FILES) {
-    const file = path.join(out, 'terms', name);
-    if (fs.existsSync(file)) fs.unlinkSync(file);
-  }
-  if (fs.existsSync(path.join(out, 'RESULTS.json')))
-    fs.unlinkSync(path.join(out, 'RESULTS.json'));
+  clearCensusOutputs(out);
   const policy = 'config/reference-policy/expected-reference-policy.json';
   const run = {
     started: new Date().toISOString(),
     head: git(root, 'rev-parse', 'HEAD'),
     tree: git(root, 'rev-parse', 'HEAD^{tree}'),
     node: process.version,
+    reportMode,
     python,
     pythonVersion: execFileSync(python, ['--version'], {
       encoding: 'utf8',
@@ -336,8 +430,21 @@ export function runCensus({ root, out, reference, mekfiles, python, extra }) {
       '--verify-hits',
       '1',
     ]);
-    if (pipeline.error || pipeline.signal || pipeline.status !== 0)
-      throw new Error('Aggregate pipeline failed');
+    assertPipelineRan(pipeline, {
+      reportMode,
+      out,
+      expectedRows: config.reference.rows,
+      expectedFamilies: reportMode
+        ? Object.keys(
+            readJson(
+              path.join(
+                root,
+                'scripts/megameklab-conversion/strict-families.json',
+              ),
+            ),
+          )
+        : undefined,
+    });
     run.sourcesSha256 = hash(out + '/sources.ndjson');
     const detailed = execute('detailed', [
       '--max-old-space-size=8192',
@@ -393,17 +500,20 @@ export function runCensus({ root, out, reference, mekfiles, python, extra }) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const { positionals, values } = parseArgs({
     allowPositionals: true,
-    options: Object.fromEntries(
-      [
-        'root',
-        'out',
-        'reference',
-        'mekfiles',
-        'python',
-        'extra',
-        'archive',
-      ].map((key) => [key, { type: 'string' }]),
-    ),
+    options: {
+      ...Object.fromEntries(
+        [
+          'root',
+          'out',
+          'reference',
+          'mekfiles',
+          'python',
+          'extra',
+          'archive',
+        ].map((key) => [key, { type: 'string' }]),
+      ),
+      'report-mode': { type: 'boolean', default: false },
+    },
   });
   const config = readJson(manifestFile);
   if (positionals[0] === 'prepare') {
@@ -422,6 +532,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   } else if (positionals[0] === 'run') {
     runCensus({
       ...values,
+      reportMode: values['report-mode'],
       root: values.root ?? process.cwd(),
       python: values.python ?? 'python',
     });
