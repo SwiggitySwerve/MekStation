@@ -16,11 +16,11 @@ import {
   type ProtoMechState,
   createDefaultProtoMechState,
 } from '@/stores/protoMechState';
+import { resolveUnitChassisTechBase } from '@/types/construction/TechBaseConfiguration';
 import {
   BattleArmorLocation,
   ProtoMechLocation,
 } from '@/types/construction/UnitLocation';
-import { TechBase } from '@/types/enums';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   BAArmorType,
@@ -91,23 +91,6 @@ function identity(definition: IUnitContract) {
     rulesLevel: mapRulesLevel(rulesLevel),
     mulId: String(mulId ?? -1),
   };
-}
-
-/** BA-only bridge: x8 PR B will replace this with resolveUnitChassisTechBase
- * from src/types/construction/TechBaseConfiguration.ts.
- * BattleArmor.java:953-987 (48fcb2f64): native Clan chassis ignore missile burden.
- */
-function resolveBattleArmorChassisTechBase(
-  definition: IUnitContract,
-  fallback: TechBase,
-): TechBase {
-  if (definition.techBase !== 'MIXED') return fallback;
-  const clanChassis = definition.clanChassis;
-  return clanChassis === undefined
-    ? fallback
-    : clanChassis
-      ? TechBase.CLAN
-      : TechBase.INNER_SPHERE;
 }
 
 /** Project source facts; construction arithmetic stays with the ProtoMech owner. */
@@ -243,10 +226,10 @@ export function mapBattleArmorDefinitionToState(
     })
     .parse(definition);
   const fields = identity(definition);
-  fields.techBase = resolveBattleArmorChassisTechBase(
-    definition,
-    fields.techBase,
-  );
+  // BattleArmor.java:953-987 (48fcb2f64): Clan chassis ignore missile burden.
+  if (definition.techBase === 'MIXED')
+    fields.techBase =
+      resolveUnitChassisTechBase('battlearmor', definition) ?? fields.techBase;
   const state = createDefaultBattleArmorState(fields);
   const weightClass = enumValue(
     BattleArmorWeightClass,
