@@ -48,7 +48,11 @@ import {
 } from '@/utils/construction/protomech';
 import { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
 
-import { mapRulesLevel, mapTechBase } from './componentMappers';
+import {
+  mapRulesLevel,
+  mapTechBase,
+  mapUnitTechBaseIdentity,
+} from './componentMappers';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
 export { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
@@ -103,6 +107,7 @@ export function mapProtoMechDefinitionToState(
     return {
       ...state,
       equipment: renewSmallUnitMounts(editor.equipment, state.id),
+      ...mapUnitTechBaseIdentity('protomechs', definition),
     };
   }
   const source = z
@@ -191,6 +196,7 @@ export function mapProtoMechDefinitionToState(
     ),
     equipment,
     librarySource: definition,
+    ...mapUnitTechBaseIdentity('protomechs', definition),
   };
 }
 
@@ -204,6 +210,7 @@ export function mapBattleArmorDefinitionToState(
     return {
       ...state,
       equipment: renewSmallUnitMounts(editor.equipment, state.id),
+      ...mapUnitTechBaseIdentity('battlearmor', definition),
     };
   }
   const source = z
@@ -301,5 +308,6 @@ export function mapBattleArmorDefinitionToState(
     hasFireResistantArmor: baArmorType === BAArmorType.FIRE_RESISTANT,
     equipment,
     librarySource: definition,
+    ...mapUnitTechBaseIdentity('battlearmor', definition),
   };
 }

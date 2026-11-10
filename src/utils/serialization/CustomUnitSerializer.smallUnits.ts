@@ -8,6 +8,7 @@ import {
   mapProtoMechDefinitionToState,
   mapBattleArmorDefinitionToState,
 } from '@/services/units/unitLoaderService/smallUnitDefinitionMapper';
+import { applyUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import {
   BattleArmorLocation,
   ProtoMechLocation,
@@ -166,5 +167,9 @@ export function serializeCustomSmallUnitState(
     era: source?.year === state.year ? source.era : identity.era,
     smallUnitEditor,
   });
-  return { ...definition, family, smallUnitEditor };
+  return {
+    ...applyUnitTechBaseIdentity(definition, state, family),
+    family,
+    smallUnitEditor,
+  };
 }
