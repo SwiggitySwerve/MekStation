@@ -36,3 +36,13 @@ Every hosted intent refusal SHALL use an existing protocol code and fixed wordin
 - **WHEN** the unit guard refuses that command
 - **THEN** both cases SHALL receive the same INVALID_INTENT code and fixed wording
 - **AND** the response SHALL NOT identify whether the unit exists
+
+#### Scenario: Submitting connection is replaced before refusal
+- **GIVEN** an intent is queued and its submitting connection is released before the server refuses it
+- **WHEN** the refusal is durably audited
+- **THEN** the old connection key SHALL deliver the refusal to no live connection
+- **WHEN** the sender reconnects and finishes replay
+- **THEN** the client SHALL resend the unanswered envelope with the same command identity as the already rejected audit row
+- **AND** the same refusal SHALL go only to the replacement connection
+- **AND** exactly one audit row SHALL remain and the sender's pending intent count SHALL reach zero
+- **AND** the sender's error callback SHALL receive INVALID_INTENT with the fixed wording
