@@ -5,8 +5,7 @@ import { AppIcon } from '@/components/ui/AppIcon';
 import { IUnitEntry } from '@/types/pages';
 import { unitFamilyKey } from '@/types/unit/UnitIndex';
 
-import { RULES_LEVEL_LABELS } from './units.constants';
-import { SortColumn, SortDirection } from './units.helpers';
+import { rulesLevelLabel, SortColumn, SortDirection } from './units.helpers';
 
 interface UnitsTableProps {
   units: IUnitEntry[];
@@ -145,9 +144,7 @@ export function UnitsTable({
                     </Badge>
                   </td>
                   <td className="text-text-theme-secondary px-3 py-2 font-mono text-xs whitespace-nowrap">
-                    {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ??
-                      unit.rulesLevel ??
-                      '—'}
+                    {rulesLevelLabel(unit.rulesLevel)}
                   </td>
                   <td className="text-text-theme-primary/80 px-3 py-2 text-right font-mono text-xs whitespace-nowrap">
                     {unit.cost

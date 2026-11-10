@@ -189,5 +189,8 @@
   },
   "mulId": 6357,
   "role": "Brawler",
-  "source": "TR:3145:FS,TR:3150"
+  "source": "TR:3145:FS,TR:3150",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

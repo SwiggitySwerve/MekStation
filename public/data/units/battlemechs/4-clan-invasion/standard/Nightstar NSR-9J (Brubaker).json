@@ -195,5 +195,8 @@
   },
   "mulId": 4723,
   "role": "Sniper",
-  "source": "OTP:FI"
+  "source": "OTP:FI",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

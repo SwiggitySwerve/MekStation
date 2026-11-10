@@ -179,5 +179,8 @@
   },
   "mulId": 1505,
   "role": "Sniper",
-  "source": "XTR:Marik"
+  "source": "XTR:Marik",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

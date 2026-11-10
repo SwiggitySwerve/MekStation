@@ -81,6 +81,87 @@ it('retains a declared XL gyro through real API persistence and loading', async 
   ).toBe(GyroType.XL);
 });
 
+it('saves the raw gyro, cockpit and heat sink tokens and the import diagnostics with the unit', async () => {
+  // Java loads an unrecognised gyro, cockpit and heat sink with a default
+  // (MtfFile.java:252-269, :566-598). The
+  // derived values follow Java; nothing is lost: the source tokens and a
+  // unit-level diagnostic per defaulted field persist and come back on reopen.
+  const sourceText = text
+    .replace(/^gyro:.*$/im, 'gyro:Quantum Gyro')
+    .replace(/^cockpit:.*$/im, 'cockpit:Mystery Cockpit')
+    .replace(/^heat sinks:(\d+) .*$/im, 'heat sinks:$1 Dissipators');
+  expect(sourceText).toContain('gyro:Quantum Gyro');
+  expect(sourceText).toContain('cockpit:Mystery Cockpit');
+  expect(sourceText).toMatch(/^heat sinks:\d+ Dissipators$/m);
+  const response = await post({ sourceFormat: 'mtf', sourceText });
+  expect(response._getStatusCode()).toBe(201);
+  const imported = parseImportResponse(response);
+  const id = imported.data?.unitId;
+  if (!id) throw new Error('Expected persisted unit');
+  // The import result carries the same facts as warnings.
+  expect(JSON.parse(response._getData()).data.warnings).toHaveLength(3);
+
+  const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+    method: 'GET',
+    query: { id },
+  });
+  await customHandler(req, res);
+  expect(res._getStatusCode()).toBe(200);
+  const definition = parseUnit(JSON.parse(res._getData()).parsedData);
+  const heatSinkCount = /^heat sinks:(\d+) /m.exec(sourceText)?.[1];
+
+  // Derived values: what the pinned loader would pick.
+  expect(definition.gyro?.type).toBe('STANDARD');
+  expect(definition.cockpit).toBe('STANDARD');
+  expect(definition.heatSinks?.type).toBe('SINGLE');
+  expect(String(definition.heatSinks?.count)).toBe(heatSinkCount);
+  // Retained, distinct from the derived values.
+  expect(definition).toHaveProperty('mtfSource.gyro', 'Quantum Gyro');
+  expect(definition).toHaveProperty('mtfSource.cockpit', 'Mystery Cockpit');
+  expect(definition).toHaveProperty(
+    'mtfSource.heatSinks',
+    `${heatSinkCount} Dissipators`,
+  );
+  expect(definition).toHaveProperty('mtfSource.diagnostics', [
+    {
+      field: 'gyro',
+      raw: 'Quantum Gyro',
+      applied: 'STANDARD',
+      reason: 'java-default',
+      javaRef: 'MtfFile.java:252-259',
+    },
+    {
+      field: 'cockpit',
+      raw: 'Mystery Cockpit',
+      applied: 'STANDARD',
+      reason: 'java-default',
+      javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
+    },
+    {
+      field: 'heatSinks',
+      raw: `${heatSinkCount} Dissipators`,
+      applied: 'SINGLE',
+      reason: 'java-default',
+      javaRef: 'MtfFile.java:566-598',
+    },
+  ]);
+});
+
+it('keeps no diagnostics on a unit whose components were all recognised', async () => {
+  const response = await post({ sourceFormat: 'mtf', sourceText: text });
+  expect(response._getStatusCode()).toBe(201);
+  const id = parseImportResponse(response).data?.unitId;
+  if (!id) throw new Error('Expected persisted unit');
+  const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
+    method: 'GET',
+    query: { id },
+  });
+  await customHandler(req, res);
+  const definition = parseUnit(JSON.parse(res._getData()).parsedData);
+  expect(definition).toHaveProperty('mtfSource.gyro', 'Compact Gyro');
+  expect(definition).not.toHaveProperty('mtfSource.diagnostics');
+});
+
 it('persists a crit-only variable mount through API import, GET and custom save/reload', async () => {
   const sourceText =
     text.replace(/^mass:.*$/im, 'mass:80') +

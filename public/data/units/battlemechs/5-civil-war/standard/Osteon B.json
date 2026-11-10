@@ -186,5 +186,8 @@
   },
   "mulId": 5823,
   "role": "Juggernaut",
-  "source": "WoR,WoRS"
+  "source": "WoR,WoRS",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

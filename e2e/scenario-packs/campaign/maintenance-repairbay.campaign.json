@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "campaignId": "pack:maintenance-repairbay:campaign",
-  "savedAt": "2026-11-09T16:44:50.054Z",
-  "originDeviceId": "a17d4ece-4285-4d3a-ba48-6705911ef48e",
+  "savedAt": "2026-11-09T23:23:11.714Z",
+  "originDeviceId": "f7c8437d-3fe2-4690-ad1c-63544a6f48a3",
   "version": 1,
   "body": {
     "id": "pack:maintenance-repairbay:campaign",
@@ -140,8 +140,8 @@
           },
           "salvageRights": "None",
           "commandRights": "House",
-          "createdAt": "2026-11-09T16:44:42.762Z",
-          "updatedAt": "2026-11-09T16:44:50.052Z"
+          "createdAt": "2026-11-09T23:22:59.656Z",
+          "updatedAt": "2026-11-09T23:23:11.651Z"
         }
       ]
     ],
@@ -155,7 +155,7 @@
           "description": "Daily salaries for 8 personnel"
         },
         {
-          "id": "tx-contract-close-fast-forward-fixture-contract-2026-11-09T16:44:50.052Z",
+          "id": "tx-contract-close-fast-forward-fixture-contract-2026-11-09T23:23:11.651Z",
           "type": "income",
           "amount": 0,
           "date": "3025-06-14T00:00:00.000Z",
@@ -269,7 +269,7 @@
     },
     "campaignType": "mercenary",
     "createdAt": "3025-06-13T00:00:00.000Z",
-    "updatedAt": "2026-11-09T16:44:50.054Z",
+    "updatedAt": "2026-11-09T23:23:11.702Z",
     "unitCombatStates": {
       "player-1-atlas-as7-d": {
         "unitId": "player-1-atlas-as7-d",
@@ -302,7 +302,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-11-09T16:44:50.053Z"
+        "lastUpdated": "2026-11-09T23:23:11.651Z"
       },
       "opponent-1-marauder-mad-3r": {
         "unitId": "opponent-1-marauder-mad-3r",
@@ -333,7 +333,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-11-09T16:44:50.053Z"
+        "lastUpdated": "2026-11-09T23:23:11.651Z"
       },
       "player-1-marauder-mad-3r": {
         "unitId": "player-1-marauder-mad-3r",
@@ -362,7 +362,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-11-09T16:44:50.052Z"
+        "lastUpdated": "2026-11-09T23:23:11.651Z"
       },
       "opponent-1-atlas-as7-d": {
         "unitId": "opponent-1-atlas-as7-d",
@@ -393,7 +393,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-11-09T16:44:50.052Z"
+        "lastUpdated": "2026-11-09T23:23:11.651Z"
       },
       "player-1-hunchback-hbk-4g": {
         "unitId": "player-1-hunchback-hbk-4g",
@@ -429,7 +429,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-11-09T16:44:50.053Z"
+        "lastUpdated": "2026-11-09T23:23:11.651Z"
       },
       "opponent-1-locust-lct-1v": {
         "unitId": "opponent-1-locust-lct-1v",
@@ -465,7 +465,7 @@
         "ammoRemaining": {},
         "combatReady": true,
         "lastCombatOutcomeId": null,
-        "lastUpdated": "2026-11-09T16:44:50.053Z"
+        "lastUpdated": "2026-11-09T23:23:11.651Z"
       }
     },
     "unitMaxStates": {
@@ -525,7 +525,7 @@
           "unitId": "ff-roster-unit-1",
           "unitRef": "atlas-as7-d",
           "unitName": "atlas-as7-d",
-          "pilotId": "pilot-9864e2cb-cee1-46ec-83b7-b39d5dec3603",
+          "pilotId": "pilot-7697be3a-09b2-448f-9684-10f7d37be184",
           "chassisVariant": "atlas-as7-d",
           "readiness": "Ready"
         },
@@ -533,7 +533,7 @@
           "unitId": "ff-roster-unit-2",
           "unitRef": "marauder-mad-3r",
           "unitName": "marauder-mad-3r",
-          "pilotId": "pilot-a09d1c14-e238-4cdd-a398-a08cba3215b7",
+          "pilotId": "pilot-d4c55c2d-7385-471f-ab61-710fda5e29b0",
           "chassisVariant": "marauder-mad-3r",
           "readiness": "Ready"
         },
@@ -541,7 +541,7 @@
           "unitId": "ff-roster-unit-3",
           "unitRef": "hunchback-hbk-4g",
           "unitName": "hunchback-hbk-4g",
-          "pilotId": "pilot-deef5d79-fff6-43b6-9199-d8022dee71d9",
+          "pilotId": "pilot-ab08e9a8-a132-4484-a0b2-a43148327dc3",
           "chassisVariant": "hunchback-hbk-4g",
           "readiness": "Ready"
         },
@@ -557,7 +557,7 @@
           "unitId": "ff-roster-unit-5",
           "unitRef": "atlas-as7-d",
           "unitName": "atlas-as7-d",
-          "pilotId": "pilot-752dc8bf-2803-415e-a249-8f1ee8217c01",
+          "pilotId": "pilot-6714a0a4-2dab-45cd-92b5-3ba54a3785c7",
           "chassisVariant": "atlas-as7-d",
           "readiness": "Ready"
         },
@@ -573,7 +573,7 @@
           "unitId": "ff-roster-unit-7",
           "unitRef": "hunchback-hbk-4g",
           "unitName": "hunchback-hbk-4g",
-          "pilotId": "pilot-6bacefda-f9d5-4f58-8cfc-a98eddd31861",
+          "pilotId": "pilot-e87a222c-22a1-4001-8f98-dcbeaee32a18",
           "chassisVariant": "hunchback-hbk-4g",
           "readiness": "Ready"
         },
@@ -588,11 +588,11 @@
       ],
       "pilots": [
         {
-          "pilotId": "pilot-9864e2cb-cee1-46ec-83b7-b39d5dec3603",
+          "pilotId": "pilot-7697be3a-09b2-448f-9684-10f7d37be184",
           "pilotName": "Fixture Pilot 1",
           "status": "wounded",
-          "wounds": 1,
-          "recoveryTime": 7,
+          "wounds": 2,
+          "recoveryTime": 14,
           "xp": 1,
           "campaignXpEarned": 1,
           "campaignKills": 0,
@@ -603,11 +603,11 @@
           "hireDate": "3024-01-01T00:00:00.000Z"
         },
         {
-          "pilotId": "pilot-a09d1c14-e238-4cdd-a398-a08cba3215b7",
+          "pilotId": "pilot-d4c55c2d-7385-471f-ab61-710fda5e29b0",
           "pilotName": "Fixture Pilot 2",
           "status": "wounded",
-          "wounds": 2,
-          "recoveryTime": 14,
+          "wounds": 3,
+          "recoveryTime": 21,
           "xp": 1,
           "campaignXpEarned": 1,
           "campaignKills": 0,
@@ -618,7 +618,7 @@
           "hireDate": "3024-01-01T00:00:00.000Z"
         },
         {
-          "pilotId": "pilot-deef5d79-fff6-43b6-9199-d8022dee71d9",
+          "pilotId": "pilot-ab08e9a8-a132-4484-a0b2-a43148327dc3",
           "pilotName": "Fixture Pilot 3",
           "status": "wounded",
           "wounds": 1,
@@ -648,11 +648,11 @@
           "hireDate": "3024-01-01T00:00:00.000Z"
         },
         {
-          "pilotId": "pilot-752dc8bf-2803-415e-a249-8f1ee8217c01",
+          "pilotId": "pilot-6714a0a4-2dab-45cd-92b5-3ba54a3785c7",
           "pilotName": "Fixture Pilot 5",
           "status": "wounded",
-          "wounds": 1,
-          "recoveryTime": 7,
+          "wounds": 3,
+          "recoveryTime": 21,
           "xp": 1,
           "campaignXpEarned": 1,
           "campaignKills": 0,
@@ -678,7 +678,7 @@
           "hireDate": "3024-01-01T00:00:00.000Z"
         },
         {
-          "pilotId": "pilot-6bacefda-f9d5-4f58-8cfc-a98eddd31861",
+          "pilotId": "pilot-e87a222c-22a1-4001-8f98-dcbeaee32a18",
           "pilotName": "Fixture Pilot 7",
           "status": "active",
           "wounds": 0,
@@ -732,7 +732,7 @@
     ],
     "repairQueue": [
       {
-        "ticketId": "ticket-3b410cee-0d62-4147-b821-1618e8d7973d-player-1-atlas-as7-d-armor-center_torso",
+        "ticketId": "ticket-fcc869f0-3b0f-466b-b690-cfe408fcad88-player-1-atlas-as7-d-armor-center_torso",
         "unitId": "player-1-atlas-as7-d",
         "kind": "armor",
         "location": "center_torso",
@@ -748,10 +748,11 @@
         "source": "combat",
         "matchId": null,
         "createdAt": "3025-06-14T00:00:00.000Z",
-        "status": "parts-needed"
+        "status": "parts-needed",
+        "priority": 0
       },
       {
-        "ticketId": "ticket-3b410cee-0d62-4147-b821-1618e8d7973d-player-1-atlas-as7-d-armor-right_torso",
+        "ticketId": "ticket-fcc869f0-3b0f-466b-b690-cfe408fcad88-player-1-atlas-as7-d-armor-right_torso",
         "unitId": "player-1-atlas-as7-d",
         "kind": "armor",
         "location": "right_torso",
@@ -767,10 +768,11 @@
         "source": "combat",
         "matchId": null,
         "createdAt": "3025-06-14T00:00:00.000Z",
-        "status": "parts-needed"
+        "status": "parts-needed",
+        "priority": 2
       },
       {
-        "ticketId": "ticket-3b410cee-0d62-4147-b821-1618e8d7973d-player-1-atlas-as7-d-structure-center_torso",
+        "ticketId": "ticket-fcc869f0-3b0f-466b-b690-cfe408fcad88-player-1-atlas-as7-d-structure-center_torso",
         "unitId": "player-1-atlas-as7-d",
         "kind": "structure",
         "location": "center_torso",
@@ -786,10 +788,11 @@
         "source": "combat",
         "matchId": null,
         "createdAt": "3025-06-14T00:00:00.000Z",
-        "status": "parts-needed"
+        "status": "parts-needed",
+        "priority": 1
       },
       {
-        "ticketId": "ticket-97e19666-14fe-40fe-81ca-73b9a954e3c5-player-1-marauder-mad-3r-armor-center_torso",
+        "ticketId": "ticket-d78ae222-b9a4-4531-9d89-1d5bb674c718-player-1-marauder-mad-3r-armor-center_torso",
         "unitId": "player-1-marauder-mad-3r",
         "kind": "armor",
         "location": "center_torso",
@@ -808,7 +811,7 @@
         "status": "parts-needed"
       },
       {
-        "ticketId": "ticket-97e19666-14fe-40fe-81ca-73b9a954e3c5-player-1-marauder-mad-3r-armor-right_torso",
+        "ticketId": "ticket-d78ae222-b9a4-4531-9d89-1d5bb674c718-player-1-marauder-mad-3r-armor-right_torso",
         "unitId": "player-1-marauder-mad-3r",
         "kind": "armor",
         "location": "right_torso",
@@ -827,7 +830,7 @@
         "status": "parts-needed"
       },
       {
-        "ticketId": "ticket-9da4d3a2-edcb-45af-8b6e-12d59e2481af-player-1-hunchback-hbk-4g-armor-center_torso",
+        "ticketId": "ticket-8bc537e8-267d-473e-8abc-4cdb0a43feb7-player-1-hunchback-hbk-4g-armor-center_torso",
         "unitId": "player-1-hunchback-hbk-4g",
         "kind": "armor",
         "location": "center_torso",
@@ -846,7 +849,7 @@
         "status": "parts-needed"
       },
       {
-        "ticketId": "ticket-9da4d3a2-edcb-45af-8b6e-12d59e2481af-player-1-hunchback-hbk-4g-armor-right_torso",
+        "ticketId": "ticket-8bc537e8-267d-473e-8abc-4cdb0a43feb7-player-1-hunchback-hbk-4g-armor-right_torso",
         "unitId": "player-1-hunchback-hbk-4g",
         "kind": "armor",
         "location": "right_torso",
@@ -865,7 +868,7 @@
         "status": "parts-needed"
       },
       {
-        "ticketId": "ticket-3cdeebdc-70af-4067-8de5-ceceffafe952-player-1-atlas-as7-d-armor-center_torso",
+        "ticketId": "ticket-f9f79278-31aa-4765-a89c-27838e277506-player-1-atlas-as7-d-armor-center_torso",
         "unitId": "player-1-atlas-as7-d",
         "kind": "armor",
         "location": "center_torso",
@@ -881,10 +884,11 @@
         "source": "combat",
         "matchId": null,
         "createdAt": "3025-06-14T00:00:00.000Z",
-        "status": "parts-needed"
+        "status": "parts-needed",
+        "priority": 3
       },
       {
-        "ticketId": "ticket-3cdeebdc-70af-4067-8de5-ceceffafe952-player-1-atlas-as7-d-armor-right_torso",
+        "ticketId": "ticket-f9f79278-31aa-4765-a89c-27838e277506-player-1-atlas-as7-d-armor-right_torso",
         "unitId": "player-1-atlas-as7-d",
         "kind": "armor",
         "location": "right_torso",
@@ -900,10 +904,11 @@
         "source": "combat",
         "matchId": null,
         "createdAt": "3025-06-14T00:00:00.000Z",
-        "status": "parts-needed"
+        "status": "parts-needed",
+        "priority": 4
       },
       {
-        "ticketId": "ticket-3cdeebdc-70af-4067-8de5-ceceffafe952-player-1-atlas-as7-d-structure-center_torso",
+        "ticketId": "ticket-f9f79278-31aa-4765-a89c-27838e277506-player-1-atlas-as7-d-structure-center_torso",
         "unitId": "player-1-atlas-as7-d",
         "kind": "structure",
         "location": "center_torso",
@@ -919,10 +924,11 @@
         "source": "combat",
         "matchId": null,
         "createdAt": "3025-06-14T00:00:00.000Z",
-        "status": "parts-needed"
+        "status": "parts-needed",
+        "priority": 5
       },
       {
-        "ticketId": "ticket-c402a727-0748-4898-93c7-ddbe1d9e3e3f-player-1-hunchback-hbk-4g-armor-center_torso",
+        "ticketId": "ticket-e7eae062-c4c6-4bfe-939d-a45d8c6f0a05-player-1-hunchback-hbk-4g-armor-center_torso",
         "unitId": "player-1-hunchback-hbk-4g",
         "kind": "armor",
         "location": "center_torso",
@@ -941,7 +947,7 @@
         "status": "parts-needed"
       },
       {
-        "ticketId": "ticket-c402a727-0748-4898-93c7-ddbe1d9e3e3f-player-1-hunchback-hbk-4g-armor-right_torso",
+        "ticketId": "ticket-e7eae062-c4c6-4bfe-939d-a45d8c6f0a05-player-1-hunchback-hbk-4g-armor-right_torso",
         "unitId": "player-1-hunchback-hbk-4g",
         "kind": "armor",
         "location": "right_torso",
@@ -961,9 +967,9 @@
       }
     ],
     "salvageAllocations": {
-      "3b410cee-0d62-4147-b821-1618e8d7973d": {
+      "fcc869f0-3b0f-466b-b690-cfe408fcad88": {
         "pool": {
-          "battleId": "3b410cee-0d62-4147-b821-1618e8d7973d",
+          "battleId": "fcc869f0-3b0f-466b-b690-cfe408fcad88",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -984,9 +990,9 @@
         "splitMethod": "contract",
         "processed": true
       },
-      "97e19666-14fe-40fe-81ca-73b9a954e3c5": {
+      "d78ae222-b9a4-4531-9d89-1d5bb674c718": {
         "pool": {
-          "battleId": "97e19666-14fe-40fe-81ca-73b9a954e3c5",
+          "battleId": "d78ae222-b9a4-4531-9d89-1d5bb674c718",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -1007,9 +1013,9 @@
         "splitMethod": "contract",
         "processed": true
       },
-      "9da4d3a2-edcb-45af-8b6e-12d59e2481af": {
+      "8bc537e8-267d-473e-8abc-4cdb0a43feb7": {
         "pool": {
-          "battleId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+          "battleId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [
             {
@@ -1046,13 +1052,13 @@
                   "heatEnd": 0,
                   "ammoRemaining": {},
                   "combatReady": true,
-                  "lastCombatOutcomeId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
-                  "lastUpdated": "2026-11-09T16:44:46.898Z"
+                  "lastCombatOutcomeId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
+                  "lastUpdated": "2026-11-09T23:23:06.979Z"
                 }
               },
               "unitId": "opponent-1-locust-lct-1v",
               "designation": "Unknown Mech",
-              "destroyedFromBattle": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+              "destroyedFromBattle": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
               "finalStatus": "crippled",
               "damageLevel": "heavy",
               "originalValue": 2500000,
@@ -1103,13 +1109,13 @@
                   "heatEnd": 0,
                   "ammoRemaining": {},
                   "combatReady": true,
-                  "lastCombatOutcomeId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
-                  "lastUpdated": "2026-11-09T16:44:46.898Z"
+                  "lastCombatOutcomeId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
+                  "lastUpdated": "2026-11-09T23:23:06.979Z"
                 }
               },
               "unitId": "opponent-1-locust-lct-1v",
               "designation": "Unknown Mech",
-              "destroyedFromBattle": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+              "destroyedFromBattle": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
               "finalStatus": "crippled",
               "damageLevel": "heavy",
               "originalValue": 2500000,
@@ -1132,9 +1138,9 @@
         "splitMethod": "contract",
         "processed": true
       },
-      "3cdeebdc-70af-4067-8de5-ceceffafe952": {
+      "f9f79278-31aa-4765-a89c-27838e277506": {
         "pool": {
-          "battleId": "3cdeebdc-70af-4067-8de5-ceceffafe952",
+          "battleId": "f9f79278-31aa-4765-a89c-27838e277506",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -1155,9 +1161,9 @@
         "splitMethod": "contract",
         "processed": true
       },
-      "c402a727-0748-4898-93c7-ddbe1d9e3e3f": {
+      "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05": {
         "pool": {
-          "battleId": "c402a727-0748-4898-93c7-ddbe1d9e3e3f",
+          "battleId": "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05",
           "contractId": "fast-forward-fixture-contract",
           "candidates": [],
           "totalEstimatedValue": 0,
@@ -1180,8 +1186,8 @@
       }
     },
     "salvageReports": {
-      "3b410cee-0d62-4147-b821-1618e8d7973d": {
-        "matchId": "3b410cee-0d62-4147-b821-1618e8d7973d",
+      "fcc869f0-3b0f-466b-b690-cfe408fcad88": {
+        "matchId": "fcc869f0-3b0f-466b-b690-cfe408fcad88",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -1189,8 +1195,8 @@
         "hostileTerritoryPenalty": 1,
         "auctionRequired": false
       },
-      "97e19666-14fe-40fe-81ca-73b9a954e3c5": {
-        "matchId": "97e19666-14fe-40fe-81ca-73b9a954e3c5",
+      "d78ae222-b9a4-4531-9d89-1d5bb674c718": {
+        "matchId": "d78ae222-b9a4-4531-9d89-1d5bb674c718",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -1198,8 +1204,8 @@
         "hostileTerritoryPenalty": 1,
         "auctionRequired": false
       },
-      "9da4d3a2-edcb-45af-8b6e-12d59e2481af": {
-        "matchId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+      "8bc537e8-267d-473e-8abc-4cdb0a43feb7": {
+        "matchId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [
           {
@@ -1236,13 +1242,13 @@
                 "heatEnd": 0,
                 "ammoRemaining": {},
                 "combatReady": true,
-                "lastCombatOutcomeId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
-                "lastUpdated": "2026-11-09T16:44:46.898Z"
+                "lastCombatOutcomeId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
+                "lastUpdated": "2026-11-09T23:23:06.979Z"
               }
             },
             "unitId": "opponent-1-locust-lct-1v",
             "designation": "Unknown Mech",
-            "destroyedFromBattle": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+            "destroyedFromBattle": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
             "finalStatus": "crippled",
             "damageLevel": "heavy",
             "originalValue": 2500000,
@@ -1258,8 +1264,8 @@
         "hostileTerritoryPenalty": 1,
         "auctionRequired": false
       },
-      "3cdeebdc-70af-4067-8de5-ceceffafe952": {
-        "matchId": "3cdeebdc-70af-4067-8de5-ceceffafe952",
+      "f9f79278-31aa-4765-a89c-27838e277506": {
+        "matchId": "f9f79278-31aa-4765-a89c-27838e277506",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -1267,8 +1273,8 @@
         "hostileTerritoryPenalty": 1,
         "auctionRequired": false
       },
-      "c402a727-0748-4898-93c7-ddbe1d9e3e3f": {
-        "matchId": "c402a727-0748-4898-93c7-ddbe1d9e3e3f",
+      "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05": {
+        "matchId": "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05",
         "contractId": "fast-forward-fixture-contract",
         "candidates": [],
         "totalValueEmployer": 0,
@@ -1279,13 +1285,12 @@
     },
     "pendingBattleOutcomes": [],
     "processedBattleIds": [
-      "3b410cee-0d62-4147-b821-1618e8d7973d",
-      "97e19666-14fe-40fe-81ca-73b9a954e3c5",
-      "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
-      "3cdeebdc-70af-4067-8de5-ceceffafe952",
-      "c402a727-0748-4898-93c7-ddbe1d9e3e3f"
+      "fcc869f0-3b0f-466b-b690-cfe408fcad88",
+      "d78ae222-b9a4-4531-9d89-1d5bb674c718",
+      "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
+      "f9f79278-31aa-4765-a89c-27838e277506",
+      "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05"
     ],
-    "recentlyAppliedOutcomes": [],
     "dailyBattleAudit": [
       {
         "date": "3025-06-14",
@@ -1350,18 +1355,18 @@
         "score": 48,
         "history": [
           {
-            "matchId": "3b410cee-0d62-4147-b821-1618e8d7973d",
+            "matchId": "fcc869f0-3b0f-466b-b690-cfe408fcad88",
             "delta": -1,
             "scoreAfter": 49,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.052Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           },
           {
-            "matchId": "3cdeebdc-70af-4067-8de5-ceceffafe952",
+            "matchId": "f9f79278-31aa-4765-a89c-27838e277506",
             "delta": -1,
             "scoreAfter": 48,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.053Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           }
         ]
       },
@@ -1370,18 +1375,18 @@
         "score": 74,
         "history": [
           {
-            "matchId": "3b410cee-0d62-4147-b821-1618e8d7973d",
+            "matchId": "fcc869f0-3b0f-466b-b690-cfe408fcad88",
             "delta": 12,
             "scoreAfter": 62,
             "reason": "Victory, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.052Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           },
           {
-            "matchId": "3cdeebdc-70af-4067-8de5-ceceffafe952",
+            "matchId": "f9f79278-31aa-4765-a89c-27838e277506",
             "delta": 12,
             "scoreAfter": 74,
             "reason": "Victory, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.053Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           }
         ]
       },
@@ -1390,11 +1395,11 @@
         "score": 49,
         "history": [
           {
-            "matchId": "97e19666-14fe-40fe-81ca-73b9a954e3c5",
+            "matchId": "d78ae222-b9a4-4531-9d89-1d5bb674c718",
             "delta": -1,
             "scoreAfter": 49,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.052Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           }
         ]
       },
@@ -1403,11 +1408,11 @@
         "score": 62,
         "history": [
           {
-            "matchId": "97e19666-14fe-40fe-81ca-73b9a954e3c5",
+            "matchId": "d78ae222-b9a4-4531-9d89-1d5bb674c718",
             "delta": 12,
             "scoreAfter": 62,
             "reason": "Victory, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.052Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           }
         ]
       },
@@ -1416,18 +1421,18 @@
         "score": 48,
         "history": [
           {
-            "matchId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+            "matchId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
             "delta": -1,
             "scoreAfter": 49,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.052Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           },
           {
-            "matchId": "c402a727-0748-4898-93c7-ddbe1d9e3e3f",
+            "matchId": "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05",
             "delta": -1,
             "scoreAfter": 48,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.053Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           }
         ]
       },
@@ -1436,42 +1441,41 @@
         "score": 51,
         "history": [
           {
-            "matchId": "9da4d3a2-edcb-45af-8b6e-12d59e2481af",
+            "matchId": "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
             "delta": 2,
             "scoreAfter": 52,
             "reason": "Victory, heavy damage",
-            "appliedAt": "2026-11-09T16:44:50.052Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           },
           {
-            "matchId": "c402a727-0748-4898-93c7-ddbe1d9e3e3f",
+            "matchId": "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05",
             "delta": -1,
             "scoreAfter": 51,
             "reason": "Defeat, survived intact",
-            "appliedAt": "2026-11-09T16:44:50.053Z"
+            "appliedAt": "2026-11-09T23:23:11.651Z"
           }
         ]
       }
     ],
-    "moraleState": "elite",
+    "moraleState": "unhappy",
     "moraleTransitions": [
       {
         "from": "steady",
-        "to": "high",
-        "direction": "up",
-        "reason": "Morale rose: pay met",
-        "occurredAt": "3025-06-13T00:00:00.000Z"
-      },
-      {
-        "from": "high",
-        "to": "elite",
-        "direction": "up",
-        "reason": "Morale rose: pay met",
+        "to": "unhappy",
+        "direction": "down",
+        "reason": "Morale fell: 4 recent defeat(s)",
         "occurredAt": "3025-06-14T00:00:00.000Z"
       }
     ],
-    "moraleCountedMatchIds": []
+    "moraleCountedMatchIds": [
+      "fcc869f0-3b0f-466b-b690-cfe408fcad88",
+      "d78ae222-b9a4-4531-9d89-1d5bb674c718",
+      "8bc537e8-267d-473e-8abc-4cdb0a43feb7",
+      "f9f79278-31aa-4765-a89c-27838e277506",
+      "e7eae062-c4c6-4bfe-939d-a45d8c6f0a05"
+    ]
   },
-  "instanceId": "a17d4ece-4285-4d3a-ba48-6705911ef48e",
+  "instanceId": "f7c8437d-3fe2-4690-ad1c-63544a6f48a3",
   "authority": {
     "role": "source"
   }

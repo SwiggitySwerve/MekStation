@@ -175,5 +175,8 @@
   },
   "mulId": 5642,
   "role": "Scout",
-  "source": "WoR,WoRS"
+  "source": "WoR,WoRS",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

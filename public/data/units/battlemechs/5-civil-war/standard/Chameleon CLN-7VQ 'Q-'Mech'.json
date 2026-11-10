@@ -183,5 +183,8 @@
   },
   "mulId": 5601,
   "role": "Striker",
-  "source": "XTR:Phantoms"
+  "source": "XTR:Phantoms",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -223,5 +223,8 @@
   },
   "mulId": 9500,
   "role": "Juggernaut",
-  "source": "DD"
+  "source": "DD",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

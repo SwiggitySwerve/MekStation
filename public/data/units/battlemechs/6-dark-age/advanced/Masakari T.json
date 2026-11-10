@@ -186,5 +186,8 @@
   },
   "mulId": 8337,
   "role": "Brawler",
-  "source": "RG20"
+  "source": "RG20",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

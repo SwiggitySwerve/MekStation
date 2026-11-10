@@ -190,5 +190,8 @@
   },
   "mulId": 8209,
   "role": "Sniper",
-  "source": "RG16"
+  "source": "RG16",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

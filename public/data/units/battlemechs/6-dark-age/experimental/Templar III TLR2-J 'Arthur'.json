@@ -189,5 +189,8 @@
   },
   "mulId": 7955,
   "role": "Skirmisher",
-  "source": "SF"
+  "source": "SF",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

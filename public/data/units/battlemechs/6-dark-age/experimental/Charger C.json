@@ -186,5 +186,8 @@
   },
   "mulId": 9397,
   "role": "Scout",
-  "source": "RG29"
+  "source": "RG29",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

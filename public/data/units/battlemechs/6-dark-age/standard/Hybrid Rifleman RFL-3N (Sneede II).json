@@ -173,5 +173,8 @@
     ]
   },
   "role": "Sniper",
-  "source": "CSI"
+  "source": "CSI",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }
