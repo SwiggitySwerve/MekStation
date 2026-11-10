@@ -66,10 +66,18 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
   useCampaignStore: () => mockCampaignStore,
 }));
 
-function renderRouting({ editorUnitId }: { editorUnitId?: string } = {}) {
+function renderRouting({
+  editorUnitId,
+  asPath = '/customizer',
+  query,
+}: {
+  editorUnitId?: string;
+  asPath?: string;
+  query?: NextRouter['query'];
+} = {}) {
   const nextRouter = {
-    asPath: '/customizer',
-    query: {
+    asPath,
+    query: query ?? {
       mode: 'campaign-refit',
       campaignId: 'cached-campaign',
       unitId: 'unit-atlas',
@@ -80,7 +88,7 @@ function renderRouting({ editorUnitId }: { editorUnitId?: string } = {}) {
     },
     replace: jest.fn(),
   } as unknown as NextRouter;
-  return renderHook(() =>
+  const hook = renderHook(() =>
     useCampaignCustomizerRouting({
       activeTabId: null,
       addTab: jest.fn(),
@@ -93,6 +101,7 @@ function renderRouting({ editorUnitId }: { editorUnitId?: string } = {}) {
       tabs: [],
     }),
   );
+  return { ...hook, nextRouter };
 }
 
 describe('useCampaignCustomizerRouting campaign load', () => {
@@ -111,6 +120,72 @@ describe('useCampaignCustomizerRouting campaign load', () => {
     await waitFor(() => {
       expect(mockLoadCampaign).toHaveBeenCalledWith('cached-campaign');
     });
+  });
+
+  it('recomputes the fallback on an asPath-only change and keeps the memo stable otherwise', async () => {
+    const previousUrl = window.location.href;
+    const firstPath =
+      '/customizer?mode=campaign-refit&campaignId=cached-campaign&unitId=unit-atlas&unitId=ignored&returnTo=mek-stable&campaignDate=3025-01-03&budget=2500000#structure';
+    window.history.replaceState({}, '', firstPath);
+    try {
+      const query = {};
+      const { result, rerender, nextRouter } = renderRouting({
+        asPath: firstPath,
+        query,
+      });
+      await waitFor(() =>
+        expect(result.current.campaignRoute?.unitId).toBe('unit-atlas'),
+      );
+      const firstRoute = result.current.campaignRoute;
+      rerender();
+      expect(result.current.campaignRoute).toBe(firstRoute);
+
+      await act(async () => {
+        nextRouter.asPath = firstPath.replace(
+          'unitId=unit-atlas',
+          'unitId=unit-marauder',
+        );
+        rerender();
+      });
+      expect(nextRouter.query).toBe(query);
+      expect(window.location.search).toContain('unitId=unit-atlas');
+      expect(result.current.campaignRoute?.unitId).toBe('unit-marauder');
+      expect(result.current.campaignRoute).not.toBe(firstRoute);
+      const secondRoute = result.current.campaignRoute;
+      rerender();
+      expect(result.current.campaignRoute).toBe(secondRoute);
+    } finally {
+      window.history.replaceState({}, '', previousUrl);
+    }
+  });
+
+  it('retains the browser search fallback while asPath has no query', async () => {
+    const previousUrl = window.location.href;
+    window.history.replaceState(
+      {},
+      '',
+      '/customizer?mode=campaign-refit&campaignId=browser-campaign&unitId=unit-atlas&returnTo=mek-stable&campaignDate=3025-01-03&budget=2500000',
+    );
+    try {
+      const { result } = renderRouting({ query: {} });
+      await waitFor(() =>
+        expect(result.current.campaignRoute?.campaignId).toBe(
+          'browser-campaign',
+        ),
+      );
+    } finally {
+      window.history.replaceState({}, '', previousUrl);
+    }
+  });
+
+  it('prefers a valid router query to the asPath fallback', async () => {
+    const { result } = renderRouting({
+      asPath:
+        '/customizer?mode=campaign-refit&campaignId=other-campaign&unitId=other-unit&returnTo=mek-stable&campaignDate=3025-01-03&budget=1',
+    });
+    await waitFor(() =>
+      expect(result.current.campaignRoute?.campaignId).toBe('cached-campaign'),
+    );
   });
 
   it('head-validates a storage-rehydrated campaign so the refit save has a server version', async () => {

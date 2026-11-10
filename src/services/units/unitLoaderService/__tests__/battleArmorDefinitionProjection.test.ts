@@ -5,6 +5,7 @@ import fixtures from '@/services/units/handlers/__tests__/fixtures/ba-harjel-par
 import { BattleArmorUnitHandler } from '@/services/units/handlers/BattleArmorUnitHandler';
 import { createDefaultBattleArmorState } from '@/stores/battleArmorState';
 import { createBattleArmorStore } from '@/stores/useBattleArmorStore';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums';
@@ -71,7 +72,7 @@ it.each([
   },
 );
 
-it('keeps saved editor chassis authoritative over the source fact', () => {
+it('preserves root Mixed chassis over an older binary editor snapshot', () => {
   const editor = {
     ...mapBattleArmorDefinitionToState(harjel()),
     techBase: TechBase.INNER_SPHERE,
@@ -79,8 +80,12 @@ it('keeps saved editor chassis authoritative over the source fact', () => {
   const state = mapBattleArmorDefinitionToState(
     UnitContract.parse({ ...harjel(), smallUnitEditor: editor }),
   );
-  expect(state.techBase).toBe(TechBase.INNER_SPHERE);
-  expect(buildBattleArmorBVInput(state).canAntiMek).toBe(false);
+  expect(state.techBaseMode).toBe(TechBaseMode.MIXED);
+  expect(state.chassisTechBase).toBe(TechBase.CLAN);
+  expect(state.techBase).toBe(TechBase.CLAN);
+  expect(buildBattleArmorBVInput(state)).toEqual(
+    buildBattleArmorBVInput(mapBattleArmorDefinitionToState(harjel())),
+  );
 });
 
 it.each([

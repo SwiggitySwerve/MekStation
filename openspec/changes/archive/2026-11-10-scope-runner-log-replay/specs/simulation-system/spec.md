@@ -18,8 +18,8 @@ statement does not add a runtime admission fence.
 #### Scenario: Characterize the current private-state gap
 
 - **GIVEN** seeds 1 through 8, four hydrated Atlas AS7-D units, ten turns and map radius 4
-- **WHEN** the real runner's final End-phase units are compared with replayed units
-- **THEN** the current characterization SHALL record fired-weapon differences for 15 of 32 units and phase-damage differences for 10 of 32
+- **WHEN** each real runner's last invariant-checked units (the final End phase, or for seed 4, which ends during turn 6, the state after its last weapon attack) are compared with replayed units
+- **THEN** the current characterization SHALL record fired-weapon differences for 17 of 32 units and phase-damage differences for 7 of 32
 - **AND** all 32 runner units SHALL lack `activeMASC`, `empInterferenceTurns` and `empShutdownTurns` own keys while replayed units SHALL carry explicit false/zero defaults
 - **AND** a future fix SHALL deliberately update the affected characterization rather than treating these differences as permanent game rules
 

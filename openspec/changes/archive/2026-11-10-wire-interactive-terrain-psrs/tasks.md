@@ -39,4 +39,4 @@
 
 ## 6. Verification
 
-- [ ] Root verifies hosted CI for each PR; the lane never merges.
+- [x] Root verifies hosted CI for each PR; the lane never merges. C4 confirms all PRs merged green; final merge `03647bfcc`.

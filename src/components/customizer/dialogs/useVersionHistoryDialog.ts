@@ -48,11 +48,12 @@ export function useVersionHistoryDialog({
   const revertingRef = useRef(false);
   const sessionRef = useRef(0);
   useEffect(() => {
-    sessionRef.current++;
+    const session = sessionRef;
+    session.current++;
     revertingRef.current = false;
     setIsReverting(false);
     return () => {
-      sessionRef.current++;
+      session.current++;
     };
   }, [isOpen, unitId]);
 

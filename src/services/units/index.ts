@@ -84,9 +84,6 @@ export {
   AbstractUnitTypeHandler,
   createSuccessResult,
   createFailureResult,
-  parseNumericField,
-  parseIntField,
-  parseBooleanField,
   parseArrayField,
 } from './handlers';
 

@@ -22,6 +22,7 @@ export type UnitEditSnapshot = Omit<
   | 'isModified'
   | 'sourceDefinition'
   | 'librarySave'
+  | 'unrecoveredCriticalSlots'
 >;
 
 /** Explicit fields also clear optional values when restoring an older snapshot. */

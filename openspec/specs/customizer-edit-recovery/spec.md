@@ -9,9 +9,7 @@ Defines visible browser-draft and server-library save state, immutable saved-ver
 Defining candidate source: visible receipts in `BrowserDraftStatus` (`src/components/customizer/shared/BrowserDraftStatus.tsx`) and `UnitSaveStatus` (`src/components/customizer/shared/UnitSaveStatus.tsx`); saved-version restore via `useSavedHistoryDialog` / `restoreLibraryVersionToDraft`; per-unit undo cap `MAX_ENTRIES = 50` in `src/stores/unit/unitEditHistory.ts`.
 
 Overwrite same-identity boundary (source inspection, not a THEN change): supported editor flows create UUID draft identities separate from custom-prefixed library identities. Branch inspection did not establish a supported same-ID producer, so no product defect is admitted from it. A supported same-ID producer or retained legacy fixture would be needed to reopen the suspicion. The Overwrite scenario below remains the desired requirement and is not called implemented. Other customizer browser cases do not settle it without a direct case. An untracked root archive copy is provenance only and is not merged archive closure.
-
 ## Requirements
-
 ### Requirement: Observable draft and library state
 The customizer SHALL visibly distinguish completed browser writes, failed browser writes, and the last known saved library version. Library identity SHALL come from a successful server response and SHALL survive draft reload separately from source provenance.
 
@@ -71,3 +69,46 @@ The BattleMech editor SHALL record complete user operations per unit with a maxi
 - **GIVEN** a draft edit is followed by saving under a new variant designation
 - **WHEN** the user undoes the earlier edit
 - **THEN** the saved designation and library receipt remain intact while the labeled edit is undone
+
+### Requirement: Shared save-state compatibility boundary
+
+The unit editor save-state owner SHALL represent modification, browser-draft
+write results, and last-known library receipts independently. Its transitions
+SHALL preserve successful library metadata through browser-write failure and
+SHALL compare library-save completion against the content actually submitted.
+Its initial mech integration SHALL preserve existing persisted fields,
+fingerprint bytes, undo behavior, facade exports, and registry/reset seams.
+
+#### Scenario: Literal old draft loads after fingerprint extraction
+
+- **GIVEN** a persisted mech draft captured before the extraction with literal library and editor fingerprints and a populated role
+- **WHEN** the existing registry hydrates it, the user edits and undoes an edit, and a receipt is recorded again
+- **THEN** its fingerprints remain byte-identical, its original receipt remains readable, and undo returns it to clean
+- **AND** clearing the registry removes the runtime store while retaining its browser draft
+
+#### Scenario: Existing loader defaults remain characterized
+
+- **GIVEN** a pre-extraction persisted draft omits its optional role
+- **WHEN** the existing registry merges defaults during hydration
+- **THEN** the role retains main's empty-string fallback and the original stored receipt remains readable
+- **AND** this extraction does not change that existing loader behavior or rewrite its stored fingerprint
+
+#### Scenario: Independent browser and library results
+
+- **GIVEN** a unit has a confirmed library receipt
+- **WHEN** a browser write fails or a library request fails
+- **THEN** no unrelated successful receipt or clean state is invented
+- **AND** a browser write failure retains the existing library receipt
+
+#### Scenario: Later edits during a library save
+
+- **GIVEN** the editor changes after a library snapshot is submitted
+- **WHEN** that submitted snapshot is confirmed saved
+- **THEN** the receipt describes the submitted content and the current editor remains modified
+
+#### Scenario: Optional field is absent in an older draft
+
+- **GIVEN** a new optional field is absent or undefined in an older draft
+- **WHEN** the field joins the canonical fingerprint projection
+- **THEN** its absence does not change the existing fingerprint bytes
+- **AND** temporary equipment-ID regeneration preserves draft and library fingerprints while exact edit identity remains distinct
