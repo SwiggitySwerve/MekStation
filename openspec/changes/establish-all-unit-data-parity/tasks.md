@@ -57,9 +57,9 @@ of 45 top-level rows ticked (38 of 49 checkbox entries); 11 rows remain open:
 
 Pause reconciliation on main `ed43d9bf2` (2026-11-10, owner pause, PARITY-PLAN
 §50): no top-level row ticked; three scoped milestones added (2.2g, 4.1b3,
-4.3c4), with the existing 3.1b and 2.22b preserved. The ledger has 34 of 45
-top-level rows ticked and 41 of 52 checkbox entries; the same eleven parent rows
-remain open. This is a dated ledger snapshot, not final acceptance. The current
+4.3c4), with the existing 3.1b and 2.22b preserved. That pass recorded 34 of 45
+top-level rows ticked and 41 of 52 checkbox entries; eleven parent rows remained
+open. This is a dated ledger snapshot, not final acceptance. The current
 row notes supersede earlier open/approval/next-step wording. New `parity-*`,
 `coord1-census/`, `handoffs/`, `c1c-*`, `d8-*`, `runtime-path-*` and
 `owner-packet-*` evidence paths are relative to `_scratch/sm-audit-reports/`;
@@ -68,6 +68,13 @@ Sources: `parity-5.2-c/PLAN.md`, its cited merge records and first-parent main
 history; `ROADMAP.md` is a cross-reference only. Missing POST-MERGE receipts are
 OPEN, never inferred from trials. No Jest, build or census was run for this
 reconciliation.
+
+Row 2.22 closure on main `8a489ef84` (2026-11-10, owner-approved C1 proof): 35
+of 45 top-level rows are ticked, with 42 of 52 checkbox entries. Ten parent rows
+remain open: 2.1, 2.2, 2.3, 3.1, 3.2, 3.3, 3.4, 4.1, 4.3 and 5.2. The ticked
+2.22b milestone is preserved; the eight catalog-identity follow-ups remain OPEN
+under 2.1. The SOURCE PATH scoreboard and local RUNTIME PATH labels remain at
+their stated scopes.
 
 Merge-effect evidence is the merged code/tests in the cited SHA's first-parent
 diff, or a merge/POST-MERGE record. PR descriptions are not evidence. Added
@@ -167,12 +174,15 @@ passing execution. An unverified effect or outcome stays "not verified".
     legacy `followups.md` item 111, `handoffs/c2-pause/c2-parked-items.md`.
     Close with merged identity/group correction, CAT-Q2 and 9,815 exact BV with
     no validity regression.
-  - OPEN, C2: seven torpedo launcher ids use SRM/LRM instead of torpedo groups;
-    Orion ON1-H `ac-10p` resolves as ordinary AC/10; primitive PPC resolves as
-    ordinary PPC on four corpus units. Evidence: `parity-E3/INVESTIGATION.md`.
-    Close through the single normalization owner, generated pinned records and
-    CAT-Q2, with a corpus identity census and unchanged BV. Old rifle-cannon
-    aliases need removal after #3328.
+  - OPEN, C2: the 8 multi-group equipment ids remain in the catalog identity
+    lane: seven torpedo launchers (`srt-2`, `srt-4`, `srt-6`, `lrt-5`, `lrt-10`,
+    `lrt-15`, `lrt-20`) use SRM/LRM instead of torpedo groups, and Orion ON1-H
+    `ac-10p` resolves as ordinary AC/10. Separately, primitive PPC resolves as
+    ordinary PPC on four corpus units. Evidence: `parity-E3/INVESTIGATION.md`,
+    `parity-E3/post-merge-62f333aaf/C2-IDENTITY-ROUTE.md`. Close through the
+    single normalization owner, generated pinned records and CAT-Q2, with a
+    corpus identity census and unchanged BV. Old rifle-cannon aliases need
+    removal after #3328.
   - OPEN, C2: infantry equipment/fieldGuns drift on 12 rows was measured after
     #3304; #3328 touches those 12 infantry files, so residual drift needs a
     fresh recount, not an assumed closure. Evidence:
@@ -407,7 +417,7 @@ passing execution. An unverified effect or outcome stays "not verified".
 
 - [x] 2.21 Preserve known missile category independently of capacity metadata at the weapon attack boundary; verify its Gunnery Specialist to-hit effect through real hydration and isolate category-dependent targets in mixed volleys through declaration and serialized resolution, preserving shared context and legacy fallbacks. Complete native categories, multi-SPA precedence, ID/name-dependent volley effects and category propagation through tactical previews and committed human interactive attacks remain open. (`spa-combat-integration`: Gunnery SPA — Gunnery Specialist) Proof: #2412; tests: `src/utils/gameplay/__tests__/declareAttack.gunnerySpecialist.test.ts`, `weaponAttackBuilder.test.ts`; evidence: `2026-10-29/astra-coordinator/root-continuation/missile-category/comparison.json` (2,592 category-context comparisons), `ledger/slice-tests/jest.log`.
 
-- [ ] 2.22 Consolidate offensive ammo grouping/cap arithmetic across shared, ProtoMech and aerospace owners while preserving their distinct policies and all source outputs; then connect native ammunition identity, effective quantities and grouping with independent numerical proof. Defensive caps and incomplete native ammunition receive no parity credit. (`battle-value-system`: Offensive ammunition cap ownership)
+- [x] 2.22 Consolidate offensive ammo grouping/cap arithmetic across shared, ProtoMech and aerospace owners while preserving their distinct policies and all source outputs; then connect native ammunition identity, effective quantities and grouping with independent numerical proof. Defensive caps and incomplete native ammunition receive no parity credit. (`battle-value-system`: Offensive ammunition cap ownership)
   - Pause accounting (2026-11-10): merged PRs and POST-MERGE status. Evidence:
     `parity-5.2-c/PLAN.md` and its cited merge records; merge identities checked
     against first-parent main history. OPEN means the exact POST-MERGE receipt
@@ -447,13 +457,6 @@ passing execution. An unverified effect or outcome stays "not verified".
       done locally on `3a19441a9`.
     - #3247 (`22099064f`): I3: closes 1,225 infantry ammunition omissions.
       POST-MERGE: done locally on `22099064f`.
-  - OPEN, C1: E3 merged `8a489ef84`; parent tick waits for E3 POST-MERGE + C1's
-    E1 re-run (0 local-only / 0 Java-only) and C1's wording. POST-MERGE is
-    queued in this receipt. The historical trial head `62f333aaf` versus control
-    `fd8e58996` removed exactly 25 local-only offensive ammo.cap keys in 25
-    rows, with 9,815 exact BV and nothing else moving. Evidence:
-    `parity-E3/INVESTIGATION.md`, `parity-5.2-c/PLAN.md`. Keep row 2.22 unticked
-    and 2.22b intact. B2-B4 belong to row 3.4, not this parent closure.
   - Historical receipts below retain their measured scope and SHA. Any earlier
     open count, pending approval or next step is superseded by the pause
     accounting above; these receipts are not a new measurement of the pause
@@ -481,7 +484,6 @@ passing execution. An unverified effect or outcome stays "not verified".
     no trust-acceptance proof. Other ammo/cap groups, effective quantities,
     topology and defensive caps remain open. Receipt:
     `normal-work/P4-ammo/proto-ammo-availability/PROOF.json`.
-  - Open: the preserving consolidation merged (#2413; `src/utils/construction/__tests__/offensiveAmmoPolicies.test.ts`, 24,506 byte-identical observations). Native ammunition is connected for ProtoMechs only: #2517 prices ProtoMech ammo per Java kg-per-shot through a cited stopgap table (`protoMechAmmo.ts`) that waited on catalog `kgPerShot` data. The catalog now carries `kgPerShot` (#2580) and #2615 retired the stopgap table and the infantry kit-divisor table. ProtoMech BV is 86 of 86 exact and infantry 1,820 of 1,820 on main `ac64a3330` (#2695 closed the 74 infantry field-gun misses). Vehicle and aerospace native ammunition identity, effective quantities and grouping still lack independent per-term proof: the strict comparator now leaves 39 vehicle misses (14 of them farther than 1%) and 6 aerospace misses (`ledger/tick6/misses.tsv`; 89 and 84 at tick 5), but the `--per-term` run still reports an `ammo.*` term as the first difference on 1,085 of the 1,444 vehicle rows and 19 of the 620 aerospace rows, because MekStation's breakdown has no per-bin ammunition term (row 1.4). I did not attribute the remaining misses to causes this pass. #2617 pooled artillery cannon ammo apart from artillery (follow-up 81 records the Schwerer Gustav defensive +18 it exposed). Converted ammunition ids are largely resolved by #2484, #2497 and #2580 (follow-ups 49, 63 and 68; row 2.1 has the unresolved counts).
   - [x] 2.22b Offensive ammunition grouping, effective quantities and caps
     match pinned MegaMek 48fcb2f64 on every Java-emitted offensive key across
     all seven families: guarded blocking-trust census on main `3f4d73318`
@@ -495,12 +497,28 @@ passing execution. An unverified effect or outcome stays "not verified".
     has one owner (`battleValueAmmo.ts`; battle armor folded in). Evidence:
     `parity-E1/closing/`. Scope: Java-emitted keys only; local-only emission
     is the parent's closure item below.
-  - Open under row 2.22:
-    - E3 merged `8a489ef84`; its removal of the 25 local-only offensive ammo.cap
-      keys awaits POST-MERGE completion.
-    - Parent tick waits for E3 POST-MERGE + C1's E1 re-run (0 local-only / 0
-      Java-only), all 2.22b counts unchanged, 9,815 exact and C1's wording, SHA
-      and receipt.
+  - Proof: E3 #3337 (main `8a489ef84`) emits offensive `ammo.cap` keys only
+    where pinned MegaMek 48fcb2f64 does. It applies
+    `BVCalculator.java:1230-1231` (F_ONE_SHOT and F_INFANTRY weapons contribute
+    no launcher cap) in the single owner `battleValueAmmo.ts`, and removes the
+    Orion ON1-H primitive-AC duplicate `AC:10` contribution (25 keys: 22
+    one-shot, 2 infantry, 1 grouping duplicate). Arithmetic and ammoBV are
+    unchanged.
+  - Closing proof on the POST-MERGE census of exact `8a489ef84` (blocking trust,
+    reference `4e19c56b…`), across all seven families including BA trooper
+    replicas:
+    - 9,815/9,815 exact BV;
+    - offensive `ammo.available` 12,032, `ammo.cap` 11,965 and `ammo.arc` 2,610
+      terms equal, with 0 unequal, 0 Java-only and 0 local-only;
+    - ammoBV equal on 9,815;
+    - 1,240 capital cap-binding groups compared per term;
+    - defensive AMS/APDS/SCREEN_LAUNCHER caps tallied separately with no credit.
+  - Consolidated arithmetic has one owner (`battleValueAmmo.ts`; BA folded in).
+  - Native ammunition identity: the 8 multi-group equipment ids (7 torpedo
+    launchers + Orion `ac-10p`) are routed to C2's catalog identity lane (OPEN
+    under 2.1); no Java-emitted key is affected.
+  - Evidence: `parity-E1/closing/` (`offensive-8a489ef84.json`,
+    `localonly-8a489ef84.json`) and `parity-E3/c1-retrial-1d27d9463/`.
 - [x] 2.23 Resolve ammunition within the existing BV catalog owner using its source collection, preserve generic/MTF lookup and reject weapon-only ammo identities through real consumers. Verify collisions, explicit custom context/reset, all captured lookup effects and all-family regression outputs. Native aliases, quantities, grouping, mount topology and full BV remain open. (`equipment-services`: Ammunition context in BV catalog resolution) Proof: #2414; tests: `src/utils/construction/__tests__/equipmentBVResolver.ammunition.test.ts`; evidence: `2026-10-29/astra-coordinator/root-continuation/ammo-catalog-context/comparison.json` (226,164 captured strings), `ledger/slice-tests/jest.log`.
 
 - [x] 2.24 Consolidate the total-to-projectile missile damage conversion and missile rack identification without behavior change, then correct expected-damage/variance previews and their selector/forecast consumers against pinned MegaMek damage-per-missile semantics. Unchanged runner and selected-AMS outputs are proven for every hydrated cluster/Streak launcher; hydrated LRM/SRM/ATM/MML/Streak previews, and native ProtoMek LRM previews, now equal the runner's resolution. UAC/RAC rate-of-fire and LB-X cluster/slug previews, MRM and other situational cluster modifiers in previews, ATM's built-in +2 cluster modifier (`ATMHandler.java:236-250`, in neither the runner nor the previews), MegaMek's own MRM 30/40 cluster rows (racks above 20 snap to the 20 column), the MML LRM/SRM mode, crit-probability location grouping, the independent damage-times-hit-probability estimators (per-weapon to-hit projection, volley ledger, AI coordinator), which assume every missile lands and, on the demo route, still read the unconverted per-missile display strings; ATM extended-range and high-explosive munition damage per missile (hydrated as standard 2); damage-per-hit callers, source BV and complete ProtoMech combat remain open. (`combat-resolution`: Native cluster hits for represented integer racks; `to-hit-resolution`: Missile damage previews use per-projectile damage) Proof: #2415 (+#2418); tests: `src/utils/gameplay/__tests__/clusterWeapons.projectileDamage.test.ts`, `clusterWeapons.missileRack.test.ts`, `src/utils/gameplay/damage/__tests__/expectedDamage.hydrated.test.ts`, `src/utils/gameplay/toHit/__tests__/preview.test.ts`; evidence: `2026-10-30/claude-coordinator/cluster-step1/`, `2026-10-30/claude-coordinator/cluster-step2/`, `ledger/slice-tests/jest.log`.
@@ -1569,7 +1587,7 @@ passing execution. An unverified effect or outcome stays "not verified".
     other jobs green or dispositioned, counts/run/job/head and
     first-attempt/retry/G6 recurrence accounting. No new CI watch is performed
     by this PR.
-  - 5.2 parent closure, C1-C5: every clause of the ten other open rows, source
+  - 5.2 parent closure, C1-C5: every clause of the nine other open rows, source
     inventory 10,994/9,815/1,179 with exclusions, fresh guarded conversion,
     separate source/catalog/runtime metrics, full detailed
     construction/BV/key-set/weight/validity/settings proof, workflow/sheet
@@ -1678,7 +1696,7 @@ passing execution. An unverified effect or outcome stays "not verified".
     the G6 register is not changed by this ledger update. Classification and
     receipt audit: `normal-work/P8-acceptance/landed-2951/`.
   - Open: depends on every other row, including every remaining clause of the
-    10 other open rows listed above (row 3.3 reopened 2026-11-09). Acceptance
+    9 other open rows listed above (row 3.3 reopened 2026-11-09). Acceptance
     checks 1, 3 and 4 remain open;
     historical aggregate BV equality does not discharge missing detailed terms,
     construction quantities, source semantics or connected workflow proof.
