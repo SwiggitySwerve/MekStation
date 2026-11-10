@@ -186,5 +186,8 @@
   },
   "mulId": 8200,
   "role": "Scout",
-  "source": "RG16,RGv1"
+  "source": "RG16,RGv1",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

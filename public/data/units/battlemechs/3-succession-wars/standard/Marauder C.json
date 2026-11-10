@@ -194,5 +194,8 @@
   "source": "RG06,RGv1",
   "weaponQuirks": {
     "RT:0:CLUltraAC5": ["exposed_linkage"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

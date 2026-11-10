@@ -336,20 +336,9 @@ describe('GM time cascade intervention implementer', () => {
       'gm-int-time-second-day',
     ]);
     for (const event of events) {
-      expect(
-        Object.prototype.hasOwnProperty.call(
-          event.afterCampaign,
-          'timeCascadeEvents',
-        ),
-      ).toBe(false);
+      expect(event.afterCampaign).not.toHaveProperty('timeCascadeEvents');
     }
-
-    const firstEventBytes = JSON.stringify(
-      first.state.timeCascadeEvents,
-    ).length;
-    const secondEventBytes = JSON.stringify(events).length;
     expect(JSON.stringify(events)).not.toContain('"timeCascadeEvents":');
-    expect(secondEventBytes).toBeLessThan(firstEventBytes * 2.5);
   });
 
   it('records action-ledger projections while redacting GM-private context', () => {

@@ -2,6 +2,7 @@
 import type { UnitState } from '@/stores/unitState';
 import type { IComponentSelections } from '@/stores/useMultiUnitStore.types';
 import type { IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
+import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import { getTotalAllocatedArmor } from '@/stores/unitState';
 import { RulesLevel, Era, getEraForYear, TechBase } from '@/types/enums';
@@ -54,6 +55,31 @@ export function getMechConstructionSelections(
     armorTonnage: state.armorTonnage,
     jumpMP: state.jumpMP,
     jumpJetType: state.jumpJetType,
+  };
+}
+
+/** Construction adapter: selections come from the same owner as editor validation. */
+export function projectMechBuildConfig(
+  state: MechConstructionSelections & Pick<UnitState, 'armorAllocation'>,
+): MechBuildConfig {
+  const selections = getMechConstructionSelections(state);
+  return {
+    tonnage: selections.tonnage,
+    configuration: selections.configuration,
+    frankenStructure: selections.frankenStructure,
+    engineRating: selections.engineRating,
+    engineType: selections.engineType,
+    gyroType: selections.gyroType,
+    internalStructureType: selections.internalStructureType,
+    armorType: selections.armorType,
+    totalArmorPoints: getTotalAllocatedArmor(
+      state.armorAllocation,
+      selections.configuration,
+    ),
+    cockpitType: selections.cockpitType,
+    heatSinkType: selections.heatSinkType,
+    totalHeatSinks: selections.heatSinkCount,
+    jumpMP: selections.jumpMP ?? 0,
   };
 }
 

@@ -179,5 +179,8 @@
   },
   "mulId": 5604,
   "role": "Missile Boat",
-  "source": "XTR:Phantoms"
+  "source": "XTR:Phantoms",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -187,5 +187,8 @@
   },
   "mulId": 8111,
   "role": "Juggernaut",
-  "source": "XTR:Caveat"
+  "source": "XTR:Caveat",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

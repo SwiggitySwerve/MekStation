@@ -178,5 +178,8 @@
   },
   "mulId": 8403,
   "role": "Sniper",
-  "source": "RG22"
+  "source": "RG22",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

@@ -182,5 +182,8 @@
   },
   "mulId": 8365,
   "role": "Striker",
-  "source": "XTR:Royal Fantasy"
+  "source": "XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

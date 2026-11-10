@@ -170,5 +170,8 @@
   },
   "mulId": 6394,
   "role": "Striker",
-  "source": "TR:3145:DC,TR:DA"
+  "source": "TR:3145:DC,TR:DA",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

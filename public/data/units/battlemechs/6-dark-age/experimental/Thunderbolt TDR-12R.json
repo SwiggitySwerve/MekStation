@@ -202,5 +202,8 @@
   },
   "mulId": 8194,
   "role": "Juggernaut",
-  "source": "RG15,RGv1"
+  "source": "RG15,RGv1",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -25,6 +25,7 @@ import assassin from '../../../../../public/data/units/battlemechs/6-dark-age/ad
 import crossbowT from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Crossbow T.json';
 import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
 import { resolveEquipmentId } from '../equipmentResolution';
+import { parseUnit } from '../unitContractAdapter';
 import { UnitLoaderService } from '../unitLoader';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
@@ -173,7 +174,7 @@ it.each([
   ['Enfield END-6J-EC', enfield],
   ['Banshee BNC-1E', banshee],
 ])('assigns %s prototype weapons their critical slots', (_name, unit) => {
-  const state = new UnitLoaderService().mapToUnitState(unit, true);
+  const state = new UnitLoaderService().mapToUnitState(parseUnit(unit), true);
   const prototypes = state.equipment.filter((item) =>
     /prototype/.test(item.equipmentId),
   );
@@ -195,7 +196,10 @@ it.each([
 // resolve to the IS item (a separate identity class); its prototype Streak SRM 4
 // now takes both CLStreakSRM4Prototype slots.
 it('assigns the Emperor EMP-6A-EC prototype Streak SRM 4 its critical slots', () => {
-  const state = new UnitLoaderService().mapToUnitState(emperor, true);
+  const state = new UnitLoaderService().mapToUnitState(
+    parseUnit(emperor),
+    true,
+  );
   const streak = state.equipment.filter(
     (item) => item.equipmentId === 'streaksrm4prototype',
   );
@@ -299,7 +303,10 @@ it('routes a mixed-tech unit by the crit token its location carries', () => {
       ['ISLMGA'],
     ).equipmentDef?.id,
   ).toBe('islmga-registry');
-  const state = new UnitLoaderService().mapToUnitState(scarecrow, true);
+  const state = new UnitLoaderService().mapToUnitState(
+    parseUnit(scarecrow),
+    true,
+  );
   const arrays = state.equipment.filter((item) => item.equipmentId === 'lmga');
   expect(arrays).toHaveLength(2);
   expect(arrays.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);

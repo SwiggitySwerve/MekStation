@@ -191,5 +191,8 @@
   },
   "mulId": 9508,
   "role": "Sniper",
-  "source": "Shrap13"
+  "source": "Shrap13",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

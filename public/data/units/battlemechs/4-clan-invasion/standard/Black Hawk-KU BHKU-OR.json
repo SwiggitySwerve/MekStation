@@ -175,5 +175,8 @@
   },
   "mulId": 3825,
   "role": "Skirmisher",
-  "source": "TR:3058U,TR:CI"
+  "source": "TR:3058U,TR:CI",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

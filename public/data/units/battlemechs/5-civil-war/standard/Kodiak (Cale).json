@@ -214,5 +214,8 @@
   },
   "mulId": 1804,
   "role": "Juggernaut",
-  "source": "JTP:Dieron"
+  "source": "JTP:Dieron",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

@@ -185,5 +185,8 @@
   },
   "mulId": 7376,
   "role": "Striker",
-  "source": "XTR:RotS 3"
+  "source": "XTR:RotS 3",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }
