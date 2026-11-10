@@ -44,7 +44,6 @@ import {
   UnitValidationMessages,
   combineAssaultUnitFields,
   createParseMessages,
-  parseRulesLevelThroughAdvancedFromType,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';
 
@@ -165,7 +164,6 @@ export class SpaceStationUnitHandler extends AbstractUnitTypeHandler<ISpaceStati
       typeSpecificFields,
       idPrefix: 'space-station',
       unitType: UnitType.SPACE_STATION,
-      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
   }
 

@@ -1,0 +1,6 @@
+{
+  "name": "fix-contract-morale-readers",
+  "status": "in-progress",
+  "reason": "Root-approved K2 M2-pre: the readers of contract.moraleLevel are brought to the pinned MekHQ before M2 writes it. A ROUTED contract generates no scenarios; contract morale has no effect on the scenario-type roll; the unused getMoraleDisplayInfo is deleted.",
+  "lastReviewed": "2026-11-10"
+}

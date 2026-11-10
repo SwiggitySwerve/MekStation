@@ -32,17 +32,17 @@ export const CONTROLLED_SIDESLIP_PSR_SOURCE_REFS = [
     sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
   },
   {
-    kind: 'mekstation-deviation',
+    kind: 'megamek-source',
     citation:
-      'MekStation queueMovementControlPSRs emits PSRTrigger.ControlledSideslip for represented lateral movement steps and suppresses walking Maneuvering Ace lateral shifts.',
-    url: 'src/simulation/runner/phases/movementControlPsr.ts#L34-L91',
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
+      'MegaMek MovePathHandler calls Entity.checkSideSlip only for VTOL, hover and WiGE-with-clearance movement, so a BattleMech never rolls the controlled-sideslip or flanking-and-turning check.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L2569-L2576`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
   },
   {
     kind: 'mekstation-deviation',
     citation:
-      'MekStation createControlledSideslipPSR stamps the controlled_sideslip reason code, -1 modifier, and optional movement-step trigger source.',
-    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L111-L127',
+      'MekStation createControlledSideslipPSR stamps the controlled_sideslip reason code, -1 modifier, and optional movement-step trigger source; no runner or interactive producer calls it, so it remains only for older replays and journals.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L121-L136',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
 ] satisfies readonly ICombatFeatureSourceReference[];
@@ -56,23 +56,23 @@ export const FLANKING_AND_TURNING_PSR_SOURCE_REFS = [
     sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
   },
   {
+    kind: 'megamek-source',
+    citation:
+      'MegaMek MovePathHandler calls Entity.checkSideSlip only for VTOL, hover and WiGE-with-clearance movement, so a BattleMech never rolls the controlled-sideslip or flanking-and-turning check.',
+    url: `https://github.com/MegaMek/megamek/blob/${MEGAMEK_COMBAT_SOURCE_VERSION}/megamek/src/megamek/server/totalWarfare/MovePathHandler.java#L2569-L2576`,
+    sourceVersion: MEGAMEK_COMBAT_SOURCE_VERSION,
+  },
+  {
     kind: 'mekstation-deviation',
     citation:
-      'MekStation createFlankingAndTurningPSR stamps the flanking_and_turning reason code and optional movement-step trigger source for represented pending PSR consumers.',
-    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L133-L143',
+      'MekStation createFlankingAndTurningPSR stamps the flanking_and_turning reason code and optional movement-step trigger source; no runner or interactive producer calls it, so it remains only for older replays and journals.',
+    url: 'src/utils/gameplay/pilotingSkillRolls/systemFactories.ts#L138-L153',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },
   {
     kind: 'mekstation-deviation',
     citation:
-      'MekStation queueMovementControlPSRs emits represented flanking-and-turning movement-step PSRs for BattleMech run/sprint moves that turn after moving more than one hex.',
-    url: 'src/simulation/runner/phases/movementControlPsr.ts#L47-L221',
-    sourceVersion: MEKSTATION_SOURCE_VERSION,
-  },
-  {
-    kind: 'mekstation-deviation',
-    citation:
-      'MekStation calculatePSRModifiers consumes Maneuvering Ace relief for represented flanking_and_turning pending PSRs without claiming movement declaration producer parity.',
+      'MekStation calculatePSRModifiers still consumes Maneuvering Ace relief for flanking_and_turning pending PSRs so older replays and journals resolve as before; nothing queues new ones.',
     url: 'src/utils/gameplay/pilotingSkillRolls/modifierResolution.ts#L326-L377',
     sourceVersion: MEKSTATION_SOURCE_VERSION,
   },

@@ -27,6 +27,35 @@ otherwise design introduction) permits dates through year + 5 inclusively.
 Unknown definitions have no available date to test. No chassis exceptions
 or changes to catalog dates belong in this rule.
 
+`src/utils/validation/mechValidationProjection.ts` is the React-free owner of
+editor construction selections and the full `IValidatableUnit` projection.
+`getMechConstructionSelections` retains configuration, FrankenMek section data,
+LAM subtype, mixed-tech mode, armor identity and all component selections.
+Consumers of those facts must call this owner rather than assemble a copy.
+The focused validation hooks delegate their defaults and derived inputs to its
+pure functions. `useMechValidationInput` only reads the store and dependencies,
+memoizes and calls `projectMechValidation`; `useUnitValidation` still owns
+options, debounce and UI result formatting.
+
+`captureMechValidity` calls the same pure projection directly. The sole remaining
+React render obtains `useUnitCalculations`' complete structural-weight value;
+there is no equivalent pure sum (the validation weight helper omits jump jets
+and LAM conversion). Both that render and `useWeightValidation` obtain selections
+from `getMechConstructionSelections`; neither clones weight arithmetic. Registry
+readiness and the equipment catalog are explicit pure-projection dependencies.
+Source paths label failures, not projected identity. Capture serializes rule IDs
+and messages only, so mount relabeling remains unnecessary.
+
+The shared selections now include `lamType`: pinned MegaMek `48fcb2f64`
+`TestMek.java:191-200` assigns bimodal LAM conversion equipment 15% of tonnage,
+rounded up. Shadow Hawk SHD-X1/X2 require 9 t conversion and 55 t total, whereas
+the previous focused selections supplied 6 t conversion and 52 t total.
+`getLAMConversionWeight` remains the arithmetic owner.
+
+Campaign refit will consume the construction selections in C2's follow-up PR;
+this change does not alter campaign adapters or their behavior. Other editor
+selection assemblies are inventoried in the PR as follow-ups for their owners.
+
 ## Introductory ammunition legality
 
 `BattleMechAmmoTechLevel` owns the ammunition rules-level check for Introductory

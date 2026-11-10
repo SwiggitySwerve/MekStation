@@ -505,8 +505,11 @@ without an ammo type. The independent generated `nativeOneShotAmmoMounts.ts`
 retains those insertion counts without changing the legacy weapon-flag tables.
 
 Weapon snapshots retain their local `equipmentIndex`, identity, location and
-already-admitted BV. Only a shifted snapshot appends `nativeEquipmentIndex`;
-the trace formats that value and falls back to the local index for existing
+already-admitted BV. The parity trace entry point `withProtoMechNativeIndices`
+in `nativeTraceEnrichment.ts` copies the breakdown and appends
+`nativeEquipmentIndex` only to shifted snapshots; ordinary calculator
+breakdowns retain local indices without that field. The trace formats the
+enriched value and falls back to the local index for existing
 breakdowns. Sprite 3 therefore renames only raw weapon indices 8/9/10 to
 10/13/14. Source equipment, explicit ammo, quantities, equipment projections,
 classification, caps, arithmetic, validity and persistence are unchanged.
@@ -528,10 +531,25 @@ claimed them are removed (they had no production caller). Evidence:
 `__tests__/fixtures/movement-java-verdicts.json` (the 86 canonical units plus 20
 synthetic variants, with the probe and pins beside it). Production already agreed with
 Java on all 86 canonical units; the rule adds only findings Java also reports.
-Not changed: the weight-class tables still used as editor input clamps
-(`getProtoMPCaps`, `isMyomerBoosterLegal`, the Structure tab's ultraheavy jump lock),
-which are the editor-limits item. Component mass is handled separately by the
-Native total mass owner below.
+The editor's input limits are in `movementLimits.ts` (see "Editor movement limits"
+below). Component mass is handled separately by the native total mass owner ("Native total mass" below).
+
+## Editor movement limits
+
+`movementLimits.ts` holds what the editor's walk and jump inputs accept, from
+MegaMekLab `62bf193` (`MovementView.java:224-292,316-376`, `PMStructureTab.java:264-282`):
+walk at least the motive minimum (biped 1, quad `floor(3 / 1.5)` = 2, glider
+`ceil(4 / 1.5)` = 3), at most the largest walk whose engine rating is a valid engine
+(500); jump at most `protoMaxJumpMP` (the walk, or 1.5 times it with an Extended Jump
+Jet System), and 0 for a glider; lowering walk or changing motive lowers jump to its new
+limit. There is no weight-class cap (the table that stood in for these is deleted), and no
+ultraheavy jump lock (the pinned Sprite Ultraheavy units jump 3 to 5). The Myomer Booster
+is disabled only for a glider. A new ProtoMech starts at walk 4 (it was capped by weight
+class, 3 for an ultraheavy).
+
+Editor-only: validity is `movementRules.ts`. `setTonnage` still resets walk to `10 - t`
+and the tonnage clamps still key off the chassis; both belong to the separate
+ultraheavy-as-mass item.
 
 ## Native total mass
 

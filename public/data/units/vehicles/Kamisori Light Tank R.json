@@ -70,5 +70,8 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Matabushi Incorporated"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

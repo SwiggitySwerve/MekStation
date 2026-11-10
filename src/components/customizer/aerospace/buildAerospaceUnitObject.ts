@@ -12,16 +12,19 @@
  */
 
 import type { IAerospaceRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
-import type { IAerospaceArmorAllocation } from '@/stores/aerospaceState';
+import type {
+  AerospaceState,
+  IAerospaceArmorAllocation,
+} from '@/stores/aerospaceState';
 import type { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
 
 import { getAerospaceEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
-import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { getAerospaceArcs } from '@/types/construction/aerospaceArcLabels';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { aerospaceBVUnitFromState } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 import {
@@ -45,6 +48,8 @@ export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTon
   heatSinks: number;
   doubleHeatSinks: boolean;
   armorType: ArmorTypeEnum;
+  armorTypeByArc?: AerospaceState['armorTypeByArc'];
+  cockpitType?: AerospaceState['cockpitType'];
   armorAllocation: IAerospaceArmorAllocation;
   hasBombBay: boolean;
   bombCapacity: number;
@@ -79,12 +84,7 @@ function toArmorArcs(
 export function buildAerospaceUnitObject(
   input: AerospaceUnitObjectInput,
 ): IAerospaceRecordSheetUnitInput {
-  const bv = calculateBattleValueForUnit({
-    ...input,
-    movement: { safeThrust: input.safeThrust, maxThrust: input.maxThrust },
-    heatSinkType: input.doubleHeatSinks ? 1 : 0,
-    totalArmorPoints: getTotalAerospaceArmor(input.armorAllocation),
-  });
+  const bv = calculateBattleValueForUnit(aerospaceBVUnitFromState(input));
   if (!bv || bv.kind !== 'aerospace')
     throw new TypeError('Expected aerospace BV');
   return {

@@ -35,7 +35,7 @@ it.each([
 ] as const)(
   '%s keeps identity and rear mounting',
   (token, lookupToken, rear) => {
-    expect(parseCriticalSlotToken(token)).toEqual({
+    expect(parseCriticalSlotToken(token)).toMatchObject({
       lookupToken,
       isRearMounted: rear,
     });

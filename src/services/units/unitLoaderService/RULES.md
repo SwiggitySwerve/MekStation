@@ -281,3 +281,24 @@ saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
 (MegaMek 48fcb2f64 ArmorType.java:669-688); BlkArmorCodes owns code 10
 (EquipmentType.java:95). Do not replace Commercial with Standard or lower
 Standard introduction dates to accommodate industrial source units.
+
+Declared OmniMeks derive a represented mount's pod metadata from its owned native
+critical cells, using `parseCriticalSlotToken` as the one token-decoding owner.
+The marker is a suffix after removing outer armored and size metadata, before
+turret/rear qualifiers (MegaMek 48fcb2f64 MtfFile.java:949-956,1005-1028).
+Ordinary and spreadable mounts retain their creation token; split weapons use
+the last visited critical, in native reverse-location/ascending-cell order
+(:545-548,1054-1066,1086-1128). Explicit saved booleans, including false, win.
+Missing source evidence is fixed; category or Omni identity alone never makes
+an item pod-mounted. Mount discovery, aliases and placement remain unchanged.
+
+This general recovery requires explicit `isOmni: true`. Absent/false declarations
+retain the existing loader output, including legacy physical pod flags. This
+preserves committed-catalog load/save/fingerprint bytes until the separately
+owned Omni declarations land. TestEntity.java:1861-1882 validates pod flags on
+non-Omnis; loading is not permission to rewrite an invalid source flag.
+EquipmentType.isOmniFixedOnly (EquipmentType.java:630-635) is an eligibility
+constraint checked separately, not a replacement for the source flag.
+MegaMekLab 62bf193 UnitUtil.java:650-686 also checks fixed-only equipment and
+fixed heat-sink quotas for newly authored pod mounts. No eligibility or
+base-chassis heat-sink arithmetic is copied into this loading boundary.
