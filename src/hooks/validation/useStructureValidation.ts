@@ -9,28 +9,15 @@
 
 import { useMemo } from 'react';
 
-import { useUnitStore } from '@/stores/useUnitStore';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import type { StructureValidationData } from '@/utils/validation/mechValidationProjection.types';
 
-/**
- * Structure validation data
- */
-export interface StructureValidationData {
-  /** Engine type */
-  engineType: string;
-  /** Gyro type */
-  gyroType: string;
-  /** Cockpit type */
-  cockpitType: string;
-  /** Internal structure type */
-  internalStructureType: string;
-  armorType?: string;
-  techBaseMode?: TechBaseMode;
-  /** Heat sink count */
-  heatSinkCount: number;
-  /** Heat sink type */
-  heatSinkType: string;
-}
+import { useUnitStore } from '@/stores/useUnitStore';
+import {
+  getMechConstructionSelections,
+  projectMechStructure,
+} from '@/utils/validation/mechValidationProjection';
+
+export type { StructureValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for structure validation data
@@ -39,35 +26,9 @@ export interface StructureValidationData {
  * heatSinkCount, heatSinkType (6 total)
  */
 export function useStructureValidation(): StructureValidationData {
-  const engineType = useUnitStore((s) => s.engineType);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
-  const internalStructureType = useUnitStore((s) => s.internalStructureType);
-  const armorType = useUnitStore((s) => s.armorType);
-  const techBaseMode = useUnitStore((s) => s.techBaseMode);
-  const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
-  const heatSinkType = useUnitStore((s) => s.heatSinkType);
-
+  const state = useUnitStore((s) => s);
   return useMemo(
-    () => ({
-      engineType,
-      gyroType,
-      cockpitType,
-      internalStructureType,
-      armorType,
-      techBaseMode,
-      heatSinkCount,
-      heatSinkType,
-    }),
-    [
-      engineType,
-      gyroType,
-      cockpitType,
-      internalStructureType,
-      armorType,
-      techBaseMode,
-      heatSinkCount,
-      heatSinkType,
-    ],
+    () => projectMechStructure(getMechConstructionSelections(state)),
+    [state],
   );
 }
