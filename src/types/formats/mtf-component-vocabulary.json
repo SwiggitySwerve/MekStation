@@ -1,5 +1,28 @@
 {
   "authority": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587: Mek.java:185-229 (GYRO_STRING, GYRO_SHORT_STRING, COCKPIT_STRING, COCKPIT_SHORT_STRING), Mek.java:4879-4898 and 5141-5372 (getMtf writer), MtfFile.java:252-272 and 366-369 and 566-598 (reader). See MTF_COMPONENT_VOCABULARY.md.",
+  "criticalSlotSystems": [
+    "Life Support",
+    "Sensors",
+    "Cockpit",
+    "Gyro",
+    "Shoulder",
+    "Upper Arm Actuator",
+    "Lower Arm Actuator",
+    "Hand Actuator",
+    "Hip",
+    "Upper Leg Actuator",
+    "Lower Leg Actuator",
+    "Foot Actuator",
+    "Upper Arm",
+    "Lower Arm",
+    "Hand",
+    "Upper Leg",
+    "Lower Leg",
+    "Foot",
+    "Engine",
+    "-Empty-",
+    "Empty"
+  ],
   "gyro": {
     "Standard Gyro": "STANDARD",
     "XL Gyro": "XL",
@@ -86,5 +109,127 @@
     "3": "ADVANCED",
     "4": "EXPERIMENTAL",
     "5": "UNOFFICIAL"
+  },
+  "criticalSlotMarkers": {
+    "IS Ferro-Fibrous": {
+      "kind": "armor-marker",
+      "material": "Ferro-Fibrous (IS)",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:388"
+    },
+    "Clan Ferro-Fibrous": {
+      "kind": "armor-marker",
+      "material": "Ferro-Fibrous (Clan)",
+      "techBase": "CLAN",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:426"
+    },
+    "IS Light Ferro-Fibrous": {
+      "kind": "armor-marker",
+      "material": "Light Ferro-Fibrous",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:459"
+    },
+    "IS Heavy Ferro-Fibrous": {
+      "kind": "armor-marker",
+      "material": "Heavy Ferro-Fibrous",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:491"
+    },
+    "IS Ferro-Fibrous Prototype": {
+      "kind": "armor-marker",
+      "material": "Ferro-Fibrous Prototype",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:522"
+    },
+    "IS Reactive": {
+      "kind": "armor-marker",
+      "material": "Reactive",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:793"
+    },
+    "Clan Reactive": {
+      "kind": "armor-marker",
+      "material": "Reactive",
+      "techBase": "CLAN",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:826"
+    },
+    "IS Reflective": {
+      "kind": "armor-marker",
+      "material": "Reflective",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:858"
+    },
+    "Clan Reflective": {
+      "kind": "armor-marker",
+      "material": "Reflective",
+      "techBase": "CLAN",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:891"
+    },
+    "IS Stealth": {
+      "kind": "armor-marker",
+      "material": "Stealth",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:957"
+    },
+    "Clan Ferro-Lamellor": {
+      "kind": "armor-marker",
+      "material": "Ferro-Lamellor",
+      "techBase": "CLAN",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:1021"
+    },
+    "IS Heat-Dissipating": {
+      "kind": "armor-marker",
+      "material": "Heat-Dissipating",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:1052"
+    },
+    "IS Impact-Resistant": {
+      "kind": "armor-marker",
+      "material": "Impact-Resistant",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:1082"
+    },
+    "IS Anti-Penetrative Ablation": {
+      "kind": "armor-marker",
+      "material": "Anti-Penetrative Ablation",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:1109"
+    },
+    "IS Ballistic-Reinforced": {
+      "kind": "armor-marker",
+      "material": "Ballistic-Reinforced",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 ArmorType.java:1140"
+    },
+    "IS Endo Steel": {
+      "kind": "structure-marker",
+      "material": "Endo Steel (IS)",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9743"
+    },
+    "IS Endo Steel Prototype": {
+      "kind": "structure-marker",
+      "material": "Endo Steel Prototype",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9777"
+    },
+    "Clan Endo Steel": {
+      "kind": "structure-marker",
+      "material": "Endo Steel (Clan)",
+      "techBase": "CLAN",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9804"
+    },
+    "IS Endo-Composite": {
+      "kind": "structure-marker",
+      "material": "Endo-Composite",
+      "techBase": "INNER_SPHERE",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9865"
+    },
+    "Clan Endo-Composite": {
+      "kind": "structure-marker",
+      "material": "Endo-Composite",
+      "techBase": "CLAN",
+      "source": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 MiscType.java:9896"
+    }
   }
 }

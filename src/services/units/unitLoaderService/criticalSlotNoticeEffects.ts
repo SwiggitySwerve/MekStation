@@ -1,9 +1,12 @@
+import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
+
 import type {
   ICriticalSlotNoticeIdentity,
   ICriticalSlotEntryClassification,
   ICriticalSlotNoticeEffect,
   INoticeKindRule,
 } from './criticalSlotNoticeTypes';
+import type { CriticalEntryKind } from './criticalSlotRecognitionTypes';
 export type {
   ICriticalSlotNoticeIdentity,
   ICriticalSlotEntryClassification,
@@ -373,4 +376,31 @@ export function classifyCriticalSlotNoticeIdentity(
   identity: ICriticalSlotNoticeIdentity,
 ): ICriticalSlotEntryClassification {
   return matchCriticalSlotNoticeIdentity(identity, CRITICAL_SLOT_NOTICE_RULES);
+}
+
+/** Recovery dispositions use resolved facts, never the notice's broad patterns.
+ * The caller still owns admission, grouping, sizing and slot availability.
+ */
+export function classifyCriticalSlotRecoveryKind(identity: {
+  readonly markerKind?: string;
+  readonly heatSink: boolean;
+  readonly equipmentCategory?: EquipmentCategory;
+  readonly equipmentId?: string;
+  readonly physicalWeapon: boolean;
+}): CriticalEntryKind {
+  if (
+    identity.markerKind === 'armor-marker' ||
+    identity.markerKind === 'structure-marker'
+  )
+    return identity.markerKind;
+  if (identity.heatSink) return 'heat-sink';
+  if (identity.equipmentCategory === EquipmentCategory.AMMUNITION)
+    return 'ammunition';
+  if (identity.equipmentId === 'bomb-bay') return 'bomb-bay';
+  if (
+    identity.equipmentCategory &&
+    (isWeaponCategory(identity.equipmentCategory) || identity.physicalWeapon)
+  )
+    return 'weapon';
+  return 'unclassified';
 }
