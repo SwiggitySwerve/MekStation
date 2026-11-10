@@ -237,6 +237,46 @@ describe('pending client mutations are flushed before the document is discarded'
     jest.restoreAllMocks();
   });
 
+  it('parses a typed 422 refusal, shows the server reason and retains dirty unsaved state', async () => {
+    seedDirtyCampaign(campaign);
+    const message = 'Cancel the extra refit order and save again.';
+    const violations = [
+      {
+        invariant: 'refit-one-open-per-unit',
+        unitId: 'unit-0',
+        openCount: 2,
+        allowedMax: 1,
+        orderIds: ['a', 'b'],
+      },
+    ];
+    jest.mocked(globalThis.fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 422,
+      json: async () => ({
+        kind: 'refused',
+        code: 'CAMPAIGN_INVARIANT_VIOLATION',
+        reason: 'refit-one-open-per-unit',
+        error: message,
+        currentVersion: BASE_VERSION,
+        violations,
+      }),
+    } as Response);
+    const result = await useCampaignPersistenceStore.getState().saveCampaign();
+    expect(result).toMatchObject({
+      status: 'error',
+      errorMessage: message,
+      refusal: { code: 'CAMPAIGN_INVARIANT_VIOLATION', violations },
+    });
+    expect(useCampaignPersistenceStore.getState()).toMatchObject({
+      dirty: true,
+      saveState: 'error',
+      errorMessage: message,
+      baseVersion: BASE_VERSION,
+      saveRefusal: { reason: 'refit-one-open-per-unit', message, violations },
+    });
+    expect(jest.getTimerCount()).toBe(0);
+  });
+
   it('issues exactly one keepalive PUT of the pending envelope', () => {
     seedDirtyCampaign(campaign);
 

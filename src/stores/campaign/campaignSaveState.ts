@@ -4,6 +4,8 @@
  * @spec openspec/changes/extract-campaign-save-reducer/specs/campaign-persistence/spec.md
  * @spec openspec/changes/route-campaign-save-writers/specs/campaign-persistence/spec.md
  */
+
+import type { IInvariantViolation } from '@/lib/campaign/persistence/campaignDomainInvariants';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ICampaignSaveMetadata,
@@ -44,11 +46,12 @@ export interface ICampaignSaveConflict {
   readonly currentVersion: number;
 }
 
-/** A typed 401/403 live-host refusal keeps pending changes; it is not a conflict. */
+/** Typed authorization or domain refusal keeps pending changes. */
 export interface ICampaignSaveRefusal {
   readonly code: string;
   readonly reason: string;
   readonly message: string;
+  readonly violations?: readonly IInvariantViolation[];
 }
 
 interface ICampaignSaveContext {

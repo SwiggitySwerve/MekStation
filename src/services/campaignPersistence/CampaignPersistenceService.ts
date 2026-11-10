@@ -34,12 +34,16 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import {
   evaluateSourceMutationGate,
   REPLICA_NOT_SOURCE_REFUSAL_REASON,
-  sourceCampaignAuthority,
   UNKNOWN_AUTHORITY_ROLE_REASON,
 } from '@/lib/campaign/authority/campaignAuthority';
 import { hydrateCampaignRecord } from '@/lib/campaign/authority/campaignAuthorityHydrate';
 import { getOrCreateHostInstanceId } from '@/lib/campaign/authority/campaignHostInstance';
 import { toCampaignSummary } from '@/lib/campaign/persistence';
+import {
+  checkCampaignDomainInvariants,
+  campaignInvariantRefusal,
+  type ICampaignInvariantRefusal,
+} from '@/lib/campaign/persistence/campaignDomainInvariants';
 import {
   storedReplayFenceOf,
   withoutClientFence,
@@ -47,7 +51,18 @@ import {
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { logger } from '@/utils/logger';
 
+import { prepareCampaignWrite } from './campaignRecordWritePreparation';
+
+export interface ICampaignWriteOptions {
+  /** Only the legacy import route may tolerate duplicate refits on create. */
+  readonly purpose?: 'legacy-adoption';
+}
+
 export type CampaignSaveResult =
+  | {
+      readonly kind: 'invariant-violation';
+      readonly refusal: ICampaignInvariantRefusal;
+    }
   | { readonly kind: 'ok'; readonly record: SerializedCampaign }
   | { readonly kind: 'conflict'; readonly current: SerializedCampaign }
   | {
@@ -111,6 +126,7 @@ export function readCampaign(id: string): CampaignReadResult {
 export function saveCampaign(
   envelope: SerializedCampaign,
   baseVersion: number,
+  options: ICampaignWriteOptions = {},
 ): CampaignSaveResult {
   const db = getSQLiteService().getDatabase();
   const hostInstanceId = getOrCreateHostInstanceId(db);
@@ -121,6 +137,7 @@ export function saveCampaign(
       envelope,
       baseVersion,
       hostInstanceId,
+      options,
     );
     if (plan.kind === 'ok') campaignRecordRow.write(db, plan.record);
     return plan;
@@ -142,6 +159,7 @@ export const campaignRecordRow = {
     envelope: SerializedCampaign,
     baseVersion: number,
     hostInstanceId: string,
+    options: ICampaignWriteOptions = {},
   ): CampaignSaveResult {
     const row = db
       .prepare('SELECT version, payload FROM campaigns WHERE id = ?')
@@ -185,6 +203,30 @@ export const campaignRecordRow = {
 
     if (baseVersion !== currentVersion) {
       return conflictFromStoredRow(row, prepared.record, hostInstanceId);
+    }
+
+    // Same transaction as CAS; no row or journal append has happened yet.
+    const violations = checkCampaignDomainInvariants(
+      prepared.record.body,
+      prepared.storedBody,
+    );
+    if (violations.length > 0) {
+      const context = { campaignId: envelope.campaignId, violations };
+      if (options.purpose === 'legacy-adoption' && row === undefined) {
+        logger.warn(
+          '[CampaignPersistence] tolerating legacy adoption invariants',
+          context,
+        );
+      } else {
+        logger.info(
+          '[CampaignPersistence] refusing campaign domain invariants',
+          context,
+        );
+        return {
+          kind: 'invariant-violation',
+          refusal: campaignInvariantRefusal(violations, currentVersion),
+        };
+      }
     }
 
     const nextVersion = baseVersion + 1;
@@ -395,79 +437,6 @@ function parseStoredCampaignRow(
     };
   }
   return { kind: 'ok', record: hydrated.record };
-}
-
-type PreparedWrite =
-  | { readonly kind: 'ok'; readonly record: SerializedCampaign }
-  | {
-      readonly kind: 'refused';
-      readonly reason: typeof REPLICA_NOT_SOURCE_REFUSAL_REASON;
-    }
-  | {
-      readonly kind: 'failed';
-      readonly reason: typeof UNKNOWN_AUTHORITY_ROLE_REASON;
-    };
-
-/**
- * Hydrate incoming and stored envelopes, refuse replica mutation, and
- * pin instanceId/authority. Extracted so saveCampaign stays the CAS
- * writer rather than mixing identity rules with SQL.
- */
-function prepareCampaignWrite(args: {
-  readonly envelope: SerializedCampaign;
-  readonly hostInstanceId: string;
-  readonly row: { version: number; payload: string } | undefined;
-}): PreparedWrite {
-  const incoming = hydrateCampaignRecord(args.envelope, args.hostInstanceId);
-  if (incoming.kind === 'failed') {
-    return incoming;
-  }
-  const incomingGate = evaluateSourceMutationGate(incoming.record.authority);
-  if (incomingGate.kind !== 'ok') {
-    return incomingGate;
-  }
-
-  if (!args.row) {
-    return {
-      kind: 'ok',
-      record: {
-        ...incoming.record,
-        instanceId: args.hostInstanceId,
-        authority: sourceCampaignAuthority(),
-      },
-    };
-  }
-
-  let storedJson: unknown;
-  try {
-    storedJson = JSON.parse(args.row.payload);
-  } catch {
-    return {
-      kind: 'ok',
-      record: {
-        ...incoming.record,
-        instanceId: args.hostInstanceId,
-        authority: sourceCampaignAuthority(),
-      },
-    };
-  }
-
-  const stored = hydrateCampaignRecord(storedJson, args.hostInstanceId);
-  if (stored.kind === 'failed') {
-    return stored;
-  }
-  const storedGate = evaluateSourceMutationGate(stored.record.authority);
-  if (storedGate.kind !== 'ok') {
-    return storedGate;
-  }
-  return {
-    kind: 'ok',
-    record: {
-      ...incoming.record,
-      instanceId: stored.record.instanceId,
-      authority: stored.record.authority,
-    },
-  };
 }
 
 /**

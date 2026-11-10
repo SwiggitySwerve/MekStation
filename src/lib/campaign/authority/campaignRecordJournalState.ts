@@ -28,10 +28,12 @@ import type {
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { IGmCampaignFundsTransactionEffect } from '@/types/interventions';
 
+import { checkCampaignDomainInvariants } from '@/lib/campaign/persistence/campaignDomainInvariants';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import { campaignRecordRow } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { TransactionType } from '@/types/campaign/Transaction';
+import { logger } from '@/utils/logger';
 
 import { addCampaignDays } from '../campaignCalendar';
 import { hiredPilotId } from '../markets/offerLifecycle';
@@ -103,6 +105,15 @@ export function rewriteCampaignRecordAfterCommand(
     row.version + 1,
     readCampaignJournalState(db, campaignId),
   );
+  // Monitor the whole materialized row, including unchanged legacy duplicates.
+  // Server journal state is authoritative: this check must never refuse.
+  const violations = checkCampaignDomainInvariants(record.body, null);
+  if (violations.length > 0) {
+    logger.warn(
+      '[CampaignPersistence] journal row domain invariants (monitor only)',
+      { campaignId, violations },
+    );
+  }
   campaignRecordRow.write(
     db,
     batch?.gmInterventionId === undefined

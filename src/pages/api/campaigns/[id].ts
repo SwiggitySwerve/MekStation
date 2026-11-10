@@ -41,6 +41,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import type { ICampaignInvariantRefusal } from '@/lib/campaign/persistence/campaignDomainInvariants';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import {
@@ -94,6 +95,7 @@ type ConflictResponse = {
 const LIVE_COOP_SESSION_REASON = 'live-coop-session';
 
 type ErrorResponse =
+  | ICampaignInvariantRefusal
   | { error: string }
   | {
       error: string;
@@ -424,6 +426,10 @@ export default async function handler(
             currentVersion: result.current.version,
             current: result.current,
           });
+          return;
+        }
+        if (result.kind === 'invariant-violation') {
+          res.status(422).json(result.refusal);
           return;
         }
         if (result.kind === 'refused') {

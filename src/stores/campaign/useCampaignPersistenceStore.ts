@@ -36,6 +36,7 @@ import {
   campaignCacheKeyOf,
   evaluateCampaignCache,
 } from '@/lib/campaign/persistence/campaignCacheKey';
+import { isInvariantViolation } from '@/lib/campaign/persistence/campaignDomainInvariants';
 import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
@@ -593,13 +594,14 @@ function readConflictBody(body: unknown): {
   return { record: body as SerializedCampaign, conflict: null };
 }
 
-/** The refusal in a `401`/`403` body, or `null` for any other body. */
+/** Typed authorization or invariant refusal; failed authority bodies remain errors. */
 export function readSaveRefusal(body: unknown): ICampaignSaveRefusal | null {
   const typed = body as Partial<{
     kind: string;
     code: string;
     reason: string;
     error: string;
+    violations: unknown;
   }> | null;
   if (
     typed?.kind !== 'refused' ||
@@ -612,6 +614,10 @@ export function readSaveRefusal(body: unknown): ICampaignSaveRefusal | null {
     code: typed.code,
     reason: typeof typed.reason === 'string' ? typed.reason : typed.code,
     message: typed.error,
+    ...(Array.isArray(typed.violations) &&
+    typed.violations.every(isInvariantViolation)
+      ? { violations: typed.violations }
+      : {}),
   };
 }
 
@@ -661,7 +667,11 @@ async function putLiveCampaign(
     const { record, conflict } = readConflictBody(await response.json());
     return { status: 'conflict', conflictServerRecord: record, conflict };
   }
-  if (response.status === 401 || response.status === 403) {
+  if (
+    response.status === 401 ||
+    response.status === 403 ||
+    response.status === 422
+  ) {
     const refusal = readSaveRefusal(await response.json().catch(() => null));
     if (refusal) {
       return { status: 'refused', refusal };

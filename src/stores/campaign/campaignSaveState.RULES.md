@@ -92,3 +92,12 @@ of installation-triggered auto-save with D-11. PR1 preserves timer behavior,
 legacy/guest creation exemptions, co-op rollback and typed refusal distinctions,
 the keepalive cap, and flush diagnostic lifetime. All state here is transient;
 persisted envelopes, wire messages, fixtures, and journals are unchanged.
+
+## Domain-invariant refusals
+
+A typed 422 CAMPAIGN_INVARIANT_VIOLATION uses save-refused, retaining dirty,
+baseVersion and pending edits. The server message is errorMessage and the
+refusal message; optional validated violation details remain transient. It
+arms no retry. Generic 422 failed-authority bodies retain existing error handling.
+The full invariant card, discard action, pre-flight and blocked adoption marker
+are reserved for PR C after save-loss adoption.

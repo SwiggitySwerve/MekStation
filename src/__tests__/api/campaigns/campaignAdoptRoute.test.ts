@@ -19,6 +19,7 @@ import { createMocks, type Body, type RequestMethod } from 'node-mocks-http';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
+import { refitOrders } from '@/lib/campaign/persistence/__tests__/refitInvariantTestHelpers';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import adoptHandler from '@/pages/api/campaigns/[id]/adopt';
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
@@ -26,6 +27,7 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { logger } from '@/utils/logger';
 
 const CAMPAIGN_ID = 'campaign-legacy-copy';
 
@@ -83,7 +85,30 @@ describe('campaign adopt route', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     resetSQLiteService();
+  });
+
+  it('tolerates and logs legacy duplicate refits on import', async () => {
+    const base = browserEnvelope();
+    const envelope = {
+      ...base,
+      body: { ...base.body, refitOrders: refitOrders(2) },
+    };
+    const warning = jest.spyOn(logger, 'warn');
+    const result = await call('POST', { envelope });
+    expect(result.status).toBe(201);
+    expect(readCampaign(CAMPAIGN_ID)).toMatchObject({
+      kind: 'ok',
+      record: { body: { refitOrders: refitOrders(2) } },
+    });
+    expect(warning).toHaveBeenCalledWith(
+      expect.stringContaining('legacy adoption'),
+      expect.objectContaining({
+        campaignId: CAMPAIGN_ID,
+        violations: [expect.objectContaining({ openCount: 2 })],
+      }),
+    );
   });
 
   it('adopts a browser copy this server has never held', async () => {

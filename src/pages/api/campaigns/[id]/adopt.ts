@@ -28,6 +28,7 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import type { ICampaignInvariantRefusal } from '@/lib/campaign/persistence/campaignDomainInvariants';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import {
@@ -52,6 +53,7 @@ import {
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type AdoptErrorResponse =
+  | ICampaignInvariantRefusal
   | { error: string }
   | {
       error: string;
@@ -171,7 +173,15 @@ export default async function handler(
       return;
     }
 
-    const saved = saveCampaign(body.envelope, 0);
+    // Legacy copies may already contain duplicates. Import logs them without
+    // choosing a winner; subsequent PUTs can retain or reduce the count.
+    const saved = saveCampaign(body.envelope, 0, {
+      purpose: 'legacy-adoption',
+    });
+    if (saved.kind === 'invariant-violation') {
+      res.status(422).json(saved.refusal);
+      return;
+    }
     if (saved.kind !== 'ok') {
       // The not-found read above means a create; anything else here is a
       // race with a concurrent writer, reported rather than retried.
