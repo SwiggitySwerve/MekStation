@@ -3,6 +3,7 @@ import { BattleArmorUnitHandler } from '../../src/services/units/handlers/Battle
 import { baseInput } from '../../src/utils/construction/battlearmor/__tests__/battleArmorBV.test.helpers';
 import {
   battleArmorBVTerms,
+  battleArmorNativeSectionBV,
   battleArmorNativeWeaponBV,
   calculateBattleArmorBV,
   type BANativeWeaponMount,
@@ -399,5 +400,217 @@ describe('battleArmorNativeWeaponBV owner', () => {
       [0, 'a'],
       [1, 'b'],
     ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// B3: native section terms
+// ---------------------------------------------------------------------------
+// The Java probe (java_bv_terms.py:107-108) records `section.<name>` as the
+// offensive value one tentative pass adds (BattleArmorBVCalculator.java:122-127),
+// for Weapons:, Squad Support: and, only when canMakeAntiMekAttacks, Anti-Mek:
+// (:154-160). It records the pass even when it adds 0.
+
+/** `[trooper.N.]section.*` terms keyed by the Java section label. */
+const sectionValues = (
+  trace: Record<string, number | undefined>,
+  prefix = '',
+): Record<string, number> => {
+  const out: Record<string, number> = {};
+  const head = `${prefix}section.`;
+  for (const [key, value] of Object.entries(trace))
+    if (key.startsWith(head) && value !== undefined)
+      out[key.slice(head.length)] = value;
+  return out;
+};
+const sectionKeys = (trace: Record<string, number | undefined>) =>
+  Object.keys(trace).filter((key) => /(?:^|\.)section\./.test(key));
+
+test('BA squad weapons project the Weapons and Anti-Mek section values for the squad and every trooper', () => {
+  const { trace } = traceOf({
+    'Squad Equipment': `${manipulators}\n${DAVID}:RA`,
+  });
+  const expected = { 'Weapons:': 7, 'Squad Support:': 0, 'Anti-Mek:': 7 };
+  expect(sectionValues(trace)).toEqual(expected);
+  for (const k of [1, 2, 3, 4])
+    expect(sectionValues(trace, `trooper.${k}.`)).toEqual(expected);
+  expect(sectionKeys(trace)).toHaveLength(15);
+  expect(sectionKeys(trace).filter((key) => key.includes('trooper.5'))).toEqual(
+    [],
+  );
+});
+
+test('BA omits the Anti-Mek section unless the squad may make anti-Mek attacks', () => {
+  // BattleArmorBVCalculator.java:158-160.
+  const { trace } = traceOf({
+    'Squad Equipment': `${manipulators}\n${DAVID}:RA`,
+    weightclass: '3',
+  });
+  expect(sectionValues(trace)).toEqual({ 'Weapons:': 7, 'Squad Support:': 0 });
+  expect(sectionKeys(trace)).toHaveLength(10);
+});
+
+test('BA records zero-valued sections as real terms', () => {
+  // Weapons and Squad Support appear for every unit, Anti-Mek for eligible ones,
+  // even when the pass adds nothing (6,743 of 7,085 Squad Support terms are 0).
+  const { trace } = traceOf({ 'Squad Equipment': manipulators });
+  expect(sectionValues(trace)).toEqual({
+    'Weapons:': 0,
+    'Squad Support:': 0,
+    'Anti-Mek:': 0,
+  });
+  expect(sectionValues(trace, 'trooper.4.')).toEqual({
+    'Weapons:': 0,
+    'Squad Support:': 0,
+    'Anti-Mek:': 0,
+  });
+});
+
+test('BA squad-support mounts count only in Squad Support and Anti-Mek, divided by the strength', () => {
+  const { trace } = traceOf({
+    'Squad Equipment': `${manipulators}\n${DAVID}:RA:SSWM`,
+  });
+  expect(sectionValues(trace)).toEqual({
+    'Weapons:': 0,
+    'Squad Support:': 1.75,
+    'Anti-Mek:': 1.75,
+  });
+  expect(sectionValues(trace, 'trooper.3.')).toEqual(sectionValues(trace));
+});
+
+test('BA trooper-located weapons add to their own trooper sections only', () => {
+  const { trace } = traceOf({
+    'Squad Equipment': manipulators,
+    'Trooper 2 Equipment': `${DAVID}:RA`,
+  });
+  expect(sectionValues(trace, 'trooper.2.')).toEqual({
+    'Weapons:': 0,
+    'Squad Support:': 7,
+    'Anti-Mek:': 7,
+  });
+  for (const k of [1, 3, 4])
+    expect(sectionValues(trace, `trooper.${k}.`)).toEqual({
+      'Weapons:': 0,
+      'Squad Support:': 0,
+      'Anti-Mek:': 0,
+    });
+  // Squad-level terms are trooper 1's snapshot.
+  expect(sectionValues(trace)).toEqual(sectionValues(trace, 'trooper.1.'));
+});
+
+test('BA vibro claws count only in the Anti-Mek section', () => {
+  // BattleArmorBVCalculator.java:135-136,142-144.
+  const { trace } = traceOf({ 'Squad Equipment': 'BABattleClawVibro:LA' });
+  expect(sectionValues(trace)).toEqual({
+    'Weapons:': 0,
+    'Squad Support:': 0,
+    'Anti-Mek:': 1,
+  });
+});
+
+test('BA section values add up to the weapon term values of the same trooper', () => {
+  const { trace } = traceOf({
+    'Squad Equipment': `${manipulators}\n${DAVID}:RA\n${SRM1}:LA\n${DAVID}:Body:SSWM`,
+    'Trooper 3 Equipment': `${DAVID}:RA`,
+  });
+  for (const prefix of ['', 'trooper.1.', 'trooper.3.', 'trooper.4.']) {
+    const fromSections = Object.values(sectionValues(trace, prefix)).reduce(
+      (sum, value) => sum + value,
+      0,
+    );
+    const fromWeapons = Object.values(weaponValues(trace, prefix))
+      .flat()
+      .reduce((sum, value) => sum + value, 0);
+    expect(fromSections).toBeCloseTo(fromWeapons, 10);
+  }
+  expect(sectionValues(trace, 'trooper.3.')['Squad Support:']).toBe(7 + 7 / 4);
+});
+
+test('BA without complete native weapon facts emits no section terms', () => {
+  expect(
+    sectionKeys(battleArmorBVTerms(calculateBattleArmorBV(baseInput()))),
+  ).toEqual([]);
+  const incomplete = calculateBattleArmorBV(baseInput({ nativeWeapons: [] }));
+  expect(sectionKeys(battleArmorBVTerms(incomplete))).toEqual([]);
+});
+
+test('BA mounts without a native unit location make the native facts incomplete', () => {
+  const mount = (equipmentId: string, unitLocation?: string) => ({
+    id: 'm',
+    equipmentId,
+    name: equipmentId,
+    unitLocation,
+    location: 'Right Arm' as never,
+    isAPMount: false,
+    isTurretMounted: false,
+    isModular: false,
+  });
+  expect(
+    projectBAMounts([mount(`${DAVID}:RA`, 'Squad')], 4).nativeWeaponsComplete,
+  ).toBe(true);
+  expect(projectBAMounts([mount(`${DAVID}:RA`)], 4).nativeWeaponsComplete).toBe(
+    false,
+  );
+  // Equipment that adds no weapon fact cannot make the section totals wrong.
+  expect(
+    projectBAMounts([mount('BABasicManipulator:LA')], 4).nativeWeaponsComplete,
+  ).toBe(true);
+  // An unlocated mount still drops out of the located list, as in B2.
+  const mixed = projectBAMounts(
+    [mount(`${DAVID}:RA`, 'Squad'), mount(`${SRM1}:LA`)],
+    4,
+  );
+  expect(mixed.nativeWeapons).toHaveLength(1);
+  expect(mixed.nativeWeaponsComplete).toBe(false);
+});
+
+describe('battleArmorNativeSectionBV owner', () => {
+  const fact = (over: Partial<BANativeWeaponMount>): BANativeWeaponMount => ({
+    id: 'w',
+    location: 'Squad',
+    battleValue: 8,
+    support: false,
+    claw: false,
+    infantry: false,
+    antiMek: false,
+    ...over,
+  });
+
+  it('sums each pass over the mounts that pass counts', () => {
+    const facts = [
+      fact({ battleValue: 8, antiMek: true }),
+      fact({ battleValue: 4, support: true, antiMek: true }),
+      fact({ battleValue: 2, claw: true, antiMek: true }),
+    ];
+    expect(battleArmorNativeSectionBV(facts, 2, true)).toEqual([
+      { 'Weapons:': 8, 'Squad Support:': 2, 'Anti-Mek:': 8 + 2 + 2 },
+      { 'Weapons:': 8, 'Squad Support:': 2, 'Anti-Mek:': 8 + 2 + 2 },
+    ]);
+  });
+
+  it('leaves the Anti-Mek label out when the squad may not make anti-Mek attacks', () => {
+    const [trooper] = battleArmorNativeSectionBV(
+      [fact({ antiMek: true })],
+      1,
+      false,
+    );
+    expect(Object.keys(trooper)).toEqual(['Weapons:', 'Squad Support:']);
+  });
+
+  it('keeps infantry weapons out of Squad Support and Anti-Mek', () => {
+    expect(
+      battleArmorNativeSectionBV([fact({ infantry: true })], 1, true),
+    ).toEqual([{ 'Weapons:': 8, 'Squad Support:': 0, 'Anti-Mek:': 0 }]);
+  });
+
+  it('counts a trooper-located mount for that trooper only', () => {
+    const sections = battleArmorNativeSectionBV(
+      [fact({ location: 'Trooper 2', trooper: 2, antiMek: true })],
+      3,
+      true,
+    );
+    expect(sections.map((s) => s['Squad Support:'])).toEqual([0, 8, 0]);
+    expect(sections.map((s) => s['Anti-Mek:'])).toEqual([0, 8, 0]);
+    expect(sections.map((s) => s['Weapons:'])).toEqual([0, 0, 0]);
   });
 });

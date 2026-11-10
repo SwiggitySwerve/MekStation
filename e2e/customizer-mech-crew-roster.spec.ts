@@ -11,6 +11,8 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+// Re-pin from the current checkout through the real loader (run at repo root):
+// npx tsx scripts/e2e/pin-mech-crew-save-losses.ts
 import saveLosses from './fixtures/mech-crew-save-losses.json';
 import {
   expectPrintWindowClosesAfterPrint,
@@ -139,6 +141,10 @@ async function section(page: Page, name: string) {
  * Pinned at saveLosses.sourceCommit from the real canonical loader:
  * mapToUnitState -> equipmentMapping -> criticalSlotEquipment diagnostics.
  * Compare every source cell before acknowledging the product's save-loss gate.
+ * Triskelion's center-leg structure/armor markers are in o3a's acceptance set;
+ * remove those pinned entries when o3a recovers the markers. Poseidon's new
+ * center-leg AP pods belong to PR-D's (C2) acceptance set and leave this fixture
+ * when PR-D recovers them.
  */
 async function confirmCriticalSlotLoss(page: Page, unit: ICase) {
   const expected = saveLosses.units[unit.sourceId].entries;
