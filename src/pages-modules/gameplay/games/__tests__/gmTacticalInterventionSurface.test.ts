@@ -7,6 +7,8 @@ import type {
 } from '@/types/gameplay';
 
 import { createDemoSession } from '@/__fixtures__/gameplay';
+import { ActionLedger } from '@/lib/interventions/ActionLedger';
+import { InterventionLedger } from '@/lib/interventions/InterventionLedger';
 import { GamePhase } from '@/types/gameplay';
 
 import {
@@ -149,6 +151,7 @@ describe('gmTacticalInterventionSurface', () => {
     });
 
     expect(interactiveSession.advancePhase).toHaveBeenCalledTimes(1);
+    expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
     expect(setSession).toHaveBeenCalledWith(
       expect.objectContaining({
         currentState: expect.objectContaining({
@@ -172,76 +175,109 @@ describe('gmTacticalInterventionSurface', () => {
     );
   });
 
-  it('commits appliable combat corrections through the live engine seam', () => {
+  // @spec openspec/changes/disable-gm-non-event-corrections/specs/gm-tactical-command-surface/spec.md - Interim correction approval
+  it.each([
+    'gm.set-position-facing',
+    'gm.set-damage',
+    'gm.set-heat-ammo',
+    'gm.set-initiative',
+    'gm.set-lifecycle',
+    'gm.set-objective',
+  ] as const)(
+    'blocks %s, including stale ready previews, without mutation or records',
+    (commandId) => {
+      const session = createDemoSession();
+      const before = JSON.parse(JSON.stringify(session.currentState));
+      const interventionAppend = jest.spyOn(
+        InterventionLedger.prototype,
+        'appendApprovedRecord',
+      );
+      const actionAppend = jest.spyOn(
+        ActionLedger.prototype,
+        'appendGmInterventionRecord',
+      );
+      const setSession = jest.fn();
+      const interactiveSession = {
+        advancePhase: jest.fn(),
+        applyCorrectedState: jest.fn(),
+        getSession: () => session,
+      } as unknown as InteractiveSession;
+      const { result } = renderHook(() =>
+        useGmTacticalInterventionSurface({
+          enabled: true,
+          session,
+          interactiveSession,
+          setSession,
+        }),
+      );
+      const preview = result.current!.preview({
+        commandId,
+        command: makeCommand(commandId),
+        ctx: { ...makeCtx(), hoveredHex: { q: 2, r: 2 } },
+      });
+      const reason =
+        'Corrections are temporarily unavailable: the next game action would discard them until correction events are implemented.';
+      expect(preview).toMatchObject({ status: 'blocked', reason });
+      for (const candidate of [
+        preview,
+        { ...preview, status: 'ready' as const },
+      ]) {
+        act(() => {
+          expect(result.current!.approve?.(candidate)).toEqual({
+            status: 'blocked',
+            appended: false,
+            reason,
+          });
+        });
+      }
+      expect(session.currentState).toEqual(before);
+      expect(interventionAppend).not.toHaveBeenCalled();
+      expect(actionAppend).not.toHaveBeenCalled();
+      interventionAppend.mockRestore();
+      actionAppend.mockRestore();
+      expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
+      expect(interactiveSession.advancePhase).not.toHaveBeenCalled();
+      expect(setSession).not.toHaveBeenCalled();
+      expect(result.current?.playerLog).toEqual([]);
+    },
+  );
+
+  it('blocks an unrecognized ready preview instead of falling back to the correction setter', () => {
     const session = createDemoSession();
-    const movementSession = {
-      ...session,
-      currentState: {
-        ...session.currentState,
-        phase: GamePhase.Movement,
-      },
-    };
+    const applyCorrectedState = jest.fn();
+    const advancePhase = jest.fn();
     const setSession = jest.fn();
-    let engineSession = movementSession;
     const interactiveSession = {
-      advancePhase: jest.fn(),
-      applyCorrectedState: jest.fn((state) => {
-        engineSession = {
-          ...engineSession,
-          currentState: state,
-        };
-      }),
-      getSession: () => engineSession,
+      applyCorrectedState,
+      advancePhase,
+      getSession: () => session,
     } as unknown as InteractiveSession;
     const { result } = renderHook(() =>
       useGmTacticalInterventionSurface({
         enabled: true,
-        session: movementSession,
+        session,
         interactiveSession,
         setSession,
       }),
     );
-
     const preview = result.current!.preview({
-      commandId: 'gm.set-position-facing',
-      command: makeCommand('gm.set-position-facing'),
-      ctx: {
-        ...makeCtx(),
-        hoveredHex: { q: 2, r: 2 },
-      },
+      commandId: 'gm.advance-phase',
+      command: makeCommand(),
+      ctx: makeCtx(),
     });
-
-    expect(preview.status).toBe('ready');
-
     act(() => {
-      const approval = result.current!.approve?.(preview);
-      expect(approval).toMatchObject({
-        status: 'approved',
-        appended: true,
-      });
+      expect(
+        result.current!.approve?.({
+          ...preview,
+          status: 'ready',
+          interventionId: 'unrecognized',
+        }),
+      ).toMatchObject({ status: 'blocked', appended: false });
     });
-
-    expect(interactiveSession.applyCorrectedState).toHaveBeenCalledWith(
-      expect.objectContaining({
-        units: expect.objectContaining({
-          'unit-player-1': expect.objectContaining({
-            position: { q: 2, r: 2 },
-          }),
-        }),
-      }),
-    );
-    expect(interactiveSession.advancePhase).not.toHaveBeenCalled();
-    expect(setSession).toHaveBeenCalledWith(
-      expect.objectContaining({
-        currentState: expect.objectContaining({
-          units: expect.objectContaining({
-            'unit-player-1': expect.objectContaining({
-              position: { q: 2, r: 2 },
-            }),
-          }),
-        }),
-      }),
-    );
+    expect(applyCorrectedState).not.toHaveBeenCalled();
+    expect(advancePhase).not.toHaveBeenCalled();
+    expect(setSession).not.toHaveBeenCalled();
+    expect(result.current?.playerLog).toEqual([]);
   });
 
   it('records nothing when the live engine refuses the approved correction (S14)', () => {
@@ -334,8 +370,59 @@ describe('gmTacticalInterventionSurface', () => {
     expect(approvals[0]).toMatchObject({ status: 'approved' });
     expect(approvals[1]).toMatchObject({ status: 'blocked', appended: false });
     expect(interactiveSession.advancePhase).toHaveBeenCalledTimes(1);
+    expect(interactiveSession.applyCorrectedState).not.toHaveBeenCalled();
     expect(result.current?.playerLog).toHaveLength(1);
   });
+
+  it.each([
+    [
+      'gm.correct-attack',
+      'Attack-resolution corrections are not yet appliable to the live session without new resolution semantics.',
+    ],
+    [
+      'gm.reload-unit',
+      'Unit reload corrections require session-unit replacement semantics and are deferred from the tactical live-session commit seam.',
+    ],
+    [
+      'gm.grant-resource',
+      'Resource grants target the campaign economy domain and are deferred from the tactical live-session commit seam.',
+    ],
+  ] as const)(
+    'preserves the live-session refusal for %s',
+    (commandId, reason) => {
+      const session = createDemoSession();
+      const applyCorrectedState = jest.fn();
+      const advancePhase = jest.fn();
+      const setSession = jest.fn();
+      const interactiveSession = {
+        applyCorrectedState,
+        advancePhase,
+        getSession: () => session,
+      } as unknown as InteractiveSession;
+      const { result } = renderHook(() =>
+        useGmTacticalInterventionSurface({
+          enabled: true,
+          session,
+          interactiveSession,
+          setSession,
+        }),
+      );
+      const preview = result.current!.preview({
+        commandId,
+        command: makeCommand(commandId),
+        ctx: makeCtx(),
+      });
+      act(() => {
+        expect(
+          result.current!.approve?.({ ...preview, status: 'ready' }),
+        ).toEqual({ status: 'unsupported', appended: false, reason });
+      });
+      expect(applyCorrectedState).not.toHaveBeenCalled();
+      expect(advancePhase).not.toHaveBeenCalled();
+      expect(setSession).not.toHaveBeenCalled();
+      expect(result.current?.playerLog).toEqual([]);
+    },
+  );
 
   it('returns explicit deferred approval for tactical resource grants without appending', () => {
     const session = createDemoSession();
