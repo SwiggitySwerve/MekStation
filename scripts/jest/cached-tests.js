@@ -122,6 +122,10 @@ const isUnsupportedJestOption = (arg) =>
 const HERMETIC_FS_READERS = new Set([
   // reads E2E fault sentinels from the runtime-created data/.e2e-fault dir
   'src/lib/multiplayer/server/DurableMatchStore.ts',
+  // FS_READ matches the `readFile(filePath)` method declared on the
+  // IElectronAPI interface (the desktop preload bridge); the file itself
+  // performs no fs read. Campaign persistence imports isElectron from it.
+  'src/components/settings/useElectron.ts',
 ]);
 
 // Git-ignored files that a test run writes into the tree: the app's SQLite database
