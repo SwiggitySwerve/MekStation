@@ -35,7 +35,9 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
   it('keeps `npx lint-staged --no-stash`, whose *.{ts,tsx} list ends with npm run typecheck', () => {
     expect(
       hookCommandLines().some((line) =>
-        /^\d+: npx lint-staged --no-stash \|\| exit \$\?$/.test(line),
+        /^\d+: npx lint-staged --no-stash \$hide_flag \|\| exit \$\?$/.test(
+          line,
+        ),
       ),
     ).toBe(true);
     const lintStaged = JSON.parse(fs.readFileSync(packagePath, 'utf8'))[
@@ -99,9 +101,13 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
         },
       }),
     );
-    const guard = 'scripts/lib/check-staged-parents.mjs';
     fs.mkdirSync(path.join(cwd, 'scripts/lib'), { recursive: true });
-    fs.copyFileSync(path.join(repoRoot, guard), path.join(cwd, guard));
+    for (const guard of [
+      'scripts/lib/check-partial-stage.mjs',
+      'scripts/lib/check-staged-parents.mjs',
+    ]) {
+      fs.copyFileSync(path.join(repoRoot, guard), path.join(cwd, guard));
+    }
     // Only the npx launcher is local; it runs the installed lint-staged CLI.
     const bin = path.join(cwd, 'bin');
     fs.mkdirSync(bin);
@@ -153,9 +159,12 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
       'pre-commit',
     );
     const hook = fs.readFileSync(hookPath, 'utf8');
-    const command = 'npx lint-staged --no-stash ||';
+    const command = 'npx lint-staged --no-stash $hide_flag ||';
     expect(hook).toContain(command);
-    fs.writeFileSync(mutant, hook.replace(command, 'npx lint-staged ||'));
+    fs.writeFileSync(
+      mutant,
+      hook.replace(command, 'npx lint-staged $hide_flag ||'),
+    );
     expect(gitCommandsRun(mutant).filter(usesStash).length).toBeGreaterThan(0);
   });
 });
