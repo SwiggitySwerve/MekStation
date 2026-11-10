@@ -22,6 +22,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 
 import { MORALE_DEFAULT } from '@/types/campaign/Prestige';
 
+import { stampMissingAppliedOn } from '../appliedOutcomes';
 import {
   DayPhase,
   getDayEventsSoFar,
@@ -53,8 +54,23 @@ export const moraleProcessor: IDayProcessor = {
   process(campaign: ICampaign, date: Date): IDayProcessorResult {
     const currentState = campaign.moraleState ?? MORALE_DEFAULT;
     const dayEvents = getDayEventsSoFar(campaign);
-    const prunedOutcomes = filterRecentMoraleOutcomes(campaign, date);
+    // An entry with no application day (an old save, or state written outside
+    // `applyPostBattle`) is stamped with today, then the list is pruned to the
+    // retention window by in-game days.
+    const stampedOutcomes = stampMissingAppliedOn(
+      campaign.recentlyAppliedOutcomes,
+      date,
+    );
+    const stampedCampaign =
+      stampedOutcomes === campaign.recentlyAppliedOutcomes
+        ? campaign
+        : ({
+            ...campaign,
+            recentlyAppliedOutcomes: stampedOutcomes,
+          } as ICampaign);
+    const prunedOutcomes = filterRecentMoraleOutcomes(stampedCampaign, date);
     const originalOutcomeCount = campaign.recentlyAppliedOutcomes?.length ?? 0;
+    const stampedChanged = stampedOutcomes !== campaign.recentlyAppliedOutcomes;
 
     // An outcome moves morale once, on the first evaluation after it is
     // applied. It stays in `recentlyAppliedOutcomes` for 31 days (other
@@ -87,7 +103,11 @@ export const moraleProcessor: IDayProcessor = {
     // No transition — morale held. The campaign is returned as is unless the
     // outcome window or the counted ids moved.
     if (!evaluation.transition) {
-      if (prunedOutcomes.length === originalOutcomeCount && countedUnchanged) {
+      if (
+        prunedOutcomes.length === originalOutcomeCount &&
+        countedUnchanged &&
+        !stampedChanged
+      ) {
         return { events: [], campaign };
       }
       return {

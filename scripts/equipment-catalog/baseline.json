@@ -38572,5 +38572,26 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeArrowIV.java: ProtoTypeArrowIV"
       ]
     }
+  },
+  {
+    "file": "miscellaneous/other.json",
+    "index": 299,
+    "id": "clan-caseii",
+    "sha256": "e11ae993e31343d8ed4fcff4af8c7a907fe350720d9cd16726977f7e542fe451",
+    "item": {
+      "id": "clan-caseii",
+      "name": "Clan CASE II",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "costCBills": 175000,
+      "battleValue": 0,
+      "introductionYear": 3062,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java#L4839-L4869: CLCASEII"
+      ]
+    }
   }
 ]

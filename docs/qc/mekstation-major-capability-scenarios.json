@@ -545,7 +545,7 @@
           "id": "openspec-strict",
           "tier": "core",
           "required": true,
-          "command": "npx.cmd openspec validate --all --strict",
+          "command": "npm.cmd run openspec:validate",
           "evidence": ["openspec"]
         },
         {

@@ -65,3 +65,20 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **WHEN** a custom copy is serialized, saved and reloaded
 - **THEN** all unchanged domain facts SHALL compare exactly
 - **AND** edited facts SHALL reflect the saved edits without canonical substitution
+
+#### Scenario: Preserve a declared XL gyro during MTF import
+
+- **GIVEN** an MTF source declaring an XL gyro
+- **WHEN** it is parsed, saved through the unit API and reloaded
+- **THEN** the existing gyro mapping owner SHALL preserve the declared XL identity in the existing serialized gyro field
+- **AND** the editor SHALL calculate with that identity when recovering source equipment mass
+
+#### Scenario: Preserve slot-only weapons through MTF import and save
+
+- **GIVEN** native MTF critical entries for complete physical or ranged weapon mounts absent from the weapon summary
+- **WHEN** the TypeScript parser imports the source or the app reloads a legacy definition
+- **THEN** the shared mounting owner SHALL recover each native mount once with its identity, mass, locations and critical positions
+- **AND** summary aliases and repeated mounts SHALL retain their multiplicity without treating ammunition as a weapon
+- **AND** variable physical sizing, spreadable Talons anchoring and split eligibility SHALL use their existing domain owners and pinned native traversal
+- **AND** API persistence and custom serialization SHALL preserve recovered mounts, rear and Omni flags on reload
+- **AND** unknown or incomplete critical groups SHALL remain available in the source grid with incomplete recognized mounts reported diagnostically

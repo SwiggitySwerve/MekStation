@@ -19,10 +19,10 @@ import React, {
 import { IUnitIndexEntry } from '@/services/common/types';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { mapCustomUnitIndexEntry } from '@/services/units/unitIndexMapper';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { formatNumberWithSeparators } from '@/utils/formatting';
 import { logger } from '@/utils/logger';
 
@@ -60,26 +60,6 @@ export interface UnitLoadDialogProps {
   onCancel: () => void;
 }
 
-function toCustomUnitWithSource(
-  unit: ICustomUnitIndexEntry & Pick<IUnitIndexEntry, 'family'>,
-): UnitWithSource {
-  return {
-    ...(unit.family ? { family: unit.family } : {}),
-    id: unit.id,
-    chassis: unit.chassis,
-    variant: unit.variant,
-    tonnage: unit.tonnage,
-    techBase: unit.techBase,
-    era: unit.era,
-    weightClass: unit.weightClass,
-    unitType: unit.unitType as UnitType,
-    name: `${unit.chassis} ${unit.variant}`,
-    filePath: '',
-    source: 'custom',
-    currentVersion: unit.currentVersion,
-  };
-}
-
 function getUnitsForSource(
   canonicalUnits: IUnitIndexEntry[],
   customUnits: ICustomUnitIndexEntry[],
@@ -97,7 +77,7 @@ function getUnitsForSource(
   }
 
   if (sourceFilter !== 'canonical') {
-    units.push(...customUnits.map(toCustomUnitWithSource));
+    units.push(...customUnits.map(mapCustomUnitIndexEntry));
   }
 
   return units;

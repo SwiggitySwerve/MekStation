@@ -320,3 +320,65 @@ SHALL remain readable without adding inferred donor types.
 - **GIVEN** an old document without `typeByLocation`
 - **WHEN** validated
 - **THEN** the map SHALL remain absent and its existing structure data SHALL remain unchanged
+
+### Requirement: FrankenMek donor metadata persistence
+
+The BattleMech editor SHALL preserve explicit structure donor types and tonnages
+through loading, draft persistence, custom-library serialization, reopening,
+duplication and undo/redo. Each boundary SHALL own copies of both donor maps.
+Missing donor maps SHALL remain absent; an explicit empty map SHALL remain
+present. Retaining these facts SHALL NOT change construction mass, BV or
+construction validity before the section-weighted mass rule is enabled.
+
+#### Scenario: Save and reopen donor structure facts
+
+- **GIVEN** an imported FrankenMek with explicit donor types and tonnages
+- **WHEN** its editor saves to the custom library and a cold session reopens it
+- **THEN** both donor maps SHALL retain their values and presence
+- **AND** the calculation configuration SHALL survive the round trip
+- **AND** modifying an input, duplicate or serialized map SHALL NOT mutate the source editor
+
+#### Scenario: Replace global material and undo donor edits
+
+- **GIVEN** an editor retaining explicit donor facts
+- **WHEN** its global structure material is explicitly replaced
+- **THEN** donor overrides SHALL be cleared
+- **AND** undo SHALL restore them and redo SHALL clear them again
+- **GIVEN** an edit that adds donor metadata to a legacy editor
+- **WHEN** undone
+- **THEN** metadata SHALL return to absence and the clean draft state SHALL be restored
+- **AND** edits to either donor map SHALL participate in draft and library fingerprints
+
+#### Scenario: Old and empty donor documents remain distinct
+
+- **GIVEN** a global-only, tonnage-only or explicitly empty donor-type map
+- **WHEN** loaded, saved and reopened
+- **THEN** the type map SHALL NOT be inferred or removed
+- **AND** existing global mass arithmetic SHALL remain unchanged
+
+### Requirement: Consistent structure calculation context
+
+The BattleMech editor and construction validation projections SHALL forward
+effective configuration and optional FrankenMek donor metadata to the existing
+structure mass owner. Adding this context SHALL preserve existing arithmetic
+until the section-weighted mass rule is enabled separately.
+
+#### Scenario: All editor consumers retain structure context
+
+- **GIVEN** an editor unit with effective configuration and explicit donor metadata
+- **WHEN** editor statistics, Overview, the Structure tab or weight validation calculates mass
+- **THEN** each consumer SHALL pass both facts through the shared calculation hook to the structure mass owner
+- **AND** a metadata-only edit SHALL refresh each consumer's calculation input
+
+#### Scenario: Public construction and validation callers forward context
+
+- **GIVEN** optional structure context supplied to a construction or validation weight calculation
+- **WHEN** the aggregate, structure step or public structure lookup calls the mass owner
+- **THEN** the supplied context SHALL reach that owner without changing component arithmetic or unknown-type admission checks
+
+#### Scenario: Context forwarding preserves legacy results
+
+- **GIVEN** an existing design with or without donor metadata
+- **WHEN** the context-forwarding change is applied without enabling the native mass rule
+- **THEN** component weights, Battle Value and construction validity SHALL remain unchanged
+- **AND** absent donor metadata SHALL remain absent

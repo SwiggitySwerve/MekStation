@@ -8,7 +8,7 @@ import { TechBase } from '@/types/enums/TechBase';
 
 import { restoreCriticalSlotEquipment } from '../criticalSlotEquipment';
 import { mapEquipment } from '../equipmentMapping';
-import { groupSourcePhysicalMounts } from '../sourceWeaponMounts';
+import { takeSourceWeaponSlots } from '../sourceWeaponMounts';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
@@ -32,22 +32,17 @@ const load = (slots: Record<string, string[]>, tonnage?: number) =>
     tonnage,
   );
 
-it('reserves the rest of a listed group without mutating caller claims', () => {
+it('matches legacy aliases without mutating caller claims', () => {
   const slots = Array.from({ length: 6 }, (_, index) => ({
     index,
     equipmentId: 'claw',
   }));
   const claimed = new Set([0]);
-  const groups = groupSourcePhysicalMounts(slots, claimed, 'claws', 3, 1);
-  expect(groups.claimed.map((slot) => slot.index)).toEqual([1, 2, 3, 4, 5]);
-  expect(groups.mounts.map((group) => group.map((slot) => slot.index))).toEqual(
-    [[3, 4, 5]],
-  );
+  expect(
+    takeSourceWeaponSlots(slots, claimed, 'claws', 3).map((slot) => slot.index),
+  ).toEqual([1, 2, 3]);
   expect([...claimed]).toEqual([0]);
-  expect(groupSourcePhysicalMounts(slots, claimed, 'claw', 0, 0)).toEqual({
-    claimed: [],
-    mounts: [],
-  });
+  expect(takeSourceWeaponSlots(slots, claimed, 'claw', 0)).toEqual([]);
 });
 
 it('keeps one Cudgel-sized Mace rather than one mount per critical cell', () => {
@@ -77,6 +72,52 @@ it('keeps repeated mounts and their source order', () => {
     { location: 'Right Arm', slots: [0, 1, 2, 3], weight: 4 },
   ]);
 });
+
+it('reserves an explicit later mount before recovering an earlier qualified mount', () => {
+  const items = mapEquipment(
+    [
+      {
+        id: 'smallshield',
+        location: 'LEFT_ARM',
+        slots: [3, 4, 5],
+        isRearMounted: false,
+      },
+    ],
+    TechBase.INNER_SPHERE,
+    TechBaseMode.INNER_SPHERE,
+    {
+      LEFT_ARM: [
+        ...Array(3).fill('ISSmallShield (R)'),
+        ...Array(3).fill('ISSmallShield'),
+      ],
+    },
+    80,
+  );
+  expect(items).toHaveLength(2);
+  expect(items[0]).toMatchObject({ slots: [3, 4, 5], isRearMounted: false });
+  expect(items[1]).toMatchObject({ slots: [0, 1, 2], isRearMounted: true });
+});
+
+it.each([6, 10])(
+  'reserves every explicit cell of a legacy superheavy allocation (%i)',
+  (count) => {
+    const slots = Array.from({ length: count }, (_, index) => index);
+    const items = mapEquipment(
+      [{ id: 'ac-20', location: 'RIGHT_TORSO', slots, isRearMounted: true }],
+      TechBase.INNER_SPHERE,
+      TechBaseMode.INNER_SPHERE,
+      { RIGHT_TORSO: Array(10).fill('ISAC20 (R)') },
+      105,
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      equipmentId: 'ac-20',
+      criticalSlots: 5,
+      slots,
+      isRearMounted: true,
+    });
+  },
+);
 it('joins native and legacy Claw identities without merging their mounts', () => {
   const items = load(
     { LEFT_ARM: ['ISClaw', 'Claws', 'ISClaw', 'Claws', 'ISClaw', 'Claws'] },
@@ -87,7 +128,7 @@ it('joins native and legacy Claw identities without merging their mounts', () =>
     { slots: [3, 4, 5], weight: 3 },
   ]);
 });
-it('reserves an existing variable mount without changing its old projection', () => {
+it('sizes an explicit variable mount once and reserves its complete allocation', () => {
   const items = mapEquipment(
     [{ id: 'mace', location: 'LEFT_ARM' }],
     TechBase.INNER_SPHERE,
@@ -98,15 +139,22 @@ it('reserves an existing variable mount without changing its old projection', ()
   expect(items).toHaveLength(1);
   expect(items[0]).toMatchObject({
     equipmentId: 'mace',
-    weight: 0,
-    criticalSlots: 0,
+    weight: 8,
+    criticalSlots: 8,
+    slots: [0, 1, 2, 3, 4, 5, 6, 7],
   });
-  expect(items[0].slots).toBeUndefined();
 });
-it('retains incomplete-group, missing-tonnage and unaudited-class guards', () => {
+it('retains incomplete-group and missing-tonnage guards and recovers fixed classes', () => {
   expect(load({ LEFT_ARM: Array(7).fill('Mace') }, 80)).toEqual([]);
   expect(load({ LEFT_ARM: Array(8).fill('Mace') })).toEqual([]);
-  expect(load({ LEFT_ARM: Array(3).fill('ISSmallShield') }, 80)).toEqual([]);
+  expect(load({ LEFT_ARM: Array(3).fill('ISSmallShield') }, 80)).toMatchObject([
+    {
+      equipmentId: 'smallshield',
+      weight: 2,
+      criticalSlots: 3,
+      slots: [0, 1, 2],
+    },
+  ]);
 });
 it('converts superheavy demand once while keeping the ordinary mass', () => {
   expect(load({ LEFT_ARM: Array(8).fill('Mace') }, 150)).toMatchObject([
@@ -132,7 +180,7 @@ it('preserves the empty-summary ammo guard independently of physical recovery', 
     ),
   ).toHaveLength(1);
 });
-it('keeps one quad Talons mount with the existing first-source-location anchor', () => {
+it('keeps one quad Talons mount with the native reverse-location anchor', () => {
   const items = load(
     Object.fromEntries(
       [
@@ -149,12 +197,12 @@ it('keeps one quad Talons mount with the existing first-source-location anchor',
     equipmentId: 'talons',
     weight: 4,
     criticalSlots: 8,
-    location: 'Front Left Leg',
+    location: 'Rear Left Leg',
     slots: [0, 1],
     spreadSlots: [
-      { location: 'Front Right Leg', slots: [0, 1] },
-      { location: 'Rear Left Leg', slots: [0, 1] },
       { location: 'Rear Right Leg', slots: [0, 1] },
+      { location: 'Front Left Leg', slots: [0, 1] },
+      { location: 'Front Right Leg', slots: [0, 1] },
     ],
   });
   expect(load({ LEFT_LEG: ['Talons'] }, 60)).toEqual([]);

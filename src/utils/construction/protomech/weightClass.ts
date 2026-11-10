@@ -52,8 +52,9 @@ export function getProtoWeightClass(tonnage: number): ProtoWeightClass {
  *
  * Rules:
  * - Ultraheavy chassis requires tonnage ≥ 10
- * - Glider chassis requires Light class (tonnage ≤ 4)
- * - Biped and Quad accept any legal tonnage (2–15)
+ * - Biped, Quad and Glider accept any legal tonnage (2–15). The pinned verifier has
+ *   no glider weight rule (MML's spinner only raises a glider's minimum to 10 t when
+ *   ultra and glider tech are legal, which is tech filtering and deferred).
  */
 export function isChassisLegalForTonnage(
   chassisType: ProtoChassis,
@@ -63,8 +64,6 @@ export function isChassisLegalForTonnage(
     case ProtoChassis.ULTRAHEAVY:
       return tonnage >= PROTO_MIN_ULTRAHEAVY_TONNAGE;
     case ProtoChassis.GLIDER:
-      // Glider requires Light class: 2–4 tons
-      return tonnage >= PROTO_MIN_TONNAGE && tonnage <= 4;
     case ProtoChassis.BIPED:
     case ProtoChassis.QUAD:
       return tonnage >= PROTO_MIN_TONNAGE && tonnage <= PROTO_MAX_TONNAGE;

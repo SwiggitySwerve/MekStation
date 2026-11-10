@@ -38,7 +38,10 @@ import type {
   IUnitCombatState,
   IUnitMaxState,
 } from '@/types/campaign/UnitCombatState';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type {
+  IAppliedCombatOutcome,
+  ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
 import type {
   IGmCampaignProjectedEffect,
   IGmTimeCascadeProjectedEffect,
@@ -46,6 +49,7 @@ import type {
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import { normalizeShoppingList } from '@/lib/campaign/acquisition/shoppingList';
+import { stampMissingAppliedOn } from '@/lib/campaign/appliedOutcomes';
 import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import { reconcileMissionCopy } from '@/lib/campaign/missionStatusMachine';
 import {
@@ -133,7 +137,7 @@ export interface SerializedCampaignState {
   salvageReports?: Readonly<Record<string, ISalvageReport>>;
   gmInterventionEvents?: readonly IGmCampaignProjectedEffect[];
   timeCascadeEvents?: readonly IGmTimeCascadeProjectedEffect[];
-  recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
   /**
    * Campaign command-tier loan ledger (`ICampaignCommandExtensions.loans`,
    * CP2b design D4). Before the D-1 fix a reload kept the borrowed cash
@@ -405,7 +409,12 @@ export function deserializeCampaign(
     salvageReports: serialized.salvageReports,
     gmInterventionEvents: serialized.gmInterventionEvents,
     timeCascadeEvents: serialized.timeCascadeEvents,
-    recentlyAppliedOutcomes: serialized.recentlyAppliedOutcomes,
+    // Old saves have no `appliedOn` (their `capturedAt` is a wall-clock
+    // instant, not a campaign date): stamp the loaded campaign's date.
+    recentlyAppliedOutcomes: stampMissingAppliedOn(
+      serialized.recentlyAppliedOutcomes,
+      new Date(serialized.currentDate),
+    ),
     // D-1 fix + sweep: command-tier ledger/markets and the
     // refit/prestige/morale/starmap fields. All optional — absent on
     // pre-fix snapshots, in which case the campaign simply carries no

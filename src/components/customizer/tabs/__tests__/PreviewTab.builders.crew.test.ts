@@ -118,17 +118,41 @@ describe('editor crew seats in the record-sheet payload', () => {
     ).toBeUndefined();
   });
 
-  it('leaves a QuadVee without authored seats on its existing template type', () => {
+  it('prints a QuadVee without authored seats as its two blank native seats', () => {
     const data = extract(state(MechConfiguration.QUADVEE, 30));
-    expect(data).toMatchObject({ mechType: 'quad' });
-    expect(data).not.toHaveProperty('crew');
+    expect(data).toMatchObject({
+      mechType: 'quadvee',
+      crew: {
+        crewType: 'QUADVEE',
+        slots: [
+          { slotIndex: 0, role: 'Pilot' },
+          { slotIndex: 1, role: 'Gunner' },
+        ],
+      },
+    });
   });
 
+  // TripodMek.java:115-117 + Mek.java:7167 (weight > 100): the native crew of a
+  // tripod with no authored seats is blank, three seats only above 100 tons.
   it.each([
-    ['a tripod with no authored seats', MechConfiguration.TRIPOD, undefined],
-    ['a biped that carries stored seats', MechConfiguration.BIPED, seats],
-  ])('keeps the legacy payload for %s', (_label, configuration, crewSeats) => {
-    const data = extract(state(configuration, 100, crewSeats));
+    [100, 'TRIPOD', 2],
+    [105, 'SUPERHEAVY_TRIPOD', 3],
+  ] as const)(
+    'prints a %s t tripod without authored seats as %s with %s blank seats',
+    (tonnage, crewType, seatCount) => {
+      const data = extract(state(MechConfiguration.TRIPOD, tonnage));
+      expect(data).toMatchObject({ mechType: 'tripod', crew: { crewType } });
+      expect(data.unitType === 'mech' && data.crew?.slots).toHaveLength(
+        seatCount,
+      );
+      expect(
+        data.unitType === 'mech' && data.crew?.slots.some((s) => s.pilot),
+      ).toBe(false);
+    },
+  );
+
+  it('keeps the legacy payload for a biped that carries stored seats', () => {
+    const data = extract(state(MechConfiguration.BIPED, 100, seats));
     expect(data).not.toHaveProperty('crew');
   });
 });

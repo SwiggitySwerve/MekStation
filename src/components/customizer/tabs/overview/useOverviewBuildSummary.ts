@@ -53,6 +53,7 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
   const engineRating = useUnitStore((s) => s.engineRating);
   const gyroType = useUnitStore((s) => s.gyroType);
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
+  const frankenStructure = useUnitStore((s) => s.frankenStructure);
   const cockpitType = useUnitStore((s) => s.cockpitType);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
@@ -80,6 +81,7 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
     engineRating,
     gyroType,
     internalStructureType,
+    frankenStructure,
     cockpitType,
     heatSinkType,
     heatSinkCount,
@@ -98,6 +100,7 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       heatSinkType,
       heatSinkCount,
@@ -110,6 +113,7 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       heatSinkType,
       heatSinkCount,

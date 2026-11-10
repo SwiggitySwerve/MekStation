@@ -232,6 +232,13 @@ jobs:
         if: ${{ !cancelled() }}
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
 
+      # Delta specs change in docs/openspec-only PRs too: no code path gate.
+      - name: Validate OpenSpec delta headers and regression tests
+        if: ${{ !cancelled() }}
+        run: |
+          node --test scripts/qc/openspec-delta-headers.test.mjs
+          npm run qc:openspec-ci:validate
+
       - name: Check v2.2.0 step map and fixtures
         if: ${{ !cancelled() }}
         run: |

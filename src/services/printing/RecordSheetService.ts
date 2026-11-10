@@ -14,6 +14,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
+import { blankMechCrew, getMechCrewType } from '@/types/pilot/MechCrewSeats';
 import {
   IRecordSheetData,
   IMechRecordSheetData,
@@ -25,6 +26,7 @@ import {
   PREVIEW_DPI_MULTIPLIER,
   IPDFExportOptions,
 } from '@/types/printing';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import { SVG_TEMPLATES, SVG_TEMPLATES_A4 } from './recordsheet/constants';
 import {
@@ -63,6 +65,14 @@ import {
   renderTemplated,
 } from './svgRecordSheetRenderer/renderTemplated';
 import { readSvgRootSize } from './svgRecordSheetRenderer/svgGeometry';
+
+/** Payload mech types whose configuration has a native crew type. */
+const NATIVE_CREW_CONFIGURATION: Readonly<
+  Partial<Record<string, MechConfiguration>>
+> = {
+  tripod: MechConfiguration.TRIPOD,
+  quadvee: MechConfiguration.QUADVEE,
+};
 
 export type { IUnitConfig };
 export type { RecordSheetPrintableData } from './recordsheet/dispatchTarget';
@@ -280,9 +290,17 @@ export class RecordSheetService {
       ? buildSPASection(pilotAbilities)
       : { entries: [], hasContent: false };
 
+    const mechType = getMechType(unit.configuration);
+    // One native default: a Tripod and a QuadVee always have their crew type
+    // (TripodMek.java:115-117, QuadVee.java:164-166), so without an explicit
+    // roster they extract it with every seat unassigned.
+    const nativeCrewType = getMechCrewType(
+      NATIVE_CREW_CONFIGURATION[mechType] ?? MechConfiguration.BIPED,
+      unit.tonnage,
+    );
     const crew =
       unit.crew === undefined
-        ? undefined
+        ? nativeCrewType && blankMechCrew(nativeCrewType)
         : MechRecordSheetCrewSchema.parse(unit.crew);
 
     return {
@@ -300,12 +318,7 @@ export class RecordSheetService {
       pilot: undefined,
       ...(crew === undefined ? {} : { crew }),
       specialAbilities: spaBlock.hasContent ? spaBlock.entries : undefined,
-      // getMechType matches 'quad' inside 'QuadVee', and the native QuadVee crew
-      // layout exists only on the QuadVee template (renderer.ts nativeCrew).
-      mechType:
-        crew?.crewType === 'QUADVEE'
-          ? 'quadvee'
-          : getMechType(unit.configuration),
+      mechType,
     };
   }
 

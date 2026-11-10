@@ -428,7 +428,31 @@ policy SHALL NOT remain.
 - **THEN** every location of every case SHALL equal the original result
 - **AND** the editor's Auto action, which passes no count, SHALL place the legal total
 
-## ADDED Requirements
+### Requirement: ProtoMech Equipment Tab
+
+The ProtoMech Equipment tab SHALL offer the catalog items MegaMekLab 62bf193 `ProtoMekUtil.isProtoMekEquipment(eq, proto)` accepts, list the loadout the way `PMEquipmentTab.showInLoadOut` does, and place each mount in a location of this editor. Placement findings SHALL be those of the pinned verifier.
+
+#### Scenario: Items offered
+
+- **WHEN** the Equipment tab lists the catalog
+- **THEN** ammunition SHALL be offered
+- **AND** a weapon or miscellaneous item SHALL be offered only when the catalog lists ProtoMech among its allowed unit types, the catalog form of `F_PROTO_WEAPON` and `F_PROTOMEK_EQUIPMENT`
+- **AND** an item the catalog does not describe SHALL NOT be offered, while placement validation SHALL keep treating an absent list as unknown rather than illegal
+- **AND** the configuration rules of the three-argument form (magnetic clamp on a quad or glider, the club flags) SHALL NOT filter the list, as `UnitUtil.isEntityEquipment` calls the two-argument form
+
+#### Scenario: Loadout list and placement
+
+- **WHEN** the loadout lists a unit's mounts
+- **THEN** jump jets, MASC, partial wing, magnetic clamp and UMU mounts SHALL NOT be listed
+- **AND** an added item SHALL start in the Torso and SHALL be movable to the Left Arm or Right Arm (not on a quad) or to the Main Gun (only when the mount exists)
+- **AND** the slot and weight findings of `getProtoPlacementErrors` SHALL be shown for the whole unit
+- **AND** each edit SHALL persist through save and reopen
+
+#### Scenario: Known gaps
+
+- **GIVEN** the MekStation mount has no shot count, where MegaMekLab merges ammunition into one `LOC_BODY` mount (`PMEquipmentDatabaseView.addProtoMekAmmo`)
+- **THEN** an ammunition item added from the catalog SHALL be a plain mount, and the shot count SHALL remain a recorded residual
+- **AND** the "+2 jump from gliding wings" rule SHALL remain outside this requirement, since it has no pinned citation
 
 ### Requirement: Electric Discharge ProtoMech Armor
 
@@ -470,3 +494,104 @@ diagnostics. Tech filtering remains deferred under owner ruling O3.
 - **WHEN** calculating the 86 pinned canonical ProtoMechs
 - **THEN** handler and shared-dispatch BV SHALL each equal the actual pinned Java total
 - **AND** no construction-validity result SHALL move away from the pinned Java verdict
+
+### Requirement: ProtoMech Glider And Partial Wing Jump
+
+The editor SHALL show jump MP as pinned MegaMek `48fcb2f64` `ProtoMek.getJumpMP` (ProtoMek.java:452-492) gives it: the stored jump MP plus the Partial Wing bonus. A glider SHALL have no jump bonus of its own, because it is a WiGE unit that flies on its walk MP; the "gliding wings, +2 jump" rule SHALL NOT exist.
+
+#### Scenario: Partial Wing is the only jump bonus
+
+- **WHEN** a ProtoMech has a mounted Partial Wing
+- **THEN** the effective jump the editor shows SHALL be the stored jump MP plus 2, the standard-atmosphere bonus of ProtoMek.java:470-487, as MML 62bf193 `MovementView.java:456-465` shows
+- **AND** the bonus table (+3 very high or high, +2 standard or thin, +1 trace, otherwise 0, and 0 when the wing is not working or weather is ignored) SHALL be implemented once, by the pure `partialWingJumpBonus` owner that gameplay movement also uses
+- **AND** a unit without a Partial Wing SHALL show no effective-jump bonus, glider or not
+- **AND** BV and validation SHALL keep reading the stored jump MP, since the bonus applies only when weather is not ignored and BV ignores it
+
+#### Scenario: Glider jump control
+
+- **WHEN** a ProtoMech is a glider
+- **THEN** the editor's jump control SHALL be fixed at 0, as MML `MovementView.java:265-268` fixes it
+- **AND** changing a unit to a glider SHALL set its stored jump MP to 0
+- **AND** no validation rule SHALL be added, because the pinned verifier does not reject a glider's jump MP above 0 (TestProtoMek.java:454-457)
+
+#### Scenario: Legacy gliding wings field
+
+- **THEN** the `glidingWings` field SHALL remain in state, saved units and BV cache keys as an inert legacy field with no editor control and no rule
+- **AND** no saved format SHALL change
+
+#### Scenario: Recorded residuals
+
+- **THEN** the in-game Partial Wing bonus by atmosphere (+3 high or very high, +2 standard or thin, +1 trace, 0 otherwise) SHALL remain unimplemented in gameplay movement, to be routed to its owner
+- **AND** the jump cap, the glider weight rule and the ultraheavy jump rule SHALL be those of the ProtoMech Movement Construction Rules requirement (`TestProtoMek.maxJumpMP` and `correctMovement`), so that this requirement's editor jump lock is an editor input rule only and SHALL NOT be read as a validity rule
+
+### Requirement: ProtoMech Movement Construction Rules
+
+ProtoMech movement validity SHALL be the rules of pinned MegaMek `48fcb2f64` `TestProtoMek.correctMovement` (TestProtoMek.java:445-464) and `maxJumpMP` (TestProtoMek.java:84-92), implemented once in a pure owner that source validation and the editor validation rules both call. The owner SHALL NOT apply the weight-class walk and jump caps, a glider weight limit, a ban on an ultraheavy jumping, or a Myomer Booster weight class, none of which the pinned verifier has.
+
+#### Scenario: Jump and UMU cap
+
+- **WHEN** a ProtoMech's jump MP or UMU count is validated
+- **THEN** each SHALL be at most its original walk MP, or at most 1.5 times that rounded up when an Extended Jump Jet System (`S_IMPROVED`, MiscType.java:2054-2060) is mounted
+- **AND** a violation SHALL read "Exceeds maximum jump MP." or "Exceeds maximum UMU MP."
+- **AND** the Extended Jump Jet System SHALL be recognized by one predicate in the owner, because the equipment catalog has no entry or flag for it
+
+#### Scenario: Glider and quad minimums
+
+- **WHEN** a glider's running MP is below 4, or a quad's is below 3
+- **THEN** validation SHALL report "Glider ProtoMeks have a minimum flanking MP of 4." or "Quad ProtoMeks have a minimum running MP of 3."
+- **AND** the glider and quad checks SHALL be exclusive, as in the verifier
+
+#### Scenario: Agreement with the pinned verifier
+
+- **WHEN** the production handler validates the 86 canonical ProtoMechs and the 20 pinned synthetic variants of `fixtures/movement-java-verdicts.json`
+- **THEN** its movement findings SHALL equal Java's `correctMovement` verdict and message for every one
+- **AND** no validity result of a canonical unit SHALL move, since the 86 already agree with Java
+- **AND** a change that adds a finding SHALL only add one Java also reports
+
+#### Scenario: Scope boundary
+
+- **THEN** the editor's weight-class input clamps, the Structure tab's ultraheavy jump lock and the unwired Myomer weight-class label SHALL remain outside this requirement, for the separate editor-limits item that cites MegaMekLab's own spinner limits
+
+### Requirement: Native ProtoMech complete construction mass
+
+SHALL compute native ProtoMech construction mass in one weight owner from engine,
+structure, controls, allocated armor, admitted equipment, per-shot ammunition and
+heat-neutral sinks, matching MegaMek 48fcb2f64 to the kilogram.
+
+SHALL resolve ProtoMech launcher mass through one native-family/rack multiplier
+table and mounted JJ, UMU, Myomer Booster, magnetic-clamp and partial-wing mass
+with their unit-dependent formulas rather than context-free catalog zeros.
+
+SHALL reuse the existing heat-neutral weapon and linked-load owners, excluding
+ammunition-fed chemical-laser heat while retaining native plasma heat.
+
+#### Scenario: Synthetic propulsion and launcher weight
+
+- **WHEN** loading the 20 pinned-Hydra synthetic designs through the production handler
+- **THEN** every component and total mass SHALL match the pinned original Java verifier
+- **AND** all 13 previously omitted weight failures SHALL be reported
+- **AND** the seven weight-valid designs SHALL retain their weight verdicts
+- **AND** propulsion mass SHALL follow mounts independently of movement fields
+
+#### Scenario: Canonical ProtoMech mass and validity
+
+- **WHEN** loading all 86 pinned canonical ProtoMechs
+- **THEN** every complete mass SHALL match the original Java verifier
+- **AND** Svartalfa 3 SHALL remain the only invalid canonical design
+- **AND** the valid SvartAlfa Ultra SHALL weigh 13,950 kg without chemical-laser sinks
+- **AND** existing ProtoMech BV inputs and results SHALL remain unchanged
+
+#### Scenario: Unavailable construction mass
+
+- **WHEN** a mount, engine, armor or heat requirement cannot be resolved
+- **THEN** a complete mass SHALL be unavailable with the missing input identified
+- **AND** a known subtotal SHALL remain available only when the core mass is known
+- **AND** validation SHALL use the known subtotal without inventing a zero mass
+
+#### Scenario: Formula boundaries and final rounding
+
+- **WHEN** resolving propulsion and clamp mounts at 5, 6, 9, 10 or 15 tons
+- **THEN** their masses SHALL match the corresponding original Java tiers
+- **AND** extended jump jets SHALL double only their own mass
+- **AND** ammunition SHALL retain per-bin kilogram ceiling
+- **AND** the complete component sum SHALL round to the nearest kilogram

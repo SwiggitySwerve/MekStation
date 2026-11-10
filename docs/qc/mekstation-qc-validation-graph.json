@@ -887,7 +887,7 @@
     {
       "id": "command:npx-cmd-openspec-validate-all-strict",
       "kind": "command",
-      "label": "npx.cmd openspec validate --all --strict"
+      "label": "npm.cmd run openspec:validate"
     },
     {
       "id": "surface:battlemech-combat-catalog-validation",

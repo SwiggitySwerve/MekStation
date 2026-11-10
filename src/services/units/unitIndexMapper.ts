@@ -8,6 +8,7 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import type { ICustomUnitIndexEntry } from '@/types/persistence/UnitPersistence';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { getEraForYear } from '@/types/enums/Era';
@@ -20,6 +21,27 @@ import { isValidUnitType } from '@/utils/validation/UnitCategoryMapper';
 import type { IUnitIndexEntry } from '../common/types';
 
 import { getUnitIndexWeightClass } from './unitWeightClass';
+
+/** Preserve the saved identity and family when opening a custom library row. */
+export function mapCustomUnitIndexEntry(
+  unit: ICustomUnitIndexEntry & Pick<IUnitIndexEntry, 'family'>,
+): IUnitIndexEntry & { source: 'custom'; currentVersion: number } {
+  return {
+    ...(unit.family ? { family: unit.family } : {}),
+    id: unit.id,
+    chassis: unit.chassis,
+    variant: unit.variant,
+    tonnage: unit.tonnage,
+    techBase: unit.techBase,
+    era: unit.era,
+    weightClass: unit.weightClass,
+    unitType: unit.unitType as UnitType,
+    name: `${unit.chassis} ${unit.variant}`,
+    filePath: '',
+    source: 'custom',
+    currentVersion: unit.currentVersion,
+  };
+}
 
 /**
  * Raw unit entry as written in a family `index.json`.

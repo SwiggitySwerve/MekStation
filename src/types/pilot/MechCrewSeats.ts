@@ -64,6 +64,21 @@ export function normalizeMechCrewSeats(
 }
 
 /**
+ * The native roster with every seat unassigned. QuadVee.java:164-166 always
+ * gives a QuadVee the QUADVEE crew, so MML prints its two seats with or
+ * without named crew (PrintMek.java:343-348 selects the dual-seat panel).
+ */
+export function blankMechCrew(crewType: MechCrewType): IRecordSheetMechCrew {
+  return {
+    crewType,
+    slots: getMechCrewRoles(crewType).map((role, slotIndex) => ({
+      slotIndex,
+      role,
+    })),
+  };
+}
+
+/**
  * Print roster for the stored seats, or undefined when the sheet should keep its
  * single-pilot layout. Seats the unit does not have at this tonnage (the Tech
  * Officer at 100 tons or less) stay stored but are not printed.

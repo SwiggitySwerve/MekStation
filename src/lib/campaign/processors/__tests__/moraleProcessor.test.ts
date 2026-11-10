@@ -19,16 +19,25 @@ const TEST_DATE = new Date('3025-02-01T00:00:00.000Z');
 
 let stubSequence = 0;
 
+/**
+ * `capturedAt` is a WALL-CLOCK instant, unrelated to the campaign's in-game
+ * date; the stub gives it a fixed value far from `TEST_DATE` so a test that
+ * passes only by comparing the two would fail. `appliedOn` is the in-game day
+ * the outcome was applied on, which is what the 31-day window reads.
+ */
+const WALL_CLOCK_CAPTURED_AT = '2026-11-09T12:00:00.000Z';
+
 /** A minimal win/loss outcome stub — only the fields the gatherer reads. */
 function outcomeStub(
   winner: 'player' | 'opponent' | 'draw',
-  capturedAt: string = TEST_DATE.toISOString(),
+  appliedOn: string | null = TEST_DATE.toISOString(),
   matchId: string = `match-${++stubSequence}`,
 ): ICombatOutcome {
   return {
     matchId,
     report: { winner },
-    capturedAt,
+    capturedAt: WALL_CLOCK_CAPTURED_AT,
+    ...(appliedOn !== null ? { appliedOn } : {}),
   } as unknown as ICombatOutcome;
 }
 
@@ -307,6 +316,61 @@ describe('moraleProcessor', () => {
 
       expect(final.moraleState).toBe(MoraleState.High);
       expect(final.moraleCountedMatchIds).toEqual([win.matchId]);
+    });
+  });
+
+  describe('the window reads the in-game application day, never capturedAt', () => {
+    it('counts an outcome applied today whatever its wall-clock capturedAt says', () => {
+      const win = outcomeStub('player'); // capturedAt is 2026, the campaign is 3025
+      const result = moraleProcessor.process(
+        makeCampaign({
+          moraleState: MoraleState.Steady,
+          recentlyAppliedOutcomes: [win],
+        }),
+        TEST_DATE,
+      );
+      expect(result.campaign.moraleState).toBe(MoraleState.High);
+    });
+
+    it('keeps an outcome 31 days after it was applied and drops it on day 32', () => {
+      const win = outcomeStub('player', TEST_DATE.toISOString());
+      const base = makeCampaign({
+        moraleState: MoraleState.Steady,
+        moraleCountedMatchIds: [win.matchId],
+        recentlyAppliedOutcomes: [win],
+      });
+      const day = (n: number) => new Date(TEST_DATE.getTime() + n * 86_400_000);
+      const ids = (c: ICampaign) =>
+        (
+          c as ICampaign & {
+            readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+          }
+        ).recentlyAppliedOutcomes?.map((o) => o.matchId);
+      expect(ids(moraleProcessor.process(base, day(31)).campaign)).toEqual([
+        win.matchId,
+      ]);
+      expect(ids(moraleProcessor.process(base, day(32)).campaign)).toEqual([]);
+    });
+
+    it('stamps an entry with no application day instead of dropping it', () => {
+      const legacy = outcomeStub('opponent', null); // null: no application day recorded
+      const result = moraleProcessor.process(
+        makeCampaign({
+          moraleState: MoraleState.Steady,
+          recentlyAppliedOutcomes: [legacy],
+        }),
+        TEST_DATE,
+      );
+      const kept = (
+        result.campaign as ICampaign & {
+          readonly recentlyAppliedOutcomes?: readonly (ICombatOutcome & {
+            readonly appliedOn?: string;
+          })[];
+        }
+      ).recentlyAppliedOutcomes;
+      expect(kept).toHaveLength(1);
+      expect(kept?.[0].appliedOn).toBe(TEST_DATE.toISOString());
+      expect(kept?.[0].matchId).toBe(legacy.matchId);
     });
   });
 

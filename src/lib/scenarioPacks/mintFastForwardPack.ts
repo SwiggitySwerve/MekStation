@@ -168,11 +168,28 @@ export function dumpAndCanonicalizeFastForwardCampaign(
     rosterProjection,
   );
 
+  // A pack does not carry the retained-outcome history. `recentlyAppliedOutcomes`
+  // holds the applied battles for 31 in-game days (full after-action reports,
+  // about 140 KB for one battle and 1.3 MB for five), and each carries the
+  // stamped campaign id inside its report log, which the id remap does not
+  // cover. Nothing downstream needs it: the apply-once guard
+  // (`processedBattleIds`) and the morale ledger (`moraleCountedMatchIds`)
+  // stay in the body, and every other reader of the list is same-day. The
+  // key is omitted, the form `campaignPackSchema` already treats as absent (it
+  // never lists the key; the body is `.passthrough()`), and the deserializer
+  // reads an absent key as no history.
+  const { recentlyAppliedOutcomes: _retainedOutcomes, ...bodyWithoutHistory } =
+    envelope.body;
+  void _retainedOutcomes;
+
   // Fail-loud on the raw dump BEFORE canonicalizing (mirrors
   // `e2e/scenario-pack-minting.spec.ts`'s `captureCanonicalizeAndWrite` —
   // a malformed dump must never silently become a malformed committed
   // pack).
-  const captured = campaignPackSchema.parse(envelope);
+  const captured = campaignPackSchema.parse({
+    ...envelope,
+    body: bodyWithoutHistory,
+  });
 
   const { payload: canonicalized } = canonicalizePackPayload(captured, {
     packId: options.packId,

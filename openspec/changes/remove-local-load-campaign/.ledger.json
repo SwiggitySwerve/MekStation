@@ -1,0 +1,6 @@
+{
+  "name": "remove-local-load-campaign",
+  "status": "in-progress",
+  "reason": "Root-approved K2 D1: delete the unused useCampaignStore.loadCampaign, the only reader of the campaign-<id> localStorage record, which merged stale child-store blobs and tore at write boundaries.",
+  "lastReviewed": "2026-11-09"
+}

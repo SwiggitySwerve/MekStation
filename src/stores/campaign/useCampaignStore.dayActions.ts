@@ -1,7 +1,10 @@
 import type { StateCreator } from 'zustand';
 
 import type { ICampaignWithBattleState } from '@/lib/campaign/processors/postBattleProcessor';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type {
+  IAppliedCombatOutcome,
+  ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
 
 import { toast } from '@/components/shared/Toast';
 import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
@@ -391,7 +394,7 @@ function applyDayToStores(
   const postPipeline = report.campaign as ICampaign & {
     readonly pendingBattleOutcomes?: readonly ICombatOutcome[];
     readonly processedBattleIds?: readonly string[];
-    readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+    readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
     readonly dayNumber?: number;
   };
   const auditEntry = buildDailyBattleAuditEntry({

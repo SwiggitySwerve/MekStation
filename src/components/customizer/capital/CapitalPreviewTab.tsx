@@ -62,7 +62,7 @@ export function CapitalPreviewTab({
 }): React.ReactElement {
   const [selectedPaper, setPaperSize] = useState(PaperSize.LETTER);
   const paperSize = forcedPaper ?? selectedPaper;
-  const key = `${view?.sourceId}:${paperSize}`;
+  const key = `${view?.sourceDefinition?.source ?? 'canonical'}:${view?.sourceDefinition?.id ?? view?.sourceId}:${view?.sourceDefinition?.version ?? ''}:${paperSize}`;
   const [result, setResult] = useState<{
     key: string;
     data?: ICapitalRecordSheetData;
@@ -75,7 +75,11 @@ export function CapitalPreviewTab({
       try {
         if (!view)
           throw new Error('Open this capital ship again from the library.');
-        const loaded = await loadUnitDefinition('capital', view.sourceId);
+        const loaded = await loadUnitDefinition(
+          'capital',
+          view.sourceDefinition?.id ?? view.sourceId,
+          view.sourceDefinition?.source ?? 'canonical',
+        );
         if (!loaded.success) throw new Error(loaded.error);
         const data = getRecordSheetService().extractCapitalData(
           loaded.definition,

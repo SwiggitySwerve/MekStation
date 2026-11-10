@@ -25,6 +25,7 @@ import {
   getAllEquipmentItems as getAllEquipmentItemsFallback,
   getAllWeapons as getAllWeaponsFallback,
 } from '@/utils/equipment/equipmentAggregation';
+import { AMS_WEAPON_IDS } from '@/utils/equipment/equipmentConstants';
 import { logger } from '@/utils/logger';
 import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
@@ -71,11 +72,6 @@ const EXCLUDED_MISC_CATEGORIES: readonly MiscEquipmentCategory[] = [
   MiscEquipmentCategory.JUMP_JET,
   MiscEquipmentCategory.HEAT_SINK,
 ];
-
-/**
- * IDs of AMS weapons that should also appear in "Other" category
- */
-const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
 
 /**
  * Equipment Lookup Service implementation
@@ -194,6 +190,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         name: weapon.name,
         ammoPerTon: weapon.ammoPerTon,
         flags: weapon.flags,
+        allowedUnitTypes: weapon.allowedUnitTypes,
         special: weapon.special,
         category,
         additionalCategories,
@@ -236,6 +233,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         id: electronics.id,
         name: electronics.name,
         category: EquipmentCategory.ELECTRONICS,
+        allowedUnitTypes: electronics.allowedUnitTypes,
         techBase: electronics.techBase,
         rulesLevel: electronics.rulesLevel,
         weight: electronics.weight,
@@ -263,6 +261,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         category: isNativeClaw
           ? EquipmentCategory.PHYSICAL_WEAPON
           : EquipmentCategory.MISC_EQUIPMENT,
+        allowedUnitTypes: misc.allowedUnitTypes,
         techBase: misc.techBase,
         rulesLevel: misc.rulesLevel,
         weight: misc.weight,

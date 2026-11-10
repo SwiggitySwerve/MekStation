@@ -34,7 +34,11 @@ export function validateConstruction(
 
   // Step 2: Internal Structure
   steps.push(
-    calculateInternalStructure(config.tonnage, config.internalStructureType),
+    calculateInternalStructure(
+      config.tonnage,
+      config.internalStructureType,
+      config,
+    ),
   );
 
   // Step 3: Engine

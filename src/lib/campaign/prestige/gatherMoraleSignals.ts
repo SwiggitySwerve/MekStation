@@ -21,8 +21,9 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IMoraleSignals } from '@/types/campaign/Prestige';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type { IAppliedCombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { isWithinOutcomeRetention } from '../appliedOutcomes';
 import { type IDayEvent } from '../dayPipeline';
 
 /**
@@ -30,23 +31,22 @@ import { type IDayEvent } from '../dayPipeline';
  * post-battle processor stages applied outcomes on `recentlyAppliedOutcomes`.
  */
 interface ICampaignWithRecentOutcomes extends ICampaign {
-  readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
+  readonly recentlyAppliedOutcomes?: readonly IAppliedCombatOutcome[];
 }
 
-const MORALE_OUTCOME_WINDOW_DAYS = 31;
-
+/**
+ * The applied outcomes still within retention on `asOf`. The window is in
+ * IN-GAME days from `appliedOn`; `capturedAt` is a wall-clock instant and is
+ * never compared with the campaign date (see `appliedOutcomes.ts`).
+ */
 export function filterRecentMoraleOutcomes(
   campaign: ICampaign,
   asOf: Date = campaign.currentDate,
-): readonly ICombatOutcome[] {
+): readonly IAppliedCombatOutcome[] {
   const extended = campaign as ICampaignWithRecentOutcomes;
-  const cutoff =
-    asOf.getTime() - MORALE_OUTCOME_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-  return (extended.recentlyAppliedOutcomes ?? []).filter((outcome) => {
-    const capturedAt = Date.parse(outcome.capturedAt);
-    if (Number.isNaN(capturedAt)) return true;
-    return capturedAt >= cutoff && capturedAt <= asOf.getTime();
-  });
+  return (extended.recentlyAppliedOutcomes ?? []).filter((outcome) =>
+    isWithinOutcomeRetention(outcome, asOf),
+  );
 }
 
 /**

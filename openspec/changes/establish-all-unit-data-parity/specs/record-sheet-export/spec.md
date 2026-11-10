@@ -246,7 +246,58 @@ rendering SHALL not infer assignments, add a third seat or distribute global opt
 
 #### Scenario: Existing rendering controls remain unchanged
 
-- **GIVEN** ordinary/superheavy tripod, single-pilot biped/quad/LAM or a payload without an explicit QuadVee roster
+- **GIVEN** ordinary/superheavy tripod or single-pilot biped/quad/LAM
 - **WHEN** the sheet is exported
 - **THEN** existing output remains unchanged
-- **AND** crew-roster authoring and persistence remain required separate work
+- **AND** a QuadVee without an explicit roster is covered by the native QuadVee sheet requirement below
+
+### Requirement: Native QuadVee sheet selection and blank seats
+
+A QuadVee SHALL be extracted with the `quadvee` mech type and print on the
+QuadVee template, not the quad template: MegaMekLab 62bf193 `PrintMek.java:112-131`
+tests the QuadVee flag before the Quad flag. A QuadVee SHALL always have the
+native two-seat QUADVEE crew (MegaMek 48fcb2f64 `QuadVee.java:164-166`), so a
+QuadVee without an explicit roster SHALL extract two unassigned seats
+(`PrintMek.java:343-348` shows the dual-seat panel regardless of names), and
+an explicit or authored roster SHALL print its named seats. The `quadvee` type
+SHALL use the quad armor and structure pip groups, which the QuadVee template carries.
+Quad and Biped payloads SHALL NOT have a roster inferred; a Tripod is covered by
+the native Tripod requirement below.
+
+#### Scenario: QuadVee without crew
+
+- **GIVEN** a QuadVee payload with no roster
+- **WHEN** the sheet is extracted and printed
+- **THEN** it uses the `quadvee` type with Pilot and Gunner seats, both unassigned
+- **AND** the four leg armor and structure pip groups are drawn as for a Quad
+
+#### Scenario: QuadVee with authored seats
+
+- **GIVEN** a QuadVee whose editor crew seats were assigned and saved
+- **WHEN** the unit is reopened and printed
+- **THEN** the named seats print on the QuadVee template
+
+### Requirement: Native Tripod blank seats
+
+A Tripod without an explicit roster SHALL extract its native crew with every seat
+unassigned: TRIPOD (Pilot, Gunner) at 100 tons or less and SUPERHEAVY_TRIPOD
+(Pilot, Gunner, Tech Officer) above 100 tons. MegaMek 48fcb2f64
+`TripodMek.java:115-117` selects the crew type by `isSuperHeavy()`
+(`Mek.java:7167`, weight > 100), and MegaMekLab 62bf193 `PrintMek.java:343-348`
+shows the dual or triple Warrior Data panel by slot count whether or not names
+are assigned. An explicit or authored roster SHALL print its named seats. The
+default SHALL come from the same single rule as the QuadVee default, and Quad and
+Biped payloads SHALL NOT have a roster inferred.
+
+#### Scenario: Tripod without crew
+
+- **GIVEN** a Tripod payload with no roster at exactly 100 tons, and at 101 tons or more
+- **WHEN** the sheet is extracted and printed on Letter or A4
+- **THEN** 100 tons prints the two-seat panel and above 100 tons the three-seat panel, every seat unassigned
+- **AND** no template placeholder text is printed in a seat
+
+#### Scenario: Legacy Biped-labelled tripod remains open
+
+- **GIVEN** a mech labelled Biped that carries center-leg armor, which the editor projection treats as a tripod
+- **WHEN** the sheet is printed
+- **THEN** it keeps the biped sheet; whether MegaMek classifies such a unit as a Tripod is not established here and is carried as an open finding

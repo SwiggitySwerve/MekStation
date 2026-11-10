@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "HEAT_DISSIPATING",
     "allocation": {
       "LEFT_ARM": 5,
       "RIGHT_ARM": 5,

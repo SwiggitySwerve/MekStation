@@ -7,6 +7,8 @@
  * @spec openspec/specs/component-configuration/spec.md
  */
 
+import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
+
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
@@ -39,6 +41,7 @@ export interface IComponentSelections {
 
   // Structure
   internalStructureType: InternalStructureType;
+  frankenStructure?: ISerializedStructure;
 
   // Cockpit
   cockpitType: CockpitType;

@@ -14,6 +14,7 @@ import type { IBattleArmorRecordSheetUnitInput } from '@/services/printing/recor
 import type { BattleArmorState } from '@/stores/battleArmorState';
 import type { ManipulatorType } from '@/types/unit/PersonnelInterfaces';
 
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 import {
@@ -73,5 +74,26 @@ export function buildBattleArmorUnitObject(
     walkMP: input.groundMP,
     jumpMP: input.jumpMP,
     umuMP: input.umuMP,
+    movementMode: source && toMovementMode(source.motionType),
   };
+}
+
+/**
+ * The squad's movement mode for the sheet's second movement line. MML switches
+ * on the entity's movement mode, not on which MP values are non-zero, so a
+ * ground-mode squad with jump MP prints no line and a VTOL squad prints "VTOL".
+ */
+function toMovementMode(
+  motionType: SquadMotionType,
+): NonNullable<IBattleArmorRecordSheetUnitInput['movementMode']> {
+  switch (motionType) {
+    case SquadMotionType.JUMP:
+      return 'jump';
+    case SquadMotionType.VTOL:
+      return 'vtol';
+    case SquadMotionType.UMU:
+      return 'umu';
+    default:
+      return 'ground';
+  }
 }

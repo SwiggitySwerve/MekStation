@@ -48,7 +48,11 @@ const requiredScripts = new Map([
   ['verify:app-completion:release-full', 'verify:qc:roadmap'],
   ['verify:qc', 'qc:lifecycle:status'],
   ['verify:qc:roadmap', 'qc:manual-automation-gaps:validate'],
-  ['verify:rules', 'openspec validate --all --strict'],
+  ['verify:rules', 'npm run openspec:validate'],
+  [
+    'openspec:validate',
+    'npx --yes @fission-ai/openspec@1.5.0 validate --all --strict',
+  ],
   ['electron:test:build', 'test:build'],
   ['validate:combat:gaps', 'scripts/print-combat-validation-gaps.ts'],
   ['verify:qc:app-shell', 'e2e/app-shell-route-proof.spec.ts'],
@@ -267,7 +271,7 @@ function validateScripts(scripts, errors) {
   if (!verifyRules.includes('--expect-total=151')) {
     errors.push('verify:rules must preserve non-BattleMech out-of-scope gate');
   }
-  if (!verifyRules.includes('openspec validate --all --strict')) {
+  if (!verifyRules.includes('npm run openspec:validate')) {
     errors.push('verify:rules must run strict OpenSpec validation');
   }
 

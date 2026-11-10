@@ -17,13 +17,18 @@
  */
 
 import { ISelectionMemory } from '@/stores/unitState';
-import { IComponentTechBases } from '@/types/construction/TechBaseConfiguration';
+import {
+  IComponentTechBases,
+  TechBaseMode,
+} from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 
+import { isComponentAllowedForTechMode } from './techBaseValidation.compatibility';
 import { getValueWithMemory } from './techBaseValidation.helpers';
 import {
   COMPONENT_VALIDATORS,
   type ComponentSelections,
+  type ComponentValidator,
 } from './techBaseValidation.types';
 
 // Re-export shared types/registry so existing consumers keep working.
@@ -87,14 +92,68 @@ export const isArmorTypeValid = COMPONENT_VALIDATORS.armor.isValid;
 /** Get default armor type for a tech base */
 export const getDefaultArmorType = COMPONENT_VALIDATORS.armor.getDefault;
 
+/** Mixed components retain their own legal family independently of chassis. */
+function getMixedSelection<T>(
+  validator: ComponentValidator<T>,
+  current: T,
+  fallbackTechBase: TechBase,
+): T {
+  return isComponentAllowedForTechMode(
+    TechBaseMode.MIXED,
+    fallbackTechBase,
+    (side) => validator.isValid(current, side),
+  )
+    ? current
+    : validator.getDefault(fallbackTechBase);
+}
+
 export function getFullyValidatedSelections(
   componentTechBases: IComponentTechBases,
   currentSelections: ComponentSelections,
   memory?: ISelectionMemory,
   memoryTechBase?: TechBase,
+  mode?: TechBaseMode,
 ): ComponentSelections {
   const { engine, gyro, structure, cockpit, heatSink, armor } =
     COMPONENT_VALIDATORS;
+
+  if (mode === TechBaseMode.MIXED) {
+    // MegaMek 48fcb2f64 TestEntity.java:1266-1269,1320-1323,1346-1349,
+    // 1373-1376,1432-1435 gates opposite-tech rejection on !isMixedTech().
+    // MtfFile.java:374-382 reads a Mixed structure by its named component type.
+    return {
+      engineType: getMixedSelection(
+        engine,
+        currentSelections.engineType,
+        componentTechBases.engine,
+      ),
+      gyroType: getMixedSelection(
+        gyro,
+        currentSelections.gyroType,
+        componentTechBases.gyro,
+      ),
+      internalStructureType: getMixedSelection(
+        structure,
+        currentSelections.internalStructureType,
+        componentTechBases.chassis,
+      ),
+      cockpitType: getMixedSelection(
+        cockpit,
+        currentSelections.cockpitType,
+        componentTechBases.chassis,
+      ),
+      heatSinkType: getMixedSelection(
+        heatSink,
+        currentSelections.heatSinkType,
+        componentTechBases.heatsink,
+      ),
+      armorType: getMixedSelection(
+        armor,
+        currentSelections.armorType,
+        componentTechBases.armor,
+      ),
+    };
+  }
 
   if (memory && memoryTechBase) {
     return {

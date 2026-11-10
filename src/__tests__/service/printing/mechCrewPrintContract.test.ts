@@ -78,9 +78,6 @@ it.each([
     expect(data).toEqual({
       ...service.extractData({ ...unit, configuration }),
       crew: supplied,
-      // The native QuadVee crew layout exists only on the QuadVee template, so
-      // an explicit QUADVEE roster selects it (getMechType alone yields 'quad').
-      ...(crewType === 'QUADVEE' ? { mechType: 'quadvee' } : {}),
     });
   },
 );
@@ -184,7 +181,10 @@ it.each([
 );
 
 it('does not infer crew or alter legacy payloads from configuration or mass', () => {
-  for (const configuration of ['Tripod', 'QuadVee', 'Biped']) {
+  // QuadVee (QuadVee.java:164-166) and Tripod (TripodMek.java:115-117) always
+  // have their native crew, so they get the blank roster (see
+  // nativeMechCrewDefault.test.ts); only Biped stays without one.
+  for (const configuration of ['Biped']) {
     expect(service.extractData({ ...unit, configuration })).not.toHaveProperty(
       'crew',
     );

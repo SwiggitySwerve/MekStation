@@ -26,7 +26,10 @@ import type { IBattleArmorRecordSheetData } from '@/types/printing';
 import type { BattleArmorTrooperPips } from '../pipEngine';
 import type { TextBindings } from '../templateRecordSheetRenderer';
 
-import { BATTLEARMOR_TEMPLATE_IDS } from '../templateElementIds';
+import {
+  BATTLEARMOR_MAX_TROOPERS,
+  BATTLEARMOR_TEMPLATE_IDS,
+} from '../templateElementIds';
 
 /**
  * Per-trooper armor pip counts for a Battle Armor squad — the typed
@@ -55,6 +58,56 @@ export interface BattleArmorBindings {
   readonly pips: BattleArmorPipCounts;
   /** Alias of `pips` — the fidelity-gate input (mirrors Wave-1 naming). */
   readonly pipCounts: BattleArmorPipCounts;
+  /**
+   * Template element ids to hide: the suit frame of every column beyond the
+   * squad (MML `PrintBattleArmor.drawArmor`: `hideElement(SUIT + i)`).
+   */
+  readonly hiddenIds: readonly string[];
+}
+
+/**
+ * Squad designation by squad size (MML `PrintBattleArmor.squadName()`):
+ * 1 suit, 3 un, 5 point, 6 level I, anything else squad. A single squad per
+ * sheet is numbered 1.
+ */
+function squadName(squadSize: number): string {
+  switch (squadSize) {
+    case 1:
+      return 'SUIT';
+    case 3:
+      return 'UN';
+    case 5:
+      return 'POINT';
+    case 6:
+      return 'LEVEL I';
+    default:
+      return 'SQUAD';
+  }
+}
+
+/**
+ * The second movement line (MML `PrintBattleArmor.writeTextFields`): by the
+ * squad's movement mode, VTOL printing the jump MP. Payloads without a mode
+ * keep the earlier first-non-zero order of jump, VTOL, UMU.
+ */
+function secondMovementLine(
+  data: IBattleArmorRecordSheetData,
+): { label: string; mp: number } | undefined {
+  switch (data.movementMode) {
+    case 'jump':
+      return { label: 'Jump MP:', mp: data.jumpMP };
+    case 'vtol':
+      return { label: 'VTOL MP:', mp: data.jumpMP };
+    case 'umu':
+      return { label: 'UW MP:', mp: data.umuMP };
+    case 'ground':
+      return undefined;
+    default:
+      if (data.jumpMP > 0) return { label: 'Jump MP:', mp: data.jumpMP };
+      if (data.vtolMP > 0) return { label: 'VTOL MP:', mp: data.vtolMP };
+      if (data.umuMP > 0) return { label: 'UW MP:', mp: data.umuMP };
+      return undefined;
+  }
 }
 
 /**
@@ -100,21 +153,14 @@ export function bindBattleArmor(
     [BATTLEARMOR_TEMPLATE_IDS.type]: `${header.chassis} ${header.model}`,
     [BATTLEARMOR_TEMPLATE_IDS.role]: header.role ?? '',
     [BATTLEARMOR_TEMPLATE_IDS.bv]: header.battleValue.toLocaleString(),
-    [BATTLEARMOR_TEMPLATE_IDS.squad]: `BATTLE ARMOR: ${header.chassis} ${header.model}`,
+    [BATTLEARMOR_TEMPLATE_IDS.squad]: `BATTLE ARMOR: ${squadName(data.squadSize)} 1`,
     [BATTLEARMOR_TEMPLATE_IDS.mpWalk]: String(data.walkMP),
   };
 
-  // Secondary movement mode — jump / VTOL / UW, in that priority order
-  // (mirrors MegaMek `PrintBattleArmor`).
-  if (data.jumpMP > 0) {
-    texts[BATTLEARMOR_TEMPLATE_IDS.movementMode2] = 'Jump MP:';
-    texts[BATTLEARMOR_TEMPLATE_IDS.mp2] = String(data.jumpMP);
-  } else if (data.vtolMP > 0) {
-    texts[BATTLEARMOR_TEMPLATE_IDS.movementMode2] = 'VTOL MP:';
-    texts[BATTLEARMOR_TEMPLATE_IDS.mp2] = String(data.vtolMP);
-  } else if (data.umuMP > 0) {
-    texts[BATTLEARMOR_TEMPLATE_IDS.movementMode2] = 'UW MP:';
-    texts[BATTLEARMOR_TEMPLATE_IDS.mp2] = String(data.umuMP);
+  const line = secondMovementLine(data);
+  if (line) {
+    texts[BATTLEARMOR_TEMPLATE_IDS.movementMode2] = line.label;
+    texts[BATTLEARMOR_TEMPLATE_IDS.mp2] = String(line.mp);
   }
 
   // Crew skills — bind the first trooper's gunnery / anti-mech skill.
@@ -124,5 +170,9 @@ export function bindBattleArmor(
     texts[BATTLEARMOR_TEMPLATE_IDS.pilotingSkill0] = String(lead.antiMech);
   }
 
-  return { texts, pips: pipCounts, pipCounts };
+  const hiddenIds: string[] = [];
+  for (let i = pipCounts.troopers.length; i < BATTLEARMOR_MAX_TROOPERS; i++)
+    hiddenIds.push(`${BATTLEARMOR_TEMPLATE_IDS.suitPrefix}${i}`);
+
+  return { texts, pips: pipCounts, pipCounts, hiddenIds };
 }

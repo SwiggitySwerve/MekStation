@@ -59,7 +59,7 @@ function mapFlags(facts, catalog, mask) {
   return { canonical, aliases, unmapped, ambiguous };
 }
 
-function generate(input, catalog) {
+function readPinnedWeapons(input) {
   if (
     input.revision !== '48fcb2f64a1b3f2d575707ce5653dad64927b587' ||
     !input.weapons
@@ -70,6 +70,11 @@ function generate(input, catalog) {
     throw Error(
       'Regenerate pinned facts with WeaponBVFlags.java for F_INFANTRY',
     );
+  return facts;
+}
+
+function generate(input, catalog) {
+  const facts = readPinnedWeapons(input);
   const { canonical, aliases, unmapped, ambiguous } = mapFlags(
     facts,
     catalog,
@@ -95,6 +100,17 @@ function generate(input, catalog) {
   };
 }
 
+function readWeaponCatalog() {
+  const directory = 'public/data/equipment/official/weapons';
+  return fs
+    .readdirSync(directory)
+    .filter((name) => name.endsWith('.json'))
+    .flatMap(
+      (name) =>
+        JSON.parse(fs.readFileSync(path.join(directory, name))).items ?? [],
+    );
+}
+
 if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
@@ -102,15 +118,10 @@ if (
   const [input, output] = process.argv.slice(2);
   if (!input || !output)
     throw Error('Expected pinned facts JSON and output TS paths');
-  const directory = 'public/data/equipment/official/weapons';
-  const catalog = fs
-    .readdirSync(directory)
-    .filter((name) => name.endsWith('.json'))
-    .flatMap(
-      (name) =>
-        JSON.parse(fs.readFileSync(path.join(directory, name))).items ?? [],
-    );
-  const result = generate(JSON.parse(fs.readFileSync(input)), catalog);
+  const result = generate(
+    JSON.parse(fs.readFileSync(input)),
+    readWeaponCatalog(),
+  );
   fs.writeFileSync(output, result.source);
   fs.writeFileSync(
     output + '.mapping.json',
@@ -122,4 +133,4 @@ if (
   );
   console.log(JSON.stringify(result.counts));
 }
-export { generate };
+export { generate, mapFlags, readPinnedWeapons, readWeaponCatalog };

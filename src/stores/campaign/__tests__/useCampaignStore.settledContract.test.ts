@@ -181,7 +181,7 @@ describe('a settled contract survives the save that follows an apply', () => {
     expect(balance(store)).toBe(before + SUCCESS_PAYOUT);
   });
 
-  it('reload: the stale missions-store blob does not beat the saved campaign', () => {
+  it('reload: a settled contract stays settled when the app restarts, though the missions-store blob still says Active', () => {
     const { store, id } = startCampaign();
     const state = store.getState();
     const result = applyPostBattle(
@@ -193,8 +193,8 @@ describe('a settled contract survives the save that follows an apply', () => {
     // Precondition: the separately persisted missions store still says ACTIVE.
     expect(localStorageMock.getItem(`missions-${id}`)).toContain('Active');
 
+    // A restarted app: a new store rehydrates the saved campaign.
     const reloaded = createCampaignStore();
-    expect(reloaded.getState().loadCampaign(id)).toBe(true);
 
     expect(statusIn(reloaded, 'campaign')).toBe(MissionStatus.SUCCESS);
   });

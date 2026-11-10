@@ -2,7 +2,10 @@
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IUnitPrestige } from '@/types/campaign/Prestige';
 import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
-import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
+import type {
+  IAppliedCombatOutcome,
+  ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
 
 import { buildPilotLookup } from '@/lib/campaign/utils/pilotLookup';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -11,6 +14,7 @@ import { logger } from '@/utils/logger';
 
 import type { IDayProcessor, IDayProcessorResult } from '../dayPipeline';
 
+import { withAppliedOn } from '../appliedOutcomes';
 import { publishContractFulfilled } from '../contractFulfillmentBus';
 import { getDayPipeline } from '../dayPipeline';
 import { DayPhase, type IDayEvent } from '../dayPipeline';
@@ -178,13 +182,12 @@ function applyOutcome(
   const remainingQueue = (campaign.pendingBattleOutcomes ?? []).filter(
     (o) => o.matchId !== outcome.matchId,
   );
-  const recentlyApplied = [
-    ...((
-      campaign as ICampaignWithBattleState & {
-        readonly recentlyAppliedOutcomes?: readonly ICombatOutcome[];
-      }
-    ).recentlyAppliedOutcomes ?? []),
-    outcome,
+  // `appliedOn` is the campaign's own time for this outcome (the in-game
+  // date it is applied on). `capturedAt` is a wall-clock instant and is not
+  // a campaign date, so nothing downstream compares it with one.
+  const recentlyApplied: readonly IAppliedCombatOutcome[] = [
+    ...(campaign.recentlyAppliedOutcomes ?? []),
+    withAppliedOn(outcome, campaign.currentDate),
   ];
   const pendingFulfilled = campaign.pendingFulfilledContractIds ?? [];
   const processedFulfilled = campaign.processedFulfilledContractIds ?? [];
@@ -204,7 +207,7 @@ function applyOutcome(
     ? applyContractClosure(campaign, terminalContract, nowIso)
     : null;
   const updatedCampaign: ICampaignWithBattleState & {
-    readonly recentlyAppliedOutcomes: readonly ICombatOutcome[];
+    readonly recentlyAppliedOutcomes: readonly IAppliedCombatOutcome[];
     readonly pendingFulfilledContractIds: readonly string[];
     readonly processedFulfilledContractIds: readonly string[];
   } = {
