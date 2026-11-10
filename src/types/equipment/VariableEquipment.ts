@@ -9,6 +9,8 @@
  * @spec openspec/specs/equipment-services/spec.md
  */
 
+import { TechBase } from '@/types/enums/TechBase';
+
 /**
  * Formula operation types
  */
@@ -55,6 +57,9 @@ export interface IFormula {
   /** Rounding precision (0.5, 1, etc.) for MULTIPLY_ROUND */
   readonly roundTo?: number;
 
+  /** Opt in to native STANDARD ton rounding; valid for half-ton MULTIPLY_ROUND. */
+  readonly nativeTonRounding?: boolean;
+
   /** Sub-formulas for MIN/MAX combinators */
   readonly formulas?: readonly IFormula[];
 
@@ -83,6 +88,16 @@ export interface IVariableFormulas {
 
   /** Context fields required for calculation */
   readonly requiredContext: readonly string[];
+
+  /** Own-equipment technology selects overrides within this one registry record. */
+  readonly techBaseOverrides?: Readonly<
+    Partial<
+      Record<
+        TechBase.INNER_SPHERE | TechBase.CLAN,
+        Partial<Pick<IVariableFormulas, 'weight' | 'criticalSlots' | 'cost'>>
+      >
+    >
+  >;
 }
 
 /**
@@ -267,9 +282,16 @@ const FORMULA_VALIDATORS: Readonly<Record<FormulaType, FormulaValidator>> = {
  */
 export function validateFormula(formula: IFormula): string[] {
   const validator = FORMULA_VALIDATORS[formula.type as FormulaType];
-  return validator
+  const errors = validator
     ? validator(formula)
     : [`Unknown formula type: ${(formula as IFormula).type}`];
+  if (
+    formula.nativeTonRounding &&
+    (formula.type !== 'MULTIPLY_ROUND' || formula.roundTo !== 0.5)
+  ) {
+    errors.push('nativeTonRounding requires half-ton MULTIPLY_ROUND');
+  }
+  return errors;
 }
 
 /**
@@ -295,6 +317,23 @@ export function validateVariableFormulas(
 
   if (!formulas.requiredContext || !Array.isArray(formulas.requiredContext)) {
     errors.push('requiredContext must be an array');
+  }
+
+  for (const [tech, override] of Object.entries(
+    formulas.techBaseOverrides ?? {},
+  )) {
+    if (tech !== TechBase.INNER_SPHERE && tech !== TechBase.CLAN) {
+      errors.push(`Unknown formula technology override: ${tech}`);
+    }
+    for (const field of ['weight', 'criticalSlots', 'cost'] as const) {
+      const formula = override[field];
+      if (formula)
+        errors.push(
+          ...validateFormula(formula).map(
+            (error) => `${tech}.${field}: ${error}`,
+          ),
+        );
+    }
   }
 
   return errors;
