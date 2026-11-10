@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 
 import type { UnitData } from '@/pages-modules/units/detail.types';
 
-import { loadUnitIntoTab } from '@/components/customizer/tabs/useMultiUnitTabsController.helpers';
 import {
   Badge,
   Button,
@@ -37,7 +36,6 @@ import {
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { mapCustomUnitIndexEntry } from '@/services/units/unitIndexMapper';
 import { isReadOnlyUnitDefinition } from '@/services/units/unitLoaderService/definitionTypes';
-import { useTabManagerStore } from '@/stores/useTabManagerStore';
 
 type BadgeVariant = React.ComponentProps<typeof Badge>['variant'];
 
@@ -55,10 +53,16 @@ function UnitHeaderActions({ unit }: { readonly unit: UnitData }) {
     setOpening(true);
     void customUnitApiService
       .list()
-      .then((entries) => {
+      .then(async (entries) => {
         const entry = entries.find((entry) => entry.id === unit.id);
         if (!entry || !isReadOnlyUnitDefinition(entry))
           throw new Error('The capital record is no longer in the library.');
+        const [{ loadUnitIntoTab }, { useTabManagerStore }] = await Promise.all(
+          [
+            import('@/components/customizer/tabs/useMultiUnitTabsController.helpers'),
+            import('@/stores/useTabManagerStore'),
+          ],
+        );
         return loadUnitIntoTab({
           unit: mapCustomUnitIndexEntry(entry),
           source: 'custom',

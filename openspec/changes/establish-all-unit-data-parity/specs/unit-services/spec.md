@@ -512,3 +512,22 @@ SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
 - **THEN** old library/draft fingerprint literals and absent optional values SHALL retain their exact bytes
 - **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
 - **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
+
+### Requirement: Deferred capital library opening and safe access checks
+
+The saved-unit detail page SHALL defer its loader and tab-store dependencies until
+the read-only opening action is requested. Pending chunk loading SHALL retain the
+detail page and show an opening state. A chunk failure SHALL show a visible error
+and leave the page usable without navigation.
+
+#### Scenario: Cold saved-unit opening
+
+- **WHEN** a saved mech or capital detail page is opened in a fresh browser context
+- **THEN** the existing detail and editor or read-only viewer paths SHALL remain available
+- **AND** the capital loader dependencies SHALL load only after the opening action
+
+#### Scenario: Malformed stored record refuses mutations
+
+- **WHEN** an update or version revert encounters malformed current stored JSON
+- **THEN** it SHALL return a structured validation error without changing the record or history
+- **AND** known capital records SHALL retain their read-only refusal

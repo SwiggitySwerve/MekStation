@@ -43,8 +43,17 @@ or reverted definition, so changing or clearing discriminators cannot bypass it.
 Initial creation/import and library deletion remain available. This lifecycle
 does not yet admit capital BLK sources.
 
+Malformed current stored JSON refuses updates and history reverts with
+`VALIDATION_ERROR` (HTTP 400), without changing the record or its history. Known
+capital records or proposed definitions retain `READ_ONLY` (HTTP 403), even when
+the current stored JSON is malformed. The shared repository access check owns
+both outcomes; parse failure never grants write access.
+
 Saved capital records reopen in the existing frozen viewer without an editor
 store. Preview resolves the custom source reference, preserving print and PDF.
+The saved detail page loads its unit-loader and tab-store dependencies only when
+Open read-only is requested. Opening remains visible while chunks load; a failed
+chunk shows an alert and retains the usable detail page.
 The existing JSON backup download remains available as a read operation. Native
 MTF/BLK and vault design exports remain unavailable; this adds no capital
 construction save or editing workflow.

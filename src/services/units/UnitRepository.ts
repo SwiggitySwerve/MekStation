@@ -80,11 +80,24 @@ export class UnitRepository implements IUnitRepository {
     current: ICustomUnitRecord,
     proposedData: unknown,
   ): IUnitOperationResult => {
-    if (
+    const knownReadOnly =
       isReadOnlyUnitDefinition(current) ||
-      isReadOnlyUnitDefinition(JSON.parse(current.data)) ||
-      isReadOnlyUnitDefinition(proposedData)
-    ) {
+      isReadOnlyUnitDefinition(proposedData);
+    let storedData: unknown;
+    if (!knownReadOnly) {
+      try {
+        storedData = JSON.parse(current.data);
+      } catch {
+        return {
+          success: false,
+          error: {
+            message: 'Stored unit data is malformed; update is not allowed.',
+            errorCode: UnitErrorCode.VALIDATION_ERROR,
+          },
+        };
+      }
+    }
+    if (knownReadOnly || isReadOnlyUnitDefinition(storedData)) {
       return {
         success: false,
         error: {

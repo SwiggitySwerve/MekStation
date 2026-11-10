@@ -441,6 +441,37 @@ describe('capital custom-record read-only lifecycle', () => {
     ).toBe(403);
   });
 
+  it.each([
+    ['BattleMech', 400, 'VALIDATION_ERROR'],
+    ['DropShip', 403, 'READ_ONLY'],
+  ])(
+    'refuses malformed stored %s data through update and revert APIs',
+    async (unitType, status, errorCode) => {
+      const id = seed({
+        chassis: 'Malformed',
+        model: 'A',
+        unitType,
+        tonnage: 50,
+      });
+      getSQLiteService()
+        .getDatabase()
+        .prepare('UPDATE custom_units SET data = ? WHERE id = ?')
+        .run('{broken', id);
+      const before = snapshot(id);
+      for (const response of [
+        await api('PUT', id, { data: { unitType: 'BattleMech', tonnage: 55 } }),
+        await api('POST', id, {}, 'revert'),
+      ]) {
+        expect(response._getStatusCode()).toBe(status);
+        expect(JSON.parse(response._getData())).toMatchObject({
+          success: false,
+          error: { errorCode },
+        });
+        expect(snapshot(id)).toBe(before);
+      }
+    },
+  );
+
   it('preserves noncapital update/revert and missing-record responses', async () => {
     const data = {
       chassis: 'Editable',
