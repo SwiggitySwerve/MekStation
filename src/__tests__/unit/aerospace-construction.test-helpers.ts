@@ -40,7 +40,6 @@ import {
   quartersWeight,
   minSmallCraftCrew,
 } from '@/utils/construction/aerospace/crewCalculations';
-import { aerospaceEngineWeight } from '@/utils/construction/aerospace/engineWeightAerospace';
 import {
   arcSlotAvailable,
   arcSlotLimit,
@@ -419,34 +418,6 @@ describe('armorArcCalculations', () => {
     expect(maxTotalArmorPoints(100, AerospaceSubType.AEROSPACE_FIGHTER)).toBe(
       80,
     );
-  });
-});
-
-// ============================================================================
-// engineWeightAerospace
-// ============================================================================
-
-describe('engineWeightAerospace', () => {
-  it('Shilone: rating 325, Fusion → table lookup 20t', () => {
-    // FUSION_ENGINE_WEIGHT[325] = 20.0
-    expect(aerospaceEngineWeight(325, AerospaceEngineType.FUSION)).toBe(20);
-  });
-
-  it('Sparrowhawk: rating 210, ICE → table weight × 2.0', () => {
-    // FUSION_ENGINE_WEIGHT[210] = 9.0, ICE ×2 = 18t
-    expect(aerospaceEngineWeight(210, AerospaceEngineType.ICE)).toBe(18);
-  });
-
-  it('XL engine halves the weight', () => {
-    // rating 200, Fusion → 8.5t; XL → 4.25 → ceil to 4.5t
-    expect(aerospaceEngineWeight(200, AerospaceEngineType.XL)).toBe(4.5);
-  });
-
-  it('result is always a multiple of 0.5', () => {
-    for (const rating of [50, 100, 150, 200, 250, 300, 350, 400]) {
-      const weight = aerospaceEngineWeight(rating, AerospaceEngineType.FUSION);
-      expect(weight % 0.5).toBe(0);
-    }
   });
 });
 

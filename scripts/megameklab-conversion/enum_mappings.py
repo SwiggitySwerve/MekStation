@@ -10,7 +10,6 @@ Usage:
 
 import os
 import re
-import warnings
 from typing import Optional, Dict
 from enum_mapping_tables import (
     TECH_BASE_MAP,
@@ -199,16 +198,6 @@ def map_armor_type(value: str) -> str:
     MegaMek 48fcb2f64 MtfFile.java:414-483 resolves registered names and
     Patchwork locations; EquipmentType.java:85-111 owns the type constants.
     """
-    # C2 R1: keep Jenner loadable until the first CW1 PR-C loader precursor.
-    # Its later correction must remove this residual and deliberately edit its test.
-    if value.strip() in ('Ferro-Fibrous Prototype', 'Ferro-Fibrous Prototype(Inner Sphere)'):
-        warnings.warn(
-            f"R1_DEFERRED_ARMOR: {value!r}: temporary FERRO_FIBROUS compatibility value; "
-            "FERRO_FIBROUS_PROTO is deferred until editor loader support lands",
-            RuntimeWarning,
-            stacklevel=2,
-        )
-        return ARMOR_TYPE_MAP['Ferro-Fibrous']
     try:
         return ARMOR_TYPE_MAP[value.strip()]
     except KeyError:
