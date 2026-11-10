@@ -85,3 +85,13 @@ test('raw LF mekfile hashes are checked before conversion and the proof is uploa
     steps.some((step) => step.with?.path?.includes('mekfiles-provenance.json')),
   );
 });
+
+test('runner scratch paths use the step environment rather than unsupported job-level runner context', () => {
+  const job = parse(fs.readFileSync(file, 'utf8')).jobs.scoreboard;
+  assert.equal(job.env, undefined);
+  const setup = job.steps[0];
+  assert.match(setup.run, /RUNNER_TEMP/);
+  assert.match(setup.run, /GITHUB_ENV/);
+  assert.match(setup.run, /PARITY_INPUTS/);
+  assert.match(setup.run, /PARITY_OUTPUT/);
+});

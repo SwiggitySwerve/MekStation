@@ -24,10 +24,11 @@ jobs:
     name: Parity Scoreboard (report only)
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      PARITY_INPUTS: ${{ runner.temp }}/parity-inputs
-      PARITY_OUTPUT: ${{ runner.temp }}/parity-scoreboard
     steps:
+      - name: Set runner scratch paths
+        run: |
+          printf 'PARITY_INPUTS=%s/parity-inputs\nPARITY_OUTPUT=%s/parity-scoreboard\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
       - name: Checkout workflow tooling
         uses: actions/checkout@v6
         with:
