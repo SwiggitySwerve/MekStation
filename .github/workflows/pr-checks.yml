@@ -892,9 +892,7 @@ jobs:
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-data
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/data.json
-        run: |
-          node -e "import('./scripts/playwright/unit-spec-refs.mjs').then((m) => console.log(m.LIMIT))"
-          node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/data
+        run: node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/data
 
       - name: Upload E2E durations and test census
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')

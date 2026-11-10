@@ -12,6 +12,7 @@ import {
   planShards,
   suitesForDataSpecs,
 } from './ci-e2e-plan.mjs';
+import { LIMIT } from './unit-spec-refs.mjs';
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -25,6 +26,9 @@ const { suite: requestedSuite, shardIndex } = parseInvocation(
   process.argv.slice(2).filter((arg) => arg !== '--plan-only'),
   dataSpecs,
 );
+// The data step names what it cannot see: a green data step does not mean no
+// spec depends on the changed data (family/glob selection is not selected).
+if (requestedSuite.name === 'data') console.log(LIMIT);
 const output = path.join(root, 'e2e-timings');
 fs.mkdirSync(output, { recursive: true });
 const invocationStarted = performance.now();
