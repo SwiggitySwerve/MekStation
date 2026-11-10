@@ -5,8 +5,17 @@ import {
   getGyroBVMultiplier,
   getStructureBVMultiplier,
 } from '../../types/validation/BattleValue';
+import { AMS_WEAPON_IDS } from '../equipment/equipmentConstants';
 import { calculateTMM } from './battleValueMovement';
-import { resolveEquipmentBV } from './equipmentBVResolver';
+import { getEquipmentEntry, resolveEquipmentBV } from './equipmentBVResolver';
+
+/** BVCalculator.java:604-610 (48fcb2f64): classify the resolved mount, not its label. */
+export function getAmsBVWeaponKind(id: string): 'ams' | 'apds' | undefined {
+  const entry = getEquipmentEntry(id);
+  if (!entry) return undefined;
+  if (entry.special?.includes('point-defense')) return 'apds';
+  return AMS_WEAPON_IDS.includes(entry.id) ? 'ams' : undefined;
+}
 
 export interface DefensiveBVConfig {
   totalArmorPoints: number;
