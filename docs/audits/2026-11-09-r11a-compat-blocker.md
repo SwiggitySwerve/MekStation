@@ -108,17 +108,17 @@ Unexpected local unsupported-version failures in hosted mirror catch-up, cold re
 
 ## Preserved branch checkpoint and verification limits
 
-Branch: `fix/d8-r11a-replay-fidelity-version`, based on pinned origin/main above. Current work is partial and stays intact in a local commit. No push, draft PR, merge, installs, full/directory Jest, build, fixture re-mint or hash re-pin was performed.
+Branch: `fix/d8-r11a-replay-fidelity-version`, based on pinned origin/main above. Implementation checkpoint: `bb29e1427ad2419968da0e08b835a9048454bd5f`. Current work is partial and stays intact in a local commit. No push, draft PR, merge, installs, full/directory Jest, build, fixture re-mint or hash re-pin was performed.
 
 Completed evidence before the stop:
 
 - Baseline: five required focused suites, 91 tests passed.
 - Partial new owner/factory/runner/schema/server preflight: four suites, 73 tests passed.
 - Partial updated hook/lobby/spectator presentation: three suites, 45 tests passed; Jest reported a worker teardown warning. This is not complete old-client compatibility evidence.
-- Both TypeScript configs passed on the then-current tree. The checkpoint's normal commit hook runs them again.
+- Both TypeScript configs passed on the then-current tree. The local checkpoint commit used normal Git with no skip flags. This worktree lacks `.husky/_/pre-commit` despite `core.hooksPath=.husky/_`, so the commit did not rerun lint-staged/typechecks; no final-tree hook proof is claimed. No Git configuration was changed.
 - Frozen blocker harness: four characterization/alternative-path tests passed; the approved Error-only visibility assertion failed as expected.
 - The old recording remains 58,703 bytes, SHA-256 `4366ce6cb897f79ea9f75e9b88a48f21db16864e56c58cbe790d7fa72c6833a9`.
 
 The last already-running focused batch finished after the stop request: **47 passed, 6 failed**. The two engine event locks moved as expected from the stamp and were **not re-pinned** (42: old `2e6518e7722bb8fedc5212f0a83b0b67f4568ab56326e54266cc2d94608c0de1`, observed `729e77594b25d0407b914a7149bdd421375fbe38c01ff0be0f94e44139076a99`; 12345: old `b0d824117f9c7cdff7f78ff4a1d9aa54d1a6139a5557a85b7bb31f55c3f9399a`, observed `a58194599adbf83c95b0f75a8295152e251a755a55a9353670e9649c51ceec0b`). Per-lock exact stamp-removal proofs are still outstanding. Three added persistence assertions incorrectly compared pre-storage JSON order with the existing canonicalized storage order; they remain unfinished tests, not established new product drift. The added future-gate test accidentally builds from HISTORY[0] (GameStarted), so its input needs correction. They were preserved on request rather than repaired after implementation stopped.
 
-Required mutants, complete movement/fingerprint receipts, strict OpenSpec and the remaining final-tree checks are outstanding. OpenSpec tasks remain unchecked. This checkpoint must not be described as passing or merge-ready.
+The CI budget check passed at the stop point: 57 unkeyable tests (no increase). Required mutants, complete movement/fingerprint receipts, strict OpenSpec and the remaining final-tree checks are outstanding. OpenSpec tasks remain unchecked. This checkpoint must not be described as passing or merge-ready.
