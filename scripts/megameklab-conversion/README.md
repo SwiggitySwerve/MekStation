@@ -50,9 +50,16 @@ as the sole text-scan exceptions and checks their corresponding file IDs.
 Generated data is ignored by default. Stage the eight renamed UTF-8 JSON paths
 explicitly with `git add -f` after reviewing the generator diff.
 
+The generic legacy conversion CLI and its private MTF, BLK, XML and metadata
+helpers are retired. They inferred source facts and fabricated equipment
+properties outside the active family owners. Use `npm run convert:mtf` or the
+`convert:blk:<family>` scripts listed in `package.json`; pass `--help` to inspect
+options. This retirement does not change native converters or regenerate data.
+
 ## Files
 
-- `data_converter.py` - Converts MegaMekLab MTF/BLK files to JSON format
+- `mtf_converter.py` / `mtf_parser.py` - Active BattleMech MTF conversion
+- `blk_*_converter.py` - Active BLK converters for each supported family
 - `schema.sql` - PostgreSQL database schema for storing units and equipment
 - `populate_db.py` - Populates PostgreSQL database with converted JSON data (NOT IMPLEMENTED)
 - `run_validation.py` - Validates units against BattleTech construction rules

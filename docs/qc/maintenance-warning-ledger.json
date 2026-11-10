@@ -18,7 +18,7 @@
       "follow-up": 0
     },
     "file-bloat": {
-      "fixed": 19,
+      "fixed": 17,
       "accepted": 0,
       "follow-up": 0
     },
@@ -66,30 +66,6 @@
       "status": "fixed",
       "rationale": "BV calculation, crit-slot scanning, ammo resolution, weapon resolution, known-unit data, normalizers, and shared types were split into focused validator modules. The original critical monolith is gone; remaining high/warn file-bloat is tracked as follow-up validator architecture debt.",
       "followUps": ["wave-12-validate-bv-architecture-split"]
-    },
-    {
-      "key": "file-bloat|high|scripts/megameklab-conversion/data_converter.py|736 LOC exceeds python threshold",
-      "category": "file-bloat",
-      "severity": "high",
-      "file": "scripts/megameklab-conversion/data_converter.py",
-      "message": "736 LOC exceeds python threshold",
-      "status": "fixed",
-      "rationale": "Metadata/type helpers and UnitVerifierOptions XML conversion were extracted to focused helper modules, dropping data_converter.py below the high Python file-bloat threshold while preserving converter imports.",
-      "followUps": ["wave-12-megameklab-conversion-split"]
-    },
-    {
-      "key": "file-bloat|warn|scripts/megameklab-conversion/data_converter.py|499 LOC exceeds python threshold",
-      "category": "file-bloat",
-      "severity": "warn",
-      "file": "scripts/megameklab-conversion/data_converter.py",
-      "message": "499 LOC exceeds python threshold",
-      "status": "fixed",
-      "rationale": "Legacy BLK and MTF parsing bodies were split into focused data_converter_blk.py and data_converter_mtf.py helpers, leaving the orchestrator below the warn threshold.",
-      "followUps": ["wave-12-megameklab-conversion-split"],
-      "fixedEvidence": [
-        "2026-06-30 npm.cmd run maintain:scan -- --category=file-bloat --scope=scripts/megameklab-conversion --json reported file-bloat warn=0 for the MegaMekLab conversion cluster.",
-        "2026-06-30 python -B -m py_compile passed for all scripts/megameklab-conversion/*.py with bytecode disabled."
-      ]
     },
     {
       "key": "file-bloat|high|scripts/megameklab-conversion/mtf_converter.py|546 LOC exceeds python threshold",
