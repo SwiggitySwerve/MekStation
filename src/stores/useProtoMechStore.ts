@@ -24,6 +24,7 @@ import {
   computeProtoStructure,
   computeProtoWalkMPForRating,
   clampProtoMovement,
+  getProtoWeightClass,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
   protoJumpLimit,
@@ -141,6 +142,8 @@ export function createProtoMechStore(
               if (refusal !== undefined) throw new RangeError(refusal);
               return {
                 tonnage: clampedTonnage,
+                // The stored class is persisted and written into the saved record.
+                weightClass: getProtoWeightClass(clampedTonnage),
                 structureByLocation: computeProtoStructure(
                   clampedTonnage,
                   state.chassisType,

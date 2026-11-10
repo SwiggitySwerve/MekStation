@@ -16,7 +16,12 @@ import path from 'node:path';
 import { mapProtoMechDefinitionToState } from '@/services/units/unitLoaderService/smallUnitDefinitionMapper';
 import { createDefaultProtoMechState } from '@/stores/protoMechState';
 import { createProtoMechStore } from '@/stores/useProtoMechStore';
-import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { Era } from '@/types/temporal/Era';
+import {
+  ProtoChassis,
+  ProtoWeightClass,
+} from '@/types/unit/ProtoMechInterfaces';
+import { serializeCustomSmallUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 const DIR = path.join(process.cwd(), 'public/data/units/protomechs');
 const definitions = fs
@@ -122,6 +127,41 @@ describe('one tonnage range, 2 to 15, for every motive', () => {
     expect(store.getState().tonnage).toBe(12);
     store.getState().setChassisType(ProtoChassis.QUAD);
     expect(store.getState().tonnage).toBe(12);
+  });
+});
+
+describe('the stored weight class follows the tonnage', () => {
+  // The stored class is persisted in the draft and written into the saved library record
+  // (CustomUnitSerializer.smallUnits.ts), so a tonnage edit must not leave it stale.
+  it.each([
+    [3, ProtoWeightClass.LIGHT],
+    [6, ProtoWeightClass.MEDIUM],
+    [9, ProtoWeightClass.HEAVY],
+    [10, ProtoWeightClass.ULTRAHEAVY],
+    [13, ProtoWeightClass.ULTRAHEAVY],
+  ])('setTonnage(%s) stores %s', (tonnage, weightClass) => {
+    const store = createProtoMechStore(
+      createDefaultProtoMechState({ tonnage: 5 }),
+    );
+    store.getState().setTonnage(tonnage);
+    expect(store.getState().weightClass).toBe(weightClass);
+  });
+
+  it('saves the derived class into the library record after a tonnage edit', () => {
+    const store = createProtoMechStore(
+      createDefaultProtoMechState({ tonnage: 5 }),
+    );
+    store.getState().setTonnage(13);
+    const saved = serializeCustomSmallUnitState(store.getState(), {
+      id: 'weight-class',
+      chassis: 'Weight Class',
+      variant: 'Probe',
+      era: Era.CLAN_INVASION,
+    });
+    expect(saved).toMatchObject({
+      weightClass: 'ULTRAHEAVY',
+      smallUnitEditor: { weightClass: ProtoWeightClass.ULTRAHEAVY },
+    });
   });
 });
 

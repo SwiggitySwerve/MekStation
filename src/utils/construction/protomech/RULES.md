@@ -561,6 +561,8 @@ left: no motive and tonnage disagree. A tonnage edit keeps the walk MP and recom
 engine; when the rating would be over 500 it is refused with a reason
 (`protoTonnageChangeError`, from `PMStructureTab.java:446-456`), and walk is never rewritten
 (the old `10 - t` reset changed the walk of 72 of the 86 canonical units, and all 10 above 9 t).
+`setTonnage` also stores the weight class derived from the new tonnage: the stored value is
+persisted in drafts and written into the saved record, so it must not go stale.
 
 `ProtoChassis.ULTRAHEAVY` stays as a deprecated member for the replay init schema
 (`z.nativeEnum`), the source model and old saved units. `legacyUltraheavy.ts` owns the two
