@@ -1,5 +1,13 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import React from 'react';
+
+import type { UnitState } from '@/stores/unitState';
 
 import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import { buildCampaignEditorUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
@@ -7,6 +15,7 @@ import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfigurati
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
 import { UnitStoreContext, createUnitStore } from '@/stores/useUnitStore';
 import { RefitClass } from '@/types/campaign/Refit';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 
 import { CampaignCustomizerSessionProvider } from '../CampaignCustomizerSessionContext';
@@ -48,6 +57,7 @@ const mockNavigateToCampaignCustomizerReturn =
 function renderCommandBar(options?: {
   readonly invalid?: boolean;
   readonly changed?: boolean;
+  readonly patch?: Partial<UnitState>;
 }) {
   const unit = {
     unitId: 'campaign-unit-atlas',
@@ -79,6 +89,7 @@ function renderCommandBar(options?: {
     heatSinkCount: options?.changed
       ? state.heatSinkCount + 1
       : state.heatSinkCount,
+    ...options?.patch,
   });
   const onTabChange = jest.fn();
   render(
@@ -96,7 +107,7 @@ function renderCommandBar(options?: {
       </UnitStoreContext.Provider>
     </CampaignCustomizerSessionProvider>,
   );
-  return { onTabChange, route };
+  return { onTabChange, route, store };
 }
 
 describe('CampaignRefitCommandBar', () => {
@@ -221,6 +232,57 @@ describe('CampaignRefitCommandBar', () => {
 
     expect(mockCommitRefitOrder).not.toHaveBeenCalled();
     expect(mockNavigateToCampaignCustomizerReturn).not.toHaveBeenCalled();
+  });
+
+  it('blocks an overweight Tripod in the preview before save', () => {
+    renderCommandBar({
+      patch: {
+        configuration: MechConfiguration.TRIPOD,
+        engineRating: 300,
+        heatSinkCount: 20,
+      },
+    });
+    expect(screen.getByTestId('campaign-refit-save')).toBeDisabled();
+    expect(screen.getByTestId('campaign-refit-validation')).toHaveTextContent(
+      '50.5t',
+    );
+  });
+
+  it('revalidates donor-only edits and saves the same donor input', async () => {
+    const { store } = renderCommandBar({
+      patch: { engineRating: 300, heatSinkCount: 20 },
+    });
+    expect(screen.getByTestId('campaign-refit-save')).toBeEnabled();
+    act(() =>
+      store.setState({
+        frankenStructure: {
+          type: 'STANDARD',
+          typeByLocation: { LEFT_ARM: 'REINFORCED' },
+          locationTonnage: { LEFT_ARM: 100 },
+        },
+      }),
+    );
+    expect(screen.getByTestId('campaign-refit-save')).toBeDisabled();
+    const donor: NonNullable<UnitState['frankenStructure']> = {
+      type: 'STANDARD',
+      typeByLocation: { LEFT_ARM: 'ENDO_STEEL' },
+    };
+    act(() => store.setState({ frankenStructure: donor }));
+    expect(screen.getByTestId('campaign-refit-save')).toBeEnabled();
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+    await waitFor(() =>
+      expect(mockCommitRefitOrder).toHaveBeenCalledWith(
+        expect.objectContaining({
+          targetConfiguration: expect.objectContaining({
+            configuration: MechConfiguration.BIPED,
+            frankenStructure: donor,
+          }),
+        }),
+      ),
+    );
+    await waitFor(() =>
+      expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledTimes(1),
+    );
   });
 
   it('blocks invalid refit targets with tab-level resolution controls', () => {

@@ -1,4 +1,5 @@
 import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfiguration';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 
 import {
@@ -7,6 +8,35 @@ import {
 } from '../campaignCustomizerSession';
 
 describe('campaignCustomizerSession', () => {
+  it('retains stored configuration and donor sections when reopening a refit', () => {
+    const currentConfiguration = {
+      ...DEFAULT_UNIT_CONFIGURATION,
+      configuration: MechConfiguration.TRIPOD,
+      frankenStructure: {
+        type: 'STANDARD',
+        typeByLocation: { LEFT_ARM: 'ENDO_STEEL' },
+      },
+    };
+    const state = buildCampaignEditorUnitState({
+      editorUnitId: 'tripod-refit',
+      unit: {
+        unitId: 'tripod',
+        unitName: 'Tripod',
+        chassisVariant: 'Test',
+        readiness: 'Ready',
+      },
+      currentConfiguration,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+    });
+    expect(state.configuration).toBe(currentConfiguration.configuration);
+    expect(state.frankenStructure).toEqual(
+      currentConfiguration.frankenStructure,
+    );
+    expect(extractMechBuildConfigFromUnitState(state)).toEqual(
+      currentConfiguration,
+    );
+  });
+
   it('creates a separate editor unit from canonical campaign roster identity', () => {
     const editorUnitId = '11111111-1111-4111-8111-111111111111';
     const state = buildCampaignEditorUnitState({

@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 import type { CustomizerTabId } from '@/hooks/useCustomizerRouter';
 
@@ -52,54 +53,12 @@ export function CampaignRefitCommandBar({
   const router = useRouter();
   const store = useUnitStoreApi();
   const isModified = useUnitStore((state) => state.isModified);
-  const armorAllocation = useUnitStore((state) => state.armorAllocation);
-  const armorType = useUnitStore((state) => state.armorType);
-  const cockpitType = useUnitStore((state) => state.cockpitType);
-  const configuration = useUnitStore((state) => state.configuration);
-  const engineRating = useUnitStore((state) => state.engineRating);
-  const engineType = useUnitStore((state) => state.engineType);
-  const gyroType = useUnitStore((state) => state.gyroType);
-  const heatSinkCount = useUnitStore((state) => state.heatSinkCount);
-  const heatSinkType = useUnitStore((state) => state.heatSinkType);
-  const internalStructureType = useUnitStore(
-    (state) => state.internalStructureType,
-  );
-  const jumpMP = useUnitStore((state) => state.jumpMP);
-  const tonnage = useUnitStore((state) => state.tonnage);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
 
-  const targetConfiguration = useMemo(
-    () =>
-      extractMechBuildConfigFromUnitState({
-        armorAllocation,
-        armorType,
-        cockpitType,
-        configuration,
-        engineRating,
-        engineType,
-        gyroType,
-        heatSinkCount,
-        heatSinkType,
-        internalStructureType,
-        jumpMP,
-        tonnage,
-      }),
-    [
-      armorAllocation,
-      armorType,
-      cockpitType,
-      configuration,
-      engineRating,
-      engineType,
-      gyroType,
-      heatSinkCount,
-      heatSinkType,
-      internalStructureType,
-      jumpMP,
-      tonnage,
-    ],
+  const targetConfiguration = useUnitStore(
+    useShallow(extractMechBuildConfigFromUnitState),
   );
   const validation = useMemo(
     () => validateConstruction(targetConfiguration),
