@@ -147,6 +147,8 @@ export async function buildReport({
     limits,
     tests: envelope.tests,
     testBaselines: validProducers.map((entry) => entry.tests).filter(Boolean),
+    packages: envelope.packages,
+    packageBaselines: validProducers,
   });
   if (diagnostics.length) {
     report.missing.push(...diagnostics);
