@@ -61,6 +61,8 @@ available for allocation validation. Unplaced source summaries retain their
 existing location-hint behavior. Native prefixes and display markers such as
 `(Clan)` name the token's own technology, including during split restoration.
 Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
+AmmoType.java:10617-10692 gives IS Streak SRM bins 4/7/11 BV; 8566-8579 gives
+Clan LRM-20 bins 27 BV. Unmarked display names are not equivalent source IDs.
 
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
 Custom mech saves retain category with optional `isAmmo` metadata only when the
@@ -379,3 +381,20 @@ but has UNOFFICIAL catalog metadata, while pinned `CLActiveProbe` is
 Clan/STANDARD (MiscType.java:5803-5838, 48fcb2f64). Likewise both Light Active
 Probe records are Clan (5848-5884). A mismatched actual side declines the suffix
 and retains the existing fallback; it introduces no alias or candidate fallback.
+
+## Mounted ammunition source tokens
+
+`equipmentResolution.getMountedAmmoSourceToken` owns whether a source cell still
+names the current ammo mount. It reuses the placed resolver for that cell and
+requires the same ID, category and technology. Established decorated identities
+win before the shared token decoder removes native pod/rear wrappers. The custom
+critical writer preserves this validated token instead of replacing it with an
+unmarked display name. It reads the existing editable projection, which removes
+stale source cells after a mount edit; other mounts retain their existing writer.
+The BV ammo consumer receives the same native token and uses its existing lookup.
+No recovery, catalog, portable schema or fingerprint format is added.
+
+The existing `unitEditSnapshot` library projection still normalizes temporary
+equipment IDs before serialization. Old literal fingerprints and the pre-change
+Sentinel/Archer library bytes are regression assertions; fixtures are not rebuilt.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
