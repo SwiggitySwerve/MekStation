@@ -222,9 +222,7 @@ describe('P2P mirror divergence rebuild', () => {
     expect(harness.setLive).toHaveBeenCalled();
   });
 
-  it('leaves a clean replay on the path it always took', async () => {
-    // The vacuity guard: a clean prefix must not persist-and-rebuild,
-    // or every match would be rebuilt from storage on every reconnect.
+  it('rebuilds a matching full baseline through the same durable path', async () => {
     const harness = mountReconnect({
       stored: [makeEvent(0, 'id-a')],
       stream: [makeEvent(0, 'id-a'), makeEvent(1, 'id-b')],
@@ -232,11 +230,10 @@ describe('P2P mirror divergence rebuild', () => {
     await settle(harness);
     act(() => harness.emitReplay(harness.stream));
 
-    await waitFor(() =>
-      expect(harness.appendReplayEvent).toHaveBeenCalledTimes(2),
-    );
-    expect(harness.persistReplayEvent).not.toHaveBeenCalled();
-    expect(harness.adoptRebuiltSession).not.toHaveBeenCalled();
+    await waitFor(() => expect(harness.setLive).toHaveBeenCalled());
+    expect(harness.persistReplayEvent).toHaveBeenCalledTimes(2);
+    expect(harness.adoptRebuiltSession).toHaveBeenCalledWith(harness.hydrated);
+    expect(harness.appendReplayEvent).not.toHaveBeenCalled();
   });
 
   it('does not clear a divergence without rebuilding', async () => {
