@@ -180,6 +180,13 @@ unknown, empty, malformed, and fractional codes; omitted armor retains STANDARD.
 `BLKAeroSpaceFighterFile.java:160-164` skips that last location. BAR rating
 policies remain in `bar_armor_fields` and are unchanged.
 
+`map_armor_code` has one decoding policy. Every production caller already used
+strict decoding; the unused permissive mode and its `strict` option are retired.
+The optional-field omission policy above is unchanged. `enum_mappings` is a
+required co-located dependency: import errors propagate rather than installing
+stub technology, rules, engine, armor or era mappings. This is an installation
+failure, with no Java source-value default to reproduce.
+
 Bomb bay identity follows `MiscType.java:12413-12419` and
 `EquipmentTypeLookup.LAM_BOMB_BAY`: the registered name is `Bomb Bay`, with
 case-insensitive lookup (`EquipmentType.java:880`). Count those equipment items;

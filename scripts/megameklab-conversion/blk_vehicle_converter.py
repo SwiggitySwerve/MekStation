@@ -193,7 +193,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # Only the support loaders read the BAR rating (loadSVArmor in BLKSupportTankFile,
     # BLKLargeSupportTankFile and BLKSupportVTOLFile); BLKTankFile and BLKVTOLFile do not.
     armor_type = {
-        "type": map_armor_code(armor_code, ARMOR_CODE_MAP, strict=True),
+        "type": map_armor_code(armor_code, ARMOR_CODE_MAP),
         **bar_armor_fields(
             tags, parse_number(armor_code), unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
         ),
