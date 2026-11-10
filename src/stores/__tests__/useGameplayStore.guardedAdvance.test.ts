@@ -134,6 +134,8 @@ function makeSession(): InteractiveSession {
     [adapted(PLAYER, GameSide.Player)],
     [adapted(OPPONENT, GameSide.Opponent)],
     gameUnits(),
+    {},
+    defaultD6Roller,
   );
 }
 

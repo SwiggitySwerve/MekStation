@@ -17,10 +17,11 @@ import {
   createMirrorDiceRoller,
   MirrorSessionRolledDiceError,
 } from '@/lib/p2p/mirrorDiceRoller';
-import { SeededD6Roller } from '@/simulation/core';
+import { SeededD6Roller, SeededRandom } from '@/simulation/core';
 import { GameEventType, GamePhase } from '@/types/gameplay';
 import { resolvePendingPSRs } from '@/utils/gameplay/gameSessionPSRResolution';
 
+import { SessionHasNoDiceRollerError } from '../InteractiveSession.resolvers';
 import {
   advanceHostToEndWithQueuedPsr,
   makePsrFixtureHost,
@@ -114,6 +115,25 @@ describe('InteractiveSession.fromSession dice', () => {
     expect(thrown).toBeInstanceOf(TypeError);
     expect((thrown as Error).message).toMatch(/needs a dice roller/);
     expect(ambientReads).toBe(0);
+  });
+});
+
+describe('a session that was given no roller', () => {
+  it('cannot resolve the End-phase PSR: it throws a named error and never reads Math.random', () => {
+    const snapshot = endPhaseSnapshot();
+    const rollerless = InteractiveSession.fromHydratedSession(snapshot, {
+      random: new SeededRandom(1),
+    });
+
+    const { thrown, ambientReads } = observeAmbientRandom(() =>
+      rollerless.advancePhase(),
+    );
+
+    expect(thrown).toBeInstanceOf(SessionHasNoDiceRollerError);
+    expect((thrown as Error).name).toBe('SessionHasNoDiceRollerError');
+    expect(ambientReads).toBe(0);
+    expect(rollerless.getSession().currentState.phase).toBe(GamePhase.End);
+    expect(count(rollerless.getSession(), GameEventType.PSRResolved)).toBe(0);
   });
 });
 

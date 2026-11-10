@@ -67,6 +67,20 @@ export function diceRollerForResolvers(
   return () => roll2d6FromD6(d6Roller);
 }
 
+export class SessionHasNoDiceRollerError extends Error {
+  constructor() {
+    super(
+      'This session has no dice roller, so it cannot resolve a roll. Construct it with a seeded or injected roller.',
+    );
+    this.name = 'SessionHasNoDiceRollerError';
+  }
+}
+
+/** The End-phase PSR roller for a session that was given none. */
+export const missingDiceRoller: DiceRoller = () => {
+  throw new SessionHasNoDiceRollerError();
+};
+
 /**
  * Build the per-unit `IPhysicalAttackContext` map the physical-attack
  * resolver needs (attacker tonnage, piloting skill, hexes moved this
