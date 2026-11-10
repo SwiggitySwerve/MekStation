@@ -1660,15 +1660,33 @@ passing execution. An unverified effect or outcome stays "not verified".
   - **Gameplay findings open at the pause (tracked in ROADMAP C/D, owner C4; not
     unit-data parity)**
     - Campaign OPEN findings (owner C4):
-      - PRE-EXISTING silent loss in campaign saving: a reload about 1.8–2.0 s
-        after a change lost the server write in 9 of 18 trials, and the
-        reloaded app shows it as saved without self-healing. No wind-down
-        merge touched that code. C4's first resume item, ahead of P2P:
-        determine refused versus undelivered, make the write land and make
-        newer local state remain dirty until persisted. Close with the
-        reload-timing regression proof and truthful saved-state reporting.
-        Evidence: `validation-3e96c2283/o1-sweep/summary.json`,
-        `validation-3e96c2283/o1-sweep/trials.jsonl`, PARITY-PLAN §52/§53.
+      - **SILENT LOSS IN CAMPAIGN SAVING, CAUSE PROVEN (C4,
+        `campaign-save-loss/PROPOSAL.md`): our service worker.**
+        `public/service-worker.js:43` registers a `fetch` listener, and
+        Chromium drops a `pagehide` keepalive request from a worker-controlled
+        page when the document is replaced. So in a browser with a warm
+        worker, any campaign edit in the roughly two seconds before a reload
+        or full-page navigation never reaches the server, and the reloaded
+        app shows it as saved.
+        - **Proof:** a logging proxy recorded 0 of 36 PUT arrivals in loss
+          trials, and every captured body replays to 200. Isolation: bare page
+          80/80 delivered; bare page with a fetch-listener worker 0/80; worker
+          with no listener 20/20; the app with workers blocked 8/8.
+        - **Pre-existing:** no wind-down merge touched that file.
+        - **Approved fix (C4), the first merge after the freeze lifts:**
+          - **PR 1:** Static Routing `addRoutes` in the worker's install
+            handler, so `/api/*` writes bypass the worker (Chromium 123+);
+            and the worker-update reload waits while the campaign store is
+            dirty.
+          - **PR 2:** a persisted pending-write marker, so a reloaded page
+            with local state newer than the server comes up dirty and pushes,
+            or shows a conflict.
+          - **Then** three small PRs for a server-side invariant seam (refit
+            one-open-per-unit first; 422 refusal).
+        - **Same exposure:** any store relying on a `pagehide` flush (C4's
+          proposal §6 lists them).
+        - **Interaction:** C5's parked #3315 edits the same file. It rebases
+          on C4's PR 1 and re-runs its old-tab and unvisited-route checks.
     - **D-11 REGRESSED** (unticked on ROADMAP by Root's instruction).
       Validation nightly **42795664179** on `3e96c2283`: Full E2E 1,030 passed,
       **4 failed**, 0 flaky, 24 skipped; every other job green. All 4 failures
