@@ -23,6 +23,11 @@ export {
 } from './gameSessionCore';
 
 export {
+  GameEventIdCollisionError,
+  GameEventSequenceError,
+} from './gameSessionEvents';
+
+export {
   buildGameSessionFromLobbyState,
   buildLobbyGameData,
   type ILobbyGameData,

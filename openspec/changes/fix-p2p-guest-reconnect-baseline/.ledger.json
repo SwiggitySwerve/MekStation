@@ -1,6 +1,6 @@
 {
   "name": "fix-p2p-guest-reconnect-baseline",
-  "status": "in-progress",
-  "reason": "Implement Root's ruled P2P guest baseline replacement and shared append guard; local commits only during merge freeze.",
+  "status": "implemented",
+  "reason": "Implemented Root's ruled P2P guest baseline replacement and shared append guard; local commits only during merge freeze.",
   "lastReviewed": "2026-11-10"
 }

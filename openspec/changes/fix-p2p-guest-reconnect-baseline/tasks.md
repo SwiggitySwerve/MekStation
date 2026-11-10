@@ -5,8 +5,8 @@
 
 ## Implementation and acceptance
 
-- [ ] Persist, hydrate and adopt full baselines rather than appending them.
-- [ ] Enforce identical-id idempotence and named identity/sequence failures at appendEvent.
-- [ ] Audit every production appendEvent caller and the listed delta-shaped reducers; stop on incompatible legitimate callers.
-- [ ] Pass focused Jest, typecheck, changed-file formatting/lint and strict change validation without changing committed digests or fixtures.
-- [ ] Record commands, counts, decisions, branch and local commit SHAs in the requested IMPLEMENTATION.md; do not push.
+- [x] Persist, hydrate and adopt full baselines rather than appending them.
+- [x] Enforce identical-id idempotence and named identity/sequence failures at appendEvent.
+- [x] Audit every production appendEvent caller and the listed delta-shaped reducers; stop on incompatible legitimate callers.
+- [x] Pass focused Jest, typecheck, changed-file formatting/lint and strict change validation without changing committed digests or fixtures.
+- [x] Record commands, counts, decisions, branch and local commit SHAs in the requested IMPLEMENTATION.md; do not push.

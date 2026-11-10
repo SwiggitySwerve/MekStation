@@ -15,6 +15,7 @@ import {
 } from '@/lib/p2p';
 import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+import { GameEventType } from '@/types/gameplay';
 
 import {
   appendReplayEventToActiveSession,
@@ -68,7 +69,7 @@ interface ReconnectDependencies {
   ) => IGameSessionChannel;
   readonly appendReplayEvent: ReplayEventAppender;
   /**
-   * Durable write used on the divergence path. Distinct from
+   * Durable write used for full baselines and divergence rebuilds. Distinct from
    * `appendReplayEvent`, which short-circuits to the in-memory
    * session whenever one exists and therefore leaves the log empty
    * exactly when the rebuild needs it (finding #85).
@@ -393,23 +394,24 @@ async function applyReplayStream(
     deps.onMirrorPrefixDivergence?.(verdict);
   }
 
-  // A diverged mirror is not repaired by appending the peer's history
-  // onto the board that disagreed with it - that is what produced the
-  // mixed session in the first place (#79). The peer's events go to the
-  // DURABLE log, which the reconcile above just emptied, and the board
-  // is then rebuilt from it (#85: the ordinary append would have
-  // short-circuited to memory and left the log empty).
+  // Full baselines replace even a matching recovered prefix. Persist before
+  // hydrating, as on divergence: the ordinary appender short-circuits to the
+  // in-memory session and would duplicate the prefix or leave storage empty.
   const diverged = verdict.kind !== 'match';
+  const rebuild =
+    diverged ||
+    assumePrefixSnapshot ||
+    events[0]?.type === GameEventType.GameCreated;
   const seen = new Set<string>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
     seen.add(event.id);
-    await (diverged
+    await (rebuild
       ? deps.persistReplayEvent(matchId, event)
       : deps.appendReplayEvent(matchId, event));
   }
   if (runtime.cancelled) return;
-  if (diverged) {
+  if (rebuild) {
     deps.adoptRebuiltSession(await deps.hydrateFromMatchLog(matchId));
     // Only here. The flag records "your board is not theirs", and this
     // is the one moment that stops being true.
