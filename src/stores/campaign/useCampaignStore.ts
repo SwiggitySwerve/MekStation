@@ -16,7 +16,7 @@ import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
 } from '@/engine/combatOutcomeBus';
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { lifecycleAwareStorage } from '@/stores/utils/lifecycleAwareStorage';
 import {
   isActivityLogEntry,
   type IActivityLogEntry,
@@ -101,7 +101,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
       }),
       {
         name: 'campaign-store',
-        storage: createJSONStorage(() => clientSafeStorage),
+        storage: createJSONStorage(() => lifecycleAwareStorage),
         partialize: (state) => {
           if (!state.campaign) {
             return { campaign: null, activityLog: state.activityLog };

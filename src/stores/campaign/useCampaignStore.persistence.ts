@@ -57,7 +57,7 @@ import {
   rehydrateContractMarket,
   rehydrateMissionMap,
 } from '@/lib/campaign/persistence/missionSerialization';
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { lifecycleAwareStorage } from '@/stores/utils/lifecycleAwareStorage';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
@@ -453,7 +453,7 @@ export function persistCampaignRecord(
     processedBattleIds,
     reviewedBattleIds,
   );
-  clientSafeStorage.setItem(
+  lifecycleAwareStorage.setItem(
     `campaign-${campaign.id}`,
     JSON.stringify({ state: serialized }),
   );
