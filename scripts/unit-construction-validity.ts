@@ -8,14 +8,18 @@ import { z } from 'zod';
 import type { IUnitValidationError } from '../src/types/validation/UnitValidationInterfaces';
 
 import { useUnitCalculations } from '../src/hooks/useUnitCalculations';
-import { useMechValidationInput } from '../src/hooks/validation/useMechValidationInput';
+import { getEquipmentLookupService } from '../src/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '../src/services/equipment/EquipmentRegistry';
 import {
   UnitLoaderService,
   type IRawSerializedUnit,
 } from '../src/services/units/unitLoaderService';
 import { initializeUnitValidationRules } from '../src/services/validation/initializeUnitValidation';
 import { validateUnit } from '../src/services/validation/UnitValidationOrchestrator';
-import { createUnitStore, UnitStoreContext } from '../src/stores/useUnitStore';
+import {
+  getMechConstructionSelections,
+  projectMechValidation,
+} from '../src/utils/validation/mechValidationProjection';
 import {
   buildDeltaReport,
   FAMILIES,
@@ -28,23 +32,14 @@ type ValidityFact = NonNullable<IComputedRow['constructionValidity']>;
 const messages = (items: readonly IUnitValidationError[]) =>
   items.map((item) => `${item.ruleId}: ${item.message}`);
 
-/** Render editor hooks in one isolated store, shared by weight and validity capture. */
-function renderMechHook<T>(
-  state: ReturnType<UnitLoaderService['mapToUnitState']>,
-  useValue: () => T,
-): T {
+/** Render only the complete calculation hook, whose sum has no pure owner. */
+function renderMechHook<T>(useValue: () => T): T {
   let rendered: { value: T } | undefined;
   const Probe = () => {
     rendered = { value: useValue() };
     return null;
   };
-  renderToStaticMarkup(
-    createElement(
-      UnitStoreContext.Provider,
-      { value: createUnitStore(state) },
-      createElement(Probe),
-    ),
-  );
+  renderToStaticMarkup(createElement(Probe));
   if (!rendered) throw new Error('Editor hook did not render');
   return rendered.value;
 }
@@ -52,12 +47,13 @@ function renderMechHook<T>(
 export function renderMechCalculations(
   state: ReturnType<UnitLoaderService['mapToUnitState']>,
 ): ReturnType<typeof useUnitCalculations> {
-  return renderMechHook(state, function useCalculations() {
+  const selections = getMechConstructionSelections(state);
+  return renderMechHook(function useCalculations() {
     return useUnitCalculations(
       state.tonnage,
-      state,
-      state.armorTonnage,
-      state.configuration,
+      selections,
+      selections.armorTonnage,
+      selections.configuration,
     );
   });
 }
@@ -82,7 +78,20 @@ export function captureMechValidity(
       true,
     );
     stage = 'mtf-projection';
-    const input = renderMechHook(state, useMechValidationInput);
+    // Only the complete calculation sum needs React; projection itself is pure.
+    const calculations = renderMechCalculations({
+      ...state,
+      tonnage: state.tonnage || 20,
+      lamType: undefined,
+    });
+    const ready = getEquipmentRegistry().isReady();
+    const input = projectMechValidation(state, {
+      totalStructuralWeight: calculations.totalStructuralWeight,
+      equipmentRegistryReady: ready,
+      equipmentCatalog: ready
+        ? getEquipmentLookupService().getAllEquipment()
+        : [],
+    });
     stage = 'mtf-validator';
     initializeUnitValidationRules();
     const result = validateUnit(input);
