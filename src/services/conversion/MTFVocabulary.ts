@@ -108,6 +108,9 @@ function lookup(table: Readonly<Record<string, string>>, name: string) {
 export interface IMappedComponent {
   readonly type: string;
   readonly defaulted?: boolean;
+  /** Java has a distinct identity the editor cannot hold yet, so `type` is the
+   * catalog's stand-in; the parser warns instead of dropping it silently. */
+  readonly degraded?: boolean;
 }
 
 /** MtfFile.java:252-259: an absent, blank or unrecognised gyro loads as
@@ -141,7 +144,10 @@ export function mapCockpitType(cockpit: string): IMappedComponent {
   }
   if (index < 0) return { type: standard, defaulted: true };
   const identity = lookup(vocabulary.cockpit, order[index][0]);
-  return { type: identity ?? `UNSUPPORTED_COCKPIT:${cockpit}` };
+  if (!identity) return { type: `UNSUPPORTED_COCKPIT:${cockpit}` };
+  return vocabulary.cockpitLoadedAsStandard.includes(order[index][0])
+    ? { type: identity, degraded: true }
+    : { type: identity };
 }
 
 /** The pinned writer emits Single, Laser, Compact, IS Double and Clan Double

@@ -188,6 +188,15 @@ class MtfComponentVocabularyTest(unittest.TestCase):
         self.assertEqual(absent, {'Dual Cockpit', 'Dual', 'Superheavy Command Console',
                                   'Superheavy Command', 'Small Command Console', 'Small Command'})
 
+    def test_cockpits_loaded_as_standard_are_listed_and_really_map_to_standard(self):
+        # The TypeScript importer warns for every Java cockpit that the catalog
+        # (and CockpitType) can only hold as STANDARD; 4.1-g.2 empties this list.
+        shared = json.loads(SHARED.read_text(encoding='utf-8-sig'))
+        self.assertEqual(shared['cockpitLoadedAsStandard'], ['Tripod Cockpit'])
+        for name in shared['cockpitLoadedAsStandard']:
+            self.assertEqual(shared['cockpit'][name], 'STANDARD')
+            self.assertIn(name, [pair[0] for pair in shared['cockpitOrder']])
+
     def test_tables_load_regardless_of_working_directory(self):
         probe = (
             "import sys; sys.path.insert(0, sys.argv[1]); import enum_mapping_tables as t; "

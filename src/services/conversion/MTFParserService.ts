@@ -111,6 +111,11 @@ export class MTFParserService {
           `Unsupported MTF cockpit "${cockpitName}" loaded as Standard (MtfFile.java:262-269)`,
         );
       }
+      if (cockpit.degraded) {
+        warnings.push(
+          `MTF cockpit "${cockpitName}" has no editor identity yet and loads as Standard`,
+        );
+      }
       if (cockpitType.startsWith('UNSUPPORTED_COCKPIT:')) {
         warnings.push(`Unsupported MTF cockpit: ${cockpitName}`);
       }

@@ -166,4 +166,29 @@ describe('unrecognised component strings on the real import route', () => {
     expect(state.heatSinkType).toBe(HeatSinkType.SINGLE);
     expect(state.heatSinkCount).toBe(12);
   });
+
+  it('loads a pinned Tripod Cockpit unit as Standard and says so', async () => {
+    const triskelion = fixtures.rows.find((row) =>
+      row.path.endsWith('/Triskelion TRK-4V.mtf'),
+    );
+    if (!triskelion) throw new Error('Missing Triskelion TRK-4V fixture');
+    const text = Buffer.from(triskelion.base64, 'base64').toString('utf8');
+    expect(text).toMatch(/^cockpit:Tripod Cockpit$/im);
+
+    const imported = await importMTFDefinition(text);
+    if (!imported.success) {
+      throw new Error(
+        `import failed: ${imported.error.message} ${(imported.error.validationErrors ?? []).join('; ')}`,
+      );
+    }
+    expect(imported.data.warnings).toContain(
+      'MTF cockpit "Tripod Cockpit" has no editor identity yet and loads as Standard',
+    );
+    expect(
+      new UnitLoaderService().mapToUnitState(
+        imported.data.definition as never,
+        true,
+      ).cockpitType,
+    ).toBe(CockpitType.STANDARD);
+  });
 });

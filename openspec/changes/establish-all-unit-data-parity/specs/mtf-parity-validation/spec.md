@@ -80,6 +80,7 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **THEN** both SHALL read one shared vocabulary file and resolve the same serialized identity, including Compact and Heavy Duty gyros, IS and Clan Double, Laser and Compact heat sinks, and rules level 5 as Unofficial
 - **AND** a gyro, cockpit or heat sink string the pinned loader defaults SHALL load with that Java default and a parse warning, not be rejected at import
 - **AND** a pinned cockpit type the contract cannot hold SHALL produce an explicit unsupported diagnostic
+- **AND** a pinned cockpit the committed catalog can only hold as Standard (Tripod) SHALL load as Standard with a parse warning, never silently
 - **AND** the identity SHALL equal the committed catalog's for the same source bytes
 
 #### Scenario: Preserve slot-only weapons through MTF import and save

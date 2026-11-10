@@ -67,6 +67,7 @@
     ["Tripod Industrial Cockpit", "Tripod Industrial"],
     ["Superheavy Tripod Industrial Cockpit", "Superheavy Tripod Industrial"]
   ],
+  "cockpitLoadedAsStandard": ["Tripod Cockpit"],
   "heatSink": {
     "Single": "SINGLE",
     "IS Double": "DOUBLE",

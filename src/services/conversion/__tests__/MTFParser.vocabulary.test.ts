@@ -206,13 +206,26 @@ describe('MTF component vocabulary', () => {
       ['Primitive Industrial Cockpit (Adv. FCS)', 'PRIMITIVE'],
       ['Superheavy Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY'],
       ['Superheavy Tripod Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY'],
-      // Tripod Cockpit is the catalog's STANDARD until 4.1-g.2.
-      ['Tripod Industrial Cockpit (Adv. FCS)', 'STANDARD'],
       ['Small Cockpit (prototype)', 'SMALL'],
     ])('%s -> %s', (source, identity) => {
       const result = parse([`cockpit:${source}`]);
       expect(result.unit?.cockpit).toBe(identity);
       expect(result.warnings).toEqual([]);
+    });
+
+    // Java has a real tripod cockpit; CockpitType does not, and the committed
+    // catalog holds STANDARD for it, so the importer matches the catalog until
+    // 4.1-g.2. The lost identity is never silent: the parse says so.
+    it.each([
+      'Tripod Cockpit',
+      'Tripod',
+      'Tripod Industrial Cockpit (Adv. FCS)',
+    ])('%s loads as Standard with a visible warning', (source) => {
+      const result = parse([`cockpit:${source}`]);
+      expect(result.unit?.cockpit).toBe('STANDARD');
+      expect(result.warnings).toEqual([
+        `MTF cockpit "${source}" has no editor identity yet and loads as Standard`,
+      ]);
     });
 
     // Java loads these as real types the contract cannot hold yet, so the

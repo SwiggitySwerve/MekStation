@@ -60,8 +60,10 @@ change here invalidates old strict-export receipts.
 Java has a real tripod cockpit, but the committed catalog and `CockpitType` do
 not, so the converter has always emitted `STANDARD` for it (4 corpus units).
 The table keeps `Tripod Cockpit` and `Tripod` as explicit `STANDARD` entries so
-the importer matches the catalog. 4.1-g.2 changes this together with the
-converter and `CockpitType`.
+the importer matches the catalog. The identity is not lost silently: every name
+listed in `cockpitLoadedAsStandard` makes the importer add the warning
+`MTF cockpit "<raw>" has no editor identity yet and loads as Standard`. 4.1-g.2
+changes the entry, the list, the converter and `CockpitType` together.
 
 ## Adding an entry (for 4.1-g.2)
 
