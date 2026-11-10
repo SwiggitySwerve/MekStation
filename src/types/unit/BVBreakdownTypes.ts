@@ -50,7 +50,7 @@ export interface IProtoMechBVMountValue {
 
 /** Retained public weapon snapshot contract. */
 export type IProtoMechBVWeaponMount = IProtoMechBVMountValue & {
-  /** Native diagnostic index when intrinsic ammo shifts the source index. */
+  /** Added by trace enrichment when intrinsic ammo shifts the source index. */
   readonly nativeEquipmentIndex?: number;
 };
 

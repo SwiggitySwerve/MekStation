@@ -20,6 +20,7 @@ import { UnitStoreContext } from '@/stores/useUnitStore';
 import { VehicleStoreContext } from '@/stores/useVehicleStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 
 /**
@@ -161,6 +162,7 @@ function useUnitContextValues(catalog: readonly IEquipmentItem[]): {
 }
 
 export interface EquipmentBrowserOptions {
+  readonly unitType?: UnitType;
   /**
    * Restricts the catalog before paging and totals, for editors whose unit
    * family accepts only part of it. Pass a stable function (module level or
@@ -175,7 +177,7 @@ export interface EquipmentBrowserOptions {
 export function useEquipmentBrowser(
   options: EquipmentBrowserOptions = {},
 ): EquipmentBrowserState {
-  const { catalogFilter } = options;
+  const { catalogFilter, unitType } = options;
   const equipment = useEquipmentSelector((state) => state.equipment);
   const isLoading = useEquipmentSelector((state) => state.isLoading);
   const error = useEquipmentSelector((state) => state.error);
@@ -254,22 +256,26 @@ export function useEquipmentBrowser(
     }
   }, [setEquipment, setLoading, setError]);
 
+  // The shared store keeps the legacy inventory for standalone consumers. Family
+  // candidates stay local, including explicitly admitted lookup-only misc.
+  const candidates = useMemo(() => {
+    const items =
+      unitType === undefined
+        ? equipment
+        : getEquipmentLookupService().getBrowserEquipment(unitType);
+    return catalogFilter ? items.filter(catalogFilter) : items;
+  }, [equipment, unitType, catalogFilter]);
+
+  useEffect(() => {
+    if (unitType !== undefined) setPage(1);
+  }, [unitType, setPage]);
+
   // Read the same subscribed context that the store's filter computation uses.
   const filteredEquipment = useMemo(
-    () =>
-      catalogFilter
-        ? getFilteredEquipment().filter(catalogFilter)
-        : getFilteredEquipment(),
+    () => getFilteredEquipment(candidates),
     // The stable store getter reads these subscribed values internally.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-    [
-      getFilteredEquipment,
-      equipment,
-      filters,
-      sort,
-      unitContext,
-      catalogFilter,
-    ],
+    [getFilteredEquipment, equipment, filters, sort, unitContext, candidates],
   );
   const paginatedEquipment = useMemo(
     () =>

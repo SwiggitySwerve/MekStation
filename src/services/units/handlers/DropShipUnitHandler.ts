@@ -41,7 +41,6 @@ import {
   createParseMessages,
   createValidationMessages,
   getOptionalRawTagBoolean,
-  parseRulesLevelThroughAdvancedFromType,
   pushSafeThrustAndStructureErrors,
   pushTonnageRangeErrors,
   serializeConfigurationWithRulesLevel,
@@ -166,7 +165,6 @@ export class DropShipUnitHandler extends AbstractUnitTypeHandler<IDropShip> {
       typeSpecificFields,
       idPrefix: 'dropship',
       unitType: UnitType.DROPSHIP,
-      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
   }
 

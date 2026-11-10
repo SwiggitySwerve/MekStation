@@ -37,6 +37,41 @@ in `BMStructureTab.java:773-802`.
 - **WHEN** an unchanged pure Inner Sphere or Clan unit is exported
 - **THEN** its complete export bytes SHALL remain unchanged
 
+### Requirement: Preserve binary technology facts at the BLK import boundary
+
+The common BLK import boundary SHALL decode qualified Mixed headers once into
+the existing binary chassis technology and rules level. `Mixed (Clan Chassis)`
+SHALL select Clan and `Mixed (IS Chassis)` SHALL select Inner Sphere. An absent
+suffix SHALL select Standard; Advanced and Experimental SHALL select their
+existing rules levels. Explicit component identities, including `clan_engine`,
+SHALL retain precedence over chassis defaults. This requirement adds no Mixed
+mode field or exporter behavior.
+
+MegaMek `48fcb2f64` owns these header facts in `BLKFile.java:654-742`;
+`Entity.java:1971-1983` derives chassis family from the tech level, and
+`BLKFile.java:908-917` writes an explicit engine flag when engine and chassis
+families differ. Existing pure-source family parsing, including the historical
+Level 5 fallback, SHALL remain unchanged.
+
+#### Scenario: Import and reopen native qualified Mixed sources
+
+- **GIVEN** a supported BLK source with a qualified Mixed header
+- **WHEN** it passes through its family handler, import service and SQLite persistence
+- **THEN** the definition, metadata and reopened definition SHALL retain the header's binary chassis family and representable rules level
+- **AND** the exact source and explicit component identities SHALL be retained
+
+#### Scenario: Refuse an unrepresentable qualified Unofficial level
+
+- **GIVEN** a qualified Mixed header whose suffix is Unofficial
+- **WHEN** the source is imported
+- **THEN** import SHALL return an explicit diagnostic because RulesLevel has no Unofficial member
+- **AND** the API SHALL refuse the source without a database write
+
+#### Scenario: Preserve pure imports
+
+- **GIVEN** an unchanged accepted pure IS or Clan source
+- **WHEN** it is imported with the same dependencies and clock
+- **THEN** its complete typed definition bytes SHALL remain unchanged
 
 ### Requirement: Native cockpit headers in MTF export
 
