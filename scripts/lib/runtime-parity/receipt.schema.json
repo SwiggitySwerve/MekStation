@@ -72,14 +72,71 @@
     "durationSeconds": {
       "type": "number"
     },
-    "resources": {
-      "type": "object",
-      "propertyNames": {
-        "type": "string"
-      },
-      "additionalProperties": {
-        "type": "number"
+    "runs": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rowsSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "durationSeconds": {
+            "type": "number"
+          },
+          "resources": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "number"
+            }
+          }
+        },
+        "required": ["rowsSha256", "durationSeconds", "resources"],
+        "additionalProperties": false
       }
+    },
+    "deterministic": {
+      "type": "boolean"
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "families": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "battlemechs",
+              "vehicles",
+              "aerospace",
+              "capital",
+              "battlearmor",
+              "infantry",
+              "protomechs"
+            ]
+          }
+        },
+        "unitIds": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": ["families", "unitIds"],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -93,7 +150,9 @@
     "manifest",
     "rows",
     "durationSeconds",
-    "resources"
+    "runs",
+    "deterministic",
+    "scope"
   ],
   "additionalProperties": false
 }

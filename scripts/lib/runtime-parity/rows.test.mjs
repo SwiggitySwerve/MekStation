@@ -253,12 +253,22 @@ const receipt = () => ({
   sources: { sha256: 'e'.repeat(64) },
   manifest: { sha256: 'f'.repeat(64) },
   rows: { count: 4263, sha256: '1'.repeat(64) },
-  durationSeconds: 130.5,
-  resources: { maxRSS: 1048576, userCPUTime: 100 },
+  durationSeconds: 261.2,
+  runs: [
+    { rowsSha256: '1'.repeat(64), durationSeconds: 130.5, resources: { maxRSS: 1048576, userCPUTime: 100 } },
+    { rowsSha256: '1'.repeat(64), durationSeconds: 128.9, resources: { maxRSS: 1040000, userCPUTime: 99 } },
+  ],
+  deterministic: true,
+  scope: { families: ['battlemechs'], unitIds: null },
 });
 
 test('run receipt carries the provenance rows must not', () => {
   validateReceipt(receipt());
+  // A narrowed run says so; an empty scope or a run-less receipt is invalid.
+  validateReceipt({ ...receipt(), scope: { families: ['battlemechs'], unitIds: ['atlas-as7-d'] } });
+  assert.throws(() => validateReceipt({ ...receipt(), scope: { families: [], unitIds: null } }));
+  assert.throws(() => validateReceipt({ ...receipt(), runs: [] }));
+  assert.throws(() => validateReceipt({ ...receipt(), resources: { maxRSS: 1 } }));
   const { node: _node, ...noNode } = receipt();
   assert.throws(() => validateReceipt(noNode));
   assert.throws(() => validateReceipt({ ...receipt(), repoSha: 'abc' }));

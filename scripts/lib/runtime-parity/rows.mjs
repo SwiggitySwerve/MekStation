@@ -254,9 +254,31 @@ export const ReceiptSchema = z.strictObject({
   manifest: z.strictObject({ sha256: sha256Hex }),
   /** The rows file this receipt describes. */
   rows: z.strictObject({ count: z.int().min(0), sha256: sha256Hex }),
+  /** Wall time of the whole invocation. */
   durationSeconds: z.number(),
-  /** process.resourceUsage() at exit. Recorded, never a gate. */
-  resources: z.record(z.string(), z.number()),
+  /**
+   * One entry per fresh capture process. `resources` is that process's
+   * process.resourceUsage() at exit: recorded, never a gate.
+   */
+  runs: z
+    .array(
+      z.strictObject({
+        rowsSha256: sha256Hex,
+        durationSeconds: z.number(),
+        resources: z.record(z.string(), z.number()),
+      }),
+    )
+    .min(1),
+  /** True when every run produced byte-identical rows (the determinism gate). */
+  deterministic: z.boolean(),
+  /**
+   * What was measured. `unitIds: null` is the whole joined population of the
+   * listed families; a list means a deliberately narrowed (local/focused) run.
+   */
+  scope: z.strictObject({
+    families: z.array(z.enum(FAMILIES)).min(1),
+    unitIds: z.array(z.string()).nullable(),
+  }),
 });
 
 const tripleKey = (c) => JSON.stringify([c.location, c.slot, c.text]);

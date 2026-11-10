@@ -65,9 +65,12 @@ Checked by `validateRow`: `equal` is true exactly when `residual` equals the `no
 
 Provenance and resource facts live here, never on a row: `repoSha`, `node`, `platform`, `reference.sha256`
 (`config/reference/reference-full.jsonl.gz`), `sources.sha256` and `manifest.sha256` (the S0b join inputs as read),
-`rows {count, sha256}` (the rows file this receipt describes), `durationSeconds`, and `resources` (`process.resourceUsage()`;
-recorded, never a gate). Rows are compared byte for byte across hosts; receipts are compared for identity, and each
-port's acceptance report names the Node version on both sides.
+`rows {count, sha256}` (the rows file this receipt describes), `durationSeconds` (whole invocation), `runs[]` (one entry per
+fresh capture process: `rowsSha256`, `durationSeconds`, and that process's `resources` from `process.resourceUsage()`;
+recorded, never a gate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
+(`families`, and `unitIds`: `null` is the whole joined population, a list is a deliberately narrowed local run).
+Rows are compared byte for byte across hosts; receipts are compared for identity, and each port's acceptance report
+names the Node version on both sides.
 
 ## Count definitions
 
