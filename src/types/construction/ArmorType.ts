@@ -38,6 +38,10 @@ export enum ArmorTypeEnum {
   HEAT_DISSIPATING = 'Heat-Dissipating',
   ANTI_PENETRATIVE_ABLATION = 'Anti-Penetrative Ablation',
   PATCHWORK = 'Patchwork',
+  // Clan Reactive and Clan Reflective: distinct pinned armors (Clan tech base,
+  // fewer slots) that share a BLK code with the Inner Sphere ones. Named only.
+  REACTIVE_CLAN = 'Reactive (Clan)',
+  REFLECTIVE_CLAN = 'Reflective (Clan)',
 }
 
 export const COMMERCIAL_ARMOR_SOURCE_TAG = 'COMMERCIAL';
@@ -57,6 +61,8 @@ export const NATIVE_ONLY_ARMOR_SOURCE_TAGS = {
   [ArmorTypeEnum.HEAT_DISSIPATING]: 'HEAT_DISSIPATING',
   [ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION]: 'ANTI_PENETRATIVE_ABLATION',
   [ArmorTypeEnum.PATCHWORK]: 'PATCHWORK',
+  [ArmorTypeEnum.REACTIVE_CLAN]: 'REACTIVE_CLAN',
+  [ArmorTypeEnum.REFLECTIVE_CLAN]: 'REFLECTIVE_CLAN',
 } as const;
 
 export function isNativeOnlyArmor(type: ArmorTypeEnum): boolean {
@@ -388,6 +394,47 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     criticalSlots: 6,
     costMultiplier: 1.5,
     introductionYear: 3095,
+    isSpecial: true,
+    nativeOnly: true,
+  },
+  // Clan Reactive and Clan Reflective (nativeOnly). MegaMek 48fcb2f64:
+  // ArmorType.java, MiscType.java:1071-1162, BVCalculator.java:1489-1509. Points
+  // per ton stays 16 (no multiplier set, ArmorType.java:61,302); cost 30000 over
+  // Standard's 10000 (:369); static Advanced; introductionYear is the Clan
+  // prototype date, not approximate (TechAdvancement.getIntroductionDate
+  // :691-699). BV x1.5 for both stays with ARMOR_BV_MULTIPLIERS
+  // (BVCalculator.java:1492-1494 does not distinguish Clan from Inner Sphere).
+  {
+    // ArmorType.java:822-851: variable slots :830 resolve to 7 for Clan armor on a
+    // Mek (MiscType.java:1104-1109; Inner Sphere Reactive takes 14, :1132); Clan
+    // tech base and rating F :843, Clan prototype 3065 :845-846, static Advanced
+    // :847, T_ARMOR_REACTIVE :849 (EquipmentType.java:87).
+    type: ArmorTypeEnum.REACTIVE_CLAN,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.REACTIVE_CLAN],
+    name: 'Reactive (Clan)',
+    techBase: TechBase.CLAN,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 16,
+    criticalSlots: 7,
+    costMultiplier: 3.0,
+    introductionYear: 3065,
+    isSpecial: true,
+    nativeOnly: true,
+  },
+  {
+    // ArmorType.java:887-917: variable slots :895 resolve to 5 for Clan armor on a
+    // Mek (MiscType.java:1135-1140; Inner Sphere Reflective takes 10, :1162);
+    // Clan tech base and rating F :909, Clan prototype 3061 :911-912, static
+    // Advanced :913, T_ARMOR_REFLECTIVE :915 (EquipmentType.java:88).
+    type: ArmorTypeEnum.REFLECTIVE_CLAN,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.REFLECTIVE_CLAN],
+    name: 'Reflective (Clan)',
+    techBase: TechBase.CLAN,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 16,
+    criticalSlots: 5,
+    costMultiplier: 3.0,
+    introductionYear: 3061,
     isSpecial: true,
     nativeOnly: true,
   },
