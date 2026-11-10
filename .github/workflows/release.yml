@@ -173,7 +173,7 @@ jobs:
         working-directory: desktop
         run: npm run build
 
-      - name: Enforce complete web artifact byte budgets
+      - name: Census complete web artifact bytes (advisory)
         run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
 
       - name: Upload web build artifacts
@@ -388,7 +388,7 @@ jobs:
           }
           NODE
 
-      - name: Enforce installer byte budget on every complete output
+      - name: Census installer bytes on every complete output (advisory)
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
 

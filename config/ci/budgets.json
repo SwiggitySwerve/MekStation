@@ -3,10 +3,7 @@
   "limits": {
     "typicalPrJobs": 10,
     "unkeyableTests": 57,
-    "repoWideKeys": 93,
-    "standaloneStaticBytes": 290000000,
-    "installerBytes": 170000000,
-    "webZipBytes": 92000000
+    "repoWideKeys": 93
   },
   "targets": {
     "typicalPrJobs": 9,

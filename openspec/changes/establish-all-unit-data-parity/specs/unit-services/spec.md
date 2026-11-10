@@ -535,3 +535,30 @@ fact. Pure units and legacy drafts SHALL retain their exact existing projections
 - **WHEN** the unit is saved and reopened
 - **THEN** the saved root SHALL use the typed chassis
 - **AND** an unknown typed chassis SHALL NOT be restored from the stale snapshot
+
+### Requirement: Native OmniMek mounted equipment pod metadata
+
+SHALL derive pod metadata for every represented mount type on an explicitly
+declared OmniMek from that mount's native critical-slot token using one shared
+token decoder. MUST retain explicit saved true and false values, use fixed when
+source evidence is missing, and preserve Java suffix order and mount visitation.
+SHALL preserve existing load, save/reopen fingerprints and BV for units whose
+Omni declaration is absent or false. MUST leave equipment discovery unchanged.
+
+#### Scenario: Ordinary and recovered Omni mounts retain source pod flags
+
+- **GIVEN** a declared OmniMek with represented ranged, physical, ammunition,
+  miscellaneous and heat-sink mounts
+- **WHEN** the loader reconstructs their native critical allocations
+- **THEN** each flag SHALL match its pinned Java mount
+- **AND** editor movement and removal locks SHALL use that same loaded flag
+- **AND** split/spread and duplicate mounts SHALL follow their own critical cells
+
+#### Scenario: Saved flags and legacy declarations survive reopening
+
+- **GIVEN** explicit saved pod booleans, including false, or a legacy unit without
+  an Omni declaration
+- **WHEN** loaded, saved and reopened
+- **THEN** explicit booleans SHALL retain their values
+- **AND** legacy units SHALL retain their existing loaded and saved bytes and BV
+- **AND** existing literal save-fingerprint expectations SHALL NOT be regenerated
