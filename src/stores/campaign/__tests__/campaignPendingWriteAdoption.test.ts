@@ -415,6 +415,103 @@ describe('a reloaded document that owes the server edits', () => {
       await expectHeldConflict(held, BASE + 4);
     });
 
+    it('keeps further conflict edits dirty and unsent without arming autosave, then resumes after take-server', async () => {
+      editInOldDocument();
+      server.record = row(remote, BASE + 4);
+      reloadDocument();
+      await persistence().loadCampaign(local.id);
+      const before = persistence();
+      const timers = jest.getTimerCount();
+
+      store.getState().updateCampaign({ name: 'Further local edit' });
+      persistence().markDirty();
+
+      expect(jest.getTimerCount()).toBe(timers);
+      expect(persistence()).toMatchObject({
+        saveState: 'conflict',
+        dirty: true,
+        editSeq: before.editSeq + 1,
+        baseVersion: before.baseVersion,
+        saveConflict: before.saveConflict,
+      });
+      await tickDebounce();
+      expect(puts()).toHaveLength(0);
+      expect(store.getState().campaign?.name).toBe('Further local edit');
+      expect(marker()).not.toBeNull();
+
+      await expect(persistence().resolveConflictTakeServer()).resolves.toBe(
+        true,
+      );
+      expect(store.getState().campaign?.name).toBe(remote.name);
+      expect(persistence()).toMatchObject({
+        saveState: 'saved',
+        dirty: false,
+        baseVersion: BASE + 4,
+      });
+      expect(marker()).toBeNull();
+
+      store.getState().updateCampaign({ name: 'Edit after explicit choice' });
+      persistence().markDirty();
+      await tickDebounce();
+      expect(puts()).toHaveLength(1);
+      expect(putBody(0).baseVersion).toBe(BASE + 4);
+      expect(putBody(0).envelope.body.name).toBe('Edit after explicit choice');
+      expect(persistence()).toMatchObject({ saveState: 'saved', dirty: false });
+    });
+
+    it('Save now returns the held conflict without a PUT, even if the token matches the server', async () => {
+      editInOldDocument();
+      // Same version on another instance: matching CAS is not permission to write.
+      server.record = row(remote, BASE, OTHER_HOST);
+      reloadDocument();
+      await persistence().loadCampaign(local.id);
+      useCampaignPersistenceStore.setState({ baseVersion: BASE });
+      store.getState().updateCampaign({ name: 'Still local' });
+      persistence().markDirty();
+      const before = persistence();
+
+      await expect(persistence().saveCampaign()).resolves.toEqual({
+        status: 'conflict',
+        conflictServerRecord: before.conflictServerRecord,
+        conflict: before.saveConflict,
+      });
+
+      expect(puts()).toHaveLength(0);
+      expect(persistence()).toBe(before);
+      expect(store.getState().campaign?.name).toBe('Still local');
+      expect(marker()).not.toBeNull();
+    });
+
+    it('a save queued behind the load cannot bypass the conflict it discovers', async () => {
+      editInOldDocument();
+      server.record = row(remote, BASE + 4);
+      reloadDocument();
+      const loading = persistence().loadCampaign(local.id);
+      const saving = persistence().saveCampaign();
+      await loading;
+      await expect(saving).resolves.toMatchObject({ status: 'conflict' });
+      expect(puts()).toHaveLength(0);
+      expect(persistence()).toMatchObject({
+        saveState: 'conflict',
+        dirty: true,
+      });
+    });
+
+    it('discard-time flush sends nothing while conflict edits are unresolved', async () => {
+      editInOldDocument();
+      server.record = row(remote, BASE + 4);
+      reloadDocument();
+      await persistence().loadCampaign(local.id);
+      persistence().markDirty();
+      const before = persistence();
+
+      pagehide();
+
+      expect(puts()).toHaveLength(0);
+      expect(persistence()).toBe(before);
+      expect(marker()).not.toBeNull();
+    });
+
     it('the server was rolled back or restored below our base', async () => {
       editInOldDocument();
       server.record = row(remote, BASE - 2);

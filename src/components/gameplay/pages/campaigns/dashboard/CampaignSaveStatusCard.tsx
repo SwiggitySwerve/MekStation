@@ -44,9 +44,12 @@
 import React, { useCallback } from 'react';
 import { useStore } from 'zustand';
 
-import { describeSaveState } from '@/components/campaign/campaignSaveStatus';
+import {
+  CAMPAIGN_SAVE_CARD_ID,
+  describeSaveState,
+} from '@/components/campaign/campaignSaveStatus';
 import { Badge, Button, Card } from '@/components/ui';
-import { PENDING_WRITE_CONFLICT_REASON } from '@/lib/campaign/persistence/campaignPendingWrite';
+import { isPendingWriteConflict } from '@/stores/campaign/campaignSaveState';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -156,17 +159,23 @@ export function CampaignSaveStatusCard(): React.ReactElement {
     saveState,
     dirty,
     recoveredPendingWrite,
+    saveConflict,
   });
-  const isPendingWriteConflict =
-    saveState === 'conflict' &&
-    saveConflict?.reason === PENDING_WRITE_CONFLICT_REASON;
+  const pendingWriteConflict = isPendingWriteConflict({
+    saveState,
+    saveConflict,
+  });
 
   return (
     <Card className="mb-6" data-testid="campaign-save-status-card">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="mb-1 flex flex-wrap items-center gap-2">
-            <h2 className="text-text-theme-primary text-lg font-semibold">
+            <h2
+              id={CAMPAIGN_SAVE_CARD_ID}
+              tabIndex={-1}
+              className="text-text-theme-primary text-lg font-semibold"
+            >
               Campaign Save
             </h2>
             <Badge variant={status.variant} size="sm">
@@ -189,14 +198,17 @@ export function CampaignSaveStatusCard(): React.ReactElement {
                 : 'Saving automatically in a moment.'}
             </p>
           )}
-          {dirty && saveState !== 'saving' && flushSkip && (
-            <p
-              className="mt-1 text-sm text-yellow-400"
-              data-testid="campaign-flush-skipped"
-            >
-              Too large to save when closing. Use Save now.
-            </p>
-          )}
+          {dirty &&
+            saveState !== 'saving' &&
+            !pendingWriteConflict &&
+            flushSkip && (
+              <p
+                className="mt-1 text-sm text-yellow-400"
+                data-testid="campaign-flush-skipped"
+              >
+                Too large to save when closing. Use Save now.
+              </p>
+            )}
           {saveState === 'error' && errorMessage && !saveRefusal && (
             <p className="mt-1 text-sm text-yellow-400">
               {errorMessage} — playing offline; changes are kept locally.
@@ -211,13 +223,18 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               unsaved changes are kept in this window.
             </p>
           )}
-          {isPendingWriteConflict && saveConflict && (
+          {status.unsentDetail && (
+            <p role="status" className="text-text-theme-secondary text-sm">
+              {status.unsentDetail}
+            </p>
+          )}
+          {pendingWriteConflict && saveConflict && (
             <PendingWriteConflictDetail
               conflict={saveConflict}
               serverRecord={conflictServerRecord}
             />
           )}
-          {saveState === 'conflict' && !isPendingWriteConflict && (
+          {saveState === 'conflict' && !pendingWriteConflict && (
             <p
               className="mt-1 text-sm text-red-400"
               data-testid="campaign-save-conflict"

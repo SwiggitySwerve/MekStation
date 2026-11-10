@@ -36,7 +36,7 @@ starting states to hold the line.
 | flush-skipped                                      | keep status and pending edits; retain the measured diagnostic                       |
 | flush-acknowledgement-owed                         | set dirty after proven flush row adoption; `saved` becomes `idle`                   |
 | pending-write-adopted                              | idle and dirty; install the row read at load, continue editSeq, mark recovered      |
-| pending-write-conflicted                           | conflict and dirty; keep the server record; adopt NO token (a stray save fails)     |
+| pending-write-conflicted                           | conflict and dirty; keep the server record; adopt NO token (writes stay blocked)    |
 | edited                                             | advance editSeq and mark dirty; `saved` becomes `idle`; infer campaign id if absent |
 | error-cleared                                      | idle with cleared error/refusal, only from error                                    |
 | launch-conflict-reported / launch-conflict-cleared | update launch evidence independently of row conflict evidence                       |
@@ -77,6 +77,12 @@ version, journal revision, or replay fence.
   `legacyUnadopted`; every other dispatch leaves a reloaded document's marker
   alone until `runLoad` decides it (`campaignPendingWrite.ts`). The two
   pending-write events are the only ways that decision reaches this reducer.
+- **Unresolved pending-write conflict:** `isPendingWriteConflict` owns the
+  predicate. Edits keep conflict and dirty, advancing only the local counter.
+  The store arms no autosave timer, queued/manual saves return the held conflict
+  without dispatching or sending, and discard-time flushes send nothing. Only
+  explicit take-server adopts the server token and clears these held edits;
+  subsequent edits use ordinary saving. Co-op writing behavior is unchanged.
 - **Unproven flush reconciliation:** a failed read, wrong version, or different
   envelope digest adopts no row evidence. The surviving document still rearms
   its ordinary save through the existing orchestration.

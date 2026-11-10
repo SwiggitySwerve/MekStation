@@ -21,3 +21,11 @@
 - [x] 4.2 Mutants run and restored: push on moved-on, push at the server's version, clear before acknowledgement, timestamp comparison, saved while dirty, discard in the conflict branch.
 - [ ] 4.3 Run `e2e/campaign-pending-write-adoption.spec.ts` on a production build (C4 heavy slot).
 - [ ] 4.4 Full `src/stores/campaign` and `src/__tests__` directories, trial merge and POST-MERGE check (C4).
+
+## 5. Campaign-wide indicator and conflict edits
+
+- [x] 5.1 Extract the existing badge derivation without changing behavior; verify the card.
+- [x] 5.2 Add the accessible navigation indicator and dashboard-card anchor; cover every state and non-dashboard navigation.
+- [x] 5.3 Suppress scheduling, manual/queued saves and flushes during pending-write conflict; explain unsent edits and resume after take-server.
+- [x] 5.4 Run focused tests and the three requested mutants, restoring each; run light gates and campaign-store directory once.
+- [x] 5.5 Update the implementation report and PR body, including the intended co-op label change and remaining OPEN items.

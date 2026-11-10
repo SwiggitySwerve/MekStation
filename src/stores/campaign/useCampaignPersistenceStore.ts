@@ -58,6 +58,7 @@ import type {
 
 import {
   INITIAL_CAMPAIGN_SAVE_STATE as INITIAL_STATE,
+  isPendingWriteConflict,
   reduceCampaignSaveState,
 } from './campaignSaveState';
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
@@ -832,6 +833,18 @@ async function runSave(
   if (inFlightLoad !== null) {
     await inFlightLoad;
   }
+  // Check when the queued write actually runs, after any load has decided
+  // pending-write adoption. Save now cannot bypass the held local conflict.
+  const held = get();
+  if (isPendingWriteConflict(held)) {
+    return held.conflictServerRecord
+      ? {
+          status: 'conflict',
+          conflictServerRecord: held.conflictServerRecord,
+          conflict: held.saveConflict,
+        }
+      : { status: 'skipped' };
+  }
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
   if (!campaign || !campaignId) {
@@ -1223,6 +1236,9 @@ function fireKeepaliveFlush(campaignId: string, body: string): void {
  */
 function armAutoSaveTimer(set: PersistenceSet, get: PersistenceGet): void {
   clearAutoSaveTimer();
+  if (isPendingWriteConflict(get())) {
+    return;
+  }
   autoSaveTimer = setTimeout(() => {
     autoSaveTimer = null;
     if (get().saveState === 'conflict') {
@@ -1248,7 +1264,12 @@ function flushPendingMutationsAction(
     // Nothing pending, already flushed for this pending set, or a copy the
     // server has never seen and must not acquire by accident (the same
     // guard `runSave` applies to an unadopted legacy campaign).
-    if (!state.dirty || pendingFlushIssued || state.legacyUnadopted) {
+    if (
+      !state.dirty ||
+      pendingFlushIssued ||
+      state.legacyUnadopted ||
+      isPendingWriteConflict(state)
+    ) {
       return;
     }
     const campaign = readLiveCampaign();

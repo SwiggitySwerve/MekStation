@@ -103,3 +103,50 @@ server holds, and SHALL offer only "Use Server Version".
 - **GIVEN** a pending-write conflict
 - **WHEN** the card renders
 - **THEN** it SHALL NOT offer a keep-mine or save action that sends the stale copy at the server's version
+
+### Requirement: Campaign save status is visible on every campaign detail page
+
+The shared campaign navigation SHALL show a compact save indicator for conflict,
+unsaved, failed and saving states, derived from the same persistence snapshot
+and presentation function as the dashboard card. It SHALL stay quiet when clean
+and saved or idle, have an accessible name and polite live status region, and
+link to the dashboard save card. The campaign refit customizer shell SHALL
+also show this indicator, including its unavailable-unit state.
+
+#### Scenario: Conflict is visible away from the dashboard
+
+- **GIVEN** a pending-write conflict and the missions page, mission launch page or campaign refit customizer
+- **WHEN** the campaign navigation renders
+- **THEN** the indicator SHALL show conflict and say that changes remain local and unsent
+- **AND** its link SHALL target the dashboard save card
+
+#### Scenario: All persistence states share one derivation
+
+- **GIVEN** an unsaved, recovered, saving, failed or conflict snapshot
+- **WHEN** the card and navigation indicator render
+- **THEN** their status labels SHALL agree
+- **AND** a clean saved snapshot SHALL produce no navigation save link
+
+### Requirement: Pending-write conflict edits cannot start a write
+
+While a pending-write conflict is unresolved, further edits SHALL remain dirty
+and local with conflict status. Automatic saves SHALL NOT be scheduled, and
+manual, queued and discard-time saves SHALL NOT send a PUT. The card SHALL
+explain that saving is paused until the player chooses "Use Server Version";
+the Save now action SHALL be absent. A programmatic Save now SHALL return the
+held conflict without changing state or adopting the server's version.
+
+#### Scenario: Editing and attempting saves during conflict
+
+- **GIVEN** an unresolved pending-write conflict
+- **WHEN** the player edits, waits beyond the debounce, requests Save now or closes the page
+- **THEN** no PUT SHALL be sent and no autosave timer SHALL be armed
+- **AND** the state SHALL remain conflict and dirty, with no server token adopted
+- **AND** the indicator and card SHALL say that the changes are local and unsent
+
+#### Scenario: Explicit take-server restores normal saving
+
+- **GIVEN** edits held by a pending-write conflict
+- **WHEN** the player chooses "Use Server Version" and then makes a new edit
+- **THEN** the held local changes SHALL be discarded and the conflict cleared
+- **AND** normal autosaving SHALL resume at the adopted server version

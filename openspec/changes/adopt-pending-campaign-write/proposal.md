@@ -26,6 +26,12 @@ to the server's, so `runLoad` lets it stand and `record-loaded` stamps it
   recovered copy reads "Recovered unsaved changes". The conflict card states
   what the browser holds against what the server holds and offers only "Use
   Server Version".
+- Shared campaign navigation shows conflict, unsaved, failed and saving status
+  on every campaign detail page, links to the dashboard card and stays quiet
+  when saved. Both surfaces use one presentation derivation.
+- Pending-write conflicts hold further edits locally and visibly unsent.
+  Autosave scheduling, manual/queued saves and discard-time flushes send no PUT
+  until the explicit take-server choice clears the conflict.
 
 ## Capabilities
 

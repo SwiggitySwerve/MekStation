@@ -95,6 +95,16 @@ export type CampaignSaveSnapshot = ICampaignSaveContext &
 
 export type CampaignSaveState = CampaignSaveSnapshot['saveState'];
 
+/** Pending reload edits must be held until the explicit take-server choice. */
+export function isPendingWriteConflict(
+  state: Pick<CampaignSaveSnapshot, 'saveState' | 'saveConflict'>,
+): boolean {
+  return (
+    state.saveState === 'conflict' &&
+    state.saveConflict?.reason === PENDING_WRITE_CONFLICT_REASON
+  );
+}
+
 type CampaignSaveOperation = 'save' | 'load' | 'adopt';
 interface IRecordAdoption {
   readonly record: SerializedCampaign;

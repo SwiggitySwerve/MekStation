@@ -366,6 +366,36 @@ describe('CampaignSaveStatusCard pending-write conflict', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('explains further edits are unsent and Save now is paused, with a stable link target', () => {
+    // A previous over-cap diagnostic must not suggest Save now in conflict.
+    useCampaignPersistenceStore.setState({
+      flushSkip: {
+        reason: 'envelope-over-keepalive-cap',
+        campaignId: server.id,
+        byteLength: 70_000,
+        capBytes: 65_536,
+      },
+    });
+    render(<CampaignSaveStatusCard />);
+    act(() => useCampaignPersistenceStore.getState().markDirty());
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Changes stay local and unsent',
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saving is paused until you choose Use Server Version',
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Campaign Save' }),
+    ).toHaveAttribute('id', 'campaign-save-status');
+    expect(
+      screen.queryByRole('button', { name: 'Save now' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaign-flush-skipped'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
+  });
+
   it('changes nothing until the player clicks, and then takes the server version', async () => {
     const take = jest
       .spyOn(
