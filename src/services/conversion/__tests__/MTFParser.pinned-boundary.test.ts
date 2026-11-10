@@ -9,8 +9,13 @@ import fixtures from './MTFParser.pinned-sources.json';
 
 // Original mm-data bytes at 50f7efef0c9f775b0258f8283525ed4f906e1985.
 // Semantics: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
-// MtfFile.java:293-319,358-410,414-483; equipment/ArmorType.java:384-524,669-766,1017-1167.
+// MtfFile.java:293-319,358-410,414-483; equipment/ArmorType.java:384-524,669-766,1017-1167,2069.
 const armorNames: Record<string, string> = {
+  'Ferro-Fibrous Prototype': 'FERRO_FIBROUS_PROTO',
+  'Ballistic-Reinforced': 'BALLISTIC_REINFORCED',
+  'Heat-Dissipating': 'HEAT_DISSIPATING',
+  'Anti-Penetrative Ablation': 'ANTI_PENETRATIVE_ABLATION',
+  Patchwork: 'PATCHWORK',
   Standard: 'STANDARD',
   'Ferro-Fibrous': 'FERRO_FIBROUS',
   'Light Ferro-Fibrous': 'LIGHT_FERRO_FIBROUS',
