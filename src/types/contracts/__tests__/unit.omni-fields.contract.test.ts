@@ -12,11 +12,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { createDefaultAerospaceState } from '@/stores/aerospaceState';
 import { createDefaultUnitState } from '@/stores/unitState';
+import { createDefaultVehicleState } from '@/stores/vehicleState';
 import { UnitContract } from '@/types/contracts';
+import {
+  customCombatSnapshotSchema,
+  projectCustomCombatSnapshot,
+} from '@/types/contracts/CustomCombatSnapshot';
 import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/temporal/Era';
-import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
+import {
+  serializeCustomAerospaceState,
+  serializeCustomUnitState,
+  serializeCustomVehicleState,
+} from '@/utils/serialization/CustomUnitSerializer';
 
 const UNIT = JSON.parse(
   fs.readFileSync(
@@ -90,4 +100,93 @@ describe('unit contract: OmniMek source facts', () => {
     expect(saved.clanName).toBeUndefined();
     expect(UnitContract.safeParse(saved).success).toBe(true);
   });
+});
+
+/**
+ * Replay fidelity (D-8): the recorded combat snapshot is built by `.strip()`-projecting a saved unit, so a key the unit
+ * contract declares is CARRIED into every recorded GameCreated payload unless the snapshot schema omits it. Combat never
+ * reads either field (no engine, replay or simulation code does), and the editor writes `baseChassisHeatSinks: -1` for
+ * every saved mech, so declaring them without omitting them would change the recorded bytes of every new custom game.
+ */
+describe('recorded combat snapshots stay byte-identical', () => {
+  const FIELDS = { baseChassisHeatSinks: 9, clanName: 'Nova' };
+  const identity = {
+    id: 'custom-omni',
+    chassis: 'Omni',
+    variant: 'O1',
+    era: Era.CLAN_INVASION,
+  };
+  const options = {
+    id: identity.id,
+    name: 'Omni O1',
+    tonnage: 50,
+    techBase: TechBase.INNER_SPHERE,
+  };
+  const project = (document: unknown) => {
+    const snapshot = projectCustomCombatSnapshot(
+      JSON.parse(JSON.stringify(document)),
+    );
+    if (!snapshot) throw new Error('Expected a combat snapshot');
+    return snapshot;
+  };
+
+  it('does not declare the two fields on the BattleMech snapshot', () => {
+    const keys = Object.keys(customCombatSnapshotSchema.shape);
+    expect(keys).not.toContain('baseChassisHeatSinks');
+    expect(keys).not.toContain('clanName');
+    // The guard in nonMechRunner.integration.test.ts pins the exact shape at 21 keys.
+    expect(keys).toHaveLength(21);
+  });
+
+  it('projects a catalog BattleMech to the same bytes with and without the fields', () => {
+    const bare = project(UNIT);
+    const withFields = project({ ...UNIT, ...FIELDS });
+    expect(withFields).not.toHaveProperty('baseChassisHeatSinks');
+    expect(withFields).not.toHaveProperty('clanName');
+    expect(JSON.stringify(withFields)).toBe(JSON.stringify(bare));
+  });
+
+  it('does not copy the -1 a saved custom mech always carries into the recorded snapshot', () => {
+    const state = createDefaultUnitState(options);
+    const saved = serializeCustomUnitState(state, {
+      ...identity,
+      variant: state.model,
+      chassis: state.chassis,
+    });
+    expect(saved.baseChassisHeatSinks).toBe(-1);
+    const snapshot = project(saved);
+    expect(snapshot).not.toHaveProperty('baseChassisHeatSinks');
+    expect(JSON.stringify(snapshot)).toBe(
+      JSON.stringify(project({ ...saved, baseChassisHeatSinks: undefined })),
+    );
+  });
+
+  it.each([
+    [
+      'vehicle',
+      () =>
+        serializeCustomVehicleState(
+          createDefaultVehicleState(options),
+          identity,
+        ),
+    ],
+    [
+      'aerospace',
+      () =>
+        serializeCustomAerospaceState(
+          createDefaultAerospaceState(options),
+          identity,
+        ),
+    ],
+  ] as const)(
+    'projects a %s to the same bytes with and without the fields',
+    (_family, save) => {
+      const saved = JSON.parse(JSON.stringify(save()));
+      const bare = project(saved);
+      const withFields = project({ ...saved, ...FIELDS });
+      expect(withFields).not.toHaveProperty('baseChassisHeatSinks');
+      expect(withFields).not.toHaveProperty('clanName');
+      expect(JSON.stringify(withFields)).toBe(JSON.stringify(bare));
+    },
+  );
 });
