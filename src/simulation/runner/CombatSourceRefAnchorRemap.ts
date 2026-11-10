@@ -81,10 +81,6 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
     'src/simulation/runner/__tests__/movementPhase.behavior.07.test.ts#L92-L139',
   'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L1917-L1965':
     'src/simulation/runner/__tests__/movementPhase.behavior.16.test.ts#L205-L258',
-  'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L375-L436':
-    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L139-L224',
-  'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L464-L596':
-    'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L219-L289',
   'src/simulation/runner/__tests__/movementPhase.behavior.test.ts#L692-L752':
     'src/simulation/runner/__tests__/movementPhase.behavior.03.test.ts#L172-L234',
   'src/simulation/runner/__tests__/physicalAttackRunner.behavior.test.ts#L1746-L1798':
