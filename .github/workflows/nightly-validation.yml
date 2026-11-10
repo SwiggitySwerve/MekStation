@@ -425,6 +425,10 @@ jobs:
   # unseen in the Actions tab (that silence is exactly how the
   # 2026-06-09 audit findings accumulated). Opens a tracking issue on
   # first failure and comments on the existing one for repeats.
+  #
+  # Main only: the issue tracks main's nightly. A workflow_dispatch on a
+  # PR branch (full E2E before merge) still runs and fails every lane
+  # normally, but must not report its failure as main's.
   # ---------------------------------------------------------------
   notify-on-failure:
     name: Notify on Failure
@@ -436,7 +440,7 @@ jobs:
         scenario-pack-recapture,
         subsystem-lanes,
       ]
-    if: failure()
+    if: failure() && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

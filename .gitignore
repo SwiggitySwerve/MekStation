@@ -66,6 +66,7 @@ scripts/**
 !scripts/maintenance/scan-maintenance.mjs
 !scripts/e2e/
 !scripts/e2e/campaign-journal-authority.ts
+!scripts/e2e/pin-mech-crew-save-losses.ts
 !scripts/e2e/relaunching-server.mjs
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs

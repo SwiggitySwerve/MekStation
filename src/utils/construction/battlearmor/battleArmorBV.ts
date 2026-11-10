@@ -148,6 +148,11 @@ export interface IBattleArmorBVInput {
   ammoCapBVByPool?: Readonly<Record<string, number>>;
   /** Diagnostic pass-through for the trace: native mounts for per-trooper weapon values. */
   nativeWeapons?: readonly BANativeWeaponMount[];
+  /**
+   * True when no counted weapon mount lacks a native location, so the native
+   * facts describe every pass and the section totals can be traced.
+   */
+  nativeWeaponsComplete?: boolean;
 
   /** Pilot gunnery skill (default 4). */
   gunnery?: number;
@@ -345,14 +350,49 @@ export function calculateBAOffensiveBV(
   };
 }
 
+/** Section labels as the Java probe names them (BattleArmorBVCalculator.java:156-159). */
+export const BA_SECTION_WEAPONS = 'Weapons:';
+export const BA_SECTION_SQUAD_SUPPORT = 'Squad Support:';
+export const BA_SECTION_ANTI_MEK = 'Anti-Mek:';
+
 /**
- * Per-trooper native weapon values, following the pinned section order
+ * What one mount adds to each pinned pass for one trooper
  * (BattleArmorBVCalculator.java:133-160): Weapons (squad-located, not support,
  * not a claw), Squad Support (non-infantry weapons at the trooper or marked
  * support, divided by the shooting strength for support) and Anti-Mek (only when
- * the squad may make anti-Mek attacks; squad or own-trooper mounts). A mount in
- * several passes reports their sum, as Java merges `weapon.*` terms. Mounts no
- * pass counts are absent; `index` keeps the mount order across troopers.
+ * the squad may make anti-Mek attacks; squad or own-trooper mounts). A pass that
+ * does not count the mount is absent. The one owner of the per-pass rules: the
+ * weapon terms and the section terms both read it.
+ */
+function nativeMountPasses(
+  mount: BANativeWeaponMount,
+  trooper: number,
+  strength: number,
+  canAntiMek: boolean,
+): { weapons?: number; support?: number; antiMek?: number } {
+  const atSquad = mount.trooper === undefined;
+  const divisor = mount.support ? strength : 1;
+  return {
+    ...(atSquad &&
+      !mount.support &&
+      !mount.claw && { weapons: mount.battleValue }),
+    ...(!mount.claw &&
+      !mount.infantry &&
+      (mount.trooper === trooper || mount.support) && {
+        support: mount.battleValue / divisor,
+      }),
+    ...(canAntiMek &&
+      mount.antiMek &&
+      (atSquad || mount.trooper === trooper) && {
+        antiMek: mount.claw ? mount.battleValue : mount.battleValue / divisor,
+      }),
+  };
+}
+
+/**
+ * Per-trooper native weapon values. A mount in several passes reports their
+ * sum, as Java merges `weapon.*` terms. Mounts no pass counts are absent;
+ * `index` keeps the mount order across troopers.
  */
 export function battleArmorNativeWeaponBV(
   mounts: readonly BANativeWeaponMount[],
@@ -361,42 +401,51 @@ export function battleArmorNativeWeaponBV(
 ): IBANativeWeaponValue[][] {
   const strength = Math.max(1, Math.floor(squadSize));
   return Array.from({ length: strength }, (_, offset) => {
-    const trooper = offset + 1;
     const values: IBANativeWeaponValue[] = [];
     mounts.forEach((mount, index) => {
-      const atSquad = mount.trooper === undefined;
-      const divisor = mount.support ? strength : 1;
-      let value = 0;
-      let counted = false;
-      if (atSquad && !mount.support && !mount.claw) {
-        value += mount.battleValue;
-        counted = true;
-      }
-      if (
-        !mount.claw &&
-        !mount.infantry &&
-        (mount.trooper === trooper || mount.support)
-      ) {
-        value += mount.battleValue / divisor;
-        counted = true;
-      }
-      if (
-        canAntiMek &&
-        mount.antiMek &&
-        (atSquad || mount.trooper === trooper)
-      ) {
-        value += mount.claw ? mount.battleValue : mount.battleValue / divisor;
-        counted = true;
-      }
-      if (counted)
+      const passes = nativeMountPasses(mount, offset + 1, strength, canAntiMek);
+      if (Object.keys(passes).length > 0)
         values.push({
           index,
           id: mount.id,
           location: mount.location,
-          battleValue: value,
+          battleValue:
+            (passes.weapons ?? 0) +
+            (passes.support ?? 0) +
+            (passes.antiMek ?? 0),
         });
     });
     return values;
+  });
+}
+
+/**
+ * Per-trooper section totals: the offensive value each pass adds, which the
+ * Java probe records as `section.<label>` (java_bv_terms.py:107-108) even when
+ * the pass adds 0. The Anti-Mek label exists only for squads that may make
+ * anti-Mek attacks (BattleArmorBVCalculator.java:158-160).
+ */
+export function battleArmorNativeSectionBV(
+  mounts: readonly BANativeWeaponMount[],
+  squadSize: number,
+  canAntiMek: boolean,
+): Record<string, number>[] {
+  const strength = Math.max(1, Math.floor(squadSize));
+  return Array.from({ length: strength }, (_, offset) => {
+    let weapons = 0;
+    let support = 0;
+    let antiMek = 0;
+    for (const mount of mounts) {
+      const passes = nativeMountPasses(mount, offset + 1, strength, canAntiMek);
+      weapons += passes.weapons ?? 0;
+      support += passes.support ?? 0;
+      antiMek += passes.antiMek ?? 0;
+    }
+    return {
+      [BA_SECTION_WEAPONS]: weapons,
+      [BA_SECTION_SQUAD_SUPPORT]: support,
+      ...(canAntiMek && { [BA_SECTION_ANTI_MEK]: antiMek }),
+    };
   });
 }
 
@@ -451,5 +500,13 @@ export function calculateBattleArmorBV(
         input.canAntiMek ?? false,
       ),
     }),
+    ...(input.nativeWeapons &&
+      input.nativeWeaponsComplete && {
+        nativeSectionBVByTrooper: battleArmorNativeSectionBV(
+          input.nativeWeapons,
+          squadSize,
+          input.canAntiMek ?? false,
+        ),
+      }),
   };
 }

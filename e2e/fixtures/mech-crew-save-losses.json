@@ -1,6 +1,6 @@
 {
   "groupingSourceCommit": "483c90e6fcada410ddfc77e2503856b399b775f5",
-  "sourceCommit": "3e96c2283549ec025290382283b15b22c52c37bc",
+  "sourceCommit": "954394f1bd3727d938aa882371d0dbd061e4632a",
   "units": {
     "triskelion-trk-4v": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json",
@@ -23,7 +23,7 @@
           "kinds": [
             {
               "title": "Armor / structure markers",
-              "entryIndexes": [0, 1, 2, 3, 7, 8, 12, 13, 17, 18, 19, 20]
+              "entryIndexes": [0, 1, 2, 3, 7, 8, 12, 13, 17, 18, 19, 20, 21, 22]
             }
           ]
         }
@@ -133,6 +133,16 @@
           "text": "Clan Ferro-Fibrous",
           "location": "Right Leg",
           "slot": 5
+        },
+        {
+          "text": "IS Endo-Composite",
+          "location": "Center Leg",
+          "slot": 4
+        },
+        {
+          "text": "Clan Ferro-Fibrous",
+          "location": "Center Leg",
+          "slot": 5
         }
       ]
     },
@@ -152,7 +162,7 @@
             },
             {
               "title": "Other",
-              "entryIndexes": [10, 11, 12, 13]
+              "entryIndexes": [10, 11, 12, 13, 14, 15]
             }
           ]
         },
@@ -235,6 +245,16 @@
         {
           "text": "ISAntiPersonnelPod",
           "location": "Right Leg",
+          "slot": 5
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Center Leg",
+          "slot": 4
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Center Leg",
           "slot": 5
         }
       ]
