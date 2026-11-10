@@ -16,6 +16,7 @@ import {
   useCampaignPageShell,
 } from '@/pages-modules/gameplay/campaigns/campaignPageShell';
 import { formatContractSalvageShare } from '@/pages-modules/gameplay/campaigns/missionContractDisplay';
+import { contractInertReason } from '@/types/campaign/ContractLifecycleRules';
 import { MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract } from '@/types/campaign/Mission';
 import { isContract } from '@/types/campaign/Mission';
@@ -50,6 +51,9 @@ export function MissionCard({
   };
 
   const contract = isContract(mission) ? (mission as IContract) : null;
+  // A contract this build cannot process is shown read-only (S1b): no launch,
+  // and it says why.
+  const inertReason = contract ? contractInertReason(contract) : null;
 
   return (
     <Card className="p-4" data-testid={`mission-card-${mission.id}`}>
@@ -61,6 +65,24 @@ export function MissionCard({
             </h3>
             {contract && (
               <Badge className="bg-accent/20 text-accent">Contract</Badge>
+            )}
+            {inertReason && (
+              <span
+                title={
+                  inertReason === 'newer-rules'
+                    ? 'This contract uses rules from a newer version of MekStation. You can read it here, but it will not advance or pay until you update.'
+                    : 'This contract has data this version of MekStation cannot read. You can look at it here, but it will not advance or pay.'
+                }
+              >
+                <Badge
+                  className="bg-amber-500/20 text-amber-400"
+                  data-testid={`mission-inert-${mission.id}`}
+                >
+                  {inertReason === 'newer-rules'
+                    ? 'Needs a Newer MekStation'
+                    : 'Unreadable Contract Data'}
+                </Badge>
+              </span>
             )}
           </div>
           {mission.description && (
@@ -146,7 +168,7 @@ export function MissionCard({
         </div>
       )}
 
-      {mission.status === MissionStatus.ACTIVE && (
+      {mission.status === MissionStatus.ACTIVE && inertReason === null && (
         <div className="border-border-theme mt-4 flex justify-end border-t pt-3">
           <Link
             href={`/gameplay/campaigns/${encodeURIComponent(

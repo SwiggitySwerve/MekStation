@@ -31,6 +31,7 @@ import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryEx
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 import { materializeCampaignSourceRow } from '@/services/campaignPersistence/campaignSourceMaterialization';
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { isContract } from '@/types/campaign/Mission';
 
@@ -82,6 +83,11 @@ export type CampaignOfferDurabilityReason =
    * serialized offer.
    */
   | 'offer-absent'
+  /**
+   * The offer needs contract rules newer than this build processes (S1b), so
+   * it must not be signed: it would be terminalized and paid the legacy way.
+   */
+  | 'offer-inert'
   /** This journal exposes no prepared transaction to read the source in. */
   | 'source-read-unavailable';
 
@@ -502,6 +508,9 @@ export async function appendDurableAcceptContract(
         !isStoredContractOffer(storedOffer)
       ) {
         return { kind: 'refused', result: notDurable('offer-absent') };
+      }
+      if (isContractInert(storedOffer)) {
+        return { kind: 'refused', result: notDurable('offer-inert') };
       }
       const sourceDate = storedCampaignDate(source.storedBody);
       // A dated offer against a row with no readable clock cannot be

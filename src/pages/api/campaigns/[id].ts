@@ -62,6 +62,10 @@ import {
   type ICampaignHostRegistryEntry,
 } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import {
+  refuseCampaignLifecycle,
+  varyByLifecycleRules,
+} from '@/pages-modules/api/campaignLifecycleGate';
+import {
   initializeApiDatabase as initCampaignDb,
   rejectMissingQueryString as readCampaignId,
   sendCaughtApiError as sendCampaignError,
@@ -270,6 +274,9 @@ export default async function handler(
 
   switch (req.method) {
     case 'GET': {
+      // The answer depends on the caller's declared reader level, so a cache
+      // (the service worker's) must key on it.
+      varyByLifecycleRules(res);
       const result = readCampaign(id);
       if (result.kind === 'not_found') {
         // Only a missing row is not-found. Unreadable rows use 500
@@ -292,6 +299,16 @@ export default async function handler(
           kind: 'failed',
           reason: result.reason,
         });
+        return;
+      }
+      // A reader that cannot process the contracts in this record is not
+      // handed them (S1b). The 404/500/422 answers above carry no body.
+      if (
+        refuseCampaignLifecycle(req, res, {
+          operation: 'read',
+          bodies: [{ source: 'stored', body: result.record.body }],
+        })
+      ) {
         return;
       }
       // Readable stored rows are 200, including replica authority.
@@ -339,16 +356,31 @@ export default async function handler(
         return;
       }
       const live = getCampaignHostRegistry().liveEntryFor(id);
-      if (live !== null) {
-        const verdict = await judgeLiveWrite(req, live);
-        if (verdict.kind === 'unverified') {
-          refuseLiveWrite(res, live.matchId, 401, verdict.reason);
-          return;
-        }
-        if (verdict.kind === 'member') {
-          refuseForLiveSession(res, id, live.matchId);
-          return;
-        }
+      const verdict = live !== null ? await judgeLiveWrite(req, live) : null;
+      if (live !== null && verdict?.kind === 'unverified') {
+        refuseLiveWrite(res, live.matchId, 401, verdict.reason);
+        return;
+      }
+      // Auth first, then the reader gate, then anything that can answer with
+      // the stored record: the member's 409 and the CAS 409 below both carry
+      // `current`, so neither may run for a reader that cannot take it (S1b).
+      const stored = readCampaign(id);
+      if (
+        refuseCampaignLifecycle(req, res, {
+          operation: 'write',
+          bodies: [
+            { source: 'incoming', body: body.envelope.body },
+            ...(stored.kind === 'ok'
+              ? [{ source: 'stored' as const, body: stored.record.body }]
+              : []),
+          ],
+        })
+      ) {
+        return;
+      }
+      if (live !== null && verdict?.kind === 'member') {
+        refuseForLiveSession(res, id, live.matchId);
+        return;
       }
 
       const sessionChanged = new Error('live-session-changed');
@@ -416,6 +448,18 @@ export default async function handler(
           // campaigns-table write counter, NOT a journal revision - the
           // trap the launch-head route documents - so it is named
           // `currentVersion` and never dressed up as a branch head.
+          //
+          // The gate above read the row before the write queue ran; a row
+          // that changed since is checked again here, because `current` is
+          // the one place this route returns a stored body.
+          if (
+            refuseCampaignLifecycle(req, res, {
+              operation: 'write',
+              bodies: [{ source: 'stored', body: result.current.body }],
+            })
+          ) {
+            return;
+          }
           res.status(409).json({
             kind: 'conflict',
             reason: 'base-state-unavailable',

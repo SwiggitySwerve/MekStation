@@ -9,6 +9,7 @@
  * @module campaign/Mission
  */
 
+import type { IContractLifecycleState } from './ContractLifecycleRules';
 import type { AtBContractType } from './contracts/contractTypes';
 import type { IScenario } from './Scenario';
 import type { AtBMoraleLevel } from './scenario/scenarioTypes';
@@ -137,6 +138,10 @@ export interface IMission {
  * };
  */
 export interface IContract extends IMission {
+  /** Absent/1 is legacy. Production writer remains 1 until the enabling slice. */
+  readonly lifecycleRulesVersion?: number;
+  readonly lifecycle?: IContractLifecycleState;
+
   /** Discriminator: always 'contract' */
   readonly type: 'contract';
 

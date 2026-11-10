@@ -18,6 +18,7 @@ import * as path from 'path';
 
 // Service interfaces
 import { IService, ResultType, Result } from '../../types/BaseTypes';
+import { compareAppVersions } from './appVersion';
 import {
   calculateFileChecksum,
   createBackupArchive,
@@ -39,6 +40,11 @@ interface IBackupConfig {
   readonly enableIncremental: boolean;
   readonly verifyIntegrity: boolean;
   readonly excludePatterns: string[];
+  /**
+   * The running app's version. Stamped into every backup, and the bar a
+   * restore is checked against. Unset means no check (tests, tools).
+   */
+  readonly appVersion?: string;
 }
 
 /**
@@ -52,6 +58,8 @@ interface IBackupMetadata {
   readonly checksum: string;
   readonly files: string[];
   readonly parent?: string; // For incremental backups
+  /** The app version that made this backup; absent on older backups. */
+  readonly appVersion?: string;
 }
 
 /**
@@ -88,6 +96,7 @@ export class BackupService implements IService {
         '.DS_Store',
         'Thumbs.db',
       ],
+      appVersion: config.appVersion,
     };
 
     this.metadataPath = path.join(this.config.backupPath, '.metadata');
@@ -178,6 +187,9 @@ export class BackupService implements IService {
           type === 'incremental'
             ? (await this.getLatestBackupId()) || undefined
             : undefined,
+        ...(this.config.appVersion === undefined
+          ? {}
+          : { appVersion: this.config.appVersion }),
       };
 
       // Save metadata
@@ -218,6 +230,13 @@ export class BackupService implements IService {
       const metadata = await this.loadBackupMetadata(backupPath);
       if (!metadata) {
         return Result.error('Backup metadata not found');
+      }
+
+      // Before the integrity work, the safety backup, or any copy: a backup
+      // from a newer app may hold data this one cannot read (S1b).
+      const refusal = this.newerBackupRefusal(metadata);
+      if (refusal !== null) {
+        return Result.error(refusal);
       }
 
       if (this.config.verifyIntegrity) {
@@ -431,6 +450,25 @@ export class BackupService implements IService {
     }
 
     return changedFiles;
+  }
+
+  /**
+   * The plain-language refusal when this backup was made by a newer app than
+   * the running one, or records a version that cannot be read; otherwise null.
+   * A backup with no recorded version predates this check and is allowed.
+   */
+  private newerBackupRefusal(metadata: IBackupMetadata): string | null {
+    const running = this.config.appVersion;
+    if (running === undefined || metadata.appVersion === undefined) {
+      return null;
+    }
+    const order = compareAppVersions(metadata.appVersion, running);
+    if (order !== null && order <= 0) return null;
+    const made = metadata.appVersion;
+    return order === null
+      ? // The raw recorded value, quoted so it reads as a value and not as prose.
+        `This backup records the MekStation version ${JSON.stringify(made)}, which this copy cannot read, so it cannot be restored safely. Update MekStation, then restore again. Nothing was changed.`
+      : `This backup was made by MekStation ${made} and cannot be restored into ${running} safely, because it may contain campaigns this version cannot read. Update MekStation, then restore again. Nothing was changed.`;
   }
 
   /**

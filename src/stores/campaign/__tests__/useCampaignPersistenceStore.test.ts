@@ -975,8 +975,10 @@ describe('useCampaignPersistenceStore', () => {
       storeBearer(MATCH, 'wire-unrelated');
 
       await useCampaignPersistenceStore.getState().saveCampaign();
+      // No bearer; the reader level (S1b) is the only other header.
       expect(lastPutHeaders(fetchMock)).toEqual({
         'Content-Type': 'application/json',
+        'X-MekStation-Lifecycle-Rules': '1',
       });
 
       window.sessionStorage.clear();
@@ -985,8 +987,10 @@ describe('useCampaignPersistenceStore', () => {
         coopSession: createHostCoopSession('ROOM12', MATCH),
       });
       await useCampaignPersistenceStore.getState().saveCampaign();
+      // No bearer; the reader level (S1b) is the only other header.
       expect(lastPutHeaders(fetchMock)).toEqual({
         'Content-Type': 'application/json',
+        'X-MekStation-Lifecycle-Rules': '1',
       });
     });
 

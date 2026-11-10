@@ -14,7 +14,9 @@ import {
   CampaignCoopRouteSurfaceConnected,
   type CampaignCoopRouteId,
 } from '@/components/campaign/coop';
+import { isElectron } from '@/components/settings/useElectron';
 import { EmptyState, PageLayout } from '@/components/ui';
+import { LIFECYCLE_UNSUPPORTED_CODE } from '@/lib/campaign/persistence/lifecycleReaderGate';
 import { installCampaignPersistenceWiring } from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -69,12 +71,42 @@ interface CampaignLoadStatus {
   readonly loadCampaign: ReturnType<
     typeof useCampaignPersistenceStore.getState
   >['loadCampaign'];
+  /** The typed refusal behind an error, when the server named one. */
+  readonly saveRefusal?: ReturnType<
+    typeof useCampaignPersistenceStore.getState
+  >['saveRefusal'];
 }
 
 interface CampaignLoadErrorProps {
   readonly campaignId: string;
   readonly loadStatus: CampaignLoadStatus;
   readonly message?: string;
+  /** Reloads the page to pick up a newer build; injectable for tests. */
+  readonly reloadPage?: () => void;
+}
+
+/**
+ * What the load-error block's button does. A refusal by the contract-rules
+ * reader gate (S1b) cannot be retried away - this copy of MekStation does not
+ * read the campaign - so the button reloads the page to update instead. In the
+ * desktop shell a reload updates nothing, so there is no button.
+ */
+function loadErrorAction(
+  campaignId: string,
+  loadStatus: CampaignLoadStatus,
+  reloadPage: () => void = () => window.location.reload(),
+): { readonly onRetry?: () => void; readonly retryLabel?: string } {
+  if (loadStatus.saveRefusal?.code === LIFECYCLE_UNSUPPORTED_CODE) {
+    // The desktop shell serves the same embedded build on reload, so there is
+    // nothing to reload into: the message says to update the app, no button.
+    return isElectron() ? {} : { onRetry: reloadPage, retryLabel: 'Reload' };
+  }
+  return {
+    onRetry: () => {
+      void loadStatus.loadCampaign(campaignId);
+    },
+    retryLabel: 'Retry',
+  };
 }
 
 interface CampaignPageGateProps extends LoadingStateProps {
@@ -240,8 +272,9 @@ export function useCampaignLoadStatus(): CampaignLoadStatus {
   const loadCampaign = useCampaignPersistenceStore(
     (state) => state.loadCampaign,
   );
+  const saveRefusal = useCampaignPersistenceStore((state) => state.saveRefusal);
 
-  return { saveState, errorMessage, loadCampaign };
+  return { saveState, errorMessage, loadCampaign, saveRefusal };
 }
 
 export function CampaignLoadingState({
@@ -390,13 +423,12 @@ export function CampaignBayLoadError({
   campaignId,
   loadStatus,
   message = 'The campaign inventory failed to load.',
+  reloadPage,
 }: CampaignLoadErrorProps): React.ReactElement {
   return (
     <BayError
       message={loadStatus.errorMessage ?? message}
-      onRetry={() => {
-        void loadStatus.loadCampaign(campaignId);
-      }}
+      {...loadErrorAction(campaignId, loadStatus, reloadPage)}
     />
   );
 }
@@ -405,13 +437,12 @@ export function CampaignCommandLoadError({
   campaignId,
   loadStatus,
   message = 'The campaign command data failed to load.',
+  reloadPage,
 }: CampaignLoadErrorProps): React.ReactElement {
   return (
     <CommandError
       message={loadStatus.errorMessage ?? message}
-      onRetry={() => {
-        void loadStatus.loadCampaign(campaignId);
-      }}
+      {...loadErrorAction(campaignId, loadStatus, reloadPage)}
     />
   );
 }

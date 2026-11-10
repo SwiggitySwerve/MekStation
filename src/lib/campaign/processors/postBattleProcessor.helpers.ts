@@ -7,6 +7,7 @@ import type { IPilot } from '@/types/pilot/PilotInterfaces';
 
 import { readDeltaExitReason } from '@/lib/combat/outcome/deltaExitReason';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces.types';
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { isTerminalMissionStatus, MissionStatus } from '@/types/campaign/enums';
 import { isContract } from '@/types/campaign/Mission';
 import { createInitialCombatState } from '@/types/campaign/UnitCombatState';
@@ -318,6 +319,9 @@ export function applyContractDelta(
   if (!isContract(mission)) {
     return null;
   }
+  // No battle effect and no closure for a contract this build cannot
+  // process (S1b); the outcome is still recorded by the caller.
+  if (isContractInert(mission)) return null;
 
   const previousStatus = mission.status;
   // Later battles must not reopen a settled contract or trigger another payment.

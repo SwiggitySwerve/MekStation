@@ -265,7 +265,10 @@ describe('CampaignDashboardPage co-op persistence regression', () => {
     await waitFor(() => {
       expect(server.fetchMock).toHaveBeenCalledWith(
         `/api/campaigns/${encodeURIComponent(initial.id)}`,
-        { cache: 'no-store' },
+        {
+          cache: 'no-store',
+          headers: { 'X-MekStation-Lifecycle-Rules': '1' },
+        },
       );
     });
     await waitFor(() => {

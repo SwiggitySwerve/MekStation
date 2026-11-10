@@ -28,10 +28,20 @@
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D6)
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useSyncExternalStore } from 'react';
 
+import { isElectron } from '@/components/settings/useElectron';
 import { Badge, Button, Card } from '@/components/ui';
+import {
+  isLifecycleRefusalCode,
+  LIFECYCLE_UNSUPPORTED_CODE,
+} from '@/lib/campaign/persistence/lifecycleReaderGate';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import {
+  dismissOutdatedTabNotice,
+  getOutdatedTabNotices,
+  subscribeOutdatedTabNotices,
+} from '@/stores/utils/lifecycleAwareStorage';
 
 /** Human-readable label + badge variant per save-state. */
 function describeSaveState(
@@ -67,7 +77,12 @@ function formatLastSaved(lastSavedAt: string | null): string {
   return date.toLocaleString();
 }
 
-export function CampaignSaveStatusCard(): React.ReactElement {
+export function CampaignSaveStatusCard({
+  reloadPage = () => window.location.reload(),
+}: {
+  /** Reloads the page to pick up a newer build; injectable for tests. */
+  readonly reloadPage?: () => void;
+} = {}): React.ReactElement {
   const saveState = useCampaignPersistenceStore((s) => s.saveState);
   const dirty = useCampaignPersistenceStore((s) => s.dirty);
   const metadata = useCampaignPersistenceStore((s) => s.metadata);
@@ -102,6 +117,23 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   }, [clearLaunchConflict, resolveConflictTakeServer]);
 
   const status = describeSaveState(saveState);
+  // The contract-rules reader gate (S1b): this copy of MekStation cannot take
+  // the campaign. Neither Save now nor a retry can succeed, so neither shows.
+  const rulesRefusal =
+    saveState === 'error' &&
+    saveRefusal !== null &&
+    isLifecycleRefusalCode(saveRefusal.code)
+      ? saveRefusal
+      : null;
+  // A reload in the desktop shell serves the same embedded build, so it
+  // updates nothing there: the sentence says to update the app, no button.
+  const canReload =
+    rulesRefusal?.code === LIFECYCLE_UNSUPPORTED_CODE && !isElectron();
+  const outdatedTabNotices = useSyncExternalStore(
+    subscribeOutdatedTabNotices,
+    getOutdatedTabNotices,
+    getOutdatedTabNotices,
+  );
 
   return (
     <Card className="mb-6" data-testid="campaign-save-status-card">
@@ -131,7 +163,36 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               {errorMessage} — playing offline; changes are kept locally.
             </p>
           )}
-          {saveState === 'error' && saveRefusal && (
+          {rulesRefusal && (
+            <p
+              className="mt-1 text-sm text-red-400"
+              data-testid="campaign-lifecycle-refused"
+            >
+              {rulesRefusal.message}
+            </p>
+          )}
+          {outdatedTabNotices.map((notice) => (
+            <p
+              key={notice.campaignId}
+              className="mt-1 text-sm text-yellow-400"
+              data-testid={`campaign-outdated-tab-${notice.campaignId}`}
+            >
+              Changes made to{' '}
+              {notice.campaignName === null
+                ? 'this campaign'
+                : `“${notice.campaignName}”`}{' '}
+              in an outdated tab were not kept. You are looking at the newer
+              version.{' '}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => dismissOutdatedTabNotice(notice.campaignId)}
+              >
+                Dismiss
+              </button>
+            </p>
+          ))}
+          {saveState === 'error' && saveRefusal && !rulesRefusal && (
             <p
               className="mt-1 text-sm text-red-400"
               data-testid="campaign-save-refused"
@@ -187,6 +248,16 @@ export function CampaignSaveStatusCard(): React.ReactElement {
             >
               Use Server Version
             </Button>
+          ) : rulesRefusal ? (
+            canReload && (
+              <Button
+                variant="primary"
+                onClick={reloadPage}
+                data-testid="campaign-lifecycle-reload-btn"
+              >
+                Reload
+              </Button>
+            )
           ) : (
             <Button
               variant="primary"

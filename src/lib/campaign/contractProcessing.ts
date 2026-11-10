@@ -12,6 +12,7 @@
  */
 
 import { ICampaign } from '@/types/campaign/Campaign';
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { isContract, IMission } from '@/types/campaign/Mission';
 
@@ -38,6 +39,8 @@ export function processContracts(campaign: ICampaign): {
   Array.from(campaign.missions.entries()).forEach(([id, mission]) => {
     // Only process active contracts with end dates
     if (!isContract(mission)) return;
+    // A contract this build cannot process is carried, never expired (S1b).
+    if (isContractInert(mission)) return;
     if (mission.status !== MissionStatus.ACTIVE) return;
     if (!mission.endDate) return;
 

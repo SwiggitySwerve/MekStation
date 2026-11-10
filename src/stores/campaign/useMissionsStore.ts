@@ -13,7 +13,8 @@ import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 import { rehydrateMissionMap } from '@/lib/campaign/persistence/missionSerialization';
-import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
+import { lifecycleAwareStorage } from '@/stores/utils/lifecycleAwareStorage';
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { isTerminalMissionStatus, MissionStatus } from '@/types/campaign/enums';
 import { IMission, IContract, isContract } from '@/types/campaign/Mission';
 import { IScenario } from '@/types/campaign/Scenario';
@@ -166,7 +167,9 @@ export function createMissionsStore(
         getActiveContracts: () =>
           Array.from(get().missions.values()).filter(
             (m): m is IContract =>
-              isContract(m) && m.status === MissionStatus.ACTIVE,
+              isContract(m) &&
+              m.status === MissionStatus.ACTIVE &&
+              !isContractInert(m),
           ),
 
         getContractsByEmployer: (employerId) =>
@@ -217,7 +220,7 @@ export function createMissionsStore(
       }),
       {
         name: `missions-${campaignId}`,
-        storage: createJSONStorage(() => clientSafeStorage),
+        storage: createJSONStorage(() => lifecycleAwareStorage),
         // Handle Map serialization: Map -> Array of entries for storage
         partialize: (state) => ({
           missions: Array.from(state.missions.entries()),
