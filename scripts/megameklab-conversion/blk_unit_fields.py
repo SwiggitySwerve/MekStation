@@ -151,7 +151,7 @@ def vehicle_patchwork_armor_fields(tags: Dict[str, Any], locations: Dict[str, in
             if type_tag not in tags:
                 raise ValueError(f'Missing patchwork armor type for {name}: <{type_tag}>')
             code = parse_qualifier_number(tags, type_tag, integer=True)
-            map_armor_code(code, BLK_ARMOR_CODE_MAP, strict=True)
+            map_armor_code(code, BLK_ARMOR_CODE_MAP)
             types[location] = code
             if support:
                 bars[location] = 10
