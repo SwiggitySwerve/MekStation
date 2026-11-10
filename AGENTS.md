@@ -101,6 +101,7 @@ navigation hints rather than semantic reference totals.
 9. **Never skip hooks:** temporary commits must pass required checks too, so never use `--no-verify` or otherwise bypass hooks.
 10. **Fetch and merge moving main:** resets can stage reversions of merged work, so update an existing branch with `git fetch origin` followed by `git merge origin/main`, never by resetting onto a moving main.
 11. **No result line is not a pass:** a suite that executes zero tests proves nothing, so a trial or gate must fail when a named suite runs zero tests or prints no result line; use `npm run test:roadmap` or `npm run test:corpus`, which set `JEST_SPLIT_CORPUS=true` and select `--selectProjects roadmap` or `--selectProjects corpus` respectively; with splitting unset these suites stay in `unit`, while split mode excludes them from `unit`.
+12. **Audit for duplicates after a restart:** a job interrupted by a session or provider restart can keep running while the resumed session starts it again, doubling load and memory (two orphaned Jest trees once held 8.6 GB), so after any restart list the running process trees for your own worktree and job, stop only your own pre-restart duplicates, and then resume.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
