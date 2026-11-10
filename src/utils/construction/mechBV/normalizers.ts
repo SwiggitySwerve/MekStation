@@ -1,4 +1,4 @@
-import type { MechLocation } from '../src/utils/construction/battleValueCalculations';
+import type { MechLocation } from '@/utils/construction/battleValueCalculations';
 
 export function toMechLoc(l: string): MechLocation | null {
   const u = l.toUpperCase().replace(/[_\s-]+/g, '');

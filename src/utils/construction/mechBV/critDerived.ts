@@ -1,4 +1,4 @@
-import type { UnitData } from './validate-bv-types';
+import type { UnitData } from './types';
 
 export interface CritHeatSinkCounts {
   critDHSCount: number;

@@ -1,15 +1,15 @@
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 
-import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type { UnitData } from '../mechBV/types';
 
-import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
-import { resolveWeaponForUnit } from '../../../../scripts/validate-bv-weapon-resolution';
 import {
   calculateAerospaceBV,
   type IAerospaceBVInput,
 } from '../aerospace/aerospaceBV';
 import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
+import { createEmptyCritScan } from '../mechBV/critScanTypes';
 import { buildMechBVWeapons } from '../mechBV/weaponInputs';
+import { resolveWeaponForUnit } from '../mechBV/weaponResolution';
 
 // MegaMek 48fcb2f64, HeatTrackingBVCalculator.java:170-180,203-209;
 // WeaponMounted.java:231-234 reads WeaponType.F_ONE_SHOT (WeaponType.java:577).

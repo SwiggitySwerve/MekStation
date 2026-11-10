@@ -16,13 +16,13 @@ import {
 } from '@/types/validation/BattleValue';
 import { calculateTMM as calculateGameplayTMM } from '@/utils/gameplay/toHit/movementModifiers';
 
-import { deriveDefensiveMovementInputs } from '../../../../scripts/validate-bv-calculator-setup';
 import {
   calculateOffensiveSpeedFactor,
   calculateSpeedFactor,
   calculateTMM,
   SPEED_FACTORS,
 } from '../battleValueMovement';
+import { deriveDefensiveMovementInputs } from '../mechBV/calculatorSetup';
 import { baseInput } from '../vehicle/__tests__/vehicleBV.test.helpers';
 import { calculateVehicleTMM } from '../vehicle/vehicleBVMovement';
 

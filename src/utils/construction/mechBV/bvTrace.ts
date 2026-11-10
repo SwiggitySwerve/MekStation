@@ -1,4 +1,4 @@
-import type { ValidationResult } from '../../../../scripts/validate-bv-types';
+import type { ValidationResult } from './types';
 
 import { projectMechAmmoBVPools } from '../battleValueAmmo';
 

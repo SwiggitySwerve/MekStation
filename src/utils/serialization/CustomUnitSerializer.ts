@@ -52,7 +52,7 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
-import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
+import { isRearLoc } from '../construction/mechBV/normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
 import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';

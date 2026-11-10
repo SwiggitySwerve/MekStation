@@ -6,7 +6,7 @@ import { UnitContract } from '@/types/contracts';
  * MegaMek 48fcb2f6 MtfFile.java:362-411,669-702. Internal points per location
  * come only from calcTotalStructure (Mek.java:1062-1087).
  */
-import { calcTotalStructure } from '../../../../scripts/validate-bv-unit-derived';
+import { calcTotalStructure } from '../../../utils/construction/mechBV/unitDerived';
 import { MTFParserService } from '../MTFParserService';
 import fixtures from './MTFParser.pinned-sources.json';
 

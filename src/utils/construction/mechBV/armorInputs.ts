@@ -1,17 +1,14 @@
-import type { UnitData } from '../../../../scripts/validate-bv-types';
 import type { DefensiveBVConfig } from '../battleValueDefensive';
+import type { UnitData } from './types';
 
-import { scanCrits } from '../../../../scripts/validate-bv-crit-scan';
-import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
-import {
-  calcTotalArmor,
-  getArmorBAR,
-} from '../../../../scripts/validate-bv-unit-derived';
 import {
   getModularArmorBVPoints,
   getNativeArmorBVMultiplier,
   getNativeArmorName,
 } from '../battleValueDefensive';
+import { scanCrits } from './critScan';
+import { toMechLoc } from './normalizers';
+import { calcTotalArmor, getArmorBAR } from './unitDerived';
 
 /** Project MTF patchwork source facts; BVCalculator.java:359-420 at 48fcb2f64.
  * The defensive owner applies the one armor formula. Existing setup/scanning

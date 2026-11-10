@@ -59,5 +59,5 @@ existing formula registry/evaluator. Fixed sizes and masses remain catalog
 facts. The Claw/Claws aliases share one formula object and native slot identity.
 The legacy enum fallbacks in `PhysicalWeaponTypes.ts` retain their old guards
 and results; source recovery does not call them. BV formulas in
-`scripts/validate-bv-physical-weapons.ts` measure a separate quantity and stay
+`src/utils/construction/mechBV/physicalWeapons.ts` measure a separate quantity and stay
 with the BV owner. This extraction changes no source admissions or outputs.

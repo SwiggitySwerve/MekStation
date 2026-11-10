@@ -5,9 +5,6 @@ import {
 } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { normalizeEquipmentId as normalizeMTFId } from '@/services/conversion/MTFParser.mapping';
 
-/** @spec openspec/changes/establish-all-unit-data-parity/specs/equipment-services/spec.md */
-import { processCritAmmoSlot } from '../../../../scripts/validate-bv-crit-scan-ammo';
-import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
 import { baseInput } from '../battlearmor/__tests__/battleArmorBV.test.helpers';
 import { calculateBAOffensiveBV } from '../battlearmor/battleArmorBV';
 import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
@@ -21,6 +18,9 @@ import {
   resolveAmmoBV,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/equipment-services/spec.md */
+import { processCritAmmoSlot } from '../mechBV/critScanAmmo';
+import { createEmptyCritScan } from '../mechBV/critScanTypes';
 
 beforeEach(resetCatalogCache);
 afterEach(resetCatalogCache);

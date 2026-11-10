@@ -28,7 +28,7 @@ import { cloneSerializedStructure } from '@/utils/serialization/structureMetadat
 
 import type { IRawSerializedUnit } from './types';
 
-import { deriveEffectiveConfiguration } from '../../../../scripts/validate-bv-calculator-setup';
+import { deriveEffectiveConfiguration } from '../../../utils/construction/mechBV/calculatorSetup';
 import { calculateArmorTonnage } from './armorCalculations';
 import {
   mapEngineType,

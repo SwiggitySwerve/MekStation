@@ -1,11 +1,8 @@
-import type { ExplosiveEquipmentEntry } from '../src/utils/construction/battleValueExplosivePenalties';
-import type { UnitData } from './validate-bv-types';
+import type { ExplosiveEquipmentEntry } from '@/utils/construction/battleValueExplosivePenalties';
 
-import {
-  normalizeCritName,
-  normalizeEquipId,
-  toMechLoc,
-} from './validate-bv-normalizers';
+import type { UnitData } from './types';
+
+import { normalizeCritName, normalizeEquipId, toMechLoc } from './normalizers';
 
 /** Project unambiguous split mounts; CASE policy stays in the penalty owner. */
 export function linkSplitExplosiveMounts(

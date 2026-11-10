@@ -6,7 +6,6 @@ import type { EquipmentCatalogEntry, RawCatalogFile } from './types';
  * Provides initialization and reset functions for testing and browser contexts.
  */
 
-import capitalBVFacts from '../../../../scripts/equipment-catalog/capital-bv.json';
 import { resolveRegistryId } from '../equipmentBVCatalogData';
 import {
   AMMUNITION_CATALOG_FILES,
@@ -15,6 +14,7 @@ import {
   NAME_MAPPINGS_DATA,
   WEAPON_CATALOG_FILES,
 } from './catalogData';
+import capitalBVFacts from './data/capital-bv.json';
 import {
   BV_MOUNT_QUALIFIERS,
   BV_MOUNT_MARKERS,
