@@ -85,6 +85,19 @@ navigation hints rather than semantic reference totals.
 - Runtime diagnostics use `src/utils/logger.ts`; avoid new raw `console` calls
   in product code.
 
+## Working invariants
+
+1. **One owner per rule or table:** copied rules, tables, predicates and rule projections drift silently, so duplication blocks review; extract to one owner without changing behavior, switch all callers, then keep the behavior change separately verifiable.
+2. **Test-first:** passing-only tests may miss the defect, so record red before the fix and green afterward, and kill a mutant that a weaker test would miss.
+3. **Pinned-Java citations:** upstream rules change, so cite every parity value or rule as `file:line` at the pinned MegaMek, MegaMekLab, MekHQ or mm-data SHA, reading the pins from `goalPins` in `config/reference-policy/derivation.json`.
+4. **Splice-only data applies:** whole-file postimages can revert later fixes, so splice approved catalog or data fields into current main's files and assert per file that only the approved fields changed.
+5. **Merge, then post-merge:** trial results do not prove the merged tree, so require a passing trial and a recorded interval path audit showing no changes to the PR's paths or suite inputs, then immediately run the same suites labelled `POST-MERGE` on the exact merge commit and report failures; schema, generated Zod, unit data, catalog and loader changes in the interval count as triggers requiring another trial before merge.
+6. **No size or memory gates:** arbitrary size and memory thresholds are not acceptance criteria, so byte, heap and RSS measurements remain advisory trends and never fail CI or block merging; separate count limits for jobs, unkeyable tests, repo-wide keys, lint warnings and dependencies still apply.
+7. **Exact replay state:** misleading replay state undermines gameplay review and recovery, so rebuild exact state at every event boundary, exact seeded continuation for server and multiplayer recovery, and review-exact replay elsewhere; any replay, digest or golden change is a STOP requiring attribution and an explicit decision before proceeding.
+8. **Preserve committed evidence:** regeneration can erase regression evidence or introduce unapproved data changes, so never regenerate committed fixtures, digests or catalogs without an explicit decision.
+9. **Never skip hooks:** temporary commits must pass required checks too, so never use `--no-verify` or otherwise bypass hooks.
+10. **Fetch and merge moving main:** resets can stage reversions of merged work, so update an existing branch with `git fetch origin` followed by `git merge origin/main`, never by resetting onto a moving main.
+
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - Do not use Open Brain, Jira, Outline, or AstraBit workflow infrastructure for
