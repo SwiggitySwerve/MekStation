@@ -1,8 +1,33 @@
 {
+  "groupingSourceCommit": "483c90e6fcada410ddfc77e2503856b399b775f5",
   "sourceCommit": "3e96c2283549ec025290382283b15b22c52c37bc",
   "units": {
     "triskelion-trk-4v": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json",
+      "noticeGroups": [
+        {
+          "title": "Other critical-slot entries",
+          "kinds": [
+            {
+              "title": "Probes and electronics",
+              "entryIndexes": [4, 5, 9, 10, 14, 15, 16]
+            },
+            {
+              "title": "CASE / CASE II",
+              "entryIndexes": [6, 11]
+            }
+          ]
+        },
+        {
+          "title": "Placement markers only",
+          "kinds": [
+            {
+              "title": "Armor / structure markers",
+              "entryIndexes": [0, 1, 2, 3, 7, 8, 12, 13, 17, 18, 19, 20]
+            }
+          ]
+        }
+      ],
       "entries": [
         {
           "text": "IS Endo-Composite",
@@ -113,6 +138,34 @@
     },
     "poseidon-psd-v2": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Poseidon PSD-V2.json",
+      "noticeGroups": [
+        {
+          "title": "Other critical-slot entries",
+          "kinds": [
+            {
+              "title": "Probes and electronics",
+              "entryIndexes": [4]
+            },
+            {
+              "title": "CASE / CASE II",
+              "entryIndexes": [5, 7]
+            },
+            {
+              "title": "Other",
+              "entryIndexes": [10, 11, 12, 13]
+            }
+          ]
+        },
+        {
+          "title": "Placement markers only",
+          "kinds": [
+            {
+              "title": "Armor / structure markers",
+              "entryIndexes": [0, 1, 2, 3, 6, 8, 9]
+            }
+          ]
+        }
+      ],
       "entries": [
         {
           "text": "IS Endo Steel",
@@ -188,6 +241,17 @@
     },
     "boreas-a": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Boreas A.json",
+      "noticeGroups": [
+        {
+          "title": "Other critical-slot entries",
+          "kinds": [
+            {
+              "title": "Other",
+              "entryIndexes": [0, 2, 4, 6, 1, 3, 5, 7]
+            }
+          ]
+        }
+      ],
       "entries": [
         {
           "text": "Conversion Gear",
