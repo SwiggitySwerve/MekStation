@@ -131,12 +131,22 @@ export function isInfantryBVWeaponTerm(
   return /^weapon\.(?:-1\.TPRS|\d+\.FGUN)\..+$/.test(key);
 }
 
+/** Native field-gun AmmoType:rackSize pools before excessive-ammo capping. */
+export type InfantryBVAmmoTerm =
+  `ammo.${'cap' | 'available'}.${string}:${number}`;
+
+export function isInfantryBVAmmoTerm(key: string): key is InfantryBVAmmoTerm {
+  return /^ammo\.(?:cap|available)\.[A-Z][A-Z0-9_]*:\d+$(?![\s\S])/.test(key);
+}
+
 export interface IInfantryBVBreakdown
   extends
     Readonly<
       Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
     >,
-    Readonly<Partial<Record<InfantryBVWeaponTerm, number>>> {
+    Readonly<
+      Partial<Record<InfantryBVWeaponTerm | InfantryBVAmmoTerm, number>>
+    > {
   /** Defensive aggregate, including represented source movement and stealth. */
   readonly defensiveBV: number;
   readonly perTrooper: number;
