@@ -1551,3 +1551,25 @@ transport per-arc armor types with current points. Unknown arcs SHALL fail.
 - **THEN** armor BV SHALL be 282.5, defensive BV 367.8 and final BV 1571
 - **AND** changes to current points or represented type codes SHALL update both displays
 - **AND** choosing a global armor type SHALL retain the existing clearing of per-arc codes
+
+### Requirement: Native source BV projection shares armor and targeting owners
+
+Raw aerospace source BV SHALL resolve numeric armor codes through the existing
+native armor-name owner. Vehicle and aerospace targeting-computer capability
+SHALL use the shared predicate without rewriting native mount identities.
+Existing string armor behavior and unknown-code fallback SHALL remain unchanged.
+
+#### Scenario: Native reflective and ferro-lamellor aerospace armor
+
+- **GIVEN** the pinned Kublai E/F/G, Lucifer III C, Seydlitz C, Slayer SL-CX1 and Lightning LTN-G16-P Branson sources
+- **WHEN** their raw BLK units enter the unified BV dispatcher
+- **THEN** native armor codes 3 and 16 SHALL retain reflective and ferro-lamellor valuation
+- **AND** final BV SHALL be 2181, 2270, 2376, 2708, 1690, 2404 and 1126 respectively
+
+#### Scenario: Native targeting-computer capability survives registry resolution
+
+- **GIVEN** IS and Clan targeting computers, including native Omni spellings
+- **WHEN** their resolved entries carry the pinned targeting-computer capability despite a Miscellaneous catalog category
+- **THEN** the shared predicate SHALL recognize that capability for the existing vehicle and aerospace BV rules
+- **AND** all eight pinned targeting-computer source residuals SHALL close exactly to Java
+- **AND** raw mount identities/order, canonical BV, and all BattleMech BV rows SHALL remain unchanged

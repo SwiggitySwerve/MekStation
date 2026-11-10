@@ -8,9 +8,20 @@ export function applyTargetingComputerBV(bv: number): number {
   return bv * 1.25;
 }
 
-/** Catalog-backed chassis capability, including native and Omni aliases. */
+/** Catalog-backed chassis capability, including native and Omni aliases.
+ * MiscType.java:6799-6811,6836-6848 (48fcb2f64): F_TARGETING_COMPUTER.
+ * Native registry entries lack a capability flag; recognize their resolved IDs
+ * here while retaining their catalog category as a separate construction fact.
+ */
 export function hasBVTargetingComputer(ids: readonly string[]): boolean {
-  return ids.some((id) => getEquipmentEntry(id)?.category === 'Targeting');
+  return ids.some((id) => {
+    const entry = getEquipmentEntry(id);
+    return (
+      entry?.category === 'Targeting' ||
+      entry?.id === 'istargeting-computer-registry' ||
+      entry?.id === 'cltargeting-computer-registry'
+    );
+  });
 }
 
 /** Callers retain their location parsing before testing mounted AES. */

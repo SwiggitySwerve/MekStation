@@ -1,5 +1,13 @@
 # Combat-vehicle construction rules
 
+Native IS/Clan targeting-computer spellings, including Omni mounts, use the same
+`hasBVTargetingComputer` capability owner as aerospace. The resolved native
+registry entries currently have category Miscellaneous; this does not remove
+their pinned F_TARGETING_COMPUTER capability. The shared predicate owns the
+compatibility identities once; vehicle arithmetic and raw mount order/IDs stay
+unchanged. MegaMek 48fcb2f64: MiscType.java:6799-6811,6836-6848;
+BVCalculator.java:880-882. Catalog category correction belongs to C2.
+
 ## Native Tank complete-weight transport
 
 `vehicleHandlerWeight.ts` projects parsed Tank construction facts into the
