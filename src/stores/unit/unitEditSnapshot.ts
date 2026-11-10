@@ -98,7 +98,13 @@ export function getUnitLibraryFingerprint(state: UnitState): string {
       era: getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS,
     },
   );
-  return stringifyUnitSaveFingerprint({ ...data, sourceDefinition: undefined });
+  return stringifyUnitSaveFingerprint({
+    ...data,
+    sourceDefinition: undefined,
+    // Persistence-only category evidence is derived from the mounted category,
+    // which edit/draft fingerprints already retain. Keep old library bytes.
+    equipment: data.equipment.map((item) => ({ ...item, isAmmo: undefined })),
+  });
 }
 
 export function createLibrarySaveReceipt(

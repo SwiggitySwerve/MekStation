@@ -279,9 +279,10 @@ describe.each(
 );
 
 // Nova CEWS adds 2 heat in Java (count 5 beside a medium laser; MiscType.java:1436-1439).
-// The editor resolves it. The support handler's BV catalog does not know the BLK
-// name, so the mount is reported unresolved (a warning), never charged a guess.
-it('Nova CEWS adds 2 heat in the editor and is reported unresolved by the handler', () => {
+// The editor and the support handler both resolve it: the handler's BV lookup
+// learned the display name `Nova CEWS` (a registered lookup name,
+// MiscType.java:6192-6193) when d4 added it to the native identity table.
+it('Nova CEWS adds 2 heat in the editor and in the support handler', () => {
   const state = loadState('Jifty Transportable Field Repair Unit JI-50 (ML)');
   const template = state.equipment[0];
   state.equipment = [
@@ -300,9 +301,9 @@ it('Nova CEWS adds 2 heat in the editor and is reported unresolved by the handle
   if (!parsed.success) throw new Error('fixture parse');
   const result = new SupportVehicleUnitHandler().parse(parsed.data.document);
   if (!result.success) throw new Error('handler parse');
-  expect(computeSupportVehicleWeight(result.data.unit).unresolved).toEqual([
-    'Nova CEWS',
-  ]);
+  const weight = computeSupportVehicleWeight(result.data.unit);
+  expect(weight.unresolved).toEqual([]);
+  expect(weight.heatSinks).toBe(5);
 });
 
 // TestSupportVehicle.java:928-930: a small support vehicle (under 5 t) needs no
