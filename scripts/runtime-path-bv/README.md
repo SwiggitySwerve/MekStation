@@ -24,7 +24,7 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
 
 - **Join:** S0b's committed-catalog emitter output (`sources.ndjson` + `sources.ndjson.manifest.json`). `--sources <dir>`
   reads an existing output; otherwise the emitter runs as a child step (`scripts/ci/committed-catalog-sources.ts`, which
-  today needs `--mekfiles <pinned mm-data>/data/mekfiles` and Python). The source is one function, `obtainJoin` in `join.mjs`.
+  today needs `--mekfiles <pinned mm-data>/data/mekfiles` and Python). The source is one function, `obtainJoin` in `scripts/lib/runtime-parity/join.mjs`.
 - **Java values:** `config/reference/reference-full.jsonl.gz`, verified by the scoreboard's own `prepareReference`.
 - No network, no JVM, no `_scratch`.
 
@@ -50,7 +50,9 @@ recorded in `receipt.scope` with `populationCount`, so a narrowed run can never 
 
 ## Files
 
-`run.mjs` orchestrates; `join.mjs` reads the join and builds the plan; the status-bar read itself is the shared observer
+`run.mjs` is the load measure's spec over the shared orchestrator `scripts/lib/runtime-parity/census.mjs` (inputs, population proof,
+fresh captures, byte-identity gate, outputs, exit code; also used by the reopen runner); `join.mjs` (same lib) reads the join and
+builds the plan; the status-bar read itself is the shared observer
 `scripts/lib/runtime-parity/status-observer.js` (one owner, also used by the reopen capture); `capture.jest.js` is the Jest/jsdom capture
 (selected only by `config/jest/runtime-path-bv.config.js`, and not named `*.test.*`, so default discovery never runs it);
 `report.mjs` maps records to rows and counts. Tests: `node --test scripts/runtime-path-bv/run.test.mjs`.
