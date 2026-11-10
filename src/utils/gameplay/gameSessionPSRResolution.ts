@@ -16,7 +16,6 @@ import {
   createUnitStuckEvent,
 } from './gameEvents';
 import { appendEvent } from './gameSessionCore';
-import { roll2d6 as rollDice } from './hitLocation';
 import { failedBogDownGrantsJumpUnstick } from './movement/stuckState';
 import {
   isGyroDestroyed,
@@ -54,7 +53,7 @@ interface IPsrFallReason {
 
 export function resolvePendingPSRs(
   session: IGameSession,
-  diceRoller: DiceRoller = rollDice,
+  diceRoller: DiceRoller,
 ): IGameSession {
   let currentSession = session;
   const { turn, phase } = currentSession.currentState;

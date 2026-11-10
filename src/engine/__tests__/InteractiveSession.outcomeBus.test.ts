@@ -26,6 +26,7 @@ import {
   type IGameUnit,
   type IGameSession,
 } from '@/types/gameplay';
+import { defaultD6Roller } from '@/utils/gameplay/diceTypes';
 import { logger } from '@/utils/logger';
 
 import type { IAdaptedUnit } from '../types';
@@ -164,7 +165,10 @@ describe('InteractiveSession outcome bus hardening', () => {
     live.concede(GameSide.Player);
     const listener = jest.fn();
     subscribeToCombatOutcome(listener);
-    const recovered = InteractiveSession.fromSession(live.getSession());
+    const recovered = InteractiveSession.fromSession(
+      live.getSession(),
+      defaultD6Roller,
+    );
 
     expect(recovered.hasPublishedOutcome()).toBe(true);
     recovered.getOutcome();

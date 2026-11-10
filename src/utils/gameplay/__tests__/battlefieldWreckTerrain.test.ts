@@ -23,6 +23,7 @@ import {
   applyBattlefieldWreckTerrainToGrid,
   TAC_OPS_BATTLE_WRECK_OPTIONAL_RULE_KEY,
 } from '@/utils/gameplay/battlefieldWreckTerrain';
+import { defaultD6Roller } from '@/utils/gameplay/diceTypes';
 import { createUnitDestroyedEvent } from '@/utils/gameplay/gameEvents';
 import { coordToKey } from '@/utils/gameplay/hexMath';
 import {
@@ -250,7 +251,10 @@ describe('battlefield wreck terrain', () => {
     expect(payload?.sourceUnitId).toBe(player.id);
     expect(payload?.reason).toBe('battlefield_wreckage');
 
-    const recovered = InteractiveSession.fromSession(updatedSession);
+    const recovered = InteractiveSession.fromSession(
+      updatedSession,
+      defaultD6Roller,
+    );
     expect(recovered.getGrid().hexes.get(terrainKey)?.terrain).toBe(
       TerrainType.Rough,
     );

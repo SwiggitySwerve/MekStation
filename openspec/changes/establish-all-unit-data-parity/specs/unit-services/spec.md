@@ -8,6 +8,40 @@
 
 ## ADDED Requirements
 
+### Requirement: Loader-owned unrecovered critical-slot diagnostics
+
+SHALL expose the original text, location and zero-based slot of every source
+equipment critical cell the BattleMech loader cannot place. The recovery owner
+SHALL compute this list once from its final placements, including split and
+spread mounts. Configuration cells that disappear during save SHALL remain
+in the list. Existing array-returning interfaces SHALL project the same result's
+equipment without a second recovery or residual rule. Later recovery changes
+SHALL automatically remove their placed cells from the residual.
+
+#### Scenario: Real catalog losses equal the exposed residual
+
+- **GIVEN** committed Scarecrow UCU-F4, Celerity CLR-03-O, Uni ATAE-70 ArtilleryMech and King Crab KGC-0000 definitions
+- **WHEN** each passes through the real load, save and reopen boundaries
+- **THEN** the exposed residual SHALL equal the equipment critical cells that disappear, including configuration markers and unplaced listed equipment
+- **AND** the control SHALL expose an empty list
+
+#### Scenario: Diagnostics cannot alter a saved design or fingerprint
+
+- **GIVEN** an editor with unrecovered critical-slot diagnostics
+- **WHEN** it creates editable snapshots, draft or library fingerprints, a portable unit document or replay state
+- **THEN** those values SHALL exclude the diagnostics
+- **AND** existing literal fingerprint bytes SHALL remain unchanged
+- **AND** browser draft hydration SHALL retain the editor notice metadata
+
+#### Scenario: Hydrate a version-zero draft without loss metadata
+
+- **GIVEN** a literal pre-tracking version-zero BattleMech draft with no residual field
+- **WHEN** its editor hydrates
+- **THEN** absence SHALL remain unknown instead of inheriting a new unit's empty list
+- **AND** an available source SHALL refresh metadata through the real loader without changing editable fields or fingerprints
+- **AND** no source or a failed source read SHALL leave tracking unknown
+- **AND** the optional metadata SHALL NOT require a draft, portable schema or replay version bump
+
 ### Requirement: Non-mech technology identity has one chassis-fact owner
 
 Non-mech runtime states SHALL support optional unit technology mode and chassis
@@ -467,6 +501,28 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **AND** malformed source SHALL fail with diagnostics without persistence; existing MTF/JSON behavior SHALL remain available
 - **AND** other BLK families, browser BLK selection and native numerical parity SHALL remain separate obligations
 
+### Requirement: Placed legacy equipment identity
+
+The existing BattleMech legacy equipment resolver SHALL preserve a known saved
+equipment ID when explicit placement context is supplied. Resolving an alias
+SHALL use only that mount's valid critical cells. Unplaced source summaries
+SHALL retain their existing location-hint behavior.
+
+#### Scenario: Opposite-tech mounts share a location
+
+- **GIVEN** a saved IS ER medium laser beside native Clan ER medium laser cells
+- **WHEN** the definition reopens with its saved placement
+- **THEN** the resolver SHALL retain the saved IS identity before location or chassis preferences
+- **AND** an unresolved alias SHALL NOT borrow technology from neighbouring mounts
+- **AND** invalid or empty placement cells SHALL remain available for validation without supplying neighbouring hints
+
+#### Scenario: Explicit display markers retain split identity
+
+- **GIVEN** a saved Clan weapon whose critical tokens carry a `(Clan)` marker
+- **WHEN** those tokens are resolved during split-mount restoration
+- **THEN** each token SHALL retain its own Clan definition and critical demand
+- **AND** complete split placements SHALL survive save and reopen with their ID, tech base, category, multiplicity, locations and rear facts preserved
+
 ### Requirement: Mounted browser unit import
 
 The unit library SHALL expose file selection and drop for JSON, MTF and BLK through
@@ -512,6 +568,29 @@ SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
 - **THEN** old library/draft fingerprint literals and absent optional values SHALL retain their exact bytes
 - **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
 - **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
+
+### Requirement: Non-mech Mixed identity survives library load and save
+
+Non-mech loaders SHALL retain Mixed mode separately from the binary editor
+technology and SHALL resolve known chassis through the shared family accessor.
+Identity SHALL be applied after existing component and saved-editor projections.
+Library serializers SHALL write root MIXED and the typed family-owned chassis
+fact. Pure units and legacy drafts SHALL retain their exact existing projections.
+
+#### Scenario: Mixed identity survives a stale editor snapshot
+
+- **GIVEN** a Mixed non-mech definition with a known chassis and an older binary editor snapshot
+- **WHEN** it is opened, saved to the library and reopened
+- **THEN** runtime mode and saved root technology SHALL remain Mixed
+- **AND** the known chassis SHALL survive independently of the editor snapshot
+- **AND** an absent chassis SHALL remain unknown without a manufactured source fact
+
+#### Scenario: Typed infantry identity overrides historical source snapshots
+
+- **GIVEN** typed Mixed infantry identity and a conflicting historical librarySource chassis
+- **WHEN** the unit is saved and reopened
+- **THEN** the saved root SHALL use the typed chassis
+- **AND** an unknown typed chassis SHALL NOT be restored from the stale snapshot
 
 ### Requirement: Native OmniMek mounted equipment pod metadata
 

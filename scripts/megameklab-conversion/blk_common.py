@@ -22,7 +22,7 @@ Public surface (see ``__all__`` below):
 
 * BLK parsing primitives (``remove_comments``, ``extract_tags``,
   ``parse_number``, ``get_string``, ``parse_armor_array``, ``map_armor_code``).
-* enum_mappings re-exports with offline fallback (``default_mm_data_root``,
+* enum_mappings re-exports (``default_mm_data_root``,
   ``map_tech_base``, ``map_rules_level``, ``map_engine_type``,
   ``map_armor_type``, ``map_year_to_era``, ``generate_id_from_name``,
   ``normalize_equipment_id``).
@@ -35,7 +35,6 @@ from __future__ import annotations
 import json
 import logging
 import math
-import os
 import re
 import sys
 from pathlib import Path
@@ -46,83 +45,19 @@ from enum_mapping_tables import BLK_ENGINE_CODE_MAP
 
 
 # ---------------------------------------------------------------------------
-# enum_mappings re-export (with offline fallback)
+# Required enum_mappings re-exports
 # ---------------------------------------------------------------------------
-# Each converter previously carried its own ``try/except ImportError`` block
-# defining stub fallbacks. Centralise that here so the converters can simply
-# ``from blk_common import map_tech_base`` etc. The real implementations live
-# in ``enum_mappings.py`` (co-located); the fallbacks below only fire when the
-# module is invoked from a context where ``enum_mappings`` is unavailable
-# (e.g. ad-hoc import in a sibling script).
-
-try:
-    from enum_mappings import (  # noqa: F401  (re-exported)
-        default_mm_data_root,
-        generate_id_from_name,
-        map_armor_type,
-        map_engine_type,
-        map_rules_level,
-        map_tech_base,
-        map_year_to_era,
-        normalize_equipment_id,
-    )
-except ImportError:  # pragma: no cover — defensive fallback only
-
-    def default_mm_data_root() -> str:
-        env = os.environ.get("MM_DATA_ROOT")
-        if env:
-            return env
-        if os.name == "nt":
-            return r"E:\Projects\mm-data\data"
-        return "/e/Projects/mm-data/data"
-
-    def map_tech_base(v: str) -> str:
-        m = {"Clan": "CLAN", "Mixed": "MIXED", "Both": "BOTH"}
-        return m.get(v.strip(), "INNER_SPHERE")
-
-    def map_rules_level(v: str) -> str:  # noqa: ARG001 — signature parity
-        return "STANDARD"
-
-    def map_engine_type(v: str) -> str:
-        codes = {
-            "0": "FUSION",
-            "1": "XL",
-            "2": "LIGHT",
-            "3": "COMPACT",
-            "4": "CLAN_XL",
-            "5": "XXL",
-            "6": "ICE",
-            "7": "FUEL_CELL",
-            "8": "FISSION",
-        }
-        return codes.get(v.strip(), "FUSION")
-
-    def map_armor_type(v: str) -> str:  # noqa: ARG001 — signature parity
-        return "STANDARD"
-
-    def map_year_to_era(year: int) -> str:
-        if year < 2781:
-            return "STAR_LEAGUE"
-        elif year < 3050:
-            return "SUCCESSION_WARS"
-        elif year < 3068:
-            return "CLAN_INVASION"
-        return "DARK_AGE"
-
-    def generate_id_from_name(chassis: str, model: str) -> str:
-        combined = f"{chassis}-{model}".lower()
-        id_str = re.sub(r"[^a-z0-9\-]", "-", combined)
-        while "--" in id_str:
-            id_str = id_str.replace("--", "-")
-        return id_str.strip("-")
-
-    def normalize_equipment_id(name: str) -> str:
-        id_str = name.lower()
-        id_str = id_str.replace(" ", "-").replace("/", "-")
-        id_str = re.sub(r"[^a-z0-9\-]", "", id_str)
-        while "--" in id_str:
-            id_str = id_str.replace("--", "-")
-        return id_str.strip("-")
+# A missing converter dependency must fail import, never install invented rules.
+from enum_mappings import (  # noqa: F401 (re-exported)
+    default_mm_data_root,
+    generate_id_from_name,
+    map_armor_type,
+    map_engine_type,
+    map_rules_level,
+    map_tech_base,
+    map_year_to_era,
+    normalize_equipment_id,
+)
 
 
 # MegaMek 48fcb2f6 EquipmentType.java:85-136. Codes are shared by unit families;
@@ -260,23 +195,14 @@ def parse_armor_array(raw: Any) -> List[int]:
     return result
 
 
-def map_armor_code(code: Any, armor_map: Dict[int, str], *, strict: bool = False) -> str:
-    """
-    Map a numeric ``armor_type`` code to its enum string using the converter-
-    specific ``armor_map``. Strict callers reject unknown or malformed codes;
-    legacy BA/ProtoMek callers retain their existing missing/unknown policy.
-    """
+def map_armor_code(code: Any, armor_map: Dict[int, str]) -> str:
+    """Decode armor identity; retain the native omission default only."""
     if code is None:
         return "STANDARD"
-    if strict:
-        try:
-            return armor_map[int(str(code).strip())]
-        except (KeyError, ValueError, TypeError):
-            raise ValueError(f"Unsupported BLK armor_type code: {code!r}") from None
     try:
-        return armor_map.get(int(float(str(code))), "STANDARD")
-    except (ValueError, TypeError):
-        return "STANDARD"
+        return armor_map[int(str(code).strip())]
+    except (KeyError, ValueError, TypeError):
+        raise ValueError(f"Unsupported BLK armor_type code: {code!r}") from None
 
 
 # ---------------------------------------------------------------------------

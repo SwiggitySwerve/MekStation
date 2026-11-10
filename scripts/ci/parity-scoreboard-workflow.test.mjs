@@ -16,9 +16,12 @@ test('scoreboard is main-push/dispatch only, read-only, coalesced, and bounded',
   assert.deepEqual(workflow.on.push.branches, ['main']);
   assert.equal(workflow.on.workflow_dispatch.inputs.ref.required, true);
   assert.deepEqual(workflow.permissions, { contents: 'read', actions: 'read' });
+  // One run holds the slot and only the newest pending survives, as in PR
+  // Checks: cancelling in progress would let every main push cancel the
+  // running census, so a busy main would never get a complete scoreboard.
   assert.deepEqual(workflow.concurrency, {
     group: 'parity-scoreboard-${{ inputs.ref || github.ref }}',
-    'cancel-in-progress': true,
+    'cancel-in-progress': false,
   });
   assert.equal(workflow.jobs.scoreboard['timeout-minutes'], 30);
   const steps = workflow.jobs.scoreboard.steps;

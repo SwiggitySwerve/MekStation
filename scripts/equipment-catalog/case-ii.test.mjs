@@ -144,3 +144,22 @@ for (const tech of [TechBase.INNER_SPHERE, TechBase.CLAN]) {
 test('direct lookup of the canonical Clan identity retains the half-ton mass', () => {
   assert.equal(getEquipmentLookupService().getById('clan-caseii')?.weight, 0.5);
 });
+
+// The IS display suffix names ISCASEII, not the chassis preference.
+// MiscType.java:4809-4837, MegaMek 48fcb2f64.
+for (const name of ['CASE II [IS]']) {
+  for (const [tech, mode] of [
+    [TechBase.INNER_SPHERE, TechBaseMode.INNER_SPHERE],
+    [TechBase.CLAN, TechBaseMode.CLAN],
+    [TechBase.INNER_SPHERE, TechBaseMode.MIXED],
+    [TechBase.CLAN, TechBaseMode.MIXED],
+  ]) {
+    test(`explicit IS CASE II display suffix retains IS identity on ${tech}/${mode}: ${name}`, () => {
+      const result = resolveEquipmentId(name, tech, mode, undefined);
+      assert.equal(result.resolvedId, 'caseii');
+      assert.equal(result.equipmentDef?.techBase, TechBase.INNER_SPHERE);
+      assert.equal(result.equipmentDef?.weight, 1);
+      assert.equal(result.equipmentDef?.criticalSlots, 1);
+    });
+  }
+}

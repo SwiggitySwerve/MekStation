@@ -473,47 +473,6 @@ export function createFailureResult<T extends IBaseUnit>(
 }
 
 /**
- * Parse a numeric field from BLK tags with default
- */
-export function parseNumericField(
-  tags: Record<string, string[]>,
-  field: string,
-  defaultValue: number = 0,
-): number {
-  const value = tags[field]?.[0];
-  if (!value) return defaultValue;
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? defaultValue : parsed;
-}
-
-/**
- * Parse an integer field from BLK tags with default
- */
-export function parseIntField(
-  tags: Record<string, string[]>,
-  field: string,
-  defaultValue: number = 0,
-): number {
-  const value = tags[field]?.[0];
-  if (!value) return defaultValue;
-  const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? defaultValue : parsed;
-}
-
-/**
- * Parse a boolean field from BLK tags
- */
-export function parseBooleanField(
-  tags: Record<string, string[]>,
-  field: string,
-  defaultValue: boolean = false,
-): boolean {
-  const value = tags[field]?.[0];
-  if (!value) return defaultValue;
-  return value.toLowerCase() === 'true' || value === '1';
-}
-
-/**
  * Parse an array field from BLK tags
  */
 export function parseArrayField(

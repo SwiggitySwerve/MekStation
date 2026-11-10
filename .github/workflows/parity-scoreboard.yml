@@ -11,9 +11,11 @@ on:
         required: true
         type: string
 
+# One run holds the slot; a newer push replaces only a still-pending run, so
+# a busy main always gets a complete scoreboard (the PR Checks main scheme).
 concurrency:
   group: parity-scoreboard-${{ inputs.ref || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read

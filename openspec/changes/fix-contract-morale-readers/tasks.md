@@ -12,4 +12,4 @@
 
 - [ ] The ROUTED lifecycle (early end, payout, rout end date, re-spike), held with the payout packets.
 - [ ] The pin's reinforcement-scenario odds modifiers (`StratConRulesManager.java:4499-4506`): no reinforcement model to apply them to.
-- [ ] The "Contract Morale Tracking" requirement in combat-resolution still describes the removed player-perspective `updateMorale`; M2 replaces it with the monthly check.
+- [x] The "Contract Morale Tracking" requirement in combat-resolution still describes the removed player-perspective `updateMorale`; M2 replaces it with the monthly check. Resolved by #3298's REMOVED delta, merge `2adcc8973213a7a667b969537c137dbca8d57584`.

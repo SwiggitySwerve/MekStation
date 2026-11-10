@@ -14,6 +14,7 @@ import {
   type IPhysicalAttackDeclaredPayload,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { defaultD6Roller } from '@/utils/gameplay/diceTypes';
 import { declareMovement } from '@/utils/gameplay/gameSession';
 
 import type { IAdaptedUnit } from '../types';
@@ -156,7 +157,10 @@ function advanceToAdjacentPlayerPhysicalActivation(
     );
   }
 
-  const replayedSession = InteractiveSession.fromSession(replayableSession);
+  const replayedSession = InteractiveSession.fromSession(
+    replayableSession,
+    defaultD6Roller,
+  );
   replayedSession.advancePhase();
   replayedSession.advancePhase();
   if (replayedSession.getState().firstMover === GameSide.Opponent) {

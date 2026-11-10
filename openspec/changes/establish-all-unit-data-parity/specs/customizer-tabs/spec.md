@@ -1,5 +1,43 @@
 ## ADDED Requirements
 
+### Requirement: Visible critical-slot loss notice before library save
+
+SHALL display one notice in the existing editor diagnostics area when the
+loader reports unrecovered critical-slot entries. The notice SHALL name every
+entry, location and zero-based slot, explain why those entries are listed and
+state that saving will remove them. It SHALL NOT promise a fix or timeline.
+The save dialog SHALL display the same loader-owned list before create,
+overwrite, Save As New and save-on-close complete, and SHALL require an
+explicit `Save anyway` confirmation when the list is nonempty.
+
+#### Scenario: Open and save an affected design
+
+- **GIVEN** a loaded BattleMech with a nonempty loader residual
+- **WHEN** the user opens its editor or starts any library save path
+- **THEN** the notice SHALL list exactly the loader-reported entries and state that they will not be kept if saved
+- **AND** the library write SHALL wait for explicit loss confirmation
+
+#### Scenario: Cancel loss confirmation while closing a unit
+
+- **GIVEN** an affected open unit in the save-on-close flow
+- **WHEN** the user cancels the loss confirmation
+- **THEN** no library write or tab close SHALL occur
+- **AND** the open unit and its fingerprint SHALL remain unchanged
+
+#### Scenario: Open and save a control without loss
+
+- **GIVEN** a unit with an empty loader residual
+- **WHEN** it opens or saves
+- **THEN** no critical-slot loss notice or additional loss confirmation SHALL appear
+
+#### Scenario: Save a legacy draft whose loss history is unknown
+
+- **GIVEN** a pre-tracking draft without a residual list
+- **WHEN** an available source is checked during hydration
+- **THEN** saving SHALL wait for the loader result
+- **AND** if no source can establish the list, the notice SHALL say that the draft predates loss tracking and may be missing critical-slot entries
+- **AND** that unknown state SHALL require `Save anyway` and SHALL NOT be presented as an empty residual
+
 ### Requirement: Data-ready subtype editors
 
 After the data-readiness contract is satisfied, each source subtype SHALL open the correct forms, loading skeleton, location diagram and equipment placement surface within the existing customizer. Fields and available choices SHALL correspond to its MegaMekLab construction family. Components SHALL consume domain results rather than compute construction or BV rules.

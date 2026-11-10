@@ -20,6 +20,8 @@ import {
   advanceInteractiveSessionPhase,
   type IInteractiveSessionPhaseContext,
 } from '@/engine/InteractiveSession.phases';
+import { diceRollerForResolvers } from '@/engine/InteractiveSession.resolvers';
+import { SeededD6Roller } from '@/simulation/core';
 import {
   GameEventType,
   GamePhase,
@@ -106,9 +108,17 @@ function setupAtWeaponPhase(): IGameSession {
 }
 
 /**
- * Run one live interactive phase advance. Rollers are left to the engine
- * defaults and `isGameOver` is false: this suite is about the PSR queue and
- * drain, not victory.
+ * The End-phase PSR drain needs a roller: a session with none throws
+ * (`SessionHasNoDiceRollerError`, C-1c PR 0). One seeded stream for the
+ * suite; the assertions do not depend on whether a roll passes.
+ */
+const PSR_DICE = diceRollerForResolvers(new SeededD6Roller(7).asD6Roller());
+
+/**
+ * Run one live interactive phase advance. The d6 roller is left to the
+ * resolver defaults, the 2d6 roller is the seeded one above, and
+ * `isGameOver` is false: this suite is about the PSR queue and drain, not
+ * victory.
  */
 function advanceLivePhase(session: IGameSession): IGameSession {
   let current = session;
@@ -118,7 +128,7 @@ function advanceLivePhase(session: IGameSession): IGameSession {
       current = next;
     },
     d6RollerForResolvers: () => undefined,
-    diceRollerForResolvers: () => undefined,
+    diceRollerForResolvers: () => PSR_DICE,
     physicalContextByUnit: () => new Map(),
     waterDepthAt: () => 0,
     environmentHeatEffectAt: () => 0,

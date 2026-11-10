@@ -91,6 +91,7 @@ import {
   setTargetLogic,
   toggleWeaponLogic,
 } from './useGameplayStore.interactions';
+import { withMirrorDiceNotice } from './useGameplayStore.mirrorDice';
 import {
   addPostureActionReducer,
   appendWaypointReducer,
@@ -509,7 +510,16 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
       return;
     }
     const { session, ui, interactiveSession } = get();
-    handleActionLogic(actionId, session, ui, set, interactiveSession, payload);
+    withMirrorDiceNotice(() =>
+      handleActionLogic(
+        actionId,
+        session,
+        ui,
+        set,
+        interactiveSession,
+        payload,
+      ),
+    );
   },
   runAITurn: (unitId) => {
     const { interactiveSession } = get();
@@ -517,7 +527,9 @@ export const useGameplayStore = create<GameplayStore>((set, get) => ({
   },
   advanceInteractivePhase: () => {
     const { interactiveSession } = get();
-    advanceInteractivePhaseLogic(interactiveSession, get, set);
+    withMirrorDiceNotice(() =>
+      advanceInteractivePhaseLogic(interactiveSession, get, set),
+    );
   },
   handleInteractiveTokenClick: (unitId) => {
     const { interactivePhase, interactiveSession, attackPlan, session } = get();
