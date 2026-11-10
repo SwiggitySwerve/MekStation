@@ -22,12 +22,16 @@ const Index = z.object({
 });
 
 function git(repo: string, args: string[], input?: Buffer): Buffer {
-  return execFileSync('git', ['--no-replace-objects', '-C', repo, ...args], {
-    input,
-    maxBuffer: 64 * 1024 * 1024,
-    timeout: 60000,
-    windowsHide: true,
-  });
+  return execFileSync(
+    'git',
+    ['--no-replace-objects', '-c', 'core.quotepath=false', '-C', repo, ...args],
+    {
+      input,
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: 60000,
+      windowsHide: true,
+    },
+  );
 }
 
 export function resolveCommit(repo: string, commit: string): string {

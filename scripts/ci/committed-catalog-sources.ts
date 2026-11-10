@@ -1,5 +1,4 @@
 /** Emit shipped catalog objects for the guarded census; see committed-catalog-sources.md. */
-import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
@@ -10,16 +9,19 @@ import {
   getBlkString,
 } from '../../src/services/conversion/BlkParserService.helpers';
 import { parseHeader } from '../../src/services/conversion/MTFParserHelpers';
+import catalogNames from '../megameklab-conversion/catalog-families.json';
 import folders from '../megameklab-conversion/strict-families.json';
 import { familyOf, sourceKey } from '../unit-bv-parity';
 import { writeSourceManifest } from '../unit-bv-provenance';
 import { sourceHash } from '../vehicle-aero-bv-delta';
 import { readCatalog, type ICatalogEntry } from './committed-catalog-inputs';
+import { buildObjectParity } from './committed-catalog-parity';
+import { parseRows, sha256 } from './parity-scoreboard-io.cjs';
 
 const identityOnly = new Set(['battlearmor', 'infantry', 'protomechs']);
-const families = Object.keys(folders).map((f) =>
-  f === 'protomeks' ? 'protomechs' : f,
-);
+const catalogFamily = (family: string) =>
+  (catalogNames as Record<string, string>)[family] ?? family;
+const families = Object.keys(folders).map(catalogFamily);
 const Reference = z.object(sourceKey);
 interface IReference {
   path: string;
@@ -50,11 +52,9 @@ interface IJoinResult {
 }
 export const MECH_UNKNOWN_MODEL_ALIAS =
   'mech-catalog-Unknown-to-empty-source-model';
-const sha256 = (bytes: Buffer) =>
-  createHash('sha256').update(bytes).digest('hex');
 const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
-/** Named compatibility rule: the 133 catalog mech models Unknown represent empty source models. */
+/** Root's S0b compatibility rule: catalog mech Unknown represents an empty source model. */
 export function catalogModel(family: string, model: string): string {
   return family === 'battlemechs' && model === 'Unknown' ? '' : model;
 }
@@ -77,7 +77,7 @@ export function sourceIdentity(
     concreteFamily: getBlkString(tags.UnitType) ?? '',
   });
   return {
-    family: family === 'protomeks' ? 'protomechs' : family,
+    family: catalogFamily(family),
     chassis: getBlkString(tags.Name) ?? getBlkString(tags.name) ?? '',
     model: getBlkString(tags.Model) ?? getBlkString(tags.model) ?? '',
   };
@@ -209,6 +209,7 @@ export function emitCommittedCatalog(options: {
   out: string;
   python: string;
   allowIdentityOnly: boolean;
+  regenerated?: string;
 }): boolean {
   const out = path.resolve(options.out);
   const protectedData = fs.realpathSync(path.join(options.repo, 'public/data'));
@@ -236,11 +237,9 @@ export function emitCommittedCatalog(options: {
       options.python,
     );
     const referenceBytes = fs.readFileSync(options.reference);
-    const references = referenceBytes
-      .toString('utf8')
-      .split(/\r?\n/)
-      .filter(Boolean)
-      .map((line) => Reference.parse(JSON.parse(line) as unknown));
+    const references = parseRows(referenceBytes).map((row) =>
+      Reference.parse(row),
+    );
     if (!references.length) throw new Error('Reference contains no rows');
     const result = joinCatalog(
       catalog.entries,
@@ -250,10 +249,23 @@ export function emitCommittedCatalog(options: {
     );
     report.errors = [...catalog.errors, ...result.errors];
     report.unjoinables = catalog.unjoinables;
+    const regenerationBytes = options.regenerated
+      ? fs.readFileSync(options.regenerated)
+      : undefined;
+    const objectParity = buildObjectParity(
+      catalog.entries,
+      result.joins,
+      regenerationBytes ? parseRows(regenerationBytes) : undefined,
+    );
+    report.errors.push(...objectParity.errors);
     Object.assign(report, {
       producer: 'committed-catalog',
       catalogCommit: catalog.commit,
       indexes: catalog.indexes,
+      objectParity,
+      ...(regenerationBytes
+        ? { regeneratedSha256: sha256(regenerationBytes) }
+        : {}),
       referenceSha256: sha256(referenceBytes),
       sourceOnlyFamiliesIdentityOnly: options.allowIdentityOnly,
       indexed: catalog.entries.length,
@@ -315,6 +327,7 @@ if (require.main === module) {
       mekfiles: { type: 'string' },
       reference: { type: 'string' },
       out: { type: 'string' },
+      regenerated: { type: 'string' },
       python: { type: 'string', default: 'python' },
       'source-only-families-identity-only': { type: 'boolean', default: false },
     },
@@ -329,6 +342,7 @@ if (require.main === module) {
     out: values.out,
     python: values.python,
     allowIdentityOnly: values['source-only-families-identity-only'],
+    regenerated: values.regenerated,
   });
   process.stdout.write(
     `Committed catalog: ${ok ? 'emitted' : 'failed'}; report: ${path.join(values.out, 'committed-catalog-report.json')}\n`,

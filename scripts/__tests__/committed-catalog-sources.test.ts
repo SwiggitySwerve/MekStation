@@ -57,6 +57,66 @@ it('names and confines the mech Unknown-to-empty model alias', () => {
   expect(result.aliases).toBe(1);
 });
 
+it('uses unquoted Git listings and retains non-ASCII filenames and committed ids', () => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'committed-unicode-'));
+  const git = (...args: string[]) =>
+    execFileSync('git', ['-C', repo, ...args], {
+      encoding: 'utf8',
+      windowsHide: true,
+    });
+  try {
+    git('init');
+    git('config', 'core.quotepath', 'true');
+    const dir = path.join(repo, 'public/data/units/battlemechs');
+    fs.mkdirSync(dir, { recursive: true });
+    const filename = "Alfar AL-D1 'Dökkálfar'.json";
+    const unit = {
+      chassis: "Alfar 'Dökkálfar'",
+      model: 'AL-D1',
+      id: 'committed-id-collision-suffix',
+    };
+    fs.writeFileSync(
+      path.join(dir, 'index.json'),
+      JSON.stringify({ totalUnits: 1, units: [{ path: filename }] }),
+    );
+    fs.writeFileSync(path.join(dir, filename), JSON.stringify(unit));
+    git('add', '.');
+    git(
+      '-c',
+      'user.name=Test',
+      '-c',
+      'user.email=test@example.invalid',
+      'commit',
+      '-m',
+      'fixture',
+    );
+    const native =
+      jest.requireActual<typeof import('node:child_process')>(
+        'node:child_process',
+      );
+    const spy = jest.spyOn(native, 'execFileSync');
+    try {
+      const result = readCatalog(repo, 'HEAD', ['battlemechs'], 'python');
+      expect(result.errors).toEqual([]);
+      expect(result.entries[0].file).toBe(
+        'public/data/units/battlemechs/' + filename,
+      );
+      expect(result.entries[0].unit).toEqual(unit);
+      const listings = spy.mock.calls.filter(
+        (call) => Array.isArray(call[1]) && call[1].includes('ls-tree'),
+      );
+      expect(listings).toHaveLength(1);
+      expect(listings[0][1]).toEqual(
+        expect.arrayContaining(['-c', 'core.quotepath=false']),
+      );
+    } finally {
+      spy.mockRestore();
+    }
+  } finally {
+    fs.rmSync(repo, { recursive: true, force: true });
+  }
+});
+
 it('emits identical payloads/manifests, accounts for six fixtures, and publishes no payload on reference failure', () => {
   const root = fs.mkdtempSync(
     path.join(os.tmpdir(), 'committed-catalog-full-'),
@@ -121,8 +181,6 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
       'user.name=Test',
       '-c',
       'user.email=test@example.invalid',
-      '-c',
-      'core.hooksPath=/dev/null',
       'commit',
       '-m',
       'fixture',
@@ -190,6 +248,44 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
     );
     expect(report.unjoinables).toHaveLength(6);
     expect(report.errors).toEqual([]);
+    expect(report.objectParity.status).toBe('not-measured');
+    const regenerated = path.join(root, 'catalog-objects.ndjson');
+    fs.writeFileSync(
+      regenerated,
+      [
+        {
+          ...reference[0],
+          unit: { ...catalog[0].unit, extra: { keep: false } },
+        },
+        {
+          path: 'battlearmor/armor.blk',
+          sha256: sourceHash(Buffer.from(armorText)),
+          unit: { chassis: 'Armor', model: '' },
+        },
+      ]
+        .map((row) => JSON.stringify(row))
+        .join('\n') + '\n',
+    );
+    expect(
+      emitCommittedCatalog({
+        ...options,
+        regenerated,
+        out: path.join(root, 'object-drift'),
+      }),
+    ).toBe(true);
+    const drift = JSON.parse(
+      fs.readFileSync(
+        path.join(root, 'object-drift/committed-catalog-report.json'),
+        'utf8',
+      ),
+    );
+    expect(drift.errors).toEqual([]);
+    expect(drift.objectParity.byFamily.aerospace.drifted).toBe(1);
+    expect(drift.objectParity.byFamily.battlearmor.equal).toBe(1);
+    expect(drift.objectParity.ledger[0].fields[0].path).toBe('extra.keep');
+    expect(
+      fs.readFileSync(path.join(root, 'object-drift/sources.ndjson')),
+    ).toEqual(fs.readFileSync(path.join(root, 'first/sources.ndjson')));
     fs.writeFileSync(
       ref,
       JSON.stringify({ ...reference[0], sha256: 'b'.repeat(64) }) + '\n',
@@ -366,8 +462,6 @@ it('reads only indexed committed blobs, reports fixtures, and ignores dirty/untr
       'user.name=Test',
       '-c',
       'user.email=test@example.invalid',
-      '-c',
-      'core.hooksPath=/dev/null',
       'commit',
       '-m',
       'fixture',
