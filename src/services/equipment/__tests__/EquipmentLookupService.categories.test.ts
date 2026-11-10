@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { EquipmentCategory } from '@/types/equipment';
+import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
 
 import {
   convertMiscEquipment,
@@ -94,7 +95,11 @@ it('keeps real heat sinks and jump jets in configuration, outside lookup and bro
         'utf8',
       ),
     );
-    for (const item of data.items) {
+    for (const item of data.items.filter(
+      (entry) =>
+        entry.category === MiscEquipmentCategory.HEAT_SINK ||
+        entry.category === MiscEquipmentCategory.JUMP_JET,
+    )) {
       expect(service.getById(item.id)).toBeUndefined();
       expect(
         service.getAllEquipment().some((entry) => entry.id === item.id),
