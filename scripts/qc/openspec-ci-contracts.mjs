@@ -56,6 +56,13 @@ export const requiredWorkflowTokens = [
     tokens: ['name: Type Check', 'run: npm run typecheck'],
   },
   {
+    id: 'jest-dom-skip-list-is-safe',
+    tokens: [
+      'name: Check jest-dom skip list safety',
+      'run: node scripts/jest/jest-dom-usage.js --check',
+    ],
+  },
+  {
     id: 'schema-bridge-is-strict',
     tokens: [
       'name: Verify generated Zod matches JSON Schema',
