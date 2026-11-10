@@ -447,14 +447,13 @@ passing execution. An unverified effect or outcome stays "not verified".
       done locally on `3a19441a9`.
     - #3247 (`22099064f`): I3: closes 1,225 infantry ammunition omissions.
       POST-MERGE: done locally on `22099064f`.
-  - OPEN, C1: E3 is unmerged at the pause; head `62f333aaf` versus control
-    `fd8e58996` removes exactly 25 local-only offensive ammo.cap keys in 25
+  - OPEN, C1: E3 merged `8a489ef84`; parent tick waits for E3 POST-MERGE + C1's
+    E1 re-run (0 local-only / 0 Java-only) and C1's wording. POST-MERGE is
+    queued in this receipt. The historical trial head `62f333aaf` versus control
+    `fd8e58996` removed exactly 25 local-only offensive ammo.cap keys in 25
     rows, with 9,815 exact BV and nothing else moving. Evidence:
-    `parity-E3/INVESTIGATION.md`, `parity-5.2-c/PLAN.md`. The parent ticks only
-    AFTER E3 merges AND C1 re-runs E1 on the merged head with 0 local-only AND 0
-    Java-only keys, all 2.22b counts unchanged and 9,815 exact. C1 must provide
-    that SHA and receipt; neither is available here. B2-B4 belong to row 3.4,
-    not this parent closure.
+    `parity-E3/INVESTIGATION.md`, `parity-5.2-c/PLAN.md`. Keep row 2.22 unticked
+    and 2.22b intact. B2-B4 belong to row 3.4, not this parent closure.
   - Historical receipts below retain their measured scope and SHA. Any earlier
     open count, pending approval or next step is superseded by the pause
     accounting above; these receipts are not a new measurement of the pause
@@ -497,14 +496,11 @@ passing execution. An unverified effect or outcome stays "not verified".
     `parity-E1/closing/`. Scope: Java-emitted keys only; local-only emission
     is the parent's closure item below.
   - Open under row 2.22:
-    - Remove the 25 local-only offensive `ammo.cap` keys in the cap owner,
-      test-first (E3): 24 caps for launcher groups with no ammo bins (mech VGL
-      ×3; vehicle VGL ×6, SRM:2 ×10, SRM:4 ×2, GAUSS:0, PLASMA:1,
-      SRM_TORPEDO:2) and 1 duplicate identity (Orion ON1-H Primitive AC capped
-      under both AC:10 and AC_PRIMITIVE:10). BV is unaffected.
-    - Re-run E1 after E3 merges: local-only keys 0 AND Java-only keys 0,
-      all 2.22b counts unchanged, 9,815 exact; C1 supplies the merged SHA
-      and receipt before the parent ticks.
+    - E3 merged `8a489ef84`; its removal of the 25 local-only offensive ammo.cap
+      keys awaits POST-MERGE completion.
+    - Parent tick waits for E3 POST-MERGE + C1's E1 re-run (0 local-only / 0
+      Java-only), all 2.22b counts unchanged, 9,815 exact and C1's wording, SHA
+      and receipt.
 - [x] 2.23 Resolve ammunition within the existing BV catalog owner using its source collection, preserve generic/MTF lookup and reject weapon-only ammo identities through real consumers. Verify collisions, explicit custom context/reset, all captured lookup effects and all-family regression outputs. Native aliases, quantities, grouping, mount topology and full BV remain open. (`equipment-services`: Ammunition context in BV catalog resolution) Proof: #2414; tests: `src/utils/construction/__tests__/equipmentBVResolver.ammunition.test.ts`; evidence: `2026-10-29/astra-coordinator/root-continuation/ammo-catalog-context/comparison.json` (226,164 captured strings), `ledger/slice-tests/jest.log`.
 
 - [x] 2.24 Consolidate the total-to-projectile missile damage conversion and missile rack identification without behavior change, then correct expected-damage/variance previews and their selector/forecast consumers against pinned MegaMek damage-per-missile semantics. Unchanged runner and selected-AMS outputs are proven for every hydrated cluster/Streak launcher; hydrated LRM/SRM/ATM/MML/Streak previews, and native ProtoMek LRM previews, now equal the runner's resolution. UAC/RAC rate-of-fire and LB-X cluster/slug previews, MRM and other situational cluster modifiers in previews, ATM's built-in +2 cluster modifier (`ATMHandler.java:236-250`, in neither the runner nor the previews), MegaMek's own MRM 30/40 cluster rows (racks above 20 snap to the 20 column), the MML LRM/SRM mode, crit-probability location grouping, the independent damage-times-hit-probability estimators (per-weapon to-hit projection, volley ledger, AI coordinator), which assume every missile lands and, on the demo route, still read the unconverted per-missile display strings; ATM extended-range and high-explosive munition damage per missile (hydrated as standard 2); damage-per-hit callers, source BV and complete ProtoMech combat remain open. (`combat-resolution`: Native cluster hits for represented integer racks; `to-hit-resolution`: Missile damage previews use per-projectile damage) Proof: #2415 (+#2418); tests: `src/utils/gameplay/__tests__/clusterWeapons.projectileDamage.test.ts`, `clusterWeapons.missileRack.test.ts`, `src/utils/gameplay/damage/__tests__/expectedDamage.hydrated.test.ts`, `src/utils/gameplay/toHit/__tests__/preview.test.ts`; evidence: `2026-10-30/claude-coordinator/cluster-step1/`, `2026-10-30/claude-coordinator/cluster-step2/`, `ledger/slice-tests/jest.log`.
@@ -1502,14 +1498,21 @@ passing execution. An unverified effect or outcome stays "not verified".
     success, 2026-11-10 07:26:36-07:31:44Z. Baseline: run 42773925769 on
     `ed43d9bf2`, success. Both completed runs were verified; this labels the
     measured SHA and does not claim the final pause head.
-    - SOURCE PATH first-line summary: "BV exact=9815/9815; missing terms=40580;
-      validity matched=9815/9815 different=0 missing-local=0 failed-local=0;
-      weight different=2726; delta, validity, weight and quantity rows changed=0
+    - Hosted scoreboard, SOURCE PATH (run 42775321502 on `1b8ca4688`),
+      first-line summary: "BV exact=9815/9815; missing terms=40580; validity
+      matched=9815/9815 different=0 missing-local=0 failed-local=0; weight
+      different=2726; delta, validity, weight and quantity rows changed=0
       unchanged=9815".
-    - Runtime-path figures remain separate: vehicles 0/1,444 valid against
-      Java's 1,420 valid; mech validity agreement 4,261/4,263; BA and infantry
-      BV 3,008/3,008 = source = Java. Evidence: `parity-0c/compare/RESULT.md`;
-      see row 3.4 for causes, owners and closure conditions.
+    - RUNTIME PATH (Phase 0c, local, not in CI): BA + infantry BV 3,008/3,008 =
+      source = Java; vehicles BV 1,444/1,444 = Java, runtime validity 0/1,444 vs
+      Java 1,420 valid (crew default 1,420; dual-turret 4); mechs runtime BV
+      4,231/4,263 = Java, runtime validity 4,261/4,263 (misses are
+      committed-catalog content). Evidence: `parity-0c/compare/RESULT.md`
+      (BA/infantry capture `943f5354d`; vehicle/mech capture `c5447c3c0`),
+      `parity-5.2-c/PLAN.md`. See row 3.4 for causes, owners and closure
+      conditions.
+    - The scoreboard's `validity matched=9815/9815` is source-path only; it does
+      not measure the runtime/editor paths above.
     - Scoreboard evidence:
       `_scratch/c5-tmp/scoreboard-42775321502/reports/scoreboard-summary.md`,
       `parity-5.2-c/PLAN.md`, and completed hosted runs 42775321502/42773925769.
@@ -1517,6 +1520,13 @@ passing execution. An unverified effect or outcome stays "not verified".
       added=0, removed=0, changed=0 and unchanged=9815.
     - The pause record cites the scoreboard on the final main SHA; C5 supplies
       it.
+  - Adding a runtime-path section to the scoreboard is the parked CI-harness
+    work (C3/C1 with C5); first job at resume. Evidence: `parity-5.2-c/PLAN.md`,
+    `parity-0c/STATE-AT-PAUSE.md`. Reuse the shared compare module;
+    dispatch-only, own concurrency group.
+  - Expected next scoreboard value after B3 merges: missing terms 22,273. This
+    is an expectation, not a completed-run result. Evidence:
+    `parity-5.2-c/PLAN.md` (B3 census pair 40,580 to 22,273).
   - Historical cancellation: main run 42772406455 on `d6fdfb29c` was cancelled
     by #3317; it is not a passing main receipt. The completed main runs above
     supersede the earlier "not yet run at pause" state.
