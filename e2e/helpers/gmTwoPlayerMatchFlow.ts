@@ -111,9 +111,10 @@ export async function markReady(page: Page, slotId: string): Promise<void> {
  * Turn ownership (design D4) withholds the advance control from the
  * non-active side, so a spec that always clicked the host would hang
  * half the time. This polls for the enabled control instead of assuming
- * who holds it.
+ * who holds it. Returns the page that sent the command so callers can
+ * assert sender-only refusals on that connection.
  */
-export async function advancePhase(...pages: readonly Page[]): Promise<void> {
+export async function advancePhase(...pages: readonly Page[]): Promise<Page> {
   let activeIndex = -1;
   await expect
     .poll(
@@ -142,6 +143,7 @@ export async function advancePhase(...pages: readonly Page[]): Promise<void> {
   const activePage = pages[activeIndex];
   if (!activePage) throw new Error('No player can advance the phase');
   await activePage.getByTestId('advance-phase-button').click();
+  return activePage;
 }
 
 /** Advance once and confirm BOTH surfaces reached Movement. */
@@ -245,6 +247,17 @@ export function tapErrorFrames(page: Page): {
   readonly sent: readonly string[];
   /** Every server->client frame, verbatim, for exactly-once counting. */
   readonly received: readonly string[];
+  /** Terminal match Close observed, after any preceding Error on this socket. */
+  readonly matchClosed: boolean;
+  /** Check a fatal refusal after both sockets received their terminal Close. */
+  readonly expectPrivateErrorBeforeClose: (
+    code: string,
+    other: {
+      readonly frames: readonly unknown[];
+      readonly matchClosed: boolean;
+    },
+    timeout?: number,
+  ) => Promise<void>;
   readonly install: () => Promise<void>;
   /**
    * Send one raw client->server frame on the page's own socket.
@@ -260,11 +273,26 @@ export function tapErrorFrames(page: Page): {
   const frames: { code?: string; reason?: string; intentId?: string }[] = [];
   const sent: string[] = [];
   const received: string[] = [];
+  let matchClosed = false;
   let serverHandle: { send: (message: string) => void } | null = null;
   return {
     frames,
     sent,
     received,
+    get matchClosed() {
+      return matchClosed;
+    },
+    expectPrivateErrorBeforeClose: async (code, other, timeout = 25_000) => {
+      // Close follows refusal delivery on each socket. Waiting for both
+      // bounds the peer's empty Error list without a guessed settle delay.
+      await expect
+        .poll(() => matchClosed && other.matchClosed, { timeout })
+        .toBe(true);
+      expect(frames).toEqual([
+        expect.objectContaining({ code, intentId: expect.any(String) }),
+      ]);
+      expect(other.frames).toEqual([]);
+    },
     inject: (frame: unknown) => {
       if (!serverHandle) {
         throw new Error('inject called before the socket route was taken');
@@ -300,6 +328,7 @@ export function tapErrorFrames(page: Page): {
                   intentId: frame.intentId,
                 });
               }
+              if (frame.kind === 'Close') matchClosed = true;
             } catch {
               // Non-JSON frames pass through unrecorded.
             }

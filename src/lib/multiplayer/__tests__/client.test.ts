@@ -215,6 +215,56 @@ function seqOf(events: readonly unknown[]): number[] {
 }
 
 describe('multiplayer client', () => {
+  it('keeps a legacy client ready without opponent refusals and settles only its own reply', () => {
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    const socket = f.lastSocket();
+    socket.fireOpen();
+    socket.inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      fromSeq: 0,
+      toSeq: -1,
+      totalEvents: 0,
+    });
+    socket.inject({ kind: 'ReplayEnd', matchId: 'm1', ts: nowIsoForTest() });
+    client.send({ kind: 'AdvancePhase' });
+    const [intentId] = intentIdsOn(socket);
+    const errors: unknown[] = [];
+    client.on('error', (error) => {
+      errors.push(error);
+    });
+    const before = client.lifecycle();
+    // The opponent's refused intent produces no traffic here. Ordinary heartbeat continues.
+    socket.inject({ kind: 'Heartbeat', matchId: 'm1', ts: nowIsoForTest() });
+    expect(client.lifecycle()).toEqual(before);
+    expect(client.isReady()).toBe(true);
+    expect(errors).toEqual([]);
+    socket.inject({
+      kind: 'Error',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      code: 'INVALID_INTENT',
+      reason: 'Intent could not be applied.',
+      intentId,
+    });
+    expect(client.lifecycle().pendingIntentCount).toBe(0);
+    expect(client.isReady()).toBe(true);
+    expect(errors).toEqual([
+      expect.objectContaining({
+        code: 'INVALID_INTENT',
+        reason: 'Intent could not be applied.',
+      }),
+    ]);
+    client.close();
+  });
+
   it('U4 settles only the answered lobby intent before notifying listeners', () => {
     const f = makeMockSocketFactory();
     const client = connect(
