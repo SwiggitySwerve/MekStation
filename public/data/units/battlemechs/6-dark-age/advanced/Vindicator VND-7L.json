@@ -183,5 +183,8 @@
   },
   "mulId": 9266,
   "role": "Brawler",
-  "source": "RG25"
+  "source": "RG25",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

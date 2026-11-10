@@ -176,5 +176,8 @@
     "LT:4:ISLightGaussRifle": ["mod_weapons"],
     "RT:3:CLERLargeLaser": ["mod_weapons"],
     "RT:4:ISLightGaussRifle": ["mod_weapons"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

@@ -467,6 +467,28 @@ The unit import API SHALL accept explicit MTF source text, use the existing MTF 
 - **AND** malformed source SHALL fail with diagnostics without persistence; existing MTF/JSON behavior SHALL remain available
 - **AND** other BLK families, browser BLK selection and native numerical parity SHALL remain separate obligations
 
+### Requirement: Placed legacy equipment identity
+
+The existing BattleMech legacy equipment resolver SHALL preserve a known saved
+equipment ID when explicit placement context is supplied. Resolving an alias
+SHALL use only that mount's valid critical cells. Unplaced source summaries
+SHALL retain their existing location-hint behavior.
+
+#### Scenario: Opposite-tech mounts share a location
+
+- **GIVEN** a saved IS ER medium laser beside native Clan ER medium laser cells
+- **WHEN** the definition reopens with its saved placement
+- **THEN** the resolver SHALL retain the saved IS identity before location or chassis preferences
+- **AND** an unresolved alias SHALL NOT borrow technology from neighbouring mounts
+- **AND** invalid or empty placement cells SHALL remain available for validation without supplying neighbouring hints
+
+#### Scenario: Explicit display markers retain split identity
+
+- **GIVEN** a saved Clan weapon whose critical tokens carry a `(Clan)` marker
+- **WHEN** those tokens are resolved during split-mount restoration
+- **THEN** each token SHALL retain its own Clan definition and critical demand
+- **AND** complete split placements SHALL survive save and reopen with their ID, tech base, category, multiplicity, locations and rear facts preserved
+
 ### Requirement: Mounted browser unit import
 
 The unit library SHALL expose file selection and drop for JSON, MTF and BLK through
@@ -512,6 +534,29 @@ SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
 - **THEN** old library/draft fingerprint literals and absent optional values SHALL retain their exact bytes
 - **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
 - **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
+
+### Requirement: Non-mech Mixed identity survives library load and save
+
+Non-mech loaders SHALL retain Mixed mode separately from the binary editor
+technology and SHALL resolve known chassis through the shared family accessor.
+Identity SHALL be applied after existing component and saved-editor projections.
+Library serializers SHALL write root MIXED and the typed family-owned chassis
+fact. Pure units and legacy drafts SHALL retain their exact existing projections.
+
+#### Scenario: Mixed identity survives a stale editor snapshot
+
+- **GIVEN** a Mixed non-mech definition with a known chassis and an older binary editor snapshot
+- **WHEN** it is opened, saved to the library and reopened
+- **THEN** runtime mode and saved root technology SHALL remain Mixed
+- **AND** the known chassis SHALL survive independently of the editor snapshot
+- **AND** an absent chassis SHALL remain unknown without a manufactured source fact
+
+#### Scenario: Typed infantry identity overrides historical source snapshots
+
+- **GIVEN** typed Mixed infantry identity and a conflicting historical librarySource chassis
+- **WHEN** the unit is saved and reopened
+- **THEN** the saved root SHALL use the typed chassis
+- **AND** an unknown typed chassis SHALL NOT be restored from the stale snapshot
 
 ### Requirement: Native OmniMek mounted equipment pod metadata
 

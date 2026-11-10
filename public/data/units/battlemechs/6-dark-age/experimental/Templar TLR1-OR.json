@@ -198,5 +198,8 @@
   },
   "mulId": 6852,
   "role": "Sniper",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

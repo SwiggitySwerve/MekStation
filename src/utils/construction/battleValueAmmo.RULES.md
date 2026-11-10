@@ -24,6 +24,28 @@ clamp negative values, validate quantities or reinterpret nonfinite values.
 The object representation, enumeration and floating-point operation order are
 retained for compatibility.
 
+Native diagnostic caps exclude one-shot and infantry weapons, using the
+existing one-shot classifier on source/catalog identities and tags and the
+pinned native infantry flag owner. MegaMek 48fcb2f64
+`BVCalculator.java:1230-1231` excludes `F_ONE_SHOT` and `F_INFANTRY` from its
+independent weapon pass (:1212-1240). Normal launchers retain their caps even
+without ammunition; the ammo pass (:1195-1209) does not gate the weapon map.
+`processAmmo` (:1057-1080) pairs those maps only for numerical capping.
+VGL inherits `F_ONE_SHOT` from `VehicularGrenadeLauncherWeapon.java:85-86`;
+`ISSRM2IOS.java:77` sets that flag too. Infantry weapons inherit
+`F_INFANTRY` from `InfantryWeapon.java:86`. Thus the reported 24 extra caps
+were 22 one-shot and two infantry groups, rather than a no-ammunition rule.
+Compatibility arithmetic keeps its existing inputs, matching, sums and order;
+the native diagnostic cap map applies these exclusions separately.
+
+The Mech projector replaces a supplemental native mount's compatibility cap
+contribution before adding its diagnostic group. For `ac-10p`, the existing
+catalog alias resolves to ordinary `ac-10`, while the diagnostic owner already
+recognizes `AC_PRIMITIVE:10`. Subtract only that mount's listed BV from the
+compatibility group, retaining any ordinary AC/10 mounts. The catalog alias
+and numerical ammunition pools are unchanged; broader primitive equipment
+identity remains a separate catalog concern.
+
 The adapters deliberately retain different matching policies:
 
 - Shared Mech/infantry: normalize weapon and ammo keys, use the existing

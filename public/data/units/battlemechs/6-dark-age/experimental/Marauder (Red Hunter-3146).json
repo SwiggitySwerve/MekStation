@@ -194,5 +194,8 @@
   "source": "RG06,RGv1",
   "weaponQuirks": {
     "RT:3:CLUltraAC10": ["exposed_linkage"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

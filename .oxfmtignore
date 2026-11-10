@@ -15,3 +15,4 @@ playwright-report
 public/record-sheets
 next-env.d.ts
 .audit/snapshot-tests.json
+config/reference/reference-full.jsonl.provenance.json

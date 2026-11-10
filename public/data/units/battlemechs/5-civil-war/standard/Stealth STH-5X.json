@@ -191,5 +191,8 @@
   },
   "mulId": 5130,
   "role": "Striker",
-  "source": "XTR:Steiner"
+  "source": "XTR:Steiner",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

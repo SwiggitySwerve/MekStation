@@ -1,4 +1,11 @@
-export { mapEngineType, mapArmorType } from './MTFVocabulary';
+export {
+  mapEngineType,
+  mapArmorType,
+  mapGyroType,
+  mapCockpitType,
+  mapHeatSinkType,
+  mapRulesLevel,
+} from './MTFVocabulary';
 
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 
@@ -21,16 +28,6 @@ export function mapTechBase(techBase: string): string {
   if (lower.includes('mixed')) return 'MIXED';
   if (lower.includes('clan')) return 'CLAN';
   return 'INNER_SPHERE';
-}
-
-export function mapRulesLevel(level: string): string {
-  const levelMap: Record<string, string> = {
-    '1': 'INTRODUCTORY',
-    '2': 'STANDARD',
-    '3': 'ADVANCED',
-    '4': 'EXPERIMENTAL',
-  };
-  return levelMap[level] || 'STANDARD';
 }
 
 export function mapStructureType(

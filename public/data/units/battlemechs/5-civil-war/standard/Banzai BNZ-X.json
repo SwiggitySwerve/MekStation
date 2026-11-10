@@ -189,5 +189,8 @@
   "source": "XTR:Kurita",
   "weaponQuirks": {
     "RA:4:CLLargePulseLaser": ["stable_weapon"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

@@ -24,6 +24,15 @@ routing remains unchanged. No serializer or catalog rewrite is required.
 Pinned MegaMek 48fcb2f64: `MtfFile.getEquipmentType` passes no tech restriction
 to `EquipmentType.get` for a Mixed-tech unit.
 
+Explicit saved placement supplies mount context to that same resolver. A known
+saved legacy ID retains its own definition before location or chassis hints;
+an unresolved alias can inspect only valid cells belonging to its placement.
+Empty or invalid allocations never borrow another mount's hints and remain
+available for allocation validation. Unplaced source summaries retain their
+existing location-hint behavior. Native prefixes and display markers such as
+`(Clan)` name the token's own technology, including during split restoration.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
+
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
 Custom mech saves retain category with optional `isAmmo` metadata only when the
 existing ID classifier alone would choose a different ammo/non-ammo category;
@@ -272,6 +281,17 @@ saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
 (MegaMek 48fcb2f64 ArmorType.java:669-688); BlkArmorCodes owns code 10
 (EquipmentType.java:95). Do not replace Commercial with Standard or lower
 Standard introduction dates to accommodate industrial source units.
+
+Non-mech Mixed identity is projected after components and saved binary editor
+fields. The shared TechBaseConfiguration chassis accessor owns the family fact:
+BA uses clanChassis, other families use componentTechBases.chassis. A known
+chassis sets the binary editor side; an absent fact remains unknown. Serializers
+apply typed Mixed mode and chassis after composing source declarations, so stale
+librarySource snapshots cannot override typed infantry identity or resurrect an
+unknown chassis. Pure units and legacy drafts retain absent metadata and their
+literal save projections. This preserves BLKFile.setTechLevel's independent
+Mixed designation and chassis side (MegaMek 48fcb2f64); Mixed editing and native
+BLK export headers remain deferred.
 
 Declared OmniMeks derive a represented mount's pod metadata from its owned native
 critical cells, using `parseCriticalSlotToken` in `criticalSlotToken.ts` as the

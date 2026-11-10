@@ -187,5 +187,8 @@
   },
   "mulId": 5808,
   "role": "Striker",
-  "source": "BD:BH"
+  "source": "BD:BH",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

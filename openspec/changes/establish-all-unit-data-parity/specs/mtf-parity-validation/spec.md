@@ -70,8 +70,18 @@ SHALL preserve the domain facts of every supported source family through import,
 
 - **GIVEN** an MTF source declaring an XL gyro
 - **WHEN** it is parsed, saved through the unit API and reloaded
-- **THEN** the existing gyro mapping owner SHALL preserve the declared XL identity in the existing serialized gyro field
+- **THEN** the shared MTF component vocabulary SHALL preserve the declared XL identity in the existing serialized gyro field
 - **AND** the editor SHALL calculate with that identity when recovering source equipment mass
+
+#### Scenario: Preserve declared MTF components through import
+
+- **GIVEN** an MTF source declaring any pinned gyro, cockpit or heat sink name, or rules level 1 to 5
+- **WHEN** it is parsed by the app importer and by the Python converter
+- **THEN** both SHALL read one shared vocabulary file and resolve the same serialized identity, including Compact and Heavy Duty gyros, IS and Clan Double, Laser and Compact heat sinks, and rules level 5 as Unofficial
+- **AND** a gyro, cockpit or heat sink string the pinned loader defaults SHALL load with that Java default and a parse warning, not be rejected at import
+- **AND** the raw gyro, cockpit and heat sink text SHALL be saved with the unit beside the derived values, with a unit-level diagnostic for every defaulted value, so both survive save and reopen
+- **AND** every pinned cockpit name, including Tripod, Dual and both Command Consoles, SHALL resolve to its own identity, matched exact-first then by prefix in the pinned table order
+- **AND** the identity SHALL equal the pinned converter output for the same source bytes
 
 #### Scenario: Preserve slot-only weapons through MTF import and save
 

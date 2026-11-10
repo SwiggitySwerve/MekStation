@@ -34,9 +34,8 @@ interface IHealthResponse {
 // Track server start time
 const startTime = Date.now();
 
-// Memory thresholds (in bytes)
+// Advisory telemetry only; heap magnitude does not determine container health.
 const MEMORY_WARNING_THRESHOLD = 500 * 1024 * 1024; // 500MB
-const MEMORY_ERROR_THRESHOLD = 900 * 1024 * 1024; // 900MB
 
 export default function handler(
   req: NextApiRequest,
@@ -55,16 +54,12 @@ export default function handler(
 
     // Determine memory status
     let memoryStatus: 'ok' | 'warning' | 'error' = 'ok';
-    if (heapUsed > MEMORY_ERROR_THRESHOLD) {
-      memoryStatus = 'error';
-    } else if (heapUsed > MEMORY_WARNING_THRESHOLD) {
+    if (heapUsed > MEMORY_WARNING_THRESHOLD) {
       memoryStatus = 'warning';
     }
 
-    const isHealthy = memoryStatus !== 'error';
-
     const response: IHealthResponse = {
-      status: isHealthy ? 'healthy' : 'unhealthy',
+      status: 'healthy',
       timestamp: new Date().toISOString(),
       uptime: Math.floor((Date.now() - startTime) / 1000),
       version: BUILD_VERSION,
@@ -81,14 +76,11 @@ export default function handler(
       },
     };
 
-    // Set appropriate status code
-    const statusCode = isHealthy ? 200 : 503;
-
     // Set cache headers to prevent caching of health status
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
 
-    res.status(statusCode).json(response);
+    res.status(200).json(response);
   } catch (error) {
     console.error('[Health API] Health check failed:', error);
     const errorResponse: IHealthResponse = {

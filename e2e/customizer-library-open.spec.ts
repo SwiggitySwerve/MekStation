@@ -1964,6 +1964,84 @@ test.describe('library persistence and printing', () => {
     }
   });
 
+  test('ProtoMech Structure: a 13 t quad keeps its motive and tonnage through re-select, edit, save, reload and reopen @customizer', async ({
+    page,
+    request,
+  }) => {
+    // Row 4.1 item b3d: ultraheavy is a mass above 9 t, not a chassis
+    // (PMChassisView.java:205-207), and the tonnage spinner is 2-15 t for every motive
+    // (PMChassisView.java:79). Boggart Ultraheavy 2 is a 13 t quad: re-selecting Quad
+    // must not clamp it to 9 t, and the saved library copy must reopen as a quad.
+    let savedId: string | undefined;
+    const tonnage = (page: Page) =>
+      page.locator('div:has(> label:text-is("Tonnage")) select');
+    try {
+      await page.goto('/customizer');
+      await library(page, 'Boggart Ultraheavy ProtoMech', '2');
+      await section(page, 'Structure');
+      await expect(page.getByRole('radio', { name: 'Quad' })).toBeChecked();
+      await expect(
+        page
+          .locator('div:has(> h3:text-is("Chassis Type"))')
+          .getByRole('radio'),
+      ).toHaveCount(3);
+      await expect(tonnage(page)).toHaveValue('13');
+      await expect(
+        page.locator('div:has(> label:text-is("Weight Class"))'),
+      ).toContainText('Ultraheavy');
+
+      await page.getByRole('radio', { name: 'Quad' }).click();
+      await expect(tonnage(page)).toHaveValue('13');
+      await tonnage(page).selectOption('12');
+      await expect(tonnage(page)).toHaveValue('12');
+
+      await page
+        .getByRole('button', { name: 'Save active unit to library' })
+        .click();
+      const save = page.getByRole('dialog', { name: 'Save Unit', exact: true });
+      const chassis = `Flow Boggart UH ${Date.now()}`;
+      await save.getByLabel('Chassis Name').fill(chassis);
+      await save.getByLabel('Variant Designation').fill('Saved Mass');
+      const posted = page.waitForResponse(
+        (r) =>
+          r.url().endsWith('/api/units/custom') &&
+          r.request().method() === 'POST',
+      );
+      await save.getByRole('button', { name: 'Save', exact: true }).click();
+      const response = await posted;
+      expect(response.ok()).toBe(true);
+      savedId = (await response.json()).data.id;
+      expect(savedId).toBeTruthy();
+
+      await page.reload();
+      await section(page, 'Structure');
+      await expect(page.getByRole('radio', { name: 'Quad' })).toBeChecked();
+      await expect(tonnage(page)).toHaveValue('12');
+
+      // Close the draft so the library must fetch the saved server copy.
+      await page
+        .getByRole('button', {
+          name: `Close ${chassis} Saved Mass`,
+          exact: true,
+        })
+        .click();
+      const fetched = page.waitForResponse(
+        (r) =>
+          r.url().endsWith(`/api/units/custom/${savedId}`) &&
+          r.request().method() === 'GET',
+        { timeout: 60_000 },
+      );
+      await library(page, chassis, 'Saved Mass', true);
+      expect((await fetched).ok()).toBe(true);
+      await section(page, 'Structure');
+      await expect(page.getByRole('radio', { name: 'Quad' })).toBeChecked();
+      await expect(tonnage(page)).toHaveValue('12');
+      await noOverflow(page);
+    } finally {
+      if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+    }
+  });
+
   for (const viewport of viewports) {
     test.describe(`library loading ${viewport.width}`, () => {
       test.use({ viewport });

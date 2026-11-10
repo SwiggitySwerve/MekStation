@@ -46,7 +46,7 @@ it('keeps all 456 Ares armor points in the editor weight and save/reopen', () =>
     tonnage: 135,
     techBase: TechBase.INNER_SPHERE,
   });
-  store.setState(loader.mapToUnitState(ares, true));
+  store.setState(loader.mapToUnitState(parseUnit(ares), true));
   const state = store.getState();
   expect(state.configuration).toBe(MechConfiguration.TRIPOD);
   expect(state.armorAllocation[MechLocation.CENTER_LEG]).toBe(56);
@@ -107,7 +107,7 @@ it('loads Black Hawk (Nova) A at its legal 50-ton weight', () => {
 it.each([nova, avatar])(
   'restores $chassis $model native pod critical slots',
   (unit) => {
-    const state = new UnitLoaderService().mapToUnitState(unit, true);
+    const state = new UnitLoaderService().mapToUnitState(parseUnit(unit), true);
     const issues = getEquipmentSlotIssues(
       state.equipment,
       state.configuration,

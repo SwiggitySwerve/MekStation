@@ -93,7 +93,7 @@ def parse_battlearmor_fields(tags):
         raise ValueError('missing or unsupported battle armor chassis/motion')
     ground, jump = integer(tags, 'cruisemp'), integer(tags, 'jumpingmp', 0)
     armor = integer(tags, 'armor')  # exactly one integer, never an array fallback
-    armor_type = map_armor_code(tags.get('armor_type', '28'), BLK_ARMOR_CODE_MAP, strict=True)
+    armor_type = map_armor_code(tags.get('armor_type', '28'), BLK_ARMOR_CODE_MAP)
     armor_data = {'type': armor_type, 'perTrooper': armor}
     armor_tech = next((key for key in ('armor_tech_level', 'armor_tech') if key in tags), None)
     if armor_tech:

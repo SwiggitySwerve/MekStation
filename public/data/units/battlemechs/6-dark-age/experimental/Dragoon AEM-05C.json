@@ -189,5 +189,8 @@
     "LA:4:ISMediumXPulseLaser": ["mod_weapons"],
     "LA:5:ISMediumXPulseLaser": ["mod_weapons"],
     "RA:2:ISLBXAC10": ["mod_weapons"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

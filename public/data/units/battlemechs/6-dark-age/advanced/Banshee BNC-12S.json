@@ -206,5 +206,8 @@
   },
   "mulId": 8246,
   "role": "Brawler",
-  "source": "RG17"
+  "source": "RG17",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

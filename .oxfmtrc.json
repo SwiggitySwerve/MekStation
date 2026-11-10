@@ -8,5 +8,11 @@
   "trailingComma": "all",
   "endOfLine": "lf",
   "experimentalTailwindcss": {},
-  "experimentalSortImports": {}
+  "experimentalSortImports": {},
+  "overrides": [
+    {
+      "files": ["config/reference/reference-full.jsonl.provenance.json"],
+      "options": { "endOfLine": "crlf" }
+    }
+  ]
 }
