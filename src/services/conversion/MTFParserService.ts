@@ -2,6 +2,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
+import { isClanSourceChassis } from '@/services/units/handlers/unitHandlerShared';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { parseStructure } from './MTFParser.components';
@@ -84,9 +85,7 @@ export class MTFParserService {
       const cockpitName = parseField(lines, 'cockpit') ?? '';
       // mek.isClan() in the pinned loader: Clan, or Mixed with a Clan chassis
       // (MtfFile.java:848-890).
-      const clanUnit = /^clan$|^mixed\s*\(clan chassis\)$/i.test(
-        header.techBase.trim(),
-      );
+      const clanUnit = isClanSourceChassis(header.techBase.trim());
       const gyro = mapGyroType(gyroName);
       const cockpit = mapCockpitType(cockpitName);
       const heatSink = mapHeatSinkType(heatSinks.type, clanUnit);
