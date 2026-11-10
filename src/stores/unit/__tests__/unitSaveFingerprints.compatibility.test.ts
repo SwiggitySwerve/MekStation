@@ -263,6 +263,98 @@ it('keeps literal fingerprint bytes when an old mount has no split allocation', 
   expect(getUnitLibraryFingerprint(absent)).toBe(sample.libraryFingerprint);
 });
 
+it('keeps literal bytes when source-grid context is absent', () => {
+  const sample = fixture.cases.find(
+    (entry) => entry.name === 'linked-equipment',
+  );
+  if (!sample)
+    throw new Error('Missing linked-equipment compatibility fixture');
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  expect(state.bvContext).toBeUndefined();
+  const absent = { ...state, bvContext: undefined };
+  expect(getUnitEditFingerprint(absent)).toBe(sample.editFingerprint);
+  expect(getUnitDraftFingerprint(absent)).toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(absent)).toBe(sample.libraryFingerprint);
+});
+
+it('fingerprints a source-only critical-grid edit while ignoring temporary mount ids', () => {
+  const sample = fixture.cases.find(
+    (entry) => entry.name === 'linked-equipment',
+  );
+  if (!sample)
+    throw new Error('Missing linked-equipment compatibility fixture');
+  const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+  const sourceBacked: UnitState = {
+    ...state,
+    bvContext: {
+      source: {
+        id: state.id,
+        chassis: state.chassis,
+        techBase: state.techBase,
+        tonnage: state.tonnage,
+        criticalSlots: {
+          HEAD: [
+            'Life Support',
+            'Sensors',
+            null,
+            'Cockpit',
+            'Sensors',
+            'Life Support',
+          ],
+        },
+      },
+      equipment: state.equipment,
+      types: {
+        engineType: state.engineType,
+        gyroType: state.gyroType,
+        cockpitType: state.cockpitType,
+        internalStructureType: state.internalStructureType,
+        armorType: state.armorType,
+        heatSinkType: state.heatSinkType,
+      },
+    },
+  };
+  const before = getUnitLibraryFingerprint(sourceBacked);
+  const ids = new Map(
+    sourceBacked.equipment.map((item, index) => [
+      item.instanceId,
+      `new-${index}`,
+    ]),
+  );
+  expect(
+    getUnitLibraryFingerprint({
+      ...sourceBacked,
+      equipment: sourceBacked.equipment.map((item) => ({
+        ...item,
+        instanceId: ids.get(item.instanceId)!,
+        linkedAmmoId: item.linkedAmmoId
+          ? (ids.get(item.linkedAmmoId) ?? item.linkedAmmoId)
+          : undefined,
+      })),
+    }),
+  ).toBe(before);
+  const changed = {
+    ...sourceBacked,
+    bvContext: {
+      ...sourceBacked.bvContext!,
+      source: {
+        ...sourceBacked.bvContext!.source,
+        criticalSlots: {
+          HEAD: [
+            'Native edit',
+            'Sensors',
+            null,
+            'Cockpit',
+            'Sensors',
+            'Life Support',
+          ],
+        },
+      },
+    },
+  };
+  expect(getUnitLibraryFingerprint(changed)).not.toBe(before);
+});
+
 it.each([
   CockpitType.TRIPOD,
   CockpitType.QUADVEE,

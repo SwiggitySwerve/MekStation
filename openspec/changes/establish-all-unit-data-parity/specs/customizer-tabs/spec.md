@@ -121,3 +121,13 @@ Each subtype SHALL support a real source-load, edit, save, reopen and print flow
 - **AND** loaded armor weight SHALL count every active configuration location, including a Tripod center leg, and retain that weight on save/reopen
 - **AND** Standard-tagged Tripods SHALL NOT acquire a different cockpit merely from their configuration
 - **AND** catalog regeneration SHALL remain separate from recognizing an existing source tag
+
+#### Scenario: Save a complete source-backed mech critical grid
+
+- **GIVEN** a source-backed mech with fixed-only, source-only or explicitly empty critical arrays
+- **WHEN** the editor saves and reopens it
+- **THEN** every active location SHALL retain its native cells and array order
+- **AND** current component topology and allocations SHALL replace obsolete source cells without retaining inactive configuration locations
+- **AND** a moved or removed split/spread mount SHALL clear all old portions before inserting any new portions
+- **AND** temporary equipment IDs SHALL NOT affect source matching or saved native tokens
+- **AND** context-free older drafts SHALL retain their existing save and fingerprint bytes without defaulting absent optional values

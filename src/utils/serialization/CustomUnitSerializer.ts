@@ -171,6 +171,14 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
   const projected = state.bvContext
     ? buildEditableMechBVInput(projectEditableMech(state, walk)).criticalSlots
     : undefined;
+  if (projected) {
+    return Object.fromEntries(
+      getLocationsForConfig(state.configuration).map((location) => [
+        location,
+        [...(getCriticalSlotsForLocation(projected, location) ?? [])],
+      ]),
+    );
+  }
   const result: Record<string, (string | null)[]> = {};
   const locations = getLocationsForConfig(state.configuration);
   for (const location of [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM]) {

@@ -106,7 +106,7 @@ it('keeps omitted hands and exact heat-sink slots through library serialization 
     })),
   );
   expect(saved.criticalSlots?.[MechLocation.LEFT_ARM]?.[3]).toBe(
-    'Single Heat Sink',
+    warhammer.criticalSlots.LEFT_ARM[3],
   );
   expect(
     getEquipmentSlotIssues(
