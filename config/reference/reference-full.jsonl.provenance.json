@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "referenceSha256": "4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87",
+  "runtime": {
+    "megamekCommit": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+    "megameklabCommit": "62bf19360382049e2e6a1e8f24e859e27bdc5878",
+    "mmDataCommit": "50f7efef0c9f775b0258f8283525ed4f906e1985",
+    "javaVersion": "openjdk 21.0.12.1 2026-08-18 LTS\nOpenJDK Runtime Environment Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.12.1+1 (build 21.0.12.1+1-LTS, mixed mode, sharing)",
+    "dependencyManifestSha256": "cdc00515d7d4eaaf44739a51bf59c43067473bffd5cb2cbfc61b3da8e45f7b85",
+    "compiledRuntimeManifestSha256": "d624061f4ebbb17d9096e41764e4d0ae770d0718dbde92b3870dd36197e21427",
+    "exporterSha256": "e879136aac11ca6cffd0876a442c0838d3668ea32880ef3cfb70a9d53aee9e49",
+    "verifierConfigSha256": "6da4950889506c309776d933b4af757e582f97a6accd5f2095596d2f3cf76533",
+    "pythonExporterSha256": "dbf406e32ad21d900ab09434b6b06b3e1c2fca9d8a881504b005314f45bd8534",
+    "constructionSourceSha256": "7485d356e6995b11d155e4d93e02371da3962aa58fc7ded3588e856044cbb07d",
+    "constructionTermsSha256": "ab20e290b2a10dba0e8cdf4e9074abca3e1fad3b5b49fc3aa1f2951e4f3c8f15",
+    "bvGeneratorSha256": "5915c05eb2bf9cba5cb6a47e2d296880de45e778963dc057d2063006c12f0622",
+    "bvStagesSha256": "910bba5f3dcb4c8f89d7eccc46f123e9f779239773d6e1958c5487a9091be3df",
+    "runtimeClasspathSha256": "46ba468dbf265cb33c08762d982bae33f4231b4d9f64b7c0bd478a85000c7cc7",
+    "toolchainManifestSha256": "3ea5fc91f59575486688ed9f724b5901d680f0a6f98e8263e921716bc019ddd6",
+    "javaExecutableSha256": "82051fdab26319d77d20cc0065045d05ec00b3e3d05f44935d7c06b96b621d55"
+  },
+  "crew": {
+    "state": "default loaded crew/state"
+  },
+  "network": {
+    "attachedGame": false
+  },
+  "bvOverrides": {
+    "ignoreC3": true,
+    "ignoreSkill": true,
+    "ignoreTAG": true,
+    "campaign damage": false,
+    "custom game-option injection": false,
+    "editor-state mutation": false
+  }
+}
