@@ -146,31 +146,19 @@ it('pins PSR SPA application to MegaMek skidding, quad, Terrain Master PSR, and 
       'maneuvering-ace-controlled-sideslip-producer-application'
     ],
   ).toMatchObject({
-    level: 'integrated',
-    evidence: expect.stringContaining(
-      'queues represented controlled-sideslip PSRs',
-    ),
+    level: 'out-of-scope',
+    evidence: expect.stringContaining('only for VTOL, hover and WiGE movement'),
+    gap: expect.stringContaining('separate vehicle combat matrix'),
   });
-  expect(
-    PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
-      'maneuvering-ace-controlled-sideslip-producer-application'
-    ].gap,
-  ).toBeUndefined();
   expect(
     PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
       'maneuvering-ace-flanking-turning-producer-application'
     ],
   ).toMatchObject({
-    level: 'integrated',
-    evidence: expect.stringContaining(
-      'queues one represented flanking-and-turning PSR',
-    ),
+    level: 'out-of-scope',
+    evidence: expect.stringContaining('only for VTOL, hover and WiGE movement'),
+    gap: expect.stringContaining('separate vehicle combat matrix'),
   });
-  expect(
-    PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
-      'maneuvering-ace-flanking-turning-producer-application'
-    ].gap,
-  ).toBeUndefined();
   expect(
     PILOT_MODIFIER_RESOLVER_COMBAT_SUPPORT[
       'maneuvering-ace-out-of-control-producer-application'
@@ -227,18 +215,17 @@ it('pins PSR SPA application to MegaMek skidding, quad, Terrain Master PSR, and 
   expect(movementRefs).toEqual(
     expect.not.arrayContaining([...aerospaceMovementRefs]),
   );
-  expect(controlledSideslipRefs.map(({ citation }) => citation)).toEqual([
+  const sideslipGateCitations = [
     'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
+    'MegaMek MovePathHandler calls Entity.checkSideSlip only for VTOL, hover and WiGE-with-clearance movement, so BattleMechs never roll controlled-sideslip or flanking-and-turning checks.',
     'MegaMek OptionsConstants defines PILOT_MANEUVERING_ACE as maneuvering_ace.',
-    'MekStation movementControlPsr queues represented controlled-sideslip PSRs for lateral movement steps and suppresses walking Maneuvering Ace lateral shifts.',
-    'MekStation runner movement coverage proves walking Maneuvering Ace lateral shifts suppress controlled-sideslip PSRs while running lateral shifts emit controlled_sideslip with a movement-step trigger source.',
-  ]);
-  expect(flankingTurningRefs.map(({ citation }) => citation)).toEqual([
-    'MegaMek Entity.checkSideSlip applies Maneuvering Ace relief to flanking-and-turning checks and suppresses controlled-sideslip checks for walking Maneuvering Ace units.',
-    'MegaMek OptionsConstants defines PILOT_MANEUVERING_ACE as maneuvering_ace.',
-    'MekStation movementControlPsr queues one represented flanking-and-turning PSR for BattleMech run/sprint movement when movement-step decomposition changes facing after moving more than one hex, while excluding Infantry and ProtoMech units.',
-    'MekStation runner movement coverage proves represented BattleMech flanking-and-turning production plus walking, straight-running, Infantry, and ProtoMech non-production cases.',
-  ]);
+  ];
+  expect(controlledSideslipRefs.map(({ citation }) => citation)).toEqual(
+    sideslipGateCitations,
+  );
+  expect(flankingTurningRefs.map(({ citation }) => citation)).toEqual(
+    sideslipGateCitations,
+  );
   expect(outOfControlProducerRefs.map(({ citation }) => citation)).toEqual([
     'MegaMek TWGameManager.resolveControl resolves control rolls only for a single aero or airborne LAM in AirMek mode, returning before control-roll production for ordinary BattleMechs.',
     'MegaMek TWGameManager.getPilotingRollData applies -1 Maneuvering Ace to out-of-control control rolls without applying it to recovery rolls.',

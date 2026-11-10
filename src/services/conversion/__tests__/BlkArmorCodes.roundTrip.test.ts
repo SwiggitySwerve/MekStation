@@ -22,6 +22,7 @@ const JAVA_CODES: readonly [ArmorTypeEnum, TechBase, number][] = [
   [ArmorTypeEnum.HARDENED, TechBase.INNER_SPHERE, 4],
   [ArmorTypeEnum.LIGHT_FERRO, TechBase.INNER_SPHERE, 5],
   [ArmorTypeEnum.HEAVY_FERRO, TechBase.INNER_SPHERE, 6],
+  [ArmorTypeEnum.FERRO_FIBROUS_PROTO, TechBase.INNER_SPHERE, 9], // EquipmentType.java:94.
   [ArmorTypeEnum.COMMERCIAL, TechBase.INNER_SPHERE, 10], // EquipmentType.java:95.
   [ArmorTypeEnum.FERRO_LAMELLOR, TechBase.CLAN, 16],
   [ArmorTypeEnum.STEALTH, TechBase.INNER_SPHERE, 22],

@@ -1,7 +1,7 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { IGameState, IUnitGameState } from '@/types/gameplay';
 
-import { GamePhase, GameSide } from '@/types/gameplay';
+import { GameEventType, GamePhase, GameSide } from '@/types/gameplay';
 import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 import { deriveState } from '@/utils/gameplay/gameState';
 
@@ -55,14 +55,17 @@ function corpusHydration(): ReadonlyMap<string, IHydratedUnitData> {
 }
 
 export function runReplayCorpusSample(seed: number) {
-  let finalState: IGameState | undefined;
+  let endPhaseState: IGameState | undefined;
+  let lastObservedState: IGameState | undefined;
   const invariants = new InvariantRunner();
   invariants.register({
     name: 'capture-runner-replay-corpus-state',
-    description: 'Observe the final End-phase state without changing the run',
+    description:
+      'Observe the End-phase state and the last state shown to the runner invariants without changing the run',
     severity: 'warning',
     check: (state) => {
-      if (state.phase === GamePhase.End) finalState = state;
+      lastObservedState = state;
+      if (state.phase === GamePhase.End) endPhaseState = state;
       return [];
     },
   });
@@ -75,9 +78,24 @@ export function runReplayCorpusSample(seed: number) {
     corpusHydration(),
   ).run({ seed, ...RUNNER_REPLAY_CONFIG });
 
-  if (!finalState || finalState.turn !== result.turns) {
+  // Every run, completed or not, must end with the runner's terminal event.
+  const terminal = result.events[result.events.length - 1];
+  if (terminal.type !== GameEventType.GameEnded) {
+    throw new Error(`Replay corpus seed ${seed} did not end with game_ended`);
+  }
+
+  // A game that runs to its last turn finishes in the End phase. A game
+  // decided earlier (a side destroyed during a turn) breaks out of the turn
+  // loop before the End phase, so the End-phase capture is a previous turn's
+  // state. The runner does not return its terminal state; the last state it
+  // showed its invariants in the terminal turn is the nearest observable one
+  // (the weapon-attack phase's closing check, before the PSR phase that
+  // follows it).
+  const endedBeforeEndPhase = endPhaseState?.turn !== result.turns;
+  const runnerState = endedBeforeEndPhase ? lastObservedState : endPhaseState;
+  if (!runnerState || runnerState.turn !== result.turns) {
     throw new Error(
-      `Replay corpus seed ${seed} did not finish in the End phase`,
+      `Replay corpus seed ${seed} has no runner state for its final turn`,
     );
   }
   const gameId = result.events[0].gameId;
@@ -87,7 +105,8 @@ export function runReplayCorpusSample(seed: number) {
     gameId,
     result,
     originalEvents,
-    runnerState: finalState,
+    runnerState,
+    endedBeforeEndPhase,
     replayState: deriveState(gameId, result.events),
   };
 }
