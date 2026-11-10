@@ -34,6 +34,7 @@ import {
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
 import {
+  compareSourceCriticalLocations,
   isSourcePhysicalWeapon,
   sourceCriticalWeapons,
   sourceWeaponSummaryMatches,
@@ -302,6 +303,7 @@ export function restoreCriticalSlotEquipment(
   criticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
   physicalOnly = false,
+  isOmni = false,
 ): IMountedEquipmentInstance[] {
   // Mek.java:3484-3492: a superheavy entry holds two ordinary criticals.
   const superheavy = tonnage !== undefined && isSuperHeavy(tonnage);
@@ -564,5 +566,39 @@ export function restoreCriticalSlotEquipment(
     }
   }
 
-  return [...placed, ...recovered];
+  const equipment = [...placed, ...recovered];
+  if (!isOmni) return equipment;
+  return equipment.map((item, index) => {
+    const tokens = [...getSlotParts(item)]
+      .sort((a, b) => compareSourceCriticalLocations(a.location, b.location))
+      .flatMap((part) =>
+        [...part.slots]
+          .sort((a, b) => a - b)
+          .map(
+            (slot) =>
+              getCriticalSlotsForLocation(criticalSlots, part.location)?.[slot],
+          ),
+      )
+      .filter((token): token is string => typeof token === 'string');
+    // Ordinary/spreadable mounts keep their creation token. Java's split
+    // branch updates the flag on every visited crit (MtfFile.java:1127).
+    const definition = getEquipmentLookupService().getMountedById(
+      item.equipmentId,
+      item.category === EquipmentCategory.AMMUNITION,
+    );
+    const split =
+      item.splitSlots !== undefined ||
+      isSplittable(
+        definition
+          ? { ...item, criticalSlots: definition.criticalSlots }
+          : item,
+      );
+    return {
+      ...item,
+      isOmniPodMounted:
+        serialized[index]?.isOmniPodMounted ??
+        parseCriticalSlotToken((split ? tokens.at(-1) : tokens[0]) ?? '')
+          .isOmniPodMounted,
+    };
+  });
 }
