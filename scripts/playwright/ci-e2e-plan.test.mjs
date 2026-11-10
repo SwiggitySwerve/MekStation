@@ -236,9 +236,11 @@ test('the slowest file is allocated first across suite boundaries', () => {
   const slow = tests.filter(
     ({ file }) => file === 'active-session-recovery.spec.ts',
   );
-  for (const { key } of slow) timing.milliseconds[key] = 100_000;
+  // Far above the summed seed of every other file, so no other group can
+  // spill onto shard 1 however many PR specs the suites list.
+  for (const { key } of slow) timing.milliseconds[key] = 1_000_000;
   const plan = planShards(tests, timing);
-  assert.equal(plan.shards[0].milliseconds, 200_000);
+  assert.equal(plan.shards[0].milliseconds, 2_000_000);
   assert.equal(plan.shards[0].tasks.length, 1);
   assert.equal(plan.shards[0].tasks[0].suite, 'gates');
 });
