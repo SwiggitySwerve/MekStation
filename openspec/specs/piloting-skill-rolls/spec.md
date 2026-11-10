@@ -3,7 +3,6 @@
 ## Purpose
 
 Defines Piloting Skill Rolls requirements for PSR Resolution Mechanic, PSR Trigger - 20+ Phase Damage, PSR Trigger - Leg Damage, and PSR Trigger - Hip Actuator Damage, preserving the source-of-truth scope introduced by archived change full-combat-parity.
-
 ## Requirements
 ### Requirement: PSR Resolution Mechanic
 
@@ -146,17 +145,17 @@ The system SHALL trigger a PSR when skidding conditions occur.
 
 ### Requirement: PSR Trigger — Movement with Damage
 
-The system SHALL trigger PSRs during movement with damaged components.
+The system SHALL trigger one PSR per move when a unit that can fall runs, sprints or evades with a damaged hip actuator or damaged gyro, as specified by "Running With A Damaged Hip Or Gyro Rolls Once Per Move".
 
 #### Scenario: Running with damaged hip
 
 - **WHEN** a unit with a damaged hip actuator attempts to run
-- **THEN** a PSR SHALL be required for each hex of movement
+- **THEN** one PSR SHALL be required for the move, not one for each hex
 
 #### Scenario: Running with damaged gyro
 
-- **WHEN** a unit with gyro damage attempts to run
-- **THEN** a PSR SHALL be required with the +3 per gyro hit modifier
+- **WHEN** a unit with gyro damage that counts attempts to run
+- **THEN** one PSR SHALL be required with the +3 per gyro hit modifier
 
 ### Requirement: PSR Trigger — Collapse and Failure
 
@@ -685,4 +684,129 @@ end-phase pending-PSR resolver.
   command sequence
 - **AND** the pending AirMek landing PSR SHALL be cleared by replaying that
   `PSRResolved` event.
+
+### Requirement: Phase Damage PSR After Every Damage Phase
+
+At the end of the Physical Attack phase the standalone runner SHALL queue one `20+_damage` PSR for every surviving unit that can fall under MegaMek 48fcb2f64 `Mek.canFall` (a BattleMech-like unit that is not prone) and whose `damageThisPhase` reached the threshold (`TWPhaseEndManager.java:239`, `TWGameManager.java:17843-17893`). The threshold SHALL be 20, or 30 for a dual cockpit with an active dedicated pilot. The weapon-hit path and the end-of-phase sweep SHALL use the same helper, and a unit SHALL carry at most one `20+_damage` PSR at a time.
+
+#### Scenario: Physical damage crosses the threshold
+
+- **GIVEN** two attackers each kick one standing BattleMech in the Physical Attack phase
+- **WHEN** the target's `damageThisPhase` is 20 or more at the end of the phase
+- **THEN** exactly one `20+_damage` PSR SHALL be pending on the target
+
+#### Scenario: Below the threshold
+
+- **WHEN** the target took less than 20 physical damage
+- **THEN** no `20+_damage` PSR SHALL be queued
+
+#### Scenario: A unit that cannot fall
+
+- **WHEN** a prone unit or a unit that is not a BattleMech reaches 20 damage in a phase
+- **THEN** no `20+_damage` PSR SHALL be queued
+
+#### Scenario: Dual cockpit threshold
+
+- **WHEN** a dual cockpit unit with a dedicated pilot takes 29 damage in a phase
+- **THEN** no PSR SHALL be due
+- **AND** at 30 damage one SHALL be due
+
+### Requirement: Movement Terrain PSRs Follow The Pinned Rules
+
+Movement terrain PSRs SHALL follow MegaMek 48fcb2f64. Every step that changes position into a water hex SHALL roll the entering-water PSR, including water to water and a jump landing (`Entity.checkWaterMove`, `Entity.java:9615-9639`; `MovePathHandler.java:1615`); a hex that is ice-covered water is walked on and SHALL NOT roll for water. There SHALL be no exiting-water roll and no running-through-rough roll. Ice SHALL follow reckless-movement semantics (`Entity.checkRecklessMove`, `Entity.java:9241-9290`): one `moving_on_ice` PSR for each non-jump step taken in a hex containing ice, including a turn made on the ice. Entering rubble above level 5 (ultra-rubble) SHALL add +1 (`Entity.checkRubbleMove`, `Entity.java:9556-9559`). The `exiting_water` and `running_rough_terrain` reason codes SHALL remain valid for older replays.
+
+#### Scenario: Water to water rolls again
+
+- **WHEN** a standing BattleMech walks from one water hex into another
+- **THEN** an `entering_water` PSR SHALL be queued for that step
+
+#### Scenario: Leaving water rolls nothing
+
+- **WHEN** a BattleMech walks from a water hex onto clear ground
+- **THEN** no PSR SHALL be queued
+
+#### Scenario: Rough terrain rolls nothing
+
+- **WHEN** a BattleMech runs into a rough hex
+- **THEN** no PSR SHALL be queued
+
+#### Scenario: Ice rolls on each step in the hex
+
+- **WHEN** a BattleMech walks into an ice hex and then turns there
+- **THEN** two `moving_on_ice` PSRs SHALL be queued
+- **AND** a jump landing on the ice hex SHALL queue none
+
+#### Scenario: Ultra-rubble
+
+- **WHEN** a BattleMech enters a rubble hex of level 6
+- **THEN** the `entering_rubble` PSR SHALL carry modifier +1
+- **AND** at level 5 it SHALL carry modifier 0
+
+### Requirement: Displacement Terrain PSRs
+
+A unit forced into a hex by a displacement SHALL be given terrain PSRs only by `planDisplacementTerrainPSRs`, which follows `TWGameManager.doEntityDisplacement` (`TWGameManager.java:9771-9866`): building collapse for an overloaded building, the bog-down check for a BattleMech entering a bog-down hex whether or not it left one, and entering water for a BattleMech that can fall. There SHALL be no rubble, ice or exiting-water roll in a displacement. The PSRs SHALL carry no `movement-step` trigger source. The runner applies them for domino displacement.
+
+#### Scenario: Domino into rubble over water
+
+- **WHEN** a domino displacement moves a BattleMech into a hex with water over rubble
+- **THEN** one `entering_water` PSR SHALL be queued and no `entering_rubble` PSR
+
+#### Scenario: Domino between swamp hexes
+
+- **WHEN** a domino displacement moves a BattleMech from a swamp hex into another swamp hex
+- **THEN** a `swamp_bog_down` PSR SHALL be queued
+
+### Requirement: Running With A Damaged Hip Or Gyro Rolls Once Per Move
+
+A Run, Sprint or Evade move by a unit that can fall under MegaMek 48fcb2f64 `Mek.canFall` (a BattleMech-like unit that is not prone) SHALL queue exactly one running-with-damage PSR when the unit has gyro damage that counts or a hip critical on a leg that is not destroyed (`MovePathHandler.java:1283-1286`, `Entity.checkRunningWithDamage` `Entity.java:9138-9148`, `TWRulesPSR.checkRunningWithDamage` `TWRulesPSR.java:62-77`, `Mek.hasHipCrit`). A heavy-duty gyro SHALL ignore its first hit. A hip and a gyro together SHALL still queue one PSR, and a Walk or Jump SHALL queue none. One shared planner SHALL produce the PSR for the standalone runner, the interactive session, its AI, `GameEngine` movement and P2P host translation, which queue it right after `MovementDeclared` and before any terrain PSR. The PSR SHALL carry the `movement-step:<n>` trigger source of the last step of the path and the `running_damaged_gyro` reason code when the gyro damage counts, otherwise `running_damaged_hip`.
+
+#### Scenario: A hip crit on a multi-hex run
+
+- **WHEN** a BattleMech with a damaged hip runs three hexes
+- **THEN** one `running_damaged_hip` PSR SHALL be queued, stamped with the last step
+
+#### Scenario: Hip and gyro together
+
+- **WHEN** a BattleMech with a damaged hip and one gyro hit runs
+- **THEN** one PSR SHALL be queued, not two
+
+#### Scenario: Heavy-duty gyro
+
+- **WHEN** a BattleMech with a heavy-duty gyro and one gyro hit runs
+- **THEN** no PSR SHALL be queued
+- **AND** with two gyro hits one SHALL be queued
+
+#### Scenario: Walking or jumping
+
+- **WHEN** a BattleMech with a damaged hip or gyro walks or jumps
+- **THEN** no running-with-damage PSR SHALL be queued
+
+#### Scenario: A unit that cannot fall
+
+- **WHEN** a prone unit or a unit that is not a BattleMech runs with a damaged hip or gyro
+- **THEN** no running-with-damage PSR SHALL be queued
+
+#### Scenario: Destroyed leg
+
+- **WHEN** the only hip critical is on a destroyed leg
+- **THEN** no running-with-damage PSR SHALL be queued
+
+### Requirement: Sideslip And Flanking PSRs Are Not Queued For BattleMechs
+
+Controlled-sideslip and flanking-and-turning PSRs SHALL NOT be queued for a BattleMech by any movement path. MegaMek 48fcb2f64 calls `Entity.checkSideSlip` (`Entity.java:14083-14123`) only for VTOL, hover and WiGE-with-clearance movement (`MovePathHandler.java:3715-3727`; the client prediction in `SharedUtility.java:397-402` has the same gate). The `controlled_sideslip` and `flanking_and_turning` reason codes, their factories, and the Maneuvering Ace relief on a pending `flanking_and_turning` PSR SHALL remain so older replays and journals parse and resolve. Vehicle production of these PSRs, with the skid and motive-damage outcome, belongs to the vehicle combat matrix.
+
+#### Scenario: A BattleMech runs and turns
+
+- **WHEN** a BattleMech runs two hexes, turns, and moves again
+- **THEN** no `flanking_and_turning` PSR SHALL be queued
+
+#### Scenario: A Maneuvering Ace lateral shift
+
+- **WHEN** a BattleMech with Maneuvering Ace makes a walking or running lateral shift
+- **THEN** no `controlled_sideslip` PSR SHALL be queued
+
+#### Scenario: Older journals
+
+- **WHEN** a journal holds a pending `flanking_and_turning` PSR for a pilot with Maneuvering Ace
+- **THEN** it SHALL resolve with the `-1` Maneuvering Ace modifier as before
 
