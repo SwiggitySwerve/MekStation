@@ -32,6 +32,7 @@ const GATE_COMMAND =
   'e2e/customizer-equipment-catalog.spec.ts ' +
   'e2e/customizer-record-sheet-rendering.spec.ts ' +
   'e2e/customizer-edit-recovery.spec.ts ' +
+  'e2e/customizer-mech-crew-roster.spec.ts ' +
   'e2e/gm-campaign-ledger-control-plane.spec.ts ' +
   '--project=chromium --retries=0 --trace=retain-on-failure ' +
   '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';

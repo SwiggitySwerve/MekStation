@@ -1,5 +1,5 @@
 {
-  "sourceCommit": "3e96c2283549ec025290382283b15b22c52c37bc",
+  "sourceCommit": "954394f1bd3727d938aa882371d0dbd061e4632a",
   "units": {
     "triskelion-trk-4v": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json",
@@ -108,6 +108,16 @@
           "text": "Clan Ferro-Fibrous",
           "location": "Right Leg",
           "slot": 5
+        },
+        {
+          "text": "IS Endo-Composite",
+          "location": "Center Leg",
+          "slot": 4
+        },
+        {
+          "text": "Clan Ferro-Fibrous",
+          "location": "Center Leg",
+          "slot": 5
         }
       ]
     },
@@ -182,6 +192,16 @@
         {
           "text": "ISAntiPersonnelPod",
           "location": "Right Leg",
+          "slot": 5
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Center Leg",
+          "slot": 4
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Center Leg",
           "slot": 5
         }
       ]

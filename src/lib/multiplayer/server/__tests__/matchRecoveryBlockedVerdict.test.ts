@@ -27,10 +27,17 @@
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 import {
   GameEventType,
   GamePhase,
 } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  createGameSession,
+  GameEventIdCollisionError,
+  GameEventSequenceError,
+} from '@/utils/gameplay/gameSession';
+import { logger } from '@/utils/logger';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -71,6 +78,90 @@ function orphanEvent(matchId: string): IGameEvent {
 }
 
 describe('match recovery blocked verdicts', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it.each([
+    new GameEventIdCollisionError('injected'),
+    new GameEventSequenceError(0, 1),
+  ])(
+    'logs an injected $name and continues recovery without publishing a partial host',
+    async (error) => {
+      const store = new InMemoryMatchStore();
+      await store.createMatch(activeMatch('match-refused'));
+      await store.createMatch(activeMatch('match-next'));
+      const read = jest
+        .spyOn(store, 'getEvents')
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue([]);
+      const warn = jest
+        .spyOn(logger, 'warn')
+        .mockImplementation(() => undefined);
+      const result = await recoverActiveMatches(store);
+      expect(result.hosts.size).toBe(0);
+      expect(result.failed).toEqual(['match-refused', 'match-next']);
+      expect(read).toHaveBeenCalledWith('match-next', expect.any(Number));
+      expect(warn).toHaveBeenCalledWith(
+        '[MatchRecovery] failed to rebuild match match-refused',
+        error,
+      );
+      expect((await store.getMatchMeta('match-refused')).status).toBe('active');
+    },
+  );
+
+  it.each(['collision', 'sequence'])(
+    'logs and quarantines a persisted %s without changing its bytes',
+    async (kind) => {
+      const store = new InMemoryMatchStore();
+      const meta = activeMatch('match-corrupt');
+      await store.createMatch(meta);
+      const seed = createGameSession(
+        {
+          mapRadius: 4,
+          turnLimit: 5,
+          victoryConditions: ['elimination'],
+          optionalRules: [],
+        },
+        [],
+        { id: meta.matchId },
+      ).events[0];
+      const events = [
+        seed,
+        {
+          ...seed,
+          id: kind === 'collision' ? seed.id : 'different-id',
+          sequence: kind === 'collision' ? 1 : 0,
+          timestamp: 'conflicting',
+        },
+      ];
+      jest.spyOn(store, 'getEvents').mockResolvedValue(events);
+      const warn = jest
+        .spyOn(logger, 'warn')
+        .mockImplementation(() => undefined);
+      const snapshot = JSON.stringify(events);
+      const quarantine = new ReplayQuarantineRegistry();
+      const result = await recoverActiveMatches(store, quarantine);
+      const reason =
+        kind === 'collision' ? 'duplicate-receipt' : 'sequence-gap';
+      expect(result.hosts.size).toBe(0);
+      expect(result.failed).toEqual([meta.matchId]);
+      expect(result.blocked[0]?.reason).toBe(reason);
+      expect(
+        quarantine.isQuarantined({
+          authorityType: 'match',
+          authorityId: meta.matchId,
+        }),
+      ).toBe(true);
+      expect(warn).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `[MatchRecovery] match match-corrupt is not recoverable (${reason})`,
+        ),
+        expect.any(Array),
+      );
+      expect(JSON.stringify(events)).toBe(snapshot);
+      expect((await store.getMatchMeta(meta.matchId)).status).toBe('active');
+    },
+  );
+
   it('an empty log is blocked by name, and nothing is registered for it', async () => {
     const store = new InMemoryMatchStore();
     await store.createMatch(activeMatch('match-empty'));

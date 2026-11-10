@@ -859,7 +859,7 @@ jobs:
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
-        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-mech-crew-roster.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
