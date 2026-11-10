@@ -38,6 +38,8 @@ import type {
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
+import { GM_TACTICAL_CORRECTIONS_UNAVAILABLE_REASON } from '@/lib/interventions/GmTacticalCommandPreviewAdapter';
+
 import {
   AttackIntentComposer,
   type IAttackComposerContext,
@@ -201,6 +203,11 @@ function CommandGroup({
             ))}
           </div>
         </div>
+      )}
+      {category === 'gm' && (
+        <p className="text-text-theme-secondary w-full text-xs">
+          {GM_TACTICAL_CORRECTIONS_UNAVAILABLE_REASON}
+        </p>
       )}
     </div>
   );

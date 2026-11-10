@@ -13,6 +13,7 @@ import type { CommandAvailability, ITacticalCommand } from '@/types/gameplay';
 
 import {
   buildGmTacticalCommandIntent,
+  getGmTacticalCorrectionBlockReason,
   GM_TACTICAL_PREVIEW_ACTION_ID,
   type GmTacticalCommandId,
 } from '@/lib/interventions';
@@ -31,7 +32,19 @@ export function buildGmReferralCommands(): readonly ITacticalCommand[] {
     GmSetObjectiveCommand,
     GmReloadUnitCommand,
     GmGrantResourceCommand,
-  ];
+  ].map((command): ITacticalCommand => {
+    const reason = getGmTacticalCorrectionBlockReason(command.id);
+    if (!reason) return command;
+    return {
+      ...command,
+      availability: (ctx) => {
+        const availability = command.availability(ctx);
+        return availability.available
+          ? { available: false, reason }
+          : availability;
+      },
+    };
+  });
 }
 
 const GmAdvancePhaseCommand: ITacticalCommand = {
