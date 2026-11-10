@@ -183,5 +183,8 @@
   },
   "mulId": 7309,
   "role": "Sniper",
-  "source": "OTP:WA"
+  "source": "OTP:WA",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

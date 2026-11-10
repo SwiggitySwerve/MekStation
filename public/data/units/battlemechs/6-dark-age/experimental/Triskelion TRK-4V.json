@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TRIPOD",
   "structure": {
     "type": "ENDO_COMPOSITE"
   },
@@ -191,5 +191,8 @@
   },
   "mulId": 7384,
   "role": "Brawler",
-  "source": "XTR:RotS 3"
+  "source": "XTR:RotS 3",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -194,5 +194,8 @@
   "source": "BD:BH",
   "weaponQuirks": {
     "RA:4:CLERLargeLaser": ["jettison_capable"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

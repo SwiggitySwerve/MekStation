@@ -85,6 +85,23 @@ const ship = (overrides: Partial<Source> = {}): Source => ({
   transporters: ['crewquarters:42:0:1'],
   ...overrides,
 });
+it('charges no fighter SI mass above the derived default (Thrush Maximillian)', () => {
+  // TestAero.java:1099-1118, MegaMek 48fcb2f64: no fighter SI component.
+  const fighter: Source = {
+    unitType: 'AeroSpaceFighter',
+    tonnage: 25,
+    safeThrust: 15,
+    year: 3000,
+    type: 'IS Level 2',
+    armor: [0, 0, 0, 0],
+    rawTags: {},
+    structuralIntegrity: 15,
+  };
+  expect(aerospaceSourceWeight(fighter)).toBe(26.5);
+  expect(aerospaceSourceWeight({ ...fighter, structuralIntegrity: 3 })).toBe(
+    aerospaceSourceWeight(fighter),
+  );
+});
 it('rounds officers up after deducting bay personnel', () => {
   expect(
     validateAerospaceSource(

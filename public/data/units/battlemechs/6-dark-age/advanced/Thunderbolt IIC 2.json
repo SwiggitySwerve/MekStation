@@ -199,5 +199,8 @@
     "LT:5:CLMediumPulseLaser": ["mod_weapons"],
     "LT:6:CLMediumPulseLaser": ["mod_weapons"],
     "RT:4:CLImprovedHeavyLargeLaser": ["mod_weapons"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

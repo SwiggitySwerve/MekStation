@@ -200,5 +200,8 @@
     "LA:6:CLImprovedMediumHeavyLaser": ["stable_weapon"],
     "LA:8:CLImprovedMediumHeavyLaser": ["stable_weapon"],
     "RA:4:Hatchet": ["stable_weapon"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

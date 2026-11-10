@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import { spawnSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -180,5 +181,111 @@ describe('classify (which test files need jest-dom)', () => {
     const { free, needs } = usage.classify(root);
     expect(free).toEqual([]);
     expect([...needs.keys()]).toEqual(['src/g.test.ts']);
+  });
+});
+
+describe('jest-dom usage --check', () => {
+  let root: string;
+  let listFile: string;
+
+  const write = (relative: string, text: string) => {
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, text);
+  };
+  const check = (listed: string[]) => {
+    const original = JSON.stringify(listed);
+    fs.writeFileSync(listFile, original);
+    const result = spawnSync(
+      process.execPath,
+      [
+        '-e',
+        'process.exitCode = require(process.argv[1]).run(["--check"], process.argv[2]);',
+        path.join(ROOT, 'scripts/jest/jest-dom-usage.js'),
+        root,
+      ],
+      { cwd: root, encoding: 'utf8' },
+    );
+    expect(result.error).toBeUndefined();
+    expect(fs.readFileSync(listFile, 'utf8')).toBe(original);
+    return result;
+  };
+
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'jest-dom-check-'));
+    listFile = path.join(root, 'config/jest/no-jest-dom-tests.json');
+    write('jest.setup.js', "import '@testing-library/jest-dom';\n");
+    write('config/jest/no-jest-dom-tests.json', '[]');
+  });
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('fails and names a deleted listed file', () => {
+    write('src/deleted.test.ts', 'expect(1).toBe(1);');
+    fs.unlinkSync(path.join(root, 'src/deleted.test.ts'));
+    const result = check(['src/deleted.test.ts']);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'src/deleted.test.ts: file no longer exists',
+    );
+  });
+
+  it.each([
+    'src/renamed.ts',
+    'src/access.a11y.test.tsx',
+    'e2e/browser.test.ts',
+  ])(
+    'fails when a listed file is no longer a unit-project test: %s',
+    (file) => {
+      write(file, 'expect(1).toBe(1);');
+      const result = check([file]);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain(`${file}: not a unit-project test file`);
+    },
+  );
+
+  it('fails when a listed test gains a matcher through its import closure', () => {
+    write('src/plain.test.ts', "import './helper';");
+    write('src/helper.ts', 'expect(1).toBe(1);');
+    expect(check(['src/plain.test.ts']).status).toBe(0);
+    write('src/helper.ts', 'expect(document.body).toBeVisible();');
+    const result = check(['src/plain.test.ts']);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'src/plain.test.ts: needs jest-dom (src/helper.ts)',
+    );
+  });
+
+  it('reports every unsafe listed entry', () => {
+    write('src/matcher.test.ts', 'expect(document.body).toBeVisible();');
+    const result = check(['src/deleted.test.ts', 'src/matcher.test.ts']);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'src/deleted.test.ts: file no longer exists',
+    );
+    expect(result.stderr).toContain('src/matcher.test.ts: needs jest-dom');
+  });
+
+  it('succeeds with an advisory for an unlisted free test', () => {
+    write('src/plain.test.ts', 'expect(1).toBe(1);');
+    const result = check([]);
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout.trim()).toBe(
+      '1 unlisted test files could skip jest-dom (run --write)',
+    );
+  });
+
+  it('succeeds with count zero for a clean list', () => {
+    write('src/plain.test.ts', 'expect(1).toBe(1);');
+    write('src/matcher.test.ts', 'expect(document.body).toBeVisible();');
+    const result = check(['src/plain.test.ts']);
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout.trim()).toBe(
+      '0 unlisted test files could skip jest-dom (run --write)',
+    );
   });
 });
