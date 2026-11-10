@@ -50,7 +50,7 @@ export interface IProtoMechBVMountValue {
 
 /** Retained public weapon snapshot contract. */
 export type IProtoMechBVWeaponMount = IProtoMechBVMountValue & {
-  /** Native diagnostic index when intrinsic ammo shifts the source index. */
+  /** Added by trace enrichment when intrinsic ammo shifts the source index. */
   readonly nativeEquipmentIndex?: number;
 };
 
@@ -131,12 +131,22 @@ export function isInfantryBVWeaponTerm(
   return /^weapon\.(?:-1\.TPRS|\d+\.FGUN)\..+$/.test(key);
 }
 
+/** Native field-gun AmmoType:rackSize pools before excessive-ammo capping. */
+export type InfantryBVAmmoTerm =
+  `ammo.${'cap' | 'available'}.${string}:${number}`;
+
+export function isInfantryBVAmmoTerm(key: string): key is InfantryBVAmmoTerm {
+  return /^ammo\.(?:cap|available)\.[A-Z][A-Z0-9_]*:\d+$(?![\s\S])/.test(key);
+}
+
 export interface IInfantryBVBreakdown
   extends
     Readonly<
       Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
     >,
-    Readonly<Partial<Record<InfantryBVWeaponTerm, number>>> {
+    Readonly<
+      Partial<Record<InfantryBVWeaponTerm | InfantryBVAmmoTerm, number>>
+    > {
   /** Defensive aggregate, including represented source movement and stealth. */
   readonly defensiveBV: number;
   readonly perTrooper: number;
@@ -193,4 +203,18 @@ export interface IBABreakdown {
   readonly ammoAvailableBVByPool?: Readonly<Record<string, number>>;
   /** Native `ammoType:rackSize` -> launcher BV in that pool (Java weaponsForExcessiveAmmo). */
   readonly ammoCapBVByPool?: Readonly<Record<string, number>>;
+  /**
+   * Per trooper (index 0 = trooper 1): each counted native weapon or claw mount
+   * and its summed pass value (Java `weapon.<n>.<loc>.<name>`).
+   */
+  readonly nativeWeaponBVByTrooper?: readonly (readonly IBANativeWeaponValue[])[];
+}
+
+export interface IBANativeWeaponValue {
+  /** Mount order among the unit's native weapon facts (unique per unit). */
+  readonly index: number;
+  readonly id: string;
+  /** Native entity location: Squad, Point or `Trooper N`. */
+  readonly location: string;
+  readonly battleValue: number;
 }

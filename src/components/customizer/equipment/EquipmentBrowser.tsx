@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { useEquipmentBrowser } from '@/hooks/useEquipmentBrowser';
 import { SortColumn } from '@/stores/useEquipmentStore';
 import { IEquipmentItem } from '@/types/equipment';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /** @spec openspec/specs/equipment-browser/spec.md */
 import workbenchStyles from '../CustomizerWorkbench.module.css';
@@ -30,6 +31,7 @@ import { EquipmentCatalogCard } from './EquipmentCatalogCard';
 const SCROLL_HINT = 'More below';
 
 export interface EquipmentBrowserProps {
+  unitType?: UnitType;
   onAddEquipment: (equipment: IEquipmentItem) => void;
   onAddAndPlace?: (equipment: IEquipmentItem) => void;
   className?: string;
@@ -56,8 +58,9 @@ function EquipmentBrowserContent({
   readOnly = false,
   addHint = 'Added to the unit.',
   catalogFilter,
+  unitType,
 }: EquipmentBrowserProps): React.ReactElement {
-  const browser = useEquipmentBrowser({ catalogFilter });
+  const browser = useEquipmentBrowser({ catalogFilter, unitType });
   const unit = useContext(EquipmentBrowserUnitContext);
   const capacity = unit ? getCatalogCapacityNotice(unit) : undefined;
   // At the limit every Add names the notice as its description.

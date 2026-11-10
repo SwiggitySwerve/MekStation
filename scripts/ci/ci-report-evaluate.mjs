@@ -1,5 +1,6 @@
 // Soft timing budgets have no authority over test/workflow conclusions.
 import { median } from '../lib/statistics.mjs';
+import { PACKAGE_METRIC_IDS, packageMetricValues } from './budget-config.mjs';
 import {
   mainMedians,
   TIMING_GROWTH_RATIO,
@@ -16,6 +17,8 @@ export function evaluateReport({
   limits = {},
   tests,
   testBaselines = [],
+  packages = null,
+  packageBaselines = [],
 }) {
   const main = mainMedians(baselines, observation);
   const missing = [...observation.missing];
@@ -115,6 +118,7 @@ export function evaluateReport({
     observation,
     main,
     rows,
+    packages: packageRows(packages, packageBaselines, main.included),
     tests: testComparison,
     breach,
     labelComplete,
@@ -122,6 +126,45 @@ export function evaluateReport({
     status: breach ? 'review' : missing.length ? 'missing' : 'within',
     missing,
   };
+}
+
+/** Byte trends do not participate in verdicts, labels, approvals or ratchets. */
+function packageRows(packages, baselines, included) {
+  const key = (identity) =>
+    `${identity.runId}/${identity.attempt}/${identity.headSha}`;
+  const allowed = new Set(included.map(key));
+  const read = (all, kind) => {
+    try {
+      const metrics = all?.[kind]?.metrics ?? all?.[kind];
+      return metrics ? packageMetricValues({ ...metrics, kind }) : {};
+    } catch {
+      return {}; // Invalid advisory telemetry remains explicitly unavailable.
+    }
+  };
+  return Object.entries(PACKAGE_METRIC_IDS).flatMap(([kind, ids]) => {
+    const current = read(packages, kind);
+    return ids.map((id) => {
+      const samples = baselines
+        .filter((entry) => allowed.has(key(entry.observation.identity)))
+        .map((entry) => ({
+          identity: entry.observation.identity,
+          value: read(entry.packages, kind)[id],
+        }))
+        .filter((entry) => Number.isSafeInteger(entry.value));
+      const mainMedian = samples.length
+        ? median(samples.map((entry) => entry.value))
+        : null;
+      const value = current[id] ?? null;
+      return {
+        id,
+        value,
+        mainMedian,
+        deltaBytes:
+          value === null || mainMedian === null ? null : value - mainMedian,
+        sources: samples.map(({ identity }) => identity),
+      };
+    });
+  });
 }
 
 const cell = (value) =>
@@ -159,6 +202,19 @@ export function renderReport(report) {
     `Main baseline: ${report.main.included.length} complete comparable successful pushes; ${report.main.excluded.length} samples retained but excluded.`,
     `Review labels use per-job budget breaches or aggregate timings more than 20% over main p75 with at least ${MIN_TIMING_MAIN_SAMPLES} comparable main samples. Below that count, aggregates are informational. Aggregate display caps and test-file growth are informational. Investigations do not establish regression or cause.`,
   ];
+  if (report.packages?.length) {
+    const bytes = (value) => (value === null ? 'unavailable' : `${value} B`);
+    lines.push(
+      '',
+      'Package bytes (advisory; no size limits or approval requirements):',
+      '| Metric | Measured | Main median | Signed delta | Baseline run/attempt/head |',
+      '| --- | ---: | ---: | ---: | --- |',
+      ...report.packages.map(
+        (row) =>
+          `| ${cell(row.id)} | ${bytes(row.value)} | ${bytes(row.mainMedian)} | ${row.deltaBytes === null ? 'unavailable' : `${row.deltaBytes >= 0 ? '+' : ''}${row.deltaBytes} B`} | ${row.sources.length ? row.sources.map((id) => `${id.runId}/${id.attempt}/\`${id.headSha}\``).join(', ') : 'unavailable'} |`,
+      ),
+    );
+  }
   if (report.main.excluded.length)
     lines.push(
       '',

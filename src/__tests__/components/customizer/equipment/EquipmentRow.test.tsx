@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { EquipmentRow } from '@/components/customizer/equipment/EquipmentRow';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import {
@@ -67,6 +68,49 @@ describe('EquipmentRow', () => {
     introductionYear: 2300,
     ...overrides,
   });
+
+  it.each(Object.values(EquipmentCategory))(
+    'preserves weapon readouts for category %s',
+    (category) => {
+      const weaponCategories = [
+        EquipmentCategory.ENERGY_WEAPON,
+        EquipmentCategory.BALLISTIC_WEAPON,
+        EquipmentCategory.MISSILE_WEAPON,
+        EquipmentCategory.ARTILLERY,
+        EquipmentCategory.CAPITAL_WEAPON,
+        EquipmentCategory.PHYSICAL_WEAPON,
+      ];
+      const lookup = jest
+        .spyOn(getEquipmentLookupService(), 'getAllWeapons')
+        .mockReturnValue([createMockWeapon({ damage: 17, heat: 19 })]);
+      const { container } = render(
+        <table>
+          <tbody>
+            <EquipmentRow
+              equipment={createEquipment({ category })}
+              onAdd={jest.fn()}
+            />
+            <EquipmentRow
+              equipment={createEquipment({ category })}
+              onAdd={jest.fn()}
+              compact
+            />
+          </tbody>
+        </table>,
+      );
+      for (const row of container.querySelectorAll('tr')) {
+        const values = [...row.querySelectorAll('td')]
+          .slice(1, 4)
+          .map((cell) => cell.textContent);
+        expect(values).toEqual(
+          weaponCategories.includes(category)
+            ? ['3/6/9', '17', '19']
+            : ['-', '-', '-'],
+        );
+      }
+      lookup.mockRestore();
+    },
+  );
 
   it('should render equipment name', () => {
     const equipment = createEquipment();
