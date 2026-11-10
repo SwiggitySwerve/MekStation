@@ -112,8 +112,10 @@ describe('Pinned undamaged ProtoMech running movement', () => {
     );
     store.getState().setCruiseMP(0);
     expect(store.getState()).toMatchObject({ walkMP: 1, flankMP: 2 });
-    store.getState().setWalkMP(99);
-    expect(store.getState()).toMatchObject({ walkMP: 8, flankMP: 12 });
+    // MML bounds walk only by the engine (rating <= 500): a 2 t biped's fastest walk is
+    // 166, whose rating is 498; walk 167 would need 502 (PMStructureTab.java:264-276).
+    store.getState().setWalkMP(999);
+    expect(store.getState()).toMatchObject({ walkMP: 166, flankMP: 249 });
     store.getState().setEngineRating(0);
     expect(store.getState()).toMatchObject({
       walkMP: 0,
