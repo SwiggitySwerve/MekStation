@@ -30,6 +30,7 @@
 
 import React, { useCallback, useSyncExternalStore } from 'react';
 
+import { isElectron } from '@/components/settings/useElectron';
 import { Badge, Button, Card } from '@/components/ui';
 import {
   isLifecycleRefusalCode,
@@ -124,7 +125,10 @@ export function CampaignSaveStatusCard({
     isLifecycleRefusalCode(saveRefusal.code)
       ? saveRefusal
       : null;
-  const canReload = rulesRefusal?.code === LIFECYCLE_UNSUPPORTED_CODE;
+  // A reload in the desktop shell serves the same embedded build, so it
+  // updates nothing there: the sentence says to update the app, no button.
+  const canReload =
+    rulesRefusal?.code === LIFECYCLE_UNSUPPORTED_CODE && !isElectron();
   const outdatedTabNotices = useSyncExternalStore(
     subscribeOutdatedTabNotices,
     getOutdatedTabNotices,

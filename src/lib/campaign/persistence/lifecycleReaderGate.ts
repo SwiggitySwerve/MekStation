@@ -110,6 +110,31 @@ export type LifecycleRefusal = Extract<
   { kind: 'refuse' }
 >;
 
+/**
+ * How a person updates, closing the 426 sentence. The server writes the browser
+ * form: it cannot tell the desktop shell from a tab, and a reload there serves
+ * the same embedded build, so the desktop client swaps in the second form
+ * (`lifecycleRefusalMessageFor`).
+ */
+export const LIFECYCLE_UPDATE_GUIDANCE_BROWSER =
+  'Reload this page to update, then try again.';
+export const LIFECYCLE_UPDATE_GUIDANCE_DESKTOP =
+  'Update MekStation, then open this campaign again.';
+
+/** The sentence a client shows for a refusal; only the 426 differs by shell. */
+export function lifecycleRefusalMessageFor(
+  code: string,
+  message: string,
+  desktop: boolean,
+): string {
+  return desktop && code === LIFECYCLE_UNSUPPORTED_CODE
+    ? message.replace(
+        LIFECYCLE_UPDATE_GUIDANCE_BROWSER,
+        LIFECYCLE_UPDATE_GUIDANCE_DESKTOP,
+      )
+    : message;
+}
+
 /** The 426/422 body. `error` is what a person reads; the rest is for code. */
 export function lifecycleRefusalBody(refusal: LifecycleRefusal) {
   const { requiredLifecycleRules: required, readerLifecycleRules: reader } =
@@ -118,8 +143,8 @@ export function lifecycleRefusalBody(refusal: LifecycleRefusal) {
     refusal.status === 422
       ? 'This campaign has contract data this copy of MekStation cannot read, so changes to it are not saved. You can still look at it. Nothing was changed.'
       : required === null
-        ? 'This campaign has contract data this copy of MekStation cannot read. Reload this page to update, then try again. Nothing was changed.'
-        : `This campaign uses contract rules newer than this copy of MekStation reads (it needs rules ${required}; this copy reads rules ${reader}). Reload this page to update, then try again. Nothing was changed.`;
+        ? `This campaign has contract data this copy of MekStation cannot read. ${LIFECYCLE_UPDATE_GUIDANCE_BROWSER} Nothing was changed.`
+        : `This campaign uses contract rules newer than this copy of MekStation reads (it needs rules ${required}; this copy reads rules ${reader}). ${LIFECYCLE_UPDATE_GUIDANCE_BROWSER} Nothing was changed.`;
   return {
     kind: 'refused' as const,
     code: refusal.code,

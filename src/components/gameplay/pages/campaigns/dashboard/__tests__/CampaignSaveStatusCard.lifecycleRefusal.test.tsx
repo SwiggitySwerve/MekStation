@@ -60,6 +60,30 @@ describe('CampaignSaveStatusCard reader-gate refusal', () => {
     expect(reloadPage).toHaveBeenCalledTimes(1);
   });
 
+  describe('in the desktop shell, where a reload updates nothing', () => {
+    beforeEach(() => {
+      (window as unknown as { electronAPI: object }).electronAPI = {};
+    });
+    afterEach(() => {
+      delete (window as unknown as { electronAPI?: object }).electronAPI;
+    });
+
+    it('shows the update sentence with no Reload and no Save now', () => {
+      const desktopSentence = SENTENCE.replace(
+        'Reload this page to update, then try again.',
+        'Update MekStation, then open this campaign again.',
+      );
+      refuseWith('CAMPAIGN_LIFECYCLE_RULES_UNSUPPORTED', desktopSentence);
+      render(<CampaignSaveStatusCard />);
+      expect(
+        screen.getByTestId('campaign-lifecycle-refused'),
+      ).toHaveTextContent('Update MekStation, then open this campaign again.');
+      expect(screen.queryByRole('button', { name: 'Reload' })).toBeNull();
+      expect(screen.queryByTestId('campaign-lifecycle-reload-btn')).toBeNull();
+      expect(screen.queryByTestId('campaign-save-now-btn')).toBeNull();
+    });
+  });
+
   it('for an unreadable version shows the sentence and offers neither Reload nor Save now', () => {
     refuseWith(
       'CAMPAIGN_LIFECYCLE_RULES_UNREADABLE',

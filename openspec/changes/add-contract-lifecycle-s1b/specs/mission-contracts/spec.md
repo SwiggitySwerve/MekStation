@@ -117,3 +117,22 @@ migration S7 will add SHALL be designed and not activated.
 - **GIVEN** a backup recorded by app 0.3.0 and a running app 0.2.4
 - **WHEN** restore is requested
 - **THEN** it fails with a plain-language message and the data directory is unchanged
+
+#### Scenario: Unreadable recorded version
+
+- **GIVEN** a backup whose recorded app version is not a readable version
+- **WHEN** restore is requested
+- **THEN** it fails, the message quotes the raw recorded value as a value, and the data directory is unchanged
+
+### Requirement: Refusal wording by shell
+
+The 426 refusal SHALL tell a browser tab to reload and SHALL tell the desktop
+shell to update the app, because a reload in the desktop shell serves the same
+embedded build. The shell SHALL be told apart by the existing `isElectron()`
+detection, and the desktop shell SHALL NOT offer a Reload action for the refusal.
+
+#### Scenario: Desktop shell
+
+- **GIVEN** the campaign page runs in the desktop shell and the server answers 426
+- **WHEN** the refusal is shown
+- **THEN** the sentence ends "Update MekStation, then open this campaign again." and no Reload button is offered

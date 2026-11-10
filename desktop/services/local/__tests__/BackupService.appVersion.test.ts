@@ -153,6 +153,47 @@ describe('BackupService restore and the app version', () => {
     );
     const result = await (await service('0.2.4')).restoreBackup(backup);
     expect(result.success).toBe(false);
+    if (result.success) return;
+    // The raw recorded value is quoted as a value, not run into the sentence.
+    expect(result.error).toBe(
+      'This backup records the MekStation version "newest", which this copy cannot read, so it cannot be restored safely. Update MekStation, then restore again. Nothing was changed.',
+    );
+  });
+
+  it.each([
+    ['11.2.0', '10.9.9'],
+    ['0.10.0', '0.9.0'],
+    ['1.0.0', '1.0.0-rc.1'],
+  ])(
+    'the refusal names the backup version (%s) and the running version (%s) it was given, not fixed examples',
+    async (made, running) => {
+      const backup = await makeBackupBy(made);
+      const result = await (await service(running)).restoreBackup(backup);
+      expect(result.success).toBe(false);
+      if (result.success) return;
+      expect(result.error).toBe(
+        `This backup was made by MekStation ${made} and cannot be restored into ${running} safely, because it may contain campaigns this version cannot read. Update MekStation, then restore again. Nothing was changed.`,
+      );
+    },
+  );
+
+  it('quotes an unreadable recorded value with its own characters escaped', async () => {
+    const backup = await makeBackupBy('0.3.0');
+    const metadataFile = path.join(
+      backupPath,
+      '.metadata',
+      `${path.basename(backup, '.tar.gz')}.json`,
+    );
+    const metadata = JSON.parse(await fs.readFile(metadataFile, 'utf8'));
+    await fs.writeFile(
+      metadataFile,
+      JSON.stringify({ ...metadata, appVersion: 'v"2"\nbeta' }),
+    );
+    const result = await (await service('0.2.4')).restoreBackup(backup);
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error).toContain('version "v\\"2\\"\\nbeta", which');
+    expect(result.error).not.toContain('\n');
   });
 
   it('applies no check when the running app version is not configured', async () => {

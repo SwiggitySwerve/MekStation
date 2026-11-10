@@ -466,7 +466,8 @@ export class BackupService implements IService {
     if (order !== null && order <= 0) return null;
     const made = metadata.appVersion;
     return order === null
-      ? `This backup records a MekStation version this copy cannot read (${made}), so it cannot be restored safely. Update MekStation, then restore again. Nothing was changed.`
+      ? // The raw recorded value, quoted so it reads as a value and not as prose.
+        `This backup records the MekStation version ${JSON.stringify(made)}, which this copy cannot read, so it cannot be restored safely. Update MekStation, then restore again. Nothing was changed.`
       : `This backup was made by MekStation ${made} and cannot be restored into ${running} safely, because it may contain campaigns this version cannot read. Update MekStation, then restore again. Nothing was changed.`;
   }
 

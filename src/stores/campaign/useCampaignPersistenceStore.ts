@@ -22,6 +22,7 @@ import type {
   SerializedCampaignRosterState,
 } from '@/types/campaign/SerializedCampaign';
 
+import { isElectron } from '@/components/settings/useElectron';
 import { toast } from '@/components/shared/Toast';
 import { evaluateCampaignAdoptionOffer } from '@/lib/campaign/authority/campaignLegacyAdoption';
 import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
@@ -36,7 +37,10 @@ import {
   campaignCacheKeyOf,
   evaluateCampaignCache,
 } from '@/lib/campaign/persistence/campaignCacheKey';
-import { lifecycleRulesRequestHeaders } from '@/lib/campaign/persistence/lifecycleReaderGate';
+import {
+  lifecycleRefusalMessageFor,
+  lifecycleRulesRequestHeaders,
+} from '@/lib/campaign/persistence/lifecycleReaderGate';
 import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
@@ -612,7 +616,9 @@ export function readSaveRefusal(body: unknown): ICampaignSaveRefusal | null {
   return {
     code: typed.code,
     reason: typeof typed.reason === 'string' ? typed.reason : typed.code,
-    message: typed.error,
+    // The 426 tells a browser tab to reload; the desktop shell serves the same
+    // embedded build on reload, so it is told to update the app instead.
+    message: lifecycleRefusalMessageFor(typed.code, typed.error, isElectron()),
   };
 }
 

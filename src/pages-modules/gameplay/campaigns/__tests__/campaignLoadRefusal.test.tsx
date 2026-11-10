@@ -59,6 +59,49 @@ describe('campaign load errors under the reader gate', () => {
     expect(reloadPage).toHaveBeenCalledTimes(1);
   });
 
+  describe('in the desktop shell, where a reload updates nothing', () => {
+    const DESKTOP_SENTENCE = SENTENCE.replace(
+      'Reload this page to update, then try again.',
+      'Update MekStation, then open this campaign again.',
+    );
+
+    beforeEach(() => {
+      (window as unknown as { electronAPI: object }).electronAPI = {};
+    });
+    afterEach(() => {
+      delete (window as unknown as { electronAPI?: object }).electronAPI;
+    });
+
+    it.each([
+      ['bay', CampaignBayLoadError, 'bay-error-retry'],
+      ['command', CampaignCommandLoadError, 'command-error-retry'],
+    ])('offers no Reload and no Retry on a %s page', (_page, Block, testId) => {
+      const loadStatus = {
+        ...status('CAMPAIGN_LIFECYCLE_RULES_UNSUPPORTED'),
+        errorMessage: DESKTOP_SENTENCE,
+      };
+      const reloadPage = jest.fn();
+      render(
+        <Block
+          campaignId="c1"
+          loadStatus={loadStatus}
+          reloadPage={reloadPage}
+        />,
+      );
+      expect(screen.getByText(DESKTOP_SENTENCE)).toBeInTheDocument();
+      expect(screen.queryByRole('button')).toBeNull();
+      expect(screen.queryByTestId(testId)).toBeNull();
+      expect(reloadPage).not.toHaveBeenCalled();
+    });
+
+    it('keeps Retry for every other error', () => {
+      render(
+        <CampaignBayLoadError campaignId="c1" loadStatus={status(null)} />,
+      );
+      expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+    });
+  });
+
   it('keeps Retry for every other error', () => {
     const loadStatus = status(null);
     render(<CampaignBayLoadError campaignId="c1" loadStatus={loadStatus} />);

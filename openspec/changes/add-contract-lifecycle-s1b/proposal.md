@@ -19,7 +19,9 @@ stamps version 2.
 - `Vary: X-MekStation-Lifecycle-Rules` on campaign GETs so the service worker
   cannot hand a version 2 body to a reader that did not ask for it.
 - Client: the header on every gated request, a typed refusal for 426/422, and a
-  Reload action where retrying cannot succeed.
+  Reload action where retrying cannot succeed (in the desktop shell, where a
+  reload serves the same embedded build, the sentence says to update the app and
+  there is no Reload button).
 - A local-storage seam: a campaign holding a contract above the reader level is
   written to `<key>.lifecycle` with a tombstone under the key older code reads;
   orphans are kept; a write by an outdated tab is overruled and the user told.

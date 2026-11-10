@@ -70,8 +70,8 @@ export function CommandEmpty({
 interface CommandErrorProps {
   /** Human-readable failure message. */
   readonly message: string;
-  /** Retry affordance — re-attempts the command-data load. */
-  readonly onRetry: () => void;
+  /** Retry affordance — re-attempts the command-data load. No button without it. */
+  readonly onRetry?: () => void;
   /** Button text; "Reload" where a retry against this build cannot succeed. */
   readonly retryLabel?: string;
 }
@@ -95,14 +95,16 @@ export function CommandError({
         Could not complete the command
       </h2>
       <p className="text-text-theme-secondary mb-6">{message}</p>
-      <button
-        type="button"
-        onClick={onRetry}
-        className="bg-surface-raised hover:bg-border-theme text-text-theme-primary inline-block rounded-lg px-6 py-2 transition-colors"
-        data-testid="command-error-retry"
-      >
-        {retryLabel}
-      </button>
+      {onRetry && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="bg-surface-raised hover:bg-border-theme text-text-theme-primary inline-block rounded-lg px-6 py-2 transition-colors"
+          data-testid="command-error-retry"
+        >
+          {retryLabel}
+        </button>
+      )}
     </div>
   );
 }

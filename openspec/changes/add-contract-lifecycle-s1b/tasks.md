@@ -3,6 +3,7 @@
 - [x] 1.1 Reader constant, header parse, refusal body and gate on GET/PUT `[id]`, adopt, redeem, commands.
 - [x] 1.2 Client header on every gated request, 426/422 refusal handling, Reload action.
 - [x] 1.3 `Vary` on campaign GETs; the shipped worker is proven not to replay across reader levels (no worker change).
+- [x] 1.4 Desktop wording for the 426 (update the app, no Reload button) and the quoted unreadable backup version.
 
 ## 2. Local storage
 

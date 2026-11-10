@@ -249,9 +249,16 @@ describe('lifecycleAwareStorage', () => {
         state: { campaign: null, activityLog: [] },
         version: 0,
       });
+      const slotBefore = localStorage.getItem(
+        `campaign-store${LIFECYCLE_SLOT_SUFFIX}`,
+      );
       localStorage.setItem('campaign-store', empty);
       expect(lifecycleAwareStorage.getItem('campaign-store')).toBe(empty);
       expect(getOutdatedTabNotices()).toEqual([]);
+      // Read as it stands, and the slot is kept as an orphan, not deleted.
+      expect(
+        localStorage.getItem(`campaign-store${LIFECYCLE_SLOT_SUFFIX}`),
+      ).toBe(slotBefore);
     });
 
     it('missions-<id>: an older tab rewriting its empty store is overruled silently, one with content is announced', () => {
