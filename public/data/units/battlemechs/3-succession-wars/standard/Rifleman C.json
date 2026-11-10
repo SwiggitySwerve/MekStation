@@ -188,5 +188,8 @@
   },
   "mulId": 2693,
   "role": "Sniper",
-  "source": "RG08,RGv1"
+  "source": "RG08,RGv1",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -12,6 +12,7 @@ import {
 } from '@/components/compendium/units/units.constants';
 import {
   sortUnits,
+  unitMatchesSelectFilters,
   type SortState,
 } from '@/components/compendium/units/units.helpers';
 import {
@@ -69,20 +70,6 @@ function unitMatchesSearch(unit: IUnitEntry, searchLower: string): boolean {
     unit.chassis.toLowerCase().includes(searchLower) ||
     unit.variant.toLowerCase().includes(searchLower)
   );
-}
-
-function unitMatchesSelectFilters(
-  unit: IUnitEntry,
-  filters: FilterState,
-): boolean {
-  if (filters.techBase && unit.techBase !== filters.techBase) return false;
-  if (filters.weightClass && unit.weightClass !== filters.weightClass) {
-    return false;
-  }
-  if (filters.rulesLevel && unit.rulesLevel !== filters.rulesLevel) {
-    return false;
-  }
-  return true;
 }
 
 function unitMatchesNumericFilters(

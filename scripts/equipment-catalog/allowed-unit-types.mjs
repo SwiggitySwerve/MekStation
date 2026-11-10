@@ -5,8 +5,15 @@ import { basename, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import source from './allowed-unit-types-source.json' with { type: 'json' };
-import { revision } from './generate.mjs';
 import { assertPinnedInputs } from './vehicle-slots.mjs';
+
+const { goalPins } = JSON.parse(
+  readFileSync(
+    new URL('../../config/reference-policy/derivation.json', import.meta.url),
+    'utf8',
+  ),
+);
+const revision = goalPins.megamek;
 
 /** Plan the approved field additions before writing any catalog or baseline. */
 export function planUnitTypeUpdates(manifest, facts, documents, baseline) {
@@ -72,6 +79,11 @@ export function planUnitTypeUpdates(manifest, facts, documents, baseline) {
 
 /** Append the field without reserializing existing inline ranges or slot facts. */
 export function appendUnitTypeField(text, id, flags) {
+  return appendCatalogField(text, id, 'allowedUnitTypes', flags);
+}
+
+/** Shared byte-preserving insertion for additive catalog metadata. */
+export function appendCatalogField(text, id, field, value) {
   const marker = `\n      "id": ${JSON.stringify(id)},`;
   const start = text.indexOf(marker);
   assert(
@@ -80,16 +92,27 @@ export function appendUnitTypeField(text, id, flags) {
   );
   const end = text.indexOf('\n    }', start);
   assert(end >= 0, `Missing item end: ${id}`);
-  return `${text.slice(0, end)},\n      "allowedUnitTypes": ${JSON.stringify(flags)}${text.slice(end)}`;
+  return `${text.slice(0, end)},\n      ${JSON.stringify(field)}: ${JSON.stringify(value)}${text.slice(end)}`;
 }
 
-export function updateBaselineText(text, before, after, flags) {
+export function updateBaselineText(
+  text,
+  before,
+  after,
+  value,
+  field = 'allowedUnitTypes',
+) {
   const marker = `\n    "file": ${JSON.stringify(before.file)},\n    "index": ${before.index},\n    "id": ${JSON.stringify(before.id)},`;
   const start = text.indexOf(marker);
   assert(start >= 0, `Missing baseline row: ${before.file}:${before.id}`);
   const end = text.indexOf('\n  }', start);
   assert(end >= 0, `Missing baseline row end: ${before.id}`);
-  const block = appendUnitTypeField(text.slice(start, end), before.id, flags);
+  const block = appendCatalogField(
+    text.slice(start, end),
+    before.id,
+    field,
+    value,
+  );
   const oldHash = `"sha256": "${before.sha256}"`;
   assert(block.includes(oldHash), `Missing baseline hash: ${before.id}`);
   return (

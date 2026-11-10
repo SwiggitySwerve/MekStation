@@ -179,5 +179,8 @@
   },
   "mulId": 3590,
   "role": "Skirmisher",
-  "source": "XTR:Gladiators"
+  "source": "XTR:Gladiators",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

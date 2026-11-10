@@ -196,5 +196,8 @@
   },
   "mulId": 90,
   "role": "Missile Boat",
-  "source": "RG10,RGv1"
+  "source": "RG10,RGv1",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

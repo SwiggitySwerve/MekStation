@@ -26,6 +26,31 @@ beforeEach(() => {
   clearAllStores();
   localStorage.clear();
 });
+
+it.each(fixture.cases)(
+  'editor loss metadata preserves every existing U3 literal: $name',
+  (sample) => {
+    const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+    const withDiagnostics: UnitState = {
+      ...state,
+      unrecoveredCriticalSlots: [
+        { text: 'Cargo:SIZE:1.0', location: MechLocation.LEFT_TORSO, slot: 7 },
+      ],
+    };
+    expect(getUnitEditFingerprint(withDiagnostics)).toBe(
+      sample.editFingerprint,
+    );
+    expect(getUnitDraftFingerprint(withDiagnostics)).toBe(
+      sample.draftFingerprint,
+    );
+    expect(getUnitLibraryFingerprint(withDiagnostics)).toBe(
+      sample.libraryFingerprint,
+    );
+    expect(getEditableUnitSnapshot(withDiagnostics)).not.toHaveProperty(
+      'unrecoveredCriticalSlots',
+    );
+  },
+);
 afterEach(() => clearAllStores());
 
 it.each(fixture.cases)(

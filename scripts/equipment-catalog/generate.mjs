@@ -10,6 +10,10 @@ import routing from '../../public/data/equipment/registry-routing.json' with { t
 import capitalAliasInputs from './capital-alias-inputs.json' with { type: 'json' };
 import capitalSource from './capital-source.json' with { type: 'json' };
 import prototypeDamage from './prototype-damage.json' with { type: 'json' };
+import {
+  retainNativeTechnologyReferences,
+  verifyTechnologyExtraction,
+} from './technology-advancement.mjs';
 const capitalBVFile = new URL(
   '../../src/utils/construction/equipmentBV/data/capital-bv.json',
   import.meta.url,
@@ -374,6 +378,42 @@ function runGenerator() {
     );
     return;
   }
+  // Complete this preflight before the first full-generation write. Metadata
+  // added by released D batches cannot disappear when registry entries rebuild.
+  const documents = new Map(
+    Object.values(index.files).flatMap((group) =>
+      Object.values(group).map((file) => [
+        file,
+        read(`${root}/official/${file}`),
+      ]),
+    ),
+  );
+  let technologyFacts;
+  if (
+    [...documents.values()].some(({ items }) =>
+      items.some((item) => Object.hasOwn(item, 'nativeTechnologyNames')),
+    )
+  ) {
+    const option = process.argv.indexOf('--technology-facts');
+    assert(
+      option >= 0 && process.argv[option + 1],
+      'Metadata-bearing regeneration requires --technology-facts <verified-extraction.json>',
+    );
+    technologyFacts = verifyTechnologyExtraction(
+      readFileSync(process.argv[option + 1]),
+      read(
+        new URL('./technology-advancement-provenance.json', import.meta.url),
+      ),
+      readFileSync(
+        new URL('./TechnologyAdvancementFacts.java', import.meta.url),
+      ),
+    );
+  }
+  result.items = retainNativeTechnologyReferences(
+    result.items,
+    documents,
+    technologyFacts,
+  );
   const expectationsFile = new URL('./java-additions.json', import.meta.url);
   const expectations = read(expectationsFile);
   const expectedIds = new Set(expectations.map((row) => row.values.id));

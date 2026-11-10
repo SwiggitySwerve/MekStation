@@ -1,5 +1,6 @@
 export { healingProcessor } from './healingProcessor';
 export { contractProcessor } from './contractProcessor';
+export { contractMoraleProcessor } from './contractMoraleProcessor';
 export {
   postBattleProcessor,
   applyPostBattle,

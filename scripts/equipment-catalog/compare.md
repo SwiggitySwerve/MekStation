@@ -54,3 +54,52 @@ until the loader preserves their meaning. Other values, identities and alias
 ownership do not change; two runs must be identical. Format the touched JSON
 with oxfmt after updating. Tests: `node --test
 scripts/equipment-catalog/allowed-unit-types.test.mjs`.
+
+## Raw sided technology facts (G1; scratch plans only)
+
+`TechnologyAdvancementFacts.java <mekfiles> <scratch-output.json>` enumerates
+equipment types once and reads raw `EquipmentType.getTechAdvancement()` values.
+Compile/run against the verified pinned runtime, one JVM at a time, with a
+timeout wrapper. The mekfiles path configures Java; no unit files are loaded.
+The output uses exact native internal names, sorted once per type, and refuses
+to overwrite an extraction. Preserve ALL, DATE_NONE (-1), both sides' five raw
+advancement dates and approximation flags, static level and faction sets.
+Source: pinned `TechAdvancement.java` (`getISAdvancement`, `getClanAdvancement`,
+`getISApproximate`, `getClanApproximate` and faction getters), and
+`EquipmentType.java` (`getInternalName`, `getTechAdvancement`).
+
+`technology-advancement-provenance.json` binds exact extractor/extraction bytes
+to the pin; these are scratch extraction receipts, not published identities.
+`technology-advancement-source.json` stays unreleased with no bindings. A future
+reviewed manifest names `revision` and nonempty `entries`, each with exact
+`file`, stable `index`, `id` and `nativeTechnologyNames`. Physical weapons use
+their existing `weapons/physical.json` file. No binary-tech, alias, first-match,
+weight or BV inference resolves an identity. The 115 unresolved records remain
+incomplete for the later legality consumer; no catalog record is deleted.
+
+Run `node scripts/equipment-catalog/technology-advancement.mjs --plan
+<scratch-manifest.json> <verified-extraction.json>` for a read-only summary;
+`--check` additionally requires references and sidecar to be current. G1 has no
+apply/write mode. The pure planner and renderer prepare additive changes in
+memory: catalog reference arrays, one sidecar fact per referenced native type,
+and the matching existing baseline item/hash. Every identity, preimage and
+rendered output validates before a plan returns. Existing text outside those
+fields is retained; equal applications are no-ops. D-batch release, reviewed
+identities and a later explicit apply path are required before writing data.
+
+Full `generate.mjs` regeneration checks metadata before its first write. When
+native references exist, pass `--technology-facts <verified-extraction.json>`;
+missing/changed facts, lost registry records and conflicting bindings fail.
+Existing registry references survive; metadata-absent generation and
+`--aliases-only` retain their behavior. Tests: `node --test
+scripts/equipment-catalog/technology-advancement.test.mjs
+scripts/equipment-catalog/generate.test.mjs`.
+
+The shared JSON Schema/generated contracts remain the shape owner. G1 supplies
+facts, not getter-view or legality rules. PR B must document EquipmentType versus
+raw TechAdvancement view at each call site (the retained 3,745-type discrepancy
+remains a regression requirement). Runtime consumers will load the sidecar from
+public, never statically import facts; `EquipmentConverters.ts` binary
+`parseTechBase` remains unchanged. Bytes/memory are report-only under section 24;
+the first fact-shipping PR reports measured package bytes. G1 ships no facts,
+catalog changes, baseline changes, runtime consumers or component selectors.

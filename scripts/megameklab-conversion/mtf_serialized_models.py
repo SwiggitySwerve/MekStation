@@ -64,6 +64,7 @@ class SerializedEquipment:
     location: str
     slots: Optional[List[int]] = None
     isRearMounted: Optional[bool] = None
+    isOmniPodMounted: Optional[bool] = None
     linkedAmmo: Optional[str] = None
 
 
@@ -114,3 +115,6 @@ class SerializedUnit:
     source: Optional[str] = None
     lamType: Optional[str] = None
     componentTechBases: Optional[Dict[str, str]] = None
+    isOmni: Optional[bool] = None
+    baseChassisHeatSinks: Optional[int] = None
+    clanName: Optional[str] = None

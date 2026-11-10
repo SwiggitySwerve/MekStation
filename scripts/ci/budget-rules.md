@@ -5,8 +5,12 @@ lowering API. `config/ci/budgets.json` declares non-size limits. Package size
 and memory growth are advisory observations, never acceptance or approval gates.
 The byte fields `standaloneStaticBytes`, `webZipBytes` and `installerBytes` are
 absent from `limits`, descriptors, raise detection and automatic ratchets.
-Only base-config comparisons accept the complete legacy byte-limit shape;
-new configurations reject obsolete byte fields. Decimal MB means
+Legacy byte-limit fields are accepted on either base or head, in any subset,
+with their values ignored (PARITY-PLAN §24). They never enter canonical budget
+values, comparisons, approval raises or ratchets. `budget-check.mjs` uses
+`loadBudgetTree` in the required PR Checks static-checks job to reject every
+`limits.*Bytes` field in the merge tree. Old untouched branches inherit main's
+config, while a reintroduced byte cap fails. Decimal MB means
 1,000,000 bytes. Unknown/missing inputs fail; counts never substitute for missing
 observations. `budget-metrics.mjs` owns collection and observed projections;
 G2's `ci-metrics.mjs` owns timing statistics, run normalization and reporting.
@@ -123,8 +127,16 @@ G2 owns canonical producer validation; G3 verifies live artifact/producer/source
 provenance before a weekly observation can qualify. Weekly collection has read
 permissions; a separate trusted job publishes the issue or a proven lowering.
 
-The primary aggregator enforces live budget approval read-only. Trusted events
-publish `CI Budget Raise Approval` and a policy status under the existing
+The primary aggregator enforces live budget approval read-only.
+The primary aggregator imports the current `main` validator from a separate
+non-cone sparse checkout on every run, including job re-runs, and logs
+`budget-validator: main@<commit SHA>`. Its sparse set contains `scripts/ci` and
+only `scripts/lib/statistics.mjs` outside that directory, required transitively
+by `budget-config.mjs`. A static import-closure test guards that set. It omits
+`config/ci`: `checkBudgetPolicy` reads the PR's budgets through the GitHub API
+at live head/base SHAs, independently of the validator's code revision.
+
+Trusted events publish `CI Budget Raise Approval` and a policy status under the existing
 `Lint and Test` required name. Approval first holds that status pending and
 upgrades it only after the actual latest GitHub Actions aggregator check passed.
 Missing/running checks cannot become green through approval alone. Label/review

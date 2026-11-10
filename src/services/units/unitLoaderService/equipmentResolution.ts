@@ -96,6 +96,7 @@ function stripTechMarkersFromName(name: string): string {
     .replace(/\s*\(Clan\)\s*$/i, '')
     .replace(/\s*\(IS\)\s*$/i, '')
     .replace(/\s*\[IS\]\s*$/i, '')
+    .replace(/\s*\[Clan\]\s*$/i, '')
     .replace(/^Clan\s+/i, '')
     .replace(/^IS\s+/i, '')
     .trim();
@@ -108,7 +109,8 @@ function getTechHintFromToken(token: string): TechHint | null {
   if (
     /^CL[A-Za-z0-9]/.test(trimmed) ||
     /^Clan\s+/i.test(trimmed) ||
-    /\(Clan\)/i.test(trimmed)
+    /\(Clan\)/i.test(trimmed) ||
+    /\[Clan\]/i.test(trimmed)
   ) {
     return 'clan';
   }
@@ -223,8 +225,8 @@ function resolveMixedTechVariant(
 }
 
 /**
- * A native name that carries its own tech prefix (CLLRM20, cllrm20, clan-lrm-20,
- * ISTAG) names one Java item whatever the unit is: the prefix is the side when
+ * A native prefix or display marker names one Java item whatever the unit is.
+ * Native prefixes (CLLRM20, cllrm20, clan-lrm-20, ISTAG) name the side when
  * removing it leaves the same base item, or when the normalizer kept the Clan
  * marker (cllightmg -> clan-light-machine-gun). Unit lists without crit slots
  * (vehicles) otherwise fell back to the IS record on mixed-tech units.
@@ -232,9 +234,24 @@ function resolveMixedTechVariant(
 function ownTechSide(
   id: string,
   normalizedId: string,
-  baseId: string,
+  candidates: IEquipmentVariantCandidates,
 ): TechBase | null {
-  const raw = id.toLowerCase().trim();
+  const { baseId } = candidates;
+  const token = parseCriticalSlotToken(id).lookupToken;
+  const raw = token.toLowerCase().trim();
+  // An explicit display marker names its side only when stripping it leaves
+  // the same item. Native prefixes continue through their existing path below.
+  const hint = getTechHintFromToken(token);
+  const stripped = stripTechMarkersFromName(raw);
+  if (
+    stripped !== raw &&
+    hint &&
+    normalizeCatalogEquipmentId(stripped, false) === baseId
+  ) {
+    const side = hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+    const candidate = resolveVariantByTechBase(candidates, side);
+    return candidate?.equipmentDef?.techBase === side ? side : null;
+  }
   if (/^cl/.test(raw) && normalizedId === `clan-${baseId}`)
     return TechBase.CLAN;
   const sides: [RegExp, TechBase][] = [
@@ -407,12 +424,28 @@ export function resolveEquipmentId(
   mode: TechBaseMode,
   slots: ReadonlyArray<string | null> | undefined,
   sourceName?: string,
+  placedSlots?: readonly number[],
 ): IResolvedEquipment {
+  // A placed alias may inspect its own cells, never another mount's hints.
+  slots =
+    placedSlots === undefined
+      ? slots
+      : placedSlots.flatMap((index) =>
+          Number.isInteger(index) && index >= 0 && index < (slots?.length ?? 0)
+            ? [slots?.[index] ?? null]
+            : [],
+        );
   const routed = resolveTechRoutedEquipment(id, unitTechBase, mode, slots);
   if (routed) return routed;
   const ammo = slots === undefined ? resolveSlotlessAmmo(id) : null;
   if (ammo) return ammo;
-  const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
+  const previous = resolveLegacyEquipmentId(
+    id,
+    unitTechBase,
+    mode,
+    slots,
+    placedSlots,
+  );
   const target = normalizeCatalogEquipmentId(id);
   const lookup = getEquipmentLookupService();
   // Converted slugs can lose native punctuation. The retained name may recover
@@ -452,7 +485,15 @@ function resolveLegacyEquipmentId(
   _unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
+  placedSlots?: readonly number[],
 ): IResolvedEquipment {
+  // MtfFile.java:1210-1212: Mixed lookup has no chassis tech restriction.
+  // A saved, placed ID is identity evidence even when its cells are invalid.
+  const placed =
+    placedSlots !== undefined
+      ? legacyDefinition(getEquipmentLookupService().getById(id), id)
+      : undefined;
+  if (placed) return { equipmentDef: placed, resolvedId: placed.id };
   const identity = nativeIdentityId(id);
   const exact = identity
     ? legacyDefinition(getEquipmentLookupService().getById(identity), id)
@@ -483,7 +524,7 @@ function resolveLegacyEquipmentId(
   const ownSide =
     locationCriticalSlots === undefined ||
     unitTechBaseMode === TechBaseMode.MIXED
-      ? ownTechSide(id, normalizedId, candidates.baseId)
+      ? ownTechSide(id, normalizedId, candidates)
       : null;
 
   return (

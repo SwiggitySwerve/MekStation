@@ -26,10 +26,12 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import { ICreateUnitRequest } from '@/types/persistence/UnitPersistence';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { isDefinitionForFamily } from '../definitionTypes';
+import { mapEquipment } from '../equipmentMapping';
 import { resolveEquipmentId } from '../equipmentResolution';
 
 jest.mock('@/components/shared/Toast', () => ({
@@ -137,6 +139,31 @@ function placements(state: UnitState) {
     .sort();
 }
 
+async function saveThroughDialog(loaded: UnitState) {
+  const hook = renderHook(() =>
+    useDialogHandlers(jest.fn(), jest.fn(), (tabId) =>
+      useTabManagerStore.getState().tabs.find((tab) => tab.id === tabId),
+    ),
+  );
+  act(() => hook.result.current.openSaveDialog(loaded.id));
+  expect(hook.result.current.saveDialog.isOpen).toBe(true);
+  await act(async () => {
+    await hook.result.current.handleSaveDialogSave(
+      loaded.chassis,
+      `identity-${loaded.model}`,
+    );
+  });
+  hook.unmount();
+  if (!savedId) throw new Error('The save hook did not persist a unit');
+  const record = repository.getById(savedId);
+  if (!record) throw new Error('Missing SQLite row');
+  const persisted = UnitContract.parse(JSON.parse(record.data));
+  if (!isDefinitionForFamily('battlemechs', persisted)) {
+    throw new Error('The saved fixture is not a BattleMech');
+  }
+  return { id: savedId, persisted };
+}
+
 beforeAll(async () => {
   global.fetch = transport;
   await getEquipmentLookupService().initialize();
@@ -170,40 +197,22 @@ it.each([
   'prometheus-unknown',
   'warhammer-whm-6r',
   'mad-cat-prime',
+  'jade-phoenix-e',
+  'kodiak-ii-3',
 ])(
   'preserves %s identities through dialog save, SQLite and custom reopen',
   async (id) => {
     const store = await open(id, 'canonical');
     const loaded = store.getState();
     const expected = identities(loaded);
-    const hook = renderHook(() =>
-      useDialogHandlers(jest.fn(), jest.fn(), (tabId) =>
-        useTabManagerStore.getState().tabs.find((tab) => tab.id === tabId),
-      ),
-    );
-    act(() => hook.result.current.openSaveDialog(loaded.id));
-    expect(hook.result.current.saveDialog.isOpen).toBe(true);
-    await act(async () => {
-      await hook.result.current.handleSaveDialogSave(
-        loaded.chassis,
-        `identity-${id}`,
-      );
-    });
-    hook.unmount();
-    if (!savedId) throw new Error('The save hook did not persist a unit');
-    const record = repository.getById(savedId);
-    if (!record) throw new Error('Missing SQLite row');
-    const persisted = UnitContract.parse(JSON.parse(record.data));
-    if (!isDefinitionForFamily('battlemechs', persisted)) {
-      throw new Error('The saved fixture is not a BattleMech');
-    }
+    const { id: customId, persisted } = await saveThroughDialog(loaded);
     expect(persisted.equipment?.map((item) => item.id).sort()).toEqual(
       loaded.equipment.map((item) => item.equipmentId).sort(),
     );
     expect(identities(store.getState())).toEqual(expected);
     clearAllStores(true);
     useTabManagerStore.setState({ tabs: [], activeTabId: null });
-    const reopened = (await open(savedId, 'custom', id)).getState();
+    const reopened = (await open(customId, 'custom', id)).getState();
     expect(identities(reopened)).toEqual(expected);
     expect(placements(reopened)).toEqual(placements(loaded));
   },
@@ -299,3 +308,166 @@ it('retains the native same-location IS/Clan split and independent drafts', asyn
   });
   expect(identities(hydrated.getState())).toEqual(initial);
 });
+
+const nativeLaserArm = [
+  'Shoulder',
+  'Upper Arm Actuator',
+  'Lower Arm Actuator',
+  'Hand Actuator',
+  'CLERMediumLaser',
+  'CLERMediumLaser',
+  'CLERMediumLaser',
+  'ISERMediumLaser',
+  'ISERMediumLaser',
+  'Medium Laser',
+  'Clan Endo Steel',
+  null,
+] as const;
+
+// MtfFile.java:1210-1212: Mixed equipment lookup has no chassis restriction.
+it.each([TechBase.INNER_SPHERE, TechBase.CLAN])(
+  'resolves a placed saved IS ID before native neighbours on %s',
+  (tech) => {
+    for (const slots of [[7], [8], [4], [], [-1], [99], [7, 7]]) {
+      const result = resolveEquipmentId(
+        'er-medium-laser',
+        tech,
+        TechBaseMode.MIXED,
+        nativeLaserArm,
+        undefined,
+        slots,
+      );
+      expect(result.resolvedId).toBe('er-medium-laser');
+      expect(result.equipmentDef?.techBase).toBe(TechBase.INNER_SPHERE);
+    }
+  },
+);
+
+it('carries an empty saved placement without borrowing neighbouring hints', () => {
+  const mounted = mapEquipment(
+    [{ id: 'er-medium-laser', location: 'Left Arm', slots: [] }],
+    TechBase.CLAN,
+    TechBaseMode.MIXED,
+    { LEFT_ARM: nativeLaserArm },
+    100,
+  );
+  expect(mounted[0]).toMatchObject({
+    equipmentId: 'er-medium-laser',
+    techBase: TechBase.INNER_SPHERE,
+    slots: [],
+  });
+});
+
+it.each([
+  [['CLERMediumLaser', 'ISERMediumLaser'], [1], 'er-medium-laser'],
+  [['ISERMediumLaser', 'CLERMediumLaser'], [1], 'clan-er-medium-laser'],
+  [['CLERMediumLaser'], [], 'er-medium-laser'],
+  [['CLERMediumLaser'], [-1], 'er-medium-laser'],
+  [['CLERMediumLaser'], [99], 'er-medium-laser'],
+  [['ISERMediumLaser', 'CLERMediumLaser'], [0, 99], 'er-medium-laser'],
+] as const)(
+  'uses only owned cells for the unresolved ERMediumLaser alias (%s, %s)',
+  (cells, slots, expected) => {
+    expect(
+      resolveEquipmentId(
+        'ERMediumLaser',
+        TechBase.CLAN,
+        TechBaseMode.MIXED,
+        cells,
+        undefined,
+        slots,
+      ).resolvedId,
+    ).toBe(expected);
+  },
+);
+
+it('retains whole-location hints for an unplaced source summary', () => {
+  expect(
+    resolveEquipmentId(
+      'er-medium-laser',
+      TechBase.INNER_SPHERE,
+      TechBaseMode.MIXED,
+      nativeLaserArm,
+    ).resolvedId,
+  ).toBe('clan-er-medium-laser');
+});
+
+it.each([TechBase.INNER_SPHERE, TechBase.CLAN])(
+  "retains a display token's own Clan identity on %s",
+  (tech) => {
+    const result = resolveEquipmentId(
+      'LB 20-X AC (Clan)',
+      tech,
+      TechBaseMode.MIXED,
+      ['ISLBXAC20', 'LB 20-X AC (Clan)'],
+    );
+    expect(result.resolvedId).toBe('clan-lb-20-x-ac');
+    expect(result.equipmentDef?.techBase).toBe(TechBase.CLAN);
+    expect(result.equipmentDef?.criticalSlots).toBe(9);
+  },
+);
+
+it.each(['kodiak-cale', 'jade-phoenix-e', 'kodiak-ii-3'])(
+  'preserves %s mounted facts through SQLite with intact native grids',
+  async (id) => {
+    const loaded = (await open(id, 'canonical')).getState();
+    const sourceGrid = loaded.bvContext?.source.criticalSlots;
+    if (!sourceGrid) throw new Error('Missing native critical fixture');
+    const nativeGrid = Object.fromEntries(
+      Object.entries(sourceGrid).map(([location, cells]) => [
+        location,
+        [...cells],
+      ]),
+    );
+    if (id === 'kodiak-cale') {
+      expect(nativeGrid.LEFT_ARM).toEqual(nativeLaserArm);
+    }
+    const relevantFacts = (state: UnitState) =>
+      state.equipment
+        .filter((item) =>
+          id === 'kodiak-cale'
+            ? item.equipmentId.includes('er-medium-laser')
+            : item.equipmentId === 'clan-lb-20-x-ac' &&
+              item.category !== EquipmentCategory.AMMUNITION,
+        )
+        .map((item) =>
+          JSON.stringify([
+            item.equipmentId,
+            item.techBase,
+            item.category,
+            item.name,
+            item.location,
+            item.isRearMounted,
+            item.slots,
+            item.splitSlots,
+            item.weight,
+            item.criticalSlots,
+            item.heat,
+            item.isRemovable,
+            item.isOmniPodMounted,
+            item.linkedAmmoId,
+          ]),
+        )
+        .sort();
+    const expected = relevantFacts(loaded);
+    expect(expected).toHaveLength(id === 'kodiak-cale' ? 5 : 1);
+    const { id: customId, persisted } = await saveThroughDialog(loaded);
+    // Fixture-level g.2b grid shape, independent of that writer PR landing.
+    const nativeDefinition = UnitContract.parse({
+      ...persisted,
+      criticalSlots: nativeGrid,
+    });
+    expect(
+      repository.update(customId, { data: nativeDefinition }).success,
+    ).toBe(true);
+    const row = repository.getById(customId);
+    if (!row) throw new Error('Missing native-grid SQLite row');
+    expect(UnitContract.parse(JSON.parse(row.data)).criticalSlots).toEqual(
+      nativeGrid,
+    );
+    clearAllStores(true);
+    useTabManagerStore.setState({ tabs: [], activeTabId: null });
+    const reopened = (await open(customId, 'custom', id)).getState();
+    expect(relevantFacts(reopened)).toEqual(expected);
+  },
+);

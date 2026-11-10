@@ -114,6 +114,28 @@ describe('buildCommandRegistry', () => {
     }
   });
 
+  // @spec openspec/changes/disable-gm-non-event-corrections/specs/gm-tactical-command-surface/spec.md - Interim correction availability
+  it.each([
+    'gm.set-position-facing',
+    'gm.set-damage',
+    'gm.set-heat-ammo',
+    'gm.set-initiative',
+    'gm.set-lifecycle',
+    'gm.set-objective',
+  ])('keeps %s disabled in every phase', (commandId) => {
+    for (const phase of Object.values(GamePhase)) {
+      const ctx = makeCtx({ phase });
+      const command = buildCommandRegistry(ctx, 'gm').find(
+        (entry) => entry.id === commandId,
+      );
+      expect(command?.availability(ctx)).toEqual({
+        available: false,
+        reason:
+          'Corrections are temporarily unavailable: the next game action would discard them until correction events are implemented.',
+      });
+    }
+  });
+
   it('GM family is included when shellMode === "gm"', () => {
     const commands = buildCommandRegistry(makeCtx(), 'gm');
     const ids = commands.map((c) => c.id);

@@ -1073,53 +1073,67 @@ the session SHALL additionally carry `contractId` and `scenarioId`.
 
 ### Requirement: Session Publishes Outcome Ready Event
 
-Upon session completion, the `InteractiveSession` SHALL publish a
-`CombatOutcomeReady` event on the global event bus carrying the session
-id, match id, and derived `ICombatOutcome`. The once-per-session publish
-guard (`outcomePublished`) SHALL latch only when at least one subscriber
-consumed the event without throwing; a publish in which every subscriber
-threw SHALL leave the guard unset so a later finalize attempt can retry,
-and every swallowed subscriber exception SHALL be logged. A subscriber
-throw SHALL NOT propagate out of the engine.
+Upon completion, InteractiveSession SHALL publish CombatOutcomeReady carrying the session id, match id and derived ICombatOutcome, unless publication is suppressed or acknowledged by its publication journal. Publication status SHALL derive from that journal rather than an independent boolean. At least one nonthrowing synchronous subscriber constitutes consumption; no subscribers or all subscribers throwing leaves the outcome pending. Every swallowed subscriber exception SHALL be logged and SHALL NOT propagate out of the engine.
 
 #### Scenario: Event published on completion
 
-- **GIVEN** an active session that transitions to `Completed`
+- **GIVEN** an active session that transitions to Completed
 - **WHEN** the completion handler runs
-- **THEN** `CombatOutcomeReady` SHALL be published on the session bus
-- **AND** the event payload SHALL include the full `ICombatOutcome`
+- **THEN** CombatOutcomeReady SHALL be published on the session bus
+- **AND** its payload SHALL include the full ICombatOutcome
 - **AND** the outcome SHALL also be POSTed to `/api/matches`
 
-#### Scenario: Event idempotent per session
+#### Scenario: Throwing subscriber remains retryable
 
-- **GIVEN** a session that has already published `CombatOutcomeReady`
-  once and at least one subscriber consumed it without throwing
-- **WHEN** any subsequent action on the session attempts another
-  publication
-- **THEN** no second `CombatOutcomeReady` SHALL be published for the
-  same match id
+- **GIVEN** the only subscribed listener throws
+- **WHEN** the completion handler publishes CombatOutcomeReady
+- **THEN** the exception SHALL be caught and logged without propagating out of the engine
+- **AND** publication SHALL remain pending and permit a subsequent retry
 
-#### Scenario: Throwing subscriber does not latch the guard
+#### Scenario: New completion is consumed
 
-- **GIVEN** an active session that transitions to `Completed`
-- **AND** the only subscribed listener throws when it receives the event
-  (e.g. a localStorage quota error in the campaign store)
-- **WHEN** the completion handler publishes `CombatOutcomeReady`
-- **THEN** the listener exception SHALL be caught, logged, and SHALL NOT
-  propagate out of the engine
-- **AND** the session's `outcomePublished` guard SHALL remain `false`
-- **AND** a subsequent finalize attempt SHALL be permitted to re-publish
-  the outcome.
+- **WHEN** at least one subscriber consumes a newly completed outcome
+- **THEN** the session SHALL acknowledge its terminal-event journal entry and queue durable acknowledgement
+- **AND** subsequent finalization attempts SHALL NOT publish it again
 
-#### Scenario: Consumed publish latches the guard exactly once
+#### Scenario: No consumer or every consumer fails
 
-- **GIVEN** an active session that transitions to `Completed`
-- **AND** at least one subscribed listener consumes the event without
-  throwing
-- **WHEN** the completion handler publishes `CombatOutcomeReady`
-- **THEN** the session's `outcomePublished` guard SHALL become `true`
-- **AND** any later finalize attempt SHALL be a no-op for the same match
-  id.
+- **WHEN** no subscriber consumes the outcome
+- **THEN** its journal SHALL remain pending and allow a later retry
+
+#### Scenario: Pending completion recovers
+
+- **GIVEN** a completed log with a pending publication record
+- **WHEN** production cold recovery runs with a consumer
+- **THEN** the outcome SHALL be delivered and acknowledged
+
+#### Scenario: Acknowledged completion recovers
+
+- **GIVEN** a completed log with an acknowledged publication record
+- **WHEN** the session recovers and its outcome is requested
+- **THEN** it SHALL derive its outcome without publishing again
+
+#### Scenario: Historical completed log has no receipt
+
+- **GIVEN** a completed historical log with no publication receipt
+- **WHEN** the session recovers
+- **THEN** it SHALL be treated as already acknowledged and SHALL NOT republish
+
+#### Scenario: Reentrant subscriber
+
+- **WHEN** a subscriber requests the outcome during publication
+- **THEN** the session SHALL derive the result without recursively publishing it
+
+#### Scenario: Scratch decision session
+
+- **WHEN** a suppressed scratch session completes
+- **THEN** its state SHALL finalize without bus publication or durable acknowledgement of the live session
+
+#### Scenario: Crash after delivery
+
+- **WHEN** a crash occurs after consumption but before acknowledgement persistence
+- **THEN** recovery MAY deliver again
+- **AND** consumers requiring unique effects SHALL deduplicate by match identity or durable receipt
 
 ### Requirement: Campaign Store Enqueues Outcomes
 
@@ -2648,6 +2662,51 @@ Every production session producer SHALL supply per-location combat construction 
 - **GIVEN** a test fixture constructing bare `IGameUnit` entries with no construction inputs
 - **WHEN** the initial unit state is created
 - **THEN** `armor` and `structure` SHALL remain empty maps (legacy behavior, unchanged)
+
+### Requirement: Store Phase Actions Use the Guarded Advance
+
+The gameplay store SHALL advance the phase through
+`InteractiveSession.advancePhase()` for its Skip, Next Turn and interactive
+Advance actions whenever it holds an interactive session, and SHALL NOT append
+a bare `PhaseChanged` to its own session copy. Leaving a phase SHALL resolve it: declared
+weapon and physical attacks are resolved, damage PSRs are queued and the
+End-phase queue drained, the morale and withdrawal pass runs, and the End-phase
+advance honours the game-over guard. After the advance the store session SHALL
+be the interactive session's session. PhysicalAttack SHALL be advanceable
+through the interactive Advance action. A store session with no interactive
+session MAY use the raw advance.
+
+#### Scenario: Skip resolves declared attacks before the phase flips
+
+- **GIVEN** an interactive session in WeaponAttack with every unit locked and
+  attacks declared but unresolved
+- **WHEN** the store Skip action runs
+- **THEN** every declared attack SHALL be resolved
+- **AND** the phase SHALL become PhysicalAttack
+- **AND** the store session SHALL be the interactive session's session
+
+#### Scenario: Skip in End drains PSRs and respects the game-over guard
+
+- **GIVEN** an interactive session in End with a queued PSR
+- **WHEN** the store Skip action runs
+- **THEN** the PSR SHALL be resolved and the phase SHALL become Initiative
+- **WHEN** the game is already over in End
+- **THEN** the phase SHALL NOT advance to Initiative
+- **AND** the game SHALL be finalized and the store SHALL show the game-over state
+
+#### Scenario: Next Turn drains the End phase, then rolls initiative
+
+- **GIVEN** an interactive session in End with a queued PSR
+- **WHEN** the store Next Turn action runs
+- **THEN** the PSR SHALL be resolved
+- **AND** the phase SHALL become Movement
+
+#### Scenario: Advance in PhysicalAttack resolves physical attacks
+
+- **GIVEN** an interactive session in PhysicalAttack with a declared physical attack
+- **WHEN** the store interactive Advance action runs
+- **THEN** the physical attack SHALL be resolved
+- **AND** the phase SHALL become Heat
 
 ## Dependencies
 

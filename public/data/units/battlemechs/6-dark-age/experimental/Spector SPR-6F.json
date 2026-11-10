@@ -183,5 +183,8 @@
   },
   "mulId": 9375,
   "role": "Striker",
-  "source": "RG28"
+  "source": "RG28",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

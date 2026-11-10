@@ -1,24 +1,19 @@
 /**
  * Slow-client backpressure pack (E2E-74, umbrella 22.3).
  *
- * LETTER, verbatim from specs/e2e-testing/spec.md, requirement "Strict
- * Performance UX Evidence and Hygiene Catalog": "WHEN Player 2 is slowed
- * through the controlled send seam THEN its queue and memory SHALL
- * remain within the declared limits and each healthy GM/Player 1 sample
- * population SHALL retain nearest-rank p95 at or below 250 milliseconds
- * and p99 at or below 750 milliseconds."
+ * Owner rulings PARITY-PLAN sections 24/25 replace byte and memory
+ * acceptance ceilings with advisory observations and behavioral proof.
+ * Player 2 must stop receiving new live frames while isolated, healthy
+ * viewers must progress, and supported rejoin/replay must converge.
+ * Healthy-viewer p95/p99 latency gates remain unchanged.
  *
  * THE CONTROLLED SEND SEAM is the per-viewer unacked-frame bound
  * (`MAX_VIEWER_UNACKED` = 64 on `ViewerDeliveryCursors`), driven by
  * swallowing only Player 2's outgoing `DeliveryAck` frames. NOT
  * `socket.bufferedAmount`: finding #19 records that the OS pending-write
  * backlog sits at 0 on match traffic, so such an assertion cannot trip.
- * E2E-14 drives the same seam; E2E-74 adds the quantitative half E2E-14
- * does not claim - the declared ceilings and the healthy percentiles.
- *
- * THE DECLARED LIMITS are read, never redeclared, from
- * `controlledLoopbackFixture.ts`: 256 envelopes or 1 MiB per connection,
- * 128 MiB server RSS growth, 64 MiB growth per controlled browser client.
+ * E2E-14 drives the same seam; E2E-74 retains healthy percentiles and
+ * archives queue bytes, browser heap and server RSS/heap growth.
  *
  * WHY THE CAP IS A FLOOR AND 256 IS THE CEILING. The server's bound is
  * "stopped growing", not "exactly 64" - a mid-burst refusal can leave the
@@ -56,13 +51,18 @@ import {
   type ITacticalObserverReading,
 } from './helpers/tacticalBackpressureObserver';
 import {
+  assertContiguousFromZero,
+  deliveryRowsFor,
   driveTwoMoreAdvances,
   driveUntilPlayer2Capped,
+  firstAuthorityAfter,
   installAckSwallow,
   installIntentTap,
   launchThreeViewersToMovement,
+  P2_VAULT_PASSWORD,
   playerUnacked,
   readViewerBoundEvidence,
+  recoverSpectatorAfterIsolation,
   VIEWER_UNACKED_CAP,
 } from './helpers/viewerUnackedBound';
 
@@ -87,7 +87,7 @@ function highestDelivery(reading: ITacticalObserverReading): number {
   return highest;
 }
 
-test('E2E-74 a slowed Player 2 stays inside the declared queue and memory limits while GM and Player 1 hold their latency budgets @backpressure @E2E-74', async ({
+test('E2E-74 a slowed Player 2 pauses and recovers while GM and Player 1 hold their latency budgets @backpressure @E2E-74', async ({
   browser,
   request,
 }) => {
@@ -174,6 +174,40 @@ test('E2E-74 a slowed Player 2 stays inside the declared queue and memory limits
       .toBe(true);
     const afterHold = readViewerBoundEvidence(match.matchId);
     const serverAfter = await readServerProbe(gmPage, e2eRunId());
+    const p2Reading = await readTacticalObserver(p2Page);
+    const heaps = {
+      gm: await heapGrowthBytes(gmPage),
+      player1: await heapGrowthBytes(p1Page),
+      player2: await heapGrowthBytes(p2Page),
+    };
+    await test.info().attach('backpressure-observations.json', {
+      contentType: 'application/json',
+      body: Buffer.from(
+        JSON.stringify(
+          {
+            runId: e2eRunId(),
+            matchId: match.matchId,
+            queue: {
+              peakPendingBytes: p2Reading.peakPendingBytes,
+              peakPendingEnvelopes: p2Reading.peakPendingEnvelopes,
+            },
+            memory: {
+              heaps,
+              serverBefore,
+              serverAfter,
+              rssGrowthBytes: Math.max(0, serverAfter.rss - serverBefore.rss),
+              heapGrowthBytes: Math.max(
+                0,
+                serverAfter.heapUsed - serverBefore.heapUsed,
+              ),
+            },
+            delivery: { isolated, afterHold, issuedAtCap: p2IssuedAtCap },
+          },
+          null,
+          2,
+        ),
+      ),
+    });
 
     // CLAUSE 1 - "its queue ... SHALL remain within the declared limits".
     const p2Unacked = playerUnacked(afterHold, p2Token.playerId);
@@ -191,26 +225,10 @@ test('E2E-74 a slowed Player 2 stays inside the declared queue and memory limits
     expect(afterHold.byPlayer[p2Token.playerId]?.issued ?? 0).toBe(
       p2IssuedAtCap,
     );
-    const p2Reading = await readTacticalObserver(p2Page);
     expect(
       p2Reading.peakPendingEnvelopes,
       'Player 2 inbound depth passed the declared envelope limit',
     ).toBeLessThanOrEqual(FIXTURE.connectionQueue.maxEnvelopes);
-    expect(
-      p2Reading.peakPendingBytes,
-      'Player 2 inbound depth passed the declared byte limit',
-    ).toBeLessThanOrEqual(FIXTURE.connectionQueue.maxBytes);
-
-    // CLAUSE 2 - "... and memory SHALL remain within the declared limits".
-    const p2Heap = await heapGrowthBytes(p2Page);
-    expect(
-      p2Heap.growth,
-      `Player 2 heap grew past the per-client ceiling (baseline ${String(p2Heap.baseline)} used ${String(p2Heap.used)})`,
-    ).toBeLessThanOrEqual(FIXTURE.memoryGrowthCeilingBytes.browserContext);
-    expect(
-      Math.max(0, serverAfter.rss - serverBefore.rss),
-      'server RSS grew past the declared ceiling while a viewer was slowed',
-    ).toBeLessThanOrEqual(FIXTURE.memoryGrowthCeilingBytes.server);
 
     // CLAUSE 3 - "each healthy GM/Player 1 sample population SHALL retain
     // nearest-rank p95 <= 250 ms and p99 <= 750 ms". Scored per viewer,
@@ -235,6 +253,49 @@ test('E2E-74 a slowed Player 2 stays inside the declared queue and memory limits
         `${healthy.role} p99 over budget across ${String(score.count)} samples`,
       ).toBeLessThanOrEqual(FIXTURE.latencyBudgetsMs.p99);
     }
+
+    // A frozen window must be recoverable. Rejoin replays the missed tail;
+    // disarming alone cannot trigger an ack on a socket receiving no frames.
+    const lastHeldAuthority =
+      deliveryRowsFor(isolated, p2Token.playerId).at(-1)?.authoritySequence ??
+      -1;
+    const firstMissed = firstAuthorityAfter(afterHold, lastHeldAuthority, [
+      live.gmToken.playerId,
+      live.p1Token.playerId,
+    ]);
+    p2Drop.disarm();
+    await recoverSpectatorAfterIsolation(p2Page, P2_VAULT_PASSWORD);
+    await expect
+      .poll(
+        () => {
+          const snapshot = readViewerBoundEvidence(match.matchId);
+          const row = snapshot.byPlayer[p2Token.playerId];
+          return (
+            row !== undefined &&
+            row.issued > p2IssuedAtCap &&
+            playerUnacked(snapshot, p2Token.playerId) === 0
+          );
+        },
+        { timeout: 90_000 },
+      )
+      .toBe(true);
+    const recovered = readViewerBoundEvidence(match.matchId);
+    const recoveredRows = deliveryRowsFor(recovered, p2Token.playerId);
+    assertContiguousFromZero(recoveredRows);
+    expect(
+      recoveredRows.some((row) => row.authoritySequence === firstMissed),
+    ).toBe(true);
+    const phase = await gmPage.getByTestId('phase-name').innerText();
+    await expect(p2Page.getByTestId('phase-name')).toHaveText(phase, {
+      timeout: 30_000,
+    });
+    await expect(p1Page.getByTestId('phase-name')).toHaveText(phase, {
+      timeout: 30_000,
+    });
+    await test.info().attach('backpressure-recovery.json', {
+      contentType: 'application/json',
+      body: Buffer.from(JSON.stringify(recovered, null, 2)),
+    });
   } finally {
     await deleteIdentities(request, live.identityIds).catch(() => undefined);
     await gmPage.context().close();

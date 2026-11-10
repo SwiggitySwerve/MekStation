@@ -183,5 +183,8 @@
   },
   "mulId": 5228,
   "role": "Brawler",
-  "source": "MSII"
+  "source": "MSII",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

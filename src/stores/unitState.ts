@@ -1,6 +1,7 @@
 import type { IMechBVContext } from '@/services/construction/editableMechProjection';
 import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
+import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 /**
  * Unit State Interface
  *
@@ -145,6 +146,8 @@ export function createEmptySelectionMemory(): ISelectionMemory {
  */
 export interface UnitState {
   readonly bvContext?: IMechBVContext;
+  /** Loader-owned loss notice; excluded from design, replay and edit fingerprints. */
+  readonly unrecoveredCriticalSlots?: readonly IUnrecoveredCriticalSlot[];
   /** Optional actuators omitted by the source design; absence keeps standard arms. */
   armActuators?: ArmActuatorConfig;
   // =========================================================================
@@ -491,6 +494,7 @@ export function createDefaultUnitState(options: CreateUnitOptions): UnitState {
     techBaseMode,
     componentTechBases: createDefaultComponentTechBases(options.techBase),
     selectionMemory: createEmptySelectionMemory(),
+    unrecoveredCriticalSlots: [],
 
     // Components
     engineType: EngineType.STANDARD,

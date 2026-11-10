@@ -205,5 +205,8 @@
   "source": "TR:3085",
   "weaponQuirks": {
     "RA:3:Mek Taser": ["stable_weapon"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

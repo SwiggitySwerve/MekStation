@@ -12,11 +12,14 @@ import {
   type CriticalSlotManifest,
 } from '@/utils/gameplay/criticalHitResolution';
 import { roll2d6, type D6Roller } from '@/utils/gameplay/hitLocation';
+import {
+  MASC_FAILURE_LEG_CRITICAL_LOCATIONS,
+  superchargerEngineHitsFromRoll,
+} from '@/utils/gameplay/movement/movementEnhancementFailure';
 import { applyPhysicalEquipmentCriticalEvents } from '@/utils/gameplay/physicalAttacks/equipmentLifecycle';
 
 import { emitMovementEnhancementFailureCriticalEvents } from './movementEnhancementFailureEvents';
 
-const MASC_FAILURE_LEG_CRITICAL_LOCATIONS = ['left_leg', 'right_leg'] as const;
 const SUPERCHARGER_ENGINE_CRITICAL_LOCATION = 'center_torso';
 const SUPERCHARGER_DESTROYED_LABEL = 'Supercharger';
 
@@ -131,13 +134,6 @@ function applyManifestCriticalSlot(options: {
     componentDamage: applied.updatedComponentDamage,
     events: applied.events,
   };
-}
-
-function superchargerEngineHitsFromRoll(roll: number): number {
-  if (roll <= 7) return 0;
-  if (roll <= 9) return 1;
-  if (roll <= 11) return 2;
-  return 3;
 }
 
 function appendDestroyedEquipment(

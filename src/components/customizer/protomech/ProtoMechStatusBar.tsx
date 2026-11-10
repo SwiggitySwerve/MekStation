@@ -23,6 +23,7 @@ import {
   ProtoChassis,
   type IProtoMechUnit,
 } from '@/types/unit/ProtoMechInterfaces';
+import { isProtoUltraheavyTonnage } from '@/utils/construction/protomech/mainGun';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
 import { formatTons } from '@/utils/formatting';
 
@@ -60,20 +61,15 @@ function sumByLocation(rec: unknown): number {
   return total;
 }
 
-/** Human label for a `ProtoChassis` value. */
-function chassisLabel(c: ProtoChassis): string {
-  switch (c) {
-    case ProtoChassis.BIPED:
-      return 'BIPED';
-    case ProtoChassis.QUAD:
-      return 'QUAD';
-    case ProtoChassis.GLIDER:
-      return 'GLIDER';
-    case ProtoChassis.ULTRAHEAVY:
-      return 'UHVY';
-    default:
-      return String(c).toUpperCase();
-  }
+/**
+ * Human label for a motive, with an `UHVY` suffix when the mass is ultraheavy (above 9 t,
+ * PMChassisView.java:205-207). The deprecated `Ultraheavy` chassis value reads as UHVY.
+ */
+function chassisLabel(c: ProtoChassis, tonnage: number): string {
+  const motive = c === ProtoChassis.ULTRAHEAVY ? '' : c.toUpperCase();
+  return isProtoUltraheavyTonnage(tonnage) || c === ProtoChassis.ULTRAHEAVY
+    ? `${motive} UHVY`.trim()
+    : motive;
 }
 
 // =============================================================================
@@ -155,7 +151,7 @@ export function ProtoMechStatusBar({
         className={`bg-surface-base border-border-theme-subtle flex items-center justify-between gap-2 border-b px-3 py-1.5 text-xs ${className}`}
       >
         <span className="text-text-theme-primary font-medium">
-          {formatTons(tonnage)} {chassisLabel(chassisType)}
+          {formatTons(tonnage)} {chassisLabel(chassisType, tonnage)}
         </span>
         <span className="text-text-theme-secondary">
           {walkMP}/{flankMP}
@@ -180,7 +176,7 @@ export function ProtoMechStatusBar({
       <StatusItem
         label="Tonnage"
         value={formatTons(tonnage)}
-        subValue={chassisLabel(chassisType)}
+        subValue={chassisLabel(chassisType, tonnage)}
       />
 
       <StatusItem

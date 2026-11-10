@@ -46,12 +46,24 @@ export async function restoreBackup(
   backupPath: string,
 ): Promise<boolean> {
   try {
-    if (!backupService) return false;
-    await backupService.restoreBackup(backupPath);
+    if (!backupService) throw new Error('Backup service is unavailable.');
+    const result = await backupService.restoreBackup(backupPath);
+    if (!result.success) throw new Error(result.error);
+    if (!result.data.success || result.data.errors.length > 0) {
+      throw new Error(
+        result.data.errors.join('\n') || 'Backup restore did not complete.',
+      );
+    }
     console.log('Backup restored:', backupPath);
     return true;
   } catch (error) {
     console.error('Backup restoration failed:', error);
+    dialog.showErrorBox(
+      'Backup restore failed',
+      error instanceof Error
+        ? error.message
+        : 'Unknown error occurred while restoring backup.',
+    );
     return false;
   }
 }

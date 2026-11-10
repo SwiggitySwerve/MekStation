@@ -5,7 +5,8 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Optional
 
-from blk_common import get_string, normalize_equipment_id, parse_number, map_armor_code, BLK_ARMOR_CODE_MAP
+from blk_common import get_string, normalize_equipment_id, parse_number, map_armor_code, BLK_ARMOR_CODE_MAP, validate_blk_tech_type
+from enum_mappings import map_chassis_tech_base
 from blk_vehicle_tables import BAR_ARMOR_CODES
 from weapon_quirks import append_weapon_quirk
 
@@ -17,6 +18,17 @@ STANDARD_FLUFF_FIELDS = (
     "manufacturer",
     "primaryFactory",
 )
+
+
+def mixed_chassis_fields(tech_type: str) -> Dict[str, Any]:
+    """Project a validated BLK header through the shared Mixed chassis decoder.
+
+    BLK_TECH_TYPES owns accepted rules-level suffixes; the existing MTF decoder
+    owns the chassis qualifier and tech-base mapping. BA uses clanChassis instead.
+    """
+    header = validate_blk_tech_type(tech_type).partition(')')[0] + ')'
+    chassis = map_chassis_tech_base(header)
+    return {'componentTechBases': {'chassis': chassis}} if chassis else {}
 
 
 def parse_mul_id(tags: Dict[str, Any]) -> Optional[int]:
@@ -151,7 +163,7 @@ def vehicle_patchwork_armor_fields(tags: Dict[str, Any], locations: Dict[str, in
             if type_tag not in tags:
                 raise ValueError(f'Missing patchwork armor type for {name}: <{type_tag}>')
             code = parse_qualifier_number(tags, type_tag, integer=True)
-            map_armor_code(code, BLK_ARMOR_CODE_MAP, strict=True)
+            map_armor_code(code, BLK_ARMOR_CODE_MAP)
             types[location] = code
             if support:
                 bars[location] = 10

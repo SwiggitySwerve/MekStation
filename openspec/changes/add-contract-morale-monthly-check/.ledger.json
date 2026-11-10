@@ -1,0 +1,6 @@
+{
+  "name": "add-contract-morale-monthly-check",
+  "status": "in-progress",
+  "reason": "K2 M2: the monthly pinned-MekHQ enemy-morale check for ACTIVE contracts, the first writer of contract.moraleLevel; ROUTED sets only the level.",
+  "lastReviewed": "2026-11-10"
+}

@@ -6,7 +6,6 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 import {
   armorResultToAllocation,
   createDefaultUnitState,
-  getTotalAllocatedArmor,
 } from '@/stores/unitState';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -14,6 +13,7 @@ import {
   calculateArmorWeight,
   calculateOptimalArmorAllocation,
 } from '@/utils/construction/armorCalculations';
+import { projectMechBuildConfig } from '@/utils/validation/mechValidationProjection';
 
 export interface BuildCampaignEditorUnitStateParams {
   readonly editorUnitId: string;
@@ -34,7 +34,7 @@ function buildArmorAllocation(
     calculateOptimalArmorAllocation(
       config.totalArmorPoints,
       config.tonnage,
-      undefined,
+      config.configuration,
     ),
   );
 }
@@ -61,6 +61,9 @@ export function buildCampaignEditorUnitState({
     rulesLevel,
     unitType: UnitType.BATTLEMECH,
     tonnage: currentConfiguration.tonnage,
+    configuration:
+      currentConfiguration.configuration ?? defaultState.configuration,
+    frankenStructure: currentConfiguration.frankenStructure,
     engineRating: currentConfiguration.engineRating,
     engineType: currentConfiguration.engineType,
     gyroType: currentConfiguration.gyroType,
@@ -81,38 +84,9 @@ export function buildCampaignEditorUnitState({
 }
 
 export function extractMechBuildConfigFromUnitState(
-  state: Pick<
-    UnitState,
-    | 'armorAllocation'
-    | 'armorType'
-    | 'cockpitType'
-    | 'configuration'
-    | 'engineRating'
-    | 'engineType'
-    | 'gyroType'
-    | 'heatSinkCount'
-    | 'heatSinkType'
-    | 'internalStructureType'
-    | 'jumpMP'
-    | 'tonnage'
-  >,
+  state: Parameters<typeof projectMechBuildConfig>[0],
 ): MechBuildConfig {
-  return {
-    tonnage: state.tonnage,
-    engineRating: state.engineRating,
-    engineType: state.engineType,
-    gyroType: state.gyroType,
-    internalStructureType: state.internalStructureType,
-    armorType: state.armorType,
-    totalArmorPoints: getTotalAllocatedArmor(
-      state.armorAllocation,
-      state.configuration,
-    ),
-    cockpitType: state.cockpitType,
-    heatSinkType: state.heatSinkType,
-    totalHeatSinks: state.heatSinkCount,
-    jumpMP: state.jumpMP,
-  };
+  return projectMechBuildConfig(state);
 }
 
 export function campaignEditorSessionKey(

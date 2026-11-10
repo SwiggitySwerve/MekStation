@@ -10,6 +10,10 @@ import {
   type ICampaignSyncTransport,
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { _resetCoopRuntimeSessions } from '@/lib/campaign/coop/coopRuntimeSession';
+import {
+  buildCampaignEditorUnitState,
+  extractMechBuildConfigFromUnitState,
+} from '@/lib/campaign/customizer/campaignCustomizerSession';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { deserializeCampaignBody } from '@/lib/campaign/persistence/serializeCampaign';
 import { DEFAULT_UNIT_CONFIGURATION } from '@/lib/campaign/refit/unitConfiguration';
@@ -30,6 +34,8 @@ import { createHostCoopSession } from '@/types/campaign/CoopSession';
 import { TransactionType } from '@/types/campaign/enums/TransactionType';
 import { Money } from '@/types/campaign/Money';
 import { RefitClass, type IRefitOrder } from '@/types/campaign/Refit';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
+import { RulesLevel } from '@/types/enums';
 
 const ROOM_CODE = 'COOP12';
 const MATCH_ID = 'match-coop-persistence';
@@ -223,6 +229,120 @@ describe('co-op host mutation persistence', () => {
     currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
     targetConfiguration: { ...DEFAULT_UNIT_CONFIGURATION, totalHeatSinks: 12 },
   };
+
+  it.each(['save', 'cancel'] as const)(
+    'reopens a pre-context in-progress refit save fixture and can %s the exact order',
+    async (action) => {
+      // This fixture predates the optional context fields: preserve its saved target.
+      const legacyOrder = refitOrder('in-progress', 'legacy-pre-context-refit');
+      expect(legacyOrder.targetConfiguration).not.toHaveProperty(
+        'configuration',
+      );
+      expect(legacyOrder.targetConfiguration).not.toHaveProperty(
+        'frankenStructure',
+      );
+      const campaign = seedRefitCampaign([legacyOrder]);
+      const wireSave = JSON.parse(
+        JSON.stringify(buildSerializedCampaign(campaign, 'legacy-device', 1)),
+      ) as SerializedCampaign;
+      const reopened = deserializeCampaignBody(wireSave.body);
+      const pending = reopened.refitOrders?.[0];
+      expect(pending).toEqual(legacyOrder);
+      if (!pending) throw new Error('Legacy order was lost on reopen');
+      const editor = buildCampaignEditorUnitState({
+        editorUnitId: 'legacy-editor',
+        unit: {
+          unitId: pending.unitId,
+          unitName: 'Legacy',
+          chassisVariant: 'Test',
+          readiness: 'Ready',
+        },
+        currentConfiguration: pending.targetConfiguration,
+        rulesLevel: RulesLevel.STANDARD,
+      });
+      expect(extractMechBuildConfigFromUnitState(editor)).toEqual({
+        ...legacyOrder.targetConfiguration,
+        configuration: MechConfiguration.BIPED,
+        frankenStructure: undefined,
+      });
+      useCampaignStore().setState({ campaign: reopened });
+      const server = await seedPersistedServer(reopened);
+      if (action === 'save') {
+        useCampaignPersistenceStore.getState().markDirty();
+        expect(
+          (await useCampaignPersistenceStore.getState().saveCampaign()).status,
+        ).toBe('saved');
+      } else {
+        expect(
+          (await cancelCampaignRefitOrder(reopened.id, pending.id)).applied,
+        ).toBe(true);
+      }
+      const expected = {
+        ...legacyOrder,
+        status: action === 'save' ? 'in-progress' : 'cancelled',
+      };
+      expect(server.getRecord().body.refitOrders).toEqual([expected]);
+      expect(useCampaignStore().getState().campaign?.refitOrders).toEqual([
+        expected,
+      ]);
+      expect(
+        deserializeCampaignBody(server.getRecord().body).refitOrders,
+      ).toEqual([expected]);
+      expect(
+        server.getRecord().body.refitOrders?.[0].targetConfiguration,
+      ).not.toHaveProperty('configuration');
+      expect(
+        server.getRecord().body.refitOrders?.[0].targetConfiguration,
+      ).not.toHaveProperty('frankenStructure');
+    },
+  );
+
+  it.each([MechConfiguration.TRIPOD, MechConfiguration.BIPED])(
+    'persists projected %s structure and the real construction admission result',
+    async (configuration) => {
+      const campaign = seedRefitCampaign();
+      const server = await seedPersistedServer(campaign);
+      const targetConfiguration = extractMechBuildConfigFromUnitState({
+        ...buildCampaignEditorUnitState({
+          editorUnitId: 'refit-editor',
+          unit: {
+            unitId: 'unit-refit',
+            unitName: 'Refit',
+            chassisVariant: 'Test',
+            readiness: 'Ready',
+          },
+          currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
+          rulesLevel: RulesLevel.EXPERIMENTAL,
+        }),
+        configuration,
+        engineRating: 300,
+        heatSinkCount: 20,
+        frankenStructure:
+          configuration === MechConfiguration.BIPED
+            ? {
+                type: 'STANDARD',
+                typeByLocation: { CENTER_TORSO: 'ENDO_STEEL' },
+              }
+            : undefined,
+      });
+      const result = await commitRefitOrder({
+        ...refitParams,
+        targetConfiguration,
+      });
+      expect(result.applied).toBe(true);
+      expect(result.order?.status).toBe(
+        configuration === MechConfiguration.TRIPOD ? 'proposed' : 'in-progress',
+      );
+      const saved = server.getRecord().body.refitOrders?.[0];
+      expect(saved?.targetConfiguration).toEqual(targetConfiguration);
+      expect(saved?.status).toBe(result.order?.status);
+      expect(useCampaignStore().getState().campaign?.refitOrders?.[0]).toEqual(
+        saved,
+      );
+      const reloaded = deserializeCampaignBody(server.getRecord().body);
+      expect(reloaded.refitOrders?.[0]).toEqual(saved);
+    },
+  );
 
   it.each(['proposed', 'in-progress'] as const)(
     'rejects a second refit beside a %s order before any save',

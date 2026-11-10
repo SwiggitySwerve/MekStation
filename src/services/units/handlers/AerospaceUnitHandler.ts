@@ -7,14 +7,23 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.3
  */
 
+import {
+  decodeBlkConstructionEngine,
+  isClanBlkEngine,
+} from '@/services/conversion/blkEngineIdentity';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { TechBase } from '@/types/enums/TechBase';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
-import { IAerospace } from '@/types/unit/AerospaceInterfaces';
+import {
+  AerospaceCockpitType,
+  IAerospace,
+} from '@/types/unit/AerospaceInterfaces';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import { calculateAerospaceBVFromUnit } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
+import { aerospaceEngineTons } from '@/utils/construction/aerospace/sourceWeight';
 
 import {
   AbstractUnitTypeHandler,
@@ -190,9 +199,20 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   protected calculateTypeSpecificWeight(unit: IAerospace): number {
     let weight = 0;
 
-    // Engine weight (simplified: based on safe thrust and tonnage)
-    const thrustRating = unit.movement.safeThrust * unit.tonnage;
-    weight += thrustRating * 0.05; // Simplified engine weight
+    const native = unit.nativeAerospaceConstruction;
+    const clan = native
+      ? isClanBlkEngine(native.type, native.rawTags.clan_engine)
+      : unit.techBase === TechBase.CLAN;
+    const engine = aerospaceEngineTons({
+      family: 'aerospaceFighter',
+      tonnage: unit.tonnage,
+      safeThrust: unit.movement.safeThrust,
+      engineType: decodeBlkConstructionEngine(unit.engineType, clan),
+      primitiveCockpit: unit.cockpitType === AerospaceCockpitType.PRIMITIVE,
+    });
+    if (engine === undefined)
+      throw new Error('Unsupported aerospace engine mass');
+    weight += engine;
 
     // Structural weight
     weight += unit.tonnage * 0.1;

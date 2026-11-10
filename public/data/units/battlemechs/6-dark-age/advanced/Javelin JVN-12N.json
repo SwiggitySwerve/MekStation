@@ -179,5 +179,8 @@
   },
   "mulId": 9461,
   "role": "Scout",
-  "source": "RG31"
+  "source": "RG31",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

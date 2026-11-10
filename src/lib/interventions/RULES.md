@@ -20,6 +20,20 @@ successful approvals.
 - Co-op freshness compares the caller's state before dispatch. Host-side journal
   version comparison requires a separate transport contract. The existing local
   application path for co-op time corrections is outside this rule change.
+- The tactical live-session support decision belongs to
+  `GmTacticalCommandPreviewAdapter.getGmTacticalCorrectionBlockReason`. Position,
+  damage, heat/ammo, initiative, lifecycle and objective corrections are
+  temporarily blocked: their eventless edits disappear on the next game action.
+  The command registry and tactical preview/approval surface consume this same
+  decision. Stale ready previews are rechecked and unknown preview IDs refuse
+  before preparation, engine calls, session updates or ledger writes.
+- Advance Phase remains event-backed through `InteractiveSession.advancePhase`.
+  Attack correction, unit reload and resource grants retain their existing
+  unsupported/deferred boundaries. Pure domain projection previews remain
+  available to their owning modules; they do not authorize live state edits.
+- Re-enable the six controls only after [D-8 R10 correction events](../../../openspec/changes/disable-gm-non-event-corrections/proposal.md#d-8-r10-follow-up)
+  preserve approved effects through subsequent actions and replay, with the
+  schema and privacy contracts approved separately.
 
 These invariants are exercised by the intervention, campaign control-plane,
 campaign page, tactical surface and GM ledger E2E suites. No database migration,

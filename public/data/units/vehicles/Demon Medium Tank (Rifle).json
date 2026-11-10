@@ -31,7 +31,7 @@
   },
   "equipment": [
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)",
       "location": "TURRET"
     },

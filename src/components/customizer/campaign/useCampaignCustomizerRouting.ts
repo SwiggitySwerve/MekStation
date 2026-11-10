@@ -52,10 +52,12 @@ interface CampaignCustomizerRoutingResult {
   readonly unavailableUnitId: string | null;
 }
 
-function browserQuery(): ParsedUrlQuery | null {
+function browserQuery(asPath: string): ParsedUrlQuery | null {
   if (typeof window === 'undefined') return null;
   const query: ParsedUrlQuery = {};
-  const params = new URLSearchParams(window.location.search);
+  const search = new URL(asPath, window.location.href).search;
+  // Before router hydration, asPath can omit the browser's query string.
+  const params = new URLSearchParams(search || window.location.search);
   params.forEach((value, key) => {
     const existing = query[key];
     if (existing === undefined) {
@@ -99,7 +101,7 @@ export function useCampaignCustomizerRouting({
   const campaignRoute = useMemo(() => {
     const parsedRoute = parseCampaignCustomizerRouteState(nextRouter.query);
     if (parsedRoute) return parsedRoute;
-    const fallbackQuery = browserQuery();
+    const fallbackQuery = browserQuery(nextRouter.asPath);
     return fallbackQuery
       ? parseCampaignCustomizerRouteState(fallbackQuery)
       : null;
