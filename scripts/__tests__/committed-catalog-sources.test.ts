@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 import { readCatalog } from '../ci/committed-catalog-inputs';
 import {
@@ -12,6 +13,7 @@ import {
   sourceIdentity,
   type ISource,
 } from '../ci/committed-catalog-sources';
+import { sha256 } from '../ci/parity-scoreboard-io.cjs';
 import folders from '../megameklab-conversion/strict-families.json';
 import { sourceHash } from '../vehicle-aero-bv-delta';
 
@@ -96,7 +98,7 @@ it('uses unquoted Git listings and retains non-ASCII filenames and committed ids
       );
     const spy = jest.spyOn(native, 'execFileSync');
     try {
-      const result = readCatalog(repo, 'HEAD', ['battlemechs'], 'python');
+      const result = readCatalog(repo, 'HEAD', ['battlemechs']);
       expect(result.errors).toEqual([]);
       expect(result.entries[0].file).toBe(
         'public/data/units/battlemechs/' + filename,
@@ -117,11 +119,17 @@ it('uses unquoted Git listings and retains non-ASCII filenames and committed ids
   }
 });
 
-it('emits identical payloads/manifests, accounts for six fixtures, and publishes no payload on reference failure', () => {
+it('emits byte-identical manifests across two runs and CRLF/LF copies, excluding six fixtures and failing closed', () => {
   const root = fs.mkdtempSync(
     path.join(os.tmpdir(), 'committed-catalog-full-'),
   );
   const repo = path.join(root, 'repo');
+  const mechText = 'chassis:Mech\r\nmodel:A\r\n';
+  const mechUnit = { chassis: 'Mech', model: 'A' };
+  const mechReference = {
+    path: 'meks/mech.mtf',
+    sha256: sourceHash(Buffer.from(mechText)),
+  };
   fs.mkdirSync(repo);
   const git = (...args: string[]) =>
     execFileSync('git', ['-C', repo, ...args], {
@@ -138,13 +146,19 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
       fs.writeFileSync(
         path.join(dir, 'index.json'),
         JSON.stringify({
-          totalUnits: ['aerospace', 'battlearmor'].includes(family) ? 1 : 0,
+          totalUnits: ['aerospace', 'battlearmor', 'battlemechs'].includes(
+            family,
+          )
+            ? 1
+            : 0,
           units:
             family === 'aerospace'
               ? [{ path: 'plane.json' }]
               : family === 'battlearmor'
                 ? [{ path: 'armor.json' }]
-                : [],
+                : family === 'battlemechs'
+                  ? [{ path: 'mech.json' }]
+                  : [],
         }),
       );
       if (family === 'aerospace')
@@ -157,6 +171,8 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
           path.join(dir, 'armor.json'),
           JSON.stringify({ chassis: 'Armor', model: '' }),
         );
+      if (family === 'battlemechs')
+        fs.writeFileSync(path.join(dir, 'mech.json'), JSON.stringify(mechUnit));
     }
     for (const [family, fixtures] of Object.entries({
       battlearmor: [
@@ -189,6 +205,7 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
     for (const folder of Object.values(folders).flat())
       fs.mkdirSync(path.join(mekfiles, folder), { recursive: true });
     fs.writeFileSync(path.join(mekfiles, source.path), text);
+    fs.writeFileSync(path.join(mekfiles, mechReference.path), mechText);
     const armorText =
       '<UnitType>BattleArmor</UnitType>\r\n<Name>Armor</Name>\r\n';
     fs.writeFileSync(path.join(mekfiles, 'battlearmor/armor.blk'), armorText);
@@ -197,6 +214,7 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
       ref,
       [
         ...reference,
+        mechReference,
         {
           path: 'battlearmor/armor.blk',
           sha256: sourceHash(Buffer.from(armorText)),
@@ -217,6 +235,9 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
       expect(
         emitCommittedCatalog({ ...options, out: path.join(root, label) }),
       ).toBe(true);
+    const lfMech = mechText.replace(/\r\n/g, '\n');
+    expect(sourceHash(Buffer.from(lfMech))).toBe(mechReference.sha256);
+    fs.writeFileSync(path.join(mekfiles, mechReference.path), lfMech);
     fs.writeFileSync(
       path.join(mekfiles, source.path),
       text.replace(/\r\n/g, '\n'),
@@ -228,6 +249,27 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
     expect(
       emitCommittedCatalog({ ...options, out: path.join(root, 'lf-checkout') }),
     ).toBe(true);
+    // Exercise the documented portable CLI from the repository root with relative inputs.
+    const cliCwd = path.resolve(__dirname, '../..');
+    const cliInputs = path.relative(cliCwd, root);
+    execFileSync(
+      process.execPath,
+      [
+        '--require',
+        require.resolve('tsx/cjs'),
+        'scripts/ci/committed-catalog-sources.ts',
+        '--repo',
+        path.join(cliInputs, 'repo'),
+        '--mekfiles',
+        path.join(cliInputs, 'mekfiles'),
+        '--reference',
+        path.join(cliInputs, 'reference.jsonl'),
+        '--out',
+        path.join(cliInputs, 'cli-output'),
+        '--source-only-families-identity-only',
+      ],
+      { cwd: cliCwd, timeout: 30000, windowsHide: true },
+    );
     for (const file of [
       'sources.ndjson',
       'sources.ndjson.manifest.json',
@@ -239,6 +281,9 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
       expect(fs.readFileSync(path.join(root, 'first', file))).toEqual(
         fs.readFileSync(path.join(root, 'lf-checkout', file)),
       );
+      expect(fs.readFileSync(path.join(root, 'first', file))).toEqual(
+        fs.readFileSync(path.join(root, 'cli-output', file)),
+      );
     }
     const report = JSON.parse(
       fs.readFileSync(
@@ -248,11 +293,13 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
     );
     expect(report.unjoinables).toHaveLength(6);
     expect(report.errors).toEqual([]);
+    expect(report.expectedPopulation).toBe(3);
     expect(report.objectParity.status).toBe('not-measured');
     const regenerated = path.join(root, 'catalog-objects.ndjson');
     fs.writeFileSync(
       regenerated,
       [
+        { ...mechReference, unit: mechUnit },
         {
           ...reference[0],
           unit: { ...catalog[0].unit, extra: { keep: false } },
@@ -286,6 +333,178 @@ it('emits identical payloads/manifests, accounts for six fixtures, and publishes
     expect(
       fs.readFileSync(path.join(root, 'object-drift/sources.ndjson')),
     ).toEqual(fs.readFileSync(path.join(root, 'first/sources.ndjson')));
+    const referenceBytes = Buffer.from(
+      [
+        {
+          ...reference[0],
+          chassis: 'Plane',
+          model: 'A',
+          concreteFamily: 'FixedWingSupport',
+        },
+        { ...mechReference, ...mechUnit, concreteFamily: 'BipedMek' },
+        {
+          path: 'battlearmor/armor.blk',
+          sha256: sourceHash(Buffer.from(armorText)),
+          chassis: 'Armor',
+          model: '',
+          concreteFamily: 'BattleArmor',
+        },
+      ]
+        .map((row) => JSON.stringify(row))
+        .join('\n') + '\n',
+    );
+    const compressed = gzipSync(referenceBytes);
+    const referenceDirectory = path.join(repo, 'config/reference');
+    fs.mkdirSync(referenceDirectory, { recursive: true });
+    fs.writeFileSync(
+      path.join(referenceDirectory, 'reference-full.jsonl.gz'),
+      compressed,
+    );
+    const sidecar = Buffer.from('{"runtime":{"megamekCommit":"fixture"}}\r\n');
+    fs.writeFileSync(
+      path.join(referenceDirectory, 'reference-full.jsonl.provenance.json'),
+      sidecar,
+    );
+    fs.writeFileSync(
+      path.join(referenceDirectory, 'parity-scoreboard.json'),
+      JSON.stringify({
+        reference: {
+          rows: 3,
+          file: 'reference-full.jsonl.gz',
+          gzipSha256: sha256(compressed),
+          sha256: sha256(referenceBytes),
+          sidecar: 'reference-full.jsonl.provenance.json',
+          sidecarSha256: sha256(sidecar),
+        },
+      }),
+    );
+    git('add', 'config');
+    git(
+      '-c',
+      'user.name=Test',
+      '-c',
+      'user.email=test@example.invalid',
+      'commit',
+      '-m',
+      'committed reference fixture',
+    );
+    // CI has no source tree or Python executable. Only Git may be spawned.
+    fs.renameSync(mekfiles, mekfiles + '-hidden');
+    try {
+      const native =
+        jest.requireActual<typeof import('node:child_process')>(
+          'node:child_process',
+        );
+      const calls = jest.spyOn(native, 'execFileSync');
+      try {
+        for (const label of ['ci-first', 'ci-second'])
+          expect(
+            emitCommittedCatalog({
+              repo,
+              commit: 'HEAD',
+              out: path.join(root, label),
+              python: 'python-does-not-exist',
+              allowIdentityOnly: true,
+              referenceOnly: true,
+            }),
+          ).toBe(true);
+        expect(calls.mock.calls.every(([command]) => command === 'git')).toBe(
+          true,
+        );
+        expect(calls.mock.calls.length).toBeGreaterThan(0);
+      } finally {
+        calls.mockRestore();
+      }
+      execFileSync(
+        process.execPath,
+        [
+          '--require',
+          require.resolve('tsx/cjs'),
+          'scripts/ci/committed-catalog-sources.ts',
+          '--repo',
+          path.join(cliInputs, 'repo'),
+          '--reference-only',
+          '--out',
+          path.join(cliInputs, 'ci-cli'),
+          '--python',
+          'python-does-not-exist',
+          '--source-only-families-identity-only',
+        ],
+        { cwd: cliCwd, timeout: 30000, windowsHide: true },
+      );
+      const ciRows = fs
+        .readFileSync(path.join(root, 'ci-first/sources.ndjson'), 'utf8')
+        .trim()
+        .split('\n')
+        .map((row) => JSON.parse(row));
+      expect(ciRows).toHaveLength(3);
+      expect(
+        ciRows.every(
+          (row) =>
+            row.catalogFile &&
+            row.catalogBlob &&
+            row.path &&
+            row.sha256 &&
+            row.evaluation === 'identity-only/reference',
+        ),
+      ).toBe(true);
+      expect(ciRows.every((row) => !('sourceText' in row))).toBe(true);
+      expect(
+        ciRows.find((row) => row.family === 'battlearmor').unit,
+      ).toBeNull();
+      const receipt = JSON.parse(
+        fs.readFileSync(
+          path.join(root, 'ci-first/sources.ndjson.manifest.json'),
+          'utf8',
+        ),
+      );
+      expect(receipt.scope).toBe('committed-identity');
+      expect(receipt.sourcesSha256).toBe(
+        sha256(fs.readFileSync(path.join(root, 'ci-first/sources.ndjson'))),
+      );
+      for (const file of [
+        'sources.ndjson',
+        'sources.ndjson.manifest.json',
+        'committed-catalog-report.json',
+      ]) {
+        expect(fs.readFileSync(path.join(root, 'ci-first', file))).toEqual(
+          fs.readFileSync(path.join(root, 'ci-second', file)),
+        );
+        expect(fs.readFileSync(path.join(root, 'ci-first', file))).toEqual(
+          fs.readFileSync(path.join(root, 'ci-cli', file)),
+        );
+      }
+    } finally {
+      fs.renameSync(mekfiles + '-hidden', mekfiles);
+    }
+    // Remove exactly one reference unit while retaining every committed index entry.
+    fs.writeFileSync(
+      ref,
+      JSON.stringify(reference[0]) +
+        '\n' +
+        JSON.stringify(mechReference) +
+        '\n',
+    );
+    expect(
+      emitCommittedCatalog({
+        ...options,
+        out: path.join(root, 'short-reference'),
+      }),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(root, 'short-reference/sources.ndjson')),
+    ).toBe(false);
+    expect(
+      fs.existsSync(
+        path.join(root, 'short-reference/sources.ndjson.manifest.json'),
+      ),
+    ).toBe(false);
+    expect(
+      fs.readFileSync(
+        path.join(root, 'short-reference/committed-catalog-report.json'),
+        'utf8',
+      ),
+    ).toContain('joined-population-mismatch: expected=3, actual=2');
     fs.writeFileSync(
       ref,
       JSON.stringify({ ...reference[0], sha256: 'b'.repeat(64) }) + '\n',
@@ -389,6 +608,19 @@ it('rejects absent, duplicated and hash-mismatched reference rows before emittin
   }
 });
 
+it('names a short join against the complete indexed population when a reference unit is removed', () => {
+  const entries = [
+    ...catalog,
+    { ...catalog[0], file: 'b.json', unit: { chassis: 'Plane', model: 'B' } },
+  ];
+  const sources = [source, { ...source, path: 'vehicles/b.blk', model: 'B' }];
+  const result = joinCatalog(entries, sources, reference, false);
+  expect(result.rows).toHaveLength(1);
+  expect(result.errors).toContain(
+    'joined-population-mismatch: expected=2, actual=1',
+  );
+});
+
 it('requires explicit acknowledgement for source-only families and keeps their unit null', () => {
   const entries = [{ ...catalog[0], family: 'infantry' }];
   const sources = [{ ...source, family: 'infantry' }];
@@ -397,7 +629,7 @@ it('requires explicit acknowledgement for source-only families and keeps their u
   ).toContain('source-only-families-identity-only');
   const result = joinCatalog(entries, sources, reference, true);
   expect(result.errors).toEqual([]);
-  expect(result.rows[0]).toEqual({
+  expect(result.rows[0]).toMatchObject({
     path: source.path,
     sha256: source.sha256,
     unit: null,
@@ -468,7 +700,7 @@ it('reads only indexed committed blobs, reports fixtures, and ignores dirty/untr
     );
     fs.writeFileSync(path.join(dir, 'untracked.json'), '{}');
     fs.writeFileSync(path.join(dir, 'unit.json'), '{}');
-    const result = readCatalog(repo, 'HEAD', ['battlearmor'], 'python');
+    const result = readCatalog(repo, 'HEAD', ['battlearmor']);
     expect(result.entries.map((e) => e.unit)).toEqual([
       { chassis: 'Unit', model: '' },
     ]);
@@ -478,14 +710,12 @@ it('reads only indexed committed blobs, reports fixtures, and ignores dirty/untr
         (e) => e.reason === 'legacy_fixture_not_in_index',
       ),
     ).toBe(true);
-    expect(
-      JSON.stringify(readCatalog(repo, 'HEAD', ['battlearmor'], 'python')),
-    ).toBe(JSON.stringify(result));
+    expect(JSON.stringify(readCatalog(repo, 'HEAD', ['battlearmor']))).toBe(
+      JSON.stringify(result),
+    );
     git('show', 'HEAD:public/data/units/battlearmor/unit.json');
     fs.writeFileSync(path.join(dir, 'index.json'), '{}');
-    expect(readCatalog(repo, 'HEAD', ['battlearmor'], 'python')).toEqual(
-      result,
-    );
+    expect(readCatalog(repo, 'HEAD', ['battlearmor'])).toEqual(result);
   } finally {
     fs.rmSync(repo, { recursive: true, force: true });
   }

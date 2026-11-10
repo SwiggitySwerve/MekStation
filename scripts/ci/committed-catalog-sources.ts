@@ -4,36 +4,35 @@ import * as path from 'node:path';
 import { parseArgs } from 'node:util';
 import { z } from 'zod';
 
-import {
-  extractBlkTags,
-  getBlkString,
-} from '../../src/services/conversion/BlkParserService.helpers';
-import { parseHeader } from '../../src/services/conversion/MTFParserHelpers';
-import catalogNames from '../megameklab-conversion/catalog-families.json';
 import folders from '../megameklab-conversion/strict-families.json';
 import { familyOf, sourceKey } from '../unit-bv-parity';
 import { writeSourceManifest } from '../unit-bv-provenance';
-import { sourceHash } from '../vehicle-aero-bv-delta';
-import { readCatalog, type ICatalogEntry } from './committed-catalog-inputs';
+import {
+  catalogFamily,
+  readCatalog,
+  readSources,
+  type ISource,
+  readCommittedReference,
+  type ICatalogEntry,
+} from './committed-catalog-inputs';
 import { buildObjectParity } from './committed-catalog-parity';
-import { parseRows, sha256 } from './parity-scoreboard-io.cjs';
+import {
+  compareText as compare,
+  parseRows,
+  sha256,
+} from './parity-scoreboard-io.cjs';
+
+export { sourceIdentity, type ISource } from './committed-catalog-inputs';
 
 const identityOnly = new Set(['battlearmor', 'infantry', 'protomechs']);
-const catalogFamily = (family: string) =>
-  (catalogNames as Record<string, string>)[family] ?? family;
 const families = Object.keys(folders).map(catalogFamily);
 const Reference = z.object(sourceKey);
 interface IReference {
   path: string;
   sha256: string;
 }
-export interface ISource extends IReference {
-  family: string;
-  chassis: string;
-  model: string;
-  sourceText: string;
-}
-interface IRow extends IReference {
+
+interface IRow extends IJoin {
   unit: ICatalogEntry['unit'] | null;
   sourceText?: string;
 }
@@ -43,6 +42,7 @@ interface IJoin extends IReference {
   family: string;
   evaluation: string;
   alias: boolean;
+  sourceOnly: boolean;
 }
 interface IJoinResult {
   rows: IRow[];
@@ -52,35 +52,10 @@ interface IJoinResult {
 }
 export const MECH_UNKNOWN_MODEL_ALIAS =
   'mech-catalog-Unknown-to-empty-source-model';
-const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 /** Root's S0b compatibility rule: catalog mech Unknown represents an empty source model. */
 export function catalogModel(family: string, model: string): string {
   return family === 'battlemechs' && model === 'Unknown' ? '' : model;
-}
-
-export function sourceIdentity(
-  file: string,
-  text: string,
-): Pick<ISource, 'family' | 'chassis' | 'model'> {
-  if (file.endsWith('.mtf')) {
-    const header = parseHeader(text.split(/\r?\n/));
-    return {
-      family: familyOf({ path: file, concreteFamily: '' }),
-      chassis: header.chassis,
-      model: header.model,
-    };
-  }
-  const tags = extractBlkTags(text);
-  const family = familyOf({
-    path: file,
-    concreteFamily: getBlkString(tags.UnitType) ?? '',
-  });
-  return {
-    family: catalogFamily(family),
-    chassis: getBlkString(tags.Name) ?? getBlkString(tags.name) ?? '',
-    model: getBlkString(tags.Model) ?? getBlkString(tags.model) ?? '',
-  };
 }
 
 function key(family: string, chassis: string, model: string): string {
@@ -92,6 +67,7 @@ export function joinCatalog(
   sources: readonly ISource[],
   references: readonly IReference[],
   allowIdentityOnly: boolean,
+  referenceOnly = false,
 ): IJoinResult {
   const byKey = new Map<string, ISource[]>();
   for (const source of sources) {
@@ -148,20 +124,27 @@ export function joinCatalog(
       );
       continue;
     }
-    rows.push({
-      path: source.path,
-      sha256: source.sha256,
-      unit: sourceOnly ? null : entry.unit,
-      ...(sourceOnly ? { sourceText: source.sourceText } : {}),
-    });
-    joins.push({
+    const join = {
       catalogFile: entry.file,
       catalogBlob: entry.blob,
       path: source.path,
       sha256: source.sha256,
       family: entry.family,
-      evaluation: sourceOnly ? 'identity-only/source-text' : 'committed-unit',
+      evaluation: referenceOnly
+        ? 'identity-only/reference'
+        : sourceOnly
+          ? 'identity-only/source-text'
+          : 'committed-unit',
       alias: model !== entry.unit.model,
+      sourceOnly,
+    };
+    joins.push(join);
+    rows.push({
+      ...join,
+      unit: sourceOnly ? null : entry.unit,
+      ...(sourceOnly && !referenceOnly
+        ? { sourceText: source.sourceText }
+        : {}),
     });
   }
   const joined = new Set(rows.map((r) => r.path));
@@ -169,47 +152,25 @@ export function joinCatalog(
     if (!joined.has(ref.path))
       errors.push(`reference-without-catalog: ${ref.path}`);
   }
+  // Every validated index entry must produce one row; fixtures are outside the indexes.
+  if (rows.length !== catalog.length)
+    errors.push(
+      `joined-population-mismatch: expected=${catalog.length}, actual=${rows.length}`,
+    );
   rows.sort((a, b) => compare(a.path, b.path));
   return { rows, joins, errors, aliases: joins.filter((j) => j.alias).length };
-}
-
-function readSources(mekfiles: string): ISource[] {
-  const sources: ISource[] = [];
-  const visit = (directory: string, extension: string) => {
-    for (const entry of fs
-      .readdirSync(directory, { withFileTypes: true })
-      .sort((a, b) => compare(a.name, b.name))) {
-      const file = path.join(directory, entry.name);
-      if (entry.isSymbolicLink()) throw new Error(`Source symlink: ${file}`);
-      if (entry.isDirectory()) visit(file, extension);
-      else if (entry.isFile() && entry.name.endsWith(extension)) {
-        const bytes = fs.readFileSync(file),
-          relative = path.relative(mekfiles, file).split(path.sep).join('/');
-        // Equivalent LF/CRLF source checkouts must produce the same NDJSON bytes.
-        const sourceText = bytes.toString('utf8').replace(/\r\n/g, '\n');
-        sources.push({
-          path: relative,
-          sha256: sourceHash(bytes),
-          sourceText,
-          ...sourceIdentity(relative, sourceText),
-        });
-      }
-    }
-  };
-  for (const folder of Object.values(folders).flat())
-    visit(path.join(mekfiles, folder), folder === 'meks' ? '.mtf' : '.blk');
-  return sources;
 }
 
 export function emitCommittedCatalog(options: {
   repo: string;
   commit: string;
-  mekfiles: string;
-  reference: string;
+  mekfiles?: string;
+  reference?: string;
   out: string;
   python: string;
   allowIdentityOnly: boolean;
   regenerated?: string;
+  referenceOnly?: boolean;
 }): boolean {
   const out = path.resolve(options.out);
   const protectedData = fs.realpathSync(path.join(options.repo, 'public/data'));
@@ -230,22 +191,40 @@ export function emitCommittedCatalog(options: {
     [key: string]: unknown;
   } = { errors: [], unjoinables: [] };
   try {
-    const catalog = readCatalog(
-      options.repo,
-      options.commit,
-      families,
-      options.python,
-    );
-    const referenceBytes = fs.readFileSync(options.reference);
-    const references = parseRows(referenceBytes).map((row) =>
-      Reference.parse(row),
-    );
+    if (
+      options.referenceOnly &&
+      (options.mekfiles || options.reference || options.regenerated)
+    )
+      throw new Error(
+        'reference-only mode accepts no mekfiles, reference or regenerated input',
+      );
+    const catalog = readCatalog(options.repo, options.commit, families);
+    let referenceBytes: Buffer;
+    let references: IReference[];
+    let sources: ISource[];
+    if (options.referenceOnly) {
+      const committedReference = readCommittedReference(options.repo);
+      referenceBytes = committedReference.bytes;
+      references = committedReference.references;
+      sources = committedReference.references.map((row) => ({
+        ...row,
+        family: catalogFamily(familyOf(row)),
+        sourceText: '',
+      }));
+    } else {
+      if (!options.reference || !options.mekfiles)
+        throw new Error('Source-text mode requires --reference and --mekfiles');
+      referenceBytes = fs.readFileSync(options.reference);
+      references = parseRows(referenceBytes).map((row) => Reference.parse(row));
+      sources = readSources(options.mekfiles);
+    }
     if (!references.length) throw new Error('Reference contains no rows');
     const result = joinCatalog(
       catalog.entries,
-      readSources(options.mekfiles),
+      sources,
       references,
       options.allowIdentityOnly,
+      options.referenceOnly,
     );
     report.errors = [...catalog.errors, ...result.errors];
     report.unjoinables = catalog.unjoinables;
@@ -260,6 +239,7 @@ export function emitCommittedCatalog(options: {
     report.errors.push(...objectParity.errors);
     Object.assign(report, {
       producer: 'committed-catalog',
+      inputMode: options.referenceOnly ? 'committed-reference' : 'source-text',
       catalogCommit: catalog.commit,
       indexes: catalog.indexes,
       objectParity,
@@ -268,6 +248,7 @@ export function emitCommittedCatalog(options: {
         : {}),
       referenceSha256: sha256(referenceBytes),
       sourceOnlyFamiliesIdentityOnly: options.allowIdentityOnly,
+      expectedPopulation: catalog.entries.length,
       indexed: catalog.entries.length,
       joined: result.rows.length,
       aliases: result.aliases,
@@ -286,13 +267,30 @@ export function emitCommittedCatalog(options: {
     );
     const file = path.join(out, 'sources.ndjson');
     fs.writeFileSync(file, payload);
-    writeSourceManifest(
-      file,
-      payload,
-      Object.values(folders).flat(),
-      'full',
-      options.python,
-    );
+    if (options.referenceOnly)
+      fs.writeFileSync(
+        file + '.manifest.json',
+        JSON.stringify(
+          {
+            version: 1,
+            scope: 'committed-identity',
+            folders: Object.values(folders).flat(),
+            sourceCount: result.rows.length,
+            sourcesSha256: sha256(payload),
+            converterInputs: {},
+          },
+          null,
+          2,
+        ) + '\n',
+      );
+    else
+      writeSourceManifest(
+        file,
+        payload,
+        Object.values(folders).flat(),
+        'full',
+        options.python,
+      );
     const manifest: unknown = JSON.parse(
       fs.readFileSync(file + '.manifest.json', 'utf8'),
     );
@@ -330,10 +328,16 @@ if (require.main === module) {
       regenerated: { type: 'string' },
       python: { type: 'string', default: 'python' },
       'source-only-families-identity-only': { type: 'boolean', default: false },
+      'reference-only': { type: 'boolean', default: false },
     },
   });
-  if (!values.mekfiles || !values.reference || !values.out)
-    throw new Error('Required: --mekfiles --reference --out');
+  if (
+    !values.out ||
+    (!values['reference-only'] && (!values.mekfiles || !values.reference))
+  )
+    throw new Error(
+      'Required: --out and either --reference-only or --mekfiles --reference',
+    );
   const ok = emitCommittedCatalog({
     repo: values.repo,
     commit: values.commit,
@@ -343,6 +347,7 @@ if (require.main === module) {
     python: values.python,
     allowIdentityOnly: values['source-only-families-identity-only'],
     regenerated: values.regenerated,
+    referenceOnly: values['reference-only'],
   });
   process.stdout.write(
     `Committed catalog: ${ok ? 'emitted' : 'failed'}; report: ${path.join(values.out, 'committed-catalog-report.json')}\n`,

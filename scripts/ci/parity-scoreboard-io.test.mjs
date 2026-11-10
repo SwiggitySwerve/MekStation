@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { gzipSync } from 'node:zlib';
 
 import {
   readJson,
@@ -10,7 +11,38 @@ import {
   parseRows,
   sha256,
   verifySha256,
+  loadReference,
+  compareText,
 } from './parity-scoreboard-io.cjs';
+
+test('artifact ordering is case-sensitive and independent of machine locale', () => {
+  const values = ['é', 'z', 'a', 'Z', 'A', ''];
+  assert.deepEqual(values.sort(compareText), ['', 'A', 'Z', 'a', 'z', 'é']);
+  assert.equal(compareText('same', 'same'), 0);
+});
+
+test('committed reference loading verifies compressed, payload and sidecar bytes without external tools', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'reference-bytes-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const bytes = Buffer.from('{"path":"meks/a.mtf"}\n');
+  const sidecar = Buffer.from('{"provenance":true}\r\n');
+  const compressed = gzipSync(bytes);
+  fs.writeFileSync(path.join(root, 'reference.gz'), compressed);
+  fs.writeFileSync(path.join(root, 'reference.provenance.json'), sidecar);
+  const artifact = {
+    file: 'reference.gz',
+    gzipSha256: sha256(compressed),
+    sha256: sha256(bytes),
+    sidecar: 'reference.provenance.json',
+    sidecarSha256: sha256(sidecar),
+  };
+  assert.deepEqual(loadReference(root, artifact), { bytes, sidecar });
+  for (const key of ['gzipSha256', 'sha256', 'sidecarSha256'])
+    assert.throws(
+      () => loadReference(root, { ...artifact, [key]: '0'.repeat(64) }),
+      /SHA-256 mismatch/,
+    );
+});
 
 test('shared artifact I/O preserves Unicode, NDJSON ordering, and strict JSON errors', (t) => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'scoreboard-io-'));

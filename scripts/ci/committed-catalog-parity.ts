@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { sourceKey } from '../unit-bv-parity';
 import { CatalogUnit, type ICatalogEntry } from './committed-catalog-inputs';
+import { compareText as compare } from './parity-scoreboard-io.cjs';
 
 interface IJoin {
   family: string;
@@ -34,7 +35,6 @@ const Row = z.object({
   unit: z.unknown(),
   reason: z.string().optional(),
 });
-const compare = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
 // These are Root's known classes at this measured commit, not predicates that
 // automatically classify every future change to the same fields.

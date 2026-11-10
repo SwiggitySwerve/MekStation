@@ -101,6 +101,29 @@ test('null regenerated objects stay unavailable and are never counted equal', ()
   );
 });
 
+test('reference-only summaries report identity scope and retain the personnel limit', () => {
+  const identity = {
+    ...report,
+    inputMode: 'committed-reference',
+    joins: report.joins.map((join) => ({
+      ...join,
+      sourceOnly: join.family === 'battlearmor',
+      evaluation: 'identity-only/reference',
+    })),
+  };
+  const text = renderCommittedCatalogSummary(identity);
+  assert.match(text, /Source-text numeric parity: not measured/);
+  assert.match(
+    text,
+    /battlearmor.*BV from source text; runtime-path BV not measured in CI/,
+  );
+  assert.match(
+    text,
+    /battlemechs.*Identity only; runtime-path BV not measured in CI/,
+  );
+  assert.doesNotMatch(text, /Committed-object BV/);
+});
+
 test('scoreboard rejects interrupted, other-commit and altered-payload evidence', (t) => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'committed-scoreboard-'));
   t.after(() => fs.rmSync(out, { recursive: true, force: true }));
@@ -141,6 +164,16 @@ test('scoreboard rejects interrupted, other-commit and altered-payload evidence'
   assert.throws(
     () => writeCommittedCatalogScoreboard(emitted, census),
     /did not evaluate/,
+  );
+  const identity = { ...report, inputMode: 'committed-reference' };
+  save(path.join(emitted, 'sources.ndjson.manifest.json'), {
+    sourcesSha256: sha256(bytes),
+    committedCatalog: identity,
+  });
+  save(path.join(emitted, 'committed-catalog-report.json'), identity);
+  assert.throws(
+    () => writeCommittedCatalogScoreboard(emitted, census),
+    /Identity-only reference output cannot supply a numerical census/,
   );
   fs.writeFileSync(path.join(emitted, 'sources.ndjson'), 'changed');
   assert.throws(

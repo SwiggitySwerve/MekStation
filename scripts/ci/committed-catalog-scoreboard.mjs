@@ -4,7 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { readJson, sha256, verifySha256 } from './parity-scoreboard-io.cjs';
+import {
+  compareText,
+  readJson,
+  sha256,
+  verifySha256,
+} from './parity-scoreboard-io.cjs';
 import { readCensusResults } from './parity-scoreboard.mjs';
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
@@ -35,7 +40,10 @@ export function renderCommittedCatalogSummary(report, result) {
   const personnel = [
     ...new Set(
       report.joins
-        .filter((join) => join.evaluation === 'identity-only/source-text')
+        .filter(
+          (join) =>
+            join.sourceOnly || join.evaluation === 'identity-only/source-text',
+        )
         .map((join) => join.family),
     ),
   ].sort();
@@ -63,10 +71,10 @@ export function renderCommittedCatalogSummary(report, result) {
     '| --- | ---: | ---: | ---: | --- |',
   ];
   for (const [family, counts] of Object.entries(objects.byFamily).sort(
-    ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0),
+    ([a], [b]) => compareText(a, b),
   )) {
     lines.push(
-      `| ${escape(family)} | ${counts.equal} | ${counts.drifted} | ${counts.unavailable} | ${personnel.includes(family) ? 'BV from source text; runtime-path BV not measured in CI' : 'Committed-object BV; BLK construction diagnostics still use source text'} |`,
+      `| ${escape(family)} | ${counts.equal} | ${counts.drifted} | ${counts.unavailable} | ${personnel.includes(family) ? 'BV from source text; runtime-path BV not measured in CI' : report.inputMode === 'committed-reference' ? 'Identity only; runtime-path BV not measured in CI' : 'Committed-object BV; BLK construction diagnostics still use source text'} |`,
     );
   }
   lines.push(
@@ -106,6 +114,10 @@ export function writeCommittedCatalogScoreboard(emitted, census) {
     throw new Error('Emitter report does not match successful receipt');
   let result;
   if (census) {
+    if (report.inputMode === 'committed-reference')
+      throw new Error(
+        'Identity-only reference output cannot supply a numerical census',
+      );
     const run = readJson(path.join(census, 'run-provenance.json'));
     if (
       !run.finished ||

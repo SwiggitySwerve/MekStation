@@ -1,9 +1,24 @@
-/** Immutable catalog input boundary: index membership and Git blob bytes. */
+/** Catalog/source inputs: committed blobs, verified reference and normalized source bytes. */
 import { execFileSync } from 'node:child_process';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { z } from 'zod';
 
+import {
+  extractBlkTags,
+  getBlkString,
+} from '../../src/services/conversion/BlkParserService.helpers';
+import { parseHeader } from '../../src/services/conversion/MTFParserHelpers';
+import catalogNames from '../megameklab-conversion/catalog-families.json';
+import folders from '../megameklab-conversion/strict-families.json';
 import indexRuleData from '../megameklab-conversion/unit-index-rules.json';
+import { familyOf, sourceKey } from '../unit-bv-parity';
+import { sourceHash } from '../vehicle-aero-bv-delta';
+import {
+  compareText as compare,
+  loadReference,
+  parseRows,
+} from './parity-scoreboard-io.cjs';
 
 export const CatalogUnit = z
   .object({ chassis: z.string().min(1), model: z.string() })
@@ -21,6 +36,12 @@ export interface IUnjoinable {
 const Index = z.object({
   totalUnits: z.number().int().nonnegative(),
   units: z.array(z.object({ path: z.string() })),
+});
+const ReferenceIdentity = z.object({
+  ...sourceKey,
+  chassis: z.string().min(1),
+  model: z.string(),
+  concreteFamily: z.string(),
 });
 
 function git(repo: string, args: string[], input?: Buffer): Buffer {
@@ -50,11 +71,43 @@ const indexRules = z
   })
   .parse(indexRuleData);
 
+/** Hosted identity joins consume only the checked-in oracle and catalog blobs. */
+export function readCommittedReference(repo: string): {
+  bytes: Buffer;
+  references: z.infer<typeof ReferenceIdentity>[];
+} {
+  const directory = path.join(repo, 'config/reference');
+  const { reference } = z
+    .object({
+      reference: z.object({
+        rows: z.number().int().positive(),
+        file: z.string(),
+        gzipSha256: z.string(),
+        sha256: z.string(),
+        sidecar: z.string(),
+        sidecarSha256: z.string(),
+      }),
+    })
+    .parse(
+      JSON.parse(
+        fs.readFileSync(path.join(directory, 'parity-scoreboard.json'), 'utf8'),
+      ) as unknown,
+    );
+  const { bytes } = loadReference(directory, reference);
+  const references = parseRows(bytes).map((row) =>
+    ReferenceIdentity.parse(row),
+  );
+  if (references.length !== reference.rows)
+    throw new Error(
+      `reference-population-mismatch: expected=${reference.rows}, actual=${references.length}`,
+    );
+  return { bytes, references };
+}
+
 export function readCatalog(
   repo: string,
   commit: string,
   families: readonly string[],
-  _python?: string,
 ): {
   commit: string;
   entries: ICatalogEntry[];
@@ -182,4 +235,70 @@ export function readCatalog(
     }
   }
   return { commit: resolved, entries, unjoinables, errors, indexes };
+}
+
+export const catalogFamily = (family: string): string =>
+  (catalogNames as Record<string, string>)[family] ?? family;
+
+export interface ISource {
+  path: string;
+  sha256: string;
+  family: string;
+  chassis: string;
+  model: string;
+  sourceText: string;
+}
+
+export function sourceIdentity(
+  file: string,
+  text: string,
+): Pick<ISource, 'family' | 'chassis' | 'model'> {
+  if (file.endsWith('.mtf')) {
+    const header = parseHeader(text.split(/\r?\n/));
+    return {
+      family: familyOf({ path: file, concreteFamily: '' }),
+      chassis: header.chassis,
+      model: header.model,
+    };
+  }
+  const tags = extractBlkTags(text);
+  const family = familyOf({
+    path: file,
+    concreteFamily: getBlkString(tags.UnitType) ?? '',
+  });
+  return {
+    family: catalogFamily(family),
+    chassis: getBlkString(tags.Name) ?? getBlkString(tags.name) ?? '',
+    model: getBlkString(tags.Model) ?? getBlkString(tags.model) ?? '',
+  };
+}
+
+export function readSources(mekfiles: string): ISource[] {
+  const sources: ISource[] = [];
+  const visit = (directory: string, extension: string) => {
+    for (const entry of fs
+      .readdirSync(directory, { withFileTypes: true })
+      .sort((a, b) => compare(a.name, b.name))) {
+      const file = path.join(directory, entry.name);
+      if (entry.isSymbolicLink()) throw new Error(`Source symlink: ${file}`);
+      if (entry.isDirectory()) visit(file, extension);
+      else if (entry.isFile() && entry.name.endsWith(extension)) {
+        const bytes = fs.readFileSync(file),
+          relative = path.relative(mekfiles, file).split(path.sep).join('/');
+        // Equivalent LF/CRLF source checkouts must produce the same NDJSON bytes.
+        const sourceText = bytes.toString('utf8').replace(/\r\n/g, '\n');
+        sources.push({
+          path: relative,
+          // Hash UTF-8 source bytes with CRLF pairs normalized to LF (not Git blob bytes).
+          // The same owner hashes MTF and BLK on Windows and Linux; lone CR is preserved.
+          sha256: sourceHash(bytes),
+          sourceText,
+          ...sourceIdentity(relative, sourceText),
+        });
+      }
+    }
+  };
+  for (const folder of Object.values(folders).flat())
+    visit(path.join(mekfiles, folder), folder === 'meks' ? '.mtf' : '.blk');
+  return sources;
 }
