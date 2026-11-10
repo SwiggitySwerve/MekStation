@@ -29,7 +29,7 @@ from blk_conversion_runner import (
     run_manifest_range_parity,
     strict_safe_unit_filename,
 )
-from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields, vehicle_patchwork_armor_fields
+from blk_unit_fields import mixed_chassis_fields, bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields, vehicle_patchwork_armor_fields
 from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
@@ -267,6 +267,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     if fluff:
         output["fluff"] = fluff
 
+    output.update(mixed_chassis_fields(tech_type_str))
     return output
 
 
