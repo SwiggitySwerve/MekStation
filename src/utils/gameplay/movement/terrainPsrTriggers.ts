@@ -430,7 +430,9 @@ export function canFall(unit: ITerrainPsrMover | undefined): boolean {
   return isBattleMechLikeUnitType(unit?.unitType) && unit?.prone !== true;
 }
 
-function isBattleMechLikeUnitType(unitType: string | undefined): boolean {
+export function isBattleMechLikeUnitType(
+  unitType: string | undefined,
+): boolean {
   if (unitType === undefined) return true;
   const canonical = unitType.toLowerCase().replace(/[^a-z0-9]/g, '');
   return (
