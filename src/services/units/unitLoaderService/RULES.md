@@ -25,6 +25,13 @@ and real round-trip tests enforce that contract. Marker-only saves still require
 `Save anyway`. Classifications and consequences are derived display values, not
 additional persisted, fingerprinted or replay fields.
 
+Recovery responsibility uses the typed o3a, o3b, o3b-s, Celerity and PR-D
+buckets. Weapon controls and unassigned entries remain non-recovery dispositions.
+Conversion Gear, Avionics and Landing Gear are configuration system slots
+(o3b-s); Head Turret and LAM Fuel Tank are mounted equipment (o3b). Head Turret
+keeps the existing turret-sizing owner. The missing LAM Fuel Tank definition is
+a named C3/C2 metadata/resolution prerequisite, not a manufactured definition.
+
 The optional `UnitState.unrecoveredCriticalSlots` is editor metadata. Browser
 drafts retain it so reopening a draft does not hide the warning. Editable
 snapshots, draft/library fingerprints, portable unit serialization and replay

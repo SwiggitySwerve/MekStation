@@ -259,6 +259,16 @@ it.each([
     'Environmental Sealing (Mech)',
   ],
   [
+    'unestablished head turret: Quickdraw QKD-8X',
+    '5-civil-war/standard/Quickdraw QKD-8X',
+    'ISHeadTurret',
+  ],
+  [
+    'unestablished LAM fuel tank: UrbanMech LAM UM-A07',
+    '5-civil-war/experimental/UrbanMech LAM UM-A07',
+    'LAM Fuel Tank',
+  ],
+  [
     'unestablished system boundary: Screamer LAM SCR-1X-LAM',
     '2-star-league/advanced/Screamer LAM SCR-1X-LAM',
     'Avionics',

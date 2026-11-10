@@ -7,6 +7,7 @@ import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
   classifyCriticalSlotNoticeIdentity,
   CRITICAL_SLOT_NOTICE_RULES,
+  CriticalSlotRecoveryResponsibility,
 } from '../criticalSlotNoticeEffects';
 import { groupCriticalSlotNoticeEntries } from '../criticalSlotNoticeGroups';
 import { parseUnit } from '../unitContractAdapter';
@@ -24,6 +25,41 @@ jest.mock('@/services/equipment/EquipmentFileReader', () => ({
 beforeAll(async () => {
   await getEquipmentRegistry().initialize();
   await getEquipmentLookupService().initialize();
+});
+
+it('names the five recovery buckets explicitly', () => {
+  expect(Object.values(CriticalSlotRecoveryResponsibility)).toEqual([
+    'o3a',
+    'o3b',
+    'o3b-s',
+    'Celerity',
+    'PR-D',
+  ]);
+});
+
+it.each([
+  ['Conversion Gear', 'o3b-s'],
+  ['Avionics', 'o3b-s'],
+  ['Landing Gear', 'o3b-s'],
+  ['ISHeadTurret', 'o3b'],
+  ['LAM Fuel Tank', 'o3b'],
+])(
+  'pins the approved boundary bucket for %s',
+  (lookupToken, responsibility) => {
+    const result = classifyCriticalSlotNoticeIdentity({ lookupToken });
+    expect(result.kind).toBe('other');
+    expect(result.ruleId).toBe('08-other');
+    expect(result.effect.responsibility).toBe(responsibility);
+  },
+);
+
+it('names the missing LAM Fuel Tank definition prerequisite', () => {
+  expect(
+    classifyCriticalSlotNoticeIdentity({ lookupToken: 'LAM Fuel Tank' }).effect,
+  ).toHaveProperty(
+    'prerequisite',
+    'Missing equipment definition for LAM Fuel Tank (C3/C2 metadata/resolution).',
+  );
 });
 
 it.each([
@@ -84,24 +120,24 @@ it.each([
 );
 
 it.each([
-  ['ISBallisticReinforced', 'armor_structure', 'o3'],
-  ['ISHeatDissipating', 'armor_structure', 'o3'],
-  ['ISImpactResistant', 'armor_structure', 'o3'],
+  ['ISBallisticReinforced', 'armor_structure', 'o3a'],
+  ['ISHeatDissipating', 'armor_structure', 'o3a'],
+  ['ISImpactResistant', 'armor_structure', 'o3a'],
   ['ISDoubleHeatSinkPrototype', 'heat_sinks', 'Celerity'],
   ['2 Compact Heat Sinks', 'heat_sinks', 'Celerity'],
   ['CASE II [IS]', 'case', 'PR-D'],
   ['Cargo:SIZE:1.0', 'cargo', 'PR-D'],
   ['ISMASS', 'other', 'PR-D'],
   ['Radical Heat Sink System', 'other', 'PR-D'],
-  ['Tracks', 'other', 'o3'],
-  ['Conversion Gear', 'other', 'o3'],
-  ['ISSuperCooledMyomer', 'other', 'o3'],
-  ['QuadVee Wheels', 'other', 'o3'],
-  ['ISQuadTurret', 'other', 'o3'],
-  ['Avionics', 'other', 'system-boundary'],
-  ['Landing Gear', 'other', 'system-boundary'],
-  ['ISHeadTurret', 'other', 'system-boundary'],
-  ['LAM Fuel Tank', 'other', 'system-boundary'],
+  ['Tracks', 'other', 'o3b'],
+  ['Conversion Gear', 'other', 'o3b-s'],
+  ['ISSuperCooledMyomer', 'other', 'o3b'],
+  ['QuadVee Wheels', 'other', 'o3b'],
+  ['ISQuadTurret', 'other', 'o3b'],
+  ['Avionics', 'other', 'o3b-s'],
+  ['Landing Gear', 'other', 'o3b-s'],
+  ['ISHeadTurret', 'other', 'o3b'],
+  ['LAM Fuel Tank', 'other', 'o3b'],
   ['ISThumper', 'other', 'weapon-control'],
 ] as const)(
   'classifies %s once for the notice and recovery attribution',

@@ -1,3 +1,13 @@
+import type {
+  ICriticalSlotNoticeIdentity,
+  ICriticalSlotNoticeEffect,
+  INoticeKindRule,
+} from './criticalSlotNoticeTypes';
+export type {
+  ICriticalSlotNoticeIdentity,
+  ICriticalSlotNoticeEffect,
+} from './criticalSlotNoticeTypes';
+
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 
@@ -10,44 +20,14 @@ export type CriticalSlotNoticeKind =
   | 'heat_sinks'
   | 'electronics'
   | 'other';
-export type CriticalSlotRecoveryResponsibility =
-  | 'PR-D'
-  | 'o3'
-  | 'Celerity'
-  | 'system-boundary'
-  | 'weapon-control'
-  | 'unassigned';
-export interface ICriticalSlotNoticeIdentity {
-  readonly lookupToken: string;
-  readonly resolvedId?: string | null;
-  readonly equipmentId?: string | null;
-  readonly equipmentName?: string | null;
-  readonly equipmentCategory?: EquipmentCategory | null;
-  readonly registryId?: string | null;
-  readonly registryName?: string | null;
+/** Recovery lanes; weapon-control/unassigned remain non-recovery dispositions. */
+export enum CriticalSlotRecoveryResponsibility {
+  O3A = 'o3a',
+  O3B = 'o3b',
+  O3B_SYSTEM = 'o3b-s',
+  CELERITY = 'Celerity',
+  PR_D = 'PR-D',
 }
-export interface ICriticalSlotNoticeEffect {
-  readonly id: string;
-  readonly title: string;
-  readonly responsibility: CriticalSlotRecoveryResponsibility;
-  readonly consequence: string;
-  readonly pattern?: RegExp;
-  readonly excludePattern?: RegExp;
-  readonly evidence: {
-    readonly unit: string;
-    readonly testFile: string;
-    readonly testName: string;
-  };
-}
-interface INoticeKindRule {
-  readonly kind: CriticalSlotNoticeKind;
-  readonly title: string;
-  readonly pattern?: RegExp;
-  readonly category?: EquipmentCategory;
-  readonly canonicalHeatSinkIds?: boolean;
-  readonly effects: readonly ICriticalSlotNoticeEffect[];
-}
-
 const evidenceFile =
   'src/services/units/unitLoaderService/__tests__/criticalSlotNoticeConsequences.test.ts';
 const unestablished =
@@ -55,7 +35,7 @@ const unestablished =
 function effect(
   id: string,
   title: string,
-  responsibility: CriticalSlotRecoveryResponsibility,
+  responsibility: ICriticalSlotNoticeEffect['responsibility'],
   consequence: string,
   unit: string,
   testName: string,
@@ -90,7 +70,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'ammo',
         'Ammunition',
-        'Celerity',
+        CriticalSlotRecoveryResponsibility.CELERITY,
         unestablished,
         'Dig Lord RCL-4 MiningMech',
         'unestablished ammo: Dig Lord RCL-4 MiningMech',
@@ -106,7 +86,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'case',
         'CASE / CASE II',
-        'PR-D',
+        CriticalSlotRecoveryResponsibility.PR_D,
         'Ammo explosion protection is lost; BV changes.',
         'King Crab KGC-000',
         'CASE protection and BV: King Crab KGC-000',
@@ -122,7 +102,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'markers',
         'Armor / structure markers',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3A,
         'Marker placements are lost; configured armor and structure types, armor points and tonnage are kept. Effect on legality not established.',
         'King Crab KGC-000',
         'marker configuration retained:',
@@ -139,7 +119,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'masc',
         'MASC',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'MASC run MP boost is lost; run MP is reduced.',
         'Celerity CLR-03-O',
         'MASC run MP: Celerity CLR-03-O',
@@ -148,7 +128,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'tsm',
         'Triple-strength myomer',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'TSM walk and run MP boosts are lost.',
         'Seraph C-SRP-O Invictus',
         'TSM walk MP: Seraph C-SRP-O Invictus',
@@ -158,7 +138,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'supercharger',
         'Supercharger',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Supercharger run MP boost is lost; run MP is reduced.',
         'Warwolf H',
         'Supercharger run MP: Warwolf H',
@@ -167,7 +147,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'partial-wing',
         'Partial Wing',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Partial Wing jump MP and heat dissipation bonuses are lost.',
         'Butcherbird A',
         'Partial Wing jump and heat: Butcherbird A',
@@ -176,7 +156,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'umu',
         'Underwater maneuvering units',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Underwater MP from the listed UMUs is lost.',
         'Arctic Fox AF1U',
         'UMU underwater MP: Arctic Fox AF1U',
@@ -185,7 +165,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'improved-jets',
         'Improved jump jets',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Improved jump-jet placement and heat reduction are lost; configured jump MP is kept.',
         'Nova Cat F',
         'improved jump heat lost: Nova Cat F',
@@ -195,7 +175,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'standard-jets',
         'Standard jump jets',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Jet placements are lost; configured jump MP and numerical movement heat are kept.',
         'Scarecrow UCU-F4',
         'standard jump MP and heat retained: Scarecrow UCU-F4',
@@ -205,7 +185,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'mobility-unestablished',
         'Other mobility',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         unestablished,
         'Scarecrow UCU-F4',
         'standard jump MP and heat retained: Scarecrow UCU-F4',
@@ -220,7 +200,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'cargo',
         'Cargo',
-        'PR-D',
+        CriticalSlotRecoveryResponsibility.PR_D,
         unestablished,
         'Uni ATAE-70 ArtilleryMech',
         'unestablished cargo: Uni ATAE-70 ArtilleryMech',
@@ -237,7 +217,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'heat-sinks',
         'Heat sinks',
-        'Celerity',
+        CriticalSlotRecoveryResponsibility.CELERITY,
         unestablished,
         'Jabberwocky JAW-65A EngineerMech',
         'unestablished heat sinks: Jabberwocky JAW-65A EngineerMech',
@@ -254,7 +234,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'electronics',
         'Probes and electronics',
-        'PR-D',
+        CriticalSlotRecoveryResponsibility.PR_D,
         unestablished,
         'Scarecrow UCU-F4',
         'unestablished electronics: Scarecrow UCU-F4',
@@ -268,7 +248,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'tracks',
         'Tracks',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Track placements and motive identity are lost; the configured chassis type is kept. Effect on specialized movement abilities not established.',
         'Boreas A',
         'Tracks and Conversion Gear identity: Boreas A',
@@ -277,7 +257,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'conversion',
         'Conversion Gear',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B_SYSTEM,
         'Conversion Gear identity and placement are lost; generic configuration is kept. Effect on conversion abilities not established.',
         'Boreas A',
         'Tracks and Conversion Gear identity: Boreas A',
@@ -286,7 +266,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'supercooled-myomer',
         'Supercooled Myomer',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Supercooled Myomer heat reduction is lost; movement heat increases.',
         'Wendigo-XR (Prime)',
         'supercooled myomer heat lost: Wendigo-XR (Prime)',
@@ -295,7 +275,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'wheels',
         'QuadVee Wheels',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Wheel placements and motive identity are lost; generic QuadVee configuration is kept. Effect on specialized vehicle-mode abilities not established.',
         'Notos A',
         'wheel identity: Notos A',
@@ -304,7 +284,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'quad-turret',
         'Quad Turret',
-        'o3',
+        CriticalSlotRecoveryResponsibility.O3B,
         'Turret identity and placement are lost; effect on turret rotation and firing arcs not established.',
         'Sarath SRTH-1O',
         'turret identity: Sarath SRTH-1O',
@@ -313,12 +293,34 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'system-boundary',
         'Configuration / system entries',
-        'system-boundary',
+        CriticalSlotRecoveryResponsibility.O3B_SYSTEM,
         unestablished,
         'Screamer LAM SCR-1X-LAM',
         'unestablished system boundary: Screamer LAM SCR-1X-LAM',
-        /avionics|landinggear|headturret|lamfueltank/,
+        /avionics|landinggear/,
       ),
+      effect(
+        'head-turret',
+        'Head Turret',
+        CriticalSlotRecoveryResponsibility.O3B,
+        unestablished,
+        'Quickdraw QKD-8X',
+        'unestablished head turret: Quickdraw QKD-8X',
+        /headturret/,
+      ),
+      {
+        ...effect(
+          'lam-fuel-tank',
+          'LAM Fuel Tank',
+          CriticalSlotRecoveryResponsibility.O3B,
+          unestablished,
+          'UrbanMech LAM UM-A07',
+          'unestablished LAM fuel tank: UrbanMech LAM UM-A07',
+          /lamfueltank/,
+        ),
+        prerequisite:
+          'Missing equipment definition for LAM Fuel Tank (C3/C2 metadata/resolution).',
+      },
       effect(
         'weapon-control',
         'Thumper placements',
@@ -331,7 +333,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
       effect(
         'miscellaneous',
         'Miscellaneous equipment',
-        'PR-D',
+        CriticalSlotRecoveryResponsibility.PR_D,
         unestablished,
         'Jabberwocky JAW-65A EngineerMech',
         'unestablished miscellaneous: Jabberwocky JAW-65A EngineerMech',
