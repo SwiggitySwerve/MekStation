@@ -333,6 +333,25 @@ identity, and the pinned corpus comparison checks Mech BV regression.
 
 ## Shared machine-gun-array links
 
+Mech weapon admission is owned by `isWeaponEquip`: mounted ammunition category
+excludes a bin even when its ID is also a weapon ID. The editor projection
+carries mounted category for source-backed and newly added mounts; rows without
+category retain legacy source admission. Recovered mounts absent from the source
+equipment list remain represented by the critical grid.
+
+Mech array admission preserves its closed source-alias policy and additionally
+accepts exact catalog record identities whose resolved catalog name has a
+canonical MGA caliber. This includes the three IS records `ismga-registry`,
+`islmga-registry`, `ishmga-registry` in `official/weapons/java-registry.json`.
+There are no Clan MGA records in that registry file; the Clan catalog identities
+are `mga`, `lmga`, `hmga`. Arbitrary aliases that only resolve to those records
+do not gain admission. Caliber and linked-gun arithmetic keep their existing owners.
+
+Mech front/rear weighting excludes arms through `isArmLoc`, which composes the
+loader's `mapMechLocation` with the construction `isArmLocation` predicate.
+Source underscores, saved display names, and abbreviations share this policy;
+quad front legs retain their own identities and are not classified as arms.
+
 `linkMachineGunArrayBVWeapons` owns native critical-slot selection and the
 no-critical-slot fallback for all families: up to four unused
 same-location/same-rack MGs in source order. Gun rack identity reuses the native
