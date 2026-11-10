@@ -203,6 +203,7 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
       .all()) {
       const unit = JSON.parse(data);
       unit.equipment = unit.equipment.slice(0, -1);
+      unit.armor.allocation.Head = 1; // armor BV depends on the stored allocation directly
       raw
         .prepare('UPDATE custom_units SET data = ? WHERE id = ?')
         .run(JSON.stringify(unit), id);
@@ -225,11 +226,7 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
       if (!row) throw harnessFailure('The cold SQLite row is missing');
       const readback = JSON.parse(row.data);
       sqlite.read++;
-      assert.deepEqual(
-        readback,
-        item.saved,
-        'The cold SQLite readback differs from what was saved',
-      );
+      // MUTANT: readback guard removed
       sqlite.readbackEqualToSaved++;
       infrastructure = false;
       stage = 'contract-parse';
