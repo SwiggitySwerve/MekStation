@@ -19,6 +19,9 @@
     "introductionYear"
   ],
   "properties": {
+    "nativeTechnologyNames": {
+      "$ref": "https://megamek-web.app/schemas/technology-advancements.json#/$defs/nativeTechnologyNames"
+    },
     "id": {
       "type": "string",
       "pattern": "^[a-z0-9-]+$",

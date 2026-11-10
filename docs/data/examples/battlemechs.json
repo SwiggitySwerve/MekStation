@@ -312,9 +312,9 @@
     }
   },
   "isOmni": false,
+  "baseChassisHeatSinks": -1,
   "mulId": 140,
   "role": "Juggernaut",
-  "baseChassisHeatSinks": -1,
   "org.mekstation:example": {
     "source": "battlemechs/2-star-league/standard/Atlas AS7-D.json",
     "sha256": "ff66d77cbd0f5ca78176311db28bb62bae299a58db7ad2b6e7293b5d324c2418"
