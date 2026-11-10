@@ -238,6 +238,63 @@ describe('VersionHistoryDialog', () => {
     expect(result.current.isLoadingPreview).toBe(false);
   });
 
+  it('ignores a deferred preview after switching units', async () => {
+    const pending = Promise.withResolvers<ReturnType<typeof versionPayload>>();
+    const nextPreview = {
+      ...versionPayload(1, 'Locust'),
+      data: { ...versionPayload(1, 'Locust').data, id: 'unit-2' },
+    };
+    jest
+      .mocked(customUnitApiService.getVersion)
+      .mockImplementation((unitId) =>
+        unitId === 'unit-1' ? pending.promise : Promise.resolve(nextPreview),
+      );
+    const { result, rerender } = renderHook(
+      ({ unitId }) => useVersionHistoryDialog({ ...defaultProps, unitId }),
+      { initialProps: { unitId: 'unit-1' } },
+    );
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    act(() => result.current.setSelectedVersion(1));
+    expect(customUnitApiService.getVersion).toHaveBeenCalledWith('unit-1', 1);
+
+    rerender({ unitId: 'unit-2' });
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.selectedVersion).toBeNull();
+    act(() => result.current.setSelectedVersion(1));
+    await waitFor(() =>
+      expect(result.current.previewData).toEqual(nextPreview),
+    );
+
+    await act(async () => pending.resolve(versionPayload(1, 'Atlas')));
+
+    expect(result.current.previewData).toEqual(nextPreview);
+    expect(result.current.previewError).toBeNull();
+    expect(result.current.isLoadingPreview).toBe(false);
+  });
+
+  it('ignores a deferred revert after unmount', async () => {
+    const user = userEvent.setup();
+    const pending =
+      Promise.withResolvers<
+        Awaited<ReturnType<typeof customUnitApiService.revert>>
+      >();
+    jest
+      .mocked(customUnitApiService.revert)
+      .mockReturnValueOnce(pending.promise);
+    const { unmount } = render(<VersionHistoryDialog {...defaultProps} />);
+    await user.click(await screen.findByRole('button', { name: /v1/i }));
+    await user.click(screen.getByRole('button', { name: 'Revert to v1' }));
+    expect(customUnitApiService.revert).toHaveBeenCalledWith('unit-1', 1);
+
+    unmount();
+    await act(async () =>
+      pending.resolve({ success: true, data: { id: 'unit-1', version: 4 } }),
+    );
+
+    expect(defaultProps.onRevert).not.toHaveBeenCalled();
+    expect(defaultProps.onClose).not.toHaveBeenCalled();
+  });
+
   it('restores into the draft without calling the library revert API', async () => {
     const user = userEvent.setup();
     const onRestoreDraft = jest.fn().mockResolvedValue(undefined);
