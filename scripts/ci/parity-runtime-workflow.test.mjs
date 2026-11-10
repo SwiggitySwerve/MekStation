@@ -49,8 +49,32 @@ test('each measure maps to its port entry and a missing entry fails by name', ()
   assert.match(run, /load\) entry=scripts\/runtime-path-bv\/run\.mjs/);
   assert.match(run, /reopen\) entry=scripts\/runtime-roundtrip\/run\.mjs/);
   assert.match(run, /if \[ ! -f "\$entry" \]; then[\s\S]*exit 1/);
-  assert.match(run, /node "\$entry" --out "\$PARITY_RUNTIME_OUTPUT"/);
-  assert.match(run, /wallSeconds/);
+  assert.match(
+    run,
+    /node "\$entry" --out "\$PARITY_RUNTIME_OUTPUT" \|\| status=\$\?/,
+  );
+  assert.match(run, /exit "\$status"$/m);
+});
+
+test('run-meta.json records what the hosted-vs-local acceptance compares', () => {
+  const run = workflow().jobs.census.steps.find(
+    (step) => step.name === 'Run runtime census',
+  ).run;
+  const meta = run.slice(run.indexOf('printf'), run.indexOf('run-meta.json'));
+  for (const field of [
+    'sha',
+    'node',
+    'runnerImage',
+    'runnerArch',
+    'wallSeconds',
+    'exitCode',
+  ])
+    assert.match(meta, new RegExp(`"${field}":`));
+  assert.match(meta, /git rev-parse HEAD/);
+  assert.match(meta, /ImageOS/);
+  assert.match(meta, /ImageVersion/);
+  // Written after the census whatever its exit, then the exit is returned.
+  assert.ok(run.indexOf('run-meta.json') < run.lastIndexOf('exit "$status"'));
 });
 
 test('census output is uploaded even when the census fails', () => {

@@ -8,7 +8,10 @@ name: Parity Runtime
 # parity-runtime.yml --ref <branch> -f measure=load). Each port supplies its
 # entry script; on a ref without it the job fails and says so. Nightly
 # Validation calls this workflow once the ports are on main. Never add a PR or
-# push trigger. Branch dispatches count in the C5 dispatch queue.
+# push trigger. Branch dispatches are logged in the C5 queue notes, one in
+# flight per measure; they are not charged against the nightly dispatch slots.
+# The 45-minute timeout stands while hosted wall time is measured; the final
+# value is set from those measurements when the nightly calls this workflow.
 on:
   workflow_dispatch:
     inputs:
@@ -70,12 +73,19 @@ jobs:
           fi
           mkdir -p "$PARITY_RUNTIME_OUTPUT"
           start=$(date -u +%s)
-          node "$entry" --out "$PARITY_RUNTIME_OUTPUT"
+          status=0
+          node "$entry" --out "$PARITY_RUNTIME_OUTPUT" || status=$?
           end=$(date -u +%s)
-          printf '{"measure":"%s","entry":"%s","sha":"%s","node":"%s","wallSeconds":%s}\n' \
-            "$MEASURE" "$entry" "$(git rev-parse HEAD)" "$(node --version)" "$((end - start))" \
+          # What the ports' acceptance compares against the local run: the
+          # checked-out SHA, Node version and runner image, written even when
+          # the census fails.
+          printf '{"measure":"%s","entry":"%s","sha":"%s","node":"%s","runnerImage":"%s %s","runnerArch":"%s","wallSeconds":%s,"exitCode":%s}\n' \
+            "$MEASURE" "$entry" "$(git rev-parse HEAD)" "$(node --version)" \
+            "${ImageOS:-unknown}" "${ImageVersion:-unknown}" "$RUNNER_ARCH" \
+            "$((end - start))" "$status" \
             > "$PARITY_RUNTIME_OUTPUT/run-meta.json"
-          echo "census wall time: $((end - start)) s" >> "$GITHUB_STEP_SUMMARY"
+          echo "census $MEASURE: exit $status, wall time $((end - start)) s, node $(node --version), image ${ImageOS:-unknown} ${ImageVersion:-unknown}" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Upload census output
         if: ${{ always() }}
