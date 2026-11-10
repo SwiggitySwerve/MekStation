@@ -10,8 +10,8 @@
  * or raise a conflict. Never "Saved" with nothing sent, never a silent replace.
  *
  * Separate from `campaign-unload-adoption.spec.ts` (the service-worker sweep).
- * This file does not depend on the worker at all: it blocks service workers,
- * so it holds with or without that fix.
+ * The original four cases block service workers. The warm-worker cases below
+ * abort only the discard flush to model engines without static routing.
  *
  * MOCK MODE (for mock-mode-auditor): `hybrid`.
  *   Real: the production build, its API routes and the SQLite store; every
@@ -38,105 +38,45 @@ import {
   type Browser,
   type BrowserContext,
   type Page,
+  type Request,
 } from '@playwright/test';
 
-// Service workers are not the subject here; with one registered, an unload
-// flush can be dropped for a reason unrelated to what this file proves.
+import { isJsonRecord, putBaseVersion } from './helpers/browserWriteComparison';
+import {
+  advanceDayInUi,
+  campaignDateText,
+  openDashboard,
+  seedSavedCampaign,
+} from './helpers/campaignFlow';
+import {
+  probeController,
+  reloadAtOffset,
+  waitForCleanCampaign,
+} from './helpers/campaignUnload';
+import {
+  captureCampaignPuts,
+  readCampaignRecord,
+  readCapturedPuts,
+  resetCapturedPuts,
+  type CampaignRecord,
+} from './helpers/unloadFlushEvidence';
+
+// The original four cases isolate adoption from service-worker behavior.
+// The nested warm-worker group explicitly overrides this setting.
 test.use({ serviceWorkers: 'block' });
 test.describe.configure({ timeout: 150_000 });
-
-interface CampaignRecord {
-  readonly version: number;
-  readonly body: { readonly currentDate: string };
-}
-
-type CampaignStoreWindow = {
-  __ZUSTAND_STORES__?: {
-    campaign?: {
-      getState: () => {
-        createCampaign: (
-          name: string,
-          factionId: string,
-          options?: { startingFunds?: number },
-        ) => string;
-      };
-    };
-    campaignPersistence?: {
-      getState: () => {
-        legacyUnadopted: boolean;
-        adoptLegacyCampaign: () => Promise<boolean>;
-      };
-    };
-  };
-};
-
-// The helpers below mirror `campaign-crash-window-flush.spec.ts`; the
-// service-worker PR extracts them into `helpers/campaignFlow.ts`, after which
-// this file should import them from there instead of keeping its own copy.
 
 async function serverRecord(
   api: APIRequestContext,
   campaignId: string,
 ): Promise<CampaignRecord> {
   const response = await api.get(`/api/campaigns/${campaignId}`);
-  expect(response.status()).toBe(200);
-  return (await response.json()) as CampaignRecord;
-}
-
-function campaignDateText(page: Page): Promise<string> {
-  return page.locator('p:has-text("Current Date") + p').innerText();
-}
-
-async function openDashboard(page: Page, campaignId: string): Promise<void> {
-  await page.goto(`/gameplay/campaigns/${campaignId}`);
-  await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
-    timeout: 20_000,
-  });
-}
-
-/** Create a campaign and adopt it, so the server row exists and is not legacy. */
-async function seedSavedCampaign(page: Page, label: string): Promise<string> {
-  await page.goto('/gameplay/campaigns');
-  await page.waitForFunction(
-    () => Boolean((window as CampaignStoreWindow).__ZUSTAND_STORES__?.campaign),
-    undefined,
-    { timeout: 20_000 },
-  );
-  const campaignId = await page.evaluate((name: string) => {
-    const store = (window as CampaignStoreWindow).__ZUSTAND_STORES__?.campaign;
-    if (!store) throw new Error('campaign store is not exposed');
-    return store
-      .getState()
-      .createCampaign(name, 'mercenary', { startingFunds: 3_000_000 });
-  }, `${label} ${Date.now()}`);
-  await openDashboard(page, campaignId);
-  await expect
-    .poll(
-      async () => {
-        await page.evaluate(async () => {
-          const store = (window as CampaignStoreWindow).__ZUSTAND_STORES__
-            ?.campaignPersistence;
-          if (store?.getState().legacyUnadopted) {
-            await store.getState().adoptLegacyCampaign();
-          }
-        });
-        return (
-          await page.request.get(`/api/campaigns/${campaignId}`)
-        ).status();
-      },
-      { timeout: 30_000 },
-    )
-    .toBe(200);
-  return campaignId;
-}
-
-async function advanceDayInUi(page: Page): Promise<string> {
-  const before = await campaignDateText(page);
-  await page.getByTestId('advance-day-btn').click();
-  await expect
-    .poll(() => campaignDateText(page), { timeout: 10_000 })
-    .not.toBe(before);
-  return campaignDateText(page);
+  try {
+    expect(response.status()).toBe(200);
+    return readCampaignRecord(await response.json());
+  } finally {
+    await response.dispose();
+  }
 }
 
 function waitForCampaignPut(page: Page, campaignId: string) {
@@ -183,7 +123,9 @@ function storedMarker(page: Page): Promise<unknown> {
 
 interface PutFault {
   /** `pass` lets PUTs through; `abort` drops them; `hold` delays until release. */
-  mode: 'pass' | 'abort' | 'hold';
+  mode: 'pass' | 'abort' | 'hold' | 'abort-then-hold';
+  /** All routed PUTs, including keepalive: no lifecycle filtering. */
+  puts: { request: Request; postData: string | null; status: number | null }[];
   /** PUTs dropped so far: evidence the fault was real, not assumed. */
   aborted: number;
   /** PUTs that arrived during a hold: proof a document pushed on its own. */
@@ -208,6 +150,7 @@ async function injectPutFault(
   });
   const fault: PutFault = {
     mode: 'pass',
+    puts: [],
     aborted: 0,
     held: 0,
     release: () => {
@@ -215,11 +158,23 @@ async function injectPutFault(
       openGate();
     },
   };
+  context.on('response', (response) => {
+    const put = fault.puts.find(
+      (entry) => entry.request === response.request(),
+    );
+    if (put) put.status = response.status();
+  });
   await context.route(
     new RegExp(`/api/campaigns/${campaignId}$`),
     async (route) => {
       if (route.request().method() !== 'PUT') return route.continue();
-      if (fault.mode === 'abort') {
+      fault.puts.push({
+        request: route.request(),
+        postData: route.request().postData(),
+        status: null,
+      });
+      if (fault.mode === 'abort' || fault.mode === 'abort-then-hold') {
+        if (fault.mode === 'abort-then-hold') fault.mode = 'hold';
         fault.aborted += 1;
         return route.abort('failed');
       }
@@ -462,4 +417,168 @@ test('control: a reload with nothing pending sends no PUT and claims nothing @ca
   expect(puts).toHaveLength(0);
   expect(await serverRecord(request, campaignId)).toEqual(before);
   expect(await storedMarker(page)).toBeNull();
+});
+
+test.describe('browser cases standing in for engines without static routing', () => {
+  test.use({ serviceWorkers: 'allow' });
+
+  for (const mutation of ['date', 'battle outcome'] as const) {
+    test(`warm service worker: a lost unload ${mutation} is adopted exactly once on reload @campaign`, async ({
+      page,
+      context,
+      request,
+    }, testInfo) => {
+      await captureCampaignPuts(page);
+      const campaignId = await seedSavedCampaign(
+        page,
+        `Lost unload ${mutation}`,
+      );
+      let fault: PutFault | undefined;
+      try {
+        await waitForCleanCampaign(page);
+        const controller = await probeController(
+          page,
+          `/api/campaigns/${campaignId}?warm=${Date.now()}`,
+        );
+        expect(controller.beforeFetch.controlled).toBe(true);
+        expect(controller.afterFetch).toEqual(controller.beforeFetch);
+        expect(controller.afterFetch.state).toBe('activated');
+        expect(controller.afterFetch.scriptURL).toMatch(
+          /\/service-worker\.js$/,
+        );
+        expect(controller.warmFetchStatus).toBe(200);
+        expect(controller.activeState).toBe('activated');
+        expect(controller.activeScriptURL).toBe(
+          controller.afterFetch.scriptURL,
+        );
+        expect(controller.visibilityState).toBe('visible');
+
+        const before = await serverRecord(request, campaignId);
+        expect(before.body.pendingBattleOutcomes ?? []).toEqual([]);
+        const matchId =
+          mutation === 'battle outcome' ? `lost-unload-${campaignId}` : null;
+        await resetCapturedPuts(page);
+        fault = await injectPutFault(context, campaignId);
+        // The first PUT is dropped; every later PUT is held until the unchanged
+        // server row has been checked. No request is fulfilled with fake data.
+        fault.mode = 'abort-then-hold';
+        const timing = await reloadAtOffset(page, 100, null, matchId);
+        expect(timing.pagehideMs).toBeGreaterThan(0);
+        expect(timing.pagehideMs).toBeLessThan(2000);
+        expect(timing.reloadCallMs).toBeLessThan(2000);
+        await expect.poll(() => fault?.aborted).toBe(1);
+
+        // Verification of routing with an active worker is executable below:
+        // one context.route interception, matching the captured keepalive body
+        // and controller URL, plus an unchanged real server row. The warm GET
+        // above completes worker fetch dispatch before the edit. These checks
+        // must pass in C4's production run; collection alone is not that proof.
+        const lost = (await readCapturedPuts(page))[0];
+        expect(lost).toBeDefined();
+        expect(lost.keepalive).toBe(true);
+        expect(lost.controller).toBe(controller.afterFetch.scriptURL);
+        expect(lost.lifecycle).not.toBe('document-active');
+        expect(lost.documentOriginMs).toBeLessThan(timing.editEpochMs);
+        expect(putBaseVersion(lost.postData)).toBe(before.version);
+        expect(fault.puts[0].postData).toBe(lost.postData);
+        expect(fault.puts[0].status).toBeNull();
+        const lostPayload: unknown = JSON.parse(lost.postData ?? 'null');
+        if (!isJsonRecord(lostPayload)) throw new Error('Unreadable lost PUT');
+        const lostEnvelope = readCampaignRecord(lostPayload.envelope);
+        expect(lostEnvelope.body.currentDate).toBe(timing.expectedDate);
+        expect(lostEnvelope.body.processedBattleIds).toEqual(
+          before.body.processedBattleIds,
+        );
+        if (matchId) {
+          expect(lostEnvelope.body.pendingBattleOutcomes).toEqual([
+            expect.objectContaining({ matchId }),
+          ]);
+        }
+        expect(await serverRecord(request, campaignId)).toEqual(before);
+        await testInfo.attach('lost-unload-before-adoption', {
+          body: JSON.stringify(
+            { controller, timing, before, lost, aborted: fault.aborted },
+            null,
+            2,
+          ),
+          contentType: 'application/json',
+        });
+        if (mutation === 'date') {
+          expect(timing.expectedDate).not.toBe(before.body.currentDate);
+          expect(
+            (await serverRecord(request, campaignId)).body.currentDate,
+          ).not.toBe(timing.expectedDate);
+        }
+
+        // No edit in the replacement document: its own load must adopt the
+        // durable marker and schedule exactly one ordinary PUT at the old base.
+        await expect.poll(() => fault?.held, { timeout: 20_000 }).toBe(1);
+        expect(fault.puts).toHaveLength(2);
+        expect(putBaseVersion(fault.puts[1].postData)).toBe(before.version);
+        expect(await storedMarker(page)).toMatchObject({
+          campaignId,
+          baseVersion: before.version,
+        });
+        const saveCard = page.getByTestId('campaign-save-status-card');
+        await expect(saveCard).toBeVisible();
+        await expect(saveCard.getByText('Saved', { exact: true })).toBeHidden();
+        expect(await serverRecord(request, campaignId)).toEqual(before);
+        const accepted = waitForCampaignPut(page, campaignId);
+        fault.release();
+        expect((await accepted).status()).toBe(200);
+        await waitForCleanCampaign(page);
+        await expect(
+          saveCard.getByText('Saved', { exact: true }),
+        ).toBeVisible();
+        expect(await storedMarker(page)).toBeNull();
+
+        // Observe a complete additional debounce window before excluding a
+        // duplicate. Count ALL fetches and ALL routed PUTs, keepalive or not.
+        await letDebounceWindowClose();
+        const puts = await readCapturedPuts(page);
+        expect(puts).toHaveLength(2);
+        expect(puts.map((put) => put.keepalive)).toEqual([true, false]);
+        expect(puts[1].documentOriginMs).toBeGreaterThan(timing.editEpochMs);
+        expect(puts[1].postData).toBe(fault.puts[1].postData);
+        expect(putBaseVersion(puts[1].postData)).toBe(before.version);
+        expect(fault.puts).toHaveLength(2);
+        expect(fault.puts.map((put) => put.status)).toEqual([null, 200]);
+        const after = await serverRecord(request, campaignId);
+        expect(after.version).toBe(before.version + 1);
+        expect(after.body.currentDate).toBe(timing.expectedDate);
+        expect(after.body.processedBattleIds).toEqual(
+          before.body.processedBattleIds,
+        );
+        if (matchId) {
+          expect(after.body.pendingBattleOutcomes).toEqual([
+            expect.objectContaining({ matchId }),
+          ]);
+        }
+        await testInfo.attach('warm-worker-lost-unload-adoption', {
+          body: JSON.stringify(
+            {
+              controller,
+              timing,
+              before,
+              after,
+              puts,
+              routedPuts: fault.puts.map(({ postData, status }) => ({
+                postData,
+                status,
+              })),
+            },
+            null,
+            2,
+          ),
+          contentType: 'application/json',
+        });
+      } finally {
+        fault?.release();
+        await page.close();
+        const deleted = await request.delete(`/api/campaigns/${campaignId}`);
+        expect(deleted.ok()).toBe(true);
+        await deleted.dispose();
+      }
+    });
+  }
 });
