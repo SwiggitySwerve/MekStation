@@ -10,6 +10,15 @@ expansion, package measurement and numeric budget projections belong to
 
 ## Measurement rules
 
+- Package bytes are advisory. `ci-budget-web/web.json` retains the complete web
+  census and `ci-budget-installers*/installers.json` retains installer metrics.
+  The PR comment shows `standaloneStaticBytes`, `webZipBytes`, `installerBytes`,
+  signed deltas against comparable successful main medians, and baseline
+  run/attempt/head provenance. A missing measurement/baseline is unavailable.
+  These rows never affect conclusions, review labels, approval or ratchets;
+  configured `limits` contain only the existing non-size counts. Package
+  integrity (complete roots, public bytes and archive hashes) remains enforced.
+
 - Fetch `/runs/{id}/attempts/{attempt}` and its paginated `/jobs`. Never merge
   jobs from different attempts or heads. Partial reruns with carried jobs
   missing from the attempt census stay incomplete.

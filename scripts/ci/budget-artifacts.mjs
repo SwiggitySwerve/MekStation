@@ -5,9 +5,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { loadBudgets, PACKAGE_METRICS_SCHEMA } from './budget-config.mjs';
+import {
+  PACKAGE_METRICS_SCHEMA,
+  packageMetricValues,
+} from './budget-config.mjs';
 
-export function checkPackageMetrics(config, metrics) {
+export function checkPackageMetrics(metrics) {
   if (
     metrics?.schema !== PACKAGE_METRICS_SCHEMA ||
     metrics.unit !== 'bytes' ||
@@ -15,21 +18,8 @@ export function checkPackageMetrics(config, metrics) {
     !metrics.files.length
   )
     throw new Error('Package census missing/unknown');
-  const violations = [];
-  const ids =
-    metrics.kind === 'installers'
-      ? ['installerBytes']
-      : ['standaloneStaticBytes', 'webZipBytes'];
-  for (const id of ids) {
-    if (!Number.isSafeInteger(metrics[id]) || metrics[id] <= 0)
-      throw new Error(`Unknown package bytes: ${id}`);
-    if (metrics[id] > config.limits[id])
-      violations.push({
-        code: id,
-        message: `${metrics[id]} > ${config.limits[id]} bytes`,
-      });
-  }
-  return { metrics, violations };
+  packageMetricValues(metrics);
+  return { metrics, violations: [] };
 }
 
 export function installerMetrics(root) {
@@ -93,7 +83,6 @@ export function run(argv, root = process.cwd()) {
   });
   if (!['web', 'installers'].includes(values.kind) || !values.report)
     throw new Error('Required: --kind web|installers --report <file>');
-  const config = loadBudgets(path.join(root, 'config/ci/budgets.json'));
   const report = path.resolve(root, values.report);
   let metrics;
   if (values.kind === 'web') {
@@ -121,7 +110,7 @@ export function run(argv, root = process.cwd()) {
       schema: PACKAGE_METRICS_SCHEMA,
     };
   } else metrics = installerMetrics(root);
-  const result = checkPackageMetrics(config, metrics);
+  const result = checkPackageMetrics(metrics);
   fs.mkdirSync(path.dirname(report), { recursive: true });
   fs.writeFileSync(report, `${JSON.stringify(result, null, 2)}\n`);
   if (metrics.kind === 'installers')

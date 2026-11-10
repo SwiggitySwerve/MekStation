@@ -97,6 +97,41 @@ function fixture() {
   return { github, pull, statuses };
 }
 
+test('owner-authored legacy byte-limit removal needs no size label or approval', async () => {
+  const f = fixture();
+  f.pull.user = { id: 1, login: 'owner' };
+  const read = f.github.rest.repos.getContent;
+  f.github.rest.repos.getContent = async (request) => {
+    if (
+      request.path === 'config/ci/budgets.json' &&
+      request.ref === f.pull.base.sha
+    ) {
+      const head = await read({ ...request, ref: f.pull.head.sha });
+      const legacy = JSON.parse(Buffer.from(head.data.content, 'base64'));
+      Object.assign(legacy.limits, {
+        standaloneStaticBytes: 290000000,
+        webZipBytes: 92000000,
+        installerBytes: 170000000,
+      });
+      return {
+        data: {
+          encoding: 'base64',
+          content: Buffer.from(JSON.stringify(legacy)).toString('base64'),
+        },
+      };
+    }
+    return read(request);
+  };
+  const result = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, true, result.message);
+  assert.equal(f.statuses.at(-1).state, 'success');
+});
+
 test('draft to ready retains successful required statuses on the same exact head and primary suite', async () => {
   const f = fixture();
   const source = f.github.rest.actions.listWorkflowRuns;
