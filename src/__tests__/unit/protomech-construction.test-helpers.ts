@@ -180,7 +180,7 @@ describe('useProtoMechStore actions', () => {
 
   // MML locks only a glider's jump spinner (MovementView.java:265-268); the pinned
   // Sprite Ultraheavy units jump 3 to 5.
-  it('setChassisType(ULTRAHEAVY) keeps an allowed jumpMP', () => {
+  it('setChassisType(BIPED) keeps an allowed jumpMP on a 13 t (ultraheavy-mass) biped', () => {
     const initial = createDefaultProtoMechState({ tonnage: 13 });
     // Jump 3 is within maxJumpMP only at walk 3 or more (the default walk is 1).
     const store = createProtoMechStore({
@@ -189,8 +189,9 @@ describe('useProtoMechStore actions', () => {
       cruiseMP: 4,
       jumpMP: 3,
     });
-    store.getState().setChassisType(ProtoChassis.ULTRAHEAVY);
+    store.getState().setChassisType(ProtoChassis.BIPED);
     expect(store.getState().jumpMP).toBe(3);
+    expect(store.getState().tonnage).toBe(13);
   });
 
   it('setChassisType(GLIDER) preserves glidingWings when already set', () => {
@@ -290,6 +291,12 @@ describe('getProtoWeightClass', () => {
     expect(getProtoWeightClass(10)).toBe(ProtoWeightClass.ULTRAHEAVY);
     expect(getProtoWeightClass(15)).toBe(ProtoWeightClass.ULTRAHEAVY);
   });
+
+  // Ultraheavy is any mass above TestProtoMek.MAX_STD_TONNAGE (PMChassisView.java:205-207).
+  it('is Ultraheavy above 9 t, not from 10 t', () => {
+    expect(getProtoWeightClass(9)).toBe(ProtoWeightClass.HEAVY);
+    expect(getProtoWeightClass(9.5)).toBe(ProtoWeightClass.ULTRAHEAVY);
+  });
 });
 
 // =============================================================================
@@ -346,16 +353,22 @@ describe('VAL-PROTO-CHASSIS (VAL-PROTO-CHASSIS)', () => {
     },
   );
 
-  it('Ultraheavy with tonnage < 10 fails', () => {
-    const result = validateProtoChassis({
-      tonnage: 8,
-      chassisType: ProtoChassis.ULTRAHEAVY,
-      jumpMP: 0,
-      myomerBooster: false,
-    });
-    expect(result.passed).toBe(false);
-    expect(result.findings[0]?.message).toMatch(/Ultraheavy/);
-  });
+  // Ultraheavy is a mass above 9 t, not a chassis (PMChassisView.java:205-207), so no
+  // motive and tonnage disagree: the deprecated Ultraheavy value, which the editor never
+  // produces, is no longer held to 10 t or more. The range is VAL-PROTO-TONNAGE.
+  it.each([ProtoChassis.BIPED, ProtoChassis.QUAD, ProtoChassis.ULTRAHEAVY])(
+    'a %s at 8 t has no chassis finding',
+    (chassisType) => {
+      const result = validateProtoChassis({
+        tonnage: 8,
+        chassisType,
+        jumpMP: 0,
+        myomerBooster: false,
+      });
+      expect(result.passed).toBe(true);
+      expect(result.findings).toEqual([]);
+    },
+  );
 
   it('Ultraheavy 10–15 t passes (Ares fixture)', () => {
     const result = validateProtoChassis(ARES_SNAPSHOT);

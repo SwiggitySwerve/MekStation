@@ -72,11 +72,13 @@ describe('Pinned ProtoMek engine rating', () => {
     expect(store.getState().engineRating).toBe(35);
     store.getState().setChassisType(ProtoChassis.GLIDER);
     expect(store.getState().engineRating).toBe(35);
+    // A tonnage edit keeps the walk and recomputes the engine for it
+    // (PMStructureTab.java:446-456); it used to reset walk to 10 minus the tonnage.
     store.getState().setTonnage(7);
     expect(store.getState()).toMatchObject({
-      engineRating: 21,
-      walkMP: 3,
-      cruiseMP: 3,
+      engineRating: computeProtoEngineRating(7, 6, ProtoChassis.GLIDER),
+      walkMP: 6,
+      cruiseMP: 6,
     });
     store.getState().setCruiseMP(4);
     expect(store.getState()).toMatchObject({

@@ -165,7 +165,7 @@ export interface ProtoMechState
   /** Derived weight class from tonnage */
   weightClass: ProtoWeightClass;
 
-  /** Chassis type (Biped / Quad / Glider / Ultraheavy) — canonical field */
+  /** Motive (Biped / Quad / Glider) — canonical field; ultraheavy is a mass above 9 t */
   chassisType: ProtoChassis;
 
   /** Point size (typically 5 ProtoMechs per point) */
@@ -292,11 +292,15 @@ export interface ProtoMechStoreActions
     UnitIdentityActions<ProtoMechState>,
     StoreEquipmentActions<ProtoMechLocation> {
   // Classification Actions
+  /**
+   * Set the tonnage (clamped to 2–15 t for every motive). Keeps the walk MP; throws,
+   * leaving the store unchanged, when the engine rating would be invalid.
+   */
   setTonnage: (tonnage: number) => void;
   setPointSize: (size: number) => void;
   /**
-   * Set the chassis type. Re-derives weight class + MP caps; resets glidingWings
-   * if the new chassis is not Glider, and clears jump MP for Ultraheavy.
+   * Set the chassis type. Keeps the tonnage; raises walk to the motive minimum and
+   * lowers jump to its limit; resets glidingWings if the new chassis is not Glider.
    *
    * Replaces the legacy `setQuad` / `setGlider` setters which used to mutate a
    * pair of redundant booleans alongside `chassisType`; the discriminant is
@@ -379,8 +383,7 @@ export interface CreateProtoMechOptions {
   tonnage?: number;
   /**
    * Initial chassis type. Replaces the legacy `isQuad?: boolean` option so
-   * callers can pick BIPED / QUAD / GLIDER / ULTRAHEAVY directly. Defaults
-   * to BIPED.
+   * callers can pick BIPED / QUAD / GLIDER directly. Defaults to BIPED.
    */
   chassisType?: ProtoChassis;
 }

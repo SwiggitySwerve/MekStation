@@ -1,4 +1,4 @@
-import { useCallback, useMemo, type ChangeEvent } from 'react';
+import { useCallback, useMemo, useState, type ChangeEvent } from 'react';
 
 import type { IProtoMechArmorAllocation } from '@/stores/protoMechState';
 
@@ -15,6 +15,9 @@ import {
   protoJumpLimit,
   protoMaxWalkMP,
   protoMinWalkMP,
+  protoTonnageChangeError,
+  PROTO_MAX_TONNAGE,
+  PROTO_MIN_TONNAGE,
 } from '@/utils/construction/protomech';
 import {
   PROTO_ARMOR_TYPES,
@@ -23,15 +26,24 @@ import {
 import { getProtoArmorSlotErrors } from '@/utils/construction/protomech/mainGun';
 import { computeProtoArmorWeight } from '@/utils/construction/protomech/weight';
 
-export const STANDARD_TONNAGE_OPTIONS = [2, 3, 4, 5, 6, 7, 8, 9];
-export const ULTRAHEAVY_TONNAGE_OPTIONS = [10, 11, 12, 13, 14, 15];
+/** One tonnage list, 2–15 t, for every motive (PMChassisView.java:79). */
+export const TONNAGE_OPTIONS: readonly number[] = Array.from(
+  { length: PROTO_MAX_TONNAGE - PROTO_MIN_TONNAGE + 1 },
+  (_, index) => PROTO_MIN_TONNAGE + index,
+);
 
-export const CHASSIS_LABELS: Record<ProtoChassis, string> = {
+/** The motives MML offers (PMChassisView.java:75-77,135-139); ultraheavy is a mass. */
+export const CHASSIS_LABELS: Partial<Record<ProtoChassis, string>> = {
   [ProtoChassis.BIPED]: 'Biped',
   [ProtoChassis.QUAD]: 'Quad',
   [ProtoChassis.GLIDER]: 'Glider',
-  [ProtoChassis.ULTRAHEAVY]: 'Ultraheavy (10-15 t)',
 };
+
+const CHASSIS_OPTIONS: readonly ProtoChassis[] = [
+  ProtoChassis.BIPED,
+  ProtoChassis.QUAD,
+  ProtoChassis.GLIDER,
+];
 
 export const LOCATION_LABELS: Record<ProtoMechLocation, string> = {
   [ProtoMechLocation.HEAD]: 'Head',
@@ -65,6 +77,8 @@ export interface ProtoMechTonnageControls {
   tonnage: number;
   weightClass: ReturnType<typeof getProtoWeightClass>;
   tonnageOptions: readonly number[];
+  /** Why the last tonnage edit was refused (PMStructureTab.java:446-456), if it was. */
+  tonnageError: string | undefined;
   handleTonnageChange: (event: ChangeEvent<HTMLSelectElement>) => void;
 }
 
@@ -111,14 +125,6 @@ export interface ProtoMechArmorControls {
     location: ProtoMechLocation,
     event: ChangeEvent<HTMLInputElement>,
   ) => void;
-}
-
-function getTonnageOptions(chassisType: ProtoChassis): readonly number[] {
-  if (chassisType === ProtoChassis.ULTRAHEAVY) {
-    return ULTRAHEAVY_TONNAGE_OPTIONS;
-  }
-
-  return STANDARD_TONNAGE_OPTIONS;
 }
 
 function getArmorLocations(hasMainGun: boolean): ProtoMechLocation[] {
@@ -190,7 +196,7 @@ export function useProtoMechChassisControls(
 
   return {
     chassisType,
-    chassisOptions: Object.values(ProtoChassis),
+    chassisOptions: CHASSIS_OPTIONS,
     handleChassisTypeChange,
   };
 }
@@ -199,24 +205,30 @@ export function useProtoMechTonnageControls(
   readOnly: boolean,
 ): ProtoMechTonnageControls {
   const tonnage = useProtoMechStore((s) => s.tonnage);
+  const walkMP = useProtoMechStore((s) => s.walkMP);
   const chassisType = useProtoMechStore((s) => s.chassisType);
   const setTonnage = useProtoMechStore((s) => s.setTonnage);
+  const [tonnageError, setTonnageError] = useState<string>();
 
   const weightClass = getProtoWeightClass(tonnage);
-  const tonnageOptions = getTonnageOptions(chassisType);
   const handleTonnageChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
-      if (!readOnly) {
-        setTonnage(Number(event.target.value));
-      }
+      if (readOnly) return;
+      const next = Number(event.target.value);
+      // MML refuses a tonnage whose engine would be invalid and keeps the walk; show why
+      // instead of changing anything (PMStructureTab.java:446-456).
+      const refusal = protoTonnageChangeError(next, walkMP, chassisType);
+      setTonnageError(refusal);
+      if (refusal === undefined) setTonnage(next);
     },
-    [readOnly, setTonnage],
+    [readOnly, setTonnage, walkMP, chassisType],
   );
 
   return {
     tonnage,
     weightClass,
-    tonnageOptions,
+    tonnageOptions: TONNAGE_OPTIONS,
+    tonnageError,
     handleTonnageChange,
   };
 }

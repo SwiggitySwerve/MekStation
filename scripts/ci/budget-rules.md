@@ -127,8 +127,16 @@ G2 owns canonical producer validation; G3 verifies live artifact/producer/source
 provenance before a weekly observation can qualify. Weekly collection has read
 permissions; a separate trusted job publishes the issue or a proven lowering.
 
-The primary aggregator enforces live budget approval read-only. Trusted events
-publish `CI Budget Raise Approval` and a policy status under the existing
+The primary aggregator enforces live budget approval read-only.
+The primary aggregator imports the current `main` validator from a separate
+non-cone sparse checkout on every run, including job re-runs, and logs
+`budget-validator: main@<commit SHA>`. Its sparse set contains `scripts/ci` and
+only `scripts/lib/statistics.mjs` outside that directory, required transitively
+by `budget-config.mjs`. A static import-closure test guards that set. It omits
+`config/ci`: `checkBudgetPolicy` reads the PR's budgets through the GitHub API
+at live head/base SHAs, independently of the validator's code revision.
+
+Trusted events publish `CI Budget Raise Approval` and a policy status under the existing
 `Lint and Test` required name. Approval first holds that status pending and
 upgrades it only after the actual latest GitHub Actions aggregator check passed.
 Missing/running checks cannot become green through approval alone. Label/review

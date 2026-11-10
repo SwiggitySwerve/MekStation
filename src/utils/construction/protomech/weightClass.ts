@@ -20,8 +20,6 @@ import {
 export const PROTO_MIN_TONNAGE = 2;
 /** Maximum tonnage for a Standard ProtoMech */
 export const PROTO_MAX_STANDARD_TONNAGE = 9;
-/** Minimum tonnage for an Ultraheavy ProtoMech */
-export const PROTO_MIN_ULTRAHEAVY_TONNAGE = 10;
 /** Maximum tonnage for any ProtoMech */
 export const PROTO_MAX_TONNAGE = 15;
 
@@ -32,12 +30,11 @@ export const PROTO_MAX_TONNAGE = 15;
 /**
  * Derive the ProtoWeightClass from a tonnage value.
  *
- * Returns Ultraheavy for 10–15 t regardless of chassisType — the caller is
- * responsible for validating that Ultraheavy chassis matches 10+ tons
- * (see VAL-PROTO-CHASSIS in validation.ts).
+ * Ultraheavy is a mass, whatever the motive: any tonnage above
+ * TestProtoMek.MAX_STD_TONNAGE (PMChassisView.java:205-207).
  */
 export function getProtoWeightClass(tonnage: number): ProtoWeightClass {
-  if (tonnage >= 10) return ProtoWeightClass.ULTRAHEAVY;
+  if (tonnage > PROTO_MAX_STANDARD_TONNAGE) return ProtoWeightClass.ULTRAHEAVY;
   if (tonnage >= 8) return ProtoWeightClass.HEAVY;
   if (tonnage >= 5) return ProtoWeightClass.MEDIUM;
   return ProtoWeightClass.LIGHT;
@@ -51,8 +48,9 @@ export function getProtoWeightClass(tonnage: number): ProtoWeightClass {
  * Return true when the chassis type is legal for the given tonnage.
  *
  * Rules:
- * - Ultraheavy chassis requires tonnage ≥ 10
- * - Biped, Quad and Glider accept any legal tonnage (2–15). The pinned verifier has
+ * - Every motive accepts any legal tonnage (2–15), one spinner for all
+ *   (PMChassisView.java:79). Ultraheavy is a mass above 9 t, not a chassis, so the
+ *   deprecated `Ultraheavy` value is held to the same range. The pinned verifier has
  *   no glider weight rule (MML's spinner only raises a glider's minimum to 10 t when
  *   ultra and glider tech are legal, which is tech filtering and deferred).
  */
@@ -62,7 +60,6 @@ export function isChassisLegalForTonnage(
 ): boolean {
   switch (chassisType) {
     case ProtoChassis.ULTRAHEAVY:
-      return tonnage >= PROTO_MIN_ULTRAHEAVY_TONNAGE;
     case ProtoChassis.GLIDER:
     case ProtoChassis.BIPED:
     case ProtoChassis.QUAD:

@@ -126,8 +126,8 @@ const familyContracts = [
         tokens: ['ValidationResult', 'indexBV', 'calculatedBV'],
       },
       {
-        path: 'src/services/conversion/__tests__/UnitFormatConverter.convert.test.ts',
-        tokens: ['UnitFormatConverter', 'convert'],
+        path: 'src/services/conversion/__tests__/MTFParserService.parse.test.ts',
+        tokens: ['MTFParserService', 'service.parse(mtf)', 'result.success'],
       },
     ],
     browserAnchors: [
@@ -506,7 +506,7 @@ function validateAnchorGroup(family, groupName, anchors, issues) {
     let content;
     try {
       content = readRepoFile(anchor.path);
-    } catch (error) {
+    } catch {
       issues.push(
         issue(
           'error',
