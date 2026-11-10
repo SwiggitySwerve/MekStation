@@ -634,6 +634,12 @@ passing execution. An unverified effect or outcome stays "not verified".
     `coord1-census/post-merge-3270/`, `parity-5.2-c/PLAN.md`. This is the source
     path, not editor-state acceptance; the vehicle runtime defect is under
     3.2/3.4.
+  - OPEN, C2: validation on `3e96c2283` finds `structure.locationTonnage`
+    missing on 6 mechs, not the expected 5; the extra is Hunchback
+    HBK-LGN-Pin 'Anastasia'. This is not a regression. Evidence:
+    `_scratch/c2-runs/validate/VALIDATION-C2-3e96c2283.md` (b7). Close with
+    converter-reproducible structure context and merged source/runtime proof;
+    the source-handler validity milestone does not close this preservation gap.
   - OPEN, C2/C3: defaults audit has 157 sites (111 A fail-closed, 16 B pinned
     defaults, 30 C dead). Evidence: `parity-3.1-defaults/AUDIT.md` and
     `sites.json`. Close when A reaches zero, each B is documented/tested and C
@@ -795,6 +801,20 @@ passing execution. An unverified effect or outcome stays "not verified".
       done on hosted main run 42765012031 (`4d4c5ebe4`).
     - #3295 (`f47daca70`): supplies committed Mixed mech chassis fields.
       POST-MERGE: done locally on `f47daca70` (splice 377/0; 341/341 suites).
+  - OPEN, C2: validation on `3e96c2283` finds `structure.locationTonnage`
+    missing on 6 mechs, not 5, including Hunchback HBK-LGN-Pin 'Anastasia';
+    not a regression. Evidence:
+    `_scratch/c2-runs/validate/VALIDATION-C2-3e96c2283.md` (b7). Close with
+    converter-reproducible structure transport and save/reload proof (also 3.1).
+  - OPEN, C3: validation on `3e96c2283` counts 38 armor export refusals,
+    expected 37. Jenner JR7-K (Grace) adds the refusal because the MTF
+    exporter's armor-name table lacks `FERRO_FIBROUS_PROTO`. Root rules this
+    non-blocking for the overall validation gate; load, BV and validity are
+    unaffected. Evidence:
+    `parity-3.2-refusal-recount/3e96c2283/run/REPORT.md` and
+    `parity-3.2-refusal-recount/3e96c2283/run/d2/ARMOR-DELTA.json`. Close with
+    C3's exporter fix and its "MTF export round trip" spec scenario in the
+    same PR after the freeze.
   - URGENT OPEN, C3 (3.2-vd): vehicleState.ts:501 crewSize=0 falsely flags
     VAL-VEHICLE-CREW on 93/93 measured support vehicles (Java 86 valid/7
     invalid). Phase 0c(d) now sizes it at all 1,420 Java-valid vehicles (see
@@ -821,8 +841,10 @@ passing execution. An unverified effect or outcome stays "not verified".
     critical-fit). Evidence: `parity-3.2-x9/REPORT.md`. Close via pinned round
     trips, keeping parser/load failures separate from serialization outcomes.
   - OPEN, C3 (x10): missing BALLISTIC_REINFORCED/ANTI_PENETRATIVE_ABLATION
-    mappings block 12 R1 mechs within 37 armor-only refusals. #3295 is expected
-    to remove 377 chassis refusals, but C3 recounts at resume. Evidence:
+    mappings block 12 R1 mechs within the historical 37 armor-only refusals.
+    The `3e96c2283` recount above supersedes that total: catalog chassis
+    refusals are 0, while the source-MTF path still has 377 (parked m6).
+    Evidence:
     `parity-5.2-c/PLAN.md` (#3295 effects), `parity-3.2-x9/REPORT.md`. Close
     with pinned armor/header export and re-import identity, not a blanket
     refusal waiver.
@@ -880,6 +902,18 @@ passing execution. An unverified effect or outcome stays "not verified".
     supplies the converter-reproducible data. The bounded save-only controls
     found no saver-only placement defect: load admission loses the mount, and
     saving exposes that omission.
+  - Real-app validation on `3e96c2283`, owner C3: all three findings below
+    remain OPEN, not verified, pending C3's results. Evidence:
+    `validation-3e96c2283/app/REPORT.md`, `parity-5.2-c/PLAN.md` (validation
+    gate, NOT PASSED at 11:10Z).
+    - OPEN, not verified: Uni ATAE-70's save is blocked by construction
+      errors; re-designated, with one-line clarification pending. Close when
+      C3 records the classification and verifies the intended app save outcome.
+    - OPEN, not verified: King Crab KGC-000 shows 16 notice entries where none
+      was expected. A truthfulness check and catalog-wide notice count are
+      running. Close with C3's attributed count and verified notice behavior.
+    - OPEN, not verified: a Wildfire assertion defect. Close with C3's
+      corrected assertion and real-app result; pending results confer no pass.
   - Pause accounting (2026-11-10): merged PRs and POST-MERGE status. Evidence:
     `parity-5.2-c/PLAN.md` and its cited merge records; merge identities checked
     against first-parent main history. OPEN means the exact POST-MERGE receipt
@@ -1016,6 +1050,14 @@ passing execution. An unverified effect or outcome stays "not verified".
     recorded separately. A passing identity result alone does not close the
     row.
 - [ ] 3.4 Run complete per-family construction/BV comparisons against matched references. Record per-unit and component differences, upstream failures and justified inapplicable metrics. (`battle-value-system`: Strict all-family numerical parity)
+  - Validation on `3e96c2283`, owner C1: the mech committed-versus-regenerated
+    row is reclassified PASS by Root with the expected list corrected. The
+    extra drift classes are approved-but-unapplied packets or frozen #3305;
+    this does not establish complete catalog equality or runtime parity.
+    Evidence: `parity-JK/recheck-3e96c2283/VALIDATION-C.md`,
+    `_scratch/c2-runs/validate/VALIDATION-C2-3e96c2283.md`,
+    `parity-5.2-c/PLAN.md` (validation gate). Parent 3.4 remains OPEN until
+    every family and metric has merged proof as required below.
   - Pause accounting (2026-11-10): merged PRs and POST-MERGE status. Evidence:
     `parity-5.2-c/PLAN.md` and its cited merge records; merge identities checked
     against first-parent main history. OPEN means the exact POST-MERGE receipt
@@ -1440,6 +1482,27 @@ passing execution. An unverified effect or outcome stays "not verified".
   - Accepted unshowable exception [#2545](https://github.com/SwiggitySwerve/MekStation/pull/2545): only adds an explicit return type to `getVehicleBVMovement`, erased at runtime; no tests were added or changed, and no behavior regression is claimed. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2545.md).
   - Accepted unshowable exception [#2547](https://github.com/SwiggitySwerve/MekStation/pull/2547): the PR's `mountedWeight.test.ts` tests also pass on the integration first parent with the test-only overlay; parent and merge each pass all 5 tests and exit 0, so no distinguishing red/green pair was shown. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2547.md). Documentation and validation receipts: `ledger/row51-owner-exceptions/`.
 - [ ] 5.2 Re-run the full source accounting and acceptance on the merged tree, reconcile all gaps, synchronize accepted specs and archive only after verified completion.
+  - VALIDATION GATE on `3e96c2283`: **NOT PASSED at 11:10Z** (2026-11-10,
+    Root). Main remains merge-frozen; branch and proposal work may resume.
+    C3's crew-roster spec fix is the sole merge-freeze exception. A green
+    Full E2E on the fixed main is required before D-11 re-closes; Root owns
+    the gate record and freeze lift. Evidence: `parity-5.2-c/PLAN.md`,
+    PARITY-PLAN §53, `parity-5.2-c/RESUME-PLAN.md`. Passing local docs gates
+    does not change this product-validation result.
+  - OPEN process finding, C5 with C3: #3338 merged without any Playwright spec
+    that saves a canonical unit having run; hosted PR E2E shards did not
+    select the failing crew-roster spec. At resume, inventory nightly-only
+    specs and propose how PRs changing shared flows run them, BEFORE lighter
+    draft checks. Evidence: PARITY-PLAN §53,
+    `parity-5.2-c/RESUME-PLAN.md` (Step A). Close with the inventory and
+    approved shared-flow selection coverage; this ledger does not implement it.
+  - OPEN provenance finding, C5: the pinned mm-data tree is CRLF-converted,
+    with identical content after newline normalization. Rebuild it as LF or
+    record the conversion in provenance. Evidence:
+    `parity-3.2-refusal-recount/3e96c2283/run/REPORT.md`,
+    `parity-3.2-refusal-recount/3e96c2283/run/d1/LINE-ENDINGS.json`,
+    `parity-5.2-c/RESUME-PLAN.md`. Close with an LF tree or explicit conversion
+    provenance; no pin or generated data is changed here.
   - Pause accounting (2026-11-10): merged PRs and POST-MERGE status. Evidence:
     `parity-5.2-c/PLAN.md` and its cited merge records; merge identities checked
     against first-parent main history. OPEN means the exact POST-MERGE receipt
@@ -1585,7 +1648,7 @@ passing execution. An unverified effect or outcome stays "not verified".
     establish unit parity.
   - G8 #3319 (`45a1c1d35`) re-mints the corrected D-11 pack; POST-MERGE done
     locally on that SHA, 95/95 suites and exact pack/matchlog hashes. Evidence:
-    `d11-e2e/fix-g8/postmerge-3319/MERGE-RECORD.txt`. D-11 closure is recorded
+    `d11-e2e/fix-g8/postmerge-3319/MERGE-RECORD.txt`. D-11 status is recorded
     in the gameplay list below.
   - 5.2 parent closure, C1-C5: every clause of the nine other open rows, source
     inventory 10,994/9,815/1,179 with exclusions, fresh guarded conversion,
@@ -1596,13 +1659,27 @@ passing execution. An unverified effect or outcome stays "not verified".
     The pause snapshot is not the final frozen acceptance SHA; do not archive.
   - **Gameplay findings open at the pause (tracked in ROADMAP C/D, owner C4; not
     unit-data parity)**
-    - D-11 CLOSED (ROADMAP, Root's call): Nightly Validation 42767605703 on
-      `45a1c1d35`, attempt 1, every job success. Full E2E 1,057 tests: 1,033
-      passed, 0 failed, 0 flaky, 24 skipped, no retries. The
-      maintenance-repairbay parity spec passed 2/2 on the first attempt. Fixes:
-      G1 #3176, G2 #3217, G3 #3175, G4 #3186, G5 #3178, G6 #3206, #3237, SE
-      #3244, G7 #3245, VDC #3246, G8 #3319. Regression check: the first
-      scheduled nightly on the final main.
+    - Campaign OPEN findings (owner C4):
+      - PRE-EXISTING silent loss in campaign saving: a reload about 1.8–2.0 s
+        after a change lost the server write in 9 of 18 trials, and the
+        reloaded app shows it as saved without self-healing. No wind-down
+        merge touched that code. C4's first resume item, ahead of P2P:
+        determine refused versus undelivered, make the write land and make
+        newer local state remain dirty until persisted. Close with the
+        reload-timing regression proof and truthful saved-state reporting.
+        Evidence: `validation-3e96c2283/o1-sweep/summary.json`,
+        `validation-3e96c2283/o1-sweep/trials.jsonl`, PARITY-PLAN §52/§53.
+    - **D-11 REGRESSED** (unticked on ROADMAP by Root's instruction).
+      Validation nightly **42795664179** on `3e96c2283`: Full E2E 1,030 passed,
+      **4 failed**, 0 flaky, 24 skipped; every other job green. All 4 failures
+      are `e2e/customizer-mech-crew-roster.spec.ts:185` (tripod and QuadVee crew
+      seats), caused by #3338's save confirmation not being reflected in that
+      spec. #3338 itself works as designed. C3 fixes the spec as the only
+      merge-freeze exception; **D-11 re-closes only on a green Full E2E on the
+      fixed main.** Earlier green: nightly 42767605703 on `45a1c1d35`
+      (1,033/0/0/24), superseded.
+      Evidence: `validation-3e96c2283/c4/nightly-42795664179-full-e2e.log`,
+      PARITY-PLAN §53.
     - G14: C4, OPEN: hand play does not apply boosted MP; 2b must ship boost and
       pinned check together at replay version 3, after R11a. Evidence:
       `c1c-design/DESIGN.md`, `c1c-design/PAUSE-STATE.md`.
