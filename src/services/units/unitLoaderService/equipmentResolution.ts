@@ -29,6 +29,7 @@ import {
   techRoute,
   techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
+import { parseEquipmentSizeNumber } from '@/utils/equipmentSize';
 
 type TechHint = 'clan' | 'is';
 
@@ -75,10 +76,22 @@ export function getMountedAmmoSourceToken(
     : undefined;
 }
 
+export interface ICriticalSlotTokenParameters {
+  /** Native :SIZE: value; invalid values retain their raw evidence. */
+  readonly size?: { readonly raw: string; readonly value: number | undefined };
+  /** MtfFile.extractLegacySize, before applying the equipment's sizing rule. */
+  readonly legacySize?: {
+    readonly raw: string;
+    readonly value: number;
+    readonly unit: string;
+  };
+}
+
 export function parseCriticalSlotToken(token: string): {
   readonly lookupToken: string;
   readonly isRearMounted: boolean;
   readonly isOmniPodMounted: boolean;
+  readonly parameters: ICriticalSlotTokenParameters;
 } {
   const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
   const podSuffix = /\s*\(OMNIPOD\)\s*$/i;
@@ -96,10 +109,33 @@ export function parseCriticalSlotToken(token: string): {
   const sizeIndex = unarmored.toUpperCase().indexOf(':SIZE:');
   if (sizeIndex > 0)
     isOmniPodMounted = podSuffix.test(unarmored.slice(0, sizeIndex));
+  // MtfFile.java:207-227,1005-1009,1151-1155 (48fcb2f64). Retain both
+  // forms: Java may fall back to legacy size when the explicit size is zero.
+  const sizeRaw = sizeIndex > 0 ? unarmored.slice(sizeIndex + 6) : undefined;
+  const legacy = /\((\d+(?:\.\d+)?)\s*(ton|tons|m|kg)\)/i.exec(token);
   return {
     lookupToken: mountName.replace(rearSuffix, '').trim(),
     isRearMounted: rearSuffix.test(mountName),
     isOmniPodMounted,
+    parameters: {
+      ...(sizeRaw !== undefined
+        ? {
+            size: {
+              raw: sizeRaw,
+              value: parseEquipmentSizeNumber(sizeRaw.trim()),
+            },
+          }
+        : {}),
+      ...(legacy
+        ? {
+            legacySize: {
+              raw: legacy[0],
+              value: Number(legacy[1]),
+              unit: legacy[2].toLowerCase(),
+            },
+          }
+        : {}),
+    },
   };
 }
 

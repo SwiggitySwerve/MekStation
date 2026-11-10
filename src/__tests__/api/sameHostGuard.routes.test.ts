@@ -365,6 +365,10 @@ function freePort(): Promise<number> {
   });
 }
 
+// Known hazard, not handled here (no failure has shown it): freePort() closes
+// its probe before server.js binds, and server.js has no listen error handler,
+// so a port taken in between kills the child with EADDRINUSE. The rejection
+// below carries the child's output, so that failure would name itself.
 async function startServer(
   nodeEnv: 'development' | 'production',
   extraEnv: Record<string, string> = {},
@@ -1026,12 +1030,25 @@ server.listen(0, '127.0.0.1', async () => {
   }
 });`;
 
+  // A harness run normally takes 0.2-0.4 s (measured alone, 2026-11-10).
+  // 60 s matches startServer's readiness budget; under full-directory load the
+  // old 15 s cap killed the child before it printed `ok`/`FAIL`, and the test
+  // saw an empty string with no reason. A guard verdict always prints one of
+  // those, so a silent exit is reported with the child's status and stderr.
   function run(mode: string): string {
-    return spawnSync(
+    const result = spawnSync(
       process.execPath,
       ['--input-type=module', '--eval', harness, mode],
-      { cwd: repoRoot, encoding: 'utf8', timeout: 15_000 },
-    ).stdout;
+      { cwd: repoRoot, encoding: 'utf8', timeout: 60_000 },
+    );
+    if (result.error || result.signal !== null || result.status !== 0) {
+      throw new Error(
+        `validator harness (${mode}) did not finish: status=${String(result.status)} ` +
+          `signal=${String(result.signal)} error=${result.error?.message ?? 'none'}\n` +
+          `stdout: ${result.stdout}\nstderr: ${result.stderr}`,
+      );
+    }
+    return result.stdout;
   }
 
   it('passes a server that refuses cross-site API and upgrade traffic', () => {
