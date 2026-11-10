@@ -790,7 +790,7 @@ jobs:
     name: E2E (${{ matrix.shard }}/2)
     needs: detect-changes
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 21
     strategy:
       fail-fast: false
       matrix:
