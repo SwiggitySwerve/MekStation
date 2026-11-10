@@ -79,3 +79,15 @@ The system SHALL represent the pinned `FERRO_FIBROUS_PROTO` armor (MegaMek Armor
 - **WHEN** the committed unit is loaded, saved and reopened
 - **THEN** its armor SHALL remain Ferro-Fibrous Prototype with 4.5 t of armor
 - **AND** the design SHALL remain a valid 35 t construction with BV 702
+
+#### Scenario: MTF export round trip
+
+- **WHEN** a mech with Ferro-Fibrous Prototype armor is exported to MTF and re-imported
+- **THEN** it SHALL retain its armor identity and per-location armor allocation using the pinned `Ferro-Fibrous Prototype` name (native armor code 9)
+- **AND** the MTF armor vocabulary SHALL exactly cover the mech identities in an explicit classification of every loader-accepted `standardArmorType`
+- **AND** the classification SHALL identify BLK as the owning format for battle armor, aerospace, ProtoMech and support-vehicle BAR identities
+- **AND** Patchwork without complete per-location points, types and tech bases SHALL fail with a named diagnostic and no content
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ArmorType.java:518-542`; `EquipmentType.java:94,1081-1089`;
+`Mek.java:5385-5403`; `MtfFile.java:414-486`.
