@@ -28,9 +28,12 @@ import {
   techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
 
-import { parseCriticalSlotToken } from './criticalSlotToken';
+import type { TechHint } from './criticalSlotToken';
 
-type TechHint = 'clan' | 'is';
+import {
+  getTechHintFromToken,
+  parseCriticalSlotToken,
+} from './criticalSlotToken';
 
 export { parseCriticalSlotToken } from './criticalSlotToken';
 
@@ -76,32 +79,6 @@ function stripTechMarkersFromName(name: string): string {
     .replace(/^Clan\s+/i, '')
     .replace(/^IS\s+/i, '')
     .trim();
-}
-
-function getTechHintFromToken(token: string): TechHint | null {
-  const trimmed = token.trim();
-
-  // Clan markers commonly found in MegaMek exports
-  if (
-    /^CL[A-Za-z0-9]/.test(trimmed) ||
-    /^Clan\s+/i.test(trimmed) ||
-    /\(Clan\)/i.test(trimmed) ||
-    /\[Clan\]/i.test(trimmed)
-  ) {
-    return 'clan';
-  }
-
-  // Inner Sphere markers commonly found in import sources
-  if (
-    /^IS[A-Za-z0-9]/.test(trimmed) ||
-    /^IS\s+/i.test(trimmed) ||
-    /\(IS\)/i.test(trimmed) ||
-    /\[IS\]/i.test(trimmed)
-  ) {
-    return 'is';
-  }
-
-  return null;
 }
 
 function stripTechPrefixFromNormalizedKey(

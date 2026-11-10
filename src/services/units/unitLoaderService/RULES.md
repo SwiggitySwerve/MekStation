@@ -275,7 +275,8 @@ Standard introduction dates to accommodate industrial source units.
 
 Declared OmniMeks derive a represented mount's pod metadata from its owned native
 critical cells, using `parseCriticalSlotToken` in `criticalSlotToken.ts` as the
-one token-decoding owner. `equipmentResolution.ts` re-exports it for callers.
+one token-decoding owner, alongside the token tech-marker hint helper.
+`equipmentResolution.ts` re-exports the parser for callers.
 The marker is a suffix after removing outer armored and size metadata, before
 turret/rear qualifiers (MegaMek 48fcb2f64 MtfFile.java:949-956,1005-1028).
 Ordinary and spreadable mounts retain their creation token; split weapons use

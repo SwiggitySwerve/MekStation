@@ -26,3 +26,31 @@ export function parseCriticalSlotToken(token: string): {
     isOmniPodMounted,
   };
 }
+
+export type TechHint = 'clan' | 'is';
+
+export function getTechHintFromToken(token: string): TechHint | null {
+  const trimmed = token.trim();
+
+  // Clan markers commonly found in MegaMek exports
+  if (
+    /^CL[A-Za-z0-9]/.test(trimmed) ||
+    /^Clan\s+/i.test(trimmed) ||
+    /\(Clan\)/i.test(trimmed) ||
+    /\[Clan\]/i.test(trimmed)
+  ) {
+    return 'clan';
+  }
+
+  // Inner Sphere markers commonly found in import sources
+  if (
+    /^IS[A-Za-z0-9]/.test(trimmed) ||
+    /^IS\s+/i.test(trimmed) ||
+    /\(IS\)/i.test(trimmed) ||
+    /\[IS\]/i.test(trimmed)
+  ) {
+    return 'is';
+  }
+
+  return null;
+}
