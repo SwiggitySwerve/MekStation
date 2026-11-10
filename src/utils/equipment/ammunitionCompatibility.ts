@@ -70,6 +70,26 @@ export function isFireWeaponCategory(category: string): boolean {
   return FIRE_WEAPON_CATEGORIES.has(category);
 }
 
+/**
+ * MegaMek `WeaponType.F_INF_SUPPORT` (48fcb2f64): set by the infantry support
+ * and grenade weapon classes. The registry records the Java class as `subType`
+ * (BV catalog) and in its `special` source reference (`.../Name.java: ...`,
+ * the only form the editor's items carry). Equal to the flag on all 104
+ * infantry-only registry weapons; plain infantry weapons (rifles, pistols) do
+ * not carry it.
+ */
+export function isInfantrySupportWeapon(item: {
+  readonly subType?: string;
+  readonly special?: readonly string[];
+}): boolean {
+  const javaClass =
+    item.subType ??
+    item.special
+      ?.map((reference) => /([A-Za-z0-9]+)\.java\b/.exec(reference)?.[1])
+      .find(Boolean);
+  return /^Infantry(Support|Grenade)/.test(javaClass ?? '');
+}
+
 function normalizeIdentity(identity: string): string {
   return identity.toLowerCase().replace(/[^a-z0-9]/g, '');
 }

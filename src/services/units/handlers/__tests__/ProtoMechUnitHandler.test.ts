@@ -4,15 +4,19 @@
  * Tests for ProtoMech BLK parsing and validation
  */
 
+import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { TechBase } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import weightOracle from '@/utils/construction/protomech/__tests__/fixtures/weight-java.json';
+import { computeProtoWeight } from '@/utils/construction/protomech/weight';
 
 import {
   ProtoMechUnitHandler,
   createProtoMechHandler,
 } from '../ProtoMechUnitHandler';
+import weightSources from './fixtures/source-load-legality.json';
 
 // ============================================================================
 // Test Fixtures
@@ -201,11 +205,17 @@ describe('ProtoMechUnitHandler', () => {
 
   describe('validate', () => {
     it('should pass validation for valid ProtoMech', () => {
-      const doc = createMockBlkDocument();
+      const doc = createMockBlkDocument({
+        equipmentByLocation: {
+          'Torso Equipment': ['CLERSmallLaser'],
+          'Main Gun Equipment': ['CLSRM2'],
+        },
+      });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
+      expect(computeProtoWeight(result.data!.unit).total).toBe(4.4);
       expect(validation.isValid).toBe(true);
     });
 
@@ -235,14 +245,15 @@ describe('ProtoMechUnitHandler', () => {
       const modifiedDoc: IBlkDocument = {
         ...doc,
         equipmentByLocation: {
-          ...doc.equipmentByLocation,
-          'Main Gun Equipment': ['SRM 2'],
+          'Torso Equipment': ['CLERSmallLaser'],
+          'Main Gun Equipment': ['CLSRM2'],
         },
       };
       const result = handler.parse(modifiedDoc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
+      expect(computeProtoWeight(result.data!.unit).total).toBe(3.75);
       expect(validation.isValid).toBe(true);
     });
 
@@ -292,5 +303,30 @@ describe('ProtoMechUnitHandler', () => {
       const cost = handler.calculateCost(result.data!.unit);
       expect(cost).toBeGreaterThan(0);
     });
+  });
+});
+
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/protomech-unit-system/spec.md */
+describe('native ProtoMech source weight verdicts', () => {
+  const handler = createProtoMechHandler();
+  it.each(weightOracle.rows)('$path', (reference) => {
+    const content =
+      reference.content ??
+      weightSources.nativeValidity.rows.find(
+        (row) => row.path === reference.path,
+      )?.content;
+    if (!content) throw new Error('Missing ' + reference.path);
+    const document = new BlkParserService().parse(content);
+    if (!document.success) throw new Error(JSON.stringify(document.error));
+    const parsed = handler.parse(document.data.document);
+    if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+    const unit = parsed.data.unit;
+    expect(computeProtoWeight(unit).total).toBe(reference.total);
+    const validity = handler.validate(unit);
+    expect(
+      !validity.errors.some((message) => message.startsWith('Weight:')),
+    ).toBe(reference.correctWeight);
+    if (reference.cohort === 'canonical')
+      expect(validity.isValid).toBe(reference.correctEntity);
   });
 });
