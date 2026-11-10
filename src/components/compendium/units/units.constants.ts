@@ -1,6 +1,10 @@
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
-import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
+import {
+  RulesLevel,
+  ALL_RULES_LEVELS,
+  RULES_LEVEL_TAGS,
+} from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 
@@ -25,14 +29,8 @@ export const WEIGHT_CLASS_ORDER: Record<string, number> = {
   [WeightClass.SUPERHEAVY]: 5,
 };
 
-export const RULES_LEVEL_ORDER: Record<string, number> = {
-  [RulesLevel.INTRODUCTORY]: 0,
-  [RulesLevel.STANDARD]: 1,
-  [RulesLevel.ADVANCED]: 2,
-  [RulesLevel.EXPERIMENTAL]: 3,
-};
-
-export const RULES_LEVEL_LABELS: Record<string, string> = {
+/** Short table labels, keyed by level (decode a stored value with parseRulesLevel). */
+export const RULES_LEVEL_LABELS: Partial<Record<RulesLevel, string>> = {
   [RulesLevel.INTRODUCTORY]: 'Intro',
   [RulesLevel.STANDARD]: 'Std',
   [RulesLevel.ADVANCED]: 'Adv',
@@ -52,5 +50,9 @@ export const WEIGHT_CLASS_OPTIONS = [
 
 export const RULES_LEVEL_OPTIONS = [
   { value: '', label: 'All Levels' },
-  ...ALL_RULES_LEVELS.map((rl) => ({ value: rl, label: rl })),
+  // The index stores the contract tag, so the tag is the filter value.
+  ...ALL_RULES_LEVELS.map((rl) => ({
+    value: RULES_LEVEL_TAGS[rl],
+    label: rl,
+  })),
 ];

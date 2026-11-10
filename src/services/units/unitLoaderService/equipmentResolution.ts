@@ -96,6 +96,7 @@ function stripTechMarkersFromName(name: string): string {
     .replace(/\s*\(Clan\)\s*$/i, '')
     .replace(/\s*\(IS\)\s*$/i, '')
     .replace(/\s*\[IS\]\s*$/i, '')
+    .replace(/\s*\[Clan\]\s*$/i, '')
     .replace(/^Clan\s+/i, '')
     .replace(/^IS\s+/i, '')
     .trim();
@@ -108,7 +109,8 @@ function getTechHintFromToken(token: string): TechHint | null {
   if (
     /^CL[A-Za-z0-9]/.test(trimmed) ||
     /^Clan\s+/i.test(trimmed) ||
-    /\(Clan\)/i.test(trimmed)
+    /\(Clan\)/i.test(trimmed) ||
+    /\[Clan\]/i.test(trimmed)
   ) {
     return 'clan';
   }
@@ -232,18 +234,24 @@ function resolveMixedTechVariant(
 function ownTechSide(
   id: string,
   normalizedId: string,
-  baseId: string,
+  candidates: IEquipmentVariantCandidates,
 ): TechBase | null {
-  const hint = getTechHintFromToken(id);
-  const unmarkedName = stripTechMarkersFromName(id);
+  const { baseId } = candidates;
+  const token = parseCriticalSlotToken(id).lookupToken;
+  const raw = token.toLowerCase().trim();
+  // An explicit display marker names its side only when stripping it leaves
+  // the same item. Native prefixes continue through their existing path below.
+  const hint = getTechHintFromToken(token);
+  const stripped = stripTechMarkersFromName(raw);
   if (
+    stripped !== raw &&
     hint &&
-    unmarkedName !== id.trim() &&
-    normalizeCatalogEquipmentId(unmarkedName, false) === baseId
+    normalizeCatalogEquipmentId(stripped, false) === baseId
   ) {
-    return hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+    const side = hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+    const candidate = resolveVariantByTechBase(candidates, side);
+    return candidate?.equipmentDef?.techBase === side ? side : null;
   }
-  const raw = id.toLowerCase().trim();
   if (/^cl/.test(raw) && normalizedId === `clan-${baseId}`)
     return TechBase.CLAN;
   const sides: [RegExp, TechBase][] = [
@@ -516,7 +524,7 @@ function resolveLegacyEquipmentId(
   const ownSide =
     locationCriticalSlots === undefined ||
     unitTechBaseMode === TechBaseMode.MIXED
-      ? ownTechSide(id, normalizedId, candidates.baseId)
+      ? ownTechSide(id, normalizedId, candidates)
       : null;
 
   return (
