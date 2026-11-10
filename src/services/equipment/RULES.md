@@ -40,11 +40,33 @@ Heat Sink and Jump Jet definitions remain excluded from this lookup because
 the BattleMech Structure tab configures them through dedicated equipment
 utilities. The underlying loader still exposes them to configuration callers.
 
-`getAllEquipment()` preserves the existing BattleMech browser inventory.
-Miscellaneous and Unknown records are lookup-only until browser support is
-separately defined. Exclude those records by identity, since physical weapons
-can share their IDs. Preserve order, fields and physical weapon definitions.
-Rebuilding the source cache also rebuilds the browser exclusions.
+`getAllEquipment()` preserves the legacy inventory for validation, the catalog
+API, ammunition identity recovery and availability audits. Its Miscellaneous
+and Unknown exclusions use record identity, since physical weapons can share
+their IDs. Rebuilding the source cache also rebuilds these exclusions.
+
+`getBrowserEquipment(unitType)` owns family picker admission. An explicit list
+admits only its members; an empty list admits none. An absent list preserves
+legacy membership, including the exclusion of unpinned generic misc. Pinned
+Miscellaneous and Unknown records become browser candidates only for their
+listed types. The five converters and all lookup mappings, ammunition included,
+preserve the distinction between absent and empty. Loader searches keep their
+existing absent fallback: BattleMech, Vehicle and Aerospace.
+
+Mech, vehicle, aerospace and battle-armor pickers retain their existing treatment
+of unknown applicability. ProtoMech additionally keeps its existing pinned
+`isProtoMechCatalogEquipment` policy: ammo is offered, other items need the
+ProtoMech list. Explicit empty or excluding ammo lists still reject that ammo.
+Infantry uses its separate personal-weapon and field-gun selectors. Picker
+policy does not change placement validation or reinterpret an absent list as
+illegal. The hook filters caller-local candidates before ammunition matching,
+totals and pagination; the shared store keeps the legacy inventory.
+
+`ammunitionCompatibility` owns the fallback for bins without declared compatible
+IDs. Launcher display suffixes `(Clan)` and `(ProtoMech)` additionally match the
+undecorated bin name only within the same tech base. Existing matches remain;
+explicit compatible IDs take precedence, including lists excluding the launcher.
+The row component imports this owner's complete six-category weapon predicate.
 
 The official-corpus regression suite in
 `__tests__/EquipmentLookupService.categories.test.ts` enforces category

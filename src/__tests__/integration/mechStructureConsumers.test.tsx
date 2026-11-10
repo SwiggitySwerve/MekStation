@@ -23,9 +23,13 @@ import {
   getStructureWeight,
 } from '@/utils/validation/weightValidationUtils';
 
-// Exposes dropped arguments without enabling or copying PR3c arithmetic.
+// Spy on the real owning rule; consumers must retain its native result.
 jest.mock('@/utils/construction/structureCalculations', () => ({
-  calculateStructureWeight: jest.fn(() => 7.25),
+  calculateStructureWeight: jest.fn(
+    jest.requireActual<
+      typeof import('@/utils/construction/structureCalculations')
+    >('@/utils/construction/structureCalculations').calculateStructureWeight,
+  ),
 }));
 jest.mock('@/hooks/useEquipmentRegistry', () => ({
   useEquipmentRegistry: () => ({ isReady: false }),
@@ -86,11 +90,29 @@ const stateFor = (): UnitState => ({
     tonnage: 50,
     techBase: TechBase.INNER_SPHERE,
   }),
-  configuration: MechConfiguration.TRIPOD,
+  configuration: MechConfiguration.BIPED,
   frankenStructure: {
     type: 'STANDARD',
-    locationTonnage: { LEFT_ARM: 65 },
-    typeByLocation: { LEFT_ARM: 'ENDO_STEEL_CLAN' },
+    locationTonnage: {
+      HEAD: 50,
+      CENTER_TORSO: 50,
+      RIGHT_TORSO: 50,
+      LEFT_TORSO: 50,
+      RIGHT_ARM: 50,
+      LEFT_ARM: 50,
+      RIGHT_LEG: 50,
+      LEFT_LEG: 50,
+    },
+    typeByLocation: {
+      HEAD: 'ENDO_STEEL',
+      CENTER_TORSO: 'ENDO_STEEL',
+      RIGHT_TORSO: 'ENDO_STEEL_CLAN',
+      LEFT_TORSO: 'ENDO_STEEL_CLAN',
+      RIGHT_ARM: 'STANDARD',
+      LEFT_ARM: 'STANDARD',
+      RIGHT_LEG: 'STANDARD',
+      LEFT_LEG: 'STANDARD',
+    },
   },
 });
 const statsInput = (state: UnitState) => ({
@@ -131,7 +153,7 @@ test('control: the hook keeps the mass returned by its existing owner', () => {
   const { result } = renderHook(() =>
     useUnitCalculations(50, state, 0, state.configuration),
   );
-  expect(result.current.structureWeight).toBe(7.25);
+  expect(result.current.structureWeight).toBe(3.5);
 });
 
 test('the calculation hook forwards effective configuration and donor metadata', () => {
@@ -267,20 +289,22 @@ test('legacy selections forward configuration without inventing donor metadata',
 test.each([
   [35, InternalStructureType.STANDARD, 3.5],
   [50, InternalStructureType.ENDO_STEEL_IS, 2.5],
-  [105, InternalStructureType.ENDO_STEEL_IS, 5.5],
-  [135, InternalStructureType.ENDO_COMPOSITE, 10.5],
-  [150, InternalStructureType.STANDARD, 15],
-  [200, InternalStructureType.INDUSTRIAL, 40],
+  [105, InternalStructureType.ENDO_STEEL_IS, 10.5],
+  [135, InternalStructureType.ENDO_COMPOSITE, 20.5],
+  [150, InternalStructureType.STANDARD, 30],
+  [200, InternalStructureType.INDUSTRIAL, 80],
 ])(
-  'context leaves the existing %st %s mass at %st',
+  '%st %s uses one Biped mass of %st with or without context',
   (tonnage, type, expected) => {
     const actual = jest.requireActual<
       typeof import('@/utils/construction/structureCalculations')
     >('@/utils/construction/structureCalculations');
     expect(actual.calculateStructureWeight(tonnage, type)).toBe(expected);
-    expect(actual.calculateStructureWeight(tonnage, type, stateFor())).toBe(
-      expected,
-    );
+    expect(
+      actual.calculateStructureWeight(tonnage, type, {
+        configuration: MechConfiguration.BIPED,
+      }),
+    ).toBe(expected);
   },
 );
 
@@ -297,7 +321,7 @@ test('the construction step forwards context and preserves the owner mass', () =
     state.internalStructureType,
     state,
   );
-  expect(step.weight).toBe(7.25);
+  expect(step.weight).toBe(3.5);
   expectContext(state);
 });
 
@@ -308,4 +332,43 @@ test.each([
   const state = stateFor();
   calculate({ ...state, totalArmorPoints: 0, totalHeatSinks: 10 });
   expectContext(state);
+});
+
+test('all four editor consumers share native mass and refresh their totals on a donor-only edit', () => {
+  const { store, Wrapper } = withStore();
+  const weight = renderHook(() => useWeightValidation(), { wrapper: Wrapper });
+  const overview = renderHook(() => useOverviewBuildSummary(), {
+    wrapper: Wrapper,
+  });
+  const stats = renderHook(
+    () => useUnitEditorRoutingStats(statsInput(store.getState())),
+    { wrapper: Wrapper },
+  );
+  const tab = render(
+    <Wrapper>
+      <StructureTab />
+    </Wrapper>,
+  );
+  const before = overview.result.current.calculations.totalStructuralWeight;
+  expect(overview.result.current.calculations.structureWeight).toBe(3.5);
+  expect(weight.result.current.allocatedWeight).toBe(before);
+  expect(overview.result.current.stats.weightUsed).toBe(before);
+  expect(stats.result.current.unitStats.weightUsed).toBe(before);
+  expect(tab.getByText('3.5 t')).toBeInTheDocument();
+  const structure = store.getState().frankenStructure;
+  if (!structure) throw new Error('Expected donor metadata');
+  act(() =>
+    store.setState({
+      frankenStructure: {
+        ...structure,
+        locationTonnage: { ...structure.locationTonnage, RIGHT_LEG: 90 },
+      },
+    }),
+  );
+  stats.rerender();
+  expect(overview.result.current.calculations.structureWeight).toBe(4);
+  expect(weight.result.current.allocatedWeight).toBe(before + 0.5);
+  expect(overview.result.current.stats.weightUsed).toBe(before + 0.5);
+  expect(stats.result.current.unitStats.weightUsed).toBe(before + 0.5);
+  expect(tab.getByText('4.0 t')).toBeInTheDocument();
 });

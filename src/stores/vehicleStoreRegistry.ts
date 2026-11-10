@@ -7,6 +7,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import { logger } from '@/utils/logger';
 
 import { createVehicleStore, createNewVehicleStore } from './useVehicleStore';
@@ -104,6 +105,7 @@ export function duplicateVehicle(
 
   const mergedState: VehicleState = {
     ...newState,
+    ...pickUnitTechBaseIdentity(sourceState),
     engineType: sourceState.engineType,
     engineRating: sourceState.engineRating,
     engineTechRating: sourceState.engineTechRating,

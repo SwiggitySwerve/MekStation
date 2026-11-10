@@ -38,7 +38,6 @@ import {
   createParseMessages,
   createValidationMessages,
   mapLocationEquipment,
-  parseRulesLevelThroughAdvancedFromType,
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
   serializeConfigurationWithRulesLevel,
@@ -232,7 +231,6 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
       typeSpecificFields,
       idPrefix: 'small-craft',
       unitType: UnitType.SMALL_CRAFT,
-      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
     return withConstructionDiagnostics(unit, this.validate(unit));
   }

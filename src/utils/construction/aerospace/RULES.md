@@ -1,5 +1,14 @@
 # Aerospace construction rules
 
+Contract and live editor BV share `projectAerospaceBVArmor`; status and both
+record-sheet callers use `aerospaceBVUnitFromState`. Per-arc native type codes
+stay separate from live armor points. Native fighter handlers retain explicit
+`*_armor_type` tags, and the existing arc resolver accepts their lower-camel point
+keys while rejecting unknown arcs. No UI layer computes armor BV. Pin 48fcb2f64:
+BLKAeroSpaceFighterFile.java:148-164; BVCalculator.java:350-420. Nanook's armor BV
+is 282.5, defensive BV 367.8 and final BV 1571. Selecting global armor clears the
+type map through the existing editor action.
+
 Capital and DropShip modifiers reuse the shared native link owner and MGA helper:
 first compatible unlinked weapons in the same physical location, independent of
 rear/bay markers. Apollo uses the shared 1.15 multiplier; PPC capacitors use the

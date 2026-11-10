@@ -1286,3 +1286,52 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **GIVEN** the Dreadnought Mk II Land Train with two ISMGA(ST) arrays on its sponsons
 - **WHEN** its support weight is calculated
 - **THEN** weapons SHALL be 32 tons, miscellaneous equipment 10 tons and the total 200 tons, equal to the pinned verifier
+
+### Requirement: Support ladders, dumpers, fluid suction and the fire-control basis follow the pinned rules
+
+A ladder SHALL weigh its size divided by 200, rounded to the nearest kilogram. A
+Fluid Suction System (Standard) SHALL weigh 1 ton. A dumper SHALL weigh 5% of the
+size of the first unlinked variable Cargo in its own location, rounded up to the
+kilogram on a small support vehicle and to the half ton otherwise, and zero when
+no cargo is linked. The advanced and basic fire controls SHALL be sized from the
+weapon tonnage excluding anti-missile systems and non-support infantry weapons.
+The editor and the support handler SHALL use the same owner functions.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`MiscType.java:707-725,841-843,7578-7583`, `Mounted.java:729-738` and
+`MekFileParser.java:854-885`.
+
+#### Scenario: Dump trucks and the fire engine equal the pinned Java terms
+
+- **GIVEN** the Brunel and Lesseps Dump Trucks and the Saurer-Bucher Fire Engine
+- **WHEN** their support weight is calculated
+- **THEN** their dumpers SHALL weigh 2.5 and 1 tons, their ladders 0.5 tons each, and miscellaneous equipment SHALL equal the pinned verifier
+- **AND** a second dumper, a cargo in another location or Liquid Storage SHALL NOT link
+
+#### Scenario: Anti-missile systems and non-support infantry weapons are not fire-control basis
+
+- **GIVEN** an advanced fire control with an assault rifle and a standard infantry SRM, and another with an anti-missile system and a medium laser
+- **WHEN** the support weight is calculated
+- **THEN** the first SHALL be sized from the SRM alone (0.003 tons on a small vehicle) and the second from the medium laser alone
+
+### Requirement: The native manipulator and Nova CEWS spellings share one identity
+
+The system SHALL resolve the BLK spelling `Manipulator (Non-Mech/Non-Battle
+Armor)` and the display name `Nova CEWS`, in the BV catalog and the unit loader
+alike, to the existing manipulator (0.01 tons) and NovaCEWS (1.5 tons, heat 2)
+entries through the native identity table, without a catalog change.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`EquipmentTypeLookup.java:342`, `MiscType.java:6192-6193,7694-7703`.
+
+#### Scenario: Manipulator-equipped support vehicles equal the pinned Java terms
+
+- **GIVEN** a tank, a small tank and a VTOL mounting `Manipulator (Non-Mech/Non-Battle Armor)`
+- **WHEN** their support weight is calculated
+- **THEN** each manipulator SHALL weigh 0.01 tons, nothing SHALL be reported unresolved and the totals SHALL equal the pinned verifier
+
+#### Scenario: Nova CEWS by either name
+
+- **GIVEN** the same tank mounting `Nova CEWS` or `NovaCEWS`
+- **WHEN** its support weight is calculated
+- **THEN** both SHALL weigh 1.5 tons of equipment plus 2 tons of heat sinks and equal the pinned total of 27.5 tons

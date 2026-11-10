@@ -163,7 +163,7 @@ export function convertWeapon(raw: IRawWeaponData): IWeapon {
     reintroductionYear: raw.reintroductionYear,
     ...(raw.isExplosive && { isExplosive: raw.isExplosive }),
     ...(raw.special && { special: raw.special }),
-    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(raw.allowedUnitTypes !== undefined && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
     ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
   };
@@ -194,7 +194,7 @@ export function convertPhysicalWeapon(raw: IRawPhysicalWeaponData): IWeapon {
     introductionYear: raw.introductionYear,
     extinctionYear: raw.extinctionYear,
     reintroductionYear: raw.reintroductionYear,
-    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(raw.allowedUnitTypes !== undefined && { allowedUnitTypes }),
     variableEquipmentId: raw.id,
   };
 }
@@ -227,7 +227,7 @@ export function convertAmmunition(raw: IRawAmmunitionData): IAmmunition {
       rangeModifier: raw.rangeModifier,
     }),
     ...(raw.special && { special: raw.special }),
-    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(raw.allowedUnitTypes !== undefined && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
   };
 }
@@ -253,7 +253,7 @@ export function convertElectronics(raw: IRawElectronicsData): IElectronics {
     ...(raw.variableEquipmentId && {
       variableEquipmentId: raw.variableEquipmentId,
     }),
-    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(raw.allowedUnitTypes !== undefined && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
     ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
   };
@@ -282,7 +282,7 @@ export function convertMiscEquipment(
     ...(raw.variableEquipmentId && {
       variableEquipmentId: raw.variableEquipmentId,
     }),
-    ...(allowedUnitTypes.length > 0 && { allowedUnitTypes }),
+    ...(raw.allowedUnitTypes !== undefined && { allowedUnitTypes }),
     ...(flags.length > 0 && { flags }),
     ...(raw.allowedLocations && { allowedLocations: raw.allowedLocations }),
   };

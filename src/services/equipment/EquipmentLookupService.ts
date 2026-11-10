@@ -19,12 +19,14 @@ import {
   IAmmunition,
 } from '@/types/equipment';
 import { MiscEquipmentCategory } from '@/types/equipment/MiscEquipmentTypes';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { weaponCategoryToEquipmentCategory } from '@/utils/equipment/categoryRegistry';
 import {
   getAllAmmunition as getAllAmmunitionFallback,
   getAllEquipmentItems as getAllEquipmentItemsFallback,
   getAllWeapons as getAllWeaponsFallback,
 } from '@/utils/equipment/equipmentAggregation';
+import { AMS_WEAPON_IDS } from '@/utils/equipment/equipmentConstants';
 import { logger } from '@/utils/logger';
 import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
@@ -57,6 +59,8 @@ export interface IEquipmentLookupService {
   getAllAmmunition(): IAmmunition[];
   /** Existing BattleMech browser inventory; lookup/search retain additional misc items. */
   getAllEquipment(): IEquipmentItem[];
+  /** Family picker inventory; unknown applicability retains legacy browser membership. */
+  getBrowserEquipment(unitType: UnitType): IEquipmentItem[];
 
   // Source info
   getDataSource(): 'json' | 'fallback';
@@ -71,11 +75,6 @@ const EXCLUDED_MISC_CATEGORIES: readonly MiscEquipmentCategory[] = [
   MiscEquipmentCategory.JUMP_JET,
   MiscEquipmentCategory.HEAT_SINK,
 ];
-
-/**
- * IDs of AMS weapons that should also appear in "Other" category
- */
-const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
 
 /**
  * Equipment Lookup Service implementation
@@ -218,6 +217,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         id: ammo.id,
         name: ammo.name,
         category: EquipmentCategory.AMMUNITION,
+        allowedUnitTypes: ammo.allowedUnitTypes,
         techBase: ammo.techBase,
         rulesLevel: ammo.rulesLevel,
         weight: ammo.weight,
@@ -435,6 +435,13 @@ export class EquipmentLookupService implements IEquipmentLookupService {
       (item) => !this.lookupOnlyEquipment.has(item),
     ));
   };
+
+  getBrowserEquipment = (unitType: UnitType): IEquipmentItem[] =>
+    this.getEquipment().filter((item) =>
+      item.allowedUnitTypes === undefined
+        ? !this.lookupOnlyEquipment.has(item)
+        : item.allowedUnitTypes.includes(unitType),
+    );
 }
 
 // Singleton instance with lazy initialization

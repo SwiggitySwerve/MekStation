@@ -237,6 +237,16 @@ function runScenarioGeneration(
   // still has to run.
   const activeContracts = selectActiveContracts(campaign);
   for (const contract of activeContracts) {
+    // A routed enemy yields no random scenario: the pin's scenario odds are -1
+    // against it (StratConRulesManager.java:4492-4495, e7adc2c). Partial ROUTED
+    // behaviour: the pin also ends a non-garrison contract at once and re-spikes
+    // a garrison one after a rout end date (MHQMorale.java:646-675), which is the
+    // held ROUTED lifecycle. Until that exists, a routed contract simply has no
+    // battles until a monthly check rallies it, or it expires.
+    if (contract.moraleLevel === AtBMoraleLevel.ROUTED) {
+      continue;
+    }
+
     // Get combat teams for this contract (explicit or force-derived, D-9)
     const teams = getCombatTeamsForContract(campaign, contract);
 
@@ -248,8 +258,7 @@ function runScenarioGeneration(
       }
 
       // Battle occurs! Generate scenario
-      const morale = contract.moraleLevel ?? AtBMoraleLevel.STALEMATE;
-      const scenarioResult = selectScenarioType(team.role, morale, random);
+      const scenarioResult = selectScenarioType(team.role, random);
 
       // Calculate OpFor BV
       const playerBV = calculatePlayerBV(team);

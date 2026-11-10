@@ -131,6 +131,9 @@ export function ProtoMechMovementSection({
 }: ReadOnlyProps & {
   controls: MovementControls;
 }): React.ReactElement {
+  // Ultraheavy cannot jump, and MML pins a glider's jump spinner at 0
+  // (MovementView.java:265-268); a glider flies on its walk MP.
+  const noJump = !controls.canJump;
   return (
     <div className={cs.panel.main}>
       <h3 className={cs.text.sectionTitle}>Movement</h3>
@@ -163,6 +166,8 @@ export function ProtoMechMovementSection({
             Jump MP{' '}
             {controls.isUltraheavy ? (
               <span className="text-red-400">(Ultraheavy: 0)</span>
+            ) : controls.isGliderChassis ? (
+              <span className={cs.text.secondary}>(Glider: 0)</span>
             ) : (
               <span className={cs.text.secondary}>
                 (cap: {controls.mpCaps.jumpMax})
@@ -173,9 +178,9 @@ export function ProtoMechMovementSection({
             type="number"
             value={controls.jumpMP}
             onChange={controls.handleJumpMPChange}
-            disabled={readOnly || controls.isUltraheavy}
+            disabled={readOnly || noJump}
             min={0}
-            max={controls.isUltraheavy ? 0 : controls.mpCaps.jumpMax}
+            max={noJump ? 0 : controls.mpCaps.jumpMax}
             className={cs.input.full}
           />
         </div>
@@ -188,13 +193,15 @@ export function ProtoMechMovementSection({
             {controls.effectiveWalk}
           </span>
         </span>
-        {controls.isGliderChassis && (
+        {controls.hasPartialWing && (
           <span className={cs.text.secondary}>
             Effective Jump:{' '}
             <span className="text-text-theme-primary">
               {controls.effectiveJump}
             </span>
-            <span className="ml-1 text-blue-400">(+2 glider wings)</span>
+            <span className="ml-1 text-blue-400">
+              (+{controls.effectiveJump - controls.jumpMP} Partial Wing)
+            </span>
           </span>
         )}
       </div>
@@ -213,22 +220,6 @@ export function ProtoMechMovementSection({
             <span className={cs.text.secondary}>(Light / Medium only)</span>
           </span>
         </label>
-
-        {controls.isGliderChassis && (
-          <label className="flex cursor-pointer items-center gap-2">
-            <input
-              type="checkbox"
-              checked={controls.glidingWings}
-              onChange={controls.handleGlidingWingsChange}
-              disabled={readOnly}
-              className="border-border-theme bg-surface-raised rounded"
-            />
-            <span className="text-text-theme-primary text-sm">
-              Gliding Wings{' '}
-              <span className={cs.text.secondary}>(+2 jump MP)</span>
-            </span>
-          </label>
-        )}
       </div>
     </div>
   );
