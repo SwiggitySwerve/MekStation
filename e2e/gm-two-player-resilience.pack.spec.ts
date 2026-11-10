@@ -93,6 +93,10 @@ import {
   connectLobby,
   type IMatchHandle as Match,
 } from './helpers/gmTwoPlayerMatchFlow';
+import {
+  expectServerRestarted,
+  readServerStartMs,
+} from './helpers/serverRestartEvidence';
 import { assertNoBearerInUrls } from './helpers/tokenPackUrlSweep';
 import {
   assertContiguousFromZero,
@@ -744,6 +748,7 @@ test('E2E-15 a host restart recovers every authority clause before a new command
       });
     }
 
+    const startedBefore = await readServerStartMs(request);
     await armFault(request, 'process-exit-after-commit', match.matchId);
     // The next command commits, then the process dies before it publishes.
     // The click itself may hang on the dead socket - fire and move on.
@@ -759,6 +764,9 @@ test('E2E-15 a host restart recovers every authority clause before a new command
 
     // ---- Recovery, read at the first status the respawned process gave ----
     const recovered = readAuthority(match.matchId);
+    // The 200 above also answers when nothing died; prove the death (a
+    // read-only health GET from the test's API context, not client traffic).
+    await expectServerRestarted(request, startedBefore);
 
     // Campaign.
     const campaignAfter = await request.get(

@@ -1,8 +1,10 @@
 import type { CockpitType } from '../src/utils/construction/battleValueCalculations';
 import type { UnitData } from './validate-bv-types';
 
+import { mapMechLocation } from '../src/services/units/unitLoaderService/componentMappers';
 import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
+import { isArmLocation } from '../src/types/construction/mechConfigHelpers';
 import { normalizeEquipId } from './validate-bv-normalizers';
 
 export function mapEngineType(s: string, tb: string): EngineType {
@@ -173,8 +175,8 @@ export function calcTotalArmor(a: UnitData['armor']['allocation']): number {
 }
 
 export function isArmLoc(l: string): boolean {
-  const lo = l.toLowerCase();
-  return lo.includes('left_arm') || lo.includes('right_arm');
+  const location = mapMechLocation(l);
+  return location !== undefined && isArmLocation(location);
 }
 
 export function isClanEquipAtLocation(

@@ -1422,6 +1422,22 @@ passing execution. An unverified effect or outcome stays "not verified".
     unchanged, four mutants killed. Evidence: `parity-4.3-c/`,
     `parity-5.2-c/PLAN.md`. Scope: seatless Tripod printing only; crew authoring
     and full all-family figure/location/quirk/SPA proof remain open.
+  - OPEN, owner C3: **Stale record-sheet templates pass silently.**
+    - **The fault:** postinstall `scripts/mm-data/check-assets.js` trusts the
+      `mm-data-version.json` stamp (v0.3.1). So an install from before
+      2026-11-03 lacks `smallcraft_aerodyne_default.svg`,
+      `smallcraft_spheroid_default.svg` and `spacestation_default.svg`, which
+      `config/mm-data-assets.json` has required since a511cbacf, and gives no
+      message.
+    - **The effect:** that install prints NaN armor on small craft and no
+      space-station sheet. Locally, it fails 4 `customizer-library-open`
+      tests. CI and release are unaffected.
+    - **Fix:** a presence check against the required list that names the
+      missing files, sharing one owner with
+      `scripts/mm-data/validate-assets.ts`, plus a named runtime failure in
+      place of NaN.
+    - Evidence: `parity-5.2-c/PLAN.md` (C3 record-sheet templates note),
+      `c3-pending-notes.md` (13:37:39Z/13:39:38Z).
   - OPEN, C3: complete all-family figure, location, unit/weapon/pilot quirk and
     SPA proof is not recorded. Supplied Tripod/QuadVee roster printing
     supersedes the old one-pilot rendering deferral at that scope;
@@ -1496,6 +1512,10 @@ passing execution. An unverified effect or outcome stays "not verified".
     draft checks. Evidence: PARITY-PLAN §53,
     `parity-5.2-c/RESUME-PLAN.md` (Step A). Close with the inventory and
     approved shared-flow selection coverage; this ledger does not implement it.
+    The shared-flows map adds the `campaign-persistence` flow with sweep spec
+    `e2e/campaign-unload-adoption.spec.ts` (about 4–5 min), triggered by the
+    campaign persistence paths, `useServiceWorker.ts` and
+    `public/service-worker.js`, plus the nightly.
   - OPEN provenance finding, C5: the pinned mm-data tree is CRLF-converted,
     with identical content after newline normalization. Rebuild it as LF or
     record the conversion in provenance. Evidence:
@@ -1687,17 +1707,94 @@ passing execution. An unverified effect or outcome stays "not verified".
           proposal §6 lists them).
         - **Interaction:** C5's parked #3315 edits the same file. It rebases
           on C4's PR 1 and re-runs its old-tab and unvisited-route checks.
-    - **D-11 REGRESSED** (unticked on ROADMAP by Root's instruction).
-      Validation nightly **42795664179** on `3e96c2283`: Full E2E 1,030 passed,
-      **4 failed**, 0 flaky, 24 skipped; every other job green. All 4 failures
-      are `e2e/customizer-mech-crew-roster.spec.ts:185` (tripod and QuadVee crew
-      seats), caused by #3338's save confirmation not being reflected in that
-      spec. #3338 itself works as designed. C3 fixes the spec as the only
-      merge-freeze exception; **D-11 re-closes only on a green Full E2E on the
-      fixed main.** Earlier green: nightly 42767605703 on `45a1c1d35`
-      (1,033/0/0/24), superseded.
-      Evidence: `validation-3e96c2283/c4/nightly-42795664179-full-e2e.log`,
-      PARITY-PLAN §53.
+    - **D-11 RE-CLOSED (C4) on Nightly Validation 42845061314, main
+      `3024c37b4`, every job green.**
+      - **First attempt:** 1,028 on attempt 0, 6 expected-fail (`test.fail`),
+        0 passed only on retry, 0 failed, 24 skipped.
+      - **Named specs:** `customizer-mech-crew-roster` 4/4 on attempt 0 (C3's
+        #3353 fixture fix); `saved-custom-combat-launch:229` on attempt 0;
+        the six unarmed privacy rows 6/6.
+      - **Evidence:** `d11-e2e/nightly-42845061314/first-attempt.txt`.
+      - **Limit:** it covers main through #3347. Later merges (#3356, #3355,
+        #3358, #3359, #3360, #3361, #3345, #3364) are first covered by the
+        next scheduled nightly.
+    - **GATE on the combat journal-authority cutover (U24b), three OPEN items,
+      owner C4 (Root ruling 2026-11-10).** The cutover does not happen until
+      all three hold.
+      1. **An armed real-death recovery test.** Journal-authority recovery has
+         no test under a real host death today (details below).
+      2. **Store-failure behaviour reconciled.** In journal-authority mode, a
+         failed save (`persistenceFailure`,
+         `ServerMatchHostJournalAuthority.ts:45-58`) tells only the sender
+         (sender-only as of #3365, `cafc43597`) and does not close the match.
+         The legacy path closes it (`ServerMatchHostPublication.ts:285-287`).
+         Before cutover, behaviour after a store failure must be the same on
+         both paths, or the difference stated and accepted.
+      3. **The restart assertion on every server-killing spec, in both modes:**
+         E2E-01, E2E-02, E2E-05, E2E-06 and E2E-15, through the shared
+         `e2e/helpers/serverRestartEvidence.ts`. Unarmed, it lands with
+         C5's authority-recovery follow-up. Armed, it waits on item 1.
+    - **Item 1 in detail:** journal-authority recovery has no test under a real
+      host death.
+      - **Why:** under the journal arm, a command commits through
+        `commitJournalAuthorityCommand`. The only `process-exit-after-commit`
+        seam is on the legacy outbox path (`ServerMatchHostPublication.ts`),
+        so an armed E2E-01/02 host death never fires.
+      - **Found by C5's restart assertion:** on a production build, the armed
+        E2E-01/02 failed 4/4 with "the host death must restart the server
+        process" and 0 relaunches, while unarmed passed 4/4 with 4 relaunches.
+      - **What it means for past proofs:** every earlier QC-plan run of
+        `authority-recovery` was armed, so "survives restart" passed without
+        a restart. That includes the local proofs for #3346 and R11a part 1.
+        The nightly's unarmed rows were always sound: one death per test in
+        run 42845061314.
+      - **Interim:** E2E-01/02 run unarmed only, in the QC plan and the
+        nightly, with the restart assertion. No main run of any QC group or
+        union is armed (pinned). The QC unions `authority` and `all` used to
+        arm their members, which made E2E-06 and E2E-15 hollow there the same
+        way.
+      - **Closure:** C4 adds the seam after the journal-authority commit, then
+        puts E2E-01/02 back into the armed step with the same pin, where the
+        restart assertion proves the death.
+      - **Gate:** item 1 of the three above.
+    - **D-11 REGRESSED at `2fa5f0999` (Root ruling 2026-11-10 14:22Z), now
+      history (re-closed above).**
+      - **Cause:** #3305's tripod data is correct (C2 confirmed it against the
+        pinned MTF), but the `e2e/fixtures/mech-crew-save-losses.json` fixture
+        it meets is stale. The spec opens `triskelion-trk-4v` and
+        `poseidon-psd-v2`, both changed by #3305. The save dialog now also
+        lists "IS Endo-Composite — Center Leg [4]" and "Clan Ferro-Fibrous —
+        Center Leg [5]".
+      - **Evidence:** PR-gate run 42827238668 (#3347, merge ref `838fec85` on
+        `2fa5f0999`). 3 of the 4 `customizer-mech-crew-roster` tests fail (the
+        tripods); QuadVee passes.
+      - **Fix:** in flight on C3's `test/crew-roster-tripod-center-leg`, with
+        the fixture regenerated from the loader.
+      - **Re-close:** on a green Full E2E on a main that contains the fix.
+      - **The earlier close stays below as history:** closed on `73ef85c97` by
+        nightly 42814541429.
+      - **Process rule (Root):** a data PR greps `e2e/` specs and fixtures for
+        each changed unit id and its chassis and model names. Every
+        referencing spec runs on a production build of the trial, and the list
+        goes in the merge record.
+    - **D-11 CLOSED (re-ticked) on `73ef85c97`, now history (see above).**
+      - **Regression:** validation nightly 42795664179 on `3e96c2283` had 4
+        failures in `customizer-mech-crew-roster.spec.ts:185`. #3338's save
+        confirmation was not reflected in that spec; #3338 itself worked as
+        designed.
+      - **Fix:** C3's spec-only #3341 merged as `73ef85c97`.
+      - **Re-close run: Nightly Validation 42814541429 on `73ef85c97`, every job
+        success.** Full E2E 1,058 tests: 1,033 passed, 0 failed, **1 flaky**,
+        24 skipped.
+        - The flaky test is `e2e/saved-custom-combat-launch.spec.ts:229` (a
+          server-saved custom unit through production combat), which passed
+          on retry. It's **UNDER EXAMINATION, C4**, not a filed flake: a
+          server save followed by a launch that fails once has the same shape
+          as the service-worker save loss.
+        - The four `customizer-mech-crew-roster` tests passed on the first
+          attempt (retry 0).
+        - All six lanes, plus Recapture, Coverage and Stats, succeeded.
+      - **Evidence:** `d11-e2e/nightly-42814541429/`.
     - G14: C4, OPEN: hand play does not apply boosted MP; 2b must ship boost and
       pinned check together at replay version 3, after R11a. Evidence:
       `c1c-design/DESIGN.md`, `c1c-design/PAUSE-STATE.md`.
