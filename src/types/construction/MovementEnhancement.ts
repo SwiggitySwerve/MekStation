@@ -29,7 +29,8 @@ export enum MovementEnhancementType {
  * - 'masc-clan': Clan MASC (tonnage / 25, rounded to nearest whole ton)
  * - 'supercharger': Supercharger (engineWeight × 10%, rounded to 0.5t)
  * - 'tsm': TSM (0 weight, 6 slots)
- * - 'partial-wing': Partial Wing (tonnage × 5%, rounded to 0.5t, 6 slots)
+ * - 'partial-wing': Partial Wing (supply the equipment's techBase; the registry
+ *   owns technology-dependent weight, slots and cost)
  */
 export interface MovementEnhancementDefinition {
   readonly type: MovementEnhancementType;
