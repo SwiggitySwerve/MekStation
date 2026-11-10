@@ -1,5 +1,28 @@
 {
   "authority": "MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587: Mek.java:185-229 (GYRO_STRING, GYRO_SHORT_STRING, COCKPIT_STRING, COCKPIT_SHORT_STRING), Mek.java:4879-4898 and 5141-5372 (getMtf writer), MtfFile.java:252-272 and 366-369 and 566-598 (reader). See MTF_COMPONENT_VOCABULARY.md.",
+  "criticalSlotSystems": [
+    "Life Support",
+    "Sensors",
+    "Cockpit",
+    "Gyro",
+    "Shoulder",
+    "Upper Arm Actuator",
+    "Lower Arm Actuator",
+    "Hand Actuator",
+    "Hip",
+    "Upper Leg Actuator",
+    "Lower Leg Actuator",
+    "Foot Actuator",
+    "Upper Arm",
+    "Lower Arm",
+    "Hand",
+    "Upper Leg",
+    "Lower Leg",
+    "Foot",
+    "Engine",
+    "-Empty-",
+    "Empty"
+  ],
   "gyro": {
     "Standard Gyro": "STANDARD",
     "XL Gyro": "XL",

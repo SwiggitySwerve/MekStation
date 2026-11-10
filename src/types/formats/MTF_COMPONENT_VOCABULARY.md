@@ -106,3 +106,12 @@ alias for the Inner Sphere double.
 Known residual: Java takes the text after `gyro:` and `cockpit:` unchanged
 (`substring(5)`, `substring(8)`), so `cockpit: Small Cockpit` with a space does
 not match there, while the importer trims. No pinned source has the space.
+
+`criticalSlotSystems` owns exact fixed-system cell aliases, including the short
+actuator names emitted by the serializer. `MTFVocabulary.ts` combines them with
+the full engine, gyro and cockpit names already owned by the adapter vocabulary.
+`isMTFCriticalSlotSystemName` compares a bare token case-insensitively; callers
+parse native decorations first. Equipment containing a system word (Chain Whip,
+ISC3Sensors, ISShoulderTurret or a Re-engineered Laser) remains equipment.
+Recovery dispositions are selected by `criticalSlotNoticeEffects.ts` from resolved
+facts; broad notice patterns never grant recovery or decide residual membership.

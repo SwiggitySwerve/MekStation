@@ -31,7 +31,6 @@ import {
   splitPartners,
 } from '@/utils/construction/slotOperations/splitAllocation';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
-import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { createConfigurationMountedEquipment } from '@/utils/equipment/configurationMountedEquipment';
 import {
   ARMOR_SLOTS_EQUIPMENT_ID,
@@ -52,6 +51,7 @@ import type {
 } from './criticalSlotRecognitionTypes';
 
 import { mapMechLocation } from './componentMappers';
+import { classifyCriticalSlotRecoveryKind } from './criticalSlotNoticeEffects';
 export type {
   CriticalEntryEffect,
   CriticalEntryKind,
@@ -374,25 +374,6 @@ export function createCriticalSlotMarkerEquipment(
   });
 }
 
-function criticalEntryKind(slot: IResolvedCriticalSlot): CriticalEntryKind {
-  const marker = criticalSlotMarkers.get(
-    slot.parsedToken?.lookupToken.toLowerCase() ?? '',
-  );
-  if (marker?.kind === 'armor-marker' || marker?.kind === 'structure-marker')
-    return marker.kind;
-  if (slot.heatSinkType) return 'heat-sink';
-  if (slot.equipmentDef?.category === EquipmentCategory.AMMUNITION)
-    return 'ammunition';
-  if (slot.equipmentId === 'bomb-bay') return 'bomb-bay';
-  if (
-    slot.equipmentDef &&
-    (isWeaponCategory(slot.equipmentDef.category) ||
-      isSourcePhysicalWeapon(slot.equipmentId ?? ''))
-  )
-    return 'weapon';
-  return 'unclassified';
-}
-
 function representedCriticalSlots(
   equipment: readonly IMountedEquipmentInstance[],
 ): ReadonlyMap<MechLocation, ReadonlySet<number>> {
@@ -445,11 +426,19 @@ function recognizeResolvedCriticalSlotEntries(
       if (
         !text ||
         !parsedToken ||
-        equipmentNameResolver.isSystemComponent(text) ||
+        equipmentNameResolver.isSystemComponent(parsedToken.lookupToken) ||
         text === fixed?.get(index)
       )
         continue;
-      const kind = criticalEntryKind(slot);
+      const kind = classifyCriticalSlotRecoveryKind({
+        markerKind: criticalSlotMarkers.get(
+          parsedToken.lookupToken.toLowerCase(),
+        )?.kind,
+        heatSink: !!slot.heatSinkType,
+        equipmentCategory: slot.equipmentDef?.category,
+        equipmentId: slot.equipmentId,
+        physicalWeapon: isSourcePhysicalWeapon(slot.equipmentId ?? ''),
+      });
       cells.push({
         text,
         location,
