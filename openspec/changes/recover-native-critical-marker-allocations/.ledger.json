@@ -1,0 +1,6 @@
+{
+  "name": "recover-native-critical-marker-allocations",
+  "status": "in-progress",
+  "reason": "Root-approved local o3a build; acceptance census and merge remain coordinated and frozen.",
+  "lastReviewed": "2026-11-10"
+}

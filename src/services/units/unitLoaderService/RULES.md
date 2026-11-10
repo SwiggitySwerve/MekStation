@@ -1,5 +1,34 @@
 # Unit definition loading
 
+## Critical-entry recognition and sizing context
+
+`criticalSlotEquipment.ts` owns `recognizeCriticalSlotEntries`. It resolves
+source cells once, preserves raw/parsed token evidence, and computes actual
+primary/split/spread coverage. Recognition alone does not admit a new recovery
+kind. The diagnostic residual is the missing subset of those same facts.
+`mtf-component-vocabulary.json:criticalSlotMarkers` owns native marker names,
+material/tech metadata and individual pinned citations; no editor/saver names
+table is needed.
+
+Each entry carries `parsedToken.parameters`: both native `:SIZE:` and legacy
+parenthesized size (raw value and units included). The grammar follows MegaMek
+48fcb2f64 `MtfFile.java:207-227,1005-1009,1151-1155`. Malformed explicit size
+remains evidence, with no guessed default. Existing lookup spelling and rear/pod
+suffix semantics are unchanged.
+
+Recognition/recovery input includes current mounted equipment (including
+weapons), source locations, tonnage, tech, Omni status and optional system,
+configuration and engine context. Recovery dispatch receives its entry and all
+recognized entries at that location. Callers refresh current equipment after
+preceding weapon recovery before passing context to sizing owners.
+
+TC uses `weapons/utilities.ts` direct-fire tonnage and
+`targetingComputerUtils.ts` weight/slots, or the existing calculator formulas.
+This base has no callable AES mass/slot sizing owner. Cargo/communications mass
+exists in `vehicle/variableEquipmentMass.ts` under vehicle/support rounding;
+mech sizing requires a coordinated owner extension. Those are explicit PR-D
+prerequisites, not sizing formulas to add to a recovery switch.
+
 ## Unrecovered critical-slot diagnostics
 
 `criticalSlotEquipment.ts` owns both the recovered mounts and the remaining

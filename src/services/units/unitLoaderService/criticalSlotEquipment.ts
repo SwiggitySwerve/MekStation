@@ -1,4 +1,3 @@
-import type { UnitState } from '@/stores/unitState';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 import type { ISerializedEquipmentInput } from '@/types/unit/UnitSerialization';
 
@@ -15,6 +14,7 @@ import {
   createMountedEquipment,
   IMountedEquipmentInstance,
 } from '@/types/equipment/MountedEquipment';
+import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
 import {
   getEquipmentCritEntries,
   isSuperHeavy,
@@ -31,7 +31,26 @@ import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 import { generateUnitId } from '@/utils/uuid';
 
+import type {
+  CriticalEntryKind,
+  CriticalSlotSystemContext,
+  ICriticalSlotRecognitionInput,
+  ICriticalSlotRecognitionResult,
+  IRecognizedCriticalEntry,
+  UnitCriticalSlots,
+} from './criticalSlotRecognitionTypes';
+
 import { mapMechLocation } from './componentMappers';
+export type {
+  CriticalEntryEffect,
+  CriticalEntryKind,
+  CriticalSlotSystemContext,
+  ICriticalSlotRecognitionInput,
+  ICriticalSlotRecognitionResult,
+  ICriticalSlotRecoveryInput,
+  IRecognizedCriticalEntry,
+  UnitCriticalSlots,
+} from './criticalSlotRecognitionTypes';
 import {
   parseCriticalSlotToken,
   resolveEquipmentId,
@@ -45,10 +64,6 @@ import {
   sourceWeaponIdentity as criticalEquipmentId,
   takeSourceWeaponSlots as takeMatchingSlots,
 } from './sourceWeaponMounts';
-
-export type UnitCriticalSlots = Readonly<
-  Record<string, ReadonlyArray<string | null>>
->;
 
 export type ISerializedEquipmentPlacement = Pick<
   ISerializedEquipmentInput,
@@ -67,6 +82,7 @@ interface IResolvedCriticalSlot {
   readonly equipmentId?: string;
   readonly heatSinkType?: HeatSinkType;
   readonly isRearMounted: boolean;
+  readonly parsedToken?: ReturnType<typeof parseCriticalSlotToken>;
 }
 
 const HEAT_SINK_TYPE_BY_ID: Readonly<Partial<Record<string, HeatSinkType>>> = {
@@ -143,7 +159,8 @@ function resolveCriticalSlots(
       entries.map((entry, index) => {
         if (typeof entry !== 'string') return { index, isRearMounted: false };
 
-        const { lookupToken, isRearMounted } = parseCriticalSlotToken(entry);
+        const parsedToken = parseCriticalSlotToken(entry);
+        const { lookupToken, isRearMounted } = parsedToken;
         const original = resolveSlotIdentity(
           entry,
           unitTechBase,
@@ -172,6 +189,7 @@ function resolveCriticalSlots(
           equipmentId,
           heatSinkType,
           isRearMounted,
+          parsedToken,
         };
       }),
     );
@@ -306,10 +324,99 @@ export interface ICriticalSlotEquipmentResult {
   readonly unrecoveredCriticalSlots: readonly IUnrecoveredCriticalSlot[];
 }
 
-export type CriticalSlotSystemContext = Pick<
-  UnitState,
-  'engineType' | 'gyroType' | 'armActuators' | 'cockpitType'
->;
+const criticalSlotMarkers = new Map(
+  Object.entries(vocabulary.criticalSlotMarkers).map(([name, marker]) => [
+    name.toLowerCase(),
+    marker,
+  ]),
+);
+
+function criticalEntryKind(slot: IResolvedCriticalSlot): CriticalEntryKind {
+  const marker = criticalSlotMarkers.get(
+    slot.parsedToken?.lookupToken.toLowerCase() ?? '',
+  );
+  if (marker?.kind === 'armor-marker' || marker?.kind === 'structure-marker')
+    return marker.kind;
+  if (slot.heatSinkType) return 'heat-sink';
+  if (slot.equipmentDef?.category === EquipmentCategory.AMMUNITION)
+    return 'ammunition';
+  if (slot.equipmentId === 'bomb-bay') return 'bomb-bay';
+  return 'unclassified';
+}
+
+function recognizeResolvedCriticalSlotEntries(
+  input: ICriticalSlotRecognitionInput,
+  resolvedByLocation: ReadonlyMap<
+    MechLocation,
+    readonly IResolvedCriticalSlot[]
+  >,
+): ICriticalSlotRecognitionResult {
+  const represented = new Map<MechLocation, Set<number>>();
+  for (const item of input.equipment) {
+    for (const part of getSlotParts(item)) {
+      const slots = claimedSlotsFor(represented, part.location);
+      part.slots.forEach((slot) => slots.add(slot));
+    }
+  }
+  const cells: IRecognizedCriticalEntry[] = [];
+  for (const [location, slots] of resolvedByLocation) {
+    const systems = input.systems;
+    const fixed = systems
+      ? getFixedSlotNames(
+          location,
+          systems.engineType,
+          systems.gyroType,
+          systems.armActuators,
+          systems.cockpitType,
+        )
+      : undefined;
+    for (const slot of slots) {
+      const { text, parsedToken, index } = slot;
+      if (
+        !text ||
+        !parsedToken ||
+        equipmentNameResolver.isSystemComponent(text) ||
+        text === fixed?.get(index)
+      )
+        continue;
+      const kind = criticalEntryKind(slot);
+      cells.push({
+        text,
+        location,
+        slot: index,
+        parsedToken,
+        lookupToken: parsedToken.lookupToken,
+        equipmentId: slot.equipmentId,
+        definition: slot.equipmentDef,
+        kind,
+        effect:
+          kind === 'armor-marker' || kind === 'structure-marker'
+            ? 'placement-only'
+            : kind === 'unclassified'
+              ? 'unknown'
+              : 'equipment-or-ability',
+        isRearMounted: parsedToken.isRearMounted,
+        isOmniPodMounted: parsedToken.isOmniPodMounted,
+        represented: represented.get(location)?.has(index) ?? false,
+      });
+    }
+  }
+  return { cells, missing: cells.filter((cell) => !cell.represented) };
+}
+
+/** The sole source-cell recogniser; kind recognition does not imply recovery. */
+export function recognizeCriticalSlotEntries(
+  input: ICriticalSlotRecognitionInput,
+): ICriticalSlotRecognitionResult {
+  return recognizeResolvedCriticalSlotEntries(
+    input,
+    resolveCriticalSlots(
+      input.criticalSlots,
+      input.unitTechBase,
+      input.unitTechBaseMode,
+    ),
+  );
+}
 
 export function restoreCriticalSlotEquipmentWithDiagnostics(
   serialized: readonly ISerializedEquipmentPlacement[],
@@ -625,36 +732,23 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
         };
       });
 
-  // Read the actual final placements, including split/spread parts. Reservations
-  // for an unplaced listed mount do not preserve its source cells on save.
-  const represented = new Map<MechLocation, Set<number>>();
-  for (const item of restoredEquipment) {
-    for (const part of getSlotParts(item)) {
-      const slots = claimedSlotsFor(represented, part.location);
-      part.slots.forEach((slot) => slots.add(slot));
-    }
-  }
-  const unrecoveredCriticalSlots = Array.from(resolvedByLocation).flatMap(
-    ([location, slots]) => {
-      const fixed = systems
-        ? getFixedSlotNames(
-            location,
-            systems.engineType,
-            systems.gyroType,
-            systems.armActuators,
-            systems.cockpitType,
-          )
-        : undefined;
-      return slots.flatMap(({ text, index }) =>
-        text &&
-        !equipmentNameResolver.isSystemComponent(text) &&
-        text !== fixed?.get(index) &&
-        !represented.get(location)?.has(index)
-          ? [{ text, location, slot: index }]
-          : [],
-      );
+  const { missing } = recognizeResolvedCriticalSlotEntries(
+    {
+      criticalSlots,
+      equipment: restoredEquipment,
+      unitTechBase,
+      unitTechBaseMode,
+      tonnage,
+      isOmni,
+      systems,
     },
+    resolvedByLocation,
   );
+  const unrecoveredCriticalSlots = missing.map(({ text, location, slot }) => ({
+    text,
+    location,
+    slot,
+  }));
   return { equipment: restoredEquipment, unrecoveredCriticalSlots };
 }
 
