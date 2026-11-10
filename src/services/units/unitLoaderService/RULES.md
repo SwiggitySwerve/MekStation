@@ -34,6 +34,18 @@ and real round-trip tests enforce that contract. Marker-only saves still require
 `Save anyway`. Classifications and consequences are derived display values, not
 additional persisted, fingerprinted or replay fields.
 
+The placement-marker consequence is approved against the round-trip census at
+`73ef85c97` and
+`E:/Projects/Personal/_scratch/sm-audit-reports/parity-0c/runtime-path-family/roundtrip-mechs/marker-only-119/REPORT.md`
+(marker restoration attribution and record-sheet checks). Weight, validity and
+MP move on none of the 303 marker-only journeys; 119 have a BV change, and
+restoring all markers changes nothing on 118 of those. Striker STC-2L is the
+armor-identity exception: its Heat-Dissipating type and six marker cells both
+disappear. The armor-type warning must accompany the marker consequence whenever
+the mapper fallback applies, on open and throughout saving; the real Striker
+editor/save test pins both lines together. The marker sentence has no census
+counts. Its classification and loader-owned membership remain unchanged.
+
 Recovery responsibility uses the typed o3a, o3b, o3b-s, Celerity and PR-D
 buckets. Weapon controls and unassigned entries remain non-recovery dispositions.
 Conversion Gear, Avionics and Landing Gear are configuration system slots

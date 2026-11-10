@@ -107,7 +107,7 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
         CriticalSlotEntrySubkind.MARKERS,
         'Armor / structure markers',
         CriticalSlotRecoveryResponsibility.O3A,
-        'Marker placements are lost; configured armor and structure types, armor points and tonnage are kept. Effect on legality not established.',
+        'These structure and armor placement slots are not kept when you save. Weight, BV and validity are not affected, and the record sheet does not list them before or after saving.',
         'King Crab KGC-000',
         'marker configuration retained:',
       ),

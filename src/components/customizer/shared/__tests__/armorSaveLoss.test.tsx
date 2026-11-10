@@ -273,6 +273,58 @@ it('shows no armor warning or confirmation for supported Standard armor', async 
   expect(screen.queryByRole('button', { name: 'Save anyway' })).toBeNull();
 });
 
+it('Striker STC-2L keeps armor loss beside the exact marker consequence on open and save', async () => {
+  const { store, source, onSave, openSaveDialog } = open(
+    '6-dark-age/experimental/Striker STC-2L',
+  );
+  expect(source.id).toBe('striker-stc-2l');
+  expect(source.armor?.type).toBe('HEAT_DISSIPATING');
+  expect(store.getState().unrecoveredCriticalSlots).toEqual([
+    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 3 },
+    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 4 },
+    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 5 },
+    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 6 },
+    { text: 'IS Heat-Dissipating', location: 'Right Torso', slot: 5 },
+    { text: 'IS Heat-Dissipating', location: 'Right Torso', slot: 6 },
+  ]);
+  function expectBothConsequences(container: HTMLElement) {
+    const scope = within(container);
+    const armor = scope.getByRole('note', {
+      name: 'Armor configuration lost on save',
+    });
+    expect(
+      within(armor).getByText(
+        'Armor type HEAT_DISSIPATING is not kept; this design is shown and will be saved with Standard armor, so its displayed weight and BV may differ from the original.',
+        { exact: true },
+      ),
+    ).toBeVisible();
+    const markers = scope.getByRole('note', {
+      name: 'Critical-slot entries lost on save',
+    });
+    expect(
+      within(markers).getByText(
+        'These structure and armor placement slots are not kept when you save. Weight, BV and validity are not affected, and the record sheet does not list them before or after saving.',
+        { exact: true },
+      ),
+    ).toBeVisible();
+    expect(within(markers).getAllByRole('listitem')).toHaveLength(6);
+  }
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expectBothConsequences(document.body);
+  expect(onSave).not.toHaveBeenCalled();
+  openSaveDialog();
+  expectBothConsequences(screen.getByRole('dialog', { name: 'Save Unit' }));
+  await waitFor(() =>
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled(),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+  expectBothConsequences(
+    screen.getByRole('dialog', { name: 'Save with armor loss?' }),
+  );
+  expect(screen.getByRole('button', { name: 'Save anyway' })).toBeVisible();
+  expect(onSave).not.toHaveBeenCalled();
+});
+
 it('proves Patchwork source identity and per-location types are lost on save/reopen', () => {
   const loader = new UnitLoaderService();
   const state = loader.mapToUnitState(parseUnit(zeus), true);
