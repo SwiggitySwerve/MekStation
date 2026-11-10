@@ -29,7 +29,6 @@ import {
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
-import { generateUnitId } from '@/utils/uuid';
 
 import type {
   CriticalEntryKind,
@@ -58,6 +57,7 @@ import {
   resolveEquipmentId,
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
+import { recoveredMountInstanceId } from './mountInstanceId';
 import {
   compareSourceCriticalLocations,
   type ISourceCriticalWeapon,
@@ -489,7 +489,18 @@ export function recoverCriticalSlotEntries(
           sink.criticalSlots,
         );
         return matching.length === sink.criticalSlots
-          ? [{ ...sink, location, slots: matching.map((cell) => cell.index) }]
+          ? [
+              {
+                ...sink,
+                instanceId: recoveredMountInstanceId(
+                  location,
+                  sink.equipmentId,
+                  matching.map((cell) => cell.index),
+                ),
+                location,
+                slots: matching.map((cell) => cell.index),
+              },
+            ]
           : [];
       }
       const definition = entry.definition;
@@ -508,7 +519,11 @@ export function recoverCriticalSlotEntries(
             {
               ...createMountedEquipment(
                 { ...definition, criticalSlots: count },
-                generateUnitId(),
+                recoveredMountInstanceId(
+                  location,
+                  definition.id,
+                  matching.map((cell) => cell.index),
+                ),
               ),
               location,
               slots: matching.map((cell) => cell.index),
@@ -532,7 +547,14 @@ export function recoverCriticalSlotEntries(
       const { summaryIds: _summaryIds, ...placement } = mount;
       return [
         {
-          ...createMountedEquipment(entry.definition, generateUnitId()),
+          ...createMountedEquipment(
+            entry.definition,
+            recoveredMountInstanceId(
+              mount.location,
+              entry.definition.id,
+              mount.slots,
+            ),
+          ),
           ...placement,
         },
       ];
