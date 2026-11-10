@@ -10,7 +10,6 @@
  * the spec:
  *   - Aerospace Bombs tab: hidden for conventional fighters
  *   - Infantry Field Guns tab: hidden for Jump / Mechanized motive types
- *   - ProtoMech Glider tab: hidden for Ultraheavy (tonnage >= 10)
  *
  * Tab sharing:
  *   - Fluff IS genuinely shared — `FluffTab` is store-decoupled, so one
@@ -51,7 +50,6 @@ import { InfantrySpecializationTab } from '@/components/customizer/infantry/Infa
 // ProtoMech tabs
 import { ProtoMechArmorTab } from '@/components/customizer/protomech/ProtoMechArmorTab';
 import { ProtoMechEquipmentTab } from '@/components/customizer/protomech/ProtoMechEquipmentTab';
-import { ProtoMechGliderTab } from '@/components/customizer/protomech/ProtoMechGliderTab';
 import { ProtoMechMainGunTab } from '@/components/customizer/protomech/ProtoMechMainGunTab';
 import { ProtoMechStructureTab } from '@/components/customizer/protomech/ProtoMechStructureTab';
 // Mech-specific tabs (used by mech registry)
@@ -71,7 +69,6 @@ import { VehicleTurretTab } from '@/components/customizer/vehicle/VehicleTurretT
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import { AerospaceState } from '@/stores/aerospaceState';
 import { InfantryState } from '@/stores/infantryState';
-import { ProtoMechState } from '@/stores/protoMechState';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 
@@ -127,7 +124,6 @@ const ICONS = {
   specialization:
     'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z',
   maingun: 'M20 12H4M20 12l-4-4m4 4l-4 4',
-  glider: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8',
 };
 
 // =============================================================================
@@ -437,20 +433,15 @@ export const INFANTRY_TABS: TabSpec<InfantryVisibilityState>[] = [
 // ProtoMech tab registry
 // =============================================================================
 
-/** Shape of the state snapshot passed to ProtoMech visibleWhen predicates */
-type ProtoMechVisibilityState = Pick<ProtoMechState, 'tonnage'>;
-
-/** ProtoMechs at or above 10 tonnes are Ultraheavy and cannot use glider rules */
-const PROTOMECH_ULTRAHEAVY_THRESHOLD = 10;
-
 /**
  * Canonical ProtoMech tab set.
  *
- * Overview / Structure / Armor / Main Gun / Equipment / Glider / Preview / Fluff
+ * Overview / Structure / Armor / Main Gun / Equipment / Preview / Fluff
  *
- * Glider tab hidden for Ultraheavy ProtoMechs (tonnage >= 10).
+ * There is no Glider tab: MegaMekLab 62bf193 PMMainUI has none, and glider is the
+ * motive choice in PMChassisView, which the Structure tab's chassis radio mirrors.
  */
-export const PROTOMECH_TABS: TabSpec<ProtoMechVisibilityState>[] = [
+export const PROTOMECH_TABS: TabSpec[] = [
   overviewSpecFor(UnitType.PROTOMECH),
   {
     id: 'structure',
@@ -475,13 +466,6 @@ export const PROTOMECH_TABS: TabSpec<ProtoMechVisibilityState>[] = [
     label: 'Equipment',
     icon: iconSvg(ICONS.equipment),
     component: ProtoMechEquipmentTab,
-  },
-  {
-    id: 'glider',
-    label: 'Glider',
-    icon: iconSvg(ICONS.glider),
-    component: ProtoMechGliderTab,
-    visibleWhen: (s) => s.tonnage < PROTOMECH_ULTRAHEAVY_THRESHOLD,
   },
   previewSpecFor(UnitType.PROTOMECH),
   SHARED_FLUFF,

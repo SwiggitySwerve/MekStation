@@ -20,8 +20,8 @@ const nativeLocations = new Map<
 /**
  * Read-only baseline trace adapter. RULES.md documents the inherited empty
  * type/weight stages at MegaMek 48fcb2f6; the local summary has no chassis
- * adjustment. Mount keys retain local input identities; consumers compare
- * values within known native locations. Ammo terms transport optional owner facts.
+ * adjustment. Weapon keys use optional native indices with a local fallback;
+ * ids retain input identities. Ammo terms transport optional owner facts.
  */
 export function protoMechBVTerms(
   b: IProtoMechBVBreakdown,
@@ -40,7 +40,7 @@ export function protoMechBVTerms(
     const location = nativeLocations.get(fact.location);
     if (location === undefined) continue;
     weaponTerms[
-      `weapon.${fact.equipmentIndex}.${location.abbreviation}.${fact.equipmentId}`
+      `weapon.${fact.nativeEquipmentIndex ?? fact.equipmentIndex}.${location.abbreviation}.${fact.equipmentId}`
     ] = fact.battleValue;
   }
   const equipmentTerms: Record<`equipment.native.${number}.${string}`, number> =

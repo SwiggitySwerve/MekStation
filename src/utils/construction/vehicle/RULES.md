@@ -793,7 +793,8 @@ The base and Bombast Chalchiuhtotolin sources therefore carry 7 and 7.5 tons
 of armor, respectively (`TestEntity.java:584-604`; `BLKTankFile.java:284-304`).
 
 Native Tank weight transport reuses the guarded lookup-token owner only for
-`ISLMGA(ST)` and its `:OMNI` form, selecting the ISLMGA identity and 0.5-ton
+decorated Inner Sphere arrays (`ISLMGA(ST)` and its `:OMNI` form here; the
+whole family is in "Decorated array weight token" below), selecting the ISLMGA identity and 0.5-ton
 mass for construction. Public equipment lookup identities remain unchanged,
 including the legacy `lmga` target for these decorated inputs. The native
 weight selection matches plain
@@ -1127,7 +1128,8 @@ now exact. The editor path does not read the tag yet (it needs the field plumbed
 through the vehicle store, registry, persistence and snapshot contract), so for an
 Omni support chassis the editor still shows the weapon-based fire-control mass.
 The basis also excludes non-support infantry weapons (`F_INFANTRY` without
-`F_INF_SUPPORT`); not modelled, no closed source depends on it.
+`F_INF_SUPPORT`) and anti-missile systems; see "Support miscellaneous masses and
+the fire-control basis" below.
 
 `internal_type -1` (MegaMek `T_STRUCTURE_UNKNOWN`) never reaches a support
 structure mass, which ignores the structure type
@@ -1171,13 +1173,83 @@ battle-armor gun misidentification stands (Java 0.001 t each).
 Verified against the pinned verifier (`supportMechanisms.pinned.{json,test.ts}`):
 Apocalypse World Rover, Heavy Combat ATV, Ibex RV (Militarized LDGR) and Outrider
 equal Java in weapons, miscellaneous equipment and total. The Dreadnought Mk II
-Land Train's sponsons (0.25 t each) and every other term equal Java; its total
-is 0.5 t short because `ISMGA(ST)` reaches the 0.25 t `mga` entry where Java's
-ISMGA weighs 0.5 t, the same identity gap the combat path closes for `ISLMGA(ST)`
-above. Pinning the registry mass through the injected lookup closes it to 200 t.
-That identity fix is a separate change (the lookup token owner is shared with the
-combat path) and is reported, not made here.
+Land Train's sponsons (0.25 t each) equal Java. Its `ISMGA(ST)` arrays reached
+the 0.25 t `mga` entry where Java's ISMGA weighs 0.5 t, which left its total 0.5 t
+short until the "Decorated array weight token" section below; the row now equals
+Java at 200 t.
 
 Not modelled: the sponson Omni branch has no corpus source and the support unit
 does not expose `isOmni`; clip ammunition mass and the `Machine Gun (Light)`
 identity stay as listed in the small-vehicle section above.
+
+## Decorated array weight token (pinned)
+
+MegaMek loads `ISMGA`, `ISLMGA` and `ISHMGA` as 0.5 t each (`ISMGA.java:70-83`,
+`ISLightMGA.java:69-82`, `ISHeavyMGA.java:70-83` at 48fcb2f64). The BV catalog
+matches the decorated source tokens (`(ST)` sponson, `:OMNI`) by name to the
+0.25 t `mga`, `lmga` and `hmga` stubs, so a decorated Inner Sphere array weighed
+half its Java mass wherever the weight owners did not step around it.
+
+`getNativeWeightLookupToken` in `equipmentBV/normalization.ts` is the one owner of
+that step. It returns the plain array token for the decorated Inner Sphere
+arrays (`ISMGA`, `ISLMGA`, `ISHMGA` with `(ST)`, `(ST):OMNI` or `:OMNI`) and every
+other source token unchanged. Both weight owners resolve through it: the combat
+Tank/VTOL transport (`vehicleHandlerWeight.ts`, which held the `ISLMGA(ST)`
+predicate inline) and the support registry mass (`supportRegistryMass.ts`).
+Public equipment lookup identities are unchanged. Clan arrays (`CLMGA`, `CLLMGA`,
+`CLHMGA`) resolve to the same 0.25 t entry with or without the decorator and stay
+outside the guard. Plain `ISMGA`, `ISLMGA` and `ISHMGA`, and `ISLMGA:OMNI`, already
+reached the 0.5 t registry entry directly.
+
+Corpus effect: the combat Tank and VTOL breakdowns are unchanged (the only
+combat source with a decorated array is Myrmidon P, `ISLMGA(ST)`, already 0.5 t),
+and the Dreadnought Mk II Land Train's two `ISMGA(ST)` arrays now weigh 0.5 t, so
+its weapons (32 t), miscellaneous equipment (10 t) and total (200 t) equal Java.
+
+## Support miscellaneous masses and the fire-control basis (pinned)
+
+Pinned with 74 synthetic support sources (a 50 t and a 1 t tank and a 60 t VTOL
+built from corpus excerpts) through the original MegaMek 48fcb2f64 verifier:
+
+- **Ladder:** `RoundWeight.nearestKg(size / 200)` whatever the vehicle
+  (`MiscType.java:841-843`); fractional sizes confirm nearest, not next, kg.
+- **Fluid Suction System (Standard):** a fixed 1 t, assigned after the variable
+  placeholder (`MiscType.java:7578-7583`). The catalog tags it "Variable weight"
+  without a rule, which left the owner reporting it unresolved while charging 1 t.
+- **Dumper:** `RoundWeight.STANDARD(0.05 x linked cargo size)` (`Mounted.java:729-738`):
+  next kg under the small-support standard, next half ton otherwise. The link is
+  the first unlinked variable `Cargo` in the dumper's own location, whatever the
+  order (`MekFileParser.java:854-885`). A second dumper, a cargo in another
+  location, no cargo, or only Liquid Storage gives zero.
+- **Fire-control basis** (`MiscType.java:714-722`): weapon tonnage except
+  anti-missile systems and non-support infantry weapons.
+
+`variableEquipmentMass.ts` owns all of it: the ladder and fluid rules in
+`resolveVehicleVariableMass`, `applyVehicleDumperWeights` (one pass, like the
+sponson and pintle pass in `turret.ts`) and `isFireControlBasisWeapon`. The
+support payload and the editor (`mountedWeight.ts`) call the same functions. The
+support split reads the Java class from the registry: `isInfantrySupportWeapon`
+(`ammunitionCompatibility.ts`, beside `isFireWeaponCategory`) matches
+`InfantrySupport*` and `InfantryGrenade*`, which equals `F_INF_SUPPORT` on all 104
+infantry-only registry weapons (static read of the pinned weapon classes). The BV
+catalog carries the class as `subType`; the editor's items only in their `special`
+source reference, so the predicate reads either. The AMS ids are the one
+`AMS_WEAPON_IDS` in `equipmentConstants.ts`, shared with the equipment browser.
+
+Not modelled: a dumper's `DWP`/squad adjustments and a cargo whose own mass is
+unresolved (no corpus source), and the editor's Omni fire-control mass.
+
+## Manipulator and Nova CEWS spellings (pinned)
+
+The BLK files name the manipulator `Manipulator (Non-Mech/Non-Battle Armor)`,
+MegaMek's internal name (`EquipmentTypeLookup.java:342`); the catalog entry, 0.01 t
+as `MiscType.java:7694-7703`, is named `...Non-BattleArmor)`. The unit loader
+resolved the BLK spelling, the BV lookup the support payload uses did not, so the
+eight sources that mount it reported the manipulator unresolved. `Nova CEWS` is a
+registered lookup name of NovaCEWS (`MiscType.java:6192-6193`) that resolved
+nowhere; every corpus file mounts `NovaCEWS`, so this affects only hand-written
+and exported display names. Both are lines in `NATIVE_IDENTITY_CORRECTIONS`
+(`equipmentBV/sourceLookupAliases.ts`), the native-name owner where `novacews`
+already lives, so the loader, registry, BV and printing paths agree. No catalog
+entry changed. A Nova CEWS tank weighs 3.5 t more than the same tank without it:
+1.5 t of equipment and 2 t of heat sinks (pinned sweep rows).

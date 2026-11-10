@@ -1,3 +1,5 @@
+import type { ISerializedEquipmentInput } from '@/types/unit/UnitSerialization';
+
 import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
@@ -16,16 +18,13 @@ import {
 } from '@/utils/construction/constructionRules/tonnage';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import {
   isSplittable,
   splitPartners,
 } from '@/utils/construction/slotOperations/splitAllocation';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
-import {
-  BIPED_LOCATIONS,
-  QUAD_LOCATIONS,
-} from '@/utils/mech/mechLocationRegistry';
 import { generateUnitId } from '@/utils/uuid';
 
 import { mapMechLocation } from './componentMappers';
@@ -35,8 +34,9 @@ import {
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
 import {
-  canRecoverSourcePhysicalWeapon,
-  groupSourcePhysicalMounts,
+  isSourcePhysicalWeapon,
+  sourceCriticalWeapons,
+  sourceWeaponSummaryMatches,
   sourceWeaponIdentity as criticalEquipmentId,
   takeSourceWeaponSlots as takeMatchingSlots,
 } from './sourceWeaponMounts';
@@ -45,12 +45,15 @@ export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
 >;
 
-export interface ISerializedEquipmentPlacement {
-  readonly id: string;
-  readonly slots?: readonly number[];
-  readonly isRearMounted?: boolean;
-  readonly isRemovable?: boolean;
-}
+export type ISerializedEquipmentPlacement = Pick<
+  ISerializedEquipmentInput,
+  | 'id'
+  | 'isAmmo'
+  | 'slots'
+  | 'isRearMounted'
+  | 'isRemovable'
+  | 'isOmniPodMounted'
+>;
 
 interface IResolvedCriticalSlot {
   readonly index: number;
@@ -232,14 +235,63 @@ function restoreSerializedHeatSink(
     : item;
 }
 
-function isOmniPodSlot(
-  criticalSlots: UnitCriticalSlots | undefined,
-  location: MechLocation,
-  index: number,
-): boolean {
-  const token =
-    getCriticalSlotsForLocation(criticalSlots, location)?.[index] ?? '';
-  return /\(OMNIPOD\)(?:\s*\(ARMORED\))?\s*$/i.test(token);
+function restoreSerializedCategory(
+  source: ISerializedEquipmentPlacement,
+  item: IMountedEquipmentInstance,
+  resolvedByLocation: ReadonlyMap<
+    MechLocation,
+    readonly IResolvedCriticalSlot[]
+  >,
+  entries: (count: number) => number,
+): IMountedEquipmentInstance {
+  let isAmmo = source.isAmmo;
+  const explicit = isAmmo !== undefined;
+  if (isAmmo === undefined) {
+    if (
+      !item.location ||
+      !source.slots?.length ||
+      new Set(source.slots).size !== source.slots.length
+    )
+      return item;
+    const locationSlots = resolvedByLocation.get(item.location);
+    const ownSlots = source.slots.map((index) =>
+      Number.isInteger(index) && index >= 0
+        ? locationSlots?.[index]
+        : undefined,
+    );
+    const first = ownSlots[0]?.equipmentDef;
+    if (
+      !first ||
+      !ownSlots.every(
+        (slot) =>
+          slot?.equipmentDef &&
+          criticalEquipmentId(slot.equipmentId ?? '') ===
+            criticalEquipmentId(source.id) &&
+          (slot.equipmentDef.category === EquipmentCategory.AMMUNITION) ===
+            (first.category === EquipmentCategory.AMMUNITION),
+      )
+    )
+      return item;
+    isAmmo = first.category === EquipmentCategory.AMMUNITION;
+  }
+  const lookup = getEquipmentLookupService();
+  // Saved IDs can carry opposite-tech ammo even on a pure-tech definition.
+  // Only unresolved source aliases use the already resolved ID as a fallback.
+  const identity = lookup.getById(source.id) ? source.id : item.equipmentId;
+  const definition = lookup.getMountedById(identity, isAmmo);
+  if (
+    !definition ||
+    (definition.category === EquipmentCategory.AMMUNITION) !== isAmmo
+  ) {
+    if (explicit)
+      throw new Error(
+        `Equipment ${source.id} has no ${isAmmo ? 'ammunition' : 'non-ammunition'} definition`,
+      );
+    return item;
+  }
+  if (!explicit && entries(definition.criticalSlots) !== source.slots?.length)
+    return item;
+  return { ...item, ...mountedDefinitionFields(definition) };
 }
 
 export function restoreCriticalSlotEquipment(
@@ -255,13 +307,27 @@ export function restoreCriticalSlotEquipment(
   const superheavy = tonnage !== undefined && isSuperHeavy(tonnage);
   const entries = (count: number): number =>
     getEquipmentCritEntries(count, superheavy);
+  const resolvedByLocation = resolveCriticalSlots(
+    criticalSlots,
+    unitTechBase,
+    unitTechBaseMode,
+  );
   const normalizedMapped = mapped.map((item, index) => {
-    const restored = restoreSerializedHeatSink(serialized[index], item);
+    const categorized = restoreSerializedCategory(
+      serialized[index],
+      item,
+      resolvedByLocation,
+      entries,
+    );
+    const restored = restoreSerializedHeatSink(serialized[index], categorized);
     const sizing =
-      criticalEquipmentId(restored.equipmentId) === 'claw' &&
+      isSourcePhysicalWeapon(restored.equipmentId) &&
+      getEquipmentCalculatorService().isVariable(
+        criticalEquipmentId(restored.equipmentId),
+      ) &&
       tonnage !== undefined
         ? getEquipmentCalculatorService().calculateProperties(
-            restored.equipmentId,
+            criticalEquipmentId(restored.equipmentId),
             {
               tonnage,
             },
@@ -275,11 +341,6 @@ export function restoreCriticalSlotEquipment(
   });
   if (!criticalSlots) return normalizedMapped;
 
-  const resolvedByLocation = resolveCriticalSlots(
-    criticalSlots,
-    unitTechBase,
-    unitTechBaseMode,
-  );
   const claimed = new Map<MechLocation, Set<number>>();
 
   serialized.forEach((source, index) => {
@@ -372,56 +433,8 @@ export function restoreCriticalSlotEquipment(
   const recovered: IMountedEquipmentInstance[] = [];
   for (const [location, slots] of Array.from(resolvedByLocation)) {
     const claimedAtLocation = claimedSlotsFor(claimed, location);
-    const handledPhysical = new Set<string>();
     for (const slot of slots) {
       if (claimedAtLocation.has(slot.index) || !slot.equipmentId) continue;
-      const physicalId = criticalEquipmentId(slot.equipmentId);
-
-      // FU-101: only audited sizing classes; other prerequisites
-      // remain with CAT-Q2. MtfFile.java:1133-1175 groups a physical mount.
-      if (
-        tonnage !== undefined &&
-        slot.equipmentDef?.category === EquipmentCategory.PHYSICAL_WEAPON &&
-        canRecoverSourcePhysicalWeapon(physicalId)
-      ) {
-        if (handledPhysical.has(physicalId)) continue;
-        handledPhysical.add(physicalId);
-        const properties = getEquipmentCalculatorService().calculateProperties(
-          slot.equipmentId,
-          { tonnage },
-        );
-        const count = entries(properties.criticalSlots);
-        if (count <= 0) continue;
-        const existing = placed.filter(
-          (item) =>
-            criticalEquipmentId(item.equipmentId) === physicalId &&
-            (item.location === location ||
-              item.splitSlots?.location === location),
-        );
-        const groups = groupSourcePhysicalMounts(
-          slots,
-          claimedAtLocation,
-          slot.equipmentId,
-          count,
-          existing.length,
-        );
-        claim(claimedAtLocation, groups.claimed);
-        for (const matching of groups.mounts) {
-          recovered.push({
-            ...createMountedEquipment(
-              { ...slot.equipmentDef, ...properties, criticalSlots: count },
-              generateUnitId(),
-              true,
-              isOmniPodSlot(criticalSlots, location, matching[0].index),
-            ),
-            location,
-            slots: matching.map((s) => s.index),
-            isRearMounted: matching[0].isRearMounted,
-          });
-        }
-        continue;
-      }
-
       // A unit whose own summary is empty historically skipped ammo/heat-sink
       // restoration (mapEquipment's early return). mapEquipment passes
       // physicalOnly to keep that contract; direct callers keep full restoration.
@@ -485,56 +498,69 @@ export function restoreCriticalSlotEquipment(
     }
   }
 
-  // MtfFile.java:1053-1068 shares one Talons mount across all native leg cells.
-  const talonParts = Array.from(resolvedByLocation).flatMap(
-    ([location, slots]) => {
-      const matching = slots.filter((slot) => slot.equipmentId === 'talons');
-      return matching.length
-        ? [
-            {
-              location,
-              slots: matching.map((slot) => slot.index),
-              definition: matching[0].equipmentDef,
-            },
-          ]
-        : [];
-    },
-  );
-  const first = talonParts[0];
-  if (tonnage !== undefined && first?.definition) {
-    const isQuad = talonParts.some(
-      (part) =>
-        QUAD_LOCATIONS.includes(part.location) &&
-        !BIPED_LOCATIONS.includes(part.location),
-    );
-    const properties = getEquipmentCalculatorService().calculateProperties(
-      'talons',
-      { tonnage, isQuad },
-    );
-    if (
-      talonParts.reduce((sum, part) => sum + part.slots.length, 0) ===
-      properties.criticalSlots
-    ) {
-      const index = placed.findIndex((item) => item.equipmentId === 'talons');
-      const mount = {
-        ...(placed[index] ??
-          createMountedEquipment(
-            first.definition,
-            generateUnitId(),
-            true,
-            isOmniPodSlot(criticalSlots, first.location, first.slots[0]),
-          )),
-        weight: properties.weight,
-        criticalSlots: properties.criticalSlots,
-        location: first.location,
-        slots: first.slots,
-        splitSlots: undefined,
-        spreadSlots: talonParts
-          .slice(1)
-          .map(({ location, slots }) => ({ location, slots })),
-      };
-      if (index < 0) recovered.push(mount);
-      else placed[index] = mount;
+  if (tonnage !== undefined) {
+    const consumed = new Set<number>();
+    for (const mount of sourceCriticalWeapons(
+      criticalSlots,
+      tonnage,
+      unitTechBase === TechBase.CLAN,
+    )) {
+      const { summaryIds: _summaryIds, ...placement } = mount;
+      const index = placed.findIndex(
+        (item, i) =>
+          !consumed.has(i) &&
+          (sourceWeaponSummaryMatches(
+            mount,
+            item.equipmentId,
+            item.location ?? '',
+            serialized[i].slots,
+          ) ||
+            sourceWeaponSummaryMatches(
+              mount,
+              serialized[i].id,
+              item.location ?? '',
+              serialized[i].slots,
+            )),
+      );
+      if (index >= 0) {
+        consumed.add(index);
+        if (
+          isSourcePhysicalWeapon(mount.equipmentId) ||
+          (serialized[index].slots !== undefined && mount.splitSlots)
+        ) {
+          placed[index] = {
+            ...placed[index],
+            ...placement,
+            equipmentId: placed[index].equipmentId,
+            isRearMounted:
+              serialized[index].isRearMounted ?? mount.isRearMounted,
+            isOmniPodMounted:
+              serialized[index].isOmniPodMounted ?? mount.isOmniPodMounted,
+          };
+        }
+        continue;
+      }
+      // Legacy saves may reserve more cells than the current entry demand.
+      // Keep that allocation for validation instead of inventing extra mounts.
+      if (
+        getSlotParts(mount).some((part) =>
+          part.slots.some(
+            (index) => claimed.get(part.location)?.has(index) === true,
+          ),
+        )
+      )
+        continue;
+      const definition = resolvedByLocation
+        .get(mount.location)
+        ?.find(
+          (slot) =>
+            criticalEquipmentId(slot.equipmentId ?? '') === mount.equipmentId,
+        )?.equipmentDef;
+      if (!definition) continue;
+      recovered.push({
+        ...createMountedEquipment(definition, generateUnitId()),
+        ...placement,
+      });
     }
   }
 

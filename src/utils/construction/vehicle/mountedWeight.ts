@@ -39,6 +39,9 @@ import {
   isVehicleMechanismMountId,
 } from './turret';
 import {
+  applyVehicleDumperWeights,
+  isFireControlBasisWeapon,
+  isVehicleDumperId,
   resolveVehicleAccessoryMass,
   resolveVehicleVariableMass,
 } from './variableEquipmentMass';
@@ -232,8 +235,12 @@ export function computeVehicleMountedWeightFigures(
     return null;
   };
   if (state.tonnage !== undefined) {
+    // MiscType.java:714-722: AMS and non-support infantry weapons are not basis.
     const weaponWeight = sum(
-      mounted.filter((m) => m.weapon),
+      mounted.filter(
+        (m) =>
+          m.item !== undefined && m.weapon && isFireControlBasisWeapon(m.item),
+      ),
       'Fire control basis',
     );
     for (const mount of mounted)
@@ -274,6 +281,18 @@ export function computeVehicleMountedWeightFigures(
                 { directFireWeaponTonnage },
               );
   }
+  // Mounted.java:729-738: dumpers weigh from their linked cargo, one owner for
+  // the editor and the support handler.
+  if (state.tonnage !== undefined)
+    applyVehicleDumperWeights(mounted, {
+      tonnage: state.tonnage,
+      isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+    });
+  for (const mount of mounted)
+    if (isVehicleDumperId(mount.id) && mount.weight === null) {
+      unresolvedMountIds.push(mount.instanceId);
+      issues.push(`Mount ${mount.instanceId}: invalid dumper cargo size`);
+    }
   // MiscType.java:563-603: the sponson and pintle mechanisms, one owner for the
   // editor and the support handler.
   const mechanisms = applyVehicleMountMechanismWeights(mounted, {

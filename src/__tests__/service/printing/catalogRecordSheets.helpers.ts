@@ -235,15 +235,21 @@ export function verifyCatalogUnit(
           .map((a) => a.location),
         [],
       );
-      check(
-        'barRating',
-        data.barRating,
-        source.unitType === 'Support Vehicle'
-          ? source.armor?.barRating
-          : undefined,
-      );
+      // MML PrintEntity.drawArmor: only support vehicles with BAR armor.
+      const expectedBar =
+        source.unitType === 'Support Vehicle' && source.armor?.type === 'BAR'
+          ? source.armor.barRating
+          : undefined;
+      check('barRating', data.barRating, expectedBar);
       checkEquipment(data.equipment, state.equipment, check);
       const bindings = bindVehicle(data);
+      // PrintEntity.drawArmor prints "BAR: <rating>" as the armor type for BAR
+      // support vehicles (PrintTank does not override it).
+      check(
+        'binding.armorType',
+        bindings.texts.armorType,
+        expectedBar !== undefined ? `BAR: ${expectedBar}` : data.armorType,
+      );
       const printedPips: Record<string, number | undefined> = {
         ...bindings.pipCounts,
       };
@@ -420,12 +426,71 @@ export function verifyCatalogUnit(
         [state.groundMP, state.jumpMP, state.umuMP],
       );
       const bindings = bindBattleArmor(data);
+      const suits = Array.from({ length: state.squadSize }, (_, i) => i);
       check(
         'armor',
         bindings.pipCounts.troopers.map((t) => t.armorPips),
         Array(state.squadSize).fill(state.armorPerTrooper),
       );
+      // One trooper per suit, numbered 1..n and laid out in columns 0..n-1.
+      check(
+        'squadSize',
+        [data.squadSize, data.troopers.length],
+        [state.squadSize, state.squadSize],
+      );
+      check(
+        'troopers.index',
+        data.troopers.map((t) => t.index),
+        suits.map((i) => i + 1),
+      );
+      check(
+        'troopers.column',
+        bindings.pipCounts.troopers.map((t) => t.column),
+        suits,
+      );
+      // PrintBattleArmor.drawArmor draws getOArmor + 1 pips: the maximum is the
+      // original armor, which is the domain armor of a fresh squad.
+      check(
+        'maximumArmor',
+        data.troopers.map((t) => t.maximumArmorPips),
+        Array(state.squadSize).fill(state.armorPerTrooper),
+      );
+      check(
+        'skills',
+        [bindings.texts.gunnerySkill0, bindings.texts.pilotingSkill0],
+        [`${data.troopers[0]?.gunnery}`, `${data.troopers[0]?.antiMech}`],
+      );
+      // PrintBattleArmor.squadName(): by squad size, single squad per sheet.
+      const squadName =
+        { 1: 'SUIT', 3: 'UN', 5: 'POINT', 6: 'LEVEL I' }[state.squadSize] ??
+        'SQUAD';
+      check('squadLabel', bindings.texts.squad, `BATTLE ARMOR: ${squadName} 1`);
+      // PrintBattleArmor.writeTextFields: the second movement line follows the
+      // movement mode (VTOL prints the jump MP), and other modes hide it.
+      const line =
+        source.motionType === 'JUMP'
+          ? ['Jump MP:', state.jumpMP]
+          : source.motionType === 'VTOL'
+            ? ['VTOL MP:', state.jumpMP]
+            : source.motionType === 'UMU'
+              ? ['UW MP:', state.umuMP]
+              : undefined;
+      check(
+        'movementLine',
+        [bindings.texts.movement_mode_2, bindings.texts.mp_2],
+        line ? [line[0], `${line[1]}`] : [undefined, undefined],
+      );
+      // hideElement(SUIT + i) for every suit beyond the squad.
+      check(
+        'suits.hidden',
+        [...bindings.hiddenIds].sort(),
+        Array.from({ length: 6 }, (_, i) => i)
+          .filter((i) => i >= state.squadSize)
+          .map((i) => `suit${i}`)
+          .sort(),
+      );
       row.template = selectBattleArmorTemplate(data);
+      check('template', row.template, 'battle_armor_squad');
     } else if (family === 'infantry') {
       const config = mapInfantryDefinition(source);
       const state = { ...createDefaultInfantryState(config), ...config };
@@ -801,6 +866,7 @@ export function defineCatalogFamilyParity(
                     (family === 'vehicles' &&
                       (d.field.startsWith('armor.') ||
                         d.field.startsWith('pips.') ||
+                        d.field === 'binding.armorType' ||
                         d.field === 'barRating')) ||
                     (family === 'aerospace' &&
                       (d.field.startsWith('armor.') ||

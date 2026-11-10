@@ -156,6 +156,14 @@ export interface IBattleArmorRecordSheetData {
   readonly walkMP: number;
   readonly umuMP: number;
   readonly vtolMP: number;
+  /**
+   * The squad's movement mode, which picks the second movement line
+   * (MML `PrintBattleArmor.writeTextFields`): jump prints "Jump MP:", VTOL
+   * prints "VTOL MP:" with the jump MP, UMU prints "UW MP:", and ground modes
+   * print none. Absent on legacy payloads, which fall back to the first
+   * non-zero of jump, VTOL, UMU.
+   */
+  readonly movementMode?: 'ground' | 'jump' | 'vtol' | 'umu';
   readonly specialAbilities?: readonly IRecordSheetSPAEntry[];
 }
 

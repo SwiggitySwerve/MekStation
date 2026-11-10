@@ -160,10 +160,22 @@ function useUnitContextValues(catalog: readonly IEquipmentItem[]): {
   return values;
 }
 
+export interface EquipmentBrowserOptions {
+  /**
+   * Restricts the catalog before paging and totals, for editors whose unit
+   * family accepts only part of it. Pass a stable function (module level or
+   * memoized); callers that pass none see the whole catalog.
+   */
+  readonly catalogFilter?: (item: IEquipmentItem) => boolean;
+}
+
 /**
  * Hook for equipment browser functionality
  */
-export function useEquipmentBrowser(): EquipmentBrowserState {
+export function useEquipmentBrowser(
+  options: EquipmentBrowserOptions = {},
+): EquipmentBrowserState {
+  const { catalogFilter } = options;
   const equipment = useEquipmentSelector((state) => state.equipment);
   const isLoading = useEquipmentSelector((state) => state.isLoading);
   const error = useEquipmentSelector((state) => state.error);
@@ -244,10 +256,20 @@ export function useEquipmentBrowser(): EquipmentBrowserState {
 
   // Read the same subscribed context that the store's filter computation uses.
   const filteredEquipment = useMemo(
-    () => getFilteredEquipment(),
+    () =>
+      catalogFilter
+        ? getFilteredEquipment().filter(catalogFilter)
+        : getFilteredEquipment(),
     // The stable store getter reads these subscribed values internally.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-    [getFilteredEquipment, equipment, filters, sort, unitContext],
+    [
+      getFilteredEquipment,
+      equipment,
+      filters,
+      sort,
+      unitContext,
+      catalogFilter,
+    ],
   );
   const paginatedEquipment = useMemo(
     () =>

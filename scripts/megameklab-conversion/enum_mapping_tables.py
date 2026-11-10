@@ -204,6 +204,41 @@ ARMOR_TYPE_MAP: Dict[str, str] = {
     "Heavy Industrial Armor": "HEAVY_INDUSTRIAL",
     "Impact-Resistant": "IMPACT_RESISTANT",
     "Impact-Resistant Armor": "IMPACT_RESISTANT",
+    # MegaMek 48fcb2f64 MtfFile.java:414-483; EquipmentType.java:85-111.
+    # Explicit corpus spellings keep unknown names out of substring fallbacks.
+    "Anti-Penetrative Ablation(Inner Sphere)": "ANTI_PENETRATIVE_ABLATION",
+    "Ballistic-Reinforced(Inner Sphere)": "BALLISTIC_REINFORCED",
+    "Commercial(Inner Sphere)": "COMMERCIAL",
+    "Ferro-Fibrous Prototype(Inner Sphere)": "FERRO_FIBROUS_PROTO",
+    "Hardened(Clan)": "HARDENED",
+    "Hardened(Inner Sphere)": "HARDENED",
+    "Heat-Dissipating(Clan)": "HEAT_DISSIPATING",
+    "Heat-Dissipating(Inner Sphere)": "HEAT_DISSIPATING",
+    "Heavy Ferro-Fibrous(Inner Sphere)": "HEAVY_FERRO_FIBROUS",
+    "Heavy Industrial(Clan)": "HEAVY_INDUSTRIAL",
+    "Heavy Industrial(Inner Sphere)": "HEAVY_INDUSTRIAL",
+    "Impact-Resistant(Inner Sphere)": "IMPACT_RESISTANT",
+    "Industrial(Inner Sphere)": "INDUSTRIAL",
+    "Light Ferro-Fibrous(Inner Sphere)": "LIGHT_FERRO_FIBROUS",
+    "Patchwork": "PATCHWORK",
+    "Primitive(Inner Sphere)": "PRIMITIVE",
+    "Reactive(Clan)": "REACTIVE",
+    "Reactive(Inner Sphere)": "REACTIVE",
+    "Reflective(Clan)": "REFLECTIVE",
+    "Reflective(Inner Sphere)": "REFLECTIVE",
+    "Standard(Clan)": "STANDARD",
+    "Stealth(Inner Sphere)": "STEALTH",
+    "IS Reactive(Inner Sphere)": "REACTIVE",
+    "Clan Standard(Clan)": "STANDARD",
+    "IS Reflective(Inner Sphere)": "REFLECTIVE",
+    "IS Heavy Industrial(Inner Sphere)": "HEAVY_INDUSTRIAL",
+    "IS Hardened(Inner Sphere)": "HARDENED",
+    "IS Standard(Inner Sphere)": "STANDARD",
+    "IS Ferro-Fibrous(Inner Sphere)": "FERRO_FIBROUS",
+    "Ballistic-Reinforced": "BALLISTIC_REINFORCED",
+    "Anti-Penetrative Ablation": "ANTI_PENETRATIVE_ABLATION",
+    "Heat-Dissipating": "HEAT_DISSIPATING",
+    "Ferro-Fibrous Prototype": "FERRO_FIBROUS_PROTO",
 }
 
 HEAT_SINK_TYPE_MAP: Dict[str, str] = {
@@ -289,18 +324,6 @@ ARMOR_LOCATION_KEY_MAP: Dict[str, str] = {
     "rtl": "LEFT_TORSO_REAR",
     "rtr": "RIGHT_TORSO_REAR",
     "rtc": "CENTER_TORSO_REAR",
-}
-
-MECH_CONFIG_MAP: Dict[str, str] = {
-    "Biped": "Biped",
-    "Quad": "Quad",
-    "Tripod": "Tripod",
-    "LAM": "LAM",
-    "QuadVee": "QuadVee",
-    "Biped Omnimech": "Biped",
-    "Quad Omnimech": "Quad",
-    "Quad OmniMek": "Quad",
-    "QuadVee OmniMek": "QuadVee",
 }
 
 ERA_MAP: Dict[int, str] = {

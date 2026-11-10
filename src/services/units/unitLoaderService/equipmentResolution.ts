@@ -466,10 +466,11 @@ function resolveLegacyEquipmentId(
   }
 
   const candidates = buildEquipmentVariantCandidates(normalizedId);
-  // Only lists without crit slots (vehicles): a mech's list id and its crit
-  // tokens must change sides together, which the slot hints below arbitrate.
+  // Mixed mounts retain their explicit technology even when a saved critical
+  // grid contains display names. Unqualified source IDs still use slot hints.
   const ownSide =
-    locationCriticalSlots === undefined
+    locationCriticalSlots === undefined ||
+    unitTechBaseMode === TechBaseMode.MIXED
       ? ownTechSide(id, normalizedId, candidates.baseId)
       : null;
 

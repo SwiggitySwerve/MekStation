@@ -2,10 +2,13 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
+import { mapGyroType } from '@/services/units/unitLoaderService/componentMappers';
+import { GyroType } from '@/types/construction/GyroType';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { parseStructure } from './MTFParser.components';
 import { mapConfiguration } from './MTFParser.mapping';
+import { appendSourceWeapons } from './MTFParser.sourceEquipment';
 import {
   generateUnitId,
   mapArmorType,
@@ -102,7 +105,10 @@ export class MTFParserService {
           rating: engine.rating,
         },
         gyro: {
-          type: 'STANDARD',
+          type:
+            mapGyroType(parseField(lines, 'gyro') ?? '') === GyroType.XL
+              ? 'XL'
+              : 'STANDARD',
         },
         cockpit: 'STANDARD',
         structure: parsedStructure,
@@ -131,6 +137,7 @@ export class MTFParserService {
 
       const extendedUnit = {
         ...unit,
+        equipment: appendSourceWeapons(unit, warnings),
         mtfSource: {
           text: mtfContent,
           configuration: header.config,

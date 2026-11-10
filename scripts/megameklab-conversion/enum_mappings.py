@@ -10,6 +10,7 @@ Usage:
 
 import os
 import re
+import warnings
 from typing import Optional, Dict
 from enum_mapping_tables import (
     TECH_BASE_MAP,
@@ -22,7 +23,6 @@ from enum_mapping_tables import (
     HEAT_SINK_TYPE_MAP,
     MECH_LOCATION_MAP,
     ARMOR_LOCATION_KEY_MAP,
-    MECH_CONFIG_MAP,
     ERA_MAP,
     UNIT_TYPE_MAP,
 )
@@ -187,38 +187,25 @@ def map_structure_type(value: str, native_location: Optional[str] = None, clan_d
 
 
 def map_armor_type(value: str) -> str:
-    """Map MTF armor type to TypeScript enum value."""
-    clean = value.strip()
-    if clean in ARMOR_TYPE_MAP:
-        return ARMOR_TYPE_MAP[clean]
-    upper = clean.upper()
-    if "STEALTH" in upper:
-        return "STEALTH"
-    if "REACTIVE" in upper:
-        return "REACTIVE"
-    if "REFLECTIVE" in upper or "LASER-REFLECT" in upper:
-        return "REFLECTIVE"
-    if "HARDENED" in upper:
-        return "HARDENED"
-    if "HEAVY" in upper and "FERRO" in upper:
-        return "HEAVY_FERRO_FIBROUS"
-    if "LIGHT" in upper and "FERRO" in upper:
-        return "LIGHT_FERRO_FIBROUS"
-    if "FERRO" in upper and "CLAN" in upper:
-        return "FERRO_FIBROUS_CLAN"
-    if "FERRO" in upper:
-        return "FERRO_FIBROUS"
-    if "PRIMITIVE" in upper:
-        return "PRIMITIVE"
-    if "COMMERCIAL" in upper:
-        return "COMMERCIAL"
-    if "IMPACT" in upper and "RESIST" in upper:
-        return "IMPACT_RESISTANT"
-    if "HEAVY" in upper and "INDUSTRIAL" in upper:
-        return "HEAVY_INDUSTRIAL"
-    if "INDUSTRIAL" in upper:
-        return "INDUSTRIAL"
-    return "STANDARD"
+    """Resolve supported MTF armor names without inventing a Standard identity.
+
+    MegaMek 48fcb2f64 MtfFile.java:414-483 resolves registered names and
+    Patchwork locations; EquipmentType.java:85-111 owns the type constants.
+    """
+    # C2 R1: keep Jenner loadable until the first CW1 PR-C loader precursor.
+    # Its later correction must remove this residual and deliberately edit its test.
+    if value.strip() in ('Ferro-Fibrous Prototype', 'Ferro-Fibrous Prototype(Inner Sphere)'):
+        warnings.warn(
+            f"R1_DEFERRED_ARMOR: {value!r}: temporary FERRO_FIBROUS compatibility value; "
+            "FERRO_FIBROUS_PROTO is deferred until editor loader support lands",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+        return ARMOR_TYPE_MAP['Ferro-Fibrous']
+    try:
+        return ARMOR_TYPE_MAP[value.strip()]
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_ARMOR: {value!r}") from None
 
 
 # =============================================================================
@@ -271,9 +258,17 @@ def map_mech_location(value: str) -> str:
 
 
 def map_mech_config(value: str) -> str:
-    """Map MTF config to TypeScript enum value."""
-    clean = value.strip()
-    return MECH_CONFIG_MAP.get(clean, "Biped")
+    """Map MTF config to the contract configuration.
+
+    MtfFile.java:283-310 (MegaMek 48fcb2f6) picks the class with contains(), in this
+    order: QuadVee, Quad, LAM, Tripod, else BipedMek. The OmniMek and FrankenMek
+    suffixes therefore never change the geometry. A value that matches no token is
+    Biped, exactly as in the pinned loader (see MTF_RULES.md).
+    """
+    for token in ("QuadVee", "Quad", "LAM", "Tripod"):
+        if token in value:
+            return token
+    return "Biped"
 
 
 # =============================================================================

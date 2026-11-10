@@ -14,6 +14,8 @@ import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { smallCraftArmor } from '@/utils/construction/aerospace/armor';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import { calculateHeatDissipation } from '@/utils/construction/heatSinkCalculations';
 import { formatTons } from '@/utils/formatting';
@@ -46,6 +48,9 @@ export function AerospaceStatusBar({
   const fuel = useAerospaceStore((s) => s.fuelPoints);
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
   const armorType = useAerospaceStore((s) => s.armorType);
+  const aerospaceSubType = useAerospaceStore((s) => s.aerospaceSubType);
+  const smallCraftArmorType = useAerospaceStore((s) => s.smallCraftArmorType);
+  const motionType = useAerospaceStore((s) => s.motionType);
   const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const heatSinks = useAerospaceStore((s) => s.heatSinks);
@@ -97,14 +102,35 @@ export function AerospaceStatusBar({
     const allocated = getTotalAerospaceArmor(armorAllocation);
     const armorDef = getArmorDefinition(armorType);
     const pointsPerTon = armorDef?.pointsPerTon ?? 16;
-    const available = Math.floor(armorTonnage * pointsPerTon);
+    const available =
+      aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+        ? smallCraftArmor({
+            tonnage,
+            structuralIntegrity,
+            motionType,
+            techBase,
+            armorType,
+            smallCraftArmorType,
+            armorTonnage,
+          }).availablePoints
+        : Math.floor(armorTonnage * pointsPerTon);
 
     return {
       allocated,
       available,
       unallocated: available - allocated,
     };
-  }, [armorAllocation, armorType, armorTonnage]);
+  }, [
+    armorAllocation,
+    armorType,
+    armorTonnage,
+    aerospaceSubType,
+    smallCraftArmorType,
+    motionType,
+    tonnage,
+    structuralIntegrity,
+    techBase,
+  ]);
 
   // Heat dissipation
   const heatDissipation = calculateHeatDissipation(

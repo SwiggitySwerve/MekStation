@@ -197,6 +197,7 @@ export function parseCriticalSlots(
 
       if (
         slotContent.includes(':') &&
+        !/:SIZE:/i.test(slotContent) &&
         !slotContent.startsWith('-') &&
         !slotContent.includes('(')
       ) {

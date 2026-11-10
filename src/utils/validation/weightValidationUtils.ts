@@ -7,6 +7,8 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import type { IStructureWeightContext } from '@/utils/construction/structureCalculations';
+
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
@@ -21,7 +23,7 @@ import { calculateStructureWeight } from '@/utils/construction/structureCalculat
 /**
  * Parameters for structural weight calculation
  */
-export interface StructuralWeightParams {
+export interface StructuralWeightParams extends IStructureWeightContext {
   /** Unit tonnage */
   tonnage: number;
   /** Engine type string */
@@ -84,6 +86,7 @@ export function calculateStructuralWeight(
   const structureWeight = calculateStructureWeight(
     tonnage,
     internalStructureType as InternalStructureType,
+    params,
   );
 
   // Cockpit weight
@@ -144,10 +147,12 @@ export function getGyroWeight(engineRating: number, gyroType: string): number {
 export function getStructureWeight(
   tonnage: number,
   internalStructureType: string,
+  context?: IStructureWeightContext,
 ): number {
   return calculateStructureWeight(
     tonnage,
     internalStructureType as InternalStructureType,
+    context,
   );
 }
 

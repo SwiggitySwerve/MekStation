@@ -133,6 +133,7 @@ export function calculateStructuralWeight(config: MechBuildConfig): number {
   const structureWeight = calculateStructureWeight(
     config.tonnage,
     config.internalStructureType,
+    config,
   );
   const engineWeight = calculateEngineWeight(
     config.engineRating,

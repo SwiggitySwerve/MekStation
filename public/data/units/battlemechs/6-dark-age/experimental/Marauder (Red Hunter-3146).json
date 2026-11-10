@@ -21,7 +21,7 @@
     "type": "STANDARD"
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "BALLISTIC_REINFORCED",
     "allocation": {
       "LEFT_ARM": 23,
       "RIGHT_ARM": 23,

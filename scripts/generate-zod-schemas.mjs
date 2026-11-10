@@ -45,6 +45,11 @@ const OUTPUT_DIR = join(REPO_ROOT, 'src', 'types', 'contracts', 'generated');
 // to the contracts barrel.
 const SHAPES = [
   {
+    file: 'technology-advancements-schema.json',
+    stem: 'technology-advancements',
+    exportName: 'TechnologyAdvancementsContract',
+  },
+  {
     file: 'source-provenance-schema.json',
     stem: 'source-provenance',
     exportName: 'SourceProvenanceContract',
@@ -94,6 +99,10 @@ function generateOne(shape) {
   const sourceRel = `public/data/equipment/_schema/${shape.file}`;
   const prepared = prepareSchemaDefinitions(
     JSON.parse(readFileSync(sourcePath, 'utf-8')),
+    SHAPES.filter((registered) => registered.file !== shape.file).map(
+      (registered) =>
+        JSON.parse(readFileSync(join(SCHEMA_DIR, registered.file), 'utf-8')),
+    ),
   );
   const json = prepared.schema;
   // Unit versions share one schema fact across union branches and writers.

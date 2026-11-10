@@ -25,7 +25,6 @@ import type {
   IGuestMirrorSnapshot,
 } from './useCampaignStore.types';
 
-import { clientSafeStorage } from '../utils/clientSafeStorage';
 import {
   hydrateCampaignBattleState,
   mergeBattleOutcomeState,
@@ -36,11 +35,7 @@ import {
   type CampaignPersistenceSaveResult,
 } from './useCampaignPersistenceStore';
 import { createCampaignDayActions } from './useCampaignStore.dayActions';
-import {
-  deserializeCampaign,
-  persistCampaignRecord,
-  type SerializedCampaignState,
-} from './useCampaignStore.persistence';
+import { persistCampaignRecord } from './useCampaignStore.persistence';
 import { createCampaignSalvageActions } from './useCampaignStore.salvageActions';
 import { createForcesStore } from './useForcesStore';
 import { createMissionsStore } from './useMissionsStore';
@@ -181,43 +176,6 @@ function createGuestMirrorCampaignAction(
       missionsStore,
     });
     return localId;
-  };
-}
-
-function loadCampaignAction(set: CampaignSet): CampaignStore['loadCampaign'] {
-  return (id: string) => {
-    const stored = clientSafeStorage.getItem(`campaign-${id}`) as string | null;
-    if (!stored) {
-      return false;
-    }
-    try {
-      const parsed = JSON.parse(stored) as { state: SerializedCampaignState };
-      const serialized = parsed.state;
-      const forcesStore = createForcesStore(id);
-      const missionsStore = createMissionsStore(id);
-      const forces = new Map(
-        forcesStore
-          .getState()
-          .getAllForces()
-          .map((f) => [f.id, f]),
-      );
-      const missions = new Map(
-        missionsStore
-          .getState()
-          .getAllMissions()
-          .map((m) => [m.id, m]),
-      );
-      set({
-        ...hydrateCampaignBattleState(
-          deserializeCampaign(serialized, forces, missions),
-        ),
-        forcesStore,
-        missionsStore,
-      });
-      return true;
-    } catch {
-      return false;
-    }
   };
 }
 
@@ -365,7 +323,6 @@ export function createCampaignStoreActions(
   CampaignStore,
   | 'createCampaign'
   | 'createGuestMirrorCampaign'
-  | 'loadCampaign'
   | 'switchCampaign'
   | 'saveCampaign'
   | 'advanceDay'
@@ -379,7 +336,6 @@ export function createCampaignStoreActions(
   return {
     createCampaign: createCampaignAction(set),
     createGuestMirrorCampaign: createGuestMirrorCampaignAction(set),
-    loadCampaign: loadCampaignAction(set),
     switchCampaign: switchCampaignAction(set, get),
     saveCampaign: saveCampaignAction(set, get),
     ...createCampaignDayActions(set, get),
