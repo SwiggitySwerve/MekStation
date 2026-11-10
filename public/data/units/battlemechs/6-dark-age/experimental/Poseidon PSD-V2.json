@@ -40,7 +40,7 @@
       "HEAD": 12,
       "LEFT_LEG": 40,
       "RIGHT_LEG": 40,
-      "CL": 40
+      "CENTER_LEG": 40
     }
   },
   "heatSinks": {
@@ -197,6 +197,14 @@
       "ISAntiPersonnelPod"
     ],
     "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "ISAntiPersonnelPod",
+      "ISAntiPersonnelPod"
+    ],
+    "CENTER_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",

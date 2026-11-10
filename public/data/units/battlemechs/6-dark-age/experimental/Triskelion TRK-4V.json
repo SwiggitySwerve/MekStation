@@ -40,7 +40,7 @@
       "HEAD": 9,
       "LEFT_LEG": 31,
       "RIGHT_LEG": 31,
-      "CL": 31
+      "CENTER_LEG": 31
     }
   },
   "heatSinks": {
@@ -165,6 +165,14 @@
       "Clan Ferro-Fibrous"
     ],
     "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Composite",
+      "Clan Ferro-Fibrous"
+    ],
+    "CENTER_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
