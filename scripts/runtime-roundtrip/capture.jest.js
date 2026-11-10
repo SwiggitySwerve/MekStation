@@ -194,6 +194,21 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
   service.close();
   assert.equal(service.isInitialized(), false);
   sqlite.closesBeforeReads = 1;
+  // MUTANT: edit every stored row on disk between close and reopen (drop the last equipment entry).
+  {
+    const RawDatabase = require('better-sqlite3');
+    const raw = new RawDatabase(context.dbPath);
+    for (const { id, data } of raw
+      .prepare('SELECT id, data FROM custom_units')
+      .all()) {
+      const unit = JSON.parse(data);
+      unit.equipment = unit.equipment.slice(0, -1);
+      raw
+        .prepare('UPDATE custom_units SET data = ? WHERE id = ?')
+        .run(JSON.stringify(unit), id);
+    }
+    raw.close();
+  }
   service.initialize();
   sqlite.reopensBeforeReads = 1;
   o.clear();
