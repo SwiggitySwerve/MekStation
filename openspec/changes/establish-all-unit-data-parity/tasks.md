@@ -1422,14 +1422,22 @@ passing execution. An unverified effect or outcome stays "not verified".
     unchanged, four mutants killed. Evidence: `parity-4.3-c/`,
     `parity-5.2-c/PLAN.md`. Scope: seatless Tripod printing only; crew authoring
     and full all-family figure/location/quirk/SPA proof remain open.
-  - OPEN, C3: stale record-sheet templates are silently accepted because
-    postinstall `scripts/mm-data/check-assets.js` trusts the version stamp.
-    A pre-2026-11-03 install can print NaN armor and no station sheet; missing
-    SmallCraft/SpaceStation templates caused the recorded print failures.
-    Evidence: `parity-5.2-c/PLAN.md` (C3 record-sheet templates note),
-    `c3-pending-notes.md` (13:37:39Z/13:39:38Z). Close with a template-presence
-    check sharing one owner with `scripts/mm-data/validate-assets.ts`, plus
-    a named runtime failure and fresh-install/stale-install print proof.
+  - OPEN, owner C3: **Stale record-sheet templates pass silently.**
+    - **The fault:** postinstall `scripts/mm-data/check-assets.js` trusts the
+      `mm-data-version.json` stamp (v0.3.1). So an install from before
+      2026-11-03 lacks `smallcraft_aerodyne_default.svg`,
+      `smallcraft_spheroid_default.svg` and `spacestation_default.svg`, which
+      `config/mm-data-assets.json` has required since a511cbacf, and gives no
+      message.
+    - **The effect:** that install prints NaN armor on small craft and no
+      space-station sheet. Locally, it fails 4 `customizer-library-open`
+      tests. CI and release are unaffected.
+    - **Fix:** a presence check against the required list that names the
+      missing files, sharing one owner with
+      `scripts/mm-data/validate-assets.ts`, plus a named runtime failure in
+      place of NaN.
+    - Evidence: `parity-5.2-c/PLAN.md` (C3 record-sheet templates note),
+      `c3-pending-notes.md` (13:37:39Z/13:39:38Z).
   - OPEN, C3: complete all-family figure, location, unit/weapon/pilot quirk and
     SPA proof is not recorded. Supplied Tripod/QuadVee roster printing
     supersedes the old one-pilot rendering deferral at that scope;
