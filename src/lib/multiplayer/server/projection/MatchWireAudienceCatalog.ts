@@ -73,6 +73,9 @@ export const MATCH_WIRE_V2_DECISIONS = {
   [GameEventType.GameCreated]: PUBLIC,
   [GameEventType.GameStarted]: PUBLIC,
   [GameEventType.GameEnded]: PUBLIC,
+  // Writer remains disabled until Root approves the typed viewer contract.
+  // A nested authority snapshot must never inherit identity publication.
+  [GameEventType.GmCorrectionApplied]: { kind: 'hidden' },
   [GameEventType.TurnStarted]: PUBLIC,
   [GameEventType.TurnEnded]: PUBLIC,
   [GameEventType.PhaseChanged]: PUBLIC,

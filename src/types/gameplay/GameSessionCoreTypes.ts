@@ -65,6 +65,8 @@ export enum GameEventType {
   GameCreated = 'game_created',
   GameStarted = 'game_started',
   GameEnded = 'game_ended',
+  /** Explicit GM values; never invokes ordinary combat resolution. */
+  GmCorrectionApplied = 'gm_correction_applied',
 
   // Turn/Phase events
   TurnStarted = 'turn_started',

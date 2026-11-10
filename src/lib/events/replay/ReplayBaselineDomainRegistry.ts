@@ -34,6 +34,7 @@ import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 
 import type { CombatBattleArmorEventType } from './CombatBattleArmorBaselineSchemaPack';
 import type { CombatDamageEventType } from './CombatDamageBaselineSchemaPack';
+import type { CombatGmCorrectionEventType } from './CombatGmCorrectionSchemaPack';
 import type { CombatLifecycleEventType } from './CombatLifecycleBaselineSchemaPack';
 import type { CombatMissionEventType } from './CombatMissionBaselineSchemaPack';
 import type { CombatMovementEventType } from './CombatMovementBaselineSchemaPack';
@@ -45,6 +46,7 @@ import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 import { CAMPAIGN_BASELINE_SCHEMA_PACK } from './CampaignBaselineSchemaPack';
 import { COMBAT_BATTLE_ARMOR_BASELINE_SCHEMA_PACK } from './CombatBattleArmorBaselineSchemaPack';
 import { COMBAT_DAMAGE_BASELINE_SCHEMA_PACK } from './CombatDamageBaselineSchemaPack';
+import { COMBAT_GM_CORRECTION_SCHEMA_PACK } from './CombatGmCorrectionSchemaPack';
 import { COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK } from './CombatLifecycleBaselineSchemaPack';
 import { COMBAT_MISSION_BASELINE_SCHEMA_PACK } from './CombatMissionBaselineSchemaPack';
 import { COMBAT_MOVEMENT_BASELINE_SCHEMA_PACK } from './CombatMovementBaselineSchemaPack';
@@ -55,6 +57,7 @@ import { ReplaySchemaRegistry } from './ReplaySchemaRegistry';
 
 /** Union of every discriminant the eight combat packs claim to own. */
 type ComposedCombatEventType =
+  | CombatGmCorrectionEventType
   | CombatLifecycleEventType
   | CombatMovementEventType
   | CombatRangedEventType
@@ -118,6 +121,7 @@ export const REPLAY_BASELINE_DOMAIN_SCHEMA_PACK: readonly IReplayEventSchemaRegi
     ...COMBAT_MOVEMENT_BASELINE_SCHEMA_PACK,
     ...COMBAT_RANGED_BASELINE_SCHEMA_PACK,
     ...COMBAT_DAMAGE_BASELINE_SCHEMA_PACK,
+    ...COMBAT_GM_CORRECTION_SCHEMA_PACK,
     ...COMBAT_PHYSICAL_BASELINE_SCHEMA_PACK,
     ...COMBAT_VEHICLE_BASELINE_SCHEMA_PACK,
     ...COMBAT_MISSION_BASELINE_SCHEMA_PACK,

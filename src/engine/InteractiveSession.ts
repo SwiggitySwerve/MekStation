@@ -48,6 +48,10 @@ import type { IVolleyGroup } from './InteractiveSession.actions';
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit, IAvailableActions } from './types';
+import type { GmReplayCorrectionEffect } from '@/types/interventions/GmReplayCorrection';
+import type { IApplyGmCorrectionOptions } from './InteractiveSession.gmCorrection';
+
+import { prepareInteractiveGmCorrection, persistInteractiveGmCorrection } from './InteractiveSession.gmCorrection';
 
 import { CombatOutcomeJournal } from './combatOutcomeJournal';
 import { seedHexTerrainFromGrid } from './GameEngine.helpers';
@@ -189,6 +193,7 @@ export class InteractiveSession {
   /** Scratch flag: finalize state on game-over but never touch the bus. */
   private suppressOutcomePublication = false;
   private matchLogDiverged = false;
+  private gmCorrectionPending = false;
   private readonly linkage: IInteractiveSessionLinkage;
 
   constructor(...args: InteractiveSessionConstructorArgs) {
@@ -466,13 +471,50 @@ export class InteractiveSession {
   };
 
   appendEvent = (event: IGameEvent): void => {
+    this.assertNoCorrectionPending();
     appendAndPersistInteractiveSessionEvent(this.runtimeContext, event);
   };
 
-  applyCorrectedState = (newState: IGameState): void =>
+  /** Approved values enter the session only after the match-log commit. */
+  applyGmCorrection = async (
+    effects: readonly GmReplayCorrectionEffect[],
+    options: IApplyGmCorrectionOptions,
+  ): Promise<IGameEvent> => {
+    this.assertActiveForAction();
+    if (this.matchLogDiverged) throw new Error('gm-correction-match-log-diverged');
+    const before = this.session;
+    const prepared = prepareInteractiveGmCorrection(before, effects, options.expectedHeadEventId);
+    this.gmCorrectionPending = true;
+    try {
+      await persistInteractiveGmCorrection(before, prepared.event, options.storage ?? matchLogStorage);
+      // The session owns this adoption; no fire-and-forget write or cascade.
+      this.session = prepared.session;
+      return prepared.event;
+    } finally {
+      this.gmCorrectionPending = false;
+    }
+  };
+
+  /** Server-owned scratch decision only; the host owns its later transaction. */
+  appendGmCorrectionForDecision = (effects: readonly GmReplayCorrectionEffect[]): void => {
+    this.assertActiveForAction();
+    if (!this.suppressOutcomePublication) throw new Error('gm-correction-decision-session-required');
+    const head = this.session.events.at(-1);
+    if (!head) throw new Error('gm-correction-missing-history');
+    this.session = prepareInteractiveGmCorrection(this.session, effects, head.id).session;
+  };
+
+  applyCorrectedState = (newState: IGameState): void => {
+    this.assertNoCorrectionPending();
     applyCorrectedInteractiveSessionState(this.runtimeContext, newState);
+  };
+
+  private assertNoCorrectionPending = (): void => {
+    if (this.gmCorrectionPending) throw new Error('gm-correction-commit-pending');
+  };
 
   private assertActiveForAction = (): void => {
+    this.assertNoCorrectionPending();
     if (this.session.currentState.status !== GameStatus.Active) {
       throw new Error('Game is not active');
     }
@@ -550,10 +592,12 @@ export class InteractiveSession {
   };
 
   attemptStandUp = (unitId: string, mode?: StandUpMode): void => {
+    this.assertNoCorrectionPending();
     attemptInteractiveSessionStandUp(this.runtimeContext, unitId, mode);
   };
 
   goProne = (unitId: string): void => {
+    this.assertNoCorrectionPending();
     goInteractiveSessionProne(this.runtimeContext, unitId);
   };
 
@@ -561,6 +605,7 @@ export class InteractiveSession {
     unitId: string,
     enhancement: MovementEnhancementActivationKind,
   ): void => {
+    this.assertNoCorrectionPending();
     activateInteractiveSessionMovementEnhancement(
       this.runtimeContext,
       unitId,
@@ -569,6 +614,7 @@ export class InteractiveSession {
   };
 
   torsoTwist = (unitId: string, secondaryFacing: Facing): void => {
+    this.assertNoCorrectionPending();
     twistInteractiveSessionTorso(this.runtimeContext, unitId, secondaryFacing);
   };
 
@@ -643,6 +689,7 @@ export class InteractiveSession {
   };
 
   requestSpot = (unitId: string, targetId: string): void => {
+    this.assertNoCorrectionPending();
     requestInteractiveSessionSpot(this.runtimeContext, unitId, targetId);
   };
 
@@ -667,6 +714,7 @@ export class InteractiveSession {
   };
 
   ejectUnit = (unitId: string): void => {
+    this.assertNoCorrectionPending();
     ejectInteractiveSessionUnit(this.runtimeContext, unitId);
   };
 
@@ -696,10 +744,12 @@ export class InteractiveSession {
   };
 
   advancePhase = (): void => {
+    this.assertNoCorrectionPending();
     advanceInteractiveSession(this.runtimeContext);
   };
 
   runAITurn = (side: GameSide, unitId?: string): void => {
+    this.assertNoCorrectionPending();
     runInteractiveSessionAI(this.runtimeContext, side, unitId);
   };
 
@@ -724,6 +774,7 @@ export class InteractiveSession {
    * `CombatOutcomeReady` bus event fires exactly once per session.
    */
   concede = (side: GameSide): void => {
+    this.assertNoCorrectionPending();
     concedeInteractiveSession(this.runtimeContext, side);
   };
 
@@ -733,6 +784,7 @@ export class InteractiveSession {
    * persisted logs and reconnect replay converge on a completed match.
    */
   abortMatch = (): void => {
+    this.assertNoCorrectionPending();
     abortInteractiveSession(this.runtimeContext);
   };
 
@@ -746,6 +798,7 @@ export class InteractiveSession {
   };
 
   resumeOutcomePublication = (): void => {
+    this.assertNoCorrectionPending();
     tryFinalizeAndPublishInteractiveSession(this.runtimeContext);
   };
 
@@ -777,6 +830,7 @@ export class InteractiveSession {
    * passes them through here so the persisted outcome is self-describing.
    */
   getOutcome = (options: IDeriveCombatOutcomeOptions = {}): ICombatOutcome => {
+    this.assertNoCorrectionPending();
     return getInteractiveSessionOutcome(this.runtimeContext, options);
   };
 }

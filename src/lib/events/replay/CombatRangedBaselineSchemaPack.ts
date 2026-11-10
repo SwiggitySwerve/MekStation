@@ -96,7 +96,7 @@ const selectedAMSWeaponMountDataSchema = z
   .strict();
 
 /** Public `IAttackResolvedPayload` mirror. */
-const attackResolvedPublicSchema = z
+export const attackResolvedPublicSchema = z
   .object({
     attackerId: z.string(),
     targetId: z.string(),
