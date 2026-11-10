@@ -13,6 +13,7 @@ import { createAerospaceStore } from '@/stores/useAerospaceStore';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
+import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
 import { serializeAerospaceArmorIdentity } from '@/types/unit/AerospaceSerialization';
 import { getArmorBVMultiplier } from '@/types/validation/BattleValue';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
@@ -23,6 +24,29 @@ import { projectAerospaceBVArmor } from '@/utils/construction/contractBVUnitAdap
 import { aerospaceBVUnitFromState } from '../aerospaceBVUnitAdapter';
 
 afterEach(() => clearAllAerospaceStores());
+
+it.each([
+  AerospaceCockpitType.STANDARD,
+  AerospaceCockpitType.SMALL,
+  AerospaceCockpitType.COMMAND_CONSOLE,
+])('preserves the existing editor cockpit modifier for %s', (cockpitType) => {
+  const state = createDefaultAerospaceState({
+    name: 'Cockpit transport',
+    tonnage: 25,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  state.cockpitType = cockpitType;
+  const projected = aerospaceBVUnitFromState(state);
+  expect(projected).toMatchObject({ cockpitType });
+  expect(calculateBattleValueForUnit(projected)).toEqual(
+    calculateBattleValueForUnit({
+      ...state,
+      movement: { safeThrust: state.safeThrust, maxThrust: state.maxThrust },
+      totalArmorPoints: 0,
+      heatSinkType: 0,
+    }),
+  );
+});
 
 it('retains native Nanook patchwork types and lower-camel armor keys through dispatch', () => {
   // mm-data 50f7efe Nanook construction/equipment facts; Java 48fcb2f64 BV 1571.

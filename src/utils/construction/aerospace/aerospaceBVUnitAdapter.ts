@@ -62,15 +62,18 @@ export function aerospaceBVUnitFromState(
     readonly isFixedWingSupport?: boolean;
     readonly barRating?: number;
     readonly armorTypeByArc?: AerospaceState['armorTypeByArc'];
+    readonly cockpitType?: AerospaceState['cockpitType'];
   },
 ): IContractBVAerospace & {
   readonly heatSinks: number;
   readonly heatSinkType: number;
+  readonly cockpitType?: AerospaceState['cockpitType'];
 } {
   return {
     unitType: state.unitType,
     techBase: state.techBase,
     year: state.year,
+    cockpitType: state.cockpitType,
     isSupportVehicle: state.isFixedWingSupport === true,
     barRating: state.barRating,
     tonnage: state.tonnage,

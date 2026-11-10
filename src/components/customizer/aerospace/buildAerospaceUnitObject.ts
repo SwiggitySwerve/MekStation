@@ -49,6 +49,7 @@ export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTon
   doubleHeatSinks: boolean;
   armorType: ArmorTypeEnum;
   armorTypeByArc?: AerospaceState['armorTypeByArc'];
+  cockpitType?: AerospaceState['cockpitType'];
   armorAllocation: IAerospaceArmorAllocation;
   hasBombBay: boolean;
   bombCapacity: number;
