@@ -51,7 +51,7 @@ historical. No full requirement, numerical parity, spec sync or archive is
 accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 
 Row 3.3 was reopened on 2026-11-09 (see row 3.3). This brings the ledger to 34
-of 45 top-level rows ticked (37 of 48 checkbox entries); 11 rows remain open:
+of 45 top-level rows ticked (38 of 49 checkbox entries); 11 rows remain open:
 2.1, 2.2, 2.3, 2.22, 3.1, 3.2, 3.3, 3.4, 4.1, 4.3 and 5.2.
 
 ## 1. Source and reference foundation
@@ -218,6 +218,27 @@ of 45 top-level rows ticked (37 of 48 checkbox entries); 11 rows remain open:
     topology and defensive caps remain open. Receipt:
     `normal-work/P4-ammo/proto-ammo-availability/PROOF.json`.
   - Open: the preserving consolidation merged (#2413; `src/utils/construction/__tests__/offensiveAmmoPolicies.test.ts`, 24,506 byte-identical observations). Native ammunition is connected for ProtoMechs only: #2517 prices ProtoMech ammo per Java kg-per-shot through a cited stopgap table (`protoMechAmmo.ts`) that waited on catalog `kgPerShot` data. The catalog now carries `kgPerShot` (#2580) and #2615 retired the stopgap table and the infantry kit-divisor table. ProtoMech BV is 86 of 86 exact and infantry 1,820 of 1,820 on main `ac64a3330` (#2695 closed the 74 infantry field-gun misses). Vehicle and aerospace native ammunition identity, effective quantities and grouping still lack independent per-term proof: the strict comparator now leaves 39 vehicle misses (14 of them farther than 1%) and 6 aerospace misses (`ledger/tick6/misses.tsv`; 89 and 84 at tick 5), but the `--per-term` run still reports an `ammo.*` term as the first difference on 1,085 of the 1,444 vehicle rows and 19 of the 620 aerospace rows, because MekStation's breakdown has no per-bin ammunition term (row 1.4). I did not attribute the remaining misses to causes this pass. #2617 pooled artillery cannon ammo apart from artillery (follow-up 81 records the Schwerer Gustav defensive +18 it exposed). Converted ammunition ids are largely resolved by #2484, #2497 and #2580 (follow-ups 49, 63 and 68; row 2.1 has the unresolved counts).
+  - [x] 2.22b Offensive ammunition grouping, effective quantities and caps
+    match pinned MegaMek 48fcb2f64 on every Java-emitted offensive key across
+    all seven families: guarded blocking-trust census on main `3f4d73318`
+    (reference
+    `4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87`),
+    9,815/9,815 exact BV; `ammo.available` 12,032, `ammo.cap` 11,965 and
+    `ammo.arc` 2,610 terms equal, with 0 unequal and 0 Java-only (battle armor
+    trooper replicas included); ammoBV equal on 9,815 rows; 1,240 capital
+    cap-binding groups compared per term. Defensive AMS/APDS/SCREEN_LAUNCHER
+    caps (291) are tallied separately and receive no credit. Cap arithmetic
+    has one owner (`battleValueAmmo.ts`; battle armor folded in). Evidence:
+    `parity-E1/closing/`. Scope: Java-emitted keys only; local-only emission
+    is the parent's closure item below.
+  - Open under row 2.22:
+    - Remove the 25 local-only offensive `ammo.cap` keys in the cap owner,
+      test-first (E3): 24 caps for launcher groups with no ammo bins (mech VGL
+      ?3; vehicle VGL ?6, SRM:2 ?10, SRM:4 ?2, GAUSS:0, PLASMA:1,
+      SRM_TORPEDO:2) and 1 duplicate identity (Orion ON1-H Primitive AC capped
+      under both AC:10 and AC_PRIMITIVE:10). BV is unaffected.
+    - Re-run the closing proof on the merged head: local-only keys 0, all
+      2.22b counts unchanged, 9,815 exact.
 
 - [x] 2.23 Resolve ammunition within the existing BV catalog owner using its source collection, preserve generic/MTF lookup and reject weapon-only ammo identities through real consumers. Verify collisions, explicit custom context/reset, all captured lookup effects and all-family regression outputs. Native aliases, quantities, grouping, mount topology and full BV remain open. (`equipment-services`: Ammunition context in BV catalog resolution) Proof: #2414; tests: `src/utils/construction/__tests__/equipmentBVResolver.ammunition.test.ts`; evidence: `2026-10-29/astra-coordinator/root-continuation/ammo-catalog-context/comparison.json` (226,164 captured strings), `ledger/slice-tests/jest.log`.
 
