@@ -1,9 +1,18 @@
-const CACHE_NAME = 'mekstation-v1';
-const RUNTIME_CACHE = 'mekstation-runtime-v1';
+const requestedBuild = new URL(self.location.href).searchParams.get('build');
+const BUILD_ID =
+  requestedBuild &&
+  !['development', 'undefined', 'null'].includes(requestedBuild) &&
+  /^[a-z0-9_-]{1,128}$/i.test(requestedBuild)
+    ? requestedBuild
+    : null;
+const CACHE_NAME = `mekstation-static-${BUILD_ID ?? 'unversioned'}`;
+const RUNTIME_CACHE = `mekstation-runtime-${BUILD_ID ?? 'unversioned'}`;
+// A claimed page can still be running the previous build until it reloads.
+const retiringClients = new Set();
+const readyClients = new Set();
 
 // Assets to cache on install
 const STATIC_ASSETS = [
-  '/',
   '/manifest.json',
   '/icons/icon.svg',
   '/icons/icon-192x192.png',
@@ -18,26 +27,50 @@ self.addEventListener('install', (event) => {
       return cache.addAll(STATIC_ASSETS);
     }),
   );
-  self.skipWaiting();
+  // Existing tabs keep their worker until a new page or explicit update is ready.
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((cacheName) => {
-            return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
-          })
-          .map((cacheName) => {
-            return caches.delete(cacheName);
-          }),
-      );
-    }),
+    (async () => {
+      const clients = await self.clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true,
+      });
+      clients.forEach((client) => retiringClients.add(client.id));
+      await self.clients.claim();
+      await cleanOldCaches();
+    })(),
   );
-  self.clients.claim();
 });
+
+async function cleanOldCaches() {
+  const clients = await self.clients.matchAll({ type: 'window' });
+  const liveIds = new Set(clients.map((client) => client.id));
+  for (const id of retiringClients) {
+    if (!liveIds.has(id)) retiringClients.delete(id);
+  }
+  // Unknown clients may still run an older build, including after worker restart.
+  const unconfirmed = clients.filter((client) => !readyClients.has(client.id));
+  if (unconfirmed.length > 0) {
+    unconfirmed.forEach((client) =>
+      client.postMessage({ type: 'REPORT_BUILD' }),
+    );
+    return;
+  }
+  const names = await caches.keys();
+  await Promise.all(
+    names
+      .filter(
+        (name) =>
+          name.startsWith('mekstation-') &&
+          name !== CACHE_NAME &&
+          name !== RUNTIME_CACHE,
+      )
+      .map((name) => caches.delete(name)),
+  );
+}
 
 // Fetch event - implement caching strategies
 self.addEventListener('fetch', (event) => {
@@ -55,18 +88,31 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Development chunks reuse URLs across builds; cached bytes can mix builds.
-  const isUnversionedNextAsset =
-    (url.pathname.startsWith('/_next/static/chunks/') ||
-      url.pathname.startsWith('/_next/static/css/')) &&
-    (request.destination === 'script' || request.destination === 'style') &&
-    /\.(?:js|css)$/i.test(url.pathname) &&
-    !/(?:\/|[-.])[a-f0-9]{8,}\.(?:js|css)$/i.test(url.pathname);
+  const isNextAsset =
+    url.pathname.startsWith('/_next/static/') &&
+    /\.(?:js|css)$/i.test(url.pathname);
   if (
-    isUnversionedNextAsset ||
+    (isNextAsset && !BUILD_ID) ||
     url.pathname.startsWith('/_next/static/development/') ||
     url.pathname === '/_next/webpack-hmr'
   ) {
     event.respondWith(fetch(request, { cache: 'no-store' }));
+    return;
+  }
+
+  // Never recover HTML or Next page data that can reference a retired build.
+  if (
+    request.destination === 'document' ||
+    request.mode === 'navigate' ||
+    url.pathname.startsWith('/_next/data/') ||
+    /\.html$/i.test(url.pathname)
+  ) {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
+    return;
+  }
+
+  if (isNextAsset) {
+    event.respondWith(cacheFirst(request, event.clientId));
     return;
   }
 
@@ -78,12 +124,6 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/images/')
   ) {
     event.respondWith(cacheFirst(request));
-    return;
-  }
-
-  // Strategy 2: Network First for HTML documents and API calls
-  if (request.destination === 'document' || request.mode === 'navigate') {
-    event.respondWith(networkFirst(request));
     return;
   }
 
@@ -101,7 +141,26 @@ self.addEventListener('fetch', (event) => {
  * Cache First Strategy
  * Checks cache first, falls back to network
  */
-async function cacheFirst(request) {
+async function matchOldAsset(request) {
+  const names = await caches.keys();
+  for (const name of names) {
+    if (
+      !name.startsWith('mekstation-') ||
+      name === CACHE_NAME ||
+      name === RUNTIME_CACHE
+    )
+      continue;
+    const oldCache = await caches.open(name);
+    const response = await oldCache.match(request);
+    if (response) return response;
+  }
+}
+
+async function cacheFirst(request, clientId) {
+  if (retiringClients.has(clientId)) {
+    const oldResponse = await matchOldAsset(request);
+    if (oldResponse) return oldResponse;
+  }
   const cache = await caches.open(CACHE_NAME);
   const cached = await cache.match(request);
 
@@ -109,19 +168,26 @@ async function cacheFirst(request) {
     return cached;
   }
 
+  // A restarted worker has no in-memory build report for already-open tabs.
+  // Try the network first for unknown clients, but preserve their cached chunks
+  // if deployment removed them. Confirmed new pages never use this fallback.
+  const canUseOldCache = clientId && !readyClients.has(clientId);
+  let response;
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
+    response = await fetch(request);
   } catch (error) {
-    // If both cache and network fail, return offline fallback for documents
-    if (request.destination === 'document') {
-      return caches.match('/offline.html');
-    }
+    const oldResponse = canUseOldCache && (await matchOldAsset(request));
+    if (oldResponse) return oldResponse;
     throw error;
   }
+  if (!response.ok && canUseOldCache) {
+    const oldResponse = await matchOldAsset(request);
+    if (oldResponse) return oldResponse;
+  }
+  if (response.ok) {
+    await cache.put(request, response.clone());
+  }
+  return response;
 }
 
 /**
@@ -145,10 +211,6 @@ async function networkFirst(request) {
       return cached;
     }
 
-    // If both network and cache fail, return offline fallback for documents
-    if (request.destination === 'document') {
-      return caches.match('/offline.html');
-    }
     throw error;
   }
 }
@@ -185,7 +247,18 @@ async function staleWhileRevalidate(request) {
  */
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+    event.waitUntil(self.skipWaiting());
+  }
+
+  if (
+    BUILD_ID &&
+    event.data?.type === 'BUILD_READY' &&
+    event.data.build === BUILD_ID &&
+    event.source?.id
+  ) {
+    readyClients.add(event.source.id);
+    retiringClients.delete(event.source.id);
+    event.waitUntil(cleanOldCaches());
   }
 
   if (event.data && event.data.type === 'CACHE_URLS') {

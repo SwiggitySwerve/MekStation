@@ -10,8 +10,12 @@ interface WorkerRequest {
 }
 
 interface WorkerFetchEvent {
-  request: WorkerRequest;
-  respondWith: (response: Promise<AssetResponse>) => void;
+  request?: WorkerRequest;
+  clientId?: string;
+  respondWith?: (response: Promise<AssetResponse>) => void;
+  waitUntil: (promise: Promise<unknown>) => void;
+  data?: { type: string; build?: string };
+  source?: { id: string };
 }
 
 interface AssetResponse {
@@ -28,22 +32,42 @@ function assetResponse(body: string): AssetResponse {
   };
 }
 
-function workerHarness(cachedBody: string | null = 'OLD_BUILD') {
-  let handleFetch: ((event: WorkerFetchEvent) => void) | undefined;
-  const entries = new Map<string, AssetResponse>();
+type Storage = Map<string, Map<string, AssetResponse>>;
+
+function workerHarness(
+  cachedBody: string | null = 'OLD_BUILD',
+  build: string | null = 'production-build-id',
+  storage: Storage = new Map(),
+  clientIds: string[] = [],
+) {
+  const handlers = new Map<string, (event: WorkerFetchEvent) => void>();
+  const clients = clientIds.map((id) => ({ id, postMessage: jest.fn() }));
   const network = jest.fn(async () => assetResponse('CURRENT_BUILD'));
-  const cache = {
-    match: jest.fn(async (request: WorkerRequest) => {
-      return entries.get(request.url)?.clone();
-    }),
-    put: jest.fn(async (request: WorkerRequest, response: AssetResponse) => {
-      entries.set(request.url, response);
-    }),
+  const cacheFor = (name: string) => {
+    let entries = storage.get(name);
+    if (!entries) {
+      entries = new Map();
+      storage.set(name, entries);
+    }
+    const contents = entries;
+    return {
+      match: async (request: WorkerRequest) =>
+        contents.get(request.url)?.clone() ??
+        (cachedBody === null ? undefined : assetResponse(cachedBody)),
+      put: async (request: WorkerRequest, response: AssetResponse) => {
+        contents.set(request.url, response);
+      },
+      addAll: jest.fn(async () => undefined),
+    };
   };
   const caches = {
-    open: jest.fn(async () => cache),
+    open: jest.fn(async (name: string) => cacheFor(name)),
+    keys: jest.fn(async () => [...storage.keys()]),
+    delete: jest.fn(async (name: string) => storage.delete(name)),
     match: jest.fn(async () => assetResponse('OFFLINE_DOCUMENT')),
   };
+  const claim = jest.fn(async () => undefined);
+  const skipWaiting = jest.fn(async () => undefined);
 
   runInNewContext(
     readFileSync(resolve(process.cwd(), 'public/service-worker.js'), 'utf8'),
@@ -51,11 +75,16 @@ function workerHarness(cachedBody: string | null = 'OLD_BUILD') {
       URL,
       location: { origin: 'http://127.0.0.1:3642' },
       self: {
+        location: {
+          href: `http://127.0.0.1:3642/service-worker.js${build === null ? '' : `?build=${encodeURIComponent(build)}`}`,
+        },
+        clients: { matchAll: jest.fn(async () => clients), claim },
+        skipWaiting,
         addEventListener: (
           name: string,
           handler: (event: WorkerFetchEvent) => void,
         ) => {
-          if (name === 'fetch') handleFetch = handler;
+          handlers.set(name, handler);
         },
       },
       caches,
@@ -67,6 +96,7 @@ function workerHarness(cachedBody: string | null = 'OLD_BUILD') {
     path: string,
     destination = 'script',
     options: Partial<WorkerRequest> = {},
+    clientId = 'current-page',
   ) {
     const request: WorkerRequest = {
       url: `http://127.0.0.1:3642${path}`,
@@ -75,13 +105,14 @@ function workerHarness(cachedBody: string | null = 'OLD_BUILD') {
       mode: 'cors',
       ...options,
     };
-    if (cachedBody !== null)
-      entries.set(request.url, assetResponse(cachedBody));
     let response: Promise<AssetResponse> | undefined;
+    const handleFetch = handlers.get('fetch');
     if (!handleFetch)
       throw new Error('Worker did not register a fetch handler');
     handleFetch({
       request,
+      clientId,
+      waitUntil: () => undefined,
       respondWith: (promise) => {
         response = promise;
       },
@@ -89,7 +120,30 @@ function workerHarness(cachedBody: string | null = 'OLD_BUILD') {
     return response;
   }
 
-  return { dispatch, network, cache, caches };
+  async function lifecycle(
+    name: string,
+    data?: WorkerFetchEvent['data'],
+    clientId = 'current-page',
+  ) {
+    const pending: Promise<unknown>[] = [];
+    handlers.get(name)?.({
+      data,
+      source: { id: clientId },
+      waitUntil: (promise) => pending.push(promise),
+    });
+    await Promise.all(pending);
+  }
+
+  return {
+    dispatch,
+    network,
+    caches,
+    storage,
+    lifecycle,
+    clients,
+    claim,
+    skipWaiting,
+  };
 }
 
 describe('shipped service worker asset delivery', () => {
@@ -103,7 +157,7 @@ describe('shipped service worker asset delivery', () => {
   ])(
     'delivers current network bytes for development asset %s',
     async (path, destination) => {
-      const worker = workerHarness();
+      const worker = workerHarness('OLD_BUILD', 'development');
       expect(await (await worker.dispatch(path, destination))?.text()).toBe(
         'CURRENT_BUILD',
       );
@@ -120,7 +174,7 @@ describe('shipped service worker asset delivery', () => {
   );
 
   it('rejects failed development delivery instead of returning stale bytes', async () => {
-    const worker = workerHarness();
+    const worker = workerHarness('OLD_BUILD', 'development');
     worker.network.mockRejectedValueOnce(new Error('NETWORK_OFFLINE'));
     await expect(
       worker.dispatch('/_next/static/chunks/pages/_app.js'),
@@ -196,20 +250,20 @@ describe('shipped service worker asset delivery', () => {
     expect(worker.network).not.toHaveBeenCalled();
   });
 
-  it('preserves an offline cached document', async () => {
+  it('rejects offline navigation rather than returning HTML for a dead build', async () => {
     const worker = workerHarness('CACHED_DOCUMENT');
     worker.network.mockRejectedValueOnce(new Error('NETWORK_OFFLINE'));
-    expect(
-      await (await worker.dispatch('/customizer', 'document'))?.text(),
-    ).toBe('CACHED_DOCUMENT');
+    await expect(worker.dispatch('/customizer', 'document')).rejects.toThrow(
+      'NETWORK_OFFLINE',
+    );
   });
 
-  it('preserves the offline document fallback when there is no cached page', async () => {
+  it('rejects offline navigation without an empty document fallback', async () => {
     const worker = workerHarness(null);
     worker.network.mockRejectedValueOnce(new Error('NETWORK_OFFLINE'));
-    expect(
-      await (await worker.dispatch('/customizer', 'document'))?.text(),
-    ).toBe('OFFLINE_DOCUMENT');
+    await expect(worker.dispatch('/customizer', 'document')).rejects.toThrow(
+      'NETWORK_OFFLINE',
+    );
   });
 
   it('does not intercept cross-origin or non-GET requests', () => {
@@ -225,4 +279,205 @@ describe('shipped service worker asset delivery', () => {
     expect(worker.network).not.toHaveBeenCalled();
     expect(worker.caches.open).not.toHaveBeenCalled();
   });
+});
+
+describe('build-scoped chunk caching and deployment', () => {
+  const chunk = '/_next/static/chunks/0-jtjk4f1h6z3.js';
+
+  it.each([
+    [chunk, 'script'],
+    ['/_next/static/chunks/00athqnxrws8j.css', 'style'],
+  ])(
+    'caches a Turbopack asset on its second fetch: %s',
+    async (path, destination) => {
+      const worker = workerHarness(null, 'build-A');
+      expect(await (await worker.dispatch(path, destination))?.text()).toBe(
+        'CURRENT_BUILD',
+      );
+      expect(await (await worker.dispatch(path, destination))?.text()).toBe(
+        'CURRENT_BUILD',
+      );
+      expect(worker.network).toHaveBeenCalledTimes(1);
+      expect([...worker.storage.keys()]).toContain('mekstation-static-build-A');
+    },
+  );
+
+  it.each([null, '', 'undefined', 'null', 'development', '../odd/build', ' '])(
+    'uses network-only chunks without a usable production build: %s',
+    async (build) => {
+      const worker = workerHarness('STALE', build);
+      await worker.dispatch(chunk);
+      await worker.dispatch(chunk);
+      expect(worker.network).toHaveBeenCalledTimes(2);
+      expect(worker.network).toHaveBeenCalledWith(expect.anything(), {
+        cache: 'no-store',
+      });
+      expect(worker.caches.open).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    '/_next/static/development/_buildManifest.js',
+    '/_next/webpack-hmr',
+  ])(
+    'never caches an explicit development endpoint in production: %s',
+    async (path) => {
+      const worker = workerHarness(null, 'build-A');
+      await worker.dispatch(path);
+      expect(worker.network).toHaveBeenCalledWith(expect.anything(), {
+        cache: 'no-store',
+      });
+      expect(worker.caches.open).not.toHaveBeenCalled();
+    },
+  );
+
+  it('fetches a cache miss and preserves a failed network request', async () => {
+    const worker = workerHarness(null, 'build-A');
+    worker.network.mockRejectedValueOnce(new Error('CHUNK_GONE'));
+    await expect(worker.dispatch(chunk)).rejects.toThrow('CHUNK_GONE');
+    expect(worker.network).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns unsuccessful HTTP responses without caching them', async () => {
+    const worker = workerHarness(null, 'build-A');
+    worker.network.mockResolvedValue({
+      ...assetResponse('NOT_FOUND'),
+      ok: false,
+    });
+    expect(await (await worker.dispatch(chunk))?.text()).toBe('NOT_FOUND');
+    await worker.dispatch(chunk);
+    expect(worker.network).toHaveBeenCalledTimes(2);
+  });
+
+  it('waits for an explicit update instead of skipping waiting on install', async () => {
+    const worker = workerHarness(null, 'build-B');
+    await worker.lifecycle('install');
+    expect(worker.skipWaiting).not.toHaveBeenCalled();
+    await worker.lifecycle('message', { type: 'SKIP_WAITING' });
+    expect(worker.skipWaiting).toHaveBeenCalledTimes(1);
+  });
+
+  it('claims clients before cleanup and preserves old chunks until an old tab loads the new build', async () => {
+    const old = workerHarness(null, 'build-A');
+    await old.dispatch(chunk);
+    old.storage.set('unrelated-app-cache', new Map());
+    const next = workerHarness(null, 'build-B', old.storage, ['old-tab']);
+    let retainedAtClaim = false;
+    next.claim.mockImplementation(async () => {
+      retainedAtClaim = old.storage.has('mekstation-static-build-A');
+    });
+    await next.lifecycle('activate');
+    expect(next.claim).toHaveBeenCalledTimes(1);
+    expect(retainedAtClaim).toBe(true);
+    expect(old.storage.has('mekstation-static-build-A')).toBe(true);
+    expect(
+      await (await next.dispatch(chunk, 'script', {}, 'old-tab'))?.text(),
+    ).toBe('CURRENT_BUILD');
+    expect(next.network).not.toHaveBeenCalled();
+    await next.lifecycle(
+      'message',
+      { type: 'BUILD_READY', build: 'build-A' },
+      'old-tab',
+    );
+    expect(old.storage.has('mekstation-static-build-A')).toBe(true);
+    await next.lifecycle(
+      'message',
+      { type: 'BUILD_READY', build: 'build-B' },
+      'old-tab',
+    );
+    expect(old.storage.has('mekstation-static-build-A')).toBe(false);
+    expect(old.storage.has('unrelated-app-cache')).toBe(true);
+    next.network.mockRejectedValueOnce(new Error('OLD_CHUNK_REMOVED'));
+    await expect(next.dispatch(chunk)).rejects.toThrow('OLD_CHUNK_REMOVED');
+  });
+
+  it('keeps old caches until every live old tab has switched or closed', async () => {
+    const storage: Storage = new Map([
+      ['mekstation-static-build-A', new Map()],
+    ]);
+    const next = workerHarness(null, 'build-B', storage, ['one', 'two']);
+    await next.lifecycle('activate');
+    await next.lifecycle(
+      'message',
+      { type: 'BUILD_READY', build: 'build-B' },
+      'one',
+    );
+    expect(storage.has('mekstation-static-build-A')).toBe(true);
+    next.clients.splice(1, 1);
+    await next.lifecycle(
+      'message',
+      { type: 'BUILD_READY', build: 'build-B' },
+      'one',
+    );
+    expect(storage.has('mekstation-static-build-A')).toBe(false);
+  });
+
+  it('retires legacy and old-build caches on activation when no old clients remain', async () => {
+    const storage: Storage = new Map([
+      ['mekstation-v1', new Map()],
+      ['mekstation-runtime-v1', new Map()],
+      ['mekstation-static-build-A', new Map()],
+    ]);
+    const next = workerHarness(null, 'build-B', storage);
+    await next.lifecycle('activate');
+    expect([...storage.keys()]).toEqual([]);
+    await next.dispatch(chunk);
+    expect([...storage.keys()]).toEqual(['mekstation-static-build-B']);
+  });
+
+  it('does not reuse old bytes for a new build even if a URL repeats', async () => {
+    const old = workerHarness(null, 'build-A');
+    old.network.mockResolvedValue(assetResponse('A'));
+    await old.dispatch(chunk);
+    const next = workerHarness(null, 'build-B', old.storage);
+    next.network.mockResolvedValue(assetResponse('B'));
+    expect(await (await next.dispatch(chunk))?.text()).toBe('B');
+    expect(next.network).toHaveBeenCalledTimes(1);
+  });
+
+  it('preserves old tabs and their cached chunks after the browser restarts the worker', async () => {
+    const old = workerHarness(null, 'build-A');
+    await old.dispatch(chunk);
+    const restarted = workerHarness(null, 'build-B', old.storage, [
+      'old-tab',
+      'new-tab',
+    ]);
+    await restarted.lifecycle(
+      'message',
+      { type: 'BUILD_READY', build: 'build-B' },
+      'new-tab',
+    );
+    expect(old.storage.has('mekstation-static-build-A')).toBe(true);
+    restarted.network.mockRejectedValueOnce(new Error('OLD_SERVER_CHUNK_GONE'));
+    expect(
+      await (await restarted.dispatch(chunk, 'script', {}, 'old-tab'))?.text(),
+    ).toBe('CURRENT_BUILD');
+  });
+
+  it.each([
+    ['/customizer', 'document', 'navigate'],
+    ['/_next/data/build-B/customizer.json', '', 'cors'],
+  ])(
+    'gets new page data from the network after deployment: %s',
+    async (path, destination, mode) => {
+      const old = workerHarness(null, 'build-A');
+      old.network.mockResolvedValue(
+        assetResponse('<script src="old.js"></script>'),
+      );
+      await old.dispatch(path, destination, { mode });
+      const next = workerHarness(null, 'build-B', old.storage);
+      await next.lifecycle('activate');
+      next.network.mockResolvedValue(
+        assetResponse('<script src="new.js"></script>'),
+      );
+      expect(
+        await (await next.dispatch(path, destination, { mode }))?.text(),
+      ).toContain('new.js');
+      expect(next.caches.open).not.toHaveBeenCalled();
+      next.network.mockRejectedValueOnce(new Error('OFFLINE'));
+      await expect(next.dispatch(path, destination, { mode })).rejects.toThrow(
+        'OFFLINE',
+      );
+    },
+  );
 });
