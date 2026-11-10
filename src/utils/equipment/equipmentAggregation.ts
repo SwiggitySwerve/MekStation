@@ -34,11 +34,7 @@ import { ALL_STANDARD_WEAPONS } from '@/utils/equipment/weapons/utilities';
 import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
 import { weaponCategoryToEquipmentCategory } from './categoryRegistry';
-
-/**
- * IDs of AMS weapons that should also appear in "Other" category
- */
-const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
+import { AMS_WEAPON_IDS } from './equipmentConstants';
 
 /**
  * Categories of misc equipment to exclude from browser
