@@ -67,6 +67,15 @@ const input = () => ({
   api,
 });
 
+test('oversized garden output is clipped for publication without failing measurement', () => {
+  const report = buildGarden(input());
+  report.rejected = ['large diagnostic '.repeat(6000)];
+  const markdown = renderGarden(report);
+  assert.ok(markdown.length < 60000);
+  assert.match(markdown, /Full evidence remains/);
+  assert.equal(report.rejected[0].length, 102000);
+});
+
 test('seven complete UTC days with three distinct runs each authorize a lowering with retained headroom', () => {
   const report = buildGarden(input());
   assert.deepEqual(report.proposals, [{ id: 'limits.example', value: 59 }]);

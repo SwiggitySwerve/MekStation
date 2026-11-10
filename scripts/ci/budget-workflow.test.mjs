@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { parse } from 'yaml';
+import { parse, parseDocument } from 'yaml';
 
 import { assertJobResults } from './budget-aggregate.mjs';
 import { checkRepositoryMetrics } from './budget-check.mjs';
@@ -28,6 +28,64 @@ import { AGGREGATOR } from './lint-and-test-guard.mjs';
 const root = process.cwd(),
   config = loadBudgets(),
   workflow = readWorkflow(root);
+
+test('PR and release workflows retain complete advisory web and installer census contracts', () => {
+  for (const file of ['pr-checks.yml', 'release.yml']) {
+    const source = fs.readFileSync(
+      path.join(root, '.github/workflows', file),
+      'utf8',
+    );
+    const document = parseDocument(source, { uniqueKeys: true });
+    assert.deepEqual(document.errors, []);
+    const parsed = document.toJS();
+    assert.ok(Object.keys(parsed.jobs).length > 0);
+    for (const [id, job] of Object.entries(parsed.jobs))
+      assert.ok(expandJob(id, job).length > 0);
+    const steps = Object.values(parsed.jobs).flatMap((job) => job.steps ?? []);
+    for (const kind of ['web', 'installers']) {
+      const census = steps.find((step) =>
+        step.run?.includes(`budget-artifacts.mjs --kind ${kind}`),
+      );
+      assert.ok(census, `${file}: ${kind}`);
+      assert.match(census.name, /Census/);
+      assert.match(census.name, /advisory/);
+      assert.equal(census['continue-on-error'], undefined);
+      assert.ok(
+        steps.some((step) =>
+          step.with?.path?.includes(
+            `budget-output/${kind === 'web' ? 'web' : 'installers'}.json`,
+          ),
+        ) ||
+          (file === 'release.yml' && kind === 'web'),
+      );
+    }
+  }
+});
+
+test('oversized advisory garden input is diagnosed without running the publisher', async () => {
+  const source = parse(
+    fs.readFileSync(path.join(root, '.github/workflows/ci-garden.yml'), 'utf8'),
+  );
+  const step = Object.values(source.jobs)
+    .flatMap((job) => job.steps ?? [])
+    .find((entry) => entry.name?.startsWith('Publish one garden issue'));
+  const messages = [];
+  const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+  const run = new AsyncFunction('require', 'process', 'core', step.with.script);
+  await run(
+    () => ({
+      lstatSync: () => ({
+        isFile: () => true,
+        isSymbolicLink: () => false,
+        size: 9 * 1024 * 1024,
+      }),
+      readFileSync: () => assert.fail('Oversized input must not be read'),
+    }),
+    { env: { RUNNER_TEMP: '/temp' } },
+    { info: (value) => messages.push(value) },
+  );
+  assert.match(messages.join(), /Advisory garden publication unavailable/);
+});
 const repository = () => ({
   schema: 'mekstation/ci-budget-metrics/v1',
   budgetConfigHash: 'a'.repeat(64),
@@ -382,8 +440,8 @@ test('repository gate rejects omitted/unknown timeouts and omitted/reclassified 
 test('observation projections never turn absent package evidence into zero/cap values', () => {
   const metrics = repository(),
     projection = observedBudgetValues(config, metrics);
-  assert.equal(projection.complete, false);
-  assert.equal(projection.missing.length, 3);
+  assert.equal(projection.complete, true);
+  assert.equal(projection.missing.length, 0);
   const reporting = observedBudgetValues(
     { ...config, reporting: { jobMinutes: 60.125, criticalPathMs: 650000.5 } },
     metrics,
