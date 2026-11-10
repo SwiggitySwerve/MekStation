@@ -426,9 +426,22 @@ describe('ValueMappings', () => {
       expect(isOmniMechConfig('Standard')).toBe(false);
     });
 
-    it('should be case-insensitive', () => {
-      expect(isOmniMechConfig('OMNIMECH')).toBe(true);
-      expect(isOmniMechConfig('omnimech')).toBe(true);
+    // MegaMek 48fcb2f64 MtfFile.java:358: chassisConfig.contains("Omni"),
+    // case-sensitive, like the configuration test (MtfFile.java:283-310).
+    it.each([
+      ['Biped OmniMek', true],
+      ['Quad OmniMek', true],
+      ['QuadVee OmniMek', true],
+      ['Tripod OmniMek', true],
+      ['Biped', false],
+      ['Biped FrankenMek', false],
+      ['QuadVee', false],
+      ['LAM', false],
+      ['OMNIMECH', false],
+      ['omnimech', false],
+      ['omni', false],
+    ])('%s -> %s as in the pinned loader', (source, expected) => {
+      expect(isOmniMechConfig(source)).toBe(expected);
     });
   });
 });

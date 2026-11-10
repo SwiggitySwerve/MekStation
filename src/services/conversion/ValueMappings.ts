@@ -644,6 +644,6 @@ export function mapMechConfiguration(source: string): MechConfiguration {
  * Detect if config indicates an OmniMech
  */
 export function isOmniMechConfig(source: string): boolean {
-  const lowerSource = source.toLowerCase();
-  return lowerSource.includes('omni') || lowerSource.includes('omnimech');
+  // MegaMek 48fcb2f64 MtfFile.java:358: chassisConfig.contains("Omni").
+  return source.includes('Omni');
 }
