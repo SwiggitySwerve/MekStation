@@ -6,6 +6,7 @@ import type { IUnitContract } from '@/types/contracts';
 import {
   mapRulesLevel,
   mapTechBase,
+  mapUnitTechBaseIdentity,
 } from '@/services/units/unitLoaderService/componentMappers';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
@@ -94,7 +95,10 @@ export function mapInfantryDefinition(
   definition: IUnitContract,
 ): Partial<InfantryState> {
   if (definition.smallUnitEditor !== undefined)
-    return infantryEditorSchema.parse(definition.smallUnitEditor);
+    return {
+      ...infantryEditorSchema.parse(definition.smallUnitEditor),
+      ...mapUnitTechBaseIdentity('infantry', definition),
+    };
   const source = z
     .object({
       unitType: z.literal('Infantry'),
@@ -183,5 +187,6 @@ export function mapInfantryDefinition(
     groundMP: movement.runMP,
     jumpMP: movement.jumpMP,
     umuMP: movement.umuMP,
+    ...mapUnitTechBaseIdentity('infantry', definition),
   };
 }

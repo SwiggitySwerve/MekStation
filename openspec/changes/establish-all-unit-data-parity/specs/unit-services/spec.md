@@ -513,6 +513,29 @@ SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
 - **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
 - **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
 
+### Requirement: Non-mech Mixed identity survives library load and save
+
+Non-mech loaders SHALL retain Mixed mode separately from the binary editor
+technology and SHALL resolve known chassis through the shared family accessor.
+Identity SHALL be applied after existing component and saved-editor projections.
+Library serializers SHALL write root MIXED and the typed family-owned chassis
+fact. Pure units and legacy drafts SHALL retain their exact existing projections.
+
+#### Scenario: Mixed identity survives a stale editor snapshot
+
+- **GIVEN** a Mixed non-mech definition with a known chassis and an older binary editor snapshot
+- **WHEN** it is opened, saved to the library and reopened
+- **THEN** runtime mode and saved root technology SHALL remain Mixed
+- **AND** the known chassis SHALL survive independently of the editor snapshot
+- **AND** an absent chassis SHALL remain unknown without a manufactured source fact
+
+#### Scenario: Typed infantry identity overrides historical source snapshots
+
+- **GIVEN** typed Mixed infantry identity and a conflicting historical librarySource chassis
+- **WHEN** the unit is saved and reopened
+- **THEN** the saved root SHALL use the typed chassis
+- **AND** an unknown typed chassis SHALL NOT be restored from the stale snapshot
+
 ### Requirement: Native OmniMek mounted equipment pod metadata
 
 SHALL derive pod metadata for every represented mount type on an explicitly
