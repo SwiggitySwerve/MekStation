@@ -1,4 +1,7 @@
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  isNativeOnlyArmor,
+} from '@/types/construction/ArmorType';
 
 /**
  * BLK `armor_type` codes: MegaMek 48fcb2f6 EquipmentType.T_ARMOR_*
@@ -22,6 +25,15 @@ const BLK_ARMOR_CODES: Readonly<Record<ArmorTypeEnum, number>> = {
   [ArmorTypeEnum.STEALTH]: 22,
   [ArmorTypeEnum.BALLISTIC_REINFORCED]: 26,
   [ArmorTypeEnum.COMMERCIAL]: 10, // 48fcb2f64 EquipmentType.java:95.
+  // Native-only types (ArmorType.ts NATIVE_ONLY_ARMOR_SOURCE_TAGS): the codes
+  // encode, but decodeBlkArmorType does not return them yet.
+  [ArmorTypeEnum.PATCHWORK]: 7, // EquipmentType.java:92.
+  [ArmorTypeEnum.INDUSTRIAL]: 14, // EquipmentType.java:99.
+  [ArmorTypeEnum.HEAVY_INDUSTRIAL]: 15, // EquipmentType.java:100.
+  [ArmorTypeEnum.PRIMITIVE]: 17, // EquipmentType.java:102.
+  [ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION]: 23, // EquipmentType.java:108.
+  [ArmorTypeEnum.HEAT_DISSIPATING]: 24, // EquipmentType.java:109.
+  [ArmorTypeEnum.IMPACT_RESISTANT]: 25, // EquipmentType.java:110.
 };
 
 /** The BLK `armor_type` code for an editor armor type (Standard if unknown). */
@@ -44,7 +56,9 @@ export function decodeBlkArmorType(
   if (code === 8) return ArmorTypeEnum.STEALTH;
   const found = Object.entries(BLK_ARMOR_CODES).find(
     ([type, value]) =>
-      value === code && type !== ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+      value === code &&
+      type !== ArmorTypeEnum.FERRO_FIBROUS_CLAN &&
+      !isNativeOnlyArmor(type as ArmorTypeEnum),
   );
   return found ? (found[0] as ArmorTypeEnum) : undefined;
 }

@@ -38600,7 +38600,7 @@
     "file": "miscellaneous/jump-jets.json",
     "index": 7,
     "id": "clan-partial-wing",
-    "sha256": "40a4df96d30c093c32e2da4da93ff2cd1e7bb57481637d319ea7a4389d69c418",
+    "sha256": "bbef6b2e5757d12180481d01e68315b65049dbaa1b95b34b1e6e1d30fdf65c33",
     "item": {
       "id": "clan-partial-wing",
       "name": "Partial Wing (Clan)",
@@ -38611,8 +38611,7 @@
       "criticalSlots": 6,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3085,
-      "special": ["+1 Jump MP", "+2 heat dissipation at altitude"],
+      "introductionYear": 3067,
       "variableEquipmentId": "partial-wing",
       "allowedUnitTypes": ["BattleMech"],
       "flags": ["SPREADABLE", "OMNI_FIXED_ONLY"]

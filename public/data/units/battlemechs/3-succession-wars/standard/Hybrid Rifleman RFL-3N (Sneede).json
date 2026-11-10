@@ -18,7 +18,27 @@
   },
   "cockpit": "STANDARD",
   "structure": {
-    "type": "STANDARD"
+    "type": "STANDARD",
+    "locationTonnage": {
+      "LEFT_ARM": 70,
+      "RIGHT_ARM": 60,
+      "LEFT_TORSO": 65,
+      "RIGHT_TORSO": 60,
+      "CENTER_TORSO": 60,
+      "HEAD": 60,
+      "LEFT_LEG": 60,
+      "RIGHT_LEG": 60
+    },
+    "typeByLocation": {
+      "LEFT_ARM": "STANDARD",
+      "RIGHT_ARM": "STANDARD",
+      "LEFT_TORSO": "STANDARD",
+      "RIGHT_TORSO": "STANDARD",
+      "CENTER_TORSO": "STANDARD",
+      "HEAD": "STANDARD",
+      "LEFT_LEG": "STANDARD",
+      "RIGHT_LEG": "STANDARD"
+    }
   },
   "armor": {
     "type": "STANDARD",

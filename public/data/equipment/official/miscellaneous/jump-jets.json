@@ -112,8 +112,7 @@
       "criticalSlots": 6,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3085,
-      "special": ["+1 Jump MP", "+2 heat dissipation at altitude"],
+      "introductionYear": 3067,
       "variableEquipmentId": "partial-wing",
       "allowedUnitTypes": ["BattleMech"],
       "flags": ["SPREADABLE", "OMNI_FIXED_ONLY"]

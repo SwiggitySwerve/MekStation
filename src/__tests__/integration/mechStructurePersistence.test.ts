@@ -316,7 +316,16 @@ describe('native donor structure mass through persistence', () => {
   });
 
   it('undoes adding metadata back to absence, redoes it, tracks dirty state and restores overrides after material replacement', () => {
-    const base = new UnitLoaderService().mapToUnitState(drizella, true);
+    // Start from Drizella WITHOUT donor metadata: the committed catalog now
+    // carries its native locationTonnage/typeByLocation, so build the
+    // metadata-free base explicitly instead of relying on the catalog file.
+    const structureType = drizella.structure?.type;
+    if (!structureType)
+      throw new Error('Drizella fixture has no structure type');
+    const base = new UnitLoaderService().mapToUnitState(
+      parseUnit({ ...drizella, structure: { type: structureType } }),
+      true,
+    );
     const store = createUnitStore(base);
     const history = getUnitEditHistory(store);
     const clean = getUnitDraftFingerprint(store.getState());

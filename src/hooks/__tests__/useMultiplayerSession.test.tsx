@@ -15,6 +15,18 @@ import {
   rollInitiative,
   startGame,
 } from '@/utils/gameplay/gameSessionCore';
+import {
+  appendEvent,
+  GameEventIdCollisionError,
+  GameEventSequenceError,
+} from '@/utils/gameplay/gameSessionEvents';
+
+jest.mock('@/utils/gameplay/gameSessionEvents', () => {
+  const actual = jest.requireActual<
+    typeof import('@/utils/gameplay/gameSessionEvents')
+  >('@/utils/gameplay/gameSessionEvents');
+  return { ...actual, appendEvent: jest.fn(actual.appendEvent) };
+});
 
 class MockSocket implements IClientWebSocket {
   sent: string[] = [];
@@ -493,7 +505,75 @@ describe('useMultiplayerSession game surface', () => {
   });
   afterEach(() => {
     useGameplayStore.getState().reset();
+    jest
+      .mocked(appendEvent)
+      .mockImplementation(
+        jest.requireActual<typeof import('@/utils/gameplay/gameSessionEvents')>(
+          '@/utils/gameplay/gameSessionEvents',
+        ).appendEvent,
+      );
   });
+
+  it.each([
+    new GameEventIdCollisionError('injected'),
+    new GameEventSequenceError(0, 1),
+  ])(
+    'hosted reconnect and GM rewind do not append wire events even with $name armed',
+    (error) => {
+      const authoritative = buildEventLog();
+      const wireIds = new Set(authoritative.events.map((event) => event.id));
+      const actual = jest.requireActual<
+        typeof import('@/utils/gameplay/gameSessionEvents')
+      >('@/utils/gameplay/gameSessionEvents');
+      const incomingAppend = jest.fn();
+      jest.mocked(appendEvent).mockImplementation((session, event) => {
+        if (wireIds.has(event.id)) {
+          incomingAppend(event);
+          throw error;
+        }
+        return actual.appendEvent(session, event);
+      });
+      const { result, sockets, unmount } = mountLifecycleSession();
+      act(() => emitReplay(sockets[0], authoritative.events.slice(0, 2)));
+      expect(result.current.mirrorSession).not.toBeNull();
+      act(() => {
+        sockets[0].emit({
+          kind: 'ReplayStart',
+          matchId: 'match-1',
+          ts,
+          fromSeq: 2,
+          totalEvents: authoritative.events.length - 2,
+        });
+        sockets[0].emit({
+          kind: 'ReplayChunk',
+          matchId: 'match-1',
+          ts,
+          events: authoritative.events.slice(2),
+          deliverySequences: authoritative.events
+            .slice(2)
+            .map((_event, index) => index + 2),
+        });
+        sockets[0].emit({
+          kind: 'ReplayEnd',
+          matchId: 'match-1',
+          ts,
+          toSeq: authoritative.events.length - 1,
+        });
+      });
+      expect(result.current.mirrorSession?.currentState).toEqual(
+        authoritative.currentState,
+      );
+      act(() => emitReplayStart(sockets[0], 2, { replacesStream: true }));
+      expect(result.current.mirrorSession?.currentState).toEqual(
+        authoritative.currentState,
+      );
+      act(() => emitReplayBody(sockets[0], authoritative.events.slice(0, 2)));
+      expect(result.current.mirrorEvents).toHaveLength(2);
+      expect(result.current.error).toBeNull();
+      expect(incomingAppend).not.toHaveBeenCalled();
+      unmount();
+    },
+  );
 
   it('builds a mirror session from the broadcast Event stream', async () => {
     const authoritative = buildEventLog();

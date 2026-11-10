@@ -77,3 +77,18 @@ it('corrects the catalog category instead of widening the lookup exclusion', () 
     getEquipmentLookupService().getById('single-heat-sink'),
   ).toBeUndefined();
 });
+
+it('uses the native Clan introduction and omits unsupported descriptive text', () => {
+  // MiscType.java:2302-2303 and TechAdvancement.java:686-698,784-791
+  // at 48fcb2f64: introduction uses the unapproximated 3067 prototype date.
+  const clan = catalog.items.find((item) => item.id === 'clan-partial-wing');
+  expect(clan).toMatchObject({ introductionYear: 3067 });
+  expect(clan).not.toHaveProperty('special');
+  // Existing IS metadata is deliberately left for a later cited catalog batch.
+  expect(
+    catalog.items.find((item) => item.id === 'partial-wing'),
+  ).toMatchObject({
+    introductionYear: 3085,
+    special: ['+1 Jump MP', '+2 heat dissipation at altitude'],
+  });
+});
