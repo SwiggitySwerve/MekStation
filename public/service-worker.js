@@ -13,6 +13,22 @@ const STATIC_ASSETS = [
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
+  // A worker fetch dispatch can lose pagehide keepalive writes when Chromium
+  // replaces the document. Static routes bypass that dispatch for API writes.
+  // Browsers without addRoutes retain the existing fetch/cache behavior.
+  if (typeof event.addRoutes === 'function') {
+    event.addRoutes([
+      {
+        condition: {
+          or: ['PUT', 'POST', 'PATCH', 'DELETE'].map((requestMethod) => ({
+            urlPattern: '/api/*',
+            requestMethod,
+          })),
+        },
+        source: 'network',
+      },
+    ]);
+  }
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS);

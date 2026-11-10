@@ -44,6 +44,23 @@ edits; or raise a conflict without pushing or replacing.
 - **AND** the ordinary save SHALL carry token N and the local state
 - **AND** the save status SHALL read as recovered unsaved changes until a save is acknowledged
 
+#### Scenario: An undelivered battle outcome is adopted without applying it twice
+
+- **GIVEN** the production `enqueueOutcome` action added a campaign-linked battle outcome to an adopted single-player copy at version N
+- **AND** its discard-time write never reached the server
+- **WHEN** a new document rehydrates that copy and its marker while the server is still at N
+- **THEN** the copy SHALL become dirty and save the pending outcome at base N without another edit
+- **AND** `processedBattleIds` SHALL remain unchanged because adoption does not apply battle effects
+- **AND** the saved queue SHALL contain exactly one outcome for that matchId after adoption and any later save
+
+#### Scenario: Another writer moved on before battle-outcome adoption
+
+- **GIVEN** an enqueued pending battle outcome whose undelivered write left a marker at version N
+- **WHEN** a new document reads a newer server row from another writer
+- **THEN** the pending outcome SHALL remain local and the copy SHALL become a pending-write conflict
+- **AND** no automatic, manual or discard-time write SHALL send the local copy at the newer server version
+- **AND** the existing conflict card SHALL offer only "Use Server Version", explaining that the explicit choice discards local unsaved changes
+
 #### Scenario: The server holds the copy's own flush
 
 - **GIVEN** a marker whose flush evidence names base N and a digest
