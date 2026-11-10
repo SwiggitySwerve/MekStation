@@ -1,6 +1,7 @@
 import {
   ArmorTypeEnum,
   COMMERCIAL_ARMOR_SOURCE_TAG,
+  FERRO_FIBROUS_PROTO_SOURCE_TAG,
 } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 
@@ -21,6 +22,7 @@ export const ARMOR_TYPE = {
   [ArmorTypeEnum.STANDARD]: 'STANDARD',
   [ArmorTypeEnum.FERRO_FIBROUS_IS]: 'FERRO_FIBROUS',
   [ArmorTypeEnum.FERRO_FIBROUS_CLAN]: 'FERRO_FIBROUS_CLAN',
+  [ArmorTypeEnum.FERRO_FIBROUS_PROTO]: FERRO_FIBROUS_PROTO_SOURCE_TAG,
   [ArmorTypeEnum.LIGHT_FERRO]: 'LIGHT_FERRO_FIBROUS',
   [ArmorTypeEnum.HEAVY_FERRO]: 'HEAVY_FERRO_FIBROUS',
   [ArmorTypeEnum.STEALTH]: 'STEALTH',

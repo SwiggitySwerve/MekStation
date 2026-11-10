@@ -19,6 +19,7 @@ export enum ArmorTypeEnum {
   STANDARD = 'Standard',
   FERRO_FIBROUS_IS = 'Ferro-Fibrous (IS)',
   FERRO_FIBROUS_CLAN = 'Ferro-Fibrous (Clan)',
+  FERRO_FIBROUS_PROTO = 'Ferro-Fibrous Prototype',
   LIGHT_FERRO = 'Light Ferro-Fibrous',
   HEAVY_FERRO = 'Heavy Ferro-Fibrous',
   STEALTH = 'Stealth',
@@ -31,6 +32,7 @@ export enum ArmorTypeEnum {
 }
 
 export const COMMERCIAL_ARMOR_SOURCE_TAG = 'COMMERCIAL';
+export const FERRO_FIBROUS_PROTO_SOURCE_TAG = 'FERRO_FIBROUS_PROTO';
 
 /**
  * Armor definition with all characteristics
@@ -89,6 +91,25 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     criticalSlots: 7,
     costMultiplier: 1.5,
     introductionYear: 2828,
+    isSpecial: false,
+  },
+  {
+    // MegaMek 48fcb2f64 ArmorType.java:518-540; EquipmentType.java:94 (code 9).
+    type: ArmorTypeEnum.FERRO_FIBROUS_PROTO,
+    sourceTag: FERRO_FIBROUS_PROTO_SOURCE_TAG,
+    name: 'Ferro-Fibrous Prototype',
+    // ArmorType.java:533; no production date (:535), IO rules (:532), so
+    // TechAdvancement.java:982-989 resolves the static level to Experimental.
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.EXPERIMENTAL,
+    // ArmorType.java:61,301-302,540: 16 * 1.12 points per ton.
+    pointsPerTon: 17.92,
+    // ArmorType.java:525,530 delegates to MiscType.java:1224-1229 (ordinary Mek).
+    criticalSlots: 16,
+    // ArmorType.java:524,369: 60000 / Standard's 10000; no cost-formula claim.
+    costMultiplier: 6,
+    // ArmorType.java:535-536; TechAdvancement.java:720-735: 2557 approximate.
+    introductionYear: 2552,
     isSpecial: false,
   },
   {
