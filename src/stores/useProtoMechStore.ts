@@ -25,11 +25,18 @@ import {
   computeProtoWalkMPForRating,
   clampProtoMovement,
   getProtoWeightClass,
+  PROTO_JUMP_JET_TYPE,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
+  protoChassisCanJump,
   protoJumpLimit,
+  protoMaxJumpMP,
   protoTonnageChangeError,
+  readProtoJumpJetType,
+  reconcileProtoJumpMounts,
+  setProtoJumpMounts,
 } from '@/utils/construction/protomech';
+import { generateUnitId } from '@/utils/uuid';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
 import {
@@ -200,6 +207,12 @@ export function createProtoMechStore(
                   chassisType,
                 ),
                 jumpMP: jump,
+                equipment: reconcileProtoJumpMounts(
+                  state.equipment,
+                  state.jumpMP,
+                  jump,
+                  generateUnitId,
+                ),
                 glidingWings,
                 isModified: true,
                 lastModifiedAt: Date.now(),
@@ -259,6 +272,12 @@ export function createProtoMechStore(
               return {
                 walkMP,
                 jumpMP,
+                equipment: reconcileProtoJumpMounts(
+                  state.equipment,
+                  state.jumpMP,
+                  jumpMP,
+                  generateUnitId,
+                ),
                 cruiseMP: walkMP,
                 flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
@@ -271,22 +290,69 @@ export function createProtoMechStore(
               };
             }),
 
-          setJumpMP: (jumpMP) =>
-            set((state) => ({
-              jumpMP: Math.max(
+          // The jump MP is the number of jump-jet mounts (PMStructureTab.jumpChanged
+          // :584-624): a change makes the mounts of the current type match. A UMU
+          // loadout is shown, not edited, until Battle Value has a UMU input.
+          setJumpMP: (count) =>
+            set((state) => {
+              if (
+                readProtoJumpJetType(state.equipment) ===
+                PROTO_JUMP_JET_TYPE.UMU
+              )
+                return {};
+              const jumpMP = Math.max(
                 0,
                 Math.min(
-                  jumpMP,
+                  count,
                   protoJumpLimit(
                     state.walkMP,
                     state.chassisType,
                     state.equipment,
                   ),
                 ),
-              ),
-              isModified: true,
-              lastModifiedAt: Date.now(),
-            })),
+              );
+              return {
+                jumpMP,
+                equipment: reconcileProtoJumpMounts(
+                  state.equipment,
+                  state.jumpMP,
+                  jumpMP,
+                  generateUnitId,
+                ),
+                isModified: true,
+                lastModifiedAt: Date.now(),
+              };
+            }),
+
+          // The Jump Type combo and spinner together (PMStructureTab.jumpTypeChanged
+          // :627-637): other types' mounts go, then the jump is re-created as `type`
+          // and clamped to that type's limit (a glider's is 0).
+          setJumpJets: ({ type, count }) =>
+            set((state) => {
+              if (
+                readProtoJumpJetType(state.equipment) ===
+                PROTO_JUMP_JET_TYPE.UMU
+              )
+                return {};
+              const limit = protoChassisCanJump(state.chassisType)
+                ? protoMaxJumpMP(
+                    state.walkMP,
+                    type === PROTO_JUMP_JET_TYPE.EXTENDED,
+                  )
+                : 0;
+              const jumpMP = Math.max(0, Math.min(count, limit));
+              return {
+                jumpMP,
+                equipment: setProtoJumpMounts(
+                  state.equipment,
+                  type,
+                  jumpMP,
+                  generateUnitId,
+                ),
+                isModified: true,
+                lastModifiedAt: Date.now(),
+              };
+            }),
 
           // =================================================================
           // Structure & Armor Actions

@@ -76,6 +76,17 @@ export {
 } from './movementRules';
 export type { ProtoMovementFacts } from './movementRules';
 
+// The jump-jet mounts behind the jump MP (MML's Jump Type combo): the single owner
+export {
+  PROTO_JUMP_JET_OPTIONS,
+  PROTO_JUMP_JET_TYPE,
+  findProtoJumpJetType,
+  readProtoJumpJetType,
+  reconcileProtoJumpMounts,
+  setProtoJumpMounts,
+} from './jumpJets';
+export type { ProtoEditableJumpJetType, ProtoJumpJetType } from './jumpJets';
+
 // Main Gun and arm placement (pinned slot, weight and weapon-legality rules)
 export {
   getProtoLocationSlotLimit,

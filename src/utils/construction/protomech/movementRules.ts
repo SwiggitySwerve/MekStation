@@ -31,8 +31,10 @@ export const PROTO_QUAD_MIN_RUN_MP = 3;
  * it; every other caller asks `isProtoExtendedJumpJet`.
  */
 export const PROTO_EXTENDED_JUMP_JET_ID = 'ExtendedJumpJetSystem';
+/** EquipmentTypeLookup.PROTOMEK_JUMP_JET, MiscType.createProtomekJumpJet. */
+export const PROTO_JUMP_JET_ID = 'ProtoMechJumpJet';
 /** EquipmentTypeLookup.PROTOMEK_UMU, MiscType.createProtomekUMU (MiscType.java:2079). */
-const PROTO_UMU_ID = 'ProtoMechUMU';
+export const PROTO_UMU_ID = 'ProtoMechUMU';
 
 const squash = (id: string): string =>
   id.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -40,6 +42,11 @@ const squash = (id: string): string =>
 /** A BLK name or display name of the Extended Jump Jet System. */
 export function isProtoExtendedJumpJet(equipmentId: string): boolean {
   return squash(equipmentId) === squash(PROTO_EXTENDED_JUMP_JET_ID);
+}
+
+/** A BLK name or display name of the standard ProtoMech jump jet. */
+export function isProtoStandardJumpJet(equipmentId: string): boolean {
+  return squash(equipmentId) === squash(PROTO_JUMP_JET_ID);
 }
 
 /** A BLK name of the ProtoMech UMU (display name "UMU" is not matched). */

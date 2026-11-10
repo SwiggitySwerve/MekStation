@@ -1,0 +1,90 @@
+{
+  "provenance": "Literal fingerprints of a ProtoMech with jump 3 and NO jump-jet mounts (what the editor produced before 4.1-b3c), captured from the code at 8c9084dc0 before b3c changed anything. Never regenerate: an old unit must keep these exact bytes on read.",
+  "rawDraft": "{\"state\":{\"id\":\"70000000-0000-4000-8000-000000000201\",\"name\":\"New ProtoMech\",\"chassis\":\"Legacy\",\"model\":\"jump-no-mounts\",\"mulId\":\"-1\",\"year\":3071,\"rulesLevel\":\"Advanced\",\"techBase\":\"Clan\",\"unitType\":\"ProtoMech\",\"tonnage\":5,\"weightClass\":\"Medium\",\"chassisType\":\"Biped\",\"pointSize\":5,\"engineRating\":10,\"walkMP\":4,\"cruiseMP\":4,\"flankMP\":2,\"jumpMP\":3,\"structureByLocation\":{\"Head\":1,\"Torso\":5,\"Left Arm\":1,\"Right Arm\":1,\"Legs\":3,\"Main Gun\":0},\"armorByLocation\":{\"Head\":0,\"Torso\":0,\"Left Arm\":0,\"Right Arm\":0,\"Legs\":0,\"Main Gun\":0},\"armorType\":0,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"glidingWings\":false,\"hasMagneticClamps\":false,\"hasExtendedTorsoTwist\":false,\"equipment\":[],\"isModified\":true,\"createdAt\":1794182400000,\"lastModifiedAt\":1794182400000},\"version\":0}",
+  "draftFingerprint": "{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Biped\",\"cruiseMP\":4,\"engineRating\":10,\"equipment\":[],\"flankMP\":2,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":3,\"model\":\"jump-no-mounts\",\"mulId\":\"-1\",\"name\":\"New ProtoMech\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":1,\"Left Arm\":1,\"Legs\":3,\"Main Gun\":0,\"Right Arm\":1,\"Torso\":5},\"techBase\":\"Clan\",\"tonnage\":5,\"unitType\":\"ProtoMech\",\"walkMP\":4,\"weightClass\":\"Medium\",\"year\":3071}",
+  "libraryFingerprint": "{\"armor\":{\"byLocation\":{\"HEAD\":0,\"LEFT_ARM\":0,\"LEGS\":0,\"MAIN_GUN\":0,\"RIGHT_ARM\":0,\"TORSO\":0},\"type\":\"STANDARD_PROTOMEK\"},\"chassis\":\"Legacy\",\"engine\":{\"rating\":10,\"type\":\"FUSION\"},\"equipment\":[],\"era\":\"Jihad\",\"family\":\"protomechs\",\"hasMainGun\":false,\"id\":\"\",\"isGlider\":false,\"isQuad\":false,\"mainGun\":{\"weapons\":[]},\"model\":\"jump-no-mounts\",\"movement\":{\"cruiseMP\":4,\"jumpMP\":3},\"mulId\":\"-1\",\"rulesLevel\":\"ADVANCED\",\"schemaVersion\":\"1.0.0\",\"smallUnitEditor\":{\"armorByLocation\":{\"Head\":0,\"Left Arm\":0,\"Legs\":0,\"Main Gun\":0,\"Right Arm\":0,\"Torso\":0},\"armorType\":0,\"chassis\":\"Legacy\",\"chassisType\":\"Biped\",\"cruiseMP\":4,\"engineRating\":10,\"equipment\":[],\"flankMP\":2,\"glidingWings\":false,\"hasExtendedTorsoTwist\":false,\"hasMagneticClamps\":false,\"hasMainGun\":false,\"hasMyomerBooster\":false,\"jumpMP\":3,\"model\":\"jump-no-mounts\",\"mulId\":\"-1\",\"name\":\"Legacy jump-no-mounts\",\"pointSize\":5,\"rulesLevel\":\"Advanced\",\"structureByLocation\":{\"Head\":1,\"Left Arm\":1,\"Legs\":3,\"Main Gun\":0,\"Right Arm\":1,\"Torso\":5},\"techBase\":\"Clan\",\"tonnage\":5,\"unitType\":\"ProtoMech\",\"walkMP\":4,\"weightClass\":\"Medium\",\"year\":3071},\"techBase\":\"CLAN\",\"tonnage\":5,\"unitType\":\"ProtoMech\",\"variant\":\"jump-no-mounts\",\"weightClass\":\"MEDIUM\",\"year\":3071}",
+  "libraryRecord": {
+    "schemaVersion": "1.0.0",
+    "id": "unit-save-fingerprint",
+    "chassis": "Legacy",
+    "model": "jump-no-mounts",
+    "variant": "jump-no-mounts",
+    "unitType": "ProtoMech",
+    "techBase": "CLAN",
+    "rulesLevel": "ADVANCED",
+    "era": "Late Succession Wars",
+    "year": 3071,
+    "tonnage": 5,
+    "engine": {
+      "type": "FUSION",
+      "rating": 10
+    },
+    "armor": {
+      "type": "STANDARD_PROTOMEK",
+      "byLocation": {
+        "HEAD": 0,
+        "TORSO": 0,
+        "LEFT_ARM": 0,
+        "RIGHT_ARM": 0,
+        "LEGS": 0,
+        "MAIN_GUN": 0
+      }
+    },
+    "movement": {
+      "cruiseMP": 4,
+      "jumpMP": 3
+    },
+    "equipment": [],
+    "mulId": "-1",
+    "weightClass": "MEDIUM",
+    "isQuad": false,
+    "isGlider": false,
+    "hasMainGun": false,
+    "mainGun": {
+      "weapons": []
+    },
+    "family": "protomechs",
+    "smallUnitEditor": {
+      "name": "Legacy jump-no-mounts",
+      "chassis": "Legacy",
+      "model": "jump-no-mounts",
+      "mulId": "-1",
+      "year": 3071,
+      "rulesLevel": "Advanced",
+      "techBase": "Clan",
+      "unitType": "ProtoMech",
+      "tonnage": 5,
+      "weightClass": "Medium",
+      "chassisType": "Biped",
+      "pointSize": 5,
+      "engineRating": 10,
+      "walkMP": 4,
+      "cruiseMP": 4,
+      "flankMP": 2,
+      "jumpMP": 3,
+      "structureByLocation": {
+        "Head": 1,
+        "Torso": 5,
+        "Left Arm": 1,
+        "Right Arm": 1,
+        "Legs": 3,
+        "Main Gun": 0
+      },
+      "armorByLocation": {
+        "Head": 0,
+        "Torso": 0,
+        "Left Arm": 0,
+        "Right Arm": 0,
+        "Legs": 0,
+        "Main Gun": 0
+      },
+      "armorType": 0,
+      "hasMainGun": false,
+      "hasMyomerBooster": false,
+      "glidingWings": false,
+      "hasMagneticClamps": false,
+      "hasExtendedTorsoTwist": false,
+      "equipment": []
+    }
+  }
+}

@@ -1,5 +1,9 @@
 import React from 'react';
 
+import {
+  PROTO_JUMP_JET_OPTIONS,
+  PROTO_JUMP_JET_TYPE,
+} from '@/utils/construction/protomech';
 import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
@@ -176,13 +180,44 @@ export function ProtoMechMovementSection({
             aria-label="Jump MP"
             value={controls.jumpMP}
             onChange={controls.handleJumpMPChange}
-            disabled={readOnly || noJump}
+            disabled={
+              readOnly || noJump || controls.jumpJetLockReason !== undefined
+            }
             min={0}
             max={controls.jumpMax}
             className={cs.input.full}
           />
         </div>
       </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div>
+          <label className={cs.text.label}>Jump Type</label>
+          <select
+            aria-label="Jump Type"
+            value={controls.jumpJetType}
+            onChange={controls.handleJumpJetTypeChange}
+            disabled={
+              readOnly || noJump || controls.jumpJetLockReason !== undefined
+            }
+            className={cs.select.full}
+          >
+            {PROTO_JUMP_JET_OPTIONS.map((option) => (
+              <option key={option.type} value={option.type}>
+                {option.label}
+              </option>
+            ))}
+            {controls.jumpJetType === PROTO_JUMP_JET_TYPE.UMU && (
+              <option value={PROTO_JUMP_JET_TYPE.UMU}>UMU</option>
+            )}
+          </select>
+        </div>
+      </div>
+      {controls.jumpJetLockReason && (
+        <p className="mt-2 text-xs text-amber-400">
+          {controls.jumpJetLockReason}
+        </p>
+      )}
 
       <div className="mt-3 flex flex-wrap gap-4 text-sm">
         <span className={cs.text.secondary}>

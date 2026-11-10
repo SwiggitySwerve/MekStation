@@ -16,8 +16,13 @@ import {
   protoMaxWalkMP,
   protoMinWalkMP,
   protoTonnageChangeError,
+  protoMaxJumpMP,
+  findProtoJumpJetType,
+  PROTO_JUMP_JET_TYPE,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
+  type ProtoEditableJumpJetType,
+  type ProtoJumpJetType,
 } from '@/utils/construction/protomech';
 import {
   PROTO_ARMOR_TYPES,
@@ -98,6 +103,11 @@ export interface ProtoMechMovementControls {
   hasPartialWing: boolean;
   /** False for a Glider only (protoChassisCanJump). */
   canJump: boolean;
+  /** The Jump Type combo: the mounted type, else the last choice (MovementView.java:216-222). */
+  jumpJetType: ProtoJumpJetType;
+  /** Why the jump type is not editable (a loaded UMU unit), if it is not. */
+  jumpJetLockReason: string | undefined;
+  handleJumpJetTypeChange: (event: ChangeEvent<HTMLSelectElement>) => void;
   isGliderChassis: boolean;
   hasMyomerBooster: boolean;
   handleWalkMPChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -244,8 +254,27 @@ export function useProtoMechMovementControls(
   const hasMyomerBooster = useProtoMechStore((s) => s.hasMyomerBooster);
   const equipment = useProtoMechStore((s) => s.equipment);
   const setWalkMP = useProtoMechStore((s) => s.setWalkMP);
-  const setJumpMP = useProtoMechStore((s) => s.setJumpMP);
+  const setJumpJets = useProtoMechStore((s) => s.setJumpJets);
   const setMyomerBooster = useProtoMechStore((s) => s.setMyomerBooster);
+
+  // The combo shows the mounted type; at jump 0 there are no mounts, so it keeps the
+  // last choice, as MML's combo does. A loaded UMU unit is shown, not edited, until
+  // Battle Value has a UMU input.
+  const mountedJetType = useMemo(
+    () => findProtoJumpJetType(equipment),
+    [equipment],
+  );
+  const [chosenJetType, setChosenJetType] = useState<ProtoEditableJumpJetType>(
+    mountedJetType === PROTO_JUMP_JET_TYPE.EXTENDED
+      ? PROTO_JUMP_JET_TYPE.EXTENDED
+      : PROTO_JUMP_JET_TYPE.STANDARD,
+  );
+  const jumpJetType = mountedJetType ?? chosenJetType;
+  const jumpJetLocked = jumpJetType === PROTO_JUMP_JET_TYPE.UMU;
+  const editableJetType: ProtoEditableJumpJetType =
+    jumpJetType === PROTO_JUMP_JET_TYPE.EXTENDED
+      ? PROTO_JUMP_JET_TYPE.EXTENDED
+      : PROTO_JUMP_JET_TYPE.STANDARD;
 
   const effectiveWalk = walkMP;
   const hasPartialWing = useMemo(
@@ -260,8 +289,16 @@ export function useProtoMechMovementControls(
     [tonnage, chassisType],
   );
   const jumpMax = useMemo(
-    () => protoJumpLimit(walkMP, chassisType, equipment),
-    [walkMP, chassisType, equipment],
+    () =>
+      Math.max(
+        protoJumpLimit(walkMP, chassisType, equipment),
+        // Choosing Extended lifts the limit to 1.5 x walk before the first jet exists.
+        jumpJetType === PROTO_JUMP_JET_TYPE.EXTENDED &&
+          protoChassisCanJump(chassisType)
+          ? protoMaxJumpMP(walkMP, true)
+          : 0,
+      ),
+    [walkMP, chassisType, equipment, jumpJetType],
   );
 
   const handleWalkMPChange = useCallback(
@@ -275,11 +312,29 @@ export function useProtoMechMovementControls(
 
   const handleJumpMPChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      if (!readOnly) {
-        setJumpMP(Number(event.target.value));
+      if (!readOnly && !jumpJetLocked) {
+        setChosenJetType(editableJetType);
+        setJumpJets({
+          type: editableJetType,
+          count: Number(event.target.value),
+        });
       }
     },
-    [readOnly, setJumpMP],
+    [readOnly, jumpJetLocked, editableJetType, setJumpJets],
+  );
+
+  const handleJumpJetTypeChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      if (readOnly || jumpJetLocked) return;
+      const type =
+        event.target.value === PROTO_JUMP_JET_TYPE.EXTENDED
+          ? PROTO_JUMP_JET_TYPE.EXTENDED
+          : PROTO_JUMP_JET_TYPE.STANDARD;
+      setChosenJetType(type);
+      // At jump 0 there is nothing to re-create; only the choice is kept.
+      if (jumpMP > 0) setJumpJets({ type, count: jumpMP });
+    },
+    [readOnly, jumpJetLocked, jumpMP, setJumpJets],
   );
 
   const handleMyomerBoosterChange = useCallback(
@@ -302,6 +357,11 @@ export function useProtoMechMovementControls(
     effectiveJump,
     hasPartialWing,
     canJump: protoChassisCanJump(chassisType),
+    jumpJetType,
+    jumpJetLockReason: jumpJetLocked
+      ? 'UMU editing waits on Battle Value support, so the jump type is shown, not edited.'
+      : undefined,
+    handleJumpJetTypeChange,
     isGliderChassis,
     hasMyomerBooster,
     handleWalkMPChange,

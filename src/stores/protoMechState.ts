@@ -32,6 +32,7 @@ import {
   computeProtoStructure,
   getProtoWeightClass,
   protoMinWalkMP,
+  type ProtoEditableJumpJetType,
 } from '@/utils/construction/protomech';
 import { getProtoArmorName } from '@/utils/construction/protomech/armorType';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
@@ -316,7 +317,19 @@ export interface ProtoMechStoreActions
    * engine rating. The Myomer Booster changes derived Run, not base Walk.
    */
   setWalkMP: (mp: number) => void;
+  /**
+   * Set the jump MP, which is the number of jump-jet mounts of the current type: mounts
+   * are added or removed to match. Ignored for a UMU loadout (shown, not edited).
+   */
   setJumpMP: (mp: number) => void;
+  /**
+   * The Jump Type and jump MP together: other types' mounts are removed and `count`
+   * mounts of `type` exist, clamped to that type's jump limit (0 for a glider).
+   */
+  setJumpJets: (jets: {
+    type: ProtoEditableJumpJetType;
+    count: number;
+  }) => void;
 
   // Structure & Armor Actions
   setArmorType: (type: number) => void;
