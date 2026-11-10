@@ -15,6 +15,8 @@ import {
 } from '@/lib/p2p';
 import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+import { GameEventType } from '@/types/gameplay';
+import { assertGameEventBatchAdmissible } from '@/utils/gameplay/gameSession';
 
 import {
   appendReplayEventToActiveSession,
@@ -30,6 +32,7 @@ import {
   defaultSetLive,
   deriveReconnectRoomCode,
   persistReplayEventToMatchLog,
+  reportReconnectFailure,
 } from './useP2PReconnectSession.defaults';
 
 export { deriveReconnectRoomCode };
@@ -62,13 +65,10 @@ interface ReconnectDependencies {
   readonly ensureSyncRoom: (matchId: string) => Promise<void> | void;
   readonly getLocalPeerId: () => string | null;
   readonly getHostPresent: (hostPeerId: string | null) => boolean;
-  readonly createChannel: (
-    matchId: string,
-    localPeerId: string,
-  ) => IGameSessionChannel;
+  readonly createChannel: typeof defaultCreateChannel;
   readonly appendReplayEvent: ReplayEventAppender;
   /**
-   * Durable write used on the divergence path. Distinct from
+   * Durable write used for full baselines and divergence rebuilds. Distinct from
    * `appendReplayEvent`, which short-circuits to the in-memory
    * session whenever one exists and therefore leaves the log empty
    * exactly when the rebuild needs it (finding #85).
@@ -115,10 +115,7 @@ export interface IUseP2PReconnectSessionOptions {
   readonly ensureSyncRoom?: (matchId: string) => Promise<void> | void;
   readonly getLocalPeerId?: () => string | null;
   readonly getHostPresent?: (hostPeerId: string | null) => boolean;
-  readonly createChannel?: (
-    matchId: string,
-    localPeerId: string,
-  ) => IGameSessionChannel;
+  readonly createChannel?: typeof defaultCreateChannel;
   readonly appendReplayEvent?: ReplayEventAppender;
   readonly persistReplayEvent?: ReplayEventAppender;
   readonly adoptRebuiltSession?: (session: IGameSession) => void;
@@ -144,7 +141,13 @@ export function useP2PReconnectSession(
     if (!matchId) return;
 
     const runtime = createReconnectRuntime();
-    void startReconnectSession(matchId, options, runtime);
+    void startReconnectSession(matchId, options, runtime).catch(
+      (error: unknown) => {
+        if (runtime.cancelled) return;
+        clearReconnectTimers(runtime);
+        reportReconnectFailure(error);
+      },
+    );
 
     return () => stopReconnectRuntime(runtime);
     // Reconnect dependencies are intentionally captured at mount time.
@@ -314,7 +317,9 @@ function setupGuestReconnect(
     runtime.replayChain = runtime.replayChain
       .then(() => applyReplayStream(matchId, stream, deps, runtime))
       .catch((error: unknown) => {
-        logger.error('P2P reconnect replay chunk failed', error);
+        if (runtime.cancelled) return;
+        clearReconnectTimers(runtime);
+        reportReconnectFailure(error);
       });
   });
   const unsubscribeReject = channel.onReconnectReject((rejection) => {
@@ -393,23 +398,30 @@ async function applyReplayStream(
     deps.onMirrorPrefixDivergence?.(verdict);
   }
 
-  // A diverged mirror is not repaired by appending the peer's history
-  // onto the board that disagreed with it - that is what produced the
-  // mixed session in the first place (#79). The peer's events go to the
-  // DURABLE log, which the reconcile above just emptied, and the board
-  // is then rebuilt from it (#85: the ordinary append would have
-  // short-circuited to memory and left the log empty).
+  // Full baselines replace even a matching recovered prefix. Persist before
+  // hydrating, as on divergence: the ordinary appender short-circuits to the
+  // in-memory session and would duplicate the prefix or leave storage empty.
   const diverged = verdict.kind !== 'match';
+  const rebuild =
+    diverged ||
+    assumePrefixSnapshot ||
+    events[0]?.type === GameEventType.GameCreated;
+  const held = useGameplayStore.getState().interactiveSession?.getSession();
+  if (!rebuild && held) {
+    // Admission is pure. Refuse the entire tail before the first live append,
+    // including conflicting repeats that the batch's delivery dedup would skip.
+    assertGameEventBatchAdmissible(held, events);
+  }
   const seen = new Set<string>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
     seen.add(event.id);
-    await (diverged
+    await (rebuild
       ? deps.persistReplayEvent(matchId, event)
       : deps.appendReplayEvent(matchId, event));
   }
   if (runtime.cancelled) return;
-  if (diverged) {
+  if (rebuild) {
     deps.adoptRebuiltSession(await deps.hydrateFromMatchLog(matchId));
     // Only here. The flag records "your board is not theirs", and this
     // is the one moment that stops being true.
@@ -437,9 +449,14 @@ function enterHostPending(
 ): void {
   if (runtime.cancelled) return;
   clearReconnectTimers(runtime);
-  void deps.hydrateFromMatchLog(matchId).then((session) => {
-    if (runtime.cancelled) return;
-    deps.setHydratedSession(session);
-    deps.setHostPending();
-  });
+  void deps
+    .hydrateFromMatchLog(matchId)
+    .then((session) => {
+      if (runtime.cancelled) return;
+      deps.setHydratedSession(session);
+      deps.setHostPending();
+    })
+    .catch((error: unknown) => {
+      if (!runtime.cancelled) reportReconnectFailure(error);
+    });
 }

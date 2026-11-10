@@ -6,7 +6,12 @@
 # when a *.ts or *.tsx file is staged, `npm run typecheck` checks both
 # the root and scoped scripts projects. The hook runs no production build; the
 # pr-checks workflow runs `npm run build` for code changes.
-
-npx lint-staged || exit $?
+#
+# --no-stash: lint-staged's backup goes on the stash stack, which every linked
+# worktree shares, and it is later applied or dropped by an index looked up a
+# moment earlier. A concurrent stash in another worktree shifts that index, so
+# the backup step can drop someone else's entry. The same tasks still run; a
+# failed task leaves its edits in the working tree instead of reverting them.
+npx lint-staged --no-stash || exit $?
 # Reject ignored-parent restaging failures even if lint-staged returned zero.
 node scripts/lib/check-staged-parents.mjs

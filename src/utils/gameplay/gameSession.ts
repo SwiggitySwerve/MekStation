@@ -23,6 +23,12 @@ export {
 } from './gameSessionCore';
 
 export {
+  assertGameEventBatchAdmissible,
+  GameEventIdCollisionError,
+  GameEventSequenceError,
+} from './gameSessionEvents';
+
+export {
   buildGameSessionFromLobbyState,
   buildLobbyGameData,
   type ILobbyGameData,
