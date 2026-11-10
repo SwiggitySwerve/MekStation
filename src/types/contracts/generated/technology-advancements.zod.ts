@@ -7,6 +7,16 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+const SchemaDef_nativeTechnologyNames = z
+  .array(z.string().min(1))
+  .min(1)
+  .refine(
+    (arr) => arr.every((item, i) => arr.indexOf(item) == i),
+    'All items must be unique!',
+  )
+  .describe(
+    'Exact native internal names referencing the runtime technology-advancements sidecar. Missing metadata remains unavailable; parsing does not resolve references or derive legality.',
+  );
 const SchemaDef_stage = z
   .object({ year: z.number().int().gte(-1), approximate: z.boolean() })
   .strict();

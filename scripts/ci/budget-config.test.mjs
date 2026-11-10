@@ -6,15 +6,40 @@ import { test } from 'node:test';
 
 import {
   loadBudgets,
+  loadBudgetTree,
   validateBudgets,
   budgetRaises,
   ratchetBudgets,
   budgetConfigHash,
   budgetDescriptors,
   budgetTargetGaps,
+  budgetValues,
 } from './budget-config.mjs';
 
 const config = loadBudgets();
+test('the checked-out budget tree passes only without byte caps', () => {
+  assert.deepEqual(loadBudgetTree(), config);
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-tree-'));
+  try {
+    const file = path.join(dir, 'budgets.json');
+    fs.writeFileSync(file, JSON.stringify(config));
+    assert.deepEqual(loadBudgetTree(file), config);
+    for (const id of [
+      'standaloneStaticBytes',
+      'webZipBytes',
+      'installerBytes',
+      'fooBytes',
+    ]) {
+      const next = structuredClone(config);
+      next.limits[id] = 1;
+      fs.writeFileSync(file, JSON.stringify(next));
+      assert.throws(() => loadBudgetTree(file));
+    }
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('byte limits are absent and legacy base removal never creates a raise or ratchet', () => {
   const head = structuredClone(config);
   const legacy = structuredClone(config);
@@ -29,13 +54,38 @@ test('byte limits are absent and legacy base removal never creates a raise or ra
   assert.equal(validateBudgets(head), head);
   assert.deepEqual(budgetRaises(legacy, head), []);
   assert.ok(budgetDescriptors(head).every((d) => d.unit !== 'bytes'));
-  assert.throws(() => validateBudgets(legacy));
+  assert.equal(validateBudgets(legacy), legacy);
+  assert.deepEqual(budgetValues(legacy), budgetValues(head));
   assert.throws(() =>
     ratchetBudgets(head, [{ id: 'limits.installerBytes', value: 1 }]),
   );
   const relaxed = structuredClone(head);
   relaxed.limits.unkeyableTests++;
   assert.equal(budgetRaises(legacy, relaxed)[0].id, 'limits.unkeyableTests');
+});
+
+test('legacy byte limits are ignored on either side, in any subset and with any value', () => {
+  const ids = ['standaloneStaticBytes', 'webZipBytes', 'installerBytes'];
+  for (const id of ids) {
+    for (const value of [1, Number.MAX_SAFE_INTEGER, -1, null, 'obsolete']) {
+      const legacy = structuredClone(config);
+      legacy.limits[id] = value;
+      assert.equal(validateBudgets(legacy), legacy);
+      assert.deepEqual(budgetValues(legacy), budgetValues(config));
+      assert.deepEqual(budgetRaises(config, legacy), []);
+      assert.deepEqual(budgetRaises(legacy, config), []);
+      assert.deepEqual(budgetRaises(null, legacy), []);
+      const changed = structuredClone(legacy);
+      changed.limits[id] = { ignored: true };
+      assert.deepEqual(budgetRaises(legacy, changed), []);
+      assert.ok(budgetDescriptors(legacy).every((d) => d.unit !== 'bytes'));
+      assert.throws(() =>
+        ratchetBudgets(legacy, [{ id: `limits.${id}`, value: 0 }]),
+      );
+      assert.equal(Object.hasOwn(config.limits, id), false);
+      assert.deepEqual(legacy.limits[id], value);
+    }
+  }
 });
 
 test('schema rejects missing/unknown inputs, nonintegers and timeout bypasses', () => {

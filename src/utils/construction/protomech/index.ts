@@ -30,7 +30,7 @@ export {
   ProtoWeightClass,
 } from './weightClass';
 
-// Movement caps and engine formulas
+// Derived movement and engine formulas
 export {
   computeProtoEngineRating,
   computeProtoEngineWeight,
@@ -39,11 +39,19 @@ export {
   effectiveJumpMP,
   hasProtoPartialWing,
   protoChassisCanJump,
-  getProtoMPCaps,
   getProtoEngineWeightError,
-  isMyomerBoosterLegal,
   PROTO_ENGINE_WEIGHT_FACTOR,
+  PROTO_MAX_ENGINE_RATING,
 } from './movementCaps';
+
+// Editor input limits (MegaMekLab's spinner limits), built on the movement rules owner
+export {
+  clampProtoMovement,
+  protoJumpLimit,
+  protoMaxWalkMP,
+  protoMinWalkMP,
+} from './movementLimits';
+export type { ProtoMovementInput } from './movementLimits';
 
 // Partial Wing jump bonus: the single, pure owner shared with gameplay
 export { partialWingJumpBonus } from './partialWing';
@@ -95,7 +103,6 @@ export {
 } from './validation';
 
 // Types re-exported for convenience
-export type { IProtoMPCaps } from './movementCaps';
 export type {
   ProtoMechBuildSnapshot,
   ProtoMechValidationResult,
