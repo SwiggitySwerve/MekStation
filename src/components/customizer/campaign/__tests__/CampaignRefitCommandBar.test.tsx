@@ -8,6 +8,7 @@ import {
 import React from 'react';
 
 import type { UnitState } from '@/stores/unitState';
+import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
 import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import { buildCampaignEditorUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
@@ -58,6 +59,7 @@ function renderCommandBar(options?: {
   readonly invalid?: boolean;
   readonly changed?: boolean;
   readonly patch?: Partial<UnitState>;
+  readonly currentConfiguration?: MechBuildConfig;
 }) {
   const unit = {
     unitId: 'campaign-unit-atlas',
@@ -80,7 +82,8 @@ function renderCommandBar(options?: {
   const state = buildCampaignEditorUnitState({
     editorUnitId: route.editorUnitId,
     unit,
-    currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
+    currentConfiguration:
+      options?.currentConfiguration ?? DEFAULT_UNIT_CONFIGURATION,
     rulesLevel: RulesLevel.STANDARD,
   });
   const store = createUnitStore({
@@ -98,7 +101,8 @@ function renderCommandBar(options?: {
         route,
         unit,
         campaignName: 'Gray Death Legion',
-        currentConfiguration: DEFAULT_UNIT_CONFIGURATION,
+        currentConfiguration:
+          options?.currentConfiguration ?? DEFAULT_UNIT_CONFIGURATION,
         returnHref: '/gameplay/campaigns/campaign-1/missions/mission-1/launch',
       }}
     >
@@ -232,6 +236,61 @@ describe('CampaignRefitCommandBar', () => {
 
     expect(mockCommitRefitOrder).not.toHaveBeenCalled();
     expect(mockNavigateToCampaignCustomizerReturn).not.toHaveBeenCalled();
+  });
+
+  it('counts a donor-only edit against a legacy config without context keys', async () => {
+    expect(DEFAULT_UNIT_CONFIGURATION).not.toHaveProperty('configuration');
+    expect(DEFAULT_UNIT_CONFIGURATION).not.toHaveProperty('frankenStructure');
+    const donor = {
+      type: 'STANDARD',
+      typeByLocation: { LEFT_ARM: 'ENDO_STEEL' },
+    };
+    renderCommandBar({ patch: { frankenStructure: donor } });
+    expect(screen.getByTestId('campaign-refit-change-count')).toHaveTextContent(
+      '1 build field changed',
+    );
+    expect(screen.getByTestId('campaign-refit-save')).toBeEnabled();
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+    await waitFor(() =>
+      expect(mockCommitRefitOrder).toHaveBeenCalledWith(
+        expect.objectContaining({
+          targetConfiguration: expect.objectContaining({
+            frankenStructure: donor,
+          }),
+        }),
+      ),
+    );
+    await waitFor(() =>
+      expect(mockNavigateToCampaignCustomizerReturn).toHaveBeenCalledTimes(1),
+    );
+  });
+
+  it('keeps nested donor no-ops disabled after re-extraction with different key order', () => {
+    const currentConfiguration = {
+      ...DEFAULT_UNIT_CONFIGURATION,
+      configuration: MechConfiguration.BIPED,
+      frankenStructure: {
+        type: 'STANDARD',
+        typeByLocation: { LEFT_ARM: 'ENDO_STEEL', RIGHT_ARM: 'STANDARD' },
+        locationTonnage: { LEFT_ARM: 50, RIGHT_ARM: 50 },
+      },
+    };
+    const { store } = renderCommandBar({ currentConfiguration });
+    act(() =>
+      store.setState({
+        frankenStructure: {
+          locationTonnage: { RIGHT_ARM: 50, LEFT_ARM: 50 },
+          typeByLocation: { RIGHT_ARM: 'STANDARD', LEFT_ARM: 'ENDO_STEEL' },
+          type: 'STANDARD',
+        },
+      }),
+    );
+    expect(screen.getByTestId('campaign-refit-change-count')).toHaveTextContent(
+      '0 build fields changed',
+    );
+    expect(screen.getByTestId('campaign-refit-save')).toBeDisabled();
+    fireEvent.click(screen.getByTestId('campaign-refit-save'));
+    expect(mockCommitRefitOrder).not.toHaveBeenCalled();
   });
 
   it('blocks an overweight Tripod in the preview before save', () => {

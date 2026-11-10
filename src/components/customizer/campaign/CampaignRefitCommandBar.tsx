@@ -8,12 +8,14 @@ import { Badge } from '@/components/ui';
 import { navigateToCampaignCustomizerReturn } from '@/lib/campaign/customizer/campaignCustomizerNavigation';
 import { buildCampaignCustomizerReturnHref } from '@/lib/campaign/customizer/campaignCustomizerRoute';
 import { extractMechBuildConfigFromUnitState } from '@/lib/campaign/customizer/campaignCustomizerSession';
+import { campaignJsonEquals } from '@/lib/campaign/delivery/foldCampaignGrantDelivery';
 import { commitRefitOrder } from '@/stores/campaign/campaignRefitActions';
 import {
   useCampaignPersistenceStore,
   type CampaignPersistenceSaveResult,
 } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useUnitStore, useUnitStoreApi } from '@/stores/useUnitStore';
+import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import { validateConstruction } from '@/utils/construction/constructionRules/validation';
 
 import { useCampaignCustomizerSession } from './CampaignCustomizerSessionContext';
@@ -39,8 +41,16 @@ function countConfigurationChanges(
   current: ReturnType<typeof extractMechBuildConfigFromUnitState>,
   target: ReturnType<typeof extractMechBuildConfigFromUnitState>,
 ): number {
-  return (Object.keys(current) as Array<keyof typeof current>).filter(
-    (key) => current[key] !== target[key],
+  const keys = Object.keys({ ...current, ...target }) as Array<
+    keyof typeof current
+  >;
+  // Legacy saves omit the Biped default; that alone is not a refit edit.
+  const valueFor = (config: typeof current, key: keyof typeof current) =>
+    key === 'configuration'
+      ? (config.configuration ?? MechConfiguration.BIPED)
+      : config[key];
+  return keys.filter(
+    (key) => !campaignJsonEquals(valueFor(current, key), valueFor(target, key)),
   ).length;
 }
 

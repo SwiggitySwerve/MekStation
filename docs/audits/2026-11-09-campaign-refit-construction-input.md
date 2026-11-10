@@ -119,11 +119,53 @@ Estimator/classifier/pipeline/store consumers accept existing configs; other
 literals are tests. The command bar's manual partial-state list was removed.
 
 C4 reviews the campaign callers, including initialization, preview, save and
-the pipeline/store boundary. One pre-existing caller limitation remains:
-`countConfigurationChanges` enumerates the stored current config's keys. Older
-saves lacking optional context keys can omit a context-only edit from the change
-count. The preview subscription test changes donors on an already edited build;
-it does not claim that a donor-only edit to such a legacy save enables saving.
+the pipeline/store boundary. Following C4's review, `countConfigurationChanges`
+uses the union of both configs' keys and the existing `campaignJsonEquals`
+structural comparator from `delivery/foldCampaignGrantDelivery.ts`. Missing
+legacy configuration compares as Biped. No second equality implementation was
+added.
+
+The two new counter tests first failed on the reviewed head: donor-only edits
+against legacy configs showed zero changes; nested donor no-ops with different
+object insertion order showed one change. Both now pass, as does the ordinary
+biped no-op. Restoring current-only keys kills the donor-only test; restoring
+reference comparison kills the nested no-op test (one failure and nine passing
+controls for each mutant). The donor-only case also saves the exact target.
+
+The legacy-save fixture uses the pre-existing `refitOrder` helper's in-progress
+order, whose target has neither optional context key. A JSON save envelope is
+reopened, its target initializes the editor, and the exact pending order is
+saved or cancelled through real campaign actions. Both paths preserve order id,
+unit id, target, estimate and hours through server persistence and another
+reload. The stored legacy target does not acquire new optional fields.
+
+## Committed replay artifact search (C4 requirement 2)
+
+A bounded search of 81 tracked paths covered scenario packs, campaign fixture,
+digest and golden paths, fast-forward sources/tests, and refit sources/tests.
+The exact path list and grep output are in
+`.review/campaign-refit/C4-artifact-scope.txt`, `C4-grep-special-units.log`,
+`C4-grep-orders.log` and `C4-artifact-summary.json`.
+
+The commands were `rg -n -i 'tripod|super.?heavy|franken' <scoped paths>` and
+`rg -n -i 'refitOrders|repairOrders|repairQueue|targetConfiguration' <scoped paths>`.
+The first has seven matches, all in this PR's new
+`refitConstructionInput.test.ts`. No pre-existing scoped artifact has a special
+unit match. JSON inspection also found explicit tonnages only 25, 50, 75 and 100;
+unit refs are Atlas, Hunchback, Locust and Marauder (including abbreviated refs).
+The fast-forward fixture explicitly lists the same four canonical refs at
+`fastForwardFixture.ts:105-110`.
+
+The only nonempty committed order list in those JSON artifacts is
+`e2e/scenario-packs/campaign/maintenance-repairbay.campaign.json:733`: 12 repair
+tickets for `player-1-atlas-as7-d`, `player-1-hunchback-hbk-4g` and
+`player-1-marauder-mad-3r`. No committed scenario pack, fast-forward fixture,
+campaign digest or refit golden in that scope contains a Tripod, superheavy or
+FrankenMek with a refit or repair order. No fixture or digest was regenerated.
+
+Directory-wide before/after runs of fast-forward, scenario-pack and refit suites
+are **pending a Root slot** and are not claimed by this grep evidence. Any
+movement in committed replay/golden output is a STOP for C2/Root attribution.
 
 ## Local gates
 
