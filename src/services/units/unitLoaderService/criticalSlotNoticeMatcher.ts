@@ -1,9 +1,8 @@
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 
-import type { CriticalSlotNoticeKind } from './criticalSlotNoticeEffects';
 import type {
   ICriticalSlotNoticeIdentity,
-  ICriticalSlotNoticeEffect,
+  ICriticalSlotEntryClassification,
   INoticeKindRule,
 } from './criticalSlotNoticeTypes';
 
@@ -11,12 +10,7 @@ import type {
 export function matchCriticalSlotNoticeIdentity(
   identity: ICriticalSlotNoticeIdentity,
   rules: readonly INoticeKindRule[],
-): {
-  readonly kind: CriticalSlotNoticeKind;
-  readonly title: string;
-  readonly ruleId: string;
-  readonly effect: ICriticalSlotNoticeEffect;
-} {
+): ICriticalSlotEntryClassification {
   const candidates = [
     identity.lookupToken,
     identity.resolvedId,
@@ -54,6 +48,7 @@ export function matchCriticalSlotNoticeIdentity(
       throw new Error(`Missing notice effect fallback: ${rule.kind}`);
     return {
       kind: rule.kind,
+      subkind: selected.id,
       title: rule.title,
       ruleId: `${String(index + 1).padStart(2, '0')}-${rule.kind.replace('_', '-')}`,
       effect: selected,

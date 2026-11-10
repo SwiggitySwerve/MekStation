@@ -16,6 +16,15 @@ cells belong in the residual.
 `criticalSlotNoticeEffects.ts` owns `notice-kind-v2-final`, its consequence/test
 citations and recovery responsibility in one table. The notices and census call
 that classifier; neither rendering nor census scripts own another classification.
+This module owns critical-slot entry classification for both the recogniser and
+the notice. Consumers import `CriticalSlotEntryKind`, `CriticalSlotEntrySubkind`,
+`ICriticalSlotEntryClassification` and `classifyCriticalSlotNoticeIdentity` from
+this public facade. The stable kind/subkind values are selected once; `effect.id`
+retains the same subkind value for existing display callers. Recognition applies
+its existing definition, native vocabulary, grouping and sizing admission guards;
+a broad classification never grants admission or fabricates equipment metadata.
+The table and its one extracted match procedure are shared by every consumer.
+
 `criticalSlotNoticeGroups.ts` resolves only the supplied residual entries through
 the existing public identity owners and partitions them without changing any
 text, location or slot. Other critical-slot entries appear before placement
@@ -31,6 +40,9 @@ Conversion Gear, Avionics and Landing Gear are configuration system slots
 (o3b-s); Head Turret and LAM Fuel Tank are mounted equipment (o3b). Head Turret
 keeps the existing turret-sizing owner. The missing LAM Fuel Tank definition is
 a named C3/C2 metadata/resolution prerequisite, not a manufactured definition.
+Bomb bays belong to Celerity, per `parity-3.3-critonly/COUNT.md:39`; the existing
+loader already recovers their 24 cells across seven crit-bearing catalog designs.
+The classification mapping does not change their notice membership or counts.
 
 The optional `UnitState.unrecoveredCriticalSlots` is editor metadata. Browser
 drafts retain it so reopening a draft does not hide the warning. Editable

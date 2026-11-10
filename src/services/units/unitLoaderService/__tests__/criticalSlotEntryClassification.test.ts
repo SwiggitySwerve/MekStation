@@ -6,6 +6,9 @@ import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 
 import {
   classifyCriticalSlotNoticeIdentity,
+  CRITICAL_SLOT_NOTICE_RULES,
+  CriticalSlotEntryKind,
+  CriticalSlotEntrySubkind,
   CriticalSlotRecoveryResponsibility,
 } from '../criticalSlotNoticeEffects';
 import { parseUnit } from '../unitContractAdapter';
@@ -24,6 +27,55 @@ beforeAll(async () => {
   await getEquipmentRegistry().initialize();
   await getEquipmentLookupService().initialize();
 });
+
+it('exports stable runtime kind and subkind values through the classification owner', () => {
+  expect(Object.values(CriticalSlotEntryKind)).toEqual([
+    'ammo',
+    'case',
+    'armor_structure',
+    'mobility',
+    'cargo',
+    'heat_sinks',
+    'electronics',
+    'other',
+  ]);
+  expect(CriticalSlotEntrySubkind.BOMB_BAY).toBe('bomb-bay');
+  expect(CriticalSlotEntrySubkind.MASC).toBe('masc');
+  expect(Object.values(CriticalSlotEntrySubkind)).toHaveLength(26);
+  expect(
+    new Set(
+      CRITICAL_SLOT_NOTICE_RULES.flatMap((rule) =>
+        rule.effects.map((effect) => effect.id),
+      ),
+    ),
+  ).toEqual(new Set(Object.values(CriticalSlotEntrySubkind)));
+  const classification = classifyCriticalSlotNoticeIdentity({
+    lookupToken: 'ISMASC',
+  });
+  const kind: CriticalSlotEntryKind = classification.kind;
+  const subkind: CriticalSlotEntrySubkind = classification.subkind;
+  expect(kind).toBe(CriticalSlotEntryKind.MOBILITY);
+  expect(subkind).toBe(CriticalSlotEntrySubkind.MASC);
+  expect(classification.effect.id).toBe(subkind);
+});
+
+it.each([
+  ['ISMASC', 'mobility', 'masc'],
+  ['Jump Jet', 'mobility', 'standard-jets'],
+  ['Conversion Gear', 'other', 'conversion'],
+  ['ISHeadTurret', 'other', 'head-turret'],
+  ['Bomb Bay', 'other', 'bomb-bay'],
+  ['Unknown future item', 'other', 'unassigned'],
+  ['IS Endo Steel', 'armor_structure', 'markers'],
+  ['CASE II', 'case', 'case'],
+])(
+  'exposes kind/subkind directly for recogniser input %s',
+  (lookupToken, kind, subkind) => {
+    const result = classifyCriticalSlotNoticeIdentity({ lookupToken });
+    expect(result.kind).toBe(kind);
+    expect(result.subkind).toBe(subkind);
+  },
+);
 
 it.each(['Bomb Bay', 'ISBombBay', 'bomb-bay', 'Bomb Bay (OMNIPOD)'])(
   'attributes %s to Celerity without changing its notice kind/rule',
