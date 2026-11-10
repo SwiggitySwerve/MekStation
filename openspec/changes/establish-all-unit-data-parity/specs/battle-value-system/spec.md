@@ -1540,6 +1540,26 @@ unchanged. Legacy weapon-flag tables SHALL remain unchanged.
 - **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
 - **AND** all mount values, other terms, source data and BV SHALL remain unchanged
 
+### Requirement: BA weapon diagnostics
+
+The BA mount owner SHALL retain each counted weapon or claw mount with its full
+catalog BV, native location and section memberships, and the BA calculation
+owner SHALL derive each trooper's per-mount values in the pinned section order
+(Weapons, Squad Support, Anti-Mek), summing the passes of one mount. The trace
+SHALL format those values as `weapon.<n>.<location>.<id>` for the squad (trooper
+1) and as `trooper.N.weapon.*` for every trooper, without recalculating BV.
+Existing scalar arithmetic, source inputs and totals SHALL remain unchanged.
+A mount without a native location, a legacy input and mounts no section counts
+SHALL create no term. The terms establish per-location value parity only, not
+native equipment numbers or names.
+
+#### Scenario: Trooper-located and support mounts
+
+- **GIVEN** a David Light Gauss Rifle carried by trooper 2 of an eligible four-trooper squad
+- **WHEN** its BA breakdown is projected
+- **THEN** `trooper.2.weapon.*.Trooper 2.*` SHALL equal 14 and no other trooper or squad-level term SHALL list that mount
+- **AND** the same rifle marked squad support at the squad SHALL report `7 / 4 + 7 / 4 = 3.5` for every trooper
+
 ### Requirement: Canonical battle armor anti-Mek chassis projection
 
 Canonical MIXED battle armor SHALL project an explicit clanChassis fact into

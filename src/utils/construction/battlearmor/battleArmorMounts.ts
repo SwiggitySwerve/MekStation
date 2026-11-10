@@ -10,7 +10,11 @@ import {
   type IBattleArmorMountedEquipment,
 } from '@/types/unit/PersonnelInterfaces';
 
-import type { BAWeaponBVMount, BAAmmoBVMount } from './battleArmorBV';
+import type {
+  BAWeaponBVMount,
+  BAAmmoBVMount,
+  BANativeWeaponMount,
+} from './battleArmorBV';
 
 import {
   addBVToAmmoCapGroup,
@@ -113,6 +117,45 @@ const BA_CAP_AMMO_TYPES = new Set([
 ]);
 const nativeParts = (mount: IBattleArmorMountedEquipment) =>
   mount.equipmentId.split(':');
+/** Native `Trooper N` mounts belong to that trooper alone. */
+const trooperOfMount = (mount: IBattleArmorMountedEquipment) => {
+  const index = /^Trooper (\d+)$/i.exec(mount.unitLocation ?? '')?.[1];
+  return index === undefined ? undefined : Number(index);
+};
+const isPersonalMount = (mount: IBattleArmorMountedEquipment) =>
+  trooperOfMount(mount) !== undefined;
+
+/**
+ * The one owner of BA weapon-mount classification. The averaged trooper model
+ * and the native per-trooper facts both read these flags; `antiMek` is the
+ * per-mount half of the pinned anti-Mek filter (BattleArmorBVCalculator.java:
+ * 133-160): a claw, or a non-missile, non-infantry weapon that is not
+ * body-mounted. The trooper's anti-Mek eligibility is applied by the caller.
+ */
+function classifyBAWeaponMount(
+  mount: IBattleArmorMountedEquipment,
+  id: string,
+  qualifiers: readonly string[],
+  category: string,
+) {
+  const claw = /battleclaw.*(?:vibro|magnet)/i.test(id);
+  const infantry =
+    qualifiers.includes('APM') || mount.isAPMount || /^Infantry/i.test(id);
+  const trooper = trooperOfMount(mount);
+  return {
+    claw,
+    trooper,
+    personal: trooper !== undefined,
+    support: qualifiers.includes('SSWM'),
+    infantry,
+    antiMek:
+      claw ||
+      (category !== 'Missile' &&
+        !infantry &&
+        !qualifiers.includes('Body') &&
+        mount.location !== BattleArmorLocation.BODY),
+  };
+}
 
 /** BattleArmor.java:953-985,1360-1387, pin 48fcb2f64. Fresh loaded ammo only. */
 export function canMakeBAAntiMekAttacks(
@@ -178,6 +221,7 @@ export function projectBAMounts(
   squadSize: number,
 ): {
   weapons: BAWeaponBVMount[];
+  nativeWeapons: BANativeWeaponMount[];
   ammo: BAAmmoBVMount[];
   unresolvedEquipment: string[];
   hasMagneticClamp: boolean;
@@ -187,6 +231,7 @@ export function projectBAMounts(
   ammoCapBVByPool: Record<string, number>;
 } {
   const weapons: BAWeaponBVMount[] = [];
+  const nativeWeapons: BANativeWeaponMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
   const unresolvedEquipment: string[] = [];
   // BattleArmorBVCalculator.java:285-304: one point each for improved
@@ -229,7 +274,7 @@ export function projectBAMounts(
       // BattleArmorBVCalculator.java:310-320; AMS is never offense
       // (BVCalculator.java:943). Squad mounts count whole, others per trooper.
       const bv = resolveEquipmentBV(id).battleValue;
-      defensiveEquipmentBV += /^Trooper \d+$/i.test(mount.unitLocation ?? '')
+      defensiveEquipmentBV += isPersonalMount(mount)
         ? bv / Math.max(1, squadSize)
         : bv;
       continue;
@@ -257,9 +302,7 @@ export function projectBAMounts(
         );
         continue;
       }
-      const share = /^Trooper \d+$/i.test(mount.unitLocation ?? '')
-        ? 1 / Math.max(1, squadSize)
-        : 1;
+      const share = isPersonalMount(mount) ? 1 / Math.max(1, squadSize) : 1;
       addBVToAmmoCapGroup(
         ammoPools,
         pool,
@@ -272,8 +315,8 @@ export function projectBAMounts(
       unresolvedEquipment.push(`${id}: catalog identity unresolved`);
       continue;
     }
-    const claw = /battleclaw.*(?:vibro|magnet)/i.test(id);
-    const personal = /^Trooper \d+$/i.test(mount.unitLocation ?? '');
+    const { claw, trooper, personal, support, infantry, antiMek } =
+      classifyBAWeaponMount(mount, id, qualifiers, entry.category);
     if (
       !claw &&
       !['Ballistic', 'Energy', 'Missile', 'Physical'].includes(entry.category)
@@ -284,9 +327,6 @@ export function projectBAMounts(
         offensiveEquipmentBV += entry.battleValue / Math.max(1, squadSize);
       continue;
     }
-    const support = qualifiers.includes('SSWM');
-    const infantry =
-      qualifiers.includes('APM') || mount.isAPMount || /^Infantry/i.test(id);
     if ((personal || support) && infantry) continue;
     // Launchers cap their ammo pool; one-shots are not in it (BVCalculator.java:1225-1232).
     const pool = baAmmoPool(id);
@@ -304,13 +344,20 @@ export function projectBAMounts(
       antiMekQuantity:
         personal && support ? quantity / Math.max(1, squadSize) : quantity,
       antiMekOnly: claw,
-      antiMek:
-        claw ||
-        (entry.category !== 'Missile' &&
-          !infantry &&
-          !qualifiers.includes('Body') &&
-          mount.location !== BattleArmorLocation.BODY),
+      antiMek,
     });
+    // Native facts need a real location; the Java trace skips zero-BV weapons.
+    if (mount.unitLocation !== undefined && entry.battleValue > 0)
+      nativeWeapons.push({
+        id: entry.id,
+        location: mount.unitLocation,
+        trooper,
+        battleValue: entry.battleValue,
+        support,
+        claw,
+        infantry,
+        antiMek,
+      });
   }
   // BVCalculator.java:1057-1079: ammo without a launcher is dropped and
   // excess ammo is capped at the launchers' BV.
@@ -327,6 +374,7 @@ export function projectBAMounts(
   }
   return {
     weapons,
+    nativeWeapons,
     ammo,
     unresolvedEquipment,
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
