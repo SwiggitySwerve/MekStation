@@ -1045,8 +1045,6 @@ The server SHALL bind actor, match, branch, command kind, and payload digest to 
 - **THEN** the server SHALL return the original receipt and committed event range
 - **AND** it SHALL not apply or publish the command a second time
 
-
-
 ### Requirement: Roster membership with observer seats
 
 For a match with no playing seats (absent seats, an empty array, or only spectator seats), the server SHALL continue deriving playing membership from the durable playerIds roster. Spectator occupants SHALL derive their own membership from spectator seats and SHALL own no forces. A playing-seat grid SHALL preserve the existing seat membership and lobby invitee rules. A rostered player SHALL NOT register as a spectator in a roster-mode match; POST spectate SHALL return 409 without changing the match.
@@ -1079,3 +1077,184 @@ The first side assignment for a player SHALL determine that player's side; entri
 - AND neither opposing player nor a spectator receives it before reveal
 
 This is a match-wire sealed delivery rule. It does not change the separate fog LOS ownership model, grant membership from side assignments, or grant per-unit command authority.
+
+### Requirement: Match status changes follow one transition table
+
+The server SHALL define match status as exactly `lobby`, `active` and `completed`
+in one list that the store type and the `LobbyUpdated` wire enum derive from.
+A status write SHALL be legal only as `lobby -> active`, `lobby -> completed`,
+`active -> completed`, or a same-status write. `completed` SHALL be terminal.
+Both match stores SHALL enforce this in the single metadata patch writer used by
+`updateMatchMeta` and `closeMatch`, and SHALL reject an illegal edge with a typed
+error before any field is merged or persisted. `createMatch` and the prepared
+create SHALL accept only `lobby` and `active`, and SHALL store nothing when they
+refuse. The SQLite `status` column SHALL always equal `meta_json.status`.
+
+#### Scenario: A completed match is not reopened
+
+- **GIVEN** a match that has completed
+- **WHEN** any writer patches its status to `active` or `lobby`
+- **THEN** the store SHALL reject the write and the stored metadata SHALL be unchanged
+
+#### Scenario: A match cannot be created finished
+
+- **WHEN** a caller creates a match with status `completed`
+- **THEN** the store SHALL reject it, store no row, and release any create hold
+
+### Requirement: A lobby intent that loses a status race is refused visibly
+
+The host SHALL answer a lobby intent whose metadata write is rejected because the
+match status changed after the handler read it with an `INVALID_INTENT` error
+frame carrying the originating intentId, and SHALL log the refused edge. It SHALL
+NOT broadcast `LobbyUpdated` or change the stored status.
+
+#### Scenario: LaunchMatch races completion
+
+- **GIVEN** the host reads a launchable lobby and the match completes before the write
+- **WHEN** the LaunchMatch metadata write runs
+- **THEN** the host SHALL return `INVALID_INTENT` for that intent and the match SHALL stay `completed`
+
+### Requirement: Automatic cleanup keeps the live host's own spectator seat
+
+The server SHALL release a spectator seat during automatic cleanup, meaning the
+last-socket detach and the boot sweep, only when that seat is not held by the
+match's `hostPlayerId` or the match is completed. While the match is live, the seat
+a co-op campaign GM host holds SHALL survive a detach in every match status, SHALL
+keep that GM a match member, and SHALL leave the host privilege with the GM when
+host migration is refused for a campaign GM. A viewer's seat SHALL still be
+released. The rule SHALL apply to automatic cleanup only: it SHALL NOT change the
+seat removal primitives, explicit close (`DELETE`, `closeMatch`), or the removal of
+a completed match.
+
+#### Scenario: The GM's socket drops in an active match
+
+- **GIVEN** an active co-op campaign match whose GM holds a spectator seat
+- **WHEN** the GM's last socket detaches
+- **THEN** the GM's seat and membership SHALL remain and the GM SHALL be able to bind again
+- **AND** `hostPlayerId` SHALL remain the GM
+
+#### Scenario: A viewer leaves beside the GM
+
+- **GIVEN** a registered viewer and the GM both hold spectator seats
+- **WHEN** the viewer's last socket detaches
+- **THEN** only the viewer's seat SHALL be released
+
+#### Scenario: The match is over
+
+- **GIVEN** a completed match whose GM still holds a spectator seat
+- **WHEN** the GM's last socket detaches
+- **THEN** the GM's seat SHALL be released like any other spectator seat
+
+#### Scenario: Explicit close
+
+- **GIVEN** a live match with a GM bound
+- **WHEN** the match is closed through `DELETE` or `closeMatch`
+- **THEN** the match SHALL be completed, the GM's socket SHALL be closed, and a later bind SHALL be refused as an unknown match
+
+### Requirement: Match metadata writes are compare-and-swap on a revision
+
+The server SHALL stamp every metadata write made through `updateMatchMeta`,
+`updateMatchMetaIf` and `closeMatch` with the next value of an optional revision
+held only in `meta_json`, where a row without one reads as 0, and SHALL leave the
+revision alone on an event append. `updateMatchMetaIf` SHALL apply its patch only
+when the stored revision equals the expected revision, and SHALL otherwise answer
+a conflict carrying the current metadata and write nothing. The durable store
+SHALL also refuse to overwrite a row that changed after it was read, even when the
+revision is unchanged. An illegal status edge SHALL still be refused.
+
+#### Scenario: A stale writer is told it lost
+
+- **GIVEN** a writer read the metadata at revision 0 and another write has since landed
+- **WHEN** the first writer applies its patch at revision 0
+- **THEN** the store SHALL answer a conflict with the current metadata and change nothing
+
+#### Scenario: A row from before the revision existed
+
+- **GIVEN** a stored row whose `meta_json` has no revision
+- **WHEN** a writer applies a patch at revision 0
+- **THEN** the patch SHALL be stored with revision 1 and the seats and status SHALL be unchanged
+
+### Requirement: Seat writers merge concurrent changes instead of overwriting them
+
+The server SHALL write seats, rosters and spectator removal only through one guarded
+writer that derives the patch from the metadata it read, stores it at the revision it
+read, and on a conflict derives again from the winning metadata, a bounded number of
+times, before answering busy. Derivations SHALL be free of side effects. A lobby
+intent SHALL be admitted by status against the metadata at write time, and the
+`LobbyUpdated` it broadcasts SHALL carry the stored metadata. MarkSeatAi SHALL drop
+its pending entry only after its seat write is applied.
+
+#### Scenario: Two registrations overlap
+
+- **GIVEN** two viewers register as spectators while the first is still bootstrapping its profile
+- **WHEN** both requests finish
+- **THEN** both spectator seats SHALL exist with distinct slot ids
+
+#### Scenario: A seat is taken while another intent is being stored
+
+- **GIVEN** a lobby intent has read the seats and another writer seats a player before it writes
+- **WHEN** the intent is stored
+- **THEN** the stored seats and the broadcast SHALL contain both changes
+
+#### Scenario: The match completes during a spectator registration
+
+- **GIVEN** a spectator registration is awaiting its profile bootstrap
+- **WHEN** the match completes before the seat is written
+- **THEN** the registration SHALL be refused with 409 and no spectator seat SHALL be added
+
+#### Scenario: A retry still finds the pending seat
+
+- **GIVEN** a pending disconnected human seat and a concurrent metadata write that forces MarkSeatAi to derive again
+- **WHEN** the host submits MarkSeatAi
+- **THEN** the seat SHALL become AI and its pending entry SHALL be cleared once
+
+### Requirement: Lobby seat mutations respect match lifecycle
+
+The server SHALL accept OccupySeat, LeaveSeat, ReassignSeat, SetAiSlot,
+SetHumanSlot, SetReady and LaunchMatch only in lobby status. MarkSeatAi SHALL
+require active status and exactly a pending, occupied human seat. ForfeitMatch
+SHALL retain lobby/active availability and SHALL reject completed status.
+Rejections SHALL preserve seats, status and engine events and correlate the
+originating intentId. SetAiSlot SHALL reject spectator seats. Lobby routing and
+engine exclusion SHALL derive from one exhaustive typed intent classification.
+
+#### Scenario: Host attempts to change running seats
+
+- **GIVEN** an active or completed match
+- **WHEN** the host submits a lobby seat setup or launch intent
+- **THEN** the server SHALL reject it without changing metadata or events
+
+#### Scenario: Host replaces a disconnected human
+
+- **GIVEN** an active match with an occupied human seat on the pending tracker
+- **WHEN** the host submits MarkSeatAi for that seat
+- **THEN** the server SHALL convert the seat to AI and clear its pending entry
+- **AND** connected humans, empty seats, AI seats and spectators SHALL be rejected
+
+### Requirement: Detached spectators release durable capacity
+
+The server SHALL remove a spectator seat after that viewer's final socket
+detaches. Removal SHALL run through the serialized host command queue and SHALL
+recheck for reattachment before writing metadata. Playing seats and campaign
+membership SHALL remain unchanged. Viewer delivery cursors and acknowledgements
+SHALL remain keyed to authenticated identity across detachment and restart.
+New spectators SHALL receive an unoccupied slot id even after a middle seat leaves.
+
+#### Scenario: Final socket leaves
+
+- **GIVEN** a registered spectator with one socket
+- **WHEN** the socket detaches and the queued removal completes
+- **THEN** the durable spectator seat SHALL be removed and capacity released
+- **AND** restart SHALL preserve the removal and retained delivery receipts
+
+#### Scenario: Viewer reconnects during removal
+
+- **GIVEN** the final socket detached and removal is waiting in the queue or reading metadata
+- **WHEN** another socket for that viewer attaches before the metadata write
+- **THEN** the spectator seat SHALL survive
+
+#### Scenario: Another spectator fills a vacant middle slot
+
+- **GIVEN** the spectator cap was reached and a middle spectator departed
+- **WHEN** another viewer registers through REST
+- **THEN** registration SHALL succeed with a unique slot id
