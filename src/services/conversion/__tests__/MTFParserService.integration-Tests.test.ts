@@ -322,7 +322,9 @@ RTC armor:11
       expect(result.unit?.engine.rating).toBe(375);
       expect(result.unit?.structure.type).toBe('ENDO_STEEL_CLAN');
       expect(result.unit?.armor.type).toBe('FERRO_FIBROUS_CLAN');
-      expect(result.unit?.heatSinks.type).toBe('DOUBLE');
+      // A bare "Double" with neither IS nor Clan in the text takes the unit's
+      // tech base in the pinned loader (MtfFile.java:581-594): a Clan double.
+      expect(result.unit?.heatSinks.type).toBe('DOUBLE_CLAN');
     });
 
     it('should parse Mixed tech base unit', () => {
