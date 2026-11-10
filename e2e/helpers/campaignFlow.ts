@@ -482,3 +482,95 @@ async function selectedRosterCount(page: Page): Promise<number> {
   }
   return selected;
 }
+
+type CreateCampaign = (
+  name: string,
+  factionId: string,
+  options?: { startingFunds?: number },
+) => string;
+
+type CampaignStoreWindow = {
+  __ZUSTAND_STORES__?: {
+    campaign?: { getState: () => { createCampaign: CreateCampaign } };
+    campaignPersistence?: {
+      getState: () => {
+        legacyUnadopted: boolean;
+        adoptLegacyCampaign: () => Promise<boolean>;
+      };
+    };
+  };
+};
+
+/** The dashboard's rendered campaign date, read from the header block. */
+export function campaignDateText(page: Page): Promise<string> {
+  return page.locator('p:has-text("Current Date") + p').innerText();
+}
+
+/** Load a campaign dashboard and wait for its save-status card. */
+export async function openDashboard(
+  page: Page,
+  campaignId: string,
+): Promise<void> {
+  await page.goto(`/gameplay/campaigns/${campaignId}`);
+  await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
+    timeout: 20_000,
+  });
+}
+
+/**
+ * Seed a campaign through the exposed store and adopt it, so the row exists
+ * server-side and the copy is NOT `legacyUnadopted` — an unadopted copy is a
+ * case both the ordinary save and the flush deliberately decline, not the
+ * case under test. Adoption, not the dashboard's "Save now": that button
+ * routes to `saveCampaign`, which skips an unadopted copy by design.
+ */
+export async function seedSavedCampaign(
+  page: Page,
+  label: string,
+): Promise<string> {
+  await page.goto('/gameplay/campaigns');
+  await page.waitForFunction(
+    () => Boolean((window as CampaignStoreWindow).__ZUSTAND_STORES__?.campaign),
+    undefined,
+    { timeout: 20_000 },
+  );
+  const campaignId = await page.evaluate((name: string) => {
+    const store = (window as CampaignStoreWindow).__ZUSTAND_STORES__?.campaign;
+    if (!store) throw new Error('campaign store is not exposed');
+    return store
+      .getState()
+      .createCampaign(name, 'mercenary', { startingFunds: 3_000_000 });
+  }, `${label} ${Date.now()}`);
+  await openDashboard(page, campaignId);
+  // Polled rather than fired once: the dashboard's route loader raises
+  // `legacyUnadopted` asynchronously, so an adopt attempted before that
+  // load lands is a no-op. The server row is the condition, not the call.
+  await expect
+    .poll(
+      async () => {
+        await page.evaluate(async () => {
+          const store = (window as CampaignStoreWindow).__ZUSTAND_STORES__
+            ?.campaignPersistence;
+          if (store?.getState().legacyUnadopted) {
+            await store.getState().adoptLegacyCampaign();
+          }
+        });
+        return (
+          await page.request.get(`/api/campaigns/${campaignId}`)
+        ).status();
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(200);
+  return campaignId;
+}
+
+/** Advance the campaign one day and wait for the header to show the change. */
+export async function advanceDayInUi(page: Page): Promise<string> {
+  const before = await campaignDateText(page);
+  await page.getByTestId('advance-day-btn').click();
+  await expect
+    .poll(() => campaignDateText(page), { timeout: 10_000 })
+    .not.toBe(before);
+  return campaignDateText(page);
+}
