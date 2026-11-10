@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL"
   },
   "armor": {
-    "type": "FERRO_FIBROUS",
+    "type": "FERRO_FIBROUS_PROTO",
     "allocation": {
       "LEFT_ARM": 8,
       "RIGHT_ARM": 8,

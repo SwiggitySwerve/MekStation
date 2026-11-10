@@ -181,5 +181,8 @@
     }
   },
   "role": "Sniper",
-  "source": "XTR:RISC"
+  "source": "XTR:RISC",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -44,7 +44,7 @@ from blk_conversion_runner import (
     run_blk_conversion,
     run_manifest_range_parity,
 )
-from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields
+from blk_unit_fields import mixed_chassis_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -344,6 +344,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     if fluff:
         output["fluff"] = fluff
 
+    output.update(mixed_chassis_fields(tech_type_str))
     return output
 
 

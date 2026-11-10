@@ -19,6 +19,67 @@ function runShellFromDefaults(defaults) {
   return run.shell;
 }
 
+function validateExecutionSafety(entry, label, invalidSteps) {
+  if (
+    entry?.['continue-on-error'] !== undefined &&
+    entry['continue-on-error'] !== false
+  )
+    invalidSteps.push(label + ' must not continue-on-error');
+  if (
+    isUnsafeRunShell(entry?.shell) ||
+    isUnsafeRunShell(runShellFromDefaults(entry?.defaults))
+  )
+    invalidSteps.push(label + ' must use default/literal bash');
+}
+
+/** OpenSpec validation must run even on docs-only PRs and after earlier failures. */
+export function validateOpenSpecStaticChecks(workflowJobs, contract, errors) {
+  const job = workflowJobs[contract.jobId];
+  const invalidSteps = [];
+  if (!job || typeof job !== 'object') {
+    invalidSteps.push('required job is missing');
+  } else {
+    if (job.if !== undefined)
+      invalidSteps.push('job must not have a change gate');
+    validateExecutionSafety(job, contract.jobId, invalidSteps);
+    const steps = Array.isArray(job.steps) ? job.steps : [];
+    let previous = -1;
+    for (const required of contract.steps) {
+      const positions = steps.flatMap((step, index) =>
+        step?.name === required.name ? [index] : [],
+      );
+      if (positions.length !== 1) {
+        invalidSteps.push(required.name + ' must occur exactly once');
+        continue;
+      }
+      const position = positions[0];
+      const step = steps[position];
+      if (typeof step.run !== 'string' || step.run.trim() !== required.run)
+        invalidSteps.push(required.name + ' must run ' + required.run);
+      if (step.if !== contract.stepIf)
+        invalidSteps.push(required.name + ' must use ' + contract.stepIf);
+      validateExecutionSafety(step, required.name, invalidSteps);
+      if (position <= previous)
+        invalidSteps.push(
+          'strict validation must precede delta-header regression tests',
+        );
+      previous = position;
+    }
+  }
+  if (invalidSteps.length > 0)
+    errors.push(
+      issue(
+        'workflow-job-condition-invalid',
+        contract.id + ': ' + invalidSteps.join(', '),
+        {
+          id: contract.id,
+          jobId: contract.jobId,
+          invalidSteps,
+        },
+      ),
+    );
+}
+
 /**
  * Validate executable fields in ONE parsed job instead of the whole
  * workflow. The same token present in a different job, or in a comment,
@@ -96,11 +157,7 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     invalidSteps.push(
       'job-level if is forbidden: the aggregator requires this job to run',
     );
-  const ignoresFailure = (value) => value !== undefined && value !== false;
-  if (ignoresFailure(job['continue-on-error']))
-    invalidSteps.push(
-      'job-level continue-on-error must be absent or literal false',
-    );
+  validateExecutionSafety(job, 'job-level', invalidSteps);
   const timeoutMinutes = contract.timeoutMinutes ?? 20;
   if (job['timeout-minutes'] !== timeoutMinutes)
     invalidSteps.push('job timeout must be ' + timeoutMinutes + ' minutes');
@@ -117,10 +174,6 @@ export function validateJobTokens(workflowJobs, contract, errors) {
         'matrix shards must be ' + JSON.stringify(contract.matrixShards),
       );
   }
-  const jobShell = runShellFromDefaults(job.defaults);
-  if (isUnsafeRunShell(jobShell))
-    invalidSteps.push('job defaults.run.shell must be absent or literal bash');
-
   const steps = Array.isArray(job.steps) ? job.steps : [];
   const skipStep = steps.find(
     (step) => step?.name === 'Skip (no code or e2e changes)',
@@ -154,13 +207,7 @@ export function validateJobTokens(workflowJobs, contract, errors) {
       if (step.env?.[key] !== expected)
         invalidSteps.push(requiredRun.id + ' must set ' + key + '=' + expected);
     }
-    if (ignoresFailure(step['continue-on-error']))
-      invalidSteps.push(requiredRun.id + ' must not continue-on-error');
-    if (isUnsafeRunShell(step.shell))
-      invalidSteps.push(
-        requiredRun.id +
-          ' must not override run shell; unsafe shell would not execute the gate',
-      );
+    validateExecutionSafety(step, requiredRun.id, invalidSteps);
   }
 
   // A job without uploadFailureIf (the E2E build) carries no failure report.
@@ -181,8 +228,7 @@ export function validateJobTokens(workflowJobs, contract, errors) {
   const extraStepIfs = contract.extraStepIfs ?? {};
   for (const step of steps) {
     const name = step?.name ?? 'unnamed step';
-    if (ignoresFailure(step?.['continue-on-error']))
-      invalidSteps.push(name + ' must not continue-on-error');
+    validateExecutionSafety(step, name, invalidSteps);
     let expectedCondition = contract.changeGateIf;
     if (step === skipStep) expectedCondition = contract.skipIf;
     else if (step === uploadStep) expectedCondition = contract.uploadFailureIf;
@@ -200,10 +246,6 @@ export function validateJobTokens(workflowJobs, contract, errors) {
         ") && steps.playwright-cache.outputs.cache-hit == 'true'";
     if (step?.if !== expectedCondition)
       invalidSteps.push(name + ' must use its exact code/e2e condition');
-    if (isUnsafeRunShell(step?.shell))
-      invalidSteps.push(
-        name + ' must not override run shell with an unsafe interpreter',
-      );
   }
   const runPositions = contract.requiredRuns.map((required) =>
     steps.findIndex((step) => step?.run === required.run),

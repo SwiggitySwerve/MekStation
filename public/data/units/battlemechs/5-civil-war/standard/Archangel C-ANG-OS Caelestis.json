@@ -208,5 +208,8 @@
   },
   "mulId": 71,
   "role": "Juggernaut",
-  "source": "JSBD,TR:J"
+  "source": "JSBD,TR:J",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

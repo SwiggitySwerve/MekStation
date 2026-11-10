@@ -35,6 +35,30 @@ export const GM_TACTICAL_COMMAND_IDS = [
 ] as const;
 
 export type GmTacticalCommandId = (typeof GM_TACTICAL_COMMAND_IDS)[number];
+
+export const GM_TACTICAL_CORRECTIONS_UNAVAILABLE_REASON =
+  'Corrections are temporarily unavailable: the next game action would discard them until correction events are implemented.';
+
+/**
+ * Live tactical support boundary until D-8 R10 supplies correction events.
+ * @spec openspec/changes/disable-gm-non-event-corrections/specs/gm-tactical-command-surface/spec.md
+ */
+export function getGmTacticalCorrectionBlockReason(
+  commandId: string,
+): string | undefined {
+  switch (commandId) {
+    case 'gm.set-position-facing':
+    case 'gm.set-damage':
+    case 'gm.set-heat-ammo':
+    case 'gm.set-initiative':
+    case 'gm.set-lifecycle':
+    case 'gm.set-objective':
+      return GM_TACTICAL_CORRECTIONS_UNAVAILABLE_REASON;
+    default:
+      return undefined;
+  }
+}
+
 type CombatGmTacticalCommandId = Exclude<
   GmTacticalCommandId,
   'gm.reload-unit' | 'gm.grant-resource'

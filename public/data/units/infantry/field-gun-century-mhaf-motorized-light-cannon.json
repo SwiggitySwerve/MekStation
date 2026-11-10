@@ -27,7 +27,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -39,7 +39,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -51,7 +51,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -63,7 +63,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -75,7 +75,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -87,7 +87,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -109,7 +109,7 @@
   "prostheticEnhancementCounts": {},
   "fieldGuns": [
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)"
     },
     {
@@ -117,7 +117,7 @@
       "name": "IS Ammo Light Rifle"
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)"
     },
     {
@@ -125,7 +125,7 @@
       "name": "IS Ammo Light Rifle"
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)"
     },
     {
@@ -133,7 +133,7 @@
       "name": "IS Ammo Light Rifle"
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)"
     },
     {
@@ -141,7 +141,7 @@
       "name": "IS Ammo Light Rifle"
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)"
     },
     {
@@ -149,7 +149,7 @@
       "name": "IS Ammo Light Rifle"
     },
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)"
     },
     {

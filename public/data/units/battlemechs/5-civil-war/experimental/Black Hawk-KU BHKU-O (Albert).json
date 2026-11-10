@@ -183,5 +183,8 @@
   },
   "mulId": 346,
   "role": "Skirmisher",
-  "source": "JTP:Luthien,SB:S&D"
+  "source": "JTP:Luthien,SB:S&D",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

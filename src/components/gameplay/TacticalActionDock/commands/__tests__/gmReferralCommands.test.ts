@@ -9,12 +9,40 @@
  */
 
 import {
+  getGmTacticalCorrectionBlockReason,
   GM_TACTICAL_COMMAND_IDS,
+  GM_TACTICAL_CORRECTIONS_UNAVAILABLE_REASON,
   GM_TACTICAL_PREVIEW_ACTION_ID,
 } from '@/lib/interventions';
 import { GamePhase, type ITacticalCommandContext } from '@/types/gameplay';
 
 import { buildGmReferralCommands } from '../gmReferralCommands';
+
+jest.mock('@/lib/interventions', () => {
+  const actual = jest.requireActual<typeof import('@/lib/interventions')>(
+    '@/lib/interventions',
+  );
+  return {
+    ...actual,
+    getGmTacticalCorrectionBlockReason: jest.fn(
+      actual.getGmTacticalCorrectionBlockReason,
+    ),
+  };
+});
+
+const UNIT_SCOPED_COMMAND_IDS = [
+  'gm.set-position-facing',
+  'gm.set-damage',
+  'gm.set-heat-ammo',
+  'gm.set-lifecycle',
+  'gm.reload-unit',
+] as const;
+
+const AVAILABLE_UNIT_CONTEXTS = [
+  { activeUnitId: null, selectedUnitId: 'unit-selected' },
+  { activeUnitId: 'unit-active', selectedUnitId: null },
+  { activeUnitId: 'unit-active', selectedUnitId: 'unit-selected' },
+] as const;
 
 function makeCtx(
   overrides: Partial<ITacticalCommandContext> = {},
@@ -52,17 +80,52 @@ describe('gmReferralCommands', () => {
   });
 
   it('unit-scoped GM corrections can use selected or active unit context', () => {
-    for (const id of [
-      'gm.set-position-facing',
-      'gm.set-damage',
-      'gm.set-heat-ammo',
-      'gm.set-lifecycle',
-      'gm.reload-unit',
-    ]) {
-      const cmd = commands.find((c) => c.id === id)!;
-      expect(cmd.availability(makeCtx({ selectedUnitId: null }))).toEqual({
-        available: true,
-      });
+    // PR #3306: isolate the unchanged base rule through the support-policy seam.
+    // The real interim override is asserted separately below.
+    const supportReason = jest.mocked(getGmTacticalCorrectionBlockReason);
+    supportReason.mockReturnValue(undefined);
+    try {
+      const unwrappedCommands = buildGmReferralCommands();
+      for (const id of UNIT_SCOPED_COMMAND_IDS) {
+        const cmd = unwrappedCommands.find((command) => command.id === id)!;
+        for (const context of AVAILABLE_UNIT_CONTEXTS) {
+          expect(cmd.availability(makeCtx(context))).toEqual({
+            available: true,
+          });
+        }
+        expect(
+          cmd.availability(
+            makeCtx({ activeUnitId: null, selectedUnitId: null }),
+          ),
+        ).toEqual({
+          available: false,
+          reason: 'Select a unit first.',
+        });
+      }
+    } finally {
+      supportReason.mockImplementation(
+        jest.requireActual<typeof import('@/lib/interventions')>(
+          '@/lib/interventions',
+        ).getGmTacticalCorrectionBlockReason,
+      );
+    }
+  });
+
+  // @spec openspec/changes/disable-gm-non-event-corrections/specs/gm-tactical-command-surface/spec.md
+  it('interim correction blocking overrides available unit context and preserves missing-unit refusals', () => {
+    const wrappedCommands = buildGmReferralCommands();
+    for (const id of UNIT_SCOPED_COMMAND_IDS) {
+      const cmd = wrappedCommands.find((command) => command.id === id)!;
+      for (const context of AVAILABLE_UNIT_CONTEXTS) {
+        expect(cmd.availability(makeCtx(context))).toEqual(
+          id === 'gm.reload-unit'
+            ? { available: true }
+            : {
+                available: false,
+                reason: GM_TACTICAL_CORRECTIONS_UNAVAILABLE_REASON,
+              },
+        );
+      }
       expect(
         cmd.availability(makeCtx({ activeUnitId: null, selectedUnitId: null })),
       ).toEqual({

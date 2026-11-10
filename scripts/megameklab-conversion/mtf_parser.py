@@ -210,6 +210,16 @@ class MTFParser:
                 pass
         elif key == 'config':
             data['config'] = value
+        elif key == 'clanname':
+            # MtfFile.java:1745-1746; a blank name is not a name (Mek.java:5155 writes it only when not blank).
+            if value:
+                data['clan_name'] = value
+        elif key == 'base_chassis_heat_sinks':
+            # MtfFile.java:371 parses the value with Integer.parseInt, so an unparsable line fails the load there.
+            try:
+                data['base_chassis_heat_sinks'] = int(value)
+            except ValueError as error:
+                raise ValueError(f'Invalid base chassis heat sinks value: {value!r}') from error
         elif key == 'lam':
             data['lam_type'] = value
         elif key == 'techbase':
@@ -395,6 +405,10 @@ class MTFParser:
             lamType=data.get('lam_type'),
             techBase=map_tech_base(data.get('techbase', 'Inner Sphere')),
             componentTechBases={'chassis': chassis_tech_base} if chassis_tech_base else None,
+            # MtfFile.java:358-359: the Omni suffix is a contains() test, independent of the geometry. Never written as False.
+            isOmni=True if 'Omni' in data.get('config', '') else None,
+            baseChassisHeatSinks=data.get('base_chassis_heat_sinks'),
+            clanName=data.get('clan_name'),
             rulesLevel=map_rules_level(data.get('rules_level', '1')),
             era=era,
             year=year,

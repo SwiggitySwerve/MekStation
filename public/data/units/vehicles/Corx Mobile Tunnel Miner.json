@@ -17,7 +17,7 @@
   },
   "engine": {
     "type": "FISSION",
-    "rating": 0
+    "rating": 200
   },
   "armor": {
     "type": "BAR",

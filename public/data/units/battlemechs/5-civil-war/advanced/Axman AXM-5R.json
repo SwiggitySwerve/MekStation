@@ -190,5 +190,8 @@
     }
   },
   "role": "Brawler",
-  "source": "Shrap25"
+  "source": "Shrap25",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }
