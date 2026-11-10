@@ -27949,15 +27949,15 @@
     "file": "miscellaneous/jump-jets.json",
     "index": 6,
     "id": "partial-wing",
-    "sha256": "65b897efdedc655a59896fa358a11cf81aef430e55c16ff84eacc85b2b9a3571",
+    "sha256": "38d215014ec4439b7de1b378344d060a10916fa88e8c222f811c25b95579c40e",
     "item": {
       "id": "partial-wing",
       "name": "Partial Wing",
-      "category": "Jump Jet",
+      "category": "Movement Enhancement",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "weight": 0,
-      "criticalSlots": 6,
+      "criticalSlots": 8,
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 8
@@ -27966,7 +27966,9 @@
       "battleValue": 0,
       "introductionYear": 3085,
       "special": ["+1 Jump MP", "+2 heat dissipation at altitude"],
-      "variableEquipmentId": "partial-wing"
+      "variableEquipmentId": "partial-wing",
+      "allowedUnitTypes": ["BattleMech"],
+      "flags": ["SPREADABLE", "OMNI_FIXED_ONLY"]
     }
   },
   {
@@ -38592,6 +38594,27 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java#L4839-L4869: CLCASEII"
       ]
+    }
+  },
+  {
+    "file": "miscellaneous/jump-jets.json",
+    "index": 7,
+    "id": "clan-partial-wing",
+    "sha256": "bbef6b2e5757d12180481d01e68315b65049dbaa1b95b34b1e6e1d30fdf65c33",
+    "item": {
+      "id": "clan-partial-wing",
+      "name": "Partial Wing (Clan)",
+      "category": "Movement Enhancement",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3067,
+      "variableEquipmentId": "partial-wing",
+      "allowedUnitTypes": ["BattleMech"],
+      "flags": ["SPREADABLE", "OMNI_FIXED_ONLY"]
     }
   }
 ]

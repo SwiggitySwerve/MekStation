@@ -5,7 +5,10 @@
  * whose IS/Clan side comes from the unit's tech base (BLKTankFile.java:284-300,
  * ArmorType.of(armorTypeId, t.isClan())).
  */
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  isNativeOnlyArmor,
+} from '@/types/construction/ArmorType';
 import { TechBase } from '@/types/enums/TechBase';
 
 import { decodeBlkArmorType } from '../BlkArmorCodes';
@@ -30,8 +33,10 @@ const JAVA_CODES: readonly [ArmorTypeEnum, TechBase, number][] = [
 ];
 
 it('covers every armor type the editor can export', () => {
+  // Native-only types encode but are not decoded or selectable; see
+  // types/construction/__tests__/ArmorType.nativeOnly.test.ts.
   expect(new Set(JAVA_CODES.map(([type]) => type))).toEqual(
-    new Set(Object.values(ArmorTypeEnum)),
+    new Set(Object.values(ArmorTypeEnum).filter((t) => !isNativeOnlyArmor(t))),
   );
 });
 

@@ -11,6 +11,7 @@ import {
   IFormula,
   type FormulaType,
 } from '@/types/equipment/VariableEquipment';
+import { roundSupportComponentWeight } from '@/utils/construction/vehicle/supportRounding';
 
 import { ValidationError } from '../common/errors';
 
@@ -194,6 +195,17 @@ export class FormulaEvaluator implements IFormulaEvaluator {
     }
 
     const rawValue = fieldValue * formula.multiplier;
+    if (formula.nativeTonRounding) {
+      if (formula.roundTo !== 0.5) {
+        throw new ValidationError(
+          'Native ton rounding requires half-ton precision',
+          ['roundTo must be 0.5'],
+        );
+      }
+      // MiscType.java:485-503; RoundWeight.java:56-68,92-95 (48fcb2f64).
+      // Mech STANDARD rounding includes gram-noise truncation before ceiling.
+      return roundSupportComponentWeight(rawValue, context.tonnage ?? 0, false);
+    }
     // Round up to nearest roundTo value
     return Math.ceil(rawValue / formula.roundTo) * formula.roundTo;
   }

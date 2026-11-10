@@ -16,6 +16,9 @@ export const CI_SUITES = [
       'customizer-equipment-catalog.spec.ts',
       'customizer-record-sheet-rendering.spec.ts',
       'customizer-edit-recovery.spec.ts',
+      // Saves canonical tripod/QuadVee units through the customizer; it ran
+      // only in the nightly and missed #3338's save confirmation (42795664179).
+      'customizer-mech-crew-roster.spec.ts',
       'gm-campaign-ledger-control-plane.spec.ts',
     ],
   },

@@ -29,10 +29,39 @@ export enum ArmorTypeEnum {
   FERRO_LAMELLOR = 'Ferro-Lamellor',
   BALLISTIC_REINFORCED = 'Ballistic-Reinforced',
   COMMERCIAL = 'Commercial',
+  // Native-only identities (see NATIVE_ONLY_ARMOR_SOURCE_TAGS): the enum can
+  // name them; the loader, serializer and editor do not use them yet.
+  INDUSTRIAL = 'Industrial',
+  HEAVY_INDUSTRIAL = 'Heavy Industrial',
+  PRIMITIVE = 'Primitive',
+  IMPACT_RESISTANT = 'Impact-Resistant',
+  HEAT_DISSIPATING = 'Heat-Dissipating',
+  ANTI_PENETRATIVE_ABLATION = 'Anti-Penetrative Ablation',
+  PATCHWORK = 'Patchwork',
 }
 
 export const COMMERCIAL_ARMOR_SOURCE_TAG = 'COMMERCIAL';
 export const FERRO_FIBROUS_PROTO_SOURCE_TAG = 'FERRO_FIBROUS_PROTO';
+
+/**
+ * Armor types that exist only as a name. The unit contract carries these tags
+ * (`armor.type`), but `componentMappers.mapArmorType` still folds them into
+ * Standard, the editor offers none of them, and the BLK reader does not decode
+ * them. Whoever teaches the loader and serializer about one removes it here.
+ */
+export const NATIVE_ONLY_ARMOR_SOURCE_TAGS = {
+  [ArmorTypeEnum.INDUSTRIAL]: 'INDUSTRIAL',
+  [ArmorTypeEnum.HEAVY_INDUSTRIAL]: 'HEAVY_INDUSTRIAL',
+  [ArmorTypeEnum.PRIMITIVE]: 'PRIMITIVE',
+  [ArmorTypeEnum.IMPACT_RESISTANT]: 'IMPACT_RESISTANT',
+  [ArmorTypeEnum.HEAT_DISSIPATING]: 'HEAT_DISSIPATING',
+  [ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION]: 'ANTI_PENETRATIVE_ABLATION',
+  [ArmorTypeEnum.PATCHWORK]: 'PATCHWORK',
+} as const;
+
+export function isNativeOnlyArmor(type: ArmorTypeEnum): boolean {
+  return type in NATIVE_ONLY_ARMOR_SOURCE_TAGS;
+}
 
 /**
  * Armor definition with all characteristics
@@ -54,7 +83,45 @@ export interface ArmorDefinition {
   readonly introductionYear: number;
   /** Special properties */
   readonly isSpecial: boolean;
+  /**
+   * The type can be named but is not selectable, mapped from a source tag or
+   * decoded from BLK yet (NATIVE_ONLY_ARMOR_SOURCE_TAGS).
+   */
+  readonly nativeOnly?: true;
 }
+
+/**
+ * Patchwork armor: every location carries its own armor type, so there is no
+ * single points-per-ton, slot count or cost. Each location uses the constants
+ * and BV multiplier of its own type (BVCalculator.java:359-420 and 1489-1509).
+ * It is deliberately absent from ARMOR_DEFINITIONS; getArmorDefinition returns
+ * undefined for it.
+ */
+export interface PerLocationArmorDefinition {
+  readonly type: ArmorTypeEnum;
+  readonly sourceTag: string;
+  readonly name: string;
+  readonly techBase: TechBase;
+  readonly rulesLevel: RulesLevel;
+  readonly introductionYear: number;
+  readonly perLocation: true;
+  readonly nativeOnly: true;
+}
+
+/** MegaMek 48fcb2f64 ArmorType.java:2066-2083 (createPatchworkArmor). */
+export const PATCHWORK_ARMOR: PerLocationArmorDefinition = {
+  type: ArmorTypeEnum.PATCHWORK,
+  sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.PATCHWORK],
+  name: 'Patchwork',
+  // TechBase.ALL (:2074); the table has no "both", so the IS side like Standard.
+  techBase: TechBase.INNER_SPHERE,
+  // setStaticTechLevel(ADVANCED) :2079.
+  rulesLevel: RulesLevel.ADVANCED,
+  // Prototype DATE_PS = 1950 (:2075; ITechnology.java:54), not approximate (:2076).
+  introductionYear: 1950,
+  perLocation: true,
+  nativeOnly: true,
+};
 
 /**
  * All armor definitions
@@ -219,13 +286,123 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     introductionYear: 2285,
     isSpecial: false,
   },
+  // Native-only types (nativeOnly). MegaMek 48fcb2f64 ArmorType.java. Points per
+  // ton is 16 * pptMultiplier (:61,302); criticalSlots is MiscType.java
+  // getNumCriticalSlots (:1071-1073 returns the field unless variable, then
+  // :1244-1255); cost multiplier is `cost` over Standard's 10000 (:369);
+  // introductionYear is TechAdvancement.getIntroductionDate (:691-699), the
+  // prototype date else production, minus 5 when approximate (:95); TechBase.ALL
+  // sits on the IS side like Standard. Rules level is the static level where
+  // set, else guessStaticTechLevel (EquipmentType.java:355-360,
+  // TechAdvancement.java:982-989). BV multipliers stay with their one owner
+  // (types/validation/BattleValue.ts ARMOR_BV_MULTIPLIERS; BVCalculator.java:1489-1509).
+  {
+    // :694-721. Cost :706, multiplier 0.67 :718, TM rules ref :710 (Standard by
+    // the guess), TechBase.ALL :711, prototype 2430 approximate :713-714.
+    type: ArmorTypeEnum.INDUSTRIAL,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.INDUSTRIAL],
+    name: 'Industrial',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    pointsPerTon: 10.72,
+    criticalSlots: 0,
+    costMultiplier: 0.5,
+    introductionYear: 2425,
+    isSpecial: false,
+    nativeOnly: true,
+  },
+  {
+    // :723-742. Cost :729, multiplier left at 1.0, TM rules ref :732,
+    // TechBase.ALL :733, prototype 2460 not approximate :735-736.
+    type: ArmorTypeEnum.HEAVY_INDUSTRIAL,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.HEAVY_INDUSTRIAL],
+    name: 'Heavy Industrial',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    pointsPerTon: 16,
+    criticalSlots: 0,
+    costMultiplier: 1,
+    introductionYear: 2460,
+    isSpecial: false,
+    nativeOnly: true,
+  },
+  {
+    // :744-764. Cost :749, multiplier 0.67 :761, IO:AE rules ref :752 with a
+    // production date (Advanced by the guess), IS only :753, prototype
+    // DATE_ES = 2100 :755 (ITechnology.java:55), not approximate :756.
+    type: ArmorTypeEnum.PRIMITIVE,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.PRIMITIVE],
+    name: 'Primitive',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 10.72,
+    criticalSlots: 0,
+    costMultiplier: 0.5,
+    introductionYear: 2100,
+    isSpecial: false,
+    nativeOnly: true,
+  },
+  {
+    // :1078-1103. Cost :1083, variable slots :1084 = 10 (MiscType.java:1250-1251),
+    // multiplier 0.875 :1100, static Advanced :1097, IS prototype 3090
+    // approximate :1094-1095.
+    type: ArmorTypeEnum.IMPACT_RESISTANT,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.IMPACT_RESISTANT],
+    name: 'Impact-Resistant',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 14,
+    criticalSlots: 10,
+    costMultiplier: 2,
+    introductionYear: 3085,
+    isSpecial: true,
+    nativeOnly: true,
+  },
+  {
+    // :1048-1076. Cost :1054, variable slots :1055 = 6 (MiscType.java:1244-1245),
+    // multiplier 0.625 :1073, static Advanced :1070, TechBase.ALL :1063, IS
+    // prototype 3115 approximate :1065-1066. BV x1.1 (BVCalculator.java:1496).
+    type: ArmorTypeEnum.HEAT_DISSIPATING,
+    sourceTag: NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.HEAT_DISSIPATING],
+    name: 'Heat-Dissipating',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 10,
+    criticalSlots: 6,
+    costMultiplier: 2.5,
+    introductionYear: 3110,
+    isSpecial: true,
+    nativeOnly: true,
+  },
+  {
+    // :1105-1134. Cost :1110, variable slots :1111 = 6 (MiscType.java:1244-1245),
+    // multiplier 0.75 :1131, static Advanced :1128, IS prototype 3100
+    // approximate :1125-1126. BV x1.2 (BVCalculator.java:1495).
+    type: ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION,
+    sourceTag:
+      NATIVE_ONLY_ARMOR_SOURCE_TAGS[ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION],
+    name: 'Anti-Penetrative Ablation',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 12,
+    criticalSlots: 6,
+    costMultiplier: 1.5,
+    introductionYear: 3095,
+    isSpecial: true,
+    nativeOnly: true,
+  },
 ] as const;
 
-/** Shared native identity; legacy exact and fuzzy mappings retain precedence. */
+/**
+ * Shared native identity; legacy exact and fuzzy mappings retain precedence.
+ * Native-only types are not resolved here, so the loader keeps its Standard
+ * fallback for them.
+ */
 export function getNativeArmorType(source: string): ArmorTypeEnum | undefined {
   const normalized = source.trim().toUpperCase();
   return ARMOR_DEFINITIONS.find(
-    (definition) => definition.sourceTag === normalized,
+    (definition) =>
+      !definition.nativeOnly && definition.sourceTag === normalized,
   )?.type;
 }
 
