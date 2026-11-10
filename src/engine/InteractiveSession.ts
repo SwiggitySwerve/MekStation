@@ -110,6 +110,7 @@ import {
   buildInteractiveSessionUnitMaps,
   gameUnitsWithAdaptedCombatSeeds,
 } from './InteractiveSession.setup';
+import { createLegacyUnseededRecoveryD6Roller } from './legacyUnseededRecoveryD6Roller';
 
 /**
  * Per `wire-encounter-to-campaign-round-trip` Wave 5: campaign linkage
@@ -435,11 +436,12 @@ export class InteractiveSession {
     const recoveredRandom = hasRecoverySeed
       ? new SeededRandom(recoverySeed)
       : new SeededRandom(0xc0ffee);
-    // No persisted seed: the legacy constant the AI stream above already
-    // uses, rather than no roller (which rolled PSRs from `Math.random`).
-    const recoveredD6Roller = new SeededD6Roller(
-      hasRecoverySeed ? recoverySeed : 0xc0ffee,
-    ).asD6Roller();
+    // No persisted seed: an explicitly named legacy unseeded roller that
+    // rolls as `main` did for these saves (OPEN D-8, resume design (b)).
+    // Never a fixed seed: that would give every old save the same dice.
+    const recoveredD6Roller = hasRecoverySeed
+      ? new SeededD6Roller(recoverySeed).asD6Roller()
+      : createLegacyUnseededRecoveryD6Roller();
 
     const instance = new InteractiveSession(
       session.config.mapRadius,
