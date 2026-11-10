@@ -11,10 +11,25 @@ export const LIMIT_UNITS = Object.freeze({
   typicalPrJobs: 'jobs',
   unkeyableTests: 'files',
   repoWideKeys: 'files',
-  standaloneStaticBytes: 'bytes',
-  installerBytes: 'bytes',
-  webZipBytes: 'bytes',
 });
+export const PACKAGE_METRIC_IDS = Object.freeze({
+  web: ['standaloneStaticBytes', 'webZipBytes'],
+  installers: ['installerBytes'],
+});
+
+/** Measurement validity only; package magnitude never controls acceptance. */
+export function packageMetricValues(metrics) {
+  if (metrics?.schema !== PACKAGE_METRICS_SCHEMA || metrics.unit !== 'bytes')
+    throw new Error('Unknown package projection');
+  const ids = PACKAGE_METRIC_IDS[metrics.kind ?? 'web'];
+  if (!ids) throw new Error('Unknown package kind');
+  return Object.fromEntries(
+    ids.map((id) => {
+      integer(metrics[id], `package ${id}`, 1);
+      return [id, metrics[id]];
+    }),
+  );
+}
 export const REPORTING_UNITS = Object.freeze({
   jobMinutes: 'minutes',
   criticalPathMs: 'ms',
@@ -223,7 +238,20 @@ export function budgetRaises(base, head) {
     if (head !== null) validateBudgets(head);
     return []; // Initial baseline: no previously enforced cap exists.
   }
-  const before = budgetValues(base),
+  // Read old main configurations during the migration. Head remains strict:
+  // removed byte caps cannot be reintroduced as unused configuration.
+  const normalizedBase = structuredClone(base);
+  const legacyIds = Object.values(PACKAGE_METRIC_IDS).flat();
+  const present = legacyIds.filter((id) =>
+    Object.hasOwn(normalizedBase.limits ?? {}, id),
+  );
+  if (present.length && present.length !== legacyIds.length)
+    throw new Error('Incomplete legacy byte limits');
+  for (const id of present) {
+    integer(normalizedBase.limits[id], `legacy ${id}`);
+    delete normalizedBase.limits[id];
+  }
+  const before = budgetValues(normalizedBase),
     after = budgetValues(head);
   const raises = [];
   for (const id of new Set([...Object.keys(before), ...Object.keys(after)])) {

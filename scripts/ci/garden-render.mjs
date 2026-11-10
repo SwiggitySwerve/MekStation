@@ -169,8 +169,6 @@ export function renderGarden(report, { contributors = null } = {}) {
   ];
   const body = `${text.join('\n')}\n`;
   if (body.length > 60000)
-    throw new Error(
-      'Garden issue exceeds safe GitHub body size; preserve full evidence artifact and reduce census',
-    );
+    return `${body.slice(0, 58000)}\n\nAdvisory report truncated for GitHub publication. Full evidence remains in the ci-garden-prepared artifact (weekly.json).\n`;
   return body;
 }
