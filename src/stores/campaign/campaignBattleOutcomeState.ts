@@ -85,3 +85,33 @@ export function hydrateCampaignBattleState(
     outcomeApplyErrors: {},
   };
 }
+
+/**
+ * Three-way rollback: restore the baseline, keeping independent pending entries
+ * that were not in the attempted write. Its processed ids may be tentative, so
+ * neither the attempted nor live processed ledger can authorize application.
+ * With no independent additions, retain the snapshot's original references.
+ */
+export function restoreBattleOutcomeState(
+  before: BattleOutcomeState,
+  attempted: IBattleOutcomeLedgers,
+  live: IBattleOutcomeLedgers,
+): BattleOutcomeState {
+  const attemptedPendingIds = new Set(
+    (attempted.pendingBattleOutcomes ?? []).map((outcome) => outcome.matchId),
+  );
+  const additions = (live.pendingBattleOutcomes ?? []).filter(
+    (outcome) => !attemptedPendingIds.has(outcome.matchId),
+  );
+  if (additions.length === 0) {
+    return {
+      pendingBattleOutcomes: before.pendingBattleOutcomes,
+      processedBattleIds: before.processedBattleIds,
+      reviewedBattleIds: before.reviewedBattleIds,
+    };
+  }
+  return mergeBattleOutcomeState(null, {
+    ...before,
+    pendingBattleOutcomes: [...before.pendingBattleOutcomes, ...additions],
+  });
+}

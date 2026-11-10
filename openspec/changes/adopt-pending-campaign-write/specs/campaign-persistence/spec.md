@@ -239,3 +239,30 @@ changes. This warning SHALL NOT imply that carry-over is implemented.
 - **THEN** the local campaign, battle outcomes and marker SHALL remain in localStorage
 - **AND** a fresh store SHALL rehydrate them and hold the same conflict without a PUT
 - **AND** the card SHALL state "Nothing is changed until you choose."
+
+### Requirement: Failed campaign commits preserve independent battle outcomes
+
+Rollback SHALL restore the snapshot's battle application evidence and preserve pending outcomes added after the attempted state was recorded. The existing battle-state owner SHALL deduplicate by matchId and filter using the restored processed ledger. Live processed ids SHALL NOT be unioned into rollback because they can describe tentative effects of the failed day.
+
+#### Scenario: Failed co-op day with a late outcome and a duplicate delivery
+
+- **GIVEN** battle A was pending before a co-op day snapshot and was tentatively applied by that day
+- **AND** battle B is enqueued while the save is in flight, with another delivery of A
+- **WHEN** the save fails and rolls back
+- **THEN** A and B SHALL each be pending exactly once and the tentative processed id for A SHALL be removed
+- **AND** the retained addition SHALL remain dirty and be persisted in both browser campaign records
+- **AND** reload and one successful retry SHALL apply each outcome exactly once
+
+#### Scenario: Travel shares preservation of late battle outcomes
+
+- **GIVEN** a co-op travel commit is in flight and a distinct battle outcome arrives
+- **WHEN** that commit fails and the shared rollback runs
+- **THEN** the pending outcome SHALL survive rollback and rehydration
+- **AND** retrying travel SHALL preserve the queue until ordinary battle processing applies it
+
+#### Scenario: Ordinary single-player failures remain synchronous
+
+- **GIVEN** a single-player day or travel action whose synchronous save tail throws
+- **WHEN** rollback runs without any independent pending addition
+- **THEN** its prior campaign and ledger references SHALL be restored as before
+- **AND** rehydration and a single retry SHALL retain exactly-once battle processing

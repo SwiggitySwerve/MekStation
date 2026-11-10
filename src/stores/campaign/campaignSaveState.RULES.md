@@ -131,3 +131,21 @@ With no marker, `derivePendingWrite` can use the persisted cache revision to
 claim the edit. This does not grant a transient server token: the next read
 still verifies instance and base, adopting or raising a visible conflict.
 Carry-over of outcomes onto a moved row remains a proposal outside this change.
+
+## Failed day and travel outcome preservation
+
+`campaignBattleOutcomeState.restoreBattleOutcomeState` owns the three-way
+battle-ledger rollback. Its baseline is the snapshot, its attempted pending
+queue is the last campaign recorded by `recordStoredCampaign`, and its live
+pending queue supplies entries absent from that attempt. The existing merge
+owns matchId dedup and filtering against the restored snapshot's processed ids.
+Neither attempted nor live processed ids can be unioned: failed-day applications
+must become pending again. With no independent additions, original snapshot
+ledger references and existing synchronous rollback behavior are preserved.
+
+`rollbackDayAdvance` installs that result in both store and embedded campaign,
+writes those same ledgers to the per-campaign browser record, and retains dirty
+when an independent result still needs saving. No persisted fields or locks are
+added. The acceptance suite covers failed co-op day/travel, rehydration, one
+retry and duplicate battle delivery; ordinary single-player failures stay
+synchronous and retain their former reference restoration behavior.
