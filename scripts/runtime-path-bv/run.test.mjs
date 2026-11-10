@@ -175,7 +175,7 @@ test('summarize counts agreement with Java and counts every miss', () => {
   assert.deepEqual(summary.validity, { agree: 3, disagree: 1, missing: 1 });
   assert.deepEqual(summary.errorsByStage, { open: 1 });
   assert.equal(summary.units, 5);
-  assert.equal(summary.headline, 'load=Java 2/5 · validity 3/5');
+  assert.equal(summary.headline, 'load=Java 2/5 · validity 3/5 · weight owners 4/5');
   assert.deepEqual(
     differences.filter((d) => d.measure === 'bv').map((d) => [d.unitId, d.why]),
     [['off', 'different'], ['nobv', 'no-calculator-result'], ['broken', 'error:open']],
@@ -205,7 +205,7 @@ test('weight owners are compared exactly per unit and a difference is reported, 
   const referenceByPath = new Map(['same', 'near', 'broken'].map((id) => refRow(id, 1000)));
   const { summary, differences } = summarize({ rows, referenceByPath, scope: { families: ['battlemechs'], populationCount: 3, unitIds: null }, deterministic: true });
   assert.deepEqual(summary.weightOwners, { agree: 1, mismatch: 1, missing: 1 });
-  assert.match(summary.headline, /WEIGHT OWNERS DIFFER 1/);
+  assert.match(summary.headline, /weight owners 1\/3 \(DIFFER 1\)/);
   assert.deepEqual(
     differences.filter((d) => d.measure === 'weight-owner').map((d) => [d.unitId, d.observed, d.allocated]),
     [['near', 50, 50.0000001]],

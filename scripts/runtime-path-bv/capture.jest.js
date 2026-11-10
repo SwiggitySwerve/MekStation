@@ -73,12 +73,9 @@ const {
 } = require('@/services/equipment/EquipmentRegistry');
 const { useTabManagerStore } = require('@/stores/useTabManagerStore');
 const { mechBVTerms } = require('@/utils/construction/mechBV/bvTrace');
-const { useUnitCalculations } = require('@/hooks/useUnitCalculations');
 const {
-  getMechConstructionSelections,
-  getMechValidationTonnage,
-  projectMechWeight,
-} = require('@/utils/validation/mechValidationProjection');
+  useMechValidationInput,
+} = require('@/hooks/validation/useMechValidationInput');
 const { numericTerms } = require('../vehicle-aero-bv-delta');
 
 const repoRoot = path.resolve(__dirname, '../..');
@@ -182,19 +179,11 @@ function StatusProbe() {
     unitStats.heatDissipation,
     unitStats.heatGeneration,
   );
-  // The weight validation sees, read beside the status bar's weightUsed: the two are compared
-  // exactly per unit (a difference is a second weight owner, a finding, never a tolerance).
-  const selections = getMechConstructionSelections(state);
-  const calculations = useUnitCalculations(
-    getMechValidationTonnage(state.tonnage),
-    selections,
-    selections.armorTonnage,
-    selections.configuration,
-  );
-  const { allocatedWeight } = projectMechWeight(
-    state,
-    calculations.totalStructuralWeight,
-  );
+  // The weight validation actually sees: the real validator input hook, read beside the status
+  // bar's weightUsed. The two real paths pass different tonnage arguments to useUnitCalculations,
+  // so an owner split would show here. They are compared exactly per unit (a difference is a
+  // finding, never a tolerance); nothing is rebuilt or copied between them.
+  const { allocatedWeight } = useMechValidationInput();
   probe.status = { validation, unitStats, allocatedWeight };
   return React.createElement(
     React.Fragment,
