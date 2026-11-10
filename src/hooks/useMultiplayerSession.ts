@@ -57,6 +57,7 @@ import {
   buildMirrorSessionGated,
   type MirrorSessionGateResult,
 } from '@/lib/multiplayer/mirrorMatchSession';
+import { REPLAY_FIDELITY_RELOAD_REASON } from '@/types/gameplay/ReplayFidelityVersion';
 
 import {
   connectMultiplayerSession,
@@ -79,6 +80,7 @@ export type MultiplayerStatus =
   | 'ready' // replay drained; live events flowing
   | 'paused' // server reported MatchPaused
   | 'closed' // server sent Close OR socket closed by caller
+  | 'reload-required' // terminal unsupported reader; reload before joining
   | 'error'; // connection-level failure
 
 export interface IMultiplayerError {
@@ -302,6 +304,10 @@ export function useMultiplayerSession(
   );
   const mirrorBlocked =
     mirrorGate.kind === 'blocked' ? mirrorGate.blockedEvents : null;
+  const mirrorNeedsReload = mirrorBlocked?.some((event) => event.reason === 'reload-required') === true;
+  useEffect(() => {
+    if (mirrorBlocked) clientRef.current?.close();
+  }, [mirrorBlocked]);
 
   const sendGameIntent = useCallback((intent: IGameIntent): boolean => {
     if (!clientRef.current) return false;
@@ -316,10 +322,10 @@ export function useMultiplayerSession(
   }, []);
 
   return {
-    status,
+    status: mirrorBlocked ? (mirrorNeedsReload ? 'reload-required' : 'error') : status,
     lobbyState,
     events,
-    error,
+    error: mirrorBlocked ? { code: mirrorNeedsReload ? 'reload-required' : 'INVALID_HISTORY', reason: mirrorNeedsReload ? REPLAY_FIDELITY_RELOAD_REASON : 'Match history is invalid and cannot be loaded.' } : error,
     sendIntent,
     lastSeq,
     mirrorSession,

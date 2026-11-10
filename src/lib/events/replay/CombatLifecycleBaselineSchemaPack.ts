@@ -25,6 +25,7 @@
 import { z } from 'zod';
 
 import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
+import { validateReplayFidelityVersion } from '@/types/gameplay/ReplayFidelityVersion';
 
 import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 
@@ -60,6 +61,10 @@ const COMBAT_LIFECYCLE_PAYLOAD_SCHEMAS = {
   [GameEventType.GameCreated]: z
     .object({
       config: gameConfigSchema,
+      replayFidelityVersion: z.custom((value) => {
+        try { validateReplayFidelityVersion(value); return true; }
+        catch { return false; }
+      }).optional(),
       units: z.array(gameUnitSchema),
       hexTerrain: z.array(hexTerrainSchema).optional(),
       c3Network: c3NetworkStateSchema.optional(),
@@ -153,7 +158,7 @@ export const COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK: readonly IReplayEventSchemaR
             schemaVersion: 1,
             schemaId:
               eventType === GameEventType.GameCreated
-                ? 'combat.game_created.v1.custom-construction-1.quick-meta-1.native-snapshots-1.native-dni-transport-1'
+                ? 'combat.game_created.v1.custom-construction-1.quick-meta-1.native-snapshots-1.native-dni-transport-1.replay-fidelity-1'
                 : `combat.${eventType}.v1`,
             parse: (payload: unknown) => schema.parse(payload),
           },

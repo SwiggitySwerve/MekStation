@@ -173,6 +173,25 @@ describe('InteractiveSession seed persistence round-trip (add-sp-combat-determin
     storage.close();
   });
 
+  it.each([undefined, 1, 2] as const)('preserves retained producer stamp %s through real storage and recovery without backfill', async (version) => {
+    const source = new GameEngine({ seed: 42, mapRadius: 6, turnLimit: 1 }).createInteractiveSession(
+      [makeAdaptedUnit('player-1', GameSide.Player)],
+      [makeAdaptedUnit('opponent-1', GameSide.Opponent)], makeGameUnits(),
+    ).getSession();
+    expect(source.events[0].payload).toHaveProperty('replayFidelityVersion', 2);
+    const imported = JSON.parse(JSON.stringify(source.events)) as typeof source.events;
+    const seed = imported[0].payload as Record<string, unknown>;
+    delete seed.replayFidelityVersion;
+    if (version !== undefined) seed.replayFidelityVersion = version;
+    const bytes = JSON.stringify(imported);
+    for (const event of imported) await storage.appendEvent(source.id, event);
+    const hydrated = await hydrateRecoverableSessionFromMatchLog(source.id, storage);
+    const recovered = await InteractiveSession.fromSessionAsync(hydrated);
+    expect(JSON.stringify(recovered.getSession().events)).toBe(bytes);
+    expect(Object.hasOwn(recovered.getSession().events[0].payload, 'replayFidelityVersion')).toBe(version !== undefined);
+    expect(JSON.stringify(await storage.getEventsForMatch(source.id))).toBe(bytes);
+  });
+
   it('a GameEngine-resolved seed survives GameCreated -> IndexedDB -> hydrate -> fromSessionAsync', async () => {
     const SEED = 918273;
     const engine = new GameEngine({ seed: SEED, mapRadius: 6, turnLimit: 4 });

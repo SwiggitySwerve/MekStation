@@ -113,6 +113,19 @@ describe('combat lifecycle baseline schema pack', () => {
     events: COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK,
   });
 
+  it.each([undefined, 1, 2])('accepts retained/new producer-rules version %s without backfill', (version) => {
+    const payload = { ...clone(VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS.game_created), ...(version === undefined ? {} : { replayFidelityVersion: version }) };
+    expect(registry.upcast('game_created', 1, payload).payload).toEqual(payload);
+  });
+
+  it.each([null, 0, -1, 1.5, '2', false, 3, 99])('rejects invalid/future producer-rules version %s', (replayFidelityVersion) => {
+    expect(() => registry.upcast('game_created', 1, { ...clone(VALID_COMBAT_LIFECYCLE_EVENT_PAYLOADS.game_created), replayFidelityVersion })).toThrow(UnsupportedReplayHistoryError);
+  });
+
+  it('revises the parser identity specifically for the stamp', () => {
+    expect(COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK.find((entry) => entry.eventType === 'game_created')?.schemas[0].schemaId).toBe('combat.game_created.v1.custom-construction-1.quick-meta-1.native-snapshots-1.native-dni-transport-1.replay-fidelity-1');
+  });
+
   it('registers discriminants exactly equal to the frozen PR-4 inventory row', () => {
     const packTypes = [...COMBAT_LIFECYCLE_EVENT_TYPES].sort();
     expect(packTypes).toEqual([...INVENTORY_LIFECYCLE_DISCRIMINANTS].sort());

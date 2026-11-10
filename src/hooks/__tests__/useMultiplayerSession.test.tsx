@@ -76,6 +76,38 @@ function mountLifecycleSession() {
 }
 
 describe('useMultiplayerSession terminal lifecycle', () => {
+  it('advertises reader 2 and terminates on the server reload-required error', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    expect(JSON.parse(sockets[0].sent[0])).toHaveProperty('replayFidelityReaderMaxVersion', 2);
+    act(() => sockets[0].emit({ kind: 'Error', matchId: 'match-1', ts, code: 'PROTOCOL_VIOLATION', reason: 'reload-required: Reload this tab to join this match.' }));
+    expect(result.current.status).toBe('reload-required');
+    expect(result.current.error?.reason).toContain('Reload this tab');
+    expect(result.current.clientLifecycle?.ready).toBe(false);
+    expect(result.current.clientLifecycle?.reconnectScheduled).toBe(false);
+    expect(sockets[0].readyState).toBe(3);
+    unmount();
+  });
+
+  it('turns an unexpected future mirror seed into a terminal reload-required failure', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    const events = buildEventLog().events.map((event, index) => index === 0 ? { ...event, payload: { ...event.payload, replayFidelityVersion: 3 } } : event);
+    act(() => emitReplay(sockets[0], events));
+    expect(result.current.status).toBe('reload-required');
+    expect(result.current.error?.reason).toContain('Reload');
+    expect(result.current.mirrorSession).toBeNull();
+    expect(result.current.clientLifecycle?.ready).toBe(false);
+    expect(sockets[0].readyState).toBe(3);
+    unmount();
+  });
+
+  it('keeps malformed unrelated history distinct from an unsupported version', () => {
+    const { result, sockets, unmount } = mountLifecycleSession();
+    const events = buildEventLog().events.map((event, index) => index === 0 ? { ...event, payload: { ...event.payload, extraInvalid: true } } : event);
+    act(() => emitReplay(sockets[0], events));
+    expect(result.current.status).toBe('error');
+    expect(result.current.error?.code).toBe('INVALID_HISTORY');
+    unmount();
+  });
   beforeEach(() => useGameplayStore.getState().reset());
   afterEach(() => useGameplayStore.getState().reset());
 

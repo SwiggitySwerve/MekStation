@@ -6,6 +6,7 @@
  */
 
 export * from './GameSessionCoreTypes';
+export * from './ReplayFidelityVersion';
 export * from './GameSessionUnitTypes';
 export * from './GameSessionLifecycleEvents';
 export * from './GameSessionMovementEvents';

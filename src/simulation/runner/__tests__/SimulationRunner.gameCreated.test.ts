@@ -14,6 +14,10 @@ import {
 } from './SimulationRunner.gameCreated.test-helpers';
 
 describe('SimulationRunner GameCreated seed event', () => {
+  it('stamps producer-rules version 2 from the direct runner writer', () => {
+    const runner = new SimulationRunner(42, undefined, undefined, () => new StandStillAIPlayer());
+    expect(runner.run(makeConfig({ turnLimit: 1 })).events[0].payload).toHaveProperty('replayFidelityVersion', 2);
+  });
   it('seeds hydrated pilot abilities and generic Edge points into state and GameCreated units', () => {
     const hydrated: IHydratedUnitData = {
       runnerUnitId: 'player-1',

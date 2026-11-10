@@ -18,6 +18,7 @@ import {
 } from '@/types/gameplay';
 
 import { createEventBase } from './base';
+import { CURRENT_REPLAY_FIDELITY_VERSION } from '@/types/gameplay/ReplayFidelityVersion';
 
 type GameCreatedEventArgs = [
   gameId: string,
@@ -74,6 +75,7 @@ export function createGameCreatedEvent(
 ): IGameEvent {
   const input = normalizeGameCreatedEventInput(args);
   const payload: IGameCreatedPayload = {
+    replayFidelityVersion: CURRENT_REPLAY_FIDELITY_VERSION,
     config: input.config,
     units: input.units,
     ...(input.encounterMeta !== undefined

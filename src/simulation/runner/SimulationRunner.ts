@@ -1,4 +1,5 @@
 import type { CriticalSlotManifest } from '@/utils/gameplay/criticalHitResolution';
+import { CURRENT_REPLAY_FIDELITY_VERSION } from '@/types/gameplay/ReplayFidelityVersion';
 
 import {
   GameEventType,
@@ -253,6 +254,7 @@ export class SimulationRunner {
             optionalRules: config.optionalRules ?? [],
           },
           units: gameUnits,
+          replayFidelityVersion: CURRENT_REPLAY_FIDELITY_VERSION,
           // Per `add-scenario-objective-engine`: stamp the placed
           // objective markers so the event log fully replays
           // objective state. Omitted for markerless runs.

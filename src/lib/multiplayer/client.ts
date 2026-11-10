@@ -42,6 +42,8 @@ import {
 } from '@/types/multiplayer/Protocol';
 
 import { credentialProtocols } from './socketCredentialProtocol';
+import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
+import { CURRENT_REPLAY_FIDELITY_VERSION, readReplayFidelityVersion, ReplayFidelityVersionError, isReplayFidelityReloadRequired, REPLAY_FIDELITY_RELOAD_REASON } from '@/types/gameplay/ReplayFidelityVersion';
 
 // =============================================================================
 // Public API
@@ -410,6 +412,10 @@ const SERVER_MESSAGE_HANDLERS: Record<
   },
   Error: ({ message, state, emit }) => {
     const error = message as Extract<IServerMessage, { kind: 'Error' }>;
+    if (isReplayFidelityReloadRequired(error)) {
+      terminateForReplayReload(state, emit);
+      return;
+    }
     // A refusal is an answer. Rejected, vetoed, duplicate, refused for
     // scope - the command is settled either way, and retrying it on the
     // next reconnect would just be refused again forever.
@@ -506,6 +512,18 @@ function applyQueuedEvents({
 }: IApplyQueuedEventsContext): boolean {
   for (let index = 0; index < queued.length; index += 1) {
     const current = queued[index];
+    // Check reader support before a listener, receipt, ready transition or
+    // cursor can accept this seed. React's later mirror render is too late.
+    if (typeof current.event === 'object' && current.event !== null && Reflect.get(current.event, 'type') === GameEventType.GameCreated) {
+      try { readReplayFidelityVersion(Reflect.get(current.event, 'payload')); }
+      catch (error) {
+        if (error instanceof ReplayFidelityVersionError && error.code === 'reload-required') {
+          terminateForReplayReload(state, emit);
+          return false;
+        }
+        throw error;
+      }
+    }
     if (state.blockedBySequenceCollision) return false;
     // Replay and live queues may overlap. Check again at application,
     // after earlier items have actually reached the projection.
@@ -810,6 +828,22 @@ function openSocket(runtime: IClientRuntime): void {
   };
 }
 
+function terminateForReplayReload(state: IClientState, emit: ServerMessageHandlerContext['emit']): void {
+  state.closedByCaller = true;
+  state.suppressNextSocketCloseEvent = true;
+  state.ready = false;
+  state.replayBuffer = [];
+  state.pendingLiveEvents = [];
+  if (state.reconnectTimer !== null) clearTimeout(state.reconnectTimer);
+  if (state.heartbeatTimer !== null) clearInterval(state.heartbeatTimer);
+  if (state.livenessTimer !== null) clearTimeout(state.livenessTimer);
+  state.reconnectTimer = null;
+  state.heartbeatTimer = null;
+  state.livenessTimer = null;
+  emit('error', { code: 'PROTOCOL_VIOLATION', reason: REPLAY_FIDELITY_RELOAD_REASON });
+  try { state.socket?.close(); } catch { /* Already closed. */ }
+}
+
 function sendSessionJoin(
   runtime: IClientRuntime,
   socket: IClientWebSocket,
@@ -821,6 +855,7 @@ function sendSessionJoin(
     ts: nowIso(),
     playerId: runtime.auth.playerId,
     token: runtime.wireToken,
+    replayFidelityReaderMaxVersion: CURRENT_REPLAY_FIDELITY_VERSION,
     // Slice B resumes only from the viewer's own delivery numbering.
     // Older clients that omit this field still use the server's legacy
     // lastSeq fallback; this client no longer sends authority hints.

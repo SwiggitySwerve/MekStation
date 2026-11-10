@@ -174,6 +174,15 @@ describe('the spectate page after the server drops the spectator seat', () => {
   const refuseAdmission = (socket: MockSocket) =>
     act(() => refusal().forEach((message) => socket.emit(message)));
 
+  it('shows Reload and stops rendering the loading surface on reload-required', async () => {
+    await watch();
+    act(() => mockSockets[0].emit({ kind: 'Error', matchId: 'match-1', ts, code: 'PROTOCOL_VIOLATION', reason: 'reload-required: Reload this tab to join this match.' }));
+    expect(await screen.findByRole('button', { name: 'Reload' })).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Reload this tab');
+    expect(screen.queryByTestId('surface')).not.toBeInTheDocument();
+    expect(registrations(fetchMock)).toBe(1);
+  });
+
   it('registers again once and resumes: rebinds, rejoins and drains the replay', async () => {
     await watch();
     expect(registrations(fetchMock)).toBe(1);

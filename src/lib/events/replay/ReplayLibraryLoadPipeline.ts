@@ -30,6 +30,8 @@ import { sha256 } from 'js-sha256';
 import type { IGameEvent } from '@/types/gameplay';
 
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
+import { readReplayFidelityVersion, ReplayFidelityVersionError } from '@/types/gameplay/ReplayFidelityVersion';
 
 import type { ReplayQuarantineReason } from './ReplayQuarantineRegistry';
 
@@ -55,6 +57,7 @@ export const REPLAY_LIBRARY_SOURCE_FORMAT_ID = 'simulation-report-jsonl';
 export const REPLAY_LIBRARY_SOURCE_FORMAT_VERSION = 1;
 
 export type ReplayLibraryBlockReason =
+  | 'reload-required'
   | LegacySourceAttributionCode
   | ReplayQuarantineReason;
 
@@ -126,6 +129,7 @@ export function loadReplayLibraryNdjson(
           1,
           'Line is not a valid IGameEvent envelope',
         );
+      if (envelope.type === GameEventType.GameCreated) readReplayFidelityVersion(envelope.payload);
       const upcast = REPLAY_SURFACE_REGISTRY.upcast(
         envelope.type,
         attributed.schemaVersion,
@@ -135,6 +139,10 @@ export function loadReplayLibraryNdjson(
       census = REPLAY_LIBRARY_CENSUS_PROJECTOR.project(census, upcast);
       events.push(envelope);
     } catch (error) {
+      if (error instanceof ReplayFidelityVersionError) {
+        blockedLines.push(Object.freeze({ line: lineNumber, reason: error.code === 'reload-required' ? 'reload-required' : 'invalid-payload', eventType, evidenceDigest: lineDigest, message: error.message }));
+        continue;
+      }
       if (error instanceof LegacySourceAttributionError) {
         blockedLines.push(
           Object.freeze({

@@ -27,6 +27,15 @@ import { gateReplaySurfaceHistory } from '../ReplaySurfaceGate';
 
 const STREAM_ID = 'match-gate-probe';
 
+it('keeps unsupported-reader failures distinct in cold recovery, object and byte adapters', async () => {
+  const future = { ...HISTORY[0], payload: { ...HISTORY[0].payload, replayFidelityVersion: 3 } };
+  const gated = gateReplaySurfaceHistory([future], { surfaceId: 'live-catch-up', streamId: STREAM_ID, formatId: 'match-broadcast', formatVersion: 1 });
+  expect(gated).toMatchObject({ kind: 'blocked', blockedEvents: [{ reason: 'reload-required', message: 'reload-required: Reload this tab to join this match.' }] });
+  const library = loadReplayLibraryNdjson(JSON.stringify(future), 'future-test');
+  expect(library).toMatchObject({ kind: 'blocked', blockedLines: [{ reason: 'reload-required' }] });
+  await expect(hydrateRecoverableSessionWithReport(STREAM_ID, { getEventsForMatch: async () => [future] })).rejects.toMatchObject({ name: 'ReplayFidelityVersionError', code: 'reload-required' });
+});
+
 const envelope = (
   sequence: number,
   type: string,

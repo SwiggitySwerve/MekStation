@@ -1163,6 +1163,7 @@ export class ServerMatchHost {
     lastSeq?: number,
     requestedMatchId = this.matchId,
     deliveryCursor?: number,
+    replayFidelityReaderMaxVersion?: number,
   ): Promise<void> => {
     // Two different numbers arrive here and only this function knows
     // which is which, so this is where they are converted to the one
@@ -1201,6 +1202,7 @@ export class ServerMatchHost {
       playerId,
       resumeFrom,
       requestedMatchId,
+      replayFidelityReaderMaxVersion,
     );
     if (!joined) this.lifecycle.detach(socket);
     if (joined) {
