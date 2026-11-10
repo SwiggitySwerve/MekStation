@@ -16,6 +16,10 @@ import {
 import React from 'react';
 
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import {
+  lifecycleAwareStorage,
+  resetOutdatedTabNotices,
+} from '@/stores/utils/lifecycleAwareStorage';
 
 import { CampaignSaveStatusCard } from '../CampaignSaveStatusCard';
 
@@ -67,6 +71,71 @@ describe('CampaignSaveStatusCard reader-gate refusal', () => {
     );
     expect(screen.queryByRole('button', { name: 'Reload' })).toBeNull();
     expect(screen.queryByTestId('campaign-save-now-btn')).toBeNull();
+  });
+
+  describe('outdated-tab notice (storage seam)', () => {
+    afterEach(() => {
+      // Reset while nothing is mounted, so no live component sees the change.
+      cleanup();
+      resetOutdatedTabNotices();
+    });
+
+    function oldTabWroteOver(campaignName: string | null): void {
+      const slot = JSON.stringify({
+        stamp: 1,
+        campaignId: 'c1',
+        campaignName,
+        value: JSON.stringify({
+          state: { campaign: { id: 'c1', name: campaignName, missions: [] } },
+          version: 0,
+        }),
+      });
+      localStorage.setItem('campaign-store.lifecycle', slot);
+      localStorage.setItem(
+        'campaign-store',
+        JSON.stringify({
+          state: {
+            // The older tab's copy: it never knew the campaign's real name.
+            campaign: { id: 'c1', missions: [] },
+            activityLog: [],
+          },
+          version: 0,
+        }),
+      );
+      lifecycleAwareStorage.getItem('campaign-store');
+    }
+
+    afterEach(() => localStorage.clear());
+
+    it('names the campaign and says the outdated tab changes were not kept', () => {
+      oldTabWroteOver('Wolf Dragoons');
+      render(<CampaignSaveStatusCard />);
+      expect(screen.getByTestId('campaign-outdated-tab-c1')).toHaveTextContent(
+        'Changes made to “Wolf Dragoons” in an outdated tab were not kept.',
+      );
+    });
+
+    it('falls back to a plain phrase when the campaign has no name', () => {
+      oldTabWroteOver(null);
+      render(<CampaignSaveStatusCard />);
+      expect(screen.getByTestId('campaign-outdated-tab-c1')).toHaveTextContent(
+        'Changes made to this campaign in an outdated tab were not kept.',
+      );
+    });
+
+    it('can be dismissed', async () => {
+      oldTabWroteOver('Wolf Dragoons');
+      render(<CampaignSaveStatusCard />);
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+      });
+      expect(screen.queryByTestId('campaign-outdated-tab-c1')).toBeNull();
+    });
+
+    it('shows nothing when no outdated tab was involved', () => {
+      render(<CampaignSaveStatusCard />);
+      expect(screen.queryByTestId('campaign-outdated-tab-c1')).toBeNull();
+    });
   });
 
   it('leaves every other refusal exactly as it was', () => {

@@ -48,6 +48,7 @@ import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
 import { createMatchWithRoomCodeRetry } from '@/lib/multiplayer/server/matchRoomCodes';
 import { buildDefaultMatchUnitBootstrap } from '@/lib/multiplayer/server/matchUnitBootstrap';
 import { generateRoomCode } from '@/lib/p2p/roomCodes';
+import { refuseCoopStartOnLifecycleCampaign } from '@/pages-modules/api/campaignCoopLifecycleBlock';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 import {
   defaultSeats,
@@ -311,6 +312,13 @@ export default async function handler(
     return;
   }
   const hostPlayerId = auth.playerId;
+  // Fail closed before any match, seat or host exists (S1b; lifted by S6).
+  if (
+    body.coopCampaign &&
+    refuseCoopStartOnLifecycleCampaign(res, body.coopCampaign.campaignId)
+  ) {
+    return;
+  }
   if (isCoopMissionBody(body)) {
     try {
       const meta = await createCoopMissionMatch(body, hostPlayerId);

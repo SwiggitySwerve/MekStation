@@ -28,7 +28,7 @@
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D6)
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useSyncExternalStore } from 'react';
 
 import { Badge, Button, Card } from '@/components/ui';
 import {
@@ -36,6 +36,11 @@ import {
   LIFECYCLE_UNSUPPORTED_CODE,
 } from '@/lib/campaign/persistence/lifecycleReaderGate';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import {
+  dismissOutdatedTabNotice,
+  getOutdatedTabNotices,
+  subscribeOutdatedTabNotices,
+} from '@/stores/utils/lifecycleAwareStorage';
 
 /** Human-readable label + badge variant per save-state. */
 function describeSaveState(
@@ -120,6 +125,11 @@ export function CampaignSaveStatusCard({
       ? saveRefusal
       : null;
   const canReload = rulesRefusal?.code === LIFECYCLE_UNSUPPORTED_CODE;
+  const outdatedTabNotices = useSyncExternalStore(
+    subscribeOutdatedTabNotices,
+    getOutdatedTabNotices,
+    getOutdatedTabNotices,
+  );
 
   return (
     <Card className="mb-6" data-testid="campaign-save-status-card">
@@ -157,6 +167,27 @@ export function CampaignSaveStatusCard({
               {rulesRefusal.message}
             </p>
           )}
+          {outdatedTabNotices.map((notice) => (
+            <p
+              key={notice.campaignId}
+              className="mt-1 text-sm text-yellow-400"
+              data-testid={`campaign-outdated-tab-${notice.campaignId}`}
+            >
+              Changes made to{' '}
+              {notice.campaignName === null
+                ? 'this campaign'
+                : `“${notice.campaignName}”`}{' '}
+              in an outdated tab were not kept. You are looking at the newer
+              version.{' '}
+              <button
+                type="button"
+                className="underline"
+                onClick={() => dismissOutdatedTabNotice(notice.campaignId)}
+              >
+                Dismiss
+              </button>
+            </p>
+          ))}
           {saveState === 'error' && saveRefusal && !rulesRefusal && (
             <p
               className="mt-1 text-sm text-red-400"
