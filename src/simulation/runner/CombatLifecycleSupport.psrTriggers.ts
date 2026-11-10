@@ -193,14 +193,16 @@ export const RUNNER_PSR_TRIGGER_COMBAT_SUPPORT = {
     'planRunningWithDamagePSR queues one createRunningDamagedGyroPSR per Run, Sprint or Evade move when a fall-capable unit has gyro damage that counts (a heavy-duty gyro ignores its first hit), in runner, interactive, AI, engine and P2P movement; MegaMek combines hip and gyro into one running-with-damage PSR while MekStation keeps separate reason codes',
     RUNNING_WITH_DAMAGE_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.ControlledSideslip]: integrated(
+  [PSRTrigger.ControlledSideslip]: outOfScope(
     PSRTrigger.ControlledSideslip,
-    'movementControlPsr queues createControlledSideslipPSR for represented lateral movement steps and suppresses the check for walking Maneuvering Ace units',
+    'createControlledSideslipPSR remains available so older replays and journals still parse',
+    'MegaMek 48fcb2f64 calls Entity.checkSideSlip (Entity.java:14083-14123) only for VTOL, hover and WiGE-with-clearance movement (MovePathHandler.java:3715-3727), so a BattleMech never rolls a controlled sideslip and movement no longer queues it; vehicle production and its skid and motive-damage outcome belong to the separate vehicle combat matrix',
     CONTROLLED_SIDESLIP_PSR_SOURCE_REFS,
   ),
-  [PSRTrigger.FlankingAndTurning]: integrated(
+  [PSRTrigger.FlankingAndTurning]: outOfScope(
     PSRTrigger.FlankingAndTurning,
-    'movementControlPsr queues represented flanking-and-turning PSRs for BattleMech run/sprint movement that turns after moving more than one hex, createFlankingAndTurningPSR stamps the movement-step trigger source, and calculatePSRModifiers applies Maneuvering Ace target-number relief',
+    'createFlankingAndTurningPSR remains available, and calculatePSRModifiers still applies Maneuvering Ace relief to it, so older replays and journals still parse and resolve',
+    'MegaMek 48fcb2f64 calls Entity.checkSideSlip (Entity.java:14083-14123) only for VTOL, hover and WiGE-with-clearance movement (MovePathHandler.java:3715-3727), so a BattleMech never rolls flanking and turning and movement no longer queues it; vehicle production and its skid and motive-damage outcome belong to the separate vehicle combat matrix',
     FLANKING_AND_TURNING_PSR_SOURCE_REFS,
   ),
   [PSRTrigger.OutOfControl]: integrated(
