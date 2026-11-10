@@ -1490,6 +1490,10 @@ passing execution. An unverified effect or outcome stays "not verified".
       with behavioral assertions. POST-MERGE: done locally on `16c218768`.
     - #3310 (`d6fdfb29c`): adds dispatch/main S0a parity scoreboard artifact
       workflow. POST-MERGE: done locally on `d6fdfb29c` (32/32).
+    - #3294 (`b2f9a9cf5`): desktop restore Result fix; no OpenSpec change.
+      Merged code/tests at this SHA: `desktop/electron/main.actions.ts`,
+      `desktop/electron/__tests__/main.actions.restore.test.ts`. POST-MERGE:
+      OPEN (not verified).
   - OWNER PAUSE, PARITY-PLAN §50 (2026-11-10): land code-complete in-flight work
     under ordinary trial/interval/hosted/POST-MERGE rules; PARK proposal-stage
     work and blocked successors. Exceptions finish 3.3-w and G8/D-11. This
@@ -1581,12 +1585,8 @@ passing execution. An unverified effect or outcome stays "not verified".
     establish unit parity.
   - G8 #3319 (`45a1c1d35`) re-mints the corrected D-11 pack; POST-MERGE done
     locally on that SHA, 95/95 suites and exact pack/matchlog hashes. Evidence:
-    `d11-e2e/fix-g8/postmerge-3319/MERGE-RECORD.txt`. D-11 nightly 42767605703
-    Full E2E/Coverage were still running in the pause receipt; outcome not
-    verified here. Close roadmap D-11 only with green Full E2E on main, all
-    other jobs green or dispositioned, counts/run/job/head and
-    first-attempt/retry/G6 recurrence accounting. No new CI watch is performed
-    by this PR.
+    `d11-e2e/fix-g8/postmerge-3319/MERGE-RECORD.txt`. D-11 closure is recorded
+    in the gameplay list below.
   - 5.2 parent closure, C1-C5: every clause of the nine other open rows, source
     inventory 10,994/9,815/1,179 with exclusions, fresh guarded conversion,
     separate source/catalog/runtime metrics, full detailed
@@ -1596,6 +1596,13 @@ passing execution. An unverified effect or outcome stays "not verified".
     The pause snapshot is not the final frozen acceptance SHA; do not archive.
   - **Gameplay findings open at the pause (tracked in ROADMAP C/D, owner C4; not
     unit-data parity)**
+    - D-11 CLOSED (ROADMAP, Root's call): Nightly Validation 42767605703 on
+      `45a1c1d35`, attempt 1, every job success. Full E2E 1,057 tests: 1,033
+      passed, 0 failed, 0 flaky, 24 skipped, no retries. The
+      maintenance-repairbay parity spec passed 2/2 on the first attempt. Fixes:
+      G1 #3176, G2 #3217, G3 #3175, G4 #3186, G5 #3178, G6 #3206, #3237, SE
+      #3244, G7 #3245, VDC #3246, G8 #3319. Regression check: the first
+      scheduled nightly on the final main.
     - G14: C4, OPEN: hand play does not apply boosted MP; 2b must ship boost and
       pinned check together at replay version 3, after R11a. Evidence:
       `c1c-design/DESIGN.md`, `c1c-design/PAUSE-STATE.md`.
