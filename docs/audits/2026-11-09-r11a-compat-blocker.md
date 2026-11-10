@@ -122,3 +122,56 @@ Completed evidence before the stop:
 The last already-running focused batch finished after the stop request: **47 passed, 6 failed**. The two engine event locks moved as expected from the stamp and were **not re-pinned** (42: old `2e6518e7722bb8fedc5212f0a83b0b67f4568ab56326e54266cc2d94608c0de1`, observed `729e77594b25d0407b914a7149bdd421375fbe38c01ff0be0f94e44139076a99`; 12345: old `b0d824117f9c7cdff7f78ff4a1d9aa54d1a6139a5557a85b7bb31f55c3f9399a`, observed `a58194599adbf83c95b0f75a8295152e251a755a55a9353670e9649c51ceec0b`). Per-lock exact stamp-removal proofs are still outstanding. Three added persistence assertions incorrectly compared pre-storage JSON order with the existing canonicalized storage order; they remain unfinished tests, not established new product drift. The added future-gate test accidentally builds from HISTORY[0] (GameStarted), so its input needs correction. They were preserved on request rather than repaired after implementation stopped.
 
 The CI budget check passed at the stop point: 57 unkeyable tests (no increase). Required mutants, complete movement/fingerprint receipts, strict OpenSpec and the remaining final-tree checks are outstanding. OpenSpec tasks remain unchecked. This checkpoint must not be described as passing or merge-ready.
+
+
+## 5. Launch-time frozen witness and pre-launch seed reachability (C4 follow-up; parked under section 50)
+
+**Result: the requested lobby-to-launch refusal sequence PASSES, but the current host can send its creation seed before launch. The cold-lobby gap therefore does not disappear on this base.** Root's four rulings in the subsequent owner directive supersede the earlier approval requests in this report; implementation remains parked.
+
+### Executed launch witness
+
+The run was already in flight when the park directive arrived and was allowed to finish. Its final result is **1 passed, 5 skipped, 0 failed**, exit 0; the focused test executed **22 assertions**. Evidence: [launch-result.json](E:/Projects/Personal/_scratch/sm-audit-reports/d8-fidelity/R11a-frozen-client/launch-result.json), test `a connected old still-lobby tab shows the exact terminal reason when launch active baseline precedes Error and Close with no seed or replay` in [frozen.witness.test.tsx](E:/Projects/Personal/_scratch/sm-audit-reports/d8-fidelity/R11a-frozen-client/frozen.witness.test.tsx).
+
+The harness first renders the frozen old page connected to a match resolved as `lobby`, supplies valid normal lobby seats, and asserts that the actual lobby panel and Launch match control are visible. It then calls the **real pinned pre-R11a `handleLobbyIntent(LaunchMatch)`** against an isolated InMemoryMatchStore. The handler changes the stored status to active and broadcasts its real `LobbyUpdated(active)` frame to the frozen client. The harness then delivers the prescribed existing Error and Close frames with reason `reload-required: Reload this tab to join this match.`
+
+It asserts the exact reason, including the existing `(PROTOCOL_VIOLATION)` display suffix, is visible in `match-closed-panel`. The mirror is still null; there is no blocked mirror, Loading match panel or Joining lobby heading; the socket is closed; no reconnect is scheduled; the client never became ready; lastSeq stays -1. The complete inbound frame-kind list is exactly:
+
+```text
+LobbyUpdated(lobby)
+LobbyUpdated(active)  [real LaunchMatch handler output]
+Error(PROTOCOL_VIOLATION, reload-required: ...)
+Close(PROTOCOL_VIOLATION, reload-required: ...)
+```
+
+No GameCreated, Event, ReplayStart, ReplayChunk or ReplayEnd was delivered. A throwing stub would fail the test if the launch handler attempted engine event delivery or dice capture. The frozen manifest now additionally captures `ServerMatchHostLobbyIntents.ts` from the same pinned base (10 source files total). It does not modify any product source.
+
+```powershell
+node node_modules/jest/bin/jest.js --config 'E:/Projects/Personal/_scratch/sm-audit-reports/d8-fidelity/R11a-frozen-client/jest.config.json' --runTestsByPath 'E:/Projects/Personal/_scratch/sm-audit-reports/d8-fidelity/R11a-frozen-client/frozen.witness.test.tsx' --testNamePattern 'connected old still-lobby tab' --maxWorkers=3 --json --outputFile='E:/Projects/Personal/_scratch/sm-audit-reports/d8-fidelity/R11a-frozen-client/launch-result.json' --silent
+```
+
+This focused run did not rerun or turn green the earlier intentionally failing Error-only witness. Initial harness attempts used invalid seat/player-reference fixtures and were corrected within the external witness before the final in-flight run; those fixture failures are not product findings.
+
+### Code reading: the no-pre-launch-seed premise is false
+
+All references in this table are on **943f5354db0a8f88bd567e91ec4565ed83d3c5a7**. The metadata's lobby/active lifecycle and the engine session's creation/start events are separate here.
+
+| Path / boundary | Pinned source evidence | Finding |
+| --- | --- | --- |
+| Normal match creation | `src/pages/api/multiplayer/matches/index.ts:218-249`, especially `status: 'lobby'` at 235 | The REST route creates lobby metadata. This alone does not yet claim an engine seed. |
+| First lobby socket host lookup | `src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts:123-144`; `MatchHostRegistry.ts:155-179` | The socket binder calls getOrCreate. Registry createHost rejects completed at 167, but does not require active; ordinary lobby metadata reaches ServerMatchHost.create at 179. |
+| Host bootstrap eagerly creates the seed | `ServerMatchHost.ts:482-489`; `ServerMatchHostBootstrap.ts:43-53`; `src/engine/InteractiveSession.ts:244-252`; `src/utils/gameplay/gameSessionCore.ts:118-129` | Bootstrap constructs InteractiveSession immediately, which calls createGameSession and startGame. createGameSession already contains GameCreated. This happens before a later LaunchMatch intent. |
+| Initial events are stored before launch | `ServerMatchHost.ts:464-468`; `ServerMatchHostEvents.ts:91-102` | The fresh host persists the constructor's GameCreated and GameStarted. Neither persistence call waits for metadata status active. The asynchronous persistence is not a guarantee of withholding: once its ordinary writes complete, pre-launch joins can read the seed. |
+| Lobby SessionJoin sends replay before its baseline | `bindMultiplayerSocketConnection.ts:276-293`; `ServerMatchHost.ts:1184-1204`; `ServerMatchHostReplay.ts:350-386` | After authorization, handleSessionJoin calls sendReplay at 358 **before** reading metadata at 363 and sending LobbyUpdated at 369-386. There is no lobby-status exemption. |
+| Replay does not suppress the lobby seed | `ServerMatchHostReplay.ts:100-134`, `:230-240`, `:486-488`; `projection/MatchWireAudienceCatalog.ts:73-74` | Fog-off is an ordinary supported route: getReplayEventsForPlayer returns stored events, streamReplay constructs chunks and safeSend sends them. GameCreated/GameStarted are public audience decisions, not active-only events. Therefore a pre-launch lobby client can receive its creation seed. |
+| Invitees before seat occupancy | `authorization/MatchSeatMembershipSource.ts:181-207` | A verified lobby invitee may be admitted while an open human seat exists or they are rostered. Pre-launch replay reachability is not limited to an already occupied host seat. Existing auth/membership checks still apply. |
+| Fresh spectator registration before launch | `src/pages/api/multiplayer/matches/[id]/spectate.ts:115-121`, rechecked at 149-153 | Normal REST spectator registration refuses lobby metadata with HTTP 409; this route does not create a fresh pre-launch spectator seat or send the seed. |
+| Already-authorized/pre-seated viewer and other replay seams | `authorization/MatchSeatMembershipSource.ts:97-105`, `:160-177`, `:211-222`; `ServerMatchHost.ts:1096-1107` | Membership recognizes existing human/spectator occupancy (or roster fallback). Such a viewer uses the same status-independent join replay. The direct host sendReplay wrapper also has no launch-status gate. This is not a claim that REST lets a fresh spectator bypass its active-only rule. |
+| Actual LaunchMatch | `ServerMatchHostLobbyIntents.ts:105-114`, `:288-300` | LaunchMatch changes metadata to active, clears the room code, and broadcasts LobbyUpdated. It does **not** first create GameCreated: that seed was created with the host. |
+
+The original old seed is unstamped. Under the preserved R11a producer change, the same eager factory writes 2, so a supported/new reader can receive a stamped GameCreated while metadata is still lobby. The preserved partial compatibility preflight blocks an incompatible old reader even earlier, before replay, **with only Error and no baseline/Close**; that is exactly the invisible cold-lobby failure already proved above. Do not interpret this as evidence that the partial checkpoint bypasses its own version check and sends a version-2 seed to a refused reader.
+
+### Consequence for the approved direction
+
+The launch-time display mechanism is valid once the real active baseline is available. It cannot retroactively protect a pre-launch SessionJoin that already encounters the seed or is refused silently. Keeping old tabs connected seedlessly until launch would require a reviewed change to lobby replay/admission and retained reader capabilities; that is additional implementation, not a fact established by this witness, and is parked.
+
+The owner has approved the reader field, active-match baseline + Error + Close order, conditional preparation split, and updated in-app Reload action. The narrow launch witness passed, so this report does not select the conditional fallback on the false claim that it failed. On resume, account for the newly traced pre-launch seed path before claiming complete old-tab compatibility; retain the owner's approved preparation/old-tab-limitation option for the end-to-end compatibility decision. No product changes, engine lock re-pins, further test runs or implementation fixes accompany this section.
