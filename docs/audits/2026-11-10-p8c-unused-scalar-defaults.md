@@ -57,11 +57,50 @@ shared table. Java has no equivalent to fallback Python implementations after a
 module-import failure. Its definitions do not justify keeping unused scalar
 helpers. Native omission defaults remain unchanged, including `None` armor.
 
-Corpus impact is statically zero for production callers: the TypeScript
-helpers have none; every Python caller used the retained strict branch; healthy
-imports use the retained module. No new corpus census, BV calculation or
-directory-wide test run was performed or claimed. There are no new unit
-diagnostics in this deletion slice.
+The TypeScript helpers have no production callers; every Python caller used
+the retained strict branch; healthy imports use the retained module. The
+authorized preservation comparison below additionally proves identical strict
+producer output after the overlapping chassis packet. There are no new unit
+diagnostics in this deletion slice. No BV, validity or directory-wide test run
+was performed.
+
+## Preservation after the chassis converter packet
+
+After #3304 merged, merge main `943f5354db0a8f88bd567e91ec4565ed83d3c5a7`
+into the existing P8c branch. The merge produces
+`ec848a5f7965850112d781eb254a5426a87873ed`. In the two overlapping files,
+`blk_unit_fields.py` and `blk_vehicle_converter.py`, the diff against main is
+only removal of the obsolete `strict=True` keyword; #3304's chassis-field
+emission is intact.
+
+C2 approved one slot for two serial full strict exports, main first and then
+that merged P8c tree. Both use the same 9,815 extracted sources pinned to
+mm-data `50f7efef0c9f775b0258f8283525ed4f906e1985`; source paths, hashes and order
+match the accepted audit inventory. Python bytecode writes are disabled.
+
+Both `sources.ndjson` files are **byte-identical**, 69,527,299 bytes:
+
+```text
+sourceCount: 9815 each
+identical rows: 9815 / 9815
+SHA-256: 1c2f0e8d0dbe9d8366707c9137297fbf96d0e3dd11882a562ea4bbe22eb38fec
+converted unit records: 6721 each
+raw sourceText records: 3094 each
+failed sources: 0 each
+```
+
+The strict producer retains raw text for battle armor, infantry and ProtoMeks;
+do not describe those rows as converted entities. Converter-input receipts
+record the intentional source-code changes independently of the identical
+payload hash. Admission free physical memory was 20.35 GiB for main and
+19.37 GiB for P8c, above C2's 8 GiB minimum. Export times were 201.09 seconds
+and 16.78 seconds respectively; both exited zero. No BV or validity calculation
+ran. Both export PIDs were checked absent before releasing the slot with zero
+leftover processes. The temporary baseline worktree was clean and removed.
+
+Machine-readable receipts and full output are retained outside the repository
+in the parity audit's `p8c/after-3304/` directory. Subsequent proof-only Markdown
+changes do not change any converter receipt input.
 
 ## Deferred audit rows
 
@@ -85,7 +124,8 @@ decoder and direct import. They distinguish known identities, malformed and
 unknown explicit values, optional omission and installation failure. Existing
 pinned-source converter tests protect the caller paths. A separate mutant that returns STANDARD on decoding failure is killed; receipts are in the local parity audit directory.
 
-Local results: 37 tests pass across the four focused Python files; 20 tests pass
+Local results after merging #3304: 44 tests pass across six focused Python
+files, including the mixed-chassis and strict-family-export tests; 20 tests pass
 in SupportVehicleUnitHandler.javaValidity.test.ts with `--maxWorkers=3`. Both
 TypeScript configs pass. The three changed TypeScript files have zero lint
 findings, including the unit-lint configuration. Formatting covers TypeScript
