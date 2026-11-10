@@ -2,6 +2,7 @@
 
 - [x] 1.1 Add pinned marker vocabulary and stable recogniser contract; preserve existing recovery.
 - [x] 1.2 Record red/green foundation tests and first local commit for o3b.
+- [x] 1.3 Consolidate legacy/component/source-weapon recovery in one callable dispatcher and prove M4 preservation.
 
 ## 2. Marker recovery
 

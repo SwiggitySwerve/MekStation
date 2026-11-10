@@ -7,6 +7,7 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import type { parseCriticalSlotToken } from './equipmentResolution';
+import type { ISourceCriticalWeapon } from './sourceWeaponMounts';
 
 export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
@@ -26,6 +27,7 @@ export type CriticalEntryKind =
   | 'ammunition'
   | 'heat-sink'
   | 'bomb-bay'
+  | 'weapon'
   | 'unclassified';
 
 export type CriticalEntryEffect =
@@ -69,4 +71,10 @@ export interface ICriticalSlotRecoveryInput extends ICriticalSlotRecognitionInpu
   readonly entry: IRecognizedCriticalEntry;
   readonly location: MechLocation;
   readonly locationEntries: readonly IRecognizedCriticalEntry[];
+  /** Legacy summary-dependent ammo/sink/bay admission; not a global gate. */
+  readonly physicalOnly?: boolean;
+  /** Existing reservations, including invalid serialized allocations. */
+  readonly reservedSlots?: ReadonlyMap<MechLocation, ReadonlySet<number>>;
+  /** Grouping evidence from the existing sourceCriticalWeapons owner. */
+  readonly sourceWeapon?: ISourceCriticalWeapon;
 }

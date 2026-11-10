@@ -31,7 +31,27 @@ prerequisites, not sizing formulas to add to a recovery switch.
 
 ## Native armor and structure allocations
 
-The recovery switch admits only native armor/structure markers in o3a. Each
+### Shared callable recovery dispatcher
+
+`recoverCriticalSlotEntries(input: ICriticalSlotRecoveryInput)` returns zero or
+more mounted allocations without mutating its input. It is the only switch
+that creates missing critical-entry mounts: ammo, bomb bays, sinks, grouped
+source weapons and native markers. Unsupported kinds return no allocations.
+The loader preserves the existing component -> source-weapon -> remaining-kind
+order, applies returned allocations and refreshes actual coverage, current
+equipment and location facts before each next call. The component-kind set is
+stage scheduling only; admission, matching, native entry sizing and creation
+remain in the callable switch.
+
+`physicalOnly` retains the existing summary guard for ammo/bays/sinks only.
+`reservedSlots` preserves serialized reservations, including invalid ones;
+when omitted by a direct caller it defaults to actual input allocations through
+the same coverage owner. `sourceWeapon` is already grouped evidence from
+`sourceCriticalWeapons`, never a second weapon-grouping calculation. Existing
+listed-weapon binding stays in the loader; newly discovered weapon creation
+goes through the dispatcher. The final o1 pod projection is unchanged.
+
+The new admission in o3a is native armor/structure markers. Each
 retained source cell gets one zero-equipment-mass structural allocation, using
 the existing armor/structure ID prefix and the vocabulary's native identity.
 The material configuration continues to own material mass and protection.
