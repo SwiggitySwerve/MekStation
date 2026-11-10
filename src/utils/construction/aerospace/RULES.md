@@ -1,5 +1,14 @@
 # Aerospace construction rules
 
+Native source BV resolves numeric armor codes through `getNativeArmorName`, the
+same owner used by vehicle/mech armor valuation; string inputs retain their
+existing spelling and unknown numeric codes retain the standard fallback.
+Targeting-computer capability is owned by `hasBVTargetingComputer`, including
+the pinned native IS/Clan registry identities and Omni aliases. Their current
+Miscellaneous category is a catalog fact, not a reason to lose the capability.
+No raw mounts or catalogs are rewritten. MegaMek 48fcb2f64:
+MiscType.java:6799-6811,6836-6848; BVCalculator.java:880-882.
+
 Contract and live editor BV share `projectAerospaceBVArmor`; status and both
 record-sheet callers use `aerospaceBVUnitFromState`. Per-arc native type codes
 stay separate from live armor points. Native fighter handlers retain explicit

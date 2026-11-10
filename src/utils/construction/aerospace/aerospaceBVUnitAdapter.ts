@@ -20,6 +20,7 @@ import {
 } from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { extractWeaponTypeFromAmmoId } from '../battleValueAmmo';
+import { getNativeArmorName } from '../battleValueDefensive';
 import {
   projectAerospaceBVArmor,
   resolveAerospaceContractArc,
@@ -138,19 +139,17 @@ function normalizeArmorArcs(
 /**
  * Resolve a numeric or string `armorType` field into the lookup key used by
  * `getArmorBVMultiplier`. `IAerospaceUnit.armorType` is typed as `number`
- * (legacy code-table format) but the BV calculator wants the canonical string
- * key (`"standard"`, `"reactive"`, etc.). Unknown numeric codes fall back to
- * `"standard"` (multiplier 1.0) — the same behavior `getArmorBVMultiplier`
- * provides for unknown strings.
+ * (native code-table format). Numeric values use the shared native armor owner;
+ * string inputs retain their existing spelling and unknown numeric codes retain
+ * the standard-armor fallback.
  */
 export function resolveAerospaceArmorTypeKey(
   armorType: string | number | undefined,
 ): string {
   if (typeof armorType === 'string' && armorType.length > 0) return armorType;
-  // Numeric armor codes do not have a stable mapping in this module yet —
-  // treat them as standard armor for BV purposes. Concrete callers (like
-  // the AerospaceStatusBar) pass a string key directly.
-  return 'standard';
+  return typeof armorType === 'number'
+    ? getNativeArmorName(armorType)
+    : 'standard';
 }
 
 /**
