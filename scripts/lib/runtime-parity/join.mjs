@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { sha256 } from '../ci/parity-scoreboard-artifacts.mjs';
+import { sha256 } from '../../ci/parity-scoreboard-artifacts.mjs';
 
 export const SOURCES_FILE = 'sources.ndjson';
 export const MANIFEST_FILE = 'sources.ndjson.manifest.json';

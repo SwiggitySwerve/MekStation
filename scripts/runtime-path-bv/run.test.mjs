@@ -12,7 +12,7 @@ import {
   emitterCommand,
   readJoinFiles,
   verifyAgainstReference,
-} from './join.mjs';
+} from '../lib/runtime-parity/join.mjs';
 import { capturedToRow, summarize } from './report.mjs';
 import { RunError, loadReference, main } from './run.mjs';
 
