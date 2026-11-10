@@ -51,7 +51,7 @@ historical. No full requirement, numerical parity, spec sync or archive is
 accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 
 Row 3.3 was reopened on 2026-11-09 (see row 3.3). This brings the ledger to 34
-of 45 top-level rows ticked (36 of 47 checkbox entries); 11 rows remain open:
+of 45 top-level rows ticked (37 of 48 checkbox entries); 11 rows remain open:
 2.1, 2.2, 2.3, 2.22, 3.1, 3.2, 3.3, 3.4, 4.1, 4.3 and 5.2.
 
 ## 1. Source and reference foundation
@@ -247,6 +247,53 @@ of 45 top-level rows ticked (36 of 47 checkbox entries); 11 rows remain open:
     are recorded under rows 2.2 and 3.4; neither closes all-family validation.
   - [x] 3.1a Separate VTOL/SmallCraft BLK source loading from construction limits, retain original values and existing validation diagnostics, and reject unusable numeric fields. Verified all 170 pinned rows by source index/path/blob/SHA-256: 160 to 170 loaded, all 10 recovered rows construction-invalid, existing successful data and validation unchanged except unit diagnostic fields; 317 focused handler/parser/construction/BV assertions pass. This closes only this boundary slice; the all-family row, numerical parity and round trips remain open. (`unit-services`: VTOL and SmallCraft source loading diagnostics)
   - Open: vehicle, aerospace and capital converters and catalogs are on main (#2469, #2486). Battle armor and infantry now have strict converters (#2499, #2500) and committed catalogs of 1,188 and 1,820 designs (#2513, #2515), and their handlers accept the pinned sources (#2509). ProtoMechs have a strict converter and a registered family (#2505) and a committed catalog of 86 designs (#2526). Vehicle Java validity agrees for 1,423 of 1,444 designs (follow-up 60). #2568 compared validity per unit with the oracle's `construction.valid` for ProtoMechs, aerospace and capital (`unit-loading/L-VAL/`, lane figures, not re-run here). After it, ProtoMechs agree on all 86 (85 valid and 1 invalid in both; the corpus-load run on main `ac64a3330` also counts 1 invalid, `ledger/tick6/corpus-load/`). Aerospace has 596 valid in both, 6 valid here only, 1 valid in Java only and 17 FixedWingSupport sources with no local result (Java: 14 valid, 3 invalid). Capital has 350 valid in both and 44 valid here only. Mech validity work: #2607, #2608 and #2616 (mech critical slots against the selected cockpit) are on main, and so are #2620 (HVAC explosive penalty), #2622 (split-weapon criticals across adjacent locations), #2633 (13 introduction years) and #2634 (the Mek turret marker stripped from slot names). #2595 added the equipment introduction-year check for aerospace and fixed-wing sources (`AeroIntroYear.test.ts`), and #2647 and #2660 ported Java's armor and engine introduction-year checks for combat vehicles (#2647 flipped Fury CX-17 and #2660 Ground Car and Jeep, all toward Java, by the PR bodies' own guard runs; lane figures, not re-run). #2536 made the battle armor and infantry handlers' `validate` agree with the oracle's `construction.valid` on all 1,188 and all 1,820 sources (4 and 30 invalid, Java's diagnostic kept; `PersonnelValidity.test.ts` and `BattleArmorUnitHandler.validation.test.ts` pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; the corpus-load run counts the same 4 and 30, `ledger/tick6/corpus-load/`). Invalid-but-loadable diagnostics are therefore still unproven for aerospace (7 disagreements and 17 sources with no result) and capital (44 disagreements); vehicle validity was not re-compared here: follow-up 95 records 13 vehicles valid here and invalid in Java after #2635 (21 at #2475; a lane figure, not re-run), which the three flips of #2647 and #2660 would leave at 10 if the lane figures hold, with the Java weight, slot and compatibility checks (follow-up 95 (b) to (e)) still to port.
+  - [x] 3.1b Source-handler construction validity agrees with pinned MegaMek
+    48fcb2f64 on 9,815/9,815 in-scope sources at main `e7dc2f6fb`, across all
+    seven families (BattleMechs 4,263, vehicles 1,444, aerospace 620, capital
+    394 read-only, battle armor 1,188, infantry 1,820, ProtoMechs 86). 118
+    invalid-but-loadable designs load, agree with Java's verdict and carry
+    their local construction errors as explicit diagnostics (mechs 6, vehicles
+    24, aerospace 9, capital 44, battle armor 4, infantry 30, ProtoMechs 1).
+    BV is 9,815/9,815 exact on the same run. Unsupported records are
+    preserved; the six BFS files are excluded by owner ruling, and capital is
+    read-only. Evidence: the guarded proof
+    `_scratch/c2-runs/post3276-proof/out/` (`--reference-trust blocking
+    --construction-validity --per-term`, reference SHA-256
+    `4e19c56b957de2a8fc70dbfd131e76b64caa05adf8ba145b1610cc6b3ec37d87`) and
+    the independent census `coord1-census/RECEIPT-3276.md`. Scope: the
+    comparator's `source-handler-validity-only` scope. No claim about
+    editor-state validation paths, component-mass completeness, BV per-term
+    parity, or the entity-model preservation clauses listed below.
+  - Open under row 3.1, mapped to `unit-entity-model` "Faithful source-unit
+    semantics":
+    - Equipment identities: FU-101 PR C (#3263) and PR-D (crit-only
+      fixed-equipment recovery; 1,163 Omni mounts; 2,716 mech weights still
+      differ); CASE II PR-2 (suffix repair plus 37 approved reroutes); the R1
+      Jenner JR7-K 38th file (after #3253).
+    - Per-mount qualifiers (Omni): R2 phase b after the o1 OmniPod loader fix
+      (#3281); o2 (281 configuration-locked pods).
+    - Technology identity (Mixed): the mech chassis apply (377 files) and the
+      non-mech chassis apply (#3287, merged); the x8 runtime read; 607 Mixed
+      units indexed as Inner Sphere; 5 DropShips (capital-converter residual).
+    - Rules level: the `rulesLevel` packet (4,253 stale mechs).
+    - Unknown values produce diagnostics, not valid-looking defaults: audit
+      the parsers and mappers that default unknown values to valid ones,
+      starting from `ValueMappings.ts:33` (MIXED→INNER_SPHERE),
+      `EnumParserRegistry.ts:172` and `unitIndexMapper.ts:70`; each either
+      fails closed with a diagnostic or is justified.
+    - Validators for every family: non-mech opposite-tech legality PR B (sided
+      tech facts: S1 #3278 merged; S2 #3286; D1–D4).
+    - Construction input: the campaign refit projection (after CV1 #3270).
+    - R2 phase a (11 tripods).
+    - FU-55 under 3.1-c: `vehicleStructureOptions.ts:11` keeps its own
+      `VEHICLE_TONNAGE` instead of `getTankMaxTonnage`
+      (`constructionConstants.ts:103`); the UI-bounds half closed in 2.2-f;
+      the sub-1-ton check and the support-Hydrofoil chassis-mod 100 t
+      restriction remain open.
+    - Moved out of 3.1: aerospace mass (the simplified handler engine weight,
+      the dead aerospace engine table, the certified breakdown) to row 2.2;
+      the `RoundWeight.NEAREST_KG` single owner, Limpet clip ammo and Boreas
+      Omni fire control to rows 2.2/3.4.
 - [ ] 3.2 Connect browser/Node canonical discovery and direct source imports to the same domain contract; correct field/discriminator mismatches at the boundary. (`unit-services`: Family-aware loading and persistence)
   - Historical #2983 added MTF selection/drop and conflict-renaming through
     the existing import API, with 53 focused tests including real SQLite/API/client
