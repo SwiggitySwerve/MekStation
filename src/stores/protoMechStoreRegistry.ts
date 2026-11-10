@@ -9,6 +9,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import { logger } from '@/utils/logger';
 
 import {
@@ -102,6 +103,7 @@ export function duplicateProtoMech(
 
   const mergedState: ProtoMechState = {
     ...newState,
+    ...pickUnitTechBaseIdentity(sourceState),
     engineRating: sourceState.engineRating,
     cruiseMP: sourceState.cruiseMP,
     jumpMP: sourceState.jumpMP,

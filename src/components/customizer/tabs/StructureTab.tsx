@@ -99,6 +99,7 @@ export function StructureTab({
   // Get unit state from context
   const tonnage = useUnitStore((s) => s.tonnage);
   const configuration = useUnitStore((s) => s.configuration);
+  const frankenStructure = useUnitStore((s) => s.frankenStructure);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const {
     engineType,
@@ -149,6 +150,7 @@ export function StructureTab({
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       heatSinkType,
       heatSinkCount,

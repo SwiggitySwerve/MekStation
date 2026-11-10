@@ -9,6 +9,10 @@ export function ceilSupportWeight(weight: number, tonnage: number): number {
     ? Math.ceil(roundWeightToGrams(weight) / 1000) / 1000
     : ceilToHalfTon(weight);
 }
+/** RoundWeight.NEAREST_KG (RoundWeight.java:51-52): whatever the vehicle. */
+export function roundWeightToNearestKg(weight: number): number {
+  return Math.round(weight * 1000) / 1000;
+}
 /** RoundWeight.STANDARD (RoundWeight.java:58-68), with gram truncation. */
 export function roundSupportComponentWeight(
   weight: number,

@@ -33,6 +33,7 @@ import {
 } from '../src/utils/construction/contractBVUnitAdapter';
 import { mechBVTerms } from '../src/utils/construction/mechBV/bvTrace';
 import { protoMechBVTerms } from '../src/utils/construction/protomech';
+import { withProtoMechNativeIndices } from '../src/utils/construction/protomech/nativeTraceEnrichment';
 import {
   buildDeltaReport,
   JavaReference,
@@ -169,7 +170,10 @@ export function calculateRow(
       const handler = new ProtoMechUnitHandler();
       const parsed = handler.parse(document.data.document);
       if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
-      const b = handler.calculateBVBreakdown(parsed.data.unit);
+      const b = withProtoMechNativeIndices(
+        handler.calculateBVBreakdown(parsed.data.unit),
+        parsed.data.unit.equipment,
+      );
       return {
         path: input.path,
         sha256: input.sha256,

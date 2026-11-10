@@ -87,6 +87,7 @@ export function AerospaceEquipmentTab({
       {/* Equipment Browser */}
       <div className="min-h-0 flex-1" data-testid="aerospace-equipment-browser">
         <EquipmentBrowser
+          unitType={useAerospaceStore((state) => state.unitType)}
           onAddEquipment={handleAddEquipment}
           className="h-full"
         />

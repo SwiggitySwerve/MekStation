@@ -1,4 +1,5 @@
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 /**
  * Battle Armor State Interface
  *
@@ -57,7 +58,8 @@ export function createBattleArmorMountedEquipment(
 /**
  * Complete state for a single Battle Armor unit (squad)
  */
-export interface BattleArmorState extends IUnitSaveMetadata {
+export interface BattleArmorState
+  extends IUnitSaveMetadata, IUnitTechBaseIdentity {
   /** Original catalog facts not expressible by the editor. */
   librarySource?: IUnitContract;
   // =========================================================================
