@@ -1,3 +1,5 @@
 # Enforce LF line endings for all text files to prevent CRLF/LF mismatches
 # across Windows/macOS/Linux and keep formatter output consistent
 * text=auto eol=lf
+# Preserve the SHA-verified oracle provenance bytes, including CRLF.
+config/reference/reference-full.jsonl.provenance.json binary
