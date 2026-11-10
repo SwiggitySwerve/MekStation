@@ -9,32 +9,15 @@
 
 import { useMemo } from 'react';
 
+import type { StructureValidationData } from '@/utils/validation/mechValidationProjection.types';
+
 import { useUnitStore } from '@/stores/useUnitStore';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import {
   getMechConstructionSelections,
   projectMechStructure,
 } from '@/utils/validation/mechValidationProjection';
 
-/**
- * Structure validation data
- */
-export interface StructureValidationData {
-  /** Engine type */
-  engineType: string;
-  /** Gyro type */
-  gyroType: string;
-  /** Cockpit type */
-  cockpitType: string;
-  /** Internal structure type */
-  internalStructureType: string;
-  armorType?: string;
-  techBaseMode?: TechBaseMode;
-  /** Heat sink count */
-  heatSinkCount: number;
-  /** Heat sink type */
-  heatSinkType: string;
-}
+export type { StructureValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for structure validation data

@@ -9,30 +9,17 @@
 
 import { useMemo } from 'react';
 
+import type { WeightValidationData } from '@/utils/validation/mechValidationProjection.types';
+
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useUnitStore } from '@/stores/useUnitStore';
 import {
   getMechConstructionSelections,
+  getMechValidationTonnage,
   projectMechWeight,
 } from '@/utils/validation/mechValidationProjection';
 
-/**
- * Weight validation data
- */
-export interface WeightValidationData {
-  /** Total weight allocated by all components and equipment */
-  allocatedWeight: number;
-  /** Maximum weight allowed (tonnage) */
-  maxWeight: number;
-  /** Structural weight (engine, gyro, structure, cockpit, heat sinks, armor) */
-  structuralWeight: number;
-  /** Equipment weight */
-  equipmentWeight: number;
-  /** Remaining weight capacity */
-  remainingWeight: number;
-  /** Whether weight is within limits */
-  isValid: boolean;
-}
+export type { WeightValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for weight validation data
@@ -47,7 +34,7 @@ export function useWeightValidation(): WeightValidationData {
     [state],
   );
   const calculations = useUnitCalculations(
-    state.tonnage || 20,
+    getMechValidationTonnage(state.tonnage),
     selections,
     selections.armorTonnage,
     selections.configuration,

@@ -9,26 +9,14 @@
 
 import { useMemo } from 'react';
 
+import type { EquipmentValidationData } from '@/utils/validation/mechValidationProjection.types';
+
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useUnitStore } from '@/stores/useUnitStore';
-import {
-  ICriticalSlotIssue,
-  ISlotsByLocation,
-  IValidatableUnit,
-} from '@/types/validation/UnitValidationInterfaces';
 import { projectMechEquipment } from '@/utils/validation/mechValidationProjection';
 
-/**
- * Equipment validation data
- */
-export interface EquipmentValidationData {
-  /** Per-location critical slot usage */
-  slotsByLocation: ISlotsByLocation;
-  equipmentSlotIssues: readonly ICriticalSlotIssue[];
-  mountedEquipment: IValidatableUnit['mountedEquipment'];
-  equipmentCatalog: IValidatableUnit['equipmentCatalog'];
-}
+export type { EquipmentValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for equipment validation data

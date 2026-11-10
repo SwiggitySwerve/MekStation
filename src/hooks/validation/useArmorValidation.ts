@@ -9,21 +9,12 @@
 
 import { useMemo } from 'react';
 
+import type { ArmorValidationData } from '@/utils/validation/mechValidationProjection.types';
+
 import { useUnitStore } from '@/stores/useUnitStore';
-import { IArmorByLocation } from '@/types/validation/UnitValidationInterfaces';
 import { projectMechArmor } from '@/utils/validation/mechValidationProjection';
 
-/**
- * Armor validation data
- */
-export interface ArmorValidationData {
-  /** Total armor points allocated */
-  totalArmorPoints: number;
-  /** Maximum armor points allowed */
-  maxArmorPoints: number;
-  /** Per-location armor allocation */
-  armorByLocation: IArmorByLocation;
-}
+export type { ArmorValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for armor validation data

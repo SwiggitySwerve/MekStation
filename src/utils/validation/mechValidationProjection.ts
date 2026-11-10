@@ -10,6 +10,14 @@ import { getMaxTotalArmor } from '@/utils/construction/armorCalculations';
 import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
 import { getEquipmentPayloadWeight } from '@/utils/equipment/equipmentWeightAccounting';
 
+import type {
+  UnitMetadata,
+  ArmorValidationData,
+  StructureValidationData,
+  EquipmentValidationData,
+  WeightValidationData,
+} from './mechValidationProjection.types';
+
 import { buildArmorByLocation } from './armorValidationUtils';
 import { buildSlotsByLocation } from './slotValidationUtils';
 
@@ -58,7 +66,7 @@ export function projectMechMetadata(
     cost?: number;
     battleValue?: number;
   },
-) {
+): UnitMetadata {
   return {
     id: state.id || 'new-unit',
     name: state.name || 'Unnamed',
@@ -73,10 +81,15 @@ export function projectMechMetadata(
   };
 }
 
+/** Preserve the editor's empty-tonnage default at one boundary. */
+export function getMechValidationTonnage(tonnage: number): number {
+  return tonnage || 20;
+}
+
 export function projectMechArmor(
   state: Pick<UnitState, 'tonnage' | 'configuration' | 'armorAllocation'>,
-) {
-  const tonnage = state.tonnage || 20;
+): ArmorValidationData {
+  const tonnage = getMechValidationTonnage(state.tonnage);
   return {
     totalArmorPoints: getTotalAllocatedArmor(
       state.armorAllocation,
@@ -91,7 +104,9 @@ export function projectMechArmor(
   };
 }
 
-export function projectMechStructure(selections: MechConstructionSelections) {
+export function projectMechStructure(
+  selections: MechConstructionSelections,
+): StructureValidationData {
   return {
     engineType: selections.engineType,
     gyroType: selections.gyroType,
@@ -120,7 +135,7 @@ export function projectMechEquipment(
     | 'armActuators'
   >,
   dependencies: MechEquipmentDependencies,
-) {
+): EquipmentValidationData {
   return {
     mountedEquipment: state.equipment,
     equipmentCatalog: dependencies.equipmentRegistryReady
@@ -141,8 +156,8 @@ export function projectMechEquipment(
 export function projectMechWeight(
   state: Pick<UnitState, 'tonnage' | 'equipment'>,
   totalStructuralWeight: number,
-) {
-  const maxWeight = state.tonnage || 20;
+): WeightValidationData {
+  const maxWeight = getMechValidationTonnage(state.tonnage);
   const equipmentWeight = getEquipmentPayloadWeight(state.equipment);
   const allocatedWeight = totalStructuralWeight + equipmentWeight;
   return {

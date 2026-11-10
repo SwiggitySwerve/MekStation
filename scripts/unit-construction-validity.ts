@@ -18,6 +18,7 @@ import { initializeUnitValidationRules } from '../src/services/validation/initia
 import { validateUnit } from '../src/services/validation/UnitValidationOrchestrator';
 import {
   getMechConstructionSelections,
+  getMechValidationTonnage,
   projectMechValidation,
 } from '../src/utils/validation/mechValidationProjection';
 import {
@@ -81,7 +82,7 @@ export function captureMechValidity(
     // Only the complete calculation sum needs React; projection itself is pure.
     const calculations = renderMechCalculations({
       ...state,
-      tonnage: state.tonnage || 20,
+      tonnage: getMechValidationTonnage(state.tonnage),
     });
     const ready = getEquipmentRegistry().isReady();
     const input = projectMechValidation(state, {
