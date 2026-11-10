@@ -12,7 +12,10 @@ import {
   type SingletonFactory,
 } from '@/services/core/createSingleton';
 import { MechConfiguration, MechLocation } from '@/types/construction';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  getNativeArmorType,
+} from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -294,7 +297,10 @@ class EnumParserRegistryImpl implements IEnumParserRegistry {
   };
 
   parseArmorType = (value: string): ArmorTypeEnum => {
-    return parseFromMap(value, ARMOR_TYPE_MAP, ArmorTypeEnum.STANDARD);
+    const native = getNativeArmorType(value);
+    return native === ArmorTypeEnum.FERRO_FIBROUS_PROTO
+      ? native
+      : parseFromMap(value, ARMOR_TYPE_MAP, ArmorTypeEnum.STANDARD);
   };
 
   parseHeatSinkType = (value: string): HeatSinkType => {

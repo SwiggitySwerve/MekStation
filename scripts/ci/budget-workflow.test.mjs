@@ -7,7 +7,10 @@ import { test } from 'node:test';
 import { parse, parseDocument } from 'yaml';
 
 import { assertJobResults } from './budget-aggregate.mjs';
-import { checkRepositoryMetrics } from './budget-check.mjs';
+import {
+  checkRepositoryMetrics,
+  run as runBudgetCheck,
+} from './budget-check.mjs';
 import { loadBudgets } from './budget-config.mjs';
 import {
   observedBudgetValues,
@@ -28,6 +31,35 @@ import { AGGREGATOR } from './lint-and-test-guard.mjs';
 const root = process.cwd(),
   config = loadBudgets(),
   workflow = readWorkflow(root);
+
+test('the PR Checks budget command rejects a re-added byte cap before collecting metrics', () => {
+  const fixture = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'budget-tree-command-'),
+  );
+  try {
+    const directory = path.join(fixture, 'config', 'ci');
+    fs.mkdirSync(directory, { recursive: true });
+    for (const id of [
+      'standaloneStaticBytes',
+      'webZipBytes',
+      'installerBytes',
+      'fooBytes',
+    ]) {
+      const next = structuredClone(config);
+      next.limits[id] = 1;
+      fs.writeFileSync(
+        path.join(directory, 'budgets.json'),
+        JSON.stringify(next),
+      );
+      assert.throws(
+        () => runBudgetCheck([], fixture),
+        /Byte limits are forbidden|limits: missing or unknown fields/,
+      );
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
 
 test('PR and release workflows retain complete advisory web and installer census contracts', () => {
   for (const file of ['pr-checks.yml', 'release.yml']) {

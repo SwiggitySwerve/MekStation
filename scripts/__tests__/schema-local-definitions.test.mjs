@@ -2,6 +2,7 @@ import { jsonSchemaToZod } from 'json-schema-to-zod';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { require as tsxRequire } from 'tsx/cjs/api';
@@ -276,4 +277,178 @@ test('generated technology sidecar contract agrees with Python cases without cha
     source,
     /z\.any\(|fetch\(|import .*technology-advancements\.json/,
   );
+});
+
+test('all five equipment contracts preserve optional native-name references in Python and Zod', () => {
+  const root = new URL('../../', import.meta.url);
+  const shared = JSON.parse(
+    readFileSync(
+      new URL(
+        'public/data/equipment/_schema/technology-advancements-schema.json',
+        root,
+      ),
+      'utf8',
+    ),
+  );
+  const contracts = tsxRequire(
+    '../../src/types/contracts/index.ts',
+    import.meta.url,
+  );
+  const shapes = [
+    ['weapon', 'WeaponContract', 'weapons/energy-laser.json'],
+    ['ammunition', 'AmmunitionContract', 'ammunition/artillery.json'],
+    ['electronics', 'ElectronicsContract', 'electronics/ecm.json'],
+    [
+      'misc_equipment',
+      'MiscEquipmentContract',
+      'miscellaneous/heat-sinks.json',
+    ],
+    ['physical_weapon', 'PhysicalWeaponContract', 'weapons/physical.json'],
+  ];
+  const referenceCases = [
+    ['exact native name', ['Native Type (Exact) / 1'], true],
+    ['separate variants and order', ['Zulu native', 'Alpha native'], true],
+    ['preserve case and whitespace', [' Name', 'Name', 'name'], true],
+    ['empty list', [], false],
+    ['empty name', [''], false],
+    ['duplicate name', ['Native', 'Native'], false],
+    ['numeric name', [123], false],
+    ['null name', [null], false],
+    ['mixed names', ['Native', false], false],
+    ['null list', null, false],
+    ['string instead of list', 'Native', false],
+    [
+      'embedded facts instead of references',
+      { Native: { techBase: 'ALL' } },
+      false,
+    ],
+  ];
+  const cases = [];
+  for (const [shape, exportName, file] of shapes) {
+    const contract = contracts[exportName];
+    const rawBase = JSON.parse(
+      readFileSync(
+        new URL('public/data/equipment/official/' + file, root),
+        'utf8',
+      ),
+    ).items[0];
+    delete rawBase.nativeTechnologyNames;
+    // Existing contracts apply some legacy defaults; the opt-in must preserve
+    // that normalization while leaving the new reference property absent.
+    const base = contract.parse(rawBase);
+    assert.equal(Object.hasOwn(base, 'nativeTechnologyNames'), false);
+    const schema = JSON.parse(
+      readFileSync(
+        new URL(
+          'public/data/equipment/_schema/' +
+            shape.replaceAll('_', '-') +
+            '-schema.json',
+          root,
+        ),
+        'utf8',
+      ),
+    );
+    assert.deepEqual(schema.properties.nativeTechnologyNames, {
+      $ref: shared.$id + '#/$defs/nativeTechnologyNames',
+    });
+    assert.equal(schema.required.includes('nativeTechnologyNames'), false);
+    assert.equal(schema.additionalProperties, false);
+    cases.push({
+      shape,
+      exportName,
+      name: 'legacy omission',
+      document: base,
+      accepted: true,
+    });
+    cases.push({
+      shape,
+      exportName,
+      name: 'legacy normalization',
+      document: rawBase,
+      accepted: true,
+      expected: base,
+    });
+    for (const [name, value, accepted] of referenceCases)
+      cases.push({
+        shape,
+        exportName,
+        name,
+        document: { ...base, nativeTechnologyNames: value },
+        accepted,
+      });
+    cases.push({
+      shape,
+      exportName,
+      name: 'old binary tech base stays BOTH',
+      document: { ...base, techBase: 'BOTH' },
+      accepted: true,
+    });
+    cases.push({
+      shape,
+      exportName,
+      name: 'old tech base does not become native ALL',
+      document: { ...base, techBase: 'ALL' },
+      accepted: false,
+    });
+    cases.push({
+      shape,
+      exportName,
+      name: 'no embedded field',
+      document: { ...base, technologyAdvancements: { Native: {} } },
+      accepted: false,
+    });
+    cases.push({
+      shape,
+      exportName,
+      name: 'strict unknown fields',
+      document: { ...base, injected: true, nativeTechnologyNames: ['Native'] },
+      accepted: false,
+    });
+    const missingId = { ...base, nativeTechnologyNames: ['Native'] };
+    delete missingId.id;
+    cases.push({
+      shape,
+      exportName,
+      name: 'old required fields stay required',
+      document: missingId,
+      accepted: false,
+    });
+  }
+  const python = [
+    'import copy,json,sys',
+    'sys.path.insert(0,sys.argv[1])',
+    'from schema_gate import SHAPE_VALIDATORS',
+    'cases=json.load(sys.stdin)',
+    'before=copy.deepcopy(cases)',
+    'results=[not SHAPE_VALIDATORS[c["shape"]](c["document"]) for c in cases]',
+    'assert cases==before',
+    'print(json.dumps(results))',
+  ].join('\n');
+  const pythonResults = JSON.parse(
+    execFileSync(
+      'python',
+      [
+        '-B',
+        '-c',
+        python,
+        fileURLToPath(new URL('scripts/megameklab-conversion/', root)),
+      ],
+      {
+        input: JSON.stringify(cases),
+        encoding: 'utf8',
+        cwd: tmpdir(),
+      },
+    ),
+  );
+  assert.equal(pythonResults.length, cases.length);
+  cases.forEach((entry, index) => {
+    const label = entry.shape + ': ' + entry.name;
+    const before = structuredClone(entry.document);
+    const result = contracts[entry.exportName].safeParse(entry.document);
+    assert.equal(pythonResults[index], entry.accepted, 'Python ' + label);
+    assert.equal(result.success, entry.accepted, 'Zod ' + label);
+    assert.deepEqual(entry.document, before, label);
+    if (result.success)
+      assert.deepEqual(result.data, entry.expected ?? entry.document, label);
+  });
 });

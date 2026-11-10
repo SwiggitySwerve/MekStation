@@ -186,8 +186,9 @@ no-side-effect rejection, and represented per-arm carried-cargo physical
 legality are integrated for the represented BattleMech matrix. Throw-object
 damage/displacement remains outside that represented release-lifecycle slice
 instead of an unresolved BattleMech catalog blocker.
-Maneuvering Ace controlled sideslip and flanking/turning producers are
-integrated for represented BattleMech movement; out-of-control control-roll
+Maneuvering Ace controlled sideslip and flanking/turning producers are out of
+scope for BattleMechs (MegaMek rolls them only for VTOL, hover and WiGE
+movement, so the runner queues neither); out-of-control control-roll
 production is split to aerospace/LAM scope, while represented pending
 out-of-control PSR target-number relief remains integrated.
 
