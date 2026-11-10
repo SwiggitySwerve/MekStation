@@ -12,6 +12,7 @@ import type { InternalStructureType } from '@/types/construction/InternalStructu
 import type { IComponentTechBases } from '@/types/construction/TechBaseConfiguration';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
 
 import { UnitStats } from '@/components/customizer/shared/UnitInfoBanner';
 import { useEquipmentCalculations } from '@/hooks/useEquipmentCalculations';
@@ -56,6 +57,7 @@ interface UnitEditorStatsInput {
   engineRating: number;
   gyroType: GyroType;
   internalStructureType: InternalStructureType;
+  frankenStructure?: ISerializedStructure;
   cockpitType: CockpitType;
   heatSinkType: HeatSinkType;
   heatSinkCount: number;
@@ -93,6 +95,7 @@ export function useUnitEditorRoutingStats(
     engineRating,
     gyroType,
     internalStructureType,
+    frankenStructure,
     cockpitType,
     heatSinkType,
     heatSinkCount,
@@ -124,6 +127,7 @@ export function useUnitEditorRoutingStats(
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       heatSinkType,
       heatSinkCount,
@@ -136,6 +140,7 @@ export function useUnitEditorRoutingStats(
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       heatSinkType,
       heatSinkCount,

@@ -40,9 +40,11 @@ import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { CURRENT_UNIT_SCHEMA_VERSION } from '@/types/contracts/generated/unit.zod';
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { vehicleEditorSchema } from '@/types/unit/VehicleSerialization';
+import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
@@ -51,6 +53,7 @@ import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
 import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
+import { cloneSerializedStructure } from './structureMetadata';
 
 const GYRO_TYPE = {
   [GyroType.STANDARD]: 'STANDARD',
@@ -139,16 +142,24 @@ function serializeArmor(state: UnitState): ISerializedArmor {
 function serializeEquipment(
   equipment: readonly IMountedEquipmentInstance[],
 ): ISerializedEquipment[] {
-  return equipment.map((item) => ({
-    id: item.equipmentId,
-    location: item.location ?? 'Unallocated',
-    // Split mounts are reconstructed from the complete critical grid on reopen.
-    ...(item.slots && !item.splitSlots ? { slots: [...item.slots] } : {}),
-    isRearMounted: item.isRearMounted,
-    isRemovable: item.isRemovable,
-    isOmniPodMounted: item.isOmniPodMounted,
-    ...(item.linkedAmmoId ? { linkedAmmo: item.linkedAmmoId } : {}),
-  }));
+  return equipment.map((item) => {
+    const isAmmo = item.category === EquipmentCategory.AMMUNITION;
+    return {
+      id: item.equipmentId,
+      // Use the existing resolution owner's category evidence; unambiguous
+      // portable records retain their literal shape without a new marker.
+      ...(isAmmo !== isAmmunitionEquipmentId(item.equipmentId)
+        ? { isAmmo }
+        : {}),
+      location: item.location ?? 'Unallocated',
+      // Split mounts are reconstructed from the complete critical grid on reopen.
+      ...(item.slots && !item.splitSlots ? { slots: [...item.slots] } : {}),
+      isRearMounted: item.isRearMounted,
+      isRemovable: item.isRemovable,
+      isOmniPodMounted: item.isOmniPodMounted,
+      ...(item.linkedAmmoId ? { linkedAmmo: item.linkedAmmoId } : {}),
+    };
+  });
 }
 
 function serializeCriticalSlots(state: UnitState, walk: number) {
@@ -235,7 +246,9 @@ export function serializeCustomUnitState(
     },
     gyro: { type: GYRO_TYPE[state.gyroType] },
     cockpit: getCockpitSourceTag(state.cockpitType),
-    structure: { type: STRUCTURE_TYPE[state.internalStructureType] },
+    structure: cloneSerializedStructure(state.frankenStructure) ?? {
+      type: STRUCTURE_TYPE[state.internalStructureType],
+    },
     armor: serializeArmor(state),
     heatSinks: {
       type: HEAT_SINK_TYPE[state.heatSinkType],

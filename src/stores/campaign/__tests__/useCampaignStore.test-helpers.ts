@@ -189,7 +189,6 @@ describe('useCampaignStore', () => {
     it('should have all expected methods', () => {
       const state = store.getState();
       expect(typeof state.createCampaign).toBe('function');
-      expect(typeof state.loadCampaign).toBe('function');
       expect(typeof state.saveCampaign).toBe('function');
       expect(typeof state.advanceDay).toBe('function');
       expect(typeof state.getCampaign).toBe('function');
@@ -307,61 +306,35 @@ describe('useCampaignStore', () => {
   // loadCampaign
   // ===========================================================================
 
-  describe('loadCampaign', () => {
-    it('should return false for non-existent campaign', () => {
-      const result = store.getState().loadCampaign('non-existent-id');
-      expect(result).toBe(false);
-    });
-
-    it('should load saved campaign', () => {
-      // Create and save a campaign
-      const campaignId = store
-        .getState()
-        .createCampaign('Saved Campaign', 'mercenary');
+  describe('reload (a restarted app rehydrates the saved campaign)', () => {
+    it('should reload a saved campaign', () => {
+      store.getState().createCampaign('Saved Campaign', 'mercenary');
       store.getState().saveCampaign();
 
-      // Create new store and load
+      // A new store rehydrates the saved campaign.
       const newStore = createCampaignStore();
-      const result = newStore.getState().loadCampaign(campaignId);
 
-      expect(result).toBe(true);
       const campaign = newStore.getState().getCampaign();
       expect(campaign?.name).toBe('Saved Campaign');
       expect(campaign?.factionId).toBe('mercenary');
     });
 
-    it('should restore sub-stores on load', () => {
-      // Create campaign and add data to sub-stores. Personnel is no longer
-      // a sub-store (`migrate-personnel-to-roster-employment`); we seed
-      // directly on the campaign object.
-      const campaignId = store
-        .getState()
-        .createCampaign('Test Campaign', 'mercenary');
-
+    it('should build the child stores when the campaign is loaded', () => {
+      // The persistence store loads a campaign by deserializing it and
+      // switching to it; switching builds the forces and missions stores.
+      store.getState().createCampaign('Test Campaign', 'mercenary');
       store.getState().updateCampaign({});
-
       store.getState().saveCampaign();
 
-      // Create new store and load
       const newStore = createCampaignStore();
-      newStore.getState().loadCampaign(campaignId);
+      newStore.getState().switchCampaign(store.getState().getCampaign()!);
 
       expect(newStore.getState().getForcesStore()).not.toBeNull();
       expect(newStore.getState().getMissionsStore()).not.toBeNull();
     });
 
-    it('should handle corrupted storage gracefully', () => {
-      // Write corrupted data
-      localStorageMock.setItem('campaign-corrupted', 'not valid json');
-
-      const result = store.getState().loadCampaign('corrupted');
-      expect(result).toBe(false);
-    });
-
     it('should restore campaign date correctly', () => {
-      const campaignId = store
-        .getState()
-        .createCampaign('Test Campaign', 'mercenary');
+      store.getState().createCampaign('Test Campaign', 'mercenary');
 
       // Advance a few days
       store.getState().advanceDay();
@@ -371,9 +344,7 @@ describe('useCampaignStore', () => {
       const originalDate = store.getState().getCampaign()?.currentDate;
       store.getState().saveCampaign();
 
-      // Create new store and load
       const newStore = createCampaignStore();
-      newStore.getState().loadCampaign(campaignId);
 
       const loadedDate = newStore.getState().getCampaign()?.currentDate;
       expect(loadedDate?.toISOString()).toBe(originalDate?.toISOString());
@@ -761,13 +732,10 @@ describe('useCampaignStore', () => {
     });
 
     it('should deserialize dates correctly on load', () => {
-      const campaignId = store
-        .getState()
-        .createCampaign('Test Campaign', 'mercenary');
+      store.getState().createCampaign('Test Campaign', 'mercenary');
       store.getState().saveCampaign();
 
       const newStore = createCampaignStore();
-      newStore.getState().loadCampaign(campaignId);
 
       const campaign = newStore.getState().getCampaign();
       expect(campaign?.currentDate).toBeInstanceOf(Date);
@@ -913,9 +881,7 @@ describe('useCampaignStore', () => {
 
     it('should support save and reload cycle', () => {
       // Create and populate campaign
-      const campaignId = store
-        .getState()
-        .createCampaign('Test Campaign', 'mercenary');
+      store.getState().createCampaign('Test Campaign', 'mercenary');
 
       store.getState().updateCampaign({});
 
@@ -924,9 +890,6 @@ describe('useCampaignStore', () => {
 
       // Create new store and reload
       const newStore = createCampaignStore();
-      const loaded = newStore.getState().loadCampaign(campaignId);
-
-      expect(loaded).toBe(true);
 
       const campaign = newStore.getState().getCampaign();
       expect(campaign?.name).toBe('Test Campaign');

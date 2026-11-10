@@ -33,6 +33,22 @@ movement, specialization or anti-Mek rules from the legacy editor enums.
 Other BLK families are explicitly unsupported until their serial slices land.
 Capital remains unsupported in this slice; its eventual import will be read-only
 under owner ruling O2.
+
+Capital custom records have a read-only lifecycle under O2 and the capital
+owner ruling: creation assigns a new identity at version 1, and subsequent
+construction updates, overwrites and history reverts are rejected by the shared
+repository write-access boundary. Both update and revert APIs return 403 with
+`READ_ONLY`. The check covers the persisted type, saved definition and proposed
+or reverted definition, so changing or clearing discriminators cannot bypass it.
+Initial creation/import and library deletion remain available. This lifecycle
+does not yet admit capital BLK sources.
+
+Saved capital records reopen in the existing frozen viewer without an editor
+store. Preview resolves the custom source reference, preserving print and PDF.
+The existing JSON backup download remains available as a read operation. Native
+MTF/BLK and vault design exports remain unavailable; this adds no capital
+construction save or editing workflow.
+
 Construction-invalid but structurally representable
 records remain loadable; handler diagnostics are retained, not used as a new gate.
 No handler serializer is called. `blkSource` retains exact text, the full parsed

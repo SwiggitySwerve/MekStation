@@ -1,4 +1,8 @@
 import { createCampaignStore, resetCampaignStore } from '../useCampaignStore';
+import {
+  deserializeCampaign,
+  serializeCampaign,
+} from '../useCampaignStore.persistence';
 
 describe('useCampaignStore multi-campaign switcher', () => {
   beforeEach(() => {
@@ -15,7 +19,6 @@ describe('useCampaignStore multi-campaign switcher', () => {
     });
     store.getState().saveCampaign();
     const alpha = store.getState().campaign!;
-    const alphaId = alpha.id;
     store.getState().createCampaign('Bravo', 'davion');
     const bravo = store.getState().campaign!;
     expect(store.getState().processedBattleIds).toEqual([]);
@@ -30,7 +33,13 @@ describe('useCampaignStore multi-campaign switcher', () => {
     expect(store.getState().reviewedBattleIds).toEqual({});
 
     store.setState({ outcomeApplyErrors: { bravo: 'failed' } });
-    expect(store.getState().loadCampaign(alphaId)).toBe(true);
+    // Load alpha as the persistence store does: deserialize the saved
+    // campaign, then switch to it.
+    store
+      .getState()
+      .switchCampaign(
+        deserializeCampaign(serializeCampaign(alpha), new Map(), new Map()),
+      );
     expect(store.getState().outcomeApplyErrors).toEqual({});
     expect(store.getState().campaign?.processedBattleIds).toEqual([
       'alpha-battle',

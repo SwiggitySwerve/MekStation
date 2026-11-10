@@ -34,6 +34,7 @@ import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { AerospaceArmorDiagram } from '../AerospaceArmorDiagram';
@@ -47,6 +48,10 @@ function makeState(overrides: Record<string, unknown> = {}) {
   return {
     tonnage: 50,
     structuralIntegrity: 7,
+    armorType: ArmorTypeEnum.STANDARD,
+    armorTonnage: 5,
+    motionType: AerospaceMotionType.AERODYNE,
+    techBase: TechBase.INNER_SPHERE,
     armorAllocation: {
       [AerospaceLocation.NOSE]: 8,
       [AerospaceLocation.LEFT_WING]: 6,
@@ -135,10 +140,7 @@ describe('AerospaceArmorDiagram — subType propagation', () => {
     expect(lwInput()).toHaveAttribute('max', '10');
   });
 
-  it('drops the wing cap to 0 when the store subType is SMALL_CRAFT', () => {
-    // Small craft carry side arcs, not wings — the wing location yields 0
-    // through the enum bridge. A non-zero here would mean the diagram ignored
-    // the store subType.
+  it('keeps small-craft Side inputs free of an independent location cap', () => {
     mockUseAerospaceStore.mockImplementation((selector) =>
       selector(
         makeState({
@@ -147,7 +149,7 @@ describe('AerospaceArmorDiagram — subType propagation', () => {
       ),
     );
     render(<AerospaceArmorDiagram />);
-    expect(lwInput()).toHaveAttribute('max', '0');
+    expect(lwInput()).not.toHaveAttribute('max');
   });
 });
 

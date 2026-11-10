@@ -1,6 +1,7 @@
 import type { SupportRegistryMass } from '@/utils/construction/vehicle/supportPayload';
 
 import { TechBase } from '@/types/enums/TechBase';
+import { getNativeWeightLookupToken } from '@/utils/construction/equipmentBV/normalization';
 import { isRegistryEquipment } from '@/utils/construction/equipmentBVCatalogData';
 
 import { mapTechBaseMode } from '../unitLoaderService/componentMappers';
@@ -21,7 +22,7 @@ export function createSupportRegistryMass(
   const mode = mapTechBaseMode(techBase);
   return (equipmentId, name) => {
     const { equipmentDef } = resolveEquipmentId(
-      equipmentId,
+      getNativeWeightLookupToken(equipmentId),
       techBase,
       mode,
       undefined,

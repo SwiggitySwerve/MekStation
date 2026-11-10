@@ -25,6 +25,17 @@ Pinned MegaMek 48fcb2f64: `MtfFile.getEquipmentType` passes no tech restriction
 to `EquipmentType.get` for a Mixed-tech unit.
 
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
+Custom mech saves retain category with optional `isAmmo` metadata only when the
+existing ID classifier alone would choose a different ammo/non-ammo category;
+unambiguous portable records retain their literal shape. For optional metadata,
+absent markers remain undefined. The category-qualified catalog lookup selects
+the saved mount's own record before sizing. Older placed saves recover category
+only from complete, consistent resolved criticals with the same saved ID.
+Empty, partial, conflicting or neighbouring placements do not supply category.
+An explicit category without a matching record fails with a diagnostic.
+Ammunition never inherits launcher heat. Derived metadata is omitted from the
+library fingerprint projection; existing edit/draft category tracking and
+literal fingerprint bytes remain unchanged.
 When registry fallback reaches a shared launcher/ammo ID, getMountedById selects
 the token's record through the normalization owner's ammo classification. An
 existing resolved definition retains precedence. Claiming launcher cells cannot
@@ -61,11 +72,22 @@ registry owns their accepted contract discriminators and available store mapper.
   existing stores and shells. Infantry uses the same registered-store route.
 - Capital ships (DropShip, JumpShip, WarShip, Space Station) open read-only
   (UL-14). `mapCapitalDefinitionToView` maps the definition to a deep-frozen
-  view (`capitalShipView.ts`), kept in memory by tab id; no store is created and
-  nothing persists, so a reloaded capital tab asks to be reopened from the
-  library. BV comes from the unified dispatcher with its scope: complete
+  view (`capitalShipView.ts`), kept in memory by tab id; no editor store is
+  created. Custom definitions may persist under a new identity at version 1,
+  while view sessions do not persist: a reloaded capital tab asks to be reopened
+  from the library. Custom views retain a copied, frozen source reference for
+  Preview, print and PDF; canonical view output is unchanged. BV comes from the
+  unified dispatcher with its scope: complete
   DropShips show the total; `defensive-only` shows the defensive value with a
   plain "not available yet" note and never as the total.
+- Capital saved details offer Open read-only through the same family-aware
+  loader as the library dialog. `mapCustomUnitIndexEntry` owns their shared
+  index-to-load-entry projection, preserving family, identity and version.
+  The family registry owns capital read-only classification. `UnitRepository`
+  owns the write-access check used by updates and `VersionRepository.revert`;
+  capital writes fail before changing data, versions or timestamps. Initial
+  creation, deletion and JSON backup remain available. Editor save/overwrite,
+  saved-history actions and native/vault design exports remain unavailable.
 - BattleMech equipment mapping, normalization and session creation stay unchanged.
   No fallback creates a BattleMech from a different family.
 - Saved vehicle designs carry family `vehicles` in their persisted JSON and

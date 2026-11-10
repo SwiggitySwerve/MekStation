@@ -10,11 +10,14 @@
  *   VAL-AERO-CREW         small craft must allocate quarters
  */
 
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { TechBase } from '@/types/enums/TechBase';
 import {
   AerospaceArc,
   AerospaceEngineType,
   AerospaceSubType,
 } from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import {
   AERO_VALIDATION_RULE_IDS,
@@ -121,6 +124,15 @@ describe('validateFuel (VAL-AERO-FUEL)', () => {
 });
 
 describe('validateArcArmor (VAL-AERO-ARC-MAX)', () => {
+  it('does not reject small-craft side armor using a fighter fraction', () => {
+    expect(
+      validateArcArmor(
+        { [AerospaceArc.LEFT_SIDE]: 608 },
+        200,
+        AerospaceSubType.SMALL_CRAFT,
+      ),
+    ).toEqual([]);
+  });
   const subType = AerospaceSubType.AEROSPACE_FIGHTER;
   it('passes when each arc is within its max', () => {
     // 50 t ASF: Nose 14, Wings 10, Aft 6
@@ -160,6 +172,46 @@ describe('validateArcArmor (VAL-AERO-ARC-MAX)', () => {
     );
     expect(errs).toEqual([]);
   });
+});
+
+it('validates the whole small-craft budget without clamping locations', () => {
+  const arcArmor = { [AerospaceArc.LEFT_SIDE]: 609 };
+  const input = {
+    tonnage: 200,
+    subType: AerospaceSubType.SMALL_CRAFT,
+    engineType: AerospaceEngineType.FUSION,
+    safeThrust: 4,
+    structuralIntegrity: 8,
+    fuelTons: 20,
+    arcArmor,
+    quartersTons: 20,
+    crewCount: 4,
+    smallCraftArmor: {
+      tonnage: 200,
+      structuralIntegrity: 8,
+      motionType: AerospaceMotionType.AERODYNE,
+      techBase: TechBase.INNER_SPHERE,
+      armorType: ArmorTypeEnum.STANDARD,
+      armorTonnage: 36,
+    },
+  };
+  expect(
+    validateAerospaceUnit(input).filter(
+      (error) => error.ruleId === 'VAL-AERO-ARMOR-TOTAL',
+    ),
+  ).toEqual([
+    {
+      ruleId: 'VAL-AERO-ARMOR-TOTAL',
+      message: 'Total armor 609 exceeds available armor 608',
+    },
+  ]);
+  expect(arcArmor[AerospaceArc.LEFT_SIDE]).toBe(609);
+  expect(
+    validateAerospaceUnit({
+      ...input,
+      arcArmor: { [AerospaceArc.LEFT_SIDE]: 608 },
+    }),
+  ).toEqual([]);
 });
 
 describe('validateCrew (VAL-AERO-CREW)', () => {
@@ -226,6 +278,7 @@ describe('AERO_VALIDATION_RULE_IDS', () => {
       'VAL-AERO-SI',
       'VAL-AERO-FUEL',
       'VAL-AERO-ARC-MAX',
+      'VAL-AERO-ARMOR-TOTAL',
       'VAL-AERO-CREW',
       'VAL-AERO-WING-HEAVY',
       'VAL-AERO-BOMB-BAY',

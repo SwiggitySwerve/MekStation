@@ -100,7 +100,6 @@ const EXPECTED_PROTOMECH_LABELS = [
   'Armor',
   'Main Gun',
   'Equipment',
-  'Glider',
   'Preview',
   'Fluff',
 ];
@@ -138,5 +137,12 @@ describe('tabRegistry — canonical per-type tab sets', () => {
     expect(PROTOMECH_TABS.map((t) => t.label)).toEqual(
       EXPECTED_PROTOMECH_LABELS,
     );
+  });
+
+  it('PROTOMECH_TABS has no Glider tab and no size-dependent tab', () => {
+    // MegaMekLab 62bf193 PMMainUI has no Glider tab; glider is the motive in
+    // PMChassisView, which is the Structure tab's chassis choice here.
+    expect(PROTOMECH_TABS.map((t) => t.id)).not.toContain('glider');
+    expect(PROTOMECH_TABS.filter((t) => t.visibleWhen)).toEqual([]);
   });
 });

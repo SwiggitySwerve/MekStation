@@ -21,8 +21,9 @@ import {
   IComponentTechBases,
   TechBaseMode,
 } from '@/types/construction/TechBaseConfiguration';
-import { ALL_TECH_BASES, TechBase } from '@/types/enums/TechBase';
+import { TechBase } from '@/types/enums/TechBase';
 
+import { isComponentAllowedForTechMode } from './techBaseValidation.compatibility';
 import { getValueWithMemory } from './techBaseValidation.helpers';
 import {
   COMPONENT_VALIDATORS,
@@ -97,7 +98,11 @@ function getMixedSelection<T>(
   current: T,
   fallbackTechBase: TechBase,
 ): T {
-  return ALL_TECH_BASES.some((techBase) => validator.isValid(current, techBase))
+  return isComponentAllowedForTechMode(
+    TechBaseMode.MIXED,
+    fallbackTechBase,
+    (side) => validator.isValid(current, side),
+  )
     ? current
     : validator.getDefault(fallbackTechBase);
 }

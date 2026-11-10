@@ -21,6 +21,7 @@ import {
   AerospaceArc,
   AerospaceSubType,
 } from '@/types/unit/AerospaceInterfaces';
+import { mapAerospaceLocationToArc } from '@/utils/construction/aerospace/armorArcCalculations';
 import { makeSmallCraftCrew } from '@/utils/construction/aerospace/crewCalculations';
 import { validateAerospaceUnit } from '@/utils/construction/aerospace/validationRules';
 import { formatTons } from '@/utils/formatting';
@@ -53,6 +54,11 @@ export function AerospaceStructureTab({
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
   const crew = useAerospaceStore((s) => s.crew);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
+  const armorType = useAerospaceStore((s) => s.armorType);
+  const armorTonnage = useAerospaceStore((s) => s.armorTonnage);
+  const smallCraftArmorType = useAerospaceStore((s) => s.smallCraftArmorType);
+  const motionType = useAerospaceStore((s) => s.motionType);
+  const techBase = useAerospaceStore((s) => s.techBase);
   const setCrew = useAerospaceStore((s) => s.setCrew);
 
   const isSmallCraft = aerospaceSubType === AerospaceSubType.SMALL_CRAFT;
@@ -67,16 +73,14 @@ export function AerospaceStructureTab({
   const arcAllocationForValidation = useMemo<
     Partial<Record<AerospaceArc, number>>
   >(
-    () => ({
-      [AerospaceArc.NOSE]: armorAllocation[AerospaceLocation.NOSE] ?? 0,
-      [AerospaceArc.LEFT_WING]:
-        armorAllocation[AerospaceLocation.LEFT_WING] ?? 0,
-      [AerospaceArc.RIGHT_WING]:
-        armorAllocation[AerospaceLocation.RIGHT_WING] ?? 0,
-      [AerospaceArc.AFT]: armorAllocation[AerospaceLocation.AFT] ?? 0,
-      [AerospaceArc.FUSELAGE]: armorAllocation[AerospaceLocation.FUSELAGE] ?? 0,
-    }),
-    [armorAllocation],
+    () =>
+      Object.fromEntries(
+        Object.values(AerospaceLocation).map((location) => [
+          mapAerospaceLocationToArc(location, aerospaceSubType),
+          armorAllocation[location] ?? 0,
+        ]),
+      ),
+    [armorAllocation, aerospaceSubType],
   );
 
   // Compute live validation errors for display
@@ -93,6 +97,17 @@ export function AerospaceStructureTab({
         arcArmor: arcAllocationForValidation,
         quartersTons,
         crewCount,
+        smallCraftArmor: isSmallCraft
+          ? {
+              tonnage,
+              structuralIntegrity,
+              armorType,
+              armorTonnage,
+              smallCraftArmorType,
+              motionType,
+              techBase,
+            }
+          : undefined,
       }),
     [
       tonnage,
@@ -105,6 +120,12 @@ export function AerospaceStructureTab({
       arcAllocationForValidation,
       quartersTons,
       crewCount,
+      isSmallCraft,
+      armorType,
+      armorTonnage,
+      smallCraftArmorType,
+      motionType,
+      techBase,
     ],
   );
 

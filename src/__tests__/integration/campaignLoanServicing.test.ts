@@ -101,16 +101,19 @@ describe('campaign loan servicing through day advancement', () => {
         ),
       ).toHaveLength(3);
 
-      // Reload the record written by advanceDay, then advance once more.
-      expect(store.getState().loadCampaign(settled.id)).toBe(true);
+      // Reload as a restarted app does (a new store rehydrates the saved
+      // campaign), then advance once more.
+      resetCampaignStore();
+      const reloaded = getCampaignStore();
+      expect(reloaded).not.toBe(store);
       expect(currentCampaign().loans?.[0]).toEqual(settled.loans?.[0]);
-      const extraDay = await store.getState().advanceDay();
+      const extraDay = await reloaded.getState().advanceDay();
       expect(extraDay?.costs.loanRepayment.amount).toBe(0);
-      expect(store.getState().getCampaign()?.finances.balance.amount).toBe(
+      expect(reloaded.getState().getCampaign()?.finances.balance.amount).toBe(
         settled.finances.balance.amount,
       );
       expect(
-        store
+        reloaded
           .getState()
           .getCampaign()
           ?.finances.transactions.filter(
