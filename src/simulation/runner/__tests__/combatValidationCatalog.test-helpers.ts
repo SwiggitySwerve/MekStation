@@ -1948,8 +1948,9 @@ function expectUnresolvedInventoryClosedAfterLeafClosure(): void {
       'maneuvering-ace-flanking-turning-producer-application'
     ],
   ).toMatchObject({
-    level: 'integrated',
-    evidence: expect.stringContaining('flanking-and-turning PSR'),
+    level: 'out-of-scope',
+    evidence: expect.stringContaining('only for VTOL, hover and WiGE movement'),
+    gap: expect.stringContaining('separate vehicle combat matrix'),
   });
   expect(unresolvedRefs).not.toContain(
     'pilotSkills.pilotModifierResolvers.maneuvering-ace-out-of-control-producer-application',

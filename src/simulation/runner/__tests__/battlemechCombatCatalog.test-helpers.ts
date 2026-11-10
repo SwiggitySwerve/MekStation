@@ -1597,8 +1597,6 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
       PSRTrigger.BuildingCollapse,
       PSRTrigger.RunningDamagedHip,
       PSRTrigger.RunningDamagedGyro,
-      PSRTrigger.ControlledSideslip,
-      PSRTrigger.FlankingAndTurning,
       PSRTrigger.OutOfControl,
       PSRTrigger.MASCFailure,
       PSRTrigger.SuperchargerFailure,
@@ -1615,6 +1613,8 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
       PSRTrigger.DFAMiss,
       PSRTrigger.RunningRoughTerrain,
       PSRTrigger.ExitingWater,
+      PSRTrigger.ControlledSideslip,
+      PSRTrigger.FlankingAndTurning,
     ].sort(),
   );
   const damageAndCriticalPsrTriggers = [
