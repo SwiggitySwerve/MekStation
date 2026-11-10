@@ -12,6 +12,7 @@ const BLK_ARMOR_CODES: Readonly<Record<ArmorTypeEnum, number>> = {
   [ArmorTypeEnum.STANDARD]: 0,
   [ArmorTypeEnum.FERRO_FIBROUS_IS]: 1,
   [ArmorTypeEnum.FERRO_FIBROUS_CLAN]: 1,
+  [ArmorTypeEnum.FERRO_FIBROUS_PROTO]: 9, // 48fcb2f64 EquipmentType.java:94.
   [ArmorTypeEnum.REACTIVE]: 2,
   [ArmorTypeEnum.REFLECTIVE]: 3,
   [ArmorTypeEnum.HARDENED]: 4,
