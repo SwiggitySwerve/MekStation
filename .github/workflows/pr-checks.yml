@@ -233,6 +233,10 @@ jobs:
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
 
       # Delta specs change in docs/openspec-only PRs too: no code path gate.
+      - name: Validate OpenSpec specs (strict)
+        if: ${{ !cancelled() }}
+        run: npm run openspec:validate
+
       - name: Validate OpenSpec delta headers and regression tests
         if: ${{ !cancelled() }}
         run: |
