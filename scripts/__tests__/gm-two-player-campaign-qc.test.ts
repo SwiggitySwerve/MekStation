@@ -176,11 +176,9 @@ describe('GM and two-player campaign QC runner', () => {
     expect(
       authorityRecoveryPlan.environment.MEKSTATION_E2E_SERVER_COMMAND,
     ).toBe('node scripts/e2e/relaunching-server.mjs');
-    // Predicted red of this pin before the combat arm was forwarded
-    // (unit U15b): toEqual printed
-    // `-   "MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE": "enabled"`.
-    // No campaign key: U35d deleted the campaign fixture arm, and the
-    // campaign genesis clauses are live through the production flag.
+    // The main run is UNARMED (production combat commit path), as the
+    // nightly runs E2E-01/02. No campaign key: U35d deleted the campaign
+    // fixture arm; campaign genesis is live through the production flag.
     expect(authorityRecoveryPlan.environment).toEqual({
       PLAYWRIGHT_E2E_RUN_ID: 'task-21-authority-recovery',
       MEKSTATION_E2E_PORT: String(
@@ -189,9 +187,12 @@ describe('GM and two-player campaign QC runner', () => {
       MEKSTATION_E2E_REUSE_EXISTING_SERVER: 'false',
       PORT: String(core.deriveFixturePort('task-21-authority-recovery')),
       MEKSTATION_E2E_SERVER_COMMAND: 'node scripts/e2e/relaunching-server.mjs',
-      MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
       HOSTNAME: '127.0.0.1',
     });
+    // No armed follow-up: under the journal arm the host death never fires
+    // (no process-exit-after-commit seam on commitJournalAuthorityCommand),
+    // so an armed E2E-01/02 run would not restart the server. OPEN, C4.
+    expect(authorityRecoveryPlan.followUp).toBeUndefined();
     // Every other group keeps the plain server - the wrapper is the
     // exception, never the default.
     expect(faultSmokeServerCommand(core, repoRoot)).toBe('node server.js');
@@ -441,10 +442,11 @@ describe('GM and two-player campaign QC runner', () => {
     expect(authorityPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
-    // The combat arm follows authority-recovery into the union.
+    // The union runs unarmed, E2E-01/02 included, with no armed follow-up.
     expect(
       authorityPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
-    ).toBe('enabled');
+    ).toBeUndefined();
+    expect(authorityPlan.followUp).toBeUndefined();
 
     // `evidence-smoke` (E2E-78) runs the strict complete-bundle row and
     // nothing else. Predicted red of this pin before the SPEC_BY_GROUP
@@ -553,8 +555,14 @@ describe('GM and two-player campaign QC runner', () => {
       '@E2E-19|@E2E-25',
       '--workers=1',
     ]);
-    // privacy-pack is a member, so E2E-19/25 move to the armed follow-up.
-    expect(allPlan.followUp.args).toContain('@E2E-19|@E2E-25');
+    // privacy-pack is a member: its E2E-19/25 move to the armed
+    // follow-up. authority-recovery is a member too, but runs unarmed only.
+    expect(allPlan.followUp.args.slice(3)).toEqual([
+      'e2e/gm-two-player-privacy.pack.spec.ts',
+      '--grep',
+      '@E2E-19|@E2E-25',
+      '--workers=1',
+    ]);
     expect(
       allPlan.followUp.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
     ).toBe('enabled');
@@ -567,16 +575,19 @@ describe('GM and two-player campaign QC runner', () => {
     expect(allPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
+    // The main run is unarmed: the six privacy rows and E2E-01/02 run in
+    // the production mode in `all` too.
     expect(
       allPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
-    ).toBe('enabled');
+    ).toBeUndefined();
   });
 
-  it('pins the privacy-pack split to the nightly workflow, so the two cannot drift', () => {
+  it('pins the armed/unarmed split to the nightly workflow, so the two cannot drift', () => {
     // Nightly Validation's e2e-full job is the reference: step A runs the
-    // suite with `--grep-invert "<rows>"`, step B runs the privacy spec with
-    // `--grep "<rows>"` under MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE.
-    // A change to either side without the other reds here.
+    // suite unarmed with `--grep-invert "<rows>"`; step B runs the privacy
+    // spec with `--grep "<rows>"` under
+    // MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE. A change to either side
+    // without the other reds here.
     // A text read, not a YAML parse: under jest the `yaml` package resolves
     // to its browser ESM build. Each step block runs from its `- name:` line
     // to the next one.
@@ -597,6 +608,10 @@ describe('GM and two-player campaign QC runner', () => {
     expect(invert).toBe(core.JOURNAL_ARMED_ROWS);
     expect(armed).toBe(core.JOURNAL_ARMED_ROWS);
     expect(stepB).toContain(core.PRIVACY_PACK_SPEC);
+    // E2E-01/02 stay out of the armed step on both sides until the
+    // journal-authority commit path has a process-exit-after-commit seam
+    // (OPEN, C4): armed, their host death never fires.
+    expect(stepB).not.toContain(core.AUTHORITY_RECOVERY_SPEC);
     expect(stepB).toMatch(
       /MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: '?enabled'?/,
     );
@@ -611,41 +626,61 @@ describe('GM and two-player campaign QC runner', () => {
       core.JOURNAL_ARMED_ROWS,
       '--workers=1',
     ]);
-    expect(plan.followUp.args).toEqual(
+    const all = core.buildRunPlan({
+      group: 'all',
+      runId: 'nightly-pin-all',
+      repoRoot,
+    });
+    expect(all.followUp.args).toEqual(
       expect.arrayContaining([
         core.PRIVACY_PACK_SPEC,
         '--grep',
         core.JOURNAL_ARMED_ROWS,
       ]),
     );
+    expect(all.followUp.args).not.toContain(core.AUTHORITY_RECOVERY_SPEC);
   });
 
-  it('leaves both journal keys off a group that does not arm the fixture', () => {
-    // The main run arms only on authority-recovery membership (privacy-pack
-    // arms just its E2E-19/25 follow-up), not the
-    // respawn wrapper and not "any authority-shaped name". A group that
-    // does not include that pack must carry NEITHER key, so a mutant
-    // that arms every group (or arms on `needsRespawn`) is red here
-    // rather than silently turning journal authority on for packs that
-    // never asked for it.
-    for (const group of [
-      'token-pack',
-      'smoke',
-      'proposal-pack',
-      'privacy-pack',
-    ]) {
-      const plan = core.buildRunPlan({
+  it('arms no main run in any group or union', () => {
+    // Every implemented group's MAIN run is unarmed, unions included, as
+    // the nightly's step A is: privacy-pack arms only its E2E-19/25
+    // follow-up, and authority-recovery runs unarmed because under the
+    // journal arm its host death never fires (no process-exit-after-commit
+    // seam on the journal commit path; the same holds for E2E-06/15). A
+    // union that re-arms a member (as `authority` and `all` once did) is
+    // red here, as is a mutant that arms on `needsRespawn` or on any
+    // authority-shaped name.
+    const checked: string[] = [];
+    for (const group of groups) {
+      let plan: { environment: Record<string, string> };
+      try {
+        plan = core.buildRunPlan({
+          group,
+          runId: `u15b-non-arming-${group}`,
+          repoRoot,
+        });
+      } catch (error) {
+        if ((error as { code?: string }).code === 'NOT_IMPLEMENTED') continue;
+        throw error;
+      }
+      checked.push(group);
+      expect([
         group,
-        runId: `u15b-non-arming-${group}`,
-        repoRoot,
-      });
-      expect(
         plan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
-      ).toBeUndefined();
-      expect(
         plan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
-      ).toBeUndefined();
+      ]).toEqual([group, undefined, undefined]);
     }
+    // The unions and every server-killing pack are among the checked.
+    expect(checked).toEqual(
+      expect.arrayContaining([
+        'authority',
+        'all',
+        'authority-recovery',
+        'restart-pack',
+        'resilience-pack',
+        'privacy-pack',
+      ]),
+    );
   });
 
   it('forwards the combat journal key from the Playwright webServer env', () => {
