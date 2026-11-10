@@ -1,9 +1,8 @@
+import { UnitContract } from '@/types/contracts';
 import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
 
-import { UnitContract } from '@/types/contracts';
-
-import { MTFParserService } from '../MTFParserService';
 import { mapRulesLevel } from '../MTFParser.mapping';
+import { MTFParserService } from '../MTFParserService';
 
 // Source strings from the 4,263 pinned mm-data 50f7efe BattleMechs. Identities
 // match the converter output in the committed catalog (scripts/megameklab-
@@ -15,6 +14,12 @@ const GYRO: Array<[string, string]> = [
   ['Heavy Duty Gyro', 'HEAVY_DUTY'],
   ['None', 'NONE'],
   ['Superheavy Gyro', 'SUPERHEAVY'],
+  // Mek.java:187 GYRO_SHORT_STRING, accepted by the pinned loader.
+  ['Standard', 'STANDARD'],
+  ['XL', 'XL'],
+  ['Compact', 'COMPACT'],
+  ['Heavy Duty', 'HEAVY_DUTY'],
+  ['Superheavy', 'SUPERHEAVY'],
 ];
 const COCKPIT: Array<[string, string]> = [
   ['Standard Cockpit', 'STANDARD'],
@@ -31,6 +36,21 @@ const COCKPIT: Array<[string, string]> = [
   ['Superheavy Cockpit', 'SUPERHEAVY'],
   ['Primitive Industrial Cockpit', 'PRIMITIVE_INDUSTRIAL'],
   ['Virtual Reality Piloting Pod', 'VRRP'],
+  // Mek.java:4879-4894: the writer appends this to every industrial cockpit.
+  ['Industrial Cockpit (Adv. FCS)', 'INDUSTRIAL'],
+  ['Primitive Industrial Cockpit (Adv. FCS)', 'PRIMITIVE_INDUSTRIAL'],
+  ['Superheavy Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY_INDUSTRIAL'],
+  ['Tripod Industrial Cockpit (Adv. FCS)', 'TRIPOD_INDUSTRIAL'],
+  [
+    'Superheavy Tripod Industrial Cockpit (Adv. FCS)',
+    'SUPERHEAVY_TRIPOD_INDUSTRIAL',
+  ],
+  // Mek.java:224 COCKPIT_SHORT_STRING (the pinned source spells VRRP "VRPP").
+  ['Torso Mounted', 'TORSO_MOUNTED'],
+  ['Interface', 'INTERFACE'],
+  ['VRPP', 'VRRP'],
+  ['Quadvee', 'QUADVEE'],
+  ['Tripod', 'STANDARD'],
 ];
 const HEAT_SINKS: Array<[string, string]> = [
   ['Single', 'SINGLE'],
@@ -41,6 +61,8 @@ const HEAT_SINKS: Array<[string, string]> = [
   ['Compact', 'COMPACT'],
 ];
 
+// parseField takes the first matching line, so the base omits anything a case
+// sets (rules level included); a missing rules level reads as '2'.
 function parse(extra: string[]) {
   const result = new MTFParserService().parse(
     [
@@ -49,7 +71,6 @@ function parse(extra: string[]) {
       'Config:Biped',
       'techbase:Inner Sphere',
       'era:3050',
-      'rules level:2',
       'mass:50',
       'engine:200 Fusion Engine',
       'structure:IS Standard',
@@ -115,12 +136,16 @@ describe('MTF component vocabulary', () => {
   });
 
   describe('unknown values keep a diagnostic instead of a valid-looking default', () => {
-    it('gyro', () => {
-      const result = parse(['gyro:Quantum Gyro']);
-      expect(result.unit?.gyro.type).toBe('UNSUPPORTED_GYRO:Quantum Gyro');
-      expect(result.warnings).toContain('Unsupported MTF gyro: Quantum Gyro');
-      expect(UnitContract.safeParse(result.unit).success).toBe(false);
-    });
+    // 'Heavy-Duty Gyro' is a Python-only alias, not a pinned MegaMek name.
+    it.each(['Quantum Gyro', 'Heavy-Duty Gyro', 'xl gyro'])(
+      'gyro %s',
+      (name) => {
+        const result = parse([`gyro:${name}`]);
+        expect(result.unit?.gyro.type).toBe(`UNSUPPORTED_GYRO:${name}`);
+        expect(result.warnings).toContain(`Unsupported MTF gyro: ${name}`);
+        expect(UnitContract.safeParse(result.unit).success).toBe(false);
+      },
+    );
 
     it.each(['Dual Cockpit', 'Small Command Console', 'standard cockpit'])(
       'cockpit %s',

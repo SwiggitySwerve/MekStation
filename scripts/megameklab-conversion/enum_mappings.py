@@ -119,20 +119,18 @@ def map_engine_type(value: str) -> str:
 
 
 def map_gyro_type(value: str) -> str:
-    """Map MTF gyro type to TypeScript enum value."""
+    """Resolve a listed MTF gyro name; only a blank line is Standard.
+
+    MtfFile.java:252-259 treats an absent or blank gyro as Standard. An
+    unlisted name is rejected, not guessed (same contract as map_armor_type).
+    """
     clean = value.strip()
-    if clean in GYRO_TYPE_MAP:
+    if not clean:
+        return "STANDARD"
+    try:
         return GYRO_TYPE_MAP[clean]
-    upper = clean.upper()
-    if "SUPERHEAVY" in upper or "SUPER HEAVY" in upper:
-        return "SUPERHEAVY"
-    if "XL" in upper or "EXTRA" in upper:
-        return "XL"
-    if "COMPACT" in upper:
-        return "COMPACT"
-    if "HEAVY" in upper:
-        return "HEAVY_DUTY"
-    return "STANDARD"
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_GYRO: {value!r}") from None
 
 
 # =============================================================================
@@ -142,9 +140,18 @@ def map_gyro_type(value: str) -> str:
 
 
 def map_cockpit_type(value: str) -> str:
-    """Map MTF cockpit type to TypeScript enum value."""
+    """Resolve a listed MTF cockpit name; only a blank line is Standard.
+
+    MtfFile.java:262-269 treats an absent or blank cockpit as Standard. An
+    unlisted name (e.g. Dual Cockpit) is rejected, not guessed.
+    """
     clean = value.strip()
-    return COCKPIT_TYPE_MAP.get(clean, "STANDARD")
+    if not clean:
+        return "STANDARD"
+    try:
+        return COCKPIT_TYPE_MAP[clean]
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_COCKPIT: {value!r}") from None
 
 
 # =============================================================================
@@ -216,20 +223,18 @@ def map_armor_type(value: str) -> str:
 
 
 def map_heat_sink_type(value: str) -> str:
-    """Map MTF heat sink type to TypeScript enum value."""
+    """Resolve a listed MTF heat sink name; only a blank type is Single.
+
+    The pinned writer emits Single, Laser, Compact, IS Double and Clan Double
+    (Mek.java:5351-5362). An unlisted name is rejected, not guessed.
+    """
     clean = value.strip()
-    if clean in HEAT_SINK_TYPE_MAP:
+    if not clean:
+        return "SINGLE"
+    try:
         return HEAT_SINK_TYPE_MAP[clean]
-    upper = clean.upper()
-    if "DOUBLE" in upper and "CLAN" in upper:
-        return "DOUBLE_CLAN"
-    if "DOUBLE" in upper:
-        return "DOUBLE"
-    if "COMPACT" in upper:
-        return "COMPACT"
-    if "LASER" in upper:
-        return "LASER"
-    return "SINGLE"
+    except KeyError:
+        raise ValueError(f"UNSUPPORTED_HEAT_SINK: {value!r}") from None
 
 
 # =============================================================================

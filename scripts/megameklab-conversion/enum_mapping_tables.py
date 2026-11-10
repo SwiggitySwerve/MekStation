@@ -112,7 +112,6 @@ BLK_ENGINE_CODE_MAP: Dict[str, str] = json.loads(
 
 GYRO_TYPE_MAP: Dict[str, str] = {
     **MTF_COMPONENT_VOCABULARY["gyro"],
-    "Standard": "STANDARD",
     "Extra-Light Gyro": "XL",
     "Heavy-Duty Gyro": "HEAVY_DUTY",
     "Super Heavy Gyro": "SUPERHEAVY",
@@ -126,12 +125,7 @@ GYRO_TYPE_MAP: Dict[str, str] = {
 
 COCKPIT_TYPE_MAP: Dict[str, str] = {
     **MTF_COMPONENT_VOCABULARY["cockpit"],
-    "Standard": "STANDARD",
-    "Small": "SMALL",
     "Torso Cockpit": "TORSO_MOUNTED",
-    "Primitive": "PRIMITIVE",
-    "Industrial": "INDUSTRIAL",
-    "Primitive Industrial": "PRIMITIVE_INDUSTRIAL",
     "VRRP": "VRRP",
 }
 

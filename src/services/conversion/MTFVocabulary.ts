@@ -1,7 +1,12 @@
+import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
+
 /** MTF adapter vocabulary, not a replacement for the canonical wire schema.
  * @spec openspec/changes/repair-mtf-adapter-vocabulary/specs/serialization-formats/spec.md
  * Sources: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
  * Engine.java:317-346; MtfFile.java:387-466,867-905.
+ * Gyro, cockpit, heat sink and rules level names live in
+ * src/types/formats/mtf-component-vocabulary.json, which the Python converter
+ * also loads (see MTF_COMPONENT_VOCABULARY.md).
  */
 const ENGINE_NAMES = [
   ['standard', 'FUSION', 'Fusion Engine'],
@@ -89,6 +94,41 @@ export function formatArmorType(type: string): string {
     throw new Error(`Unsupported MTF armor identity: ${type}`);
   }
   return ARMOR_EXPORT_NAMES[canonical];
+}
+
+function lookup(table: Readonly<Record<string, string>>, name: string) {
+  return Object.prototype.hasOwnProperty.call(table, name)
+    ? table[name]
+    : undefined;
+}
+
+/** MtfFile.java:252-259: an absent or blank gyro is Standard. A name outside
+ * the shared table is reported, never guessed. */
+export function mapGyroType(gyro: string): string {
+  const name = gyro.trim();
+  if (!name) return vocabulary.gyro['Standard Gyro'];
+  return lookup(vocabulary.gyro, name) ?? `UNSUPPORTED_GYRO:${gyro}`;
+}
+
+/** MtfFile.java:262-269: an absent or blank cockpit is Standard. */
+export function mapCockpitType(cockpit: string): string {
+  const name = cockpit.trim();
+  if (!name) return vocabulary.cockpit['Standard Cockpit'];
+  return lookup(vocabulary.cockpit, name) ?? `UNSUPPORTED_COCKPIT:${cockpit}`;
+}
+
+/** The pinned writer emits Single, Laser, Compact, IS Double and Clan Double
+ * (Mek.java:5351-5362). */
+export function mapHeatSinkType(heatSink: string): string {
+  const name = heatSink.trim();
+  if (!name) return vocabulary.heatSink.Single;
+  return (
+    lookup(vocabulary.heatSink, name) ?? `UNSUPPORTED_HEAT_SINK:${heatSink}`
+  );
+}
+
+export function mapRulesLevel(level: string): string {
+  return lookup(vocabulary.rulesLevel, level) ?? 'STANDARD';
 }
 
 export function mapEngineType(engineType: string): string {

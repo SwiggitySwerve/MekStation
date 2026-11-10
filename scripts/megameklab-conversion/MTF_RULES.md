@@ -1,6 +1,9 @@
 # MTF source rules levels
 
-`enum_mapping_tables.RULES_LEVEL_MAP` owns source rules-level numbering;
+`src/types/formats/mtf-component-vocabulary.json` (`rulesLevel`) owns source
+rules-level numbering, shared with the TypeScript importer. It also owns the
+gyro, cockpit and heat sink names (see `MTF_COMPONENT_VOCABULARY.md` there).
+`enum_mapping_tables.RULES_LEVEL_MAP` spreads it and adds Python-only aliases;
 `enum_mappings.map_rules_level` consumes that table for the MTF parser and shared
 conversion callers. MTF source numbers are one-based: 1 Introductory, 2 Standard,
 3 Advanced, 4 Experimental and 5 Unofficial. Clan and explicit Mixed chassis

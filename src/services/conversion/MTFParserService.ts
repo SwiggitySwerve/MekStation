@@ -2,8 +2,6 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
-import { mapGyroType } from '@/services/units/unitLoaderService/componentMappers';
-import { GyroType } from '@/types/construction/GyroType';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { parseStructure } from './MTFParser.components';
@@ -12,8 +10,11 @@ import { appendSourceWeapons } from './MTFParser.sourceEquipment';
 import {
   generateUnitId,
   mapArmorType,
+  mapCockpitType,
   mapEngineType,
   mapEraFromYear,
+  mapGyroType,
+  mapHeatSinkType,
   mapRulesLevel,
   mapTechBase,
   parseArmor,
@@ -79,6 +80,11 @@ export class MTFParserService {
       const baseConfig = mapConfiguration(header.config);
       const engineType = mapEngineType(engine.type);
       const armorType = mapArmorType(armor.type);
+      const gyroName = parseField(lines, 'gyro') ?? '';
+      const cockpitName = parseField(lines, 'cockpit') ?? '';
+      const gyroType = mapGyroType(gyroName);
+      const cockpitType = mapCockpitType(cockpitName);
+      const heatSinkType = mapHeatSinkType(heatSinks.type);
       if (header.config.includes('FrankenMek')) {
         warnings.push(`Unsupported MTF configuration: ${header.config}`);
       }
@@ -87,6 +93,15 @@ export class MTFParserService {
       }
       if (armorType.startsWith('UNSUPPORTED_ARMOR:')) {
         warnings.push(`Unsupported MTF armor: ${armor.type}`);
+      }
+      if (gyroType.startsWith('UNSUPPORTED_GYRO:')) {
+        warnings.push(`Unsupported MTF gyro: ${gyroName}`);
+      }
+      if (cockpitType.startsWith('UNSUPPORTED_COCKPIT:')) {
+        warnings.push(`Unsupported MTF cockpit: ${cockpitName}`);
+      }
+      if (heatSinkType.startsWith('UNSUPPORTED_HEAT_SINK:')) {
+        warnings.push(`Unsupported MTF heat sink: ${heatSinks.type}`);
       }
 
       const unit: ISerializedUnit = {
@@ -105,19 +120,16 @@ export class MTFParserService {
           rating: engine.rating,
         },
         gyro: {
-          type:
-            mapGyroType(parseField(lines, 'gyro') ?? '') === GyroType.XL
-              ? 'XL'
-              : 'STANDARD',
+          type: gyroType,
         },
-        cockpit: 'STANDARD',
+        cockpit: cockpitType,
         structure: parsedStructure,
         armor: {
           type: armorType,
           allocation: armor.allocation,
         },
         heatSinks: {
-          type: heatSinks.type === 'Double' ? 'DOUBLE' : 'SINGLE',
+          type: heatSinkType,
           count: heatSinks.count,
         },
         movement: {

@@ -70,9 +70,26 @@ OLD_RULES = {
     "IS Level 3": "ADVANCED", "IS Level 4": "EXPERIMENTAL",
     "Clan Level 2": "STANDARD", "Clan Level 3": "ADVANCED",
 }
-# Source strings the heuristics already resolved; the shared file makes them exact.
+# Names the pinned loader accepts (Mek.java:185-229) and the writer emits
+# (Mek.java:4879-4898, 5351-5362). Before the shared file the heuristic
+# fallbacks resolved some of these and defaulted the rest.
 NEW_EXACT = {
-    'COCKPIT_TYPE_MAP': {"Tripod Cockpit": "STANDARD"},
+    'GYRO_TYPE_MAP': {"XL": "XL", "Compact": "COMPACT", "Heavy Duty": "HEAVY_DUTY",
+                      "Superheavy": "SUPERHEAVY"},
+    'COCKPIT_TYPE_MAP': {
+        "Tripod Cockpit": "STANDARD", "Tripod": "STANDARD",
+        "Torso Mounted": "TORSO_MOUNTED", "Superheavy": "SUPERHEAVY",
+        "Superheavy Tripod": "SUPERHEAVY_TRIPOD", "Interface": "INTERFACE",
+        "VRPP": "VRRP", "Quadvee": "QUADVEE",
+        "Superheavy Industrial": "SUPERHEAVY_INDUSTRIAL",
+        "Tripod Industrial": "TRIPOD_INDUSTRIAL",
+        "Superheavy Tripod Industrial": "SUPERHEAVY_TRIPOD_INDUSTRIAL",
+        "Industrial Cockpit (Adv. FCS)": "INDUSTRIAL",
+        "Primitive Industrial Cockpit (Adv. FCS)": "PRIMITIVE_INDUSTRIAL",
+        "Superheavy Industrial Cockpit (Adv. FCS)": "SUPERHEAVY_INDUSTRIAL",
+        "Tripod Industrial Cockpit (Adv. FCS)": "TRIPOD_INDUSTRIAL",
+        "Superheavy Tripod Industrial Cockpit (Adv. FCS)": "SUPERHEAVY_TRIPOD_INDUSTRIAL",
+    },
     'HEAT_SINK_TYPE_MAP': {"IS Double": "DOUBLE"},
 }
 TABLES = (
@@ -121,25 +138,40 @@ class MtfComponentVocabularyTest(unittest.TestCase):
                 with self.subTest(table=key, source=source):
                     self.assertEqual(shared[key][source], identity)
 
-    def test_converter_functions_return_the_same_identities(self):
+    def test_converter_functions_return_the_same_identities_for_listed_names(self):
         # Tripod Cockpit keeps the catalog's STANDARD until the converter and
         # CockpitType are extended together (4.1-g.2).
-        for source, identity in {**OLD_GYRO, 'Mystery Gyro': 'STANDARD', 'Super heavy gyro': 'SUPERHEAVY',
-                                 'Light XL Gyro': 'XL'}.items():
-            with self.subTest(gyro=source):
-                self.assertEqual(map_gyro_type(source), identity)
-        for source, identity in {**OLD_COCKPIT, 'Tripod Cockpit': 'STANDARD',
-                                 'Dual Cockpit': 'STANDARD', 'Unknown': 'STANDARD'}.items():
-            with self.subTest(cockpit=source):
-                self.assertEqual(map_cockpit_type(source), identity)
-        for source, identity in {**OLD_HEAT_SINK, 'IS Double': 'DOUBLE', 'DOUBLE clan': 'DOUBLE_CLAN',
-                                 'Dissipators': 'SINGLE'}.items():
-            with self.subTest(heat_sink=source):
-                self.assertEqual(map_heat_sink_type(source), identity)
-        for source, identity in {**OLD_RULES, '5': 'UNOFFICIAL', 'Level 3': 'ADVANCED',
-                                 '': 'STANDARD', '99': 'STANDARD'}.items():
+        for table, mapper in ((OLD_GYRO, map_gyro_type), (OLD_COCKPIT, map_cockpit_type),
+                              (OLD_HEAT_SINK, map_heat_sink_type)):
+            for source, identity in table.items():
+                with self.subTest(mapper=mapper.__name__, source=source):
+                    self.assertEqual(mapper(source), identity)
+        for source, identity in {**OLD_RULES, 'Level 3': 'ADVANCED', '': 'STANDARD',
+                                 '99': 'STANDARD'}.items():
             with self.subTest(rules=source):
                 self.assertEqual(map_rules_level(source), identity)
+
+    def test_blank_values_are_the_pinned_loaders_standard(self):
+        # MtfFile.java:252-269: an absent or blank gyro/cockpit line is Standard.
+        for value in ('', '  '):
+            with self.subTest(value=value):
+                self.assertEqual(map_gyro_type(value), 'STANDARD')
+                self.assertEqual(map_cockpit_type(value), 'STANDARD')
+                self.assertEqual(map_heat_sink_type(value), 'SINGLE')
+
+    def test_unlisted_names_raise_instead_of_defaulting(self):
+        # Same contract as map_armor_type: no substring heuristics, no Standard.
+        cases = (
+            (map_gyro_type, 'UNSUPPORTED_GYRO', ('Mystery Gyro', 'Super heavy gyro', 'Light XL Gyro', 'xl gyro')),
+            (map_cockpit_type, 'UNSUPPORTED_COCKPIT',
+             ('Dual Cockpit', 'Small Command Console', 'Superheavy Command Console', 'standard cockpit', 'Unknown')),
+            (map_heat_sink_type, 'UNSUPPORTED_HEAT_SINK', ('DOUBLE clan', 'Dissipators', 'Double Clan')),
+        )
+        for mapper, label, names in cases:
+            for name in names:
+                with self.subTest(mapper=mapper.__name__, name=name):
+                    with self.assertRaisesRegex(ValueError, label):
+                        mapper(name)
 
     def test_tables_load_regardless_of_working_directory(self):
         probe = (
