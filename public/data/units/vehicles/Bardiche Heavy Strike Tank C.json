@@ -158,5 +158,8 @@
       "COMMUNICATIONS": "Neil",
       "TARGETING": "Hartford"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

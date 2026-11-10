@@ -43,6 +43,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { type ISerializedStructure } from '@/types/unit/UnitSerialization';
+import { getEquipmentPayloadWeight } from '@/utils/equipment/equipmentWeightAccounting';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 import ares from '../../../public/data/units/battlemechs/6-dark-age/experimental/Ares ARS-V1 Zeus.json';
@@ -106,7 +107,7 @@ const serialize = (state: UnitState) =>
     variant: state.model,
     era: Era.DARK_AGE,
   });
-const mass = (state: UnitState) => {
+const mass = (state: UnitState, total = false) => {
   const { result, unmount } = renderHook(() =>
     useUnitCalculations(
       state.tonnage,
@@ -115,7 +116,10 @@ const mass = (state: UnitState) => {
       state.configuration,
     ),
   );
-  const value = result.current.structureWeight;
+  const value = total
+    ? result.current.totalStructuralWeight +
+      getEquipmentPayloadWeight(state.equipment)
+    : result.current.structureWeight;
   unmount();
   return value;
 };
@@ -193,7 +197,7 @@ describe('serialized global structure identity compatibility', () => {
   );
 });
 
-describe('donor structure persistence without changing mass', () => {
+describe('native donor structure mass through persistence', () => {
   let directory: string;
   let databasePath: string;
   beforeAll(async () => {
@@ -221,7 +225,8 @@ describe('donor structure persistence without changing mass', () => {
     const store = createUnitFromFullState(loadMixed());
     const initial = store.getState();
     expect(initial.frankenStructure).toEqual(donorStructure());
-    expect(mass(initial)).toBe(5);
+    expect(mass(initial)).toBe(3.5);
+    expect(mass(initial, true)).toBe(50);
     const saved = serialize(initial);
     expect(saved.structure).toEqual(donorStructure());
     const result = getUnitRepository().create({
@@ -245,6 +250,7 @@ describe('donor structure persistence without changing mass', () => {
     );
     expect(reopened.frankenStructure).toEqual(initial.frankenStructure);
     expect(mass(reopened)).toBe(mass(initial));
+    expect(mass(reopened, true)).toBe(50);
     const id = initial.id;
     clearAllStores();
     const cold = hydrateOrCreateUnit(id, {
@@ -256,6 +262,7 @@ describe('donor structure persistence without changing mass', () => {
     expect(cold.getState().frankenStructure).toEqual(initial.frankenStructure);
     expect(cold.getState().librarySave?.id).toBe(libraryId);
     expect(mass(cold.getState())).toBe(mass(initial));
+    expect(mass(cold.getState(), true)).toBe(50);
   });
 
   it('owns both maps at import, full-state registration, duplication and serialization boundaries', () => {
@@ -313,29 +320,35 @@ describe('donor structure persistence without changing mass', () => {
     const store = createUnitStore(base);
     const history = getUnitEditHistory(store);
     const clean = getUnitDraftFingerprint(store.getState());
+    expect(mass(store.getState())).toBe(5);
     runUnitEditTransaction(store, 'Import donor structure', () =>
       store.setState({ frankenStructure: donorStructure() }),
     );
+    expect(mass(store.getState())).toBe(3.5);
     expect(history.getState().canUndo).toBe(true);
     expect(store.getState().isModified).toBe(true);
     expect(getUnitDraftFingerprint(store.getState())).not.toBe(clean);
     history.getState().undo();
     expect(store.getState().frankenStructure).toBeUndefined();
+    expect(mass(store.getState())).toBe(5);
     expect(getUnitDraftFingerprint(store.getState())).toBe(clean);
     expect(store.getState().isModified).toBe(false);
     history.getState().redo();
     expect(store.getState().frankenStructure).toEqual(donorStructure());
+    expect(mass(store.getState())).toBe(3.5);
     const libraryBefore = getUnitLibraryFingerprint(store.getState());
     store
       .getState()
       .setInternalStructureType(InternalStructureType.ENDO_STEEL_IS);
     expect(store.getState().frankenStructure).toBeUndefined();
+    expect(mass(store.getState())).toBe(2.5);
     expect(serialize(store.getState()).structure).toEqual({
       type: 'ENDO_STEEL',
     });
     expect(getUnitLibraryFingerprint(store.getState())).not.toBe(libraryBefore);
     history.getState().undo();
     expect(store.getState().frankenStructure).toEqual(donorStructure());
+    expect(mass(store.getState())).toBe(3.5);
     history.getState().redo();
     expect(store.getState().frankenStructure).toBeUndefined();
   });
@@ -357,9 +370,11 @@ describe('donor structure persistence without changing mass', () => {
         },
       }),
     );
+    expect(mass(store.getState())).toBe(4);
     expect(getUnitLibraryFingerprint(store.getState())).not.toBe(original);
     expect(store.getState().isModified).toBe(true);
     getUnitEditHistory(store).getState().undo();
+    expect(mass(store.getState())).toBe(3.5);
     expect(getUnitLibraryFingerprint(store.getState())).toBe(original);
     expect(store.getState().isModified).toBe(false);
   });
@@ -390,6 +405,7 @@ describe('donor structure persistence without changing mass', () => {
     const state = new UnitLoaderService().mapToUnitState(ares, true);
     expect(state.configuration).toBe(MechConfiguration.TRIPOD);
     expect(state.armorTonnage).toBe(28.5);
+    expect(mass(state)).toBe(22.5);
     const store = createUnitFromFullState(state);
     const copied = duplicateUnit(state.id);
     if (!copied) throw new Error('Tripod duplicate failed');

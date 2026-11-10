@@ -498,7 +498,7 @@ jobs:
         working-directory: desktop
         run: npm run build
 
-      - name: Enforce complete web artifact byte budgets
+      - name: Census complete web artifact bytes (advisory)
         if: ${{ !cancelled() }}
         run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
 
@@ -581,7 +581,7 @@ jobs:
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
 
-      - name: Enforce complete Linux installer byte budget
+      - name: Census complete Linux installer bytes (advisory)
         if: ${{ !cancelled() }}
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"

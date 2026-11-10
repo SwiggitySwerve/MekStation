@@ -180,6 +180,7 @@ export function BattleArmorSquadTab({
         <h3 className={cs.text.sectionTitle}>Equipment</h3>
         <div className="min-h-0 flex-1">
           <EquipmentBrowser
+            unitType={useBattleArmorStore((state) => state.unitType)}
             onAddEquipment={handleAddEquipment}
             className="h-64"
           />

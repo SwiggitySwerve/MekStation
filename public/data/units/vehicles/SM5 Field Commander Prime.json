@@ -102,5 +102,8 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"
     }
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

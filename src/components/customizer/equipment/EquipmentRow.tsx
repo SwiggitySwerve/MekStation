@@ -10,8 +10,9 @@ import React, { memo, useMemo } from 'react';
 
 import { AppIcon } from '@/components/ui/AppIcon';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
-import { IEquipmentItem, EquipmentCategory, IWeapon } from '@/types/equipment';
+import { IEquipmentItem, IWeapon } from '@/types/equipment';
 import { getCategoryColorsLegacy } from '@/utils/colors/equipmentColors';
+import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 
 interface EquipmentRowProps {
   /** Equipment item data */
@@ -20,20 +21,6 @@ interface EquipmentRowProps {
   onAdd: () => void;
   /** Compact mode - fewer columns, smaller text */
   compact?: boolean;
-}
-
-/**
- * Check if category is a weapon category
- */
-function isWeaponCategory(category: EquipmentCategory): boolean {
-  return (
-    category === EquipmentCategory.ENERGY_WEAPON ||
-    category === EquipmentCategory.BALLISTIC_WEAPON ||
-    category === EquipmentCategory.MISSILE_WEAPON ||
-    category === EquipmentCategory.ARTILLERY ||
-    category === EquipmentCategory.CAPITAL_WEAPON ||
-    category === EquipmentCategory.PHYSICAL_WEAPON
-  );
 }
 
 /**

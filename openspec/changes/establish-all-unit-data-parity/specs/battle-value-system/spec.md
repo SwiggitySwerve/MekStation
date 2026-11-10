@@ -1508,9 +1508,10 @@ any prior breakdown value, source load, validity result, aggregate or total.
 
 ### Requirement: ProtoMech native raw weapon indices
 
-The ProtoMech offensive owner SHALL retain local equipment indices and append
-an optional native weapon index where intrinsic one-shot ammo shifts subsequent
-mount positions. The independent generated insertion counts SHALL account for
+The ProtoMech offensive owner SHALL retain local equipment indices. The parity
+trace entry point SHALL append an optional native weapon index where intrinsic
+one-shot ammo shifts subsequent mount positions. The independent generated
+insertion counts SHALL account for
 two ammo mounts after each Fusillade. The trace SHALL format the supplied native
 index with a local-index fallback for legacy snapshots. Existing source data,
 equipment identities, ammunition, validity, persistence and BV SHALL remain
@@ -1519,7 +1520,54 @@ unchanged. Legacy weapon-flag tables SHALL remain unchanged.
 #### Scenario: Sprite 3 double one-shot launcher positions
 
 - **GIVEN** pinned Sprite 3 source weapon indices 7, 8, 9 and 10
-- **WHEN** its public breakdown and raw weapon terms are calculated
+- **WHEN** its public breakdown is enriched by the parity trace entry point and raw weapon terms are calculated
 - **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
 - **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
 - **AND** all mount values, other terms, source data and BV SHALL remain unchanged
+
+### Requirement: BA weapon diagnostics
+
+The BA mount owner SHALL retain each counted weapon or claw mount with its full
+catalog BV, native location and section memberships, and the BA calculation
+owner SHALL derive each trooper's per-mount values in the pinned section order
+(Weapons, Squad Support, Anti-Mek), summing the passes of one mount. The trace
+SHALL format those values as `weapon.<n>.<location>.<id>` for the squad (trooper
+1) and as `trooper.N.weapon.*` for every trooper, without recalculating BV.
+Existing scalar arithmetic, source inputs and totals SHALL remain unchanged.
+A mount without a native location, a legacy input and mounts no section counts
+SHALL create no term. The terms establish per-location value parity only, not
+native equipment numbers or names.
+
+#### Scenario: Trooper-located and support mounts
+
+- **GIVEN** a David Light Gauss Rifle carried by trooper 2 of an eligible four-trooper squad
+- **WHEN** its BA breakdown is projected
+- **THEN** `trooper.2.weapon.*.Trooper 2.*` SHALL equal 14 and no other trooper or squad-level term SHALL list that mount
+- **AND** the same rifle marked squad support at the squad SHALL report `7 / 4 + 7 / 4 = 3.5` for every trooper
+
+### Requirement: Canonical battle armor anti-Mek chassis projection
+
+Canonical MIXED battle armor SHALL project an explicit clanChassis fact into
+the existing shared anti-Mek eligibility owner. Pure definitions, absent-field
+fallbacks and authoritative saved editor state SHALL retain their behavior.
+
+#### Scenario: Gray Death Strike Suit HarJel squads
+
+- **GIVEN** the pinned Clan-chassis HarJel squads of four, five and six troopers
+- **WHEN** source and canonical editor BV inputs are built
+- **THEN** both SHALL be eligible for anti-Mek attacks and yield BV 285, 383 and 493
+- **AND** IS missile burden, manipulator, weight and movement guards SHALL remain enforced
+
+### Requirement: Aerospace patchwork BV projection consumers
+
+Source, contract and live editor aerospace BV SHALL share the existing armor
+projection and calculator owners. Status and both record-sheet paths SHALL
+transport per-arc armor types with current points. Unknown arcs SHALL fail.
+
+#### Scenario: Nanook patchwork armor reaches every BV display
+
+- **GIVEN** the pinned Nanook armor points and native per-arc armor codes
+- **WHEN** imported-source, contract, status-bar or record-sheet BV is calculated
+- **THEN** armor BV SHALL be 282.5, defensive BV 367.8 and final BV 1571
+- **AND** changes to current points or represented type codes SHALL update both displays
+- **AND** choosing a global armor type SHALL retain the existing clearing of per-arc codes

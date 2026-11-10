@@ -81,5 +81,8 @@
     "history": "<p>Little is documented about the pilot known as Nanook. He appeared on Solaris VII sometime after the Battle of Tukayyid in 3052 and established a working relationship with Vining Engineering and Salvage Team before the Jihad destroyed much of the planet's independent engineering community in 3068. VEST project records give a start date somewhere between 3052 and 3068, suggesting an extended development and modification period. Nanook participated in the Wings over Donegal air show in 3072, the first documented postwar appearance of the aircraft, and has since been seen at smaller events across the Inner Sphere periphery.</p><p>The fighter reflects the Solaris VII engineering ecosystem of the post-Tukayyid era, when salvage from Clan engagements and official technology exchanges made advanced Clan components accessible to independent operators outside normal procurement channels. VEST engineers mated the established Thrush airframe with a Magna 250 XXL engine and Clan-sourced weapons to produce a craft well beyond production specifications without access to formal manufacturing infrastructure. The Jihad's devastation of Solaris VII in 3068 ended the project and scattered the engineering community responsible for the modification, though the fighter and its pilot appear to have survived the conflict intact. Whether VEST continued operations elsewhere after 3068 is unknown.</p>",
     "manufacturer": "Vining Engineering and Salvage Team (VEST)",
     "primaryFactory": "Solaris VII"
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }
