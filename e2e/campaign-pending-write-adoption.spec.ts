@@ -11,17 +11,18 @@
  *
  * Separate from `campaign-unload-adoption.spec.ts` (the service-worker sweep).
  * The original four cases block service workers. The warm-worker cases below
- * abort only the discard flush to model engines without static routing.
+ * disconnect only during discard, then load online to recover the lost write.
  *
  * MOCK MODE (for mock-mode-auditor): `hybrid`.
  *   Real: the production build, its API routes and the SQLite store; every
  *     assertion reads the real server record or the real UI. The second writer
  *     is a real second browser context driving the real UI.
- *   Faulted: ONE boundary, the browser -> server PUT of /api/campaigns/:id,
- *     through `injectPutFault` (`context.route`): aborted (a dropped
- *     network), or held (latency). Nothing is fulfilled with a fabricated
- *     body, and no GET is touched. That is a network-fault mock over the real
- *     server, declared as fault injection and not as a stub of the data.
+ *   Faulted: the original SW-blocked cases route the campaign PUT through
+ *     `injectPutFault`. The warm-worker cases take the context offline only
+ *     while discarding to about:blank; the application then loads online.
+ *     Offline affects that old context's network, not only its campaign PUT.
+ *     No response is fabricated. Server assertions use the independent API
+ *     request fixture, outside the browser context's offline emulation.
  *
  * Reds on a build without the fix: the fault-injected catch-up (the reloaded
  * document says Saved and sends nothing) and S3 (the stale tab drops its day,
@@ -38,7 +39,6 @@ import {
   type Browser,
   type BrowserContext,
   type Page,
-  type Request,
 } from '@playwright/test';
 
 import { isJsonRecord, putBaseVersion } from './helpers/browserWriteComparison';
@@ -49,9 +49,10 @@ import {
   seedSavedCampaign,
 } from './helpers/campaignFlow';
 import {
+  enqueueUnloadOutcome,
   probeController,
-  reloadAtOffset,
   waitForCleanCampaign,
+  type SweepWindow,
 } from './helpers/campaignUnload';
 import {
   captureCampaignPuts,
@@ -121,11 +122,28 @@ function storedMarker(page: Page): Promise<unknown> {
   });
 }
 
+/** Both states intentionally appear in navigation; Saved and Idle do not. */
+async function expectSaveLabelAgreement(
+  page: Page,
+  label: 'Save failed' | 'Conflict',
+): Promise<void> {
+  const cardLabel = page
+    .getByTestId('campaign-save-status-card')
+    .getByText(label, { exact: true });
+  const navigation = page.getByRole('link', { name: /^Campaign save:/ });
+  await expect(cardLabel).toBeVisible();
+  await expect(navigation).toBeVisible();
+  await expect(navigation).toHaveAccessibleName(
+    new RegExp(`^Campaign save: ${label}[.] .*View save details[.]$`),
+  );
+  await expect(navigation.getByText(label, { exact: true })).toHaveText(
+    await cardLabel.innerText(),
+  );
+}
+
 interface PutFault {
   /** `pass` lets PUTs through; `abort` drops them; `hold` delays until release. */
-  mode: 'pass' | 'abort' | 'hold' | 'abort-then-hold';
-  /** All routed PUTs, including keepalive: no lifecycle filtering. */
-  puts: { request: Request; postData: string | null; status: number | null }[];
+  mode: 'pass' | 'abort' | 'hold';
   /** PUTs dropped so far: evidence the fault was real, not assumed. */
   aborted: number;
   /** PUTs that arrived during a hold: proof a document pushed on its own. */
@@ -150,7 +168,6 @@ async function injectPutFault(
   });
   const fault: PutFault = {
     mode: 'pass',
-    puts: [],
     aborted: 0,
     held: 0,
     release: () => {
@@ -158,23 +175,11 @@ async function injectPutFault(
       openGate();
     },
   };
-  context.on('response', (response) => {
-    const put = fault.puts.find(
-      (entry) => entry.request === response.request(),
-    );
-    if (put) put.status = response.status();
-  });
   await context.route(
     new RegExp(`/api/campaigns/${campaignId}$`),
     async (route) => {
       if (route.request().method() !== 'PUT') return route.continue();
-      fault.puts.push({
-        request: route.request(),
-        postData: route.request().postData(),
-        status: null,
-      });
-      if (fault.mode === 'abort' || fault.mode === 'abort-then-hold') {
-        if (fault.mode === 'abort-then-hold') fault.mode = 'hold';
+      if (fault.mode === 'abort') {
         fault.aborted += 1;
         return route.abort('failed');
       }
@@ -232,6 +237,7 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
   await expect(
     page.getByTestId('campaign-save-status-card').getByText('Save failed'),
   ).toBeVisible();
+  await expectSaveLabelAgreement(page, 'Save failed');
   expect((await serverRecord(request, campaignId)).version).toBe(
     before.version,
   );
@@ -280,7 +286,11 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
       .getByTestId('campaign-save-status-card')
       .getByText('Saved', { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText('Recovered unsaved changes')).toBeHidden();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Recovered unsaved changes'),
+  ).toBeHidden();
   expect(await campaignDateText(page)).toBe(mutatedDate);
   expect(await storedMarker(page)).toBeNull();
 });
@@ -382,6 +392,7 @@ test('S2 guard: a live stale tab that edits is refused by the version fence, and
   const generic = page.getByTestId('campaign-save-conflict');
   await expect(generic).toContainText('base-state-unavailable');
   await expect(generic).toContainText(`version ${moved.version}`);
+  await expectSaveLabelAgreement(page, 'Conflict');
   // The ordinary conflict card, not the reload one.
   await expect(
     page.getByTestId('campaign-pending-write-conflict'),
@@ -433,7 +444,21 @@ test.describe('browser cases standing in for engines without static routing', ()
         page,
         `Lost unload ${mutation}`,
       );
-      let fault: PutFault | undefined;
+      // All campaign PUT responses, without filtering keepalive or status.
+      // The lost unload is evidenced by page-side capture and the server row;
+      // neither request routing nor an unload request event is a premise.
+      const putResponses: { postData: string | null; status: number }[] = [];
+      context.on('response', (response) => {
+        if (
+          response.request().method() === 'PUT' &&
+          new URL(response.url()).pathname === `/api/campaigns/${campaignId}`
+        ) {
+          putResponses.push({
+            postData: response.request().postData(),
+            status: response.status(),
+          });
+        }
+      });
       try {
         await waitForCleanCampaign(page);
         const controller = await probeController(
@@ -458,34 +483,54 @@ test.describe('browser cases standing in for engines without static routing', ()
         const matchId =
           mutation === 'battle outcome' ? `lost-unload-${campaignId}` : null;
         await resetCapturedPuts(page);
-        fault = await injectPutFault(context, campaignId);
-        // The first PUT is dropped; every later PUT is held until the unchanged
-        // server row has been checked. No request is fulfilled with fake data.
-        fault.mode = 'abort-then-hold';
-        const timing = await reloadAtOffset(page, 100, null, matchId);
-        expect(timing.pagehideMs).toBeGreaterThan(0);
-        expect(timing.pagehideMs).toBeLessThan(2000);
-        expect(timing.reloadCallMs).toBeLessThan(2000);
-        await expect.poll(() => fault?.aborted).toBe(1);
+        // This timestamp precedes the edit, so the <2 s discard assertion below
+        // is a conservative bound that also includes the action/driver latency.
+        const armedEpochMs = await page.evaluate(
+          () => performance.timeOrigin + performance.now(),
+        );
+        if (matchId) await enqueueUnloadOutcome(page, matchId);
+        else await advanceDayInUi(page);
+        const expectedDate = await page.evaluate(() => {
+          const selected = (
+            window as SweepWindow
+          ).__ZUSTAND_STORES__?.campaign.getState().campaign;
+          if (!selected) throw new Error('No campaign selected');
+          return new Date(selected.currentDate).toISOString();
+        });
+        expect(await storedMarker(page)).toMatchObject({
+          campaignId,
+          baseVersion: before.version,
+        });
+        expect(await readCapturedPuts(page)).toHaveLength(0);
 
-        // Verification of routing with an active worker is executable below:
-        // one context.route interception, matching the captured keepalive body
-        // and controller URL, plus an unchanged real server row. The warm GET
-        // above completes worker fetch dispatch before the edit. These checks
-        // must pass in C4's production run; collection alone is not that proof.
+        // Isolate the network loss to the old document's discard. about:blank
+        // needs no network and cannot boot an offline/cached application copy.
+        await context.setOffline(true);
+        await page.goto('about:blank');
+        const afterLostUnload = await serverRecord(request, campaignId);
+        expect(afterLostUnload).toEqual(before);
+        expect(putResponses).toEqual([]);
+        if (mutation === 'date') {
+          expect(expectedDate).not.toBe(before.body.currentDate);
+          expect(afterLostUnload.body.currentDate).not.toBe(expectedDate);
+        }
+
+        // Only the next online application document can adopt and save. No
+        // further edit, routing fault, held PUT, or offline reload is involved.
+        await context.setOffline(false);
+        await openDashboard(page, campaignId);
         const lost = (await readCapturedPuts(page))[0];
         expect(lost).toBeDefined();
         expect(lost.keepalive).toBe(true);
         expect(lost.controller).toBe(controller.afterFetch.scriptURL);
         expect(lost.lifecycle).not.toBe('document-active');
-        expect(lost.documentOriginMs).toBeLessThan(timing.editEpochMs);
+        expect(lost.issueEpochMs).toBeGreaterThanOrEqual(armedEpochMs);
+        expect(lost.issueEpochMs).toBeLessThan(armedEpochMs + 2000);
         expect(putBaseVersion(lost.postData)).toBe(before.version);
-        expect(fault.puts[0].postData).toBe(lost.postData);
-        expect(fault.puts[0].status).toBeNull();
         const lostPayload: unknown = JSON.parse(lost.postData ?? 'null');
         if (!isJsonRecord(lostPayload)) throw new Error('Unreadable lost PUT');
         const lostEnvelope = readCampaignRecord(lostPayload.envelope);
-        expect(lostEnvelope.body.currentDate).toBe(timing.expectedDate);
+        expect(lostEnvelope.body.currentDate).toBe(expectedDate);
         expect(lostEnvelope.body.processedBattleIds).toEqual(
           before.body.processedBattleIds,
         );
@@ -494,58 +539,48 @@ test.describe('browser cases standing in for engines without static routing', ()
             expect.objectContaining({ matchId }),
           ]);
         }
-        expect(await serverRecord(request, campaignId)).toEqual(before);
-        await testInfo.attach('lost-unload-before-adoption', {
+        await testInfo.attach('offline-unload-before-adoption', {
           body: JSON.stringify(
-            { controller, timing, before, lost, aborted: fault.aborted },
+            {
+              controller,
+              armedEpochMs,
+              expectedDate,
+              matchId,
+              before,
+              afterLostUnload,
+              lost,
+            },
             null,
             2,
           ),
           contentType: 'application/json',
         });
-        if (mutation === 'date') {
-          expect(timing.expectedDate).not.toBe(before.body.currentDate);
-          expect(
-            (await serverRecord(request, campaignId)).body.currentDate,
-          ).not.toBe(timing.expectedDate);
-        }
 
-        // No edit in the replacement document: its own load must adopt the
-        // durable marker and schedule exactly one ordinary PUT at the old base.
-        await expect.poll(() => fault?.held, { timeout: 20_000 }).toBe(1);
-        expect(fault.puts).toHaveLength(2);
-        expect(putBaseVersion(fault.puts[1].postData)).toBe(before.version);
-        expect(await storedMarker(page)).toMatchObject({
-          campaignId,
-          baseVersion: before.version,
-        });
-        const saveCard = page.getByTestId('campaign-save-status-card');
-        await expect(saveCard).toBeVisible();
-        await expect(saveCard.getByText('Saved', { exact: true })).toBeHidden();
-        expect(await serverRecord(request, campaignId)).toEqual(before);
-        const accepted = waitForCampaignPut(page, campaignId);
-        fault.release();
-        expect((await accepted).status()).toBe(200);
+        await expect
+          .poll(() => putResponses.length, { timeout: 30_000 })
+          .toBe(1);
+        expect(putResponses[0].status).toBe(200);
+        expect(putBaseVersion(putResponses[0].postData)).toBe(before.version);
         await waitForCleanCampaign(page);
+        const saveCard = page.getByTestId('campaign-save-status-card');
         await expect(
           saveCard.getByText('Saved', { exact: true }),
         ).toBeVisible();
         expect(await storedMarker(page)).toBeNull();
 
-        // Observe a complete additional debounce window before excluding a
-        // duplicate. Count ALL fetches and ALL routed PUTs, keepalive or not.
+        // Count every page-issued PUT, including keepalive. Observe another
+        // complete debounce window before excluding a duplicate adoption.
         await letDebounceWindowClose();
         const puts = await readCapturedPuts(page);
         expect(puts).toHaveLength(2);
         expect(puts.map((put) => put.keepalive)).toEqual([true, false]);
-        expect(puts[1].documentOriginMs).toBeGreaterThan(timing.editEpochMs);
-        expect(puts[1].postData).toBe(fault.puts[1].postData);
+        expect(puts[1].documentOriginMs).toBeGreaterThan(armedEpochMs);
+        expect(puts[1].postData).toBe(putResponses[0].postData);
         expect(putBaseVersion(puts[1].postData)).toBe(before.version);
-        expect(fault.puts).toHaveLength(2);
-        expect(fault.puts.map((put) => put.status)).toEqual([null, 200]);
+        expect(putResponses).toHaveLength(1);
         const after = await serverRecord(request, campaignId);
         expect(after.version).toBe(before.version + 1);
-        expect(after.body.currentDate).toBe(timing.expectedDate);
+        expect(after.body.currentDate).toBe(expectedDate);
         expect(after.body.processedBattleIds).toEqual(
           before.body.processedBattleIds,
         );
@@ -554,18 +589,18 @@ test.describe('browser cases standing in for engines without static routing', ()
             expect.objectContaining({ matchId }),
           ]);
         }
-        await testInfo.attach('warm-worker-lost-unload-adoption', {
+        await testInfo.attach('warm-worker-offline-unload-adoption', {
           body: JSON.stringify(
             {
               controller,
-              timing,
+              armedEpochMs,
+              expectedDate,
+              matchId,
               before,
+              afterLostUnload,
               after,
               puts,
-              routedPuts: fault.puts.map(({ postData, status }) => ({
-                postData,
-                status,
-              })),
+              putResponses,
             },
             null,
             2,
@@ -573,7 +608,7 @@ test.describe('browser cases standing in for engines without static routing', ()
           contentType: 'application/json',
         });
       } finally {
-        fault?.release();
+        await context.setOffline(false);
         await page.close();
         const deleted = await request.delete(`/api/campaigns/${campaignId}`);
         expect(deleted.ok()).toBe(true);

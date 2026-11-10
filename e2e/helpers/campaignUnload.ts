@@ -9,7 +9,7 @@ interface CampaignSnapshot {
   enqueueOutcome: (outcome: Record<string, unknown>) => void;
 }
 
-type SweepWindow = {
+export type SweepWindow = {
   __ZUSTAND_STORES__?: {
     campaign: {
       getState: () => CampaignSnapshot;
@@ -93,6 +93,49 @@ export async function probeController(
   }, warmFetchPath);
 }
 
+/** The same public action and outcome fixture used by both discard scenarios. */
+export async function enqueueUnloadOutcome(
+  page: Page,
+  outcomeMatchId: string,
+): Promise<void> {
+  await page.evaluate((outcomeMatchId) => {
+    const campaign = (window as SweepWindow).__ZUSTAND_STORES__?.campaign;
+    if (!campaign) throw new Error('Campaign store is not exposed');
+    // Same public action called by the combat-outcome bus subscriber.
+    // No setState, hand-written campaign edit, or direct dirty marking.
+    campaign.getState().enqueueOutcome({
+      version: 1,
+      matchId: outcomeMatchId,
+      contractId: null,
+      scenarioId: `unload-scenario-${outcomeMatchId}`,
+      endReason: 'objective',
+      capturedAt: new Date().toISOString(),
+      report: {
+        version: 1,
+        matchId: outcomeMatchId,
+        winner: 'player',
+        reason: 'objective',
+        turnCount: 1,
+        units: [],
+        mvpUnitId: null,
+        log: [],
+      },
+      unitDeltas: [],
+    });
+    const state = campaign.getState();
+    if (
+      !state.pendingBattleOutcomes.some(
+        (outcome) => outcome.matchId === outcomeMatchId,
+      ) ||
+      !(
+        window as SweepWindow
+      ).__ZUSTAND_STORES__?.campaignPersistence.getState().dirty
+    ) {
+      throw new Error('Production outcome enqueue did not mark campaign dirty');
+    }
+  }, outcomeMatchId);
+}
+
 /** One timer implementation for both arms; t0 is the mutation/arming task. */
 export async function reloadAtOffset(
   page: Page,
@@ -166,45 +209,12 @@ export async function reloadAtOffset(
           unsubscribe();
           start(expectedDate);
         });
-        if (outcomeMatchId) {
-          // Same public action called by the combat-outcome bus subscriber.
-          // No setState, hand-written campaign edit, or direct dirty marking.
-          campaign.getState().enqueueOutcome({
-            version: 1,
-            matchId: outcomeMatchId,
-            contractId: null,
-            scenarioId: `unload-scenario-${outcomeMatchId}`,
-            endReason: 'objective',
-            capturedAt: new Date().toISOString(),
-            report: {
-              version: 1,
-              matchId: outcomeMatchId,
-              winner: 'player',
-              reason: 'objective',
-              turnCount: 1,
-              units: [],
-              mvpUnitId: null,
-              log: [],
-            },
-            unitDeltas: [],
-          });
-          const state = campaign.getState();
-          if (
-            !state.pendingBattleOutcomes.some(
-              (outcome) => outcome.matchId === outcomeMatchId,
-            ) ||
-            !(
-              window as SweepWindow
-            ).__ZUSTAND_STORES__?.campaignPersistence.getState().dirty
-          ) {
-            throw new Error(
-              'Production outcome enqueue did not mark campaign dirty',
-            );
-          }
-        }
       },
       { offsetMs, controlTrial, outcomeMatchId, timingKey: UNLOAD_TIMING_KEY },
     );
+    if (!controlTrial && outcomeMatchId) {
+      await enqueueUnloadOutcome(page, outcomeMatchId);
+    }
     if (!controlTrial && !outcomeMatchId) {
       await page.getByTestId('advance-day-btn').click({ noWaitAfter: true });
     }
