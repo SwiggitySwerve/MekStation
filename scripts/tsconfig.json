@@ -21,6 +21,7 @@
     "validate-bv.ts",
     "validate-parity.ts",
     "data-migration/**/*.ts",
+    "ci/committed-catalog-*.ts",
     "vehicle-aero-bv-delta.ts",
     "unit-bv-parity.ts",
     "unit-bv-pipeline.ts"
