@@ -442,6 +442,18 @@ describe('serializeCustomUnitState', () => {
     );
     expect(UnitContract.safeParse(serialized).success).toBe(true);
 
+    expect(serialized.techBase).toBe('MIXED');
+    expect(serialized.componentTechBases).toEqual({
+      chassis: 'INNER_SPHERE',
+      gyro: 'INNER_SPHERE',
+      engine: 'CLAN',
+      heatsink: 'CLAN',
+      targeting: 'CLAN',
+      myomer: 'INNER_SPHERE',
+      movement: 'INNER_SPHERE',
+      armor: 'INNER_SPHERE',
+    });
+
     const reloaded = new UnitLoaderService().mapToUnitState(
       parseUnit(serialized),
       false,

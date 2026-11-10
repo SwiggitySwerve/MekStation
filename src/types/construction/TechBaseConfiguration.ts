@@ -73,6 +73,29 @@ export enum TechBaseMode {
   MIXED = 'mixed',
 }
 
+const SERIALIZED_TECH_BASE_MODE = {
+  [TechBaseMode.INNER_SPHERE]: 'INNER_SPHERE',
+  [TechBaseMode.CLAN]: 'CLAN',
+  [TechBaseMode.MIXED]: 'MIXED',
+} as const satisfies Readonly<Record<TechBaseMode, string>>;
+
+/** Shared encoding for saved construction and live BV inputs. */
+export function serializeTechBaseMode(mode: TechBaseMode) {
+  return SERIALIZED_TECH_BASE_MODE[mode];
+}
+
+/** Encode only supplied component selections; callers own their provenance. */
+export function serializeComponentTechBases(
+  components: Readonly<Partial<IComponentTechBases>>,
+): Record<string, 'INNER_SPHERE' | 'CLAN'> {
+  return Object.fromEntries(
+    Object.entries(components).map(([component, techBase]) => [
+      component,
+      techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
+    ]),
+  );
+}
+
 /** Preserved unit identity; absent legacy facts must not acquire defaults. */
 export interface IUnitTechBaseIdentity {
   readonly techBaseMode?: TechBaseMode;

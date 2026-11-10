@@ -30,7 +30,11 @@ import { GyroType, NO_GYRO_SOURCE_TAG } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  TechBaseMode,
+  serializeComponentTechBases,
+  serializeTechBaseMode,
+} from '@/types/construction/TechBaseConfiguration';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -87,23 +91,6 @@ const JUMP_JET_TYPE = {
   [JumpJetType.IMPROVED]: 'IMPROVED',
   [JumpJetType.MECHANICAL]: 'MECHANICAL',
 } as const satisfies Readonly<Record<JumpJetType, string>>;
-
-const TECH_BASE = {
-  [TechBaseMode.INNER_SPHERE]: 'INNER_SPHERE',
-  [TechBaseMode.CLAN]: 'CLAN',
-  [TechBaseMode.MIXED]: 'MIXED',
-} as const satisfies Readonly<Record<TechBaseMode, string>>;
-
-function serializeComponentTechBases(
-  components: UnitState['componentTechBases'],
-): Record<string, 'INNER_SPHERE' | 'CLAN'> {
-  return Object.fromEntries(
-    Object.entries(components).map(([component, techBase]) => [
-      component,
-      techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
-    ]),
-  );
-}
 
 export type CustomUnitSaveIdentity = {
   readonly id: string;
@@ -231,7 +218,7 @@ export function serializeCustomUnitState(
     unitType: state.unitType,
     configuration: state.configuration,
     lamType: state.lamType,
-    techBase: TECH_BASE[state.techBaseMode],
+    techBase: serializeTechBaseMode(state.techBaseMode),
     rulesLevel: RULES_LEVEL[state.rulesLevel],
     era: identity.era,
     year: state.year,
