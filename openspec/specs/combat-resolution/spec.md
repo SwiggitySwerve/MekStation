@@ -3719,7 +3719,7 @@ Ranged to-hit validation SHALL apply MegaMek's Terrain Master defender to-hit va
 
 ### Requirement: Source-Backed Maneuvering Ace Skidding PSR and Lateral Movement
 
-Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Represented pending out-of-control PSRs SHALL also subtract 1 for canonical Maneuvering Ace during runner PSR resolution, without treating recovery rolls as out-of-control rolls. BattleMech movement validation, movement-step decomposition, and runner movement commits SHALL also consume Maneuvering Ace for source-backed biped lateral shifts and QuadMek lateral-step MP relief. A BattleMech lateral shift or run that turns after moving SHALL NOT queue a controlled-sideslip or flanking-and-turning PSR, because MegaMek 48fcb2f64 calls `Entity.checkSideSlip` only for VTOL, hover and WiGE movement (`MovePathHandler.java:3715-3727`); the `controlled_sideslip` and `flanking_and_turning` reason codes and factories SHALL remain valid for older replays. Aerospace maneuver-thrust relief and producer-side out-of-control control-roll creation for aerospace/airborne LAM units SHALL remain out-of-scope aerospace catalog gaps, and the Maneuvering Ace controlled-sideslip and flanking-and-turning producer rows SHALL be out-of-scope rows for the separate vehicle combat matrix. Heavy Lifter pickup/drop carried-object lifecycle SHALL be represented separately from the remaining helper-only throw-object leaf gap.
+Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PSR distance table and subtract 1 for canonical Maneuvering Ace only when resolving skidding PSRs. The skidding distance modifier SHALL be queued as PSR trigger state, while Maneuvering Ace SHALL be applied during PSR resolution from hydrated pilot ability state so runner and interactive paths share the same target-number math. Represented pending out-of-control PSRs SHALL also subtract 1 for canonical Maneuvering Ace during runner PSR resolution, without treating recovery rolls as out-of-control rolls. BattleMech movement validation, movement-step decomposition, and runner movement commits SHALL also consume Maneuvering Ace for source-backed biped lateral shifts and QuadMek lateral-step MP relief. Represented lateral movement SHALL produce controlled-sideslip PSRs for non-walking lateral moves and SHALL suppress that PSR for walking Maneuvering Ace lateral shifts. Aerospace maneuver-thrust relief and producer-side out-of-control control-roll creation for aerospace/airborne LAM units SHALL remain out-of-scope aerospace catalog gaps, while BattleMech flanking-and-turning side-slip movement production SHALL remain an explicit helper-only leaf gap until separately wired. Heavy Lifter pickup/drop carried-object lifecycle SHALL be represented separately from the remaining helper-only throw-object leaf gap.
 
 #### Scenario: Skidding PSRs consume distance and Maneuvering Ace modifiers
 
@@ -3748,14 +3748,19 @@ Runner movement and PSR resolution SHALL apply MegaMek's movement-before-skid PS
 - **THEN** the lateral step SHALL preserve facing and SHALL use the destination entry cost without the normal side-step surcharge
 - **AND** non-Maneuvering-Ace biped lateral shifts SHALL keep the normal side-step surcharge
 
-#### Scenario: Maneuvering Ace lateral shifts and turns queue no sideslip PSR
+#### Scenario: Maneuvering Ace side-slip producer branches are represented
 
 - **GIVEN** a BattleMech with canonical Maneuvering Ace
-- **WHEN** runner movement commits a walking or a running lateral shift
+- **WHEN** runner movement commits a walking lateral shift
 - **THEN** no controlled-sideslip PSR SHALL be queued
-- **WHEN** runner movement commits a run or sprint that changes facing after moving more than one hex
-- **THEN** no flanking-and-turning PSR SHALL be queued
-- **AND** the `pilotSkills.pilotModifierResolvers.maneuvering-ace-controlled-sideslip-producer-application` and `pilotSkills.pilotModifierResolvers.maneuvering-ace-flanking-turning-producer-application` rows SHALL be out of scope
+- **WHEN** runner movement commits a running lateral shift
+- **THEN** a `controlled_sideslip` PSR SHALL be queued with the lateral movement-step trigger source and `-1` target modifier
+- **AND** the `pilotSkills.pilotModifierResolvers.maneuvering-ace-controlled-sideslip-producer-application` row SHALL be integrated
+- **WHEN** runner movement commits a BattleMech run or sprint that changes facing after moving more than one hex
+- **THEN** one `flanking_and_turning` PSR SHALL be queued with the triggering movement-step source
+- **AND** the PSR resolver SHALL apply Maneuvering Ace target-number relief to that pending PSR
+- **AND** walking movement, straight running movement, Infantry, and ProtoMech units SHALL NOT queue the flanking-and-turning PSR
+- **AND** the `pilotSkills.pilotModifierResolvers.maneuvering-ace-flanking-turning-producer-application` row SHALL be integrated
 
 ### Requirement: Source-Backed Animal Mimicry Quad-Mek PSR Relief
 
