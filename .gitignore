@@ -79,6 +79,8 @@ scripts/**
 !scripts/lib/**
 !scripts/runtime-path-bv/
 !scripts/runtime-path-bv/**
+!scripts/runtime-roundtrip/
+!scripts/runtime-roundtrip/**
 !scripts/next/
 !scripts/next/**
 !scripts/playwright/
