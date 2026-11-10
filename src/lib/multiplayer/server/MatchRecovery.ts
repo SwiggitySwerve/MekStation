@@ -194,8 +194,7 @@ export async function recoverActiveMatches(
   try {
     active = await store.listActiveMatches();
   } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('[MatchRecovery] failed to enumerate active matches', e);
+    logger.warn('[MatchRecovery] failed to enumerate active matches', e);
     return { hosts, failed, blocked };
   }
 
@@ -258,8 +257,7 @@ export async function recoverActiveMatches(
         meta.matchId,
       );
       if (journal.kind === 'diverged') {
-        // eslint-disable-next-line no-console
-        console.warn(
+        logger.warn(
           `[MatchRecovery] match ${meta.matchId} is not recoverable (partial-history)`,
           journal.evidence,
         );
@@ -357,8 +355,7 @@ export async function recoverActiveMatches(
       // A refused authority is named and skipped. Nothing partial is
       // built from it: no session, no host, no registration.
       if (verdict.kind === 'blocked') {
-        // eslint-disable-next-line no-console
-        console.warn(
+        logger.warn(
           `[MatchRecovery] match ${meta.matchId} is not recoverable (${verdict.reason})`,
           verdict.evidence,
         );
@@ -399,11 +396,7 @@ export async function recoverActiveMatches(
       }
       await registerRecoveredHost(hosts, store, meta.matchId, verdict.state);
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[MatchRecovery] failed to rebuild match ${meta.matchId}`,
-        e,
-      );
+      logger.warn(`[MatchRecovery] failed to rebuild match ${meta.matchId}`, e);
       failed.push(meta.matchId);
     }
   }
