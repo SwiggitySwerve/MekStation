@@ -12,7 +12,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 // Re-pin from the current checkout through the real loader (run at repo root):
-// node node_modules/tsx/dist/cli.mjs E:/Projects/Personal/_scratch/sm-audit-reports/crew-roster-tripod/generate-loader-losses.ts
+// npx tsx scripts/e2e/pin-mech-crew-save-losses.ts
 import saveLosses from './fixtures/mech-crew-save-losses.json';
 import {
   expectPrintWindowClosesAfterPrint,
