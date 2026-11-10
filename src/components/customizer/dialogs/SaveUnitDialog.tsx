@@ -12,6 +12,10 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
+import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
+
+import { UnrecoveredCriticalSlotsNotice } from '@/components/customizer/shared/UnrecoveredCriticalSlotsNotice';
+import { Button } from '@/components/ui/Button';
 import { DialogTemplate } from '@/components/ui/DialogTemplate';
 import {
   unitNameValidator,
@@ -31,6 +35,10 @@ import {
   SaveUnitDialogConstructionStatus,
   type ConstructionValidationState,
 } from './SaveUnitDialogConstructionStatus';
+import {
+  SaveDialogFooter,
+  type SaveDialogStatus as ValidationStatus,
+} from './SaveUnitDialogFooter';
 import { SaveUnitDialogPreview } from './SaveUnitDialogPreview';
 
 // =============================================================================
@@ -50,19 +58,15 @@ export interface SaveUnitDialogProps {
   currentUnitId?: string;
   /** Construction validation for the exact unit store being saved */
   constructionValidation: ConstructionValidationState;
+  /** The target unit's loader-owned list; never inferred by the dialog. */
+  unrecoveredCriticalSlots?: readonly IUnrecoveredCriticalSlot[];
+  lossTrackingUnknown?: boolean;
+  isRefreshingLossDiagnostics?: boolean;
   /** Called when save is confirmed */
   onSave: (chassis: string, variant: string, overwriteId?: string) => void;
   /** Called when dialog is cancelled */
   onCancel: () => void;
 }
-
-type ValidationStatus =
-  | 'idle'
-  | 'validating'
-  | 'valid'
-  | 'canonical-conflict'
-  | 'custom-conflict'
-  | 'error';
 
 function statusFromValidationResult(
   result: INameValidationResult,
@@ -143,60 +147,6 @@ function scheduleValidation(
   if (existingTimeout) clearTimeout(existingTimeout);
 
   return setTimeout(validate, 300);
-}
-
-function SaveDialogFooter({
-  canSave,
-  isSaving,
-  handleSave,
-  handleSaveAsNew,
-  onCancel,
-  saveButtonClass,
-  status,
-  validationResult,
-}: {
-  canSave: boolean;
-  isSaving: boolean;
-  handleSave: () => void;
-  handleSaveAsNew: () => void;
-  onCancel: () => void;
-  saveButtonClass: string;
-  status: ValidationStatus;
-  validationResult: INameValidationResult | null;
-}) {
-  return (
-    <>
-      <button
-        onClick={onCancel}
-        disabled={isSaving}
-        className={cs.dialog.btnGhost}
-      >
-        Cancel
-      </button>
-
-      {status === 'custom-conflict' && validationResult?.suggestedName && (
-        <button
-          onClick={handleSaveAsNew}
-          disabled={isSaving}
-          className={cs.dialog.btnSecondary}
-        >
-          Save As New
-        </button>
-      )}
-
-      <button
-        onClick={handleSave}
-        disabled={!canSave}
-        className={`min-w-[100px] ${saveButtonClass}`}
-      >
-        {isSaving
-          ? 'Saving...'
-          : status === 'custom-conflict'
-            ? 'Overwrite'
-            : 'Save'}
-      </button>
-    </>
-  );
 }
 
 function SaveDialogFields({
@@ -282,12 +232,20 @@ export function SaveUnitDialog({
   initialVariant,
   currentUnitId,
   constructionValidation,
+  unrecoveredCriticalSlots,
+  lossTrackingUnknown = false,
+  isRefreshingLossDiagnostics = false,
   onSave,
   onCancel,
 }: SaveUnitDialogProps): React.ReactElement {
   // Form state
   const [chassis, setChassis] = useState(initialChassis);
   const [variant, setVariant] = useState(initialVariant);
+  const [isConfirmingLoss, setIsConfirmingLoss] = useState(false);
+  const lossCancelButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (isConfirmingLoss) lossCancelButton.current?.focus();
+  }, [isConfirmingLoss]);
 
   // Validation state
   const [status, setStatus] = useState<ValidationStatus>('idle');
@@ -339,6 +297,7 @@ export function SaveUnitDialog({
   }, []);
 
   useEffect(() => {
+    setIsConfirmingLoss(false);
     if (isOpen) {
       setChassis(initialChassis);
       setVariant(initialVariant);
@@ -376,6 +335,13 @@ export function SaveUnitDialog({
   // Handle save action
   const handleSave = () => {
     if (!canSave) return;
+    if (
+      (unrecoveredCriticalSlots?.length || lossTrackingUnknown) &&
+      !isConfirmingLoss
+    ) {
+      setIsConfirmingLoss(true);
+      return;
+    }
     if (status === 'custom-conflict' && validationResult?.conflictingUnitId) {
       onSave(
         chassis.trim(),
@@ -419,6 +385,7 @@ export function SaveUnitDialog({
   // Determine button states
   const canSave =
     !isSaving &&
+    !isRefreshingLossDiagnostics &&
     (status === 'valid' || status === 'custom-conflict') &&
     constructionValidation.isValid &&
     !constructionValidation.isLoading &&
@@ -432,43 +399,76 @@ export function SaveUnitDialog({
   return (
     <DialogTemplate
       isOpen={isOpen}
-      onClose={onCancel}
+      onClose={isConfirmingLoss ? () => setIsConfirmingLoss(false) : onCancel}
       preventClose={isSaving}
-      title="Save Unit"
+      title={
+        isConfirmingLoss
+          ? 'Save with missing critical-slot entries?'
+          : 'Save Unit'
+      }
       className="mx-4 w-full max-w-lg"
       footer={
-        <SaveDialogFooter
-          canSave={canSave}
-          isSaving={isSaving}
-          handleSave={handleSave}
-          handleSaveAsNew={handleSaveAsNew}
-          onCancel={onCancel}
-          saveButtonClass={saveButtonClass}
-          status={status}
-          validationResult={validationResult}
-        />
+        isConfirmingLoss ? (
+          <>
+            <button
+              ref={lossCancelButton}
+              type="button"
+              className={cs.dialog.btnSecondary}
+              disabled={isSaving}
+              onClick={() => setIsConfirmingLoss(false)}
+            >
+              Cancel
+            </button>
+            <Button disabled={!canSave} onClick={handleSave}>
+              {isSaving ? 'Saving...' : 'Save anyway'}
+            </Button>
+          </>
+        ) : (
+          <SaveDialogFooter
+            canSave={canSave}
+            isSaving={isSaving}
+            handleSave={handleSave}
+            handleSaveAsNew={handleSaveAsNew}
+            onCancel={onCancel}
+            saveButtonClass={saveButtonClass}
+            status={status}
+            validationResult={validationResult}
+          />
+        )
       }
     >
-      <SaveDialogFields
-        chassis={chassis}
-        isSaving={isSaving}
-        handleAutoSuggest={handleAutoSuggest}
-        handleChassisChange={handleChassisChange}
-        handleVariantChange={handleVariantChange}
-        hasConflict={hasConflict}
-        inputConflictClass={inputConflictClass}
-        variant={variant}
+      <UnrecoveredCriticalSlotsNotice
+        entries={unrecoveredCriticalSlots}
+        unknown={lossTrackingUnknown}
+        checking={isRefreshingLossDiagnostics}
       />
+      {!isConfirmingLoss && (
+        <>
+          <SaveDialogFields
+            chassis={chassis}
+            isSaving={isSaving}
+            handleAutoSuggest={handleAutoSuggest}
+            handleChassisChange={handleChassisChange}
+            handleVariantChange={handleVariantChange}
+            hasConflict={hasConflict}
+            inputConflictClass={inputConflictClass}
+            variant={variant}
+          />
 
-      {/* Validation status */}
-      <div className="min-h-[24px]">
-        <ValidationStatusIndicator result={validationResult} status={status} />
-      </div>
+          {/* Validation status */}
+          <div className="min-h-[24px]">
+            <ValidationStatusIndicator
+              result={validationResult}
+              status={status}
+            />
+          </div>
 
-      <SaveUnitDialogConstructionStatus {...constructionValidation} />
+          <SaveUnitDialogConstructionStatus {...constructionValidation} />
 
-      {/* Preview */}
-      <SaveUnitDialogPreview chassis={chassis} variant={variant} />
+          {/* Preview */}
+          <SaveUnitDialogPreview chassis={chassis} variant={variant} />
+        </>
+      )}
     </DialogTemplate>
   );
 }

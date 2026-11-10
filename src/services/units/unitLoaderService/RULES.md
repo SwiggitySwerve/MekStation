@@ -1,5 +1,34 @@
 # Unit definition loading
 
+## Unrecovered critical-slot diagnostics
+
+`criticalSlotEquipment.ts` owns both the recovered mounts and the remaining
+source cells. `equipmentMapping.ts` transports that result; compatibility
+facades only project `.equipment`. Neither editor notices nor save controls
+classify or recover entries. The residual is read from the final mount parts,
+including split and spread locations, using the existing system-component and
+fixed-slot owners to exclude core systems. Configuration markers whose cells
+do not survive save remain in the list even when a configuration value survives.
+Later Celerity, FU-101 PR-D and o3 recovery changes automatically remove their
+placed cells from this same residual; no separate warning-kind table is allowed.
+
+The optional `UnitState.unrecoveredCriticalSlots` is editor metadata. Browser
+drafts retain it so reopening a draft does not hide the warning. Editable
+snapshots, draft/library fingerprints, portable unit serialization and replay
+state exclude it. The editor displays one notice with the original entry text,
+location and zero-based slot. Every library save path repeats that list and
+requires an explicit `Save anyway`; cancel leaves the open design unchanged.
+The notice states the loss without promising a recovery or timeline.
+
+Draft envelope version remains Zustand's existing `0`: this field is optional,
+and no portable schema or replay version changes. Hydration explicitly keeps an
+absent legacy field `undefined`, overriding a newly authored unit's known-empty
+default. Absence means unknown. The editor/save hydration hook refreshes missing
+metadata through the real loader from a canonical source identity, or an existing
+retained source definition. A pending source check holds saving; a missing or
+unavailable source keeps the unknown warning and requires `Save anyway`.
+Refreshing metadata never overwrites editable fields or revives a closed draft.
+
 FU-101 restores audited crit-only physical mounts. Native groups
 consume the shared variable-sizing owner's number of slots per mount and reserve
 any groups represented by summary mounts before adding missing instances. Unit

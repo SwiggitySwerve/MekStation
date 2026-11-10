@@ -8,6 +8,40 @@
 
 ## ADDED Requirements
 
+### Requirement: Loader-owned unrecovered critical-slot diagnostics
+
+SHALL expose the original text, location and zero-based slot of every source
+equipment critical cell the BattleMech loader cannot place. The recovery owner
+SHALL compute this list once from its final placements, including split and
+spread mounts. Configuration cells that disappear during save SHALL remain
+in the list. Existing array-returning interfaces SHALL project the same result's
+equipment without a second recovery or residual rule. Later recovery changes
+SHALL automatically remove their placed cells from the residual.
+
+#### Scenario: Real catalog losses equal the exposed residual
+
+- **GIVEN** committed Scarecrow UCU-F4, Celerity CLR-03-O, Uni ATAE-70 ArtilleryMech and King Crab KGC-0000 definitions
+- **WHEN** each passes through the real load, save and reopen boundaries
+- **THEN** the exposed residual SHALL equal the equipment critical cells that disappear, including configuration markers and unplaced listed equipment
+- **AND** the control SHALL expose an empty list
+
+#### Scenario: Diagnostics cannot alter a saved design or fingerprint
+
+- **GIVEN** an editor with unrecovered critical-slot diagnostics
+- **WHEN** it creates editable snapshots, draft or library fingerprints, a portable unit document or replay state
+- **THEN** those values SHALL exclude the diagnostics
+- **AND** existing literal fingerprint bytes SHALL remain unchanged
+- **AND** browser draft hydration SHALL retain the editor notice metadata
+
+#### Scenario: Hydrate a version-zero draft without loss metadata
+
+- **GIVEN** a literal pre-tracking version-zero BattleMech draft with no residual field
+- **WHEN** its editor hydrates
+- **THEN** absence SHALL remain unknown instead of inheriting a new unit's empty list
+- **AND** an available source SHALL refresh metadata through the real loader without changing editable fields or fingerprints
+- **AND** no source or a failed source read SHALL leave tracking unknown
+- **AND** the optional metadata SHALL NOT require a draft, portable schema or replay version bump
+
 ### Requirement: Non-mech technology identity has one chassis-fact owner
 
 Non-mech runtime states SHALL support optional unit technology mode and chassis
