@@ -84,21 +84,5 @@ export {
   parseArrayField,
 } from './handlers';
 
-// Enum parsing utilities
-export {
-  getEnumParserRegistry,
-  _resetEnumParserRegistry,
-  parseEngineType,
-  parseGyroType,
-  parseCockpitType,
-  parseStructureType,
-  parseArmorType,
-  parseHeatSinkType,
-  parseTechBase,
-  parseRulesLevel,
-  parseEra,
-  parseMechConfiguration,
-  parseMechLocation,
-  getWeightClass,
-  type IEnumParserRegistry,
-} from './EnumParserRegistry';
+// Equipment parsing utilities
+export { parseTechBase, parseRulesLevel } from './EnumParserRegistry';
