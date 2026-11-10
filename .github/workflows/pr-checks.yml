@@ -316,9 +316,9 @@ jobs:
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run schema:gen-check
 
-      - name: Test schema generator fail-closed definitions
+      - name: Test schema generator fail-closed definitions and clause refine
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
-        run: node --test scripts/__tests__/schema-local-definitions.test.mjs
+        run: node --test scripts/__tests__/schema-local-definitions.test.mjs scripts/__tests__/refine-conditional-clauses.test.mjs
 
       # The equipment catalog resolution guard adds about 1-4 minutes.
       - name: Test equipment catalog generator and resolution guards
