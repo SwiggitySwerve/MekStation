@@ -513,11 +513,38 @@ SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
 - **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
 - **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
 
+### Requirement: Native OmniMek mounted equipment pod metadata
+
+SHALL derive pod metadata for every represented mount type on an explicitly
+declared OmniMek from that mount's native critical-slot token using one shared
+token decoder. MUST retain explicit saved true and false values, use fixed when
+source evidence is missing, and preserve Java suffix order and mount visitation.
+SHALL preserve existing load, save/reopen fingerprints and BV for units whose
+Omni declaration is absent or false. MUST leave equipment discovery unchanged.
+
+#### Scenario: Ordinary and recovered Omni mounts retain source pod flags
+
+- **GIVEN** a declared OmniMek with represented ranged, physical, ammunition,
+  miscellaneous and heat-sink mounts
+- **WHEN** the loader reconstructs their native critical allocations
+- **THEN** each flag SHALL match its pinned Java mount
+- **AND** editor movement and removal locks SHALL use that same loaded flag
+- **AND** split/spread and duplicate mounts SHALL follow their own critical cells
+
+#### Scenario: Saved flags and legacy declarations survive reopening
+
+- **GIVEN** explicit saved pod booleans, including false, or a legacy unit without
+  an Omni declaration
+- **WHEN** loaded, saved and reopened
+- **THEN** explicit booleans SHALL retain their values
+- **AND** legacy units SHALL retain their existing loaded and saved bytes and BV
+- **AND** existing literal save-fingerprint expectations SHALL NOT be regenerated
+
 ### Requirement: Deferred capital library opening and safe access checks
 
-The saved-unit detail page SHALL defer its loader and tab-store dependencies until
-the read-only opening action is requested. Pending chunk loading SHALL retain the
-detail page and show an opening state. A chunk failure SHALL show a visible error
+SHALL defer the saved-unit detail page's loader and tab-store dependencies until
+the read-only opening action is requested. SHALL retain the detail page and show
+an opening state while chunks load. SHALL show a visible error on chunk failure
 and leave the page usable without navigation.
 
 #### Scenario: Cold saved-unit opening

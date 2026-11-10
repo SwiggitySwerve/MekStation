@@ -130,5 +130,8 @@
       "COMMUNICATIONS": "New Samarkand Metals",
       "TARGETING": "New Samarkand Metals"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

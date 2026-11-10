@@ -116,5 +116,8 @@
       "COMMUNICATIONS": "Nashan",
       "TARGETING": "Unknown"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

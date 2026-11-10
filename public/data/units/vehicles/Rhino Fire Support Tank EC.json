@@ -114,5 +114,8 @@
       "COMMUNICATIONS": "Trannel",
       "TARGETING": "Trannel"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }
