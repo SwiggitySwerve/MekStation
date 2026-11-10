@@ -128,6 +128,7 @@ export function buildBattleArmorBVInput(
     ammoAvailableBVByPool,
     ammoCapBVByPool,
     nativeWeapons,
+    nativeWeaponsComplete,
   } = partitionBAEquipment(state.equipment, state.squadSize);
 
   return {
@@ -156,6 +157,7 @@ export function buildBattleArmorBVInput(
     ammoAvailableBVByPool,
     ammoCapBVByPool,
     nativeWeapons,
+    nativeWeaponsComplete,
     canAntiMek: canMakeBAAntiMekAttacks({
       ...state,
       baWeightClass: state.weightClass,

@@ -2,19 +2,26 @@ import type { StoreApi } from 'zustand';
 
 import { useEffect, useState } from 'react';
 
+import type { IArmorSaveLoss } from '@/services/units/unitLoaderService/armorSaveLoss';
+import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { UnitStore } from '@/stores/unitState';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { getArmorSaveLoss } from '@/services/units/unitLoaderService/armorSaveLoss';
 import { recognizeCriticalSlotEntries } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { unitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
 import { useUnitStore, useUnitStoreApi } from '@/stores/useUnitStore';
 import { logger } from '@/utils/logger';
 
 type Source = Pick<UnitStore, 'sourceDefinition' | 'bvContext'>;
+interface RefreshedDiagnostics {
+  readonly entries?: readonly IUnrecoveredCriticalSlot[];
+  readonly source?: IRawSerializedUnit;
+}
 interface PendingRefresh extends Source {
-  readonly promise: Promise<readonly IUnrecoveredCriticalSlot[] | undefined>;
+  readonly promise: Promise<RefreshedDiagnostics | undefined>;
 }
 // The editor and targeted save dialog can mount together. Share their one refresh.
 const pending = new WeakMap<StoreApi<UnitStore>, PendingRefresh>();
@@ -22,7 +29,7 @@ const pending = new WeakMap<StoreApi<UnitStore>, PendingRefresh>();
 function refreshLegacyDiagnostics(
   store: StoreApi<UnitStore>,
   source: Source,
-): Promise<readonly IUnrecoveredCriticalSlot[] | undefined> {
+): Promise<RefreshedDiagnostics | undefined> {
   const existing = pending.get(store);
   if (
     existing &&
@@ -53,7 +60,7 @@ function refreshLegacyDiagnostics(
         return undefined;
       // Refresh diagnostics for the draft's actual allocations. A newly
       // repaired canonical load does not repair an older draft's equipment.
-      return recognizeCriticalSlotEntries({
+      const entries = recognizeCriticalSlotEntries({
         criticalSlots: definition.criticalSlots,
         equipment: live.equipment,
         unitTechBase: live.techBase,
@@ -62,6 +69,7 @@ function refreshLegacyDiagnostics(
         isOmni: live.isOmni,
         systems: live,
       }).missing.map(({ text, location, slot }) => ({ text, location, slot }));
+      return { entries, source: definition };
     } catch (error) {
       // An unavailable source leaves tracking unknown, never an invented empty list.
       logger.warn(
@@ -83,15 +91,38 @@ function refreshLegacyDiagnostics(
 export function useUnitLoadDiagnostics(): {
   readonly entries: readonly IUnrecoveredCriticalSlot[] | undefined;
   readonly isRefreshing: boolean;
+  readonly source?: IRawSerializedUnit;
+  readonly armorSaveLoss?: IArmorSaveLoss;
 } {
   const store = useUnitStoreApi();
   const entries = useUnitStore((state) => state.unrecoveredCriticalSlots);
   const sourceDefinition = useUnitStore((state) => state.sourceDefinition);
   const bvContext = useUnitStore((state) => state.bvContext);
+  const armorType = useUnitStore((state) => state.armorType);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Source recovered for old drafts is transient diagnostics, never editable BV
+  // context, persisted unit data, or part of either fingerprint.
+  const [refreshedSource, setRefreshedSource] = useState<
+    Source & {
+      readonly store: StoreApi<UnitStore>;
+      readonly source: IRawSerializedUnit;
+    }
+  >();
+  const source =
+    bvContext?.source ??
+    (refreshedSource?.store === store &&
+    refreshedSource.sourceDefinition === sourceDefinition &&
+    refreshedSource.bvContext === bvContext
+      ? refreshedSource.source
+      : undefined);
   useEffect(() => {
-    if (entries !== undefined || (!sourceDefinition && !bvContext?.source))
+    if (
+      (entries !== undefined && source) ||
+      (!sourceDefinition && !bvContext?.source)
+    ) {
+      setIsRefreshing(false);
       return;
+    }
     let active = true;
     setIsRefreshing(true);
     void refreshLegacyDiagnostics(store, {
@@ -101,18 +132,39 @@ export function useUnitLoadDiagnostics(): {
       if (!active) return;
       const live = store.getState();
       if (
-        loaded !== undefined &&
+        live.sourceDefinition !== sourceDefinition ||
+        live.bvContext !== bvContext
+      ) {
+        setIsRefreshing(false);
+        return;
+      }
+      if (loaded?.source && !bvContext?.source) {
+        setRefreshedSource({
+          store,
+          sourceDefinition,
+          bvContext,
+          source: loaded.source,
+        });
+      }
+      if (
+        loaded?.entries !== undefined &&
         live.unrecoveredCriticalSlots === undefined &&
         live.sourceDefinition === sourceDefinition &&
         live.bvContext === bvContext
       ) {
-        store.setState({ unrecoveredCriticalSlots: loaded });
+        store.setState({ unrecoveredCriticalSlots: loaded.entries });
       }
       setIsRefreshing(false);
     });
     return () => {
       active = false;
     };
-  }, [store, entries, sourceDefinition, bvContext]);
-  return { entries, isRefreshing: entries === undefined && isRefreshing };
+  }, [store, entries, sourceDefinition, bvContext, source]);
+  return {
+    entries,
+    isRefreshing:
+      (entries === undefined || source === undefined) && isRefreshing,
+    source,
+    armorSaveLoss: getArmorSaveLoss(source, armorType),
+  };
 }

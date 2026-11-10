@@ -39,3 +39,60 @@ The wrapper overrides step-level `PLAYWRIGHT_HTML_OUTPUT_DIR` and
 `e2e-timings/listing-SUITE.json` records each census/selection collection and its
 total wall time, so after-run samples count the listing overhead (up to six
 collections per shard) as well as browser/server time and job setup.
+
+## Shared-flow map schema
+
+`shared-flows.json` records the C3/C4-reviewed flow inventory. It does not feed
+`CI_SUITES`, Detect Changes or PR E2E selection yet. `tier` describes the
+intended selection policy when the folded suite is enabled in step 5.
+All mapped specs remain part of nightly coverage. `multiplayer-session` is
+nightly by default, with its full set intended for PRs changing its narrow
+server paths; `multiplayer-session-pr` is the five-spec subset for broader
+multiplayer changes.
+
+The top-level object has two arrays: `flows` and `nightly-only-by-design`.
+
+| Flow field     | Contract                                                                                                                                                                                           |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`           | Unique, non-empty flow identifier.                                                                                                                                                                 |
+| `owner`        | One of `C1`, `C2`, `C3`, `C4`; joint responsibility goes in `notes`.                                                                                                                               |
+| `paths`        | Non-empty array of repository-relative picomatch globs, including shared components. Each must match a file from `git ls-files`; dotfiles are included.                                            |
+| `specs`        | Exact `e2e/**/*.spec.ts` paths; files must exist. A spec may serve multiple flows.                                                                                                                 |
+| `pendingSpecs` | Optional array of `{ spec, owner, reason }` for named specs not written yet. Owner is C1-C4 and reason is non-empty. Each path must be absent; when it lands, move it into `specs` in the same PR. |
+| `tier`         | `pr` or `nightly`. Future selection intent; no scheduling effect today.                                                                                                                            |
+| `notes`        | Non-empty rationale, review decisions and exceptions.                                                                                                                                              |
+
+A flow may have empty `specs` only while it has at least one `pendingSpecs`
+entry. The campaign-persistence entry reserves C4's unload/adoption sweep for
+its campaign save-loss fix PR 1/2. Its complete save and service-worker paths
+remain mapped while the spec is pending.
+
+Each by-design entry is `{ spec, reason }`, with an existing exact spec path
+and a non-empty reason. This list accounts for every spec outside the shared
+flows. Its historical name does not remove existing fixed PR coverage: entries
+already in PR gates/smoke say so explicitly. A spec cannot be both mapped and
+by-design. `customizer-layout-workbench` stays here per C3's review.
+
+Two env-gated tooling specs are excluded explicitly by the guard:
+`e2e/flow-audits.spec.ts` (`MEKSTATION_FLOW_ID`) and
+`e2e/scenario-pack-minting.spec.ts` (`MEKSTATION_MINT_PACK_ID`). They require
+explicit tooling invocations and are outside default nightly/PR selection.
+
+`scripts/playwright/shared-flows.mjs` owns the guard. Its tests live in
+`ci-e2e-plan.test.mjs`, which the existing "Test E2E shard planning and coverage
+guards" CI step already runs. The guard reads tracked paths and discovers spec
+files directly, including untracked specs, without a browser or census:
+
+```sh
+node --test scripts/playwright/*.test.mjs
+```
+
+<!-- Future rule (step 5): a PR changing this map or the by-design list must run
+every affected spec, using both the base and head maps so removals are covered.
+Documented here only; enforcement starts when folded selection is enabled. -->
+
+Step 5 must enforce that a PR changing the map or by-design list runs every
+affected spec, using both the base and head maps to cover removals. This is
+documented here and marked `TODO(step 5)` in the guard; it is not enforced yet.
+The C3 fail-open rule for shared customizer, stores and unit services also
+belongs to that selection step.

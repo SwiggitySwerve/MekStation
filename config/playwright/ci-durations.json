@@ -1,5 +1,9 @@
 {
   "version": 1,
+  "fileDurationSourceRunIds": ["42814541429"],
+  "fileMilliseconds": {
+    "audit-capture.spec.ts": 153118
+  },
   "sourceRunIds": [
     "42127556397",
     "42128140733",
@@ -8,7 +12,8 @@
     "42130899978",
     "42131512022",
     "42132914098",
-    "42134235081"
+    "42134235081",
+    "42814541429"
   ],
   "milliseconds": {
     "[chromium] › active-session-recovery.spec.ts › active game session recovery @game @recovery › deep-links and refreshes a generated match from local match-log storage": 5035,
@@ -78,6 +83,10 @@
     "[chromium] › customizer-library-open.spec.ts › library persistence and printing › library flows 390 › support vehicle: edit, save, reload, reopen and print @customizer": 9609,
     "[chromium] › customizer-library-open.spec.ts › library persistence and printing › library loading 1440 › library shows its loading state while the real request is pending @customizer": 3350,
     "[chromium] › customizer-library-open.spec.ts › library persistence and printing › library loading 390 › library shows its loading state while the real request is pending @customizer": 3433,
+    "[chromium] › customizer-mech-crew-roster.spec.ts › Tripod and QuadVee crew seats › QuadVee with a blank pilot seat: assign, save, reload, reopen and print @customizer": 12312,
+    "[chromium] › customizer-mech-crew-roster.spec.ts › Tripod and QuadVee crew seats › superheavy tripod with repeated names: assign, save, reload, reopen and print @customizer": 12611,
+    "[chromium] › customizer-mech-crew-roster.spec.ts › Tripod and QuadVee crew seats › tripod edited to 105 tons gains a Tech Officer seat: assign, save, reload, reopen and print @customizer": 12870,
+    "[chromium] › customizer-mech-crew-roster.spec.ts › Tripod and QuadVee crew seats › tripod with a blank gunner seat: assign, save, reload, reopen and print @customizer": 12553,
     "[chromium] › customizer-record-sheet-rendering.spec.ts › Infantry preview shares zoom, fit modes, paper geometry and export @customizer": 8692,
     "[chromium] › customizer-record-sheet-rendering.spec.ts › Print writes one current sheet into the reserved window at the selected paper @customizer": 20199,
     "[chromium] › customizer-record-sheet-rendering.spec.ts › a blocked print popup surfaces a recoverable error and Retry prints @customizer": 9515,

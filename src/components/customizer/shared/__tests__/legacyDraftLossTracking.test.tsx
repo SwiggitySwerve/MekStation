@@ -11,8 +11,6 @@ import { join } from 'node:path';
 import { TargetedSaveUnitDialog } from '@/components/customizer/tabs/MultiUnitTabs';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { parseUnit } from '@/services/units/unitLoaderService/unitContractAdapter';
-import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
 import fixture from '@/stores/unit/__tests__/fixtures/unit-save-fingerprints-7c8579e19.json';
 import { getUnitDraftFingerprint } from '@/stores/unit/unitEditSnapshot';
 import {
@@ -157,12 +155,17 @@ it('hydrates a literal U3 pre-PR draft and recomputes an absent list from its ca
       <EditorLoadDiagnostics />
     </UnitStoreContext.Provider>,
   );
-  const expected = new UnitLoaderService().mapToUnitState(
-    parseUnit(scarecrow),
-    true,
-  ).unrecoveredCriticalSlots;
+  // The retained literal has no equipment. A repaired canonical load must not
+  // conceal its missing weapon allocations or its seven native markers.
   await waitFor(() =>
-    expect(store.getState().unrecoveredCriticalSlots).toEqual(expected),
+    expect(store.getState().unrecoveredCriticalSlots).toHaveLength(46),
+  );
+  expect(store.getState().unrecoveredCriticalSlots).toEqual(
+    expect.arrayContaining([
+      { text: 'CLERMediumLaser', location: 'Left Arm', slot: 2 },
+      { text: 'IS Endo-Composite', location: 'Left Arm', slot: 9 },
+      { text: 'BloodhoundActiveProbe', location: 'Left Torso', slot: 7 },
+    ]),
   );
   expect(mockReadCanonical).toHaveBeenCalledWith('scarecrow-ucu-f4', {
     family: 'battlemechs',
@@ -170,7 +173,7 @@ it('hydrates a literal U3 pre-PR draft and recomputes an absent list from its ca
   });
   expect(getUnitDraftFingerprint(store.getState())).toBe(before);
   expect(screen.getByRole('note')).toHaveTextContent('BloodhoundActiveProbe');
-  expect(screen.getAllByRole('listitem')).toHaveLength(20);
+  expect(screen.getAllByRole('listitem')).toHaveLength(46);
 });
 
 it('hydrates a literal pre-PR imported draft without a source and warns before allowing save', async () => {

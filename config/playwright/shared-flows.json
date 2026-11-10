@@ -1,0 +1,513 @@
+{
+  "flows": [
+    {
+      "id": "unit-save-load",
+      "owner": "C3",
+      "paths": [
+        "src/components/customizer/**",
+        "src/stores/unitState.ts",
+        "src/services/units/unitLoaderService/**",
+        "src/utils/serialization/**",
+        "src/pages/api/units/**",
+        "src/hooks/useUnit*",
+        "public/data/units/**",
+        "src/stores/unit*/**",
+        "src/stores/unit*.ts",
+        "src/stores/useUnitStore.ts",
+        "src/services/units/**",
+        "src/services/persistence/**",
+        "src/types/unit/**",
+        "src/components/customizer/dialogs/SaveUnitDialog.tsx"
+      ],
+      "specs": [
+        "e2e/campaign-customizer-handoff.spec.ts",
+        "e2e/customizer-data-flow.spec.ts",
+        "e2e/customizer-mech-crew-roster.spec.ts",
+        "e2e/saved-custom-combat-launch.spec.ts",
+        "e2e/saved-custom-combat.spec.ts",
+        "e2e/small-craft-armor.spec.ts",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "e2e/customizer-library-open.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C3 save-selector reconciliation: crew-roster, data-flow, edit-recovery, library-open and small-craft-armor save through the customizer. The saved-custom combat specs consume server-saved designs. Canonical/local-draft loading is in unit-open. Shared unit services include critical-slot residual and notice effects; those changes must also select editor-commit in step 5."
+    },
+    {
+      "id": "unit-import",
+      "owner": "C3",
+      "paths": [
+        "src/services/conversion/**",
+        "src/pages/api/units/import*",
+        "scripts/megameklab-conversion/**",
+        "src/components/**/*Import*",
+        "src/services/units/unitLoaderService/**",
+        "src/types/formats/**"
+      ],
+      "specs": ["e2e/unit-library-import.spec.ts"],
+      "tier": "pr",
+      "notes": "C3 import row includes shared import components, unit-loader normalization and the MTF vocabulary."
+    },
+    {
+      "id": "editor-commit",
+      "owner": "C3",
+      "paths": [
+        "src/components/customizer/**",
+        "src/utils/construction/**",
+        "src/utils/validation/**",
+        "src/services/construction/**",
+        "src/stores/unit*/**",
+        "src/stores/unit*.ts",
+        "src/stores/useUnitStore.ts",
+        "src/types/construction/**",
+        "src/services/units/unitLoaderService/criticalSlotEquipment.ts",
+        "src/services/units/unitLoaderService/criticalSlot*.ts"
+      ],
+      "specs": [
+        "e2e/armor-capacity.spec.ts",
+        "e2e/customizer-armor-workbench.spec.ts",
+        "e2e/customizer-category-colors.spec.ts",
+        "e2e/customizer-critical-slot-readability.spec.ts",
+        "e2e/customizer-design-revamp.spec.ts",
+        "e2e/customizer-equipment-unit-types.spec.ts",
+        "e2e/customizer-equipment-workbench.spec.ts",
+        "e2e/customizer-mobile-loadout.spec.ts",
+        "e2e/customizer.spec.ts",
+        "e2e/exotic-mech.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C3 retains customizer.spec and exotic-mech in the PR tier; layout-workbench is nightly-only by design. criticalSlot*.ts also covers the forthcoming criticalSlotNoticeEffects.ts without introducing a glob that matches nothing today. Critical-slot residual/notice changes select both editor-commit and unit-save-load in step 5. Fail-open coverage for shared customizer/store/unit-service changes belongs to that later selection step."
+    },
+    {
+      "id": "print-record-sheet",
+      "owner": "C3",
+      "paths": [
+        "src/services/printing/**",
+        "src/components/customizer/preview/**",
+        "src/components/**/*RecordSheet*.tsx",
+        "public/record-sheets/**",
+        "src/utils/construction/**",
+        "src/services/construction/**",
+        "src/types/unit/**"
+      ],
+      "specs": [
+        "e2e/armor-design-consistency.spec.ts",
+        "e2e/customizer-mech-crew-roster.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C3 print row includes the existing fixed PR record-sheet rendering spec and shared construction/type inputs. The draft recordSheet*/** directory glob matched nothing; the live RecordSheet component glob covers family previews."
+    },
+    {
+      "id": "campaign-day-advance",
+      "owner": "C4",
+      "paths": [
+        "src/lib/campaign/processors/**",
+        "src/stores/campaign/**",
+        "src/services/campaignPersistence/**",
+        "src/lib/campaign/dayAdvancement.ts",
+        "src/lib/campaign/dayPipeline.ts",
+        "src/lib/campaign/persistence/**",
+        "src/pages/api/campaigns/**",
+        "src/components/campaign/**"
+      ],
+      "specs": [
+        "e2e/campaign-acquisition-browser.spec.ts",
+        "e2e/campaign-crash-window-flush.spec.ts",
+        "e2e/campaign-economy-browser.spec.ts",
+        "e2e/campaign-long-browser-signoff.spec.ts",
+        "e2e/campaign-organic-contract.spec.ts",
+        "e2e/campaign-round-trip.spec.ts",
+        "e2e/playtest-subsystem-contracts.spec.ts",
+        "e2e/scenario-packs/maintenance-repairbay.parity.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C4 day advancement uses two files, not a nonexistent dayAdvancement directory. Includes shared campaign UI and save boundaries; crash-window-flush stays mapped. The pending save-loss sweep is owned by campaign-persistence, whose paths also overlap this save boundary."
+    },
+    {
+      "id": "campaign-customizer-refit",
+      "owner": "C4",
+      "paths": [
+        "src/lib/campaign/customizer/**",
+        "src/lib/campaign/refit/**",
+        "src/components/customizer/campaign/**",
+        "src/utils/validation/mechValidationProjection.ts",
+        "src/components/campaign/bays/MechBay.tsx",
+        "src/stores/campaign/campaignRefitActions.ts"
+      ],
+      "specs": [
+        "e2e/campaign-customizer-handoff.spec.ts",
+        "e2e/playable-command-feature-screens.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C4 owns this row jointly with C3. These two specs are the current refit drivers. check3-refit-roundtrip is not a repository E2E spec yet."
+    },
+    {
+      "id": "gm-intervention-tactical-command",
+      "owner": "C4",
+      "paths": [
+        "src/components/gameplay/TacticalActionDock/**",
+        "src/lib/interventions/**",
+        "src/pages-modules/gameplay/games/**",
+        "src/engine/InteractiveSession*.ts"
+      ],
+      "specs": [
+        "e2e/attack-intent-composer-journey.spec.ts",
+        "e2e/combat-turn-rail-regression.spec.ts",
+        "e2e/gm-two-player-conflict.pack.spec.ts",
+        "e2e/networked-command-proof.spec.ts",
+        "e2e/tactical-action-menu.spec.ts",
+        "e2e/tactical-command-journey.spec.ts",
+        "e2e/ux-deep-play-audit.spec.ts",
+        "e2e/gm-two-player-privacy.pack.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C4 UI intervention/command flows include InteractiveSession and the privacy approval pack. The standalone simulation runner is outside this UI path. ux-deep-play-audit stays mapped."
+    },
+    {
+      "id": "multiplayer-session",
+      "owner": "C4",
+      "paths": ["server.js", "src/lib/multiplayer/server/**"],
+      "specs": [
+        "e2e/authority-privacy-three-context.spec.ts",
+        "e2e/campaign-journal-two-process-convergence.spec.ts",
+        "e2e/campaign-journal-two-process-privacy.spec.ts",
+        "e2e/campaign-two-device-drive.spec.ts",
+        "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "e2e/coop-campaign-ui-audit.spec.ts",
+        "e2e/gm-two-player-authority-order.pack.spec.ts",
+        "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+        "e2e/gm-two-player-authority.pack1.spec.ts",
+        "e2e/gm-two-player-backpressure.pack.spec.ts",
+        "e2e/gm-two-player-cleanup-ownership.spec.ts",
+        "e2e/gm-two-player-combat.pack1.spec.ts",
+        "e2e/gm-two-player-conflict.pack.spec.ts",
+        "e2e/gm-two-player-evidence.pack.spec.ts",
+        "e2e/gm-two-player-exactly-once.pack.spec.ts",
+        "e2e/gm-two-player-failure.pack.spec.ts",
+        "e2e/gm-two-player-fault.pack.spec.ts",
+        "e2e/gm-two-player-fixture.smoke.spec.ts",
+        "e2e/gm-two-player-lifecycle.pack.spec.ts",
+        "e2e/gm-two-player-membership.smoke.spec.ts",
+        "e2e/gm-two-player-performance.pack.spec.ts",
+        "e2e/gm-two-player-privacy.pack.spec.ts",
+        "e2e/gm-two-player-proposals.pack.spec.ts",
+        "e2e/gm-two-player-resilience.pack.spec.ts",
+        "e2e/gm-two-player-restart.pack.spec.ts",
+        "e2e/gm-two-player-rewind.pack.spec.ts",
+        "e2e/gm-two-player-token.pack.spec.ts",
+        "e2e/multiplayer-live-vault-auth.spec.ts",
+        "e2e/p2p-sync.spec.ts",
+        "e2e/playtest-mp-smoke.spec.ts"
+      ],
+      "tier": "nightly",
+      "notes": "C4 full 30-spec set stays nightly by default; server.js or src/lib/multiplayer/server/** changes are the narrow exception that must select the full set once step 5 is enabled. No generic persistence trigger."
+    },
+    {
+      "id": "unit-open",
+      "owner": "C3",
+      "paths": [
+        "src/components/customizer/**",
+        "src/stores/unitState.ts",
+        "src/services/units/unitLoaderService/**",
+        "src/utils/serialization/**",
+        "src/pages/api/units/**",
+        "src/hooks/useUnit*",
+        "public/data/units/**",
+        "src/stores/unit*/**",
+        "src/stores/unit*.ts",
+        "src/stores/useUnitStore.ts",
+        "src/services/units/**",
+        "src/services/persistence/**",
+        "src/types/unit/**",
+        "src/components/customizer/dialogs/SaveUnitDialog.tsx"
+      ],
+      "specs": [
+        "e2e/customizer-add-unit.spec.ts",
+        "e2e/customizer-family-loading.spec.ts",
+        "e2e/customizer-header-icons.spec.ts",
+        "e2e/customizer-loading.spec.ts",
+        "e2e/customizer-loadout-menu.spec.ts",
+        "e2e/customizer-route-recovery.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "These original load-side candidates open canonical units or local drafts, rather than server-saved units: Add Unit/blank draft, family skeletons, header actions, load cancellation, loadout actions and deep-link draft recovery. Split from unit-save-load after reading each spec."
+    },
+    {
+      "id": "multiplayer-session-pr",
+      "owner": "C4",
+      "paths": [
+        "src/lib/multiplayer/**",
+        "server.js",
+        "src/pages/api/multiplayer/**",
+        "src/pages/api/matches/**",
+        "src/lib/p2p/**",
+        "src/hooks/useMultiplayerSession*",
+        "src/hooks/useP2PReconnectSession*"
+      ],
+      "specs": [
+        "e2e/gm-two-player-fixture.smoke.spec.ts",
+        "e2e/gm-two-player-membership.smoke.spec.ts",
+        "e2e/playtest-mp-smoke.spec.ts",
+        "e2e/p2p-sync.spec.ts",
+        "e2e/gm-two-player-failure.pack.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C4 five-spec PR-tier subset for all shared multiplayer/P2P/session boundaries. The server-only trigger on multiplayer-session selects the full set as well in step 5."
+    },
+    {
+      "id": "scenario-pack-consumers",
+      "owner": "C4",
+      "paths": ["src/lib/scenarioPacks/**", "e2e/scenario-packs/**"],
+      "specs": [
+        "e2e/scenario-packs/__tests__/manifest.guard.spec.ts",
+        "e2e/scenario-packs/combat-midbattle.parity.spec.ts",
+        "e2e/scenario-packs/coop-guest-proposal.parity.spec.ts",
+        "e2e/scenario-packs/coop-host-review.parity.spec.ts",
+        "e2e/scenario-packs/economy-midcampaign.parity.spec.ts",
+        "e2e/scenario-packs/experience-pilot.parity.spec.ts",
+        "e2e/scenario-packs/maintenance-repairbay.parity.spec.ts",
+        "e2e/scenario-packs/navigation-briefing.parity.spec.ts",
+        "e2e/scenario-packs/personnel-roster.parity.spec.ts"
+      ],
+      "tier": "pr",
+      "notes": "C4 amendment after the pack-consumer regression: all eight parity specs and the manifest guard consume this shared pack contract."
+    },
+    {
+      "id": "campaign-persistence",
+      "owner": "C4",
+      "paths": [
+        "src/stores/campaign/useCampaignPersistenceStore.ts",
+        "src/stores/campaign/campaignSaveState.ts",
+        "src/stores/campaign/campaignPersistenceWiring.ts",
+        "src/lib/campaign/persistence/**",
+        "src/pages/api/campaigns/**",
+        "src/hooks/useServiceWorker.ts",
+        "public/service-worker.js"
+      ],
+      "specs": [],
+      "pendingSpecs": [
+        {
+          "spec": "e2e/campaign-unload-adoption.spec.ts",
+          "owner": "C4",
+          "reason": "Written in C4 campaign save-loss fix PR 1/2; not yet on main."
+        }
+      ],
+      "tier": "pr",
+      "notes": "C4 unload/adoption sweep must run nightly and for changes to any of these save/service-worker boundaries once selection is enabled, rather than in every PR gate. The guard requires promotion from pendingSpecs to specs when C4 adds the file. Old-tab/unvisited-route checks from #3315 are unit tests in src/hooks/__tests__, not E2E specs."
+    }
+  ],
+  "nightly-only-by-design": [
+    {
+      "spec": "e2e/active-session-recovery.spec.ts",
+      "reason": "Already in fixed PR gates; active combat recovery is outside the proposed shared-flow rows."
+    },
+    {
+      "spec": "e2e/app-routes.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/app-shell-route-proof.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/appearance-palettes.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/application-icons.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/application-palettes.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/audit-capture.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/awards.spec.ts",
+      "reason": "Nightly coverage of pilot awards; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign-flow.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign-force-reconciliation.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign-starmap-logistics.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign-stepper-mobile.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign-subroute-recovery.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign-wizard-save-diagnostics.spec.ts",
+      "reason": "Nightly coverage of campaign create wizard save diagnostics; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/campaign.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/combat.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/compendium.spec.ts",
+      "reason": "Nightly coverage of compendium browse; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/customizer-equipment-catalog.spec.ts",
+      "reason": "Already in fixed PR gates; catalog browsing/search coverage is separate from editor commits."
+    },
+    {
+      "spec": "e2e/customizer-layout-workbench.spec.ts",
+      "reason": "C3 explicitly keeps the layout/workbench sweep nightly; layout coverage is outside editor-commit selection."
+    },
+    {
+      "spec": "e2e/encounter-combat-continuity.spec.ts",
+      "reason": "Nightly coverage of encounter + force setup; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/encounter-flow.spec.ts",
+      "reason": "Nightly coverage of encounter + force setup; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/encounter.spec.ts",
+      "reason": "Nightly coverage of encounter + force setup; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/events.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/force.spec.ts",
+      "reason": "Nightly coverage of encounter + force setup; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/game.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/gameplay-layout-slots.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/gm-campaign-ledger-control-plane.spec.ts",
+      "reason": "Already in fixed PR gates; campaign ledger controls have their own fixed coverage."
+    },
+    {
+      "spec": "e2e/integration.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/intel-tier-projection.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/layout-sweep/layout-helpers.selftest.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/layout-sweep/screenInventory.guard.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/layout-sweep/viewport-layout-sweep.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/local-seat-credentials.spec.ts",
+      "reason": "Nightly coverage of multiplayer / co-op session; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/mobile-navigation.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/playtest-campaign-smoke.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/playtest-coop-route-smoke.spec.ts",
+      "reason": "Nightly coverage of multiplayer / co-op session; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/playtest-sp-smoke.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/playtest-subsystem-hiring.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/playtest-subsystem-loans.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/playtest-subsystem-xp-purchase.spec.ts",
+      "reason": "Nightly coverage of campaign management (no day advance); outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/production-client-navigation.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/pwa.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/quick-play.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/replay-blocked-history.spec.ts",
+      "reason": "Nightly coverage of replay library open/play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/replay-player.spec.ts",
+      "reason": "Nightly coverage of replay library open/play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/seam-fresh-construction-no-instant-defeat.spec.ts",
+      "reason": "Already in fixed PR gates; construction-to-combat seam coverage keeps its fixed selection."
+    },
+    {
+      "spec": "e2e/seam-roster-materialization-handoff.spec.ts",
+      "reason": "Already in fixed PR gates; roster-to-combat seam coverage keeps its fixed selection."
+    },
+    {
+      "spec": "e2e/seed-reproducibility.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/simulation-viewer.spec.ts",
+      "reason": "Nightly coverage of tactical combat / quick play; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/tactical-map-visual-smoke.spec.ts",
+      "reason": "Already in fixed PR smoke; tactical map appearance keeps its fixed selection."
+    },
+    {
+      "spec": "e2e/ui-components.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/ux-walkthrough-audit.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    },
+    {
+      "spec": "e2e/visual-regression.spec.ts",
+      "reason": "Nightly coverage of app shell / theming / layout / navigation; outside the approved shared-flow selections."
+    }
+  ]
+}

@@ -157,7 +157,7 @@ export function calculateEnhancementWeight(
   if (enhancementType === MovementEnhancementType.PARTIAL_WING) {
     const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.PARTIAL_WING,
-      { tonnage },
+      { tonnage, techBase },
     );
     return result.weight;
   }
@@ -208,7 +208,7 @@ export function calculateEnhancementSlots(
   if (enhancementType === MovementEnhancementType.PARTIAL_WING) {
     const result = getEquipmentCalculatorService().calculateProperties(
       VARIABLE_EQUIPMENT.PARTIAL_WING,
-      { tonnage },
+      { tonnage, techBase },
     );
     return result.criticalSlots;
   }

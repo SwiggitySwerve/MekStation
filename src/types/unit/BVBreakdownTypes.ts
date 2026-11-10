@@ -208,6 +208,14 @@ export interface IBABreakdown {
    * and its summed pass value (Java `weapon.<n>.<loc>.<name>`).
    */
   readonly nativeWeaponBVByTrooper?: readonly (readonly IBANativeWeaponValue[])[];
+  /**
+   * Per trooper (index 0 = trooper 1): the offensive value each Java weapon pass
+   * adds, keyed by the Java label (`Weapons:`, `Squad Support:`, and `Anti-Mek:`
+   * only for squads that may make anti-Mek attacks).
+   */
+  readonly nativeSectionBVByTrooper?: readonly Readonly<
+    Record<string, number>
+  >[];
 }
 
 export interface IBANativeWeaponValue {
