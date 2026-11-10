@@ -25,6 +25,7 @@ import {
   getAllEquipmentItems as getAllEquipmentItemsFallback,
   getAllWeapons as getAllWeaponsFallback,
 } from '@/utils/equipment/equipmentAggregation';
+import { AMS_WEAPON_IDS } from '@/utils/equipment/equipmentConstants';
 import { logger } from '@/utils/logger';
 import { isAvailableInYear } from '@/utils/temporal/availabilityUtils';
 
@@ -71,11 +72,6 @@ const EXCLUDED_MISC_CATEGORIES: readonly MiscEquipmentCategory[] = [
   MiscEquipmentCategory.JUMP_JET,
   MiscEquipmentCategory.HEAT_SINK,
 ];
-
-/**
- * IDs of AMS weapons that should also appear in "Other" category
- */
-const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
 
 /**
  * Equipment Lookup Service implementation
