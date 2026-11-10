@@ -8,6 +8,45 @@
 
 ## ADDED Requirements
 
+### Requirement: Non-mech technology identity has one chassis-fact owner
+
+Non-mech runtime states SHALL support optional unit technology mode and chassis
+technology independently of their existing binary editor technology field.
+Absent identity fields SHALL remain absent in legacy drafts and pure-unit
+defaults. Draft persistence and existing duplicate actions SHALL preserve known
+identity without manufacturing defaults. The shared chassis accessor SHALL read
+`clanChassis` for battle armor and `componentTechBases.chassis` for other
+families; it SHALL NOT substitute another family's fact or a binary editor
+fallback for absent chassis evidence. This identity support SHALL NOT add Mixed
+editing controls or change native BLK export headers.
+
+#### Scenario: Battle armor owns its construction chassis flag
+
+- **GIVEN** a battle armor definition with boolean `clanChassis`
+- **WHEN** the shared accessor resolves its chassis technology
+- **THEN** it SHALL return Clan for true and Inner Sphere for false
+- **AND** a component chassis field SHALL NOT override that flag
+
+#### Scenario: A non-BA definition has explicit chassis evidence
+
+- **GIVEN** a non-BA definition with `componentTechBases.chassis`
+- **WHEN** the shared accessor resolves its chassis technology
+- **THEN** it SHALL return the declared binary side
+- **AND** an absent chassis field SHALL remain unknown even if a binary fallback or `clanChassis` is available
+
+#### Scenario: Legacy draft fingerprints retain their original bytes
+
+- **GIVEN** a legacy non-mech draft without technology identity fields
+- **WHEN** its persisted projection and save fingerprints are computed
+- **THEN** its existing literal draft and library fingerprints SHALL remain byte-identical
+- **AND** adding meaningful identity SHALL change the draft fingerprint
+
+#### Scenario: Draft hydration and copies preserve Mixed identity
+
+- **GIVEN** a non-mech state with Mixed mode and a known chassis technology
+- **WHEN** its browser draft is hydrated or its existing duplicate action runs
+- **THEN** both identity fields SHALL be preserved independently of temporary session identity
+
 ### Requirement: Versioned portable unit documents
 
 The canonical unit JSON Schema SHALL own the portable document version and its
@@ -450,3 +489,53 @@ refresh the library and preserve the saved identity for existing editor loading.
 - **THEN** its file input SHALL have a label, keyboard focus SHALL remain within the modal, and closing SHALL restore focus
 - **WHEN** supported pinned MTF and vehicle BLK files are imported
 - **THEN** both SHALL appear in the library after reload and an imported unit SHALL open through existing customizer loading
+
+### Requirement: Mounted ammunition identity survives custom mech persistence
+
+Custom mech persistence SHALL retain each mount's equipment ID, technology,
+ammunition category, multiplicity, location, rear mounting and applicable slot
+topology. Optional `isAmmo` metadata SHALL have no default. Absent legacy values
+SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
+
+#### Scenario: Shared launcher and bin identity
+
+- **WHEN** a launcher and an ammunition bin share a catalog ID
+- **THEN** SQLite save and reopen SHALL retain their distinct category and mounted fields, including an unallocated bin without source criticals
+- **AND** the existing category-qualified equipment lookup SHALL own record selection
+- **AND** legacy recovery SHALL use only complete, consistent criticals belonging to that saved mount
+- **AND** category totals SHALL NOT substitute for bound per-mount ID, tech, category, location, rear, topology and multiplicity at load, save readback and reopen
+- **AND** explicit category metadata without a matching definition SHALL produce a diagnostic
+
+#### Scenario: Existing save fingerprint compatibility
+
+- **WHEN** derived ammo identity metadata is added to persistence
+- **THEN** old library/draft fingerprint literals and absent optional values SHALL retain their exact bytes
+- **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
+- **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata
+
+### Requirement: Native OmniMek mounted equipment pod metadata
+
+SHALL derive pod metadata for every represented mount type on an explicitly
+declared OmniMek from that mount's native critical-slot token using one shared
+token decoder. MUST retain explicit saved true and false values, use fixed when
+source evidence is missing, and preserve Java suffix order and mount visitation.
+SHALL preserve existing load, save/reopen fingerprints and BV for units whose
+Omni declaration is absent or false. MUST leave equipment discovery unchanged.
+
+#### Scenario: Ordinary and recovered Omni mounts retain source pod flags
+
+- **GIVEN** a declared OmniMek with represented ranged, physical, ammunition,
+  miscellaneous and heat-sink mounts
+- **WHEN** the loader reconstructs their native critical allocations
+- **THEN** each flag SHALL match its pinned Java mount
+- **AND** editor movement and removal locks SHALL use that same loaded flag
+- **AND** split/spread and duplicate mounts SHALL follow their own critical cells
+
+#### Scenario: Saved flags and legacy declarations survive reopening
+
+- **GIVEN** explicit saved pod booleans, including false, or a legacy unit without
+  an Omni declaration
+- **WHEN** loaded, saved and reopened
+- **THEN** explicit booleans SHALL retain their values
+- **AND** legacy units SHALL retain their existing loaded and saved bytes and BV
+- **AND** existing literal save-fingerprint expectations SHALL NOT be regenerated

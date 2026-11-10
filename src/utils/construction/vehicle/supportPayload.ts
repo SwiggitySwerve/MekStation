@@ -2,7 +2,10 @@
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { ISupportVehicle } from '@/types/unit/VehicleInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
-import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
+import {
+  getEquipmentEntry,
+  type EquipmentCatalogEntry,
+} from '@/utils/construction/equipmentBV';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { getAmmunitionWeightEntry } from '@/utils/construction/equipmentBV/resolution';
 import { isFireWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
@@ -20,7 +23,10 @@ import {
   isVehicleMechanismMountId,
 } from './turret';
 import {
+  applyVehicleDumperWeights,
   getMountSourceSize,
+  isFireControlBasisWeapon,
+  isVehicleDumperId,
   resolveVehicleVariableMass,
 } from './variableEquipmentMass';
 import {
@@ -38,6 +44,19 @@ export type SupportRegistryMass = (
   equipmentId: string,
   name?: string,
 ) => number | undefined;
+
+/** Adapt the BV catalog category to the shared heat-neutral weapon contract. */
+export function getCatalogHeatNeutralWeaponHeat(
+  item: EquipmentCatalogEntry,
+): number | null {
+  return getVehicleHeatNeutralWeaponHeat({
+    ...item,
+    category:
+      item.category === 'Energy'
+        ? EquipmentCategory.ENERGY_WEAPON
+        : EquipmentCategory.BALLISTIC_WEAPON,
+  });
+}
 
 /** TestEntity.java:631-667,716-769: sum catalog mount weights by kind.
  * A non-ammunition mount uses the injected registry mass when it has one,
@@ -92,6 +111,7 @@ export function computeSupportPayloadWeights(
         ...mount,
         ammo,
         weapon: false,
+        basis: false,
         weight: 0,
         heat: 0,
         energy: false,
@@ -118,10 +138,12 @@ export function computeSupportPayloadWeights(
             : EquipmentCategory.MISC_EQUIPMENT,
         special: item.special,
       });
-    // The sponson and pintle mechanisms are weighed from their neighbours after
-    // every mount is known (see the pass below), not from a catalog value.
-    const mechanism = isVehicleMechanismMountId(item.id);
-    const resolvedWeight = mechanism
+    // The sponson and pintle mechanisms and the dumpers are weighed from their
+    // neighbours after every mount is known (see the passes below), not from a
+    // catalog value.
+    const deferred =
+      isVehicleMechanismMountId(item.id) || isVehicleDumperId(item.id);
+    const resolvedWeight = deferred
       ? 0
       : resolveVehicleVariableMass(item, mount.equipmentId, {
           tonnage: unit.tonnage,
@@ -131,19 +153,13 @@ export function computeSupportPayloadWeights(
     if (resolvedWeight === undefined) unresolved.push(mount.equipmentId);
     const weight = resolvedWeight ?? item.weight;
     // TestEntity.java:938-982: heat-neutral weapon load; small SVs need no sinks.
-    const heat = weapon
-      ? (getVehicleHeatNeutralWeaponHeat({
-          ...item,
-          category:
-            item.category === 'Energy'
-              ? EquipmentCategory.ENERGY_WEAPON
-              : EquipmentCategory.BALLISTIC_WEAPON,
-        }) ?? 0)
-      : 0;
+    const heat = weapon ? (getCatalogHeatNeutralWeaponHeat(item) ?? 0) : 0;
     return {
       ...mount,
       ammo,
       weapon,
+      // MiscType.java:714-722: what the fire controls are sized from.
+      basis: weapon && isFireControlBasisWeapon(item),
       weight,
       heat,
       energy,
@@ -159,6 +175,7 @@ export function computeSupportPayloadWeights(
   const mechanisms = mounts.map((m) => ({
     id: m.id,
     location: m.location,
+    sourceId: m.equipmentId,
     weight: m.known ? m.weight : null,
     // An unidentified non-ammunition mount may be the very weapon the pintle
     // carries, so it must make the pintle unresolved, not weightless.
@@ -174,8 +191,13 @@ export function computeSupportPayloadWeights(
     baseChassisWeight: unit.baseChassisSponsonPintleWeight,
     kilograms: unit.tonnage < 5,
   });
+  applyVehicleDumperWeights(mechanisms, {
+    tonnage: unit.tonnage,
+    isSupportVehicle: true,
+  });
   mounts.forEach((mount, index) => {
-    if (!isVehicleMechanismMountId(mount.id)) return;
+    if (!isVehicleMechanismMountId(mount.id) && !isVehicleDumperId(mount.id))
+      return;
     const weight = mechanisms[index].weight;
     if (weight === null) unresolved.push(mount.equipmentId);
     else mount.weight = weight;
@@ -198,7 +220,7 @@ export function computeSupportPayloadWeights(
           {
             tonnage: unit.tonnage,
             engineWeight,
-            weaponWeight: weapons,
+            weaponWeight: sum((m) => m.basis),
             baseChassisFireConWeight: unit.baseChassisFireConWeight,
             isSupportVehicle: true,
           },

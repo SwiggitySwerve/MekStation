@@ -8,6 +8,8 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
+import type { ISerializedEquipmentInput } from '@/types/unit/UnitSerialization';
+
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
@@ -30,21 +32,12 @@ type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
  * Uses multiple resolution strategies including ID normalization and aliasing.
  */
 export function mapEquipment(
-  equipment:
-    | ReadonlyArray<{
-        readonly id: string;
-        readonly location: string;
-        readonly slots?: readonly number[];
-        readonly isRearMounted?: boolean;
-        readonly isRemovable?: boolean;
-        readonly linkedAmmo?: string;
-        readonly isOmniPodMounted?: boolean;
-      }>
-    | undefined,
+  equipment: readonly ISerializedEquipmentInput[] | undefined,
   unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   unitCriticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
+  isOmni = false,
 ): IMountedEquipmentInstance[] {
   const serialized = equipment ?? [];
 
@@ -111,5 +104,6 @@ export function mapEquipment(
     unitCriticalSlots,
     tonnage,
     serialized.length === 0,
+    isOmni,
   );
 }

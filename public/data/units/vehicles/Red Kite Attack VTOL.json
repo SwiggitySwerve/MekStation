@@ -118,5 +118,8 @@
     "TU:3:CLMediumChemicalLaser": [
       "ammo_feed_problems"
     ]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

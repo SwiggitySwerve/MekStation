@@ -11,6 +11,7 @@ import {
   mount,
 } from '../../src/utils/construction/protomech/__tests__/protoMechBV.test.helpers';
 import { nativeProtoEquipmentIndices } from '../../src/utils/construction/protomech/nativeEquipmentIndices';
+import { withProtoMechNativeIndices } from '../../src/utils/construction/protomech/nativeTraceEnrichment';
 
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md */
 describe('ProtoMech weapon diagnostic projection', () => {
@@ -42,7 +43,13 @@ describe('ProtoMech weapon diagnostic projection', () => {
       const unit = parsed.data.unit;
       const original = JSON.stringify(unit);
       const b = handler.calculateBVBreakdown(unit);
-      const terms = protoMechBVTerms(b);
+      const before = JSON.stringify(b);
+      const enriched = withProtoMechNativeIndices(b, unit.equipment);
+      const terms = protoMechBVTerms(enriched);
+      expect(JSON.stringify(b)).toBe(before);
+      for (const fact of b.weaponMountBV ?? []) {
+        expect(fact).not.toHaveProperty('nativeEquipmentIndex');
+      }
       const groups: Record<string, number[]> = {};
       for (const [key, value] of Object.entries(terms)) {
         const match = key.match(/^weapon\.\d+\.([^.]+)\./);
@@ -226,13 +233,24 @@ describe('ProtoMech native equipment indices', () => {
     const unit = parsed.data.unit;
     const before = JSON.stringify(unit);
     const breakdown = handler.calculateBVBreakdown(unit);
+    const originalBreakdown = JSON.stringify(breakdown);
+    for (const fact of breakdown.weaponMountBV ?? []) Object.freeze(fact);
+    Object.freeze(breakdown.weaponMountBV);
+    Object.freeze(breakdown);
+    const enriched = withProtoMechNativeIndices(breakdown, unit.equipment);
+    expect(enriched).not.toBe(breakdown);
+    expect(enriched.weaponMountBV).not.toBe(breakdown.weaponMountBV);
+    expect(JSON.stringify(breakdown)).toBe(originalBreakdown);
+    for (const fact of breakdown.weaponMountBV ?? []) {
+      expect(fact).not.toHaveProperty('nativeEquipmentIndex');
+    }
     expect(breakdown.weaponMountBV?.map((fact) => fact.equipmentIndex)).toEqual(
       [7, 8, 9, 10],
     );
     // Entity.java:5093-5175 at 48fcb2f64: each Fusillade inserts two ammo mounts.
     expect(
       Object.fromEntries(
-        Object.entries(protoMechBVTerms(breakdown)).filter(([key]) =>
+        Object.entries(protoMechBVTerms(enriched)).filter(([key]) =>
           key.startsWith('weapon.'),
         ),
       ),
@@ -242,13 +260,35 @@ describe('ProtoMech native equipment indices', () => {
       'weapon.13.RA.CLMediumChemicalLaser': 37,
       'weapon.14.LA.CLMediumChemicalLaser': 37,
     });
-    expect(breakdown.weaponMountBV).toMatchObject([
+    expect(enriched.weaponMountBV).toMatchObject([
       { equipmentIndex: 7 },
       { equipmentIndex: 8, nativeEquipmentIndex: 10 },
       { equipmentIndex: 9, nativeEquipmentIndex: 13 },
       { equipmentIndex: 10, nativeEquipmentIndex: 14 },
     ]);
+    expect(enriched.weaponMountBV?.[0]).not.toHaveProperty(
+      'nativeEquipmentIndex',
+    );
+    expect(withProtoMechNativeIndices(enriched, unit.equipment)).toEqual(
+      enriched,
+    );
     expect(breakdown.final).toBe(source.javaTotal);
     expect(JSON.stringify(unit)).toBe(before);
+  });
+
+  test('enrichment preserves absent weapon snapshots in legacy and unarmed breakdowns', () => {
+    const unit = buildProto({ tonnage: 5 });
+    const breakdown = Object.freeze(calculateProtoMechBV(unit));
+    const enriched = withProtoMechNativeIndices(breakdown, unit.equipment);
+    expect(enriched).toEqual(breakdown);
+    expect(enriched).not.toBe(breakdown);
+    expect(enriched).not.toHaveProperty('weaponMountBV');
+    const { weaponMountBV: _facts, ...legacy } = calculateProtoMechBV(
+      buildProto({
+        tonnage: 5,
+        equipment: [mount('clan-er-small-laser', ProtoLocation.TORSO)],
+      }),
+    );
+    expect(withProtoMechNativeIndices(legacy, unit.equipment)).toEqual(legacy);
   });
 });

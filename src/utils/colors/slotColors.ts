@@ -38,6 +38,7 @@ const SLOTTED_STRUCTURE_TYPES: readonly string[] = [
 const SLOTTED_ARMOR_TYPES: readonly string[] = [
   ArmorTypeEnum.FERRO_FIBROUS_IS,
   ArmorTypeEnum.FERRO_FIBROUS_CLAN,
+  ArmorTypeEnum.FERRO_FIBROUS_PROTO,
   ArmorTypeEnum.LIGHT_FERRO,
   ArmorTypeEnum.HEAVY_FERRO,
   ArmorTypeEnum.STEALTH,

@@ -50,5 +50,8 @@
   "role": "Ambusher",
   "fluff": {
     "overview": "<p>By 2840 the Clans had abandoned general engineering as unworthy of warriors, retaining only the demolition training useful for breaching and destruction. These Points carry demolition charges to reduce fortifications and clear obstacles.</p>"
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

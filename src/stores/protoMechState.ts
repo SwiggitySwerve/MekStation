@@ -9,6 +9,7 @@ import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
  * @spec openspec/changes/add-protomech-construction/tasks.md §1
  */
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import type { IUnitContract } from '@/types/contracts';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
@@ -119,7 +120,8 @@ export function createProtoMechMountedEquipment(
 /**
  * Complete state for a single ProtoMech unit
  */
-export interface ProtoMechState extends IUnitSaveMetadata {
+export interface ProtoMechState
+  extends IUnitSaveMetadata, IUnitTechBaseIdentity {
   /** Original catalog facts not expressible by the editor. */
   librarySource?: IUnitContract;
   // =========================================================================
@@ -225,8 +227,11 @@ export interface ProtoMechState extends IUnitSaveMetadata {
   hasMyomerBooster: boolean;
 
   /**
-   * Gliding wings: only legal on Glider chassis (Light class). Adds +2 jump MP
-   * via effectiveJumpMP; the base jumpMP is stored separately.
+   * Legacy and inert. MekStation once read this as "+2 jump MP on a glider", a
+   * rule the pin does not have: a glider is WiGE with no jump of its own, and only
+   * a mounted Partial Wing adds jump (ProtoMek.java:452-492). It is kept so saved
+   * units and BV cache keys do not change; nothing in the editor, BV, record sheet
+   * or gameplay reads it for a rule, and the editor has no control for it.
    */
   glidingWings: boolean;
 

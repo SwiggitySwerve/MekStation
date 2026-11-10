@@ -83,5 +83,8 @@
       "COMMUNICATIONS": "TharHes",
       "TARGETING": "TharHes"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

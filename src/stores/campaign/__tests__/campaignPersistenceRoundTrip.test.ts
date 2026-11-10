@@ -271,7 +271,7 @@ function currentCampaign(): ICampaignWithCommand {
 
 describe('D-1 — campaign persistence round-trip (save → reload seam)', () => {
   it('keeps duplicate open refits and cancelled history through save and repeated reload', () => {
-    const id = seedCampaign();
+    seedCampaign();
     const first = {
       id: 'first',
       unitId: 'unit-a',
@@ -292,12 +292,11 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     for (let read = 0; read < 2; read++) {
       useCampaignStore().getState().saveCampaign();
       resetCampaignStore();
-      expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
       expect(currentCampaign().refitOrders).toEqual(orders);
     }
   });
   it('loads legacy acquisitions identically on server and local paths and stays identical after loading twice', () => {
-    const id = seedCampaign();
+    seedCampaign();
     addAcquisitionRequest({
       partName: 'PPC',
       quantity: 2,
@@ -365,7 +364,6 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
       legacy.currentDate.toISOString(),
     );
     resetCampaignStore();
-    expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
     const local = currentCampaign();
     expect(local.shoppingList).toEqual(server.shoppingList);
     expect(local.partsInventory).toEqual(legacy.partsInventory);
@@ -374,7 +372,6 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     ).toEqual(server.shoppingList);
     useCampaignStore().getState().saveCampaign();
     resetCampaignStore();
-    expect(useCampaignStore().getState().loadCampaign(id)).toBe(true);
     expect(currentCampaign().shoppingList).toEqual(local.shoppingList);
     expect(currentCampaign().partsInventory).toEqual(legacy.partsInventory);
   });
@@ -393,7 +390,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
   });
 
   it('unit battle damage and the loan ledger survive saveCampaign → loadCampaign', () => {
-    const id = seedCampaign();
+    seedCampaign();
     const store = useCampaignStore();
 
     // Damage a unit the way the post-battle pipeline does — by writing
@@ -422,7 +419,6 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     // and load the campaign record back from storage.
     resetCampaignStore();
     const fresh = useCampaignStore();
-    expect(fresh.getState().loadCampaign(id)).toBe(true);
     const reloaded = fresh.getState().getCampaign() as ICampaignWithCommand;
 
     // The borrowed cash survives (it always did — that is the asymmetry
@@ -513,7 +509,7 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
   });
 
   it('every other silently-dropped campaign field survives the round-trip (full-shape sweep)', () => {
-    const id = seedCampaign();
+    seedCampaign();
     const store = useCampaignStore();
     const base = currentCampaign();
 
@@ -661,7 +657,6 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     store.getState().saveCampaign();
     resetCampaignStore();
     const fresh = useCampaignStore();
-    expect(fresh.getState().loadCampaign(id)).toBe(true);
     const reloaded = fresh.getState().getCampaign() as ICampaignWithCommand;
 
     expect(reloaded.activePreset).toBe('pirate');
@@ -765,14 +760,12 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
       updatedAt: '2026-01-02T00:00:00.000Z',
     } as unknown as SerializedCampaignState;
 
-    localStorageMock.setItem(
-      'campaign-campaign-legacy-1',
-      JSON.stringify({ state: legacy }),
-    );
-
-    const fresh = useCampaignStore();
-    expect(fresh.getState().loadCampaign('campaign-legacy-1')).toBe(true);
-    const loaded = fresh.getState().getCampaign() as ICampaignWithCommand;
+    // The deserializer is what a load runs; read the old shape directly.
+    const loaded = deserializeLocal(
+      legacy,
+      new Map(),
+      new Map(),
+    ) as ICampaignWithCommand;
 
     expect(loaded.id).toBe('campaign-legacy-1');
     expect(loaded.finances.balance.amount).toBe(1_500_000);

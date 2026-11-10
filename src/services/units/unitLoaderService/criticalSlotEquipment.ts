@@ -1,3 +1,5 @@
+import type { ISerializedEquipmentInput } from '@/types/unit/UnitSerialization';
+
 import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
@@ -32,6 +34,7 @@ import {
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
 import {
+  compareSourceCriticalLocations,
   isSourcePhysicalWeapon,
   sourceCriticalWeapons,
   sourceWeaponSummaryMatches,
@@ -43,13 +46,15 @@ export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
 >;
 
-export interface ISerializedEquipmentPlacement {
-  readonly id: string;
-  readonly slots?: readonly number[];
-  readonly isRearMounted?: boolean;
-  readonly isRemovable?: boolean;
-  readonly isOmniPodMounted?: boolean;
-}
+export type ISerializedEquipmentPlacement = Pick<
+  ISerializedEquipmentInput,
+  | 'id'
+  | 'isAmmo'
+  | 'slots'
+  | 'isRearMounted'
+  | 'isRemovable'
+  | 'isOmniPodMounted'
+>;
 
 interface IResolvedCriticalSlot {
   readonly index: number;
@@ -231,6 +236,65 @@ function restoreSerializedHeatSink(
     : item;
 }
 
+function restoreSerializedCategory(
+  source: ISerializedEquipmentPlacement,
+  item: IMountedEquipmentInstance,
+  resolvedByLocation: ReadonlyMap<
+    MechLocation,
+    readonly IResolvedCriticalSlot[]
+  >,
+  entries: (count: number) => number,
+): IMountedEquipmentInstance {
+  let isAmmo = source.isAmmo;
+  const explicit = isAmmo !== undefined;
+  if (isAmmo === undefined) {
+    if (
+      !item.location ||
+      !source.slots?.length ||
+      new Set(source.slots).size !== source.slots.length
+    )
+      return item;
+    const locationSlots = resolvedByLocation.get(item.location);
+    const ownSlots = source.slots.map((index) =>
+      Number.isInteger(index) && index >= 0
+        ? locationSlots?.[index]
+        : undefined,
+    );
+    const first = ownSlots[0]?.equipmentDef;
+    if (
+      !first ||
+      !ownSlots.every(
+        (slot) =>
+          slot?.equipmentDef &&
+          criticalEquipmentId(slot.equipmentId ?? '') ===
+            criticalEquipmentId(source.id) &&
+          (slot.equipmentDef.category === EquipmentCategory.AMMUNITION) ===
+            (first.category === EquipmentCategory.AMMUNITION),
+      )
+    )
+      return item;
+    isAmmo = first.category === EquipmentCategory.AMMUNITION;
+  }
+  const lookup = getEquipmentLookupService();
+  // Saved IDs can carry opposite-tech ammo even on a pure-tech definition.
+  // Only unresolved source aliases use the already resolved ID as a fallback.
+  const identity = lookup.getById(source.id) ? source.id : item.equipmentId;
+  const definition = lookup.getMountedById(identity, isAmmo);
+  if (
+    !definition ||
+    (definition.category === EquipmentCategory.AMMUNITION) !== isAmmo
+  ) {
+    if (explicit)
+      throw new Error(
+        `Equipment ${source.id} has no ${isAmmo ? 'ammunition' : 'non-ammunition'} definition`,
+      );
+    return item;
+  }
+  if (!explicit && entries(definition.criticalSlots) !== source.slots?.length)
+    return item;
+  return { ...item, ...mountedDefinitionFields(definition) };
+}
+
 export function restoreCriticalSlotEquipment(
   serialized: readonly ISerializedEquipmentPlacement[],
   mapped: readonly IMountedEquipmentInstance[],
@@ -239,13 +303,25 @@ export function restoreCriticalSlotEquipment(
   criticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
   physicalOnly = false,
+  isOmni = false,
 ): IMountedEquipmentInstance[] {
   // Mek.java:3484-3492: a superheavy entry holds two ordinary criticals.
   const superheavy = tonnage !== undefined && isSuperHeavy(tonnage);
   const entries = (count: number): number =>
     getEquipmentCritEntries(count, superheavy);
+  const resolvedByLocation = resolveCriticalSlots(
+    criticalSlots,
+    unitTechBase,
+    unitTechBaseMode,
+  );
   const normalizedMapped = mapped.map((item, index) => {
-    const restored = restoreSerializedHeatSink(serialized[index], item);
+    const categorized = restoreSerializedCategory(
+      serialized[index],
+      item,
+      resolvedByLocation,
+      entries,
+    );
+    const restored = restoreSerializedHeatSink(serialized[index], categorized);
     const sizing =
       isSourcePhysicalWeapon(restored.equipmentId) &&
       getEquipmentCalculatorService().isVariable(
@@ -267,11 +343,6 @@ export function restoreCriticalSlotEquipment(
   });
   if (!criticalSlots) return normalizedMapped;
 
-  const resolvedByLocation = resolveCriticalSlots(
-    criticalSlots,
-    unitTechBase,
-    unitTechBaseMode,
-  );
   const claimed = new Map<MechLocation, Set<number>>();
 
   serialized.forEach((source, index) => {
@@ -495,5 +566,39 @@ export function restoreCriticalSlotEquipment(
     }
   }
 
-  return [...placed, ...recovered];
+  const equipment = [...placed, ...recovered];
+  if (!isOmni) return equipment;
+  return equipment.map((item, index) => {
+    const tokens = [...getSlotParts(item)]
+      .sort((a, b) => compareSourceCriticalLocations(a.location, b.location))
+      .flatMap((part) =>
+        [...part.slots]
+          .sort((a, b) => a - b)
+          .map(
+            (slot) =>
+              getCriticalSlotsForLocation(criticalSlots, part.location)?.[slot],
+          ),
+      )
+      .filter((token): token is string => typeof token === 'string');
+    // Ordinary/spreadable mounts keep their creation token. Java's split
+    // branch updates the flag on every visited crit (MtfFile.java:1127).
+    const definition = getEquipmentLookupService().getMountedById(
+      item.equipmentId,
+      item.category === EquipmentCategory.AMMUNITION,
+    );
+    const split =
+      item.splitSlots !== undefined ||
+      isSplittable(
+        definition
+          ? { ...item, criticalSlots: definition.criticalSlots }
+          : item,
+      );
+    return {
+      ...item,
+      isOmniPodMounted:
+        serialized[index]?.isOmniPodMounted ??
+        parseCriticalSlotToken((split ? tokens.at(-1) : tokens[0]) ?? '')
+          .isOmniPodMounted,
+    };
+  });
 }

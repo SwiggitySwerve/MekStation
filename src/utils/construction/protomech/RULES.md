@@ -431,8 +431,8 @@ The Basilisk pair exercises the complete path, including the pinned fixed 1 t
 Quad melee mount (`MiscType.createProtoQuadMeleeSystem:9440-9450`) and Myomer
 Booster (`MiscType.getTonnage`, 0.025 times unit mass rounded to kg). Other
 weight families and unmodelled linked-equipment effects are not certified.
-EDP source validation uses this complete mass when available, otherwise the
-known minimum; Standard source validation retains the minimum-weight policy.
+Native source validation now uses complete mass for both armor types when
+available, otherwise the same owner's known subtotal; see Native total mass below.
 
 `getProtoArmorSlotErrors` supersedes the earlier torso-slot deferral: count
 ordinary slot-taking torso mounts, excluding armor equipment, then add the
@@ -451,6 +451,26 @@ MekStation has no unallocated ProtoMech location yet. Its armor edit retains
 all equipment, allows EDP and displays slot overflow instead of unassigning.
 Follow-up: **unallocated ProtoMech mounts and MML's EDP transition**, routed by
 Coordinator 3 with Equipment/Assign Criticals work.
+
+## Glider and Partial Wing jump
+
+Pinned MegaMek `48fcb2f64` `ProtoMek.getJumpMP` (ProtoMek.java:452-492) returns
+the stored jump MP, reduced by torso critical hits, plus the Partial Wing bonus
+(+3 high or very high atmosphere, +2 standard or thin, +1 trace, 0 otherwise;
+ProtoMek.java:470-487, only when weather is not ignored). A glider has no jump
+bonus: it is a WiGE unit that flies on its walk MP, and MML `62bf193`
+`MovementView.java:265-268` fixes its jump spinner at 0. The table above lives
+only in `partialWing.ts` (`partialWingJumpBonus(atmosphere, { wingWorking,
+ignoreWeather })`, pure, shared with gameplay). `effectiveJumpMP` is the editor's
+display value: it calls that owner with the standard atmosphere (+2, as
+`MovementView.java:456-465` shows); BV reads the stored jump MP because
+`BV_CALCULATION` ignores weather.
+
+The `glidingWings` store field is a legacy inert field. Earlier MekStation code
+read it as "+2 jump on a glider"; the pin has no such rule. It stays in state,
+saved units and BV cache keys so nothing persisted changes, and nothing reads it
+for a rule. The editor has no control for it. Not implemented: the in-game Partial
+Wing atmosphere bonus (gameplay movement), recorded for its owner.
 
 ## Resolved zero-misc diagnostic projection
 
@@ -485,8 +505,77 @@ without an ammo type. The independent generated `nativeOneShotAmmoMounts.ts`
 retains those insertion counts without changing the legacy weapon-flag tables.
 
 Weapon snapshots retain their local `equipmentIndex`, identity, location and
-already-admitted BV. Only a shifted snapshot appends `nativeEquipmentIndex`;
-the trace formats that value and falls back to the local index for existing
+already-admitted BV. The parity trace entry point `withProtoMechNativeIndices`
+in `nativeTraceEnrichment.ts` copies the breakdown and appends
+`nativeEquipmentIndex` only to shifted snapshots; ordinary calculator
+breakdowns retain local indices without that field. The trace formats the
+enriched value and falls back to the local index for existing
 breakdowns. Sprite 3 therefore renames only raw weapon indices 8/9/10 to
 10/13/14. Source equipment, explicit ammo, quantities, equipment projections,
 classification, caps, arithmetic, validity and persistence are unchanged.
+
+## Movement construction rules
+
+Pinned MegaMek `48fcb2f64` `TestProtoMek.correctMovement` (TestProtoMek.java:445-464)
+and `maxJumpMP` (:84-92) are implemented once in `movementRules.ts`, which source
+validation (`getProtoSourceConstructionErrors`) and the editor rules
+(`validateProtoMP`) both call. A glider must run at least 4 and a quad at least 3
+(exclusive checks, as in Java); jump MP and the UMU count must each be at most the
+original walk MP, or `ceil(1.5 x walk)` when an Extended Jump Jet System is mounted.
+That jet is `S_IMPROVED` (MiscType.java:2054-2060); the equipment catalog has no entry
+or flag for it, so `isProtoExtendedJumpJet` is the one predicate that names it.
+
+The pinned verifier has no weight-class walk or jump cap, no glider weight limit, no
+ban on an ultraheavy jumping and no Myomer Booster weight class. The editor rules that
+claimed them are removed (they had no production caller). Evidence:
+`__tests__/fixtures/movement-java-verdicts.json` (the 86 canonical units plus 20
+synthetic variants, with the probe and pins beside it). Production already agreed with
+Java on all 86 canonical units; the rule adds only findings Java also reports.
+Not changed: the weight-class tables still used as editor input clamps
+(`getProtoMPCaps`, `isMyomerBoosterLegal`, the Structure tab's ultraheavy jump lock),
+which are the editor-limits item. Component mass is handled separately by the
+Native total mass owner below.
+
+## Native total mass
+
+weight.ts owns one core and mounted-mass composition. It extends the former
+LRM override with one native-family multiplier table: SRM 0.25t/tube, Streak SRM
+0.5, LRM 0.2, Streak LRM 0.4 (MegaMek 48fcb2f64 SRMWeapon:70-75,
+StreakSRMWeapon:67-72, LRMWeapon:77-82, StreakLRMWeapon:83-88).
+getNativeAmmoBVGroup supplies family/rack identity; there is no second alias
+table. Per-shot ammo remains getProtoAmmo plus per-bin ceiling to kilograms
+(TestProtoMek:493-501), and intrinsic one-shot ammunition adds no second bin.
+
+MiscType:496-497,867-882 sets each standard ProtoMech JJ/UMU to 0.05t below
+6t, 0.1t below 10t, 0.15t otherwise. Extended JJ doubles its own mass.
+Mass follows actual mounts, independently of movement MP, so an extended jet
+does not change UMU mass. Extended-JJ and UMU identity tests call the public
+movementRules predicates added by #3261; weight defines neither identity twice.
+Myomer remains nearest-kg 2.5% (MiscType:528-530).
+Clamps use 0.25/0.5/1t below6/below10/otherwise (825-831); a mounted ProtoMech
+partial wing is nearest-kg tonnage/5 (504-505), distinct from a BattleMech wing.
+EI is zero (6233-6247), Quad melee 1t (9440-9450), and fixed electronics use
+the catalog. Glider chassis adds no automatic motive/wing mass
+(TestProtoMek:150-151).
+
+Heat-neutral sinks weigh 0.25t each (TestProtoMek:155-166). The weight owner
+imports the exported support-payload catalog heat adapter, which calls
+getVehicleHeatNeutralWeaponHeat, and sumVehicleHeatLoad for links and misc
+heat (TestEntity:945-984). Chemical lasers need no sinks; plasma retains its
+native requirement. No heat predicate or category adapter is copied here.
+
+A context-free variable-weight catalog zero remains unknown, including registry
+Java variable weight markers. Supported formulas receive unit context.
+Malformed/unknown mounts, unavailable engine/armor and unsupported heat remain
+explicit; they cannot certify a complete zero. computeProtoWeightBreakdown
+exposes the same core, mounts and heat used by both existing public wrappers.
+The known subtotal remains a lower bound for incomplete builds. Final mass is
+nearest kg (TestProtoMek:170-172); armor, ammo and formula rounding retain their
+own rules. Ignored absent-Main-Gun mounts remain ignored.
+
+The weight oracle records 106 original loaded entities (86 pinned canonical,
+20 C3 synthetics) and 90 directly observed mount boundaries. Tests compare every
+term and kg, not merely weight verdicts. All 86 canonical validity results agree
+with Java; only Svartalfa3 is overweight, at14.1t against14t. Movement legality,
+editor admission and unit persistence are separate contracts. Construction mass
+does not alter the BV projection or its inputs.
