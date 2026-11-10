@@ -290,6 +290,7 @@ export function useMapInteraction(
         easeRafRef.current = null;
       }
     };
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- Mutable RAF-id holder, not a DOM ref; cleanup must cancel the latest frame.
   }, []);
 
   const transformedViewBox = useMemo(() => {
