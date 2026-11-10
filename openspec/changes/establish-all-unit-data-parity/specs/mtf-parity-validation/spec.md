@@ -57,7 +57,7 @@ References SHALL come from a demonstrably compatible pinned MegaMek/MegaMekLab r
 
 ### Requirement: All-family semantic round trips
 
-Every supported source family SHALL preserve its domain facts through import, serialization, persistence and reload. Existing MTF text round-trip checks SHALL remain in place alongside semantic comparisons.
+SHALL preserve the domain facts of every supported source family through import, serialization, persistence and reload. Existing MTF text round-trip checks SHALL remain in place alongside semantic comparisons.
 
 #### Scenario: Reload a custom non-mech design
 
@@ -93,3 +93,11 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **AND** variable physical sizing, spreadable Talons anchoring and split eligibility SHALL use their existing domain owners and pinned native traversal
 - **AND** API persistence and custom serialization SHALL preserve recovered mounts, rear and Omni flags on reload
 - **AND** unknown or incomplete critical groups SHALL remain available in the source grid with incomplete recognized mounts reported diagnostically
+
+#### Scenario: Python source conversion preserves native critical weapons
+
+- **GIVEN** a native critical weapon mount absent from the MTF summary
+- **WHEN** the Python converter serializes that source
+- **THEN** it SHALL consume the shared mount profiles, physical formula facts and catalog identities to append each unrepresented mount once
+- **AND** summary multiplicity, split and spread anchors, rear and Omni flags SHALL survive loading and persistence
+- **AND** strict conversion receipts SHALL fingerprint every consumed mapping, catalog and shared formula input
