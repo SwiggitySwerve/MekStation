@@ -40,6 +40,12 @@ function deriveFixturePort(runId) {
   // this "reserved" port auto-assigned out from under a fixture bind.
   return 20000 + (bytes.readUInt32BE(0) % 10000);
 }
+// The privacy-pack rows that need the combat-journal fixture arm (GM rewind
+// preview). Must equal the nightly's `--grep-invert`/`--grep` pattern; a test
+// pins the two against `.github/workflows/nightly-validation.yml`.
+const JOURNAL_ARMED_ROWS = '@E2E-19|@E2E-25';
+const PRIVACY_PACK_SPEC = 'e2e/gm-two-player-privacy.pack.spec.ts';
+
 function buildRunPlan({ group, runId, repoRoot }) {
   const owner = REGISTERED_GROUPS[group];
   if (!owner) throw typedError('UNKNOWN_GROUP', `group=${String(group)}`);
@@ -75,8 +81,9 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // mode; campaign genesis is live through the production flag.
     'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
-    // `privacy-pack` is the tactical-channel subset (E2E-19..28),
-    // including GM preview and correction under the journal fixture arm.
+    // `privacy-pack` is the tactical-channel subset (E2E-19..28); only
+    // E2E-19/25 (GM rewind preview) run under the journal fixture arm, in a
+    // follow-up, as the nightly does.
     // `proposal-pack` owns campaign-channel arbitration separately.
     'privacy-pack': ['e2e/gm-two-player-privacy.pack.spec.ts'],
     'proposal-pack': ['e2e/gm-two-player-proposals.pack.spec.ts'],
@@ -200,16 +207,29 @@ function buildRunPlan({ group, runId, repoRoot }) {
       : group === 'authority'
         ? AUTHORITY_GROUP_MEMBERS
         : [group];
+  // The privacy pack is split the way Nightly Validation runs it
+  // (`nightly-validation.yml`, e2e-full): the main run excludes the two
+  // journal-armed rows, and a follow-up runs only those rows with the
+  // combat-journal fixture arm. The other rows run unarmed, which is what a
+  // real match does: production journal authority is `off`
+  // (`matchJournalAuthority.ts`) and the E2E arm fails closed without both
+  // test keys (`combatJournalAuthorityEnabled.ts`). Arming the whole group
+  // tested six rows in a mode no user runs.
+  const includesPrivacyPack = expandedMembers.includes('privacy-pack');
   const armsJournalAuthorityFixture =
-    expandedMembers.includes('authority-recovery') ||
-    expandedMembers.includes('privacy-pack');
-  return {
+    expandedMembers.includes('authority-recovery');
+  const runPlaywright = path.join(
+    repoRoot,
+    'scripts/playwright/run-playwright.mjs',
+  );
+  const plan = {
     command: process.execPath,
     args: [
-      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      runPlaywright,
       'test',
       '--project=chromium',
       ...specs,
+      ...(includesPrivacyPack ? ['--grep-invert', JOURNAL_ARMED_ROWS] : []),
       '--workers=1',
     ],
     environment: {
@@ -240,6 +260,25 @@ function buildRunPlan({ group, runId, repoRoot }) {
         : {}),
     },
   };
+  if (includesPrivacyPack) {
+    plan.followUp = {
+      command: process.execPath,
+      args: [
+        runPlaywright,
+        'test',
+        '--project=chromium',
+        PRIVACY_PACK_SPEC,
+        '--grep',
+        JOURNAL_ARMED_ROWS,
+        '--workers=1',
+      ],
+      environment: {
+        ...plan.environment,
+        MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
+      },
+    };
+  }
+  return plan;
 }
 function assertRunOwnedPath(targetPath, runId, runtimeRoot) {
   const ownedRoot = path.join(path.resolve(runtimeRoot), validateRunId(runId));
@@ -264,7 +303,15 @@ async function runCli(args, repoRoot) {
     if (!(await isPortAvailable(port))) {
       throw typedError('PORT_IN_USE', `port=${port}`);
     }
-    return await runPlan(plan, repoRoot);
+    const status = await runPlan(plan, repoRoot);
+    if (!plan.followUp) return status;
+    // Like the nightly's journal-armed step, the follow-up runs even when the
+    // main run failed; the first non-zero status is the result.
+    if (!(await isPortAvailable(port))) {
+      throw typedError('PORT_IN_USE', `port=${port} (follow-up)`);
+    }
+    const followUpStatus = await runPlan(plan.followUp, repoRoot);
+    return status !== 0 ? status : followUpStatus;
   } catch (error) {
     const code = String(error?.code ?? 'RUNNER_FAILURE');
     process.stderr.write(
@@ -372,6 +419,8 @@ function isListening(port) {
 }
 
 module.exports = {
+  JOURNAL_ARMED_ROWS,
+  PRIVACY_PACK_SPEC,
   REGISTERED_GROUPS,
   assertRunOwnedPath,
   buildRunPlan,
