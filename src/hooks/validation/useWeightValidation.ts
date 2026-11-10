@@ -48,7 +48,7 @@ export function useWeightValidation(): WeightValidationData {
   );
   const calculations = useUnitCalculations(
     state.tonnage || 20,
-    { ...selections, lamType: undefined },
+    selections,
     selections.armorTonnage,
     selections.configuration,
   );

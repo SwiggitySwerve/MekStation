@@ -82,7 +82,6 @@ export function captureMechValidity(
     const calculations = renderMechCalculations({
       ...state,
       tonnage: state.tonnage || 20,
-      lamType: undefined,
     });
     const ready = getEquipmentRegistry().isReady();
     const input = projectMechValidation(state, {

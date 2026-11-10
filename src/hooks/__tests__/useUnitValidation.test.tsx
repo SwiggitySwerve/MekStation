@@ -118,7 +118,8 @@ test.each([
         cost: 123,
         battleValue: 456,
       });
-    if (name.endsWith('LAM')) expect(input.allocatedWeight).toBe(23.5);
+    if (name.endsWith('LAM'))
+      expect(input.allocatedWeight).toBe(name === 'bimodal LAM' ? 26.5 : 23.5);
     if (name === 'future armor')
       expect(result.current).toMatchObject({
         status: 'error',
