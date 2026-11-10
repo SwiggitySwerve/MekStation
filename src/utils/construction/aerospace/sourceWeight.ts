@@ -159,6 +159,9 @@ export function aerospaceEngineTons(
         ) * 5;
   if (!validateEngineRating(rating).isValid) return undefined;
   const tons = calculateEngineWeight(rating, engineType);
+  // Engine.java:428-430: the generic owner still lacks the fission minimum.
+  // Decline that unsupported result until the shared rule is corrected.
+  if (engineType === EngineType.FISSION && tons < 5) return undefined;
   return input.family === 'conventionalFighter' &&
     (isFusionEngine(engineType) || engineType === EngineType.FISSION)
     ? half(tons * 1.5)

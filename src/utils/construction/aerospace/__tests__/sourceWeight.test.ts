@@ -167,6 +167,24 @@ describe('aerospaceEngineTons (MegaMek 48fcb2f64)', () => {
     expect(aerospaceEngineTons({ family: 'fixedWingSupport' })).toBeUndefined();
   });
 
+  // Engine.java:428-430 has a minimum the shared owner does not yet implement.
+  it.each(['aerospaceFighter', 'conventionalFighter'] as const)(
+    '%s declines fission masses below the native five-ton minimum',
+    (family) => {
+      expect(
+        aerospaceEngineTons({
+          ...fighter(10, EngineType.FISSION),
+          family,
+          safeThrust: 3,
+        }),
+      ).toBeUndefined();
+    },
+  );
+
+  it('retains supported fission masses above the native minimum', () => {
+    expect(aerospaceEngineTons(fighter(215, EngineType.FISSION))).toBe(17);
+  });
+
   it('does not treat absent or unknown engines as standard fusion', () => {
     expect(
       aerospaceEngineTons({ ...fighter(100), engineType: null }),
