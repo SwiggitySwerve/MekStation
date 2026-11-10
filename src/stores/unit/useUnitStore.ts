@@ -24,6 +24,7 @@ import {
   CreateUnitOptions,
   createDefaultUnitState,
 } from '../unitState';
+import { mergeUnitDraftState } from './mergeUnitDraftState';
 import { wrapUnitEditActions } from './unitEditHistory';
 import { createArmorSlice } from './useUnitArmorStore';
 import { createCrewSlice } from './useUnitCrewStore';
@@ -39,6 +40,7 @@ function pickPersistedUnitState(state: UnitStore) {
     ...pickPersistedUnitIdentityWithClanName(state),
     sourceDefinition: state.sourceDefinition,
     bvContext: state.bvContext,
+    unrecoveredCriticalSlots: state.unrecoveredCriticalSlots,
     librarySave: state.librarySave,
     role: state.role,
     fluff: state.fluff,
@@ -82,6 +84,8 @@ function unitStorePersistOptions(initialState: UnitState) {
     storage: createJSONStorage(() => clientSafeStorage),
     skipHydration: true,
     partialize: withUnitLibraryReceipt(pickPersistedUnitState),
+    merge: (persisted: unknown, current: UnitStore): UnitStore =>
+      mergeUnitDraftState(current, (persisted ?? {}) as Partial<UnitState>),
   };
 }
 

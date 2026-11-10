@@ -19,6 +19,7 @@ import {
   UnitSaveSummary,
 } from '@/components/customizer/shared/UnitSaveSummary';
 import { getStatusNotes } from '@/components/customizer/shared/unitStatStatus';
+import { EditorLoadDiagnostics } from '@/components/customizer/shared/UnrecoveredCriticalSlotsNotice';
 import { ValidationSummary } from '@/components/customizer/shared/ValidationSummary';
 import { getEquipmentNeedingPlacement } from '@/components/customizer/tabs/CriticalSlotsTab.placement';
 import {
@@ -359,6 +360,7 @@ export function UnitEditorWithRouting({
           className={`${workbenchStyles.workspaceBody} flex min-h-0 flex-1 overflow-hidden pb-14 md:pb-0`}
         >
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <EditorLoadDiagnostics />
             {tabIssueNotice && (
               <TabIssueNotice
                 notice={tabIssueNotice}
