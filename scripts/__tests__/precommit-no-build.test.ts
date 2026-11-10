@@ -117,16 +117,19 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
   function gitCommandsRun(hook: string): string[] {
     const cwd = fixture();
     const trace = path.join(cwd, 'git-trace.log');
-    const result = spawnSync('sh', ['-e', hook], {
-      cwd,
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        GIT_TRACE: trace,
-        PATH: path.join(cwd, 'bin') + path.delimiter + process.env.PATH,
-      },
-      timeout: 60_000,
-    });
+    // The environment is inherited untouched. The inner shell prepends the
+    // fixture's bin (as $PWD/bin, valid in POSIX and MSYS shells) and turns
+    // on git's command trace for the hook only.
+    const result = spawnSync(
+      'sh',
+      [
+        '-c',
+        'PATH="$PWD/bin:$PATH" GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
+        'sh',
+        posixPath(hook),
+      ],
+      { cwd, encoding: 'utf8', timeout: 60_000 },
+    );
     expect(result.status).toBe(0);
     expect(git(['stash', 'list'], cwd)).toBe('');
     return fs
