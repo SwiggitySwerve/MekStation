@@ -17,13 +17,13 @@ import {
 } from '../movementCaps';
 
 describe('protoChassisCanJump', () => {
-  // Ultraheavy cannot jump; a glider is WiGE and MML pins its jump spinner at 0
-  // (MovementView.java:265-268).
+  // A glider is WiGE and MML pins its jump spinner at 0 (MovementView.java:265-268).
+  // Nothing locks an ultraheavy: the pinned Sprite Ultraheavy units jump 3 to 5.
   it.each([
     [ProtoChassis.BIPED, true],
     [ProtoChassis.QUAD, true],
     [ProtoChassis.GLIDER, false],
-    [ProtoChassis.ULTRAHEAVY, false],
+    [ProtoChassis.ULTRAHEAVY, true],
   ])('%s: %s', (chassis, canJump) => {
     expect(protoChassisCanJump(chassis)).toBe(canJump);
   });

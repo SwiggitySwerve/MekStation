@@ -5,8 +5,12 @@ lowering API. `config/ci/budgets.json` declares non-size limits. Package size
 and memory growth are advisory observations, never acceptance or approval gates.
 The byte fields `standaloneStaticBytes`, `webZipBytes` and `installerBytes` are
 absent from `limits`, descriptors, raise detection and automatic ratchets.
-Only base-config comparisons accept the complete legacy byte-limit shape;
-new configurations reject obsolete byte fields. Decimal MB means
+Legacy byte-limit fields are accepted on either base or head, in any subset,
+with their values ignored (PARITY-PLAN §24). They never enter canonical budget
+values, comparisons, approval raises or ratchets. `budget-check.mjs` uses
+`loadBudgetTree` in the required PR Checks static-checks job to reject every
+`limits.*Bytes` field in the merge tree. Old untouched branches inherit main's
+config, while a reintroduced byte cap fails. Decimal MB means
 1,000,000 bytes. Unknown/missing inputs fail; counts never substitute for missing
 observations. `budget-metrics.mjs` owns collection and observed projections;
 G2's `ci-metrics.mjs` owns timing statistics, run normalization and reporting.

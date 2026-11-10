@@ -23,13 +23,12 @@ import {
   computeRunMP,
   computeProtoStructure,
   computeProtoWalkMPForRating,
-  getProtoMPCaps,
-  getProtoWeightClass,
+  clampProtoMovement,
   PROTO_MAX_STANDARD_TONNAGE,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
   PROTO_MIN_ULTRAHEAVY_TONNAGE,
-  protoChassisCanJump,
+  protoJumpLimit,
 } from '@/utils/construction/protomech';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
@@ -173,12 +172,15 @@ export function createProtoMechStore(
           setChassisType: (chassisType) =>
             set((state) => {
               const tonnage = clampProtoTonnage(state.tonnage, chassisType);
-              const weightClass = getProtoWeightClass(tonnage);
-              const caps = getProtoMPCaps(weightClass);
-              // Clamp walk MP to new caps
-              const walkMP = Math.min(state.walkMP, caps.walkMax);
-              // No jump on Ultraheavy; glider pinned at 0 (MovementView.java:265)
-              const jump = protoChassisCanJump(chassisType) ? state.jumpMP : 0;
+              // MML refreshes the movement spinners on a motive change: walk to the
+              // motive's minimum, jump to its limit (a glider's is 0).
+              const { walk: walkMP, jump } = clampProtoMovement({
+                walk: state.walkMP,
+                jump: state.jumpMP,
+                tonnage,
+                chassis: chassisType,
+                equipment: state.equipment,
+              });
               const glidingWings =
                 chassisType === ProtoChassis.GLIDER
                   ? state.glidingWings
@@ -247,12 +249,18 @@ export function createProtoMechStore(
 
           setWalkMP: (mp) =>
             set((state) => {
-              const weightClass = getProtoWeightClass(state.tonnage);
-              const caps = getProtoMPCaps(weightClass);
-              // Clamp to [1, cap]
-              const walkMP = Math.max(1, Math.min(mp, caps.walkMax));
+              // MML limits walk to the motive minimum and the engine, and snaps jump
+              // down when walk drops below it (MovementView.java:370-371).
+              const { walk: walkMP, jump: jumpMP } = clampProtoMovement({
+                walk: mp,
+                jump: state.jumpMP,
+                tonnage: state.tonnage,
+                chassis: state.chassisType,
+                equipment: state.equipment,
+              });
               return {
                 walkMP,
+                jumpMP,
                 cruiseMP: walkMP,
                 flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
@@ -266,11 +274,21 @@ export function createProtoMechStore(
             }),
 
           setJumpMP: (jumpMP) =>
-            set({
-              jumpMP: Math.max(0, jumpMP),
+            set((state) => ({
+              jumpMP: Math.max(
+                0,
+                Math.min(
+                  jumpMP,
+                  protoJumpLimit(
+                    state.walkMP,
+                    state.chassisType,
+                    state.equipment,
+                  ),
+                ),
+              ),
               isModified: true,
               lastModifiedAt: Date.now(),
-            }),
+            })),
 
           // =================================================================
           // Structure & Armor Actions

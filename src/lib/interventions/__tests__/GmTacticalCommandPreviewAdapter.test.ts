@@ -15,6 +15,7 @@ import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
 
 import {
   buildGmTacticalCommandIntent,
+  getGmTacticalCorrectionBlockReason,
   createGmTacticalCommandPreview,
   GM_TACTICAL_PREVIEW_ACTION_ID,
   registerGmCombatInterventionImplementer,
@@ -113,6 +114,29 @@ function makeLedger(): InterventionLedger<IGmCombatInterventionState> {
 }
 
 describe('GmTacticalCommandPreviewAdapter', () => {
+  // @spec openspec/changes/disable-gm-non-event-corrections/specs/gm-tactical-command-surface/spec.md - Interim correction availability
+  it.each([
+    'gm.set-position-facing',
+    'gm.set-damage',
+    'gm.set-heat-ammo',
+    'gm.set-initiative',
+    'gm.set-lifecycle',
+    'gm.set-objective',
+  ])('owns the temporary live-session support reason for %s', (commandId) => {
+    expect(getGmTacticalCorrectionBlockReason(commandId)).toBe(
+      'Corrections are temporarily unavailable: the next game action would discard them until correction events are implemented.',
+    );
+  });
+
+  it.each([
+    'gm.advance-phase',
+    'gm.correct-attack',
+    'gm.reload-unit',
+    'gm.grant-resource',
+  ])('does not replace existing support semantics for %s', (commandId) => {
+    expect(getGmTacticalCorrectionBlockReason(commandId)).toBeUndefined();
+  });
+
   it('builds structured preview intents for command descriptors', () => {
     expect(buildGmTacticalCommandIntent('gm.reload-unit', makeCtx())).toEqual({
       commandId: 'gm.reload-unit',

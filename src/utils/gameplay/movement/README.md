@@ -83,6 +83,11 @@ never rolls. The PSR is stamped with the last step and queued ahead of the
 terrain PSRs; the runner's `queueMovementDamagePSRs` and
 `gameSessionMovementTerrain` both call the planner.
 
+There is no controlled-sideslip or flanking-and-turning producer. MegaMek 48fcb2f64 calls
+`Entity.checkSideSlip` only for VTOL, hover and WiGE movement (`MovePathHandler.java`
+L3715-L3727), so a BattleMech never rolls them. The reason codes and factories stay
+for older replays; vehicle production belongs to the vehicle combat matrix.
+
 `stuckRecovery.ts` owns the movement-start recovery roll: which stuck units may
 roll, the `swamp_unstuck` PSR for the unit's hex, and the roll itself. Event
 emission and state changes stay with the caller. The runner rolls it at the
