@@ -19,8 +19,13 @@ dirty campaign.
   delayed application of new page assets is preferable to discarding work.
 - Add install/fallback unit tests and reload-policy coverage. Extract existing
   campaign flow helpers and correct the tab-close control's diagnosis.
-- Add a warm, same-context sweep with 100 measured app/control pairs and two
-  discarded real warm-up pairs. Cycle edit-to-unload delays of 40, 100, 250,
+- Add date and pending-battle-outcome warm, same-context sweeps, each with 100
+  measured app/control pairs and two discarded real warm-up pairs. The battle
+  case calls the exposed production `enqueueOutcome` action with a complete,
+  campaign-linked outcome, verifies dirty tracking, and checks its `matchId`
+  in the server's `pendingBattleOutcomes` after discard. It does not simulate
+  tactical combat; it exercises the production battle-to-campaign enqueue and
+  discard-save boundary. Cycle mutation-to-unload delays of 40, 100, 250,
   500, 1000, 1500, 1900 and 2000 ms. The separate bare-worker positive control
   shares the context and run. Retain the clean-reload zero-PUT check and the
   existing crash-window tab-close control.
@@ -45,7 +50,7 @@ previously fatal events becoming benign are required as witnesses.
 
 C4 runs this harness against the production build at `16cee68ee` (main plus
 guard only), then against the new PR 1 head built. Both use 100 measured
-app/control pairs and report four classes per delay and in totals:
+app/control pairs PER mutation and report four classes per delay and in totals:
 
 - **delivered-observed:** the runner's API poll saw flush base + 1 with exactly
   its entire envelope body and savedAt, even if a later PUT replaced it.
@@ -58,7 +63,7 @@ app/control pairs and report four classes per delay and in totals:
   context writes/revisions, unreadable payloads or other attribution failures.
 
 Acceptance requires **undelivered = 0 and unattributable = 0 over at least 100
-measured trials**, and the bare control must still lose at least 50%. Missing
+measured trials per mutation**, and each bare control must still lose at least 50%. Missing
 trials, failed/empty polls, invalid controller/timing probes, invisible warm
 SW-owned GETs, and samples below 100 are INCONCLUSIVE and fail. The same
 classification is reported on the control-build and branch-build sides. The
@@ -67,8 +72,11 @@ bare positive control retains its independent completed-body arrival counter.
 `MEKSTATION_UNLOAD_TRIALS` defaults to 100; smaller diagnostic samples cannot
 pass. `MEKSTATION_UNLOAD_PROOF_SIDE` labels the build side. At 100 there are 13
 trials for each of 40/100/250/500 ms and 12 for each of 1000/1500/1900/2000 ms.
-Runtime is measured by C4; the previous 12-17 minute estimate is unverified
-for the added polling. The timeout is 60 seconds plus 15 seconds per trial.
+Runtime is measured by C4; the previous 12-17 minute estimate per mutation
+(24-34 minutes per build side, 48-68 minutes for both builds' sweeps, excluding
+build time) is unverified for the added polling. Each sweep's timeout is 60
+seconds plus 15 seconds per configured trial. Reports label the mutation and
+retain the expected battle match ID in each battle trial's timing record.
 
 The runner's own APIRequestContext starts uncached GET polling before the
 edit/reload timer is armed, at 75 ms between request starts when response time
@@ -164,6 +172,18 @@ the API; there is no desktop registration opt-out. The same window-to-embedded-
 server loss can leave backups/restores with the stale server row. Packaged
 runtime behavior was not exercised in this worker.
 
+Local coverage evidence is incomplete: installed caniuse-lite has no granular
+`addRoutes` data and no MDN compatibility package was found, so the minimum
+Chromium version and the separate `or`/`requestMethod` introduction versions
+remain unverified. `desktop/node_modules` is absent; the lockfile pins Electron
+43.2.0, which does not prove an installed version or its bundled Chromium.
+Firefox/WebKit support for `addRoutes` cannot be verified from these local
+sources, and neither Playwright browser is installed. Without `addRoutes`, the
+non-GET fetch listener still returns without `respondWith`; that existing path
+does not establish absence of the Chromium unload-loss mechanism in other
+engines. No cross-engine immunity is claimed. PR 2's next-load retry/adoption is
+the recommended fallback; no fallback product change is included here.
+
 The issue stays open until PR 2 supplies pending-write adoption. Offline writes,
 crashes, failed saves without automatic retry, and rare multi-tab conflicts
 remain outside PR 1. Firefox and WebKit loss rates are untested here.
@@ -179,11 +199,11 @@ unmeasured values were added to the generated duration index.
 
 - Delivery classifier, poll helper and external 100-trial history check:
   **30 tests passed**, Jest `--maxWorkers=2 --silent`.
-- Root and scripts typecheck through `mem-guard.mjs`: passed; initial peak
-  private bytes 1.18 GB. The required immediately-before-commit run and hook
-  peak are recorded in the external `PR1-IMPLEMENTATION.md`.
+- Root and scripts typecheck through `mem-guard.mjs`: the required
+  immediately-before-commit result and peak, plus the real hook result,
+  are recorded in the external `PR1-IMPLEMENTATION.md`.
 - Formatting, explicit oxlint on changed TypeScript files, and Playwright
-  collection (2 tests / 1 file) are recorded in that report. No browser ran.
+  collection (3 tests / 1 file) are recorded in that report. No browser ran.
 - Prior guard property (2 suites / 25 tests) and product checks are prior
   evidence, not rerun by this worker. Product code and receipt guard unchanged.
 
