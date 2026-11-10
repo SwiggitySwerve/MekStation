@@ -33,10 +33,12 @@ import {
   type IDayProcessorResult,
 } from '../dayPipeline';
 import {
-  DEFAULT_DAILY_REFIT_HOURS,
-  applyRefitHours,
   getConflictingRefitUnitIds,
   isActiveRefitOrder,
+} from '../refit/refitOrderStatus';
+import {
+  DEFAULT_DAILY_REFIT_HOURS,
+  applyRefitHours,
 } from '../refit/refitPipeline';
 
 /**

@@ -1,7 +1,8 @@
 # Refit order lifecycle
 
 The refit package owns order status, admission and conflict rules. Consumers
-use its predicates instead of repeating status classifications.
+use the pure `refitOrderStatus.ts` predicates instead of repeating status
+classifications. `refitPipeline.ts` preserves its public predicate exports.
 
 - Active means `in-progress`, preserving K6 deployment readiness exactly.
 - Open means `proposed` or active. A new order requires no other open order

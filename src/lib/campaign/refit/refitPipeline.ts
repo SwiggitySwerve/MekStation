@@ -24,6 +24,15 @@ import type { MechBuildConfig } from '@/utils/construction/constructionRules/typ
 import { validateConstruction } from '@/utils/construction/constructionRules/validation';
 
 import { estimateRefit } from './refitEstimator';
+import { isActiveRefitOrder, isOpenRefitOrder } from './refitOrderStatus';
+
+export {
+  isActiveRefitOrder,
+  isOpenRefitOrder,
+  getOpenRefitOrders,
+  getConflictingRefitUnitIds,
+  countOpenRefitOrdersByUnit,
+} from './refitOrderStatus';
 
 // =============================================================================
 // Daily Tech-Hour Budget
@@ -40,36 +49,6 @@ import { estimateRefit } from './refitEstimator';
  * explicitly to `applyRefitHours`.
  */
 export const DEFAULT_DAILY_REFIT_HOURS = 8;
-
-/** K6 active work blocks deployment; proposed orders only reserve admission. */
-export function isActiveRefitOrder(
-  order: Pick<IRefitOrder, 'status'>,
-): boolean {
-  return order.status === 'in-progress';
-}
-
-export function isOpenRefitOrder(order: Pick<IRefitOrder, 'status'>): boolean {
-  return order.status === 'proposed' || isActiveRefitOrder(order);
-}
-
-export function getOpenRefitOrders(
-  orders: readonly IRefitOrder[],
-): readonly IRefitOrder[] {
-  return orders.filter(isOpenRefitOrder);
-}
-
-/** Old saves retain all orders; callers must not choose a winning target. */
-export function getConflictingRefitUnitIds(
-  orders: readonly IRefitOrder[],
-): ReadonlySet<string> {
-  const seen = new Set<string>();
-  const conflicts = new Set<string>();
-  for (const order of getOpenRefitOrders(orders)) {
-    if (seen.has(order.unitId)) conflicts.add(order.unitId);
-    seen.add(order.unitId);
-  }
-  return conflicts;
-}
 
 /** No payment or reservation is recorded on an order, so nothing is credited. */
 export function cancelRefitOrder(order: IRefitOrder): IRefitOrder {

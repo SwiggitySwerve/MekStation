@@ -19,11 +19,11 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRefitOrder } from '@/types/campaign/Refit';
 import type { MechBuildConfig } from '@/utils/construction/constructionRules/types';
 
+import { getOpenRefitOrders } from '@/lib/campaign/refit/refitOrderStatus';
 import {
   advanceRefitOrder,
   cancelRefitOrder,
   createRefitOrder,
-  getOpenRefitOrders,
 } from '@/lib/campaign/refit/refitPipeline';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
