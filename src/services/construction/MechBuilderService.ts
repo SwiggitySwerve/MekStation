@@ -1,5 +1,6 @@
 import type { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 /**
@@ -50,6 +51,7 @@ export interface IEditableMech {
 
   // Structure
   readonly structureType: InternalStructureType | string;
+  readonly frankenStructure?: ISerializedStructure;
   readonly gyroType: GyroType | string;
   readonly cockpitType: CockpitType | string;
 
