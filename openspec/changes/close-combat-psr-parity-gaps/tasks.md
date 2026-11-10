@@ -75,3 +75,26 @@
       move are D-8's `replayScope` characterization pins (seed 4 now ends in
       turn 6; `firedWeapons` 15 to 17, `phaseDamage` 10 to 7), re-pinned and
       listed in the PR; no digest, golden or other fixture moves.
+
+## 5. C-1c: MASC and Supercharger failure checks
+
+Design: `c1c-design/DESIGN.md` (rev 2). PRs land in order; the behavioural
+requirement in the delta spec is added by the PR that wires the check
+(PR 2b), because PR 1 has no callers and changes no behaviour.
+
+- [x] PR 1: pure planner (`planMovementEnhancementChecks`) and resolver
+      (`resolveMovementEnhancementCheck(s)`), no callers. Which checks a move
+      needs (MP above the unboosted figure, lower target number with the
+      Supercharger on ties, both above the single-boost figure, a booster
+      already used this turn never checked again), the 2d6 check
+      (`roll < target` fails, Industrial Supercharger -1), Edge reroll once,
+      Supercharger engine-hit table, MASC one slot per leg with no hits roll
+      (a recorded no-outcome deviation), MASC before Supercharger with a
+      failure ending the sequence. The runner now imports the shared failure
+      table instead of keeping a second copy.
+- [ ] PR 2a: interactive/MP/P2P apply boosted MP, never without a failure roll.
+- [ ] PR 2b: `MovementEnhancementChecked`, state, reducer, wiring, named result.
+- [ ] PR 3: runner switch; trigger rows out of scope and the new check rows in,
+      together.
+- [ ] PR 4: the three sprint PSRs (waits: no sprint option, closed reason-code
+      enum).
