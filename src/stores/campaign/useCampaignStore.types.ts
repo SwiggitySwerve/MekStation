@@ -2,6 +2,7 @@ import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
 import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCacheKey';
+import type { IPendingWrite } from '@/lib/campaign/persistence/campaignPendingWrite';
 import type { IStarmapTravelPreview } from '@/lib/starmap/starmapTravelPreview';
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
@@ -78,6 +79,14 @@ export interface CampaignState {
   cachedCampaignKey: ICampaignCacheKey | null;
   /** Records the identity of the copy this client now holds. */
   setCachedCampaignKey: (key: ICampaignCacheKey | null) => void;
+  /**
+   * The unsaved-edit claim the persisted copy carries (`campaignPendingWrite`).
+   * Written by the persistence store in the same task as `markDirty` and
+   * persisted WITH the copy, so a reload can tell a copy that is newer than the
+   * server's from one that merely looks current. Null when nothing is owed.
+   */
+  pendingWrite: IPendingWrite | null;
+  setPendingWrite: (marker: IPendingWrite | null) => void;
   pendingBattleOutcomes: ICombatOutcome[];
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;

@@ -12,32 +12,38 @@ The existing public status labels remain `idle`, `saving`, `saved`, `error`,
 and `conflict`. They describe the last persistence operation, not a mutually
 exclusive lock: a load can finish during a save, and an edit can arrive in any
 state. `dirty`, `editSeq`, and recovery evidence are owned by the same reducer.
-A dirty edit may coexist with saved/error/conflict status under the existing
-contract; normalization is held for K4 PR3.
+**Invariant: `saveState === 'saved'` implies `dirty === false`.** An edit while
+`saved` (or the flush-acknowledgement debt) moves the status to `idle`, as a
+dirty save settle already does. `saving`, `error` and `conflict` may coexist
+with a dirty edit and keep their status, so a failed or refused save stays
+visibly not saved. A reducer property test runs every event over several
+starting states to hold the line.
 
-| Event                                              | Status and payload rule                                                           |
-| -------------------------------------------------- | --------------------------------------------------------------------------------- |
-| operation-started                                  | saving; clear error, and clear refusal only for a save                            |
-| save-acknowledged                                  | idle if editSeq changed, otherwise saved; adopt returned row evidence             |
-| older-save-acknowledged                            | settle idle/saved from current dirty; retain all newer row evidence               |
-| save-conflicted                                    | conflict; keep the server record and typed conflict together                      |
-| save-refused                                       | error with typed refusal; keep pending edits                                      |
-| operation-failed                                   | error; reads/adoption clear refusal, ordinary saves retain the current value      |
-| record-missing                                     | idle; offer legacy adoption or report campaign not found                          |
-| record-loaded                                      | saved and clean; install row evidence and clear legacy-unadopted                  |
-| conflict-record-taken                              | saved and clean; install row evidence without changing legacy eligibility         |
-| coop-rollback-record-installed                     | replace row evidence only; retain the current status and campaign id              |
-| coop-rollback-settled                              | clear dirty, retaining conflict/error evidence                                    |
-| legacy-adopted                                     | clear legacy eligibility after the acknowledged record                            |
-| flush-skipped                                      | keep status and pending edits; retain the measured diagnostic                     |
-| flush-acknowledgement-owed                         | set dirty after proven flush row adoption; no ordinary save ACK yet               |
-| edited                                             | advance editSeq and mark dirty; infer campaign id only when absent; retain status |
-| error-cleared                                      | idle with cleared error/refusal, only from error                                  |
-| launch-conflict-reported / launch-conflict-cleared | update launch evidence independently of row conflict evidence                     |
-| created-campaign-initialized                       | bind the created id after the caller's separate reset; retain all other fields    |
-| rollback-dirty-restored                            | clear dirty only after the action's original conditional guard permits dispatch   |
-| creation-cleanup-restored                          | restore the captured persistence snapshot after campaign installation             |
-| reset                                              | restore the initial transient snapshot                                            |
+| Event                                              | Status and payload rule                                                             |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| operation-started                                  | saving; clear error, and clear refusal only for a save                              |
+| save-acknowledged                                  | idle if editSeq changed, otherwise saved; adopt returned row evidence               |
+| older-save-acknowledged                            | settle idle/saved from current dirty; retain all newer row evidence                 |
+| save-conflicted                                    | conflict; keep the server record and typed conflict together                        |
+| save-refused                                       | error with typed refusal; keep pending edits                                        |
+| operation-failed                                   | error; reads/adoption clear refusal, ordinary saves retain the current value        |
+| record-missing                                     | idle; offer legacy adoption or report campaign not found                            |
+| record-loaded                                      | saved and clean; install row evidence and clear legacy-unadopted                    |
+| conflict-record-taken                              | saved and clean; install row evidence without changing legacy eligibility           |
+| coop-rollback-record-installed                     | replace row evidence only; retain the current status and campaign id                |
+| coop-rollback-settled                              | clear dirty, retaining conflict/error evidence                                      |
+| legacy-adopted                                     | clear legacy eligibility after the acknowledged record                              |
+| flush-skipped                                      | keep status and pending edits; retain the measured diagnostic                       |
+| flush-acknowledgement-owed                         | set dirty after proven flush row adoption; `saved` becomes `idle`                   |
+| pending-write-adopted                              | idle and dirty; install the row read at load, continue editSeq, mark recovered      |
+| pending-write-conflicted                           | conflict and dirty; keep the server record; adopt NO token (a stray save fails)     |
+| edited                                             | advance editSeq and mark dirty; `saved` becomes `idle`; infer campaign id if absent |
+| error-cleared                                      | idle with cleared error/refusal, only from error                                    |
+| launch-conflict-reported / launch-conflict-cleared | update launch evidence independently of row conflict evidence                       |
+| created-campaign-initialized                       | bind the created id after the caller's separate reset; retain all other fields      |
+| rollback-dirty-restored                            | clear dirty only after the action's original conditional guard permits dispatch     |
+| creation-cleanup-restored                          | restore the captured persistence snapshot after campaign installation               |
+| reset                                              | restore the initial transient snapshot                                              |
 
 The exhaustive event switch is the transition guard. Operations can start or
 finish from any public status because existing callers permit overlapping
@@ -65,6 +71,12 @@ version, journal revision, or replay fence.
 - **Take-server without conflictServerRecord:** returns false without fetching
   or dispatching, including launch-only conflicts. Real launch resync is held
   for PR3; the UI's existing return check remains authoritative.
+- **Pending-write marker:** `useCampaignStore.pendingWrite` is not reducer
+  state. A subscriber on the persistence store derives it in the same task as
+  the dispatch that changes `dirty`, `baseVersion`, `editSeq`, `campaignId` or
+  `legacyUnadopted`; every other dispatch leaves a reloaded document's marker
+  alone until `runLoad` decides it (`campaignPendingWrite.ts`). The two
+  pending-write events are the only ways that decision reaches this reducer.
 - **Unproven flush reconciliation:** a failed read, wrong version, or different
   envelope digest adopts no row evidence. The surviving document still rearms
   its ordinary save through the existing orchestration.
