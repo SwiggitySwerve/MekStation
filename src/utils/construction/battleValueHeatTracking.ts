@@ -211,7 +211,7 @@ export function calculateOffensiveBVWithHeatTracking(
     config.ammo ?? [],
   );
   const ammoBV = ammoPools.total;
-  const weightBonus = calculateWeightBonus(config);
+  const weightBonus = calculateWeightBonus(config) + 1;
 
   const speedFactor =
     movement.speedFactor ??
