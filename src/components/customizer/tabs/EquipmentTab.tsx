@@ -51,6 +51,7 @@ export function EquipmentTab({
       className={`flex h-full min-h-0 flex-col max-sm:h-[calc(100%+var(--workspace-bottom-gap))] ${className}`}
     >
       <EquipmentBrowser
+        unitType={useUnitStore((state) => state.unitType)}
         key={unitId}
         readOnly={readOnly}
         addHint="Added unassigned. Choose a location in Critical Slots."
