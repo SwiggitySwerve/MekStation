@@ -29,6 +29,7 @@ import {
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
   PROTO_MIN_ULTRAHEAVY_TONNAGE,
+  protoChassisCanJump,
 } from '@/utils/construction/protomech';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
@@ -176,10 +177,8 @@ export function createProtoMechStore(
               const caps = getProtoMPCaps(weightClass);
               // Clamp walk MP to new caps
               const walkMP = Math.min(state.walkMP, caps.walkMax);
-              // Ultraheavy cannot jump; Glider gains +2 via effectiveJumpMP at display time
-              const jumpMP =
-                chassisType === ProtoChassis.ULTRAHEAVY ? 0 : state.jumpMP;
-              // Gliding wings only valid on Glider chassis
+              // No jump on Ultraheavy; glider pinned at 0 (MovementView.java:265)
+              const jump = protoChassisCanJump(chassisType) ? state.jumpMP : 0;
               const glidingWings =
                 chassisType === ProtoChassis.GLIDER
                   ? state.glidingWings
@@ -200,7 +199,7 @@ export function createProtoMechStore(
                   walkMP,
                   chassisType,
                 ),
-                jumpMP,
+                jumpMP: jump,
                 glidingWings,
                 isModified: true,
                 lastModifiedAt: Date.now(),

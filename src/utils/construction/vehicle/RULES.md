@@ -1128,7 +1128,8 @@ now exact. The editor path does not read the tag yet (it needs the field plumbed
 through the vehicle store, registry, persistence and snapshot contract), so for an
 Omni support chassis the editor still shows the weapon-based fire-control mass.
 The basis also excludes non-support infantry weapons (`F_INFANTRY` without
-`F_INF_SUPPORT`); not modelled, no closed source depends on it.
+`F_INF_SUPPORT`) and anti-missile systems; see "Support miscellaneous masses and
+the fire-control basis" below.
 
 `internal_type -1` (MegaMek `T_STRUCTURE_UNKNOWN`) never reaches a support
 structure mass, which ignores the structure type
@@ -1204,3 +1205,51 @@ Corpus effect: the combat Tank and VTOL breakdowns are unchanged (the only
 combat source with a decorated array is Myrmidon P, `ISLMGA(ST)`, already 0.5 t),
 and the Dreadnought Mk II Land Train's two `ISMGA(ST)` arrays now weigh 0.5 t, so
 its weapons (32 t), miscellaneous equipment (10 t) and total (200 t) equal Java.
+
+## Support miscellaneous masses and the fire-control basis (pinned)
+
+Pinned with 74 synthetic support sources (a 50 t and a 1 t tank and a 60 t VTOL
+built from corpus excerpts) through the original MegaMek 48fcb2f64 verifier:
+
+- **Ladder:** `RoundWeight.nearestKg(size / 200)` whatever the vehicle
+  (`MiscType.java:841-843`); fractional sizes confirm nearest, not next, kg.
+- **Fluid Suction System (Standard):** a fixed 1 t, assigned after the variable
+  placeholder (`MiscType.java:7578-7583`). The catalog tags it "Variable weight"
+  without a rule, which left the owner reporting it unresolved while charging 1 t.
+- **Dumper:** `RoundWeight.STANDARD(0.05 x linked cargo size)` (`Mounted.java:729-738`):
+  next kg under the small-support standard, next half ton otherwise. The link is
+  the first unlinked variable `Cargo` in the dumper's own location, whatever the
+  order (`MekFileParser.java:854-885`). A second dumper, a cargo in another
+  location, no cargo, or only Liquid Storage gives zero.
+- **Fire-control basis** (`MiscType.java:714-722`): weapon tonnage except
+  anti-missile systems and non-support infantry weapons.
+
+`variableEquipmentMass.ts` owns all of it: the ladder and fluid rules in
+`resolveVehicleVariableMass`, `applyVehicleDumperWeights` (one pass, like the
+sponson and pintle pass in `turret.ts`) and `isFireControlBasisWeapon`. The
+support payload and the editor (`mountedWeight.ts`) call the same functions. The
+support split reads the Java class from the registry: `isInfantrySupportWeapon`
+(`ammunitionCompatibility.ts`, beside `isFireWeaponCategory`) matches
+`InfantrySupport*` and `InfantryGrenade*`, which equals `F_INF_SUPPORT` on all 104
+infantry-only registry weapons (static read of the pinned weapon classes). The BV
+catalog carries the class as `subType`; the editor's items only in their `special`
+source reference, so the predicate reads either. The AMS ids are the one
+`AMS_WEAPON_IDS` in `equipmentConstants.ts`, shared with the equipment browser.
+
+Not modelled: a dumper's `DWP`/squad adjustments and a cargo whose own mass is
+unresolved (no corpus source), and the editor's Omni fire-control mass.
+
+## Manipulator and Nova CEWS spellings (pinned)
+
+The BLK files name the manipulator `Manipulator (Non-Mech/Non-Battle Armor)`,
+MegaMek's internal name (`EquipmentTypeLookup.java:342`); the catalog entry, 0.01 t
+as `MiscType.java:7694-7703`, is named `...Non-BattleArmor)`. The unit loader
+resolved the BLK spelling, the BV lookup the support payload uses did not, so the
+eight sources that mount it reported the manipulator unresolved. `Nova CEWS` is a
+registered lookup name of NovaCEWS (`MiscType.java:6192-6193`) that resolved
+nowhere; every corpus file mounts `NovaCEWS`, so this affects only hand-written
+and exported display names. Both are lines in `NATIVE_IDENTITY_CORRECTIONS`
+(`equipmentBV/sourceLookupAliases.ts`), the native-name owner where `novacews`
+already lives, so the loader, registry, BV and printing paths agree. No catalog
+entry changed. A Nova CEWS tank weighs 3.5 t more than the same tank without it:
+1.5 t of equipment and 2 t of heat sinks (pinned sweep rows).

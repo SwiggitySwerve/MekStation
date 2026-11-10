@@ -1,9 +1,15 @@
 import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 import { TechBase, parseTechBase } from '@/types/enums/TechBase';
+import { isInfantrySupportWeapon } from '@/utils/equipment/ammunitionCompatibility';
+import { AMS_WEAPON_IDS } from '@/utils/equipment/equipmentConstants';
 
+import { hasNativeWeaponBVFlag } from '../equipmentBV/nativeWeaponFlags';
 import { calculateJumpJetWeight, JumpJetType } from '../movementCalculations';
-import { roundSupportComponentWeight } from './supportRounding';
+import {
+  roundSupportComponentWeight,
+  roundWeightToNearestKg,
+} from './supportRounding';
 
 /** Records of MegaMek 48fcb2f6's F_ARMORED_MOTIVE_SYSTEM items: ISArmoredMotiveSystem
  * (MiscType.java:3909-3929) and CLArmoredMotiveSystem (:3933-3953). The variable-mass
@@ -20,6 +26,8 @@ export interface VehicleVariableMassItem {
   readonly special?: readonly string[];
   readonly variableEquipmentId?: string;
   readonly techBase?: string;
+  /** Registry weapons: the Java class name. */
+  readonly subType?: string;
 }
 
 export interface VehicleVariableMassContext {
@@ -109,6 +117,11 @@ export function resolveVehicleVariableMass(
     );
   if (['cargo', 'liquid-storage', 'communications-equipment'].includes(item.id))
     return round(size);
+  // MiscType.java:841-843 (48fcb2f64): 0.1 t per 20 m, to the nearest kg on any
+  // vehicle.
+  if (item.id === 'ladder') return roundWeightToNearestKg(size / 200);
+  // MiscType.java:7578-7583: assigned a fixed 1 t after the variable placeholder.
+  if (item.id === 'fluid-suction-system-standard') return 1;
   // MiscType.java:707-711 (48fcb2f64): an Omni support vehicle's fixed chassis
   // fire-control weight, when positive, is the mass whatever the weapons are.
   if (['basic-fire-control', 'advanced-fire-control'].includes(item.id))
@@ -120,6 +133,74 @@ export function resolveVehicleVariableMass(
   if (!item.special?.includes('Variable weight') && !item.variableEquipmentId)
     return item.weight;
   return evaluateVehicleMassFormula(item, context);
+}
+
+/**
+ * MiscType.java:714-722 (48fcb2f64): the fire-control basis counts weapon
+ * tonnage except anti-missile systems and non-support infantry weapons
+ * (`F_INFANTRY` without `F_INF_SUPPORT`).
+ */
+export function isFireControlBasisWeapon(item: {
+  readonly id: string;
+  readonly subType?: string;
+  readonly special?: readonly string[];
+}): boolean {
+  if (AMS_WEAPON_IDS.includes(item.id)) return false;
+  return (
+    hasNativeWeaponBVFlag(item.id, 'infantry') !== true ||
+    isInfantrySupportWeapon(item)
+  );
+}
+
+const DUMPER_IDS: ReadonlySet<string> = new Set([
+  'dumper-front',
+  'dumper-rear',
+  'dumper-right',
+  'dumper-left',
+]);
+export const isVehicleDumperId = (id: string): boolean => DUMPER_IDS.has(id);
+
+/** One mount as the dumper link sees it. */
+export interface IVehicleDumperMount<Location> {
+  id: string;
+  location: Location;
+  /** The native token, whose `:SIZE:` is the cargo size. */
+  sourceId: string;
+  /** Overwritten for dumpers; null while unavailable. */
+  weight: number | null;
+}
+
+/**
+ * Weigh every dumper in place, for the editor and the support handler alike.
+ * MekFileParser.java:854-885 links each dumper to the first unlinked variable
+ * Cargo in its own location; Mounted.java:729-738 weighs it 5% of that cargo's
+ * size under RoundWeight.STANDARD, and zero when nothing is linked.
+ */
+export function applyVehicleDumperWeights<Location>(
+  mounts: IVehicleDumperMount<Location>[],
+  context: { tonnage: number; isSupportVehicle: boolean },
+): void {
+  const cargos = mounts.filter((m) => m.id === 'cargo');
+  const linked = new Set<IVehicleDumperMount<Location>>();
+  for (const dumper of mounts.filter((m) => isVehicleDumperId(m.id))) {
+    const cargo = cargos.find(
+      (c) => !linked.has(c) && c.location === dumper.location,
+    );
+    if (!cargo) {
+      dumper.weight = 0;
+      continue;
+    }
+    linked.add(cargo);
+    const size = getMountSourceSize(cargo.sourceId);
+    dumper.weight =
+      Number.isFinite(size) && size >= 0
+        ? roundSupportComponentWeight(
+            size * 0.05,
+            context.tonnage,
+            context.isSupportVehicle && context.tonnage < 5,
+          )
+        : null;
+  }
 }
 
 function evaluateVehicleMassFormula(

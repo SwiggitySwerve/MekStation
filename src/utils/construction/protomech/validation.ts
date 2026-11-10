@@ -4,8 +4,8 @@
  * Five named rules preserve the legacy editor build-snapshot contract.
  * Native source checks use getProtoSourceConstructionErrors. Editor rules:
  *   VAL-PROTO-TONNAGE   — tonnage in legal range
- *   VAL-PROTO-CHASSIS   — chassis × tonnage × MP compatibility
- *   VAL-PROTO-MP        — MP ≤ weight-class cap; Ultraheavy cannot jump
+ *   VAL-PROTO-CHASSIS   — an Ultraheavy chassis is 10 t or more
+ *   VAL-PROTO-MP        — TestProtoMek.correctMovement (movementRules.ts)
  *   VAL-PROTO-MAIN-GUN  — Main Gun and arm slot/weight limits; ProtoMech weapons
  *   VAL-PROTO-TECH-BASE — tech base is Clan (warning, not error)
  *
@@ -20,20 +20,17 @@ import type { IProtoMech } from '@/types/unit/PersonnelInterfaces';
 
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
-import { PROTO_ARMOR_CODES } from './armorType';
 import {
   getProtoPlacementErrors,
   getProtoArmorSlotErrors,
   type ProtoEquipmentPlacement,
 } from './mainGun';
 import {
-  computeRunMP,
-  getProtoMPCaps,
-  isMyomerBoosterLegal,
-} from './movementCaps';
+  getProtoMovementErrors,
+  summarizeProtoJumpEquipment,
+} from './movementRules';
 import { computeProtoWeight, getProtoMinimumWeight } from './weight';
 import {
-  getProtoWeightClass,
   isChassisLegalForTonnage,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
@@ -115,8 +112,8 @@ export function validateProtoTonnage(
   };
 }
 
-/** Native source rules from TestProtoMek.java:246-294,445-467.
- * These differ from the legacy editor's chassis/MP policies below.
+/** Native source rules from TestProtoMek.java:246-294,445-464. Movement comes from
+ * `movementRules.ts`, the one owner shared with the editor rules below.
  */
 export function getProtoSourceConstructionErrors(unit: IProtoMech): string[] {
   const errors = validateProtoTonnage({
@@ -131,20 +128,21 @@ export function getProtoSourceConstructionErrors(unit: IProtoMech): string[] {
     ),
   );
   const minimumWeight =
-    unit.armorType === PROTO_ARMOR_CODES.ELECTRIC_DISCHARGE
-      ? (computeProtoWeight(unit).total ?? getProtoMinimumWeight(unit))
-      : getProtoMinimumWeight(unit);
+    computeProtoWeight(unit).total ?? getProtoMinimumWeight(unit);
   if (minimumWeight !== undefined && minimumWeight > unit.weightPerUnit) {
     errors.push(
       `Weight: ${(minimumWeight * 1000).toFixed(1)} kg is greater than ${(unit.weightPerUnit * 1000).toFixed(1)} kg`,
     );
   }
-  if (
-    unit.chassisType === ProtoChassis.GLIDER &&
-    computeRunMP(unit.cruiseMP) < 4
-  ) {
-    errors.push('Glider ProtoMeks have a minimum flanking MP of 4.');
-  }
+  errors.push(
+    ...getProtoMovementErrors({
+      walk: unit.cruiseMP,
+      jump: unit.jumpMP,
+      quad: unit.chassisType === ProtoChassis.QUAD,
+      glider: unit.chassisType === ProtoChassis.GLIDER,
+      ...summarizeProtoJumpEquipment(unit.equipment),
+    }),
+  );
   return errors;
 }
 
@@ -156,11 +154,13 @@ export function getProtoSourceConstructionErrors(unit: IProtoMech): string[] {
 export const RULE_PROTO_CHASSIS = 'VAL-PROTO-CHASSIS';
 
 /**
- * Validate chassis × tonnage × movement compatibility:
- * - Ultraheavy chassis requires tonnage ≥ 10
- * - Glider chassis requires Light class (2–4 tons)
- * - Myomer Booster is only legal on Light or Medium ProtoMechs
- * - Ultraheavy chassis forces jumpMP to 0 (flagged as error if jumpMP > 0)
+ * Validate that the chassis label matches the mass: an Ultraheavy chassis needs
+ * tonnage ≥ 10 (TestProtoMek.MAX_STD_TONNAGE is 9, so ultraheavy is a mass).
+ *
+ * Not rules of the pinned verifier, and so not checked: a glider weight limit, a ban
+ * on an ultraheavy jumping, or a weight class for the Myomer Booster. The pinned
+ * Svartalfa gliders are 14 t, the Sprite Ultraheavy units jump, and Gorgon 6 (8 t)
+ * mounts a booster; Java accepts all of them (fixtures/movement-java-verdicts.json).
  */
 export function validateProtoChassis(
   snapshot: Pick<
@@ -168,41 +168,17 @@ export function validateProtoChassis(
     'tonnage' | 'chassisType' | 'jumpMP' | 'myomerBooster'
   >,
 ): ValidationRuleResult {
-  const { tonnage, chassisType, jumpMP, myomerBooster } = snapshot;
+  const { tonnage, chassisType } = snapshot;
   const findings: ValidationFinding[] = [];
-  const weightClass = getProtoWeightClass(tonnage);
 
-  if (!isChassisLegalForTonnage(chassisType, tonnage)) {
-    if (chassisType === ProtoChassis.ULTRAHEAVY) {
-      findings.push({
-        ruleId: RULE_PROTO_CHASSIS,
-        severity: 'error',
-        message: `Ultraheavy chassis requires tonnage ≥ 10 (got ${tonnage} t).`,
-      });
-    } else if (chassisType === ProtoChassis.GLIDER) {
-      findings.push({
-        ruleId: RULE_PROTO_CHASSIS,
-        severity: 'error',
-        message: `Glider chassis is only legal for Light class (2–4 t); got ${tonnage} t.`,
-      });
-    }
-  }
-
-  // Ultraheavy cannot jump
-  if (chassisType === ProtoChassis.ULTRAHEAVY && jumpMP > 0) {
+  if (
+    chassisType === ProtoChassis.ULTRAHEAVY &&
+    !isChassisLegalForTonnage(chassisType, tonnage)
+  ) {
     findings.push({
       ruleId: RULE_PROTO_CHASSIS,
       severity: 'error',
-      message: `Ultraheavy chassis cannot have jump MP (got ${jumpMP}).`,
-    });
-  }
-
-  // Myomer Booster legality
-  if (myomerBooster && !isMyomerBoosterLegal(weightClass)) {
-    findings.push({
-      ruleId: RULE_PROTO_CHASSIS,
-      severity: 'error',
-      message: `Myomer Booster is only legal on Light or Medium ProtoMechs (current class: ${weightClass}).`,
+      message: `Ultraheavy chassis requires tonnage ≥ 10 (got ${tonnage} t).`,
     });
   }
 
@@ -221,28 +197,21 @@ export function validateProtoChassis(
 export const RULE_PROTO_MP = 'VAL-PROTO-MP';
 
 /**
- * Validate that walk MP and jump MP do not exceed the weight-class caps.
- * Note: this checks the BASE walk MP (before booster), because the booster
- * bonus is additive and validated separately under VAL-PROTO-CHASSIS.
+ * Validate movement with the pinned verifier's rules (`movementRules.ts`, from
+ * TestProtoMek.correctMovement): glider flank and quad run minimums, and the jump
+ * and UMU cap of maxJumpMP. This checks the BASE walk MP (before booster). There is
+ * no weight-class cap on walk or jump in the pinned verifier. Without
+ * `equipmentPlacements` no improved jump jet or UMU is assumed.
  */
 export function validateProtoMP(
   snapshot: Pick<
     ProtoMechBuildSnapshot,
     'tonnage' | 'walkMP' | 'jumpMP' | 'chassisType'
-  >,
+  > &
+    Partial<Pick<ProtoMechBuildSnapshot, 'equipmentPlacements'>>,
 ): ValidationRuleResult {
-  const { tonnage, walkMP, jumpMP, chassisType } = snapshot;
+  const { walkMP, jumpMP, chassisType, equipmentPlacements = [] } = snapshot;
   const findings: ValidationFinding[] = [];
-  const weightClass = getProtoWeightClass(tonnage);
-  const caps = getProtoMPCaps(weightClass);
-
-  if (walkMP > caps.walkMax) {
-    findings.push({
-      ruleId: RULE_PROTO_MP,
-      severity: 'error',
-      message: `Walk MP ${walkMP} exceeds ${weightClass} class cap of ${caps.walkMax}.`,
-    });
-  }
 
   if (walkMP < 1) {
     findings.push({
@@ -252,20 +221,14 @@ export function validateProtoMP(
     });
   }
 
-  if (jumpMP > caps.jumpMax) {
-    if (chassisType === ProtoChassis.ULTRAHEAVY) {
-      findings.push({
-        ruleId: RULE_PROTO_MP,
-        severity: 'error',
-        message: `Ultraheavy cannot jump (jump MP must be 0, got ${jumpMP}).`,
-      });
-    } else {
-      findings.push({
-        ruleId: RULE_PROTO_MP,
-        severity: 'error',
-        message: `Jump MP ${jumpMP} exceeds ${weightClass} class cap of ${caps.jumpMax}.`,
-      });
-    }
+  for (const message of getProtoMovementErrors({
+    walk: walkMP,
+    jump: jumpMP,
+    quad: chassisType === ProtoChassis.QUAD,
+    glider: chassisType === ProtoChassis.GLIDER,
+    ...summarizeProtoJumpEquipment(equipmentPlacements),
+  })) {
+    findings.push({ ruleId: RULE_PROTO_MP, severity: 'error', message });
   }
 
   return { ruleId: RULE_PROTO_MP, passed: findings.length === 0, findings };

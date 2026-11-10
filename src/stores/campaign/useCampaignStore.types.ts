@@ -119,7 +119,6 @@ export interface CampaignActions {
     hostMatchId: string,
     snapshot: IGuestMirrorSnapshot,
   ) => string;
-  loadCampaign: (id: string) => boolean;
   switchCampaign: (campaign: ICampaign) => void;
   saveCampaign: () => MaybePromise<CampaignCommitResult>;
   advanceDay: () => MaybePromise<DayReport | null>;

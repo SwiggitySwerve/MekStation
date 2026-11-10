@@ -11,10 +11,12 @@ import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 
+import type { IStructureWeightContext } from '../structureCalculations';
+
 /**
  * Mech configuration for construction validation
  */
-export interface MechBuildConfig {
+export interface MechBuildConfig extends IStructureWeightContext {
   tonnage: number;
   engineRating: number;
   engineType: EngineType;
