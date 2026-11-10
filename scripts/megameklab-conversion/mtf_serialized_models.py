@@ -64,6 +64,7 @@ class SerializedEquipment:
     location: str
     slots: Optional[List[int]] = None
     isRearMounted: Optional[bool] = None
+    isOmniPodMounted: Optional[bool] = None
     linkedAmmo: Optional[str] = None
 
 
