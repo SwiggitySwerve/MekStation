@@ -20,7 +20,7 @@ test.each([
     const result = calculateVehicleBV(
       baseInput({
         weapons: [{ id, location: 'front' }],
-        ammo: [{ id: bin, bvOverride: 100 }],
+        ammo: [{ id: bin, location: 'front', bvOverride: 100 }],
       }),
     );
     const terms = vehicleBVTerms(result);
