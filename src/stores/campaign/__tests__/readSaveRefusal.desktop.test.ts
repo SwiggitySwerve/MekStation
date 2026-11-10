@@ -1,18 +1,22 @@
 /**
  * S1b wording: the 426 sentence ends "Reload this page to update, then try
  * again." in a browser tab. In the desktop shell a reload serves the same
- * embedded build and updates nothing, so the client shows "Update MekStation,
- * then open this campaign again." instead. The server cannot tell the two
+ * embedded build and updates nothing, so the client shows "Choose Help > Check
+ * for Updates... to update MekStation, then open this campaign again." instead. The server cannot tell the two
  * apart, so it writes the browser form and the client picks by the existing
  * `isElectron()` detection.
  *
  * @spec openspec/changes/add-contract-lifecycle-s1b/specs/mission-contracts/spec.md
  */
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 import {
   LIFECYCLE_UNREADABLE_CODE,
   LIFECYCLE_UNSUPPORTED_CODE,
   LIFECYCLE_UPDATE_GUIDANCE_BROWSER,
   LIFECYCLE_UPDATE_GUIDANCE_DESKTOP,
+  LIFECYCLE_UPDATE_MENU_LABEL,
   lifecycleRefusalBody,
   type LifecycleRefusal,
 } from '@/lib/campaign/persistence/lifecycleReaderGate';
@@ -72,7 +76,7 @@ describe('the 426 sentence by shell', () => {
       ),
     );
     expect(message).toContain(
-      'Update MekStation, then open this campaign again.',
+      'Choose Help > Check for Updates... to update MekStation, then open this campaign again.',
     );
     expect(message).not.toMatch(/reload/i);
     expect(message).toMatch(/Nothing was changed\.$/);
@@ -89,7 +93,19 @@ describe('the 426 sentence by shell', () => {
       'Reload this page to update, then try again.',
     );
     expect(LIFECYCLE_UPDATE_GUIDANCE_DESKTOP).toBe(
-      'Update MekStation, then open this campaign again.',
+      'Choose Help > Check for Updates... to update MekStation, then open this campaign again.',
     );
+  });
+
+  it('names the label the Help menu really has for help:check-updates', () => {
+    const menu = readFileSync(
+      join(process.cwd(), 'desktop/electron/MenuManager.ts'),
+      'utf8',
+    );
+    const item = menu.match(
+      /label:\s*'([^']+)',\s*click:\s*\(\)\s*=>\s*this\.sendCommand\('help:check-updates'\)/,
+    );
+    expect(item?.[1]).toBe(LIFECYCLE_UPDATE_MENU_LABEL);
+    expect(LIFECYCLE_UPDATE_GUIDANCE_DESKTOP).toContain(`Help > ${item?.[1]}`);
   });
 });

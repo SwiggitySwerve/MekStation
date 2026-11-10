@@ -71,13 +71,15 @@ describe('CampaignSaveStatusCard reader-gate refusal', () => {
     it('shows the update sentence with no Reload and no Save now', () => {
       const desktopSentence = SENTENCE.replace(
         'Reload this page to update, then try again.',
-        'Update MekStation, then open this campaign again.',
+        'Choose Help > Check for Updates... to update MekStation, then open this campaign again.',
       );
       refuseWith('CAMPAIGN_LIFECYCLE_RULES_UNSUPPORTED', desktopSentence);
       render(<CampaignSaveStatusCard />);
       expect(
         screen.getByTestId('campaign-lifecycle-refused'),
-      ).toHaveTextContent('Update MekStation, then open this campaign again.');
+      ).toHaveTextContent(
+        'Choose Help > Check for Updates... to update MekStation, then open this campaign again.',
+      );
       expect(screen.queryByRole('button', { name: 'Reload' })).toBeNull();
       expect(screen.queryByTestId('campaign-lifecycle-reload-btn')).toBeNull();
       expect(screen.queryByTestId('campaign-save-now-btn')).toBeNull();

@@ -118,8 +118,14 @@ export type LifecycleRefusal = Extract<
  */
 export const LIFECYCLE_UPDATE_GUIDANCE_BROWSER =
   'Reload this page to update, then try again.';
-export const LIFECYCLE_UPDATE_GUIDANCE_DESKTOP =
-  'Update MekStation, then open this campaign again.';
+/**
+ * The label of the Help menu item that sends `help:check-updates`. Its owner is
+ * `desktop/electron/MenuManager.ts` (`createHelpMenu`); the desktop package
+ * cannot be imported here, so `readSaveRefusal.desktop.test.ts` reads that file
+ * and fails if the two drift.
+ */
+export const LIFECYCLE_UPDATE_MENU_LABEL = 'Check for Updates...';
+export const LIFECYCLE_UPDATE_GUIDANCE_DESKTOP = `Choose Help > ${LIFECYCLE_UPDATE_MENU_LABEL} to update MekStation, then open this campaign again.`;
 
 /** The sentence a client shows for a refusal; only the 426 differs by shell. */
 export function lifecycleRefusalMessageFor(

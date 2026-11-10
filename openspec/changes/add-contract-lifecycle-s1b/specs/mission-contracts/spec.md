@@ -135,4 +135,36 @@ detection, and the desktop shell SHALL NOT offer a Reload action for the refusal
 
 - **GIVEN** the campaign page runs in the desktop shell and the server answers 426
 - **WHEN** the refusal is shown
-- **THEN** the sentence ends "Update MekStation, then open this campaign again." and no Reload button is offered
+- **THEN** the sentence ends "Choose Help > Check for Updates... to update MekStation, then open this campaign again." and no Reload button is offered
+
+The sentence SHALL name the update route by the label the Help menu item that
+sends `help:check-updates` really has, and a test SHALL fail if that label and
+the sentence drift.
+
+#### Scenario: Menu label drift
+
+- **GIVEN** the Help menu item that sends `help:check-updates` is relabelled
+- **WHEN** the refusal tests run
+- **THEN** `readSaveRefusal.desktop.test.ts` fails until the sentence names the new label
+
+### Requirement: Gate on the first stage that writes version 2
+
+The system SHALL NOT merge the first stage that writes contract rules version 2
+(S7, which raises the writer constant from 1 to 2) until both exist: orphan-slot
+recovery for `.lifecycle` slots, and a slot scheme that cannot drop an orphan
+(today `campaign-store.lifecycle` is one slot per key, so a v2 write for a
+different campaign would replace one). Until then the writer stays 1 and neither
+loss can happen. This change implements neither; it records the gate. Its
+regression test is the witness pair under
+`contract-lifecycle/S1b-frozen-client/` (outside the repository):
+`local-c.frozen.witness.test.tsx` (an older client starts on a tombstone and
+writes; the v2 campaign becomes invisible in that profile) and
+`local-c-after.new.witness.test.tsx` (the current tree reads the old key as it
+stands and keeps the slot byte for byte). S7 SHALL re-run the pair and extend
+`local-c-after` to assert the orphan is listed and survives a later v2 write.
+
+#### Scenario: Orphan after an old-client write
+
+- **GIVEN** an older client wrote over a tombstoned slot holding a v2 campaign
+- **WHEN** S7 is proposed
+- **THEN** orphan-slot recovery lists that campaign and a later v2 write for another campaign leaves its slot intact

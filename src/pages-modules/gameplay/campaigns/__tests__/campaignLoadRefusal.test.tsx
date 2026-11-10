@@ -62,7 +62,7 @@ describe('campaign load errors under the reader gate', () => {
   describe('in the desktop shell, where a reload updates nothing', () => {
     const DESKTOP_SENTENCE = SENTENCE.replace(
       'Reload this page to update, then try again.',
-      'Update MekStation, then open this campaign again.',
+      'Choose Help > Check for Updates... to update MekStation, then open this campaign again.',
     );
 
     beforeEach(() => {
