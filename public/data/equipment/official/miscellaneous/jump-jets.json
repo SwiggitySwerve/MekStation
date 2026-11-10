@@ -2,7 +2,7 @@
   "$schema": "../../_schema/misc-equipment-schema.json",
   "version": "1.0.0",
   "generatedAt": "2026-02-07T08:02:30.863Z",
-  "count": 7,
+  "count": 8,
   "items": [
     {
       "id": "jump-jet-light",
@@ -85,17 +85,37 @@
     {
       "id": "partial-wing",
       "name": "Partial Wing",
-      "category": "Jump Jet",
+      "category": "Movement Enhancement",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "weight": 0,
-      "criticalSlots": 6,
-      "vehicleSlots": { "tank": 1, "supportVehicle": 8 },
+      "criticalSlots": 8,
+      "vehicleSlots": {
+        "tank": 1,
+        "supportVehicle": 8
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3085,
       "special": ["+1 Jump MP", "+2 heat dissipation at altitude"],
-      "variableEquipmentId": "partial-wing"
+      "variableEquipmentId": "partial-wing",
+      "allowedUnitTypes": ["BattleMech"],
+      "flags": ["SPREADABLE", "OMNI_FIXED_ONLY"]
+    },
+    {
+      "id": "clan-partial-wing",
+      "name": "Partial Wing (Clan)",
+      "category": "Movement Enhancement",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 6,
+      "costCBills": 0,
+      "battleValue": 0,
+      "introductionYear": 3067,
+      "variableEquipmentId": "partial-wing",
+      "allowedUnitTypes": ["BattleMech"],
+      "flags": ["SPREADABLE", "OMNI_FIXED_ONLY"]
     }
   ]
 }

@@ -1,3 +1,4 @@
+import { EquipmentCategory } from '../src/types/equipment/EquipmentCategory';
 import { applyOneShotBVHeat } from '../src/utils/construction/equipmentBV/weaponHeat';
 import {
   getEquipmentEntry,
@@ -371,7 +372,12 @@ export function resolveWeaponForUnit(
 }
 
 // === WEAPON CLASSIFICATION ===
-export function isWeaponEquip(id: string): boolean {
+export function isWeaponEquip(
+  id: string,
+  category?: EquipmentCategory,
+): boolean {
+  // Ammo bins can share a weapon's catalog id. Mounted category wins over spelling.
+  if (category === EquipmentCategory.AMMUNITION) return false;
   const lo = id.toLowerCase();
   if (lo.includes('ammo')) return false;
   if (getEquipmentEntry(id)?.id === 'isc3remotesensorlauncher-registry')

@@ -48,6 +48,7 @@ export function createCalculatedEquipment(
     item.variableEquipmentId,
     {
       tonnage: state.tonnage,
+      techBase: item.techBase,
       isQuad:
         state.configuration === MechConfiguration.QUAD ||
         state.configuration === MechConfiguration.QUADVEE,

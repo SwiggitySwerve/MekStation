@@ -1,3 +1,4 @@
+import type { EquipmentCategory } from '../src/types/equipment/EquipmentCategory';
 import type { ISerializedUnit } from '../src/types/unit/UnitSerialization';
 import type { AmmoBVPools } from '../src/utils/construction/battleValueOffensiveTypes';
 import type { CritScan } from './validate-bv-crit-scan-types';
@@ -8,6 +9,8 @@ interface ArmorAllocation {
 interface Equipment {
   id: string;
   location: string;
+  /** Mounted identity supplied by the editor; legacy source rows omit it. */
+  category?: EquipmentCategory;
 }
 export interface UnitData {
   id: string;
