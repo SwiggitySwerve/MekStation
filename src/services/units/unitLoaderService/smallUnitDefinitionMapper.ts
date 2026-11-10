@@ -40,11 +40,10 @@ import {
 import { mapBattleArmorContractArmor } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { parseBattleArmorManipulator } from '@/utils/construction/battlearmor/manipulators';
 import {
-  getProtoWeightClass,
-  ProtoWeightClass,
   computeProtoEngineRating,
   computeProtoStructure,
   computeRunMP,
+  readSavedProtoChassis,
 } from '@/utils/construction/protomech';
 import { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
 
@@ -119,6 +118,8 @@ export function mapProtoMechDefinitionToState(
     const state = { ...createDefaultProtoMechState(), ...editor };
     return {
       ...state,
+      // A record saved with the legacy Ultraheavy chassis reads as the biped it was.
+      chassisType: readSavedProtoChassis(editor.chassisType),
       equipment: renewSmallUnitMounts(editor.equipment, state.id),
     };
   }
@@ -137,13 +138,13 @@ export function mapProtoMechDefinitionToState(
       movement: z.object({ cruiseMP: z.number(), jumpMP: z.number() }),
     })
     .parse(definition);
+  // Ultraheavy is a mass above 9 t, not a chassis (PMChassisView.java:205-207): a
+  // heavy biped is a biped, as the quads and gliders above 9 t are theirs.
   const chassisType = source.isQuad
     ? ProtoChassis.QUAD
     : source.isGlider
       ? ProtoChassis.GLIDER
-      : getProtoWeightClass(source.tonnage) === ProtoWeightClass.ULTRAHEAVY
-        ? ProtoChassis.ULTRAHEAVY
-        : ProtoChassis.BIPED;
+      : ProtoChassis.BIPED;
   const fields = identity(definition);
   const state = createDefaultProtoMechState({
     ...fields,

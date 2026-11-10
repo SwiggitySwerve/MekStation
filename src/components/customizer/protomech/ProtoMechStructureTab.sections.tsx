@@ -80,7 +80,7 @@ export function ProtoMechChassisTypeSection({
               className="accent-accent"
             />
             <span className="text-text-theme-primary text-sm">
-              {CHASSIS_LABELS[chassisType]}
+              {CHASSIS_LABELS[chassisType] ?? chassisType}
             </span>
           </label>
         ))}
@@ -121,6 +121,11 @@ export function ProtoMechTonnageSection({
           </div>
         </div>
       </div>
+      {controls.tonnageError && (
+        <p role="alert" className="mt-3 text-xs text-red-400">
+          {controls.tonnageError}
+        </p>
+      )}
     </div>
   );
 }

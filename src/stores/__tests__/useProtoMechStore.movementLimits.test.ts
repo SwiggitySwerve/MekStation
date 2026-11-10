@@ -91,7 +91,9 @@ describe('the 86 pinned ProtoMechs re-applying their own movement', () => {
 describe('Sprite Ultraheavy (jump 5 at walk 3, five Extended Jump Jets)', () => {
   it('keeps its jump through open, edit, save and reopen', () => {
     const store = open('Sprite Ultraheavy ProtoMech 3.json');
-    expect(store.getState().chassisType).toBe(ProtoChassis.ULTRAHEAVY);
+    // Ultraheavy is a mass, not a chassis (PMChassisView.java:205-207): a biped of 15 t.
+    expect(store.getState().chassisType).toBe(ProtoChassis.BIPED);
+    expect(store.getState().tonnage).toBe(15);
     expect(store.getState().jumpMP).toBe(5);
 
     store.getState().setJumpMP(3);
@@ -107,7 +109,8 @@ describe('Sprite Ultraheavy (jump 5 at walk 3, five Extended Jump Jets)', () => 
       JSON.parse(JSON.stringify(saved)),
     );
     expect(reopened.jumpMP).toBe(3);
-    expect(reopened.chassisType).toBe(ProtoChassis.ULTRAHEAVY);
+    expect(reopened.chassisType).toBe(ProtoChassis.BIPED);
+    expect(reopened.tonnage).toBe(15);
   });
 
   it('is capped by its Extended Jump Jets, 1.5 times walk', () => {
@@ -210,7 +213,7 @@ describe('setChassisType', () => {
     );
     ultra.getState().setWalkMP(4);
     ultra.getState().setJumpMP(3);
-    ultra.getState().setChassisType(ProtoChassis.ULTRAHEAVY);
+    ultra.getState().setChassisType(ProtoChassis.BIPED);
     expect(ultra.getState().jumpMP).toBe(3);
   });
 });
@@ -236,13 +239,10 @@ describe('new-unit defaults', () => {
   it.each([
     [ProtoChassis.QUAD, 2],
     [ProtoChassis.GLIDER, 3],
-    [ProtoChassis.ULTRAHEAVY, 1],
+    [ProtoChassis.BIPED, 1],
   ])('starts a %s unit at its motive minimum, %s', (chassisType, walk) => {
     expect(
-      createDefaultProtoMechState({
-        tonnage: chassisType === ProtoChassis.ULTRAHEAVY ? 13 : 3,
-        chassisType,
-      }).walkMP,
+      createDefaultProtoMechState({ tonnage: 13, chassisType }).walkMP,
     ).toBe(walk);
   });
 });
