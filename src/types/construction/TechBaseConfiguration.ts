@@ -80,7 +80,9 @@ const SERIALIZED_TECH_BASE_MODE = {
 } as const satisfies Readonly<Record<TechBaseMode, string>>;
 
 /** Shared encoding for saved construction and live BV inputs. */
-export function serializeTechBaseMode(mode: TechBaseMode) {
+export function serializeTechBaseMode(
+  mode: TechBaseMode,
+): (typeof SERIALIZED_TECH_BASE_MODE)[TechBaseMode] {
   return SERIALIZED_TECH_BASE_MODE[mode];
 }
 
