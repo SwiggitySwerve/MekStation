@@ -43,52 +43,85 @@ previously fatal events becoming benign are required as witnesses.
 
 ## Measurement plan and meaning of zero lost
 
-C4 runs the same harness first against the production build at `16cee68ee`
-(main plus guard only), then against the PR 1 branch build. Each side reports
-app trials, losses/unproven flushes, accepted flushes, values present/lost,
-counts per delay, and control trials, losses and loss rate. These counts are
-measurements; no minimum main loss rate becomes a new test threshold. The
-assertion remains **control loses >=50% and app loses zero**. An incomplete
-sample, invalid probe/timing or control below 50% is INCONCLUSIVE and fails.
+C4 runs this harness against the production build at `16cee68ee` (main plus
+guard only), then against the new PR 1 head built. Both use 100 measured
+app/control pairs and report four classes per delay and in totals:
 
-`MEKSTATION_UNLOAD_TRIALS` defaults to 100; the proof must use at least 100.
-Nightly may explicitly use a smaller sample (for example 30) with the same
-assertions and the smaller denominator reported. `MEKSTATION_UNLOAD_PROOF_SIDE`
-labels each side in the output. There are 13 trials at each of the first four
-delays and 12 at each of the last four for a 100-trial run. Expected runtime is
-12–17 minutes per side, unmeasured here; the report records actual elapsed
-milliseconds. The timeout scales to 60 seconds plus 15 seconds per trial.
+- **delivered-observed:** the runner's API poll saw flush base + 1 with exactly
+  its entire envelope body and savedAt, even if a later PUT replaced it.
+- **delivered-by-chain:** no direct observation, but one keepalive starts an
+  unbroken captured CAS chain through the final row; final version equals the
+  initial version plus the number of PUTs, final body/savedAt match its last
+  PUT, expected values remain, and polling saw no unexplained revision.
+- **undelivered:** row never advanced or expected values are absent at the end.
+- **unattributable:** gaps, duplicate bases, multiple keepalives, unexplained
+  context writes/revisions, unreadable payloads or other attribution failures.
 
-**Zero lost requires acceptance of the unload flush itself.** A test-only
-browser observer records unmodified fetch arguments, including keepalive,
-raw body and baseVersion, across document replacement. After the existing
-3-second observation interval, a real uncached API GET must show the row
-advanced to that flush's `baseVersion + 1`, with its entire document body and
-its envelope `savedAt`. A competing captured PUT with the same base, body and
-savedAt makes attribution unproven. No flush, multiple flushes, a later row
-version, or a mismatching body/timestamp also cannot count as accepted.
-Unproven acceptance counts against zero lost, even if the date is present;
-values present/lost are counted separately. Browser request capture is payload
-evidence only, never evidence of arrival or acceptance.
+Acceptance requires **undelivered = 0 and unattributable = 0 over at least 100
+measured trials**, and the bare control must still lose at least 50%. Missing
+trials, failed/empty polls, invalid controller/timing probes, invisible warm
+SW-owned GETs, and samples below 100 are INCONCLUSIVE and fail. The same
+classification is reported on the control-build and branch-build sides. The
+bare positive control retains its independent completed-body arrival counter.
 
-The real API exposes no request receipt ID. GET cannot distinguish identical
-competing PUTs or prove historical acceptance after a later row replaces the
-flushed revision. The report states those limits explicitly and keeps such
-trials unproven. Fresh unique campaign rows and capture of all campaign PUTs
-in the sole app page bound the competing-writer check. No server code or
-test-mode server receipt log was added.
+`MEKSTATION_UNLOAD_TRIALS` defaults to 100; smaller diagnostic samples cannot
+pass. `MEKSTATION_UNLOAD_PROOF_SIDE` labels the build side. At 100 there are 13
+trials for each of 40/100/250/500 ms and 12 for each of 1000/1500/1900/2000 ms.
+Runtime is measured by C4; the previous 12-17 minute estimate is unverified
+for the added polling. The timeout is 60 seconds plus 15 seconds per trial.
 
-PR 2's pending-write adoption changes are absent from this branch. The existing
-base has visibility-return flush reconciliation, which is separate from PR 2.
-Even if another write restores the values, it cannot satisfy this sweep's
-flush-acceptance check. This worker has not run the production measurement;
-no observed branch loss count or runtime is claimed.
+The runner's own APIRequestContext starts uncached GET polling before the
+edit/reload timer is armed, at 75 ms between request starts when response time
+permits, and continues through the existing three-second settling window and
+final GET. Requests do not overlap. The JSON retains first records of distinct
+versions, every record transition, all sample start/completion times, errors,
+and the first exact flush revision's observation time. Polling never writes.
+Any chain-only trial lists the versions polling missed and its full trace;
+C4 must explain those misses if more than a handful rely on chain inference.
+
+The original page fetch observer retains raw PUT bodies and keepalive flags.
+A new context observer captures campaign PUT/POST/PATCH/DELETE from frame and
+Chromium service-worker requests, with request.serviceWorker(), resource type,
+response/failure and completion timing. It does not install routes. Context
+writes must match page PUTs one for one; any extra SW, XHR or beacon write is
+unattributable. A SW-owned copy is never assumed to be the page request's
+forwarding leg. Each trial checks context visibility with the existing warm
+GET, which the worker forwards using fetch. Lifecycle, visibility, document
+identity, stack and edit/pagehide-relative issue times are test-only markers.
+
+**Capture limits:** the old page observer alone was incomplete. Playwright
+1.57 Chromium exposes SW-owned requests in context events, as confirmed in its
+installed source; actual visibility in this run is still C4's proof. The new
+capture covers this isolated page/worker writer topology if the probes pass,
+but is not a universal server request log: it cannot see external clients,
+unreported browser-internal requests, or revisions that arise and disappear
+between polls. The API has no request receipt ID. Chain inference remains
+conditional on those explicit limits; it is reported separately from direct
+observation. Missing context matches and extra writes fail closed.
+
+The pure helper was fed the prior control's 100 measured trials without
+committing its JSON: **83 undelivered, 17 delivered-by-chain, zero observed**.
+All historical results are ineligible for new acceptance because poll/context
+data are absent; they do not establish the absence of uncaptured versions.
+The old strict final-row diagnostic remains in each trial for comparison and
+no longer controls acceptance.
+
+PR 2's pending-write adoption changes are absent. This worker ran no browser
+proof and claims no measured branch delivery rate.
 
 ## Root cause and prior evidence
 
 The service worker's fetch listener introduces a worker dispatch before network
 delivery. Chromium loses pagehide keepalive requests during document replacement
-on that path. The exact Chromium-internal cancellation mechanism is unproven.
+on that path. The exact Chromium-internal cancellation mechanism is unproven. In C4's
+100-trial control, 11/13 keepalives landed at 40 ms versus 6/87 at longer delays.
+All 100 captured the same keepalive base 1 shape; only the 17 landed cases had
+a later ordinary base 2 PUT from the replacement document. No old-document
+ordinary PUT was captured. The delay-specific delivery mechanism is still
+unexplained; the new test-only lifecycle markers are intended to distinguish
+pagehide/visibility/timer issue points and document overlap. PR 1's method/path
+route covers the PUT in both regimes regardless of timer or lifecycle source;
+that is route coverage, not a measured per-delay delivery guarantee.
 Behind the logging proxy, none of 36 lost writes arrived; all captured bodies
 replayed successfully. Bare navigation controls delivered 80/80 without a
 worker, 0/80 with a fetch-listener worker, and 20/20 with a listener-free worker.
@@ -144,17 +177,15 @@ unmeasured values were added to the generated duration index.
 
 ## Validation
 
-- Guard unit tests and generated direction property: **2 suites, 25 tests
-  passed**, Jest `--maxWorkers=2 --silent`.
-- The prior implementation's worker-route, reload and persistence tests passed
-  before this follow-up (11 suites / 175 tests); they were not rerun here.
-- Follow-up typecheck through `mem-guard.mjs`: passed (root and scripts);
-  peak private bytes 1.39 GB. Formatting passed on all four changed files.
-  Oxlint with only the temporary config's ignore patterns removed checked
-  all three changed TypeScript files: 0 warnings, 0 errors.
-- Playwright collection: **2 tests in 1 file**; no browser execution. Exact
-  commands and the mem-guard peak line are recorded in `PR1-IMPLEMENTATION.md`
-  outside the repository.
+- Delivery classifier, poll helper and external 100-trial history check:
+  **30 tests passed**, Jest `--maxWorkers=2 --silent`.
+- Root and scripts typecheck through `mem-guard.mjs`: passed; initial peak
+  private bytes 1.18 GB. The required immediately-before-commit run and hook
+  peak are recorded in the external `PR1-IMPLEMENTATION.md`.
+- Formatting, explicit oxlint on changed TypeScript files, and Playwright
+  collection (2 tests / 1 file) are recorded in that report. No browser ran.
+- Prior guard property (2 suites / 25 tests) and product checks are prior
+  evidence, not rerun by this worker. Product code and receipt guard unchanged.
 
-No build, server, browser execution, install, push or merge was performed by
-this implementation worker. Production red/green proof remains with C4.
+No build, server, browser execution, install, push or merge was performed.
+Production red/green proof remains with C4.

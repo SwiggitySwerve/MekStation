@@ -5,6 +5,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { isJsonRecord, putBaseVersion } from './browserWriteComparison';
 
 const CAPTURE_KEY = 'campaign-unload-put-evidence';
+export const UNLOAD_TIMING_KEY = 'campaign-unload-trial';
 
 export interface CampaignRecord {
   version: number;
@@ -17,6 +18,14 @@ export interface CapturedCampaignPut {
   keepalive: boolean;
   postData: string | null;
   documentTimeMs: number;
+  documentOriginMs?: number;
+  issueEpochMs?: number;
+  sinceEditMs?: number | null;
+  sincePagehideMs?: number | null;
+  lifecycle?: string;
+  visibilityState?: string;
+  controller?: string | null;
+  stack?: string;
 }
 
 export interface FlushAcceptance {
@@ -55,36 +64,74 @@ export function readCampaignRecord(value: unknown): CampaignRecord {
  * response replacement, product changes or server receipt log is involved.
  */
 export async function captureCampaignPuts(page: Page): Promise<void> {
-  await page.addInitScript((key) => {
-    const originalFetch = window.fetch;
-    window.fetch = function (input, init): Promise<Response> {
-      const url = new URL(
-        input instanceof Request ? input.url : String(input),
-        location.href,
+  await page.addInitScript(
+    ({ key, timingKey }) => {
+      let lifecycle = 'document-active';
+      let pagehideTimeMs: number | null = null;
+      // Capture phase runs before the product's bubbling discard listeners.
+      window.addEventListener(
+        'pagehide',
+        () => {
+          lifecycle = 'pagehide';
+          pagehideTimeMs = performance.now();
+        },
+        { capture: true },
       );
-      const method =
-        init?.method ?? (input instanceof Request ? input.method : 'GET');
-      if (
-        method.toUpperCase() === 'PUT' &&
-        /^\/api\/campaigns\/[^/]+$/.test(url.pathname)
-      ) {
-        const puts = JSON.parse(
-          sessionStorage.getItem(key) ?? '[]',
-        ) as CapturedCampaignPut[];
-        puts.push({
-          url: url.href,
-          keepalive:
-            init?.keepalive ?? (input instanceof Request && input.keepalive),
-          // The production flush and ordinary save both use a string init.body.
-          // Other shapes remain explicitly unreadable, never guessed.
-          postData: typeof init?.body === 'string' ? init.body : null,
-          documentTimeMs: performance.now(),
-        });
-        sessionStorage.setItem(key, JSON.stringify(puts));
-      }
-      return originalFetch.call(this, input, init);
-    };
-  }, CAPTURE_KEY);
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          lifecycle = `visibilitychange:${document.visibilityState}`;
+        },
+        { capture: true },
+      );
+      const originalFetch = window.fetch;
+      window.fetch = function (input, init): Promise<Response> {
+        const url = new URL(
+          input instanceof Request ? input.url : String(input),
+          location.href,
+        );
+        const method =
+          init?.method ?? (input instanceof Request ? input.method : 'GET');
+        if (
+          method.toUpperCase() === 'PUT' &&
+          /^\/api\/campaigns\/[^/]+$/.test(url.pathname)
+        ) {
+          const puts = JSON.parse(
+            sessionStorage.getItem(key) ?? '[]',
+          ) as CapturedCampaignPut[];
+          const timing = JSON.parse(
+            sessionStorage.getItem(timingKey) ?? 'null',
+          ) as { editEpochMs?: number } | null;
+          const documentTimeMs = performance.now();
+          const issueEpochMs = performance.timeOrigin + documentTimeMs;
+          puts.push({
+            url: url.href,
+            keepalive:
+              init?.keepalive ?? (input instanceof Request && input.keepalive),
+            // The production flush and ordinary save both use a string init.body.
+            // Other shapes remain explicitly unreadable, never guessed.
+            postData: typeof init?.body === 'string' ? init.body : null,
+            documentTimeMs,
+            documentOriginMs: performance.timeOrigin,
+            issueEpochMs,
+            sinceEditMs:
+              timing?.editEpochMs === undefined
+                ? null
+                : issueEpochMs - timing.editEpochMs,
+            sincePagehideMs:
+              pagehideTimeMs === null ? null : documentTimeMs - pagehideTimeMs,
+            lifecycle,
+            visibilityState: document.visibilityState,
+            controller: navigator.serviceWorker.controller?.scriptURL ?? null,
+            stack: new Error('Campaign PUT issue path').stack,
+          });
+          sessionStorage.setItem(key, JSON.stringify(puts));
+        }
+        return originalFetch.call(this, input, init);
+      };
+    },
+    { key: CAPTURE_KEY, timingKey: UNLOAD_TIMING_KEY },
+  );
 }
 
 export async function resetCapturedPuts(page: Page): Promise<void> {
@@ -101,7 +148,9 @@ export async function readCapturedPuts(
   );
 }
 
-function envelopeOf(put: CapturedCampaignPut): Record<string, unknown> | null {
+export function envelopeOf(
+  put: CapturedCampaignPut,
+): Record<string, unknown> | null {
   try {
     const payload: unknown = JSON.parse(put.postData ?? 'null');
     return isJsonRecord(payload) && isJsonRecord(payload.envelope)
@@ -110,6 +159,26 @@ function envelopeOf(put: CapturedCampaignPut): Record<string, unknown> | null {
   } catch {
     return null;
   }
+}
+
+export function compareCampaignPutRecord(
+  record: CampaignRecord,
+  put: CapturedCampaignPut,
+): {
+  bodyMatches: boolean;
+  savedAtMatches: boolean;
+} {
+  const envelope = envelopeOf(put);
+  return {
+    bodyMatches:
+      envelope !== null &&
+      isJsonRecord(envelope.body) &&
+      isDeepStrictEqual(record.body, envelope.body),
+    savedAtMatches:
+      envelope !== null &&
+      typeof envelope.savedAt === 'string' &&
+      record.savedAt === envelope.savedAt,
+  };
 }
 
 /** Real API CAS + full body + savedAt identifies this request only when no
@@ -130,14 +199,9 @@ export function assessFlushAcceptance(
     expectedVersion !== null &&
     after.version === expectedVersion &&
     after.version > before.version;
-  const bodyMatches =
-    envelope !== null &&
-    isJsonRecord(envelope.body) &&
-    isDeepStrictEqual(after.body, envelope.body);
-  const savedAtMatches =
-    envelope !== null &&
-    typeof envelope.savedAt === 'string' &&
-    after.savedAt === envelope.savedAt;
+  const { bodyMatches, savedAtMatches } = flush
+    ? compareCampaignPutRecord(after, flush)
+    : { bodyMatches: false, savedAtMatches: false };
   const indistinguishableCompetitors = flush
     ? puts.filter((put) => {
         if (put === flush || putBaseVersion(put.postData) !== baseVersion)
