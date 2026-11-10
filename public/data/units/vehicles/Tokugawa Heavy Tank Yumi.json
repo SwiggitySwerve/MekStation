@@ -84,5 +84,8 @@
       "COMMUNICATIONS": "Sipher",
       "TARGETING": "TargiTrack"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

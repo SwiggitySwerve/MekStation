@@ -79,5 +79,8 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

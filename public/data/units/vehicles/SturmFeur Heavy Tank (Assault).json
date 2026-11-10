@@ -129,5 +129,8 @@
       "COMMUNICATIONS": "Angst",
       "TARGETING": "Unknown"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

@@ -98,5 +98,8 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Johnston Industries"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }
