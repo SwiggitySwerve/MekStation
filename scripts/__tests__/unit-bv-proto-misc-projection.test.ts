@@ -11,6 +11,7 @@ import {
   buildProto,
   mount,
 } from '../../src/utils/construction/protomech/__tests__/protoMechBV.test.helpers';
+import { withProtoMechNativeIndices } from '../../src/utils/construction/protomech/nativeTraceEnrichment';
 
 jest.mock('../../src/utils/construction/equipmentBVResolver', () => {
   const actual = jest.requireActual<
@@ -55,7 +56,13 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
       const unit = parsed.data.unit;
       const original = JSON.stringify(unit);
       const b = handler.calculateBVBreakdown(unit);
-      const terms = protoMechBVTerms(b);
+      const before = JSON.stringify(b);
+      const enriched = withProtoMechNativeIndices(b, unit.equipment);
+      const terms = protoMechBVTerms(enriched);
+      expect(JSON.stringify(b)).toBe(before);
+      for (const fact of b.weaponMountBV ?? []) {
+        expect(fact).not.toHaveProperty('nativeEquipmentIndex');
+      }
       const actual = Object.fromEntries(
         Object.entries(terms).filter(
           ([key, value]) => key.startsWith('equipment.native.') && value !== 0,
@@ -89,7 +96,7 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
             !key.startsWith('ammo.cap.'),
         ),
       ).toEqual([]);
-      for (const fact of b.weaponMountBV ?? []) {
+      for (const fact of enriched.weaponMountBV ?? []) {
         const nativeIndex = fact.nativeEquipmentIndex ?? fact.equipmentIndex;
         expect(
           Object.entries(terms).some(

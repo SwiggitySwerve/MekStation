@@ -24,7 +24,9 @@ describe('pinned Clan BA SRM-3 value', () => {
   });
   it.each([
     ['rogue-bear-heavy-battle-armor-sqd4', 346],
-    ['gray-death-strike-suit-harjelsqd4', 277],
+    // Pinned Java 48fcb2f64 reference: BV 285. Keeping the BA Clan chassis
+    // restores anti-Mek eligibility (BattleArmor.java:953-987).
+    ['gray-death-strike-suit-harjelsqd4', 285],
   ])('%s includes the corrected weapon value', (id, expected) => {
     const unit = getNodeCanonicalUnitService().getByIdSync(`battlearmor:${id}`);
     expect(unit).not.toBeNull();

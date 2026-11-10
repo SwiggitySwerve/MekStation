@@ -9,6 +9,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import { logger } from '@/utils/logger';
 
 import {
@@ -106,6 +107,7 @@ export function duplicateInfantry(
 
   const mergedState: InfantryState = {
     ...newState,
+    ...pickUnitTechBaseIdentity(sourceState),
     primaryWeapon: sourceState.primaryWeapon,
     primaryWeaponId: sourceState.primaryWeaponId,
     secondaryWeapon: sourceState.secondaryWeapon,

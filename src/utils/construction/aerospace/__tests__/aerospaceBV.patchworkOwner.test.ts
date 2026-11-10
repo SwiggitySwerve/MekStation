@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 
+import { BlkParserService } from '@/services/conversion/BlkParserService';
+import { AerospaceUnitHandler } from '@/services/units/handlers/AerospaceUnitHandler';
 import { mapAerospaceDefinitionToState } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { isDefinitionForFamily } from '@/services/units/unitLoaderService/definitionTypes';
 import { createDefaultAerospaceState } from '@/stores/aerospaceState';
@@ -11,11 +13,124 @@ import { createAerospaceStore } from '@/stores/useAerospaceStore';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
+import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
 import { serializeAerospaceArmorIdentity } from '@/types/unit/AerospaceSerialization';
 import { getArmorBVMultiplier } from '@/types/validation/BattleValue';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import { getNativeArmorBVMultiplier } from '@/utils/construction/battleValueDefensive';
+import { resolveAerospaceContractArc } from '@/utils/construction/contractBVUnitAdapter';
+import { projectAerospaceBVArmor } from '@/utils/construction/contractBVUnitAdapter';
+
+import { aerospaceBVUnitFromState } from '../aerospaceBVUnitAdapter';
 
 afterEach(() => clearAllAerospaceStores());
+
+it.each([
+  AerospaceCockpitType.STANDARD,
+  AerospaceCockpitType.SMALL,
+  AerospaceCockpitType.COMMAND_CONSOLE,
+])('preserves the existing editor cockpit modifier for %s', (cockpitType) => {
+  const state = createDefaultAerospaceState({
+    name: 'Cockpit transport',
+    tonnage: 25,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  state.cockpitType = cockpitType;
+  const projected = aerospaceBVUnitFromState(state);
+  expect(projected).toMatchObject({ cockpitType });
+  expect(calculateBattleValueForUnit(projected)).toEqual(
+    calculateBattleValueForUnit({
+      ...state,
+      movement: { safeThrust: state.safeThrust, maxThrust: state.maxThrust },
+      totalArmorPoints: 0,
+      heatSinkType: 0,
+    }),
+  );
+});
+
+it('retains native Nanook patchwork types and lower-camel armor keys through dispatch', () => {
+  // mm-data 50f7efe Nanook construction/equipment facts; Java 48fcb2f64 BV 1571.
+  const tags = {
+    UnitType: 'AeroSpaceFighter',
+    Name: 'Sangihe Shrike-Thrush',
+    Model: 'Nanook',
+    type: 'Mixed (IS Chassis) Experimental',
+    year: '3068',
+    tonnage: '25',
+    SafeThrust: '12',
+    structural_integrity: '12',
+    heatsinks: '10',
+    sink_type: '1',
+    fuel: '80',
+    armor_type: '7',
+    armor: ['32', '20', '20', '14'],
+    Nose_armor_type: '0',
+    'Left Wing_armor_type': '3',
+    'Right Wing_armor_type': '3',
+    Aft_armor_type: '2',
+    'Nose Equipment': ['CLMediumPulseLaser', 'CLMediumPulseLaser'],
+    'Left Wing Equipment': ['CLERMediumLaser'],
+    'Right Wing Equipment': ['CLERMediumLaser'],
+    'Aft Equipment': ['Small Laser'],
+  };
+  const text = Object.entries(tags)
+    .map(([k, v]) => `<${k}>\n${[v].flat().join('\n')}\n</${k}>`)
+    .join('\n');
+  const parsed = new BlkParserService().parse(text);
+  if (!parsed.success) throw Error('Expected BLK');
+  const loaded = new AerospaceUnitHandler().parse(parsed.data.document);
+  if (!loaded.success) throw Error('Expected aircraft');
+  expect(loaded.data.unit).toMatchObject({
+    armorTypeByArc: { NOSE: 0, LEFT_WING: 3, RIGHT_WING: 3, AFT: 2 },
+  });
+  const bv = calculateBattleValueForUnit(loaded.data.unit);
+  if (bv?.kind !== 'aerospace') throw Error('Expected aerospace BV');
+  expect(bv.breakdown.armorBV).toBe(282.5);
+  expect(bv.breakdown.final).toBe(1571);
+});
+
+it.each(['nose', 'leftWing', 'rightWing', 'aft'])(
+  'resolves represented native armor key %s',
+  (key) => {
+    expect(resolveAerospaceContractArc(key)).toBe(
+      resolveAerospaceContractArc(
+        key.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase(),
+      ),
+    );
+  },
+);
+it('rejects unknown armor arcs', () =>
+  expect(() => resolveAerospaceContractArc('unknown')).toThrow(
+    'Unknown aerospace arc',
+  ));
+
+it('shares the contract armor facts with the store projection without changing live points', () => {
+  const armor = {
+    type: 'STANDARD',
+    byArc: { Nose: 12, Aft: 7 },
+    typeByArc: { NOSE: 0, AFT: 2 },
+  };
+  const projected = projectAerospaceBVArmor(armor);
+  expect(projected).toEqual({
+    armorType: 'standard',
+    totalArmorPoints: 19,
+    armorByArc: armor.byArc,
+    armorTypeByArc: armor.typeByArc,
+  });
+  const state = createDefaultAerospaceState({
+    name: 'Projection',
+    tonnage: 25,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  expect(
+    aerospaceBVUnitFromState({
+      ...state,
+      armorAllocation: { ...state.armorAllocation, Nose: 12, Aft: 7 },
+      armorType: ArmorTypeEnum.STANDARD,
+      armorTypeByArc: armor.typeByArc,
+    }),
+  ).toMatchObject(projected);
+});
 
 // MegaMek 48fcb2f64: BVCalculator.java:350-420,1489-1503.
 // This API extracts the existing vehicle rule without changing it.

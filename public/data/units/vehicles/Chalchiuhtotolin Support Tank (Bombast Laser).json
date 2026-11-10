@@ -106,5 +106,8 @@
       "COMMUNICATIONS": "Basix",
       "TARGETING": "OptiSight"
     }
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

@@ -20,6 +20,7 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import mixedTechnologyFixtures from '@/services/units/__tests__/fixtures/mixed-blk-technology.pinned.json';
 import aerospaceFixtures from '@/services/units/handlers/__tests__/fixtures/aerospace-capital-validity.json';
 import fixedWingFixtures from '@/services/units/handlers/__tests__/fixtures/fixed-wing-support.json';
 import locationFixtures from '@/services/units/handlers/__tests__/fixtures/vehicle-handler-locations.pinned-sources.json';
@@ -79,6 +80,53 @@ afterEach(() => {
   resetSQLiteService();
   jest.restoreAllMocks();
 });
+
+it.each(
+  mixedTechnologyFixtures.fixtures.filter(
+    (source) => source.unitType === 'Infantry',
+  ),
+)(
+  'saves and reopens the pinned Mixed infantry binary fields: $path',
+  async (source) => {
+    const response = await post(source.blk);
+    expect(response._getStatusCode()).toBe(201);
+    const id = parseImportResponse(response).data?.unitId;
+    if (!id) throw new Error('Expected saved custom identity');
+    expect(await reload('infantry', id)).toMatchObject({
+      success: true,
+      definition: {
+        techBase: source.techBase,
+        rulesLevel: source.rulesLevel,
+        blkSource: { text: source.blk, handlerUnit: { techBase: 'Clan' } },
+      },
+    });
+    expect(getUnitRepository().getById(id)).toMatchObject({
+      techBase: source.techBase,
+      rulesLevel: source.rulesLevel,
+    });
+  },
+);
+
+it.each(['IS', 'Clan'])(
+  'refuses Mixed %s Unofficial without a database write',
+  async (chassis) => {
+    const source = mixedTechnologyFixtures.fixtures.find(
+      (row) => row.unitType === 'Infantry',
+    );
+    if (!source) throw new Error('Missing pinned infantry fixture');
+    const text = source.blk.replace(
+      /<type>[\s\S]*?<\/type>/i,
+      `<type>Mixed (${chassis} Chassis) Unofficial</type>`,
+    );
+    const before = getUnitRepository().list();
+    const response = await post(text);
+    expect(response._getStatusCode()).toBe(400);
+    expect(parseImportResponse(response).error?.validationErrors).toEqual(
+      expect.arrayContaining([expect.stringMatching(/Unofficial.*RulesLevel/)]),
+    );
+    expect(getUnitRepository().list()).toEqual(before);
+  },
+);
 
 it.each(fixtures)(
   'imports and reloads pinned $path without dropping source or handler facts',

@@ -12,6 +12,7 @@ import type { StoreEquipmentCollectionActions } from '@/stores/equipmentStoreAct
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 
 import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
 import { getThresholdWeightClass } from '@/services/units/unitWeightClass';
@@ -121,7 +122,8 @@ export function createAerospaceMountedEquipment(
 /**
  * Complete state for a single aerospace fighter
  */
-export interface AerospaceState extends IUnitSaveMetadata {
+export interface AerospaceState
+  extends IUnitSaveMetadata, IUnitTechBaseIdentity {
   // =========================================================================
   // Identity
   // =========================================================================

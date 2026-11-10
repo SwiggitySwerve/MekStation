@@ -1,3 +1,5 @@
+import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
+
 /** Existing persisted projections, shared with save-state fingerprints. No field defaults are added here. */
 import type { AerospaceState } from './aerospaceState';
 import type { BattleArmorState } from './battleArmorState';
@@ -23,6 +25,7 @@ export function pickPersistedVehicleState(
 ): Partial<VehicleState> {
   return {
     ...pickPersistedUnitIdentity(state),
+    ...pickUnitTechBaseIdentity(state),
     tonnage: state.tonnage,
     techBase: state.techBase,
     unitType: state.unitType,
@@ -67,6 +70,7 @@ export function pickPersistedInfantryState(
 ): Partial<InfantryState> {
   return {
     ...pickPersistedUnitIdentity(state),
+    ...pickUnitTechBaseIdentity(state),
     techBase: state.techBase,
     unitType: state.unitType,
     squadSize: state.squadSize,
@@ -102,6 +106,7 @@ export function pickPersistedBattleArmorState(
 ): Partial<BattleArmorState> {
   return {
     ...pickPersistedUnitIdentity(state),
+    ...pickUnitTechBaseIdentity(state),
     librarySource: state.librarySource,
     techBase: state.techBase,
     unitType: state.unitType,
@@ -138,6 +143,7 @@ export function pickPersistedProtoMechState(
 ): Partial<ProtoMechState> {
   return {
     ...pickPersistedUnitIdentity(state),
+    ...pickUnitTechBaseIdentity(state),
     librarySource: state.librarySource,
     techBase: state.techBase,
     unitType: state.unitType,
@@ -180,6 +186,7 @@ export function pickPersistedAerospaceState(
 ): Partial<AerospaceState> {
   return {
     ...pickPersistedUnitIdentity(state),
+    ...pickUnitTechBaseIdentity(state),
     ...pickStoreFields(state, AEROSPACE_PERSIST_KEYS),
   };
 }
