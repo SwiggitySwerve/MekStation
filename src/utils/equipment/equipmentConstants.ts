@@ -50,6 +50,14 @@ export const HEAT_SINK_EQUIPMENT_IDS = [
   'laser-heat-sink',
 ];
 
+/** IDs of the anti-missile systems (MegaMek F_AMS): the one owner for the equipment browser and the support fire-control basis. */
+export const AMS_WEAPON_IDS = [
+  'ams',
+  'clan-ams',
+  'laser-ams',
+  'clan-laser-ams',
+];
+
 /** Jump jet equipment IDs - hardcoded since these are essential for construction */
 export const JUMP_JET_EQUIPMENT_IDS = [
   'jump-jet-light',
