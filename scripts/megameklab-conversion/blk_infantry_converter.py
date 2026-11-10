@@ -34,7 +34,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from blk_infantry_armor import ARMOR_KITS, infantry_armor
 from blk_infantry_equipment import INFANTRY_WEAPONS, FIELD_EQUIPMENT, TROOPER_EQUIPMENT
 from schema_gate import validate_unit
-from blk_unit_fields import parse_quirk_fields
+from blk_unit_fields import mixed_chassis_fields, parse_quirk_fields
 
 from blk_conversion_runner import BlkConversionConfig, run_blk_conversion, run_manifest_range_parity
 
@@ -286,6 +286,7 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
         output["fluff"] = fluff
 
     output.update(parse_quirk_fields(tags))
+    output.update(mixed_chassis_fields(tags["type"]))
     errors = validate_unit(output)
     if errors:
         raise ValueError(f"Invalid infantry output: {errors}")
