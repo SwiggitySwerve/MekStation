@@ -2,7 +2,7 @@
  * Declarative CI-quality contracts consumed by
  * `scripts/qc/validate-openspec-ci-quality.mjs`.
  *
- * Two kinds of workflow contract live here:
+ * Workflow contracts live here:
  *
  * - `requiredWorkflowTokens` — tokens that must appear ANYWHERE in the
  *   pull-request workflow. Cheap, but satisfied by a substring in any
@@ -11,6 +11,8 @@
  *   named parsed YAML job. A gate that names the job it belongs to cannot be
  *   satisfied by the same command existing in a different lane (or in a
  *   comment), which is the failure mode the loose form allows.
+ * - `requiredOpenSpecStaticChecks` — named, unconditional OpenSpec steps in
+ *   static-checks, including strict validation and its regression tests.
  */
 import { loadBudgets } from '../ci/budget-config.mjs';
 import { CI_SUITES } from '../playwright/ci-e2e-plan.mjs';
@@ -38,6 +40,22 @@ export const requiredAggregatorNeeds = [
   'e2e',
 ];
 
+export const requiredOpenSpecStaticChecks = {
+  id: 'openspec-static-checks',
+  jobId: 'static-checks',
+  steps: [
+    {
+      name: 'Validate OpenSpec specs (strict)',
+      run: 'npm run openspec:validate',
+    },
+    {
+      name: 'Validate OpenSpec delta headers and regression tests',
+      run: 'node --test scripts/qc/openspec-delta-headers.test.mjs\nnpm run qc:openspec-ci:validate',
+    },
+  ],
+  stepIf: '${{ !cancelled() }}',
+};
+
 export const requiredWorkflowTokens = [
   {
     id: 'openspec-targets-main-prs',
@@ -54,6 +72,13 @@ export const requiredWorkflowTokens = [
   {
     id: 'typecheck-runs-typescript',
     tokens: ['name: Type Check', 'run: npm run typecheck'],
+  },
+  {
+    id: 'jest-dom-skip-list-is-safe',
+    tokens: [
+      'name: Check jest-dom skip list safety',
+      'run: node scripts/jest/jest-dom-usage.js --check',
+    ],
   },
   {
     id: 'schema-bridge-is-strict',
@@ -204,7 +229,7 @@ export const requiredPackageScripts = [
     tokens: [
       'validate:combat:gaps',
       '--expect-total=0',
-      '--expect-total=151',
+      '--expect-total=155',
       'npm run openspec:validate',
     ],
   },

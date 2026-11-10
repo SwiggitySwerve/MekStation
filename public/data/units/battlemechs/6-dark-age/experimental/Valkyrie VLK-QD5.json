@@ -179,5 +179,8 @@
   },
   "mulId": 8104,
   "role": "Missile Boat",
-  "source": "XTR:Caveat"
+  "source": "XTR:Caveat",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -183,5 +183,8 @@
   },
   "mulId": 9491,
   "role": "Brawler",
-  "source": "RG32"
+  "source": "RG32",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -21,15 +21,19 @@ import type { IProtoMechBVBreakdown } from './BVBreakdownTypes';
 /**
  * ProtoMech chassis type.
  *
- * - Biped: default; supports arm weapons
- * - Quad: no arms; all equipment on Torso or Legs
- * - Glider: Light class only; adds Glider Wings granting bonus jump MP; no arms
- * - Ultraheavy: 10–15 tons; no jump MP; increased armor capacity
+ * The motives are Biped, Quad and Glider (MegaMekLab PMChassisView.java:75-77).
+ * Ultraheavy is a mass above 9 t, not a chassis (PMChassisView.java:205-207).
  */
 export enum ProtoChassis {
   BIPED = 'Biped',
   QUAD = 'Quad',
   GLIDER = 'Glider',
+  /**
+   * @deprecated Ultraheavy is a mass, not a chassis; the editor never produces this
+   * value (a heavy biped is `BIPED`). The member stays only so the replay init schema
+   * (`z.nativeEnum(ProtoChassis)`), the source model and old saved units still parse;
+   * saved units are read through `readSavedProtoChassis`.
+   */
   ULTRAHEAVY = 'Ultraheavy',
 }
 

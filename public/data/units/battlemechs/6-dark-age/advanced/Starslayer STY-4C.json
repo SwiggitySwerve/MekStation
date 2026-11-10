@@ -191,5 +191,8 @@
   },
   "mulId": 9315,
   "role": "Skirmisher",
-  "source": "RG26"
+  "source": "RG26",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

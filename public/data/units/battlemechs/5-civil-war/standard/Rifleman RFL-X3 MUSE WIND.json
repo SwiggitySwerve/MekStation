@@ -189,5 +189,8 @@
   },
   "mulId": 2708,
   "role": "Sniper",
-  "source": "XTR:Davion"
+  "source": "XTR:Davion",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

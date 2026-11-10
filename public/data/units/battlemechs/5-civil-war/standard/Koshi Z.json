@@ -175,5 +175,8 @@
   },
   "mulId": 5643,
   "role": "Striker",
-  "source": "WoR,TR:CI,WoRS"
+  "source": "WoR,TR:CI,WoRS",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

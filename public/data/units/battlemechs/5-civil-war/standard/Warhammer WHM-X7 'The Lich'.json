@@ -200,5 +200,8 @@
   },
   "mulId": 3499,
   "role": "Brawler",
-  "source": "XTR:Gladiators"
+  "source": "XTR:Gladiators",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

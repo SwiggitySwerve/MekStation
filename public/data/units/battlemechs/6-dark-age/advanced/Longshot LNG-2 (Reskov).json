@@ -191,5 +191,8 @@
   },
   "mulId": 9243,
   "role": "Striker",
-  "source": "TR:3055U,Shrap09"
+  "source": "TR:3055U,Shrap09",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

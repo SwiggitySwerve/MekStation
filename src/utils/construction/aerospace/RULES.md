@@ -1,5 +1,27 @@
 # Aerospace construction rules
 
+`sourceWeight.ts` owns aerospace engine mass through the pure, family-discriminated
+`aerospaceEngineTons(input: AerospaceEngineTonsInput): number | undefined` contract,
+returning installed tons. Fighter ratings use tonnage times (safe thrust minus two),
+the primitive-cockpit factor and upward rounding to five. Conventional fighters
+use their own rating and installation-shielding branch. Small craft and DropShips
+reuse the existing source-year drive bands. Fixed-wing support remains unsupported
+by this engine contract until the support owners are composed. Fusion table lookup
+and engine-type adjustments stay in `engineCalculations.ts`; no aerospace table
+duplicates them. Pin 48fcb2f64: BLKAeroSpaceFighterFile.java:133-145;
+BLKConvFighterFile.java:118-122; TestAero.java:369-387,510-519;
+TestSmallCraft.java:198-208,236-253,373-378; Engine.java:67-81,409-438.
+
+The scalar source-weight bound and the aerospace handler call this engine owner.
+The handler still approximates structure, armor, sinks, fuel and cockpit and omits
+equipment; it is not the complete component breakdown. Its `calculateWeight` has
+no production invocation. The obsolete aggregate and incorrect alternate table
+are removed. Cockpit and extra-sink helpers retain their existing behavior in
+`sourceWeight.ts`. Fission masses below five tons are explicitly unsupported here:
+the generic owner lacks Engine.java:428-430's minimum and needs a separate fix.
+Enforcement: `sourceWeight.test.ts`, `AerospaceUnitHandler.test.ts`,
+`AerospaceSourceValidity.test.ts` and the 620-row extraction-preservation dump.
+
 Contract and live editor BV share `projectAerospaceBVArmor`; status and both
 record-sheet callers use `aerospaceBVUnitFromState`. Per-arc native type codes
 stay separate from live armor points. Native fighter handlers retain explicit

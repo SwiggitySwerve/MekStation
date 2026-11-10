@@ -73,6 +73,24 @@ describe('Wave 4 representative family data QC gate', () => {
     ]);
   });
 
+  it('uses native MTF source parsing as BattleMech conversion evidence', () => {
+    const result = runValidator(['--json']);
+    expect(result.status).toBe(0);
+    const manifest = JSON.parse(result.stdout) as {
+      families: Array<{
+        familyId: string;
+        catalogAnchors: Array<{ path: string; tokenCount: number }>;
+      }>;
+    };
+    const battlemech = manifest.families.find(
+      (family) => family.familyId === 'battlemech',
+    );
+    expect(battlemech?.catalogAnchors).toContainEqual({
+      path: 'src/services/conversion/__tests__/MTFParserService.parse.test.ts',
+      tokenCount: 3,
+    });
+  });
+
   it('rejects a partial customizer surface before release signoff', () => {
     const registry = readJson<{
       surfaces: Array<{ surfaceId: string; coverageStatus: string }>;

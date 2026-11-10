@@ -191,5 +191,8 @@
   },
   "mulId": 8110,
   "role": "Sniper",
-  "source": "XTR:Caveat"
+  "source": "XTR:Caveat",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

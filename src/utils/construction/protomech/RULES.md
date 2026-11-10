@@ -531,10 +531,45 @@ claimed them are removed (they had no production caller). Evidence:
 `__tests__/fixtures/movement-java-verdicts.json` (the 86 canonical units plus 20
 synthetic variants, with the probe and pins beside it). Production already agreed with
 Java on all 86 canonical units; the rule adds only findings Java also reports.
-Not changed: the weight-class tables still used as editor input clamps
-(`getProtoMPCaps`, `isMyomerBoosterLegal`, the Structure tab's ultraheavy jump lock),
-which are the editor-limits item. Component mass is handled separately by the
-Native total mass owner below.
+The editor's input limits are in `movementLimits.ts` (see "Editor movement limits"
+below). Component mass is handled separately by the native total mass owner ("Native total mass" below).
+
+## Editor movement limits
+
+`movementLimits.ts` holds what the editor's walk and jump inputs accept, from
+MegaMekLab `62bf193` (`MovementView.java:224-292,316-376`, `PMStructureTab.java:264-282`):
+walk at least the motive minimum (biped 1, quad `floor(3 / 1.5)` = 2, glider
+`ceil(4 / 1.5)` = 3), at most the largest walk whose engine rating is a valid engine
+(500); jump at most `protoMaxJumpMP` (the walk, or 1.5 times it with an Extended Jump
+Jet System), and 0 for a glider; lowering walk or changing motive lowers jump to its new
+limit. There is no weight-class cap (the table that stood in for these is deleted), and no
+ultraheavy jump lock (the pinned Sprite Ultraheavy units jump 3 to 5). The Myomer Booster
+is disabled only for a glider. A new ProtoMech starts at its motive's minimum walk
+(`PMMainUI.java:140-147`).
+
+Editor-only: validity is `movementRules.ts`.
+
+## Ultraheavy is a mass
+
+MegaMekLab `62bf193` has three motives (BIPED, QUAD, GLIDER) and one tonnage spinner of
+2 to 15 t for all of them; a ProtoMech is ultraheavy when its tonnage is above
+`TestProtoMek.MAX_STD_TONNAGE` (9) (`PMChassisView.java:75-79,135-139,205-207`). The
+editor therefore offers three motives and one list, the weight class and status bar derive
+"Ultraheavy" from tonnage (`isProtoUltraheavyTonnage`, `getProtoWeightClass`), and the
+store's tonnage clamp is 2 to 15 t whatever the motive. `VAL-PROTO-CHASSIS` has no finding
+left: no motive and tonnage disagree. A tonnage edit keeps the walk MP and recomputes the
+engine; when the rating would be over 500 it is refused with a reason
+(`protoTonnageChangeError`, from `PMStructureTab.java:446-456`), and walk is never rewritten
+(the old `10 - t` reset changed the walk of 72 of the 86 canonical units, and all 10 above 9 t).
+`setTonnage` also stores the weight class derived from the new tonnage: the stored value is
+persisted in drafts and written into the saved record, so it must not go stale.
+
+`ProtoChassis.ULTRAHEAVY` stays as a deprecated member for the replay init schema
+(`z.nativeEnum`), the source model and old saved units. `legacyUltraheavy.ts` owns the two
+rules for it: `readSavedProtoChassis` reads a saved `Ultraheavy` as a Biped of the saved
+tonnage, and `legacyProtoChassisLabel` projects a Biped above 9 t back to `Ultraheavy` in the
+save fingerprints (`unitSaveStateAdapters.ts`), so stored draft and library fingerprints stay
+byte-identical (`stores/unitSaveState.rules.md`).
 
 ## Native total mass
 

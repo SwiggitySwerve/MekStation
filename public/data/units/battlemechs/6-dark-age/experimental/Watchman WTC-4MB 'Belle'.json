@@ -186,5 +186,8 @@
   },
   "mulId": 8371,
   "role": "Scout",
-  "source": "XTR:Royal Fantasy"
+  "source": "XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

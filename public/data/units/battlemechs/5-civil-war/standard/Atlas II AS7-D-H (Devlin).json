@@ -200,5 +200,8 @@
   },
   "mulId": 7398,
   "role": "Juggernaut",
-  "source": "Total Chaos"
+  "source": "Total Chaos",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

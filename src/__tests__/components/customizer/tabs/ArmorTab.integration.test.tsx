@@ -24,6 +24,30 @@ beforeEach(() => {
   useCustomizerSettingsStore.getState().resetToDefaults();
 });
 
+test('offers Ferro-Fibrous Prototype and retains its selected identity and density', async () => {
+  const store = makeStore();
+  await act(async () => {
+    render(
+      <UnitStoreContext.Provider value={store}>
+        <ArmorTab />
+      </UnitStoreContext.Provider>,
+    );
+  });
+  const picker = screen.getByRole('combobox', { name: 'Armor Type' });
+  expect(
+    within(picker).getByRole('option', {
+      name: 'Ferro-Fibrous Prototype (17.92 pts/ton)',
+    }),
+  ).toBeInTheDocument();
+  fireEvent.change(picker, { target: { value: 'Ferro-Fibrous Prototype' } });
+  expect(picker).toHaveValue('Ferro-Fibrous Prototype');
+  expect(store.getState().armorType).toBe('Ferro-Fibrous Prototype');
+  act(() => store.getState().setArmorTonnage(4.5));
+  expect(screen.getByTestId('armor-points-explanation')).toHaveTextContent(
+    '80 pts from 4.5 t',
+  );
+});
+
 test('labels tonnage points, allocated capacity, and unallocated excess distinctly', () => {
   const store = createNewUnitStore({
     name: 'Atlas armor summary',

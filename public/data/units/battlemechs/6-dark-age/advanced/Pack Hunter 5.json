@@ -171,5 +171,8 @@
   },
   "mulId": 7440,
   "role": "Sniper",
-  "source": "RG01"
+  "source": "RG01",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

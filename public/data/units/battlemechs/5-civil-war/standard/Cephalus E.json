@@ -179,5 +179,8 @@
   },
   "mulId": 5641,
   "role": "Sniper",
-  "source": "WoR,WoRS"
+  "source": "WoR,WoRS",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

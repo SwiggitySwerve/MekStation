@@ -198,5 +198,8 @@
   },
   "mulId": 5330,
   "role": "Brawler",
-  "source": "XTR:Clans"
+  "source": "XTR:Clans",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

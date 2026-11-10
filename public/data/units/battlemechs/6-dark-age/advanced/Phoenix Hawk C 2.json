@@ -190,5 +190,8 @@
   "source": "RG11,RGv1",
   "weaponQuirks": {
     "RA:4:CLLargePulseLaser": ["jettison_capable"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

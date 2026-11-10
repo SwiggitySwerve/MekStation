@@ -78,11 +78,11 @@ describe('GameplayLayout tactical GM intervention wiring', () => {
       },
     });
 
-    fireEvent.click(screen.getByTestId('command-btn-gm.set-damage'));
+    fireEvent.click(screen.getByTestId('command-btn-gm.advance-phase'));
 
     expect(preview).toHaveBeenCalledWith(
       expect.objectContaining({
-        commandId: 'gm.set-damage',
+        commandId: 'gm.advance-phase',
         ctx: expect.objectContaining({
           activeUnitId: 'unit-player-1',
           selectedUnitId: 'unit-player-1',
@@ -92,7 +92,7 @@ describe('GameplayLayout tactical GM intervention wiring', () => {
     );
 
     const dialog = screen.getByRole('dialog', {
-      name: 'Set Damage (GM)',
+      name: 'Advance Phase (GM)',
     });
     expect(dialog).toHaveAttribute('data-gm-preview-status', 'ready');
     expect(

@@ -183,5 +183,8 @@
   },
   "mulId": 7588,
   "role": "Scout",
-  "source": "RG08"
+  "source": "RG08",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

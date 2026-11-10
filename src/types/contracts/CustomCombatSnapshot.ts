@@ -89,6 +89,10 @@ export const customCombatSnapshotSchema = mech
     componentTechBases: true,
     // Editor-only print crew; combat does not read named seats.
     crewSeats: true,
+    // Source OmniMek facts (R2): combat reads neither. Without this omit the .strip() projection below would copy the
+    // -1 every saved custom mech carries into each recorded GameCreated payload and change recorded bytes (D-8).
+    baseChassisHeatSinks: true,
+    clanName: true,
   })
   .extend({
     unitType: z.literal('BattleMech'),
@@ -135,6 +139,9 @@ const nativeSnapshot = native
     weaponQuirks: true,
     componentTechBases: true,
     crewSeats: true,
+    // Same R2 OmniMek facts as the BattleMech snapshot above: not part of recorded vehicle or aerospace construction.
+    baseChassisHeatSinks: true,
+    clanName: true,
     configuration: true,
     gyro: true,
     criticalSlots: true,

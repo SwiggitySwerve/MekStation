@@ -190,5 +190,8 @@
   },
   "mulId": 9487,
   "role": "Sniper",
-  "source": "RG32"
+  "source": "RG32",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -65,6 +65,28 @@ projection once, following the undefined/absence rule in
 stays undefined in the projection; the adapter supplies no Standard armor
 default. Existing registry hydration/default behavior is retained.
 
+### Reviewed loader shim: the legacy ProtoMech `Ultraheavy` chassis (4.1-b3d)
+
+Ultraheavy is a mass above 9 t, not a chassis (MegaMekLab 62bf193
+`PMChassisView.java:205-207`), so the editor no longer stores
+`chassisType: "Ultraheavy"`; a biped of any tonnage is `Biped`. Drafts and
+library records saved before then still say `Ultraheavy`. The compatibility
+rule is, by C3's ruling for 4.1-b3d (D-b3d-1):
+
+- **Reading** maps the legacy value to `Biped` with the tonnage as saved
+  (`readSavedProtoChassis`, used by draft hydration in
+  `protoMechStoreRegistry.ts` and the library read in
+  `smallUnitDefinitionMapper.ts`). The save schema still accepts the value.
+- **Fingerprinting** projects a `Biped` above 9 t back to the label it was
+  fingerprinted with (`legacyProtoChassisLabel`, in `normalizedEditor`'s
+  ProtoMech case), so every stored draft and library fingerprint stays
+  byte-identical. Quads and gliders were never relabelled.
+- Stored fingerprints are never rewritten. The literals in
+  `__tests__/fixtures/protomech-ultraheavy-legacy.json` were captured from the
+  code at `901bbf314`, before the change, and must not be regenerated. A
+  `Biped` above 9 t created by the old editor was impossible (its tonnage clamp
+  was 2–9 t), so the projection cannot misread an old unit.
+
 The library loader attaches receipts only after validated, versioned custom
 loads. Canonical designs and read-only capital views acquire no receipt. UI
 status readers and save-dialog completion writers adopt these adapters in PR3;

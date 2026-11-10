@@ -323,9 +323,19 @@ describe('ValueMappings', () => {
       );
     });
 
-    it('should default to SINGLE for unknown', () => {
-      expect(mapHeatSinkType('Unknown')).toBe(HeatSinkType.SINGLE);
-    });
+    // B-class parity default: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
+    // MtfFile.java:366-369,572-599 recognizes Double/Laser/Compact and otherwise
+    // installs single sinks. Retiring the unused converter must retain this
+    // existing live BV/record-sheet mapping, including on a Clan chassis.
+    it.each(['Unknown', '', 'Unclassified Sink'])(
+      'retains the native single-sink fallback for %j',
+      (source) => {
+        expect(mapHeatSinkType(source)).toBe(HeatSinkType.SINGLE);
+        expect(mapHeatSinkType(source, TechBase.CLAN)).toBe(
+          HeatSinkType.SINGLE,
+        );
+      },
+    );
   });
 
   describe('mapArmorType', () => {
@@ -426,9 +436,22 @@ describe('ValueMappings', () => {
       expect(isOmniMechConfig('Standard')).toBe(false);
     });
 
-    it('should be case-insensitive', () => {
-      expect(isOmniMechConfig('OMNIMECH')).toBe(true);
-      expect(isOmniMechConfig('omnimech')).toBe(true);
+    // MegaMek 48fcb2f64 MtfFile.java:358: chassisConfig.contains("Omni"),
+    // case-sensitive, like the configuration test (MtfFile.java:283-310).
+    it.each([
+      ['Biped OmniMek', true],
+      ['Quad OmniMek', true],
+      ['QuadVee OmniMek', true],
+      ['Tripod OmniMek', true],
+      ['Biped', false],
+      ['Biped FrankenMek', false],
+      ['QuadVee', false],
+      ['LAM', false],
+      ['OMNIMECH', false],
+      ['omnimech', false],
+      ['omni', false],
+    ])('%s -> %s as in the pinned loader', (source, expected) => {
+      expect(isOmniMechConfig(source)).toBe(expected);
     });
   });
 });

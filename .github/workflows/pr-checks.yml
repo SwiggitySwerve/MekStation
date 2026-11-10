@@ -224,6 +224,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: node --test scripts/__tests__/v220-format.test.mjs
 
+      - name: Check jest-dom skip list safety
+        if: ${{ !cancelled() }}
+        run: node scripts/jest/jest-dom-usage.js --check
+
       - name: Validate roadmap ledger
         if: ${{ !cancelled() }}
         run: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs
@@ -233,6 +237,10 @@ jobs:
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
 
       # Delta specs change in docs/openspec-only PRs too: no code path gate.
+      - name: Validate OpenSpec specs (strict)
+        if: ${{ !cancelled() }}
+        run: npm run openspec:validate
+
       - name: Validate OpenSpec delta headers and regression tests
         if: ${{ !cancelled() }}
         run: |
@@ -494,7 +502,7 @@ jobs:
         working-directory: desktop
         run: npm run build
 
-      - name: Enforce complete web artifact byte budgets
+      - name: Census complete web artifact bytes (advisory)
         if: ${{ !cancelled() }}
         run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
 
@@ -577,7 +585,7 @@ jobs:
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
 
-      - name: Enforce complete Linux installer byte budget
+      - name: Census complete Linux installer bytes (advisory)
         if: ${{ !cancelled() }}
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
@@ -941,12 +949,31 @@ jobs:
           GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
         run: node scripts/ci/budget-aggregate.mjs
 
+      - name: Checkout current main budget validator
+        id: budget-validator
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          path: .budget-validator
+          sparse-checkout: |
+            scripts/ci
+            scripts/lib/statistics.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Enforce budget-raise approval with read-only live inputs
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
-            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const { pathToFileURL } = require('node:url');
+            const validatorRoot = `${process.env.GITHUB_WORKSPACE}/.budget-validator`;
+            const validatorSha = '${{ steps.budget-validator.outputs.commit }}';
+            core.info(`budget-validator: main@${validatorSha}`);
+            const { checkBudgetPolicy } = await import(pathToFileURL(`${validatorRoot}/scripts/ci/budget-approval.mjs`).href);
+            // The validator reads budgets via the API at live PR head/base SHAs.
             const result = await checkBudgetPolicy({ github, ...context.repo,
               number: context.payload.pull_request.number, publish: false });
             core.info(JSON.stringify(result));
