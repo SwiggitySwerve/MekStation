@@ -3,6 +3,10 @@ import type { IContract, IMission } from '@/types/campaign/Mission';
 import type { IPaymentTerms } from '@/types/campaign/PaymentTerms';
 
 import {
+  getContractLifecyclePolicy,
+  validateContractLifecycleState,
+} from '@/types/campaign/ContractLifecycleRules';
+import {
   MissionStatus,
   parseMissionStatus,
 } from '@/types/campaign/enums/MissionStatus';
@@ -68,6 +72,11 @@ export function rehydrateCampaignMission(stored: IMission): IMission {
   const mission = status === stored.status ? stored : { ...stored, status };
   if (!isContract(mission)) return mission;
   const contract: IContract = mission;
+  if (
+    getContractLifecyclePolicy(contract.lifecycleRulesVersion).kind === 'staged'
+  ) {
+    validateContractLifecycleState(contract.lifecycle);
+  }
 
   const rehydrated: IContract = {
     ...contract,
