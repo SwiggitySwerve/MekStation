@@ -1,0 +1,15 @@
+{
+  "nonUnits": ["index.json", "units-manifest.json"],
+  "fixtures": {
+    "battlearmor": [
+      "clan-sylph-sqd5.json",
+      "elemental-standard-sqd5.json",
+      "is-cavalier-sqd4.json"
+    ],
+    "infantry": [
+      "foot-rifle-platoon.json",
+      "jump-srm-platoon.json",
+      "mechanized-tracked-platoon.json"
+    ]
+  }
+}

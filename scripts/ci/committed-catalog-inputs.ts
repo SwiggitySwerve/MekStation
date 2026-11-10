@@ -3,6 +3,8 @@ import { execFileSync } from 'node:child_process';
 import * as path from 'node:path';
 import { z } from 'zod';
 
+import indexRuleData from '../megameklab-conversion/unit-index-rules.json';
+
 export const CatalogUnit = z
   .object({ chassis: z.string().min(1), model: z.string() })
   .passthrough();
@@ -40,36 +42,19 @@ export function resolveCommit(repo: string, commit: string): string {
     .trim();
 }
 
-/** Fixture membership has one owner in Python's catalog index generator. */
-function indexRules(python: string): {
-  fixtures: Record<string, string[]>;
-  nonUnits: string[];
-} {
-  const raw: unknown = JSON.parse(
-    execFileSync(
-      python,
-      [
-        '-B',
-        '-c',
-        "import sys,json;sys.path.insert(0,sys.argv[1]);from unit_index import LEGACY_FIXTURES,NON_UNIT_FILES;print(json.dumps({'fixtures':{k:sorted(v) for k,v in LEGACY_FIXTURES.items()},'nonUnits':sorted(NON_UNIT_FILES)}))",
-        path.resolve(__dirname, '../megameklab-conversion'),
-      ],
-      { encoding: 'utf8', timeout: 30000, windowsHide: true },
-    ),
-  );
-  return z
-    .object({
-      fixtures: z.record(z.string(), z.array(z.string())),
-      nonUnits: z.array(z.string()),
-    })
-    .parse(raw);
-}
+/** Fixture membership has one JSON owner, also consumed by Python's index generator. */
+const indexRules = z
+  .object({
+    fixtures: z.record(z.string(), z.array(z.string())),
+    nonUnits: z.array(z.string()),
+  })
+  .parse(indexRuleData);
 
 export function readCatalog(
   repo: string,
   commit: string,
   families: readonly string[],
-  python: string,
+  _python?: string,
 ): {
   commit: string;
   entries: ICatalogEntry[];
@@ -78,7 +63,7 @@ export function readCatalog(
   indexes: { file: string; blob: string }[];
 } {
   const resolved = resolveCommit(repo, commit);
-  const rules = indexRules(python);
+  const rules = indexRules;
   const tree = git(repo, [
     'ls-tree',
     '-rz',
