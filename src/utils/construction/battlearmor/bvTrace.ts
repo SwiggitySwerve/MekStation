@@ -53,6 +53,14 @@ export function battleArmorBVTerms(
       terms[`trooper.${offset + 1}.${key}`] = battleValue;
     }
   });
+  // Section totals follow the same rule: trooper 1 at squad level.
+  (b.nativeSectionBVByTrooper ?? []).forEach((sections, offset) => {
+    for (const [label, value] of Object.entries(sections)) {
+      const key = `section.${label}`;
+      if (offset === 0) terms[key] = value;
+      terms[`trooper.${offset + 1}.${key}`] = value;
+    }
+  });
   return terms;
 }
 
