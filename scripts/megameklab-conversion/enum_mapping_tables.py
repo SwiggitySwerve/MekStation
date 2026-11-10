@@ -221,6 +221,10 @@ ARMOR_TYPE_MAP: Dict[str, str] = {
 
 HEAT_SINK_TYPE_MAP: Dict[str, str] = {
     **MTF_COMPONENT_VOCABULARY["heatSink"],
+    # Bare "Double" takes its tech base from the unit in the pinned loader
+    # (MtfFile.java:581-594), so it is not a fixed shared entry. The converter
+    # has always read it as the Inner Sphere double.
+    "Double": "DOUBLE",
     "Single Heat Sink": "SINGLE",
     "Single Heat Sinks": "SINGLE",
     "Double Heat Sink": "DOUBLE",

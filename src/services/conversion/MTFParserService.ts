@@ -82,9 +82,15 @@ export class MTFParserService {
       const armorType = mapArmorType(armor.type);
       const gyroName = parseField(lines, 'gyro') ?? '';
       const cockpitName = parseField(lines, 'cockpit') ?? '';
-      const gyroType = mapGyroType(gyroName);
-      const cockpitType = mapCockpitType(cockpitName);
-      const heatSinkType = mapHeatSinkType(heatSinks.type);
+      // mek.isClan() in the pinned loader: Clan, or Mixed with a Clan chassis
+      // (MtfFile.java:848-890).
+      const clanUnit = /^clan$|^mixed\s*\(clan chassis\)$/i.test(
+        header.techBase.trim(),
+      );
+      const gyro = mapGyroType(gyroName);
+      const cockpit = mapCockpitType(cockpitName);
+      const heatSink = mapHeatSinkType(heatSinks.type, clanUnit);
+      const cockpitType = cockpit.type;
       if (header.config.includes('FrankenMek')) {
         warnings.push(`Unsupported MTF configuration: ${header.config}`);
       }
@@ -94,14 +100,25 @@ export class MTFParserService {
       if (armorType.startsWith('UNSUPPORTED_ARMOR:')) {
         warnings.push(`Unsupported MTF armor: ${armor.type}`);
       }
-      if (gyroType.startsWith('UNSUPPORTED_GYRO:')) {
-        warnings.push(`Unsupported MTF gyro: ${gyroName}`);
+      // The pinned loader substitutes a default for an unrecognised string
+      // instead of refusing the file; so does the importer, and it says so.
+      if (gyro.defaulted) {
+        warnings.push(
+          `Unsupported MTF gyro "${gyroName}" loaded as Standard (MtfFile.java:252-259)`,
+        );
+      }
+      if (cockpit.defaulted) {
+        warnings.push(
+          `Unsupported MTF cockpit "${cockpitName}" loaded as Standard (MtfFile.java:262-269)`,
+        );
       }
       if (cockpitType.startsWith('UNSUPPORTED_COCKPIT:')) {
         warnings.push(`Unsupported MTF cockpit: ${cockpitName}`);
       }
-      if (heatSinkType.startsWith('UNSUPPORTED_HEAT_SINK:')) {
-        warnings.push(`Unsupported MTF heat sink: ${heatSinks.type}`);
+      if (heatSink.defaulted) {
+        warnings.push(
+          `Unsupported MTF heat sink "${heatSinks.type}" loaded as Single (MtfFile.java:566-598)`,
+        );
       }
 
       const unit: ISerializedUnit = {
@@ -120,7 +137,7 @@ export class MTFParserService {
           rating: engine.rating,
         },
         gyro: {
-          type: gyroType,
+          type: gyro.type,
         },
         cockpit: cockpitType,
         structure: parsedStructure,
@@ -129,7 +146,7 @@ export class MTFParserService {
           allocation: armor.allocation,
         },
         heatSinks: {
-          type: heatSinkType,
+          type: heatSink.type,
           count: heatSinks.count,
         },
         movement: {

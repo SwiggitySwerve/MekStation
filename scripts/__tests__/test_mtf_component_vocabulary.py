@@ -84,11 +84,6 @@ NEW_EXACT = {
         "Superheavy Industrial": "SUPERHEAVY_INDUSTRIAL",
         "Tripod Industrial": "TRIPOD_INDUSTRIAL",
         "Superheavy Tripod Industrial": "SUPERHEAVY_TRIPOD_INDUSTRIAL",
-        "Industrial Cockpit (Adv. FCS)": "INDUSTRIAL",
-        "Primitive Industrial Cockpit (Adv. FCS)": "PRIMITIVE_INDUSTRIAL",
-        "Superheavy Industrial Cockpit (Adv. FCS)": "SUPERHEAVY_INDUSTRIAL",
-        "Tripod Industrial Cockpit (Adv. FCS)": "TRIPOD_INDUSTRIAL",
-        "Superheavy Tripod Industrial Cockpit (Adv. FCS)": "SUPERHEAVY_TRIPOD_INDUSTRIAL",
     },
     'HEAT_SINK_TYPE_MAP': {"IS Double": "DOUBLE"},
 }
@@ -172,6 +167,26 @@ class MtfComponentVocabularyTest(unittest.TestCase):
                 with self.subTest(mapper=mapper.__name__, name=name):
                     with self.assertRaisesRegex(ValueError, label):
                         mapper(name)
+
+    def test_cockpit_order_is_the_pinned_java_index_order(self):
+        # Mek.java:214-229. The TypeScript importer scans this order for the
+        # first prefix match (Mek.getCockpitTypeForString), so it must not drift.
+        shared = json.loads(SHARED.read_text(encoding='utf-8-sig'))
+        order = shared['cockpitOrder']
+        self.assertEqual(len(order), 19)
+        self.assertEqual([pair[0] for pair in order][:3],
+                         ['Standard Cockpit', 'Small Cockpit', 'Command Console'])
+        self.assertEqual(order[10], ['Tripod Cockpit', 'Tripod'])
+        self.assertEqual(order[18], ['Superheavy Tripod Industrial Cockpit',
+                                     'Superheavy Tripod Industrial'])
+        names = {name for pair in order for name in pair}
+        # Every table key is a Java name; the three types the contract cannot
+        # hold yet (Dual, Small Command, Superheavy Command) are Java names
+        # without an identity.
+        self.assertLessEqual(set(shared['cockpit']), names)
+        absent = names - set(shared['cockpit'])
+        self.assertEqual(absent, {'Dual Cockpit', 'Dual', 'Superheavy Command Console',
+                                  'Superheavy Command', 'Small Command Console', 'Small Command'})
 
     def test_tables_load_regardless_of_working_directory(self):
         probe = (

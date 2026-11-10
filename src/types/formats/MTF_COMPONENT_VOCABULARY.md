@@ -29,10 +29,28 @@ Both consumers read this one file:
   `UNSUPPORTED_HEAT_SINK` for an unlisted name, the same contract as
   `map_armor_type`. Only a blank value means Standard/Single.
 - `src/services/conversion/MTFVocabulary.ts` exposes `mapGyroType`,
-  `mapCockpitType`, `mapHeatSinkType` and `mapRulesLevel`. An unlisted name
-  becomes `UNSUPPORTED_GYRO:<raw>` (and the cockpit and heat sink equivalents)
-  with a parse warning; the unit contract then rejects it. Unreadable rules
-  levels keep their existing `STANDARD` fallback in both languages.
+  `mapCockpitType`, `mapHeatSinkType` and `mapRulesLevel`. **The importer loads
+  what the pinned loader loads.** MegaMek never refuses a file over an
+  unrecognised gyro, cockpit or heat sink string, so neither does the importer:
+  it applies Java's default and adds a parse warning (returned to the caller by
+  the import route):
+  - gyro: exact full or short name, else Standard (`MtfFile.java:252-259`);
+  - cockpit: exact full or short name, else the first Java index whose full or
+    short name is a prefix (`Mek.getCockpitTypeForString`, `Mek.java:4935-4950`;
+    this is how the writer's ` (Adv. FCS)` suffix reads back, quirks included:
+    `Primitive Industrial Cockpit (Adv. FCS)` reads as Primitive because the
+    short name `Primitive` has the lower index), else Standard
+    (`MtfFile.java:262-269`). The scan order is `cockpitOrder`, checked against
+    `Mek.java:214-229`;
+  - heat sink: exact name from the table, else by keyword in the loader's order,
+    Laser, Double (Clan or IS from the text, else the unit's own tech base),
+    Compact, otherwise Single (`MtfFile.java:566-598`).
+    Only a Java type the contract cannot hold yet (below) keeps an
+    `UNSUPPORTED_COCKPIT:<raw>` value, which the unit contract rejects. Unreadable
+    rules levels keep their existing `STANDARD` fallback in both languages.
+
+Python is stricter on purpose: its converter output feeds the committed catalog,
+so an unlisted name there is an error rather than a guess (the R1 contract).
 
 The file is a converter input. `strict-provenance-inputs.json` lists it, so a
 change here invalidates old strict-export receipts.
@@ -58,6 +76,16 @@ converter and `CockpitType`.
    must leave `sources.ndjson` identical; an edit the corpus uses is a catalog
    decision.
 
-Not in the table on purpose, so they stay unsupported: `Dual Cockpit`,
-`Small Command Console`, `Superheavy Command Console` and their short names,
-and Python's old guess-by-substring spellings.
+Java loads `Dual Cockpit`, `Small Command Console` and `Superheavy Command
+Console` (and their short names) as real types that neither the contract nor
+`CockpitType` can represent yet. They are listed in `cockpitOrder` but have no
+identity in `cockpit`, so the importer reports `UNSUPPORTED_COCKPIT` for them
+and Python raises. 4.1-g.2 gives them identities together with `CockpitType`.
+
+Bare `Double` is not a table entry: Java takes its tech base from the unit, so
+the importer resolves it by keyword. The Python converter keeps it as a legacy
+alias for the Inner Sphere double.
+
+Known residual: Java takes the text after `gyro:` and `cockpit:` unchanged
+(`substring(5)`, `substring(8)`), so `cockpit: Small Cockpit` with a space does
+not match there, while the importer trims. No pinned source has the space.

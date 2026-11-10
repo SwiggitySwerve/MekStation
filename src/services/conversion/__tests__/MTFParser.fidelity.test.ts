@@ -6,6 +6,9 @@ import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupS
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { importMTFDefinition } from '@/services/units/importMTFDefinition';
 import { UnitLoaderService } from '@/services/units/unitLoaderService';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { GyroType } from '@/types/construction/GyroType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
 
 import { captureMechValidity } from '../../../../scripts/unit-construction-validity';
 import { MTFParserService } from '../MTFParserService';
@@ -119,5 +122,48 @@ describe('MTF import fidelity to the committed catalog (m1 fields)', () => {
       expect(importedValidity.isValid).toBe(canonicalValidity.isValid);
       expect(importedValidity.errors).toEqual(canonicalValidity.errors);
     }
+  });
+});
+
+// The pinned loader never refuses a file over an unrecognised gyro, cockpit or
+// heat sink string: it loads Standard, Standard and Single (MtfFile.java:252-269,
+// :566-598). The real import route must load the unit the same way, keep the
+// declared heat sink count, and return the warnings to the caller.
+describe('unrecognised component strings on the real import route', () => {
+  const clint = fixtures.rows.find((row) =>
+    row.path.endsWith('/Clint CLNT-6S.mtf'),
+  );
+  if (!clint) throw new Error('Missing Clint CLNT-6S fixture');
+  const original = Buffer.from(clint.base64, 'base64').toString('utf8');
+
+  it('loads Standard, Standard and Single with a warning for each', async () => {
+    const text = original
+      .replace(/^cockpit:.*$/im, 'cockpit:Mystery Cockpit')
+      .replace(/^heat sinks:(\d+) .*$/im, 'heat sinks:$1 Dissipators')
+      .replace(/^(cockpit:.*)$/im, '$1\ngyro:Quantum Gyro');
+    expect(text).toContain('gyro:Quantum Gyro');
+    expect(text).toContain('heat sinks:12 Dissipators');
+
+    const imported = await importMTFDefinition(text);
+    if (!imported.success) {
+      throw new Error(
+        `import failed: ${imported.error.message} ${(imported.error.validationErrors ?? []).join('; ')}`,
+      );
+    }
+    expect(imported.data.warnings).toEqual(
+      expect.arrayContaining([
+        'Unsupported MTF gyro "Quantum Gyro" loaded as Standard (MtfFile.java:252-259)',
+        'Unsupported MTF cockpit "Mystery Cockpit" loaded as Standard (MtfFile.java:262-269)',
+        'Unsupported MTF heat sink "Dissipators" loaded as Single (MtfFile.java:566-598)',
+      ]),
+    );
+    const state = new UnitLoaderService().mapToUnitState(
+      imported.data.definition as never,
+      true,
+    );
+    expect(state.gyroType).toBe(GyroType.STANDARD);
+    expect(state.cockpitType).toBe(CockpitType.STANDARD);
+    expect(state.heatSinkType).toBe(HeatSinkType.SINGLE);
+    expect(state.heatSinkCount).toBe(12);
   });
 });

@@ -78,7 +78,8 @@ Every supported source family SHALL preserve its domain facts through import, se
 - **GIVEN** an MTF source declaring any pinned gyro, cockpit or heat sink name, or rules level 1 to 5
 - **WHEN** it is parsed by the app importer and by the Python converter
 - **THEN** both SHALL read one shared vocabulary file and resolve the same serialized identity, including Compact and Heavy Duty gyros, IS and Clan Double, Laser and Compact heat sinks, and rules level 5 as Unofficial
-- **AND** a name outside the vocabulary SHALL produce an explicit unsupported diagnostic, never a Standard or Single default
+- **AND** a gyro, cockpit or heat sink string the pinned loader defaults SHALL load with that Java default and a parse warning, not be rejected at import
+- **AND** a pinned cockpit type the contract cannot hold SHALL produce an explicit unsupported diagnostic
 - **AND** the identity SHALL equal the committed catalog's for the same source bytes
 
 #### Scenario: Preserve slot-only weapons through MTF import and save

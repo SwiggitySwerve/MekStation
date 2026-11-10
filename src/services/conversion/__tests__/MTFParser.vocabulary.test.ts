@@ -36,15 +36,9 @@ const COCKPIT: Array<[string, string]> = [
   ['Superheavy Cockpit', 'SUPERHEAVY'],
   ['Primitive Industrial Cockpit', 'PRIMITIVE_INDUSTRIAL'],
   ['Virtual Reality Piloting Pod', 'VRRP'],
-  // Mek.java:4879-4894: the writer appends this to every industrial cockpit.
-  ['Industrial Cockpit (Adv. FCS)', 'INDUSTRIAL'],
-  ['Primitive Industrial Cockpit (Adv. FCS)', 'PRIMITIVE_INDUSTRIAL'],
-  ['Superheavy Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY_INDUSTRIAL'],
-  ['Tripod Industrial Cockpit (Adv. FCS)', 'TRIPOD_INDUSTRIAL'],
-  [
-    'Superheavy Tripod Industrial Cockpit (Adv. FCS)',
-    'SUPERHEAVY_TRIPOD_INDUSTRIAL',
-  ],
+  ['Superheavy Industrial Cockpit', 'SUPERHEAVY_INDUSTRIAL'],
+  ['Tripod Industrial Cockpit', 'TRIPOD_INDUSTRIAL'],
+  ['Superheavy Tripod Industrial Cockpit', 'SUPERHEAVY_TRIPOD_INDUSTRIAL'],
   // Mek.java:224 COCKPIT_SHORT_STRING (the pinned source spells VRRP "VRPP").
   ['Torso Mounted', 'TORSO_MOUNTED'],
   ['Interface', 'INTERFACE'],
@@ -54,7 +48,7 @@ const COCKPIT: Array<[string, string]> = [
 ];
 const HEAT_SINKS: Array<[string, string]> = [
   ['Single', 'SINGLE'],
-  ['Double', 'DOUBLE'],
+  ['Double Heat Sinks', 'DOUBLE'],
   ['IS Double', 'DOUBLE'],
   ['Clan Double', 'DOUBLE_CLAN'],
   ['Laser', 'LASER'],
@@ -63,13 +57,13 @@ const HEAT_SINKS: Array<[string, string]> = [
 
 // parseField takes the first matching line, so the base omits anything a case
 // sets (rules level included); a missing rules level reads as '2'.
-function parse(extra: string[]) {
+function parse(extra: string[], techbase = 'Inner Sphere') {
   const result = new MTFParserService().parse(
     [
       'chassis:Vocabulary',
       'model:Test',
       'Config:Biped',
-      'techbase:Inner Sphere',
+      `techbase:${techbase}`,
       'era:3050',
       'mass:50',
       'engine:200 Fusion Engine',
@@ -135,20 +129,101 @@ describe('MTF component vocabulary', () => {
     }
   });
 
-  describe('unknown values keep a diagnostic instead of a valid-looking default', () => {
+  // The pinned loader never refuses a file over these three strings: it
+  // substitutes a default (MtfFile.java:252-269 gyro and cockpit,
+  // :366-368 and :566-598 heat sinks). The importer does the same and says so.
+  describe('strings the pinned loader defaults load with that default and a warning', () => {
     // 'Heavy-Duty Gyro' is a Python-only alias, not a pinned MegaMek name.
     it.each(['Quantum Gyro', 'Heavy-Duty Gyro', 'xl gyro'])(
-      'gyro %s',
+      'gyro %s -> Standard',
       (name) => {
         const result = parse([`gyro:${name}`]);
-        expect(result.unit?.gyro.type).toBe(`UNSUPPORTED_GYRO:${name}`);
-        expect(result.warnings).toContain(`Unsupported MTF gyro: ${name}`);
-        expect(UnitContract.safeParse(result.unit).success).toBe(false);
+        expect(result.unit?.gyro.type).toBe('STANDARD');
+        expect(result.warnings).toContain(
+          `Unsupported MTF gyro "${name}" loaded as Standard (MtfFile.java:252-259)`,
+        );
       },
     );
 
-    it.each(['Dual Cockpit', 'Small Command Console', 'standard cockpit'])(
-      'cockpit %s',
+    it.each(['standard cockpit', 'Mystery Cockpit', 'Tiny'])(
+      'cockpit %s -> Standard',
+      (source) => {
+        const result = parse([`cockpit:${source}`]);
+        expect(result.unit?.cockpit).toBe('STANDARD');
+        expect(result.warnings).toContain(
+          `Unsupported MTF cockpit "${source}" loaded as Standard (MtfFile.java:262-269)`,
+        );
+      },
+    );
+
+    it('heat sink with no recognised keyword -> Single, keeping the count', () => {
+      const result = parse(['heat sinks:14 Dissipators']);
+      expect(result.unit?.heatSinks).toEqual({ type: 'SINGLE', count: 14 });
+      expect(result.warnings).toContain(
+        'Unsupported MTF heat sink "Dissipators" loaded as Single (MtfFile.java:566-598)',
+      );
+    });
+
+    it('recognised names and valid defaults add no warning', () => {
+      for (const extra of [
+        ['gyro:XL Gyro', 'cockpit:Small Cockpit', 'heat sinks:10 IS Double'],
+        ['heat sinks:10 Single'],
+        ['gyro:', 'cockpit:'],
+        [],
+      ]) {
+        expect(parse(extra).warnings).toEqual([]);
+      }
+    });
+  });
+
+  // MtfFile.java:566-598: contains Laser, else Double (Clan or IS from the
+  // text, otherwise the unit's own tech base), else Compact, else Single.
+  describe('heat sink keywords follow the pinned loader', () => {
+    it.each([
+      ['Laser Heat Sink', 'Inner Sphere', 'LASER'],
+      ['Double Heat Sinks', 'Inner Sphere', 'DOUBLE'],
+      ['Clan Double Heat Sink', 'Inner Sphere', 'DOUBLE_CLAN'],
+      ['IS Double Heat Sink', 'Clan', 'DOUBLE'],
+      ['Double', 'Clan', 'DOUBLE_CLAN'],
+      ['Double', 'Mixed (Clan Chassis)', 'DOUBLE_CLAN'],
+      ['Double', 'Mixed (IS Chassis)', 'DOUBLE'],
+      ['Double Laser', 'Inner Sphere', 'LASER'],
+      ['Compact Heat Sink', 'Inner Sphere', 'COMPACT'],
+    ])('%s on %s -> %s', (name, techbase, identity) => {
+      const result = parse([`heat sinks:12 ${name}`], techbase);
+      expect(result.unit?.heatSinks.type).toBe(identity);
+      expect(result.warnings).toEqual([]);
+    });
+  });
+
+  // MtfFile.java:262-269 + Mek.getCockpitTypeForString (Mek.java:4935-4950):
+  // exact full or short name first, then the first index whose full or short
+  // name is a prefix. This is how the writer's " (Adv. FCS)" suffix reads back,
+  // quirks included (the short "Superheavy" and "Primitive" win by index).
+  describe('cockpit prefix matching follows the pinned loader', () => {
+    it.each([
+      ['Industrial Cockpit (Adv. FCS)', 'INDUSTRIAL'],
+      ['Primitive Industrial Cockpit (Adv. FCS)', 'PRIMITIVE'],
+      ['Superheavy Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY'],
+      ['Superheavy Tripod Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY'],
+      // Tripod Cockpit is the catalog's STANDARD until 4.1-g.2.
+      ['Tripod Industrial Cockpit (Adv. FCS)', 'STANDARD'],
+      ['Small Cockpit (prototype)', 'SMALL'],
+    ])('%s -> %s', (source, identity) => {
+      const result = parse([`cockpit:${source}`]);
+      expect(result.unit?.cockpit).toBe(identity);
+      expect(result.warnings).toEqual([]);
+    });
+
+    // Java loads these as real types the contract cannot hold yet, so the
+    // importer keeps an explicit diagnostic until 4.1-g.2 extends CockpitType.
+    it.each([
+      'Dual Cockpit',
+      'Small Command Console',
+      'Superheavy Command Console',
+      'Dual',
+    ])(
+      'Java-valid but unrepresentable %s keeps an unsupported diagnostic',
       (source) => {
         const result = parse([`cockpit:${source}`]);
         expect(result.unit?.cockpit).toBe(`UNSUPPORTED_COCKPIT:${source}`);
@@ -156,17 +231,5 @@ describe('MTF component vocabulary', () => {
         expect(UnitContract.safeParse(result.unit).success).toBe(false);
       },
     );
-
-    it('heat sinks, keeping the declared count', () => {
-      const result = parse(['heat sinks:14 Dissipators']);
-      expect(result.unit?.heatSinks).toEqual({
-        type: 'UNSUPPORTED_HEAT_SINK:Dissipators',
-        count: 14,
-      });
-      expect(result.warnings).toContain(
-        'Unsupported MTF heat sink: Dissipators',
-      );
-      expect(UnitContract.safeParse(result.unit).success).toBe(false);
-    });
   });
 });

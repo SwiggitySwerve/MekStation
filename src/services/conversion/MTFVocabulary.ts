@@ -102,29 +102,75 @@ function lookup(table: Readonly<Record<string, string>>, name: string) {
     : undefined;
 }
 
-/** MtfFile.java:252-259: an absent or blank gyro is Standard. A name outside
- * the shared table is reported, never guessed. */
-export function mapGyroType(gyro: string): string {
-  const name = gyro.trim();
-  if (!name) return vocabulary.gyro['Standard Gyro'];
-  return lookup(vocabulary.gyro, name) ?? `UNSUPPORTED_GYRO:${gyro}`;
+/** A resolved component identity. `defaulted` is set when the pinned loader
+ * substituted its default for a string it did not recognise, which the parser
+ * reports as a warning. */
+export interface IMappedComponent {
+  readonly type: string;
+  readonly defaulted?: boolean;
 }
 
-/** MtfFile.java:262-269: an absent or blank cockpit is Standard. */
-export function mapCockpitType(cockpit: string): string {
+/** MtfFile.java:252-259: an absent, blank or unrecognised gyro loads as
+ * Standard (exact full or short name, Mek.getGyroTypeForString). */
+export function mapGyroType(gyro: string): IMappedComponent {
+  const name = gyro.trim();
+  const standard = vocabulary.gyro['Standard Gyro'];
+  if (!name) return { type: standard };
+  const identity = lookup(vocabulary.gyro, name);
+  return identity ? { type: identity } : { type: standard, defaulted: true };
+}
+
+/** MtfFile.java:262-269 with Mek.getCockpitTypeForString (Mek.java:4935-4950):
+ * an exact full or short name wins, then the first Java index whose full or
+ * short name is a prefix (how the writer's " (Adv. FCS)" suffix reads back);
+ * anything else loads as Standard. A Java type the contract cannot hold yet
+ * (Dual, Small Command, Superheavy Command) keeps an explicit unsupported
+ * diagnostic; 4.1-g.2 extends CockpitType. */
+export function mapCockpitType(cockpit: string): IMappedComponent {
   const name = cockpit.trim();
-  if (!name) return vocabulary.cockpit['Standard Cockpit'];
-  return lookup(vocabulary.cockpit, name) ?? `UNSUPPORTED_COCKPIT:${cockpit}`;
+  const standard = vocabulary.cockpit['Standard Cockpit'];
+  if (!name) return { type: standard };
+  const order = vocabulary.cockpitOrder;
+  let index = order.findIndex(
+    ([full, short]) => name === full || name === short,
+  );
+  if (index < 0) {
+    index = order.findIndex(
+      ([full, short]) => name.startsWith(full) || name.startsWith(short),
+    );
+  }
+  if (index < 0) return { type: standard, defaulted: true };
+  const identity = lookup(vocabulary.cockpit, order[index][0]);
+  return { type: identity ?? `UNSUPPORTED_COCKPIT:${cockpit}` };
 }
 
 /** The pinned writer emits Single, Laser, Compact, IS Double and Clan Double
- * (Mek.java:5351-5362). */
-export function mapHeatSinkType(heatSink: string): string {
+ * (Mek.java:5351-5362). The loader itself reads the line by keyword, in this
+ * order: Laser, Double (Clan or IS from the text, else the unit's own tech
+ * base), Compact, otherwise Single (MtfFile.java:366-368, 566-598). */
+export function mapHeatSinkType(
+  heatSink: string,
+  clanUnit: boolean,
+): IMappedComponent {
   const name = heatSink.trim();
-  if (!name) return vocabulary.heatSink.Single;
-  return (
-    lookup(vocabulary.heatSink, name) ?? `UNSUPPORTED_HEAT_SINK:${heatSink}`
-  );
+  if (!name) return { type: vocabulary.heatSink.Single };
+  const identity = lookup(vocabulary.heatSink, name);
+  if (identity) return { type: identity };
+  if (name.includes('Laser')) return { type: vocabulary.heatSink.Laser };
+  if (name.includes('Double')) {
+    const clan = name.includes('Clan')
+      ? true
+      : name.includes('IS')
+        ? false
+        : clanUnit;
+    return {
+      type: clan
+        ? vocabulary.heatSink['Clan Double']
+        : vocabulary.heatSink['IS Double'],
+    };
+  }
+  if (name.includes('Compact')) return { type: vocabulary.heatSink.Compact };
+  return { type: vocabulary.heatSink.Single, defaulted: true };
 }
 
 export function mapRulesLevel(level: string): string {
