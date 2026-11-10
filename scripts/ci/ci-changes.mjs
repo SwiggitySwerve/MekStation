@@ -433,7 +433,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   lines.push(`data-specs=${JSON.stringify(dataSpecs)}`);
   console.log(`ci-changes: ${reason}`);
   for (const line of lines) console.log(`  ${line}`);
-  if (dataSpecs.length) console.log(LIMIT);
+  // Always on PR runs, selected or not: a green or skipped data step does not
+  // mean no spec depends on this data (family/glob selection is not seen).
+  if (process.env.GITHUB_EVENT_NAME === 'pull_request') console.log(LIMIT);
   if (process.env.GITHUB_OUTPUT) {
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `${lines.join('\n')}\n`);
   }
