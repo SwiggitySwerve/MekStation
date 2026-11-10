@@ -50,3 +50,19 @@ trooper 1's list at squad level and every trooper's under `trooper.N.`.
 Scope limit: the parity comparator folds each location to a count plus a
 descending value list, so these terms establish per-location value parity, not
 MegaMek equipment numbers or internal names. `<n>` is MekStation's mount order.
+
+## Native section diagnostics
+
+`nativeMountPasses` in `battleArmorBV.ts` is the one owner of the per-mount pass
+values of `BattleArmorBVCalculator.java:133-160`; the `weapon.*` terms (a mount's
+passes summed) and the `section.*` terms (each pass summed over the mounts)
+both read it. The Java probe records `section.<label>` as the offensive value
+that pass adds (`java_bv_terms.py:107-108`), including 0, under the labels
+`Weapons:`, `Squad Support:` and, only when `canMakeBAAntiMekAttacks`,
+`Anti-Mek:` (`:154-160`). `bvTrace.ts` formats trooper 1's totals at squad level
+and every trooper's under `trooper.N.`.
+
+`projectBAMounts` reports `nativeWeaponsComplete`: false when a counted
+(positive-BV) weapon mount has no native `unitLocation`. The totals would then
+miss that mount, so no section term is traced; such units get no sections rather
+than a wrong 0.

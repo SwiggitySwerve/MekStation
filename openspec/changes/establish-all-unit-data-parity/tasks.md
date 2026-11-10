@@ -1422,6 +1422,22 @@ passing execution. An unverified effect or outcome stays "not verified".
     unchanged, four mutants killed. Evidence: `parity-4.3-c/`,
     `parity-5.2-c/PLAN.md`. Scope: seatless Tripod printing only; crew authoring
     and full all-family figure/location/quirk/SPA proof remain open.
+  - OPEN, owner C3: **Stale record-sheet templates pass silently.**
+    - **The fault:** postinstall `scripts/mm-data/check-assets.js` trusts the
+      `mm-data-version.json` stamp (v0.3.1). So an install from before
+      2026-11-03 lacks `smallcraft_aerodyne_default.svg`,
+      `smallcraft_spheroid_default.svg` and `spacestation_default.svg`, which
+      `config/mm-data-assets.json` has required since a511cbacf, and gives no
+      message.
+    - **The effect:** that install prints NaN armor on small craft and no
+      space-station sheet. Locally, it fails 4 `customizer-library-open`
+      tests. CI and release are unaffected.
+    - **Fix:** a presence check against the required list that names the
+      missing files, sharing one owner with
+      `scripts/mm-data/validate-assets.ts`, plus a named runtime failure in
+      place of NaN.
+    - Evidence: `parity-5.2-c/PLAN.md` (C3 record-sheet templates note),
+      `c3-pending-notes.md` (13:37:39Z/13:39:38Z).
   - OPEN, C3: complete all-family figure, location, unit/weapon/pilot quirk and
     SPA proof is not recorded. Supplied Tripod/QuadVee roster printing
     supersedes the old one-pilot rendering deferral at that scope;
@@ -1496,6 +1512,10 @@ passing execution. An unverified effect or outcome stays "not verified".
     draft checks. Evidence: PARITY-PLAN §53,
     `parity-5.2-c/RESUME-PLAN.md` (Step A). Close with the inventory and
     approved shared-flow selection coverage; this ledger does not implement it.
+    The shared-flows map adds the `campaign-persistence` flow with sweep spec
+    `e2e/campaign-unload-adoption.spec.ts` (about 4–5 min), triggered by the
+    campaign persistence paths, `useServiceWorker.ts` and
+    `public/service-worker.js`, plus the nightly.
   - OPEN provenance finding, C5: the pinned mm-data tree is CRLF-converted,
     with identical content after newline normalization. Rebuild it as LF or
     record the conversion in provenance. Evidence:
@@ -1687,17 +1707,22 @@ passing execution. An unverified effect or outcome stays "not verified".
           proposal §6 lists them).
         - **Interaction:** C5's parked #3315 edits the same file. It rebases
           on C4's PR 1 and re-runs its old-tab and unvisited-route checks.
-    - **D-11 REGRESSED** (unticked on ROADMAP by Root's instruction).
-      Validation nightly **42795664179** on `3e96c2283`: Full E2E 1,030 passed,
-      **4 failed**, 0 flaky, 24 skipped; every other job green. All 4 failures
-      are `e2e/customizer-mech-crew-roster.spec.ts:185` (tripod and QuadVee crew
-      seats), caused by #3338's save confirmation not being reflected in that
-      spec. #3338 itself works as designed. C3 fixes the spec as the only
-      merge-freeze exception; **D-11 re-closes only on a green Full E2E on the
-      fixed main.** Earlier green: nightly 42767605703 on `45a1c1d35`
-      (1,033/0/0/24), superseded.
-      Evidence: `validation-3e96c2283/c4/nightly-42795664179-full-e2e.log`,
-      PARITY-PLAN §53.
+    - **D-11 CLOSED (re-ticked).**
+      - **Regression:** validation nightly 42795664179 on `3e96c2283` had 4
+        failures in `customizer-mech-crew-roster.spec.ts:185`. #3338's save
+        confirmation was not reflected in that spec; #3338 itself worked as
+        designed.
+      - **Fix:** C3's spec-only #3341 merged as `73ef85c97`.
+      - **Re-close run: Nightly Validation 42814541429 on `73ef85c97`, every job
+        success.** Full E2E 1,058 tests: 1,033 passed, 0 failed, **1 flaky**,
+        24 skipped.
+        - The flaky test is `e2e/saved-custom-combat-launch.spec.ts:229` (a
+          server-saved custom unit through production combat), which passed
+          on retry; it's recorded as an OPEN observation.
+        - The four `customizer-mech-crew-roster` tests passed on the first
+          attempt (retry 0).
+        - All six lanes, plus Recapture, Coverage and Stats, succeeded.
+      - **Evidence:** `d11-e2e/nightly-42814541429/`.
     - G14: C4, OPEN: hand play does not apply boosted MP; 2b must ship boost and
       pinned check together at replay version 3, after R11a. Evidence:
       `c1c-design/DESIGN.md`, `c1c-design/PAUSE-STATE.md`.
