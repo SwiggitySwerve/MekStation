@@ -12,36 +12,7 @@ import {
   AerospaceSubType,
 } from '@/types/unit/AerospaceInterfaces';
 
-import {
-  cockpitTons,
-  computeWeightBreakdown,
-  heatSinkExtraTons,
-} from '../weightBreakdown';
-
-describe('cockpitTons', () => {
-  it('uses 3 t for the standard cockpit (default)', () => {
-    expect(cockpitTons('Standard')).toBe(3);
-    expect(cockpitTons('UnknownCockpit')).toBe(3); // default fallback
-  });
-
-  it('matches per-type tonnage table', () => {
-    expect(cockpitTons('Small')).toBe(2);
-    expect(cockpitTons('Primitive')).toBe(5);
-    expect(cockpitTons('Command Console')).toBe(6);
-  });
-});
-
-describe('heatSinkExtraTons (engine-free baseline)', () => {
-  it('returns 0 when ≤10 heat sinks (all engine-integral)', () => {
-    expect(heatSinkExtraTons(10)).toBe(0);
-    expect(heatSinkExtraTons(5)).toBe(0);
-  });
-
-  it('charges 1 t per sink above 10', () => {
-    expect(heatSinkExtraTons(11)).toBe(1);
-    expect(heatSinkExtraTons(20)).toBe(10);
-  });
-});
+import { computeWeightBreakdown } from '../weightBreakdown';
 
 describe('computeWeightBreakdown', () => {
   it('aggregates all components and computes remaining tonnage', () => {

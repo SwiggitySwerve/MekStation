@@ -15,40 +15,8 @@ import {
 } from '../../../types/unit/AerospaceInterfaces';
 import { aerospaceEngineWeight } from './engineWeightAerospace';
 import { siExtraWeightTons } from './siCalculations';
-
-// ============================================================================
-// Cockpit Tonnage by Cockpit Type
-// ============================================================================
-
-/** Cockpit tonnage by cockpit type name. Standard = 3, Small = 2. */
-const COCKPIT_TONS: Record<string, number> = {
-  Standard: 3,
-  Small: 2,
-  Primitive: 5,
-  'Command Console': 6,
-};
-
-/** Return tonnage for a cockpit type string. Defaults to 3 (standard). */
-export function cockpitTons(cockpitType: string): number {
-  return COCKPIT_TONS[cockpitType] ?? 3;
-}
-
-// ============================================================================
-// Heat Sink Tonnage
-// ============================================================================
-
-/**
- * Aerospace baseline: 10 heat sinks are engine-integral and cost no tonnage.
- * Additional sinks each weigh 1 ton (SHS) or 1 ton (DHS — same weight, more dissipation).
- */
-const ENGINE_FREE_HEAT_SINKS = 10;
-
-/**
- * Return tonnage consumed by heat sinks above the engine-free baseline.
- */
-export function heatSinkExtraTons(totalHeatSinks: number): number {
-  return Math.max(0, totalHeatSinks - ENGINE_FREE_HEAT_SINKS);
-}
+import { cockpitTons, heatSinkExtraTons } from './sourceWeight';
+export { cockpitTons, heatSinkExtraTons } from './sourceWeight';
 
 // ============================================================================
 // Full Breakdown
