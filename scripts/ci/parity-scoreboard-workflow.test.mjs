@@ -44,6 +44,11 @@ test('scoreboard is main-push/dispatch only, read-only, coalesced, and bounded',
       .map((step) => step.with['retention-days']),
     [30, 14],
   );
+  const reports = steps.find(
+    (step) => step.with?.name === 'parity-scoreboard-reports',
+  );
+  assert.match(reports.with.path, /sources\.ndjson\.manifest\.json/);
+  assert.match(reports.with.path, /scoreboard-\*\.json/);
   assert.ok(!steps.some((step) => step['continue-on-error']));
   assert.ok(
     steps.some(

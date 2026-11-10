@@ -59,6 +59,10 @@ const pipelineFixture = (out) => {
     fs.writeFileSync(path.join(out, name), JSON.stringify(value));
   const lines = rows.map((row) => JSON.stringify(row)).join('\n') + '\n';
   fs.writeFileSync(path.join(out, 'sources.ndjson'), lines);
+  write('sources.ndjson.manifest.json', {
+    sourceCount: rows.length,
+    sourcesSha256: sha(lines),
+  });
   fs.writeFileSync(path.join(out, 'delta-rows.jsonl'), lines);
   write('delta-report.json', {
     ok: false,
@@ -108,6 +112,7 @@ test('report mode refuses pipeline exit 1 with missing or partial completed outp
   const out = temporary(t);
   for (const name of [
     'sources.ndjson',
+    'sources.ndjson.manifest.json',
     'delta-report.json',
     'delta-rows.jsonl',
     'execution.json',
@@ -139,12 +144,32 @@ test('report mode refuses pipeline exit 1 with missing or partial completed outp
   }
 });
 
+test('report mode fails truncated sources and same-count source hash tampering', (t) => {
+  const out = temporary(t);
+  for (const status of [0, 1]) {
+    const options = pipelineFixture(out);
+    const file = path.join(out, 'sources.ndjson');
+    const original = fs.readFileSync(file, 'utf8');
+    fs.writeFileSync(file, original.split('\n').slice(0, 1).join('\n') + '\n');
+    assert.throws(
+      () => assertPipelineRan({ status }, options),
+      /Aggregate pipeline incomplete/,
+    );
+    fs.writeFileSync(file, original.replace('one.mtf', 'other.mtf'));
+    assert.throws(
+      () => assertPipelineRan({ status }, options),
+      /SHA-256 mismatch/,
+    );
+  }
+});
+
 test('reusing an output label removes stale completion evidence before execution', (t) => {
   const out = temporary(t);
   pipelineFixture(out);
   fs.mkdirSync(path.join(out, 'terms'));
   fs.writeFileSync(path.join(out, 'terms/delta-report.json'), '{}');
   fs.writeFileSync(path.join(out, 'RESULTS.json'), '{}');
+  fs.writeFileSync(path.join(out, 'scoreboard-completeness.json'), '{}');
   fs.writeFileSync(path.join(out, 'notes.txt'), 'keep');
   clearCensusOutputs(out);
   for (const name of [
@@ -154,6 +179,8 @@ test('reusing an output label removes stale completion evidence before execution
     'delta-rows.jsonl',
     'reference-provenance-report.json',
     'RESULTS.json',
+    'scoreboard-completeness.json',
+    'sources.ndjson.manifest.json',
     'terms/delta-report.json',
   ])
     assert.equal(fs.existsSync(path.join(out, name)), false, name);

@@ -1,36 +1,33 @@
 // C1's combined.cjs census, with portable inputs and report-only exit mapping.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { gunzipSync } from 'node:zlib';
 
+import {
+  REPORT_FILES,
+  readJson,
+  readRows,
+  sha256,
+  verifySha256,
+  recordCompletionStage,
+} from './parity-scoreboard-artifacts.mjs';
+export {
+  ROW_FILES,
+  REPORT_FILES,
+  readJson,
+  readRows,
+  sha256,
+  verifySha256,
+} from './parity-scoreboard-artifacts.mjs';
+
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const manifestFile = path.resolve(
   directory,
   '../../config/reference/parity-scoreboard.json',
 );
-export const ROW_FILES = [
-  'delta-rows.jsonl',
-  'construction-validity-rows.jsonl',
-  'construction-weight-rows.jsonl',
-  'construction-quantity-rows.jsonl',
-];
-export const REPORT_FILES = [
-  'delta-report.json',
-  'construction-validity-report.json',
-  'construction-weight-report.json',
-  'construction-quantity-report.json',
-  'reference-provenance-report.json',
-  ...ROW_FILES,
-];
-export const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
-export const readRows = (file) =>
-  fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
-export const sha256 = (bytes) =>
-  createHash('sha256').update(bytes).digest('hex');
 const hash = (file) => sha256(fs.readFileSync(file));
 const save = (file, value) =>
   fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
@@ -40,11 +37,6 @@ const git = (root, ...args) =>
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   }).trim();
-
-export function verifySha256(bytes, expected, label) {
-  if (!/^[a-f0-9]{64}$/.test(expected) || sha256(bytes) !== expected)
-    throw new Error(`${label} SHA-256 mismatch`);
-}
 
 export function verifyMekfiles(references, mekfiles, expectedRows) {
   if (
@@ -164,6 +156,7 @@ function verifyPipelineCompletion(out, expectedRows, expectedFamilies) {
       readJson(path.join(out, 'reference-provenance-report.json')).ok !== true
     )
       throw new Error('Reference trust rejected');
+    recordCompletionStage(out, 'pipeline', expectedRows);
   } catch (error) {
     throw new Error(`Aggregate pipeline incomplete: ${error.message}`, {
       cause: error,
@@ -191,7 +184,9 @@ export function clearCensusOutputs(out) {
   for (const name of [
     'RESULTS.json',
     'sources.ndjson',
+    'sources.ndjson.manifest.json',
     'execution.json',
+    'scoreboard-completeness.json',
     'scoreboard-row-index.json',
     'scoreboard-diff.json',
     'scoreboard-summary.md',
@@ -505,6 +500,8 @@ export function runCensus({
       ...(extraInfantry ? ['--weight-terms-extra', extraInfantry] : []),
     ]);
     assertDetailedRan(detailed);
+    if (reportMode)
+      recordCompletionStage(out, 'detailed', config.reference.rows);
     const result = readCensusResults(out, run);
     assertClean(root);
     if (
@@ -526,6 +523,7 @@ export function runCensus({
     if (extra)
       verifySha256(fs.readFileSync(extra), run.extraSha256, 'W2 extra');
     save(path.join(out, 'RESULTS.json'), result);
+    if (reportMode) recordCompletionStage(out, 'result', config.reference.rows);
     return result;
   } catch (error) {
     run.failure = error.message;

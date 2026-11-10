@@ -116,6 +116,7 @@ jobs:
             ${{ runner.temp }}/parity-scoreboard/RESULTS.json
             ${{ runner.temp }}/parity-scoreboard/mekfiles-provenance.json
             ${{ runner.temp }}/parity-scoreboard/execution.json
+            ${{ runner.temp }}/parity-scoreboard/sources.ndjson.manifest.json
             ${{ runner.temp }}/parity-scoreboard/delta-report.json
             ${{ runner.temp }}/parity-scoreboard/reference-provenance-report.json
             ${{ runner.temp }}/parity-scoreboard/run-provenance.json

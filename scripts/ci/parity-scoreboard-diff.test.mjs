@@ -20,7 +20,7 @@ const snapshot = (value = 3) => ({
   families: {
     mek: {
       bv: { rows: 5, exact: value, finite: 2, missing: 1 },
-      validity: { matched: value, different: 1 },
+      validity: { rows: 5, matched: value, different: 1 },
       weight: {
         matched: value,
         different: 2,
@@ -80,6 +80,42 @@ test('no baseline is explicit and does not invent zero deltas or row changes', (
   assert.equal(diff.families.mek.bv.exact.delta, null);
   assert.equal(diff.rows['delta-rows.jsonl'], null);
   assert.match(renderSummary(diff), /No previous main.*baseline/i);
+});
+
+test('summary first line gives numeric totals across families and explicit baseline null', () => {
+  const current = snapshot();
+  current.families.vehicle = {
+    bv: { rows: 2, exact: 1, missing: 7 },
+    validity: {
+      rows: 2,
+      matched: 1,
+      different: 0,
+      missingLocal: 1,
+      failedLocal: 0,
+    },
+    weight: { different: 4 },
+    settings: {},
+  };
+  current.families.mek.validity.rows = 5;
+  assert.equal(
+    renderSummary(diffScoreboards(current, null)).split('\n')[0],
+    'BV exact=4/7; missing terms=8; validity matched=4/7 different=1 missing-local=1 failed-local=0; weight different=6; baseline: null',
+  );
+});
+
+test('summary first line includes added/removed/changed/unchanged for each baseline row file', () => {
+  const previous = snapshot(),
+    current = snapshot();
+  current.rows['delta-rows.jsonl'] = {
+    added: '2',
+    changed: 'after',
+    same: 'same',
+  };
+  current.rows['construction-weight-rows.jsonl'] = { new: 'new' };
+  assert.equal(
+    renderSummary(diffScoreboards(current, previous)).split('\n')[0],
+    'BV exact=3/5; missing terms=1; validity matched=3/5 different=1 missing-local=0 failed-local=0; weight different=2; rows delta-rows.jsonl added=1 removed=1 changed=1 unchanged=1; rows construction-weight-rows.jsonl added=1 removed=0 changed=0 unchanged=0',
+  );
 });
 
 test('families missing on one side keep their metric unavailable', () => {

@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
-import { findBaseline } from './parity-scoreboard-github.mjs';
+import {
+  REPORT_FILES,
+  ROW_FILES,
+  recordCompletionStage,
+  sha256,
+} from './parity-scoreboard-artifacts.mjs';
+import { findBaseline, reportScoreboard } from './parity-scoreboard-github.mjs';
 
 const run = (id, extra = {}) => ({
   id,
@@ -92,4 +101,79 @@ test('pagination finds the last successful retained main artifact', async () => 
     (await findBaseline({ api, repository: 'owner/repo', runId: 300 })).run.id,
     99,
   );
+});
+
+test('reporting checks completion before writing a numeric first-line summary and compressing rows', async (t) => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'parity-report-'));
+  t.after(() => fs.rmSync(out, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(out, 'terms'));
+  const write = (name, value) =>
+    fs.writeFileSync(path.join(out, name), JSON.stringify(value) + '\n');
+  const rows = [
+    { family: 'mek', path: 'one', ours: { total: 1 }, java: { total: 1 } },
+  ];
+  const lines = rows.map(JSON.stringify).join('\n') + '\n';
+  const head = 'a'.repeat(40);
+  fs.writeFileSync(path.join(out, 'sources.ndjson'), lines);
+  write('sources.ndjson.manifest.json', {
+    sourceCount: 1,
+    sourcesSha256: sha256(lines),
+  });
+  write('execution.json', {
+    families: [{ family: 'mek', production: 'fresh' }],
+  });
+  const counts = {
+    rows: 1,
+    matched: 1,
+    different: 0,
+    missingLocal: 0,
+    failedLocal: 0,
+  };
+  for (const file of REPORT_FILES) {
+    if (ROW_FILES.includes(file)) {
+      fs.writeFileSync(path.join(out, 'terms', file), lines);
+      if (file === 'delta-rows.jsonl')
+        fs.writeFileSync(path.join(out, file), lines);
+    } else {
+      const report =
+        file === 'reference-provenance-report.json'
+          ? { ok: true }
+          : { byFamily: { mek: counts }, settings: { cells: [] } };
+      write('terms/' + file, report);
+      if (
+        ['delta-report.json', 'reference-provenance-report.json'].includes(file)
+      )
+        write(file, report);
+    }
+  }
+  write('RESULTS.json', {
+    head,
+    bv: { rows: 1, families: { mek: { rows: 1, exactTotals: 1, missing: 0 } } },
+    validity: { byFamily: { mek: counts } },
+    weight: { byFamily: { mek: counts } },
+  });
+  write('run-provenance.json', {
+    head,
+    reportMode: true,
+    pythonVersion: 'Python 3.12.13',
+    extraSha256: null,
+  });
+  const summaryFile = path.join(out, 'step-summary.md');
+  fs.writeFileSync(summaryFile, 'stale heading\n');
+  const options = { out, local: true, summaryFile };
+  await assert.rejects(reportScoreboard(options), /ENOENT/);
+  assert.equal(fs.existsSync(path.join(out, 'compressed-rows')), false);
+  for (const stage of ['pipeline', 'detailed', 'result'])
+    recordCompletionStage(out, stage, 1);
+  await reportScoreboard(options);
+  assert.equal(
+    fs.readFileSync(summaryFile, 'utf8').split('\n')[0],
+    'BV exact=1/1; missing terms=0; validity matched=1/1 different=0 missing-local=0 failed-local=0; weight different=0; baseline: null',
+  );
+  assert.equal(fs.readdirSync(path.join(out, 'compressed-rows')).length, 5);
+  write('terms/construction-validity-report.json', {
+    byFamily: { mek: counts },
+    altered: true,
+  });
+  await assert.rejects(reportScoreboard(options), /SHA-256 mismatch/);
 });

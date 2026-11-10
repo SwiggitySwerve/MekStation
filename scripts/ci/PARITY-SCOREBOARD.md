@@ -60,6 +60,16 @@ reference trust fail the job. Parity differences do not fail this workflow. The 
 a dirty target, the wrong reference or sidecar, and changes to HEAD, tree, policy
 or reference during execution. Runtime logs and provenance record each subprocess.
 
+In report mode, the source count and SHA-256 must also match the producer's
+`sources.ndjson.manifest.json` receipt. `scoreboard-completeness.json` records
+the SHA-256 and expected/observed row count of every required pipeline and
+detailed report/row file, the source receipt, completion marker and `RESULTS.json`.
+Corpus files must contain all 9,815 rows (JSON reports sum their family rows).
+Trust reports, the receipt and completion marker each count as one metadata
+document; they do not claim to contain corpus rows. Before writing the summary
+and compressed artifacts, reporting rechecks the full inventory, counts and
+recorded hashes. Truncated sources and same-count source changes both fail.
+
 The port preserves C1's `combined.cjs` tally, category rules, field ordering and
 optional-total comparison, including its existing diagnostic limitations.
 `RESULTS.json` stays compatible with that harness. The additional snapshot uses
@@ -77,6 +87,7 @@ completion marker, the detailed reports, runtime
 provenance/logs, the raw mekfile proof, `scoreboard-diff.json`, `scoreboard-row-index.json` and the summary
 for 30 days. `parity-scoreboard-rows` retains gzipped detailed rows and
 `sources.ndjson` for 14 days.
+The completeness manifest and producer source receipt are retained for 30 days.
 
 The baseline is the latest successful main-push run of this workflow, excluding
 the current run, with a retained report artifact. Dispatches never become main
@@ -90,6 +101,10 @@ per-family BV/validity/weight/settings counts and row hashes. A row key is
 Hashes cover the serialized row, so the four row-file comparisons count added,
 removed, changed and unchanged rows without downloading expired row artifacts.
 The JSON diff and job summary use the same comparison result.
+The summary's first line gives BV exact/total, missing terms, validity
+matched/total/different/missing-local/failed-local, weight different, and each
+row file's added/removed/changed/unchanged counts against the previous main.
+When no baseline exists, that first line ends with `baseline: null`.
 
 ## Local invocation and byte proof
 

@@ -7,6 +7,7 @@ import { parseArgs } from 'node:util';
 import { gzipSync } from 'node:zlib';
 
 import { githubApi } from './ci-report-github.mjs';
+import { verifyCompletion } from './parity-scoreboard-artifacts.mjs';
 import { buildSnapshot, writeReports } from './parity-scoreboard-diff.mjs';
 import { readJson, ROW_FILES } from './parity-scoreboard.mjs';
 
@@ -57,12 +58,6 @@ export async function reportScoreboard({
   local = false,
 }) {
   const provenance = readJson(path.join(out, 'run-provenance.json'));
-  const snapshot = buildSnapshot(out, {
-    repository: repository ?? null,
-    runId: runId ?? null,
-    attempt: attempt ?? null,
-    head: provenance.head,
-  });
   let baseline = null;
   if (!local) {
     const selected = await findBaseline({
@@ -96,8 +91,17 @@ export async function reportScoreboard({
         throw new Error('Baseline artifact identity mismatch');
     }
   }
+  // CI must recheck counts and recorded bytes before making the summary/artifacts.
+  // Local comparison mode retains the original combined.cjs output contract.
+  if (provenance.reportMode || !local) verifyCompletion(out);
+  const snapshot = buildSnapshot(out, {
+    repository: repository ?? null,
+    runId: runId ?? null,
+    attempt: attempt ?? null,
+    head: provenance.head,
+  });
   const summary = writeReports(out, snapshot, baseline);
-  if (summaryFile) fs.appendFileSync(summaryFile, summary);
+  if (summaryFile) fs.writeFileSync(summaryFile, summary);
   const rows = path.join(out, 'compressed-rows');
   fs.mkdirSync(rows, { recursive: true });
   for (const file of [

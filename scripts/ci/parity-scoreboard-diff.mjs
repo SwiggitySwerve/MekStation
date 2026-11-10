@@ -156,12 +156,18 @@ export function diffScoreboards(current, previous) {
     rows[file] = previous
       ? compareRows(previous.rows[file] ?? {}, current.rows[file] ?? {})
       : null;
+  const totals = { bv: {}, validity: {}, weight: {} };
+  for (const family of Object.values(current.families))
+    for (const [group, metrics] of Object.entries(totals))
+      for (const [metric, count] of Object.entries(family[group] ?? {}))
+        metrics[metric] = (metrics[metric] ?? 0) + count;
   return {
     schemaVersion: 1,
     current: current.identity,
     baseline: previous?.identity ?? null,
     pythonVersion: current.pythonVersion,
     compatibilityExtra: current.compatibilityExtra ?? false,
+    totals,
     families,
     rows,
   };
@@ -169,7 +175,18 @@ export function diffScoreboards(current, previous) {
 
 export function renderSummary(diff) {
   const text = (value) => String(value).replace(/[|\r\n]/g, ' ');
+  const { bv, validity, weight } = diff.totals;
+  const changes = diff.baseline
+    ? Object.entries(diff.rows)
+        .map(
+          ([file, counts]) =>
+            `rows ${text(file)} added=${counts.added} removed=${counts.removed} changed=${counts.changed} unchanged=${counts.unchanged}`,
+        )
+        .join('; ')
+    : 'baseline: null';
   const lines = [
+    `BV exact=${bv.exact ?? 0}/${bv.rows ?? 0}; missing terms=${bv.missing ?? 0}; validity matched=${validity.matched ?? 0}/${validity.rows ?? 0} different=${validity.different ?? 0} missing-local=${validity.missingLocal ?? 0} failed-local=${validity.failedLocal ?? 0}; weight different=${weight.different ?? 0}; ${changes}`,
+    '',
     '## Parity scoreboard — report only',
     '',
     `Census target: \`${text(diff.current.head)}\`. Interpreter: ${text(diff.pythonVersion)}.`,
