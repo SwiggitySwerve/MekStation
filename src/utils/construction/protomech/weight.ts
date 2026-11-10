@@ -1,12 +1,23 @@
-/** ProtoMech construction mass. Native partial-weight accounting is preserved here. */
+/** ProtoMech construction mass, owned here and composed through public rules. */
 import type { IProtoMech } from '@/types/unit/PersonnelInterfaces';
 
 import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
+import { EngineType } from '@/types/construction/EngineType';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
-import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
+import { isFireWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 
+import type { IHeatLoadMount } from '../vehicle/vehicleHeatLoad';
+
+import { getNativeAmmoBVGroup } from '../battleValueAmmo';
+import { getEquipmentEntry } from '../equipmentBVResolver';
+import { getCatalogHeatNeutralWeaponHeat } from '../vehicle/supportPayload';
+import {
+  isInsulatorLinkableLaser,
+  sumVehicleHeatLoad,
+} from '../vehicle/vehicleHeatLoad';
 import { getProtoArmorDefinition, isProtoEDPArmorMount } from './armorType';
 import { computeProtoEngineWeight } from './movementCaps';
+import { isProtoExtendedJumpJet, isProtoUmu } from './movementRules';
 import { getProtoAmmo } from './protoMechAmmo';
 import { PROTO_MAX_STANDARD_TONNAGE } from './weightClass';
 
@@ -17,75 +28,104 @@ export type ProtoMinimumWeightInput = Pick<
   | 'armorType'
   | 'hasMainGun'
   | 'armorByLocation'
-> & {
-  equipment: readonly Pick<
-    IProtoMech['equipment'][number],
-    'equipmentId' | 'location'
-  >[];
+> &
+  Partial<Pick<IProtoMech, 'metadata'>> & {
+    equipment: readonly Pick<
+      IProtoMech['equipment'][number],
+      'equipmentId' | 'location'
+    >[];
+  };
+
+export interface ProtoWeightBreakdown {
+  core: {
+    engine: number | null;
+    structure: number;
+    controls: number;
+    armor: number | null;
+  };
+  mounts: { equipmentId: string; weight: number | null }[];
+  heatSinks: number | null;
+  minimum: number | undefined;
+  total: number | null;
+  missingEquipment: string[];
+}
+
+/** Pinned SRMWeapon:70-75, StreakSRMWeapon:67-72, LRMWeapon:77-82,
+ * StreakLRMWeapon:83-88 (48fcb2f64). Native family/rack identity is shared.
+ */
+const LAUNCHER_TONS_PER_TUBE: Readonly<Record<string, number>> = {
+  SRM: 0.25,
+  SRM_STREAK: 0.5,
+  LRM: 0.2,
+  LRM_STREAK: 0.4,
 };
 
-/**
- * Catalog weight of a mount, or undefined when it cannot be stated: the id is
- * not in the catalog, or the catalog marks the weight as depending on the unit.
- * Such a mount still takes its slot; no weight is invented for it.
- */
+const roundKg = (tons: number): number => Math.round(tons * 1000) / 1000;
+
+/** A context-free catalog mass cannot certify a variable-weight zero. */
 export function getProtoMountWeight(equipmentId: string): number | undefined {
   const entry = getEquipmentEntry(equipmentId);
-  if (!entry || entry.weight === undefined) return undefined;
-  if (entry.special?.includes('Variable weight')) return undefined;
+  if (
+    !entry ||
+    entry.weight === undefined ||
+    !Number.isFinite(entry.weight) ||
+    entry.weight < 0 ||
+    entry.special?.some(
+      (value) =>
+        value === 'Variable weight' ||
+        value.startsWith('Java variable weight:'),
+    )
+  )
+    return undefined;
   return entry.weight;
 }
 
-/** TestProtoMek/TestEntity 48fcb2f6: a lower bound, not a complete mass total.
- * Supported armor, structure, controls, engine, fixed-mass weapons, standard LRMs
- * and known ammo can prove overage. Other missiles/misc/jump/sink mass is omitted.
- */
-function getProtoMinimumWeightExact(
-  unit: ProtoMinimumWeightInput,
+/** MiscType.java:496-497,867-882: UMUs use the standard JJ mass tiers. */
+function propulsionMass(tonnage: number, improved: boolean): number {
+  const standard = tonnage < 6 ? 0.05 : tonnage < 10 ? 0.1 : 0.15;
+  return standard * (improved ? 2 : 1);
+}
+
+function resolveProtoMountWeight(
+  equipmentId: string,
+  tonnage: number,
 ): number | undefined {
-  const armor = computeProtoArmorWeight(
-    Object.values(unit.armorByLocation).reduce(
-      (sum, points) => sum + points,
-      0,
-    ),
-    unit.armorType,
-  );
-  if (armor === null) return undefined;
-  const engine = computeProtoEngineWeight(unit.engineRating);
-  if (engine === null) return undefined;
-  let weight =
-    Math.round(unit.weightPerUnit * 0.1 * 1000) / 1000 +
-    (unit.weightPerUnit > PROTO_MAX_STANDARD_TONNAGE ? 0.75 : 0.5) +
-    engine +
-    armor;
-  for (const mount of unit.equipment) {
-    if (mount.location === ProtoMechLocation.MAIN_GUN && !unit.hasMainGun)
-      continue;
-    weight += minimumMountWeight(mount.equipmentId);
-  }
-  return weight;
-}
-
-function minimumMountWeight(equipmentId: string): number {
   const syntax = readBlkProtoEquipmentEntry(equipmentId);
-  if (!syntax.lookupName || syntax.errors.length) return 0;
+  if (!syntax.lookupName || syntax.errors.length) return undefined;
   const ammo = getProtoAmmo(syntax.lookupName);
-  if (ammo && syntax.shots !== undefined) {
-    return Math.ceil(ammo.kgPerShot * syntax.shots) / 1000;
-  }
+  if (ammo)
+    return syntax.shots === undefined
+      ? undefined
+      : Math.ceil(ammo.kgPerShot * syntax.shots) / 1000;
+  // A shot declaration belongs to ammunition, never a whole launcher/bin.
+  if (syntax.shots !== undefined) return undefined;
   const entry = getEquipmentEntry(syntax.lookupName);
-  // LRMWeapon.java:77-82 overrides BattleMech mass on ProtoMeks.
-  const lrmRack = /^(?:CL|IS)LRM(\d+)$/.exec(syntax.lookupName);
-  if (lrmRack && entry) {
-    return Number(lrmRack[1]) * 0.2;
+  const id = (entry?.id ?? syntax.lookupName)
+    .replace(/-registry$/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+  if (isProtoEDPArmorMount(syntax.lookupName) || id === 'eiinterface') return 0;
+  if (id === 'protoquadmeleesystem' || id === 'protomechquadmeleesystem')
+    return 1;
+  if (id === 'clmyomerbooster' || id === 'protomekmyomerbooster')
+    return roundKg(tonnage * 0.025);
+  if (id === 'protomechjumpjet' || isProtoUmu(id))
+    return propulsionMass(tonnage, false);
+  if (isProtoExtendedJumpJet(id)) return propulsionMass(tonnage, true);
+  // These are distinct ProtoMech rules, not the BattleMech wing/clamp formulas.
+  if (id === 'protomagneticclamp')
+    return tonnage < 6 ? 0.25 : tonnage < 10 ? 0.5 : 1;
+  if (id === 'protomechpartialwing') return roundKg(tonnage / 5);
+  const group = entry ? getNativeAmmoBVGroup(syntax.lookupName) : undefined;
+  if (group) {
+    const [family, rack] = group.split(':');
+    const multiplier = LAUNCHER_TONS_PER_TUBE[family];
+    if (multiplier !== undefined) return Number(rack) * multiplier;
   }
-  if (entry && ['Energy', 'Ballistic', 'Artillery'].includes(entry.category)) {
-    return Math.max(0, entry.weight ?? 0);
-  }
-  return 0;
+  return getProtoMountWeight(syntax.lookupName);
 }
 
-/** TestProtoMek.java:171-180: armor stays unrounded; total mass rounds to kg. */
+/** TestProtoMek.java:176-177: allocated armor stays unrounded. */
 export function computeProtoArmorWeight(
   points: number,
   armorType: number | undefined,
@@ -95,63 +135,105 @@ export function computeProtoArmorWeight(
   return points * armor.weightPerPoint;
 }
 
+/** TestProtoMek.java:135-177 and TestEntity.java:1011-1032 (48fcb2f64).
+ * Known terms form a lower bound; unavailable mass/heat prevents a complete total.
+ * Motive extras, power amps and carrying space are zero for these ProtoMechs.
+ */
+export function computeProtoWeightBreakdown(
+  unit: ProtoMinimumWeightInput,
+): ProtoWeightBreakdown {
+  const core = {
+    engine: computeProtoEngineWeight(unit.engineRating),
+    structure: roundKg(unit.weightPerUnit * 0.1),
+    controls: unit.weightPerUnit > PROTO_MAX_STANDARD_TONNAGE ? 0.75 : 0.5,
+    armor: computeProtoArmorWeight(
+      Object.values(unit.armorByLocation).reduce(
+        (sum, points) => sum + points,
+        0,
+      ),
+      unit.armorType,
+    ),
+  };
+  if (core.engine === null || core.armor === null)
+    return {
+      core,
+      mounts: [],
+      heatSinks: null,
+      minimum: undefined,
+      total: null,
+      missingEquipment: ['Unsupported armor or engine mass'],
+    };
+  let exact = core.engine + core.structure + core.controls + core.armor;
+  const mounts: ProtoWeightBreakdown['mounts'] = [];
+  const heatLoad: IHeatLoadMount<ProtoMechLocation>[] = [];
+  const missingEquipment: string[] = [];
+  unit.equipment.forEach((mount, order) => {
+    if (mount.location === ProtoMechLocation.MAIN_GUN && !unit.hasMainGun)
+      return;
+    const syntax = readBlkProtoEquipmentEntry(mount.equipmentId);
+    const lookupName = syntax.lookupName ?? mount.equipmentId;
+    const entry =
+      syntax.errors.length || !syntax.lookupName
+        ? undefined
+        : getEquipmentEntry(lookupName);
+    const ammo = getProtoAmmo(lookupName);
+    const weapon =
+      !ammo && entry !== undefined && isFireWeaponCategory(entry.category);
+    const weight = resolveProtoMountWeight(
+      mount.equipmentId,
+      unit.weightPerUnit,
+    );
+    mounts.push({ equipmentId: mount.equipmentId, weight: weight ?? null });
+    if (weight === undefined) missingEquipment.push(mount.equipmentId);
+    else exact += weight;
+    heatLoad.push({
+      id: entry?.id ?? lookupName,
+      location: mount.location,
+      order,
+      laser: isInsulatorLinkableLaser(entry),
+      linked: false,
+      insulated: false,
+      capacitor: false,
+      heat:
+        weapon && entry
+          ? getCatalogHeatNeutralWeaponHeat(entry)
+          : weight === undefined
+            ? null
+            : 0,
+      miscHeatExcluded: !!ammo || weapon || weight === undefined,
+    });
+  });
+  // Share the native heat predicate, links and miscellaneous heat owner.
+  const heat = sumVehicleHeatLoad(heatLoad, {
+    engineType: EngineType.STANDARD,
+    year: unit.metadata?.year,
+  });
+  const heatSinks = heat === null ? null : heat * 0.25;
+  if (heatSinks === null) {
+    if (!missingEquipment.length)
+      missingEquipment.push('Unsupported heat requirement');
+  } else exact += heatSinks;
+  const minimum = roundKg(exact);
+  return {
+    core,
+    mounts,
+    heatSinks,
+    minimum,
+    total: missingEquipment.length ? null : minimum,
+    missingEquipment,
+  };
+}
+
 export function getProtoMinimumWeight(
   unit: ProtoMinimumWeightInput,
 ): number | undefined {
-  const exact = getProtoMinimumWeightExact(unit);
-  return exact === undefined ? undefined : Math.round(exact * 1000) / 1000;
+  return computeProtoWeightBreakdown(unit).minimum;
 }
 
-/** Complete only when every mounted mass and heat requirement can be stated.
- * TestProtoMek.java:130-180; TestEntity.calcHeatNeutralHSRequirement; MiscType
- * at 48fcb2f64: MASC 0.025 x unit mass, EI/armor 0, Quad melee fixed 1 t
- * (createProtoQuadMeleeSystem:9440-9450). That absent catalog entry is not a
- * variable weight. Unknown equipment never becomes a successful zero total.
- */
 export function computeProtoWeight(unit: ProtoMinimumWeightInput): {
   total: number | null;
   missingEquipment: string[];
 } {
-  let total = getProtoMinimumWeightExact(unit);
-  if (total === undefined)
-    return {
-      total: null,
-      missingEquipment: ['Unsupported armor or engine mass'],
-    };
-  const missingEquipment: string[] = [];
-  for (const mount of unit.equipment) {
-    if (mount.location === ProtoMechLocation.MAIN_GUN && !unit.hasMainGun)
-      continue;
-    const syntax = readBlkProtoEquipmentEntry(mount.equipmentId);
-    if (!syntax.lookupName || syntax.errors.length) {
-      missingEquipment.push(mount.equipmentId);
-      continue;
-    }
-    const entry = getEquipmentEntry(syntax.lookupName);
-    const id = syntax.lookupName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const ammo = getProtoAmmo(syntax.lookupName);
-    let weight: number | undefined;
-    if (isProtoEDPArmorMount(syntax.lookupName) || id === 'eiinterface')
-      weight = 0;
-    else if (id === 'protoquadmeleesystem' || id === 'protomechquadmeleesystem')
-      weight = 1;
-    else if (id === 'clmyomerbooster' || id === 'protomekmyomerbooster')
-      weight = Math.round(unit.weightPerUnit * 0.025 * 1000) / 1000;
-    else if (ammo && syntax.shots !== undefined)
-      weight = minimumMountWeight(mount.equipmentId);
-    else if (entry && /^(?:CL|IS)LRM\d+$/.test(syntax.lookupName))
-      weight = minimumMountWeight(mount.equipmentId);
-    else if (!ammo) weight = getProtoMountWeight(syntax.lookupName);
-    if (weight === undefined) missingEquipment.push(mount.equipmentId);
-    else {
-      total += weight - minimumMountWeight(mount.equipmentId);
-      // ProtoMeks buy 0.25 t per heat-neutral sink. Unsupported linked/variable
-      // equipment above prevents claiming a complete total for those builds.
-      if (entry?.category === 'Energy') total += (entry.heat ?? 0) * 0.25;
-    }
-  }
-  return {
-    total: missingEquipment.length ? null : Math.round(total * 1000) / 1000,
-    missingEquipment,
-  };
+  const { total, missingEquipment } = computeProtoWeightBreakdown(unit);
+  return { total, missingEquipment };
 }

@@ -1,0 +1,1069 @@
+{
+  "note": "Construction excerpts: mm-data 50f7efef, CC BY-NC-SA 4.0 (prose removed). Rows replace the equipment blocks of a base; terms are the pinned MegaMek 48fcb2f64 TestSupportVehicle verifier values.",
+  "bases": {
+    "large": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-eb79-7c2d-acd0-aee5587b12c5\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nLesseps Dump Truck\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n4499\n</mul id:>\n\n<year>\n2523\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nNone\n</role>\n\n<quirks>\nbad_rep_is\n</quirks>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n3\n</cruiseMP>\n\n<engine_type>\n11\n</engine_type>\n\n<armor_type>\n46\n</armor_type>\n\n<armor_tech_rating>\n3\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n28\n19\n19\n12\n</armor>\n\n<Body Equipment>\nISOffRoadChassis\n</Body Equipment>\n\n<Front Equipment>\nBackhoe\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\nDumper (Rear)\nCargo:SIZE:20.0\n</Rear Equipment>\n\n<barrating>\n5\n</barrating>\n\n<structural_tech_rating>\n3\n</structural_tech_rating>\n\n<engine_tech_rating>\n3\n</engine_tech_rating>\n\n<manufacturer>\nEarthwerks Incorporated\n</manufacturer>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:VAr\n</source>\n\n<tonnage>\n50.0\n</tonnage>\n\n<fuel>\n4.0\n</fuel>\n\n",
+    "small": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-eb8e-7f30-9caf-e4773869eac1\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nSkoda 'Growler' Service Utility Truck\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n5066\n</mul id:>\n\n<year>\n2388\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nNone\n</role>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<transporters>\ncargobay:0.128:1:1::-1:0\nstandardseats:4.0:0:-1::-1:0\n</transporters>\n\n<cruiseMP>\n6\n</cruiseMP>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n43\n</armor_type>\n\n<armor_tech_rating>\n3\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n1\n1\n1\n1\n</armor>\n\n<Body Equipment>\nISOffRoadChassis\nUltraLightChassisMod\nAmphibiousChassis\n</Body Equipment>\n\n<Front Equipment>\nHHSearchlight\nHHSearchlight\n</Front Equipment>\n\n<Right Equipment>\nLadder:SIZE:20.0\nManipulator (Non-Mech/Non-Battle Armor)\nHHSearchlight\n</Right Equipment>\n\n<Left Equipment>\nHHSearchlight\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n2\n</barrating>\n\n<structural_tech_rating>\n3\n</structural_tech_rating>\n\n<engine_tech_rating>\n3\n</engine_tech_rating>\n\n<manufacturer>\nŠkoda\n</manufacturer>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:N/A\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:ICE (Tech C)\nARMOR:Unknown (BAR 2)\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:N/A\n</systemModels>\n\n<source>\nTR:VAr\n</source>\n\n<tonnage>\n1.0\n</tonnage>\n\n<fuel>\n0.02\n</fuel>\n\n<fuelType>\nPETROCHEMICALS\n</fuelType>\n\n",
+    "vtol": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-eb3a-748f-a3dc-0eab4dba3cbe\n</UUID>\n\n<UnitType>\nSupportVTOL\n</UnitType>\n\n<Name>\nCascatelle Firefighting VTOL\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n4833\n</mul id:>\n\n<year>\n3063\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<quirks>\nvtol_rotor_dual\n</quirks>\n\n<motion_type>\nVTOL\n</motion_type>\n\n<transporters>\ncargobay:0.1:2:1::-1:0\nstandardseats:12.0:0:-1::-1:0\n</transporters>\n\n<cruiseMP>\n6\n</cruiseMP>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n47\n</armor_type>\n\n<armor_tech_rating>\n3\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n21\n15\n15\n11\n2\n</armor>\n\n<Body Equipment>\nFluid Suction System (Standard)\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\nCargo Container (10 tons)\nCargo Container (10 tons)\n</Rear Equipment>\n\n<Rotor Equipment>\n</Rotor Equipment>\n\n<barrating>\n6\n</barrating>\n\n<structural_tech_rating>\n3\n</structural_tech_rating>\n\n<engine_tech_rating>\n3\n</engine_tech_rating>\n\n<manufacturer>\nPion-Laurier\n</manufacturer>\n\n<primaryFactory>\nChenier\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown (ICE)\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:VAr\n</source>\n\n<tonnage>\n60.0\n</tonnage>\n\n<fuel>\n3.0\n</fuel>\n\n<fuelType>\nPETROCHEMICALS\n</fuelType>\n\n"
+  },
+  "sources": {
+    "large": {
+      "path": "vehicles/TRO Vehicle Annex/Wheeled/Lesseps Dump Truck.blk",
+      "sha256": "a277fc2a8cb4946ea36a18c1d62e9aaadbb42853b431a62692e85fda1f932325"
+    },
+    "small": {
+      "path": "vehicles/TRO Vehicle Annex/Wheeled/Skoda 'Growler' Service Utility Truck.blk",
+      "sha256": "91d846934128102b9fe113f00d9b7558c0825b344ae56bad148125f3b022dcf8"
+    },
+    "vtol": {
+      "path": "vehicles/TRO Vehicle Annex/VTOL/Cascatelle Firefighting VTOL.blk",
+      "sha256": "1e9794cd7b24fccf7831e0a8fa72278fa68b500a26cbf9f8f070a9860bf43ddd"
+    }
+  },
+  "rows": [
+    {
+      "name": "large-ladder-0",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Front": ["Ladder:SIZE:20.0"],
+        "Right": ["Ladder:SIZE:40.0"],
+        "Left": ["Ladder:SIZE:60.0"],
+        "Rear": ["Ladder:SIZE:80.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1, "total": 25 }
+    },
+    {
+      "name": "large-ladder-1",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Front": ["Ladder:SIZE:10.0"],
+        "Right": ["Ladder:SIZE:30.0"],
+        "Left": ["Ladder:SIZE:50.0"],
+        "Rear": ["Ladder:SIZE:70.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0.8, "total": 25 }
+    },
+    {
+      "name": "large-ladder-2",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Front": ["Ladder:SIZE:25.0"],
+        "Right": ["Ladder:SIZE:15.0"],
+        "Left": ["Ladder:SIZE:5.0"],
+        "Rear": ["Ladder:SIZE:120.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0.825, "total": 25 }
+    },
+    {
+      "name": "large-ladder-fractional",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Front": ["Ladder:SIZE:2.01"],
+        "Right": ["Ladder:SIZE:7.3"],
+        "Left": ["Ladder:SIZE:0.5"],
+        "Rear": ["Ladder:SIZE:33.33"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 0.21700000000000003,
+        "total": 24.5
+      }
+    },
+    {
+      "name": "large-dumper-cargo-0_5",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:0.5"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1, "total": 25 }
+    },
+    {
+      "name": "large-dumper-cargo-1",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:1"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1.5, "total": 25.5 }
+    },
+    {
+      "name": "large-dumper-cargo-3",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:3"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 3.5, "total": 27.5 }
+    },
+    {
+      "name": "large-dumper-cargo-7",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:7"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 7.5, "total": 31.5 }
+    },
+    {
+      "name": "large-dumper-cargo-10_5",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:10.5"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 11.5, "total": 35.5 }
+    },
+    {
+      "name": "large-dumper-cargo-20",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:20"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 21, "total": 45 }
+    },
+    {
+      "name": "large-dumper-cargo-21",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:21"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 22.5, "total": 46.5 }
+    },
+    {
+      "name": "large-dumper-cargo-33",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:33"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 35, "total": 59 }
+    },
+    {
+      "name": "large-dumper-cargo-49_5",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:49.5"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 52, "total": 76 }
+    },
+    {
+      "name": "large-dumper-nocargo",
+      "base": "large",
+      "group": "rules",
+      "blocks": { "Body": ["ISOffRoadChassis"], "Rear": ["Dumper (Rear)"] },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0, "total": 24 }
+    },
+    {
+      "name": "large-dumper-cargo-elsewhere",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)"],
+        "Front": ["Cargo:SIZE:20.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 20, "total": 44 }
+    },
+    {
+      "name": "large-two-dumpers-one-cargo",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Dumper (Rear)", "Cargo:SIZE:20.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 21, "total": 45 }
+    },
+    {
+      "name": "large-one-dumper-two-cargos",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:10.0", "Cargo:SIZE:30.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 40.5, "total": 64.5 }
+    },
+    {
+      "name": "large-dumper-cargo-before-dumper",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Cargo:SIZE:10.0", "Dumper (Rear)"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 10.5, "total": 34.5 }
+    },
+    {
+      "name": "large-dumpers-sides",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Front": ["Dumper (Front)", "Cargo:SIZE:4.0"],
+        "Right": ["Dumper (Right)", "Cargo:SIZE:8.0"],
+        "Left": ["Dumper (Left)", "Cargo:SIZE:12.0"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:16.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 43, "total": 67 }
+    },
+    {
+      "name": "large-dumper-omni-token",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Right": ["Dumper (Right):OMNI", "Cargo:SIZE:6.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 6.5, "total": 30.5 }
+    },
+    {
+      "name": "large-dumper-two-cargo-types",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Rear": ["Dumper (Rear)", "Liquid Storage:SIZE:10.0", "Cargo:SIZE:6.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 16.5, "total": 40.5 }
+    },
+    {
+      "name": "large-fluid-suction",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Fluid Suction System (Standard)"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1, "total": 25 }
+    },
+    {
+      "name": "large-manipulators",
+      "base": "large",
+      "group": "identity",
+      "blocks": {
+        "Body": ["ISOffRoadChassis"],
+        "Front": [
+          "Manipulator (Non-Mech/Non-Battle Armor)",
+          "Manipulator (Non-Mech/Non-Battle Armor)",
+          "Manipulator (Non-Mech/Non-Battle Armor)"
+        ]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0.03, "total": 24.5 }
+    },
+    {
+      "name": "large-fc-rifle",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["InfantryAssaultRifle"]
+      },
+      "java": { "weapons": 0.004, "ammo": 0, "miscEquipment": 0, "total": 24.5 }
+    },
+    {
+      "name": "large-fc-rifle-srm",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["InfantryAssaultRifle", "InfantryStandardSRM"]
+      },
+      "java": { "weapons": 0.034, "ammo": 0, "miscEquipment": 0.5, "total": 25 }
+    },
+    {
+      "name": "large-fc-supportlaser",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["Support Laser"]
+      },
+      "java": {
+        "weapons": 0.072,
+        "ammo": 0,
+        "miscEquipment": 0.5,
+        "total": 25.5
+      }
+    },
+    {
+      "name": "large-fc-srm-only",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["InfantryStandardSRM"]
+      },
+      "java": { "weapons": 0.03, "ammo": 0, "miscEquipment": 0.5, "total": 25 }
+    },
+    {
+      "name": "large-fc-mg-support",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["Machine Gun (Support)"]
+      },
+      "java": { "weapons": 0.044, "ammo": 0, "miscEquipment": 0.5, "total": 25 }
+    },
+    {
+      "name": "large-fc-medlaser",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["Medium Laser"]
+      },
+      "java": { "weapons": 1, "ammo": 0, "miscEquipment": 0.5, "total": 29 }
+    },
+    {
+      "name": "large-fc-ams-medlaser",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["ISAntiMissileSystem", "Medium Laser"]
+      },
+      "java": { "weapons": 1.5, "ammo": 0, "miscEquipment": 0.5, "total": 29.5 }
+    },
+    {
+      "name": "large-fc-ams-only",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["ISAntiMissileSystem"]
+      },
+      "java": { "weapons": 0.5, "ammo": 0, "miscEquipment": 0, "total": 24.5 }
+    },
+    {
+      "name": "large-fc-tag",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["InfantryTAG"]
+      },
+      "java": { "weapons": 0.02, "ammo": 0, "miscEquipment": 0.5, "total": 25 }
+    },
+    {
+      "name": "large-fc-hrr",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": ["InfantryHRR"]
+      },
+      "java": { "weapons": 0.06, "ammo": 0, "miscEquipment": 0.5, "total": 25 }
+    },
+    {
+      "name": "large-fc-mix",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Advanced Fire Control"],
+        "Front": [
+          "InfantryAssaultRifle",
+          "Medium Laser",
+          "InfantryStandardSRM",
+          "Support Laser"
+        ]
+      },
+      "java": {
+        "weapons": 1.106,
+        "ammo": 0,
+        "miscEquipment": 0.5,
+        "total": 29.5
+      }
+    },
+    {
+      "name": "large-bfc-rifle-srm",
+      "base": "large",
+      "group": "rules",
+      "blocks": {
+        "Body": ["ISOffRoadChassis", "Basic Fire Control"],
+        "Front": ["InfantryAssaultRifle", "InfantryStandardSRM"]
+      },
+      "java": { "weapons": 0.034, "ammo": 0, "miscEquipment": 0.5, "total": 25 }
+    },
+    {
+      "name": "small-ladder-0",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Front": ["Ladder:SIZE:20.0"],
+        "Right": ["Ladder:SIZE:40.0"],
+        "Left": ["Ladder:SIZE:60.0"],
+        "Rear": ["Ladder:SIZE:80.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1, "total": 1.808 }
+    },
+    {
+      "name": "small-ladder-1",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Front": ["Ladder:SIZE:10.0"],
+        "Right": ["Ladder:SIZE:30.0"],
+        "Left": ["Ladder:SIZE:50.0"],
+        "Rear": ["Ladder:SIZE:70.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0.8, "total": 1.608 }
+    },
+    {
+      "name": "small-ladder-2",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Front": ["Ladder:SIZE:25.0"],
+        "Right": ["Ladder:SIZE:15.0"],
+        "Left": ["Ladder:SIZE:5.0"],
+        "Rear": ["Ladder:SIZE:120.0"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 0.825,
+        "total": 1.633
+      }
+    },
+    {
+      "name": "small-ladder-fractional",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Front": ["Ladder:SIZE:2.01"],
+        "Right": ["Ladder:SIZE:7.3"],
+        "Left": ["Ladder:SIZE:0.5"],
+        "Rear": ["Ladder:SIZE:33.33"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 0.21700000000000003,
+        "total": 1.025
+      }
+    },
+    {
+      "name": "small-dumper-cargo-0_5",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:0.5"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 0.525,
+        "total": 1.333
+      }
+    },
+    {
+      "name": "small-dumper-cargo-1",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:1"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1.05, "total": 1.858 }
+    },
+    {
+      "name": "small-dumper-cargo-3",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:3"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 3.15, "total": 3.958 }
+    },
+    {
+      "name": "small-dumper-cargo-7",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:7"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 7.35, "total": 8.158 }
+    },
+    {
+      "name": "small-dumper-cargo-10_5",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:10.5"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 11.025,
+        "total": 11.833
+      }
+    },
+    {
+      "name": "small-dumper-cargo-20",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:20"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 21, "total": 21.808 }
+    },
+    {
+      "name": "small-dumper-cargo-21",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:21"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 22.05,
+        "total": 22.858
+      }
+    },
+    {
+      "name": "small-dumper-cargo-33",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:33"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 34.65,
+        "total": 35.458
+      }
+    },
+    {
+      "name": "small-dumper-cargo-49_5",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:49.5"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 51.975,
+        "total": 52.783
+      }
+    },
+    {
+      "name": "small-dumper-nocargo",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0, "total": 0.808 }
+    },
+    {
+      "name": "small-dumper-cargo-elsewhere",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)"],
+        "Front": ["Cargo:SIZE:20.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 20, "total": 20.808 }
+    },
+    {
+      "name": "small-two-dumpers-one-cargo",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Dumper (Rear)", "Cargo:SIZE:20.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 21, "total": 21.808 }
+    },
+    {
+      "name": "small-one-dumper-two-cargos",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:10.0", "Cargo:SIZE:30.0"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 40.5,
+        "total": 41.308
+      }
+    },
+    {
+      "name": "small-dumper-cargo-before-dumper",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Cargo:SIZE:10.0", "Dumper (Rear)"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 10.5,
+        "total": 11.308
+      }
+    },
+    {
+      "name": "small-dumpers-sides",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Front": ["Dumper (Front)", "Cargo:SIZE:4.0"],
+        "Right": ["Dumper (Right)", "Cargo:SIZE:8.0"],
+        "Left": ["Dumper (Left)", "Cargo:SIZE:12.0"],
+        "Rear": ["Dumper (Rear)", "Cargo:SIZE:16.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 42, "total": 42.808 }
+    },
+    {
+      "name": "small-dumper-omni-token",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Right": ["Dumper (Right):OMNI", "Cargo:SIZE:6.0"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 6.3, "total": 7.108 }
+    },
+    {
+      "name": "small-dumper-two-cargo-types",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Rear": ["Dumper (Rear)", "Liquid Storage:SIZE:10.0", "Cargo:SIZE:6.0"]
+      },
+      "java": {
+        "weapons": 0,
+        "ammo": 0,
+        "miscEquipment": 16.3,
+        "total": 17.108
+      }
+    },
+    {
+      "name": "small-fluid-suction",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Fluid Suction System (Standard)"
+        ]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1, "total": 1.808 }
+    },
+    {
+      "name": "small-manipulators",
+      "base": "small",
+      "group": "identity",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis"
+        ],
+        "Front": [
+          "Manipulator (Non-Mech/Non-Battle Armor)",
+          "Manipulator (Non-Mech/Non-Battle Armor)",
+          "Manipulator (Non-Mech/Non-Battle Armor)"
+        ]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0.03, "total": 0.838 }
+    },
+    {
+      "name": "small-fc-rifle",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["InfantryAssaultRifle"]
+      },
+      "java": {
+        "weapons": 0.004,
+        "ammo": 0,
+        "miscEquipment": 0,
+        "total": 0.812
+      }
+    },
+    {
+      "name": "small-fc-rifle-srm",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["InfantryAssaultRifle", "InfantryStandardSRM"]
+      },
+      "java": {
+        "weapons": 0.034,
+        "ammo": 0,
+        "miscEquipment": 0.003,
+        "total": 0.845
+      }
+    },
+    {
+      "name": "small-fc-supportlaser",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["Support Laser"]
+      },
+      "java": {
+        "weapons": 0.072,
+        "ammo": 0,
+        "miscEquipment": 0.008,
+        "total": 0.888
+      }
+    },
+    {
+      "name": "small-fc-srm-only",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["InfantryStandardSRM"]
+      },
+      "java": {
+        "weapons": 0.03,
+        "ammo": 0,
+        "miscEquipment": 0.003,
+        "total": 0.841
+      }
+    },
+    {
+      "name": "small-fc-mg-support",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["Machine Gun (Support)"]
+      },
+      "java": {
+        "weapons": 0.044,
+        "ammo": 0,
+        "miscEquipment": 0.005,
+        "total": 0.857
+      }
+    },
+    {
+      "name": "small-fc-medlaser",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["Medium Laser"]
+      },
+      "java": { "weapons": 1, "ammo": 0, "miscEquipment": 0.1, "total": 1.908 }
+    },
+    {
+      "name": "small-fc-ams-medlaser",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["ISAntiMissileSystem", "Medium Laser"]
+      },
+      "java": {
+        "weapons": 1.5,
+        "ammo": 0,
+        "miscEquipment": 0.1,
+        "total": 2.408
+      }
+    },
+    {
+      "name": "small-fc-ams-only",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["ISAntiMissileSystem"]
+      },
+      "java": { "weapons": 0.5, "ammo": 0, "miscEquipment": 0, "total": 1.308 }
+    },
+    {
+      "name": "small-fc-tag",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["InfantryTAG"]
+      },
+      "java": {
+        "weapons": 0.02,
+        "ammo": 0,
+        "miscEquipment": 0.002,
+        "total": 0.83
+      }
+    },
+    {
+      "name": "small-fc-hrr",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": ["InfantryHRR"]
+      },
+      "java": {
+        "weapons": 0.06,
+        "ammo": 0,
+        "miscEquipment": 0.006,
+        "total": 0.874
+      }
+    },
+    {
+      "name": "small-fc-mix",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Advanced Fire Control"
+        ],
+        "Front": [
+          "InfantryAssaultRifle",
+          "Medium Laser",
+          "InfantryStandardSRM",
+          "Support Laser"
+        ]
+      },
+      "java": {
+        "weapons": 1.106,
+        "ammo": 0,
+        "miscEquipment": 0.111,
+        "total": 2.025
+      }
+    },
+    {
+      "name": "small-bfc-rifle-srm",
+      "base": "small",
+      "group": "rules",
+      "blocks": {
+        "Body": [
+          "ISOffRoadChassis",
+          "UltraLightChassisMod",
+          "AmphibiousChassis",
+          "Basic Fire Control"
+        ],
+        "Front": ["InfantryAssaultRifle", "InfantryStandardSRM"]
+      },
+      "java": {
+        "weapons": 0.034,
+        "ammo": 0,
+        "miscEquipment": 0.002,
+        "total": 0.844
+      }
+    },
+    {
+      "name": "large-nova-display",
+      "base": "large",
+      "group": "identity",
+      "blocks": { "Body": ["ISOffRoadChassis", "Nova CEWS"] },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1.5, "total": 27.5 }
+    },
+    {
+      "name": "large-nova-native",
+      "base": "large",
+      "group": "identity",
+      "blocks": { "Body": ["ISOffRoadChassis", "NovaCEWS"] },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1.5, "total": 27.5 }
+    },
+    {
+      "name": "vtol-fluid-suction",
+      "base": "vtol",
+      "group": "rules",
+      "blocks": { "Body": ["Fluid Suction System (Standard)"], "Rear": [] },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 1, "total": 40 }
+    },
+    {
+      "name": "vtol-manipulator",
+      "base": "vtol",
+      "group": "identity",
+      "blocks": {
+        "Body": [],
+        "Rear": [],
+        "Front": ["Manipulator (Non-Mech/Non-Battle Armor)"]
+      },
+      "java": { "weapons": 0, "ammo": 0, "miscEquipment": 0.01, "total": 39.5 }
+    }
+  ]
+}

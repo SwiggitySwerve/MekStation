@@ -431,8 +431,8 @@ The Basilisk pair exercises the complete path, including the pinned fixed 1 t
 Quad melee mount (`MiscType.createProtoQuadMeleeSystem:9440-9450`) and Myomer
 Booster (`MiscType.getTonnage`, 0.025 times unit mass rounded to kg). Other
 weight families and unmodelled linked-equipment effects are not certified.
-EDP source validation uses this complete mass when available, otherwise the
-known minimum; Standard source validation retains the minimum-weight policy.
+Native source validation now uses complete mass for both armor types when
+available, otherwise the same owner's known subtotal; see Native total mass below.
 
 `getProtoArmorSlotErrors` supersedes the earlier torso-slot deferral: count
 ordinary slot-taking torso mounts, excluding armor equipment, then add the
@@ -529,8 +529,7 @@ claimed them are removed (they had no production caller). Evidence:
 synthetic variants, with the probe and pins beside it). Production already agreed with
 Java on all 86 canonical units; the rule adds only findings Java also reports.
 The editor's input limits are in `movementLimits.ts` (see "Editor movement limits"
-below). Not changed here: the weight owner, which counts jump jets and UMU as zero
-mass (separate observation).
+below). Component mass is handled separately by the native total mass owner ("Native total mass" below).
 
 ## Editor movement limits
 
@@ -548,3 +547,47 @@ class, 3 for an ultraheavy).
 Editor-only: validity is `movementRules.ts`. `setTonnage` still resets walk to `10 - t`
 and the tonnage clamps still key off the chassis; both belong to the separate
 ultraheavy-as-mass item.
+
+## Native total mass
+
+weight.ts owns one core and mounted-mass composition. It extends the former
+LRM override with one native-family multiplier table: SRM 0.25t/tube, Streak SRM
+0.5, LRM 0.2, Streak LRM 0.4 (MegaMek 48fcb2f64 SRMWeapon:70-75,
+StreakSRMWeapon:67-72, LRMWeapon:77-82, StreakLRMWeapon:83-88).
+getNativeAmmoBVGroup supplies family/rack identity; there is no second alias
+table. Per-shot ammo remains getProtoAmmo plus per-bin ceiling to kilograms
+(TestProtoMek:493-501), and intrinsic one-shot ammunition adds no second bin.
+
+MiscType:496-497,867-882 sets each standard ProtoMech JJ/UMU to 0.05t below
+6t, 0.1t below 10t, 0.15t otherwise. Extended JJ doubles its own mass.
+Mass follows actual mounts, independently of movement MP, so an extended jet
+does not change UMU mass. Extended-JJ and UMU identity tests call the public
+movementRules predicates added by #3261; weight defines neither identity twice.
+Myomer remains nearest-kg 2.5% (MiscType:528-530).
+Clamps use 0.25/0.5/1t below6/below10/otherwise (825-831); a mounted ProtoMech
+partial wing is nearest-kg tonnage/5 (504-505), distinct from a BattleMech wing.
+EI is zero (6233-6247), Quad melee 1t (9440-9450), and fixed electronics use
+the catalog. Glider chassis adds no automatic motive/wing mass
+(TestProtoMek:150-151).
+
+Heat-neutral sinks weigh 0.25t each (TestProtoMek:155-166). The weight owner
+imports the exported support-payload catalog heat adapter, which calls
+getVehicleHeatNeutralWeaponHeat, and sumVehicleHeatLoad for links and misc
+heat (TestEntity:945-984). Chemical lasers need no sinks; plasma retains its
+native requirement. No heat predicate or category adapter is copied here.
+
+A context-free variable-weight catalog zero remains unknown, including registry
+Java variable weight markers. Supported formulas receive unit context.
+Malformed/unknown mounts, unavailable engine/armor and unsupported heat remain
+explicit; they cannot certify a complete zero. computeProtoWeightBreakdown
+exposes the same core, mounts and heat used by both existing public wrappers.
+The known subtotal remains a lower bound for incomplete builds. Final mass is
+nearest kg (TestProtoMek:170-172); armor, ammo and formula rounding retain their
+own rules. Ignored absent-Main-Gun mounts remain ignored.
+
+The weight oracle records 106 original loaded entities (86 pinned canonical,
+20 C3 synthetics) and 90 directly observed mount boundaries. Tests compare every
+term and kg, not merely weight verdicts. All 86 canonical validity results agree
+with Java; only Svartalfa3 is overweight, at14.1t against14t. Movement legality,
+editor admission and unit persistence are separate contracts. Construction mass
+does not alter the BV projection or its inputs.
