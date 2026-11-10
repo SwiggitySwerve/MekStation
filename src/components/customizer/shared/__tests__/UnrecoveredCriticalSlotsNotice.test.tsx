@@ -8,6 +8,7 @@ import { parseUnit } from '@/services/units/unitLoaderService/unitContractAdapte
 import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
 import { createUnitStore, UnitStoreContext } from '@/stores/useUnitStore';
 
+import starLeagueCrab from '../../../../../public/data/units/battlemechs/2-star-league/advanced/King Crab KGC-000.json';
 import crab from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/King Crab KGC-0000.json';
 import celerity from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Celerity CLR-03-O.json';
 import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
@@ -27,6 +28,35 @@ beforeAll(async () => {
   await getEquipmentRegistry().initialize();
   await getEquipmentLookupService().initialize();
 });
+
+it.each([
+  [scarecrow, 13, 7],
+  [celerity, 3, 14],
+  [uni, 21, 0],
+  [starLeagueCrab, 2, 14],
+] as const)(
+  'shows effect groups and counts for $chassis $model',
+  (source, other, markers) => {
+    const state = new UnitLoaderService().mapToUnitState(
+      parseUnit(source),
+      true,
+    );
+    render(
+      <UnitStoreContext.Provider value={createUnitStore(state)}>
+        <EditorLoadDiagnostics />
+      </UnitStoreContext.Provider>,
+    );
+    const headings = screen.getAllByRole('heading').map((h) => h.textContent);
+    expect(headings[0]).toBe(`Other critical-slot entries (${other})`);
+    if (markers)
+      expect(headings).toContain(`Placement markers only (${markers})`);
+    else
+      expect(
+        headings.some((h) => h?.startsWith('Placement markers only')),
+      ).toBe(false);
+    expect(screen.getAllByRole('listitem')).toHaveLength(other + markers);
+  },
+);
 
 it.each([scarecrow, celerity, uni, crab])(
   'shows one exact loader-owned notice on open for $chassis $model',
@@ -53,11 +83,12 @@ it.each([scarecrow, celerity, uni, crab])(
     expect(
       within(notices[0])
         .getAllByRole('listitem')
-        .map((item) => item.textContent),
+        .map((item) => item.textContent)
+        .sort(),
     ).toEqual(
-      entries.map(
-        ({ text, location, slot }) => `${text} — ${location} [${slot}]`,
-      ),
+      entries
+        .map(({ text, location, slot }) => `${text} — ${location} [${slot}]`)
+        .sort(),
     );
     expect(notices[0]).toHaveTextContent(
       'These critical-slot entries could not be loaded as equipment and will not be kept if you save. Saving will remove them from this design.',

@@ -10,7 +10,20 @@ including split and spread locations, using the existing system-component and
 fixed-slot owners to exclude core systems. Configuration markers whose cells
 do not survive save remain in the list even when a configuration value survives.
 Later Celerity, FU-101 PR-D and o3 recovery changes automatically remove their
-placed cells from this same residual; no separate warning-kind table is allowed.
+placed cells from this same residual. No classification table may decide which
+cells belong in the residual.
+
+`criticalSlotNoticeEffects.ts` owns `notice-kind-v2-final`, its consequence/test
+citations and recovery responsibility in one table. The notices and census call
+that classifier; neither rendering nor census scripts own another classification.
+`criticalSlotNoticeGroups.ts` resolves only the supplied residual entries through
+the existing public identity owners and partitions them without changing any
+text, location or slot. Other critical-slot entries appear before placement
+markers, with counts and a consequence for every subgroup. Unmeasured effects
+say so. A consequence requires a unit and an executable test citation; the guard
+and real round-trip tests enforce that contract. Marker-only saves still require
+`Save anyway`. Classifications and consequences are derived display values, not
+additional persisted, fingerprinted or replay fields.
 
 The optional `UnitState.unrecoveredCriticalSlots` is editor metadata. Browser
 drafts retain it so reopening a draft does not hide the warning. Editable

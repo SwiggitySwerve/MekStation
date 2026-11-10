@@ -2,6 +2,7 @@ import type { StoreApi } from 'zustand';
 
 import { useEffect, useState } from 'react';
 
+import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { UnitStore } from '@/stores/unitState';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
@@ -70,6 +71,7 @@ function refreshLegacyDiagnostics(
 export function useUnitLoadDiagnostics(): {
   readonly entries: readonly IUnrecoveredCriticalSlot[] | undefined;
   readonly isRefreshing: boolean;
+  readonly source?: IRawSerializedUnit;
 } {
   const store = useUnitStoreApi();
   const entries = useUnitStore((state) => state.unrecoveredCriticalSlots);
@@ -101,5 +103,9 @@ export function useUnitLoadDiagnostics(): {
       active = false;
     };
   }, [store, entries, sourceDefinition, bvContext]);
-  return { entries, isRefreshing: entries === undefined && isRefreshing };
+  return {
+    entries,
+    isRefreshing: entries === undefined && isRefreshing,
+    source: bvContext?.source,
+  };
 }

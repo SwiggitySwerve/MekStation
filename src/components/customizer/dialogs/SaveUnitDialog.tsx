@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
+import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import { UnrecoveredCriticalSlotsNotice } from '@/components/customizer/shared/UnrecoveredCriticalSlotsNotice';
@@ -61,6 +62,7 @@ export interface SaveUnitDialogProps {
   constructionValidation: ConstructionValidationState;
   /** The target unit's loader-owned list; never inferred by the dialog. */
   unrecoveredCriticalSlots?: readonly IUnrecoveredCriticalSlot[];
+  criticalSlotSource?: IRawSerializedUnit;
   lossTrackingUnknown?: boolean;
   isRefreshingLossDiagnostics?: boolean;
   /** Called when save is confirmed */
@@ -162,6 +164,7 @@ export function SaveUnitDialog({
   currentUnitId,
   constructionValidation,
   unrecoveredCriticalSlots,
+  criticalSlotSource,
   lossTrackingUnknown = false,
   isRefreshingLossDiagnostics = false,
   onSave,
@@ -368,6 +371,7 @@ export function SaveUnitDialog({
     >
       <UnrecoveredCriticalSlotsNotice
         entries={unrecoveredCriticalSlots}
+        source={criticalSlotSource}
         unknown={lossTrackingUnknown}
         checking={isRefreshingLossDiagnostics}
       />

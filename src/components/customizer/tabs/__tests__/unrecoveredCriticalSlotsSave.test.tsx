@@ -24,6 +24,7 @@ import {
 } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore, type TabInfo } from '@/stores/useTabManagerStore';
 
+import markerOnly from '../../../../../public/data/units/battlemechs/1-age-of-war/advanced/Galahad GLH-1D.json';
 import crab from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/King Crab KGC-0000.json';
 import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
 
@@ -112,7 +113,10 @@ afterEach(() => {
   useTabManagerStore.setState({ tabs: [], activeTabId: null });
 });
 
-function open(source: typeof scarecrow | typeof crab, mode: Mode) {
+function open(
+  source: typeof scarecrow | typeof crab | typeof markerOnly,
+  mode: Mode,
+) {
   jest
     .mocked(unitNameValidator.validateUnitName)
     .mockImplementation(async (_chassis, variant) => ({
@@ -160,12 +164,21 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
     expect(
       within(notice)
         .getAllByRole('listitem')
-        .map((item) => item.textContent),
-    ).toEqual(expected);
+        .map((item) => item.textContent)
+        .sort(),
+    ).toEqual(expected?.slice().sort());
     expect(notice).toHaveTextContent(
       'Saving will remove them from this design.',
     );
     expect(notice).toHaveTextContent('Why?');
+    expect(within(notice).getAllByRole('heading')[0]).toHaveTextContent(
+      'Other critical-slot entries (13)',
+    );
+    expect(
+      within(notice).getByRole('heading', {
+        name: 'Placement markers only (7)',
+      }),
+    ).toBeVisible();
     if (mode === 'save-as-new') {
       fireEvent.click(
         await screen.findByRole('button', { name: 'Save As New' }),
@@ -191,8 +204,9 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
         }),
       )
         .getAllByRole('listitem')
-        .map((item) => item.textContent),
-    ).toEqual(expected);
+        .map((item) => item.textContent)
+        .sort(),
+    ).toEqual(expected?.slice().sort());
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(store.getState()).toBe(before);
     expect(getUnitDraftFingerprint(store.getState())).toBe(fingerprint);
@@ -213,6 +227,53 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
     if (mode === 'save-on-close')
       await waitFor(() => expect(closeTab).toHaveBeenCalledWith(before.id));
     else expect(closeTab).not.toHaveBeenCalled();
+  },
+);
+
+it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
+  'requires Save anyway for marker-only %s, and cancel preserves the unit',
+  async (mode) => {
+    const store = open(markerOnly, mode);
+    const before = store.getState();
+    expect(before.unrecoveredCriticalSlots).toHaveLength(14);
+    expect(
+      screen.getByRole('heading', { name: 'Placement markers only (14)' }),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { name: /Other critical-slot entries/ }),
+    ).toBeNull();
+    if (mode === 'save-as-new')
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Save As New' }),
+      );
+    const label = mode === 'overwrite' ? 'Overwrite' : 'Save';
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: new RegExp(`^${label}$`) }),
+      ).toBeEnabled(),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(`^${label}$`) }),
+    );
+    expect(screen.getByRole('button', { name: 'Save anyway' })).toBeVisible();
+    expect(customUnitApiService.create).not.toHaveBeenCalled();
+    expect(customUnitApiService.save).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(store.getState()).toBe(before);
+    expect(closeTab).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(`^${label}$`) }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Save anyway' }));
+    await waitFor(() =>
+      expect(
+        mode === 'overwrite'
+          ? customUnitApiService.save
+          : customUnitApiService.create,
+      ).toHaveBeenCalledTimes(1),
+    );
+    if (mode === 'save-on-close')
+      await waitFor(() => expect(closeTab).toHaveBeenCalledWith(before.id));
   },
 );
 

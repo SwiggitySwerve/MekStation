@@ -1,16 +1,20 @@
 import type { ReactElement } from 'react';
 
+import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import { useUnitLoadDiagnostics } from '@/hooks/useUnitLoadDiagnostics';
+import { groupCriticalSlotNoticeEntries } from '@/services/units/unitLoaderService/criticalSlotNoticeGroups';
 
-/** The editor and save dialog display the same loader result without classifying cells. */
+/** Both notices display the domain-owned grouping of the same loader list. */
 export function UnrecoveredCriticalSlotsNotice({
   entries,
+  source,
   unknown = false,
   checking = false,
 }: {
   readonly entries?: readonly IUnrecoveredCriticalSlot[];
+  readonly source?: IRawSerializedUnit;
   readonly unknown?: boolean;
   readonly checking?: boolean;
 }): ReactElement | null {
@@ -37,17 +41,46 @@ export function UnrecoveredCriticalSlotsNotice({
         </p>
       )}
       {!!entries?.length && (
-        <ul
+        <div
+          role="region"
           aria-label="Unrecovered critical-slot entries"
           tabIndex={0}
-          className="focus-visible:ring-accent mt-2 max-h-48 list-disc overflow-y-auto pl-5 break-words focus-visible:ring-2"
+          className="focus-visible:ring-accent mt-2 max-h-64 overflow-y-auto break-words focus-visible:ring-2"
         >
-          {entries.map(({ text, location, slot }) => (
-            <li key={`${location}:${slot}`}>
-              {text} — {location} [{slot}]
-            </li>
+          {groupCriticalSlotNoticeEntries(entries, source).map((group) => (
+            <section key={group.title} className="mt-2">
+              <h3 className="font-medium">
+                {group.title} ({group.count})
+              </h3>
+              {group.kinds.map((kind) => (
+                <section key={kind.kind} className="mt-2">
+                  <h4 className="font-medium">
+                    {kind.title} ({kind.entries.length})
+                  </h4>
+                  {kind.effects.map(({ effect, entries: affected }) => (
+                    <div key={effect.id}>
+                      <p className="text-text-theme-secondary mt-1">
+                        {effect.title !== kind.title &&
+                          `${effect.title} (${affected.length}): `}
+                        {effect.consequence}
+                      </p>
+                      <ul
+                        aria-label={`${effect.title} critical-slot entries`}
+                        className="list-disc pl-5"
+                      >
+                        {affected.map(({ text, location, slot }) => (
+                          <li key={`${location}:${slot}`}>
+                            {text} — {location} [{slot}]
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </section>
+              ))}
+            </section>
           ))}
-        </ul>
+        </div>
       )}
     </section>
   );
@@ -55,10 +88,11 @@ export function UnrecoveredCriticalSlotsNotice({
 
 /** Mounted once in the editor's existing diagnostics area, on every tab. */
 export function EditorLoadDiagnostics(): ReactElement {
-  const { entries, isRefreshing } = useUnitLoadDiagnostics();
+  const { entries, isRefreshing, source } = useUnitLoadDiagnostics();
   return (
     <UnrecoveredCriticalSlotsNotice
       entries={entries}
+      source={source}
       unknown={entries === undefined}
       checking={isRefreshing}
     />
