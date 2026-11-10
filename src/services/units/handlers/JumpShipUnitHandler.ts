@@ -43,7 +43,6 @@ import {
   UnitValidationMessages,
   combineAssaultUnitFields,
   createParseMessages,
-  parseRulesLevelThroughAdvancedFromType,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';
 
@@ -152,7 +151,6 @@ export class JumpShipUnitHandler extends AbstractUnitTypeHandler<IJumpShip> {
       typeSpecificFields,
       idPrefix: 'jumpship',
       unitType: UnitType.JUMPSHIP,
-      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
   }
 

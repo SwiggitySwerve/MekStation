@@ -84,5 +84,8 @@
       "COMMUNICATIONS": "Alphard Trading Corporation",
       "TARGETING": "RCA"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

@@ -7,6 +7,13 @@ decoding. It supplies an explicit chassis technology to the shared field builder
 other families retain their existing default parsing. Both loaded-unit and editor
 BV paths use `canMakeBAAntiMekAttacks` and the same mount projection/calculator.
 
+The canonical BA mapper uses its typed `clanChassis` fact for MIXED definitions,
+so the same eligibility owner receives the native chassis on source and catalog
+paths. An absent fact retains the existing fallback; pure definitions and saved
+editor state retain their own technology. No eligibility result is cached or
+inferred from equipment technology. BattleArmor.java:953-987,1360-1387 governs
+the shared missile-burden, manipulator, weight and movement guards.
+
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
 
 - `BLKFile.java:720-735` assigns Clan tech levels to mixed Clan-chassis sources.

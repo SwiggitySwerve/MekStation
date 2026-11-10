@@ -105,7 +105,8 @@ beforeEach(() => {
   const equipment = useEquipmentStore.getState();
   equipment.clearFilters();
   equipment.setUnitContext(null, null, []);
-  equipment.setEquipment([protoLaser, mechLaser]);
+  equipment.setEquipment(getEquipmentLookupService().getAllEquipment());
+  equipment.setSearch(protoLaser.name);
 });
 
 const mountsOf = (store: Store, equipmentId: string) =>
@@ -123,6 +124,7 @@ describe('ProtoMechEquipmentTab', () => {
     expect(
       screen.getByRole('button', { name: `Add ${protoLaser.name}` }),
     ).toBeInTheDocument();
+    act(() => useEquipmentStore.getState().setSearch(mechLaser.name));
     expect(
       screen.queryByRole('button', { name: `Add ${mechLaser.name}` }),
     ).toBeNull();

@@ -152,6 +152,7 @@ export function VehicleEquipmentTab({
       {/* Equipment Browser Section */}
       <div className="min-h-0 flex-1" data-testid="vehicle-equipment-browser">
         <EquipmentBrowser
+          unitType={useVehicleStore((state) => state.unitType)}
           key={unitId}
           readOnly={readOnly}
           addHint="Added to Body. Choose a mounting location in the loadout."

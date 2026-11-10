@@ -66,5 +66,8 @@
       "COMMUNICATIONS": "Achernar",
       "TARGETING": "IsBM"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

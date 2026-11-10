@@ -41,7 +41,6 @@ import {
   createParseMessages,
   createValidationMessages,
   getAerospaceWeightClass,
-  parseRulesLevelThroughAdvancedFromType,
   pushSafeThrustAndStructureErrors,
   pushTonnageRangeErrors,
   serializeConfigurationWithRulesLevel,
@@ -146,7 +145,6 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
       idPrefix: 'conv-fighter',
       unitType: UnitType.CONVENTIONAL_FIGHTER,
       weightClass,
-      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
   }
 
