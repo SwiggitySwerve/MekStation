@@ -46,6 +46,45 @@ export function verifySha256(bytes, expected, label) {
     throw new Error(`${label} SHA-256 mismatch`);
 }
 
+export function verifyMekfiles(references, mekfiles, expectedRows) {
+  if (
+    !Number.isSafeInteger(expectedRows) ||
+    expectedRows < 1 ||
+    references.length !== expectedRows
+  )
+    throw new Error('Reference row count does not match the pinned corpus');
+  if (new Set(references.map((row) => row.path)).size !== expectedRows)
+    throw new Error('Duplicate reference path');
+  const root = fs.realpathSync(path.resolve(mekfiles));
+  const inside = (file) => {
+    const relative = path.relative(root, file);
+    if (
+      !relative ||
+      relative === '..' ||
+      relative.startsWith('..' + path.sep) ||
+      path.isAbsolute(relative)
+    )
+      throw new Error(`Mekfile path escapes pin: ${file}`);
+    return file;
+  };
+  for (const row of references) {
+    if (typeof row.path !== 'string' || !row.path)
+      throw new Error('Invalid reference path');
+    const file = inside(fs.realpathSync(inside(path.resolve(root, row.path))));
+    const bytes = fs.readFileSync(file);
+    // Deliberately hash the physical bytes. The comparator's sourceHash
+    // canonicalizes CRLF, which cannot establish this stronger input proof.
+    verifySha256(bytes, row.sha256, `Mekfile ${row.path} raw`);
+    if (bytes.includes(Buffer.from('\r\n')))
+      throw new Error(`Mekfile must use LF bytes: ${row.path}`);
+  }
+  return {
+    expectedRows,
+    matchedRows: references.length,
+    lfFiles: references.length,
+  };
+}
+
 export function prepareReference(root, out, reference) {
   const compressed = fs.readFileSync(path.join(root, reference.file));
   verifySha256(compressed, reference.gzipSha256, 'gzip');
@@ -529,6 +568,30 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       config.mmData.tarballSha256,
       'mm-data tarball',
     );
+  } else if (positionals[0] === 'verify-mekfiles') {
+    if (!values.reference || !values.mekfiles || !values.out)
+      throw new Error(
+        'verify-mekfiles requires --reference, --mekfiles and --out',
+      );
+    verifySha256(
+      fs.readFileSync(values.reference),
+      config.reference.sha256,
+      'reference',
+    );
+    const result = verifyMekfiles(
+      readRows(values.reference),
+      values.mekfiles,
+      config.reference.rows,
+    );
+    fs.mkdirSync(values.out, { recursive: true });
+    save(path.join(values.out, 'mekfiles-provenance.json'), {
+      referenceSha256: config.reference.sha256,
+      mmDataCommit: config.mmData.commit,
+      sourceNewlines: config.mmData.sourceNewlines,
+      normalization: config.mmData.normalization,
+      ...result,
+    });
+    process.stdout.write(JSON.stringify(result) + '\n');
   } else if (positionals[0] === 'run') {
     runCensus({
       ...values,
@@ -536,5 +599,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       root: values.root ?? process.cwd(),
       python: values.python ?? 'python',
     });
-  } else throw new Error('Expected prepare, verify-mm-data, or run');
+  } else
+    throw new Error(
+      'Expected prepare, verify-mm-data, verify-mekfiles, or run',
+    );
 }

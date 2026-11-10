@@ -85,6 +85,12 @@ jobs:
           mkdir -p "$PARITY_INPUTS/mm-data"
           tar -xzf "$PARITY_INPUTS/mm-data.tar.gz" --strip-components=1 -C "$PARITY_INPUTS/mm-data" "mm-data-$MM_DATA_PIN/data/mekfiles"
 
+      - name: Verify raw LF mekfile hashes against oracle
+        run: |
+          node scoreboard-tools/scripts/ci/parity-scoreboard.mjs verify-mekfiles \
+            --reference "$PARITY_INPUTS/reference-full.jsonl" \
+            --mekfiles "$PARITY_INPUTS/mm-data/data/mekfiles" --out "$PARITY_OUTPUT"
+
       - name: Run fresh-conversion census
         working-directory: census-target
         run: |
@@ -108,6 +114,7 @@ jobs:
           retention-days: 30
           path: |
             ${{ runner.temp }}/parity-scoreboard/RESULTS.json
+            ${{ runner.temp }}/parity-scoreboard/mekfiles-provenance.json
             ${{ runner.temp }}/parity-scoreboard/execution.json
             ${{ runner.temp }}/parity-scoreboard/delta-report.json
             ${{ runner.temp }}/parity-scoreboard/reference-provenance-report.json

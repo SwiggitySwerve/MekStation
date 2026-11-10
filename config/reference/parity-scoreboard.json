@@ -8,6 +8,8 @@
     "sidecarSha256": "eaebbd8208d0075f63d862d762d8fea48a8adb8e932791eea8d7fac977f97c9a"
   },
   "mmData": {
+    "sourceNewlines": "LF",
+    "normalization": "none",
     "commit": "50f7efef0c9f775b0258f8283525ed4f906e1985",
     "url": "https://codeload.github.com/MegaMek/mm-data/tar.gz/50f7efef0c9f775b0258f8283525ed4f906e1985",
     "tarballSha256": "c2ede85643dbfe88457ea1f9fe74a25c8fb77228b5257aff3c9fbeee23dc4cd3"

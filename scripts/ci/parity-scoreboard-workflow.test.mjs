@@ -66,3 +66,17 @@ test('scoreboard is classified outside the PR census and required aggregator', (
     ),
   );
 });
+
+test('raw LF mekfile hashes are checked before conversion and the proof is uploaded', () => {
+  const steps = parse(fs.readFileSync(file, 'utf8')).jobs.scoreboard.steps;
+  const verify = steps.findIndex((step) =>
+    step.run?.includes('verify-mekfiles'),
+  );
+  const census = steps.findIndex(
+    (step) => step.name === 'Run fresh-conversion census',
+  );
+  assert.ok(verify >= 0 && verify < census);
+  assert.ok(
+    steps.some((step) => step.with?.path?.includes('mekfiles-provenance.json')),
+  );
+});

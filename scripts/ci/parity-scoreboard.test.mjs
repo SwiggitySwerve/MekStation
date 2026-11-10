@@ -15,6 +15,7 @@ import {
   prepareReference,
   readCensusResults,
   verifySha256,
+  verifyMekfiles,
 } from './parity-scoreboard.mjs';
 
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -167,6 +168,46 @@ test('SHA verification rejects altered bytes', () => {
     () => verifySha256(Buffer.from('changed'), sha('oracle'), 'reference'),
     /reference.*SHA-256/,
   );
+});
+
+test('mekfile preflight accepts raw LF bytes and rejects a CRLF copy', (t) => {
+  const root = temporary(t);
+  const lf = Buffer.from('Version:1.0\nchassis:Test\nmodel:TST-1\n');
+  const file = path.join(root, 'Test.mtf');
+  const references = [{ path: 'Test.mtf', sha256: sha(lf) }];
+  fs.writeFileSync(file, lf);
+  assert.deepEqual(verifyMekfiles(references, root, 1), {
+    expectedRows: 1,
+    matchedRows: 1,
+    lfFiles: 1,
+  });
+  assert.deepEqual(fs.readFileSync(file), lf);
+  const crlf = Buffer.from(lf.toString('utf8').replace(/\n/g, '\r\n'));
+  fs.writeFileSync(file, crlf);
+  assert.equal(
+    sha(Buffer.from(crlf.toString('utf8').replace(/\r\n/g, '\n'))),
+    references[0].sha256,
+  );
+  assert.throws(
+    () => verifyMekfiles(references, root, 1),
+    /Mekfile.*raw.*SHA-256 mismatch/,
+  );
+  assert.deepEqual(fs.readFileSync(file), crlf);
+});
+
+test('mekfile preflight rejects partial or duplicate reference inventories and escaped paths', (t) => {
+  const root = temporary(t);
+  const row = { path: 'Test.mtf', sha256: sha('test\n') };
+  assert.throws(() => verifyMekfiles([row], root, 2), /Reference row count/);
+  assert.throws(
+    () => verifyMekfiles([row, row], root, 2),
+    /Duplicate reference path/,
+  );
+  assert.throws(
+    () => verifyMekfiles([{ ...row, path: '../outside.mtf' }], root, 1),
+    /Mekfile path escapes/,
+  );
+  assert.throws(() => verifyMekfiles([row], root, 1), /ENOENT/);
 });
 
 test('reference preparation verifies gzip, decompressed data and unmodified sidecar', (t) => {
