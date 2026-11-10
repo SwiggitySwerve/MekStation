@@ -186,6 +186,8 @@ interface PutFault {
   mode: 'pass' | 'abort' | 'hold';
   /** PUTs dropped so far: evidence the fault was real, not assumed. */
   aborted: number;
+  /** PUTs that arrived during a hold: proof a document pushed on its own. */
+  held: number;
   /** End a hold: held PUTs continue and later ones pass. */
   release: () => void;
 }
@@ -193,7 +195,8 @@ interface PutFault {
 /**
  * fault-injection: the browser -> server PUT of one campaign. Aborted to model
  * a network drop (the same state a crash or a refused flush leaves), or held to
- * make a transient state observable. Everything else reaches the real server.
+ * make a transient state observable and countable. Everything else reaches the
+ * real server.
  */
 async function injectPutFault(
   context: BrowserContext,
@@ -206,6 +209,7 @@ async function injectPutFault(
   const fault: PutFault = {
     mode: 'pass',
     aborted: 0,
+    held: 0,
     release: () => {
       fault.mode = 'pass';
       openGate();
@@ -219,7 +223,10 @@ async function injectPutFault(
         fault.aborted += 1;
         return route.abort('failed');
       }
-      if (fault.mode === 'hold') await gate;
+      if (fault.mode === 'hold') {
+        fault.held += 1;
+        await gate;
+      }
       return route.continue();
     },
   );
@@ -273,8 +280,11 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
   );
 
   // Reload while the fault is still on, so nothing of the first document's can
-  // reach the server (its unload flush is dropped too).
+  // reach the server (its unload flush is dropped too). The new document's push
+  // is due 2 s after it adopts the copy, so switching to `hold` the moment the
+  // load event fires is well inside that window.
   await page.reload();
+  fault.mode = 'hold';
   await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
     timeout: 20_000,
   });
@@ -283,12 +293,12 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
     'premise: the first document must not have written',
   ).toBe(before.version);
 
-  // The new document found a copy newer than the server's. Hold its push so
-  // the transient state is observable instead of racing the debounce.
-  fault.mode = 'hold';
-  await expect(page.getByText('Recovered unsaved changes')).toBeVisible({
-    timeout: 20_000,
-  });
+  // The new document found a copy newer than the server's and, with no click
+  // and no further edit, tries to push it. Held there, so the state is
+  // observable instead of racing the server: not Saved, local day kept, claim
+  // still on the copy, server untouched.
+  await expect.poll(() => fault.held, { timeout: 20_000 }).toBe(1);
+  await expect(page.getByText('Saved', { exact: true })).toBeHidden();
   expect(await campaignDateText(page)).toBe(mutatedDate);
   expect(await storedMarker(page)).not.toBeNull();
   expect((await serverRecord(request, campaignId)).version).toBe(
