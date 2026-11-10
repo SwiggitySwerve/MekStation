@@ -69,6 +69,11 @@ history; `ROADMAP.md` is a cross-reference only. Missing POST-MERGE receipts are
 OPEN, never inferred from trials. No Jest, build or census was run for this
 reconciliation.
 
+Merge-effect evidence is the merged code/tests in the cited SHA's first-parent
+diff, or a merge/POST-MERGE record. PR descriptions are not evidence. Added
+assertions describe test coverage; their presence does not establish a new
+passing execution. An unverified effect or outcome stays "not verified".
+
 ## 1. Source and reference foundation
 
 - [x] 1.1 Implement deterministic pinned Git source inventory in `scripts/megameklab-conversion/`, including MTF/BLK/BFS, hashes, explicit other files and nonempty input errors. Test dirty-tree isolation and missing/invalid inputs. (`unit-services`: Immutable source inventory) Proof: #2373; tests: `scripts/__tests__/test_source_inventory.py` (9 pass); evidence: `2026-10-28/upstream-crosscheck/implementation/runtime-reference/corpus/source-verification.json` (10,994 sources: 4,263 MTF, 6,725 BLK, 6 BFS, plus 4 explicit non-source entries), `ledger/slice-tests/py-source-inventory.log`.
@@ -122,16 +127,24 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3005 (`4009297f8`): preserves aerospace cockpit codes. POST-MERGE: OPEN
-      (not verified).
-    - #3114 (`d44022d77`): pins infantry/battle-armor catalog identities.
+    - #3005 (`4009297f8`): preserves aerospace cockpit codes. Merged code/tests
+      at this SHA: `scripts/megameklab-conversion/blk_aerospace_tables.py`,
+      `scripts/__tests__/test_blk_aerospace_cockpit.py`. POST-MERGE: OPEN (not
+      verified).
+    - #3114 (`d44022d77`): pins infantry/battle-armor catalog identities. Merged
+      code/tests at this SHA: `scripts/equipment-catalog/resolution.test.mjs`.
       POST-MERGE: OPEN (not verified).
-    - #3143 (`b8344702b`): pins Introductory ammunition facts. POST-MERGE: OPEN
+    - #3143 (`b8344702b`): pins Introductory ammunition facts. Merged code/tests
+      at this SHA: `scripts/equipment-catalog/rules-level.test.mjs`. POST-MERGE:
+      OPEN (not verified).
+    - #3156 (`f82a997ed`): preserves Clan heat-sink identity. Merged code/tests
+      at this SHA: `scripts/__tests__/test_blk_aerospace_armor.py`. POST-MERGE:
+      OPEN (not verified).
+    - #3180 (`cf9c62dac`): adds first allowed-unit-type catalog batch. Merged
+      code/tests at this SHA:
+      `scripts/equipment-catalog/allowed-unit-types-source.json`,
+      `scripts/equipment-catalog/allowed-unit-types.test.mjs`. POST-MERGE: OPEN
       (not verified).
-    - #3156 (`f82a997ed`): preserves Clan heat-sink identity. POST-MERGE: OPEN
-      (not verified).
-    - #3180 (`cf9c62dac`): adds first allowed-unit-type catalog batch.
-      POST-MERGE: OPEN (not verified).
     - #3208 (`52f65d9c7`): adds 179 further allowed-unit-type entries.
       POST-MERGE: done locally on `52f65d9c7`.
     - #3242 (`f377ea995`): corrects Clan CASE II to 0.5 t; 169 mounts move
@@ -196,13 +209,25 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3107 (`2f52fe02e`): pins installed-engine sealing. POST-MERGE: OPEN (not
-      verified).
-    - #3139 (`333007009`): completes native Tank weight terms. POST-MERGE: OPEN
-      (not verified).
-    - #3172 (`0b632e9f6`): makes 57 missing Tank totals available. POST-MERGE:
-      OPEN (not verified).
+    - #3107 (`2f52fe02e`): normalizes the environmental-sealed chassis alias for
+      vehicle mass. Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/variableEquipmentMass.ts`,
+      `src/utils/construction/vehicle/__tests__/environmentalSealingMass.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3139 (`333007009`): corrects Tank armor-tech selection and native
+      light-MGA weight lookup. Merged code/tests at this SHA:
+      `src/services/units/handlers/vehicleHandlerWeight.ts`,
+      `src/services/units/handlers/__tests__/VehicleWeightValidity.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3172 (`0b632e9f6`): makes 57 missing Tank totals available. Merged
+      code/tests at this SHA:
+      `src/services/units/handlers/vehicleHandlerWeight.ts`,
+      `src/services/units/handlers/__tests__/VehicleIsMechMortar.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3200 (`b2351ffc1`): corrects support-vehicle heat-derived weight inputs.
+      Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/mountedWeight.ts`,
+      `src/utils/construction/vehicle/__tests__/supportHeat.pinned.test.ts`.
       POST-MERGE: OPEN (not verified).
     - #3222 (`80a19f6a8`): restores support torpedo identity; support exact 190
       to 193. POST-MERGE: done locally on `80a19f6a8`.
@@ -219,12 +244,18 @@ reconciliation.
       and components agree, 1,086 Tank rows unchanged. POST-MERGE: done locally
       on `a31bb3677`.
     - #3204 (`47ba0bd22`): retires duplicate vehicle tonnage bounds (FU-55
-      bounds only). POST-MERGE: OPEN (not verified).
+      bounds only). Merged code/tests at this SHA:
+      `src/components/customizer/vehicle/VehicleStructureTab.tsx`,
+      `src/stores/__tests__/vehicleTonnage.consumers.test.tsx`. POST-MERGE: OPEN
+      (not verified).
     - #3232 (`249f0a5be`): corrects superheavy gyro multiplier on eleven
       controls, not complete control weights. POST-MERGE: done locally on
       `249f0a5be`.
-    - #3271 (`2c4fd3541`): shares ProtoMech weight owner; 86 canonical and 20
-      synthetic cases match Java. POST-MERGE: OPEN (not verified).
+    - #3271 (`2c4fd3541`): shares ProtoMech weight owner; adds Java-parity
+      assertions for 86 canonical and 20 synthetic cases. Merged code/tests at
+      this SHA: `src/utils/construction/protomech/validation.ts`,
+      `src/services/units/handlers/__tests__/ProtoMechUnitHandler.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3308 (`13d38beef`): introduces aerospaceEngineTons single engine owner
       and removes dead engine table/aggregate. POST-MERGE: done locally on
       `13d38beef`.
@@ -293,14 +324,23 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3140 (`ad9904794`): pins vehicle engine-specific heat-sink rules;
-      1,150/1,150 heat results. POST-MERGE: OPEN (not verified).
-    - #3161 (`7e209e3ed`): pins miscellaneous heat; 30/30 controls. POST-MERGE:
-      OPEN (not verified).
-    - #3200 (`b2351ffc1`): completes support heat terms on 227/227. POST-MERGE:
-      OPEN (not verified).
+    - #3140 (`ad9904794`): adds pinned vehicle engine heat-sink count/mass
+      assertions (test-only). Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/__tests__/heatSinkEngines.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3161 (`7e209e3ed`): pins miscellaneous vehicle heat with native control
+      assertions. Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/mountedWeight.ts`,
+      `src/utils/construction/vehicle/__tests__/miscHeat.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3200 (`b2351ffc1`): updates support heat-in-weight logic and pinned assertions. Merged
+      code/tests at this SHA: `src/utils/construction/vehicle/mountedWeight.ts`,
+      `src/utils/construction/vehicle/__tests__/supportHeat.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3202 (`8524986d1`): adds pinned independent Tamerlane term assertions
-      (test-only). POST-MERGE: OPEN (not verified).
+      (test-only). Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/__tests__/vehicleBV.tamerlaneTerms.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3274 (`3295d499c`): adds the native Nova CEWS display-name identity.
       POST-MERGE: done locally on `3295d499c`.
   - Tamerlane milestone evidence (C2): four totals 436/484/359/403 with first
@@ -373,18 +413,32 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3125 (`2f076df6d`): M1: projects mech native ammunition terms.
-      POST-MERGE: OPEN (not verified).
-    - #3138 (`ae7a99340`): A2: projects aerospace ammunition terms. POST-MERGE:
-      OPEN (not verified).
-    - #3192 (`363f2d06d`): V2: closes 3,736 vehicle omissions. POST-MERGE: OPEN
-      (not verified).
+    - #3125 (`2f076df6d`): M1: projects mech native ammunition terms. Merged
+      code/tests at this SHA: `scripts/validate-bv-crit-scan-ammo.ts`,
+      `scripts/__tests__/unit-bv-mech-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3138 (`ae7a99340`): A2: projects aerospace ammunition terms. Merged
+      code/tests at this SHA:
+      `src/utils/construction/aerospace/aerospaceBVCalculations.ts`,
+      `scripts/__tests__/unit-bv-aerospace-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3192 (`363f2d06d`): V2: projects vehicle ammunition availability and raw
+      caps. Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/bvTrace.ts`,
+      `scripts/__tests__/unit-bv-vehicle-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
     - #3209 (`921254806`): V3: adds implicit infantry clips; vehicle missing
       terms become zero. POST-MERGE: done locally on `921254806`.
     - #3152 (`be9d21ec0`): C2+C3: projects capital ammunition
-      availability/caps/arcs. POST-MERGE: OPEN (not verified).
+      availability/caps/arcs. Merged code/tests at this SHA:
+      `src/utils/construction/aerospace/dropShipMountBV.ts`,
+      `scripts/__tests__/unit-bv-capital-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
     - #3193 (`f4aad522d`): B1: emits battle-armor ammunition terms with trooper
-      replicas. POST-MERGE: OPEN (not verified).
+      replicas. Merged code/tests at this SHA:
+      `src/types/unit/BVBreakdownTypes.ts`,
+      `scripts/__tests__/unit-bv-ba-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
     - #3234 (`36a5d17fb`): E2: folds battle armor caps into battleValueAmmo.ts.
       POST-MERGE: done locally on `36a5d17fb`.
     - #3238 (`99113dad4`): S3: preserves Sprite 3 raw indices and Fusillade
@@ -475,24 +529,40 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3129 (`76e5aa5c0`): preserves MTF declared rules level. POST-MERGE: OPEN
-      (not verified).
-    - #3110 (`f529838e5`): enforces Introductory mech ammunition legality.
-      POST-MERGE: OPEN (not verified).
-    - #3118 (`c5c2b7083`): adds aerospace/capital source validity. POST-MERGE:
-      OPEN (not verified).
-    - #3136 (`723dfe622`): adds MTF source validity. POST-MERGE: OPEN (not
+    - #3129 (`76e5aa5c0`): preserves MTF declared rules level. Merged code/tests
+      at this SHA: `scripts/megameklab-conversion/enum_mapping_tables.py`,
+      `scripts/__tests__/test_mtf_rules_level.py`. POST-MERGE: OPEN (not
       verified).
-    - #3121 (`758e8eb71`): extracts native structure-weight owner. POST-MERGE:
-      OPEN (not verified).
+    - #3110 (`f529838e5`): enforces Introductory mech ammunition legality.
+      Merged code/tests at this SHA:
+      `src/services/validation/rules/battlemech/BattleMechAmmoTechLevel.ts`,
+      `src/__tests__/service/validation/rules/battlemech/BattleMechAmmoTechLevel.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3118 (`c5c2b7083`): adds aerospace/capital source validity. Merged
+      code/tests at this SHA: `scripts/unit-bv-parity.md`,
+      `scripts/__tests__/unit-bv-strict.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3136 (`723dfe622`): adds MTF source validity. Merged code/tests at this
+      SHA: `scripts/unit-bv-parity.md`,
+      `scripts/__tests__/unit-bv-strict.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3121 (`758e8eb71`): extracts native structure-weight owner. Merged
+      code/tests at this SHA: `src/hooks/useUnitCalculations.ts`,
+      `src/utils/construction/__tests__/structureCalculations.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3150 (`27112b512`): preserves FrankenMek section structure types.
       POST-MERGE: done locally on `27112b512`.
     - #3239 (`a698c27ae`): persists full structure context. POST-MERGE: done
       locally on `a698c27ae`.
     - #3265 (`2369dd314`): forwards structure context without behavior change.
       POST-MERGE: done locally on `2369dd314`.
-    - #3159 (`baaba6ac9`): FU-101 PR A: records slot-only mounting investigation
-      and coverage gaps. POST-MERGE: OPEN (not verified).
+    - #3159 (`baaba6ac9`): shares source physical-mount grouping and
+      variable-sizing profiles. Merged code/tests at this SHA:
+      `src/services/units/unitLoaderService/sourceWeaponMounts.ts`,
+      `src/services/units/unitLoaderService/__tests__/sourceWeaponMounts.test.ts`,
+      `src/services/equipment/variableEquipmentFormulas.ts`,
+      `src/services/equipment/__tests__/physicalSizing.test.ts`. POST-MERGE:
+      OPEN (not verified).
     - #3276 (`e7dc2f6fb`): uses native section-weighted structure; Drizella
       matches and validity reaches 9,815/9,815. POST-MERGE: done locally on
       `e7dc2f6fb`.
@@ -502,8 +572,10 @@ reconciliation.
     - #3263 (`e3cc7d138`): FU-101 PR C: reproduces source-mount recovery in
       Python, catalog regeneration not applied. POST-MERGE: done locally on
       `e3cc7d138`.
-    - #3268 (`72ff0bde6`): extracts opposite-tech helper (PR A). POST-MERGE:
-      OPEN (not verified).
+    - #3268 (`72ff0bde6`): extracts opposite-tech helper (PR A). Merged
+      code/tests at this SHA: `src/utils/techBaseValidation.compatibility.ts`,
+      `src/__tests__/unit/utils/techBaseValidation.test.ts`. POST-MERGE: OPEN
+      (not verified).
     - #3278 (`5a00b4648`): S1: shared sided technology-facts schema. POST-MERGE:
       done locally on `5a00b4648`.
     - #3286 (`4fa934e76`): S2: technology facts transport/schema foundation.
@@ -522,17 +594,26 @@ reconciliation.
     - #3267 (`b25155bcc`): R2 phase-a converter code: six Ares become Tripods,
       no catalog apply. POST-MERGE: done locally on `b25155bcc`.
     - #3279 (`4aa106822`): R2 Omni converter/schema fields, no phase-b apply.
-      POST-MERGE: OPEN (not verified).
+      Merged code/tests at this SHA:
+      `scripts/megameklab-conversion/mtf_parser.py`,
+      `scripts/__tests__/test_mtf_omni.py`. POST-MERGE: OPEN (not verified).
     - #3270 (`c4cdf9450`): CV1: one pure validation-input owner shared by app
       and capture. POST-MERGE: done locally on `c4cdf9450`.
     - #3314 (`ac6e518b1`): campaign refit consumes the shared construction
       projection. POST-MERGE: done locally on `ac6e518b1`.
     - #3329 (`b73e3ca3a`): P8a: removes the dead legacy TypeScript converter.
-      POST-MERGE: OPEN (not verified).
+      Merged code/tests at this SHA:
+      `scripts/qc/validate-wave4-family-data-gate.mjs`,
+      `config/jest/no-jest-dom-tests.json`. POST-MERGE: OPEN (not verified).
     - #3160 (`ca66910a1`): FU-106 PR1: five-ton support ammo-slot boundary and
-      fire-control placement. POST-MERGE: OPEN (not verified).
+      fire-control placement. Merged code/tests at this SHA:
+      `src/utils/construction/vehicle/itemSlots.ts`,
+      `src/utils/construction/vehicle/__tests__/itemSlots.test.ts`. POST-MERGE:
+      OPEN (not verified).
     - #3326 (`ed43d9bf2`): P7c: retires legacy Python converter CLI, leaving the
-      production converter owner. POST-MERGE: OPEN (not verified).
+      production converter owner. Merged code/tests at this SHA:
+      `scripts/megameklab-conversion/data_converter.py`. POST-MERGE: OPEN (not
+      verified).
   - Current source-handler baseline: CV1 #3270 on `c4cdf9450`, BV exact
     9,815/9,815 and validity agreement 9,815/9,815; POST-MERGE done on that SHA,
     seven suites and byte-identical census. Evidence: `parity-CV1/IMPACT.md`,
@@ -610,7 +691,7 @@ reconciliation.
     #2870's introduction-diagnostic and #2961's public vehicle-validity slices
     are recorded under rows 2.2 and 3.4; neither closes all-family validation.
   - [x] 3.1a Separate VTOL/SmallCraft BLK source loading from construction limits, retain original values and existing validation diagnostics, and reject unusable numeric fields. Verified all 170 pinned rows by source index/path/blob/SHA-256: 160 to 170 loaded, all 10 recovered rows construction-invalid, existing successful data and validation unchanged except unit diagnostic fields; 317 focused handler/parser/construction/BV assertions pass. This closes only this boundary slice; the all-family row, numerical parity and round trips remain open. (`unit-services`: VTOL and SmallCraft source loading diagnostics)
-  - Open: vehicle, aerospace and capital converters and catalogs are on main (#2469, #2486). Battle armor and infantry now have strict converters (#2499, #2500) and committed catalogs of 1,188 and 1,820 designs (#2513, #2515), and their handlers accept the pinned sources (#2509). ProtoMechs have a strict converter and a registered family (#2505) and a committed catalog of 86 designs (#2526). Vehicle Java validity agrees for 1,423 of 1,444 designs (follow-up 60). #2568 compared validity per unit with the oracle's `construction.valid` for ProtoMechs, aerospace and capital (`unit-loading/L-VAL/`, lane figures, not re-run here). After it, ProtoMechs agree on all 86 (85 valid and 1 invalid in both; the corpus-load run on main `ac64a3330` also counts 1 invalid, `ledger/tick6/corpus-load/`). Aerospace has 596 valid in both, 6 valid here only, 1 valid in Java only and 17 FixedWingSupport sources with no local result (Java: 14 valid, 3 invalid). Capital has 350 valid in both and 44 valid here only. Mech validity work: #2607, #2608 and #2616 (mech critical slots against the selected cockpit) are on main, and so are #2620 (HVAC explosive penalty), #2622 (split-weapon criticals across adjacent locations), #2633 (13 introduction years) and #2634 (the Mek turret marker stripped from slot names). #2595 added the equipment introduction-year check for aerospace and fixed-wing sources (`AeroIntroYear.test.ts`), and #2647 and #2660 ported Java's armor and engine introduction-year checks for combat vehicles (#2647 flipped Fury CX-17 and #2660 Ground Car and Jeep, all toward Java, by the PR bodies' own guard runs; lane figures, not re-run). #2536 made the battle armor and infantry handlers' `validate` agree with the oracle's `construction.valid` on all 1,188 and all 1,820 sources (4 and 30 invalid, Java's diagnostic kept; `PersonnelValidity.test.ts` and `BattleArmorUnitHandler.validation.test.ts` pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; the corpus-load run counts the same 4 and 30, `ledger/tick6/corpus-load/`). Invalid-but-loadable diagnostics are therefore still unproven for aerospace (7 disagreements and 17 sources with no result) and capital (44 disagreements); vehicle validity was not re-compared here: follow-up 95 records 13 vehicles valid here and invalid in Java after #2635 (21 at #2475; a lane figure, not re-run), which the three flips of #2647 and #2660 would leave at 10 if the lane figures hold, with the Java weight, slot and compatibility checks (follow-up 95 (b) to (e)) still to port.
+  - Open: vehicle, aerospace and capital converters and catalogs are on main (#2469, #2486). Battle armor and infantry now have strict converters (#2499, #2500) and committed catalogs of 1,188 and 1,820 designs (#2513, #2515), and their handlers accept the pinned sources (#2509). ProtoMechs have a strict converter and a registered family (#2505) and a committed catalog of 86 designs (#2526). Vehicle Java validity agrees for 1,423 of 1,444 designs (follow-up 60). #2568 compared validity per unit with the oracle's `construction.valid` for ProtoMechs, aerospace and capital (`unit-loading/L-VAL/`, lane figures, not re-run here). After it, ProtoMechs agree on all 86 (85 valid and 1 invalid in both; the corpus-load run on main `ac64a3330` also counts 1 invalid, `ledger/tick6/corpus-load/`). Aerospace has 596 valid in both, 6 valid here only, 1 valid in Java only and 17 FixedWingSupport sources with no local result (Java: 14 valid, 3 invalid). Capital has 350 valid in both and 44 valid here only. Mech validity work: #2607, #2608 and #2616 (mech critical slots against the selected cockpit) are on main, and so are #2620 (HVAC explosive penalty), #2622 (split-weapon criticals across adjacent locations), #2633 (13 introduction years) and #2634 (the Mek turret marker stripped from slot names). #2595 added the equipment introduction-year check for aerospace and fixed-wing sources (`AeroIntroYear.test.ts`), and #2647/#2660 historical introduction-rule effects and the claimed three-unit validity flip are not verified here; their PR descriptions are not evidence. #2536 made the battle armor and infantry handlers' `validate` agree with the oracle's `construction.valid` on all 1,188 and all 1,820 sources (4 and 30 invalid, Java's diagnostic kept; `PersonnelValidity.test.ts` and `BattleArmorUnitHandler.validation.test.ts` pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; the corpus-load run counts the same 4 and 30, `ledger/tick6/corpus-load/`). Invalid-but-loadable diagnostics are therefore still unproven for aerospace (7 disagreements and 17 sources with no result) and capital (44 disagreements); vehicle validity was not re-compared here: follow-up 95 records 13 vehicles valid here and invalid in Java after #2635 (21 at #2475; a lane figure, not re-run), the post-fix vehicle count is not verified here, with the Java weight, slot and compatibility checks (follow-up 95 (b) to (e)) still to port.
   - [x] 3.1b Source-handler construction validity agrees with pinned MegaMek
     48fcb2f64 on 9,815/9,815 in-scope sources at main `e7dc2f6fb`, across all
     seven families (BattleMechs 4,263, vehicles 1,444, aerospace 620, capital
@@ -634,22 +715,37 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3137 (`c8e7cb2a7`): adds vehicle BLK API import. POST-MERGE: OPEN (not
+    - #3137 (`c8e7cb2a7`): adds vehicle BLK API import. Merged code/tests at
+      this SHA: `scripts/megameklab-conversion/blk_common.py`,
+      `scripts/__tests__/test_blk_armor_codes.py`. POST-MERGE: OPEN (not
       verified).
-    - #3149 (`ce427c91b`): adds aerospace BLK API import. POST-MERGE: OPEN (not
+    - #3149 (`ce427c91b`): adds aerospace BLK API import. Merged code/tests at
+      this SHA: `src/pages/api/units/import.ts`,
+      `src/__tests__/api/units/importBLK.test.ts`. POST-MERGE: OPEN (not
       verified).
-    - #3166 (`b5b3fdd18`): adds battle-armor BLK API import. POST-MERGE: OPEN
-      (not verified).
-    - #3189 (`003d677ff`): adds infantry BLK API import. POST-MERGE: OPEN (not
+    - #3166 (`b5b3fdd18`): adds battle-armor BLK API import. Merged code/tests
+      at this SHA: `src/services/units/importBLKDefinition.ts`,
+      `src/__tests__/api/units/importBLK.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3189 (`003d677ff`): adds infantry BLK API import. Merged code/tests at
+      this SHA: `src/services/units/importBLKDefinition.ts`,
+      `src/__tests__/api/units/importBLK.test.ts`. POST-MERGE: OPEN (not
       verified).
     - #3215 (`71a99df86`): adds capital read-only source import. POST-MERGE:
       done locally on `ad26828c9`.
-    - #3163 (`e54923787`): mounts file import on the unit library. POST-MERGE:
-      OPEN (not verified).
+    - #3163 (`e54923787`): mounts file import on the unit library. Merged
+      code/tests at this SHA: `src/pages-modules/units/UnitImportDialog.tsx`,
+      `src/__tests__/integration/unitLibraryImport.realStore.test.tsx`.
+      POST-MERGE: OPEN (not verified).
     - #3162 (`b1a3b94bd`): retires legacy IMTFImporter (REMOVED delta awaits
-      canonical sync). POST-MERGE: OPEN (not verified).
+      canonical sync). Merged code/tests at this SHA:
+      `src/services/conversion/MTFImportService.ts`,
+      `config/jest/no-jest-dom-tests.json`. POST-MERGE: OPEN (not verified).
     - #3199 (`aca785fe6`): writes typed Mixed MTF chassis headers and refuses
-      missing context. POST-MERGE: OPEN (not verified).
+      missing context. Merged code/tests at this SHA:
+      `src/services/conversion/MTFExportHelpers.ts`,
+      `src/__tests__/integration/mixedTechMTFExport.test.ts`. POST-MERGE: OPEN
+      (not verified).
     - #3213 (`178bdd7e1`): x2: same-Mixed reselect is a no-op; component-legal
       Mixed validation. POST-MERGE: done locally on `178bdd7e1`.
     - #3211 (`06a1aa326`): y: honors explicit equipment technology on Mixed
@@ -669,9 +765,15 @@ reconciliation.
     - #3254 (`ae5c96ed8`): x3: exports non-Standard cockpit headers. POST-MERGE:
       done on hosted main run 42758686070 (`4fa934e76`).
     - #3285 (`14f11228e`): m1: shared TS/Python component vocabulary, raw tokens
-      and diagnostics. POST-MERGE: OPEN (not verified).
+      and diagnostics. Merged code/tests at this SHA:
+      `scripts/megameklab-conversion/enum_mapping_tables.py`,
+      `scripts/__tests__/test_mtf_component_vocabulary.py`. POST-MERGE: OPEN
+      (not verified).
     - #3312 (`cb01f5076`): rl1: lists decode stored rules level for
-      filter/sort/labels. POST-MERGE: OPEN (not verified).
+      filter/sort/labels. Merged code/tests at this SHA:
+      `src/components/compendium/units/UnitsTable.tsx`,
+      `src/__tests__/unit/utils/rulesLevel/parseRulesLevel.test.ts`. POST-MERGE:
+      OPEN (not verified).
     - #3304 (`943f5354d`): reproduces non-mech chassis catalog fields.
       POST-MERGE: done on hosted main run 42765012031 (`4d4c5ebe4`).
     - #3303 (`4d4c5ebe4`): repairs CASE II tech-suffix resolution. POST-MERGE:
@@ -769,7 +871,9 @@ reconciliation.
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
     - #3194 (`70782e663`): reopens this row after measured Mixed identity loss.
-      POST-MERGE: OPEN (not verified).
+      Merged code/tests at this SHA:
+      `openspec/changes/establish-all-unit-data-parity/tasks.md`. POST-MERGE:
+      OPEN (not verified).
     - #3211 (`06a1aa326`): y: merged-main ID/tech 505/505, full preservation
       only 409/505. POST-MERGE: done locally on `06a1aa326`.
     - #3213 (`178bdd7e1`): x2: fixes destructive same-Mixed reselect.
@@ -780,15 +884,24 @@ reconciliation.
     - #3281 (`3c02658d7`): o1: derives mount pod flags. POST-MERGE: done locally
       on `ba6b378cb`.
     - #3279 (`4aa106822`): R2 Omni converter/schema prerequisite, not the
-      catalog apply. POST-MERGE: OPEN (not verified).
+      catalog apply. Merged code/tests at this SHA:
+      `scripts/megameklab-conversion/mtf_parser.py`,
+      `scripts/__tests__/test_mtf_omni.py`. POST-MERGE: OPEN (not verified).
     - #3295 (`f47daca70`): applies 377 Mixed mech chassis fields. POST-MERGE:
       done locally on `f47daca70`.
     - #3254 (`ae5c96ed8`): exports cockpit headers. POST-MERGE: done on hosted
       main run 42758686070 (`4fa934e76`).
     - #3285 (`14f11228e`): preserves native component tokens on import/reopen.
-      POST-MERGE: OPEN (not verified).
-    - #3289 (`9f33a1c52`): applies five cockpit data fields. POST-MERGE: OPEN
+      Merged code/tests at this SHA:
+      `scripts/megameklab-conversion/enum_mapping_tables.py`,
+      `scripts/__tests__/test_mtf_component_vocabulary.py`. POST-MERGE: OPEN
       (not verified).
+    - #3289 (`9f33a1c52`): applies five cockpit data fields. Merged code/tests
+      at this SHA:
+      `public/data/units/battlemechs/4-clan-invasion/standard/Wildfire
+      P1-WF.json`,
+      `src/services/units/unitLoaderService/__tests__/vrrpCockpit.test.ts`.
+      POST-MERGE: OPEN (not verified).
   - OPEN, C3 with C2: ship visible open-and-save warning 3.3-w first, then
     full-catalog round-trip census Phase 0c(f), and one shared recognizer in
     criticalSlotEquipment.ts. The warning draft-only unplaced-entry list is
@@ -891,29 +1004,47 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3109 (`4165d5453`): A1: projects aerospace weapon terms. POST-MERGE: OPEN
-      (not verified).
-    - #3122 (`d77d4422a`): V1: projects vehicle weapon terms. POST-MERGE: OPEN
-      (not verified).
-    - #3145 (`61219b83b`): preserves capital arc topology. POST-MERGE: OPEN (not
+    - #3109 (`4165d5453`): A1: projects aerospace weapon terms. Merged
+      code/tests at this SHA: `src/types/unit/BVBreakdownTypes.ts`,
+      `scripts/__tests__/unit-bv-aerospace-terms.test.ts`. POST-MERGE: OPEN (not
       verified).
-    - #3146 (`3b0e5a509`): C1: projects capital weapon terms. POST-MERGE: OPEN
-      (not verified).
-    - #3147 (`3a813ea3b`): I1: projects infantry stage terms. POST-MERGE: OPEN
-      (not verified).
+    - #3122 (`d77d4422a`): V1: projects vehicle weapon terms. Merged code/tests
+      at this SHA: `src/utils/construction/vehicle/bvTrace.ts`,
+      `scripts/__tests__/unit-bv-vehicle-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3145 (`61219b83b`): preserves capital arc topology. Merged code/tests at
+      this SHA: `src/services/units/handlers/DropShipUnitHandler.ts`,
+      `src/services/units/handlers/__tests__/DropShipUnitHandler.calculations.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3146 (`3b0e5a509`): C1: projects capital weapon terms. Merged code/tests
+      at this SHA: `src/utils/construction/aerospace/dropShipComplete.ts`,
+      `scripts/__tests__/unit-bv-capital-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
+    - #3147 (`3a813ea3b`): I1: projects infantry stage terms. Merged code/tests
+      at this SHA: `src/types/unit/BVBreakdownTypes.ts`,
+      `scripts/__tests__/unit-bv-infantry-terms.test.ts`. POST-MERGE: OPEN (not
+      verified).
     - #3168 (`396fd0df7`): I2: closes 6,457 infantry weapon omissions.
       POST-MERGE: done locally on `396fd0df7`.
-    - #3187 (`0df99fea1`): P1: closes 130 ProtoMech omissions. POST-MERGE: OPEN
-      (not verified).
-    - #3248 (`187496e24`): B2: battle-armor weapon terms reduce missing from
-      58,238 to 40,580. POST-MERGE: done locally on `187496e24`.
+    - #3187 (`0df99fea1`): P1: projects resolved-zero ProtoMech equipment BV
+      terms. Merged code/tests at this SHA:
+      `src/types/unit/BVBreakdownTypes.ts`,
+      `scripts/__tests__/unit-bv-proto-misc-projection.test.ts`. POST-MERGE:
+      OPEN (not verified).
+    - #3248 (`187496e24`): B2: battle-armor weapon terms reduce missing to
+      40,580 (58,238 before B2 #3248). POST-MERGE: done locally on `187496e24`.
     - #3264 (`d758dfc8c`): BT1: ships native one-shot table once and enriches
       only the comparator; census unchanged. POST-MERGE: done locally on
       `d758dfc8c`.
-    - #3155 (`33482e0a8`): W1: introduces construction-weight comparison.
-      POST-MERGE: OPEN (not verified).
+    - #3155 (`33482e0a8`): W1: introduces construction-weight comparison. Merged
+      code/tests at this SHA: `scripts/unit-bv-parity.md`,
+      `scripts/__tests__/unit-bv-strict.test.ts`. POST-MERGE: OPEN (not
+      verified).
     - #3142 (`f10f96677`): W2: captures infantry weight; old combined input
-      overcount is historical. POST-MERGE: OPEN (not verified).
+      overcount is historical. Merged code/tests at this SHA:
+      `scripts/megameklab-conversion/java-reference/ConstructionReference.java`,
+      `scripts/__tests__/test_java_construction_terms.py`. POST-MERGE: OPEN (not
+      verified).
     - #3201 (`39c28d025`): W3: projects verifier quantities/settings.
       POST-MERGE: done locally on `39c28d025`.
     - #3229 (`2d5755ed4`): D3: accepts exactly 157 pinned settings cells, not
@@ -1057,21 +1188,43 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3117 (`87fbb1671`): adds ProtoMech Armor tab. POST-MERGE: OPEN (not
-      verified).
-    - #3135 (`c7d041d5d`): adds ProtoMech main-gun controls. POST-MERGE: OPEN
-      (not verified).
-    - #3151 (`fee77a428`): pins ProtoMech auto-allocation. POST-MERGE: OPEN (not
-      verified).
-    - #3167 (`4070e4035`): adds Electric Discharge ProtoMech armor. POST-MERGE:
-      OPEN (not verified).
-    - #3165 (`5881793e2`): adds family-specific loading skeletons/diagrams.
+    - #3117 (`87fbb1671`): adds ProtoMech Armor tab. Merged code/tests at this
+      SHA: `src/components/customizer/protomech/ProtoMechArmorTab.sections.tsx`,
+      `src/components/customizer/protomech/__tests__/ProtoMechArmorTab.test.tsx`.
       POST-MERGE: OPEN (not verified).
-    - #3158 (`35bd476b7`): preserves split-weapon allocation. POST-MERGE: OPEN
-      (not verified).
+    - #3135 (`c7d041d5d`): adds ProtoMech main-gun controls. Merged code/tests
+      at this SHA:
+      `src/components/customizer/protomech/ProtoMechMainGunTab.logic.ts`,
+      `src/__tests__/unit/protomech-construction.test-helpers.ts`. POST-MERGE:
+      OPEN (not verified).
+    - #3151 (`fee77a428`): pins ProtoMech auto-allocation. Merged code/tests at
+      this SHA: `src/utils/construction/protomech/armor.ts`,
+      `src/utils/construction/protomech/__tests__/armor.autoAllocate.pinned.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3167 (`4070e4035`): adds Electric Discharge ProtoMech armor. Merged
+      code/tests at this SHA:
+      `src/components/customizer/protomech/ProtoMechArmorTab.sections.tsx`,
+      `src/components/customizer/protomech/__tests__/ProtoMechArmorTab.test.tsx`.
+      POST-MERGE: OPEN (not verified).
+    - #3165 (`5881793e2`): adds family-specific loading skeletons/diagrams.
+      Merged code/tests at this SHA:
+      `src/components/customizer/CustomizerLoadingSkeleton.tsx`,
+      `src/__tests__/components/customizer/UnitEditorWithRoutingStats.test.tsx`.
+      POST-MERGE: OPEN (not verified).
+    - #3158 (`35bd476b7`): preserves split-weapon allocation. Merged code/tests
+      at this SHA:
+      `src/services/units/unitLoaderService/criticalSlotEquipment.ts`,
+      `src/__tests__/unit/utils/serialization/CustomUnitSerializer.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3173 (`4133fac2a`): replaces invented vehicle location caps with shared
-      class-total armor limit. POST-MERGE: OPEN (not verified).
-    - #3182 (`3feab1e94`): preserves cockpit identities in editor rules.
+      class-total armor limit. Merged code/tests at this SHA:
+      `src/components/customizer/armor/ArmorAllocationInput.tsx`,
+      `src/__tests__/unit/vehicle-construction.test-helpers.ts`. POST-MERGE:
+      OPEN (not verified).
+    - #3182 (`3feab1e94`): preserves cockpit identities in editor rules. Merged
+      code/tests at this SHA:
+      `src/components/customizer/UnitEditorWithRouting.tsx`,
+      `src/__tests__/components/customizer/UnitEditorWithRoutingLoadout.test.tsx`.
       POST-MERGE: OPEN (not verified).
     - #3197 (`813c3b204`): fixes small-craft canonical side-arc armor mapping.
       POST-MERGE: done locally on `ad26828c9`.
@@ -1087,9 +1240,16 @@ reconciliation.
       removals/zero unexplained losses. POST-MERGE: done locally on `33f30fb35`.
     - #3296 (`a7fba14bd`): b3b: editor movement limits use native owner.
       POST-MERGE: done on hosted main run 42765012031 (`4d4c5ebe4`).
-    - #3289 (`9f33a1c52`): applies approved five cockpit fields. POST-MERGE:
-      OPEN (not verified).
-    - #3317 (`cea9180cc`): b3d: adds ultraheavy armored-system mass. POST-MERGE:
+    - #3289 (`9f33a1c52`): applies approved five cockpit fields. Merged
+      code/tests at this SHA:
+      `public/data/units/battlemechs/4-clan-invasion/standard/Wildfire
+      P1-WF.json`,
+      `src/services/units/unitLoaderService/__tests__/vrrpCockpit.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3317 (`cea9180cc`): b3d: derives ProtoMech Ultraheavy from mass above 9
+      t. Merged code/tests at this SHA:
+      `src/components/customizer/protomech/ProtoMechStatusBar.tsx`,
+      `src/__tests__/unit/protomech-construction.test-helpers.ts`. POST-MERGE:
       OPEN (not verified).
   - [x] 4.1b3 ProtoMech correctMovement and glider/Partial Wing jump rules use
     the pinned owners: #3261 (`88cde0770`) agrees on 86/86 canonical and 20/20
@@ -1155,16 +1315,30 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3108 (`0a2036db3`): proves canonical mech location identities on 4,263
-      sheets. POST-MERGE: OPEN (not verified).
+    - #3108 (`0a2036db3`): adds catalog-wide BattleMech location-identity
+      assertions. Merged code/tests at this SHA:
+      `src/__tests__/service/printing/battleMechLocationIdentity.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3127 (`0a28dca8f`): preserves source BAR and fixes the reported vehicle
-      BV.source residuals. POST-MERGE: OPEN (not verified).
-    - #3169 (`9af9cb3d6`): proves vehicle location identity on 1,444 sheets.
-      POST-MERGE: OPEN (not verified).
-    - #3177 (`005328e2d`): proves aerospace location identity on 620 sheets.
-      POST-MERGE: OPEN (not verified).
-    - #3183 (`4c8e164f1`): adds native mech crew-seat printing. POST-MERGE: OPEN
+      BV.source residuals. Merged code/tests at this SHA:
+      `src/services/units/unitLoaderService/vehicleMapping.ts`,
+      `src/__tests__/service/printing/vehicleSourceBV.test.ts`. POST-MERGE: OPEN
       (not verified).
+    - #3169 (`9af9cb3d6`): adds vehicle location-identity assertions and print
+      projections. Merged code/tests at this SHA:
+      `src/components/customizer/vehicle/buildVehicleUnitObject.ts`,
+      `src/__tests__/service/printing/RecordSheetMultiTypeExport.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3177 (`005328e2d`): adds aerospace location-identity assertions and
+      native side labels. Merged code/tests at this SHA:
+      `src/components/customizer/aerospace/aerospaceLocationLabels.ts`,
+      `src/__tests__/service/printing/aerospaceLocationIdentity.test.ts`.
+      POST-MERGE: OPEN (not verified).
+    - #3183 (`4c8e164f1`): adds native mech crew-seat printing. Merged
+      code/tests at this SHA:
+      `src/components/customizer/preview/RecordSheetPreview.tsx`,
+      `src/__tests__/service/printing/mechCrewPrintContract.test.ts`.
+      POST-MERGE: OPEN (not verified).
     - #3195 (`c515b465a`): preserves vehicle BAR type and stale-rating guard.
       POST-MERGE: done locally on `63ee12d70`.
     - #3207 (`63ee12d70`): prints BA squad header, unused-suit hiding and
@@ -1186,11 +1360,12 @@ reconciliation.
     SPA proof is not recorded. Supplied Tripod/QuadVee roster printing
     supersedes the old one-pilot rendering deferral at that scope;
     authoring/persistence remains under 4.1. Earlier seven vehicle BV.source
-    residuals below are historical, fixed at the reported scope by #3127; they
-    are not a current seven-row census. Evidence: `parity-4.3-a/`,
-    `parity-4.3-b/`, `parity-4.3-c/`, `parity-4.3-d/`, `parity-5.2-c/PLAN.md`.
-    Close with every applicable family field and identity checked against the
-    same domain result, plus native overflow and blank-seat behavior.
+    residuals below are historical, #3127 changes source BAR loading and sheet
+    BV assertions; the old seven-row count is not a current census. Evidence:
+    `parity-4.3-a/`, `parity-4.3-b/`, `parity-4.3-c/`, `parity-4.3-d/`,
+    `parity-5.2-c/PLAN.md`. Close with every applicable family field and
+    identity checked against the same domain result, plus native overflow and
+    blank-seat behavior.
   - OPEN, C3 (c5, measurement first): Biped-labelled records with centerLeg
     armor may disagree between editable projection and print configuration.
     Evidence: `parity-5.2-c/PLAN.md` (#3258 follow-up). Close with a census
@@ -1246,23 +1421,38 @@ reconciliation.
     against first-parent main history. OPEN means the exact POST-MERGE receipt
     is not verified; a trial or green PR check is not relabeled as a post-merge
     pass.
-    - #3153 (`e31fc97e4`): records owner deferrals and FU-97 evidence.
-      POST-MERGE: OPEN (not verified).
-    - #3157 (`ee300bb25`): resolves FU-10/FU-11 spec drift. POST-MERGE: OPEN
-      (not verified).
-    - #3154 (`7c8579e19`): hardens Linux pack transient downloads. POST-MERGE:
+    - #3153 (`e31fc97e4`): records owner deferrals and FU-97 evidence. Merged
+      code/tests at this SHA:
+      `openspec/changes/establish-all-unit-data-parity/tasks.md`. POST-MERGE:
       OPEN (not verified).
+    - #3157 (`ee300bb25`): resolves FU-10/FU-11 spec drift. Merged code/tests at
+      this SHA:
+      `openspec/changes/establish-all-unit-data-parity/specs/aerospace-unit-system/spec.md`,
+      `src/utils/construction/equipmentBV/RULES.md`. POST-MERGE: OPEN (not
+      verified).
+    - #3154 (`7c8579e19`): hardens Linux pack transient downloads. Merged
+      code/tests at this SHA: `.github/workflows/pr-checks.yml`,
+      `scripts/__tests__/build-validation-gates.test.ts`. POST-MERGE: OPEN (not
+      verified).
     - #3236 (`9b32e96fe`): pins OpenSpec 1.5.0 and enforces
-      duplicate-operation-header checks (FU-51). POST-MERGE: OPEN (not
+      duplicate-operation-header checks (FU-51). Merged code/tests at this SHA:
+      `.github/workflows/pr-checks.yml`,
+      `scripts/__tests__/app-completion-gate.test.ts`. POST-MERGE: OPEN (not
       verified).
     - #3255 (`69ccf4afa`): uses attempt-scoped CI guard commit statuses without
-      carry-forward. POST-MERGE: OPEN (not verified).
-    - #3290 (`186200781`): records shared project working invariants.
-      POST-MERGE: OPEN (not verified).
+      carry-forward. Merged code/tests at this SHA:
+      `.github/workflows/lint-and-test-guard.yml`. POST-MERGE: OPEN (not
+      verified).
+    - #3290 (`186200781`): records shared project working invariants. Merged
+      code/tests at this SHA: `AGENTS.md`. POST-MERGE: OPEN (not verified).
     - #3288 (`41e795eb6`): removes arbitrary byte gates; measurements remain
-      advisory. POST-MERGE: OPEN (not verified).
+      advisory. Merged code/tests at this SHA:
+      `.github/workflows/ci-garden.yml`, `scripts/ci/budget-approval.test.mjs`.
+      POST-MERGE: OPEN (not verified).
     - #3301 (`fd8e58996`): tolerates legacy byte fields while forbidding
-      reintroduced caps on the tree. POST-MERGE: OPEN (not verified).
+      reintroduced caps on the tree. Merged code/tests at this SHA:
+      `scripts/ci/budget-check.mjs`, `scripts/ci/budget-approval.test.mjs`.
+      POST-MERGE: OPEN (not verified).
     - #3300 (`9c04d1c43`): makes strict OpenSpec a required PR check, including
       docs-only changes. POST-MERGE: done on hosted main run 42765012031
       (`4d4c5ebe4`).
@@ -1289,16 +1479,17 @@ reconciliation.
     change on main. Re-running old #3273 cannot prove it because the old run
     retains the old workflow/ref. Evidence: `parity-5.2-c/PLAN.md`, PARITY-PLAN
     §51. First CI check at resume is this end-to-end proof.
-  - S0a initial hosted dispatch 42765086632 SUCCESS on ce3d07e5e/base 3f4d73318
-    (pre-B2): BV 9,815 exact; source validity 9,815/9,815; missing 58,238, not
-    current main 40,580. Integrity passes counts/hashes/logs, exits 0/0/1
-    (detailed 1 means ran), 16/16 manifest entries; raw aggregate delta-rows
-    verified but not uploaded. Evidence: `parity-5.2-c/PLAN.md`,
-    `parity-5.2-c/s0a-proof/census-proof.json`. Main run 42772406455 on
-    d6fdfb29c was cancelled by #3317; it is no main pass. FINISH blocker #3336
-    changes cancel-in-progress to false. Cite first completed main scoreboard
-    after it, else label c4cdf9450 LOCAL and say hosted main did not complete.
-    LF/CRLF and Python 3.12.16/3.12.13 byte equivalence remain OPEN/PARKED.
+  - S0a first hosted dispatch, pre-B2 branch base: run 42765086632 on
+    ce3d07e5e/base 3f4d73318.
+    Historical BA missing: 58,238 before B2 #3248.
+    The current BA missing-terms baseline is 40,580 on main, from the
+    c4cdf9450 POST-MERGE census (`coord1-census/post-merge-3270/RESULTS.json`).
+    scoreboard on main: not yet run at pause. No completed current-main
+    scoreboard receipt was supplied for this correction. Evidence:
+    `parity-5.2-c/PLAN.md`, `parity-5.2-c/s0a-proof/census-proof.json`. FINISH
+    blocker #3336 changes cancel-in-progress to false; cite a completed
+    current-main receipt only when C5 supplies it. LF/CRLF and Python
+    3.12.16/3.12.13 byte equivalence remain OPEN/PARKED.
   - C5 PARKED: CNI1 native review-identity startup consolidation (no approved
     timeout raise); SW #3315 at 36df1f9b8 with 47/47 navigation tests, next step
     changed-route build and activation probe; CAMP-01 coalescing, lighter draft
