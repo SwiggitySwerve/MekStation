@@ -23,6 +23,31 @@ const unit: UnitData = {
   equipment: [],
 };
 
+test('omits the inherently one-shot VGL cap', () => {
+  const b = calculateUnitBV({
+    ...unit,
+    equipment: [{ id: 'vehicular-grenade-launcher', location: 'LEFT_TORSO' }],
+  }).breakdown;
+  if (!b) throw Error('Missing breakdown');
+  expect(b.ammoPools?.cap).toEqual({});
+  expect(mechBVTerms(b)).not.toHaveProperty(['ammo.cap.VGL:1']);
+  expect(b.ammoBV).toBe(0);
+});
+
+test('primitive AC ammunition emits only its native cap identity', () => {
+  const b = calculateUnitBV({
+    ...unit,
+    equipment: [{ id: 'ac-10p', location: 'LEFT_TORSO' }],
+    criticalSlots: { LEFT_TORSO: ['IS Ammo AC/10 Primitive'] },
+  }).breakdown;
+  if (!b) throw Error('Missing breakdown');
+  const terms = mechBVTerms(b);
+  expect(terms).toHaveProperty(['ammo.available.AC_PRIMITIVE:10'], 12);
+  expect(terms).toHaveProperty(['ammo.cap.AC_PRIMITIVE:10'], 123);
+  expect(terms).not.toHaveProperty(['ammo.cap.AC:10']);
+  expect(b.ammoBV).toBe(12);
+});
+
 test.each([
   ['STANDARD', 1, 1],
   ['INDUSTRIAL', 0.9, 1],
