@@ -200,5 +200,8 @@
   },
   "mulId": 3750,
   "role": "Juggernaut",
-  "source": "RG24,RGv1"
+  "source": "RG24,RGv1",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

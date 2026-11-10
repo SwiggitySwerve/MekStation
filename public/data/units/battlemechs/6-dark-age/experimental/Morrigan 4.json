@@ -213,5 +213,8 @@
   "source": "TR:3145",
   "weaponQuirks": {
     "RA:3:TSEMP Cannon": ["stable_weapon"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

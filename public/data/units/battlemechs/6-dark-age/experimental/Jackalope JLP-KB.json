@@ -187,5 +187,8 @@
   },
   "mulId": 9634,
   "role": "Striker",
-  "source": "Shrap16"
+  "source": "Shrap16",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

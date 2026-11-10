@@ -202,5 +202,8 @@
   },
   "mulId": 9398,
   "role": "Juggernaut",
-  "source": "RG29"
+  "source": "RG29",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

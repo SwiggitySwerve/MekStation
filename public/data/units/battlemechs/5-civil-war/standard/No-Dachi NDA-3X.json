@@ -186,5 +186,8 @@
   },
   "mulId": 2298,
   "role": "Missile Boat",
-  "source": "XTR:Kurita"
+  "source": "XTR:Kurita",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

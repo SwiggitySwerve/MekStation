@@ -173,5 +173,8 @@
   },
   "mulId": 7883,
   "role": "Skirmisher",
-  "source": "OTP:HC"
+  "source": "OTP:HC",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

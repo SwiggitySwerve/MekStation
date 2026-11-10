@@ -186,5 +186,8 @@
   },
   "mulId": 6837,
   "role": "Juggernaut",
-  "source": "TR:J"
+  "source": "TR:J",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }
