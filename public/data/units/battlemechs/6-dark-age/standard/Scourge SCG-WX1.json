@@ -186,5 +186,8 @@
   },
   "mulId": 8109,
   "role": "Skirmisher",
-  "source": "XTR:Caveat"
+  "source": "XTR:Caveat",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

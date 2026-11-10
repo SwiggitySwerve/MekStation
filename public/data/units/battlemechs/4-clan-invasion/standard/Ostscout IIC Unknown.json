@@ -177,5 +177,8 @@
   },
   "mulId": 5844,
   "role": "Scout",
-  "source": "XTR:Boondoggles"
+  "source": "XTR:Boondoggles",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

@@ -181,5 +181,8 @@
   "source": "XTR:Davion",
   "weaponQuirks": {
     "RT:4:CLRotaryAC5": ["exposed_linkage"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

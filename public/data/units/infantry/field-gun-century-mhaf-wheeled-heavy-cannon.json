@@ -27,7 +27,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-heavy",
+      "id": "heavy-rifle",
       "name": "Rifle (Cannon, Heavy)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -39,7 +39,7 @@
       "isRearMounted": false
     },
     {
-      "id": "rifle-cannon,-heavy",
+      "id": "heavy-rifle",
       "name": "Rifle (Cannon, Heavy)",
       "location": "FIELD_GUNS",
       "isRearMounted": false
@@ -61,7 +61,7 @@
   "prostheticEnhancementCounts": {},
   "fieldGuns": [
     {
-      "id": "rifle-cannon,-heavy",
+      "id": "heavy-rifle",
       "name": "Rifle (Cannon, Heavy)"
     },
     {
@@ -69,7 +69,7 @@
       "name": "IS Ammo Heavy Rifle"
     },
     {
-      "id": "rifle-cannon,-heavy",
+      "id": "heavy-rifle",
       "name": "Rifle (Cannon, Heavy)"
     },
     {

@@ -21,6 +21,7 @@ import {
   UNIT_TYPE_CONFIG,
   WEIGHT_CLASS_CONFIG,
 } from '@/pages-modules/units/list.constants';
+import { filterUnits } from '@/pages-modules/units/list.filter';
 import {
   UnitCardListView,
   UnitGridView,
@@ -28,7 +29,7 @@ import {
 } from '@/pages-modules/units/list.views';
 import { UnitImportDialog } from '@/pages-modules/units/UnitImportDialog';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import { ALL_RULES_LEVELS, RULES_LEVEL_TAGS } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -77,8 +78,8 @@ const techBaseOptions = Object.values(TechBase).map((tb) => ({
   label: tb,
 }));
 
-const rulesLevelOptions = Object.values(RulesLevel).map((rl) => ({
-  value: rl,
+const rulesLevelOptions = ALL_RULES_LEVELS.map((rl) => ({
+  value: RULES_LEVEL_TAGS[rl],
   label: rl,
 }));
 
@@ -86,38 +87,6 @@ const weightClassOptions = Object.values(WeightClass).map((wc) => ({
   value: wc,
   label: WEIGHT_CLASS_CONFIG[wc]?.label ?? wc,
 }));
-
-function filterUnits(units: UnitEntry[], filters: FilterState): UnitEntry[] {
-  let result = [...units];
-
-  if (filters.search) {
-    const searchLower = filters.search.toLowerCase();
-    result = result.filter(
-      (unit) =>
-        unit.chassis.toLowerCase().includes(searchLower) ||
-        unit.variant.toLowerCase().includes(searchLower) ||
-        `${unit.chassis} ${unit.variant}`.toLowerCase().includes(searchLower),
-    );
-  }
-
-  if (filters.unitType) {
-    result = result.filter((unit) => unit.unitType === filters.unitType);
-  }
-
-  if (filters.techBase) {
-    result = result.filter((unit) => unit.techBase === filters.techBase);
-  }
-
-  if (filters.rulesLevel) {
-    result = result.filter((unit) => unit.rulesLevel === filters.rulesLevel);
-  }
-
-  if (filters.weightClass) {
-    result = result.filter((unit) => unit.weightClass === filters.weightClass);
-  }
-
-  return result;
-}
 
 function FilterToolbar({
   viewMode,
@@ -221,9 +190,7 @@ function FilterPanel({
         />
         <Select
           value={filters.rulesLevel}
-          onChange={(e) =>
-            onFilterChange('rulesLevel', e.target.value as RulesLevel | '')
-          }
+          onChange={(e) => onFilterChange('rulesLevel', e.target.value)}
           options={rulesLevelOptions}
           placeholder="Rules Level"
           accent="emerald"

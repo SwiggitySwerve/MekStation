@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -10,22 +11,344 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
 const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
-// These identity corrections and the named residual are approved exceptions. All other
+// These Java identity corrections are approved exceptions. All other
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
-  // TEMPORARY C2-approved residual: loader ownTechSide loses the [IS] suffix.
-  // Census: parity-2.1-b/b5/clan-caseii/implementation/cleared-conversion/
-  // canonical-slotless-census.json: 0/9815 corpus paths, 0/9828 public JSON files.
-  // PR-2, after C3 #3211, must delete this entry and make the case resolve caseii.
+  // C2-approved exact suffix identities; each literal row cites pinned Java.
   {
     api: 'unitLoaderClan',
-    name: 'CASE II [IS]',
-    oldTarget: 'caseii',
-    newTarget: 'clan-caseii',
+    name: 'Anti-Missile System [IS]',
+    oldTarget: 'clan-ams',
+    newTarget: 'ams',
     literalName: true,
     reason:
-      'C2-approved known ownTechSide suffix residual; 0 affected corpus paths per canonical-slotless-census.json; remove in PR-2 after #3211',
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/other/innerSphere/ISAMS.java:59 (ISAntiMissileSystem)',
   },
+  {
+    api: 'unitLoaderClan',
+    name: 'ER Large Laser [IS]',
+    oldTarget: 'clan-er-large-laser',
+    newTarget: 'er-large-laser',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/large/ISERLaserLarge.java:57 (ISERLargeLaser)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'ER Medium Laser [IS]',
+    oldTarget: 'clan-er-medium-laser',
+    newTarget: 'er-medium-laser',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/medium/ISERLaserMedium.java:57 (ISERMediumLaser)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'ER PPC [IS]',
+    oldTarget: 'clan-er-ppc',
+    newTarget: 'er-ppc',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/ppc/innerSphere/ISERPPC.java:57 (ISERPPC)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'ER Small Laser [IS]',
+    oldTarget: 'clan-er-small-laser',
+    newTarget: 'er-small-laser',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISERLaserSmall.java:57 (ISERSmallLaser)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Flamer [IS]',
+    oldTarget: 'clan-flamer',
+    newTarget: 'flamer',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/flamers/innerSphere/ISFlamer.java:57 (Flamer)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Gauss Rifle [IS]',
+    oldTarget: 'clan-gauss-rifle',
+    newTarget: 'gauss-rifle',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/gaussRifles/innerSphere/ISGaussRifle.java:70 (ISGaussRifle)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LB 10-X AC [IS]',
+    oldTarget: 'clan-lb-10-x-ac',
+    newTarget: 'lb-10-x-ac',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB10XAC.java:59 (ISLBXAC10)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LB 2-X AC [IS]',
+    oldTarget: 'clan-lb-2-x-ac',
+    newTarget: 'lb-2-x-ac',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB2XAC.java:59 (ISLBXAC2)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LB 20-X AC [IS]',
+    oldTarget: 'clan-lb-20-x-ac',
+    newTarget: 'lb-20-x-ac',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB20XAC.java:59 (ISLBXAC20)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LB 5-X AC [IS]',
+    oldTarget: 'clan-lb-5-x-ac',
+    newTarget: 'lb-5-x-ac',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB5XAC.java:59 (ISLBXAC5)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LRM 10 [IS]',
+    oldTarget: 'clan-lrm-10',
+    newTarget: 'lrm-10',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM10.java:56 (LRM 10)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LRM 15 [IS]',
+    oldTarget: 'clan-lrm-15',
+    newTarget: 'lrm-15',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM15.java:56 (LRM 15)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LRM 20 [IS]',
+    oldTarget: 'clan-lrm-20',
+    newTarget: 'lrm-20',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM20.java:56 (LRM 20)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'LRM 5 [IS]',
+    oldTarget: 'clan-lrm-5',
+    newTarget: 'lrm-5',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM5.java:56 (LRM 5)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Large Pulse Laser [IS]',
+    oldTarget: 'clan-large-pulse-laser',
+    newTarget: 'large-pulse-laser',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/large/ISPulseLaserLarge.java:57 (ISLargePulseLaser)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Laser Anti-Missile System [IS]',
+    oldTarget: 'clan-laser-ams',
+    newTarget: 'laser-ams',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/other/innerSphere/ISLaserAMS.java:60 (ISLaserAntiMissileSystem)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Light Machine Gun [IS]',
+    oldTarget: 'clan-light-machine-gun',
+    newTarget: 'light-machine-gun',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/mgs/innerSphere/ISLightMG.java:58 (Light Machine Gun)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'MASC [IS]',
+    oldTarget: 'clan-masc',
+    newTarget: 'masc',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/equipment/MiscType.java:2129 (ISMASC)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Machine Gun [IS]',
+    oldTarget: 'clan-machine-gun',
+    newTarget: 'machine-gun',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/mgs/innerSphere/ISMG.java:57 (Machine Gun)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Medium Pulse Laser [IS]',
+    oldTarget: 'clan-medium-pulse-laser',
+    newTarget: 'medium-pulse-laser',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/medium/ISPulseLaserMedium.java:58 (ISMediumPulseLaser)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'NARC Missile Beacon [IS]',
+    oldTarget: 'clan-narc',
+    newTarget: 'narc',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/other/innerSphere/ISNarc.java:57 (ISNarcBeacon)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Rotary AC/2 [IS]',
+    oldTarget: 'clan-rac-2',
+    newTarget: 'rac-2',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISRAC2.java:58 (ISRotaryAC2)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Rotary AC/5 [IS]',
+    oldTarget: 'clan-rac-5',
+    newTarget: 'rac-5',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISRAC5.java:58 (ISRotaryAC5)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'SRM 2 [IS]',
+    oldTarget: 'clan-srm-2',
+    newTarget: 'srm-2',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM2.java:63 (SRM 2)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'SRM 4 [IS]',
+    oldTarget: 'clan-srm-4',
+    newTarget: 'srm-4',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM4.java:63 (SRM 4)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'SRM 6 [IS]',
+    oldTarget: 'clan-srm-6',
+    newTarget: 'srm-6',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM6.java:56 (SRM 6)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Small Pulse Laser [IS]',
+    oldTarget: 'clan-small-pulse-laser',
+    newTarget: 'small-pulse-laser',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISPulseLaserSmall.java:58 (ISSmallPulseLaser)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Streak SRM 2 [IS]',
+    oldTarget: 'clan-streak-srm-2',
+    newTarget: 'streak-srm-2',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM2.java:57 (ISStreakSRM2)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Streak SRM 4 [IS]',
+    oldTarget: 'clan-streak-srm-4',
+    newTarget: 'streak-srm-4',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM4.java:57 (ISStreakSRM4)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Streak SRM 6 [IS]',
+    oldTarget: 'clan-streak-srm-6',
+    newTarget: 'streak-srm-6',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM6.java:57 (ISStreakSRM6)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'TAG [IS]',
+    oldTarget: 'clan-tag',
+    newTarget: 'tag',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/tag/ISTAG.java:56 (ISTAG)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Targeting Computer [IS]',
+    oldTarget: 'clan-targeting-computer',
+    newTarget: 'targeting-computer',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/equipment/MiscType.java:6795 (ISTargeting Computer)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Ultra AC/10 [IS]',
+    oldTarget: 'clan-uac-10',
+    newTarget: 'uac-10',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC10.java:57 (ISUltraAC10)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Ultra AC/2 [IS]',
+    oldTarget: 'clan-uac-2',
+    newTarget: 'uac-2',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC2.java:57 (ISUltraAC2)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Ultra AC/20 [IS]',
+    oldTarget: 'clan-uac-20',
+    newTarget: 'uac-20',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC20.java:57 (ISUltraAC20)',
+  },
+  {
+    api: 'unitLoaderClan',
+    name: 'Ultra AC/5 [IS]',
+    oldTarget: 'clan-uac-5',
+    newTarget: 'uac-5',
+    literalName: true,
+    reason:
+      'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC5.java:57 (ISUltraAC5)',
+  },
+
   // Pinned plain Clan CASE II; MiscType.java:4839-4845 at 48fcb2f64.
   ...[
     ['unitLoaderClan', 'CASE II'],
@@ -2835,6 +3158,415 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // C3 y2: remaining exact display-marker identities; the 37 cited PR-2
+  // entries above stay intact. Native-prefix names and other APIs stay frozen.
+  // MtfFile.java:1052-1064,1210-1212 at MegaMek 48fcb2f64.
+  ...[
+    [
+      'unitLoaderIS',
+      'Active Probe (Clan)',
+      'active-probe',
+      'clan-active-probe',
+    ],
+    [
+      'unitLoaderMixed',
+      'Active Probe (Clan)',
+      'active-probe',
+      'clan-active-probe',
+    ],
+    ['unitLoaderIS', 'ActiveProbe(Clan)', 'active-probe', 'clan-active-probe'],
+    [
+      'unitLoaderMixed',
+      'ActiveProbe(Clan)',
+      'active-probe',
+      'clan-active-probe',
+    ],
+    ['unitLoaderIS', 'Anti-Missile System (Clan)', 'ams', 'clan-ams'],
+    ['unitLoaderMixed', 'Anti-Missile System (Clan)', 'ams', 'clan-ams'],
+    ['unitLoaderIS', 'Anti-MissileSystem(Clan)', 'ams', 'clan-ams'],
+    ['unitLoaderMixed', 'Anti-MissileSystem(Clan)', 'ams', 'clan-ams'],
+    [
+      'unitLoaderIS',
+      'ER Large Laser (Clan)',
+      'er-large-laser',
+      'clan-er-large-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'ER Large Laser (Clan)',
+      'er-large-laser',
+      'clan-er-large-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'ER Medium Laser (Clan)',
+      'er-medium-laser',
+      'clan-er-medium-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'ER Medium Laser (Clan)',
+      'er-medium-laser',
+      'clan-er-medium-laser',
+    ],
+    ['unitLoaderIS', 'ER PPC (Clan)', 'er-ppc', 'clan-er-ppc'],
+    ['unitLoaderMixed', 'ER PPC (Clan)', 'er-ppc', 'clan-er-ppc'],
+    [
+      'unitLoaderIS',
+      'ER Small Laser (Clan)',
+      'er-small-laser',
+      'clan-er-small-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'ER Small Laser (Clan)',
+      'er-small-laser',
+      'clan-er-small-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'ERLargeLaser(Clan)',
+      'er-large-laser',
+      'clan-er-large-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'ERLargeLaser(Clan)',
+      'er-large-laser',
+      'clan-er-large-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'ERMediumLaser(Clan)',
+      'er-medium-laser',
+      'clan-er-medium-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'ERMediumLaser(Clan)',
+      'er-medium-laser',
+      'clan-er-medium-laser',
+    ],
+    ['unitLoaderIS', 'ERPPC(Clan)', 'er-ppc', 'clan-er-ppc'],
+    ['unitLoaderMixed', 'ERPPC(Clan)', 'er-ppc', 'clan-er-ppc'],
+    [
+      'unitLoaderIS',
+      'ERSmallLaser(Clan)',
+      'er-small-laser',
+      'clan-er-small-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'ERSmallLaser(Clan)',
+      'er-small-laser',
+      'clan-er-small-laser',
+    ],
+    ['unitLoaderIS', 'Flamer (Clan)', 'flamer', 'clan-flamer'],
+    ['unitLoaderMixed', 'Flamer (Clan)', 'flamer', 'clan-flamer'],
+    ['unitLoaderIS', 'Flamer(Clan)', 'flamer', 'clan-flamer'],
+    ['unitLoaderMixed', 'Flamer(Clan)', 'flamer', 'clan-flamer'],
+    ['unitLoaderIS', 'Gauss Rifle (Clan)', 'gauss-rifle', 'clan-gauss-rifle'],
+    [
+      'unitLoaderMixed',
+      'Gauss Rifle (Clan)',
+      'gauss-rifle',
+      'clan-gauss-rifle',
+    ],
+    ['unitLoaderIS', 'GaussRifle(Clan)', 'gauss-rifle', 'clan-gauss-rifle'],
+    ['unitLoaderMixed', 'GaussRifle(Clan)', 'gauss-rifle', 'clan-gauss-rifle'],
+    ['unitLoaderIS', 'LB 10-X AC (Clan)', 'lb-10-x-ac', 'clan-lb-10-x-ac'],
+    ['unitLoaderMixed', 'LB 10-X AC (Clan)', 'lb-10-x-ac', 'clan-lb-10-x-ac'],
+    ['unitLoaderIS', 'LB 2-X AC (Clan)', 'lb-2-x-ac', 'clan-lb-2-x-ac'],
+    ['unitLoaderMixed', 'LB 2-X AC (Clan)', 'lb-2-x-ac', 'clan-lb-2-x-ac'],
+    ['unitLoaderIS', 'LB 20-X AC (Clan)', 'lb-20-x-ac', 'clan-lb-20-x-ac'],
+    ['unitLoaderMixed', 'LB 20-X AC (Clan)', 'lb-20-x-ac', 'clan-lb-20-x-ac'],
+    ['unitLoaderIS', 'LB 5-X AC (Clan)', 'lb-5-x-ac', 'clan-lb-5-x-ac'],
+    ['unitLoaderMixed', 'LB 5-X AC (Clan)', 'lb-5-x-ac', 'clan-lb-5-x-ac'],
+    ['unitLoaderIS', 'LB10-XAC(Clan)', 'lb-10-x-ac', 'clan-lb-10-x-ac'],
+    ['unitLoaderMixed', 'LB10-XAC(Clan)', 'lb-10-x-ac', 'clan-lb-10-x-ac'],
+    ['unitLoaderIS', 'LB2-XAC(Clan)', 'lb-2-x-ac', 'clan-lb-2-x-ac'],
+    ['unitLoaderMixed', 'LB2-XAC(Clan)', 'lb-2-x-ac', 'clan-lb-2-x-ac'],
+    ['unitLoaderIS', 'LB20-XAC(Clan)', 'lb-20-x-ac', 'clan-lb-20-x-ac'],
+    ['unitLoaderMixed', 'LB20-XAC(Clan)', 'lb-20-x-ac', 'clan-lb-20-x-ac'],
+    ['unitLoaderIS', 'LB5-XAC(Clan)', 'lb-5-x-ac', 'clan-lb-5-x-ac'],
+    ['unitLoaderMixed', 'LB5-XAC(Clan)', 'lb-5-x-ac', 'clan-lb-5-x-ac'],
+    ['unitLoaderIS', 'LRM 10 (Clan)', 'lrm-10', 'clan-lrm-10'],
+    ['unitLoaderMixed', 'LRM 10 (Clan)', 'lrm-10', 'clan-lrm-10'],
+    ['unitLoaderIS', 'LRM 15 (Clan)', 'lrm-15', 'clan-lrm-15'],
+    ['unitLoaderMixed', 'LRM 15 (Clan)', 'lrm-15', 'clan-lrm-15'],
+    ['unitLoaderIS', 'LRM 20 (Clan)', 'lrm-20', 'clan-lrm-20'],
+    ['unitLoaderMixed', 'LRM 20 (Clan)', 'lrm-20', 'clan-lrm-20'],
+    ['unitLoaderIS', 'LRM 5 (Clan)', 'lrm-5', 'clan-lrm-5'],
+    ['unitLoaderMixed', 'LRM 5 (Clan)', 'lrm-5', 'clan-lrm-5'],
+    ['unitLoaderIS', 'LRM10(Clan)', 'lrm-10', 'clan-lrm-10'],
+    ['unitLoaderMixed', 'LRM10(Clan)', 'lrm-10', 'clan-lrm-10'],
+    ['unitLoaderIS', 'LRM15(Clan)', 'lrm-15', 'clan-lrm-15'],
+    ['unitLoaderMixed', 'LRM15(Clan)', 'lrm-15', 'clan-lrm-15'],
+    ['unitLoaderIS', 'LRM20(Clan)', 'lrm-20', 'clan-lrm-20'],
+    ['unitLoaderMixed', 'LRM20(Clan)', 'lrm-20', 'clan-lrm-20'],
+    ['unitLoaderIS', 'LRM5(Clan)', 'lrm-5', 'clan-lrm-5'],
+    ['unitLoaderMixed', 'LRM5(Clan)', 'lrm-5', 'clan-lrm-5'],
+    [
+      'unitLoaderIS',
+      'Large Pulse Laser (Clan)',
+      'large-pulse-laser',
+      'clan-large-pulse-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'Large Pulse Laser (Clan)',
+      'large-pulse-laser',
+      'clan-large-pulse-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'LargePulseLaser(Clan)',
+      'large-pulse-laser',
+      'clan-large-pulse-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'LargePulseLaser(Clan)',
+      'large-pulse-laser',
+      'clan-large-pulse-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'Laser Anti-Missile System (Clan)',
+      'laser-ams',
+      'clan-laser-ams',
+    ],
+    [
+      'unitLoaderMixed',
+      'Laser Anti-Missile System (Clan)',
+      'laser-ams',
+      'clan-laser-ams',
+    ],
+    [
+      'unitLoaderIS',
+      'LaserAnti-MissileSystem(Clan)',
+      'laser-ams',
+      'clan-laser-ams',
+    ],
+    [
+      'unitLoaderMixed',
+      'LaserAnti-MissileSystem(Clan)',
+      'laser-ams',
+      'clan-laser-ams',
+    ],
+    [
+      'unitLoaderIS',
+      'Light Active Probe (Clan)',
+      'light-active-probe',
+      'clan-light-active-probe',
+    ],
+    [
+      'unitLoaderMixed',
+      'Light Active Probe (Clan)',
+      'light-active-probe',
+      'clan-light-active-probe',
+    ],
+    [
+      'unitLoaderIS',
+      'LightActiveProbe(Clan)',
+      'light-active-probe',
+      'clan-light-active-probe',
+    ],
+    [
+      'unitLoaderMixed',
+      'LightActiveProbe(Clan)',
+      'light-active-probe',
+      'clan-light-active-probe',
+    ],
+    ['unitLoaderIS', 'LightTAG(Clan)', 'light-tag', 'clan-light-tag'],
+    ['unitLoaderMixed', 'LightTAG(Clan)', 'light-tag', 'clan-light-tag'],
+    ['unitLoaderIS', 'MASC (Clan)', 'masc', 'clan-masc'],
+    ['unitLoaderMixed', 'MASC (Clan)', 'masc', 'clan-masc'],
+    ['unitLoaderIS', 'MASC(Clan)', 'masc', 'clan-masc'],
+    ['unitLoaderMixed', 'MASC(Clan)', 'masc', 'clan-masc'],
+    ['unitLoaderIS', 'Machine Gun (Clan)', 'machine-gun', 'clan-machine-gun'],
+    [
+      'unitLoaderMixed',
+      'Machine Gun (Clan)',
+      'machine-gun',
+      'clan-machine-gun',
+    ],
+    ['unitLoaderIS', 'MachineGun(Clan)', 'machine-gun', 'clan-machine-gun'],
+    ['unitLoaderMixed', 'MachineGun(Clan)', 'machine-gun', 'clan-machine-gun'],
+    [
+      'unitLoaderIS',
+      'Medium Pulse Laser (Clan)',
+      'medium-pulse-laser',
+      'clan-medium-pulse-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'Medium Pulse Laser (Clan)',
+      'medium-pulse-laser',
+      'clan-medium-pulse-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'MediumPulseLaser(Clan)',
+      'medium-pulse-laser',
+      'clan-medium-pulse-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'MediumPulseLaser(Clan)',
+      'medium-pulse-laser',
+      'clan-medium-pulse-laser',
+    ],
+    ['unitLoaderIS', 'NARC Missile Beacon (Clan)', 'narc', 'clan-narc'],
+    ['unitLoaderMixed', 'NARC Missile Beacon (Clan)', 'narc', 'clan-narc'],
+    ['unitLoaderIS', 'NARCMissileBeacon(Clan)', 'narc', 'clan-narc'],
+    ['unitLoaderMixed', 'NARCMissileBeacon(Clan)', 'narc', 'clan-narc'],
+    ['unitLoaderIS', 'SRM 2 (Clan)', 'srm-2', 'clan-srm-2'],
+    ['unitLoaderMixed', 'SRM 2 (Clan)', 'srm-2', 'clan-srm-2'],
+    ['unitLoaderIS', 'SRM 4 (Clan)', 'srm-4', 'clan-srm-4'],
+    ['unitLoaderMixed', 'SRM 4 (Clan)', 'srm-4', 'clan-srm-4'],
+    ['unitLoaderIS', 'SRM 6 (Clan)', 'srm-6', 'clan-srm-6'],
+    ['unitLoaderMixed', 'SRM 6 (Clan)', 'srm-6', 'clan-srm-6'],
+    ['unitLoaderIS', 'SRM2(Clan)', 'srm-2', 'clan-srm-2'],
+    ['unitLoaderMixed', 'SRM2(Clan)', 'srm-2', 'clan-srm-2'],
+    ['unitLoaderIS', 'SRM4(Clan)', 'srm-4', 'clan-srm-4'],
+    ['unitLoaderMixed', 'SRM4(Clan)', 'srm-4', 'clan-srm-4'],
+    ['unitLoaderIS', 'SRM6(Clan)', 'srm-6', 'clan-srm-6'],
+    ['unitLoaderMixed', 'SRM6(Clan)', 'srm-6', 'clan-srm-6'],
+    [
+      'unitLoaderIS',
+      'Small Pulse Laser (Clan)',
+      'small-pulse-laser',
+      'clan-small-pulse-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'Small Pulse Laser (Clan)',
+      'small-pulse-laser',
+      'clan-small-pulse-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'SmallPulseLaser(Clan)',
+      'small-pulse-laser',
+      'clan-small-pulse-laser',
+    ],
+    [
+      'unitLoaderMixed',
+      'SmallPulseLaser(Clan)',
+      'small-pulse-laser',
+      'clan-small-pulse-laser',
+    ],
+    [
+      'unitLoaderIS',
+      'Streak SRM 2 (Clan)',
+      'streak-srm-2',
+      'clan-streak-srm-2',
+    ],
+    [
+      'unitLoaderMixed',
+      'Streak SRM 2 (Clan)',
+      'streak-srm-2',
+      'clan-streak-srm-2',
+    ],
+    [
+      'unitLoaderIS',
+      'Streak SRM 4 (Clan)',
+      'streak-srm-4',
+      'clan-streak-srm-4',
+    ],
+    [
+      'unitLoaderMixed',
+      'Streak SRM 4 (Clan)',
+      'streak-srm-4',
+      'clan-streak-srm-4',
+    ],
+    [
+      'unitLoaderIS',
+      'Streak SRM 6 (Clan)',
+      'streak-srm-6',
+      'clan-streak-srm-6',
+    ],
+    [
+      'unitLoaderMixed',
+      'Streak SRM 6 (Clan)',
+      'streak-srm-6',
+      'clan-streak-srm-6',
+    ],
+    ['unitLoaderIS', 'StreakSRM2(Clan)', 'streak-srm-2', 'clan-streak-srm-2'],
+    [
+      'unitLoaderMixed',
+      'StreakSRM2(Clan)',
+      'streak-srm-2',
+      'clan-streak-srm-2',
+    ],
+    ['unitLoaderIS', 'StreakSRM4(Clan)', 'streak-srm-4', 'clan-streak-srm-4'],
+    [
+      'unitLoaderMixed',
+      'StreakSRM4(Clan)',
+      'streak-srm-4',
+      'clan-streak-srm-4',
+    ],
+    ['unitLoaderIS', 'StreakSRM6(Clan)', 'streak-srm-6', 'clan-streak-srm-6'],
+    [
+      'unitLoaderMixed',
+      'StreakSRM6(Clan)',
+      'streak-srm-6',
+      'clan-streak-srm-6',
+    ],
+    ['unitLoaderIS', 'TAG (Clan)', 'tag', 'clan-tag'],
+    ['unitLoaderMixed', 'TAG (Clan)', 'tag', 'clan-tag'],
+    ['unitLoaderIS', 'TAG(Clan)', 'tag', 'clan-tag'],
+    ['unitLoaderMixed', 'TAG(Clan)', 'tag', 'clan-tag'],
+    [
+      'unitLoaderIS',
+      'Targeting Computer (Clan)',
+      'targeting-computer',
+      'clan-targeting-computer',
+    ],
+    [
+      'unitLoaderMixed',
+      'Targeting Computer (Clan)',
+      'targeting-computer',
+      'clan-targeting-computer',
+    ],
+    [
+      'unitLoaderIS',
+      'TargetingComputer(Clan)',
+      'targeting-computer',
+      'clan-targeting-computer',
+    ],
+    [
+      'unitLoaderMixed',
+      'TargetingComputer(Clan)',
+      'targeting-computer',
+      'clan-targeting-computer',
+    ],
+    ['unitLoaderIS', 'Ultra AC/10 (Clan)', 'uac-10', 'clan-uac-10'],
+    ['unitLoaderMixed', 'Ultra AC/10 (Clan)', 'uac-10', 'clan-uac-10'],
+    ['unitLoaderIS', 'Ultra AC/2 (Clan)', 'uac-2', 'clan-uac-2'],
+    ['unitLoaderMixed', 'Ultra AC/2 (Clan)', 'uac-2', 'clan-uac-2'],
+    ['unitLoaderIS', 'Ultra AC/20 (Clan)', 'uac-20', 'clan-uac-20'],
+    ['unitLoaderMixed', 'Ultra AC/20 (Clan)', 'uac-20', 'clan-uac-20'],
+    ['unitLoaderIS', 'Ultra AC/5 (Clan)', 'uac-5', 'clan-uac-5'],
+    ['unitLoaderMixed', 'Ultra AC/5 (Clan)', 'uac-5', 'clan-uac-5'],
+    ['unitLoaderIS', 'UltraAC/10(Clan)', 'uac-10', 'clan-uac-10'],
+    ['unitLoaderMixed', 'UltraAC/10(Clan)', 'uac-10', 'clan-uac-10'],
+    ['unitLoaderIS', 'UltraAC/2(Clan)', 'uac-2', 'clan-uac-2'],
+    ['unitLoaderMixed', 'UltraAC/2(Clan)', 'uac-2', 'clan-uac-2'],
+    ['unitLoaderIS', 'UltraAC/20(Clan)', 'uac-20', 'clan-uac-20'],
+    ['unitLoaderMixed', 'UltraAC/20(Clan)', 'uac-20', 'clan-uac-20'],
+    ['unitLoaderIS', 'UltraAC/5(Clan)', 'uac-5', 'clan-uac-5'],
+    ['unitLoaderMixed', 'UltraAC/5(Clan)', 'uac-5', 'clan-uac-5'],
+  ].map(([api, name, oldTarget, newTarget]) => ({
+    api,
+    name,
+    oldTarget,
+    newTarget,
+    literalName: true,
+    reason:
+      'C3 y2 explicit display technology; same base item, loader only; MtfFile.java:1052-1064,1210-1212 at 48fcb2f64',
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
@@ -3155,6 +3887,341 @@ if (process.argv.includes('--capture')) {
   );
   writeFileSync(output, JSON.stringify(snapshot) + '\n');
 } else {
+  test('approved reroutes retain the 37 cited suffix repairs and existing entries alongside 146 y2 additions', () => {
+    const expectedSuffixRepairs = [
+      [
+        'unitLoaderClan',
+        'Anti-Missile System [IS]',
+        'clan-ams',
+        'ams',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/other/innerSphere/ISAMS.java:59 (ISAntiMissileSystem)',
+      ],
+      [
+        'unitLoaderClan',
+        'ER Large Laser [IS]',
+        'clan-er-large-laser',
+        'er-large-laser',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/large/ISERLaserLarge.java:57 (ISERLargeLaser)',
+      ],
+      [
+        'unitLoaderClan',
+        'ER Medium Laser [IS]',
+        'clan-er-medium-laser',
+        'er-medium-laser',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/medium/ISERLaserMedium.java:57 (ISERMediumLaser)',
+      ],
+      [
+        'unitLoaderClan',
+        'ER PPC [IS]',
+        'clan-er-ppc',
+        'er-ppc',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/ppc/innerSphere/ISERPPC.java:57 (ISERPPC)',
+      ],
+      [
+        'unitLoaderClan',
+        'ER Small Laser [IS]',
+        'clan-er-small-laser',
+        'er-small-laser',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISERLaserSmall.java:57 (ISERSmallLaser)',
+      ],
+      [
+        'unitLoaderClan',
+        'Flamer [IS]',
+        'clan-flamer',
+        'flamer',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/flamers/innerSphere/ISFlamer.java:57 (Flamer)',
+      ],
+      [
+        'unitLoaderClan',
+        'Gauss Rifle [IS]',
+        'clan-gauss-rifle',
+        'gauss-rifle',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/gaussRifles/innerSphere/ISGaussRifle.java:70 (ISGaussRifle)',
+      ],
+      [
+        'unitLoaderClan',
+        'LB 10-X AC [IS]',
+        'clan-lb-10-x-ac',
+        'lb-10-x-ac',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB10XAC.java:59 (ISLBXAC10)',
+      ],
+      [
+        'unitLoaderClan',
+        'LB 2-X AC [IS]',
+        'clan-lb-2-x-ac',
+        'lb-2-x-ac',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB2XAC.java:59 (ISLBXAC2)',
+      ],
+      [
+        'unitLoaderClan',
+        'LB 20-X AC [IS]',
+        'clan-lb-20-x-ac',
+        'lb-20-x-ac',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB20XAC.java:59 (ISLBXAC20)',
+      ],
+      [
+        'unitLoaderClan',
+        'LB 5-X AC [IS]',
+        'clan-lb-5-x-ac',
+        'lb-5-x-ac',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISLB5XAC.java:59 (ISLBXAC5)',
+      ],
+      [
+        'unitLoaderClan',
+        'LRM 10 [IS]',
+        'clan-lrm-10',
+        'lrm-10',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM10.java:56 (LRM 10)',
+      ],
+      [
+        'unitLoaderClan',
+        'LRM 15 [IS]',
+        'clan-lrm-15',
+        'lrm-15',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM15.java:56 (LRM 15)',
+      ],
+      [
+        'unitLoaderClan',
+        'LRM 20 [IS]',
+        'clan-lrm-20',
+        'lrm-20',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM20.java:56 (LRM 20)',
+      ],
+      [
+        'unitLoaderClan',
+        'LRM 5 [IS]',
+        'clan-lrm-5',
+        'lrm-5',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lrms/innerSphere/ISLRM5.java:56 (LRM 5)',
+      ],
+      [
+        'unitLoaderClan',
+        'Large Pulse Laser [IS]',
+        'clan-large-pulse-laser',
+        'large-pulse-laser',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/large/ISPulseLaserLarge.java:57 (ISLargePulseLaser)',
+      ],
+      [
+        'unitLoaderClan',
+        'Laser Anti-Missile System [IS]',
+        'clan-laser-ams',
+        'laser-ams',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/other/innerSphere/ISLaserAMS.java:60 (ISLaserAntiMissileSystem)',
+      ],
+      [
+        'unitLoaderClan',
+        'Light Machine Gun [IS]',
+        'clan-light-machine-gun',
+        'light-machine-gun',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/mgs/innerSphere/ISLightMG.java:58 (Light Machine Gun)',
+      ],
+      [
+        'unitLoaderClan',
+        'MASC [IS]',
+        'clan-masc',
+        'masc',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/equipment/MiscType.java:2129 (ISMASC)',
+      ],
+      [
+        'unitLoaderClan',
+        'Machine Gun [IS]',
+        'clan-machine-gun',
+        'machine-gun',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/mgs/innerSphere/ISMG.java:57 (Machine Gun)',
+      ],
+      [
+        'unitLoaderClan',
+        'Medium Pulse Laser [IS]',
+        'clan-medium-pulse-laser',
+        'medium-pulse-laser',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/medium/ISPulseLaserMedium.java:58 (ISMediumPulseLaser)',
+      ],
+      [
+        'unitLoaderClan',
+        'NARC Missile Beacon [IS]',
+        'clan-narc',
+        'narc',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/other/innerSphere/ISNarc.java:57 (ISNarcBeacon)',
+      ],
+      [
+        'unitLoaderClan',
+        'Rotary AC/2 [IS]',
+        'clan-rac-2',
+        'rac-2',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISRAC2.java:58 (ISRotaryAC2)',
+      ],
+      [
+        'unitLoaderClan',
+        'Rotary AC/5 [IS]',
+        'clan-rac-5',
+        'rac-5',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISRAC5.java:58 (ISRotaryAC5)',
+      ],
+      [
+        'unitLoaderClan',
+        'SRM 2 [IS]',
+        'clan-srm-2',
+        'srm-2',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM2.java:63 (SRM 2)',
+      ],
+      [
+        'unitLoaderClan',
+        'SRM 4 [IS]',
+        'clan-srm-4',
+        'srm-4',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM4.java:63 (SRM 4)',
+      ],
+      [
+        'unitLoaderClan',
+        'SRM 6 [IS]',
+        'clan-srm-6',
+        'srm-6',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/ISSRM6.java:56 (SRM 6)',
+      ],
+      [
+        'unitLoaderClan',
+        'Small Pulse Laser [IS]',
+        'clan-small-pulse-laser',
+        'small-pulse-laser',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/lasers/innerSphere/small/ISPulseLaserSmall.java:58 (ISSmallPulseLaser)',
+      ],
+      [
+        'unitLoaderClan',
+        'Streak SRM 2 [IS]',
+        'clan-streak-srm-2',
+        'streak-srm-2',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM2.java:57 (ISStreakSRM2)',
+      ],
+      [
+        'unitLoaderClan',
+        'Streak SRM 4 [IS]',
+        'clan-streak-srm-4',
+        'streak-srm-4',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM4.java:57 (ISStreakSRM4)',
+      ],
+      [
+        'unitLoaderClan',
+        'Streak SRM 6 [IS]',
+        'clan-streak-srm-6',
+        'streak-srm-6',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/srms/innerSphere/streak/ISStreakSRM6.java:57 (ISStreakSRM6)',
+      ],
+      [
+        'unitLoaderClan',
+        'TAG [IS]',
+        'clan-tag',
+        'tag',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/tag/ISTAG.java:56 (ISTAG)',
+      ],
+      [
+        'unitLoaderClan',
+        'Targeting Computer [IS]',
+        'clan-targeting-computer',
+        'targeting-computer',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/equipment/MiscType.java:6795 (ISTargeting Computer)',
+      ],
+      [
+        'unitLoaderClan',
+        'Ultra AC/10 [IS]',
+        'clan-uac-10',
+        'uac-10',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC10.java:57 (ISUltraAC10)',
+      ],
+      [
+        'unitLoaderClan',
+        'Ultra AC/2 [IS]',
+        'clan-uac-2',
+        'uac-2',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC2.java:57 (ISUltraAC2)',
+      ],
+      [
+        'unitLoaderClan',
+        'Ultra AC/20 [IS]',
+        'clan-uac-20',
+        'uac-20',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC20.java:57 (ISUltraAC20)',
+      ],
+      [
+        'unitLoaderClan',
+        'Ultra AC/5 [IS]',
+        'clan-uac-5',
+        'uac-5',
+        true,
+        'C2-approved PR-2 explicit [IS] identity; MegaMek 48fcb2f64 megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISUAC5.java:57 (ISUltraAC5)',
+      ],
+    ];
+    assert.equal(expectedSuffixRepairs.length, 37);
+    assert.deepEqual(
+      APPROVED_JAVA_REROUTES.slice(0, 37).map(
+        ({ api, name, oldTarget, newTarget, literalName, reason }) => [
+          api,
+          name,
+          oldTarget,
+          newTarget,
+          literalName,
+          reason,
+        ],
+      ),
+      expectedSuffixRepairs,
+    );
+    for (const row of APPROVED_JAVA_REROUTES.slice(0, 37)) {
+      assert.deepEqual(Object.keys(row).sort(), [
+        'api',
+        'literalName',
+        'name',
+        'newTarget',
+        'oldTarget',
+        'reason',
+      ]);
+    }
+    // Freeze all pre-existing approvals, including flags and reasons; y2 appends
+    // its 146 additional literal transitions after this unchanged block.
+    assert.equal(APPROVED_JAVA_REROUTES.slice(37, 1081).length, 1044);
+    assert.equal(
+      createHash('sha256')
+        .update(JSON.stringify(APPROVED_JAVA_REROUTES.slice(37, 1081)))
+        .digest('hex'),
+      '4f50e3029406bf1ebdd6a6f59f802e310ecf127923a1c336e54a759c2bf89f2c',
+    );
+    assert.equal(APPROVED_JAVA_REROUTES.slice(1081).length, 146);
+  });
+
   // Pinned MegaMek 48fcb2f64; native identity constructors and runtime probe
   // (ParityCatalogProbe.java, retained with the 2.1-b evidence).
   const parityInfantryAndBA = [
@@ -3373,6 +4440,36 @@ if (process.argv.includes('--capture')) {
       Object.entries(snapshot.resolved[name] ?? {}).find(([, used]) =>
         used.includes(snapshot.apis.indexOf(api)),
       )?.[0];
+    await t.test(
+      'ten native IS aliases retain their existing unitLoaderClan identities',
+      () => {
+        // These prefixes have no display marker to remove. Y2 must preserve
+        // their prior routing, including aliases whose name starts with IS.
+        for (const [name, expectedId] of [
+          ['ISArrowIV', 'clan-arrow-iv-launcher'],
+          ['ISArrowIV:OMNI', 'clan-arrow-iv-launcher'],
+          ['ISArrowIVSystem', 'clan-arrow-iv-launcher'],
+          ['ISLBXAC10Prototype', 'clan-lb-10-x-ac'],
+          ['ISLightMG', 'clan-light-machine-gun'],
+          ['ISMG', 'clan-machine-gun'],
+          ['ISMediumPulseLaserPrototype', 'clan-medium-pulse-laser'],
+          ['ISRotaryAC2', 'clan-rac-2'],
+          ['ISRotaryAC5', 'clan-rac-5'],
+          ['ISSRM4OS', 'clan-srm-4'],
+        ]) {
+          assert.equal(
+            targetOf(before, 'unitLoaderClan', name),
+            expectedId,
+            name,
+          );
+          assert.equal(
+            targetOf(after, 'unitLoaderClan', name),
+            expectedId,
+            name,
+          );
+        }
+      },
+    );
     assert.deepEqual(
       after.directFailures,
       [],

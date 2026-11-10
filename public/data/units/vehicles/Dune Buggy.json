@@ -17,7 +17,7 @@
   },
   "engine": {
     "type": "ICE",
-    "rating": 10
+    "rating": 12.0
   },
   "armor": {
     "type": "BAR",

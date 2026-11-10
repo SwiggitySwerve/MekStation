@@ -201,5 +201,8 @@
   },
   "mulId": 7641,
   "role": "Sniper",
-  "source": "TR:GC"
+  "source": "TR:GC",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

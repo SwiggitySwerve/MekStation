@@ -173,5 +173,8 @@
   "mulId": 5431,
   "role": "Skirmisher",
   "source": "JFR",
-  "lamType": "Standard"
+  "lamType": "Standard",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

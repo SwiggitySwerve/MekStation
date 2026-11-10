@@ -31,7 +31,7 @@ import {
   isDefinitionForFamily,
   UNIT_DEFINITION_FAMILIES,
 } from './definitionTypes';
-import { mapEquipment } from './equipmentMapping';
+import { mapEquipmentWithDiagnostics } from './equipmentMapping';
 import { loadUnitDefinition } from './loadUnitDefinition';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 import { normalizeUnitConfiguration } from './normalizeUnitConfiguration';
@@ -238,19 +238,30 @@ export class UnitLoaderService {
     _isCanonical: boolean,
     sourceDefinition?: IUnitDefinitionReference,
   ): UnitState {
-    const equipment = mapEquipment(
+    const configuration = normalizeUnitConfiguration(serialized, []);
+    const { equipment, unrecoveredCriticalSlots } = mapEquipmentWithDiagnostics(
       serialized.equipment,
       mapTechBase(serialized.techBase),
       mapTechBaseMode(serialized.techBase),
       serialized.criticalSlots,
       serialized.tonnage,
       serialized.isOmni === true,
+      configuration,
     );
-    return createUnitSession(
-      normalizeUnitConfiguration(serialized, equipment),
-      { id: uuidv4(), createdAt: Date.now() },
-      sourceDefinition ?? serialized.sourceDefinition,
-    );
+    return {
+      ...createUnitSession(
+        {
+          ...configuration,
+          equipment,
+          bvContext: configuration.bvContext
+            ? { ...configuration.bvContext, equipment }
+            : undefined,
+        },
+        { id: uuidv4(), createdAt: Date.now() },
+        sourceDefinition ?? serialized.sourceDefinition,
+      ),
+      unrecoveredCriticalSlots,
+    };
   }
 }
 

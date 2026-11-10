@@ -190,5 +190,8 @@
   },
   "mulId": 9541,
   "role": "Skirmisher",
-  "source": "Shrap15"
+  "source": "Shrap15",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

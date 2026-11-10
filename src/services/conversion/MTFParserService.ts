@@ -2,8 +2,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '@/services/core/createSingleton';
-import { mapGyroType } from '@/services/units/unitLoaderService/componentMappers';
-import { GyroType } from '@/types/construction/GyroType';
+import { isClanSourceChassis } from '@/services/units/handlers/unitHandlerShared';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { parseStructure } from './MTFParser.components';
@@ -12,8 +11,11 @@ import { appendSourceWeapons } from './MTFParser.sourceEquipment';
 import {
   generateUnitId,
   mapArmorType,
+  mapCockpitType,
   mapEngineType,
   mapEraFromYear,
+  mapGyroType,
+  mapHeatSinkType,
   mapRulesLevel,
   mapTechBase,
   parseArmor,
@@ -28,12 +30,32 @@ import {
   parseWeapons,
 } from './MTFParserHelpers';
 
+/** Why a source component did not become its own identity. Saved with the
+ * unit in `mtfSource.diagnostics`, so the fact survives save and reopen. */
+export interface IMTFSourceDiagnostic {
+  readonly field: 'gyro' | 'cockpit' | 'heatSinks';
+  /** The source text, exactly as declared. */
+  readonly raw: string;
+  /** What the unit holds instead. */
+  readonly applied: string;
+  /** `java-default`: the pinned loader substitutes a default for this string. */
+  readonly reason: 'java-default';
+  readonly javaRef: string;
+}
+
 export interface IMTFParsedUnit extends ISerializedUnit {
   readonly mtfSource: {
     readonly text: string;
     readonly configuration: string;
     readonly engine?: string;
     readonly armor?: string;
+    /** Raw `gyro:`, `cockpit:` and `heat sinks:` values, kept beside the
+     * derived identities. Absent when the line is absent or blank. */
+    readonly gyro?: string;
+    readonly cockpit?: string;
+    readonly heatSinks?: string;
+    /** Present only when the loader had to default or stand in for a value. */
+    readonly diagnostics?: readonly IMTFSourceDiagnostic[];
   };
 }
 
@@ -79,6 +101,18 @@ export class MTFParserService {
       const baseConfig = mapConfiguration(header.config);
       const engineType = mapEngineType(engine.type);
       const armorType = mapArmorType(armor.type);
+      const gyroName = parseField(lines, 'gyro') ?? '';
+      const cockpitName = parseField(lines, 'cockpit') ?? '';
+      const heatSinkLine = parseField(lines, 'heat sinks') ?? '';
+      const diagnostics: IMTFSourceDiagnostic[] = [];
+      const cockpitRef = 'MtfFile.java:262-269; Mek.java:4935-4950';
+      // mek.isClan() in the pinned loader: Clan, or Mixed with a Clan chassis
+      // (MtfFile.java:848-890).
+      const clanUnit = isClanSourceChassis(header.techBase.trim());
+      const gyro = mapGyroType(gyroName);
+      const cockpit = mapCockpitType(cockpitName);
+      const heatSink = mapHeatSinkType(heatSinks.type, clanUnit);
+      const cockpitType = cockpit.type;
       if (header.config.includes('FrankenMek')) {
         warnings.push(`Unsupported MTF configuration: ${header.config}`);
       }
@@ -87,6 +121,45 @@ export class MTFParserService {
       }
       if (armorType.startsWith('UNSUPPORTED_ARMOR:')) {
         warnings.push(`Unsupported MTF armor: ${armor.type}`);
+      }
+      // The pinned loader substitutes a default for an unrecognised string
+      // instead of refusing the file; so does the importer, and it says so in
+      // the import result and on the unit itself (mtfSource.diagnostics).
+      if (gyro.defaulted) {
+        warnings.push(
+          `Unsupported MTF gyro "${gyroName}" loaded as Standard (MtfFile.java:252-259)`,
+        );
+        diagnostics.push({
+          field: 'gyro',
+          raw: gyroName,
+          applied: gyro.type,
+          reason: 'java-default',
+          javaRef: 'MtfFile.java:252-259',
+        });
+      }
+      if (cockpit.defaulted) {
+        warnings.push(
+          `Unsupported MTF cockpit "${cockpitName}" loaded as Standard (MtfFile.java:262-269)`,
+        );
+        diagnostics.push({
+          field: 'cockpit',
+          raw: cockpitName,
+          applied: cockpitType,
+          reason: 'java-default',
+          javaRef: cockpitRef,
+        });
+      }
+      if (heatSink.defaulted) {
+        warnings.push(
+          `Unsupported MTF heat sink "${heatSinks.type}" loaded as Single (MtfFile.java:566-598)`,
+        );
+        diagnostics.push({
+          field: 'heatSinks',
+          raw: heatSinkLine,
+          applied: heatSink.type,
+          reason: 'java-default',
+          javaRef: 'MtfFile.java:566-598',
+        });
       }
 
       const unit: ISerializedUnit = {
@@ -105,19 +178,16 @@ export class MTFParserService {
           rating: engine.rating,
         },
         gyro: {
-          type:
-            mapGyroType(parseField(lines, 'gyro') ?? '') === GyroType.XL
-              ? 'XL'
-              : 'STANDARD',
+          type: gyro.type,
         },
-        cockpit: 'STANDARD',
+        cockpit: cockpitType,
         structure: parsedStructure,
         armor: {
           type: armorType,
           allocation: armor.allocation,
         },
         heatSinks: {
-          type: heatSinks.type === 'Double' ? 'DOUBLE' : 'SINGLE',
+          type: heatSink.type,
           count: heatSinks.count,
         },
         movement: {
@@ -143,6 +213,10 @@ export class MTFParserService {
           configuration: header.config,
           engine: parseField(lines, 'engine'),
           armor: parseField(lines, 'armor'),
+          ...(gyroName ? { gyro: gyroName } : {}),
+          ...(cockpitName ? { cockpit: cockpitName } : {}),
+          ...(heatSinkLine ? { heatSinks: heatSinkLine } : {}),
+          ...(diagnostics.length ? { diagnostics } : {}),
         },
         mulId: header.mulId,
         role: header.role,

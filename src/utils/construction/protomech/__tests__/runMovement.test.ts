@@ -20,7 +20,7 @@ import {
 } from '@/stores/useProtoMechStore';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
-import { computeRunMP } from '../index';
+import { computeProtoEngineRating, computeRunMP } from '../index';
 import { calculateProtoMechBV } from '../protoMechBV';
 
 jest.mock('@/utils/construction/protomech/protoMechBV', () => {
@@ -101,12 +101,15 @@ describe('Pinned undamaged ProtoMech running movement', () => {
       store.getState().setChassisType(ProtoChassis.QUAD);
       check(5, booster ? 10 : 8);
       expect(store.getState().engineRating).toBe(12);
+      // A tonnage edit keeps the walk and recomputes the engine for it
+      // (PMStructureTab.java:446-456); it used to reset walk to 10 minus the tonnage.
       store.getState().setTonnage(7);
-      check(3, booster ? 6 : 5);
-      expect(store.getState().engineRating).toBe(21);
+      check(5, booster ? 10 : 8);
+      const quad7 = computeProtoEngineRating(7, 5, ProtoChassis.QUAD);
+      expect(store.getState().engineRating).toBe(quad7);
       store.getState().setMyomerBooster(!booster);
-      check(3, booster ? 5 : 6);
-      expect(store.getState().engineRating).toBe(21);
+      check(5, booster ? 8 : 10);
+      expect(store.getState().engineRating).toBe(quad7);
     },
   );
 

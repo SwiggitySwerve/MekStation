@@ -4,7 +4,7 @@
  * Five named rules preserve the legacy editor build-snapshot contract.
  * Native source checks use getProtoSourceConstructionErrors. Editor rules:
  *   VAL-PROTO-TONNAGE   — tonnage in legal range
- *   VAL-PROTO-CHASSIS   — an Ultraheavy chassis is 10 t or more
+ *   VAL-PROTO-CHASSIS   — no finding: ultraheavy is a mass above 9 t, not a chassis
  *   VAL-PROTO-MP        — TestProtoMek.correctMovement (movementRules.ts)
  *   VAL-PROTO-MAIN-GUN  — Main Gun and arm slot/weight limits; ProtoMech weapons
  *   VAL-PROTO-TECH-BASE — tech base is Clan (warning, not error)
@@ -30,11 +30,7 @@ import {
   summarizeProtoJumpEquipment,
 } from './movementRules';
 import { computeProtoWeight, getProtoMinimumWeight } from './weight';
-import {
-  isChassisLegalForTonnage,
-  PROTO_MAX_TONNAGE,
-  PROTO_MIN_TONNAGE,
-} from './weightClass';
+import { PROTO_MAX_TONNAGE, PROTO_MIN_TONNAGE } from './weightClass';
 
 // =============================================================================
 // Result type
@@ -84,8 +80,7 @@ export interface ProtoMechBuildSnapshot {
 export const RULE_PROTO_TONNAGE = 'VAL-PROTO-TONNAGE';
 
 /**
- * Validate that tonnage is in the legal range (2–15 t).
- * Ultraheavy tonnage (10–15) is checked against chassis in VAL-PROTO-CHASSIS.
+ * Validate that tonnage is in the legal range (2–15 t), the same for every motive.
  */
 export function validateProtoTonnage(
   snapshot: Pick<ProtoMechBuildSnapshot, 'tonnage'>,
@@ -154,8 +149,10 @@ export function getProtoSourceConstructionErrors(unit: IProtoMech): string[] {
 export const RULE_PROTO_CHASSIS = 'VAL-PROTO-CHASSIS';
 
 /**
- * Validate that the chassis label matches the mass: an Ultraheavy chassis needs
- * tonnage ≥ 10 (TestProtoMek.MAX_STD_TONNAGE is 9, so ultraheavy is a mass).
+ * The chassis × mass rule has no finding to make: ultraheavy is a mass above 9 t
+ * (TestProtoMek.MAX_STD_TONNAGE, PMChassisView.java:205-207), not a chassis, so no
+ * motive and tonnage disagree. The range itself is VAL-PROTO-TONNAGE. The rule stays
+ * registered because the five-rule registry is the editor build-snapshot contract.
  *
  * Not rules of the pinned verifier, and so not checked: a glider weight limit, a ban
  * on an ultraheavy jumping, or a weight class for the Myomer Booster. The pinned
@@ -163,30 +160,12 @@ export const RULE_PROTO_CHASSIS = 'VAL-PROTO-CHASSIS';
  * mounts a booster; Java accepts all of them (fixtures/movement-java-verdicts.json).
  */
 export function validateProtoChassis(
-  snapshot: Pick<
+  _snapshot: Pick<
     ProtoMechBuildSnapshot,
     'tonnage' | 'chassisType' | 'jumpMP' | 'myomerBooster'
   >,
 ): ValidationRuleResult {
-  const { tonnage, chassisType } = snapshot;
-  const findings: ValidationFinding[] = [];
-
-  if (
-    chassisType === ProtoChassis.ULTRAHEAVY &&
-    !isChassisLegalForTonnage(chassisType, tonnage)
-  ) {
-    findings.push({
-      ruleId: RULE_PROTO_CHASSIS,
-      severity: 'error',
-      message: `Ultraheavy chassis requires tonnage ≥ 10 (got ${tonnage} t).`,
-    });
-  }
-
-  return {
-    ruleId: RULE_PROTO_CHASSIS,
-    passed: findings.length === 0,
-    findings,
-  };
+  return { ruleId: RULE_PROTO_CHASSIS, passed: true, findings: [] };
 }
 
 // =============================================================================

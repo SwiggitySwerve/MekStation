@@ -189,5 +189,8 @@
   "source": "TR:3145",
   "weaponQuirks": {
     "RT:6:CLLRM15": ["fast_reload"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

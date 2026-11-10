@@ -1,0 +1,6 @@
+{
+  "name": "advisory-resource-observations",
+  "status": "implementation",
+  "reason": "Owner rulings PARITY-PLAN sections 24 and 25 replace resource-growth thresholds with advisory observations and behavioral backpressure proofs.",
+  "lastReviewed": "2026-11-10"
+}

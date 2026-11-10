@@ -42,6 +42,7 @@ import {
   type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import { defaultD6Roller } from '@/utils/gameplay/diceTypes';
 import { createEventBase } from '@/utils/gameplay/gameEvents/base';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 import {
@@ -361,7 +362,7 @@ describe('InteractiveSession.fromSessionAsync — gap #2 recovery parity', () =>
     const units = makeFourUnits();
     const session = makeSessionWith(units);
 
-    const legacy = InteractiveSession.fromSession(session);
+    const legacy = InteractiveSession.fromSession(session, defaultD6Roller);
 
     for (const u of units) {
       expect(legacy.getMovementCapability(u.id)).toBeNull();
@@ -461,6 +462,7 @@ describe('C10 recorded startup recovery', () => {
     });
     const blocked = InteractiveSession.fromSession(
       hydrateGameSessionFromEvents(session.id, session.events),
+      defaultD6Roller,
     );
     blocked.advancePhase();
     expect(blocked.getSession().currentState.units[unitId].shutdown).toBe(true);
@@ -472,6 +474,7 @@ describe('C10 recorded startup recovery', () => {
     });
     const recovered = InteractiveSession.fromSession(
       hydrateGameSessionFromEvents(session.id, session.events),
+      defaultD6Roller,
     );
     expect(recovered.getSession().currentState.units[unitId]).toMatchObject({
       shutdown: false,

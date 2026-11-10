@@ -185,5 +185,8 @@
   "source": "TR:GC",
   "weaponQuirks": {
     "RT:3:CLWERPPC": ["accurate"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

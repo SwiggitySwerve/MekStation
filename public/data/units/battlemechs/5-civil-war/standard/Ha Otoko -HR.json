@@ -175,5 +175,8 @@
   },
   "mulId": 4258,
   "role": "Missile Boat",
-  "source": "XTR:Clans"
+  "source": "XTR:Clans",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

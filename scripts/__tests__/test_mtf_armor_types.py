@@ -10,6 +10,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import warnings
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 from enum_mappings import map_armor_type
@@ -20,8 +21,7 @@ CORPUS_ARMOR_TYPES = {
     'Anti-Penetrative Ablation(Inner Sphere)': 'ANTI_PENETRATIVE_ABLATION',
     'Ballistic-Reinforced(Inner Sphere)': 'BALLISTIC_REINFORCED',
     'Commercial(Inner Sphere)': 'COMMERCIAL',
-    # C2 R1: deliberate temporary residual until the first CW1 PR-C precursor.
-    'Ferro-Fibrous Prototype(Inner Sphere)': 'FERRO_FIBROUS',
+    'Ferro-Fibrous Prototype(Inner Sphere)': 'FERRO_FIBROUS_PROTO',
     'Ferro-Fibrous(Clan)': 'FERRO_FIBROUS_CLAN',
     'Ferro-Fibrous(Inner Sphere)': 'FERRO_FIBROUS',
     'Ferro-Lamellor(Clan)': 'FERRO_LAMELLOR',
@@ -67,14 +67,11 @@ UNKNOWN_ARMOR_TYPES = (
 
 
 class MTFArmorTypesTest(unittest.TestCase):
-    def test_every_corpus_spelling_follows_its_declared_identity_or_residual(self):
+    def test_every_corpus_spelling_follows_its_declared_identity(self):
         for spelling, expected in CORPUS_ARMOR_TYPES.items():
             with self.subTest(spelling=spelling):
-                diagnostic = (self.assertWarnsRegex(RuntimeWarning, 'R1_DEFERRED_ARMOR:')
-                              if 'Prototype' in spelling else contextlib.nullcontext())
-                with diagnostic:
-                    self.assertEqual(map_armor_type(spelling), expected)
-                    self.assertEqual(map_armor_type('  ' + spelling + '  '), expected)
+                self.assertEqual(map_armor_type(spelling), expected)
+                self.assertEqual(map_armor_type('  ' + spelling + '  '), expected)
 
     def test_legacy_aliases_keep_their_existing_identities(self):
         for spelling, expected in (
@@ -129,26 +126,24 @@ class MTFArmorTypesTest(unittest.TestCase):
                     'allocation': {'HEAD': 9, 'CENTER_TORSO': {'front': 30, 'rear': 5}},
                 })
 
-    def test_prototype_armor_is_a_visible_temporary_compatibility_residual(self):
-        # Changing this policy after the CW1 PR-C loader precursor is deliberate.
+    def test_prototype_armor_resolves_to_its_native_identity_without_a_residual(self):
         for spelling in ('Ferro-Fibrous Prototype', 'Ferro-Fibrous Prototype(Inner Sphere)'):
             with self.subTest(spelling=spelling):
-                with self.assertWarnsRegex(RuntimeWarning, 'R1_DEFERRED_ARMOR:') as caught:
-                    self.assertEqual(map_armor_type(spelling), 'FERRO_FIBROUS')
-                message = str(caught.warning)
-                self.assertIn(spelling, message)
-                self.assertIn('temporary', message)
-                self.assertIn('FERRO_FIBROUS_PROTO', message)
-                self.assertIn('loader', message)
+                with warnings.catch_warnings(record=True) as caught:
+                    warnings.simplefilter('always')
+                    self.assertEqual(map_armor_type(spelling), 'FERRO_FIBROUS_PROTO')
+                self.assertEqual(caught, [])
 
-    def test_deferred_prototype_still_serializes_a_unit_and_reports_the_residual(self):
-        with self.assertWarnsRegex(RuntimeWarning, 'R1_DEFERRED_ARMOR:'):
+    def test_prototype_serializes_its_native_identity_without_a_residual(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
             unit = MTFParser()._parse_lines([
-                'chassis:Deferred', 'model:Prototype',
+                'chassis:Native', 'model:Prototype',
                 'armor:Ferro-Fibrous Prototype(Inner Sphere)', 'HD armor:9',
-            ], 'deferred-prototype.mtf')
+            ], 'native-prototype.mtf')
+        self.assertEqual(caught, [])
         self.assertEqual(dataclass_to_dict(unit)['armor'], {
-            'type': 'FERRO_FIBROUS', 'allocation': {'HEAD': 9},
+            'type': 'FERRO_FIBROUS_PROTO', 'allocation': {'HEAD': 9},
         })
 
     def test_patchwork_preserves_every_corpus_location_spelling_and_point_count(self):

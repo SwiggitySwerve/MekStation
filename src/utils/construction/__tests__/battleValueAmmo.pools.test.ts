@@ -1,6 +1,7 @@
 import {
   calculateAmmoBVPools,
   calculateAmmoBVWithExcessiveCap,
+  projectMechAmmoBVPools,
 } from '@/utils/construction/battleValueAmmo';
 
 // BVCalculator.assembleAmmo (48fcb2f64, BVCalculator.java:1189-1242) keys both
@@ -36,5 +37,65 @@ describe('native ammo BV pools', () => {
         [{ id: 'lrtorpedo-15-ammo', bv: 17, weaponType: 'lrtorpedo-15' }],
       ).total,
     ).toBe(17);
+  });
+});
+
+describe('diagnostic cap emission', () => {
+  // MegaMek 48fcb2f64: ISSRM2.java:76 (21), ISSRM2IOS.java:76 (4),
+  // VehicularGrenadeLauncherWeapon.java:87 (15),
+  // InfantrySupportPortablePlasmaWeapon.java:73 (8.08),
+  // ISAC10Primitive.java:87 (123). Other inputs are synthetic pool probes.
+  it('preserves compatibility arithmetic separately from diagnostic exclusions', () => {
+    expect(
+      calculateAmmoBVPools(
+        [
+          { id: 'srm-2', bv: 21 },
+          { id: 'issrm2ios-registry', bv: 4 },
+        ],
+        [{ id: 'ammo-srm-2', weaponType: 'srm-2', bv: 100 }],
+      ),
+    ).toEqual({ total: 25, available: { 'SRM:2': 100 }, cap: { 'SRM:2': 21 } });
+  });
+  it('retains normal empty-launcher caps and excludes one-shot and infantry caps', () => {
+    expect(
+      calculateAmmoBVPools(
+        [
+          { id: 'srm-2', bv: 21 },
+          { id: 'issrm2ios-registry', bv: 4 },
+          { id: 'vehicular-grenade-launcher', bv: 15 },
+          { id: 'plasma-rifle-man-portable-registry', bv: 8.08 },
+        ],
+        [],
+      ),
+    ).toEqual({ total: 0, available: {}, cap: { 'SRM:2': 21 } });
+  });
+
+  it('replaces only the primitive mount compatibility cap without mutating pools', () => {
+    const pools = {
+      available: { 'AC_PRIMITIVE:10': 15 },
+      cap: { 'AC:10': 246 },
+    };
+    const before = JSON.stringify(pools);
+    expect(
+      projectMechAmmoBVPools(pools, undefined, undefined, {
+        weapons: [{ id: 'ac-10p', bv: 123 }],
+        bins: [],
+      }),
+    ).toEqual({
+      available: pools.available,
+      cap: { 'AC:10': 123, 'AC_PRIMITIVE:10': 123 },
+    });
+    expect(JSON.stringify(pools)).toBe(before);
+  });
+
+  it('adds the replaced mount to an already represented native primitive group', () => {
+    expect(
+      projectMechAmmoBVPools(
+        { available: {}, cap: { 'AC:10': 123, 'AC_PRIMITIVE:10': 123 } },
+        undefined,
+        undefined,
+        { weapons: [{ id: 'ac-10p', bv: 123 }], bins: [] },
+      ),
+    ).toEqual({ available: {}, cap: { 'AC_PRIMITIVE:10': 246 } });
   });
 });

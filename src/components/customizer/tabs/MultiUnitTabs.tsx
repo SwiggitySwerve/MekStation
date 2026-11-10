@@ -13,6 +13,7 @@ import {
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { useToast } from '@/components/shared/Toast';
+import { useUnitLoadDiagnostics } from '@/hooks/useUnitLoadDiagnostics';
 import { useUnitValidation } from '@/hooks/useUnitValidation';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
@@ -63,17 +64,24 @@ interface MultiUnitTabsProps {
 
 type TargetedSaveUnitDialogProps = Omit<
   SaveUnitDialogProps,
-  'constructionValidation'
+  | 'constructionValidation'
+  | 'unrecoveredCriticalSlots'
+  | 'lossTrackingUnknown'
+  | 'isRefreshingLossDiagnostics'
 >;
 
 function StoreValidatedSaveUnitDialog(
   props: TargetedSaveUnitDialogProps,
 ): React.ReactElement {
   const constructionValidation = useUnitValidation();
+  const { entries, isRefreshing } = useUnitLoadDiagnostics();
   return (
     <SaveUnitDialog
       {...props}
       constructionValidation={constructionValidation}
+      unrecoveredCriticalSlots={entries}
+      lossTrackingUnknown={entries === undefined}
+      isRefreshingLossDiagnostics={isRefreshing}
     />
   );
 }

@@ -58,6 +58,23 @@ export function protoMaxWalkMP(tonnage: number, chassis: ProtoChassis): number {
   return walk;
 }
 
+/**
+ * Why a tonnage edit must be refused, or undefined when it may go ahead. A tonnage edit
+ * keeps the walk, and MML recalculates the engine for the new tonnage and refuses the
+ * change when the rating exceeds the maximum (PMStructureTab.java:446-456,
+ * recalculateEngineRating :264-276). It never rewrites the walk to make the edit fit.
+ */
+export function protoTonnageChangeError(
+  tonnage: number,
+  walk: number,
+  chassis: ProtoChassis,
+): string | undefined {
+  const rating = computeProtoEngineRating(tonnage, walk, chassis);
+  return rating > PROTO_MAX_ENGINE_RATING
+    ? `A ${tonnage} t ProtoMech cannot keep walk ${walk}: its engine rating would be ${rating}, over the maximum of ${PROTO_MAX_ENGINE_RATING}.`
+    : undefined;
+}
+
 /** The most jump MP the editor accepts: maxJumpMP, and 0 for a glider. */
 export function protoJumpLimit(
   walk: number,

@@ -1,6 +1,9 @@
 # MTF source rules levels
 
-`enum_mapping_tables.RULES_LEVEL_MAP` owns source rules-level numbering;
+`src/types/formats/mtf-component-vocabulary.json` (`rulesLevel`) owns source
+rules-level numbering, shared with the TypeScript importer. It also owns the
+gyro, cockpit and heat sink names (see `MTF_COMPONENT_VOCABULARY.md` there).
+`enum_mapping_tables.RULES_LEVEL_MAP` spreads it and adds Python-only aliases;
 `enum_mappings.map_rules_level` consumes that table for the MTF parser and shared
 conversion callers. MTF source numbers are one-based: 1 Introductory, 2 Standard,
 3 Advanced, 4 Experimental and 5 Unofficial. Clan and explicit Mixed chassis
@@ -65,3 +68,37 @@ incomplete groups remain in the grid; recognized incomplete groups warn.
 Existing Chaff Pod recovery stays separate and unchanged. Fixed miscellaneous
 recovery and variable industrial sizing beyond these weapon profiles remain
 with PR-D; no catalog output is rewritten by this adapter.
+
+# MTF OmniMek source facts
+
+The converter keeps three optional OmniMek facts, in this serialized order after
+`componentTechBases`: `isOmni`, `baseChassisHeatSinks`, `clanName`. Pinned MegaMek
+`48fcb2f64`: `MtfFile.java:358-359` (`chassisConfig.contains("Omni")`, case-sensitive,
+independent of the geometry), `:371` and `:1717-1718` (the `base chassis heat sinks:`
+line, default `-1`), `:326` and `:1745-1746` (the `clanname:` line).
+
+- `isOmni` is written as `true` only; a non-Omni source gains no key.
+- `baseChassisHeatSinks` is the integer exactly as written, so the 237 pinned sources
+  that state a value below 10 keep it. A value that is not an integer raises
+  `ValueError` naming the value, as `Integer.parseInt` fails the load in Java.
+  The pinned sources hold 1,040 such lines: all parse, none repeat, none is negative.
+- `clanName` is the raw text and is kept on non-Omni units too (67 of the 434 pinned
+  `clanname:` lines); a blank name is omitted, as `Mek.java:5155` writes it only when
+  not blank.
+
+Java's stored value is derived: for an Omni with an engine `MtfFile.java:601-606`
+stores the file value when it is at least 10 and the unit's total heat sinks
+otherwise, and the only accessor, `Engine.getBaseChassisHeatSinks(compact)`
+(`Engine.java:1318-1320`), returns `min(integralHeatSinkCapacity(compact), stored)`.
+The catalog keeps the source value and never stores that derived number. A pinned-Java
+probe of all 4,263 sources (`Entity.isOmni()`, `Entity.getClanChassisName()` and the
+accessor above) found: the Omni flag and the clan name equal the converter's for every
+source; the rule above reproduces the accessor for all 1,040 Omni units; and **the
+accessor returns the source value for all 1,040**, including the 237 below 10, because
+those units' integral capacity (`engineRating / 25`) equals the source value (237 of 237) while the substituted total is larger, so the cap hides the substitution. For the
+other 803 units the capacity is never below the source value (equal for 548, larger
+for 255). No pinned unit
+therefore separates "stored = total" from "stored = source value" through the
+accessor. If a source ever states a value larger than the engine's integral capacity,
+the accessor would return the capacity, not the source value; that derived number is
+the consumer's concern.
