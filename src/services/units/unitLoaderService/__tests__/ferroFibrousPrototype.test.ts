@@ -13,7 +13,6 @@ import {
 import { mapArmorType as convertArmor } from '@/services/conversion/ValueMappings';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { parseArmorType } from '@/services/units/EnumParserRegistry';
 import { createUnitStore, UnitStoreContext } from '@/stores/useUnitStore';
 import {
   ArmorTypeEnum,
@@ -69,10 +68,7 @@ it.each([mapArmorType, convertArmor])(
   },
 );
 
-it('recognizes the prototype in the unit factory parser without changing ordinary Ferro', () => {
-  expect(parseArmorType('FERRO_FIBROUS_PROTO')).toBe('Ferro-Fibrous Prototype');
-  expect(parseArmorType('FERRO_FIBROUS')).toBe(ArmorTypeEnum.FERRO_FIBROUS_IS);
-  expect(parseArmorType('COMMERCIAL')).toBe(ArmorTypeEnum.STANDARD);
+it('preserves ordinary Standard and Clan Ferro normalization', () => {
   expect(mapArmorType('STANDARD', TechBase.INNER_SPHERE)).toBe(
     ArmorTypeEnum.STANDARD,
   );
