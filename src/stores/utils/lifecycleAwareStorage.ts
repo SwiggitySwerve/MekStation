@@ -26,7 +26,7 @@
 import type { StateStorage } from 'zustand/middleware';
 
 import { scanLifecycleRequirement } from '@/lib/campaign/persistence/lifecycleReaderGate';
-import { LIFECYCLE_RULES_READER_MAX } from '@/types/campaign/ContractLifecycleRules';
+import { exceedsReaderLevel } from '@/types/campaign/ContractLifecycleRules';
 
 import { clientSafeStorage } from './clientSafeStorage';
 
@@ -184,7 +184,7 @@ function isProtectedKey(name: string): boolean {
 
 function needsSlot(envelope: Envelope): boolean {
   const scan = scanLifecycleRequirement(bodyOf(envelope));
-  return scan.unreadable || scan.required > LIFECYCLE_RULES_READER_MAX;
+  return scan.unreadable || exceedsReaderLevel(scan.required);
 }
 
 /** Whether a value read from an old key has content an older tab could have added. */

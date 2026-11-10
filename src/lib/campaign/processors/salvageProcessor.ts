@@ -29,6 +29,7 @@ import type {
 } from '@/types/campaign/Salvage';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { isContract } from '@/types/campaign/Mission';
 import { logger } from '@/utils/logger';
 
@@ -125,6 +126,22 @@ function processOutcome(
         `[salvageProcessor] Unknown contract id "${outcome.contractId}" — falling back to 0% mercenary.`,
       );
     } else if (isContract(mission)) {
+      // Salvage terms of a contract this build cannot process are not
+      // applied (S1b); the outcome is left unallocated, not guessed at.
+      if (isContractInert(mission)) {
+        return {
+          campaign,
+          summary: {
+            matchId: outcome.matchId,
+            allocationCreated: false,
+            mercenaryCandidateCount: 0,
+            employerCandidateCount: 0,
+            skippedDuplicate: false,
+            skippedReason: 'inert-contract',
+          },
+          events: [],
+        };
+      }
       contract = mission;
     }
   }

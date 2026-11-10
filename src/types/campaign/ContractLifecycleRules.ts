@@ -78,6 +78,11 @@ export function requiredLifecycleReaderVersion(
     : null;
 }
 
+/** Whether a required rules level is above what this build's processors implement. */
+export function exceedsReaderLevel(required: number): boolean {
+  return required > LIFECYCLE_RULES_READER_MAX;
+}
+
 export type ContractInertReason = 'newer-rules' | 'unreadable';
 
 /**
@@ -92,7 +97,7 @@ export function contractInertReason(contract: {
     contract.lifecycleRulesVersion,
   );
   if (required === null) return 'unreadable';
-  return required > LIFECYCLE_RULES_READER_MAX ? 'newer-rules' : null;
+  return exceedsReaderLevel(required) ? 'newer-rules' : null;
 }
 
 export function isContractInert(contract: {

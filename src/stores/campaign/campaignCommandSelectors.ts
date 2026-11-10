@@ -33,6 +33,7 @@ import {
 } from '@/lib/campaign/dayReportTypes';
 import { normalizeMarketOffers } from '@/lib/campaign/markets/offerLifecycle';
 import { isRosterPilotSalaryEligible } from '@/lib/campaign/personnel/statusRules';
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { getAllUnits } from '@/types/campaign/Force';
 import { isContract } from '@/types/campaign/Mission';
@@ -267,8 +268,10 @@ export function selectActiveContracts(
   campaign: ICampaign | null,
 ): readonly IContract[] {
   if (!campaign) return EMPTY_CONTRACT_OFFERS;
+  // An inert contract (S1b) is neither generated against nor counted active.
   return getActiveContracts(campaign).filter(
-    (contract) => contract.status === MissionStatus.ACTIVE,
+    (contract) =>
+      contract.status === MissionStatus.ACTIVE && !isContractInert(contract),
   );
 }
 

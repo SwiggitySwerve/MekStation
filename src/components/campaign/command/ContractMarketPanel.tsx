@@ -20,6 +20,7 @@ import type { IContract } from '@/types/campaign/Mission';
 
 import { CampaignListCard } from '@/components/campaign/CampaignListCard';
 import { Badge } from '@/components/ui';
+import { contractInertReason } from '@/types/campaign/ContractLifecycleRules';
 
 import { CommandEmpty } from './CommandStates';
 
@@ -74,6 +75,15 @@ export function OfferCard({
   blockedReason,
   declineBlockedReason = blockedReason,
 }: OfferCardProps): React.ReactElement {
+  // An offer this build cannot process cannot be accepted (S1b); it says why.
+  const inertReason = contractInertReason(offer);
+  const acceptBlockedReason =
+    blockedReason ??
+    (inertReason === null
+      ? undefined
+      : inertReason === 'newer-rules'
+        ? 'This offer uses rules from a newer version of MekStation. Update to accept it.'
+        : 'This offer has data this version of MekStation cannot read.');
   return (
     <CampaignListCard
       testId={`offer-card-${offer.id}`}
@@ -111,13 +121,23 @@ export function OfferCard({
           >
             Salvage: {offer.salvageRights}
           </Badge>
+          {inertReason && (
+            <Badge
+              className="bg-amber-500/20 text-amber-400"
+              data-testid={`offer-inert-${offer.id}`}
+            >
+              {inertReason === 'newer-rules'
+                ? 'Needs a Newer MekStation'
+                : 'Unreadable Contract Data'}
+            </Badge>
+          )}
 
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => onAccept(offer.id)}
-              disabled={isBusy || !!blockedReason}
-              title={blockedReason}
+              disabled={isBusy || !!acceptBlockedReason}
+              title={acceptBlockedReason}
               className="bg-accent text-surface-base hover:bg-accent/90 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               data-testid={`offer-accept-${offer.id}`}
             >

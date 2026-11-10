@@ -26,6 +26,7 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { Transaction } from '@/types/campaign/Transaction';
 
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import { isContract, type IMission } from '@/types/campaign/Mission';
 import { logger } from '@/utils/logger';
 
@@ -95,6 +96,9 @@ export const contractProcessor: IDayProcessor = {
         );
         continue;
       }
+      // Never closed or paid by a build that cannot process it (S1b); it
+      // stays queued for a build that can.
+      if (isContractInert(mission)) continue;
 
       const closure = applyContractClosure(
         { ...campaign, finances: { balance, transactions } },

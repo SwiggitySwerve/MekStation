@@ -22,6 +22,7 @@ import type {
 } from '@/lib/interventions/GmCampaignArtifactUseGuard';
 
 import { ICampaign } from '@/types/campaign/Campaign';
+import { isContractInert } from '@/types/campaign/ContractLifecycleRules';
 import {
   AtBContractType,
   CONTRACT_TYPE_DEFINITIONS,
@@ -294,6 +295,13 @@ export function acceptContract(
   if (refused) return refused;
   if (campaign.missions.has(contract.id)) {
     throw new Error(`Contract ${contract.id} already exists in campaign`);
+  }
+  // An offer this build cannot process must not be signed into the campaign
+  // (S1b): it would be terminalized and paid by the legacy rules.
+  if (isContractInert(contract)) {
+    throw new Error(
+      `Contract ${contract.id} is inert: it needs a newer version of MekStation`,
+    );
   }
 
   // The durable accept command writes this same object without an

@@ -472,6 +472,40 @@ describe('accepted contract materializes into the source record', () => {
     expect(await journal.getCommandReceipt('cmd-second-actor')).toBeNull();
   });
 
+  it('(g2) refuses an offer needing rules newer than this build, appending nothing (S1b)', async () => {
+    seedSourceRecord({
+      missions: [],
+      contractMarket: {
+        offers: [
+          {
+            ...offer(STORED_ID),
+            lifecycleRulesVersion: 2,
+            lifecycle: {
+              termDays: 90,
+              results: [],
+              installments: { paidThrough: 0, creditedCents: 0 },
+            },
+          },
+        ],
+        declinedOfferIds: [],
+      },
+    });
+    const db = getSQLiteService().getDatabase();
+    const before = readRow(db);
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-inert');
+
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'offer-inert',
+    });
+    expect(await journal.getCommandReceipt('cmd-inert')).toBeNull();
+    const after = readRow(db);
+    expect(after.payload).toBe(before.payload);
+    expect(after.version).toBe(before.version);
+  });
+
   it('(g) refuses an offer that is an object but not a contract, appending nothing', async () => {
     seedSourceRecord({
       missions: [],
