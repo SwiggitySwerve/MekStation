@@ -469,6 +469,21 @@ one owning module for grouped accumulation and cap arithmetic. Consolidation
 SHALL preserve each adapter's existing key policy, guards, operation order and
 numeric output before native identity, quantity or grouping corrections.
 
+Native offensive ammunition cap diagnostics SHALL exclude one-shot and infantry
+weapons according to MegaMek 48fcb2f64 `BVCalculator.java:1230-1231`. Ammunition
+presence SHALL NOT gate a normal launcher's cap. Diagnostic identity corrections
+SHALL preserve compatibility arithmetic and catalog resolution.
+
+#### Scenario: Native launcher exclusions are independent of ammunition
+
+- **GIVEN** normal, one-shot and infantry weapons with represented ammunition identities
+- **WHEN** the shared owner assembles native cap diagnostics
+- **THEN** normal launchers SHALL retain their listed-BV caps even without ammunition
+- **AND** one-shot and infantry weapons SHALL supply no offensive cap, even with matching ammunition
+- **AND** a primitive AC diagnostic group SHALL replace only that mount's compatibility contribution
+- **AND** ordinary AC mounts in the same compatibility group SHALL retain their caps
+- **AND** ammunition BV, totals, source data and catalog aliases SHALL remain unchanged
+
 #### Scenario: Preserving existing cap policies
 
 - **WHEN** offensive ammunition cap mechanics are consolidated
