@@ -3,7 +3,7 @@
  *
  * Tests for AtB battle chance calculation system including:
  * - BASE_BATTLE_CHANCE constants per combat role
- * - calculateBattleTypeMod() with morale level modifier
+ * - the fixed scenario-type roll offset (morale has no effect on it)
  * - checkForBattle() with injectable random function
  *
  * @module campaign/scenario/__tests__/battleChance
@@ -18,10 +18,11 @@ import {
   type ICombatTeam,
 } from '@/types/campaign/scenario/scenarioTypes';
 
+import * as battleChanceModule from '../battleChance';
 import {
   BASE_BATTLE_CHANCE,
-  calculateBattleTypeMod,
   checkForBattle,
+  SCENARIO_TYPE_ROLL_OFFSET,
   type RandomFn,
 } from '../battleChance';
 
@@ -134,64 +135,20 @@ describe('BASE_BATTLE_CHANCE', () => {
 });
 
 // =============================================================================
-// calculateBattleTypeMod Tests
+// Scenario-type roll offset (no morale effect)
 // =============================================================================
 
-describe('calculateBattleTypeMod', () => {
-  it('should return 1 for STALEMATE morale', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.STALEMATE);
-    expect(mod).toBe(1);
+describe('scenario-type roll offset', () => {
+  it('is the fixed 1 that STALEMATE always had, the only level any run has used', () => {
+    expect(SCENARIO_TYPE_ROLL_OFFSET).toBe(1);
   });
 
-  it('should return -4 for ADVANCING morale (+1 from STALEMATE)', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.ADVANCING);
-    expect(mod).toBe(-4);
-  });
-
-  it('should return -9 for DOMINATING morale (+2 from STALEMATE)', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.DOMINATING);
-    expect(mod).toBe(-9);
-  });
-
-  it('should return -14 for OVERWHELMING morale (+3 from STALEMATE)', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.OVERWHELMING);
-    expect(mod).toBe(-14);
-  });
-
-  it('should return 6 for WEAKENED morale (-1 from STALEMATE)', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.WEAKENED);
-    expect(mod).toBe(6);
-  });
-
-  it('should return 11 for CRITICAL morale (-2 from STALEMATE)', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.CRITICAL);
-    expect(mod).toBe(11);
-  });
-
-  it('should return 16 for ROUTED morale (-3 from STALEMATE)', () => {
-    const mod = calculateBattleTypeMod(AtBMoraleLevel.ROUTED);
-    expect(mod).toBe(16);
-  });
-
-  it('should follow formula: 1 + (STALEMATE.ordinal - current.ordinal) * 5', () => {
-    // Test all morale levels follow the formula
-    const moraleOrder = [
-      AtBMoraleLevel.ROUTED,
-      AtBMoraleLevel.CRITICAL,
-      AtBMoraleLevel.WEAKENED,
-      AtBMoraleLevel.STALEMATE,
-      AtBMoraleLevel.ADVANCING,
-      AtBMoraleLevel.DOMINATING,
-      AtBMoraleLevel.OVERWHELMING,
-    ];
-
-    const stalemateIndex = 3; // STALEMATE is at index 3
-
-    moraleOrder.forEach((morale, index) => {
-      const expected = 1 + (stalemateIndex - index) * 5;
-      const actual = calculateBattleTypeMod(morale);
-      expect(actual).toBe(expected);
-    });
+  it('has no morale-dependent form: calculateBattleTypeMod is gone', () => {
+    // The pin has no morale roll modifier (the weekly AtB generator that had one is
+    // retired, CampaignNewDayManager.java:2292-2293), so there is nothing to compute.
+    expect(
+      (battleChanceModule as Record<string, unknown>).calculateBattleTypeMod,
+    ).toBeUndefined();
   });
 });
 

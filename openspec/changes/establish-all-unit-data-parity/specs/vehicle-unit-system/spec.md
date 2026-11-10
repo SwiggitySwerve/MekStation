@@ -1316,10 +1316,10 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 
 ### Requirement: The native manipulator and Nova CEWS spellings share one identity
 
-The BLK spelling `Manipulator (Non-Mech/Non-Battle Armor)` and the display name
-`Nova CEWS` SHALL resolve, in the BV catalog and the unit loader alike, to the
-existing manipulator (0.01 tons) and NovaCEWS (1.5 tons, heat 2) entries through
-the native identity table, without a catalog change.
+The system SHALL resolve the BLK spelling `Manipulator (Non-Mech/Non-Battle
+Armor)` and the display name `Nova CEWS`, in the BV catalog and the unit loader
+alike, to the existing manipulator (0.01 tons) and NovaCEWS (1.5 tons, heat 2)
+entries through the native identity table, without a catalog change.
 
 Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `EquipmentTypeLookup.java:342`, `MiscType.java:6192-6193,7694-7703`.

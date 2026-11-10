@@ -26,8 +26,8 @@ verified corpus conformance and the strict CI gate turned green.
 
 The public ``validate_<shape>`` functions reuse a single compiled
 ``Draft7Validator`` per shape (compile-once-reuse). Compilation is lazy
-so importers that only need one shape don't pay the upfront cost of
-loading every schema file.
+so only requested shape validators are compiled. Local reference documents
+are registered without enabling network retrieval.
 """
 
 from __future__ import annotations
@@ -37,6 +37,8 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from jsonschema import Draft7Validator
+from referencing import Registry, Resource
+from referencing.exceptions import NoSuchResource
 
 
 # ---------------------------------------------------------------------------
@@ -50,6 +52,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _SCHEMA_DIR = _REPO_ROOT / "public" / "data" / "equipment" / "_schema"
 
 _SCHEMA_FILES = {
+    "technology_advancements": "technology-advancements-schema.json",
     "source_provenance": "source-provenance-schema.json",
     "weapon": "weapon-schema.json",
     "unit": "unit-schema.json",
@@ -61,6 +64,19 @@ _SCHEMA_FILES = {
 
 # Lazy-compiled validators. Populated on first call to ``_get_validator``.
 _VALIDATORS: Dict[str, Draft7Validator] = {}
+
+
+def _deny_remote_schema(uri: str) -> Resource:
+    """Only registered local schemas may satisfy references; never fetch a URI."""
+    raise NoSuchResource(ref=uri)
+
+
+def _local_schema_registry() -> Registry:
+    resources = []
+    for filename in _SCHEMA_FILES.values():
+        document = json.loads((_SCHEMA_DIR / filename).read_text(encoding="utf-8"))
+        resources.append((document["$id"], Resource.from_contents(document)))
+    return Registry(retrieve=_deny_remote_schema).with_resources(resources)
 
 
 def _get_validator(shape: str) -> Draft7Validator:
@@ -84,7 +100,7 @@ def _get_validator(shape: str) -> Draft7Validator:
         )
     with schema_path.open(encoding="utf-8") as fh:
         schema = json.load(fh)
-    validator = Draft7Validator(schema)
+    validator = Draft7Validator(schema, registry=_local_schema_registry())
     _VALIDATORS[shape] = validator
     return validator
 
@@ -125,6 +141,11 @@ def _validate(shape: str, data: Any) -> List[str]:
 # ---------------------------------------------------------------------------
 
 
+def validate_technology_advancements(data: Any) -> List[str]:
+    """Validate the native-name sidecar without injecting or deriving facts."""
+    return _validate("technology_advancements", data)
+
+
 def validate_source_provenance(data: Any) -> List[str]:
     """Validate source origins using the canonical standalone contract."""
     return _validate("source_provenance", data)
@@ -163,6 +184,7 @@ def validate_physical_weapon(data: Any) -> List[str]:
 # Lookup map used by ``run_schema_validation_only.py`` and any future
 # harness that wants to iterate every shape generically.
 SHAPE_VALIDATORS = {
+    "technology_advancements": validate_technology_advancements,
     "source_provenance": validate_source_provenance,
     "weapon": validate_weapon,
     "unit": validate_unit,
@@ -174,6 +196,7 @@ SHAPE_VALIDATORS = {
 
 
 __all__ = [
+    "validate_technology_advancements",
     "validate_source_provenance",
     "validate_weapon",
     "validate_unit",
