@@ -50,7 +50,8 @@ recorded in `receipt.scope` with `populationCount`, so a narrowed run can never 
 
 ## Files
 
-`run.mjs` orchestrates; `join.mjs` reads the join and builds the plan; `capture.jest.js` is the Jest/jsdom capture
+`run.mjs` orchestrates; `join.mjs` reads the join and builds the plan; the status-bar read itself is the shared observer
+`scripts/lib/runtime-parity/status-observer.js` (one owner, also used by the reopen capture); `capture.jest.js` is the Jest/jsdom capture
 (selected only by `config/jest/runtime-path-bv.config.js`, and not named `*.test.*`, so default discovery never runs it);
 `report.mjs` maps records to rows and counts. Tests: `node --test scripts/runtime-path-bv/run.test.mjs`.
 Families: battlemechs first; BA/infantry and the others follow.
