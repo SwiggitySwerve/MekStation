@@ -56,7 +56,7 @@ Row titles carry `@E2E-NN` tags (for example `@E2E-04` in `e2e/gm-two-player-aut
 
 ## Performance budgets
 
-Controlled fixture (`src/lib/multiplayer/performance/controlledLoopbackFixture.ts`; tasks 23.1): 20 warm-up commands excluded from percentiles, at least 200 measured commands, nearest-rank percentiles, 100-event / 512-KiB replay chunks, 256-envelope / 1-MiB queue bound, 128-MiB server and 64-MiB per-client post-warm memory-growth ceilings. Product constants asserted against those ceilings: `REPLAY_CHUNK_SIZE` ≤ 100, `MAX_BUFFERED_BYTES` ≤ 1 MiB.
+Controlled fixture (`src/lib/multiplayer/performance/controlledLoopbackFixture.ts`; tasks 23.1): 20 warm-up commands excluded from percentiles, at least 200 measured commands, nearest-rank percentiles, 100-event replay chunks and a 256-envelope queue bound. Byte maxima, browser heap and server RSS/heap growth remain archived advisory observations; their magnitude does not fail acceptance. Product backpressure thresholds remain unchanged. Production viewer-admission tests and the tactical backpressure pack prove that slow-viewer issuance stops at the high-water mark, healthy viewers progress, and acknowledgements/rejoin replay allow convergence. These proofs do not establish the absence of every memory leak or bound total campaign-channel heap. See `openspec/changes/advisory-resource-observations/specs/e2e-testing/spec.md` for the owner-approved replacement contract.
 
 Gates (23.2): p95 accepted-command-to-eligible-render ≤ 250 ms; p99 ≤ 750 ms; 1,000-event cold catch-up ≤ 2,000 ms on `ControlledLoopbackPerformanceRunner:controlled-loopback-local`. The 2,000 ms Playwright wait is `functionalWaitMs` only.
 

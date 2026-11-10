@@ -15,7 +15,10 @@
 import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
 import { REPLAY_CHUNK_SIZE } from '@/types/multiplayer/Protocol';
 
-import { MAX_BUFFERED_BYTES } from '../../server/ServerMatchBroadcaster';
+import {
+  MAX_VIEWER_UNACKED,
+  ViewerDeliveryCursors,
+} from '../../server/projection/ViewerDeliveryCursors';
 import {
   CONTROLLED_LOOPBACK_FIXTURE,
   ControlledLoopbackPerformanceRunner,
@@ -72,6 +75,35 @@ describe('nearest-rank percentile', () => {
 });
 
 describe('committed fixture configuration', () => {
+  it('pauses a slow viewer at the product high-water mark while healthy delivery continues, then drains and converges', () => {
+    const cursors = new ViewerDeliveryCursors();
+    const tail = Array.from({ length: MAX_VIEWER_UNACKED * 3 }, (_, n) => n);
+    for (const authority of tail) {
+      if (cursors.admit('slow', authority)) cursors.assign('slow', authority);
+      expect(cursors.unacked('slow')).toBeLessThanOrEqual(MAX_VIEWER_UNACKED);
+      expect(cursors.admit('healthy', authority)).toBe(true);
+      cursors.acknowledge('healthy', cursors.assign('healthy', authority));
+    }
+    expect(cursors.issued('slow')).toBe(MAX_VIEWER_UNACKED);
+    expect(cursors.isIsolated('slow')).toBe(true);
+    expect(cursors.issued('healthy')).toBe(tail.length);
+    const firstMissed = cursors.firstMissedAuthoritySequence(
+      'slow',
+      MAX_VIEWER_UNACKED - 1,
+    );
+    expect(firstMissed).toBe(MAX_VIEWER_UNACKED);
+    cursors.acknowledge('slow', MAX_VIEWER_UNACKED - 1);
+    expect(cursors.isIsolated('slow')).toBe(false);
+    for (const authority of tail.slice(firstMissed ?? 0)) {
+      expect(cursors.admit('slow', authority)).toBe(true);
+      cursors.acknowledge('slow', cursors.assign('slow', authority));
+    }
+    expect(cursors.issued('slow')).toBe(cursors.issued('healthy'));
+    expect(cursors.unacked('slow')).toBe(0);
+    expect(
+      cursors.firstMissedAuthoritySequence('slow', tail.length - 1),
+    ).toBeNull();
+  });
   it('commits the letter of task 23.1', () => {
     expect(CONTROLLED_LOOPBACK_FIXTURE).toEqual({
       runnerClass: 'ControlledLoopbackPerformanceRunner',
@@ -80,12 +112,8 @@ describe('committed fixture configuration', () => {
       representativeCommandMix: ['AdvanceDay', 'AllocateSalvage', 'SpendFunds'],
       latencyBudgetsMs: { p95: 250, p99: 750 },
       coldCatchUp: { events: 1_000, budgetMs: 2_000 },
-      replayChunk: { maxEvents: 100, maxBytes: 524_288 },
-      connectionQueue: { maxEnvelopes: 256, maxBytes: 1_048_576 },
-      memoryGrowthCeilingBytes: {
-        server: 134_217_728,
-        browserContext: 67_108_864,
-      },
+      replayChunk: { maxEvents: 100 },
+      connectionQueue: { maxEnvelopes: 256 },
       functionalWaitMs: 2_000,
     });
   });
@@ -97,9 +125,6 @@ describe('committed fixture configuration', () => {
     // reaches the bound.
     expect(REPLAY_CHUNK_SIZE).toBeLessThanOrEqual(
       CONTROLLED_LOOPBACK_FIXTURE.replayChunk.maxEvents,
-    );
-    expect(MAX_BUFFERED_BYTES).toBeLessThanOrEqual(
-      CONTROLLED_LOOPBACK_FIXTURE.connectionQueue.maxBytes,
     );
   });
 
@@ -196,6 +221,40 @@ describe('ControlledLoopbackPerformanceRunner', () => {
     maxReplayChunkBytes: 100_000,
   };
 
+  it('archives former byte heap and RSS breaches without changing the verdict', () => {
+    const runner = seeded('advisory-bytes', 10, new Array(200).fill(10));
+    const observations = {
+      ...healthyObservations,
+      peakQueueBytes: 20_000_000,
+      maxReplayChunkBytes: 2_000_000,
+      serverMemory: {
+        measured: {
+          rssGrowthBytes: 2_000_000_000,
+          heapGrowthBytes: 1_000_000_000,
+        },
+        catchUp: {
+          rssGrowthBytes: 2_000_000_000,
+          heapGrowthBytes: 1_000_000_000,
+        },
+        tailBuild: healthyObservations.serverMemory.tailBuild,
+      },
+      contextMemoryGrowthBytes: { 'future-gm': 1_000_000_000 },
+    };
+    expect(runner.evaluate(observations).passed).toBe(true);
+    const report = runner.buildReport(observations, {
+      node: 'node',
+      chromium: 'chromium',
+      os: 'test',
+      runnerClass: CONTROLLED_LOOPBACK_FIXTURE.runnerClass,
+    });
+    expect(report.memory.server).toEqual(observations.serverMemory);
+    expect(report.memory.contextGrowthBytes).toEqual(
+      observations.contextMemoryGrowthBytes,
+    );
+    expect(report.queue.peakBytes).toBe(observations.peakQueueBytes);
+    expect(report.replayChunk.maxBytes).toBe(observations.maxReplayChunkBytes);
+  });
+
   it('excludes warm-up commands from the measured population', () => {
     const runner = seeded('run-a', 5_000, new Array(200).fill(10));
     expect(runner.measuredCount).toBe(200);
@@ -284,12 +343,7 @@ describe('ControlledLoopbackPerformanceRunner', () => {
       'p99 900ms exceeds 750ms',
       'cold catch-up 2500ms exceeds 2000ms',
       'replay chunk 101 events exceeds 100',
-      'replay chunk 600000 bytes exceeds 524288',
       'queue 300 envelopes exceeds 256',
-      'queue 2000000 bytes exceeds 1048576',
-      'server memory growth 200000000 bytes exceeds 134217728',
-      'catch-up memory growth 300000000 bytes exceeds 134217728',
-      'future-gm memory growth 100000000 bytes exceeds 67108864',
     ]);
   });
 
@@ -320,7 +374,6 @@ describe('ControlledLoopbackPerformanceRunner', () => {
       server: healthyObservations.serverMemory,
       contextGrowthBytes: healthyObservations.contextMemoryGrowthBytes,
       contextHeapBytes: healthyObservations.contextHeapBytes,
-      ceilings: CONTROLLED_LOOPBACK_FIXTURE.memoryGrowthCeilingBytes,
     });
     // Round-trips through JSON, because that is what gets archived.
     const parsed: unknown = JSON.parse(JSON.stringify(report));
