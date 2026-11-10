@@ -625,45 +625,19 @@ export function mapCockpitType(source: string): CockpitType {
 // ============================================================================
 
 /**
- * Map source config string to MechConfiguration enum
+ * Map a source config string to MechConfiguration the way the pinned loader
+ * does (MegaMek 48fcb2f64 MtfFile.java:283-310): case-sensitive `contains`
+ * tested in the order QuadVee, Quad, LAM, Tripod, and Biped for everything
+ * else, including an unmatched value. The OmniMek and FrankenMek suffixes never
+ * change the geometry.
  */
-const MECH_CONFIG_MAP: Record<string, MechConfiguration> = {
-  Biped: MechConfiguration.BIPED,
-  'Biped Omnimech': MechConfiguration.BIPED,
-  Quad: MechConfiguration.QUAD,
-  'Quad Omnimech': MechConfiguration.QUAD,
-  Tripod: MechConfiguration.TRIPOD,
-  'Tripod Omnimech': MechConfiguration.TRIPOD,
-  LAM: MechConfiguration.LAM,
-  QuadVee: MechConfiguration.QUADVEE,
-};
-
 export function mapMechConfiguration(source: string): MechConfiguration {
-  const normalized = source.trim();
+  const config = source.trim();
 
-  // Direct match
-  if (MECH_CONFIG_MAP[normalized]) {
-    return MECH_CONFIG_MAP[normalized];
-  }
-
-  // Fuzzy matching
-  const lowerSource = normalized.toLowerCase();
-
-  if (lowerSource.includes('quad') && lowerSource.includes('vee')) {
-    return MechConfiguration.QUADVEE;
-  }
-
-  if (lowerSource.includes('quad')) {
-    return MechConfiguration.QUAD;
-  }
-
-  if (lowerSource.includes('tripod')) {
-    return MechConfiguration.TRIPOD;
-  }
-
-  if (lowerSource.includes('lam')) {
-    return MechConfiguration.LAM;
-  }
+  if (config.includes('QuadVee')) return MechConfiguration.QUADVEE;
+  if (config.includes('Quad')) return MechConfiguration.QUAD;
+  if (config.includes('LAM')) return MechConfiguration.LAM;
+  if (config.includes('Tripod')) return MechConfiguration.TRIPOD;
 
   return MechConfiguration.BIPED;
 }
