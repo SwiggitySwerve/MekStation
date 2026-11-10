@@ -24,7 +24,8 @@ async function main(): Promise<void> {
 
   const loader = new UnitLoaderService();
   const units = Object.fromEntries(
-    Object.entries(saveLosses.units).map(([id, { sourcePath }]) => {
+    Object.entries(saveLosses.units).map(([id, pinned]) => {
+      const { sourcePath } = pinned;
       const canonical: unknown = JSON.parse(readFileSync(sourcePath, 'utf8'));
       const definition = parseUnit(canonical, sourcePath);
       if (definition.id !== id) {
@@ -37,12 +38,13 @@ async function main(): Promise<void> {
       if (!entries) {
         throw new Error(`Loader did not provide diagnostics for ${id}`);
       }
-      return [id, { sourcePath, entries }];
+      // Notice presentation is pinned separately at groupingSourceCommit.
+      return [id, { ...pinned, entries }];
     }),
   );
   writeFileSync(
     'e2e/fixtures/mech-crew-save-losses.json',
-    JSON.stringify({ sourceCommit, units }, null, 2) + '\n',
+    JSON.stringify({ ...saveLosses, sourceCommit, units }, null, 2) + '\n',
   );
 }
 
