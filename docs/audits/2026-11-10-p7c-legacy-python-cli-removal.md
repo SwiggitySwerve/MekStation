@@ -1,6 +1,7 @@
 # P7c: retire the generic legacy conversion CLI
 
-Baseline: `4fa934e76`, fetched `origin/main`. Remove the five `data_converter`
+Baseline: `943f5354db0a8f88bd567e91ec4565ed83d3c5a7`, the verified parent of the
+deletion commit and current `origin/main`. Remove the five `data_converter`
 modules as one unused CLI: its entry point, MTF reader, BLK reader, metadata
 helpers and UnitVerifierOptions XML reader. No active family converter calls
 them. No replacement logic or source-value policy is introduced.
