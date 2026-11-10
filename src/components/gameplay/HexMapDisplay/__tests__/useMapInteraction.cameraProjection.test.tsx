@@ -79,6 +79,38 @@ describe('projectMapPoint (canonical layer-transform math)', () => {
 });
 
 describe('centerOn projection routing (audit G: isometric centering)', () => {
+  it('cancels the latest ease RAF on unmount after the animation advances', () => {
+    const requestFrame = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockReturnValueOnce(41)
+      .mockReturnValueOnce(42);
+    const cancelFrame = jest
+      .spyOn(window, 'cancelAnimationFrame')
+      .mockImplementation(() => {});
+    jest.spyOn(performance, 'now').mockReturnValue(0);
+
+    try {
+      const { result, unmount } = setupInteraction(7);
+      act(() => {
+        result.current.centerOn({ q: 2, r: -1 });
+      });
+      expect(requestFrame).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        requestFrame.mock.calls[0][0](16);
+      });
+      expect(requestFrame).toHaveBeenCalledTimes(2);
+      expect(cancelFrame).not.toHaveBeenCalled();
+
+      unmount();
+
+      expect(cancelFrame).toHaveBeenCalledTimes(1);
+      expect(cancelFrame).toHaveBeenCalledWith(42);
+    } finally {
+      jest.restoreAllMocks();
+    }
+  });
+
   it('centers on the raw hex pixel in top-down mode', () => {
     const { result } = setupInteraction(7);
     act(() => {
