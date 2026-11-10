@@ -35,16 +35,48 @@ export function useServiceWorker(
       return;
     }
 
+    const build = window.__NEXT_DATA__?.buildId;
+    const workerPath =
+      typeof build === 'string' && build.length > 0
+        ? `/service-worker.js?build=${encodeURIComponent(build)}`
+        : '/service-worker.js';
+    const workerUrl = new URL(workerPath, window.location.href).href;
+    const reportLoadedBuild = () => {
+      navigator.serviceWorker.controller?.postMessage({
+        type: 'BUILD_READY',
+        build,
+      });
+    };
+    const handleWorkerMessage = (event: MessageEvent<unknown>) => {
+      if (
+        typeof event.data === 'object' &&
+        event.data !== null &&
+        'type' in event.data &&
+        event.data.type === 'REPORT_BUILD'
+      )
+        reportLoadedBuild();
+    };
+    const offerUpdate = (worker: ServiceWorker | null) => {
+      if (!worker) return;
+      setState((prev) => ({ ...prev, isWaiting: true }));
+      // A page already loaded from the network can safely activate its build.
+      // An old page keeps the update waiting until reload or skipWaiting().
+      if (worker.scriptURL === workerUrl) {
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      }
+    };
+
     // Reload ONLY when an EXISTING controller is replaced — i.e. a new
     // service worker took over after an update. On the very first install
     // there is no previous controller, but the SW's `clients.claim()`
-    // (service-worker.js:39) still fires `controllerchange`; the old
+    // still fires `controllerchange`; the old
     // unconditional reload threw away every fresh visitor's first
     // interaction seconds after first paint — and poisoned e2e runs,
     // where every Playwright test opens a fresh browser context and the
     // first-install reload landed mid-test (e2e triage RC9/RC14).
     let hadController = Boolean(navigator.serviceWorker.controller);
     const handleControllerChange = () => {
+      reportLoadedBuild();
       if (!hadController) {
         // First install just claimed the page — keep it, no reload.
         hadController = true;
@@ -61,10 +93,11 @@ export function useServiceWorker(
       'controllerchange',
       handleControllerChange,
     );
+    navigator.serviceWorker.addEventListener('message', handleWorkerMessage);
 
     // Register service worker
     navigator.serviceWorker
-      .register('/service-worker.js')
+      .register(workerPath)
       .then((registration) => {
         setState((prev) => ({
           ...prev,
@@ -73,12 +106,8 @@ export function useServiceWorker(
         }));
 
         // Check for waiting service worker
-        if (registration.waiting) {
-          setState((prev) => ({
-            ...prev,
-            isWaiting: true,
-          }));
-        }
+        reportLoadedBuild();
+        offerUpdate(registration.waiting);
 
         // Listen for waiting service worker
         registration.addEventListener('updatefound', () => {
@@ -90,10 +119,7 @@ export function useServiceWorker(
                 newWorker.state === 'installed' &&
                 navigator.serviceWorker.controller
               ) {
-                setState((prev) => ({
-                  ...prev,
-                  isWaiting: true,
-                }));
+                offerUpdate(newWorker);
               }
             });
           }
@@ -115,6 +141,10 @@ export function useServiceWorker(
       navigator.serviceWorker.removeEventListener(
         'controllerchange',
         handleControllerChange,
+      );
+      navigator.serviceWorker.removeEventListener(
+        'message',
+        handleWorkerMessage,
       );
     };
   }, [state.isSupported, reloadPage]);
