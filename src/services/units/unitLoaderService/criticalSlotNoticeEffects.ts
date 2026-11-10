@@ -9,7 +9,8 @@ export type {
 } from './criticalSlotNoticeTypes';
 
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
-import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
+
+import { matchCriticalSlotNoticeIdentity } from './criticalSlotNoticeMatcher';
 
 export type CriticalSlotNoticeKind =
   | 'ammo'
@@ -41,6 +42,7 @@ function effect(
   testName: string,
   pattern?: RegExp,
   excludePattern?: RegExp,
+  testFile = evidenceFile,
 ): ICriticalSlotNoticeEffect {
   return {
     id,
@@ -49,7 +51,7 @@ function effect(
     consequence,
     pattern,
     excludePattern,
-    evidence: { unit, testFile: evidenceFile, testName },
+    evidence: { unit, testFile, testName },
   };
 }
 
@@ -245,6 +247,20 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
     kind: 'other',
     title: 'Other',
     effects: [
+      // parity-3.3-critonly/COUNT.md:39 assigns the already-supported bays to Celerity.
+      // Recovery remains guarded by the real loader (MiscType.java:12413-12420,
+      // MegaMek 48fcb2f64); this broad classification never grants admission.
+      effect(
+        'bomb-bay',
+        'Bomb bays',
+        CriticalSlotRecoveryResponsibility.CELERITY,
+        unestablished,
+        'Wasp LAM WSP-110',
+        'recovers all five native Wasp bomb bays once',
+        /bombbay/,
+        undefined,
+        'src/services/units/unitLoaderService/__tests__/lamMass.test.ts',
+      ),
       effect(
         'tracks',
         'Tracks',
@@ -353,53 +369,6 @@ export const CRITICAL_SLOT_NOTICE_RULES: readonly INoticeKindRule[] = [
 
 export function classifyCriticalSlotNoticeIdentity(
   identity: ICriticalSlotNoticeIdentity,
-): {
-  readonly kind: CriticalSlotNoticeKind;
-  readonly title: string;
-  readonly ruleId: string;
-  readonly effect: ICriticalSlotNoticeEffect;
-} {
-  const candidates = [
-    identity.lookupToken,
-    identity.resolvedId,
-    identity.equipmentId,
-    identity.equipmentName,
-    identity.registryId,
-    identity.registryName,
-  ].filter((value): value is string => typeof value === 'string');
-  const normalized = candidates.map((value) =>
-    value.toLowerCase().replace(/[^a-z0-9]/g, ''),
-  );
-  for (const [index, rule] of CRITICAL_SLOT_NOTICE_RULES.entries()) {
-    const categoryMatches =
-      rule.category !== undefined &&
-      rule.category === identity.equipmentCategory;
-    if (
-      rule.kind !== 'other' &&
-      !categoryMatches &&
-      !(
-        rule.canonicalHeatSinkIds &&
-        candidates.some((id) =>
-          HEAT_SINK_EQUIPMENT_IDS.some((canonical) => canonical === id),
-        )
-      ) &&
-      !normalized.some((value) => rule.pattern?.test(value))
-    )
-      continue;
-    const selected = rule.effects.find(
-      (item) =>
-        !normalized.some((value) => item.excludePattern?.test(value)) &&
-        (!item.pattern ||
-          normalized.some((value) => item.pattern?.test(value))),
-    );
-    if (!selected)
-      throw new Error(`Missing notice effect fallback: ${rule.kind}`);
-    return {
-      kind: rule.kind,
-      title: rule.title,
-      ruleId: `${String(index + 1).padStart(2, '0')}-${rule.kind.replace('_', '-')}`,
-      effect: selected,
-    };
-  }
-  throw new Error('Missing critical-slot notice classification fallback');
+): ReturnType<typeof matchCriticalSlotNoticeIdentity> {
+  return matchCriticalSlotNoticeIdentity(identity, CRITICAL_SLOT_NOTICE_RULES);
 }
