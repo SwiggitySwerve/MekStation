@@ -608,8 +608,8 @@ The 34 canonical codes (cross-referenced against MegaMek's `Server.processPiloti
 | `airmek_landing` | movement | AirMek landing-control PSR triggered |
 | `running_damaged_hip` | movement | Unit ran with a damaged hip |
 | `running_damaged_gyro` | movement | Unit ran with a damaged gyro |
-| `controlled_sideslip` | movement | Controlled lateral movement required a PSR |
-| `flanking_and_turning` | movement | Running or sprinting unit turned after moving more than one hex |
+| `controlled_sideslip` | movement | Controlled lateral movement required a PSR (VTOL, hover and WiGE only; never queued for a BattleMech, kept so older replays parse) |
+| `flanking_and_turning` | movement | Running or sprinting unit turned after moving more than one hex (VTOL, hover and WiGE only; never queued for a BattleMech, kept so older replays parse) |
 | `out_of_control` | movement | Movement became out of control and required a PSR |
 | `building_collapse` | movement | Building under unit's footprint collapsed |
 | `masc_failure` | movement | MASC system failed during attempted run |
