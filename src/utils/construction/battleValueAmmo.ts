@@ -406,6 +406,7 @@ export function projectMechAmmoBVPools(
       ) {
         projected.cap[native] -= bv;
         if (projected.cap[native] === 0) delete projected.cap[native];
+        addBVToAmmoCapGroup(projected.cap, diagnostic, bv);
       }
     }
     for (const [kind, entries] of [

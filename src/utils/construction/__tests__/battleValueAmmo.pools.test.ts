@@ -83,4 +83,15 @@ describe('diagnostic cap emission', () => {
     });
     expect(JSON.stringify(pools)).toBe(before);
   });
+
+  it('adds the replaced mount to an already represented native primitive group', () => {
+    expect(
+      projectMechAmmoBVPools(
+        { available: {}, cap: { 'AC:10': 123, 'AC_PRIMITIVE:10': 123 } },
+        undefined,
+        undefined,
+        { weapons: [{ id: 'ac-10p', bv: 123 }], bins: [] },
+      ),
+    ).toEqual({ available: {}, cap: { 'AC_PRIMITIVE:10': 246 } });
+  });
 });
