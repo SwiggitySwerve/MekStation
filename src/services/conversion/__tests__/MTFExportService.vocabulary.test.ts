@@ -41,6 +41,10 @@ const armors = [
   ['COMMERCIAL', 'Commercial'],
   ['IMPACT_RESISTANT', 'Impact-Resistant'],
   ['FERRO_LAMELLOR', 'Ferro-Lamellor'],
+  ['FERRO_FIBROUS_PROTO', 'Ferro-Fibrous Prototype'],
+  ['BALLISTIC_REINFORCED', 'Ballistic-Reinforced'],
+  ['HEAT_DISSIPATING', 'Heat-Dissipating'],
+  ['ANTI_PENETRATIVE_ABLATION', 'Anti-Penetrative Ablation'],
 ];
 const parser = new MTFParserService();
 const exporter = new MTFExportService();
@@ -150,8 +154,6 @@ describe('MTF component vocabulary preservation', () => {
     'UNSUPPORTED_ARMOR:Patchwork',
     'PATCHWORK',
     'FERRO_FIBROUS_PROTOTYPE',
-    'BALLISTIC_REINFORCED',
-    'HEAT_DISSIPATING',
     'AEROSPACE',
     'toString',
     '__proto__',
@@ -161,11 +163,10 @@ describe('MTF component vocabulary preservation', () => {
     expectRejected({ ...unit, armor: { ...unit.armor, type } }, type);
   });
   it.each([
-    'Patchwork',
-    'Ferro-Fibrous Prototype',
-    'Ballistic-Reinforced',
-    'Heat-Dissipating',
-    'Anti-Penetrative Ablation',
+    'Ferro-Fibrous PrototypeX',
+    'Ballistic-ReinforcedX',
+    'Heat-DissipatingX',
+    'Anti-Penetrative AblationX',
   ])('keeps unsupported source %s explicit', (name) => {
     const unit = parse(`chassis:Unsupported\nmass:50\narmor:${name}`);
     expect(UnitContract.safeParse(unit).success).toBe(false);
@@ -223,7 +224,8 @@ describe('MTF component vocabulary preservation', () => {
               .trim()
               .toLowerCase(),
       );
-      const supported = !!expected;
+      const patchwork = name === 'Patchwork';
+      const supported = !!expected || patchwork;
       if (expected) {
         let identity = expected[0];
         if (
@@ -246,7 +248,8 @@ describe('MTF component vocabulary preservation', () => {
       expect(unit.engine.rating).toBe(
         Number(source.fields.Engine.match(/^\d+/)?.[0]),
       );
-      if (!supported) expectRejected(unit, unit.armor.type);
+      if (patchwork) expectRejected(unit, 'Patchwork MTF export requires');
+      else if (!supported) expectRejected(unit, unit.armor.type);
       else if (unit.techBase === 'MIXED')
         expectRejected(unit, 'chassis-tech-context');
       else roundtrip(unit);
