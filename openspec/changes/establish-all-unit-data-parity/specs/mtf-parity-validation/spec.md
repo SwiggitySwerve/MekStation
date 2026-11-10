@@ -57,7 +57,7 @@ References SHALL come from a demonstrably compatible pinned MegaMek/MegaMekLab r
 
 ### Requirement: All-family semantic round trips
 
-Every supported source family SHALL preserve its domain facts through import, serialization, persistence and reload. Existing MTF text round-trip checks SHALL remain in place alongside semantic comparisons.
+SHALL preserve the domain facts of every supported source family through import, serialization, persistence and reload. Existing MTF text round-trip checks SHALL remain in place alongside semantic comparisons.
 
 #### Scenario: Reload a custom non-mech design
 
