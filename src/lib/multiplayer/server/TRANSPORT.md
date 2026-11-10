@@ -124,8 +124,8 @@ separate table above; these rules decide only which intents a status admits.
 A match pauses for three independent causes: a human seat inside its reconnect
 grace (`peer-pending`), an absent campaign GM on a co-op mission (`gm-absent`),
 and a faulted server-driven co-op opponent (`opponent-fault`). While any cause
-holds, engine intents are refused with `MATCH_PAUSED` and a reason naming the
-cause.
+holds, engine intents are refused privately with `MATCH_PAUSED` and the fixed reason
+`Match is paused.`. The public pause snapshot carries the cause.
 
 `MatchPaused` is a snapshot. Its required `reason` is the active cause with
 the highest precedence, from `opponent-fault` down to `peer-pending`;
@@ -240,3 +240,26 @@ reducer is reused, the transport underneath it is the server WebSocket.
 | Durable store + recovery     | Yes (M2)                     | No                        |
 | Receives further hardening   | Yes                          | No                        |
 | `mirrorSession` reducer      | Client-side, fed by server   | (legacy, not extended)    |
+
+## Private intent refusal replies
+
+`intentRefusal.ts` owns the existing Error codes' fixed wording. Detailed engine,
+authorization and store messages are logged through the server logger with match
+and intent IDs. They never become wire reasons. INVALID_INTENT and AUTH_REJECTED
+do not distinguish hidden-state causes. Unknown and foreign unit commands both
+receive INVALID_INTENT; unknown unit IDs cannot succeed silently while known
+foreign IDs return an identifiable authorization refusal.
+
+The socket binder supplies a connection key at admission. The host binds that key
+to the admitted socket and captures it in each command context. Intent, branch,
+lobby, forfeit, journal and publication failures call `sendRefusal`, which uses
+`safeSend` for that socket only. There is no player-wide or broadcast fallback;
+other sockets, including another connection for the same player, receive nothing
+from an intent refusal. Detach/release removes the binding. In-process and
+server-driven commands without an inbound socket retain their return values and
+server diagnostics without publishing Error frames. Existing fatal persistence
+shutdown, public pause frames, successful lobby/event broadcasts and fog admission
+are unchanged.
+
+Existing clients settle only their own pending intent IDs. No client waits for
+another player's refusal; observers simply stop receiving unrelated error toasts.
