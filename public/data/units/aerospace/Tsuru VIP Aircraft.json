@@ -77,6 +77,7 @@
     "1stclassquarters:10.0:1:-1::-1:0",
     "ejectionseats:20.0:0:-1::-1:0"
   ],
+  "sourceTechType": "IS Level 4",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5779,

@@ -68,6 +68,7 @@
     "crewquarters:21.0:0:-1::-1:0",
     "cargobay:46.5:1:4::-1:0"
   ],
+  "sourceTechType": "Clan Level 2",
   "crew": 4,
   "passengers": 0,
   "cargoCapacity": 46.5,

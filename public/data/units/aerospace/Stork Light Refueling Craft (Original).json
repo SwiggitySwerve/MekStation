@@ -70,6 +70,7 @@
   "transporters": [
     "LiquidCargoBay:23.93:1:1::-1:0"
   ],
+  "sourceTechType": "IS Level 2",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5143,

@@ -46,6 +46,7 @@
     "1stclassquarters:10.0:1:-1::-1:0",
     "cargobay:1.5:1:2::-1:0"
   ],
+  "sourceTechType": "IS Level 2",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 4402,

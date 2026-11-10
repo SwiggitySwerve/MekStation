@@ -50,6 +50,7 @@
   "transporters": [
     "troopspace:4.5"
   ],
+  "sourceTechType": "IS Level 3",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 3945,

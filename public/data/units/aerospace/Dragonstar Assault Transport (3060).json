@@ -74,6 +74,7 @@
     "steeragequarters:20.0:0:-1::-1:0",
     "cargobay:4.5:0:6::-1:0"
   ],
+  "sourceTechType": "IS Level 2",
   "crew": 22,
   "passengers": 0,
   "cargoCapacity": 4.5,

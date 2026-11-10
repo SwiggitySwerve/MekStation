@@ -82,6 +82,7 @@
     "crewquarters:21.0:0:-1::-1:0",
     "cargobay:51.5:2:4::-1:0"
   ],
+  "sourceTechType": "IS Level 2",
   "crew": 4,
   "passengers": 0,
   "cargoCapacity": 51.5,

@@ -50,6 +50,7 @@
   "transporters": [
     "cargobay:59.5:1:1::-1:0"
   ],
+  "sourceTechType": "IS Level 2",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 4446,

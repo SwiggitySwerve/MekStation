@@ -69,6 +69,7 @@
     "steeragequarters:25.0:0:-1::-1:0",
     "cargobay:36.5:1:5::-1:0"
   ],
+  "sourceTechType": "Clan Level 2",
   "crew": 5,
   "passengers": 0,
   "cargoCapacity": 36.5,

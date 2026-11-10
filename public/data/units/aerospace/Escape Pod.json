@@ -38,6 +38,7 @@
   "transporters": [
     "cargobay:0.48:0:1::-1:0"
   ],
+  "sourceTechType": "IS Level 2",
   "crew": 1,
   "passengers": 0,
   "cargoCapacity": 0.48,
