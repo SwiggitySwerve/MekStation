@@ -137,6 +137,10 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
           deliveredObserved: measured.filter(
             (trial) => trial.app.delivery.class === 'delivered-observed',
           ).length,
+          deliveredObservedOrdinarySave: measured.filter(
+            (trial) =>
+              trial.app.delivery.class === 'delivered-observed-ordinary-save',
+          ).length,
           deliveredByChain: measured.filter(
             (trial) => trial.app.delivery.class === 'delivered-by-chain',
           ).length,
@@ -162,6 +166,10 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
         totals,
         deliveredObserved: totals.reduce(
           (sum, row) => sum + row.deliveredObserved,
+          0,
+        ),
+        deliveredObservedOrdinarySave: totals.reduce(
+          (sum, row) => sum + row.deliveredObservedOrdinarySave,
           0,
         ),
         deliveredByChain: totals.reduce(
@@ -273,6 +281,7 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
           poll,
           contextWrites,
           captureAvailable: contextCapture.available && warmWorkerObserved,
+          timing: appTiming,
         });
         if (!delivery.eligible)
           harnessErrors.push(`${trialId}: invalid poll/context capture`);
@@ -371,7 +380,7 @@ for (const mutation of ['date', 'battle-outcome'] as const) {
       const elapsedMs = performance.now() - startedAt;
       const proofSide =
         process.env.MEKSTATION_UNLOAD_PROOF_SIDE ?? 'unspecified';
-      const summary = `[campaign-unload-sweep] ${proofSide} ${mutation} ${verdict}: app trials ${measured}, undelivered ${counts.undelivered}, unattributable ${counts.unattributable}, delivered-observed ${counts.deliveredObserved}, delivered-by-chain ${counts.deliveredByChain}, total delivered ${flushAccepted}, values present ${valuesPresent}, values lost ${valuesLost}; control trials ${measured}, losses ${controlLost}, loss rate ${controlLossRate}; discarded ${trials.filter((trial) => !trial.measured).length} warm-up pairs; runtime ${Math.round(elapsedMs)} ms; delays=${JSON.stringify(totals)}`;
+      const summary = `[campaign-unload-sweep] ${proofSide} ${mutation} ${verdict}: app trials ${measured}, undelivered ${counts.undelivered}, unattributable ${counts.unattributable}, delivered-observed ${counts.deliveredObserved}, delivered-observed-ordinary-save ${counts.deliveredObservedOrdinarySave}, delivered-by-chain ${counts.deliveredByChain}, total delivered ${flushAccepted}, values present ${valuesPresent}, values lost ${valuesLost}; control trials ${measured}, losses ${controlLost}, loss rate ${controlLossRate}; discarded ${trials.filter((trial) => !trial.measured).length} warm-up pairs; runtime ${Math.round(elapsedMs)} ms; delays=${JSON.stringify(totals)}`;
       process.stdout.write(`${summary}\n`);
       await testInfo.attach('same-context-unload-sweep', {
         contentType: 'application/json',
