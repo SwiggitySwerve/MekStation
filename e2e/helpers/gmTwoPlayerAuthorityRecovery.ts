@@ -117,10 +117,34 @@ export async function prepareHostDeathTrigger(
     .toBe(2);
 }
 
+/**
+ * When the running server process started, from `/api/health`
+ * (`timestamp - uptime`; `uptime` counts from the route module's load in
+ * that process). It moves forward only when a new process serves the call.
+ */
+export async function readServerStartMs(
+  request: APIRequestContext,
+): Promise<number> {
+  const response = await request.get('/api/health');
+  expect(response.status()).toBe(200);
+  const body = (await response.json()) as {
+    timestamp: string;
+    uptime: number;
+  };
+  return Date.parse(body.timestamp) - body.uptime * 1000;
+}
+
+/**
+ * Kill the host after a durable commit and wait for the relaunch, then
+ * prove a restart happened: a "survives restart" row that cannot tell
+ * whether the server restarted would pass trivially if the death never
+ * fired. Holds in every mode (unarmed main run and the armed step).
+ */
 export async function fireHostDeath(
   drive: IRecoveryDrive,
   request: APIRequestContext,
 ): Promise<void> {
+  const startedBefore = await readServerStartMs(request);
   await armScopedFault(
     request,
     'process-exit-after-commit',
@@ -131,6 +155,14 @@ export async function fireHostDeath(
     { kind: 'AdvancePhase' },
   ]).catch(() => undefined);
   await waitForRelaunch(request);
+  // `uptime` is whole seconds, so a restart shows as a start time at least
+  // ~1.5 s later; without one the two readings agree within a second.
+  await expect
+    .poll(async () => (await readServerStartMs(request)) - startedBefore, {
+      message: 'the host death must restart the server process',
+      timeout: 30_000,
+    })
+    .toBeGreaterThan(1500);
 }
 
 export async function waitForRelaunch(

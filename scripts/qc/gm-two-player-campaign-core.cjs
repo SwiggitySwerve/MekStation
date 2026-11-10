@@ -40,11 +40,22 @@ function deriveFixturePort(runId) {
   // this "reserved" port auto-assigned out from under a fixture bind.
   return 20000 + (bytes.readUInt32BE(0) % 10000);
 }
-// The privacy-pack rows that need the combat-journal fixture arm (GM rewind
-// preview). Must equal the nightly's `--grep-invert`/`--grep` pattern; a test
-// pins the two against `.github/workflows/nightly-validation.yml`.
-const JOURNAL_ARMED_ROWS = '@E2E-19|@E2E-25';
+// Rows that run ONLY under the combat-journal fixture arm: GM rewind preview
+// needs a journal head. Excluded from every unarmed main run. Must equal the
+// nightly's step-A `--grep-invert`.
+const ARMED_ONLY_ROWS = '@E2E-19|@E2E-25';
+// Every row of the explicit armed step. E2E-01/02 also run there once,
+// besides running unarmed (the production mode) in the main run: it is the
+// only real-host-death coverage of combat journal-authority recovery, a path
+// that is not live yet. Must equal the nightly's step-B `--grep`; a test pins
+// both patterns against `.github/workflows/nightly-validation.yml`.
+// Retirement: the arm (and this step) goes away at the journal cutover
+// (U24b), with the nightly's step B.
+const JOURNAL_ARMED_ROWS = '@E2E-01|@E2E-02|@E2E-19|@E2E-25';
 const PRIVACY_PACK_SPEC = 'e2e/gm-two-player-privacy.pack.spec.ts';
+const AUTHORITY_RECOVERY_SPEC =
+  'e2e/gm-two-player-authority-recovery.pack.spec.ts';
+const RELAUNCHING_SERVER_COMMAND = 'node scripts/e2e/relaunching-server.mjs';
 
 function buildRunPlan({ group, runId, repoRoot }) {
   const owner = REGISTERED_GROUPS[group];
@@ -75,11 +86,11 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // MEKSTATION_E2E_SERVER_COMMAND).
     'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
     // E2E-01/02 (umbrella 21.1 PR3-c). IN RESPAWNING_GROUPS: both rows
-    // arm process-exit-after-commit and kill the server. The plan also
-    // sets MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled so combat
-    // genesis is live under the fixture arm, not the production cutover
-    // mode; campaign genesis is live through the production flag.
-    'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
+    // arm process-exit-after-commit and kill the server. The main run is
+    // unarmed (production combat commit path); the armed follow-up runs
+    // them once more under the combat-journal fixture arm. Campaign genesis
+    // is live through the production flag in both.
+    'authority-recovery': [AUTHORITY_RECOVERY_SPEC],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
     // `privacy-pack` is the tactical-channel subset (E2E-19..28); only
     // E2E-19/25 (GM rewind preview) run under the journal fixture arm, in a
@@ -207,17 +218,20 @@ function buildRunPlan({ group, runId, repoRoot }) {
       : group === 'authority'
         ? AUTHORITY_GROUP_MEMBERS
         : [group];
-  // The privacy pack is split the way Nightly Validation runs it
-  // (`nightly-validation.yml`, e2e-full): the main run excludes the two
-  // journal-armed rows, and a follow-up runs only those rows with the
-  // combat-journal fixture arm. The other rows run unarmed, which is what a
-  // real match does: production journal authority is `off`
-  // (`matchJournalAuthority.ts`) and the E2E arm fails closed without both
-  // test keys (`combatJournalAuthorityEnabled.ts`). Arming the whole group
-  // tested six rows in a mode no user runs.
+  // Split the way Nightly Validation runs it (`nightly-validation.yml`,
+  // e2e-full). The main run is UNARMED, which is what a real match does:
+  // production journal authority is `off` (`matchJournalAuthority.ts`) and
+  // the E2E arm fails closed without both test keys
+  // (`combatJournalAuthorityEnabled.ts`). It excludes only the armed-only
+  // rows. A follow-up then runs JOURNAL_ARMED_ROWS from the privacy and
+  // authority-recovery specs the group contains, under the arm.
   const includesPrivacyPack = expandedMembers.includes('privacy-pack');
-  const armsJournalAuthorityFixture =
+  const includesAuthorityRecovery =
     expandedMembers.includes('authority-recovery');
+  const armedSpecs = [
+    ...(includesPrivacyPack ? [PRIVACY_PACK_SPEC] : []),
+    ...(includesAuthorityRecovery ? [AUTHORITY_RECOVERY_SPEC] : []),
+  ];
   const runPlaywright = path.join(
     repoRoot,
     'scripts/playwright/run-playwright.mjs',
@@ -229,7 +243,7 @@ function buildRunPlan({ group, runId, repoRoot }) {
       'test',
       '--project=chromium',
       ...specs,
-      ...(includesPrivacyPack ? ['--grep-invert', JOURNAL_ARMED_ROWS] : []),
+      ...(includesPrivacyPack ? ['--grep-invert', ARMED_ONLY_ROWS] : []),
       '--workers=1',
     ],
     environment: {
@@ -246,34 +260,32 @@ function buildRunPlan({ group, runId, repoRoot }) {
       // kill, so the wrapper owns the respawn and the readiness gate waits
       // it back. `all` uses the same rule via its members.
       MEKSTATION_E2E_SERVER_COMMAND: needsRespawn
-        ? 'node scripts/e2e/relaunching-server.mjs'
+        ? RELAUNCHING_SERVER_COMMAND
         : 'node server.js',
-      // The combat resolver takes a mode, and the ladder arms 'enabled'
-      // (not 'shadow') because E2E-01/02 must exercise the
-      // journal-authority path itself, not a compare-only run. The key is
-      // a fixture arm gated behind NEXT_PUBLIC_E2E_MODE on the server
-      // side, not the production cutover mode.
-      ...(armsJournalAuthorityFixture
-        ? {
-            MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
-          }
-        : {}),
     },
   };
-  if (includesPrivacyPack) {
+  if (armedSpecs.length > 0) {
     plan.followUp = {
       command: process.execPath,
       args: [
         runPlaywright,
         'test',
         '--project=chromium',
-        PRIVACY_PACK_SPEC,
+        ...armedSpecs,
         '--grep',
         JOURNAL_ARMED_ROWS,
         '--workers=1',
       ],
       environment: {
         ...plan.environment,
+        // E2E-01/02 kill the server, so the armed step needs the wrapper
+        // whenever authority-recovery is in it.
+        MEKSTATION_E2E_SERVER_COMMAND: includesAuthorityRecovery
+          ? RELAUNCHING_SERVER_COMMAND
+          : plan.environment.MEKSTATION_E2E_SERVER_COMMAND,
+        // The resolver takes a mode; 'enabled' (not 'shadow') exercises the
+        // journal-authority path itself. A fixture arm gated behind
+        // NEXT_PUBLIC_E2E_MODE on the server, not the production cutover.
         MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
       },
     };
@@ -419,6 +431,8 @@ function isListening(port) {
 }
 
 module.exports = {
+  ARMED_ONLY_ROWS,
+  AUTHORITY_RECOVERY_SPEC,
   JOURNAL_ARMED_ROWS,
   PRIVACY_PACK_SPEC,
   REGISTERED_GROUPS,
