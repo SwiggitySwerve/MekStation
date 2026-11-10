@@ -176,12 +176,14 @@ describe('useP2PReconnectSession', () => {
     expect(setLive).toHaveBeenCalledTimes(1);
   });
 
-  it('MATCH: keeps the mirror and rehydrates from the stream like today', async () => {
+  it('MATCH: persists and adopts a full baseline even for a matching prefix', async () => {
     const { channel, emitReplay } = makeChannel();
     const stored = [makeEvent(0), makeEvent(1)];
     const stream = [makeEvent(0), makeEvent(1), makeEvent(2)];
     const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
     const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const persistReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const adoptRebuiltSession = jest.fn();
     const setLive = jest.fn();
     const onMirrorPrefixDivergence = jest.fn();
 
@@ -196,6 +198,8 @@ describe('useP2PReconnectSession', () => {
         getHostPresent: () => true,
         createChannel: () => channel,
         appendReplayEvent,
+        persistReplayEvent,
+        adoptRebuiltSession,
         hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
         setHydratedSession: jest.fn(),
         setLive,
@@ -215,10 +219,12 @@ describe('useP2PReconnectSession', () => {
       emitReplay(stream);
     });
 
-    await waitFor(() => expect(appendReplayEvent).toHaveBeenCalledTimes(3));
+    await waitFor(() => expect(setLive).toHaveBeenCalledTimes(1));
     expect(deleteEventsForMatch).not.toHaveBeenCalled();
     expect(onMirrorPrefixDivergence).not.toHaveBeenCalled();
-    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual(
+    expect(appendReplayEvent).not.toHaveBeenCalled();
+    expect(adoptRebuiltSession).toHaveBeenCalledTimes(1);
+    expect(persistReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual(
       stream.map((event) => event.id),
     );
     expect(setLive).toHaveBeenCalledTimes(1);
@@ -566,7 +572,7 @@ describe('useP2PReconnectSession', () => {
     ]);
   });
 
-  it('DUPLICATE: the same event in the catch-up stream is appended once (M2)', async () => {
+  it('DUPLICATE: the same event in a full baseline is persisted once (M2)', async () => {
     const { channel, emitReplay } = makeChannel();
     const stored = [makeEvent(0, 'id-a')];
     const stream = [
@@ -575,6 +581,7 @@ describe('useP2PReconnectSession', () => {
       makeEvent(1, 'id-b'),
     ];
     const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const persistReplayEvent = jest.fn().mockResolvedValue(undefined);
     const setLive = jest.fn();
 
     renderHook(() =>
@@ -588,6 +595,8 @@ describe('useP2PReconnectSession', () => {
         getHostPresent: () => true,
         createChannel: () => channel,
         appendReplayEvent,
+        persistReplayEvent,
+        adoptRebuiltSession: jest.fn(),
         hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
         setHydratedSession: jest.fn(),
         setLive,
@@ -604,7 +613,8 @@ describe('useP2PReconnectSession', () => {
     });
 
     await waitFor(() => expect(setLive).toHaveBeenCalledTimes(1));
-    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+    expect(appendReplayEvent).not.toHaveBeenCalled();
+    expect(persistReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
       'id-a',
       'id-b',
     ]);

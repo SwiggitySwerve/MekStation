@@ -10,6 +10,10 @@ import {
   linkMachineGunArrayBVWeapons,
   type IMachineGunArrayBVWeapon,
 } from '../equipmentBV/weaponLinks';
+import {
+  getEquipmentEntry,
+  normalizeEquipmentId,
+} from '../equipmentBVResolver';
 
 interface ICompatibilityGroup {
   typeId: string;
@@ -94,14 +98,25 @@ export function applyMechMachineGunArrays(
     const policy = COMPATIBILITY_GROUPS.find(
       (p) => p.arrays.includes(rawId) || rawId.endsWith(p.suffix),
     );
-    if (!policy) continue;
+    // Catalog mounts (including editor-added IS registry arrays) carry stable
+    // record IDs. Resolve their catalog name to the existing canonical caliber;
+    // arbitrary source aliases retain the closed compatibility policy above.
+    const record = policy ? undefined : getEquipmentEntry(rawId);
+    const catalogGroup =
+      record?.id === rawId
+        ? getMachineGunArrayBVGroup(normalizeEquipmentId(record.name))
+        : undefined;
+    const arrayGroup = policy
+      ? getMachineGunArrayBVGroup(policy.typeId)
+      : catalogGroup;
+    if (!arrayGroup) continue;
     arrays.push({
       sourceId: rawId,
       sourceLocation: eq.location,
       location: eq.location.split(',')[0].toUpperCase(),
       baseBV: 0,
       bv: 0,
-      arrayGroup: getMachineGunArrayBVGroup(policy.typeId),
+      arrayGroup,
     });
   }
   const criticalSlots = new Map<

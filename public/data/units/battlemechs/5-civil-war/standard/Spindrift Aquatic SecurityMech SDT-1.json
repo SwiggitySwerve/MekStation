@@ -22,7 +22,25 @@
   },
   "armor": {
     "type": "PATCHWORK",
-    "allocation": {},
+    "allocation": {
+      "LEFT_ARM": 8,
+      "RIGHT_ARM": 8,
+      "LEFT_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "RIGHT_TORSO": {
+        "front": 6,
+        "rear": 2
+      },
+      "CENTER_TORSO": {
+        "front": 10,
+        "rear": 3
+      },
+      "HEAD": 5,
+      "LEFT_LEG": 7,
+      "RIGHT_LEG": 7
+    },
     "typeByLocation": {
       "LEFT_ARM": 2,
       "RIGHT_ARM": 2,

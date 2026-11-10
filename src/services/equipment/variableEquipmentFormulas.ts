@@ -7,6 +7,7 @@
  * @spec openspec/specs/equipment-services/spec.md
  */
 
+import { TechBase } from '@/types/enums/TechBase';
 import physicalWeaponFormulas from '@/types/equipment/physicalWeaponFormulas.json';
 import {
   IVariableFormulas,
@@ -117,16 +118,27 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
   // ============================================================================
 
   /**
-   * Partial Wing
-   * Weight: tonnage × 0.05 rounded to 0.5 tons
-   * Slots: 6 (3 per side torso)
+   * Mech Partial Wing: one record, equipment-tech overrides.
+   * MiscType.java:485-503,995-996,2248-2305 at 48fcb2f64.
+   * IS: 7%, 8 ordinary criticals; Clan: 5%, 6 ordinary criticals.
+   * Native ton rounding makes wing mass half-ton integral, so the cost product
+   * below equals Java's ceil(wing tonnage * 50000).
    * Cost: weight × 50,000
    */
   'partial-wing': {
-    weight: multiplyRound('tonnage', 0.05, 0.5),
-    criticalSlots: fixed(6),
+    weight: { ...multiplyRound('tonnage', 0.07, 0.5), nativeTonRounding: true },
+    criticalSlots: fixed(8),
     cost: multiply('weight', 50000),
     requiredContext: ['tonnage'],
+    techBaseOverrides: {
+      [TechBase.CLAN]: {
+        weight: {
+          ...multiplyRound('tonnage', 0.05, 0.5),
+          nativeTonRounding: true,
+        },
+        criticalSlots: fixed(6),
+      },
+    },
   },
 
   // ============================================================================

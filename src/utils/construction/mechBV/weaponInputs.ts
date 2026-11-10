@@ -77,6 +77,8 @@ export function buildMechBVWeapons(
   // This prevents the secondary crit check from incorrectly marking front weapons as rear
   // when a matching rear weapon exists at the same location (e.g., ML front + ML (R) both at LT).
   for (const eq of unit.equipment) {
+    if (eq.category !== undefined && !isWeaponEquip(eq.id, eq.category))
+      continue;
     if (!isRearLoc(eq.location)) continue;
     // Strip rear marker to get the base location (e.g., "LEFT_TORSO_(R)" → "LEFT_TORSO")
     const rawLoc = eq.location
@@ -109,14 +111,17 @@ export function buildMechBVWeapons(
     }
     if (lo.includes('tsm') || lo.includes('triple-strength-myomer')) continue;
     if (isDefEquip(resolveId)) {
-      if (getMechDiagnosticAmmoBVGroup(resolveId) && isWeaponEquip(resolveId)) {
+      if (
+        getMechDiagnosticAmmoBVGroup(resolveId) &&
+        isWeaponEquip(resolveId, eq.category)
+      ) {
         const res = resolveWeaponForUnit(resolveId, unit.techBase);
         for (let i = 0; i < qty; i++)
           recordDiagnosticCap(resolveId, res.battleValue, res.resolved);
       }
       continue;
     }
-    if (!isWeaponEquip(resolveId)) continue;
+    if (!isWeaponEquip(resolveId, eq.category)) continue;
 
     let clanDetected =
       unit.techBase === 'MIXED' &&

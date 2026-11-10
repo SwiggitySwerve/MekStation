@@ -303,7 +303,8 @@ export function getAvailableArmorTypes(
   const allTypes = Object.values(ArmorTypeEnum);
   return allTypes.filter((type) => {
     const def = getArmorDefinition(type);
-    if (!def) return false;
+    // Native-only types can be named but are not selectable yet.
+    if (!def || def.nativeOnly) return false;
     return isComponentCompatible(def.techBase, techBase, allowMixedTech);
   });
 }
