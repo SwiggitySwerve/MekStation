@@ -10,6 +10,7 @@
 import { StoreApi } from 'zustand';
 
 import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
+import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
@@ -109,6 +110,7 @@ export function duplicateAerospace(
 
   const mergedState: AerospaceState = {
     ...newState,
+    ...pickUnitTechBaseIdentity(sourceState),
     isFixedWingSupport: sourceState.isFixedWingSupport,
     // SI follows the copied thrust for fighters and keeps the explicit value
     // for small craft; the defaults above were derived from default thrust.

@@ -2551,8 +2551,12 @@ describe('EquipmentLoaderService', () => {
 
       const weapon = service.getWeaponById('no-unit-types');
       expect(weapon).not.toBeNull();
-      // Empty array should result in no allowedUnitTypes property
-      expect(weapon?.allowedUnitTypes).toBeUndefined();
+      expect(weapon?.allowedUnitTypes).toEqual([]);
+      for (const unitType of Object.values(UnitType)) {
+        expect(
+          service.searchWeapons({ unitType }).map((item) => item.id),
+        ).not.toContain('no-unit-types');
+      }
     });
 
     it('should handle undefined flags in search filters', () => {

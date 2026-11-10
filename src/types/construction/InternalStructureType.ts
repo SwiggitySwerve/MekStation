@@ -30,8 +30,6 @@ export interface InternalStructureDefinition {
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
-  /** Weight as percentage of tonnage (0.10 = 10%) */
-  readonly weightMultiplier: number;
   /** Critical slots required (distributed) */
   readonly criticalSlots: number;
   /** Structure point multiplier (1.0 = standard) */
@@ -50,7 +48,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Standard',
       techBase: TechBase.INNER_SPHERE,
       rulesLevel: RulesLevel.INTRODUCTORY,
-      weightMultiplier: 0.1,
       criticalSlots: 0,
       structurePointMultiplier: 1.0,
       introductionYear: 2439,
@@ -60,7 +57,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Endo Steel (IS)',
       techBase: TechBase.INNER_SPHERE,
       rulesLevel: RulesLevel.STANDARD,
-      weightMultiplier: 0.05,
       criticalSlots: 14,
       structurePointMultiplier: 1.0,
       introductionYear: 2487,
@@ -70,7 +66,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Endo Steel (Clan)',
       techBase: TechBase.CLAN,
       rulesLevel: RulesLevel.STANDARD,
-      weightMultiplier: 0.05,
       criticalSlots: 7,
       structurePointMultiplier: 1.0,
       introductionYear: 2827,
@@ -80,7 +75,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Endo-Composite',
       techBase: TechBase.INNER_SPHERE,
       rulesLevel: RulesLevel.EXPERIMENTAL,
-      weightMultiplier: 0.075,
       criticalSlots: 7,
       structurePointMultiplier: 1.0,
       introductionYear: 3067,
@@ -90,7 +84,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Reinforced',
       techBase: TechBase.INNER_SPHERE,
       rulesLevel: RulesLevel.EXPERIMENTAL,
-      weightMultiplier: 0.2,
       criticalSlots: 0,
       structurePointMultiplier: 2.0,
       introductionYear: 3057,
@@ -100,7 +93,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Composite',
       techBase: TechBase.INNER_SPHERE,
       rulesLevel: RulesLevel.EXPERIMENTAL,
-      weightMultiplier: 0.05,
       criticalSlots: 0,
       structurePointMultiplier: 0.5,
       introductionYear: 3061,
@@ -110,7 +102,6 @@ export const INTERNAL_STRUCTURE_DEFINITIONS: readonly InternalStructureDefinitio
       name: 'Industrial',
       techBase: TechBase.INNER_SPHERE,
       rulesLevel: RulesLevel.INTRODUCTORY,
-      weightMultiplier: 0.2,
       criticalSlots: 0,
       structurePointMultiplier: 1.0,
       introductionYear: 2350,
@@ -149,6 +140,13 @@ export function mapSerializedStructureType(
   }
 
   return InternalStructureType.STANDARD;
+}
+
+/** Canonical donor identities also admit Clan Endo-Composite; globals keep their fallback. */
+export function mapDonorStructureType(type: string): InternalStructureType {
+  if (type === 'ENDO_COMPOSITE_CLAN')
+    return InternalStructureType.ENDO_COMPOSITE;
+  return mapSerializedStructureType(type, TechBase.INNER_SPHERE);
 }
 
 /**

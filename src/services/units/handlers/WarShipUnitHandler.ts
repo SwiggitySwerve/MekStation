@@ -29,7 +29,6 @@ import {
   UnitValidationMessages,
   combineAssaultUnitFields,
   createParseMessages,
-  parseRulesLevelThroughAdvancedFromType,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';
 import {
@@ -152,7 +151,6 @@ export class WarShipUnitHandler extends AbstractUnitTypeHandler<IWarShip> {
       typeSpecificFields,
       idPrefix: 'warship',
       unitType: UnitType.WARSHIP,
-      rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
   }
 

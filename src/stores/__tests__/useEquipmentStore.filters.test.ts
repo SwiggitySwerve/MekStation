@@ -4,6 +4,7 @@ import { EquipmentCategory, type IEquipmentItem } from '@/types/equipment';
 
 import type { EquipmentFilters } from '../useEquipmentStore';
 
+import { useEquipmentStore } from '../useEquipmentStore';
 import { filterEquipment } from '../useEquipmentStore.filters';
 
 const FILTERS: EquipmentFilters = {
@@ -41,6 +42,21 @@ const names = (
   sort: Parameters<typeof filterEquipment>[3],
   items: IEquipmentItem[],
 ) => filterEquipment(items, FILTERS, UNIT, sort).map((entry) => entry.name);
+
+it('filters caller-local candidates without replacing or changing the default inventory', () => {
+  const inventory = [item('AC/10'), item('AC/2')];
+  const store = useEquipmentStore.getState();
+  store.clearFilters();
+  store.setUnitContext(null, null, []);
+  store.setEquipment(inventory);
+  expect(store.getFilteredEquipment()).toEqual(
+    store.getFilteredEquipment(inventory),
+  );
+  expect(store.getFilteredEquipment([inventory[0]])).toEqual([inventory[0]]);
+  expect(useEquipmentStore.getState().equipment).toBe(inventory);
+  expect(store.getFilteredEquipment()).toHaveLength(2);
+  expect(store.getFilteredEquipment([])).toEqual([]);
+});
 
 describe('catalog name sort', () => {
   const items = [
@@ -116,6 +132,30 @@ describe('catalog-compatible ammunition', () => {
     expect(catalog).toHaveLength(4);
     expect(filtered([...catalog, item('AC/15')])).toContain(ac15Ammo.id);
   });
+
+  it.each(['Clan', 'ProtoMech'])(
+    'matches a same-tech fallback bin to a launcher displayed with (%s)',
+    (suffix) => {
+      const launcher = {
+        ...item(`LRM 3 (${suffix})`),
+        techBase: TechBase.CLAN,
+      };
+      const bin = { ...ammo('LRM 3 Ammo'), techBase: TechBase.CLAN };
+      expect(filtered([launcher, bin])).toContain(bin.id);
+      expect(
+        filtered([launcher, { ...bin, techBase: TechBase.INNER_SPHERE }]),
+      ).not.toContain(bin.id);
+      expect(
+        filtered([
+          launcher,
+          { ...bin, compatibleWeaponIds: ['other-launcher'] },
+        ]),
+      ).not.toContain(bin.id);
+      expect(
+        filtered([launcher, { ...bin, compatibleWeaponIds: [launcher.id] }]),
+      ).toContain(bin.id);
+    },
+  );
 
   it('keeps ammo-only search, category, weight and slot browsing independent of weapon presentation', () => {
     expect(
