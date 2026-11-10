@@ -179,5 +179,8 @@
   },
   "mulId": 9262,
   "role": "Scout",
-  "source": "TR:3055U,RG25"
+  "source": "TR:3055U,RG25",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

@@ -200,5 +200,8 @@
   },
   "mulId": 8433,
   "role": "Sniper",
-  "source": "RG24,RGv1"
+  "source": "RG24,RGv1",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

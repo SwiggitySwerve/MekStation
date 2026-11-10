@@ -192,5 +192,8 @@
   "source": "RG07,RGv1",
   "weaponQuirks": {
     "RA:4:CLERLargePulseLaser": ["jettison_capable"]
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

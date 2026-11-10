@@ -87,14 +87,19 @@ describe('pinned original-byte MTF construction boundary', () => {
       { source: 'custom', id: unit.id },
     );
     expect(loaded.success).toBe(!unsupported);
+    const field = (name: string) =>
+      text.match(new RegExp(`^${name}:(.*)$`, 'mi'))?.[1].trim();
+    // The raw gyro, cockpit and heat sink tokens ride next to the derived
+    // values; diagnostics appear only when the loader had to default something.
     expect(unit).toHaveProperty('mtfSource', {
       text,
       configuration: source.fields.Config,
       engine: source.fields.Engine,
       armor: source.fields.Armor,
+      ...(field('gyro') ? { gyro: field('gyro') } : {}),
+      ...(field('cockpit') ? { cockpit: field('cockpit') } : {}),
+      ...(field('heat sinks') ? { heatSinks: field('heat sinks') } : {}),
     });
-    const field = (name: string) =>
-      text.match(new RegExp(`^${name}:(.*)$`, 'mi'))?.[1].trim();
     expect(unit.mulId).toBe(Number(field('mul id')) || undefined);
     expect(unit.role).toBe(field('role') || undefined);
     expect(unit).toHaveProperty('source', field('source') || undefined);

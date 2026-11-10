@@ -183,5 +183,8 @@
   },
   "mulId": 8381,
   "role": "Skirmisher",
-  "source": "XTR:Royal Fantasy"
+  "source": "XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

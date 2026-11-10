@@ -175,5 +175,8 @@
   },
   "mulId": 987,
   "role": "Striker",
-  "source": "XTR:Davion"
+  "source": "XTR:Davion",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

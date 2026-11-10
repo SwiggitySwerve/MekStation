@@ -224,6 +224,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: node --test scripts/__tests__/v220-format.test.mjs
 
+      - name: Check jest-dom skip list safety
+        if: ${{ !cancelled() }}
+        run: node scripts/jest/jest-dom-usage.js --check
+
       - name: Validate roadmap ledger
         if: ${{ !cancelled() }}
         run: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs
@@ -233,6 +237,10 @@ jobs:
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
 
       # Delta specs change in docs/openspec-only PRs too: no code path gate.
+      - name: Validate OpenSpec specs (strict)
+        if: ${{ !cancelled() }}
+        run: npm run openspec:validate
+
       - name: Validate OpenSpec delta headers and regression tests
         if: ${{ !cancelled() }}
         run: |
@@ -494,7 +502,7 @@ jobs:
         working-directory: desktop
         run: npm run build
 
-      - name: Enforce complete web artifact byte budgets
+      - name: Census complete web artifact bytes (advisory)
         if: ${{ !cancelled() }}
         run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
 
@@ -577,7 +585,7 @@ jobs:
           mkdir -p desktop/release-upload
           cp desktop/release/*.tar.gz desktop/release-upload/
 
-      - name: Enforce complete Linux installer byte budget
+      - name: Census complete Linux installer bytes (advisory)
         if: ${{ !cancelled() }}
         shell: bash
         run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"

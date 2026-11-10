@@ -186,5 +186,8 @@
     }
   },
   "role": "Skirmisher",
-  "source": "XTR:RISC"
+  "source": "XTR:RISC",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

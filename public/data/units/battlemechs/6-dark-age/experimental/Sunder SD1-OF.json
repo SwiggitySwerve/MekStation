@@ -214,5 +214,8 @@
   },
   "mulId": 6846,
   "role": "Missile Boat",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

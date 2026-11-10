@@ -86,7 +86,7 @@ export function validateRepositoryMetrics(metrics) {
 }
 
 /** Projection is observations only. Callers publish null until complete. */
-export function observedBudgetValues(config, repository, packages = {}) {
+export function observedBudgetValues(config, repository) {
   validateRepositoryMetrics(repository);
   const values = {
     'limits.typicalPrJobs': Math.max(
@@ -105,21 +105,6 @@ export function observedBudgetValues(config, repository, packages = {}) {
       ),
     ),
   };
-  for (const [kind, ids] of [
-    ['web', ['standaloneStaticBytes', 'webZipBytes']],
-    ['installers', ['installerBytes']],
-  ]) {
-    const metrics = packages[kind]?.metrics ?? packages[kind];
-    if (metrics) {
-      if (metrics.schema !== PACKAGE_METRICS_SCHEMA || metrics.unit !== 'bytes')
-        throw new Error('Unknown package projection');
-      for (const id of ids) {
-        if (!Number.isSafeInteger(metrics[id]) || metrics[id] <= 0)
-          throw new Error(`Missing package observation ${id}`);
-        values[`limits.${id}`] = metrics[id];
-      }
-    }
-  }
   const missing = budgetDescriptors(config)
     .filter((d) => d.ratchet && !Object.hasOwn(values, d.id))
     .map((d) => d.id);

@@ -184,5 +184,8 @@
   },
   "mulId": 2579,
   "role": "Striker",
-  "source": "JSBD,TR:J"
+  "source": "JSBD,TR:J",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -202,5 +202,8 @@
   },
   "mulId": 8241,
   "role": "Juggernaut",
-  "source": "RG17"
+  "source": "RG17",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

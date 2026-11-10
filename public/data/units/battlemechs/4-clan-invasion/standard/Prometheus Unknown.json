@@ -218,5 +218,8 @@
   },
   "mulId": 4871,
   "role": "Sniper",
-  "source": "Unbound"
+  "source": "Unbound",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

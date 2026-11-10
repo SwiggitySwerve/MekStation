@@ -177,5 +177,8 @@
   "mulId": 5379,
   "role": "None",
   "source": "JFR",
-  "lamType": "Standard"
+  "lamType": "Standard",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

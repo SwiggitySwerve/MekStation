@@ -186,5 +186,8 @@
   },
   "mulId": 8317,
   "role": "Brawler",
-  "source": "RG19"
+  "source": "RG19",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }
