@@ -11,10 +11,9 @@
 import {
   CombatRole,
   AtBScenarioType,
-  AtBMoraleLevel,
 } from '@/types/campaign/scenario/scenarioTypes';
 
-import { calculateBattleTypeMod, type RandomFn } from './battleChance';
+import { SCENARIO_TYPE_ROLL_OFFSET, type RandomFn } from './battleChance';
 
 // =============================================================================
 // Interface Definition
@@ -325,31 +324,22 @@ export function selectTrainingScenario(roll: number): IScenarioTypeResult {
 // =============================================================================
 
 /**
- * Select scenario type based on combat role and morale level.
+ * Select scenario type based on combat role.
  *
- * Routes to the appropriate scenario table based on combat role, applies
- * morale modifier to the roll, and returns the scenario type result.
- *
- * The morale modifier is calculated as:
- * `battleTypeMod = 1 + (STALEMATE.ordinal - current.ordinal) × 5`
- *
- * This modifier is added to the base roll before table lookup.
+ * Routes to the appropriate scenario table based on combat role, adds the
+ * fixed `SCENARIO_TYPE_ROLL_OFFSET` to the roll, and returns the scenario type
+ * result. Contract morale plays no part: the pinned MekHQ has no morale
+ * modifier on a scenario-type roll (see `SCENARIO_TYPE_ROLL_OFFSET`).
  *
  * @param role - The combat role (determines which table to use)
- * @param moraleLevel - The contract morale level (affects roll modifier)
  * @param random - Injectable random function returning 0-1
  * @returns IScenarioTypeResult with scenario type and attacker status
  *
  * @example
- * const result = selectScenarioType(
- *   CombatRole.MANEUVER,
- *   AtBMoraleLevel.STALEMATE,
- *   Math.random
- * );
+ * const result = selectScenarioType(CombatRole.MANEUVER, Math.random);
  */
 export function selectScenarioType(
   role: CombatRole,
-  moraleLevel: AtBMoraleLevel,
   random: RandomFn,
 ): IScenarioTypeResult {
   // Calculate base roll based on role's table size
@@ -376,9 +366,8 @@ export function selectScenarioType(
   // Generate base roll (1 to maxRoll)
   const baseRoll = Math.floor(random() * maxRoll) + 1;
 
-  // Apply morale modifier
-  const moraleModifier = calculateBattleTypeMod(moraleLevel);
-  const modifiedRoll = Math.max(1, baseRoll + moraleModifier);
+  // Apply the fixed offset (contract morale has no effect on it)
+  const modifiedRoll = Math.max(1, baseRoll + SCENARIO_TYPE_ROLL_OFFSET);
 
   // Route to appropriate table
   switch (role) {
