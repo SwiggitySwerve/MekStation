@@ -8,6 +8,7 @@ import {
   MTF_SLOTS_PER_LOCATION,
   formatArmorType,
   formatConfig,
+  formatCockpitType,
   formatEngineType,
   formatEquipmentName,
   formatHeatSinkType,
@@ -34,10 +35,11 @@ export class MTFExportService {
     try {
       // Validate each identity before emitting content so independent failures
       // (for example mixed chassis context and unsupported armor) stay visible.
-      const [techBase, engineType, armorType] = [
+      const [techBase, engineType, armorType, cockpitType] = [
         () => formatTechBase(unit.techBase, unit.componentTechBases?.chassis),
         () => formatEngineType(unit.engine.type),
         () => formatArmorType(unit.armor.type),
+        () => formatCockpitType(unit.cockpit, unit.gyro.type),
       ].map((format) => {
         try {
           return format();
@@ -97,6 +99,7 @@ export class MTFExportService {
       lines.push(`engine:${unit.engine.rating} ${engineType}`);
       lines.push(`structure:${formatStructureType(unit.structure.type)}`);
       lines.push('myomer:Standard');
+      if (cockpitType !== undefined) lines.push(`cockpit:${cockpitType}`);
       lines.push('');
 
       lines.push(
