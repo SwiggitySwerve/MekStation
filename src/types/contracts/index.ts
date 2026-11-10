@@ -30,6 +30,7 @@ import { MiscEquipmentContract as MiscEquipmentContractSchema } from './generate
 import { NameMappingsContract as NameMappingsContractSchema } from './generated/name-mappings.zod';
 import { PhysicalWeaponContract as PhysicalWeaponContractSchema } from './generated/physical-weapon.zod';
 import { SourceProvenanceContract as SourceProvenanceContractSchema } from './generated/source-provenance.zod';
+import { TechnologyAdvancementsContract as TechnologyAdvancementsContractSchema } from './generated/technology-advancements.zod';
 import { UnitContract as UnitContractSchema } from './generated/unit.zod';
 import { WeaponContract as WeaponContractSchema } from './generated/weapon.zod';
 
@@ -42,6 +43,8 @@ export const MiscEquipmentContract = MiscEquipmentContractSchema;
 export const PhysicalWeaponContract = PhysicalWeaponContractSchema;
 export const NameMappingsContract = NameMappingsContractSchema;
 export const SourceProvenanceContract = SourceProvenanceContractSchema;
+export const TechnologyAdvancementsContract =
+  TechnologyAdvancementsContractSchema;
 
 // Inferred boundary types. The generator emits a `type <Name>Contract`
 // alongside each schema; we re-export them under the conventional `I`
@@ -59,4 +62,7 @@ export type IPhysicalWeaponContract = z.infer<
 export type INameMappingsContract = z.infer<typeof NameMappingsContractSchema>;
 export type ISourceProvenanceContract = z.infer<
   typeof SourceProvenanceContractSchema
+>;
+export type ITechnologyAdvancementsContract = z.infer<
+  typeof TechnologyAdvancementsContractSchema
 >;
