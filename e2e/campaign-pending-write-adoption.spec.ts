@@ -274,7 +274,9 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
   await expect
     .poll(() => fault.aborted, { timeout: 10_000 })
     .toBeGreaterThan(0);
-  await expect(page.getByText('Save failed')).toBeVisible();
+  await expect(
+    page.getByTestId('campaign-save-status-card').getByText('Save failed'),
+  ).toBeVisible();
   expect((await serverRecord(request, campaignId)).version).toBe(
     before.version,
   );
@@ -298,7 +300,11 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
   // observable instead of racing the server: not Saved, local day kept, claim
   // still on the copy, server untouched.
   await expect.poll(() => fault.held, { timeout: 20_000 }).toBe(1);
-  await expect(page.getByText('Saved', { exact: true })).toBeHidden();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Saved', { exact: true }),
+  ).toBeHidden();
   expect(await campaignDateText(page)).toBe(mutatedDate);
   expect(await storedMarker(page)).not.toBeNull();
   expect((await serverRecord(request, campaignId)).version).toBe(
@@ -314,7 +320,11 @@ test('a write the network dropped is pushed by the reloaded document, with no fu
     .toBe(before.version + 1);
   const after = await serverRecord(request, campaignId);
   expect(after.body.currentDate).not.toBe(before.body.currentDate);
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Saved', { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText('Recovered unsaved changes')).toBeHidden();
   expect(await campaignDateText(page)).toBe(mutatedDate);
   expect(await storedMarker(page)).toBeNull();
@@ -349,8 +359,16 @@ test('S3: a stale tab reloads over a server that moved on, keeps its day, and as
   // Not "Saved", and not the writer's date: the player is asked.
   const conflict = page.getByTestId('campaign-pending-write-conflict');
   await expect(conflict).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByText('Conflict', { exact: true })).toBeVisible();
-  await expect(page.getByText('Saved', { exact: true })).toBeHidden();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Conflict', { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Saved', { exact: true }),
+  ).toBeHidden();
   // The local day stays visible, and the card names both sides.
   expect(await campaignDateText(page)).toBe(localDate);
   await expect(page.getByTestId('campaign-pending-write-local')).toContainText(
@@ -380,7 +398,11 @@ test('S3: a stale tab reloads over a server that moved on, keeps its day, and as
   await page.getByRole('button', { name: 'Use Server Version' }).click();
   await expect.poll(() => campaignDateText(page)).toBe(writerDate);
   await expect(conflict).toBeHidden();
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Saved', { exact: true }),
+  ).toBeVisible();
   expect(await storedMarker(page)).toBeNull();
   expect(await serverRecord(request, campaignId)).toEqual(moved);
 });
@@ -430,7 +452,11 @@ test('control: a reload with nothing pending sends no PUT and claims nothing @ca
   await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
     timeout: 20_000,
   });
-  await expect(page.getByText('Saved', { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByTestId('campaign-save-status-card')
+      .getByText('Saved', { exact: true }),
+  ).toBeVisible();
 
   await letDebounceWindowClose();
   expect(puts).toHaveLength(0);
