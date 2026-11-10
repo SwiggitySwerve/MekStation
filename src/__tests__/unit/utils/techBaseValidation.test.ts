@@ -19,6 +19,54 @@ import {
   isHeatSinkTypeValid,
   ComponentSelections,
 } from '@/utils/techBaseValidation';
+import { isComponentAllowedForTechMode } from '@/utils/techBaseValidation.compatibility';
+
+describe.each([
+  { is: false, clan: false, mixed: false },
+  { is: true, clan: false, mixed: true },
+  { is: false, clan: true, mixed: true },
+  { is: true, clan: true, mixed: true },
+])('component membership $is/$clan', (membership) => {
+  describe.each([TechBase.INNER_SPHERE, TechBase.CLAN])('%s side', (side) => {
+    const support = (candidate: TechBase) =>
+      candidate === TechBase.INNER_SPHERE ? membership.is : membership.clan;
+
+    it.each([undefined, TechBaseMode.INNER_SPHERE, TechBaseMode.CLAN])(
+      'checks only the supplied side in mode %s',
+      (mode) => {
+        const supportedOnSide = jest.fn(support);
+        const expected = {
+          [TechBase.INNER_SPHERE]: membership.is,
+          [TechBase.CLAN]: membership.clan,
+        };
+
+        expect(isComponentAllowedForTechMode(mode, side, supportedOnSide)).toBe(
+          expected[side],
+        );
+        expect(supportedOnSide).toHaveBeenCalledTimes(1);
+        expect(supportedOnSide).toHaveBeenCalledWith(side);
+      },
+    );
+
+    it('accepts either supported side in Mixed mode', () => {
+      expect(
+        isComponentAllowedForTechMode(TechBaseMode.MIXED, side, support),
+      ).toBe(membership.mixed);
+    });
+  });
+});
+
+it('preserves the Mixed membership probe order and short circuit', () => {
+  const supportedOnSide = jest.fn(() => true);
+  expect(
+    isComponentAllowedForTechMode(
+      TechBaseMode.MIXED,
+      TechBase.CLAN,
+      supportedOnSide,
+    ),
+  ).toBe(true);
+  expect(supportedOnSide.mock.calls).toEqual([[TechBase.INNER_SPHERE]]);
+});
 
 describe('techBaseValidation', () => {
   const createSelections = (

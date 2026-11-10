@@ -300,18 +300,6 @@ ARMOR_LOCATION_KEY_MAP: Dict[str, str] = {
     "rtc": "CENTER_TORSO_REAR",
 }
 
-MECH_CONFIG_MAP: Dict[str, str] = {
-    "Biped": "Biped",
-    "Quad": "Quad",
-    "Tripod": "Tripod",
-    "LAM": "LAM",
-    "QuadVee": "QuadVee",
-    "Biped Omnimech": "Biped",
-    "Quad Omnimech": "Quad",
-    "Quad OmniMek": "Quad",
-    "QuadVee OmniMek": "QuadVee",
-}
-
 ERA_MAP: Dict[int, str] = {
     # By year ranges
     # Age of War: 2005-2570

@@ -429,6 +429,10 @@ export const UnitContract = z
             z
               .object({
                 id: z.string().describe('Equipment ID reference'),
+                isAmmo: z
+                  .boolean()
+                  .describe('Optional mounted ammunition category evidence')
+                  .optional(),
                 name: z
                   .string()
                   .describe('Source display name for the mounted equipment')
@@ -960,6 +964,10 @@ export const UnitContract = z
             z
               .object({
                 id: z.string().describe('Equipment ID reference'),
+                isAmmo: z
+                  .boolean()
+                  .describe('Optional mounted ammunition category evidence')
+                  .optional(),
                 name: z
                   .string()
                   .describe('Source display name for the mounted equipment')

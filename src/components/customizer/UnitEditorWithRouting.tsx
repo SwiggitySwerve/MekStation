@@ -74,6 +74,7 @@ export function UnitEditorWithRouting({
   const engineRating = useUnitStore((s) => s.engineRating);
   const gyroType = useUnitStore((s) => s.gyroType);
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
+  const frankenStructure = useUnitStore((s) => s.frankenStructure);
   const cockpitType = useUnitStore((s) => s.cockpitType);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
@@ -135,6 +136,7 @@ export function UnitEditorWithRouting({
     engineRating,
     gyroType,
     internalStructureType,
+    frankenStructure,
     cockpitType,
     heatSinkType,
     heatSinkCount,

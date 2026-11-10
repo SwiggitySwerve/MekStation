@@ -450,3 +450,26 @@ refresh the library and preserve the saved identity for existing editor loading.
 - **THEN** its file input SHALL have a label, keyboard focus SHALL remain within the modal, and closing SHALL restore focus
 - **WHEN** supported pinned MTF and vehicle BLK files are imported
 - **THEN** both SHALL appear in the library after reload and an imported unit SHALL open through existing customizer loading
+
+### Requirement: Mounted ammunition identity survives custom mech persistence
+
+Custom mech persistence SHALL retain each mount's equipment ID, technology,
+ammunition category, multiplicity, location, rear mounting and applicable slot
+topology. Optional `isAmmo` metadata SHALL have no default. Absent legacy values
+SHALL remain undefined. Category selection SHALL retain the saved ammunition ID.
+
+#### Scenario: Shared launcher and bin identity
+
+- **WHEN** a launcher and an ammunition bin share a catalog ID
+- **THEN** SQLite save and reopen SHALL retain their distinct category and mounted fields, including an unallocated bin without source criticals
+- **AND** the existing category-qualified equipment lookup SHALL own record selection
+- **AND** legacy recovery SHALL use only complete, consistent criticals belonging to that saved mount
+- **AND** category totals SHALL NOT substitute for bound per-mount ID, tech, category, location, rear, topology and multiplicity at load, save readback and reopen
+- **AND** explicit category metadata without a matching definition SHALL produce a diagnostic
+
+#### Scenario: Existing save fingerprint compatibility
+
+- **WHEN** derived ammo identity metadata is added to persistence
+- **THEN** old library/draft fingerprint literals and absent optional values SHALL retain their exact bytes
+- **AND** meaningful mounted equipment/category edits SHALL remain detectable through existing shared save-state projections
+- **AND** existing literal fixtures SHALL NOT be regenerated to accommodate metadata

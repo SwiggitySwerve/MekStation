@@ -37,11 +37,30 @@ export {
   computeProtoWalkMPForRating,
   computeRunMP,
   effectiveJumpMP,
+  hasProtoPartialWing,
+  protoChassisCanJump,
   getProtoMPCaps,
   getProtoEngineWeightError,
   isMyomerBoosterLegal,
   PROTO_ENGINE_WEIGHT_FACTOR,
 } from './movementCaps';
+
+// Partial Wing jump bonus: the single, pure owner shared with gameplay
+export { partialWingJumpBonus } from './partialWing';
+export type {
+  PartialWingAtmosphere,
+  PartialWingJumpContext,
+} from './partialWing';
+
+// Movement construction rules of TestProtoMek.correctMovement: the single owner
+export {
+  getProtoMovementErrors,
+  isProtoExtendedJumpJet,
+  isProtoUmu,
+  protoMaxJumpMP,
+  summarizeProtoJumpEquipment,
+} from './movementRules';
+export type { ProtoMovementFacts } from './movementRules';
 
 // Main Gun and arm placement (pinned slot, weight and weapon-legality rules)
 export {
