@@ -743,12 +743,12 @@ const MINT_MODES: Record<string, (page: Page) => Promise<void>> = {
 
 test.describe('scenario pack minting', () => {
   for (const packId of Object.keys(MINT_MODES)) {
-    test(`mint ${packId}`, async ({ page }) => {
-      test.skip(
-        MINT_PACK_ID !== packId,
-        `MEKSTATION_MINT_PACK_ID=${MINT_PACK_ID ?? ''} selected; skipping mint of ${packId}`,
-      );
+    // Skip before Playwright creates a page for an unselected mint.
+    const mintTest = MINT_PACK_ID === packId ? test : test.skip;
+    mintTest(`mint ${packId}`, async ({ page }) => {
       test.setTimeout(180_000);
+      // Distinguish a pre-body worker exit from a failure during capture.
+      console.log(`[mint-scenario-pack] entered mint body: ${packId}`);
       await MINT_MODES[packId](page);
     });
   }
