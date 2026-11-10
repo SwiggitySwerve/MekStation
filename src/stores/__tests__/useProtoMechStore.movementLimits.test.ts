@@ -215,10 +215,34 @@ describe('setChassisType', () => {
   });
 });
 
+// MML's new ProtoMek is a 2 t biped with setOriginalWalkMP(1) and the engine
+// calcEngineRating gives it, 4 (PMMainUI.createNewUnit, PMMainUI.java:140-147). A
+// motive change raises walk to the motive's minimum (MovementView.java:289).
 describe('new-unit defaults', () => {
-  it('start every ProtoMech at walk 4, including an ultraheavy (was 3, the old class cap)', () => {
-    for (const tonnage of [2, 5, 8, 13]) {
-      expect(createDefaultProtoMechState({ tonnage }).walkMP).toBe(4);
-    }
+  it.each([2, 5, 8, 13])(
+    'starts a %s t biped at walk 1, as MML does',
+    (tonnage) => {
+      const state = createDefaultProtoMechState({ tonnage });
+      expect(state.walkMP).toBe(1);
+      expect(state.cruiseMP).toBe(1);
+      expect(state.flankMP).toBe(2);
+    },
+  );
+
+  it("gives MML's new-unit engine at 2 t: rating 4", () => {
+    expect(createDefaultProtoMechState({ tonnage: 2 }).engineRating).toBe(4);
+  });
+
+  it.each([
+    [ProtoChassis.QUAD, 2],
+    [ProtoChassis.GLIDER, 3],
+    [ProtoChassis.ULTRAHEAVY, 1],
+  ])('starts a %s unit at its motive minimum, %s', (chassisType, walk) => {
+    expect(
+      createDefaultProtoMechState({
+        tonnage: chassisType === ProtoChassis.ULTRAHEAVY ? 13 : 3,
+        chassisType,
+      }).walkMP,
+    ).toBe(walk);
   });
 });

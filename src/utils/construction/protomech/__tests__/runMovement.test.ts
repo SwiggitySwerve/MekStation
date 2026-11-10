@@ -52,13 +52,17 @@ describe('Pinned undamaged ProtoMech running movement', () => {
     expect(computeRunMP(walk)).toBe(run);
   });
 
+  // The default walk is the motive's minimum (biped 1, quad 2, glider 3): MML's new unit
+  // starts at walk 1 (PMMainUI.java:140-147) and a motive change raises walk to the
+  // minimum (MovementView.java:289). Run is ceil(1.5 x walk). The old expectations (walk
+  // 4, or 3 for an ultraheavy) came from a weight-class table MML does not have.
   it.each([
-    [2, ProtoChassis.BIPED, 4, 6],
-    [2, ProtoChassis.QUAD, 4, 6],
-    [2, ProtoChassis.GLIDER, 4, 6],
-    [15, ProtoChassis.ULTRAHEAVY, 3, 5],
+    [2, ProtoChassis.BIPED, 1, 2],
+    [2, ProtoChassis.QUAD, 2, 3],
+    [2, ProtoChassis.GLIDER, 3, 5],
+    [15, ProtoChassis.ULTRAHEAVY, 1, 2],
   ] satisfies [number, ProtoChassis, number, number][])(
-    'creates %s-ton %s movement without changing its base walk default',
+    'creates %s-ton %s movement at its minimum walk, as MML starts a new unit',
     (tonnage, chassisType, walk, run) => {
       expect(
         createDefaultProtoMechState({ tonnage, chassisType }),

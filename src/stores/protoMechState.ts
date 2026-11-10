@@ -30,6 +30,7 @@ import {
   computeProtoEngineWeight,
   computeProtoStructure,
   getProtoWeightClass,
+  protoMinWalkMP,
 } from '@/utils/construction/protomech';
 import { getProtoArmorName } from '@/utils/construction/protomech/armorType';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
@@ -40,9 +41,6 @@ import {
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 import type { IUnitSaveMetadata } from './unitSaveState';
-
-/** The walk MP of a new ProtoMech; at or above every motive's minimum walk. */
-const DEFAULT_PROTO_WALK_MP = 4;
 
 // =============================================================================
 // ProtoMech Armor/Structure Allocation
@@ -399,10 +397,11 @@ export function createDefaultProtoMechState(
   const chassisType = options.chassisType ?? ProtoChassis.BIPED;
   const weightClass = getProtoWeightClass(tonnage);
 
-  // A new ProtoMech starts at walk 4, which meets every motive's minimum (1, 2 or 3);
-  // the user sets it via setWalkMP. It used to be capped by the weight class (3 for an
-  // ultraheavy), a table MML does not have.
-  const walkMP = DEFAULT_PROTO_WALK_MP;
+  // MML's new ProtoMek is a 2 t biped with setOriginalWalkMP(1) (PMMainUI.createNewUnit,
+  // PMMainUI.java:140-147): the motive's minimum walk. A quad or glider starts at its own
+  // minimum, as a motive change raises walk to it (MovementView.java:289). The default
+  // used to come from a weight-class table (3 for an ultraheavy) MML does not have.
+  const walkMP = protoMinWalkMP(chassisType);
   // Cruise MP mirrors walk MP for ProtoMechs
   const cruiseMP = walkMP;
   const flankMP = computeRunMP(walkMP);

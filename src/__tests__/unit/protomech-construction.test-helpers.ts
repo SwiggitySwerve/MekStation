@@ -182,7 +182,13 @@ describe('useProtoMechStore actions', () => {
   // Sprite Ultraheavy units jump 3 to 5.
   it('setChassisType(ULTRAHEAVY) keeps an allowed jumpMP', () => {
     const initial = createDefaultProtoMechState({ tonnage: 13 });
-    const store = createProtoMechStore({ ...initial, jumpMP: 3 });
+    // Jump 3 is within maxJumpMP only at walk 3 or more (the default walk is 1).
+    const store = createProtoMechStore({
+      ...initial,
+      walkMP: 4,
+      cruiseMP: 4,
+      jumpMP: 3,
+    });
     store.getState().setChassisType(ProtoChassis.ULTRAHEAVY);
     expect(store.getState().jumpMP).toBe(3);
   });
