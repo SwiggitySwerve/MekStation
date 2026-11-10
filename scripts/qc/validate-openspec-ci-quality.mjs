@@ -12,6 +12,7 @@ import {
 } from './openspec-active-change-ledger.mjs';
 import {
   requiredAggregatorNeeds,
+  requiredOpenSpecStaticChecks,
   requiredPackageScripts,
   requiredProtectedContexts,
   requiredWorkflowJobContracts,
@@ -21,6 +22,7 @@ import { findDuplicateDeltaHeaders } from './openspec-delta-headers.mjs';
 import {
   parseWorkflowJobs,
   validateJobTokens,
+  validateOpenSpecStaticChecks,
 } from './openspec-workflow-contracts.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -141,6 +143,11 @@ function main() {
   const packageJson = readJson(packageJsonPath);
   const errors = [];
   const workflowJobs = parseWorkflowJobs(workflow, errors);
+  validateOpenSpecStaticChecks(
+    workflowJobs,
+    requiredOpenSpecStaticChecks,
+    errors,
+  );
 
   const workflowContracts = requiredWorkflowTokens.map((contract) =>
     validateTokens(workflow, contract, errors, 'workflow'),
