@@ -242,16 +242,37 @@ describe('GM and two-player campaign QC runner', () => {
       runId: 'task-30-privacy-pack',
       repoRoot,
     });
+    // Split as the nightly runs it: the main run excludes E2E-19/25 and is
+    // UNARMED (a real match runs these rows with journal authority off);
+    // the follow-up runs only E2E-19/25 under the fixture arm.
     expect(privacyPlan.args).toEqual([
       path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
       'test',
       '--project=chromium',
       'e2e/gm-two-player-privacy.pack.spec.ts',
+      '--grep-invert',
+      '@E2E-19|@E2E-25',
       '--workers=1',
     ]);
     expect(privacyPlan.environment).toMatchObject({
+      MEKSTATION_E2E_SERVER_COMMAND: 'node server.js',
+    });
+    expect(
+      privacyPlan.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+    ).toBeUndefined();
+    expect(privacyPlan.followUp.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-privacy.pack.spec.ts',
+      '--grep',
+      '@E2E-19|@E2E-25',
+      '--workers=1',
+    ]);
+    expect(privacyPlan.followUp.environment).toMatchObject({
       MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
       MEKSTATION_E2E_SERVER_COMMAND: 'node server.js',
+      PLAYWRIGHT_E2E_RUN_ID: 'task-30-privacy-pack',
     });
 
     // The failure pack is the E2E-61..70 subset (umbrella 22.2). It runs
@@ -528,8 +549,15 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-evidence.pack.spec.ts',
       'e2e/gm-two-player-lifecycle.pack.spec.ts',
       'e2e/gm-two-player-conflict.pack.spec.ts',
+      '--grep-invert',
+      '@E2E-19|@E2E-25',
       '--workers=1',
     ]);
+    // privacy-pack is a member, so E2E-19/25 move to the armed follow-up.
+    expect(allPlan.followUp.args).toContain('@E2E-19|@E2E-25');
+    expect(
+      allPlan.followUp.environment.MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE,
+    ).toBe('enabled');
     // restart-pack, resilience-pack, authority-recovery, and the
     // `authority` union are members, so the composite must use the
     // relaunching wrapper. `authority`'s eight specs already appear
@@ -544,14 +572,68 @@ describe('GM and two-player campaign QC runner', () => {
     ).toBe('enabled');
   });
 
+  it('pins the privacy-pack split to the nightly workflow, so the two cannot drift', () => {
+    // Nightly Validation's e2e-full job is the reference: step A runs the
+    // suite with `--grep-invert "<rows>"`, step B runs the privacy spec with
+    // `--grep "<rows>"` under MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE.
+    // A change to either side without the other reds here.
+    // A text read, not a YAML parse: under jest the `yaml` package resolves
+    // to its browser ESM build. Each step block runs from its `- name:` line
+    // to the next one.
+    const workflowText = readFileSync(
+      path.join(repoRoot, '.github/workflows/nightly-validation.yml'),
+      'utf8',
+    );
+    const stepBlock = (name: string): string => {
+      const at = workflowText.indexOf(`- name: ${name}`);
+      expect(at).toBeGreaterThan(-1);
+      const next = workflowText.indexOf('- name:', at + 1);
+      return workflowText.slice(at, next === -1 ? undefined : next);
+    };
+    const stepA = stepBlock('Run full Playwright e2e suite');
+    const stepB = stepBlock('Run journal-armed privacy rows (E2E-19, E2E-25)');
+    const invert = /--grep-invert "([^"]+)"/.exec(stepA)?.[1];
+    const armed = /--grep "([^"]+)"/.exec(stepB)?.[1];
+    expect(invert).toBe(core.JOURNAL_ARMED_ROWS);
+    expect(armed).toBe(core.JOURNAL_ARMED_ROWS);
+    expect(stepB).toContain(core.PRIVACY_PACK_SPEC);
+    expect(stepB).toMatch(
+      /MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: '?enabled'?/,
+    );
+    expect(stepA).not.toContain('MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE');
+    const plan = core.buildRunPlan({
+      group: 'privacy-pack',
+      runId: 'nightly-pin-privacy',
+      repoRoot,
+    });
+    expect(plan.args.slice(-3)).toEqual([
+      '--grep-invert',
+      core.JOURNAL_ARMED_ROWS,
+      '--workers=1',
+    ]);
+    expect(plan.followUp.args).toEqual(
+      expect.arrayContaining([
+        core.PRIVACY_PACK_SPEC,
+        '--grep',
+        core.JOURNAL_ARMED_ROWS,
+      ]),
+    );
+  });
+
   it('leaves both journal keys off a group that does not arm the fixture', () => {
-    // Arming follows authority-recovery or privacy-pack membership, not the
+    // The main run arms only on authority-recovery membership (privacy-pack
+    // arms just its E2E-19/25 follow-up), not the
     // respawn wrapper and not "any authority-shaped name". A group that
     // does not include that pack must carry NEITHER key, so a mutant
     // that arms every group (or arms on `needsRespawn`) is red here
     // rather than silently turning journal authority on for packs that
     // never asked for it.
-    for (const group of ['token-pack', 'smoke', 'proposal-pack']) {
+    for (const group of [
+      'token-pack',
+      'smoke',
+      'proposal-pack',
+      'privacy-pack',
+    ]) {
       const plan = core.buildRunPlan({
         group,
         runId: `u15b-non-arming-${group}`,
