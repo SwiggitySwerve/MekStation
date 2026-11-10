@@ -24,7 +24,14 @@ const outputDir = 'parity-output';
 const writes = new Map<string, string>();
 
 function refusedCatalogResult(): IUnitValidationResult {
-  const catalogUnit: ISerializedUnit = mixedCatalogUnit;
+  expect(mixedCatalogUnit.componentTechBases.chassis).toBe('INNER_SPHERE');
+  const catalogUnit: ISerializedUnit = {
+    ...mixedCatalogUnit,
+    componentTechBases: {
+      ...mixedCatalogUnit.componentTechBases,
+      chassis: 'INNER_SPHERE',
+    },
+  };
   const componentTechBases = { ...catalogUnit.componentTechBases };
   // Exercise missing context even after the separate catalog chassis apply.
   delete componentTechBases.chassis;
