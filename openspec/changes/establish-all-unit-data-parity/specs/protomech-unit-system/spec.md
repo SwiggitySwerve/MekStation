@@ -522,7 +522,7 @@ The editor SHALL show jump MP as pinned MegaMek `48fcb2f64` `ProtoMek.getJumpMP`
 #### Scenario: Recorded residuals
 
 - **THEN** the in-game Partial Wing bonus by atmosphere (+3 high or very high, +2 standard or thin, +1 trace, 0 otherwise) SHALL remain unimplemented in gameplay movement, to be routed to its owner
-- **AND** the weight-class jump caps and the glider weight-class rule SHALL be handled by a separate jump-cap item against `TestProtoMek.maxJumpMP`
+- **AND** the jump cap, the glider weight rule and the ultraheavy jump rule SHALL be those of the ProtoMech Movement Construction Rules requirement (`TestProtoMek.maxJumpMP` and `correctMovement`), so that this requirement's editor jump lock is an editor input rule only and SHALL NOT be read as a validity rule
 
 ### Requirement: ProtoMech Movement Construction Rules
 
