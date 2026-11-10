@@ -195,5 +195,8 @@
   },
   "mulId": 5861,
   "role": "Skirmisher",
-  "source": "HTP:Luzerne"
+  "source": "HTP:Luzerne",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -69,7 +69,8 @@ it('recovers Wildfire VRRP from complete native system evidence', () => {
 
 it('keeps a standard cockpit when its critical evidence is absent', () => {
   const state = new UnitLoaderService().mapToUnitState(
-    { ...wildfire, criticalSlots: undefined },
+    // Pin the input independently of Wildfire's catalog cockpit identity.
+    { ...wildfire, cockpit: 'STANDARD', criticalSlots: undefined },
     true,
   );
   expect(state.cockpitType).toBe('Standard');

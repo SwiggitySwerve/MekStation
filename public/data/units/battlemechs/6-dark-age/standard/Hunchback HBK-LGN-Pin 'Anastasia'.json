@@ -18,7 +18,27 @@
   },
   "cockpit": "STANDARD",
   "structure": {
-    "type": "STANDARD"
+    "type": "STANDARD",
+    "locationTonnage": {
+      "LEFT_ARM": 50,
+      "RIGHT_ARM": 50,
+      "LEFT_TORSO": 50,
+      "RIGHT_TORSO": 50,
+      "CENTER_TORSO": 50,
+      "HEAD": 50,
+      "LEFT_LEG": 50,
+      "RIGHT_LEG": 50
+    },
+    "typeByLocation": {
+      "LEFT_ARM": "ENDO_STEEL_CLAN",
+      "RIGHT_ARM": "ENDO_STEEL_CLAN",
+      "LEFT_TORSO": "ENDO_STEEL",
+      "RIGHT_TORSO": "STANDARD",
+      "CENTER_TORSO": "STANDARD",
+      "HEAD": "ENDO_STEEL_CLAN",
+      "LEFT_LEG": "ENDO_STEEL",
+      "RIGHT_LEG": "ENDO_STEEL"
+    }
   },
   "armor": {
     "type": "STANDARD",
@@ -174,5 +194,8 @@
   },
   "mulId": 8374,
   "role": "Juggernaut",
-  "source": "XTR:Royal Fantasy"
+  "source": "XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -187,5 +187,8 @@
   },
   "mulId": 3197,
   "role": "Skirmisher",
-  "source": "JTP:Luthien"
+  "source": "JTP:Luthien",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

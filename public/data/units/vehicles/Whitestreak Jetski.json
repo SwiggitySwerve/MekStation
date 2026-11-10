@@ -17,7 +17,7 @@
   },
   "engine": {
     "type": "FUEL_CELL",
-    "rating": 0
+    "rating": 0.7000000000000001
   },
   "armor": {
     "type": "BAR",

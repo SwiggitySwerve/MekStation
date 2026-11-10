@@ -1,0 +1,140 @@
+name: Parity Scoreboard
+
+# Independent observation only: never add a PR trigger or aggregator dependency.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or commit SHA to census
+        required: true
+        type: string
+
+# One run holds the slot; a newer push replaces only a still-pending run, so
+# a busy main always gets a complete scoreboard (the PR Checks main scheme).
+concurrency:
+  group: parity-scoreboard-${{ inputs.ref || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  scoreboard:
+    name: Parity Scoreboard (report only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Set runner scratch paths
+        run: |
+          printf 'PARITY_INPUTS=%s/parity-inputs\nPARITY_OUTPUT=%s/parity-scoreboard\n' "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+
+      - name: Checkout workflow tooling
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          path: scoreboard-tools
+          persist-credentials: false
+
+      - name: Checkout census target
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          path: census-target
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: census-target/package-lock.json
+
+      - name: Install target dependencies
+        working-directory: census-target
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Setup census Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scoreboard-tools/scripts/ci/parity-scoreboard-requirements.txt
+
+      - name: Install locked census packages
+        run: python -m pip install --require-hashes -r scoreboard-tools/scripts/ci/parity-scoreboard-requirements.txt
+
+      - name: Verify and decompress oracle reference
+        id: inputs
+        run: node scoreboard-tools/scripts/ci/parity-scoreboard.mjs prepare --out "$PARITY_INPUTS"
+
+      - name: Cache pinned mm-data archive
+        uses: actions/cache@v5
+        with:
+          path: ${{ runner.temp }}/parity-inputs/mm-data.tar.gz
+          key: parity-mm-data-${{ runner.os }}-${{ steps.inputs.outputs.mm-data-pin }}
+
+      - name: Fetch, verify and extract pinned mekfiles
+        env:
+          MM_DATA_PIN: ${{ steps.inputs.outputs.mm-data-pin }}
+          MM_DATA_URL: ${{ steps.inputs.outputs.mm-data-url }}
+        run: |
+          if [ ! -f "$PARITY_INPUTS/mm-data.tar.gz" ]; then
+            curl --fail --location --retry 3 --output "$PARITY_INPUTS/mm-data.tar.gz" "$MM_DATA_URL"
+          fi
+          node scoreboard-tools/scripts/ci/parity-scoreboard.mjs verify-mm-data --archive "$PARITY_INPUTS/mm-data.tar.gz"
+          mkdir -p "$PARITY_INPUTS/mm-data"
+          tar -xzf "$PARITY_INPUTS/mm-data.tar.gz" --strip-components=1 -C "$PARITY_INPUTS/mm-data" "mm-data-$MM_DATA_PIN/data/mekfiles"
+
+      - name: Verify raw LF mekfile hashes against oracle
+        run: |
+          node scoreboard-tools/scripts/ci/parity-scoreboard.mjs verify-mekfiles \
+            --reference "$PARITY_INPUTS/reference-full.jsonl" \
+            --mekfiles "$PARITY_INPUTS/mm-data/data/mekfiles" --out "$PARITY_OUTPUT"
+
+      - name: Run fresh-conversion census
+        working-directory: census-target
+        run: |
+          node "$GITHUB_WORKSPACE/scoreboard-tools/scripts/ci/parity-scoreboard.mjs" run \
+            --reference "$PARITY_INPUTS/reference-full.jsonl" \
+            --mekfiles "$PARITY_INPUTS/mm-data/data/mekfiles" \
+            --python "$(command -v python)" --out "$PARITY_OUTPUT" --report-mode
+
+      - name: Compare previous main and write summary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scoreboard-tools/scripts/ci/parity-scoreboard-github.mjs --out "$PARITY_OUTPUT"
+
+      - name: Upload scoreboard reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: parity-scoreboard-reports
+          overwrite: true
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/parity-scoreboard/RESULTS.json
+            ${{ runner.temp }}/parity-scoreboard/mekfiles-provenance.json
+            ${{ runner.temp }}/parity-scoreboard/execution.json
+            ${{ runner.temp }}/parity-scoreboard/sources.ndjson.manifest.json
+            ${{ runner.temp }}/parity-scoreboard/delta-report.json
+            ${{ runner.temp }}/parity-scoreboard/reference-provenance-report.json
+            ${{ runner.temp }}/parity-scoreboard/run-provenance.json
+            ${{ runner.temp }}/parity-scoreboard/pipeline.log
+            ${{ runner.temp }}/parity-scoreboard/detailed.log
+            ${{ runner.temp }}/parity-scoreboard/scoreboard-*.json
+            ${{ runner.temp }}/parity-scoreboard/scoreboard-summary.md
+            ${{ runner.temp }}/parity-scoreboard/terms/*-report.json
+
+      - name: Upload compressed rows and sources
+        uses: actions/upload-artifact@v7
+        with:
+          name: parity-scoreboard-rows
+          overwrite: true
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+          path: ${{ runner.temp }}/parity-scoreboard/compressed-rows/*.gz

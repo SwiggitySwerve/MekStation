@@ -48,6 +48,8 @@ import {
   applyWithdrawalEdgeExits,
 } from '@/utils/gameplay/morale';
 
+import { missingDiceRoller } from './InteractiveSession.resolvers';
+
 /**
  * Collaborator context the coordinator threads into the phase-advance
  * driver. Mirrors the `InteractiveSession.ai` context shape: the class
@@ -138,6 +140,7 @@ function lockStragglers(
     const u = next.currentState.units[unitId];
     if (
       u.lockState !== LockState.Locked &&
+      u.lockState !== LockState.Revealed &&
       u.lockState !== LockState.Resolved
     ) {
       next = lock(next, unitId);
@@ -259,7 +262,12 @@ export function advanceInteractiveSessionPhase(
     // Per `wire-piloting-skill-rolls` § 7: drain the PSR queue for
     // every unit. Failures invoke `applyFall` (→ `UnitFell` +
     // `PilotHit`) and clear the remaining queue on that unit.
-    session = resolvePendingPSRs(session, context.diceRollerForResolvers());
+    // A session with no injected roller cannot resolve a roll: it throws
+    // rather than reading Math.random.
+    session = resolvePendingPSRs(
+      session,
+      context.diceRollerForResolvers() ?? missingDiceRoller,
+    );
     // PR-L2 §3: BA swarm-fire-while-attached.  Every BA squad currently
     // attached to a host mek fires its swarm-eligible weapons once at
     // the host.  No-op when the context did not supply

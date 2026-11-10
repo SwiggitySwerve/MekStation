@@ -59,6 +59,7 @@ jobs:
       desktop: ${{ steps.filter.outputs.desktop }}
       pr-desktop: ${{ github.event_name == 'pull_request' && steps.filter.outputs.desktop || 'false' }}
       e2e: ${{ steps.filter.outputs.e2e }}
+      data-specs: ${{ steps.filter.outputs.data-specs }}
       equipment: ${{ steps.filter.outputs.equipment }}
       corpus: ${{ steps.filter.outputs.corpus }}
       roadmap: ${{ steps.filter.outputs.roadmap }}
@@ -68,7 +69,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           # A pull_request run checks out the merge commit; its first
-          # parent is the base branch tip the change is diffed against.
+          # parent is the base branch tip. Depth 2 also supplies the merge
+          # base for the data trigger's HEAD^1...HEAD (no full-history fetch).
           fetch-depth: 2
 
       - name: Setup Node
@@ -224,6 +226,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: node --test scripts/__tests__/v220-format.test.mjs
 
+      - name: Check jest-dom skip list safety
+        if: ${{ !cancelled() }}
+        run: node scripts/jest/jest-dom-usage.js --check
+
       - name: Validate roadmap ledger
         if: ${{ !cancelled() }}
         run: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs
@@ -233,6 +239,10 @@ jobs:
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
 
       # Delta specs change in docs/openspec-only PRs too: no code path gate.
+      - name: Validate OpenSpec specs (strict)
+        if: ${{ !cancelled() }}
+        run: npm run openspec:validate
+
       - name: Validate OpenSpec delta headers and regression tests
         if: ${{ !cancelled() }}
         run: |
@@ -308,9 +318,9 @@ jobs:
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run schema:gen-check
 
-      - name: Test schema generator fail-closed definitions
+      - name: Test schema generator fail-closed definitions and clause refine
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
-        run: node --test scripts/__tests__/schema-local-definitions.test.mjs
+        run: node --test scripts/__tests__/schema-local-definitions.test.mjs scripts/__tests__/refine-conditional-clauses.test.mjs
 
       # The equipment catalog resolution guard adds about 1-4 minutes.
       - name: Test equipment catalog generator and resolution guards
@@ -781,6 +791,8 @@ jobs:
   e2e:
     name: E2E (${{ matrix.shard }}/2)
     needs: detect-changes
+    env:
+      CI_E2E_DATA_SPECS: ${{ needs.detect-changes.outputs.data-specs || '[]' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
@@ -808,7 +820,7 @@ jobs:
 
       - name: Test E2E shard planning and coverage guards
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: node --test scripts/playwright/ci-e2e-plan.test.mjs
+        run: node --test scripts/playwright/*.test.mjs
 
       - name: Validate record-sheet assets
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -851,7 +863,7 @@ jobs:
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
-        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-mech-crew-roster.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
@@ -872,6 +884,15 @@ jobs:
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/smoke.json
         run: node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
+
+      - name: Run data-keyed unit regression specs
+        if: ${{ !cancelled() && needs.detect-changes.outputs.data-specs != '' && needs.detect-changes.outputs.data-specs != '[]' }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-data
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/data.json
+        run: node scripts/playwright/run-ci-e2e.mjs test --data-specs --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/data
 
       - name: Upload E2E durations and test census
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
@@ -901,6 +922,7 @@ jobs:
             playwright-report-gates
             playwright-report-library
             playwright-report-smoke
+            playwright-report-data
             test-results
           retention-days: 7
 
@@ -941,12 +963,31 @@ jobs:
           GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
         run: node scripts/ci/budget-aggregate.mjs
 
+      - name: Checkout current main budget validator
+        id: budget-validator
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          path: .budget-validator
+          sparse-checkout: |
+            scripts/ci
+            scripts/lib/statistics.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Enforce budget-raise approval with read-only live inputs
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
-            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const { pathToFileURL } = require('node:url');
+            const validatorRoot = `${process.env.GITHUB_WORKSPACE}/.budget-validator`;
+            const validatorSha = '${{ steps.budget-validator.outputs.commit }}';
+            core.info(`budget-validator: main@${validatorSha}`);
+            const { checkBudgetPolicy } = await import(pathToFileURL(`${validatorRoot}/scripts/ci/budget-approval.mjs`).href);
+            // The validator reads budgets via the API at live PR head/base SHAs.
             const result = await checkBudgetPolicy({ github, ...context.repo,
               number: context.payload.pull_request.number, publish: false });
             core.info(JSON.stringify(result));

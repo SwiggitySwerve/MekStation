@@ -20,6 +20,7 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
+import { getMountedAmmoSourceToken } from '@/services/units/unitLoaderService/equipmentResolution';
 import { getCockpitSourceTag } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -32,6 +33,7 @@ import { InternalStructureType } from '@/types/construction/InternalStructureTyp
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import {
   TechBaseMode,
+  applyUnitTechBaseIdentity,
   serializeComponentTechBases,
   serializeTechBaseMode,
 } from '@/types/construction/TechBaseConfiguration';
@@ -184,6 +186,12 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
       for (const slot of slots) {
         if (slot >= 0 && slot < locationSlots.length) {
           locationSlots[slot] =
+            getMountedAmmoSourceToken(
+              item,
+              sourceSlots?.[slot],
+              state.techBase,
+              state.techBaseMode,
+            ) ??
             item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
         }
       }
@@ -338,7 +346,11 @@ export function serializeCustomVehicleState(
     })),
     vehicleEditor,
   });
-  return { ...definition, family: 'vehicles' as const, vehicleEditor };
+  return {
+    ...applyUnitTechBaseIdentity(definition, state, 'vehicles'),
+    family: 'vehicles' as const,
+    vehicleEditor,
+  };
 }
 
 /** Aerospace store -> catalog contract, sharing the custom-library save owner. */
@@ -424,7 +436,11 @@ export function serializeCustomAerospaceState(
     })),
     aerospaceEditor,
   });
-  return { ...definition, family: 'aerospace' as const, aerospaceEditor };
+  return {
+    ...applyUnitTechBaseIdentity(definition, state, 'aerospace'),
+    family: 'aerospace' as const,
+    aerospaceEditor,
+  };
 }
 
 export { serializeCustomSmallUnitState } from './CustomUnitSerializer.smallUnits';

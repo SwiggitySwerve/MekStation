@@ -1,3 +1,5 @@
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 /**
  * Unit Loader Service - Equipment Resolution
@@ -27,13 +29,69 @@ import {
   techRoute,
   techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
+import { parseEquipmentSizeNumber } from '@/utils/equipmentSize';
 
 type TechHint = 'clan' | 'is';
+
+/** Preserve an ammo mount's own source identity, never another bin's evidence. */
+export function getMountedAmmoSourceToken(
+  mount: Pick<
+    IMountedEquipmentInstance,
+    'equipmentId' | 'category' | 'techBase'
+  >,
+  token: string | null | undefined,
+  techBase: TechBase,
+  mode: TechBaseMode,
+): string | undefined {
+  if (mount.category !== EquipmentCategory.AMMUNITION || !token)
+    return undefined;
+  // Use the placed-identity path with exactly this cell, including category and
+  // technology. A changed bin cannot inherit the previous bin's native token.
+  const original = resolveEquipmentId(
+    token,
+    techBase,
+    mode,
+    [token],
+    undefined,
+    [0],
+  );
+  // Native pod/rear wrappers are transport, not a different ammo definition.
+  // Keep established decorated identities before trying the existing decoder.
+  const lookupToken = parseCriticalSlotToken(token).lookupToken;
+  const resolved =
+    original.equipmentDef || lookupToken === token
+      ? original
+      : resolveEquipmentId(
+          lookupToken,
+          techBase,
+          mode,
+          [lookupToken],
+          undefined,
+          [0],
+        );
+  return resolved.resolvedId === mount.equipmentId &&
+    resolved.equipmentDef?.category === mount.category &&
+    resolved.equipmentDef.techBase === mount.techBase
+    ? token
+    : undefined;
+}
+
+export interface ICriticalSlotTokenParameters {
+  /** Native :SIZE: value; invalid values retain their raw evidence. */
+  readonly size?: { readonly raw: string; readonly value: number | undefined };
+  /** MtfFile.extractLegacySize, before applying the equipment's sizing rule. */
+  readonly legacySize?: {
+    readonly raw: string;
+    readonly value: number;
+    readonly unit: string;
+  };
+}
 
 export function parseCriticalSlotToken(token: string): {
   readonly lookupToken: string;
   readonly isRearMounted: boolean;
   readonly isOmniPodMounted: boolean;
+  readonly parameters: ICriticalSlotTokenParameters;
 } {
   const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
   const podSuffix = /\s*\(OMNIPOD\)\s*$/i;
@@ -51,10 +109,33 @@ export function parseCriticalSlotToken(token: string): {
   const sizeIndex = unarmored.toUpperCase().indexOf(':SIZE:');
   if (sizeIndex > 0)
     isOmniPodMounted = podSuffix.test(unarmored.slice(0, sizeIndex));
+  // MtfFile.java:207-227,1005-1009,1151-1155 (48fcb2f64). Retain both
+  // forms: Java may fall back to legacy size when the explicit size is zero.
+  const sizeRaw = sizeIndex > 0 ? unarmored.slice(sizeIndex + 6) : undefined;
+  const legacy = /\((\d+(?:\.\d+)?)\s*(ton|tons|m|kg)\)/i.exec(token);
   return {
     lookupToken: mountName.replace(rearSuffix, '').trim(),
     isRearMounted: rearSuffix.test(mountName),
     isOmniPodMounted,
+    parameters: {
+      ...(sizeRaw !== undefined
+        ? {
+            size: {
+              raw: sizeRaw,
+              value: parseEquipmentSizeNumber(sizeRaw.trim()),
+            },
+          }
+        : {}),
+      ...(legacy
+        ? {
+            legacySize: {
+              raw: legacy[0],
+              value: Number(legacy[1]),
+              unit: legacy[2].toLowerCase(),
+            },
+          }
+        : {}),
+    },
   };
 }
 
@@ -96,6 +177,7 @@ function stripTechMarkersFromName(name: string): string {
     .replace(/\s*\(Clan\)\s*$/i, '')
     .replace(/\s*\(IS\)\s*$/i, '')
     .replace(/\s*\[IS\]\s*$/i, '')
+    .replace(/\s*\[Clan\]\s*$/i, '')
     .replace(/^Clan\s+/i, '')
     .replace(/^IS\s+/i, '')
     .trim();
@@ -108,7 +190,8 @@ function getTechHintFromToken(token: string): TechHint | null {
   if (
     /^CL[A-Za-z0-9]/.test(trimmed) ||
     /^Clan\s+/i.test(trimmed) ||
-    /\(Clan\)/i.test(trimmed)
+    /\(Clan\)/i.test(trimmed) ||
+    /\[Clan\]/i.test(trimmed)
   ) {
     return 'clan';
   }
@@ -223,8 +306,8 @@ function resolveMixedTechVariant(
 }
 
 /**
- * A native name that carries its own tech prefix (CLLRM20, cllrm20, clan-lrm-20,
- * ISTAG) names one Java item whatever the unit is: the prefix is the side when
+ * A native prefix or display marker names one Java item whatever the unit is.
+ * Native prefixes (CLLRM20, cllrm20, clan-lrm-20, ISTAG) name the side when
  * removing it leaves the same base item, or when the normalizer kept the Clan
  * marker (cllightmg -> clan-light-machine-gun). Unit lists without crit slots
  * (vehicles) otherwise fell back to the IS record on mixed-tech units.
@@ -232,9 +315,24 @@ function resolveMixedTechVariant(
 function ownTechSide(
   id: string,
   normalizedId: string,
-  baseId: string,
+  candidates: IEquipmentVariantCandidates,
 ): TechBase | null {
-  const raw = id.toLowerCase().trim();
+  const { baseId } = candidates;
+  const token = parseCriticalSlotToken(id).lookupToken;
+  const raw = token.toLowerCase().trim();
+  // An explicit display marker names its side only when stripping it leaves
+  // the same item. Native prefixes continue through their existing path below.
+  const hint = getTechHintFromToken(token);
+  const stripped = stripTechMarkersFromName(raw);
+  if (
+    stripped !== raw &&
+    hint &&
+    normalizeCatalogEquipmentId(stripped, false) === baseId
+  ) {
+    const side = hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+    const candidate = resolveVariantByTechBase(candidates, side);
+    return candidate?.equipmentDef?.techBase === side ? side : null;
+  }
   if (/^cl/.test(raw) && normalizedId === `clan-${baseId}`)
     return TechBase.CLAN;
   const sides: [RegExp, TechBase][] = [
@@ -407,12 +505,28 @@ export function resolveEquipmentId(
   mode: TechBaseMode,
   slots: ReadonlyArray<string | null> | undefined,
   sourceName?: string,
+  placedSlots?: readonly number[],
 ): IResolvedEquipment {
+  // A placed alias may inspect its own cells, never another mount's hints.
+  slots =
+    placedSlots === undefined
+      ? slots
+      : placedSlots.flatMap((index) =>
+          Number.isInteger(index) && index >= 0 && index < (slots?.length ?? 0)
+            ? [slots?.[index] ?? null]
+            : [],
+        );
   const routed = resolveTechRoutedEquipment(id, unitTechBase, mode, slots);
   if (routed) return routed;
   const ammo = slots === undefined ? resolveSlotlessAmmo(id) : null;
   if (ammo) return ammo;
-  const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
+  const previous = resolveLegacyEquipmentId(
+    id,
+    unitTechBase,
+    mode,
+    slots,
+    placedSlots,
+  );
   const target = normalizeCatalogEquipmentId(id);
   const lookup = getEquipmentLookupService();
   // Converted slugs can lose native punctuation. The retained name may recover
@@ -452,7 +566,15 @@ function resolveLegacyEquipmentId(
   _unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
+  placedSlots?: readonly number[],
 ): IResolvedEquipment {
+  // MtfFile.java:1210-1212: Mixed lookup has no chassis tech restriction.
+  // A saved, placed ID is identity evidence even when its cells are invalid.
+  const placed =
+    placedSlots !== undefined
+      ? legacyDefinition(getEquipmentLookupService().getById(id), id)
+      : undefined;
+  if (placed) return { equipmentDef: placed, resolvedId: placed.id };
   const identity = nativeIdentityId(id);
   const exact = identity
     ? legacyDefinition(getEquipmentLookupService().getById(identity), id)
@@ -483,7 +605,7 @@ function resolveLegacyEquipmentId(
   const ownSide =
     locationCriticalSlots === undefined ||
     unitTechBaseMode === TechBaseMode.MIXED
-      ? ownTechSide(id, normalizedId, candidates.baseId)
+      ? ownTechSide(id, normalizedId, candidates)
       : null;
 
   return (

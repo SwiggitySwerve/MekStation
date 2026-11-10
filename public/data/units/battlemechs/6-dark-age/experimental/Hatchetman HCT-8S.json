@@ -178,5 +178,8 @@
   },
   "mulId": 7780,
   "role": "Striker",
-  "source": "RG12"
+  "source": "RG12",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

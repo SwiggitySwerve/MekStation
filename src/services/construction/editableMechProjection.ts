@@ -16,7 +16,6 @@ import {
   serializeTechBaseMode,
 } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
-import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
 
@@ -194,7 +193,12 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
       const raw = source?.equipment?.[index];
       // Recovered ammo/sinks already exist in the critical grid. Some ammo IDs
       // are also weapon IDs, so adding them here would invent extra weapons.
-      if (raw) equipment.push({ id: raw.id, location: raw.location });
+      if (raw)
+        equipment.push({
+          id: raw.id,
+          location: raw.location,
+          category: live.category,
+        });
       current.delete(original.instanceId);
     } else if (original.location) {
       const loc = critLocation(original.location);
@@ -205,11 +209,11 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
   });
   for (const item of current.values()) {
     const loc = critLocation(item.location);
-    if (item.category !== EquipmentCategory.AMMUNITION)
-      equipment.push({
-        id: item.equipmentId,
-        location: loc + (item.isRearMounted ? ' (R)' : ''),
-      });
+    equipment.push({
+      id: item.equipmentId,
+      location: loc + (item.isRearMounted ? ' (R)' : ''),
+      category: item.category,
+    });
     if (!loc) continue;
     const slots = (criticalSlots[loc] ??= []);
     const name =

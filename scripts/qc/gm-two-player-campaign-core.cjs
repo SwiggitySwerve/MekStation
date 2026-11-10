@@ -40,6 +40,22 @@ function deriveFixturePort(runId) {
   // this "reserved" port auto-assigned out from under a fixture bind.
   return 20000 + (bytes.readUInt32BE(0) % 10000);
 }
+// The rows that run under the combat-journal fixture arm: GM rewind preview
+// needs a journal head. Excluded from every unarmed main run and run in the
+// armed follow-up. Must equal the nightly's step-A `--grep-invert` and step-B
+// `--grep`; a test pins both against `.github/workflows/nightly-validation.yml`.
+// Retirement: the arm (and the follow-up) goes away at the journal cutover
+// (U24b), with the nightly's step B.
+// NOT here: E2E-01/02. Under the arm the command commits through
+// commitJournalAuthorityCommand, which has no process-exit-after-commit
+// seam, so their host death never fires (C5, 2026-11-10). They run unarmed
+// only until that seam exists (OPEN, C4; it gates the journal cutover).
+const JOURNAL_ARMED_ROWS = '@E2E-19|@E2E-25';
+const PRIVACY_PACK_SPEC = 'e2e/gm-two-player-privacy.pack.spec.ts';
+const AUTHORITY_RECOVERY_SPEC =
+  'e2e/gm-two-player-authority-recovery.pack.spec.ts';
+const RELAUNCHING_SERVER_COMMAND = 'node scripts/e2e/relaunching-server.mjs';
+
 function buildRunPlan({ group, runId, repoRoot }) {
   const owner = REGISTERED_GROUPS[group];
   if (!owner) throw typedError('UNKNOWN_GROUP', `group=${String(group)}`);
@@ -69,14 +85,16 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // MEKSTATION_E2E_SERVER_COMMAND).
     'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
     // E2E-01/02 (umbrella 21.1 PR3-c). IN RESPAWNING_GROUPS: both rows
-    // arm process-exit-after-commit and kill the server. The plan also
-    // sets MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE=enabled so combat
-    // genesis is live under the fixture arm, not the production cutover
-    // mode; campaign genesis is live through the production flag.
-    'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
+    // arm process-exit-after-commit and kill the server, which the spec now
+    // asserts. They run UNARMED (production combat commit path), as the
+    // nightly does: under the journal arm the host death never fires (see
+    // JOURNAL_ARMED_ROWS). Campaign genesis is live through the production
+    // flag.
+    'authority-recovery': [AUTHORITY_RECOVERY_SPEC],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
-    // `privacy-pack` is the tactical-channel subset (E2E-19..28),
-    // including GM preview and correction under the journal fixture arm.
+    // `privacy-pack` is the tactical-channel subset (E2E-19..28); only
+    // E2E-19/25 (GM rewind preview) run under the journal fixture arm, in a
+    // follow-up, as the nightly does.
     // `proposal-pack` owns campaign-channel arbitration separately.
     'privacy-pack': ['e2e/gm-two-player-privacy.pack.spec.ts'],
     'proposal-pack': ['e2e/gm-two-player-proposals.pack.spec.ts'],
@@ -200,16 +218,26 @@ function buildRunPlan({ group, runId, repoRoot }) {
       : group === 'authority'
         ? AUTHORITY_GROUP_MEMBERS
         : [group];
-  const armsJournalAuthorityFixture =
-    expandedMembers.includes('authority-recovery') ||
-    expandedMembers.includes('privacy-pack');
-  return {
+  // Split the way Nightly Validation runs it (`nightly-validation.yml`,
+  // e2e-full). The main run is UNARMED, which is what a real match does:
+  // production journal authority is `off` (`matchJournalAuthority.ts`) and
+  // the E2E arm fails closed without both test keys
+  // (`combatJournalAuthorityEnabled.ts`). It excludes the journal-armed
+  // rows, which a follow-up runs from the privacy spec under the arm.
+  const includesPrivacyPack = expandedMembers.includes('privacy-pack');
+  const armedSpecs = includesPrivacyPack ? [PRIVACY_PACK_SPEC] : [];
+  const runPlaywright = path.join(
+    repoRoot,
+    'scripts/playwright/run-playwright.mjs',
+  );
+  const plan = {
     command: process.execPath,
     args: [
-      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      runPlaywright,
       'test',
       '--project=chromium',
       ...specs,
+      ...(includesPrivacyPack ? ['--grep-invert', JOURNAL_ARMED_ROWS] : []),
       '--workers=1',
     ],
     environment: {
@@ -226,20 +254,32 @@ function buildRunPlan({ group, runId, repoRoot }) {
       // kill, so the wrapper owns the respawn and the readiness gate waits
       // it back. `all` uses the same rule via its members.
       MEKSTATION_E2E_SERVER_COMMAND: needsRespawn
-        ? 'node scripts/e2e/relaunching-server.mjs'
+        ? RELAUNCHING_SERVER_COMMAND
         : 'node server.js',
-      // The combat resolver takes a mode, and the ladder arms 'enabled'
-      // (not 'shadow') because E2E-01/02 must exercise the
-      // journal-authority path itself, not a compare-only run. The key is
-      // a fixture arm gated behind NEXT_PUBLIC_E2E_MODE on the server
-      // side, not the production cutover mode.
-      ...(armsJournalAuthorityFixture
-        ? {
-            MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
-          }
-        : {}),
     },
   };
+  if (armedSpecs.length > 0) {
+    plan.followUp = {
+      command: process.execPath,
+      args: [
+        runPlaywright,
+        'test',
+        '--project=chromium',
+        ...armedSpecs,
+        '--grep',
+        JOURNAL_ARMED_ROWS,
+        '--workers=1',
+      ],
+      environment: {
+        ...plan.environment,
+        // The resolver takes a mode; 'enabled' (not 'shadow') exercises the
+        // journal-authority path itself. A fixture arm gated behind
+        // NEXT_PUBLIC_E2E_MODE on the server, not the production cutover.
+        MEKSTATION_E2E_COMBAT_JOURNAL_AUTHORITY_MODE: 'enabled',
+      },
+    };
+  }
+  return plan;
 }
 function assertRunOwnedPath(targetPath, runId, runtimeRoot) {
   const ownedRoot = path.join(path.resolve(runtimeRoot), validateRunId(runId));
@@ -264,7 +304,15 @@ async function runCli(args, repoRoot) {
     if (!(await isPortAvailable(port))) {
       throw typedError('PORT_IN_USE', `port=${port}`);
     }
-    return await runPlan(plan, repoRoot);
+    const status = await runPlan(plan, repoRoot);
+    if (!plan.followUp) return status;
+    // Like the nightly's journal-armed step, the follow-up runs even when the
+    // main run failed; the first non-zero status is the result.
+    if (!(await isPortAvailable(port))) {
+      throw typedError('PORT_IN_USE', `port=${port} (follow-up)`);
+    }
+    const followUpStatus = await runPlan(plan.followUp, repoRoot);
+    return status !== 0 ? status : followUpStatus;
   } catch (error) {
     const code = String(error?.code ?? 'RUNNER_FAILURE');
     process.stderr.write(
@@ -372,6 +420,9 @@ function isListening(port) {
 }
 
 module.exports = {
+  AUTHORITY_RECOVERY_SPEC,
+  JOURNAL_ARMED_ROWS,
+  PRIVACY_PACK_SPEC,
   REGISTERED_GROUPS,
   assertRunOwnedPath,
   buildRunPlan,

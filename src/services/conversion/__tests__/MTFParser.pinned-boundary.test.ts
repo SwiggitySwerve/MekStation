@@ -9,8 +9,13 @@ import fixtures from './MTFParser.pinned-sources.json';
 
 // Original mm-data bytes at 50f7efef0c9f775b0258f8283525ed4f906e1985.
 // Semantics: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
-// MtfFile.java:293-319,358-410,414-483; equipment/ArmorType.java:384-524,669-766,1017-1167.
+// MtfFile.java:293-319,358-410,414-483; equipment/ArmorType.java:384-524,669-766,1017-1167,2069.
 const armorNames: Record<string, string> = {
+  'Ferro-Fibrous Prototype': 'FERRO_FIBROUS_PROTO',
+  'Ballistic-Reinforced': 'BALLISTIC_REINFORCED',
+  'Heat-Dissipating': 'HEAT_DISSIPATING',
+  'Anti-Penetrative Ablation': 'ANTI_PENETRATIVE_ABLATION',
+  Patchwork: 'PATCHWORK',
   Standard: 'STANDARD',
   'Ferro-Fibrous': 'FERRO_FIBROUS',
   'Light Ferro-Fibrous': 'LIGHT_FERRO_FIBROUS',
@@ -27,7 +32,177 @@ const armorNames: Record<string, string> = {
   'Impact-Resistant': 'IMPACT_RESISTANT',
 };
 
+// Pinned Java 48fcb2f64a1b3f2d575707ce5653dad64927b587: MtfFile.java:414-531.
+// Evidence: _scratch/sm-audit-reports/parity-3.2-mtf-armor-coverage/import-six/
+// ArmorRoundTripProbe.java loads the same SHA-256-checked original bytes.
+// Armor tech bases are absent from parser output for all six; Patchwork also
+// lacks per-location types. Those import gaps are documented in REPORT.md.
+const newlyAcceptedArmor = [
+  // Probe output: java-Jenner JR7-K Grace.json
+  {
+    name: 'Jenner JR7-K Grace.mtf',
+    type: 'FERRO_FIBROUS_PROTO',
+    allocation: {
+      HEAD: 7,
+      CENTER_TORSO: {
+        front: 10,
+        rear: 3,
+      },
+      RIGHT_TORSO: {
+        front: 8,
+        rear: 3,
+      },
+      LEFT_TORSO: {
+        front: 8,
+        rear: 3,
+      },
+      RIGHT_ARM: 8,
+      LEFT_ARM: 8,
+      RIGHT_LEG: 11,
+      LEFT_LEG: 11,
+    },
+  },
+  // Probe output: java-Hatamoto-Godai HTM-30Z.json
+  {
+    name: 'Hatamoto-Godai HTM-30Z.mtf',
+    type: 'BALLISTIC_REINFORCED',
+    allocation: {
+      HEAD: 9,
+      CENTER_TORSO: {
+        rear: 10,
+        front: 33,
+      },
+      RIGHT_TORSO: {
+        rear: 8,
+        front: 24,
+      },
+      LEFT_TORSO: {
+        rear: 8,
+        front: 24,
+      },
+      RIGHT_ARM: 22,
+      LEFT_ARM: 22,
+      RIGHT_LEG: 25,
+      LEFT_LEG: 25,
+    },
+  },
+  // Probe output: java-Catapult II CPLT-L7L.json
+  {
+    name: 'Catapult II CPLT-L7L.mtf',
+    type: 'HEAT_DISSIPATING',
+    allocation: {
+      HEAD: 9,
+      CENTER_TORSO: {
+        rear: 11,
+        front: 29,
+      },
+      RIGHT_TORSO: {
+        rear: 8,
+        front: 21,
+      },
+      LEFT_TORSO: {
+        rear: 8,
+        front: 21,
+      },
+      RIGHT_ARM: 17,
+      LEFT_ARM: 17,
+      RIGHT_LEG: 22,
+      LEFT_LEG: 22,
+    },
+  },
+  // Probe output: java-Grand Dragon DRG-10K.json
+  {
+    name: 'Grand Dragon DRG-10K.mtf',
+    type: 'ANTI_PENETRATIVE_ABLATION',
+    allocation: {
+      HEAD: 9,
+      CENTER_TORSO: {
+        front: 27,
+        rear: 10,
+      },
+      RIGHT_TORSO: {
+        front: 22,
+        rear: 6,
+      },
+      LEFT_TORSO: {
+        front: 22,
+        rear: 6,
+      },
+      RIGHT_ARM: 20,
+      LEFT_ARM: 20,
+      RIGHT_LEG: 25,
+      LEFT_LEG: 25,
+    },
+  },
+  // Probe output: java-Warhammer IIC 12.json
+  {
+    name: 'Warhammer IIC 12.mtf',
+    type: 'HEAT_DISSIPATING',
+    allocation: {
+      HEAD: 9,
+      CENTER_TORSO: {
+        front: 30,
+        rear: 15,
+      },
+      RIGHT_TORSO: {
+        front: 24,
+        rear: 10,
+      },
+      LEFT_TORSO: {
+        front: 24,
+        rear: 10,
+      },
+      RIGHT_ARM: 24,
+      LEFT_ARM: 24,
+      RIGHT_LEG: 30,
+      LEFT_LEG: 30,
+    },
+  },
+  // Probe output: java-Zeus X ZEU-X.json
+  {
+    name: 'Zeus X ZEU-X.mtf',
+    type: 'PATCHWORK',
+    allocation: {
+      HEAD: 9,
+      CENTER_TORSO: {
+        rear: 12,
+        front: 38,
+      },
+      RIGHT_TORSO: {
+        rear: 8,
+        front: 26,
+      },
+      LEFT_TORSO: {
+        rear: 8,
+        front: 26,
+      },
+      RIGHT_ARM: 26,
+      LEFT_ARM: 26,
+      RIGHT_LEG: 34,
+      LEFT_LEG: 34,
+    },
+  },
+];
+
 describe('pinned original-byte MTF construction boundary', () => {
+  it.each(newlyAcceptedArmor)(
+    'matches pinned Java armor type and points: $name',
+    ({ name, type, allocation }) => {
+      const source = fixtures.rows.find((row) => row.path.endsWith(`/${name}`));
+      if (!source) throw new Error(`Missing pinned fixture: ${name}`);
+      const bytes = Buffer.from(source.base64, 'base64');
+      expect(bytes.length).toBe(source.bytes);
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+        source.sha256,
+      );
+      const parsed = new MTFParserService().parse(bytes.toString('utf8'));
+      expect(parsed.success).toBe(true);
+      if (!parsed.unit) throw new Error(parsed.errors.join('; '));
+      expect(parsed.unit.armor.type).toBe(type);
+      expect(parsed.unit.armor.allocation).toEqual(allocation);
+    },
+  );
+
   it.each([
     ['Champion C.mtf', 'CLAN_XL', 'FERRO_FIBROUS_CLAN'],
     ['Annihilator ANH-3A.mtf', 'COMPACT', 'LIGHT_FERRO_FIBROUS'],
@@ -87,14 +262,19 @@ describe('pinned original-byte MTF construction boundary', () => {
       { source: 'custom', id: unit.id },
     );
     expect(loaded.success).toBe(!unsupported);
+    const field = (name: string) =>
+      text.match(new RegExp(`^${name}:(.*)$`, 'mi'))?.[1].trim();
+    // The raw gyro, cockpit and heat sink tokens ride next to the derived
+    // values; diagnostics appear only when the loader had to default something.
     expect(unit).toHaveProperty('mtfSource', {
       text,
       configuration: source.fields.Config,
       engine: source.fields.Engine,
       armor: source.fields.Armor,
+      ...(field('gyro') ? { gyro: field('gyro') } : {}),
+      ...(field('cockpit') ? { cockpit: field('cockpit') } : {}),
+      ...(field('heat sinks') ? { heatSinks: field('heat sinks') } : {}),
     });
-    const field = (name: string) =>
-      text.match(new RegExp(`^${name}:(.*)$`, 'mi'))?.[1].trim();
     expect(unit.mulId).toBe(Number(field('mul id')) || undefined);
     expect(unit.role).toBe(field('role') || undefined);
     expect(unit).toHaveProperty('source', field('source') || undefined);

@@ -128,6 +128,259 @@ const unionBranches1 = once(() => [
     .strict(),
 ]);
 const unionBranches2 = once(() => [z.string(), z.null()]);
+const schemaClauses1 = once((): [z.ZodType, string][] => [
+  [
+    z.union([
+      z.object({ type: z.literal('PATCHWORK') }),
+      z.object({ techBaseByLocation: z.never().optional() }),
+    ]),
+    'armor.techBaseByLocation is only valid when armor.type is PATCHWORK',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ HEAD: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ HEAD: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names HEAD, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ CENTER_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({
+        typeByLocation: z.object({ CENTER_TORSO: z.number().int() }),
+      }),
+    ]),
+    'armor.techBaseByLocation names CENTER_TORSO, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ LEFT_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ LEFT_TORSO: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names LEFT_TORSO, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ RIGHT_TORSO: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ RIGHT_TORSO: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names RIGHT_TORSO, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ LEFT_ARM: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ LEFT_ARM: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names LEFT_ARM, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ RIGHT_ARM: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ RIGHT_ARM: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names RIGHT_ARM, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ LEFT_LEG: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names LEFT_LEG, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ RIGHT_LEG: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names RIGHT_LEG, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ FRONT_LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({
+        typeByLocation: z.object({ FRONT_LEFT_LEG: z.number().int() }),
+      }),
+    ]),
+    'armor.techBaseByLocation names FRONT_LEFT_LEG, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ FRONT_RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({
+        typeByLocation: z.object({ FRONT_RIGHT_LEG: z.number().int() }),
+      }),
+    ]),
+    'armor.techBaseByLocation names FRONT_RIGHT_LEG, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ REAR_LEFT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({
+        typeByLocation: z.object({ REAR_LEFT_LEG: z.number().int() }),
+      }),
+    ]),
+    'armor.techBaseByLocation names REAR_LEFT_LEG, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ REAR_RIGHT_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({
+        typeByLocation: z.object({ REAR_RIGHT_LEG: z.number().int() }),
+      }),
+    ]),
+    'armor.techBaseByLocation names REAR_RIGHT_LEG, which armor.typeByLocation does not carry',
+  ],
+  [
+    z.union([
+      z.object({
+        techBaseByLocation: z
+          .any()
+          .refine(
+            (value) =>
+              !z
+                .object({ CENTER_LEG: z.enum(['INNER_SPHERE', 'CLAN']) })
+                .safeParse(value).success,
+            'Invalid input: Should NOT be valid against schema',
+          )
+          .optional(),
+      }),
+      z.object({ typeByLocation: z.object({ CENTER_LEG: z.number().int() }) }),
+    ]),
+    'armor.techBaseByLocation names CENTER_LEG, which armor.typeByLocation does not carry',
+  ],
+]);
 
 export const UnitContract = z
   .union([
@@ -330,6 +583,15 @@ export const UnitContract = z
               .record(z.string(), z.number().int().gte(0))
               .describe('Patchwork armor types per installed vehicle location')
               .optional(),
+            techBaseByLocation: z
+              .partialRecord(
+                SchemaDef_structureLocation,
+                SchemaDef_componentTechBase,
+              )
+              .describe(
+                "Patchwork mech armor tech base per location, parallel to typeByLocation (MegaMek MtfFile.java:483-525 reads each Patchwork line's armor type and tech level separately). Optional and never defaulted; present only when armor.type is PATCHWORK; its keys must be a subset of typeByLocation's keys. A typeByLocation location without an entry has unknown tech.",
+              )
+              .optional(),
             barRatingByLocation: z
               .record(z.string(), z.number().int().gte(2).lte(10))
               .describe('Support patchwork BAR per installed vehicle location')
@@ -397,7 +659,12 @@ export const UnitContract = z
               }),
               z.object({ perTrooper: z.number().int().gte(0) }),
             ]),
-          ),
+          )
+          .superRefine((value, ctx) => {
+            for (const [clause, message] of schemaClauses1())
+              if (!clause.safeParse(value).success)
+                ctx.addIssue({ code: 'custom', message });
+          }),
         heatSinks: z
           .object({
             type: z
@@ -541,6 +808,20 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        baseChassisHeatSinks: z
+          .number()
+          .int()
+          .gte(-1)
+          .describe(
+            "OmniMek base chassis heat sinks exactly as the source states them (the MTF base chassis heat sinks line); -1 means unspecified. The loader's effective value is derived, not stored.",
+          )
+          .optional(),
+        clanName: z
+          .string()
+          .describe(
+            'Clan reporting name of the chassis (the MTF clanname line); present on Inner Sphere and Clan chassis alike',
+          )
+          .optional(),
         componentTechBases: z
           .object({
             chassis: SchemaDef_componentTechBase.optional(),
@@ -857,6 +1138,15 @@ export const UnitContract = z
               .record(z.string(), z.number().int().gte(0))
               .describe('Patchwork armor types per installed vehicle location')
               .optional(),
+            techBaseByLocation: z
+              .partialRecord(
+                SchemaDef_structureLocation,
+                SchemaDef_componentTechBase,
+              )
+              .describe(
+                "Patchwork mech armor tech base per location, parallel to typeByLocation (MegaMek MtfFile.java:483-525 reads each Patchwork line's armor type and tech level separately). Optional and never defaulted; present only when armor.type is PATCHWORK; its keys must be a subset of typeByLocation's keys. A typeByLocation location without an entry has unknown tech.",
+              )
+              .optional(),
             barRatingByLocation: z
               .record(z.string(), z.number().int().gte(2).lte(10))
               .describe('Support patchwork BAR per installed vehicle location')
@@ -930,6 +1220,11 @@ export const UnitContract = z
               z.object({ perTrooper: z.number().int().gte(0) }),
             ]),
           )
+          .superRefine((value, ctx) => {
+            for (const [clause, message] of schemaClauses1())
+              if (!clause.safeParse(value).success)
+                ctx.addIssue({ code: 'custom', message });
+          })
           .optional(),
         heatSinks: z
           .object({
@@ -1078,6 +1373,20 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        baseChassisHeatSinks: z
+          .number()
+          .int()
+          .gte(-1)
+          .describe(
+            "OmniMek base chassis heat sinks exactly as the source states them (the MTF base chassis heat sinks line); -1 means unspecified. The loader's effective value is derived, not stored.",
+          )
+          .optional(),
+        clanName: z
+          .string()
+          .describe(
+            'Clan reporting name of the chassis (the MTF clanname line); present on Inner Sphere and Clan chassis alike',
+          )
+          .optional(),
         componentTechBases: z
           .object({
             chassis: SchemaDef_componentTechBase.optional(),

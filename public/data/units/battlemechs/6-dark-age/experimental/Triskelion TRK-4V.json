@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TRIPOD",
   "structure": {
     "type": "ENDO_COMPOSITE"
   },
@@ -40,7 +40,7 @@
       "HEAD": 9,
       "LEFT_LEG": 31,
       "RIGHT_LEG": 31,
-      "CL": 31
+      "CENTER_LEG": 31
     }
   },
   "heatSinks": {
@@ -171,6 +171,14 @@
       "Foot Actuator",
       "IS Endo-Composite",
       "Clan Ferro-Fibrous"
+    ],
+    "CENTER_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "IS Endo-Composite",
+      "Clan Ferro-Fibrous"
     ]
   },
   "quirks": ["difficult_eject", "distracting", "prototype"],
@@ -191,5 +199,8 @@
   },
   "mulId": 7384,
   "role": "Brawler",
-  "source": "XTR:RotS 3"
+  "source": "XTR:RotS 3",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

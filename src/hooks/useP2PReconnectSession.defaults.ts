@@ -11,6 +11,7 @@
 import type { IGameSession } from '@/types/gameplay';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { toast } from '@/components/shared/Toast';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   createGameSessionChannel,
@@ -20,10 +21,24 @@ import {
   normalizeRoomCode,
   type IGameSessionChannel,
 } from '@/lib/p2p';
+import { createMirrorDiceRoller } from '@/lib/p2p/mirrorDiceRoller';
 import { useSyncRoomStore } from '@/lib/p2p/useSyncRoomStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+import { logger } from '@/utils/logger';
 
 const P2P_MATCH_ID_PREFIX = 'p2p-';
+
+/** A failed replay must leave the held board visible and explain the refusal. */
+export function reportReconnectFailure(error: unknown): void {
+  logger.error('P2P reconnect failed; current session kept', error);
+  const detail =
+    error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  toast({
+    message: `P2P reconnect failed (${detail}). Current session kept.`,
+    variant: 'error',
+    duration: 8000,
+  });
+}
 
 export function deriveReconnectRoomCode(matchId: string): string | null {
   if (!matchId.startsWith(P2P_MATCH_ID_PREFIX)) return null;
@@ -94,7 +109,10 @@ export async function persistReplayEventToMatchLog(
 export function defaultAdoptRebuiltSession(session: IGameSession): void {
   const store = useGameplayStore.getState();
   if (store.interactiveSession) {
-    store.setInteractiveSession(InteractiveSession.fromSession(session));
+    // A guest mirror applies the host's events and never rolls itself.
+    store.setInteractiveSession(
+      InteractiveSession.fromSession(session, createMirrorDiceRoller()),
+    );
   }
   store.setSession(session);
 }

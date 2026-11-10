@@ -469,6 +469,21 @@ one owning module for grouped accumulation and cap arithmetic. Consolidation
 SHALL preserve each adapter's existing key policy, guards, operation order and
 numeric output before native identity, quantity or grouping corrections.
 
+Native offensive ammunition cap diagnostics SHALL exclude one-shot and infantry
+weapons according to MegaMek 48fcb2f64 `BVCalculator.java:1230-1231`. Ammunition
+presence SHALL NOT gate a normal launcher's cap. Diagnostic identity corrections
+SHALL preserve compatibility arithmetic and catalog resolution.
+
+#### Scenario: Native launcher exclusions are independent of ammunition
+
+- **GIVEN** normal, one-shot and infantry weapons with represented ammunition identities
+- **WHEN** the shared owner assembles native cap diagnostics
+- **THEN** normal launchers SHALL retain their listed-BV caps even without ammunition
+- **AND** one-shot and infantry weapons SHALL supply no offensive cap, even with matching ammunition
+- **AND** a primitive AC diagnostic group SHALL replace only that mount's compatibility contribution
+- **AND** ordinary AC mounts in the same compatibility group SHALL retain their caps
+- **AND** ammunition BV, totals, source data and catalog aliases SHALL remain unchanged
+
 #### Scenario: Preserving existing cap policies
 
 - **WHEN** offensive ammunition cap mechanics are consolidated
@@ -1584,6 +1599,25 @@ native equipment numbers or names.
 - **WHEN** its BA breakdown is projected
 - **THEN** `trooper.2.weapon.*.Trooper 2.*` SHALL equal 14 and no other trooper or squad-level term SHALL list that mount
 - **AND** the same rifle marked squad support at the squad SHALL report `7 / 4 + 7 / 4 = 3.5` for every trooper
+
+### Requirement: BA section diagnostics
+
+The BA calculation owner SHALL total, for each trooper, the value each pinned
+weapon pass adds, from the same per-mount pass values that feed the weapon
+diagnostics (`BattleArmorBVCalculator.java:133-160`). The trace SHALL format those
+totals as `section.Weapons:`, `section.Squad Support:` and, only when the squad
+may make anti-Mek attacks, `section.Anti-Mek:` for the squad (trooper 1) and as
+`trooper.N.section.*` for every trooper, without recalculating BV. A pass that
+adds nothing SHALL still report 0. Existing scalar arithmetic, source inputs and
+totals SHALL remain unchanged. A legacy input, or a unit with a counted weapon
+mount that has no native location, SHALL create no section term.
+
+#### Scenario: Zero-valued and trooper-located passes
+
+- **GIVEN** an eligible four-trooper squad with manipulators and a Light Gauss Rifle carried by trooper 2
+- **WHEN** its BA breakdown is projected
+- **THEN** `trooper.2.section.Squad Support:` and `trooper.2.section.Anti-Mek:` SHALL equal 7 and `trooper.2.section.Weapons:` SHALL equal 0
+- **AND** every other trooper and the squad level SHALL report all three sections as 0
 
 ### Requirement: Canonical battle armor anti-Mek chassis projection
 

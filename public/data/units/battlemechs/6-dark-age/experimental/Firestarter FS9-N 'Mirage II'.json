@@ -203,5 +203,8 @@
   "weaponQuirks": {
     "LA:4:Flamer": ["exposed_linkage"],
     "RA:4:Flamer": ["exposed_linkage"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

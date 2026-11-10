@@ -73,6 +73,8 @@ export function filterHeatSinkTypes(techBase: TechBase): HeatSinkType[] {
 
 export function filterArmorTypes(techBase: TechBase): ArmorTypeEnum[] {
   return ARMOR_DEFINITIONS.filter((armor) => {
+    // Native-only types can be named but are not selectable yet.
+    if (armor.nativeOnly) return false;
     if (armor.type === ArmorTypeEnum.STANDARD) return true;
     if (armor.type === ArmorTypeEnum.FERRO_FIBROUS_IS)
       return techBase === TechBase.INNER_SPHERE;

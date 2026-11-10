@@ -35,11 +35,16 @@ describe('Pinned ProtoMek engine rating', () => {
     },
   );
 
+  // A new ProtoMech starts at its motive's minimum walk (1 biped, 2 quad, 3 glider), as
+  // MML's new unit starts at walk 1 (PMMainUI.java:140-147) and a motive change raises
+  // it to the minimum (MovementView.java:289). Ratings are TestProtoMek.calcEngineRating
+  // (ceil(1.5 x walk), minus 2 for a quad or glider, times tonnage): 2x5, 1x4, 3x9, 2x15.
+  // They were 30, 16, 36 and 75 when the default was a weight-class walk of 4 or 3.
   it.each([
-    [5, ProtoChassis.BIPED, 30],
-    [4, ProtoChassis.QUAD, 16],
-    [9, ProtoChassis.GLIDER, 36],
-    [15, ProtoChassis.ULTRAHEAVY, 75],
+    [5, ProtoChassis.BIPED, 10],
+    [4, ProtoChassis.QUAD, 4],
+    [9, ProtoChassis.GLIDER, 27],
+    [15, ProtoChassis.ULTRAHEAVY, 30],
   ] satisfies [number, ProtoChassis, number][])(
     'default %s-ton %s state has rating %s',
     (tonnage, chassisType, rating) => {
@@ -67,11 +72,13 @@ describe('Pinned ProtoMek engine rating', () => {
     expect(store.getState().engineRating).toBe(35);
     store.getState().setChassisType(ProtoChassis.GLIDER);
     expect(store.getState().engineRating).toBe(35);
+    // A tonnage edit keeps the walk and recomputes the engine for it
+    // (PMStructureTab.java:446-456); it used to reset walk to 10 minus the tonnage.
     store.getState().setTonnage(7);
     expect(store.getState()).toMatchObject({
-      engineRating: 21,
-      walkMP: 3,
-      cruiseMP: 3,
+      engineRating: computeProtoEngineRating(7, 6, ProtoChassis.GLIDER),
+      walkMP: 6,
+      cruiseMP: 6,
     });
     store.getState().setCruiseMP(4);
     expect(store.getState()).toMatchObject({

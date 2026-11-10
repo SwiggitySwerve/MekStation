@@ -1,0 +1,10 @@
+{
+  "status": "unreleased",
+  "revision": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+  "producer": "scripts/equipment-catalog/TechnologyAdvancementFacts.java",
+  "sidecar": "public/data/equipment/technology-advancements.json",
+  "catalogField": "nativeTechnologyNames",
+  "identity": ["file", "index", "id", "nativeTechnologyNames"],
+  "entries": [],
+  "release": "Scratch plans only. D batches require explicit coordinator release and reviewed identity manifests."
+}

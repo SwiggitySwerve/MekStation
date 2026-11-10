@@ -7,6 +7,7 @@
  * @spec Based on BattleTech TechManual mixed tech rules
  */
 
+import type { IUnitContract } from '@/types/contracts';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { TechBase } from '@/types/enums/TechBase';
@@ -143,6 +144,46 @@ export function pickUnitTechBaseIdentity(
     ...(state.chassisTechBase === undefined
       ? {}
       : { chassisTechBase: state.chassisTechBase }),
+  };
+}
+
+/**
+ * Apply the typed Mixed identity after composing source and editor fields.
+ * Legacy drafts and pure units keep their exact projection. Unknown chassis
+ * must clear stale source evidence rather than inherit the binary editor value.
+ */
+export function applyUnitTechBaseIdentity<
+  T extends Pick<
+    IUnitContract,
+    'techBase' | 'componentTechBases' | 'clanChassis'
+  >,
+>(definition: T, state: IUnitTechBaseIdentity, family: UnitFamily): T {
+  if (state.techBaseMode !== TechBaseMode.MIXED) return definition;
+  if (family === 'battlearmor') {
+    return {
+      ...definition,
+      techBase: 'MIXED',
+      clanChassis:
+        state.chassisTechBase === undefined
+          ? undefined
+          : state.chassisTechBase === TechBase.CLAN,
+    };
+  }
+  const { chassis: _chassis, ...components } =
+    definition.componentTechBases ?? {};
+  const chassis =
+    state.chassisTechBase === undefined
+      ? undefined
+      : state.chassisTechBase === TechBase.CLAN
+        ? 'CLAN'
+        : 'INNER_SPHERE';
+  return {
+    ...definition,
+    techBase: 'MIXED',
+    componentTechBases:
+      chassis === undefined && Object.keys(components).length === 0
+        ? undefined
+        : { ...components, ...(chassis === undefined ? {} : { chassis }) },
   };
 }
 

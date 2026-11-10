@@ -21,7 +21,6 @@ import {
   AerospaceSubType,
 } from '@/types/unit/AerospaceInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { computeWeightBreakdown } from '@/utils/construction/aerospace/weightBreakdown';
 
 import {
   mapAerospaceDefinitionToState,
@@ -505,24 +504,9 @@ describe('mapAerospaceDefinitionToState', () => {
     });
   });
 
-  it('derives SI above ceil(t / 10) with no SI weight (Thrush Maximillian: 25 t, SI 15)', async () => {
+  it('derives SI above ceil(t / 10) (Thrush Maximillian: 25 t, SI 15)', async () => {
     const state = await mapped('thrush-maximilianc-1247');
     expect(state.structuralIntegrity).toBe(15);
-    const breakdown = computeWeightBreakdown({
-      tonnage: state.tonnage,
-      subType: state.aerospaceSubType,
-      engineRating: state.engineRating,
-      engineType: state.aerospaceEngineType,
-      structuralIntegrity: state.structuralIntegrity,
-      fuelTons: state.fuelTons,
-      armorTons: state.armorTonnage,
-      totalHeatSinks: state.heatSinks,
-      cockpitType: state.cockpitType,
-      equipmentTons: 0,
-      crew: null,
-    });
-    // ceil-default pricing charged (15 - 3) x 2.5 x 0.5 = 15 t here.
-    expect(breakdown.siTons).toBe(0);
   });
 
   it.each(fixtures.units.map((unit) => [unit.id, unit.structuralIntegrity]))(

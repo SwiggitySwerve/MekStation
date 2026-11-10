@@ -6,6 +6,9 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import type { IUnitContract } from '@/types/contracts';
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
 import {
   IArmorAllocation,
   createEmptyArmorAllocation,
@@ -26,7 +29,11 @@ import {
   InternalStructureType,
   mapSerializedStructureType,
 } from '@/types/construction/InternalStructureType';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  TechBaseMode,
+  resolveUnitChassisTechBase,
+  pickUnitTechBaseIdentity,
+} from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 
@@ -149,13 +156,17 @@ export function mapHeatSinkType(typeStr: string): HeatSinkType {
 /**
  * Map armor type string to ArmorTypeEnum
  */
-export function mapArmorType(
+export function resolveArmorType(
   typeStr: string,
   techBase: TechBase,
-): ArmorTypeEnum {
+): ArmorTypeEnum | undefined {
   const native = getNativeArmorType(typeStr);
   if (native) return native;
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
+
+  if (normalized === ArmorTypeEnum.STANDARD.toUpperCase()) {
+    return ArmorTypeEnum.STANDARD;
+  }
 
   if (normalized === 'FERROFIBROUS' || normalized === 'FERRO') {
     return techBase === TechBase.CLAN
@@ -192,10 +203,17 @@ export function mapArmorType(
   if (normalized === 'BALLISTICREINFORCED') {
     return ArmorTypeEnum.BALLISTIC_REINFORCED;
   }
-  // INDUSTRIAL, HEAVY_INDUSTRIAL, PRIMITIVE armor types map to STANDARD for now
-  // These can be added to the enum when needed
+  // The facade retains the existing Standard fallback for unresolved identities.
 
-  return ArmorTypeEnum.STANDARD;
+  return undefined;
+}
+
+/** Preserve the existing fallback; diagnostics read the same resolution result. */
+export function mapArmorType(
+  typeStr: string,
+  techBase: TechBase,
+): ArmorTypeEnum {
+  return resolveArmorType(typeStr, techBase) ?? ArmorTypeEnum.STANDARD;
 }
 
 /**
@@ -229,6 +247,30 @@ export function mapTechBaseMode(techBaseStr: string): TechBaseMode {
   }
 
   return TechBaseMode.INNER_SPHERE;
+}
+
+/**
+ * Preserve unit identity after the existing component projection, including
+ * saved binary editor snapshots. MegaMek 48fcb2f64 BLKFile.setTechLevel keeps
+ * Mixed mode and chassis side separately; a binary fallback is not evidence.
+ */
+export function mapUnitTechBaseIdentity(
+  family: UnitFamily,
+  definition: IUnitContract,
+) {
+  if (
+    mapTechBaseMode(definition.techBase ?? 'INNER_SPHERE') !==
+    TechBaseMode.MIXED
+  )
+    return {};
+  const chassisTechBase = resolveUnitChassisTechBase(family, definition);
+  return {
+    ...pickUnitTechBaseIdentity({
+      techBaseMode: TechBaseMode.MIXED,
+      chassisTechBase,
+    }),
+    ...(chassisTechBase === undefined ? {} : { techBase: chassisTechBase }),
+  };
 }
 
 /**

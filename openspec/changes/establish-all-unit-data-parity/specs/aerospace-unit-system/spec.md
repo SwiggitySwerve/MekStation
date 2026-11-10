@@ -90,6 +90,28 @@ The system SHALL track structural integrity for aerospace fighters. Fighter SI S
 
 The system SHALL support engine type selection and thrust-based movement for aerospace fighters.
 
+SHALL obtain installed aerospace engine mass in tons from the pure
+`aerospaceEngineTons(input: AerospaceEngineTonsInput): number | undefined`
+owner in `aerospace/sourceWeight.ts`. SHALL reuse `calculateEngineWeight` for
+the fusion rating table and engine-type adjustments, with explicit aerospace
+fighter, conventional fighter, small craft, DropShip and unsupported fixed-wing
+support branches. SHALL use `tonnage * (safeThrust - 2)` for fighter engine
+mass, applying the primitive-cockpit factor of 1.2 and upward rating rounding
+to five before the table lookup (MegaMek `48fcb2f64`,
+`BLKAeroSpaceFighterFile.java:133-145`, `Engine.java:67-81,409-438`).
+
+SHALL preserve all 620 canonical source-weight results when extracting this
+owner. SHALL route the aerospace handler's engine contribution through this
+owner while preserving its other approximate contributions. SHALL report an
+unsupported engine mass explicitly instead of using zero or the former
+`safeThrust * tonnage * 0.05` approximation. SHALL return `undefined` for
+fission inputs whose shared engine mass is below the native five-ton minimum
+pending correction of the generic engine owner (`Engine.java:428-430`).
+
+SHALL keep cockpit and extra-heat-sink mass helpers in `sourceWeight.ts`.
+SHALL remove the unused alternate engine table, aggregate weight breakdown,
+their barrel exports and tests that pinned that alternate table.
+
 **Rationale**: Aerospace fighters use thrust ratings rather than walk/run MP, with engine rating derived from tonnage × safe thrust.
 
 **Priority**: Critical
@@ -106,6 +128,12 @@ The system SHALL support engine type selection and thrust-based movement for aer
 **WHEN** safe thrust is set to value S
 **THEN** engine rating SHALL equal T × S
 **AND** max thrust SHALL equal ceil(S × 1.5)
+
+- **GIVEN** canonical Shilone SL-17, 65 tons with safe thrust 6 and standard fusion
+- **WHEN** the handler's weight calculation is invoked directly
+- **THEN** its engine contribution SHALL be 13.5 tons and its result SHALL be 46.5 tons
+- **AND** its remaining approximate components SHALL retain their prior values
+- **AND** the source-weight owner SHALL retain the pre-extraction scalar
 
 #### Scenario: Engine rating determines safe thrust
 

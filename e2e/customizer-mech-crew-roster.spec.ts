@@ -11,6 +11,9 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+// Re-pin from the current checkout through the real loader (run at repo root):
+// npx tsx scripts/e2e/pin-mech-crew-save-losses.ts
+import saveLosses from './fixtures/mech-crew-save-losses.json';
 import {
   expectPrintWindowClosesAfterPrint,
   installPrintHarness,
@@ -23,6 +26,7 @@ interface ISeat {
   readonly pilot?: { name: string; gunnery: number; piloting: number };
 }
 interface ICase {
+  readonly sourceId: keyof typeof saveLosses.units;
   readonly label: string;
   readonly chassis: string;
   readonly model: string;
@@ -33,6 +37,7 @@ interface ICase {
 
 const cases: readonly ICase[] = [
   {
+    sourceId: 'triskelion-trk-4v',
     label: 'tripod with a blank gunner seat',
     chassis: 'Triskelion',
     model: 'TRK-4V',
@@ -42,6 +47,7 @@ const cases: readonly ICase[] = [
     ],
   },
   {
+    sourceId: 'triskelion-trk-4v',
     label: 'tripod edited to 105 tons gains a Tech Officer seat',
     chassis: 'Triskelion',
     model: 'TRK-4V',
@@ -56,6 +62,7 @@ const cases: readonly ICase[] = [
     ],
   },
   {
+    sourceId: 'poseidon-psd-v2',
     label: 'superheavy tripod with repeated names',
     chassis: 'Poseidon',
     model: 'PSD-V2',
@@ -69,6 +76,7 @@ const cases: readonly ICase[] = [
     ],
   },
   {
+    sourceId: 'boreas-a',
     label: 'QuadVee with a blank pilot seat',
     chassis: 'Boreas',
     model: 'A',
@@ -126,6 +134,82 @@ async function section(page: Page, name: string) {
   await page
     .getByRole('tablist', { name: 'Unit configuration tabs' })
     .getByRole('tab', { name, exact: true })
+    .click();
+}
+
+/**
+ * Pinned at saveLosses.sourceCommit from the real canonical loader:
+ * mapToUnitState -> equipmentMapping -> criticalSlotEquipment diagnostics.
+ * noticeGroups pins presentation at saveLosses.groupingSourceCommit, referencing
+ * the unchanged entry list by index rather than replacing its membership.
+ * Compare every source cell before acknowledging the product's save-loss gate.
+ * Triskelion's center-leg structure/armor markers are in o3a's acceptance set;
+ * remove those pinned entries when o3a recovers the markers. Poseidon's new
+ * center-leg AP pods belong to PR-D's (C2) acceptance set and leave this fixture
+ * when PR-D recovers them.
+ */
+async function confirmCriticalSlotLoss(page: Page, unit: ICase) {
+  const pinned = saveLosses.units[unit.sourceId];
+  const expected = pinned.entries;
+  const confirmation = page.getByRole('dialog', {
+    name: 'Save with missing critical-slot entries?',
+    exact: true,
+  });
+  if (expected.length === 0) {
+    await expect(confirmation).toHaveCount(0);
+    return;
+  }
+
+  await expect(confirmation).toBeVisible();
+  const region = confirmation.getByRole('region', {
+    name: 'Unrecovered critical-slot entries',
+    exact: true,
+  });
+  const indexes = pinned.noticeGroups.flatMap((group) =>
+    group.kinds.flatMap((kind) => kind.entryIndexes),
+  );
+  // Presentation indexes must remain a permutation of the original pinned list.
+  expect([...indexes].sort((a, b) => a - b)).toEqual(
+    expected.map((_, index) => index),
+  );
+  const entryText = (index: number) => {
+    const { text, location, slot } = expected[index];
+    return `${text} — ${location} [${slot}]`;
+  };
+  await expect(region.getByRole('listitem')).toHaveText(indexes.map(entryText));
+  await expect(region.getByRole('heading', { level: 3 })).toHaveText(
+    pinned.noticeGroups.map(
+      (group) =>
+        `${group.title} (${group.kinds.flatMap((kind) => kind.entryIndexes).length})`,
+    ),
+  );
+  for (const group of pinned.noticeGroups) {
+    const count = group.kinds.flatMap((kind) => kind.entryIndexes).length;
+    const section = region
+      .getByRole('heading', {
+        level: 3,
+        name: `${group.title} (${count})`,
+        exact: true,
+      })
+      .locator('..');
+    await expect(section.getByRole('heading', { level: 4 })).toHaveText(
+      group.kinds.map((kind) => `${kind.title} (${kind.entryIndexes.length})`),
+    );
+    for (const kind of group.kinds) {
+      const kindSection = section
+        .getByRole('heading', {
+          level: 4,
+          name: `${kind.title} (${kind.entryIndexes.length})`,
+          exact: true,
+        })
+        .locator('..');
+      await expect(kindSection.getByRole('listitem')).toHaveText(
+        kind.entryIndexes.map(entryText),
+      );
+    }
+  }
+  await confirmation
+    .getByRole('button', { name: 'Save anyway', exact: true })
     .click();
 }
 
@@ -233,6 +317,7 @@ test.describe('Tripod and QuadVee crew seats', () => {
             r.request().method() === 'POST',
         );
         await save.getByRole('button', { name: 'Save', exact: true }).click();
+        await confirmCriticalSlotLoss(page, unit);
         const response = await posted;
         expect(response.ok()).toBe(true);
         savedId = (await response.json()).data.id;

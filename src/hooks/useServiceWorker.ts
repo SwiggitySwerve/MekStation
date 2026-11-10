@@ -1,6 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { logger } from '@/utils/logger';
+
+// Cancel the automatic reload if saving stalls; never discard a dirty campaign.
+const UPDATE_RELOAD_SAVE_TIMEOUT_MS = 10_000;
 
 export interface ServiceWorkerState {
   isSupported: boolean;
@@ -44,16 +48,52 @@ export function useServiceWorker(
     // where every Playwright test opens a fresh browser context and the
     // first-install reload landed mid-test (e2e triage RC9/RC14).
     let hadController = Boolean(navigator.serviceWorker.controller);
+    let updateHandled = false;
+    let stopWaiting: (() => void) | undefined;
     const handleControllerChange = () => {
       if (!hadController) {
         // First install just claimed the page — keep it, no reload.
         hadController = true;
         return;
       }
-      if (reloadPage) {
-        reloadPage();
-      } else {
-        window.location.reload();
+      if (updateHandled) return;
+      updateHandled = true;
+
+      const reload = () => {
+        stopWaiting?.();
+        if (reloadPage) reloadPage();
+        else window.location.reload();
+      };
+      if (!useCampaignPersistenceStore.getState().dirty) {
+        reload();
+        return;
+      }
+
+      // Wait for the ordinary save's acknowledgement. A discard-time flush
+      // deliberately cannot acknowledge a write and is unsafe for this reload.
+      const unsubscribe = useCampaignPersistenceStore.subscribe((pending) => {
+        if (!pending.dirty) reload();
+        else if (
+          pending.saveState === 'error' ||
+          pending.saveState === 'conflict'
+        ) {
+          stopWaiting?.();
+        }
+      });
+      const timeout = setTimeout(() => {
+        stopWaiting?.();
+        logger.warn(
+          'Service worker update reload cancelled: campaign is still unsaved',
+        );
+      }, UPDATE_RELOAD_SAVE_TIMEOUT_MS);
+      stopWaiting = () => {
+        unsubscribe();
+        clearTimeout(timeout);
+        stopWaiting = undefined;
+      };
+      const pending = useCampaignPersistenceStore.getState();
+      if (pending.saveState === 'error' || pending.saveState === 'conflict') {
+        stopWaiting();
       }
     };
 
@@ -112,6 +152,7 @@ export function useServiceWorker(
     }
 
     return () => {
+      stopWaiting?.();
       navigator.serviceWorker.removeEventListener(
         'controllerchange',
         handleControllerChange,

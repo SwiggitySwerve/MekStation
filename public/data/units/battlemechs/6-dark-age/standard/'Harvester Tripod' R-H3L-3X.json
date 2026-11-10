@@ -16,7 +16,7 @@
   "gyro": {
     "type": "STANDARD"
   },
-  "cockpit": "STANDARD",
+  "cockpit": "TRIPOD",
   "structure": {
     "type": "STANDARD"
   },
@@ -40,7 +40,7 @@
       "HEAD": 9,
       "LEFT_LEG": 21,
       "RIGHT_LEG": 21,
-      "CL": 21
+      "CENTER_LEG": 21
     }
   },
   "heatSinks": {
@@ -155,6 +155,14 @@
       "Foot Actuator",
       "Clan Ferro-Lamellor",
       "Clan Ferro-Lamellor"
+    ],
+    "CENTER_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Clan Ferro-Lamellor",
+      "Clan Ferro-Lamellor"
     ]
   },
   "quirks": ["difficult_maintain", "no_arms", "distracting", "prototype"],
@@ -174,5 +182,8 @@
     }
   },
   "role": "Sniper",
-  "source": "XTR:RISC"
+  "source": "XTR:RISC",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

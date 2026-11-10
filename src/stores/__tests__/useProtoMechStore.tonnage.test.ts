@@ -1,9 +1,10 @@
 /**
- * ProtoMech tonnage edits stay inside the range the Structure tab offers.
+ * ProtoMech tonnage edits and motive changes.
  *
- * The Structure tab offers 10–15 t for an Ultraheavy chassis and 2–9 t for
- * the others (ProtoMechStructureTab.logic.ts getTonnageOptions), so the store
- * clamps each edit to its chassis range rather than to 2–9 t for everyone.
+ * MegaMekLab 62bf193 has one tonnage spinner, 2 to 15 t, for every motive
+ * (PMChassisView.java:79), so a motive change does not move the tonnage, and ultraheavy
+ * is a mass above 9 t (PMChassisView.java:205-207). The range, the kept walk and the
+ * refusal are tested on the pinned corpus in useProtoMechStore.ultraheavyMass.test.ts.
  */
 
 import { createNewProtoMechStore } from '@/stores/useProtoMechStore';
@@ -16,47 +17,20 @@ import {
 type ProtoStore = ReturnType<typeof createNewProtoMechStore>;
 
 describe('ProtoMech store setTonnage', () => {
-  it('keeps an Ultraheavy tonnage of 12 t', () => {
-    const store = createNewProtoMechStore({
-      tonnage: 10,
-      chassisType: ProtoChassis.ULTRAHEAVY,
-    });
+  it('keeps 12 t on a biped, and clamps to 2–15 t', () => {
+    const store = createNewProtoMechStore({ tonnage: 10 });
 
     store.getState().setTonnage(12);
-
     expect(store.getState().tonnage).toBe(12);
-  });
-
-  it('clamps an Ultraheavy to 10–15 t', () => {
-    const store = createNewProtoMechStore({
-      tonnage: 10,
-      chassisType: ProtoChassis.ULTRAHEAVY,
-    });
 
     store.getState().setTonnage(40);
     expect(store.getState().tonnage).toBe(15);
-
-    store.getState().setTonnage(3);
-    expect(store.getState().tonnage).toBe(10);
-  });
-
-  it('clamps other chassis to 2–9 t', () => {
-    const store = createNewProtoMechStore({ tonnage: 5 });
-
-    store.getState().setTonnage(12);
-    expect(store.getState().tonnage).toBe(9);
 
     store.getState().setTonnage(1);
     expect(store.getState().tonnage).toBe(2);
   });
 });
 
-/**
- * Switching chassis moves tonnage into the new chassis range, as MegaMekLab's
- * PMChassisView.refreshTonnage clamps its spinner after a motive change.
- * Ultraheavy means tonnage above TestProtoMek.MAX_STD_TONNAGE (9 t), up to
- * TestProtoMek.MAX_TONNAGE (15 t).
- */
 describe('ProtoMech store setChassisType', () => {
   function chassisFindings(state: ReturnType<ProtoStore['getState']>) {
     return validateProtoChassis({
@@ -67,28 +41,25 @@ describe('ProtoMech store setChassisType', () => {
     }).findings;
   }
 
-  it('raises a 5 t ProtoMech to 10 t when it becomes Ultraheavy', () => {
+  it('keeps a 5 t ProtoMech at 5 t when it becomes a Quad', () => {
     const store = createNewProtoMechStore({ tonnage: 5 });
 
-    store.getState().setChassisType(ProtoChassis.ULTRAHEAVY);
+    store.getState().setChassisType(ProtoChassis.QUAD);
 
     const state = store.getState();
-    expect(state.tonnage).toBe(10);
+    expect(state.tonnage).toBe(5);
     expect(state.structureByLocation).toEqual(
-      computeProtoStructure(10, ProtoChassis.ULTRAHEAVY, state.hasMainGun),
+      computeProtoStructure(5, ProtoChassis.QUAD, state.hasMainGun),
     );
     expect(chassisFindings(state)).toEqual([]);
   });
 
-  it('lowers a 12 t Ultraheavy to 9 t when it becomes a Biped', () => {
-    const store = createNewProtoMechStore({
-      tonnage: 12,
-      chassisType: ProtoChassis.ULTRAHEAVY,
-    });
+  it('keeps a 12 t biped at 12 t when it becomes a Glider', () => {
+    const store = createNewProtoMechStore({ tonnage: 12 });
 
-    store.getState().setChassisType(ProtoChassis.BIPED);
+    store.getState().setChassisType(ProtoChassis.GLIDER);
 
-    expect(store.getState().tonnage).toBe(9);
+    expect(store.getState().tonnage).toBe(12);
   });
 
   it('keeps a Glider above the Light class without a finding (no pinned weight rule)', () => {

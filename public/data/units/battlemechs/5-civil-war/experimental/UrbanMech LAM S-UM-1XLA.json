@@ -150,5 +150,8 @@
     ]
   },
   "source": "SB:UrbanLAM",
-  "lamType": "Standard"
+  "lamType": "Standard",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

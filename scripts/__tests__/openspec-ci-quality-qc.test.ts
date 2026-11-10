@@ -32,6 +32,7 @@ const GATE_COMMAND =
   'e2e/customizer-equipment-catalog.spec.ts ' +
   'e2e/customizer-record-sheet-rendering.spec.ts ' +
   'e2e/customizer-edit-recovery.spec.ts ' +
+  'e2e/customizer-mech-crew-roster.spec.ts ' +
   'e2e/gm-campaign-ledger-control-plane.spec.ts ' +
   '--project=chromium --retries=0 --trace=retain-on-failure ' +
   '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';
@@ -116,7 +117,7 @@ describe('OpenSpec CI quality QC validator', () => {
     const result = runValidator();
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('workflowContracts=9/9');
+    expect(result.stdout).toContain('workflowContracts=10/10');
     expect(result.stdout).toContain('protectedContexts=1');
     expect(result.stdout).toMatch(/activeOpenSpecChanges=\d+/);
     expect(result.stdout).toMatch(/accountedActiveOpenSpecChanges=\d+/);
@@ -376,6 +377,22 @@ describe('OpenSpec CI quality QC validator', () => {
         token: 'qc:openspec-ci:validate',
       }),
     );
+  });
+
+  it('rejects a workflow that drops the jest-dom skip list check', () => {
+    const workflow = readWorkflow();
+    const mutated = workflow.replace(
+      'run: node scripts/jest/jest-dom-usage.js --check',
+      'run: node scripts/jest/jest-dom-usage.js',
+    );
+    expect(mutated).not.toBe(workflow);
+    const mutatedPath = path.join(tempDir, 'pr-checks.yml');
+    writeText(mutatedPath, mutated);
+    const result = runValidator(['--json'], {
+      MEKSTATION_PR_WORKFLOW_PATH: mutatedPath,
+    });
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain('jest-dom-skip-list-is-safe');
   });
 
   describe('per-PR browser regression gates', () => {

@@ -1,5 +1,16 @@
 # Defensive BV rules
 
+The Mech critical consumer classifies AMS/APDS mounts through
+`getAmsBVWeaponKind`, using resolved catalog identities: the shared
+`AMS_WEAPON_IDS` and the catalog's `point-defense` flag. Ammunition comes from
+the ammunition catalog's `AMS` category, which includes APDS, and supplies its
+own catalog BV. It never enters the weapon cap or ordinary defensive equipment.
+The existing aggregate weapon/ammo minimum is unchanged. The real
+loader/state/serializer/reopen regression `mechBV.apds.save.test.ts` checks four
+APDS units, both saved ammo spellings, an ordinary AMS control, excessive ammo,
+and the absent-weapon control. Source: pinned BVCalculator.java:549-632 and
+ISAPDS.java:56-77 at 48fcb2f64.
+
 `calculateDefensiveBV` retains fractional armor BV through the defensive sum
 and movement factor. Armor and BAR multipliers do not round that subtotal.
 Source: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,

@@ -185,5 +185,8 @@
   "role": "Sniper",
   "weaponQuirks": {
     "LA:3:Large Laser": ["imp_cooling"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

@@ -1,7 +1,12 @@
+import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
+
 /** MTF adapter vocabulary, not a replacement for the canonical wire schema.
  * @spec openspec/changes/repair-mtf-adapter-vocabulary/specs/serialization-formats/spec.md
  * Sources: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
  * Engine.java:317-346; MtfFile.java:387-466,867-905.
+ * Gyro, cockpit, heat sink and rules level names live in
+ * src/types/formats/mtf-component-vocabulary.json, which the Python converter
+ * also loads (see MTF_COMPONENT_VOCABULARY.md).
  */
 const ENGINE_NAMES = [
   ['standard', 'FUSION', 'Fusion Engine'],
@@ -15,6 +20,23 @@ const ENGINE_NAMES = [
   ['fission', 'FISSION', 'Fission Engine'],
   ['battery', 'BATTERY', 'Battery Engine'],
 ] as const;
+
+/** Exact native critical-system identities, separate from equipment aliases.
+ * Bare tokens only: critical-cell decorations belong to parseCriticalSlotToken.
+ */
+export const MTF_CRITICAL_SLOT_SYSTEM_NAMES: readonly string[] = [
+  ...vocabulary.criticalSlotSystems,
+  ...ENGINE_NAMES.map(([, , name]) => name),
+  ...Object.keys(vocabulary.gyro).filter((name) => name.endsWith('Gyro')),
+  ...vocabulary.cockpitOrder.map(([name]) => name),
+];
+const criticalSystemNames = new Set(
+  MTF_CRITICAL_SLOT_SYSTEM_NAMES.map((name) => name.toLowerCase()),
+);
+
+export function isMTFCriticalSlotSystemName(name: string): boolean {
+  return criticalSystemNames.has(name.trim().toLowerCase());
+}
 
 const ARMOR_NAMES = [
   ['standard', 'STANDARD', 'Standard(Inner Sphere)'],
@@ -31,6 +53,18 @@ const ARMOR_NAMES = [
   ['commercial', 'COMMERCIAL', 'Commercial'],
   ['impact-resistant', 'IMPACT_RESISTANT', 'Impact-Resistant'],
   ['ferro-lamellor', 'FERRO_LAMELLOR', 'Ferro-Lamellor'],
+  // MegaMek 48fcb2f64 ArmorType.java:521,1051,1108,1139,2069;
+  // Mek.java:5385-5403 writes these exact names, including Patchwork's
+  // distinct global header (its location records require additional context).
+  ['ferro-fibrous prototype', 'FERRO_FIBROUS_PROTO', 'Ferro-Fibrous Prototype'],
+  ['ballistic-reinforced', 'BALLISTIC_REINFORCED', 'Ballistic-Reinforced'],
+  ['heat-dissipating', 'HEAT_DISSIPATING', 'Heat-Dissipating'],
+  [
+    'anti-penetrative ablation',
+    'ANTI_PENETRATIVE_ABLATION',
+    'Anti-Penetrative Ablation',
+  ],
+  ['patchwork', 'PATCHWORK', 'Patchwork'],
 ] as const;
 
 const ENGINE_PARSE_NAMES: Record<string, string> = Object.fromEntries(
@@ -56,6 +90,11 @@ const ARMOR_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
 );
 for (const type of CLAN_ARMOR_TYPES) {
   ARMOR_EXPORT_NAMES[`${type}_CLAN`] = `${ARMOR_EXPORT_NAMES[type]}(Clan)`;
+}
+
+/** Canonical MTF armor identities; deliberate legacy aliases are separate. */
+export function getMTFArmorIdentities(): readonly string[] {
+  return Object.keys(ARMOR_EXPORT_NAMES);
 }
 const ARMOR_EXPORT_ALIASES: Record<string, string> = {
   FERRO_FIBROUS_IS: 'FERRO_FIBROUS',
@@ -89,6 +128,90 @@ export function formatArmorType(type: string): string {
     throw new Error(`Unsupported MTF armor identity: ${type}`);
   }
   return ARMOR_EXPORT_NAMES[canonical];
+}
+
+function lookup(table: Readonly<Record<string, string>>, name: string) {
+  return Object.prototype.hasOwnProperty.call(table, name)
+    ? table[name]
+    : undefined;
+}
+
+/** A resolved component identity. `defaulted` is set when the pinned loader
+ * substituted its default for a string it did not recognise, which the parser
+ * reports as a warning and keeps on the unit. */
+export interface IMappedComponent {
+  readonly type: string;
+  readonly defaulted?: boolean;
+}
+
+/** MtfFile.java:252-259: an absent, blank or unrecognised gyro loads as
+ * Standard (exact full or short name, Mek.getGyroTypeForString). */
+export function mapGyroType(gyro: string): IMappedComponent {
+  const name = gyro.trim();
+  const standard = vocabulary.gyro['Standard Gyro'];
+  if (!name) return { type: standard };
+  const identity = lookup(vocabulary.gyro, name);
+  return identity ? { type: identity } : { type: standard, defaulted: true };
+}
+
+/** MtfFile.java:262-269 with Mek.getCockpitTypeForString (Mek.java:4935-4949):
+ * (1) an exact full or short name, in Java index order; (2) otherwise the first
+ * index whose full or short name is a prefix (how the writer's " (Adv. FCS)"
+ * suffix reads back, so a suffixed "Superheavy Tripod Cockpit" matches the short
+ * "Superheavy" at index 8 before index 9); (3) otherwise Standard, reported as
+ * defaulted. The index order is `cockpitOrder` in the shared vocabulary. */
+export function mapCockpitType(cockpit: string): IMappedComponent {
+  const name = cockpit.trim();
+  const standard = vocabulary.cockpit['Standard Cockpit'];
+  if (!name) return { type: standard };
+  const order = vocabulary.cockpitOrder;
+  let index = order.findIndex(
+    ([full, short]) => name === full || name === short,
+  );
+  if (index < 0) {
+    index = order.findIndex(
+      ([full, short]) => name.startsWith(full) || name.startsWith(short),
+    );
+  }
+  if (index < 0) return { type: standard, defaulted: true };
+  const identity = lookup(vocabulary.cockpit, order[index][0]);
+  if (!identity) {
+    throw new Error(`MTF vocabulary has no identity for ${order[index][0]}`);
+  }
+  return { type: identity };
+}
+
+/** The pinned writer emits Single, Laser, Compact, IS Double and Clan Double
+ * (Mek.java:5351-5362). The loader itself reads the line by keyword, in this
+ * order: Laser, Double (Clan or IS from the text, else the unit's own tech
+ * base), Compact, otherwise Single (MtfFile.java:366-368, 566-598). */
+export function mapHeatSinkType(
+  heatSink: string,
+  clanUnit: boolean,
+): IMappedComponent {
+  const name = heatSink.trim();
+  if (!name) return { type: vocabulary.heatSink.Single };
+  const identity = lookup(vocabulary.heatSink, name);
+  if (identity) return { type: identity };
+  if (name.includes('Laser')) return { type: vocabulary.heatSink.Laser };
+  if (name.includes('Double')) {
+    const clan = name.includes('Clan')
+      ? true
+      : name.includes('IS')
+        ? false
+        : clanUnit;
+    return {
+      type: clan
+        ? vocabulary.heatSink['Clan Double']
+        : vocabulary.heatSink['IS Double'],
+    };
+  }
+  if (name.includes('Compact')) return { type: vocabulary.heatSink.Compact };
+  return { type: vocabulary.heatSink.Single, defaulted: true };
+}
+
+export function mapRulesLevel(level: string): string {
+  return lookup(vocabulary.rulesLevel, level) ?? 'STANDARD';
 }
 
 export function mapEngineType(engineType: string): string {

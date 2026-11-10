@@ -18,7 +18,27 @@
   },
   "cockpit": "COMMAND_CONSOLE",
   "structure": {
-    "type": "STANDARD"
+    "type": "STANDARD",
+    "locationTonnage": {
+      "LEFT_ARM": 65,
+      "RIGHT_ARM": 65,
+      "LEFT_TORSO": 100,
+      "RIGHT_TORSO": 70,
+      "CENTER_TORSO": 100,
+      "HEAD": 100,
+      "LEFT_LEG": 100,
+      "RIGHT_LEG": 100
+    },
+    "typeByLocation": {
+      "LEFT_ARM": "ENDO_STEEL",
+      "RIGHT_ARM": "ENDO_STEEL",
+      "LEFT_TORSO": "STANDARD",
+      "RIGHT_TORSO": "ENDO_STEEL",
+      "CENTER_TORSO": "STANDARD",
+      "HEAD": "STANDARD",
+      "LEFT_LEG": "STANDARD",
+      "RIGHT_LEG": "STANDARD"
+    }
   },
   "armor": {
     "type": "STANDARD",
@@ -162,5 +182,8 @@
   },
   "mulId": 2828,
   "role": "Missile Boat",
-  "source": "XTR:Mercs"
+  "source": "XTR:Mercs",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

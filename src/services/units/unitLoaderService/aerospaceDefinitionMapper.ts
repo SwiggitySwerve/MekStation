@@ -42,6 +42,7 @@ import {
   mapEngineType,
   mapRulesLevel,
   mapTechBase,
+  mapUnitTechBaseIdentity,
 } from './componentMappers';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
@@ -347,6 +348,7 @@ export function mapAerospaceDefinitionToState(
         }
       : {}),
     equipment: mapEquipment(definition, isSmallCraft, editor),
+    ...mapUnitTechBaseIdentity('aerospace', definition),
     isModified: false,
     createdAt,
     lastModifiedAt: createdAt,

@@ -21,6 +21,7 @@ export interface FilterState {
   search: string;
   unitType: string;
   techBase: TechBase | '';
-  rulesLevel: RulesLevel | '';
+  /** A rules-level tag ("STANDARD") or '' for all levels. */
+  rulesLevel: string;
   weightClass: WeightClass | '';
 }

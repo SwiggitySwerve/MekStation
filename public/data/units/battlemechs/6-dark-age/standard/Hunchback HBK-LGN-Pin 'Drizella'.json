@@ -18,7 +18,27 @@
   },
   "cockpit": "STANDARD",
   "structure": {
-    "type": "STANDARD"
+    "type": "STANDARD",
+    "locationTonnage": {
+      "LEFT_ARM": 50,
+      "RIGHT_ARM": 50,
+      "LEFT_TORSO": 50,
+      "RIGHT_TORSO": 50,
+      "CENTER_TORSO": 50,
+      "HEAD": 50,
+      "LEFT_LEG": 50,
+      "RIGHT_LEG": 50
+    },
+    "typeByLocation": {
+      "LEFT_ARM": "STANDARD",
+      "RIGHT_ARM": "STANDARD",
+      "LEFT_TORSO": "ENDO_STEEL_CLAN",
+      "RIGHT_TORSO": "ENDO_STEEL_CLAN",
+      "CENTER_TORSO": "ENDO_STEEL",
+      "HEAD": "ENDO_STEEL",
+      "LEFT_LEG": "STANDARD",
+      "RIGHT_LEG": "STANDARD"
+    }
   },
   "armor": {
     "type": "STANDARD",
@@ -199,5 +219,8 @@
   },
   "mulId": 8375,
   "role": "Striker",
-  "source": "XTR:Royal Fantasy"
+  "source": "XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }
