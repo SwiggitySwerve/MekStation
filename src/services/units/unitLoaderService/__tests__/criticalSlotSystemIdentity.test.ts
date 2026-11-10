@@ -58,7 +58,7 @@ const cases = [
     MechLocation.LEFT_ARM,
     [7, 8, 9, 10],
     'isc3sensors-registry',
-    'C3 Remote Sensors',
+    'ISC3Sensors',
     EquipmentCategory.AMMUNITION,
   ],
   [
@@ -66,7 +66,7 @@ const cases = [
     MechLocation.LEFT_ARM,
     [7],
     'isc3sensors-registry',
-    'C3 Remote Sensors',
+    'ISC3Sensors',
     EquipmentCategory.AMMUNITION,
   ],
   [
@@ -97,7 +97,7 @@ const cases = [
 
 it.each(cases)(
   'preserves real %s %s equipment cells through two cold saves',
-  (file, location, slots, equipmentId, name, category) => {
+  (file, location, slots, equipmentId, savedToken, category) => {
     const loader = new UnitLoaderService();
     const source = parseUnit(
       JSON.parse(
@@ -131,7 +131,7 @@ it.each(cases)(
       for (const slot of slots) {
         expect(
           getCriticalSlotsForLocation(saved.criticalSlots, location)?.[slot],
-        ).toBe(name);
+        ).toBe(savedToken);
       }
       state = loader.mapToUnitState(
         parseUnit(JSON.parse(JSON.stringify(saved))),
