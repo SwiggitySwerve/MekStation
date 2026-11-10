@@ -1,0 +1,12 @@
+{
+  "revision": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+  "status": "verified-scratch-extraction",
+  "extractorSha256": "2358658b6ec8f79c80d35f18def76d86fc3b51584cc113cfc47371b90dfa01b5",
+  "factsSha256": "6e7ee1e4cb3c9ab28308fa31bfdaea53dc2070a913b0d5ae993653eacaa2b2fa",
+  "nativeTypeCount": 4419,
+  "published": false,
+  "runtimeManifestsSha256": {
+    "runtime-dependencies.json": "cdc00515d7d4eaaf44739a51bf59c43067473bffd5cb2cbfc61b3da8e45f7b85",
+    "compiled-runtime-files.json": "d624061f4ebbb17d9096e41764e4d0ae770d0718dbde92b3870dd36197e21427"
+  }
+}
