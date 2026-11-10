@@ -537,6 +537,20 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        baseChassisHeatSinks: z
+          .number()
+          .int()
+          .gte(-1)
+          .describe(
+            "OmniMek base chassis heat sinks exactly as the source states them (the MTF base chassis heat sinks line); -1 means unspecified. The loader's effective value is derived, not stored.",
+          )
+          .optional(),
+        clanName: z
+          .string()
+          .describe(
+            'Clan reporting name of the chassis (the MTF clanname line); present on Inner Sphere and Clan chassis alike',
+          )
+          .optional(),
         componentTechBases: z
           .object({
             chassis: SchemaDef_componentTechBase.optional(),
@@ -1070,6 +1084,20 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        baseChassisHeatSinks: z
+          .number()
+          .int()
+          .gte(-1)
+          .describe(
+            "OmniMek base chassis heat sinks exactly as the source states them (the MTF base chassis heat sinks line); -1 means unspecified. The loader's effective value is derived, not stored.",
+          )
+          .optional(),
+        clanName: z
+          .string()
+          .describe(
+            'Clan reporting name of the chassis (the MTF clanname line); present on Inner Sphere and Clan chassis alike',
+          )
+          .optional(),
         componentTechBases: z
           .object({
             chassis: SchemaDef_componentTechBase.optional(),

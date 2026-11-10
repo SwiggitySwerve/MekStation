@@ -114,3 +114,6 @@ class SerializedUnit:
     source: Optional[str] = None
     lamType: Optional[str] = None
     componentTechBases: Optional[Dict[str, str]] = None
+    isOmni: Optional[bool] = None
+    baseChassisHeatSinks: Optional[int] = None
+    clanName: Optional[str] = None

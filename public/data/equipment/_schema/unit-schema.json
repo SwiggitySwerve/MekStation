@@ -538,6 +538,15 @@
       "description": "Fluff/flavor text"
     },
     "isOmni": { "type": "boolean" },
+    "baseChassisHeatSinks": {
+      "type": "integer",
+      "minimum": -1,
+      "description": "OmniMek base chassis heat sinks exactly as the source states them (the MTF base chassis heat sinks line); -1 means unspecified. The loader's effective value is derived, not stored."
+    },
+    "clanName": {
+      "type": "string",
+      "description": "Clan reporting name of the chassis (the MTF clanname line); present on Inner Sphere and Clan chassis alike"
+    },
     "componentTechBases": {
       "type": "object",
       "description": "BattleMech Mixed Tech per-component tech base selections",

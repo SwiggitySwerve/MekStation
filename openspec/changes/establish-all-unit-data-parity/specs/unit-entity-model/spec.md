@@ -355,3 +355,43 @@ construction validity before the section-weighted mass rule is enabled.
 - **WHEN** loaded, saved and reopened
 - **THEN** the type map SHALL NOT be inferred or removed
 - **AND** existing global mass arithmetic SHALL remain unchanged
+
+### Requirement: OmniMek source facts
+
+The MTF converter SHALL preserve the three OmniMek facts of a BattleMech source as
+optional unit fields: `isOmni` (true exactly when the `Config:` value contains
+`Omni`), `baseChassisHeatSinks` (the integer of the `base chassis heat sinks:` line
+exactly as written, `-1` meaning unspecified) and `clanName` (the `clanname:` text,
+on Inner Sphere and Clan chassis alike). The unit contract SHALL declare
+`baseChassisHeatSinks` and `clanName` as optional, so a unit without them SHALL
+remain valid. A non-Omni source SHALL NOT gain `isOmni`, and a derived effective
+heat-sink value SHALL NOT overwrite the stored source value. An unparsable
+`base chassis heat sinks:` value SHALL fail the conversion with the offending value.
+
+#### Scenario: Omni facts survive conversion
+
+- **GIVEN** a `Config:Quad OmniMek` source with `base chassis heat sinks:8`, `heat sinks:12` and `clanname:Howler`
+- **WHEN** it is converted
+- **THEN** `isOmni` SHALL be true, `baseChassisHeatSinks` SHALL be 8 and `clanName` SHALL be `Howler`
+- **AND** the heat-sink count SHALL remain 12
+
+#### Scenario: Non-Omni sources and old documents
+
+- **GIVEN** a `Config:Biped` source without the lines, or a document that predates the fields
+- **WHEN** converted or validated
+- **THEN** none of the three fields SHALL be added or required
+- **GIVEN** a non-Omni source with a `clanname:` line
+- **WHEN** converted
+- **THEN** `clanName` SHALL be retained and `isOmni` SHALL remain absent
+
+#### Scenario: Saved documents and malformed sources
+
+- **GIVEN** a custom mech saved with the default `baseChassisHeatSinks` of `-1`
+- **WHEN** validated against the contract
+- **THEN** it SHALL be accepted
+- **GIVEN** a source whose `base chassis heat sinks:` value is not an integer
+- **WHEN** converted
+- **THEN** the conversion SHALL fail naming the value instead of omitting the fact
+
+Authority: MegaMek `48fcb2f64` `MtfFile.java:326`, `:358-359`, `:371`, `:601-606`,
+`:1717-1718` and `:1745-1746`; `Engine.java:1307-1320`.
