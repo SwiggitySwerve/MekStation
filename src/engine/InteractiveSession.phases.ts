@@ -42,6 +42,7 @@ import {
 } from '@/utils/gameplay/gameSession';
 import { createLocationIndexRollerFromD6 } from '@/utils/gameplay/gameSessionHeat.helpers';
 import { rollSessionStuckRecovery } from '@/utils/gameplay/gameSessionStuckRecovery';
+import { roll2d6 as rollDice } from '@/utils/gameplay/hitLocation';
 import {
   applyForcedWithdrawalCheck,
   applyMoralePass,
@@ -259,7 +260,12 @@ export function advanceInteractiveSessionPhase(
     // Per `wire-piloting-skill-rolls` § 7: drain the PSR queue for
     // every unit. Failures invoke `applyFall` (→ `UnitFell` +
     // `PilotHit`) and clear the remaining queue on that unit.
-    session = resolvePendingPSRs(session, context.diceRollerForResolvers());
+    // A session with no injected roller (a direct construction in a test)
+    // names ambient dice here; every adoption path passes a roller.
+    session = resolvePendingPSRs(
+      session,
+      context.diceRollerForResolvers() ?? rollDice,
+    );
     // PR-L2 §3: BA swarm-fire-while-attached.  Every BA squad currently
     // attached to a host mek fires its swarm-eligible weapons once at
     // the host.  No-op when the context did not supply

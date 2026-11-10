@@ -35,6 +35,7 @@ import {
   MovementType,
   type IGameUnit,
 } from '@/types/gameplay';
+import { defaultD6Roller } from '@/utils/gameplay/diceTypes';
 import { createUnitDestroyedEvent } from '@/utils/gameplay/gameEvents';
 import { createEventBase } from '@/utils/gameplay/gameEvents/base';
 import { declareMovement } from '@/utils/gameplay/gameSession';
@@ -201,7 +202,7 @@ function makeAdjacentSessionInPhysicalAttack(): InteractiveSession {
       [unit.position, destination],
     );
   }
-  const session = InteractiveSession.fromSession(replayable);
+  const session = InteractiveSession.fromSession(replayable, defaultD6Roller);
   session.advancePhase(); // Movement -> WeaponAttack
   session.advancePhase(); // WeaponAttack -> PhysicalAttack
   return session;

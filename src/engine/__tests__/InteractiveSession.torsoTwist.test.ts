@@ -9,6 +9,7 @@ import {
   type IGameUnit,
 } from '@/types/gameplay';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { defaultD6Roller } from '@/utils/gameplay/diceTypes';
 import { createGameSession, startGame } from '@/utils/gameplay/gameSession';
 
 import { InteractiveSession } from '../InteractiveSession';
@@ -41,22 +42,25 @@ function makeInteractiveSession(): InteractiveSession {
     ),
     GameSide.Player,
   );
-  return InteractiveSession.fromSession({
-    ...session,
-    currentState: {
-      ...session.currentState,
-      status: GameStatus.Active,
-      phase: GamePhase.WeaponAttack,
-      units: {
-        ...session.currentState.units,
-        'unit-player': {
-          ...session.currentState.units['unit-player'],
-          facing: Facing.North,
-          secondaryFacing: Facing.North,
+  return InteractiveSession.fromSession(
+    {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        status: GameStatus.Active,
+        phase: GamePhase.WeaponAttack,
+        units: {
+          ...session.currentState.units,
+          'unit-player': {
+            ...session.currentState.units['unit-player'],
+            facing: Facing.North,
+            secondaryFacing: Facing.North,
+          },
         },
       },
     },
-  });
+    defaultD6Roller,
+  );
 }
 
 describe('InteractiveSession.torsoTwist', () => {
