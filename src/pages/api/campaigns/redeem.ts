@@ -22,6 +22,7 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { getOrCreateHostInstanceId } from '@/lib/campaign/authority/campaignHostInstance';
 import { redeemCampaignGrant } from '@/lib/campaign/grants/redeemCampaignGrant';
+import { refuseCampaignLifecycle } from '@/pages-modules/api/campaignLifecycleGate';
 import {
   initializeApiDatabase,
   sendCaughtApiError,
@@ -109,6 +110,17 @@ export default async function handler(
       res
         .status(statusForRefusal(redeemed.reason))
         .json({ error: 'cannot redeem share', reason: redeemed.reason });
+      return;
+    }
+
+    // The share is verified, so the caller is known; a reader that cannot
+    // process the contracts in it is refused before anything is stored (S1b).
+    if (
+      refuseCampaignLifecycle(req, res, {
+        operation: 'write',
+        bodies: [{ source: 'incoming', body: redeemed.record.body }],
+      })
+    ) {
       return;
     }
 

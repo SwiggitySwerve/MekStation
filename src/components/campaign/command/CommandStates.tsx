@@ -72,6 +72,8 @@ interface CommandErrorProps {
   readonly message: string;
   /** Retry affordance — re-attempts the command-data load. */
   readonly onRetry: () => void;
+  /** Button text; "Reload" where a retry against this build cannot succeed. */
+  readonly retryLabel?: string;
 }
 
 /**
@@ -82,6 +84,7 @@ interface CommandErrorProps {
 export function CommandError({
   message,
   onRetry,
+  retryLabel = 'Retry',
 }: CommandErrorProps): React.ReactElement {
   return (
     <div
@@ -98,7 +101,7 @@ export function CommandError({
         className="bg-surface-raised hover:bg-border-theme text-text-theme-primary inline-block rounded-lg px-6 py-2 transition-colors"
         data-testid="command-error-retry"
       >
-        Retry
+        {retryLabel}
       </button>
     </div>
   );

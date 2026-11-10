@@ -36,6 +36,7 @@ import {
 } from '@/lib/campaign/authority/campaignLegacyAdoption';
 import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { refuseCampaignLifecycle } from '@/pages-modules/api/campaignLifecycleGate';
 import {
   initializeApiDatabase as initCampaignDb,
   rejectMissingQueryString as readCampaignId,
@@ -116,6 +117,21 @@ export default async function handler(
 
   try {
     const existing = readCampaign(id);
+    // Before the 409 below, which returns the stored record as `current`: a
+    // reader that cannot process its contracts must not receive it (S1b).
+    if (
+      refuseCampaignLifecycle(req, res, {
+        operation: 'write',
+        bodies: [
+          { source: 'incoming', body: body.envelope.body },
+          ...(existing.kind === 'ok'
+            ? [{ source: 'stored' as const, body: existing.record.body }]
+            : []),
+        ],
+      })
+    ) {
+      return;
+    }
     if (existing.kind === 'ok') {
       res.status(409).json({
         error: 'campaign is already held by this server',

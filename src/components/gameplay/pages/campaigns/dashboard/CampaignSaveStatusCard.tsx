@@ -31,6 +31,10 @@
 import React, { useCallback } from 'react';
 
 import { Badge, Button, Card } from '@/components/ui';
+import {
+  isLifecycleRefusalCode,
+  LIFECYCLE_UNSUPPORTED_CODE,
+} from '@/lib/campaign/persistence/lifecycleReaderGate';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 
 /** Human-readable label + badge variant per save-state. */
@@ -67,7 +71,12 @@ function formatLastSaved(lastSavedAt: string | null): string {
   return date.toLocaleString();
 }
 
-export function CampaignSaveStatusCard(): React.ReactElement {
+export function CampaignSaveStatusCard({
+  reloadPage = () => window.location.reload(),
+}: {
+  /** Reloads the page to pick up a newer build; injectable for tests. */
+  readonly reloadPage?: () => void;
+} = {}): React.ReactElement {
   const saveState = useCampaignPersistenceStore((s) => s.saveState);
   const dirty = useCampaignPersistenceStore((s) => s.dirty);
   const metadata = useCampaignPersistenceStore((s) => s.metadata);
@@ -102,6 +111,15 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   }, [clearLaunchConflict, resolveConflictTakeServer]);
 
   const status = describeSaveState(saveState);
+  // The contract-rules reader gate (S1b): this copy of MekStation cannot take
+  // the campaign. Neither Save now nor a retry can succeed, so neither shows.
+  const rulesRefusal =
+    saveState === 'error' &&
+    saveRefusal !== null &&
+    isLifecycleRefusalCode(saveRefusal.code)
+      ? saveRefusal
+      : null;
+  const canReload = rulesRefusal?.code === LIFECYCLE_UNSUPPORTED_CODE;
 
   return (
     <Card className="mb-6" data-testid="campaign-save-status-card">
@@ -131,7 +149,15 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               {errorMessage} — playing offline; changes are kept locally.
             </p>
           )}
-          {saveState === 'error' && saveRefusal && (
+          {rulesRefusal && (
+            <p
+              className="mt-1 text-sm text-red-400"
+              data-testid="campaign-lifecycle-refused"
+            >
+              {rulesRefusal.message}
+            </p>
+          )}
+          {saveState === 'error' && saveRefusal && !rulesRefusal && (
             <p
               className="mt-1 text-sm text-red-400"
               data-testid="campaign-save-refused"
@@ -187,6 +213,16 @@ export function CampaignSaveStatusCard(): React.ReactElement {
             >
               Use Server Version
             </Button>
+          ) : rulesRefusal ? (
+            canReload && (
+              <Button
+                variant="primary"
+                onClick={reloadPage}
+                data-testid="campaign-lifecycle-reload-btn"
+              >
+                Reload
+              </Button>
+            )
           ) : (
             <Button
               variant="primary"

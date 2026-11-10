@@ -100,6 +100,7 @@ export type CampaignSaveEvent =
       conflict: ICampaignSaveConflict | null;
     }
   | { type: 'save-refused'; refusal: ICampaignSaveRefusal }
+  | { type: 'load-refused'; refusal: ICampaignSaveRefusal }
   | {
       type: 'operation-failed';
       operation: CampaignSaveOperation;
@@ -224,6 +225,9 @@ export function reduceCampaignSaveState(
         saveConflict: event.conflict,
       };
     case 'save-refused':
+    // A refused load or adoption (S1b reader gate) ends in the same state: the
+    // server's sentence is shown, and nothing local changes.
+    case 'load-refused':
       return {
         ...state,
         saveState: 'error',

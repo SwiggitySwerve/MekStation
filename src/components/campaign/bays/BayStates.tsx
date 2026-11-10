@@ -70,6 +70,8 @@ interface BayErrorProps {
   readonly message: string;
   /** Retry affordance — re-attempts the inventory load. */
   readonly onRetry: () => void;
+  /** Button text; "Reload" where a retry against this build cannot succeed. */
+  readonly retryLabel?: string;
 }
 
 /**
@@ -80,6 +82,7 @@ interface BayErrorProps {
 export function BayError({
   message,
   onRetry,
+  retryLabel = 'Retry',
 }: BayErrorProps): React.ReactElement {
   return (
     <div
@@ -96,7 +99,7 @@ export function BayError({
         className="bg-surface-raised hover:bg-border-theme text-text-theme-primary inline-block rounded-lg px-6 py-2 transition-colors"
         data-testid="bay-error-retry"
       >
-        Retry
+        {retryLabel}
       </button>
     </div>
   );

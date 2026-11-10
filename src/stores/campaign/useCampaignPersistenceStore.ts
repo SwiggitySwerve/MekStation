@@ -36,6 +36,7 @@ import {
   campaignCacheKeyOf,
   evaluateCampaignCache,
 } from '@/lib/campaign/persistence/campaignCacheKey';
+import { lifecycleRulesRequestHeaders } from '@/lib/campaign/persistence/lifecycleReaderGate';
 import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
@@ -652,6 +653,7 @@ async function putLiveCampaign(
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        ...lifecycleRulesRequestHeaders(),
         ...coopRecordAuthHeaders(campaign),
       },
       body: JSON.stringify({ envelope, baseVersion }),
@@ -661,7 +663,14 @@ async function putLiveCampaign(
     const { record, conflict } = readConflictBody(await response.json());
     return { status: 'conflict', conflictServerRecord: record, conflict };
   }
-  if (response.status === 401 || response.status === 403) {
+  // 426/422 are the contract-rules reader gate (S1b): a typed refusal that
+  // retrying cannot fix, kept like the live-host refusals.
+  if (
+    response.status === 401 ||
+    response.status === 403 ||
+    response.status === 426 ||
+    response.status === 422
+  ) {
     const refusal = readSaveRefusal(await response.json().catch(() => null));
     if (refusal) {
       return { status: 'refused', refusal };
@@ -686,6 +695,7 @@ async function putLiveCampaign(
 function fetchCampaignRecord(id: string): Promise<Response> {
   return fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
     cache: 'no-store',
+    headers: lifecycleRulesRequestHeaders(),
   });
 }
 
@@ -944,6 +954,18 @@ async function runLoad(
         dispatchSaveEvent(set, { type: 'record-missing', adoptable: false });
         return false;
       }
+      if (response.status === 426) {
+        // The contract-rules reader gate (S1b): show the server's sentence,
+        // not a bare status. The live copy is left alone.
+        const refusal = readSaveRefusal(
+          await response.json().catch(() => null),
+        );
+        if (!current()) return false;
+        if (refusal) {
+          dispatchSaveEvent(set, { type: 'load-refused', refusal });
+          return false;
+        }
+      }
       if (!response.ok) {
         throw new Error(`server responded ${response.status}`);
       }
@@ -1064,10 +1086,20 @@ async function runAdoptLegacyCampaign(
       `/api/campaigns/${encodeURIComponent(campaignId)}/adopt`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...lifecycleRulesRequestHeaders(),
+        },
         body: JSON.stringify({ envelope }),
       },
     );
+    if (response.status === 426 || response.status === 422) {
+      const refusal = readSaveRefusal(await response.json().catch(() => null));
+      if (refusal) {
+        dispatchSaveEvent(set, { type: 'load-refused', refusal });
+        return false;
+      }
+    }
     if (!response.ok) {
       throw new Error(`server responded ${response.status}`);
     }
@@ -1116,7 +1148,10 @@ function fireKeepaliveFlush(campaignId: string, body: string): void {
   try {
     const pending = fetch(`/api/campaigns/${encodeURIComponent(campaignId)}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...lifecycleRulesRequestHeaders(),
+      },
       body,
       keepalive: true,
     });

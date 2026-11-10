@@ -45,12 +45,14 @@ import { expectedScopeForCampaign } from '@/lib/campaign/authority/campaignSessi
 import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/resolveCampaignAuthorityFromStores';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
+import { refuseCampaignLifecycle } from '@/pages-modules/api/campaignLifecycleGate';
 import {
   initializeApiDatabase as initCampaignDb,
   rejectMissingQueryString as readCampaignId,
   sendCaughtApiError as sendCampaignError,
 } from '@/pages-modules/api/routeHelpers';
 import { readCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
+import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { isActiveCampaignSeat } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
@@ -164,6 +166,19 @@ export default async function handler(
       error: 'cannot command this campaign',
       reason: 'not-campaign-participant',
     });
+    return;
+  }
+  // After identity and the seat, before any complaint about the body: the
+  // accept-contract command copies the stored offer, so a reader that cannot
+  // process the stored contracts must not command this campaign (S1b).
+  const stored = readCampaign(id);
+  if (
+    stored.kind === 'ok' &&
+    refuseCampaignLifecycle(req, res, {
+      operation: 'write',
+      bodies: [{ source: 'stored', body: stored.record.body }],
+    })
+  ) {
     return;
   }
   if ((req.body as Record<string, unknown>).authorPlayerId !== undefined) {
