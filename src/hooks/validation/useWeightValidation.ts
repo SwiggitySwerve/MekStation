@@ -9,27 +9,17 @@
 
 import { useMemo } from 'react';
 
+import type { WeightValidationData } from '@/utils/validation/mechValidationProjection.types';
+
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { useUnitStore } from '@/stores/useUnitStore';
-import { getEquipmentPayloadWeight } from '@/utils/equipment/equipmentWeightAccounting';
+import {
+  getMechConstructionSelections,
+  getMechValidationTonnage,
+  projectMechWeight,
+} from '@/utils/validation/mechValidationProjection';
 
-/**
- * Weight validation data
- */
-export interface WeightValidationData {
-  /** Total weight allocated by all components and equipment */
-  allocatedWeight: number;
-  /** Maximum weight allowed (tonnage) */
-  maxWeight: number;
-  /** Structural weight (engine, gyro, structure, cockpit, heat sinks, armor) */
-  structuralWeight: number;
-  /** Equipment weight */
-  equipmentWeight: number;
-  /** Remaining weight capacity */
-  remainingWeight: number;
-  /** Whether weight is within limits */
-  isValid: boolean;
-}
+export type { WeightValidationData } from '@/utils/validation/mechValidationProjection.types';
 
 /**
  * Hook for weight validation data
@@ -38,78 +28,19 @@ export interface WeightValidationData {
  * cockpitType, heatSinkType, heatSinkCount, armorTonnage, equipment (9 total)
  */
 export function useWeightValidation(): WeightValidationData {
-  const tonnage = useUnitStore((s) => s.tonnage);
-  const engineType = useUnitStore((s) => s.engineType);
-  const engineRating = useUnitStore((s) => s.engineRating);
-  const gyroType = useUnitStore((s) => s.gyroType);
-  const internalStructureType = useUnitStore((s) => s.internalStructureType);
-  const frankenStructure = useUnitStore((s) => s.frankenStructure);
-  const cockpitType = useUnitStore((s) => s.cockpitType);
-  const heatSinkType = useUnitStore((s) => s.heatSinkType);
-  const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
-  const armorType = useUnitStore((s) => s.armorType);
-  const armorTonnage = useUnitStore((s) => s.armorTonnage);
-  const configuration = useUnitStore((s) => s.configuration);
-  const jumpMP = useUnitStore((s) => s.jumpMP);
-  const jumpJetType = useUnitStore((s) => s.jumpJetType);
-  const equipment = useUnitStore((s) => s.equipment);
-
-  const effectiveTonnage = tonnage || 20;
-  const componentSelections = useMemo(
-    () => ({
-      engineType,
-      engineRating,
-      gyroType,
-      internalStructureType,
-      frankenStructure,
-      cockpitType,
-      heatSinkType,
-      heatSinkCount,
-      armorType,
-      jumpMP,
-      jumpJetType,
-    }),
-    [
-      engineType,
-      engineRating,
-      gyroType,
-      internalStructureType,
-      frankenStructure,
-      cockpitType,
-      heatSinkType,
-      heatSinkCount,
-      armorType,
-      jumpMP,
-      jumpJetType,
-    ],
+  const state = useUnitStore((s) => s);
+  const selections = useMemo(
+    () => getMechConstructionSelections(state),
+    [state],
   );
   const calculations = useUnitCalculations(
-    effectiveTonnage,
-    componentSelections,
-    armorTonnage,
-    configuration,
+    getMechValidationTonnage(state.tonnage),
+    selections,
+    selections.armorTonnage,
+    selections.configuration,
   );
-
-  return useMemo(() => {
-    // Calculate structural weight
-    const structuralWeight = calculations.totalStructuralWeight;
-
-    // Calculate equipment weight
-    const equipmentWeight = getEquipmentPayloadWeight(equipment);
-
-    // Total allocated weight
-    const allocatedWeight = structuralWeight + equipmentWeight;
-
-    // Remaining capacity
-    const remainingWeight = effectiveTonnage - allocatedWeight;
-
-    return {
-      allocatedWeight,
-      maxWeight: effectiveTonnage,
-      structuralWeight,
-      equipmentWeight,
-      remainingWeight,
-      isValid: allocatedWeight <= effectiveTonnage,
-    };
-  }, [effectiveTonnage, calculations.totalStructuralWeight, equipment]);
+  return useMemo(
+    () => projectMechWeight(state, calculations.totalStructuralWeight),
+    [state, calculations.totalStructuralWeight],
+  );
 }

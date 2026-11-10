@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 from enum_mappings import map_mech_location, map_structure_type, normalize_equipment_id
 from mtf_serialized_models import SerializedEquipment, SerializedStructure
+from mtf_source_equipment import append_source_weapons
 
 CRITICAL_MOUNTED_EQUIPMENT_IDS = {
     'chaff pod': 'chaffpod',
@@ -125,6 +126,9 @@ def _mounted_equipment_from_critical(item: str) -> Optional[str]:
 def build_equipment_list(
     weapons: List[Dict[str, str]],
     criticals: Optional[Dict[str, List[str]]] = None,
+    tonnage: Optional[int] = None,
+    configuration: str = '',
+    clan: bool = False,
 ) -> List[SerializedEquipment]:
     """Build equipment list from weapons data and selected critical-only equipment."""
     equipment: List[SerializedEquipment] = []
@@ -180,7 +184,7 @@ def build_equipment_list(
                     location=mapped_location,
                 ))
 
-    return equipment
+    return append_source_weapons(equipment, criticals or {}, tonnage, configuration, clan)
 
 def build_critical_slots(criticals: Dict[str, List[str]]) -> Dict[str, List[Optional[str]]]:
     """Build critical slots dictionary with proper slot counts per location."""
