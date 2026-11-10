@@ -177,6 +177,7 @@ data/
 !/docs/data/
 /docs/data/*
 !/docs/data/portable-source-provenance.md
+!/docs/data/examples/
 
 # Keep the source unit schema available to normal staging and commit checks.
 !/public/data/
