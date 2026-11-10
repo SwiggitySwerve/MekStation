@@ -92,6 +92,11 @@ describe('slotColors', () => {
     });
 
     describe('armor types', () => {
+      it('classifies Ferro-Fibrous Prototype as armor', () => {
+        expect(classifySystemComponent('Ferro-Fibrous Prototype')).toBe(
+          'armor',
+        );
+      });
       it('should classify Ferro-Fibrous IS as armor', () => {
         expect(classifySystemComponent(ArmorTypeEnum.FERRO_FIBROUS_IS)).toBe(
           'armor',
