@@ -1475,6 +1475,36 @@ Unresolved fallback zeros and missing or unsupported facts SHALL remain absent.
 - **THEN** no absent or unsupported fact SHALL become an invented zero or native location
 - **AND** existing weapon, positive miscellaneous and ammunition projections SHALL remain unchanged
 
+### Requirement: Infantry native ammunition pool diagnostic projection
+
+The infantry BV owner SHALL retain native field-gun ammunition cap groups using
+the shared ammunition accumulator and expose the existing uncapped availability
+from one shared pool calculation on unchanged arithmetic inputs. The source
+trace SHALL format these retained facts as `ammo.cap.<type:rack>` and
+`ammo.available.<type:rack>` without recalculating ammunition rules or changing
+any prior breakdown value, source load, validity result, aggregate or total.
+
+#### Scenario: Repeated launchers and admitted bins
+
+- **GIVEN** repeated field guns and ammunition bins in one or more native type:rack pools
+- **WHEN** the infantry ammunition diagnostics are projected
+- **THEN** each cap SHALL sum resolved launcher BV and each availability SHALL sum admitted bin BV exactly once before excessive-ammo capping and speed
+- **AND** positive partial-shot bins SHALL retain the existing native bin value without new proration
+
+#### Scenario: Personal weapons, absent bins and represented zeros
+
+- **GIVEN** personal infantry weapons, a field-gun cap without bins, an explicit zero or an unknown identity
+- **WHEN** the source trace is projected
+- **THEN** personal weapons SHALL create no ammunition pools and absent bins SHALL create no availability key
+- **AND** represented zeros SHALL remain present while unknown or absent facts SHALL remain absent
+
+#### Scenario: Optional finite diagnostics retain strict replay validation
+
+- **GIVEN** legacy infantry payloads or payloads with native ammunition pool diagnostics
+- **WHEN** replay validates the raw breakdown before object cloning
+- **THEN** optional finite values at recognized ammunition diagnostic keys SHALL be accepted
+- **AND** malformed keys, nonfinite values, and own or enumerable inherited unknown keys SHALL be rejected
+- **AND** existing replay assertions, digests and golden results SHALL remain unchanged
 
 ### Requirement: ProtoMech native raw weapon indices
 

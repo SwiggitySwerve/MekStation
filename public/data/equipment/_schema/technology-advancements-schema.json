@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://megamek-web.app/schemas/technology-advancements.json",
+  "title": "Pinned native technology advancements",
+  "description": "Raw pinned Java facts keyed by exact native internal name. Missing metadata is unresolved; this contract supplies no defaults, derived legality, minimum rules level or getter view.",
+  "type": "object",
+  "minProperties": 1,
+  "propertyNames": { "type": "string", "minLength": 1 },
+  "additionalProperties": { "$ref": "#/$defs/fact" },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "required": ["year", "approximate"],
+      "properties": {
+        "year": { "type": "integer", "minimum": -1 },
+        "approximate": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "rawSide": {
+      "type": "object",
+      "required": [
+        "prototype",
+        "production",
+        "common",
+        "extinct",
+        "reintroduced"
+      ],
+      "properties": {
+        "prototype": { "$ref": "#/$defs/stage" },
+        "production": { "$ref": "#/$defs/stage" },
+        "common": { "$ref": "#/$defs/stage" },
+        "extinct": { "$ref": "#/$defs/stage" },
+        "reintroduced": { "$ref": "#/$defs/stage" }
+      },
+      "additionalProperties": false
+    },
+    "factionSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+    },
+    "fact": {
+      "type": "object",
+      "required": ["techBase", "staticTechLevel", "advancement", "factions"],
+      "properties": {
+        "techBase": { "type": "string", "enum": ["IS", "CLAN", "ALL"] },
+        "staticTechLevel": {
+          "type": "string",
+          "enum": [
+            "INTRO",
+            "STANDARD",
+            "ADVANCED",
+            "EXPERIMENTAL",
+            "UNOFFICIAL"
+          ]
+        },
+        "advancement": {
+          "type": "object",
+          "required": ["IS", "CLAN"],
+          "properties": {
+            "IS": { "$ref": "#/$defs/rawSide" },
+            "CLAN": { "$ref": "#/$defs/rawSide" }
+          },
+          "additionalProperties": false
+        },
+        "factions": {
+          "type": "object",
+          "required": ["prototype", "production", "extinct", "reintroduced"],
+          "properties": {
+            "prototype": { "$ref": "#/$defs/factionSet" },
+            "production": { "$ref": "#/$defs/factionSet" },
+            "extinct": { "$ref": "#/$defs/factionSet" },
+            "reintroduced": { "$ref": "#/$defs/factionSet" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

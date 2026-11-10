@@ -2,7 +2,10 @@
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { ISupportVehicle } from '@/types/unit/VehicleInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
-import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
+import {
+  getEquipmentEntry,
+  type EquipmentCatalogEntry,
+} from '@/utils/construction/equipmentBV';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { getAmmunitionWeightEntry } from '@/utils/construction/equipmentBV/resolution';
 import { isFireWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
@@ -41,6 +44,19 @@ export type SupportRegistryMass = (
   equipmentId: string,
   name?: string,
 ) => number | undefined;
+
+/** Adapt the BV catalog category to the shared heat-neutral weapon contract. */
+export function getCatalogHeatNeutralWeaponHeat(
+  item: EquipmentCatalogEntry,
+): number | null {
+  return getVehicleHeatNeutralWeaponHeat({
+    ...item,
+    category:
+      item.category === 'Energy'
+        ? EquipmentCategory.ENERGY_WEAPON
+        : EquipmentCategory.BALLISTIC_WEAPON,
+  });
+}
 
 /** TestEntity.java:631-667,716-769: sum catalog mount weights by kind.
  * A non-ammunition mount uses the injected registry mass when it has one,
@@ -137,15 +153,7 @@ export function computeSupportPayloadWeights(
     if (resolvedWeight === undefined) unresolved.push(mount.equipmentId);
     const weight = resolvedWeight ?? item.weight;
     // TestEntity.java:938-982: heat-neutral weapon load; small SVs need no sinks.
-    const heat = weapon
-      ? (getVehicleHeatNeutralWeaponHeat({
-          ...item,
-          category:
-            item.category === 'Energy'
-              ? EquipmentCategory.ENERGY_WEAPON
-              : EquipmentCategory.BALLISTIC_WEAPON,
-        }) ?? 0)
-      : 0;
+    const heat = weapon ? (getCatalogHeatNeutralWeaponHeat(item) ?? 0) : 0;
     return {
       ...mount,
       ammo,
