@@ -141,8 +141,8 @@ def map_gyro_type(value: str) -> str:
 def map_cockpit_type(value: str) -> str:
     """Resolve a listed MTF cockpit name; only a blank line is Standard.
 
-    MtfFile.java:262-269 treats an absent or blank cockpit as Standard. An
-    unlisted name (e.g. Dual Cockpit) is rejected, not guessed.
+    MtfFile.java:262-269 treats an absent or blank cockpit as Standard. A name
+    outside the shared table is rejected, not guessed.
     """
     clean = value.strip()
     if not clean:

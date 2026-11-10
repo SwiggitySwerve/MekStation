@@ -38,10 +38,8 @@ export interface IMTFSourceDiagnostic {
   readonly raw: string;
   /** What the unit holds instead. */
   readonly applied: string;
-  /** `java-default`: the pinned loader substitutes a default for this string.
-   * `no-editor-identity`: Java has an identity the editor cannot hold yet.
-   * `unsupported`: Java loads a type the contract cannot represent. */
-  readonly reason: 'java-default' | 'no-editor-identity' | 'unsupported';
+  /** `java-default`: the pinned loader substitutes a default for this string. */
+  readonly reason: 'java-default';
   readonly javaRef: string;
 }
 
@@ -148,28 +146,6 @@ export class MTFParserService {
           raw: cockpitName,
           applied: cockpitType,
           reason: 'java-default',
-          javaRef: cockpitRef,
-        });
-      }
-      if (cockpit.degraded) {
-        warnings.push(
-          `MTF cockpit "${cockpitName}" has no editor identity yet and loads as Standard`,
-        );
-        diagnostics.push({
-          field: 'cockpit',
-          raw: cockpitName,
-          applied: cockpitType,
-          reason: 'no-editor-identity',
-          javaRef: cockpitRef,
-        });
-      }
-      if (cockpitType.startsWith('UNSUPPORTED_COCKPIT:')) {
-        warnings.push(`Unsupported MTF cockpit: ${cockpitName}`);
-        diagnostics.push({
-          field: 'cockpit',
-          raw: cockpitName,
-          applied: cockpitType,
-          reason: 'unsupported',
           javaRef: cockpitRef,
         });
       }

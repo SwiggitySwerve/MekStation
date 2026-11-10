@@ -1,4 +1,3 @@
-import { UnitContract } from '@/types/contracts';
 import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
 
 import { mapRulesLevel } from '../MTFParser.mapping';
@@ -31,8 +30,10 @@ const COCKPIT: Array<[string, string]> = [
   ['Interface Cockpit', 'INTERFACE'],
   ['QuadVee Cockpit', 'QUADVEE'],
   ['Superheavy Tripod Cockpit', 'SUPERHEAVY_TRIPOD'],
-  // The committed catalog has STANDARD here; 4.1-g.2 changes both together.
-  ['Tripod Cockpit', 'STANDARD'],
+  ['Tripod Cockpit', 'TRIPOD'],
+  ['Dual Cockpit', 'DUAL'],
+  ['Small Command Console', 'SMALL_COMMAND_CONSOLE'],
+  ['Superheavy Command Console', 'SUPERHEAVY_COMMAND_CONSOLE'],
   ['Superheavy Cockpit', 'SUPERHEAVY'],
   ['Primitive Industrial Cockpit', 'PRIMITIVE_INDUSTRIAL'],
   ['Virtual Reality Piloting Pod', 'VRRP'],
@@ -44,7 +45,10 @@ const COCKPIT: Array<[string, string]> = [
   ['Interface', 'INTERFACE'],
   ['VRPP', 'VRRP'],
   ['Quadvee', 'QUADVEE'],
-  ['Tripod', 'STANDARD'],
+  ['Tripod', 'TRIPOD'],
+  ['Dual', 'DUAL'],
+  ['Small Command', 'SMALL_COMMAND_CONSOLE'],
+  ['Superheavy Command', 'SUPERHEAVY_COMMAND_CONSOLE'],
 ];
 const HEAT_SINKS: Array<[string, string]> = [
   ['Single', 'SINGLE'],
@@ -223,26 +227,6 @@ describe('MTF component vocabulary', () => {
         },
       ],
       [
-        'cockpit:Tripod Industrial Cockpit (Adv. FCS)',
-        {
-          field: 'cockpit',
-          raw: 'Tripod Industrial Cockpit (Adv. FCS)',
-          applied: 'STANDARD',
-          reason: 'no-editor-identity',
-          javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
-        },
-      ],
-      [
-        'cockpit:Dual Cockpit',
-        {
-          field: 'cockpit',
-          raw: 'Dual Cockpit',
-          applied: 'UNSUPPORTED_COCKPIT:Dual Cockpit',
-          reason: 'unsupported',
-          javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
-        },
-      ],
-      [
         'heat sinks:14 Dissipators',
         {
           field: 'heatSinks',
@@ -280,53 +264,57 @@ describe('MTF component vocabulary', () => {
     });
   });
 
-  // MtfFile.java:262-269 + Mek.getCockpitTypeForString (Mek.java:4935-4950):
-  // exact full or short name first, then the first index whose full or short
-  // name is a prefix. This is how the writer's " (Adv. FCS)" suffix reads back,
-  // quirks included (the short "Superheavy" and "Primitive" win by index).
-  describe('cockpit prefix matching follows the pinned loader', () => {
+  // MtfFile.java:262-269 + Mek.getCockpitTypeForString (Mek.java:4935-4949):
+  // (1) an exact full or short name, in index order; (2) otherwise the first
+  // index whose full or short name is a prefix; (3) otherwise Standard. This is
+  // how the writer's " (Adv. FCS)" suffix reads back, quirks included (the
+  // short "Superheavy" and "Primitive" win by index).
+  describe('cockpit matching follows the pinned loader', () => {
     it.each([
       ['Industrial Cockpit (Adv. FCS)', 'INDUSTRIAL'],
       ['Primitive Industrial Cockpit (Adv. FCS)', 'PRIMITIVE'],
       ['Superheavy Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY'],
       ['Superheavy Tripod Industrial Cockpit (Adv. FCS)', 'SUPERHEAVY'],
+      // The quirk: the short "Superheavy" (index 8) prefix-matches before
+      // "Superheavy Tripod" (index 9), so a suffixed superheavy tripod reads
+      // as plain superheavy.
+      ['Superheavy Tripod Cockpit (prototype)', 'SUPERHEAVY'],
+      // "Tripod" (index 10) comes before "Tripod Industrial" (index 17).
+      ['Tripod Industrial Cockpit (Adv. FCS)', 'TRIPOD'],
+      ['Tripod Cockpit (prototype)', 'TRIPOD'],
+      // The same quirk for the command consoles: the short "Small" (index 1)
+      // and "Superheavy" (index 8) precede indexes 16 and 15.
+      ['Small Command Console (prototype)', 'SMALL'],
+      ['Superheavy Command Console (prototype)', 'SUPERHEAVY'],
       ['Small Cockpit (prototype)', 'SMALL'],
-    ])('%s -> %s', (source, identity) => {
+    ])('prefix: %s -> %s', (source, identity) => {
       const result = parse([`cockpit:${source}`]);
       expect(result.unit?.cockpit).toBe(identity);
       expect(result.warnings).toEqual([]);
     });
 
-    // Java has a real tripod cockpit; CockpitType does not, and the committed
-    // catalog holds STANDARD for it, so the importer matches the catalog until
-    // 4.1-g.2. The lost identity is never silent: the parse says so.
+    // An exact name must win over an earlier index that is only a prefix of it:
+    // "Small" (index 1) prefixes "Small Command Console" (index 16),
+    // "Superheavy" (index 8) prefixes "Superheavy Tripod Cockpit" (index 9) and
+    // "Superheavy Command Console" (index 15), and "Tripod" (index 10) prefixes
+    // "Tripod Industrial Cockpit" (index 17).
     it.each([
-      'Tripod Cockpit',
-      'Tripod',
-      'Tripod Industrial Cockpit (Adv. FCS)',
-    ])('%s loads as Standard with a visible warning', (source) => {
+      ['Small Command Console', 'SMALL_COMMAND_CONSOLE'],
+      ['Superheavy Tripod Cockpit', 'SUPERHEAVY_TRIPOD'],
+      ['Superheavy Command Console', 'SUPERHEAVY_COMMAND_CONSOLE'],
+      ['Tripod Industrial Cockpit', 'TRIPOD_INDUSTRIAL'],
+      ['Superheavy Tripod Industrial', 'SUPERHEAVY_TRIPOD_INDUSTRIAL'],
+    ])('exact before prefix: %s -> %s', (source, identity) => {
       const result = parse([`cockpit:${source}`]);
-      expect(result.unit?.cockpit).toBe('STANDARD');
-      expect(result.warnings).toEqual([
-        `MTF cockpit "${source}" has no editor identity yet and loads as Standard`,
-      ]);
+      expect(result.unit?.cockpit).toBe(identity);
+      expect(result.warnings).toEqual([]);
     });
 
-    // Java loads these as real types the contract cannot hold yet, so the
-    // importer keeps an explicit diagnostic until 4.1-g.2 extends CockpitType.
-    it.each([
-      'Dual Cockpit',
-      'Small Command Console',
-      'Superheavy Command Console',
-      'Dual',
-    ])(
-      'Java-valid but unrepresentable %s keeps an unsupported diagnostic',
-      (source) => {
-        const result = parse([`cockpit:${source}`]);
-        expect(result.unit?.cockpit).toBe(`UNSUPPORTED_COCKPIT:${source}`);
-        expect(result.warnings).toContain(`Unsupported MTF cockpit: ${source}`);
-        expect(UnitContract.safeParse(result.unit).success).toBe(false);
-      },
-    );
+    it('every Java cockpit name has a serialized identity', () => {
+      for (const [full, short] of vocabulary.cockpitOrder) {
+        expect(vocabulary.cockpit).toHaveProperty([full]);
+        expect(vocabulary.cockpit).toHaveProperty([short]);
+      }
+    });
   });
 });

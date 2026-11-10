@@ -167,7 +167,7 @@ describe('unrecognised component strings on the real import route', () => {
     expect(state.heatSinkCount).toBe(12);
   });
 
-  it('loads a pinned Tripod Cockpit unit as Standard and says so', async () => {
+  it('loads a pinned Tripod Cockpit unit as a Tripod cockpit, with no warning', async () => {
     const triskelion = fixtures.rows.find((row) =>
       row.path.endsWith('/Triskelion TRK-4V.mtf'),
     );
@@ -181,33 +181,42 @@ describe('unrecognised component strings on the real import route', () => {
         `import failed: ${imported.error.message} ${(imported.error.validationErrors ?? []).join('; ')}`,
       );
     }
-    expect(imported.data.warnings).toContain(
-      'MTF cockpit "Tripod Cockpit" has no editor identity yet and loads as Standard',
-    );
+    expect(imported.data.definition.cockpit).toBe('TRIPOD');
+    expect(imported.data.warnings).toEqual([]);
     expect(
       new UnitLoaderService().mapToUnitState(
         imported.data.definition as never,
         true,
       ).cockpitType,
-    ).toBe(CockpitType.STANDARD);
+    ).toBe(CockpitType.TRIPOD);
   });
 
-  // Java loads Dual, Small Command and Superheavy Command as real types the
-  // contract cannot hold yet, so the unit is rejected. The rejection must still
-  // name the raw token (it is never saved, so the error is the only record).
-  it.each(['Dual Cockpit', 'Small Command Console'])(
-    'rejects a %s unit and names the raw token in the error',
-    async (cockpit) => {
-      const text = original.replace(/^cockpit:.*$/im, `cockpit:${cockpit}`);
-      expect(text).toContain(`cockpit:${cockpit}`);
+  // Java loads Dual, Small Command and Superheavy Command as their own types
+  // (Mek.java:214-230) and the contract holds all 19, so they import as such.
+  it.each([
+    ['Dual Cockpit', 'DUAL', CockpitType.DUAL],
+    [
+      'Small Command Console',
+      'SMALL_COMMAND_CONSOLE',
+      CockpitType.SMALL_COMMAND_CONSOLE,
+    ],
+  ])('imports a %s unit as %s', async (cockpit, serialized, expected) => {
+    const text = original.replace(/^cockpit:.*$/im, `cockpit:${cockpit}`);
+    expect(text).toContain(`cockpit:${cockpit}`);
 
-      const imported = await importMTFDefinition(text);
-      expect(imported.success).toBe(false);
-      if (imported.success) return;
-      expect(imported.error.warnings).toContain(
-        `Unsupported MTF cockpit: ${cockpit}`,
+    const imported = await importMTFDefinition(text);
+    if (!imported.success) {
+      throw new Error(
+        `import failed: ${imported.error.message} ${(imported.error.validationErrors ?? []).join('; ')}`,
       );
-      expect(JSON.stringify(imported.error)).toContain(cockpit);
-    },
-  );
+    }
+    expect(imported.data.definition.cockpit).toBe(serialized);
+    expect(imported.data.warnings).toEqual([]);
+    expect(
+      new UnitLoaderService().mapToUnitState(
+        imported.data.definition as never,
+        true,
+      ).cockpitType,
+    ).toBe(expected);
+  });
 });

@@ -77,7 +77,11 @@ NEW_EXACT = {
     'GYRO_TYPE_MAP': {"XL": "XL", "Compact": "COMPACT", "Heavy Duty": "HEAVY_DUTY",
                       "Superheavy": "SUPERHEAVY"},
     'COCKPIT_TYPE_MAP': {
-        "Tripod Cockpit": "STANDARD", "Tripod": "STANDARD",
+        "Tripod Cockpit": "TRIPOD", "Tripod": "TRIPOD",
+        "Dual Cockpit": "DUAL", "Dual": "DUAL",
+        "Small Command Console": "SMALL_COMMAND_CONSOLE", "Small Command": "SMALL_COMMAND_CONSOLE",
+        "Superheavy Command Console": "SUPERHEAVY_COMMAND_CONSOLE",
+        "Superheavy Command": "SUPERHEAVY_COMMAND_CONSOLE",
         "Torso Mounted": "TORSO_MOUNTED", "Superheavy": "SUPERHEAVY",
         "Superheavy Tripod": "SUPERHEAVY_TRIPOD", "Interface": "INTERFACE",
         "VRPP": "VRRP", "Quadvee": "QUADVEE",
@@ -119,7 +123,7 @@ class MtfComponentVocabularyTest(unittest.TestCase):
                         'Industrial Cockpit': 'INDUSTRIAL', 'Primitive Cockpit': 'PRIMITIVE',
                         'Torso-Mounted Cockpit': 'TORSO_MOUNTED', 'Command Console': 'COMMAND_CONSOLE',
                         'Interface Cockpit': 'INTERFACE', 'QuadVee Cockpit': 'QUADVEE',
-                        'Superheavy Tripod Cockpit': 'SUPERHEAVY_TRIPOD', 'Tripod Cockpit': 'STANDARD',
+                        'Superheavy Tripod Cockpit': 'SUPERHEAVY_TRIPOD', 'Tripod Cockpit': 'TRIPOD',
                         'Superheavy Cockpit': 'SUPERHEAVY',
                         'Primitive Industrial Cockpit': 'PRIMITIVE_INDUSTRIAL',
                         'Virtual Reality Piloting Pod': 'VRRP'},
@@ -134,8 +138,7 @@ class MtfComponentVocabularyTest(unittest.TestCase):
                     self.assertEqual(shared[key][source], identity)
 
     def test_converter_functions_return_the_same_identities_for_listed_names(self):
-        # Tripod Cockpit keeps the catalog's STANDARD until the converter and
-        # CockpitType are extended together (4.1-g.2).
+        # Every Java cockpit type has its own identity (the contract holds all 19).
         for table, mapper in ((OLD_GYRO, map_gyro_type), (OLD_COCKPIT, map_cockpit_type),
                               (OLD_HEAT_SINK, map_heat_sink_type)):
             for source, identity in table.items():
@@ -159,7 +162,7 @@ class MtfComponentVocabularyTest(unittest.TestCase):
         cases = (
             (map_gyro_type, 'UNSUPPORTED_GYRO', ('Mystery Gyro', 'Super heavy gyro', 'Light XL Gyro', 'xl gyro')),
             (map_cockpit_type, 'UNSUPPORTED_COCKPIT',
-             ('Dual Cockpit', 'Small Command Console', 'Superheavy Command Console', 'standard cockpit', 'Unknown')),
+             ('standard cockpit', 'Unknown', 'Tripod Cockpit (prototype)')),
             (map_heat_sink_type, 'UNSUPPORTED_HEAT_SINK', ('DOUBLE clan', 'Dissipators', 'Double Clan')),
         )
         for mapper, label, names in cases:
@@ -180,22 +183,26 @@ class MtfComponentVocabularyTest(unittest.TestCase):
         self.assertEqual(order[18], ['Superheavy Tripod Industrial Cockpit',
                                      'Superheavy Tripod Industrial'])
         names = {name for pair in order for name in pair}
-        # Every table key is a Java name; the three types the contract cannot
-        # hold yet (Dual, Small Command, Superheavy Command) are Java names
-        # without an identity.
-        self.assertLessEqual(set(shared['cockpit']), names)
-        absent = names - set(shared['cockpit'])
-        self.assertEqual(absent, {'Dual Cockpit', 'Dual', 'Superheavy Command Console',
-                                  'Superheavy Command', 'Small Command Console', 'Small Command'})
+        # Every Java cockpit name (full and short) has a serialized identity.
+        self.assertEqual(set(shared['cockpit']), names)
 
-    def test_cockpits_loaded_as_standard_are_listed_and_really_map_to_standard(self):
-        # The TypeScript importer warns for every Java cockpit that the catalog
-        # (and CockpitType) can only hold as STANDARD; 4.1-g.2 empties this list.
+    def test_every_java_cockpit_has_its_own_identity(self):
+        # Mek.java:202-230: Tripod, Dual and both Command Consoles are real types,
+        # and the contract holds all 19. Nothing falls back to STANDARD.
         shared = json.loads(SHARED.read_text(encoding='utf-8-sig'))
-        self.assertEqual(shared['cockpitLoadedAsStandard'], ['Tripod Cockpit'])
-        for name in shared['cockpitLoadedAsStandard']:
-            self.assertEqual(shared['cockpit'][name], 'STANDARD')
-            self.assertIn(name, [pair[0] for pair in shared['cockpitOrder']])
+        self.assertNotIn('cockpitLoadedAsStandard', shared)
+        for name, identity in (
+            ('Tripod Cockpit', 'TRIPOD'), ('Tripod', 'TRIPOD'),
+            ('Dual Cockpit', 'DUAL'), ('Dual', 'DUAL'),
+            ('Small Command Console', 'SMALL_COMMAND_CONSOLE'),
+            ('Small Command', 'SMALL_COMMAND_CONSOLE'),
+            ('Superheavy Command Console', 'SUPERHEAVY_COMMAND_CONSOLE'),
+            ('Superheavy Command', 'SUPERHEAVY_COMMAND_CONSOLE'),
+        ):
+            with self.subTest(name=name):
+                self.assertEqual(shared['cockpit'][name], identity)
+                self.assertEqual(map_cockpit_type(name), identity)
+        self.assertEqual(len(set(shared['cockpit'].values())), 19 - 0)
 
     def test_tables_load_regardless_of_working_directory(self):
         probe = (
@@ -206,7 +213,7 @@ class MtfComponentVocabularyTest(unittest.TestCase):
             result = subprocess.run(
                 [sys.executable, '-B', '-c', probe, str(CONVERSION)],
                 cwd=elsewhere, capture_output=True, text=True, check=True)
-        self.assertEqual(result.stdout.split(), ['DOUBLE', 'STANDARD'])
+        self.assertEqual(result.stdout.split(), ['DOUBLE', 'TRIPOD'])
 
     def test_unreadable_shared_file_fails_loudly_instead_of_emptying_tables(self):
         real = Path.read_text

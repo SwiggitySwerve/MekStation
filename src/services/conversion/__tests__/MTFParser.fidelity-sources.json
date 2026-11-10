@@ -443,7 +443,7 @@
         "gyro": {
           "type": "STANDARD"
         },
-        "cockpit": "STANDARD",
+        "cockpit": "TRIPOD",
         "heatSinks": {
           "count": 15,
           "type": "DOUBLE"

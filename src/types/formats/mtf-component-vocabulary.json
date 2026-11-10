@@ -23,7 +23,7 @@
     "Primitive Industrial Cockpit": "PRIMITIVE_INDUSTRIAL",
     "Superheavy Cockpit": "SUPERHEAVY",
     "Superheavy Tripod Cockpit": "SUPERHEAVY_TRIPOD",
-    "Tripod Cockpit": "STANDARD",
+    "Tripod Cockpit": "TRIPOD",
     "Interface Cockpit": "INTERFACE",
     "Virtual Reality Piloting Pod": "VRRP",
     "QuadVee Cockpit": "QUADVEE",
@@ -38,13 +38,19 @@
     "Primitive Industrial": "PRIMITIVE_INDUSTRIAL",
     "Superheavy": "SUPERHEAVY",
     "Superheavy Tripod": "SUPERHEAVY_TRIPOD",
-    "Tripod": "STANDARD",
+    "Tripod": "TRIPOD",
     "Interface": "INTERFACE",
     "VRPP": "VRRP",
     "Quadvee": "QUADVEE",
     "Superheavy Industrial": "SUPERHEAVY_INDUSTRIAL",
     "Tripod Industrial": "TRIPOD_INDUSTRIAL",
-    "Superheavy Tripod Industrial": "SUPERHEAVY_TRIPOD_INDUSTRIAL"
+    "Superheavy Tripod Industrial": "SUPERHEAVY_TRIPOD_INDUSTRIAL",
+    "Dual Cockpit": "DUAL",
+    "Dual": "DUAL",
+    "Small Command Console": "SMALL_COMMAND_CONSOLE",
+    "Small Command": "SMALL_COMMAND_CONSOLE",
+    "Superheavy Command Console": "SUPERHEAVY_COMMAND_CONSOLE",
+    "Superheavy Command": "SUPERHEAVY_COMMAND_CONSOLE"
   },
   "cockpitOrder": [
     ["Standard Cockpit", "Standard"],
@@ -67,7 +73,6 @@
     ["Tripod Industrial Cockpit", "Tripod Industrial"],
     ["Superheavy Tripod Industrial Cockpit", "Superheavy Tripod Industrial"]
   ],
-  "cockpitLoadedAsStandard": ["Tripod Cockpit"],
   "heatSink": {
     "Single": "SINGLE",
     "IS Double": "DOUBLE",

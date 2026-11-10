@@ -82,16 +82,16 @@ it('retains a declared XL gyro through real API persistence and loading', async 
 });
 
 it('saves the raw gyro, cockpit and heat sink tokens and the import diagnostics with the unit', async () => {
-  // Java loads an unrecognised gyro and heat sink with a default and a Tripod
-  // cockpit as the catalog's Standard (MtfFile.java:252-269, :566-598). The
+  // Java loads an unrecognised gyro, cockpit and heat sink with a default
+  // (MtfFile.java:252-269, :566-598). The
   // derived values follow Java; nothing is lost: the source tokens and a
   // unit-level diagnostic per defaulted field persist and come back on reopen.
   const sourceText = text
     .replace(/^gyro:.*$/im, 'gyro:Quantum Gyro')
-    .replace(/^cockpit:.*$/im, 'cockpit:Tripod Cockpit')
+    .replace(/^cockpit:.*$/im, 'cockpit:Mystery Cockpit')
     .replace(/^heat sinks:(\d+) .*$/im, 'heat sinks:$1 Dissipators');
   expect(sourceText).toContain('gyro:Quantum Gyro');
-  expect(sourceText).toContain('cockpit:Tripod Cockpit');
+  expect(sourceText).toContain('cockpit:Mystery Cockpit');
   expect(sourceText).toMatch(/^heat sinks:\d+ Dissipators$/m);
   const response = await post({ sourceFormat: 'mtf', sourceText });
   expect(response._getStatusCode()).toBe(201);
@@ -117,7 +117,7 @@ it('saves the raw gyro, cockpit and heat sink tokens and the import diagnostics 
   expect(String(definition.heatSinks?.count)).toBe(heatSinkCount);
   // Retained, distinct from the derived values.
   expect(definition).toHaveProperty('mtfSource.gyro', 'Quantum Gyro');
-  expect(definition).toHaveProperty('mtfSource.cockpit', 'Tripod Cockpit');
+  expect(definition).toHaveProperty('mtfSource.cockpit', 'Mystery Cockpit');
   expect(definition).toHaveProperty(
     'mtfSource.heatSinks',
     `${heatSinkCount} Dissipators`,
@@ -132,9 +132,9 @@ it('saves the raw gyro, cockpit and heat sink tokens and the import diagnostics 
     },
     {
       field: 'cockpit',
-      raw: 'Tripod Cockpit',
+      raw: 'Mystery Cockpit',
       applied: 'STANDARD',
-      reason: 'no-editor-identity',
+      reason: 'java-default',
       javaRef: 'MtfFile.java:262-269; Mek.java:4935-4950',
     },
     {

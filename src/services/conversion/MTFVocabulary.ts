@@ -104,13 +104,10 @@ function lookup(table: Readonly<Record<string, string>>, name: string) {
 
 /** A resolved component identity. `defaulted` is set when the pinned loader
  * substituted its default for a string it did not recognise, which the parser
- * reports as a warning. */
+ * reports as a warning and keeps on the unit. */
 export interface IMappedComponent {
   readonly type: string;
   readonly defaulted?: boolean;
-  /** Java has a distinct identity the editor cannot hold yet, so `type` is the
-   * catalog's stand-in; the parser warns instead of dropping it silently. */
-  readonly degraded?: boolean;
 }
 
 /** MtfFile.java:252-259: an absent, blank or unrecognised gyro loads as
@@ -123,12 +120,12 @@ export function mapGyroType(gyro: string): IMappedComponent {
   return identity ? { type: identity } : { type: standard, defaulted: true };
 }
 
-/** MtfFile.java:262-269 with Mek.getCockpitTypeForString (Mek.java:4935-4950):
- * an exact full or short name wins, then the first Java index whose full or
- * short name is a prefix (how the writer's " (Adv. FCS)" suffix reads back);
- * anything else loads as Standard. A Java type the contract cannot hold yet
- * (Dual, Small Command, Superheavy Command) keeps an explicit unsupported
- * diagnostic; 4.1-g.2 extends CockpitType. */
+/** MtfFile.java:262-269 with Mek.getCockpitTypeForString (Mek.java:4935-4949):
+ * (1) an exact full or short name, in Java index order; (2) otherwise the first
+ * index whose full or short name is a prefix (how the writer's " (Adv. FCS)"
+ * suffix reads back, so a suffixed "Superheavy Tripod Cockpit" matches the short
+ * "Superheavy" at index 8 before index 9); (3) otherwise Standard, reported as
+ * defaulted. The index order is `cockpitOrder` in the shared vocabulary. */
 export function mapCockpitType(cockpit: string): IMappedComponent {
   const name = cockpit.trim();
   const standard = vocabulary.cockpit['Standard Cockpit'];
@@ -144,10 +141,10 @@ export function mapCockpitType(cockpit: string): IMappedComponent {
   }
   if (index < 0) return { type: standard, defaulted: true };
   const identity = lookup(vocabulary.cockpit, order[index][0]);
-  if (!identity) return { type: `UNSUPPORTED_COCKPIT:${cockpit}` };
-  return vocabulary.cockpitLoadedAsStandard.includes(order[index][0])
-    ? { type: identity, degraded: true }
-    : { type: identity };
+  if (!identity) {
+    throw new Error(`MTF vocabulary has no identity for ${order[index][0]}`);
+  }
+  return { type: identity };
 }
 
 /** The pinned writer emits Single, Laser, Compact, IS Double and Clan Double

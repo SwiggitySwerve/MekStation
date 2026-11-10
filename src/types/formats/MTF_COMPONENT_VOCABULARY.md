@@ -45,9 +45,10 @@ Both consumers read this one file:
   - heat sink: exact name from the table, else by keyword in the loader's order,
     Laser, Double (Clan or IS from the text, else the unit's own tech base),
     Compact, otherwise Single (`MtfFile.java:566-598`).
-    Only a Java type the contract cannot hold yet (below) keeps an
-    `UNSUPPORTED_COCKPIT:<raw>` value, which the unit contract rejects. Unreadable
-    rules levels keep their existing `STANDARD` fallback in both languages.
+    Every Java cockpit type has its own identity (the contract holds all 19), so
+    nothing is rejected or folded into Standard except a string Java itself
+    defaults. Unreadable rules levels keep their existing `STANDARD` fallback in
+    both languages.
 
 **Nothing is lost.** The importer keeps the declared text next to the derived
 value, inside `mtfSource` (which is saved with the unit and passes through the
@@ -56,8 +57,7 @@ contract's `catchall`, like `mtfSource.text`):
 - `mtfSource.gyro`, `mtfSource.cockpit`, `mtfSource.heatSinks`: the raw values,
   present when the line is present and non-blank;
 - `mtfSource.diagnostics`: one `{ field, raw, applied, reason, javaRef }` entry for
-  every field the loader defaulted (`java-default`), could only hold as Standard
-  (`no-editor-identity`) or could not represent (`unsupported`). Absent when
+  every field the loader defaulted (`reason: 'java-default'`). Absent when
   everything was recognised. Each entry mirrors one parse warning, so the import
   result and the saved unit agree. The editor does not display them yet.
 
@@ -67,15 +67,14 @@ so an unlisted name there is an error rather than a guess (the R1 contract).
 The file is a converter input. `strict-provenance-inputs.json` lists it, so a
 change here invalidates old strict-export receipts.
 
-## Catalog parity: `Tripod Cockpit`
+## Tripod and the other late cockpit types
 
-Java has a real tripod cockpit, but the committed catalog and `CockpitType` do
-not, so the converter has always emitted `STANDARD` for it (4 corpus units).
-The table keeps `Tripod Cockpit` and `Tripod` as explicit `STANDARD` entries so
-the importer matches the catalog. The identity is not lost silently: every name
-listed in `cockpitLoadedAsStandard` makes the importer add the warning
-`MTF cockpit "<raw>" has no editor identity yet and loads as Standard`. 4.1-g.2
-changes the entry, the list, the converter and `CockpitType` together.
+Java's table has 19 cockpits (`Mek.java:214-230`). `Tripod Cockpit` / `Tripod`
+is `COCKPIT_TRIPOD` (index 10, `Mek.java:202`), and `CockpitType.TRIPOD`, `DUAL`,
+`SMALL_COMMAND_CONSOLE` and `SUPERHEAVY_COMMAND_CONSOLE` exist, so each name maps
+to its own identity. The committed catalog may still hold `STANDARD` for the four
+pinned Tripod Cockpit units until it is regenerated; that is a catalog decision,
+not a vocabulary one.
 
 ## Adding an entry (for 4.1-g.2)
 
@@ -85,16 +84,10 @@ changes the entry, the list, the converter and `CockpitType` together.
    `scripts/__tests__/test_mtf_component_vocabulary.py`.
 3. TypeScript: add a row to `MTFParser.vocabulary.test.ts`; if the identity is
    new, extend `CockpitType` (or `GyroType`/`HeatSinkType`) and the contract enum
-   in the same change.
+   in the same change. Every name in `cockpitOrder` must keep an identity.
 4. Prove the converter export hash: a table-only edit that no corpus string uses
    must leave `sources.ndjson` identical; an edit the corpus uses is a catalog
    decision.
-
-Java loads `Dual Cockpit`, `Small Command Console` and `Superheavy Command
-Console` (and their short names) as real types that neither the contract nor
-`CockpitType` can represent yet. They are listed in `cockpitOrder` but have no
-identity in `cockpit`, so the importer reports `UNSUPPORTED_COCKPIT` for them
-and Python raises. 4.1-g.2 gives them identities together with `CockpitType`.
 
 Bare `Double` is not a table entry: Java takes its tech base from the unit, so
 the importer resolves it by keyword. The Python converter keeps it as a legacy

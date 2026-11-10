@@ -79,10 +79,9 @@ SHALL preserve the domain facts of every supported source family through import,
 - **WHEN** it is parsed by the app importer and by the Python converter
 - **THEN** both SHALL read one shared vocabulary file and resolve the same serialized identity, including Compact and Heavy Duty gyros, IS and Clan Double, Laser and Compact heat sinks, and rules level 5 as Unofficial
 - **AND** a gyro, cockpit or heat sink string the pinned loader defaults SHALL load with that Java default and a parse warning, not be rejected at import
-- **AND** a pinned cockpit type the contract cannot hold SHALL produce an explicit unsupported diagnostic
-- **AND** a pinned cockpit the committed catalog can only hold as Standard (Tripod) SHALL load as Standard with a parse warning, never silently
-- **AND** the raw gyro, cockpit and heat sink text SHALL be saved with the unit beside the derived values, with a unit-level diagnostic for every defaulted or stand-in value, so both survive save and reopen
-- **AND** the identity SHALL equal the committed catalog's for the same source bytes
+- **AND** the raw gyro, cockpit and heat sink text SHALL be saved with the unit beside the derived values, with a unit-level diagnostic for every defaulted value, so both survive save and reopen
+- **AND** every pinned cockpit name, including Tripod, Dual and both Command Consoles, SHALL resolve to its own identity, matched exact-first then by prefix in the pinned table order
+- **AND** the identity SHALL equal the pinned converter output for the same source bytes
 
 #### Scenario: Preserve slot-only weapons through MTF import and save
 
