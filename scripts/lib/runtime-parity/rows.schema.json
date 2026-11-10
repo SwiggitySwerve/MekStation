@@ -1,0 +1,1186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "battlemechs",
+            "vehicles",
+            "aerospace",
+            "capital",
+            "battlearmor",
+            "infantry",
+            "protomechs"
+          ]
+        },
+        "unitId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": ["path", "blob"],
+          "additionalProperties": false
+        },
+        "measure": {
+          "type": "string",
+          "const": "load"
+        },
+        "status": {
+          "type": "string",
+          "const": "ok"
+        },
+        "load": {
+          "type": "object",
+          "properties": {
+            "observed": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "weight": {
+                  "type": "number"
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "walk": {
+                      "type": "number"
+                    },
+                    "run": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["walk", "run", "jump"],
+                  "additionalProperties": false
+                },
+                "occupancy": {
+                  "type": "null"
+                }
+              },
+              "required": ["bv", "validity", "weight", "mp", "occupancy"],
+              "additionalProperties": false
+            },
+            "terms": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "issues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ruleId": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "enum": ["errors", "warnings", "infos"]
+                  },
+                  "severity": {
+                    "type": "string"
+                  },
+                  "field": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "ruleId",
+                  "channel",
+                  "severity",
+                  "field",
+                  "message"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["observed", "terms", "issues"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "family",
+        "unitId",
+        "path",
+        "sha256",
+        "catalog",
+        "measure",
+        "status",
+        "load"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "battlemechs",
+            "vehicles",
+            "aerospace",
+            "capital",
+            "battlearmor",
+            "infantry",
+            "protomechs"
+          ]
+        },
+        "unitId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": ["path", "blob"],
+          "additionalProperties": false
+        },
+        "measure": {
+          "type": "string",
+          "const": "load"
+        },
+        "status": {
+          "type": "string",
+          "const": "error"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "stage": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["stage", "name", "message"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "family",
+        "unitId",
+        "path",
+        "sha256",
+        "catalog",
+        "measure",
+        "status",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "battlemechs",
+            "vehicles",
+            "aerospace",
+            "capital",
+            "battlearmor",
+            "infantry",
+            "protomechs"
+          ]
+        },
+        "unitId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": ["path", "blob"],
+          "additionalProperties": false
+        },
+        "measure": {
+          "type": "string",
+          "const": "reopen"
+        },
+        "status": {
+          "type": "string",
+          "const": "ok"
+        },
+        "reopen": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "weight": {
+                  "type": "number"
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "walk": {
+                      "type": "number"
+                    },
+                    "run": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["walk", "run", "jump"],
+                  "additionalProperties": false
+                },
+                "occupancy": {
+                  "type": "null"
+                },
+                "terms": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "bv",
+                "validity",
+                "weight",
+                "mp",
+                "occupancy",
+                "terms"
+              ],
+              "additionalProperties": false
+            },
+            "after": {
+              "type": "object",
+              "properties": {
+                "bv": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validity": {
+                  "type": "string",
+                  "enum": ["valid", "invalid"]
+                },
+                "weight": {
+                  "type": "number"
+                },
+                "mp": {
+                  "type": "object",
+                  "properties": {
+                    "walk": {
+                      "type": "number"
+                    },
+                    "run": {
+                      "type": "number"
+                    },
+                    "jump": {
+                      "type": "number"
+                    }
+                  },
+                  "required": ["walk", "run", "jump"],
+                  "additionalProperties": false
+                },
+                "occupancy": {
+                  "type": "null"
+                },
+                "terms": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                }
+              },
+              "required": [
+                "bv",
+                "validity",
+                "weight",
+                "mp",
+                "occupancy",
+                "terms"
+              ],
+              "additionalProperties": false
+            },
+            "lostCells": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slot": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "identity": {
+                        "type": "string",
+                        "const": "system"
+                      },
+                      "bucket": {
+                        "type": "null"
+                      },
+                      "kind": {
+                        "type": "null"
+                      }
+                    },
+                    "required": [
+                      "location",
+                      "slot",
+                      "text",
+                      "identity",
+                      "bucket",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slot": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "identity": {
+                        "type": "string",
+                        "const": "non-system"
+                      },
+                      "bucket": {
+                        "type": "string",
+                        "enum": [
+                          "o3a",
+                          "o3b",
+                          "o3b-s",
+                          "Celerity",
+                          "PR-D",
+                          "none"
+                        ]
+                      },
+                      "kind": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "location",
+                      "slot",
+                      "text",
+                      "identity",
+                      "bucket",
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "tokenChanges": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "reopenedText": {
+                    "type": "string"
+                  }
+                },
+                "required": ["location", "slot", "text", "reopenedText"],
+                "additionalProperties": false
+              }
+            },
+            "rawIdentityLosses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "slot": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": ["location", "slot", "text"],
+                "additionalProperties": false
+              }
+            },
+            "noticeResidual": {
+              "type": "object",
+              "properties": {
+                "residual": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slot": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["location", "slot", "text"],
+                    "additionalProperties": false
+                  }
+                },
+                "noticeOnly": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slot": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["location", "slot", "text"],
+                    "additionalProperties": false
+                  }
+                },
+                "roundTripOnly": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slot": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "text": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["location", "slot", "text"],
+                    "additionalProperties": false
+                  }
+                },
+                "equal": {
+                  "type": "boolean"
+                },
+                "reopenedResidualCells": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "residual",
+                "noticeOnly",
+                "roundTripOnly",
+                "equal",
+                "reopenedResidualCells"
+              ],
+              "additionalProperties": false
+            },
+            "loadedMountLosses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "equipmentId": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "techBase": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "splitSlots": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slots": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      }
+                    },
+                    "required": ["location", "slots"],
+                    "additionalProperties": false
+                  },
+                  "spreadSlots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string"
+                        },
+                        "slots": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        }
+                      },
+                      "required": ["location", "slots"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "isRearMounted": {
+                    "type": "boolean"
+                  },
+                  "isOmniPodMounted": {
+                    "type": "boolean"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "criticalSlots": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "heat": {
+                    "type": "number"
+                  },
+                  "bucket": {
+                    "type": "string",
+                    "enum": ["o3a", "o3b", "o3b-s", "Celerity", "PR-D", "none"]
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "equipmentCategory": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "equipmentId",
+                  "bucket",
+                  "kind",
+                  "equipmentCategory"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "changedLoadedMounts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "before": {
+                    "type": "object",
+                    "properties": {
+                      "equipmentId": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "string"
+                      },
+                      "techBase": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "slots": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "splitSlots": {
+                        "type": "object",
+                        "properties": {
+                          "location": {
+                            "type": "string"
+                          },
+                          "slots": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          }
+                        },
+                        "required": ["location", "slots"],
+                        "additionalProperties": false
+                      },
+                      "spreadSlots": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "location": {
+                              "type": "string"
+                            },
+                            "slots": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": ["location", "slots"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "isRearMounted": {
+                        "type": "boolean"
+                      },
+                      "isOmniPodMounted": {
+                        "type": "boolean"
+                      },
+                      "weight": {
+                        "type": "number"
+                      },
+                      "criticalSlots": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "heat": {
+                        "type": "number"
+                      }
+                    },
+                    "required": ["equipmentId"],
+                    "additionalProperties": false
+                  },
+                  "after": {
+                    "type": "object",
+                    "properties": {
+                      "equipmentId": {
+                        "type": "string"
+                      },
+                      "category": {
+                        "type": "string"
+                      },
+                      "techBase": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "slots": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "splitSlots": {
+                        "type": "object",
+                        "properties": {
+                          "location": {
+                            "type": "string"
+                          },
+                          "slots": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          }
+                        },
+                        "required": ["location", "slots"],
+                        "additionalProperties": false
+                      },
+                      "spreadSlots": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "location": {
+                              "type": "string"
+                            },
+                            "slots": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          },
+                          "required": ["location", "slots"],
+                          "additionalProperties": false
+                        }
+                      },
+                      "isRearMounted": {
+                        "type": "boolean"
+                      },
+                      "isOmniPodMounted": {
+                        "type": "boolean"
+                      },
+                      "weight": {
+                        "type": "number"
+                      },
+                      "criticalSlots": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "heat": {
+                        "type": "number"
+                      }
+                    },
+                    "required": ["equipmentId"],
+                    "additionalProperties": false
+                  },
+                  "cells": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string"
+                        },
+                        "slot": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["location", "slot"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "bucket": {
+                    "type": "string",
+                    "enum": ["o3a", "o3b", "o3b-s", "Celerity", "PR-D", "none"]
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "equipmentCategory": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "before",
+                  "after",
+                  "cells",
+                  "bucket",
+                  "kind",
+                  "equipmentCategory"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "addedLoadedMounts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "equipmentId": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "techBase": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "slots": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "splitSlots": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "slots": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      }
+                    },
+                    "required": ["location", "slots"],
+                    "additionalProperties": false
+                  },
+                  "spreadSlots": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string"
+                        },
+                        "slots": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        }
+                      },
+                      "required": ["location", "slots"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "isRearMounted": {
+                    "type": "boolean"
+                  },
+                  "isOmniPodMounted": {
+                    "type": "boolean"
+                  },
+                  "weight": {
+                    "type": "number"
+                  },
+                  "criticalSlots": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "heat": {
+                    "type": "number"
+                  },
+                  "cells": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "location": {
+                          "type": "string"
+                        },
+                        "slot": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": ["location", "slot"],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": ["equipmentId", "cells"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "before",
+            "after",
+            "lostCells",
+            "tokenChanges",
+            "rawIdentityLosses",
+            "noticeResidual",
+            "loadedMountLosses",
+            "changedLoadedMounts",
+            "addedLoadedMounts"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "family",
+        "unitId",
+        "path",
+        "sha256",
+        "catalog",
+        "measure",
+        "status",
+        "reopen"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "number",
+          "const": 1
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "battlemechs",
+            "vehicles",
+            "aerospace",
+            "capital",
+            "battlearmor",
+            "infantry",
+            "protomechs"
+          ]
+        },
+        "unitId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "catalog": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{40}$"
+            }
+          },
+          "required": ["path", "blob"],
+          "additionalProperties": false
+        },
+        "measure": {
+          "type": "string",
+          "const": "reopen"
+        },
+        "status": {
+          "type": "string",
+          "const": "error"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "stage": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": ["stage", "name", "message"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "family",
+        "unitId",
+        "path",
+        "sha256",
+        "catalog",
+        "measure",
+        "status",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}

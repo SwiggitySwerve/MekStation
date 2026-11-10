@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "measure": {
+      "type": "string",
+      "enum": ["load", "reopen"]
+    },
+    "repoSha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "node": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string"
+    },
+    "reference": {
+      "type": "object",
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["sha256"],
+      "additionalProperties": false
+    },
+    "sources": {
+      "type": "object",
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["sha256"],
+      "additionalProperties": false
+    },
+    "manifest": {
+      "type": "object",
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["sha256"],
+      "additionalProperties": false
+    },
+    "rows": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": ["count", "sha256"],
+      "additionalProperties": false
+    },
+    "durationSeconds": {
+      "type": "number"
+    },
+    "resources": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "measure",
+    "repoSha",
+    "node",
+    "platform",
+    "reference",
+    "sources",
+    "manifest",
+    "rows",
+    "durationSeconds",
+    "resources"
+  ],
+  "additionalProperties": false
+}
