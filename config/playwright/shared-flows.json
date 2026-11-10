@@ -20,6 +20,7 @@
         "src/components/customizer/dialogs/SaveUnitDialog.tsx"
       ],
       "specs": [
+        "e2e/campaign-customizer-handoff.spec.ts",
         "e2e/customizer-data-flow.spec.ts",
         "e2e/customizer-mech-crew-roster.spec.ts",
         "e2e/saved-custom-combat-launch.spec.ts",
