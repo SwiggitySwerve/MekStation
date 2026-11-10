@@ -9,6 +9,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { mergeUnitDraftState } from '@/stores/unit/mergeUnitDraftState';
 import { safeGetItem, safeRemoveItem } from '@/stores/utils/clientSafeStorage';
 import { logger } from '@/utils/logger';
 import { cloneSerializedStructure } from '@/utils/serialization/structureMetadata';
@@ -152,8 +153,7 @@ export function hydrateOrCreateUnit(
           id: validUnitId,
         });
         const mergedState: UnitState = {
-          ...defaultState,
-          ...state,
+          ...mergeUnitDraftState(defaultState, state),
           id: validUnitId, // Always use the validated ID we were called with
         };
 

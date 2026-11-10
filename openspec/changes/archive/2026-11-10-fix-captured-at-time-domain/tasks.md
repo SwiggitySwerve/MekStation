@@ -12,4 +12,4 @@
 
 ## Follow-up outside this change
 
-- [ ] Re-mint the committed maintenance-repairbay pack (its stored morale is stale since the pay-baseline change): deferred to M2 by Root.
+- [x] Re-mint the committed maintenance-repairbay pack (its stored morale is stale since the pay-baseline change): completed by G8 #3319, merge `45a1c1d354352fa11116198da6824091e48fe1f7`.

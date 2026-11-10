@@ -8,5 +8,5 @@
 
 ## Follow-up outside this change
 
-- [ ] Monthly check on the 1st of the month for active contracts with a seeded roll (M2).
+- [x] Monthly check on the 1st of the month for active contracts with a seeded roll (M2). Completed by #3298, merge `2adcc8973213a7a667b969537c137dbca8d57584`.
 - [ ] The ROUTED lifecycle (early end and payout, rout end date, re-spike, enemy swap, prisoners).

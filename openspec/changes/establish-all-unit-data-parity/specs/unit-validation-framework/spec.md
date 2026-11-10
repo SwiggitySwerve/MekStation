@@ -93,3 +93,35 @@ BattleMech construction and weight-validation consumers SHALL obtain structure m
 - **WHEN** an unknown structure type reaches the construction installation step
 - **THEN** the step SHALL retain its error and zero weight
 - **AND** the other existing mass consumers SHALL retain their Standard-weight fallback
+
+### Requirement: Shared BattleMech validation input projection
+
+Live editor validation and the corpus validity capture SHALL build a
+BattleMech's `IValidatableUnit` through one React-free projection owner. That
+owner SHALL derive a single construction-selection fact set from unit state
+that includes at least configuration, FrankenMek structure (`frankenStructure`),
+LAM type (`lamType`), tech-base mode, armor type and the engine, gyro,
+structure, cockpit, heat-sink and jump selections. The structural weight passed
+to validation SHALL be computed from that same fact set, so configuration-,
+FrankenMek- and LAM-dependent masses reach validation. React hooks SHALL only
+read store state, memoize, and call the owner. No other module SHALL assemble
+its own copy of these facts for BattleMech validation.
+
+#### Scenario: LAM conversion weight reaches validation
+
+- **GIVEN** the Shadow Hawk LAM SHD-X1 loaded in the editor
+- **WHEN** the editor builds its validation input
+- **THEN** the allocated structural weight SHALL include the 9 t LAM conversion
+  term, matching pinned MegaMek (55 t total rather than 52 t)
+- **AND** the unit SHALL validate the same way in the editor and in the corpus
+  validity capture
+
+#### Scenario: One projection for editor and capture
+
+- **GIVEN** any BattleMech unit state
+- **WHEN** the live editor hook and the corpus validity capture each build an
+  `IValidatableUnit`
+- **THEN** both SHALL be produced by the same owner from the same fact set and
+  SHALL be equal
+- **AND** removing configuration, `frankenStructure` or `lamType` from the fact
+  set SHALL change at least one tested validation input

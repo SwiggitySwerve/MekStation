@@ -20,6 +20,7 @@ import {
   normalizeRoomCode,
   type IGameSessionChannel,
 } from '@/lib/p2p';
+import { createMirrorDiceRoller } from '@/lib/p2p/mirrorDiceRoller';
 import { useSyncRoomStore } from '@/lib/p2p/useSyncRoomStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 
@@ -94,7 +95,10 @@ export async function persistReplayEventToMatchLog(
 export function defaultAdoptRebuiltSession(session: IGameSession): void {
   const store = useGameplayStore.getState();
   if (store.interactiveSession) {
-    store.setInteractiveSession(InteractiveSession.fromSession(session));
+    // A guest mirror applies the host's events and never rolls itself.
+    store.setInteractiveSession(
+      InteractiveSession.fromSession(session, createMirrorDiceRoller()),
+    );
   }
   store.setSession(session);
 }
