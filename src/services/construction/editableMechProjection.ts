@@ -1,10 +1,20 @@
 import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { UnitState } from '@/stores/unitState';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
+import type {
+  IComponentTechBases,
+  TechBaseComponent,
+  TechBaseMode,
+} from '@/types/construction/TechBaseConfiguration';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
+import {
+  resolveUnitChassisTechBase,
+  serializeComponentTechBases,
+  serializeTechBaseMode,
+} from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
@@ -52,6 +62,13 @@ export interface IEditableMechProjectionInput {
   readonly tonnage: number;
   readonly configuration: MechConfiguration;
   readonly techBase: string;
+  readonly techBaseMode?: TechBaseMode;
+  readonly componentTechBases?: Pick<
+    IComponentTechBases,
+    TechBaseComponent.CHASSIS
+  >;
+  /** Preview carries chassis provenance without opting into full source BV. */
+  readonly chassisSource?: Pick<IRawSerializedUnit, 'componentTechBases'>;
   readonly engineType: IEditableMech['engineType'];
   readonly engineRating: number;
   readonly internalStructureType: IEditableMech['structureType'];
@@ -70,6 +87,16 @@ export function projectEditableMech(
   walkMP: number,
   id = 'preview',
 ): IEditableMech {
+  const sourceChassis = resolveUnitChassisTechBase(
+    'battlemechs',
+    state.chassisSource ?? state.bvContext?.source ?? {},
+  );
+  // The loader's binary IS fallback is not construction evidence. Only a
+  // source-backed selection may replace the legacy BV owner's fallback.
+  const chassisTechBase =
+    sourceChassis === undefined
+      ? undefined
+      : (state.componentTechBases?.chassis ?? sourceChassis);
   return {
     id,
     bvContext: state.bvContext,
@@ -80,6 +107,10 @@ export function projectEditableMech(
     tonnage: state.tonnage,
     configuration: state.configuration,
     techBase: state.techBase as TechBase,
+    ...(state.techBaseMode === undefined
+      ? {}
+      : { techBaseMode: state.techBaseMode }),
+    ...(chassisTechBase === undefined ? {} : { chassisTechBase }),
     engineType: state.engineType,
     engineRating: state.engineRating,
     walkMP,
@@ -243,8 +274,17 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
     configuration: mech.configuration ?? 'Biped',
     lamType: typeof source?.lamType === 'string' ? source.lamType : undefined,
     techBase:
-      source?.techBase ??
-      String(mech.techBase).toUpperCase().replace(/ /g, '_'),
+      mech.techBaseMode === undefined
+        ? (source?.techBase ??
+          String(mech.techBase).toUpperCase().replace(/ /g, '_'))
+        : serializeTechBaseMode(mech.techBaseMode),
+    ...(mech.chassisTechBase === undefined
+      ? {}
+      : {
+          componentTechBases: serializeComponentTechBases({
+            chassis: mech.chassisTechBase,
+          }),
+        }),
     tonnage: mech.tonnage,
     engine: { type: engine, rating: mech.engineRating },
     gyro: {

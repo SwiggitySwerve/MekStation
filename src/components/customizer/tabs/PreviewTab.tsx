@@ -39,6 +39,9 @@ export function PreviewTab({
   const model = useUnitStore((s) => s.model);
   const tonnage = useUnitStore((s) => s.tonnage);
   const techBase = useUnitStore((s) => s.techBase);
+  const techBaseMode = useUnitStore((s) => s.techBaseMode);
+  const componentTechBases = useUnitStore((s) => s.componentTechBases);
+  const chassisSource = useUnitStore((s) => s.bvContext?.source);
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
   const year = useUnitStore((s) => s.year);
   const role = useUnitStore((s) => s.role);
@@ -67,6 +70,9 @@ export function PreviewTab({
       model,
       tonnage,
       techBase,
+      techBaseMode,
+      componentTechBases,
+      chassisSource,
       rulesLevel,
       year,
       role,
@@ -92,6 +98,9 @@ export function PreviewTab({
       model,
       tonnage,
       techBase,
+      techBaseMode,
+      componentTechBases,
+      chassisSource,
       rulesLevel,
       year,
       role,

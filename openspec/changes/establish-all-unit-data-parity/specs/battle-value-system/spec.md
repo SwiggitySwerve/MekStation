@@ -598,6 +598,46 @@ aggregates and totals SHALL remain unchanged.
 - **AND** represented zero values SHALL remain present and finite
 - **AND** strict replay SHALL accept the optional finite keys and legacy payloads while rejecting nonfinite diagnostics
 
+### Requirement: Editor chassis BV transport preserves source provenance
+
+The shared editable-mech BV projection SHALL carry an explicit source chassis
+technology through the editor, status, and Preview to the existing BV owner.
+It SHALL use the shared chassis resolver and component encoder rather than a
+second decoder. A binary loader default SHALL NOT establish source evidence;
+missing chassis provenance SHALL remain absent in the BV input, preserving the
+owner's current legacy fallback. An explicit source chassis SHALL permit the
+live component selection to reach BV independently of structure material or
+other component technologies. The unit's Mixed technology mode SHALL remain
+distinct from its binary chassis technology.
+
+#### Scenario: Unlisted Mixed Clan construction reaches the BV owner
+
+- **GIVEN** an unlisted Mixed design with explicit Clan chassis evidence
+- **WHEN** its loaded editor state is projected for BV
+- **THEN** the input SHALL contain the Clan chassis fact and Mixed unit identity
+- **AND** native chassis-dependent BV SHALL match the existing owner's explicit Clan calculation
+
+#### Scenario: A legacy loader default is not chassis evidence
+
+- **GIVEN** a listed legacy Clan design whose source omits the chassis field
+- **WHEN** loading supplies an Inner Sphere binary component default
+- **THEN** the BV projection SHALL omit the chassis fact
+- **AND** the owner's existing legacy fallback and BV SHALL remain unchanged
+
+#### Scenario: Explicit IS source evidence overrides legacy identities
+
+- **GIVEN** any of the 43 legacy-listed designs whose pinned source declares IS chassis
+- **WHEN** the explicit IS fact is supplied through the loader and editor projection
+- **THEN** the BV input SHALL carry IS chassis rather than the legacy Clan classification
+
+#### Scenario: Live chassis changes refresh both mounted consumers
+
+- **GIVEN** a Mixed editor state with explicit source chassis evidence
+- **WHEN** only its chassis component selection changes
+- **THEN** status and Preview SHALL refresh their BV inputs with that live selection
+- **AND** Preview SHALL transport the chassis evidence without enabling unrelated full source-BV context
+- **AND** save and reopen SHALL preserve an explicit chassis and its BV
+
 ## MODIFIED Requirements
 
 ### Requirement: Infantry Per-Trooper BV

@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import {
+  buildEditableMechBVInput,
+  projectEditableMech,
+} from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
@@ -26,6 +30,7 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 import { Era } from '@/types/temporal/Era';
+import { calculateUnitBV } from '@/utils/construction/mechBV/calculator';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
@@ -461,6 +466,38 @@ describe('serializeCustomUnitState', () => {
     expect(reloaded.techBaseMode).toBe(TechBaseMode.MIXED);
     expect(reloaded.componentTechBases).toEqual(componentTechBases);
   });
+
+  it.each(['CLAN', 'INNER_SPHERE'] as const)(
+    'keeps explicit %s chassis BV through save and reopen',
+    (chassis) => {
+      const loader = new UnitLoaderService();
+      // Real mounted ammunition exercises normal critical-slot serialization
+      // as well as the chassis fact's save/reopen path.
+      const state = loader.mapToUnitState(
+        {
+          ...crab,
+          id: 'unlisted-chassis-roundtrip',
+          techBase: 'MIXED',
+          componentTechBases: { chassis },
+        },
+        false,
+      );
+      const before = buildEditableMechBVInput(projectEditableMech(state, 4));
+      const saved = serializeCustomUnitState(state, {
+        id: state.id,
+        chassis: state.chassis,
+        variant: state.model,
+        era: Era.DARK_AGE,
+      });
+      const reopened = loader.mapToUnitState(parseUnit(saved), false);
+      const after = buildEditableMechBVInput(projectEditableMech(reopened, 4));
+      expect(before.componentTechBases?.chassis).toBe(chassis);
+      expect(after.componentTechBases?.chassis).toBe(chassis);
+      expect(calculateUnitBV(after, after.id).bv).toBe(
+        calculateUnitBV(before, before.id).bv,
+      );
+    },
+  );
 
   it('rejects a saved component tech base outside Inner Sphere and Clan', () => {
     const state = createDefaultUnitState({
