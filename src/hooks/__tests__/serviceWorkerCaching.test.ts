@@ -1,4 +1,8 @@
+import type Router from 'next/dist/shared/lib/router/router';
+
+import { markAssetError } from 'next/dist/client/route-loader';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { runInNewContext } from 'node:vm';
 
@@ -33,6 +37,30 @@ function assetResponse(body: string): AssetResponse {
 }
 
 type Storage = Map<string, Map<string, AssetResponse>>;
+
+/** Run Next's actual route-error boundary with an observable navigation target. */
+function nextRouteRecovery() {
+  const routerFile = require.resolve('next/dist/shared/lib/router/router');
+  const routerSource = readFileSync(routerFile, 'utf8');
+  const exports: { default?: typeof Router } = {};
+  const location = { href: 'http://127.0.0.1:3642/' };
+  runInNewContext(routerSource, {
+    exports,
+    module: { exports },
+    require: createRequire(routerFile),
+    process: { env: { NODE_ENV: 'production' } },
+    window: { location },
+    location,
+    console,
+  });
+  if (!exports.default) throw new Error('Next did not export its Pages Router');
+  const router = Object.create(exports.default.prototype) as Router;
+  Object.defineProperties(router, {
+    asPath: { value: '/' },
+    locale: { value: undefined },
+  });
+  return { router, location };
+}
 
 function workerHarness(
   cachedBody: string | null = 'OLD_BUILD',
@@ -283,6 +311,58 @@ describe('shipped service worker asset delivery', () => {
 
 describe('build-scoped chunk caching and deployment', () => {
   const chunk = '/_next/static/chunks/0-jtjk4f1h6z3.js';
+
+  it('hard-navigates an open old-build tab to its intended route when its never-loaded chunk was removed', async () => {
+    const old = workerHarness(null, 'build-A');
+    await old.dispatch(chunk, 'script', {}, 'old-tab');
+    const unvisitedChunk = '/_next/static/chunks/087w_7_qpb0a8.js';
+    const target = '/unvisited-route?view=details#equipment';
+    expect(
+      [...old.storage.values()].some((cache) =>
+        cache.has(`http://127.0.0.1:3642${unvisitedChunk}`),
+      ),
+    ).toBe(false);
+
+    // Deployment B removed A's route chunk; this tab still has A's worker.
+    old.network.mockResolvedValueOnce({
+      ...assetResponse('Not found'),
+      ok: false,
+    });
+    const missing = await old.dispatch(unvisitedChunk, 'script', {}, 'old-tab');
+    expect(missing?.ok).toBe(false);
+    const { router, location } = nextRouteRecovery();
+    await expect(
+      router.handleRouteInfoError(
+        markAssetError(new Error(`Failed to load script: ${unvisitedChunk}`)),
+        '/unvisited-route',
+        { view: 'details' },
+        target,
+        { shallow: false },
+      ),
+    ).rejects.toMatchObject({ cancelled: true });
+    expect(location.href).toBe(target);
+
+    // The resulting full navigation obtains B's HTML, not an error page or A's cached HTML.
+    old.network.mockResolvedValueOnce(
+      assetResponse(
+        '<script src="/_next/static/chunks/new-build-route.js"></script>',
+      ),
+    );
+    expect(
+      await (
+        await old.dispatch(
+          location.href,
+          'document',
+          { mode: 'navigate' },
+          'old-tab',
+        )
+      )?.text(),
+    ).toContain('new-build-route.js');
+    expect(old.network).toHaveBeenLastCalledWith(
+      expect.objectContaining({ destination: 'document' }),
+      { cache: 'no-store' },
+    );
+  });
 
   it.each([
     [chunk, 'script'],
