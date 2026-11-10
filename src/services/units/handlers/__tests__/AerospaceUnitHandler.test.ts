@@ -5,9 +5,11 @@
  */
 
 import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
+import shilone from '../../../../../public/data/units/aerospace/Shilone SL-17.json';
 import {
   AerospaceUnitHandler,
   createAerospaceHandler,
@@ -216,6 +218,59 @@ describe('AerospaceUnitHandler', () => {
   });
 
   describe('calculations', () => {
+    it('uses the Java engine mass for canonical Shilone SL-17', () => {
+      const result = handler.parse(
+        createMockBlkDocument({
+          name: shilone.chassis,
+          model: shilone.model,
+          tonnage: shilone.tonnage,
+          safeThrust: shilone.movement.safeThrust,
+          fuel: shilone.fuel,
+          heatsinks: shilone.heatSinks.count,
+          armor: Object.values(shilone.armor.byArc),
+        }),
+      );
+      if (!result.success) throw new Error(JSON.stringify(result.error));
+      // Java engine = 13.5 t; remaining handler approximations = 33 t.
+      // The complete Java unit weighs 65 t; this method is not its mass owner.
+      expect(handler.calculateWeight(result.data.unit)).toBe(46.5);
+    });
+
+    it.each([
+      [0, 19],
+      [1, 38],
+      [2, 9.5],
+      [4, 14.5],
+      [5, 28.5],
+    ])('decodes BLK engine %s before computing mass', (engineType, mass) => {
+      const result = handler.parse(createMockBlkDocument({ engineType }));
+      if (!result.success) throw new Error(JSON.stringify(result.error));
+      expect(handler.calculateWeight(result.data.unit)).toBe(mass + 31);
+    });
+
+    it('uses the parsed primitive cockpit for the rating factor', () => {
+      const result = handler.parse(
+        createMockBlkDocument({
+          tonnage: 45,
+          safeThrust: 5,
+          cockpitType: 3,
+          heatsinks: 10,
+          armor: [0, 0, 0, 0],
+        }),
+      );
+      if (!result.success) throw new Error(JSON.stringify(result.error));
+      expect(result.data.unit.cockpitType).toBe(AerospaceCockpitType.PRIMITIVE);
+      expect(handler.calculateWeight(result.data.unit)).toBe(15.5);
+    });
+
+    it('fails explicitly when the engine owner has no supported mass', () => {
+      const result = handler.parse(createMockBlkDocument({ engineType: 8 }));
+      if (!result.success) throw new Error(JSON.stringify(result.error));
+      expect(() => handler.calculateWeight(result.data.unit)).toThrow(
+        'Unsupported aerospace engine mass',
+      );
+    });
+
     it('should calculate weight', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
