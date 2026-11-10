@@ -1707,7 +1707,26 @@ passing execution. An unverified effect or outcome stays "not verified".
           proposal §6 lists them).
         - **Interaction:** C5's parked #3315 edits the same file. It rebases
           on C4's PR 1 and re-runs its old-tab and unvisited-route checks.
-    - **D-11 CLOSED (re-ticked).**
+    - **D-11 REGRESSED again at `2fa5f0999` (Root ruling 2026-11-10 14:22Z).**
+      - **Cause:** #3305's tripod data is correct (C2 confirmed it against the
+        pinned MTF), but the `e2e/fixtures/mech-crew-save-losses.json` fixture
+        it meets is stale. The spec opens `triskelion-trk-4v` and
+        `poseidon-psd-v2`, both changed by #3305. The save dialog now also
+        lists "IS Endo-Composite — Center Leg [4]" and "Clan Ferro-Fibrous —
+        Center Leg [5]".
+      - **Evidence:** PR-gate run 42827238668 (#3347, merge ref `838fec85` on
+        `2fa5f0999`). 3 of the 4 `customizer-mech-crew-roster` tests fail (the
+        tripods); QuadVee passes.
+      - **Fix:** in flight on C3's `test/crew-roster-tripod-center-leg`, with
+        the fixture regenerated from the loader.
+      - **Re-close:** on a green Full E2E on a main that contains the fix.
+      - **The earlier close stays below as history:** closed on `73ef85c97` by
+        nightly 42814541429.
+      - **Process rule (Root):** a data PR greps `e2e/` specs and fixtures for
+        each changed unit id and its chassis and model names. Every
+        referencing spec runs on a production build of the trial, and the list
+        goes in the merge record.
+    - **D-11 CLOSED (re-ticked) on `73ef85c97`, now history (see above).**
       - **Regression:** validation nightly 42795664179 on `3e96c2283` had 4
         failures in `customizer-mech-crew-roster.spec.ts:185`. #3338's save
         confirmation was not reflected in that spec; #3338 itself worked as
@@ -1718,7 +1737,9 @@ passing execution. An unverified effect or outcome stays "not verified".
         24 skipped.
         - The flaky test is `e2e/saved-custom-combat-launch.spec.ts:229` (a
           server-saved custom unit through production combat), which passed
-          on retry; it's recorded as an OPEN observation.
+          on retry. It's **UNDER EXAMINATION, C4**, not a filed flake: a
+          server save followed by a launch that fails once has the same shape
+          as the service-worker save loss.
         - The four `customizer-mech-crew-roster` tests passed on the first
           attempt (retry 0).
         - All six lanes, plus Recapture, Coverage and Stats, succeeded.
