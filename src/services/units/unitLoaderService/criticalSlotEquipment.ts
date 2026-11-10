@@ -492,11 +492,9 @@ export function recoverCriticalSlotEntries(
           ? [
               {
                 ...sink,
-                instanceId: recoveredMountInstanceId(
-                  location,
-                  sink.equipmentId,
-                  matching.map((cell) => cell.index),
-                ),
+                instanceId: recoveredMountInstanceId(sink.equipmentId, [
+                  { location, slots: matching.map((cell) => cell.index) },
+                ]),
                 location,
                 slots: matching.map((cell) => cell.index),
               },
@@ -519,11 +517,9 @@ export function recoverCriticalSlotEntries(
             {
               ...createMountedEquipment(
                 { ...definition, criticalSlots: count },
-                recoveredMountInstanceId(
-                  location,
-                  definition.id,
-                  matching.map((cell) => cell.index),
-                ),
+                recoveredMountInstanceId(definition.id, [
+                  { location, slots: matching.map((cell) => cell.index) },
+                ]),
               ),
               location,
               slots: matching.map((cell) => cell.index),
@@ -549,11 +545,7 @@ export function recoverCriticalSlotEntries(
         {
           ...createMountedEquipment(
             entry.definition,
-            recoveredMountInstanceId(
-              mount.location,
-              entry.definition.id,
-              mount.slots,
-            ),
+            recoveredMountInstanceId(entry.definition.id, getSlotParts(mount)),
           ),
           ...placement,
         },
