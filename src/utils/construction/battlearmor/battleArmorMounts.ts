@@ -13,6 +13,7 @@ import {
 import type {
   BAWeaponBVMount,
   BAAmmoBVMount,
+  BANativeEquipmentMount,
   BANativeWeaponMount,
 } from './battleArmorBV';
 
@@ -124,6 +125,17 @@ const trooperOfMount = (mount: IBattleArmorMountedEquipment) => {
 };
 const isPersonalMount = (mount: IBattleArmorMountedEquipment) =>
   trooperOfMount(mount) !== undefined;
+/**
+ * Java location number of a mount: `Squad` (IS) and `Point` (Clan) are
+ * LOC_SQUAD 0, `Trooper N` is N (BattleArmor.java:274-276) and the `NONE` of
+ * slotless equipment is LOC_NONE -1 (Entity.java:254; BLKFile.java:469).
+ * Any other location cannot be numbered.
+ */
+const javaLocationOfMount = (mount: IBattleArmorMountedEquipment) => {
+  const location = (mount.unitLocation ?? '').toLowerCase();
+  if (location === 'squad' || location === 'point') return 0;
+  return location === 'none' ? -1 : trooperOfMount(mount);
+};
 
 /**
  * The one owner of BA weapon-mount classification. The averaged trooper model
@@ -223,6 +235,7 @@ export function projectBAMounts(
   weapons: BAWeaponBVMount[];
   nativeWeapons: BANativeWeaponMount[];
   nativeWeaponsComplete: boolean;
+  nativeEquipment: BANativeEquipmentMount[];
   ammo: BAAmmoBVMount[];
   unresolvedEquipment: string[];
   hasMagneticClamp: boolean;
@@ -234,6 +247,7 @@ export function projectBAMounts(
   const weapons: BAWeaponBVMount[] = [];
   const nativeWeapons: BANativeWeaponMount[] = [];
   let nativeWeaponsComplete = true;
+  const nativeEquipment: BANativeEquipmentMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
   const unresolvedEquipment: string[] = [];
   // BattleArmorBVCalculator.java:285-304: one point each for improved
@@ -319,10 +333,20 @@ export function projectBAMounts(
     }
     const { claw, trooper, personal, support, infantry, antiMek } =
       classifyBAWeaponMount(mount, id, qualifiers, entry.category);
-    if (
-      !claw &&
-      !['Ballistic', 'Energy', 'Missile', 'Physical'].includes(entry.category)
-    ) {
+    const weaponCategory = [
+      'Ballistic',
+      'Energy',
+      'Missile',
+      'Physical',
+    ].includes(entry.category);
+    if (!weaponCategory) {
+      // Every misc mount that is not ECM, sensors or a probe (skipped above) is
+      // visited by BVCalculator.java:978-1039, claws included, at its location.
+      const location = javaLocationOfMount(mount);
+      if (location !== undefined)
+        nativeEquipment.push({ id, location, battleValue: entry.battleValue });
+    }
+    if (!claw && !weaponCategory) {
       // Valued equipment counts only for the trooper carrying it
       // (BattleArmorBVCalculator.java:223-226; BVCalculator.java:978-1043).
       if (personal && entry.battleValue > 0)
@@ -382,6 +406,7 @@ export function projectBAMounts(
     weapons,
     nativeWeapons,
     nativeWeaponsComplete,
+    nativeEquipment,
     ammo,
     unresolvedEquipment,
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),

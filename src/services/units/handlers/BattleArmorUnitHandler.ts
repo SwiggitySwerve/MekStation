@@ -6,6 +6,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.4
  */
 
+import { parseBlkLineList } from '@/services/conversion/BlkParserService.helpers';
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
@@ -227,7 +228,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   private parseEquipment(
     document: IBlkDocument,
   ): readonly IBattleArmorMountedEquipment[] {
-    return mapLocationEquipment(
+    const located = mapLocationEquipment(
       document.equipmentByLocation,
       (locationKey) => this.normalizeLocation(locationKey),
       ({ mountId, item, location, locationKey }) => ({
@@ -241,6 +242,22 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
         isModular: false,
       }),
     );
+    // BLKFile.java:404,469 loads slotless_equipment (jump jets, VTOL and UMU
+    // gear) at LOC_NONE; the converted catalog lists the same items with the
+    // native location NONE and the editor mapping keeps them in the squad.
+    const slotless = (
+      parseBlkLineList(document.rawTags?.['slotless_equipment']) ?? []
+    ).map((item, index) => ({
+      id: `mount-${located.length + index}`,
+      equipmentId: item,
+      unitLocation: 'NONE',
+      name: item,
+      location: BattleArmorLocation.SQUAD,
+      isAPMount: false,
+      isTurretMounted: false,
+      isModular: false,
+    }));
+    return [...located, ...slotless];
   }
 
   /**

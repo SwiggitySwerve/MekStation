@@ -13,6 +13,7 @@ import type {
   BAOffensiveBVBreakdown,
   BAPerTrooperBV,
   IBABreakdown,
+  IBANativeEquipmentValue,
   IBANativeWeaponValue,
 } from '@/types/unit/BVBreakdownTypes';
 
@@ -79,6 +80,20 @@ export interface BANativeWeaponMount {
   infantry: boolean;
   /** Per-mount half of the Anti-Mek filter; the squad's eligibility is separate. */
   antiMek: boolean;
+}
+
+/**
+ * One misc mount the Java probe visits (BVCalculator.java:978-1039), with its
+ * native location and full catalog value. The averaged-trooper model cannot say
+ * which trooper carries it, so the mount owner retains it here.
+ */
+export interface BANativeEquipmentMount {
+  /** Java internal name, as in the unit source. */
+  id: string;
+  /** Java location number: 0 squad, N trooper N, -1 no location. */
+  location: number;
+  /** Full undivided catalog BV of one mount. */
+  battleValue: number;
 }
 
 /**
@@ -153,6 +168,8 @@ export interface IBattleArmorBVInput {
    * facts describe every pass and the section totals can be traced.
    */
   nativeWeaponsComplete?: boolean;
+  /** Diagnostic pass-through for the trace: native misc mounts the probe visits. */
+  nativeEquipment?: readonly BANativeEquipmentMount[];
 
   /** Pilot gunnery skill (default 4). */
   gunnery?: number;
@@ -449,6 +466,29 @@ export function battleArmorNativeSectionBV(
   });
 }
 
+/**
+ * Per-trooper native misc values. BattleArmorBVCalculator.java:223-226 requests
+ * a mount's value only for the trooper being calculated (location equals the
+ * trooper number), so squad (0) and detached (-1) mounts are 0 for everyone. The
+ * probe keys a term by location and name, so equal keys are one entry.
+ */
+export function battleArmorNativeEquipmentBV(
+  mounts: readonly BANativeEquipmentMount[],
+  squadSize: number,
+): IBANativeEquipmentValue[][] {
+  const strength = Math.max(1, Math.floor(squadSize));
+  const distinct = new Map<string, BANativeEquipmentMount>();
+  for (const mount of mounts)
+    distinct.set(`${mount.location}.${mount.id}`, mount);
+  return Array.from({ length: strength }, (_, offset) =>
+    [...distinct.values()].map(({ id, location, battleValue }) => ({
+      id,
+      location,
+      battleValue: location === offset + 1 ? battleValue : 0,
+    })),
+  );
+}
+
 // =============================================================================
 // Full BA BV
 // =============================================================================
@@ -508,5 +548,11 @@ export function calculateBattleArmorBV(
           input.canAntiMek ?? false,
         ),
       }),
+    ...(input.nativeEquipment && {
+      nativeEquipmentBVByTrooper: battleArmorNativeEquipmentBV(
+        input.nativeEquipment,
+        squadSize,
+      ),
+    }),
   };
 }

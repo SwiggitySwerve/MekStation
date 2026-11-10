@@ -216,6 +216,20 @@ export interface IBABreakdown {
   readonly nativeSectionBVByTrooper?: readonly Readonly<
     Record<string, number>
   >[];
+  /**
+   * Per trooper (index 0 = trooper 1): each native misc mount the Java probe
+   * visits and the value requested for it (Java `equipment.native.<loc>.<name>`).
+   */
+  readonly nativeEquipmentBVByTrooper?: readonly (readonly IBANativeEquipmentValue[])[];
+}
+
+export interface IBANativeEquipmentValue {
+  /** Java internal name of the misc mount. */
+  readonly id: string;
+  /** Java location number: 0 squad, N trooper N, -1 no location. */
+  readonly location: number;
+  /** The mount's value for this trooper: its full value at its own trooper, else 0. */
+  readonly battleValue: number;
 }
 
 export interface IBANativeWeaponValue {

@@ -66,3 +66,39 @@ and every trooper's under `trooper.N.`.
 (positive-BV) weapon mount has no native `unitLocation`. The totals would then
 miss that mount, so no section term is traced; such units get no sections rather
 than a wrong 0.
+
+## Native equipment diagnostics
+
+`BVCalculator.processOffensiveEquipment` (`BVCalculator.java:978-1039`) asks for
+the value of every misc mount that has none of the flags tested at `:1000-1017`
+(ECM, active probes and improved sensors are the only ones a BA carries), and
+the Java probe records each request as `equipment.native.<location>.<internalName>`
+(`java_bv_terms.py:51-54`). `BattleArmorBVCalculator.java:223-226` answers 0
+unless the mount's location is the trooper being calculated, so a mount adds
+its catalog value to its own trooper only and 0 to every other.
+
+`projectBAMounts` retains each such mount as a `nativeEquipment` fact: the
+Java name as written in the source, the Java location (`Squad` and `Point` are
+0, `Trooper N` is N: `BattleArmor.java:274-276`; `NONE` is -1: `Entity.java:254`)
+and the full catalog value. The ECM, sensor and probe sets that already feed the
+defensive bonus are the same exclusion, so there is one list. A mount without a
+numbered location adds no fact; the facts are independent, so that costs only
+its own term. `battleArmorNativeEquipmentBV` in `battleArmorBV.ts` is the owner of
+the per-trooper values (one entry per location and name, as the probe keys
+overwrite); `bvTrace.ts` formats trooper 1's at squad level and every trooper's
+under `trooper.N.`. Totals, the averaged `offensiveEquipmentBV` and every scalar
+are unchanged.
+
+Jump jets, VTOL and UMU gear are `slotless_equipment` entries
+(`BLKFile.java:404,469`) placed at LOC_NONE. The converted catalog already lists
+them with `unitLocation: NONE`, so `BattleArmorUnitHandler` now keeps the block
+the same way, with the editor mapping's squad suit location. The block alone
+decides: 60 pinned Leg-motion suits list `BAJumpJet` and 12 Jump-motion suits
+with 0 jump MP do too. `BLKBattleArmorFile.java:170-190` also adds the movement
+item when the file omits it; no pinned source does, so that is not modelled.
+
+The visited-name table lives in `scripts/__tests__/unit-bv-ba-terms.test.ts`:
+every misc name the 1,188 pinned sources reach, with the `MiscType.java` /
+`ArmorType.java` line of its internal name and flags and its `misc.bv`. The test
+derives which names the probe visits from those flags and the list at
+`BVCalculator.java:1000-1017`, and checks that the projection agrees.

@@ -61,6 +61,14 @@ export function battleArmorBVTerms(
       terms[`trooper.${offset + 1}.${key}`] = value;
     }
   });
+  // Native misc values follow the same rule, keyed by Java location and name.
+  (b.nativeEquipmentBVByTrooper ?? []).forEach((values, offset) => {
+    for (const { location, id, battleValue } of values) {
+      const key = `equipment.native.${location}.${id}`;
+      if (offset === 0) terms[key] = battleValue;
+      terms[`trooper.${offset + 1}.${key}`] = battleValue;
+    }
+  });
   return terms;
 }
 

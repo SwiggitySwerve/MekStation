@@ -1564,6 +1564,30 @@ mount that has no native location, SHALL create no section term.
 - **THEN** `trooper.2.section.Squad Support:` and `trooper.2.section.Anti-Mek:` SHALL equal 7 and `trooper.2.section.Weapons:` SHALL equal 0
 - **AND** every other trooper and the squad level SHALL report all three sections as 0
 
+### Requirement: BA native equipment diagnostics
+
+The BA calculation owner SHALL retain, for each misc mount that the pinned
+offensive-equipment pass visits (`BVCalculator.java:978-1039`; every misc mount
+except those carrying the flags at `:1000-1017`, which for battle armor are ECM,
+active probes and improved sensors), its Java name, its Java location (squad or
+point 0, `Trooper N` N, slotless equipment -1: `BattleArmor.java:274-276`,
+`Entity.java:254`) and its full catalog value, and SHALL derive from them, for
+each trooper, the value `BattleArmorBVCalculator.java:223-226` requests: the full
+value at that trooper's own location and 0 elsewhere. The trace SHALL format
+trooper 1's values as `equipment.native.<location>.<name>` and every trooper's
+as `trooper.N.equipment.native.<location>.<name>` without recalculating BV. The
+slotless block of a battle armor source SHALL be kept as equipment at the native
+location `NONE`. Existing scalar arithmetic, source inputs and totals SHALL
+remain unchanged. A mount without a numbered native location SHALL create no
+term, and a legacy input without equipment facts SHALL create none.
+
+#### Scenario: Trooper-located and slotless equipment
+
+- **GIVEN** a four-trooper squad with a mine dispenser (8 BV) carried by trooper 2 and `BAJumpJet` in its slotless block
+- **WHEN** its BA breakdown is projected
+- **THEN** `trooper.2.equipment.native.2.ISBAMineDispenser` SHALL equal 8 and the same term for every other trooper and for the squad level SHALL equal 0
+- **AND** `equipment.native.-1.BAJumpJet` and each `trooper.N.equipment.native.-1.BAJumpJet` SHALL equal 0
+
 ### Requirement: Canonical battle armor anti-Mek chassis projection
 
 Canonical MIXED battle armor SHALL project an explicit clanChassis fact into
