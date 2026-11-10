@@ -79,3 +79,31 @@ export function getRulesLevelsUpTo(maxLevel: RulesLevel): RulesLevel[] {
     (level) => RULES_LEVEL_ORDER[level] <= maxOrder,
   );
 }
+
+/**
+ * Decode a stored rules level: the contract tag the unit index and saved
+ * records carry ("STANDARD") or the enum value ("Standard"). Undefined when the
+ * text is empty or names no level.
+ */
+export function parseRulesLevel(
+  value: string | null | undefined,
+): RulesLevel | undefined {
+  const text = value?.trim().toUpperCase();
+  if (!text) return undefined;
+  return ALL_RULES_LEVELS.find(
+    (level) => RULES_LEVEL_TAGS[level] === text || level.toUpperCase() === text,
+  );
+}
+
+/**
+ * Whether a unit's stored level satisfies a rules-level filter. An empty filter
+ * matches everything; a chosen one matches only units of that level.
+ */
+export function matchesRulesLevelFilter(
+  value: string | null | undefined,
+  filter: string,
+): boolean {
+  if (!filter) return true;
+  const wanted = parseRulesLevel(filter);
+  return wanted !== undefined && parseRulesLevel(value) === wanted;
+}
