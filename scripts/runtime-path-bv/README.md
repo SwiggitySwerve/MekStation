@@ -37,6 +37,17 @@ Non-zero only if the census did not complete: `S0A_REFERENCE_MISSING`, `S0B_MANI
 Parity differences never fail the run. `--units` narrows the run for local work (ids are sorted and de-duplicated) and is
 recorded in `receipt.scope` with `populationCount`, so a narrowed run can never pass as the whole population.
 
+## Compare tool
+
+`node scripts/runtime-path-bv/compare.mjs --rows <rows.ndjson> --out <dir> [--scratch <C3 scratch rows.jsonl>] [--java-terms]`
+
+- `--scratch`: acceptance. Port rows against the scratch harness's rows on the same SHA, unit by unit (BV exactly, terms with C1's
+  tolerance, validity, the issue sequence); lists every differing and unmatched unit in `compare-differences.ndjson` and exits 1 on any.
+  Weight and MP are not in the scratch load rows and are reported as not comparable.
+- `--java-terms`: term-wise against the committed Java reference with C1's mapping (`compare-family.cjs`): raw keys, no folding,
+  absent terms counted by category; unequal terms in `java-term-differences.ndjson`. It never fails the run.
+- The rules live in `scripts/lib/runtime-parity/compare.mjs` (shared with the reopen port).
+
 ## Files
 
 `run.mjs` orchestrates; `join.mjs` reads the join and builds the plan; `capture.jest.js` is the Jest/jsdom capture
