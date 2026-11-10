@@ -90,3 +90,21 @@ SHALL preserve the domain facts of every supported source family through import,
 - **THEN** it SHALL consume the shared mount profiles, physical formula facts and catalog identities to append each unrepresented mount once
 - **AND** summary multiplicity, split and spread anchors, rear and Omni flags SHALL survive loading and persistence
 - **AND** strict conversion receipts SHALL fingerprint every consumed mapping, catalog and shared formula input
+
+### Requirement: Preserve parity refusal diagnostics
+
+SHALL retain the supplied `parseErrors` diagnostics for every `PARSE_ERROR` result in both its per-unit JSON report and its manifest entry, alongside the unit identity and source path. The report writer SHALL preserve diagnostic text and order without replacing a specific refusal cause with a generic failure.
+
+#### Scenario: A Mixed catalog mech refuses MTF export without chassis context
+
+- **GIVEN** a real Mixed catalog mech without explicit chassis context and the real MTF exporter's refusal diagnostics
+- **WHEN** the parity report writer serializes that refused result
+- **THEN** both its per-unit report and manifest entry SHALL retain the missing-chassis diagnostic and unit identity
+- **AND** the existing non-error report shape SHALL remain unchanged
+
+#### Scenario: A ProtoMech export refuses an absent Main Gun mount
+
+- **GIVEN** the real BLK exporter's Main Gun diagnostic for equipment or armor without a mount
+- **WHEN** that refusal is supplied to the parity report writer as a `PARSE_ERROR` result
+- **THEN** both its per-unit report and manifest entry SHALL retain the original Main Gun diagnostic
+- **AND** preserving the diagnostic SHALL NOT imply a new CLI family-discovery path or a mounted user-facing export action

@@ -22,6 +22,14 @@ import {
   IUnitIssueReport,
 } from './types/ParityValidation';
 
+function parseErrorDiagnostics(
+  result: IUnitValidationResult,
+): Pick<IUnitValidationResult, 'parseErrors'> {
+  return result.status === 'PARSE_ERROR'
+    ? { parseErrors: result.parseErrors }
+    : {};
+}
+
 /**
  * Parity Report Writer
  */
@@ -66,6 +74,7 @@ export class ParityReportWriter {
       mtfPath: result.mtfPath,
       generatedPath: result.generatedPath,
       issues: result.issues,
+      ...parseErrorDiagnostics(result),
     };
 
     const filePath = path.join(issuesDir, `${result.id}.json`);
@@ -89,6 +98,7 @@ export class ParityReportWriter {
       primaryIssueCategory:
         result.issues.length > 0 ? result.issues[0].category : undefined,
       issueCount: result.issues.length,
+      ...parseErrorDiagnostics(result),
     }));
 
     const manifest: IValidationManifest = {
