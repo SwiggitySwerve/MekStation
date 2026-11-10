@@ -1,5 +1,15 @@
 # Equipment BV catalog resolution
 
+Saved point-defense display names may use the existing shared static-alias
+owner after ordinary BV lookup fails. This fallback admits only an existing
+catalog record with the `point-defense` flag. The registry and BV consumer share
+the same alias definitions; no extra APDS name table or BV constant is added.
+`ISAPDS`, `risc-apds`, and the serializer's expanded weapon label therefore use
+the existing 64-BV miscellaneous catalog record. Battle Armor's `ISBAAPDS`
+remains a separate 7-BV weapon. This does not enable unrelated static aliases in
+the BV resolver. `mechBV.apds.save.test.ts` enforces the boundary against pinned
+ISAPDS.java and BVCalculator.java at 48fcb2f64.
+
 The equipment-BV owner supplies the Artemis IV/V launcher multipliers (1.2/1.3)
 to Mech, vehicle and large-craft callers, preserving each caller's modifier
 ordering. `getLargeAerospaceAmmoEntry` alone accepts the native IS LRM/SRM
@@ -332,6 +342,25 @@ not define another identity rule. Focused qualifier tests enforce the shared
 identity, and the pinned corpus comparison checks Mech BV regression.
 
 ## Shared machine-gun-array links
+
+Mech weapon admission is owned by `isWeaponEquip`: mounted ammunition category
+excludes a bin even when its ID is also a weapon ID. The editor projection
+carries mounted category for source-backed and newly added mounts; rows without
+category retain legacy source admission. Recovered mounts absent from the source
+equipment list remain represented by the critical grid.
+
+Mech array admission preserves its closed source-alias policy and additionally
+accepts exact catalog record identities whose resolved catalog name has a
+canonical MGA caliber. This includes the three IS records `ismga-registry`,
+`islmga-registry`, `ishmga-registry` in `official/weapons/java-registry.json`.
+There are no Clan MGA records in that registry file; the Clan catalog identities
+are `mga`, `lmga`, `hmga`. Arbitrary aliases that only resolve to those records
+do not gain admission. Caliber and linked-gun arithmetic keep their existing owners.
+
+Mech front/rear weighting excludes arms through `isArmLoc`, which composes the
+loader's `mapMechLocation` with the construction `isArmLocation` predicate.
+Source underscores, saved display names, and abbreviations share this policy;
+quad front legs retain their own identities and are not classified as arms.
 
 `linkMachineGunArrayBVWeapons` owns native critical-slot selection and the
 no-critical-slot fallback for all families: up to four unused

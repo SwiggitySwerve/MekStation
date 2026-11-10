@@ -22,6 +22,7 @@
     "validate-parity.ts",
     "data-migration/**/*.ts",
     "ci/committed-catalog-*.ts",
+    "e2e/pin-mech-crew-save-losses.ts",
     "vehicle-aero-bv-delta.ts",
     "unit-bv-parity.ts",
     "unit-bv-pipeline.ts"

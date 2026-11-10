@@ -166,11 +166,14 @@ export const requiredWorkflowJobContracts = [
       'playwright-report',
       'playwright-report-gates',
       'playwright-report-smoke',
+      'playwright-report-data',
     ],
     extraStepIfs: {
       'Upload E2E durations and test census': `always() && (${E2E_CHANGE_GATE_IF})`,
       'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
+      'Run data-keyed unit regression specs':
+        "${{ !cancelled() && needs.detect-changes.outputs.data-specs != '' && needs.detect-changes.outputs.data-specs != '[]' }}",
       'Upload library-open screenshots': `always() && (${E2E_CHANGE_GATE_IF})`,
     },
     setupAction: {

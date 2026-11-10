@@ -1560,6 +1560,25 @@ native equipment numbers or names.
 - **THEN** `trooper.2.weapon.*.Trooper 2.*` SHALL equal 14 and no other trooper or squad-level term SHALL list that mount
 - **AND** the same rifle marked squad support at the squad SHALL report `7 / 4 + 7 / 4 = 3.5` for every trooper
 
+### Requirement: BA section diagnostics
+
+The BA calculation owner SHALL total, for each trooper, the value each pinned
+weapon pass adds, from the same per-mount pass values that feed the weapon
+diagnostics (`BattleArmorBVCalculator.java:133-160`). The trace SHALL format those
+totals as `section.Weapons:`, `section.Squad Support:` and, only when the squad
+may make anti-Mek attacks, `section.Anti-Mek:` for the squad (trooper 1) and as
+`trooper.N.section.*` for every trooper, without recalculating BV. A pass that
+adds nothing SHALL still report 0. Existing scalar arithmetic, source inputs and
+totals SHALL remain unchanged. A legacy input, or a unit with a counted weapon
+mount that has no native location, SHALL create no section term.
+
+#### Scenario: Zero-valued and trooper-located passes
+
+- **GIVEN** an eligible four-trooper squad with manipulators and a Light Gauss Rifle carried by trooper 2
+- **WHEN** its BA breakdown is projected
+- **THEN** `trooper.2.section.Squad Support:` and `trooper.2.section.Anti-Mek:` SHALL equal 7 and `trooper.2.section.Weapons:` SHALL equal 0
+- **AND** every other trooper and the squad level SHALL report all three sections as 0
+
 ### Requirement: Canonical battle armor anti-Mek chassis projection
 
 Canonical MIXED battle armor SHALL project an explicit clanChassis fact into

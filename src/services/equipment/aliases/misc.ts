@@ -7,6 +7,7 @@
  * @module services/equipment/aliases/misc
  */
 
+import { TechBase } from '@/types/enums/TechBase';
 import { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
 
 /**
@@ -17,6 +18,15 @@ export function addMiscEquipmentAliases(
   nameToIdMap: Map<string, string>,
 ): void {
   const name = equipment.name;
+
+  // MiscType.java:2248-2305 (48fcb2f64): each factory owns its native aliases.
+  if (equipment.variableEquipmentId === 'partial-wing') {
+    const aliases =
+      equipment.techBase === TechBase.CLAN
+        ? ['CLPartialWing', 'Clan Partial Wing', 'Partial Wing (Clan)']
+        : ['ISPartialWing', 'IS Partial Wing', 'PartialWing'];
+    for (const alias of aliases) nameToIdMap.set(alias, equipment.id);
+  }
 
   // Handle heat sink variations
   if (name === 'Heat Sink' || name === 'Double Heat Sink') {

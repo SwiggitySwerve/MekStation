@@ -21,6 +21,23 @@ const ENGINE_NAMES = [
   ['battery', 'BATTERY', 'Battery Engine'],
 ] as const;
 
+/** Exact native critical-system identities, separate from equipment aliases.
+ * Bare tokens only: critical-cell decorations belong to parseCriticalSlotToken.
+ */
+export const MTF_CRITICAL_SLOT_SYSTEM_NAMES: readonly string[] = [
+  ...vocabulary.criticalSlotSystems,
+  ...ENGINE_NAMES.map(([, , name]) => name),
+  ...Object.keys(vocabulary.gyro).filter((name) => name.endsWith('Gyro')),
+  ...vocabulary.cockpitOrder.map(([name]) => name),
+];
+const criticalSystemNames = new Set(
+  MTF_CRITICAL_SLOT_SYSTEM_NAMES.map((name) => name.toLowerCase()),
+);
+
+export function isMTFCriticalSlotSystemName(name: string): boolean {
+  return criticalSystemNames.has(name.trim().toLowerCase());
+}
+
 const ARMOR_NAMES = [
   ['standard', 'STANDARD', 'Standard(Inner Sphere)'],
   ['ferro-fibrous', 'FERRO_FIBROUS', 'Ferro-Fibrous'],
@@ -36,6 +53,18 @@ const ARMOR_NAMES = [
   ['commercial', 'COMMERCIAL', 'Commercial'],
   ['impact-resistant', 'IMPACT_RESISTANT', 'Impact-Resistant'],
   ['ferro-lamellor', 'FERRO_LAMELLOR', 'Ferro-Lamellor'],
+  // MegaMek 48fcb2f64 ArmorType.java:521,1051,1108,1139,2069;
+  // Mek.java:5385-5403 writes these exact names, including Patchwork's
+  // distinct global header (its location records require additional context).
+  ['ferro-fibrous prototype', 'FERRO_FIBROUS_PROTO', 'Ferro-Fibrous Prototype'],
+  ['ballistic-reinforced', 'BALLISTIC_REINFORCED', 'Ballistic-Reinforced'],
+  ['heat-dissipating', 'HEAT_DISSIPATING', 'Heat-Dissipating'],
+  [
+    'anti-penetrative ablation',
+    'ANTI_PENETRATIVE_ABLATION',
+    'Anti-Penetrative Ablation',
+  ],
+  ['patchwork', 'PATCHWORK', 'Patchwork'],
 ] as const;
 
 const ENGINE_PARSE_NAMES: Record<string, string> = Object.fromEntries(
@@ -61,6 +90,11 @@ const ARMOR_EXPORT_NAMES: Record<string, string> = Object.fromEntries(
 );
 for (const type of CLAN_ARMOR_TYPES) {
   ARMOR_EXPORT_NAMES[`${type}_CLAN`] = `${ARMOR_EXPORT_NAMES[type]}(Clan)`;
+}
+
+/** Canonical MTF armor identities; deliberate legacy aliases are separate. */
+export function getMTFArmorIdentities(): readonly string[] {
+  return Object.keys(ARMOR_EXPORT_NAMES);
 }
 const ARMOR_EXPORT_ALIASES: Record<string, string> = {
   FERRO_FIBROUS_IS: 'FERRO_FIBROUS',
