@@ -71,5 +71,8 @@
       "COMMUNICATIONS": "Quikscell Company",
       "TARGETING": "Quikscell Company"
     }
+  },
+  "componentTechBases": {
+    "chassis": "CLAN"
   }
 }

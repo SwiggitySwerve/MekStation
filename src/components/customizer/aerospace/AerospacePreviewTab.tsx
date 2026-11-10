@@ -55,6 +55,7 @@ export function AerospacePreviewTab({
   const heatSinks = useAerospaceStore((s) => s.heatSinks);
   const doubleHeatSinks = useAerospaceStore((s) => s.doubleHeatSinks);
   const armorType = useAerospaceStore((s) => s.armorType);
+  const armorTypeByArc = useAerospaceStore((s) => s.armorTypeByArc);
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const hasBombBay = useAerospaceStore((s) => s.hasBombBay);
   const bombCapacity = useAerospaceStore((s) => s.bombCapacity);
@@ -82,6 +83,7 @@ export function AerospacePreviewTab({
         heatSinks,
         doubleHeatSinks,
         armorType,
+        armorTypeByArc,
         armorAllocation,
         hasBombBay,
         bombCapacity,
@@ -107,6 +109,7 @@ export function AerospacePreviewTab({
       heatSinks,
       doubleHeatSinks,
       armorType,
+      armorTypeByArc,
       armorAllocation,
       hasBombBay,
       bombCapacity,

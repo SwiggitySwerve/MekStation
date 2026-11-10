@@ -11,8 +11,6 @@
 import { type IContract } from '@/types/campaign/Mission';
 import {
   CombatRole,
-  AtBMoraleLevel,
-  MORALE_VALUES,
   type ICombatTeam,
 } from '@/types/campaign/scenario/scenarioTypes';
 
@@ -40,7 +38,8 @@ export type RandomFn = () => number;
  * Base battle chance percentage for each combat role.
  *
  * These values are checked weekly to determine if a scenario is generated.
- * The actual battle chance is modified by the contract's morale level.
+ * Contract morale does not change them (a ROUTED enemy is skipped before the
+ * check, in `scenarioGenerationProcessor`).
  *
  * Based on MekHQ CombatTeam.java battle chance values.
  *
@@ -58,44 +57,28 @@ export const BASE_BATTLE_CHANCE: Record<CombatRole, number> = {
 };
 
 // =============================================================================
-// Battle Type Modifier Calculation
+// Scenario-Type Roll Offset
 // =============================================================================
 
 /**
- * Calculate the battle type modifier based on morale level.
+ * The fixed amount added to the scenario-type roll (see `selectScenarioType`).
  *
- * The modifier is calculated using the formula:
- * `battleTypeMod = 1 + (STALEMATE.ordinal - current.ordinal) × 5`
+ * Contract morale has NO effect on it. This used to be
+ * `1 + (STALEMATE - level) * 5`, which moved the roll from +16 (ROUTED) to
+ * -14 (OVERWHELMING). The pinned MekHQ (e7adc2c) has no morale modifier on a
+ * scenario-type roll: the weekly AtB generator that had one is retired
+ * (`CampaignNewDayManager.java:2292-2293`, "Legacy AtB scenario generation used
+ * to run here on Mondays. It was retired with the per-type AtBScenario classes;
+ * StratCon generates its own scenarios"). Its only effect of enemy morale on
+ * ordinary scenarios is that a ROUTED enemy yields none
+ * (`StratConRulesManager.java:4492-4495`), applied in
+ * `scenarioGenerationProcessor`.
  *
- * It is a flat amount added to the scenario-type roll (see
- * `selectScenarioType`), not a percentage. A higher enemy morale gives a
- * lower modifier:
- * - STALEMATE (0) → 1
- * - ADVANCING (+1) → -4
- * - DOMINATING (+2) → -9
- * - OVERWHELMING (+3) → -14
- * - WEAKENED (-1) → 6
- * - CRITICAL (-2) → 11
- * - ROUTED (-3) → 16
- *
- * These values are pinned by `battleChance.test.ts`. The pinned MekHQ
- * (e7adc2c) has no equivalent roll modifier (morale acts through StratCon
- * scenario odds there), so the direction is not checked against the pin.
- *
- * @param moraleLevel - The current morale level
- * @returns The battle type modifier (can be negative)
- *
- * @example
- * const mod = calculateBattleTypeMod(AtBMoraleLevel.OVERWHELMING); // -14
+ * The value 1 is what the old formula gave at STALEMATE, the only level any
+ * contract has ever had, so it is kept to leave every existing run unchanged.
+ * It is MekStation's own offset, not a pinned one.
  */
-export function calculateBattleTypeMod(moraleLevel: AtBMoraleLevel): number {
-  // Get the numeric value for the morale level
-  const currentValue = MORALE_VALUES[moraleLevel];
-  const stalemateValue = MORALE_VALUES[AtBMoraleLevel.STALEMATE];
-
-  // Formula: 1 + (STALEMATE.value - current.value) * 5
-  return 1 + (stalemateValue - currentValue) * 5;
-}
+export const SCENARIO_TYPE_ROLL_OFFSET = 1;
 
 // =============================================================================
 // Battle Check Function
@@ -113,13 +96,12 @@ export function calculateBattleTypeMod(moraleLevel: AtBMoraleLevel): number {
  * A battle occurs if: `roll <= baseChance`
  *
  * @param team - The combat team to check
- * @param contract - The contract (for morale level, currently unused in base calculation)
+ * @param contract - The contract (currently unused in the base calculation)
  * @param random - Injectable random function (0-1 range)
  * @returns true if a battle occurs, false otherwise
  *
  * @example
  * const team: ICombatTeam = { forceId: 'f1', role: CombatRole.MANEUVER, battleChance: 40 };
- * const contract = { ...contract, moraleLevel: AtBMoraleLevel.STALEMATE };
  * const random = () => Math.random();
  * const hasBattle = checkForBattle(team, contract, random);
  */

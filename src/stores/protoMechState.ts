@@ -9,6 +9,7 @@ import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
  * @spec openspec/changes/add-protomech-construction/tasks.md §1
  */
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import type { IUnitContract } from '@/types/contracts';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
@@ -119,7 +120,8 @@ export function createProtoMechMountedEquipment(
 /**
  * Complete state for a single ProtoMech unit
  */
-export interface ProtoMechState extends IUnitSaveMetadata {
+export interface ProtoMechState
+  extends IUnitSaveMetadata, IUnitTechBaseIdentity {
   /** Original catalog facts not expressible by the editor. */
   librarySource?: IUnitContract;
   // =========================================================================

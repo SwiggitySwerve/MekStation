@@ -47,6 +47,7 @@ export function ProtoMechEquipmentTab({
         data-testid="protomech-equipment-browser"
       >
         <EquipmentBrowser
+          unitType={useProtoMechStore((state) => state.unitType)}
           key={unitId}
           readOnly={readOnly}
           addHint="Added to the Torso. Choose a location in the loadout."

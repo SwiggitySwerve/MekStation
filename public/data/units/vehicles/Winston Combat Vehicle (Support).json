@@ -134,5 +134,8 @@
       "COMMUNICATIONS": "COMTEC",
       "TARGETING": "GroundTracker"
     }
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

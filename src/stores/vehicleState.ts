@@ -8,6 +8,7 @@ import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.1
  */
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
@@ -137,7 +138,10 @@ export function createVehicleMountedEquipment(
  * Complete state for a single vehicle
  */
 export interface VehicleState
-  extends IVehicleTurretSourceContext, IUnitSaveMetadata {
+  extends
+    IVehicleTurretSourceContext,
+    IUnitSaveMetadata,
+    IUnitTechBaseIdentity {
   // =========================================================================
   // Identity
   // =========================================================================

@@ -155,7 +155,10 @@ export interface EquipmentStoreState {
   setSort: (column: SortColumn) => void;
 
   // Computed
-  getFilteredEquipment: () => IEquipmentItem[];
+  /** Optional caller-local candidates; the shared inventory is never replaced. */
+  getFilteredEquipment: (
+    candidates?: readonly IEquipmentItem[],
+  ) => IEquipmentItem[];
   getPaginatedEquipment: () => IEquipmentItem[];
 }
 
@@ -392,9 +395,9 @@ export const useEquipmentStore = create<EquipmentStoreState>((set, get) => ({
     })),
 
   // Computed - get filtered equipment
-  getFilteredEquipment: () => {
+  getFilteredEquipment: (candidates) => {
     const { equipment, filters, sort, unitContext } = get();
-    return filterEquipment(equipment, filters, unitContext, sort);
+    return filterEquipment(candidates ?? equipment, filters, unitContext, sort);
   },
 
   // Computed - get paginated equipment

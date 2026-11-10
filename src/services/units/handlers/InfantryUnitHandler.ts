@@ -6,7 +6,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.5
  */
 
-import { RulesLevel, WeightClass } from '@/types/enums';
+import { WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
@@ -43,8 +43,6 @@ import {
   createValidationMessages,
   getRawTagBoolean,
   getRawTagString,
-  parseInnerSphereOrClan,
-  parseRulesLevelThroughAdvancedFromType,
   withConstructionDiagnostics,
 } from './unitHandlerShared';
 
@@ -264,20 +262,12 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IInfantry>,
   ): IInfantry {
-    const techBase = parseInnerSphereOrClan(commonFields.techBase);
-    const rulesLevel = parseRulesLevelThroughAdvancedFromType(
-      commonFields.techBase,
-      RulesLevel.INTRODUCTORY,
-    );
-
     const unit = {
       ...buildCommonUnitFields({
         commonFields,
         idPrefix: 'infantry',
         unitType: UnitType.INFANTRY,
         weightClass: WeightClass.LIGHT,
-        techBase,
-        rulesLevel,
         tonnage: commonFields.tonnage || 0.1,
         totalWeight: commonFields.tonnage || 0.1,
       }),
