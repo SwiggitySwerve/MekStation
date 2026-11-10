@@ -18,6 +18,7 @@ import { logger } from '@/utils/logger';
 
 import { mapMechLocation } from './componentMappers';
 import {
+  createCriticalSlotMarkerEquipment,
   getCriticalSlotsForLocation,
   restoreCriticalSlotEquipmentWithDiagnostics,
   type ICriticalSlotEquipmentResult,
@@ -46,6 +47,16 @@ export function mapEquipmentWithDiagnostics(
 
   const mapped = serialized.map((item) => {
     const location = mapMechLocation(item.location);
+    const marker = createCriticalSlotMarkerEquipment(item.id);
+    if (marker)
+      return {
+        ...marker,
+        location,
+        slots: item.slots ? [...item.slots] : undefined,
+        isRearMounted: item.isRearMounted ?? marker.isRearMounted,
+        isRemovable: item.isRemovable ?? marker.isRemovable,
+        isOmniPodMounted: item.isOmniPodMounted ?? marker.isOmniPodMounted,
+      };
     const locationCriticalSlots = getCriticalSlotsForLocation(
       unitCriticalSlots,
       location,

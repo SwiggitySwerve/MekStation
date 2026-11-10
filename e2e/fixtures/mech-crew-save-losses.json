@@ -1,0 +1,141 @@
+{
+  "sourceCommit": "3e96c2283549ec025290382283b15b22c52c37bc",
+  "units": {
+    "triskelion-trk-4v": {
+      "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json",
+      "entries": [
+        {
+          "text": "CLArtemisV",
+          "location": "Left Torso",
+          "slot": 4
+        },
+        {
+          "text": "CLArtemisV",
+          "location": "Left Torso",
+          "slot": 5
+        },
+        {
+          "text": "ISCASEII",
+          "location": "Left Torso",
+          "slot": 8
+        },
+        {
+          "text": "CLArtemisV",
+          "location": "Right Torso",
+          "slot": 4
+        },
+        {
+          "text": "CLArtemisV",
+          "location": "Right Torso",
+          "slot": 5
+        },
+        {
+          "text": "ISCASEII",
+          "location": "Right Torso",
+          "slot": 8
+        },
+        {
+          "text": "ISGuardianECMSuite",
+          "location": "Center Torso",
+          "slot": 10
+        },
+        {
+          "text": "ISGuardianECMSuite",
+          "location": "Center Torso",
+          "slot": 11
+        },
+        {
+          "text": "ISTargeting Computer",
+          "location": "Head",
+          "slot": 3
+        }
+      ]
+    },
+    "poseidon-psd-v2": {
+      "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Poseidon PSD-V2.json",
+      "entries": [
+        {
+          "text": "ISApollo",
+          "location": "Right Arm",
+          "slot": 6
+        },
+        {
+          "text": "CLCASEII",
+          "location": "Left Torso",
+          "slot": 10
+        },
+        {
+          "text": "CLCASEII",
+          "location": "Right Torso",
+          "slot": 10
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Left Leg",
+          "slot": 4
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Left Leg",
+          "slot": 5
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Right Leg",
+          "slot": 4
+        },
+        {
+          "text": "ISAntiPersonnelPod",
+          "location": "Right Leg",
+          "slot": 5
+        }
+      ]
+    },
+    "boreas-a": {
+      "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Boreas A.json",
+      "entries": [
+        {
+          "text": "Conversion Gear",
+          "location": "Front Left Leg",
+          "slot": 4
+        },
+        {
+          "text": "Tracks",
+          "location": "Front Left Leg",
+          "slot": 5
+        },
+        {
+          "text": "Conversion Gear",
+          "location": "Front Right Leg",
+          "slot": 4
+        },
+        {
+          "text": "Tracks",
+          "location": "Front Right Leg",
+          "slot": 5
+        },
+        {
+          "text": "Conversion Gear",
+          "location": "Rear Left Leg",
+          "slot": 4
+        },
+        {
+          "text": "Tracks",
+          "location": "Rear Left Leg",
+          "slot": 5
+        },
+        {
+          "text": "Conversion Gear",
+          "location": "Rear Right Leg",
+          "slot": 4
+        },
+        {
+          "text": "Tracks",
+          "location": "Rear Right Leg",
+          "slot": 5
+        }
+      ]
+    }
+  },
+  "expectedChange": "recover-native-critical-marker-allocations; only native marker entries removed from the pinned baseline list"
+}

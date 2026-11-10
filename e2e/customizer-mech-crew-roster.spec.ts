@@ -11,6 +11,7 @@
 
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+import saveLosses from './fixtures/mech-crew-save-losses.json';
 import {
   expectPrintWindowClosesAfterPrint,
   installPrintHarness,
@@ -23,6 +24,7 @@ interface ISeat {
   readonly pilot?: { name: string; gunnery: number; piloting: number };
 }
 interface ICase {
+  readonly sourceId: keyof typeof saveLosses.units;
   readonly label: string;
   readonly chassis: string;
   readonly model: string;
@@ -33,6 +35,7 @@ interface ICase {
 
 const cases: readonly ICase[] = [
   {
+    sourceId: 'triskelion-trk-4v',
     label: 'tripod with a blank gunner seat',
     chassis: 'Triskelion',
     model: 'TRK-4V',
@@ -42,6 +45,7 @@ const cases: readonly ICase[] = [
     ],
   },
   {
+    sourceId: 'triskelion-trk-4v',
     label: 'tripod edited to 105 tons gains a Tech Officer seat',
     chassis: 'Triskelion',
     model: 'TRK-4V',
@@ -56,6 +60,7 @@ const cases: readonly ICase[] = [
     ],
   },
   {
+    sourceId: 'poseidon-psd-v2',
     label: 'superheavy tripod with repeated names',
     chassis: 'Poseidon',
     model: 'PSD-V2',
@@ -69,6 +74,7 @@ const cases: readonly ICase[] = [
     ],
   },
   {
+    sourceId: 'boreas-a',
     label: 'QuadVee with a blank pilot seat',
     chassis: 'Boreas',
     model: 'A',
@@ -126,6 +132,39 @@ async function section(page: Page, name: string) {
   await page
     .getByRole('tablist', { name: 'Unit configuration tabs' })
     .getByRole('tab', { name, exact: true })
+    .click();
+}
+
+/**
+ * Pinned at saveLosses.sourceCommit from the real canonical loader:
+ * mapToUnitState -> equipmentMapping -> criticalSlotEquipment diagnostics.
+ * Compare every source cell before acknowledging the product's save-loss gate.
+ * o3a keeps native markers: the old 21/14 loss counts were wrong after recovery;
+ * Triskelion now has 9 losses, Poseidon 7, and Boreas remains at 8.
+ */
+async function confirmCriticalSlotLoss(page: Page, unit: ICase) {
+  const expected = saveLosses.units[unit.sourceId].entries;
+  const confirmation = page.getByRole('dialog', {
+    name: 'Save with missing critical-slot entries?',
+    exact: true,
+  });
+  if (expected.length === 0) {
+    await expect(confirmation).toHaveCount(0);
+    return;
+  }
+
+  await expect(confirmation).toBeVisible();
+  await expect(
+    confirmation
+      .getByRole('list', { name: 'Unrecovered critical-slot entries' })
+      .getByRole('listitem'),
+  ).toHaveText(
+    expected.map(
+      ({ text, location, slot }) => `${text} — ${location} [${slot}]`,
+    ),
+  );
+  await confirmation
+    .getByRole('button', { name: 'Save anyway', exact: true })
     .click();
 }
 
@@ -233,6 +272,7 @@ test.describe('Tripod and QuadVee crew seats', () => {
             r.request().method() === 'POST',
         );
         await save.getByRole('button', { name: 'Save', exact: true }).click();
+        await confirmCriticalSlotLoss(page, unit);
         const response = await posted;
         expect(response.ok()).toBe(true);
         savedId = (await response.json()).data.id;

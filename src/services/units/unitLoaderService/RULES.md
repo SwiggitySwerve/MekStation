@@ -29,6 +29,25 @@ exists in `vehicle/variableEquipmentMass.ts` under vehicle/support rounding;
 mech sizing requires a coordinated owner extension. Those are explicit PR-D
 prerequisites, not sizing formulas to add to a recovery switch.
 
+## Native armor and structure allocations
+
+The recovery switch admits only native armor/structure markers in o3a. Each
+retained source cell gets one zero-equipment-mass structural allocation, using
+the existing armor/structure ID prefix and the vocabulary's native identity.
+The material configuration continues to own material mass and protection.
+Existing listed but unplaced marker instances bind first. Saved marker IDs
+hydrate through this same owner before generic unknown equipment mapping.
+Unknown cells and markers beyond a location or overlapping fixed systems remain
+diagnostics; no expected material count creates placements or hides invalidity.
+
+Grid, free-space and persistence consumers already read actual allocations;
+they receive the recovered cells without a second scanner or names table.
+The native name is retained for existing critical-grid serialization, and the
+existing o1 pass owns pod suffix order and explicit saved booleans. Recovery
+does not alter mobility, ammo/sink admission, resolver precedence or BV formulas.
+Legacy-draft diagnostic refresh calls this recogniser against the draft's
+actual equipment, without replacing user edits with a repaired canonical load.
+
 ## Unrecovered critical-slot diagnostics
 
 `criticalSlotEquipment.ts` owns both the recovered mounts and the remaining

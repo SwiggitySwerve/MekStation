@@ -5,8 +5,12 @@ import { equipmentNameResolver } from '@/services/conversion/EquipmentNameResolv
 import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
-import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import {
+  LOCATION_SLOT_COUNTS,
+  MechLocation,
+} from '@/types/construction/CriticalSlotAllocation';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
+import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
@@ -27,7 +31,12 @@ import {
   splitPartners,
 } from '@/utils/construction/slotOperations/splitAllocation';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
-import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
+import { createConfigurationMountedEquipment } from '@/utils/equipment/configurationMountedEquipment';
+import {
+  ARMOR_SLOTS_EQUIPMENT_ID,
+  INTERNAL_STRUCTURE_EQUIPMENT_ID,
+  HEAT_SINK_EQUIPMENT_IDS,
+} from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 import { generateUnitId } from '@/utils/uuid';
 
@@ -36,6 +45,7 @@ import type {
   CriticalSlotSystemContext,
   ICriticalSlotRecognitionInput,
   ICriticalSlotRecognitionResult,
+  ICriticalSlotRecoveryInput,
   IRecognizedCriticalEntry,
   UnitCriticalSlots,
 } from './criticalSlotRecognitionTypes';
@@ -327,9 +337,40 @@ export interface ICriticalSlotEquipmentResult {
 const criticalSlotMarkers = new Map(
   Object.entries(vocabulary.criticalSlotMarkers).map(([name, marker]) => [
     name.toLowerCase(),
+    {
+      ...marker,
+      name,
+      equipmentId: `${marker.kind === 'armor-marker' ? ARMOR_SLOTS_EQUIPMENT_ID : INTERNAL_STRUCTURE_EQUIPMENT_ID}-${name}`,
+    },
+  ]),
+);
+const criticalMarkerAllocations = new Map(
+  Array.from(criticalSlotMarkers.values(), (marker) => [
+    marker.equipmentId,
     marker,
   ]),
 );
+
+/** Native configuration allocations hydrate before the unknown-item fallback. */
+export function createCriticalSlotMarkerEquipment(
+  id: string,
+): IMountedEquipmentInstance | undefined {
+  const marker =
+    criticalMarkerAllocations.get(id) ??
+    criticalSlotMarkers.get(id.toLowerCase());
+  if (!marker) return undefined;
+  return createConfigurationMountedEquipment({
+    instanceId: generateUnitId(),
+    equipmentId: marker.equipmentId,
+    name: marker.name,
+    category: EquipmentCategory.STRUCTURAL,
+    weight: 0,
+    criticalSlots: 1,
+    heat: 0,
+    techBase:
+      marker.techBase === 'CLAN' ? TechBase.CLAN : TechBase.INNER_SPHERE,
+  });
+}
 
 function criticalEntryKind(slot: IResolvedCriticalSlot): CriticalEntryKind {
   const marker = criticalSlotMarkers.get(
@@ -416,6 +457,46 @@ export function recognizeCriticalSlotEntries(
       input.unitTechBaseMode,
     ),
   );
+}
+
+function recoverCriticalSlotEntry(
+  input: ICriticalSlotRecoveryInput,
+): IMountedEquipmentInstance | undefined {
+  const { entry, location, systems } = input;
+  switch (entry.kind) {
+    case 'armor-marker':
+    case 'structure-marker': {
+      if (
+        systems?.configuration &&
+        !getLocationsForConfig(systems.configuration).includes(location)
+      )
+        return undefined;
+      if (entry.slot < 0 || entry.slot >= LOCATION_SLOT_COUNTS[location])
+        return undefined;
+      if (
+        systems &&
+        getFixedSlotNames(
+          location,
+          systems.engineType,
+          systems.gyroType,
+          systems.armActuators,
+          systems.cockpitType,
+        ).has(entry.slot)
+      )
+        return undefined;
+      const marker = createCriticalSlotMarkerEquipment(entry.lookupToken);
+      if (!marker) return undefined;
+      const listed = input.equipment.find(
+        (item) =>
+          item.equipmentId === marker.equipmentId &&
+          (!item.location || item.location === location) &&
+          getSlotParts(item).every((part) => part.slots.length === 0),
+      );
+      return { ...marker, ...listed, location, slots: [entry.slot] };
+    }
+    default:
+      return undefined;
+  }
 }
 
 export function restoreCriticalSlotEquipmentWithDiagnostics(
@@ -692,6 +773,40 @@ export function restoreCriticalSlotEquipmentWithDiagnostics(
   }
 
   const equipment = [...placed, ...recovered];
+  const recognitionInput: ICriticalSlotRecognitionInput = {
+    criticalSlots,
+    equipment,
+    unitTechBase,
+    unitTechBaseMode,
+    tonnage,
+    isOmni,
+    systems,
+  };
+  const recognized = recognizeResolvedCriticalSlotEntries(
+    recognitionInput,
+    resolvedByLocation,
+  );
+  const entriesByLocation = new Map<MechLocation, IRecognizedCriticalEntry[]>();
+  for (const entry of recognized.cells) {
+    const locationEntries = entriesByLocation.get(entry.location) ?? [];
+    locationEntries.push(entry);
+    entriesByLocation.set(entry.location, locationEntries);
+  }
+  for (const entry of recognized.missing) {
+    const marker = recoverCriticalSlotEntry({
+      ...recognitionInput,
+      entry,
+      location: entry.location,
+      locationEntries: entriesByLocation.get(entry.location) ?? [],
+    });
+    if (marker) {
+      const existing = equipment.findIndex(
+        (item) => item.instanceId === marker.instanceId,
+      );
+      if (existing >= 0) equipment[existing] = marker;
+      else equipment.push(marker);
+    }
+  }
   const restoredEquipment = !isOmni
     ? equipment
     : equipment.map((item, index) => {

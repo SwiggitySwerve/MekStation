@@ -245,7 +245,29 @@ async function roundTrip(id: string, legacy: boolean, unallocated = false) {
   useTabManagerStore.setState({ tabs: [], activeTabId: null });
   const reopened = (await open(savedId, 'custom', id)).getState();
   expect(mountFacts(reopened)).toEqual(expected);
+  return reopened;
 }
+
+it('keeps native marker allocations through SQLite, dialog save, contract parse and cold library reopen', async () => {
+  const reopened = await roundTrip('king-crab-kgc-000', false);
+  const markers = reopened.equipment.filter(
+    (item) => item.category === EquipmentCategory.STRUCTURAL,
+  );
+  expect(markers).toHaveLength(14);
+  expect(
+    markers.every(
+      (item) =>
+        item.weight === 0 &&
+        !item.isRemovable &&
+        !item.isOmniPodMounted &&
+        item.name === 'IS Ferro-Fibrous' &&
+        item.slots?.length === 1,
+    ),
+  ).toBe(true);
+  expect(markers.reduce((total, item) => total + item.slots!.length, 0)).toBe(
+    14,
+  );
+});
 
 it.each([
   'shadow-hawk-c',
