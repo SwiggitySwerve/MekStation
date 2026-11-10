@@ -143,10 +143,8 @@ async function section(page: Page, name: string) {
  * noticeGroups pins presentation at saveLosses.groupingSourceCommit, referencing
  * the unchanged entry list by index rather than replacing its membership.
  * Compare every source cell before acknowledging the product's save-loss gate.
- * Triskelion's center-leg structure/armor markers are in o3a's acceptance set;
- * remove those pinned entries when o3a recovers the markers. Poseidon's new
- * center-leg AP pods belong to PR-D's (C2) acceptance set and leave this fixture
- * when PR-D recovers them.
+ * o3a recovers native structure/armor markers, including center-leg cells.
+ * Poseidon's center-leg AP pods remain in PR-D's (C2) acceptance set.
  */
 async function confirmCriticalSlotLoss(page: Page, unit: ICase) {
   const pinned = saveLosses.units[unit.sourceId];

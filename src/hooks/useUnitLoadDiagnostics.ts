@@ -10,6 +10,7 @@ import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics'
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { getArmorSaveLoss } from '@/services/units/unitLoaderService/armorSaveLoss';
+import { recognizeCriticalSlotEntries } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { unitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
 import { useUnitStore, useUnitStoreApi } from '@/stores/useUnitStore';
 import { logger } from '@/utils/logger';
@@ -38,32 +39,37 @@ function refreshLegacyDiagnostics(
     return existing.promise;
   const promise = (async () => {
     try {
-      let loaded: RefreshedDiagnostics = {};
+      let definition = source.bvContext?.source;
       const reference = source.sourceDefinition;
       if (
+        !definition &&
         reference?.source === 'canonical' &&
         (reference.family ?? 'battlemechs') === 'battlemechs'
       ) {
         const result = await unitLoaderService.loadCanonicalUnit(reference.id);
-        if (result.success)
-          loaded = {
-            entries: result.state?.unrecoveredCriticalSlots,
-            source: result.state?.bvContext?.source,
-          };
+        if (result.success) definition = result.state?.bvContext?.source;
       }
-      if (loaded.entries === undefined && source.bvContext?.source) {
-        await getEquipmentLookupService().initialize();
-        await getEquipmentRegistry().initialize();
-        const state = unitLoaderService.mapToUnitState(
-          source.bvContext.source,
-          false,
-        );
-        loaded = {
-          entries: state.unrecoveredCriticalSlots,
-          source: state.bvContext?.source,
-        };
-      }
-      return loaded;
+      if (!definition) return undefined;
+      await getEquipmentLookupService().initialize();
+      await getEquipmentRegistry().initialize();
+      const live = store.getState();
+      if (
+        live.sourceDefinition !== source.sourceDefinition ||
+        live.bvContext !== source.bvContext
+      )
+        return undefined;
+      // Refresh diagnostics for the draft's actual allocations. A newly
+      // repaired canonical load does not repair an older draft's equipment.
+      const entries = recognizeCriticalSlotEntries({
+        criticalSlots: definition.criticalSlots,
+        equipment: live.equipment,
+        unitTechBase: live.techBase,
+        unitTechBaseMode: live.techBaseMode,
+        tonnage: live.tonnage,
+        isOmni: live.isOmni,
+        systems: live,
+      }).missing.map(({ text, location, slot }) => ({ text, location, slot }));
+      return { entries, source: definition };
     } catch (error) {
       // An unavailable source leaves tracking unknown, never an invented empty list.
       logger.warn(

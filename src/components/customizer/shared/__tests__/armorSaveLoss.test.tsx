@@ -273,21 +273,19 @@ it('shows no armor warning or confirmation for supported Standard armor', async 
   expect(screen.queryByRole('button', { name: 'Save anyway' })).toBeNull();
 });
 
-it('Striker STC-2L keeps armor loss beside the exact marker consequence on open and save', async () => {
+it('Striker STC-2L keeps armor loss after its native marker cells are recovered', async () => {
   const { store, source, onSave, openSaveDialog } = open(
     '6-dark-age/experimental/Striker STC-2L',
   );
   expect(source.id).toBe('striker-stc-2l');
   expect(source.armor?.type).toBe('HEAT_DISSIPATING');
-  expect(store.getState().unrecoveredCriticalSlots).toEqual([
-    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 3 },
-    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 4 },
-    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 5 },
-    { text: 'IS Heat-Dissipating', location: 'Left Torso', slot: 6 },
-    { text: 'IS Heat-Dissipating', location: 'Right Torso', slot: 5 },
-    { text: 'IS Heat-Dissipating', location: 'Right Torso', slot: 6 },
-  ]);
-  function expectBothConsequences(container: HTMLElement) {
+  expect(store.getState().unrecoveredCriticalSlots).toEqual([]);
+  expect(
+    store
+      .getState()
+      .equipment.filter((item) => item.name === 'IS Heat-Dissipating'),
+  ).toHaveLength(6);
+  function expectArmorConsequence(container: HTMLElement) {
     const scope = within(container);
     const armor = scope.getByRole('note', {
       name: 'Armor configuration lost on save',
@@ -298,27 +296,22 @@ it('Striker STC-2L keeps armor loss beside the exact marker consequence on open 
         { exact: true },
       ),
     ).toBeVisible();
-    const markers = scope.getByRole('note', {
-      name: 'Critical-slot entries lost on save',
-    });
     expect(
-      within(markers).getByText(
-        'These structure and armor placement slots are not kept when you save. Weight, BV and validity are not affected, and the record sheet does not list them before or after saving.',
-        { exact: true },
-      ),
-    ).toBeVisible();
-    expect(within(markers).getAllByRole('listitem')).toHaveLength(6);
+      scope.queryByRole('note', {
+        name: 'Critical-slot entries lost on save',
+      }),
+    ).toBeNull();
   }
   expect(screen.queryByRole('dialog')).toBeNull();
-  expectBothConsequences(document.body);
+  expectArmorConsequence(document.body);
   expect(onSave).not.toHaveBeenCalled();
   openSaveDialog();
-  expectBothConsequences(screen.getByRole('dialog', { name: 'Save Unit' }));
+  expectArmorConsequence(screen.getByRole('dialog', { name: 'Save Unit' }));
   await waitFor(() =>
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled(),
   );
   fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  expectBothConsequences(
+  expectArmorConsequence(
     screen.getByRole('dialog', { name: 'Save with armor loss?' }),
   );
   expect(screen.getByRole('button', { name: 'Save anyway' })).toBeVisible();

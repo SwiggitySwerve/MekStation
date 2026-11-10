@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -99,10 +99,10 @@ it.each([
 );
 
 it.each([
-  [scarecrow, 13, 7],
-  [celerity, 3, 14],
+  [scarecrow, 13, 0],
+  [celerity, 3, 0],
   [uni, 21, 0],
-  [starLeagueCrab, 2, 14],
+  [starLeagueCrab, 2, 0],
 ] as const)(
   'shows effect groups and counts for $chassis $model',
   (source, other, markers) => {
@@ -174,3 +174,35 @@ it.each([scarecrow, celerity, uni, crab])(
     expect(notices[0]).toHaveTextContent('Why?');
   },
 );
+
+it('refreshes an older draft against its actual allocations without hiding an unrecovered marker or overwriting edits', async () => {
+  const source = parseUnit({
+    ...crab,
+    equipment: [],
+    criticalSlots: { LEFT_TORSO: ['IS Ferro-Fibrous'] },
+  });
+  const state = new UnitLoaderService().mapToUnitState(source, true);
+  // An old browser draft genuinely has no allocation rows, even though a new
+  // canonical load can now recover them. Keep its user edits intact.
+  const store = createUnitStore({
+    ...state,
+    equipment: [],
+    model: 'edited legacy variant',
+    unrecoveredCriticalSlots: undefined,
+  });
+  render(
+    <UnitStoreContext.Provider value={store}>
+      <EditorLoadDiagnostics />
+    </UnitStoreContext.Provider>,
+  );
+  await waitFor(() =>
+    expect(store.getState().unrecoveredCriticalSlots).toEqual([
+      { text: 'IS Ferro-Fibrous', location: 'Left Torso', slot: 0 },
+    ]),
+  );
+  expect(
+    screen.getByRole('note', { name: 'Critical-slot entries lost on save' }),
+  ).toHaveTextContent('IS Ferro-Fibrous');
+  expect(store.getState().equipment).toEqual([]);
+  expect(store.getState().model).toBe('edited legacy variant');
+});

@@ -1,5 +1,73 @@
 # Unit definition loading
 
+## Critical-entry recognition and sizing context
+
+`criticalSlotEquipment.ts` owns `recognizeCriticalSlotEntries`. It resolves
+source cells once, preserves raw/parsed token evidence, and computes actual
+primary/split/spread coverage. Recognition alone does not admit a new recovery
+kind. The diagnostic residual is the missing subset of those same facts.
+`mtf-component-vocabulary.json:criticalSlotMarkers` owns native marker names,
+material/tech metadata and individual pinned citations; no editor/saver names
+table is needed.
+
+Each entry carries `parsedToken.parameters`: both native `:SIZE:` and legacy
+parenthesized size (raw value and units included). The grammar follows MegaMek
+48fcb2f64 `MtfFile.java:207-227,1005-1009,1151-1155`. Malformed explicit size
+remains evidence, with no guessed default. Existing lookup spelling and rear/pod
+suffix semantics are unchanged.
+
+Recognition/recovery input includes current mounted equipment (including
+weapons), source locations, tonnage, tech, Omni status and optional system,
+configuration and engine context. Recovery dispatch receives its entry and all
+recognized entries at that location. Callers refresh current equipment after
+preceding weapon recovery before passing context to sizing owners.
+
+TC uses `weapons/utilities.ts` direct-fire tonnage and
+`targetingComputerUtils.ts` weight/slots, or the existing calculator formulas.
+This base has no callable AES mass/slot sizing owner. Cargo/communications mass
+exists in `vehicle/variableEquipmentMass.ts` under vehicle/support rounding;
+mech sizing requires a coordinated owner extension. Those are explicit PR-D
+prerequisites, not sizing formulas to add to a recovery switch.
+
+## Native armor and structure allocations
+
+### Shared callable recovery dispatcher
+
+`recoverCriticalSlotEntries(input: ICriticalSlotRecoveryInput)` returns zero or
+more mounted allocations without mutating its input. It is the only switch
+that creates missing critical-entry mounts: ammo, bomb bays, sinks, grouped
+source weapons and native markers. Unsupported kinds return no allocations.
+The loader preserves the existing component -> source-weapon -> remaining-kind
+order, applies returned allocations and refreshes actual coverage, current
+equipment and location facts before each next call. The component-kind set is
+stage scheduling only; admission, matching, native entry sizing and creation
+remain in the callable switch.
+
+`physicalOnly` retains the existing summary guard for ammo/bays/sinks only.
+`reservedSlots` preserves serialized reservations, including invalid ones;
+when omitted by a direct caller it defaults to actual input allocations through
+the same coverage owner. `sourceWeapon` is already grouped evidence from
+`sourceCriticalWeapons`, never a second weapon-grouping calculation. Existing
+listed-weapon binding stays in the loader; newly discovered weapon creation
+goes through the dispatcher. The final o1 pod projection is unchanged.
+
+The new admission in o3a is native armor/structure markers. Each
+retained source cell gets one zero-equipment-mass structural allocation, using
+the existing armor/structure ID prefix and the vocabulary's native identity.
+The material configuration continues to own material mass and protection.
+Existing listed but unplaced marker instances bind first. Saved marker IDs
+hydrate through this same owner before generic unknown equipment mapping.
+Unknown cells and markers beyond a location or overlapping fixed systems remain
+diagnostics; no expected material count creates placements or hides invalidity.
+
+Grid, free-space and persistence consumers already read actual allocations;
+they receive the recovered cells without a second scanner or names table.
+The native name is retained for existing critical-grid serialization, and the
+existing o1 pass owns pod suffix order and explicit saved booleans. Recovery
+does not alter mobility, ammo/sink admission, resolver precedence or BV formulas.
+Legacy-draft diagnostic refresh calls this recogniser against the draft's
+actual equipment, without replacing user edits with a repaired canonical load.
+
 ## Unrecovered critical-slot diagnostics
 
 `criticalSlotEquipment.ts` owns both the recovered mounts and the remaining

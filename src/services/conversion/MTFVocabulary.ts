@@ -21,6 +21,23 @@ const ENGINE_NAMES = [
   ['battery', 'BATTERY', 'Battery Engine'],
 ] as const;
 
+/** Exact native critical-system identities, separate from equipment aliases.
+ * Bare tokens only: critical-cell decorations belong to parseCriticalSlotToken.
+ */
+export const MTF_CRITICAL_SLOT_SYSTEM_NAMES: readonly string[] = [
+  ...vocabulary.criticalSlotSystems,
+  ...ENGINE_NAMES.map(([, , name]) => name),
+  ...Object.keys(vocabulary.gyro).filter((name) => name.endsWith('Gyro')),
+  ...vocabulary.cockpitOrder.map(([name]) => name),
+];
+const criticalSystemNames = new Set(
+  MTF_CRITICAL_SLOT_SYSTEM_NAMES.map((name) => name.toLowerCase()),
+);
+
+export function isMTFCriticalSlotSystemName(name: string): boolean {
+  return criticalSystemNames.has(name.trim().toLowerCase());
+}
+
 const ARMOR_NAMES = [
   ['standard', 'STANDARD', 'Standard(Inner Sphere)'],
   ['ferro-fibrous', 'FERRO_FIBROUS', 'Ferro-Fibrous'],

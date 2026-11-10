@@ -1,6 +1,6 @@
 {
-  "groupingSourceCommit": "483c90e6fcada410ddfc77e2503856b399b775f5",
-  "sourceCommit": "954394f1bd3727d938aa882371d0dbd061e4632a",
+  "sourceCommit": "0ad7a0edc53a93fc123478e9a4186159dee8a279",
+  "groupingSourceCommit": "0ad7a0edc53a93fc123478e9a4186159dee8a279",
   "units": {
     "triskelion-trk-4v": {
       "sourcePath": "public/data/units/battlemechs/6-dark-age/experimental/Triskelion TRK-4V.json",
@@ -10,46 +10,17 @@
           "kinds": [
             {
               "title": "Probes and electronics",
-              "entryIndexes": [4, 5, 9, 10, 14, 15, 16]
+              "entryIndexes": [0, 1, 3, 4, 6, 7, 8]
             },
             {
               "title": "CASE / CASE II",
-              "entryIndexes": [6, 11]
-            }
-          ]
-        },
-        {
-          "title": "Placement markers only",
-          "kinds": [
-            {
-              "title": "Armor / structure markers",
-              "entryIndexes": [0, 1, 2, 3, 7, 8, 12, 13, 17, 18, 19, 20, 21, 22]
+              "entryIndexes": [2, 5]
             }
           ]
         }
       ],
       "entries": [
         {
-          "text": "IS Endo-Composite",
-          "location": "Left Arm",
-          "slot": 6
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Left Arm",
-          "slot": 7
-        },
-        {
-          "text": "IS Endo-Composite",
-          "location": "Right Arm",
-          "slot": 6
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Right Arm",
-          "slot": 7
-        },
-        {
           "text": "CLArtemisV",
           "location": "Left Torso",
           "slot": 4
@@ -65,16 +36,6 @@
           "slot": 8
         },
         {
-          "text": "IS Endo-Composite",
-          "location": "Left Torso",
-          "slot": 9
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Left Torso",
-          "slot": 10
-        },
-        {
           "text": "CLArtemisV",
           "location": "Right Torso",
           "slot": 4
@@ -88,16 +49,6 @@
           "text": "ISCASEII",
           "location": "Right Torso",
           "slot": 8
-        },
-        {
-          "text": "IS Endo-Composite",
-          "location": "Right Torso",
-          "slot": 9
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Right Torso",
-          "slot": 10
         },
         {
           "text": "ISGuardianECMSuite",
@@ -113,36 +64,6 @@
           "text": "ISTargeting Computer",
           "location": "Head",
           "slot": 3
-        },
-        {
-          "text": "IS Endo-Composite",
-          "location": "Left Leg",
-          "slot": 4
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Left Leg",
-          "slot": 5
-        },
-        {
-          "text": "IS Endo-Composite",
-          "location": "Right Leg",
-          "slot": 4
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Right Leg",
-          "slot": 5
-        },
-        {
-          "text": "IS Endo-Composite",
-          "location": "Center Leg",
-          "slot": 4
-        },
-        {
-          "text": "Clan Ferro-Fibrous",
-          "location": "Center Leg",
-          "slot": 5
         }
       ]
     },
@@ -154,49 +75,20 @@
           "kinds": [
             {
               "title": "Probes and electronics",
-              "entryIndexes": [4]
+              "entryIndexes": [0]
             },
             {
               "title": "CASE / CASE II",
-              "entryIndexes": [5, 7]
+              "entryIndexes": [1, 2]
             },
             {
               "title": "Other",
-              "entryIndexes": [10, 11, 12, 13, 14, 15]
-            }
-          ]
-        },
-        {
-          "title": "Placement markers only",
-          "kinds": [
-            {
-              "title": "Armor / structure markers",
-              "entryIndexes": [0, 1, 2, 3, 6, 8, 9]
+              "entryIndexes": [3, 4, 5, 6, 7, 8]
             }
           ]
         }
       ],
       "entries": [
-        {
-          "text": "IS Endo Steel",
-          "location": "Left Arm",
-          "slot": 6
-        },
-        {
-          "text": "IS Endo Steel",
-          "location": "Left Arm",
-          "slot": 7
-        },
-        {
-          "text": "IS Endo Steel",
-          "location": "Left Arm",
-          "slot": 8
-        },
-        {
-          "text": "IS Endo Steel",
-          "location": "Left Arm",
-          "slot": 9
-        },
         {
           "text": "ISApollo",
           "location": "Right Arm",
@@ -208,24 +100,9 @@
           "slot": 10
         },
         {
-          "text": "IS Endo Steel",
-          "location": "Left Torso",
-          "slot": 11
-        },
-        {
           "text": "CLCASEII",
           "location": "Right Torso",
           "slot": 10
-        },
-        {
-          "text": "IS Endo Steel",
-          "location": "Center Torso",
-          "slot": 11
-        },
-        {
-          "text": "IS Endo Steel",
-          "location": "Head",
-          "slot": 3
         },
         {
           "text": "ISAntiPersonnelPod",

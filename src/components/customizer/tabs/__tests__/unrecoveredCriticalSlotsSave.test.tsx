@@ -173,10 +173,10 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
       'Other critical-slot entries (13)',
     );
     expect(
-      within(notice).getByRole('heading', {
-        name: 'Placement markers only (7)',
+      within(notice).queryByRole('heading', {
+        name: /Placement markers only/,
       }),
-    ).toBeVisible();
+    ).toBeNull();
     if (mode === 'save-as-new') {
       fireEvent.click(
         await screen.findByRole('button', { name: 'Save As New' }),
@@ -229,16 +229,15 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
 );
 
 it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
-  'requires Save anyway for marker-only %s, and cancel preserves the unit',
+  'saves recovered marker-only %s without a loss confirmation',
   async (mode) => {
     const store = open(markerOnly, mode);
     const before = store.getState();
-    expect(before.unrecoveredCriticalSlots).toHaveLength(14);
+    expect(before.unrecoveredCriticalSlots).toEqual([]);
     expect(
-      screen.getByRole('heading', { name: 'Placement markers only (14)' }),
-    ).toBeVisible();
-    expect(
-      screen.queryByRole('heading', { name: /Other critical-slot entries/ }),
+      screen.queryByRole('note', {
+        name: 'Critical-slot entries lost on save',
+      }),
     ).toBeNull();
     if (mode === 'save-as-new')
       fireEvent.click(
@@ -253,16 +252,7 @@ it.each<Mode>(['create', 'overwrite', 'save-as-new', 'save-on-close'])(
     fireEvent.click(
       screen.getByRole('button', { name: new RegExp(`^${label}$`) }),
     );
-    expect(screen.getByRole('button', { name: 'Save anyway' })).toBeVisible();
-    expect(customUnitApiService.create).not.toHaveBeenCalled();
-    expect(customUnitApiService.save).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    expect(store.getState()).toBe(before);
-    expect(closeTab).not.toHaveBeenCalled();
-    fireEvent.click(
-      screen.getByRole('button', { name: new RegExp(`^${label}$`) }),
-    );
-    fireEvent.click(screen.getByRole('button', { name: 'Save anyway' }));
+    expect(screen.queryByRole('button', { name: 'Save anyway' })).toBeNull();
     await waitFor(() =>
       expect(
         mode === 'overwrite'

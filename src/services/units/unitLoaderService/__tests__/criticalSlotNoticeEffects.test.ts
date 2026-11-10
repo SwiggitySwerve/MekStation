@@ -65,24 +65,16 @@ it('names the missing LAM Fuel Tank definition prerequisite', () => {
 it.each([
   [
     '6-dark-age/standard/Scarecrow UCU-F4',
-    20,
-    { electronics: 9, case: 1, mobility: 3, armor_structure: 7 },
+    13,
+    { electronics: 9, case: 1, mobility: 3 },
   ],
-  [
-    '6-dark-age/standard/Celerity CLR-03-O',
-    17,
-    { electronics: 2, mobility: 1, armor_structure: 14 },
-  ],
+  ['6-dark-age/standard/Celerity CLR-03-O', 3, { electronics: 2, mobility: 1 }],
   [
     '6-dark-age/standard/Uni ATAE-70 ArtilleryMech',
     21,
     { cargo: 6, other: 15 },
   ],
-  [
-    '2-star-league/advanced/King Crab KGC-000',
-    16,
-    { case: 2, armor_structure: 14 },
-  ],
+  ['2-star-league/advanced/King Crab KGC-000', 2, { case: 2 }],
 ] as const)(
   'groups exactly the loader residual for %s',
   (file, count, expected) => {
