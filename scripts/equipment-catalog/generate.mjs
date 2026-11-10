@@ -10,6 +10,10 @@ import routing from '../../public/data/equipment/registry-routing.json' with { t
 import capitalAliasInputs from './capital-alias-inputs.json' with { type: 'json' };
 import capitalSource from './capital-source.json' with { type: 'json' };
 import prototypeDamage from './prototype-damage.json' with { type: 'json' };
+const capitalBVFile = new URL(
+  '../../src/utils/construction/equipmentBV/data/capital-bv.json',
+  import.meta.url,
+);
 const { normalizeEquipmentId } = tsxRequire(
   '../../src/utils/construction/equipmentBV/normalization.ts',
   import.meta.url,
@@ -433,10 +437,7 @@ function runGenerator() {
       originalItems(kind).filter((item) => kind !== 'weapons' || item.ranges)
         .length;
   }
-  write(
-    new URL('./capital-bv.json', import.meta.url),
-    generateCapitalBVFacts(result.items, before),
-  );
+  write(capitalBVFile, generateCapitalBVFacts(result.items, before));
   const addedIds = new Set(result.items.map((item) => item.entry.id));
   const originalMappings = Object.fromEntries(
     Object.entries(mappings).filter(([, id]) => !addedIds.has(id)),
@@ -465,9 +466,9 @@ function runGenerator() {
       ...['weapons', 'ammunition', 'miscellaneous'].map(
         (kind) => `${root}/official/${kind}/java-registry.json`,
       ),
-      ...['provenance.json', 'capital-bv.json', 'java-additions.json'].map(
-        (name) => fileURLToPath(new URL(name, import.meta.url)),
-      ),
+      fileURLToPath(new URL('provenance.json', import.meta.url)),
+      fileURLToPath(capitalBVFile),
+      fileURLToPath(new URL('java-additions.json', import.meta.url)),
     ],
     { stdio: 'inherit', windowsHide: true },
   );

@@ -6,14 +6,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { processCritAmmoSlot } from '../../../../scripts/validate-bv-crit-scan-ammo';
-import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
 import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
 import {
   getAmmunitionEntry,
   getEquipmentEntry,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+import { processCritAmmoSlot } from '../mechBV/critScanAmmo';
+import { createEmptyCritScan } from '../mechBV/critScanTypes';
 
 // [catalog id, pinned Java BV, citation in megamek/common/equipment/AmmoType.java]
 const AMMO_VALUES = [

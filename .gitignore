@@ -55,6 +55,15 @@ scripts/**
 !scripts/unit-bv-parity.md
 !scripts/unit-bv-provenance.ts
 !scripts/unit-bv-reference.ts
+!scripts/validate-bv-ammo-resolution.ts
+!scripts/validate-bv-calculator-weapons.ts
+!scripts/validate-bv-crit-scan.ts
+!scripts/validate-bv-crit-scan-types.ts
+!scripts/validate-bv-crit-weapon-mounts.ts
+!scripts/validate-bv-movement-derived.ts
+!scripts/validate-bv-physical-weapons.ts
+!scripts/validate-bv-types.ts
+!scripts/validate-bv-unit-derived.ts
 !scripts/unit-construction-validity.ts
 !scripts/unit-construction-weights.ts
 !scripts/unit-construction-quantities.ts
@@ -172,6 +181,11 @@ __pycache__/
 .Python
 *.pyc
 data/
+
+# Product-owned capital BV facts remain available to staging and commit hooks.
+!src/utils/construction/equipmentBV/data/
+src/utils/construction/equipmentBV/data/*
+!src/utils/construction/equipmentBV/data/capital-bv.json
 
 # Keep the provenance command guide available to staging and commit hooks.
 !/docs/data/

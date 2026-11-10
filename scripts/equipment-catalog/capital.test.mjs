@@ -18,6 +18,28 @@ const names = [
 ];
 const fixture = read('./capital-fixture.json');
 
+test('the product-owned capital supplement matches generated facts', () => {
+  const items = read('./java-additions.json').map(
+    ({ native, kind, values }) => ({
+      internalName: native,
+      kind,
+      entry: values,
+    }),
+  );
+  const index = read('../../public/data/equipment/official/index.json');
+  const originalEntries = Object.values(index.files).flatMap((group) =>
+    Object.values(group)
+      .filter((file) => !file.endsWith('/java-registry.json'))
+      .flatMap(
+        (file) => read(`../../public/data/equipment/official/${file}`).items,
+      ),
+  );
+  assert.deepEqual(
+    read('../../src/utils/construction/equipmentBV/data/capital-bv.json'),
+    generateCapitalBVFacts(items, originalEntries),
+  );
+});
+
 test('capital weapons and matching ammo are selected without mounted gap tokens', () => {
   const result = generateEntries(fixture.java, [], fixture.facts, {}, [], {});
   for (const name of names) {

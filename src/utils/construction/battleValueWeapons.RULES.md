@@ -17,7 +17,7 @@ heat-tracked weapon callers preserve their parsing, rounding and bonus order.
 
 Active vibroblades enter the Mech weapon heat sequence once, with their arm
 AES flag and without TC, and leave the separate flat physical sum.
-validate-bv-physical-weapons.ts owns their forced-active BV heat (3/5/7).
+physicalWeapons.ts owns their forced-active BV heat (3/5/7).
 Pinned 48fcb2f64: HeatTrackingBVCalculator.java:89-103 and
 MekWithArms.java:242-270. validate-bv-vibroblade-heat.test.ts enforces all
 three sizes, overheat weighting, and the existing AES order.
@@ -45,7 +45,7 @@ IDs such as rl10 are ineligible (BVCalculator.java:880; RLWeapon.java at pin
 
 The Mech critical scanner collects Talons as one spreadable mount across
 limbs. Other physical weapons retain per-location mount identity, per-mount
-rounding and AES before accumulation in validate-bv-physical-weapons.ts.
+rounding and AES before accumulation in physicalWeapons.ts.
 Pinned 48fcb2f64: MiscType.java:1401-1404,4310-4316 and
 MtfFile.java:1053-1068. validate-bv-physical-weapons.test.ts enforces biped,
 quad/TSM and mixed-claw cases without changing the damage-based BV formula.

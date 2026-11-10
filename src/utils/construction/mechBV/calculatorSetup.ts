@@ -1,11 +1,10 @@
-import type { CockpitType } from '../src/utils/construction/battleValueCalculations';
-import type { UnitData } from './validate-bv-types';
+import type { CockpitType } from '@/utils/construction/battleValueCalculations';
 
-import {
-  getMinimumMPForTMM,
-  getTMMByUpperBound,
-} from '../src/constants/movement';
-import { EngineType } from '../src/types/construction/EngineType';
+import { getMinimumMPForTMM, getTMMByUpperBound } from '@/constants/movement';
+import { EngineType } from '@/types/construction/EngineType';
+
+import type { UnitData } from './types';
+
 import {
   calcTotalArmor,
   calcTotalStructure,
@@ -13,7 +12,7 @@ import {
   mapEngineType,
   mapGyroType,
   mapStructureType,
-} from './validate-bv-unit-derived';
+} from './unitDerived';
 
 export interface UnitBvCalculatorSetup {
   engineType: EngineType;

@@ -1,31 +1,6 @@
-/** Shared BattleMech BV owner. Rules: openspec/specs/battle-value-system/spec.md.
- * Gate rules retained for numerical parity; pure scan helpers
- * remain at their compatibility paths until a separate relocation can fit the lane budget.
- */
-import type {
-  UnitData,
-  ValidationResult,
-} from '../../../../scripts/validate-bv-types';
+/** Shared BattleMech BV owner. Rules: openspec/specs/battle-value-system/spec.md. */
+import type { UnitData, ValidationResult } from './types';
 
-import {
-  deriveDefensiveMovementInputs,
-  deriveUnitBvCalculatorSetup,
-} from '../../../../scripts/validate-bv-calculator-setup';
-import { hasClanChassis } from '../../../../scripts/validate-bv-chassis';
-import { scanCrits } from '../../../../scripts/validate-bv-crit-scan';
-import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movement-derived';
-import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
-import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
-import {
-  calcTotalArmor,
-  getArmorBAR,
-  mapArmorType,
-} from '../../../../scripts/validate-bv-unit-derived';
-import {
-  KNOWN_HD_GYRO_UNITS,
-  KNOWN_RISC_OVERRIDE_KIT_UNITS,
-} from '../../../../scripts/validate-bv-unit-overrides';
-import { resolveWeaponForUnit } from '../../../../scripts/validate-bv-weapon-resolution';
 import {
   EngineType,
   getEngineDefinition,
@@ -50,7 +25,22 @@ import {
 } from '../battleValueDefensive';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import { deriveMechArmorSections } from './armorInputs';
+import {
+  deriveDefensiveMovementInputs,
+  deriveUnitBvCalculatorSetup,
+} from './calculatorSetup';
+import { hasClanChassis } from './chassis';
+import { scanCrits } from './critScan';
+import {
+  KNOWN_HD_GYRO_UNITS,
+  KNOWN_RISC_OVERRIDE_KIT_UNITS,
+} from './legacyUnitOverrides';
+import { deriveBvHeatAndMovement } from './movementDerived';
+import { toMechLoc } from './normalizers';
+import { calculatePhysicalBVTotal } from './physicalWeapons';
+import { calcTotalArmor, getArmorBAR, mapArmorType } from './unitDerived';
 import { buildMechBVOffensiveInputs } from './weaponInputs';
+import { resolveWeaponForUnit } from './weaponResolution';
 
 // === MAIN BV CALCULATION ===
 export function calculateUnitBV(

@@ -1,32 +1,7 @@
-import type { CritScan } from '../../../../scripts/validate-bv-crit-scan';
-import type {
-  UnitData,
-  ValidationResult,
-} from '../../../../scripts/validate-bv-types';
 import type { OffensiveBVConfig } from '../battleValueOffensiveTypes';
+import type { CritScan } from './critScan';
+import type { UnitData, ValidationResult } from './types';
 
-import {
-  applyWeaponPostScanModifiers,
-  type WeaponEntry,
-} from '../../../../scripts/validate-bv-calculator-weapons';
-import { consumeCritWeaponMount } from '../../../../scripts/validate-bv-crit-weapon-mounts';
-import {
-  isRearLoc,
-  normalizeEquipId,
-} from '../../../../scripts/validate-bv-normalizers';
-import {
-  calculatePhysicalWeaponBV,
-  getPhysicalWeaponBVHeat,
-} from '../../../../scripts/validate-bv-physical-weapons';
-import {
-  countISEquipTokensAtLocation,
-  isClanEquipAtLocation,
-} from '../../../../scripts/validate-bv-unit-derived';
-import {
-  isDefEquip,
-  isWeaponEquip,
-  resolveWeaponForUnit,
-} from '../../../../scripts/validate-bv-weapon-resolution';
 import {
   calculateAmmoBVPools,
   getMechDiagnosticAmmoBVGroup,
@@ -43,6 +18,25 @@ import {
   isOneShotMissileBVWeapon,
 } from '../equipmentBV/weaponHeat';
 import { getEquipmentEntry } from '../equipmentBVResolver';
+import {
+  applyWeaponPostScanModifiers,
+  type WeaponEntry,
+} from './calculatorWeapons';
+import { consumeCritWeaponMount } from './critWeaponMounts';
+import { isRearLoc, normalizeEquipId } from './normalizers';
+import {
+  calculatePhysicalWeaponBV,
+  getPhysicalWeaponBVHeat,
+} from './physicalWeapons';
+import {
+  countISEquipTokensAtLocation,
+  isClanEquipAtLocation,
+} from './unitDerived';
+import {
+  isDefEquip,
+  isWeaponEquip,
+  resolveWeaponForUnit,
+} from './weaponResolution';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
 export function buildMechBVWeapons(

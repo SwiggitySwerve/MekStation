@@ -29,7 +29,7 @@ import { IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import { calculateUnitBV } from '@/utils/construction/mechBV/calculator';
 import { getEquipmentPayloadWeight } from '@/utils/equipment/equipmentWeightAccounting';
 
-import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type { UnitData } from '../../../utils/construction/mechBV/types';
 
 import { parseUnit } from '../unitLoaderService/unitContractAdapter';
 import { UnitLoaderService } from '../unitLoaderService/unitLoader';

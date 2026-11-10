@@ -1,10 +1,10 @@
-import { resolveAmmoByPattern } from '../../../../scripts/validate-bv-ammo-resolution';
 import {
   calculateAmmoBVWithExcessiveCap,
   findMatchingWeaponBV,
   getCatalogAmmoBVGroup,
   extractWeaponTypeFromAmmoId,
 } from '../battleValueAmmo';
+import { resolveAmmoByPattern } from '../mechBV/ammoResolution';
 
 describe('catalog ammunition cap identities', () => {
   it.each([

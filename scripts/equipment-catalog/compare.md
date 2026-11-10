@@ -13,7 +13,7 @@ attack values and native ammo type/rack keys from the same pinned runtime.
 It excludes bay containers and includes every ammo variant of those weapon types.
 Format `capital-source.json` with oxfmt before recording its source-pins hash.
 The existing generator selects these identities without requiring mounted gaps,
-and writes `capital-bv.json`, keyed by catalog ID. This supplement adds missing
+and writes `src/utils/construction/equipmentBV/data/capital-bv.json`, keyed by catalog ID. This supplement adds missing
 facts while preserving all existing catalog values and ammo compatibility lists.
 New selections append after the original selection so frozen row indices remain
 stable. BV, heat and shots per ton continue to come from the equipment entries.

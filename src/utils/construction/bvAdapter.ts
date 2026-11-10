@@ -12,7 +12,7 @@ import { isMechUnit } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /** Runtime BV entry point. Rules: openspec/specs/battle-value-system/spec.md. */
-import type { UnitData as MechBVInput } from '../../../scripts/validate-bv-types';
+import type { UnitData as MechBVInput } from './mechBV/types';
 
 import { calculateBattleValueForUnit } from './battleValueCalculations';
 import {

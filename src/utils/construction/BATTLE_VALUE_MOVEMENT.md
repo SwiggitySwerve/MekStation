@@ -34,7 +34,7 @@ greater raw Run/Jump MP, without a jump bonus. Either input being NaN retains
 TMM six; its `getDefensiveSpeedFactor` consumer is unchanged.
 
 The active `validate:bv` calculator adapter in
-`scripts/validate-bv-calculator-setup.ts` uses the same selector and the owner's
+`src/utils/construction/mechBV/calculatorSetup.ts` uses the same selector and the owner's
 `getMinimumMPForTMM` inverse lookup. It is a calculator input adapter, not an
 independent reference oracle. It retains the positive maximum of Jump/UMU plus
 one, compared with running TMM. Its returned TMM can be seven, while its

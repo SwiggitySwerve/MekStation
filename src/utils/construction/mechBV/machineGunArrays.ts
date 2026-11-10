@@ -1,15 +1,12 @@
-import type { WeaponEntry } from '../../../../scripts/validate-bv-calculator-weapons';
-import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type { WeaponEntry } from './calculatorWeapons';
+import type { UnitData } from './types';
 
-import {
-  normalizeCritName,
-  toMechLoc,
-} from '../../../../scripts/validate-bv-normalizers';
 import { getMachineGunArrayBVGroup } from '../battleValueAmmo';
 import {
   linkMachineGunArrayBVWeapons,
   type IMachineGunArrayBVWeapon,
 } from '../equipmentBV/weaponLinks';
+import { normalizeCritName, toMechLoc } from './normalizers';
 
 interface ICompatibilityGroup {
   typeId: string;

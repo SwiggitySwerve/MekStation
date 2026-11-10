@@ -1,6 +1,6 @@
-import type { ISerializedUnit } from '../src/types/unit/UnitSerialization';
+import type { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
-import { CLAN_CHASSIS_MIXED_UNITS } from './validate-bv-known-units';
+import { CLAN_CHASSIS_MIXED_UNITS } from './legacyClanChassisUnits';
 
 /** Shared CASE/Blue Shield chassis identity; legacy names cover older inputs. */
 export function hasClanChassis(

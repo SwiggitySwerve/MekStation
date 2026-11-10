@@ -1,9 +1,9 @@
-import { applyOneShotBVHeat } from '../src/utils/construction/equipmentBV/weaponHeat';
+import { applyOneShotBVHeat } from '@/utils/construction/equipmentBV/weaponHeat';
 import {
   getEquipmentEntry,
   normalizeEquipmentId,
   resolveEquipmentBV,
-} from '../src/utils/construction/equipmentBVResolver';
+} from '@/utils/construction/equipmentBVResolver';
 
 const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   'plasma-rifle': { bv: 210, heat: 10 },
@@ -485,4 +485,4 @@ export function isWeaponEquip(id: string): boolean {
   return resolveWeaponForUnit(id, 'CLAN').resolved;
 }
 
-export { isMechDefensiveEquipment as isDefEquip } from '../src/utils/construction/battleValueEquipment';
+export { isMechDefensiveEquipment as isDefEquip } from '@/utils/construction/battleValueEquipment';

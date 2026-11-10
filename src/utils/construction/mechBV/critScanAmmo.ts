@@ -1,21 +1,20 @@
-import type { MechLocation } from '../src/utils/construction/battleValueCalculations';
-import type { CritScan } from './validate-bv-crit-scan-types';
+import type { MechLocation } from '@/utils/construction/battleValueCalculations';
 
 import {
   getMechDiagnosticAmmoBVGroup,
   getNativeAmmoBVGroup,
   normalizeMechBVSourceName,
   resolveNativeAmmoBin,
-} from '../src/utils/construction/battleValueAmmo';
-import { isNonExplosiveAmmo } from '../src/utils/construction/battleValueExplosivePenalties';
+} from '@/utils/construction/battleValueAmmo';
+import { isNonExplosiveAmmo } from '@/utils/construction/battleValueExplosivePenalties';
 import {
   getAmmunitionEntry,
   resolveAmmoBV,
-} from '../src/utils/construction/equipmentBVResolver';
-import {
-  normalizeWeaponKey,
-  resolveAmmoByPattern,
-} from './validate-bv-ammo-resolution';
+} from '@/utils/construction/equipmentBVResolver';
+
+import type { CritScan } from './critScanTypes';
+
+import { normalizeWeaponKey, resolveAmmoByPattern } from './ammoResolution';
 
 export function processCritAmmoSlot(args: {
   r: CritScan;

@@ -10,14 +10,14 @@ import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
 
-import type { UnitData } from '../../../scripts/validate-bv-types';
+import type { UnitData } from '../../utils/construction/mechBV/types';
 import type {
   IEditableMech,
   IArmorAllocation as IEditableArmorAllocation,
 } from './MechBuilderService';
 
-import { deriveEffectiveConfiguration } from '../../../scripts/validate-bv-calculator-setup';
-import { toMechLoc } from '../../../scripts/validate-bv-normalizers';
+import { deriveEffectiveConfiguration } from '../../utils/construction/mechBV/calculatorSetup';
+import { toMechLoc } from '../../utils/construction/mechBV/normalizers';
 import { extractJumpMP } from './CalculationService.calculations';
 
 export function buildEditableArmorAllocation(

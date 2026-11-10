@@ -1,15 +1,16 @@
-import type { MechLocation } from '../src/utils/construction/battleValueCalculations';
-import type { CritScan } from './validate-bv-crit-scan-types';
-import type { UnitData } from './validate-bv-types';
+import type { MechLocation } from '@/utils/construction/battleValueCalculations';
 
-import { hasClanChassis } from './validate-bv-chassis';
+import type { CritScan } from './critScanTypes';
+import type { UnitData } from './types';
+
+import { hasClanChassis } from './chassis';
 import {
   countCritHeatSinks,
   detectCritArmorType,
   detectCritGyroType,
-} from './validate-bv-crit-derived';
-import { countCritWeaponMounts } from './validate-bv-crit-weapon-mounts';
-import { toMechLoc } from './validate-bv-normalizers';
+} from './critDerived';
+import { countCritWeaponMounts } from './critWeaponMounts';
+import { toMechLoc } from './normalizers';
 
 export function finalizeCritScan(
   unit: UnitData,
