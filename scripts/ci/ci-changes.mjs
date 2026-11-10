@@ -22,6 +22,13 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { CI_SUITES } from '../playwright/ci-e2e-plan.mjs';
+import {
+  LIMIT,
+  changedUnitFiles,
+  refsForFiles,
+} from '../playwright/unit-spec-refs.mjs';
+
 export const GATES = [
   'code',
   'combat',
@@ -397,15 +404,38 @@ export function detect(root, env, base = 'HEAD^1', head = 'HEAD') {
   }
 }
 
+// The merge ref's first parent is the PR base. Depth 2 supplies both ends
+// and their merge base, so base...head needs no unbounded history fetch.
+export function dataSpecsForDiff(root, base = 'HEAD^1', head = 'HEAD') {
+  const range = `${base}...${head}`;
+  const files = changedUnitFiles(range, { repo: root });
+  return refsForFiles(root, files, {
+    range,
+    exclude: CI_SUITES.flatMap(({ files }) =>
+      files.map((file) => `e2e/${file}`),
+    ),
+  }).specs;
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const root = process.cwd();
   const [base, head] = process.argv.slice(2);
   const { gates, reason } = detect(root, process.env, base, head);
+  // Selection errors fail Detect Changes: a broken lookup must not report
+  // a successful empty selection. Existing path-gate failure policy is unchanged.
+  const dataSpecs =
+    process.env.GITHUB_EVENT_NAME === 'pull_request'
+      ? dataSpecsForDiff(root, base, head)
+      : [];
   const lines = GATES.map(
     (gate) => `${gate}=${gates[gate] ? 'true' : 'false'}`,
   );
+  lines.push(`data-specs=${JSON.stringify(dataSpecs)}`);
   console.log(`ci-changes: ${reason}`);
   for (const line of lines) console.log(`  ${line}`);
+  // Always on PR runs, selected or not: a green or skipped data step does not
+  // mean no spec depends on this data (family/glob selection is not seen).
+  if (process.env.GITHUB_EVENT_NAME === 'pull_request') console.log(LIMIT);
   if (process.env.GITHUB_OUTPUT) {
     fs.appendFileSync(process.env.GITHUB_OUTPUT, `${lines.join('\n')}\n`);
   }

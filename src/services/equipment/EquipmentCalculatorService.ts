@@ -74,13 +74,20 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
     context: IVariableEquipmentContext,
   ): ICalculatedEquipmentProperties => {
     // Get formulas from registry
-    const formulas = this.registry.getFormulas(equipmentId);
+    const registered = this.registry.getFormulas(equipmentId);
 
-    if (!formulas) {
+    if (!registered) {
       throw new ValidationError(`Unknown variable equipment: ${equipmentId}`, [
         `Equipment ID '${equipmentId}' has no formula definition`,
       ]);
     }
+    // Select only by the equipment's supplied technology. Unqualified records
+    // retain their base formulas; no registry mutation or second lookup table.
+    const override =
+      context.techBase === undefined
+        ? undefined
+        : registered.techBaseOverrides?.[context.techBase];
+    const formulas = override ? { ...registered, ...override } : registered;
 
     // Validate required context
     const formulaContext = this.buildFormulaContext(context);

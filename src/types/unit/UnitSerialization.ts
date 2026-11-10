@@ -129,6 +129,17 @@ export interface ISerializedStructure {
 export interface ISerializedArmor {
   readonly type: string;
   readonly allocation: Record<string, number | { front: number; rear: number }>;
+  /**
+   * Patchwork mech only: the tech base of each location's armor, parallel to
+   * the contract's `typeByLocation` (which keeps only the integer type code).
+   * MegaMek MtfFile.java:483-525 reads each line's type and tech separately.
+   * Present only when `type` is PATCHWORK; keys are a subset of
+   * `typeByLocation`'s; a location without an entry has unknown tech. Same wire
+   * values as `componentTechBases`; never defaulted or derived from the unit.
+   */
+  readonly techBaseByLocation?: Readonly<
+    Partial<Record<string, 'CLAN' | 'INNER_SPHERE'>>
+  >;
 }
 
 /**
