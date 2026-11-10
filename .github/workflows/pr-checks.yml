@@ -945,12 +945,31 @@ jobs:
           GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
         run: node scripts/ci/budget-aggregate.mjs
 
+      - name: Checkout current main budget validator
+        id: budget-validator
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          path: .budget-validator
+          sparse-checkout: |
+            scripts/ci
+            scripts/lib/statistics.mjs
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+          fetch-depth: 1
+
       - name: Enforce budget-raise approval with read-only live inputs
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           script: |
-            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const { pathToFileURL } = require('node:url');
+            const validatorRoot = `${process.env.GITHUB_WORKSPACE}/.budget-validator`;
+            const validatorSha = '${{ steps.budget-validator.outputs.commit }}';
+            core.info(`budget-validator: main@${validatorSha}`);
+            const { checkBudgetPolicy } = await import(pathToFileURL(`${validatorRoot}/scripts/ci/budget-approval.mjs`).href);
+            // The validator reads budgets via the API at live PR head/base SHAs.
             const result = await checkBudgetPolicy({ github, ...context.repo,
               number: context.payload.pull_request.number, publish: false });
             core.info(JSON.stringify(result));
