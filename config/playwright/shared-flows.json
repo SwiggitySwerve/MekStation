@@ -283,14 +283,7 @@
         "src/hooks/useServiceWorker.ts",
         "public/service-worker.js"
       ],
-      "specs": [],
-      "pendingSpecs": [
-        {
-          "spec": "e2e/campaign-unload-adoption.spec.ts",
-          "owner": "C4",
-          "reason": "Written in C4 campaign save-loss fix PR 1/2; not yet on main."
-        }
-      ],
+      "specs": ["e2e/campaign-unload-adoption.spec.ts"],
       "tier": "pr",
       "notes": "C4 unload/adoption sweep must run nightly and for changes to any of these save/service-worker boundaries once selection is enabled, rather than in every PR gate. The guard requires promotion from pendingSpecs to specs when C4 adds the file. Old-tab/unvisited-route checks from #3315 are unit tests in src/hooks/__tests__, not E2E specs."
     }
