@@ -20,3 +20,17 @@ or an out-of-order new event would hide divergent history; appending it would
 allow delta reducers and log consumers to observe it twice. Errors preserve the
 caller-owned session for explicit recovery. Reducers remain pure folds and do
 not each duplicate transport admission rules.
+
+P2P reconnect tails use `assertGameEventBatchAdmissible` before applying any
+received event. It runs this same pure append boundary against a scratch value,
+so a refused tail leaves the entire live session and its durable suffix unchanged.
+The reconnect flow catches the rejection and uses the existing error toast to
+name the error and state that the current session was kept. Startup and
+host-pending hydration failures use that same visible surface.
+
+Hosted client mirrors and stored-log recovery hydrate/fold event histories
+directly; they do not submit received events to `appendEvent`. Recovery
+constructors append only their own throwaway factory events before adopting the
+hydrated session. Server recovery logs refusals through `utils/logger` and skips
+the failed match while continuing the sweep; existing corruption quarantine
+prevents a refused match from being recreated as a fresh one.

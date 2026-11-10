@@ -52,3 +52,11 @@ export function appendEvent(
     updatedAt: new Date().toISOString(),
   };
 }
+
+/** Check a received tail before any live append or durable write can occur. */
+export function assertGameEventBatchAdmissible(
+  session: IGameSession,
+  events: readonly IGameEvent[],
+): void {
+  events.reduce(appendEvent, session);
+}

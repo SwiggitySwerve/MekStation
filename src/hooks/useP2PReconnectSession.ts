@@ -16,6 +16,7 @@ import {
 import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameEventType } from '@/types/gameplay';
+import { assertGameEventBatchAdmissible } from '@/utils/gameplay/gameSession';
 
 import {
   appendReplayEventToActiveSession,
@@ -31,6 +32,7 @@ import {
   defaultSetLive,
   deriveReconnectRoomCode,
   persistReplayEventToMatchLog,
+  reportReconnectFailure,
 } from './useP2PReconnectSession.defaults';
 
 export { deriveReconnectRoomCode };
@@ -63,10 +65,7 @@ interface ReconnectDependencies {
   readonly ensureSyncRoom: (matchId: string) => Promise<void> | void;
   readonly getLocalPeerId: () => string | null;
   readonly getHostPresent: (hostPeerId: string | null) => boolean;
-  readonly createChannel: (
-    matchId: string,
-    localPeerId: string,
-  ) => IGameSessionChannel;
+  readonly createChannel: typeof defaultCreateChannel;
   readonly appendReplayEvent: ReplayEventAppender;
   /**
    * Durable write used for full baselines and divergence rebuilds. Distinct from
@@ -116,10 +115,7 @@ export interface IUseP2PReconnectSessionOptions {
   readonly ensureSyncRoom?: (matchId: string) => Promise<void> | void;
   readonly getLocalPeerId?: () => string | null;
   readonly getHostPresent?: (hostPeerId: string | null) => boolean;
-  readonly createChannel?: (
-    matchId: string,
-    localPeerId: string,
-  ) => IGameSessionChannel;
+  readonly createChannel?: typeof defaultCreateChannel;
   readonly appendReplayEvent?: ReplayEventAppender;
   readonly persistReplayEvent?: ReplayEventAppender;
   readonly adoptRebuiltSession?: (session: IGameSession) => void;
@@ -145,7 +141,13 @@ export function useP2PReconnectSession(
     if (!matchId) return;
 
     const runtime = createReconnectRuntime();
-    void startReconnectSession(matchId, options, runtime);
+    void startReconnectSession(matchId, options, runtime).catch(
+      (error: unknown) => {
+        if (runtime.cancelled) return;
+        clearReconnectTimers(runtime);
+        reportReconnectFailure(error);
+      },
+    );
 
     return () => stopReconnectRuntime(runtime);
     // Reconnect dependencies are intentionally captured at mount time.
@@ -315,7 +317,9 @@ function setupGuestReconnect(
     runtime.replayChain = runtime.replayChain
       .then(() => applyReplayStream(matchId, stream, deps, runtime))
       .catch((error: unknown) => {
-        logger.error('P2P reconnect replay chunk failed', error);
+        if (runtime.cancelled) return;
+        clearReconnectTimers(runtime);
+        reportReconnectFailure(error);
       });
   });
   const unsubscribeReject = channel.onReconnectReject((rejection) => {
@@ -402,6 +406,12 @@ async function applyReplayStream(
     diverged ||
     assumePrefixSnapshot ||
     events[0]?.type === GameEventType.GameCreated;
+  const held = useGameplayStore.getState().interactiveSession?.getSession();
+  if (!rebuild && held) {
+    // Admission is pure. Refuse the entire tail before the first live append,
+    // including conflicting repeats that the batch's delivery dedup would skip.
+    assertGameEventBatchAdmissible(held, events);
+  }
   const seen = new Set<string>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
@@ -439,9 +449,14 @@ function enterHostPending(
 ): void {
   if (runtime.cancelled) return;
   clearReconnectTimers(runtime);
-  void deps.hydrateFromMatchLog(matchId).then((session) => {
-    if (runtime.cancelled) return;
-    deps.setHydratedSession(session);
-    deps.setHostPending();
-  });
+  void deps
+    .hydrateFromMatchLog(matchId)
+    .then((session) => {
+      if (runtime.cancelled) return;
+      deps.setHydratedSession(session);
+      deps.setHostPending();
+    })
+    .catch((error: unknown) => {
+      if (!runtime.cancelled) reportReconnectFailure(error);
+    });
 }
