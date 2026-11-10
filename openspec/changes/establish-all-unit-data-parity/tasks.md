@@ -151,9 +151,9 @@ passing execution. An unverified effect or outcome stays "not verified".
       toward Java. POST-MERGE: done locally on `f377ea995`.
     - #3303 (`4d4c5ebe4`): repairs CASE II tech suffixes and approved reroutes.
       POST-MERGE: done on hosted main run 42765012031 (`4d4c5ebe4`).
-    - #3328 (`d28a314c1`): applies 93 vehicle ratings and 17 rifle-cannon ids
-      across 109 files. POST-MERGE: done locally on `d28a314c1` (109/109
-      receipts; runtime before/after unchanged).
+    - #3328 (`d28a314c1`): applies 93 vehicle `engine.rating` values and 17
+      rifle-cannon ids across 109 files. POST-MERGE: done locally on `d28a314c1`
+      (109/109 receipts; runtime before/after unchanged).
   - OPEN, C2: remaining catalog batches and 115 unresolved technology identities
     (62 occur on 1,796 canonical units). Evidence:
     `parity-3.1-opposite-tech/CATALOG-FACTS-PROPOSAL.md`,
@@ -258,7 +258,7 @@ passing execution. An unverified effect or outcome stays "not verified".
       POST-MERGE: OPEN (not verified).
     - #3308 (`13d38beef`): introduces aerospaceEngineTons single engine owner
       and removes dead engine table/aggregate. POST-MERGE: done locally on
-      `13d38beef`.
+      `13d38beef` (818/818 suites).
   - [x] 2.2g Combat-VTOL installed construction weight matches pinned Java for
     all 131 native combat VTOLs, totals and components, with all 1,086 Tank
     vectors unchanged. #3233 (`a31bb3677`), POST-MERGE done locally on
@@ -586,7 +586,7 @@ passing execution. An unverified effect or outcome stays "not verified".
       chassis fields. POST-MERGE: done on hosted main run 42765012031
       (`4d4c5ebe4`).
     - #3295 (`f47daca70`): applies mech chassis identity to 377 files.
-      POST-MERGE: done locally on `f47daca70`.
+      POST-MERGE: done locally on `f47daca70` (splice 377/0; 341/341 suites).
     - #3250 (`a5144164d`): R1: splices armor identity into 37 mech files.
       POST-MERGE: done locally on `a5144164d`.
     - #3307 (`c5447c3c0`): R1: applies Jenner JR7-K prototype armor, the 38th
@@ -600,7 +600,7 @@ passing execution. An unverified effect or outcome stays "not verified".
     - #3270 (`c4cdf9450`): CV1: one pure validation-input owner shared by app
       and capture. POST-MERGE: done locally on `c4cdf9450`.
     - #3314 (`ac6e518b1`): campaign refit consumes the shared construction
-      projection. POST-MERGE: done locally on `ac6e518b1`.
+      projection. POST-MERGE: done locally on `ac6e518b1` (214/214 suites).
     - #3329 (`b73e3ca3a`): P8a: removes the dead legacy TypeScript converter.
       Merged code/tests at this SHA:
       `scripts/qc/validate-wave4-family-data-gate.mjs`,
@@ -641,14 +641,15 @@ passing execution. An unverified effect or outcome stays "not verified".
     `parity-3.2-o1/CONFIG-LOCKS.md`. Close with converter-reproducible,
     field-only applies, no new locks, and Java-matching runtime topology.
   - Catalog reproduction after #3304 (`943f5354d`): componentTechBases drift is
-    0 in infantry/aerospace, and non-mech packet reproduction is 83/83. Cockpit
-    reproduction is closed by #3285 (`14f11228e`): four STANDARD-to-TRIPOD rows
-    plus Wildfire, 5/5; #3289 applies the data but its POST-MERGE receipt
-    remains not verified. Evidence: `parity-3.2-m1/pair-3285/`,
+    0 in infantry/aerospace, and non-mech packet reproduction is 83/83. The
+    #3285 (`14f11228e`) converter pair measured four STANDARD-to-TRIPOD rows
+    plus Wildfire, 5/5. #3289 (`9f33a1c52`) applies the data;
+    packet-reproduction row (e) is pending C3 record and closes only when that
+    merge record confirms 5/5. Evidence: `parity-3.2-m1/pair-3285/`,
     `parity-5.2-c/PLAN.md`. Invariant #14 remains binding: every approved splice
-    travels with the converter change that reproduces it; these closed drift
-    classes do not close infantry equipment, aerospace sourceTechType or
-    unapplied rulesLevel work.
+    travels with the converter change that reproduces it; these measurements do
+    not close infantry equipment, aerospace sourceTechType or unapplied
+    rulesLevel work.
   - OPEN, C2/C3: technology identity is not complete after the 377/83 chassis
     applies. 607 Mixed units are indexed as Inner Sphere; five DropShips lose
     Mixed (four Clan-chassis); x8 runtime save/load remains incomplete.
@@ -779,7 +780,7 @@ passing execution. An unverified effect or outcome stays "not verified".
     - #3303 (`4d4c5ebe4`): repairs CASE II tech-suffix resolution. POST-MERGE:
       done on hosted main run 42765012031 (`4d4c5ebe4`).
     - #3295 (`f47daca70`): supplies committed Mixed mech chassis fields.
-      POST-MERGE: done locally on `f47daca70`.
+      POST-MERGE: done locally on `f47daca70` (splice 377/0; 341/341 suites).
   - URGENT OPEN, C3 (3.2-vd): vehicleState.ts:501 crewSize=0 falsely flags
     VAL-VEHICLE-CREW on 93/93 measured support vehicles (Java 86 valid/7
     invalid). Phase 0c(d) now sizes it at all 1,420 Java-valid vehicles (see
@@ -888,7 +889,7 @@ passing execution. An unverified effect or outcome stays "not verified".
       `scripts/megameklab-conversion/mtf_parser.py`,
       `scripts/__tests__/test_mtf_omni.py`. POST-MERGE: OPEN (not verified).
     - #3295 (`f47daca70`): applies 377 Mixed mech chassis fields. POST-MERGE:
-      done locally on `f47daca70`.
+      done locally on `f47daca70` (splice 377/0; 341/341 suites).
     - #3254 (`ae5c96ed8`): exports cockpit headers. POST-MERGE: done on hosted
       main run 42758686070 (`4fa934e76`).
     - #3285 (`14f11228e`): preserves native component tokens on import/reopen.
@@ -901,7 +902,8 @@ passing execution. An unverified effect or outcome stays "not verified".
       `public/data/units/battlemechs/4-clan-invasion/standard/Wildfire
       P1-WF.json`,
       `src/services/units/unitLoaderService/__tests__/vrrpCockpit.test.ts`.
-      POST-MERGE: OPEN (not verified).
+      POST-MERGE: OPEN (pending C3 record); row (e) closes only when that record
+      confirms 5/5.
   - OPEN, C3 with C2: ship visible open-and-save warning 3.3-w first, then
     full-catalog round-trip census Phase 0c(f), and one shared recognizer in
     criticalSlotEquipment.ts. The warning draft-only unplaced-entry list is
@@ -923,12 +925,13 @@ passing execution. An unverified effect or outcome stays "not verified".
     merged main.
   - OPEN, C2/C3: R2 phase a/#3305 and phase b (1,107 files) remain unapplied;
     phase-b gate met with #3281/#3279 is distinct from the apply and o2 281
-    configuration-locked pods. Cockpit converter reproduction is closed by #3285
-    (four STANDARD -> TRIPOD rows plus Wildfire, 5/5); #3289 data apply is
-    merged, POST-MERGE not verified. Evidence: `parity-3.2-m1/pair-3285/`,
+    configuration-locked pods. The #3285 converter pair measured four
+    STANDARD-to-TRIPOD rows plus Wildfire, 5/5; #3289 data apply is merged, but
+    packet-reproduction row (e) is pending C3 record. It closes only when C3's
+    merge record confirms 5/5. Evidence: `parity-3.2-m1/pair-3285/`,
     `handoffs/c2-pause/r2-phase-b-omni-apply.md`,
-    `parity-3.2-o1/CONFIG-LOCKS.md`. Close with reproducible approved splices
-    and Java-matching topology/locks.
+    `parity-3.2-o1/CONFIG-LOCKS.md`, `parity-5.2-c/PLAN.md`. Close with
+    reproducible approved splices and Java-matching topology/locks.
   - Reclosure owner C3, with C2 data/recovery contributions: y and z are merged
     but neither establishes complete preservation. Still required: y2, all
     crit-only recovery lanes, g.2b/topology, x8 non-mech Mixed save/load, m1b/m6
@@ -1069,16 +1072,22 @@ passing execution. An unverified effect or outcome stays "not verified".
     differences are not new computations. Evidence:
     `parity-0c/compare/RESULT.md` (runtime `943f5354d`, source `c4cdf9450`).
     Scope is computed terms on these two families, not full all-family parity.
-  - OPEN, C3, PARKED: Phase 0c(d) vehicle runtime capture on `c5447c3c0` has BV
-    1,444/1,444 = source = Java and 37,448 equal shared terms. SOURCE validity
-    agrees on 1,444/1,444 (1,420 valid, 24 invalid); RUNTIME editor shows zero
-    valid out of 1,444, agreeing only on the 24 invalid designs. Crew=0 falsely
-    rejects all 1,420 Java-valid vehicles (1,416 have no other error). Four also
-    hit a non-Java >=50 t dual-turret rule: Goblin Medium Tank X, Ranger AFV
-    VV22, Striker Light Tank Wet and Zephyros ISV (Dual Turret). Evidence:
-    `parity-0c/compare/RESULT.md`. Close with pinned crew or explicit unknown
-    and one validation owner called by both runtime and source; fresh 1,444-row
-    agreement, no suppression.
+  - OPEN, owner C3 (3.2-vd plus Phase 0c(d)), PARKED: vehicle validity has TWO
+    separate path results. Evidence: `parity-0c/compare/RESULT.md` (runtime
+    capture `c5447c3c0`; source census `c4cdf9450`).
+    - Source-path validity: census agreement is 1,444/1,444 against Java (1,420
+      valid, 24 invalid). This is handler.validate, not the editor validator.
+    - Runtime-path validity: the editor marks 0/1,444 vehicles valid, against
+      Java's 1,420 valid. It agrees only on the 24 Java-invalid designs. The
+      `crewSize = 0` default falsely rejects all 1,420 Java-valid vehicles
+      (1,416 have no other error); a separate non-Java >=50 t dual-turret rule
+      hits four of them: Goblin Medium Tank X, Ranger AFV VV22, Striker Light
+      Tank Wet and Zephyros ISV (Dual Turret).
+    - Vehicle runtime BV: 1,444/1,444 = source = Java, with 37,448 equal shared
+      terms. Exact BV does not establish runtime validity.
+    - Closure: pinned crew or explicit unknown, and one validation owner used by
+      both runtime and source paths; remeasure all 1,444 vehicle verdicts with
+      no rule suppression.
   - OPEN, C2, PARKED: Phase 0c(d) mech runtime capture on `c5447c3c0` is
     BV-exact 4,231/4,263; source is exact on all 32 misses. All 94
     runtime/source term differences are defensive catalog-input differences:
@@ -1245,7 +1254,8 @@ passing execution. An unverified effect or outcome stays "not verified".
       `public/data/units/battlemechs/4-clan-invasion/standard/Wildfire
       P1-WF.json`,
       `src/services/units/unitLoaderService/__tests__/vrrpCockpit.test.ts`.
-      POST-MERGE: OPEN (not verified).
+      POST-MERGE: OPEN (pending C3 record); row (e) closes only when that record
+      confirms 5/5.
     - #3317 (`cea9180cc`): b3d: derives ProtoMech Ultraheavy from mass above 9
       t. Merged code/tests at this SHA:
       `src/components/customizer/protomech/ProtoMechStatusBar.tsx`,
