@@ -1,6 +1,8 @@
 /**
  * Real-server, same-context reload sweep. Nightly discovers this file; it is
- * intentionally absent from the explicit PR census. Expected runtime: 4–5 min.
+ * intentionally absent from the explicit PR census. Default proof: 100 measured
+ * pairs, estimated 12–17 min (unmeasured here). MEKSTATION_UNLOAD_TRIALS can lower
+ * the nightly sample; C4's proof must use >=100. This changes no loss threshold.
  * The bare fetch-listener positive control must lose >= half its writes or the
  * run is INCONCLUSIVE. Browser request reports are never arrival evidence.
  * Tab-close control: campaign-crash-window-flush.spec.ts (unchanged).
@@ -9,17 +11,31 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { seedSavedCampaign } from './helpers/campaignFlow';
+import {
+  assessFlushAcceptance,
+  captureCampaignPuts,
+  readCampaignRecord,
+  readCapturedPuts,
+  resetCapturedPuts,
+  type CampaignRecord,
+  type CapturedCampaignPut,
+} from './helpers/unloadFlushEvidence';
 import { startUnloadPositiveControl } from './helpers/unloadPositiveControl';
 
-const OFFSETS_MS = [40, 1900, 2000] as const;
-const MEASURED_PER_OFFSET = 10;
-const MEASURED_TRIALS = OFFSETS_MS.length * MEASURED_PER_OFFSET;
+const OFFSETS_MS = [40, 100, 250, 500, 1000, 1500, 1900, 2000] as const;
+const MEASURED_TRIALS = Number(process.env.MEKSTATION_UNLOAD_TRIALS ?? '100');
+if (!Number.isSafeInteger(MEASURED_TRIALS) || MEASURED_TRIALS < 1) {
+  throw new Error('MEKSTATION_UNLOAD_TRIALS must be a positive safe integer');
+}
 const MIN_CONTROL_LOSSES = Math.ceil(MEASURED_TRIALS / 2);
 const WARMUP_TRIALS = 2;
 const OBSERVATION_MS = 3000;
 const TIMING_KEY = 'campaign-unload-trial';
 
-test.describe.configure({ timeout: 480_000, retries: 0 });
+test.describe.configure({
+  timeout: 60_000 + MEASURED_TRIALS * 15_000,
+  retries: 0,
+});
 test.use({ serviceWorkers: 'allow' });
 
 interface CampaignSnapshot {
@@ -170,11 +186,6 @@ async function reloadAtOffset(
   return timing;
 }
 
-interface CampaignRecord {
-  version: number;
-  body: { currentDate: string };
-}
-
 interface Trial {
   trial: number;
   measured: boolean;
@@ -185,7 +196,9 @@ interface Trial {
     timing: ReloadTiming;
     before: CampaignRecord;
     after: CampaignRecord;
-    delivered: boolean;
+    puts: CapturedCampaignPut[];
+    flushAcceptance: ReturnType<typeof assessFlushAcceptance>;
+    valuesPresent: boolean;
   };
   control: {
     controller: ControllerProbe;
@@ -206,20 +219,22 @@ test('same-context reload sweep loses zero app writes with a losing positive con
   const trials: Trial[] = [];
   const campaignIds: string[] = [];
   const harnessErrors: string[] = [];
+  const startedAt = performance.now();
   const offsets = [
     ...Array<number>(WARMUP_TRIALS).fill(40),
-    ...Array.from({ length: MEASURED_PER_OFFSET }, () => [
-      ...OFFSETS_MS,
-    ]).flat(),
+    ...Array.from(
+      { length: MEASURED_TRIALS },
+      (_, index) => OFFSETS_MS[index % OFFSETS_MS.length],
+    ),
   ];
   const readCampaign = async (id: string): Promise<CampaignRecord> => {
-    const response = await request.get(`/api/campaigns/${id}`);
+    const response = await request.get(`/api/campaigns/${id}`, {
+      headers: { 'Cache-Control': 'no-cache' },
+      maxRedirects: 0,
+      timeout: 5000,
+    });
     expect(response.status()).toBe(200);
-    const record = (await response.json()) as CampaignRecord;
-    return {
-      version: record.version,
-      body: { currentDate: record.body.currentDate },
-    };
+    return readCampaignRecord(await response.json());
   };
   const summarize = () => {
     const totals = OFFSETS_MS.map((offsetMs) => {
@@ -229,19 +244,35 @@ test('same-context reload sweep loses zero app writes with a losing positive con
       return {
         offsetMs,
         measured: measured.length,
-        appLost: measured.filter((trial) => !trial.app.delivered).length,
+        appLost: measured.filter(
+          (trial) =>
+            !trial.app.flushAcceptance.accepted || !trial.app.valuesPresent,
+        ).length,
+        flushAccepted: measured.filter(
+          (trial) => trial.app.flushAcceptance.accepted,
+        ).length,
+        valuesPresent: measured.filter((trial) => trial.app.valuesPresent)
+          .length,
+        valuesLost: measured.filter((trial) => !trial.app.valuesPresent).length,
         controlLost: measured.filter((trial) => !trial.control.delivered)
           .length,
       };
     });
+    const measured = totals.reduce((sum, row) => sum + row.measured, 0);
+    const controlLost = totals.reduce((sum, row) => sum + row.controlLost, 0);
     return {
       totals,
-      measured: totals.reduce((sum, row) => sum + row.measured, 0),
+      measured,
       appLost: totals.reduce((sum, row) => sum + row.appLost, 0),
-      controlLost: totals.reduce((sum, row) => sum + row.controlLost, 0),
+      flushAccepted: totals.reduce((sum, row) => sum + row.flushAccepted, 0),
+      valuesPresent: totals.reduce((sum, row) => sum + row.valuesPresent, 0),
+      valuesLost: totals.reduce((sum, row) => sum + row.valuesLost, 0),
+      controlLost,
+      controlLossRate: measured === 0 ? null : controlLost / measured,
     };
   };
   try {
+    await captureCampaignPuts(page);
     for (const [index, offsetMs] of offsets.entries()) {
       const trialId = `trial-${index + 1}`;
       // Reuse both pages AND their browser context across the whole sweep.
@@ -273,6 +304,7 @@ test('same-context reload sweep loses zero app writes with a losing positive con
         }
       }
       const before = await readCampaign(campaignId);
+      await resetCapturedPuts(page);
       const [appTiming, controlTiming] = await Promise.all([
         reloadAtOffset(page, offsetMs),
         reloadAtOffset(controlPage, offsetMs, trialId),
@@ -281,6 +313,10 @@ test('same-context reload sweep loses zero app writes with a losing positive con
       // stays stale. Never fail on the first loss and truncate the census.
       await page.waitForTimeout(OBSERVATION_MS);
       const after = await readCampaign(campaignId);
+      const puts = (await readCapturedPuts(page)).filter(
+        (put) => new URL(put.url).pathname === `/api/campaigns/${campaignId}`,
+      );
+      const flushAcceptance = assessFlushAcceptance(puts, before, after);
       const arrivals = control.arrivals.filter(
         (arrival) => arrival.trial === trialId,
       );
@@ -307,7 +343,9 @@ test('same-context reload sweep loses zero app writes with a losing positive con
           timing: appTiming,
           before,
           after,
-          delivered: after.body.currentDate === appTiming.expectedDate,
+          puts,
+          flushAcceptance,
+          valuesPresent: after.body.currentDate === appTiming.expectedDate,
         },
         control: {
           controller: controlController,
@@ -329,10 +367,20 @@ test('same-context reload sweep loses zero app writes with a losing positive con
     ).toEqual([]);
     expect(
       appLost,
-      'App writes lost (post-fix requires zero); inspect per-offset loss counts in JSON',
+      'App flushes lost or acceptance unproven (requires zero); values present alone is insufficient; inspect per-delay JSON',
     ).toBe(0);
   } finally {
-    const { totals, measured, appLost, controlLost } = summarize();
+    const counts = summarize();
+    const {
+      totals,
+      measured,
+      appLost,
+      controlLost,
+      flushAccepted,
+      valuesPresent,
+      valuesLost,
+      controlLossRate,
+    } = counts;
     const verdict =
       measured !== MEASURED_TRIALS ||
       harnessErrors.length > 0 ||
@@ -341,7 +389,9 @@ test('same-context reload sweep loses zero app writes with a losing positive con
         : appLost > 0
           ? 'FAIL'
           : 'PASS';
-    const summary = `[campaign-unload-sweep] ${verdict}: app lost ${appLost}/${measured}; control lost ${controlLost}/${measured}; discarded ${trials.filter((trial) => !trial.measured).length} warm-up pairs; offsets=${JSON.stringify(totals)}`;
+    const elapsedMs = performance.now() - startedAt;
+    const proofSide = process.env.MEKSTATION_UNLOAD_PROOF_SIDE ?? 'unspecified';
+    const summary = `[campaign-unload-sweep] ${proofSide} ${verdict}: app trials ${measured}, lost/unproven ${appLost}, flush accepted ${flushAccepted}, values present ${valuesPresent}, values lost ${valuesLost}; control trials ${measured}, losses ${controlLost}, loss rate ${controlLossRate}; discarded ${trials.filter((trial) => !trial.measured).length} warm-up pairs; runtime ${Math.round(elapsedMs)} ms; delays=${JSON.stringify(totals)}`;
     process.stdout.write(`${summary}\n`);
     await testInfo.attach('same-context-unload-sweep', {
       contentType: 'application/json',
@@ -349,9 +399,13 @@ test('same-context reload sweep loses zero app writes with a losing positive con
         {
           summary,
           verdict,
+          proofSide,
+          elapsedMs,
+          counts,
           browserVersion: browser.version(),
           warmupTrials: WARMUP_TRIALS,
-          measuredPerOffset: MEASURED_PER_OFFSET,
+          configuredMeasuredTrials: MEASURED_TRIALS,
+          delaysMs: OFFSETS_MS,
           observationMs: OBSERVATION_MS,
           controlOrigin: control.origin,
           totals,
