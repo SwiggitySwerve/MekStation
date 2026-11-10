@@ -139,10 +139,13 @@ interface IHookRun {
   worktree: string;
 }
 
+// assumeGitDirNotRelative sets the script's stricter-only test seam. It is
+// exported by the inner shell, so the environment is inherited untouched (and
+// this file stays cacheable by the Jest result cache).
 function runHook(
   cwd: string,
   hookText: string,
-  env: NodeJS.ProcessEnv = {},
+  { assumeGitDirNotRelative = false } = {},
 ): IHookRun {
   const hook = path.join(tempDir(os.tmpdir(), 'precommit-hook-'), 'pre-commit');
   fs.writeFileSync(hook, hookText);
@@ -150,11 +153,13 @@ function runHook(
     'sh',
     [
       '-c',
-      'PATH="$PWD/bin:$PATH" GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
+      `if [ "$2" = 1 ]; then export ${SEAM}=1; fi; ` +
+        'PATH="$PWD/bin:$PATH" GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
       'sh',
       posixPath(hook),
+      assumeGitDirNotRelative ? '1' : '0',
     ],
-    { cwd, encoding: 'utf8', timeout: 60_000, env: { ...process.env, ...env } },
+    { cwd, encoding: 'utf8', timeout: 60_000 },
   );
   return {
     status: result.status,
@@ -231,7 +236,7 @@ describe('pre-commit hook: partially staged files', () => {
 
   it('where the git dir is not relative, refuses a partial stage before lint-staged runs', () => {
     const run = runHook(fixture({ partial: true }), hookText(), {
-      [SEAM]: '1',
+      assumeGitDirNotRelative: true,
     });
     expect(run.status).toBe(1);
     expect(run.stderr).toContain('partially staged');
@@ -246,7 +251,7 @@ describe('pre-commit hook: partially staged files', () => {
 
   it('where the git dir is not relative and nothing is partial, runs lint-staged without hiding', () => {
     const run = runHook(fixture({ partial: false }), hookText(), {
-      [SEAM]: '1',
+      assumeGitDirNotRelative: true,
     });
     expect(run.status).toBe(0);
     expect(run.stderr).toContain(NO_HIDE_FLAG);

@@ -42,6 +42,13 @@ The hook runs no production build (owner decision of 2026-09-23, roadmap unit U6
 
 A commit made in a linked `git worktree` runs no hook at all. Husky's hooks folder, `.husky/_`, exists only in the checkout where `npm install` ran.
 
+In such a worktree, none of the checks above run unless you run them. Either:
+
+- **Copy the hooks:** copy `.husky/_` from a checkout where `npm install` ran into this worktree, so the real hook runs on every commit. Don't run `husky init`; it rewrites `.husky/pre-commit`.
+- **Or run the hook's steps by hand before `git commit`,** in the hook's order: `sh .husky/pre-commit` runs them all.
+  - If you run lint-staged yourself, run the partial-stage check first and pass what it prints: `flag=$(node scripts/lib/check-partial-stage.mjs) && npx lint-staged --no-stash $flag`.
+  - Plain `npx lint-staged` in a worktree on a different drive from its git directory loses the unstaged part of a partially staged file, as described above.
+
 **Don't bypass with `--no-verify`** unless you have an explicit reason.
 
 ---
