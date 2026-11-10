@@ -2,6 +2,7 @@ import {
   ArmorTypeEnum,
   COMMERCIAL_ARMOR_SOURCE_TAG,
   FERRO_FIBROUS_PROTO_SOURCE_TAG,
+  NATIVE_ONLY_ARMOR_SOURCE_TAGS,
 } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 
@@ -32,4 +33,6 @@ export const ARMOR_TYPE = {
   [ArmorTypeEnum.FERRO_LAMELLOR]: 'FERRO_LAMELLOR',
   [ArmorTypeEnum.BALLISTIC_REINFORCED]: 'BALLISTIC_REINFORCED',
   [ArmorTypeEnum.COMMERCIAL]: COMMERCIAL_ARMOR_SOURCE_TAG,
+  // Native-only identities; nothing loads into them yet (ArmorType.ts).
+  ...NATIVE_ONLY_ARMOR_SOURCE_TAGS,
 } as const satisfies Readonly<Record<ArmorTypeEnum, string>>;

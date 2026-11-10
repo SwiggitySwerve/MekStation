@@ -222,6 +222,7 @@ export function projectBAMounts(
 ): {
   weapons: BAWeaponBVMount[];
   nativeWeapons: BANativeWeaponMount[];
+  nativeWeaponsComplete: boolean;
   ammo: BAAmmoBVMount[];
   unresolvedEquipment: string[];
   hasMagneticClamp: boolean;
@@ -232,6 +233,7 @@ export function projectBAMounts(
 } {
   const weapons: BAWeaponBVMount[] = [];
   const nativeWeapons: BANativeWeaponMount[] = [];
+  let nativeWeaponsComplete = true;
   const ammo: BAAmmoBVMount[] = [];
   const unresolvedEquipment: string[] = [];
   // BattleArmorBVCalculator.java:285-304: one point each for improved
@@ -347,17 +349,21 @@ export function projectBAMounts(
       antiMek,
     });
     // Native facts need a real location; the Java trace skips zero-BV weapons.
-    if (mount.unitLocation !== undefined && entry.battleValue > 0)
-      nativeWeapons.push({
-        id: entry.id,
-        location: mount.unitLocation,
-        trooper,
-        battleValue: entry.battleValue,
-        support,
-        claw,
-        infantry,
-        antiMek,
-      });
+    // A counted mount without one leaves the section totals unknowable.
+    if (entry.battleValue > 0) {
+      if (mount.unitLocation === undefined) nativeWeaponsComplete = false;
+      else
+        nativeWeapons.push({
+          id: entry.id,
+          location: mount.unitLocation,
+          trooper,
+          battleValue: entry.battleValue,
+          support,
+          claw,
+          infantry,
+          antiMek,
+        });
+    }
   }
   // BVCalculator.java:1057-1079: ammo without a launcher is dropped and
   // excess ammo is capped at the launchers' BV.
@@ -375,6 +381,7 @@ export function projectBAMounts(
   return {
     weapons,
     nativeWeapons,
+    nativeWeaponsComplete,
     ammo,
     unresolvedEquipment,
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
