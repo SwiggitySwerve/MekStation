@@ -16,7 +16,9 @@ Python is pinned to the 3.12 minor, with C1's six packages locked by wheel hashe
 in `parity-scoreboard-requirements.txt`. `run-provenance.json` records the exact
 interpreter version. Local compatibility proof uses C1's Python 3.12.13; if a
 hosted runner selects another 3.12 patch, its output establishes the CI baseline.
-No cross-patch or cross-platform byte identity is claimed.
+The first hosted run, 42765086632, used Python 3.12.16; that hosted version and
+output establish the CI baseline. No cross-patch or cross-platform byte identity
+is claimed.
 
 `config/reference/parity-scoreboard.json` owns the input checksums. Preparation
 verifies the compressed reference, decompressed reference and unchanged sidecar.
@@ -75,8 +77,10 @@ optional-total comparison, including its existing diagnostic limitations.
 `RESULTS.json` stays compatible with that harness. The additional snapshot uses
 that same BV tally for finite/missing counts by family.
 
-S0a omits the W2 infantry extra. Infantry weight terms remain an input/coverage
-limitation; inspect missing-local and missing-reference counts in the reports.
+S0a omits the W2 infantry extra, so infantry weight terms read missing-local or
+missing-reference in the reports and remain an input/coverage limitation.
+The scoreboard's weight line is not comparable to C1's local infantry weight
+figures, which include W2.
 `--extra` accepts only C1's SHA-verified W2 input for local byte-stability proof.
 The workflow never supplies it. Committed-catalog comparisons are out of scope.
 
@@ -105,6 +109,10 @@ The summary's first line gives BV exact/total, missing terms, validity
 matched/total/different/missing-local/failed-local, weight different, and each
 row file's added/removed/changed/unchanged counts against the previous main.
 When no baseline exists, that first line ends with `baseline: null`.
+
+C1's expected missing-terms figure for the first main run is **40,580** after
+B2 (#3248), rather than the **58,238** shown by branch-base dispatch 42765086632.
+That decrease is expected from the B2 change; the dispatch predates it.
 
 ## Local invocation and byte proof
 
