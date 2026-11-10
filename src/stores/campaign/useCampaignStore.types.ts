@@ -11,6 +11,7 @@ import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import type { CampaignPendingOutcomeSource } from './campaignBattleOutcomeState';
 import type { ForcesStore } from './useForcesStore';
 import type { MissionsStore } from './useMissionsStore';
 
@@ -128,7 +129,10 @@ export interface CampaignActions {
     hostMatchId: string,
     snapshot: IGuestMirrorSnapshot,
   ) => string;
-  switchCampaign: (campaign: ICampaign) => void;
+  switchCampaign: (
+    campaign: ICampaign,
+    pendingSource?: CampaignPendingOutcomeSource,
+  ) => void;
   saveCampaign: () => MaybePromise<CampaignCommitResult>;
   advanceDay: () => MaybePromise<DayReport | null>;
   advanceDays: (count: number) => MaybePromise<DayReport[] | null>;

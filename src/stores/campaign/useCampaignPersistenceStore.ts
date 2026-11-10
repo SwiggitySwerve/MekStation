@@ -48,6 +48,7 @@ import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRoster
 import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
+import type { CampaignPendingOutcomeSource } from './campaignBattleOutcomeState';
 import type {
   CampaignSaveEvent,
   CampaignSaveSnapshot,
@@ -402,6 +403,7 @@ function syncPendingWrite(
       dirty: state.dirty,
       campaignId: state.campaignId,
       baseVersion: state.baseVersion,
+      cachedBaseVersion: readCachedCampaignKey()?.revision,
       editSeq: state.editSeq,
       legacyUnadopted: state.legacyUnadopted,
       liveCampaignId: live?.id ?? null,
@@ -414,9 +416,12 @@ function syncPendingWrite(
   store.getState().setPendingWrite?.(next);
 }
 
-function writeLiveCampaign(campaign: ICampaign): void {
+function writeLiveCampaign(
+  campaign: ICampaign,
+  pendingSource?: CampaignPendingOutcomeSource,
+): void {
   const store = getCampaignStoreForRoster();
-  store?.getState().switchCampaign(campaign);
+  store?.getState().switchCampaign(campaign, pendingSource);
 }
 
 function preserveGuestCoopSession(
@@ -847,7 +852,7 @@ async function runSave(
   }
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
-  if (!campaign || !campaignId) {
+  if (!get().dirty || !campaign || !campaignId) {
     return { status: 'skipped' };
   }
   // An unadopted legacy copy must not become a server source by
@@ -1094,11 +1099,11 @@ async function runLoad(
           ),
         };
         if (!current()) return false;
-        writeLiveCampaign(loadedCampaign);
+        writeLiveCampaign(loadedCampaign, 'server');
         if (!current()) return false;
         restoreRosterProjection(id, projection, [...units]);
       } else if (!cacheStands) {
-        writeLiveCampaign(loadedCampaign);
+        writeLiveCampaign(loadedCampaign, 'server');
         restoreRosterProjection(id, migrated.body.rosterProjection);
         // An existing campaign saved before construction maxima were
         // populated carries roster units with no `unitMaxStates` entry.
@@ -1109,6 +1114,9 @@ async function runLoad(
       if (!current()) return false;
       writeCachedCampaignKey(migrated);
       if (!current()) return false;
+      // Installing a server record can trip the reference-based dirty bridge.
+      // That is a load, so cancel its timer before acknowledging clean state.
+      clearAutoSaveTimer();
       dispatchSaveEvent(set, {
         type: 'record-loaded',
         campaignId: id,
@@ -1241,7 +1249,7 @@ function armAutoSaveTimer(set: PersistenceSet, get: PersistenceGet): void {
   }
   autoSaveTimer = setTimeout(() => {
     autoSaveTimer = null;
-    if (get().saveState === 'conflict') {
+    if (!get().dirty || get().saveState === 'conflict') {
       return;
     }
     void performSave(set, get);
@@ -1600,7 +1608,7 @@ function resolveConflictTakeServerAction(
     }
     const migrated = migrateClientRecord(serverRecord);
     const serverCampaign = deserializeCampaignRecord(migrated);
-    writeLiveCampaign(serverCampaign);
+    writeLiveCampaign(serverCampaign, 'server');
     restoreRosterProjection(
       migrated.campaignId,
       migrated.body.rosterProjection,

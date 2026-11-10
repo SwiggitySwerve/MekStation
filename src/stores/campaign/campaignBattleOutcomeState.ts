@@ -63,14 +63,21 @@ export function mergeBattleOutcomeState(
   };
 }
 
-/** A different campaign replaces the ledgers; same-campaign copies merge. */
+export type CampaignPendingOutcomeSource = 'merge' | 'server';
+
+/** Server installs replace pending entries; processed/reviewed evidence still merges. */
 export function hydrateCampaignBattleState(
   campaign: ICampaign,
   previous?: BattleOutcomeState & { readonly campaign: ICampaign | null },
+  pendingSource: CampaignPendingOutcomeSource = 'merge',
 ): BattleOutcomeState & Pick<CampaignStore, 'campaign' | 'outcomeApplyErrors'> {
+  const sameCampaign =
+    previous?.campaign?.id === campaign.id ? previous : undefined;
   const ledgers = mergeBattleOutcomeState(
     campaign,
-    previous?.campaign?.id === campaign.id ? previous : undefined,
+    pendingSource === 'server' && sameCampaign
+      ? { ...sameCampaign, pendingBattleOutcomes: [] }
+      : sameCampaign,
   );
   return {
     ...ledgers,

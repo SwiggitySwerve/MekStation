@@ -243,6 +243,7 @@ describe('useCampaignPersistenceStore', () => {
       const fetchMock = jest
         .spyOn(global, 'fetch')
         .mockResolvedValueOnce(conflictResponse(serverRecord));
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
       expect(
         useCampaignPersistenceStore.getState().saveConflict,
@@ -475,6 +476,7 @@ describe('useCampaignPersistenceStore', () => {
       .spyOn(global, 'fetch')
       .mockResolvedValue(conflictResponse(serverRecord));
 
+    useCampaignPersistenceStore.getState().markDirty();
     const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
     const state = useCampaignPersistenceStore.getState();
@@ -489,6 +491,7 @@ describe('useCampaignPersistenceStore', () => {
     jest
       .spyOn(global, 'fetch')
       .mockResolvedValue(conflictResponse(serverRecord));
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     const ok = await useCampaignPersistenceStore
@@ -504,6 +507,7 @@ describe('useCampaignPersistenceStore', () => {
     const fetchMock = jest.spyOn(global, 'fetch');
     fetchMock.mockResolvedValue(conflictResponse(serverRecord));
 
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     // Gone from the surface entirely rather than merely unwired: a caller
@@ -528,6 +532,7 @@ describe('useCampaignPersistenceStore', () => {
       .spyOn(global, 'fetch')
       .mockResolvedValue(conflictResponse(serverRecord));
 
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     expect(useCampaignPersistenceStore.getState().saveConflict).toEqual({
@@ -559,6 +564,7 @@ describe('useCampaignPersistenceStore', () => {
         : jsonResponse(200, accepted);
     });
 
+    useCampaignPersistenceStore.getState().markDirty();
     const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
     // One attempt, at the version this client actually held.
@@ -570,13 +576,9 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(0);
   });
 
-  it('a save issued while a load is in flight writes against the loaded version', async () => {
-    // Regression: page navigation refetches the campaign head while a page
-    // surface saves. `baseVersion` resets to 0 on every page load, so a save
-    // that reads it before the load lands sends a version the server moved
-    // past - a guaranteed 409 followed by a retry, which is what filled the
-    // coop-route smoke run with conflict noise and inflated the stored
-    // version on navigation alone.
+  it('a save queued during a load skips writing after the load installs clean state', async () => {
+    // A queued save waits for the GET. If the load installs a clean record,
+    // navigation alone must not increment its version with a redundant PUT.
     const serverRecord = buildSerializedCampaign(campaign, 'device-remote', 7);
     const accepted = buildSerializedCampaign(campaign, 'device-local', 8);
     const putBodies: { baseVersion: number }[] = [];
@@ -608,7 +610,7 @@ describe('useCampaignPersistenceStore', () => {
     await loadPromise;
     await savePromise;
 
-    expect(putBodies.map((body) => body.baseVersion)).toEqual([7]);
+    expect(putBodies).toEqual([]);
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
   });
 
@@ -655,6 +657,7 @@ describe('useCampaignPersistenceStore', () => {
       baseVersion: 7,
     });
 
+    useCampaignPersistenceStore.getState().markDirty();
     const firstSave = useCampaignPersistenceStore.getState().saveCampaign();
     await flushPromises();
     expect(putBodies).toHaveLength(1);
@@ -663,6 +666,7 @@ describe('useCampaignPersistenceStore', () => {
     await firstSave;
     const baseVersionAfterLateAnswer =
       useCampaignPersistenceStore.getState().baseVersion;
+    useCampaignPersistenceStore.getState().markDirty();
     const secondSave = await useCampaignPersistenceStore
       .getState()
       .saveCampaign();
@@ -678,33 +682,42 @@ describe('useCampaignPersistenceStore', () => {
     });
   });
 
-  it('concurrent saves serialize so the second writes against the first result', async () => {
-    // Regression: two overlapping writes both read the same `baseVersion`, so
-    // the later one always loses the compare-and-swap and 409s even though
-    // nothing else touched the record.
+  it('concurrent saves serialize a later edit against the first result', async () => {
     const putBodies: { baseVersion: number }[] = [];
-    jest
-      .spyOn(global, 'fetch')
-      .mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
-        const body = JSON.parse(String(init?.body)) as { baseVersion: number };
-        putBodies.push(body);
-        return Promise.resolve(
-          jsonResponse(
-            200,
-            buildSerializedCampaign(
-              campaign,
-              'device-local',
-              body.baseVersion + 1,
-            ),
+    let finishFirst: (response: Response) => void = () => {
+      throw new Error('First PUT did not start');
+    };
+    jest.spyOn(global, 'fetch').mockImplementation((_input, init) => {
+      const body = JSON.parse(String(init?.body)) as { baseVersion: number };
+      putBodies.push(body);
+      if (putBodies.length === 1) {
+        return new Promise<Response>((resolve) => {
+          finishFirst = resolve;
+        });
+      }
+      return Promise.resolve(
+        jsonResponse(
+          200,
+          buildSerializedCampaign(
+            campaign,
+            'device-local',
+            body.baseVersion + 1,
           ),
-        );
-      });
-
-    const [first, second] = await Promise.all([
-      useCampaignPersistenceStore.getState().saveCampaign(),
-      useCampaignPersistenceStore.getState().saveCampaign(),
-    ]);
-
+        ),
+      );
+    });
+    useCampaignPersistenceStore.getState().markDirty();
+    const firstSave = useCampaignPersistenceStore.getState().saveCampaign();
+    await flushPromises();
+    mockStore.getState().updateCampaign({ name: 'Second edit' });
+    useCampaignPersistenceStore.getState().markDirty();
+    const secondSave = useCampaignPersistenceStore.getState().saveCampaign();
+    await flushPromises();
+    expect(putBodies.map((entry) => entry.baseVersion)).toEqual([0]);
+    finishFirst(
+      jsonResponse(200, buildSerializedCampaign(campaign, 'device-local', 1)),
+    );
+    const [first, second] = await Promise.all([firstSave, secondSave]);
     expect(putBodies.map((entry) => entry.baseVersion)).toEqual([0, 1]);
     expect(first).toMatchObject({ status: 'saved' });
     expect(second).toMatchObject({ status: 'saved' });
@@ -729,6 +742,7 @@ describe('useCampaignPersistenceStore', () => {
         }),
     );
 
+    useCampaignPersistenceStore.getState().markDirty();
     const savePromise = useCampaignPersistenceStore.getState().saveCampaign();
     // Writes are serialized behind the save chain, so the request is issued
     // on a later microtask than the call. Flush to the in-flight request
@@ -762,6 +776,7 @@ describe('useCampaignPersistenceStore', () => {
     );
     const fetchMock = jest.spyOn(global, 'fetch');
     fetchMock.mockResolvedValueOnce(jsonResponse(200, firstAccepted));
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     const optimisticCampaign = {
@@ -776,6 +791,7 @@ describe('useCampaignPersistenceStore', () => {
     );
     fetchMock.mockResolvedValue(conflictResponse(serverRecord));
 
+    useCampaignPersistenceStore.getState().markDirty();
     const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
     // The rollback used to wait for a second refused attempt. There is no
@@ -808,6 +824,7 @@ describe('useCampaignPersistenceStore', () => {
   it('an offline save failure is non-fatal — saveState becomes error', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
 
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     const state = useCampaignPersistenceStore.getState();
@@ -817,6 +834,7 @@ describe('useCampaignPersistenceStore', () => {
 
   it('clearError returns an errored store to idle', async () => {
     jest.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
     useCampaignPersistenceStore.getState().clearError();
     expect(useCampaignPersistenceStore.getState().saveState).toBe('idle');
@@ -830,6 +848,7 @@ describe('useCampaignPersistenceStore', () => {
     const stored = buildSerializedCampaign(campaign, 'device-meta', 1);
     jest.spyOn(global, 'fetch').mockResolvedValue(jsonResponse(200, stored));
 
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     const metadata = useCampaignPersistenceStore.getState().metadata;
@@ -844,6 +863,7 @@ describe('useCampaignPersistenceStore', () => {
       .spyOn(global, 'fetch')
       .mockResolvedValue(jsonResponse(200, stored));
 
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     // Issued immediately — no timer advance needed.
@@ -866,6 +886,7 @@ describe('useCampaignPersistenceStore', () => {
         return jsonResponse(200, putBody.envelope);
       });
 
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -941,6 +962,7 @@ describe('useCampaignPersistenceStore', () => {
           jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
         );
 
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
 
       expect(lastPutHeaders(fetchMock)).toMatchObject({
@@ -961,6 +983,7 @@ describe('useCampaignPersistenceStore', () => {
           jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
         );
 
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
 
       expect(lastPutHeaders(fetchMock).Authorization).toBe('Bearer wire-guest');
@@ -974,6 +997,7 @@ describe('useCampaignPersistenceStore', () => {
         );
       storeBearer(MATCH, 'wire-unrelated');
 
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
       expect(lastPutHeaders(fetchMock)).toEqual({
         'Content-Type': 'application/json',
@@ -984,6 +1008,7 @@ describe('useCampaignPersistenceStore', () => {
         ...campaign,
         coopSession: createHostCoopSession('ROOM12', MATCH),
       });
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
       expect(lastPutHeaders(fetchMock)).toEqual({
         'Content-Type': 'application/json',
@@ -1005,6 +1030,7 @@ describe('useCampaignPersistenceStore', () => {
             buildSerializedCampaign(persisted, 'device-host', 1),
           ),
         );
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
       mockStore.getState().switchCampaign({
         ...persisted,
@@ -1052,6 +1078,7 @@ describe('useCampaignPersistenceStore', () => {
       fetchMock.mockResolvedValue(
         jsonResponse(200, buildSerializedCampaign(campaign, 'device-x', 1)),
       );
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
 
       const state = useCampaignPersistenceStore.getState();
@@ -1072,6 +1099,7 @@ describe('useCampaignPersistenceStore', () => {
         }),
       );
 
+      useCampaignPersistenceStore.getState().markDirty();
       const result = await useCampaignPersistenceStore
         .getState()
         .saveCampaign();
@@ -1088,6 +1116,7 @@ describe('useCampaignPersistenceStore', () => {
       const fetchMock = jest
         .spyOn(global, 'fetch')
         .mockResolvedValueOnce(refusalResponse());
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
       expect(useCampaignPersistenceStore.getState().saveRefusal?.code).toBe(
         'HOST_SESSION_REQUIRED',
@@ -1100,6 +1129,7 @@ describe('useCampaignPersistenceStore', () => {
       ).toBeNull();
 
       fetchMock.mockResolvedValueOnce(refusalResponse());
+      useCampaignPersistenceStore.getState().markDirty();
       await useCampaignPersistenceStore.getState().saveCampaign();
       expect(useCampaignPersistenceStore.getState().saveRefusal).not.toBeNull();
       await useCampaignPersistenceStore.getState().loadCampaign(campaign.id);

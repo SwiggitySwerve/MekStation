@@ -4,6 +4,7 @@ import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCache
 import type { IPendingWrite } from '@/lib/campaign/persistence/campaignPendingWrite';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
+import type { CampaignPendingOutcomeSource } from './campaignBattleOutcomeState';
 import type { MissionsStore } from './useMissionsStore';
 
 interface CampaignStoreForRosterState {
@@ -22,7 +23,10 @@ interface CampaignStoreForRosterState {
   pendingWrite?: IPendingWrite | null;
   setPendingWrite?: (marker: IPendingWrite | null) => void;
   updateCampaign: (updates: Partial<ICampaign>) => void;
-  switchCampaign: (campaign: ICampaign) => void;
+  switchCampaign: (
+    campaign: ICampaign,
+    pendingSource?: CampaignPendingOutcomeSource,
+  ) => void;
   getMissionsStore?: () => StoreApi<MissionsStore> | null;
 }
 

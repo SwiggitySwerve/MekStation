@@ -225,6 +225,61 @@ describe('pending battle outcomes through a new document', () => {
     expect(store.getState().processedBattleIds).toEqual(['already-processed']);
   });
 
+  it.each(['leave open', 'close tab'] as const)(
+    'keeps the conflicted copy, outcome and marker in storage when the player chooses nothing (%s)',
+    async (action) => {
+      const battle = outcome();
+      store.getState().enqueueOutcome(battle);
+      store
+        .getState()
+        .updateCampaign({ name: 'Local changes held for later carry-over' });
+      remote = {
+        ...remote,
+        version: 5,
+        body: { ...remote.body, name: 'Other writer' },
+      };
+      reload();
+      await persistence().loadCampaign(remote.campaignId);
+      expect(persistence().saveState).toBe('conflict');
+      const stored = localStorage.getItem('campaign-store');
+      const marker = store.getState().pendingWrite;
+      expect(stored).not.toBeNull();
+      expect(marker).toMatchObject({
+        campaignId: remote.campaignId,
+        baseVersion: 3,
+      });
+      await jest.advanceTimersByTimeAsync(20_000);
+      expect(localStorage.getItem('campaign-store')).toBe(stored);
+      if (action === 'close tab') {
+        window.dispatchEvent(new Event('pagehide'));
+        window.dispatchEvent(new Event('unload'));
+        expect(localStorage.getItem('campaign-store')).toBe(stored);
+        expect(puts).toEqual([]);
+        reload();
+        expect(store.getState().pendingBattleOutcomes).toEqual([battle]);
+        expect(store.getState().campaign?.name).toBe(
+          'Local changes held for later carry-over',
+        );
+        expect(store.getState().pendingWrite).toEqual(marker);
+        expect(localStorage.getItem('campaign-store')).toBe(stored);
+        await persistence().loadCampaign(remote.campaignId);
+        await jest.advanceTimersByTimeAsync(20_000);
+      }
+      expect(store.getState().pendingBattleOutcomes).toEqual([battle]);
+      expect(store.getState().campaign?.pendingBattleOutcomes).toEqual([
+        battle,
+      ]);
+      expect(store.getState().campaign?.name).toBe(
+        'Local changes held for later carry-over',
+      );
+      expect(store.getState().pendingWrite).toEqual(marker);
+      expect(localStorage.getItem('campaign-store')).toBe(stored);
+      expect(persistence().saveState).toBe('conflict');
+      expect(puts).toEqual([]);
+      expect(remote.body.pendingBattleOutcomes).toEqual([]);
+    },
+  );
+
   it('replaces a clean stale v3 copy with v5 before any on-load PUT can use base 5', async () => {
     expect(store.getState().pendingWrite).toBeNull();
     remote = {
@@ -245,11 +300,10 @@ describe('pending battle outcomes through a new document', () => {
     expect(store.getState().campaign?.currentDate.toISOString()).toBe(
       remote.body.currentDate,
     );
-    expect(puts).toHaveLength(1);
-    expect(puts[0].baseVersion).toBe(5);
-    expect(puts[0].envelope.body.name).toBe('Newer writer');
-    expect(puts[0].envelope.body.currentDate).toBe('3025-07-06T00:00:00.000Z');
-    expect(remote.version).toBe(6);
+    expect(jest.getTimerCount()).toBe(0);
+    await jest.advanceTimersByTimeAsync(10_000);
+    expect(puts).toHaveLength(0);
+    expect(remote.version).toBe(5);
   });
 
   it('sends no PUT when a clean rehydrated copy already names the current server row', async () => {
@@ -285,8 +339,7 @@ describe('pending battle outcomes through a new document', () => {
     await persistence().loadCampaign(remote.campaignId);
     await debounce();
 
-    // Keep this regression red until the authoritative-load decision is
-    // resolved by C4/Root. A future fix may eliminate the redundant PUT.
+    // A server install cannot silently union unclaimed local pending entries.
     expect(
       puts.map((put) => ({
         baseVersion: put.baseVersion,
@@ -300,5 +353,167 @@ describe('pending battle outcomes through a new document', () => {
         (put) => put.envelope.body.pendingBattleOutcomes?.length === 0,
       ),
     ).toBe(true);
+    expect(puts).toHaveLength(0);
+    store.getState().updateCampaign({ name: 'Edit after authoritative load' });
+    await debounce();
+    expect(puts).toHaveLength(1);
+    expect(puts[0].baseVersion).toBe(5);
+    expect(remote.body.pendingBattleOutcomes).toEqual([]);
+  });
+
+  it('clears the timer armed by authoritative replacement before any debounce callback', async () => {
+    remote = { ...remote, version: 5 };
+    reload();
+    await persistence().loadCampaign(remote.campaignId);
+    expect(persistence().dirty).toBe(false);
+    expect(jest.getTimerCount()).toBe(0);
+    await jest.advanceTimersByTimeAsync(20_000);
+    expect(puts).toEqual([]);
+  });
+
+  it('skips a manual or queued clean save but still debounces an ordinary edit', async () => {
+    await expect(persistence().saveCampaign()).resolves.toEqual({
+      status: 'skipped',
+    });
+    expect(puts).toEqual([]);
+    store.getState().updateCampaign({ name: 'Ordinary edit' });
+    await jest.advanceTimersByTimeAsync(AUTO_SAVE_DEBOUNCE_MS - 1);
+    expect(puts).toEqual([]);
+    await debounce();
+    expect(puts).toHaveLength(1);
+    expect(puts[0].baseVersion).toBe(3);
+    expect(remote.body.name).toBe('Ordinary edit');
+    await persistence().saveCampaign();
+    expect(puts).toHaveLength(1);
+  });
+
+  it.each([3, 5])(
+    'claims an outcome before the first load completes and reloads at server v%s',
+    async (serverVersion) => {
+      reload();
+      expect(persistence().baseVersion).toBe(0);
+      expect(store.getState().pendingWrite).toBeNull();
+      // A discarded document never receives this outstanding GET, just as the
+      // lost keepalive in the acceptance case never settles.
+      jest
+        .mocked(globalThis.fetch)
+        .mockImplementationOnce(() => new Promise<Response>(() => {}));
+      void persistence().loadCampaign(remote.campaignId);
+      const battle = outcome();
+      store.getState().enqueueOutcome(battle);
+      expect(store.getState().pendingWrite).toMatchObject({ baseVersion: 3 });
+      expect(persistence().baseVersion).toBe(0); // No unread server token granted.
+      reload();
+      remote = { ...remote, version: serverVersion };
+      await persistence().loadCampaign(remote.campaignId);
+      await debounce();
+      expect(store.getState().pendingBattleOutcomes).toEqual([battle]);
+      if (serverVersion === 3) {
+        expect(puts).toHaveLength(1);
+        expect(puts[0].baseVersion).toBe(3);
+        expect(remote.body.pendingBattleOutcomes).toEqual([battle]);
+        store.getState().enqueueOutcome(battle);
+        store.getState().updateCampaign({ name: 'Later edit' });
+        await debounce();
+        expect(remote.body.pendingBattleOutcomes).toEqual([battle]);
+      } else {
+        expect(persistence().saveState).toBe('conflict');
+        expect(puts).toEqual([]);
+        expect(remote.body.pendingBattleOutcomes).toEqual([]);
+      }
+    },
+  );
+
+  it('keeps processed ids from both sides and excludes their outcomes from either pending ledger', async () => {
+    const battle = outcome();
+    store.getState().enqueueOutcome(battle);
+    await debounce();
+    // Local processing evidence is retained even when the new server queue
+    // includes that matchId. A server-processed id also blocks a stale local entry.
+    store.getState().updateCampaign({
+      processedBattleIds: ['already-processed', battle.matchId],
+    });
+    await debounce();
+    remote = {
+      ...remote,
+      version: remote.version + 2,
+      body: {
+        ...remote.body,
+        processedBattleIds: ['already-processed'],
+        pendingBattleOutcomes: [
+          battle,
+          { ...battle, matchId: 'already-processed' },
+        ],
+      },
+    };
+    puts = [];
+    reload();
+    await persistence().loadCampaign(remote.campaignId);
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+    expect(store.getState().processedBattleIds).toEqual(
+      expect.arrayContaining(['already-processed', battle.matchId]),
+    );
+    store.getState().enqueueOutcome(battle);
+    store
+      .getState()
+      .enqueueOutcome({ ...battle, matchId: 'already-processed' });
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+    await jest.advanceTimersByTimeAsync(10_000);
+    expect(puts).toEqual([]);
+  });
+
+  it('never requeues a stale local outcome that the newer server row already processed', async () => {
+    const battle = outcome();
+    store.getState().enqueueOutcome(battle);
+    await debounce();
+    remote = {
+      ...remote,
+      version: remote.version + 2,
+      body: {
+        ...remote.body,
+        pendingBattleOutcomes: [],
+        processedBattleIds: ['already-processed', battle.matchId],
+      },
+    };
+    puts = [];
+    reload();
+    await persistence().loadCampaign(remote.campaignId);
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+    expect(store.getState().processedBattleIds).toContain(battle.matchId);
+    store.getState().enqueueOutcome(battle);
+    await jest.advanceTimersByTimeAsync(10_000);
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+    expect(puts).toEqual([]);
+  });
+
+  it('uses the server payload for the same matchId on an authoritative load', async () => {
+    const battle = outcome();
+    store.getState().enqueueOutcome(battle);
+    await debounce();
+    const newerBattle = { ...battle, capturedAt: '2026-11-10T12:00:00.000Z' };
+    remote = {
+      ...remote,
+      version: remote.version + 1,
+      body: { ...remote.body, pendingBattleOutcomes: [newerBattle] },
+    };
+    puts = [];
+    reload();
+    await persistence().loadCampaign(remote.campaignId);
+    expect(store.getState().pendingBattleOutcomes).toEqual([newerBattle]);
+    await jest.advanceTimersByTimeAsync(10_000);
+    expect(puts).toEqual([]);
+  });
+
+  it('explicitly taking the server version discards the held outcome without a later PUT', async () => {
+    store.getState().enqueueOutcome(outcome());
+    remote = { ...remote, version: 5 };
+    reload();
+    await persistence().loadCampaign(remote.campaignId);
+    expect(persistence().saveState).toBe('conflict');
+    await expect(persistence().resolveConflictTakeServer()).resolves.toBe(true);
+    expect(store.getState().pendingBattleOutcomes).toEqual([]);
+    expect(store.getState().pendingWrite).toBeNull();
+    await jest.advanceTimersByTimeAsync(10_000);
+    expect(puts).toEqual([]);
   });
 });

@@ -55,3 +55,25 @@ and enforced in the card by deriving one badge with unsaved edits first.
   there. A Web Lock is not built (Root ruling 6, OPEN).
 - No way exists today to keep a copy of the local state before discarding it.
   The card says the choice is one-way. An export is not invented (OPEN).
+
+## Root's authoritative-load rulings
+
+The marker decision still precedes the cache verdict. A stale-key install uses
+`switchCampaign(campaign, 'server')`; `hydrateCampaignBattleState` owns the
+choice to ignore local pending entries while retaining the existing processed
+and reviewed unions and applied-id filter. Ordinary callers keep the default
+merge, including browser rehydration and co-op rollback. Explicit take-server
+uses the same server-pending installation rule, honoring its discard wording.
+
+Installing a server record may trip the reference-based dirty bridge. The
+`record-loaded` effect cancels that timer before declaring the state clean;
+the debounce callback and save runner also refuse clean writes. Manual clean
+saves are skipped. This changes no server API or persisted envelope.
+
+A first edit before the document's first read, when no older marker exists,
+claims the cached revision. It grants no server write token until load validates
+that base and instance. Existing markers are left alone before that first read.
+
+The interim conflict card warns explicitly about discarding pending battle
+results. Carry-over onto another writer's row is proposed only in the external
+PR2-IMPLEMENTATION report, pending Root's review; it is not implemented here.

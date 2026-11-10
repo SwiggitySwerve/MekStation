@@ -23,6 +23,11 @@ import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/cam
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
+import {
+  CombatEndReason,
+  COMBAT_OUTCOME_VERSION,
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import { CampaignSaveStatusCard } from '../CampaignSaveStatusCard';
 
@@ -346,6 +351,46 @@ describe('CampaignSaveStatusCard pending-write conflict', () => {
     expect(card).toHaveTextContent('stay in this window until you choose');
     expect(card).toHaveTextContent("server's version discards them for good");
     expect(screen.getByText('Conflict')).toBeInTheDocument();
+  });
+
+  it('warns that Use Server Version discards pending battle results before the player clicks', () => {
+    const store = useCampaignStore();
+    store.getState().enqueueOutcome({
+      version: COMBAT_OUTCOME_VERSION,
+      matchId: 'conflicted-battle',
+      contractId: null,
+      scenarioId: 'scenario-1',
+      capturedAt: '2026-11-10T00:00:00.000Z',
+      endReason: CombatEndReason.ObjectiveMet,
+      report: {
+        version: 1,
+        matchId: 'conflicted-battle',
+        winner: GameSide.Player,
+        reason: 'objective',
+        turnCount: 1,
+        units: [],
+        mvpUnitId: null,
+        log: [],
+      },
+      unitDeltas: [],
+    });
+    render(<CampaignSaveStatusCard />);
+    expect(
+      screen.getByTestId('campaign-conflict-battle-warning'),
+    ).toHaveTextContent(
+      'Use Server Version discards these battle results along with your other local changes.',
+    );
+    expect(
+      screen.getByTestId('campaign-conflict-battle-warning'),
+    ).toHaveTextContent('Nothing is changed until you choose.');
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: 'Use Server Version' }),
+    ).toBeInTheDocument();
+    act(() => store.getState().dequeueOutcome('conflicted-battle'));
+    expect(
+      screen.queryByTestId('campaign-conflict-battle-warning'),
+    ).not.toBeInTheDocument();
   });
 
   it('offers only the server version: no keep-mine, no save', () => {

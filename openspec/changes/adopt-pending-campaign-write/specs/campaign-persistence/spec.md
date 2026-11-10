@@ -167,3 +167,75 @@ held conflict without changing state or adopting the server's version.
 - **WHEN** the player chooses "Use Server Version" and then makes a new edit
 - **THEN** the held local changes SHALL be discarded and the conflict cleared
 - **AND** normal autosaving SHALL resume at the adopted server version
+
+### Requirement: An authoritative load owns the pending battle queue
+
+The authoritative server record SHALL own the pending queue when a stale cache is replaced.
+No unclaimed local pending entries are merged into that queue. The existing processed-id union and processed-outcome
+filter SHALL remain unchanged. A matching pending-write marker SHALL be decided
+before replacement and SHALL preserve unacknowledged outcomes through the existing
+adoption or visible conflict path.
+
+#### Scenario: A newer row removed an acknowledged outcome
+
+- **GIVEN** a clean cached v3 copy with a pending outcome and no pending-write marker
+- **AND** the v5 server record has removed that outcome without processing it
+- **WHEN** the stale copy loads v5
+- **THEN** the local pending queue SHALL match the server queue
+- **AND** no subsequent save SHALL resurrect the removed outcome
+
+#### Scenario: Processed outcomes from either ledger remain excluded
+
+- **GIVEN** an authoritative server load with pending entries whose matchIds appear in either same-campaign processed ledger
+- **WHEN** the record is installed
+- **THEN** those outcomes SHALL NOT enter the pending queue
+- **AND** processed ids from both ledgers SHALL be retained
+
+#### Scenario: Reload before the first server read completes
+
+- **GIVEN** a rehydrated adopted copy with a proven cache base but no completed server read in this document
+- **WHEN** a battle outcome is enqueued and the document reloads before its first read completes
+- **THEN** its persisted marker SHALL claim the cached base without granting a write token before validation
+- **AND** the next document SHALL adopt the outcome exactly once if the server is still at that base
+- **AND** a moved server row SHALL instead produce a visible conflict
+
+### Requirement: Loading a clean record does not write it back
+
+Installing an authoritative record SHALL cancel any armed autosave timer.
+The debounce callback and ordinary save runner SHALL decline a write when the
+copy is clean. Ordinary edits SHALL continue saving after the debounce.
+
+#### Scenario: No edit after authoritative load
+
+- **GIVEN** a stale cache whose authoritative replacement temporarily arms a timer through the dirty bridge
+- **WHEN** loading finishes without a local edit
+- **THEN** the timer SHALL be cleared
+- **AND** zero PUT requests SHALL occur during the debounce window or after advancing well beyond 2000 milliseconds
+- **AND** a manual save of that clean copy SHALL send no PUT
+
+#### Scenario: A later ordinary edit still saves
+
+- **GIVEN** a clean authoritative load
+- **WHEN** the player edits the campaign and waits for the debounce
+- **THEN** one PUT SHALL carry the edit at the adopted base
+
+### Requirement: A battle result cannot be discarded without an explicit warning
+
+A conflict card with local pending battle outcomes SHALL warn that choosing
+"Use Server Version" discards those battle results along with other local
+changes. This warning SHALL NOT imply that carry-over is implemented.
+
+#### Scenario: A pending battle result is involved in a conflict
+
+- **GIVEN** a conflict with a local pending battle outcome
+- **WHEN** the card renders before the player chooses
+- **THEN** it SHALL explicitly name the battle result and its discard consequence
+- **AND** it SHALL continue offering only "Use Server Version"
+
+#### Scenario: A held battle-result conflict survives tab close
+
+- **GIVEN** a pending-write conflict with local battle outcomes and a persisted marker
+- **WHEN** the player leaves the card open or closes the tab through pagehide and unload without choosing
+- **THEN** the local campaign, battle outcomes and marker SHALL remain in localStorage
+- **AND** a fresh store SHALL rehydrate them and hold the same conflict without a PUT
+- **AND** the card SHALL state "Nothing is changed until you choose."

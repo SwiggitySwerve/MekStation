@@ -110,3 +110,24 @@ of installation-triggered auto-save with D-11. PR1 preserves timer behavior,
 legacy/guest creation exemptions, co-op rollback and typed refusal distinctions,
 the keepalive cap, and flush diagnostic lifetime. All state here is transient;
 persisted envelopes, wire messages, fixtures, and journals are unchanged.
+
+## Root's PR 2 authoritative-load rulings
+
+`runLoad` decides the pending-write marker before installing a record. A
+stale-key replacement and explicit take-server pass `pendingSource: 'server'`
+through `switchCampaign` to `hydrateCampaignBattleState`. That owner excludes
+only the prior local pending entries, using the existing merge function for
+processed/reviewed unions and the applied-id filter. Default same-campaign
+activation, browser hydration, and co-op rollback keep their merge behavior.
+
+Immediately before `record-loaded`, the effect clears the timer that the dirty
+bridge may have armed during installation. Both the callback and `runSave`
+refuse clean writes. A manual save on a clean copy returns `skipped`; a later
+edit still saves normally. The adoption integration tests check timer removal,
+zero PUTs beyond 2000 ms, and an ordinary edit's debounced PUT.
+
+If the first edit arrives before any read completes, no old marker is replaced.
+With no marker, `derivePendingWrite` can use the persisted cache revision to
+claim the edit. This does not grant a transient server token: the next read
+still verifies instance and base, adopting or raising a visible conflict.
+Carry-over of outcomes onto a moved row remains a proposal outside this change.

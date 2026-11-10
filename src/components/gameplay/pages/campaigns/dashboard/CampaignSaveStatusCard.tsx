@@ -102,6 +102,26 @@ function PendingWriteConflictDetail({
   );
 }
 
+/** Warn before the existing take-server action discards local battle results. */
+function BattleOutcomeDiscardWarning(): React.ReactElement | null {
+  const campaignStore = useCampaignStore();
+  const pendingCount = useStore(
+    campaignStore,
+    (s) => s.pendingBattleOutcomes.length,
+  );
+  if (pendingCount === 0) return null;
+  return (
+    <p
+      className="mt-1 text-sm text-red-400"
+      data-testid="campaign-conflict-battle-warning"
+    >
+      This browser has pending battle results. Nothing is changed until you
+      choose. Use Server Version discards these battle results along with your
+      other local changes.
+    </p>
+  );
+}
+
 /** Format an ISO timestamp for display, or a fallback when never saved. */
 function formatLastSaved(lastSavedAt: string | null): string {
   if (!lastSavedAt) {
@@ -249,6 +269,7 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               server version and redo them.
             </p>
           )}
+          {saveState === 'conflict' && <BattleOutcomeDiscardWarning />}
           {launchConflict && (
             <p
               className="mt-1 text-sm text-red-400"

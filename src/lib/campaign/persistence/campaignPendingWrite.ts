@@ -113,6 +113,8 @@ export interface IPendingWriteSource {
   readonly dirty: boolean;
   readonly campaignId: string | null;
   readonly baseVersion: number;
+  /** Persisted copy base, used only for a first edit before any read completes. */
+  readonly cachedBaseVersion?: number;
   readonly editSeq: number;
   readonly legacyUnadopted: boolean;
   readonly liveCampaignId: string | null;
@@ -125,9 +127,9 @@ export interface IPendingWriteSource {
  *
  * - `null`: nothing is owed (clean), or this copy has no ordinary save to be
  *   behind on (co-op, unadopted legacy, another campaign's state).
- * - `undefined`: LEAVE the stored marker alone. A fresh document is dirty with
- *   `baseVersion` 0 until its first read lands; deriving from that would
- *   overwrite the previous document's real marker with a base it never had.
+ * - `undefined`: LEAVE the stored marker alone before the first read. Preserve
+ *   an existing claim; a first edit without a claim may use the persisted cache
+ *   base, but never manufacture a base when neither source exists.
  * - a marker otherwise. `flush` is kept only while it still describes the same
  *   base: a base change means a save or a proven flush moved the row past it.
  */
@@ -146,16 +148,21 @@ export function derivePendingWrite(
   ) {
     return null;
   }
-  if (source.baseVersion <= 0) return undefined;
+  // Preserve an existing claim until load decides it. With no old claim, a
+  // pre-load edit can claim the persisted copy's base, never the unread row.
+  if (source.baseVersion <= 0 && previous !== null) return undefined;
+  const baseVersion =
+    source.baseVersion > 0 ? source.baseVersion : source.cachedBaseVersion;
+  if (baseVersion === undefined || baseVersion <= 0) return undefined;
   const carried =
     flush ??
     (previous?.campaignId === campaignId &&
-    previous.flush?.baseVersion === source.baseVersion
+    previous.flush?.baseVersion === baseVersion
       ? previous.flush
       : undefined);
   return {
     campaignId,
-    baseVersion: source.baseVersion,
+    baseVersion,
     editSeq: source.editSeq,
     ...(carried ? { flush: carried } : {}),
   };

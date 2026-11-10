@@ -232,6 +232,30 @@ describe('derivePendingWrite', () => {
     );
   });
 
+  it('claims the persisted cache base for a first edit before a read, without inventing a base', () => {
+    expect(
+      derivePendingWrite(
+        { ...source, baseVersion: 0, cachedBaseVersion: 7 },
+        null,
+      ),
+    ).toEqual(marker);
+    expect(
+      derivePendingWrite({ ...source, baseVersion: 0 }, null),
+    ).toBeUndefined();
+    expect(
+      derivePendingWrite(
+        { ...source, baseVersion: 0, cachedBaseVersion: 0 },
+        null,
+      ),
+    ).toBeUndefined();
+    expect(
+      derivePendingWrite(
+        { ...source, baseVersion: 0, cachedBaseVersion: 9 },
+        marker,
+      ),
+    ).toBeUndefined();
+  });
+
   it('infers the campaign from the live copy when the state has no id yet', () => {
     expect(derivePendingWrite({ ...source, campaignId: null }, null)).toEqual(
       marker,
