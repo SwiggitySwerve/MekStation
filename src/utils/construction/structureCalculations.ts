@@ -1,7 +1,6 @@
 import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
 
 import {
-  getInternalStructureDefinition,
   InternalStructureType,
   mapDonorStructureType,
 } from '@/types/construction/InternalStructureType';
@@ -40,25 +39,12 @@ export function calculateStructureWeight(
   context?: IStructureWeightContext,
 ): number {
   const structure = context?.frankenStructure;
+  const configuration = context?.configuration ?? MechConfiguration.BIPED;
   if (structure?.typeByLocation === undefined) {
-    if (context?.configuration !== undefined) {
-      return nativeFullStructureWeight(
-        tonnage,
-        structureType,
-        context.configuration,
-      );
-    }
-    // Preserve the exact historical expression for callers without native context.
-    const definition =
-      getInternalStructureDefinition(structureType) ??
-      getInternalStructureDefinition(InternalStructureType.STANDARD);
-    if (!definition)
-      throw new Error('Standard structure definition is required');
-    return ceilToHalfTon(tonnage * definition.weightMultiplier);
+    return nativeFullStructureWeight(tonnage, structureType, configuration);
   }
 
   const types = structure.typeByLocation;
-  const configuration = context?.configuration ?? MechConfiguration.BIPED;
   const locations = getLocationsForConfig(configuration);
   const defaultType = mapDonorStructureType(structure.type);
   const defaultTonnage = Math.max(10, Math.ceil(tonnage));

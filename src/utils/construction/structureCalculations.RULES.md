@@ -4,7 +4,7 @@
 
 ## Native full structure mass
 
-Configuration-aware calls use the following expressions, followed by the tripod factor (1.1 for Tripod, otherwise 1) and an upward half-ton ceiling. Superheavy means strictly more than 100 tons. For each donor, its own tonnage determines that condition.
+Every structure mass uses `nativeFullStructureWeight` in this owner. Global calls and each full donor use the following expressions, followed by the tripod factor (1.1 for Tripod, otherwise 1) and an upward half-ton ceiling. Missing configuration defaults to Biped. Superheavy means strictly more than 100 tons. For each donor, its own tonnage determines that condition.
 
 | Material                     | Ordinary               | Superheavy            |
 | ---------------------------- | ---------------------- | --------------------- |
@@ -15,7 +15,7 @@ Configuration-aware calls use the following expressions, followed by the tripod 
 | Industrial                   | tonnage / 5            | tonnage / 2.5         |
 | Endo-Composite               | (tonnage / 10) \* 0.75 | (tonnage / 10) \* 1.5 |
 
-Preserve the division, material-factor and movement-factor order. A generic rescaling of the legacy definition multiplier can change floating-point results. Reinforced and Composite do not double for superheavy tonnage.
+Preserve the division, material-factor and movement-factor order. Multiplication by an independently stored decimal factor can change floating-point ceiling results. Reinforced and Composite do not double for superheavy tonnage. Structure definitions contain identity, technology, slot, point and year metadata; they contain no mass multiplier. UI and other metadata consumers do not read or compute a separate weight factor.
 
 ## Section weighting
 
@@ -27,7 +27,7 @@ Declared types use their declared tonnages or the initialized host default. Miss
 
 ## Compatibility and admission
 
-Absence of the entire map never enables donor weighting, even if `locationTonnage` exists. Calls without configuration or a type map retain the exact historical `ceilToHalfTon(tonnage * definition.weightMultiplier)` expression, including old superheavy results. Definition multipliers remain the compatibility contract. Configuration-aware global calls intentionally correct superheavy and Tripod mass.
+Absence of the entire map never enables donor weighting, even if `locationTonnage` exists. Contextless calls use the same full-mass rule with Biped configuration. Ordinary five-ton-grid results remain unchanged. Old contextless superheavy results now match Java, and Endo-Composite at 60.00000000000001 tons rounds to 5 rather than the old independently multiplied 4.5. No second compatibility formula or multiplier table remains.
 
 Admission remains with each consumer. `calculateInternalStructure` rejects unknown types and returns zero mass before calling the owner. The editor, weight-validation helpers and aggregate construction calculator retain their prior Standard fallback. Critical slots and structure points remain separate from mass.
 

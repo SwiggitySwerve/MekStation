@@ -4,7 +4,10 @@ import type { ISerializedStructure } from '@/types/unit/UnitSerialization';
 
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { createDefaultComponentSelections } from '@/stores/useMultiUnitStore.helpers';
-import { InternalStructureType } from '@/types/construction/InternalStructureType';
+import {
+  InternalStructureType,
+  INTERNAL_STRUCTURE_DEFINITIONS,
+} from '@/types/construction/InternalStructureType';
 import { MechConfiguration } from '@/types/construction/MechConfigurationSystem';
 import {
   calculateInternalStructure,
@@ -18,13 +21,13 @@ import {
 
 const tonnages = [10, 15, 35, 50, 55, 100, 105, 200];
 const cases: readonly [InternalStructureType, readonly number[]][] = [
-  [InternalStructureType.STANDARD, [1, 1.5, 3.5, 5, 5.5, 10, 10.5, 20]],
-  [InternalStructureType.ENDO_STEEL_IS, [0.5, 1, 2, 2.5, 3, 5, 5.5, 10]],
-  [InternalStructureType.ENDO_STEEL_CLAN, [0.5, 1, 2, 2.5, 3, 5, 5.5, 10]],
-  [InternalStructureType.ENDO_COMPOSITE, [1, 1.5, 3, 4, 4.5, 7.5, 8, 15]],
+  [InternalStructureType.STANDARD, [1, 1.5, 3.5, 5, 5.5, 10, 21, 40]],
+  [InternalStructureType.ENDO_STEEL_IS, [0.5, 1, 2, 2.5, 3, 5, 10.5, 20]],
+  [InternalStructureType.ENDO_STEEL_CLAN, [0.5, 1, 2, 2.5, 3, 5, 10.5, 20]],
+  [InternalStructureType.ENDO_COMPOSITE, [1, 1.5, 3, 4, 4.5, 7.5, 16, 30]],
   [InternalStructureType.REINFORCED, [2, 3, 7, 10, 11, 20, 21, 40]],
   [InternalStructureType.COMPOSITE, [0.5, 1, 2, 2.5, 3, 5, 5.5, 10]],
-  [InternalStructureType.INDUSTRIAL, [2, 3, 7, 10, 11, 20, 21, 40]],
+  [InternalStructureType.INDUSTRIAL, [2, 3, 7, 10, 11, 20, 42, 80]],
 ];
 
 function measure(
@@ -58,30 +61,14 @@ function measure(
 
 describe('structure mass caller characterization', () => {
   it.each(cases)(
-    'preserves contextless %s while configuration-aware hooks use native mass',
+    'shares native %s mass across contextless and configuration-aware callers',
     (type, weights) => {
       for (const [index, tonnage] of tonnages.entries()) {
         const actual = measure(tonnage, type);
         const standard = measure(tonnage, InternalStructureType.STANDARD);
         const expected = weights[index];
         const delta = expected - standard.lookup;
-        const nativeSuperheavy: Record<
-          InternalStructureType,
-          readonly number[]
-        > = {
-          [InternalStructureType.STANDARD]: [21, 40],
-          [InternalStructureType.ENDO_STEEL_IS]: [10.5, 20],
-          [InternalStructureType.ENDO_STEEL_CLAN]: [10.5, 20],
-          [InternalStructureType.ENDO_COMPOSITE]: [16, 30],
-          [InternalStructureType.REINFORCED]: [21, 40],
-          [InternalStructureType.COMPOSITE]: [5.5, 10],
-          [InternalStructureType.INDUSTRIAL]: [42, 80],
-        };
-        expect(actual.hookWeight).toBe(
-          tonnage > 100
-            ? nativeSuperheavy[type][tonnage === 105 ? 0 : 1]
-            : expected,
-        );
+        expect(actual.hookWeight).toBe(expected);
         expect(calculateStructureWeight(tonnage, type)).toBe(expected);
         expect(actual.lookup).toBe(expected);
         expect(actual.step.weight).toBe(expected);
@@ -524,12 +511,12 @@ describe('native section weighting and compatibility boundary', () => {
     expect(weighted(uniformDonors(105), MechConfiguration.TRIPOD)).toBe(24);
     expect(weighted(uniformDonors(35), MechConfiguration.BIPED, 150)).toBe(4);
   });
-  it('keeps contextless and tonnage-only saves on the existing global rule', () => {
+  it('keeps tonnage-only saves global and defaults contextless calls to Biped', () => {
     expect(calculateStructureWeight(35, InternalStructureType.STANDARD)).toBe(
       3.5,
     );
     expect(calculateStructureWeight(150, InternalStructureType.STANDARD)).toBe(
-      15,
+      30,
     );
     expect(
       weighted({
@@ -539,7 +526,7 @@ describe('native section weighting and compatibility boundary', () => {
     ).toBe(5);
     expect(
       calculateStructureWeight(150, InternalStructureType.STANDARD, {}),
-    ).toBe(15);
+    ).toBe(30);
   });
   it('distinguishes an absent map, empty map, explicit scalar Standard and ignored scalar Hybrid', () => {
     expect(
@@ -636,4 +623,33 @@ describe('native section weighting and compatibility boundary', () => {
       }),
     ).toBe(5.5);
   });
+});
+
+describe('single structure-mass owner for contextless callers', () => {
+  it.each(Object.values(InternalStructureType))(
+    '%s uses the native Biped rule without context',
+    (type) => {
+      for (let tonnage = 10; tonnage <= 200; tonnage += 5) {
+        const expected = calculateStructureWeight(tonnage, type, {
+          configuration: MechConfiguration.BIPED,
+        });
+        expect(calculateStructureWeight(tonnage, type)).toBe(expected);
+        expect(getStructureWeight(tonnage, type)).toBe(expected);
+        expect(calculateInternalStructure(tonnage, type).weight).toBe(expected);
+      }
+    },
+  );
+});
+
+it('uses Java division at an Endo-Composite half-ton boundary', () => {
+  expect(
+    calculateStructureWeight(
+      60.00000000000001,
+      InternalStructureType.ENDO_COMPOSITE,
+    ),
+  ).toBe(5);
+});
+it('keeps weight factors out of structure metadata definitions', () => {
+  for (const definition of INTERNAL_STRUCTURE_DEFINITIONS)
+    expect(definition).not.toHaveProperty('weightMultiplier');
 });

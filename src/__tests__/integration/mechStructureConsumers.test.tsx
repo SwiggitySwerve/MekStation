@@ -287,15 +287,15 @@ test('legacy selections forward configuration without inventing donor metadata',
 });
 
 test.each([
-  [35, InternalStructureType.STANDARD, 3.5, 3.5],
-  [50, InternalStructureType.ENDO_STEEL_IS, 2.5, 2.5],
-  [105, InternalStructureType.ENDO_STEEL_IS, 5.5, 10.5],
-  [135, InternalStructureType.ENDO_COMPOSITE, 10.5, 20.5],
-  [150, InternalStructureType.STANDARD, 15, 30],
-  [200, InternalStructureType.INDUSTRIAL, 40, 80],
+  [35, InternalStructureType.STANDARD, 3.5],
+  [50, InternalStructureType.ENDO_STEEL_IS, 2.5],
+  [105, InternalStructureType.ENDO_STEEL_IS, 10.5],
+  [135, InternalStructureType.ENDO_COMPOSITE, 20.5],
+  [150, InternalStructureType.STANDARD, 30],
+  [200, InternalStructureType.INDUSTRIAL, 80],
 ])(
-  'keeps %st %s legacy mass %st while enabling native mass %st',
-  (tonnage, type, expected, native) => {
+  '%st %s uses one Biped mass of %st with or without context',
+  (tonnage, type, expected) => {
     const actual = jest.requireActual<
       typeof import('@/utils/construction/structureCalculations')
     >('@/utils/construction/structureCalculations');
@@ -304,7 +304,7 @@ test.each([
       actual.calculateStructureWeight(tonnage, type, {
         configuration: MechConfiguration.BIPED,
       }),
-    ).toBe(native);
+    ).toBe(expected);
   },
 );
 

@@ -300,8 +300,8 @@ and `TechConstants.java:104-106`; MegaMekLab `62bf193` `UnitUtil.java:2001-2002`
 Both MTF importers SHALL preserve explicit per-location structure types in the
 optional `structure.typeByLocation` map alongside existing donor tonnages.
 Canonical structure identities and location names SHALL share schema definitions.
-An absent map SHALL preserve legacy global-structure behavior; old documents
-SHALL remain readable without adding inferred donor types.
+SHALL retain global-structure calculation when the donor-type map is absent.
+SHALL read old documents without adding inferred donor types.
 
 #### Scenario: Typed donors cross the import boundary
 
@@ -405,7 +405,8 @@ SHALL use donor tonnage, rather than host tonnage, to classify a donor as superh
 - **WHEN** calculating structure mass
 - **THEN** SHALL use declared donor type and tonnage for typed entries, and initialized host defaults for omitted entries
 - **AND** SHALL retain the accepted Clan Endo-Composite donor identity without changing legacy global identity mapping
-- **AND** SHALL preserve ordinary global arithmetic for absent maps and contextless calls while applying native global superheavy and tripod rules to configuration-aware calls
+- **AND** SHALL use the same native full-mass owner for global and donor calculations, defaulting absent configuration to Biped without enabling donor weighting
+- **AND** SHALL store no separate structure-mass multiplier in material metadata
 - **AND** SHALL distinguish ignored scalar Hybrid tonnages from explicit scalar Standard donors
 
 #### Scenario: Drizella mass survives editing and storage
