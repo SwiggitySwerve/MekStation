@@ -9,6 +9,7 @@
 
 import { StoreApi } from 'zustand';
 
+import { pickUnitTechBaseIdentity } from '@/types/construction/TechBaseConfiguration';
 import { logger } from '@/utils/logger';
 
 import {
@@ -106,6 +107,7 @@ export function duplicateBattleArmor(
 
   const mergedState: BattleArmorState = {
     ...newState,
+    ...pickUnitTechBaseIdentity(sourceState),
     motionType: sourceState.motionType,
     groundMP: sourceState.groundMP,
     jumpMP: sourceState.jumpMP,

@@ -7,6 +7,8 @@
  * @spec Based on BattleTech TechManual mixed tech rules
  */
 
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
 import { TechBase } from '@/types/enums/TechBase';
 
 /**
@@ -69,6 +71,54 @@ export enum TechBaseMode {
   INNER_SPHERE = 'inner_sphere',
   CLAN = 'clan',
   MIXED = 'mixed',
+}
+
+/** Preserved unit identity; absent legacy facts must not acquire defaults. */
+export interface IUnitTechBaseIdentity {
+  readonly techBaseMode?: TechBaseMode;
+  readonly chassisTechBase?: TechBase;
+}
+
+/** Plain source facts; the caller owns definition admission and family routing. */
+interface IUnitChassisTechBaseSource {
+  readonly clanChassis?: unknown;
+  readonly componentTechBases?: { readonly chassis?: unknown };
+}
+
+/**
+ * BA owns clanChassis; other families own componentTechBases.chassis.
+ * MegaMek 48fcb2f64 BLKFile.setTechLevel keeps Mixed designation and chassis
+ * family separate. A component or the editor's binary fallback is no evidence.
+ */
+export function resolveUnitChassisTechBase(
+  family: UnitFamily,
+  source: IUnitChassisTechBaseSource,
+): TechBase | undefined {
+  if (family === 'battlearmor') {
+    return typeof source.clanChassis === 'boolean'
+      ? source.clanChassis
+        ? TechBase.CLAN
+        : TechBase.INNER_SPHERE
+      : undefined;
+  }
+  const chassis = source.componentTechBases?.chassis;
+  if (chassis === 'CLAN') return TechBase.CLAN;
+  if (chassis === 'INNER_SPHERE') return TechBase.INNER_SPHERE;
+  return undefined;
+}
+
+/** Shared by draft persistence and copies; preserve absence as absence. */
+export function pickUnitTechBaseIdentity(
+  state: IUnitTechBaseIdentity,
+): IUnitTechBaseIdentity {
+  return {
+    ...(state.techBaseMode === undefined
+      ? {}
+      : { techBaseMode: state.techBaseMode }),
+    ...(state.chassisTechBase === undefined
+      ? {}
+      : { chassisTechBase: state.chassisTechBase }),
+  };
 }
 
 /**
