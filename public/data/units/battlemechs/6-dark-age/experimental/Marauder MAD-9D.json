@@ -198,5 +198,8 @@
   "source": "TR:3145",
   "weaponQuirks": {
     "RT:3:ISSBGR": ["exposed_linkage"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

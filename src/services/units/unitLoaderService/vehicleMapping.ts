@@ -46,6 +46,7 @@ import {
   mapRulesLevel,
   mapTechBase,
   mapTechBaseMode,
+  mapUnitTechBaseIdentity,
 } from './componentMappers';
 import { createVehicleSession } from './createVehicleSession';
 import { isDefinitionForFamily } from './definitionTypes';
@@ -277,6 +278,7 @@ export function normalizeVehicleConfiguration(
       mapTechBaseMode(definition.techBase ?? 'INNER_SPHERE'),
       motionType === GroundMotionType.VTOL,
     ),
+    ...mapUnitTechBaseIdentity('vehicles', definition),
   };
 }
 
@@ -308,6 +310,7 @@ export function mapToVehicleState(input: unknown): VehicleState {
   });
   return {
     ...state,
+    ...mapUnitTechBaseIdentity('vehicles', definition),
     equipment: state.equipment.map((item) => ({
       ...item,
       linkedAmmoId: configuration.equipment.some(

@@ -190,5 +190,8 @@
   "weaponQuirks": {
     "LA:3:ISRISCHyperLaser": ["imp_cooling"],
     "RA:3:ISRISCHyperLaser": ["imp_cooling"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

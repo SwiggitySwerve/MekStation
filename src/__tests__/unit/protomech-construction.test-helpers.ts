@@ -23,7 +23,6 @@ import {
 } from '@/types/unit/ProtoMechInterfaces';
 import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 import {
-  getProtoMPCaps,
   getProtoWeightClass,
   PROTO_VALIDATION_RULE_IDS,
   RULE_PROTO_CHASSIS,
@@ -179,11 +178,20 @@ describe('useProtoMechStore actions', () => {
     expect(s.glidingWings).toBe(false);
   });
 
-  it('setChassisType(ULTRAHEAVY) forces jumpMP to 0', () => {
+  // MML locks only a glider's jump spinner (MovementView.java:265-268); the pinned
+  // Sprite Ultraheavy units jump 3 to 5.
+  it('setChassisType(BIPED) keeps an allowed jumpMP on a 13 t (ultraheavy-mass) biped', () => {
     const initial = createDefaultProtoMechState({ tonnage: 13 });
-    const store = createProtoMechStore({ ...initial, jumpMP: 3 });
-    store.getState().setChassisType(ProtoChassis.ULTRAHEAVY);
-    expect(store.getState().jumpMP).toBe(0);
+    // Jump 3 is within maxJumpMP only at walk 3 or more (the default walk is 1).
+    const store = createProtoMechStore({
+      ...initial,
+      walkMP: 4,
+      cruiseMP: 4,
+      jumpMP: 3,
+    });
+    store.getState().setChassisType(ProtoChassis.BIPED);
+    expect(store.getState().jumpMP).toBe(3);
+    expect(store.getState().tonnage).toBe(13);
   });
 
   it('setChassisType(GLIDER) preserves glidingWings when already set', () => {
@@ -199,10 +207,13 @@ describe('useProtoMechStore actions', () => {
 
   // ---- setWalkMP ----
 
-  it('setWalkMP clamps to weight-class cap (Medium cap = 6)', () => {
-    const store = makeStore(5); // Medium
-    store.getState().setWalkMP(99);
-    expect(store.getState().walkMP).toBe(6); // Medium cap
+  // MML has no weight-class walk cap; only the engine bounds walk (rating <= 500),
+  // PMStructureTab.recalculateEngineRating. A 5 t biped's engine allows walk 66.
+  it('setWalkMP stops at the engine bound, not a weight-class cap', () => {
+    const store = makeStore(5);
+    store.getState().setWalkMP(999);
+    expect(store.getState().walkMP).toBe(66);
+    expect(store.getState().engineRating).toBeLessThanOrEqual(500);
   });
 
   it('setWalkMP clamps minimum to 1', () => {
@@ -280,6 +291,12 @@ describe('getProtoWeightClass', () => {
     expect(getProtoWeightClass(10)).toBe(ProtoWeightClass.ULTRAHEAVY);
     expect(getProtoWeightClass(15)).toBe(ProtoWeightClass.ULTRAHEAVY);
   });
+
+  // Ultraheavy is any mass above TestProtoMek.MAX_STD_TONNAGE (PMChassisView.java:205-207).
+  it('is Ultraheavy above 9 t, not from 10 t', () => {
+    expect(getProtoWeightClass(9)).toBe(ProtoWeightClass.HEAVY);
+    expect(getProtoWeightClass(9.5)).toBe(ProtoWeightClass.ULTRAHEAVY);
+  });
 });
 
 // =============================================================================
@@ -336,16 +353,22 @@ describe('VAL-PROTO-CHASSIS (VAL-PROTO-CHASSIS)', () => {
     },
   );
 
-  it('Ultraheavy with tonnage < 10 fails', () => {
-    const result = validateProtoChassis({
-      tonnage: 8,
-      chassisType: ProtoChassis.ULTRAHEAVY,
-      jumpMP: 0,
-      myomerBooster: false,
-    });
-    expect(result.passed).toBe(false);
-    expect(result.findings[0]?.message).toMatch(/Ultraheavy/);
-  });
+  // Ultraheavy is a mass above 9 t, not a chassis (PMChassisView.java:205-207), so no
+  // motive and tonnage disagree: the deprecated Ultraheavy value, which the editor never
+  // produces, is no longer held to 10 t or more. The range is VAL-PROTO-TONNAGE.
+  it.each([ProtoChassis.BIPED, ProtoChassis.QUAD, ProtoChassis.ULTRAHEAVY])(
+    'a %s at 8 t has no chassis finding',
+    (chassisType) => {
+      const result = validateProtoChassis({
+        tonnage: 8,
+        chassisType,
+        jumpMP: 0,
+        myomerBooster: false,
+      });
+      expect(result.passed).toBe(true);
+      expect(result.findings).toEqual([]);
+    },
+  );
 
   it('Ultraheavy 10–15 t passes (Ares fixture)', () => {
     const result = validateProtoChassis(ARES_SNAPSHOT);
@@ -623,32 +646,6 @@ describe('validateProtoMech (aggregate)', () => {
   });
 });
 
-// =============================================================================
-// MP cap helper
-// =============================================================================
-
-describe('getProtoMPCaps', () => {
-  it('Light: walkMax 8, jumpMax 8', () => {
-    const caps = getProtoMPCaps(ProtoWeightClass.LIGHT);
-    expect(caps.walkMax).toBe(8);
-    expect(caps.jumpMax).toBe(8);
-  });
-
-  it('Medium: walkMax 6, jumpMax 6', () => {
-    const caps = getProtoMPCaps(ProtoWeightClass.MEDIUM);
-    expect(caps.walkMax).toBe(6);
-    expect(caps.jumpMax).toBe(6);
-  });
-
-  it('Heavy: walkMax 4, jumpMax 4', () => {
-    const caps = getProtoMPCaps(ProtoWeightClass.HEAVY);
-    expect(caps.walkMax).toBe(4);
-    expect(caps.jumpMax).toBe(4);
-  });
-
-  it('Ultraheavy: walkMax 3, jumpMax 0', () => {
-    const caps = getProtoMPCaps(ProtoWeightClass.ULTRAHEAVY);
-    expect(caps.walkMax).toBe(3);
-    expect(caps.jumpMax).toBe(0);
-  });
-});
+// The weight-class walk and jump cap table that stood here has no counterpart in
+// MegaMekLab 62bf193 or the pinned verifier; the editor limits that replace it are
+// tested in utils/construction/protomech/__tests__/movementLimits.test.ts.

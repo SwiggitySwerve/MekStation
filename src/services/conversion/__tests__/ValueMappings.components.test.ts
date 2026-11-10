@@ -117,18 +117,45 @@ describe('ValueMappings component mappings', () => {
       expect(mapMechConfiguration('QuadVee')).toBe(MechConfiguration.QUADVEE);
     });
 
-    it('should use fuzzy matching', () => {
-      expect(mapMechConfiguration('quad mech')).toBe(MechConfiguration.QUAD);
-      expect(mapMechConfiguration('tripod omni')).toBe(
-        MechConfiguration.TRIPOD,
-      );
-      expect(mapMechConfiguration('quad vee type')).toBe(
-        MechConfiguration.QUADVEE,
-      );
+    // MegaMek 48fcb2f64 MtfFile.java:283-310: case-sensitive String.contains,
+    // tested in the order QuadVee, Quad, LAM, Tripod, else Biped.
+    it.each([
+      ['Biped', MechConfiguration.BIPED],
+      ['Biped OmniMek', MechConfiguration.BIPED],
+      ['Biped FrankenMek', MechConfiguration.BIPED],
+      ['Quad', MechConfiguration.QUAD],
+      ['Quad OmniMek', MechConfiguration.QUAD],
+      ['QuadVee', MechConfiguration.QUADVEE],
+      ['QuadVee OmniMek', MechConfiguration.QUADVEE],
+      ['LAM', MechConfiguration.LAM],
+      ['Tripod', MechConfiguration.TRIPOD],
+      ['Tripod OmniMek', MechConfiguration.TRIPOD],
+    ])('maps the pinned source value %s', (source, expected) => {
+      expect(mapMechConfiguration(source)).toBe(expected);
     });
 
-    it('should fuzzy match LAM configuration', () => {
-      expect(mapMechConfiguration('some lam type')).toBe(MechConfiguration.LAM);
+    it.each([
+      // Matching is case-sensitive, as in Java.
+      ['tripod omnimek', MechConfiguration.BIPED],
+      ['quad mech', MechConfiguration.BIPED],
+      ['quadvee', MechConfiguration.BIPED],
+      ['QUAD', MechConfiguration.BIPED],
+      ['some lam type', MechConfiguration.BIPED],
+      // "Quadvee" contains Quad but not QuadVee.
+      ['Quadvee', MechConfiguration.QUAD],
+      // Test order: QuadVee, Quad, LAM, Tripod.
+      ['QuadVee LAM', MechConfiguration.QUADVEE],
+      ['LAM Quad', MechConfiguration.QUAD],
+      ['Tripod LAM', MechConfiguration.LAM],
+      ['LAM Tripod', MechConfiguration.LAM],
+    ])('follows the pinned test order and case for %s', (source, expected) => {
+      expect(mapMechConfiguration(source)).toBe(expected);
+    });
+
+    it('trims surrounding whitespace', () => {
+      expect(mapMechConfiguration('  Tripod OmniMek ')).toBe(
+        MechConfiguration.TRIPOD,
+      );
     });
 
     it('should default to BIPED for unknown', () => {

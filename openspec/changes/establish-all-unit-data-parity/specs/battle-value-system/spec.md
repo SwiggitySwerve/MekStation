@@ -469,6 +469,21 @@ one owning module for grouped accumulation and cap arithmetic. Consolidation
 SHALL preserve each adapter's existing key policy, guards, operation order and
 numeric output before native identity, quantity or grouping corrections.
 
+Native offensive ammunition cap diagnostics SHALL exclude one-shot and infantry
+weapons according to MegaMek 48fcb2f64 `BVCalculator.java:1230-1231`. Ammunition
+presence SHALL NOT gate a normal launcher's cap. Diagnostic identity corrections
+SHALL preserve compatibility arithmetic and catalog resolution.
+
+#### Scenario: Native launcher exclusions are independent of ammunition
+
+- **GIVEN** normal, one-shot and infantry weapons with represented ammunition identities
+- **WHEN** the shared owner assembles native cap diagnostics
+- **THEN** normal launchers SHALL retain their listed-BV caps even without ammunition
+- **AND** one-shot and infantry weapons SHALL supply no offensive cap, even with matching ammunition
+- **AND** a primitive AC diagnostic group SHALL replace only that mount's compatibility contribution
+- **AND** ordinary AC mounts in the same compatibility group SHALL retain their caps
+- **AND** ammunition BV, totals, source data and catalog aliases SHALL remain unchanged
+
 #### Scenario: Preserving existing cap policies
 
 - **WHEN** offensive ammunition cap mechanics are consolidated
@@ -1524,6 +1539,26 @@ unchanged. Legacy weapon-flag tables SHALL remain unchanged.
 - **THEN** local indices SHALL remain 7, 8, 9 and 10 while raw keys use native indices 7, 10, 13 and 14
 - **AND** only the latter three raw weapon keys SHALL change across the 86-source ProtoMech corpus
 - **AND** all mount values, other terms, source data and BV SHALL remain unchanged
+
+### Requirement: BA weapon diagnostics
+
+The BA mount owner SHALL retain each counted weapon or claw mount with its full
+catalog BV, native location and section memberships, and the BA calculation
+owner SHALL derive each trooper's per-mount values in the pinned section order
+(Weapons, Squad Support, Anti-Mek), summing the passes of one mount. The trace
+SHALL format those values as `weapon.<n>.<location>.<id>` for the squad (trooper
+1) and as `trooper.N.weapon.*` for every trooper, without recalculating BV.
+Existing scalar arithmetic, source inputs and totals SHALL remain unchanged.
+A mount without a native location, a legacy input and mounts no section counts
+SHALL create no term. The terms establish per-location value parity only, not
+native equipment numbers or names.
+
+#### Scenario: Trooper-located and support mounts
+
+- **GIVEN** a David Light Gauss Rifle carried by trooper 2 of an eligible four-trooper squad
+- **WHEN** its BA breakdown is projected
+- **THEN** `trooper.2.weapon.*.Trooper 2.*` SHALL equal 14 and no other trooper or squad-level term SHALL list that mount
+- **AND** the same rifle marked squad support at the squad SHALL report `7 / 4 + 7 / 4 = 3.5` for every trooper
 
 ### Requirement: Canonical battle armor anti-Mek chassis projection
 

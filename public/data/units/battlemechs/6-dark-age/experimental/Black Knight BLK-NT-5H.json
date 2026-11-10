@@ -205,5 +205,8 @@
   "source": "TR:3145:FS,TR:DA",
   "weaponQuirks": {
     "LA:3:CLERPPC": ["accurate"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }

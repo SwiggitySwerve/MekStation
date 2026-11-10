@@ -188,5 +188,8 @@
       "TARGETING": "Unknown"
     }
   },
-  "role": "Skirmisher"
+  "role": "Skirmisher",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

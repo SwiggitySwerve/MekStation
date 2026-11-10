@@ -179,5 +179,8 @@
   },
   "mulId": 1752,
   "role": "Skirmisher",
-  "source": "TR:3085,TR:DA"
+  "source": "TR:3085,TR:DA",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

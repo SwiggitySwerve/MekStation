@@ -185,5 +185,8 @@
   },
   "mulId": 8382,
   "role": "Brawler",
-  "source": "TR:3145:FS,XTR:Royal Fantasy"
+  "source": "TR:3145:FS,XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

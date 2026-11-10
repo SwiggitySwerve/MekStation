@@ -17,7 +17,7 @@
   },
   "engine": {
     "type": "BATTERY",
-    "rating": 0
+    "rating": 1.25
   },
   "armor": {
     "type": "BAR",

@@ -1,5 +1,34 @@
 # Unit definition loading
 
+## Unrecovered critical-slot diagnostics
+
+`criticalSlotEquipment.ts` owns both the recovered mounts and the remaining
+source cells. `equipmentMapping.ts` transports that result; compatibility
+facades only project `.equipment`. Neither editor notices nor save controls
+classify or recover entries. The residual is read from the final mount parts,
+including split and spread locations, using the existing system-component and
+fixed-slot owners to exclude core systems. Configuration markers whose cells
+do not survive save remain in the list even when a configuration value survives.
+Later Celerity, FU-101 PR-D and o3 recovery changes automatically remove their
+placed cells from this same residual; no separate warning-kind table is allowed.
+
+The optional `UnitState.unrecoveredCriticalSlots` is editor metadata. Browser
+drafts retain it so reopening a draft does not hide the warning. Editable
+snapshots, draft/library fingerprints, portable unit serialization and replay
+state exclude it. The editor displays one notice with the original entry text,
+location and zero-based slot. Every library save path repeats that list and
+requires an explicit `Save anyway`; cancel leaves the open design unchanged.
+The notice states the loss without promising a recovery or timeline.
+
+Draft envelope version remains Zustand's existing `0`: this field is optional,
+and no portable schema or replay version changes. Hydration explicitly keeps an
+absent legacy field `undefined`, overriding a newly authored unit's known-empty
+default. Absence means unknown. The editor/save hydration hook refreshes missing
+metadata through the real loader from a canonical source identity, or an existing
+retained source definition. A pending source check holds saving; a missing or
+unavailable source keeps the unknown warning and requires `Save anyway`.
+Refreshing metadata never overwrites editable fields or revives a closed draft.
+
 FU-101 restores audited crit-only physical mounts. Native groups
 consume the shared variable-sizing owner's number of slots per mount and reserve
 any groups represented by summary mounts before adding missing instances. Unit
@@ -23,6 +52,15 @@ still use critical hints and the same-location other-tech twin join; pure-mode
 routing remains unchanged. No serializer or catalog rewrite is required.
 Pinned MegaMek 48fcb2f64: `MtfFile.getEquipmentType` passes no tech restriction
 to `EquipmentType.get` for a Mixed-tech unit.
+
+Explicit saved placement supplies mount context to that same resolver. A known
+saved legacy ID retains its own definition before location or chassis hints;
+an unresolved alias can inspect only valid cells belonging to its placement.
+Empty or invalid allocations never borrow another mount's hints and remain
+available for allocation validation. Unplaced source summaries retain their
+existing location-hint behavior. Native prefixes and display markers such as
+`(Clan)` name the token's own technology, including during split restoration.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
 
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
 Custom mech saves retain category with optional `isAmmo` metadata only when the
@@ -272,3 +310,72 @@ saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
 (MegaMek 48fcb2f64 ArmorType.java:669-688); BlkArmorCodes owns code 10
 (EquipmentType.java:95). Do not replace Commercial with Standard or lower
 Standard introduction dates to accommodate industrial source units.
+
+Non-mech Mixed identity is projected after components and saved binary editor
+fields. The shared TechBaseConfiguration chassis accessor owns the family fact:
+BA uses clanChassis, other families use componentTechBases.chassis. A known
+chassis sets the binary editor side; an absent fact remains unknown. Serializers
+apply typed Mixed mode and chassis after composing source declarations, so stale
+librarySource snapshots cannot override typed infantry identity or resurrect an
+unknown chassis. Pure units and legacy drafts retain absent metadata and their
+literal save projections. This preserves BLKFile.setTechLevel's independent
+Mixed designation and chassis side (MegaMek 48fcb2f64); Mixed editing and native
+BLK export headers remain deferred.
+
+Declared OmniMeks derive a represented mount's pod metadata from its owned native
+critical cells, using `parseCriticalSlotToken` as the one token-decoding owner.
+The marker is a suffix after removing outer armored and size metadata, before
+turret/rear qualifiers (MegaMek 48fcb2f64 MtfFile.java:949-956,1005-1028).
+Ordinary and spreadable mounts retain their creation token; split weapons use
+the last visited critical, in native reverse-location/ascending-cell order
+(:545-548,1054-1066,1086-1128). Explicit saved booleans, including false, win.
+Missing source evidence is fixed; category or Omni identity alone never makes
+an item pod-mounted. Mount discovery, aliases and placement remain unchanged.
+
+This general recovery requires explicit `isOmni: true`. Absent/false declarations
+retain the existing loader output, including legacy physical pod flags. This
+preserves committed-catalog load/save/fingerprint bytes until the separately
+owned Omni declarations land. TestEntity.java:1861-1882 validates pod flags on
+non-Omnis; loading is not permission to rewrite an invalid source flag.
+EquipmentType.isOmniFixedOnly (EquipmentType.java:630-635) is an eligibility
+constraint checked separately, not a replacement for the source flag.
+MegaMekLab 62bf193 UnitUtil.java:650-686 also checks fixed-only equipment and
+fixed heat-sink quotas for newly authored pod mounts. No eligibility or
+base-chassis heat-sink arithmetic is copied into this loading boundary.
+
+## Equipment source-side markers
+
+The loader admits a source item's own explicit tech side only when critical
+slots are absent or the unit mode is Mixed:
+`locationCriticalSlots === undefined || unitTechBaseMode === TechBaseMode.MIXED`.
+Keep this #3211 admission condition unchanged. Recognized bracketed markers
+retain their side before unit-mode variant fallback; Mixed slot hints retain
+their existing matching and category guards. IS CASE II is 1.0 t and Clan
+CASE II is 0.5 t (pinned MiscType.java:4809-4815,4839-4845 at 48fcb2f64).
+
+Conversion's `normalizeNameWithTechBase` owns lexical facts used for fuzzy keys;
+its named `TECH_PREFIX_PATTERN` also belongs to the normalization patterns.
+Its historical lexical result for `Claws` is the key `aws` and Clan prefix
+facts. The loader's `ownTechSide` instead requires stripping a marker to
+normalize to the same catalog base, as well as the admission condition above.
+It must not reinterpret the unprefixed catalog identity `claws` as `aws`.
+These are different guarded decisions: sharing the conversion decision would
+bypass the loader's catalog/context guards, while sharing the loader decision
+would change existing fuzzy keys. Both public behaviors have regression tests.
+
+Named residual `C5-CASE-II-CLAN-LITERAL`: the literal `CASE II [Clan]`
+still resolves to `case ii [clan]` with no equipment definition in slotless
+IS, Clan and Mixed modes. The base `f377ea995` census found this literal in
+0 of 9,815 converted corpus paths and 0 of 9,828 public unit JSON files
+(including index/metadata files). Its C5 residual entry and census receipts are
+in the parity-3.2-y acceptance packet and the Clan CASE II PR-2 evidence.
+This fix does not add a candidate fallback or alias for that unresolved input.
+
+The bracket-suffix branch also checks the selected definition's actual tech
+side through the existing variant selector. An unprefixed catalog ID does not
+prove that the record is IS. For example, `Active Probe [IS]` must keep the
+STANDARD `clan-active-probe` record: unprefixed `active-probe` is also Clan
+but has UNOFFICIAL catalog metadata, while pinned `CLActiveProbe` is
+Clan/STANDARD (MiscType.java:5803-5838, 48fcb2f64). Likewise both Light Active
+Probe records are Clan (5848-5884). A mismatched actual side declines the suffix
+and retains the existing fallback; it introduces no alias or candidate fallback.

@@ -31,7 +31,7 @@
   },
   "equipment": [
     {
-      "id": "rifle-cannon,-light",
+      "id": "light-rifle",
       "name": "Rifle (Cannon, Light)",
       "location": "TURRET"
     },

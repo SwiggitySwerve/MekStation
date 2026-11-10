@@ -9,6 +9,23 @@ import { checkPackageMetrics, installerMetrics } from './budget-artifacts.mjs';
 import { loadBudgets, serializeBudgets } from './budget-config.mjs';
 
 const source = process.cwd();
+test('former package byte breaches remain exact advisory measurements', () => {
+  for (const metrics of [
+    { standaloneStaticBytes: 400_000_001, webZipBytes: 100_000_001 },
+    { kind: 'installers', installerBytes: 200_000_001 },
+  ]) {
+    const observation = {
+      schema: 'mekstation/ci-package-metrics/v1',
+      unit: 'bytes',
+      files: [{ path: 'complete-output', bytes: 400_000_001 }],
+      ...metrics,
+    };
+    const result = checkPackageMetrics(observation);
+    assert.deepEqual(result.violations, []);
+    assert.deepEqual(result.metrics, observation);
+  }
+});
+
 function fixture(fn) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-package-'));
   const write = (file, contents) => {
@@ -103,8 +120,8 @@ test('Linux installer must include every unpacked member and identical public by
     );
   }));
 
-test('real web CLI counts complete hidden artifact and proves standalone and ZIP red paths', () =>
-  fixture((root, write) => {
+test('real web CLI reports complete hidden artifact bytes without configured size caps', () =>
+  fixture((root) => {
     let result = run(root, ['--kind', 'web', '--report', 'report.json']);
     assert.equal(result.status, 0, result.stderr);
     const report = JSON.parse(fs.readFileSync(path.join(root, 'report.json')));
@@ -114,14 +131,13 @@ test('real web CLI counts complete hidden artifact and proves standalone and ZIP
       ),
     );
     assert.equal(report.metrics.standaloneStaticBytes, 22); // server+build+static+public sheet
-    for (const cap of ['standaloneStaticBytes', 'webZipBytes']) {
-      const config = loadBudgets();
-      config.limits[cap] = 1;
-      write('config/ci/budgets.json', serializeBudgets(config));
-      result = run(root, ['--kind', 'web', '--report', 'report.json']);
-      assert.equal(result.status, 1);
-      assert.match(result.stderr, new RegExp(cap));
-    }
+    fs.unlinkSync(path.join(root, 'config/ci/budgets.json'));
+    result = run(root, ['--kind', 'web', '--report', 'report.json']);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(
+      JSON.parse(fs.readFileSync(path.join(root, 'report.json'))).violations,
+      [],
+    );
   }));
 
 test('web boundary rejects missing/unknown inputs, omitted hidden output and mismatched public bytes', () =>
@@ -259,12 +275,14 @@ test('installer CLI counts every installer, rejects missing inventory and cannot
     );
     write('desktop/release-upload/MekStation.exe', 'small');
     write('desktop/release-upload/MekStation-portable.exe', 'larger installer');
-    const config = loadBudgets();
-    config.limits.installerBytes = 10;
-    write('config/ci/budgets.json', serializeBudgets(config));
     const result = run(root, ['--kind', 'installers', '--report', 'r.json']);
-    assert.equal(result.status, 1);
-    assert.match(result.stderr, /installerBytes/);
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(fs.readFileSync(path.join(root, 'r.json')));
+    assert.equal(
+      report.metrics.installerBytes,
+      Buffer.byteLength('larger installer'),
+    );
+    assert.deepEqual(report.violations, []);
     assert.equal(installerMetrics(root).files.length, 2);
     assert.equal(
       run(root, [
@@ -278,7 +296,7 @@ test('installer CLI counts every installer, rejects missing inventory and cannot
       1,
     );
     assert.throws(() =>
-      checkPackageMetrics(config, {
+      checkPackageMetrics({
         schema: 'unknown',
         unit: 'bytes',
         files: [],

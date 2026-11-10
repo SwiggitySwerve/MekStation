@@ -2,6 +2,8 @@ import {
   isAmmunitionEquipmentId,
   getCapitalEquipmentBVFacts,
 } from './equipmentBV/catalogLoader';
+import { hasNativeWeaponBVFlag } from './equipmentBV/nativeWeaponFlags';
+import { isOneShotBVWeapon } from './equipmentBV/weaponHeat';
 import {
   getAmmunitionWeightEntry,
   getEquipmentEntry,
@@ -391,6 +393,22 @@ export function projectMechAmmoBVPools(
     : (pools?.cap ?? {});
   const projected = { available, cap: supplemental ? { ...cap } : cap };
   if (supplemental) {
+    // Replace the represented mount's compatibility contribution, rather than
+    // reporting it twice. Catalog identity and arithmetic retain their policy.
+    for (const { id, bv } of supplemental.weapons) {
+      const native = getNativeAmmoBVGroup(id);
+      const diagnostic = getMechDiagnosticAmmoBVGroup(id);
+      if (
+        native &&
+        diagnostic &&
+        native !== diagnostic &&
+        Object.hasOwn(projected.cap, native)
+      ) {
+        projected.cap[native] -= bv;
+        if (projected.cap[native] === 0) delete projected.cap[native];
+        addBVToAmmoCapGroup(projected.cap, diagnostic, bv);
+      }
+    }
     for (const [kind, entries] of [
       ['cap', supplemental.weapons],
       ['available', supplemental.bins],
@@ -427,7 +445,7 @@ export function getMechDiagnosticAmmoBVGroup(id: string): string | undefined {
   return groups.find(([ids]) => ids.includes(key))?.[1];
 }
 
-/** The capped total plus the uncapped native pools it was built from, keyed
+/** The compatibility capped total plus native diagnostic pools, keyed
  * AmmoType:rackSize like BVCalculator.assembleAmmo's ammoMap and
  * weaponsForExcessiveAmmo (BVCalculator.java:1189-1242, 48fcb2f64). A bin or
  * weapon without a native identity is absent from the pools.
@@ -444,9 +462,14 @@ export function calculateAmmoBVPools(
 
   const weaponBVByType: Record<string, number> = {};
   const nativeWeaponBVByType: Record<string, number> = {};
+  const cap: Record<string, number> = {};
   for (const weapon of weapons) {
     const native = getNativeAmmoBVGroup(weapon.id);
-    if (native) addBVToAmmoCapGroup(nativeWeaponBVByType, native, weapon.bv);
+    if (native) {
+      addBVToAmmoCapGroup(nativeWeaponBVByType, native, weapon.bv);
+      if (countsForDiagnosticAmmoCap(weapon.id))
+        addBVToAmmoCapGroup(cap, native, weapon.bv);
+    }
     const weaponType =
       artilleryCapGroup(weapon.id) ?? normalizeEquipmentId(weapon.id);
     addBVToAmmoCapGroup(weaponBVByType, weaponType, weapon.bv);
@@ -472,7 +495,19 @@ export function calculateAmmoBVPools(
       findMatchingWeaponBV(ammoType, weaponBVByType);
     return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
   });
-  return { total, available, cap: nativeWeaponBVByType };
+  return { total, available, cap };
+}
+
+/** BVCalculator.java:1230-1231 (48fcb2f64) excludes F_ONE_SHOT and
+ * F_INFANTRY from launcher caps, independently of ammo presence. Preserve
+ * compatibility arithmetic; only the reported native cap map uses this rule.
+ */
+function countsForDiagnosticAmmoCap(id: string): boolean {
+  const entry = getEquipmentEntry(id);
+  return (
+    hasNativeWeaponBVFlag(entry?.id ?? id, 'infantry') !== true &&
+    ![id, entry?.name ?? '', ...(entry?.special ?? [])].some(isOneShotBVWeapon)
+  );
 }
 
 /** Native AmmoType/rack identities (BVCalculator.java:1190-1240).

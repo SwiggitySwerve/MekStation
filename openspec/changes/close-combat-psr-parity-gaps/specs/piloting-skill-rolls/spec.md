@@ -106,6 +106,25 @@ A Run, Sprint or Evade move by a unit that can fall under MegaMek 48fcb2f64 `Mek
 - **WHEN** the only hip critical is on a destroyed leg
 - **THEN** no running-with-damage PSR SHALL be queued
 
+### Requirement: Sideslip And Flanking PSRs Are Not Queued For BattleMechs
+
+Controlled-sideslip and flanking-and-turning PSRs SHALL NOT be queued for a BattleMech by any movement path. MegaMek 48fcb2f64 calls `Entity.checkSideSlip` (`Entity.java:14083-14123`) only for VTOL, hover and WiGE-with-clearance movement (`MovePathHandler.java:3715-3727`; the client prediction in `SharedUtility.java:397-402` has the same gate). The `controlled_sideslip` and `flanking_and_turning` reason codes, their factories, and the Maneuvering Ace relief on a pending `flanking_and_turning` PSR SHALL remain so older replays and journals parse and resolve. Vehicle production of these PSRs, with the skid and motive-damage outcome, belongs to the vehicle combat matrix.
+
+#### Scenario: A BattleMech runs and turns
+
+- **WHEN** a BattleMech runs two hexes, turns, and moves again
+- **THEN** no `flanking_and_turning` PSR SHALL be queued
+
+#### Scenario: A Maneuvering Ace lateral shift
+
+- **WHEN** a BattleMech with Maneuvering Ace makes a walking or running lateral shift
+- **THEN** no `controlled_sideslip` PSR SHALL be queued
+
+#### Scenario: Older journals
+
+- **WHEN** a journal holds a pending `flanking_and_turning` PSR for a pilot with Maneuvering Ace
+- **THEN** it SHALL resolve with the `-1` Maneuvering Ace modifier as before
+
 ## MODIFIED Requirements
 
 ### Requirement: PSR Trigger — Movement with Damage
@@ -121,3 +140,76 @@ The system SHALL trigger one PSR per move when a unit that can fall runs, sprint
 
 - **WHEN** a unit with gyro damage that counts attempts to run
 - **THEN** one PSR SHALL be required with the +3 per gyro hit modifier
+
+### Requirement: PSR Reason Code Discriminated Field
+
+`IPSRTriggeredPayload`, `IPSRResolvedPayload`, and `IUnitFellPayload` SHALL carry a `reasonCode?: PSRTrigger` field discriminated against the canonical 34-value `PSRTrigger` enum at `src/types/gameplay/PSRTriggerCodes.ts` (re-exported by `src/utils/gameplay/pilotingSkillRolls/types.ts`). The field is OPTIONAL on every payload to preserve back-compat with NDJSON event streams written before this contract.
+
+The free-string `reason` field on the same payloads SHALL be RETAINED unchanged for display continuity. Display consumers (`EventLogDisplay`, the Python `format-event-log.py`) read `reason` to render human-readable text. Filter / aggregate consumers (`EventLogQuery`, `MetricsCollector`, scenario tests) read `reasonCode` for machine-readable filtering.
+
+The 34 canonical codes (cross-referenced against MegaMek's `Server.processPilotingRolls` and `MovePathHandler.checkSkid` taxonomy):
+
+| Code | Category | Trigger |
+|---|---|---|
+| `20+_damage` | damage | Phase damage threshold of 20+ |
+| `leg_damage` | damage | Internal structure exposed on a leg |
+| `hip_actuator_destroyed` | damage | Hip actuator critically destroyed |
+| `gyro_hit` | damage | Gyro slot took a critical hit |
+| `engine_hit` | damage | Engine slot took a critical hit (cumulative) |
+| `upper_leg_actuator_hit` | damage | Upper leg actuator destroyed |
+| `lower_leg_actuator_hit` | damage | Lower leg actuator destroyed |
+| `foot_actuator_hit` | damage | Foot actuator destroyed |
+| `kicked` | movement | Target was kicked (physical attack target) |
+| `charged` | movement | Target was charged (physical attack target) |
+| `dfa_target` | movement | Target was hit by death-from-above |
+| `pushed` | movement | Target was pushed (physical attack target) |
+| `domino_effect` | movement | Unit was forced along an occupied-hex domino displacement chain |
+| `kick_miss` | movement | Attacker missed a kick (self-PSR) |
+| `charge_miss` | movement | Attacker missed a charge (self-PSR) |
+| `dfa_miss` | movement | Attacker missed a DFA (self-PSR) |
+| `entering_rubble` | movement | Unit entered rubble terrain |
+| `running_rough_terrain` | movement | Unit ran through rough terrain |
+| `moving_on_ice` | movement | Unit moved on an ice hex |
+| `entering_water` | movement | Unit entered a water hex |
+| `exiting_water` | movement | Unit exited a water hex |
+| `skidding` | movement | Skid PSR triggered by unstable ground |
+| `swamp_bog_down` | movement | Unit entered swamp and bogged down |
+| `airmek_landing` | movement | AirMek landing-control PSR triggered |
+| `running_damaged_hip` | movement | Unit ran with a damaged hip |
+| `running_damaged_gyro` | movement | Unit ran with a damaged gyro |
+| `controlled_sideslip` | movement | Controlled lateral movement required a PSR (VTOL, hover and WiGE only; never queued for a BattleMech, kept so older replays parse) |
+| `flanking_and_turning` | movement | Running or sprinting unit turned after moving more than one hex (VTOL, hover and WiGE only; never queued for a BattleMech, kept so older replays parse) |
+| `out_of_control` | movement | Movement became out of control and required a PSR |
+| `building_collapse` | movement | Building under unit's footprint collapsed |
+| `masc_failure` | movement | MASC system failed during attempted run |
+| `supercharger_failure` | movement | Supercharger failed during attempted run |
+| `heat_shutdown` | heat | Heat-induced shutdown PSR |
+| `standing_up` | recovery | Prone unit attempting to stand |
+
+The runner SHALL populate `reasonCode` at the PSR factory boundary — every factory in `src/utils/gameplay/pilotingSkillRolls/combatFactories.ts`, `damageFactories.ts`, `environmentFactories.ts`, and `systemFactories.ts`, and every phase-check adapter in `phaseChecks.ts`, SHALL populate `reasonCode` (the matching `PSRTrigger` enum value) on the returned `IPendingPSR`; when that PSR is emitted as an `IPSRTriggeredPayload`, the event boundary SHALL carry the optional field alongside `reason` (human string, unchanged).
+
+#### Scenario: Factory populates reasonCode alongside reason
+
+- **GIVEN** a kick-target PSR factory call (`createKickedPSR(unit, attackerId)`)
+- **WHEN** the factory returns a `IPSRTriggeredPayload`
+- **THEN** the payload SHALL have `reason: 'Kicked'` (existing human-readable string)
+- **AND** the payload SHALL have `reasonCode: PSRTrigger.Kicked` (the canonical `'kicked'` enum value)
+
+#### Scenario: Damage-induced PSR populates damage code
+
+- **GIVEN** a unit takes 20+ damage in a phase, triggering `createPhaseDamage20PlusPSR(unit)`
+- **WHEN** the factory returns a `IPSRTriggeredPayload`
+- **THEN** the payload SHALL have `reasonCode: PSRTrigger.PhaseDamage20Plus`
+
+#### Scenario: Movement-induced terrain PSR populates terrain code
+
+- **GIVEN** a unit moving on an ice hex triggers `createIcePSR(unit)`
+- **WHEN** the factory returns a `IPSRTriggeredPayload`
+- **THEN** the payload SHALL have `reasonCode: PSRTrigger.MovingOnIce`
+
+#### Scenario: Legacy event stream without reasonCode replays cleanly
+
+- **GIVEN** an NDJSON event stream written before this requirement (no `reasonCode` field on any PSR event)
+- **WHEN** consumers process the events
+- **THEN** processing SHALL succeed
+- **AND** consumers MAY render `reason` (the human-readable string) directly without falling back through `reasonCode`

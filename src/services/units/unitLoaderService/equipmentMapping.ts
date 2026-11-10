@@ -19,7 +19,9 @@ import { logger } from '@/utils/logger';
 import { mapMechLocation } from './componentMappers';
 import {
   getCriticalSlotsForLocation,
-  restoreCriticalSlotEquipment,
+  restoreCriticalSlotEquipmentWithDiagnostics,
+  type ICriticalSlotEquipmentResult,
+  type CriticalSlotSystemContext,
 } from './criticalSlotEquipment';
 import { resolveEquipmentId } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
@@ -31,13 +33,15 @@ type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
  * Looks up equipment from the equipment database to get full properties.
  * Uses multiple resolution strategies including ID normalization and aliasing.
  */
-export function mapEquipment(
+export function mapEquipmentWithDiagnostics(
   equipment: readonly ISerializedEquipmentInput[] | undefined,
   unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   unitCriticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
-): IMountedEquipmentInstance[] {
+  isOmni = false,
+  systems?: CriticalSlotSystemContext,
+): ICriticalSlotEquipmentResult {
   const serialized = equipment ?? [];
 
   const mapped = serialized.map((item) => {
@@ -53,6 +57,8 @@ export function mapEquipment(
       unitTechBase,
       unitTechBaseMode,
       locationCriticalSlots,
+      undefined,
+      item.slots,
     );
 
     if (equipmentDef) {
@@ -95,7 +101,7 @@ export function mapEquipment(
     }
   });
 
-  return restoreCriticalSlotEquipment(
+  return restoreCriticalSlotEquipmentWithDiagnostics(
     serialized,
     mapped,
     unitTechBase,
@@ -103,5 +109,13 @@ export function mapEquipment(
     unitCriticalSlots,
     tonnage,
     serialized.length === 0,
+    isOmni,
+    systems,
   );
+}
+
+export function mapEquipment(
+  ...args: Parameters<typeof mapEquipmentWithDiagnostics>
+): IMountedEquipmentInstance[] {
+  return mapEquipmentWithDiagnostics(...args).equipment;
 }

@@ -402,7 +402,7 @@ describe('native donor structure mass through persistence', () => {
   });
 
   it('keeps effective Tripod configuration and the existing center-leg armor through save/reload and duplication', () => {
-    const state = new UnitLoaderService().mapToUnitState(ares, true);
+    const state = new UnitLoaderService().mapToUnitState(parseUnit(ares), true);
     expect(state.configuration).toBe(MechConfiguration.TRIPOD);
     expect(state.armorTonnage).toBe(28.5);
     expect(mass(state)).toBe(22.5);

@@ -6,6 +6,9 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
+import type { IUnitContract } from '@/types/contracts';
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
 import {
   IArmorAllocation,
   createEmptyArmorAllocation,
@@ -26,7 +29,11 @@ import {
   InternalStructureType,
   mapSerializedStructureType,
 } from '@/types/construction/InternalStructureType';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  TechBaseMode,
+  resolveUnitChassisTechBase,
+  pickUnitTechBaseIdentity,
+} from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 
@@ -229,6 +236,30 @@ export function mapTechBaseMode(techBaseStr: string): TechBaseMode {
   }
 
   return TechBaseMode.INNER_SPHERE;
+}
+
+/**
+ * Preserve unit identity after the existing component projection, including
+ * saved binary editor snapshots. MegaMek 48fcb2f64 BLKFile.setTechLevel keeps
+ * Mixed mode and chassis side separately; a binary fallback is not evidence.
+ */
+export function mapUnitTechBaseIdentity(
+  family: UnitFamily,
+  definition: IUnitContract,
+) {
+  if (
+    mapTechBaseMode(definition.techBase ?? 'INNER_SPHERE') !==
+    TechBaseMode.MIXED
+  )
+    return {};
+  const chassisTechBase = resolveUnitChassisTechBase(family, definition);
+  return {
+    ...pickUnitTechBaseIdentity({
+      techBaseMode: TechBaseMode.MIXED,
+      chassisTechBase,
+    }),
+    ...(chassisTechBase === undefined ? {} : { techBase: chassisTechBase }),
+  };
 }
 
 /**

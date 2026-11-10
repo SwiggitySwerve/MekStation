@@ -192,5 +192,8 @@
   },
   "mulId": 5550,
   "role": "Missile Boat",
-  "source": "XTR:Comstar"
+  "source": "XTR:Comstar",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

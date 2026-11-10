@@ -101,7 +101,7 @@ def parse_proto_fields(tags: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError('Incorrect ProtoMek armor array length: expected 5 or 6')
     armor_code = parse_qualifier_number(tags, 'armor_type', integer=True) if 'armor_type' in tags else 0
     armor = {
-        'type': map_armor_code(42 if armor_code == 0 else armor_code, BLK_ARMOR_CODE_MAP, strict=True),
+        'type': map_armor_code(42 if armor_code == 0 else armor_code, BLK_ARMOR_CODE_MAP),
         'byLocation': dict(zip(PROTO_ARMOR_LOCATIONS, armor_values)),
     }
     tech_tag = next((tag for tag in ('armor_tech_level', 'armor_tech') if tag in tags), None)

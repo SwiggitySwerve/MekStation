@@ -186,5 +186,8 @@
   },
   "mulId": 9351,
   "role": "Striker",
-  "source": "RG27"
+  "source": "RG27",
+  "componentTechBases": {
+    "chassis": "CLAN"
+  }
 }

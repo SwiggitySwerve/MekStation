@@ -181,5 +181,8 @@
   },
   "mulId": 8160,
   "role": "Sniper",
-  "source": "RG14"
+  "source": "RG14",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

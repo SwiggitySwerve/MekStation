@@ -25,6 +25,7 @@ import {
   ActionLedger,
   cancelGmCascadePreview,
   createGmTacticalCommandPreview,
+  getGmTacticalCorrectionBlockReason,
   InterventionLedger,
   prepareGmCascadeApproval,
   projectInterventionRecordForPlayer,
@@ -95,7 +96,18 @@ export function useGmTacticalInterventionSurface({
         previewResult.interventionId,
         request.commandId,
       );
-      return previewResult;
+      const correctionBlockReason = getGmTacticalCorrectionBlockReason(
+        request.commandId,
+      );
+      return correctionBlockReason && previewResult.status !== 'rejected'
+        ? {
+            ...previewResult,
+            status: 'blocked' as const,
+            reason: correctionBlockReason,
+            publicEffect: undefined,
+            projectedEvents: [],
+          }
+        : previewResult;
     },
     [campaignId, ledgers.interventionLedger, session],
   );
@@ -110,16 +122,25 @@ export function useGmTacticalInterventionSurface({
         );
       }
 
+      const commandId = commandByPreviewId.current.get(
+        previewResult.interventionId,
+      );
+      if (!commandId) {
+        return blockedApprovalResult(
+          'Cannot approve an unrecognized GM intervention preview.',
+        );
+      }
+      // Recheck even a formerly ready preview before preparation or ledger writes.
+      const correctionBlockReason =
+        getGmTacticalCorrectionBlockReason(commandId);
+      if (correctionBlockReason)
+        return blockedApprovalResult(correctionBlockReason);
+
       if (previewResult.status !== 'ready') {
         return nonReadyApprovalResult(previewResult);
       }
 
-      const commandId = commandByPreviewId.current.get(
-        previewResult.interventionId,
-      );
-      const uncommittableReason = commandId
-        ? uncommittableCommandReason(commandId)
-        : uncommittableDomainReason(previewResult);
+      const uncommittableReason = uncommittableCommandReason(commandId);
       if (uncommittableReason) {
         logger.warn('[gm-intervention:approval-unsupported]', {
           service: 'gm-intervention',
@@ -133,6 +154,12 @@ export function useGmTacticalInterventionSurface({
           appended: false,
           reason: uncommittableReason,
         };
+      }
+
+      if (commandId !== 'gm.advance-phase') {
+        return blockedApprovalResult(
+          'This GM command has no event-backed live-session commit path.',
+        );
       }
 
       if (!interactiveSession) {
@@ -161,11 +188,8 @@ export function useGmTacticalInterventionSurface({
       // The engine applies first; the ledgers hear of the correction only
       // once it took (S14).
       try {
-        if (commandId === 'gm.advance-phase') {
-          interactiveSession.advancePhase();
-        } else {
-          interactiveSession.applyCorrectedState(prepared.state);
-        }
+        // Only Advance Phase has an event-backed live-session commit path.
+        interactiveSession.advancePhase();
       } catch (error) {
         return logBlocked(
           `The live engine did not apply the GM intervention: ${error instanceof Error ? error.message : String(error)}`,
@@ -338,16 +362,4 @@ function uncommittableCommandReason(
     default:
       return undefined;
   }
-}
-
-function uncommittableDomainReason(
-  previewResult: IGmCascadePreview<IGmPrivateMetadata, IGmPublicEffect>,
-): string | undefined {
-  if (previewResult.domain === 'unit-reload') {
-    return uncommittableCommandReason('gm.reload-unit');
-  }
-  if (previewResult.domain === 'economy') {
-    return uncommittableCommandReason('gm.grant-resource');
-  }
-  return undefined;
 }

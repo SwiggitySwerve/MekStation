@@ -17,7 +17,7 @@
   },
   "engine": {
     "type": "ICE",
-    "rating": 85
+    "rating": 84
   },
   "armor": {
     "type": "BAR",
@@ -37,7 +37,7 @@
       "location": "FRONT"
     },
     {
-      "id": "rifle-cannon,-medium",
+      "id": "medium-rifle",
       "name": "Rifle (Cannon, Medium)",
       "location": "TURRET"
     },

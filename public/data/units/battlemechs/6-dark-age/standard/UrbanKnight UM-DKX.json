@@ -184,5 +184,8 @@
     }
   },
   "role": "Scout",
-  "source": "PS:AO-UrbanFest"
+  "source": "PS:AO-UrbanFest",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -69,3 +69,13 @@ The system SHALL automatically adjust armor tonnage when changing armor types to
 - **THEN** tonnage cap SHALL be lower than Standard
 - **AND** for a 100-ton mech with 307 maximum points: 15.5 tons vs 19.5 tons for Standard
 
+## ADDED Requirements
+
+### Requirement: Ferro-Fibrous Prototype armor keeps its identity
+
+The system SHALL represent the pinned `FERRO_FIBROUS_PROTO` armor (MegaMek ArmorType.java:518-542) as its own armor identity, with 17.92 points per ton, 16 critical slots on ordinary mechs, Inner Sphere tech base, Experimental rules level and native BLK code 9, and SHALL preserve it through loading, the armor picker, JSON save/reopen and BLK export, without falling back to Standard armor density.
+
+#### Scenario: Jenner JR7-K (Grace)
+- **WHEN** the committed unit is loaded, saved and reopened
+- **THEN** its armor SHALL remain Ferro-Fibrous Prototype with 4.5 t of armor
+- **AND** the design SHALL remain a valid 35 t construction with BV 702

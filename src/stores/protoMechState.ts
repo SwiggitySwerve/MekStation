@@ -31,7 +31,7 @@ import {
   computeProtoEngineWeight,
   computeProtoStructure,
   getProtoWeightClass,
-  getProtoMPCaps,
+  protoMinWalkMP,
 } from '@/utils/construction/protomech';
 import { getProtoArmorName } from '@/utils/construction/protomech/armorType';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
@@ -165,7 +165,7 @@ export interface ProtoMechState
   /** Derived weight class from tonnage */
   weightClass: ProtoWeightClass;
 
-  /** Chassis type (Biped / Quad / Glider / Ultraheavy) — canonical field */
+  /** Motive (Biped / Quad / Glider) — canonical field; ultraheavy is a mass above 9 t */
   chassisType: ProtoChassis;
 
   /** Point size (typically 5 ProtoMechs per point) */
@@ -292,11 +292,15 @@ export interface ProtoMechStoreActions
     UnitIdentityActions<ProtoMechState>,
     StoreEquipmentActions<ProtoMechLocation> {
   // Classification Actions
+  /**
+   * Set the tonnage (clamped to 2–15 t for every motive). Keeps the walk MP; throws,
+   * leaving the store unchanged, when the engine rating would be invalid.
+   */
   setTonnage: (tonnage: number) => void;
   setPointSize: (size: number) => void;
   /**
-   * Set the chassis type. Re-derives weight class + MP caps; resets glidingWings
-   * if the new chassis is not Glider, and clears jump MP for Ultraheavy.
+   * Set the chassis type. Keeps the tonnage; raises walk to the motive minimum and
+   * lowers jump to its limit; resets glidingWings if the new chassis is not Glider.
    *
    * Replaces the legacy `setQuad` / `setGlider` setters which used to mutate a
    * pair of redundant booleans alongside `chassisType`; the discriminant is
@@ -379,8 +383,7 @@ export interface CreateProtoMechOptions {
   tonnage?: number;
   /**
    * Initial chassis type. Replaces the legacy `isQuad?: boolean` option so
-   * callers can pick BIPED / QUAD / GLIDER / ULTRAHEAVY directly. Defaults
-   * to BIPED.
+   * callers can pick BIPED / QUAD / GLIDER directly. Defaults to BIPED.
    */
   chassisType?: ProtoChassis;
 }
@@ -399,8 +402,11 @@ export function createDefaultProtoMechState(
   const chassisType = options.chassisType ?? ProtoChassis.BIPED;
   const weightClass = getProtoWeightClass(tonnage);
 
-  // Default walk MP to the minimum 1 — the user sets it via setWalkMP
-  const walkMP = Math.max(1, Math.min(getProtoMPCaps(weightClass).walkMax, 4));
+  // MML's new ProtoMek is a 2 t biped with setOriginalWalkMP(1) (PMMainUI.createNewUnit,
+  // PMMainUI.java:140-147): the motive's minimum walk. A quad or glider starts at its own
+  // minimum, as a motive change raises walk to it (MovementView.java:289). The default
+  // used to come from a weight-class table (3 for an ultraheavy) MML does not have.
+  const walkMP = protoMinWalkMP(chassisType);
   // Cruise MP mirrors walk MP for ProtoMechs
   const cruiseMP = walkMP;
   const flankMP = computeRunMP(walkMP);

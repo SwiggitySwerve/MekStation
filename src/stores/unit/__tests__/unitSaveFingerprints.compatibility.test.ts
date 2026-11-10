@@ -26,6 +26,31 @@ beforeEach(() => {
   clearAllStores();
   localStorage.clear();
 });
+
+it.each(fixture.cases)(
+  'editor loss metadata preserves every existing U3 literal: $name',
+  (sample) => {
+    const { state } = JSON.parse(sample.rawDraft) as { state: UnitState };
+    const withDiagnostics: UnitState = {
+      ...state,
+      unrecoveredCriticalSlots: [
+        { text: 'Cargo:SIZE:1.0', location: MechLocation.LEFT_TORSO, slot: 7 },
+      ],
+    };
+    expect(getUnitEditFingerprint(withDiagnostics)).toBe(
+      sample.editFingerprint,
+    );
+    expect(getUnitDraftFingerprint(withDiagnostics)).toBe(
+      sample.draftFingerprint,
+    );
+    expect(getUnitLibraryFingerprint(withDiagnostics)).toBe(
+      sample.libraryFingerprint,
+    );
+    expect(getEditableUnitSnapshot(withDiagnostics)).not.toHaveProperty(
+      'unrecoveredCriticalSlots',
+    );
+  },
+);
 afterEach(() => clearAllStores());
 
 it.each(fixture.cases)(
@@ -297,4 +322,30 @@ it('fingerprints a secondary split-slot edit without changing the primary mount'
   expect(getUnitLibraryFingerprint(moved)).not.toBe(
     getUnitLibraryFingerprint(split),
   );
+});
+
+it('fingerprints explicit pod edits without replacing the old U3 literals', () => {
+  const sample = fixture.cases.find(
+    (item) => JSON.parse(item.rawDraft).state.equipment.length > 0,
+  );
+  if (!sample) throw Error('Missing literal U3 equipment draft');
+  const original = (JSON.parse(sample.rawDraft) as { state: UnitState }).state;
+  expect(getUnitDraftFingerprint(original)).toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(original)).toBe(sample.libraryFingerprint);
+  const pod = {
+    ...original,
+    equipment: original.equipment.map((item, index) =>
+      index === 0 ? { ...item, isOmniPodMounted: true } : item,
+    ),
+  };
+  expect(getUnitDraftFingerprint(pod)).not.toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(pod)).not.toBe(sample.libraryFingerprint);
+  const restored = {
+    ...pod,
+    equipment: pod.equipment.map((item, index) =>
+      index === 0 ? original.equipment[0] : item,
+    ),
+  };
+  expect(getUnitDraftFingerprint(restored)).toBe(sample.draftFingerprint);
+  expect(getUnitLibraryFingerprint(restored)).toBe(sample.libraryFingerprint);
 });

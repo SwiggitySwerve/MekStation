@@ -186,5 +186,8 @@
   },
   "mulId": 420,
   "role": "Sniper",
-  "source": "TR:3055U"
+  "source": "TR:3055U",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

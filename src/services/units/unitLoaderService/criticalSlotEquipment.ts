@@ -1,5 +1,8 @@
+import type { UnitState } from '@/stores/unitState';
+import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 import type { ISerializedEquipmentInput } from '@/types/unit/UnitSerialization';
 
+import { equipmentNameResolver } from '@/services/conversion/EquipmentNameResolver';
 import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
@@ -23,6 +26,7 @@ import {
   isSplittable,
   splitPartners,
 } from '@/utils/construction/slotOperations/splitAllocation';
+import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 import { generateUnitId } from '@/utils/uuid';
@@ -34,6 +38,7 @@ import {
 } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
 import {
+  compareSourceCriticalLocations,
   isSourcePhysicalWeapon,
   sourceCriticalWeapons,
   sourceWeaponSummaryMatches,
@@ -57,6 +62,7 @@ export type ISerializedEquipmentPlacement = Pick<
 
 interface IResolvedCriticalSlot {
   readonly index: number;
+  readonly text?: string;
   readonly equipmentDef?: IEquipmentItem;
   readonly equipmentId?: string;
   readonly heatSinkType?: HeatSinkType;
@@ -161,6 +167,7 @@ function resolveCriticalSlots(
 
         return {
           index,
+          text: entry,
           equipmentDef,
           equipmentId,
           heatSinkType,
@@ -294,7 +301,17 @@ function restoreSerializedCategory(
   return { ...item, ...mountedDefinitionFields(definition) };
 }
 
-export function restoreCriticalSlotEquipment(
+export interface ICriticalSlotEquipmentResult {
+  readonly equipment: IMountedEquipmentInstance[];
+  readonly unrecoveredCriticalSlots: readonly IUnrecoveredCriticalSlot[];
+}
+
+export type CriticalSlotSystemContext = Pick<
+  UnitState,
+  'engineType' | 'gyroType' | 'armActuators' | 'cockpitType'
+>;
+
+export function restoreCriticalSlotEquipmentWithDiagnostics(
   serialized: readonly ISerializedEquipmentPlacement[],
   mapped: readonly IMountedEquipmentInstance[],
   unitTechBase: TechBase,
@@ -302,7 +319,9 @@ export function restoreCriticalSlotEquipment(
   criticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
   physicalOnly = false,
-): IMountedEquipmentInstance[] {
+  isOmni = false,
+  systems?: CriticalSlotSystemContext,
+): ICriticalSlotEquipmentResult {
   // Mek.java:3484-3492: a superheavy entry holds two ordinary criticals.
   const superheavy = tonnage !== undefined && isSuperHeavy(tonnage);
   const entries = (count: number): number =>
@@ -339,7 +358,8 @@ export function restoreCriticalSlotEquipment(
       criticalSlots: entries(sizing?.criticalSlots ?? restored.criticalSlots),
     };
   });
-  if (!criticalSlots) return normalizedMapped;
+  if (!criticalSlots)
+    return { equipment: normalizedMapped, unrecoveredCriticalSlots: [] };
 
   const claimed = new Map<MechLocation, Set<number>>();
 
@@ -564,5 +584,83 @@ export function restoreCriticalSlotEquipment(
     }
   }
 
-  return [...placed, ...recovered];
+  const equipment = [...placed, ...recovered];
+  const restoredEquipment = !isOmni
+    ? equipment
+    : equipment.map((item, index) => {
+        const tokens = [...getSlotParts(item)]
+          .sort((a, b) =>
+            compareSourceCriticalLocations(a.location, b.location),
+          )
+          .flatMap((part) =>
+            [...part.slots]
+              .sort((a, b) => a - b)
+              .map(
+                (slot) =>
+                  getCriticalSlotsForLocation(criticalSlots, part.location)?.[
+                    slot
+                  ],
+              ),
+          )
+          .filter((token): token is string => typeof token === 'string');
+        // Ordinary/spreadable mounts keep their creation token. Java's split
+        // branch updates the flag on every visited crit (MtfFile.java:1127).
+        const definition = getEquipmentLookupService().getMountedById(
+          item.equipmentId,
+          item.category === EquipmentCategory.AMMUNITION,
+        );
+        const split =
+          item.splitSlots !== undefined ||
+          isSplittable(
+            definition
+              ? { ...item, criticalSlots: definition.criticalSlots }
+              : item,
+          );
+        return {
+          ...item,
+          isOmniPodMounted:
+            serialized[index]?.isOmniPodMounted ??
+            parseCriticalSlotToken((split ? tokens.at(-1) : tokens[0]) ?? '')
+              .isOmniPodMounted,
+        };
+      });
+
+  // Read the actual final placements, including split/spread parts. Reservations
+  // for an unplaced listed mount do not preserve its source cells on save.
+  const represented = new Map<MechLocation, Set<number>>();
+  for (const item of restoredEquipment) {
+    for (const part of getSlotParts(item)) {
+      const slots = claimedSlotsFor(represented, part.location);
+      part.slots.forEach((slot) => slots.add(slot));
+    }
+  }
+  const unrecoveredCriticalSlots = Array.from(resolvedByLocation).flatMap(
+    ([location, slots]) => {
+      const fixed = systems
+        ? getFixedSlotNames(
+            location,
+            systems.engineType,
+            systems.gyroType,
+            systems.armActuators,
+            systems.cockpitType,
+          )
+        : undefined;
+      return slots.flatMap(({ text, index }) =>
+        text &&
+        !equipmentNameResolver.isSystemComponent(text) &&
+        text !== fixed?.get(index) &&
+        !represented.get(location)?.has(index)
+          ? [{ text, location, slot: index }]
+          : [],
+      );
+    },
+  );
+  return { equipment: restoredEquipment, unrecoveredCriticalSlots };
+}
+
+/** Compatibility facade: recovery and its residual always have one owner. */
+export function restoreCriticalSlotEquipment(
+  ...args: Parameters<typeof restoreCriticalSlotEquipmentWithDiagnostics>
+): IMountedEquipmentInstance[] {
+  return restoreCriticalSlotEquipmentWithDiagnostics(...args).equipment;
 }

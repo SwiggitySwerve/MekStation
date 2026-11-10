@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { exactKeys, loadBudgets, METRICS_SCHEMA } from './budget-config.mjs';
+import { exactKeys, loadBudgetTree, METRICS_SCHEMA } from './budget-config.mjs';
 import { dependencyViolations } from './budget-dependencies.mjs';
 import {
   collectRepositoryMetrics,
@@ -71,7 +71,7 @@ export function run(argv, root = process.cwd()) {
     strict: true,
     allowPositionals: false,
   });
-  const config = loadBudgets(path.join(root, 'config/ci/budgets.json'));
+  const config = loadBudgetTree(path.join(root, 'config/ci/budgets.json'));
   const labels = JSON.parse(
     values.labels ??
       (process.env.GITHUB_EVENT_NAME === 'pull_request'

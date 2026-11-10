@@ -181,5 +181,8 @@
   },
   "mulId": 8378,
   "role": "Sniper",
-  "source": "XTR:Royal Fantasy"
+  "source": "XTR:Royal Fantasy",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

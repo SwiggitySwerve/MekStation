@@ -178,5 +178,8 @@
   },
   "mulId": 9314,
   "role": "Sniper",
-  "source": "RG26"
+  "source": "RG26",
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
+  }
 }

@@ -16,11 +16,11 @@ import {
   type ProtoMechState,
   createDefaultProtoMechState,
 } from '@/stores/protoMechState';
+import { resolveUnitChassisTechBase } from '@/types/construction/TechBaseConfiguration';
 import {
   BattleArmorLocation,
   ProtoMechLocation,
 } from '@/types/construction/UnitLocation';
-import { TechBase } from '@/types/enums';
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   BAArmorType,
@@ -40,15 +40,18 @@ import {
 import { mapBattleArmorContractArmor } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { parseBattleArmorManipulator } from '@/utils/construction/battlearmor/manipulators';
 import {
-  getProtoWeightClass,
-  ProtoWeightClass,
   computeProtoEngineRating,
   computeProtoStructure,
   computeRunMP,
+  readSavedProtoChassis,
 } from '@/utils/construction/protomech';
 import { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
 
-import { mapRulesLevel, mapTechBase } from './componentMappers';
+import {
+  mapRulesLevel,
+  mapTechBase,
+  mapUnitTechBaseIdentity,
+} from './componentMappers';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
 export { PROTO_ARMOR_CODES } from '@/utils/construction/protomech/armorType';
@@ -93,23 +96,6 @@ function identity(definition: IUnitContract) {
   };
 }
 
-/** BA-only bridge: x8 PR B will replace this with resolveUnitChassisTechBase
- * from src/types/construction/TechBaseConfiguration.ts.
- * BattleArmor.java:953-987 (48fcb2f64): native Clan chassis ignore missile burden.
- */
-function resolveBattleArmorChassisTechBase(
-  definition: IUnitContract,
-  fallback: TechBase,
-): TechBase {
-  if (definition.techBase !== 'MIXED') return fallback;
-  const clanChassis = definition.clanChassis;
-  return clanChassis === undefined
-    ? fallback
-    : clanChassis
-      ? TechBase.CLAN
-      : TechBase.INNER_SPHERE;
-}
-
 /** Project source facts; construction arithmetic stays with the ProtoMech owner. */
 export function mapProtoMechDefinitionToState(
   definition: IUnitContract,
@@ -119,7 +105,10 @@ export function mapProtoMechDefinitionToState(
     const state = { ...createDefaultProtoMechState(), ...editor };
     return {
       ...state,
+      // A record saved with the legacy Ultraheavy chassis reads as the biped it was.
+      chassisType: readSavedProtoChassis(editor.chassisType),
       equipment: renewSmallUnitMounts(editor.equipment, state.id),
+      ...mapUnitTechBaseIdentity('protomechs', definition),
     };
   }
   const source = z
@@ -137,13 +126,13 @@ export function mapProtoMechDefinitionToState(
       movement: z.object({ cruiseMP: z.number(), jumpMP: z.number() }),
     })
     .parse(definition);
+  // Ultraheavy is a mass above 9 t, not a chassis (PMChassisView.java:205-207): a
+  // heavy biped is a biped, as the quads and gliders above 9 t are theirs.
   const chassisType = source.isQuad
     ? ProtoChassis.QUAD
     : source.isGlider
       ? ProtoChassis.GLIDER
-      : getProtoWeightClass(source.tonnage) === ProtoWeightClass.ULTRAHEAVY
-        ? ProtoChassis.ULTRAHEAVY
-        : ProtoChassis.BIPED;
+      : ProtoChassis.BIPED;
   const fields = identity(definition);
   const state = createDefaultProtoMechState({
     ...fields,
@@ -208,6 +197,7 @@ export function mapProtoMechDefinitionToState(
     ),
     equipment,
     librarySource: definition,
+    ...mapUnitTechBaseIdentity('protomechs', definition),
   };
 }
 
@@ -221,6 +211,7 @@ export function mapBattleArmorDefinitionToState(
     return {
       ...state,
       equipment: renewSmallUnitMounts(editor.equipment, state.id),
+      ...mapUnitTechBaseIdentity('battlearmor', definition),
     };
   }
   const source = z
@@ -243,10 +234,10 @@ export function mapBattleArmorDefinitionToState(
     })
     .parse(definition);
   const fields = identity(definition);
-  fields.techBase = resolveBattleArmorChassisTechBase(
-    definition,
-    fields.techBase,
-  );
+  // BattleArmor.java:953-987 (48fcb2f64): Clan chassis ignore missile burden.
+  if (definition.techBase === 'MIXED')
+    fields.techBase =
+      resolveUnitChassisTechBase('battlearmor', definition) ?? fields.techBase;
   const state = createDefaultBattleArmorState(fields);
   const weightClass = enumValue(
     BattleArmorWeightClass,
@@ -318,5 +309,6 @@ export function mapBattleArmorDefinitionToState(
     hasFireResistantArmor: baArmorType === BAArmorType.FIRE_RESISTANT,
     equipment,
     librarySource: definition,
+    ...mapUnitTechBaseIdentity('battlearmor', definition),
   };
 }

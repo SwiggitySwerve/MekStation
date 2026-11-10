@@ -74,9 +74,23 @@ describe('glider jump (no bonus of its own)', () => {
     expect(screen.getByText(/Jump MP/)).toHaveTextContent(/Glider/);
   });
 
-  it('does not add 2 to a glider that stores jump MP', () => {
-    const store = unit('Svartalfa.json');
-    act(() => store.getState().setJumpMP(4));
+  it('does not add 2 to a glider that stores jump MP (a loaded unit; the control is locked)', () => {
+    const definition = JSON.parse(
+      fs
+        .readFileSync(
+          path.join(
+            process.cwd(),
+            'public/data/units/protomechs',
+            'Svartalfa.json',
+          ),
+          'utf8',
+        )
+        .replace(/^﻿/, ''),
+    );
+    const store = createProtoMechStore({
+      ...mapProtoMechDefinitionToState(definition),
+      jumpMP: 4,
+    });
     renderTab(store);
     expect(screen.queryByText(/Effective Jump/)).toBeNull();
     expect(jumpInput()).toHaveValue(4);

@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 import { test } from 'node:test';
 
 import { generateEntries } from './generate.mjs';
+import { retainNativeTechnologyReferences } from './technology-advancement.mjs';
 function assertAdditive(before, after) {
   const byId = (items, id) =>
     JSON.stringify(items.filter((entry) => entry.id === id));
@@ -23,6 +24,37 @@ const gaps = [{ java }];
 const alias = java.aliases[0];
 const run = (existing = [], mappings = {}) =>
   generateEntries([java], gaps, facts, lookups, existing, mappings);
+
+test('metadata-absent registry regeneration retains the complete old result', () => {
+  const result = run();
+  const before = structuredClone(result);
+  result.items = retainNativeTechnologyReferences(
+    result.items,
+    new Map([
+      [
+        'ammunition/java-registry.json',
+        { items: result.items.map((row) => row.entry) },
+      ],
+    ]),
+  );
+  assert.deepEqual(result, before);
+});
+
+test('metadata preflight precedes every full-generation write and leaves aliases-only alone', () => {
+  const source = readFileSync(
+    new URL('./generate.mjs', import.meta.url),
+    'utf8',
+  );
+  const full = source.slice(source.indexOf('  const documents = new Map('));
+  assert(
+    full.indexOf('result.items = retainNativeTechnologyReferences') <
+      full.indexOf('write(expectationsFile'),
+  );
+  assert(
+    source.indexOf("process.argv.includes('--aliases-only')") <
+      source.indexOf('  const documents = new Map('),
+  );
+});
 
 test('a registry gap becomes a cited ammo entry with Java aliases and exact per-shot mass', () => {
   const result = run();

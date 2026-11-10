@@ -203,5 +203,8 @@
     "LT:7:Light Auto Cannon/5": ["stable_weapon"],
     "RT:5:Light Auto Cannon/5": ["stable_weapon"],
     "RT:7:Light Auto Cannon/5": ["stable_weapon"]
+  },
+  "componentTechBases": {
+    "chassis": "INNER_SPHERE"
   }
 }
