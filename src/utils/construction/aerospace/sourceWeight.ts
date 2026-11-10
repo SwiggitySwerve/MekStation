@@ -4,9 +4,17 @@ import {
   isClanBlkEngine,
   decodeBlkConstructionEngine,
 } from '@/services/conversion/blkEngineIdentity';
+import {
+  EngineType,
+  getEngineDefinition,
+} from '@/types/construction/EngineType';
 import { ceilToHalfTon as half } from '@/utils/physical/weightUtils';
 
-import { calculateEngineWeight } from '../engineCalculations';
+import {
+  calculateEngineWeight,
+  isFusionEngine,
+  validateEngineRating,
+} from '../engineCalculations';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   getEquipmentEntry,
@@ -83,6 +91,80 @@ const SMALL_BANDS = [
   [2151, 0.1235, 0.01245, 1.9],
   [0, 0.143, 0.01575, 2.2],
 ];
+
+function smallCraftBand(year: number): readonly number[] {
+  return SMALL_BANDS.find(([y]) => year >= y) ?? SMALL_BANDS[6];
+}
+
+export type AerospaceEngineTonsInput =
+  | {
+      readonly family: 'aerospaceFighter';
+      readonly tonnage: number;
+      readonly safeThrust: number;
+      readonly engineType: EngineType | null;
+      readonly primitiveCockpit: boolean;
+    }
+  | {
+      readonly family: 'conventionalFighter';
+      readonly tonnage: number;
+      readonly safeThrust: number;
+      readonly engineType: EngineType | null;
+    }
+  | {
+      readonly family: 'smallCraft' | 'dropShip';
+      readonly tonnage: number;
+      readonly safeThrust: number;
+      readonly clan: boolean;
+      readonly originalBuildYear: number;
+    }
+  | { readonly family: 'fixedWingSupport' };
+
+/**
+ * Installed engine mass in tons; unsupported inputs have no mass estimate.
+ * MegaMek 48fcb2f64: TestAero.java:369-387,510-519;
+ * BLKAeroSpaceFighterFile.java:133-145; BLKConvFighterFile.java:118-122;
+ * TestSmallCraft.java:198-208,236-253,373-378; Engine.java:67-81,409-438.
+ */
+export function aerospaceEngineTons(
+  input: AerospaceEngineTonsInput,
+): number | undefined {
+  if (input.family === 'fixedWingSupport') return undefined;
+  const { tonnage, safeThrust } = input;
+  if (
+    !Number.isFinite(tonnage) ||
+    tonnage <= 0 ||
+    !Number.isInteger(safeThrust) ||
+    safeThrust < 0
+  )
+    return undefined;
+
+  if (input.family === 'smallCraft' || input.family === 'dropShip') {
+    if (!Number.isFinite(input.originalBuildYear)) return undefined;
+    const band = smallCraftBand(input.originalBuildYear);
+    return half(
+      tonnage *
+        safeThrust *
+        (input.clan ? 0.061 : input.family === 'dropShip' ? 0.065 : band[1]),
+    );
+  }
+
+  if (!('engineType' in input)) return undefined;
+  const { engineType } = input;
+  if (!engineType || !getEngineDefinition(engineType)) return undefined;
+  const rating =
+    input.family === 'conventionalFighter'
+      ? tonnage * safeThrust
+      : Math.ceil(
+          (tonnage * (safeThrust - 2) * (input.primitiveCockpit ? 1.2 : 1)) / 5,
+        ) * 5;
+  if (!validateEngineRating(rating).isValid) return undefined;
+  const tons = calculateEngineWeight(rating, engineType);
+  return input.family === 'conventionalFighter' &&
+    (isFusionEngine(engineType) || engineType === EngineType.FISSION)
+    ? half(tons * 1.5)
+    : tons;
+}
+
 export const sourceClan = (s: Source) => isClanBlkEngine(s.type);
 const lines = (v: string | string[] = []) =>
   Array.isArray(v) ? v : v.split(/\r?\n/).filter(Boolean);
@@ -195,11 +277,16 @@ export function aerospaceSourceWeight(s: Source) {
     // Primitive/early DropShip drive variants remain outside this mass bound.
     if (drop && (primitive(s) || s.year < 2500)) return undefined;
     const year = s.originalBuildYear ?? s.year;
-    const eng = SMALL_BANDS.find(([y]) => year >= y) ?? SMALL_BANDS[6];
-    const ctl =
-      SMALL_BANDS.find(([y]) => (primitive(s) ? year : 2500) >= y) ??
-      SMALL_BANDS[6];
-    engine = half(tons * thrust * (clan ? 0.061 : drop ? 0.065 : eng[1]));
+    const eng = smallCraftBand(year);
+    const ctl = smallCraftBand(primitive(s) ? year : 2500);
+    engine =
+      aerospaceEngineTons({
+        family: drop ? 'dropShip' : 'smallCraft',
+        tonnage: tons,
+        safeThrust: thrust,
+        clan,
+        originalBuildYear: year,
+      }) ?? 0;
     control = drop ? Math.ceil(tons * 0.0075) : half(tons * ctl[2]);
     structure = half((tons * si) / (spheroid ? 500 : 200));
     const factor = primitive(s) ? eng[3] : 1;
@@ -230,10 +317,15 @@ export function aerospaceSourceWeight(s: Source) {
         .map(Number)
         .reduce((sum, d) => sum + (d <= 100 ? 50 : d <= 250 ? 100 : 500), 0);
   } else if (!advanced(s)) {
-    const rating =
-      Math.ceil((tons * (thrust - 2) * (cockpit === 3 ? 1.2 : 1)) / 5) * 5;
     const type = decodeBlkConstructionEngine(s.engineType ?? 0, clan);
-    engine = type ? calculateEngineWeight(rating, type) : 0;
+    engine =
+      aerospaceEngineTons({
+        family: 'aerospaceFighter',
+        tonnage: tons,
+        safeThrust: thrust,
+        engineType: type,
+        primitiveCockpit: cockpit === 3,
+      }) ?? 0;
     control = cockpitTons(
       ['Standard', 'Small', 'Command Console', 'Primitive'][cockpit],
     );
