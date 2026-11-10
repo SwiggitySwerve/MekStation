@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import {
   CI_SUITES,
@@ -10,6 +15,7 @@ import {
   recordDurations,
   testDescription,
 } from './ci-e2e-plan.mjs';
+import { checkSharedFlows } from './shared-flows.mjs';
 
 function census() {
   return CI_SUITES.flatMap(({ files }) =>
@@ -33,6 +39,148 @@ const seed = (tests) => ({
 });
 const selected = (plan) =>
   plan.shards.flatMap(({ tasks }) => tasks.flatMap(({ tests }) => tests));
+
+// Keep these guards in the file already executed by PR Checks, without changing
+// its browser selection or workflow command.
+test('the shared-flow map accounts for every live E2E spec and tracked path', () => {
+  checkSharedFlows(fileURLToPath(new URL('../../', import.meta.url)));
+});
+
+function sharedFlowFixture(t) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mek-shared-flows-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const write = (file, value = '') => {
+    fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    fs.writeFileSync(path.join(root, file), value);
+  };
+  const map = {
+    flows: [
+      {
+        id: 'save',
+        owner: 'C3',
+        paths: ['src/shared/**'],
+        specs: ['e2e/save.spec.ts'],
+        tier: 'pr',
+        notes: 'Shared save dialog.',
+      },
+    ],
+    'nightly-only-by-design': [
+      { spec: 'e2e/layout.spec.ts', reason: 'Layout-only sweep.' },
+    ],
+  };
+  const save = () =>
+    write('config/playwright/shared-flows.json', JSON.stringify(map));
+  write('src/shared/dialog.ts');
+  write('e2e/save.spec.ts');
+  write('e2e/layout.spec.ts');
+  execFileSync('git', ['-C', root, 'init', '--quiet']);
+  execFileSync('git', ['-C', root, 'add', '--all']);
+  save();
+  return { root, map, save, write };
+}
+
+test('shared-flow fixture passes before mutation', (t) => {
+  checkSharedFlows(sharedFlowFixture(t).root);
+});
+
+for (const [name, mutate, expected] of [
+  [
+    'unmatched path glob',
+    ({ map, write }) => {
+      write('src/renamed/untracked.ts');
+      map.flows[0].paths.push('src/renamed/**');
+    },
+    /matches no tracked file/,
+  ],
+  [
+    'new unlisted spec file',
+    ({ write }) => write('e2e/nested/new.spec.ts'),
+    /Unclassified E2E spec/,
+  ],
+  [
+    'empty by-design reason',
+    ({ map }) => {
+      map['nightly-only-by-design'][0].reason = ' ';
+    },
+    /non-empty reason/,
+  ],
+  [
+    'missing spec path',
+    ({ map }) => map.flows[0].specs.push('e2e/missing.spec.ts'),
+    /Missing spec/,
+  ],
+  [
+    'mapped and by-design overlap',
+    ({ map }) => map.flows[0].specs.push('e2e/layout.spec.ts'),
+    /both mapped and by-design/,
+  ],
+  [
+    'unknown owner',
+    ({ map }) => {
+      map.flows[0].owner = 'C5';
+    },
+    /owner must be C1-C4/,
+  ],
+]) {
+  test(`shared-flow mutant rejected: ${name}`, (t) => {
+    const fixture = sharedFlowFixture(t);
+    mutate(fixture);
+    fixture.save();
+    assert.throws(() => checkSharedFlows(fixture.root), expected);
+  });
+}
+
+test('a pending-only flow passes until its spec lands, then requires promotion', (t) => {
+  const { root, map, save, write } = sharedFlowFixture(t);
+  const pending = {
+    spec: 'e2e/pending.spec.ts',
+    owner: 'C4',
+    reason: 'C4 campaign save-loss PR 1/2.',
+  };
+  map.flows.push({
+    id: 'persistence',
+    owner: 'C4',
+    paths: ['src/shared/**'],
+    specs: [],
+    pendingSpecs: [pending],
+    tier: 'pr',
+    notes: 'Pending persistence proof.',
+  });
+  save();
+  checkSharedFlows(root);
+  write(pending.spec);
+  assert.throws(() => checkSharedFlows(root), /Pending spec now exists/);
+  map.flows[1].pendingSpecs = [];
+  map.flows[1].specs.push(pending.spec);
+  save();
+  checkSharedFlows(root);
+});
+
+for (const field of ['owner', 'reason']) {
+  test(`pending spec requires a valid ${field}`, (t) => {
+    const { root, map, save } = sharedFlowFixture(t);
+    map.flows[0].pendingSpecs = [
+      {
+        spec: 'e2e/pending.spec.ts',
+        owner: 'C4',
+        reason: 'Not yet on main.',
+        [field]: '',
+      },
+    ];
+    save();
+    assert.throws(
+      () => checkSharedFlows(root),
+      /owner must be C1-C4|non-empty reason/,
+    );
+  });
+}
+
+test('an empty flow requires a pending spec', (t) => {
+  const { root, map, save } = sharedFlowFixture(t);
+  map.flows[0].specs = [];
+  save();
+  assert.throws(() => checkSharedFlows(root), /needs specs or pendingSpecs/);
+});
 
 test('the GM ledger runs exactly once in the one-worker, zero-retry PR gates', () => {
   const file = 'gm-campaign-ledger-control-plane.spec.ts';
