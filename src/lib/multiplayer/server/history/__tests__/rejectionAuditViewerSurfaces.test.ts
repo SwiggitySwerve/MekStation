@@ -42,6 +42,7 @@ import type {
 } from '../../authorization/AuthorizedViewer';
 
 import { leakScan } from '../../__tests__/campaignGrantChannel.test-helpers';
+import { commandRejectionDigest } from '../../audit/CommandRejectionAudit';
 import { AuthorizedViewerResolver } from '../../authorization/AuthorizedViewer';
 import { SQLiteDeliveryEpochStore } from '../../delivery/SQLiteDeliveryEpochStore';
 import { DurableMatchStore } from '../../DurableMatchStore';
@@ -551,8 +552,18 @@ describe('live-path rejection across viewer surfaces', () => {
     }
   });
 
-  it('retries an already audited rejection on the replacement key and settles the sender', async () => {
+  it.each([
+    {
+      name: 'retries an already audited rejection on the replacement key and settles the sender',
+      becomesValid: false,
+    },
+    {
+      name: 'a refused id that later becomes valid is applied and keeps its rejected audit row',
+      becomesValid: true,
+    },
+  ])('$name', async ({ becomesValid }) => {
     jest.useFakeTimers();
+    if (becomesValid) jest.setSystemTime(new Date('2026-11-11T00:00:00Z'));
     const bridges: {
       client: IClientWebSocket;
       server: ReturnType<typeof makeSocket>;
@@ -625,15 +636,24 @@ describe('live-path rejection across viewer surfaces', () => {
       await host.handleSessionJoin(first.server, OWNER);
       expect(client.isReady()).toBe(true);
       first.server.sent.length = 0;
-      client.send({
-        kind: 'Move',
-        unitId: 'missing-private-unit',
-        to: { q: 0, r: 1 },
-        facing: 0,
-        movementType: 'walk',
-      });
+      const baseline = await store.getEvents(SESSION_ID, 0);
+      client.send(
+        becomesValid
+          ? {
+              kind: 'RequestSpot',
+              unitId: 'unit-A',
+              targetId: 'unit-foe',
+            }
+          : {
+              kind: 'Move',
+              unitId: 'missing-private-unit',
+              to: { q: 0, r: 1 },
+              facing: 0,
+              movementType: 'walk',
+            },
+      );
       const original = first.intents[0];
-      if (!original) throw new Error('missing submitted intent');
+      if (!original?.intentId) throw new Error('missing submitted intent id');
       expect(client.lifecycle().pendingIntentCount).toBe(1);
       // Queue the real host command, then release its key before its refusal can be delivered.
       const firstAttempt = host.handleIntent(original, 'dead-key', OWNER);
@@ -674,6 +694,71 @@ describe('live-path rejection across viewer surfaces', () => {
         expect(observer.sent).toEqual([]);
       expect(errors).toEqual([]);
       expect(client.lifecycle().pendingIntentCount).toBe(1);
+      if (becomesValid) {
+        expect(await store.getEvents(SESSION_ID, 0)).toEqual(baseline);
+        expect(
+          await journal.readStream({
+            streamType: 'match',
+            streamId: SESSION_ID,
+            branchId: 'root',
+            afterRevision: 0,
+            limit: 100,
+          }),
+        ).toEqual([]);
+        expect(rejected).toEqual([
+          expect.objectContaining({
+            commandDigest: commandRejectionDigest(
+              SESSION_ID,
+              original.intentId,
+              original.intent,
+            ),
+            safeReasonCode: 'command-rejected',
+            createdAt: nowIso(),
+            updatedAt: nowIso(),
+            correlationId: null,
+            publishedReceiptId: null,
+            committedFirstRevision: null,
+            committedLastRevision: null,
+            committedEventCount: null,
+          }),
+        ]);
+        jest.setSystemTime(new Date('2026-11-11T00:00:10.000Z'));
+        // A separate admitted owner socket advances Initiative -> Movement -> WeaponAttack.
+        const advanced: IServerMessage[] = [];
+        for (const step of [1, 2])
+          advanced.push(
+            ...(await host.handleIntent(
+              {
+                kind: 'Intent',
+                matchId: SESSION_ID,
+                ts: nowIso(),
+                playerId: OWNER,
+                intentId: `cmd-phase-change-${step}`,
+                intent: { kind: 'AdvancePhase' },
+              },
+              'conn-a',
+              OWNER,
+            )),
+          );
+        expect(advanced.length).toBeGreaterThan(0);
+        expect(advanced.every((frame) => frame.kind === 'Event')).toBe(true);
+        for (const observer of [socket, replacement.server, other, spectator]) {
+          expect(
+            (observer.sent as IServerMessage[]).some(
+              (frame) => frame.kind === 'Event',
+            ),
+          ).toBe(true);
+          expect(
+            (observer.sent as IServerMessage[]).some(
+              (frame) => frame.kind === 'Error',
+            ),
+          ).toBe(false);
+          observer.sent.length = 0;
+        }
+        expect(first.server.sent).toEqual([]);
+        expect(client.lifecycle().pendingIntentCount).toBe(1);
+        expect(errors).toEqual([]);
+      }
       await host.handleSessionJoin(replacement.server, OWNER);
       expect(replacement.server.sent).toEqual(
         expect.arrayContaining([
@@ -685,7 +770,59 @@ describe('live-path rejection across viewer surfaces', () => {
       const retry = replacement.intents[0];
       if (!retry)
         throw new Error('ReplayEnd did not resend the pending intent');
+      const beforeRetry = await store.getEvents(SESSION_ID, 0);
+      if (becomesValid) {
+        expect(client.lifecycle().pendingIntentCount).toBe(1);
+        expect(errors).toEqual([]);
+        for (const observer of [socket, replacement.server, other, spectator])
+          observer.sent.length = 0;
+        jest.setSystemTime(new Date('2026-11-11T00:00:20.000Z'));
+      }
       const retryReply = await host.handleIntent(retry, 'new-key', OWNER);
+      if (becomesValid) {
+        const committed = await store.getEvents(SESSION_ID, 0);
+        expect(committed.slice(0, beforeRetry.length)).toEqual(beforeRetry);
+        const applied = committed.slice(beforeRetry.length);
+        expect(applied.map((event) => event.type)).toEqual([
+          'spotting_declared',
+        ]);
+        expect(applied[0]?.payload).toEqual(
+          expect.objectContaining({ intentId: original.intentId }),
+        );
+        expect(applied.every((event) => event.timestamp === nowIso())).toBe(
+          true,
+        );
+        expect(retryReply).toEqual(
+          applied.map((event) =>
+            expect.objectContaining({ kind: 'Event', event }),
+          ),
+        );
+        const journalEvents = await journal.readStream({
+          streamType: 'match',
+          streamId: SESSION_ID,
+          branchId: 'root',
+          afterRevision: 0,
+          limit: 100,
+        });
+        // The legacy host commits mp_match_events; this harness does not mirror them.
+        expect(journalEvents).toEqual([]);
+        expect(await journal.getCommandReceipt(original.intentId)).toBeNull();
+        expect(audit.readBySession(SESSION_ID)).toEqual(rejected);
+        for (const observer of [socket, replacement.server, other, spectator]) {
+          const frames = observer.sent as IServerMessage[];
+          expect(frames).toEqual([
+            expect.objectContaining({
+              kind: 'Event',
+              event: expect.objectContaining({ type: 'spotting_declared' }),
+            }),
+          ]);
+        }
+        expect(first.server.sent).toEqual([]);
+        expect(client.lifecycle().pendingIntentCount).toBe(0);
+        expect(client.isReady()).toBe(true);
+        expect(errors).toEqual([]);
+        return;
+      }
       expect(retryReply).toEqual(
         firstReply.map((frame) =>
           expect.objectContaining({
