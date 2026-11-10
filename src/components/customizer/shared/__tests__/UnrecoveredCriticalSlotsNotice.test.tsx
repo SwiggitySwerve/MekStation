@@ -115,7 +115,14 @@ it.each([
         <EditorLoadDiagnostics />
       </UnitStoreContext.Provider>,
     );
-    const headings = screen.getAllByRole('heading').map((h) => h.textContent);
+    const criticalNotice = within(
+      screen.getByRole('note', {
+        name: 'Critical-slot entries lost on save',
+      }),
+    );
+    const headings = criticalNotice
+      .getAllByRole('heading')
+      .map((h) => h.textContent);
     expect(headings[0]).toBe(`Other critical-slot entries (${other})`);
     if (markers)
       expect(headings).toContain(`Placement markers only (${markers})`);
@@ -123,7 +130,9 @@ it.each([
       expect(
         headings.some((h) => h?.startsWith('Placement markers only')),
       ).toBe(false);
-    expect(screen.getAllByRole('listitem')).toHaveLength(other + markers);
+    expect(criticalNotice.getAllByRole('listitem')).toHaveLength(
+      other + markers,
+    );
   },
 );
 

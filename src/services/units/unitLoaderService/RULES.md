@@ -52,6 +52,25 @@ location and zero-based slot. Every library save path repeats that list and
 requires an explicit `Save anyway`; cancel leaves the open design unchanged.
 The notice states the loss without promising a recovery or timeline.
 
+Armor identity loss is a separate, clearly named diagnostic group. The source
+armor identity and per-location codes come from the loader's retained source;
+`componentMappers.resolveArmorType` is the single support decision used both by
+`mapArmorType` and `armorSaveLoss.ts`. The mapper's existing Standard fallback
+and the serialized design stay unchanged. There is no second unsupported-type
+list. Per-location names use the existing native armor-code vocabulary.
+The existing editor diagnostics show this warning on open for both catalog and
+MTF-imported custom sources, before any save action. The sentence explains that
+the editor shows Standard armor and displayed weight and BV may differ.
+Every library save requires `Save anyway` for this diagnostic, including a unit
+with no unplaced critical cells. Selecting a different supported armor removes
+the stale Standard-save warning. Patchwork's measured save/reopen BV consequence
+cites `parity-R2/phase3-patchwork/SAVE-REOPEN.md` and its real-unit test; the other
+unmeasured types explicitly say their effect is not established. Diagnostics
+remain derived editor data outside saved units, drafts, fingerprints and replay.
+A catalog draft missing its retained source refreshes that source transiently
+through the loader, even when its critical list is already known empty. This
+does not overwrite editable BV context, and saving waits during that check.
+
 Draft envelope version remains Zustand's existing `0`: this field is optional,
 and no portable schema or replay version changes. Hydration explicitly keeps an
 absent legacy field `undefined`, overriding a newly authored unit's known-empty

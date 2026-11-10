@@ -12,6 +12,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
+import type { IArmorSaveLoss } from '@/services/units/unitLoaderService/armorSaveLoss';
 import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
@@ -63,6 +64,7 @@ export interface SaveUnitDialogProps {
   /** The target unit's loader-owned list; never inferred by the dialog. */
   unrecoveredCriticalSlots?: readonly IUnrecoveredCriticalSlot[];
   criticalSlotSource?: IRawSerializedUnit;
+  armorSaveLoss?: IArmorSaveLoss;
   lossTrackingUnknown?: boolean;
   isRefreshingLossDiagnostics?: boolean;
   /** Called when save is confirmed */
@@ -165,6 +167,7 @@ export function SaveUnitDialog({
   constructionValidation,
   unrecoveredCriticalSlots,
   criticalSlotSource,
+  armorSaveLoss,
   lossTrackingUnknown = false,
   isRefreshingLossDiagnostics = false,
   onSave,
@@ -268,7 +271,9 @@ export function SaveUnitDialog({
   const handleSave = () => {
     if (!canSave) return;
     if (
-      (unrecoveredCriticalSlots?.length || lossTrackingUnknown) &&
+      (unrecoveredCriticalSlots?.length ||
+        lossTrackingUnknown ||
+        armorSaveLoss) &&
       !isConfirmingLoss
     ) {
       setIsConfirmingLoss(true);
@@ -335,7 +340,9 @@ export function SaveUnitDialog({
       preventClose={isSaving}
       title={
         isConfirmingLoss
-          ? 'Save with missing critical-slot entries?'
+          ? armorSaveLoss
+            ? 'Save with armor loss?'
+            : 'Save with missing critical-slot entries?'
           : 'Save Unit'
       }
       className="mx-4 w-full max-w-lg"
@@ -372,6 +379,7 @@ export function SaveUnitDialog({
       <UnrecoveredCriticalSlotsNotice
         entries={unrecoveredCriticalSlots}
         source={criticalSlotSource}
+        armorSaveLoss={armorSaveLoss}
         unknown={lossTrackingUnknown}
         checking={isRefreshingLossDiagnostics}
       />

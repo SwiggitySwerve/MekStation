@@ -1,23 +1,40 @@
 import type { ReactElement } from 'react';
 
+import type { IArmorSaveLoss } from '@/services/units/unitLoaderService/armorSaveLoss';
 import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
 import type { IUnrecoveredCriticalSlot } from '@/types/unit/UnitLoadDiagnostics';
 
 import { useUnitLoadDiagnostics } from '@/hooks/useUnitLoadDiagnostics';
 import { groupCriticalSlotNoticeEntries } from '@/services/units/unitLoaderService/criticalSlotNoticeGroups';
 
-/** Both notices display the domain-owned grouping of the same loader list. */
-export function UnrecoveredCriticalSlotsNotice({
-  entries,
-  source,
-  unknown = false,
-  checking = false,
-}: {
+import { ArmorSaveLossNotice } from './ArmorSaveLossNotice';
+
+interface INoticeProps {
   readonly entries?: readonly IUnrecoveredCriticalSlot[];
   readonly source?: IRawSerializedUnit;
   readonly unknown?: boolean;
   readonly checking?: boolean;
-}): ReactElement | null {
+  readonly armorSaveLoss?: IArmorSaveLoss;
+}
+
+export function UnrecoveredCriticalSlotsNotice(
+  props: INoticeProps,
+): ReactElement {
+  return (
+    <>
+      <ArmorSaveLossNotice loss={props.armorSaveLoss} />
+      <CriticalSlotEntriesNotice {...props} />
+    </>
+  );
+}
+
+/** Both notices display the domain-owned grouping of the same loader list. */
+function CriticalSlotEntriesNotice({
+  entries,
+  source,
+  unknown = false,
+  checking = false,
+}: INoticeProps): ReactElement | null {
   if (!entries?.length && !unknown) return null;
   return (
     <section
@@ -88,11 +105,13 @@ export function UnrecoveredCriticalSlotsNotice({
 
 /** Mounted once in the editor's existing diagnostics area, on every tab. */
 export function EditorLoadDiagnostics(): ReactElement {
-  const { entries, isRefreshing, source } = useUnitLoadDiagnostics();
+  const { entries, isRefreshing, source, armorSaveLoss } =
+    useUnitLoadDiagnostics();
   return (
     <UnrecoveredCriticalSlotsNotice
       entries={entries}
       source={source}
+      armorSaveLoss={armorSaveLoss}
       unknown={entries === undefined}
       checking={isRefreshing}
     />

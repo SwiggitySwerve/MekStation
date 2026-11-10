@@ -67,6 +67,7 @@ type TargetedSaveUnitDialogProps = Omit<
   | 'constructionValidation'
   | 'unrecoveredCriticalSlots'
   | 'criticalSlotSource'
+  | 'armorSaveLoss'
   | 'lossTrackingUnknown'
   | 'isRefreshingLossDiagnostics'
 >;
@@ -75,13 +76,15 @@ function StoreValidatedSaveUnitDialog(
   props: TargetedSaveUnitDialogProps,
 ): React.ReactElement {
   const constructionValidation = useUnitValidation();
-  const { entries, isRefreshing, source } = useUnitLoadDiagnostics();
+  const { entries, isRefreshing, source, armorSaveLoss } =
+    useUnitLoadDiagnostics();
   return (
     <SaveUnitDialog
       {...props}
       constructionValidation={constructionValidation}
       unrecoveredCriticalSlots={entries}
       criticalSlotSource={source}
+      armorSaveLoss={armorSaveLoss}
       lossTrackingUnknown={entries === undefined}
       isRefreshingLossDiagnostics={isRefreshing}
     />
