@@ -30,7 +30,6 @@ import {
   computeProtoEngineWeight,
   computeProtoStructure,
   getProtoWeightClass,
-  getProtoMPCaps,
 } from '@/utils/construction/protomech';
 import { getProtoArmorName } from '@/utils/construction/protomech/armorType';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
@@ -41,6 +40,9 @@ import {
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 import type { IUnitSaveMetadata } from './unitSaveState';
+
+/** The walk MP of a new ProtoMech; at or above every motive's minimum walk. */
+const DEFAULT_PROTO_WALK_MP = 4;
 
 // =============================================================================
 // ProtoMech Armor/Structure Allocation
@@ -397,8 +399,10 @@ export function createDefaultProtoMechState(
   const chassisType = options.chassisType ?? ProtoChassis.BIPED;
   const weightClass = getProtoWeightClass(tonnage);
 
-  // Default walk MP to the minimum 1 — the user sets it via setWalkMP
-  const walkMP = Math.max(1, Math.min(getProtoMPCaps(weightClass).walkMax, 4));
+  // A new ProtoMech starts at walk 4, which meets every motive's minimum (1, 2 or 3);
+  // the user sets it via setWalkMP. It used to be capped by the weight class (3 for an
+  // ultraheavy), a table MML does not have.
+  const walkMP = DEFAULT_PROTO_WALK_MP;
   // Cruise MP mirrors walk MP for ProtoMechs
   const cruiseMP = walkMP;
   const flankMP = computeRunMP(walkMP);
