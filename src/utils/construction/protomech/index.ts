@@ -26,9 +26,14 @@ export {
   PROTO_MAX_TONNAGE,
   PROTO_MAX_STANDARD_TONNAGE,
   PROTO_MIN_TONNAGE,
-  PROTO_MIN_ULTRAHEAVY_TONNAGE,
   ProtoWeightClass,
 } from './weightClass';
+
+// The legacy `Ultraheavy` chassis value: one read rule and one fingerprint rule
+export {
+  legacyProtoChassisLabel,
+  readSavedProtoChassis,
+} from './legacyUltraheavy';
 
 // Derived movement and engine formulas
 export {
@@ -50,6 +55,7 @@ export {
   protoJumpLimit,
   protoMaxWalkMP,
   protoMinWalkMP,
+  protoTonnageChangeError,
 } from './movementLimits';
 export type { ProtoMovementInput } from './movementLimits';
 

@@ -24,11 +24,11 @@ import {
   computeProtoStructure,
   computeProtoWalkMPForRating,
   clampProtoMovement,
-  PROTO_MAX_STANDARD_TONNAGE,
+  getProtoWeightClass,
   PROTO_MAX_TONNAGE,
   PROTO_MIN_TONNAGE,
-  PROTO_MIN_ULTRAHEAVY_TONNAGE,
   protoJumpLimit,
+  protoTonnageChangeError,
 } from '@/utils/construction/protomech';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
@@ -60,20 +60,13 @@ export type { ProtoMechStore } from './protoMechState';
  *       — Requirement: ProtoMech BV Breakdown on Unit State
  */
 /**
- * Tonnage range per chassis, as the Structure tab offers it (getTonnageOptions):
- * Ultraheavy 10–15 t, others 2–9 t. Java treats tonnage above
- * TestProtoMek.MAX_STD_TONNAGE (9) as Ultraheavy, up to MAX_TONNAGE (15), and
- * MegaMekLab clamps into the range on a chassis change (PMChassisView.refreshTonnage).
+ * One tonnage range, 2–15 t, for every motive: MegaMekLab's spinner is
+ * `SpinnerNumberModel(2, 2, 15, 1)` (PMChassisView.java:79). Ultraheavy is a mass above
+ * TestProtoMek.MAX_STD_TONNAGE (9), not a chassis (PMChassisView.java:205-207), so the
+ * range does not depend on the motive.
  */
-function clampProtoTonnage(tonnage: number, chassisType: ProtoChassis): number {
-  const ultraheavy = chassisType === ProtoChassis.ULTRAHEAVY;
-  return Math.max(
-    ultraheavy ? PROTO_MIN_ULTRAHEAVY_TONNAGE : PROTO_MIN_TONNAGE,
-    Math.min(
-      ultraheavy ? PROTO_MAX_TONNAGE : PROTO_MAX_STANDARD_TONNAGE,
-      tonnage,
-    ),
-  );
+function clampProtoTonnage(tonnage: number): number {
+  return Math.max(PROTO_MIN_TONNAGE, Math.min(PROTO_MAX_TONNAGE, tonnage));
 }
 
 export function createProtoMechStore(
@@ -135,26 +128,30 @@ export function createProtoMechStore(
           // Classification Actions
           // =================================================================
 
+          // MML keeps the walk on a tonnage edit and refuses the edit when the engine
+          // rating would be invalid (PMStructureTab.java:446-456); like setEngineRating,
+          // a refusal throws with the reason and leaves the store untouched.
           setTonnage: (tonnage) =>
             set((state) => {
-              const clampedTonnage = clampProtoTonnage(
-                tonnage,
+              const clampedTonnage = clampProtoTonnage(tonnage);
+              const refusal = protoTonnageChangeError(
+                clampedTonnage,
+                state.walkMP,
                 state.chassisType,
               );
-              const newCruiseMP = Math.max(1, 10 - clampedTonnage);
+              if (refusal !== undefined) throw new RangeError(refusal);
               return {
                 tonnage: clampedTonnage,
+                // The stored class is persisted and written into the saved record.
+                weightClass: getProtoWeightClass(clampedTonnage),
                 structureByLocation: computeProtoStructure(
                   clampedTonnage,
                   state.chassisType,
                   state.hasMainGun,
                 ),
-                cruiseMP: newCruiseMP,
-                walkMP: newCruiseMP,
-                flankMP: computeRunMP(newCruiseMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
                   clampedTonnage,
-                  newCruiseMP,
+                  state.walkMP,
                   state.chassisType,
                 ),
                 isModified: true,
@@ -171,7 +168,8 @@ export function createProtoMechStore(
 
           setChassisType: (chassisType) =>
             set((state) => {
-              const tonnage = clampProtoTonnage(state.tonnage, chassisType);
+              // The tonnage range is the same for every motive, so it is kept.
+              const tonnage = state.tonnage;
               // MML refreshes the movement spinners on a motive change: walk to the
               // motive's minimum, jump to its limit (a glider's is 0).
               const { walk: walkMP, jump } = clampProtoMovement({
