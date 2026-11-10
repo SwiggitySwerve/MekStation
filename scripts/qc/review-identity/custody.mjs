@@ -306,10 +306,8 @@ export function archiveReviewIdentity(ledgerDir, verified) {
       typeof verified.revalidate === 'function',
       'native archive requires frozen verified inputs',
     );
-  const evidence = native
-    ? nativePath(path.join(ledgerDir, 'evidence'), true).absolute
-    : evidenceDirOf(ledgerDir);
-  const before = native && nativePath(evidence, true);
+  const before = native && nativePath(path.join(ledgerDir, 'evidence'), true);
+  const evidence = native ? before.absolute : evidenceDirOf(ledgerDir);
   if (native) verified.revalidate?.();
   identityCheck(
     !fs.lstatSync(evidence).isSymbolicLink(),
@@ -360,11 +358,13 @@ export function archiveReviewIdentity(ledgerDir, verified) {
       fs.writeFileSync(target, p.bytes, { flag: 'wx' });
   }
   if (native) {
-    stablePath(before, nativePath(evidence, true), 0);
+    // The inventory checks the directory's attributes in both fresh read phases.
+    stablePath(before, physicalPath(evidence, true), 0);
     identityCheck(
-      nativeBuffers(pending.map((p) => path.join(evidence, p.ref.path))).every(
-        (b, i) => b.equals(pending[i].bytes),
-      ),
+      nativeInventory(
+        pending.map((p) => path.join(evidence, p.ref.path)),
+        [evidence],
+      ).every((b, i) => b.equals(pending[i].bytes)),
       'native published archive bytes changed',
     );
     verified.revalidate?.();
