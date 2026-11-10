@@ -235,9 +235,11 @@ function ownTechSide(
   baseId: string,
 ): TechBase | null {
   const hint = getTechHintFromToken(id);
+  const unmarkedName = stripTechMarkersFromName(id);
   if (
     hint &&
-    normalizeCatalogEquipmentId(stripTechMarkersFromName(id), false) === baseId
+    unmarkedName !== id.trim() &&
+    normalizeCatalogEquipmentId(unmarkedName, false) === baseId
   ) {
     return hint === 'clan' ? TechBase.CLAN : TechBase.INNER_SPHERE;
   }
