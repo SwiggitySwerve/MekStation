@@ -966,7 +966,9 @@ describe('CAMPAIGN-LIVE-WRITE-1 F1 on the dashboard', () => {
         expired ? 'HOST_SESSION_EXPIRED' : 'HOST_SESSION_REQUIRED',
       );
       expect(screen.queryByText(/playing offline/i)).not.toBeInTheDocument();
-      expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+      expect(screen.getByTestId('campaign-save-status-card')).toHaveTextContent(
+        'Save failed',
+      );
       expect(storedRow('lw-page-a')).toEqual(before);
       expect(entry.host.getState().day).toBe(hostDayBefore);
       expect(guestFrames).toEqual([]);

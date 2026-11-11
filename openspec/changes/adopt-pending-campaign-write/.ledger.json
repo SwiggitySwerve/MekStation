@@ -1,0 +1,6 @@
+{
+  "name": "adopt-pending-campaign-write",
+  "status": "active",
+  "reason": "Root-approved C4 PR 2 of the campaign-save-loss fix: a reloaded document whose local copy is newer than the server's comes up dirty and pushes at the marker token, adopts a proven flush, or raises a conflict - never silently Saved. Local pending-write marker only; no server, envelope or co-op change.",
+  "lastReviewed": "2026-11-10"
+}

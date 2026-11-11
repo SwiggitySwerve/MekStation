@@ -183,11 +183,11 @@ function switchCampaignAction(
   set: CampaignSet,
   get: CampaignGet,
 ): CampaignStore['switchCampaign'] {
-  return (campaign) => {
+  return (campaign, pendingSource) => {
     const { forcesStore, missionsStore } =
       initializeChildStoresFromCampaign(campaign);
     set({
-      ...hydrateCampaignBattleState(campaign, get()),
+      ...hydrateCampaignBattleState(campaign, get(), pendingSource),
       forcesStore,
       missionsStore,
     });

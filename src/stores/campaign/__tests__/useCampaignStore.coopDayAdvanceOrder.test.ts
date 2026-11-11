@@ -28,10 +28,14 @@ import {
 import { _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
+import {
+  installCampaignPersistenceWiring,
+  uninstallCampaignPersistenceWiring,
+} from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import {
   resetCampaignStore,
-  useCampaignStore,
+  useCampaignStore as getCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
@@ -178,6 +182,7 @@ function hostTransport(
 }
 
 function resetWorld(): void {
+  uninstallCampaignPersistenceWiring();
   resetCampaignStore();
   useCampaignPersistenceStore.getState().reset();
   _resetCampaignSyncTransportsForTest();
@@ -192,12 +197,14 @@ function resetWorld(): void {
  * `answer`; advances one day and reports what happened after the save.
  */
 async function advanceOnce(answer: 'commit' | 'refuse') {
-  const store = useCampaignStore();
+  const store = getCampaignStore();
   store.getState().createCampaign('U96 Day Co.', 'mercenary', undefined, {
     coopSession: createHostCoopSession('ROOM42', MATCH_ID),
   });
   const server: IFakeServer = { record: null, timeline: [] };
   stubServer(server);
+  installCampaignPersistenceWiring();
+  useCampaignPersistenceStore.getState().markDirty();
   await useCampaignPersistenceStore.getState().saveCampaign();
   registerCampaignSyncTransport(hostTransport(server, answer));
   server.timeline.length = 0;
