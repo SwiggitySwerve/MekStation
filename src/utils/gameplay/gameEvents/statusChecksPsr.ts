@@ -1,3 +1,5 @@
+import type { IPSRTriggerTarget } from '@/types/gameplay/GameSessionStateTypes';
+
 import {
   GameEventType,
   IGameEvent,
@@ -6,6 +8,7 @@ import {
   IPSRTriggeredPayload,
   PSRTrigger,
 } from '@/types/gameplay';
+import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import type { GameplayEventContextArgs } from './eventContext';
 
@@ -21,15 +24,15 @@ type PSRTriggeredEventArgs = [
   fixedTargetNumber?: number,
 ];
 
-export interface ICreatePSRTriggeredEventInput
-  extends statusCheckCommon.IStatusCheckEventContext {
-  readonly reason: string;
-  readonly additionalModifier: number;
-  readonly triggerSource: string;
-  readonly basePilotingSkill?: number;
-  readonly reasonCode?: PSRTrigger;
-  readonly fixedTargetNumber?: number;
-}
+export type ICreatePSRTriggeredEventInput =
+  statusCheckCommon.IStatusCheckEventContext &
+    IPSRTriggerTarget & {
+      readonly reason: string;
+      readonly additionalModifier: number;
+      readonly triggerSource: string;
+      readonly basePilotingSkill?: number;
+      readonly reasonCode?: PSRTrigger;
+    };
 
 type PSRResolvedEventArgs = [
   ...GameplayEventContextArgs,
@@ -64,9 +67,7 @@ export function createPSRTriggeredEvent(
       ? { basePilotingSkill: input.basePilotingSkill }
       : {}),
     ...(input.reasonCode !== undefined ? { reasonCode: input.reasonCode } : {}),
-    ...(input.fixedTargetNumber !== undefined
-      ? { fixedTargetNumber: input.fixedTargetNumber }
-      : {}),
+    ...projectPsrTriggerTarget(input),
   };
 
   return statusCheckCommon.createStatusCheckEvent(
