@@ -72,7 +72,7 @@ export function librarySaveExplanation(
   }
 }
 
-/** Library states that call for a Save: never saved, or edited since. */
+/** Saving can establish, update, or confirm the library copy in these states. */
 export function libraryNeedsSave(state: LibraryState): boolean {
   switch (state) {
     case 'none':

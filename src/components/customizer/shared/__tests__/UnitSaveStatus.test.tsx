@@ -5,7 +5,12 @@ import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { createNewUnitStore } from '@/stores/useUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 
-import { UnitSaveStatus } from '../UnitSaveStatus';
+import {
+  UnitSaveStatus,
+  libraryNeedsSave,
+  librarySaveExplanation,
+  librarySaveLabel,
+} from '../UnitSaveStatus';
 
 jest.mock('@/stores/unitStoreRegistry', () => ({
   getUnitStore: jest.fn(),
@@ -25,6 +30,50 @@ function makeStore() {
 }
 
 describe('UnitSaveStatus', () => {
+  it('pins the exact save-again wording for every older-writer surface', () => {
+    const message =
+      'Saved with an older version of MekStation. Save again to update the library copy.';
+    expect(librarySaveLabel('saved-older-writer', 2)).toBe(message);
+    expect(librarySaveExplanation('saved-older-writer', 2)).toBe(message);
+    expect(libraryNeedsSave('saved-older-writer')).toBe(true);
+    expect(librarySaveLabel('unknown', 2)).toBe('Library status unknown');
+    expect(libraryNeedsSave('unknown')).toBe(true);
+  });
+
+  it('renders an unchanged older-writer receipt without calling it changed', () => {
+    const store = makeStore();
+    const receipt = createLibrarySaveReceipt(store.getState(), {
+      id: 'old-writer-library',
+      version: 2,
+    });
+    store.setState({
+      librarySave: { ...receipt, fingerprint: 'old-writer-bytes' },
+    });
+    mockGetUnitStore.mockReturnValue(store);
+    render(<UnitSaveStatus unitId={store.getState().id} />);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saved with an older version of MekStation. Save again to update the library copy.',
+    );
+    expect(screen.getByRole('status')).not.toHaveTextContent('Changed Since');
+    act(() => store.setState({ model: 'Edited model' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Changed Since v2');
+  });
+
+  it('renders a receipt without a draft baseline as unknown', () => {
+    const store = makeStore();
+    const { draftFingerprint: _missing, ...legacy } = createLibrarySaveReceipt(
+      store.getState(),
+      { id: 'old-library', version: 2 },
+    );
+    store.setState({ librarySave: legacy });
+    mockGetUnitStore.mockReturnValue(store);
+    render(<UnitSaveStatus unitId={store.getState().id} />);
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Library status unknown',
+    );
+    expect(screen.getByRole('status')).not.toHaveTextContent('Changed Since');
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });

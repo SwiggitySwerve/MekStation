@@ -7,10 +7,16 @@ import { equipmentNameResolver } from '@/services/conversion/EquipmentNameResolv
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import {
+  createLibrarySaveReceipt,
+  getEditableUnitSnapshot,
   getUnitDraftFingerprint,
   getUnitLibraryFingerprint,
 } from '@/stores/unit/unitEditSnapshot';
-import { normalizeUnitSaveEquipmentIds } from '@/stores/unitSaveFingerprints';
+import {
+  normalizeUnitSaveEquipmentIds,
+  stringifyUnitSaveFingerprint,
+} from '@/stores/unitSaveFingerprints';
+import { getEditorSaveState } from '@/stores/unitSaveStateAdapters';
 import {
   clearAllStores,
   hydrateOrCreateUnit,
@@ -206,4 +212,56 @@ it('keeps the original literal draft and save fingerprints with real residual en
   expect(getUnitLibraryFingerprint(changedDiagnostics)).toBe(
     SCARECROW_LIBRARY_LITERAL,
   );
+});
+
+it('pins the unchanged canonical editable snapshot independently of writer bytes', () => {
+  const state = loader.mapToUnitState(parseUnit(scarecrow), true);
+  const snapshot = getEditableUnitSnapshot(state);
+  expect(
+    stringifyUnitSaveFingerprint({
+      ...snapshot,
+      equipment: normalizeUnitSaveEquipmentIds(snapshot.equipment),
+    }),
+  ).toBe(SCARECROW_DRAFT_LITERAL);
+});
+
+it('recognizes an unchanged pre-A2 receipt through the real source-cell writer change', () => {
+  const state = loader.mapToUnitState(parseUnit(scarecrow), true);
+  const receipt = {
+    id: 'pre-a2-scarecrow',
+    version: 2,
+    fingerprint: SCARECROW_LIBRARY_LITERAL,
+    draftFingerprint: SCARECROW_DRAFT_LITERAL,
+  };
+  expect(getUnitDraftFingerprint(state)).toBe(SCARECROW_DRAFT_LITERAL);
+  expect(getUnitLibraryFingerprint(state)).not.toBe(SCARECROW_LIBRARY_LITERAL);
+  expect(
+    getEditorSaveState({
+      store: 'battlemech',
+      state: { ...state, librarySave: receipt },
+    }).library.state,
+  ).toBe('saved-older-writer');
+  expect(
+    getEditorSaveState({
+      store: 'battlemech',
+      state: { ...state, model: 'UCU-F4 edited', librarySave: receipt },
+    }).library.state,
+  ).toBe('changed');
+  const current = createLibrarySaveReceipt(state, {
+    id: receipt.id,
+    version: 3,
+  });
+  expect(
+    getEditorSaveState({
+      store: 'battlemech',
+      state: { ...state, librarySave: current },
+    }).library.state,
+  ).toBe('matched');
+  const { draftFingerprint: _missing, ...legacy } = receipt;
+  expect(
+    getEditorSaveState({
+      store: 'battlemech',
+      state: { ...state, librarySave: legacy },
+    }).library.state,
+  ).toBe('unknown');
 });
