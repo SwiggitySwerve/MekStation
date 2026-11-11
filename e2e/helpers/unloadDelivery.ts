@@ -1,5 +1,7 @@
 import { isDeepStrictEqual } from 'node:util';
 
+import type { ReloadTiming } from './campaignUnload';
+
 import { isJsonRecord, putBaseVersion } from './browserWriteComparison';
 import {
   envelopeOf,
@@ -10,6 +12,7 @@ import {
 
 export type DeliveryClass =
   | 'delivered-observed'
+  | 'delivered-observed-ordinary-save'
   | 'delivered-by-chain'
   | 'undelivered'
   | 'unattributable';
@@ -63,6 +66,10 @@ export function classifyUnloadDelivery(input: {
   poll?: CampaignPollTrace;
   contextWrites?: readonly ContextCampaignWrite[];
   captureAvailable?: boolean;
+  timing?: Pick<
+    ReloadTiming,
+    'expectedDate' | 'expectedMatchId' | 'pagehideMs'
+  >;
 }): DeliveryResult {
   const { puts, before, after, poll, contextWrites } = input;
   const flushes = puts.filter((put) => put.keepalive);
@@ -88,11 +95,12 @@ export function classifyUnloadDelivery(input: {
   const result = (
     classification: DeliveryClass,
     reason: string,
+    firstObservedMs = observed?.elapsedMs ?? null,
   ): DeliveryResult => ({
     class: classification,
     reason,
     eligible,
-    firstObservedMs: observed?.elapsedMs ?? null,
+    firstObservedMs,
     chainVersions,
     pollMissedVersions,
   });
@@ -102,6 +110,57 @@ export function classifyUnloadDelivery(input: {
     return result(
       'undelivered',
       'Expected values absent at end, or row never advanced',
+    );
+  // An ordinary save may beat pagehide and race the flush at the same CAS
+  // base. Only a direct receipt proves it; neither final values nor a chain
+  // can substitute for the captured edit, dispatch timing and exact poll row.
+  const ordinaryObserved = eligible
+    ? poll?.versions.find(({ record }) =>
+        puts.some((put) => {
+          const body = envelopeOf(put)?.body;
+          const timing = input.timing;
+          const carriesEdit =
+            isJsonRecord(body) &&
+            (timing?.expectedMatchId
+              ? Array.isArray(body.pendingBattleOutcomes) &&
+                body.pendingBattleOutcomes.some(
+                  (outcome: unknown) =>
+                    isJsonRecord(outcome) &&
+                    outcome.matchId === timing.expectedMatchId,
+                )
+              : typeof timing?.expectedDate === 'string' &&
+                body.currentDate === timing.expectedDate);
+          return (
+            put.keepalive === false &&
+            putBaseVersion(put.postData) === before.version &&
+            timing !== undefined &&
+            Number.isFinite(timing.pagehideMs) &&
+            timing.pagehideMs > 0 &&
+            typeof put.sinceEditMs === 'number' &&
+            Number.isFinite(put.sinceEditMs) &&
+            put.sinceEditMs >= 0 &&
+            put.sinceEditMs <= timing.pagehideMs &&
+            (put.sincePagehideMs === null || put.sincePagehideMs === 0) &&
+            carriesEdit &&
+            record.version === before.version + 1 &&
+            matches(record, put) &&
+            contextWrites?.some(
+              (write) =>
+                !write.serviceWorker &&
+                write.method === 'PUT' &&
+                write.url === put.url &&
+                write.postData === put.postData,
+            ) &&
+            puts.filter((candidate) => matches(record, candidate)).length === 1
+          );
+        }),
+      )
+    : undefined;
+  if (ordinaryObserved)
+    return result(
+      'delivered-observed-ordinary-save',
+      'API poll directly saw ordinary save base + 1 with exact body and savedAt, carrying the edit and sent at or before pagehide',
+      ordinaryObserved.elapsedMs,
     );
   if (
     !flush ||

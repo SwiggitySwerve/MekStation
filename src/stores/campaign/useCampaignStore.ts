@@ -16,6 +16,7 @@ import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
 } from '@/engine/combatOutcomeBus';
+import { parsePendingWrite } from '@/lib/campaign/persistence/campaignPendingWrite';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import {
   isActivityLogEntry,
@@ -66,6 +67,10 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
         cachedCampaignKey: null,
         setCachedCampaignKey: (key) => {
           set({ cachedCampaignKey: key });
+        },
+        pendingWrite: null,
+        setPendingWrite: (marker) => {
+          set({ pendingWrite: marker });
         },
         pendingBattleOutcomes: [],
         processedBattleIds: [],
@@ -118,6 +123,10 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             // thing it identifies. Held separately it could survive a
             // copy being replaced and vouch for the wrong campaign.
             cachedCampaignKey: state.cachedCampaignKey,
+            // Same reason: the claim "this copy is newer than the server"
+            // must travel with the copy it is about, or a reload would see
+            // a copy that merely looks current.
+            pendingWrite: state.pendingWrite,
           };
         },
         merge: (persisted: unknown, current) => {
@@ -125,10 +134,12 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             campaign?: SerializedCampaignState | null;
             activityLog?: IActivityLogEntry[];
             cachedCampaignKey?: ICampaignCacheKey | null;
+            pendingWrite?: unknown;
           };
           const cachedCampaignKey = readCampaignCacheKey(
             persistedData?.cachedCampaignKey,
           );
+          const pendingWrite = parsePendingWrite(persistedData?.pendingWrite);
           const activityLog = Array.isArray(persistedData?.activityLog)
             ? persistedData.activityLog.filter(isActivityLogEntry)
             : [];
@@ -142,6 +153,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               outcomeApplyErrors: {},
               rehydratedCampaignId: null,
               cachedCampaignKey: null,
+              pendingWrite: null,
               forcesStore: null,
               missionsStore: null,
               activityLog,
@@ -158,6 +170,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             ...hydrateCampaignBattleState(campaign, current),
             rehydratedCampaignId: campaign.id,
             cachedCampaignKey,
+            pendingWrite,
             forcesStore: null,
             missionsStore: null,
             activityLog,

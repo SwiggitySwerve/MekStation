@@ -12,6 +12,7 @@ import type {
 } from '@/types/campaign/SerializedCampaign';
 
 import { CURRENT_CAMPAIGN_SCHEMA_VERSION } from '@/lib/campaign/persistence/campaignMigration';
+import { PENDING_WRITE_CONFLICT_REASON } from '@/lib/campaign/persistence/campaignPendingWrite';
 
 export type CampaignFlushSkipReason = 'envelope-over-keepalive-cap';
 
@@ -42,6 +43,11 @@ export interface ICampaignSaveConflict {
   readonly conflictingFields: readonly string[];
   /** Campaign row write counter, not a journal revision. */
   readonly currentVersion: number;
+  /**
+   * Only for `local-edits-predate-server`: the row version the preserved local
+   * edits were built on, so the card can say which state it is holding.
+   */
+  readonly localBaseVersion?: number;
 }
 
 /** A typed 401/403 live-host refusal keeps pending changes; it is not a conflict. */
@@ -70,6 +76,11 @@ interface ICampaignSaveContext {
   flushSkip: ICampaignFlushSkip | null;
   /** Echo only the last watermark read; the client never mints or advances it. */
   sourceReplayFence: ICampaignSourceReplayFence | null;
+  /**
+   * True from a reload that found unsaved edits from an earlier document
+   * (`pending-write-adopted`) until a save acknowledges them. Display only.
+   */
+  recoveredPendingWrite: boolean;
 }
 
 /** Other variants retain nullable evidence until the separately sequenced cleanup. */
@@ -83,6 +94,16 @@ export type CampaignSaveSnapshot = ICampaignSaveContext &
   );
 
 export type CampaignSaveState = CampaignSaveSnapshot['saveState'];
+
+/** Pending reload edits must be held until the explicit take-server choice. */
+export function isPendingWriteConflict(
+  state: Pick<CampaignSaveSnapshot, 'saveState' | 'saveConflict'>,
+): boolean {
+  return (
+    state.saveState === 'conflict' &&
+    state.saveConflict?.reason === PENDING_WRITE_CONFLICT_REASON
+  );
+}
 
 type CampaignSaveOperation = 'save' | 'load' | 'adopt';
 interface IRecordAdoption {
@@ -117,6 +138,17 @@ export type CampaignSaveEvent =
   | { type: 'legacy-adopted' }
   | { type: 'flush-skipped'; diagnostic: ICampaignFlushSkip }
   | { type: 'flush-acknowledgement-owed' }
+  | ({
+      type: 'pending-write-adopted';
+      campaignId: string;
+      /** The marker's edit counter, continued rather than restarted at 0. */
+      editSeq: number;
+    } & IRecordAdoption)
+  | {
+      type: 'pending-write-conflicted';
+      record: SerializedCampaign;
+      localBaseVersion: number;
+    }
   | { type: 'edited'; liveCampaignId: string | null }
   | { type: 'error-cleared' }
   | { type: 'launch-conflict-reported'; conflict: ICampaignLaunchConflict }
@@ -150,7 +182,20 @@ export const INITIAL_CAMPAIGN_SAVE_STATE: CampaignSaveSnapshot = {
   legacyUnadopted: false,
   flushSkip: null,
   sourceReplayFence: null,
+  recoveredPendingWrite: false,
 };
+
+/**
+ * Unsaved edits exist. `saved` claims the server holds everything, so only a
+ * clean copy may say it: it becomes `idle`, as `save-acknowledged` already
+ * does for a dirty settle. `saving`, `error` and `conflict` stay as they are.
+ */
+function withPendingEdits(state: CampaignSaveSnapshot): CampaignSaveSnapshot {
+  const pending = { ...state, dirty: true };
+  return pending.saveState === 'saved'
+    ? { ...pending, saveState: 'idle' }
+    : pending;
+}
 
 /** Evidence is adopted only from a returned record, never computed from a journal ACK. */
 function recordEvidence(
@@ -181,6 +226,7 @@ function acknowledgedRecord(event: IRecordAdoption) {
     conflictServerRecord: null,
     saveConflict: null,
     errorMessage: null,
+    recoveredPendingWrite: false,
   };
 }
 
@@ -263,11 +309,42 @@ export function reduceCampaignSaveState(
     case 'flush-skipped':
       return { ...state, flushSkip: event.diagnostic };
     case 'flush-acknowledgement-owed':
-      return { ...state, dirty: true };
-    case 'edited':
+      return withPendingEdits(state);
+    case 'pending-write-adopted':
+      // The local copy is kept and is newer than the row it was built on; the
+      // row's evidence is adopted so the ordinary save carries the right token.
       return {
         ...state,
+        ...recordEvidence(event.record, event.campaign),
+        campaignId: event.campaignId,
+        saveState: 'idle',
         dirty: true,
+        editSeq: Math.max(state.editSeq, event.editSeq),
+        conflictServerRecord: null,
+        saveConflict: null,
+        errorMessage: null,
+        recoveredPendingWrite: true,
+      };
+    case 'pending-write-conflicted':
+      // No push, no replace: the local copy stays dirty and visible. The token
+      // is deliberately NOT adopted, so a stray save cannot match the row.
+      return {
+        ...state,
+        saveState: 'conflict',
+        dirty: true,
+        errorMessage: null,
+        conflictServerRecord: event.record,
+        saveConflict: {
+          reason: PENDING_WRITE_CONFLICT_REASON,
+          recoveryAction: 'resync-to-active-head',
+          conflictingFields: [],
+          currentVersion: event.record.version,
+          localBaseVersion: event.localBaseVersion,
+        },
+      };
+    case 'edited':
+      return {
+        ...withPendingEdits(state),
         editSeq: state.editSeq + 1,
         campaignId: state.campaignId ?? event.liveCampaignId,
       };

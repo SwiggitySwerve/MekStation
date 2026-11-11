@@ -244,7 +244,11 @@ test('a surviving document takes the ordinary debounced save, exactly once @camp
     expect(after.version).toBe(before.version + 1);
     expect(after.body.currentDate).not.toBe(before.body.currentDate);
     // The ordinary save IS an acknowledgement; the flush deliberately is not.
-    await expect(page.getByText('Unsaved changes')).toBeHidden();
+    await expect(
+      page
+        .getByTestId('campaign-save-status-card')
+        .getByText('Unsaved changes'),
+    ).toBeHidden();
   });
 });
 
@@ -267,7 +271,11 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
       )
       .toBe(before.version + 1);
     // Its response is never read, so it never cleared the pending mutations.
-    await expect(page.getByText('Unsaved changes')).toBeVisible();
+    await expect(
+      page
+        .getByTestId('campaign-save-status-card')
+        .getByText('Unsaved changes'),
+    ).toBeVisible();
     await setDocumentVisibility(page, 'visible');
     const reconciled = await waitForCampaignPut(page, campaignId);
     expect(puts.length).toBeGreaterThanOrEqual(2);
@@ -278,7 +286,11 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
     expect(reconciled.status()).toBe(RECONCILE_PUT_STATUS);
     // The acknowledgement the spec scenario demands: an accepted save, not
     // a conflict banner produced by the flush's own successful write.
-    await expect(page.getByText('Unsaved changes')).toBeHidden();
+    await expect(
+      page
+        .getByTestId('campaign-save-status-card')
+        .getByText('Unsaved changes'),
+    ).toBeHidden();
     await expect(page.getByText('Save refused')).toBeHidden();
   });
 });

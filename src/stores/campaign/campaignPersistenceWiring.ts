@@ -28,7 +28,10 @@
 
 import type { ICampaign } from '@/types/campaign/Campaign';
 
-import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+import {
+  getCampaignStoreForRoster,
+  isInstallingServerCampaign,
+} from './campaignStoreAccessor';
 import { useCampaignPersistenceStore } from './useCampaignPersistenceStore';
 
 /** The currently-installed unsubscribe handle, or `null`. */
@@ -110,8 +113,10 @@ export function installCampaignPersistenceWiring(): void {
     lastCampaign = next;
     // A transition from no-campaign to a campaign is a load/create, not
     // an edit — record the baseline silently. Any change between two
-    // non-null campaigns is a genuine mutation.
-    if (next && hadCampaign) {
+    // non-null campaigns is an edit unless the persistence boundary is
+    // installing an authoritative server row. Still advance lastCampaign so
+    // the next real edit is compared against the installed baseline.
+    if (next && hadCampaign && !isInstallingServerCampaign(store)) {
       useCampaignPersistenceStore.getState().markDirty();
     }
   });

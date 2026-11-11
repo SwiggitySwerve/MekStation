@@ -36,11 +36,19 @@ import {
   campaignCacheKeyOf,
   evaluateCampaignCache,
 } from '@/lib/campaign/persistence/campaignCacheKey';
+import {
+  decidePendingWrite,
+  derivePendingWrite,
+  pendingWritesEqual,
+  type IPendingWrite,
+  type IPendingWriteFlush,
+} from '@/lib/campaign/persistence/campaignPendingWrite';
 import { normalizeRosterPilotDeparture } from '@/lib/campaign/personnel/statusRules';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
+import type { CampaignPendingOutcomeSource } from './campaignBattleOutcomeState';
 import type {
   CampaignSaveEvent,
   CampaignSaveSnapshot,
@@ -51,9 +59,13 @@ import type {
 
 import {
   INITIAL_CAMPAIGN_SAVE_STATE as INITIAL_STATE,
+  isPendingWriteConflict,
   reduceCampaignSaveState,
 } from './campaignSaveState';
-import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+import {
+  getCampaignStoreForRoster,
+  installServerCampaign,
+} from './campaignStoreAccessor';
 import {
   ensureCampaignUnitMaxStates,
   prepareCampaignUnitMaxStates,
@@ -369,9 +381,54 @@ function writeCachedCampaignKey(record: SerializedCampaign): void {
   store?.getState().setCachedCampaignKey?.(campaignCacheKeyOf(record));
 }
 
-function writeLiveCampaign(campaign: ICampaign): void {
+/** The unsaved-edit marker the persisted copy carries, or `null`. */
+function readPendingWrite(): IPendingWrite | null {
   const store = getCampaignStoreForRoster();
-  store?.getState().switchCampaign(campaign);
+  return store?.getState().pendingWrite ?? null;
+}
+
+/**
+ * Keeps the marker in step with the persistence state. Runs synchronously
+ * inside the dispatch that changed the state, which is inside the task that
+ * made the edit: a document cannot unload between the campaign write and the
+ * marker write. See `derivePendingWrite` for what each outcome means.
+ */
+function syncPendingWrite(
+  state: CampaignSaveSnapshot,
+  flush?: IPendingWriteFlush,
+): void {
+  const store = getCampaignStoreForRoster();
+  if (!store) return;
+  const live = readLiveCampaign();
+  const previous = readPendingWrite();
+  const next = derivePendingWrite(
+    {
+      dirty: state.dirty,
+      campaignId: state.campaignId,
+      baseVersion: state.baseVersion,
+      cachedBaseVersion: readCachedCampaignKey()?.revision,
+      editSeq: state.editSeq,
+      legacyUnadopted: state.legacyUnadopted,
+      liveCampaignId: live?.id ?? null,
+      liveIsCoop: isCoopCampaign(live),
+    },
+    previous,
+    flush,
+  );
+  if (next === undefined || pendingWritesEqual(previous, next)) return;
+  store.getState().setPendingWrite?.(next);
+}
+
+function writeLiveCampaign(
+  campaign: ICampaign,
+  pendingSource?: CampaignPendingOutcomeSource,
+): void {
+  if (pendingSource === 'server') {
+    installServerCampaign(campaign);
+    return;
+  }
+  const store = getCampaignStoreForRoster();
+  store?.getState().switchCampaign(campaign, pendingSource);
 }
 
 function preserveGuestCoopSession(
@@ -788,8 +845,22 @@ async function runSave(
   if (inFlightLoad !== null) {
     await inFlightLoad;
   }
+  // Check when the queued write actually runs, after any load has decided
+  // pending-write adoption. Save now cannot bypass the held local conflict.
+  const held = get();
+  if (isPendingWriteConflict(held)) {
+    return held.conflictServerRecord
+      ? {
+          status: 'conflict',
+          conflictServerRecord: held.conflictServerRecord,
+          conflict: held.saveConflict,
+        }
+      : { status: 'skipped' };
+  }
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
+  // Explicit writers (creation, co-op host actions, Save now and renewal)
+  // may be clean. The cause of an automatic save is owned by the bridge.
   if (!campaign || !campaignId) {
     return { status: 'skipped' };
   }
@@ -894,12 +965,13 @@ async function runSave(
 
 function loadCampaignAction(
   set: PersistenceSet,
+  get: PersistenceGet,
 ): CampaignPersistenceStore['loadCampaign'] {
   return (id: string) => {
     // Published for the duration so a concurrent write waits for the version
     // this load establishes instead of racing it.
     loadGeneration += 1;
-    const load = runLoad(set, id);
+    const load = runLoad(set, get, id);
     inFlightLoad = load;
     return load.finally(() => {
       if (inFlightLoad === load) {
@@ -915,6 +987,7 @@ function loadCampaignAction(
  */
 async function runLoad(
   set: PersistenceSet,
+  get: PersistenceGet,
   id: string,
   guard?: () => boolean,
 ): Promise<boolean> {
@@ -951,6 +1024,47 @@ async function runLoad(
         (await response.json()) as SerializedCampaign,
       );
       if (!current()) return false;
+      // A copy that still owes the server edits is decided BEFORE the cache
+      // verdict, which answers "is this the server's record?" and knows
+      // nothing about "is this newer than it?". Either of its answers loses
+      // such an edit: a matching key stamps the copy saved, a diverged key
+      // replaces it whole.
+      const marker = readPendingWrite();
+      const liveForPending = readLiveCampaign();
+      const pending = decidePendingWrite({
+        marker,
+        liveCampaignId: liveForPending?.id ?? null,
+        liveIsCoop: isCoopCampaign(liveForPending),
+        cachedInstanceId: readCachedCampaignKey()?.instanceId ?? null,
+        record: migrated,
+        digestOf: () => flushedEnvelopeDigest(migrated),
+        // An edit this document made before its first read landed is not in
+        // the marker, so a flush that matches the marker alone must not clean.
+        editedBeforeLoad: get().dirty && get().baseVersion === 0,
+      });
+      if (pending.kind === 'conflict') {
+        // No push and no replace: the local copy stays visible and dirty, and
+        // the cache key keeps naming the record the copy was built on.
+        dispatchSaveEvent(set, {
+          type: 'pending-write-conflicted',
+          record: migrated,
+          localBaseVersion: pending.localBaseVersion,
+        });
+        return false;
+      }
+      if (pending.kind === 'keep-local' && marker) {
+        writeCachedCampaignKey(migrated);
+        dispatchSaveEvent(set, {
+          type: 'pending-write-adopted',
+          campaignId: id,
+          editSeq: marker.editSeq,
+          record: migrated,
+          campaign: deserializeCampaignRecord(migrated),
+        });
+        // The row is now the token's base, so the ordinary save is owed.
+        armAutoSaveTimer(set, get);
+        return true;
+      }
       // Task 1.3: the cache is keyed, so "is this copy the same thing?"
       // is answered rather than assumed. A copy naming the same instance
       // at the same revision is the server's own record and is left
@@ -994,11 +1108,11 @@ async function runLoad(
           ),
         };
         if (!current()) return false;
-        writeLiveCampaign(loadedCampaign);
+        writeLiveCampaign(loadedCampaign, 'server');
         if (!current()) return false;
         restoreRosterProjection(id, projection, [...units]);
       } else if (!cacheStands) {
-        writeLiveCampaign(loadedCampaign);
+        writeLiveCampaign(loadedCampaign, 'server');
         restoreRosterProjection(id, migrated.body.rosterProjection);
         // An existing campaign saved before construction maxima were
         // populated carries roster units with no `unitMaxStates` entry.
@@ -1009,6 +1123,9 @@ async function runLoad(
       if (!current()) return false;
       writeCachedCampaignKey(migrated);
       if (!current()) return false;
+      // The bridge excludes server installs. A timer from an earlier edit
+      // must also be disarmed before record-loaded acknowledges this row.
+      clearAutoSaveTimer();
       dispatchSaveEvent(set, {
         type: 'record-loaded',
         campaignId: id,
@@ -1136,6 +1253,9 @@ function fireKeepaliveFlush(campaignId: string, body: string): void {
  */
 function armAutoSaveTimer(set: PersistenceSet, get: PersistenceGet): void {
   clearAutoSaveTimer();
+  if (isPendingWriteConflict(get())) {
+    return;
+  }
   autoSaveTimer = setTimeout(() => {
     autoSaveTimer = null;
     if (get().saveState === 'conflict') {
@@ -1161,7 +1281,12 @@ function flushPendingMutationsAction(
     // Nothing pending, already flushed for this pending set, or a copy the
     // server has never seen and must not acquire by accident (the same
     // guard `runSave` applies to an unadopted legacy campaign).
-    if (!state.dirty || pendingFlushIssued || state.legacyUnadopted) {
+    if (
+      !state.dirty ||
+      pendingFlushIssued ||
+      state.legacyUnadopted ||
+      isPendingWriteConflict(state)
+    ) {
       return;
     }
     const campaign = readLiveCampaign();
@@ -1222,6 +1347,14 @@ function flushPendingMutationsAction(
       baseVersion,
       envelopeDigest: flushedEnvelopeDigest(envelope),
     };
+    // The same evidence, persisted with the copy BEFORE the request leaves:
+    // it is what lets a reloaded document tell "our flush landed" from
+    // "someone else wrote this version".
+    syncPendingWrite(state, {
+      baseVersion,
+      editSeq: state.editSeq,
+      digest: issuedFlush.envelopeDigest,
+    });
     fireKeepaliveFlush(campaignId, body);
   };
 }
@@ -1434,7 +1567,7 @@ function refreshAfterCommittedCommandAction(
             generation === loadGeneration &&
             get().campaignId === campaignId;
         }
-        return runLoad(set, campaignId, context && current);
+        return runLoad(set, get, campaignId, context && current);
       })
       .then((adopted) => {
         // ...and owning it means handing it back when the read fails. A
@@ -1484,7 +1617,7 @@ function resolveConflictTakeServerAction(
     }
     const migrated = migrateClientRecord(serverRecord);
     const serverCampaign = deserializeCampaignRecord(migrated);
-    writeLiveCampaign(serverCampaign);
+    writeLiveCampaign(serverCampaign, 'server');
     restoreRosterProjection(
       migrated.campaignId,
       migrated.body.rosterProjection,
@@ -1503,7 +1636,7 @@ function createPersistenceActions(
   get: PersistenceGet,
 ): CampaignPersistenceActions {
   return {
-    loadCampaign: loadCampaignAction(set),
+    loadCampaign: loadCampaignAction(set, get),
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
     initializeCreatedCampaign: (campaignId) => {
@@ -1559,3 +1692,21 @@ export const useCampaignPersistenceStore = create<CampaignPersistenceStore>()(
     ...createPersistenceActions(set, get),
   }),
 );
+
+// The unsaved-edit marker follows the persistence state from module load, not
+// from any page's wiring: an edit made on a page that never installed the
+// dirty bridge still owes the server a save. Only the fields the marker is
+// derived from wake it; every other dispatch leaves the stored marker alone,
+// which is what keeps a reloaded document's marker alive until it is decided.
+useCampaignPersistenceStore.subscribe((state, previous) => {
+  if (
+    state.dirty === previous.dirty &&
+    state.baseVersion === previous.baseVersion &&
+    state.editSeq === previous.editSeq &&
+    state.campaignId === previous.campaignId &&
+    state.legacyUnadopted === previous.legacyUnadopted
+  ) {
+    return;
+  }
+  syncPendingWrite(state);
+});
