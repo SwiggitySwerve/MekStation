@@ -86,6 +86,12 @@ dialog's predicate over the row's own fields.
 kept in the denominator and are not counted. This measures the dialog's confirmation only; the save button's other gates (name,
 construction validity, saving/refreshing) are separate and are not part of it.
 
+**Summary keys (reopen `summary.json`), read by key:** `noLossConfirmation.before` is the published number (the loaded store's
+`noSaveLossConfirmation`). `noLossConfirmation.after` is the same predicate on the reopened store, and it is **not a progress measure**
+("loss already written to file", also stored as `noLossConfirmation.afterNote`): after one cold save the warning has been shown once and the
+loss is permanent in the file, so a high `after` means the opposite of improvement. The remaining counts (confirmation, unsettled, unknown,
+noticeEntries, armorSaveLoss, errorRows) are under `saveLossDetail.before` and `saveLossDetail.after`. There is no `summary.saveLoss`.
+
 ## Facts (`facts.ndjson`), derived, not part of the row
 
 The nightly gate's per-unit facts are derived from a row and the Java reference (`facts.mjs`) and written beside the rows; no field is

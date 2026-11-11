@@ -1,0 +1,301 @@
+/**
+ * The round-trip comparison, ported from C3's v2 census (census.cjs) with the same meaning. Pure
+ * given the loaded product modules: it takes what the capture already holds (the committed source
+ * unit, the loader's notice residual and mounts before the save, and the reopened state) and
+ * returns the reopen-block fields of a schema row. It does no observation and no BV math.
+ *
+ *   cells      source cells with nothing at the same (location, slot) after reopen
+ *   identity   `system` = exact-identity match against MTFVocabulary's system set, never a substring
+ *   bucket     recovery owner of a non-system cell or a mount, from the notice classifiers
+ *   notice     the loader's unrecoveredCriticalSlots residual vs the non-system lost cells (exact triples)
+ *   mounts     lost / changed / added loaded mounts, with the cells each owns
+ * Requires the Jest module environment (it imports product code through the `@/` alias); import it
+ * after the runtime-parity observer so the mocks are registered first.
+ */
+import assert from 'node:assert/strict';
+
+import { isMTFCriticalSlotSystemName as isSystem } from '@/services/conversion/MTFVocabulary';
+import { mapMechLocation } from '@/services/units/unitLoaderService/componentMappers';
+import {
+  CriticalSlotRecoveryResponsibility,
+  classifyCriticalSlotNoticeIdentity,
+} from '@/services/units/unitLoaderService/criticalSlotNoticeEffects';
+import { classifyCriticalSlotNoticeEntry } from '@/services/units/unitLoaderService/criticalSlotNoticeGroups';
+import { parseCriticalSlotToken } from '@/services/units/unitLoaderService/equipmentResolution';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
+
+// Sorted keys, undefined dropped: the scratch harnesses' canonical(), used here only for equality.
+const canonical = (value) => {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .filter((k) => value[k] !== undefined)
+        .map((k) => [k, canonical(value[k])]),
+    );
+  return value;
+};
+const json = (value) => JSON.stringify(canonical(value));
+// A token change without the reopened text, i.e. the plain cell it started from.
+const withoutReopenedText = (change) => {
+  const cell = { ...change };
+  delete cell.reopenedText;
+  return cell;
+};
+
+function createRoundTripDiff() {
+  const bucketNames = [
+    ...new Set(Object.values(CriticalSlotRecoveryResponsibility)),
+    'none',
+  ];
+  // The schema's OWNER_BUCKETS must be exactly what the classifier can say.
+  assert.deepEqual(
+    [...bucketNames].sort(),
+    ['o3a', 'o3b', 'o3b-s', 'Celerity', 'PR-D', 'none'].sort(),
+  );
+
+  const location = (name) => mapMechLocation(name) || name;
+  const cellKey = (loc, slot) => json([location(loc), slot]);
+  const assigned = (result) => ({
+    bucket: bucketNames.includes(result.effect.responsibility)
+      ? result.effect.responsibility
+      : 'none',
+    kind: String(result.kind),
+  });
+  const classifyCell = (entry, source) =>
+    assigned(
+      classifyCriticalSlotNoticeEntry(
+        {
+          text: entry.token ?? entry.text,
+          location: location(entry.location),
+          slot: entry.slot,
+        },
+        source,
+      ),
+    );
+  // A notice entry's full attribution (the classifier's effect id and responsibility as well).
+  const classifyNotice = (entry, source) => {
+    const result = classifyCriticalSlotNoticeEntry(
+      {
+        text: entry.text,
+        location: location(entry.location),
+        slot: entry.slot,
+      },
+      source,
+    );
+    return {
+      ...assigned(result),
+      effectId: String(result.effect.id),
+      responsibility: String(result.effect.responsibility),
+    };
+  };
+  const cellsOf = (definition) =>
+    Object.entries(definition.criticalSlots || {}).flatMap(([loc, slots]) =>
+      slots.flatMap((token, slot) =>
+        typeof token === 'string' && token.trim()
+          ? [{ location: location(loc), slot, token }]
+          : [],
+      ),
+    );
+  const mountView = (item) =>
+    canonical({
+      equipmentId: item.equipmentId,
+      category: item.category,
+      techBase: item.techBase,
+      location: item.location,
+      slots: item.slots,
+      splitSlots: item.splitSlots,
+      spreadSlots: item.spreadSlots,
+      isRearMounted: item.isRearMounted,
+      isOmniPodMounted: item.isOmniPodMounted,
+      weight: item.weight,
+      criticalSlots: item.criticalSlots,
+      heat: item.heat,
+    });
+  const mountCells = (item) =>
+    [...getSlotParts(item)].flatMap((part) =>
+      part.slots.map((slot) => ({ location: part.location, slot })),
+    );
+  const mountOwner = (item) => ({
+    ...assigned(
+      classifyCriticalSlotNoticeIdentity({
+        lookupToken: item.name || item.equipmentId,
+        equipmentId: item.equipmentId,
+        equipmentName: item.name,
+        equipmentCategory: item.category,
+      }),
+    ),
+    equipmentCategory: item.category || null,
+  });
+
+  /** Loaded mounts present after reopen unchanged; changed under the same identity; lost; added. */
+  function matchMounts(before, after) {
+    const available = after.map((item, index) => ({ item, index }));
+    const lost = [];
+    const changed = [];
+    for (const item of before) {
+      let at = available.findIndex(
+        (v) => json(mountView(v.item)) === json(mountView(item)),
+      );
+      if (at >= 0) {
+        available.splice(at, 1);
+        continue;
+      }
+      at = available.findIndex(
+        (v) =>
+          v.item.equipmentId === item.equipmentId &&
+          v.item.category === item.category &&
+          v.item.techBase === item.techBase,
+      );
+      if (at >= 0) {
+        changed.push({
+          before: mountView(item),
+          after: mountView(available[at].item),
+          cells: mountCells(available[at].item),
+          ...mountOwner(item),
+        });
+        available.splice(at, 1);
+      } else lost.push({ ...mountView(item), ...mountOwner(item) });
+    }
+    return {
+      lost,
+      changed,
+      added: available.map((v) => ({
+        ...mountView(v.item),
+        cells: mountCells(v.item),
+      })),
+    };
+  }
+
+  /**
+   * source: the committed unit JSON. noticeBefore: the loader's unrecoveredCriticalSlots before the
+   * save. equipmentBefore: the loaded mounts. reopened: the reopened unit state.
+   */
+  return function compareRoundTrip({
+    source,
+    noticeBefore,
+    equipmentBefore,
+    reopened,
+    saveLossBefore,
+    saveLossAfter: saveLossAfterObserved,
+  }) {
+    const reopenedSource = reopened.bvContext?.source;
+    assert(reopenedSource, 'Missing reopened source');
+    const afterCells = new Map(
+      cellsOf(reopenedSource).map((c) => [cellKey(c.location, c.slot), c]),
+    );
+    const lostCells = [];
+    const tokenChanges = [];
+    const triple = (c) => ({
+      location: c.location,
+      slot: c.slot,
+      text: c.token ?? c.text,
+    });
+    for (const cell of cellsOf(source)) {
+      const afterCell = afterCells.get(cellKey(cell.location, cell.slot));
+      if (!afterCell) {
+        if (isSystem(parseCriticalSlotToken(cell.token).lookupToken))
+          lostCells.push({
+            ...triple(cell),
+            identity: 'system',
+            bucket: null,
+            kind: null,
+          });
+        else
+          lostCells.push({
+            ...triple(cell),
+            identity: 'non-system',
+            ...classifyCell(cell, source),
+          });
+      } else if (afterCell.token !== cell.token)
+        tokenChanges.push({ ...triple(cell), reopenedText: afterCell.token });
+    }
+    // Unfiltered: every lost cell (system or not) and every rewritten cell, as plain triples.
+    const rawIdentityLosses = [
+      ...lostCells.map(triple),
+      ...tokenChanges.map(withoutReopenedText),
+    ];
+
+    const residual = noticeBefore.map((e) => ({
+      location: e.location,
+      slot: e.slot,
+      text: e.text,
+    }));
+    const exact = (c) => json([c.location, c.slot, c.text]);
+    const nonSystem = lostCells
+      .filter((c) => c.identity === 'non-system')
+      .map(triple);
+    const actual = new Set(nonSystem.map(exact));
+    const notice = new Set(residual.map(exact));
+    const noticeOnly = residual.filter((c) => !actual.has(exact(c)));
+    const roundTripOnly = nonSystem.filter((c) => !notice.has(exact(c)));
+    const mounts = matchMounts(equipmentBefore, reopened.equipment);
+    // The save dialog's inputs as the shared observer read them from the diagnostics hook. The hook's
+    // entries and the store's list are one field: if they ever differ the observation is wrong, so it
+    // is a harness failure, never a second reading kept beside the first. Unknown stays null.
+    const saveLossBlock = (observed, storeEntries, noticeKey, unit, label) => {
+      assert(observed, `Missing the ${label} save-loss observation`);
+      const triples = (storeEntries ?? []).map((e) => ({
+        location: e.location,
+        slot: e.slot,
+        text: e.text,
+      }));
+      if (observed.entries !== null)
+        assert.deepEqual(
+          observed.entries,
+          triples,
+          `The diagnostics hook and the ${label} store disagree on unrecoveredCriticalSlots`,
+        );
+      return {
+        settled: observed.settled,
+        lossTrackingUnknown: observed.lossTrackingUnknown,
+        [noticeKey]:
+          observed.entries === null
+            ? null
+            : storeEntries.map((e) => ({
+                location: e.location,
+                slot: e.slot,
+                text: e.text,
+                ...classifyNotice(e, unit),
+              })),
+        armorSaveLoss: observed.armorSaveLoss !== null,
+        armorSaveLossSourceType: observed.armorSaveLoss?.sourceType ?? null,
+      };
+    };
+    // BEFORE is classified against the committed unit, AFTER against the reopened unit's own source.
+    const saveLoss = saveLossBlock(
+      saveLossBefore,
+      noticeBefore,
+      'noticeBefore',
+      source,
+      'loaded',
+    );
+    const saveLossAfter = saveLossBlock(
+      saveLossAfterObserved,
+      reopened.unrecoveredCriticalSlots,
+      'noticeAfter',
+      reopenedSource,
+      'reopened',
+    );
+    return {
+      saveLoss,
+      saveLossAfter,
+      lostCells,
+      tokenChanges,
+      rawIdentityLosses,
+      noticeResidual: {
+        residual,
+        noticeOnly,
+        roundTripOnly,
+        equal: noticeOnly.length === 0 && roundTripOnly.length === 0,
+        reopenedResidualCells: (reopened.unrecoveredCriticalSlots || []).length,
+      },
+      loadedMountLosses: mounts.lost,
+      changedLoadedMounts: mounts.changed,
+      addedLoadedMounts: mounts.added,
+    };
+  };
+}
+
+export { createRoundTripDiff };
