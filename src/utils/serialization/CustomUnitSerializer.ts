@@ -115,7 +115,7 @@ function serializeArmor(state: UnitState): ISerializedArmor {
   ]);
 
   for (const [location, front] of Object.entries(state.armorAllocation)) {
-    if (rearArmorKeys.has(location) || location === 'leftArm') {
+    if (rearArmorKeys.has(location) || location === MechLocation.LEFT_ARM) {
       continue;
     }
     const rear = rearArmor[location];
