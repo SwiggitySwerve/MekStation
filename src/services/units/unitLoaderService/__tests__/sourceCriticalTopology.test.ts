@@ -55,6 +55,18 @@ it.each([
   },
 );
 
+it.each([
+  ['ISERPPC', false],
+  ['ISERPPC (ARMORED)', true],
+  ['ISERPPC (R) (OMNIPOD) (ARMORED)', true],
+  ['ISERPPC (ARMORED) suffix', false],
+] as const)(
+  '%s exposes its native armored suffix as %s',
+  (token, isArmored) => {
+    expect(parseCriticalSlotToken(token).isArmored).toBe(isArmored);
+  },
+);
+
 it('recovers Great Turtle GTR-2 armored weapon slots', () => {
   const state = new UnitLoaderService().mapToUnitState(turtle, true);
   const ids = ['medium-x-pulse-laser', 'er-medium-laser', 'er-ppc'];
