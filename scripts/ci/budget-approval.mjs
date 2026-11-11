@@ -319,7 +319,9 @@ export function observedChanges(initial, reads, nested) {
     headMovedAfter: reads.some(
       (r) => r.phase === 'after' && r.head !== initial.head.sha,
     ),
-    // Every other head any read or nested result saw, in first-seen order.
+    // Every other head seen, for the failure message only (no decision reads
+    // it): heads from the reads in read order, then heads named by nested
+    // results ('(none)' for a result that names no head), each listed once.
     otherHeads: [
       ...new Set([
         ...reads.map((r) => r.head),

@@ -890,6 +890,57 @@ test('a publisher bound to a superseded head writes nothing and is not failed', 
   assert.equal(guardOutcome(1, result).fail, false);
 });
 
+// Sol's read of d31ea0e0a: the message for several heads, and for a nested
+// result that names no head. otherHeads lists read heads in read order, then
+// heads named by nested results.
+test('the head-changed message lists every other head seen, and a nested result with no head', async () => {
+  const X = RUN_HEAD;
+  const Y = 'f'.repeat(40);
+  const Z = 'e'.repeat(40);
+  // X -> Y -> Z: the nested check reads Y then Z; every later read is Z.
+  const f = fixture();
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    reads += 1;
+    if (reads === 2) pr.head.sha = Y;
+    if (reads >= 3) pr.head.sha = Z;
+    return { data: pr };
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.deepEqual(result.otherHeads, [Y, Z]);
+  const line = guardOutcome(1, result).line;
+  assert.ok(line.includes(`(evaluated ${X}; also seen ${Y}, ${Z}; now ${Z})`));
+  assert.ok(line.includes(`the run for the PR's current head (${Z}) decides`));
+  // A nested result that names no head, then the head moves after evaluation.
+  const g = fixture();
+  changeAfterFirstRead(g, 'head');
+  const unnamed = await policy({
+    github: g.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    checkRaise: async () => ({
+      allowed: true,
+      code: 'no-raise',
+      message: 'ok',
+    }),
+  });
+  assert.deepEqual(unnamed.otherHeads, [NEW_HEAD, '(none)']);
+  const outcome = guardOutcome(1, unnamed);
+  assert.equal(outcome.fail, true);
+  assert.ok(
+    outcome.line.includes(
+      `(evaluated ${X}; also seen ${NEW_HEAD}, (none); now ${NEW_HEAD})`,
+    ),
+  );
+});
+
 test('a nested approval that names no head is a refusal and fails the job', async () => {
   const f = fixture();
   for (const evaluatedHead of [undefined, null, '']) {
