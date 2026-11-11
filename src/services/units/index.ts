@@ -1,16 +1,10 @@
 /**
  * Unit Services
  *
- * Central export for unit factory and management services.
+ * Central export for unit management services.
  *
  * @module services/units
  */
-
-export {
-  UnitFactoryService,
-  getUnitFactory,
-  type IUnitFactoryResult,
-} from './UnitFactoryService';
 
 export {
   CanonicalUnitService,

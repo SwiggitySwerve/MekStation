@@ -15,7 +15,6 @@ import {
   services,
   shutdownServices,
 } from '@/services/serviceRegistry';
-import { getUnitFactory } from '@/services/units';
 
 jest.mock('@/services/construction', () => ({
   getCalculationService: jest.fn(() => ({ kind: 'calculation' })),
@@ -38,15 +37,16 @@ jest.mock('@/services/pilots', () => ({
   getPilotRepository: jest.fn(() => ({ kind: 'repository' })),
   getPilotService: jest.fn(() => ({ kind: 'pilot' })),
 }));
-jest.mock('@/services/units', () => ({
-  getUnitFactory: jest.fn(() => ({ kind: 'factory' })),
-}));
 
 describe('service registry', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('does not expose the retired conversion importer', () => {
     expect(Reflect.has(services, 'conversion')).toBe(false);
+  });
+
+  it('does not expose the unused runtime unit factory', () => {
+    expect(Reflect.has(services, 'units')).toBe(false);
   });
 
   it.each([
@@ -63,7 +63,6 @@ describe('service registry', () => {
       () => services.equipment.nameMapper,
       getEquipmentNameMapper,
     ],
-    ['units.factory', () => services.units.factory, getUnitFactory],
     [
       'construction.builder',
       () => services.construction.builder,
