@@ -1,17 +1,18 @@
 name: Parity Runtime
 
-# Report-only runtime-path parity census: numbers computed from the app's loaded
-# state, not the source path the Parity Scoreboard reads.
+# Runtime-path parity gate: per-unit facts computed from the app's loaded state,
+# compared against the committed baseline. Census counts and the SHA range are
+# informational; gate.mjs owns the pass/fail decision.
 #
-# Today it is dispatch-only, so a runtime port can prove on its own branch that
+# Dispatch remains available so a runtime port can prove on its own branch that
 # the hosted per-unit table equals the local one (gh workflow run
 # parity-runtime.yml --ref <branch> -f measure=load). Each port supplies its
 # entry script; on a ref without it the job fails and says so. Nightly
-# Validation calls this workflow once the ports are on main. Never add a PR or
+# Validation calls this workflow for both measures. Never add a PR or
 # push trigger. Branch dispatches are logged in the C5 queue notes, one in
 # flight per measure; they are not charged against the nightly dispatch slots.
-# The 45-minute timeout stands while hosted wall time is measured; the final
-# value is set from those measurements when the nightly calls this workflow.
+# Hosted census wall times: load 210-242 s, reopen 331-499 s. The 15/20-minute
+# limits allow installation, optional artifact retrieval and reporting headroom.
 on:
   workflow_dispatch:
     inputs:
@@ -32,14 +33,13 @@ concurrency:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   census:
-    name: Parity Runtime ${{ inputs.measure }} (report only)
+    name: Parity Runtime ${{ inputs.measure }}
     runs-on: ubuntu-latest
-    # Generous on purpose while the ports measure their hosted wall time; the
-    # nightly budget is set from those measurements, not guessed here.
-    timeout-minutes: 45
+    timeout-minutes: ${{ inputs.measure == 'load' && 15 || 20 }}
     steps:
       - name: Set runner scratch path
         run: printf 'PARITY_RUNTIME_OUTPUT=%s/parity-runtime\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
@@ -48,6 +48,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
+          # The gate checks the committed baseline SHA's ancestry.
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -87,6 +89,32 @@ jobs:
           echo "census $MEASURE: exit $status, wall time $((end - start)) s, node $(node --version), image ${ImageOS:-unknown} ${ImageVersion:-unknown}" >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
 
+      - name: Retrieve last green from main Nightly
+        id: last-green
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          MEASURE: ${{ inputs.measure }}
+        run: node scripts/ci/parity-runtime-last-green.mjs --measure "$MEASURE" --out "$PARITY_RUNTIME_OUTPUT/previous"
+
+      - name: Gate runtime parity
+        id: gate
+        if: ${{ !cancelled() }}
+        env:
+          MEASURE: ${{ inputs.measure }}
+        run: |
+          args=()
+          if [ -f "$PARITY_RUNTIME_OUTPUT/previous/last-green.json" ]; then
+            args+=(--last-green "$PARITY_RUNTIME_OUTPUT/previous/last-green.json")
+          fi
+          node scripts/lib/runtime-parity/gate.mjs --measure "$MEASURE" --run-dir "$PARITY_RUNTIME_OUTPUT" "${args[@]}"
+
+      - name: Summarize runtime gate
+        if: ${{ !cancelled() }}
+        run: node scripts/ci/parity-runtime-summary.mjs --run-dir "$PARITY_RUNTIME_OUTPUT"
+
       - name: Upload census output
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
@@ -95,4 +123,15 @@ jobs:
           overwrite: true
           if-no-files-found: error
           retention-days: 14
+          # Includes census files and gate/{gate-report.json,gate-units.ndjson,
+          # proposed-baseline.json}, even when the gate fails.
           path: ${{ runner.temp }}/parity-runtime/
+
+      - name: Upload last green
+        if: ${{ success() && steps.gate.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: parity-runtime-last-green-${{ inputs.measure }}
+          retention-days: 30
+          if-no-files-found: error
+          path: ${{ runner.temp }}/parity-runtime/gate/last-green.json
