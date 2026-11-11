@@ -1522,6 +1522,9 @@ export class ServerMatchHost {
       closeMatch: () => this.closeMatch(),
       maybeResume: () => this.maybeResume(),
       installFreshCapture: () => this.installFreshCapture(),
+      peekNewEvents: () =>
+        drainNewEvents(this.session.getSession().events, this.lastBroadcastSeq)
+          .events,
       drainNewEvents: () => this.drainNewEvents(),
       stampRollsOnNewEvents: (events) => this.stampRollsOnNewEvents(events),
       tryPublishOutcome: () => this.tryPublishOutcome(),

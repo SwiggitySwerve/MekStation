@@ -103,6 +103,8 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
+  /** Pending publication batch without advancing its cursor. */
+  readonly peekNewEvents: () => readonly IGameEvent[];
   readonly closed: boolean;
   readonly isPaused: boolean;
   /** M-H3: refusal text naming the active pause cause. */
@@ -357,8 +359,10 @@ export async function handleIntent(
   try {
     ctx.session.withValidatedCommand(
       () => dispatchToEngine(ctx.session, envelope.intent),
-      (events) => {
-        shadowEvents = ctx.stampRollsOnNewEvents(events);
+      () => {
+        // Include facts appended before this dispatch, such as domain lock
+        // events. Validation must cover the same batch the cursor drains.
+        shadowEvents = ctx.stampRollsOnNewEvents(ctx.peekNewEvents());
         newEvents = stampIntentIdOnNewEvents(
           envelope.intentId,
           shadowEvents,
