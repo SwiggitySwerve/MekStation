@@ -7,6 +7,12 @@
  * The bare fetch-listener positive control must lose >= half its writes or the
  * run is INCONCLUSIVE. Browser request reports are never arrival evidence.
  * Tab-close control: campaign-crash-window-flush.spec.ts (unchanged).
+ *
+ * At offset 2000 ms the reload lands on the debounce boundary by construction.
+ * The split between keepalive and ordinary-save delivery there depends on the
+ * reload()→pagehide interval of the run and is NOT a criterion or a regression
+ * signal. The criteria are 0 lost, 0 undelivered, 0 unattributable, and a losing
+ * control. See campaign-save-loss/PR2-IMPLEMENTATION.md, "Harness note".
  * @tags @campaign
  */
 import { expect, test } from '@playwright/test';
