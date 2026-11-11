@@ -47,6 +47,7 @@ import {
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { markMatchCompleted } from './matchCompletion';
 import { isLobbyIntentKind } from './matchIntentKinds';
+import { preflightMatchPublications } from './MatchPublicationReadability';
 import {
   refuseDuringHistoryRebuild,
   refuseLiveBranchFromIntent,
@@ -352,14 +353,14 @@ export async function handleIntent(
     return result.messages;
   }
 
-  ctx.installFreshCapture();
+  const rollbackDice = ctx.installFreshCapture();
   const headIndex = ctx.session.getSession().events.length;
   let newEvents: readonly IGameEvent[] = [];
   let shadowEvents: readonly IGameEvent[] = [];
   try {
-    ctx.session.withValidatedCommand(
+    await ctx.session.withValidatedCommand(
       () => dispatchToEngine(ctx.session, envelope.intent),
-      () => {
+      async () => {
         // Include facts appended before this dispatch, such as domain lock
         // events. Validation must cover the same batch the cursor drains.
         shadowEvents = ctx.stampRollsOnNewEvents(ctx.peekNewEvents());
@@ -369,9 +370,16 @@ export async function handleIntent(
         ).map((event) =>
           prepareEventForSerialization(event, 'match-broadcast'),
         );
+        await preflightMatchPublications(
+          ctx.matchId,
+          ctx.store,
+          ctx.session.getSession().events,
+          newEvents,
+        );
       },
     );
   } catch (e) {
+    if (typeof rollbackDice === 'function') rollbackDice();
     return rejectCommand(
       ctx,
       envelope,
