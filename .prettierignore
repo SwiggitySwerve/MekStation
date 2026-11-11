@@ -25,3 +25,7 @@ public/record-sheets/
 public/data/units/vehicles/
 public/data/units/aerospace/
 public/data/units/capital/
+
+# Byte-pinned to the upstream reference (CRLF, SHA-256 checked by its co-located
+# test). Formatting must never touch it; the .oxfmtrc.json override keeps CRLF too.
+config/reference/reference-full.jsonl.provenance.json
