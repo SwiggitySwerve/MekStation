@@ -1,11 +1,6 @@
 import type { IGameEvent } from '@/types/gameplay';
 
-import { assertReplayInputProvenance } from '@/lib/events/replay/ReplayInputProvenanceManifest';
-import {
-  REPLAY_SURFACE_REGISTRY,
-  splitHostStamps,
-} from '@/lib/events/replay/ReplaySurfaceGate';
-import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import { acceptReplayStoredImage } from '@/lib/events/replay/ReplayEventAcceptance';
 
 export type StoredGameEventFormat =
   | 'simulation-report-jsonl'
@@ -43,12 +38,8 @@ export function prepareEventForSerialization<T extends IGameEvent>(
         return value;
       }),
     );
-    if (!isGameEvent(candidate))
-      throw new Error('Invalid stored game-event envelope');
-    image = candidate;
-    const { canonical } = splitHostStamps(formatId, image.payload);
-    const parsed = REPLAY_SURFACE_REGISTRY.upcast(image.type, 1, canonical);
-    assertReplayInputProvenance(parsed.eventType, parsed.payload);
+    image = candidate as IGameEvent;
+    acceptReplayStoredImage(image, formatId);
     // Preserve valid finite caller objects, undefined keys and JSON key order.
     // A supported non-finite image must also be safe for the journal's JCS.
     return numbersChangedByJson ? (image as T) : event;
