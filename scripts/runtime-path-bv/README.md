@@ -43,6 +43,15 @@ a worse count and passes a better one by reading the direction from the file, no
 | `validity.agree`             | units whose runtime validity equals Java's                            | higher-is-better |
 | `weightOwners.agree`         | units whose status-bar weight equals the validator's allocated weight | higher-is-better |
 
+## Gate inputs: facts and the baseline
+
+Beside the rows, the run writes `facts.ndjson`: per unit the gated facts (`bvExact`, `bvDistance`, `validity`, `weightOwners`),
+derived from the row and the Java reference by `scripts/lib/runtime-parity/facts.mjs`. The rows themselves are unchanged.
+`node scripts/lib/runtime-parity/gate.mjs --measure load --run-dir <out>` compares them with the committed baseline
+`config/parity-runtime/baseline-load.json`. `--write-baseline --reason "<why>" [--pr <n>]` writes that file from the run (SHA,
+population hash, a `notes[]` entry) and refuses a narrowed run, differing runs or any failed or unknown unit. The rule, the file
+schema and the report are in `scripts/lib/runtime-parity/BASELINE-SCHEMA.md`.
+
 ## Exit code
 
 Non-zero only if the census did not complete: `S0A_REFERENCE_MISSING`, `S0B_MANIFEST_MISSING`, `INPUT_SHA_DRIFT`,

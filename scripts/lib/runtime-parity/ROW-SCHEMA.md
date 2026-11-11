@@ -92,6 +92,11 @@ construction validity, saving/refreshing) are separate and are not part of it.
 loss is permanent in the file, so a high `after` means the opposite of improvement. The remaining counts (confirmation, unsettled, unknown,
 noticeEntries, armorSaveLoss, errorRows) are under `saveLossDetail.before` and `saveLossDetail.after`. There is no `summary.saveLoss`.
 
+## Facts (`facts.ndjson`), derived, not part of the row
+
+The nightly gate's per-unit facts are derived from a row and the Java reference (`facts.mjs`) and written beside the rows; no field is
+added to a row. See `BASELINE-SCHEMA.md`.
+
 ## Run receipt (`receipt.json`)
 
 Provenance and resource facts live here, never on a row: `repoSha`, `node` (`process.version`), `nodeAbi`
