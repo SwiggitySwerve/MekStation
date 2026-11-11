@@ -11,6 +11,7 @@ import {
   UnitLoaderService,
 } from '@/services/units/unitLoaderService';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
+import { parseCriticalSlotToken } from '@/services/units/unitLoaderService/equipmentResolution';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
@@ -18,6 +19,7 @@ import { GyroType } from '@/types/construction/GyroType';
 import { Era } from '@/types/temporal/Era';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
+import { getMountedRearSuffix } from '@/utils/serialization/CustomUnitSerializer.sourceCells';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
@@ -51,6 +53,21 @@ function source(path: string): IRawSerializedUnit {
 
 function load(path: string): UnitState {
   return new UnitLoaderService().mapToUnitState(source(path), true);
+}
+
+function loadExplicitRearAtlas(): UnitState {
+  const atlas = source(ATLAS);
+  return new UnitLoaderService().mapToUnitState(
+    {
+      ...atlas,
+      equipment: atlas.equipment?.map((mount) =>
+        mount.id === 'medium-laser' && mount.location === 'CENTER_TORSO'
+          ? { ...mount, isRearMounted: true }
+          : mount,
+      ),
+    },
+    true,
+  );
 }
 
 function save(state: UnitState) {
@@ -268,7 +285,7 @@ it('does not transfer armored cockpit/gyro source cells to changed systems', () 
 });
 
 it('cold reopens each Atlas rear mount with its boolean and cell marker', () => {
-  const state = load(ATLAS);
+  const state = loadExplicitRearAtlas();
   const rear = state.equipment.filter((mount) => mount.isRearMounted);
   expect(rear).toHaveLength(2);
   const document = save(state);
@@ -284,8 +301,66 @@ it('cold reopens each Atlas rear mount with its boolean and cell marker', () => 
   }
 });
 
-it('rejects a rear-dropping writer mutant through the same cold boundary', () => {
+it('keeps canonical Atlas source rear markers through the current load-side false fallback', () => {
   const document = save(load(ATLAS));
+  for (const raw of [document, reopenedSource(document)]) {
+    expect(cells(raw, MechLocation.CENTER_TORSO).slice(10, 12)).toEqual(
+      Array(2).fill('Medium Laser (R)'),
+    );
+  }
+});
+
+it.each(['moved', 'replaced', 'removed'] as const)(
+  'rejects a stale rear marker for a %s mount',
+  (edit) => {
+    const state = load(ATLAS);
+    const original = state.equipment.find(
+      (mount) =>
+        mount.location === MechLocation.CENTER_TORSO &&
+        mount.slots?.includes(10),
+    );
+    if (!original) throw new Error('Expected Atlas center torso laser');
+    const mount =
+      edit === 'moved'
+        ? { ...original, location: MechLocation.LEFT_ARM, slots: [4] }
+        : edit === 'replaced'
+          ? { ...original, equipmentId: 'small-laser', name: 'Small Laser' }
+          : { ...original, instanceId: 'replacement-instance' };
+    if (!mount.location) throw new Error('Expected allocated mount');
+    const location = mount.location;
+    const slot = mount.slots?.[0] ?? 0;
+    const assertGuard = (suffix: string) => expect(suffix).toBe('');
+    assertGuard(
+      getMountedRearSuffix(state, mount, location, slot, 'Medium Laser (R)'),
+    );
+    // Deliberately drop source-identity/position/instance guards from the writer.
+    const unguardedMutant = parseCriticalSlotToken('Medium Laser (R)')
+      .isRearMounted
+      ? ' (R)'
+      : '';
+    expect(() => assertGuard(unguardedMutant)).toThrow();
+  },
+);
+
+it('honors an explicit live rear=false edit over a previously rear=true source', () => {
+  const state = loadExplicitRearAtlas();
+  const document = save({
+    ...state,
+    equipment: state.equipment.map((mount) => ({
+      ...mount,
+      isRearMounted: false,
+    })),
+  });
+  expect(cells(document, MechLocation.CENTER_TORSO).slice(10, 12)).toEqual(
+    Array(2).fill('Medium Laser'),
+  );
+  expect(
+    coldReopen(document).equipment.some((mount) => mount.isRearMounted),
+  ).toBe(false);
+});
+
+it('rejects a rear-dropping writer mutant through the same cold boundary', () => {
+  const document = save(loadExplicitRearAtlas());
   const mutant = {
     ...document,
     equipment: document.equipment.map((mount) => ({

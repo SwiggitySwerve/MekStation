@@ -58,6 +58,7 @@ import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology'
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
 import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
 import {
+  getMountedRearSuffix,
   getMountedSourceArmorSuffix,
   preserveSourceSystemCells,
 } from './CustomUnitSerializer.sourceCells';
@@ -197,7 +198,13 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
               state.techBaseMode,
             ) ??
             item.name +
-              (item.isRearMounted ? ' (R)' : '') +
+              getMountedRearSuffix(
+                state,
+                item,
+                location,
+                slot,
+                sourceSlots?.[slot],
+              ) +
               getMountedSourceArmorSuffix(state, item, location, slot);
         }
       }

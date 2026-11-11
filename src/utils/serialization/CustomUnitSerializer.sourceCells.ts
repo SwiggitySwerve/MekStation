@@ -87,6 +87,33 @@ export function preserveSourceSystemCells(
   }
 }
 
+/** Keep source mounting facts only on that surviving mount's original cell. */
+function getMountedSourceCellToken(
+  state: UnitState,
+  mount: IMountedEquipmentInstance,
+  location: MechLocation,
+  slot: number,
+  sourceToken: string | null | undefined,
+): string | undefined {
+  if (!sourceToken) return undefined;
+  const original = state.bvContext?.equipment.find(
+    (item) => item.instanceId === mount.instanceId,
+  );
+  if (
+    !original ||
+    !getSlotParts(original).some(
+      (part) => part.location === location && part.slots.includes(slot),
+    )
+  )
+    return undefined;
+  return getMountedEquipmentSourceToken(
+    mount,
+    sourceToken,
+    state.techBase,
+    state.techBaseMode,
+  );
+}
+
 /** Retain armor without replacing the writer's existing equipment spelling. */
 export function getMountedSourceArmorSuffix(
   state: UnitState,
@@ -99,21 +126,26 @@ export function getMountedSourceArmorSuffix(
     location,
   )?.[slot];
   if (!sourceToken || !parseCriticalSlotToken(sourceToken).isArmored) return '';
-  const original = state.bvContext?.equipment.find(
-    (item) => item.instanceId === mount.instanceId,
-  );
-  if (
-    !original ||
-    !getSlotParts(original).some(
-      (part) => part.location === location && part.slots.includes(slot),
-    )
-  )
-    return '';
-  const token = getMountedEquipmentSourceToken(
+  return getMountedSourceCellToken(state, mount, location, slot, sourceToken)
+    ? ' (ARMORED)'
+    : '';
+}
+
+/** The projection clears source rear markers when a mount's live flag changes. */
+export function getMountedRearSuffix(
+  state: UnitState,
+  mount: IMountedEquipmentInstance,
+  location: MechLocation,
+  slot: number,
+  projectedToken: string | null | undefined,
+): string {
+  if (mount.isRearMounted) return ' (R)';
+  const token = getMountedSourceCellToken(
+    state,
     mount,
-    sourceToken,
-    state.techBase,
-    state.techBaseMode,
+    location,
+    slot,
+    projectedToken,
   );
-  return token ? ' (ARMORED)' : '';
+  return token && parseCriticalSlotToken(token).isRearMounted ? ' (R)' : '';
 }

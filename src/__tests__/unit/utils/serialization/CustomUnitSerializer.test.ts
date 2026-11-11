@@ -408,16 +408,7 @@ describe('serializeCustomUnitState', () => {
     expect(reloaded.armorAllocation[MechLocation.CENTER_TORSO]).toBe(40);
     expect(reloaded.armorAllocation.centerTorsoRear).toBe(20);
     expect(serialized.criticalSlots[MechLocation.RIGHT_TORSO]).toEqual([
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
-      'AC/20',
+      ...Array(10).fill('AC/20 (R)'),
       null,
       null,
     ]);
