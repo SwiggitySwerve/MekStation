@@ -10,12 +10,14 @@ import { join } from 'node:path';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { CriticalSlotOverflowValidation } from '@/services/validation/rules/universal/UniversalValidationRules';
+import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IUnitValidationContext,
   UnitCategory,
 } from '@/types/validation/UnitValidationInterfaces';
 import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
+import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 import atae70 from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Uni ATAE-70 ArtilleryMech.json';
 import { recoveredMountInstanceId } from '../mountInstanceId';
@@ -199,5 +201,53 @@ describe('mount ids over a representative unit set', () => {
     // Not vacuous: the set must really contain recovered mounts.
     expect(total).toBeGreaterThan(350);
     expect(recovered).toBeGreaterThan(100);
+  });
+});
+
+describe('mount ids on the save-and-reopen path', () => {
+  // A saved document lists heat sinks (and everything else) as equipment entries, which takes the
+  // serialized-equipment restore path instead of the canonical one. Its ids must be content-derived
+  // too: nothing on a reopened unit may come from a random draw.
+  const read = (name: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/units/battlemechs', `${name}.json`),
+        'utf8',
+      ),
+    );
+  const reopen = (name: string) => {
+    const state = load(read(name));
+    const saved = JSON.parse(
+      JSON.stringify(
+        serializeCustomUnitState(state, {
+          id: state.id,
+          chassis: state.chassis,
+          variant: state.model,
+          era: Era.LATE_SUCCESSION_WARS,
+        }),
+      ),
+    );
+    return new UnitLoaderService().mapToUnitState(parseUnit(saved), false)
+      .equipment;
+  };
+
+  it('are content-derived, unique and identical on every reopen', () => {
+    let heatSinks = 0;
+    for (const name of REPRESENTATIVE_UNITS) {
+      const first = reopen(name);
+      const ids = first.map((item) => item.instanceId);
+      expect({
+        name,
+        random: ids.filter((id) => !id.startsWith('mount:')),
+      }).toEqual({
+        name,
+        random: [],
+      });
+      expect(new Set(ids).size).toBe(ids.length);
+      expect(reopen(name).map((item) => item.instanceId)).toEqual(ids);
+      heatSinks += first.filter((m) => /heat-sink/.test(m.equipmentId)).length;
+    }
+    // Not vacuous: the saved documents really carry heat sink mounts.
+    expect(heatSinks).toBeGreaterThan(50);
   });
 });

@@ -253,6 +253,8 @@ function restoreSerializedHeatSink(
   return heatSink
     ? {
         ...heatSink,
+        // Keep the mount's own (content-derived) id; the fresh heat sink's is random.
+        instanceId: item.instanceId,
         location: item.location,
         slots: item.slots,
         isRearMounted: item.isRearMounted,
