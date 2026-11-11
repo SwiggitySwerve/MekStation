@@ -26,11 +26,6 @@ concurrency:
 
 jobs:
   guard:
-    # Keep report-run ordering above; serialize this existing publishing job
-    # with approval and label jobs without adding another counted job.
-    concurrency:
-      group: ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || format('dispatch-pr-{0}', inputs.pull_request) }}
-      cancel-in-progress: false
     name: Require a Lint and Test conclusion
     runs-on: ubuntu-latest
     timeout-minutes: 3

@@ -9,9 +9,6 @@ permissions: {}
 
 jobs:
   approval:
-    concurrency:
-      group: ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || format('dispatch-pr-{0}', inputs.pull_request) }}
-      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:

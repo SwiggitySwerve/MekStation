@@ -19,11 +19,6 @@ permissions: {}
 
 jobs:
   approval:
-    concurrency:
-      # A late signal for an old SHA cannot replace a new SHA's pending revocation.
-      # Dispatch has no head SHA at expression time; its recovery queue is separate.
-      group: ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || format('dispatch-pr-{0}', inputs.pull_request) }}
-      cancel-in-progress: false
     # Manual dispatch cannot grant write privileges to arbitrary branch code.
     if: github.event_name != 'workflow_dispatch' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest

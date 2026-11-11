@@ -39,7 +39,10 @@ export function runHead(expectedHead, number, eventPath) {
   }
 }
 
-/** G3 owns approval; G1 adds its one dependency label rule to the same decision. */
+/**
+ * Read-only calls evaluate one PR. Real success statuses additionally require
+ * every open associated PR at that SHA to pass that same read-only policy.
+ */
 export async function checkBudgetPolicy({
   github,
   owner,
@@ -57,11 +60,12 @@ export async function checkBudgetPolicy({
   // supersededHeadProof); nothing is carried from one result to the next.
   const reads = [];
   let phase = 'evaluation';
-  const readPr = async (params) => {
+  const readPr = async (params, readPhase = phase) => {
     const response = await github.rest.pulls.get(params);
     const pr = response.data;
     reads.push({
-      phase,
+      number: params.pull_number,
+      phase: readPhase,
       head: pr.head.sha,
       base: pr.base.sha,
       labels: labelKey(pr),
@@ -194,6 +198,78 @@ export async function checkBudgetPolicy({
     changedContext(fresh, 'PR head/base/labels changed; rerun required') ??
     result;
   if (publish) {
+    // Commit statuses are shared by all PRs at this SHA. Evaluate every open
+    // associated PR, not only the event's PR, using the same read-only policy.
+    // Its reads still pass through this evaluation's recording client.
+    async function associatedRefusal(readPhase) {
+      try {
+        const associated = await github.paginate(
+          github.rest.repos.listPullRequestsAssociatedWithCommit,
+          { owner, repo, commit_sha: initial.head.sha, per_page: 100 },
+        );
+        const numbers = [
+          ...new Set(
+            associated
+              .filter(
+                (pr) =>
+                  pr.state === 'open' &&
+                  pr.head?.sha === initial.head.sha &&
+                  pr.base?.repo?.full_name?.toLowerCase() ===
+                    `${owner}/${repo}`.toLowerCase(),
+              )
+              .map((pr) => pr.number),
+          ),
+        ];
+        const recording = {
+          ...sink,
+          rest: {
+            ...sink.rest,
+            pulls: {
+              ...sink.rest.pulls,
+              get: (params) => readPr(params, readPhase),
+            },
+          },
+        };
+        for (const associatedNumber of numbers) {
+          if (!Number.isSafeInteger(associatedNumber) || associatedNumber < 1)
+            throw new Error('Invalid associated PR number');
+          const checked = await checkBudgetPolicy({
+            github: recording,
+            owner,
+            repo,
+            number: associatedNumber,
+            publish: false,
+            expectedHead: initial.head.sha,
+          });
+          if (
+            checked.allowed !== true ||
+            checked.unbound === true ||
+            checked.evaluatedHead !== initial.head.sha
+          )
+            return {
+              allowed: false,
+              code: 'associated-pr-refused',
+              message: `PR #${associatedNumber} blocks approval for this head: ${checked.message}`,
+            };
+        }
+        return null;
+      } catch (error) {
+        return {
+          allowed: false,
+          code: 'associated-pr-read-failed',
+          message: `Associated PR approval unavailable: ${error.message}`,
+        };
+      }
+    }
+    const write = (context, state, description) =>
+      github.rest.repos.createCommitStatus({
+        owner,
+        repo,
+        sha: initial.head.sha,
+        context,
+        state,
+        description: description.slice(0, 140),
+      });
     async function emit(context, state, description) {
       const { data: current } = await readPr(parameters);
       const changed = changedContext(
@@ -205,14 +281,39 @@ export async function checkBudgetPolicy({
         state = 'failure';
         description = result.message;
       }
-      await github.rest.repos.createCommitStatus({
-        owner,
-        repo,
-        sha: initial.head.sha,
-        context,
-        state,
-        description: description.slice(0, 140),
-      });
+      if (state === 'success') {
+        const refusal = await associatedRefusal('after');
+        if (refusal) {
+          result = refusal;
+          state = 'failure';
+          description = result.message;
+        }
+      }
+      await write(context, state, description);
+      if (state === 'success') {
+        // A concurrent publisher can write a revocation failure between our
+        // pre-write read and success. Verify the live PR after the actual write
+        // and correct this context on the evaluated head, never a newer head.
+        let refusal;
+        try {
+          const { data: verified } = await readPr(parameters, 'verify');
+          refusal =
+            changedContext(
+              verified,
+              'PR context changed after successful status write',
+            ) ?? (await associatedRefusal('verify'));
+        } catch (error) {
+          refusal = {
+            allowed: false,
+            code: 'verification-read-failed',
+            message: `Post-success PR verification unavailable: ${error.message}`,
+          };
+        }
+        if (refusal) {
+          result = refusal;
+          await write(context, 'failure', result.message);
+        }
+      }
     }
     // Hold the existing required context until BOTH policy and actual primary
     // checks pass. Label/review revocation then blocks the same required name.
@@ -284,7 +385,14 @@ export async function checkBudgetPolicy({
       );
     }
   }
-  const evidence = observedChanges(initial, reads, nested);
+  // Other PRs legitimately have different bases and labels. Their policy
+  // refusals fail this job directly; the superseded-head proof concerns only
+  // the triggering PR's snapshots, while the returned log retains every read.
+  const evidence = observedChanges(
+    initial,
+    reads.filter((read) => read.number === number),
+    nested,
+  );
   return {
     ...result,
     ...evidence,
@@ -317,7 +425,14 @@ export function observedChanges(initial, reads, nested) {
       ) || nested.some((n) => n.evaluatedHead !== initial.head.sha),
     nestedChanged: nested.some((n) => n.code === 'changed-context'),
     headMovedAfter: reads.some(
-      (r) => r.phase === 'after' && r.head !== initial.head.sha,
+      (r) =>
+        (r.phase === 'after' || r.phase === 'verify') &&
+        r.head !== initial.head.sha,
+    ),
+    // A head move discovered after publishing success must fail the job, even
+    // when every evaluation read was clean and no labels or base changed.
+    headChangedAfterSuccess: reads.some(
+      (r) => r.phase === 'verify' && r.head !== initial.head.sha,
     ),
     // Every other head seen, for the failure message only (no decision reads
     // it): heads from the reads in read order, then heads named by nested
@@ -347,6 +462,7 @@ export function supersededHeadProof(result, evidence) {
     evidence.labelsChanged === false &&
     evidence.snapshotMismatch === false &&
     evidence.nestedChanged === false &&
+    evidence.headChangedAfterSuccess === false &&
     evidence.headMovedAfter === true
   );
 }

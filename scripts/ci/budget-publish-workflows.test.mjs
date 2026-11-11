@@ -6,9 +6,7 @@ import { parse } from 'yaml';
 const read = (file) =>
   parse(fs.readFileSync(`.github/workflows/${file}`, 'utf8'));
 
-test('all budget status publishers serialize in the same event-aware group without cancelling the running job', () => {
-  const group =
-    "ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || format('dispatch-pr-{0}', inputs.pull_request) }}";
+test('no budget publisher queues evaluations; only the Guard report workflow has concurrency', () => {
   const publishers = [];
   for (const file of fs
     .readdirSync('.github/workflows')
@@ -31,11 +29,23 @@ test('all budget status publishers serialize in the same event-aware group witho
       }
       if (!publishes) continue;
       publishers.push(`${file}/${id}`);
-      assert.deepEqual(
+      assert.equal(
         job.concurrency,
-        { group, 'cancel-in-progress': false },
-        `${file}/${id}`,
+        undefined,
+        `${file}/${id}: publisher job must not queue evaluations`,
       );
+      if (file === 'lint-and-test-guard.yml')
+        assert.deepEqual(workflow.concurrency, {
+          group:
+            'ci-report-${{ github.repository }}-${{ github.event.workflow_run.head_branch }}',
+          'cancel-in-progress': false,
+        });
+      else
+        assert.equal(
+          workflow.concurrency,
+          undefined,
+          `${file}: publisher workflow must not queue evaluations`,
+        );
     }
   }
   assert.deepEqual(publishers.sort(), [

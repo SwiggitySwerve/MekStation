@@ -168,29 +168,44 @@ revocation fails the existing required context without needing a new required
 context setting. Default-branch trusted publishing begins after bootstrap lands;
 the bootstrap PR itself runs the required primary policy check read-only.
 
-Automatic budget-status publishers share a job concurrency group within the base
-repository, keyed by the evaluated head SHA. PR events use `pull_request.head.sha`;
-workflow-run events use `workflow_run.head_sha`. The
-Guard retains its separate workflow report group. `cancel-in-progress: false`
-allows one running and one pending job; a newer pending job replaces the older
-pending job. Replacement on the same current head rereads live labels. Different
-head SHAs have different groups, so an old-head signal arriving late cannot
-replace the current head's pending revocation. A run can write only to its bound
-SHA; cross-head interleaving cannot overwrite a different head's status. A return
-to a formerly green SHA still needs its own reevaluation, so the existing
-force-push gap remains.
+Budget publishers have no job or workflow concurrency queue. GitHub replaces
+older pending work within a group, so no branch/repository/SHA key can ensure
+every PR's label revocation is evaluated. The Guard alone retains its existing
+workflow-level `ci-report-<repository>-<branch>` group for report ordering. Label
+evaluations run independently of that report group, and every actual budget
+success from the Guard uses the same verification below.
 
-Branch names and possibly null deleted-fork repository metadata do not enter the
-key. PRs with different head SHAs cannot replace one another's pending publishers;
-the exact same commit SHA still shares its group and commit-status identity even
-when referenced by multiple PRs. This is not a durable queue. Closed/merged PRs are filtered
-when associated by Guard/review signals; a queued direct PR event or dispatch
-still reads current head/base/labels and can write to that evaluated head because
-`checkBudgetPolicy` does not gate on open state.
+Commit statuses are SHA-scoped. Before each success, the publisher lists open
+PRs associated with the evaluated SHA into this base repository and requires
+every exact-head PR to pass the same read-only budget policy. A refusal, an
+unbound/superseded peer or an unavailable association/PR read refuses success.
+Nested approval statuses use a no-op sink and never publish real statuses.
 
-Manual dispatch uses `dispatch-pr-<number>` because its event has no head SHA
-at concurrency-expression time. It does not serialize with automatic publishers
-and must be used as an owner recovery operation after those jobs settle. A
-concurrent dispatch can still race the last live read/status write; the next
-automatic evaluation or a settled dispatch closes that exposure. Atomic label
-revocation and guaranteed delivery of every pending event are not provided.
+After every actual success write (approval or final `Lint and Test`), the
+publisher re-reads through its recording client and checks the triggering PR's
+head/base/labels, then re-lists and re-evaluates all open exact-head associated
+PRs. Any refusal or changed triggering snapshot corrects that context to failure
+on the same evaluated SHA. A head change found after success fails the job,
+without the pure superseded-head exemption. The log identifies each PR so
+different PRs' legitimate base/label snapshots do not corrupt that proof.
+
+For a last success at w followed by verify at r>w, a revocation visible before r
+is corrected. A revocation after r triggers an independent evaluation that writes
+after w. A stale success written after another run's failure is corrected by its
+own verify, including when the revocation belongs to another PR sharing the SHA.
+This argument assumes every listed association and PR read reflects relevant
+changes made before it. No API consistency SLA is established here; a lagging
+association list or stale PR read can miss a revocation until a later evaluation.
+
+The protocol is not atomic. If the job dies after GitHub accepts success but
+before verification/correction, that success can remain indefinitely. The next
+completed same-head evaluation closes it: label events (unfiltered), PR Checks
+completion/Guard, relevant approval PR events, review signals, or owner dispatch.
+A return to a formerly green SHA also needs its own evaluation. There is no
+bounded closure if no further eligible event occurs or the API remains stale.
+Manual dispatch uses the same write/verify protocol and has no separate queue.
+
+Removing the global approval queue permits concurrent rare, single-job events.
+These are intended as short, roughly one-minute jobs (existing timeout: three
+minutes); twenty simultaneous publishers consume the twenty-job ceiling and
+additional jobs wait for platform capacity. There is no reserved headroom.
