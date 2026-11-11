@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { loadBudgets } from './budget-config.mjs';
+import { workflowMetrics } from './budget-workflow.mjs';
 import { observationEnvelope } from './ci-observation.mjs';
 import { renderReport } from './ci-report-evaluate.mjs';
 import { buildReport, main } from './ci-report.mjs';
@@ -50,6 +52,34 @@ function apiFixture() {
     };
   };
 }
+
+test('budget report renders hourly reconciliation from the actual otherEvents census', async () => {
+  const args = {
+    api: apiFixture(),
+    repository: 'owner/repo',
+    runId: 100,
+    attempt: 2,
+    jobGraph: { tests: [] },
+  };
+  const initial = await buildReport(args);
+  const profiles = workflowMetrics(process.cwd(), loadBudgets()).profiles;
+  const producer = observationEnvelope(initial.source.observation, {
+    repositoryMetrics: { workflow: { profiles } },
+  });
+  const result = await buildReport({ ...args, producer });
+  const markdown = renderReport(result.report);
+  for (const profile of profiles) {
+    for (const event of ['schedule', 'workflow_dispatch']) {
+      assert.ok(
+        markdown.includes(
+          `| ${profile.id} | CI Budget Reconciliation | ci-budget-reconcile.yml | ${event} | all |`,
+        ),
+      );
+    }
+  }
+  assert.equal(result.report.breach, initial.report.breach);
+  assert.equal(result.report.labelComplete, initial.report.labelComplete);
+});
 
 test('budget report carries excluded workflow names and event types from the producer census', async () => {
   const args = {

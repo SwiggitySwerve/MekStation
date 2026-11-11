@@ -216,16 +216,34 @@ or stale PR/review read can miss a revocation until a later evaluation.
 
 The protocol is not atomic. A publisher killed after writing success and before
 verifying leaves that success in place until another completed evaluation of
-the same head. The hourly reconciliation in the following PR bounds this.
-That reconciliation is outside this PR; until it lands, there is no bounded
-closure without another completed evaluation. The following PR's hourly
-reconciliation is also the backstop for anything event-driven evaluation misses.
-The next
-completed same-head evaluation closes it: label events (unfiltered), PR Checks
+the same head. The next completed same-head evaluation closes it: label events (unfiltered), PR Checks
 completion/Guard, relevant approval PR events, review signals, or owner dispatch.
 A return to a formerly green SHA also needs its own evaluation. There is no
-bounded closure if no further eligible event occurs or the API remains stale.
+bounded closure if no further evaluation completes or the API remains stale.
 Manual dispatch uses the same write/verify protocol and has no separate queue.
+
+`CI Budget Reconciliation` runs hourly at minute 17 and supports manual dispatch
+only from the default branch. It checks out only that trusted branch, installs
+nothing and never executes PR code. It paginates open PRs into `main`, skips
+drafts, then reads each PR's live eligibility and head before binding
+`checkBudgetPolicy` to that head. The shared policy, SHA-wide approval and
+write-then-verify path decide every status; the schedule grants no approvals.
+Policy refusals withdraw success on the evaluated head and log the PR number,
+head and reason through `guardOutcome`. API errors fail the job and evaluation
+continues with the remaining PRs when possible.
+
+This covers main cap reductions, paths-filtered events and interrupted success
+writes. It also clears a shared-head failure once a refusing peer closes or
+retargets away from `main`, including a retarget during a previous evaluation.
+The expected repair bound is about one hour plus run time, conditional on a
+completed run and consistent API reads. GitHub schedule delays, API outages or
+stale reads can extend it. The job times out after ten minutes; an incomplete
+census waits for another run. There is no concurrency group. A delayed run that
+overlaps the next hour runs independently under the same binding and verification
+protocol, without replacing pending evaluations. Cost is about one one-minute
+public-repository job per hour; actual duration depends on the open PR census.
+The workflow appears under `otherEvents` in the census and budget report and
+does not consume `typicalPrJobs`.
 
 With no queue, a storm of events or re-runs could occupy the 20 runner slots;
 events of these kinds are rare. Existing three-minute timeouts are unchanged,
