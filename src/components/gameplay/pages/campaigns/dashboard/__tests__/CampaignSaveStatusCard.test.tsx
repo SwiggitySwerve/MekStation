@@ -16,10 +16,26 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '@testing-library/react';
 import React from 'react';
 
-import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
+import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { registerCampaignStoreAccessor } from '@/stores/campaign/campaignStoreAccessor';
+import {
+  __resetCampaignPersistenceCoordinationForTests,
+  useCampaignPersistenceStore,
+} from '@/stores/campaign/useCampaignPersistenceStore';
+import {
+  resetCampaignStore,
+  useCampaignStore,
+} from '@/stores/campaign/useCampaignStore';
+import {
+  CombatEndReason,
+  COMBAT_OUTCOME_VERSION,
+} from '@/types/combat/CombatOutcome';
+import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 
 import { CampaignSaveStatusCard } from '../CampaignSaveStatusCard';
 
@@ -175,7 +191,9 @@ describe('CampaignSaveStatusCard refusal block (CAMPAIGN-LIVE-WRITE-1)', () => {
       'only the host session that started it can change it',
     );
     expect(refused).toHaveTextContent('unsaved changes are kept');
-    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+    // One badge, and it says the save did not happen - never "Saved".
+    expect(screen.getByText('Save failed')).toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
     expect(screen.queryByText(/playing offline/i)).not.toBeInTheDocument();
   });
 
@@ -194,5 +212,322 @@ describe('CampaignSaveStatusCard refusal block (CAMPAIGN-LIVE-WRITE-1)', () => {
     expect(
       screen.queryByTestId('campaign-save-refused'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('CampaignSaveStatusCard single derived badge', () => {
+  afterEach(() => {
+    cleanup();
+    useCampaignPersistenceStore.getState().reset();
+  });
+
+  function badges(): string[] {
+    return [
+      'Saved',
+      'Unsaved changes',
+      'Recovered unsaved changes',
+      'Idle',
+      'Saving…',
+      'Save failed',
+      'Conflict',
+    ].filter((label) =>
+      // Badges only: the Save button also reads "Saving…" while saving.
+      screen.queryAllByText(label).some((node) => node.tagName === 'SPAN'),
+    );
+  }
+
+  it.each([
+    ['clean and saved', { saveState: 'saved', dirty: false }, 'Saved'],
+    [
+      'edited after a save',
+      { saveState: 'idle', dirty: true },
+      'Unsaved changes',
+    ],
+    ['saving', { saveState: 'saving', dirty: true }, 'Saving…'],
+    [
+      'recovered from an earlier document',
+      { saveState: 'idle', dirty: true, recoveredPendingWrite: true },
+      'Recovered unsaved changes',
+    ],
+    [
+      'failed with edits pending',
+      { saveState: 'error', dirty: true, errorMessage: 'offline' },
+      'Save failed',
+    ],
+    ['never saved', { saveState: 'idle', dirty: false }, 'Idle'],
+  ] as const)('shows exactly one badge when %s', (_name, patch, label) => {
+    useCampaignPersistenceStore.setState({ ...patch });
+    render(<CampaignSaveStatusCard />);
+    expect(badges()).toEqual([label]);
+  });
+
+  it('can never read Saved while edits are pending, whatever the status says', () => {
+    // The reducer holds this line; the card does not depend on it.
+    useCampaignPersistenceStore.setState({ saveState: 'saved', dirty: true });
+    render(<CampaignSaveStatusCard />);
+    expect(badges()).toEqual(['Unsaved changes']);
+  });
+
+  it('explains a recovered copy and what happens next', () => {
+    useCampaignPersistenceStore.setState({
+      saveState: 'idle',
+      dirty: true,
+      recoveredPendingWrite: true,
+    });
+    render(<CampaignSaveStatusCard />);
+    expect(
+      screen.getByTestId('campaign-save-pending-detail'),
+    ).toHaveTextContent(
+      'Found changes from your last session that the server does not have.',
+    );
+  });
+
+  it('says an ordinary pending edit will be saved automatically', () => {
+    useCampaignPersistenceStore.setState({ saveState: 'idle', dirty: true });
+    render(<CampaignSaveStatusCard />);
+    expect(
+      screen.getByTestId('campaign-save-pending-detail'),
+    ).toHaveTextContent('Saving automatically in a moment');
+  });
+
+  it('tells the player when the copy is too large to save on close', () => {
+    useCampaignPersistenceStore.setState({
+      saveState: 'idle',
+      dirty: true,
+      flushSkip: {
+        reason: 'envelope-over-keepalive-cap',
+        campaignId: 'c',
+        byteLength: 70_000,
+        capBytes: 65_536,
+      },
+    });
+    render(<CampaignSaveStatusCard />);
+    expect(screen.getByTestId('campaign-flush-skipped')).toHaveTextContent(
+      'Too large to save when closing. Use Save now.',
+    );
+  });
+});
+
+describe('CampaignSaveStatusCard pending-write conflict', () => {
+  const server = buildPopulatedCampaign();
+  const localCampaign = {
+    ...server,
+    currentDate: new Date('3025-09-14T00:00:00.000Z'),
+  };
+  const dateText = (value: Date | string) =>
+    new Date(value).toLocaleDateString();
+
+  beforeEach(() => {
+    useCampaignStore().getState().switchCampaign(localCampaign);
+    useCampaignPersistenceStore.setState({
+      saveState: 'conflict',
+      dirty: true,
+      conflictServerRecord: buildSerializedCampaign(server, 'device', 9),
+      saveConflict: {
+        reason: 'local-edits-predate-server',
+        recoveryAction: 'resync-to-active-head',
+        conflictingFields: [],
+        currentVersion: 9,
+        localBaseVersion: 7,
+      },
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+    useCampaignPersistenceStore.getState().reset();
+  });
+
+  it('states what the browser holds and what the server holds', () => {
+    render(<CampaignSaveStatusCard />);
+
+    const local = screen.getByTestId('campaign-pending-write-local');
+    expect(local).toHaveTextContent(dateText(localCampaign.currentDate));
+    expect(local).toHaveTextContent('version 7');
+    const remote = screen.getByTestId('campaign-pending-write-server');
+    expect(remote).toHaveTextContent(dateText(server.currentDate));
+    expect(remote).toHaveTextContent('version 9');
+    expect(local.textContent).not.toBe(remote.textContent);
+  });
+
+  it('says nothing was sent or replaced, the changes stay until chosen, and choosing discards them', () => {
+    render(<CampaignSaveStatusCard />);
+
+    const card = screen.getByTestId('campaign-pending-write-conflict');
+    expect(card).toHaveTextContent('Nothing was sent and nothing was replaced');
+    expect(card).toHaveTextContent('stay in this window until you choose');
+    expect(card).toHaveTextContent("server's version discards them for good");
+    expect(screen.getByText('Conflict')).toBeInTheDocument();
+  });
+
+  it('warns that Use Server Version discards pending battle results before the player clicks', () => {
+    const store = useCampaignStore();
+    store.getState().enqueueOutcome({
+      version: COMBAT_OUTCOME_VERSION,
+      matchId: 'conflicted-battle',
+      contractId: null,
+      scenarioId: 'scenario-1',
+      capturedAt: '2026-11-10T00:00:00.000Z',
+      endReason: CombatEndReason.ObjectiveMet,
+      report: {
+        version: 1,
+        matchId: 'conflicted-battle',
+        winner: GameSide.Player,
+        reason: 'objective',
+        turnCount: 1,
+        units: [],
+        mvpUnitId: null,
+        log: [],
+      },
+      unitDeltas: [],
+    });
+    render(<CampaignSaveStatusCard />);
+    expect(
+      screen.getByTestId('campaign-conflict-battle-warning'),
+    ).toHaveTextContent(
+      'Use Server Version discards these battle results along with your other local changes.',
+    );
+    expect(
+      screen.getByTestId('campaign-conflict-battle-warning'),
+    ).toHaveTextContent('Nothing is changed until you choose.');
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: 'Use Server Version' }),
+    ).toBeInTheDocument();
+    act(() => store.getState().dequeueOutcome('conflicted-battle'));
+    expect(
+      screen.queryByTestId('campaign-conflict-battle-warning'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('offers only the server version: no keep-mine, no save', () => {
+    render(<CampaignSaveStatusCard />);
+
+    expect(
+      screen.getByRole('button', { name: 'Use Server Version' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(
+      screen.queryByTestId('campaign-save-now-btn'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/keep (my|mine|local)/i)).not.toBeInTheDocument();
+    // The generic copy tells the player to redo their edits; here nothing
+    // was refused, and the edits are still held.
+    expect(
+      screen.queryByTestId('campaign-save-conflict'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('explains further edits are unsent and Save now is paused, with a stable link target', () => {
+    // A previous over-cap diagnostic must not suggest Save now in conflict.
+    useCampaignPersistenceStore.setState({
+      flushSkip: {
+        reason: 'envelope-over-keepalive-cap',
+        campaignId: server.id,
+        byteLength: 70_000,
+        capBytes: 65_536,
+      },
+    });
+    render(<CampaignSaveStatusCard />);
+    act(() => useCampaignPersistenceStore.getState().markDirty());
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Changes stay local and unsent',
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Saving is paused until you choose Use Server Version',
+    );
+    expect(
+      screen.getByRole('heading', { name: 'Campaign Save' }),
+    ).toHaveAttribute('id', 'campaign-save-status');
+    expect(
+      screen.queryByRole('button', { name: 'Save now' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaign-flush-skipped'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved')).not.toBeInTheDocument();
+  });
+
+  it('changes nothing until the player clicks, and then takes the server version', async () => {
+    const take = jest
+      .spyOn(
+        useCampaignPersistenceStore.getState(),
+        'resolveConflictTakeServer',
+      )
+      .mockResolvedValue(true);
+    render(<CampaignSaveStatusCard />);
+    expect(take).not.toHaveBeenCalled();
+    expect(useCampaignStore().getState().campaign?.currentDate).toEqual(
+      localCampaign.currentDate,
+    );
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Use Server Version' }),
+      );
+    });
+
+    expect(take).toHaveBeenCalledTimes(1);
+  });
+
+  it('reads the local date live, so it stays true if the player keeps playing', () => {
+    render(<CampaignSaveStatusCard />);
+    act(() => {
+      useCampaignStore()
+        .getState()
+        .switchCampaign({
+          ...localCampaign,
+          currentDate: new Date('3025-12-25T00:00:00.000Z'),
+        });
+    });
+    expect(
+      screen.getByTestId('campaign-pending-write-local'),
+    ).toHaveTextContent(dateText('3025-12-25T00:00:00.000Z'));
+  });
+});
+
+describe('CampaignSaveStatusCard explicit clean save', () => {
+  afterEach(() => {
+    cleanup();
+    jest.restoreAllMocks();
+    useCampaignPersistenceStore.getState().reset();
+    __resetCampaignPersistenceCoordinationForTests();
+    resetCampaignStore();
+  });
+
+  it('Save now writes a clean campaign through the real persistence action', async () => {
+    const campaign = buildPopulatedCampaign();
+    resetCampaignStore();
+    useCampaignStore().getState().switchCampaign(campaign);
+    registerCampaignStoreAccessor(() => useCampaignStore());
+    useCampaignPersistenceStore.getState().reset();
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore
+      .getState()
+      .initializeCreatedCampaign(campaign.id);
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(false);
+    const fetchMock = jest.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => buildSerializedCampaign(campaign, 'server-device', 1),
+    } as Response);
+    render(<CampaignSaveStatusCard />);
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('campaign-save-now-btn'));
+    });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/campaigns/${campaign.id}`,
+      expect.objectContaining({ method: 'PUT' }),
+    );
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({
+      baseVersion: 0,
+      envelope: { campaignId: campaign.id },
+    });
+    await waitFor(() => {
+      expect(useCampaignPersistenceStore.getState().baseVersion).toBe(1);
+      expect(screen.getByText('Saved', { exact: true })).toBeInTheDocument();
+    });
   });
 });

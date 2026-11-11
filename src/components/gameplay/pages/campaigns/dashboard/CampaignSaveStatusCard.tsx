@@ -15,6 +15,19 @@
  * an offline failure: the server's reason is shown and the unsaved changes
  * are kept, so it never reads "playing offline; changes are kept locally".
  *
+ * The badge is ONE derived state (`describeSaveState`): unsaved edits outrank
+ * `saved`, a failed or refused save reads "Save failed", and a copy recovered
+ * from an earlier document reads "Recovered unsaved changes".
+ *
+ * A reload that finds unsaved edits the server has moved past
+ * (`local-edits-predate-server`) shows what each side holds - the browser's
+ * campaign date and base version, the server's date and version - and offers
+ * only "Use Server Version". Nothing is pushed and nothing is replaced until
+ * the player chooses, so the local state is kept as long as they take.
+ * DESIGN NOTE / OPEN: there is no way today to keep a copy of the local state
+ * before choosing (no campaign export or download exists), so the choice is
+ * one-way and the card says so rather than promising otherwise.
+ *
  * It also surfaces a LAUNCH conflict (umbrella 10.3): a launch the
  * authority refused because the campaign moved under this client. It
  * shares this card because it is the same question - "your view is
@@ -29,30 +42,84 @@
  */
 
 import React, { useCallback } from 'react';
+import { useStore } from 'zustand';
 
+import {
+  CAMPAIGN_SAVE_CARD_ID,
+  describeSaveState,
+} from '@/components/campaign/campaignSaveStatus';
 import { Badge, Button, Card } from '@/components/ui';
+import { isPendingWriteConflict } from '@/stores/campaign/campaignSaveState';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
-/** Human-readable label + badge variant per save-state. */
-function describeSaveState(
-  state: ReturnType<typeof useCampaignPersistenceStore.getState>['saveState'],
-): {
-  label: string;
-  variant: 'success' | 'info' | 'warning' | 'red' | 'muted';
-} {
-  switch (state) {
-    case 'saving':
-      return { label: 'Saving…', variant: 'info' };
-    case 'saved':
-      return { label: 'Saved', variant: 'success' };
-    case 'error':
-      return { label: 'Save failed', variant: 'warning' };
-    case 'conflict':
-      return { label: 'Conflict', variant: 'red' };
-    case 'idle':
-    default:
-      return { label: 'Idle', variant: 'muted' };
-  }
+type PersistenceState = ReturnType<typeof useCampaignPersistenceStore.getState>;
+
+/** The date the dashboard header shows, for the same instant. */
+function formatCampaignDate(value: Date | string | null | undefined): string {
+  if (!value) return 'unknown';
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? 'unknown' : date.toLocaleDateString();
+}
+
+/**
+ * What the browser holds against what the server holds, for a reload that
+ * found unsaved edits it must not push and must not throw away. The local date
+ * is read live, so it stays true if the player keeps playing before choosing.
+ */
+function PendingWriteConflictDetail({
+  conflict,
+  serverRecord,
+}: {
+  conflict: NonNullable<PersistenceState['saveConflict']>;
+  serverRecord: PersistenceState['conflictServerRecord'];
+}): React.ReactElement {
+  const campaignStore = useCampaignStore();
+  const localDate = useStore(campaignStore, (s) => s.campaign?.currentDate);
+  return (
+    <div
+      className="mt-1 space-y-1 text-sm text-red-400"
+      data-testid="campaign-pending-write-conflict"
+    >
+      <p>
+        Unsaved changes from your last session were not saved, and the server
+        has moved on since. Nothing was sent and nothing was replaced.
+      </p>
+      <p data-testid="campaign-pending-write-local">
+        This browser: campaign date {formatCampaignDate(localDate)}, built on
+        version {conflict.localBaseVersion ?? 'unknown'}.
+      </p>
+      <p data-testid="campaign-pending-write-server">
+        The server: campaign date{' '}
+        {formatCampaignDate(serverRecord?.body.currentDate)}, at version{' '}
+        {conflict.currentVersion}.
+      </p>
+      <p>
+        Your changes stay in this window until you choose. Using the
+        server&apos;s version discards them for good.
+      </p>
+    </div>
+  );
+}
+
+/** Warn before the existing take-server action discards local battle results. */
+function BattleOutcomeDiscardWarning(): React.ReactElement | null {
+  const campaignStore = useCampaignStore();
+  const pendingCount = useStore(
+    campaignStore,
+    (s) => s.pendingBattleOutcomes.length,
+  );
+  if (pendingCount === 0) return null;
+  return (
+    <p
+      className="mt-1 text-sm text-red-400"
+      data-testid="campaign-conflict-battle-warning"
+    >
+      This browser has pending battle results. Nothing is changed until you
+      choose. Use Server Version discards these battle results along with your
+      other local changes.
+    </p>
+  );
 }
 
 /** Format an ISO timestamp for display, or a fallback when never saved. */
@@ -70,6 +137,13 @@ function formatLastSaved(lastSavedAt: string | null): string {
 export function CampaignSaveStatusCard(): React.ReactElement {
   const saveState = useCampaignPersistenceStore((s) => s.saveState);
   const dirty = useCampaignPersistenceStore((s) => s.dirty);
+  const recoveredPendingWrite = useCampaignPersistenceStore(
+    (s) => s.recoveredPendingWrite,
+  );
+  const flushSkip = useCampaignPersistenceStore((s) => s.flushSkip);
+  const conflictServerRecord = useCampaignPersistenceStore(
+    (s) => s.conflictServerRecord,
+  );
   const metadata = useCampaignPersistenceStore((s) => s.metadata);
   const errorMessage = useCampaignPersistenceStore((s) => s.errorMessage);
   const saveCampaign = useCampaignPersistenceStore((s) => s.saveCampaign);
@@ -101,24 +175,32 @@ export function CampaignSaveStatusCard(): React.ReactElement {
     });
   }, [clearLaunchConflict, resolveConflictTakeServer]);
 
-  const status = describeSaveState(saveState);
+  const status = describeSaveState({
+    saveState,
+    dirty,
+    recoveredPendingWrite,
+    saveConflict,
+  });
+  const pendingWriteConflict = isPendingWriteConflict({
+    saveState,
+    saveConflict,
+  });
 
   return (
     <Card className="mb-6" data-testid="campaign-save-status-card">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="mb-1 flex flex-wrap items-center gap-2">
-            <h2 className="text-text-theme-primary text-lg font-semibold">
+            <h2
+              id={CAMPAIGN_SAVE_CARD_ID}
+              tabIndex={-1}
+              className="text-text-theme-primary text-lg font-semibold"
+            >
               Campaign Save
             </h2>
             <Badge variant={status.variant} size="sm">
               {status.label}
             </Badge>
-            {dirty && saveState !== 'saving' && (
-              <Badge variant="warning" size="sm">
-                Unsaved changes
-              </Badge>
-            )}
           </div>
           <p
             className="text-text-theme-secondary text-sm"
@@ -126,6 +208,27 @@ export function CampaignSaveStatusCard(): React.ReactElement {
           >
             Last saved: {formatLastSaved(metadata.lastSavedAt)}
           </p>
+          {dirty && saveState === 'idle' && (
+            <p
+              className="text-text-theme-secondary text-sm"
+              data-testid="campaign-save-pending-detail"
+            >
+              {recoveredPendingWrite
+                ? 'Found changes from your last session that the server does not have. Saving now.'
+                : 'Saving automatically in a moment.'}
+            </p>
+          )}
+          {dirty &&
+            saveState !== 'saving' &&
+            !pendingWriteConflict &&
+            flushSkip && (
+              <p
+                className="mt-1 text-sm text-yellow-400"
+                data-testid="campaign-flush-skipped"
+              >
+                Too large to save when closing. Use Save now.
+              </p>
+            )}
           {saveState === 'error' && errorMessage && !saveRefusal && (
             <p className="mt-1 text-sm text-yellow-400">
               {errorMessage} — playing offline; changes are kept locally.
@@ -140,7 +243,18 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               unsaved changes are kept in this window.
             </p>
           )}
-          {saveState === 'conflict' && (
+          {status.unsentDetail && (
+            <p role="status" className="text-text-theme-secondary text-sm">
+              {status.unsentDetail}
+            </p>
+          )}
+          {pendingWriteConflict && saveConflict && (
+            <PendingWriteConflictDetail
+              conflict={saveConflict}
+              serverRecord={conflictServerRecord}
+            />
+          )}
+          {saveState === 'conflict' && !pendingWriteConflict && (
             <p
               className="mt-1 text-sm text-red-400"
               data-testid="campaign-save-conflict"
@@ -155,6 +269,7 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               server version and redo them.
             </p>
           )}
+          {saveState === 'conflict' && <BattleOutcomeDiscardWarning />}
           {launchConflict && (
             <p
               className="mt-1 text-sm text-red-400"
