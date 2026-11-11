@@ -11,5 +11,5 @@ export interface IDerivedBaseFields {
   readonly createdAt: string;
   readonly turns: number;
   readonly winner: GameSide | null;
-  readonly bvTotal: number;
+  readonly bvTotal: number | null;
 }

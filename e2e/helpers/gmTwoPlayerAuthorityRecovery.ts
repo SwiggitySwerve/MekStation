@@ -20,6 +20,10 @@ import {
   snapshotOwnership,
 } from './authorityRecoveryEvidence';
 import { armScopedFault } from './gmTwoPlayerMatchFlow';
+import {
+  expectServerRestarted,
+  readServerStartMs,
+} from './serverRestartEvidence';
 
 export const RECOVERY_CAMPAIGN_NAME = 'GM two-player recovery';
 
@@ -117,10 +121,17 @@ export async function prepareHostDeathTrigger(
     .toBe(2);
 }
 
+/**
+ * Kill the host after a durable commit and wait for the relaunch, then
+ * prove a restart happened (`serverRestartEvidence.ts`): a "survives
+ * restart" row that cannot tell whether the server restarted passes
+ * trivially if the death never fired.
+ */
 export async function fireHostDeath(
   drive: IRecoveryDrive,
   request: APIRequestContext,
 ): Promise<void> {
+  const startedBefore = await readServerStartMs(request);
   await armScopedFault(
     request,
     'process-exit-after-commit',
@@ -131,6 +142,7 @@ export async function fireHostDeath(
     { kind: 'AdvancePhase' },
   ]).catch(() => undefined);
   await waitForRelaunch(request);
+  await expectServerRestarted(request, startedBefore);
 }
 
 export async function waitForRelaunch(

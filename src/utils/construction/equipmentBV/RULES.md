@@ -1,5 +1,15 @@
 # Equipment BV catalog resolution
 
+Saved point-defense display names may use the existing shared static-alias
+owner after ordinary BV lookup fails. This fallback admits only an existing
+catalog record with the `point-defense` flag. The registry and BV consumer share
+the same alias definitions; no extra APDS name table or BV constant is added.
+`ISAPDS`, `risc-apds`, and the serializer's expanded weapon label therefore use
+the existing 64-BV miscellaneous catalog record. Battle Armor's `ISBAAPDS`
+remains a separate 7-BV weapon. This does not enable unrelated static aliases in
+the BV resolver. `mechBV.apds.save.test.ts` enforces the boundary against pinned
+ISAPDS.java and BVCalculator.java at 48fcb2f64.
+
 The equipment-BV owner supplies the Artemis IV/V launcher multipliers (1.2/1.3)
 to Mech, vehicle and large-craft callers, preserving each caller's modifier
 ordering. `getLargeAerospaceAmmoEntry` alone accepts the native IS LRM/SRM

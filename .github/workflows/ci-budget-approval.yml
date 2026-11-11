@@ -4,7 +4,7 @@ on:
   pull_request_target:
     branches: [main]
     paths: ['config/ci/budgets.json', 'package.json', 'package-lock.json', 'desktop/package.json', 'desktop/package-lock.json']
-    types: [opened, synchronize, reopened, labeled, unlabeled, edited, ready_for_review]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   workflow_run:
     workflows: [CI Budget Review Signal]
     types: [completed]
@@ -16,10 +16,6 @@ on:
         type: number
 
 permissions: {}
-
-concurrency:
-  group: ci-budget-approval
-  cancel-in-progress: false
 
 jobs:
   approval:
@@ -43,9 +39,15 @@ jobs:
           REQUESTED_PR: ${{ inputs.pull_request }}
         with:
           script: |
-            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            // Statuses go only to the head this run evaluated. Label changes
+            // are handled by the separate, unfiltered label workflow.
+            const { checkBudgetPolicy, guardOutcome } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            // Every evaluation is bound to the head this run is for (expectedHead):
+            // the event's PR head, the reviewed head for a review signal, or the
+            // live head read once at dispatch. A PR that has moved past it gets
+            // no write from this run; its new head is evaluated by its own run.
             const { owner, repo } = context.repo;
-            let numbers;
+            let targets;
             if (context.eventName === 'workflow_run') {
               // The signal supplies no data or code. GitHub's commit association
               // selects candidates; the adapter rereads current PR heads/reviews.
@@ -54,13 +56,23 @@ jobs:
               const associated = await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
                 owner, repo, commit_sha: signal.head_sha, per_page: 100,
               });
-              numbers = associated.filter(pr => pr.state === 'open' && pr.base.repo.full_name === context.payload.repository.full_name).map(pr => pr.number);
+              targets = associated.filter(pr => pr.state === 'open' && pr.base.repo.full_name === context.payload.repository.full_name).map(pr => ({ number: pr.number, head: signal.head_sha }));
+            } else if (context.payload.pull_request) {
+              targets = [{ number: context.payload.pull_request.number, head: context.payload.pull_request.head.sha }];
             } else {
-              numbers = [context.payload.pull_request?.number ?? Number(process.env.REQUESTED_PR)];
+              const number = Number(process.env.REQUESTED_PR);
+              if (!Number.isSafeInteger(number) || number < 1) throw new Error('Invalid PR number');
+              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: number });
+              targets = [{ number, head: pr.head.sha }];
             }
-            if (numbers.some(number => !Number.isSafeInteger(number) || number < 1)) throw new Error('Invalid PR number');
-            for (const number of [...new Set(numbers)]) {
-              const result = await checkBudgetPolicy({ github, owner, repo, number });
+            if (targets.some(({ number }) => !Number.isSafeInteger(number) || number < 1)) throw new Error('Invalid PR number');
+            const seen = new Set();
+            for (const { number, head } of targets) {
+              if (seen.has(number)) continue;
+              seen.add(number);
+              const result = await checkBudgetPolicy({ github, owner, repo, number, expectedHead: head });
+              const outcome = guardOutcome(number, result);
+              core.info(outcome.line);
               core.info(JSON.stringify({ number, ...result }));
-              if (!result.allowed) core.setFailed(result.message);
+              if (outcome.fail) core.setFailed(outcome.line);
             }

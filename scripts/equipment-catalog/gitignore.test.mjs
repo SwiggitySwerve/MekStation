@@ -119,12 +119,16 @@ function runHook(isolated, childExit = 0) {
       : `#!/bin/sh\nshift\nexec "${process.execPath.replaceAll('\\', '/')}" "${lintStagedCli.replaceAll('\\', '/')}" "$@"\n`,
     { mode: 0o755 },
   );
-  const guard = 'scripts/lib/check-staged-parents.mjs';
+  // The hook runs its scripts (scripts/lib/hook-scripts.json) from the fixture's own tree.
   mkdirSync(resolve(isolated.cwd, 'scripts/lib'), { recursive: true });
-  writeFileSync(
-    resolve(isolated.cwd, guard),
-    readFileSync(resolve(root, guard)),
-  );
+  const hookScripts = JSON.parse(
+    readFileSync(resolve(root, 'scripts/lib/hook-scripts.json'), 'utf8'),
+  ).scripts;
+  for (const guard of hookScripts.map((script) => `scripts/lib/${script}`))
+    writeFileSync(
+      resolve(isolated.cwd, guard),
+      readFileSync(resolve(root, guard)),
+    );
   return spawnSync('sh', ['-e', resolve(root, '.husky/pre-commit')], {
     cwd: isolated.cwd,
     env: { ...process.env, PATH: bin + delimiter + process.env.PATH },

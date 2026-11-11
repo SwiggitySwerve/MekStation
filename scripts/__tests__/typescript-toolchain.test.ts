@@ -34,8 +34,10 @@ describe('TypeScript compiler gates', () => {
     );
     expect(typeCheck).toBeTruthy();
     expect(typeCheck?.[1]).toBe('npm run typecheck');
-    expect(pkg['lint-staged']['*.{ts,tsx}'].at(-1)).toBe(
-      "bash -c 'npm run typecheck'",
+    // The pre-commit hook runs `npm run typecheck` once per commit itself; no
+    // lint-staged task typechecks (it would run once per chunk).
+    expect(read('.husky/pre-commit')).toMatch(
+      /^\s*yes\) npm run typecheck \|\| exit \$\? ;;\r?$/m,
     );
     const roadmap = read('scripts/qc/roadmap-main-proof.mjs');
     expect(roadmap).toContain(

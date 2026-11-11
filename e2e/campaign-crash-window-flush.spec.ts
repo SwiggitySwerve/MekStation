@@ -35,6 +35,12 @@ import {
   isFatalBrowserDiagnosticEvent,
   type BrowserDiagnosticEvent,
 } from './helpers';
+import {
+  advanceDayInUi,
+  campaignDateText,
+  openDashboard,
+  seedSavedCampaign,
+} from './helpers/campaignFlow';
 
 // File-scope `test.setTimeout` is a no-op — it changes "the currently
 // running test", and at import time there is none. `describe.configure`
@@ -59,24 +65,6 @@ interface CampaignRecord {
   readonly version: number;
   readonly body: { readonly currentDate: string };
 }
-
-type CreateCampaign = (
-  name: string,
-  factionId: string,
-  options?: { startingFunds?: number },
-) => string;
-
-type CampaignStoreWindow = {
-  __ZUSTAND_STORES__?: {
-    campaign?: { getState: () => { createCampaign: CreateCampaign } };
-    campaignPersistence?: {
-      getState: () => {
-        legacyUnadopted: boolean;
-        adoptLegacyCampaign: () => Promise<boolean>;
-      };
-    };
-  };
-};
 
 /**
  * Pre-existing noise this spec observes rather than introduces: the
@@ -156,11 +144,6 @@ async function serverRecord(
   return (await response.json()) as CampaignRecord;
 }
 
-/** The dashboard's rendered campaign date, read from the header block. */
-function campaignDateText(page: Page): Promise<string> {
-  return page.locator('p:has-text("Current Date") + p').innerText();
-}
-
 /** Wait for the next campaign PUT response. */
 function waitForCampaignPut(page: Page, campaignId: string) {
   return page.waitForResponse(
@@ -169,59 +152,6 @@ function waitForCampaignPut(page: Page, campaignId: string) {
       response.url().includes(`/api/campaigns/${campaignId}`),
     { timeout: 30_000 },
   );
-}
-
-/** Load a campaign dashboard and wait for its save-status card. */
-async function openDashboard(page: Page, campaignId: string): Promise<void> {
-  await page.goto(`/gameplay/campaigns/${campaignId}`);
-  await expect(page.getByTestId('campaign-save-status-card')).toBeVisible({
-    timeout: 20_000,
-  });
-}
-
-/**
- * Seed a campaign through the exposed store and adopt it, so the row exists
- * server-side and the copy is NOT `legacyUnadopted` — an unadopted copy is a
- * case both the ordinary save and the flush deliberately decline, not the
- * case under test. Adoption, not the dashboard's "Save now": that button
- * routes to `saveCampaign`, which skips an unadopted copy by design.
- */
-async function seedSavedCampaign(page: Page, label: string): Promise<string> {
-  await page.goto('/gameplay/campaigns');
-  await page.waitForFunction(
-    () => Boolean((window as CampaignStoreWindow).__ZUSTAND_STORES__?.campaign),
-    undefined,
-    { timeout: 20_000 },
-  );
-  const campaignId = await page.evaluate((name: string) => {
-    const store = (window as CampaignStoreWindow).__ZUSTAND_STORES__?.campaign;
-    if (!store) throw new Error('campaign store is not exposed');
-    return store
-      .getState()
-      .createCampaign(name, 'mercenary', { startingFunds: 3_000_000 });
-  }, `${label} ${Date.now()}`);
-  await openDashboard(page, campaignId);
-  // Polled rather than fired once: the dashboard's route loader raises
-  // `legacyUnadopted` asynchronously, so an adopt attempted before that
-  // load lands is a no-op. The server row is the condition, not the call.
-  await expect
-    .poll(
-      async () => {
-        await page.evaluate(async () => {
-          const store = (window as CampaignStoreWindow).__ZUSTAND_STORES__
-            ?.campaignPersistence;
-          if (store?.getState().legacyUnadopted) {
-            await store.getState().adoptLegacyCampaign();
-          }
-        });
-        return (
-          await page.request.get(`/api/campaigns/${campaignId}`)
-        ).status();
-      },
-      { timeout: 30_000 },
-    )
-    .toBe(200);
-  return campaignId;
 }
 
 /**
@@ -240,32 +170,15 @@ async function setDocumentVisibility(
   }, state);
 }
 
-/** Advance the campaign one day and wait for the header to show the change. */
-async function advanceDayInUi(page: Page): Promise<string> {
-  const before = await campaignDateText(page);
-  await page.getByTestId('advance-day-btn').click();
-  await expect
-    .poll(() => campaignDateText(page), { timeout: 10_000 })
-    .not.toBe(before);
-  return campaignDateText(page);
-}
-
 /**
- * The discard is a CLOSED PAGE, not a navigation, and the difference is
- * measured rather than stylistic. Chromium 143 aborts a `keepalive` request
- * issued from `pagehide` when the document is leaving because of a
- * NAVIGATION -- the renderer cancels it before the network service
- * dispatches it -- but hands it to the browser process and completes it
- * when the TAB CLOSES. Measured on 2026-09-15 over the standalone
- * production server (see the diagnosis receipt for the full tally):
- * `page.goto('about:blank')` landed 0/15 (headless and headed alike),
- * a same-origin navigation landed 1/2 -- nondeterministic, which is the
- * only account of an earlier green run -- close-shaped discards landed
- * 11/11, and a bare 17-byte keepalive PUT from a hand-written `pagehide`
- * listener -- no product code in the path at all -- reproduced the same
- * split 0/3 against 3/3. A tab close is also the discard this task names
- * ("hard reload or close"), so this is the mechanism whose guarantee the
- * browser actually offers.
+ * This control closes the tab. The earlier navigation-loss diagnosis was
+ * incomplete: the app origin had a service worker with a fetch listener.
+ * In warm Chromium contexts that worker dispatch loses pagehide keepalive
+ * writes when the document is replaced. A bare page without a worker
+ * delivered 80/80; with a fetch-listener worker it delivered 0/80; a worker
+ * without a listener delivered 20/20. Tab close remained green. See
+ * campaign-save-loss/PR1-BODY.md for the original evidence paths.
+ * The warm reload sweep is now in campaign-unload-adoption.spec.ts.
  *
  * Consequence for the assertions: a request issued as the page closes is
  * not reported to Playwright at all (measured: zero `request` events, at
@@ -331,7 +244,11 @@ test('a surviving document takes the ordinary debounced save, exactly once @camp
     expect(after.version).toBe(before.version + 1);
     expect(after.body.currentDate).not.toBe(before.body.currentDate);
     // The ordinary save IS an acknowledgement; the flush deliberately is not.
-    await expect(page.getByText('Unsaved changes')).toBeHidden();
+    await expect(
+      page
+        .getByTestId('campaign-save-status-card')
+        .getByText('Unsaved changes'),
+    ).toBeHidden();
   });
 });
 
@@ -354,7 +271,11 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
       )
       .toBe(before.version + 1);
     // Its response is never read, so it never cleared the pending mutations.
-    await expect(page.getByText('Unsaved changes')).toBeVisible();
+    await expect(
+      page
+        .getByTestId('campaign-save-status-card')
+        .getByText('Unsaved changes'),
+    ).toBeVisible();
     await setDocumentVisibility(page, 'visible');
     const reconciled = await waitForCampaignPut(page, campaignId);
     expect(puts.length).toBeGreaterThanOrEqual(2);
@@ -365,7 +286,11 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
     expect(reconciled.status()).toBe(RECONCILE_PUT_STATUS);
     // The acknowledgement the spec scenario demands: an accepted save, not
     // a conflict banner produced by the flush's own successful write.
-    await expect(page.getByText('Unsaved changes')).toBeHidden();
+    await expect(
+      page
+        .getByTestId('campaign-save-status-card')
+        .getByText('Unsaved changes'),
+    ).toBeHidden();
     await expect(page.getByText('Save refused')).toBeHidden();
   });
 });

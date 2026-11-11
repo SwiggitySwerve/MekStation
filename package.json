@@ -325,10 +325,9 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "oxlint --fix",
-      "oxfmt --write --no-error-on-unmatched-pattern",
-      "bash -c 'npm run typecheck'"
+      "oxfmt --write --no-error-on-unmatched-pattern"
     ],
-    "*.{js,jsx}": [
+    "*.{js,jsx,mjs,cjs}": [
       "oxlint --fix",
       "oxfmt --write --no-error-on-unmatched-pattern"
     ],

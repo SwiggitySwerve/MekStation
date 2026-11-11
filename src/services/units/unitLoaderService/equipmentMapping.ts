@@ -6,8 +6,6 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { v4 as uuidv4 } from 'uuid';
-
 import type { ISerializedEquipmentInput } from '@/types/unit/UnitSerialization';
 
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
@@ -25,6 +23,7 @@ import {
 } from './criticalSlotEquipment';
 import { resolveEquipmentId } from './equipmentResolution';
 import { mountedDefinitionFields } from './mountedDefinitionFields';
+import { sourceMountInstanceId } from './mountInstanceId';
 
 type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
 
@@ -44,8 +43,13 @@ export function mapEquipmentWithDiagnostics(
 ): ICriticalSlotEquipmentResult {
   const serialized = equipment ?? [];
 
+  const ordinals = new Map<string, number>();
   const mapped = serialized.map((item) => {
     const location = mapMechLocation(item.location);
+    const ordinalKey = `${location}\0${item.id}`;
+    const ordinal = ordinals.get(ordinalKey) ?? 0;
+    ordinals.set(ordinalKey, ordinal + 1);
+    const instanceId = sourceMountInstanceId(location, item.id, ordinal);
     const locationCriticalSlots = getCriticalSlotsForLocation(
       unitCriticalSlots,
       location,
@@ -68,7 +72,7 @@ export function mapEquipmentWithDiagnostics(
       }
 
       return {
-        instanceId: uuidv4(),
+        instanceId,
         ...mountedDefinitionFields(equipmentDef),
         location,
         slots: item.slots ? [...item.slots] : undefined,
@@ -83,7 +87,7 @@ export function mapEquipmentWithDiagnostics(
         `Equipment not found in database: ${item.id} (tried: ${resolvedId})`,
       );
       return {
-        instanceId: uuidv4(),
+        instanceId,
         equipmentId: item.id,
         name: item.id, // Use ID as name fallback
         category: EquipmentCategory.MISC_EQUIPMENT, // Default to misc

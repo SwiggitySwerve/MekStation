@@ -200,7 +200,7 @@ describe('commitThenPublish with a publication outbox', () => {
       intentId: 'intent-2',
       publications: store,
       appendEvent: (evt) => store.appendEvent(MATCH_ID, evt),
-      broadcast: () => {},
+      sendRefusal: () => {},
       broadcastEvent: async (message) => {
         sent.push(message);
       },
@@ -235,7 +235,7 @@ describe('commitThenPublish with a publication outbox', () => {
         committed = true;
         await store.appendCommandBatch(MATCH_ID, batch());
       },
-      broadcast: () => {},
+      sendRefusal: () => {},
       broadcastEvent: async (message) => {
         sent.push(message);
       },
@@ -261,7 +261,7 @@ describe('commitThenPublish with a publication outbox', () => {
       appendEvent: async () => {
         throw new Error('disk full');
       },
-      broadcast: () => {},
+      sendRefusal: () => {},
       broadcastEvent: async (message) => {
         sent.push(message);
       },

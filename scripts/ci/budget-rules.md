@@ -56,6 +56,13 @@ post-run guard has a separate trust boundary and counts toward the enforced ten.
 The primary fan-out must exactly match the aggregator's `needs`; its runtime
 boundary rejects empty/missing results and every unproved skip.
 
+The typical PR lifecycle includes `opened`, `synchronize`, `reopened` and
+`ready_for_review`. PR triggers with omitted `types`, or any of those types,
+count when their paths match. Label-only and other event workflows stay visible
+by name and event types in each profile's `otherEvents` census and budget report;
+they do not consume the typical PR job cap. Induced `workflow_run` jobs still
+count whenever their source workflow counts.
+
 Cache counts come from native Jest selection (unit/corpus with the production
 split/performance flags) and `scripts/jest/cached-tests.js`'s actual keyer.
 Full sorted selected/unkeyable/repo-wide file lists accompany every count.
@@ -136,6 +143,23 @@ by `budget-config.mjs`. A static import-closure test guards that set. It omits
 `config/ci`: `checkBudgetPolicy` reads the PR's budgets through the GitHub API
 at live head/base SHAs, independently of the validator's code revision.
 
+Every evaluation is bound to the head its run is for. Callers pass
+`expectedHead`: the aggregator passes its `pull_request` head, the guard its
+source run's head, and the approval workflow its event's head (or the live head
+read once at dispatch). A caller that passes none, such as a run whose merge ref
+predates the binding, is bound to the head of its own `pull_request` event. A
+run with neither is refused as `unbound-run` and should merge `origin/main`. A
+run bound to a superseded head writes nothing; the new head is evaluated by its
+own run. Statuses go only to the evaluated head.
+
+A refusal fails the publishing job unless the run proves a superseded head.
+Every PR read the evaluation makes, outer and nested, is logged in order, and
+`supersededHeadProof` exempts the job only when all of these hold: every read
+kept the first read's base and labels; every read during the evaluation, and
+every nested result, was about the run's head; no nested check refused a
+changed context; and a read after the evaluation shows a new head. Anything
+else fails the job, including a head change first seen during the evaluation.
+
 Trusted events publish `CI Budget Raise Approval` and a policy status under the existing
 `Lint and Test` required name. Approval first holds that status pending and
 upgrades it only after the actual latest GitHub Actions aggregator check passed.
@@ -143,3 +167,66 @@ Missing/running checks cannot become green through approval alone. Label/review
 revocation fails the existing required context without needing a new required
 context setting. Default-branch trusted publishing begins after bootstrap lands;
 the bootstrap PR itself runs the required primary policy check read-only.
+
+Budget publishers have no job or workflow concurrency queue. GitHub replaces
+older pending work within a group, so no branch/repository/SHA key can ensure
+every PR's label revocation is evaluated. The Guard alone retains its existing
+workflow-level `ci-report-<repository>-<branch>` group for report ordering. Label
+evaluations run independently of that report group, and every actual budget
+success from the Guard uses the same verification below.
+
+Commit statuses are SHA-scoped. Before each success, the publisher lists open
+PRs associated with the evaluated SHA into `main` in this base repository and
+requires every open exact-head PR to pass the same read-only budget policy.
+PRs into other branches do not participate, matching the label workflow and
+branch-protection scope. A refusal, an
+unbound/superseded peer or an unavailable association/PR read refuses success.
+Nested approval statuses use a no-op sink and never publish real statuses.
+
+The same base-branch/repository predicate applies to the triggering PR in
+`checkBudgetPolicy`. An out-of-scope target returns `not-main` after the initial
+eligibility read, evaluates no rules and writes no statuses. It is a successful
+no-op for both publishers and read-only aggregators, with a plain skip log line.
+An associated PR retargeted out of scope between listing and its live read is
+skipped by that same decision.
+
+The unfiltered `CI Budget Label and Base Approval` workflow handles `labeled`,
+`unlabeled` and `edited` into main. Its job condition permits edited events only
+when `changes.base` exists, so title/body-only edits allocate no runner. Retargets
+into main therefore evaluate even with no budget-file diff. Edited events are
+not typical lifecycle events in the census; this workflow stays in `otherEvents`
+with its name and all three event types, without adding counted jobs.
+
+After every actual success write (approval or final `Lint and Test`), the
+publisher re-reads through its recording client and checks the triggering PR's
+head/base/labels, then re-lists and re-evaluates all open exact-head associated
+PRs into `main`, including fresh owner reviews. Any refusal or changed triggering snapshot corrects that context to failure
+on the same evaluated SHA. A head change found after success fails the job,
+without the pure superseded-head exemption. The log identifies each PR so
+different PRs' legitimate base/label snapshots do not corrupt that proof.
+
+For a last success at w followed by verify at r>w, a revocation visible before r
+is corrected. A revocation after r triggers an independent evaluation that writes
+after w. A stale success written after another run's failure is corrected by its
+own verify, including when the revocation belongs to another PR sharing the SHA.
+This argument assumes every listed association and PR read reflects relevant
+changes made before it. Reads of PR state (labels, reviews, association) are not
+linearizable; no specific lag is verified either way. A lagging association list
+or stale PR/review read can miss a revocation until a later evaluation.
+
+The protocol is not atomic. A publisher killed after writing success and before
+verifying leaves that success in place until another completed evaluation of
+the same head. The hourly reconciliation in the following PR bounds this.
+That reconciliation is outside this PR; until it lands, there is no bounded
+closure without another completed evaluation. The following PR's hourly
+reconciliation is also the backstop for anything event-driven evaluation misses.
+The next
+completed same-head evaluation closes it: label events (unfiltered), PR Checks
+completion/Guard, relevant approval PR events, review signals, or owner dispatch.
+A return to a formerly green SHA also needs its own evaluation. There is no
+bounded closure if no further eligible event occurs or the API remains stale.
+Manual dispatch uses the same write/verify protocol and has no separate queue.
+
+With no queue, a storm of events or re-runs could occupy the 20 runner slots;
+events of these kinds are rare. Existing three-minute timeouts are unchanged,
+and there is no reserved runner headroom.

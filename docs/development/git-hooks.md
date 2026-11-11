@@ -15,24 +15,55 @@ Source: [`.husky/pre-commit`](../../.husky/pre-commit). Auto-installed via `npm 
 
 Current behaviour:
 
-| Step | Action                                                                                                                                                                             |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | `npx lint-staged --no-stash` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
-| 2    | When any `.ts` / `.tsx` file is staged, lint-staged ends with `bash -c 'npm run typecheck'`, which checks both root and scripts projects with TypeScript 7                         |
+| Step | Action                                                                                                                                                                                               |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `node scripts/lib/check-partial-stage.mjs` (cross-drive worktrees only; see below)                                                                                                                   |
+| 2    | `npx lint-staged --no-stash` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` / `.mjs` / `.cjs` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
+| 3    | `node scripts/lib/check-staged-parents.mjs`                                                                                                                                                          |
+| 4    | When any `.ts` / `.tsx` file is staged (added, copied, modified or renamed), `npm run typecheck` runs **once**, checking both root and scripts projects with TypeScript 7                            |
 
-The `bash -c` wrapper keeps staged filenames out of the compiler arguments so both checks use their tsconfig files.
+A failed step fails the commit with its exit code. With no `.ts` / `.tsx` staged, no typecheck runs.
+
+**Why the typecheck is not a lint-staged task.** lint-staged 16 splits a large staged set into chunks by command-line length and runs every task once per chunk, concurrently by default. A whole-project typecheck there ran once per chunk, several full typechecks at once inside one commit hook (about 4.5 GB each), where `mem-guard` cannot see them. In the hook it runs once per commit.
+
+**What the hook's typecheck does not prove.** It runs after lint-staged has put any hidden unstaged hunks back. So for a partially staged `.ts` file on a same-drive checkout, it checks the **working tree**, not the staged-only content, and it can pass on a commit whose staged content alone would fail. **Hosted Static Checks typechecks the commit itself and remains the gate; the hook is the fast local check.**
 
 The hook runs `npx lint-staged --no-stash`, so lint-staged takes no backup stash.
 
 - **Why:** linked worktrees share one stash stack. lint-staged applies or drops its backup by an index it looked up just before, so a stash made in another worktree in between could make it drop someone else's entry.
 - **Trade-off:** if a task fails, the edits it made stay in the working tree rather than being reverted.
 - **Test:** `scripts/__tests__/precommit-no-build.test.ts` traces the git commands the hook runs and fails if any of them uses `stash`.
+- **Not implied:** `--no-stash` does not turn off lint-staged's hiding of the unstaged part of a partially staged file. That is a separate option (`--hide-partially-staged`), on by default. lint-staged's type declarations say otherwise; its command-line code does not.
+
+Before lint-staged, the hook runs `node scripts/lib/check-partial-stage.mjs` for worktrees on a different drive from their git directory, such as a linked worktree on `C:` of a repository on `E:`.
+
+- **Why:** lint-staged hides an unstaged edit by writing it to a patch inside the git directory, then resetting the file. It builds the patch path from a relative path to the git directory (`lib/resolveGitRepo.js:56-57`). Across drives that path is absolute, so the write fails. lint-staged still resets the file, and the unstaged edit is lost with no backup. lint-staged 16.2.7 and 17.6.0 both do this.
+- **In such a worktree:** a commit with a partially staged file is refused before lint-staged runs. The message names the files and gives the two ways out: stage the whole file, or move the unstaged edit aside, commit, and put it back. With no partially staged file, the hook passes `--no-hide-partially-staged`, so the failing patch step never runs.
+- **Everywhere else**, the script prints nothing, and lint-staged keeps its default: a partially staged file is committed with its staged part only.
+- **Not `--no-hide-partially-staged` everywhere:** with that flag, lint-staged commits the whole working-tree file, including the hunks you did not stage.
+- **Do not bypass the refusal with `--no-verify`.** The check is what protects the unstaged edit.
+- **Test:** `scripts/__tests__/precommit-partial-stage.test.ts`.
 
 The hook runs no production build (owner decision of 2026-09-23, roadmap unit U62). The pr-checks workflow runs `npm run build` on every pull request that changes code, together with the lint, format, type and test gates.
 
 A commit made in a linked `git worktree` runs no hook at all. Husky's hooks folder, `.husky/_`, exists only in the checkout where `npm install` ran.
 
+In such a worktree, none of the checks above run unless you run them. Either:
+
+- **Copy the hooks:** copy `.husky/_` from a checkout where `npm install` ran into this worktree, so the real hook runs on every commit. Don't run `husky init`; it rewrites `.husky/pre-commit`.
+- **Or run the hook's steps by hand before `git commit`,** in the hook's order: `sh .husky/pre-commit` runs them all.
+  - If you run lint-staged yourself, run the partial-stage check first and pass what it prints: `flag=$(node scripts/lib/check-partial-stage.mjs) && npx lint-staged --no-stash $flag`.
+  - Plain `npx lint-staged` in a worktree on a different drive from its git directory loses the unstaged part of a partially staged file, as described above.
+
 **Don't bypass with `--no-verify`** unless you have an explicit reason.
+
+### Which ignore file the formatter reads
+
+**oxfmt reads `.gitignore` and `.prettierignore`, not `.oxfmtignore`.** `oxfmt --help`: "If not specified, .gitignore and .prettierignore in the current directory are used." Nothing in this repository passes `--ignore-path` for oxfmt. `.oxfmtignore` holds only a header saying so.
+
+- **To keep a file unformatted, add it to `.prettierignore`.** Both `npm run format:check` (`oxfmt --check .`) and the hook then skip it. lint-staged passes staged files to oxfmt by explicit path. An excluded path makes oxfmt report "Expected at least one target file", and lint-staged's `--no-error-on-unmatched-pattern` lets that pass. So a `.prettierignore` entry protects the file from the hook too (measured 2026-11-11).
+- **To keep one file's line endings or other options,** use an exact-path `overrides` entry in `.oxfmtrc.json`, as the CRLF reference provenance sidecar does. Overrides apply to explicit paths as well.
+- **An `.oxfmtignore` entry does nothing.** Two lanes added entries there on 2026-11-11 expecting an effect.
 
 ---
 
@@ -140,6 +171,10 @@ The genuinely better Git 2.54 features for shared use — `git hook list` discov
 - `cat .git/hooks/pre-commit` — does the husky shim exist?
 - `npm install` re-runs the husky `prepare` script and re-installs the hook
 - Check `.husky/_/` exists — that's husky's runtime support directory
+
+**Hook tests fail with "sh not found on PATH"**
+
+The pre-commit hook suites in `scripts/__tests__` (`precommit-*.test.ts`) run the real hook through `sh`. Started from PowerShell on Windows, Git's `usr/bin` is not on PATH, so `sh` can't be spawned and the suites fail with that message. Run them from Git Bash, or from any shell with POSIX `sh` and `bash` on PATH.
 
 **Lint-staged stash-restore corrupts working tree**
 Known husky+lint-staged issue. Recovery:

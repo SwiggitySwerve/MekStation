@@ -1,3 +1,5 @@
+import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 /**
  * Unit Loader Service - Equipment Resolution
@@ -27,19 +29,91 @@ import {
   techRoute,
   techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
+import { parseEquipmentSizeNumber } from '@/utils/equipmentSize';
 
 type TechHint = 'clan' | 'is';
+
+/** Preserve an ammo mount's own source identity, never another bin's evidence. */
+export function getMountedAmmoSourceToken(
+  mount: Pick<
+    IMountedEquipmentInstance,
+    'equipmentId' | 'category' | 'techBase'
+  >,
+  token: string | null | undefined,
+  techBase: TechBase,
+  mode: TechBaseMode,
+): string | undefined {
+  if (mount.category !== EquipmentCategory.AMMUNITION || !token)
+    return undefined;
+  return getMountedEquipmentSourceToken(mount, token, techBase, mode);
+}
+
+/** A native qualifier belongs only to the mount named by that particular cell. */
+export function getMountedEquipmentSourceToken(
+  mount: Pick<
+    IMountedEquipmentInstance,
+    'equipmentId' | 'category' | 'techBase'
+  >,
+  token: string | null | undefined,
+  techBase: TechBase,
+  mode: TechBaseMode,
+): string | undefined {
+  if (!token) return undefined;
+  // Use the placed-identity path with exactly this cell, including category and
+  // technology. A changed bin cannot inherit the previous bin's native token.
+  const original = resolveEquipmentId(
+    token,
+    techBase,
+    mode,
+    [token],
+    undefined,
+    [0],
+  );
+  // Native pod/rear wrappers are transport, not a different ammo definition.
+  // Keep established decorated identities before trying the existing decoder.
+  const lookupToken = parseCriticalSlotToken(token).lookupToken;
+  const resolved =
+    original.equipmentDef || lookupToken === token
+      ? original
+      : resolveEquipmentId(
+          lookupToken,
+          techBase,
+          mode,
+          [lookupToken],
+          undefined,
+          [0],
+        );
+  return resolved.resolvedId === mount.equipmentId &&
+    resolved.equipmentDef?.category === mount.category &&
+    resolved.equipmentDef.techBase === mount.techBase
+    ? token
+    : undefined;
+}
+
+export interface ICriticalSlotTokenParameters {
+  /** Native :SIZE: value; invalid values retain their raw evidence. */
+  readonly size?: { readonly raw: string; readonly value: number | undefined };
+  /** MtfFile.extractLegacySize, before applying the equipment's sizing rule. */
+  readonly legacySize?: {
+    readonly raw: string;
+    readonly value: number;
+    readonly unit: string;
+  };
+}
 
 export function parseCriticalSlotToken(token: string): {
   readonly lookupToken: string;
   readonly isRearMounted: boolean;
   readonly isOmniPodMounted: boolean;
+  readonly isArmored: boolean;
+  readonly parameters: ICriticalSlotTokenParameters;
 } {
   const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
   const podSuffix = /\s*\(OMNIPOD\)\s*$/i;
   let isOmniPodMounted = false;
   // MtfFile.java:952-956,1010-1021: armor, pod, Mek turret, then rear markers.
-  const unarmored = token.replace(/\s*\(ARMORED\)\s*$/i, '');
+  const armoredSuffix = /\s*\(ARMORED\)\s*$/i;
+  const unarmored = token.replace(armoredSuffix, '');
   const mountName = unarmored
     .replace(podSuffix, () => {
       isOmniPodMounted = true;
@@ -51,10 +125,34 @@ export function parseCriticalSlotToken(token: string): {
   const sizeIndex = unarmored.toUpperCase().indexOf(':SIZE:');
   if (sizeIndex > 0)
     isOmniPodMounted = podSuffix.test(unarmored.slice(0, sizeIndex));
+  // MtfFile.java:207-227,1005-1009,1151-1155 (48fcb2f64). Retain both
+  // forms: Java may fall back to legacy size when the explicit size is zero.
+  const sizeRaw = sizeIndex > 0 ? unarmored.slice(sizeIndex + 6) : undefined;
+  const legacy = /\((\d+(?:\.\d+)?)\s*(ton|tons|m|kg)\)/i.exec(token);
   return {
     lookupToken: mountName.replace(rearSuffix, '').trim(),
     isRearMounted: rearSuffix.test(mountName),
     isOmniPodMounted,
+    isArmored: armoredSuffix.test(token),
+    parameters: {
+      ...(sizeRaw !== undefined
+        ? {
+            size: {
+              raw: sizeRaw,
+              value: parseEquipmentSizeNumber(sizeRaw.trim()),
+            },
+          }
+        : {}),
+      ...(legacy
+        ? {
+            legacySize: {
+              raw: legacy[0],
+              value: Number(legacy[1]),
+              unit: legacy[2].toLowerCase(),
+            },
+          }
+        : {}),
+    },
   };
 }
 

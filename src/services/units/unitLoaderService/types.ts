@@ -61,6 +61,8 @@ export interface IRawSerializedUnit {
   readonly structure?: ISerializedStructure;
   readonly armor?: {
     readonly type: string;
+    /** Source-only Patchwork identity, retained by the existing contract parser. */
+    readonly typeByLocation?: Readonly<Record<string, number>>;
     readonly allocation?: Record<
       string,
       number | { front: number; rear: number }

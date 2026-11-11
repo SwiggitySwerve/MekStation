@@ -1,5 +1,58 @@
 # Unit definition loading
 
+## Critical-entry recognition and sizing context
+
+`criticalSlotEquipment.ts` owns `recognizeCriticalSlotEntries`. It resolves
+source cells once, preserves raw/parsed token evidence, and computes actual
+primary/split/spread coverage. Recognition alone does not admit a new recovery
+kind. The diagnostic residual is the missing subset of those same facts.
+`mtf-component-vocabulary.json:criticalSlotMarkers` owns native marker names,
+material/tech metadata and individual pinned citations; no editor/saver names
+table is needed.
+
+Each entry carries `parsedToken.parameters`: both native `:SIZE:` and legacy
+parenthesized size (raw value and units included). The grammar follows MegaMek
+48fcb2f64 `MtfFile.java:207-227,1005-1009,1151-1155`. Malformed explicit size
+remains evidence, with no guessed default. Existing lookup spelling and rear/pod
+suffix semantics are unchanged.
+
+Recognition/recovery input includes current mounted equipment (including
+weapons), source locations, tonnage, tech, Omni status and optional system,
+configuration and engine context. Recovery dispatch receives its entry and all
+recognized entries at that location. Callers refresh current equipment after
+preceding weapon recovery before passing context to sizing owners.
+
+TC uses `weapons/utilities.ts` direct-fire tonnage and
+`targetingComputerUtils.ts` weight/slots, or the existing calculator formulas.
+This base has no callable AES mass/slot sizing owner. Cargo/communications mass
+exists in `vehicle/variableEquipmentMass.ts` under vehicle/support rounding;
+mech sizing requires a coordinated owner extension. Those are explicit PR-D
+prerequisites, not sizing formulas to add to a recovery switch.
+
+## Shared callable recovery dispatcher
+
+`recoverCriticalSlotEntries(input: ICriticalSlotRecoveryInput)` returns zero or
+more mounted allocations without mutating its input. It is the only switch
+that creates missing critical-entry mounts: ammo, bomb bays, sinks, grouped
+source weapons. The exhaustive kind switch has no default arm: marker,
+mobility, configuration-system and unclassified kinds explicitly return no
+allocations. A new kind requires its own arm and must satisfy the never check.
+Marker cells stay in the residual and notice exactly as on main until the marker
+PR; this core change adds no marker mounts or hydration.
+The loader preserves the existing component -> source-weapon -> remaining-kind
+order, applies returned allocations and refreshes actual coverage, current
+equipment and location facts before each next call. The component-kind set is
+stage scheduling only; admission, matching, native entry sizing and creation
+remain in the callable switch.
+
+`physicalOnly` retains the existing summary guard for ammo/bays/sinks only.
+`reservedSlots` preserves serialized reservations, including invalid ones;
+when omitted by a direct caller it defaults to actual input allocations through
+the same coverage owner. `sourceWeapon` is already grouped evidence from
+`sourceCriticalWeapons`, never a second weapon-grouping calculation. Existing
+listed-weapon binding stays in the loader; newly discovered weapon creation
+goes through the dispatcher. The final o1 pod projection is unchanged.
+
 ## Unrecovered critical-slot diagnostics
 
 `criticalSlotEquipment.ts` owns both the recovered mounts and the remaining
@@ -10,7 +63,51 @@ including split and spread locations, using the existing system-component and
 fixed-slot owners to exclude core systems. Configuration markers whose cells
 do not survive save remain in the list even when a configuration value survives.
 Later Celerity, FU-101 PR-D and o3 recovery changes automatically remove their
-placed cells from this same residual; no separate warning-kind table is allowed.
+placed cells from this same residual. No classification table may decide which
+cells belong in the residual.
+
+`criticalSlotNoticeEffects.ts` owns `notice-kind-v2-final`, its consequence/test
+citations and recovery responsibility in one table. The notices and census call
+that classifier; neither rendering nor census scripts own another classification.
+This module owns critical-slot entry classification for both the recogniser and
+the notice. Consumers import `CriticalSlotEntryKind`, `CriticalSlotEntrySubkind`,
+`ICriticalSlotEntryClassification` and `classifyCriticalSlotNoticeIdentity` from
+this public facade. The stable kind/subkind values are selected once; `effect.id`
+retains the same subkind value for existing display callers. Recognition applies
+its existing definition, native vocabulary, grouping and sizing admission guards;
+a broad classification never grants admission or fabricates equipment metadata.
+The table and its one extracted match procedure are shared by every consumer.
+
+`criticalSlotNoticeGroups.ts` resolves only the supplied residual entries through
+the existing public identity owners and partitions them without changing any
+text, location or slot. Other critical-slot entries appear before placement
+markers, with counts and a consequence for every subgroup. Unmeasured effects
+say so. A consequence requires a unit and an executable test citation; the guard
+and real round-trip tests enforce that contract. Marker-only saves still require
+`Save anyway`. Classifications and consequences are derived display values, not
+additional persisted, fingerprinted or replay fields.
+
+The placement-marker consequence is approved against the round-trip census at
+`73ef85c97` and
+`E:/Projects/Personal/_scratch/sm-audit-reports/parity-0c/runtime-path-family/roundtrip-mechs/marker-only-119/REPORT.md`
+(marker restoration attribution and record-sheet checks). Weight, validity and
+MP move on none of the 303 marker-only journeys; 119 have a BV change, and
+restoring all markers changes nothing on 118 of those. Striker STC-2L is the
+armor-identity exception: its Heat-Dissipating type and six marker cells both
+disappear. The armor-type warning must accompany the marker consequence whenever
+the mapper fallback applies, on open and throughout saving; the real Striker
+editor/save test pins both lines together. The marker sentence has no census
+counts. Its classification and loader-owned membership remain unchanged.
+
+Recovery responsibility uses the typed o3a, o3b, o3b-s, Celerity and PR-D
+buckets. Weapon controls and unassigned entries remain non-recovery dispositions.
+Conversion Gear, Avionics and Landing Gear are configuration system slots
+(o3b-s); Head Turret and LAM Fuel Tank are mounted equipment (o3b). Head Turret
+keeps the existing turret-sizing owner. The missing LAM Fuel Tank definition is
+a named C3/C2 metadata/resolution prerequisite, not a manufactured definition.
+Bomb bays belong to Celerity, per `parity-3.3-critonly/COUNT.md:39`; the existing
+loader already recovers their 24 cells across seven crit-bearing catalog designs.
+The classification mapping does not change their notice membership or counts.
 
 The optional `UnitState.unrecoveredCriticalSlots` is editor metadata. Browser
 drafts retain it so reopening a draft does not hide the warning. Editable
@@ -19,6 +116,25 @@ state exclude it. The editor displays one notice with the original entry text,
 location and zero-based slot. Every library save path repeats that list and
 requires an explicit `Save anyway`; cancel leaves the open design unchanged.
 The notice states the loss without promising a recovery or timeline.
+
+Armor identity loss is a separate, clearly named diagnostic group. The source
+armor identity and per-location codes come from the loader's retained source;
+`componentMappers.resolveArmorType` is the single support decision used both by
+`mapArmorType` and `armorSaveLoss.ts`. The mapper's existing Standard fallback
+and the serialized design stay unchanged. There is no second unsupported-type
+list. Per-location names use the existing native armor-code vocabulary.
+The existing editor diagnostics show this warning on open for both catalog and
+MTF-imported custom sources, before any save action. The sentence explains that
+the editor shows Standard armor and displayed weight and BV may differ.
+Every library save requires `Save anyway` for this diagnostic, including a unit
+with no unplaced critical cells. Selecting a different supported armor removes
+the stale Standard-save warning. Patchwork's measured save/reopen BV consequence
+cites `parity-R2/phase3-patchwork/SAVE-REOPEN.md` and its real-unit test; the other
+unmeasured types explicitly say their effect is not established. Diagnostics
+remain derived editor data outside saved units, drafts, fingerprints and replay.
+A catalog draft missing its retained source refreshes that source transiently
+through the loader, even when its critical list is already known empty. This
+does not overwrite editable BV context, and saving waits during that check.
 
 Draft envelope version remains Zustand's existing `0`: this field is optional,
 and no portable schema or replay version changes. Hydration explicitly keeps an
@@ -61,6 +177,8 @@ available for allocation validation. Unplaced source summaries retain their
 existing location-hint behavior. Native prefixes and display markers such as
 `(Clan)` name the token's own technology, including during split restoration.
 Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.
+AmmoType.java:10617-10692 gives IS Streak SRM bins 4/7/11 BV; 8566-8579 gives
+Clan LRM-20 bins 27 BV. Unmarked display names are not equivalent source IDs.
 
 Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
 Custom mech saves retain category with optional `isAmmo` metadata only when the
@@ -379,3 +497,20 @@ but has UNOFFICIAL catalog metadata, while pinned `CLActiveProbe` is
 Clan/STANDARD (MiscType.java:5803-5838, 48fcb2f64). Likewise both Light Active
 Probe records are Clan (5848-5884). A mismatched actual side declines the suffix
 and retains the existing fallback; it introduces no alias or candidate fallback.
+
+## Mounted ammunition source tokens
+
+`equipmentResolution.getMountedAmmoSourceToken` owns whether a source cell still
+names the current ammo mount. It reuses the placed resolver for that cell and
+requires the same ID, category and technology. Established decorated identities
+win before the shared token decoder removes native pod/rear wrappers. The custom
+critical writer preserves this validated token instead of replacing it with an
+unmarked display name. It reads the existing editable projection, which removes
+stale source cells after a mount edit; other mounts retain their existing writer.
+The BV ammo consumer receives the same native token and uses its existing lookup.
+No recovery, catalog, portable schema or fingerprint format is added.
+
+The existing `unitEditSnapshot` library projection still normalizes temporary
+equipment IDs before serialization. Old literal fingerprints and the pre-change
+Sentinel/Archer library bytes are regression assertions; fixtures are not rebuilt.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1064,1210-1212.

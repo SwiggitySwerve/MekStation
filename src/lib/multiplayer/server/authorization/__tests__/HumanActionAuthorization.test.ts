@@ -21,6 +21,7 @@ import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { nowIso } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import { InMemoryMatchStore } from '../../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../../ServerMatchHost';
@@ -215,6 +216,24 @@ async function expectHumanRefusal(
   throw new Error('expected HumanActionAuthorizationError');
 }
 
+async function admitCommandSockets(host: ServerMatchHost) {
+  const guestSocket = makeMockSocket();
+  const hostSocket = makeMockSocket();
+  const secondGuestSocket = makeMockSocket();
+  for (const [socket, playerId, key] of [
+    [guestSocket, 'pid_guest', 'conn-guest'],
+    [hostSocket, 'pid_host', 'conn-host'],
+    [secondGuestSocket, 'pid_guest', 'conn-guest-second'],
+  ] as const) {
+    expect(await host.admitSocket(socket, playerId, key)).not.toBeNull();
+  }
+  for (const socket of [guestSocket, hostSocket, secondGuestSocket])
+    socket.sent.length = 0;
+  return { guestSocket, hostSocket, secondGuestSocket };
+}
+
+afterEach(() => jest.restoreAllMocks());
+
 describe('human action authorization gate', () => {
   it('each of the six kinds refuses when no current viewer exists', async () => {
     const source = new FakeMembershipSource();
@@ -239,9 +258,12 @@ describe('human action authorization gate', () => {
 
   it('command scope escalation on a real host appends no event', async () => {
     const { host, store, matchId } = await makeSeatedHost();
-    const guestSocket = makeMockSocket();
-    expect(await host.admitSocket(guestSocket, 'pid_guest')).not.toBeNull();
-    const before = (await store.getEvents(matchId)).length;
+    const { guestSocket, hostSocket, secondGuestSocket } =
+      await admitCommandSockets(host);
+    const refused = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+    const eventsBefore = await store.getEvents(matchId);
+    const before = eventsBefore.length;
+    const sessionBefore = [...host.getSessionForTests().events];
 
     const broadcasts = await host.handleIntent(
       advanceIntent(matchId, 'pid_host'),
@@ -253,9 +275,24 @@ describe('human action authorization gate', () => {
     expect(broadcasts[0]?.kind).toBe('Error');
     if (broadcasts[0]?.kind === 'Error') {
       expect(broadcasts[0].code).toBe('AUTH_REJECTED');
-      expect(broadcasts[0].reason).toBe('player-mismatch');
+      expect(broadcasts[0].reason).toBe('Intent is not authorized.');
     }
     expect((await store.getEvents(matchId)).length).toBe(before);
+    expect(await store.getEvents(matchId)).toEqual(eventsBefore);
+    expect(host.getSessionForTests().events).toEqual(sessionBefore);
+    expect(guestSocket.sent.map((frame) => frame.parsed)).toEqual(broadcasts);
+    expect(hostSocket.sent).toEqual([]);
+    expect(secondGuestSocket.sent).toEqual([]);
+    for (const socket of [guestSocket, hostSocket, secondGuestSocket])
+      expect(socket.closed).toBe(false);
+    expect(refused).toHaveBeenCalledWith(
+      '[multiplayer] intent refused',
+      expect.objectContaining({
+        matchId,
+        code: 'AUTH_REJECTED',
+        diagnostic: 'player-mismatch',
+      }),
+    );
     expect(
       guestSocket.sent.some((frame) => frame.parsed.kind === 'Event'),
     ).toBe(false);
@@ -282,8 +319,9 @@ describe('human action authorization gate', () => {
 
   it('an admitted member whose membership was revoked cannot command', async () => {
     const { host, store, matchId } = await makeSeatedHost();
-    const guestSocket = makeMockSocket();
-    expect(await host.admitSocket(guestSocket, 'pid_guest')).not.toBeNull();
+    const { guestSocket, hostSocket, secondGuestSocket } =
+      await admitCommandSockets(host);
+    const refused = jest.spyOn(logger, 'warn').mockImplementation(() => {});
 
     // Revoke durably: start the match with the guest's seat vacated.
     const meta = await store.getMatchMeta(matchId);
@@ -293,7 +331,9 @@ describe('human action authorization gate', () => {
         seat.slotId === 'bravo-1' ? { ...seat, occupant: null } : seat,
       ),
     });
-    const before = (await store.getEvents(matchId)).length;
+    const eventsBefore = await store.getEvents(matchId);
+    const before = eventsBefore.length;
+    const sessionBefore = [...host.getSessionForTests().events];
 
     // playerId matches the connection principal, so only the gate's
     // fresh membership recheck can refuse this envelope.
@@ -307,9 +347,24 @@ describe('human action authorization gate', () => {
     expect(broadcasts[0]?.kind).toBe('Error');
     if (broadcasts[0]?.kind === 'Error') {
       expect(broadcasts[0].code).toBe('AUTH_REJECTED');
-      expect(broadcasts[0].reason).toBe('command refused: no-viewer');
+      expect(broadcasts[0].reason).toBe('Intent is not authorized.');
     }
     expect((await store.getEvents(matchId)).length).toBe(before);
+    expect(await store.getEvents(matchId)).toEqual(eventsBefore);
+    expect(host.getSessionForTests().events).toEqual(sessionBefore);
+    expect(guestSocket.sent.map((frame) => frame.parsed)).toEqual(broadcasts);
+    expect(hostSocket.sent).toEqual([]);
+    expect(secondGuestSocket.sent).toEqual([]);
+    for (const socket of [guestSocket, hostSocket, secondGuestSocket])
+      expect(socket.closed).toBe(false);
+    expect(refused).toHaveBeenCalledWith(
+      '[multiplayer] intent refused',
+      expect.objectContaining({
+        matchId,
+        code: 'AUTH_REJECTED',
+        diagnostic: 'command refused: no-viewer: Authorization refused',
+      }),
+    );
   });
 
   it('command force scope must be a subset of server-derived ownedForceIds', async () => {

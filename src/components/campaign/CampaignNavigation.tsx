@@ -32,6 +32,8 @@ import { canUseCampaignGmControls } from '@/lib/campaign/campaignAuthority';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { CoopCredentialRenewal } from '@/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel';
 
+import { CampaignSaveIndicator } from './CampaignSaveIndicator';
+
 /**
  * Identifier of the currently-active campaign page. The bay pages
  * (`mech-bay`, `repair-bay`, `medical-bay`, `salvage`) were added by CP2a;
@@ -265,6 +267,7 @@ export function CampaignNavigation({
 
   return (
     <div className="border-border-theme mb-6 border-b">
+      <CampaignSaveIndicator campaignId={campaignId} />
       {coopSession && (
         <CoopCredentialRenewal matchId={getCoopMatchId(coopSession)} />
       )}
