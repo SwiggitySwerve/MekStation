@@ -392,6 +392,28 @@ test('summarize counts agreement with Java and counts every miss', () => {
   assert.match(narrowed.summary.headline, /NARROWED SCOPE/);
 });
 
+test('every gated summary key has a direction and resolves to a count', () => {
+  const rows = [capturedToRow(record('a')), capturedToRow(record('b'))];
+  const referenceByPath = new Map(['a', 'b'].map((id) => refRow(id, 1000)));
+  const { summary } = summarize({
+    rows,
+    referenceByPath,
+    scope: { families: ['battlemechs'], populationCount: 2, unitIds: null },
+    deterministic: true,
+  });
+  assert.deepEqual(Object.keys(summary.gates).sort(), [
+    'bv.exact',
+    'validity.agree',
+    'weightOwners.agree',
+  ]);
+  for (const [path, gate] of Object.entries(summary.gates)) {
+    const [group, key] = path.split('.');
+    assert.equal(gate.gated, true, path);
+    assert.equal(gate.direction, 'higher-is-better', path);
+    assert.equal(typeof summary[group][key], 'number', path);
+  }
+});
+
 test('summarize refuses rows that are not the population the scope claims', () => {
   const rows = [capturedToRow(record('a')), capturedToRow(record('b'))];
   const referenceByPath = new Map(['a', 'b'].map((id) => refRow(id, 1000)));

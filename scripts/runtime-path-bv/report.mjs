@@ -30,6 +30,15 @@ export function capturedToRow(record) {
   };
 }
 
+// The summary counts a nightly may gate on, and which way is better, by path into this summary
+// (`group.key`). A worse count fails the nightly, a better one passes; the direction is data here so
+// nothing downstream hard-codes it. Every one is higher-is-better.
+export const GATES = {
+  'bv.exact': { gated: true, direction: 'higher-is-better' },
+  'validity.agree': { gated: true, direction: 'higher-is-better' },
+  'weightOwners.agree': { gated: true, direction: 'higher-is-better' },
+};
+
 const fmt = (n) => n.toLocaleString('en-US');
 
 /**
@@ -147,6 +156,7 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       validity,
       weightOwners,
       deterministic,
+      gates: GATES,
       headline: `load=Java ${fmt(bv.exact)}/${fmt(units)} · validity ${fmt(validity.agree)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },
     differences,
