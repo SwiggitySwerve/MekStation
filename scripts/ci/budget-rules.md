@@ -167,3 +167,26 @@ Missing/running checks cannot become green through approval alone. Label/review
 revocation fails the existing required context without needing a new required
 context setting. Default-branch trusted publishing begins after bootstrap lands;
 the bootstrap PR itself runs the required primary policy check read-only.
+
+Automatic budget-status publishers share a job concurrency group by repository
+and head branch (`pull_request.head.ref` or `workflow_run.head_branch`). The
+Guard retains its separate workflow report group. `cancel-in-progress: false`
+allows one running and one pending job; a newer pending job replaces the older
+pending job. Replacement on the same current head rereads live labels; replacement
+on a newer head evaluates only that head. A return to a formerly green head still
+needs its own reevaluation, so the existing force-push gap remains.
+
+Fork branches with the same name share a queue. Besides serializing unrelated
+PRs, this can replace a pending revocation with another PR's job: the cancelled
+PR's prior success can remain until its next label/review/push reevaluation or
+an owner dispatch. This is not a durable queue. Closed/merged PRs are filtered
+when associated by Guard/review signals; a queued direct PR event or dispatch
+still reads current head/base/labels and can write to that evaluated head because
+`checkBudgetPolicy` does not gate on open state.
+
+Manual dispatch uses `dispatch-pr-<number>` because its event has no head branch
+at concurrency-expression time. It does not serialize with automatic publishers
+and must be used as an owner recovery operation after those jobs settle. A
+concurrent dispatch can still race the last live read/status write; the next
+automatic evaluation or a settled dispatch closes that exposure. Atomic label
+revocation and guaranteed delivery of every pending event are not provided.

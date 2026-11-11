@@ -6,6 +6,50 @@ import { parse } from 'yaml';
 const read = (file) =>
   parse(fs.readFileSync(`.github/workflows/${file}`, 'utf8'));
 
+test('all budget status publishers serialize in the same event-aware group without cancelling the running job', () => {
+  const group =
+    "ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch || format('dispatch-pr-{0}', inputs.pull_request) }}";
+  const publishers = [];
+  for (const file of fs
+    .readdirSync('.github/workflows')
+    .filter((file) => /\.ya?ml$/.test(file))) {
+    const workflow = read(file);
+    for (const [id, job] of Object.entries(workflow.jobs)) {
+      let publishes = false;
+      for (const step of job.steps ?? []) {
+        const code = step.with?.script ?? step.run ?? '';
+        if (!/budget-approval\.mjs|checkBudgetPolicy/.test(code)) continue;
+        const calls = [
+          ...code.matchAll(/checkBudgetPolicy\(\{([\s\S]*?)\}\)/g),
+        ];
+        assert.ok(
+          calls.length,
+          `${file}/${id}: unclassified budget policy consumer`,
+        );
+        if (calls.some((call) => !/\bpublish:\s*false\b/.test(call[1])))
+          publishes = true;
+      }
+      if (!publishes) continue;
+      publishers.push(`${file}/${id}`);
+      assert.deepEqual(
+        job.concurrency,
+        { group, 'cancel-in-progress': false },
+        `${file}/${id}`,
+      );
+    }
+  }
+  assert.deepEqual(publishers.sort(), [
+    'ci-budget-approval.yml/approval',
+    'ci-budget-label-approval.yml/approval',
+    'lint-and-test-guard.yml/guard',
+  ]);
+  assert.equal(read('ci-budget-approval.yml').concurrency, undefined);
+  assert.equal(
+    read('lint-and-test-guard.yml').concurrency.group,
+    'ci-report-${{ github.repository }}-${{ github.event.workflow_run.head_branch }}',
+  );
+});
+
 test('label reevaluation is unfiltered, trusted, head-bound and uses the shared outcome', () => {
   const label = read('ci-budget-label-approval.yml');
   assert.deepEqual(label.on, {

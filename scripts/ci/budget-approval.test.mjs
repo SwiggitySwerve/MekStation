@@ -692,6 +692,23 @@ test('label workflow fails an unchanged budget head after main lowered the cap a
   assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
 });
 
+test('a queued direct evaluation after close or merge still reads live labels and writes only its bound head', async () => {
+  for (const merged of [false, true]) {
+    const f = approvedRaise();
+    f.pull.state = 'closed';
+    f.pull.merged = merged;
+    const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+    assert.equal((await policy(args)).allowed, true);
+    assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+    f.pull.labels = f.pull.labels.filter(
+      (label) => label.name !== BUDGET_RAISE_LABEL,
+    );
+    assert.equal((await policy(args)).code, 'missing-label');
+    assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+    assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+  }
+});
+
 test('a budget raise with no label cannot obtain a successful required Lint and Test by any path', async () => {
   const f = approvedRaise();
   f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];

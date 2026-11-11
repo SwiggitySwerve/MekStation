@@ -17,12 +17,13 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: ci-budget-approval
-  cancel-in-progress: false
-
 jobs:
   approval:
+    concurrency:
+      # Automatic events use the same head-branch key as the Guard and label job.
+      # Dispatch has no head branch at expression time; its recovery queue is separate.
+      group: ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch || format('dispatch-pr-{0}', inputs.pull_request) }}
+      cancel-in-progress: false
     # Manual dispatch cannot grant write privileges to arbitrary branch code.
     if: github.event_name != 'workflow_dispatch' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
