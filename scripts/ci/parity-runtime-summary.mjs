@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
+import { lastGreenLine } from './parity-runtime-last-green.mjs';
+
 const code = (value) =>
   `\`${String(value).replaceAll('`', '&#96;').replaceAll('\n', ' ').replaceAll('\r', ' ')}\``;
 
@@ -44,17 +46,16 @@ export function renderRuntimeSummary(report, summary, retrieval = {}) {
     '',
     `Gate exit: ${report.exitCode}.`,
   ];
-  const reason = ['stale', 'malformed'].includes(report.lastGreen.status)
-    ? report.lastGreen.detail
-    : (retrieval.reason ?? report.lastGreen.detail ?? 'retrieval unavailable');
-  lines.push(
-    '',
-    report.lastGreen.status === 'applied'
+  // The gate refused a downloaded artifact (stale/malformed); otherwise the
+  // lookup's own wording applies: found, none within retention, or failed.
+  const lastGreen = ['stale', 'malformed'].includes(report.lastGreen.status)
+    ? `last green: none (${report.lastGreen.detail})`
+    : report.lastGreen.status === 'applied'
       ? `last green: ${code(retrieval.sha ?? 'unknown')}`
-      : `last green: none (${reason})`,
-  );
+      : lastGreenLine(retrieval);
+  lines.push('', lastGreen);
   lines.push(
-    `Previous-nightly range (informational only): ${retrieval.sha ? code(retrieval.sha) : `none (${reason})`} → ${code(report.runSha ?? 'unknown')}`,
+    `Previous-nightly range (informational only): ${retrieval.sha ? code(retrieval.sha) : lastGreen.replace(/^last green: /, '')} → ${code(report.runSha ?? 'unknown')}`,
     '',
   );
   lines.push('### Regressions', '');

@@ -7,6 +7,7 @@ import { test } from 'node:test';
 import { parse } from 'yaml';
 
 import { inducedWorkflowCensus, readWorkflow } from './budget-workflow.mjs';
+import { LAST_GREEN_RETENTION_DAYS } from './parity-runtime-last-green.mjs';
 
 const file = '.github/workflows/parity-runtime.yml';
 const workflow = () => parse(fs.readFileSync(file, 'utf8'));
@@ -177,7 +178,8 @@ test('last-green lookup is optional, main-only, and summary runs even on gate fa
     upload.if,
     "${{ success() && steps.gate.outcome == 'success' }}",
   );
-  assert.equal(upload.with['retention-days'], 30);
+  // The lookup's scan window and the upload's retention are one value.
+  assert.equal(upload.with['retention-days'], LAST_GREEN_RETENTION_DAYS);
   assert.equal(upload.with.overwrite, true);
   assert.equal(
     upload.with.path,
