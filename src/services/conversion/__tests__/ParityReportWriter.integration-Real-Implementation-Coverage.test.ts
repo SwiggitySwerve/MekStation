@@ -259,6 +259,7 @@ describe('ParityReportWriter', () => {
         model: 'TM-3',
         mtfPath: expect.any(String),
         generatedPath: expect.any(String),
+        parseErrors: ['Invalid header'],
         issues: [
           {
             category: DiscrepancyCategory.ParseError,
