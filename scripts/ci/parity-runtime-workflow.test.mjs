@@ -7,7 +7,10 @@ import { test } from 'node:test';
 import { parse } from 'yaml';
 
 import { inducedWorkflowCensus, readWorkflow } from './budget-workflow.mjs';
-import { LAST_GREEN_RETENTION_DAYS } from './parity-runtime-last-green.mjs';
+import {
+  LAST_GREEN_RETENTION_DAYS,
+  LAST_GREEN_UPLOAD_STATUSES,
+} from './parity-runtime-last-green.mjs';
 
 const file = '.github/workflows/parity-runtime.yml';
 const workflow = () => parse(fs.readFileSync(file, 'utf8'));
@@ -174,10 +177,18 @@ test('last-green lookup is optional, main-only, and summary runs even on gate fa
     (step) =>
       step.with?.name === 'parity-runtime-last-green-${{ inputs.measure }}',
   );
+  // Upload only after a lookup that completed: the statuses in the condition
+  // are exactly LAST_GREEN_UPLOAD_STATUSES, read from the lookup step's output,
+  // so a failed lookup (or no output at all) uploads nothing.
   assert.equal(
     upload.if,
-    "${{ success() && steps.gate.outcome == 'success' }}",
+    "${{ success() && steps.gate.outcome == 'success' && (steps.last-green.outputs.status == 'found' || steps.last-green.outputs.status == 'none') }}",
   );
+  const statuses = [
+    ...upload.if.matchAll(/steps\.last-green\.outputs\.status == '([a-z]+)'/g),
+  ].map((match) => match[1]);
+  assert.deepEqual(statuses.sort(), [...LAST_GREEN_UPLOAD_STATUSES].sort());
+  assert.ok(!statuses.includes('failed'));
   // The lookup's scan window and the upload's retention are one value.
   assert.equal(upload.with['retention-days'], LAST_GREEN_RETENTION_DAYS);
   assert.equal(upload.with.overwrite, true);

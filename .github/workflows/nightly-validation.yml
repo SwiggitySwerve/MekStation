@@ -422,8 +422,9 @@ jobs:
 
   # ---------------------------------------------------------------
   # Per-unit runtime parity, independent measures so one failure cannot hide
-  # the other's report. Counts and previous-nightly ranges are informational.
-  # The called gate owns enforcement against the committed baseline.
+  # the other's report. Counts and the previous-nightly SHA range are
+  # informational. The called gate owns enforcement: the committed baseline,
+  # tightened by the last green main Nightly while that baseline is unchanged.
   parity-runtime:
     strategy:
       fail-fast: false

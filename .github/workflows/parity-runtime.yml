@@ -2,7 +2,9 @@ name: Parity Runtime
 
 # Runtime-path parity gate: per-unit facts computed from the app's loaded state,
 # compared against the committed baseline. Census counts and the SHA range are
-# informational; gate.mjs owns the pass/fail decision.
+# informational; gate.mjs owns the pass/fail decision. Last green is not
+# informational: while the committed baseline is unchanged, the gate takes the
+# best of each fact against the last green main Nightly, so it changes what fails.
 #
 # Dispatch remains available so a runtime port can prove on its own branch that
 # the hosted per-unit table equals the local one (gh workflow run
@@ -127,8 +129,13 @@ jobs:
           # proposed-baseline.json}, even when the gate fails.
           path: ${{ runner.temp }}/parity-runtime/
 
+      # Only after a lookup that completed (status found or none; the list is
+      # LAST_GREEN_UPLOAD_STATUSES in parity-runtime-last-green.mjs). After a
+      # failed lookup the gate ran on the committed baseline alone, and uploading
+      # that untightened result would replace the chain. A missing output (the
+      # lookup step died first) also blocks the upload.
       - name: Upload last green
-        if: ${{ success() && steps.gate.outcome == 'success' }}
+        if: ${{ success() && steps.gate.outcome == 'success' && (steps.last-green.outputs.status == 'found' || steps.last-green.outputs.status == 'none') }}
         uses: actions/upload-artifact@v7
         with:
           name: parity-runtime-last-green-${{ inputs.measure }}
