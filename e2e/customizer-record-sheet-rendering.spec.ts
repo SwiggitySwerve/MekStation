@@ -590,12 +590,28 @@ async function loadCanonicalMechPreview(
   await expect(page.getByLabel('Current zoom', { exact: true })).toBeVisible();
 }
 
+/** The BV the editor's status bar shows on this page (the "Battle Value" group of the unit status banner). */
+async function statusBarBV(page: Page) {
+  const text = await page
+    .getByRole('group', { name: 'Battle Value' })
+    .first()
+    .innerText();
+  return text.match(/([\d,]+)\s*$/)?.[1] ?? '';
+}
+
 // Masakari L printed 2,467 on the sheet (PreviewTab dropped bvContext) while the status bar and the
 // Java reference say 3,695. The sheet reads the same projection input as the status bar now.
+// Two assertions, both reported: (i) the invariant, the sheet prints what the status bar shows on the same
+// page (it survives any future correct BV change); (ii) the oracle value, 3,695.
 test('the rendered sheet prints the status-bar BV for Masakari L @customizer', async ({
   page,
 }) => {
   await loadCanonicalMechPreview(page, 'Masakari', 'L');
   await expectSheetType(page, 'Masakari L');
-  await expect.poll(() => renderedSheetBV(page)).toBe('3,695');
+  await expect.poll(() => renderedSheetBV(page)).toMatch(/^[1-9][\d,]*$/);
+  await expect.poll(() => statusBarBV(page)).toMatch(/^[1-9][\d,]*$/);
+  const sheet = await renderedSheetBV(page);
+  const status = await statusBarBV(page);
+  expect.soft(sheet, 'the sheet BV equals the status-bar BV').toBe(status);
+  expect.soft(sheet, 'the sheet BV is the oracle value').toBe('3,695');
 });

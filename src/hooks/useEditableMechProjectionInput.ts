@@ -34,6 +34,9 @@ export function useStableEditableMechProjectionInput<
 >(source: S): ReturnType<typeof buildEditableMechProjectionInput<S>> {
   const next = buildEditableMechProjectionInput(source);
   const previous = useRef(next);
+  // Writing the ref during render is deliberate: it is idempotent (the value is a pure function of
+  // the input, so a discarded concurrent render can only store a shallow-equal object), and moving
+  // it into an effect would make the result lag one render behind the input.
   if (!shallow(previous.current, next)) previous.current = next;
   return previous.current;
 }
