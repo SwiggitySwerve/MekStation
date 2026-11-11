@@ -4,7 +4,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { copyHookScripts } from './support/hook-scripts';
+import { copyHookScripts, linkLintStaged } from './support/hook-scripts';
 import { spawnHookShell } from './support/spawn-hook-shell';
 
 // lint-staged (16.2.7, 17.6.0) builds the path of its unstaged-changes patch
@@ -16,10 +16,6 @@ import { spawnHookShell } from './support/spawn-hook-shell';
 // every git command it runs.
 const repoRoot = path.resolve(__dirname, '../..');
 const hookPath = path.join(repoRoot, '.husky', 'pre-commit');
-const lintStagedCli = path.join(
-  repoRoot,
-  'node_modules/lint-staged/bin/lint-staged.js',
-);
 const SEAM = 'MEKSTATION_PRECOMMIT_ASSUME_GITDIR_NOT_RELATIVE';
 const NO_HIDE_FLAG = '--no-hide-partially-staged';
 const helperModule = pathToFileURL(
@@ -43,9 +39,10 @@ function callHelper(code: string): unknown {
   if (result.status !== 0) throw new Error(result.stderr);
   return JSON.parse(result.stdout);
 }
-const OLD_LINE = 'npx lint-staged --no-stash ||';
+const OLD_LINE =
+  'node node_modules/lint-staged/bin/lint-staged.js --no-stash ||';
 const GUARD_LINES =
-  'hide_flag=$(node scripts/lib/check-partial-stage.mjs) || exit $?\nnpx lint-staged --no-stash $hide_flag ||';
+  'hide_flag=$(node scripts/lib/check-partial-stage.mjs) || exit $?\nnode node_modules/lint-staged/bin/lint-staged.js --no-stash $hide_flag ||';
 const posixPath = (value: string) => value.replaceAll('\\', '/');
 const lf = (value: string) => value.replaceAll('\r\n', '\n');
 
@@ -115,13 +112,7 @@ function fixture(options: {
     }),
   );
   copyHookScripts(cwd);
-  // Only the npx launcher is local; it runs the installed lint-staged CLI.
-  fs.mkdirSync(path.join(cwd, 'bin'));
-  fs.writeFileSync(
-    path.join(cwd, 'bin', 'npx'),
-    `#!/bin/sh\nshift\nexec "${posixPath(process.execPath)}" "${posixPath(lintStagedCli)}" "$@"\n`,
-    { mode: 0o755 },
-  );
+  linkLintStaged(cwd);
   return cwd;
 }
 
@@ -147,7 +138,7 @@ function runHook(
     [
       '-c',
       `if [ "$2" = 1 ]; then export ${SEAM}=1; fi; ` +
-        'PATH="$PWD/bin:$PATH" GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
+        'GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',
       'sh',
       posixPath(hook),
       assumeGitDirNotRelative ? '1' : '0',

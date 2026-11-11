@@ -4,7 +4,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { copyHookScripts } from './support/hook-scripts';
+import { copyHookScripts, linkLintStaged } from './support/hook-scripts';
 import { spawnHookShell } from './support/spawn-hook-shell';
 
 // The pre-commit hook typechecks once per commit, outside lint-staged.
@@ -15,10 +15,6 @@ import { spawnHookShell } from './support/spawn-hook-shell';
 // forced and a counting stand-in for `npm run typecheck`.
 const repoRoot = path.resolve(__dirname, '../..');
 const hookPath = path.join(repoRoot, '.husky', 'pre-commit');
-const lintStagedCli = path.join(
-  repoRoot,
-  'node_modules/lint-staged/bin/lint-staged.js',
-);
 const OLD_TASK = "bash -c 'npm run typecheck'";
 const HOOK_TYPECHECK = /\n# Typecheck once per commit[\s\S]*?\nesac\n?$/;
 const posixPath = (value: string) => value.replaceAll('\\', '/');
@@ -69,13 +65,17 @@ function fixture(files: string[], typecheckTask = false): string {
     }),
   );
   copyHookScripts(cwd);
+  linkLintStaged(cwd);
   const bin = path.join(cwd, 'bin');
   fs.mkdirSync(bin);
-  // The installed lint-staged CLI, with a small argument limit so the staged
-  // files split into several chunks.
+  // Keep the real hook invocation, but give only lint-staged a small argument
+  // limit so its staged files still split into several chunks.
   fs.writeFileSync(
-    path.join(bin, 'npx'),
-    `#!/bin/sh\nshift\nexec "${posixPath(process.execPath)}" "${posixPath(lintStagedCli)}" "$@" --max-arg-length 40\n`,
+    path.join(bin, 'node'),
+    '#!/bin/sh\n' +
+      'if [ "$1" = node_modules/lint-staged/bin/lint-staged.js ]; then\n' +
+      `  exec "${posixPath(process.execPath)}" "$@" --max-arg-length 40\nfi\n` +
+      `exec "${posixPath(process.execPath)}" "$@"\n`,
     { mode: 0o755 },
   );
   // Counting stand-in for `npm run typecheck`; exit code from TC_EXIT.
