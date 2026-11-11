@@ -208,8 +208,8 @@ npm run generate:index    # Generate unit index with metrics
 
 ## Credits & Attribution
 
-- Inspired by **MegaMek** (https://megamek.org). Data/assets licensed CC-BY-NC-SA-4.0; original code GPLv3.
+- Inspired by **MegaMek** (https://megamek.org). Data/assets licensed CC BY-NC-SA 4.0; original code GPL-3.0-or-later.
 - Built by **SwerveLabs** as a modern TypeScript/React implementation with OpenSpec-driven rules.
-- Non-commercial use for derived data per CC-BY-NC-SA-4.0 and MegaMek content policy.
+- Non-commercial use for derived data per CC BY-NC-SA 4.0 and MegaMek content policy.
 
 BattleTech trademarks are owned by their respective holders. This is an unofficial, fan-created tool.

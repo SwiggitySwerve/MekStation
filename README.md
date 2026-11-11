@@ -164,8 +164,8 @@ openspec validate --strict       # Validate specs and changes
 
 ## License
 
-- **Code**: Apache 2.0 (`LICENSE.code`)
-- **Data/Assets**: CC-BY-NC-SA-4.0 (`LICENSE.assets`)
+- **Code**: GPL-3.0-or-later (`LICENSE.code`)
+- **Data/Assets**: CC BY-NC-SA 4.0 (`LICENSE.assets`)
 
 See `LICENSE` for full details.
 
@@ -174,7 +174,9 @@ See `LICENSE` for full details.
 ## Credits
 
 - Inspired by [MegaMek](https://megamek.org) - the open-source BattleTech game engine
-- Unit data and record sheet templates derived from MegaMek (CC-BY-NC-SA-4.0)
-- BattleTech is a registered trademark of The Topps Company, Inc.
+- Unit data and record sheet templates derived from MegaMek (CC BY-NC-SA 4.0)
+- MechWarrior, BattleMech, 'Mech, and AeroTech are registered trademarks of The Topps Company, Inc. All Rights Reserved.
+- Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Productions, LLC.
+- The BattleTech name for electronic games is a trademark of Microsoft Corporation.
 
-_This is an unofficial, fan-created tool. Not affiliated with or endorsed by Catalyst Game Labs or The Topps Company._
+_This is an unofficial, fan-created tool. Not affiliated with, endorsed by, or licensed by Microsoft Corporation, The Topps Company, Inc., or Catalyst Game Labs._
