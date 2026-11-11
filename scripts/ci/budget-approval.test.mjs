@@ -15,6 +15,7 @@ import { loadBudgets } from './budget-config.mjs';
 import { DEPENDENCY_GROWTH_LABEL } from './budget-dependencies.mjs';
 import { reconcileBudgetStatuses } from './budget-reconcile.mjs';
 import { BUDGET_RAISE_LABEL } from './garden-approval.mjs';
+import { summaryFixture } from './test-helpers/summary.mjs';
 
 // Every caller binds the run to a head. These rows run for the fixture's head
 // unless they name another; the binding rows call checkBudgetPolicy directly.
@@ -683,6 +684,7 @@ async function runBudgetWorkflow(github, context, file, job) {
     lines = [],
     results = [];
   const core = {
+    summary: summaryFixture(),
     info: (line) => lines.push(line),
     setFailed: (line) => failures.push(line),
   };
@@ -700,7 +702,7 @@ async function runBudgetWorkflow(github, context, file, job) {
       },
     ),
   );
-  return { failures, lines, results, reconciliation };
+  return { failures, lines, results, reconciliation, summary: core.summary };
 }
 
 async function runApprovalEvent(github, pull, action, changes) {
@@ -816,6 +818,228 @@ function policyRequestTransport(github, beforeRequest) {
   return state;
 }
 
+test('reconciliation logs a correct refusal and writes failure without making the job red', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.pull.labels = [];
+  const result = await reconciliationCensus(f)();
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+  assert.deepEqual(result.failures, []);
+  assert.match(result.summary.text, /missing-label/);
+  assert.match(result.summary.text, /success.*failure/);
+});
+
+test('an uncorrectable post-write verification failure is the case that makes reconciliation red', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  const write = f.github.rest.repos.createCommitStatus;
+  let successWritten = false;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    if (status.context === 'Lint and Test' && status.state === 'success') {
+      successWritten = true;
+      f.pull.labels = [];
+    } else if (
+      successWritten &&
+      status.context === 'Lint and Test' &&
+      status.state === 'failure'
+    )
+      throw Object.assign(new Error('correction unavailable'), { status: 503 });
+    return write(status);
+  };
+  const result = await reconciliationCensus(f)();
+  assert.ok(successWritten);
+  assert.equal(result.failures.length, 1);
+  assert.match(result.failures[0], /unverified|uncorrected/);
+  assert.match(result.summary.text, /correction unavailable/);
+});
+
+for (const current of ['missing', 'pending', 'failure', 'error', 'success']) {
+  test(`passing policy with ${current} aggregator and primary in progress leaves it untouched and summarizes the skip`, async () => {
+    const f = approvedRaise();
+    await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+    if (current === 'missing')
+      f.statuses.splice(
+        0,
+        f.statuses.length,
+        ...f.statuses.filter((status) => status.context !== 'Lint and Test'),
+      );
+    else
+      f.statuses.push({
+        sha: RUN_HEAD,
+        context: 'Lint and Test',
+        state: current,
+      });
+    const before = f.statuses.length;
+    const runs = f.github.rest.actions.listWorkflowRuns;
+    f.github.rest.actions.listWorkflowRuns = async (args) => {
+      const result = await runs(args);
+      result.data.workflow_runs[0].status = 'in_progress';
+      return result;
+    };
+    const result = await reconciliationCensus(f)();
+    assert.deepEqual(f.statuses.slice(before), []);
+    assert.deepEqual(result.failures, []);
+    assert.match(result.summary.text, /skipped: checks in progress/);
+    assert.equal(
+      finalState(f.statuses, RUN_HEAD, 'Lint and Test'),
+      current === 'missing' ? undefined : current,
+    );
+  });
+}
+
+test('reconciliation transition table covers both contexts, all current states, and policy/primary verdicts', async () => {
+  const transitions = {
+    missing: { success: [], failure: ['failure'] },
+    pending: { success: [], failure: ['failure'] },
+    failure: { success: ['success'], failure: [] },
+    error: { success: ['success'], failure: ['failure'] },
+    success: { success: [], failure: ['failure'] },
+  };
+  for (const context of ['CI Budget Raise Approval', 'Lint and Test']) {
+    for (const [current, expected] of Object.entries(transitions)) {
+      for (const verdict of [
+        'refused',
+        'passed',
+        ...(context === 'Lint and Test' ? ['primary-failed'] : []),
+      ]) {
+        const f = approvedRaise();
+        for (const name of ['CI Budget Raise Approval', 'Lint and Test']) {
+          if (name !== context || current !== 'missing')
+            f.statuses.push({
+              sha: RUN_HEAD,
+              context: name,
+              state: name === context ? current : 'success',
+            });
+        }
+        if (verdict === 'refused') f.pull.labels = [];
+        if (verdict === 'primary-failed') {
+          const runs = f.github.rest.actions.listWorkflowRuns;
+          f.github.rest.actions.listWorkflowRuns = async (args) => {
+            const result = await runs(args);
+            result.data.workflow_runs[0].conclusion = 'failure';
+            return result;
+          };
+        }
+        const before = f.statuses.length;
+        const result = await reconciliationCensus(f)();
+        assert.deepEqual(
+          f.statuses
+            .slice(before)
+            .filter((status) => status.context === context)
+            .map((status) => status.state),
+          expected[verdict === 'passed' ? 'success' : 'failure'],
+          `${context}/${current}/${verdict}`,
+        );
+        assert.deepEqual(result.failures, []);
+        assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+      }
+    }
+  }
+});
+
+test('an acknowledged correction whose status is still wrong makes the job red', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  const write = f.github.rest.repos.createCommitStatus;
+  let successWritten = false;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    if (status.context === 'Lint and Test' && status.state === 'success') {
+      successWritten = true;
+      f.pull.labels = [];
+    }
+    if (
+      successWritten &&
+      status.context === 'Lint and Test' &&
+      status.state === 'failure'
+    )
+      return { data: status };
+    return write(status);
+  };
+  const result = await reconciliationCensus(f)();
+  assert.equal(result.failures.length, 1);
+  assert.match(result.failures[0], /unverified or uncorrected/);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+});
+
+test('a policy-verified success replaced by an event publisher pending does not create a false failure', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  const write = f.github.rest.repos.createCommitStatus;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    const result = await write(status);
+    if (status.context === 'Lint and Test' && status.state === 'success')
+      f.statuses.push({ ...status, state: 'pending' });
+    return result;
+  };
+  const result = await reconciliationCensus(f)();
+  assert.deepEqual(result.failures, []);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'pending');
+  assert.match(result.summary.text, /verified; superseded by pending/);
+});
+
+test('a 5xx caught inside policy before any write is unreached and cannot manufacture a failure verdict', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  const before = structuredClone(f.statuses);
+  f.github.rest.repos.getContent = async () => {
+    throw Object.assign(new Error('budget read unavailable'), { status: 503 });
+  };
+  const result = await reconciliationCensus(f, (github) =>
+    policyRequestTransport(github),
+  )();
+  assert.deepEqual(f.statuses, before);
+  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.reconciliation.unreached, [1]);
+  assert.match(result.summary.text, /API 503: budget read unavailable/);
+});
+
+for (const accepted of [false, true]) {
+  test(`a 5xx status POST with accepted=${accepted} reports only an observable unverified write as red`, async () => {
+    const f = approvedRaise();
+    await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+    f.statuses.push({
+      sha: RUN_HEAD,
+      context: 'Lint and Test',
+      state: 'failure',
+    });
+    const write = f.github.rest.repos.createCommitStatus;
+    f.github.rest.repos.createCommitStatus = async (status) => {
+      if (status.context === 'Lint and Test' && status.state === 'success') {
+        if (accepted) await write(status);
+        throw Object.assign(new Error('write acknowledgement unavailable'), {
+          status: 503,
+        });
+      }
+      return write(status);
+    };
+    const result = await reconciliationCensus(f, (github) =>
+      policyRequestTransport(github),
+    )();
+    assert.equal(result.failures.length, accepted ? 1 : 0);
+    assert.equal(
+      finalState(f.statuses, RUN_HEAD, 'Lint and Test'),
+      accepted ? 'success' : 'failure',
+    );
+    assert.match(result.summary.text, /write acknowledgement unavailable/);
+    if (accepted) assert.match(result.failures[0], /unverified or uncorrected/);
+  });
+}
+
 test('real-policy hook completes verification and failure correction when an admitted write leaves 150 requests', async () => {
   const f = approvedRaise();
   await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
@@ -865,7 +1089,10 @@ test('real-policy hook completes verification and failure correction when an adm
     'The production hook must permit the failure correction below the floor',
   );
   assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
-  assert.equal(result.failures.length, 1);
+  assert.deepEqual(result.failures, []);
+  assert.ok(
+    result.lines.some((line) => line.includes('corrected successfully')),
+  );
   assert.ok(result.results[0].reads.some((read) => read.phase === 'verify'));
   assert.ok(transport.remaining < 150);
 });
@@ -904,8 +1131,8 @@ test('real-policy success admission below floor plus verification reserve writes
     reservation.match(/\+ (\d+) verify\/correction requests/)[1],
   );
   // One census request precedes this evaluation; the remaining observed
-  // prefix plus three cleanup requests is the named reservation.
-  assert.equal(counted, transport.requests.length - 1 + 3);
+  // prefix plus four cleanup requests is the named reservation.
+  assert.equal(counted, transport.requests.length - 1 + 4);
 });
 
 test('one hundred green reconciliation confirmations write no statuses, then still withdraw revocation', async () => {
@@ -989,7 +1216,11 @@ test('a reconciliation success that clears a stale red is corrected after a post
   };
   const result = await reconciliationCensus(f)();
   assert.equal(result.results[0].allowed, false);
-  assert.equal(result.failures.length, 1);
+  assert.deepEqual(result.failures, []);
+  assert.ok(
+    result.lines.some((line) => line.includes('corrected successfully')),
+  );
+  assert.match(result.summary.text, /corrected and verified/);
   assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
   assert.ok(result.results[0].reads.some((read) => read.phase === 'verify'));
 });
@@ -1010,7 +1241,7 @@ test('hourly reconciliation withdraws a green after main lowers a cap without an
   for (const name of ['Lint and Test', 'CI Budget Raise Approval'])
     assert.equal(finalState(f.statuses, RUN_HEAD, name), 'failure');
   const expected = guardOutcome(1, result.results[0]).line;
-  assert.deepEqual(result.failures, [expected]);
+  assert.deepEqual(result.failures, []);
   assert.ok(
     result.lines.includes(expected),
     'withdrawal must be visible in the job log',
@@ -1208,34 +1439,26 @@ test('head movement after reconciliation binds writes nothing to the new head', 
       ['before-policy', 'after-evaluation'].includes(moment),
       moment,
     );
-    assert.equal(
-      result.failures.length,
-      ['during-policy', 'after-success'].includes(moment) ? 1 : 0,
-      moment,
-    );
+    assert.equal(result.failures.length, 0, moment);
   }
 });
 
-test('a PR API error is reported while reconciliation continues to the remaining open PRs', async () => {
+test('API errors caught inside shared-head policy remain unreached rather than fabricated verdicts', async () => {
   const f = sharedHeadApprovals();
-  const run = reconciliationCensus(f);
   const read = f.github.rest.pulls.get;
   f.github.rest.pulls.get = async (args) => {
     if (args.pull_number === 1) throw new Error('API unavailable');
     return read(args);
   };
+  const run = reconciliationCensus(f, (github) =>
+    policyRequestTransport(github),
+  );
   const result = await run();
-  assert.ok(
-    result.failures.some((line) => /PR #1.*API unavailable/.test(line)),
-  );
-  // The unavailable shared-head peer also prevents the other PR going green.
-  assert.equal(result.results.length, 1);
-  assert.equal(result.results[0].code, 'associated-pr-read-failed');
-  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
-  assert.equal(
-    finalState(f.statuses, RUN_HEAD, 'CI Budget Raise Approval'),
-    'failure',
-  );
+  assert.ok(result.lines.some((line) => /PR #1.*API unavailable/.test(line)));
+  assert.deepEqual(result.failures, []);
+  assert.deepEqual(result.reconciliation.unreached, [1, 2]);
+  assert.deepEqual(f.statuses, []);
+  assert.match(result.summary.text, /API unavailable/);
 });
 
 test('label workflow fails an unchanged budget head after main lowered the cap and the owner revoked approval', async () => {

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { summaryFixture } from './test-helpers/summary.mjs';
+
 function apiFixture(count = 60, allowance = 1000, drafts = []) {
   let remaining = allowance,
     hook;
@@ -71,10 +73,66 @@ function apiFixture(count = 60, allowance = 1000, drafts = []) {
       remaining -= count;
     },
     core: {
+      summary: summaryFixture(),
       info: (line) => lines.push(line),
       setFailed: (line) => failures.push(line),
     },
   };
+}
+
+test('a PR read 5xx is unreached with a reason and stops cleanly without turning the job red', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const f = apiFixture(2);
+  f.github.rest.pulls.get = async () => {
+    throw Object.assign(new Error('upstream unavailable'), { status: 503 });
+  };
+  const result = await reconcileBudgetStatuses({
+    ...f,
+    owner: 'o',
+    repo: 'r',
+    runNumber: 1,
+  });
+  assert.deepEqual(f.failures, []);
+  assert.equal(result.unreached.length, 2);
+  assert.match(f.core.summary.text, /upstream unavailable/);
+  assert.match(f.core.summary.text, /Requests used/);
+  assert.ok(f.core.summary.written);
+});
+
+test('a rate-limited PR read ends cleanly with the rate-limit reason', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const f = apiFixture(1);
+  f.github.rest.pulls.get = async () => {
+    throw Object.assign(new Error('API rate limit exceeded'), { status: 429 });
+  };
+  await reconcileBudgetStatuses({ ...f, owner: 'o', repo: 'r', runNumber: 1 });
+  assert.deepEqual(f.failures, []);
+  assert.match(f.core.summary.text, /API rate limit exceeded/);
+});
+
+for (const endpoint of ['list', 'rateLimit']) {
+  test(`${endpoint} read failure ends cleanly and summary says nothing was evaluated`, async () => {
+    const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+    const f = apiFixture(1);
+    const fail = async () => {
+      throw Object.assign(new Error(`${endpoint} unavailable`), {
+        status: 503,
+      });
+    };
+    if (endpoint === 'list') f.github.paginate = fail;
+    else f.github.rest.rateLimit.get = fail;
+    const result = await reconcileBudgetStatuses({
+      ...f,
+      owner: 'o',
+      repo: 'r',
+      runNumber: 1,
+    });
+    assert.deepEqual(f.failures, []);
+    assert.deepEqual(result.visited, []);
+    assert.match(f.core.summary.text, /Nothing was evaluated/);
+    assert.match(f.core.summary.text, new RegExp(`${endpoint} unavailable`));
+    assert.ok(f.core.summary.written);
+  });
 }
 
 test('PR-own sweep priorities visit #3 within five one-visit runs in the exact #2/#6 churn counterexample', async () => {

@@ -232,16 +232,91 @@ Its opt-in publication mode omits the provisional `Lint and Test` pending hold;
 event-driven callers retain their existing behavior. Before each publication,
 the reconciliation client reads the latest combined status for that context.
 An unchanged state is logged as `confirmed, no write`. Failure withdraws a
-green, and success only clears an existing failure/error. Missing or pending
-statuses await an event-driven publisher. Incomplete primary checks fail closed
-without a provisional pending/success cycle. Every success actually written is
+green, and success only clears an existing failure/error. Reconciliation
+deliberately leaves a missing status alone when the policy passes; pending
+statuses also await an event-driven publisher. A policy pass with primary
+checks still pending or in progress writes nothing to the aggregator and is
+summarized as `skipped: checks in progress`. Every success actually written is
 followed by the existing live verification and same-head correction path.
 This avoids spending GitHub's 1,000 statuses per SHA/context on hourly green
 confirmations. It cannot repair a context whose status quota is already full;
 event-driven publishers still consume that quota.
 Policy refusals withdraw success on the evaluated head and log the PR number,
-head and reason through `guardOutcome`. API errors fail the job and evaluation
-continues with the remaining PRs when possible.
+head and reason through the shared `policyOutcomeLine`. They are correct
+findings, not scheduled-job failures. Reconciliation never adds or removes a
+label: labels are only read, and every success it writes is the policy's own
+verdict on the evaluated head with the approval label read at evaluation time.
+
+<!-- reconciliation-transitions:start -->
+
+### Reconciliation status transitions
+
+The live policy supplies the desired state before the current-state table is
+applied. The two contexts have different meanings:
+
+| Context                       | Policy and primary-check result                                                         | Desired state                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `CI Budget Raise Approval`    | Policy passes on the bound head                                                         | Success                                                          |
+| `CI Budget Raise Approval`    | Policy refuses                                                                          | Failure                                                          |
+| `Lint and Test` policy status | Policy refuses, regardless of primary progress                                          | Failure                                                          |
+| `Lint and Test` policy status | Policy passes; head-bound primary run and fresh aggregator check completed successfully | Success                                                          |
+| `Lint and Test` policy status | Policy passes; head-bound primary run completed unsuccessfully                          | Failure                                                          |
+| `Lint and Test` policy status | Policy passes; primary pending/in progress, or no proven completed verdict yet          | No write; `skipped: checks in progress`                          |
+| Either                        | Head/base/labels change during evaluation or verification                               | Failure requested on the evaluated head only; never the new head |
+| Either                        | Ineligible, unbound, or superseded before evaluation starts                             | No evaluation or write                                           |
+
+| Context                       | Current state | Wanted failure | Wanted success                                     |
+| ----------------------------- | ------------- | -------------- | -------------------------------------------------- |
+| `CI Budget Raise Approval`    | Missing       | Write failure  | No write                                           |
+| `CI Budget Raise Approval`    | Pending       | Write failure  | No write                                           |
+| `CI Budget Raise Approval`    | Failure       | No write       | Write success, subject to reserve and verification |
+| `CI Budget Raise Approval`    | Error         | Write failure  | Write success, subject to reserve and verification |
+| `CI Budget Raise Approval`    | Success       | Write failure  | No write                                           |
+| `Lint and Test` policy status | Missing       | Write failure  | No write                                           |
+| `Lint and Test` policy status | Pending       | Write failure  | No write                                           |
+| `Lint and Test` policy status | Failure       | No write       | Write success, subject to reserve and verification |
+| `Lint and Test` policy status | Error         | Write failure  | Write success, subject to reserve and verification |
+| `Lint and Test` policy status | Success       | Write failure  | No write                                           |
+
+A no-verdict result leaves every current aggregator state unchanged. Approval
+still follows its independent budget-policy verdict. Equal states never write.
+Leaving a missing status alone on a pass is a deliberate reconciliation decision.
+
+Root's pending decision: a job that repairs wrong statuses must not create one.
+Checks still running are not a verdict; writing failure can make a passing PR
+red until a later event or sweep, the fault reconciliation is meant to remove.
+An old success while checks re-run is delayed, not lost: completion supplies a
+verdict; if its event publisher misses it, the next eligible reconciliation can
+write the completed failure. Nothing merges on this aggregator alone: the merge
+procedure reads every check on the exact head. Pending belongs to event publishers,
+whose behavior is unchanged.
+
+<!-- reconciliation-transitions:end -->
+
+The scheduled job turns red only for an issued status write that remains
+unverified or uncorrected. A per-PR journal records before/after state and actual
+write acknowledgement; the policy's publication callback signals completion of
+its verify/correct path. The journal reads back that outcome and never invents
+a replacement verdict outside the policy. A successful policy correction is
+logged and does not make the job red. Unresolved writes, failed corrections, or
+acknowledged corrections whose readback is still wrong do make it red. A lost
+write acknowledgement is checked: no observed change is a clean stop; an
+observable accepted write must be verified or corrected. An uncertain success
+whose acceptance cannot be checked or corrected is reported as unverified.
+
+Pre-write API errors leave the PR unreached with its reason, including errors
+the policy catches internally; infrastructure errors must not manufacture a
+policy-failure status. Rate limits, 5xx responses and allowance exhaustion stop
+cleanly unless they leave this run's own issued write unresolved. A PR-list or
+initial rate-limit read failure ends cleanly with nothing evaluated. Ordinary
+refusals, superseded heads and verified changed-context failures are not red.
+`core.summary` records PRs evaluated, acknowledged/observable status changes
+(before → after and verification), unreached PRs with reasons, requests used,
+and the stop reason. Logs retain the detailed findings and correction lines.
+
+The no-install contract walks the runtime module's transitive relative import
+closure, including literal dynamic imports and `require` calls. Every external
+specifier must be a `node:` built-in; packages are rejected by an executable test.
 
 This covers main cap reductions, paths-filtered events and interrupted success
 writes. It also clears a shared-head failure once a refusing peer closes or
@@ -299,11 +374,13 @@ uses `X-RateLimit-Remaining` to reduce its allowance when other publishers spend
 the shared repository quota. The 150-request floor gates only admission of a
 new PR evaluation or an actual success write. It never blocks an admitted
 write's verification reads or failure correction, even below the floor.
-Before success, admission requires 150 + E + 3 + 1 requests: E is the actual
+Before success, admission requires 150 + E + 4 + 1 requests: E is the actual
 request count spent since this PR's admission (reserving a fresh SHA-wide
-evaluation, including observed pagination); the named three-request cleanup
+evaluation, including observed pagination); the named four-request cleanup
 reserve covers a triggering-PR verify GET, a current-status GET and a failure
-correction POST; one further request writes success. An insufficient allowance
+correction POST and post-correction status readback GET; one further request
+writes success. Policy correction and its readback can use the floor.
+An insufficient allowance
 skips success and reports the PR as unreached. The request hook only counts and
 observes quota; it cannot turn an unfinished success verification into a clean
 budget stop. Reads and corrections already in progress may spend below 150.
@@ -312,8 +389,8 @@ and pagination appearing concurrently; API exhaustion or outages can still
 prevent correction and fail the job.
 A soft eight-minute deadline stops new evaluations before the ten-minute job
 timeout. Budget/time stops report every known unreached PR and are successful
-job outcomes; a request-floor stop during pagination also reports that the
-census is incomplete. A partially evaluated PR remains unreached. Only
+job outcomes when no write remains unresolved; a failed PR-list read also
+reports that the census is incomplete. A partially evaluated PR remains unreached. Only
 repository metadata and immutable SHA-addressed blobs are cached within a run;
 PR, review, association and status reads stay live, including every verify read
 in the complete policy log. There is no concurrency group. A delayed run that

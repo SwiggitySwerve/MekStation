@@ -20,6 +20,11 @@ function assertNoInstallClosure(entry, root = process.cwd()) {
   return staticImportClosure(entry, {
     root,
     inspectSpecifier: (specifier, file) => {
+      assert.equal(
+        typeof specifier,
+        'string',
+        `${file}: no-install workflow cannot resolve a computed module specifier`,
+      );
       if (!specifier.startsWith('.'))
         assert.ok(
           specifier.startsWith('node:') && isBuiltin(specifier),
@@ -53,6 +58,13 @@ test('no-install closure rejects package imports, dynamic imports and require ca
       assert.throws(
         () => assertNoInstallClosure('entry.mjs', root),
         /peer.mjs: no-install workflow cannot load zod/,
+      );
+    }
+    for (const source of ['await import(name);', 'require(name);']) {
+      fs.writeFileSync(path.join(root, 'peer.mjs'), source);
+      assert.throws(
+        () => assertNoInstallClosure('entry.mjs', root),
+        /computed module specifier/,
       );
     }
   } finally {

@@ -33,7 +33,7 @@ export function staticImportClosure(
         inspectSpecifier(specifier.text, file);
         if (specifier.text.startsWith('.'))
           visit(path.posix.join(path.posix.dirname(file), specifier.text));
-      }
+      } else if (specifier) inspectSpecifier(null, file);
       ts.forEachChild(node, inspect);
     }
     inspect(source);

@@ -1,19 +1,17 @@
 import { createHash } from 'node:crypto';
 
-import { checkBudgetPolicy, guardOutcome } from './budget-approval.mjs';
-import { reconciliationClient } from './budget-reconcile-publisher.mjs';
+import { checkBudgetPolicy, policyOutcomeLine } from './budget-approval.mjs';
+import { reconciliationPublisher } from './budget-reconcile-publisher.mjs';
+import { writeReconciliationSummary } from './budget-reconcile-summary.mjs';
 
 const REQUEST_FLOOR = 150;
-// One triggering-PR verify GET, one current-status GET and one correction POST.
-// Admission also reserves the entire observed evaluation request count for a
-// fresh SHA-wide peer sweep (including pagination), rather than assuming one peer.
-const VERIFY_CORRECTION_REQUESTS = 3;
+// Trigger verify GET, current-status GET, correction POST and readback GET, plus the full
+// observed request prefix for a fresh SHA-wide sweep and its pagination.
+const VERIFY_CORRECTION_REQUESTS = 4;
 const BATCH_SIZE = 5;
 const SOFT_TIMEOUT_MS = 8 * 60 * 1000;
-
 class RequestBudgetStop extends Error {}
 
-/** Each PR's priority is independent of which peers are present this sweep. */
 function orderBucketBySweep(prs, sweep) {
   return prs
     .map((pr) => ({
@@ -27,7 +25,17 @@ function orderBucketBySweep(prs, sweep) {
     .map(({ pr }) => pr);
 }
 
-/** Reconcile PR-number buckets without coupling membership to list positions. */
+const isTransient = (error) =>
+  error instanceof RequestBudgetStop ||
+  error.status === 429 ||
+  error.status >= 500 ||
+  /rate.?limit|ECONN|ENET|ETIMEDOUT/i.test(error.message);
+const reason = (error) =>
+  error instanceof RequestBudgetStop
+    ? 'request budget'
+    : `${error.status ? `API ${error.status}: ` : ''}${error.message}`;
+
+/** Policy findings are normal outcomes; only unresolved writes make this red. */
 export async function reconcileBudgetStatuses({
   github,
   owner,
@@ -37,18 +45,22 @@ export async function reconcileBudgetStatuses({
   checkPolicy = checkBudgetPolicy,
   now = Date.now,
 }) {
-  if (!Number.isSafeInteger(runNumber) || runNumber < 1)
-    throw new Error('Invalid reconciliation run number');
-  const started = now();
-  const { data } = await github.rest.rateLimit.get();
-  let remaining = data.resources?.core?.remaining;
-  if (!Number.isSafeInteger(remaining) || remaining < 0)
-    throw new Error('REST request budget unavailable');
+  const started = now(),
+    visited = [],
+    evaluated = [],
+    reasons = new Map();
+  let candidates = [],
+    selected = new Set(),
+    stopReason = null,
+    censusIncomplete = true;
   let requests = 0,
-    evaluationStart = 0;
+    evaluationStart = 0,
+    remaining = null,
+    currentNumber,
+    readError,
+    publisher,
+    hooked = false;
   const requestHook = async (request, options) => {
-    // Count requests and observe shared quota here. The floor gates admission,
-    // never an admitted write's verify reads or failure correction.
     requests++;
     remaining--;
     try {
@@ -61,29 +73,43 @@ export async function reconcileBudgetStatuses({
       const header = error.response?.headers?.['x-ratelimit-remaining'];
       if (header !== undefined && Number.isSafeInteger(Number(header)))
         remaining = Math.min(remaining, Number(header));
+      if (!/^(POST|createCommitStatus)$/i.test(options.method ?? 'GET'))
+        readError ??= error;
       throw error;
     }
   };
-  github.hook.wrap('request', requestHook);
-  let currentNumber;
-  const client = reconciliationClient(
-    github,
-    core,
-    () => currentNumber,
-    () => {
-      const reserve = requests - evaluationStart + VERIFY_CORRECTION_REQUESTS;
-      if (remaining < REQUEST_FLOOR + reserve + 1) {
-        core.info(
-          `PR #${currentNumber}: success not admitted; ${remaining} remaining requires floor ${REQUEST_FLOOR} + ${reserve} verify/correction requests + 1 success write; unreached.`,
-        );
-        throw new RequestBudgetStop('request budget');
-      }
-    },
-  );
-  const visited = [];
-  let candidates = [],
-    stopReason = null;
+  const settleWrites = async () => {
+    const problems = await publisher.finish();
+    if (problems.length)
+      core.setFailed(
+        `PR #${currentNumber}: unverified or uncorrected write: ${problems.map((problem) => `${problem.context} (${problem.sha}): ${problem.reason}`).join('; ')}`,
+      );
+  };
   try {
+    if (!Number.isSafeInteger(runNumber) || runNumber < 1)
+      throw new Error('Invalid reconciliation run number');
+    requests++;
+    const { data } = await github.rest.rateLimit.get();
+    remaining = data.resources?.core?.remaining;
+    if (!Number.isSafeInteger(remaining) || remaining < 0)
+      throw new Error('REST request budget unavailable');
+    github.hook.wrap('request', requestHook);
+    hooked = true;
+    publisher = reconciliationPublisher({
+      github,
+      core,
+      readFailure: () => readError,
+      admitSuccess: () => {
+        if (readError) throw readError;
+        const reserve = requests - evaluationStart + VERIFY_CORRECTION_REQUESTS;
+        if (remaining < REQUEST_FLOOR + reserve + 1) {
+          core.info(
+            `PR #${currentNumber}: success not admitted; ${remaining} remaining requires floor ${REQUEST_FLOOR} + ${reserve} verify/correction requests + 1 success write; unreached.`,
+          );
+          throw new RequestBudgetStop('request budget');
+        }
+      },
+    });
     candidates = (
       await github.paginate(github.rest.pulls.list, {
         owner,
@@ -95,17 +121,18 @@ export async function reconcileBudgetStatuses({
     )
       .filter((pr) => !pr.draft)
       .sort((a, b) => a.number - b.number);
-    if (!candidates.length) return { visited, unreached: [], stopReason };
-    // A peer opening or closing cannot move this PR between buckets unless N
-    // crosses a multiple of five. Hash priorities depend only on the PR's own
-    // number and sweep, so list churn cannot manipulate a positional offset.
-    const buckets = Math.ceil(candidates.length / BATCH_SIZE);
-    const turn = runNumber - 1;
+    censusIncomplete = false;
+    if (!candidates.length) stopReason = 'no eligible PRs';
+    const buckets = Math.max(1, Math.ceil(candidates.length / BATCH_SIZE)),
+      turn = runNumber - 1;
     const batch = candidates.filter(
       (pr) => pr.number % buckets === turn % buckets,
     );
-    const ordered = orderBucketBySweep(batch, Math.floor(turn / buckets));
-    for (const candidate of ordered) {
+    selected = new Set(batch.map((pr) => pr.number));
+    for (const candidate of orderBucketBySweep(
+      batch,
+      Math.floor(turn / buckets),
+    )) {
       if (remaining <= REQUEST_FLOOR) {
         stopReason = 'request budget';
         break;
@@ -117,11 +144,13 @@ export async function reconcileBudgetStatuses({
       const number = candidate.number;
       currentNumber = number;
       evaluationStart = requests;
-      let head;
+      readError = undefined;
+      publisher.begin(number);
+      let head, evaluationError;
       try {
         if (!Number.isSafeInteger(number) || number < 1)
           throw new Error('Invalid PR number');
-        const { data: live } = await client.rest.pulls.get({
+        const { data: live } = await publisher.client.rest.pulls.get({
           owner,
           repo,
           pull_number: number,
@@ -132,45 +161,72 @@ export async function reconcileBudgetStatuses({
         }
         head = live.head.sha;
         const result = await checkPolicy({
-          github: client,
+          github: publisher.client,
           owner,
           repo,
           number,
           expectedHead: head,
           reconcile: true,
+          onPublication: publisher.verify,
         });
-        const outcome = guardOutcome(number, result);
-        core.info(outcome.line);
-        if (outcome.fail) core.setFailed(outcome.line);
-        visited.push(number);
+        core.info(policyOutcomeLine(number, result));
+        evaluated.push({
+          number,
+          head,
+          outcome: result.checksInProgress
+            ? 'skipped: checks in progress'
+            : `${result.code}: ${result.message}`,
+        });
       } catch (error) {
-        if (error instanceof RequestBudgetStop) {
-          stopReason = 'request budget';
+        evaluationError = error;
+      }
+      await settleWrites();
+      evaluationError ??= readError;
+      if (evaluationError) {
+        reasons.set(number, reason(evaluationError));
+        core.info(
+          `PR #${number}: unreached (bound ${head ?? 'unread'}): ${reason(evaluationError)}`,
+        );
+        if (isTransient(evaluationError)) {
+          stopReason = reason(evaluationError);
           break;
         }
-        core.setFailed(
-          `PR #${number}: reconciliation failed (bound ${head ?? 'unread'}): ${error.message}`,
-        );
-        visited.push(number);
-      }
+      } else visited.push(number);
     }
   } catch (error) {
-    if (!(error instanceof RequestBudgetStop)) throw error;
-    stopReason = 'request budget';
-    core.info(
-      'Request budget stopped the census; additional unlisted PRs may remain.',
-    );
+    stopReason = reason(error);
+    core.info(`Reconciliation stopped cleanly: ${stopReason}`);
   } finally {
-    github.hook.remove('request', requestHook);
+    if (hooked) github.hook.remove('request', requestHook);
   }
   const unreached = candidates
     .filter((pr) => !visited.includes(pr.number))
     .map((pr) => pr.number);
+  const unreachedReasons = unreached.map((number) => ({
+    number,
+    reason:
+      reasons.get(number) ??
+      (selected.has(number)
+        ? (stopReason ?? 'evaluation incomplete')
+        : "not selected in this run's bucket"),
+  }));
+  const report = {
+    visited,
+    evaluated,
+    unreached,
+    unreachedReasons,
+    writes: publisher?.writes ?? [],
+    requestsUsed: requests,
+    remaining,
+    stopReason,
+    censusIncomplete,
+  };
   core.info(
-    `Reconciliation: ${visited.length} visited; ${remaining} requests remaining; stopped: ${stopReason ?? 'batch complete'}.`,
+    `Reconciliation: ${visited.length} visited; ${remaining ?? 'unknown'} requests remaining; stopped: ${stopReason ?? 'bucket complete'}.`,
   );
   core.info(
     `Unreached PRs: ${unreached.map((number) => `#${number}`).join(', ') || '(none)'}`,
   );
-  return { visited, unreached, stopReason };
+  await writeReconciliationSummary(core, report);
+  return report;
 }

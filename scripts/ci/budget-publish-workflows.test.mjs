@@ -104,9 +104,12 @@ test('hourly reconciliation is default-branch only, trusted, bounded and grants 
   );
   const source = fs.readFileSync('scripts/ci/budget-reconcile.mjs', 'utf8');
   assert.match(source, /expectedHead:\s*head,\s*reconcile:\s*true/);
-  assert.match(source, /const outcome = guardOutcome\(number, result\)/);
-  assert.match(source, /core.info\(outcome.line\)/);
-  assert.match(source, /if \(outcome.fail\) core.setFailed\(outcome.line\)/);
+  assert.match(source, /core.info\(policyOutcomeLine\(number, result\)\)/);
+  assert.doesNotMatch(
+    source,
+    /if \(outcome.fail\) core.setFailed\(outcome.line\)/,
+  );
+  assert.match(source, /unverified or uncorrected write/);
 });
 
 test('label and base reevaluation is unfiltered, trusted, head-bound and uses the shared outcome', () => {
