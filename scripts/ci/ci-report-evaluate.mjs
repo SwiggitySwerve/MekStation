@@ -19,6 +19,7 @@ export function evaluateReport({
   testBaselines = [],
   packages = null,
   packageBaselines = [],
+  workflowProfiles = [],
 }) {
   const main = mainMedians(baselines, observation);
   const missing = [...observation.missing];
@@ -119,6 +120,7 @@ export function evaluateReport({
     main,
     rows,
     packages: packageRows(packages, packageBaselines, main.included),
+    workflowProfiles,
     tests: testComparison,
     breach,
     labelComplete,
@@ -202,6 +204,26 @@ export function renderReport(report) {
     `Main baseline: ${report.main.included.length} complete comparable successful pushes; ${report.main.excluded.length} samples retained but excluded.`,
     `Review labels use per-job budget breaches or aggregate timings more than 20% over main p75 with at least ${MIN_TIMING_MAIN_SAMPLES} comparable main samples. Below that count, aggregates are informational. Aggregate display caps and test-file growth are informational. Investigations do not establish regression or cause.`,
   ];
+  if (report.workflowProfiles?.length) {
+    lines.push(
+      '',
+      '<details>',
+      '<summary>Workflows outside each typical PR profile (not charged to typicalPrJobs)</summary>',
+      '',
+      '| Profile | Workflow | File | Event | Types (all when omitted) |',
+      '| --- | --- | --- | --- | --- |',
+      ...report.workflowProfiles.flatMap((profile) =>
+        (profile.otherEvents ?? []).flatMap((workflow) =>
+          workflow.events.map(
+            (event) =>
+              `| ${cell(profile.id)} | ${cell(workflow.name ?? workflow.file)} | ${cell(workflow.file)} | ${cell(event)} | ${cell(workflow.types?.[event]?.join(', ') ?? 'all')} |`,
+          ),
+        ),
+      ),
+      '',
+      '</details>',
+    );
+  }
   if (report.packages?.length) {
     const bytes = (value) => (value === null ? 'unavailable' : `${value} B`);
     lines.push(
