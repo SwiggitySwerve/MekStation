@@ -1,6 +1,7 @@
 import { GamePhase, IGameState } from '@/types/gameplay';
 import { createPSRTriggeredEvent } from '@/utils/gameplay/gameEvents/statusChecks';
 import { sourceContainsGroundedDropShip } from '@/utils/gameplay/physicalAttacks';
+import { projectPsrTriggerTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import type {
   PhysicalAttackResolutionOptions,
@@ -116,19 +117,20 @@ function applyMinefieldAndTerrainEffects(
       psr,
     );
     options.events.push(
-      createPSRTriggeredEvent(
-        options.gameId,
-        options.events.length,
-        currentState.turn,
-        GamePhase.PhysicalAttack,
-        options.displacement.unitId,
-        psr.reason,
-        psr.additionalModifier,
-        psr.triggerSource,
-        currentState.units[options.displacement.unitId]?.piloting,
-        psr.reasonCode,
-        psr.fixedTargetNumber,
-      ),
+      createPSRTriggeredEvent({
+        gameId: options.gameId,
+        sequence: options.events.length,
+        turn: currentState.turn,
+        phase: GamePhase.PhysicalAttack,
+        unitId: options.displacement.unitId,
+        reason: psr.reason,
+        additionalModifier: psr.additionalModifier,
+        triggerSource: psr.triggerSource,
+        basePilotingSkill:
+          currentState.units[options.displacement.unitId]?.piloting,
+        reasonCode: psr.reasonCode,
+        ...projectPsrTriggerTarget(psr),
+      }),
     );
   }
   return currentState;

@@ -4,6 +4,7 @@ import {
   type IGameState,
 } from '@/types/gameplay';
 import { resolvePilotConsciousnessCheck } from '@/utils/gameplay/damage';
+import { projectPsrResolutionTarget } from '@/utils/gameplay/pilotingSkillRolls/eventTargets';
 
 import {
   type IRunnerPSRBatchResult,
@@ -20,10 +21,8 @@ function psrResolvedPayload(
   unitId: string,
   psrResult: IRunnerPSRResult,
 ): IGameEvent['payload'] {
-  return {
-    unitId,
-    reason: psrResult.psr.reason,
-    targetNumber: psrResult.targetNumber,
+  const target = projectPsrResolutionTarget(psrResult);
+  const details = {
     roll: psrResult.roll,
     modifiers: psrResult.modifiers.reduce(
       (sum, modifier) => sum + modifier.value,
@@ -46,6 +45,10 @@ function psrResolvedPayload(
       ? { reasonCode: psrResult.psr.reasonCode }
       : {}),
   };
+  const identity = { unitId, reason: psrResult.psr.reason };
+  return target.automaticFailure
+    ? { ...identity, automaticFailure: true, ...details, passed: false }
+    : { ...identity, targetNumber: target.targetNumber, ...details };
 }
 
 export function emitPsrResolvedEvents(options: {
