@@ -95,11 +95,13 @@ function meta(): IMatchMeta {
 function event(sequence: number, id = `evt-${sequence}`): IGameEvent {
   return {
     id,
+    gameId: MATCH_ID,
     sequence,
     type: GameEventType.PhaseChanged,
     timestamp: '2026-08-25T00:00:00.000Z',
+    turn: 1,
     phase: GamePhase.Movement,
-    data: {},
+    payload: { fromPhase: GamePhase.Initiative, toPhase: GamePhase.Movement },
   } as unknown as IGameEvent;
 }
 
@@ -206,8 +208,18 @@ describe.each(stores)('%s appendCommandBatch contract', (_name, build) => {
 
     const conflict = await append({
       events: [
-        Object.assign(event(0), { payload: { target: 'alpha', damage: 8 } }),
-        Object.assign(event(1), { payload: { target: 'beta', damage: 3 } }),
+        Object.assign(event(0), {
+          payload: {
+            fromPhase: GamePhase.Movement,
+            toPhase: GamePhase.WeaponAttack,
+          },
+        }),
+        Object.assign(event(1), {
+          payload: {
+            fromPhase: GamePhase.WeaponAttack,
+            toPhase: GamePhase.PhysicalAttack,
+          },
+        }),
       ],
     });
 
