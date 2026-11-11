@@ -20,6 +20,7 @@ import {
   useReopenClosedHostLobby,
   useLaunchedMatchNavigation,
   launchLobbyMatch,
+  useEnsureActiveRoom,
 } from '../gameplayLobbyPage.helpers';
 
 const mockPromoteLocalPeerToHost = jest.fn();
@@ -295,4 +296,46 @@ it('restores launched navigation when the mode becomes available', async () => {
     jest.replaceProperty(modeAvailability.p2p, 'status', status);
     metadata.mockRestore();
   }
+});
+
+describe('P2P entry release policy', () => {
+  afterEach(() => jest.restoreAllMocks());
+  it.each([true, false])(
+    'refuses direct route networking for host=%s',
+    (isHostRoute) => {
+      const createRoom = jest.fn();
+      const joinRoom = jest.fn();
+      renderHook(() =>
+        useEnsureActiveRoom({
+          activeRoom: null,
+          createRoom,
+          joinRoom,
+          isHostRoute,
+          routeRoomCode: 'ROOT01',
+        }),
+      );
+      expect(createRoom).not.toHaveBeenCalled();
+      expect(joinRoom).not.toHaveBeenCalled();
+    },
+  );
+  it.each([true, false])(
+    'restores direct route entry for host=%s when available',
+    async (isHostRoute) => {
+      jest.replaceProperty(modeAvailability.p2p, 'status', 'available');
+      const createRoom = jest.fn().mockResolvedValue('ROOT01');
+      const joinRoom = jest.fn().mockResolvedValue(undefined);
+      renderHook(() =>
+        useEnsureActiveRoom({
+          activeRoom: null,
+          createRoom,
+          joinRoom,
+          isHostRoute,
+          routeRoomCode: 'ROOT01',
+        }),
+      );
+      await waitFor(() =>
+        expect(isHostRoute ? createRoom : joinRoom).toHaveBeenCalled(),
+      );
+    },
+  );
 });

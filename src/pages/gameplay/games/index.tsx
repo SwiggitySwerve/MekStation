@@ -9,13 +9,14 @@ import type { MouseEvent } from 'react';
 
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useCallback, useId, useState } from 'react';
 
 import type { MatchLogSummary } from '@/services/matchLog/MatchLogService';
 
 import { ModeAvailabilityNotice } from '@/components/multiplayer/ModeAvailabilityNotice';
 import { PageLayout, Card, Button, EmptyState, Badge } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { isModeDisabled } from '@/lib/multiplayer/modeAvailability';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { useSyncRoomSelector } from '@/lib/p2p/useSyncRoomStore';
 import {
@@ -197,6 +198,8 @@ export default function GamesListPage({
   games,
 }: GamesListPageProps): React.ReactElement {
   const router = useRouter();
+  const availabilityReasonId = useId();
+  const p2pDisabled = isModeDisabled('p2p');
   const [joinCode, setJoinCode] = useState('');
   const [networkError, setNetworkError] = useState<string | null>(null);
   const createRoom = useSyncRoomSelector((state) => state.createRoom);
@@ -216,6 +219,7 @@ export default function GamesListPage({
   }, [router]);
 
   const handleCreateNetworked = useCallback(async () => {
+    if (isModeDisabled('p2p')) return;
     setNetworkError(null);
     try {
       const code = await createRoom();
@@ -228,6 +232,7 @@ export default function GamesListPage({
   }, [createRoom, router]);
 
   const handleJoinNetworked = useCallback(async () => {
+    if (isModeDisabled('p2p')) return;
     const code = normalizeRoomCode(joinCode);
     if (!code) return;
     setNetworkError(null);
@@ -262,13 +267,21 @@ export default function GamesListPage({
             <h2 className="text-text-theme-primary text-lg font-semibold">
               Networked 1v1
             </h2>
-            <ModeAvailabilityNotice mode="p2p" />
+            <ModeAvailabilityNotice
+              mode="p2p"
+              sentenceId={availabilityReasonId}
+            />
             <p className="text-text-theme-secondary mt-1 text-sm">
               Create or join a peer-to-peer lobby.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button variant="primary" onClick={handleCreateNetworked}>
+            <Button
+              variant="primary"
+              onClick={handleCreateNetworked}
+              disabled={p2pDisabled}
+              aria-describedby={p2pDisabled ? availabilityReasonId : undefined}
+            >
               Create Lobby
             </Button>
             <div className="flex gap-2">
@@ -282,7 +295,12 @@ export default function GamesListPage({
               <Button
                 variant="secondary"
                 onClick={handleJoinNetworked}
-                disabled={normalizeRoomCode(joinCode).length === 0}
+                disabled={
+                  p2pDisabled || normalizeRoomCode(joinCode).length === 0
+                }
+                aria-describedby={
+                  p2pDisabled ? availabilityReasonId : undefined
+                }
               >
                 Join
               </Button>

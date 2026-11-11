@@ -88,7 +88,7 @@ export function SettingsSection({
   children,
 }: {
   id: SectionId;
-  title: string;
+  title: React.ReactNode;
   description?: string;
   isExpanded: boolean;
   onToggle: () => void;

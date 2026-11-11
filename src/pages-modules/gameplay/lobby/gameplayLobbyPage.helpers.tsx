@@ -45,10 +45,11 @@ export function LobbyShell({
     <div className="text-text-theme-primary mx-auto max-w-2xl px-4 py-8">
       <Link
         href="/gameplay/games"
-        className="text-text-theme-secondary text-sm"
+        className="text-text-theme-secondary inline-flex min-h-11 items-center text-sm"
       >
         Back to games
       </Link>
+      <h1 className="mt-4 text-2xl font-semibold">Peer-to-Peer Lobby</h1>
       <ModeAvailabilityNotice mode="p2p" />
       <p className="border-border-theme-subtle bg-surface-deep mt-6 rounded-lg border p-4">
         {children}
@@ -116,7 +117,7 @@ export function useEnsureActiveRoom({
   readonly routeRoomCode: string | null;
 }): void {
   useEffect(() => {
-    if (!routeRoomCode) return;
+    if (isModeLaunchDisabled('p2p') || !routeRoomCode) return;
     if (activeRoom?.roomCode === routeRoomCode) return;
 
     void (async () => {
