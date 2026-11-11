@@ -317,3 +317,179 @@ test('poll preserves read failures instead of disguising them as stale rows', as
   expect(trace.samples).toEqual([]);
   expect(trace.errors[0].message).toBe('GET failed');
 });
+
+function ordinaryInput() {
+  const ordinary = {
+    ...put(1),
+    sinceEditMs: 2000,
+    sincePagehideMs: null as number | null,
+  };
+  return {
+    ...input(),
+    puts: [ordinary],
+    after: record(1),
+    poll: poll([before, record(1)]),
+    contextWrites: context([ordinary]),
+    timing: {
+      expectedDate: 'day-2',
+      expectedMatchId: null as string | null,
+      pagehideMs: 2000,
+    },
+  };
+}
+
+test('ordinary save directly observed at b+1 at pagehide has its own class', () => {
+  expect(classifyUnloadDelivery(ordinaryInput())).toMatchObject({
+    class: 'delivered-observed-ordinary-save',
+    eligible: true,
+    firstObservedMs: 75,
+  });
+});
+
+test('ordinary save can beat a competing keepalive at the same base', () => {
+  const trial = ordinaryInput();
+  const flush = put(1, true);
+  flush.postData = (flush.postData ?? '').replace(
+    '"savedAt":"save-1"',
+    '"savedAt":"later-flush"',
+  );
+  trial.puts.push({ ...flush, sinceEditMs: 2001, sincePagehideMs: 1 });
+  trial.contextWrites = context(trial.puts);
+  expect(classifyUnloadDelivery(trial).class).toBe(
+    'delivered-observed-ordinary-save',
+  );
+});
+
+test('ordinary save proves the pending outcome with the expected matchId', () => {
+  const trial = ordinaryInput();
+  trial.timing.expectedMatchId = 'match-edited';
+  const body = {
+    ...record(1).body,
+    pendingBattleOutcomes: [{ matchId: 'match-edited' }],
+  };
+  trial.puts[0].postData = JSON.stringify({
+    baseVersion: 1,
+    envelope: { savedAt: 'save-1', body },
+  });
+  trial.after = { ...record(1), body };
+  trial.poll = poll([before, trial.after]);
+  trial.contextWrites = context(trial.puts);
+  expect(classifyUnloadDelivery(trial).class).toBe(
+    'delivered-observed-ordinary-save',
+  );
+});
+
+test.each([false, true])(
+  'ordinary save edit never reached server remains undelivered (captured: %s)',
+  (captured) => {
+    const trial = ordinaryInput();
+    if (!captured) trial.puts = [];
+    trial.after = before;
+    trial.poll = poll([before]);
+    trial.valuesPresent = false;
+    expect(classifyUnloadDelivery(trial).class).toBe('undelivered');
+  },
+);
+
+test.each([
+  'uncaptured-writer',
+  'after-pagehide',
+  'after-pagehide-capture-clock',
+  'missing-date-edit',
+  'missing-outcome-edit',
+  'different-savedAt',
+  'different-body',
+  'no-direct-observation',
+  'wrong-observed-version',
+  'wrong-base',
+  'keepalive-only',
+  'missing-timing',
+  'missing-dispatch-time',
+  'invalid-dispatch-time',
+  'identical-competitor',
+  'missing-context-receipt',
+  'failed-poll',
+  'unavailable-capture',
+])('ordinary save fails closed for %s', (fault) => {
+  const trial = ordinaryInput();
+  switch (fault) {
+    case 'uncaptured-writer':
+      trial.puts = [];
+      break;
+    case 'after-pagehide':
+      trial.puts[0].sinceEditMs = 2000.01;
+      break;
+    case 'after-pagehide-capture-clock':
+      // The timing listener runs later than the fetch capture's listener.
+      trial.puts[0].sinceEditMs = 1999;
+      trial.puts[0].sincePagehideMs = 0.01;
+      break;
+    case 'missing-date-edit':
+      trial.timing.expectedDate = 'day-3';
+      break;
+    case 'missing-outcome-edit':
+      // The date matches but must not stand in for the missing outcome.
+      trial.timing.expectedMatchId = 'match-edited';
+      break;
+    case 'different-savedAt':
+      trial.poll.versions[1].record.savedAt = 'uncaptured-save';
+      break;
+    case 'different-body':
+      trial.poll.versions[1].record.body.nested = { value: 'uncaptured' };
+      break;
+    case 'no-direct-observation':
+      trial.poll = poll([before]);
+      break;
+    case 'wrong-observed-version':
+      trial.poll.versions[1].record.version = 3;
+      break;
+    case 'wrong-base':
+      trial.puts[0].postData = (trial.puts[0].postData ?? '').replace(
+        '"baseVersion":1',
+        '"baseVersion":0',
+      );
+      trial.contextWrites = context(trial.puts);
+      break;
+    case 'keepalive-only':
+      trial.puts[0].keepalive = true;
+      // The existing keepalive class is separate and still valid.
+      expect(classifyUnloadDelivery(trial).class).toBe('delivered-observed');
+      return;
+    case 'missing-timing':
+      expect(
+        classifyUnloadDelivery({ ...trial, timing: undefined }).class,
+      ).toBe('unattributable');
+      return;
+    case 'missing-dispatch-time':
+      expect(
+        classifyUnloadDelivery({
+          ...trial,
+          puts: [{ ...trial.puts[0], sinceEditMs: undefined }],
+        }).class,
+      ).toBe('unattributable');
+      return;
+    case 'invalid-dispatch-time':
+      trial.puts[0].sinceEditMs = Number.NaN;
+      break;
+    case 'identical-competitor':
+      trial.puts.push({ ...trial.puts[0], keepalive: true });
+      trial.contextWrites = context(trial.puts);
+      break;
+    case 'missing-context-receipt':
+      trial.contextWrites = [];
+      break;
+    case 'failed-poll':
+      trial.poll.errors.push({ elapsedMs: 100, message: 'timeout' });
+      break;
+    case 'unavailable-capture':
+      trial.captureAvailable = false;
+      break;
+  }
+  expect(classifyUnloadDelivery(trial).class).toBe('unattributable');
+});
+
+test('ordinary save transient receipt cannot absorb a later lost edit', () => {
+  expect(
+    classifyUnloadDelivery({ ...ordinaryInput(), valuesPresent: false }).class,
+  ).toBe('undelivered');
+});
