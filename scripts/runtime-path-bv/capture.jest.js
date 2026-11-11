@@ -15,12 +15,15 @@ import path from 'path';
 
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
+// The sheet read point (the real PreviewTab): after the status observer, which installs the shared mocks first.
+import { createPreviewObserver } from '../lib/runtime-parity/preview-observer';
 // The observer comes before every product import: it imports ./install-mocks first, and ES imports
 // evaluate in source order, so the mocks are registered before any product module loads.
 import * as observer from '../lib/runtime-parity/status-observer';
 
 const repoRoot = path.resolve(__dirname, '../..');
 const o = observer.create({ repoRoot });
+const preview = createPreviewObserver();
 const context = JSON.parse(
   fs.readFileSync(process.env.RUNTIME_PATH_BV_CONTEXT, 'utf8'),
 );
@@ -66,6 +69,7 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       observed: null,
       terms: null,
       issues: null,
+      preview: null,
     };
     try {
       const bytes = fs.readFileSync(path.join(repoRoot, plan.catalogPath));
@@ -94,6 +98,10 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       record.observed = observation.observed;
       record.terms = observation.terms;
       record.issues = observation.issues;
+      // The BV the real PreviewTab hands to the sheet renderer, in the same store, after the status read.
+      // A failure here is a harness failure (stage 'preview'): the capture never records a guess.
+      stage = 'preview';
+      record.preview = await preview.observe(store);
       counts.ok++;
     } catch (error) {
       if (error instanceof observer.ObservationError) {
@@ -103,6 +111,7 @@ test('canonical open, status BV/terms, validity, weight and MP for every planned
       record.observed = null;
       record.terms = null;
       record.issues = null;
+      record.preview = null;
       record.infrastructure = infrastructure;
       record.error = {
         stage,

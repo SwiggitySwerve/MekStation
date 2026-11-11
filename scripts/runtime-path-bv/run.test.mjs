@@ -9,7 +9,10 @@ import {
   factsDeriverBlob,
   parseFactsMeta,
 } from '../lib/runtime-parity/facts-provenance.mjs';
-import { parseFacts } from '../lib/runtime-parity/facts.mjs';
+import {
+  FACTS_SCHEMA_VERSION,
+  parseFacts,
+} from '../lib/runtime-parity/facts.mjs';
 import { parseBaseline } from '../lib/runtime-parity/gate.mjs';
 import {
   InputError,
@@ -278,28 +281,32 @@ const record = (
     validity = 'valid',
     terms = { armorBV: 360 },
     allocatedWeight = 50,
+    // What the real PreviewTab hands to the sheet renderer. 'same' = the status BV; null = not captured.
+    preview = 'same',
   } = {},
-) => ({
-  unitId: id,
-  family: 'battlemechs',
-  path: `meks/${id}.mtf`,
-  sha256: hex('a'),
-  catalog: {
-    path: `public/data/units/battlemechs/x/${id}.json`,
-    blob: hex('1', 40),
-  },
-  error: null,
-  infrastructure: false,
-  observed: {
-    bv,
-    validity,
-    weight: 50,
-    allocatedWeight,
-    mp: { walk: 4, run: 6, jump: 0 },
-  },
-  terms,
-  issues: [],
-});
+) =>
+  ({
+    unitId: id,
+    family: 'battlemechs',
+    path: `meks/${id}.mtf`,
+    sha256: hex('a'),
+    catalog: {
+      path: `public/data/units/battlemechs/x/${id}.json`,
+      blob: hex('1', 40),
+    },
+    error: null,
+    infrastructure: false,
+    observed: {
+      bv,
+      validity,
+      weight: 50,
+      allocatedWeight,
+      mp: { walk: 4, run: 6, jump: 0 },
+    },
+    terms,
+    issues: [],
+    preview: preview === 'same' ? { bv: bv ?? 0, cost: 100 } : preview,
+  });
 
 test('capturedToRow maps ok, no-BV and error records to valid rows', () => {
   const ok = capturedToRow(record('a'));
@@ -375,7 +382,7 @@ test('summarize counts agreement with Java and counts every miss', () => {
   assert.equal(summary.units, 5);
   assert.equal(
     summary.headline,
-    'load=Java 2/5 · validity 3/5 · weight owners 4/5',
+    'load=Java 2/5 · validity 3/5 · weight owners 4/5 · sheet=status 3/5',
   );
   assert.deepEqual(
     differences.filter((d) => d.measure === 'bv').map((d) => [d.unitId, d.why]),
@@ -398,6 +405,59 @@ test('summarize counts agreement with Java and counts every miss', () => {
   assert.match(narrowed.summary.headline, /NARROWED SCOPE/);
 });
 
+test('the record sheet BV is counted against the status bar exactly: equal, different (named) and not captured', () => {
+  const rows = [
+    capturedToRow(record('same')),
+    capturedToRow(record('lower', { bv: 1000, preview: { bv: 909, cost: 1 } })),
+    capturedToRow(
+      record('higher', { bv: 1000, preview: { bv: 1268, cost: 1 } }),
+    ),
+    capturedToRow(record('uncaptured', { preview: null })),
+    capturedToRow({
+      ...record('broken'),
+      observed: null,
+      terms: null,
+      issues: null,
+      preview: null,
+      error: { stage: 'open', name: 'E', message: 'm' },
+    }),
+  ];
+  const referenceByPath = new Map(
+    ['same', 'lower', 'higher', 'uncaptured', 'broken'].map((id) =>
+      refRow(id, 1000),
+    ),
+  );
+  const { summary, differences } = summarize({
+    rows,
+    referenceByPath,
+    scope: { families: ['battlemechs'], populationCount: 5, unitIds: null },
+    deterministic: true,
+  });
+  assert.deepEqual(summary.preview, {
+    equalsStatus: 1,
+    different: 2,
+    missing: 2,
+  });
+  assert.match(summary.headline, /sheet=status 1\/5/);
+  assert.deepEqual(
+    differences
+      .filter((d) => d.measure === 'preview')
+      .map((d) => [d.unitId, d.observed, d.preview]),
+    [
+      ['lower', 1000, 909],
+      ['higher', 1000, 1268],
+    ],
+  );
+  // Rows written before the field existed still parse, and count as not captured.
+  const old = capturedToRow(record('old'));
+  delete old.load.preview;
+  assert.equal(parseRows(JSON.stringify(old)).length, 1);
+  assert.equal(
+    capturedToRow({ ...record('old2'), preview: undefined }).load.preview,
+    null,
+  );
+});
+
 test('every gated summary key has a direction and resolves to a count', () => {
   const rows = [capturedToRow(record('a')), capturedToRow(record('b'))];
   const referenceByPath = new Map(['a', 'b'].map((id) => refRow(id, 1000)));
@@ -409,6 +469,7 @@ test('every gated summary key has a direction and resolves to a count', () => {
   });
   assert.deepEqual(Object.keys(summary.gates).sort(), [
     'bv.exact',
+    'preview.equalsStatus',
     'validity.agree',
     'weightOwners.agree',
   ]);
@@ -741,7 +802,9 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
     bvDistance: 0,
     validity: true,
     weightOwners: true,
+    previewEqualsStatus: true,
   });
+  assert.deepEqual(facts[0].reported, { previewStatusDistance: 0 });
   assert.equal(t.exists('failure.json'), false);
   // The rows are not changed by the facts: no field of the row schema was added.
   assert.equal('facts' in parseRows(t.read('rows.ndjson'))[0], false);
@@ -749,7 +812,7 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
   const meta = parseFactsMeta(t.read('facts-meta.json'));
   assert.deepEqual(
     [meta.measure, meta.factsSchemaVersion, meta.referenceSha256],
-    ['load', 1, hex('d')],
+    ['load', FACTS_SCHEMA_VERSION, hex('d')],
   );
   assert.equal(meta.factsDeriverBlob, factsDeriverBlob());
 });
@@ -769,7 +832,7 @@ test('--write-baseline writes the baseline of a complete run with its SHA, popul
   );
   assert.equal(baseline.sha, hex('c', 40));
   // Provenance: the facts schema, the deriver's git blob and the reference the facts were derived with.
-  assert.equal(baseline.factsSchemaVersion, 1);
+  assert.equal(baseline.factsSchemaVersion, FACTS_SCHEMA_VERSION);
   assert.equal(baseline.factsDeriverBlob, factsDeriverBlob());
   assert.equal(baseline.referenceSha256, hex('d'));
   // The load measure has no set facts, so there is no sidecar.

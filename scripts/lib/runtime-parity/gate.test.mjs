@@ -9,7 +9,12 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { FACTS_META_FILE } from './facts-provenance.mjs';
-import { FACTS_FILE, FACT_DEFS, serializeFacts } from './facts.mjs';
+import {
+  FACTS_FILE,
+  FACTS_SCHEMA_VERSION,
+  FACT_DEFS,
+  serializeFacts,
+} from './facts.mjs';
 import {
   GateError,
   buildBaseline,
@@ -35,6 +40,7 @@ const loadFacts = (over = {}) => ({
   bvDistance: 0,
   validity: true,
   weightOwners: true,
+  previewEqualsStatus: true,
   ...over,
 });
 const reopenFacts = (over = {}) => ({
@@ -50,16 +56,19 @@ const reopenFacts = (over = {}) => ({
   reopenValid: true,
   ...over,
 });
+let previewStatusDistance = 0;
 const entry = (key, facts, measure = 'load') => {
   const [family, unitId] = key.split('/');
   return {
-    schemaVersion: 1,
+    schemaVersion: FACTS_SCHEMA_VERSION,
     measure,
     family,
     unitId,
     path: `meks/${unitId}.mtf`,
     status: 'ok',
     facts,
+    // Reported, not gated: the record sheet's distance from the status bar (load only).
+    reported: measure === 'load' ? { previewStatusDistance } : {},
   };
 };
 const entries = (units, measure = 'load') =>
@@ -159,6 +168,83 @@ killed(
   },
   { 'bools never regress': ignoring('bool') },
 );
+
+killed(
+  'the record sheet getting worse for one unit exits 1, named: previewEqualsStatus true -> false',
+  (rules) => {
+    const r = evaluateWith(
+      {
+        base: two(loadFacts(), loadFacts()),
+        tonight: two(loadFacts({ previewEqualsStatus: false }), loadFacts()),
+      },
+      rules,
+    );
+    assert.equal(r.exitCode, 1);
+    assert.deepEqual(
+      r.regressions.map((x) => [x.unit, x.fact, x.why]),
+      [[U1, 'previewEqualsStatus', 'pass -> fail']],
+    );
+    // The fix: unequal -> equal is a gain that passes and is listed as unprotected.
+    const base = two(loadFacts({ previewEqualsStatus: false }), loadFacts());
+    const fixed = evaluateWith(
+      { base, tonight: two(loadFacts(), loadFacts()) },
+      rules,
+    );
+    assert.equal(fixed.exitCode, 0);
+    assert.deepEqual(
+      fixed.gains.map((g) => [g.unit, g.fact]),
+      [[U1, 'previewEqualsStatus']],
+    );
+    // Unknown (not captured) after a known value is worse, never a pass.
+    const unknown = evaluateWith(
+      {
+        base: two(loadFacts(), loadFacts()),
+        tonight: two(loadFacts({ previewEqualsStatus: null }), loadFacts()),
+      },
+      rules,
+    );
+    assert.deepEqual(
+      unknown.regressions.map((x) => [x.fact, x.why]),
+      [['previewEqualsStatus', 'known -> unknown']],
+    );
+  },
+  { 'bools never regress': ignoring('bool') },
+);
+
+test('previewStatusDistance is reported and NOT gated: a larger distance never fails the night, and the baseline holds no entry for it', () => {
+  const base = two(loadFacts({ previewEqualsStatus: false }), loadFacts());
+  previewStatusDistance = 91;
+  const files = baselineFiles(base);
+  assert.equal(
+    files.main.includes('previewStatusDistance'),
+    false,
+    'not in the baseline',
+  );
+  // A correct status-bar fix on a unit whose sheet differs raises the distance: the night stays green.
+  previewStatusDistance = 400;
+  const r = evaluateWith({ base, files, tonight: base });
+  previewStatusDistance = 0;
+  assert.equal(r.exitCode, 0);
+  assert.deepEqual(r.regressions, []);
+  // It is reported: per fact, how many units, how many non-zero, the largest.
+  assert.deepEqual(r.reported.previewStatusDistance, {
+    gated: false,
+    known: 2,
+    unknown: 0,
+    nonZero: 2,
+    max: 400,
+  });
+  // A baseline that carries it is malformed: it is not a gated fact.
+  const withIt = JSON.parse(files.main);
+  withIt.units[U1].previewStatusDistance = 91;
+  const bad = evaluateWith({
+    base,
+    files: { main: JSON.stringify(withIt), sets: null },
+    tonight: base,
+  });
+  assert.equal(bad.exitCode, 2);
+  assert.equal(bad.failClosed[0].reason, 'BASELINE_MALFORMED');
+});
 
 killed(
   'a set that gains members is a regression (inclusion rule)',

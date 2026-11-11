@@ -19,8 +19,8 @@ this: `rows.ndjson` and its SHA are exactly what the ports wrote before the gate
 ## Facts (`facts.ndjson`, one line per unit, sorted by `family/unitId`)
 
 ```
-{ schemaVersion: 1, measure: "load"|"reopen", family: string, unitId: string, path: string,
-  status: "ok"|"error", facts: { <name>: <value> } }
+{ schemaVersion: 2, measure: "load"|"reopen", family: string, unitId: string, path: string,
+  status: "ok"|"error", facts: { <name>: <value> }, reported: { <name>: <value> } }
 ```
 
 Every fact can be `null` = **unknown**. Unknown is never a pass. An error row has every fact `null`. Three kinds:
@@ -35,12 +35,27 @@ Any known baseline value becoming `null` tonight is worse. A `null` in the basel
 
 ### `load`
 
-| fact           | kind     | meaning                                                                       |
-| -------------- | -------- | ----------------------------------------------------------------------------- |
-| `bvExact`      | bool     | runtime BV equals the Java BV (a null BV is `false`; no Java value is `null`) |
-| `bvDistance`   | distance | `abs(runtime BV - Java BV)` (`null` when either is unknown)                   |
-| `validity`     | bool     | runtime validity equals Java's                                                |
-| `weightOwners` | bool     | the status bar's `weightUsed` equals the validator's `allocatedWeight`        |
+| fact                  | kind     | meaning                                                                                                                                                                          |
+| --------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `bvExact`             | bool     | runtime BV equals the Java BV (a null BV is `false`; no Java value is `null`)                                                                                                    |
+| `bvDistance`          | distance | `abs(runtime BV - Java BV)` (`null` when either is unknown)                                                                                                                      |
+| `validity`            | bool     | runtime validity equals Java's                                                                                                                                                   |
+| `weightOwners`        | bool     | the status bar's `weightUsed` equals the validator's `allocatedWeight`                                                                                                           |
+| `previewEqualsStatus` | bool     | the BV the real `PreviewTab` hands to the record-sheet renderer (`load.preview.bv`) equals the status bar's BV; `null` when the preview was not captured or either BV is missing |
+
+#### Reported, not gated (`reported` in each facts row)
+
+`reported` holds per-unit measurements that are written to `facts.ndjson` and summarised in the gate report but are **not gated**: they
+are not in the gated fact set (`FACT_DEFS`), the baseline holds **no entry** for them (a baseline that carries one is malformed), and
+the gate never compares them. For `load`:
+
+| reported fact           | kind     | meaning                                                           |
+| ----------------------- | -------- | ----------------------------------------------------------------- |
+| `previewStatusDistance` | distance | `abs(record-sheet BV - status BV)`; `null` when either is unknown |
+
+Why it is not gated: a correct status-bar fix on one of the units whose sheet differs would raise the distance and turn the night red,
+which is not a regression of the sheet. `previewEqualsStatus` (true -> false) is the gated protection. `reopen` has no reported facts (`{}`).
+`gate-report.json` has `reported.<name> = { gated: false, known, unknown, nonZero, max }`.
 
 ### `reopen`
 

@@ -36,6 +36,7 @@ import {
 import {
   FACTS_FILE,
   FACT_DEFS,
+  REPORTED_DEFS,
   isFactValue,
   parseFacts,
   setFactNames,
@@ -438,6 +439,28 @@ export const defaultRules = {
   verifySidecar: true,
 };
 
+// --- reported facts (not gated) -----------------------------------------------------------------------
+
+/** For each reported fact: how many units it is known for, how many are non-zero, the largest value. */
+function reportedSummary(measure, facts) {
+  return Object.fromEntries(
+    Object.keys(REPORTED_DEFS[measure]).map((name) => {
+      const values = facts.map((f) => f.reported?.[name] ?? null);
+      const known = values.filter((v) => v !== null);
+      return [
+        name,
+        {
+          gated: false,
+          known: known.length,
+          unknown: values.length - known.length,
+          nonZero: known.filter((v) => v !== 0).length,
+          max: known.length ? Math.max(...known) : null,
+        },
+      ];
+    }),
+  );
+}
+
 // --- the evaluation -------------------------------------------------------------------------------------
 
 /**
@@ -473,6 +496,8 @@ export function evaluate(
     removed: [],
     population: { baseline: null, tonight: facts.length, overlap: 0 },
     provenance: { deriverChanged: false, referenceChanged: false },
+    // Measured per unit and shown here, never gated: no baseline entry, no comparison (see REPORTED_DEFS).
+    reported: reportedSummary(measure, facts),
     lastGreen: { status: 'not-used', detail: '' },
     headline: '',
   };

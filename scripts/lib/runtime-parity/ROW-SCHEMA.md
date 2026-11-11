@@ -37,6 +37,9 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 - `terms`: exactly `numericTerms(mechBVTerms(breakdown))`, names unchanged (Java-comparable: `structureBV` includes the gyro,
   `defensiveEquipmentBV` = `defEquipBV` + `armoredComponentBV`, `weapon.<n>.<LOC>.<id>` per mount).
 - `issues[]`: every validation issue `{ruleId, channel (errors|warnings|infos), severity, field, message}`; `field` is the raw field.
+- `preview` (optional; `null` = not captured): `{bv, cost}`, the BV and cost the real `PreviewTab` hands to the record-sheet renderer, i.e. the
+  `header.battleValue` and `header.cost` of the real `getRecordSheetService().extractData(unitConfig)` result, read after the status bar in
+  the same store. Only canvas drawing is replaced. Rows written before this field existed still parse.
 
 ## Reopen row (`measure: reopen`, `status: ok`) — `reopen`
 
