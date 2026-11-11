@@ -294,7 +294,7 @@ describe('rejected command audit (real host, real SQLite)', () => {
     await Promise.resolve();
     await Promise.resolve();
     const socket = makeProbeSocket(db);
-    expect(await host.admitSocket(socket, OWNER)).not.toBeNull();
+    expect(await host.admitSocket(socket, OWNER, 'conn-a')).not.toBeNull();
     return { host, socket };
   }
 
