@@ -33,6 +33,7 @@ import type {
 import { exitForE2EFault } from './DurableMatchStore';
 import { hasPublicationOutbox } from './IMatchStore';
 import { intentRefusalMessage } from './intentRefusal';
+import { readReadablePendingPublications } from './MatchPublicationReadability';
 
 /** What `commitThenPublish` did. */
 export interface ICommitThenPublishResult {
@@ -121,6 +122,8 @@ export async function commitThenPublish(
         prepareEventForSerialization(event, 'match-broadcast'),
       ),
     };
+    if (input.publications)
+      await readReadablePendingPublications(input.matchId, input.publications);
   } catch (error) {
     if (!(error instanceof UnreadableStoredEventError)) throw error;
     const refusal = intentRefusalMessage(
@@ -368,7 +371,10 @@ export interface IResumePendingPublicationsDeps {
 export async function resumePendingPublications(
   deps: IResumePendingPublicationsDeps,
 ): Promise<readonly IEventMessage[]> {
-  const pending = await deps.publications.listPendingPublications(deps.matchId);
+  const pending = await readReadablePendingPublications(
+    deps.matchId,
+    deps.publications,
+  );
   const published: IEventMessage[] = [];
   for (const record of pending) {
     const envelopeOut: IEventMessage = {
