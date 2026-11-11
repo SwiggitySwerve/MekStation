@@ -25,6 +25,7 @@ import {
   type IPSRResult,
   resolveAllPSRs,
 } from './pilotingSkillRolls';
+import { projectPsrResolutionTarget } from './pilotingSkillRolls/eventTargets';
 
 const DEFAULT_FALL_LOCATION = 'center_torso';
 
@@ -210,10 +211,9 @@ function appendBatchedPsrResults(
 
   for (const result of batchResult.results) {
     currentSession = appendPsrResolved(currentSession, context, {
-      targetNumber: result.targetNumber,
+      ...projectPsrResolutionTarget(result),
       roll: result.roll,
       modifiers: psrModifierTotal(result),
-      passed: result.passed,
       reason: result.psr.reason,
       reasonCode: result.psr.reasonCode,
     });
