@@ -95,7 +95,7 @@ test('summarize counts reopen = load, reopen = Java and load = Java, and every m
   assert.deepEqual(summary.cells.byBucket, { 'PR-D': { lostCells: 1, units: 1 }, o3a: { lostCells: 1, units: 1 } });
   assert.deepEqual([summary.cells.unitsWithLoss, summary.cells.lostCells, summary.cells.systemCellsLost], [1, 2, 1]);
   assert.deepEqual(summary.errorsByStage, { 'sqlite-write': 1 });
-  assert.equal(summary.headline, 'reopen=load 2/5 · reopen=Java 1/5 · load=Java 3/5 · no save-loss confirmation 3/5 · notice residual equal 4/5 · weight owners 4/5');
+  assert.equal(summary.headline, 'reopen=load 2/5 · reopen=Java 1/5 · load=Java 3/5 · no loss confirmation (before save) 3/5 · notice residual equal 4/5 · weight owners 4/5');
   assert.deepEqual(
     differences.filter((d) => d.measure === 'reopen=load').map((d) => [d.unitId, d.loadBV, d.reopenBV, d.why]),
     [['lost', 1000, 900, 'different'], ['nobv', 1000, null, 'no-calculator-result'], ['broken', null, null, 'error:sqlite-write']],
@@ -160,9 +160,10 @@ test('summarize counts the reopened store separately from the loaded one', () =>
   const referenceByPath = new Map(rows.map((r) => [r.path, { battleValue: { total: 1000 } }]));
   const { summary } = summarize({ rows, referenceByPath, scope: scope(6), deterministic: true });
   // Loaded: every row but beforeOnly (has an entry) and the error row (never counted).
-  assert.equal(summary.saveLoss.noConfirmation, 4);
-  assert.deepEqual(summary.saveLoss.after, { noConfirmation: 2, confirmation: 2, unsettled: 1, unknown: 0, noticeEntries: 1, armorSaveLoss: 1 });
-  assert.equal(summary.saveLoss.errorRows, 1);
+  assert.equal(summary.noLossConfirmation.before, 4);
+  assert.equal(summary.noLossConfirmation.after, 2);
+  assert.deepEqual(summary.saveLossDetail.after, { confirmation: 2, unsettled: 1, unknown: 0, noticeEntries: 1, armorSaveLoss: 1 });
+  assert.equal(summary.saveLossDetail.before.errorRows, 1);
 });
 
 test('summarize counts "saves with no loss confirmation" over settled complete rows and keeps the rest in the denominator', () => {
@@ -177,19 +178,39 @@ test('summarize counts "saves with no loss confirmation" over settled complete r
   ];
   const referenceByPath = new Map(rows.map((r) => [r.path, { battleValue: { total: 1000 } }]));
   const { summary } = summarize({ rows, referenceByPath, scope: scope(7), deterministic: true });
-  assert.deepEqual(summary.saveLoss, {
-    noConfirmation: 2,
+  assert.deepEqual(summary.saveLossDetail.before, {
     confirmation: 3,
     unsettled: 1,
     unknown: 1,
     noticeEntries: 1,
     armorSaveLoss: 1,
     errorRows: 1,
-    after: { noConfirmation: 6, confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 },
   });
-  assert.match(summary.headline, /no save-loss confirmation 2\/7/);
+  assert.deepEqual(summary.saveLossDetail.after, { confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 });
+  assert.equal(summary.noLossConfirmation.before, 2);
+  assert.equal(summary.noLossConfirmation.after, 6);
+  assert.match(summary.headline, /no loss confirmation \(before save\) 2\/7/);
   // An error row is not "no confirmation", and neither is a settled-looking row whose tracking is unknown.
-  assert.equal(summary.saveLoss.noConfirmation + summary.saveLoss.confirmation + summary.saveLoss.unsettled + summary.saveLoss.errorRows, 7);
+  const before = summary.saveLossDetail.before;
+  assert.equal(summary.noLossConfirmation.before + before.confirmation + before.unsettled + before.errorRows, 7);
+});
+
+test('the summary publishes noLossConfirmation.before (the number) and .after (not a progress measure), with no old names left', () => {
+  const rows = [capturedToRow(record('clean')), capturedToRow(record('beforeOnly', { lost: [lostCell(3)] }))];
+  const referenceByPath = new Map(rows.map((r) => [r.path, { battleValue: { total: 1000 } }]));
+  const { summary } = summarize({ rows, referenceByPath, scope: scope(2), deterministic: true });
+  assert.deepEqual(Object.keys(summary.noLossConfirmation), ['before', 'after', 'afterNote']);
+  // before: the loaded store of 'beforeOnly' would make the dialog ask, 'clean' would not.
+  assert.equal(summary.noLossConfirmation.before, 1);
+  // after: both reopened stores would not ask, because the save wrote the loss into the file.
+  assert.equal(summary.noLossConfirmation.after, 2);
+  assert.match(summary.noLossConfirmation.afterNote, /loss already written to file; not a progress measure/);
+  assert.equal(summary.saveLossDetail.afterNote, summary.noLossConfirmation.afterNote);
+  assert.equal('saveLoss' in summary, false);
+  assert.equal(JSON.stringify(summary).includes('noSaveLossConfirmation'), false);
+  // the headline carries the BEFORE number only
+  assert.match(summary.headline, /no loss confirmation \(before save\) 1\/2/);
+  assert.equal(summary.headline.includes('after'), false);
 });
 
 // --- main(): the whole flow through the shared orchestrator, with an injected capture ----------

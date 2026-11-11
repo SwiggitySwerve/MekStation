@@ -42,12 +42,15 @@ real validator input hook beside it, and the summary counts any unit where they 
 unit-level notice equality, weight owners, lost non-system cells by bucket, and mounts lost, changed and added.
 `reopen-differences.ndjson` lists every unit whose reopen BV is not its load BV.
 
-The third number, **saves with no loss confirmation**, is `summary.saveLoss.noConfirmation` (and the headline's
-`no save-loss confirmation n/units`): rows whose loaded store would not make the save dialog ask, i.e. settled, loss tracking known,
+The third number, **saves with no loss confirmation**, is `summary.noLossConfirmation.before` (and the headline's
+`no loss confirmation (before save) n/units`): rows whose loaded store would not make the save dialog ask, i.e. settled, loss tracking known,
 no `unrecoveredCriticalSlots` entries and no `armorSaveLoss`. Each row's `saveLoss` carries those inputs as the dialog gets them
 (read from the real `useUnitLoadDiagnostics()` by the shared observer, `getArmorSaveLoss` called not recomputed, entries with
-`bucket`/`effectId`/`kind`/`responsibility`); `saveLossAfter` carries the same facts for the reopened store
-(`summary.saveLoss.after`), so a cold-reopen headline can say whether saving the reopened unit would ask again.
+`bucket`/`effectId`/`kind`/`responsibility`); `saveLossAfter` carries the same facts for the reopened store.
+**The published nightly number is the BEFORE side.** `summary.noLossConfirmation.after` (and `summary.saveLossDetail.after`) is labelled
+"loss already written to file; not a progress measure" and is never quotable as progress: after one cold save the warning has been shown
+once and the loss is permanent in the file, so a high AFTER count means the opposite of improvement. It is not in the headline. The other
+counts are under `summary.saveLossDetail.before` / `.after`; there is no `summary.saveLoss`.
 The rule lives in `scripts/lib/runtime-parity/save-loss.mjs` (one file, so C3's stage-1 comparator can replace the source later).
 Error and unsettled rows stay in the denominator and are never counted. Unknown
 tracking is a harness failure for canonical loads (the capture asserts the loader supplied the list) and is never an empty list.

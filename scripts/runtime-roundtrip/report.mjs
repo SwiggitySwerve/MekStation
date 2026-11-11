@@ -49,6 +49,7 @@ export function capturedToRow(record) {
 }
 
 const fmt = (n) => n.toLocaleString('en-US');
+const AFTER_NOTE = 'loss already written to file; not a progress measure';
 
 /**
  * Counts against the Java reference (battleValue.total). A null BV at either end and every error row
@@ -70,19 +71,16 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   const notice = { equal: 0, different: 0, missing: 0 };
   const cells = { unitsWithLoss: 0, lostCells: 0, systemCellsLost: 0, tokenChanges: 0, byBucket: {} };
   const mounts = { lost: 0, changed: 0, added: 0 };
-  // The save dialog's loss confirmation on the loaded store. `noConfirmation` is the third nightly
-  // number: settled, tracking known, no entries, no armor loss (noSaveLossConfirmation, one owner).
-  // Every row is in the denominator; an error row or an unsettled row is never counted as "no".
-  // `after` is the same for the reopened store (would the dialog ask if the reopened unit were saved).
-  const saveLossCounts = {
-    noConfirmation: 0,
-    confirmation: 0,
-    unsettled: 0,
-    unknown: 0,
-    noticeEntries: 0,
-    armorSaveLoss: 0,
-    errorRows: 0,
-    after: { noConfirmation: 0, confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 },
+  // The save dialog's loss confirmation. `noLossConfirmation.before` is the published third nightly number,
+  // read on the loaded store: settled, tracking known, no entries, no armor loss (noSaveLossConfirmation, one
+  // owner). Every row is in the denominator; an error row or an unsettled row is never counted as "no".
+  // `noLossConfirmation.after` is the same read on the reopened store. It is NOT a progress measure: the save
+  // already wrote the loss into the file, so the dialog has nothing left to warn about.
+  const noLossConfirmation = { before: 0, after: 0, afterNote: AFTER_NOTE };
+  const saveLossDetail = {
+    before: { confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0, errorRows: 0 },
+    after: { confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 },
+    afterNote: AFTER_NOTE,
   };
   const differences = [];
   for (const row of rows) {
@@ -92,7 +90,7 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       errorsByStage[row.error.stage] = (errorsByStage[row.error.stage] ?? 0) + 1;
       for (const t of [loadJava, reopenLoad, reopenJava, validityKept, notice]) t.missing++;
       weightOwners.missing++;
-      saveLossCounts.errorRows++;
+      saveLossDetail.before.errorRows++;
       differences.push({ ...identity, measure: 'reopen=load', loadBV: null, reopenBV: null, javaBV: javaBv, why: `error:${row.error.stage}` });
       continue;
     }
@@ -135,15 +133,16 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       bucket.units.add(row.unitId);
     }
     const loss = row.reopen.saveLoss;
-    if (noSaveLossConfirmation(row)) saveLossCounts.noConfirmation++;
-    if (loss.confirmation) saveLossCounts.confirmation++;
-    if (!loss.settled) saveLossCounts.unsettled++;
-    if (loss.lossTrackingUnknown) saveLossCounts.unknown++;
-    if (loss.noticeBefore?.length) saveLossCounts.noticeEntries++;
-    if (loss.armorSaveLoss) saveLossCounts.armorSaveLoss++;
+    const beforeCounts = saveLossDetail.before;
+    if (noSaveLossConfirmation(row)) noLossConfirmation.before++;
+    if (loss.confirmation) beforeCounts.confirmation++;
+    if (!loss.settled) beforeCounts.unsettled++;
+    if (loss.lossTrackingUnknown) beforeCounts.unknown++;
+    if (loss.noticeBefore?.length) beforeCounts.noticeEntries++;
+    if (loss.armorSaveLoss) beforeCounts.armorSaveLoss++;
     const lossAfter = row.reopen.saveLossAfter;
-    const afterCounts = saveLossCounts.after;
-    if (noSaveLossConfirmationAfter(row)) afterCounts.noConfirmation++;
+    const afterCounts = saveLossDetail.after;
+    if (noSaveLossConfirmationAfter(row)) noLossConfirmation.after++;
     if (lossAfter.confirmation) afterCounts.confirmation++;
     if (!lossAfter.settled) afterCounts.unsettled++;
     if (lossAfter.lossTrackingUnknown) afterCounts.unknown++;
@@ -177,9 +176,10 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       noticeResidual: notice,
       cells,
       mounts,
-      saveLoss: saveLossCounts,
+      noLossConfirmation,
+      saveLossDetail,
       deterministic,
-      headline: `reopen=load ${fmt(reopenLoad.equal)}/${fmt(units)} · reopen=Java ${fmt(reopenJava.equal)}/${fmt(units)} · load=Java ${fmt(loadJava.equal)}/${fmt(units)} · no save-loss confirmation ${fmt(saveLossCounts.noConfirmation)}/${fmt(units)} · notice residual equal ${fmt(notice.equal)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
+      headline: `reopen=load ${fmt(reopenLoad.equal)}/${fmt(units)} · reopen=Java ${fmt(reopenJava.equal)}/${fmt(units)} · load=Java ${fmt(loadJava.equal)}/${fmt(units)} · no loss confirmation (before save) ${fmt(noLossConfirmation.before)}/${fmt(units)} · notice residual equal ${fmt(notice.equal)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },
     differences,
   };
