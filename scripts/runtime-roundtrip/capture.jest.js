@@ -233,6 +233,7 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
         noticeBefore: item.noticeBefore,
         equipmentBefore: item.equipmentBefore,
         reopened,
+        saveLossBefore: item.before.saveLoss,
       });
       item.after = await o.observeStore(store);
       Object.assign(record, comparison, {

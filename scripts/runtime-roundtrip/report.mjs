@@ -1,7 +1,7 @@
 // Capture records -> reopen rows, and the counts the nightly publishes. No BV arithmetic here: the
 // capture reads both ends from the app through the shared observer and compares the round trip with
 // C3's v2 logic; this maps the records to schema rows and counts agreement.
-import { assertPopulation } from '../lib/runtime-parity/rows.mjs';
+import { assertPopulation, noSaveLossConfirmation, saveLossConfirms } from '../lib/runtime-parity/rows.mjs';
 
 const endOf = ({ observed, terms }) => ({ ...observed, occupancy: null, terms: terms ?? {} });
 
@@ -33,6 +33,8 @@ export function capturedToRow(record) {
       loadedMountLosses: record.loadedMountLosses,
       changedLoadedMounts: record.changedLoadedMounts,
       addedLoadedMounts: record.addedLoadedMounts,
+      // The dialog's predicate comes from the schema module's one definition, over the same fields.
+      saveLoss: { ...record.saveLoss, confirmation: saveLossConfirms(record.saveLoss) },
     },
   };
 }
@@ -59,6 +61,10 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   const notice = { equal: 0, different: 0, missing: 0 };
   const cells = { unitsWithLoss: 0, lostCells: 0, systemCellsLost: 0, tokenChanges: 0, byBucket: {} };
   const mounts = { lost: 0, changed: 0, added: 0 };
+  // The save dialog's loss confirmation on the loaded store. `noConfirmation` is the third nightly
+  // number: settled, tracking known, no entries, no armor loss (noSaveLossConfirmation, one owner).
+  // Every row is in the denominator; an error row or an unsettled row is never counted as "no".
+  const saveLossCounts = { noConfirmation: 0, confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0, errorRows: 0 };
   const differences = [];
   for (const row of rows) {
     const javaBv = referenceByPath.get(row.path)?.battleValue?.total ?? null;
@@ -67,6 +73,7 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       errorsByStage[row.error.stage] = (errorsByStage[row.error.stage] ?? 0) + 1;
       for (const t of [loadJava, reopenLoad, reopenJava, validityKept, notice]) t.missing++;
       weightOwners.missing++;
+      saveLossCounts.errorRows++;
       differences.push({ ...identity, measure: 'reopen=load', loadBV: null, reopenBV: null, javaBV: javaBv, why: `error:${row.error.stage}` });
       continue;
     }
@@ -108,6 +115,13 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       bucket.lostCells++;
       bucket.units.add(row.unitId);
     }
+    const loss = row.reopen.saveLoss;
+    if (noSaveLossConfirmation(row)) saveLossCounts.noConfirmation++;
+    if (loss.confirmation) saveLossCounts.confirmation++;
+    if (!loss.settled) saveLossCounts.unsettled++;
+    if (loss.lossTrackingUnknown) saveLossCounts.unknown++;
+    if (loss.noticeBefore?.length) saveLossCounts.noticeEntries++;
+    if (loss.armorSaveLoss) saveLossCounts.armorSaveLoss++;
     mounts.lost += row.reopen.loadedMountLosses.length;
     mounts.changed += row.reopen.changedLoadedMounts.length;
     mounts.added += row.reopen.addedLoadedMounts.length;
@@ -136,8 +150,9 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       noticeResidual: notice,
       cells,
       mounts,
+      saveLoss: saveLossCounts,
       deterministic,
-      headline: `reopen=load ${fmt(reopenLoad.equal)}/${fmt(units)} · reopen=Java ${fmt(reopenJava.equal)}/${fmt(units)} · load=Java ${fmt(loadJava.equal)}/${fmt(units)} · notice residual equal ${fmt(notice.equal)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
+      headline: `reopen=load ${fmt(reopenLoad.equal)}/${fmt(units)} · reopen=Java ${fmt(reopenJava.equal)}/${fmt(units)} · load=Java ${fmt(loadJava.equal)}/${fmt(units)} · no save-loss confirmation ${fmt(saveLossCounts.noConfirmation)}/${fmt(units)} · notice residual equal ${fmt(notice.equal)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },
     differences,
   };

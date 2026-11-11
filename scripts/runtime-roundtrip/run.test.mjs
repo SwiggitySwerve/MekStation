@@ -15,7 +15,15 @@ const observation = (bv, extra = {}) => ({
   terms: { armorBV: 360 },
   issues: [],
 });
-const record = (id, { before = 1000, after = 1000, beforeExtra, afterExtra, lost = [], equal = true, mounts = {} } = {}) => ({
+/** What the capture records from the diagnostics hook: the store's entries with attribution, and armor. */
+const lossOf = (residual, { settled = true, unknown = false, armor = null } = {}) => ({
+  settled,
+  lossTrackingUnknown: unknown,
+  noticeBefore: unknown ? null : residual.map((c) => ({ ...c, bucket: 'o3a', effectId: 'effect-1', kind: 'armor_structure', responsibility: 'o3a' })),
+  armorSaveLoss: armor !== null,
+  armorSaveLossSourceType: armor,
+});
+const record = (id, { before = 1000, after = 1000, beforeExtra, afterExtra, lost = [], equal = true, mounts = {}, loss = {}, saveLoss } = {}) => ({
   unitId: id,
   family: 'battlemechs',
   path: `meks/${id}.mtf`,
@@ -38,6 +46,9 @@ const record = (id, { before = 1000, after = 1000, beforeExtra, afterExtra, lost
   loadedMountLosses: [],
   changedLoadedMounts: [],
   addedLoadedMounts: [],
+  saveLoss:
+    saveLoss ??
+    lossOf(equal ? lost.filter((c) => c.identity === 'non-system').map(({ location, slot, text }) => ({ location, slot, text })) : [], loss),
   ...mounts,
 });
 const lostCell = (slot, bucket = 'o3a') => ({ ...cell(slot), identity: 'non-system', bucket, kind: 'armor_structure' });
@@ -75,7 +86,7 @@ test('summarize counts reopen = load, reopen = Java and load = Java, and every m
   assert.deepEqual(summary.cells.byBucket, { 'PR-D': { lostCells: 1, units: 1 }, o3a: { lostCells: 1, units: 1 } });
   assert.deepEqual([summary.cells.unitsWithLoss, summary.cells.lostCells, summary.cells.systemCellsLost], [1, 2, 1]);
   assert.deepEqual(summary.errorsByStage, { 'sqlite-write': 1 });
-  assert.equal(summary.headline, 'reopen=load 2/5 · reopen=Java 1/5 · load=Java 3/5 · notice residual equal 4/5 · weight owners 4/5');
+  assert.equal(summary.headline, 'reopen=load 2/5 · reopen=Java 1/5 · load=Java 3/5 · no save-loss confirmation 3/5 · notice residual equal 4/5 · weight owners 4/5');
   assert.deepEqual(
     differences.filter((d) => d.measure === 'reopen=load').map((d) => [d.unitId, d.loadBV, d.reopenBV, d.why]),
     [['lost', 1000, 900, 'different'], ['nobv', 1000, null, 'no-calculator-result'], ['broken', null, null, 'error:sqlite-write']],
@@ -96,6 +107,41 @@ test('summarize reports a notice mismatch, a weight owner split at either end, a
   assert.deepEqual(differences.filter((d) => d.measure === 'weight-owner').map((d) => d.unitId), ['beforeSplit', 'afterSplit']);
   assert.throws(() => summarize({ rows, referenceByPath, scope: scope(4), deterministic: true }), /Population mismatch/);
   assert.throws(() => summarize({ rows: [rows[0], rows[0]], referenceByPath, scope: scope(2), deterministic: true }), /more than one row/);
+});
+
+test('capturedToRow carries the dialog inputs with attribution and derives the confirmation from them', () => {
+  const row = capturedToRow(record('a', { lost: [lostCell(3), lostCell(5, 'PR-D'), systemCell(6)] }));
+  const loss = row.reopen.saveLoss;
+  assert.deepEqual(loss.noticeBefore.map((e) => [e.slot, e.text, e.bucket, e.effectId, e.kind, e.responsibility]), [
+    [3, 'Foo', 'o3a', 'effect-1', 'armor_structure', 'o3a'],
+    [5, 'Foo', 'o3a', 'effect-1', 'armor_structure', 'o3a'],
+  ]);
+  assert.deepEqual([loss.settled, loss.lossTrackingUnknown, loss.armorSaveLoss, loss.armorSaveLossSourceType, loss.confirmation], [true, false, false, null, true]);
+  // No entries and no armor loss: no confirmation. Armor loss alone: confirmation, with its source type.
+  assert.equal(capturedToRow(record('b')).reopen.saveLoss.confirmation, false);
+  const armor = capturedToRow(record('c', { loss: { armor: 'PATCHWORK' } })).reopen.saveLoss;
+  assert.deepEqual([armor.armorSaveLoss, armor.armorSaveLossSourceType, armor.confirmation], [true, 'PATCHWORK', true]);
+  // Unknown tracking is null, not an empty list, and asks for a confirmation.
+  const unknown = capturedToRow(record('d', { loss: { unknown: true } })).reopen.saveLoss;
+  assert.deepEqual([unknown.noticeBefore, unknown.lossTrackingUnknown, unknown.confirmation], [null, true, true]);
+});
+
+test('summarize counts "saves with no loss confirmation" over settled complete rows and keeps the rest in the denominator', () => {
+  const rows = [
+    capturedToRow(record('clear1')),
+    capturedToRow(record('clear2')),
+    capturedToRow(record('notice', { lost: [lostCell(3)] })),
+    capturedToRow(record('armor', { loss: { armor: 'PATCHWORK' } })),
+    capturedToRow(record('unknown', { loss: { unknown: true } })),
+    capturedToRow(record('unsettled', { loss: { settled: false } })),
+    capturedToRow(failed('broken')),
+  ];
+  const referenceByPath = new Map(rows.map((r) => [r.path, { battleValue: { total: 1000 } }]));
+  const { summary } = summarize({ rows, referenceByPath, scope: scope(7), deterministic: true });
+  assert.deepEqual(summary.saveLoss, { noConfirmation: 2, confirmation: 3, unsettled: 1, unknown: 1, noticeEntries: 1, armorSaveLoss: 1, errorRows: 1 });
+  assert.match(summary.headline, /no save-loss confirmation 2\/7/);
+  // An error row is not "no confirmation", and neither is a settled-looking row whose tracking is unknown.
+  assert.equal(summary.saveLoss.noConfirmation + summary.saveLoss.confirmation + summary.saveLoss.unsettled + summary.saveLoss.errorRows, 7);
 });
 
 // --- main(): the whole flow through the shared orchestrator, with an injected capture ----------

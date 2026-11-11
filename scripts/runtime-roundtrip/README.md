@@ -42,6 +42,13 @@ real validator input hook beside it, and the summary counts any unit where they 
 unit-level notice equality, weight owners, lost non-system cells by bucket, and mounts lost, changed and added.
 `reopen-differences.ndjson` lists every unit whose reopen BV is not its load BV.
 
+The third number, **saves with no loss confirmation**, is `summary.saveLoss.noConfirmation` (and the headline's
+`no save-loss confirmation n/units`): rows whose loaded store would not make the save dialog ask, i.e. settled, loss tracking known,
+no `unrecoveredCriticalSlots` entries and no `armorSaveLoss`. Each row's `saveLoss` carries those inputs as the dialog gets them
+(read from the real `useUnitLoadDiagnostics()` by the shared observer, `getArmorSaveLoss` called not recomputed, entries with
+`bucket`/`effectId`/`kind`/`responsibility`); error and unsettled rows stay in the denominator and are never counted. Unknown
+tracking is a harness failure for canonical loads (the capture asserts the loader supplied the list) and is never an empty list.
+
 ## Compare tool
 
 `node scripts/runtime-roundtrip/compare.mjs --rows <rows.ndjson> --ref <A-units.json> --out <dir> [--receipt <receipt.json>] [--subset] [--require-same-sha]`

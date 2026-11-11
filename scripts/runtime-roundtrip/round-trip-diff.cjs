@@ -56,6 +56,18 @@ function createRoundTripDiff() {
         source,
       ),
     );
+  // A notice entry's full attribution (the classifier's effect id and responsibility as well).
+  const classifyNotice = (entry, source) => {
+    const result = classifyCriticalSlotNoticeEntry(
+      { text: entry.text, location: location(entry.location), slot: entry.slot },
+      source,
+    );
+    return {
+      ...assigned(result),
+      effectId: String(result.effect.id),
+      responsibility: String(result.effect.responsibility),
+    };
+  };
   const cellsOf = (definition) =>
     Object.entries(definition.criticalSlots || {}).flatMap(([loc, slots]) =>
       slots.flatMap((token, slot) =>
@@ -122,7 +134,7 @@ function createRoundTripDiff() {
    * source: the committed unit JSON. noticeBefore: the loader's unrecoveredCriticalSlots before the
    * save. equipmentBefore: the loaded mounts. reopened: the reopened unit state.
    */
-  return function compareRoundTrip({ source, noticeBefore, equipmentBefore, reopened }) {
+  return function compareRoundTrip({ source, noticeBefore, equipmentBefore, reopened, saveLossBefore }) {
     const reopenedSource = reopened.bvContext?.source;
     assert(reopenedSource, 'Missing reopened source');
     const afterCells = new Map(cellsOf(reopenedSource).map((c) => [cellKey(c.location, c.slot), c]));
@@ -148,7 +160,24 @@ function createRoundTripDiff() {
     const noticeOnly = residual.filter((c) => !actual.has(exact(c)));
     const roundTripOnly = nonSystem.filter((c) => !notice.has(exact(c)));
     const mounts = matchMounts(equipmentBefore, reopened.equipment);
+    // The save dialog's inputs as the shared observer read them from the diagnostics hook. The hook's
+    // entries and the store's list are one field: if they ever differ the observation is wrong, so it
+    // is a harness failure, never a second reading kept beside the first. Unknown stays null.
+    assert(saveLossBefore, 'Missing the save-loss observation');
+    if (saveLossBefore.entries !== null)
+      assert.deepEqual(saveLossBefore.entries, residual, 'The diagnostics hook and the store disagree on unrecoveredCriticalSlots');
+    const saveLoss = {
+      settled: saveLossBefore.settled,
+      lossTrackingUnknown: saveLossBefore.lossTrackingUnknown,
+      noticeBefore:
+        saveLossBefore.entries === null
+          ? null
+          : noticeBefore.map((e) => ({ location: e.location, slot: e.slot, text: e.text, ...classifyNotice(e, source) })),
+      armorSaveLoss: saveLossBefore.armorSaveLoss !== null,
+      armorSaveLossSourceType: saveLossBefore.armorSaveLoss?.sourceType ?? null,
+    };
     return {
+      saveLoss,
       lostCells,
       tokenChanges,
       rawIdentityLosses,
