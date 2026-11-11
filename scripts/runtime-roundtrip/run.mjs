@@ -11,6 +11,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { jestCapture, runCensus } from '../lib/runtime-parity/census.mjs';
+import { reopenFacts } from '../lib/runtime-parity/facts.mjs';
 import { capturedToRow, summarize } from './report.mjs';
 
 const repoRoot = path.resolve(
@@ -32,6 +33,7 @@ const spec = {
   capture: runJestCapture,
   toRow: capturedToRow,
   summarize,
+  facts: reopenFacts,
   differencesFile: 'reopen-differences.ndjson',
 };
 

@@ -209,7 +209,7 @@ export function differingUnits(texts) {
  *   facts(row, javaReferenceRow) -> the unit's gated facts (scripts/lib/runtime-parity/facts.mjs), written to
  *   facts.ndjson beside the rows for the nightly gate.
  *
- * `--write-baseline --reason <text> [--pr <n>]` also writes config/parity-runtime/baseline-<measure>.json from
+ * `--write-baseline --reason <text> [--pr <n>] [--baseline-dir <dir>]` also writes config/parity-runtime/baseline-<measure>.json (and its .sets.ndjson sidecar) from
  * the run's facts, with its SHA, population hash and a `notes[]` entry. It REFUSES (nothing written, exit 1,
  * failure.json BASELINE_REFUSED) for a narrowed run, nondeterministic rows, or any failed, incomplete or unknown unit.
  */
@@ -224,6 +224,7 @@ export async function runCensus(argv, deps, spec) {
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
       'write-baseline': { type: 'boolean', default: false },
+      'baseline-dir': { type: 'string' },
       reason: { type: 'string' },
       pr: { type: 'string' },
     },
@@ -392,8 +393,18 @@ export async function runCensus(argv, deps, spec) {
             'BASELINE_REFUSED',
             'the runs were not byte-identical',
           );
-        const target = path.join(repoRoot, baselinePath(spec.measure));
-        const setsTarget = path.join(repoRoot, baselineSetsPath(spec.measure));
+        // The committed config/parity-runtime/ unless --baseline-dir names another (a smoke writes to a temp dir).
+        const dir = values['baseline-dir']
+          ? path.resolve(values['baseline-dir'])
+          : path.join(repoRoot, path.dirname(baselinePath(spec.measure)));
+        const target = path.join(
+          dir,
+          path.basename(baselinePath(spec.measure)),
+        );
+        const setsTarget = path.join(
+          dir,
+          path.basename(baselineSetsPath(spec.measure)),
+        );
         let existing = null;
         if (fs.existsSync(target))
           existing = parseBaseline(
