@@ -25,3 +25,8 @@ public/record-sheets/
 public/data/units/vehicles/
 public/data/units/aerospace/
 public/data/units/capital/
+
+# Reproduction contracts copied byte-for-byte; source hashes are audit evidence.
+src/lib/events/replay/__tests__/ReplayLibraryLoadPipeline.quickGameWriter.test.ts
+src/lib/events/replay/__tests__/ReplayRecovery.gyroWriter.test.ts
+src/lib/p2p/__tests__/p2pColdRecovery.hostStamps.test.ts

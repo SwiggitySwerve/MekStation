@@ -1,10 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import type { IFullUnit } from '@/services/units/CanonicalUnitService';
-
 import { adaptUnitFromData } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import { GameSide, ReplaySource, type IGameUnit } from '@/types/gameplay';
 
 import { loadReplayLibraryNdjson } from '../ReplayLibraryLoadPipeline';
@@ -65,9 +64,7 @@ describe('quick-game production writer/replay acceptance contract', () => {
       return {
         seed,
         eventCount: session.events.length,
-        eventTypes: [
-          ...new Set(session.events.map((event) => event.type)),
-        ].sort(),
+        eventTypes: [...new Set(session.events.map((event) => event.type))].sort(),
         kind: result.kind,
         blocked: blocked.map((line) => ({
           ...line,
