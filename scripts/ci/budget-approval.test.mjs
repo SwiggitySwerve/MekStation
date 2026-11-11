@@ -33,7 +33,7 @@ function fixture() {
     number: 1,
     state: 'open',
     head: { sha: 'a'.repeat(40) },
-    base: { sha: 'b'.repeat(40), repo: { full_name: 'o/r' } },
+    base: { sha: 'b'.repeat(40), ref: 'main', repo: { full_name: 'o/r' } },
     labels: [{ name: DEPENDENCY_GROWTH_LABEL }],
   };
   const manifest = { dependencies: { x: '1' } },
@@ -1459,6 +1459,81 @@ function sharedHeadApprovals(count = 2) {
     return { data: status };
   };
   return { fixtures, github, statuses };
+}
+
+test('a non-main peer is ignored before and after its label removal on the shared SHA', async () => {
+  const f = sharedHeadApprovals();
+  const peer = f.fixtures[1].pull;
+  peer.base.ref = 'release';
+  const get = f.github.rest.pulls.get;
+  const peerReads = [];
+  f.github.rest.pulls.get = (args) => {
+    if (args.pull_number === 2) peerReads.push(args);
+    return get(args);
+  };
+  const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+  assert.equal((await policy(args)).allowed, true);
+  peer.labels = peer.labels.filter(
+    (label) => label.name !== BUDGET_RAISE_LABEL,
+  );
+  const after = await policy(args);
+  assert.equal(
+    after.allowed,
+    true,
+    'A non-main peer cannot invalidate main approval',
+  );
+  for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'success');
+  assert.deepEqual(peerReads, [], 'Non-main peer policy must not be evaluated');
+});
+
+for (const context of ['CI Budget Raise Approval', 'Lint and Test']) {
+  test(`verify of ${context} success refreshes a dismissed owner review on the shared SHA`, async () => {
+    const f = sharedHeadApprovals();
+    const paginate = f.github.paginate;
+    const write = f.github.rest.repos.createCommitStatus;
+    let dismissed = false;
+    let freshReviewReads = 0;
+    f.github.paginate = async (method, args) => {
+      const result = await paginate(method, args);
+      if (
+        dismissed &&
+        method === f.github.rest.pulls.listReviews &&
+        args.pull_number === 1
+      ) {
+        freshReviewReads += 1;
+        return result.map((review) => ({ ...review, state: 'DISMISSED' }));
+      }
+      return result;
+    };
+    f.github.rest.repos.createCommitStatus = async (status) => {
+      const result = await write(status);
+      if (status.state === 'success' && status.context === context)
+        dismissed = true;
+      return result;
+    };
+    const before = f.fixtures.map((fixture) => structuredClone(fixture.pull));
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+    });
+    assert.ok(dismissed, 'The success must reach GitHub before dismissal');
+    assert.ok(
+      freshReviewReads > 0,
+      'Verify must fetch live reviews after success',
+    );
+    assert.equal(result.allowed, false);
+    assert.equal(guardOutcome(2, result).fail, true);
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+    assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+    assert.deepEqual(
+      f.fixtures.map((fixture) => fixture.pull),
+      before,
+      'Labels, bases and heads remained unchanged',
+    );
+  });
 }
 
 test('shared SHA: a revoked A and approved B leave failure in both publisher orders', async () => {

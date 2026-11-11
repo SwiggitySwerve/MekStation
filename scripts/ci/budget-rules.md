@@ -176,15 +176,17 @@ evaluations run independently of that report group, and every actual budget
 success from the Guard uses the same verification below.
 
 Commit statuses are SHA-scoped. Before each success, the publisher lists open
-PRs associated with the evaluated SHA into this base repository and requires
-every exact-head PR to pass the same read-only budget policy. A refusal, an
+PRs associated with the evaluated SHA into `main` in this base repository and
+requires every open exact-head PR to pass the same read-only budget policy.
+PRs into other branches do not participate, matching the label workflow and
+branch-protection scope. A refusal, an
 unbound/superseded peer or an unavailable association/PR read refuses success.
 Nested approval statuses use a no-op sink and never publish real statuses.
 
 After every actual success write (approval or final `Lint and Test`), the
 publisher re-reads through its recording client and checks the triggering PR's
 head/base/labels, then re-lists and re-evaluates all open exact-head associated
-PRs. Any refusal or changed triggering snapshot corrects that context to failure
+PRs into `main`, including fresh owner reviews. Any refusal or changed triggering snapshot corrects that context to failure
 on the same evaluated SHA. A head change found after success fails the job,
 without the pure superseded-head exemption. The log identifies each PR so
 different PRs' legitimate base/label snapshots do not corrupt that proof.
@@ -194,18 +196,21 @@ is corrected. A revocation after r triggers an independent evaluation that write
 after w. A stale success written after another run's failure is corrected by its
 own verify, including when the revocation belongs to another PR sharing the SHA.
 This argument assumes every listed association and PR read reflects relevant
-changes made before it. No API consistency SLA is established here; a lagging
-association list or stale PR read can miss a revocation until a later evaluation.
+changes made before it. Reads of PR state (labels, reviews, association) are not
+linearizable; no specific lag is verified either way. A lagging association list
+or stale PR/review read can miss a revocation until a later evaluation.
 
-The protocol is not atomic. If the job dies after GitHub accepts success but
-before verification/correction, that success can remain indefinitely. The next
+The protocol is not atomic. A publisher killed after writing success and before
+verifying leaves that success in place until another completed evaluation of
+the same head. The hourly reconciliation in the following PR bounds this.
+That reconciliation is outside this PR; until it lands, there is no bounded
+closure without another completed evaluation. The next
 completed same-head evaluation closes it: label events (unfiltered), PR Checks
 completion/Guard, relevant approval PR events, review signals, or owner dispatch.
 A return to a formerly green SHA also needs its own evaluation. There is no
 bounded closure if no further eligible event occurs or the API remains stale.
 Manual dispatch uses the same write/verify protocol and has no separate queue.
 
-Removing the global approval queue permits concurrent rare, single-job events.
-These are intended as short, roughly one-minute jobs (existing timeout: three
-minutes); twenty simultaneous publishers consume the twenty-job ceiling and
-additional jobs wait for platform capacity. There is no reserved headroom.
+With no queue, a storm of events or re-runs could occupy the 20 runner slots;
+events of these kinds are rare. Existing three-minute timeouts are unchanged,
+and there is no reserved runner headroom.

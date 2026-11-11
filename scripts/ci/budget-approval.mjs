@@ -41,7 +41,7 @@ export function runHead(expectedHead, number, eventPath) {
 
 /**
  * Read-only calls evaluate one PR. Real success statuses additionally require
- * every open associated PR at that SHA to pass that same read-only policy.
+ * every open associated PR into main at that SHA to pass the same policy.
  */
 export async function checkBudgetPolicy({
   github,
@@ -199,7 +199,7 @@ export async function checkBudgetPolicy({
     result;
   if (publish) {
     // Commit statuses are shared by all PRs at this SHA. Evaluate every open
-    // associated PR, not only the event's PR, using the same read-only policy.
+    // associated PR into main, not only the event's PR, using the same policy.
     // Its reads still pass through this evaluation's recording client.
     async function associatedRefusal(readPhase) {
       try {
@@ -214,6 +214,7 @@ export async function checkBudgetPolicy({
                 (pr) =>
                   pr.state === 'open' &&
                   pr.head?.sha === initial.head.sha &&
+                  pr.base?.ref === 'main' &&
                   pr.base?.repo?.full_name?.toLowerCase() ===
                     `${owner}/${repo}`.toLowerCase(),
               )
