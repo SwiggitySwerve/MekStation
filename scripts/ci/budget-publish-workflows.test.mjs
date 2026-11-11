@@ -16,6 +16,10 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
       let publishes = false;
       for (const step of job.steps ?? []) {
         const code = step.with?.script ?? step.run ?? '';
+        if (/budget-reconcile\.mjs|reconcileBudgetStatuses/.test(code)) {
+          publishes = true;
+          continue;
+        }
         if (!/budget-approval\.mjs|checkBudgetPolicy/.test(code)) continue;
         const calls = [
           ...code.matchAll(/checkBudgetPolicy\(\{([\s\S]*?)\}\)/g),
@@ -92,15 +96,17 @@ test('hourly reconciliation is default-branch only, trusted, bounded and grants 
   const code = job.steps[1].with.script;
   assert.match(
     code,
-    /import\(`\$\{process.env.GITHUB_WORKSPACE\}\/scripts\/ci\/budget-approval.mjs`\)/,
+    /import\(`\$\{process.env.GITHUB_WORKSPACE\}\/scripts\/ci\/budget-reconcile.mjs`\)/,
   );
   assert.match(
     code,
-    /checkBudgetPolicy\(\{ github, owner, repo, number, expectedHead: head \}\)/,
+    /reconcileBudgetStatuses\(\{ github, \.\.\.context.repo, runNumber: context.runNumber, core \}\)/,
   );
-  assert.match(code, /const outcome = guardOutcome\(number, result\)/);
-  assert.match(code, /core.info\(outcome.line\)/);
-  assert.match(code, /if \(outcome.fail\) core.setFailed\(outcome.line\)/);
+  const source = fs.readFileSync('scripts/ci/budget-reconcile.mjs', 'utf8');
+  assert.match(source, /expectedHead:\s*head,\s*reconcile:\s*true/);
+  assert.match(source, /const outcome = guardOutcome\(number, result\)/);
+  assert.match(source, /core.info\(outcome.line\)/);
+  assert.match(source, /if \(outcome.fail\) core.setFailed\(outcome.line\)/);
 });
 
 test('label and base reevaluation is unfiltered, trusted, head-bound and uses the shared outcome', () => {

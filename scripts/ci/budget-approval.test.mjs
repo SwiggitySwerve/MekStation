@@ -13,6 +13,7 @@ import {
 } from './budget-approval.mjs';
 import { loadBudgets } from './budget-config.mjs';
 import { DEPENDENCY_GROWTH_LABEL } from './budget-dependencies.mjs';
+import { reconcileBudgetStatuses } from './budget-reconcile.mjs';
 import { BUDGET_RAISE_LABEL } from './garden-approval.mjs';
 
 // Every caller binds the run to a head. These rows run for the fixture's head
@@ -666,7 +667,7 @@ test('raise label removed after a success: the unlabeled re-evaluation fails tha
 async function runBudgetWorkflow(github, context, file, job) {
   const workflow = parse(readFileSync(`.github/workflows/${file}`, 'utf8'));
   const script = workflow.jobs[job].steps[1].with.script.replace(
-    /^.*const \{ checkBudgetPolicy, guardOutcome \} = await import.*;\n/m,
+    /^.*const \{ .* \} = await import.*;\n/m,
     '',
   );
   const run = new (Object.getPrototypeOf(async function () {}).constructor)(
@@ -675,6 +676,7 @@ async function runBudgetWorkflow(github, context, file, job) {
     'core',
     'checkBudgetPolicy',
     'guardOutcome',
+    'reconcileBudgetStatuses',
     script,
   );
   const failures = [],
@@ -684,16 +686,13 @@ async function runBudgetWorkflow(github, context, file, job) {
     info: (line) => lines.push(line),
     setFailed: (line) => failures.push(line),
   };
-  await run(
-    github,
-    context,
-    core,
-    async (args) => {
-      const result = await checkBudgetPolicy(args);
-      results.push(result);
-      return result;
-    },
-    guardOutcome,
+  const checkedPolicy = async (args) => {
+    const result = await checkBudgetPolicy(args);
+    results.push(result);
+    return result;
+  };
+  await run(github, context, core, checkedPolicy, guardOutcome, (args) =>
+    reconcileBudgetStatuses({ ...args, checkPolicy: checkedPolicy }),
   );
   return { failures, lines, results };
 }
@@ -714,6 +713,22 @@ async function runApprovalEvent(github, pull, action, changes) {
 function reconciliationCensus(f) {
   const pulls = f.fixtures?.map((entry) => entry.pull) ?? [f.pull];
   f.github.rest.pulls.list = () => {};
+  f.github.rest.rateLimit = {
+    get: async () => ({ data: { resources: { core: { remaining: 1000 } } } }),
+  };
+  f.github.hook = { wrap: () => {}, remove: () => {} };
+  f.github.rest.repos.getCombinedStatusForRef = async ({ ref }) => {
+    const contexts = new Set();
+    const statuses = f.statuses
+      .slice()
+      .reverse()
+      .filter((status) => {
+        if (status.sha !== ref || contexts.has(status.context)) return false;
+        contexts.add(status.context);
+        return true;
+      });
+    return { data: { statuses } };
+  };
   const paginate = f.github.paginate;
   f.github.paginate = async (method, args) => {
     if (method !== f.github.rest.pulls.list) return paginate(method, args);
@@ -731,11 +746,97 @@ function reconciliationCensus(f) {
   return () =>
     runBudgetWorkflow(
       f.github,
-      { repo: { owner: 'o', repo: 'r' } },
+      { repo: { owner: 'o', repo: 'r' }, runNumber: 1 },
       'ci-budget-reconcile.yml',
       'reconcile',
     );
 }
+
+test('one hundred green reconciliation confirmations write no statuses, then still withdraw revocation', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  const before = f.statuses.length;
+  const run = reconciliationCensus(f);
+  for (let i = 0; i < 100; i++) {
+    const result = await run();
+    assert.deepEqual(result.failures, []);
+    assert.ok(
+      result.lines.some((line) => line.includes('confirmed, no write')),
+    );
+  }
+  assert.equal(f.statuses.length, before);
+  f.pull.labels = [];
+  await run();
+  assert.equal(f.statuses.length, before + 2);
+  for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+});
+
+test('reconciliation clears a stale context with exactly one success followed by live verification', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  const before = f.statuses.length;
+  const writes = f.github.rest.repos.createCommitStatus;
+  const reads = f.github.rest.pulls.get;
+  let verified = false,
+    written = false;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    written = true;
+    return writes(status);
+  };
+  f.github.rest.pulls.get = async (args) => {
+    if (written) verified = true;
+    return reads(args);
+  };
+  const run = reconciliationCensus(f);
+  await run();
+  assert.deepEqual(
+    f.statuses.slice(before).map(({ context, state }) => ({ context, state })),
+    [{ context: 'Lint and Test', state: 'success' }],
+  );
+  assert.ok(verified);
+  await run();
+  assert.equal(f.statuses.length, before + 1);
+});
+
+test('reconciliation only clears stale reds and never grants a missing or pending success', async () => {
+  for (const state of [undefined, 'pending']) {
+    const f = approvedRaise();
+    if (state)
+      for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+        f.statuses.push({ sha: RUN_HEAD, context, state });
+    const before = f.statuses.length;
+    await reconciliationCensus(f)();
+    assert.equal(f.statuses.length, before);
+  }
+});
+
+test('a reconciliation success that clears a stale red is corrected after a post-write revocation', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  const write = f.github.rest.repos.createCommitStatus;
+  f.github.rest.repos.createCommitStatus = async (status) => {
+    const response = await write(status);
+    if (status.context === 'Lint and Test' && status.state === 'success')
+      f.pull.labels = [];
+    return response;
+  };
+  const result = await reconciliationCensus(f)();
+  assert.equal(result.results[0].allowed, false);
+  assert.equal(result.failures.length, 1);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+  assert.ok(result.results[0].reads.some((read) => read.phase === 'verify'));
+});
 
 test('hourly reconciliation withdraws a green after main lowers a cap without any PR event or label', async () => {
   const f = approvedRaise();
@@ -843,6 +944,8 @@ test('the next hourly reconciliation clears a red from a mid-evaluation peer ret
 test('reconciliation cannot grant a missing approval or upgrade incomplete primary checks', async () => {
   for (const primary of ['in_progress', 'failure', 'success']) {
     const f = approvedRaise();
+    for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+      f.statuses.push({ sha: RUN_HEAD, context, state: 'failure' });
     const runs = f.github.rest.actions.listWorkflowRuns;
     f.github.rest.actions.listWorkflowRuns = async (args) => {
       const response = await runs(args);
@@ -856,7 +959,7 @@ test('reconciliation cannot grant a missing approval or upgrade incomplete prima
     await run();
     assert.equal(
       finalState(f.statuses, RUN_HEAD, 'Lint and Test'),
-      primary === 'in_progress' ? 'pending' : primary,
+      primary === 'in_progress' ? 'failure' : primary,
     );
     f.pull.labels = [];
     await run();
@@ -917,6 +1020,8 @@ test('head movement after reconciliation binds writes nothing to the new head', 
     const f = approvedRaise();
     const run = reconciliationCensus(f);
     let reads = 0;
+    for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+      f.statuses.push({ sha: RUN_HEAD, context, state: 'failure' });
     const read = f.github.rest.pulls.get;
     const moveAt = {
       'before-policy': 2,
@@ -970,7 +1075,7 @@ test('a PR API error is reported while reconciliation continues to the remaining
   // The unavailable shared-head peer also prevents the other PR going green.
   assert.equal(result.results.length, 1);
   assert.equal(result.results[0].code, 'associated-pr-read-failed');
-  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'pending');
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
   assert.equal(
     finalState(f.statuses, RUN_HEAD, 'CI Budget Raise Approval'),
     'failure',

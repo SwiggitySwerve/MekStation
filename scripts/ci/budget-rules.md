@@ -228,6 +228,17 @@ nothing and never executes PR code. It paginates open PRs into `main`, skips
 drafts, then reads each PR's live eligibility and head before binding
 `checkBudgetPolicy` to that head. The shared policy, SHA-wide approval and
 write-then-verify path decide every status; the schedule grants no approvals.
+Its opt-in publication mode omits the provisional `Lint and Test` pending hold;
+event-driven callers retain their existing behavior. Before each publication,
+the reconciliation client reads the latest combined status for that context.
+An unchanged state is logged as `confirmed, no write`. Failure withdraws a
+green, and success only clears an existing failure/error. Missing or pending
+statuses await an event-driven publisher. Incomplete primary checks fail closed
+without a provisional pending/success cycle. Every success actually written is
+followed by the existing live verification and same-head correction path.
+This avoids spending GitHub's 1,000 statuses per SHA/context on hourly green
+confirmations. It cannot repair a context whose status quota is already full;
+event-driven publishers still consume that quota.
 Policy refusals withdraw success on the evaluated head and log the PR number,
 head and reason through `guardOutcome`. API errors fail the job and evaluation
 continues with the remaining PRs when possible.
@@ -235,10 +246,27 @@ continues with the remaining PRs when possible.
 This covers main cap reductions, paths-filtered events and interrupted success
 writes. It also clears a shared-head failure once a refusing peer closes or
 retargets away from `main`, including a retarget during a previous evaluation.
-The expected repair bound is about one hour plus run time, conditional on a
-completed run and consistent API reads. GitHub schedule delays, API outages or
-stale reads can extend it. The job times out after ten minutes; an incomplete
-census waits for another run. There is no concurrency group. A delayed run that
+The ordered census is divided into five-PR batches. The run number selects
+successive batches and rotates their internal starting point on subsequent
+sweeps. A stable N-PR census with five completed visits per run is covered in
+ceil(N/5) runs (60 PRs in 12); if capacity drops to one completed visit, internal
+rotation still covers every PR within five sweeps (60 PRs in 60 runs). These
+are conditional progress bounds, not an unconditional one-hour SLA. Changing
+censuses, unavailable API capacity or persistently unfinished evaluations can
+extend them. An excluded head with no eligible peer is not revisited, and
+eligibility can change after the live check. API staleness and scheduler delays
+remain outside the protocol's guarantees.
+
+The client counts every real REST request through Octokit's request hook and
+uses `X-RateLimit-Remaining` to reduce its allowance when other publishers spend
+the shared repository quota. It stops before spending the last 150 requests.
+A soft eight-minute deadline stops new evaluations before the ten-minute job
+timeout. Budget/time stops report every known unreached PR and are successful
+job outcomes; a request-floor stop during pagination also reports that the
+census is incomplete. A partially evaluated PR remains unreached. Only
+repository metadata and immutable SHA-addressed blobs are cached within a run;
+PR, review, association and status reads stay live, including every verify read
+in the complete policy log. There is no concurrency group. A delayed run that
 overlaps the next hour runs independently under the same binding and verification
 protocol, without replacing pending evaluations. Cost is about one one-minute
 public-repository job per hour; actual duration depends on the open PR census.

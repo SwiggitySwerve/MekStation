@@ -28,29 +28,5 @@ jobs:
       - uses: actions/github-script@v8
         with:
           script: |
-            const { checkBudgetPolicy, guardOutcome } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
-            const { owner, repo } = context.repo;
-            const pulls = await github.paginate(github.rest.pulls.list, {
-              owner, repo, state: 'open', base: 'main', per_page: 100,
-            });
-            for (const candidate of pulls) {
-              if (candidate.draft) continue;
-              const number = candidate.number;
-              let head;
-              try {
-                if (!Number.isSafeInteger(number) || number < 1) throw new Error('Invalid PR number');
-                // The list is only a census. Bind each evaluation to a fresh
-                // head, and skip PRs closed, drafted or retargeted since listing.
-                const { data: live } = await github.rest.pulls.get({ owner, repo, pull_number: number });
-                if (live.state !== 'open' || live.draft || live.base.ref !== 'main') continue;
-                head = live.head.sha;
-                const result = await checkBudgetPolicy({ github, owner, repo, number, expectedHead: head });
-                const outcome = guardOutcome(number, result);
-                core.info(outcome.line);
-                if (outcome.fail) core.setFailed(outcome.line);
-              } catch (error) {
-                // An unavailable PR must not prevent the rest of the census
-                // being reconciled. Report failure; never invent an approval.
-                core.setFailed(`PR #${number}: reconciliation failed (bound ${head ?? 'unread'}): ${error.message}`);
-              }
-            }
+            const { reconcileBudgetStatuses } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-reconcile.mjs`);
+            await reconcileBudgetStatuses({ github, ...context.repo, runNumber: context.runNumber, core });

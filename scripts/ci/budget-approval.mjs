@@ -52,6 +52,7 @@ export async function checkBudgetPolicy({
   repo,
   number,
   publish = true,
+  reconcile = false,
   expectedHead,
   eventPath = process.env.GITHUB_EVENT_PATH,
   checkRaise = checkBudgetRaise,
@@ -333,16 +334,21 @@ export async function checkBudgetPolicy({
     }
     // Hold the existing required context until BOTH policy and actual primary
     // checks pass. Label/review revocation then blocks the same required name.
-    await emit(
-      AGGREGATOR,
-      result.allowed ? 'pending' : 'failure',
-      'Verifying live budget approval and primary checks',
-    );
+    if (!reconcile || !result.allowed)
+      await emit(
+        AGGREGATOR,
+        result.allowed ? 'pending' : 'failure',
+        'Verifying live budget approval and primary checks',
+      );
     await emit(
       APPROVAL_CONTEXT,
       result.allowed ? 'success' : 'failure',
       `${result.code}: ${result.message}`,
     );
+    // Reconciliation omitted the provisional hold. A peer/verification refusal
+    // discovered while publishing approval must still withdraw the required green.
+    if (reconcile && !result.allowed)
+      await emit(AGGREGATOR, 'failure', result.message);
     if (result.allowed) {
       const { data: runs } = await github.rest.actions.listWorkflowRuns({
         owner,
@@ -396,7 +402,7 @@ export async function checkBudgetPolicy({
               : 'pending';
       await emit(
         AGGREGATOR,
-        state,
+        reconcile && state === 'pending' ? 'failure' : state,
         `Budget policy passed; primary check ${state}`,
       );
     }
