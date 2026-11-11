@@ -77,6 +77,25 @@ function matchesPaths(trigger, paths) {
   return true;
 }
 
+// Draft-to-ready is part of the ordinary PR lifecycle in this repository.
+const TYPICAL_PR_TYPES = [
+  'opened',
+  'synchronize',
+  'reopened',
+  'ready_for_review',
+];
+
+function hasTypicalPrEvent(trigger) {
+  if (trigger?.types === undefined) return true;
+  if (
+    !Array.isArray(trigger.types) ||
+    !trigger.types.length ||
+    trigger.types.some((type) => typeof type !== 'string')
+  )
+    throw new Error('Unknown PR event types');
+  return trigger.types.some((type) => TYPICAL_PR_TYPES.includes(type));
+}
+
 /** Includes ALL induced workflow_run jobs. Unknown job conditions count active. */
 export function inducedWorkflowCensus(root, paths) {
   const workflows = readAllWorkflows(root),
@@ -112,7 +131,8 @@ export function inducedWorkflowCensus(root, paths) {
     for (const event of ['pull_request', 'pull_request_target']) {
       if (
         Object.hasOwn(workflow.on, event) &&
-        matchesPaths(workflow.on[event], paths)
+        matchesPaths(workflow.on[event], paths) &&
+        hasTypicalPrEvent(workflow.on[event])
       )
         include(workflow, []);
     }
@@ -122,7 +142,17 @@ export function inducedWorkflowCensus(root, paths) {
     files: [...included].sort(),
     otherEvents: workflows
       .filter((w) => !included.has(w.file))
-      .map((w) => ({ file: w.file, events: Object.keys(w.on) })),
+      .map((w) => ({
+        file: w.file,
+        name: w.name,
+        events: Object.keys(w.on),
+        types: Object.fromEntries(
+          Object.entries(w.on).map(([event, trigger]) => [
+            event,
+            trigger?.types ?? null,
+          ]),
+        ),
+      })),
   };
 }
 

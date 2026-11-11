@@ -56,6 +56,13 @@ post-run guard has a separate trust boundary and counts toward the enforced ten.
 The primary fan-out must exactly match the aggregator's `needs`; its runtime
 boundary rejects empty/missing results and every unproved skip.
 
+The typical PR lifecycle includes `opened`, `synchronize`, `reopened` and
+`ready_for_review`. PR triggers with omitted `types`, or any of those types,
+count when their paths match. Label-only and other event workflows stay visible
+by name and event types in each profile's `otherEvents` census and budget report;
+they do not consume the typical PR job cap. Induced `workflow_run` jobs still
+count whenever their source workflow counts.
+
 Cache counts come from native Jest selection (unit/corpus with the production
 split/performance flags) and `scripts/jest/cached-tests.js`'s actual keyer.
 Full sorted selected/unkeyable/repo-wide file lists accompany every count.
