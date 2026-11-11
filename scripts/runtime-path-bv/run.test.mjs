@@ -76,9 +76,17 @@ test('buildPlan lists committed-unit joins sorted by path and fails closed on in
   short.manifest.committedCatalog.joins.pop();
   assert.equal(reasonOf(() => buildPlan({ ...short, families: ['battlemechs'] })), 'MISSING_MANIFEST_ROWS');
 
+  // Local mode: a source-text family has unit: null and cannot be captured from a committed object.
   const identityOnly = emitterOutput(['alpha']);
   identityOnly.manifest.committedCatalog.joins[0].evaluation = 'identity-only/source-text';
+  identityOnly.rows[0].unit = null;
   assert.equal(reasonOf(() => buildPlan({ ...identityOnly, families: ['battlemechs'] })), 'MISSING_MANIFEST_ROWS');
+
+  // Repo-only mode labels every family `identity-only/reference` but still carries the committed
+  // object, so the label is not what decides: the object is (this is the real emitter's mech shape).
+  const referenceOnly = emitterOutput(['alpha', 'beta']);
+  for (const j of referenceOnly.manifest.committedCatalog.joins) j.evaluation = 'identity-only/reference';
+  assert.deepEqual(buildPlan({ ...referenceOnly, families: ['battlemechs'] }).map((p) => p.unitId), ['alpha', 'beta']);
 
   const errors = emitterOutput(['alpha']);
   errors.manifest.committedCatalog.errors = ['zero-source-matches: x'];

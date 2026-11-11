@@ -67,9 +67,12 @@ export function buildPlan({ rows, manifest, families }) {
     const row = byPath.get(join.path);
     if (!row || row.sha256 !== join.sha256)
       throw new InputError('INPUT_SHA_DRIFT', `join ${join.catalogFile} disagrees with its source row`);
-    // BA/infantry/ProtoMechs are identity-only (unit: null); their capture is a later phase.
-    if (join.evaluation !== 'committed-unit' || !row.unit)
-      throw new InputError('MISSING_MANIFEST_ROWS', `family ${join.family} is not a committed-unit family: ${join.catalogFile}`);
+    // The capture needs the committed catalog object, which a row carries in `unit`. The emitter's
+    // `evaluation` label is not the test: local mode says `committed-unit` for the object families,
+    // repo-only mode says `identity-only/reference` for every family yet still carries the object.
+    // BA/infantry/ProtoMechs in local mode have `unit: null`; their capture is a later phase.
+    if (!row.unit || typeof row.unit !== 'object')
+      throw new InputError('MISSING_MANIFEST_ROWS', `no committed catalog object in the join for ${join.family}: ${join.catalogFile}`);
     if (typeof row.unit.id !== 'string' || !row.unit.id)
       throw new InputError('MISSING_MANIFEST_ROWS', `catalog unit without an id: ${join.catalogFile}`);
     plan.push({
