@@ -18,10 +18,10 @@ import { logger } from '@/utils/logger';
 import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
 
 import { hasMatchStreamRebuildReader, type IMatchMeta } from './IMatchStore';
+import { intentRefusalMessage as errorMessage } from './intentRefusal';
 import { isLivePathBranchId } from './matchAuthorityBaseline';
 import { decideCommandBatch } from './ServerMatchHostDecision';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
-import { errorMessage } from './ServerMatchHostPublication';
 
 /** Act only on the opponent identity selected by the shared activation rules. */
 function opposingActivation(session: IGameSession): string | null {
@@ -163,7 +163,7 @@ export async function driveCoopOpponent(input: {
       stale ? 'STALE_BRANCH' : 'STORE_FAILURE',
       stale ? 'opponent-command-stale' : 'opponent-command-unavailable',
     );
-    initial.broadcast(error);
+    initial.sendRefusal(error);
     messages.push(error);
   }
   return messages;
