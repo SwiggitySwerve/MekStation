@@ -52,6 +52,8 @@ export async function checkBudgetPolicy({
   repo,
   number,
   publish = true,
+  reconcile = false,
+  onPublication = async () => {},
   expectedHead,
   eventPath = process.env.GITHUB_EVENT_PATH,
   checkRaise = checkBudgetRaise,
@@ -287,6 +289,7 @@ export async function checkBudgetPolicy({
         description: description.slice(0, 140),
       });
     async function emit(context, state, description) {
+      let corrected = false;
       const { data: current } = await readPr(parameters);
       const changed = changedContext(
         current,
@@ -328,21 +331,35 @@ export async function checkBudgetPolicy({
         if (refusal) {
           result = refusal;
           await write(context, 'failure', result.message);
+          state = 'failure';
+          corrected = true;
         }
       }
+      if (reconcile)
+        await onPublication({
+          context,
+          sha: initial.head.sha,
+          state,
+          corrected,
+        });
     }
     // Hold the existing required context until BOTH policy and actual primary
     // checks pass. Label/review revocation then blocks the same required name.
-    await emit(
-      AGGREGATOR,
-      result.allowed ? 'pending' : 'failure',
-      'Verifying live budget approval and primary checks',
-    );
+    if (!reconcile || !result.allowed)
+      await emit(
+        AGGREGATOR,
+        result.allowed ? 'pending' : 'failure',
+        'Verifying live budget approval and primary checks',
+      );
     await emit(
       APPROVAL_CONTEXT,
       result.allowed ? 'success' : 'failure',
       `${result.code}: ${result.message}`,
     );
+    // Reconciliation omitted the provisional hold. A peer/verification refusal
+    // discovered while publishing approval must still withdraw the required green.
+    if (reconcile && !result.allowed)
+      await emit(AGGREGATOR, 'failure', result.message);
     if (result.allowed) {
       const { data: runs } = await github.rest.actions.listWorkflowRuns({
         owner,
@@ -394,11 +411,14 @@ export async function checkBudgetPolicy({
                 ? 'success'
                 : 'failure'
               : 'pending';
-      await emit(
-        AGGREGATOR,
-        state,
-        `Budget policy passed; primary check ${state}`,
-      );
+      if (reconcile && state === 'pending')
+        result = { ...result, checksInProgress: true };
+      else
+        await emit(
+          AGGREGATOR,
+          state,
+          `Budget policy passed; primary check ${state}`,
+        );
     }
   }
   // Other PRs legitimately have different bases and labels. Their policy
@@ -483,18 +503,19 @@ export function supersededHeadProof(result, evidence) {
   );
 }
 
-/**
- * How a status-publishing job ends for one PR. A superseded head (the only
- * change was a new head) is not a failure of the job: the refusal is already
- * on the evaluated head, and the new head gets its own run. Every other
- * refusal fails the job. The log line names the PR and both heads.
- */
+/** Shared finding text, independent of each caller's job-failure policy. */
+export function policyOutcomeLine(number, result) {
+  return result.code === 'not-main'
+    ? result.message
+    : `PR #${number}: ${result.code} (evaluated ${result.evaluatedHead}, ` +
+        `current ${result.currentHead}): ${result.message}`;
+}
+
+/** Event publishers fail on refusal except for a proven superseded head. */
 export function guardOutcome(number, result) {
-  if (result.code === 'not-main') return { fail: false, line: result.message };
-  const line =
-    `PR #${number}: ${result.code} (evaluated ${result.evaluatedHead}, ` +
-    `current ${result.currentHead}): ${result.message}`;
-  if (result.allowed === true) return { fail: false, line };
+  const line = policyOutcomeLine(number, result);
+  if (result.code === 'not-main' || result.allowed === true)
+    return { fail: false, line };
   // The single exemption: checkBudgetPolicy proved a superseded head
   // (supersededHeadProof). Every other refusal fails the job.
   if (result.supersededHead === true)

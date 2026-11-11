@@ -216,16 +216,189 @@ or stale PR/review read can miss a revocation until a later evaluation.
 
 The protocol is not atomic. A publisher killed after writing success and before
 verifying leaves that success in place until another completed evaluation of
-the same head. The hourly reconciliation in the following PR bounds this.
-That reconciliation is outside this PR; until it lands, there is no bounded
-closure without another completed evaluation. The following PR's hourly
-reconciliation is also the backstop for anything event-driven evaluation misses.
-The next
-completed same-head evaluation closes it: label events (unfiltered), PR Checks
+the same head. The next completed same-head evaluation closes it: label events (unfiltered), PR Checks
 completion/Guard, relevant approval PR events, review signals, or owner dispatch.
 A return to a formerly green SHA also needs its own evaluation. There is no
-bounded closure if no further eligible event occurs or the API remains stale.
+bounded closure if no further evaluation completes or the API remains stale.
 Manual dispatch uses the same write/verify protocol and has no separate queue.
+
+`CI Budget Reconciliation` runs hourly at minute 17 and supports manual dispatch
+only from the default branch. It checks out only that trusted branch, installs
+nothing and never executes PR code. It paginates open PRs into `main`, skips
+drafts, then reads each PR's live eligibility and head before binding
+`checkBudgetPolicy` to that head. The shared policy, SHA-wide approval and
+write-then-verify path decide every status; the schedule grants no approvals.
+Its opt-in publication mode omits the provisional `Lint and Test` pending hold;
+event-driven callers retain their existing behavior. Before each publication,
+the reconciliation client reads the latest combined status for that context.
+An unchanged state is logged as `confirmed, no write`. Failure withdraws a
+green, and success only clears an existing failure/error. Reconciliation
+deliberately leaves a missing status alone when the policy passes; pending
+statuses also await an event-driven publisher. A policy pass with primary
+checks still pending or in progress writes nothing to the aggregator and is
+summarized as `skipped: checks in progress`. Every success actually written is
+followed by the existing live verification and same-head correction path.
+This avoids spending GitHub's 1,000 statuses per SHA/context on hourly green
+confirmations. It cannot repair a context whose status quota is already full;
+event-driven publishers still consume that quota.
+Policy refusals withdraw success on the evaluated head and log the PR number,
+head and reason through the shared `policyOutcomeLine`. They are correct
+findings, not scheduled-job failures. Reconciliation never adds or removes a
+label: labels are only read, and every success it writes is the policy's own
+verdict on the evaluated head with the approval label read at evaluation time.
+
+<!-- reconciliation-transitions:start -->
+
+### Reconciliation status transitions
+
+The live policy supplies the desired state before the current-state table is
+applied. The two contexts have different meanings:
+
+| Context                       | Policy and primary-check result                                                         | Desired state                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `CI Budget Raise Approval`    | Policy passes on the bound head                                                         | Success                                                          |
+| `CI Budget Raise Approval`    | Policy refuses                                                                          | Failure                                                          |
+| `Lint and Test` policy status | Policy refuses, regardless of primary progress                                          | Failure                                                          |
+| `Lint and Test` policy status | Policy passes; head-bound primary run and fresh aggregator check completed successfully | Success                                                          |
+| `Lint and Test` policy status | Policy passes; head-bound primary run completed unsuccessfully                          | Failure                                                          |
+| `Lint and Test` policy status | Policy passes; primary pending/in progress, or no proven completed verdict yet          | No write; `skipped: checks in progress`                          |
+| Either                        | Head/base/labels change during evaluation or verification                               | Failure requested on the evaluated head only; never the new head |
+| Either                        | Ineligible, unbound, or superseded before evaluation starts                             | No evaluation or write                                           |
+
+| Context                       | Current state | Wanted failure | Wanted success                                     |
+| ----------------------------- | ------------- | -------------- | -------------------------------------------------- |
+| `CI Budget Raise Approval`    | Missing       | Write failure  | No write                                           |
+| `CI Budget Raise Approval`    | Pending       | Write failure  | No write                                           |
+| `CI Budget Raise Approval`    | Failure       | No write       | Write success, subject to reserve and verification |
+| `CI Budget Raise Approval`    | Error         | Write failure  | Write success, subject to reserve and verification |
+| `CI Budget Raise Approval`    | Success       | Write failure  | No write                                           |
+| `Lint and Test` policy status | Missing       | Write failure  | No write                                           |
+| `Lint and Test` policy status | Pending       | Write failure  | No write                                           |
+| `Lint and Test` policy status | Failure       | No write       | Write success, subject to reserve and verification |
+| `Lint and Test` policy status | Error         | Write failure  | Write success, subject to reserve and verification |
+| `Lint and Test` policy status | Success       | Write failure  | No write                                           |
+
+A no-verdict result leaves every current aggregator state unchanged. Approval
+still follows its independent budget-policy verdict. Equal states never write.
+Leaving a missing status alone on a pass is a deliberate reconciliation decision.
+
+Root's pending decision: a job that repairs wrong statuses must not create one.
+Checks still running are not a verdict; writing failure can make a passing PR
+red until a later event or sweep, the fault reconciliation is meant to remove.
+An old success while checks re-run is delayed, not lost: completion supplies a
+verdict; if its event publisher misses it, the next eligible reconciliation can
+write the completed failure. Nothing merges on this aggregator alone: the merge
+procedure reads every check on the exact head. Pending belongs to event publishers,
+whose behavior is unchanged.
+
+<!-- reconciliation-transitions:end -->
+
+The scheduled job turns red only for an issued status write that remains
+unverified or uncorrected. A per-PR journal records before/after state and actual
+write acknowledgement; the policy's publication callback signals completion of
+its verify/correct path. The journal reads back that outcome and never invents
+a replacement verdict outside the policy. A successful policy correction is
+logged and does not make the job red. Unresolved writes, failed corrections, or
+acknowledged corrections whose readback is still wrong do make it red. A lost
+write acknowledgement is checked: no observed change is a clean stop; an
+observable accepted write must be verified or corrected. An uncertain success
+whose acceptance cannot be checked or corrected is reported as unverified.
+
+Pre-write API errors leave the PR unreached with its reason, including errors
+the policy catches internally; infrastructure errors must not manufacture a
+policy-failure status. Rate limits, 5xx responses and allowance exhaustion stop
+cleanly unless they leave this run's own issued write unresolved. A PR-list or
+initial rate-limit read failure ends cleanly with nothing evaluated. Ordinary
+refusals, superseded heads and verified changed-context failures are not red.
+`core.summary` records PRs evaluated, acknowledged/observable status changes
+(before → after and verification), unreached PRs with reasons, requests used,
+and the stop reason. Logs retain the detailed findings and correction lines.
+
+The no-install contract walks the runtime module's transitive relative import
+closure, including literal dynamic imports and `require` calls. Every external
+specifier must be a `node:` built-in; packages are rejected by an executable test.
+
+This covers main cap reductions, paths-filtered events and interrupted success
+writes. It also clears a shared-head failure once a refusing peer closes or
+retargets away from `main`, including a retarget during a previous evaluation.
+For N current non-draft PRs into `main`, S = ceil(N/5). Run number R selects
+PRs whose number modulo S equals (R - 1) modulo S. Membership depends on PR
+number rather than list position, so a peer opening or closing cannot move a
+continuously eligible PR between buckets while S stays constant. While S stays
+constant for S consecutive runs, every continuously eligible non-draft PR is
+visited within S runs, provided its bucket finishes within the request/time
+budget. The staleness period is ceil(N/5) runs as a function of N (60 PRs: 12
+runs; two PRs: S = 1 and both selected every run). S changes only when N crosses
+a multiple of five. Under adversarial churn that flips S every run there is
+no hard bound. Unreached PRs are explicitly reported on every completed run.
+
+Buckets can be uneven. Within a bucket, ascending SHA-256(sweep:PR-number)
+orders visits, with PR number breaking a hash tie; sweep = floor((R - 1)/S).
+Each priority depends only on that PR's own number and the sweep, so peer churn
+cannot manipulate a positional rotation. This stateless order needs no saved
+cursor or additional storage/API permissions. List-time drafts are excluded
+before computing N/S and receive no direct PR reads or visits from the runner.
+
+Budget truncation has a conditional expected bound, not a finite worst-case
+bound. Model SHA-256 priorities as independent uniform ranks for distinct
+sweep values, assume churn is not chosen in response to those ranks, and
+assume at least the first visit completes each selected run. For a fixed
+bucket of k eligible PRs with one completed visit per distinct sweep,
+P(T > m) = (1 - 1/k)^m and E[T] = k, where T and m
+count distinct sweep values, not repeated visits with the same sweep. With
+at most B eligible members the corresponding modeled upper bounds are B
+distinct sweeps and (1 - 1/B)^m. The S*B runs estimate requires S fixed.
+A change in S can repeat a sweep value or move it backward, reusing priorities
+and correlating visits; those visits cannot be counted as independent trials.
+For example, R=1 with PRs {1,2,3,4,5} has S=1/sweep=0; adding #6 before R=2
+gives S=2/sweep=0 and bucket {1,3,5}. PR #1 misses both visits with modeled
+probability 2/3, not (4/5)^2 = 0.64. Sol found no permanent-starvation path
+once S stabilizes, but no finite worst-case bound is claimed. For fixed S,
+B=5 and one completed visit per distinct sweep: expected wait 5 sweeps;
+after 31 distinct sweeps the modeled miss probability is 0.000990352 (0.099%).
+Sol's exact five-PR #2/#6 churn trace visits #3 on run 5 in the regression.
+A stable 60-PR example (S=12, B=5) has expected wait at most 60 runs per PR;
+after 720 runs, the modeled union bound for any of those 60 still waiting is
+60*(4/5)^60 = 0.000091950 (under 0.01%). These are model estimates, not a
+deterministic coverage guarantee. Even with constant S, no finite worst-case
+bound is claimed under truncation or rank-adaptive churn. The S-run bound
+above still applies when selected buckets complete in full; the S-flip
+disclosure and unreached report still apply. Budget stops or persistently
+unfinished evaluations extend repair. An excluded head with no eligible peer
+is not revisited, and
+eligibility can change after the live check. API staleness and scheduler delays
+remain outside the protocol's guarantees.
+
+The client counts every real REST request through Octokit's request hook and
+uses `X-RateLimit-Remaining` to reduce its allowance when other publishers spend
+the shared repository quota. The 150-request floor gates only admission of a
+new PR evaluation or an actual success write. It never blocks an admitted
+write's verification reads or failure correction, even below the floor.
+Before success, admission requires 150 + E + 4 + 1 requests: E is the actual
+request count spent since this PR's admission (reserving a fresh SHA-wide
+evaluation, including observed pagination); the named four-request cleanup
+reserve covers a triggering-PR verify GET, a current-status GET and a failure
+correction POST and post-correction status readback GET; one further request
+writes success. Policy correction and its readback can use the floor.
+An insufficient allowance
+skips success and reports the PR as unreached. The request hook only counts and
+observes quota; it cannot turn an unfinished success verification into a clean
+budget stop. Reads and corrections already in progress may spend below 150.
+This reservation does not lock the shared API quota or bound new associations
+and pagination appearing concurrently; API exhaustion or outages can still
+prevent correction and fail the job.
+A soft eight-minute deadline stops new evaluations before the ten-minute job
+timeout. Budget/time stops report every known unreached PR and are successful
+job outcomes when no write remains unresolved; a failed PR-list read also
+reports that the census is incomplete. A partially evaluated PR remains unreached. Only
+repository metadata and immutable SHA-addressed blobs are cached within a run;
+PR, review, association and status reads stay live, including every verify read
+in the complete policy log. There is no concurrency group. A delayed run that
+overlaps the next hour runs independently under the same binding and verification
+protocol, without replacing pending evaluations. Cost is about one one-minute
+public-repository job per hour; actual duration depends on the open PR census.
+The workflow appears under `otherEvents` in the census and budget report and
+does not consume `typicalPrJobs`.
 
 With no queue, a storm of events or re-runs could occupy the 20 runner slots;
 events of these kinds are rare. Existing three-minute timeouts are unchanged,
