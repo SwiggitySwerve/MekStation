@@ -1,15 +1,16 @@
 {
   "schemaVersion": 1,
   "measure": "reopen",
-  "sha": "c395d800c3ab4716c3b5384b8f128afcdf90f94a",
+  "sha": "117ad0914465cbdac65b28566e907eb9d68df896",
   "factsSchemaVersion": 1,
-  "factsDeriverBlob": "377f93805cc772d413577bb67b8fdbf7ac1954dc",
+  "factsDeriverBlob": "24825ccbd5945dda12625a6605adbaff0d5a8fab",
   "referenceSha256": "bb1c1bf38eedf821ddd665a441c9c949a1ae255ceecfebc81d6fa2ed5cff0f77",
   "populationCount": 4263,
   "populationHash": "6c3540803d194e7f5e358d1bbb7d52ab5b9daec219cfba76c65b4bc1b3f792a8",
   "notes": [
     {"sha":"43968eee4a754e834667f42a3050e28ed0850116","pr":null,"reason":"seed: first committed reopen baseline (gate PR, head 43968eee4); reopen=load 2,060/4,263, before 379","units":[]},
-    {"sha":"c395d800c3ab4716c3b5384b8f128afcdf90f94a","pr":3392,"reason":"A2 (#3392): sealed prediction d9978bc7a8a93e8b8ac70752da52779f46c27bb0f5ec8af60994f7cd5118532c; Mad Cat Mk IV A/Prime reopenLoad + rawIdentityLosses members (39,087 removed, 0 added, 4,263 units; 33 reopen distance gains), matched exactly by gate-before on c395d800c","units":[]}
+    {"sha":"c395d800c3ab4716c3b5384b8f128afcdf90f94a","pr":3392,"reason":"A2 (#3392): sealed prediction d9978bc7a8a93e8b8ac70752da52779f46c27bb0f5ec8af60994f7cd5118532c; Mad Cat Mk IV A/Prime reopenLoad + rawIdentityLosses members (39,087 removed, 0 added, 4,263 units; 33 reopen distance gains), matched exactly by gate-before on c395d800c","units":[]},
+    {"sha":"117ad0914465cbdac65b28566e907eb9d68df896","pr":3393,"reason":"merge of main 79efd5968 (A2 #3392) into #3393: deriver blob only (facts.mjs isFactValue), no unit fact changes","units":[]}
   ],
   "units": {
     "battlemechs/agrotera-agt-1a": {"reopenLoad":false,"reopenJava":false,"reopenJavaDistance":269,"reopenLoadDistance":269,"noLossConfirmationBefore":false,"noticeResidual":{"n":30,"h":"00f87bb665d18d84"},"noticeMismatch":{"n":0,"h":"e3b0c44298fc1c14"},"rawIdentityLosses":{"n":64,"h":"e24551990a80c0bc"},"loadedMountLosses":{"n":0,"h":"e3b0c44298fc1c14"},"reopenValid":true},

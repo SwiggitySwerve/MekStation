@@ -728,6 +728,154 @@ const blobOf = ({ main, sets }) =>
     )
     .digest('hex');
 
+test('malformed last-green distance cannot hide the Aquagladius 336 -> 337 regression', () => {
+  const unit = 'battlemechs/aquagladius-aqs-5-mam';
+  const base = { [unit]: loadFacts({ bvDistance: 336 }), [U2]: loadFacts() };
+  const files = baselineFiles(base);
+  const r = evaluateWith({
+    base,
+    files,
+    tonight: { ...base, [unit]: loadFacts({ bvDistance: 337 }) },
+    lastGreen: greenOf(
+      { ...base, [unit]: loadFacts({ bvDistance: 'bad' }) },
+      blobOf(files),
+    ),
+  });
+  assert.equal(r.exitCode, 1);
+  assert.deepEqual(
+    r.regressions.map(({ unit, fact, source }) => [unit, fact, source]),
+    [[unit, 'bvDistance', 'baseline']],
+  );
+  assert.equal(r.lastGreen.status, 'malformed');
+  assert.match(
+    r.lastGreen.detail,
+    /units\.battlemechs\/aquagladius-aqs-5-mam\.bvDistance/,
+  );
+  assert.deepEqual(r.failClosed, []);
+});
+
+for (const [label, override, badPath] of [
+  ['non-numeric distance', { bvDistance: 'bad' }, 'bvDistance'],
+  ['NaN distance', { bvDistance: NaN }, 'bvDistance'],
+  [
+    'Infinity distance from JSON 1e999',
+    { bvDistance: JSON.parse('1e999') },
+    'bvDistance',
+  ],
+  ['negative distance', { bvDistance: -1 }, 'bvDistance'],
+  ['wrong boolean type', { bvExact: 'true' }, 'bvExact'],
+  ['unknown fact key', { surprise: true }, 'surprise'],
+  ['missing fact', { bvExact: undefined }, 'bvExact'],
+])
+  test(`last green with ${label} is discarded wholly without failing the night`, () => {
+    const base = two(loadFacts({ bvExact: false }), loadFacts());
+    const files = baselineFiles(base);
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      lastGreen: greenOf(two(loadFacts(), loadFacts(override)), blobOf(files)),
+    });
+    assert.equal(r.exitCode, 0);
+    assert.equal(r.lastGreen.status, 'malformed');
+    assert.ok(r.lastGreen.detail.includes(`units.${U2}.${badPath}`));
+    assert.match(r.lastGreen.detail, /committed baseline alone/);
+    assert.deepEqual(r.regressions, []);
+    assert.deepEqual(r.failClosed, []);
+  });
+
+for (const [label, override, badPath] of [
+  ['wrong measure', { measure: 'other' }, 'measure'],
+  ['wrong schema version', { schemaVersion: 2 }, 'schemaVersion'],
+  ['wrong run SHA', { runSha: 'bad' }, 'runSha'],
+  ['non-string baseline hash', { baselineSha256: 123 }, 'baselineSha256'],
+  ['missing units', { units: undefined }, 'units'],
+  ['array units', { units: [] }, 'units'],
+  ['null unit facts', { units: { [U1]: null } }, `units.${U1}`],
+])
+  test(`malformed last-green envelope: ${label} is reported and ignored`, () => {
+    const base = two(loadFacts(), loadFacts());
+    const files = baselineFiles(base);
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      lastGreen: { ...greenOf(base, blobOf(files)), ...override },
+    });
+    assert.equal(r.exitCode, 0);
+    assert.equal(r.lastGreen.status, 'malformed');
+    assert.ok(r.lastGreen.detail.includes(badPath));
+    assert.deepEqual(r.failClosed, []);
+  });
+
+test('a falsy scalar last-green artifact is malformed rather than silently missing', () => {
+  const base = two(loadFacts(), loadFacts());
+  const r = evaluateWith({ base, tonight: base, lastGreen: false });
+  assert.equal(r.exitCode, 0);
+  assert.equal(r.lastGreen.status, 'malformed');
+  assert.match(r.lastGreen.detail, /\(root\)/);
+});
+
+for (const value of ['bad', [123], ['b', 'a'], ['a', 'a']])
+  test(`malformed last-green set ${JSON.stringify(value)} is discarded`, () => {
+    const base = two(reopenFacts(), reopenFacts());
+    const files = baselineFiles(base, 'reopen');
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      measure: 'reopen',
+      lastGreen: {
+        ...greenOf(
+          two(reopenFacts({ rawIdentityLosses: value }), reopenFacts()),
+          blobOf(files),
+        ),
+        measure: 'reopen',
+      },
+    });
+    assert.equal(r.exitCode, 0);
+    assert.equal(r.lastGreen.status, 'malformed');
+    assert.ok(r.lastGreen.detail.includes(`units.${U1}.rawIdentityLosses`));
+  });
+
+test('a well-formed last green still tightens distances and sets', () => {
+  for (const measure of ['load', 'reopen']) {
+    const base =
+      measure === 'load'
+        ? two(loadFacts({ bvDistance: 336 }), loadFacts())
+        : two(reopenFacts({ rawIdentityLosses: ['a', 'b'] }), reopenFacts());
+    const green =
+      measure === 'load'
+        ? two(loadFacts({ bvDistance: 335 }), loadFacts())
+        : two(reopenFacts({ rawIdentityLosses: ['a'] }), reopenFacts());
+    const files = baselineFiles(base, measure);
+    const r = evaluateWith({
+      base,
+      files,
+      tonight: base,
+      measure,
+      lastGreen: { ...greenOf(green, blobOf(files)), measure },
+    });
+    assert.equal(r.exitCode, 1);
+    assert.equal(r.lastGreen.status, 'applied');
+    assert.equal(r.regressions[0].source, 'last-green');
+  }
+});
+
+test('baseline rejects a JSON distance of 1e999 instead of accepting Infinity', () => {
+  const base = two(loadFacts(), loadFacts());
+  const files = baselineFiles(base);
+  const r = evaluateWith({
+    base,
+    tonight: base,
+    files,
+    mainOverride: files.main.replace('"bvDistance":0', '"bvDistance":1e999'),
+  });
+  assert.equal(r.exitCode, 2);
+  assert.equal(r.failClosed[0].reason, 'BASELINE_MALFORMED');
+  assert.match(r.failClosed[0].message, /bvDistance/);
+});
+
 killed(
   'last green tightens an unfolded gain, but only while the committed baseline is byte-unchanged',
   (rules) => {

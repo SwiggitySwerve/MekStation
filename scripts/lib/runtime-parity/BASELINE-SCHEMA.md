@@ -137,6 +137,17 @@ port) writes the files after the run, appending a note to any earlier ones. It *
 unknown fact. A PR that removes or renames units, or intentionally gains, or changes `facts.mjs` or the Java reference,
 regenerates the baseline with a note.
 
+### Reviewing a rebaseline PR
+
+- **The main file's diff is the reviewable part.** `baseline-<measure>.json` has one line per unit, so its changed lines are exactly the units that moved.
+  - Check each one against the PR's stated prediction and direction: a boolean flipping, a distance changing, a set's `n`/`h` changing, a unit added or removed.
+  - Also check the new `notes[]` entry: reason, PR and SHA.
+- **The sidecar's diff isn't read by eye.** It's expected to be large. The gate checks it mechanically: any line whose members don't hash to the main file's `n`/`h` fails closed with `BASELINE_SIDECAR_MISMATCH`.
+- **A deriver-only rebaseline has zero changed unit lines.** A change to `facts.mjs` that alters no unit's facts still forces a rebaseline, because the gate fails closed on the deriver's blob (`FACTS_DERIVER_CHANGED`). That's the intended, safe behaviour.
+  - In such a PR, only the header changes: `sha`, `factsDeriverBlob` and the appended `notes[]` entry.
+  - **Every unit line in both files must be byte-identical.** That's exactly what the reviewer checks, for example with `git diff --stat` plus a diff limited to unit lines.
+  - Any changed unit line means the deriver change wasn't fact-neutral, and it needs its own explanation.
+
 ## What the gate checks, in order
 
 1. **Run and baseline integrity (exit 2):** the run is the whole population (`RUN_NARROWED`, `RUN_INCOMPLETE`); the baseline
@@ -161,7 +172,8 @@ regenerates the baseline with a note.
 facts } }`. The next night tightens to the best of each fact **only while** `baselineSha256` equals the sha256 of the
   committed baseline bytes (main file, a NUL, then the sidecar). A missing, expired, unreadable or stale artifact means the
   committed baseline alone; the report says so (`lastGreen.status`: `applied`, `missing`, `stale`) and the night does not fail
-  for it.
+  for it. A malformed artifact is discarded as a whole (`lastGreen.status`: `malformed`), with the first bad path in
+  `lastGreen.detail`; all fact values share the run/baseline type checks, including finite, non-negative distances.
 - **Unprotected gains** (better than the committed baseline) are listed in `gate-report.json` and folded, with unbaselined
   units, into `proposed-baseline.json` for the rebaseline PR; the gate itself never writes the baseline.
 

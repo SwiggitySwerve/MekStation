@@ -271,3 +271,13 @@ test('serializeFacts sorts by unit, validates, and parseFacts refuses malformed 
     /sorted|duplicate/,
   );
 });
+
+test('facts reject a JSON distance of 1e999 instead of accepting Infinity', () => {
+  const row = loadFacts(loadRow(), ref());
+  row.facts.bvDistance = 0;
+  const text = JSON.stringify(row).replace(
+    '"bvDistance":0',
+    '"bvDistance":1e999',
+  );
+  assert.throws(() => parseFacts('load', text), /bvDistance/);
+});
