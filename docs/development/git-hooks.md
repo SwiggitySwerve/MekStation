@@ -57,6 +57,14 @@ In such a worktree, none of the checks above run unless you run them. Either:
 
 **Don't bypass with `--no-verify`** unless you have an explicit reason.
 
+### Which ignore file the formatter reads
+
+**oxfmt reads `.gitignore` and `.prettierignore`, not `.oxfmtignore`.** `oxfmt --help`: "If not specified, .gitignore and .prettierignore in the current directory are used." Nothing in this repository passes `--ignore-path` for oxfmt. `.oxfmtignore` holds only a header saying so.
+
+- **To keep a file unformatted, add it to `.prettierignore`.** Both `npm run format:check` (`oxfmt --check .`) and the hook then skip it. lint-staged passes staged files to oxfmt by explicit path. An excluded path makes oxfmt report "Expected at least one target file", and lint-staged's `--no-error-on-unmatched-pattern` lets that pass. So a `.prettierignore` entry protects the file from the hook too (measured 2026-11-11).
+- **To keep one file's line endings or other options,** use an exact-path `overrides` entry in `.oxfmtrc.json`, as the CRLF reference provenance sidecar does. Overrides apply to explicit paths as well.
+- **An `.oxfmtignore` entry does nothing.** Two lanes added entries there on 2026-11-11 expecting an effect.
+
 ---
 
 ## Personal layer (Git 2.54 config hooks)

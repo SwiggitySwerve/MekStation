@@ -30,3 +30,7 @@ public/data/units/capital/
 # One unit per line keeps a rebaseline diff readable per unit; the formatter
 # would split each unit over many lines.
 config/parity-runtime/
+
+# Byte-pinned to the upstream reference (CRLF, SHA-256 checked by its co-located
+# test). Formatting must never touch it; the .oxfmtrc.json override keeps CRLF too.
+config/reference/reference-full.jsonl.provenance.json

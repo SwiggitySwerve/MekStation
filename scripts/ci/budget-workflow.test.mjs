@@ -32,6 +32,102 @@ const root = process.cwd(),
   config = loadBudgets(),
   workflow = readWorkflow(root);
 
+test('typical event census retains omitted, synchronize, ready and mixed types; labels stay visible elsewhere', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-event-types-'));
+  const directory = path.join(fixture, '.github/workflows');
+  fs.mkdirSync(directory, { recursive: true });
+  try {
+    for (const event of ['pull_request', 'pull_request_target']) {
+      for (const types of [
+        undefined,
+        ['opened'],
+        ['synchronize'],
+        ['reopened'],
+        ['ready_for_review'],
+        ['labeled', 'synchronize'],
+        ['labeled', 'unlabeled'],
+      ]) {
+        const labelOnly = types?.join(',') === 'labeled,unlabeled';
+        fs.writeFileSync(
+          path.join(directory, 'events.yml'),
+          `name: Event census\non:\n  ${event}:\n    branches: [main]\n${types ? `    types: [${types.join(', ')}]\n` : ''}jobs:\n  publisher:\n    runs-on: ubuntu-latest\n    steps: [{run: true}]\n`,
+        );
+        const census = inducedWorkflowCensus(fixture, ['src/a.ts']);
+        const label = `${event}: ${JSON.stringify(types)}`;
+        assert.equal(census.jobs.length, labelOnly ? 0 : 1, label);
+        assert.deepEqual(census.files, labelOnly ? [] : ['events.yml'], label);
+        assert.deepEqual(
+          census.otherEvents,
+          labelOnly
+            ? [
+                {
+                  file: 'events.yml',
+                  name: 'Event census',
+                  events: [event],
+                  types: { [event]: types },
+                },
+              ]
+            : [],
+          label,
+        );
+      }
+    }
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('event-aware census preserves the deployed main profile counts and included files', () => {
+  const expected = {
+    docs: 9,
+    source: 10,
+    data: 10,
+    browser: 9,
+    desktop: 12,
+    ci: 12,
+    budgets: 11,
+    bootstrap: 13,
+    dependency: 13,
+  };
+  for (const profile of workflowMetrics(root, config).profiles) {
+    assert.equal(profile.active, expected[profile.id], profile.id);
+    assert.deepEqual(
+      profile.workflowFiles,
+      [
+        ...(['budgets', 'bootstrap', 'dependency'].includes(profile.id)
+          ? ['ci-budget-approval.yml']
+          : []),
+        'lint-and-test-guard.yml',
+        'pr-checks.yml',
+      ],
+      profile.id,
+    );
+  }
+});
+
+test('label and base edit events stay visible in otherEvents without adding counted jobs', () => {
+  for (const profile of workflowMetrics(root, config).profiles) {
+    const entry = profile.otherEvents.find(
+      (workflow) => workflow.file === 'ci-budget-label-approval.yml',
+    );
+    assert.deepEqual(
+      entry,
+      {
+        file: 'ci-budget-label-approval.yml',
+        name: 'CI Budget Label and Base Approval',
+        events: ['pull_request_target'],
+        types: { pull_request_target: ['labeled', 'unlabeled', 'edited'] },
+      },
+      profile.id,
+    );
+    assert.ok(!profile.workflowFiles.includes(entry.file), profile.id);
+    assert.ok(
+      !profile.census.some((job) => job.file === entry.file),
+      profile.id,
+    );
+  }
+});
+
 test('the PR Checks budget command rejects a re-added byte cap before collecting metrics', () => {
   const fixture = fs.mkdtempSync(
     path.join(os.tmpdir(), 'budget-tree-command-'),

@@ -1,18 +1,10 @@
-node_modules
-.next
-out
-dist
-coverage
-.disabled
-desktop
-scripts
-.github
-.worktrees
-openspec
-.storybook
-storybook-static
-playwright-report
-public/record-sheets
-next-env.d.ts
-.audit/snapshot-tests.json
-config/reference/reference-full.jsonl.provenance.json
+# NOT READ BY OXFMT. Put format excludes in .prettierignore.
+#
+# oxfmt reads .gitignore and .prettierignore by default (`oxfmt --help`:
+# "If not specified, .gitignore and .prettierignore in the current directory
+# are used"), and nothing in this repository passes `--ignore-path` for this
+# file. Entries here never took effect: the 18 that were listed (desktop,
+# scripts, .github, openspec and others) were formatted all along.
+#
+# This file is kept, empty of entries, so nobody adds one expecting it to work.
+# See docs/development/git-hooks.md, "Which ignore file the formatter reads".
