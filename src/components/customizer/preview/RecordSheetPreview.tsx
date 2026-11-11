@@ -64,6 +64,7 @@ export function RecordSheetPreview({
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const equipment = useUnitStore((s) => s.equipment);
   const bvContext = useUnitStore((s) => s.bvContext);
+  const frankenStructure = useUnitStore((s) => s.frankenStructure);
   const crewSeats = useUnitStore((s) => s.crewSeats);
 
   const previewState = useMemo<PreviewUnitState>(
@@ -81,6 +82,7 @@ export function RecordSheetPreview({
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       armorType,
       armorAllocation,
@@ -106,6 +108,7 @@ export function RecordSheetPreview({
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       armorType,
       armorAllocation,

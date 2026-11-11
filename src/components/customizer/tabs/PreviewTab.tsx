@@ -42,6 +42,7 @@ export function PreviewTab({
   const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const componentTechBases = useUnitStore((s) => s.componentTechBases);
   const chassisSource = useUnitStore((s) => s.bvContext?.source);
+  const frankenStructure = useUnitStore((s) => s.frankenStructure);
   const rulesLevel = useUnitStore((s) => s.rulesLevel);
   const year = useUnitStore((s) => s.year);
   const role = useUnitStore((s) => s.role);
@@ -81,6 +82,7 @@ export function PreviewTab({
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       armorType,
       armorAllocation,
@@ -109,6 +111,7 @@ export function PreviewTab({
       engineRating,
       gyroType,
       internalStructureType,
+      frankenStructure,
       cockpitType,
       armorType,
       armorAllocation,

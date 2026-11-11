@@ -34,7 +34,10 @@ export interface PreviewUnitState
     Omit<RecordSheetUnitIdentityWithTonnageInput, 'id'>,
     Pick<
       IEditableMechProjectionInput,
-      'techBaseMode' | 'componentTechBases' | 'chassisSource'
+      | 'techBaseMode'
+      | 'componentTechBases'
+      | 'chassisSource'
+      | 'frankenStructure'
     > {
   role?: string;
   configuration: MechConfiguration;
