@@ -517,9 +517,18 @@ export interface IPSRTriggeredPayload {
   readonly reasonCode?: PSRTrigger;
 }
 
-export interface IPSRResolvedPayload {
+export type IPSRResolutionTarget =
+  | { readonly targetNumber: number; readonly automaticFailure?: never }
+  | {
+      readonly automaticFailure: true;
+      readonly targetNumber?: never;
+      readonly passed: false;
+    };
+
+export type IPSRResolvedPayload = IPSRResolutionTarget & IPSRResolvedDetails;
+
+interface IPSRResolvedDetails {
   readonly unitId: string;
-  readonly targetNumber: number;
   readonly roll: number;
   readonly modifiers: number;
   readonly passed: boolean;

@@ -8,6 +8,10 @@ import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { nowIso } from '@/types/multiplayer/Protocol';
+import {
+  prepareEventForSerialization,
+  UnreadableStoredEventError,
+} from '@/utils/gameplay/gameEvents/serialization';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import type { IMatchStore } from './IMatchStore';
@@ -172,6 +176,21 @@ export async function commitJournalAuthorityCommand(
   let events = decided.events;
   if (envelope.intentId != null && events.length > 0) {
     events = stampIntentIdOnNewEvents(envelope.intentId, events);
+  }
+  try {
+    events = events.map((event) =>
+      prepareEventForSerialization(event, 'match-broadcast'),
+    );
+  } catch (error) {
+    if (!(error instanceof UnreadableStoredEventError)) throw error;
+    const refusal = errorMessage(
+      ctx.matchId,
+      'INTERNAL_ERROR',
+      error.message,
+      envelope.intentId,
+    );
+    ctx.sendRefusal(refusal);
+    return finish(journal, [refusal], null);
   }
   if (events.length === 0) {
     return finish(journal, [], null);

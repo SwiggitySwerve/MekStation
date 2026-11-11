@@ -5,6 +5,8 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IEventMessage } from '@/types/multiplayer/Protocol';
 
+import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
+
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { RollCapture } from './RollCapture';
 import type { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
@@ -94,8 +96,11 @@ export async function persistInitialEvents(ctx: {
   readonly events: readonly IGameEvent[];
   readonly setLastBroadcastSeq: (sequence: number) => void;
 }): Promise<void> {
+  const events = ctx.events.map((event) =>
+    prepareEventForSerialization(event, 'match-broadcast'),
+  );
   let persisted = 0;
-  for (const evt of ctx.events) {
+  for (const evt of events) {
     try {
       await ctx.store.appendEvent(ctx.matchId, evt);
       ctx.setLastBroadcastSeq(evt.sequence);
@@ -119,7 +124,7 @@ export async function persistInitialEvents(ctx: {
     persisted === ctx.events.length &&
     ctx.store.seedJournalFromInitialEvents
   ) {
-    await ctx.store.seedJournalFromInitialEvents(ctx.matchId, ctx.events);
+    await ctx.store.seedJournalFromInitialEvents(ctx.matchId, events);
   }
 }
 
@@ -259,10 +264,19 @@ async function publishEvent(
     readonly viewerResolver: AuthorizedViewerResolver;
     readonly deliveryCursors: ViewerDeliveryCursors;
   },
-  message: IEventMessage,
+  inputMessage: IEventMessage,
   onlyUndelivered: boolean,
-  visibleThroughSequence = (message.event as IGameEvent).sequence,
+  visibleThroughSequence = (inputMessage.event as IGameEvent).sequence,
 ): Promise<void> {
+  // Resume and delayed-reveal frames can bypass a new command commit.
+  const sourceEvent = prepareEventForSerialization(
+    inputMessage.event as IGameEvent,
+    'match-broadcast',
+  );
+  const message =
+    sourceEvent === inputMessage.event
+      ? inputMessage
+      : { ...inputMessage, event: sourceEvent };
   let meta: IMatchMeta | null = null;
   try {
     meta = await ctx.store.getMatchMeta(ctx.matchId);
@@ -286,7 +300,6 @@ async function publishEvent(
     ),
   );
 
-  const sourceEvent = message.event as IGameEvent;
   const state =
     meta !== null
       ? withVisibilityAssignments(ctx.session.getSession().currentState, meta)

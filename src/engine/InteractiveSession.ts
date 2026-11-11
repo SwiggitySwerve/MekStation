@@ -189,6 +189,7 @@ export class InteractiveSession {
 
   /** Scratch flag: finalize state on game-over but never touch the bus. */
   private suppressOutcomePublication = false;
+  private deferCommandEffects = false;
   private matchLogDiverged = false;
   private readonly linkage: IInteractiveSessionLinkage;
 
@@ -271,7 +272,7 @@ export class InteractiveSession {
       setSession: (session) => {
         const previousSession = this.session;
         this.session = session;
-        if (!this.suppressOutcomePublication)
+        if (!this.suppressOutcomePublication && !this.deferCommandEffects)
           persistNewInteractiveSessionEvents(
             this.runtimeContext,
             previousSession,
@@ -280,11 +281,41 @@ export class InteractiveSession {
       outcomeJournal: this.outcomeJournal,
       getOutcomePublicationStorage: () => this.outcomePublicationStorage,
       getSuppressOutcomePublication: () => this.suppressOutcomePublication,
+      getDeferCommandEffects: () => this.deferCommandEffects,
       markMatchLogDiverged: () => {
         this.matchLogDiverged = true;
       },
       hasMatchLogDiverged: () => this.matchLogDiverged,
     };
+  }
+
+  /** Stage a synchronous command until its complete event batch is accepted.
+   * A refused host command must not advance the live session, terrain, browser
+   * journal or outcome publication. Callers validate before draining cursors.
+   */
+  withValidatedCommand(
+    command: () => void,
+    validate: (events: readonly IGameEvent[]) => void,
+  ): void {
+    if (this.deferCommandEffects) throw new Error('Command already staged');
+    const previousSession = this.session;
+    const previousHexes = new Map(this.grid.hexes);
+    this.deferCommandEffects = true;
+    try {
+      command();
+      validate(this.session.events.slice(previousSession.events.length));
+    } catch (error) {
+      this.session = previousSession;
+      this.grid.hexes.clear();
+      for (const [key, hex] of previousHexes) this.grid.hexes.set(key, hex);
+      throw error;
+    } finally {
+      this.deferCommandEffects = false;
+    }
+    if (!this.suppressOutcomePublication)
+      persistNewInteractiveSessionEvents(this.runtimeContext, previousSession);
+    if (this.session.currentState.status === GameStatus.Completed)
+      tryFinalizeAndPublishInteractiveSession(this.runtimeContext);
   }
 
   static async fromMatchLog(

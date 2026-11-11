@@ -56,7 +56,8 @@ export const REPLAY_LIBRARY_SOURCE_FORMAT_VERSION = 1;
 
 export type ReplayLibraryBlockReason =
   | LegacySourceAttributionCode
-  | ReplayQuarantineReason;
+  | ReplayQuarantineReason
+  | 'unverifiable-event';
 
 /** One blocked line, with its source identity preserved. */
 export interface IReplayLibraryBlockedLine {
@@ -126,6 +127,19 @@ export function loadReplayLibraryNdjson(
           1,
           'Line is not a valid IGameEvent envelope',
         );
+      if (envelope.replayIntegrity !== undefined) {
+        blockedLines.push(
+          Object.freeze({
+            line: lineNumber,
+            reason: 'unverifiable-event',
+            eventType,
+            evidenceDigest: lineDigest,
+            message:
+              'The writer marked this event unverifiable because its stored image failed reader validation.',
+          }),
+        );
+        continue;
+      }
       const upcast = REPLAY_SURFACE_REGISTRY.upcast(
         envelope.type,
         attributed.schemaVersion,

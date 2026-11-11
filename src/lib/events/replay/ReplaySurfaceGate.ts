@@ -183,7 +183,7 @@ const HOST_STAMPED_FORMATS: ReadonlySet<string> = new Set(['match-broadcast']);
 
 const HOST_STAMP_KEYS = ['rolls', 'intentId'] as const;
 
-function splitHostStamps(
+export function splitHostStamps(
   formatId: string,
   payload: unknown,
 ): { canonical: unknown; stamped: boolean } {
@@ -264,6 +264,13 @@ export function gateReplaySurfaceHistory(
           'Stored record is not a valid IGameEvent envelope',
         );
       const { canonical } = splitHostStamps(options.formatId, envelope.payload);
+      if (envelope.replayIntegrity !== undefined)
+        throw new UnsupportedReplayHistoryError(
+          'invalid-payload',
+          envelope.type,
+          1,
+          'The recording writer marked this event unverifiable.',
+        );
       const upcast = REPLAY_SURFACE_REGISTRY.upcast(
         envelope.type,
         attributed.schemaVersion,

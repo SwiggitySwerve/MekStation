@@ -1,4 +1,5 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
+import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type {
   IEventMessage,
@@ -8,6 +9,10 @@ import type {
 
 import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
+import {
+  prepareEventForSerialization,
+  UnreadableStoredEventError,
+} from '@/utils/gameplay/gameEvents/serialization';
 
 import type { ICommandRejectionAuditPort } from './audit/CommandRejectionAudit';
 import type { IAuthorizedViewer } from './authorization/AuthorizedViewer';
@@ -347,36 +352,46 @@ export async function handleIntent(
 
   ctx.installFreshCapture();
   const headIndex = ctx.session.getSession().events.length;
+  let newEvents: readonly IGameEvent[] = [];
+  let shadowEvents: readonly IGameEvent[] = [];
   try {
-    dispatchToEngine(ctx.session, envelope.intent);
+    ctx.session.withValidatedCommand(
+      () => dispatchToEngine(ctx.session, envelope.intent),
+      (events) => {
+        shadowEvents = ctx.stampRollsOnNewEvents(events);
+        newEvents = stampIntentIdOnNewEvents(
+          envelope.intentId,
+          shadowEvents,
+        ).map((event) =>
+          prepareEventForSerialization(event, 'match-broadcast'),
+        );
+      },
+    );
   } catch (e) {
     return rejectCommand(
       ctx,
       envelope,
       viewer,
-      'INVALID_INTENT',
+      e instanceof UnreadableStoredEventError
+        ? 'INTERNAL_ERROR'
+        : 'INVALID_INTENT',
       e instanceof Error ? e.message : 'Engine rejected intent',
     );
   }
 
-  // The engine accepted the intent. Record its id so a later replay of
-  // the same envelope is caught (design D7), and stamp the id onto the
-  // first produced event so recovery can rebuild the accepted-id set.
-  let newEvents = ctx.stampRollsOnNewEvents(ctx.drainNewEvents());
+  // Only a readable batch can advance the publication cursor. Its stamps
+  // were included in validation, before retaining the live command state.
+  ctx.drainNewEvents();
   if (ctx.journalAuthority?.shadow === true) {
     const audience = await shadowAudienceInput(ctx.store, ctx.matchId);
     runLegacyShadowComparison(ctx.journalAuthority, {
       liveSession: ctx.session,
       headIndex,
-      liveEvents: newEvents,
+      liveEvents: shadowEvents,
       intent: envelope.intent,
       intentId: envelope.intentId,
       ...(audience !== null ? { audience } : {}),
     });
-  }
-  if (envelope.intentId != null && newEvents.length > 0) {
-    ctx.acceptedIntents.record(envelope.intentId);
-    newEvents = stampIntentIdOnNewEvents(envelope.intentId, newEvents);
   }
   const published = await commitThenPublish({
     matchId: ctx.matchId,
@@ -392,6 +407,8 @@ export async function handleIntent(
     ...outboxCommitDeps(ctx.store, ctx.matchId, envelope, newEvents),
   });
   if (!published.committed) return published.messages;
+  if (envelope.intentId != null && newEvents.length > 0)
+    ctx.acceptedIntents.record(envelope.intentId);
 
   await markMatchCompleted(ctx.store, ctx.matchId, newEvents);
   ctx.tryPublishOutcome();

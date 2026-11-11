@@ -2,6 +2,7 @@ import {
   GameEventType,
   IGameEvent,
   IPSRResolvedPayload,
+  IPSRResolutionTarget,
   IPSRTriggeredPayload,
   PSRTrigger,
 } from '@/types/gameplay';
@@ -40,15 +41,15 @@ type PSRResolvedEventArgs = [
   reasonCode?: PSRTrigger,
 ];
 
-export interface ICreatePSRResolvedEventInput
-  extends statusCheckCommon.IStatusCheckEventContext {
-  readonly targetNumber: number;
-  readonly roll: number;
-  readonly modifiers: number;
-  readonly passed: boolean;
-  readonly reason: string;
-  readonly reasonCode?: PSRTrigger;
-}
+export type ICreatePSRResolvedEventInput =
+  statusCheckCommon.IStatusCheckEventContext &
+    IPSRResolutionTarget & {
+      readonly roll: number;
+      readonly modifiers: number;
+      readonly passed: boolean;
+      readonly reason: string;
+      readonly reasonCode?: PSRTrigger;
+    };
 
 export function createPSRTriggeredEvent(
   ...args: [ICreatePSRTriggeredEventInput] | PSRTriggeredEventArgs
@@ -79,15 +80,21 @@ export function createPSRResolvedEvent(
   ...args: [ICreatePSRResolvedEventInput] | PSRResolvedEventArgs
 ): IGameEvent {
   const input = normalizePSRResolvedEventInput(args);
-  const payload: IPSRResolvedPayload = {
-    unitId: input.unitId,
-    targetNumber: input.targetNumber,
+  const details = {
     roll: input.roll,
     modifiers: input.modifiers,
     passed: input.passed,
     reason: input.reason,
     ...(input.reasonCode !== undefined ? { reasonCode: input.reasonCode } : {}),
   };
+  const payload: IPSRResolvedPayload = input.automaticFailure
+    ? {
+        unitId: input.unitId,
+        automaticFailure: true,
+        ...details,
+        passed: input.passed,
+      }
+    : { unitId: input.unitId, targetNumber: input.targetNumber, ...details };
 
   return statusCheckCommon.createStatusCheckEvent(
     GameEventType.PSRResolved,
