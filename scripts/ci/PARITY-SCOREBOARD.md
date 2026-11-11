@@ -163,10 +163,12 @@ other zlib implementations can produce different valid compressed bytes.
 The manifest pins both compressed and decompressed SHA-256 values.
 
 The sidecar retains its original CRLF bytes. Its exact path is marked `binary`
-in `.gitattributes` and listed in `.oxfmtignore`. An exact-path CRLF override in
-`.oxfmtrc.json` also preserves it when the commit hook passes the file explicitly
-to oxfmt (explicit arguments bypass the ignore file). The co-located test checks
-the original SHA-256 and CRLF bytes. Git detects the gzip as binary automatically.
+in `.gitattributes`, and an exact-path `endOfLine: crlf` override in
+`.oxfmtrc.json` preserves it both for `oxfmt --check .` and when the commit hook
+passes the file explicitly to oxfmt. (It was also listed in `.oxfmtignore`, but
+oxfmt doesn't read that file; it reads `.gitignore` and `.prettierignore`.) The
+co-located test checks the original SHA-256 and CRLF bytes. Git detects the gzip
+as binary automatically.
 
 Run the co-located `node --test scripts/ci/parity-scoreboard*.test.mjs` tests and
 the complete CI test directory. The workflow tests enforce Python 3.12,
