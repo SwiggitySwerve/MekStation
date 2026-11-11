@@ -330,7 +330,7 @@ describe('combat journal-authority recovery', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'STORE_FAILURE',
-          reason: 'disk full',
+          reason: 'Unable to save the command.',
         }),
       ]),
     );
@@ -860,7 +860,7 @@ describe('combat journal-authority recovery', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'INTERNAL_ERROR',
-          reason: 'rollback-reader-blocked:digest-mismatch',
+          reason: 'Unable to process the command.',
         }),
       ]),
     );
@@ -916,7 +916,7 @@ describe('combat journal-authority recovery', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'INTERNAL_ERROR',
-          reason: 'projection-divergence',
+          reason: 'Unable to process the command.',
         }),
       ]),
     );
@@ -957,7 +957,7 @@ describe('combat journal-authority recovery', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'STORE_FAILURE',
-          reason: 'sequence-conflict',
+          reason: 'Unable to save the command.',
         }),
       ]),
     );
