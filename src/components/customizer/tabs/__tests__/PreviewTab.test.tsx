@@ -145,7 +145,10 @@ describe('PreviewTab', () => {
     const { rerender } = render(<PreviewTab />);
     expect(mockCalculatedMech?.chassisTechBase).toBe(TechBase.CLAN);
     expect(mockCalculatedMech?.techBaseMode).toBe(TechBaseMode.MIXED);
-    expect(mockCalculatedMech?.bvContext).toBeUndefined();
+    // The projection input comes from the one owner, so Preview carries the same bvContext the
+    // status bar projects. (Was `toBeUndefined()`: a #3316 scope choice that the 4,263-unit
+    // measurement showed to be a defect.)
+    expect(mockCalculatedMech?.bvContext).toBe(normalized.bvContext);
     storeState.componentTechBases = {
       ...storeState.componentTechBases,
       chassis: TechBase.INNER_SPHERE,

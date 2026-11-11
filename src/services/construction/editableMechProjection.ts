@@ -66,7 +66,11 @@ export interface IEditableMechProjectionInput {
     IComponentTechBases,
     TechBaseComponent.CHASSIS
   >;
-  /** Preview carries chassis provenance without opting into full source BV. */
+  /**
+   * Explicit chassis provenance for a caller that has no `bvContext`. No editor read point supplies
+   * it any more: they all get `bvContext` from {@link buildEditableMechProjectionInput}, and the
+   * projection falls back to `bvContext.source`.
+   */
   readonly chassisSource?: Pick<IRawSerializedUnit, 'componentTechBases'>;
   readonly engineType: IEditableMech['engineType'];
   readonly engineRating: number;
@@ -78,6 +82,53 @@ export interface IEditableMechProjectionInput {
   readonly heatSinkType: IEditableMech['heatSinkType'];
   readonly heatSinkCount: number;
   readonly equipment: readonly IMountedEquipmentInstance[];
+}
+
+/**
+ * Every field of {@link IEditableMechProjectionInput}. `satisfies` makes the list exhaustive: adding a
+ * field to the interface without listing it here is a compile error, so the owner can never silently
+ * drop one (this is how `PreviewTab` once lost `bvContext`).
+ */
+const PROJECTION_INPUT_FIELDS = {
+  bvContext: true,
+  jumpMP: true,
+  name: true,
+  chassis: true,
+  model: true,
+  tonnage: true,
+  configuration: true,
+  techBase: true,
+  techBaseMode: true,
+  componentTechBases: true,
+  chassisSource: true,
+  engineType: true,
+  engineRating: true,
+  internalStructureType: true,
+  gyroType: true,
+  cockpitType: true,
+  armorType: true,
+  armorAllocation: true,
+  heatSinkType: true,
+  heatSinkCount: true,
+  equipment: true,
+} as const satisfies Record<keyof IEditableMechProjectionInput, true>;
+
+/**
+ * The one owner of `projectEditableMech`'s input. Picks every projection field from the unit's state
+ * (a `UnitState`, the unit store's state, or a props object carrying the same fields) and nothing
+ * else. Read points pass their state to this function; none assembles the input field by field.
+ * Absent fields stay absent so `projectEditableMech`'s undefined checks keep their meaning.
+ */
+export function buildEditableMechProjectionInput<
+  S extends IEditableMechProjectionInput,
+>(source: S): Pick<S, Extract<keyof S, keyof IEditableMechProjectionInput>> {
+  // Generic so a caller keeps its own narrower field types (the store's engine and gyro enums).
+  const input: Record<string, unknown> = {};
+  for (const key of Object.keys(PROJECTION_INPUT_FIELDS)) {
+    const value = (source as unknown as Record<string, unknown>)[key];
+    if (value !== undefined) input[key] = value;
+  }
+  return input as Pick<S, Extract<keyof S, keyof IEditableMechProjectionInput>>;
 }
 
 /** Shared construction-service projection for editor summaries and record sheets. */

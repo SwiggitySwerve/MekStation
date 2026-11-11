@@ -11,6 +11,7 @@ import type {
 
 import {
   buildEditableMechBVInput,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import {
@@ -155,7 +156,9 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
   // Reuse the source-aware projection: editor mounts alone cannot represent
   // original critical-grid details such as the Atlas's rear laser markers.
   const projected = state.bvContext
-    ? buildEditableMechBVInput(projectEditableMech(state, walk)).criticalSlots
+    ? buildEditableMechBVInput(
+        projectEditableMech(buildEditableMechProjectionInput(state), walk),
+      ).criticalSlots
     : undefined;
   const result: Record<string, (string | null)[]> = {};
   const locations = getLocationsForConfig(state.configuration);

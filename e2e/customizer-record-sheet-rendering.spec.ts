@@ -549,3 +549,50 @@ test('Infantry preview shares zoom, fit modes, paper geometry and export @custom
   expect(await zoomPercent(page)).toBe(mobileManual);
   await noDocumentOverflow(page);
 });
+
+/** The BV text as bound onto the rendered sheet SVG (`id="bv"`), not a store or projection value. */
+async function renderedSheetBV(page: Page) {
+  const svg = await latestSheetSvg(page);
+  return page.evaluate(
+    (text) =>
+      new DOMParser()
+        .parseFromString(text, 'image/svg+xml')
+        .getElementById('bv')
+        ?.textContent?.trim() ?? '',
+    svg,
+  );
+}
+
+async function loadCanonicalMechPreview(
+  page: Page,
+  chassis: string,
+  variant: string,
+) {
+  await page.goto('/customizer');
+  await page.getByRole('button', { name: 'Load from Library' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Add Unit', exact: true });
+  await dialog.getByRole('combobox').first().selectOption('canonical');
+  await dialog
+    .getByPlaceholder('Search by chassis or variant...')
+    .fill(`${chassis} ${variant}`);
+  await dialog
+    .getByRole('row', { name: new RegExp(`^${chassis} ${variant}(\s|$)`) })
+    .click();
+  await dialog.getByRole('button', { name: 'Load Unit', exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole('tab', { name: 'Preview', exact: true }).click();
+  await expect(
+    page.getByRole('tab', { name: 'Preview', exact: true }),
+  ).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByLabel('Current zoom', { exact: true })).toBeVisible();
+}
+
+// Masakari L printed 2,467 on the sheet (PreviewTab dropped bvContext) while the status bar and the
+// Java reference say 3,695. The sheet reads the same projection input as the status bar now.
+test('the rendered sheet prints the status-bar BV for Masakari L @customizer', async ({
+  page,
+}) => {
+  await loadCanonicalMechPreview(page, 'Masakari', 'L');
+  await expectSheetType(page, 'Masakari L');
+  await expect.poll(() => renderedSheetBV(page)).toBe('3,695');
+});

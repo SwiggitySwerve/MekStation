@@ -1,12 +1,12 @@
 import type { IEditableMechProjectionInput } from '@/services/construction/editableMechProjection';
 import type { IEditableMech } from '@/services/construction/MechBuilderService';
 import type { IUnitConfig } from '@/services/printing/recordsheet/types';
-import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import type { IMechCrewSeat } from '@/types/pilot/MechCrewSeats';
 
 import {
   buildEditableArmorAllocation,
+  buildEditableMechProjectionInput,
   projectEditableMech,
 } from '@/services/construction/editableMechProjection';
 import { EngineType } from '@/types/construction/EngineType';
@@ -26,32 +26,24 @@ import {
 import {
   buildRecordSheetNameParts,
   buildRecordSheetUnitIdentity,
-  type RecordSheetUnitIdentityWithTonnageInput,
+  type RecordSheetUnitIdentityInput,
 } from '../preview/recordSheetUnitIdentity';
 
-export interface PreviewUnitState
-  extends
-    Omit<RecordSheetUnitIdentityWithTonnageInput, 'id'>,
-    Pick<
-      IEditableMechProjectionInput,
-      'techBaseMode' | 'componentTechBases' | 'chassisSource'
-    > {
-  role?: string;
-  configuration: MechConfiguration;
-  engineType: EngineType;
-  engineRating: number;
-  gyroType: GyroType;
-  internalStructureType: string;
-  cockpitType: string;
-  armorType: string;
-  armorAllocation: IArmorAllocation;
-  heatSinkType: string;
-  heatSinkCount: number;
-  enhancement: string | null | undefined;
-  jumpMP: number;
-  equipment: readonly IMountedEquipmentInstance[];
-  armActuators?: ArmActuatorConfig;
-  crewSeats?: readonly IMechCrewSeat[];
+/**
+ * What the record sheet reads from the unit: the BV projection input (every field, as the one owner
+ * `buildEditableMechProjectionInput` picks it, so the sheet cannot drop one the status bar passes)
+ * plus the fields only the sheet needs. Engine and gyro are narrowed to their enums for the
+ * critical-slot table. Build one with `usePreviewUnitState` (or pass any `UnitState`).
+ */
+export interface PreviewUnitState extends IEditableMechProjectionInput {
+  readonly rulesLevel: RecordSheetUnitIdentityInput['rulesLevel'];
+  readonly year: RecordSheetUnitIdentityInput['year'];
+  readonly role?: string;
+  readonly engineType: EngineType;
+  readonly gyroType: GyroType;
+  readonly enhancement: string | null | undefined;
+  readonly armActuators?: ArmActuatorConfig;
+  readonly crewSeats?: readonly IMechCrewSeat[];
 }
 
 type CriticalSlot = {
@@ -73,7 +65,7 @@ export function buildEditableMech(
   state: PreviewUnitState,
   walkMP: number,
 ): IEditableMech {
-  return projectEditableMech(state, walkMP);
+  return projectEditableMech(buildEditableMechProjectionInput(state), walkMP);
 }
 
 export function buildCriticalSlotsFromEquipment(
@@ -163,7 +155,7 @@ export function buildPreviewUnitConfig(
     movement: {
       walkMP,
       runMP,
-      jumpMP: state.jumpMP,
+      jumpMP: state.jumpMP ?? 0,
     },
     equipment: state.equipment.map((eq) => ({
       id: eq.instanceId,
