@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { loadReplayLibraryNdjson } from '@/lib/events/replay/ReplayLibraryLoadPipeline';
+import { replayBvTotal } from '@/replay-library/eventMetadata';
 import {
   GameEventType,
   GamePhase,
@@ -79,6 +80,27 @@ function turnStartedEvent(sequence: number, turn: number): IGameEvent {
     turn,
     phase: GamePhase.Initiative,
     payload,
+  };
+}
+
+/** Writer fixtures use canonical units; pure metadata tests retain legacy BV. */
+function recordableGameCreatedEvent(units: readonly IGameUnit[]): IGameEvent {
+  const legacy = gameCreatedEvent(units);
+  return {
+    ...legacy,
+    payload: {
+      ...legacy.payload,
+      units: units.map((entry) => ({
+        id: entry.id,
+        name: entry.name,
+        side: entry.side,
+        unitRef: entry.id,
+        pilotRef: `${entry.id}-pilot`,
+        gunnery: 4,
+        piloting: 5,
+      })),
+      quickMeta: { bvTotal: replayBvTotal(legacy) ?? 0 },
+    },
   };
 }
 
@@ -313,18 +335,13 @@ describe('persistQuickGame (Node env)', () => {
       const created = gameCreatedEvent([]);
       const result = await persistQuickGame({
         gameId: FIXTURE_GAME_ID,
-        // Deliberately model malformed persisted input at the untrusted boundary.
-        events: [
-          {
-            ...created,
-            payload: { ...created.payload, quickMeta },
-          } as unknown as IGameEvent,
-          turnStartedEvent(1, 1),
-        ],
+        events: [created, turnStartedEvent(1, 1)],
         winner: null,
         aiVariant: 'normal',
         cwd,
       });
+      // Deliberate malformed history enters below the guarded writer seam.
+      await writeRawQuickMeta(result.path!, quickMeta);
       const raw = await readFile(result.path!, 'utf8');
       const loaded = loadReplayLibraryNdjson(raw, `quick/${FIXTURE_GAME_ID}`);
       expect(loaded.kind).toBe('blocked');
@@ -345,7 +362,7 @@ describe('persistQuickGame (Node env)', () => {
 
   it('writes the event log to simulation-reports/quick/<gameId>.jsonl', async () => {
     const events: IGameEvent[] = [
-      gameCreatedEvent([unit('p1', 1500)]),
+      recordableGameCreatedEvent([unit('p1', 1500)]),
       turnStartedEvent(1, 1),
     ];
 
@@ -428,7 +445,7 @@ describe('persistQuickGame (Node env)', () => {
 
   it('appends an IQuickReplayManifestEntry to replay-index.json', async () => {
     const events: IGameEvent[] = [
-      gameCreatedEvent([unit('p1', 1500), unit('o1', 1700)]),
+      recordableGameCreatedEvent([unit('p1', 1500), unit('o1', 1700)]),
       turnStartedEvent(1, 1),
     ];
 
@@ -514,3 +531,22 @@ describe('persistQuickGame (Node env)', () => {
     ).rejects.toThrow();
   });
 });
+
+/** Test-only untrusted bytes: no production writer can bypass its guard. */
+async function writeRawQuickMeta(
+  file: string,
+  quickMeta: unknown,
+): Promise<void> {
+  const [first, ...rest] = (await readFile(file, 'utf8'))
+    .split('\n')
+    .map((line) => JSON.parse(line) as IGameEvent);
+  const malformed = {
+    ...first,
+    payload: { ...first.payload, quickMeta },
+  };
+  await writeFile(
+    file,
+    [malformed, ...rest].map((event) => JSON.stringify(event)).join('\n'),
+    'utf8',
+  );
+}
