@@ -627,3 +627,22 @@ Omni declaration is absent or false. MUST leave equipment discovery unchanged.
 - **THEN** explicit booleans SHALL retain their values
 - **AND** legacy units SHALL retain their existing loaded and saved bytes and BV
 - **AND** existing literal save-fingerprint expectations SHALL NOT be regenerated
+
+### Requirement: Deferred capital library opening and safe access checks
+
+SHALL defer the saved-unit detail page's loader and tab-store dependencies until
+the read-only opening action is requested. SHALL retain the detail page and show
+an opening state while chunks load. SHALL show a visible error on chunk failure
+and leave the page usable without navigation.
+
+#### Scenario: Cold saved-unit opening
+
+- **WHEN** a saved mech or capital detail page is opened in a fresh browser context
+- **THEN** the existing detail and editor or read-only viewer paths SHALL remain available
+- **AND** the capital loader dependencies SHALL load only after the opening action
+
+#### Scenario: Malformed stored record refuses mutations
+
+- **WHEN** an update or version revert encounters malformed current stored JSON
+- **THEN** it SHALL return a structured validation error without changing the record or history
+- **AND** known capital records SHALL retain their read-only refusal
