@@ -29,6 +29,8 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
   ref being run (it is S0b's file). The source is one function, `obtainJoin` in `scripts/lib/runtime-parity/join.mjs`.
 - **Java values:** `config/reference/reference-full.jsonl.gz`, verified by the scoreboard's own `prepareReference`.
 - No network, no JVM, no `_scratch`.
+- The `fetch` stub in `scripts/lib/runtime-parity/status-observer.js` (`json: async () => JSON.parse(...)`) is a **transport stub**: it serves
+  the committed unit file's bytes to the real loader, which does the parsing and mapping. It is not a parse path of its own.
 
 ## Exit code
 
