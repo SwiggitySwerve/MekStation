@@ -8,7 +8,7 @@ const read = (file) =>
 
 test('all budget status publishers serialize in the same event-aware group without cancelling the running job', () => {
   const group =
-    "ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch || format('dispatch-pr-{0}', inputs.pull_request) }}";
+    "ci-budget-publish-${{ github.repository }}-${{ github.event_name == 'workflow_dispatch' && format('dispatch-pr-{0}', inputs.pull_request) || format('{0}:{1}', github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name, github.event.pull_request.head.ref || github.event.workflow_run.head_branch) }}";
   const publishers = [];
   for (const file of fs
     .readdirSync('.github/workflows')

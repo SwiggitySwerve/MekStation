@@ -10,7 +10,7 @@ permissions: {}
 jobs:
   approval:
     concurrency:
-      group: ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.ref || github.event.workflow_run.head_branch || format('dispatch-pr-{0}', inputs.pull_request) }}
+      group: ci-budget-publish-${{ github.repository }}-${{ github.event_name == 'workflow_dispatch' && format('dispatch-pr-{0}', inputs.pull_request) || format('{0}:{1}', github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name, github.event.pull_request.head.ref || github.event.workflow_run.head_branch) }}
       cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 3
