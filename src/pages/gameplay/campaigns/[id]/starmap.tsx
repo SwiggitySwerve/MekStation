@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
+import { CampaignAvailabilityFooter } from '@/components/campaign/CampaignAvailabilityFooter';
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { StarmapDisplay } from '@/components/campaign/StarmapDisplay';
 import { PageLayout } from '@/components/ui';
@@ -266,6 +267,10 @@ export default function CampaignStarmapPage(): React.ReactElement {
         Map tags show jump distance, active contracts, deadlines, and risk in
         words.
       </div>
+      <CampaignAvailabilityFooter
+        campaignId={loadedCampaign.id}
+        coopSession={loadedCampaign.coopSession}
+      />
     </PageLayout>
   );
 }

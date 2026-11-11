@@ -765,10 +765,6 @@ test.describe('co-op campaign UI audit', () => {
           .locator('[data-testid^="pending-proposal-"]')
           .first();
         await expect(mobilePendingProposal).toBeVisible({ timeout: 20_000 });
-        await hostPage
-          .locator('[data-testid^="approve-"]')
-          .first()
-          .scrollIntoViewIfNeeded();
         await captureSurface({
           assertions: [
             'host sees pending guest proposal',

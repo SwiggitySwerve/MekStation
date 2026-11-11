@@ -33,6 +33,7 @@ import { canUseCampaignGmControls } from '@/lib/campaign/campaignAuthority';
 import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { CoopCredentialRenewal } from '@/pages-modules/gameplay/campaigns/LocalSeatCredentialPanel';
 
+import { campaignAvailabilitySentenceId } from './CampaignAvailabilityFooter';
 import { CampaignSaveIndicator } from './CampaignSaveIndicator';
 
 /**
@@ -295,7 +296,7 @@ export function CampaignNavigation({
          */}
         {coopSession ? (
           <span
-            className="border-accent text-accent bg-surface-deep/60 ml-auto rounded border px-3 py-1 text-xs font-semibold tracking-wider uppercase"
+            className="border-accent text-accent bg-surface-deep/60 ml-auto inline-flex items-center rounded border px-1 py-1 text-[11px] leading-4 font-semibold tracking-normal uppercase sm:px-3 sm:text-xs sm:tracking-wider"
             data-testid="coop-session-badge"
             aria-label={`Co-op session: ${
               coopSession.mode === 'host' ? 'Host' : 'Guest'
@@ -304,16 +305,28 @@ export function CampaignNavigation({
             Co-op session: {coopSession.mode === 'host' ? 'Host' : 'Guest'}
             {coopSession.mode === 'host' && coopSession.roomCode ? (
               <span
-                className="text-text-theme-secondary ml-2 font-mono normal-case"
+                className="text-text-theme-secondary ml-1 font-mono normal-case sm:ml-2"
                 data-testid="coop-session-room-code"
               >
                 {coopSession.roomCode}
               </span>
             ) : null}
+            <span className="ml-1 inline-flex sm:hidden">
+              <ModeAvailabilityNotice
+                mode="coop"
+                compact
+                inlineBadge
+                describedBy={campaignAvailabilitySentenceId(campaignId)}
+              />
+            </span>
           </span>
         ) : null}
       </nav>
-      {coopSession && <ModeAvailabilityNotice mode="coop" />}
+      {coopSession && (
+        <div className="hidden sm:block">
+          <ModeAvailabilityNotice mode="coop" />
+        </div>
+      )}
     </div>
   );
 }

@@ -17,6 +17,7 @@ import {
   createHostCoopSession,
 } from '@/types/campaign/CoopSession';
 
+import { CampaignAvailabilityFooter } from '../CampaignAvailabilityFooter';
 import { CampaignNavigation } from '../CampaignNavigation';
 
 describe('CampaignNavigation — Bays group', () => {
@@ -224,4 +225,35 @@ it('keeps co-op navigation notices accessible', async () => {
     />,
   );
   expect((await axe(container)).violations).toEqual([]);
+});
+
+it('associates the in-row mobile preview badge with the sentence below primary content', () => {
+  const coopSession = createHostCoopSession('ROOT01');
+  render(
+    <>
+      <CampaignNavigation
+        campaignId="root-campaign"
+        currentPage="dashboard"
+        coopSession={coopSession}
+      />
+      <button>Primary action</button>
+      <CampaignAvailabilityFooter
+        campaignId="root-campaign"
+        coopSession={coopSession}
+      />
+    </>,
+  );
+  const sentence = document.getElementById(
+    'campaign-root-campaign-availability',
+  );
+  expect(sentence).toHaveTextContent(modeAvailability.coop.sentence);
+  const badge = document.querySelector(
+    '[aria-describedby="campaign-root-campaign-availability"]',
+  );
+  expect(badge).toHaveTextContent('Preview');
+  expect(
+    screen
+      .getByRole('button', { name: 'Primary action' })
+      .compareDocumentPosition(sentence!),
+  ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
 });

@@ -367,10 +367,14 @@ export function CampaignCoopRouteSurface(
     }
     return (
       <div data-testid="campaign-coop-route-surface-host" className="mb-6">
-        <ModeAvailabilityNotice
-          mode="coop"
-          compact={props.compactAvailability}
-        />
+        <div
+          className={props.compactAvailability ? 'hidden sm:block' : undefined}
+        >
+          <ModeAvailabilityNotice
+            mode="coop"
+            compact={props.compactAvailability}
+          />
+        </div>
         <HostGmReviewSurface
           pending={pendingProposals}
           onDecide={onDecide}
@@ -399,10 +403,16 @@ export function CampaignCoopRouteSurface(
           data-testid="campaign-coop-route-surface-guest-dashboard-banner"
           className="mb-6 rounded-lg border border-sky-700 bg-sky-900/30 p-4 text-sm text-sky-200"
         >
-          <ModeAvailabilityNotice
-            mode="coop"
-            compact={props.compactAvailability}
-          />
+          <div
+            className={
+              props.compactAvailability ? 'hidden sm:block' : undefined
+            }
+          >
+            <ModeAvailabilityNotice
+              mode="coop"
+              compact={props.compactAvailability}
+            />
+          </div>
           <p>
             You are joined as a guest. Mutation controls on every sub-route
             submit proposals to the host for review instead of mutating campaign
@@ -467,10 +477,14 @@ export function CampaignCoopRouteSurface(
     }
     return (
       <div data-testid="campaign-coop-route-surface-guest" className="mb-6">
-        <ModeAvailabilityNotice
-          mode="coop"
-          compact={props.compactAvailability}
-        />
+        <div
+          className={props.compactAvailability ? 'hidden sm:block' : undefined}
+        >
+          <ModeAvailabilityNotice
+            mode="coop"
+            compact={props.compactAvailability}
+          />
+        </div>
         <GuestProposalSurface
           api={proposalsApi}
           actions={guestActions}
