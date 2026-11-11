@@ -15,12 +15,18 @@ Source: [`.husky/pre-commit`](../../.husky/pre-commit). Auto-installed via `npm 
 
 Current behaviour:
 
-| Step | Action                                                                                                                                                                             |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | `npx lint-staged --no-stash` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
-| 2    | When any `.ts` / `.tsx` file is staged, lint-staged ends with `bash -c 'npm run typecheck'`, which checks both root and scripts projects with TypeScript 7                         |
+| Step | Action                                                                                                                                                                                               |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `node scripts/lib/check-partial-stage.mjs` (cross-drive worktrees only; see below)                                                                                                                   |
+| 2    | `npx lint-staged --no-stash` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` / `.mjs` / `.cjs` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
+| 3    | `node scripts/lib/check-staged-parents.mjs`                                                                                                                                                          |
+| 4    | When any `.ts` / `.tsx` file is staged (added, copied, modified or renamed), `npm run typecheck` runs **once**, checking both root and scripts projects with TypeScript 7                            |
 
-The `bash -c` wrapper keeps staged filenames out of the compiler arguments so both checks use their tsconfig files.
+A failed step fails the commit with its exit code. With no `.ts` / `.tsx` staged, no typecheck runs.
+
+**Why the typecheck is not a lint-staged task.** lint-staged 16 splits a large staged set into chunks by command-line length and runs every task once per chunk, concurrently by default. A whole-project typecheck there ran once per chunk, several full typechecks at once inside one commit hook (about 4.5 GB each), where `mem-guard` cannot see them. In the hook it runs once per commit.
+
+**What the hook's typecheck does not prove.** It runs after lint-staged has put any hidden unstaged hunks back. So for a partially staged `.ts` file on a same-drive checkout, it checks the **working tree**, not the staged-only content, and it can pass on a commit whose staged content alone would fail. **Hosted Static Checks typechecks the commit itself and remains the gate; the hook is the fast local check.**
 
 The hook runs `npx lint-staged --no-stash`, so lint-staged takes no backup stash.
 
@@ -157,6 +163,10 @@ The genuinely better Git 2.54 features for shared use — `git hook list` discov
 - `cat .git/hooks/pre-commit` — does the husky shim exist?
 - `npm install` re-runs the husky `prepare` script and re-installs the hook
 - Check `.husky/_/` exists — that's husky's runtime support directory
+
+**Hook tests fail with "sh not found on PATH"**
+
+The pre-commit hook suites in `scripts/__tests__` (`precommit-*.test.ts`) run the real hook through `sh`. Started from PowerShell on Windows, Git's `usr/bin` is not on PATH, so `sh` can't be spawned and the suites fail with that message. Run them from Git Bash, or from any shell with POSIX `sh` and `bash` on PATH.
 
 **Lint-staged stash-restore corrupts working tree**
 Known husky+lint-staged issue. Recovery:
