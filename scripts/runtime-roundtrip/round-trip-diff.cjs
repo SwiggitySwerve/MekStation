@@ -29,37 +29,61 @@ const canonical = (value) => {
 const json = (value) => JSON.stringify(canonical(value));
 
 function createRoundTripDiff() {
-  const { mapMechLocation } = require('@/services/units/unitLoaderService/componentMappers');
+  const {
+    mapMechLocation,
+  } = require('@/services/units/unitLoaderService/componentMappers');
   const { getSlotParts } = require('@/utils/construction/slotOperations/parts');
-  const { isMTFCriticalSlotSystemName: isSystem } = require('@/services/conversion/MTFVocabulary');
-  const { parseCriticalSlotToken } = require('@/services/units/unitLoaderService/equipmentResolution');
+  const {
+    isMTFCriticalSlotSystemName: isSystem,
+  } = require('@/services/conversion/MTFVocabulary');
+  const {
+    parseCriticalSlotToken,
+  } = require('@/services/units/unitLoaderService/equipmentResolution');
   const {
     CriticalSlotRecoveryResponsibility,
     classifyCriticalSlotNoticeIdentity,
   } = require('@/services/units/unitLoaderService/criticalSlotNoticeEffects');
-  const { classifyCriticalSlotNoticeEntry } = require('@/services/units/unitLoaderService/criticalSlotNoticeGroups');
+  const {
+    classifyCriticalSlotNoticeEntry,
+  } = require('@/services/units/unitLoaderService/criticalSlotNoticeGroups');
 
-  const bucketNames = [...new Set(Object.values(CriticalSlotRecoveryResponsibility)), 'none'];
+  const bucketNames = [
+    ...new Set(Object.values(CriticalSlotRecoveryResponsibility)),
+    'none',
+  ];
   // The schema's OWNER_BUCKETS must be exactly what the classifier can say.
-  assert.deepEqual([...bucketNames].sort(), ['o3a', 'o3b', 'o3b-s', 'Celerity', 'PR-D', 'none'].sort());
+  assert.deepEqual(
+    [...bucketNames].sort(),
+    ['o3a', 'o3b', 'o3b-s', 'Celerity', 'PR-D', 'none'].sort(),
+  );
 
   const location = (name) => mapMechLocation(name) || name;
   const cellKey = (loc, slot) => json([location(loc), slot]);
   const assigned = (result) => ({
-    bucket: bucketNames.includes(result.effect.responsibility) ? result.effect.responsibility : 'none',
+    bucket: bucketNames.includes(result.effect.responsibility)
+      ? result.effect.responsibility
+      : 'none',
     kind: String(result.kind),
   });
   const classifyCell = (entry, source) =>
     assigned(
       classifyCriticalSlotNoticeEntry(
-        { text: entry.token ?? entry.text, location: location(entry.location), slot: entry.slot },
+        {
+          text: entry.token ?? entry.text,
+          location: location(entry.location),
+          slot: entry.slot,
+        },
         source,
       ),
     );
   // A notice entry's full attribution (the classifier's effect id and responsibility as well).
   const classifyNotice = (entry, source) => {
     const result = classifyCriticalSlotNoticeEntry(
-      { text: entry.text, location: location(entry.location), slot: entry.slot },
+      {
+        text: entry.text,
+        location: location(entry.location),
+        slot: entry.slot,
+      },
       source,
     );
     return {
@@ -71,7 +95,9 @@ function createRoundTripDiff() {
   const cellsOf = (definition) =>
     Object.entries(definition.criticalSlots || {}).flatMap(([loc, slots]) =>
       slots.flatMap((token, slot) =>
-        typeof token === 'string' && token.trim() ? [{ location: location(loc), slot, token }] : [],
+        typeof token === 'string' && token.trim()
+          ? [{ location: location(loc), slot, token }]
+          : [],
       ),
     );
   const mountView = (item) =>
@@ -90,7 +116,9 @@ function createRoundTripDiff() {
       heat: item.heat,
     });
   const mountCells = (item) =>
-    [...getSlotParts(item)].flatMap((part) => part.slots.map((slot) => ({ location: part.location, slot })));
+    [...getSlotParts(item)].flatMap((part) =>
+      part.slots.map((slot) => ({ location: part.location, slot })),
+    );
   const mountOwner = (item) => ({
     ...assigned(
       classifyCriticalSlotNoticeIdentity({
@@ -109,13 +137,18 @@ function createRoundTripDiff() {
     const lost = [];
     const changed = [];
     for (const item of before) {
-      let at = available.findIndex((v) => json(mountView(v.item)) === json(mountView(item)));
+      let at = available.findIndex(
+        (v) => json(mountView(v.item)) === json(mountView(item)),
+      );
       if (at >= 0) {
         available.splice(at, 1);
         continue;
       }
       at = available.findIndex(
-        (v) => v.item.equipmentId === item.equipmentId && v.item.category === item.category && v.item.techBase === item.techBase,
+        (v) =>
+          v.item.equipmentId === item.equipmentId &&
+          v.item.category === item.category &&
+          v.item.techBase === item.techBase,
       );
       if (at >= 0) {
         changed.push({
@@ -127,7 +160,14 @@ function createRoundTripDiff() {
         available.splice(at, 1);
       } else lost.push({ ...mountView(item), ...mountOwner(item) });
     }
-    return { lost, changed, added: available.map((v) => ({ ...mountView(v.item), cells: mountCells(v.item) })) };
+    return {
+      lost,
+      changed,
+      added: available.map((v) => ({
+        ...mountView(v.item),
+        cells: mountCells(v.item),
+      })),
+    };
   }
 
   /**
@@ -144,24 +184,50 @@ function createRoundTripDiff() {
   }) {
     const reopenedSource = reopened.bvContext?.source;
     assert(reopenedSource, 'Missing reopened source');
-    const afterCells = new Map(cellsOf(reopenedSource).map((c) => [cellKey(c.location, c.slot), c]));
+    const afterCells = new Map(
+      cellsOf(reopenedSource).map((c) => [cellKey(c.location, c.slot), c]),
+    );
     const lostCells = [];
     const tokenChanges = [];
-    const triple = (c) => ({ location: c.location, slot: c.slot, text: c.token ?? c.text });
+    const triple = (c) => ({
+      location: c.location,
+      slot: c.slot,
+      text: c.token ?? c.text,
+    });
     for (const cell of cellsOf(source)) {
       const afterCell = afterCells.get(cellKey(cell.location, cell.slot));
       if (!afterCell) {
         if (isSystem(parseCriticalSlotToken(cell.token).lookupToken))
-          lostCells.push({ ...triple(cell), identity: 'system', bucket: null, kind: null });
-        else lostCells.push({ ...triple(cell), identity: 'non-system', ...classifyCell(cell, source) });
-      } else if (afterCell.token !== cell.token) tokenChanges.push({ ...triple(cell), reopenedText: afterCell.token });
+          lostCells.push({
+            ...triple(cell),
+            identity: 'system',
+            bucket: null,
+            kind: null,
+          });
+        else
+          lostCells.push({
+            ...triple(cell),
+            identity: 'non-system',
+            ...classifyCell(cell, source),
+          });
+      } else if (afterCell.token !== cell.token)
+        tokenChanges.push({ ...triple(cell), reopenedText: afterCell.token });
     }
     // Unfiltered: every lost cell (system or not) and every rewritten cell, as plain triples.
-    const rawIdentityLosses = [...lostCells.map(triple), ...tokenChanges.map(({ reopenedText, ...cell }) => cell)];
+    const rawIdentityLosses = [
+      ...lostCells.map(triple),
+      ...tokenChanges.map(({ reopenedText, ...cell }) => cell),
+    ];
 
-    const residual = noticeBefore.map((e) => ({ location: e.location, slot: e.slot, text: e.text }));
+    const residual = noticeBefore.map((e) => ({
+      location: e.location,
+      slot: e.slot,
+      text: e.text,
+    }));
     const exact = (c) => json([c.location, c.slot, c.text]);
-    const nonSystem = lostCells.filter((c) => c.identity === 'non-system').map(triple);
+    const nonSystem = lostCells
+      .filter((c) => c.identity === 'non-system')
+      .map(triple);
     const actual = new Set(nonSystem.map(exact));
     const notice = new Set(residual.map(exact));
     const noticeOnly = residual.filter((c) => !actual.has(exact(c)));
@@ -172,23 +238,48 @@ function createRoundTripDiff() {
     // is a harness failure, never a second reading kept beside the first. Unknown stays null.
     const saveLossBlock = (observed, storeEntries, noticeKey, unit, label) => {
       assert(observed, `Missing the ${label} save-loss observation`);
-      const triples = (storeEntries ?? []).map((e) => ({ location: e.location, slot: e.slot, text: e.text }));
+      const triples = (storeEntries ?? []).map((e) => ({
+        location: e.location,
+        slot: e.slot,
+        text: e.text,
+      }));
       if (observed.entries !== null)
-        assert.deepEqual(observed.entries, triples, `The diagnostics hook and the ${label} store disagree on unrecoveredCriticalSlots`);
+        assert.deepEqual(
+          observed.entries,
+          triples,
+          `The diagnostics hook and the ${label} store disagree on unrecoveredCriticalSlots`,
+        );
       return {
         settled: observed.settled,
         lossTrackingUnknown: observed.lossTrackingUnknown,
         [noticeKey]:
           observed.entries === null
             ? null
-            : storeEntries.map((e) => ({ location: e.location, slot: e.slot, text: e.text, ...classifyNotice(e, unit) })),
+            : storeEntries.map((e) => ({
+                location: e.location,
+                slot: e.slot,
+                text: e.text,
+                ...classifyNotice(e, unit),
+              })),
         armorSaveLoss: observed.armorSaveLoss !== null,
         armorSaveLossSourceType: observed.armorSaveLoss?.sourceType ?? null,
       };
     };
     // BEFORE is classified against the committed unit, AFTER against the reopened unit's own source.
-    const saveLoss = saveLossBlock(saveLossBefore, noticeBefore, 'noticeBefore', source, 'loaded');
-    const saveLossAfter = saveLossBlock(saveLossAfterObserved, reopened.unrecoveredCriticalSlots, 'noticeAfter', reopenedSource, 'reopened');
+    const saveLoss = saveLossBlock(
+      saveLossBefore,
+      noticeBefore,
+      'noticeBefore',
+      source,
+      'loaded',
+    );
+    const saveLossAfter = saveLossBlock(
+      saveLossAfterObserved,
+      reopened.unrecoveredCriticalSlots,
+      'noticeAfter',
+      reopenedSource,
+      'reopened',
+    );
     return {
       saveLoss,
       saveLossAfter,

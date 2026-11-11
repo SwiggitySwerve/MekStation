@@ -32,8 +32,18 @@ export function compareToReference(rows, ref, { subset = false } = {}) {
     portOnly: 0,
     referenceOnly: 0,
     subset,
-    ours: { reopenEqualsLoad: 0, loadEqualsJava: 0, reopenEqualsJava: 0, nullReopen: 0 },
-    reference: { reopenEqualsLoad: 0, loadEqualsJava: 0, reopenEqualsJava: 0, nullReopen: 0 },
+    ours: {
+      reopenEqualsLoad: 0,
+      loadEqualsJava: 0,
+      reopenEqualsJava: 0,
+      nullReopen: 0,
+    },
+    reference: {
+      reopenEqualsLoad: 0,
+      loadEqualsJava: 0,
+      reopenEqualsJava: 0,
+      nullReopen: 0,
+    },
   };
   const tally = (target, load, reopen, java) => {
     if (reopen === null || reopen === undefined) target.nullReopen++;
@@ -45,7 +55,13 @@ export function compareToReference(rows, ref, { subset = false } = {}) {
     const unit = byPath.get(row.catalog.path);
     if (!unit) {
       summary.portOnly++;
-      differences.push({ unitId: row.unitId, catalogPath: row.catalog.path, field: 'unmatched', port: 'port-only', reference: null });
+      differences.push({
+        unitId: row.unitId,
+        catalogPath: row.catalog.path,
+        field: 'unmatched',
+        port: 'port-only',
+        reference: null,
+      });
       continue;
     }
     seen.add(unit.sourcePath);
@@ -60,9 +76,19 @@ export function compareToReference(rows, ref, { subset = false } = {}) {
       ['loadBV', load, unit.loadBV],
       ['reopenBV', reopen, unit.reopenBV],
     ])
-      if (field === 'unitId' ? port !== theirs : !(port === null ? theirs === null : sameTotal(port, theirs))) {
+      if (
+        field === 'unitId'
+          ? port !== theirs
+          : !(port === null ? theirs === null : sameTotal(port, theirs))
+      ) {
         differs = true;
-        differences.push({ unitId: row.unitId, catalogPath: row.catalog.path, field, port, reference: theirs });
+        differences.push({
+          unitId: row.unitId,
+          catalogPath: row.catalog.path,
+          field,
+          port,
+          reference: theirs,
+        });
       }
     if (differs) summary.differing++;
     else summary.identical++;
@@ -71,7 +97,13 @@ export function compareToReference(rows, ref, { subset = false } = {}) {
     for (const unit of ref.units)
       if (!seen.has(unit.sourcePath)) {
         summary.referenceOnly++;
-        differences.push({ unitId: unit.unitId, catalogPath: unit.sourcePath, field: 'unmatched', port: null, reference: 'reference-only' });
+        differences.push({
+          unitId: unit.unitId,
+          catalogPath: unit.sourcePath,
+          field: 'unmatched',
+          port: null,
+          reference: 'reference-only',
+        });
       }
   summary.equal = differences.length === 0;
   return { summary, differences };
@@ -89,10 +121,15 @@ export async function main(argv = process.argv.slice(2)) {
       'require-same-sha': { type: 'boolean', default: false },
     },
   });
-  if (!values.rows || !values.ref || !values.out) throw new Error('Required: --rows <rows.ndjson> --ref <A-units.json> --out <dir>');
+  if (!values.rows || !values.ref || !values.out)
+    throw new Error(
+      'Required: --rows <rows.ndjson> --ref <A-units.json> --out <dir>',
+    );
   const ref = JSON.parse(fs.readFileSync(values.ref, 'utf8'));
   const rows = parseRows(fs.readFileSync(values.rows, 'utf8'));
-  const { summary, differences } = compareToReference(rows, ref, { subset: values.subset });
+  const { summary, differences } = compareToReference(rows, ref, {
+    subset: values.subset,
+  });
   let code = summary.equal ? 0 : 1;
   if (values.receipt) {
     const receipt = JSON.parse(fs.readFileSync(values.receipt, 'utf8'));
@@ -105,10 +142,17 @@ export async function main(argv = process.argv.slice(2)) {
     if (values['require-same-sha'] && !summary.sameRuntimeSha) code = 1;
   }
   fs.mkdirSync(values.out, { recursive: true });
-  fs.writeFileSync(path.join(values.out, 'compare-summary.json'), JSON.stringify(summary, null, 2) + '\n');
-  fs.writeFileSync(path.join(values.out, 'compare-differences.ndjson'), differences.map((d) => JSON.stringify(d) + '\n').join(''));
+  fs.writeFileSync(
+    path.join(values.out, 'compare-summary.json'),
+    JSON.stringify(summary, null, 2) + '\n',
+  );
+  fs.writeFileSync(
+    path.join(values.out, 'compare-differences.ndjson'),
+    differences.map((d) => JSON.stringify(d) + '\n').join(''),
+  );
   console.log(JSON.stringify(summary));
   return code;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exitCode = await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  process.exitCode = await main();

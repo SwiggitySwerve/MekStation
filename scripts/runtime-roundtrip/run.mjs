@@ -13,7 +13,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { jestCapture, runCensus } from '../lib/runtime-parity/census.mjs';
 import { capturedToRow, summarize } from './report.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../..',
+);
 
 /** One fresh Jest process over the plan, with a fresh SQLite file at <run dir>/reopen.db. */
 export const runJestCapture = jestCapture({
@@ -32,6 +35,8 @@ const spec = {
   differencesFile: 'reopen-differences.ndjson',
 };
 
-export const main = (argv = process.argv.slice(2), deps = {}) => runCensus(argv, deps, spec);
+export const main = (argv = process.argv.slice(2), deps = {}) =>
+  runCensus(argv, deps, spec);
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exitCode = await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  process.exitCode = await main();

@@ -8,7 +8,11 @@ import {
   saveLossConfirms,
 } from '../lib/runtime-parity/rows.mjs';
 
-const endOf = ({ observed, terms }) => ({ ...observed, occupancy: null, terms: terms ?? {} });
+const endOf = ({ observed, terms }) => ({
+  ...observed,
+  occupancy: null,
+  terms: terms ?? {},
+});
 
 /** One captured record -> one reopen row (validated by serializeRows before it is written). */
 export function capturedToRow(record) {
@@ -39,7 +43,10 @@ export function capturedToRow(record) {
       changedLoadedMounts: record.changedLoadedMounts,
       addedLoadedMounts: record.addedLoadedMounts,
       // The dialog's predicate comes from the schema module's one definition, over the same fields.
-      saveLoss: { ...record.saveLoss, confirmation: saveLossConfirms(record.saveLoss) },
+      saveLoss: {
+        ...record.saveLoss,
+        confirmation: saveLossConfirms(record.saveLoss),
+      },
       saveLossAfter: {
         ...record.saveLossAfter,
         confirmation: saveLossConfirms(record.saveLossAfter, 'noticeAfter'),
@@ -58,7 +65,10 @@ const AFTER_NOTE = 'loss already written to file; not a progress measure';
  */
 export function summarize({ rows, referenceByPath, scope, deterministic }) {
   assertPopulation(scope, rows.length);
-  if (new Set(rows.map((row) => `${row.family}\0${row.unitId}`)).size !== rows.length)
+  if (
+    new Set(rows.map((row) => `${row.family}\0${row.unitId}`)).size !==
+    rows.length
+  )
     throw new Error('Population mismatch: more than one row for a unit');
   const errorsByStage = {};
   const tally = () => ({ equal: 0, different: 0, missing: 0 });
@@ -69,7 +79,13 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   // weightUsed vs allocatedWeight at both ends, compared exactly; a difference is a finding.
   const weightOwners = { agree: 0, mismatch: 0, missing: 0 };
   const notice = { equal: 0, different: 0, missing: 0 };
-  const cells = { unitsWithLoss: 0, lostCells: 0, systemCellsLost: 0, tokenChanges: 0, byBucket: {} };
+  const cells = {
+    unitsWithLoss: 0,
+    lostCells: 0,
+    systemCellsLost: 0,
+    tokenChanges: 0,
+    byBucket: {},
+  };
   const mounts = { lost: 0, changed: 0, added: 0 };
   // The save dialog's loss confirmation. `noLossConfirmation.before` is the published third nightly number,
   // read on the loaded store: settled, tracking known, no entries, no armor loss (noSaveLossConfirmation, one
@@ -78,20 +94,47 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   // already wrote the loss into the file, so the dialog has nothing left to warn about.
   const noLossConfirmation = { before: 0, after: 0, afterNote: AFTER_NOTE };
   const saveLossDetail = {
-    before: { confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0, errorRows: 0 },
-    after: { confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 },
+    before: {
+      confirmation: 0,
+      unsettled: 0,
+      unknown: 0,
+      noticeEntries: 0,
+      armorSaveLoss: 0,
+      errorRows: 0,
+    },
+    after: {
+      confirmation: 0,
+      unsettled: 0,
+      unknown: 0,
+      noticeEntries: 0,
+      armorSaveLoss: 0,
+    },
     afterNote: AFTER_NOTE,
   };
   const differences = [];
   for (const row of rows) {
     const javaBv = referenceByPath.get(row.path)?.battleValue?.total ?? null;
-    const identity = { family: row.family, unitId: row.unitId, path: row.path, catalogPath: row.catalog.path };
+    const identity = {
+      family: row.family,
+      unitId: row.unitId,
+      path: row.path,
+      catalogPath: row.catalog.path,
+    };
     if (row.status === 'error') {
-      errorsByStage[row.error.stage] = (errorsByStage[row.error.stage] ?? 0) + 1;
-      for (const t of [loadJava, reopenLoad, reopenJava, validityKept, notice]) t.missing++;
+      errorsByStage[row.error.stage] =
+        (errorsByStage[row.error.stage] ?? 0) + 1;
+      for (const t of [loadJava, reopenLoad, reopenJava, validityKept, notice])
+        t.missing++;
       weightOwners.missing++;
       saveLossDetail.before.errorRows++;
-      differences.push({ ...identity, measure: 'reopen=load', loadBV: null, reopenBV: null, javaBV: javaBv, why: `error:${row.error.stage}` });
+      differences.push({
+        ...identity,
+        measure: 'reopen=load',
+        loadBV: null,
+        reopenBV: null,
+        javaBV: javaBv,
+        why: `error:${row.error.stage}`,
+      });
       continue;
     }
     const { before, after } = row.reopen;
@@ -112,23 +155,39 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
         loadBV: before.bv,
         reopenBV: after.bv,
         javaBV: javaBv,
-        why: before.bv === null || after.bv === null ? 'no-calculator-result' : 'different',
+        why:
+          before.bv === null || after.bv === null
+            ? 'no-calculator-result'
+            : 'different',
       });
-    const owners = [before, after].every((end) => end.weight === end.allocatedWeight);
+    const owners = [before, after].every(
+      (end) => end.weight === end.allocatedWeight,
+    );
     if (owners) weightOwners.agree++;
     else {
       weightOwners.mismatch++;
-      differences.push({ ...identity, measure: 'weight-owner', before: [before.weight, before.allocatedWeight], after: [after.weight, after.allocatedWeight], why: 'weightUsed differs from allocatedWeight' });
+      differences.push({
+        ...identity,
+        measure: 'weight-owner',
+        before: [before.weight, before.allocatedWeight],
+        after: [after.weight, after.allocatedWeight],
+        why: 'weightUsed differs from allocatedWeight',
+      });
     }
     if (row.reopen.noticeResidual.equal) notice.equal++;
     else notice.different++;
-    const nonSystem = row.reopen.lostCells.filter((c) => c.identity === 'non-system');
+    const nonSystem = row.reopen.lostCells.filter(
+      (c) => c.identity === 'non-system',
+    );
     if (nonSystem.length) cells.unitsWithLoss++;
     cells.lostCells += nonSystem.length;
     cells.systemCellsLost += row.reopen.lostCells.length - nonSystem.length;
     cells.tokenChanges += row.reopen.tokenChanges.length;
     for (const cell of nonSystem) {
-      const bucket = (cells.byBucket[cell.bucket] ??= { lostCells: 0, units: new Set() });
+      const bucket = (cells.byBucket[cell.bucket] ??= {
+        lostCells: 0,
+        units: new Set(),
+      });
       bucket.lostCells++;
       bucket.units.add(row.unitId);
     }
@@ -155,7 +214,10 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   cells.byBucket = Object.fromEntries(
     Object.entries(cells.byBucket)
       .sort(([a], [b]) => (a < b ? -1 : 1))
-      .map(([bucket, value]) => [bucket, { lostCells: value.lostCells, units: value.units.size }]),
+      .map(([bucket, value]) => [
+        bucket,
+        { lostCells: value.lostCells, units: value.units.size },
+      ]),
   );
   const units = rows.length;
   const ok = rows.filter((row) => row.status === 'ok').length;
