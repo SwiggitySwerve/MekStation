@@ -175,6 +175,7 @@ See `LICENSE` for full details.
 
 - Inspired by [MegaMek](https://megamek.org) - the open-source BattleTech game engine
 - Unit data and record sheet templates derived from MegaMek (CC BY-NC-SA 4.0)
+- BattleTech is a registered trademark of The Topps Company, Inc.
 - MechWarrior, BattleMech, 'Mech, and AeroTech are registered trademarks of The Topps Company, Inc. All Rights Reserved.
 - Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of InMediaRes Productions, LLC.
 - The BattleTech name for electronic games is a trademark of Microsoft Corporation.
