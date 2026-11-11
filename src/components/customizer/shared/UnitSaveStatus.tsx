@@ -19,6 +19,9 @@ export interface LibrarySaveState {
   version?: number;
 }
 
+const SAVED_OLDER_WRITER_MESSAGE =
+  'Saved with an older version of MekStation. Save again to update the library copy.';
+
 function unhandledLibraryState(state: never): never {
   throw new Error(`Unhandled library save state: ${String(state)}`);
 }
@@ -39,6 +42,10 @@ export function librarySaveLabel(
       return `Changed Since v${version}`;
     case 'matched':
       return `In Library v${version}`;
+    case 'saved-older-writer':
+      return SAVED_OLDER_WRITER_MESSAGE;
+    case 'unknown':
+      return 'Library status unknown';
     default:
       return unhandledLibraryState(state);
   }
@@ -56,6 +63,10 @@ export function librarySaveExplanation(
       return `Changed Since v${version}: this unit has edits that are not in its last known library save (v${version}).`;
     case 'matched':
       return `In Library v${version}: this unit matches its last known library save. This is not a claim that v${version} is the server latest.`;
+    case 'saved-older-writer':
+      return SAVED_OLDER_WRITER_MESSAGE;
+    case 'unknown':
+      return 'Library status unknown. Save again to update the library copy.';
     default:
       return unhandledLibraryState(state);
   }
@@ -66,6 +77,8 @@ export function libraryNeedsSave(state: LibraryState): boolean {
   switch (state) {
     case 'none':
     case 'changed':
+    case 'saved-older-writer':
+    case 'unknown':
       return true;
     case 'matched':
       return false;
@@ -105,7 +118,7 @@ export function useLibrarySaveState(
         // Invalid intermediate native drafts cannot match a confirmed design.
         // Keep classification in the owner without asking a serializer to accept
         // incomplete editor input. Valid canonical fingerprints are JSON objects.
-        library = getUnitSaveState(state, '').library;
+        library = getUnitSaveState(state, '', undefined).library;
       }
       return library.state === 'none'
         ? 'none'

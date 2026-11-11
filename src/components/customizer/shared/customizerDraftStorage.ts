@@ -63,6 +63,7 @@ export function isStoredCustomizerDraftModified(
               : undefined,
         },
         '',
+        undefined,
       ).modification !== 'clean'
     );
   } catch {
