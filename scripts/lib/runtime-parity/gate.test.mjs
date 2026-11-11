@@ -16,6 +16,7 @@ import {
   evaluate,
   main,
   populationHash,
+  serializeBaseline,
   validateBaseline,
 } from './gate.mjs';
 
@@ -567,6 +568,24 @@ test('buildBaseline records a complete run with its SHA, population hash and a c
       }),
     /BASELINE_MALFORMED/,
   );
+});
+
+test('serializeBaseline is valid JSON with one unit per line, and reads back to the same baseline', () => {
+  const baseline = buildBaseline({
+    measure: 'load',
+    facts: entries(two(loadFacts(), loadFacts({ bvExact: false }))),
+    sha: SHA,
+    note: { sha: SHA, pr: 7, reason: 'seed', units: [U1] },
+  });
+  const text = serializeBaseline(baseline);
+  assert.deepEqual(JSON.parse(text), baseline);
+  assert.equal(validateBaseline('load', JSON.parse(text)).populationCount, 2);
+  assert.equal(
+    text.split('\n').filter((line) => line.includes('"battlemechs/')).length,
+    3,
+    'two unit lines and the note naming a unit',
+  );
+  assert.ok(text.endsWith('}\n'));
 });
 
 test('buildBaseline refuses a run with a failed, incomplete or unknown unit, and a bad note', () => {

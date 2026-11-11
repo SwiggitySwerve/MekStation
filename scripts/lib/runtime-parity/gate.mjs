@@ -465,6 +465,26 @@ export function buildBaseline({ measure, facts, sha, note, existing = null }) {
   return validateBaseline(measure, baseline);
 }
 
+/**
+ * The committed text of a baseline: valid JSON, one unit per line, so a diff names the units that changed and a
+ * reopen baseline (hundreds of thousands of set members) stays a reviewable size.
+ */
+export function serializeBaseline(baseline) {
+  const { units, notes, ...header } = baseline;
+  const head = Object.entries(header).map(
+    ([key, value]) => `  ${JSON.stringify(key)}: ${JSON.stringify(value)}`,
+  );
+  const noteLines = notes
+    .map((note) => `    ${JSON.stringify(note)}`)
+    .join(',\n');
+  const unitLines = Object.entries(units)
+    .map(
+      ([key, facts]) => `    ${JSON.stringify(key)}: ${JSON.stringify(facts)}`,
+    )
+    .join(',\n');
+  return `{\n${head.join(',\n')},\n  "notes": [\n${noteLines}\n  ],\n  "units": {\n${unitLines}\n  }\n}\n`;
+}
+
 // --- command line ---------------------------------------------------------------------------------------
 
 const gitIsAncestor = (repo, ancestor, descendant) => {

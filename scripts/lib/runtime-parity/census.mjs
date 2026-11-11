@@ -20,6 +20,7 @@ import {
   GateError,
   baselinePath,
   buildBaseline,
+  serializeBaseline,
 } from './gate.mjs';
 import {
   InputError,
@@ -391,7 +392,7 @@ export async function runCensus(argv, deps, spec) {
           existing,
         });
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.writeFileSync(target, JSON.stringify(baseline, null, 2) + '\n');
+        fs.writeFileSync(target, serializeBaseline(baseline));
         console.log(
           `baseline written: ${target} (${baseline.populationCount} units at ${repoSha})`,
         );

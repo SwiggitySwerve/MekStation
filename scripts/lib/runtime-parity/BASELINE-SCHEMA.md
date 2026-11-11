@@ -87,6 +87,10 @@ reopen port) writes the file after the run, appending a note to any earlier ones
 `failure.json` `BASELINE_REFUSED`), for a narrowed run, two runs that are not byte-identical, or any unit that failed or
 has an unknown fact. A PR that removes or renames units, or intentionally gains, regenerates the baseline with a note.
 
+The file is valid JSON with **one unit per line** (`serializeBaseline`), so a diff names the units that changed. Measured on the
+accepted full-population rows: the load baseline is about 446 KB (4,263 units); the reopen baseline is about 13.4 MB, nearly all of
+it the `rawIdentityLosses` set (243,753 members), because the inclusion rule needs the members, not a count.
+
 ## Population and last green
 
 - **Added units** (in tonight's run only) are _unbaselined_: counted in the headline (`N unbaselined`), listed by id, never
