@@ -82,39 +82,50 @@ export async function checkBudgetPolicy({
       };
     }
   }
-  const { data: fresh } = await github.rest.pulls.get(parameters);
-  if (
-    fresh.head.sha !== initial.head.sha ||
-    fresh.base.sha !== initial.base.sha ||
-    JSON.stringify(fresh.labels.map((l) => l.name).sort()) !==
-      JSON.stringify(initial.labels.map((l) => l.name).sort())
-  )
-    result = {
+  // A run writes statuses only to the SHA it evaluated (initial.head.sha), never
+  // to a SHA it did not evaluate. On a head change the refusal lands on the old
+  // head; the new head carries no status from this run, so the required
+  // `Lint and Test` context is absent there (blocked) until its own run reports.
+  // On a label or base change with the same head, evaluated and current are the
+  // same SHA, so a revoked label still fails that head.
+  const changedContext = (current, message) => {
+    const headChanged = current.head.sha !== initial.head.sha;
+    if (
+      !headChanged &&
+      current.base.sha === initial.base.sha &&
+      JSON.stringify(current.labels.map((l) => l.name).sort()) ===
+        JSON.stringify(initial.labels.map((l) => l.name).sort())
+    )
+      return null;
+    return {
       allowed: false,
       code: 'changed-context',
-      message: 'PR head/base/labels changed; rerun required',
+      message,
+      headChanged,
+      evaluatedHead: initial.head.sha,
+      currentHead: current.head.sha,
     };
+  };
+  const { data: fresh } = await github.rest.pulls.get(parameters);
+  result =
+    changedContext(fresh, 'PR head/base/labels changed; rerun required') ??
+    result;
   if (publish) {
     async function emit(context, state, description) {
       const { data: current } = await github.rest.pulls.get(parameters);
-      if (
-        current.head.sha !== initial.head.sha ||
-        current.base.sha !== initial.base.sha ||
-        JSON.stringify(current.labels.map((l) => l.name).sort()) !==
-          JSON.stringify(initial.labels.map((l) => l.name).sort())
-      ) {
-        result = {
-          allowed: false,
-          code: 'changed-context',
-          message: 'PR context changed before status write',
-        };
+      const changed = changedContext(
+        current,
+        'PR context changed before status write',
+      );
+      if (changed) {
+        result = changed;
         state = 'failure';
         description = result.message;
       }
       await github.rest.repos.createCommitStatus({
         owner,
         repo,
-        sha: current.head.sha,
+        sha: initial.head.sha,
         context,
         state,
         description: description.slice(0, 140),
@@ -190,5 +201,28 @@ export async function checkBudgetPolicy({
       );
     }
   }
-  return result;
+  return {
+    ...result,
+    evaluatedHead: result.evaluatedHead ?? initial.head.sha,
+    currentHead: result.currentHead ?? initial.head.sha,
+  };
+}
+
+/**
+ * How a status-publishing job ends for one PR. A superseded head (the only
+ * change was a new head) is not a failure of the job: the refusal is already
+ * on the evaluated head, and the new head gets its own run. Every other
+ * refusal fails the job. The log line names the PR and both heads.
+ */
+export function guardOutcome(number, result) {
+  const line =
+    `PR #${number}: ${result.code} (evaluated ${result.evaluatedHead}, ` +
+    `current ${result.currentHead}): ${result.message}`;
+  if (result.allowed) return { fail: false, line };
+  if (result.code === 'changed-context' && result.headChanged)
+    return {
+      fail: false,
+      line: `${line}; superseded head: refusal written to the evaluated head only, the new head gets its own run`,
+    };
+  return { fail: true, line };
 }

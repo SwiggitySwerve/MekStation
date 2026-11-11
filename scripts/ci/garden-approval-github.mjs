@@ -96,9 +96,10 @@ export async function checkBudgetRaise({
       };
     }
   }
+  // Only the head this run evaluated gets a status (never a newer head).
   await github.rest.repos.createCommitStatus({
     ...repository,
-    sha: fresh.head.sha,
+    sha: pr.head.sha,
     state: result.allowed ? 'success' : 'failure',
     context: APPROVAL_CONTEXT,
     description: `${result.code}: ${result.message}`.slice(0, 140),

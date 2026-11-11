@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { checkBudgetPolicy } from './budget-approval.mjs';
+import { checkBudgetPolicy, guardOutcome } from './budget-approval.mjs';
 import { loadBudgets } from './budget-config.mjs';
 import { DEPENDENCY_GROWTH_LABEL } from './budget-dependencies.mjs';
+import { BUDGET_RAISE_LABEL } from './garden-approval.mjs';
 
 function fixture() {
   const statuses = [],
@@ -395,5 +397,212 @@ test('primary approval status rejects stale attempts, unrelated suites and unkno
     });
     assert.equal(f.statuses.at(-1).context, 'Lint and Test');
     assert.equal(f.statuses.at(-1).state, 'pending');
+  }
+});
+
+// ---------------------------------------------------------------------------
+// A run writes statuses only to the SHA it evaluated (§107). Branch protection
+// requires `Lint and Test` only; `CI Budget Raise Approval` is advisory, and the
+// gate for budget policy is the check inside the required aggregator job.
+// ---------------------------------------------------------------------------
+const NEW_HEAD = 'c'.repeat(40);
+const OLD_HEAD = 'd'.repeat(40);
+
+// Reads after the first return the changed context (head, base or labels).
+function changeAfterFirstRead(f, mode) {
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    if (++reads > 1) {
+      if (mode === 'head') pr.head.sha = NEW_HEAD;
+      if (mode === 'base') pr.base.sha = 'e'.repeat(40);
+      if (mode === 'labels') pr.labels = [];
+    }
+    return { data: pr };
+  };
+}
+// The last status per (sha, context): what GitHub shows for that context.
+const finalState = (statuses, sha, context) =>
+  statuses.filter((s) => s.sha === sha && s.context === context).at(-1)?.state;
+
+test('head change: failure is written to the evaluated head and nothing to the new head', async () => {
+  const f = fixture();
+  changeAfterFirstRead(f, 'head');
+  const result = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.code, 'changed-context');
+  assert.equal(result.headChanged, true);
+  assert.equal(result.evaluatedHead, f.pull.head.sha);
+  assert.equal(result.currentHead, NEW_HEAD);
+  assert.ok(f.statuses.length > 0);
+  assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+  assert.ok(f.statuses.every((s) => s.sha !== NEW_HEAD));
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'failure',
+  );
+  // A superseded head is not a failure of the job; the log names both heads.
+  const outcome = guardOutcome(7, result);
+  assert.equal(outcome.fail, false);
+  assert.match(outcome.line, /PR #7/);
+  assert.ok(
+    outcome.line.includes(f.pull.head.sha) && outcome.line.includes(NEW_HEAD),
+  );
+});
+
+for (const mode of ['labels', 'base']) {
+  test(`${mode} change on the same head: failure on that head and the job fails`, async () => {
+    const f = fixture();
+    changeAfterFirstRead(f, mode);
+    const result = await checkBudgetPolicy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.code, 'changed-context');
+    assert.equal(result.headChanged, false);
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.equal(
+      finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+      'failure',
+    );
+    const outcome = guardOutcome(7, result);
+    assert.equal(outcome.fail, true);
+    assert.match(outcome.line, /PR #7/);
+  });
+}
+
+test('race: the new head reports success, then the stale run writes last; the new head stays success', async () => {
+  const statuses = [];
+  // Run for the new head: completes green on `a…` (the fixture's head).
+  const fresh = fixture();
+  fresh.github.rest.repos.createCommitStatus = async (s) => {
+    statuses.push(s);
+    return { data: s };
+  };
+  // Stale run: evaluated OLD_HEAD; every later read already shows the new head.
+  const stale = fixture();
+  stale.pull.head.sha = OLD_HEAD;
+  let reads = 0;
+  stale.github.rest.pulls.get = async () => {
+    const pr = structuredClone(stale.pull);
+    if (++reads > 1) pr.head.sha = fresh.pull.head.sha;
+    return { data: pr };
+  };
+  stale.github.rest.repos.createCommitStatus = async (s) => {
+    statuses.push(s);
+    return { data: s };
+  };
+  const args = { owner: 'o', repo: 'r', number: 1 };
+  assert.equal(
+    (await checkBudgetPolicy({ github: fresh.github, ...args })).allowed,
+    true,
+  );
+  assert.equal(
+    finalState(statuses, fresh.pull.head.sha, 'Lint and Test'),
+    'success',
+  );
+  const late = await checkBudgetPolicy({ github: stale.github, ...args });
+  assert.equal(late.code, 'changed-context');
+  assert.equal(
+    finalState(statuses, fresh.pull.head.sha, 'Lint and Test'),
+    'success',
+  );
+  assert.equal(finalState(statuses, OLD_HEAD, 'Lint and Test'), 'failure');
+});
+
+// A budget raise the owner approved on the exact head, with the raise label.
+function approvedRaise() {
+  const f = fixture();
+  const base = structuredClone(f.budgets.head);
+  const head = structuredClone(base);
+  head.limits.typicalPrJobs += 1;
+  f.budgets.base = base;
+  f.budgets.head = head;
+  f.pull.user = { login: 'author', id: 2 };
+  f.pull.labels = [
+    { name: DEPENDENCY_GROWTH_LABEL },
+    { name: BUDGET_RAISE_LABEL },
+  ];
+  f.github.paginate = async () => [
+    {
+      id: 5,
+      submitted_at: '2026-11-01T00:00:00Z',
+      user: { id: 1, type: 'User', login: 'owner' },
+      commit_id: f.pull.head.sha,
+      state: 'APPROVED',
+    },
+  ];
+  return f;
+}
+
+test('raise label removed after a success: the unlabeled re-evaluation fails that head', async () => {
+  // Re-evaluating event: pull_request_target `unlabeled` runs
+  // ci-budget-approval.yml, which calls checkBudgetPolicy for the current head.
+  const f = approvedRaise();
+  const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+  const before = await checkBudgetPolicy(args);
+  assert.equal(before.allowed, true, before.message);
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'success',
+  );
+  f.pull.labels = f.pull.labels.filter((l) => l.name !== BUDGET_RAISE_LABEL);
+  const after = await checkBudgetPolicy(args);
+  assert.equal(after.allowed, false);
+  assert.equal(after.code, 'missing-label');
+  assert.equal(
+    finalState(f.statuses, f.pull.head.sha, 'Lint and Test'),
+    'failure',
+  );
+  assert.equal(guardOutcome(1, after).fail, true);
+  const workflow = readFileSync(
+    '.github/workflows/ci-budget-approval.yml',
+    'utf8',
+  );
+  assert.match(workflow, /types: \[[^\]]*\bunlabeled\b/);
+});
+
+test('a budget raise with no label cannot obtain a successful required Lint and Test by any path', async () => {
+  const f = approvedRaise();
+  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  // Path 1: the guard and approval workflows publish statuses.
+  const published = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(published.allowed, false);
+  assert.ok(
+    !f.statuses.some(
+      (s) => s.context === 'Lint and Test' && s.state === 'success',
+    ),
+  );
+  // Path 2: the aggregator job evaluates without publishing and throws on refusal.
+  const gate = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    publish: false,
+  });
+  assert.equal(gate.allowed, false);
+  const prChecks = readFileSync('.github/workflows/pr-checks.yml', 'utf8');
+  assert.match(
+    prChecks,
+    /publish: false \}\);[\s\S]{0,80}if \(!result\.allowed\) throw new Error/,
+  );
+  // The status publishers fail their job on every refusal except a superseded head.
+  for (const file of ['lint-and-test-guard.yml', 'ci-budget-approval.yml']) {
+    const text = readFileSync(`.github/workflows/${file}`, 'utf8');
+    assert.match(text, /guardOutcome\(/);
+    assert.match(text, /if \(outcome\.fail\) core\.setFailed\(outcome\.line\)/);
+    assert.doesNotMatch(text, /if \(!result\.allowed\) core\.setFailed/);
   }
 });

@@ -93,7 +93,7 @@ test('malformed JSON/schema and missing or revoked owner approvals write failure
   }
 });
 
-test('head/base/label races fail on the fresh head', async () => {
+test('head/base/label races fail on the evaluated head and write nothing to a new head', async () => {
   for (const mode of ['head', 'base', 'labels']) {
     const f = fixture();
     let reads = 0;
@@ -107,10 +107,8 @@ test('head/base/label races fail on the fresh head', async () => {
     };
     assert.equal((await checkBudgetRaise(f.input)).code, 'changed-context');
     assert.equal(f.calls.at(-1).state, 'failure');
-    assert.equal(
-      f.calls.at(-1).sha,
-      mode === 'head' ? 'c'.repeat(40) : f.pr.head.sha,
-    );
+    assert.equal(f.calls.at(-1).sha, f.pr.head.sha);
+    assert.ok(f.calls.every((call) => call.sha !== 'c'.repeat(40)));
   }
 });
 

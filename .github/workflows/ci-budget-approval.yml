@@ -43,7 +43,10 @@ jobs:
           REQUESTED_PR: ${{ inputs.pull_request }}
         with:
           script: |
-            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            // Statuses go only to the head this run evaluated. A label change
+            // (labeled/unlabeled) re-evaluates the current head here, so a
+            // revoked label fails that head's required `Lint and Test`.
+            const { checkBudgetPolicy, guardOutcome } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
             const { owner, repo } = context.repo;
             let numbers;
             if (context.eventName === 'workflow_run') {
@@ -61,6 +64,8 @@ jobs:
             if (numbers.some(number => !Number.isSafeInteger(number) || number < 1)) throw new Error('Invalid PR number');
             for (const number of [...new Set(numbers)]) {
               const result = await checkBudgetPolicy({ github, owner, repo, number });
+              const outcome = guardOutcome(number, result);
+              core.info(outcome.line);
               core.info(JSON.stringify({ number, ...result }));
-              if (!result.allowed) core.setFailed(result.message);
+              if (outcome.fail) core.setFailed(outcome.line);
             }
