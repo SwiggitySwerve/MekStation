@@ -319,6 +319,13 @@ export function observedChanges(initial, reads, nested) {
     headMovedAfter: reads.some(
       (r) => r.phase === 'after' && r.head !== initial.head.sha,
     ),
+    // Every other head any read or nested result saw, in first-seen order.
+    otherHeads: [
+      ...new Set([
+        ...reads.map((r) => r.head),
+        ...nested.map((n) => n.evaluatedHead ?? '(none)'),
+      ]),
+    ].filter((head) => head !== initial.head.sha),
   };
 }
 
@@ -372,12 +379,13 @@ export function guardOutcome(number, result) {
     return {
       fail: true,
       line:
-        `PR #${number}: the PR head moved from ${result.evaluatedHead} to ` +
-        `${result.latestHead} while this run was still evaluating, so the run ` +
-        `refused and fails by design. It wrote failure to ` +
-        `${result.evaluatedHead} only and nothing to ${result.latestHead}; that ` +
-        `head's own run decides. This job concerns PR #${number}, not main. ` +
-        `(${line})`,
+        `PR #${number}: the PR head changed while this run was still ` +
+        `evaluating (evaluated ${result.evaluatedHead}; also seen ` +
+        `${(result.otherHeads ?? []).join(', ') || 'another head'}; now ` +
+        `${result.latestHead}), so the run refused and fails by design. It ` +
+        `wrote failure to ${result.evaluatedHead} only; the run for the PR's ` +
+        `current head (${result.latestHead}) decides. This job concerns PR ` +
+        `#${number}, not main. (${line})`,
     };
   return { fail: true, line };
 }

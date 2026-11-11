@@ -512,10 +512,24 @@ test('head change during the evaluation: the job fails and says so in words', as
   // This job is listed on main's tip: the line must make it a five-second read.
   const outcome = guardOutcome(7, result);
   assert.equal(outcome.fail, true);
-  assert.ok(outcome.line.startsWith('PR #7: the PR head moved from '));
-  assert.ok(outcome.line.includes(`from ${f.pull.head.sha} to ${NEW_HEAD}`));
-  assert.match(outcome.line, /while this run was still evaluating/);
-  assert.match(outcome.line, /that head's own run decides/);
+  assert.ok(
+    outcome.line.startsWith(
+      'PR #7: the PR head changed while this run was still evaluating',
+    ),
+  );
+  assert.ok(
+    outcome.line.includes(
+      `(evaluated ${f.pull.head.sha}; also seen ${NEW_HEAD}; now ${NEW_HEAD})`,
+    ),
+  );
+  assert.ok(
+    outcome.line.includes(`It wrote failure to ${f.pull.head.sha} only;`),
+  );
+  assert.ok(
+    outcome.line.includes(
+      `the run for the PR's current head (${NEW_HEAD}) decides`,
+    ),
+  );
   assert.match(outcome.line, /This job concerns PR #7, not main\./);
 });
 
@@ -734,7 +748,18 @@ test('X then Y then X: an approval evaluated on another head never publishes suc
   assert.equal(result.snapshotMismatch, true);
   assert.ok(!f.statuses.some((s) => s.sha === X && s.state === 'success'));
   assert.ok(f.statuses.every((s) => s.sha === X));
-  assert.equal(guardOutcome(1, result).fail, true);
+  // The message reports the head seen during evaluation (Y) separately from
+  // the latest head (back at X); it never reads "from X to X".
+  const outcome = guardOutcome(1, result);
+  assert.equal(outcome.fail, true);
+  assert.equal(result.latestHead, X);
+  assert.deepEqual(result.otherHeads, [Y]);
+  assert.ok(
+    outcome.line.includes(`(evaluated ${X}; also seen ${Y}; now ${X})`),
+  );
+  assert.ok(outcome.line.includes(`It wrote failure to ${X} only;`));
+  assert.ok(!outcome.line.includes(`from ${X} to ${X}`));
+  assert.ok(!outcome.line.includes(`nothing to ${X}`));
 });
 
 test('the aggregator refuses when the PR head is no longer the head its run is for', async () => {
