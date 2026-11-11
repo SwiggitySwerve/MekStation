@@ -8,17 +8,39 @@
  * a cold save with this same function, so load BV and reopen BV are the same read by construction.
  *
  * Usage, in a capture file that jest selects (name not *.test.*):
- *   const observer = require('../lib/runtime-parity/status-observer');
- *   observer.installMocks();            // before ANY product module is required
+ *   import * as observer from '../lib/runtime-parity/status-observer';   // first import of the file
  *   const o = observer.create({ repoRoot });
  *   const store = await o.openCanonical(entry);
  *   const { observed, terms, issues } = await o.observeStore(store);
+ * The first import below, './install-mocks', is a side-effect module that registers the globals and
+ * jest mocks; ES imports evaluate in source order, so every product module imported after it sees
+ * them. A capture must import this file before any product module.
  * It does no BV math and compares nothing.
  */
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const { TextEncoder, TextDecoder } = require('util');
+import './install-mocks';
+import { act, render, cleanup } from '@testing-library/react';
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import React from 'react';
+
+import { UnitInfoBanner } from '@/components/customizer/shared/UnitInfoBanner';
+import { getStatusNotes } from '@/components/customizer/shared/unitStatStatus';
+import { ValidationSummary } from '@/components/customizer/shared/ValidationSummary';
+import { getLibrarySaveStore } from '@/components/customizer/tabs/MultiUnitTabsUnitState';
+import { loadUnitIntoTab } from '@/components/customizer/tabs/useMultiUnitTabsController.helpers';
+import { useUnitEditorRoutingStats } from '@/components/customizer/UnitEditorWithRoutingStats';
+import { useUnitLoadDiagnostics } from '@/hooks/useUnitLoadDiagnostics';
+import { useUnitValidation } from '@/hooks/useUnitValidation';
+import { useMechValidationInput } from '@/hooks/validation/useMechValidationInput';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { clearAllStores } from '@/stores/unitStoreRegistry';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
+import { useUnitStore, UnitStoreContext } from '@/stores/useUnitStore';
+import { mechBVTerms } from '@/utils/construction/mechBV/bvTrace';
+
+import { numericTerms } from '../../vehicle-aero-bv-delta';
+import { probe, toasts } from './install-mocks';
 
 const sha256 = (bytes) =>
   crypto.createHash('sha256').update(bytes).digest('hex');
@@ -30,10 +52,6 @@ const gitBlobId = (bytes) =>
     .update(bytes)
     .digest('hex');
 
-// Shared with the calculator spy installed by installMocks().
-const probe = { bv: null, status: null };
-const toasts = [];
-
 /** A failed observation, carrying the stage and whether it is a harness (not product) failure. */
 class ObservationError extends Error {
   constructor(error, stage, infrastructure) {
@@ -42,44 +60,6 @@ class ObservationError extends Error {
     this.stage = stage;
     this.infrastructure = infrastructure;
   }
-}
-
-/** Must run before any product module is required. */
-function installMocks() {
-  global.TextEncoder = TextEncoder;
-  global.TextDecoder = TextDecoder;
-  global.IS_REACT_ACT_ENVIRONMENT = true;
-  window.matchMedia = () => ({
-    matches: false,
-    addEventListener() {},
-    removeEventListener() {},
-  });
-  jest.mock('@/utils/logger', () => ({
-    logger: Object.fromEntries(
-      ['debug', 'info', 'warn', 'error', 'log'].map((k) => [k, jest.fn()]),
-    ),
-  }));
-  jest.mock('@/components/shared/Toast', () => ({
-    useToast: () => ({ showToast: (value) => toasts.push(value) }),
-  }));
-  // Observe the real calculator's result or exception without changing either. The status bar shows
-  // 0 when the calculation fails or the registry is not ready; this probe is how that is told from a BV.
-  jest.mock('@/utils/construction/mechBV/calculator', () => {
-    const actual = jest.requireActual('@/utils/construction/mechBV/calculator');
-    return {
-      ...actual,
-      calculateUnitBV(...args) {
-        try {
-          const result = actual.calculateUnitBV.apply(this, args);
-          probe.bv = { result, error: null };
-          return result;
-        } catch (error) {
-          probe.bv = { result: null, error };
-          throw error;
-        }
-      },
-    };
-  });
 }
 
 const issuesOf = (result) =>
@@ -115,33 +95,6 @@ function saveLossOf(diagnostics) {
 }
 
 function create({ repoRoot }) {
-  const React = require('react');
-  const { act, render, cleanup } = require('@testing-library/react');
-  const { useUnitStore, UnitStoreContext } = require('@/stores/useUnitStore');
-  const { useUnitValidation } = require('@/hooks/useUnitValidation');
-  const { useUnitLoadDiagnostics } = require('@/hooks/useUnitLoadDiagnostics');
-  const {
-    useUnitEditorRoutingStats,
-  } = require('@/components/customizer/UnitEditorWithRoutingStats');
-  const {
-    UnitInfoBanner,
-  } = require('@/components/customizer/shared/UnitInfoBanner');
-  const {
-    ValidationSummary,
-  } = require('@/components/customizer/shared/ValidationSummary');
-  const {
-    getStatusNotes,
-  } = require('@/components/customizer/shared/unitStatStatus');
-  const {
-    getEquipmentRegistry,
-  } = require('@/services/equipment/EquipmentRegistry');
-  const { useTabManagerStore } = require('@/stores/useTabManagerStore');
-  const { mechBVTerms } = require('@/utils/construction/mechBV/bvTrace');
-  const {
-    useMechValidationInput,
-  } = require('@/hooks/validation/useMechValidationInput');
-  const { numericTerms } = require('../../vehicle-aero-bv-delta');
-
   const served = new Map();
 
   /** Serve GET /data/** from the repo's public/ directory, as the app's static server would. */
@@ -178,12 +131,6 @@ function create({ repoRoot }) {
 
   /** The real canonical open, as the unit library's Load button does it. */
   async function openCanonical(entry) {
-    const {
-      loadUnitIntoTab,
-    } = require('@/components/customizer/tabs/useMultiUnitTabsController.helpers');
-    const {
-      getLibrarySaveStore,
-    } = require('@/components/customizer/tabs/MultiUnitTabsUnitState');
     let tabId;
     await act(async () => {
       await loadUnitIntoTab({
@@ -247,7 +194,7 @@ function create({ repoRoot }) {
   function clear() {
     cleanup();
     jest.useRealTimers();
-    require('@/stores/unitStoreRegistry').clearAllStores(true);
+    clearAllStores(true);
     useTabManagerStore.setState({ tabs: [], activeTabId: null });
     localStorage.clear();
     toasts.length = 0;
@@ -370,4 +317,4 @@ function create({ repoRoot }) {
   return { openCanonical, observeStore, clear, makeTransport, served, toasts };
 }
 
-module.exports = { installMocks, create, ObservationError, sha256, gitBlobId };
+export { create, ObservationError, sha256, gitBlobId };
