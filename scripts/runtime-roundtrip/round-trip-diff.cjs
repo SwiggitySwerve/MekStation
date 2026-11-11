@@ -134,7 +134,14 @@ function createRoundTripDiff() {
    * source: the committed unit JSON. noticeBefore: the loader's unrecoveredCriticalSlots before the
    * save. equipmentBefore: the loaded mounts. reopened: the reopened unit state.
    */
-  return function compareRoundTrip({ source, noticeBefore, equipmentBefore, reopened, saveLossBefore }) {
+  return function compareRoundTrip({
+    source,
+    noticeBefore,
+    equipmentBefore,
+    reopened,
+    saveLossBefore,
+    saveLossAfter: saveLossAfterObserved,
+  }) {
     const reopenedSource = reopened.bvContext?.source;
     assert(reopenedSource, 'Missing reopened source');
     const afterCells = new Map(cellsOf(reopenedSource).map((c) => [cellKey(c.location, c.slot), c]));
@@ -163,21 +170,28 @@ function createRoundTripDiff() {
     // The save dialog's inputs as the shared observer read them from the diagnostics hook. The hook's
     // entries and the store's list are one field: if they ever differ the observation is wrong, so it
     // is a harness failure, never a second reading kept beside the first. Unknown stays null.
-    assert(saveLossBefore, 'Missing the save-loss observation');
-    if (saveLossBefore.entries !== null)
-      assert.deepEqual(saveLossBefore.entries, residual, 'The diagnostics hook and the store disagree on unrecoveredCriticalSlots');
-    const saveLoss = {
-      settled: saveLossBefore.settled,
-      lossTrackingUnknown: saveLossBefore.lossTrackingUnknown,
-      noticeBefore:
-        saveLossBefore.entries === null
-          ? null
-          : noticeBefore.map((e) => ({ location: e.location, slot: e.slot, text: e.text, ...classifyNotice(e, source) })),
-      armorSaveLoss: saveLossBefore.armorSaveLoss !== null,
-      armorSaveLossSourceType: saveLossBefore.armorSaveLoss?.sourceType ?? null,
+    const saveLossBlock = (observed, storeEntries, noticeKey, unit, label) => {
+      assert(observed, `Missing the ${label} save-loss observation`);
+      const triples = (storeEntries ?? []).map((e) => ({ location: e.location, slot: e.slot, text: e.text }));
+      if (observed.entries !== null)
+        assert.deepEqual(observed.entries, triples, `The diagnostics hook and the ${label} store disagree on unrecoveredCriticalSlots`);
+      return {
+        settled: observed.settled,
+        lossTrackingUnknown: observed.lossTrackingUnknown,
+        [noticeKey]:
+          observed.entries === null
+            ? null
+            : storeEntries.map((e) => ({ location: e.location, slot: e.slot, text: e.text, ...classifyNotice(e, unit) })),
+        armorSaveLoss: observed.armorSaveLoss !== null,
+        armorSaveLossSourceType: observed.armorSaveLoss?.sourceType ?? null,
+      };
     };
+    // BEFORE is classified against the committed unit, AFTER against the reopened unit's own source.
+    const saveLoss = saveLossBlock(saveLossBefore, noticeBefore, 'noticeBefore', source, 'loaded');
+    const saveLossAfter = saveLossBlock(saveLossAfterObserved, reopened.unrecoveredCriticalSlots, 'noticeAfter', reopenedSource, 'reopened');
     return {
       saveLoss,
+      saveLossAfter,
       lostCells,
       tokenChanges,
       rawIdentityLosses,

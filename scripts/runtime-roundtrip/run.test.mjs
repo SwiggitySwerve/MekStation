@@ -23,7 +23,15 @@ const lossOf = (residual, { settled = true, unknown = false, armor = null } = {}
   armorSaveLoss: armor !== null,
   armorSaveLossSourceType: armor,
 });
-const record = (id, { before = 1000, after = 1000, beforeExtra, afterExtra, lost = [], equal = true, mounts = {}, loss = {}, saveLoss } = {}) => ({
+/** The reopened store's facts: `entries` cells, under noticeAfter. */
+const lossAfterOf = ({ entries = 0, settled = true, unknown = false, armor = null } = {}) => ({
+  settled,
+  lossTrackingUnknown: unknown,
+  noticeAfter: unknown ? null : Array.from({ length: entries }, (_, i) => ({ ...cell(20 + i), bucket: 'o3b', effectId: 'effect-2', kind: 'electronics', responsibility: 'o3b' })),
+  armorSaveLoss: armor !== null,
+  armorSaveLossSourceType: armor,
+});
+const record = (id, { before = 1000, after = 1000, beforeExtra, afterExtra, lost = [], equal = true, mounts = {}, loss = {}, saveLoss, lossAfter = {} } = {}) => ({
   unitId: id,
   family: 'battlemechs',
   path: `meks/${id}.mtf`,
@@ -41,8 +49,9 @@ const record = (id, { before = 1000, after = 1000, beforeExtra, afterExtra, lost
     noticeOnly: [],
     roundTripOnly: equal ? [] : lost.filter((c) => c.identity === 'non-system').map(({ location, slot, text }) => ({ location, slot, text })),
     equal,
-    reopenedResidualCells: 0,
+    reopenedResidualCells: lossAfter.unknown ? 0 : (lossAfter.entries ?? 0),
   },
+  saveLossAfter: lossAfterOf(lossAfter),
   loadedMountLosses: [],
   changedLoadedMounts: [],
   addedLoadedMounts: [],
@@ -126,6 +135,36 @@ test('capturedToRow carries the dialog inputs with attribution and derives the c
   assert.deepEqual([unknown.noticeBefore, unknown.lossTrackingUnknown, unknown.confirmation], [null, true, true]);
 });
 
+test('capturedToRow carries the reopened store facts and derives the AFTER confirmation with the same predicate', () => {
+  const clean = capturedToRow(record('a')).reopen.saveLossAfter;
+  assert.deepEqual([clean.noticeAfter, clean.confirmation, clean.settled, clean.lossTrackingUnknown], [[], false, true, false]);
+  const entries = capturedToRow(record('b', { lossAfter: { entries: 2 } })).reopen.saveLossAfter;
+  assert.deepEqual([entries.noticeAfter.map((e) => e.slot), entries.confirmation, entries.noticeAfter[0].effectId], [[20, 21], true, 'effect-2']);
+  const armor = capturedToRow(record('c', { lossAfter: { armor: 'PATCHWORK' } })).reopen.saveLossAfter;
+  assert.deepEqual([armor.armorSaveLoss, armor.armorSaveLossSourceType, armor.confirmation], [true, 'PATCHWORK', true]);
+  const unknown = capturedToRow(record('d', { lossAfter: { unknown: true } })).reopen.saveLossAfter;
+  assert.deepEqual([unknown.noticeAfter, unknown.confirmation], [null, true]);
+});
+
+test('summarize counts the reopened store separately from the loaded one', () => {
+  const rows = [
+    capturedToRow(record('clean')),
+    // Needs a confirmation when loaded, and none once reopened.
+    capturedToRow(record('beforeOnly', { lost: [lostCell(3)] })),
+    // Clean when loaded; the reopened unit would ask.
+    capturedToRow(record('afterOnly', { lossAfter: { entries: 1 } })),
+    capturedToRow(record('afterArmor', { lossAfter: { armor: 'PATCHWORK' } })),
+    capturedToRow(record('afterUnsettled', { lossAfter: { settled: false } })),
+    capturedToRow(failed('broken')),
+  ];
+  const referenceByPath = new Map(rows.map((r) => [r.path, { battleValue: { total: 1000 } }]));
+  const { summary } = summarize({ rows, referenceByPath, scope: scope(6), deterministic: true });
+  // Loaded: every row but beforeOnly (has an entry) and the error row (never counted).
+  assert.equal(summary.saveLoss.noConfirmation, 4);
+  assert.deepEqual(summary.saveLoss.after, { noConfirmation: 2, confirmation: 2, unsettled: 1, unknown: 0, noticeEntries: 1, armorSaveLoss: 1 });
+  assert.equal(summary.saveLoss.errorRows, 1);
+});
+
 test('summarize counts "saves with no loss confirmation" over settled complete rows and keeps the rest in the denominator', () => {
   const rows = [
     capturedToRow(record('clear1')),
@@ -138,7 +177,16 @@ test('summarize counts "saves with no loss confirmation" over settled complete r
   ];
   const referenceByPath = new Map(rows.map((r) => [r.path, { battleValue: { total: 1000 } }]));
   const { summary } = summarize({ rows, referenceByPath, scope: scope(7), deterministic: true });
-  assert.deepEqual(summary.saveLoss, { noConfirmation: 2, confirmation: 3, unsettled: 1, unknown: 1, noticeEntries: 1, armorSaveLoss: 1, errorRows: 1 });
+  assert.deepEqual(summary.saveLoss, {
+    noConfirmation: 2,
+    confirmation: 3,
+    unsettled: 1,
+    unknown: 1,
+    noticeEntries: 1,
+    armorSaveLoss: 1,
+    errorRows: 1,
+    after: { noConfirmation: 6, confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 },
+  });
   assert.match(summary.headline, /no save-loss confirmation 2\/7/);
   // An error row is not "no confirmation", and neither is a settled-looking row whose tracking is unknown.
   assert.equal(summary.saveLoss.noConfirmation + summary.saveLoss.confirmation + summary.saveLoss.unsettled + summary.saveLoss.errorRows, 7);

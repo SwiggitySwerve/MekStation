@@ -1,7 +1,12 @@
 // Capture records -> reopen rows, and the counts the nightly publishes. No BV arithmetic here: the
 // capture reads both ends from the app through the shared observer and compares the round trip with
 // C3's v2 logic; this maps the records to schema rows and counts agreement.
-import { assertPopulation, noSaveLossConfirmation, saveLossConfirms } from '../lib/runtime-parity/rows.mjs';
+import {
+  assertPopulation,
+  noSaveLossConfirmation,
+  noSaveLossConfirmationAfter,
+  saveLossConfirms,
+} from '../lib/runtime-parity/rows.mjs';
 
 const endOf = ({ observed, terms }) => ({ ...observed, occupancy: null, terms: terms ?? {} });
 
@@ -35,6 +40,10 @@ export function capturedToRow(record) {
       addedLoadedMounts: record.addedLoadedMounts,
       // The dialog's predicate comes from the schema module's one definition, over the same fields.
       saveLoss: { ...record.saveLoss, confirmation: saveLossConfirms(record.saveLoss) },
+      saveLossAfter: {
+        ...record.saveLossAfter,
+        confirmation: saveLossConfirms(record.saveLossAfter, 'noticeAfter'),
+      },
     },
   };
 }
@@ -64,7 +73,17 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
   // The save dialog's loss confirmation on the loaded store. `noConfirmation` is the third nightly
   // number: settled, tracking known, no entries, no armor loss (noSaveLossConfirmation, one owner).
   // Every row is in the denominator; an error row or an unsettled row is never counted as "no".
-  const saveLossCounts = { noConfirmation: 0, confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0, errorRows: 0 };
+  // `after` is the same for the reopened store (would the dialog ask if the reopened unit were saved).
+  const saveLossCounts = {
+    noConfirmation: 0,
+    confirmation: 0,
+    unsettled: 0,
+    unknown: 0,
+    noticeEntries: 0,
+    armorSaveLoss: 0,
+    errorRows: 0,
+    after: { noConfirmation: 0, confirmation: 0, unsettled: 0, unknown: 0, noticeEntries: 0, armorSaveLoss: 0 },
+  };
   const differences = [];
   for (const row of rows) {
     const javaBv = referenceByPath.get(row.path)?.battleValue?.total ?? null;
@@ -122,6 +141,14 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
     if (loss.lossTrackingUnknown) saveLossCounts.unknown++;
     if (loss.noticeBefore?.length) saveLossCounts.noticeEntries++;
     if (loss.armorSaveLoss) saveLossCounts.armorSaveLoss++;
+    const lossAfter = row.reopen.saveLossAfter;
+    const afterCounts = saveLossCounts.after;
+    if (noSaveLossConfirmationAfter(row)) afterCounts.noConfirmation++;
+    if (lossAfter.confirmation) afterCounts.confirmation++;
+    if (!lossAfter.settled) afterCounts.unsettled++;
+    if (lossAfter.lossTrackingUnknown) afterCounts.unknown++;
+    if (lossAfter.noticeAfter?.length) afterCounts.noticeEntries++;
+    if (lossAfter.armorSaveLoss) afterCounts.armorSaveLoss++;
     mounts.lost += row.reopen.loadedMountLosses.length;
     mounts.changed += row.reopen.changedLoadedMounts.length;
     mounts.added += row.reopen.addedLoadedMounts.length;

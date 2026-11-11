@@ -27,6 +27,7 @@ const record = (id, load, reopen) => ({
   changedLoadedMounts: [],
   addedLoadedMounts: [],
   saveLoss: { settled: true, lossTrackingUnknown: false, noticeBefore: [], armorSaveLoss: false, armorSaveLossSourceType: null },
+  saveLossAfter: { settled: true, lossTrackingUnknown: false, noticeAfter: [], armorSaveLoss: false, armorSaveLossSourceType: null },
 });
 const unit = (id, loadBV, reopenBV, javaBV = loadBV) => ({
   unitId: id,

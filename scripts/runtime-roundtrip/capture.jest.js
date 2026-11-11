@@ -226,6 +226,8 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
       infrastructure = true;
       if (store === item.savedStore.deref())
         throw harnessFailure('The reopened store is the saved one');
+      // Observe the reopened store first: its save-loss facts are part of the comparison.
+      item.after = await o.observeStore(store);
       stage = 'comparison';
       infrastructure = false;
       const comparison = compareRoundTrip({
@@ -234,8 +236,8 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
         equipmentBefore: item.equipmentBefore,
         reopened,
         saveLossBefore: item.before.saveLoss,
+        saveLossAfter: item.after.saveLoss,
       });
-      item.after = await o.observeStore(store);
       Object.assign(record, comparison, {
         before: item.before,
         after: item.after,
