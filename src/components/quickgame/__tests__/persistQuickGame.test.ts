@@ -16,8 +16,8 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { toRecordableGameCreatedFixture } from '@/__tests__/helpers/replayWriterFixtures';
 import { loadReplayLibraryNdjson } from '@/lib/events/replay/ReplayLibraryLoadPipeline';
-import { replayBvTotal } from '@/replay-library/eventMetadata';
 import {
   GameEventType,
   GamePhase,
@@ -85,23 +85,7 @@ function turnStartedEvent(sequence: number, turn: number): IGameEvent {
 
 /** Writer fixtures use canonical units; pure metadata tests retain legacy BV. */
 function recordableGameCreatedEvent(units: readonly IGameUnit[]): IGameEvent {
-  const legacy = gameCreatedEvent(units);
-  return {
-    ...legacy,
-    payload: {
-      ...legacy.payload,
-      units: units.map((entry) => ({
-        id: entry.id,
-        name: entry.name,
-        side: entry.side,
-        unitRef: entry.id,
-        pilotRef: `${entry.id}-pilot`,
-        gunnery: 4,
-        piloting: 5,
-      })),
-      quickMeta: { bvTotal: replayBvTotal(legacy) ?? 0 },
-    },
-  };
+  return toRecordableGameCreatedFixture(gameCreatedEvent(units));
 }
 
 describe('buildQuickManifestEntry', () => {
