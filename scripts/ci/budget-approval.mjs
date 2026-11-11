@@ -81,6 +81,8 @@ export async function checkBudgetPolicy({
     baseChanged: false,
     labelsChanged: false,
     snapshotMismatch: false,
+    // A nested changed-context refusal that doesn't say what changed.
+    unclassifiedChange: false,
   };
   const note = (refusal) => {
     if (refusal) for (const key in seen) if (refusal[key]) seen[key] = true;
@@ -149,6 +151,17 @@ export async function checkBudgetPolicy({
     });
   const boundRaise = async () => {
     const raise = await evaluateRaise();
+    // The nested check's own context-change evidence is kept too: a base or
+    // label change it saw stays disqualifying even if later reads see it
+    // reverted. If it doesn't say what changed, it can't be exempted.
+    if (raise.code === 'changed-context')
+      note(
+        ['headChanged', 'baseChanged', 'labelsChanged'].every(
+          (key) => typeof raise[key] === 'boolean',
+        )
+          ? raise
+          : { unclassifiedChange: true },
+      );
     return (
       mismatched(
         raise.evaluatedHead,
@@ -321,7 +334,8 @@ export function guardOutcome(number, result) {
     result.headChanged &&
     !result.baseChanged &&
     !result.labelsChanged &&
-    !result.snapshotMismatch
+    !result.snapshotMismatch &&
+    !result.unclassifiedChange
   )
     return {
       fail: false,

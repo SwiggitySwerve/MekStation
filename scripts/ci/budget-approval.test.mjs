@@ -940,6 +940,86 @@ test('a label or base change survives a later pure head change, even if it rever
   }
 });
 
+// Sol's re-read of bf613ef9f: the nested approval check saw a base (or label)
+// change on the same head; it reverted and the head moved before the outer
+// reads, which see only a head change. The nested evidence must survive.
+test('a base or label change seen only by the nested approval check still fails the job', async () => {
+  for (const extra of ['base', 'labels']) {
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      reads += 1;
+      // 1: outer initial (X/B). 2: nested initial (X/B). 3: nested final
+      // (X/C, or labels changed). 4+: reverted, head moved to Y.
+      if (reads === 3) {
+        if (extra === 'base') pr.base.sha = 'e'.repeat(40);
+        else pr.labels = [];
+      }
+      if (reads >= 4) pr.head.sha = NEW_HEAD;
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.allowed, false, extra);
+    assert.equal(
+      extra === 'base' ? result.baseChanged : result.labelsChanged,
+      true,
+      extra,
+    );
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.ok(!f.statuses.some((s) => s.state === 'success'));
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+test('a nested changed-context refusal that does not say what changed cannot be exempted', async () => {
+  // The stubbed nested check makes no PR reads, so every outer read after the
+  // first shows a new head: without the nested refusal the job would be exempt.
+  const run = async (flags) => {
+    const f = fixture();
+    changeAfterFirstRead(f, 'head');
+    return policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+      checkRaise: async () => ({
+        allowed: false,
+        code: 'changed-context',
+        message: 'changed',
+        evaluatedHead: RUN_HEAD,
+        ...flags,
+      }),
+    });
+  };
+  for (const flags of [
+    {},
+    { headChanged: true },
+    { headChanged: true, baseChanged: false },
+    { headChanged: true, baseChanged: false, labelsChanged: 'no' },
+  ]) {
+    const result = await run(flags);
+    const label = JSON.stringify(flags);
+    assert.equal(result.allowed, false, label);
+    assert.equal(result.headChanged, true, label);
+    assert.equal(result.unclassifiedChange, true, label);
+    assert.equal(guardOutcome(1, result).fail, true, label);
+  }
+  // A nested refusal that says only the head changed stays exemptible.
+  const pure = await run({
+    headChanged: true,
+    baseChanged: false,
+    labelsChanged: false,
+  });
+  assert.equal(pure.unclassifiedChange, false);
+  assert.equal(guardOutcome(1, pure).fail, false);
+});
+
 test('every status publisher binds its run to the head it is for', () => {
   const guard = readFileSync(
     '.github/workflows/lint-and-test-guard.yml',

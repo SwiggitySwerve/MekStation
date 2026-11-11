@@ -143,9 +143,11 @@ read once at dispatch). A caller that passes none, such as a run whose merge ref
 predates the binding, is bound to the head of its own `pull_request` event. A
 run with neither is refused as `unbound-run` and should merge `origin/main`. A
 run bound to a superseded head writes nothing; the new head is evaluated by its
-own run. Statuses go only to the evaluated head, and a base, label or
-nested-snapshot change seen at any point in the evaluation fails the publishing
-job.
+own run. Statuses go only to the evaluated head. A base or label change seen
+at any point in the evaluation, by the outer reads or by the nested approval
+check, fails the publishing job, as does a nested evaluation of another head
+or a nested context change that doesn't say what changed. Only a pure head
+change is exempt.
 
 Trusted events publish `CI Budget Raise Approval` and a policy status under the existing
 `Lint and Test` required name. Approval first holds that status pending and

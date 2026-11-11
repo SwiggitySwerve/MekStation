@@ -63,17 +63,21 @@ export async function checkBudgetRaise({
     ...repository,
     pull_number: number,
   });
-  if (
-    fresh.head.sha !== pr.head.sha ||
-    fresh.base.sha !== pr.base.sha ||
+  const headChanged = fresh.head.sha !== pr.head.sha;
+  const baseChanged = fresh.base.sha !== pr.base.sha;
+  const labelsChanged =
     JSON.stringify(fresh.labels.map((label) => label.name).sort()) !==
-      JSON.stringify(pr.labels.map((label) => label.name).sort())
-  ) {
+    JSON.stringify(pr.labels.map((label) => label.name).sort());
+  if (headChanged || baseChanged || labelsChanged) {
+    // The flags travel with the refusal, so a caller can keep the evidence.
     result = {
       allowed: false,
       code: 'changed-context',
       message:
         'PR head, base or labels changed during approval evaluation; rerun required.',
+      headChanged,
+      baseChanged,
+      labelsChanged,
     };
   } else if (result.allowed && raises?.length) {
     try {
