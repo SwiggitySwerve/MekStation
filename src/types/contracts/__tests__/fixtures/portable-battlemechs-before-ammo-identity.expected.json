@@ -3,7 +3,7 @@
   "sourceFile": "docs/data/examples/battlemechs.json",
   "sourceSha256": "82e0cbc705b501e764571894ec9eceb6b4a05824aef461f8470813391788b951",
   "mainImport": {
-    "stateSha256": "ac4b7e456e1d7c90e881d823bda8f57841185e02f1741c2ef2a6ac22213a395f",
+    "normalizedStateSha256": "86e459b92aaeaa084bbfbe88dd1c1eb03b9c22fc92dd36708d924708bff44fae",
     "ammo": [
       {
         "id": "ammo-lrm-20",
