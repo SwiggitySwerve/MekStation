@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
   "measure": "reopen",
-  "sha": "43968eee4a754e834667f42a3050e28ed0850116",
+  "sha": "150a7de149c05289983088f181e8f8496feeb0d1",
   "factsSchemaVersion": 1,
-  "factsDeriverBlob": "377f93805cc772d413577bb67b8fdbf7ac1954dc",
+  "factsDeriverBlob": "24825ccbd5945dda12625a6605adbaff0d5a8fab",
   "referenceSha256": "bb1c1bf38eedf821ddd665a441c9c949a1ae255ceecfebc81d6fa2ed5cff0f77",
   "populationCount": 4263,
   "populationHash": "6c3540803d194e7f5e358d1bbb7d52ab5b9daec219cfba76c65b4bc1b3f792a8",
   "notes": [
-    {"sha":"43968eee4a754e834667f42a3050e28ed0850116","pr":null,"reason":"seed: first committed reopen baseline (gate PR, head 43968eee4); reopen=load 2,060/4,263, before 379","units":[]}
+    {"sha":"43968eee4a754e834667f42a3050e28ed0850116","pr":null,"reason":"seed: first committed reopen baseline (gate PR, head 43968eee4); reopen=load 2,060/4,263, before 379","units":[]},
+    {"sha":"150a7de149c05289983088f181e8f8496feeb0d1","pr":3393,"reason":"facts.mjs isFactValue extraction (#3393); deriver blob only, no unit fact changes","units":[]}
   ],
   "units": {
     "battlemechs/agrotera-agt-1a": {"reopenLoad":false,"reopenJava":false,"reopenJavaDistance":269,"reopenLoadDistance":269,"noLossConfirmationBefore":false,"noticeResidual":{"n":30,"h":"00f87bb665d18d84"},"noticeMismatch":{"n":0,"h":"e3b0c44298fc1c14"},"rawIdentityLosses":{"n":76,"h":"1b57072c5fa9042d"},"loadedMountLosses":{"n":0,"h":"e3b0c44298fc1c14"},"reopenValid":true},
