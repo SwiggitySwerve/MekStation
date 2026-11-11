@@ -1596,7 +1596,7 @@ export class ServerMatchHost {
    * the next engine call's consumed rolls land in a clean buffer.
    * Delegates to the capture collaborator.
    */
-  private installFreshCapture = (): void => void this.capture.installFresh();
+  private installFreshCapture = (): (() => void) => this.capture.installFresh();
 
   /**
    * Per Wave 3a: stamp the captured d6 sequence onto every fresh event
