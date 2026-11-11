@@ -728,7 +728,7 @@ describe('mission match membership after spectating', () => {
     );
     expect(result).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ reason: 'spectator-cannot-act' }),
+        expect.objectContaining({ reason: 'Intent could not be applied.' }),
       ]),
     );
     expect(
@@ -981,6 +981,7 @@ describe('concession side selection compatibility', () => {
         playerRefs: new Map(),
         pendingPeers: new PendingPeerTracker(),
         broadcast: jest.fn(),
+        sendRefusal: jest.fn(),
         broadcastEvent: async () => undefined,
         maybeResume: jest.fn(),
         installFreshCapture: jest.fn(),

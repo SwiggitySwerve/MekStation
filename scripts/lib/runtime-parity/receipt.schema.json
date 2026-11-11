@@ -17,6 +17,10 @@
     "node": {
       "type": "string"
     },
+    "nodeAbi": {
+      "type": "string",
+      "pattern": "^\\d+$"
+    },
     "platform": {
       "type": "string"
     },
@@ -121,6 +125,11 @@
             ]
           }
         },
+        "populationCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
         "unitIds": {
           "anyOf": [
             {
@@ -135,7 +144,7 @@
           ]
         }
       },
-      "required": ["families", "unitIds"],
+      "required": ["families", "populationCount", "unitIds"],
       "additionalProperties": false
     }
   },
@@ -144,6 +153,7 @@
     "measure",
     "repoSha",
     "node",
+    "nodeAbi",
     "platform",
     "reference",
     "sources",

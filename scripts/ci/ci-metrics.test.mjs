@@ -79,6 +79,33 @@ test('job-minutes, DAG critical path and queue waits exclude dependency executio
   );
 });
 
+// Observed on run 42898290006 attempt 1: the attempts endpoint gave created_at
+// one second after run_started_at (the run endpoint gave them equal).
+function withRunTimes(createdAt, startedAt) {
+  const input = raw();
+  const shift = Date.parse(startedAt) - Date.parse(input.run.run_started_at);
+  const move = (iso) => new Date(Date.parse(iso) + shift).toISOString();
+  input.run.created_at = createdAt;
+  input.run.run_started_at = startedAt;
+  for (const job of input.jobs) {
+    job.started_at = move(job.started_at);
+    job.completed_at = move(job.completed_at);
+  }
+  return normalizeRun(input);
+}
+
+test('a one-second endpoint rounding between created and started is not an invalid run', () => {
+  const o = withRunTimes('2026-11-10T20:44:52Z', '2026-11-10T20:44:51Z');
+  assert.ok(!o.missing.includes('Invalid run timestamps'));
+  assert.equal(o.complete, true);
+});
+
+test('a start more than one second before creation still marks the run incomplete', () => {
+  const o = withRunTimes('2026-11-10T20:44:53Z', '2026-11-10T20:44:51Z');
+  assert.ok(o.missing.includes('Invalid run timestamps'));
+  assert.equal(o.complete, false);
+});
+
 test('reject cross-head, cross-run, cross-attempt, duplicate and cyclic jobs', () => {
   for (const change of [
     (x) => (x.jobs[0].head_sha = 'b'.repeat(40)),

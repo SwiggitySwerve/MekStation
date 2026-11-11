@@ -5,6 +5,8 @@ import { test } from 'node:test';
 import {
   OUTPUT_FILES,
   checkMountOwnership,
+  noSaveLossConfirmation,
+  noSaveLossConfirmationAfter,
   ownedCellList,
   parseRows,
   receiptJsonSchema,
@@ -26,6 +28,7 @@ const observed = (bv = 1000) => ({
   bv,
   validity: 'valid',
   weight: 50,
+  allocatedWeight: 50,
   mp: { walk: 4, run: 6, jump: 0 },
   occupancy: null,
 });
@@ -59,11 +62,28 @@ const mount = (equipmentId, slots = [1, 2]) => ({
   criticalSlots: 2,
   heat: 3,
 });
+const noticeOf = (slot, t = 'Foo') => ({ ...cellOf(slot, t), bucket: 'o3a', effectId: 'effect-1', kind: 'equipment', responsibility: 'o3a' });
+/** The dialog's three inputs and their predicate, as the observer reads them. */
+const saveLoss = ({ entries = [noticeOf(3)], settled = true, armor = null } = {}) => ({
+  settled,
+  lossTrackingUnknown: entries === null,
+  noticeBefore: entries,
+  armorSaveLoss: armor !== null,
+  armorSaveLossSourceType: armor,
+  confirmation: entries === null || entries.length > 0 || armor !== null,
+});
+/** The same facts for the reopened store (key noticeAfter). */
+const saveLossAfter = ({ entries = [], settled = true, armor = null } = {}) => {
+  const { noticeBefore, ...rest } = saveLoss({ entries, settled, armor });
+  return { ...rest, noticeAfter: noticeBefore };
+};
 const reopenRow = (unitId, overrides = {}) => ({
   ...key(unitId),
   measure: 'reopen',
   status: 'ok',
   reopen: {
+    saveLoss: saveLoss(),
+    saveLossAfter: saveLossAfter(),
     before: withTerms(observed(1000)),
     after: withTerms(observed(990), { armorBV: 360, structureBV: 41 }),
     lostCells: [
@@ -96,6 +116,74 @@ test('valid load, reopen and error rows pass', () => {
     status: 'error',
     error: { stage: 'load', name: 'Error', message: 'boom' },
   });
+});
+
+test('saveLoss carries the dialog inputs, and confirmation is their predicate', () => {
+  // noticeBefore with attribution, the same list as noticeResidual.residual (one owner).
+  validateRow(reopenRow('s1'));
+  // Nothing to confirm: empty entries, settled, no armor loss.
+  const none = { saveLoss: saveLoss({ entries: [] }), noticeResidual: { residual: [], noticeOnly: [], roundTripOnly: [], equal: true, reopenedResidualCells: 0 }, lostCells: [], tokenChanges: [], rawIdentityLosses: [] };
+  validateRow(reopenRow('s2', none));
+  // Armor loss alone asks for a confirmation, with its source type kept.
+  const armor = reopenRow('s3', { ...none, saveLoss: saveLoss({ entries: [], armor: 'PATCHWORK' }) });
+  validateRow(armor);
+  assert.equal(armor.reopen.saveLoss.confirmation, true);
+  assert.equal(noSaveLossConfirmation(armor), false);
+  // Unknown tracking asks for a confirmation and is never an empty list.
+  const unknown = reopenRow('s4', { ...none, saveLoss: saveLoss({ entries: null }) });
+  validateRow(unknown);
+  assert.equal(unknown.reopen.saveLoss.noticeBefore, null);
+  assert.equal(noSaveLossConfirmation(unknown), false);
+  // Not settled is not "no confirmation", even with nothing found yet.
+  assert.equal(noSaveLossConfirmation(reopenRow('s5', { ...none, saveLoss: saveLoss({ entries: [], settled: false }) })), false);
+  assert.equal(noSaveLossConfirmation(reopenRow('s6', none)), true);
+  // Failed rows and load rows are never "no confirmation".
+  assert.equal(noSaveLossConfirmation({ ...key('e'), measure: 'reopen', status: 'error', error: { stage: 'x', name: 'E', message: 'm' } }), false);
+  assert.equal(noSaveLossConfirmation(loadRow('l')), false);
+});
+
+test('saveLoss rejects a coerced unknown, a wrong predicate, a stray armor type and a second reading of the cells', () => {
+  const emptyNotice = { noticeResidual: { residual: [], noticeOnly: [], roundTripOnly: [], equal: true, reopenedResidualCells: 0 }, lostCells: [], tokenChanges: [], rawIdentityLosses: [] };
+  const why = (overrides, pattern) => assert.throws(() => validateRow(reopenRow('x', overrides)), pattern);
+  // Unknown coerced to an empty list.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), lossTrackingUnknown: true } }, /never coerced to empty/);
+  // Null entries without saying unknown.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), noticeBefore: null } }, /never coerced to empty/);
+  // The confirmation is not the dialog's predicate.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), confirmation: true } }, /dialog's predicate/);
+  why({ saveLoss: { ...saveLoss(), confirmation: false } }, /dialog's predicate/);
+  // armorSaveLoss without its source type, and a source type without the flag.
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [], armor: 'PATCHWORK' }), armorSaveLossSourceType: null } }, /armorSaveLossSourceType/);
+  why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), armorSaveLossSourceType: 'PATCHWORK' } }, /armorSaveLossSourceType/);
+  // noticeBefore is the residual, not a second list that can drift from it.
+  why({ saveLoss: saveLoss({ entries: [noticeOf(9)] }) }, /noticeBefore differs from the notice residual/);
+  // The notice entry needs its attribution, and unknown keys are rejected.
+  const noAttribution = saveLoss();
+  delete noAttribution.noticeBefore[0].effectId;
+  why({ saveLoss: noAttribution }, undefined);
+  why({ saveLoss: { ...saveLoss(), armorDetail: {} } }, undefined);
+  assert.throws(() => validateRow(reopenRow('x', { saveLoss: undefined })));
+});
+
+test('saveLossAfter carries the same facts for the reopened store and ties its entries to the reopened residual', () => {
+  const rr = (n, loss) => ({ noticeResidual: { residual: [cellOf(3)], noticeOnly: [], roundTripOnly: [], equal: true, reopenedResidualCells: n }, saveLossAfter: loss });
+  validateRow(reopenRow('a1', rr(0, saveLossAfter())));
+  validateRow(reopenRow('a2', rr(1, saveLossAfter({ entries: [noticeOf(3)] }))));
+  // The AFTER entries are the reopened store's list: their count is the row's reopenedResidualCells.
+  assert.throws(() => validateRow(reopenRow('a3', rr(0, saveLossAfter({ entries: [noticeOf(3)] })))), /noticeAfter differs from the notice residual/);
+  assert.throws(() => validateRow(reopenRow('a4', rr(2, saveLossAfter({ entries: [noticeOf(3)] })))), /noticeAfter differs from the notice residual/);
+  // Same coupling and predicate rules as BEFORE, under the AFTER names.
+  assert.throws(() => validateRow(reopenRow('a5', rr(0, { ...saveLossAfter(), lossTrackingUnknown: true }))), /saveLossAfter.noticeAfter must be null exactly when lossTrackingUnknown/);
+  assert.throws(() => validateRow(reopenRow('a6', rr(0, { ...saveLossAfter(), confirmation: true }))), /saveLossAfter.confirmation is not the dialog's predicate/);
+  assert.throws(() => validateRow(reopenRow('a7', rr(0, saveLossAfter({ armor: 'PATCHWORK' }) && { ...saveLossAfter({ armor: 'PATCHWORK' }), armorSaveLossSourceType: null }))), /saveLossAfter.armorSaveLossSourceType/);
+  assert.throws(() => validateRow(reopenRow('a8', { saveLossAfter: undefined })));
+  // The AFTER-side number is its own predicate over the AFTER facts (not the BEFORE ones).
+  const loaded = reopenRow('a9', rr(0, saveLossAfter({ armor: 'PATCHWORK' })));
+  assert.equal(noSaveLossConfirmation(loaded), false); // BEFORE has an entry
+  assert.equal(noSaveLossConfirmationAfter(loaded), false); // AFTER has an armor loss
+  const clean = reopenRow('a10', { ...rr(0, saveLossAfter()), saveLoss: saveLoss({ entries: [] }), lostCells: [], tokenChanges: [], rawIdentityLosses: [] });
+  clean.reopen.noticeResidual.residual = [];
+  assert.equal(noSaveLossConfirmationAfter(validateRow(clean)), true);
 });
 
 test('rejects values that vary between runs or normalise them away', () => {
@@ -248,6 +336,7 @@ const receipt = () => ({
   measure: 'load',
   repoSha: 'c'.repeat(40),
   node: 'v22.12.0',
+  nodeAbi: '127',
   platform: 'linux',
   reference: { sha256: 'd'.repeat(64) },
   sources: { sha256: 'e'.repeat(64) },
@@ -259,18 +348,56 @@ const receipt = () => ({
     { rowsSha256: '1'.repeat(64), durationSeconds: 128.9, resources: { maxRSS: 1040000, userCPUTime: 99 } },
   ],
   deterministic: true,
-  scope: { families: ['battlemechs'], unitIds: null },
+  scope: { families: ['battlemechs'], populationCount: 4263, unitIds: null },
+});
+
+test('the receipt proves the population instead of inferring it', () => {
+  validateReceipt(receipt());
+  const withRows = (count, scope) => ({ ...receipt(), rows: { count, sha256: '1'.repeat(64) }, scope });
+  const whole = (populationCount) => ({ families: ['battlemechs'], populationCount, unitIds: null });
+  // Whole population: exactly populationCount rows. A short or padded capture cannot publish.
+  validateReceipt(withRows(4263, whole(4263)));
+  assert.throws(() => validateReceipt(withRows(4262, whole(4263))), /Population mismatch/);
+  assert.throws(() => validateReceipt(withRows(4264, whole(4263))), /Population mismatch/);
+  // Narrowed run: exactly one row per listed id, ids sorted and unique.
+  const narrowed = (unitIds, populationCount = 4263) => ({ families: ['battlemechs'], populationCount, unitIds });
+  validateReceipt(withRows(2, narrowed(['a', 'b'])));
+  assert.throws(() => validateReceipt(withRows(1, narrowed(['a', 'b']))), /Population mismatch/);
+  assert.throws(() => validateReceipt(withRows(2, narrowed(['a', 'a']))), /sorted and free of duplicates/);
+  assert.throws(() => validateReceipt(withRows(2, narrowed(['b', 'a']))), /sorted and free of duplicates/);
+  assert.throws(() => validateReceipt(withRows(2, narrowed(['a', 'b'], 1))), /larger than the population/);
+  assert.throws(() => validateReceipt(withRows(0, whole(0))));
+  // The count is required, not defaulted.
+  const { populationCount: _count, ...noCount } = whole(4263);
+  assert.throws(() => validateReceipt(withRows(4263, noCount)));
+});
+
+test('rows carry the status-bar weight and the allocated weight side by side', () => {
+  const row = loadRow('w');
+  row.load.observed.allocatedWeight = 49.5; // a second weight owner is still a valid row: it is reported, not hidden
+  validateRow(row);
+  const missing = loadRow('w');
+  delete missing.load.observed.allocatedWeight;
+  assert.throws(() => validateRow(missing));
 });
 
 test('run receipt carries the provenance rows must not', () => {
   validateReceipt(receipt());
   // A narrowed run says so; an empty scope or a run-less receipt is invalid.
-  validateReceipt({ ...receipt(), scope: { families: ['battlemechs'], unitIds: ['atlas-as7-d'] } });
-  assert.throws(() => validateReceipt({ ...receipt(), scope: { families: [], unitIds: null } }));
+  validateReceipt({
+    ...receipt(),
+    rows: { count: 1, sha256: '1'.repeat(64) },
+    scope: { families: ['battlemechs'], populationCount: 4263, unitIds: ['atlas-as7-d'] },
+  });
+  assert.throws(() => validateReceipt({ ...receipt(), scope: { families: [], populationCount: 4263, unitIds: null } }));
   assert.throws(() => validateReceipt({ ...receipt(), runs: [] }));
   assert.throws(() => validateReceipt({ ...receipt(), resources: { maxRSS: 1 } }));
   const { node: _node, ...noNode } = receipt();
   assert.throws(() => validateReceipt(noNode));
+  // The ABI is required and must be the numeric module version, not a free string.
+  const { nodeAbi: _abi, ...noAbi } = receipt();
+  assert.throws(() => validateReceipt(noAbi));
+  assert.throws(() => validateReceipt({ ...receipt(), nodeAbi: 'v127' }));
   assert.throws(() => validateReceipt({ ...receipt(), repoSha: 'abc' }));
   assert.throws(() => validateReceipt({ ...receipt(), normalized: true }));
   // Provenance never rides on a row.

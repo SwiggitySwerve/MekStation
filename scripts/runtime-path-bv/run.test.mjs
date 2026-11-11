@@ -10,9 +10,10 @@ import {
   InputError,
   buildPlan,
   emitterCommand,
+  obtainJoin,
   readJoinFiles,
   verifyAgainstReference,
-} from './join.mjs';
+} from '../lib/runtime-parity/join.mjs';
 import { capturedToRow, summarize } from './report.mjs';
 import { RunError, loadReference, main } from './run.mjs';
 
@@ -75,9 +76,17 @@ test('buildPlan lists committed-unit joins sorted by path and fails closed on in
   short.manifest.committedCatalog.joins.pop();
   assert.equal(reasonOf(() => buildPlan({ ...short, families: ['battlemechs'] })), 'MISSING_MANIFEST_ROWS');
 
+  // Local mode: a source-text family has unit: null and cannot be captured from a committed object.
   const identityOnly = emitterOutput(['alpha']);
   identityOnly.manifest.committedCatalog.joins[0].evaluation = 'identity-only/source-text';
+  identityOnly.rows[0].unit = null;
   assert.equal(reasonOf(() => buildPlan({ ...identityOnly, families: ['battlemechs'] })), 'MISSING_MANIFEST_ROWS');
+
+  // Repo-only mode labels every family `identity-only/reference` but still carries the committed
+  // object, so the label is not what decides: the object is (this is the real emitter's mech shape).
+  const referenceOnly = emitterOutput(['alpha', 'beta']);
+  for (const j of referenceOnly.manifest.committedCatalog.joins) j.evaluation = 'identity-only/reference';
+  assert.deepEqual(buildPlan({ ...referenceOnly, families: ['battlemechs'] }).map((p) => p.unitId), ['alpha', 'beta']);
 
   const errors = emitterOutput(['alpha']);
   errors.manifest.committedCatalog.errors = ['zero-source-matches: x'];
@@ -122,6 +131,39 @@ test('the emitter runs as a child step with the pinned arguments', () => {
   for (const flag of ['--commit', '--mekfiles', '--reference', '--out', '--source-only-families-identity-only'])
     assert.ok(args.includes(flag), flag);
   assert.equal(args[args.indexOf('--mekfiles') + 1], '/m');
+  assert.ok(!args.includes('--reference-only'));
+});
+
+test('without a mm-data checkout the emitter runs in its repo-only mode (what the hosted job has)', () => {
+  const { args } = emitterCommand({ repoRoot: '/r', commit: hex('c', 40), referenceFile: '/ref.jsonl', out: '/o' });
+  assert.ok(args.includes('--reference-only'));
+  for (const flag of ['--mekfiles', '--reference']) assert.ok(!args.includes(flag), `${flag} must not be passed`);
+  for (const flag of ['--commit', '--out', '--source-only-families-identity-only']) assert.ok(args.includes(flag), flag);
+});
+
+test('obtainJoin without --sources or --mekfiles runs the emitter instead of failing on mekfiles', () => {
+  const root = tmp();
+  fs.mkdirSync(path.join(root, 'scripts/ci'), { recursive: true });
+  // A stand-in emitter that proves it was started in repo-only mode and writes the join files.
+  fs.writeFileSync(
+    path.join(root, 'scripts/ci/committed-catalog-sources.ts'),
+    `const fs=require('fs'),path=require('path');const a=process.argv;
+if(!a.includes('--reference-only')||a.includes('--mekfiles'))process.exit(3);
+const out=a[a.indexOf('--out')+1];fs.mkdirSync(out,{recursive:true});
+fs.writeFileSync(path.join(out,'sources.ndjson'),'');
+fs.writeFileSync(path.join(out,'sources.ndjson.manifest.json'),'{"committedCatalog":{"joined":0,"errors":[],"joins":[]}}');`,
+  );
+  // The emitter is started as `node --require tsx/cjs <file>` from the temp root, so let the child find tsx.
+  const before = process.env.NODE_PATH;
+  process.env.NODE_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../node_modules');
+  try {
+    const join = obtainJoin({ repoRoot: root, commit: hex('c', 40), referenceFile: '', workDir: root });
+    assert.equal(join.rows.length, 0);
+    assert.equal(join.dir, path.join(root, 'join'));
+  } finally {
+    if (before === undefined) delete process.env.NODE_PATH;
+    else process.env.NODE_PATH = before;
+  }
 });
 
 const planEntry = (id) => ({
@@ -132,7 +174,7 @@ const planEntry = (id) => ({
   path: `meks/${id}.mtf`,
   sha256: hex('a'),
 });
-const record = (id, { bv = 1000, validity = 'valid', terms = { armorBV: 360 } } = {}) => ({
+const record = (id, { bv = 1000, validity = 'valid', terms = { armorBV: 360 }, allocatedWeight = 50 } = {}) => ({
   unitId: id,
   family: 'battlemechs',
   path: `meks/${id}.mtf`,
@@ -140,7 +182,7 @@ const record = (id, { bv = 1000, validity = 'valid', terms = { armorBV: 360 } } 
   catalog: { path: `public/data/units/battlemechs/x/${id}.json`, blob: hex('1', 40) },
   error: null,
   infrastructure: false,
-  observed: { bv, validity, weight: 50, mp: { walk: 4, run: 6, jump: 0 } },
+  observed: { bv, validity, weight: 50, allocatedWeight, mp: { walk: 4, run: 6, jump: 0 } },
   terms,
   issues: [],
 });
@@ -169,18 +211,47 @@ test('summarize counts agreement with Java and counts every miss', () => {
     capturedToRow({ ...record('broken'), observed: null, terms: null, issues: null, error: { stage: 'open', name: 'E', message: 'm' } }),
   ];
   const referenceByPath = new Map(['exact', 'off', 'nobv', 'badvalid', 'broken'].map((id) => refRow(id, 1000)));
-  const { summary, differences } = summarize({ rows, referenceByPath, scope: { families: ['battlemechs'], unitIds: null }, deterministic: true });
+  const whole = { families: ['battlemechs'], populationCount: 5, unitIds: null };
+  const { summary, differences } = summarize({ rows, referenceByPath, scope: whole, deterministic: true });
   assert.deepEqual(summary.bv, { exact: 2, different: 1, missing: 2 });
   assert.deepEqual(summary.validity, { agree: 3, disagree: 1, missing: 1 });
   assert.deepEqual(summary.errorsByStage, { open: 1 });
   assert.equal(summary.units, 5);
-  assert.equal(summary.headline, 'load=Java 2/5 · validity 3/5');
+  assert.equal(summary.headline, 'load=Java 2/5 · validity 3/5 · weight owners 4/5');
   assert.deepEqual(
     differences.filter((d) => d.measure === 'bv').map((d) => [d.unitId, d.why]),
     [['off', 'different'], ['nobv', 'no-calculator-result'], ['broken', 'error:open']],
   );
-  const narrowed = summarize({ rows: rows.slice(0, 1), referenceByPath, scope: { families: ['battlemechs'], unitIds: ['exact'] }, deterministic: true });
+  const narrowed = summarize({ rows: rows.slice(0, 1), referenceByPath, scope: { families: ['battlemechs'], populationCount: 5, unitIds: ['exact'] }, deterministic: true });
   assert.match(narrowed.summary.headline, /NARROWED SCOPE/);
+});
+
+test('summarize refuses rows that are not the population the scope claims', () => {
+  const rows = [capturedToRow(record('a')), capturedToRow(record('b'))];
+  const referenceByPath = new Map(['a', 'b'].map((id) => refRow(id, 1000)));
+  const scope = (populationCount, unitIds = null) => ({ families: ['battlemechs'], populationCount, unitIds });
+  const run = (r, s) => summarize({ rows: r, referenceByPath, scope: s, deterministic: true });
+  run(rows, scope(2));
+  assert.throws(() => run(rows, scope(3)), /Population mismatch/);
+  assert.throws(() => run(rows.slice(0, 1), scope(2)), /Population mismatch/);
+  assert.throws(() => run(rows, scope(2, ['a'])), /Population mismatch/);
+  assert.throws(() => run([rows[0], rows[0]], scope(2)), /more than one row/);
+});
+
+test('weight owners are compared exactly per unit and a difference is reported, not tolerated', () => {
+  const rows = [
+    capturedToRow(record('same')),
+    capturedToRow(record('near', { allocatedWeight: 50.0000001 })),
+    capturedToRow({ ...record('broken'), observed: null, terms: null, issues: null, error: { stage: 'open', name: 'E', message: 'm' } }),
+  ];
+  const referenceByPath = new Map(['same', 'near', 'broken'].map((id) => refRow(id, 1000)));
+  const { summary, differences } = summarize({ rows, referenceByPath, scope: { families: ['battlemechs'], populationCount: 3, unitIds: null }, deterministic: true });
+  assert.deepEqual(summary.weightOwners, { agree: 1, mismatch: 1, missing: 1 });
+  assert.match(summary.headline, /weight owners 1\/3 \(DIFFER 1\)/);
+  assert.deepEqual(
+    differences.filter((d) => d.measure === 'weight-owner').map((d) => [d.unitId, d.observed, d.allocated]),
+    [['near', 50, 50.0000001]],
+  );
 });
 
 // --- main(): the whole flow with an injected capture ---------------------------------------
@@ -239,6 +310,45 @@ test('main records a narrowed scope and refuses units the join does not have', a
   const t2 = setup();
   assert.equal(await quietly(() => t2.run('--units', 'nope')), 1);
   assert.equal(JSON.parse(t2.read('failure.json')).reason, 'MISSING_MANIFEST_ROWS');
+});
+
+test('--units is sorted and de-duplicated, and the receipt proves the population', async () => {
+  const t = setup();
+  assert.equal(await quietly(() => t.run('--units', 'gamma,alpha,gamma,alpha', '--runs', '1')), 0);
+  const receipt = validateReceipt(JSON.parse(t.read('receipt.json')));
+  assert.deepEqual(receipt.scope, { families: ['battlemechs'], populationCount: 3, unitIds: ['alpha', 'gamma'] });
+  assert.equal(receipt.rows.count, 2);
+  assert.deepEqual(parseRows(t.read('rows.ndjson')).map((r) => r.unitId), ['alpha', 'gamma']);
+  const whole = setup();
+  assert.equal(await quietly(() => whole.run()), 0);
+  assert.deepEqual(JSON.parse(whole.read('receipt.json')).scope, { families: ['battlemechs'], populationCount: 3, unitIds: null });
+});
+
+test('a short, padded or repeating capture cannot publish a count', async () => {
+  const records = (plan) => plan.map((p) => record(p.unitId));
+  const attempt = async (mutate) => {
+    const t = setup({ capture: ({ plan }) => ({ records: mutate(records(plan)), durationSeconds: 1, resources: { maxRSS: 1 } }) });
+    const code = await quietly(() => t.run());
+    return { code, failure: t.exists('failure.json') ? JSON.parse(t.read('failure.json')) : null, wroteRows: t.exists('rows.ndjson') };
+  };
+  const short = await attempt((r) => r.slice(0, 2));
+  assert.deepEqual([short.code, short.failure.reason, short.wroteRows], [1, 'POPULATION_MISMATCH', false]);
+  const repeated = await attempt((r) => [r[0], r[0], r[2]]);
+  assert.deepEqual([repeated.code, repeated.failure.reason], [1, 'POPULATION_MISMATCH']);
+  const unplanned = await attempt((r) => [...r.slice(0, 2), record('stranger')]);
+  assert.deepEqual([unplanned.code, unplanned.failure.reason], [1, 'POPULATION_MISMATCH']);
+  // An error record is the unit's row: it counts toward the population and keeps its status.
+  const withError = setup({
+    capture: ({ plan }) => ({
+      records: plan.map((p) => (p.unitId === 'beta' ? { ...record('beta'), observed: null, terms: null, issues: null, error: { stage: 'open', name: 'E', message: 'm' } } : record(p.unitId))),
+      durationSeconds: 1,
+      resources: { maxRSS: 1 },
+    }),
+  });
+  assert.equal(await quietly(() => withError.run()), 0);
+  const rows = parseRows(withError.read('rows.ndjson'));
+  assert.equal(rows.length, 3);
+  assert.deepEqual(rows.map((r) => r.status), ['ok', 'error', 'ok']);
 });
 
 test('main fails the run, names the unit and keeps the artifacts when two runs differ', async () => {

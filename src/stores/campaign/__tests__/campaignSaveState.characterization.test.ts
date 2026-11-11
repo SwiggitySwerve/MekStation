@@ -112,6 +112,7 @@ describe('campaign save lifecycle before reducer extraction', () => {
       .spyOn(global, 'fetch')
       .mockReturnValueOnce(pending.promise)
       .mockResolvedValueOnce(response(200, newer));
+    useCampaignPersistenceStore.getState().markDirty();
     const saving = useCampaignPersistenceStore.getState().saveCampaign();
     await Promise.resolve();
     await useCampaignPersistenceStore.getState().loadCampaign(campaign.id);

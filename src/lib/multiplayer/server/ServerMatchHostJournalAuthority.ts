@@ -1,10 +1,9 @@
+import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 /**
  * DECIDE -> APPEND-AT-REVISION -> APPLY-COMMITTED-BATCH -> VERIFY -> PUBLISH.
  * Apply consumes the committed envelope; mismatch rebuilds from the journal.
  * Failures fold into one host-side recovery result (task 2.4).
  */
-
-import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -23,6 +22,7 @@ import type {
 } from './ServerMatchHostIntent';
 
 import { hasPublicationOutbox } from './IMatchStore';
+import { intentRefusalMessage as errorMessage } from './intentRefusal';
 import { markMatchCompleted } from './matchCompletion';
 import * as matchJournalAuthority from './matchJournalAuthority';
 import {
@@ -31,10 +31,7 @@ import {
   type IDecideCommandBatchDeps,
 } from './ServerMatchHostDecision';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
-import {
-  errorMessage,
-  resumePendingPublications,
-} from './ServerMatchHostPublication';
+import { resumePendingPublications } from './ServerMatchHostPublication';
 
 function finish(
   journal: IJournalAuthorityHostHandle,
@@ -57,7 +54,7 @@ function persistenceFailure(
     reason,
     envelope.intentId,
   );
-  ctx.broadcast(err);
+  ctx.sendRefusal(err);
   return finish(journal, [err], { kind: 'persistence-failure', reason });
 }
 
@@ -109,7 +106,7 @@ async function resumeCommittedCommand(
       'sequence-conflict',
       envelope.intentId,
     );
-    ctx.broadcast(err);
+    ctx.sendRefusal(err);
     return finish(journal, [err], {
       kind: 'revision-conflict',
       expectedRevision: result.expectedRevision,
@@ -168,7 +165,7 @@ export async function commitJournalAuthorityCommand(
       e instanceof Error ? e.message : 'Engine rejected intent',
       envelope.intentId,
     );
-    ctx.broadcast(err);
+    ctx.sendRefusal(err);
     return finish(journal, [err], null);
   }
 
@@ -228,7 +225,7 @@ export async function commitJournalAuthorityCommand(
       'sequence-conflict',
       envelope.intentId,
     );
-    ctx.broadcast(err);
+    ctx.sendRefusal(err);
     return finish(journal, [err], {
       kind: 'revision-conflict',
       expectedRevision: result.expectedRevision,
@@ -281,7 +278,7 @@ export async function commitJournalAuthorityCommand(
       'projection-divergence',
       envelope.intentId,
     );
-    ctx.broadcast(err);
+    ctx.sendRefusal(err);
     return finish(journal, [err], {
       kind: 'digest-divergence',
       expectedDigest,

@@ -28,8 +28,12 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 
 ## Load row (`measure: load`, `status: ok`) — `load`
 
-- `observed`: `bv` (number, or `null`), `validity` (`valid`/`invalid`), `weight` (editor `allocatedWeight`),
-  `mp {walk, run, jump}`, `occupancy` (always `null` now; phase-2 placeholder).
+- `observed`: `bv` (number, or `null`), `validity` (`valid`/`invalid`), `weight` (the status bar's `unitStats.weightUsed`,
+  unrounded, never the `toFixed(1)` text), `allocatedWeight` (`projectMechWeight().allocatedWeight`, read beside it),
+  `mp {walk, run, jump}`, `occupancy` (always `null` now; phase-2 placeholder). `weight` and `allocatedWeight` must be equal
+  on every unit: the summary compares them exactly and counts a difference as a finding (a second weight owner), never a tolerance.
+  `weightRemaining` is not a validity term (the status bar subtracts from `tonnage`, validation from `getMechValidationTonnage`).
+  The reopen measure reads the same `weightUsed`, with `allocatedWeight` as the cross-check.
 - `terms`: exactly `numericTerms(mechBVTerms(breakdown))`, names unchanged (Java-comparable: `structureBV` includes the gyro,
   `defensiveEquipmentBV` = `defEquipBV` + `armoredComponentBV`, `weapon.<n>.<LOC>.<id>` per mount).
 - `issues[]`: every validation issue `{ruleId, channel (errors|warnings|infos), severity, field, message}`; `field` is the raw field.
@@ -58,17 +62,42 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
 - A mount view is `{equipmentId, category?, techBase?, location?, slots?, splitSlots?, spreadSlots?, isRearMounted?, isOmniPodMounted?, weight?, criticalSlots?, heat?}`;
   the editor-only `instanceId` is excluded, and absent facts stay absent.
 
+- `saveLoss`: whether the save dialog asks for a loss confirmation, from the loaded (BEFORE) target store. The dialog confirms on
+  `unrecoveredCriticalSlots?.length || lossTrackingUnknown || armorSaveLoss` (`SaveUnitDialog.tsx` `handleSave`), fed by
+  `useUnitLoadDiagnostics()` (`MultiUnitTabs.tsx` `StoreValidatedSaveUnitDialog`). The shared observer calls that hook, so nothing is
+  recomputed: `settled` (diagnostics not refreshing), `lossTrackingUnknown` (`entries === undefined`), `noticeBefore` (the store's exact
+  entries, each `{location, slot, text, bucket, effectId, kind, responsibility}`; `null` exactly when unknown, never coerced to empty),
+  `armorSaveLoss` (`getArmorSaveLoss(source, armorType)` returned a loss) with its `armorSaveLossSourceType`, and `confirmation`
+  (their `||`).
+- `saveLossAfter`: the same facts for the reopened store (entries under `noticeAfter`), for a cold-reopen headline: would the dialog
+  ask if the reopened unit were saved. Its entries are the reopened residual, of which the row records the count
+  (`noticeResidual.reopenedResidualCells`); `validateRow` checks the two agree.
+- **One owner:** the shape, the dialog predicate and the third number live in `save-loss.mjs`, the only file that decides them (callers use
+  its exports). Today it is list-based, from the dialog's own inputs. When C3's stage-1 save-loss comparator (`save-loss-detector/DESIGN.md`)
+  is on main, `noSaveLossConfirmation` there switches to call it, with no copy, and unknown stays distinct from clean.
+
 Checked by `validateRow`: `equal` is true exactly when `residual` equals the `non-system` `lostCells` and `noticeOnly`/`roundTripOnly` are empty;
-`rawIdentityLosses` is exactly `lostCells` + `tokenChanges`.
+`rawIdentityLosses` is exactly `lostCells` + `tokenChanges`; `saveLoss.noticeBefore` is the same list as `noticeResidual.residual` (one owner),
+is `null` exactly when `lossTrackingUnknown`, `armorSaveLossSourceType` is set exactly when `armorSaveLoss`, and `confirmation` equals the
+dialog's predicate over the row's own fields.
+
+**Third nightly number, "saves with no loss confirmation":** `noSaveLossConfirmation(row)` in `rows.mjs` is
+`settled && !lossTrackingUnknown && noticeBefore.length === 0 && !armorSaveLoss` on an `ok` reopen row. Error rows and unsettled rows are
+kept in the denominator and are not counted. This measures the dialog's confirmation only; the save button's other gates (name,
+construction validity, saving/refreshing) are separate and are not part of it.
 
 ## Run receipt (`receipt.json`)
 
-Provenance and resource facts live here, never on a row: `repoSha`, `node`, `platform`, `reference.sha256`
+Provenance and resource facts live here, never on a row: `repoSha`, `node` (`process.version`), `nodeAbi`
+(`process.versions.modules`; better-sqlite3 must run on the ABI that `node_modules` was built for), `platform`, `reference.sha256`
 (`config/reference/reference-full.jsonl.gz`), `sources.sha256` and `manifest.sha256` (the S0b join inputs as read),
 `rows {count, sha256}` (the rows file this receipt describes), `durationSeconds` (whole invocation), `runs[]` (one entry per
 fresh capture process: `rowsSha256`, `durationSeconds`, and that process's `resources` from `process.resourceUsage()`;
 recorded, never a gate), `deterministic` (every run's rows were byte-identical: the determinism gate) and `scope`
-(`families`, and `unitIds`: `null` is the whole joined population, a list is a deliberately narrowed local run).
+(`families`; `populationCount`, the plan length after the family filter and before `--units`; and `unitIds`: `null` is the whole
+joined population, a sorted duplicate-free list is a deliberately narrowed local run). The population is proved, not inferred:
+`validateReceipt` and the summaries require `rows.count === populationCount` for a null scope and `rows.count === unitIds.length`
+otherwise, with exactly one row per planned unit id (error rows are the unit's row and carry their `status`).
 Rows are compared byte for byte across hosts; receipts are compared for identity, and each port's acceptance report
 names the Node version on both sides.
 

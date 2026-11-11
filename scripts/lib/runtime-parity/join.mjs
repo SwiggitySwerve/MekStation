@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { sha256 } from '../ci/parity-scoreboard-artifacts.mjs';
+import { sha256 } from '../../ci/parity-scoreboard-artifacts.mjs';
 
 export const SOURCES_FILE = 'sources.ndjson';
 export const MANIFEST_FILE = 'sources.ndjson.manifest.json';
@@ -67,9 +67,12 @@ export function buildPlan({ rows, manifest, families }) {
     const row = byPath.get(join.path);
     if (!row || row.sha256 !== join.sha256)
       throw new InputError('INPUT_SHA_DRIFT', `join ${join.catalogFile} disagrees with its source row`);
-    // BA/infantry/ProtoMechs are identity-only (unit: null); their capture is a later phase.
-    if (join.evaluation !== 'committed-unit' || !row.unit)
-      throw new InputError('MISSING_MANIFEST_ROWS', `family ${join.family} is not a committed-unit family: ${join.catalogFile}`);
+    // The capture needs the committed catalog object, which a row carries in `unit`. The emitter's
+    // `evaluation` label is not the test: local mode says `committed-unit` for the object families,
+    // repo-only mode says `identity-only/reference` for every family yet still carries the object.
+    // BA/infantry/ProtoMechs in local mode have `unit: null`; their capture is a later phase.
+    if (!row.unit || typeof row.unit !== 'object')
+      throw new InputError('MISSING_MANIFEST_ROWS', `no committed catalog object in the join for ${join.family}: ${join.catalogFile}`);
     if (typeof row.unit.id !== 'string' || !row.unit.id)
       throw new InputError('MISSING_MANIFEST_ROWS', `catalog unit without an id: ${join.catalogFile}`);
     plan.push({
@@ -103,6 +106,12 @@ export function verifyAgainstReference(plan, referenceRows) {
 
 /** The command that runs the S0b emitter as a child step. Pure, so it can be tested. */
 export function emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out }) {
+  // Without a mm-data checkout the emitter's repo-only mode is used: only Git, tsx and committed
+  // files (the verified reference supplies each source's path and SHA), so the hosted job needs
+  // nothing else. With --mekfiles it runs the local source-text mode.
+  const mode = mekfiles
+    ? ['--mekfiles', mekfiles, '--reference', referenceFile]
+    : ['--reference-only'];
   return {
     command: process.execPath,
     args: [
@@ -113,10 +122,7 @@ export function emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out 
       repoRoot,
       '--commit',
       commit,
-      '--mekfiles',
-      mekfiles,
-      '--reference',
-      referenceFile,
+      ...mode,
       '--out',
       out,
       '--source-only-families-identity-only',
@@ -126,14 +132,12 @@ export function emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out 
 
 /**
  * The one place the join comes from. `sourcesDir` (--sources) reads an existing emitter output;
- * otherwise the emitter runs as a child step. The emitter needs `mekfiles` (the pinned mm-data
- * checkout) until S0b offers a repo-only mode.
+ * otherwise the emitter runs as a child step, in its repo-only mode unless `mekfiles` is given.
  */
 export function obtainJoin({ repoRoot, sourcesDir, mekfiles, commit, referenceFile, workDir }) {
   if (sourcesDir) return { dir: path.resolve(sourcesDir), ...readJoinFiles(sourcesDir) };
   if (!fs.existsSync(path.join(repoRoot, EMITTER)))
     throw new InputError('S0B_MANIFEST_MISSING', `${EMITTER} is not in this checkout and no --sources directory was given`);
-  if (!mekfiles) throw new InputError('S0B_MANIFEST_MISSING', 'the emitter needs --mekfiles until it has a repo-only mode');
   const out = path.join(workDir, 'join');
   const { command, args } = emitterCommand({ repoRoot, commit, mekfiles, referenceFile, out });
   const result = spawnSync(command, args, { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });

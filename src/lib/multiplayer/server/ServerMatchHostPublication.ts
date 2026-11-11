@@ -1,3 +1,4 @@
+import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 /**
  * The commit / publish passes of a match command.
  *
@@ -12,8 +13,6 @@
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/multiplayer-server/spec.md
  */
-
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IEventMessage,
   IServerMessage,
@@ -29,32 +28,7 @@ import type {
 
 import { exitForE2EFault } from './DurableMatchStore';
 import { hasPublicationOutbox } from './IMatchStore';
-
-/**
- * Builds a protocol Error envelope. `code` is the machine-readable
- * protocol union; `reason` must stay free of foreign session ids.
- *
- * Lives here rather than beside the intent gates because the commit
- * pass is its most load-bearing caller - `STORE_FAILURE` is the one
- * frame a client gets when a command did not become durable - and the
- * gates import it from here rather than the other way round, so the
- * dependency runs one way.
- */
-export function errorMessage(
-  matchId: string,
-  code: Extract<IServerMessage, { kind: 'Error' }>['code'],
-  reason: string,
-  intentId?: string,
-): Extract<IServerMessage, { kind: 'Error' }> {
-  return {
-    kind: 'Error',
-    matchId,
-    ts: nowIso(),
-    code,
-    reason,
-    ...(intentId != null ? { intentId } : {}),
-  };
-}
+import { intentRefusalMessage } from './intentRefusal';
 
 /** What `commitThenPublish` did. */
 export interface ICommitThenPublishResult {
@@ -70,7 +44,7 @@ export interface ICommitThenPublishDeps {
   readonly events: readonly IGameEvent[];
   readonly intentId?: string;
   readonly appendEvent: (event: IGameEvent) => Promise<unknown>;
-  readonly broadcast: (message: IServerMessage) => void;
+  readonly sendRefusal: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
   readonly closeMatch: () => Promise<void>;
   /**
@@ -168,13 +142,13 @@ export async function commitThenPublish(
     try {
       await deps.appendEvent(event);
     } catch (e) {
-      const err = errorMessage(
+      const err = intentRefusalMessage(
         deps.matchId,
         'STORE_FAILURE',
         e instanceof Error ? e.message : 'Store append failed',
         deps.intentId,
       );
-      deps.broadcast(err);
+      deps.sendRefusal(err);
       await deps.closeMatch();
       // Returning at the first failure rather than pushing on: further
       // appends would only deepen a commit the caller is abandoning.
@@ -276,13 +250,13 @@ async function commitBatchThenPublishFromRows(
       events: deps.events,
     });
   } catch (e) {
-    const err = errorMessage(
+    const err = intentRefusalMessage(
       deps.matchId,
       'STORE_FAILURE',
       e instanceof Error ? e.message : 'Store append failed',
       deps.intentId,
     );
-    deps.broadcast(err);
+    deps.sendRefusal(err);
     await deps.closeMatch();
     return { committed: false, messages: [err] };
   }
@@ -290,13 +264,13 @@ async function commitBatchThenPublishFromRows(
     return { committed: true, messages: [] };
   }
   if (result.kind !== 'committed') {
-    const err = errorMessage(
+    const err = intentRefusalMessage(
       deps.matchId,
       'STORE_FAILURE',
       result.kind,
       deps.intentId,
     );
-    deps.broadcast(err);
+    deps.sendRefusal(err);
     await deps.closeMatch();
     return { committed: false, messages: [err] };
   }
