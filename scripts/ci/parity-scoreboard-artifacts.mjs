@@ -1,7 +1,9 @@
 // Public census artifact inventory and byte-level serialization helpers.
-import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+
+import io from './parity-scoreboard-io.cjs';
+export const { readJson, readRows, sha256, verifySha256 } = io;
 
 export const ROW_FILES = [
   'delta-rows.jsonl',
@@ -17,17 +19,6 @@ export const REPORT_FILES = [
   'reference-provenance-report.json',
   ...ROW_FILES,
 ];
-export const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
-export const readRows = (file) =>
-  fs.readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
-export const sha256 = (bytes) =>
-  createHash('sha256').update(bytes).digest('hex');
-
-export function verifySha256(bytes, expected, label) {
-  if (!/^[a-f0-9]{64}$/.test(expected) || sha256(bytes) !== expected)
-    throw new Error(`${label} SHA-256 mismatch`);
-}
-
 const completenessFile = 'scoreboard-completeness.json';
 const inventory = {
   pipeline: [

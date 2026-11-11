@@ -1,3 +1,4 @@
+import type { IEditableMechProjectionInput } from '@/services/construction/editableMechProjection';
 import type { IEditableMech } from '@/services/construction/MechBuilderService';
 import type { IUnitConfig } from '@/services/printing/recordsheet/types';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
@@ -28,10 +29,13 @@ import {
   type RecordSheetUnitIdentityWithTonnageInput,
 } from '../preview/recordSheetUnitIdentity';
 
-export interface PreviewUnitState extends Omit<
-  RecordSheetUnitIdentityWithTonnageInput,
-  'id'
-> {
+export interface PreviewUnitState
+  extends
+    Omit<RecordSheetUnitIdentityWithTonnageInput, 'id'>,
+    Pick<
+      IEditableMechProjectionInput,
+      'techBaseMode' | 'componentTechBases' | 'chassisSource'
+    > {
   role?: string;
   configuration: MechConfiguration;
   engineType: EngineType;
