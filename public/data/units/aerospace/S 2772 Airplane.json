@@ -41,6 +41,7 @@
     "1stclassquarters:50.0:5:-1::-1:0",
     "troopspace:1.5"
   ],
+  "sourceTechType": "IS Level 2",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 4957,

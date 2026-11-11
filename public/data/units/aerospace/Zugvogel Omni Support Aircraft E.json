@@ -136,6 +136,7 @@
   "transporters": [
     "troopspace:48.0:omni"
   ],
+  "sourceTechType": "IS Level 2",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 3659,

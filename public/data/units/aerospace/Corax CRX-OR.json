@@ -72,6 +72,7 @@
     }
   ],
   "isOmni": true,
+  "sourceTechType": "Mixed (IS Chassis) Experimental",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5746,

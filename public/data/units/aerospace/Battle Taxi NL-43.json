@@ -80,6 +80,7 @@
     "troopspace:16.0",
     "cargobay:2.0:1:1::-1:0"
   ],
+  "sourceTechType": "IS Level 4",
   "omniPodHeatSinks": 8,
   "hasBombBay": false,
   "bombCapacity": 0,

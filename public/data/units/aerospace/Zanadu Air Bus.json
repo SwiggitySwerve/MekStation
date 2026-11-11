@@ -46,6 +46,7 @@
     "cargobay:6.5:1:1::-1:0",
     "troopspace:7.5"
   ],
+  "sourceTechType": "IS Level 2",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5432,

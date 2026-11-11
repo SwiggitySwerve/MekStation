@@ -46,6 +46,7 @@
       "location": "RIGHT_WING"
     }
   ],
+  "sourceTechType": "IS Level 4",
   "hasBombBay": false,
   "bombCapacity": 0,
   "mulId": 5855,
