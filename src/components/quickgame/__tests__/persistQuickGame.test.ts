@@ -208,13 +208,13 @@ describe('buildQuickManifestEntry', () => {
     expect(entry.bvTotal).toBe(3200);
   });
 
-  it('falls back to bvTotal=0 when no GameCreated event present', () => {
+  it('records unknown BV when no GameCreated event is present', () => {
     const entry = buildQuickManifestEntry({
       ...baseInput,
       events: [turnStartedEvent(0, 1)],
       winner: 'player',
     });
-    expect(entry.bvTotal).toBe(0);
+    expect(entry.bvTotal).toBeNull();
   });
 
   it('falls back to aiVariant="unknown" when input is empty string', () => {

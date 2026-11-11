@@ -17,13 +17,65 @@ const receipt = {
 
 describe('unit save-state owner', () => {
   it.each([
+    [fingerprints.library, fingerprints.draft, receipt, 'matched'],
+    ['new-writer-bytes', fingerprints.draft, receipt, 'saved-older-writer'],
+    ['edited-library-bytes', 'edited-draft', receipt, 'changed'],
+    [
+      fingerprints.library,
+      fingerprints.draft,
+      {
+        id: receipt.id,
+        version: receipt.version,
+        fingerprint: receipt.fingerprint,
+      },
+      'unknown',
+    ],
+    [
+      'other-bytes',
+      fingerprints.draft,
+      {
+        id: receipt.id,
+        version: receipt.version,
+        fingerprint: receipt.fingerprint,
+      },
+      'unknown',
+    ],
+  ] as const)(
+    'classifies library %s and draft %s with its saved baseline',
+    (library, draft, saved, expected) => {
+      expect(
+        getUnitSaveState({ librarySave: saved }, library, draft).library,
+      ).toEqual({ state: expected, receipt: saved });
+    },
+  );
+
+  it('rejects a mutant that drops the unchanged-draft comparison', () => {
+    const assertOlderWriter = (state: SaveState['library']) =>
+      expect(state.state).toBe('saved-older-writer');
+    assertOlderWriter(
+      getUnitSaveState(
+        { librarySave: receipt },
+        'new-writer-bytes',
+        fingerprints.draft,
+      ).library,
+    );
+    expect(() => assertOlderWriter({ state: 'changed', receipt })).toThrow();
+  });
+
+  it.each([
     [undefined, 'unknown'],
     [false, 'clean'],
     [true, 'modified'],
   ] as const)(
     'reads legacy modification %s without inventing a library receipt',
     (isModified, modification) => {
-      expect(getUnitSaveState({ isModified }, fingerprints.library)).toEqual({
+      expect(
+        getUnitSaveState(
+          { isModified },
+          fingerprints.library,
+          fingerprints.draft,
+        ),
+      ).toEqual({
         modification,
         draft: 'pending',
         library: { state: 'none' },
@@ -36,6 +88,7 @@ describe('unit save-state owner', () => {
       getUnitSaveState(
         { isModified: true, librarySave: receipt },
         fingerprints.library,
+        fingerprints.draft,
         'failed',
       ),
     ).toEqual({
@@ -47,6 +100,7 @@ describe('unit save-state owner', () => {
       getUnitSaveState(
         { isModified: false, librarySave: receipt },
         'new-construction',
+        'new-draft',
       ).library,
     ).toEqual({
       state: 'changed',
@@ -97,8 +151,9 @@ describe('unit save-state owner', () => {
       getUnitSaveState(
         { isModified: false, librarySave: legacy },
         fingerprints.library,
+        fingerprints.draft,
       ).library,
-    ).toEqual({ state: 'matched', receipt: legacy });
+    ).toEqual({ state: 'unknown', receipt: legacy });
     expect(getUnitLibrarySavePatch(legacy, fingerprints.draft).isModified).toBe(
       true,
     );
@@ -108,7 +163,9 @@ describe('unit save-state owner', () => {
     ['clean', 'modified', 'unknown'] as const
   ).flatMap((modification) =>
     (['pending', 'saved', 'failed'] as const).flatMap((draft) =>
-      (['none', 'matched', 'changed'] as const).map(
+      (
+        ['none', 'matched', 'saved-older-writer', 'changed', 'unknown'] as const
+      ).map(
         (state): SaveState => ({
           modification,
           draft,
@@ -141,6 +198,7 @@ describe('unit save-state owner', () => {
           type: 'unitChanged',
           isModified: false,
           libraryFingerprint: fingerprints.library,
+          draftFingerprint: fingerprints.draft,
         }),
       ).toEqual({
         ...state,
@@ -155,6 +213,7 @@ describe('unit save-state owner', () => {
           type: 'unitChanged',
           isModified: true,
           libraryFingerprint: 'changed',
+          draftFingerprint: 'changed-draft',
         }),
       ).toEqual({
         ...state,

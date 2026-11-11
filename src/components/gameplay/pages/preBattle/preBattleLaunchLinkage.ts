@@ -1,6 +1,9 @@
 import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.types';
 import type { IEncounter } from '@/types/encounter/EncounterInterfaces';
 
+import { isReplayBvTotal } from '@/replay-library/eventMetadata';
+import { calculateForceTotals } from '@/types/quickgame/QuickGameInterfaces';
+
 export interface IPreBattleLaunchLinkageInput {
   readonly encounter: IEncounter;
   readonly campaignId?: string | readonly string[] | null;
@@ -53,7 +56,21 @@ export function buildPreBattleLaunchLinkage({
     meta?.scenarioId ??
     (resolvedCampaignId && routeMissionId ? encounter.id : null);
 
+  const player = encounter.playerForce;
+  const opponent = encounter.opponentForce;
+  const bvTotal =
+    player &&
+    opponent &&
+    isReplayBvTotal(player.totalBV) &&
+    isReplayBvTotal(opponent.totalBV)
+      ? calculateForceTotals([
+          { bv: player.totalBV, tonnage: 0 },
+          { bv: opponent.totalBV, tonnage: 0 },
+        ]).totalBV
+      : undefined;
+
   return {
+    ...(bvTotal !== undefined ? { quickMeta: { bvTotal } } : {}),
     encounterId: encounter.id,
     campaignId: resolvedCampaignId ?? null,
     contractId: resolvedContractId ?? null,

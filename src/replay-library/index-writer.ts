@@ -31,6 +31,8 @@ import { ReplaySource } from '@/types/gameplay';
 
 import type { IQuickReplayManifestEntry, IReplayManifestEntry } from './types';
 
+import { readRecordedBv } from './recordedBv';
+
 /**
  * Options for the writer. `cwd` lets tests inject a tmpdir without polluting
  * the real `simulation-reports/`.
@@ -223,8 +225,8 @@ export async function repairQuickManifestMetadata(
           ? candidate.turns
           : prior.turns,
       bvTotal:
-        prior.bvTotal === 0 && candidate.bvTotal > 0
-          ? candidate.bvTotal
+        prior.bvTotal === 0 || prior.bvTotal === null
+          ? (candidate.bvTotal ?? (prior.bvTotalRecorded ? 0 : null))
           : prior.bvTotal,
     };
     if (repaired.turns !== prior.turns || repaired.bvTotal !== prior.bvTotal) {
@@ -233,6 +235,36 @@ export async function repairQuickManifestMetadata(
         entries.map((entry) => (entry === prior ? repaired : entry)),
       );
     }
+    return repaired;
+  });
+}
+
+/** One-time repair of legacy zero sentinels. Only the derived index is written. */
+export async function repairStoredManifestBv(
+  options: IAppendManifestEntryOptions = {},
+): Promise<readonly IReplayManifestEntry[]> {
+  const indexPath = resolveIndexPath(options.cwd);
+  return runSerialized(indexPath, async () => {
+    const entries = await readExistingManifest(indexPath);
+    let changed = false;
+    const repaired: IReplayManifestEntry[] = [];
+    for (const entry of entries) {
+      if (entry?.bvTotal !== 0 || entry.bvTotalRecorded === true) {
+        repaired.push(entry);
+        continue;
+      }
+      const bvTotal =
+        typeof entry.path === 'string'
+          ? await readRecordedBv(path.dirname(indexPath), entry.path)
+          : null;
+      repaired.push({
+        ...entry,
+        bvTotal,
+        ...(bvTotal === 0 ? { bvTotalRecorded: true as const } : {}),
+      });
+      changed = true;
+    }
+    if (changed) await writeManifest(indexPath, repaired);
     return repaired;
   });
 }
