@@ -346,4 +346,36 @@ export const standalonePrimaryEntries: readonly SweptScreenEntry[] = [
     ],
     quarantine: [],
   },
+  {
+    id: 'gameplay-lobby',
+    class: 'standalone',
+    label: 'peer-to-peer lobby preview',
+    manifestPaths: ['/gameplay/lobby/[roomCode]'],
+    goto: '/gameplay/lobby/LAYTXT?host=1',
+    primaryAffordances: [
+      affordance({
+        label: 'copy room code',
+        role: 'button',
+        name: 'Copy LAYTXT',
+      }),
+    ],
+    overlapTargets: [
+      affordance({
+        label: 'host unit picker',
+        role: 'combobox',
+        name: 'Add unit to Host loadout',
+      }),
+      affordance({
+        label: 'map radius',
+        role: 'spinbutton',
+        name: 'Map radius',
+      }),
+      affordance({
+        label: 'disabled launch',
+        role: 'button',
+        name: 'Launch Match',
+      }),
+    ],
+    quarantine: [],
+  },
 ];
