@@ -4,7 +4,7 @@ on:
   pull_request_target:
     branches: [main]
     paths: ['config/ci/budgets.json', 'package.json', 'package-lock.json', 'desktop/package.json', 'desktop/package-lock.json']
-    types: [opened, synchronize, reopened, labeled, unlabeled, edited, ready_for_review]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   workflow_run:
     workflows: [CI Budget Review Signal]
     types: [completed]
@@ -16,10 +16,6 @@ on:
         type: number
 
 permissions: {}
-
-concurrency:
-  group: ci-budget-approval
-  cancel-in-progress: false
 
 jobs:
   approval:
@@ -43,9 +39,8 @@ jobs:
           REQUESTED_PR: ${{ inputs.pull_request }}
         with:
           script: |
-            // Statuses go only to the head this run evaluated. A label change
-            // (labeled/unlabeled) re-evaluates the current head here, so a
-            // revoked label fails that head's required `Lint and Test`.
+            // Statuses go only to the head this run evaluated. Label changes
+            // are handled by the separate, unfiltered label workflow.
             const { checkBudgetPolicy, guardOutcome } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
             // Every evaluation is bound to the head this run is for (expectedHead):
             // the event's PR head, the reviewed head for a review signal, or the

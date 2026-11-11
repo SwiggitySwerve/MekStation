@@ -1,0 +1,8 @@
+{
+  "$comment": "The scripts/lib files .husky/pre-commit runs. Fixtures that run the real hook in a throwaway repository copy exactly these; a test asserts every node scripts/lib/<name>.mjs in the hook is listed (#3375 broke main by missing one).",
+  "scripts": [
+    "check-partial-stage.mjs",
+    "check-staged-parents.mjs",
+    "staged-typescript.mjs"
+  ]
+}

@@ -22,6 +22,8 @@ import { logger } from '@/utils/logger';
 
 import type { IReplayManifestEntry } from './types';
 
+import { repairStoredManifestBv } from './index-writer';
+
 /**
  * Backfill scan invoked when `replay-index.json` is missing. PR 3 wires the
  * real on-disk scan as the default; tests may still inject a stub through
@@ -54,6 +56,8 @@ export const defaultBackfillScan: BackfillScan = async (cwd) => {
 export interface IReadReplayIndexOptions {
   /** Override `process.cwd()` for the index path resolution. */
   readonly cwd?: string;
+  /** Library listing opts in; persistence dedup reads must remain read-only. */
+  readonly repairStoredBv?: boolean;
   /** Override the missing-file fallback (defaults to the empty-array stub). */
   readonly backfillScan?: BackfillScan;
 }
@@ -159,5 +163,15 @@ export async function readReplayIndex(
     }
   }
 
+  if (
+    options.repairStoredBv &&
+    recognized.some(
+      (entry) => entry.bvTotal === 0 && entry.bvTotalRecorded !== true,
+    )
+  ) {
+    return (await repairStoredManifestBv({ cwd })).filter(
+      hasRecognizedReplaySource,
+    );
+  }
   return recognized;
 }

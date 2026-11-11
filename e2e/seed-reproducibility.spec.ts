@@ -416,6 +416,17 @@ test.describe(
           secondRun.sessionId,
         );
 
+        const libraryResponse = await page.request.get('/api/replay-library');
+        expect(libraryResponse.ok()).toBe(true);
+        const library = (await libraryResponse.json()) as {
+          entries: readonly { id: string; bvTotal: number | null }[];
+        };
+        for (const sessionId of [firstRun.sessionId, secondRun.sessionId]) {
+          const entry = library.entries.find((row) => row.id === sessionId);
+          expect(typeof entry?.bvTotal).toBe('number');
+          expect(entry?.bvTotal).toBeGreaterThan(0);
+        }
+
         // Check the actual saved GameCreated inputs, including all unit
         // fields and all config fields except the permitted encounter ID.
         const firstLaunch = firstHistory.events[0].payload as LaunchPayload;

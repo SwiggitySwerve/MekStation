@@ -44,6 +44,7 @@
 import type { IEncounterReplayManifestEntry } from '@/replay-library/types';
 import type { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 
+import { replayBvTotal } from '@/replay-library/eventMetadata';
 import { GameSide, ReplaySource, type IGameEvent } from '@/types/gameplay';
 
 /**
@@ -185,24 +186,15 @@ export function buildEncounterManifestEntry(
   // robust derivation. Fallback to 0 for crashed-before-turn-1 runs.
   const turns = countTurnStartedEvents(events);
 
-  // BV total: per Council Decision 3 + Momus MUST RESOLVE #1 from
-  // add-replay-library, BV is computed at write time. Sum across
-  // whatever payload.units[].bv values are on the GameCreated event.
-  // Falls back to 0 if no GameCreated or no bv fields — in which case
-  // the Library page row shows BV: 0 and a future PR can plumb the real
-  // number through.
-  let bvTotal = 0;
-  for (const event of events) {
-    if (event.type === 'game_created') {
-      const payload = event.payload as {
-        units?: ReadonlyArray<{ bv?: number }>;
-      };
-      if (payload.units !== undefined) {
-        bvTotal = payload.units.reduce((sum, u) => sum + (u.bv ?? 0), 0);
-      }
-      break;
-    }
+  const created = events.find((event) => event.type === 'game_created');
+  // Preserve the persistence boundary: malformed events must fail before IO.
+  if (
+    created &&
+    (created.payload === null || typeof created.payload !== 'object')
+  ) {
+    throw new Error('GameCreated payload must be an object');
   }
+  const bvTotal = replayBvTotal(created) ?? null;
 
   return {
     id: gameId,
@@ -243,7 +235,7 @@ export async function persistEncounterGame(
   }
 
   // Build the manifest entry BEFORE any disk IO (audit 2026-06-09
-  // W5.2): the builder reads `game_created.payload.units`, so a
+  // W5.2): the builder reads recorded GameCreated metadata, so a
   // malformed event throws here — with the old write-then-build order
   // that throw landed AFTER the JSONL write, leaving an orphan file the
   // manifest never references.
