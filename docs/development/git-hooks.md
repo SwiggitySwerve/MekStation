@@ -15,12 +15,12 @@ Source: [`.husky/pre-commit`](../../.husky/pre-commit). Auto-installed via `npm 
 
 Current behaviour:
 
-| Step | Action                                                                                                                                                                                               |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | `node scripts/lib/check-partial-stage.mjs` (cross-drive worktrees only; see below)                                                                                                                   |
-| 2    | `npx lint-staged --no-stash` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` / `.mjs` / `.cjs` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
-| 3    | `node scripts/lib/check-staged-parents.mjs`                                                                                                                                                          |
-| 4    | When any `.ts` / `.tsx` file is staged (added, copied, modified or renamed), `npm run typecheck` runs **once**, checking both root and scripts projects with TypeScript 7                            |
+| Step | Action                                                                                                                                                                                                                                |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `node scripts/lib/check-partial-stage.mjs` (cross-drive worktrees only; see below)                                                                                                                                                    |
+| 2    | `node node_modules/lint-staged/bin/lint-staged.js --no-stash` runs `oxlint --fix` and `oxfmt --write` on staged `.ts` / `.tsx` / `.js` / `.jsx` / `.mjs` / `.cjs` files, and `oxfmt --write` on staged `.json` / `.md` / `.css` files |
+| 3    | `node scripts/lib/check-staged-parents.mjs`                                                                                                                                                                                           |
+| 4    | When any `.ts` / `.tsx` file is staged (added, copied, modified or renamed), `npm run typecheck` runs **once**, checking both root and scripts projects with TypeScript 7                                                             |
 
 A failed step fails the commit with its exit code. With no `.ts` / `.tsx` staged, no typecheck runs.
 
@@ -28,7 +28,16 @@ A failed step fails the commit with its exit code. With no `.ts` / `.tsx` staged
 
 **What the hook's typecheck does not prove.** It runs after lint-staged has put any hidden unstaged hunks back. So for a partially staged `.ts` file on a same-drive checkout, it checks the **working tree**, not the staged-only content, and it can pass on a commit whose staged content alone would fail. **Hosted Static Checks typechecks the commit itself and remains the gate; the hook is the fast local check.**
 
-The hook runs `npx lint-staged --no-stash`, so lint-staged takes no backup stash.
+Before these steps, the hook checks the local install in this order:
+
+1. If `node_modules/lint-staged/` is missing, it refuses with "no local lint-staged install" and tells you to junction the reference `node_modules` or run the project install.
+2. If the directory exists but `bin/lint-staged.js` is missing, it refuses with "installed lint-staged has no bin/lint-staged.js". A version change probably moved its entry point, so the hook path needs updating. This message does not advise an install.
+
+**Why a local file instead of npx.** On 2026-11-11, measurements with npm 11.19.1 showed that plain `npx lint-staged` could fetch lint-staged 17.6.0 when no local install existed, although this repository pins `^16.2.7`. Both `npx --no-install lint-staged` and `npm exec --no --offline -- lint-staged` still ran the cached 17.6.0 and exited zero. Calling the local file directly avoids both registry and cache fallback. `precommit-no-build.test.ts` checks both refusals with recording `npm` and `npx` launchers, and pins the hook path to the installed package's `bin` entry so a moved entry point fails a test.
+
+**What lock-pinned covers.** The hook runs whatever is in `node_modules`; it matches the lock only when the install does. On 2026-11-11, Root checked the reference install `node-ref-d007a047` and the primary checkout: both held lint-staged 16.2.7, as did the lock. The hook makes no version comparison.
+
+The hook runs `node node_modules/lint-staged/bin/lint-staged.js --no-stash`, so lint-staged takes no backup stash.
 
 - **Why:** linked worktrees share one stash stack. lint-staged applies or drops its backup by an index it looked up just before, so a stash made in another worktree in between could make it drop someone else's entry.
 - **Trade-off:** if a task fails, the edits it made stay in the working tree rather than being reverted.
@@ -52,7 +61,7 @@ In such a worktree, none of the checks above run unless you run them. Either:
 
 - **Copy the hooks:** copy `.husky/_` from a checkout where `npm install` ran into this worktree, so the real hook runs on every commit. Don't run `husky init`; it rewrites `.husky/pre-commit`.
 - **Or run the hook's steps by hand before `git commit`,** in the hook's order: `sh .husky/pre-commit` runs them all.
-  - If you run lint-staged yourself, run the partial-stage check first and pass what it prints: `flag=$(node scripts/lib/check-partial-stage.mjs) && npx lint-staged --no-stash $flag`.
+  - Run `sh .husky/pre-commit` to keep the local-install checks and all steps in order. If you run lint-staged yourself after checking the install, run the partial-stage check first and pass what it prints: `flag=$(node scripts/lib/check-partial-stage.mjs) && node node_modules/lint-staged/bin/lint-staged.js --no-stash $flag`.
   - Plain `npx lint-staged` in a worktree on a different drive from its git directory loses the unstaged part of a partially staged file, as described above.
 
 **Don't bypass with `--no-verify`** unless you have an explicit reason.

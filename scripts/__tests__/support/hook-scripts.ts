@@ -23,3 +23,13 @@ export function copyHookScripts(fixtureRoot: string): void {
       path.join(fixtureRoot, 'scripts/lib', script),
     );
 }
+
+/** Makes the tree under test's installed lint-staged available to the hook. */
+export function linkLintStaged(fixtureRoot: string): void {
+  fs.mkdirSync(path.join(fixtureRoot, 'node_modules'), { recursive: true });
+  fs.symlinkSync(
+    path.join(repoRoot, 'node_modules/lint-staged'),
+    path.join(fixtureRoot, 'node_modules/lint-staged'),
+    process.platform === 'win32' ? 'junction' : 'dir',
+  );
+}
