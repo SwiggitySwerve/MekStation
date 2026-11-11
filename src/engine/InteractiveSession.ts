@@ -295,27 +295,50 @@ export class InteractiveSession {
    */
   withValidatedCommand(
     command: () => void,
+    validate: (events: readonly IGameEvent[]) => Promise<void>,
+  ): Promise<void>;
+  withValidatedCommand(
+    command: () => void,
     validate: (events: readonly IGameEvent[]) => void,
-  ): void {
+  ): void;
+  withValidatedCommand(
+    command: () => void,
+    validate: (events: readonly IGameEvent[]) => void | Promise<void>,
+  ): void | Promise<void> {
     if (this.deferCommandEffects) throw new Error('Command already staged');
     const previousSession = this.session;
     const previousHexes = new Map(this.grid.hexes);
+    const previousRandom = this.random.snapshot();
     this.deferCommandEffects = true;
-    try {
-      command();
-      validate(this.session.events.slice(previousSession.events.length));
-    } catch (error) {
+    const refuse = (error: unknown): never => {
       this.session = previousSession;
       this.grid.hexes.clear();
       for (const [key, hex] of previousHexes) this.grid.hexes.set(key, hex);
-      throw error;
-    } finally {
+      this.random.restore(previousRandom);
       this.deferCommandEffects = false;
+      throw error;
+    };
+    const accept = (): void => {
+      this.deferCommandEffects = false;
+      if (!this.suppressOutcomePublication)
+        persistNewInteractiveSessionEvents(
+          this.runtimeContext,
+          previousSession,
+        );
+      if (this.session.currentState.status === GameStatus.Completed)
+        tryFinalizeAndPublishInteractiveSession(this.runtimeContext);
+    };
+    let validation: void | Promise<void>;
+    try {
+      command();
+      validation = validate(
+        this.session.events.slice(previousSession.events.length),
+      );
+    } catch (error) {
+      return refuse(error);
     }
-    if (!this.suppressOutcomePublication)
-      persistNewInteractiveSessionEvents(this.runtimeContext, previousSession);
-    if (this.session.currentState.status === GameStatus.Completed)
-      tryFinalizeAndPublishInteractiveSession(this.runtimeContext);
+    if (validation) return validation.then(accept, refuse);
+    accept();
   }
 
   static async fromMatchLog(
