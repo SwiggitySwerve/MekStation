@@ -23,8 +23,10 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
 ## Inputs
 
 - **Join:** S0b's committed-catalog emitter output (`sources.ndjson` + `sources.ndjson.manifest.json`). `--sources <dir>`
-  reads an existing output; otherwise the emitter runs as a child step (`scripts/ci/committed-catalog-sources.ts`, which
-  today needs `--mekfiles <pinned mm-data>/data/mekfiles` and Python). The source is one function, `obtainJoin` in `scripts/lib/runtime-parity/join.mjs`.
+  reads an existing output; otherwise the emitter runs as a child step (`scripts/ci/committed-catalog-sources.ts`) in its
+  repo-only mode (`--reference-only`: Git, tsx and committed files only, no mm-data, Python or JVM), which is what the hosted
+  job uses. `--mekfiles <pinned mm-data>/data/mekfiles` switches it to the local source-text mode. The emitter must be on the
+  ref being run (it is S0b's file). The source is one function, `obtainJoin` in `scripts/lib/runtime-parity/join.mjs`.
 - **Java values:** `config/reference/reference-full.jsonl.gz`, verified by the scoreboard's own `prepareReference`.
 - No network, no JVM, no `_scratch`.
 
