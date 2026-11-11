@@ -1,6 +1,7 @@
 import type { IGameEvent } from '@/types/gameplay';
 
 import { acceptReplayStoredImage } from '@/lib/events/replay/ReplayEventAcceptance';
+import { logger } from '@/utils/logger';
 
 export type StoredGameEventFormat =
   | 'simulation-report-jsonl'
@@ -47,10 +48,17 @@ export function prepareEventForSerialization<T extends IGameEvent>(
     const error = new UnreadableStoredEventError(event.id, formatId, cause);
     // A host must never commit a fact every mirror will refuse. Unlike the
     // single-player journal, publication has no mark-and-continue policy.
-    if (
-      formatId === 'match-broadcast' ||
-      (typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
-    )
+    if (formatId === 'match-broadcast') {
+      // Validation causes can include private field names and fogged event
+      // identities. Keep the complete cause on the server, off the wire.
+      logger.warn('[multiplayer] unreadable stored event', {
+        eventId: event.id,
+        formatId,
+        cause,
+      });
+      throw error;
+    }
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test')
       throw error;
     // If JSON itself failed, preserve a minimal serializable envelope so the
     // recording can still truthfully retain its unverifiable-event marker.
