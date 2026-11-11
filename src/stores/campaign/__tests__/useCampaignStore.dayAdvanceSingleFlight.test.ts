@@ -22,10 +22,14 @@ import {
 } from '@/lib/campaign/coop/campaignSyncTransport';
 import { getDayPipeline, _resetDayPipeline } from '@/lib/campaign/dayPipeline';
 import { _resetBuiltinRegistration } from '@/lib/campaign/processors';
+import {
+  installCampaignPersistenceWiring,
+  uninstallCampaignPersistenceWiring,
+} from '@/stores/campaign/campaignPersistenceWiring';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import {
   resetCampaignStore,
-  useCampaignStore,
+  useCampaignStore as getCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { COOP_ADVANCE_TIMEOUT_MS } from '@/stores/campaign/useCampaignStore.dayActions';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
@@ -162,6 +166,7 @@ function controlledHost(server: IFakeServer): IControlledHost {
 }
 
 function resetWorld(): void {
+  uninstallCampaignPersistenceWiring();
   jest.useRealTimers();
   jest.restoreAllMocks();
   resetCampaignStore();
@@ -177,16 +182,18 @@ const toastMessages = (): string[] =>
   toast.mock.calls.map((call) => (call[0] as { message: string }).message);
 
 const dayMs = (): number =>
-  useCampaignStore().getState().campaign?.currentDate.getTime() ?? NaN;
+  getCampaignStore().getState().campaign?.currentDate.getTime() ?? NaN;
 
 /** A saved co-op host campaign with a host that answers only on command. */
 async function coopHostCampaign() {
-  const store = useCampaignStore();
+  const store = getCampaignStore();
   store.getState().createCampaign('K13 Day Co.', 'mercenary', undefined, {
     coopSession: createHostCoopSession('ROOM13', MATCH_ID),
   });
   const server: IFakeServer = { record: null };
   stubServer(server);
+  installCampaignPersistenceWiring();
+  useCampaignPersistenceStore.getState().markDirty();
   await useCampaignPersistenceStore.getState().saveCampaign();
   const host = controlledHost(server);
   registerCampaignSyncTransport(host.transport);
@@ -235,7 +242,7 @@ describe('K13 single-flight day advance', () => {
     expect(store.getState().dayAdvanceInFlight).toBe(false);
 
     resetWorld();
-    const local = useCampaignStore();
+    const local = getCampaignStore();
     local.getState().createCampaign('K13 Solo Co.', 'mercenary');
     jest.spyOn(getDayPipeline(), 'processDay').mockImplementation(() => {
       throw new Error('pipeline exploded');
@@ -271,7 +278,7 @@ describe('K13 single-flight day advance', () => {
   });
 
   it('(T4) travel shares the lock with day advance', () => {
-    const store = useCampaignStore();
+    const store = getCampaignStore();
     store.getState().createCampaign('K13 Travel Co.', 'mercenary');
     store.setState({ dayAdvanceInFlight: true });
     const before = store.getState().campaign;
@@ -390,7 +397,7 @@ describe('K13 guest advance', () => {
   afterEach(resetWorld);
 
   it('(T8) a guest mirror refuses to advance, says so and runs nothing', () => {
-    const store = useCampaignStore();
+    const store = getCampaignStore();
     store.getState().createCampaign('K13 Guest Co.', 'mercenary');
     const campaign = store.getState().campaign!;
     store.setState({

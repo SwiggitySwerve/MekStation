@@ -41,7 +41,7 @@ import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersis
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
-  useCampaignStore,
+  useCampaignStore as getCampaignStore,
 } from '@/stores/campaign/useCampaignStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
@@ -320,7 +320,7 @@ const toastMessages = (): string[] =>
   toast.mock.calls.map((call) => (call[0] as { message: string }).message);
 
 interface IWorld {
-  readonly store: ReturnType<typeof useCampaignStore>;
+  readonly store: ReturnType<typeof getCampaignStore>;
   readonly server: IFakeServer;
   readonly id: string;
 }
@@ -334,7 +334,7 @@ async function buildWorld(
   coop: boolean,
   extra: readonly IDayProcessor[] = [],
 ): Promise<IWorld> {
-  const store = useCampaignStore();
+  const store = getCampaignStore();
   store
     .getState()
     .createCampaign(
@@ -360,7 +360,9 @@ async function buildWorld(
     releaseGate: () => undefined,
   };
   stubServer(server);
+  installCampaignPersistenceWiring();
   if (coop) {
+    useCampaignPersistenceStore.getState().markDirty();
     await useCampaignPersistenceStore.getState().saveCampaign();
   }
   await store.getState().saveCampaign();

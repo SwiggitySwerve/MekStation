@@ -1,5 +1,6 @@
 import {
   act,
+  cleanup,
   fireEvent,
   render,
   screen,
@@ -11,6 +12,7 @@ import React from 'react';
 import CustomizerWithRouter from '@/components/customizer/CustomizerWithRouter';
 import { useCustomizerConfirmation } from '@/components/customizer/dialogs/CustomizerConfirmationProvider';
 import { type CampaignCustomizerRouteState } from '@/lib/campaign/customizer/campaignCustomizerRoute';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 
@@ -158,7 +160,9 @@ describe('CustomizerWithRouter route and persisted-tab composition', () => {
   });
 
   afterEach(() => {
+    cleanup();
     jest.clearAllMocks();
+    useCampaignPersistenceStore.getState().reset();
   });
 
   it('keeps explicit Structure selected when persisted state says Preview', async () => {
@@ -248,7 +252,7 @@ describe('CustomizerWithRouter route and persisted-tab composition', () => {
       );
     });
   });
-  it('keeps campaign Structure after hydration and wires unavailable-unit return', async () => {
+  it('shows the campaign save indicator after hydration and on unavailable-unit return', async () => {
     const router = mockCustomizerRoute([UNIT_ID, 'structure']);
     const campaignRoute: CampaignCustomizerRouteState = {
       mode: 'campaign-refit',
@@ -269,6 +273,18 @@ describe('CustomizerWithRouter route and persisted-tab composition', () => {
       unitId: campaignRoute.unitId,
     };
     mockCampaignRoutingState.campaignRoute = campaignRoute;
+    useCampaignPersistenceStore.setState({
+      campaignId: campaignRoute.campaignId,
+      saveState: 'conflict',
+      dirty: true,
+      saveConflict: {
+        reason: 'local-edits-predate-server',
+        recoveryAction: 'resync-to-active-head',
+        conflictingFields: [],
+        currentVersion: 9,
+        localBaseVersion: 7,
+      },
+    });
     let finishHydration!: () => void;
     (useTabManagerStore.persist.rehydrate as jest.Mock).mockReturnValue(
       new Promise<void>((resolve) => {
@@ -285,9 +301,21 @@ describe('CustomizerWithRouter route and persisted-tab composition', () => {
       'structure',
     );
     expect(router.replace).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole('status', { name: 'Campaign save status' }),
+    ).toHaveTextContent('Changes unsent');
+    expect(
+      screen.getByRole('link', { name: /Campaign save: Conflict/i }),
+    ).toHaveAttribute(
+      'href',
+      '/gameplay/campaigns/campaign-1#campaign-save-status',
+    );
     mockCampaignRoutingState.unavailableUnitId = campaignRoute.unitId;
     view.rerender(<CustomizerWithRouter />);
     expect(screen.queryByTestId('unit-type-router')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('status', { name: 'Campaign save status' }),
+    ).toHaveTextContent('Changes unsent');
     fireEvent.click(screen.getByRole('button', { name: 'Return to Campaign' }));
     expect(mockCampaignRoutingState.returnToCampaign).toHaveBeenCalledTimes(1);
   });
