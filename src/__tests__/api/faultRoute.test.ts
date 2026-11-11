@@ -156,10 +156,13 @@ describe('e2e fault route', () => {
     const event = (sequence: number) =>
       ({
         id: `evt-${sequence}`,
+        gameId: 'm-fault',
         type: 'phase_changed',
         sequence,
         timestamp: now,
-        payload: {},
+        turn: 1,
+        phase: 'movement',
+        payload: { fromPhase: 'initiative', toPhase: 'movement' },
       }) as never;
 
     // The ARMED append fails - and consumes the arm at the throw.
@@ -534,10 +537,13 @@ async function armFault(input: {
 function event(sequence: number) {
   return {
     id: `evt-${sequence}`,
+    gameId: 'm-fault',
     type: 'phase_changed',
     sequence,
     timestamp: new Date().toISOString(),
-    payload: {},
+    turn: 1,
+    phase: 'movement',
+    payload: { fromPhase: 'initiative', toPhase: 'movement' },
   } as never;
 }
 

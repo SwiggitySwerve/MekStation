@@ -117,7 +117,10 @@ function gameEvent(sequence: number, matchId = MATCH_ID): IGameEvent {
     type: GameEventType.PhaseChanged,
     turn: 1,
     phase: GamePhase.Movement,
-    payload: { index: sequence },
+    payload: {
+      fromPhase: GamePhase.Initiative,
+      toPhase: GamePhase.Movement,
+    },
   } as unknown as IGameEvent;
 }
 
