@@ -111,6 +111,53 @@ enforce its existing reference provenance policy (`--reference-trust blocking`
 and `--reference-policy`). Per-file hashes establish source-byte equality with
 that reference; they do not independently attest a source checkout's Git pin.
 
+## Java source keys, catalog keys and ports acceptance
+
+The persisted S0b source key is **`path` plus `sha256` of LF-normalized source
+bytes**. The earlier family/chassis/model join selects that source; path/hash
+then verifies the reference identity. C3's keys refer to different files:
+
+| Table                                                     | Key                            | Bytes identified                                                                          |
+| --------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
+| S0b source manifest                                       | `path`, `sha256`               | MTF/BLK source, CRLF pairs normalized to LF                                               |
+| C3 Java join                                              | `sourcePath`, `sourceSHA256`   | MTF/BLK Git blob at mm-data `50f7efef`                                                    |
+| C3 census row                                             | `path`, `sourceSha256`         | MekStation catalog JSON; C3 keeps these bytes LF with `eol=lf`                            |
+| C3 reopen acceptance (`postmerge-4db6eca2b/A-units.json`) | `unitId`, catalog `sourcePath` | Canonical unit id and MekStation JSON path; BV columns are `loadBV`, `reopenBV`, `javaBV` |
+
+For the Java join, S0b `path` corresponds to C3 `sourcePath`. A batch Git-blob
+audit at mm-data `50f7efef0c9f775b0258f8283525ed4f906e1985` checked every indexed
+source below. No blob contained CR or CRLF. Therefore S0b's normalized SHA and
+C3's raw blob SHA **must match exactly for every one of these 9,815 sources**.
+A mismatch is a finding (wrong source/path/pin); it is not an expected newline
+difference and must not be excused as lost rows or harmless normalization.
+Windows `core.autocrlf=true` can create CRLF working-tree copies, but C3's Java
+keys do not hash those copies. Normalize a working-tree copy before comparing
+it with the source key; never normalize or substitute a hash string itself.
+
+| Catalog family | Audited source blobs | Contain CR | Raw SHA differs from LF-normalized SHA | S0b SHA matches blob SHA |
+| -------------- | -------------------: | ---------: | -------------------------------------: | -----------------------: |
+| BattleMechs    |                4,263 |          0 |                                      0 |                    4,263 |
+| Vehicles       |                1,444 |          0 |                                      0 |                    1,444 |
+| Aerospace      |                  620 |          0 |                                      0 |                      620 |
+| Capital        |                  394 |          0 |                                      0 |                      394 |
+| Battle armor   |                1,188 |          0 |                                      0 |                    1,188 |
+| Infantry       |                1,820 |          0 |                                      0 |                    1,820 |
+| ProtoMechs     |                   86 |          0 |                                      0 |                       86 |
+
+These counts cover the verified indexed S0b population, grouped by catalog
+family (FixedWingSupport belongs to aerospace). Evidence is the per-family
+`BLOB-KEY-PROOF.json` from the Root review; it uses `git cat-file --batch`.
+
+Ports acceptance joins on **committed unit `id` plus catalog JSON path**:
+`A-units.unitId` = the committed unit's `id`, and `A-units.sourcePath` =
+S0b `catalogFile`. The committed object or its recorded `catalogBlob` supplies
+the id; personnel identity-only rows keep `unit:null`, so their id must come
+from that committed catalog object, not a filename-derived guess. The selected
+S0b row then supplies the MTF/BLK path/hash for the Java reference lookup.
+Do not compare C3's catalog-JSON `sourceSha256` with S0b's MTF/BLK `sha256`:
+they identify different files. The acceptance file's catalog `sourcePath` also
+has a different meaning from the Java-join table's MTF/BLK `sourcePath`.
+
 Successful output is `sources.ndjson`, its compatible `.manifest.json`, and
 `committed-catalog-report.json`. The manifest adds `committedCatalog`, including
 catalog commit, index/design blob ids, joins, alias count, reference digest,
@@ -201,6 +248,61 @@ exact emitted bytes. Interrupted or partial artifacts cannot supply numbers.
 The source-text total covers the three personnel families; the family table
 states their CI/runtime limit explicitly. Identity and object drift are measured
 independently of the numerical result.
+
+## Nightly numerical policy and explicit input labels
+
+Integer total BV must be exactly equal; finite sub-terms and defensive/offensive
+aggregates use `AGGREGATE_REL_TOLERANCE = 1e-9` from `unit-bv-parity.ts`:
+`abs(local - reference) <= 1e-9 * max(1, abs(reference), abs(local))`.
+`compareFigures` owns exact total status; `compareTerms` and `aggregateDelta`
+own the tolerance. Missing/nonfinite terms remain separate diagnostics.
+
+The two measured 1-ulp examples preserve exact totals:
+
+- **Mad Cat Mk II 6:** total 2,663. `harjelBonus` is
+  119.99999999999997 committed versus 119.99999999999999 fresh. The equipment
+  arrays match exactly; `armor.allocation` key order changes `Object.entries`
+  accumulation in `mechBV/calculator.ts`. Reordering only those keys reproduces
+  the fresh result. Its critical-location map order also differs, while each
+  location's slot array is unchanged.
+- **Vulpes VLP-1DX 'Beast':** total 1,229. `physicalWeaponBV` is 28.95 committed
+  versus 28.950000000000003 fresh. Its critical-slot arrays match per location,
+  but location-map traversal changes derived mount order from left-arm claw,
+  right-arm claw, left-leg talon to left-arm claw, left-leg talon, right-arm
+  claw. Reordering only the critical-location keys reproduces the fresh result.
+  Fresh equipment also appends slot-only talons and two claws; that separate
+  inventory drift does not cause this ulp difference.
+
+Both maps use committed location order LA, RA, LT, RT, CT, HEAD, LL, RL versus
+fresh CT, HEAD, LA, LL, LT, RA, RL, RT (full enum names in the artifacts).
+These are additional **C2-owned iteration-order drift rows**, alongside the
+known Javelin rules-level drift. The generic object comparator ignores map key
+order, so its semantic equality result does not replace this order audit.
+Exact BV totals are proved unchanged here; consumers relying on location,
+slot, or derived mount enumeration still require review. Do not sort or mutate
+committed catalog objects to remove the ulp difference in a scoreboard PR.
+
+Keep producer labels stable when publishing:
+
+- **Identity:** committed catalog plus `--reference-only`, with no numerical
+  figure implied by the identity receipt.
+- **Primary source-scoreboard numeric BV and validity:** S0a's fresh strict
+  conversion (`parity-scoreboard.mjs run` always invokes the fresh pipeline).
+  The completed census has BV 9,815/9,815 exact and validity 9,815/9,815.
+- **Committed-input numerical diagnostic:** S0b's full mode with explicit
+  `--mekfiles`, `--reference`, and personnel acknowledgement. Mech BV/validity
+  and vehicle/aerospace/capital BV consume committed objects; BLK validity and
+  personnel BV consume pinned source text through the existing handlers.
+  This diagnostic has BV 9,815/9,815 exact and validity 9,814/9,815. The one
+  named expected difference is **Javelin JVN-10U**, committed STANDARD versus
+  fresh INTRODUCTORY. It must remain a separate named drift, not disappear
+  inside an unlabelled total or replace the fresh headline when modes change.
+
+The primary numeric producer must not silently switch between fresh and
+committed mode. A deliberate producer change requires an explicit new label;
+identity-only output can never supply numerical totals. BA/infantry/ProtoMech
+remain "BV from source text; runtime-path BV not measured in CI". New nightly
+runtime load/reopen figures must name their runtime-path input separately.
 
 Focused proof:
 
