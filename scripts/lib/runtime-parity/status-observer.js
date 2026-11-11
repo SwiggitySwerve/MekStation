@@ -95,11 +95,31 @@ const issuesOf = (result) =>
     ),
   );
 
+/**
+ * The save-loss facts exactly as the dialog receives them from useUnitLoadDiagnostics. Unknown is
+ * never coerced to empty: `entries` stays null when the hook's entries are undefined.
+ */
+function saveLossOf(diagnostics) {
+  const { entries, isRefreshing, armorSaveLoss } = diagnostics;
+  return {
+    settled: !isRefreshing,
+    lossTrackingUnknown: entries === undefined,
+    entries:
+      entries === undefined
+        ? null
+        : entries.map(({ location, slot, text }) => ({ location, slot, text })),
+    armorSaveLoss: armorSaveLoss
+      ? { sourceType: String(armorSaveLoss.sourceType) }
+      : null,
+  };
+}
+
 function create({ repoRoot }) {
   const React = require('react');
   const { act, render, cleanup } = require('@testing-library/react');
   const { useUnitStore, UnitStoreContext } = require('@/stores/useUnitStore');
   const { useUnitValidation } = require('@/hooks/useUnitValidation');
+  const { useUnitLoadDiagnostics } = require('@/hooks/useUnitLoadDiagnostics');
   const {
     useUnitEditorRoutingStats,
   } = require('@/components/customizer/UnitEditorWithRoutingStats');
@@ -206,7 +226,11 @@ function create({ repoRoot }) {
     // so an owner split would show here. They are compared exactly per unit (a difference is a
     // finding, never a tolerance); nothing is rebuilt or copied between them.
     const { allocatedWeight } = useMechValidationInput();
-    probe.status = { validation, unitStats, allocatedWeight };
+    // What the save dialog is fed (MultiUnitTabs StoreValidatedSaveUnitDialog): the real
+    // diagnostics hook. The dialog confirms a loss when entries is non-empty, entries is undefined
+    // (lossTrackingUnknown) or armorSaveLoss is set; nothing here recomputes any of the three.
+    const diagnostics = useUnitLoadDiagnostics();
+    probe.status = { validation, unitStats, allocatedWeight, diagnostics };
     return React.createElement(
       React.Fragment,
       null,
@@ -333,6 +357,7 @@ function create({ repoRoot }) {
         },
         terms,
         issues: issuesOf(native),
+        saveLoss: saveLossOf(status.diagnostics),
       };
     } catch (error) {
       throw new ObservationError(error, stage, infrastructure);
