@@ -136,6 +136,23 @@ by `budget-config.mjs`. A static import-closure test guards that set. It omits
 `config/ci`: `checkBudgetPolicy` reads the PR's budgets through the GitHub API
 at live head/base SHAs, independently of the validator's code revision.
 
+Every evaluation is bound to the head its run is for. Callers pass
+`expectedHead`: the aggregator passes its `pull_request` head, the guard its
+source run's head, and the approval workflow its event's head (or the live head
+read once at dispatch). A caller that passes none, such as a run whose merge ref
+predates the binding, is bound to the head of its own `pull_request` event. A
+run with neither is refused as `unbound-run` and should merge `origin/main`. A
+run bound to a superseded head writes nothing; the new head is evaluated by its
+own run. Statuses go only to the evaluated head.
+
+A refusal fails the publishing job unless the run proves a superseded head.
+Every PR read the evaluation makes, outer and nested, is logged in order, and
+`supersededHeadProof` exempts the job only when all of these hold: every read
+kept the first read's base and labels; every read during the evaluation, and
+every nested result, was about the run's head; no nested check refused a
+changed context; and a read after the evaluation shows a new head. Anything
+else fails the job, including a head change first seen during the evaluation.
+
 Trusted events publish `CI Budget Raise Approval` and a policy status under the existing
 `Lint and Test` required name. Approval first holds that status pending and
 upgrades it only after the actual latest GitHub Actions aggregator check passed.

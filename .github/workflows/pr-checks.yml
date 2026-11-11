@@ -987,9 +987,13 @@ jobs:
             const validatorSha = '${{ steps.budget-validator.outputs.commit }}';
             core.info(`budget-validator: main@${validatorSha}`);
             const { checkBudgetPolicy } = await import(pathToFileURL(`${validatorRoot}/scripts/ci/budget-approval.mjs`).href);
-            // The validator reads budgets via the API at live PR head/base SHAs.
+            // The validator reads budgets via the API at live PR head/base SHAs,
+            // and refuses if the PR head is no longer the head this run is for.
+            // This step is the gate for budget policy: `Lint and Test` is the
+            // required context; `CI Budget Raise Approval` is a signal.
             const result = await checkBudgetPolicy({ github, ...context.repo,
-              number: context.payload.pull_request.number, publish: false });
+              number: context.payload.pull_request.number, publish: false,
+              expectedHead: context.payload.pull_request.head.sha });
             core.info(JSON.stringify(result));
             if (!result.allowed) throw new Error(result.message);
 

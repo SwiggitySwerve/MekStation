@@ -93,7 +93,7 @@ test('malformed JSON/schema and missing or revoked owner approvals write failure
   }
 });
 
-test('head/base/label races fail on the fresh head', async () => {
+test('head/base/label races fail on the evaluated head and write nothing to a new head', async () => {
   for (const mode of ['head', 'base', 'labels']) {
     const f = fixture();
     let reads = 0;
@@ -105,12 +105,16 @@ test('head/base/label races fail on the fresh head', async () => {
       }
       return { data: pr };
     };
-    assert.equal((await checkBudgetRaise(f.input)).code, 'changed-context');
-    assert.equal(f.calls.at(-1).state, 'failure');
-    assert.equal(
-      f.calls.at(-1).sha,
-      mode === 'head' ? 'c'.repeat(40) : f.pr.head.sha,
+    const result = await checkBudgetRaise(f.input);
+    assert.equal(result.code, 'changed-context');
+    // The refusal says exactly what changed, so the caller keeps the evidence.
+    assert.deepEqual(
+      [result.headChanged, result.baseChanged, result.labelsChanged],
+      [mode === 'head', mode === 'base', mode === 'labels'],
     );
+    assert.equal(f.calls.at(-1).state, 'failure');
+    assert.equal(f.calls.at(-1).sha, f.pr.head.sha);
+    assert.ok(f.calls.every((call) => call.sha !== 'c'.repeat(40)));
   }
 });
 
