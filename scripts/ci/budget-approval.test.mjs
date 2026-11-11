@@ -977,13 +977,18 @@ test('a base or label change seen only by the nested approval check still fails 
   }
 });
 
-test('a nested changed-context refusal that does not say what changed cannot be exempted', async () => {
+test('any nested changed-context refusal is not proof of a superseded head', async () => {
   // The stubbed nested check makes no PR reads, so every outer read after the
-  // first shows a new head: without the nested refusal the job would be exempt.
-  const run = async (flags) => {
+  // first shows a new head. Whatever the nested refusal says changed, it is not
+  // a clean evaluation, so the job is not exempt.
+  for (const flags of [
+    {},
+    { headChanged: true },
+    { headChanged: true, baseChanged: false, labelsChanged: false },
+  ]) {
     const f = fixture();
     changeAfterFirstRead(f, 'head');
-    return policy({
+    const result = await policy({
       github: f.github,
       owner: 'o',
       repo: 'r',
@@ -996,28 +1001,130 @@ test('a nested changed-context refusal that does not say what changed cannot be 
         ...flags,
       }),
     });
-  };
-  for (const flags of [
-    {},
-    { headChanged: true },
-    { headChanged: true, baseChanged: false },
-    { headChanged: true, baseChanged: false, labelsChanged: 'no' },
-  ]) {
-    const result = await run(flags);
     const label = JSON.stringify(flags);
-    assert.equal(result.allowed, false, label);
-    assert.equal(result.headChanged, true, label);
-    assert.equal(result.unclassifiedChange, true, label);
+    assert.equal(result.nestedChanged, true, label);
+    assert.equal(result.supersededHead, false, label);
     assert.equal(guardOutcome(1, result).fail, true, label);
   }
-  // A nested refusal that says only the head changed stays exemptible.
-  const pure = await run({
-    headChanged: true,
-    baseChanged: false,
-    labelsChanged: false,
-  });
-  assert.equal(pure.unclassifiedChange, false);
-  assert.equal(guardOutcome(1, pure).fail, false);
+});
+
+// Round 4 (Sol's re-read of d8512a550): each nested check sees a stable but
+// different snapshot, so neither refuses, and the outer reads never see it.
+test('a base or label seen only inside one nested check, stable there, still fails the job', async () => {
+  for (const extra of ['base', 'labels']) {
+    const after = await evaluationReads();
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      reads += 1;
+      // 1: outer X/B. 2-3: first nested check, X/C both times. 4-5: refreshed
+      // nested check, X/B. After the evaluation: head Y, base B.
+      if (reads === 2 || reads === 3) {
+        if (extra === 'base') pr.base.sha = 'e'.repeat(40);
+        else pr.labels = [];
+      }
+      if (reads > after) pr.head.sha = NEW_HEAD;
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.allowed, false, extra);
+    assert.equal(result.supersededHead, false, extra);
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+// A small deterministic generator, so the sweep below is reproducible.
+function lcg(seed) {
+  let state = seed >>> 0;
+  return () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return state / 2 ** 32;
+  };
+}
+
+test('every PR read, outer and nested, is in the log in order', async () => {
+  const random = lcg(3381);
+  for (let run = 0; run < 200; run += 1) {
+    const f = fixture();
+    const served = [];
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      if (served.length > 0) {
+        if (random() < 0.2) pr.head.sha = NEW_HEAD;
+        if (random() < 0.1) pr.base.sha = 'e'.repeat(40);
+        if (random() < 0.1) pr.labels = [];
+      }
+      served.push({
+        head: pr.head.sha,
+        base: pr.base.sha,
+        labels: JSON.stringify(pr.labels.map((l) => l.name).sort()),
+      });
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.deepEqual(
+      result.reads.map(({ head, base, labels }) => ({ head, base, labels })),
+      served,
+      `run ${run}`,
+    );
+  }
+});
+
+test('sweep: an exempt job always means every read kept the base and labels and the evaluation saw one head', async () => {
+  // Safety, checked against what the stub served, not against the validator's
+  // own evidence: if the job is exempt, every served read had the initial base
+  // and labels, and the head changed only after the reads the evaluation made.
+  const random = lcg(1107);
+  const evaluation = await evaluationReads();
+  let exempt = 0;
+  for (let run = 0; run < 2000; run += 1) {
+    const f = fixture();
+    const served = [];
+    const changeAt = 1 + Math.floor(random() * (evaluation + 4));
+    const p = random();
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      const index = served.length;
+      if (index >= changeAt) pr.head.sha = NEW_HEAD;
+      if (index > 0 && random() < p * 0.15) pr.base.sha = 'e'.repeat(40);
+      if (index > 0 && random() < p * 0.15) pr.labels = [];
+      served.push(pr);
+      return { data: pr };
+    };
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    if (guardOutcome(1, result).fail) continue;
+    if (result.allowed) continue;
+    exempt += 1;
+    const labels = JSON.stringify(f.pull.labels.map((l) => l.name).sort());
+    for (const pr of served) {
+      assert.equal(pr.base.sha, f.pull.base.sha, `run ${run}`);
+      assert.equal(
+        JSON.stringify(pr.labels.map((l) => l.name).sort()),
+        labels,
+        `run ${run}`,
+      );
+    }
+    for (const pr of served.slice(0, evaluation))
+      assert.equal(pr.head.sha, f.pull.head.sha, `run ${run}`);
+  }
+  // The sweep must exercise the exemption, not only refusals.
+  assert.ok(exempt > 50, `exempt runs: ${exempt}`);
 });
 
 test('every status publisher binds its run to the head it is for', () => {

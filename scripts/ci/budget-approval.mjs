@@ -52,7 +52,23 @@ export async function checkBudgetPolicy({
 }) {
   const parameters = { owner, repo, pull_number: number };
   const boundHead = runHead(expectedHead, number, eventPath);
-  const { data: initial } = await github.rest.pulls.get(parameters);
+  // Every PR snapshot this evaluation reads, outer and nested, in order. All
+  // evidence about a changed context comes from this one log (see
+  // supersededHeadProof); nothing is carried from one result to the next.
+  const reads = [];
+  let phase = 'evaluation';
+  const readPr = async (params) => {
+    const response = await github.rest.pulls.get(params);
+    const pr = response.data;
+    reads.push({
+      phase,
+      head: pr.head.sha,
+      base: pr.base.sha,
+      labels: labelKey(pr),
+    });
+    return response;
+  };
+  const { data: initial } = await readPr(parameters);
   // An unbound or superseded run evaluated nothing, so it writes nothing.
   if (!boundHead)
     return {
@@ -60,79 +76,47 @@ export async function checkBudgetPolicy({
       code: 'unbound-run',
       message: `PR #${number}: this run names no valid head to evaluate; ${STALE_REF_REMEDY}`,
       unbound: true,
+      supersededHead: false,
       evaluatedHead: null,
       currentHead: initial.head.sha,
+      reads,
     };
   if (boundHead !== initial.head.sha)
     return {
       allowed: false,
       code: 'changed-context',
       message: `This run is for superseded head ${boundHead}; the PR is at ${initial.head.sha}`,
-      headChanged: true,
-      baseChanged: false,
-      labelsChanged: false,
+      // Proof: the one read shows another head; nothing was evaluated or written.
+      supersededHead: true,
       evaluatedHead: boundHead,
       currentHead: initial.head.sha,
+      reads,
     };
-  // Evidence that disqualifies the superseded-head exemption is sticky: a later
-  // read never erases a base/label change or an evaluation bound to another head.
-  const seen = {
-    headChanged: false,
-    baseChanged: false,
-    labelsChanged: false,
-    snapshotMismatch: false,
-    // A nested changed-context refusal that doesn't say what changed.
-    unclassifiedChange: false,
-  };
-  const note = (refusal) => {
-    if (refusal) for (const key in seen) if (refusal[key]) seen[key] = true;
-    return refusal;
-  };
   // A run writes statuses only to the SHA it evaluated (initial.head.sha), never
   // to a SHA it did not evaluate. On a head change the refusal lands on the old
   // head; the new head carries no status from this run, so the required
   // `Lint and Test` context is absent there (blocked) until its own run reports.
   // On a label or base change with the same head, evaluated and current are the
   // same SHA, so a revoked label still fails that head.
-  const changedContext = (current, message) => {
-    const headChanged = current.head.sha !== initial.head.sha;
-    const baseChanged = current.base.sha !== initial.base.sha;
-    const labelsChanged =
-      JSON.stringify(current.labels.map((l) => l.name).sort()) !==
-      JSON.stringify(initial.labels.map((l) => l.name).sort());
-    if (!headChanged && !baseChanged && !labelsChanged) return null;
-    return note({
-      allowed: false,
-      code: 'changed-context',
-      message,
-      headChanged,
-      baseChanged,
-      labelsChanged,
-      evaluatedHead: initial.head.sha,
-      currentHead: current.head.sha,
-    });
-  };
+  const changedContext = (current, message) =>
+    current.head.sha !== initial.head.sha ||
+    current.base.sha !== initial.base.sha ||
+    labelKey(current) !== labelKey(initial)
+      ? {
+          allowed: false,
+          code: 'changed-context',
+          message,
+          currentHead: current.head.sha,
+        }
+      : null;
   // Every part of one evaluation must be about initial.head.sha: the nested
   // approval check reads its own PR snapshot, so an X→Y→X sequence could
   // otherwise evaluate Y and publish to X. A nested result that names no head
   // is treated the same way (fail closed).
-  const mismatched = (evaluated, message) =>
-    evaluated !== initial.head.sha
-      ? note({
-          allowed: false,
-          code: 'changed-context',
-          message,
-          headChanged: true,
-          baseChanged: false,
-          labelsChanged: false,
-          snapshotMismatch: true,
-          evaluatedHead: initial.head.sha,
-          currentHead: evaluated ?? null,
-        })
-      : null;
   const sink = {
     rest: {
       ...github.rest,
+      pulls: { ...github.rest.pulls, get: readPr },
       repos: {
         ...github.rest.repos,
         createCommitStatus: async (data) => ({ data }),
@@ -140,8 +124,9 @@ export async function checkBudgetPolicy({
     },
     paginate: github.paginate,
   };
-  const evaluateRaise = () =>
-    checkRaise({
+  const nested = [];
+  const boundRaise = async () => {
+    const raise = await checkRaise({
       github: sink,
       owner,
       repo,
@@ -149,25 +134,15 @@ export async function checkBudgetPolicy({
       budgetPath: 'config/ci/budgets.json',
       budgetRaises,
     });
-  const boundRaise = async () => {
-    const raise = await evaluateRaise();
-    // The nested check's own context-change evidence is kept too: a base or
-    // label change it saw stays disqualifying even if later reads see it
-    // reverted. If it doesn't say what changed, it can't be exempted.
-    if (raise.code === 'changed-context')
-      note(
-        ['headChanged', 'baseChanged', 'labelsChanged'].every(
-          (key) => typeof raise[key] === 'boolean',
-        )
-          ? raise
-          : { unclassifiedChange: true },
-      );
-    return (
-      mismatched(
-        raise.evaluatedHead,
-        'Approval evaluated a different head than this run',
-      ) ?? raise
-    );
+    nested.push({ code: raise.code, evaluatedHead: raise.evaluatedHead });
+    return raise.evaluatedHead !== initial.head.sha
+      ? {
+          allowed: false,
+          code: 'changed-context',
+          message: 'Approval evaluated a different head than this run',
+          currentHead: raise.evaluatedHead ?? null,
+        }
+      : raise;
   };
   let result = await boundRaise();
   if (result.allowed) {
@@ -213,13 +188,14 @@ export async function checkBudgetPolicy({
       };
     }
   }
-  const { data: fresh } = await github.rest.pulls.get(parameters);
+  phase = 'after';
+  const { data: fresh } = await readPr(parameters);
   result =
     changedContext(fresh, 'PR head/base/labels changed; rerun required') ??
     result;
   if (publish) {
     async function emit(context, state, description) {
-      const { data: current } = await github.rest.pulls.get(parameters);
+      const { data: current } = await readPr(parameters);
       const changed = changedContext(
         current,
         'PR context changed before status write',
@@ -308,12 +284,61 @@ export async function checkBudgetPolicy({
       );
     }
   }
+  const evidence = observedChanges(initial, reads, nested);
   return {
     ...result,
-    ...(result.allowed ? {} : seen),
+    ...evidence,
+    supersededHead: supersededHeadProof(result, evidence),
     evaluatedHead: initial.head.sha,
     currentHead: result.currentHead ?? initial.head.sha,
+    reads,
   };
+}
+
+const labelKey = (pr) =>
+  JSON.stringify(pr.labels.map((label) => label.name).sort());
+
+/**
+ * What the read log shows, relative to the run's first read. `reads` holds
+ * every PR snapshot the evaluation read (outer and nested) in order;
+ * `nested` holds each nested approval result's code and evaluated head.
+ */
+export function observedChanges(initial, reads, nested) {
+  const labels = labelKey(initial);
+  return {
+    headChanged: reads.some((r) => r.head !== initial.head.sha),
+    baseChanged: reads.some((r) => r.base !== initial.base.sha),
+    labelsChanged: reads.some((r) => r.labels !== labels),
+    // The evaluation itself saw another head, or a nested result was about one.
+    snapshotMismatch:
+      reads.some(
+        (r) => r.phase === 'evaluation' && r.head !== initial.head.sha,
+      ) || nested.some((n) => n.evaluatedHead !== initial.head.sha),
+    nestedChanged: nested.some((n) => n.code === 'changed-context'),
+    headMovedAfter: reads.some(
+      (r) => r.phase === 'after' && r.head !== initial.head.sha,
+    ),
+  };
+}
+
+/**
+ * The only exemption: positive proof that the run's evaluation was clean and
+ * the head moved only afterwards. Every read (outer and nested) kept the base
+ * and labels; every evaluation read and every nested result was about the
+ * run's head; no nested check refused a changed context; and a read after the
+ * evaluation shows a new head. Anything else, including anything this function
+ * doesn't know about, is not proof.
+ */
+export function supersededHeadProof(result, evidence) {
+  return (
+    result.allowed === false &&
+    result.code === 'changed-context' &&
+    evidence.baseChanged === false &&
+    evidence.labelsChanged === false &&
+    evidence.snapshotMismatch === false &&
+    evidence.nestedChanged === false &&
+    evidence.headMovedAfter === true
+  );
 }
 
 /**
@@ -326,17 +351,10 @@ export function guardOutcome(number, result) {
   const line =
     `PR #${number}: ${result.code} (evaluated ${result.evaluatedHead}, ` +
     `current ${result.currentHead}): ${result.message}`;
-  if (result.allowed) return { fail: false, line };
-  // Exempt only a pure head change: a label or base change in the same window,
-  // or an evaluation bound to another head, is a refusal and fails the job.
-  if (
-    result.code === 'changed-context' &&
-    result.headChanged &&
-    !result.baseChanged &&
-    !result.labelsChanged &&
-    !result.snapshotMismatch &&
-    !result.unclassifiedChange
-  )
+  if (result.allowed === true) return { fail: false, line };
+  // The single exemption: checkBudgetPolicy proved a superseded head
+  // (supersededHeadProof). Every other refusal fails the job.
+  if (result.supersededHead === true)
     return {
       fail: false,
       line: `${line}; superseded head: refusal written to the evaluated head only, the new head gets its own run`,
