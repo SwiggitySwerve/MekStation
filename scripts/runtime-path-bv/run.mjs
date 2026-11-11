@@ -18,7 +18,10 @@ export {
   loadReference,
 } from '../lib/runtime-parity/census.mjs';
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../..',
+);
 
 /** One fresh Jest process over the plan; returns the captured records and its resource usage. */
 export const runJestCapture = jestCapture({
@@ -36,6 +39,8 @@ const spec = {
   differencesFile: 'java-differences.ndjson',
 };
 
-export const main = (argv = process.argv.slice(2), deps = {}) => runCensus(argv, deps, spec);
+export const main = (argv = process.argv.slice(2), deps = {}) =>
+  runCensus(argv, deps, spec);
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exitCode = await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
+  process.exitCode = await main();

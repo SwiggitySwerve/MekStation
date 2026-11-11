@@ -67,13 +67,21 @@ export const noSaveLossConfirmationAfter = (row) =>
 export function saveLossProblems(s, noticeKey, label, { cells, sameCells }) {
   const problems = [];
   if ((s[noticeKey] === null) !== s.lossTrackingUnknown)
-    problems.push(`${label}.${noticeKey} must be null exactly when lossTrackingUnknown (unknown is never coerced to empty)`);
+    problems.push(
+      `${label}.${noticeKey} must be null exactly when lossTrackingUnknown (unknown is never coerced to empty)`,
+    );
   if (s.armorSaveLoss !== (s.armorSaveLossSourceType !== null))
-    problems.push(`${label}.armorSaveLossSourceType must be set exactly when armorSaveLoss`);
+    problems.push(
+      `${label}.armorSaveLossSourceType must be set exactly when armorSaveLoss`,
+    );
   if (s.confirmation !== saveLossConfirms(s, noticeKey))
-    problems.push(`${label}.confirmation is not the dialog's predicate over its own fields`);
+    problems.push(
+      `${label}.confirmation is not the dialog's predicate over its own fields`,
+    );
   // One owner for the cells: they are the same list as the notice residual, not a second reading.
   if (s[noticeKey] !== null && !sameCells(s[noticeKey], cells))
-    problems.push(`${label}.${noticeKey} differs from the notice residual it was read from`);
+    problems.push(
+      `${label}.${noticeKey} differs from the notice residual it was read from`,
+    );
   return problems;
 }

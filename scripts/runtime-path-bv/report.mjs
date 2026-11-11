@@ -40,7 +40,10 @@ const fmt = (n) => n.toLocaleString('en-US');
 export function summarize({ rows, referenceByPath, scope, deterministic }) {
   // The counts below are only meaningful over exactly the population the scope claims.
   assertPopulation(scope, rows.length);
-  if (new Set(rows.map((row) => `${row.family}\0${row.unitId}`)).size !== rows.length)
+  if (
+    new Set(rows.map((row) => `${row.family}\0${row.unitId}`)).size !==
+    rows.length
+  )
     throw new Error('Population mismatch: more than one row for a unit');
   const errorsByStage = {};
   const bv = { exact: 0, different: 0, missing: 0 };
@@ -53,37 +56,80 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
     const ref = referenceByPath.get(row.path);
     const identity = { family: row.family, unitId: row.unitId, path: row.path };
     if (row.status === 'error') {
-      errorsByStage[row.error.stage] = (errorsByStage[row.error.stage] ?? 0) + 1;
+      errorsByStage[row.error.stage] =
+        (errorsByStage[row.error.stage] ?? 0) + 1;
       bv.missing++;
       validity.missing++;
       weightOwners.missing++;
-      differences.push({ ...identity, measure: 'bv', observed: null, java: ref?.battleValue?.total ?? null, why: `error:${row.error.stage}` });
-      differences.push({ ...identity, measure: 'validity', observed: null, java: ref?.construction?.valid ?? null, why: `error:${row.error.stage}` });
+      differences.push({
+        ...identity,
+        measure: 'bv',
+        observed: null,
+        java: ref?.battleValue?.total ?? null,
+        why: `error:${row.error.stage}`,
+      });
+      differences.push({
+        ...identity,
+        measure: 'validity',
+        observed: null,
+        java: ref?.construction?.valid ?? null,
+        why: `error:${row.error.stage}`,
+      });
       continue;
     }
     const { observed } = row.load;
     if (observed.weight === observed.allocatedWeight) weightOwners.agree++;
     else {
       weightOwners.mismatch++;
-      differences.push({ ...identity, measure: 'weight-owner', observed: observed.weight, allocated: observed.allocatedWeight, why: 'weightUsed differs from allocatedWeight' });
+      differences.push({
+        ...identity,
+        measure: 'weight-owner',
+        observed: observed.weight,
+        allocated: observed.allocatedWeight,
+        why: 'weightUsed differs from allocatedWeight',
+      });
     }
     const javaBv = ref?.battleValue?.total;
     if (observed.bv === null) {
       bv.missing++;
-      differences.push({ ...identity, measure: 'bv', observed: null, java: javaBv ?? null, why: 'no-calculator-result' });
+      differences.push({
+        ...identity,
+        measure: 'bv',
+        observed: null,
+        java: javaBv ?? null,
+        why: 'no-calculator-result',
+      });
     } else if (observed.bv === javaBv) bv.exact++;
     else {
       bv.different++;
-      differences.push({ ...identity, measure: 'bv', observed: observed.bv, java: javaBv ?? null, why: 'different' });
+      differences.push({
+        ...identity,
+        measure: 'bv',
+        observed: observed.bv,
+        java: javaBv ?? null,
+        why: 'different',
+      });
     }
     const javaValid = ref?.construction?.valid;
     if (typeof javaValid !== 'boolean') {
       validity.missing++;
-      differences.push({ ...identity, measure: 'validity', observed: observed.validity, java: null, why: 'no-java-validity' });
+      differences.push({
+        ...identity,
+        measure: 'validity',
+        observed: observed.validity,
+        java: null,
+        why: 'no-java-validity',
+      });
     } else if ((observed.validity === 'valid') === javaValid) validity.agree++;
     else {
       validity.disagree++;
-      differences.push({ ...identity, measure: 'validity', observed: observed.validity, java: javaValid ? 'valid' : 'invalid', why: 'different' });
+      differences.push({
+        ...identity,
+        measure: 'validity',
+        observed: observed.validity,
+        java: javaValid ? 'valid' : 'invalid',
+        why: 'different',
+      });
     }
   }
   const units = rows.length;
