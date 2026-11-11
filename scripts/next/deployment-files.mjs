@@ -19,6 +19,7 @@ export const deploymentTraceExcludes = [
   '**/*.nft.json',
   '**/*.map',
   '**/*.d.{ts,mts,cts}',
+  './src/docs/*.mdx',
   '**/__tests__/**',
   '**/__mocks__/**',
   '**/*.{test,spec,stories}.{ts,tsx,js,jsx,mjs,cjs}',
