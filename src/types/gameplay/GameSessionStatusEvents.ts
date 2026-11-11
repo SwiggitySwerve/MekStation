@@ -70,6 +70,7 @@ import type {
 } from './GameSessionObjectiveEvents';
 import type { IRepresentedMinefieldState } from './GameSessionStateTypes';
 import type { IHexCoordinate } from './HexGridInterfaces';
+import type { IGmCorrectionAppliedPayload } from '@/types/interventions/GmReplayCorrection';
 // Wave 8 PR-K4: indirect-fire dispatch events. Payloads extracted to
 // IndirectFireInterfaces.ts (PR-types-split G9).
 import type {
@@ -535,6 +536,7 @@ export interface IEmpMinefieldEffectAppliedPayload {
  * Union type for all event payloads.
  */
 export type GameEventPayload =
+  | IGmCorrectionAppliedPayload
   | IGameCreatedPayload
   | IGameStartedPayload
   | IGameEndedPayload

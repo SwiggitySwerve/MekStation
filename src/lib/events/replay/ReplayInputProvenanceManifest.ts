@@ -89,6 +89,9 @@ export const REPLAY_INPUT_PROVENANCE_MANIFEST = {
   }),
   [GameEventType.GameStarted]: NONE,
   [GameEventType.GameEnded]: NONE,
+  // Adjudicated values, including any historical rolls, are recorded effects.
+  // They are not new roll consumption and never advance a recovery cursor.
+  [GameEventType.GmCorrectionApplied]: provenance({ external: ['effects'] }),
   [GameEventType.TurnStarted]: NONE,
   [GameEventType.TurnEnded]: NONE,
   [GameEventType.PhaseChanged]: NONE,

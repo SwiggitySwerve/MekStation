@@ -24,6 +24,11 @@ type ObjectiveStateEffect = Extract<
   { readonly family: 'objective-state' }
 >;
 
+type ResolvedEffect<T extends IGmCombatProjectedEffect = IGmCombatProjectedEffect> =
+  T extends ObjectiveStateEffect
+    ? Pick<T, 'family' | 'objectiveId' | 'after'> & { readonly previousHexKey?: string }
+    : Pick<T, Extract<keyof T, 'family' | 'unitId' | 'attackId' | 'after'>>;
+
 export function projectCombatEffectsForRecord(
   record: CombatRecord,
 ): readonly IGmCombatProjectedEffect[] {
@@ -49,54 +54,51 @@ function applyGmCombatProjectedEffect(
   state: IGmCombatInterventionState,
   effect: IGmCombatProjectedEffect,
 ): IGmCombatInterventionState {
+  // Retain the ledger adapter's historical explicit-undefined lifecycle shape.
+  // The combat-event adapter supplies only its approved after/clear keys.
+  const resolved = effect.family === 'lifecycle'
+    ? { ...effect, after: {
+        destroyed: effect.after.destroyed,
+        destructionCause: effect.after.destructionCause,
+        hasEjected: effect.after.hasEjected,
+        isWithdrawing: effect.after.isWithdrawing,
+        hasRetreated: effect.after.hasRetreated,
+        shutdown: effect.after.shutdown,
+        rescued: effect.after.rescued,
+        retreatTargetEdge: effect.after.retreatTargetEdge,
+      } }
+    : effect.family === 'objective-state'
+      ? { ...effect, previousHexKey: effect.before?.hexKey }
+      : effect;
+  return appendGmCombatEvent(applyGmCombatResolvedEffect(state, resolved), effect);
+}
+
+/** Value application shared by private-ledger and combat-event adapters. */
+export function applyGmCombatResolvedEffect(
+  state: IGmCombatInterventionState,
+  effect: ResolvedEffect,
+): IGmCombatInterventionState {
   switch (effect.family) {
     case 'reposition-facing':
-      return appendGmCombatEvent(
-        patchUnit(state, effect.unitId, definedUnitPatch(effect.after)),
-        effect,
-      );
+      return patchUnit(state, effect.unitId, definedUnitPatch(effect.after));
     case 'damage-critical':
-      return appendGmCombatEvent(
-        patchUnit(state, effect.unitId, definedUnitPatch(effect.after)),
-        effect,
-      );
+      return patchUnit(state, effect.unitId, definedUnitPatch(effect.after));
     case 'heat-ammo':
-      return appendGmCombatEvent(
-        patchUnit(state, effect.unitId, definedUnitPatch(effect.after)),
-        effect,
-      );
+      return patchUnit(state, effect.unitId, definedUnitPatch(effect.after));
     case 'turn-order':
-      return appendGmCombatEvent(applyTurnOrderEffect(state, effect), effect);
+      return applyTurnOrderEffect(state, effect);
     case 'lifecycle':
-      return appendGmCombatEvent(
-        patchUnit(state, effect.unitId, {
-          destroyed: effect.after.destroyed,
-          destructionCause: effect.after.destructionCause,
-          hasEjected: effect.after.hasEjected,
-          isWithdrawing: effect.after.isWithdrawing,
-          hasRetreated: effect.after.hasRetreated,
-          shutdown: effect.after.shutdown,
-          rescued: effect.after.rescued,
-          retreatTargetEdge: effect.after.retreatTargetEdge,
-        }),
-        effect,
-      );
+      return patchUnit(state, effect.unitId, effect.after);
     case 'attack-resolution':
-      return appendGmCombatEvent(
-        applyAttackResolutionEffect(state, effect),
-        effect,
-      );
+      return applyAttackResolutionEffect(state, effect);
     case 'objective-state':
-      return appendGmCombatEvent(
-        applyObjectiveStateEffect(state, effect),
-        effect,
-      );
+      return applyObjectiveStateEffect(state, effect);
   }
 }
 
 function applyTurnOrderEffect(
   state: IGmCombatInterventionState,
-  effect: TurnOrderEffect,
+  effect: Pick<TurnOrderEffect, 'after'>,
 ): IGmCombatInterventionState {
   return {
     ...state,
@@ -121,10 +123,7 @@ function applyTurnOrderEffect(
 
 function applyAttackResolutionEffect(
   state: IGmCombatInterventionState,
-  effect: Extract<
-    IGmCombatProjectedEffect,
-    { readonly family: 'attack-resolution' }
-  >,
+  effect: Pick<Extract<IGmCombatProjectedEffect, { readonly family: 'attack-resolution' }>, 'attackId' | 'after'>,
 ): IGmCombatInterventionState {
   return {
     ...state,
@@ -137,11 +136,11 @@ function applyAttackResolutionEffect(
 
 function applyObjectiveStateEffect(
   state: IGmCombatInterventionState,
-  effect: ObjectiveStateEffect,
+  effect: Pick<ObjectiveStateEffect, 'after'> & { readonly previousHexKey?: string },
 ): IGmCombatInterventionState {
   const objectives = { ...(state.objectives ?? {}) };
-  if (effect.before?.hexKey && effect.before.hexKey !== effect.after.hexKey) {
-    delete objectives[effect.before.hexKey];
+  if (effect.previousHexKey && effect.previousHexKey !== effect.after.hexKey) {
+    delete objectives[effect.previousHexKey];
   }
   objectives[effect.after.hexKey] = effect.after;
 

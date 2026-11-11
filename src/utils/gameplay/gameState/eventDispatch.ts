@@ -52,6 +52,8 @@ import {
 } from '@/types/gameplay';
 
 import { removeSquadSwarmState } from '../attackLinks';
+import { applyGmReplayCorrectionEffects } from '@/lib/interventions/GmReplayCorrectionProjection';
+import { parseGmCorrectionAppliedPayload } from '@/lib/interventions/GmReplayCorrectionSchema';
 import {
   applyAttackDeclared,
   applyAttackLocked,
@@ -185,6 +187,8 @@ function applySwarmDismounted(
 const noStateChange: EventHandler = (state) => state;
 
 const EVENT_HANDLERS: Partial<Record<GameEventType, EventHandler>> = {
+  [GameEventType.GmCorrectionApplied]: (state, event) =>
+    applyGmReplayCorrectionEffects(state, parseGmCorrectionAppliedPayload(event.payload).effects),
   [GameEventType.GameCreated]:
     withPayload<IGameCreatedPayload>(applyGameCreated),
   [GameEventType.GameStarted]:

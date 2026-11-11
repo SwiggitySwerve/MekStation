@@ -1,0 +1,6 @@
+{
+  "name": "persist-typed-gm-corrections",
+  "status": "parked",
+  "reason": "Parked under PARITY-PLAN §50. Incomplete writer; R11a, Root viewer-schema review and reconnect duplicate-events reachability remain dependencies. Not for merge.",
+  "lastReviewed": "2026-11-09"
+}
