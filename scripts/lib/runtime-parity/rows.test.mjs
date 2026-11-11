@@ -6,6 +6,7 @@ import {
   OUTPUT_FILES,
   checkMountOwnership,
   noSaveLossConfirmation,
+  noSaveLossConfirmationAfter,
   ownedCellList,
   parseRows,
   receiptJsonSchema,
@@ -71,12 +72,18 @@ const saveLoss = ({ entries = [noticeOf(3)], settled = true, armor = null } = {}
   armorSaveLossSourceType: armor,
   confirmation: entries === null || entries.length > 0 || armor !== null,
 });
+/** The same facts for the reopened store (key noticeAfter). */
+const saveLossAfter = ({ entries = [], settled = true, armor = null } = {}) => {
+  const { noticeBefore, ...rest } = saveLoss({ entries, settled, armor });
+  return { ...rest, noticeAfter: noticeBefore };
+};
 const reopenRow = (unitId, overrides = {}) => ({
   ...key(unitId),
   measure: 'reopen',
   status: 'ok',
   reopen: {
     saveLoss: saveLoss(),
+    saveLossAfter: saveLossAfter(),
     before: withTerms(observed(1000)),
     after: withTerms(observed(990), { armorBV: 360, structureBV: 41 }),
     lostCells: [
@@ -149,13 +156,34 @@ test('saveLoss rejects a coerced unknown, a wrong predicate, a stray armor type 
   why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [], armor: 'PATCHWORK' }), armorSaveLossSourceType: null } }, /armorSaveLossSourceType/);
   why({ ...emptyNotice, saveLoss: { ...saveLoss({ entries: [] }), armorSaveLossSourceType: 'PATCHWORK' } }, /armorSaveLossSourceType/);
   // noticeBefore is the residual, not a second list that can drift from it.
-  why({ saveLoss: saveLoss({ entries: [noticeOf(9)] }) }, /differs from noticeResidual.residual/);
+  why({ saveLoss: saveLoss({ entries: [noticeOf(9)] }) }, /noticeBefore differs from the notice residual/);
   // The notice entry needs its attribution, and unknown keys are rejected.
   const noAttribution = saveLoss();
   delete noAttribution.noticeBefore[0].effectId;
   why({ saveLoss: noAttribution }, undefined);
   why({ saveLoss: { ...saveLoss(), armorDetail: {} } }, undefined);
   assert.throws(() => validateRow(reopenRow('x', { saveLoss: undefined })));
+});
+
+test('saveLossAfter carries the same facts for the reopened store and ties its entries to the reopened residual', () => {
+  const rr = (n, loss) => ({ noticeResidual: { residual: [cellOf(3)], noticeOnly: [], roundTripOnly: [], equal: true, reopenedResidualCells: n }, saveLossAfter: loss });
+  validateRow(reopenRow('a1', rr(0, saveLossAfter())));
+  validateRow(reopenRow('a2', rr(1, saveLossAfter({ entries: [noticeOf(3)] }))));
+  // The AFTER entries are the reopened store's list: their count is the row's reopenedResidualCells.
+  assert.throws(() => validateRow(reopenRow('a3', rr(0, saveLossAfter({ entries: [noticeOf(3)] })))), /noticeAfter differs from the notice residual/);
+  assert.throws(() => validateRow(reopenRow('a4', rr(2, saveLossAfter({ entries: [noticeOf(3)] })))), /noticeAfter differs from the notice residual/);
+  // Same coupling and predicate rules as BEFORE, under the AFTER names.
+  assert.throws(() => validateRow(reopenRow('a5', rr(0, { ...saveLossAfter(), lossTrackingUnknown: true }))), /saveLossAfter.noticeAfter must be null exactly when lossTrackingUnknown/);
+  assert.throws(() => validateRow(reopenRow('a6', rr(0, { ...saveLossAfter(), confirmation: true }))), /saveLossAfter.confirmation is not the dialog's predicate/);
+  assert.throws(() => validateRow(reopenRow('a7', rr(0, saveLossAfter({ armor: 'PATCHWORK' }) && { ...saveLossAfter({ armor: 'PATCHWORK' }), armorSaveLossSourceType: null }))), /saveLossAfter.armorSaveLossSourceType/);
+  assert.throws(() => validateRow(reopenRow('a8', { saveLossAfter: undefined })));
+  // The AFTER-side number is its own predicate over the AFTER facts (not the BEFORE ones).
+  const loaded = reopenRow('a9', rr(0, saveLossAfter({ armor: 'PATCHWORK' })));
+  assert.equal(noSaveLossConfirmation(loaded), false); // BEFORE has an entry
+  assert.equal(noSaveLossConfirmationAfter(loaded), false); // AFTER has an armor loss
+  const clean = reopenRow('a10', { ...rr(0, saveLossAfter()), saveLoss: saveLoss({ entries: [] }), lostCells: [], tokenChanges: [], rawIdentityLosses: [] });
+  clean.reopen.noticeResidual.residual = [];
+  assert.equal(noSaveLossConfirmationAfter(validateRow(clean)), true);
 });
 
 test('rejects values that vary between runs or normalise them away', () => {
