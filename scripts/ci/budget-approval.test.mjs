@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { parse } from 'yaml';
 
 import {
   checkBudgetPolicy,
@@ -623,7 +624,7 @@ function approvedRaise() {
 
 test('raise label removed after a success: the unlabeled re-evaluation fails that head', async () => {
   // Re-evaluating event: pull_request_target `unlabeled` runs
-  // ci-budget-approval.yml, which calls checkBudgetPolicy for the current head.
+  // ci-budget-label-approval.yml, which calls checkBudgetPolicy for the current head.
   const f = approvedRaise();
   const args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
   const before = await policy(args);
@@ -642,10 +643,53 @@ test('raise label removed after a success: the unlabeled re-evaluation fails tha
   );
   assert.equal(guardOutcome(1, after).fail, true);
   const workflow = readFileSync(
-    '.github/workflows/ci-budget-approval.yml',
+    '.github/workflows/ci-budget-label-approval.yml',
     'utf8',
   );
   assert.match(workflow, /types: \[[^\]]*\bunlabeled\b/);
+});
+
+test('label workflow fails an unchanged budget head after main lowered the cap and the owner revoked approval', async () => {
+  const f = approvedRaise();
+  // No budget change on this branch: its budget remains the merge-base value.
+  const mergeBaseBudget = structuredClone(f.budgets.base);
+  f.budgets.head = structuredClone(mergeBaseBudget);
+  f.budgets.base.limits.typicalPrJobs -= 1;
+  assert.deepEqual(f.budgets.head, mergeBaseBudget);
+  f.github.rest.pulls.listFiles = () =>
+    assert.fail('File diffs must not gate label reevaluation');
+  const workflow = parse(
+    readFileSync('.github/workflows/ci-budget-label-approval.yml', 'utf8'),
+  );
+  const script = workflow.jobs.approval.steps[1].with.script.replace(
+    /^.*const \{ checkBudgetPolicy, guardOutcome \} = await import.*;\n/m,
+    '',
+  );
+  const run = new (Object.getPrototypeOf(async function () {}).constructor)(
+    'github',
+    'context',
+    'core',
+    'checkBudgetPolicy',
+    'guardOutcome',
+    script,
+  );
+  const context = {
+    repo: { owner: 'o', repo: 'r' },
+    payload: { pull_request: { number: 1, head: { sha: f.pull.head.sha } } },
+  };
+  const failures = [];
+  const core = { info: () => {}, setFailed: (line) => failures.push(line) };
+  await run(f.github, context, core, checkBudgetPolicy, guardOutcome);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+  assert.deepEqual(failures, []);
+  f.pull.labels = f.pull.labels.filter(
+    (label) => label.name !== BUDGET_RAISE_LABEL,
+  );
+  await run(f.github, context, core, checkBudgetPolicy, guardOutcome);
+  for (const name of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, name), 'failure');
+  assert.equal(failures.length, 1);
+  assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
 });
 
 test('a budget raise with no label cannot obtain a successful required Lint and Test by any path', async () => {
