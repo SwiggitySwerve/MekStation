@@ -12,6 +12,9 @@ import {
 import { AGGREGATOR } from './lint-and-test-guard.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
+const targetsMain = (pr, owner, repo) =>
+  pr.base?.ref === 'main' &&
+  pr.base?.repo?.full_name?.toLowerCase() === `${owner}/${repo}`.toLowerCase();
 export const STALE_REF_REMEDY =
   'merge origin/main into the PR branch and push, so the run uses the current workflow';
 
@@ -73,6 +76,18 @@ export async function checkBudgetPolicy({
     return response;
   };
   const { data: initial } = await readPr(parameters);
+  if (!targetsMain(initial, owner, repo))
+    return {
+      // Existing read-only aggregators also treat this as a successful no-op.
+      allowed: true,
+      code: 'not-main',
+      eligible: false,
+      message: `PR #${number}: not-main; target is outside ${owner}/${repo}:main; no policy evaluated or statuses written`,
+      evaluatedHead: null,
+      currentHead: initial.head.sha,
+      supersededHead: false,
+      reads,
+    };
   // An unbound or superseded run evaluated nothing, so it writes nothing.
   if (!boundHead)
     return {
@@ -214,9 +229,7 @@ export async function checkBudgetPolicy({
                 (pr) =>
                   pr.state === 'open' &&
                   pr.head?.sha === initial.head.sha &&
-                  pr.base?.ref === 'main' &&
-                  pr.base?.repo?.full_name?.toLowerCase() ===
-                    `${owner}/${repo}`.toLowerCase(),
+                  targetsMain(pr, owner, repo),
               )
               .map((pr) => pr.number),
           ),
@@ -242,6 +255,8 @@ export async function checkBudgetPolicy({
             publish: false,
             expectedHead: initial.head.sha,
           });
+          // The live read may show a retarget after the association snapshot.
+          if (checked.code === 'not-main') continue;
           if (
             checked.allowed !== true ||
             checked.unbound === true ||
@@ -475,6 +490,7 @@ export function supersededHeadProof(result, evidence) {
  * refusal fails the job. The log line names the PR and both heads.
  */
 export function guardOutcome(number, result) {
+  if (result.code === 'not-main') return { fail: false, line: result.message };
   const line =
     `PR #${number}: ${result.code} (evaluated ${result.evaluatedHead}, ` +
     `current ${result.currentHead}): ${result.message}`;

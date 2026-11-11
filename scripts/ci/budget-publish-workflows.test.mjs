@@ -60,14 +60,15 @@ test('no budget publisher queues evaluations; only the Guard report workflow has
   );
 });
 
-test('label reevaluation is unfiltered, trusted, head-bound and uses the shared outcome', () => {
+test('label and base reevaluation is unfiltered, trusted, head-bound and uses the shared outcome', () => {
   const label = read('ci-budget-label-approval.yml');
   assert.deepEqual(label.on, {
     pull_request_target: {
       branches: ['main'],
-      types: ['labeled', 'unlabeled'],
+      types: ['labeled', 'unlabeled', 'edited'],
     },
   });
+  assert.equal(label.name, 'CI Budget Label and Base Approval');
   assert.deepEqual(label.permissions, {});
   assert.deepEqual(
     label.jobs.approval.permissions,
@@ -102,4 +103,12 @@ test('label reevaluation is unfiltered, trusted, head-bound and uses the shared 
         type,
       ),
     );
+});
+
+test('body-only edits skip the publisher job before runner allocation', () => {
+  const job = read('ci-budget-label-approval.yml').jobs.approval;
+  assert.equal(
+    job.if,
+    "github.event.action != 'edited' || github.event.changes.base",
+  );
 });

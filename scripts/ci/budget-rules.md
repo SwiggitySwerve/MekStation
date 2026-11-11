@@ -183,6 +183,20 @@ branch-protection scope. A refusal, an
 unbound/superseded peer or an unavailable association/PR read refuses success.
 Nested approval statuses use a no-op sink and never publish real statuses.
 
+The same base-branch/repository predicate applies to the triggering PR in
+`checkBudgetPolicy`. An out-of-scope target returns `not-main` after the initial
+eligibility read, evaluates no rules and writes no statuses. It is a successful
+no-op for both publishers and read-only aggregators, with a plain skip log line.
+An associated PR retargeted out of scope between listing and its live read is
+skipped by that same decision.
+
+The unfiltered `CI Budget Label and Base Approval` workflow handles `labeled`,
+`unlabeled` and `edited` into main. Its job condition permits edited events only
+when `changes.base` exists, so title/body-only edits allocate no runner. Retargets
+into main therefore evaluate even with no budget-file diff. Edited events are
+not typical lifecycle events in the census; this workflow stays in `otherEvents`
+with its name and all three event types, without adding counted jobs.
+
 After every actual success write (approval or final `Lint and Test`), the
 publisher re-reads through its recording client and checks the triggering PR's
 head/base/labels, then re-lists and re-evaluates all open exact-head associated
@@ -204,7 +218,9 @@ The protocol is not atomic. A publisher killed after writing success and before
 verifying leaves that success in place until another completed evaluation of
 the same head. The hourly reconciliation in the following PR bounds this.
 That reconciliation is outside this PR; until it lands, there is no bounded
-closure without another completed evaluation. The next
+closure without another completed evaluation. The following PR's hourly
+reconciliation is also the backstop for anything event-driven evaluation misses.
+The next
 completed same-head evaluation closes it: label events (unfiltered), PR Checks
 completion/Guard, relevant approval PR events, review signals, or owner dispatch.
 A return to a formerly green SHA also needs its own evaluation. There is no

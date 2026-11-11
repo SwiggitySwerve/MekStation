@@ -663,15 +663,7 @@ test('raise label removed after a success: the unlabeled re-evaluation fails tha
   assert.match(workflow, /types: \[[^\]]*\bunlabeled\b/);
 });
 
-test('label workflow fails an unchanged budget head after main lowered the cap and the owner revoked approval', async () => {
-  const f = approvedRaise();
-  // No budget change on this branch: its budget remains the merge-base value.
-  const mergeBaseBudget = structuredClone(f.budgets.base);
-  f.budgets.head = structuredClone(mergeBaseBudget);
-  f.budgets.base.limits.typicalPrJobs -= 1;
-  assert.deepEqual(f.budgets.head, mergeBaseBudget);
-  f.github.rest.pulls.listFiles = () =>
-    assert.fail('File diffs must not gate label reevaluation');
+async function runApprovalEvent(github, pull, action, changes) {
   const workflow = parse(
     readFileSync('.github/workflows/ci-budget-label-approval.yml', 'utf8'),
   );
@@ -689,17 +681,30 @@ test('label workflow fails an unchanged budget head after main lowered the cap a
   );
   const context = {
     repo: { owner: 'o', repo: 'r' },
-    payload: { pull_request: { number: 1, head: { sha: f.pull.head.sha } } },
+    payload: { action, changes, pull_request: structuredClone(pull) },
   };
   const failures = [];
   const core = { info: () => {}, setFailed: (line) => failures.push(line) };
-  await run(f.github, context, core, checkBudgetPolicy, guardOutcome);
+  await run(github, context, core, checkBudgetPolicy, guardOutcome);
+  return failures;
+}
+
+test('label workflow fails an unchanged budget head after main lowered the cap and the owner revoked approval', async () => {
+  const f = approvedRaise();
+  // No budget change on this branch: its budget remains the merge-base value.
+  const mergeBaseBudget = structuredClone(f.budgets.base);
+  f.budgets.head = structuredClone(mergeBaseBudget);
+  f.budgets.base.limits.typicalPrJobs -= 1;
+  assert.deepEqual(f.budgets.head, mergeBaseBudget);
+  f.github.rest.pulls.listFiles = () =>
+    assert.fail('File diffs must not gate label reevaluation');
+  const before = await runApprovalEvent(f.github, f.pull, 'labeled');
   assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
-  assert.deepEqual(failures, []);
+  assert.deepEqual(before, []);
   f.pull.labels = f.pull.labels.filter(
     (label) => label.name !== BUDGET_RAISE_LABEL,
   );
-  await run(f.github, context, core, checkBudgetPolicy, guardOutcome);
+  const failures = await runApprovalEvent(f.github, f.pull, 'unlabeled');
   for (const name of ['Lint and Test', 'CI Budget Raise Approval'])
     assert.equal(finalState(f.statuses, RUN_HEAD, name), 'failure');
   assert.equal(failures.length, 1);
@@ -1460,6 +1465,87 @@ function sharedHeadApprovals(count = 2) {
   };
   return { fixtures, github, statuses };
 }
+
+test('an out-of-scope publishing target evaluates nothing, writes nothing and does not fail', async () => {
+  for (const outside of ['branch', 'repository']) {
+    const f = sharedHeadApprovals();
+    const target = f.fixtures[1].pull;
+    if (outside === 'branch') target.base.ref = 'release';
+    else target.base.repo.full_name = 'foreign/repo';
+    target.labels = [];
+    assert.equal(
+      (await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 }))
+        .allowed,
+      true,
+    );
+    const before = structuredClone(f.statuses);
+    const result = await policy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 2,
+      checkRaise: () =>
+        assert.fail('An ineligible target must not evaluate policy'),
+    });
+    assert.equal(result.code, 'not-main', outside);
+    assert.equal(
+      result.allowed,
+      true,
+      'Read-only aggregators must also skip without failing',
+    );
+    assert.equal(result.evaluatedHead, null);
+    assert.equal(result.reads.length, 1);
+    assert.deepEqual(f.statuses, before, outside);
+    const outcome = guardOutcome(2, result);
+    assert.equal(outcome.fail, false);
+    assert.match(outcome.line, /not-main/);
+    assert.doesNotMatch(outcome.line, /evaluated null/);
+  }
+});
+
+test('a peer retargeted out of main after association listing is skipped by the shared policy', async () => {
+  const f = sharedHeadApprovals();
+  const paginate = f.github.paginate;
+  f.github.paginate = async (method, args) => {
+    const listed = await paginate(method, args);
+    if (method === f.github.rest.repos.listPullRequestsAssociatedWithCommit) {
+      f.fixtures[1].pull.base.ref = 'release';
+      f.fixtures[1].pull.labels = [];
+    }
+    return listed;
+  };
+  const result = await policy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, true);
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+});
+
+test('a base-change event retargeting an unapproved same-head PR into main fails that head without a budget diff', async () => {
+  const f = sharedHeadApprovals();
+  const target = f.fixtures[1].pull;
+  target.base.ref = 'release';
+  target.labels = [];
+  f.github.rest.pulls.listFiles = () =>
+    assert.fail('Retarget evaluation must not depend on file diffs');
+  assert.equal(
+    (await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 }))
+      .allowed,
+    true,
+  );
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'success');
+  target.base.ref = 'main';
+  const failures = await runApprovalEvent(f.github, target, 'edited', {
+    base: { ref: { from: 'release' } },
+  });
+  assert.equal(failures.length, 1);
+  for (const context of ['Lint and Test', 'CI Budget Raise Approval'])
+    assert.equal(finalState(f.statuses, RUN_HEAD, context), 'failure');
+  assert.ok(f.statuses.every((status) => status.sha === RUN_HEAD));
+});
 
 test('a non-main peer is ignored before and after its label removal on the shared SHA', async () => {
   const f = sharedHeadApprovals();

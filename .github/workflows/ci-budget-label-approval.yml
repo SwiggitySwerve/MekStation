@@ -1,14 +1,15 @@
-name: CI Budget Label Approval
+name: CI Budget Label and Base Approval
 
 on:
   pull_request_target:
     branches: [main]
-    types: [labeled, unlabeled]
+    types: [labeled, unlabeled, edited]
 
 permissions: {}
 
 jobs:
   approval:
+    if: github.event.action != 'edited' || github.event.changes.base
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:

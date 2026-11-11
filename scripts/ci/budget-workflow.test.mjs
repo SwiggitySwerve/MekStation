@@ -105,6 +105,29 @@ test('event-aware census preserves the deployed main profile counts and included
   }
 });
 
+test('label and base edit events stay visible in otherEvents without adding counted jobs', () => {
+  for (const profile of workflowMetrics(root, config).profiles) {
+    const entry = profile.otherEvents.find(
+      (workflow) => workflow.file === 'ci-budget-label-approval.yml',
+    );
+    assert.deepEqual(
+      entry,
+      {
+        file: 'ci-budget-label-approval.yml',
+        name: 'CI Budget Label and Base Approval',
+        events: ['pull_request_target'],
+        types: { pull_request_target: ['labeled', 'unlabeled', 'edited'] },
+      },
+      profile.id,
+    );
+    assert.ok(!profile.workflowFiles.includes(entry.file), profile.id);
+    assert.ok(
+      !profile.census.some((job) => job.file === entry.file),
+      profile.id,
+    );
+  }
+});
+
 test('the PR Checks budget command rejects a re-added byte cap before collecting metrics', () => {
   const fixture = fs.mkdtempSync(
     path.join(os.tmpdir(), 'budget-tree-command-'),
