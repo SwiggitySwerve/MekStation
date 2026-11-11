@@ -17,6 +17,7 @@ import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { toRecordableGameCreatedFixture } from '@/__tests__/helpers/replayWriterFixtures';
 import { ScenarioTemplateType } from '@/types/encounter/EncounterInterfaces';
 import {
   GameEventType,
@@ -242,7 +243,9 @@ describe('persistEncounterGame (Node env)', () => {
 
   it('happy path: writes file under tmpdir, appends manifest, returns persisted=true with the right discriminator', async () => {
     const events: IGameEvent[] = [
-      gameCreatedEvent([unit('p1', 1500), unit('o1', 1700)]),
+      toRecordableGameCreatedFixture(
+        gameCreatedEvent([unit('p1', 1500), unit('o1', 1700)]),
+      ),
       turnStartedEvent(1, 1),
     ];
 
@@ -393,7 +396,7 @@ describe('persistEncounterGame (Node env)', () => {
 
   it('round-trip: written file parses back into an event array with the post-stamped source', async () => {
     const events: IGameEvent[] = [
-      gameCreatedEvent([unit('p1', 1500)]),
+      toRecordableGameCreatedFixture(gameCreatedEvent([unit('p1', 1500)])),
       turnStartedEvent(1, 1),
       turnStartedEvent(2, 2),
     ];
