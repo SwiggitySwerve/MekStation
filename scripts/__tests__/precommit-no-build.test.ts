@@ -3,13 +3,15 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+import { spawnHookShell } from './support/spawn-hook-shell';
+
 // Pins owner decision OD-precommit-drop-full-build: .husky/pre-commit runs no
-// production build, and the lint-staged run it keeps still ends its
-// *.{ts,tsx} list with `npm run typecheck` for both compiler projects.
+// production build. It still typechecks both compiler projects with
+// `npm run typecheck` when .ts/.tsx is staged, once per commit in the hook
+// itself (not as a lint-staged task, which ran once per chunk).
 const repoRoot = path.resolve(__dirname, '../..');
 const hookPath = path.join(repoRoot, '.husky', 'pre-commit');
 const packagePath = path.join(repoRoot, 'package.json');
-const TSC_ENTRY = "bash -c 'npm run typecheck'";
 
 // Returns the hook's non-blank lines that do not start with `#`, trimmed and
 // prefixed with their 1-based line number ("17: npm run build").
@@ -32,7 +34,7 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     ).toEqual([]);
   });
 
-  it('keeps `npx lint-staged --no-stash`, whose *.{ts,tsx} list ends with npm run typecheck', () => {
+  it('keeps `npx lint-staged --no-stash`; no lint-staged task typechecks', () => {
     expect(
       hookCommandLines().some((line) =>
         /^\d+: npx lint-staged --no-stash \$hide_flag \|\| exit \$\?$/.test(
@@ -43,13 +45,39 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
     const lintStaged = JSON.parse(fs.readFileSync(packagePath, 'utf8'))[
       'lint-staged'
     ];
-    expect(lintStaged['*.{ts,tsx}'].at(-1)).toBe(TSC_ENTRY);
+    expect(
+      Object.values(lintStaged)
+        .flat()
+        .filter((task) => /typecheck|\btsc\b/.test(String(task))),
+    ).toEqual([]);
   });
 
-  it('checks staged parents after lint-staged without restaging files', () => {
-    expect(hookCommandLines().at(-1)).toMatch(
-      /^\d+: node scripts\/lib\/check-staged-parents\.mjs$/,
+  it('runs its steps in order: partial-stage, lint-staged, staged parents, then one typecheck', () => {
+    const lines = hookCommandLines().map((line) => line.replace(/^\d+: /, ''));
+    const at = (pattern: RegExp) =>
+      lines.findIndex((line) => pattern.test(line));
+    const partial = at(/check-partial-stage\.mjs/);
+    const lintStaged = at(/^npx lint-staged /);
+    const parents = at(
+      /^node scripts\/lib\/check-staged-parents\.mjs \|\| exit \$\?$/,
     );
+    const gate = at(
+      /^if git diff --cached --name-only --diff-filter=ACMR \| grep -Eq '\\\.\(ts\|tsx\)\$'; then$/,
+    );
+    const typecheck = at(/^npm run typecheck \|\| exit \$\?$/);
+    expect(
+      [partial, lintStaged, parents, gate, typecheck].every((i) => i >= 0),
+    ).toBe(true);
+    expect(
+      partial < lintStaged &&
+        lintStaged < parents &&
+        parents < gate &&
+        gate < typecheck,
+    ).toBe(true);
+    expect(lines.filter((line) => /npm run typecheck/.test(line))).toHaveLength(
+      1,
+    );
+    expect(lines.at(-1)).toBe('fi');
   });
 });
 
@@ -126,8 +154,7 @@ describe('pre-commit hook leaves the shared stash stack alone', () => {
     // The environment is inherited untouched. The inner shell prepends the
     // fixture's bin (as $PWD/bin, valid in POSIX and MSYS shells) and turns
     // on git's command trace for the hook only.
-    const result = spawnSync(
-      'sh',
+    const result = spawnHookShell(
       [
         '-c',
         'PATH="$PWD/bin:$PATH" GIT_TRACE="$PWD/git-trace.log" exec sh -e "$1"',

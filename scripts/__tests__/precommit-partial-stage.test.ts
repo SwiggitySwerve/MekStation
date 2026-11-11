@@ -4,6 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { spawnHookShell } from './support/spawn-hook-shell';
+
 // lint-staged (16.2.7, 17.6.0) builds the path of its unstaged-changes patch
 // from path.relative(topLevel, gitDir) (lib/resolveGitRepo.js:56-57). When the
 // worktree and its git dir are on different drives that path is absolute, the
@@ -149,8 +151,7 @@ function runHook(
 ): IHookRun {
   const hook = path.join(tempDir(os.tmpdir(), 'precommit-hook-'), 'pre-commit');
   fs.writeFileSync(hook, hookText);
-  const result = spawnSync(
-    'sh',
+  const result = spawnHookShell(
     [
       '-c',
       `if [ "$2" = 1 ]; then export ${SEAM}=1; fi; ` +

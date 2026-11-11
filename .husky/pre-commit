@@ -2,10 +2,10 @@
 # Pre-commit gate.
 #
 # Runs lint-staged (package.json "lint-staged") on the staged files: oxfmt
-# --write on each matching file, oxlint --fix on staged *.ts/tsx/js/jsx and,
-# when a *.ts or *.tsx file is staged, `npm run typecheck` checks both
-# the root and scoped scripts projects. The hook runs no production build; the
-# pr-checks workflow runs `npm run build` for code changes.
+# --write on each matching file and oxlint --fix on staged *.ts/tsx/js/jsx.
+# Then, when a *.ts or *.tsx file is staged, `npm run typecheck` checks both the
+# root and scoped scripts projects, once per commit. The hook runs no production
+# build; the pr-checks workflow runs `npm run build` for code changes.
 #
 # --no-stash: lint-staged's backup goes on the stash stack, which every linked
 # worktree shares, and it is later applied or dropped by an index looked up a
@@ -22,4 +22,13 @@
 hide_flag=$(node scripts/lib/check-partial-stage.mjs) || exit $?
 npx lint-staged --no-stash $hide_flag || exit $?
 # Reject ignored-parent restaging failures even if lint-staged returned zero.
-node scripts/lib/check-staged-parents.mjs
+node scripts/lib/check-staged-parents.mjs || exit $?
+# Typecheck once per commit, outside lint-staged. lint-staged 16 splits a large
+# staged set into chunks and runs every task once per chunk, concurrently
+# (runAll.js), so a typecheck task inside it ran once per chunk, several full
+# typechecks at once. It runs after lint-staged has put any hidden unstaged
+# hunks back, so for a partially staged .ts file it checks the working tree, not
+# the staged-only content; hosted Static Checks typechecks the commit itself.
+if git diff --cached --name-only --diff-filter=ACMR | grep -Eq '\.(ts|tsx)$'; then
+  npm run typecheck || exit $?
+fi
