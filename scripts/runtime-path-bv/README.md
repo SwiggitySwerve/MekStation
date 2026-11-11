@@ -32,6 +32,17 @@ Run from the repository root after `npm ci`. Everything is written under `<dir>`
 - The `fetch` stub in `scripts/lib/runtime-parity/status-observer.js` (`json: async () => JSON.parse(...)`) is a **transport stub**: it serves
   the committed unit file's bytes to the real loader, which does the parsing and mapping. It is not a parse path of its own.
 
+## Gated fields
+
+`summary.gates` lists every count the nightly may gate on and which way is better, by path into `summary.json`. The nightly fails
+a worse count and passes a better one by reading the direction from the file, not from a constant of its own.
+
+| Key (path in `summary.json`) | Meaning                                                               | Direction        |
+| ---------------------------- | --------------------------------------------------------------------- | ---------------- |
+| `bv.exact`                   | units whose runtime BV equals the Java BV (the headline `load=Java`)  | higher-is-better |
+| `validity.agree`             | units whose runtime validity equals Java's                            | higher-is-better |
+| `weightOwners.agree`         | units whose status-bar weight equals the validator's allocated weight | higher-is-better |
+
 ## Exit code
 
 Non-zero only if the census did not complete: `S0A_REFERENCE_MISSING`, `S0B_MANIFEST_MISSING`, `INPUT_SHA_DRIFT`,
