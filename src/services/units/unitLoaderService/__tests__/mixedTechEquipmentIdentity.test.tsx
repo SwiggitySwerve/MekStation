@@ -755,15 +755,16 @@ describe('source ammo identity round trips', () => {
     async (id, javaBV) => {
       const loaded = (await open(id, 'canonical')).getState();
       const fingerprint = getUnitLibraryFingerprint(loaded);
-      // Characterized on unmodified 73ef85c97 before changing the writer.
-      const legacyFingerprints = {
+      // A2 adds only native CT engine cells 0-2 and 7-9. The old hashes were
+      // reproduced on main; non-cell facts, draft fingerprints and Java BV stay.
+      const writerFingerprints = {
         'sentinel-stn-3l':
-          '656dc2d9902aecb0e70228ad173e643b1fda82373139ef7a5646bfec4f938863',
+          'f7a347a17721587f85062f8b598c829e977a51e80fc3999099614b26ed7bdd85',
         'archer-c':
-          '42c1a374eafc2755aa2b467ca5ade53ffca848ffed13b3f9c6f1728ceb86073e',
+          '2b0394a3dfab8421a9559d0efd44a379bbf172a3293f2f629b031d656ca8b822',
       };
       expect(createHash('sha256').update(fingerprint).digest('hex')).toBe(
-        legacyFingerprints[id],
+        writerFingerprints[id],
       );
       expect(ammoIdentityBV(loaded).bv).toBe(javaBV);
       const { saved, reopened } = saveAmmoIdentity(loaded);
