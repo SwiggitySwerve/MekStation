@@ -24,18 +24,37 @@ const ENGINE_NAMES = [
 /** Exact native critical-system identities, separate from equipment aliases.
  * Bare tokens only: critical-cell decorations belong to parseCriticalSlotToken.
  */
+const GYRO_SYSTEM_NAMES = Object.keys(vocabulary.gyro).filter((name) =>
+  name.endsWith('Gyro'),
+);
 export const MTF_CRITICAL_SLOT_SYSTEM_NAMES: readonly string[] = [
   ...vocabulary.criticalSlotSystems,
   ...ENGINE_NAMES.map(([, , name]) => name),
-  ...Object.keys(vocabulary.gyro).filter((name) => name.endsWith('Gyro')),
+  ...GYRO_SYSTEM_NAMES,
   ...vocabulary.cockpitOrder.map(([name]) => name),
 ];
-const criticalSystemNames = new Set(
-  MTF_CRITICAL_SLOT_SYSTEM_NAMES.map((name) => name.toLowerCase()),
+const criticalSystemIdentities = new Map(
+  MTF_CRITICAL_SLOT_SYSTEM_NAMES.map((name) => [
+    name.toLowerCase(),
+    name.toLowerCase().replace(/ actuator$/, ''),
+  ]),
 );
+for (const [, , name] of ENGINE_NAMES)
+  criticalSystemIdentities.set(name.toLowerCase(), 'engine');
+for (const name of GYRO_SYSTEM_NAMES)
+  criticalSystemIdentities.set(name.toLowerCase(), 'gyro');
+for (const [name] of vocabulary.cockpitOrder)
+  criticalSystemIdentities.set(name.toLowerCase(), 'cockpit');
+
+/** Exact native system identity, including actuator and component-name aliases. */
+export function getMTFCriticalSlotSystemIdentity(
+  name: string,
+): string | undefined {
+  return criticalSystemIdentities.get(name.trim().toLowerCase());
+}
 
 export function isMTFCriticalSlotSystemName(name: string): boolean {
-  return criticalSystemNames.has(name.trim().toLowerCase());
+  return getMTFCriticalSlotSystemIdentity(name) !== undefined;
 }
 
 const ARMOR_NAMES = [

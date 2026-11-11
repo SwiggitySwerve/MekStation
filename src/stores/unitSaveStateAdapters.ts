@@ -189,6 +189,7 @@ export function getEditorSaveState(
   return getUnitSaveState(
     editor.state,
     editor.state.librarySave ? getEditorLibraryFingerprint(editor) : '',
+    editor.state.librarySave ? getEditorDraftFingerprint(editor) : undefined,
     draft,
   );
 }

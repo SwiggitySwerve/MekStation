@@ -55,9 +55,13 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
-import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
 import { crewSeatSaveFields } from './CustomUnitSerializer.crew';
+import {
+  getMountedRearSuffix,
+  getMountedSourceArmorSuffix,
+  preserveSourceSystemCells,
+} from './CustomUnitSerializer.sourceCells';
 import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 import { cloneSerializedStructure } from './structureMetadata';
 
@@ -175,6 +179,7 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
     });
     result[location] = slots;
   }
+  preserveSourceSystemCells(state, result);
 
   for (const item of state.equipment) {
     if (!item.location || !item.slots) continue;
@@ -192,7 +197,15 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
               state.techBase,
               state.techBaseMode,
             ) ??
-            item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
+            item.name +
+              getMountedRearSuffix(
+                state,
+                item,
+                location,
+                slot,
+                sourceSlots?.[slot],
+              ) +
+              getMountedSourceArmorSuffix(state, item, location, slot);
         }
       }
       result[location] = locationSlots;

@@ -141,7 +141,11 @@ test('undo restores structure, armor and placement with metrics and independent 
   ).toBeDisabled();
 });
 
-async function saveLibrary(page: Page, variant?: string) {
+async function saveLibrary(
+  page: Page,
+  variant?: string,
+  acknowledgeMissingCriticalSlots = false,
+) {
   await page
     .getByRole('button', { name: 'Save active unit to library', exact: true })
     .click();
@@ -158,6 +162,37 @@ async function saveLibrary(page: Page, variant?: string) {
   await dialog
     .getByRole('button', { name: variant ? 'Save' : 'Overwrite', exact: true })
     .click();
+  if (acknowledgeMissingCriticalSlots) {
+    // The Mad Cat fixture has existing BV-neutral heat-sink placement losses.
+    // Acknowledge only that named confirmation, after checking every entry.
+    const confirmation = page.getByRole('dialog', {
+      name: 'Save with missing critical-slot entries?',
+      exact: true,
+    });
+    await expect(confirmation).toBeVisible();
+    await expect(
+      confirmation.getByRole('heading', {
+        name: 'Other critical-slot entries (4)',
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      confirmation
+        .getByRole('list', {
+          name: 'Heat sinks critical-slot entries',
+          exact: true,
+        })
+        .getByRole('listitem'),
+    ).toHaveText([
+      'CLDoubleHeatSink (OMNIPOD) — Right Torso [4]',
+      'CLDoubleHeatSink (OMNIPOD) — Right Torso [5]',
+      'CLDoubleHeatSink (OMNIPOD) — Center Torso [10]',
+      'CLDoubleHeatSink (OMNIPOD) — Center Torso [11]',
+    ]);
+    await confirmation
+      .getByRole('button', { name: 'Save anyway', exact: true })
+      .click();
+  }
   const result = await response;
   expect(result.ok()).toBe(true);
   const receipt = (await result.json()).data as { id: string; version: number };
@@ -418,4 +453,186 @@ test('explicit Structure URL overrides a saved Preview tab while omitted tabs re
   ).toHaveAttribute('aria-selected', 'true');
   expect(new URL(page.url()).pathname.split('/')[2]).toBe(unitId);
   expect((await draft(page)).engineType).toBe(before.engineType);
+});
+
+function armoredCells(criticalSlots: Record<string, (string | null)[]>) {
+  return Object.entries(criticalSlots)
+    .flatMap(([location, slots]) =>
+      slots.flatMap((token, slot) =>
+        token?.endsWith(' (ARMORED)')
+          ? [
+              {
+                location: location.toUpperCase().replaceAll(' ', '_'),
+                slot,
+                token,
+              },
+            ]
+          : [],
+      ),
+    )
+    .sort((a, b) => a.location.localeCompare(b.location) || a.slot - b.slot);
+}
+
+test('armored Mad Cat Mk IV survives a real save and cold library reopen with its BV @customizer', async ({
+  page,
+}, testInfo) => {
+  await load(page, 'Mad Cat Mk IV', '(Prime)', true);
+  // Pinned MegaMek 48fcb2f64, matched by the b9b922d07 census. This unit's
+  // save/reopen closure belongs to A2 alone: its armored gyro must survive.
+  const bv = page.getByTestId('unit-info-stat-bv');
+  await expect(bv).toHaveText(/^BV\s*2,?681$/);
+  const initial = await draft(page);
+  const nativeArmor = armoredCells(initial.bvContext.source.criticalSlots);
+  expect(nativeArmor).toHaveLength(4);
+  const variant = `A2-ARMOR-${Date.now()}`;
+  const receipt = await saveLibrary(page, variant, true);
+  try {
+    const url = `/api/units/custom/${encodeURIComponent(receipt.id)}`;
+    const savedResponse = await page.request.get(url);
+    expect(savedResponse.ok()).toBe(true);
+    const saved = (await savedResponse.json()).parsedData;
+    expect(armoredCells(saved.criticalSlots)).toEqual(nativeArmor);
+    await page
+      .getByRole('button', {
+        name: `Close Mad Cat Mk IV ${variant}`,
+        exact: true,
+      })
+      .click();
+    const fetched = page.waitForResponse(
+      (response) =>
+        new URL(response.url()).pathname === url &&
+        response.request().method() === 'GET',
+    );
+    await load(page, 'Mad Cat Mk IV', variant, true);
+    expect((await fetched).ok()).toBe(true);
+    await expect(bv).toHaveText(/^BV\s*2,?681$/);
+    expect(
+      armoredCells((await draft(page)).bvContext.source.criticalSlots),
+    ).toEqual(nativeArmor);
+    await page.reload();
+    await expect(bv).toHaveText(/^BV\s*2,?681$/);
+    expect(
+      armoredCells((await draft(page)).bvContext.source.criticalSlots),
+    ).toEqual(nativeArmor);
+    await testInfo.attach('a2-armored-library-roundtrip.json', {
+      body: JSON.stringify(
+        {
+          receipt,
+          nativeArmor,
+          savedArmor: armoredCells(saved.criticalSlots),
+          bv: 2681,
+        },
+        null,
+        2,
+      ),
+      contentType: 'application/json',
+    });
+  } finally {
+    expect(
+      (await page.request.delete(`/api/units/custom/${receipt.id}`)).ok(),
+    ).toBe(true);
+  }
+});
+
+test('an unchanged draft with an older-writer receipt explains saving again @customizer', async ({
+  page,
+}) => {
+  await load(page, 'Mad Cat Mk IV', '(Prime)', true);
+  const receipt = await saveLibrary(page, `A2-OLDER-${Date.now()}`, true);
+  try {
+    await expect(page.getByTestId('unit-save-label')).toHaveAttribute(
+      'data-state',
+      'matched',
+    );
+    const seeded = await page.evaluate(() => {
+      const id = location.pathname.split('/')[2];
+      type SavedReceipt = {
+        fingerprint: string;
+        draftFingerprint?: string;
+      };
+      const exposed = window as unknown as {
+        __UNIT_REGISTRY__?: {
+          getUnitStore: (unitId: string) =>
+            | {
+                getState: () => { librarySave?: SavedReceipt };
+                setState: (patch: { librarySave: SavedReceipt }) => void;
+              }
+            | undefined;
+        };
+      };
+      const store = exposed.__UNIT_REGISTRY__?.getUnitStore(id);
+      const saved = store?.getState().librarySave;
+      if (!store || !saved?.draftFingerprint)
+        throw new Error('Expected a confirmed draft fingerprint');
+      const originalDraftFingerprint = saved.draftFingerprint;
+      const previous = JSON.parse(saved.fingerprint) as {
+        criticalSlots: Record<string, (string | null)[]>;
+      };
+      // Seed the previous writer's documented omission, leaving the draft and
+      // its fingerprint untouched. No product modules are imported into E2E.
+      let removed = 0;
+      for (const [location, slots] of Object.entries(previous.criticalSlots)) {
+        slots.forEach((token, slot) => {
+          if (token === 'Fusion Engine' || token === 'Gyro (ARMORED)') {
+            slots[slot] = null;
+            removed++;
+          }
+        });
+        if (slots.every((token) => token === null))
+          delete previous.criticalSlots[location];
+      }
+      const previousFingerprint = JSON.stringify(previous);
+      const changed = previousFingerprint !== saved.fingerprint;
+      store.setState({
+        librarySave: { ...saved, fingerprint: previousFingerprint },
+      });
+      return {
+        removed,
+        changed,
+        draftUnchanged:
+          store.getState().librarySave?.draftFingerprint ===
+          originalDraftFingerprint,
+      };
+    });
+    expect(seeded.removed).toBeGreaterThan(0);
+    expect(seeded.changed).toBe(true);
+    expect(seeded.draftUnchanged).toBe(true);
+    await page.reload();
+    const message =
+      'Saved with an older version of MekStation. Save again to update the library copy.';
+    await expect(page.getByTestId('unit-save-label')).toHaveAttribute(
+      'data-state',
+      'saved-older-writer',
+    );
+    await expect(
+      page.getByText(message, { exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', {
+        name: 'Save active unit to library',
+        exact: true,
+      }),
+    ).toHaveAccessibleDescription(
+      new RegExp(
+        'Saved with an older version of MekStation\\. Save again to update the library copy\\.',
+      ),
+    );
+    await expect(page.getByTestId('unit-save-label')).not.toContainText(
+      'Changed Since',
+    );
+    const updated = await saveLibrary(page, undefined, true);
+    expect(updated.id).toBe(receipt.id);
+    expect(updated.version).toBe(2);
+    await expect(page.getByTestId('unit-save-label')).toHaveAttribute(
+      'data-state',
+      'matched',
+    );
+    await expect(page.getByTestId('unit-save-label')).toContainText(
+      'In Library v2',
+    );
+  } finally {
+    expect(
+      (await page.request.delete(`/api/units/custom/${receipt.id}`)).ok(),
+    ).toBe(true);
+  }
 });
