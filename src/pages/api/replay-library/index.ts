@@ -54,7 +54,7 @@ export default async function handler(
   }
 
   try {
-    const entries = await readReplayIndex();
+    const entries = await readReplayIndex({ repairStoredBv: true });
     res.status(200).json({ entries, total: entries.length });
   } catch (err) {
     // Reader propagates non-ENOENT read/parse failures. Surface a generic
