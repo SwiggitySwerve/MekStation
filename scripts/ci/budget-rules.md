@@ -246,20 +246,41 @@ continues with the remaining PRs when possible.
 This covers main cap reductions, paths-filtered events and interrupted success
 writes. It also clears a shared-head failure once a refusing peer closes or
 retargets away from `main`, including a retarget during a previous evaluation.
-The ordered census is divided into five-PR batches. The run number selects
-successive batches and rotates their internal starting point on subsequent
-sweeps. A stable N-PR census with five completed visits per run is covered in
-ceil(N/5) runs (60 PRs in 12); if capacity drops to one completed visit, internal
-rotation still covers every PR within five sweeps (60 PRs in 60 runs). These
-are conditional progress bounds, not an unconditional one-hour SLA. Changing
-censuses, unavailable API capacity or persistently unfinished evaluations can
-extend them. An excluded head with no eligible peer is not revisited, and
+For N current non-draft PRs into `main`, S = ceil(N/5). Run number R selects
+PRs whose number modulo S equals (R - 1) modulo S. Membership depends on PR
+number rather than list position, so a peer opening or closing cannot move a
+continuously eligible PR between buckets while S stays constant. While S stays
+constant for S consecutive runs, every continuously eligible non-draft PR is
+visited within S runs, provided its bucket finishes within the request/time
+budget. The staleness period is ceil(N/5) runs as a function of N (60 PRs: 12
+runs; two PRs: S = 1 and both selected every run). S changes only when N crosses
+a multiple of five. Under adversarial churn that flips S every run there is
+no hard bound. Unreached PRs are explicitly reported on every completed run.
+
+Buckets can be uneven. In-bucket rotation is retained on subsequent sweeps so
+request/time truncation does not always favor the same members. Budget stops
+or persistently unfinished evaluations extend the completed-visit bound, even
+with constant S; the unreached report records that limit. An excluded head
+with no eligible peer is not revisited, and
 eligibility can change after the live check. API staleness and scheduler delays
 remain outside the protocol's guarantees.
 
 The client counts every real REST request through Octokit's request hook and
 uses `X-RateLimit-Remaining` to reduce its allowance when other publishers spend
-the shared repository quota. It stops before spending the last 150 requests.
+the shared repository quota. The 150-request floor gates only admission of a
+new PR evaluation or an actual success write. It never blocks an admitted
+write's verification reads or failure correction, even below the floor.
+Before success, admission requires 150 + E + 3 + 1 requests: E is the actual
+request count spent since this PR's admission (reserving a fresh SHA-wide
+evaluation, including observed pagination); the named three-request cleanup
+reserve covers a triggering-PR verify GET, a current-status GET and a failure
+correction POST; one further request writes success. An insufficient allowance
+skips success and reports the PR as unreached. The request hook only counts and
+observes quota; it cannot turn an unfinished success verification into a clean
+budget stop. Reads and corrections already in progress may spend below 150.
+This reservation does not lock the shared API quota or bound new associations
+and pagination appearing concurrently; API exhaustion or outages can still
+prevent correction and fail the job.
 A soft eight-minute deadline stops new evaluations before the ten-minute job
 timeout. Budget/time stops report every known unreached PR and are successful
 job outcomes; a request-floor stop during pagination also reports that the

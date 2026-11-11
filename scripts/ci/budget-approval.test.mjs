@@ -691,10 +691,16 @@ async function runBudgetWorkflow(github, context, file, job) {
     results.push(result);
     return result;
   };
+  let reconciliation;
   await run(github, context, core, checkedPolicy, guardOutcome, (args) =>
-    reconcileBudgetStatuses({ ...args, checkPolicy: checkedPolicy }),
+    reconcileBudgetStatuses({ ...args, checkPolicy: checkedPolicy }).then(
+      (result) => {
+        reconciliation = result;
+        return result;
+      },
+    ),
   );
-  return { failures, lines, results };
+  return { failures, lines, results, reconciliation };
 }
 
 async function runApprovalEvent(github, pull, action, changes) {
@@ -710,7 +716,7 @@ async function runApprovalEvent(github, pull, action, changes) {
   return failures;
 }
 
-function reconciliationCensus(f) {
+function reconciliationCensus(f, installTransport) {
   const pulls = f.fixtures?.map((entry) => entry.pull) ?? [f.pull];
   f.github.rest.pulls.list = () => {};
   f.github.rest.rateLimit = {
@@ -743,6 +749,7 @@ function reconciliationCensus(f) {
       pulls.filter((pr) => pr.state === 'open' && pr.base.ref === 'main'),
     );
   };
+  installTransport?.(f.github);
   return () =>
     runBudgetWorkflow(
       f.github,
@@ -751,6 +758,155 @@ function reconciliationCensus(f) {
       'reconcile',
     );
 }
+
+// Real checkBudgetPolicy and the production request hook, with only HTTP
+// responses replaced. Paginated requests pass through that same hook too.
+function policyRequestTransport(github, beforeRequest) {
+  const state = { remaining: 1000, requests: [] };
+  let requestHook;
+  github.hook = {
+    wrap: (_name, callback) => {
+      requestHook = callback;
+    },
+    remove: () => {
+      requestHook = undefined;
+    },
+  };
+  github.rest.rateLimit.get = async () => ({
+    data: { resources: { core: { remaining: state.remaining } } },
+  });
+  const call = (serve, group, method, args) => {
+    const request = async () => {
+      beforeRequest?.({ state, group, method, args });
+      state.remaining--;
+      state.requests.push({ group, method, args });
+      const response = await serve();
+      return {
+        ...response,
+        headers: { 'x-ratelimit-remaining': String(state.remaining) },
+      };
+    };
+    return requestHook
+      ? requestHook(request, { group, method, args })
+      : request();
+  };
+  const markers = new Set([
+    github.rest.pulls.list,
+    github.rest.pulls.listReviews,
+    github.rest.repos.listPullRequestsAssociatedWithCommit,
+  ]);
+  for (const [group, endpoints] of Object.entries(github.rest)) {
+    if (group === 'rateLimit') continue;
+    for (const [method, endpoint] of Object.entries(endpoints)) {
+      if (!markers.has(endpoint))
+        endpoints[method] = (args) =>
+          call(() => endpoint(args), group, method, args);
+    }
+  }
+  const paginate = github.paginate;
+  github.paginate = async (method, args) =>
+    (
+      await call(
+        async () => ({ data: await paginate(method, args) }),
+        'paginate',
+        'page',
+        args,
+      )
+    ).data;
+  return state;
+}
+
+test('real-policy hook completes verification and failure correction when an admitted write leaves 150 requests', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  let admitted = false,
+    verified = false,
+    corrected = false,
+    transport;
+  const run = reconciliationCensus(f, (github) => {
+    transport = policyRequestTransport(
+      github,
+      ({ state, group, method, args }) => {
+        if (
+          method === 'createCommitStatus' &&
+          args.context === 'Lint and Test' &&
+          args.state === 'success'
+        ) {
+          // Admission saw ample quota. Another publisher spends it immediately
+          // before our actual POST; 151 remain, and the write consumes one.
+          state.remaining = 151;
+          f.pull.labels = [];
+          admitted = true;
+        } else if (admitted && group === 'pulls' && method === 'get')
+          verified = true;
+        if (
+          admitted &&
+          method === 'createCommitStatus' &&
+          args.context === 'Lint and Test' &&
+          args.state === 'failure'
+        )
+          corrected = true;
+      },
+    );
+  });
+  const result = await run();
+  assert.ok(admitted);
+  assert.ok(
+    verified,
+    'The production hook must not block the verify GET at the floor',
+  );
+  assert.ok(
+    corrected,
+    'The production hook must permit the failure correction below the floor',
+  );
+  assert.equal(finalState(f.statuses, RUN_HEAD, 'Lint and Test'), 'failure');
+  assert.equal(result.failures.length, 1);
+  assert.ok(result.results[0].reads.some((read) => read.phase === 'verify'));
+  assert.ok(transport.remaining < 150);
+});
+
+test('real-policy success admission below floor plus verification reserve writes nothing and reports unreached', async () => {
+  const f = approvedRaise();
+  await policy({ github: f.github, owner: 'o', repo: 'r', number: 1 });
+  f.statuses.push({
+    sha: RUN_HEAD,
+    context: 'Lint and Test',
+    state: 'failure',
+  });
+  const before = f.statuses.length;
+  let statusReads = 0,
+    transport;
+  const run = reconciliationCensus(f, (github) => {
+    transport = policyRequestTransport(github, ({ state, method }) => {
+      // Approval is already green; the second lookup is the stale required red.
+      if (method === 'getCombinedStatusForRef' && ++statusReads === 2)
+        state.remaining = 152;
+    });
+  });
+  const result = await run();
+  assert.equal(
+    f.statuses.length,
+    before,
+    '151 remaining cannot admit success plus verification/correction',
+  );
+  assert.deepEqual(result.reconciliation.unreached, [1]);
+  assert.equal(result.reconciliation.stopReason, 'request budget');
+  assert.deepEqual(result.failures, []);
+  const reservation = result.lines.find((line) =>
+    line.includes('success not admitted'),
+  );
+  const counted = Number(
+    reservation.match(/\+ (\d+) verify\/correction requests/)[1],
+  );
+  // One census request precedes this evaluation; the remaining observed
+  // prefix plus three cleanup requests is the named reservation.
+  assert.equal(counted, transport.requests.length - 1 + 3);
+});
 
 test('one hundred green reconciliation confirmations write no statuses, then still withdraw revocation', async () => {
   const f = approvedRaise();

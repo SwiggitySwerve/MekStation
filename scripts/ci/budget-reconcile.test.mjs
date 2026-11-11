@@ -7,11 +7,14 @@ function apiFixture(count = 60, allowance = 1000) {
   const requests = [],
     lines = [],
     failures = [];
-  const pulls = Array.from({ length: count }, (_, i) => ({
-    number: i + 1,
+  const numbers = Array.isArray(count)
+    ? count
+    : Array.from({ length: count }, (_, i) => i + 1);
+  const pulls = numbers.map((number) => ({
+    number,
     state: 'open',
     draft: false,
-    head: { sha: (i + 1).toString(16).padStart(40, '0') },
+    head: { sha: number.toString(16).padStart(40, '0') },
     base: { ref: 'main' },
   }));
   const endpoint = (name, serve) => async (args) => {
@@ -41,7 +44,7 @@ function apiFixture(count = 60, allowance = 1000) {
       pulls: {
         list: endpoint('list', () => structuredClone(pulls)),
         get: endpoint('pull', ({ pull_number }) =>
-          structuredClone(pulls[pull_number - 1]),
+          structuredClone(pulls.find((pull) => pull.number === pull_number)),
         ),
       },
       repos: {
@@ -68,6 +71,94 @@ function apiFixture(count = 60, allowance = 1000) {
     },
   };
 }
+
+test('PR-number buckets visit #6 despite the exact alternating #5/#11 churn counterexample', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const visited = new Set();
+  for (const runNumber of [1, 2]) {
+    const numbers = [1, 2, 3, 4, 6, 7, 8, 9, 10, runNumber % 2 ? 5 : 11];
+    const f = apiFixture(numbers);
+    await reconcileBudgetStatuses({
+      ...f,
+      owner: 'o',
+      repo: 'r',
+      runNumber,
+      checkPolicy: async ({ number, expectedHead }) => {
+        visited.add(number);
+        return {
+          allowed: true,
+          code: 'approved',
+          evaluatedHead: expectedHead,
+          currentHead: expectedHead,
+          message: 'approved',
+        };
+      },
+    });
+    assert.deepEqual(f.failures, []);
+  }
+  assert.ok(visited.has(6), '#6 must not fall between positional batches');
+  for (const number of [1, 2, 3, 4, 6, 7, 8, 9, 10])
+    assert.ok(visited.has(number));
+});
+
+test('manual dispatch advancing run_number only shifts the PR-number bucket phase', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const visited = new Set();
+  for (const runNumber of [38, 39]) {
+    const f = apiFixture(10);
+    const result = await reconcileBudgetStatuses({
+      ...f,
+      owner: 'o',
+      repo: 'r',
+      runNumber,
+      checkPolicy: async ({ number, expectedHead }) => {
+        assert.equal(number % 2, (runNumber - 1) % 2);
+        visited.add(number);
+        return {
+          allowed: true,
+          code: 'approved',
+          evaluatedHead: expectedHead,
+          currentHead: expectedHead,
+          message: 'approved',
+        };
+      },
+    });
+    assert.equal(result.visited.length, 5);
+    assert.deepEqual(f.failures, []);
+  }
+  assert.equal(visited.size, 10);
+});
+
+test('an uneven large PR-number bucket still reports budget-limited unreached PRs cleanly', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const f = apiFixture([2, 4, 6, 8, 10, 12, 14, 16, 18, 20], 165);
+  const result = await reconcileBudgetStatuses({
+    ...f,
+    owner: 'o',
+    repo: 'r',
+    runNumber: 1,
+    checkPolicy: async ({ github, number, expectedHead }) => {
+      for (let i = 0; i < 5; i++)
+        await github.rest.pulls.get({ pull_number: number });
+      return {
+        allowed: true,
+        code: 'approved',
+        evaluatedHead: expectedHead,
+        currentHead: expectedHead,
+        message: 'approved',
+      };
+    },
+  });
+  assert.equal(result.stopReason, 'request budget');
+  assert.equal(result.visited.length, 3);
+  assert.equal(result.unreached.length, 7);
+  assert.deepEqual(f.failures, []);
+  assert.ok(
+    f.lines.some(
+      (line) => line.startsWith('Unreached PRs: ') && line.includes('#20'),
+    ),
+  );
+});
 
 test('60 PRs with five completed visits per run are all reached in twelve budgeted runs', async () => {
   const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
@@ -135,7 +226,7 @@ test('even one-visit capacity rotates within batches instead of starving their l
   assert.equal(visited.size, 60);
 });
 
-test('request floor stops cleanly, reports every unreached PR, and does not spend the reserve', async () => {
+test('request floor stops admission cleanly and reports unreached PRs after an admitted evaluation finishes', async () => {
   const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
   const f = apiFixture(60, 165);
   const result = await reconcileBudgetStatuses({
@@ -143,15 +234,22 @@ test('request floor stops cleanly, reports every unreached PR, and does not spen
     owner: 'o',
     repo: 'r',
     runNumber: 1,
-    checkPolicy: async ({ github }) => {
+    checkPolicy: async ({ github, expectedHead }) => {
       for (let i = 0; i < 50; i++)
         await github.rest.pulls.get({ pull_number: 1 });
-      assert.fail('The API floor must interrupt this evaluation');
+      return {
+        allowed: true,
+        code: 'approved',
+        evaluatedHead: expectedHead,
+        currentHead: expectedHead,
+        message: 'approved',
+      };
     },
   });
   assert.equal(result.stopReason, 'request budget');
-  assert.equal(result.unreached.length, 60);
-  assert.equal(f.remaining(), 150);
+  assert.equal(result.visited.length, 1);
+  assert.equal(result.unreached.length, 59);
+  assert.equal(f.remaining(), 113);
   assert.deepEqual(f.failures, []);
   assert.ok(
     f.lines.some(
