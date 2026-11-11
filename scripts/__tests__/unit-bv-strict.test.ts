@@ -32,6 +32,7 @@ import {
 import * as orchestrator from '../../src/services/validation/UnitValidationOrchestrator';
 import { UnitCategory } from '../../src/types/unit/UnitTypeHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
+import { aggregateDelta } from '../unit-bv-parity';
 import { buildQuantityReport } from '../unit-construction-quantities';
 import { buildWeightReport } from '../unit-construction-weights';
 import {
@@ -373,6 +374,25 @@ it('uses tolerance only for aggregates and rejects fractional totals', () => {
   ).toBe(false);
   expect(compareFigures(figure(), figure(100.1)).status).toBe('invalid');
 });
+
+it.each([
+  ['Mad Cat Mk II 6', 2663, 119.99999999999999, 119.99999999999997],
+  ["Vulpes VLP-1DX 'Beast'", 1229, 28.950000000000003, 28.95],
+] as const)(
+  'nightly keeps totals exact while accepting the observed 1-ulp sub-term: %s',
+  (_, total, freshTerm, committedTerm) => {
+    expect(aggregateDelta(freshTerm, committedTerm).withinTolerance).toBe(true);
+    expect(aggregateDelta(1, 1 + 0.99e-9).withinTolerance).toBe(true);
+    expect(aggregateDelta(1, 1 + 1.01e-9).withinTolerance).toBe(false);
+    expect(aggregateDelta(freshTerm, freshTerm + 0.001).withinTolerance).toBe(
+      false,
+    );
+    expect(compareFigures(figure(total), figure(total)).status).toBe('exact');
+    expect(compareFigures(figure(total), figure(total + 1)).status).not.toBe(
+      'exact',
+    );
+  },
+);
 
 it('compares capital defense without counting a total match or miss', () => {
   const result = report([
