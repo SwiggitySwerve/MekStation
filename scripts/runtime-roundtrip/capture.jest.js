@@ -1,3 +1,4 @@
+import fs from 'fs';
 /**
  * Runtime round-trip capture, reopen = load after save. Per unit: the real canonical open and the
  * shared status-bar observation (before), serialize, a cold SQLite save through the real
@@ -14,30 +15,22 @@
  * (file name deliberately not *.test.*). Reads RUNTIME_ROUNDTRIP_CONTEXT (planFile, outputDirectory,
  * dbPath) and writes captured.jsonl, capture-summary.json, resources.json and sqlite-receipt.json.
  */
-const assert = require('node:assert/strict');
-const fs = require('fs');
-const path = require('path');
+import assert from 'node:assert/strict';
+import path from 'path';
 
-const observer = require('../lib/runtime-parity/status-observer');
-observer.installMocks(); // before any product module is required
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { parseUnit } from '@/services/units/unitLoaderService/unitContractAdapter';
+import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
+import { UnitRepository } from '@/services/units/UnitRepository';
+import { createUnitFromFullState } from '@/stores/unitStoreRegistry';
+import { Era } from '@/types/temporal/Era';
+import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
-const {
-  getCanonicalUnitService,
-} = require('@/services/units/CanonicalUnitService');
-const {
-  UnitLoaderService,
-} = require('@/services/units/unitLoaderService/unitLoader');
-const {
-  parseUnit,
-} = require('@/services/units/unitLoaderService/unitContractAdapter');
-const {
-  serializeCustomUnitState,
-} = require('@/utils/serialization/CustomUnitSerializer');
-const { Era } = require('@/types/temporal/Era');
-const { getSQLiteService } = require('@/services/persistence/SQLiteService');
-const { UnitRepository } = require('@/services/units/UnitRepository');
-const { createUnitFromFullState } = require('@/stores/unitStoreRegistry');
-const { createRoundTripDiff } = require('./round-trip-diff.cjs');
+// The observer comes before every product import: it imports ./install-mocks first, and ES imports
+// evaluate in source order, so the mocks are registered before any product module loads.
+import * as observer from '../lib/runtime-parity/status-observer';
+import { createRoundTripDiff } from './round-trip-diff';
 
 const repoRoot = path.resolve(__dirname, '../..');
 const o = observer.create({ repoRoot });
@@ -73,7 +66,9 @@ afterAll(() => {
   o.clear();
   try {
     getSQLiteService().close();
-  } catch {}
+  } catch {
+    // Already closed (or never opened): nothing is left to release, and the run's files are written below.
+  }
   fs.writeFileSync(
     path.join(context.outputDirectory, 'capture-summary.json'),
     JSON.stringify(counts) + '\n',
@@ -200,7 +195,7 @@ test('canonical open, cold SQLite save and reopen, and observation at both ends 
 
   // Phase 2: read every unit back from disk, reopen it and observe it again.
   for (const item of pending) {
-    const { plan, record } = item;
+    const { record } = item;
     let { stage, infrastructure } = item;
     try {
       if (item.failed) throw item.failed;

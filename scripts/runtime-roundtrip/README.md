@@ -32,7 +32,7 @@ real validator input hook beside it, and the summary counts any unit where they 
 
 ## Comparisons
 
-`round-trip-diff.cjs` is C3's v2 logic: source cells against reopened cells, system cells by exact identity from
+`round-trip-diff.js` is C3's v2 logic: source cells against reopened cells, system cells by exact identity from
 `MTFVocabulary.ts` (never a substring), owner bucket and kind from the notice classifiers, token changes, the unfiltered
 `rawIdentityLosses`, the notice-residual equality, and the mount matching with owned cells. It does no observation.
 
@@ -66,6 +66,6 @@ never the reference's SHA, so the SHA is recorded unless `--require-same-sha` is
 ## Files
 
 `run.mjs` (spec), `capture.jest.js` (the Jest/jsdom capture, selected only by `config/jest/runtime-roundtrip.config.js`, not
-named `*.test.*`), `round-trip-diff.cjs`, `report.mjs` (rows and counts), `compare.mjs`. Tests: `node --test
+named `*.test.*`), `round-trip-diff.js`, `report.mjs` (rows and counts), `compare.mjs`. Tests: `node --test
 scripts/runtime-roundtrip/run.test.mjs scripts/runtime-roundtrip/compare.test.mjs` (name the files; a directory is not accepted).
 Families: battlemechs first.

@@ -1,4 +1,3 @@
-'use strict';
 /**
  * The round-trip comparison, ported from C3's v2 census (census.cjs) with the same meaning. Pure
  * given the loaded product modules: it takes what the capture already holds (the committed source
@@ -10,9 +9,20 @@
  *   bucket     recovery owner of a non-system cell or a mount, from the notice classifiers
  *   notice     the loader's unrecoveredCriticalSlots residual vs the non-system lost cells (exact triples)
  *   mounts     lost / changed / added loaded mounts, with the cells each owns
- * Requires the Jest module environment (it loads product code through the `@/` alias).
+ * Requires the Jest module environment (it imports product code through the `@/` alias); import it
+ * after the runtime-parity observer so the mocks are registered first.
  */
-const assert = require('node:assert/strict');
+import assert from 'node:assert/strict';
+
+import { isMTFCriticalSlotSystemName as isSystem } from '@/services/conversion/MTFVocabulary';
+import { mapMechLocation } from '@/services/units/unitLoaderService/componentMappers';
+import {
+  CriticalSlotRecoveryResponsibility,
+  classifyCriticalSlotNoticeIdentity,
+} from '@/services/units/unitLoaderService/criticalSlotNoticeEffects';
+import { classifyCriticalSlotNoticeEntry } from '@/services/units/unitLoaderService/criticalSlotNoticeGroups';
+import { parseCriticalSlotToken } from '@/services/units/unitLoaderService/equipmentResolution';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 
 // Sorted keys, undefined dropped: the scratch harnesses' canonical(), used here only for equality.
 const canonical = (value) => {
@@ -27,26 +37,14 @@ const canonical = (value) => {
   return value;
 };
 const json = (value) => JSON.stringify(canonical(value));
+// A token change without the reopened text, i.e. the plain cell it started from.
+const withoutReopenedText = (change) => {
+  const cell = { ...change };
+  delete cell.reopenedText;
+  return cell;
+};
 
 function createRoundTripDiff() {
-  const {
-    mapMechLocation,
-  } = require('@/services/units/unitLoaderService/componentMappers');
-  const { getSlotParts } = require('@/utils/construction/slotOperations/parts');
-  const {
-    isMTFCriticalSlotSystemName: isSystem,
-  } = require('@/services/conversion/MTFVocabulary');
-  const {
-    parseCriticalSlotToken,
-  } = require('@/services/units/unitLoaderService/equipmentResolution');
-  const {
-    CriticalSlotRecoveryResponsibility,
-    classifyCriticalSlotNoticeIdentity,
-  } = require('@/services/units/unitLoaderService/criticalSlotNoticeEffects');
-  const {
-    classifyCriticalSlotNoticeEntry,
-  } = require('@/services/units/unitLoaderService/criticalSlotNoticeGroups');
-
   const bucketNames = [
     ...new Set(Object.values(CriticalSlotRecoveryResponsibility)),
     'none',
@@ -216,7 +214,7 @@ function createRoundTripDiff() {
     // Unfiltered: every lost cell (system or not) and every rewritten cell, as plain triples.
     const rawIdentityLosses = [
       ...lostCells.map(triple),
-      ...tokenChanges.map(({ reopenedText, ...cell }) => cell),
+      ...tokenChanges.map(withoutReopenedText),
     ];
 
     const residual = noticeBefore.map((e) => ({
@@ -300,4 +298,4 @@ function createRoundTripDiff() {
   };
 }
 
-module.exports = { createRoundTripDiff };
+export { createRoundTripDiff };
