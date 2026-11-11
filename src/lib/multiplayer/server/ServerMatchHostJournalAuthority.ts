@@ -34,6 +34,7 @@ import {
 import { markMatchCompleted } from './matchCompletion';
 import * as matchJournalAuthority from './matchJournalAuthority';
 import { preflightMatchPublications } from './MatchPublicationReadability';
+import { foldMatchSession } from './MatchSessionProjector';
 import {
   digestCommandPostState,
   type ICommandDecision,
@@ -99,6 +100,33 @@ async function resumeCommittedCommand(
     for (const event of events)
       prepareEventForSerialization(event, 'match-broadcast');
     await preflightMatchPublications(ctx.matchId, ctx.store, stored, events);
+    if (
+      prior.expectedPostStateDigest != null &&
+      !matchJournalAuthority.verifyAppliedDigest(
+        digestCommandPostState(
+          foldMatchSession(
+            ctx.matchId,
+            stored.filter((event) => event.sequence <= prior.lastRevision),
+          ),
+        ),
+        prior.expectedPostStateDigest,
+      )
+    )
+      return persistenceFailure(ctx, journal, envelope, 'integrity-conflict');
+    // A previous append may have committed its receipt before journal mirroring
+    // failed. Let the store's recovery owner heal that gap without re-appending.
+    try {
+      const recovered = await ctx.store.recoverJournalBatches?.(ctx.matchId);
+      if (recovered?.kind === 'blocked')
+        return persistenceFailure(ctx, journal, envelope, recovered.reason);
+    } catch (error) {
+      return persistenceFailure(
+        ctx,
+        journal,
+        envelope,
+        error instanceof Error ? error.message : 'journal recovery failed',
+      );
+    }
     resumed = hasPublicationOutbox(ctx.store)
       ? await resumePendingPublications({
           matchId: ctx.matchId,

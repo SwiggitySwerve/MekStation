@@ -146,6 +146,7 @@ import {
 import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
+  verifyAppliedDigest,
 } from './matchJournalAuthority';
 import { lobbyMatchMeta, metaRevision, patchMatchMeta } from './matchRoomCodes';
 import { foldMatchSession } from './MatchSessionProjector';
@@ -1387,7 +1388,7 @@ export class DurableMatchStore
       }
       const postState = foldMatchSession(matchId, batchEvents, reconstructed);
       const postDigest = digestCommandPostState(postState);
-      if (receipt.expectedPostStateDigest !== postDigest) {
+      if (!verifyAppliedDigest(postDigest, receipt.expectedPostStateDigest)) {
         return {
           kind: 'blocked',
           reason: 'partial-history',

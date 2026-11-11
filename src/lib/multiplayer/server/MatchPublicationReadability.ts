@@ -1,7 +1,6 @@
 ﻿import type { IGameEvent } from '@/types/gameplay';
 
 import { prepareEventForSerialization } from '@/utils/gameplay/gameEvents/serialization';
-import { logger } from '@/utils/logger';
 
 import type {
   IMatchPublication,
@@ -41,9 +40,9 @@ export async function readReadableRevealedDeclarations(
   try {
     committed = await store.getEvents(matchId, fromSeq);
   } catch (error) {
-    logger.warn(
-      '[multiplayer] sealed reveal withheld: committed events unavailable',
-      { matchId, fromSeq, error },
+    console.warn(
+      `[ServerMatchHost ${matchId}] sealed reveal withheld: committed events unreadable from seq=${fromSeq}`,
+      error,
     );
     return [];
   }
@@ -56,9 +55,8 @@ export async function readReadableRevealedDeclarations(
   for (const declaration of selected) {
     const row = byId.get(declaration.id);
     if (!row) {
-      logger.warn(
-        '[multiplayer] sealed reveal withheld: committed row missing',
-        { matchId, eventId: declaration.id, sequence: declaration.sequence },
+      console.warn(
+        `[ServerMatchHost ${matchId}] sealed reveal withheld: no committed row for event id=${declaration.id} seq=${declaration.sequence}`,
       );
       continue;
     }
