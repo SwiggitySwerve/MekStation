@@ -24,6 +24,10 @@ import vocabulary from '@/types/formats/mtf-component-vocabulary.json';
 import { getNativeArmorBVMultiplier } from '@/utils/construction/battleValueDefensive';
 import { getAvailableArmorTypes } from '@/utils/construction/techBaseValidation';
 import { ARMOR_TYPE } from '@/utils/serialization/CustomUnitSerializer.tags';
+import {
+  getValidArmorTypes,
+  isArmorTypeValid,
+} from '@/utils/techBaseValidation';
 
 import { createISComponentTechBases } from '../../../__tests__/helpers/storeTestHelpers';
 import { RulesLevel } from '../../enums/RulesLevel';
@@ -152,9 +156,14 @@ const UNIFORM: readonly Expected[] = [
   },
 ];
 
+// The two Clan variants (constants in ArmorType.clanReactiveReflective.test.ts)
+// share their BLK codes with the Inner Sphere members, so they are checked here
+// only for the "can be named, nothing uses them" behaviour.
 const ALL_NATIVE_ONLY = [
   ...UNIFORM.map((e) => e.type),
   ArmorTypeEnum.PATCHWORK,
+  ArmorTypeEnum.REACTIVE_CLAN,
+  ArmorTypeEnum.REFLECTIVE_CLAN,
 ] as const;
 
 describe('uniform native-only armor constants', () => {
@@ -218,7 +227,7 @@ describe('Patchwork is per location', () => {
 });
 
 describe('behaviour is unchanged: the types can only be named', () => {
-  it('flags exactly the seven types as native-only', () => {
+  it('flags exactly the nine types as native-only', () => {
     for (const type of Object.values(ArmorTypeEnum)) {
       expect(isNativeOnlyArmor(type)).toBe(
         ALL_NATIVE_ONLY.includes(type as never),
@@ -252,9 +261,17 @@ describe('behaviour is unchanged: the types can only be named', () => {
       ...getAvailableArmorTypes(TechBase.INNER_SPHERE, true),
       ...getAvailableArmorTypes(TechBase.CLAN, true),
     ];
+    // The mech valid-armor validator (techBaseValidation.filters.ts filterArmorTypes)
+    const valid = [
+      ...getValidArmorTypes(TechBase.INNER_SPHERE),
+      ...getValidArmorTypes(TechBase.CLAN),
+    ];
     for (const type of ALL_NATIVE_ONLY) {
       expect(offered).not.toContain(type);
       expect(available).not.toContain(type);
+      expect(valid).not.toContain(type);
+      expect(isArmorTypeValid(type, TechBase.INNER_SPHERE)).toBe(false);
+      expect(isArmorTypeValid(type, TechBase.CLAN)).toBe(false);
     }
   });
 

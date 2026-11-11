@@ -34,6 +34,10 @@ const BLK_ARMOR_CODES: Readonly<Record<ArmorTypeEnum, number>> = {
   [ArmorTypeEnum.ANTI_PENETRATIVE_ABLATION]: 23, // EquipmentType.java:108.
   [ArmorTypeEnum.HEAT_DISSIPATING]: 24, // EquipmentType.java:109.
   [ArmorTypeEnum.IMPACT_RESISTANT]: 25, // EquipmentType.java:110.
+  // The Clan variants share the Inner Sphere codes (ArmorType.java:849, :915:
+  // T_ARMOR_REACTIVE / T_ARMOR_REFLECTIVE); the side comes from the tech level.
+  [ArmorTypeEnum.REACTIVE_CLAN]: 2, // EquipmentType.java:87.
+  [ArmorTypeEnum.REFLECTIVE_CLAN]: 3, // EquipmentType.java:88.
 };
 
 /** The BLK `armor_type` code for an editor armor type (Standard if unknown). */
