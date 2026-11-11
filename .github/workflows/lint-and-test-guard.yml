@@ -29,7 +29,7 @@ jobs:
     # Keep report-run ordering above; serialize this existing publishing job
     # with approval and label jobs without adding another counted job.
     concurrency:
-      group: ci-budget-publish-${{ github.repository }}-${{ github.event_name == 'workflow_dispatch' && format('dispatch-pr-{0}', inputs.pull_request) || format('{0}:{1}', github.event.pull_request.head.repo.full_name || github.event.workflow_run.head_repository.full_name, github.event.pull_request.head.ref || github.event.workflow_run.head_branch) }}
+      group: ci-budget-publish-${{ github.repository }}-${{ github.event.pull_request.head.sha || github.event.workflow_run.head_sha || format('dispatch-pr-{0}', inputs.pull_request) }}
       cancel-in-progress: false
     name: Require a Lint and Test conclusion
     runs-on: ubuntu-latest

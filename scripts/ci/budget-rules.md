@@ -169,24 +169,26 @@ context setting. Default-branch trusted publishing begins after bootstrap lands;
 the bootstrap PR itself runs the required primary policy check read-only.
 
 Automatic budget-status publishers share a job concurrency group within the base
-repository, keyed by `<head repository full name>:<head branch>`. PR events use
-`pull_request.head.repo.full_name` and `pull_request.head.ref`; workflow-run
-events use `workflow_run.head_repository.full_name` and `workflow_run.head_branch`. The
+repository, keyed by the evaluated head SHA. PR events use `pull_request.head.sha`;
+workflow-run events use `workflow_run.head_sha`. The
 Guard retains its separate workflow report group. `cancel-in-progress: false`
 allows one running and one pending job; a newer pending job replaces the older
-pending job. Replacement on the same current head rereads live labels; replacement
-on a newer head evaluates only that head. A return to a formerly green head still
-needs its own reevaluation, so the existing force-push gap remains.
+pending job. Replacement on the same current head rereads live labels. Different
+head SHAs have different groups, so an old-head signal arriving late cannot
+replace the current head's pending revocation. A run can write only to its bound
+SHA; cross-head interleaving cannot overwrite a different head's status. A return
+to a formerly green SHA still needs its own reevaluation, so the existing
+force-push gap remains.
 
-Same-named branches from different forks have different head repositories, so
-they cannot replace one another's pending revocations in the publishing group.
-GitHub permits only one open PR from a given head into `main`, making that key
-specific to one open PR. This is not a durable queue. Closed/merged PRs are filtered
+Branch names and possibly null deleted-fork repository metadata do not enter the
+key. PRs with different head SHAs cannot replace one another's pending publishers;
+the exact same commit SHA still shares its group and commit-status identity even
+when referenced by multiple PRs. This is not a durable queue. Closed/merged PRs are filtered
 when associated by Guard/review signals; a queued direct PR event or dispatch
 still reads current head/base/labels and can write to that evaluated head because
 `checkBudgetPolicy` does not gate on open state.
 
-Manual dispatch uses `dispatch-pr-<number>` because its event has no head branch
+Manual dispatch uses `dispatch-pr-<number>` because its event has no head SHA
 at concurrency-expression time. It does not serialize with automatic publishers
 and must be used as an owner recovery operation after those jobs settle. A
 concurrent dispatch can still race the last live read/status write; the next
