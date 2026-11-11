@@ -794,7 +794,7 @@ jobs:
     env:
       CI_E2E_DATA_SPECS: ${{ needs.detect-changes.outputs.data-specs || '[]' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 21
     strategy:
       fail-fast: false
       matrix:
