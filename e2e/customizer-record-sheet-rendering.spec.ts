@@ -576,7 +576,10 @@ async function loadCanonicalMechPreview(
     .getByPlaceholder('Search by chassis or variant...')
     .fill(`${chassis} ${variant}`);
   await dialog
-    .getByRole('row', { name: new RegExp(`^${chassis} ${variant}(\s|$)`) })
+    // String.raw keeps the backslash: a plain template literal would turn \s into "s".
+    .getByRole('row', {
+      name: new RegExp(String.raw`^${chassis} ${variant}(\s|$)`),
+    })
     .click();
   await dialog.getByRole('button', { name: 'Load Unit', exact: true }).click();
   await expect(dialog).toBeHidden();
