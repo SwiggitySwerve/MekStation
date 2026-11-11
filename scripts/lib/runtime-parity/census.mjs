@@ -14,6 +14,13 @@ import { parseArgs } from 'node:util';
 
 import { sha256 } from '../../ci/parity-scoreboard-artifacts.mjs';
 import { prepareReference } from '../../ci/parity-scoreboard.mjs';
+import { FACTS_FILE, serializeFacts } from './facts.mjs';
+import {
+  BaselineSchema,
+  GateError,
+  baselinePath,
+  buildBaseline,
+} from './gate.mjs';
 import {
   InputError,
   buildPlan,
@@ -190,8 +197,14 @@ export function differingUnits(texts) {
 }
 
 /**
- * spec: { measure, repoRoot, supportedFamilies, capture, toRow, summarize, differencesFile }
- *   toRow(record) -> row; summarize({rows, referenceByPath, scope, deterministic}) -> {summary, differences}.
+ * spec: { measure, repoRoot, supportedFamilies, capture, toRow, summarize, differencesFile, facts }
+ *   toRow(record) -> row; summarize({rows, referenceByPath, scope, deterministic}) -> {summary, differences};
+ *   facts(row, javaReferenceRow) -> the unit's gated facts (scripts/lib/runtime-parity/facts.mjs), written to
+ *   facts.ndjson beside the rows for the nightly gate.
+ *
+ * `--write-baseline --reason <text> [--pr <n>]` also writes config/parity-runtime/baseline-<measure>.json from
+ * the run's facts, with its SHA, population hash and a `notes[]` entry. It REFUSES (nothing written, exit 1,
+ * failure.json BASELINE_REFUSED) for a narrowed run, nondeterministic rows, or any failed, incomplete or unknown unit.
  */
 export async function runCensus(argv, deps, spec) {
   const { values } = parseArgs({
@@ -203,9 +216,18 @@ export async function runCensus(argv, deps, spec) {
       family: { type: 'string', default: 'battlemechs' },
       units: { type: 'string' },
       runs: { type: 'string', default: '2' },
+      'write-baseline': { type: 'boolean', default: false },
+      reason: { type: 'string' },
+      pr: { type: 'string' },
     },
   });
   if (!values.out) throw new Error('Required: --out <dir>');
+  if (values['write-baseline'] && !values.reason)
+    throw new Error(
+      '--write-baseline requires --reason <why this baseline is being recorded>',
+    );
+  if (values.pr !== undefined && !/^[1-9][0-9]*$/.test(values.pr))
+    throw new Error('--pr must be a positive integer');
   const repoRoot = deps.repoRoot ?? spec.repoRoot;
   const capture = deps.capture ?? spec.capture;
   const out = path.resolve(values.out);
@@ -291,6 +313,14 @@ export async function runCensus(argv, deps, spec) {
       deterministic,
     });
 
+    const facts = spec.facts
+      ? rows.map((row) => spec.facts(row, referenceByPath.get(row.path)))
+      : null;
+    if (facts)
+      fs.writeFileSync(
+        path.join(out, FACTS_FILE),
+        serializeFacts(spec.measure, facts),
+      );
     fs.writeFileSync(path.join(out, OUTPUT_FILES.rows), runs[0].text);
     fs.writeFileSync(
       path.join(out, OUTPUT_FILES.summary),
@@ -325,6 +355,60 @@ export async function runCensus(argv, deps, spec) {
       JSON.stringify(receipt, null, 2) + '\n',
     );
     console.log(summary.headline);
+    if (values['write-baseline']) {
+      try {
+        if (!facts)
+          throw new GateError(
+            'BASELINE_REFUSED',
+            `${spec.measure} has no facts to baseline`,
+          );
+        if (unitIds !== null)
+          throw new GateError(
+            'BASELINE_REFUSED',
+            'the run was narrowed by --units; a baseline records the whole population',
+          );
+        if (!deterministic)
+          throw new GateError(
+            'BASELINE_REFUSED',
+            'the runs were not byte-identical',
+          );
+        const target = path.join(repoRoot, baselinePath(spec.measure));
+        let existing = null;
+        if (fs.existsSync(target))
+          existing = BaselineSchema.parse(
+            JSON.parse(fs.readFileSync(target, 'utf8')),
+          );
+        const baseline = buildBaseline({
+          measure: spec.measure,
+          facts,
+          sha: repoSha,
+          note: {
+            sha: repoSha,
+            pr: values.pr === undefined ? null : Number(values.pr),
+            reason: values.reason,
+            units: [],
+          },
+          existing,
+        });
+        fs.mkdirSync(path.dirname(target), { recursive: true });
+        fs.writeFileSync(target, JSON.stringify(baseline, null, 2) + '\n');
+        console.log(
+          `baseline written: ${target} (${baseline.populationCount} units at ${repoSha})`,
+        );
+      } catch (error) {
+        const reason =
+          error instanceof GateError ? error.reason : 'BASELINE_REFUSED';
+        fs.writeFileSync(
+          path.join(out, 'failure.json'),
+          JSON.stringify({ reason, message: String(error.message) }, null, 2) +
+            '\n',
+        );
+        console.error(
+          `BASELINE_REFUSED: ${String(error.message).replace(/^[A-Z_]+: /, '')}`,
+        );
+        return 1;
+      }
+    }
     if (!deterministic) {
       const units = differingUnits(runs.map((run) => run.text));
       fs.writeFileSync(

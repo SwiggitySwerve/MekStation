@@ -5,6 +5,8 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { parseFacts } from '../lib/runtime-parity/facts.mjs';
+import { validateBaseline } from '../lib/runtime-parity/gate.mjs';
 import {
   InputError,
   buildPlan,
@@ -716,4 +718,141 @@ test('the runner can see a drop: one wrong BV lowers the exact count and names t
     [['gamma', 'bv', 990, 1000]],
   );
   assert.ok(InputError);
+});
+
+// --- the gate's inputs: facts.ndjson and --write-baseline ---------------------------------------
+const baselineFile = (t) =>
+  path.join(path.dirname(t.outDir), 'config/parity-runtime/baseline-load.json');
+
+test('main writes facts.ndjson beside the rows: bvExact, distance, validity and weight owners per unit', async () => {
+  const t = setup();
+  assert.equal(await quietly(() => t.run()), 0);
+  const facts = parseFacts('load', t.read('facts.ndjson'));
+  assert.deepEqual(
+    facts.map((f) => f.unitId),
+    ids,
+  );
+  assert.deepEqual(facts[0].facts, {
+    bvExact: true,
+    bvDistance: 0,
+    validity: true,
+    weightOwners: true,
+  });
+  assert.equal(t.exists('failure.json'), false);
+  // The rows are not changed by the facts: no field of the row schema was added.
+  assert.equal('facts' in parseRows(t.read('rows.ndjson'))[0], false);
+});
+
+test('--write-baseline writes the baseline of a complete run with its SHA, population hash and note', async () => {
+  const t = setup();
+  assert.equal(
+    await quietly(() =>
+      t.run('--write-baseline', '--reason', 'seed from the first green run'),
+    ),
+    0,
+  );
+  const baseline = validateBaseline(
+    'load',
+    JSON.parse(fs.readFileSync(baselineFile(t), 'utf8')),
+  );
+  assert.equal(baseline.sha, hex('c', 40));
+  assert.equal(baseline.populationCount, 3);
+  assert.deepEqual(
+    Object.keys(baseline.units),
+    ids.map((id) => `battlemechs/${id}`),
+  );
+  assert.deepEqual(
+    baseline.notes.map((n) => [n.reason, n.pr, n.sha]),
+    [['seed from the first green run', null, hex('c', 40)]],
+  );
+  // A second write keeps the earlier note and adds its own.
+  assert.equal(
+    await quietly(() =>
+      t.run(
+        '--write-baseline',
+        '--reason',
+        'A2 locks in the Mad Cats',
+        '--pr',
+        '3400',
+      ),
+    ),
+    0,
+  );
+  const again = JSON.parse(fs.readFileSync(baselineFile(t), 'utf8'));
+  assert.deepEqual(
+    again.notes.map((n) => [n.reason, n.pr]),
+    [
+      ['seed from the first green run', null],
+      ['A2 locks in the Mad Cats', 3400],
+    ],
+  );
+});
+
+test('--write-baseline needs a reason, and refuses a narrowed run, differing runs and any failed unit: nothing is written', async () => {
+  const t = setup();
+  await assert.rejects(() => t.run('--write-baseline'), /--reason/);
+  assert.equal(fs.existsSync(baselineFile(t)), false);
+
+  assert.equal(
+    await quietly(() =>
+      t.run('--write-baseline', '--reason', 'x', '--units', 'beta'),
+    ),
+    1,
+  );
+  assert.equal(JSON.parse(t.read('failure.json')).reason, 'BASELINE_REFUSED');
+  assert.match(JSON.parse(t.read('failure.json')).message, /narrowed/);
+  assert.equal(fs.existsSync(baselineFile(t)), false);
+
+  let call = 0;
+  const differing = setup({
+    capture: ({ plan }) => {
+      call++;
+      return {
+        records: plan.map((p) =>
+          record(
+            p.unitId,
+            p.unitId === 'beta' && call === 2 ? { bv: 1001 } : {},
+          ),
+        ),
+        durationSeconds: 1,
+        resources: { maxRSS: 1 },
+      };
+    },
+  });
+  assert.equal(
+    await quietly(() => differing.run('--write-baseline', '--reason', 'x')),
+    1,
+  );
+  assert.match(
+    JSON.parse(differing.read('failure.json')).message,
+    /not byte-identical/,
+  );
+  assert.equal(fs.existsSync(baselineFile(differing)), false);
+
+  const failedUnit = setup({
+    capture: ({ plan }) => ({
+      records: plan.map((p) =>
+        p.unitId === 'beta'
+          ? {
+              ...record('beta'),
+              observed: null,
+              terms: null,
+              issues: null,
+              error: { stage: 'open', name: 'E', message: 'm' },
+            }
+          : record(p.unitId),
+      ),
+      durationSeconds: 1,
+      resources: { maxRSS: 1 },
+    }),
+  });
+  assert.equal(
+    await quietly(() => failedUnit.run('--write-baseline', '--reason', 'x')),
+    1,
+  );
+  assert.match(
+    JSON.parse(failedUnit.read('failure.json')).message,
+    /failed or have an unknown fact \(first: battlemechs\/beta\)/,
+  );
+  assert.equal(fs.existsSync(baselineFile(failedUnit)), false);
 });

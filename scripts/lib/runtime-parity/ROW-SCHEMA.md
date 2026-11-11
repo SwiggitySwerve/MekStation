@@ -86,6 +86,11 @@ dialog's predicate over the row's own fields.
 kept in the denominator and are not counted. This measures the dialog's confirmation only; the save button's other gates (name,
 construction validity, saving/refreshing) are separate and are not part of it.
 
+## Facts (`facts.ndjson`), derived, not part of the row
+
+The nightly gate's per-unit facts are derived from a row and the Java reference (`facts.mjs`) and written beside the rows; no field is
+added to a row. See `BASELINE-SCHEMA.md`.
+
 ## Run receipt (`receipt.json`)
 
 Provenance and resource facts live here, never on a row: `repoSha`, `node` (`process.version`), `nodeAbi`
