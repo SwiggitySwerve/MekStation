@@ -1,23 +1,25 @@
 #!/usr/bin/env node
 // The nightly runtime gate: the one owner of the comparison between tonight's per-unit facts and the
-// committed baseline (config/parity-runtime/baseline-<measure>.json), optionally tightened by the last
-// green nightly. The workflow only runs this; nothing else decides what "worse" means.
+// committed baseline (config/parity-runtime/baseline-<measure>.json plus, for set facts, its
+// baseline-<measure>.sets.ndjson sidecar), optionally tightened by the last green nightly. The workflow only
+// runs this; nothing else decides what "worse" means.
 //
 //   node scripts/lib/runtime-parity/gate.mjs --measure load --run-dir <port out dir> \
 //        [--baseline config/parity-runtime/baseline-load.json] [--last-green <last-green.json>] \
 //        [--repo <root>] [--out <dir>]
 //
 // Rule (agreed by C1, C3, C5 and approved by Root, 2026-11-11), in a few lines:
-//   - A unit that gets WORSE on any gated fact fails the night, by name: a bool pass -> fail, a set that gains
-//     members, a distance that grows beyond tolerance, or a known value that becomes UNKNOWN.
+//   - A unit that gets WORSE on any gated fact fails the night (exit 1), by name: a bool pass -> fail, a set that
+//     gains members, a distance that grows beyond tolerance, or a known value that becomes UNKNOWN.
 //   - Gains pass. An intended gain rebaselines in its own PR (the port's --write-baseline).
 //   - Population: units only in tonight's run are UNBASELINED (counted, never a fail); a baseline unit absent from
-//     tonight's run (removed or renamed) counts as known -> unknown and fails.
-//   - FAIL CLOSED (exit 2): baseline missing or malformed, any gated fact missing from a baseline unit, a baseline
-//     SHA that is not an ancestor of the run, malformed facts, a narrowed or incomplete run.
-//   - Last-green tightening is optional: while the committed baseline is byte-unchanged since that green run the
-//     gate takes the best of each fact; a missing artifact means the committed baseline alone, reported, no fail.
-// Exit: 0 pass, 1 regression, 2 fail closed. Parity differences that are not worse never fail.
+//     tonight's run (removed or renamed) FAILS CLOSED (exit 2, POPULATION_UNIT_REMOVED), naming the ids.
+//   - FAIL CLOSED (exit 2): baseline missing or malformed, a sidecar that does not match it, any gated fact missing
+//     from a baseline unit, a baseline SHA that is not an ancestor of the run, facts derived by a different
+//     facts.mjs than the baseline's, malformed facts, a narrowed or incomplete run, a removed or renamed unit.
+//   - Last-green tightening is optional: while the committed baseline (both files) is byte-unchanged since that green
+//     run the gate takes the best of each fact; a missing artifact means the committed baseline alone, reported.
+// Exit: 0 pass, 1 measured regression, 2 fail closed.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
@@ -26,12 +28,25 @@ import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 import { z } from 'zod';
 
-import { FACTS_FILE, FACT_DEFS, parseFacts, unitKey } from './facts.mjs';
+import {
+  FACTS_META_FILE,
+  ProvenanceSchema,
+  parseFactsMeta,
+} from './facts-provenance.mjs';
+import {
+  FACTS_FILE,
+  FACT_DEFS,
+  parseFacts,
+  setFactNames,
+  unitKey,
+} from './facts.mjs';
 
 export const BASELINE_SCHEMA_VERSION = 1;
 export const BASELINE_DIR = 'config/parity-runtime';
 export const baselinePath = (measure) =>
   `${BASELINE_DIR}/baseline-${measure}.json`;
+export const baselineSetsPath = (measure) =>
+  `${BASELINE_DIR}/baseline-${measure}.sets.ndjson`;
 
 /** A distance that grows by no more than this (relative to max(1, baseline)) is not worse. The term rule's tolerance. */
 export const DISTANCE_TOLERANCE = 1e-9;
@@ -50,6 +65,26 @@ export const NoteSchema = z.strictObject({
   units: z.array(z.string().min(1)),
 });
 
+export class GateError extends Error {
+  constructor(reason, message) {
+    super(`${reason}: ${message}`);
+    this.name = 'GateError';
+    this.reason = reason;
+  }
+}
+
+export const populationHash = (keys) =>
+  sha256([...keys].sort().join('\n') + '\n');
+
+/**
+ * The member-set hash. ONE function, used by --write-baseline (both files) and by the integrity check at load:
+ * the first 16 hex of the sha256 of the sorted members joined by newlines. It is an integrity and review aid
+ * (the main file shows a unit's set size and hash, so a changed set is visible in both files); the sets
+ * themselves are compared exactly, member by member.
+ */
+export const setHash = (members) =>
+  sha256([...members].join('\n')).slice(0, 16);
+
 const factValue = z.union([
   z.boolean(),
   z.number().min(0),
@@ -57,15 +92,13 @@ const factValue = z.union([
   z.null(),
 ]);
 
-export const populationHash = (keys) =>
-  sha256([...keys].sort().join('\n') + '\n');
-
-/** The committed baseline file. Strict; `validateBaseline` also checks facts and the population hash. */
+/** The logical baseline: every fact in full, sets as arrays. */
 export const BaselineSchema = z.strictObject({
   schemaVersion: z.literal(BASELINE_SCHEMA_VERSION),
   measure: z.enum(Object.keys(FACT_DEFS)),
   /** The commit the run was made at: must be an ancestor of any run the baseline gates. */
   sha: hex(40, 40),
+  ...ProvenanceSchema.shape,
   populationCount: z.int().min(0),
   /** sha256 of the sorted unit keys, newline-terminated: proves the unit list was not edited by hand. */
   populationHash: hex(64, 64),
@@ -130,12 +163,199 @@ export function validateBaseline(measure, baseline) {
   return value;
 }
 
-export class GateError extends Error {
-  constructor(reason, message) {
-    super(`${reason}: ${message}`);
-    this.name = 'GateError';
-    this.reason = reason;
+// --- the two committed files ----------------------------------------------------------------------------
+//
+// baseline-<measure>.json: text, valid JSON, one unit per line, sorted. A set fact is `{ "n": size, "h": hash }`.
+// baseline-<measure>.sets.ndjson (measures with set facts): text, one line per unit, sorted:
+//   {"u":"<family>/<unitId>","<setFact>":["<member>",...]}   (a set with no members is omitted; every unit has a line)
+
+/** The committed text of a baseline: `{ main, sets }` (`sets` is null for a measure with no set facts). */
+export function serializeBaseline(baseline) {
+  const { units, notes, ...header } = baseline;
+  const setNames = setFactNames(baseline.measure);
+  const keys = Object.keys(units).sort();
+  const mainUnits = keys.map((key) => {
+    const facts = Object.fromEntries(
+      Object.entries(units[key]).map(([name, value]) => [
+        name,
+        setNames.includes(name) && Array.isArray(value)
+          ? { n: value.length, h: setHash(value) }
+          : value,
+      ]),
+    );
+    return `    ${JSON.stringify(key)}: ${JSON.stringify(facts)}`;
+  });
+  const head = Object.entries(header).map(
+    ([key, value]) => `  ${JSON.stringify(key)}: ${JSON.stringify(value)}`,
+  );
+  const noteLines = notes
+    .map((note) => `    ${JSON.stringify(note)}`)
+    .join(',\n');
+  const main = `{\n${head.join(',\n')},\n  "notes": [\n${noteLines}\n  ],\n  "units": {\n${mainUnits.join(',\n')}\n  }\n}\n`;
+  if (!setNames.length) return { main, sets: null };
+  const sets = keys
+    .map((key) => {
+      const line = { u: key };
+      for (const name of setNames) {
+        const members = units[key][name];
+        if (Array.isArray(members) && members.length) line[name] = members;
+      }
+      return JSON.stringify(line) + '\n';
+    })
+    .join('');
+  return { main, sets };
+}
+
+const mismatch = (message, ids) =>
+  new GateError(
+    'BASELINE_SIDECAR_MISMATCH',
+    ids?.length ? `${message}: ${ids.join(', ')}` : message,
+  );
+
+/**
+ * Read both committed files back into the logical baseline, checking the sidecar against the main file FIRST:
+ * every unit's set size and hash, and that the two files list exactly the same units. Throws
+ * BASELINE_SIDECAR_MISMATCH (naming unit ids) or BASELINE_MALFORMED.
+ */
+export function parseBaseline(
+  measure,
+  mainText,
+  setsText,
+  { verify = true } = {},
+) {
+  let main;
+  try {
+    main = JSON.parse(mainText);
+  } catch (error) {
+    throw new GateError(
+      'BASELINE_MALFORMED',
+      `not valid JSON: ${error.message}`,
+    );
   }
+  const setNames = FACT_DEFS[measure] ? setFactNames(measure) : [];
+  if (
+    main === null ||
+    typeof main !== 'object' ||
+    !main.units ||
+    !setNames.length
+  )
+    return validateBaseline(measure, main);
+
+  if (verify && (setsText === null || setsText === undefined))
+    throw mismatch(
+      `the sidecar ${baselineSetsPath(measure)} is missing; the baseline cannot be checked`,
+    );
+  const sidecar = new Map();
+  const malformed = [];
+  (setsText ?? '')
+    .split('\n')
+    .filter(Boolean)
+    .forEach((line, index) => {
+      try {
+        const entry = JSON.parse(line);
+        const valid =
+          entry &&
+          typeof entry.u === 'string' &&
+          Object.keys(entry).every(
+            (k) =>
+              k === 'u' ||
+              (setNames.includes(k) &&
+                Array.isArray(entry[k]) &&
+                entry[k].every((m) => typeof m === 'string')),
+          );
+        if (!valid) throw new Error('not a sidecar line');
+        if (sidecar.has(entry.u)) throw new Error('unit listed twice');
+        sidecar.set(entry.u, entry);
+      } catch {
+        malformed.push(`line ${index + 1}`);
+      }
+    });
+  if (verify && malformed.length)
+    throw mismatch('the sidecar has malformed line(s)', malformed);
+
+  const mainKeys = Object.keys(main.units);
+  const missingFromSidecar = mainKeys.filter((key) => !sidecar.has(key));
+  const extraInSidecar = [...sidecar.keys()].filter(
+    (key) => !(key in main.units),
+  );
+  if (verify && (missingFromSidecar.length || extraInSidecar.length))
+    throw mismatch(
+      `the files list different units (${missingFromSidecar.length} only in the main file, ${extraInSidecar.length} only in the sidecar)`,
+      [...missingFromSidecar, ...extraInSidecar],
+    );
+
+  const bad = [];
+  const units = {};
+  for (const key of mainKeys) {
+    const facts = { ...main.units[key] };
+    for (const name of setNames) {
+      const declared = facts[name];
+      if (declared === null) continue; // an unknown baseline value claims nothing
+      const members = sidecar.get(key)?.[name] ?? [];
+      const wellFormed =
+        !verify ||
+        (declared &&
+          typeof declared === 'object' &&
+          declared.n === members.length &&
+          declared.h === setHash(members) &&
+          members.every((m, i) => i === 0 || members[i - 1] < m));
+      if (!wellFormed) {
+        bad.push(key);
+        break;
+      }
+      facts[name] = members;
+    }
+    units[key] = facts;
+  }
+  if (bad.length)
+    throw mismatch(
+      "a unit's members do not match the size and hash recorded in the main file",
+      bad,
+    );
+  return validateBaseline(measure, { ...main, units });
+}
+
+/**
+ * Build a baseline from a complete run's facts. Refuses a run with any failed, incomplete or unknown unit, so
+ * a baseline can never record a hole. `existing` (a parsed baseline) keeps its notes; `note` is required.
+ */
+export function buildBaseline({
+  measure,
+  facts,
+  sha,
+  note,
+  provenance,
+  existing = null,
+}) {
+  if (!facts.length)
+    throw new GateError('BASELINE_REFUSED', 'the run has no units');
+  const bad = facts.filter(
+    (entry) =>
+      entry.status !== 'ok' ||
+      Object.values(entry.facts).some((value) => value === null),
+  );
+  if (bad.length)
+    throw new GateError(
+      'BASELINE_REFUSED',
+      `${bad.length} unit(s) failed or have an unknown fact (first: ${unitKey(bad[0])}); a baseline records only a complete run`,
+    );
+  const checkedNote = NoteSchema.parse(note);
+  const checkedProvenance = ProvenanceSchema.parse(provenance);
+  const units = Object.fromEntries(
+    facts
+      .map((entry) => [unitKey(entry), entry.facts])
+      .sort(([a], [b]) => (a < b ? -1 : 1)),
+  );
+  return validateBaseline(measure, {
+    schemaVersion: BASELINE_SCHEMA_VERSION,
+    measure,
+    sha,
+    ...checkedProvenance,
+    populationCount: facts.length,
+    populationHash: populationHash(Object.keys(units)),
+    notes: [...(existing?.notes ?? []), checkedNote],
+    units,
+  });
 }
 
 // --- the rules (replaceable only so the test suite can prove each one is load-bearing) -------------------
@@ -189,27 +409,39 @@ export const defaultRules = {
   requireBaseline: true,
   /** The baseline's SHA must be an ancestor of the run. */
   requireAncestor: true,
-  /** Units only in tonight's run are unbaselined and never fail; false would fail the night on them. */
+  /** Units only in tonight's run are unbaselined and never fail; true would fail the night on them. */
   addedUnitsFail: false,
-  /** A baseline unit absent from tonight's run is known -> unknown; false would ignore it. */
+  /** A baseline unit absent from tonight's run fails closed (POPULATION_UNIT_REMOVED); false would ignore it. */
   removedUnitsFail: true,
   /** A missing last-green artifact is reported and never fails; true would fail the night. */
   missingLastGreenFails: false,
   /** Tighten to last green only while the committed baseline is byte-unchanged since that run. */
   requireSameBaselineBlob: true,
+  /** Tonight's facts must come from the same facts.mjs (and facts schema) as the baseline's. */
+  requireSameDeriver: true,
+  /** The sidecar is checked against the main file at load (hashes, units, lines, presence). */
+  verifySidecar: true,
 };
 
 // --- the evaluation -------------------------------------------------------------------------------------
 
-const closed = (reason, message) => ({ failClosed: { reason, message } });
-
 /**
- * Pure comparison. `facts` is tonight's parsed facts (array), `baselineText` the committed file's text (or null
- * if missing), `lastGreen` the parsed artifact or null, `run` { sha, scope } from the receipt. `isAncestor(sha)`
- * answers git's question. Returns the full report; `exitCode` is 0, 1 or 2.
+ * Pure comparison. `facts` is tonight's parsed facts (array), `provenance` where they came from, `baselineText` /
+ * `setsText` the committed files' text (null if missing), `lastGreen` the parsed artifact or null, `run`
+ * { sha, scope } from the receipt. `isAncestor(sha)` answers git's question. Returns the full report;
+ * `exitCode` is 0, 1 or 2.
  */
 export function evaluate(
-  { measure, facts, baselineText, lastGreen, run, isAncestor },
+  {
+    measure,
+    facts,
+    provenance,
+    baselineText,
+    setsText = null,
+    lastGreen,
+    run,
+    isAncestor,
+  },
   rules = defaultRules,
 ) {
   const defs = FACT_DEFS[measure];
@@ -225,6 +457,7 @@ export function evaluate(
     unbaselined: [],
     removed: [],
     population: { baseline: null, tonight: facts.length, overlap: 0 },
+    provenance: { deriverChanged: false, referenceChanged: false },
     lastGreen: { status: 'not-used', detail: '' },
     headline: '',
   };
@@ -249,14 +482,16 @@ export function evaluate(
       `${facts.length} facts for a population of ${run.scope.populationCount}`,
     );
 
-  // The committed baseline.
+  // The committed baseline, checked against its sidecar before anything is compared.
   let baseline = null;
   if (baselineText === null || baselineText === undefined) {
     if (rules.requireBaseline)
       fail('BASELINE_MISSING', `no committed baseline for ${measure}`);
   } else {
     try {
-      baseline = validateBaseline(measure, JSON.parse(baselineText));
+      baseline = parseBaseline(measure, baselineText, setsText, {
+        verify: rules.verifySidecar,
+      });
     } catch (error) {
       if (rules.requireBaseline)
         fail(
@@ -282,6 +517,35 @@ export function evaluate(
         `${baseline.sha} is not an ancestor of the run ${run?.sha ?? '?'}`,
       );
   }
+  // Facts derived by a different facts.mjs cannot be compared with this baseline: rebaseline.
+  if (baseline) {
+    if (!provenance)
+      fail('FACTS_PROVENANCE_MISSING', `no ${FACTS_META_FILE} for the facts`);
+    else {
+      if (provenance.referenceSha256 !== baseline.referenceSha256)
+        report.provenance.referenceChanged = true;
+      if (
+        rules.requireSameDeriver &&
+        provenance.factsSchemaVersion !== baseline.factsSchemaVersion
+      ) {
+        report.provenance.deriverChanged = true;
+        fail(
+          'FACTS_SCHEMA_CHANGED',
+          `the facts are schema ${provenance.factsSchemaVersion}, the baseline's are ${baseline.factsSchemaVersion}; a rebaseline PR is the fix`,
+        );
+      }
+      if (
+        rules.requireSameDeriver &&
+        provenance.factsDeriverBlob !== baseline.factsDeriverBlob
+      ) {
+        report.provenance.deriverChanged = true;
+        fail(
+          'FACTS_DERIVER_CHANGED',
+          `facts.mjs is ${provenance.factsDeriverBlob} but the baseline's facts came from ${baseline.factsDeriverBlob}; a rebaseline PR is the fix`,
+        );
+      }
+    }
+  }
   if (report.exitCode === 2 || !baseline) {
     report.headline = report.failClosed.length
       ? `FAIL CLOSED: ${report.failClosed.map((f) => f.reason).join(', ')}`
@@ -289,7 +553,13 @@ export function evaluate(
     return report;
   }
 
-  const baselineSha256 = sha256(Buffer.from(baselineText));
+  const baselineSha256 = sha256(
+    Buffer.concat([
+      Buffer.from(baselineText),
+      Buffer.from('\0'),
+      Buffer.from(setsText ?? ''),
+    ]),
+  );
   report.population.baseline = Object.keys(baseline.units).length;
   const tonight = new Map(facts.map((entry) => [unitKey(entry), entry]));
 
@@ -313,7 +583,7 @@ export function evaluate(
   ) {
     report.lastGreen = {
       status: 'stale',
-      detail: `last green (${lastGreen.runSha ?? '?'}) was measured against a different baseline blob: the committed baseline alone was used`,
+      detail: `last green (${lastGreen.runSha ?? '?'}) was measured against a different baseline: the committed baseline alone was used`,
     };
   } else {
     tightening = lastGreen.units;
@@ -328,13 +598,6 @@ export function evaluate(
     const now = tonight.get(key);
     if (!now) {
       report.removed.push(key);
-      if (rules.removedUnitsFail)
-        report.regressions.push({
-          unit: key,
-          fact: '*',
-          source: 'baseline',
-          why: 'removed or renamed: known -> unknown',
-        });
       continue;
     }
     report.population.overlap++;
@@ -393,6 +656,11 @@ export function evaluate(
     }
   report.unbaselined.sort();
   report.removed.sort();
+  if (report.removed.length && rules.removedUnitsFail)
+    fail(
+      'POPULATION_UNIT_REMOVED',
+      `${report.removed.length} baseline unit(s) are absent from the run (removed or renamed): ${report.removed.slice(0, 50).join(', ')}${report.removed.length > 50 ? ', ...' : ''}. A PR that removes or renames units regenerates the baseline.`,
+    );
   report.proposedBaseline = {
     proposal: true,
     note: 'Unfolded gains and unbaselined units; a rebaseline PR writes the real baseline with the port --write-baseline.',
@@ -404,17 +672,19 @@ export function evaluate(
       Object.entries(proposed).sort(([a], [b]) => (a < b ? -1 : 1)),
     ),
   };
-  report.exitCode = report.regressions.length ? 1 : 0;
-  const units = report.regressions
-    .filter((r) => r.fact !== '*')
-    .map((r) => r.unit);
-  report.headline = report.exitCode
-    ? `REGRESSION: ${new Set([...units, ...report.removed]).size} unit(s) worse` +
-      (report.removed.length
-        ? `, ${report.removed.length} removed or renamed`
-        : '')
-    : `PASS: ${report.population.overlap} units gated, ${report.gains.length} unprotected gain(s), ${report.unbaselined.length} unbaselined`;
-  if (report.exitCode === 0) {
+  if (report.exitCode !== 2)
+    report.exitCode = report.regressions.length ? 1 : 0;
+  const worseUnits = new Set(report.regressions.map((r) => r.unit));
+  report.headline =
+    report.exitCode === 2
+      ? `FAIL CLOSED: ${report.failClosed.map((f) => f.reason).join(', ')}` +
+        (report.regressions.length
+          ? `; ${worseUnits.size} unit(s) also worse`
+          : '')
+      : report.exitCode === 1
+        ? `REGRESSION: ${worseUnits.size} unit(s) worse`
+        : `PASS: ${report.population.overlap} units gated, ${report.gains.length} unprotected gain(s), ${report.unbaselined.length} unbaselined`;
+  if (report.exitCode === 0)
     report.lastGreenOut = {
       schemaVersion: 1,
       measure,
@@ -424,65 +694,7 @@ export function evaluate(
         [...tonight].map(([key, entry]) => [key, entry.facts]),
       ),
     };
-  }
   return report;
-}
-
-// --- baselines (written only by a port's --write-baseline) -----------------------------------------------
-
-/**
- * Build a baseline from a complete run's facts. Refuses a run with any failed, incomplete or unknown unit, so
- * a baseline can never record a hole. `existing` (a parsed baseline) keeps its notes; `note` is required.
- */
-export function buildBaseline({ measure, facts, sha, note, existing = null }) {
-  if (!facts.length)
-    throw new GateError('BASELINE_REFUSED', 'the run has no units');
-  const bad = facts.filter(
-    (entry) =>
-      entry.status !== 'ok' ||
-      Object.values(entry.facts).some((value) => value === null),
-  );
-  if (bad.length)
-    throw new GateError(
-      'BASELINE_REFUSED',
-      `${bad.length} unit(s) failed or have an unknown fact (first: ${unitKey(bad[0])}); a baseline records only a complete run`,
-    );
-  const checkedNote = NoteSchema.parse(note);
-  const units = Object.fromEntries(
-    facts
-      .map((entry) => [unitKey(entry), entry.facts])
-      .sort(([a], [b]) => (a < b ? -1 : 1)),
-  );
-  const baseline = {
-    schemaVersion: BASELINE_SCHEMA_VERSION,
-    measure,
-    sha,
-    populationCount: facts.length,
-    populationHash: populationHash(Object.keys(units)),
-    notes: [...(existing?.notes ?? []), checkedNote],
-    units,
-  };
-  return validateBaseline(measure, baseline);
-}
-
-/**
- * The committed text of a baseline: valid JSON, one unit per line, so a diff names the units that changed and a
- * reopen baseline (hundreds of thousands of set members) stays a reviewable size.
- */
-export function serializeBaseline(baseline) {
-  const { units, notes, ...header } = baseline;
-  const head = Object.entries(header).map(
-    ([key, value]) => `  ${JSON.stringify(key)}: ${JSON.stringify(value)}`,
-  );
-  const noteLines = notes
-    .map((note) => `    ${JSON.stringify(note)}`)
-    .join(',\n');
-  const unitLines = Object.entries(units)
-    .map(
-      ([key, facts]) => `    ${JSON.stringify(key)}: ${JSON.stringify(facts)}`,
-    )
-    .join(',\n');
-  return `{\n${head.join(',\n')},\n  "notes": [\n${noteLines}\n  ],\n  "units": {\n${unitLines}\n  }\n}\n`;
 }
 
 // --- command line ---------------------------------------------------------------------------------------
@@ -529,11 +741,11 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     repo,
     values.baseline ?? baselinePath(measure),
   );
+  // The sidecar sits beside the main file: baseline-<measure>.json -> baseline-<measure>.sets.ndjson.
+  const setsFile = baselineFile.replace(/\.json$/, '.sets.ndjson');
 
   const read = (file) =>
     fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
-  const receiptText = read(path.join(runDir, 'receipt.json'));
-  const factsText = read(path.join(runDir, FACTS_FILE));
   fs.mkdirSync(out, { recursive: true });
   const write = (name, value) =>
     fs.writeFileSync(
@@ -543,6 +755,9 @@ export function main(argv = process.argv.slice(2), deps = {}) {
 
   let report;
   try {
+    const receiptText = read(path.join(runDir, 'receipt.json'));
+    const factsText = read(path.join(runDir, FACTS_FILE));
+    const metaText = read(path.join(runDir, FACTS_META_FILE));
     if (receiptText === null || factsText === null)
       throw new GateError(
         'RUN_INCOMPLETE',
@@ -560,6 +775,20 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     } catch (error) {
       throw new GateError('FACTS_MALFORMED', error.message);
     }
+    let provenance = null;
+    if (metaText !== null)
+      try {
+        const meta = parseFactsMeta(metaText);
+        if (meta.measure !== measure)
+          throw new Error(`${FACTS_META_FILE} is for ${meta.measure}`);
+        provenance = {
+          factsSchemaVersion: meta.factsSchemaVersion,
+          factsDeriverBlob: meta.factsDeriverBlob,
+          referenceSha256: meta.referenceSha256,
+        };
+      } catch (error) {
+        throw new GateError('FACTS_MALFORMED', error.message);
+      }
     const lastGreenText = values['last-green']
       ? read(path.resolve(values['last-green']))
       : null;
@@ -574,7 +803,9 @@ export function main(argv = process.argv.slice(2), deps = {}) {
       {
         measure,
         facts,
+        provenance,
         baselineText: read(baselineFile),
+        setsText: read(setsFile),
         lastGreen,
         run: { sha: receipt.repoSha, scope: receipt.scope },
         isAncestor: (sha) =>
@@ -606,6 +837,7 @@ export function main(argv = process.argv.slice(2), deps = {}) {
     'gate-units.ndjson',
     [
       ...report.regressions.map((r) => ({ verdict: 'regression', ...r })),
+      ...(report.removed ?? []).map((unit) => ({ verdict: 'removed', unit })),
       ...(report.gains ?? []).map((g) => ({ verdict: 'gain', ...g })),
       ...(report.unbaselined ?? []).map((unit) => ({
         verdict: 'unbaselined',
@@ -621,6 +853,10 @@ export function main(argv = process.argv.slice(2), deps = {}) {
   if (report.lastGreen)
     console.log(
       `last green: ${report.lastGreen.status}${report.lastGreen.detail ? ` (${report.lastGreen.detail})` : ''}`,
+    );
+  if (report.provenance?.referenceChanged)
+    console.log(
+      'note: the Java reference differs from the one the baseline was derived with (not a failure)',
     );
   for (const r of report.regressions.slice(0, 50))
     console.log(`  ${r.unit} ${r.fact}: ${r.why}`);

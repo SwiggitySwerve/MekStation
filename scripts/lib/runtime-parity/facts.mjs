@@ -7,6 +7,9 @@
 //   bool      true = pass. Worse: true -> false.
 //   distance  a non-negative distance from the target (|runtime - Java|). Worse: it grows beyond tolerance.
 //   set       a sorted, duplicate-free list of strings (cells, mounts). Worse: it gains members.
+// This file is the single, pure deriver: a row and the unit's Java reference row in, facts out. Its git
+// blob sha is recorded in every baseline (facts-provenance.mjs), so changing how a fact is read fails the
+// gate closed until the baseline is regenerated.
 // An error row has every fact unknown.
 import { z } from 'zod';
 
@@ -27,6 +30,8 @@ export const FACT_DEFS = {
     reopenLoad: 'bool',
     reopenJava: 'bool',
     reopenJavaDistance: 'distance',
+    // How far reopen moved BV from load, so a unit that already fails reopen = load and gets worse still shows.
+    reopenLoadDistance: 'distance',
     noLossConfirmationBefore: 'bool',
     noticeResidual: 'set',
     noticeMismatch: 'set',
@@ -50,6 +55,11 @@ const identity = (row) => ({
 });
 
 /** The unit's key in a baseline. Unit ids are unique per family. */
+export const setFactNames = (measure) =>
+  Object.entries(FACT_DEFS[measure])
+    .filter(([, kind]) => kind === 'set')
+    .map(([name]) => name);
+
 export const unitKey = (entry) => `${entry.family}/${entry.unitId}`;
 
 const distance = (a, b) =>
@@ -57,9 +67,53 @@ const distance = (a, b) =>
     ? null
     : Math.abs(a - b);
 const sortedSet = (items) => [...new Set(items)].sort();
-const cellMember = (c) => JSON.stringify([c.location, c.slot, c.text]);
-const taggedCell = (tag, c) =>
-  JSON.stringify([tag, c.location, c.slot, c.text]);
+
+// Set members are compact, readable text, so a baseline diff can be read. A cell is `LT:4:<token text>`:
+// a short location code, the zero-based slot, then the token (which may contain colons). Locations
+// outside the table are kept as `~<name>`, so the encoding is total and exactly reversible.
+const LOCATION_CODES = {
+  Head: 'HD',
+  'Center Torso': 'CT',
+  'Left Torso': 'LT',
+  'Right Torso': 'RT',
+  'Left Arm': 'LA',
+  'Right Arm': 'RA',
+  'Left Leg': 'LL',
+  'Right Leg': 'RL',
+  'Center Leg': 'CL',
+  'Front Left Leg': 'FLL',
+  'Front Right Leg': 'FRL',
+  'Rear Left Leg': 'RLL',
+  'Rear Right Leg': 'RRL',
+};
+const CODE_LOCATIONS = Object.fromEntries(
+  Object.entries(LOCATION_CODES).map(([name, code]) => [code, name]),
+);
+
+export function encodeCell({ location, slot, text }) {
+  const code = LOCATION_CODES[location];
+  if (code === undefined && String(location).includes(':'))
+    throw new Error(
+      `cannot encode the location ${location}: it contains a colon`,
+    );
+  return `${code ?? `~${location}`}:${slot}:${text}`;
+}
+
+export function decodeCell(member) {
+  const first = member.indexOf(':');
+  const second = member.indexOf(':', first + 1);
+  if (first < 0 || second < 0) throw new Error(`not a cell member: ${member}`);
+  const code = member.slice(0, first);
+  return {
+    location: code.startsWith('~') ? code.slice(1) : CODE_LOCATIONS[code],
+    slot: Number(member.slice(first + 1, second)),
+    text: member.slice(second + 1),
+  };
+}
+
+const cellMember = encodeCell;
+/** A notice/round-trip disagreement: `n:` = only the notice has the cell, `r:` = only the round trip does. */
+const taggedCell = (tag, c) => `${tag}:${encodeCell(c)}`;
 
 /** Load row + the unit's Java reference row -> facts. */
 export function loadFacts(row, ref) {
@@ -108,14 +162,13 @@ export function reopenFacts(row, ref) {
           : false,
       reopenJava: hasJava ? r.after.bv === javaBv : null,
       reopenJavaDistance: hasJava ? distance(r.after.bv, javaBv) : null,
+      reopenLoadDistance: distance(r.after.bv, r.before.bv),
       noLossConfirmationBefore: noLossConfirmationBefore(r.saveLoss),
       noticeResidual: sortedSet(r.noticeResidual.residual.map(cellMember)),
       // What the summary's noticeResidual.equal holds: any cell the notice and the round trip disagree on.
       noticeMismatch: sortedSet([
-        ...r.noticeResidual.noticeOnly.map((c) => taggedCell('notice-only', c)),
-        ...r.noticeResidual.roundTripOnly.map((c) =>
-          taggedCell('round-trip-only', c),
-        ),
+        ...r.noticeResidual.noticeOnly.map((c) => taggedCell('n', c)),
+        ...r.noticeResidual.roundTripOnly.map((c) => taggedCell('r', c)),
       ]),
       rawIdentityLosses: sortedSet(r.rawIdentityLosses.map(cellMember)),
       loadedMountLosses: sortedSet(

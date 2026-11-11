@@ -14,12 +14,18 @@ import { parseArgs } from 'node:util';
 
 import { sha256 } from '../../ci/parity-scoreboard-artifacts.mjs';
 import { prepareReference } from '../../ci/parity-scoreboard.mjs';
+import {
+  FACTS_META_FILE,
+  factsMeta,
+  factsProvenance,
+} from './facts-provenance.mjs';
 import { FACTS_FILE, serializeFacts } from './facts.mjs';
 import {
-  BaselineSchema,
   GateError,
   baselinePath,
+  baselineSetsPath,
   buildBaseline,
+  parseBaseline,
   serializeBaseline,
 } from './gate.mjs';
 import {
@@ -317,11 +323,24 @@ export async function runCensus(argv, deps, spec) {
     const facts = spec.facts
       ? rows.map((row) => spec.facts(row, referenceByPath.get(row.path)))
       : null;
-    if (facts)
+    if (facts) {
       fs.writeFileSync(
         path.join(out, FACTS_FILE),
         serializeFacts(spec.measure, facts),
       );
+      // Where the facts came from: the gate fails closed if facts.mjs changed since the baseline.
+      fs.writeFileSync(
+        path.join(out, FACTS_META_FILE),
+        JSON.stringify(
+          factsMeta({
+            measure: spec.measure,
+            referenceSha256: reference.gzipSha256,
+          }),
+          null,
+          2,
+        ) + '\n',
+      );
+    }
     fs.writeFileSync(path.join(out, OUTPUT_FILES.rows), runs[0].text);
     fs.writeFileSync(
       path.join(out, OUTPUT_FILES.summary),
@@ -374,10 +393,15 @@ export async function runCensus(argv, deps, spec) {
             'the runs were not byte-identical',
           );
         const target = path.join(repoRoot, baselinePath(spec.measure));
+        const setsTarget = path.join(repoRoot, baselineSetsPath(spec.measure));
         let existing = null;
         if (fs.existsSync(target))
-          existing = BaselineSchema.parse(
-            JSON.parse(fs.readFileSync(target, 'utf8')),
+          existing = parseBaseline(
+            spec.measure,
+            fs.readFileSync(target, 'utf8'),
+            fs.existsSync(setsTarget)
+              ? fs.readFileSync(setsTarget, 'utf8')
+              : null,
           );
         const baseline = buildBaseline({
           measure: spec.measure,
@@ -389,10 +413,17 @@ export async function runCensus(argv, deps, spec) {
             reason: values.reason,
             units: [],
           },
+          provenance: factsProvenance({
+            referenceSha256: reference.gzipSha256,
+          }),
           existing,
         });
+        // Both files come from the one serializer, so they share the one member-set hash function.
+        const { main, sets } = serializeBaseline(baseline);
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.writeFileSync(target, serializeBaseline(baseline));
+        fs.writeFileSync(target, main);
+        if (sets !== null) fs.writeFileSync(setsTarget, sets);
+        else fs.rmSync(setsTarget, { force: true });
         console.log(
           `baseline written: ${target} (${baseline.populationCount} units at ${repoSha})`,
         );

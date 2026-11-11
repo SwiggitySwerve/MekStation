@@ -5,8 +5,12 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import {
+  factsDeriverBlob,
+  parseFactsMeta,
+} from '../lib/runtime-parity/facts-provenance.mjs';
 import { parseFacts } from '../lib/runtime-parity/facts.mjs';
-import { validateBaseline } from '../lib/runtime-parity/gate.mjs';
+import { parseBaseline } from '../lib/runtime-parity/gate.mjs';
 import {
   InputError,
   buildPlan,
@@ -741,6 +745,13 @@ test('main writes facts.ndjson beside the rows: bvExact, distance, validity and 
   assert.equal(t.exists('failure.json'), false);
   // The rows are not changed by the facts: no field of the row schema was added.
   assert.equal('facts' in parseRows(t.read('rows.ndjson'))[0], false);
+  // Where the facts came from travels with them: the facts schema, the deriver's blob, the reference sha.
+  const meta = parseFactsMeta(t.read('facts-meta.json'));
+  assert.deepEqual(
+    [meta.measure, meta.factsSchemaVersion, meta.referenceSha256],
+    ['load', 1, hex('d')],
+  );
+  assert.equal(meta.factsDeriverBlob, factsDeriverBlob());
 });
 
 test('--write-baseline writes the baseline of a complete run with its SHA, population hash and note', async () => {
@@ -751,11 +762,21 @@ test('--write-baseline writes the baseline of a complete run with its SHA, popul
     ),
     0,
   );
-  const baseline = validateBaseline(
+  const baseline = parseBaseline(
     'load',
-    JSON.parse(fs.readFileSync(baselineFile(t), 'utf8')),
+    fs.readFileSync(baselineFile(t), 'utf8'),
+    null,
   );
   assert.equal(baseline.sha, hex('c', 40));
+  // Provenance: the facts schema, the deriver's git blob and the reference the facts were derived with.
+  assert.equal(baseline.factsSchemaVersion, 1);
+  assert.equal(baseline.factsDeriverBlob, factsDeriverBlob());
+  assert.equal(baseline.referenceSha256, hex('d'));
+  // The load measure has no set facts, so there is no sidecar.
+  assert.equal(
+    fs.existsSync(baselineFile(t).replace(/\.json$/, '.sets.ndjson')),
+    false,
+  );
   assert.equal(baseline.populationCount, 3);
   assert.deepEqual(
     Object.keys(baseline.units),

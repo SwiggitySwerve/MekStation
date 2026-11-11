@@ -5,6 +5,8 @@ import test from 'node:test';
 
 import {
   FACT_DEFS,
+  decodeCell,
+  encodeCell,
   loadFacts,
   parseFacts,
   reopenFacts,
@@ -148,6 +150,46 @@ test('reopen facts: reopenLoad, reopenJava and distance, reopen validity', () =>
   assert.equal(reopenFacts(reopenRow(), undefined).facts.reopenJava, null);
 });
 
+test('reopenLoadDistance is |reopen BV - load BV|, independent of Java, and unknown when either BV is', () => {
+  const d = (before, after, java) =>
+    reopenFacts(
+      reopenRow({
+        before: observed({ bv: before }),
+        after: observed({ bv: after }),
+      }),
+      java,
+    ).facts;
+  assert.equal(d(1000, 1000, ref()).reopenLoadDistance, 0);
+  assert.equal(d(1000, 940, ref()).reopenLoadDistance, 60);
+  assert.equal(d(1000, 1060, ref()).reopenLoadDistance, 60);
+  assert.equal(
+    d(1000, 940, undefined).reopenLoadDistance,
+    60,
+    'no Java needed',
+  );
+  assert.equal(d(1000, null, ref()).reopenLoadDistance, null);
+  assert.equal(d(null, 1000, ref()).reopenLoadDistance, null);
+});
+
+test('cell members are compact, readable and exactly reversible, including unknown locations and colons in the token', () => {
+  const cases = [
+    { location: 'Left Torso', slot: 4, text: 'AC/10' },
+    { location: 'Rear Right Leg', slot: 0, text: 'Heat Sink:Double' },
+    { location: 'Odd Place', slot: 11, text: 'x' },
+  ];
+  assert.deepEqual(cases.map(encodeCell), [
+    'LT:4:AC/10',
+    'RRL:0:Heat Sink:Double',
+    '~Odd Place:11:x',
+  ]);
+  for (const c of cases) assert.deepEqual(decodeCell(encodeCell(c)), c);
+  assert.throws(
+    () => encodeCell({ location: 'A:B', slot: 0, text: 'x' }),
+    /colon/,
+  );
+  assert.throws(() => decodeCell('nonsense'), /not a cell member/);
+});
+
 test('noLossConfirmationBefore is the dialog predicate, and unknown or unsettled stays unknown, never a pass', () => {
   const f = (loss) =>
     reopenFacts(reopenRow({ saveLoss: saveLoss(loss) }), ref()).facts
@@ -177,15 +219,9 @@ test('set facts are sorted, duplicate-free triples; mismatch cells are tagged by
     ],
   });
   const facts = reopenFacts(row, ref()).facts;
-  assert.deepEqual(facts.rawIdentityLosses, [
-    '["Left Arm",2,"a"]',
-    '["Right Arm",3,"b"]',
-  ]);
-  assert.deepEqual(facts.noticeResidual, ['["Left Arm",2,"a"]']);
-  assert.deepEqual(facts.noticeMismatch, [
-    '["notice-only","Head",0,"n"]',
-    '["round-trip-only","Head",0,"n"]',
-  ]);
+  assert.deepEqual(facts.rawIdentityLosses, ['LA:2:a', 'RA:3:b']);
+  assert.deepEqual(facts.noticeResidual, ['LA:2:a']);
+  assert.deepEqual(facts.noticeMismatch, ['n:HD:0:n', 'r:HD:0:n']);
   // Key order in the mount view does not change its identity.
   const reordered = reopenRow({
     loadedMountLosses: [
