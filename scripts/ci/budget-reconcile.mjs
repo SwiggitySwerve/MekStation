@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+
 import { checkBudgetPolicy, guardOutcome } from './budget-approval.mjs';
 
 const REQUEST_FLOOR = 150;
@@ -9,6 +11,20 @@ const BATCH_SIZE = 5;
 const SOFT_TIMEOUT_MS = 8 * 60 * 1000;
 
 class RequestBudgetStop extends Error {}
+
+/** Each PR's priority is independent of which peers are present this sweep. */
+function orderBucketBySweep(prs, sweep) {
+  return prs
+    .map((pr) => ({
+      pr,
+      priority: createHash('sha256').update(`${sweep}:${pr.number}`).digest(),
+    }))
+    .sort(
+      (a, b) =>
+        Buffer.compare(a.priority, b.priority) || a.pr.number - b.pr.number,
+    )
+    .map(({ pr }) => pr);
+}
 
 /** Only immutable SHA blobs and repository metadata can be reused. */
 function reconciliationClient(github, core, number, admitSuccess) {
@@ -158,15 +174,14 @@ export async function reconcileBudgetStatuses({
       .sort((a, b) => a.number - b.number);
     if (!candidates.length) return { visited, unreached: [], stopReason };
     // A peer opening or closing cannot move this PR between buckets unless N
-    // crosses a multiple of five. Rotate within each bucket on later sweeps so
-    // budget/time truncation does not always favor its first members.
+    // crosses a multiple of five. Hash priorities depend only on the PR's own
+    // number and sweep, so list churn cannot manipulate a positional offset.
     const buckets = Math.ceil(candidates.length / BATCH_SIZE);
     const turn = runNumber - 1;
     const batch = candidates.filter(
       (pr) => pr.number % buckets === turn % buckets,
     );
-    const offset = batch.length ? Math.floor(turn / buckets) % batch.length : 0;
-    const ordered = [...batch.slice(offset), ...batch.slice(0, offset)];
+    const ordered = orderBucketBySweep(batch, Math.floor(turn / buckets));
     for (const candidate of ordered) {
       if (remaining <= REQUEST_FLOOR) {
         stopReason = 'request budget';

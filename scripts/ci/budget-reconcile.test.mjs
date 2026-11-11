@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-function apiFixture(count = 60, allowance = 1000) {
+function apiFixture(count = 60, allowance = 1000, drafts = []) {
   let remaining = allowance,
     hook;
   const requests = [],
+    requestedPulls = [],
     lines = [],
     failures = [];
   const numbers = Array.isArray(count)
@@ -13,7 +14,7 @@ function apiFixture(count = 60, allowance = 1000) {
   const pulls = numbers.map((number) => ({
     number,
     state: 'open',
-    draft: false,
+    draft: drafts.includes(number),
     head: { sha: number.toString(16).padStart(40, '0') },
     base: { ref: 'main' },
   }));
@@ -43,9 +44,12 @@ function apiFixture(count = 60, allowance = 1000) {
       },
       pulls: {
         list: endpoint('list', () => structuredClone(pulls)),
-        get: endpoint('pull', ({ pull_number }) =>
-          structuredClone(pulls.find((pull) => pull.number === pull_number)),
-        ),
+        get: endpoint('pull', ({ pull_number }) => {
+          requestedPulls.push(pull_number);
+          return structuredClone(
+            pulls.find((pull) => pull.number === pull_number),
+          );
+        }),
       },
       repos: {
         get: endpoint('metadata', () => ({ owner: { id: 1 } })),
@@ -59,6 +63,7 @@ function apiFixture(count = 60, allowance = 1000) {
   return {
     github,
     requests,
+    requestedPulls,
     lines,
     failures,
     remaining: () => remaining,
@@ -71,6 +76,90 @@ function apiFixture(count = 60, allowance = 1000) {
     },
   };
 }
+
+test('PR-own sweep priorities visit #3 within five one-visit runs in the exact #2/#6 churn counterexample', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const visited = [];
+  for (let runNumber = 1; runNumber <= 5; runNumber++) {
+    const turn = runNumber - 1;
+    const f = apiFixture([1, 3, 4, 5, turn % 5 === 1 ? 2 : 6], 155);
+    const result = await reconcileBudgetStatuses({
+      ...f,
+      owner: 'o',
+      repo: 'r',
+      runNumber,
+      checkPolicy: async ({ github, number, expectedHead }) => {
+        for (let i = 0; i < 3; i++)
+          await github.rest.pulls.get({ pull_number: number });
+        visited.push(number);
+        return {
+          allowed: true,
+          code: 'approved',
+          evaluatedHead: expectedHead,
+          currentHead: expectedHead,
+          message: 'approved',
+        };
+      },
+    });
+    assert.equal(result.visited.length, 1);
+    assert.deepEqual(f.failures, []);
+  }
+  assert.ok(visited.includes(3), `#3 was starved: ${visited.join(', ')}`);
+});
+
+test('relative order of continuously eligible PRs is independent of other bucket members', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const orders = [];
+  for (const peer of [2, 6]) {
+    const f = apiFixture([1, 3, 4, 5, peer]);
+    const result = await reconcileBudgetStatuses({
+      ...f,
+      owner: 'o',
+      repo: 'r',
+      runNumber: 3,
+      checkPolicy: async ({ expectedHead }) => ({
+        allowed: true,
+        code: 'approved',
+        evaluatedHead: expectedHead,
+        currentHead: expectedHead,
+        message: 'approved',
+      }),
+    });
+    assert.deepEqual(f.failures, []);
+    orders.push(result.visited.filter((number) => number !== peer));
+  }
+  assert.deepEqual(orders[0], orders[1]);
+});
+
+test('list-time drafts do not affect S, receive any PR requests, or count as visited', async () => {
+  const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
+  const f = apiFixture(6, 1000, [6]);
+  const result = await reconcileBudgetStatuses({
+    ...f,
+    owner: 'o',
+    repo: 'r',
+    runNumber: 1,
+    checkPolicy: async ({ expectedHead }) => ({
+      allowed: true,
+      code: 'approved',
+      evaluatedHead: expectedHead,
+      currentHead: expectedHead,
+      message: 'approved',
+    }),
+  });
+  assert.deepEqual(
+    result.visited.slice().sort((a, b) => a - b),
+    [1, 2, 3, 4, 5],
+    'Five non-drafts give S=1; the draft must not raise it to S=2',
+  );
+  assert.deepEqual(
+    f.requestedPulls.slice().sort((a, b) => a - b),
+    [1, 2, 3, 4, 5],
+  );
+  assert.equal(f.requestedPulls.includes(6), false);
+  assert.deepEqual(result.unreached, []);
+  assert.deepEqual(f.failures, []);
+});
 
 test('PR-number buckets visit #6 despite the exact alternating #5/#11 churn counterexample', async () => {
   const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
@@ -154,8 +243,8 @@ test('an uneven large PR-number bucket still reports budget-limited unreached PR
   assert.equal(result.unreached.length, 7);
   assert.deepEqual(f.failures, []);
   assert.ok(
-    f.lines.some(
-      (line) => line.startsWith('Unreached PRs: ') && line.includes('#20'),
+    f.lines.includes(
+      `Unreached PRs: ${result.unreached.map((number) => `#${number}`).join(', ')}`,
     ),
   );
 });
@@ -196,10 +285,13 @@ test('60 PRs with five completed visits per run are all reached in twelve budget
   );
 });
 
-test('even one-visit capacity rotates within batches instead of starving their later PRs', async () => {
+test('one-visit capacity reaches a fixed 60-PR census within the modeled 99.99 percent coverage horizon', async () => {
   const { reconcileBudgetStatuses } = await import('./budget-reconcile.mjs');
   const visited = new Set();
-  for (let runNumber = 1; runNumber <= 60; runNumber++) {
+  // S=12, B=5: after 60 bucket visits (720 runs), the independent-rank
+  // model's union bound is 60*(4/5)^60 < 0.0001. This fixed trace is
+  // regression evidence, not a worst-case bound for deterministic hashes.
+  for (let runNumber = 1; runNumber <= 720; runNumber++) {
     const f = apiFixture(60, 155);
     const result = await reconcileBudgetStatuses({
       ...f,

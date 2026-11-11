@@ -257,11 +257,31 @@ runs; two PRs: S = 1 and both selected every run). S changes only when N crosses
 a multiple of five. Under adversarial churn that flips S every run there is
 no hard bound. Unreached PRs are explicitly reported on every completed run.
 
-Buckets can be uneven. In-bucket rotation is retained on subsequent sweeps so
-request/time truncation does not always favor the same members. Budget stops
-or persistently unfinished evaluations extend the completed-visit bound, even
-with constant S; the unreached report records that limit. An excluded head
-with no eligible peer is not revisited, and
+Buckets can be uneven. Within a bucket, ascending SHA-256(sweep:PR-number)
+orders visits, with PR number breaking a hash tie; sweep = floor((R - 1)/S).
+Each priority depends only on that PR's own number and the sweep, so peer churn
+cannot manipulate a positional rotation. This stateless order needs no saved
+cursor or additional storage/API permissions. List-time drafts are excluded
+before computing N/S and receive no direct PR reads or visits from the runner.
+
+Budget truncation has a conditional expected bound, not a finite worst-case
+bound. Model SHA-256 priorities as independent uniform ranks across sweeps,
+assume churn is not chosen in response to those ranks, at most B eligible PRs
+in the bucket, and at least its first visit completes each selected run. Then
+a continuously eligible PR's expected wait is at most B bucket visits (S*B
+runs), and its probability of still waiting after t bucket visits is at most
+(1 - 1/B)^t. For B=5 and one completed visit: expected wait 5 bucket visits;
+after 31 visits the modeled miss probability is 0.000990352 (about 0.099%).
+Sol's exact five-PR #2/#6 churn trace visits #3 on run 5 in the regression.
+A stable 60-PR example (S=12, B=5) has expected wait at most 60 runs per PR;
+after 720 runs, the modeled union bound for any of those 60 still waiting is
+60*(4/5)^60 = 0.000091950 (under 0.01%). These are model estimates, not a
+deterministic coverage guarantee. Even with constant S, no finite worst-case
+bound is claimed under truncation or rank-adaptive churn. The S-run bound
+above still applies when selected buckets complete in full; the S-flip
+disclosure and unreached report still apply. Budget stops or persistently
+unfinished evaluations extend repair. An excluded head with no eligible peer
+is not revisited, and
 eligibility can change after the live check. API staleness and scheduler delays
 remain outside the protocol's guarantees.
 
