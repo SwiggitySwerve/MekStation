@@ -596,7 +596,7 @@ test('a budget raise with no label cannot obtain a successful required Lint and 
   const prChecks = readFileSync('.github/workflows/pr-checks.yml', 'utf8');
   assert.match(
     prChecks,
-    /publish: false \}\);[\s\S]{0,80}if \(!result\.allowed\) throw new Error/,
+    /publish: false,[\s\S]{0,120}\}\);[\s\S]{0,80}if \(!result\.allowed\) throw new Error/,
   );
   // The status publishers fail their job on every refusal except a superseded head.
   for (const file of ['lint-and-test-guard.yml', 'ci-budget-approval.yml']) {
@@ -605,4 +605,92 @@ test('a budget raise with no label cannot obtain a successful required Lint and 
     assert.match(text, /if \(outcome\.fail\) core\.setFailed\(outcome\.line\)/);
     assert.doesNotMatch(text, /if \(!result\.allowed\) core\.setFailed/);
   }
+});
+
+test('head change together with a label or base change is a refusal and fails the job', async () => {
+  for (const extra of ['labels', 'base']) {
+    const f = fixture();
+    let reads = 0;
+    f.github.rest.pulls.get = async () => {
+      const pr = structuredClone(f.pull);
+      if (++reads > 1) {
+        pr.head.sha = NEW_HEAD;
+        if (extra === 'labels') pr.labels = [];
+        else pr.base.sha = 'e'.repeat(40);
+      }
+      return { data: pr };
+    };
+    const result = await checkBudgetPolicy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(result.code, 'changed-context');
+    assert.equal(result.headChanged, true);
+    assert.ok(f.statuses.every((s) => s.sha === f.pull.head.sha));
+    assert.equal(guardOutcome(1, result).fail, true, extra);
+  }
+});
+
+test('X then Y then X: an approval evaluated on another head never publishes success to X', async () => {
+  // The run starts on X (a raise, no label). The nested approval check reads
+  // Y (no raise) twice; every later read is back on X.
+  const f = approvedRaise();
+  const X = f.pull.head.sha;
+  const Y = 'f'.repeat(40);
+  f.pull.labels = [{ name: DEPENDENCY_GROWTH_LABEL }];
+  const noRaise = structuredClone(f.budgets.base);
+  const content = f.github.rest.repos.getContent;
+  f.github.rest.repos.getContent = async (args) =>
+    args.path === 'config/ci/budgets.json' && args.ref === Y
+      ? {
+          data: {
+            encoding: 'base64',
+            content: Buffer.from(JSON.stringify(noRaise)).toString('base64'),
+          },
+        }
+      : content(args);
+  let reads = 0;
+  f.github.rest.pulls.get = async () => {
+    const pr = structuredClone(f.pull);
+    reads += 1;
+    if (reads === 2 || reads === 3) pr.head.sha = Y;
+    return { data: pr };
+  };
+  const result = await checkBudgetPolicy({
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+  });
+  assert.equal(result.allowed, false);
+  assert.equal(result.snapshotMismatch, true);
+  assert.ok(!f.statuses.some((s) => s.sha === X && s.state === 'success'));
+  assert.ok(f.statuses.every((s) => s.sha === X));
+  assert.equal(guardOutcome(1, result).fail, true);
+});
+
+test('the aggregator refuses when the PR head is no longer the head its run is for', async () => {
+  const f = fixture();
+  const args = {
+    github: f.github,
+    owner: 'o',
+    repo: 'r',
+    number: 1,
+    publish: false,
+  };
+  assert.equal(
+    (await checkBudgetPolicy({ ...args, expectedHead: f.pull.head.sha }))
+      .allowed,
+    true,
+  );
+  const stale = await checkBudgetPolicy({ ...args, expectedHead: OLD_HEAD });
+  assert.equal(stale.allowed, false);
+  assert.equal(stale.code, 'changed-context');
+  const prChecks = readFileSync('.github/workflows/pr-checks.yml', 'utf8');
+  assert.match(
+    prChecks,
+    /expectedHead: context\.payload\.pull_request\.head\.sha \}\);/,
+  );
 });

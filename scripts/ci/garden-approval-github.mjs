@@ -104,5 +104,6 @@ export async function checkBudgetRaise({
     context: APPROVAL_CONTEXT,
     description: `${result.code}: ${result.message}`.slice(0, 140),
   });
-  return result;
+  // The caller checks this against the head it is publishing for.
+  return { ...result, evaluatedHead: pr.head.sha };
 }

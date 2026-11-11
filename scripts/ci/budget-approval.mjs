@@ -16,9 +16,52 @@ export async function checkBudgetPolicy({
   repo,
   number,
   publish = true,
+  expectedHead,
 }) {
   const parameters = { owner, repo, pull_number: number };
   const { data: initial } = await github.rest.pulls.get(parameters);
+  // A run writes statuses only to the SHA it evaluated (initial.head.sha), never
+  // to a SHA it did not evaluate. On a head change the refusal lands on the old
+  // head; the new head carries no status from this run, so the required
+  // `Lint and Test` context is absent there (blocked) until its own run reports.
+  // On a label or base change with the same head, evaluated and current are the
+  // same SHA, so a revoked label still fails that head.
+  const changedContext = (current, message) => {
+    const headChanged = current.head.sha !== initial.head.sha;
+    const baseChanged = current.base.sha !== initial.base.sha;
+    const labelsChanged =
+      JSON.stringify(current.labels.map((l) => l.name).sort()) !==
+      JSON.stringify(initial.labels.map((l) => l.name).sort());
+    if (!headChanged && !baseChanged && !labelsChanged) return null;
+    return {
+      allowed: false,
+      code: 'changed-context',
+      message,
+      headChanged,
+      baseChanged,
+      labelsChanged,
+      evaluatedHead: initial.head.sha,
+      currentHead: current.head.sha,
+    };
+  };
+  // Every part of one evaluation must be about initial.head.sha: the nested
+  // approval check reads its own PR snapshot, so an X→Y→X sequence could
+  // otherwise evaluate Y and publish to X. The aggregator also passes the head
+  // its run was triggered for.
+  const unbound = (evaluated, message) =>
+    evaluated && evaluated !== initial.head.sha
+      ? {
+          allowed: false,
+          code: 'changed-context',
+          message,
+          headChanged: true,
+          baseChanged: false,
+          labelsChanged: false,
+          snapshotMismatch: true,
+          evaluatedHead: initial.head.sha,
+          currentHead: evaluated,
+        }
+      : null;
   const sink = {
     rest: {
       ...github.rest,
@@ -38,7 +81,18 @@ export async function checkBudgetPolicy({
       budgetPath: 'config/ci/budgets.json',
       budgetRaises,
     });
-  let result = await evaluateRaise();
+  const boundRaise = async () => {
+    const raise = await evaluateRaise();
+    return (
+      unbound(
+        raise.evaluatedHead,
+        'Approval evaluated a different head than this run',
+      ) ?? raise
+    );
+  };
+  let result =
+    unbound(expectedHead, 'This run is for a superseded head') ??
+    (await boundRaise());
   if (result.allowed) {
     try {
       const read = async (file) => {
@@ -73,7 +127,7 @@ export async function checkBudgetPolicy({
           code: 'dependency-growth',
           message: violations.map((v) => v.message).join('; '),
         };
-      else result = await evaluateRaise(); // refresh live reviews after dependency reads
+      else result = await boundRaise(); // refresh live reviews after dependency reads
     } catch (error) {
       result = {
         allowed: false,
@@ -82,30 +136,6 @@ export async function checkBudgetPolicy({
       };
     }
   }
-  // A run writes statuses only to the SHA it evaluated (initial.head.sha), never
-  // to a SHA it did not evaluate. On a head change the refusal lands on the old
-  // head; the new head carries no status from this run, so the required
-  // `Lint and Test` context is absent there (blocked) until its own run reports.
-  // On a label or base change with the same head, evaluated and current are the
-  // same SHA, so a revoked label still fails that head.
-  const changedContext = (current, message) => {
-    const headChanged = current.head.sha !== initial.head.sha;
-    if (
-      !headChanged &&
-      current.base.sha === initial.base.sha &&
-      JSON.stringify(current.labels.map((l) => l.name).sort()) ===
-        JSON.stringify(initial.labels.map((l) => l.name).sort())
-    )
-      return null;
-    return {
-      allowed: false,
-      code: 'changed-context',
-      message,
-      headChanged,
-      evaluatedHead: initial.head.sha,
-      currentHead: current.head.sha,
-    };
-  };
   const { data: fresh } = await github.rest.pulls.get(parameters);
   result =
     changedContext(fresh, 'PR head/base/labels changed; rerun required') ??
@@ -219,7 +249,15 @@ export function guardOutcome(number, result) {
     `PR #${number}: ${result.code} (evaluated ${result.evaluatedHead}, ` +
     `current ${result.currentHead}): ${result.message}`;
   if (result.allowed) return { fail: false, line };
-  if (result.code === 'changed-context' && result.headChanged)
+  // Exempt only a pure head change: a label or base change in the same window,
+  // or an evaluation bound to another head, is a refusal and fails the job.
+  if (
+    result.code === 'changed-context' &&
+    result.headChanged &&
+    !result.baseChanged &&
+    !result.labelsChanged &&
+    !result.snapshotMismatch
+  )
     return {
       fail: false,
       line: `${line}; superseded head: refusal written to the evaluated head only, the new head gets its own run`,
