@@ -62,15 +62,21 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
-            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            // Statuses go only to the head this run evaluated. `Lint and Test`
+            // is the required context; `CI Budget Raise Approval` is a signal,
+            // and the gate for budget policy is the check inside the required
+            // aggregator job. A superseded head does not fail this job.
+            const { checkBudgetPolicy, guardOutcome } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
             const source = context.payload.workflow_run;
             const pulls = await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
               ...context.repo, commit_sha: source.head_sha, per_page: 100,
             });
             for (const pull of pulls.filter(pr => pr.state === 'open' && pr.head.sha === source.head_sha && pr.base.repo.full_name === context.payload.repository.full_name)) {
-              const result = await checkBudgetPolicy({ github, ...context.repo, number: pull.number });
+              const result = await checkBudgetPolicy({ github, ...context.repo, number: pull.number, expectedHead: source.head_sha });
+              const outcome = guardOutcome(pull.number, result);
+              core.info(outcome.line);
               core.info(JSON.stringify(result));
-              if (!result.allowed) core.setFailed(result.message);
+              if (outcome.fail) core.setFailed(outcome.line);
             }
 
       - name: Download JSON-only reporting inputs from the completed source run
