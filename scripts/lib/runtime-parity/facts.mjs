@@ -179,20 +179,28 @@ export function reopenFacts(row, ref) {
   };
 }
 
+/** One value contract for run facts, committed baselines and optional last green. */
+export function isFactValue(kind, value) {
+  return (
+    value === null ||
+    (kind === 'bool' && typeof value === 'boolean') ||
+    (kind === 'distance' && Number.isFinite(value) && value >= 0) ||
+    (kind === 'set' &&
+      Array.isArray(value) &&
+      value.every(
+        (item, i) =>
+          typeof item === 'string' && (i === 0 || value[i - 1] < item),
+      ))
+  );
+}
+
 const factSchema = (kind) =>
-  kind === 'bool'
-    ? z.boolean().nullable()
-    : kind === 'distance'
-      ? z.number().min(0).nullable()
-      : z
-          .array(z.string())
-          .refine(
-            (list) => list.every((item, i) => i === 0 || list[i - 1] < item),
-            {
-              message: 'a set fact must be sorted and duplicate-free',
-            },
-          )
-          .nullable();
+  z.unknown().refine((value) => isFactValue(kind, value), {
+    message:
+      kind === 'set'
+        ? 'a set fact must be sorted, duplicate-free strings or unknown'
+        : `a ${kind} fact must have a valid value or be unknown`,
+  });
 
 const factsSchemaFor = (measure) =>
   z.strictObject({

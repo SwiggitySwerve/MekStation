@@ -132,6 +132,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: parity-runtime-last-green-${{ inputs.measure }}
+          overwrite: true
           retention-days: 30
           if-no-files-found: error
           path: ${{ runner.temp }}/parity-runtime/gate/last-green.json

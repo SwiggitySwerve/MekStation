@@ -36,6 +36,7 @@ import {
 import {
   FACTS_FILE,
   FACT_DEFS,
+  isFactValue,
   parseFacts,
   setFactNames,
   unitKey,
@@ -85,13 +86,6 @@ export const populationHash = (keys) =>
 export const setHash = (members) =>
   sha256([...members].join('\n')).slice(0, 16);
 
-const factValue = z.union([
-  z.boolean(),
-  z.number().min(0),
-  z.array(z.string()),
-  z.null(),
-]);
-
 /** The logical baseline: every fact in full, sets as arrays. */
 export const BaselineSchema = z.strictObject({
   schemaVersion: z.literal(BASELINE_SCHEMA_VERSION),
@@ -103,7 +97,7 @@ export const BaselineSchema = z.strictObject({
   /** sha256 of the sorted unit keys, newline-terminated: proves the unit list was not edited by hand. */
   populationHash: hex(64, 64),
   notes: z.array(NoteSchema).min(1),
-  units: z.record(z.string(), z.record(z.string(), factValue)),
+  units: z.record(z.string(), z.record(z.string(), z.unknown())),
 });
 
 /** Throws `GateError('BASELINE_MALFORMED', ...)` on anything that is not a well-formed baseline of `measure`. */
@@ -130,13 +124,7 @@ export function validateBaseline(measure, baseline) {
           'BASELINE_MALFORMED',
           `${key} has no baseline entry for gated fact ${name}`,
         );
-      const v = facts[name];
-      const ok =
-        v === null ||
-        (kind === 'bool' && typeof v === 'boolean') ||
-        (kind === 'distance' && typeof v === 'number') ||
-        (kind === 'set' && Array.isArray(v));
-      if (!ok)
+      if (!isFactValue(kind, facts[name]))
         throw new GateError(
           'BASELINE_MALFORMED',
           `${key}.${name} is not a ${kind} or unknown`,
@@ -161,6 +149,33 @@ export function validateBaseline(measure, baseline) {
       'populationHash does not match the units listed',
     );
   return value;
+}
+
+/** Optional input: return the first bad path rather than failing the night. */
+function lastGreenProblem(measure, artifact) {
+  const parsed = z
+    .strictObject({
+      schemaVersion: z.literal(1),
+      measure: z.literal(measure),
+      runSha: hex(40, 40),
+      baselineSha256: z.string(),
+      units: z.record(z.string(), z.record(z.string(), z.unknown())),
+    })
+    .safeParse(artifact);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return `${issue.path.join('.') || '(root)'}: ${issue.message}`;
+  }
+  const defs = FACT_DEFS[measure];
+  for (const [unit, facts] of Object.entries(parsed.data.units)) {
+    for (const name of Object.keys(facts))
+      if (!Object.hasOwn(defs, name))
+        return `units.${unit}.${name}: unknown fact`;
+    for (const [name, kind] of Object.entries(defs))
+      if (!isFactValue(kind, facts[name]))
+        return `units.${unit}.${name}: invalid ${kind} fact or missing value`;
+  }
+  return null;
 }
 
 // --- the two committed files ----------------------------------------------------------------------------
@@ -565,7 +580,9 @@ export function evaluate(
 
   // Last-green: tighten only while the committed baseline is byte-unchanged since that green run.
   let tightening = null;
-  if (!lastGreen) {
+  const lastGreenIssue =
+    lastGreen == null ? null : lastGreenProblem(measure, lastGreen);
+  if (lastGreen == null) {
     report.lastGreen = {
       status: 'missing',
       detail:
@@ -576,6 +593,11 @@ export function evaluate(
       report.headline = 'FAIL CLOSED: LAST_GREEN_MISSING';
       return report;
     }
+  } else if (lastGreenIssue) {
+    report.lastGreen = {
+      status: 'malformed',
+      detail: `malformed: ${lastGreenIssue}; the committed baseline alone was used`,
+    };
   } else if (
     lastGreen.measure !== measure ||
     (rules.requireSameBaselineBlob &&

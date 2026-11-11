@@ -161,7 +161,8 @@ regenerates the baseline with a note.
 facts } }`. The next night tightens to the best of each fact **only while** `baselineSha256` equals the sha256 of the
   committed baseline bytes (main file, a NUL, then the sidecar). A missing, expired, unreadable or stale artifact means the
   committed baseline alone; the report says so (`lastGreen.status`: `applied`, `missing`, `stale`) and the night does not fail
-  for it.
+  for it. A malformed artifact is discarded as a whole (`lastGreen.status`: `malformed`), with the first bad path in
+  `lastGreen.detail`; all fact values share the run/baseline type checks, including finite, non-negative distances.
 - **Unprotected gains** (better than the committed baseline) are listed in `gate-report.json` and folded, with unbaselined
   units, into `proposed-baseline.json` for the rebaseline PR; the gate itself never writes the baseline.
 

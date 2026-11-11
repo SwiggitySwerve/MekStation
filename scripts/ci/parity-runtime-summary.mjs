@@ -44,12 +44,9 @@ export function renderRuntimeSummary(report, summary, retrieval = {}) {
     '',
     `Gate exit: ${report.exitCode}.`,
   ];
-  const reason =
-    report.lastGreen.status === 'stale'
-      ? report.lastGreen.detail
-      : (retrieval.reason ??
-        report.lastGreen.detail ??
-        'retrieval unavailable');
+  const reason = ['stale', 'malformed'].includes(report.lastGreen.status)
+    ? report.lastGreen.detail
+    : (retrieval.reason ?? report.lastGreen.detail ?? 'retrieval unavailable');
   lines.push(
     '',
     report.lastGreen.status === 'applied'

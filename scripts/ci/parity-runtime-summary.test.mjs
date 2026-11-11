@@ -87,6 +87,17 @@ test('summary reports every fail-closed reason and removed id, and why last gree
     renderRuntimeSummary(gate, summary(), { sha: 'a'.repeat(40) }),
     /last green: none \(different baseline\)/,
   );
+  gate.lastGreen = {
+    status: 'malformed',
+    detail: 'malformed: units.mek/Atlas.bvDistance',
+  };
+  assert.match(
+    renderRuntimeSummary(gate, summary(), {
+      sha: 'a'.repeat(40),
+      reason: 'retrieval unavailable',
+    }),
+    /last green: none \(malformed: units.mek\/Atlas.bvDistance\)/,
+  );
 });
 
 test('summary rejects unknown/missing directions and unresolved/non-numeric gated paths', () => {

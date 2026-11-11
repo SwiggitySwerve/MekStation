@@ -178,6 +178,7 @@ test('last-green lookup is optional, main-only, and summary runs even on gate fa
     "${{ success() && steps.gate.outcome == 'success' }}",
   );
   assert.equal(upload.with['retention-days'], 30);
+  assert.equal(upload.with.overwrite, true);
   assert.equal(
     upload.with.path,
     '${{ runner.temp }}/parity-runtime/gate/last-green.json',
