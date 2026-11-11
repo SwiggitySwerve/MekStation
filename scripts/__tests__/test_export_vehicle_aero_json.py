@@ -35,6 +35,30 @@ VEHICLE_FOLDER_FWS = TANK.replace('Tank</UnitType>', 'FixedWingSupport</UnitType
 
 
 class ExportVehicleAeroJsonTest(unittest.TestCase):
+    def test_catalog_objects_use_converter_owner_and_never_publish_bv_input_receipts(self):
+        from export_vehicle_aero_json import export_strict
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            mekfiles = root / 'mekfiles'
+            source = mekfiles / 'battlearmor' / 'armor.blk'
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b'fixture\r\n')
+            unit = {'chassis': 'Armor', 'model': '', 'unitType': 'BattleArmor'}
+            with patch('blk_battlearmor_converter.convert_battlearmor_blk', return_value=unit) as convert:
+                export_strict(mekfiles, root / 'before', family='battlearmor')
+                export_strict(mekfiles, root / 'objects', family='battlearmor', catalog_objects=True)
+                convert.assert_called_once()
+                export_strict(mekfiles, root / 'after', family='battlearmor')
+            self.assertEqual((root / 'before/sources.ndjson').read_bytes(), (root / 'after/sources.ndjson').read_bytes())
+            rows = [json.loads(line) for line in (root / 'objects/catalog-objects.ndjson').read_text().splitlines()]
+            self.assertEqual(rows[0]['unit'], unit)
+            self.assertNotIn('sourceText', rows[0])
+            self.assertFalse((root / 'objects/sources.ndjson').exists())
+            self.assertFalse((root / 'objects/sources.ndjson.manifest.json').exists())
+            receipt = json.loads((root / 'objects/catalog-objects.ndjson.manifest.json').read_text())
+            self.assertEqual(receipt['kind'], 'catalog-objects-only')
+            self.assertEqual(receipt['sourceCount'], 1)
+
     def test_strict_sources_are_independent_hashed_and_unsupported_rows_are_retained(self):
         import hashlib
         from export_vehicle_aero_json import export_strict
