@@ -13,6 +13,14 @@ import { writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 
+import {
+  noSaveLossConfirmation,
+  noSaveLossConfirmationAfter,
+  saveLossConfirms,
+  saveLossProblems,
+  saveLossSchema,
+} from './save-loss.mjs';
+
 export const ROW_SCHEMA_VERSION = 1;
 
 /** Families as the S0b emitter names them. Phase 1 fills battlemechs; the rest follow the scratch harness coverage. */
@@ -162,26 +170,12 @@ const noticeEntry = cell.extend({
 });
 
 /**
- * Whether the save dialog asks for a loss confirmation, from the loaded (BEFORE) target store,
- * read where the dialog reads it (useUnitLoadDiagnostics, as MultiUnitTabs feeds SaveUnitDialog):
- * it confirms on `unrecoveredCriticalSlots?.length || lossTrackingUnknown || armorSaveLoss`.
- * Nothing here is computed a second time: the three inputs come from that owner, `confirmation`
- * is their `||` and is cross-checked by validateRow.
+ * Whether the save dialog asks for a loss confirmation, read where the dialog reads it
+ * (useUnitLoadDiagnostics): on the loaded (BEFORE) store and on the reopened (AFTER) store. The shape,
+ * the predicate and the third nightly number live in save-loss.mjs, the one file that decides them.
  */
-const saveLoss = z.strictObject({
-  /** The diagnostics had finished refreshing when read (the dialog disables save while they have not). */
-  settled: z.boolean(),
-  /** The entries were undefined (`lossTrackingUnknown={entries === undefined}`). Never coerced to empty. */
-  lossTrackingUnknown: z.boolean(),
-  /** The store's exact unrecoveredCriticalSlots with attribution; null exactly when lossTrackingUnknown. */
-  noticeBefore: z.array(noticeEntry).nullable(),
-  /** getArmorSaveLoss(source, armorType) returned a loss (called, not recomputed). */
-  armorSaveLoss: z.boolean(),
-  /** That loss's `sourceType`; null exactly when armorSaveLoss is false. */
-  armorSaveLossSourceType: text.nullable(),
-  /** The dialog's predicate: lossTrackingUnknown || noticeBefore non-empty || armorSaveLoss. */
-  confirmation: z.boolean(),
-});
+const saveLoss = saveLossSchema(noticeEntry, 'noticeBefore');
+const saveLossAfter = saveLossSchema(noticeEntry, 'noticeAfter');
 
 const reopenBlock = z.strictObject({
   before: reopenObservation,
@@ -226,6 +220,8 @@ const reopenBlock = z.strictObject({
   addedLoadedMounts: z.array(mountView.extend({ cells: ownedCells })),
   /** The save dialog's loss-confirmation facts on the loaded (BEFORE) store. */
   saveLoss,
+  /** The same facts on the reopened (AFTER) store, for a cold-reopen headline. */
+  saveLossAfter,
 });
 
 const unitKey = {
@@ -383,21 +379,7 @@ export function checkMountOwnership(row, expected) {
   return { ok: !overlaps.length && !missing.length && !extra.length, overlaps, missing, extra };
 }
 
-/** SaveUnitDialog's trigger over the dialog's three inputs: `entries?.length || unknown || armorSaveLoss`. */
-export const saveLossConfirms = (s) =>
-  Boolean(s.noticeBefore?.length) || s.lossTrackingUnknown || s.armorSaveLoss;
-
-/**
- * "Saves with no loss confirmation" (the third nightly number) for one row: a complete, settled row
- * whose dialog would not ask. Error rows, unsettled rows and rows needing a confirmation are not it.
- */
-export const noSaveLossConfirmation = (row) =>
-  row.measure === 'reopen' &&
-  row.status === 'ok' &&
-  row.reopen.saveLoss.settled &&
-  !row.reopen.saveLoss.lossTrackingUnknown &&
-  row.reopen.saveLoss.noticeBefore.length === 0 &&
-  !row.reopen.saveLoss.armorSaveLoss;
+export { noSaveLossConfirmation, noSaveLossConfirmationAfter, saveLossConfirms };
 
 /** Cross-field rules JSON Schema cannot express. Returns a list of problems. */
 function crossChecks(row) {
@@ -425,16 +407,18 @@ function crossChecks(row) {
       });
     ownership('addedLoadedMounts', r.addedLoadedMounts, (m) => m);
     ownership('changedLoadedMounts', r.changedLoadedMounts, (m) => m.after);
-    const s = r.saveLoss;
-    if ((s.noticeBefore === null) !== s.lossTrackingUnknown)
-      problems.push('saveLoss.noticeBefore must be null exactly when lossTrackingUnknown (unknown is never coerced to empty)');
-    if (s.armorSaveLoss !== (s.armorSaveLossSourceType !== null))
-      problems.push('saveLoss.armorSaveLossSourceType must be set exactly when armorSaveLoss');
-    if (s.confirmation !== saveLossConfirms(s))
-      problems.push("saveLoss.confirmation is not the dialog's predicate over its own fields");
-    // One owner for the cells: the noticeResidual residual is the same list, not a second reading.
-    if (s.noticeBefore !== null && !(sameSet(s.noticeBefore, n.residual) && s.noticeBefore.length === n.residual.length))
-      problems.push('saveLoss.noticeBefore differs from noticeResidual.residual');
+    // BEFORE: the entries are the notice residual itself (same exact triples). AFTER: the reopened
+    // store's entries are the reopened residual, of which the row records the count.
+    problems.push(
+      ...saveLossProblems(r.saveLoss, 'noticeBefore', 'saveLoss', {
+        cells: n.residual,
+        sameCells: (entries, list) => sameSet(entries, list) && entries.length === list.length,
+      }),
+      ...saveLossProblems(r.saveLossAfter, 'noticeAfter', 'saveLossAfter', {
+        cells: [],
+        sameCells: (entries) => entries.length === n.reopenedResidualCells,
+      }),
+    );
   }
   return problems;
 }

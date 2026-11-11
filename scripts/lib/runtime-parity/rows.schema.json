@@ -1179,6 +1179,98 @@
                 "confirmation"
               ],
               "additionalProperties": false
+            },
+            "saveLossAfter": {
+              "type": "object",
+              "properties": {
+                "settled": {
+                  "type": "boolean"
+                },
+                "lossTrackingUnknown": {
+                  "type": "boolean"
+                },
+                "noticeAfter": {
+                  "anyOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "location": {
+                            "type": "string"
+                          },
+                          "slot": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "bucket": {
+                            "type": "string",
+                            "enum": [
+                              "o3a",
+                              "o3b",
+                              "o3b-s",
+                              "Celerity",
+                              "PR-D",
+                              "none"
+                            ]
+                          },
+                          "effectId": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "responsibility": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "location",
+                          "slot",
+                          "text",
+                          "bucket",
+                          "effectId",
+                          "kind",
+                          "responsibility"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "armorSaveLoss": {
+                  "type": "boolean"
+                },
+                "armorSaveLossSourceType": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "confirmation": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "settled",
+                "lossTrackingUnknown",
+                "noticeAfter",
+                "armorSaveLoss",
+                "armorSaveLossSourceType",
+                "confirmation"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -1191,7 +1283,8 @@
             "loadedMountLosses",
             "changedLoadedMounts",
             "addedLoadedMounts",
-            "saveLoss"
+            "saveLoss",
+            "saveLossAfter"
           ],
           "additionalProperties": false
         }

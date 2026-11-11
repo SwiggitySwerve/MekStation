@@ -68,7 +68,13 @@ so `compareRows` works on these rows unchanged. Rows are sorted by (`family`, `p
   recomputed: `settled` (diagnostics not refreshing), `lossTrackingUnknown` (`entries === undefined`), `noticeBefore` (the store's exact
   entries, each `{location, slot, text, bucket, effectId, kind, responsibility}`; `null` exactly when unknown, never coerced to empty),
   `armorSaveLoss` (`getArmorSaveLoss(source, armorType)` returned a loss) with its `armorSaveLossSourceType`, and `confirmation`
-  (their `||`). The AFTER side is not carried: a cold-reopen headline would need the same field from the reopened state.
+  (their `||`).
+- `saveLossAfter`: the same facts for the reopened store (entries under `noticeAfter`), for a cold-reopen headline: would the dialog
+  ask if the reopened unit were saved. Its entries are the reopened residual, of which the row records the count
+  (`noticeResidual.reopenedResidualCells`); `validateRow` checks the two agree.
+- **One owner:** the shape, the dialog predicate and the third number live in `save-loss.mjs`, the only file that decides them (callers use
+  its exports). Today it is list-based, from the dialog's own inputs. When C3's stage-1 save-loss comparator (`save-loss-detector/DESIGN.md`)
+  is on main, `noSaveLossConfirmation` there switches to call it, with no copy, and unknown stays distinct from clean.
 
 Checked by `validateRow`: `equal` is true exactly when `residual` equals the `non-system` `lostCells` and `noticeOnly`/`roundTripOnly` are empty;
 `rawIdentityLosses` is exactly `lostCells` + `tokenChanges`; `saveLoss.noticeBefore` is the same list as `noticeResidual.residual` (one owner),
