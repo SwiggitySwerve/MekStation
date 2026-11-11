@@ -31,6 +31,84 @@ jest.mock('@/services/equipment/EquipmentFileReader', () => ({
     ),
 }));
 
+/**
+ * Replace the unit id and every mount instance id with a placeholder (`unit-0`, `mount-0`,
+ * `mount-1`, ... in order of first appearance in the serialized state), using ONE mapping applied
+ * everywhere in a single pass. A field that names another mount by id therefore gets that mount's
+ * placeholder, so cross-references stay checked instead of being erased. Loader-minted ids are
+ * session-owned (random before fix A, content-derived since), so the state is compared without
+ * their spelling but with their identity structure intact.
+ */
+function normalizeIds(
+  state: { id: string; equipment: readonly { instanceId: string }[] },
+  text = JSON.stringify(state),
+): string {
+  const escaped = (id: string) => JSON.stringify(id).slice(1, -1);
+  const known = [state.id, ...state.equipment.map((m) => m.instanceId)];
+  const appearance = [...new Set(known)]
+    .map((id) => ({ id, at: text.indexOf(escaped(id)) }))
+    .filter((entry) => entry.at >= 0)
+    .sort((a, b) => a.at - b.at);
+  const placeholders = new Map<string, string>();
+  let mounts = 0;
+  for (const { id } of appearance)
+    placeholders.set(id, id === state.id ? 'unit-0' : `mount-${mounts++}`);
+  // Longest ids first so an id that prefixes another cannot split it.
+  const pattern = new RegExp(
+    [...placeholders.keys()]
+      .map(escaped)
+      .sort((a, b) => b.length - a.length)
+      .map((id) => id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|'),
+    'g',
+  );
+  const byEscaped = new Map(
+    [...placeholders].map(([id, placeholder]) => [escaped(id), placeholder]),
+  );
+  return text.replace(pattern, (match) => byEscaped.get(match) ?? match);
+}
+
+describe('normalizeIds', () => {
+  const state = (ids: string[]) => ({
+    id: 'unit-id',
+    equipment: ids.map((instanceId) => ({ instanceId })),
+  });
+
+  it('names ids in order of first appearance and keeps cross-references', () => {
+    const s = {
+      ...state(['b:2', 'a:1']),
+      equipment: [
+        { instanceId: 'b:2', linkedAmmoId: 'a:1' },
+        { instanceId: 'a:1', linkedAmmoId: 'b:2' },
+      ],
+    };
+    expect(JSON.parse(normalizeIds(s))).toEqual({
+      id: 'unit-0',
+      equipment: [
+        { instanceId: 'mount-0', linkedAmmoId: 'mount-1' },
+        { instanceId: 'mount-1', linkedAmmoId: 'mount-0' },
+      ],
+    });
+  });
+
+  it('keeps distinct ids distinct, including an id that prefixes another', () => {
+    const out = JSON.parse(
+      normalizeIds(state(['mount:x:1', 'mount:x:10', 'mount:x:2'])),
+    );
+    const names = out.equipment.map(
+      (m: { instanceId: string }) => m.instanceId,
+    );
+    expect(new Set(names).size).toBe(3);
+    expect(names).toEqual(['mount-0', 'mount-1', 'mount-2']);
+  });
+
+  it('is independent of the ids spelling', () => {
+    const a = normalizeIds(state(['x', 'y']));
+    const b = normalizeIds(state(['id-one', 'id-two']));
+    expect(a).toBe(b);
+  });
+});
+
 it('imports the exact pre-A portable bytes with main-identical state, ammo and BV', async () => {
   await getEquipmentLookupService().initialize();
   await getEquipmentRegistry().initialize();
@@ -63,9 +141,18 @@ it('imports the exact pre-A portable bytes with main-identical state, ammo and B
       ),
     );
     const result = calculateUnitBV(input, input.id);
+    // Mount ids are unique within the loaded state, and loading the same document again gives the
+    // same ids (fix A, 0c-UUID-001: they are derived from the unit's content, not drawn at random).
+    const mountIds = state.equipment.map((mount) => mount.instanceId);
+    expect(new Set(mountIds).size).toBe(mountIds.length);
+    const again = new UnitLoaderService().mapToUnitState(
+      parseUnit(imported),
+      false,
+    );
+    expect(again.equipment.map((mount) => mount.instanceId)).toEqual(mountIds);
     const facts = {
-      stateSha256: createHash('sha256')
-        .update(JSON.stringify(state))
+      normalizedStateSha256: createHash('sha256')
+        .update(normalizeIds(state))
         .digest('hex'),
       ammo: state.equipment
         .filter((mount) => mount.category === EquipmentCategory.AMMUNITION)

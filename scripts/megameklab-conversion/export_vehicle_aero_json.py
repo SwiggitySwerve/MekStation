@@ -64,12 +64,15 @@ def export(mekfiles: Path, out_dir: Path) -> dict:
 
 
 
-def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> None:
+def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None, *, catalog_objects: bool = False) -> None:
     """All in-scope MTF/BLK sources, hashed independently of the oracle."""
     import hashlib
     import blk_capital_converter as capital
+    import blk_battlearmor_converter as battlearmor
+    import blk_infantry_converter as infantry
+    import blk_protomech_converter as protomech
     from mtf_converter import MTFParser, dataclass_to_dict
-    from strict_provenance import write_source_manifest
+    from strict_provenance import converter_inputs, write_source_manifest
 
     families = json.loads((Path(__file__).parent / "strict-families.json").read_text(encoding="utf-8"))
     if family is not None and family not in families:
@@ -79,7 +82,11 @@ def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> N
     out_dir.mkdir(parents=True, exist_ok=True)
     logger = logging.getLogger("strict_bv_export")
     parser = MTFParser()
-    with (out_dir / "sources.ndjson").open("w", encoding="utf-8", newline="\n") as handle:
+    personnel = {"battlearmor": battlearmor.convert_battlearmor_blk,
+                 "infantry": infantry.convert_infantry_blk,
+                 "protomeks": protomech.convert_protomech_blk}
+    output = out_dir / ("catalog-objects.ndjson" if catalog_objects else "sources.ndjson")
+    with output.open("w", encoding="utf-8", newline="\n") as handle:
         for folder in folders:
             extension = "*.mtf" if folder == "meks" else "*.blk"
             for source in sorted((mekfiles / folder).rglob(extension)):
@@ -88,8 +95,11 @@ def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> N
                 try:
                     if folder == "meks":
                         row["unit"] = dataclass_to_dict(parser.parse_file(str(source)))
-                    elif folder in ("battlearmor", "infantry", "protomeks"):
-                        row["sourceText"] = source.read_bytes().decode("utf-8")
+                    elif folder in personnel:
+                        if catalog_objects:
+                            row["unit"] = personnel[folder](source, logger)
+                        else:
+                            row["sourceText"] = source.read_bytes().decode("utf-8")
                     elif folder in ("dropships", "jumpships", "warship", "spacestation"):
                         row["unit"] = capital.convert_capital_blk(source, logger)
                     elif folder == "vehicles":
@@ -103,7 +113,16 @@ def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> N
                 except Exception as error:
                     row["reason"] = str(error)
                 handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
-    write_source_manifest(out_dir, list(folders), family)
+    if catalog_objects:
+        # An object comparison artifact must not masquerade as BV input: the
+        # numeric harness intentionally parses personnel from source text.
+        payload = output.read_bytes()
+        receipt = {"version": 1, "kind": "catalog-objects-only", "family": family,
+                   "sourceCount": len(payload.splitlines()), "sourcesSha256": hashlib.sha256(payload).hexdigest(),
+                   "converterInputs": converter_inputs()}
+        output.with_name(output.name + '.manifest.json').write_text(json.dumps(receipt, indent=2) + '\n', encoding='utf-8', newline='\n')
+    else:
+        write_source_manifest(out_dir, list(folders), family)
 
 if __name__ == "__main__":
     if len(sys.argv) > 3 and sys.argv[3] == "--strict":
@@ -113,8 +132,9 @@ if __name__ == "__main__":
         args.add_argument("out", type=Path)
         args.add_argument("--strict", action="store_true")
         args.add_argument("--family")
+        args.add_argument("--catalog-objects", action="store_true", help="Object-parity artifact only; never numeric BV input")
         options = args.parse_args()
-        export_strict(options.mekfiles, options.out, family=options.family)
+        export_strict(options.mekfiles, options.out, family=options.family, catalog_objects=options.catalog_objects)
     else:
         result = export(Path(sys.argv[1]), Path(sys.argv[2]))
         print({family: (info["converted"], len(info["skipped"])) for family, info in result.items()})
