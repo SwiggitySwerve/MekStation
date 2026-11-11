@@ -247,6 +247,7 @@ export class InteractiveSession {
       gameUnitsWithCombatSeeds,
       {
         encounterMeta: linkage.encounterMeta,
+        quickMeta: linkage.quickMeta,
         hexTerrain: seedHexTerrainFromGrid(this.grid),
       },
     );

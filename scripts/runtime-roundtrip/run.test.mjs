@@ -5,6 +5,15 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import {
+  factsDeriverBlob,
+  parseFactsMeta,
+} from '../lib/runtime-parity/facts-provenance.mjs';
+import { parseFacts } from '../lib/runtime-parity/facts.mjs';
+import {
+  main as gateMain,
+  parseBaseline,
+} from '../lib/runtime-parity/gate.mjs';
+import {
   parseRows,
   serializeRows,
   validateReceipt,
@@ -579,6 +588,7 @@ function setup({ capture } = {}) {
   };
   const outDir = path.join(root, 'out');
   return {
+    root,
     run: (...extra) =>
       main(['--out', outDir, '--sources', sources, ...extra], deps),
     read: (name) => fs.readFileSync(path.join(outDir, name), 'utf8'),
@@ -690,4 +700,157 @@ test('the runner can see a drop: a reopen BV that moves lowers reopen = load and
     diffs.map((d) => [d.unitId, d.loadBV, d.reopenBV]),
     [['gamma', 1000, 700]],
   );
+});
+
+// --- the gate's inputs through the reopen runner: facts, both baseline files, the sidecar ---------
+const lostUnit = (id) => record(id, { lost: [lostCell(3), lostCell(5)] });
+
+test('main writes facts.ndjson and facts-meta.json: reopen facts per unit, sets as compact sorted cells', async () => {
+  const t = setup({
+    capture: ({ plan }) => ({
+      records: plan.map((p) =>
+        p.unitId === 'beta' ? lostUnit('beta') : record(p.unitId),
+      ),
+      durationSeconds: 1,
+      resources: { maxRSS: 1 },
+    }),
+  });
+  assert.equal(await quietly(() => t.run()), 0);
+  const facts = parseFacts('reopen', t.read('facts.ndjson'));
+  assert.deepEqual(
+    facts.map((f) => f.unitId),
+    ids,
+  );
+  const beta = facts.find((f) => f.unitId === 'beta').facts;
+  assert.deepEqual(beta.rawIdentityLosses, ['CT:3:Foo', 'CT:5:Foo']);
+  assert.deepEqual(beta.noticeResidual, ['CT:3:Foo', 'CT:5:Foo']);
+  assert.deepEqual(
+    [
+      beta.reopenLoad,
+      beta.reopenLoadDistance,
+      beta.reopenJava,
+      beta.noLossConfirmationBefore,
+    ],
+    [true, 0, true, false],
+  );
+  const meta = parseFactsMeta(t.read('facts-meta.json'));
+  assert.deepEqual([meta.measure, meta.referenceSha256], ['reopen', hex('d')]);
+  assert.equal('facts' in parseRows(t.read('rows.ndjson'))[0], false);
+});
+
+test('--write-baseline writes baseline-reopen.json and its .sets.ndjson; the gate passes on the same run and fails closed on a hand-edited member', async () => {
+  const t = setup({
+    capture: ({ plan }) => ({
+      records: plan.map((p) =>
+        p.unitId === 'beta' ? lostUnit('beta') : record(p.unitId),
+      ),
+      durationSeconds: 1,
+      resources: { maxRSS: 1 },
+    }),
+  });
+  const dir = path.join(t.root, 'tmp-config');
+  assert.equal(
+    await quietly(() =>
+      t.run('--write-baseline', '--reason', 'smoke', '--baseline-dir', dir),
+    ),
+    0,
+  );
+  const mainFile = path.join(dir, 'baseline-reopen.json');
+  const setsFile = path.join(dir, 'baseline-reopen.sets.ndjson');
+  assert.ok(fs.existsSync(mainFile) && fs.existsSync(setsFile));
+  assert.equal(
+    fs.existsSync(
+      path.join(t.root, 'config/parity-runtime/baseline-reopen.json'),
+    ),
+    false,
+    'the committed dir was not touched',
+  );
+  const baseline = parseBaseline(
+    'reopen',
+    fs.readFileSync(mainFile, 'utf8'),
+    fs.readFileSync(setsFile, 'utf8'),
+  );
+  assert.equal(baseline.populationCount, 3);
+  assert.deepEqual(baseline.units['battlemechs/beta'].rawIdentityLosses, [
+    'CT:3:Foo',
+    'CT:5:Foo',
+  ]);
+  assert.equal(baseline.factsDeriverBlob, factsDeriverBlob());
+  const sidecar = fs
+    .readFileSync(setsFile, 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .map((l) => JSON.parse(l));
+  assert.deepEqual(
+    sidecar.map((l) => l.u),
+    ids.map((id) => `battlemechs/${id}`),
+  );
+  assert.deepEqual(
+    sidecar[0],
+    { u: 'battlemechs/alpha' },
+    'a unit with no set members still has a line',
+  );
+
+  const gate = (extra = []) => {
+    const log = console.log;
+    console.log = () => {};
+    try {
+      return gateMain(
+        [
+          '--measure',
+          'reopen',
+          '--run-dir',
+          path.join(t.root, 'out'),
+          '--baseline',
+          mainFile,
+          '--repo',
+          t.root,
+          '--out',
+          path.join(t.root, 'gate-out'),
+          ...extra,
+        ],
+        { isAncestor: () => true },
+      );
+    } finally {
+      console.log = log;
+    }
+  };
+  assert.equal(gate(), 0);
+  assert.deepEqual(
+    JSON.parse(
+      fs.readFileSync(path.join(t.root, 'gate-out/gate-report.json'), 'utf8'),
+    ).regressions,
+    [],
+  );
+  fs.writeFileSync(
+    setsFile,
+    fs.readFileSync(setsFile, 'utf8').replace('"CT:5:Foo"', '"CT:6:Foo"'),
+  );
+  assert.equal(gate(), 2);
+  const report = JSON.parse(
+    fs.readFileSync(path.join(t.root, 'gate-out/gate-report.json'), 'utf8'),
+  );
+  assert.equal(report.failClosed[0].reason, 'BASELINE_SIDECAR_MISMATCH');
+  assert.match(report.failClosed[0].message, /battlemechs\/beta/);
+});
+
+test('--write-baseline through the reopen runner refuses a failed unit and writes nothing', async () => {
+  const t = setup({
+    capture: ({ plan }) => ({
+      records: plan.map((p) =>
+        p.unitId === 'beta' ? failed('beta') : record(p.unitId),
+      ),
+      durationSeconds: 1,
+      resources: { maxRSS: 1 },
+    }),
+  });
+  const dir = path.join(t.root, 'tmp-config');
+  assert.equal(
+    await quietly(() =>
+      t.run('--write-baseline', '--reason', 'x', '--baseline-dir', dir),
+    ),
+    1,
+  );
+  assert.equal(JSON.parse(t.read('failure.json')).reason, 'BASELINE_REFUSED');
+  assert.equal(fs.existsSync(dir), false);
 });
