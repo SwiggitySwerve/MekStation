@@ -265,14 +265,6 @@ fs.writeFileSync(path.join(out,'sources.ndjson.manifest.json'),'{"committedCatal
   }
 });
 
-const planEntry = (id) => ({
-  family: 'battlemechs',
-  unitId: id,
-  catalogPath: `public/data/units/battlemechs/x/${id}.json`,
-  catalogBlob: hex('1', 40),
-  path: `meks/${id}.mtf`,
-  sha256: hex('a'),
-});
 const record = (
   id,
   {

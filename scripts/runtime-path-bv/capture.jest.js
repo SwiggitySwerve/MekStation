@@ -10,15 +10,14 @@
  * function the reopen capture uses. It does no BV math and compares nothing: run.mjs maps these
  * records to schema rows.
  */
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
-const observer = require('../lib/runtime-parity/status-observer');
-observer.installMocks(); // before any product module is required
+import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
-const {
-  getCanonicalUnitService,
-} = require('@/services/units/CanonicalUnitService');
+// The observer comes before every product import: it imports ./install-mocks first, and ES imports
+// evaluate in source order, so the mocks are registered before any product module loads.
+import * as observer from '../lib/runtime-parity/status-observer';
 
 const repoRoot = path.resolve(__dirname, '../..');
 const o = observer.create({ repoRoot });
