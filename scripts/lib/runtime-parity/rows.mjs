@@ -35,7 +35,14 @@ export const FAMILIES = [
 ];
 
 /** Recovery owner buckets from criticalSlotNoticeEffects.ts, plus 'none'. */
-export const OWNER_BUCKETS = ['o3a', 'o3b', 'o3b-s', 'Celerity', 'PR-D', 'none'];
+export const OWNER_BUCKETS = [
+  'o3a',
+  'o3b',
+  'o3b-s',
+  'Celerity',
+  'PR-D',
+  'none',
+];
 
 const sha256Hex = z.string().regex(/^[a-f0-9]{64}$/);
 const gitBlob = z.string().regex(/^[a-f0-9]{40}$/);
@@ -149,7 +156,9 @@ const mountView = z.strictObject({
  * are the cells of its `after` view. Cross-checked against the view's own
  * slots/splitSlots/spreadSlots, so the grouping proof is a row-level check.
  */
-const ownedCells = z.array(z.strictObject({ location: text, slot: z.int().min(0) }));
+const ownedCells = z.array(
+  z.strictObject({ location: text, slot: z.int().min(0) }),
+);
 
 /** Recovery owner of a mount, from its equipment identity (same classifier as cells). */
 const mountOwner = {
@@ -339,7 +348,9 @@ function viewCells(view) {
   if (view.slots) parts.push({ location: view.location, slots: view.slots });
   if (view.splitSlots) parts.push(view.splitSlots);
   for (const part of view.spreadSlots ?? []) parts.push(part);
-  return parts.flatMap((p) => p.slots.map((slot) => ({ location: p.location, slot })));
+  return parts.flatMap((p) =>
+    p.slots.map((slot) => ({ location: p.location, slot })),
+  );
 }
 
 /** Cells owned by each added/changed mount of a reopen row, tagged with the owning entry. */
@@ -366,7 +377,9 @@ export function checkMountOwnership(row, expected) {
   const owners = new Map();
   for (const c of ownedCellList(row))
     owners.set(cellKey(c), [...(owners.get(cellKey(c)) ?? []), c.owner]);
-  const want = new Map(expected.map((c) => [cellKey(c), { location: c.location, slot: c.slot }]));
+  const want = new Map(
+    expected.map((c) => [cellKey(c), { location: c.location, slot: c.slot }]),
+  );
   const cellOf = (k) => {
     const [location, slot] = JSON.parse(k);
     return { location, slot };
@@ -375,11 +388,22 @@ export function checkMountOwnership(row, expected) {
     .filter(([, o]) => o.length > 1)
     .map(([k, o]) => ({ cell: cellOf(k), owners: o }));
   const missing = [...want].filter(([k]) => !owners.has(k)).map(([, c]) => c);
-  const extra = [...owners].filter(([k]) => !want.has(k)).map(([k]) => cellOf(k));
-  return { ok: !overlaps.length && !missing.length && !extra.length, overlaps, missing, extra };
+  const extra = [...owners]
+    .filter(([k]) => !want.has(k))
+    .map(([k]) => cellOf(k));
+  return {
+    ok: !overlaps.length && !missing.length && !extra.length,
+    overlaps,
+    missing,
+    extra,
+  };
 }
 
-export { noSaveLossConfirmation, noSaveLossConfirmationAfter, saveLossConfirms };
+export {
+  noSaveLossConfirmation,
+  noSaveLossConfirmationAfter,
+  saveLossConfirms,
+};
 
 /** Cross-field rules JSON Schema cannot express. Returns a list of problems. */
 function crossChecks(row) {
@@ -388,22 +412,37 @@ function crossChecks(row) {
     const r = row.reopen;
     const n = r.noticeResidual;
     if (n.equal !== (n.noticeOnly.length === 0 && n.roundTripOnly.length === 0))
-      problems.push('noticeResidual.equal disagrees with noticeOnly/roundTripOnly');
+      problems.push(
+        'noticeResidual.equal disagrees with noticeOnly/roundTripOnly',
+      );
     const nonSystem = r.lostCells.filter((c) => c.identity === 'non-system');
     if (sameSet(n.residual, nonSystem) !== n.equal)
-      problems.push('noticeResidual.equal disagrees with residual vs non-system lostCells');
-    const triples = (list) => list.map(({ location, slot, text: t }) => ({ location, slot, text: t }));
+      problems.push(
+        'noticeResidual.equal disagrees with residual vs non-system lostCells',
+      );
+    const triples = (list) =>
+      list.map(({ location, slot, text: t }) => ({ location, slot, text: t }));
     const union = [...triples(r.lostCells), ...triples(r.tokenChanges)];
-    if (!sameSet(union, r.rawIdentityLosses) || union.length !== r.rawIdentityLosses.length)
-      problems.push('rawIdentityLosses is not exactly lostCells + tokenChanges');
+    if (
+      !sameSet(union, r.rawIdentityLosses) ||
+      union.length !== r.rawIdentityLosses.length
+    )
+      problems.push(
+        'rawIdentityLosses is not exactly lostCells + tokenChanges',
+      );
     const ownership = (name, entries, viewOf) =>
       entries.forEach((entry, i) => {
         const named = new Set(viewCells(viewOf(entry)).map(cellKey));
         const listed = new Set(entry.cells.map(cellKey));
         if (listed.size !== entry.cells.length)
           problems.push(`${name}[${i}].cells repeats a cell`);
-        else if (named.size !== listed.size || [...named].some((k) => !listed.has(k)))
-          problems.push(`${name}[${i}].cells disagrees with the mount's slots/splitSlots/spreadSlots`);
+        else if (
+          named.size !== listed.size ||
+          [...named].some((k) => !listed.has(k))
+        )
+          problems.push(
+            `${name}[${i}].cells disagrees with the mount's slots/splitSlots/spreadSlots`,
+          );
       });
     ownership('addedLoadedMounts', r.addedLoadedMounts, (m) => m);
     ownership('changedLoadedMounts', r.changedLoadedMounts, (m) => m.after);
@@ -412,7 +451,8 @@ function crossChecks(row) {
     problems.push(
       ...saveLossProblems(r.saveLoss, 'noticeBefore', 'saveLoss', {
         cells: n.residual,
-        sameCells: (entries, list) => sameSet(entries, list) && entries.length === list.length,
+        sameCells: (entries, list) =>
+          sameSet(entries, list) && entries.length === list.length,
       }),
       ...saveLossProblems(r.saveLossAfter, 'noticeAfter', 'saveLossAfter', {
         cells: [],
@@ -427,9 +467,14 @@ function crossChecks(row) {
 export function validateRow(row) {
   const parsed = RowSchema.safeParse(row);
   if (!parsed.success)
-    throw new Error(`Invalid row ${row?.family}/${row?.path}: ${parsed.error.message}`);
+    throw new Error(
+      `Invalid row ${row?.family}/${row?.path}: ${parsed.error.message}`,
+    );
   const problems = crossChecks(parsed.data);
-  if (problems.length) throw new Error(`Invalid row ${row.family}/${row.path}: ${problems.join('; ')}`);
+  if (problems.length)
+    throw new Error(
+      `Invalid row ${row.family}/${row.path}: ${problems.join('; ')}`,
+    );
   return parsed.data;
 }
 
@@ -444,7 +489,8 @@ export function canonicalJson(value) {
           .filter((k) => v[k] !== undefined)
           .map((k) => [k, walk(v[k])]),
       );
-    if (typeof v === 'number' && !Number.isFinite(v)) throw new Error('Non-finite number in row');
+    if (typeof v === 'number' && !Number.isFinite(v))
+      throw new Error('Non-finite number in row');
     return v;
   };
   return JSON.stringify(walk(value));
@@ -467,7 +513,9 @@ export function serializeRows(rows) {
   });
   checked.sort(
     (a, b) =>
-      compare(a.family, b.family) || compare(a.path, b.path) || compare(a.unitId, b.unitId),
+      compare(a.family, b.family) ||
+      compare(a.path, b.path) ||
+      compare(a.unitId, b.unitId),
   );
   return checked.map((row) => canonicalJson(row) + '\n').join('');
 }
@@ -489,21 +537,28 @@ export function assertPopulation(scope, rowCount) {
   if (unitIds !== null) {
     if (unitIds.some((id, i) => i > 0 && !(unitIds[i - 1] < id)))
       throw new Error('scope.unitIds must be sorted and free of duplicates');
-    if (unitIds.length > populationCount) throw new Error('scope.unitIds is larger than the population');
+    if (unitIds.length > populationCount)
+      throw new Error('scope.unitIds is larger than the population');
     if (rowCount !== unitIds.length)
-      throw new Error(`Population mismatch: ${rowCount} rows for ${unitIds.length} requested units`);
+      throw new Error(
+        `Population mismatch: ${rowCount} rows for ${unitIds.length} requested units`,
+      );
   } else if (rowCount !== populationCount)
-    throw new Error(`Population mismatch: ${rowCount} rows for a population of ${populationCount}`);
+    throw new Error(
+      `Population mismatch: ${rowCount} rows for a population of ${populationCount}`,
+    );
 }
 
 export const validateReceipt = (receipt) => {
   const parsed = ReceiptSchema.safeParse(receipt);
-  if (!parsed.success) throw new Error(`Invalid receipt: ${parsed.error.message}`);
+  if (!parsed.success)
+    throw new Error(`Invalid receipt: ${parsed.error.message}`);
   assertPopulation(parsed.data.scope, parsed.data.rows.count);
   return parsed.data;
 };
 
-export const rowJsonSchema = () => z.toJSONSchema(RowSchema, { target: 'draft-2020-12' });
+export const rowJsonSchema = () =>
+  z.toJSONSchema(RowSchema, { target: 'draft-2020-12' });
 export const receiptJsonSchema = () =>
   z.toJSONSchema(ReceiptSchema, { target: 'draft-2020-12' });
 
@@ -513,7 +568,10 @@ if (
   import.meta.url === pathToFileURL(process.argv[1]).href
 ) {
   const write = (name, schema) =>
-    writeFileSync(new URL(name, import.meta.url), JSON.stringify(schema, null, 2) + '\n');
+    writeFileSync(
+      new URL(name, import.meta.url),
+      JSON.stringify(schema, null, 2) + '\n',
+    );
   write('./rows.schema.json', rowJsonSchema());
   write('./receipt.schema.json', receiptJsonSchema());
 }
