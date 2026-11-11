@@ -83,7 +83,9 @@ describe('availability on selection surfaces', () => {
       expect(screen.queryByText(modeAvailability.p2p.sentence) !== null).toBe(
         status !== 'available',
       );
-      expect(screen.getByTestId('networked-1v1-btn')).toBeEnabled();
+      if (status === 'available')
+        expect(screen.getByTestId('networked-1v1-btn')).toBeEnabled();
+      else expect(screen.getByTestId('networked-1v1-btn')).toBeDisabled();
     },
   );
 });

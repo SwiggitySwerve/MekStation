@@ -349,31 +349,21 @@ export const standalonePrimaryEntries: readonly SweptScreenEntry[] = [
   {
     id: 'gameplay-lobby',
     class: 'standalone',
-    label: 'peer-to-peer lobby preview',
+    label: 'peer-to-peer lobby unavailable',
     manifestPaths: ['/gameplay/lobby/[roomCode]'],
     goto: '/gameplay/lobby/LAYTXT?host=1',
     primaryAffordances: [
       affordance({
-        label: 'copy room code',
-        role: 'button',
-        name: 'Copy LAYTXT',
+        label: 'back to games',
+        role: 'link',
+        name: 'Back to games',
       }),
     ],
     overlapTargets: [
       affordance({
-        label: 'host unit picker',
-        role: 'combobox',
-        name: 'Add unit to Host loadout',
-      }),
-      affordance({
-        label: 'map radius',
-        role: 'spinbutton',
-        name: 'Map radius',
-      }),
-      affordance({
-        label: 'disabled launch',
-        role: 'button',
-        name: 'Launch Match',
+        label: 'back to games',
+        role: 'link',
+        name: 'Back to games',
       }),
     ],
     quarantine: [],

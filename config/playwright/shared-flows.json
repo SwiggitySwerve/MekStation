@@ -196,6 +196,8 @@
         "e2e/gm-two-player-rewind.pack.spec.ts",
         "e2e/gm-two-player-token.pack.spec.ts",
         "e2e/multiplayer-live-vault-auth.spec.ts",
+        "e2e/multiplayer-preview-labels.spec.ts",
+        "e2e/p2p-lobby-two-peer.probe.spec.ts",
         "e2e/p2p-sync.spec.ts",
         "e2e/playtest-mp-smoke.spec.ts"
       ],

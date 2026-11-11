@@ -6,7 +6,7 @@ const hosted =
   'You cannot yet select enemy targets, and some matches stop before they finish.';
 const coop = 'Some campaign changes can be lost after saving or reloading.';
 const p2p =
-  "Match launch is unavailable because the two players' battles do not stay in sync.";
+  "Peer-to-peer lobbies can't connect because the connection service they use is unavailable. Battles also do not yet stay in sync between two players.";
 
 for (const [route, sentence] of [
   ['/multiplayer', hosted],
@@ -18,7 +18,7 @@ for (const [route, sentence] of [
     await page.goto(route);
     await expect(page.getByText(sentence, { exact: true })).toBeVisible();
     await expect(
-      page.getByText('Preview', { exact: true }).first(),
+      page.getByRole('main').getByText('Preview', { exact: true }).first(),
     ).toBeVisible();
     await assertPreviewAccessibility(page);
     if (route === '/gameplay/campaigns') {
@@ -44,6 +44,14 @@ test('vault help separates sharing from disabled battles @game', async ({
   await expect(
     page.getByText('Share vault items with peers').first(),
   ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Connect', exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole('button', { name: 'Connect', exact: true }),
+  ).toHaveAccessibleDescription(
+    "Sharing can't connect because the connection service it uses is unavailable.",
+  );
   await assertPreviewAccessibility(page);
 });
 

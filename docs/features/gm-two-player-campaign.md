@@ -22,7 +22,7 @@ Some campaign changes can be lost after saving or reloading.
 
 **Peer-to-Peer Matches: Preview**
 
-Match launch is unavailable because the two players' battles do not stay in sync.
+Peer-to-peer lobbies can't connect because the connection service they use is unavailable. Battles also do not yet stay in sync between two players.
 
 <!-- multiplayer:p2p:end -->
 

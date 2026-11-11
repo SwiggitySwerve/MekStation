@@ -18,3 +18,5 @@ docs/releases/v2.2.0-topology.md contain handwritten availability blocks.
 The documentation Jest contract enforces verbatim copy and requires removing
 a mode's block when it becomes available. A status change restores the UI;
 update the documentation in the same change so that contract passes.
+
+The P2P status also controls lobby creation, joining, direct lobby routes, pre-battle entry and vault-sharing controls. Sharing uses the same status with its own sentence from getVaultSharingNotice. Available restores all these entry points together.
