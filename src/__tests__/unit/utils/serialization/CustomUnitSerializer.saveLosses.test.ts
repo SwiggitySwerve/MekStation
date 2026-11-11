@@ -187,6 +187,40 @@ it.each([
   );
 });
 
+it('rejects a writer mutant that drops the unchanged-engine guard', () => {
+  const state = { ...load(LOCUST), engineType: EngineType.STANDARD };
+  const document = save(state);
+  const assertNoStaleEngine = (
+    raw: Pick<IRawSerializedUnit, 'criticalSlots'>,
+  ) =>
+    expect(Object.values(raw.criticalSlots ?? {}).flat()).not.toContain(
+      'Fusion Engine',
+    );
+  assertNoStaleEngine(document);
+  // The unguarded writer copies old native engine cells after changing type.
+  const mutant = {
+    ...document,
+    criticalSlots: {
+      ...document.criticalSlots,
+      [MechLocation.LEFT_TORSO]: [
+        'Fusion Engine',
+        'Fusion Engine',
+        'Fusion Engine',
+        'Fusion Engine',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+    },
+  };
+  expect(() => assertNoStaleEngine(reopenedSource(mutant))).toThrow();
+});
+
 it('requires an exact engine system identity, never an engine substring', () => {
   const state = load(LOCUST);
   if (!state.bvContext) throw new Error('Fixture must have source context');
