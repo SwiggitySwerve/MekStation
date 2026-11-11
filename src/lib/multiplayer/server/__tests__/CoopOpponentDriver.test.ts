@@ -886,7 +886,7 @@ describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
         expect.objectContaining({
           kind: 'Error',
           code: 'MATCH_PAUSED',
-          reason: 'Match is paused after a server opponent fault',
+          reason: 'Match is paused.',
         }),
       ]);
       expect(await store.getEvents(MATCH)).toEqual(events);
@@ -993,7 +993,7 @@ describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
       expect(await intent({ kind: 'AdvancePhase' }, 'gm-away')).toEqual([
         expect.objectContaining({
           code: 'MATCH_PAUSED',
-          reason: 'Match is paused until the campaign GM returns',
+          reason: 'Match is paused.',
         }),
       ]);
       entry.syncSession.noteGmConnected();
@@ -1136,7 +1136,7 @@ describe.each([false, true])('CoopOpponentDriver authority=%s', (enabled) => {
     );
     expect(
       result.some(
-        (frame) => frame.kind === 'Error' && frame.code === 'AUTH_REJECTED',
+        (frame) => frame.kind === 'Error' && frame.code === 'INVALID_INTENT',
       ),
     ).toBe(true);
     expect(await store.getEvents(MATCH)).toEqual(before);

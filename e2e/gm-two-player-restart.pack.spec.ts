@@ -34,6 +34,10 @@ import {
   type IMatchHandle as Match,
   type IMatchToken as Token,
 } from './helpers/gmTwoPlayerMatchFlow';
+import {
+  expectServerRestarted,
+  readServerStartMs,
+} from './helpers/serverRestartEvidence';
 
 type Identity = { readonly id: string; readonly displayName: string };
 
@@ -266,11 +270,14 @@ test('E2E-05 a death before commit leaves no authoritative row after restart @E2
   try {
     const eventsBefore = countMatchEvents(match.matchId);
 
+    const startedBefore = await readServerStartMs(request);
     await armFault(request, 'process-exit-before-commit', match.matchId);
     // The next command dies mid-transaction WITH the process. The click
     // itself may hang on the dead socket - fire and move on.
     await advancePhase(hostPage, guestPage).catch(() => undefined);
     await waitForServerBack(request);
+    // The 200 above also answers when nothing died; prove the death.
+    await expectServerRestarted(request, startedBefore);
 
     // The faulted transaction left NOTHING - that is the letter. What
     // MAY legitimately appear afterwards is the client's own pending-
@@ -324,9 +331,12 @@ test('E2E-06 a death after commit replays the committed result once @E2E-06', as
   try {
     const eventsBefore = countMatchEvents(match.matchId);
 
+    const startedBefore = await readServerStartMs(request);
     await armFault(request, 'process-exit-after-commit', match.matchId);
     await advancePhase(hostPage, guestPage).catch(() => undefined);
     await waitForServerBack(request);
+    // The 200 above also answers when nothing died; prove the death.
+    await expectServerRestarted(request, startedBefore);
 
     // The batch survived: committed, durable, unsent at death. Client
     // retries may also land post-restart (the duplicate replays without

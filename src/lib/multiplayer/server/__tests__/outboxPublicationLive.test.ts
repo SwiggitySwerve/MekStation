@@ -34,6 +34,7 @@ import {
 } from '@/types/gameplay';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import {
   DurableMatchStore,
@@ -195,7 +196,7 @@ async function seatedDurableHost(matchId: string, store: DurableMatchStore) {
   await Promise.resolve();
   await Promise.resolve();
   const sockA = makeSocket();
-  expect(await host.admitSocket(sockA, 'pA')).not.toBeNull();
+  expect(await host.admitSocket(sockA, 'pA', 'conn-a')).not.toBeNull();
   return { host, sockA };
 }
 
@@ -226,6 +227,8 @@ describe('live commands commit as durable publication batches (7.1)', () => {
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
+    jest.useRealTimers();
     _setFailAtHeadUpdateForTests(false);
     store.close();
   });
@@ -341,6 +344,17 @@ describe('live commands commit as durable publication batches (7.1)', () => {
   it('a failed transaction yields a typed failure, no frames, and no durable rows', async () => {
     const matchId = 'm-outbox-fail';
     const { host, sockA } = await seatedDurableHost(matchId, store);
+    const sockB = makeSocket();
+    const secondSockA = makeSocket();
+    expect(await host.admitSocket(sockB, 'pB', 'conn-b')).not.toBeNull();
+    expect(
+      await host.admitSocket(secondSockA, 'pA', 'conn-a-second'),
+    ).not.toBeNull();
+    for (const socket of [sockA, sockB, secondSockA]) socket.sent.length = 0;
+    // Keep lifecycle timestamps stable so complete Close frames can be compared.
+    const at = '2026-11-10T00:00:00.000Z';
+    jest.useFakeTimers({ now: new Date(at) });
+    const refused = jest.spyOn(logger, 'warn').mockImplementation(() => {});
     const before = eventFrames(sockA).length;
     const storedBefore = (await store.getEvents(matchId)).length;
 
@@ -353,6 +367,33 @@ describe('live commands commit as durable publication batches (7.1)', () => {
       errorFrames(sockA).some((frame) => frame.code === 'STORE_FAILURE'),
     ).toBe(true);
     expect(eventFrames(sockA).length).toBe(before);
+    const close = { kind: 'Close', matchId, ts: at, reason: 'Match closed' };
+    expect(sockA.sent).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        matchId,
+        code: 'STORE_FAILURE',
+        reason: 'Unable to save the command.',
+        intentId: 'adv-' + matchId + '-0',
+      }),
+      close,
+    ]);
+    for (const peer of [sockB, secondSockA]) {
+      expect(errorFrames(peer)).toEqual([]);
+      expect(eventFrames(peer)).toEqual([]);
+      // Exact equality rejects actor, intent, unit, engine or command details,
+      // and also rejects any additional frame or extra Close field.
+      expect(peer.sent).toEqual([close]);
+    }
+    expect(sockB.sent).toEqual(secondSockA.sent);
+    expect(refused).toHaveBeenCalledWith(
+      '[multiplayer] intent refused',
+      expect.objectContaining({
+        matchId,
+        code: 'STORE_FAILURE',
+        diagnostic: 'test-crash-at-head-update',
+      }),
+    );
 
     // Nothing durable either: the transaction rolled back events and
     // outbox rows together, so there is nothing to resume later.

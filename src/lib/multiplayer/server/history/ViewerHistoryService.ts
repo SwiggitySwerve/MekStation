@@ -199,7 +199,8 @@ export class ViewerHistoryService {
  * Applies player vs GM timeline redaction across a session page.
  * Why: the audit repository is infrastructure-internal (design D2)
  * and returns actor principal ids plus committed revision ranges;
- * only the GM variant may carry those raw authority positions.
+ * only the GM variant may carry those raw authority positions. Rejected
+ * attempts are sender-only before either role-specific mapping runs.
  */
 function mapTimelineEntries(
   rows: readonly IActionAuditRecord[],
@@ -209,6 +210,12 @@ function mapTimelineEntries(
   for (let index = 0; index < rows.length; index += 1) {
     const row = rows[index];
     if (row === undefined) continue;
+    // A refusal belongs only to its sender, including when another viewer is a GM.
+    if (
+      row.lifecycleState === 'rejected' &&
+      row.actor.principalId !== viewer.principalId
+    )
+      continue;
     if (viewer.role === 'gm') {
       entries.push(mapGmTimelineEntry(row));
     } else {

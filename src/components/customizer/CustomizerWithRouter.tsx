@@ -20,6 +20,7 @@ import React, {
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
+import { CampaignSaveIndicator } from '@/components/campaign/CampaignSaveIndicator';
 import { ErrorBoundary } from '@/components/common';
 import { CampaignCustomizerSessionProvider } from '@/components/customizer/campaign/CampaignCustomizerSessionContext';
 import { CampaignUnitUnavailableState } from '@/components/customizer/campaign/CampaignUnitUnavailableState';
@@ -437,12 +438,19 @@ export default function CustomizerWithRouter(): React.ReactElement {
     return <LoadingCustomizerState />;
   }
 
+  const campaignSaveIndicator = campaignRoute ? (
+    <CampaignSaveIndicator campaignId={campaignRoute.campaignId} />
+  ) : null;
+
   if (unavailableUnitId) {
     return (
-      <CampaignUnitUnavailableState
-        unitId={unavailableUnitId}
-        onReturn={returnToCampaign}
-      />
+      <>
+        {campaignSaveIndicator}
+        <CampaignUnitUnavailableState
+          unitId={unavailableUnitId}
+          onReturn={returnToCampaign}
+        />
+      </>
     );
   }
 
@@ -462,6 +470,7 @@ export default function CustomizerWithRouter(): React.ReactElement {
             }}
           >
             <div className="bg-surface-deep flex h-full min-h-0 flex-col overflow-hidden">
+              {campaignSaveIndicator}
               <MultiUnitTabs>
                 <ErrorBoundary componentName="UnitTypeRouter">
                   <UnitTypeRouter

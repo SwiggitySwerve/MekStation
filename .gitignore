@@ -49,6 +49,7 @@ scripts/**
 !scripts/portable_unit_reader.py
 !scripts/expand-source-provenance-variants.mjs
 !scripts/hoist-union-branches.js
+!scripts/refine-conditional-clauses.mjs
 !scripts/print-combat-validation-gaps.ts
 !scripts/vehicle-aero-bv-delta.ts
 !scripts/unit-bv-parity.ts
@@ -76,6 +77,10 @@ scripts/**
 !scripts/jest/jest-dom-usage.js
 !scripts/lib/
 !scripts/lib/**
+!scripts/runtime-path-bv/
+!scripts/runtime-path-bv/**
+!scripts/runtime-roundtrip/
+!scripts/runtime-roundtrip/**
 !scripts/next/
 !scripts/next/**
 !scripts/playwright/
@@ -85,6 +90,8 @@ scripts/**
 !scripts/ci/
 !scripts/ci/**
 !scripts/megameklab-conversion/
+!scripts/megameklab-conversion/catalog-families.json
+!scripts/megameklab-conversion/unit-index-rules.json
 !scripts/megameklab-conversion/append_pinned_bv_references.py
 !scripts/megameklab-conversion/blk_aerospace_tables.py
 !scripts/megameklab-conversion/blk_infantry_armor.py

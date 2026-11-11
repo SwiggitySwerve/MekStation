@@ -75,7 +75,21 @@ export function normalizeRun({
   const missing = [];
   const start = timestamp(run.run_started_at);
   const created = timestamp(run.created_at);
-  if (start === null || created === null || start < created)
+  // The collector reads this run from the attempts endpoint
+  // (GET /actions/runs/{id}/attempts/{n}), which sometimes gives created_at
+  // one second after run_started_at, while the run endpoint
+  // (GET /actions/runs/{id}) gives the two as equal. Example: run 42898290006
+  // attempt 1 reads created 20:44:52Z, started 20:44:51Z; the run endpoint
+  // reads 20:44:51Z for both. That is second rounding between two endpoints,
+  // not a run that started before it was created, so up to one second is read
+  // as zero queue time. This is not a general tolerance: a start more than one
+  // second before creation still marks the run incomplete.
+  const ENDPOINT_ROUNDING_MS = 1000;
+  if (
+    start === null ||
+    created === null ||
+    start < created - ENDPOINT_ROUNDING_MS
+  )
     missing.push('Invalid run timestamps');
   if (run.status !== 'completed') missing.push('Run is not completed');
   const names = Object.keys(jobGraph).sort();

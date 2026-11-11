@@ -160,7 +160,7 @@ describe('ServerMatchHost lobby intents', () => {
               kind: 'Error',
               code: 'INVALID_INTENT',
               intentId: 'status-refusal',
-              reason: expect.stringContaining('match status'),
+              reason: 'Intent could not be applied.',
             }),
           ]);
           expect(await store.getMatchMeta(matchId)).toEqual(before);
@@ -270,7 +270,7 @@ describe('ServerMatchHost lobby intents', () => {
         kind: 'Error',
         code: 'INVALID_INTENT',
         intentId: 'launch-race',
-        reason: expect.stringContaining('completed'),
+        reason: 'Intent could not be applied.',
       }),
     ]);
     expect((await store.getMatchMeta(matchId)).status).toBe('completed');
@@ -301,7 +301,7 @@ describe('ServerMatchHost lobby intents', () => {
         kind: 'Error',
         code: 'INVALID_INTENT',
         intentId: 'launch-refused',
-        reason: expect.stringContaining('completed'),
+        reason: 'Intent could not be applied.',
       }),
     ]);
     expect(warn).toHaveBeenCalledWith(
@@ -347,7 +347,6 @@ describe('ServerMatchHost lobby intents', () => {
     async (code) => {
       const { host, store, matchId } = await makeLobbyHost();
       const socket = makeMockSocket();
-      host.attachSocket(socket, 'pid_host');
       const envelope = {
         ...intent(
           matchId,
@@ -367,7 +366,28 @@ describe('ServerMatchHost lobby intents', () => {
           .spyOn(store, 'updateMatchMetaIf')
           .mockRejectedValueOnce(new Error('write failed'));
       }
-      const frames = await host.handleIntent(envelope);
+      if (envelope.playerId === 'pid_join') {
+        const meta = await store.getMatchMeta(matchId);
+        await store.updateMatchMeta(matchId, {
+          playerIds: [...meta.playerIds, 'pid_join'],
+          seats: meta.seats?.map((seat) =>
+            seat.slotId === 'alpha-2'
+              ? {
+                  ...seat,
+                  occupant: { playerId: 'pid_join', displayName: 'Joiner' },
+                }
+              : seat,
+          ),
+        });
+      }
+      expect(
+        await host.admitSocket(socket, envelope.playerId, 'refusal-sender'),
+      ).not.toBeNull();
+      const frames = await host.handleIntent(
+        envelope,
+        'refusal-sender',
+        envelope.playerId,
+      );
       expect(frames).toEqual([
         expect.objectContaining({
           kind: 'Error',

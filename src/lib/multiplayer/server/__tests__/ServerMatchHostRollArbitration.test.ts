@@ -7,7 +7,7 @@
  *   - Produces deterministic outputs given a fixed `diceSeed` (the
  *     `?seed=N` debug path).
  *   - Rejects intents whose payload smuggles dice fields with an
- *     `INVALID_INTENT { client-rolls-forbidden }` error.
+ *     `INVALID_INTENT` error with fixed, diagnostic-free wording.
  *
  * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
@@ -20,6 +20,7 @@ import {
   type IInitiativeRolledPayload,
 } from '@/types/gameplay/GameSessionInterfaces';
 import { nowIso, type IIntent } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
@@ -77,6 +78,8 @@ async function bootHost(diceSeed?: number): Promise<{
   await Promise.resolve();
   return { host, store };
 }
+
+afterEach(() => jest.restoreAllMocks());
 
 describe('ServerMatchHost — Wave 3a roll arbitration', () => {
   it('stamps captured rolls onto InitiativeRolled when AdvancePhase fires from Initiative', async () => {
@@ -154,9 +157,17 @@ describe('ServerMatchHost — Wave 3a roll arbitration', () => {
   });
 
   it('rejects an intent whose payload carries a forbidden dice field', async () => {
-    const { host } = await bootHost();
+    const { host, store } = await bootHost();
     const socket = makeMockSocket();
-    host.attachSocket(socket, 'p1');
+    const otherSocket = makeMockSocket();
+    expect(await host.admitSocket(socket, 'p1', 'conn-sender')).not.toBeNull();
+    expect(
+      await host.admitSocket(otherSocket, 'p1', 'conn-other'),
+    ).not.toBeNull();
+    socket.sent.length = 0;
+    otherSocket.sent.length = 0;
+    const eventsBefore = await store.getEvents(host.matchId);
+    const refused = jest.spyOn(logger, 'warn').mockImplementation(() => {});
 
     // Hand-craft a malformed intent that bypasses the wire schema.
     // intentHasForbiddenDiceField runs server-side as defense in depth.
@@ -171,13 +182,24 @@ describe('ServerMatchHost — Wave 3a roll arbitration', () => {
       },
     } as unknown as IIntent;
 
-    const broadcasts = await host.handleIntent(malformed);
+    const broadcasts = await host.handleIntent(malformed, 'conn-sender', 'p1');
     expect(broadcasts).toHaveLength(1);
     expect(broadcasts[0].kind).toBe('Error');
     if (broadcasts[0].kind === 'Error') {
       expect(broadcasts[0].code).toBe('INVALID_INTENT');
-      expect(broadcasts[0].reason).toBe('client-rolls-forbidden');
+      expect(broadcasts[0].reason).toBe('Intent could not be applied.');
     }
+    expect(socket.sent.map((frame) => frame.parsed)).toEqual(broadcasts);
+    expect(otherSocket.sent).toEqual([]);
+    expect(await store.getEvents(host.matchId)).toEqual(eventsBefore);
+    expect(refused).toHaveBeenCalledWith(
+      '[multiplayer] intent refused',
+      expect.objectContaining({
+        matchId: host.matchId,
+        code: 'INVALID_INTENT',
+        diagnostic: 'client-rolls-forbidden',
+      }),
+    );
   });
 
   it('does NOT stamp rolls onto deterministic intents (e.g., Concede)', async () => {

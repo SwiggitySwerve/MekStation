@@ -155,11 +155,13 @@ function parseFrame(raw: string): Record<string, unknown> | null {
   }
 }
 
-/** WHAT: true when the tap recorded the door's client-rolls refusal for this id. WHY: the injected intentId is how the client correlates the Error. */
-function sawClientRollsRefusal(tap: ISocketTap, intentId: string): boolean {
+/** WHAT: true when the sender received the fixed INVALID_INTENT refusal for this id. WHY: foreign units and client rolls share the privacy-safe response. */
+function sawInvalidIntentRefusal(tap: ISocketTap, intentId: string): boolean {
   return tap.frames.some(
     (frame) =>
-      frame.reason === 'client-rolls-forbidden' && frame.intentId === intentId,
+      frame.code === 'INVALID_INTENT' &&
+      frame.reason === 'Intent could not be applied.' &&
+      frame.intentId === intentId,
   );
 }
 
@@ -304,29 +306,18 @@ test('E2E-31 a foreign-unit command is refused typed and an owned command commit
     const hostUnitId = await unitIdOnSide(match.hostPage, 'player');
     const guestUnitId = await unitIdOnSide(match.hostPage, 'opponent');
     const before = readStore(match.matchId);
-    const errorsBefore = match.hostTap.frames.length;
+    const foreignIntentId = `combat-e2e31-foreign-${crypto.randomUUID()}`;
     match.hostTap.inject(
-      intentFrame(
-        match.matchId,
-        match.hostPlayerId,
-        `combat-e2e31-foreign-${crypto.randomUUID()}`,
-        {
-          kind: 'GoProne',
-          unitId: guestUnitId,
-        },
-      ),
+      intentFrame(match.matchId, match.hostPlayerId, foreignIntentId, {
+        kind: 'GoProne',
+        unitId: guestUnitId,
+      }),
     );
     await expect
-      .poll(() => match.hostTap.frames.length, { timeout: 20_000 })
-      .toBeGreaterThan(errorsBefore);
-    const refusal = match.hostTap.frames.slice(errorsBefore);
-    expect(
-      refusal.some(
-        (frame) =>
-          frame.code === 'AUTH_REJECTED' && frame.reason === 'unit-not-owned',
-      ),
-      JSON.stringify(refusal),
-    ).toBe(true);
+      .poll(() => sawInvalidIntentRefusal(match.hostTap, foreignIntentId), {
+        timeout: 20_000,
+      })
+      .toBe(true);
     expect(readStore(match.matchId).eventCount).toBe(before.eventCount);
     const ownedId = `combat-e2e31-owned-${crypto.randomUUID()}`;
     match.hostTap.inject(
@@ -439,7 +430,7 @@ test('E2E-34 a client-supplied roll cannot influence the result and viewers see 
     );
     // Refusal is enforced at the socket door on the raw envelope.
     await expect
-      .poll(() => sawClientRollsRefusal(match.hostTap, goProneIntentId), {
+      .poll(() => sawInvalidIntentRefusal(match.hostTap, goProneIntentId), {
         timeout: 20_000,
       })
       .toBe(true);
@@ -468,7 +459,7 @@ test('E2E-34 a client-supplied roll cannot influence the result and viewers see 
           }),
         );
         await expect
-          .poll(() => sawClientRollsRefusal(match.hostTap, advanceIntentId), {
+          .poll(() => sawInvalidIntentRefusal(match.hostTap, advanceIntentId), {
             timeout: 20_000,
           })
           .toBe(true);

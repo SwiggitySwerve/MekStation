@@ -47,6 +47,7 @@ import { normalizeMechBVSourceName } from '../battleValueAmmo';
 import {
   getModularArmorBVPoints,
   getNativeArmorBVMultiplier,
+  getAmsBVWeaponKind,
 } from '../battleValueDefensive';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import { deriveMechArmorSections } from './armorInputs';
@@ -115,15 +116,7 @@ export function calculateUnitBV(
     const didClean = normalizeMechBVSourceName(did);
     const resolvedBV = resolveEquipmentBV(didClean).battleValue;
     defEquipBV += resolvedBV;
-    const dlo = did.toLowerCase();
-    const isAmsWeapon =
-      (dlo.includes('anti-missile') ||
-        dlo.includes('antimissile') ||
-        dlo === 'isams' ||
-        dlo === 'clams' ||
-        dlo.includes('apds')) &&
-      !dlo.includes('ammo');
-    if (isAmsWeapon) amsWeaponBV += resolvedBV;
+    if (getAmsBVWeaponKind(didClean)) amsWeaponBV += resolvedBV;
   }
   if (cs.amsAmmoBV > 0 && amsWeaponBV > 0) {
     defEquipBV += Math.min(amsWeaponBV, cs.amsAmmoBV);

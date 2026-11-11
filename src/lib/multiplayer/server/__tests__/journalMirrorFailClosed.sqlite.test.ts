@@ -231,7 +231,7 @@ describe('enabled journal mirror failures fail commands closed', () => {
       const failed = await host.handleIntent(intent('lock-1', matchId));
 
       expect(storeFailure(failed)).toEqual(
-        expect.objectContaining({ reason: expect.stringContaining(reason) }),
+        expect.objectContaining({ reason: 'Unable to save the command.' }),
       );
       expect(await store.getCommandReceipt(matchId, 'lock-1')).not.toBeNull();
       const storedAfterFailure = (await store.getEvents(matchId)).length;
@@ -261,7 +261,7 @@ describe('enabled journal mirror failures fail commands closed', () => {
 
     expect(storeFailure(failed)).toEqual(
       expect.objectContaining({
-        reason: 'journal-mirror:capability-db-unavailable',
+        reason: 'Unable to save the command.',
       }),
     );
     expect(matchJournalAuthority.getProcessShadowMismatchCount()).toBe(1);
@@ -291,7 +291,7 @@ describe('enabled journal mirror failures fail commands closed', () => {
     const divergent = await host.handleIntent(intent('lock-1', matchId));
 
     expect(storeFailure(divergent)).toEqual(
-      expect.objectContaining({ reason: 'integrity-conflict' }),
+      expect.objectContaining({ reason: 'Unable to save the command.' }),
     );
     expect(mirrorMock).not.toHaveBeenCalled();
     expect(journalHead(matchId)).toBe(OPENING_HEAD);
@@ -324,7 +324,7 @@ describe('enabled journal mirror failures fail commands closed', () => {
     const retry = await host.handleIntent(intent('lock-1', matchId));
 
     expect(storeFailure(retry)).toEqual(
-      expect.objectContaining({ reason: 'integrity-conflict' }),
+      expect.objectContaining({ reason: 'Unable to save the command.' }),
     );
     expect(mirrorMock).not.toHaveBeenCalled();
     expect(journalHead(matchId)).toBe(OPENING_HEAD);

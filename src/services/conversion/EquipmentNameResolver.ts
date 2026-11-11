@@ -10,11 +10,11 @@ import {
 import { getAllEquipmentItemsForResolver } from './EquipmentNameResolverData';
 import {
   MEGAMEKLAB_TYPE_MAP,
-  SYSTEM_COMPONENTS,
   normalizeName,
   normalizeNameWithTechBase,
   stripQuantityPrefix,
 } from './EquipmentNameResolverMappings';
+import { isMTFCriticalSlotSystemName } from './MTFVocabulary';
 
 export interface EquipmentResolution {
   readonly found: boolean;
@@ -189,9 +189,7 @@ export class EquipmentNameResolver {
   };
 
   isSystemComponent = (itemType: string): boolean => {
-    return SYSTEM_COMPONENTS.some((component) =>
-      itemType.toLowerCase().includes(component.toLowerCase()),
-    );
+    return isMTFCriticalSlotSystemName(itemType);
   };
 
   isHeatSink = (itemType: string): boolean => {

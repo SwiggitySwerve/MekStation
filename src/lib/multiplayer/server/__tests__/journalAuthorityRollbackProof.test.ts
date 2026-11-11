@@ -341,7 +341,7 @@ describe('journal-authority rollback proof', () => {
         expect.arrayContaining([
           expect.objectContaining({
             kind: 'Error',
-            reason: 'rollback-reader-blocked:baseline-head-mismatch',
+            reason: 'Unable to process the command.',
           }),
         ]),
       );
@@ -490,7 +490,7 @@ describe('journal-authority rollback proof', () => {
           expect.arrayContaining([
             expect.objectContaining({
               kind: 'Error',
-              reason: `rollback-reader-blocked:${reason}`,
+              reason: 'Unable to process the command.',
             }),
           ]),
         );

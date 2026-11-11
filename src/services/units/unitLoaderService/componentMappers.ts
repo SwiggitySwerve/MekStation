@@ -156,13 +156,17 @@ export function mapHeatSinkType(typeStr: string): HeatSinkType {
 /**
  * Map armor type string to ArmorTypeEnum
  */
-export function mapArmorType(
+export function resolveArmorType(
   typeStr: string,
   techBase: TechBase,
-): ArmorTypeEnum {
+): ArmorTypeEnum | undefined {
   const native = getNativeArmorType(typeStr);
   if (native) return native;
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
+
+  if (normalized === ArmorTypeEnum.STANDARD.toUpperCase()) {
+    return ArmorTypeEnum.STANDARD;
+  }
 
   if (normalized === 'FERROFIBROUS' || normalized === 'FERRO') {
     return techBase === TechBase.CLAN
@@ -199,10 +203,17 @@ export function mapArmorType(
   if (normalized === 'BALLISTICREINFORCED') {
     return ArmorTypeEnum.BALLISTIC_REINFORCED;
   }
-  // INDUSTRIAL, HEAVY_INDUSTRIAL, PRIMITIVE armor types map to STANDARD for now
-  // These can be added to the enum when needed
+  // The facade retains the existing Standard fallback for unresolved identities.
 
-  return ArmorTypeEnum.STANDARD;
+  return undefined;
+}
+
+/** Preserve the existing fallback; diagnostics read the same resolution result. */
+export function mapArmorType(
+  typeStr: string,
+  techBase: TechBase,
+): ArmorTypeEnum {
+  return resolveArmorType(typeStr, techBase) ?? ArmorTypeEnum.STANDARD;
 }
 
 /**

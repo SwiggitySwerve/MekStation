@@ -1,0 +1,6 @@
+{
+  "name": "fix-campaign-save-sw-network-route",
+  "status": "in-progress",
+  "reason": "Root-approved PR 1: static network routing and save-aware update reload; production red/green sweep remains with C4.",
+  "lastReviewed": "2026-11-10"
+}

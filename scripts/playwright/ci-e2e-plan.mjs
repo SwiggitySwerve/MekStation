@@ -38,17 +38,41 @@ export const CI_SUITES = [
 
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
-export function parseInvocation(argv) {
+export function suitesForDataSpecs(dataSpecs = []) {
+  if (
+    !Array.isArray(dataSpecs) ||
+    dataSpecs.some(
+      (file) =>
+        typeof file !== 'string' ||
+        !/^e2e\/[\w./-]+\.spec\.ts$/.test(file) ||
+        file.includes('..'),
+    )
+  )
+    throw new Error('Invalid data-keyed E2E spec list');
+  const fixed = new Set(CI_SUITES.flatMap(({ files }) => files));
+  const files = [...new Set(dataSpecs.map((file) => file.slice(4)))]
+    .filter((file) => !fixed.has(file))
+    .sort(compare);
+  return files.length
+    ? [...CI_SUITES, { name: 'data', workers: 1, options: [], files }]
+    : CI_SUITES;
+}
+
+export function parseInvocation(argv, dataSpecs = []) {
   const shard = argv.find((arg) => arg.startsWith('--shard='));
   if (!/^--shard=[12]\/2$/.test(shard ?? ''))
     throw new Error('Expected --shard=<1|2>/2');
-  const suite = CI_SUITES.find(({ files }) =>
-    files.every((file) => argv.includes(`e2e/${file}`)),
-  );
+  const suite = argv.includes('--data-specs')
+    ? suitesForDataSpecs(dataSpecs).find(({ name }) => name === 'data')
+    : CI_SUITES.find(({ files }) =>
+        files.every((file) => argv.includes(`e2e/${file}`)),
+      );
   if (!suite) throw new Error('Unknown PR E2E suite');
   const expected = [
     'test',
-    ...suite.files.map((file) => `e2e/${file}`),
+    ...(suite.name === 'data'
+      ? ['--data-specs']
+      : suite.files.map((file) => `e2e/${file}`)),
     '--project=chromium',
     ...suite.options,
     `--workers=${suite.workers}`,
@@ -111,8 +135,8 @@ export function censusHash(tests) {
     .digest('hex');
 }
 
-function suiteFor(test) {
-  const suite = CI_SUITES.find(({ files }) => files.includes(test.file));
+function suiteFor(test, suites = CI_SUITES) {
+  const suite = suites.find(({ files }) => files.includes(test.file));
   if (!suite || test.project !== 'chromium')
     throw new Error(`Unexpected PR test: ${test.key}`);
   return suite;
@@ -146,7 +170,8 @@ export function recordDurations(reports, sourceRunIds) {
   };
 }
 
-export function planShards(tests, timing, shardCount = 2) {
+export function planShards(tests, timing, shardCount = 2, dataSpecs = []) {
+  const suites = suitesForDataSpecs(dataSpecs);
   if (!Number.isInteger(shardCount) || shardCount < 1)
     throw new Error('Invalid E2E shard count');
   if (timing.version !== 1 || !timing.milliseconds)
@@ -156,7 +181,7 @@ export function planShards(tests, timing, shardCount = 2) {
     new Set(tests.map(({ key }) => key)).size !== tests.length
   )
     throw new Error('Empty or duplicated E2E census');
-  for (const suite of CI_SUITES) {
+  for (const suite of suites) {
     for (const file of suite.files) {
       if (!tests.some((test) => test.file === file))
         throw new Error(`Missing PR spec: ${file}`);
@@ -166,10 +191,13 @@ export function planShards(tests, timing, shardCount = 2) {
   if (!observed.length || observed.some((n) => !Number.isFinite(n) || n <= 0))
     throw new Error('Invalid E2E durations');
   const fallback = Math.max(...observed);
+  const fileCounts = new Map();
+  for (const test of tests)
+    fileCounts.set(test.file, (fileCounts.get(test.file) ?? 0) + 1);
   const groups = new Map();
   let unknown = 0;
   for (const test of tests) {
-    const suite = suiteFor(test);
+    const suite = suiteFor(test, suites);
     // Keep gate files and the smoke spec intact, including its serial describe.
     // The library is already split at test boundaries by native sharding; its
     // independent tests remain single-worker within each server invocation.
@@ -180,7 +208,17 @@ export function planShards(tests, timing, shardCount = 2) {
       tests: [],
       milliseconds: 0,
     };
-    const duration = timing.milliseconds[test.key];
+    const fileWeight =
+      suite.name === 'data' ? timing.fileMilliseconds?.[test.file] : undefined;
+    if (
+      fileWeight !== undefined &&
+      (!Number.isFinite(fileWeight) || fileWeight <= 0)
+    )
+      throw new Error('Invalid E2E file duration');
+    const duration =
+      fileWeight === undefined
+        ? timing.milliseconds[test.key]
+        : fileWeight / fileCounts.get(test.file);
     if (duration === undefined) unknown++;
     group.tests.push(test);
     group.milliseconds += duration ?? fallback;

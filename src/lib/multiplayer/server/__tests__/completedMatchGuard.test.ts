@@ -189,7 +189,7 @@ describe('completed-match intent guard', () => {
       expect.objectContaining({
         kind: 'Error',
         code: 'INVALID_INTENT',
-        reason: 'match-already-completed',
+        reason: 'Intent could not be applied.',
       }),
     ]);
   });

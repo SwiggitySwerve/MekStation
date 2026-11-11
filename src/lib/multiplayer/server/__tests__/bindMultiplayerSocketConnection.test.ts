@@ -46,7 +46,7 @@ function makeHost() {
     // cannot express the case the binder has to handle.
     admitSocket: jest.fn<
       Promise<{ kind: string; principalId: unknown } | null>,
-      [unknown, unknown]
+      [unknown, unknown, string?]
     >(async (socket: unknown, playerId: unknown) => {
       host.attachSocket(socket, playerId);
       return { kind: 'viewer', principalId: playerId };
@@ -334,7 +334,7 @@ describe('bindMultiplayerSocketConnection', () => {
       expect.objectContaining({
         kind: 'Error',
         code: 'INVALID_INTENT',
-        reason: 'client-rolls-forbidden',
+        reason: 'Intent could not be applied.',
         intentId: 'roll-1',
       }),
     );

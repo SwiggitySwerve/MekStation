@@ -1,5 +1,9 @@
 {
   "version": 1,
+  "fileDurationSourceRunIds": ["42814541429"],
+  "fileMilliseconds": {
+    "audit-capture.spec.ts": 153118
+  },
   "sourceRunIds": [
     "42127556397",
     "42128140733",

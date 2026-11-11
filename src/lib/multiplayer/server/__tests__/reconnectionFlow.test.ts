@@ -634,7 +634,7 @@ describe('M-H3 pause snapshots and forfeit exits', () => {
       expect.objectContaining({
         kind: 'Error',
         code: 'MATCH_PAUSED',
-        reason: 'Match is paused waiting for a peer to reconnect',
+        reason: 'Match is paused.',
       }),
     ]);
     expect(await store.getEvents(matchId)).toEqual(events);

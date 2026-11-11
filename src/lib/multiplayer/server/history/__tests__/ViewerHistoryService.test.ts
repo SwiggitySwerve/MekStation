@@ -943,7 +943,7 @@ describe('ViewerHistoryService', function () {
         SESSION_ID,
         { campaignSessionId: SESSION_ID },
       );
-      expect(playerEntries).toHaveLength(3);
+      expect(playerEntries).toHaveLength(2);
       const playerJson = leakBlob(playerEntries);
       expect(playerJson).not.toContain(String(PLAYER_FIRST_REV));
       expect(playerJson).not.toContain(String(PLAYER_LAST_REV));
@@ -953,7 +953,7 @@ describe('ViewerHistoryService', function () {
       expect(playerJson).not.toContain('committedLastRevision');
       expect(playerJson).not.toContain(OTHER_ROW.principalId);
       expect(playerJson).toContain(PLAYER_ROW.principalId);
-      expect(playerJson).toContain('command-rejected');
+      expect(playerJson).not.toContain('command-rejected');
 
       for (let index = 0; index < playerEntries.length; index += 1) {
         const entry = playerEntries[index];
@@ -964,15 +964,16 @@ describe('ViewerHistoryService', function () {
       }
       expect(playerEntries[0]?.actorPrincipalId).toBe(PLAYER_ROW.principalId);
       expect(playerEntries[1]?.actorPrincipalId).toBeNull();
-      expect(playerEntries[2]?.actorPrincipalId).toBeNull();
-      expect(playerEntries[2]?.safeReasonCode).toBe('command-rejected');
+      expect(playerEntries.map((entry) => entry.commandId)).not.toContain(
+        'cmd-tl-rejected',
+      );
 
       const gmEntries = await history.readTimeline(
         GM_ROW.principalId,
         SESSION_ID,
         { campaignSessionId: SESSION_ID },
       );
-      expect(gmEntries).toHaveLength(3);
+      expect(gmEntries).toHaveLength(2);
       const gmJson = leakBlob(gmEntries);
       expect(gmJson).toContain(PLAYER_ROW.principalId);
       expect(gmJson).toContain(OTHER_ROW.principalId);

@@ -41,7 +41,7 @@ function harness(failOnCall: number | null) {
         }
         appended.push(event);
       },
-      broadcast: (message: IServerMessage) => {
+      sendRefusal: (message: IServerMessage) => {
         broadcast.push(message);
       },
       broadcastEvent: async (message: IServerMessage) => {
@@ -98,7 +98,7 @@ describe('commitThenPublish', () => {
       expect.objectContaining({
         kind: 'Error',
         code: 'STORE_FAILURE',
-        reason: 'disk full',
+        reason: 'Unable to save the command.',
         intentId: 'intent-1',
       }),
     ]);

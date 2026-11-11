@@ -384,7 +384,7 @@ describe('combat journal-authority path', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'INVALID_INTENT',
-          reason: 'unit-already-committed',
+          reason: 'Intent could not be applied.',
           intentId: 'fresh-duplicate',
         }),
       ]);
@@ -518,7 +518,7 @@ describe('combat journal-authority path', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'INTERNAL_ERROR',
-          reason: 'projection-divergence',
+          reason: 'Unable to process the command.',
         }),
       ]),
     );
@@ -555,7 +555,7 @@ describe('combat journal-authority path', () => {
         expect.objectContaining({
           kind: 'Error',
           code: 'STORE_FAILURE',
-          reason: 'sequence-conflict',
+          reason: 'Unable to save the command.',
         }),
       ]),
     );

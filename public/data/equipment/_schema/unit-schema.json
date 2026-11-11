@@ -274,6 +274,16 @@
           "description": "Patchwork armor types per installed vehicle location",
           "additionalProperties": { "type": "integer", "minimum": 0 }
         },
+        "techBaseByLocation": {
+          "type": "object",
+          "description": "Patchwork mech armor tech base per location, parallel to typeByLocation (MegaMek MtfFile.java:483-525 reads each Patchwork line's armor type and tech level separately). Optional and never defaulted; present only when armor.type is PATCHWORK; its keys must be a subset of typeByLocation's keys. A typeByLocation location without an entry has unknown tech.",
+          "propertyNames": {
+            "$ref": "#/$defs/structureLocation"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/componentTechBase"
+          }
+        },
         "barRatingByLocation": {
           "type": "object",
           "description": "Support patchwork BAR per installed vehicle location",
@@ -297,6 +307,496 @@
           "description": "Battle armor points per trooper"
         }
       },
+      "allOf": [
+        {
+          "title": "armor.techBaseByLocation is only valid when armor.type is PATCHWORK",
+          "anyOf": [
+            {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "const": "PATCHWORK"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": false
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names HEAD, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["HEAD"],
+                    "properties": {
+                      "HEAD": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["HEAD"],
+                  "properties": {
+                    "HEAD": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names CENTER_TORSO, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["CENTER_TORSO"],
+                    "properties": {
+                      "CENTER_TORSO": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["CENTER_TORSO"],
+                  "properties": {
+                    "CENTER_TORSO": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names LEFT_TORSO, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["LEFT_TORSO"],
+                    "properties": {
+                      "LEFT_TORSO": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["LEFT_TORSO"],
+                  "properties": {
+                    "LEFT_TORSO": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names RIGHT_TORSO, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["RIGHT_TORSO"],
+                    "properties": {
+                      "RIGHT_TORSO": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["RIGHT_TORSO"],
+                  "properties": {
+                    "RIGHT_TORSO": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names LEFT_ARM, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["LEFT_ARM"],
+                    "properties": {
+                      "LEFT_ARM": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["LEFT_ARM"],
+                  "properties": {
+                    "LEFT_ARM": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names RIGHT_ARM, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["RIGHT_ARM"],
+                    "properties": {
+                      "RIGHT_ARM": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["RIGHT_ARM"],
+                  "properties": {
+                    "RIGHT_ARM": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names LEFT_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["LEFT_LEG"],
+                    "properties": {
+                      "LEFT_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["LEFT_LEG"],
+                  "properties": {
+                    "LEFT_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names RIGHT_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["RIGHT_LEG"],
+                    "properties": {
+                      "RIGHT_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["RIGHT_LEG"],
+                  "properties": {
+                    "RIGHT_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names FRONT_LEFT_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["FRONT_LEFT_LEG"],
+                    "properties": {
+                      "FRONT_LEFT_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["FRONT_LEFT_LEG"],
+                  "properties": {
+                    "FRONT_LEFT_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names FRONT_RIGHT_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["FRONT_RIGHT_LEG"],
+                    "properties": {
+                      "FRONT_RIGHT_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["FRONT_RIGHT_LEG"],
+                  "properties": {
+                    "FRONT_RIGHT_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names REAR_LEFT_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["REAR_LEFT_LEG"],
+                    "properties": {
+                      "REAR_LEFT_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["REAR_LEFT_LEG"],
+                  "properties": {
+                    "REAR_LEFT_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names REAR_RIGHT_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["REAR_RIGHT_LEG"],
+                    "properties": {
+                      "REAR_RIGHT_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["REAR_RIGHT_LEG"],
+                  "properties": {
+                    "REAR_RIGHT_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "armor.techBaseByLocation names CENTER_LEG, which armor.typeByLocation does not carry",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "techBaseByLocation": {
+                  "not": {
+                    "type": "object",
+                    "required": ["CENTER_LEG"],
+                    "properties": {
+                      "CENTER_LEG": {
+                        "enum": ["INNER_SPHERE", "CLAN"]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["typeByLocation"],
+              "properties": {
+                "typeByLocation": {
+                  "type": "object",
+                  "required": ["CENTER_LEG"],
+                  "properties": {
+                    "CENTER_LEG": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
       "anyOf": [
         {
           "type": "object",

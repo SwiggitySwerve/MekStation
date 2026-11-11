@@ -79,3 +79,34 @@ The system SHALL represent the pinned `FERRO_FIBROUS_PROTO` armor (MegaMek Armor
 - **WHEN** the committed unit is loaded, saved and reopened
 - **THEN** its armor SHALL remain Ferro-Fibrous Prototype with 4.5 t of armor
 - **AND** the design SHALL remain a valid 35 t construction with BV 702
+
+#### Scenario: MTF export round trip
+
+- **WHEN** a mech with Ferro-Fibrous Prototype armor is exported to MTF and re-imported
+- **THEN** it SHALL retain its armor identity and per-location armor allocation using the pinned `Ferro-Fibrous Prototype` name (native armor code 9)
+- **AND** the MTF armor vocabulary SHALL exactly cover the mech identities in an explicit classification of every loader-accepted `standardArmorType`
+- **AND** the classification SHALL identify BLK as the owning format for battle armor, aerospace, ProtoMech and support-vehicle BAR identities
+- **AND** Patchwork without complete per-location points, types and tech bases SHALL fail with a named diagnostic and no content
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`ArmorType.java:518-542`; `EquipmentType.java:94,1081-1089`;
+`Mek.java:5385-5403`; `MtfFile.java:414-486`.
+
+### Requirement: Loader armor identities have explicit MTF export outcomes
+
+SHALL provide an MTF export name for every armor identity the loader accepts,
+or refuse export with a named reason and no content. Non-mech identities SHALL
+identify their owning BLK family through the exhaustive armor classification.
+
+#### Scenario: Every accepted armor identity has an explicit outcome
+
+- **WHEN** the loader accepts a `standardArmorType` identity
+- **THEN** the exporter SHALL resolve its pinned MTF name for mech armor, or refuse with a named reason and no content
+- **AND** adding an unclassified loader identity or omitting a classified mech name SHALL fail the coverage contract
+
+#### Scenario: Known Patchwork remainder waits for complete location context
+
+- **WHEN** MTF export is requested for Zeus-X ZEU-X, Spindrift Aquatic SecurityMech SDT-1, Victor VTR-9K2 (St. James), Zeus-X ZEU-X2 or Aquagladius AQS-5 MAM
+- **THEN** it SHALL refuse with the specific Patchwork location-context diagnostic and no content until the required representation and writer are supported
+- **AND** that support SHALL depend in order on C2's allocation splice `76095cfeb`, preservation of `armor.techBaseByLocation`, and the Patchwork location writer from pinned `Mek.java:5385-5403`
+- **AND** restoring allocation alone SHALL NOT enable an export that loses the per-location armor identity or technology

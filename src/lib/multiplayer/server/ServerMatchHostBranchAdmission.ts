@@ -1,3 +1,4 @@
+import type { IEventHistoryEffectiveHead } from '@/lib/events/journal/EventHistoryBranchContract';
 /**
  * Live combat intent admission for immutable-branch / supersession
  * command semantics (umbrella 14.2).
@@ -36,8 +37,6 @@
  * which owes an active head to resync to; not PROJECTION_REBUILDING,
  * which promises a retry wins.
  */
-
-import type { IEventHistoryEffectiveHead } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
@@ -47,14 +46,16 @@ import {
   hasHistoryBranchStore,
   isHistoryBranchStoreReady,
 } from '@/lib/events/storeCapabilityPorts';
-import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
 
 import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import { hasMatchStreamRebuildReader } from './IMatchStore';
+import {
+  INTENT_REFUSAL_REASONS,
+  intentRefusalMessage as errorMessage,
+} from './intentRefusal';
 import { isLivePathBranchId } from './matchAuthorityBaseline';
-import { errorMessage } from './ServerMatchHostPublication';
 
 /**
  * What a client refused over persisted history corruption is told. Not
@@ -62,7 +63,7 @@ import { errorMessage } from './ServerMatchHostPublication';
  * repairs the branch tables.
  */
 export const HISTORY_INTEGRITY_BLOCKED_REASON =
-  'history-integrity-blocked' as const;
+  INTENT_REFUSAL_REASONS.MATCH_QUARANTINED;
 
 /**
  * LAW-40: total Record over the live-path refusal codes. A new code
@@ -70,9 +71,9 @@ export const HISTORY_INTEGRITY_BLOCKED_REASON =
  * fails if a member is added or dropped silently.
  */
 export const LIVE_BRANCH_ADMISSION_PHRASING = {
-  STALE_BRANCH: EXPECTED_HEAD_RESYNC_ACTION,
-  GM_ONLY: 'gm-role-required',
-  MATCH_QUARANTINED: HISTORY_INTEGRITY_BLOCKED_REASON,
+  STALE_BRANCH: INTENT_REFUSAL_REASONS.STALE_BRANCH,
+  GM_ONLY: INTENT_REFUSAL_REASONS.GM_ONLY,
+  MATCH_QUARANTINED: INTENT_REFUSAL_REASONS.MATCH_QUARANTINED,
 } as const satisfies Record<LiveBranchAdmissionCode, string>;
 
 export type LiveBranchAdmissionCode =
@@ -85,7 +86,7 @@ export const ACCEPTED_FOR_GM_REVIEW = 'accepted-for-gm-review' as const;
 export interface IBranchAdmissionHost {
   readonly matchId: string;
   readonly store: IMatchStore;
-  readonly broadcast: (message: IServerMessage) => void;
+  readonly sendRefusal: (message: IServerMessage) => void;
   /** Null = host still serves the root/baseline live-path identity. */
   readonly servedBranchId: string | null;
 }
@@ -107,7 +108,7 @@ export async function refuseLiveBranchFromIntent(
   const view: IBranchAdmissionHost = {
     matchId: host.matchId,
     store: host.store,
-    broadcast: host.broadcast,
+    sendRefusal: host.sendRefusal,
     servedBranchId: host.servedBranchId,
   };
   const actorId =
@@ -238,7 +239,7 @@ export function refuseDuringHistoryRebuild(
     rebuilding.action,
     envelope.intentId,
   );
-  ctx.broadcast(err);
+  ctx.sendRefusal(err);
   return [err];
 }
 
@@ -285,12 +286,12 @@ function refuse(
   activeHead?: { readonly branchId: string; readonly revision: number },
 ): readonly IServerMessage[] {
   const err: Extract<IServerMessage, { kind: 'Error' }> = {
-    kind: 'Error',
-    matchId: ctx.matchId,
-    ts: nowIso(),
-    code,
-    reason: LIVE_BRANCH_ADMISSION_PHRASING[code],
-    ...(envelope.intentId != null ? { intentId: envelope.intentId } : {}),
+    ...errorMessage(
+      ctx.matchId,
+      code,
+      LIVE_BRANCH_ADMISSION_PHRASING[code],
+      envelope.intentId,
+    ),
     ...(activeHead != null
       ? {
           conflictHead: activeHead,
@@ -298,7 +299,7 @@ function refuse(
         }
       : {}),
   };
-  ctx.broadcast(err);
+  ctx.sendRefusal(err);
   return [err];
 }
 
@@ -309,14 +310,12 @@ function answerAcceptedForGmReview(
   // The match wire has no Ack envelope. The accept rides as Error.reason
   // so the player sees a typed answer and no Event is derived.
   // Private-record write is not wired from this host (non-claim).
-  const err: Extract<IServerMessage, { kind: 'Error' }> = {
-    kind: 'Error',
-    matchId: ctx.matchId,
-    ts: nowIso(),
-    code: 'INVALID_INTENT',
-    reason: ACCEPTED_FOR_GM_REVIEW,
-    ...(envelope.intentId != null ? { intentId: envelope.intentId } : {}),
-  };
-  ctx.broadcast(err);
+  const err = errorMessage(
+    ctx.matchId,
+    'INVALID_INTENT',
+    ACCEPTED_FOR_GM_REVIEW,
+    envelope.intentId,
+  );
+  ctx.sendRefusal(err);
   return [err];
 }

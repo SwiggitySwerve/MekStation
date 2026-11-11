@@ -20,6 +20,7 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
+import { getMountedAmmoSourceToken } from '@/services/units/unitLoaderService/equipmentResolution';
 import { getCockpitSourceTag } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -33,6 +34,8 @@ import { getLocationsForConfig } from '@/types/construction/MechConfigurationSys
 import {
   TechBaseMode,
   applyUnitTechBaseIdentity,
+  serializeComponentTechBases,
+  serializeTechBaseMode,
 } from '@/types/construction/TechBaseConfiguration';
 import {
   VehicleLocation,
@@ -90,23 +93,6 @@ const JUMP_JET_TYPE = {
   [JumpJetType.IMPROVED]: 'IMPROVED',
   [JumpJetType.MECHANICAL]: 'MECHANICAL',
 } as const satisfies Readonly<Record<JumpJetType, string>>;
-
-const TECH_BASE = {
-  [TechBaseMode.INNER_SPHERE]: 'INNER_SPHERE',
-  [TechBaseMode.CLAN]: 'CLAN',
-  [TechBaseMode.MIXED]: 'MIXED',
-} as const satisfies Readonly<Record<TechBaseMode, string>>;
-
-function serializeComponentTechBases(
-  components: UnitState['componentTechBases'],
-): Record<string, 'INNER_SPHERE' | 'CLAN'> {
-  return Object.fromEntries(
-    Object.entries(components).map(([component, techBase]) => [
-      component,
-      techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
-    ]),
-  );
-}
 
 export type CustomUnitSaveIdentity = {
   readonly id: string;
@@ -200,6 +186,12 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
       for (const slot of slots) {
         if (slot >= 0 && slot < locationSlots.length) {
           locationSlots[slot] =
+            getMountedAmmoSourceToken(
+              item,
+              sourceSlots?.[slot],
+              state.techBase,
+              state.techBaseMode,
+            ) ??
             item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
         }
       }
@@ -234,7 +226,7 @@ export function serializeCustomUnitState(
     unitType: state.unitType,
     configuration: state.configuration,
     lamType: state.lamType,
-    techBase: TECH_BASE[state.techBaseMode],
+    techBase: serializeTechBaseMode(state.techBaseMode),
     rulesLevel: RULES_LEVEL[state.rulesLevel],
     era: identity.era,
     year: state.year,

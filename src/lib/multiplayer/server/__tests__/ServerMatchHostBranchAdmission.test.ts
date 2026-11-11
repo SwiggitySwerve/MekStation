@@ -318,7 +318,7 @@ describe('ServerMatchHost live branch admission', () => {
       ),
     );
     expect(errorOf(frames, 'INVALID_INTENT')).toMatchObject({
-      reason: 'accepted-for-gm-review',
+      reason: 'Intent could not be applied.',
     });
     expect((await store.getEvents(matchId)).length).toBe(matchBefore);
     expect(journalCount()).toBe(journalBefore);

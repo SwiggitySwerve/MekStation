@@ -63,18 +63,55 @@ export function mergeBattleOutcomeState(
   };
 }
 
-/** A different campaign replaces the ledgers; same-campaign copies merge. */
+export type CampaignPendingOutcomeSource = 'merge' | 'server';
+
+/** Server installs replace pending entries; processed/reviewed evidence still merges. */
 export function hydrateCampaignBattleState(
   campaign: ICampaign,
   previous?: BattleOutcomeState & { readonly campaign: ICampaign | null },
+  pendingSource: CampaignPendingOutcomeSource = 'merge',
 ): BattleOutcomeState & Pick<CampaignStore, 'campaign' | 'outcomeApplyErrors'> {
+  const sameCampaign =
+    previous?.campaign?.id === campaign.id ? previous : undefined;
   const ledgers = mergeBattleOutcomeState(
     campaign,
-    previous?.campaign?.id === campaign.id ? previous : undefined,
+    pendingSource === 'server' && sameCampaign
+      ? { ...sameCampaign, pendingBattleOutcomes: [] }
+      : sameCampaign,
   );
   return {
     ...ledgers,
     campaign: { ...campaign, ...ledgers },
     outcomeApplyErrors: {},
   };
+}
+
+/**
+ * Three-way rollback: restore the baseline, keeping independent pending entries
+ * that were not in the attempted write. Its processed ids may be tentative, so
+ * neither the attempted nor live processed ledger can authorize application.
+ * With no independent additions, retain the snapshot's original references.
+ */
+export function restoreBattleOutcomeState(
+  before: BattleOutcomeState,
+  attempted: IBattleOutcomeLedgers,
+  live: IBattleOutcomeLedgers,
+): BattleOutcomeState {
+  const attemptedPendingIds = new Set(
+    (attempted.pendingBattleOutcomes ?? []).map((outcome) => outcome.matchId),
+  );
+  const additions = (live.pendingBattleOutcomes ?? []).filter(
+    (outcome) => !attemptedPendingIds.has(outcome.matchId),
+  );
+  if (additions.length === 0) {
+    return {
+      pendingBattleOutcomes: before.pendingBattleOutcomes,
+      processedBattleIds: before.processedBattleIds,
+      reviewedBattleIds: before.reviewedBattleIds,
+    };
+  }
+  return mergeBattleOutcomeState(null, {
+    ...before,
+    pendingBattleOutcomes: [...before.pendingBattleOutcomes, ...additions],
+  });
 }

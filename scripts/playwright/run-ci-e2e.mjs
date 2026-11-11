@@ -6,12 +6,13 @@ import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 
 import {
-  CI_SUITES,
   assertSameTests,
   collectTests,
   parseInvocation,
   planShards,
+  suitesForDataSpecs,
 } from './ci-e2e-plan.mjs';
+import { LIMIT } from './unit-spec-refs.mjs';
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -19,9 +20,15 @@ const root = path.resolve(
 );
 const cli = path.join(root, 'node_modules/@playwright/test/cli.js');
 const planOnly = process.argv.includes('--plan-only');
+const dataSpecs = JSON.parse(process.env.CI_E2E_DATA_SPECS || '[]');
+const suites = suitesForDataSpecs(dataSpecs);
 const { suite: requestedSuite, shardIndex } = parseInvocation(
   process.argv.slice(2).filter((arg) => arg !== '--plan-only'),
+  dataSpecs,
 );
+// The data step names what it cannot see: a green data step does not mean no
+// spec depends on the changed data (family/glob selection is not selected).
+if (requestedSuite.name === 'data') console.log(LIMIT);
 const output = path.join(root, 'e2e-timings');
 fs.mkdirSync(output, { recursive: true });
 const invocationStarted = performance.now();
@@ -79,7 +86,7 @@ function listTests(args, phase) {
 }
 
 const tests = listTests(
-  CI_SUITES.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
+  suites.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
   'census',
 );
 const timing = JSON.parse(
@@ -88,7 +95,7 @@ const timing = JSON.parse(
     'utf8',
   ),
 );
-const plan = planShards(tests, timing);
+const plan = planShards(tests, timing, 2, dataSpecs);
 fs.writeFileSync(
   path.join(output, `plan-${requestedSuite.name}.json`),
   JSON.stringify(plan, null, 2),
@@ -105,7 +112,7 @@ console.log(
 );
 
 async function runTask(task) {
-  const suite = CI_SUITES.find(({ name }) => name === task.suite);
+  const suite = suites.find(({ name }) => name === task.suite);
   const list = path.join(output, `${suite.name}.txt`);
   const report = path.join(output, `${suite.name}.json`);
   fs.writeFileSync(list, task.tests.map(({ key }) => key).join('\n') + '\n');

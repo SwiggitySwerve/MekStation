@@ -16,6 +16,7 @@ import type {
 } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
+import { intentRefusalMessage } from './intentRefusal';
 import { sideOfPlayer } from './sideAssignments';
 
 export interface IServerMatchHostReconnectContext extends IServerMatchHostCaptureContext {
@@ -205,15 +206,12 @@ async function completeExpiredPendingMatch(
       ctx.session.abortMatch();
     }
   } catch (e) {
-    const err: IServerMessage = {
-      kind: 'Error',
-      matchId: ctx.matchId,
-      ts: nowIso(),
-      code: 'INVALID_INTENT',
-      reason:
-        e instanceof Error ? e.message : 'Reconnect grace timeout rejected',
-    };
-    ctx.broadcast(err);
+    // A server-driven timeout has no submitting socket. Log its failure only.
+    intentRefusalMessage(
+      ctx.matchId,
+      'INVALID_INTENT',
+      e instanceof Error ? e.message : 'Reconnect grace timeout rejected',
+    );
     return;
   }
 
@@ -222,14 +220,12 @@ async function completeExpiredPendingMatch(
     try {
       await ctx.store.appendEvent(ctx.matchId, event);
     } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: ctx.matchId,
-        ts: nowIso(),
-        code: 'STORE_FAILURE',
-        reason: e instanceof Error ? e.message : 'Store append failed',
-      };
-      ctx.broadcast(err);
+      // A server-driven timeout has no submitting socket. Log its failure only.
+      intentRefusalMessage(
+        ctx.matchId,
+        'STORE_FAILURE',
+        e instanceof Error ? e.message : 'Store append failed',
+      );
       await ctx.closeMatch();
       return;
     }

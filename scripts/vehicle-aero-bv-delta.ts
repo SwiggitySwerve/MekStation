@@ -64,7 +64,7 @@ import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 const Mech = UnitContract.options[0];
 const Contract = UnitContract.options[1];
 const personnel = new UnitTypeRegistry();
-const numericTerms = (value: object): NonNullable<IFigure['terms']> => {
+export const numericTerms = (value: object): NonNullable<IFigure['terms']> => {
   const terms = Object.fromEntries(
     Object.entries(value).filter(
       (entry): entry is [string, number] => typeof entry[1] === 'number',

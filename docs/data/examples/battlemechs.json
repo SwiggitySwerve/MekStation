@@ -259,9 +259,9 @@
       "LRM 20",
       "SRM 6",
       "SRM 6",
-      "LRM 20 Ammo",
-      "LRM 20 Ammo",
-      "SRM 6 Ammo",
+      "IS Ammo LRM-20",
+      "IS Ammo LRM-20",
+      "IS Ammo SRM-6",
       null
     ],
     "Right Torso": [
@@ -275,8 +275,8 @@
       "AC/20",
       "AC/20",
       "AC/20",
-      "AC/20 Ammo",
-      "AC/20 Ammo"
+      "IS Ammo AC/20",
+      "IS Ammo AC/20"
     ],
     "Center Torso": [
       null,

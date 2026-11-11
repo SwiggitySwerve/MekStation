@@ -400,7 +400,7 @@ describe('live branch admission against a mirror-installed journal head', () => 
     );
 
     expect(errorOf(frames, 'INVALID_INTENT')).toMatchObject({
-      reason: 'accepted-for-gm-review',
+      reason: 'Intent could not be applied.',
     });
     expect((await store.getEvents(matchId)).length).toBe(before);
     expect(journalCount(matchId)).toBe(journalBefore);

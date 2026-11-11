@@ -2,16 +2,42 @@
 # Pre-commit gate.
 #
 # Runs lint-staged (package.json "lint-staged") on the staged files: oxfmt
-# --write on each matching file, oxlint --fix on staged *.ts/tsx/js/jsx and,
-# when a *.ts or *.tsx file is staged, `npm run typecheck` checks both
-# the root and scoped scripts projects. The hook runs no production build; the
-# pr-checks workflow runs `npm run build` for code changes.
+# --write on each matching file and oxlint --fix on staged *.ts/tsx/js/jsx.
+# Then, when a *.ts or *.tsx file is staged, `npm run typecheck` checks both the
+# root and scoped scripts projects, once per commit. The hook runs no production
+# build; the pr-checks workflow runs `npm run build` for code changes.
 #
 # --no-stash: lint-staged's backup goes on the stash stack, which every linked
 # worktree shares, and it is later applied or dropped by an index looked up a
 # moment earlier. A concurrent stash in another worktree shifts that index, so
 # the backup step can drop someone else's entry. The same tasks still run; a
 # failed task leaves its edits in the working tree instead of reverting them.
-npx lint-staged --no-stash || exit $?
+# --no-stash does not stop lint-staged hiding the unstaged part of a partially
+# staged file; that is a separate option, on by default.
+#
+# check-partial-stage.mjs: in a worktree on a different drive from its git dir,
+# lint-staged's hiding step loses unstaged edits (see the script). There the
+# script refuses a commit with a partially staged file, or prints
+# --no-hide-partially-staged when there is none. Elsewhere it prints nothing.
+hide_flag=$(node scripts/lib/check-partial-stage.mjs) || exit $?
+npx lint-staged --no-stash $hide_flag || exit $?
 # Reject ignored-parent restaging failures even if lint-staged returned zero.
-node scripts/lib/check-staged-parents.mjs
+node scripts/lib/check-staged-parents.mjs || exit $?
+# Typecheck once per commit, outside lint-staged. lint-staged 16 splits a large
+# staged set into chunks and runs every task once per chunk, concurrently
+# (runAll.js), so a typecheck task inside it ran once per chunk, several full
+# typechecks at once. It runs after lint-staged has put any hidden unstaged
+# hunks back, so for a partially staged .ts file it checks the working tree, not
+# the staged-only content; hosted Static Checks typechecks the commit itself.
+# staged-typescript.mjs reads git's NUL-delimited list (quoted names can't hide
+# a .ts file) and exits non-zero if git fails. Only `yes` or `no` is accepted:
+# any other answer, including none, refuses the commit.
+ts_staged=$(node scripts/lib/staged-typescript.mjs) || exit $?
+case "$ts_staged" in
+  yes) npm run typecheck || exit $? ;;
+  no) ;;
+  *)
+    echo "pre-commit: staged-typescript.mjs gave no yes/no answer ('$ts_staged'); refusing the commit." >&2
+    exit 1
+    ;;
+esac

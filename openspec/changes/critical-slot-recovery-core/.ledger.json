@@ -1,0 +1,6 @@
+{
+  "name": "critical-slot-recovery-core",
+  "status": "in-progress",
+  "reason": "Root-approved o3a-core (C3): shared critical-entry recogniser, exhaustive recovery dispatcher (marker arm returns no mounts), exact system-name identity; plug-in point for PR-D, o3b and the marker PR.",
+  "lastReviewed": "2026-11-10"
+}

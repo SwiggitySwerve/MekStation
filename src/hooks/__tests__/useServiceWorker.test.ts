@@ -1,6 +1,27 @@
+import type { StoreApi } from 'zustand';
+
 import { renderHook, act } from '@testing-library/react';
 
+import type { CampaignSaveState } from '@/stores/campaign/campaignSaveState';
+
 import { useServiceWorker } from '../useServiceWorker';
+
+jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
+  const { create } = jest.requireActual<typeof import('zustand')>('zustand');
+  return {
+    useCampaignPersistenceStore: create<{
+      dirty: boolean;
+      saveState: CampaignSaveState;
+    }>(() => ({ dirty: false, saveState: 'saved' })),
+  };
+});
+
+const { useCampaignPersistenceStore } = jest.requireMock<{
+  useCampaignPersistenceStore: StoreApi<{
+    dirty: boolean;
+    saveState: CampaignSaveState;
+  }>;
+}>('@/stores/campaign/useCampaignPersistenceStore');
 
 // Minimal mock for service worker - set up before any imports
 const mockNavigator = {
@@ -31,6 +52,7 @@ describe('useServiceWorker', () => {
     jest.clearAllMocks();
     // Reset controller
     mockNavigator.serviceWorker.controller = null;
+    useCampaignPersistenceStore.setState({ dirty: false, saveState: 'saved' });
   });
 
   describe('Service Worker Support Detection', () => {
@@ -130,6 +152,8 @@ describe('useServiceWorker', () => {
   });
 
   describe('Controller-change reload policy (e2e triage RC9/RC14)', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
     /** Grab the controllerchange handler the hook registered. */
     function registeredControllerChangeHandler(): () => void {
       const call = mockNavigator.serviceWorker.addEventListener.mock.calls.find(
@@ -166,6 +190,122 @@ describe('useServiceWorker', () => {
 
       expect(reloadPage).toHaveBeenCalledTimes(1);
     });
+
+    it('waits through debounce and an in-flight save until the latest edits are acknowledged', () => {
+      mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+      // Before PR 2 an edit can leave the badge state saved while dirty is true.
+      useCampaignPersistenceStore.setState({ dirty: true, saveState: 'saved' });
+      const reloadPage = jest.fn();
+      renderHook(() => useServiceWorker(reloadPage));
+      act(() => registeredControllerChangeHandler()());
+      act(() => jest.advanceTimersByTime(2_000));
+      expect(reloadPage).not.toHaveBeenCalled();
+      act(() => useCampaignPersistenceStore.setState({ saveState: 'saving' }));
+      // An acknowledgement of an older edit still leaves a newer edit dirty.
+      act(() => useCampaignPersistenceStore.setState({ saveState: 'idle' }));
+      expect(reloadPage).not.toHaveBeenCalled();
+      act(() =>
+        useCampaignPersistenceStore.setState({
+          dirty: false,
+          saveState: 'saved',
+        }),
+      );
+      act(() => registeredControllerChangeHandler()());
+      expect(reloadPage).toHaveBeenCalledTimes(1);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('reloads only once for repeated clean controller replacements', () => {
+      mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+      const reloadPage = jest.fn();
+      renderHook(() => useServiceWorker(reloadPage));
+      act(() => {
+        registeredControllerChangeHandler()();
+        registeredControllerChangeHandler()();
+      });
+      expect(reloadPage).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(['error', 'conflict'] as const)(
+      'cancels the reload on save %s and preserves dirty edits',
+      (saveState) => {
+        mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+        useCampaignPersistenceStore.setState({
+          dirty: true,
+          saveState: 'idle',
+        });
+        const reloadPage = jest.fn();
+        renderHook(() => useServiceWorker(reloadPage));
+        act(() => registeredControllerChangeHandler()());
+        act(() => useCampaignPersistenceStore.setState({ saveState }));
+        expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+        expect(reloadPage).not.toHaveBeenCalled();
+        expect(jest.getTimerCount()).toBe(0);
+        act(() =>
+          useCampaignPersistenceStore.setState({
+            dirty: false,
+            saveState: 'saved',
+          }),
+        );
+        expect(reloadPage).not.toHaveBeenCalled();
+      },
+    );
+
+    it('abandons the automatic reload after 10 seconds without discarding edits or reloading on a late save', () => {
+      mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+      useCampaignPersistenceStore.setState({
+        dirty: true,
+        saveState: 'saving',
+      });
+      const reloadPage = jest.fn();
+      renderHook(() => useServiceWorker(reloadPage));
+      act(() => registeredControllerChangeHandler()());
+      act(() => jest.advanceTimersByTime(10_000));
+      expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+      expect(reloadPage).not.toHaveBeenCalled();
+      act(() =>
+        useCampaignPersistenceStore.setState({
+          dirty: false,
+          saveState: 'saved',
+        }),
+      );
+      expect(reloadPage).not.toHaveBeenCalled();
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('removes the save subscription and timeout on unmount', () => {
+      mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+      useCampaignPersistenceStore.setState({
+        dirty: true,
+        saveState: 'saving',
+      });
+      const reloadPage = jest.fn();
+      const { unmount } = renderHook(() => useServiceWorker(reloadPage));
+      act(() => registeredControllerChangeHandler()());
+      unmount();
+      act(() =>
+        useCampaignPersistenceStore.setState({
+          dirty: false,
+          saveState: 'saved',
+        }),
+      );
+      expect(reloadPage).not.toHaveBeenCalled();
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it.each(['error', 'conflict'] as const)(
+      'keeps an already dirty %s page open without starting a wait',
+      (saveState) => {
+        mockNavigator.serviceWorker.controller = {} as ServiceWorker;
+        useCampaignPersistenceStore.setState({ dirty: true, saveState });
+        const reloadPage = jest.fn();
+        renderHook(() => useServiceWorker(reloadPage));
+        act(() => registeredControllerChangeHandler()());
+        expect(reloadPage).not.toHaveBeenCalled();
+        expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+        expect(jest.getTimerCount()).toBe(0);
+      },
+    );
   });
 
   describe('Edge Cases', () => {

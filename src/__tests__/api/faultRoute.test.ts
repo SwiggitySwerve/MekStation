@@ -248,7 +248,7 @@ describe('e2e fault route', () => {
         matchId: 'm-fault',
         events: [event(0)],
         appendEvent: async () => undefined,
-        broadcast: () => {},
+        sendRefusal: () => {},
         broadcastEvent: async (message) => {
           published.push(message);
         },

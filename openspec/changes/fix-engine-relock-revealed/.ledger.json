@@ -1,0 +1,6 @@
+{
+  "name": "fix-engine-relock-revealed",
+  "status": "active",
+  "reason": "C4 authorized the emission-only Revealed skip; pins and recorded-event folds remain unchanged.",
+  "lastReviewed": "2026-11-10"
+}

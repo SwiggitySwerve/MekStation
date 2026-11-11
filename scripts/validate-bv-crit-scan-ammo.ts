@@ -96,25 +96,7 @@ export function processCritAmmoSlot(args: {
       }
     }
     // AMS/APDS ammo — accumulate BV for defensive equipment (capped at AMS weapon BV)
-    const isAmsAmmo =
-      (lo.includes('ams') ||
-        lo.includes('anti-missile') ||
-        lo.includes('antimissile')) &&
-      lo.includes('ammo');
-    const isApdsAmmo = lo.includes('apds') && lo.includes('ammo');
-    if (isAmsAmmo || isApdsAmmo) {
-      // IS AMS ammo = 11 BV, Clan AMS ammo = 22 BV, APDS ammo = 22 BV
-      let amsAmmoVal: number;
-      if (isApdsAmmo) {
-        amsAmmoVal = 22;
-      } else if (lo.includes('cl') || unitTechBase === 'CLAN') {
-        amsAmmoVal = 22;
-      } else {
-        amsAmmoVal = 11;
-      }
-      // Half-ton AMS/APDS ammo bins also get half BV
-      if (isHalfTonAmmo) amsAmmoVal *= 0.5;
-      r.amsAmmoBV += amsAmmoVal;
-    }
+    if (record?.category === 'AMS')
+      r.amsAmmoBV += record.battleValue * binScale;
   }
 }

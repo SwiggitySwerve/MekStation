@@ -1707,7 +1707,58 @@ passing execution. An unverified effect or outcome stays "not verified".
           proposal §6 lists them).
         - **Interaction:** C5's parked #3315 edits the same file. It rebases
           on C4's PR 1 and re-runs its old-tab and unvisited-route checks.
-    - **D-11 REGRESSED again at `2fa5f0999` (Root ruling 2026-11-10 14:22Z).**
+    - **D-11 RE-CLOSED (C4) on Nightly Validation 42845061314, main
+      `3024c37b4`, every job green.**
+      - **First attempt:** 1,028 on attempt 0, 6 expected-fail (`test.fail`),
+        0 passed only on retry, 0 failed, 24 skipped.
+      - **Named specs:** `customizer-mech-crew-roster` 4/4 on attempt 0 (C3's
+        #3353 fixture fix); `saved-custom-combat-launch:229` on attempt 0;
+        the six unarmed privacy rows 6/6.
+      - **Evidence:** `d11-e2e/nightly-42845061314/first-attempt.txt`.
+      - **Limit:** it covers main through #3347. Later merges (#3356, #3355,
+        #3358, #3359, #3360, #3361, #3345, #3364) are first covered by the
+        next scheduled nightly.
+    - **GATE on the combat journal-authority cutover (U24b), three OPEN items,
+      owner C4 (Root ruling 2026-11-10).** The cutover does not happen until
+      all three hold.
+      1. **An armed real-death recovery test.** Journal-authority recovery has
+         no test under a real host death today (details below).
+      2. **Store-failure behaviour reconciled.** In journal-authority mode, a
+         failed save (`persistenceFailure`,
+         `ServerMatchHostJournalAuthority.ts:45-58`) tells only the sender
+         (sender-only as of #3365, `cafc43597`) and does not close the match.
+         The legacy path closes it (`ServerMatchHostPublication.ts:285-287`).
+         Before cutover, behaviour after a store failure must be the same on
+         both paths, or the difference stated and accepted.
+      3. **The restart assertion on every server-killing spec, in both modes:**
+         E2E-01, E2E-02, E2E-05, E2E-06 and E2E-15, through the shared
+         `e2e/helpers/serverRestartEvidence.ts`. Unarmed, it lands with
+         C5's authority-recovery follow-up. Armed, it waits on item 1.
+    - **Item 1 in detail:** journal-authority recovery has no test under a real
+      host death.
+      - **Why:** under the journal arm, a command commits through
+        `commitJournalAuthorityCommand`. The only `process-exit-after-commit`
+        seam is on the legacy outbox path (`ServerMatchHostPublication.ts`),
+        so an armed E2E-01/02 host death never fires.
+      - **Found by C5's restart assertion:** on a production build, the armed
+        E2E-01/02 failed 4/4 with "the host death must restart the server
+        process" and 0 relaunches, while unarmed passed 4/4 with 4 relaunches.
+      - **What it means for past proofs:** every earlier QC-plan run of
+        `authority-recovery` was armed, so "survives restart" passed without
+        a restart. That includes the local proofs for #3346 and R11a part 1.
+        The nightly's unarmed rows were always sound: one death per test in
+        run 42845061314.
+      - **Interim:** E2E-01/02 run unarmed only, in the QC plan and the
+        nightly, with the restart assertion. No main run of any QC group or
+        union is armed (pinned). The QC unions `authority` and `all` used to
+        arm their members, which made E2E-06 and E2E-15 hollow there the same
+        way.
+      - **Closure:** C4 adds the seam after the journal-authority commit, then
+        puts E2E-01/02 back into the armed step with the same pin, where the
+        restart assertion proves the death.
+      - **Gate:** item 1 of the three above.
+    - **D-11 REGRESSED at `2fa5f0999` (Root ruling 2026-11-10 14:22Z), now
+      history (re-closed above).**
       - **Cause:** #3305's tripod data is correct (C2 confirmed it against the
         pinned MTF), but the `e2e/fixtures/mech-crew-save-losses.json` fixture
         it meets is stale. The spec opens `triskelion-trk-4v` and

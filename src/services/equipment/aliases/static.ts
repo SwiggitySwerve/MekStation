@@ -11,7 +11,7 @@
  * Add static alias mappings for common equipment variants
  * These map alternative IDs directly to canonical equipment IDs
  */
-export function addStaticAliasMappings(nameToIdMap: Map<string, string>): void {
+function populateStaticAliasMappings(nameToIdMap: Map<string, string>): void {
   // C3 system variants
   nameToIdMap.set('c3-master-with-tag', 'c3-master');
   nameToIdMap.set('c3-computer-master', 'c3-master');
@@ -175,4 +175,16 @@ export function addStaticAliasMappings(nameToIdMap: Map<string, string>): void {
   nameToIdMap.set('clan-atm-6', 'atm-6');
   nameToIdMap.set('clan-atm-9', 'atm-9');
   nameToIdMap.set('clan-atm-12', 'atm-12');
+}
+
+const staticAliases = new Map<string, string>();
+populateStaticAliasMappings(staticAliases);
+
+export function addStaticAliasMappings(nameToIdMap: Map<string, string>): void {
+  for (const [alias, id] of staticAliases) nameToIdMap.set(alias, id);
+}
+
+/** Exact aliases shared by the registry and pure catalog consumers. */
+export function resolveStaticEquipmentAlias(alias: string): string | undefined {
+  return staticAliases.get(alias);
 }

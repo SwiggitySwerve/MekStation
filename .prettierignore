@@ -25,3 +25,8 @@ public/record-sheets/
 public/data/units/vehicles/
 public/data/units/aerospace/
 public/data/units/capital/
+
+# Runtime-parity gate baselines, written only by a port's --write-baseline.
+# One unit per line keeps a rebaseline diff readable per unit; the formatter
+# would split each unit over many lines.
+config/parity-runtime/

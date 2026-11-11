@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { gunzipSync } from 'node:zlib';
 
 import {
   REPORT_FILES,
@@ -14,6 +13,7 @@ import {
   verifySha256,
   recordCompletionStage,
 } from './parity-scoreboard-artifacts.mjs';
+import { loadReference } from './parity-scoreboard-io.cjs';
 export {
   ROW_FILES,
   REPORT_FILES,
@@ -78,12 +78,7 @@ export function verifyMekfiles(references, mekfiles, expectedRows) {
 }
 
 export function prepareReference(root, out, reference) {
-  const compressed = fs.readFileSync(path.join(root, reference.file));
-  verifySha256(compressed, reference.gzipSha256, 'gzip');
-  const bytes = gunzipSync(compressed);
-  verifySha256(bytes, reference.sha256, 'reference');
-  const sidecar = fs.readFileSync(path.join(root, reference.sidecar));
-  verifySha256(sidecar, reference.sidecarSha256, 'sidecar');
+  const { bytes, sidecar } = loadReference(root, reference);
   fs.mkdirSync(out, { recursive: true });
   const file = path.join(out, 'reference-full.jsonl');
   fs.writeFileSync(file, bytes);

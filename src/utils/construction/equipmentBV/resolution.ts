@@ -3,6 +3,7 @@ import {
   ammunitionAliasKey,
   isPhysicalAmmunitionBin,
 } from '@/services/equipment/aliases/ammunition';
+import { resolveStaticEquipmentAlias } from '@/services/equipment/aliases/static';
 import { TechBase } from '@/types/enums/TechBase';
 /**
  * Equipment BV Resolver - BV Resolution
@@ -136,7 +137,17 @@ export function getEquipmentEntry(
 ): EquipmentCatalogEntry | undefined {
   const catalog = loadCatalogForEquipmentId(equipmentId);
   const normalizedId = normalizeEquipmentId(equipmentId, catalog);
-  return catalog.get(normalizedId);
+  const entry = catalog.get(normalizedId);
+  if (entry) return entry;
+  // Saved point-defense names use the registry's existing alias owner. Keep
+  // unrelated legacy BV fallbacks and Battle Armor's distinct APDS unchanged.
+  const alias = resolveStaticEquipmentAlias(
+    equipmentId.toLowerCase().trim().replace(/\s+/g, '-'),
+  );
+  const pointDefense = alias ? catalog.get(alias) : undefined;
+  return pointDefense?.special?.includes('point-defense')
+    ? pointDefense
+    : undefined;
 }
 
 export function isResolvable(equipmentId: string): boolean {

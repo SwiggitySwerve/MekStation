@@ -3,12 +3,13 @@
 `mtf-component-vocabulary.json` owns the exact source strings an MTF file uses
 for four mech components, and the serialized identity each one resolves to:
 
-| Table        | MTF line                | Identities                                                                                               |
-| ------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| `gyro`       | `gyro:`                 | `STANDARD`, `XL`, `COMPACT`, `HEAVY_DUTY`, `NONE`, `SUPERHEAVY`                                          |
-| `cockpit`    | `cockpit:`              | the `CockpitType` values the committed catalog uses, plus the industrial identities Python already emits |
-| `heatSink`   | `heat sinks:<n> <type>` | `SINGLE`, `DOUBLE`, `DOUBLE_CLAN`, `LASER`, `COMPACT`                                                    |
-| `rulesLevel` | `rules level:`          | one-based levels 1-5                                                                                     |
+| Table                 | MTF line                | Identities                                                                                               |
+| --------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------- |
+| `gyro`                | `gyro:`                 | `STANDARD`, `XL`, `COMPACT`, `HEAVY_DUTY`, `NONE`, `SUPERHEAVY`                                          |
+| `cockpit`             | `cockpit:`              | the `CockpitType` values the committed catalog uses, plus the industrial identities Python already emits |
+| `heatSink`            | `heat sinks:<n> <type>` | `SINGLE`, `DOUBLE`, `DOUBLE_CLAN`, `LASER`, `COMPACT`                                                    |
+| `rulesLevel`          | `rules level:`          | one-based levels 1-5                                                                                     |
+| `criticalSlotMarkers` | native critical cells   | Exact armor/structure marker spellings, material, own tech and per-spelling pinned citation              |
 
 The authority is MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
 
@@ -67,6 +68,15 @@ so an unlisted name there is an error rather than a guess (the R1 contract).
 The file is a converter input. `strict-provenance-inputs.json` lists it, so a
 change here invalidates old strict-export receipts.
 
+`criticalSlotMarkers` is also read by the unit loader's sole source-cell
+recogniser, `criticalSlotEquipment.ts`. The initial 20 spellings are the frozen
+notice census's native armor and structure markers, with their defining
+`ArmorType.java` or `MiscType.java` factory cited on each entry at the same pin.
+These are slot allocations, not extra armor/structure mass. A recognized name
+alone never proves that the source cell is occupied. Export armor-family names
+remain owned by the export vocabulary; no second slot-marker names table is
+introduced in the loader or notice.
+
 ## Tripod and the other late cockpit types
 
 Java's table has 19 cockpits (`Mek.java:214-230`). `Tripod Cockpit` / `Tripod`
@@ -96,3 +106,12 @@ alias for the Inner Sphere double.
 Known residual: Java takes the text after `gyro:` and `cockpit:` unchanged
 (`substring(5)`, `substring(8)`), so `cockpit: Small Cockpit` with a space does
 not match there, while the importer trims. No pinned source has the space.
+
+`criticalSlotSystems` owns exact fixed-system cell aliases, including the short
+actuator names emitted by the serializer. `MTFVocabulary.ts` combines them with
+the full engine, gyro and cockpit names already owned by the adapter vocabulary.
+`isMTFCriticalSlotSystemName` compares a bare token case-insensitively; callers
+parse native decorations first. Equipment containing a system word (Chain Whip,
+ISC3Sensors, ISShoulderTurret or a Re-engineered Laser) remains equipment.
+Recovery dispositions are selected by `criticalSlotNoticeEffects.ts` from resolved
+facts; broad notice patterns never grant recovery or decide residual membership.

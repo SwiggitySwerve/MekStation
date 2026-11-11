@@ -149,6 +149,7 @@ beforeEach(async () => {
   }) as typeof fetch;
 });
 afterEach(async () => {
+  jest.restoreAllMocks();
   global.fetch = realFetch;
   resetCanonicalUnitService();
   _setCombatJournalAuthorityModeForTests(null);
@@ -275,6 +276,7 @@ it('boots the real activated prefix with unit capabilities and preserves the mis
   expect(recoveredEngine.getUnitWeapons(unitId).length).toBeGreaterThan(0);
   // A crash immediately after branch activation has no matching command receipt.
   // Unit hydration must not bypass that separate, pre-existing rollback fence.
+  const refused = jest.spyOn(logger, 'warn').mockImplementation(() => {});
   const messages = await host.handleIntent({
     kind: 'Intent',
     matchId: m.matchId,
@@ -292,11 +294,19 @@ it('boots the real activated prefix with unit capabilities and preserves the mis
     expect.objectContaining({
       kind: 'Error',
       code: 'INTERNAL_ERROR',
-      reason: 'rollback-reader-blocked:missing-journal-head',
+      reason: 'Unable to process the command.',
     }),
   ]);
   expect(host.getSessionForTests().events.map((e) => e.id)).toEqual(
     prefix.map((e) => e.id),
+  );
+  expect(refused).toHaveBeenCalledWith(
+    '[multiplayer] intent refused',
+    expect.objectContaining({
+      matchId: m.matchId,
+      code: 'INTERNAL_ERROR',
+      diagnostic: 'rollback-reader-blocked:missing-journal-head',
+    }),
   );
   expect(fetch).not.toHaveBeenCalled();
 });

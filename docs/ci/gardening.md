@@ -126,7 +126,9 @@ change. G1's trusted workflow must rerun those events and make the approval
 status required through repository policy; these modules alone do not install
 workflow or branch-protection enforcement.
 
-The adapter writes `CI Budget Raise Approval` to the live head. Only trusted
+The adapter writes `CI Budget Raise Approval` only to the head it evaluated,
+which `checkBudgetPolicy` binds to the head its run is for (it never writes to
+a newer head). Only trusted
 base/default code may hold `statuses: write`. Review signals can be read-only;
 a trusted verifier independently reads live PRs/reviews, without consuming
 untrusted code or artifacts. Count every automatically induced job, including

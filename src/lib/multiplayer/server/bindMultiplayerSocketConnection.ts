@@ -10,6 +10,7 @@ import {
 import type { ServerMatchHost } from './ServerMatchHost';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
+import { intentRefusalMessage } from './intentRefusal';
 import {
   getMatchHostRegistry,
   type MatchHostRegistry,
@@ -141,7 +142,11 @@ export async function bindMultiplayerSocketConnection({
   // Authority-audit PR 2: membership-gated admission. No baseline,
   // replay, or event payload flows before the resolver returns an
   // active viewer; refusal already sent typed AUTH_REJECTED + Close.
-  const viewer = await host.admitSocket(socket, verifiedPlayerId);
+  const viewer = await host.admitSocket(
+    socket,
+    verifiedPlayerId,
+    connectionKey,
+  );
   if (viewer === null) {
     host.releaseConnection(connectionKey);
     return null;
@@ -191,7 +196,7 @@ async function handleInbound({
     );
     send(
       socket,
-      errorFrame(
+      intentRefusalMessage(
         matchId,
         'INVALID_INTENT',
         'client-rolls-forbidden',
@@ -412,14 +417,12 @@ function errorFrame(
   reason: string,
   intentId?: string,
 ): Extract<IServerMessage, { kind: 'Error' }> {
-  return {
-    kind: 'Error',
+  return intentRefusalMessage(
     matchId,
-    ts: nowIso(),
     code,
     reason,
-    ...(intentId != null && intentId.length > 0 ? { intentId } : {}),
-  };
+    intentId != null && intentId.length > 0 ? intentId : undefined,
+  );
 }
 
 function closeFrame(

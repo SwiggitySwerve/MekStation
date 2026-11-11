@@ -554,8 +554,9 @@ test.describe('GM two-player failure pack', () => {
         const {
           match,
           tap,
+          guestTap,
           identityIds: launched,
-        } = await launchTappedMatch({
+        } = await launchBothTapped({
           browser,
           request,
           hostPage,
@@ -572,12 +573,12 @@ test.describe('GM two-player failure pack', () => {
         await armScopedFault(request, kind, match.matchId);
 
         // The next real command dies at the armed point.
-        await advancePhase(hostPage, guestPage);
+        const actorPage = await advancePhase(hostPage, guestPage);
+        const actorTap = actorPage === hostPage ? tap : guestTap;
+        const otherTap = actorPage === hostPage ? guestTap : tap;
 
-        // (a) The actor was told, in a typed frame.
-        await expect
-          .poll(() => tap.frames.length, { timeout: 25_000 })
-          .toBeGreaterThan(0);
+        // (a) The actor received a typed failure; (a') the peer received none.
+        await actorTap.expectPrivateErrorBeforeClose('STORE_FAILURE', otherTap);
 
         // (b) No part of the batch remains. Sequence equality, not count
         // equality: a rolled-back-then-retried batch that landed

@@ -52,11 +52,12 @@ test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
   const hostPage = await openContextPage(browser);
   const guestPage = await openContextPage(browser);
 
-  // Observer-only wire tap on the HOST (the actor): every server frame
-  // passes through untouched; typed Error frames are recorded.
+  // Either player may own the next phase control. Observe both sockets
+  // so the refusal can be checked on the actual sender's connection.
   const hostTap = tapErrorFrames(hostPage);
-  const hostErrors = hostTap.frames;
+  const guestTap = tapErrorFrames(guestPage);
   await hostTap.install();
+  await guestTap.install();
 
   try {
     const host = await seedIdentity(request, 'Fault Host', HOST_PASSWORD);
@@ -103,18 +104,16 @@ test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
     await armScopedFault(request, 'append-head-update', match.matchId);
 
     // The actor attempts the next command; its append dies in the store.
-    await advancePhase(hostPage, guestPage);
+    const actorPage = await advancePhase(hostPage, guestPage);
+    const actorTap = actorPage === hostPage ? hostTap : guestTap;
+    const otherTap = actorPage === hostPage ? guestTap : hostTap;
 
-    // (a) The actor received the typed failure - never silence.
-    await expect
-      .poll(() => hostErrors.length + (guestErrorsProbe() ? 1 : 0), {
-        timeout: 20_000,
-      })
-      .toBeGreaterThan(0);
-    const storeFailure = hostErrors.find(
-      (frame) => frame.code === 'STORE_FAILURE',
+    // (a) The actor received a typed failure; (a') the peer received none.
+    await actorTap.expectPrivateErrorBeforeClose(
+      'STORE_FAILURE',
+      otherTap,
+      20_000,
     );
-    expect(storeFailure).toBeDefined();
 
     // (b) No client rendered the phase advance as success. The shipped
     // contract CLOSES the match on append failure - the surface
@@ -139,9 +138,5 @@ test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
     await deleteIdentities(request, identities);
     await hostPage.context().close();
     await guestPage.context().close();
-  }
-
-  function guestErrorsProbe(): boolean {
-    return false;
   }
 });

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import {
   GATES,
   decide,
+  dataSpecsForDiff,
   detect,
   importClosure,
   referencedFiles,
@@ -20,6 +21,10 @@ const root = path.resolve(
 );
 
 const allTrue = Object.fromEntries(GATES.map((gate) => [gate, true]));
+
+test('no unit diff produces no data-keyed specs', () => {
+  assert.deepEqual(dataSpecsForDiff(root, 'HEAD', 'HEAD'), []);
+});
 
 test('non-pull-request events check everything', () => {
   for (const event of ['push', 'schedule', 'workflow_dispatch']) {

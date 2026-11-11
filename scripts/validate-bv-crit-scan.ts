@@ -1,5 +1,7 @@
 import type { UnitData } from './validate-bv-types';
 
+import { normalizeMechBVSourceName } from '../src/utils/construction/battleValueAmmo';
+import { getAmsBVWeaponKind } from '../src/utils/construction/battleValueDefensive';
 import { getEquipmentEntry } from '../src/utils/construction/equipmentBVResolver';
 import { parseEquipmentSizeNumber } from '../src/utils/equipmentSize';
 import { processCritAmmoSlot } from './validate-bv-crit-scan-ammo';
@@ -227,9 +229,7 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         else if (lo.includes('ppc capacitor') || lo.includes('ppccapacitor')) {
           if (loc) r.ppcCapLocs.push(loc);
         } else if (
-          lo === 'isapds' ||
-          (lo.includes('risc') && lo.includes('apds')) ||
-          lo.includes('advanced point defense')
+          getAmsBVWeaponKind(normalizeMechBVSourceName(clean)) === 'apds'
         ) {
           if (clean !== prevSlotClean) {
             r.riscAPDS++;

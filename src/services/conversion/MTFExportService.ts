@@ -38,7 +38,17 @@ export class MTFExportService {
       const [techBase, engineType, armorType, cockpitType] = [
         () => formatTechBase(unit.techBase, unit.componentTechBases?.chassis),
         () => formatEngineType(unit.engine.type),
-        () => formatArmorType(unit.armor.type),
+        () => {
+          // Mek.java:5385-5403 requires points, type and tech for every
+          // Patchwork location. The serialized mech shape cannot supply all
+          // three yet; writing only the global name would silently lose armor.
+          if (unit.armor.type === 'PATCHWORK') {
+            throw new Error(
+              'Patchwork MTF export requires per-location armor points, types and tech bases (PATCHWORK)',
+            );
+          }
+          return formatArmorType(unit.armor.type);
+        },
         () => formatCockpitType(unit.cockpit, unit.gyro.type),
       ].map((format) => {
         try {

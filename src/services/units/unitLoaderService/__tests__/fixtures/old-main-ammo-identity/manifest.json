@@ -1,0 +1,258 @@
+{
+  "writerCommit": "73ef85c970ab79654f575e5c345e2b33b7ecdde8",
+  "writerSourceSha256": "80b44c76eb2b6fd00ef9a4511e68ff9ea84eed02577f9855d6ea37c136b93e29",
+  "generation": "Actual canonical open, main dialog writer, SQLite insert/readback, main custom reopen; no A code",
+  "fixtures": [
+    {
+      "catalogId": "sentinel-stn-3l",
+      "file": "sentinel-stn-3l.saved",
+      "sha256": "5475f8204258cb8e06dd24cd3ff21c75af3f37da754ebea5e1574bb1d637cb16",
+      "libraryId": "custom-c0d04c00-5980-4c61-9a12-66bb8b7bdda4",
+      "documentId": "7cbd6fd0-fb3c-454f-9557-e0049d5f114e",
+      "sourceDefinition": {
+        "source": "canonical",
+        "id": "sentinel-stn-3l"
+      },
+      "canonicalBV": 717,
+      "mainOpen": {
+        "bv": 719,
+        "ammoBV": 19,
+        "ammoPools": {
+          "available": {
+            "SRM_STREAK:2": 5,
+            "AC_ULTRA:5": 14
+          },
+          "cap": {
+            "AC_ULTRA:5": 112,
+            "SRM_STREAK:2": 30
+          }
+        },
+        "slots": [
+          "[\"is-streak-srm-2-ammo-registry\",\"Ammunition\",\"Inner Sphere\",\"Right Torso\",[2],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Left Torso\",[0],null,null,false,1,1]",
+          "[\"small-laser\",\"Energy Weapon\",\"Inner Sphere\",\"Right Torso\",[1],null,null,false,0.5,1]",
+          "[\"streak-srm-2\",\"Missile Weapon\",\"Inner Sphere\",\"Right Torso\",[0],null,null,false,1.5,1]",
+          "[\"uac-5\",\"Ballistic Weapon\",\"Inner Sphere\",\"Left Arm\",[2,3,4,5,6],null,null,false,9,5]",
+          "[\"uac-5-ammo\",\"Ammunition\",\"Inner Sphere\",\"Left Torso\",[1],null,null,false,1,1]"
+        ],
+        "criticalSlots": {
+          "Left Arm": [
+            "Shoulder",
+            "Upper Arm",
+            "Ultra AC/5",
+            "Ultra AC/5",
+            "Ultra AC/5",
+            "Ultra AC/5",
+            "Ultra AC/5",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Right Arm": [
+            "Shoulder",
+            "Upper Arm",
+            "Lower Arm",
+            "Hand",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Right Torso": [
+            "Streak SRM 2",
+            "Small Laser",
+            "Streak SRM 2 Ammo",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Left Torso": [
+            "Heat Sink",
+            "Ultra AC/5 Ammo",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "unrecoveredCriticalSlots": []
+      },
+      "nativeAmmoCells": [
+        {
+          "location": "Left Torso",
+          "slot": 1,
+          "equipmentId": "uac-5-ammo",
+          "techBase": "Inner Sphere",
+          "native": "IS Ultra AC/5 Ammo",
+          "saved": "Ultra AC/5 Ammo"
+        },
+        {
+          "location": "Right Torso",
+          "slot": 2,
+          "equipmentId": "is-streak-srm-2-ammo-registry",
+          "techBase": "Inner Sphere",
+          "native": "IS Streak SRM 2 Ammo",
+          "saved": "Streak SRM 2 Ammo"
+        }
+      ]
+    },
+    {
+      "catalogId": "warhammer-whm-6r",
+      "file": "warhammer-whm-6r.saved",
+      "sha256": "cbf5e2b7c002e36e21a88013c7bc836a8460a13c50acc93a80de70bff4c7810c",
+      "libraryId": "custom-5c35631c-9bb8-4ae9-bfa2-da3c042527c2",
+      "documentId": "3a92933b-8eea-45f0-b4a8-3e3622fcf23b",
+      "sourceDefinition": {
+        "source": "canonical",
+        "id": "warhammer-whm-6r"
+      },
+      "canonicalBV": 1299,
+      "mainOpen": {
+        "bv": 1299,
+        "ammoBV": 8,
+        "ammoPools": {
+          "available": {
+            "SRM:6": 7,
+            "MG:2": 1
+          },
+          "cap": {
+            "MG:2": 10,
+            "SRM:6": 59
+          }
+        },
+        "slots": [
+          "[\"ammo-mg-full\",\"Ammunition\",\"Inner Sphere\",\"Center Torso\",[10],null,null,false,1,1]",
+          "[\"ammo-srm-6\",\"Ammunition\",\"Inner Sphere\",\"Right Torso\",[5],null,null,false,1,1]",
+          "[\"machine-gun\",\"Ballistic Weapon\",\"Inner Sphere\",\"Left Torso\",[2],null,null,false,0.5,1]",
+          "[\"machine-gun\",\"Ballistic Weapon\",\"Inner Sphere\",\"Right Torso\",[4],null,null,false,0.5,1]",
+          "[\"medium-laser\",\"Energy Weapon\",\"Inner Sphere\",\"Left Torso\",[0],null,null,false,1,1]",
+          "[\"medium-laser\",\"Energy Weapon\",\"Inner Sphere\",\"Right Torso\",[2],null,null,false,1,1]",
+          "[\"ppc\",\"Energy Weapon\",\"Inner Sphere\",\"Left Arm\",[4,5,6],null,null,false,7,3]",
+          "[\"ppc\",\"Energy Weapon\",\"Inner Sphere\",\"Right Arm\",[4,5,6],null,null,false,7,3]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Head\",[3],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Left Arm\",[3],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Left Leg\",[4],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Left Leg\",[5],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Right Arm\",[3],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Right Leg\",[4],null,null,false,1,1]",
+          "[\"single-heat-sink\",\"Misc Equipment\",\"Inner Sphere\",\"Right Leg\",[5],null,null,false,1,1]",
+          "[\"small-laser\",\"Energy Weapon\",\"Inner Sphere\",\"Left Torso\",[1],null,null,false,0.5,1]",
+          "[\"small-laser\",\"Energy Weapon\",\"Inner Sphere\",\"Right Torso\",[3],null,null,false,0.5,1]",
+          "[\"srm-6\",\"Missile Weapon\",\"Inner Sphere\",\"Right Torso\",[0,1],null,null,false,3,2]"
+        ],
+        "criticalSlots": {
+          "Left Arm": [
+            "Shoulder",
+            "Upper Arm",
+            "Lower Arm",
+            "Heat Sink",
+            "PPC",
+            "PPC",
+            "PPC",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Right Arm": [
+            "Shoulder",
+            "Upper Arm",
+            "Lower Arm",
+            "Heat Sink",
+            "PPC",
+            "PPC",
+            "PPC",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Left Torso": [
+            "Medium Laser",
+            "Small Laser",
+            "Machine Gun",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Right Torso": [
+            "SRM 6",
+            "SRM 6",
+            "Medium Laser",
+            "Small Laser",
+            "Machine Gun",
+            "SRM 6 Ammo",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          "Center Torso": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "Machine Gun Ammo [Full]",
+            null
+          ],
+          "Head": [null, null, null, "Heat Sink", null, null],
+          "Left Leg": [null, null, null, null, "Heat Sink", "Heat Sink"],
+          "Right Leg": [null, null, null, null, "Heat Sink", "Heat Sink"]
+        },
+        "unrecoveredCriticalSlots": []
+      },
+      "nativeAmmoCells": [
+        {
+          "location": "Right Torso",
+          "slot": 5,
+          "equipmentId": "ammo-srm-6",
+          "techBase": "Inner Sphere",
+          "native": "IS Ammo SRM-6",
+          "saved": "SRM 6 Ammo"
+        },
+        {
+          "location": "Center Torso",
+          "slot": 10,
+          "equipmentId": "ammo-mg-full",
+          "techBase": "Inner Sphere",
+          "native": "IS Ammo MG - Full",
+          "saved": "Machine Gun Ammo [Full]"
+        }
+      ]
+    }
+  ]
+}

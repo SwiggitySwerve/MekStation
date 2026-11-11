@@ -30,7 +30,11 @@ import { fileURLToPath } from 'node:url';
 
 import { expandSourceProvenanceVariants } from './expand-source-provenance-variants.mjs';
 import { expandUnitTypeRequirements } from './expand-unit-type-requirements.mjs';
-import { hoistUnionBranches } from './hoist-union-branches.js';
+import {
+  hoistUnionBranches,
+  ONCE_DECLARATION,
+} from './hoist-union-branches.js';
+import { createClauseRefiner } from './refine-conditional-clauses.mjs';
 import { prepareSchemaDefinitions } from './schema-local-definitions.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -130,20 +134,37 @@ export const unitSchemaVersionOf = (unit: { readonly schemaVersion?: string }) =
       : shape.stem === 'source-provenance'
         ? expandSourceProvenanceVariants(json)
         : json;
+  // An object carrying a conjunction of conditional clauses renders them as one
+  // superRefine, not as a chain of unions in the type (see refine-conditional-clauses).
+  const refiner = createClauseRefiner((clause) =>
+    jsonSchemaToZod(clause, { parserOverride }),
+  );
+  function parserOverride(candidate) {
+    return version && JSON.stringify(candidate) === JSON.stringify(version)
+      ? 'UnitSchemaVersion'
+      : (refiner.override(candidate) ?? prepared.parserOverride(candidate));
+  }
   let body = jsonSchemaToZod(schema, {
     module: 'esm',
     name: shape.exportName,
     type: true,
-    parserOverride: (candidate) =>
-      version && JSON.stringify(candidate) === JSON.stringify(version)
-        ? 'UnitSchemaVersion'
-        : prepared.parserOverride(candidate),
+    parserOverride,
   });
   // A oneOf is rendered as a superRefine that rebuilds its branch schemas on
   // every validated value; build them once instead (see hoist-union-branches).
   const hoisted = hoistUnionBranches(body);
   body = hoisted.body;
-  if (prepared.declarations || versionDeclaration || hoisted.declarations)
+  const refined = refiner.declarations();
+  // The clause declarations call `once`; hoisted.declarations already declares it.
+  const clauseDeclarations = refined
+    ? (hoisted.declarations ? '' : ONCE_DECLARATION) + refined
+    : '';
+  if (
+    prepared.declarations ||
+    versionDeclaration ||
+    hoisted.declarations ||
+    clauseDeclarations
+  )
     body = body.replace(
       /(import[^\n]+\n)/,
       (importLine) =>
@@ -151,6 +172,7 @@ export const unitSchemaVersionOf = (unit: { readonly schemaVersion?: string }) =
         versionDeclaration +
         prepared.declarations +
         hoisted.declarations +
+        clauseDeclarations +
         '\n',
     );
   return HEADER(sourceRel) + '\n' + body;

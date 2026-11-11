@@ -1,0 +1,6 @@
+{
+    "status":  "implemented-pending-production-proof",
+    "lastReviewed":  "2026-11-10",
+    "name":  "fix-mp-refusals-sender-only",
+    "reason":  "C4 owns production multiplayer E2E."
+}
