@@ -55,6 +55,19 @@ The rule lives in `scripts/lib/runtime-parity/save-loss.mjs` (one file, so C3's 
 Error and unsettled rows stay in the denominator and are never counted. Unknown
 tracking is a harness failure for canonical loads (the capture asserts the loader supplied the list) and is never an empty list.
 
+## Gated fields
+
+`summary.gates` lists every count the nightly may gate on and which way is better, by path into `summary.json`. The nightly fails
+a worse count and passes a better one by reading the direction from the file, not from a constant of its own.
+
+| Key (path in `summary.json`) | Meaning                                                                           | Direction        |
+| ---------------------------- | --------------------------------------------------------------------------------- | ---------------- |
+| `reopenLoad.equal`           | units whose reopen BV equals their load BV (the headline `reopen=load`)           | higher-is-better |
+| `reopenJava.equal`           | units whose reopen BV equals the Java BV                                          | higher-is-better |
+| `noLossConfirmation.before`  | loaded units whose save dialog would not ask (the published number)               | higher-is-better |
+| `noticeResidual.equal`       | units whose notice residual equals the non-system lost cells                      | higher-is-better |
+| `noLossConfirmation.after`   | the same read on the reopened store: **not gated**, no direction (`gated: false`) | none             |
+
 ## Compare tool
 
 `node scripts/runtime-roundtrip/compare.mjs --rows <rows.ndjson> --ref <A-units.json> --out <dir> [--receipt <receipt.json>] [--subset] [--require-same-sha]`

@@ -56,6 +56,17 @@ export function capturedToRow(record) {
 }
 
 const fmt = (n) => n.toLocaleString('en-US');
+// The summary counts a nightly may gate on, and which way is better, by path into this summary
+// (`group.key`). A worse count fails the nightly, a better one passes; the direction is data here so
+// nothing downstream hard-codes it. `noLossConfirmation.after` is deliberately not gated and has no
+// direction: it is not a progress measure.
+export const GATES = {
+  'reopenLoad.equal': { gated: true, direction: 'higher-is-better' },
+  'reopenJava.equal': { gated: true, direction: 'higher-is-better' },
+  'noLossConfirmation.before': { gated: true, direction: 'higher-is-better' },
+  'noticeResidual.equal': { gated: true, direction: 'higher-is-better' },
+  'noLossConfirmation.after': { gated: false },
+};
 const AFTER_NOTE = 'loss already written to file; not a progress measure';
 
 /**
@@ -240,6 +251,7 @@ export function summarize({ rows, referenceByPath, scope, deterministic }) {
       mounts,
       noLossConfirmation,
       saveLossDetail,
+      gates: GATES,
       deterministic,
       headline: `reopen=load ${fmt(reopenLoad.equal)}/${fmt(units)} · reopen=Java ${fmt(reopenJava.equal)}/${fmt(units)} · load=Java ${fmt(loadJava.equal)}/${fmt(units)} · no loss confirmation (before save) ${fmt(noLossConfirmation.before)}/${fmt(units)} · notice residual equal ${fmt(notice.equal)}/${fmt(units)} · weight owners ${fmt(weightOwners.agree)}/${fmt(units)}${weightOwners.mismatch ? ` (DIFFER ${fmt(weightOwners.mismatch)})` : ''}${scope.unitIds ? ' · NARROWED SCOPE' : ''}`,
     },

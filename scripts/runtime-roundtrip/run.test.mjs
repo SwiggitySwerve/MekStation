@@ -447,6 +447,38 @@ test('summarize counts "saves with no loss confirmation" over settled complete r
   );
 });
 
+test('every gated summary key has a direction and resolves to a count, and .after is ungated', () => {
+  const rows = [
+    capturedToRow(record('clean')),
+    capturedToRow(record('beforeOnly', { lost: [lostCell(3)] })),
+  ];
+  const referenceByPath = new Map(
+    rows.map((r) => [r.path, { battleValue: { total: 1000 } }]),
+  );
+  const { summary } = summarize({
+    rows,
+    referenceByPath,
+    scope: scope(2),
+    deterministic: true,
+  });
+  assert.deepEqual(Object.keys(summary.gates).sort(), [
+    'noLossConfirmation.after',
+    'noLossConfirmation.before',
+    'noticeResidual.equal',
+    'reopenJava.equal',
+    'reopenLoad.equal',
+  ]);
+  for (const [path, gate] of Object.entries(summary.gates)) {
+    const [group, key] = path.split('.');
+    assert.equal(typeof summary[group][key], 'number', path);
+    if (path === 'noLossConfirmation.after') continue;
+    assert.equal(gate.gated, true, path);
+    assert.equal(gate.direction, 'higher-is-better', path);
+  }
+  assert.deepEqual(summary.gates['noLossConfirmation.after'], { gated: false });
+  assert.equal('direction' in summary.gates['noLossConfirmation.after'], false);
+});
+
 test('the summary publishes noLossConfirmation.before (the number) and .after (not a progress measure), with no old names left', () => {
   const rows = [
     capturedToRow(record('clean')),
