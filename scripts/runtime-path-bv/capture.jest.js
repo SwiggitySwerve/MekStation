@@ -15,10 +15,12 @@ import path from 'path';
 
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 
-// The sheet read point (the real PreviewTab): after the status observer, which installs the shared mocks first.
+// The shared mocks (logger, Toast, the mechBV calculator probe) are registered by ./install-mocks, which BOTH
+// runtime-parity modules below import first. ES imports evaluate in source order and the formatter sorts them, so
+// whichever of the two loads first registers the mocks before the product modules it and the other import.
+// (CanonicalUnitService, sorted above them, imports only the unit index mapper and shape guard: nothing mocked.)
+// The sheet read point: the real PreviewTab, read after the status observer's read.
 import { createPreviewObserver } from '../lib/runtime-parity/preview-observer';
-// The observer comes before every product import: it imports ./install-mocks first, and ES imports
-// evaluate in source order, so the mocks are registered before any product module loads.
 import * as observer from '../lib/runtime-parity/status-observer';
 
 const repoRoot = path.resolve(__dirname, '../..');

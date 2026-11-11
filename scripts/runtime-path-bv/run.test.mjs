@@ -11,6 +11,7 @@ import {
 } from '../lib/runtime-parity/facts-provenance.mjs';
 import {
   FACTS_SCHEMA_VERSION,
+  loadFacts,
   parseFacts,
 } from '../lib/runtime-parity/facts.mjs';
 import { parseBaseline } from '../lib/runtime-parity/gate.mjs';
@@ -456,6 +457,45 @@ test('the record sheet BV is counted against the status bar exactly: equal, diff
     capturedToRow({ ...record('old2'), preview: undefined }).load.preview,
     null,
   );
+});
+
+test('a failed sheet calculation is a preview-stage infrastructure error: the whole row errors and every load fact is unknown, never previewEqualsStatus false', () => {
+  const failedPreview = capturedToRow({
+    ...record('sheetfail'),
+    observed: null,
+    terms: null,
+    issues: null,
+    preview: null,
+    infrastructure: true,
+    error: {
+      stage: 'preview',
+      name: 'Error',
+      message: "The sheet's BV calculation threw: mutant",
+    },
+  });
+  assert.equal(failedPreview.status, 'error');
+  assert.equal(failedPreview.error.stage, 'preview');
+  const entry = loadFacts(failedPreview, undefined);
+  assert.equal(entry.status, 'error');
+  // Deliberate: every load fact is unknown, bvExact included. The gate reads known -> unknown (the safe direction).
+  assert.deepEqual(
+    Object.values(entry.facts),
+    Object.keys(entry.facts).map(() => null),
+  );
+  assert.notEqual(entry.facts.previewEqualsStatus, false);
+  assert.deepEqual(entry.reported, { previewStatusDistance: null });
+  const { summary } = summarize({
+    rows: [failedPreview],
+    referenceByPath: new Map([refRow('sheetfail', 1000)]),
+    scope: { families: ['battlemechs'], populationCount: 1, unitIds: null },
+    deterministic: true,
+  });
+  assert.deepEqual(summary.errorsByStage, { preview: 1 });
+  assert.deepEqual(summary.preview, {
+    equalsStatus: 0,
+    different: 0,
+    missing: 1,
+  });
 });
 
 test('every gated summary key has a direction and resolves to a count', () => {

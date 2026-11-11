@@ -9,19 +9,56 @@
  * canvas as jsdom allows. Only the canvas drawing (renderPreview) is replaced by a no-op on the service instance;
  * nothing that computes BV is mocked, spied results are returned unchanged, and nothing here changes the status read.
  *
+ * A failed sheet calculation is NEVER recorded as a value. recordSheetPreview.logic's calculateBattleValueAndCost
+ * catches a throw and returns { battleValue: 0, cost: 0 }, and extractHeader does `battleValue || 0`, so a calculation
+ * failure (or a registry that is not ready) reaches the sheet as a plain 0. The mechBV probe from ./install-mocks (the one
+ * the status observer uses) sees the calculation the preview made: a missing call, a thrown call, or a BV that is not the
+ * one the sheet was handed is a harness failure (ObservationError, stage 'preview'), so the unit becomes an
+ * infrastructure failure and never a fake `previewEqualsStatus: false`.
+ *
  * Usage (load capture, after the status observer is imported):
  *   import * as observer from '../lib/runtime-parity/status-observer';
  *   import { createPreviewObserver } from '../lib/runtime-parity/preview-observer';
  *   const preview = createPreviewObserver();
  *   const { bv, cost } = await preview.observe(store);   // after observer.observeStore(store)
  */
-import './install-mocks';
-import { act, cleanup, render } from '@testing-library/react';
-import React from 'react';
+// Relative imports only, and in this order (they sort that way): ./install-mocks registers the mocks before ./preview-view
+// loads the product modules. install-mocks.test-order guards it.
+import { probe } from './install-mocks';
+import {
+  cleanup,
+  getRecordSheetService,
+  renderPreviewTab,
+} from './preview-view';
+import { ObservationError } from './status-observer';
 
-import { PreviewTab } from '@/components/customizer/tabs/PreviewTab';
-import { getRecordSheetService } from '@/services/printing/RecordSheetService';
-import { UnitStoreContext } from '@/stores/useUnitStore';
+const failure = (message, cause) => {
+  const error = new Error(message);
+  if (cause !== undefined) error.cause = cause;
+  return new ObservationError(error, 'preview', true);
+};
+
+/**
+ * The header's BV and cost, accepted only if the preview's own calculation succeeded and produced that BV. The
+ * sheet's 0 fallback (calculation threw, or cost threw after BV succeeded) is told from a real value by the probe.
+ */
+function calculatedValues(header) {
+  const calculation = probe.bv;
+  if (!calculation)
+    throw failure(
+      "The sheet was handed a BV but no mechBV calculation ran for it (the projection failed before calculating, or the sheet's 0 fallback)",
+    );
+  if (calculation.error)
+    throw failure(
+      `The sheet's BV calculation threw: ${calculation.error?.message ?? calculation.error}`,
+      calculation.error,
+    );
+  if (calculation.result.bv !== header.battleValue)
+    throw failure(
+      `The sheet was handed BV ${header.battleValue} but its calculation produced ${calculation.result.bv} (its cost calculation failed, or the value was replaced)`,
+    );
+  return { bv: header.battleValue, cost: header.cost };
+}
 
 export function createPreviewObserver() {
   const service = getRecordSheetService();
@@ -39,19 +76,12 @@ export function createPreviewObserver() {
   /** Render the real PreviewTab over `store` and read what the sheet renderer was handed. */
   async function observe(store) {
     extracted.length = 0;
+    probe.bv = null; // the mechBV calculator probe: what the preview's own calculation did
     try {
-      await act(async () => {
-        render(
-          React.createElement(
-            UnitStoreContext.Provider,
-            { value: store },
-            React.createElement(PreviewTab),
-          ),
-        );
-      });
+      await renderPreviewTab(store);
       const data = extracted.at(-1);
       if (!data)
-        throw new Error(
+        throw failure(
           'PreviewTab did not hand a unit to the sheet renderer (extractData was not called)',
         );
       const header = data.header;
@@ -60,8 +90,8 @@ export function createPreviewObserver() {
         typeof header.battleValue !== 'number' ||
         typeof header.cost !== 'number'
       )
-        throw new Error('The extracted sheet data has no numeric BV and cost');
-      return { bv: header.battleValue, cost: header.cost };
+        throw failure('The extracted sheet data has no numeric BV and cost');
+      return calculatedValues(header);
     } finally {
       cleanup();
     }
