@@ -16,6 +16,7 @@ import type { IMatchMeta, IMatchStore, ISideAssignment } from './IMatchStore';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 
+import { intentRefusalMessage } from './intentRefusal';
 import {
   canLaunch,
   leaveSeat,
@@ -43,6 +44,7 @@ export interface IServerMatchHostLobbyContext extends IServerMatchHostCaptureCon
   readonly playerRefs: ReadonlyMap<string, IPlayerRef>;
   readonly pendingPeers: PendingPeerTracker;
   readonly broadcast: (message: IServerMessage) => void;
+  readonly sendRefusal: (message: IServerMessage) => void;
   readonly broadcastEvent: (
     message: IServerMessage & { kind: 'Event' },
   ) => Promise<void>;
@@ -176,15 +178,13 @@ export async function handleLobbyIntent(
     code: 'AUTH_REJECTED' | 'INVALID_INTENT' | 'STORE_FAILURE',
     reason: string,
   ): readonly IServerMessage[] => {
-    const err: IServerMessage = {
-      kind: 'Error',
-      matchId: ctx.matchId,
-      ts: nowIso(),
+    const err = intentRefusalMessage(
+      ctx.matchId,
       code,
-      intentId: envelope.intentId,
       reason,
-    };
-    ctx.broadcast(err);
+      envelope.intentId,
+    );
+    ctx.sendRefusal(err);
     return [err];
   };
   const refuse = (e: unknown): readonly IServerMessage[] =>
@@ -214,7 +214,7 @@ export async function handleLobbyIntent(
         ),
       );
     }
-    return handleForfeitMatch(ctx, meta);
+    return handleForfeitMatch(ctx, meta, envelope.intentId);
   }
 
   // Every other lobby intent is derived from the metadata at write time and
@@ -303,6 +303,7 @@ export async function handleLobbyIntent(
 async function handleForfeitMatch(
   ctx: IServerMatchHostLobbyContext,
   meta: Pick<IMatchMeta, 'hostPlayerId' | 'sideAssignments'>,
+  intentId?: string,
 ): Promise<readonly IServerMessage[]> {
   const out: IServerMessage[] = [];
   const hostSide = sideOfPlayer(meta.sideAssignments, meta.hostPlayerId);
@@ -314,14 +315,13 @@ async function handleForfeitMatch(
   try {
     ctx.session.concede(concededSide);
   } catch (e) {
-    const err: IServerMessage = {
-      kind: 'Error',
-      matchId: ctx.matchId,
-      ts: nowIso(),
-      code: 'INVALID_INTENT',
-      reason: e instanceof Error ? e.message : 'Forfeit rejected by engine',
-    };
-    ctx.broadcast(err);
+    const err = intentRefusalMessage(
+      ctx.matchId,
+      'INVALID_INTENT',
+      e instanceof Error ? e.message : 'Forfeit rejected by engine',
+      intentId,
+    );
+    ctx.sendRefusal(err);
     return [err];
   }
 
@@ -330,14 +330,13 @@ async function handleForfeitMatch(
     try {
       await ctx.store.appendEvent(ctx.matchId, event);
     } catch (e) {
-      const err: IServerMessage = {
-        kind: 'Error',
-        matchId: ctx.matchId,
-        ts: nowIso(),
-        code: 'STORE_FAILURE',
-        reason: e instanceof Error ? e.message : 'Store append failed',
-      };
-      ctx.broadcast(err);
+      const err = intentRefusalMessage(
+        ctx.matchId,
+        'STORE_FAILURE',
+        e instanceof Error ? e.message : 'Store append failed',
+        intentId,
+      );
+      ctx.sendRefusal(err);
       return [err];
     }
     const envelopeOut: IServerMessage = {
