@@ -4,6 +4,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { deserialize, serialize } from 'node:v8';
 
+import type { IFullUnit } from '@/services/units/CanonicalUnitService';
+
 import { adaptUnitFromData } from '@/engine/adapters/CompendiumAdapter';
 import { GameEngine } from '@/engine/GameEngine';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
@@ -18,7 +20,6 @@ import { InMemoryMatchStore } from '@/lib/multiplayer/server/InMemoryMatchStore'
 import { SeededDiceRoller } from '@/lib/multiplayer/server/RollCapture';
 import { ServerMatchHost } from '@/lib/multiplayer/server/ServerMatchHost';
 import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
-import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import { SeededD6Roller, SeededRandom } from '@/simulation/core';
 import {
   GameEventType,
@@ -80,34 +81,40 @@ function queueDestroyedGyroAtEnd(source: InteractiveSession): void {
   // fabricated PSRResolved and no mutation of the session's cached state.
   for (const slotIndex of [3, 4]) {
     const before = source.getSession();
-    source.appendEvent(createCriticalHitResolvedEvent({
-      gameId: before.id,
-      sequence: before.events.length,
-      turn: before.currentState.turn,
-      phase: GamePhase.End,
-      unitId: 'opponent-1',
-      location: 'center_torso',
-      slotIndex,
-      componentType: 'gyro',
-      componentName: 'Gyro',
-      effect: 'Gyro hit',
-      destroyed: true,
-    }));
+    source.appendEvent(
+      createCriticalHitResolvedEvent({
+        gameId: before.id,
+        sequence: before.events.length,
+        turn: before.currentState.turn,
+        phase: GamePhase.End,
+        unitId: 'opponent-1',
+        location: 'center_torso',
+        slotIndex,
+        componentType: 'gyro',
+        componentName: 'Gyro',
+        effect: 'Gyro hit',
+        destroyed: true,
+      }),
+    );
     const next = source.getSession();
-    source.appendEvent(createPSRTriggeredEvent({
-      gameId: next.id,
-      sequence: next.events.length,
-      turn: next.currentState.turn,
-      phase: GamePhase.End,
-      unitId: 'opponent-1',
-      reason: 'Gyro hit',
-      reasonCode: PSRTrigger.GyroHit,
-      triggerSource: PSRTrigger.GyroHit,
-      additionalModifier: 3,
-      basePilotingSkill: 5,
-    }));
+    source.appendEvent(
+      createPSRTriggeredEvent({
+        gameId: next.id,
+        sequence: next.events.length,
+        turn: next.currentState.turn,
+        phase: GamePhase.End,
+        unitId: 'opponent-1',
+        reason: 'Gyro hit',
+        reasonCode: PSRTrigger.GyroHit,
+        triggerSource: PSRTrigger.GyroHit,
+        additionalModifier: 3,
+        basePilotingSkill: 5,
+      }),
+    );
   }
-  expect(source.getState().units['opponent-1'].componentDamage?.gyroHits).toBe(2);
+  expect(source.getState().units['opponent-1'].componentDamage?.gyroHits).toBe(
+    2,
+  );
   expect(source.getState().units['opponent-1'].pendingPSRs).toHaveLength(2);
 }
 
@@ -148,7 +155,7 @@ describe('destroyed-gyro production events remain recoverable', () => {
       Object.defineProperty(globalThis, 'structuredClone', {
         configurable: true,
         writable: true,
-        value: <T,>(value: T): T => deserialize(serialize(value)) as T,
+        value: <T>(value: T): T => deserialize(serialize(value)) as T,
       });
     }
   });
@@ -230,7 +237,9 @@ describe('destroyed-gyro production events remain recoverable', () => {
       () => (host ? host.d6ForTests() : preparationDice()),
     );
     queueDestroyedGyroAtEnd(source);
-    expect(buildMirrorSessionGated(source.getSession().events).kind).toBe('session');
+    expect(buildMirrorSessionGated(source.getSession().events).kind).toBe(
+      'session',
+    );
     const store = new InMemoryMatchStore({ quiet: true });
     const matchId = source.getSession().id;
     await store.createMatch({
@@ -260,7 +269,8 @@ describe('destroyed-gyro production events remain recoverable', () => {
         if (
           (await store.getEvents(matchId)).length ===
           source.getSession().events.length
-        ) break;
+        )
+          break;
         await Promise.resolve();
       }
       expect(await store.getEvents(matchId)).toHaveLength(
@@ -274,7 +284,9 @@ describe('destroyed-gyro production events remain recoverable', () => {
         intentId: 'resolve-destroyed-gyro',
         intent: { kind: 'AdvancePhase' },
       });
-      expect(messages.filter((message) => message.kind === 'Error')).toEqual([]);
+      expect(messages.filter((message) => message.kind === 'Error')).toEqual(
+        [],
+      );
       const committed = await store.getEvents(matchId);
       assertAutomaticFailures(committed);
       const firstResolved = committed.find(
@@ -311,8 +323,12 @@ describe('destroyed-gyro production events remain recoverable', () => {
       ]);
       for (const { result } of mirrors) {
         if (result.kind === 'session') {
-          expect(result.session.currentState.units).toEqual(source.getState().units);
-          expect(result.session.currentState.phase).toBe(source.getState().phase);
+          expect(result.session.currentState.units).toEqual(
+            source.getState().units,
+          );
+          expect(result.session.currentState.phase).toBe(
+            source.getState().phase,
+          );
           expect(result.session.currentState.turn).toBe(source.getState().turn);
         }
       }
