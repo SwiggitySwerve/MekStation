@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { budgetRaises, validateBudgets } from './budget-config.mjs';
 import {
   dependencyCounts,
@@ -9,6 +11,34 @@ import {
 } from './garden-approval-github.mjs';
 import { AGGREGATOR } from './lint-and-test-guard.mjs';
 
+const SHA = /^[0-9a-f]{40}$/;
+export const STALE_REF_REMEDY =
+  'merge origin/main into the PR branch and push, so the run uses the current workflow';
+
+/**
+ * The head this run is for. Every caller is bound: an explicit `expectedHead`
+ * must be a full SHA; a caller that passes none (a pull_request run whose merge
+ * ref predates the binding still carries a pr-checks.yml without it, while it
+ * loads this validator from main) is bound to the head of its own triggering
+ * pull_request event. Anything else is unbound and refused, never exempted.
+ */
+export function runHead(expectedHead, number, eventPath) {
+  if (expectedHead !== undefined)
+    return typeof expectedHead === 'string' && SHA.test(expectedHead)
+      ? expectedHead
+      : null;
+  try {
+    const event = JSON.parse(readFileSync(eventPath, 'utf8'));
+    const head =
+      event?.pull_request?.number === number
+        ? event.pull_request.head?.sha
+        : undefined;
+    return typeof head === 'string' && SHA.test(head) ? head : null;
+  } catch {
+    return null;
+  }
+}
+
 /** G3 owns approval; G1 adds its one dependency label rule to the same decision. */
 export async function checkBudgetPolicy({
   github,
@@ -17,9 +47,45 @@ export async function checkBudgetPolicy({
   number,
   publish = true,
   expectedHead,
+  eventPath = process.env.GITHUB_EVENT_PATH,
+  checkRaise = checkBudgetRaise,
 }) {
   const parameters = { owner, repo, pull_number: number };
+  const boundHead = runHead(expectedHead, number, eventPath);
   const { data: initial } = await github.rest.pulls.get(parameters);
+  // An unbound or superseded run evaluated nothing, so it writes nothing.
+  if (!boundHead)
+    return {
+      allowed: false,
+      code: 'unbound-run',
+      message: `PR #${number}: this run names no valid head to evaluate; ${STALE_REF_REMEDY}`,
+      unbound: true,
+      evaluatedHead: null,
+      currentHead: initial.head.sha,
+    };
+  if (boundHead !== initial.head.sha)
+    return {
+      allowed: false,
+      code: 'changed-context',
+      message: `This run is for superseded head ${boundHead}; the PR is at ${initial.head.sha}`,
+      headChanged: true,
+      baseChanged: false,
+      labelsChanged: false,
+      evaluatedHead: boundHead,
+      currentHead: initial.head.sha,
+    };
+  // Evidence that disqualifies the superseded-head exemption is sticky: a later
+  // read never erases a base/label change or an evaluation bound to another head.
+  const seen = {
+    headChanged: false,
+    baseChanged: false,
+    labelsChanged: false,
+    snapshotMismatch: false,
+  };
+  const note = (refusal) => {
+    if (refusal) for (const key in seen) if (refusal[key]) seen[key] = true;
+    return refusal;
+  };
   // A run writes statuses only to the SHA it evaluated (initial.head.sha), never
   // to a SHA it did not evaluate. On a head change the refusal lands on the old
   // head; the new head carries no status from this run, so the required
@@ -33,7 +99,7 @@ export async function checkBudgetPolicy({
       JSON.stringify(current.labels.map((l) => l.name).sort()) !==
       JSON.stringify(initial.labels.map((l) => l.name).sort());
     if (!headChanged && !baseChanged && !labelsChanged) return null;
-    return {
+    return note({
       allowed: false,
       code: 'changed-context',
       message,
@@ -42,15 +108,15 @@ export async function checkBudgetPolicy({
       labelsChanged,
       evaluatedHead: initial.head.sha,
       currentHead: current.head.sha,
-    };
+    });
   };
   // Every part of one evaluation must be about initial.head.sha: the nested
   // approval check reads its own PR snapshot, so an X→Y→X sequence could
-  // otherwise evaluate Y and publish to X. The aggregator also passes the head
-  // its run was triggered for.
-  const unbound = (evaluated, message) =>
-    evaluated && evaluated !== initial.head.sha
-      ? {
+  // otherwise evaluate Y and publish to X. A nested result that names no head
+  // is treated the same way (fail closed).
+  const mismatched = (evaluated, message) =>
+    evaluated !== initial.head.sha
+      ? note({
           allowed: false,
           code: 'changed-context',
           message,
@@ -59,8 +125,8 @@ export async function checkBudgetPolicy({
           labelsChanged: false,
           snapshotMismatch: true,
           evaluatedHead: initial.head.sha,
-          currentHead: evaluated,
-        }
+          currentHead: evaluated ?? null,
+        })
       : null;
   const sink = {
     rest: {
@@ -73,7 +139,7 @@ export async function checkBudgetPolicy({
     paginate: github.paginate,
   };
   const evaluateRaise = () =>
-    checkBudgetRaise({
+    checkRaise({
       github: sink,
       owner,
       repo,
@@ -84,15 +150,13 @@ export async function checkBudgetPolicy({
   const boundRaise = async () => {
     const raise = await evaluateRaise();
     return (
-      unbound(
+      mismatched(
         raise.evaluatedHead,
         'Approval evaluated a different head than this run',
       ) ?? raise
     );
   };
-  let result =
-    unbound(expectedHead, 'This run is for a superseded head') ??
-    (await boundRaise());
+  let result = await boundRaise();
   if (result.allowed) {
     try {
       const read = async (file) => {
@@ -233,7 +297,8 @@ export async function checkBudgetPolicy({
   }
   return {
     ...result,
-    evaluatedHead: result.evaluatedHead ?? initial.head.sha,
+    ...(result.allowed ? {} : seen),
+    evaluatedHead: initial.head.sha,
     currentHead: result.currentHead ?? initial.head.sha,
   };
 }

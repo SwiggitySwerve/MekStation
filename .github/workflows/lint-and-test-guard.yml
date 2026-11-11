@@ -72,7 +72,7 @@ jobs:
               ...context.repo, commit_sha: source.head_sha, per_page: 100,
             });
             for (const pull of pulls.filter(pr => pr.state === 'open' && pr.head.sha === source.head_sha && pr.base.repo.full_name === context.payload.repository.full_name)) {
-              const result = await checkBudgetPolicy({ github, ...context.repo, number: pull.number });
+              const result = await checkBudgetPolicy({ github, ...context.repo, number: pull.number, expectedHead: source.head_sha });
               const outcome = guardOutcome(pull.number, result);
               core.info(outcome.line);
               core.info(JSON.stringify(result));
